@@ -1,0 +1,73 @@
+* {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.ui-clr:after {
+    clear: both;
+    height: 1px;
+    line-height: 1px;
+    overflow: hidden;
+    display: block;
+    content: "";
+}
+
+body {
+    margin:0; overflow: hidden;
+}
+
+body, font, td, form, p, input, textarea {
+    font-family: arial, sans-serif;
+}
+
+a {
+    color: #0457ad;
+    text-decoration: none;
+}
+a:hover {
+    color: #ff3300;
+    text-decoration: underline;
+}
+
+/* 所有的 ui-code-template 都是隐藏的 */
+.ui-code-template {
+    display: none;
+}
+
+/* 所有的 UI 中的通用组件 */
+.ui-btn {
+    color: #FFF;
+    background-color: #08F;
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 4px;
+    font-weight: normal;
+    font-size: 14px;
+    height: 32px;
+    line-height: 32px;
+    padding: 0 16px 0 12px;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.ui-btn:hover {
+    background-color: #4AF;
+    color: #FF0;
+}
+
+.fa {
+    cursor: default;
+}
+
+
+
+
+
+
+
+
+
+
