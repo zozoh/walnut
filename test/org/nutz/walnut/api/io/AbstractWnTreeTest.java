@@ -30,8 +30,7 @@ public abstract class AbstractWnTreeTest extends AbstractWnApiTest {
 
     @Test
     public void test_create_delete() {
-        WnNode nd = tree.create(null, "x/y/z.txt", WnRace.FILE);
-        System.out.println(nd.mount());
+        tree.create(null, "x/y/z.txt", WnRace.FILE);
 
         WnNode x = tree.fetch(null, "x");
         assertEquals(WnRace.DIR, x.race());
