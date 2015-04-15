@@ -2,6 +2,6 @@ package org.nutz.walnut.api.io;
 
 public interface WnTreeFactory {
 
-    WnTree check(WnNode nd);
+    WnTree check(String path, String mnt);
 
 }

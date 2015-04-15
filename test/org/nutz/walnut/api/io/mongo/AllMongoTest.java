@@ -4,5 +4,5 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({MongoWnIndexerTest.class})
+@Suite.SuiteClasses({MongoWnTreeTest.class, MongoWnIndexerTest.class})
 public class AllMongoTest {}

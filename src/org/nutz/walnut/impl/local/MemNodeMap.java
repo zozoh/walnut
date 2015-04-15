@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,16 +23,20 @@ public class MemNodeMap {
 
     private Map<String, MemNodeItem> byPath;
 
+    private Map<String, MemNodeItem> byMount;
+
     public MemNodeMap() {
         head = new MemNodeItem();
         tail = head;
         byId = new HashMap<String, MemNodeItem>();
         byPath = new HashMap<String, MemNodeItem>();
+        byMount = new HashMap<String, MemNodeItem>();
     }
 
     public void clear() {
         byId.clear();
         byPath.clear();
+        byMount.clear();
         tail = head;
         head.next = null;
     }
@@ -60,6 +65,9 @@ public class MemNodeMap {
         tail = new MemNodeItem(tail, str);
         byId.put(tail.id, tail);
         byPath.put(tail.path, tail);
+        if (!Strings.isBlank(tail.mount)) {
+            byMount.put(tail.mount, tail);
+        }
     }
 
     public void writeAndClose(Writer w) {
@@ -67,7 +75,9 @@ public class MemNodeMap {
             BufferedWriter bw = Streams.buffw(w);
             MemNodeItem mni = head.next;
             while (null != mni) {
-                bw.write(mni.id + ":" + mni.path + "\n");
+                StringBuilder sb = new StringBuilder();
+                sb.append(mni).append('\n');
+                bw.write(sb.toString());
                 mni = mni.next;
             }
             bw.flush();
@@ -89,14 +99,20 @@ public class MemNodeMap {
         return byPath.containsKey(path);
     }
 
-    public String getPath(String id) {
-        MemNodeItem mni = byId.get(id);
-        return null == mni ? null : mni.path;
+    public boolean hasMount(String mnt) {
+        return byMount.containsKey(mnt);
     }
 
-    public String getId(String path) {
-        MemNodeItem mni = byPath.get(path);
-        return null == mni ? null : mni.id;
+    public MemNodeItem getById(String id) {
+        return byId.get(id);
+    }
+
+    public MemNodeItem getByPath(String path) {
+        return byPath.get(path);
+    }
+
+    public MemNodeItem getByMount(String mnt) {
+        return byMount.get(mnt);
     }
 
     public MemNodeItem removeById(String id) {
@@ -107,6 +123,22 @@ public class MemNodeMap {
             byPath.remove(mni.path);
         }
         return mni;
+    }
+
+    public void mount(MemNodeItem mni) {
+        if (null != mni.mount)
+            byMount.put(mni.mount, mni);
+    }
+
+    public MemNodeItem unmount(String mnt) {
+        MemNodeItem mni = byMount.get(mnt);
+        if (null != mni)
+            mni.mount = null;
+        return mni;
+    }
+
+    public Collection<MemNodeItem> mounts() {
+        return byMount.values();
     }
 
     public String toString() {

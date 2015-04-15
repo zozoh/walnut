@@ -20,16 +20,25 @@ public abstract class AbstractWnTree implements WnTree {
 
     private WnTreeFactory factory;
 
-    public AbstractWnTree(WnTreeFactory factory, WnNode treeNode) {
-        this.treeNode = treeNode;
+    protected String rootPath;
+
+    public AbstractWnTree(WnTreeFactory factory) {
         this.factory = factory;
-        if (null == treeNode.tree())
-            treeNode.setTree(this);
     }
 
     @Override
     public WnNode getTreeNode() {
         return treeNode;
+    }
+
+    @Override
+    public void setTreeNode(WnNode treeNode) {
+        this.treeNode = treeNode;
+        if (null != treeNode) {
+            if (null == treeNode.tree())
+                treeNode.setTree(this);
+            rootPath = Strings.sBlank(treeNode.path(), "");
+        }
     }
 
     @Override
@@ -41,6 +50,32 @@ public abstract class AbstractWnTree implements WnTree {
     public WnTreeFactory factory() {
         return factory;
     }
+
+    @Override
+    public void _clean_for_unit_test() {}
+
+    @Override
+    public WnNode getNode(final String id) {
+        final WnNode[] nd = new WnNode[1];
+
+        // 先找自己
+        nd[0] = get_my_node(id);
+
+        // 没有的话，从自己的子树里寻找
+        if (null == nd[0]) {
+            eachMountTree(new Each<WnTree>() {
+                public void invoke(int index, WnTree tree, int length) {
+                    nd[0] = tree.getNode(id);
+                    if (null != nd[0])
+                        Lang.Break();
+                }
+            });
+        }
+        // 返回吧
+        return nd[0];
+    }
+
+    protected abstract WnNode get_my_node(String id);
 
     protected WnNode check_parent(WnNode p, WnRace race) {
         if (p == treeNode)
@@ -75,6 +110,8 @@ public abstract class AbstractWnTree implements WnTree {
         String pph = pnd.path();
         if (!Strings.isBlank(pph)) {
             nd.path(pph + "/" + nd.name());
+        } else {
+            nd.path("/" + nd.name());
         }
     }
 
@@ -94,6 +131,10 @@ public abstract class AbstractWnTree implements WnTree {
             p = treeNode;
         }
 
+        // 用尽路径元素了，则直接返回
+        if (fromIndex >= toIndex)
+            return p;
+
         // 逐个查找
         final WnNode[] nd = Lang.array(p);
         for (int i = fromIndex; i < toIndex; i++) {
@@ -106,10 +147,16 @@ public abstract class AbstractWnTree implements WnTree {
             }) <= 0) {
                 return null;
             }
+
             // 如果找到了子节点，这个子节点如果 mount 了另外 tree
             // 则用另外一个 tree 的逻辑来查找
             if (nd[0].isMount()) {
-                WnTree mntTree = factory().check(nd[0]);
+                // 用尽路径元素了，则直接返回
+                // zzh: 这个是一个优化，提前做点判断，就不用再递归到函数里面再判断了
+                if (i + 1 >= toIndex) {
+                    return nd[0];
+                }
+                WnTree mntTree = factory().check(nd[0].path(), nd[0].mount());
                 return mntTree.fetch(null, paths, i + 1, toIndex);
             }
 
@@ -164,7 +211,7 @@ public abstract class AbstractWnTree implements WnTree {
                 nd = child;
                 // 如果节点挂载到了另外一颗树
                 if (nd.isMount()) {
-                    WnTree mntTree = factory().check(nd);
+                    WnTree mntTree = factory().check(nd.path(), nd.mount());
                     return mntTree.create(null, paths, i + 1, toIndex, race);
                 }
                 // 继续下一个路径

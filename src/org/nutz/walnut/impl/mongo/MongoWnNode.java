@@ -16,17 +16,17 @@ public class MongoWnNode extends AbstractWnNode {
     @MoField
     private String id;
 
-    @MoField
-    private String pid;
+    @MoField("pid")
+    private String parentId;
 
-    @MoField
-    private String nm;
+    @MoField("nm")
+    private String name;
 
-    @MoField
+    @MoField("race")
     private WnRace race;
 
-    @MoField
-    private String mnt;
+    @MoField("mnt")
+    private String mount;
 
     @MoIgnore
     private WnNode parent;
@@ -61,7 +61,7 @@ public class MongoWnNode extends AbstractWnNode {
     }
 
     @Override
-    public WnNode path(String path) {
+    public MongoWnNode path(String path) {
         this.path = path;
         return this;
     }
@@ -84,7 +84,7 @@ public class MongoWnNode extends AbstractWnNode {
 
     @Override
     public boolean isSameId(WnNode nd) {
-        return isSameId(id);
+        return isSameId(nd.id());
     }
 
     @Override
@@ -95,30 +95,30 @@ public class MongoWnNode extends AbstractWnNode {
     }
 
     public String parentId() {
-        return pid;
+        return parentId;
     }
 
-    public WnNode parentId(String pid) {
-        this.pid = pid;
+    public MongoWnNode parentId(String pid) {
+        this.parentId = pid;
         return this;
     }
 
     @Override
     public String name() {
-        return nm;
+        return name;
     }
 
     private static final Pattern P_NM = Pattern.compile("[/\\\\]");
 
     @Override
-    public WnNode name(String nm) {
+    public MongoWnNode name(String nm) {
         if (Strings.isBlank(nm))
             throw Er.create("e.io.obj.nm.blank");
 
         if (nm.equals(".") || nm.equals("..") || P_NM.matcher(nm).find())
             throw Er.create("e.io.obj.nm.invalid", nm);
 
-        this.nm = nm;
+        this.name = nm;
         return this;
     }
 
@@ -171,18 +171,18 @@ public class MongoWnNode extends AbstractWnNode {
      */
     @Override
     public String mount() {
-        return mnt;
+        return mount;
     }
 
     @Override
     public WnNode mount(String mnt) {
-        this.mnt = mnt;
+        this.mount = mnt;
         return this;
     }
 
     @Override
     public boolean isMount() {
-        return !Strings.isBlank(mnt);
+        return !Strings.isBlank(mount);
     }
 
     @Override

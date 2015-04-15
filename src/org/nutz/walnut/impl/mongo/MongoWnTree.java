@@ -15,6 +15,7 @@ import org.nutz.mongo.ZMoDoc;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.api.io.WnTreeFactory;
 import org.nutz.walnut.impl.AbstractWnTree;
 import org.nutz.lang.util.Context;
@@ -26,8 +27,8 @@ public class MongoWnTree extends AbstractWnTree {
 
     private ZMoCo co;
 
-    public MongoWnTree(WnTreeFactory factory, WnNode treeNode, ZMoCo co) {
-        super(factory, treeNode);
+    public MongoWnTree(WnTreeFactory factory, ZMoCo co) {
+        super(factory);
         this.co = co;
     }
 
@@ -37,13 +38,14 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    public WnNode getNode(String id) {
+    public WnNode get_my_node(String id) {
         if (treeNode.isSameId(id))
             return treeNode;
         ZMoDoc q = WnMongos.qID(id);
         ZMoDoc doc = co.findOne(q);
         if (null != doc) {
             WnNode nd = WnMongos.toWnNode(doc);
+            nd.setTree(this);
             return loadParents(nd, false);
         }
         return null;
@@ -54,6 +56,7 @@ public class MongoWnTree extends AbstractWnTree {
         if (treeNode.isSameId(nd)) {
             if (treeNode != nd) {
                 nd.setParent(treeNode.parent());
+                nd.path(treeNode.path());
             }
             return nd;
         }
@@ -62,8 +65,53 @@ public class MongoWnTree extends AbstractWnTree {
             WnNode p = getNode(mnd.parentId());
             loadParents(p, force);
             mnd.setParent(p);
+            nd.path(p.path() + "/" + nd.name());
         }
         return nd;
+    }
+
+    @Override
+    public int eachMountTree(Each<WnTree> callback) {
+        if (null == callback)
+            return 0;
+
+        ZMoDoc q = ZMoDoc.NEW().ne("mnt", null);
+
+        DBCursor cu = co.find(q).sort(ZMoDoc.NEW("nm", 1));
+        try {
+            int i = 0;
+            int n = 0;
+
+            while (cu.hasNext()) {
+                DBObject dbobj = cu.next();
+                WnNode nd = WnMongos.toWnNode(dbobj);
+                nd.setTree(this);
+                loadParents(nd, false);
+
+                WnTree tree = factory().check(nd.path(), nd.mount());
+
+                // 虽然不太可能，但是还是判断一下防止无穷递归吧。
+                if (tree == this)
+                    continue;
+
+                // 调用回调并计数
+                try {
+                    callback.invoke(i++, tree, n);
+                }
+                catch (ExitLoop e) {
+                    break;
+                }
+                catch (ContinueLoop e) {}
+                finally {
+                    n++;
+                }
+            }
+
+            return n;
+        }
+        finally {
+            cu.close();
+        }
     }
 
     @Override
@@ -72,25 +120,24 @@ public class MongoWnTree extends AbstractWnTree {
             return 0;
 
         WnNode pnd = null == p ? treeNode : p;
-
-        ZMoDoc q = ZMoDoc.NEW().set("pid", pnd.id());
+        ZMoDoc q = ZMoDoc.NEW("pid", pnd.id());
 
         // 设置名称过滤条件
         if (!Strings.isBlank(str)) {
             // 本身就是正则
             if (str.startsWith("^")) {
-                q.set("nm", Pattern.compile(str));
+                q.put("nm", Pattern.compile(str));
             }
             // 看看是通配符还是普通名字
             else {
                 String s = str.replace("*", ".*");
                 // 直接的名字
                 if (s.equals(str)) {
-                    q.set("nm", str);
+                    q.put("nm", str);
                 }
                 // 通配符
                 else {
-                    q.set("nm", Pattern.compile("^" + s));
+                    q.put("nm", Pattern.compile("^" + s));
                 }
             }
         }
@@ -139,7 +186,8 @@ public class MongoWnTree extends AbstractWnTree {
         MongoWnNode mnd = new MongoWnNode();
         mnd.genID();
         mnd.setParent(p);
-        mnd.parentId(p.id()).name(name).race(race).setTree(this);
+        mnd.parentId(p.id()).name(name).race(race);
+        mnd.setTree(this);
 
         // 展开名字
         Segment seg = Segments.create(mnd.name());
@@ -164,6 +212,7 @@ public class MongoWnTree extends AbstractWnTree {
         co.save(doc);
 
         // 返回
+        mnd.path(p.path() + "/" + name);
         return mnd;
     }
 
@@ -186,7 +235,9 @@ public class MongoWnTree extends AbstractWnTree {
         MongoWnNode mnd = (MongoWnNode) nd;
         mnd.mount(mnt);
         ZMoDoc q = WnMongos.qID(mnd.id());
-        ZMoDoc doc = ZMoDoc.NEW("mnt", mnt);
+        ZMoDoc doc = ZMoDoc.NEW();
+        doc.set("mnt", mnt);
+
         co.update(q, doc);
     }
 

@@ -13,19 +13,23 @@ import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.api.io.WnTreeFactory;
 import org.nutz.walnut.impl.AbstractWnTree;
 
 public class LocalWnTree extends AbstractWnTree {
 
-    private String rootPath;
-
     private File home;
 
     private MemNodeMap mnm;
 
-    public LocalWnTree(WnTreeFactory factory, WnNode treeNode) {
-        super(factory, treeNode);
+    public LocalWnTree(WnTreeFactory factory) {
+        super(factory);
+    }
+
+    @Override
+    public void setTreeNode(WnNode treeNode) {
+        super.setTreeNode(treeNode);
         // 根据节点获取本地顶级目录
         String mnt = treeNode.mount();
         if (!mnt.startsWith("file://"))
@@ -34,20 +38,20 @@ public class LocalWnTree extends AbstractWnTree {
         home = Files.createDirIfNoExists(ph);
         if (!home.isDirectory())
             throw Er.create("e.io.tree.local.invalid.home", home);
-        rootPath = Strings.sBlank(treeNode.path(), "");
+
         // 分析自己的节点
         mnm = new MemNodeMap();
-        File f = get_tree_cache_file();
+        File f = _get_tree_cache_file();
         mnm.loadAndClose(Streams.fileInr(f));
     }
 
-    private File get_tree_cache_file() {
+    private File _get_tree_cache_file() {
         File f = Files.getFile(home, ".wn/tree");
         Files.createFileIfNoExists(f);
         return f;
     }
 
-    private String check_rpath(File f) {
+    private String _check_rpath(File f) {
         String base = home.getAbsolutePath();
         String ph = f.getAbsolutePath();
         if (!ph.startsWith(base)) {
@@ -56,7 +60,7 @@ public class LocalWnTree extends AbstractWnTree {
         return ph.substring(base.length() + 1);
     }
 
-    private String check_local_path(WnNode nd) {
+    private String _check_local_path(WnNode nd) {
         if (treeNode.isSameId(nd))
             return home.getAbsolutePath();
 
@@ -74,46 +78,87 @@ public class LocalWnTree extends AbstractWnTree {
         return home.getAbsolutePath() + re;
     }
 
-    private File check_local_file(String rpath) {
+    private File _check_local_file(String rpath) {
         File f = Files.getFile(home, rpath);
         if (!f.exists())
             throw Er.create("e.io.tree.nd.noexists", rpath);
         return f;
     }
 
-    private File get_local_file(WnNode nd) {
+    private File _get_local_file(WnNode nd) {
         if (nd == treeNode)
             return home;
         if (nd instanceof LocalWnNode) {
             return ((LocalWnNode) nd).getFile();
         }
-        return new File(check_local_path(nd));
+        return new File(_check_local_path(nd));
     }
 
-    private File check_local_file(WnNode nd) {
-        File f = get_local_file(nd);
+    private File _check_local_file(WnNode nd) {
+        File f = _get_local_file(nd);
         if (null == f || !f.exists())
             throw Er.create("e.io.tree.nd.noexists", nd);
         return f;
     }
 
-    private WnNode check_node(File f) {
+    private WnNode _check_node(File f) {
         // 创建节点
-        LocalWnNode nd = new LocalWnNode(this, f);
+        LocalWnNode nd = new LocalWnNode(f);
+        nd.setTree(this);
 
         // 得到相对路径
-        String rpath = check_rpath(f);
+        String rpath = _check_rpath(f);
 
         // TODO 从这里寻找对应的 ID，没有就生成一个
-        String id = mnm.getId(rpath);
-        if (null == id) {
+        MemNodeItem mni = mnm.getByPath(rpath);
+        if (null == mni) {
             nd.genID();
             mnm.add(nd.id() + ":" + rpath);
         } else {
-            nd.id(id);
+            nd.id(mni.id);
+            nd.mount(mni.mount);
         }
         nd.path(rootPath + "/" + rpath);
         return nd;
+    }
+
+    private WnNode _get_node(MemNodeItem mni) {
+        String rpath = mni.path;
+        File f = _check_local_file(rpath);
+        LocalWnNode nd = new LocalWnNode(f);
+        nd.setTree(this);
+        nd.id(mni.id);
+        nd.path(rootPath + "/" + rpath);
+        nd.mount(mni.mount);
+        return nd;
+    }
+
+    @Override
+    public int eachMountTree(Each<WnTree> callback) {
+        int i = 0;
+        int n = 0;
+        for (MemNodeItem mni : mnm.mounts()) {
+            WnNode nd = _get_node(mni);
+
+            WnTree tree = factory().check(nd.path(), nd.mount());
+
+            // 虽然不太可能，但是还是判断一下防止无穷递归吧。
+            if (tree == this)
+                continue;
+
+            // 调用回调并计数
+            try {
+                callback.invoke(i++, tree, n);
+            }
+            catch (ExitLoop e) {
+                break;
+            }
+            catch (ContinueLoop e) {}
+            finally {
+                n++;
+            }
+        }
+        return n;
     }
 
     @Override
@@ -122,7 +167,7 @@ public class LocalWnTree extends AbstractWnTree {
             p = treeNode;
 
         // 得到相对路径
-        File d = check_local_file(p);
+        File d = _check_local_file(p);
 
         if (!d.isDirectory())
             throw Er.create("e.io.tree.local.shouldBeDir", str);
@@ -148,7 +193,7 @@ public class LocalWnTree extends AbstractWnTree {
             File f = Files.getFile(d, str);
             if (!f.exists())
                 return 0;
-            WnNode nd = check_node(f);
+            WnNode nd = _check_node(f);
             nd.setParent(p);
 
             try {
@@ -168,7 +213,7 @@ public class LocalWnTree extends AbstractWnTree {
             if (!pat.matcher(f.getName()).find())
                 continue;
 
-            WnNode nd = check_node(f);
+            WnNode nd = _check_node(f);
             nd.setParent(p);
 
             // 计数并调用回调
@@ -189,7 +234,7 @@ public class LocalWnTree extends AbstractWnTree {
 
     @Override
     public boolean hasChildren(WnNode nd) {
-        File d = this.check_local_file(nd);
+        File d = this._check_local_file(nd);
         return d.isDirectory() && d.list().length > 0;
     }
 
@@ -226,7 +271,7 @@ public class LocalWnTree extends AbstractWnTree {
             throw Lang.impossible();
         }
 
-        return check_node(f);
+        return _check_node(f);
     }
 
     @Override
@@ -236,7 +281,7 @@ public class LocalWnTree extends AbstractWnTree {
             mnm.removeById(nd.id());
 
         // 删除文件
-        File f = get_local_file(nd);
+        File f = _get_local_file(nd);
         if (null != f && f.exists()) {
             if (f.isDirectory()) {
                 Files.deleteDir(f);
@@ -256,8 +301,13 @@ public class LocalWnTree extends AbstractWnTree {
 
     @Override
     public void setMount(WnNode nd, String mnt) {
-        LocalWnNode lnd = (LocalWnNode) nd;
-        lnd.mount(mnt);
+        MemNodeItem mni = mnm.getById(nd.id());
+        if (null == mni)
+            throw Er.create("e.io.tree.local.nd.noexists", nd);
+        mni.mount = mnt;
+        nd.mount(mnt);
+        mnm.mount(mni);
+        this._flush_buffer();
     }
 
     @Override
@@ -268,15 +318,11 @@ public class LocalWnTree extends AbstractWnTree {
     }
 
     @Override
-    public WnNode getNode(String id) {
-        String rpath = mnm.getPath(id);
-        if (null == rpath)
-            throw Er.create("e.io.tree.nd.noexists", "id:" + id);
-        File f = check_local_file(rpath);
-        LocalWnNode nd = new LocalWnNode(this, f);
-        nd.id(id);
-        nd.path(rootPath + "/" + rpath);
-        return nd;
+    public WnNode get_my_node(String id) {
+        MemNodeItem mni = mnm.getById(id);
+        if (null == mni)
+            return null;
+        return _get_node(mni);
     }
 
     @Override
@@ -289,7 +335,7 @@ public class LocalWnTree extends AbstractWnTree {
         }
         if (null == nd.parent() || force) {
             LocalWnNode lnd = (LocalWnNode) nd;
-            WnNode p = this.check_node(lnd.getFile().getParentFile());
+            WnNode p = this._check_node(lnd.getFile().getParentFile());
             loadParents(p, force);
             lnd.setParent(p);
         }
@@ -297,7 +343,7 @@ public class LocalWnTree extends AbstractWnTree {
     }
 
     protected void _flush_buffer() {
-        File f = get_tree_cache_file();
+        File f = _get_tree_cache_file();
         mnm.writeAndClose(Streams.fileOutw(f));
     }
 

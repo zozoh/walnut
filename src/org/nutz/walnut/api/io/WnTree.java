@@ -10,6 +10,10 @@ public interface WnTree extends UnitTestable {
 
     WnNode getTreeNode();
 
+    void setTreeNode(WnNode treeNode);
+
+    int eachMountTree(Each<WnTree> callback);
+
     boolean isRootNode(WnNode nd);
 
     WnNode getNode(String id);
@@ -40,7 +44,7 @@ public interface WnTree extends UnitTestable {
     WnNode fetch(WnNode p, String[] paths, int fromIndex, int toIndex);
 
     WnNode create(WnNode p, String path, WnRace race);
-    
+
     WnNode create(WnNode p, String[] paths, int fromIndex, int toIndex, WnRace race);
 
     void delete(WnNode nd);

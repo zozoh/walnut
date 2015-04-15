@@ -2,7 +2,6 @@ package org.nutz.walnut.impl.local;
 
 import java.io.File;
 
-import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnNode;
@@ -22,8 +21,9 @@ public class LocalWnNode extends AbstractWnNode {
 
     private File file;
 
-    public LocalWnNode(WnTree tree, File f) {
-        this.tree = tree;
+    private String mount;
+
+    public LocalWnNode(File f) {
         this.file = f;
     }
 
@@ -127,36 +127,17 @@ public class LocalWnNode extends AbstractWnNode {
 
     @Override
     public boolean isMount() {
-        if (file.isDirectory()) {
-            File f = Files.getFile(file, ".wn_local_mount");
-            if (f.exists())
-                return true;
-        }
-        return false;
+        return !Strings.isBlank(mount);
     }
 
     @Override
     public String mount() {
-        if (file.isDirectory()) {
-            File f = Files.getFile(file, ".wn_local_mount");
-            if (f.exists())
-                return Strings.trim(Files.read(f));
-        }
-        return null;
+        return mount;
     }
 
     @Override
     public WnNode mount(String mnt) {
-        if (Strings.isBlank(mnt)) {
-            File f = Files.getFile(file, ".wn_local_mount");
-            if (f.exists())
-                Files.deleteFile(f);
-        } else {
-            File f = Files.getFile(file, ".wn_local_mount");
-            if (!f.exists())
-                Files.createFileIfNoExists(f);
-            Files.write(f, mnt + "\n");
-        }
+        this.mount = mnt;
         return this;
     }
 

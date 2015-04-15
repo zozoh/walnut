@@ -30,7 +30,10 @@ public abstract class AbstractWnNode implements WnNode {
 
     @Override
     public String toString() {
-        return String.format("%s:%s", id(), name());
+        if (!isMount())
+            return String.format("%s:%s", id(), name());
+
+        return String.format("%s:%s >> %s", id(), name(), mount());
     }
 
     @Override
