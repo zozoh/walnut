@@ -59,8 +59,7 @@ public class WnTreeFactoryImpl implements WnTreeFactory {
 
     private WnTree _create_mongo_tree(String path, String mnt) {
         // 得到集合
-        String coName = mnt.substring("mongo:".length());
-        ZMoCo co = mongodb.db().cc(coName, false);
+        ZMoCo co = mongodb.getCollectionByMount(mnt);
 
         // 生成树实例
         WnTree tree = new MongoWnTree(this, co);

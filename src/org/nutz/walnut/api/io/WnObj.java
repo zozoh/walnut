@@ -1,6 +1,7 @@
 package org.nutz.walnut.api.io;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
@@ -45,6 +46,15 @@ public class WnObj extends NutMap {
 
     public boolean hasParent() {
         return null != parentId();
+    }
+
+    public String path() {
+        return this.getString("path");
+    }
+
+    public WnObj path(String path) {
+        this.setv("path", path);
+        return this;
     }
 
     public String link() {
@@ -113,6 +123,15 @@ public class WnObj extends NutMap {
         return this;
     }
 
+    public boolean isSameSha1(String sha1) {
+        if (null == sha1)
+            return false;
+        String mySha1 = sha1();
+        if (null == mySha1)
+            return false;
+        return mySha1.equals(sha1);
+    }
+
     public boolean hasData() {
         return this.containsKey("data");
     }
@@ -131,10 +150,16 @@ public class WnObj extends NutMap {
     }
 
     public WnObj len(long len) {
-        if (len < 0)
-            this.remove("len");
-        else
-            this.put("len", len);
+        this.put("len", len);
+        return this;
+    }
+
+    public int remain() {
+        return this.getInt("remain");
+    }
+
+    public WnObj remain(int remain) {
+        this.put("remain", remain);
         return this;
     }
 
@@ -210,8 +235,13 @@ public class WnObj extends NutMap {
         return this.getAs("lm", Date.class);
     }
 
-    public WnObj lastModified(Date lm) {
-        this.setOrRemove("lm", lm);
+    public long nanoStamp() {
+        return this.getLong("nano");
+    }
+
+    public WnObj nanoStamp(long nano) {
+        this.setv("nano", nano);
+        this.setv("lm", new Date(nano / 1000000L));
         return this;
     }
 
@@ -227,6 +257,20 @@ public class WnObj extends NutMap {
             return true;
         }
         return false;
+    }
+
+    public NutMap toMap(String regex) {
+        NutMap map = new NutMap();
+        if (Strings.isBlank(regex)) {
+            map.putAll(this);
+        } else {
+            for (Map.Entry<String, Object> en : this.entrySet()) {
+                String key = en.getKey();
+                if (key.matches(regex))
+                    map.put(key, en.getValue());
+            }
+        }
+        return map;
     }
 
     public String toString() {

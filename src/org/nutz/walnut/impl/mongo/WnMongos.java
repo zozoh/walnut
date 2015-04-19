@@ -219,13 +219,6 @@ public abstract class WnMongos {
         return ZMoDoc.NEW("id", id);
     }
 
-    /**
-     * 将一个 MongoDB 的查询记录转换成对象
-     * 
-     * @param doc
-     *            MongoDB 的查询记录
-     * @return 对象
-     */
     public static MongoWnNode toWnNode(DBObject doc) {
         if (null == doc)
             return null;
@@ -233,11 +226,19 @@ public abstract class WnMongos {
         return nd;
     }
 
-    public static WnObj toObj(DBObject doc) {
+    public static WnObj toWnObj(DBObject doc) {
         if (null == doc)
             return null;
         WnObj o = ZMo.me().fromDocToMap(doc, WnObj.class);
         o.remove("_id");
         return o;
     }
+
+    public static MongoWnHistory toWnHistory(DBObject doc) {
+        if (null == doc)
+            return null;
+        MongoWnHistory his = ZMo.me().fromDocToObj(doc, MongoWnHistory.class);
+        return his;
+    }
+
 }

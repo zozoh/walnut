@@ -31,7 +31,7 @@ public class MongoWnIndexer extends AbstractWnIndexer {
 
     @Override
     public WnObj get(String id) {
-        return WnMongos.toObj(co.findOne(WnMongos.qID(id)));
+        return WnMongos.toWnObj(co.findOne(WnMongos.qID(id)));
     }
 
     @Override
@@ -85,7 +85,7 @@ public class MongoWnIndexer extends AbstractWnIndexer {
 
             while (cu.hasNext() && (null == q || !q.isPaging() || (q.isPaging() && n < q.limit()))) {
                 DBObject dbobj = cu.next();
-                WnObj o = WnMongos.toObj(dbobj);
+                WnObj o = WnMongos.toWnObj(dbobj);
                 try {
                     callback.invoke(i++, o, n);
                     n++;

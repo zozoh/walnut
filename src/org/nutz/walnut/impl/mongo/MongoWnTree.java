@@ -33,11 +33,6 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    public void _clean_for_unit_test() {
-        co.remove(ZMoDoc.NEW());
-    }
-
-    @Override
     public WnNode get_my_node(String id) {
         if (treeNode.isSameId(id))
             return treeNode;
@@ -243,5 +238,10 @@ public class MongoWnTree extends AbstractWnTree {
 
     @Override
     protected void _flush_buffer() {}
+
+    @Override
+    public void _clean_for_unit_test() {
+        co.remove(ZMoDoc.NEW());
+    }
 
 }

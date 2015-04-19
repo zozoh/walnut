@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.mongo;
 
 import org.nutz.lang.Strings;
+import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDB;
 import org.nutz.mongo.ZMongo;
 
@@ -22,9 +23,7 @@ public class MongoDB {
         ServerAddress sa = ZMongo.NEW_SA(host, port);
         MongoCredential cred = null;
         if (!Strings.isBlank(usr))
-            cred = MongoCredential.createPlainCredential(usr,
-                                                         db,
-                                                         pwd.toCharArray());
+            cred = MongoCredential.createPlainCredential(usr, db, pwd.toCharArray());
         // 连接数据库
         _zm = ZMongo.me(sa, cred, null);
         _zdb = _zm.db(db);
@@ -35,8 +34,9 @@ public class MongoDB {
         _zm.close();
     }
 
-    public ZMoDB db() {
-        return _zdb;
+    public ZMoCo getCollectionByMount(String mnt) {
+        String coName = mnt.substring("mongo:".length());
+        return _zdb.cc(coName, false);
     }
-    
+
 }
