@@ -5,7 +5,6 @@ import java.util.Map;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
-import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
@@ -30,8 +29,15 @@ public class MongoWnIndexer extends AbstractWnIndexer {
     }
 
     @Override
-    public WnObj get(String id) {
-        return WnMongos.toWnObj(co.findOne(WnMongos.qID(id)));
+    public WnObj getBy(String id, String... keys) {
+        ZMoDoc q = WnMongos.qID(id);
+        ZMoDoc fields = keys.length == 0 ? null : ZMoDoc.NEW();
+        if (null != fields) {
+            for (String key : keys)
+                fields.put(key, 1);
+        }
+        ZMoDoc doc = co.findOne(q, fields);
+        return WnMongos.toWnObj(doc);
     }
 
     @Override
@@ -43,31 +49,32 @@ public class MongoWnIndexer extends AbstractWnIndexer {
         // 更新或者创建
         if (map.size() > 0) {
             ZMoDoc q = WnMongos.qID(id);
-            long n = co.count(q);
-            // 不可能啊
-            if (n > 1) {
-                throw Lang.impossible();
-            }
-            // 看看是更新还是创建
-            else { // 更新
-                ZMoDoc doc = ZMoDoc.NEW();
-                if (n == 1) {
-                    for (Map.Entry<String, Object> en : map.entrySet()) {
-                        doc.set(en.getKey(), en.getValue());
-                    }
-                    co.update(q, doc);
-                }
-                // 创建
-                else {
-                    for (Map.Entry<String, Object> en : map.entrySet()) {
-                        doc.put(en.getKey(), en.getValue());
-                    }
-                    doc.genID().put("id", id);
-                    co.save(doc);
-                }
+            ZMoDoc doc = ZMoDoc.NEW();
+
+            // 提炼字段
+            for (Map.Entry<String, Object> en : map.entrySet()) {
+                String key = en.getKey();
+                if (key.matches("^id|nd$"))
+                    continue;
+                doc.set(key, en.getValue());
             }
 
+            // 执行更新
+            co.update(q, doc, true, false);
         }
+    }
+
+    @Override
+    public Object getValue(String id, String key) {
+        ZMoDoc doc = co.findOne(WnMongos.qID(id), ZMoDoc.NEW(key, 1));
+        return doc.get(key);
+    }
+
+    @Override
+    public void setValue(String id, String key, Object val) {
+        ZMoDoc q = WnMongos.qID(id);
+        ZMoDoc doc = ZMoDoc.SET(key, val);
+        co.update(q, doc, true, false);
     }
 
     @Override

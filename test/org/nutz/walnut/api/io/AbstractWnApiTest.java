@@ -5,15 +5,16 @@ import org.junit.Before;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Mirror;
 import org.nutz.walnut.impl.mongo.MongoDB;
+import org.nutz.walnut.util.Wn;
 
 public abstract class AbstractWnApiTest {
 
     // ------------------------------------------------ 这些是测试目标的构建
     protected WnIndexer indexer;
 
-    protected WnTreeFactory factory;
+    protected WnTreeFactory treeFactory;
 
-    protected WnTree tree;
+    protected WnStoreFactory storeFactory;
 
     protected PropertiesProxy pp;
 
@@ -32,6 +33,9 @@ public abstract class AbstractWnApiTest {
         Mirror.me(db).setValue(db, "pwd", pp.get("mongo-pwd"));
         Mirror.me(db).setValue(db, "db", pp.get("mongo-db"));
         db.on_create();
+
+        // 创建当前线程操作的用户
+        Wn.WC().me("zozoh");
 
         // 调用子类初始化
         on_before(pp);

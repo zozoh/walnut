@@ -45,7 +45,7 @@ public class LocalSha1OutputStream extends OutputStream {
 
         // 将临时文件移动到指纹路径
         String destPath = Locals.key2path(sha1);
-        File dest = Files.getFile(store.home, destPath);
+        File dest = Files.getFile(store.sha1Home, destPath);
         // 指纹已经存在
         if (dest.exists()) {
             Files.deleteFile(swap);
@@ -62,7 +62,7 @@ public class LocalSha1OutputStream extends OutputStream {
         obj.sha1(his.sha1());
         obj.len(his.len());
         obj.nanoStamp(his.nanoStamp());
-        store.indexer.set(obj.id(), obj.toMap("^sha1|len|lm|nano$"));
+        store.indexer.set(obj.id(), obj.toMap4Update("^sha1|len|lm|nano$"));
 
         // 是否清除多余的历史
         int remain = obj.remain();

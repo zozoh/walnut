@@ -6,18 +6,11 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.impl.AbstractWnNode;
 
 public class LocalWnNode extends AbstractWnNode {
 
     private String id;
-
-    private String path;
-
-    private WnNode parent;
-
-    private WnTree tree;
 
     private File file;
 
@@ -29,40 +22,6 @@ public class LocalWnNode extends AbstractWnNode {
 
     public File getFile() {
         return file;
-    }
-
-    public WnTree tree() {
-        return tree;
-    }
-
-    public void setTree(WnTree tree) {
-        this.tree = tree;
-    }
-
-    @Override
-    public WnNode parent() {
-        return parent;
-    }
-
-    @Override
-    public void setParent(WnNode parent) {
-        this.parent = parent;
-    }
-
-    @Override
-    public String path() {
-        return path;
-    }
-
-    @Override
-    public WnNode path(String path) {
-        this.path = path;
-        return this;
-    }
-
-    @Override
-    public boolean hasID() {
-        return null != id;
     }
 
     @Override

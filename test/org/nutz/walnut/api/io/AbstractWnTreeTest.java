@@ -171,11 +171,13 @@ public abstract class AbstractWnTreeTest extends AbstractWnApiTest {
         // 最后清除测试数据
         // Files.deleteDir(d);
     }
+    
+    private WnTree tree;
 
     protected void on_before(PropertiesProxy pp) {
-        factory = new WnTreeFactoryImpl(db);
+        treeFactory = new WnTreeFactoryImpl(db);
 
-        tree = factory.check("", pp.get(my_key("a")));
+        tree = treeFactory.check("", pp.get(my_key("a")));
         tree._clean_for_unit_test();
     }
 

@@ -4,11 +4,9 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Strings;
 import org.nutz.mongo.annotation.MoField;
-import org.nutz.mongo.annotation.MoIgnore;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.impl.AbstractWnNode;
 
 public class MongoWnNode extends AbstractWnNode {
@@ -28,49 +26,6 @@ public class MongoWnNode extends AbstractWnNode {
     @MoField("mnt")
     private String mount;
 
-    @MoIgnore
-    private WnNode parent;
-
-    @MoIgnore
-    private WnTree tree;
-
-    @MoIgnore
-    private String path;
-
-    public WnTree tree() {
-        return tree;
-    }
-
-    public void setTree(WnTree tree) {
-        this.tree = tree;
-    }
-
-    @Override
-    public WnNode parent() {
-        return parent;
-    }
-
-    @Override
-    public void setParent(WnNode parent) {
-        this.parent = parent;
-    }
-
-    @Override
-    public String path() {
-        return path;
-    }
-
-    @Override
-    public MongoWnNode path(String path) {
-        this.path = path;
-        return this;
-    }
-
-    @Override
-    public boolean hasID() {
-        return !Strings.isBlank(id);
-    }
-
     @Override
     public String id() {
         return id;
@@ -80,18 +35,6 @@ public class MongoWnNode extends AbstractWnNode {
     public WnNode id(String id) {
         this.id = id;
         return this;
-    }
-
-    @Override
-    public boolean isSameId(WnNode nd) {
-        return isSameId(nd.id());
-    }
-
-    @Override
-    public boolean isSameId(String id) {
-        if (!hasID() || null == id)
-            return false;
-        return this.id.equals(id);
     }
 
     public String parentId() {

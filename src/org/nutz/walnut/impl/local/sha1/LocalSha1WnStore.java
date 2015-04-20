@@ -22,7 +22,7 @@ import org.nutz.walnut.util.RandomAccessFileInputStream;
 
 public class LocalSha1WnStore extends AbstractWnStore {
 
-    File home;
+    File sha1Home;
 
     File swapHome;
 
@@ -31,8 +31,8 @@ public class LocalSha1WnStore extends AbstractWnStore {
     public LocalSha1WnStore(WnIndexer indexer, WnStoreTable table, String homePath) {
         super(table);
         this.indexer = indexer;
-        this.home = Files.createDirIfNoExists(homePath);
-        this.swapHome = Files.createDirIfNoExists(homePath + "/_swap");
+        this.sha1Home = Files.createDirIfNoExists(homePath + "/data");
+        this.swapHome = Files.createDirIfNoExists(homePath + "/swap");
     }
 
     @Override
@@ -40,7 +40,7 @@ public class LocalSha1WnStore extends AbstractWnStore {
         // 根据 sha1 得到文件路径
         String sha1 = his.sha1();
         String ph = Locals.key2path(sha1);
-        File f = Files.getFile(home, ph);
+        File f = Files.getFile(sha1Home, ph);
         if (!f.exists()) {
             throw Er.create("e.io.store.noexists", his);
         }
@@ -80,7 +80,7 @@ public class LocalSha1WnStore extends AbstractWnStore {
             File org = null;
             String sha1 = o.sha1();
             if (o.hasSha1()) {
-                org = Files.getFile(home, Locals.key2path(sha1));
+                org = Files.getFile(sha1Home, Locals.key2path(sha1));
             }
             // 如果原来的文件存在，复制
             if (null != org && org.exists()) {
@@ -104,7 +104,8 @@ public class LocalSha1WnStore extends AbstractWnStore {
     @Override
     public void _clean_for_unit_test() {
         super._clean_for_unit_test();
-        Files.clearDir(home);
+        Files.clearDir(sha1Home);
+        Files.clearDir(swapHome);
     }
 
 }

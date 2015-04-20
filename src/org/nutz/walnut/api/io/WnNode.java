@@ -2,25 +2,21 @@ package org.nutz.walnut.api.io;
 
 public interface WnNode {
 
-    WnNode parent();
+    String id();
 
-    void setParent(WnNode parent);
-
-    String path();
-
-    WnNode path(String path);
+    WnNode id(String id);
 
     WnNode genID();
 
     boolean hasID();
 
-    String id();
-
-    WnNode id(String id);
-
-    boolean isSameId(WnNode nd);
+    boolean isSameId(WnNode o);
 
     boolean isSameId(String id);
+
+    String path();
+
+    WnNode path(String path);
 
     String name();
 
@@ -40,26 +36,20 @@ public interface WnNode {
 
     boolean isHidden();
 
-    /**
-     * 一个描述挂载点的字符串。 挂载点可以是
-     * 
-     * <ul>
-     * <li>"file:///path/to/dir" 指向一个本地目录（不能是文件）
-     * <li>"persist" 表示永久存储，并记录每次修改的 sha1 指纹
-     * <li>"swap" 表示为其分配一块固定的数据区域，读写，每次修改不记录历史
-     * </ul>
-     * 
-     * @return 挂载点
-     */
+    boolean hasParent();
+    
+    WnNode parent();
+
+    void setParent(WnNode parent);
+
+    String parentId();
+
     String mount();
 
     WnNode mount(String mnt);
-    
+
     boolean isMount();
 
-    /**
-     * @return 节点所在的树对象
-     */
     WnTree tree();
 
     void setTree(WnTree tree);

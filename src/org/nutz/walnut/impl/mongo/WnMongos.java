@@ -10,6 +10,7 @@ import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoDoc;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.impl.WnBean;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.DBCursor;
@@ -229,8 +230,8 @@ public abstract class WnMongos {
     public static WnObj toWnObj(DBObject doc) {
         if (null == doc)
             return null;
-        WnObj o = ZMo.me().fromDocToMap(doc, WnObj.class);
-        o.remove("_id");
+        WnObj o = ZMo.me().fromDocToMap(doc, WnBean.class);
+        o.unset("_id");
         return o;
     }
 
