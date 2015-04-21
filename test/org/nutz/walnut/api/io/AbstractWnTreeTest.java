@@ -11,6 +11,14 @@ import org.nutz.walnut.impl.WnTreeFactoryImpl;
 public abstract class AbstractWnTreeTest extends AbstractWnApiTest {
 
     @Test
+    public void test_create_and_check_pid() {
+        WnNode nd = tree.create(null, "x/a.txt", WnRace.FILE);
+        WnNode pnd = tree.fetch(null, "x");
+        assertEquals(pnd.id(), nd.parentId());
+        assertEquals(pnd.id(), nd.parent().id());
+    }
+
+    @Test
     public void test_create2() {
         tree.create(null, "x/a.txt", WnRace.FILE);
         tree.create(null, "x/b.txt", WnRace.FILE);
@@ -171,7 +179,7 @@ public abstract class AbstractWnTreeTest extends AbstractWnApiTest {
         // 最后清除测试数据
         // Files.deleteDir(d);
     }
-    
+
     private WnTree tree;
 
     protected void on_before(PropertiesProxy pp) {

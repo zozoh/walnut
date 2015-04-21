@@ -1,9 +1,6 @@
 package org.nutz.walnut.impl.local.sha1;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -11,9 +8,10 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.walnut.api.io.WnHistory;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.impl.local.AbstractLocalOutputStream;
 import org.nutz.walnut.impl.local.Locals;
 
-public class LocalSha1OutputStream extends OutputStream {
+public class LocalSha1OutputStream extends AbstractLocalOutputStream {
 
     private LocalSha1WnStore store;
 
@@ -21,17 +19,10 @@ public class LocalSha1OutputStream extends OutputStream {
 
     private WnObj obj;
 
-    private OutputStream ops;
-
-    public LocalSha1OutputStream(LocalSha1WnStore store, File swap, WnObj o) {
+    public LocalSha1OutputStream(LocalSha1WnStore store, OutputStream ops, File swap, WnObj o) {
+        super(ops);
         this.store = store;
         this.swap = swap;
-        try {
-            this.ops = new BufferedOutputStream(new FileOutputStream(swap, true));
-        }
-        catch (FileNotFoundException e) {
-            throw Lang.wrapThrow(e);
-        }
         this.obj = o;
     }
 
@@ -57,11 +48,12 @@ public class LocalSha1OutputStream extends OutputStream {
 
         // 生成历史记录
         WnHistory his = store.addHistory(obj.id(), null, sha1, len);
+        long nano = his.nanoStamp();
 
         // 更新 Obj 状态
-        obj.sha1(his.sha1());
-        obj.len(his.len());
-        obj.nanoStamp(his.nanoStamp());
+        obj.sha1(sha1);
+        obj.len(len);
+        obj.nanoStamp(nano);
         store.indexer.set(obj.id(), obj.toMap4Update("^sha1|len|lm|nano$"));
 
         // 是否清除多余的历史
@@ -69,22 +61,6 @@ public class LocalSha1OutputStream extends OutputStream {
         if (remain >= 0) {
             store.cleanHistoryBy(obj, remain);
         }
-    }
-
-    public void write(int b) throws IOException {
-        ops.write(b);
-    }
-
-    public void write(byte[] b) throws IOException {
-        ops.write(b);
-    }
-
-    public void write(byte[] b, int off, int len) throws IOException {
-        ops.write(b, off, len);
-    }
-
-    public void flush() throws IOException {
-        ops.flush();
     }
 
     public String toString() {

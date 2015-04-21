@@ -220,16 +220,18 @@ public abstract class AbstractWnTree implements WnTree {
             // 没有节点，创建一个目录节点
             else {
                 nd = create_node(nd, paths[i], WnRace.DIR);
+                nd.setParent(p);
             }
         }
 
         // 创建自己
-        nd = create_node(nd, paths[i], race);
+        WnNode me = create_node(nd, paths[i], race);
+        me.setParent(nd);
 
         // 更新缓存
         this._flush_buffer();
 
-        return nd;
+        return me;
     }
 
     protected abstract WnNode create_node(WnNode p, String name, WnRace race);

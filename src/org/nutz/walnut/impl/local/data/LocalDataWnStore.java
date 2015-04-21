@@ -1,4 +1,4 @@
-package org.nutz.walnut.impl.local.sha1;
+package org.nutz.walnut.impl.local.data;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,39 +11,43 @@ import java.io.RandomAccessFile;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
+import org.nutz.lang.stream.NullInputStream;
+import org.nutz.lang.stream.RandomAccessFileOutputStream;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnHistory;
 import org.nutz.walnut.api.io.WnIndexer;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnStoreTable;
 import org.nutz.walnut.impl.AbstractWnStore;
 import org.nutz.walnut.impl.local.Locals;
 import org.nutz.walnut.util.RandomAccessFileInputStream;
 
-public class LocalSha1WnStore extends AbstractWnStore {
+public class LocalDataWnStore extends AbstractWnStore {
 
-    File sha1Home;
-
-    File swapHome;
+    File home;
 
     WnIndexer indexer;
 
-    public LocalSha1WnStore(WnIndexer indexer, WnStoreTable table, String homePath) {
-        super(table);
+    public LocalDataWnStore(WnIndexer indexer, String homePath) {
+        super(new LocalDataWnStoreTable());
         this.indexer = indexer;
-        this.sha1Home = Files.createDirIfNoExists(homePath + "/raw");
-        this.swapHome = Files.createDirIfNoExists(homePath + "/swap");
+        this.home = Files.createDirIfNoExists(homePath);
     }
 
     @Override
     public InputStream getInputStream(WnHistory his, long off) {
-        // 根据 sha1 得到文件路径
-        String sha1 = his.sha1();
-        String ph = Locals.key2path(sha1);
-        File f = Files.getFile(sha1Home, ph);
+        // 根据 data 得到文件路径
+        String data = his.data();
+
+        // 返回空输入流
+        if (Strings.isBlank(data))
+            return new NullInputStream();
+
+        String ph = Locals.key2path(data);
+        File f = Files.getFile(home, ph);
         if (!f.exists()) {
-            throw Er.create("e.io.store.sha1.noexists", his);
+            throw Er.create("e.io.store.data.noexists", his);
         }
 
         // 生成读取需要的输出流
@@ -68,43 +72,42 @@ public class LocalSha1WnStore extends AbstractWnStore {
 
     @Override
     public OutputStream getOutputStream(WnObj o, long off) {
-        // 初始化临时的数据文件
-        File swap = Files.getFile(swapHome, R.UU16());
+        // 确保对象分配了一个 UUID 作为自己的 data
+        if (!o.hasData())
+            o.data(R.UU32());
 
-        // 从头写，那么就用这个空文件
-        if (0 == off) {
-            Files.createFileIfNoExists(swap);
-        }
-        // 那么要把原来的文件复制一下，复制多少呢？ 看 off 咯
-        else {
-            // 找到原来文件
-            File org = null;
-            String sha1 = o.sha1();
-            if (o.hasSha1()) {
-                org = Files.getFile(sha1Home, Locals.key2path(sha1));
-            }
-            // 如果原来的文件存在，复制
-            if (null != org && org.exists()) {
-                try {
-                    Files.copyFile(org, swap, off);
-                }
-                catch (IOException e) {
-                    throw Lang.wrapThrow(e);
-                }
-            }
-            // 否则不能忍受，抛错吧，肯定有啥错了
-            else {
-                throw Er.create("o.io.store.nosha1", sha1);
-            }
-        }
+        // 初始化临时的数据文件
+        String ph = Locals.key2path(o.data());
+        File f = Files.getFile(home, ph);
 
         try {
-            OutputStream ops = new FileOutputStream(swap, true);
+            // 确保文件存在
+            if (!f.exists())
+                Files.createNewFile(f);
+
+            OutputStream ops;
+            // 重头覆盖
+            if (0 == off) {
+                ops = new FileOutputStream(f);
+            }
+            // 末尾追加
+            if (off < 0 || off >= f.length()) {
+                ops = new FileOutputStream(f, true);
+            }
+            // 中间写入
+            else {
+                RandomAccessFile raf = new RandomAccessFile(f, "w");
+                raf.seek(off);
+                ops = new RandomAccessFileOutputStream(raf);
+            }
 
             // 生成输出流，当调用者关闭的时候，会做很多事情 ...
-            return new LocalSha1OutputStream(this, ops, swap, o);
+            return new LocalDataOutputStream(this, ops, f, o);
         }
         catch (FileNotFoundException e) {
+            throw Lang.wrapThrow(e);
+        }
+        catch (IOException e) {
             throw Lang.wrapThrow(e);
         }
 
@@ -113,8 +116,7 @@ public class LocalSha1WnStore extends AbstractWnStore {
     @Override
     public void _clean_for_unit_test() {
         super._clean_for_unit_test();
-        Files.clearDir(sha1Home);
-        Files.clearDir(swapHome);
+        Files.clearDir(home);
     }
 
 }

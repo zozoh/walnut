@@ -54,8 +54,10 @@ public class MongoWnIndexer extends AbstractWnIndexer {
             // 提炼字段
             for (Map.Entry<String, Object> en : map.entrySet()) {
                 String key = en.getKey();
-                if (key.matches("^id|nd$"))
+                // ID 字段不能被修改
+                if ("id".equals(key))
                     continue;
+                // 其他的字段
                 doc.set(key, en.getValue());
             }
 

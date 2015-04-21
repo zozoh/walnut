@@ -87,6 +87,7 @@ public class WnTreeFactoryImpl implements WnTreeFactory {
         // 创建树的顶级节点
         LocalWnNode nd = new LocalWnNode(d);
         nd.setTree(tree);
+        nd.id(mnt);
         nd.path(path);
         nd.mount(mnt);
 

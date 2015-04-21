@@ -55,11 +55,13 @@ public class WnBean extends NutMap implements WnObj {
             for (Map.Entry<String, Object> en : this.entrySet()) {
                 String key = en.getKey();
                 // 如果 regex 为空，只要不是 id 就全要
-                if (null == regex && !"id".equals(key))
+                if (null == regex && !"id".equals(key)) {
                     map.put(key, en.getValue());
+                }
                 // 否则只给出正则表达式匹配的部分，以及几个固定需要更新的字段
-                else if (key.matches("^nm|race|pid|mnt$") || key.matches(regex))
+                else if (key.matches("^nm|race|pid|mnt$") || key.matches(regex)) {
                     map.put(key, en.getValue());
+                }
             }
         }
         return map;

@@ -35,7 +35,13 @@ public class MongoDB {
     }
 
     public ZMoCo getCollectionByMount(String mnt) {
-        String coName = mnt.substring("mongo:".length());
+        int pos = mnt.lastIndexOf('@');
+        String coName;
+        if (pos > 0) {
+            coName = mnt.substring("mongo:".length(), pos);
+        } else {
+            coName = mnt.substring("mongo:".length());
+        }
         return _zdb.cc(coName, false);
     }
 
