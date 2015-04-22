@@ -14,6 +14,8 @@ public interface WnHistory {
     String data();
 
     WnHistory data(String data);
+    
+    boolean isSameData(String data);
 
     String sha1();
 

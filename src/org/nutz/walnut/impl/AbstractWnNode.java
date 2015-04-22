@@ -80,7 +80,7 @@ public abstract class AbstractWnNode implements WnNode {
     @Override
     public void assertTree(WnTree tree) {
         if (!tree.equals(this.tree())) {
-            throw Er.create("e.io.tree.nd.OutOfMount", this + " <!> " + tree);
+            throw Er.create("e.io.tree.nd.NotSameTree", this.tree + " <!> " + tree);
         }
     }
 
@@ -93,6 +93,14 @@ public abstract class AbstractWnNode implements WnNode {
     }
 
     @Override
+    public boolean isMyParent(WnNode p) {
+        if (null == p)
+            return false;
+
+        return parentId().equals(p.id());
+    }
+
+    @Override
     public boolean isSameId(WnNode nd) {
         return isSameId(nd.id());
     }
@@ -102,6 +110,11 @@ public abstract class AbstractWnNode implements WnNode {
         if (!hasID() || null == id)
             return false;
         return id().equals(id);
+    }
+
+    @Override
+    public WnNode clone() {
+        return duplicate();
     }
 
 }

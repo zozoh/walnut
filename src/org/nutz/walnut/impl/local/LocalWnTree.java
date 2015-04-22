@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.local;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.ContinueLoop;
@@ -102,6 +103,10 @@ public class LocalWnTree extends AbstractWnTree {
     }
 
     private WnNode _check_node(File f) {
+        return _check_node(f, null);
+    }
+
+    private WnNode _check_node(File f, String id) {
         // 创建节点
         LocalWnNode nd = new LocalWnNode(f);
         nd.setTree(this);
@@ -109,15 +114,38 @@ public class LocalWnTree extends AbstractWnTree {
         // 得到相对路径
         String rpath = _check_rpath(f);
 
-        // TODO 从这里寻找对应的 ID，没有就生成一个
-        MemNodeItem mni = mnm.getByPath(rpath);
+        // 首先试图根据 ID 获取一下索引
+        MemNodeItem mni = null;
+        if (!Strings.isBlank(id)) {
+            mni = mnm.getById(id);
+        }
+
+        // 没有这个索引说明什么呢？
+        // 可能是 id==null 或者索引根本不存在
+        // 不过怎么样，根据 rpath 再拿一下看看
         if (null == mni) {
-            nd.genID();
+            mni = mnm.getByPath(rpath);
+        }
+        // 如果获取到这个索引，那么更新一下 path
+        // 只有调用者应该会 refresh_buffer 的吧
+        else {
+            mni.path = rpath;
+        }
+
+        // 还是 null 则表示根本没有这个节点的索引，因此需要添加一个索引
+        if (null == mni) {
+            if (Strings.isBlank(id))
+                nd.genID();
+            else
+                nd.id(id);
             mnm.add(nd.id() + ":" + rpath);
-        } else {
+        }
+        // 找到了索引就用索引填充节点对应的字段
+        else {
             nd.id(mni.id);
             nd.mount(mni.mount);
         }
+        // 最后补全路径，收工
         nd.path(rootPath + "/" + rpath);
         return nd;
     }
@@ -239,7 +267,7 @@ public class LocalWnTree extends AbstractWnTree {
     }
 
     @Override
-    public WnNode create_node(WnNode p, String name, WnRace race) {
+    public WnNode createNode(WnNode p, String id, String name, WnRace race) {
         // 首先，咱不支持 OBJ，因为本地文件木法表达
         if (race == WnRace.OBJ)
             throw Er.create("e.io.tree.local.OBJ");
@@ -271,7 +299,7 @@ public class LocalWnTree extends AbstractWnTree {
             throw Lang.impossible();
         }
 
-        return _check_node(f);
+        return _check_node(f, id);
     }
 
     @Override
@@ -300,6 +328,34 @@ public class LocalWnTree extends AbstractWnTree {
     }
 
     @Override
+    public WnNode append(WnNode p, WnNode nd) {
+        // 调用父类的检查
+        super.append(p, nd);
+
+        LocalWnNode lp = (LocalWnNode) p;
+        LocalWnNode lnd = (LocalWnNode) nd;
+
+        File fp = lp.getFile();
+        File fnd = lnd.getFile();
+
+        File fdest = Files.getFile(fp, fnd.getName());
+        try {
+            Files.move(fnd, fdest);
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
+
+        // 修改索引项目，因为指定了 ID，如果索引有这个 ID 的话，只会更新
+        WnNode re = this._check_node(fdest, nd.id());
+        // 持久化缓存
+        this._flush_buffer();
+
+        // 返回新节点
+        return re;
+    }
+
+    @Override
     public void setMount(WnNode nd, String mnt) {
         MemNodeItem mni = mnm.getById(nd.id());
         if (null == mni)
@@ -325,21 +381,9 @@ public class LocalWnTree extends AbstractWnTree {
         return _get_node(mni);
     }
 
-    @Override
-    public WnNode loadParents(WnNode nd, boolean force) {
-        if (treeNode.isSameId(nd)) {
-            if (treeNode != nd) {
-                nd.setParent(treeNode.parent());
-            }
-            return nd;
-        }
-        if (null == nd.parent() || force) {
-            LocalWnNode lnd = (LocalWnNode) nd;
-            WnNode p = this._check_node(lnd.getFile().getParentFile());
-            loadParents(p, force);
-            lnd.setParent(p);
-        }
-        return nd;
+    protected WnNode _get_my_parent(WnNode nd) {
+        LocalWnNode lnd = (LocalWnNode) nd;
+        return this._check_node(lnd.getFile().getParentFile());
     }
 
     protected void _flush_buffer() {

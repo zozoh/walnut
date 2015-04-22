@@ -21,17 +21,20 @@ import org.nutz.walnut.util.RandomAccessFileInputStream;
 
 public class LocalTreeWnStore extends AbstractWnStore {
 
-    WnIndexer indexer;
-
     public LocalTreeWnStore(WnIndexer indexer, File home, String rootPath) {
-        super(new LocalTreeWnStoreTable(home, rootPath));
-        this.indexer = indexer;
+        super(indexer, new LocalTreeWnStoreTable(home, rootPath));
+    }
+
+    WnIndexer indexer() {
+        return indexer;
     }
 
     @Override
+    protected void do_real_remove_history_data(WnHistory his) {}
+
+    @Override
     public InputStream getInputStream(WnHistory his, long off) {
-        LocalFileWnHistory lhis = (LocalFileWnHistory) his;
-        File f = lhis.file;
+        File f = new File(his.data());
 
         // 不存在
         if (!f.exists()) {

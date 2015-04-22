@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import org.nutz.lang.Lang;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.local.AbstractLocalOutputStream;
+import org.nutz.walnut.util.Wn;
 
 public class LocalDataOutputStream extends AbstractLocalOutputStream {
 
@@ -32,11 +33,12 @@ public class LocalDataOutputStream extends AbstractLocalOutputStream {
         long len = f.length();
         long nano = System.nanoTime();
 
-        // 更新 Obj 状态
+        // 更新 Obj 状态 (obj.data 已经被 LocalDataWnStore 在之前设置好了）
+        obj.mender(Wn.WC().checkMe());
         obj.sha1(sha1);
         obj.len(len);
         obj.nanoStamp(nano);
-        store.indexer.set(obj.id(), obj.toMap4Update("^data|sha1|len|lm|nano$"));
+        store.indexer().set(obj.id(), obj.toMap4Update("^m|data|sha1|len|lm|nano$"));
 
     }
 

@@ -23,8 +23,8 @@ public abstract class AbstractWnStoreTest extends AbstractWnApiTest {
 
     @Test
     public void test_simple_read_write() throws IOException {
-        WnNode nd = tree.create(null, "abc.txt", WnRace.FILE);
-        WnObj o = new WnBean().nd(nd);
+        WnNode nd = tree.create(null, "abc.txt", WnRace.FILE, null);
+        WnObj o = new WnBean().setNode(nd);
         String str = "hello";
 
         OutputStream ops = store.getOutputStream(o, 0);
@@ -46,9 +46,9 @@ public abstract class AbstractWnStoreTest extends AbstractWnApiTest {
         assertEquals(d.getTime(), nano / 1000000L);
     }
 
-    private WnTree tree;
+    protected WnTree tree;
 
-    private WnStore store;
+    protected WnStore store;
 
     protected void on_before(PropertiesProxy pp) {
         treeFactory = new WnTreeFactoryImpl(db);

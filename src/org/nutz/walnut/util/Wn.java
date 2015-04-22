@@ -3,7 +3,6 @@ package org.nutz.walnut.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Maths;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
@@ -120,94 +119,23 @@ public abstract class Wn {
 
     public static final String AT_SEID = "SEID";
 
-    public static class RM {
-
-        public static final int NONE = 0;
-
-        public static final int FORCE = 1;
-
-        public static final int RECUR = 1 << 1;
-
-        public static boolean isRecur(int m) {
-            return Maths.isMask(m, RECUR);
-        }
-
-        public static boolean isForce(int m) {
-            return Maths.isMask(m, FORCE);
-        }
-
-    }
-
-    public static class MK {
-
-        public static final int NONE = 0;
-
-        public static final int NO_MAKE_PARENTS = 1;
-
-        public static final int MAKE_IF_NOEXISTS = 1 << 1;
-
-        // 如果没有开启这个选项，则根据对象的 RACE 和 类型来自动决定持久化设置
-        public static final int NO_PERSIST = 1 << 2;
-
-        public static boolean isNoMakeParent(int m) {
-            return Maths.isMask(m, NO_MAKE_PARENTS);
-        }
-
-        public static boolean isMakeIfNoExists(int m) {
-            return Maths.isMask(m, MAKE_IF_NOEXISTS);
-        }
-
-        public static boolean isNoPersist(int m) {
-            return Maths.isMask(m, NO_PERSIST);
-        }
-
-    }
-
     public static class Io {
 
-        public static final int S = 1;
+        public static final int R = 1 << 2;
 
-        public static final int R = 1 << 1;
+        public static final int W = 1 << 1;
 
-        public static final int A = 1 << 2;
-
-        public static final int W = 1 << 3;
-
-        // public static final int SR = R | 1;
-        //
-        public static final int SRA = R | A | S;
+        public static final int X = 1;
 
         public static final int RW = R | W;
 
-        public static final int RA = R | A;
+        public static final int RX = R | X;
 
-        public static boolean isR(int m) {
-            return Maths.isMask(m, R);
-        }
+        public static final int RWX = R | W | X;
 
-        public static boolean isW(int m) {
-            return Maths.isMask(m, W);
-        }
-
-        public static boolean isAW(int m) {
-            return Maths.isMask(m, A | W);
-        }
-
-        public static boolean isA(int m) {
-            return Maths.isMask(m, A);
-        }
-
-        public static boolean isS(int m) {
-            return Maths.isMask(m, S);
-        }
-
-        public static boolean isSA(int m) {
-            return Maths.isMask(m, S | A);
-        }
+        public static final int WX = W | X;
 
     }
-
-    public static final String BLOCK_ENDL = "#~END";
 
     public static String genId() {
         return R.UU32();

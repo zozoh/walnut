@@ -26,6 +26,19 @@ public class MongoWnNode extends AbstractWnNode {
     @MoField("mnt")
     private String mount;
 
+    public MongoWnNode() {}
+
+    public MongoWnNode(MongoWnNode nd) {
+        id = nd.id;
+        parentId = nd.parentId;
+        name = nd.name;
+        race = nd.race;
+        mount = nd.mount;
+        this.setTree(nd.tree());
+        this.setParent(nd.parent());
+        this.path(nd.path());
+    }
+
     @Override
     public String id() {
         return id;
@@ -135,6 +148,10 @@ public class MongoWnNode extends AbstractWnNode {
             return nd.id().equals(id()) && nd.name().equals(name());
         }
         return false;
+    }
+
+    public WnNode duplicate() {
+        return new MongoWnNode(this);
     }
 
     @Override

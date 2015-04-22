@@ -27,12 +27,23 @@ public class LocalDataWnStore extends AbstractWnStore {
 
     File home;
 
-    WnIndexer indexer;
-
     public LocalDataWnStore(WnIndexer indexer, String homePath) {
-        super(new LocalDataWnStoreTable());
-        this.indexer = indexer;
+        super(indexer, new LocalDataWnStoreTable());
         this.home = Files.createDirIfNoExists(homePath);
+    }
+    
+    WnIndexer indexer(){
+        return indexer;
+    }
+
+    @Override
+    protected void do_real_remove_history_data(WnHistory his) {
+        String ph = Locals.key2path(his.data());
+        File f = Files.getFile(home, ph);
+        if (f.exists())
+            Files.deleteFile(f);
+
+        Locals.ocd_clean_data_dir(f);
     }
 
     @Override

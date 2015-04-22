@@ -1,80 +1,115 @@
 package org.nutz.walnut.impl.local.data;
 
-import org.nutz.lang.Lang;
 import org.nutz.walnut.api.io.WnHistory;
 import org.nutz.walnut.api.io.WnObj;
 
 public class LocalObjWnHistory implements WnHistory {
 
-    private WnObj o;
-
     public LocalObjWnHistory(WnObj o) {
-        this.o = o;
+        oid(o.id());
+        owner(o.mender());
+        sha1(o.sha1());
+        data(o.data());
+        len(o.len());
+        nanoStamp(o.nanoStamp());
     }
+
+    private String oid;
+
+    private String data;
+
+    private String sha1;
+
+    private String owner;
+
+    private long len;
+
+    private long nano;
 
     @Override
     public String oid() {
-        return o.id();
-    }
-
-    @Override
-    public long len() {
-        return o.len();
-    }
-
-    @Override
-    public long nanoStamp() {
-        return o.nanoStamp();
-    }
-
-    @Override
-    public String sha1() {
-        return o.sha1();
-    }
-
-    @Override
-    public boolean isSameSha1(String sha1) {
-        return o.isSameSha1(sha1);
-    }
-
-    @Override
-    public String data() {
-        return o.data();
+        return oid;
     }
 
     @Override
     public WnHistory oid(String oid) {
-        throw Lang.noImplement();
+        this.oid = oid;
+        return this;
     }
 
     @Override
-    public WnHistory len(long len) {
-        throw Lang.noImplement();
-    }
-
-    @Override
-    public WnHistory nanoStamp(long nano) {
-        throw Lang.noImplement();
+    public String sha1() {
+        return sha1;
     }
 
     @Override
     public WnHistory sha1(String sha1) {
-        throw Lang.noImplement();
+        this.sha1 = sha1;
+        return this;
+    }
+
+    @Override
+    public String data() {
+        return data;
     }
 
     @Override
     public WnHistory data(String data) {
-        throw Lang.noImplement();
+        this.data = data;
+        return this;
+    }
+
+    @Override
+    public boolean isSameData(String data) {
+        if (null == data)
+            return false;
+        String myData = data();
+        if (null == myData)
+            return false;
+        return myData.equals(data);
+    }
+
+    @Override
+    public boolean isSameSha1(String sha1) {
+        if (null == sha1)
+            return false;
+        String mySha1 = sha1();
+        if (null == mySha1)
+            return false;
+        return mySha1.equals(sha1);
     }
 
     @Override
     public String owner() {
-        throw Lang.noImplement();
+        return owner;
     }
 
     @Override
     public WnHistory owner(String ow) {
-        throw Lang.noImplement();
+        this.owner = ow;
+        return this;
+    }
+
+    @Override
+    public long len() {
+        return len;
+    }
+
+    @Override
+    public WnHistory len(long len) {
+        this.len = len;
+        return this;
+    }
+
+    @Override
+    public long nanoStamp() {
+        return nano;
+    }
+
+    @Override
+    public WnHistory nanoStamp(long nano) {
+        this.nano = nano;
+        return this;
     }
 
 }

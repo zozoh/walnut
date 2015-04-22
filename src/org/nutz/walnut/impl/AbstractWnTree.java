@@ -115,17 +115,60 @@ public abstract class AbstractWnTree implements WnTree {
         }
     }
 
+    public void loadParents(WnNode nd, boolean force, List<WnNode> list) {
+        // 确保有上下文列表
+        if (null == list)
+            list = new LinkedList<WnNode>();
+
+        // 给的节点是书的根节点
+        if (treeNode.isSameId(nd)) {
+            WnNode root = treeNode.duplicate();
+            // 如果顶级节点属于别的树，则用别的树的逻辑加载
+            // 否则表示到头了
+            if (!root.tree().equals(this)) {
+                root.tree().loadParents(root, true, list);
+            } else {
+                root.path("/");
+            }
+            list.add(root);
+            nd.setParent(root);
+            return;
+        }
+
+        // 否则根据子树的逻辑加载
+        WnNode p = nd.parent();
+        if (null == p || force) {
+            p = _get_my_parent(nd);
+        }
+        // 没有父，是不可能的
+        if (null == p) {
+            throw Lang.impossible();
+        }
+
+        // 递归调用父的读取
+        this.loadParents(p, force, list);
+        list.add(p);
+        nd.setParent(p);
+        nd.path(p.path() + "/" + nd.name());
+    }
+
+    protected abstract WnNode _get_my_parent(WnNode nd);
+
     @Override
-    public WnNode fetch(WnNode p, String path) {
+    public WnNode fetch(WnNode p, String path, Callback<WnNode> callback) {
         if (path.startsWith("/")) {
-            p = treeNode;
+            p = null;
         }
         String[] ss = Strings.splitIgnoreBlank(path, "[/]");
-        return fetch(p, ss, 0, ss.length);
+        return fetch(p, ss, 0, ss.length, null);
     }
 
     @Override
-    public WnNode fetch(WnNode p, String[] paths, int fromIndex, int toIndex) {
+    public WnNode fetch(WnNode p,
+                        String[] paths,
+                        int fromIndex,
+                        int toIndex,
+                        Callback<WnNode> callback) {
         // 判断绝对路径
         if (null == p) {
             p = treeNode;
@@ -138,7 +181,7 @@ public abstract class AbstractWnTree implements WnTree {
         // 逐个查找
         final WnNode[] nd = Lang.array(p);
         for (int i = fromIndex; i < toIndex; i++) {
-            // 找不到子节点，就返回 null
+            // 找子节点，找不到，就返回 null
             if (eachChildren(nd[0], paths[i], new Each<WnNode>() {
                 public void invoke(int index, WnNode child, int length) {
                     nd[0] = child;
@@ -146,6 +189,11 @@ public abstract class AbstractWnTree implements WnTree {
                 }
             }) <= 0) {
                 return null;
+            }
+
+            // 应对一下回调
+            if (null != callback) {
+                callback.invoke(nd[0]);
             }
 
             // 如果找到了子节点，这个子节点如果 mount 了另外 tree
@@ -157,15 +205,33 @@ public abstract class AbstractWnTree implements WnTree {
                     return nd[0];
                 }
                 WnTree mntTree = factory().check(nd[0].path(), nd[0].mount());
-                return mntTree.fetch(null, paths, i + 1, toIndex);
+                return mntTree.fetch(null, paths, i + 1, toIndex, callback);
             }
 
         }
         return nd[0];
     }
 
+    public WnNode append(WnNode p, WnNode nd) {
+        // 只有同树的节点才能转移
+        p.assertTree(nd.tree());
+
+        // 看看有没有必要移动
+        if (nd.isMyParent(p)) {
+            return nd;
+        }
+
+        // 如果重名，则禁止移动
+        if (null != this.fetch(p, nd.name(), null)) {
+            throw Er.create("e.io.tree.exists", nd.name());
+        }
+
+        // 嗯什么都不做吧，因为子类会先调用这个方法，之后再实现对应的逻辑
+        return nd;
+    }
+
     @Override
-    public WnNode create(WnNode p, String path, WnRace race) {
+    public WnNode create(WnNode p, String path, WnRace race, Callback<WnNode> callback) {
         // 是否从树的根部创建
         if (path.startsWith("/")) {
             p = treeNode;
@@ -191,12 +257,17 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 创建
-        return create(p, paths, 0, len, race);
+        return create(p, paths, 0, len, race, callback);
 
     }
 
     @Override
-    public WnNode create(WnNode p, String[] paths, int fromIndex, int toIndex, WnRace race) {
+    public WnNode create(WnNode p,
+                         String[] paths,
+                         int fromIndex,
+                         int toIndex,
+                         WnRace race,
+                         Callback<WnNode> callback) {
         if (null == p) {
             p = treeNode;
         }
@@ -205,27 +276,27 @@ public abstract class AbstractWnTree implements WnTree {
         WnNode nd = p;
         int i = fromIndex;
         for (; i < toIndex - 1; i++) {
-            WnNode child = fetch(nd, paths, i, i + 1);
+            WnNode child = fetch(nd, paths, i, i + 1, callback);
             // 有节点的话 ..
             if (null != child) {
                 nd = child;
                 // 如果节点挂载到了另外一颗树
                 if (nd.isMount()) {
                     WnTree mntTree = factory().check(nd.path(), nd.mount());
-                    return mntTree.create(null, paths, i + 1, toIndex, race);
+                    return mntTree.create(null, paths, i + 1, toIndex, race, callback);
                 }
                 // 继续下一个路径
                 continue;
             }
             // 没有节点，创建一个目录节点
             else {
-                nd = create_node(nd, paths[i], WnRace.DIR);
+                nd = createNode(nd, null, paths[i], WnRace.DIR);
                 nd.setParent(p);
             }
         }
 
         // 创建自己
-        WnNode me = create_node(nd, paths[i], race);
+        WnNode me = createNode(nd, null, paths[i], race);
         me.setParent(nd);
 
         // 更新缓存
@@ -233,8 +304,6 @@ public abstract class AbstractWnTree implements WnTree {
 
         return me;
     }
-
-    protected abstract WnNode create_node(WnNode p, String name, WnRace race);
 
     protected void _do_walk_children(WnNode p, final Callback<WnNode> callback) {
         this.eachChildren(p, null, new Each<WnNode>() {

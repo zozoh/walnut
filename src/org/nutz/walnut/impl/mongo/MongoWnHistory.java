@@ -68,6 +68,16 @@ public class MongoWnHistory implements WnHistory {
     }
 
     @Override
+    public boolean isSameData(String data) {
+        if (null == data)
+            return false;
+        String myData = data();
+        if (null == myData)
+            return false;
+        return myData.equals(data);
+    }
+
+    @Override
     public boolean isSameSha1(String sha1) {
         if (null == sha1)
             return false;

@@ -1,22 +1,23 @@
 package org.nutz.walnut.impl.mongo;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
-import org.nutz.lang.Lang;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
 import org.nutz.walnut.api.io.WnHistory;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnStoreTable;
+import org.nutz.walnut.impl.AbstractWnStoreTable;
 import org.nutz.walnut.util.Wn;
 
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
 
-public class MongoWnStoreTable implements WnStoreTable {
+public class MongoWnStoreTable extends AbstractWnStoreTable {
 
     private ZMoCo co;
 
@@ -27,7 +28,7 @@ public class MongoWnStoreTable implements WnStoreTable {
     @Override
     public int eachHistory(WnObj o, long nano, Each<WnHistory> callback) {
         ZMoDoc q = ZMoDoc.NEW("oid", o.id());
-        if (nano > 0) {
+        if (nano >= 0) {
             q.lte("nano", nano);
         }
         DBCursor cu = co.find(q).sort(ZMoDoc.NEW("nano", -1));
@@ -61,18 +62,6 @@ public class MongoWnStoreTable implements WnStoreTable {
     }
 
     @Override
-    public WnHistory getHistory(WnObj o, long nano) {
-        final WnHistory[] his = new WnHistory[1];
-        eachHistory(o, nano, new Each<WnHistory>() {
-            public void invoke(int index, WnHistory ele, int length) {
-                his[0] = ele;
-                Lang.Break();
-            }
-        });
-        return his[0];
-    }
-
-    @Override
     public WnHistory addHistory(String oid, String data, String sha1, long len) {
         WnHistory his = new MongoWnHistory();
         his.oid(oid).data(data).sha1(sha1).len(len);
@@ -86,34 +75,52 @@ public class MongoWnStoreTable implements WnStoreTable {
     }
 
     @Override
-    public int cleanHistory(WnObj o, long nano) {
-        ZMoDoc q = ZMoDoc.NEW("oid", o.id());
-        if (nano > 0) {
-            q.lt("nano", nano);
-        }
-        WriteResult wr = co.remove(q);
-        return wr.getN();
+    public List<WnHistory> cleanHistory(WnObj o, long nano) {
+        final List<WnHistory> list = new LinkedList<WnHistory>();
+        this.eachHistory(o, nano, new Each<WnHistory>() {
+            public void invoke(int index, WnHistory his, int length) {
+                // 删除索引记录
+                ZMoDoc q = ZMoDoc.NEWf("oid:'%s',sha1:'%s',nano:%d",
+                                       his.oid(),
+                                       his.sha1(),
+                                       his.nanoStamp());
+                co.remove(q);
+
+                // 如果引用的 SHA1 不在有别的记录使用，加入记录
+                q = ZMoDoc.NEW("sha1", his.sha1());
+                DBCursor cu = co.find(q);
+                try {
+                    if (!cu.hasNext()) {
+                        list.add(his);
+                    }
+                }
+                finally {
+                    cu.close();
+                }
+            }
+        });
+        return list;
     }
 
     @Override
-    public int cleanHistoryBy(WnObj o, int remain) {
+    public List<WnHistory> cleanHistoryBy(WnObj o, int remain) {
+        // 全都删掉
+        if (remain <= 0)
+            return cleanHistory(o, -1);
+
         // 找到最后一个保留记录的 nano 时间
-        // 如果 remain 小于1，则表示删除除了最后一条记录的所有记录
+        // 如果 remain == 0，则表示删除对象所有的历史记录
         long nano = o.nanoStamp();
-        if (remain > 1) {
-            ZMoDoc q = ZMoDoc.NEW("oid", o.id());
-            DBCursor cu = co.find(q, ZMoDoc.NEW("nano", 1))
-                            .sort(ZMoDoc.NEW("nano", -1))
-                            .skip(remain - 1);
-            try {
-                while (cu.hasNext()) {
-                    DBObject dbobj = cu.next();
-                    nano = (Long) dbobj.get("nano");
-                }
+        ZMoDoc q = ZMoDoc.NEW("oid", o.id());
+        DBCursor cu = co.find(q, ZMoDoc.NEW("nano", 1)).sort(ZMoDoc.NEW("nano", -1)).skip(remain);
+        try {
+            while (cu.hasNext()) {
+                DBObject dbobj = cu.next();
+                nano = (Long) dbobj.get("nano");
             }
-            finally {
-                cu.close();
-            }
+        }
+        finally {
+            cu.close();
         }
 
         // 删除这个 nano 时间之后的记录

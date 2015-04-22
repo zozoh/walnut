@@ -27,13 +27,24 @@ public class LocalSha1WnStore extends AbstractWnStore {
 
     File swapHome;
 
-    WnIndexer indexer;
-
     public LocalSha1WnStore(WnIndexer indexer, WnStoreTable table, String homePath) {
-        super(table);
-        this.indexer = indexer;
+        super(indexer, table);
         this.sha1Home = Files.createDirIfNoExists(homePath + "/raw");
         this.swapHome = Files.createDirIfNoExists(homePath + "/swap");
+    }
+
+    WnIndexer indexer() {
+        return indexer;
+    }
+
+    @Override
+    protected void do_real_remove_history_data(WnHistory his) {
+        String ph = Locals.key2path(his.sha1());
+        File f = Files.getFile(sha1Home, ph);
+        if (f.exists())
+            Files.deleteFile(f);
+
+        Locals.ocd_clean_data_dir(f);
     }
 
     @Override

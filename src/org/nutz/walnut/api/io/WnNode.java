@@ -13,6 +13,8 @@ public interface WnNode {
     boolean isSameId(WnNode o);
 
     boolean isSameId(String id);
+    
+    boolean isMyParent(WnNode p);
 
     String path();
 
@@ -60,4 +62,7 @@ public interface WnNode {
 
     String toString();
 
+    WnNode clone();
+    
+    WnNode duplicate();
 }

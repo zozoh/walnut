@@ -16,13 +16,19 @@ public class WnBean extends NutMap implements WnObj {
 
     public WnBean() {}
 
+    public WnBean(WnBean o) {
+        this.putAll(o);
+        if (null != o._nd)
+            this.setNode(o._nd.duplicate());
+    }
+
     private WnNode _nd;
 
     public WnNode nd() {
         return _nd;
     }
 
-    public WnBean nd(WnNode nd) {
+    public WnObj setNode(WnNode nd) {
         // 如果已经设置了 ID, 那么必须一致
         String id = id();
         if (!Strings.isBlank(id)) {
@@ -152,7 +158,7 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public boolean hasSha1() {
-        return this.containsKey("sha1");
+        return !Strings.isBlank(sha1());
     }
 
     public String sha1() {
@@ -160,7 +166,7 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public WnBean sha1(String sha1) {
-        this.setOrRemove("sha1", sha1);
+        this.setv("sha1", sha1);
         return this;
     }
 
@@ -174,7 +180,7 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public boolean hasData() {
-        return this.containsKey("data");
+        return !Strings.isBlank(data());
     }
 
     public String data() {
@@ -182,8 +188,17 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public WnBean data(String data) {
-        this.setOrRemove("data", data);
+        this.setv("data", data);
         return this;
+    }
+
+    public boolean isSameData(String data) {
+        if (null == data)
+            return false;
+        String myData = data();
+        if (null == myData)
+            return false;
+        return myData.equals(data);
     }
 
     public long len() {
@@ -210,6 +225,15 @@ public class WnBean extends NutMap implements WnObj {
 
     public WnBean creator(String creator) {
         this.setOrRemove("c", creator);
+        return this;
+    }
+
+    public String mender() {
+        return this.getString("m");
+    }
+
+    public WnBean mender(String mender) {
+        this.setOrRemove("m", mender);
         return this;
     }
 
@@ -384,6 +408,10 @@ public class WnBean extends NutMap implements WnObj {
         return nd().parent();
     }
 
+    public boolean isMyParent(WnNode p) {
+        return nd().isMyParent(p);
+    }
+
     public WnTree tree() {
         return nd().tree();
     }
@@ -394,6 +422,15 @@ public class WnBean extends NutMap implements WnObj {
 
     public void assertTree(WnTree tree) {
         nd().assertTree(tree);
+    }
+
+    public WnNode clone() {
+        return duplicate();
+    }
+
+    @Override
+    public WnNode duplicate() {
+        return new WnBean(this);
     }
 
 }

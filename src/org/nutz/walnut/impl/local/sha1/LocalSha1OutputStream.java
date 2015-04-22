@@ -51,10 +51,11 @@ public class LocalSha1OutputStream extends AbstractLocalOutputStream {
         long nano = his.nanoStamp();
 
         // 更新 Obj 状态
+        obj.mender(his.owner());
         obj.sha1(sha1);
         obj.len(len);
         obj.nanoStamp(nano);
-        store.indexer.set(obj.id(), obj.toMap4Update("^sha1|len|lm|nano$"));
+        store.indexer().set(obj.id(), obj.toMap4Update("^m|sha1|len|lm|nano$"));
 
         // 是否清除多余的历史
         int remain = obj.remain();

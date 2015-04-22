@@ -1,5 +1,6 @@
 package org.nutz.walnut.util;
 
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 
 /**
@@ -7,7 +8,7 @@ import org.nutz.walnut.api.err.Er;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnContext {
+public class WnContext extends NutMap{
 
 //    private String seid;
 //

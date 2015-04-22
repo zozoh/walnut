@@ -20,6 +20,15 @@ public class LocalWnNode extends AbstractWnNode {
         this.file = f;
     }
 
+    public LocalWnNode(LocalWnNode nd) {
+        this.id = nd.id;
+        this.file = nd.file;
+        this.mount = nd.mount;
+        this.setTree(nd.tree());
+        this.setParent(nd.parent());
+        this.path(nd.path());
+    }
+
     public File getFile() {
         return file;
     }
@@ -98,6 +107,10 @@ public class LocalWnNode extends AbstractWnNode {
     public WnNode mount(String mnt) {
         this.mount = mnt;
         return this;
+    }
+
+    public WnNode duplicate() {
+        return new LocalWnNode(this);
     }
 
 }

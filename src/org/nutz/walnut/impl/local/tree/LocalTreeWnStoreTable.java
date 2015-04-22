@@ -1,14 +1,17 @@
 package org.nutz.walnut.impl.local.tree;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.nutz.lang.Each;
 import org.nutz.walnut.api.io.WnHistory;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnStoreTable;
+import org.nutz.walnut.impl.AbstractWnStoreTable;
 import org.nutz.walnut.impl.local.Locals;
+import org.nutz.walnut.impl.local.data.LocalObjWnHistory;
 
-public class LocalTreeWnStoreTable implements WnStoreTable {
+public class LocalTreeWnStoreTable extends AbstractWnStoreTable {
 
     String rootPath;
 
@@ -22,8 +25,11 @@ public class LocalTreeWnStoreTable implements WnStoreTable {
     @Override
     public int eachHistory(WnObj o, long nano, Each<WnHistory> callback) {
         WnHistory his = getHistory(o, nano);
-        callback.invoke(0, his, 1);
-        return 1;
+        if (null != his) {
+            callback.invoke(0, his, 1);
+            return 1;
+        }
+        return 0;
     }
 
     @Override
@@ -31,12 +37,17 @@ public class LocalTreeWnStoreTable implements WnStoreTable {
         // 试着根据对象的全路径获取一下本地文件
         File f = Locals.eval_local_file(home, rootPath, o);
 
-        // 文件不存在，返回空
-        if (!f.exists())
-            return null;
+        if (nano < 0 || nano >= f.lastModified() * 1000000L) {
 
-        // 返回历史记录对象
-        return new LocalFileWnHistory(o.id(), f);
+            // 文件不存在，返回空
+            if (!f.exists())
+                return null;
+
+            // 返回历史记录对象
+            return new LocalObjWnHistory(o);
+        }
+
+        return null;
     }
 
     @Override
@@ -48,13 +59,13 @@ public class LocalTreeWnStoreTable implements WnStoreTable {
     }
 
     @Override
-    public int cleanHistory(WnObj o, long nano) {
-        return 0;
+    public List<WnHistory> cleanHistory(WnObj o, long nano) {
+        return new ArrayList<WnHistory>(1);
     }
 
     @Override
-    public int cleanHistoryBy(WnObj o, int remain) {
-        return 0;
+    public List<WnHistory> cleanHistoryBy(WnObj o, int remain) {
+        return new ArrayList<WnHistory>(1);
     }
 
 }
