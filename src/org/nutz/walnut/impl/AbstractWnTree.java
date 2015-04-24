@@ -49,6 +49,10 @@ public abstract class AbstractWnTree implements WnTree {
         return treeNode.isSameId(id);
     }
 
+    public String getMount() {
+        return treeNode.mount();
+    }
+
     @Override
     public WnTreeFactory factory() {
         return factory;

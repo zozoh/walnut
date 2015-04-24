@@ -49,7 +49,7 @@ public class WnBean extends NutMap implements WnObj {
         this.setv("ph", nd.path());
         this.setv("race", nd.race());
         this.setv("pid", nd.parentId());
-        this.setv("mnt", nd.mount());
+        this.setv("mnt", nd.tree().getMount());
 
         // 返回
         return this;
@@ -327,7 +327,7 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public String toString() {
-        return String.format("%s:%s[%s] %dbytes", id(), name(), sha1(), len());
+        return String.format("%s:%s[%s] %dbytes -> %s", id(), name(), sha1(), len(), mount());
     }
 
     // -----------------------------------------

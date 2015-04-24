@@ -11,6 +11,8 @@ public interface WnTree extends UnitTestable {
     WnNode getTreeNode();
 
     void setTreeNode(WnNode treeNode);
+    
+    String getMount();
 
     int eachMountTree(Each<WnTree> callback);
 

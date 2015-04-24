@@ -44,7 +44,9 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public WnObj get(String id) {
-        return indexer.get(id);
+        WnNode nd = tree.getNode(id);
+        nd.loadParents(null, false);
+        return indexer.toObj(nd);
     }
 
     @Override
@@ -173,6 +175,8 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public void delete(WnObj o) {
+        WnStore store = stores.get(o);
+        store.cleanHistoryBy(o, 0);
         tree.delete(o);
     }
 
