@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import org.nutz.lang.Each;
@@ -34,8 +35,33 @@ public abstract class AbstractWnStore implements WnStore {
         WnHistory his = table.getHistory(o, o.nanoStamp());
         if (null == his)
             return new NullInputStream();
-        return getInputStream(his, off);
+        return getInputStream(o, his, off);
     }
+
+    @Override
+    public InputStream getInputStream(WnObj o, WnHistory his, long off) {
+        if (null == his)
+            return new NullInputStream();
+
+        // 得到节点检查的回调接口
+        o = Wn.WC().whenRead(o);
+
+        // 返回输出流
+        return _get_inputstream(his, off);
+    }
+
+    protected abstract InputStream _get_inputstream(WnHistory his, long off);
+
+    @Override
+    public OutputStream getOutputStream(WnObj o, long off) {
+        // 得到节点检查的回调接口
+        o = Wn.WC().whenWrite(o);
+
+        // 返回输出流
+        return _get_outputstream(o, off);
+    }
+
+    protected abstract OutputStream _get_outputstream(WnObj o, long off);
 
     public int eachHistory(WnObj o, long nano, Each<WnHistory> callback) {
         return table.eachHistory(o, nano, callback);
@@ -77,7 +103,7 @@ public abstract class AbstractWnStore implements WnStore {
             o.len(0);
             o.mender(Wn.WC().checkMe());
             o.nanoStamp(System.nanoTime());
-            indexer.set(o.id(), o.toMap4Update("^m|sha1|data|len|lm|nano$"));
+            indexer.set(o, "^m|sha1|data|len|lm|nano$");
         }
 
         return list;

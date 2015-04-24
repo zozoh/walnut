@@ -47,6 +47,33 @@ public abstract class Wn {
     private static final String regex = "([$])([a-zA-Z0-9_]+)";
     private static final Pattern p = Pattern.compile(regex);
 
+    public static String appendPath(String base, String rpath) {
+        if (null != rpath) {
+            // null
+            if (null == base) {
+                if (rpath.startsWith("/"))
+                    return rpath;
+                else
+                    return "/" + rpath;
+            }
+            // root
+            else if (base.endsWith("/")) {
+                if (rpath.startsWith("/"))
+                    return base + rpath.substring(1);
+                else
+                    return base + rpath;
+            }
+            // 正常
+            else {
+                if (rpath.startsWith("/"))
+                    return base + rpath;
+                else
+                    return base + "/" + rpath;
+            }
+        }
+        return base == null ? "/" : base;
+    }
+
     public static Pattern wildcardToRegex(String wildcard) {
         if (null == wildcard)
             return null;

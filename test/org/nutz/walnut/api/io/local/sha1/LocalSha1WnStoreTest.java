@@ -25,7 +25,7 @@ public class LocalSha1WnStoreTest extends AbstractWnStoreTest {
 
     @Test
     public void test_sha1_get_remove_history() {
-        WnNode nd = tree.create(null, "xyz.txt", WnRace.FILE, null);
+        WnNode nd = tree.create(null, "xyz.txt", WnRace.FILE);
         WnObj o = new WnBean().setNode(nd);
 
         OutputStream ops;
@@ -126,7 +126,7 @@ public class LocalSha1WnStoreTest extends AbstractWnStoreTest {
 
     @Test
     public void test_sha1_get_remove_history_by_remain() {
-        WnNode nd = tree.create(null, "xyz.txt", WnRace.FILE, null);
+        WnNode nd = tree.create(null, "xyz.txt", WnRace.FILE);
         WnObj o = new WnBean().setNode(nd);
 
         OutputStream ops;

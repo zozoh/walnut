@@ -38,7 +38,7 @@ public class LocalTreeOutputStream extends AbstractLocalOutputStream {
         obj.data(f.getAbsolutePath());
         obj.len(len);
         obj.nanoStamp(nano);
-        store.indexer().set(obj.id(), obj.toMap4Update("^m|data|sha1|len|lm|nano$"));
+        store.indexer().set(obj, "^m|data|sha1|len|lm|nano$");
     }
 
     public String toString() {

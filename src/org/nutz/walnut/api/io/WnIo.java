@@ -1,5 +1,6 @@
 package org.nutz.walnut.api.io;
 
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.Callback;
 
 public interface WnIo extends WnIndexer, WnStore {
@@ -10,7 +11,7 @@ public interface WnIo extends WnIndexer, WnStore {
 
     void walk(WnObj p, Callback<WnObj> callback, WalkMode mode);
 
-    WnObj move(WnObj o, String destPath);
+    WnObj move(String srcPath, String destPath);
 
     WnObj create(WnObj p, String path, WnRace race);
 
@@ -19,4 +20,14 @@ public interface WnIo extends WnIndexer, WnStore {
     void delete(WnObj o);
 
     void setMount(WnObj o, String mnt);
+
+    String readText(WnObj o);
+
+    <T> T readJson(WnObj o, Class<T> classOfT);
+
+    long writeText(WnObj o, CharSequence cs);
+
+    long appendText(WnObj o, CharSequence cs);
+
+    long writeJson(WnObj o, Object obj, JsonFormat fmt);
 }

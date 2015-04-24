@@ -1,6 +1,10 @@
 package org.nutz.walnut.api.io;
 
+import java.util.List;
+
 public interface WnNode {
+
+    boolean isRootNode();
 
     String id();
 
@@ -13,12 +17,14 @@ public interface WnNode {
     boolean isSameId(WnNode o);
 
     boolean isSameId(String id);
-    
+
     boolean isMyParent(WnNode p);
 
     String path();
 
     WnNode path(String path);
+
+    WnNode appendPath(String path);
 
     String name();
 
@@ -39,8 +45,10 @@ public interface WnNode {
     boolean isHidden();
 
     boolean hasParent();
-    
+
     WnNode parent();
+
+    WnNode loadParents(List<WnNode> list, boolean force);
 
     void setParent(WnNode parent);
 
@@ -63,6 +71,6 @@ public interface WnNode {
     String toString();
 
     WnNode clone();
-    
+
     WnNode duplicate();
 }

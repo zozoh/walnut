@@ -9,14 +9,17 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WalkMode;
+import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.api.io.WnTreeFactory;
+import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 
 public abstract class AbstractWnTree implements WnTree {
 
-    protected WnNode treeNode;
+    private WnNode treeNode;
 
     private WnTreeFactory factory;
 
@@ -28,7 +31,7 @@ public abstract class AbstractWnTree implements WnTree {
 
     @Override
     public WnNode getTreeNode() {
-        return treeNode;
+        return treeNode.clone();
     }
 
     @Override
@@ -42,8 +45,8 @@ public abstract class AbstractWnTree implements WnTree {
     }
 
     @Override
-    public boolean isRootNode(WnNode nd) {
-        return nd.equals(treeNode);
+    public boolean isTreeNode(String id) {
+        return treeNode.isSameId(id);
     }
 
     @Override
@@ -56,35 +59,40 @@ public abstract class AbstractWnTree implements WnTree {
 
     @Override
     public WnNode getNode(final String id) {
+        // 如果获取树根节点，直接返回
+        if (this.isTreeNode(id))
+            return getTreeNode();
+
+        // 准备查找吧
         final WnNode[] nd = new WnNode[1];
 
         // 先找自己
-        nd[0] = get_my_node(id);
+        nd[0] = _get_my_node(id);
 
         // 没有的话，从自己的子树里寻找
         if (null == nd[0]) {
             eachMountTree(new Each<WnTree>() {
                 public void invoke(int index, WnTree tree, int length) {
                     nd[0] = tree.getNode(id);
-                    if (null != nd[0])
+                    if (null != nd[0]) {
+                        nd[0].setTree(tree);
                         Lang.Break();
+                    }
                 }
             });
         }
+        // 如果有设置一下自己的树对象
+        else {
+            nd[0].setTree(this);
+        }
+
         // 返回吧
         return nd[0];
     }
 
-    protected abstract WnNode get_my_node(String id);
+    protected abstract WnNode _get_my_node(String id);
 
-    protected WnNode check_parent(WnNode p, WnRace race) {
-        if (p == treeNode)
-            return p;
-
-        // 默认用 treeNode
-        if (null == p) {
-            return treeNode;
-        }
+    private void __assert_parent_can_create(WnNode p, WnRace race) {
         // 指定的节点，看看层级关系
 
         // 文件下面不能再有子对象
@@ -95,146 +103,181 @@ public abstract class AbstractWnTree implements WnTree {
         if (p.isOBJ() && race == WnRace.OBJ) {
             throw Er.create("e.io.tree.nd.child_must_obj", p);
         }
-        // 必须在树内，否则不能创建
-        if (!p.tree().equals(this)) {
+        // 必须在树内，否则不能创建，当然 Mount 节点树是父树，同时也是子树的根节点，需要除外
+        if (!p.isMount() && !p.tree().equals(this)) {
             throw Er.create("e.io.tree.nd.OutOfMount", p + " <!> " + treeNode);
         }
-        // 嗯，差不多就这些了
-        return p;
     }
 
-    protected void _fill_parent_full_path(WnNode p, WnNode nd) {
-        WnNode pnd = null == p ? treeNode : p;
-        nd.setParent(pnd);
-        nd.setTree(this);
-        String pph = pnd.path();
-        if (!Strings.isBlank(pph)) {
-            nd.path(pph + "/" + nd.name());
-        } else {
-            nd.path("/" + nd.name());
-        }
-    }
-
-    public void loadParents(WnNode nd, boolean force, List<WnNode> list) {
-        // 确保有上下文列表
-        if (null == list)
-            list = new LinkedList<WnNode>();
-
-        // 给的节点是书的根节点
-        if (treeNode.isSameId(nd)) {
-            WnNode root = treeNode.duplicate();
-            // 如果顶级节点属于别的树，则用别的树的逻辑加载
-            // 否则表示到头了
-            if (!root.tree().equals(this)) {
-                root.tree().loadParents(root, true, list);
-            } else {
-                root.path("/");
-            }
-            list.add(root);
-            nd.setParent(root);
-            return;
-        }
-
-        // 否则根据子树的逻辑加载
-        WnNode p = nd.parent();
-        if (null == p || force) {
-            p = _get_my_parent(nd);
-        }
-        // 没有父，是不可能的
-        if (null == p) {
-            throw Lang.impossible();
-        }
-
-        // 递归调用父的读取
-        this.loadParents(p, force, list);
-        list.add(p);
-        nd.setParent(p);
-        nd.path(p.path() + "/" + nd.name());
-    }
-
-    protected abstract WnNode _get_my_parent(WnNode nd);
+    protected abstract int _each_children(WnNode p, String str, Each<WnNode> callback);
 
     @Override
-    public WnNode fetch(WnNode p, String path, Callback<WnNode> callback) {
+    public int eachChildren(WnNode p, String str, final Each<WnNode> each) {
+        if (null == p) {
+            p = treeNode.clone();
+        }
+
+        // 读取所有的父节点
+        p.loadParents(null, false);
+
+        // 得到节点检查的回调接口
+        final WnContext wc = Wn.WC();
+        p = wc.whenEnter(p);
+
+        final WnTree myTree = this;
+        final WnNode pnd = p;
+
+        // 开始循环
+        final int[] re = new int[1];
+        _each_children(p, str, new Each<WnNode>() {
+            public void invoke(int index, WnNode nd, int length) {
+                // 设置父
+                nd.setTree(myTree);
+                nd.setParent(pnd);
+                nd.path(pnd.path()).appendPath(nd.name());
+
+                // 不可见，就忽略
+                nd = wc.whenView(nd);
+                if (null == nd)
+                    return;
+
+                // 调用回调并计数
+                each.invoke(re[0], nd, -1);
+                re[0]++;
+            }
+        });
+        return re[0];
+    }
+
+    @Override
+    public WnNode fetch(WnNode p, String path) {
         if (path.startsWith("/")) {
             p = null;
         }
         String[] ss = Strings.splitIgnoreBlank(path, "[/]");
-        return fetch(p, ss, 0, ss.length, null);
+        return fetch(p, ss, 0, ss.length);
     }
 
     @Override
-    public WnNode fetch(WnNode p,
-                        String[] paths,
-                        int fromIndex,
-                        int toIndex,
-                        Callback<WnNode> callback) {
+    public WnNode fetch(WnNode p, String[] paths, int fromIndex, int toIndex) {
         // 判断绝对路径
         if (null == p) {
-            p = treeNode;
+            p = getTreeNode();
         }
 
         // 用尽路径元素了，则直接返回
         if (fromIndex >= toIndex)
             return p;
 
-        // 逐个查找
-        final WnNode[] nd = Lang.array(p);
-        for (int i = fromIndex; i < toIndex; i++) {
-            // 找子节点，找不到，就返回 null
-            if (eachChildren(nd[0], paths[i], new Each<WnNode>() {
-                public void invoke(int index, WnNode child, int length) {
-                    nd[0] = child;
-                    Lang.Break();
-                }
-            }) <= 0) {
-                return null;
-            }
+        // 确保读取所有的父
+        p.loadParents(null, false);
 
-            // 应对一下回调
-            if (null != callback) {
-                callback.invoke(nd[0]);
+        // 得到节点检查的回调接口
+        WnSecurity secu = Wn.WC().getSecurity();
+
+        if (null != secu) {
+            p = secu.enter(p);
+        }
+
+        // 逐个进入目标节点的父
+        WnNode nd;
+        int rightIndex = toIndex - 1;
+        for (int i = fromIndex; i < rightIndex; i++) {
+            // 找子节点，找不到，就返回 null
+            nd = this._fetch_one_by_name(p, paths[i]);
+            if (null == nd)
+                return null;
+
+            // 设置节点
+            nd.setTree(this);
+            nd.setParent(p);
+            nd.path(p.path()).appendPath(nd.name());
+
+            // 确保节点可进入
+            if (null != secu) {
+                nd = secu.enter(nd);
             }
 
             // 如果找到了子节点，这个子节点如果 mount 了另外 tree
             // 则用另外一个 tree 的逻辑来查找
-            if (nd[0].isMount()) {
+            if (nd.isMount()) {
                 // 用尽路径元素了，则直接返回
                 // zzh: 这个是一个优化，提前做点判断，就不用再递归到函数里面再判断了
                 if (i + 1 >= toIndex) {
-                    return nd[0];
+                    return nd;
                 }
-                WnTree mntTree = factory().check(nd[0].path(), nd[0].mount());
-                return mntTree.fetch(null, paths, i + 1, toIndex, callback);
+                // 用另外一颗树的逻辑来消费剩下的路径
+                WnTree mntTree = factory().check(nd.path(), nd.mount());
+                return mntTree.fetch(null, paths, i + 1, toIndex);
             }
 
+            // 指向下一个节点
+            p = nd;
         }
-        return nd[0];
+
+        // 最后再检查一下目标节点
+        nd = this._fetch_one_by_name(p, paths[rightIndex]);
+
+        if (null == nd)
+            return null;
+
+        // 设置节点
+        nd.setTree(this);
+        nd.setParent(p);
+        nd.path(p.path()).appendPath(nd.name());
+
+        // 确保节点可以访问
+        if (null != secu)
+            nd = secu.access(nd);
+
+        // 搞定了，返回吧
+        return nd;
     }
 
+    protected abstract WnNode _fetch_one_by_name(WnNode p, String name);
+
     public WnNode append(WnNode p, WnNode nd) {
+        if (null == p)
+            p = treeNode.clone();
+
         // 只有同树的节点才能转移
         p.assertTree(nd.tree());
+
+        // 要移动的节点必须不能是顶级节点
+        if (!nd.hasParent()) {
+            throw Er.create("e.io.tree.appendRoot", nd);
+        }
 
         // 看看有没有必要移动
         if (nd.isMyParent(p)) {
             return nd;
         }
 
+        // 得到节点检查的回调接口
+        WnSecurity secu = Wn.WC().getSecurity();
+
+        // 分别检查节点
+        if (null != secu) {
+            p = secu.write(p);
+            secu.write(nd.parent());
+        }
+
         // 如果重名，则禁止移动
-        if (null != this.fetch(p, nd.name(), null)) {
+        if (null != this.fetch(p, nd.name())) {
             throw Er.create("e.io.tree.exists", nd.name());
         }
 
-        // 嗯什么都不做吧，因为子类会先调用这个方法，之后再实现对应的逻辑
-        return nd;
+        // 执行移动
+        return _do_append(p, nd);
     }
 
+    protected abstract WnNode _do_append(WnNode p, WnNode nd);
+
     @Override
-    public WnNode create(WnNode p, String path, WnRace race, Callback<WnNode> callback) {
+    public WnNode create(WnNode p, String path, WnRace race) {
         // 是否从树的根部创建
         if (path.startsWith("/")) {
-            p = treeNode;
+            p = getTreeNode();
         }
 
         // 分析路径
@@ -257,53 +300,107 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 创建
-        return create(p, paths, 0, len, race, callback);
+        return create(p, paths, 0, len, race);
 
     }
 
     @Override
-    public WnNode create(WnNode p,
-                         String[] paths,
-                         int fromIndex,
-                         int toIndex,
-                         WnRace race,
-                         Callback<WnNode> callback) {
+    public WnNode create(WnNode p, String[] paths, int fromIndex, int toIndex, WnRace race) {
         if (null == p) {
-            p = treeNode;
+            p = getTreeNode();
         }
 
+        // 加载父节点所有祖先
+        p.loadParents(null, false);
+
         // 创建所有的父
-        WnNode nd = p;
-        int i = fromIndex;
-        for (; i < toIndex - 1; i++) {
-            WnNode child = fetch(nd, paths, i, i + 1, callback);
+        WnNode nd;
+        int rightIndex = toIndex - 1;
+        for (int i = fromIndex; i < rightIndex; i++) {
+            nd = fetch(p, paths, i, i + 1);
             // 有节点的话 ..
-            if (null != child) {
-                nd = child;
+            if (null != nd) {
                 // 如果节点挂载到了另外一颗树
                 if (nd.isMount()) {
                     WnTree mntTree = factory().check(nd.path(), nd.mount());
-                    return mntTree.create(null, paths, i + 1, toIndex, race, callback);
+                    return mntTree.create(nd, paths, i + 1, toIndex, race);
                 }
                 // 继续下一个路径
+                p = nd;
                 continue;
             }
-            // 没有节点，创建一个目录节点
-            else {
-                nd = createNode(nd, null, paths[i], WnRace.DIR);
+            // 没有节点，创建一系列目录节点Ï
+            for (; i < rightIndex; i++) {
+                nd = _create_node(p, null, paths[i], WnRace.DIR);
+                nd.setTree(this);
                 nd.setParent(p);
+                nd.path(p.path()).appendPath(nd.name());
+                p = nd;
             }
         }
 
-        // 创建自己
-        WnNode me = createNode(nd, null, paths[i], race);
-        me.setParent(nd);
-
-        // 更新缓存
-        this._flush_buffer();
-
-        return me;
+        // 创建自身节点
+        return createNode(p, null, paths[rightIndex], race);
     }
+
+    protected abstract WnNode _create_node(WnNode p, String id, String name, WnRace race);
+
+    @Override
+    public WnNode createNode(WnNode p, String id, String name, WnRace race) {
+        // 得到节点检查的回调接口
+        WnSecurity secu = Wn.WC().getSecurity();
+
+        // 创建前，检查一下父节点和要创建的节点类型是否匹配
+        __assert_parent_can_create(p, race);
+
+        // 应对一下回调
+        if (null != secu) {
+            p = secu.enter(p);
+            p = secu.write(p);
+        }
+
+        // 检查一下重名
+        __assert_duplicate_name(p, name);
+
+        // 创建自己
+        WnNode nd = _create_node(p, null, name, race);
+        nd.setTree(this);
+        nd.setParent(p);
+        nd.path(p.path()).appendPath(nd.name());
+
+        // 更新缓存并返回
+        this._flush_buffer();
+        return nd;
+    }
+
+    private void __assert_duplicate_name(WnNode p, String name) {
+        if (exists(p, name))
+            throw Er.create("e.io.exists", p);
+    }
+
+    @Override
+    public void rename(WnNode nd, String newName) {
+        // 得到节点检查的回调接口
+        WnSecurity secu = Wn.WC().getSecurity();
+
+        // 应对一下回调
+        if (null != secu) {
+            nd = secu.enter(nd);
+            nd = secu.write(nd);
+        }
+
+        // 必须有父，才能改名
+        if (!nd.hasParent())
+            throw Er.create("e.io.noparent", nd);
+
+        // 确保没有重名
+        __assert_duplicate_name(nd.parent(), newName);
+
+        // 执行改名
+        _do_rename(nd, newName);
+    }
+
+    protected abstract void _do_rename(WnNode nd, String newName);
 
     protected void _do_walk_children(WnNode p, final Callback<WnNode> callback) {
         this.eachChildren(p, null, new Each<WnNode>() {
@@ -381,13 +478,13 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 删除自身
-        delete_self(nd);
+        _delete_self(nd);
 
         // 更新缓存
         _flush_buffer();
     }
 
-    protected abstract void delete_self(WnNode nd);
+    protected abstract void _delete_self(WnNode nd);
 
     @Override
     public boolean equals(Object obj) {

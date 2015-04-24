@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.nutz.lang.Lang;
@@ -11,6 +12,7 @@ import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnTree;
+import org.nutz.walnut.util.Wn;
 
 public class WnBean extends NutMap implements WnObj {
 
@@ -337,7 +339,13 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public WnNode path(String path) {
-        throw Er.create("e.io.obj.forbiden.set", "path=" + path);
+        setv("ph", path);
+        return this;
+    }
+
+    public WnNode appendPath(String path) {
+        path(Wn.appendPath(path(), path));
+        return this;
     }
 
     public String name() {
@@ -372,10 +380,6 @@ public class WnBean extends NutMap implements WnObj {
         return isRace(WnRace.FILE);
     }
 
-    public void setParent(WnNode parent) {
-        throw Er.create("e.io.obj.forbiden.set", "parent=" + parent);
-    }
-
     public String parentId() {
         return getString("pid");
     }
@@ -390,7 +394,8 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public WnNode mount(String mnt) {
-        throw Er.create("e.io.obj.forbiden.set", "mnt=" + mnt);
+        setv("mnt", mnt);
+        return this;
     }
 
     public boolean isMount() {
@@ -400,12 +405,27 @@ public class WnBean extends NutMap implements WnObj {
     // -----------------------------------------
     // 下面是委托 _nd 属性的方法
     // -----------------------------------------
+
     public boolean isHidden() {
         return nd().isHidden();
     }
 
+    @Override
+    public boolean isRootNode() {
+        return nd().isRootNode();
+    }
+
     public WnNode parent() {
         return nd().parent();
+    }
+
+    public void setParent(WnNode parent) {
+        nd().setParent(parent);
+    }
+
+    @Override
+    public WnNode loadParents(List<WnNode> list, boolean force) {
+        return nd().loadParents(list, force);
     }
 
     public boolean isMyParent(WnNode p) {

@@ -2,6 +2,7 @@ package org.nutz.walnut.impl.local;
 
 import java.io.File;
 
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnNode;
@@ -25,12 +26,29 @@ public class LocalWnNode extends AbstractWnNode {
         this.file = nd.file;
         this.mount = nd.mount;
         this.setTree(nd.tree());
-        this.setParent(nd.parent());
         this.path(nd.path());
     }
 
     public File getFile() {
         return file;
+    }
+
+    public WnNode parent() {
+        if (null == parent) {
+            File pf = file.getParentFile();
+            if (Files.getFile(pf, ".wn").exists()) {
+                parent = tree().getTreeNode();
+            } else {
+                LocalWnTree tree = (LocalWnTree)tree();
+                parent = tree._file_to_node(pf, null);
+            }
+        }
+        return parent;
+    }
+
+    @Override
+    public String parentId() {
+        return parent().id();
     }
 
     @Override

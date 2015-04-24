@@ -33,16 +33,11 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    public WnNode get_my_node(String id) {
-        if (treeNode.isSameId(id))
-            return treeNode;
+    public WnNode _get_my_node(String id) {
         ZMoDoc q = WnMongos.qID(id);
         ZMoDoc doc = co.findOne(q);
         if (null != doc) {
-            WnNode nd = WnMongos.toWnNode(doc);
-            nd.setTree(this);
-            loadParents(nd, false, null);
-            return nd;
+            return WnMongos.toWnNode(doc);
         }
         return null;
     }
@@ -68,7 +63,6 @@ public class MongoWnTree extends AbstractWnTree {
                 DBObject dbobj = cu.next();
                 WnNode nd = WnMongos.toWnNode(dbobj);
                 nd.setTree(this);
-                loadParents(nd, false, null);
 
                 WnTree tree = factory().check(nd.path(), nd.mount());
 
@@ -97,12 +91,24 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    public int eachChildren(WnNode p, String str, Each<WnNode> callback) {
+    protected WnNode _fetch_one_by_name(WnNode p, String name) {
+        ZMoDoc q = ZMoDoc.NEW("pid", p.id()).putv("nm", name);
+        ZMoDoc doc = co.findOne(q);
+        return WnMongos.toWnNode(doc);
+    }
+
+    @Override
+    public boolean exists(WnNode p, String name) {
+        ZMoDoc q = ZMoDoc.NEW("pid", p.id()).putv("nm", name);
+        return co.count(q) > 0;
+    }
+
+    @Override
+    protected int _each_children(WnNode p, String str, Each<WnNode> callback) {
         if (null == callback)
             return 0;
 
-        WnNode pnd = null == p ? treeNode : p;
-        ZMoDoc q = ZMoDoc.NEW("pid", pnd.id());
+        ZMoDoc q = ZMoDoc.NEW("pid", p.id());
 
         // 设置名称过滤条件
         if (!Strings.isBlank(str)) {
@@ -133,8 +139,6 @@ public class MongoWnTree extends AbstractWnTree {
                 DBObject dbobj = cu.next();
                 WnNode nd = WnMongos.toWnNode(dbobj);
 
-                _fill_parent_full_path(p, nd);
-
                 // 调用回调并计数
                 try {
                     callback.invoke(i++, nd, n);
@@ -162,16 +166,17 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    public WnNode createNode(WnNode p, String id, String name, WnRace race) {
-        p = check_parent(p, race);
-
+    public WnNode _create_node(WnNode p, String id, String name, WnRace race) {
+        // 创建子节点
         MongoWnNode mnd = new MongoWnNode();
         if (Strings.isBlank(id))
             mnd.genID();
         else
             mnd.id(id);
         mnd.setParent(p);
-        mnd.parentId(p.id()).name(name).race(race);
+        mnd.parentId(p.id());
+        mnd.name(name);
+        mnd.race(race);
         mnd.setTree(this);
 
         // 展开名字
@@ -197,17 +202,16 @@ public class MongoWnTree extends AbstractWnTree {
         co.save(doc);
 
         // 返回
-        mnd.path(p.path() + "/" + name);
         return mnd;
     }
 
     @Override
-    protected void delete_self(WnNode nd) {
+    protected void _delete_self(WnNode nd) {
         co.remove(WnMongos.qID(nd.id()));
     }
 
     @Override
-    public void rename(WnNode nd, String newName) {
+    public void _do_rename(WnNode nd, String newName) {
         MongoWnNode mnd = (MongoWnNode) nd;
         mnd.name(newName);
         ZMoDoc q = WnMongos.qID(mnd.id());
@@ -216,7 +220,7 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    public WnNode append(WnNode p, WnNode nd) {
+    public WnNode _do_append(WnNode p, WnNode nd) {
         // 调用父类的检查
         super.append(p, nd);
 

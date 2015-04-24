@@ -31,8 +31,8 @@ public class LocalDataWnStore extends AbstractWnStore {
         super(indexer, new LocalDataWnStoreTable());
         this.home = Files.createDirIfNoExists(homePath);
     }
-    
-    WnIndexer indexer(){
+
+    WnIndexer indexer() {
         return indexer;
     }
 
@@ -47,7 +47,7 @@ public class LocalDataWnStore extends AbstractWnStore {
     }
 
     @Override
-    public InputStream getInputStream(WnHistory his, long off) {
+    protected InputStream _get_inputstream(WnHistory his, long off) {
         // 根据 data 得到文件路径
         String data = his.data();
 
@@ -82,7 +82,7 @@ public class LocalDataWnStore extends AbstractWnStore {
     }
 
     @Override
-    public OutputStream getOutputStream(WnObj o, long off) {
+    protected OutputStream _get_outputstream(WnObj o, long off) {
         // 确保对象分配了一个 UUID 作为自己的 data
         if (!o.hasData())
             o.data(R.UU32());

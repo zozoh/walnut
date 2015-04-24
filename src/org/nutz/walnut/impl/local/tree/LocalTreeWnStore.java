@@ -33,7 +33,7 @@ public class LocalTreeWnStore extends AbstractWnStore {
     protected void do_real_remove_history_data(WnHistory his) {}
 
     @Override
-    public InputStream getInputStream(WnHistory his, long off) {
+    public InputStream _get_inputstream(WnHistory his, long off) {
         File f = new File(his.data());
 
         // 不存在
@@ -62,7 +62,7 @@ public class LocalTreeWnStore extends AbstractWnStore {
     }
 
     @Override
-    public OutputStream getOutputStream(WnObj o, long off) {
+    public OutputStream _get_outputstream(WnObj o, long off) {
         LocalTreeWnStoreTable table = (LocalTreeWnStoreTable) this.table;
 
         // 试着根据对象的全路径获取一下本地文件

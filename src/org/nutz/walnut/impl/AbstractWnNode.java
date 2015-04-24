@@ -1,5 +1,8 @@
 package org.nutz.walnut.impl;
 
+import java.util.List;
+
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.mongo.annotation.MoIgnore;
 import org.nutz.walnut.api.err.Er;
@@ -10,7 +13,7 @@ import org.nutz.walnut.util.Wn;
 public abstract class AbstractWnNode implements WnNode {
 
     @MoIgnore
-    private WnNode parent;
+    protected WnNode parent;
 
     @MoIgnore
     private WnTree tree;
@@ -20,6 +23,11 @@ public abstract class AbstractWnNode implements WnNode {
 
     public WnTree tree() {
         return tree;
+    }
+
+    @Override
+    public boolean isRootNode() {
+        return tree.isTreeNode(id());
     }
 
     public void setTree(WnTree tree) {
@@ -33,6 +41,53 @@ public abstract class AbstractWnNode implements WnNode {
 
     @Override
     public WnNode parent() {
+        return parent;
+    }
+
+    @Override
+    public WnNode loadParents(List<WnNode> list, boolean force) {
+        // 已经加载过了，且不是强制加载，就啥也不干
+        if (null != parent && !force) {
+            if (Strings.isBlank(path)) {
+                path(parent.path()).appendPath(name());
+            }
+            return parent;
+        }
+
+        // 如果自己就是树的根节点则表示到头了
+        // 因为 Mount 的树，它的树对象是父树
+        WnTree myTree = tree();
+        if (myTree.isTreeNode(id())) {
+            path("/");
+            return this;
+        }
+
+        // 得到父节点
+        String pid = parentId();
+        WnNode p = myTree.getNode(pid);
+
+        // 没有父，是不可能的
+        if (null == p) {
+            throw Lang.impossible();
+        }
+
+        // 递归加载父节点的祖先
+        p.loadParents(list, force);
+
+        // 确保可访问
+        p = Wn.WC().whenEnter(p);
+
+        // 设置成自己的父
+        parent = p;
+
+        // 记录到输出列表
+        if (null != list)
+            list.add(parent);
+
+        // 更新路径
+        path(parent.path()).appendPath(name());
+
+        // 返回父节点
         return parent;
     }
 
@@ -54,6 +109,12 @@ public abstract class AbstractWnNode implements WnNode {
     @Override
     public WnNode path(String path) {
         this.path = path;
+        return this;
+    }
+
+    @Override
+    public WnNode appendPath(String ph) {
+        path(Wn.appendPath(this.path, ph));
         return this;
     }
 

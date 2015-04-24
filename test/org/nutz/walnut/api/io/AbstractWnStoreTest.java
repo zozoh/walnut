@@ -7,23 +7,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.Date;
-
 import org.junit.Test;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
-import org.nutz.mongo.ZMoCo;
 import org.nutz.walnut.impl.WnBean;
 import org.nutz.walnut.impl.WnStoreFactoryImpl;
-import org.nutz.walnut.impl.WnTreeFactoryImpl;
-import org.nutz.walnut.impl.mongo.MongoWnIndexer;
 
-public abstract class AbstractWnStoreTest extends AbstractWnApiTest {
+public abstract class AbstractWnStoreTest extends AbstractWnIndexerTest {
 
     @Test
     public void test_simple_read_write() throws IOException {
-        WnNode nd = tree.create(null, "abc.txt", WnRace.FILE, null);
+        WnNode nd = tree.create(null, "abc.txt", WnRace.FILE);
         WnObj o = new WnBean().setNode(nd);
         String str = "hello";
 
@@ -35,30 +30,16 @@ public abstract class AbstractWnStoreTest extends AbstractWnApiTest {
 
         assertEquals(str, str2);
 
-        String sha1 = indexer.getString(nd.id(), "sha1");
-        assertEquals(sha1, Lang.sha1(str));
-
-        int len = indexer.getInt(nd.id(), "len");
-        assertEquals(len, str.length());
-
-        long nano = indexer.getLong(nd.id(), "nano");
-        Date d = indexer.getTime(nd.id(), "lm");
-        assertEquals(d.getTime(), nano / 1000000L);
+        o = indexer.get(nd.id());
+        assertEquals(Lang.sha1(str), o.sha1());
+        assertEquals(str.length(), o.len());
+        assertEquals(o.lastModified().getTime(), o.nanoStamp() / 1000000L);
     }
-
-    protected WnTree tree;
 
     protected WnStore store;
 
     protected void on_before(PropertiesProxy pp) {
-        treeFactory = new WnTreeFactoryImpl(db);
-
-        tree = treeFactory.check("", getTreeMount());
-        tree._clean_for_unit_test();
-
-        ZMoCo co = db.getCollectionByMount("mongo:obj");
-        indexer = new MongoWnIndexer(co);
-        indexer._clean_for_unit_test();
+        super.on_before(pp);
 
         storeFactory = new WnStoreFactoryImpl(indexer,
                                               db,
@@ -67,7 +48,5 @@ public abstract class AbstractWnStoreTest extends AbstractWnApiTest {
         store = storeFactory.get(tree.getTreeNode());
         store._clean_for_unit_test();
     }
-
-    protected abstract String getTreeMount();
 
 }

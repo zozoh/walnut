@@ -35,7 +35,6 @@ public class MongoWnNode extends AbstractWnNode {
         race = nd.race;
         mount = nd.mount;
         this.setTree(nd.tree());
-        this.setParent(nd.parent());
         this.path(nd.path());
     }
 

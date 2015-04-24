@@ -70,6 +70,7 @@ public class WnTreeFactoryImpl implements WnTreeFactory {
         nd.id(mnt);
         nd.path(path);
         nd.mount(mnt);
+        nd.name(mnt);
 
         // 搞定，返回
         tree.setTreeNode(nd);

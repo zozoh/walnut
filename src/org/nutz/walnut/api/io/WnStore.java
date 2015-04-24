@@ -16,7 +16,7 @@ public interface WnStore extends WnStoreTable {
      */
     InputStream getInputStream(WnObj o, long off);
 
-    InputStream getInputStream(WnHistory his, long off);
+    InputStream getInputStream(WnObj o, WnHistory his, long off);
 
     /**
      * 获取一个对象的写入流。当输入流关闭后，会自动更新传入的对象的内部状态。 <br>

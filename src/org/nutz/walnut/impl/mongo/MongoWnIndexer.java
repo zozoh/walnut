@@ -29,19 +29,14 @@ public class MongoWnIndexer extends AbstractWnIndexer {
     }
 
     @Override
-    public WnObj getBy(String id, String... keys) {
+    public WnObj _get(String id) {
         ZMoDoc q = WnMongos.qID(id);
-        ZMoDoc fields = keys.length == 0 ? null : ZMoDoc.NEW();
-        if (null != fields) {
-            for (String key : keys)
-                fields.put(key, 1);
-        }
-        ZMoDoc doc = co.findOne(q, fields);
+        ZMoDoc doc = co.findOne(q);
         return WnMongos.toWnObj(doc);
     }
 
     @Override
-    public void set(String id, NutMap map) {
+    public void _set(String id, NutMap map) {
         // 移除
         if (null == map) {
             remove(id);
@@ -67,20 +62,7 @@ public class MongoWnIndexer extends AbstractWnIndexer {
     }
 
     @Override
-    public Object getValue(String id, String key) {
-        ZMoDoc doc = co.findOne(WnMongos.qID(id), ZMoDoc.NEW(key, 1));
-        return doc.get(key);
-    }
-
-    @Override
-    public void setValue(String id, String key, Object val) {
-        ZMoDoc q = WnMongos.qID(id);
-        ZMoDoc doc = ZMoDoc.SET(key, val);
-        co.update(q, doc, true, false);
-    }
-
-    @Override
-    public int each(WnQuery q, Each<WnObj> callback) {
+    public int _each(WnQuery q, Each<WnObj> callback) {
         if (null == callback)
             return 0;
         ZMoDoc qDoc = null == q ? ZMoDoc.NEW() : WnMongos.toQueryDoc(q);
@@ -113,8 +95,8 @@ public class MongoWnIndexer extends AbstractWnIndexer {
     }
 
     @Override
-    public void remove(String id) {
-        co.remove(WnMongos.qID(id));
+    public void _remove(WnObj o) {
+        co.remove(WnMongos.qID(o.id()));
     }
 
 }

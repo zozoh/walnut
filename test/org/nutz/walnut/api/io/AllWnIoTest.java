@@ -6,5 +6,5 @@ import org.nutz.walnut.api.io.local.AllLocalTest;
 import org.nutz.walnut.api.io.mongo.AllMongoTest;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({AllLocalTest.class, AllMongoTest.class})
+@Suite.SuiteClasses({AllLocalTest.class, AllMongoTest.class, WnIoTest.class})
 public class AllWnIoTest {}

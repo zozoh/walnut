@@ -48,7 +48,7 @@ public class LocalSha1WnStore extends AbstractWnStore {
     }
 
     @Override
-    public InputStream getInputStream(WnHistory his, long off) {
+    protected InputStream _get_inputstream(WnHistory his, long off) {
         // 根据 sha1 得到文件路径
         String sha1 = his.sha1();
         String ph = Locals.key2path(sha1);
@@ -78,7 +78,7 @@ public class LocalSha1WnStore extends AbstractWnStore {
     }
 
     @Override
-    public OutputStream getOutputStream(WnObj o, long off) {
+    protected OutputStream _get_outputstream(WnObj o, long off) {
         // 初始化临时的数据文件
         File swap = Files.getFile(swapHome, R.UU16());
 
