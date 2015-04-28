@@ -33,18 +33,13 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    public WnNode _get_my_node(String id) {
+    protected MongoWnNode _get_my_node(String id) {
         ZMoDoc q = WnMongos.qID(id);
         ZMoDoc doc = co.findOne(q);
         if (null != doc) {
             return WnMongos.toWnNode(doc);
         }
         return null;
-    }
-
-    protected WnNode _get_my_parent(WnNode nd) {
-        MongoWnNode mnd = (MongoWnNode) nd;
-        return getNode(mnd.parentId());
     }
 
     @Override
@@ -64,7 +59,7 @@ public class MongoWnTree extends AbstractWnTree {
                 WnNode nd = WnMongos.toWnNode(dbobj);
                 nd.setTree(this);
 
-                WnTree tree = factory().check(nd.path(), nd.mount());
+                WnTree tree = factory().check(nd);
 
                 // 虽然不太可能，但是还是判断一下防止无穷递归吧。
                 if (tree == this)
@@ -211,40 +206,45 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    public void _do_rename(WnNode nd, String newName) {
-        MongoWnNode mnd = (MongoWnNode) nd;
-        mnd.name(newName);
-        ZMoDoc q = WnMongos.qID(mnd.id());
-        ZMoDoc doc = ZMoDoc.NEW("nm", newName);
+    protected WnNode _do_rename(WnNode nd, String newName) {
+        ZMoDoc q = WnMongos.qID(nd.id());
+        ZMoDoc doc = ZMoDoc.SET("nm", newName);
         co.update(q, doc);
+        return nd;
     }
 
     @Override
-    public WnNode _do_append(WnNode p, WnNode nd) {
-        // 调用父类的检查
-        super.append(p, nd);
+    protected WnNode _do_append(WnNode p, WnNode nd) {
+        MongoWnNode mynd = __to_mongo_node(nd);
 
         // 开始移动
-        MongoWnNode mp = (MongoWnNode) p;
-        MongoWnNode mnd = (MongoWnNode) nd;
-
-        ZMoDoc q = WnMongos.qID(mnd.id());
-        ZMoDoc doc = ZMoDoc.NEW("pid", mp.id());
+        ZMoDoc q = WnMongos.qID(mynd.id());
+        ZMoDoc doc = ZMoDoc.SET("pid", p.id());
         co.update(q, doc);
 
-        mnd.parentId(mp.id());
-        return mnd;
+        // 返回
+        mynd.parentId(p.id());
+        return mynd;
+    }
+
+    private MongoWnNode __to_mongo_node(WnNode nd) {
+        if (nd instanceof MongoWnNode) {
+            return (MongoWnNode) nd;
+        }
+        return _get_my_node(nd.id());
     }
 
     @Override
-    public void setMount(WnNode nd, String mnt) {
-        MongoWnNode mnd = (MongoWnNode) nd;
-        mnd.mount(mnt);
-        ZMoDoc q = WnMongos.qID(mnd.id());
+    public WnNode _do_set_mount(WnNode nd, String mnt) {
+        MongoWnNode mynd = __to_mongo_node(nd);
+
+        ZMoDoc q = WnMongos.qID(mynd.id());
         ZMoDoc doc = ZMoDoc.NEW();
         doc.set("mnt", mnt);
 
         co.update(q, doc);
+
+        return mynd;
     }
 
     @Override

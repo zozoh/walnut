@@ -136,11 +136,6 @@ public class MongoWnNode extends AbstractWnNode {
     }
 
     @Override
-    public boolean isMount() {
-        return !Strings.isBlank(mount);
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (obj instanceof WnNode) {
             WnNode nd = (WnNode) obj;

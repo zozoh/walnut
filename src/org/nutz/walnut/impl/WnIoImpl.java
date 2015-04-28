@@ -13,8 +13,10 @@ import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnHistory;
 import org.nutz.walnut.api.io.WnIndexer;
@@ -37,6 +39,8 @@ public class WnIoImpl implements WnIo {
 
     private WnIndexer indexer;
 
+    private MimeMap mimes;
+
     public void _clean_for_unit_test() {
         tree._clean_for_unit_test();
         indexer._clean_for_unit_test();
@@ -45,8 +49,26 @@ public class WnIoImpl implements WnIo {
     @Override
     public WnObj get(String id) {
         WnNode nd = tree.getNode(id);
+        if (null == nd)
+            return null;
         nd.loadParents(null, false);
         return indexer.toObj(nd);
+    }
+
+    @Override
+    public WnObj checkById(String id) {
+        WnObj o = get(id);
+        if (null == o)
+            throw Er.create("e.io.noexists" + "id:" + id);
+        return o;
+    }
+
+    @Override
+    public WnObj check(WnObj p, String path) {
+        WnObj o = fetch(p, path);
+        if (null == o)
+            throw Er.create("e.io.noexists" + path);
+        return o;
     }
 
     @Override
@@ -73,29 +95,46 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
-    public WnObj move(String srcPath, String destPath) {
+    public void rename(WnObj o, String newName) {
+        o.tree().rename(o, newName);
+        __set_type(o, null);
+        indexer.set(o, "^nm|tp|mime$");
+    }
+
+    @Override
+    public void changeType(WnObj o, String tp) {
+        __set_type(o, tp);
+        indexer.set(o, "^tp|mime$");
+    }
+
+    @Override
+    public WnObj move(WnObj src, String destPath) {
         // 得到自身节点
-        WnObj ndA = fetch(null, srcPath);
+        src.loadParents(null, false);
 
         // 不用移动
-        if (srcPath.equals(destPath)) {
-            return ndA;
+        if (src.path().equals(destPath)) {
+            return src;
         }
 
         WnContext wc = Wn.WC();
 
         // 确保源是可以访问的
-        wc.whenAccess(ndA);
+        wc.whenAccess(src);
 
         // 确保源的父是可以写入的
-        wc.whenWrite(ndA.parent());
+        wc.whenWrite(src.parent());
 
         // 看看目标是否存在
-        WnNode ta = tree.fetch(null, destPath);
+        String newName = null;
+        String taPath = destPath;
+        WnNode ta = tree.fetch(null, taPath);
 
-        // 如果不存在
+        // 如果不存在，看看目标的父是否存在，并且可能也同时要改名
         if (null == ta) {
-            ta = tree.fetch(null, Files.getParent(destPath));
+            taPath = Files.getParent(taPath);
+            ta = tree.fetch(null, taPath);
+            newName = Files.getName(destPath);
         }
         // 如果存在的是一个文件
         else if (ta.isFILE()) {
@@ -104,61 +143,92 @@ public class WnIoImpl implements WnIo {
 
         // 还不存在不能忍啊
         if (null == ta) {
-            throw Er.create("e.io.noexists", destPath);
+            throw Er.create("e.io.noexists", taPath);
         }
 
         // 确认目标能写入
         wc.whenWrite(ta);
 
         // 默认返回自身
-        WnObj re = ndA;
+        WnObj re = src;
 
         // 准备好了父在以后判断是否是同一颗树
-        WnTree treeA = ndA.tree();
+        WnTree treeA = src.tree();
         WnTree treeB = ta.tree();
         // 如果在同一颗树上则简单修改一下节点
         if (treeA.equals(treeB)) {
             // 否则只能允许把对象移动到对象下面
-            if (ta.isDIR() || (ta.isOBJ() && ndA.isOBJ())) {
-                treeA.append(ta, ndA);
+            if (ta.isDIR() || (ta.isOBJ() && src.isOBJ())) {
+                WnNode newNode = treeA.append(ta, src);
+                re.setNode(newNode);
+                if (null != newName && !newName.equals(src.name())) {
+                    treeA.rename(re, newName);
+                }
             }
             // 这肯定是一个非法的移动
             else {
-                throw Er.create("e.io.move.forbidden", ndA.path() + " >> " + destPath);
+                throw Er.create("e.io.move.forbidden", src.path() + " >> " + destPath);
             }
         }
         // 如果不是同一棵树，则一棵树上创建一颗树上删除
         else {
-            WnNode ndB = treeB.createNode(ta, ndA.id(), ndA.name(), ndA.race());
-            // 保持 mount
-            if (ndA.isMount()) {
-                treeB.setMount(ndB, ndA.mount());
+            WnNode ndB;
+            if (null == newName) {
+                ndB = treeB.createNode(ta, src.id(), src.name(), src.race());
+            } else {
+                ndB = treeB.createNode(ta, src.id(), newName, src.race());
             }
+            WnObj oB = indexer.toObj(ndB);
+
+            // 保持 mount
+            if (src.isMount(treeA)) {
+                treeB.setMount(ndB, src.mount());
+            }
+
             // copy 内容
-            WnObj oB = new WnBean().setNode(ndB);
-            WnStore storeA = stores.get(ndA);
-            WnStore storeB = stores.get(ndB);
+            if (src.len() > 0) {
+                WnStore storeA = stores.get(src);
+                WnStore storeB = stores.get(ndB);
 
-            InputStream ins = storeA.getInputStream(ndA, 0);
-            OutputStream ops = storeB.getOutputStream(oB, 0);
-            Streams.writeAndClose(ops, ins);
+                InputStream ins = storeA.getInputStream(src, 0);
+                OutputStream ops = storeB.getOutputStream(oB, 0);
+                Streams.writeAndClose(ops, ins);
 
-            // 删除原来的内容
-            storeA.cleanHistory(ndA, -1);
-
+                // 删除原来的内容
+                try {
+                    wc.setv("store:clean_not_update_indext", true);
+                    storeA.cleanHistory(src, -1);
+                }
+                finally {
+                    wc.remove("store:clean_not_update_indext");
+                }
+            }
             // 删除旧节点
-            treeA.delete(ndA);
+            treeA.delete(src);
 
             // 那么返回的就是 oB
             re = oB;
         }
 
         // 更新一下索引的记录
+        __set_type(re, src.type());
         re.setv("pid", ta.id());
-        indexer.set(re, "^pid$");
+        indexer.set(re, "^pid|tp|mime$");
 
         // 返回
         return re;
+    }
+
+    @Override
+    public WnObj createIfNoExists(WnObj p, String path, WnRace race) {
+        WnObj o = fetch(p, path);
+        if (null == o)
+            return create(p, path, race);
+
+        if (!o.isRace(race))
+            throw Er.create("e.io.create.invalid.race", path + " ! " + race);
+
+        return o;
     }
 
     @Override
@@ -170,13 +240,33 @@ public class WnIoImpl implements WnIo {
     @Override
     public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
         WnNode nd = tree.create(p, paths, fromIndex, toIndex, race);
-        return indexer.toObj(nd);
+        WnObj o = indexer.toObj(nd);
+        __set_type(o, null);
+        o.nanoStamp(System.nanoTime());
+        o.createTime(o.nanoStamp() / 1000000L);
+        indexer.set(o, "^lm|ct|nano|tp|mime$");
+
+        return o;
+    }
+
+    private void __set_type(WnObj o, String tp) {
+        if (Strings.isBlank(tp))
+            tp = Files.getSuffixName(o.name());
+
+        if (!o.hasType() || !o.isType(tp)) {
+            if (Strings.isBlank(tp)) {
+                tp = "txt";
+            }
+            String mime = mimes.getMime(tp);
+            o.type(tp).mime(mime);
+        }
     }
 
     @Override
     public void delete(WnObj o) {
         WnStore store = stores.get(o);
         store.cleanHistoryBy(o, 0);
+        indexer.remove(o.id());
         tree.delete(o);
     }
 
@@ -223,7 +313,8 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public void setMount(WnObj o, String mnt) {
-        tree.setMount(o, mnt);
+        WnNode nd = tree.setMount(o, mnt);
+        o.setNode(nd);
         indexer.set(o, "^mnt$");
     }
 
@@ -286,6 +377,8 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public long writeJson(WnObj o, Object obj, JsonFormat fmt) {
+        if (null == fmt)
+            fmt = JsonFormat.full().setQuoteName(true);
         WnStore store = stores.get(o);
         OutputStream ops = store.getOutputStream(o, 0);
         Writer w = Streams.buffw(Streams.utf8w(ops));
@@ -299,7 +392,17 @@ public class WnIoImpl implements WnIo {
     }
 
     public WnObj getOne(WnQuery q) {
-        return indexer.getOne(q);
+        WnObj o = indexer.getOne(q);
+        if (null == o)
+            return null;
+
+        WnNode nd = tree.getNode(o.id());
+
+        if (null == nd) {
+            throw Er.create("e.io.lostnode", o);
+        }
+
+        return o.setNode(nd);
     }
 
     public WnObj toObj(WnNode nd) {

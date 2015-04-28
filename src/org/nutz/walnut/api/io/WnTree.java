@@ -11,7 +11,7 @@ public interface WnTree extends UnitTestable {
     WnNode getTreeNode();
 
     void setTreeNode(WnNode treeNode);
-    
+
     String getMount();
 
     int eachMountTree(Each<WnTree> callback);
@@ -55,11 +55,11 @@ public interface WnTree extends UnitTestable {
 
     void delete(WnNode nd);
 
-    void rename(WnNode nd, String newName);
+    WnNode rename(WnNode nd, String newName);
 
     WnNode append(WnNode p, WnNode nd);
 
-    void setMount(WnNode nd, String mnt);
+    WnNode setMount(WnNode nd, String mnt);
 
     boolean equals(Object obj);
 

@@ -191,7 +191,7 @@ public abstract class WnMongos {
      *            查询对象
      */
     public static void setup_paging(DBCursor cu, WnQuery q) {
-        if (null == q || !q.isPaging())
+        if (null == q)
             return;
         if (q.limit() > 0) {
             cu.limit(q.limit());

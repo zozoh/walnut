@@ -4,7 +4,6 @@ import java.io.File;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.AbstractWnNode;
@@ -39,8 +38,8 @@ public class LocalWnNode extends AbstractWnNode {
             if (Files.getFile(pf, ".wn").exists()) {
                 parent = tree().getTreeNode();
             } else {
-                LocalWnTree tree = (LocalWnTree)tree();
-                parent = tree._file_to_node(pf, null);
+                LocalWnTree tree = (LocalWnTree) tree();
+                parent = tree._file_to_node(pf, null, false);
             }
         }
         return parent;
@@ -109,11 +108,6 @@ public class LocalWnNode extends AbstractWnNode {
     @Override
     public boolean isHidden() {
         return file.isHidden();
-    }
-
-    @Override
-    public boolean isMount() {
-        return !Strings.isBlank(mount);
     }
 
     @Override

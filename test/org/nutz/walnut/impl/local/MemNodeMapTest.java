@@ -1,4 +1,4 @@
-package org.nutz.walnut.api.io.local;
+package org.nutz.walnut.impl.local;
 
 import static org.junit.Assert.*;
 

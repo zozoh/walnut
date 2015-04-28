@@ -164,6 +164,18 @@ public abstract class Wn {
 
     }
 
+    public static class ROLE {
+
+        public static final int ADMIN = 1;
+
+        public static final int MEMBER = 10;
+
+        public static final int REQUEST = 100;
+
+        public static final int BLOCK = -1;
+
+    }
+
     public static String genId() {
         return R.UU32();
     }

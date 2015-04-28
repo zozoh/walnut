@@ -37,7 +37,7 @@ public class LocalDataWnStore extends AbstractWnStore {
     }
 
     @Override
-    protected void do_real_remove_history_data(WnHistory his) {
+    protected void _do_real_remove_history_data(WnHistory his) {
         String ph = Locals.key2path(his.data());
         File f = Files.getFile(home, ph);
         if (f.exists())

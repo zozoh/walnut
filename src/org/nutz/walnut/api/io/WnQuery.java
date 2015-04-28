@@ -24,10 +24,6 @@ public class WnQuery extends NutMap {
         return this;
     }
 
-    public boolean isPaging() {
-        return skip >= 0 && limit >= 0;
-    }
-
     @Override
     public WnQuery setv(String key, Object value) {
         return (WnQuery) super.setv(key, value);

@@ -88,7 +88,7 @@ public abstract class AbstractWnStore implements WnStore {
     private List<WnHistory> _do_remove_list(WnObj o, List<WnHistory> list) {
         boolean should_clean_obj_index = false;
         for (WnHistory his : list) {
-            do_real_remove_history_data(his);
+            _do_real_remove_history_data(his);
 
             // 如果是对象最后一条记录，则表示清空对象内容
             if (his.nanoStamp() == o.nanoStamp()
@@ -98,12 +98,15 @@ public abstract class AbstractWnStore implements WnStore {
         }
 
         if (should_clean_obj_index) {
-            o.data(null);
-            o.sha1(null);
-            o.len(0);
-            o.mender(Wn.WC().checkMe());
-            o.nanoStamp(System.nanoTime());
-            indexer.set(o, "^m|sha1|data|len|lm|nano$");
+            // 特殊操作将禁止更新 index
+            if (!Wn.WC().getBoolean("store:clean_not_update_indext")) {
+                o.data(null);
+                o.sha1(null);
+                o.len(0);
+                o.mender(Wn.WC().checkMe());
+                o.nanoStamp(System.nanoTime());
+                indexer.set(o, "^m|sha1|data|len|lm|nano$");
+            }
         }
 
         return list;
@@ -114,5 +117,5 @@ public abstract class AbstractWnStore implements WnStore {
         return _do_remove_list(o, list);
     }
 
-    protected abstract void do_real_remove_history_data(WnHistory his);
+    protected abstract void _do_real_remove_history_data(WnHistory his);
 }

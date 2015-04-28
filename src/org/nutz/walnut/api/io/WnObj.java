@@ -1,7 +1,5 @@
 package org.nutz.walnut.api.io;
 
-import java.util.Date;
-
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
@@ -14,6 +12,8 @@ public interface WnObj extends WnNode, NutBean {
     WnObj link(String lid);
 
     boolean isType(String tp);
+
+    boolean hasType();
 
     String type();
 
@@ -77,11 +77,19 @@ public interface WnObj extends WnNode, NutBean {
 
     WnObj labels(String[] lbs);
 
-    Date createTime();
+    long createTime();
 
-    WnObj createTime(Date ct);
+    WnObj createTime(long ct);
 
-    Date lastModified();
+    long expireTime();
+
+    WnObj expireTime(long expi);
+
+    boolean isExpired();
+
+    boolean isExpiredBy(long now);
+
+    long lastModified();
 
     long nanoStamp();
 

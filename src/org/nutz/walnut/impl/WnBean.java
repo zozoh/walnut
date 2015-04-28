@@ -1,6 +1,5 @@
 package org.nutz.walnut.impl;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +30,9 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public WnObj setNode(WnNode nd) {
+        if (nd == this || nd == _nd)
+            return this;
+
         // 如果已经设置了 ID, 那么必须一致
         String id = id();
         if (!Strings.isBlank(id)) {
@@ -49,7 +51,7 @@ public class WnBean extends NutMap implements WnObj {
         this.setv("ph", nd.path());
         this.setv("race", nd.race());
         this.setv("pid", nd.parentId());
-        this.setv("mnt", nd.tree().getMount());
+        this.setv("mnt", Strings.sBlank(nd.mount(), nd.tree().getMount()));
 
         // 返回
         return this;
@@ -139,6 +141,11 @@ public class WnBean extends NutMap implements WnObj {
         if (null == tp)
             return false;
         return mytp.equals(tp);
+    }
+
+    @Override
+    public boolean hasType() {
+        return !Strings.isBlank(type());
     }
 
     public String type() {
@@ -289,17 +296,38 @@ public class WnBean extends NutMap implements WnObj {
         return this;
     }
 
-    public Date createTime() {
-        return this.getAs("ct", Date.class);
+    public long createTime() {
+        return this.getLong("ct", -1);
     }
 
-    public WnBean createTime(Date ct) {
+    public WnBean createTime(long ct) {
         this.setOrRemove("ct", ct);
         return this;
     }
 
-    public Date lastModified() {
-        return this.getAs("lm", Date.class);
+    public long expireTime() {
+        return this.getLong("expi", -1);
+    }
+
+    public WnBean expireTime(long expi) {
+        this.setOrRemove("expi", expi);
+        return this;
+    }
+
+    public boolean isExpired() {
+        return isExpiredBy(System.currentTimeMillis());
+    }
+
+    @Override
+    public boolean isExpiredBy(long now) {
+        long expi = expireTime();
+        if (expi < 0)
+            return false;
+        return expi < now;
+    }
+
+    public long lastModified() {
+        return this.getLong("lm");
     }
 
     public long nanoStamp() {
@@ -308,7 +336,7 @@ public class WnBean extends NutMap implements WnObj {
 
     public WnBean nanoStamp(long nano) {
         this.setv("nano", nano);
-        this.setv("lm", new Date(nano / 1000000L));
+        this.setv("lm", nano / 1000000L);
         return this;
     }
 
@@ -353,7 +381,8 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public WnNode name(String nm) {
-        throw Er.create("e.io.obj.forbiden.set", "name=" + nm);
+        setv("nm", nm);
+        return this;
     }
 
     public WnRace race() {
@@ -395,11 +424,9 @@ public class WnBean extends NutMap implements WnObj {
 
     public WnNode mount(String mnt) {
         setv("mnt", mnt);
+        if (null != _nd)
+            _nd.mount(mnt);
         return this;
-    }
-
-    public boolean isMount() {
-        return !Strings.isBlank(mount());
     }
 
     // -----------------------------------------
@@ -413,6 +440,11 @@ public class WnBean extends NutMap implements WnObj {
     @Override
     public boolean isRootNode() {
         return nd().isRootNode();
+    }
+
+    @Override
+    public boolean isMount(WnTree myTree) {
+        return nd().isMount(myTree);
     }
 
     public WnNode parent() {

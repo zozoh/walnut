@@ -78,6 +78,8 @@ public abstract class AbstractWnIndexer implements WnIndexer {
     @Override
     public WnObj getOne(WnQuery q) {
         final WnObj[] re = new WnObj[1];
+        if (null != q)
+            q.limit(1);
         each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj obj, int length) {
                 re[0] = obj;

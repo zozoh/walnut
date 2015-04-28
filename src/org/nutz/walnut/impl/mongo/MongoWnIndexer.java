@@ -74,7 +74,14 @@ public class MongoWnIndexer extends AbstractWnIndexer {
             WnMongos.setup_paging(cu, q);
             WnMongos.setup_sorting(cu, q);
 
-            while (cu.hasNext() && (null == q || !q.isPaging() || (q.isPaging() && n < q.limit()))) {
+            int limit = null == q ? 0 : q.limit();
+
+            while (cu.hasNext()) {
+                // 如果设置了分页 ...
+                if (limit > 0 && n >= limit) {
+                    break;
+                }
+                // 获取对象
                 DBObject dbobj = cu.next();
                 WnObj o = WnMongos.toWnObj(dbobj);
                 try {

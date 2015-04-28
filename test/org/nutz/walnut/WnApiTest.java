@@ -1,13 +1,17 @@
-package org.nutz.walnut.api.io;
+package org.nutz.walnut;
 
 import org.junit.After;
 import org.junit.Before;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Mirror;
+import org.nutz.walnut.api.io.WnIndexer;
+import org.nutz.walnut.api.io.WnNode;
+import org.nutz.walnut.api.io.WnStoreFactory;
+import org.nutz.walnut.api.io.WnTreeFactory;
 import org.nutz.walnut.impl.mongo.MongoDB;
 import org.nutz.walnut.util.Wn;
 
-public abstract class AbstractWnApiTest {
+public abstract class WnApiTest {
 
     // ------------------------------------------------ 这些是测试目标的构建
     protected WnIndexer indexer;
@@ -49,5 +53,7 @@ public abstract class AbstractWnApiTest {
     protected void on_before(PropertiesProxy pp) {};
 
     protected void on_after(PropertiesProxy pp) {}
+    
+    protected abstract WnNode _create_top_tree_node();
 
 }

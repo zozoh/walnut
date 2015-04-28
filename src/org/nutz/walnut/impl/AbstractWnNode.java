@@ -36,11 +36,14 @@ public abstract class AbstractWnNode implements WnNode {
 
     @Override
     public boolean hasParent() {
-        return null != parent;
+        return !Strings.isBlank(parentId());
     }
 
     @Override
     public WnNode parent() {
+        if (null == parent && hasParent()) {
+            loadParents(null, false);
+        }
         return parent;
     }
 
@@ -147,10 +150,18 @@ public abstract class AbstractWnNode implements WnNode {
 
     @Override
     public String toString() {
-        if (!isMount())
+        if (!isMount(tree()))
             return String.format("%s:%s", id(), name());
 
         return String.format("%s:%s >> %s", id(), name(), mount());
+    }
+
+    @Override
+    public boolean isMount(WnTree myTree) {
+        String mnt = mount();
+        if (Strings.isBlank(mnt))
+            return false;
+        return !myTree.getMount().equals(mnt);
     }
 
     @Override

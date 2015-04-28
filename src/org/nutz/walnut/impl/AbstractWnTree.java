@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Each;
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
@@ -52,6 +53,28 @@ public abstract class AbstractWnTree implements WnTree {
     public String getMount() {
         return treeNode.mount();
     }
+
+    @Override
+    public WnNode setMount(WnNode nd, String mnt) {
+        // 不能自己挂载自己
+        if (null != mnt && mnt.equals(treeNode.mount())) {
+            throw Er.create("e.io.tree.mountself", mnt);
+        }
+        try {
+            nd.loadParents(null, false);
+            WnNode re = _do_set_mount(nd, mnt);
+            this._flush_buffer();
+            re.setTree(this);
+            re.path(nd.path());
+            re.mount(mnt);
+            return re;
+        }
+        finally {
+            _flush_buffer();
+        }
+    }
+
+    protected abstract WnNode _do_set_mount(WnNode nd, String mnt);
 
     @Override
     public WnTreeFactory factory() {
@@ -108,8 +131,9 @@ public abstract class AbstractWnTree implements WnTree {
             throw Er.create("e.io.tree.nd.child_must_obj", p);
         }
         // 必须在树内，否则不能创建，当然 Mount 节点树是父树，同时也是子树的根节点，需要除外
-        if (!p.isMount() && !p.tree().equals(this)) {
-            throw Er.create("e.io.tree.nd.OutOfMount", p + " <!> " + treeNode);
+        if (!p.tree().equals(this)) {
+            if (!this.isTreeNode(p.id()))
+                throw Er.create("e.io.tree.nd.OutOfMount", p + " <!> " + treeNode);
         }
     }
 
@@ -204,14 +228,14 @@ public abstract class AbstractWnTree implements WnTree {
 
             // 如果找到了子节点，这个子节点如果 mount 了另外 tree
             // 则用另外一个 tree 的逻辑来查找
-            if (nd.isMount()) {
+            if (nd.isMount(this)) {
                 // 用尽路径元素了，则直接返回
                 // zzh: 这个是一个优化，提前做点判断，就不用再递归到函数里面再判断了
                 if (i + 1 >= toIndex) {
                     return nd;
                 }
                 // 用另外一颗树的逻辑来消费剩下的路径
-                WnTree mntTree = factory().check(nd.path(), nd.mount());
+                WnTree mntTree = factory().check(nd);
                 return mntTree.fetch(null, paths, i + 1, toIndex);
             }
 
@@ -272,7 +296,13 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 执行移动
-        return _do_append(p, nd);
+        WnNode newNode = _do_append(p, nd);
+        _flush_buffer();
+
+        // 返回
+        newNode.setTree(nd.tree());
+        newNode.path(p.path() + "/" + nd.name());
+        return newNode;
     }
 
     protected abstract WnNode _do_append(WnNode p, WnNode nd);
@@ -317,6 +347,14 @@ public abstract class AbstractWnTree implements WnTree {
         // 加载父节点所有祖先
         p.loadParents(null, false);
 
+        // 如果节点挂载到了另外一颗树
+        if (p.isMount(this)) {
+            WnTree mntTree = factory().check(p);
+            if (mntTree.equals(this))
+                throw Lang.impossible();
+            return mntTree.create(p, paths, fromIndex, toIndex, race);
+        }
+
         // 创建所有的父
         WnNode nd;
         int rightIndex = toIndex - 1;
@@ -325,8 +363,10 @@ public abstract class AbstractWnTree implements WnTree {
             // 有节点的话 ..
             if (null != nd) {
                 // 如果节点挂载到了另外一颗树
-                if (nd.isMount()) {
-                    WnTree mntTree = factory().check(nd.path(), nd.mount());
+                if (nd.isMount(this)) {
+                    WnTree mntTree = factory().check(nd);
+                    if (mntTree.equals(this))
+                        throw Lang.impossible();
                     return mntTree.create(nd, paths, i + 1, toIndex, race);
                 }
                 // 继续下一个路径
@@ -383,7 +423,7 @@ public abstract class AbstractWnTree implements WnTree {
     }
 
     @Override
-    public void rename(WnNode nd, String newName) {
+    public WnNode rename(WnNode nd, String newName) {
         // 得到节点检查的回调接口
         WnSecurity secu = Wn.WC().getSecurity();
 
@@ -401,10 +441,21 @@ public abstract class AbstractWnTree implements WnTree {
         __assert_duplicate_name(nd.parent(), newName);
 
         // 执行改名
-        _do_rename(nd, newName);
+        nd = _do_rename(nd, newName);
+        _flush_buffer();
+
+        // 因为不确定子类会不会修改路径和名称，最后统一修改节点的 nm 和 path
+        nd.name(newName);
+        String ph = nd.path();
+        if (!Strings.isBlank(ph)) {
+            nd.path(Files.renamePath(ph, newName));
+        }
+
+        // 返回
+        return nd;
     }
 
-    protected abstract void _do_rename(WnNode nd, String newName);
+    protected abstract WnNode _do_rename(WnNode nd, String newName);
 
     protected void _do_walk_children(WnNode p, final Callback<WnNode> callback) {
         this.eachChildren(p, null, new Each<WnNode>() {

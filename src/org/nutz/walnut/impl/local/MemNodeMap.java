@@ -72,9 +72,19 @@ public class MemNodeMap {
 
     public void writeAndClose(Writer w) {
         try {
+            byId.clear();
+            byPath.clear();
+            byMount.clear();
+
             BufferedWriter bw = Streams.buffw(w);
             MemNodeItem mni = head.next;
             while (null != mni) {
+                byId.put(mni.id, mni);
+                byPath.put(mni.path, mni);
+
+                if (!Strings.isBlank(mni.mount))
+                    byMount.put(mni.mount, mni);
+
                 StringBuilder sb = new StringBuilder();
                 sb.append(mni).append('\n');
                 bw.write(sb.toString());
@@ -122,18 +132,6 @@ public class MemNodeMap {
             byId.remove(mni.id);
             byPath.remove(mni.path);
         }
-        return mni;
-    }
-
-    public void mount(MemNodeItem mni) {
-        if (null != mni.mount)
-            byMount.put(mni.mount, mni);
-    }
-
-    public MemNodeItem unmount(String mnt) {
-        MemNodeItem mni = byMount.get(mnt);
-        if (null != mni)
-            mni.mount = null;
         return mni;
     }
 

@@ -6,10 +6,24 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.walnut.WnApiTest;
 import org.nutz.walnut.impl.WnTreeFactoryImpl;
 import org.nutz.walnut.util.Wn;
 
-public abstract class AbstractWnTreeTest extends AbstractWnApiTest {
+public abstract class AbstractWnTreeTest extends WnApiTest {
+
+    @Test
+    public void test_append() {
+        WnNode nd = tree.create(null, "/a/b/c", WnRace.FILE);
+        WnNode p = tree.create(null, "/x/y", WnRace.DIR);
+
+        WnNode nd2 = tree.append(p, nd);
+
+        assertEquals(nd.id(), nd2.id());
+        assertEquals(p.id(), nd2.parentId());
+        assertEquals("/x/y/c", nd2.path());
+
+    }
 
     public static class FakeWnCallback implements WnSecurity {
 
@@ -148,10 +162,10 @@ public abstract class AbstractWnTreeTest extends AbstractWnApiTest {
         WnNode nd = tree.create(null, "workspace/data", WnRace.DIR);
         assertEquals("/workspace/data", nd.path());
 
-        tree.setMount(nd, pp.get(my_key("b")));
+        tree.setMount(nd, pp.get(_another_tree_mount_key()));
 
         // 创建第二颗树
-        WnTree tree2 = tree.factory().check(nd.path(), nd.mount());
+        WnTree tree2 = tree.factory().check(nd);
         tree2.setTreeNode(nd);
         tree2._clean_for_unit_test();
 
@@ -197,10 +211,10 @@ public abstract class AbstractWnTreeTest extends AbstractWnApiTest {
     public void test_mount_another_tree2() {
         // 找到一个节点，设置 mount
         WnNode nd = tree.create(null, "workspace/data", WnRace.DIR);
-        tree.setMount(nd, pp.get(ta_key("b")));
+        tree.setMount(nd, pp.get(_another_tree_mount_key()));
 
         // 创建第二颗树
-        WnTree tree2 = tree.factory().check(nd.path(), nd.mount());
+        WnTree tree2 = tree.factory().check(nd);
         tree2.setTreeNode(nd);
         tree2._clean_for_unit_test();
 
@@ -246,13 +260,12 @@ public abstract class AbstractWnTreeTest extends AbstractWnApiTest {
 
     protected void on_before(PropertiesProxy pp) {
         treeFactory = new WnTreeFactoryImpl(db);
-
-        tree = treeFactory.check("", pp.get(my_key("a")));
+        WnNode nd = _create_top_tree_node();
+        tree = treeFactory.check(nd);
+        nd.setTree(tree);
         tree._clean_for_unit_test();
     }
 
-    protected abstract String my_key(String key);
-
-    protected abstract String ta_key(String key);
+    protected abstract String _another_tree_mount_key();
 
 }

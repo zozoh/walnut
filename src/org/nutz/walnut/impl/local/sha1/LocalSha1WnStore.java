@@ -38,7 +38,7 @@ public class LocalSha1WnStore extends AbstractWnStore {
     }
 
     @Override
-    protected void do_real_remove_history_data(WnHistory his) {
+    protected void _do_real_remove_history_data(WnHistory his) {
         String ph = Locals.key2path(his.sha1());
         File f = Files.getFile(sha1Home, ph);
         if (f.exists())

@@ -30,7 +30,7 @@ public class LocalTreeWnStore extends AbstractWnStore {
     }
 
     @Override
-    protected void do_real_remove_history_data(WnHistory his) {}
+    protected void _do_real_remove_history_data(WnHistory his) {}
 
     @Override
     public InputStream _get_inputstream(WnHistory his, long off) {

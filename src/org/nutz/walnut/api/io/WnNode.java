@@ -58,7 +58,7 @@ public interface WnNode {
 
     WnNode mount(String mnt);
 
-    boolean isMount();
+    boolean isMount(WnTree myTree);
 
     WnTree tree();
 

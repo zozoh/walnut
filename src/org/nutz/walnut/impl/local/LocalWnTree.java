@@ -72,9 +72,18 @@ public class LocalWnTree extends AbstractWnTree {
         if (!ph.startsWith(rootPath))
             throw Er.create("e.io.tree.local.OutOfPath", ph + " <!> " + rootPath);
 
-        String re = ph.substring(rootPath.length());
-        if (!re.startsWith("/"))
-            throw Er.create("e.io.tree.local.OutOfDir", ph + " <!> " + rootPath);
+        String re;
+
+        // 顶级树
+        if (rootPath.equals("/")) {
+            re = ph;
+        }
+        // 非顶级树，那么看看相对路径
+        else {
+            re = ph.substring(rootPath.length());
+            if (!re.startsWith("/"))
+                throw Er.create("e.io.tree.local.OutOfDir", ph + " <!> " + rootPath);
+        }
 
         return home.getAbsolutePath() + re;
     }
@@ -106,7 +115,7 @@ public class LocalWnTree extends AbstractWnTree {
         return f;
     }
 
-    WnNode _file_to_node(File f, String id) {
+    WnNode _file_to_node(File f, String id, boolean autoGenIndex) {
         // 创建节点
         LocalWnNode nd = new LocalWnNode(f);
         nd.setTree(this);
@@ -132,8 +141,13 @@ public class LocalWnTree extends AbstractWnTree {
             mni.path = rpath;
         }
 
-        // 还是 null 则表示根本没有这个节点的索引，因此需要添加一个索引
+        // 还是 null 则表示根本没有这个节点的索引
         if (null == mni) {
+            // 如果不自动生成索引，那么就抛错
+            if (!autoGenIndex)
+                throw Er.create("e.io.tree.noindex", f);
+
+            // 否则就自动生成索引
             if (Strings.isBlank(id))
                 nd.genID();
             else
@@ -150,7 +164,7 @@ public class LocalWnTree extends AbstractWnTree {
         return nd;
     }
 
-    private WnNode _get_node(MemNodeItem mni) {
+    private LocalWnNode _get_node(MemNodeItem mni) {
         String rpath = mni.path;
         File f = _check_local_file(rpath);
         LocalWnNode nd = new LocalWnNode(f);
@@ -167,7 +181,7 @@ public class LocalWnTree extends AbstractWnTree {
         for (MemNodeItem mni : mnm.mounts()) {
             WnNode nd = _get_node(mni);
 
-            WnTree tree = factory().check(nd.path(), nd.mount());
+            WnTree tree = factory().check(nd);
 
             // 虽然不太可能，但是还是判断一下防止无穷递归吧。
             if (tree == this)
@@ -195,7 +209,7 @@ public class LocalWnTree extends AbstractWnTree {
         if (!f.exists())
             return null;
 
-        return this._file_to_node(f, null);
+        return this._file_to_node(f, null, false);
     }
 
     @Override
@@ -234,7 +248,7 @@ public class LocalWnTree extends AbstractWnTree {
             File f = Files.getFile(d, str);
             if (!f.exists())
                 return 0;
-            WnNode nd = _file_to_node(f, null);
+            WnNode nd = _file_to_node(f, null, false);
             nd.setParent(p);
 
             try {
@@ -254,7 +268,7 @@ public class LocalWnTree extends AbstractWnTree {
             if (!pat.matcher(f.getName()).find())
                 continue;
 
-            WnNode nd = _file_to_node(f, null);
+            WnNode nd = _file_to_node(f, null, false);
 
             // 计数并调用回调
             try {
@@ -309,7 +323,7 @@ public class LocalWnTree extends AbstractWnTree {
             throw Lang.impossible();
         }
 
-        return _file_to_node(f, id);
+        return _file_to_node(f, id, true);
     }
 
     @Override
@@ -332,21 +346,21 @@ public class LocalWnTree extends AbstractWnTree {
     }
 
     @Override
-    public void _do_rename(WnNode nd, String newName) {
-        LocalWnNode lnd = (LocalWnNode) nd;
-        Files.rename(lnd.getFile(), newName);
+    protected WnNode _do_rename(WnNode nd, String newName) {
+        File f = _check_local_file(nd);
+        Files.rename(f, newName);
+
+        // 重新获取文件
+        File f2 = new File(f.getParent() + "/" + newName);
+
+        // 修改索引项目，因为指定了 ID，如果索引有这个 ID 的话，只会更新
+        return this._file_to_node(f2, nd.id(), false);
     }
 
     @Override
-    public WnNode _do_append(WnNode p, WnNode nd) {
-        // 调用父类的检查
-        super.append(p, nd);
-
-        LocalWnNode lp = (LocalWnNode) p;
-        LocalWnNode lnd = (LocalWnNode) nd;
-
-        File fp = lp.getFile();
-        File fnd = lnd.getFile();
+    protected WnNode _do_append(WnNode p, WnNode nd) {
+        File fp = _get_local_file(p);
+        File fnd = _get_local_file(nd);
 
         File fdest = Files.getFile(fp, fnd.getName());
         try {
@@ -357,23 +371,16 @@ public class LocalWnTree extends AbstractWnTree {
         }
 
         // 修改索引项目，因为指定了 ID，如果索引有这个 ID 的话，只会更新
-        WnNode re = this._file_to_node(fdest, nd.id());
-        // 持久化缓存
-        this._flush_buffer();
-
-        // 返回新节点
-        return re;
+        return this._file_to_node(fdest, nd.id(), false);
     }
 
     @Override
-    public void setMount(WnNode nd, String mnt) {
+    public WnNode _do_set_mount(WnNode nd, String mnt) {
         MemNodeItem mni = mnm.getById(nd.id());
         if (null == mni)
             throw Er.create("e.io.tree.local.nd.noexists", nd);
         mni.mount = mnt;
-        nd.mount(mnt);
-        mnm.mount(mni);
-        this._flush_buffer();
+        return nd;
     }
 
     @Override
@@ -384,7 +391,7 @@ public class LocalWnTree extends AbstractWnTree {
     }
 
     @Override
-    public WnNode _get_my_node(String id) {
+    protected LocalWnNode _get_my_node(String id) {
         MemNodeItem mni = mnm.getById(id);
         if (null == mni)
             return null;

@@ -5,15 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.nutz.lang.Files;
-import org.nutz.lang.Strings;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.api.io.WnTreeFactory;
-import org.nutz.walnut.impl.local.LocalWnNode;
 import org.nutz.walnut.impl.local.LocalWnTree;
 import org.nutz.walnut.impl.mongo.MongoDB;
-import org.nutz.walnut.impl.mongo.MongoWnNode;
 import org.nutz.walnut.impl.mongo.MongoWnTree;
 
 public class WnTreeFactoryImpl implements WnTreeFactory {
@@ -28,69 +26,53 @@ public class WnTreeFactoryImpl implements WnTreeFactory {
     }
 
     @Override
-    public WnTree check(String path, String mnt) {
-        if (Strings.isBlank(mnt)) {
-            return null;
-        }
-        WnTree tree = cache.get(mnt);
+    public WnTree check(WnNode nd) {
+        String key = nd.id();
+        WnTree tree = cache.get(key);
         if (null == tree) {
             synchronized (this) {
-                tree = cache.get(mnt);
+                tree = cache.get(key);
                 if (null == tree) {
+                    String mnt = nd.mount();
                     // 本地文件
                     if (mnt.startsWith("file://")) {
-                        tree = _create_local_tree(path, mnt);
+                        tree = _create_local_tree(nd, mnt);
                     }
                     // MongoDB
                     else if (mnt.startsWith("mongo:")) {
-                        tree = _create_mongo_tree(path, mnt);
+                        tree = _create_mongo_tree(nd, mnt);
                     }
                     // 不支持的挂载类型
                     else {
                         throw Er.create("e.io.tree.unsupport.mnt", mnt);
                     }
                     // 计入缓存
-                    cache.put(mnt, tree);
+                    cache.put(key, tree);
                 }
             }
         }
         return tree;
     }
 
-    private WnTree _create_mongo_tree(String path, String mnt) {
+    private WnTree _create_mongo_tree(WnNode nd, String mnt) {
         // 得到集合
         ZMoCo co = mongodb.getCollectionByMount(mnt);
 
         // 生成树实例
         WnTree tree = new MongoWnTree(this, co);
 
-        // 创建树的顶级节点
-        MongoWnNode nd = new MongoWnNode();
-        nd.setTree(tree);
-        nd.id(mnt);
-        nd.path(path);
-        nd.mount(mnt);
-        nd.name(mnt);
-
         // 搞定，返回
         tree.setTreeNode(nd);
         return tree;
     }
 
-    private WnTree _create_local_tree(String path, String mnt) {
+    private WnTree _create_local_tree(WnNode nd, String mnt) {
         WnTree tree = new LocalWnTree(this);
         // 得到本地目录
         String localPath = mnt.substring("file://".length());
         File d = Files.createDirIfNoExists(localPath);
         if (!d.isDirectory())
             throw Er.create("e.io.tree.mount.nodir", mnt);
-
-        // 创建树的顶级节点
-        LocalWnNode nd = new LocalWnNode(d);
-        nd.setTree(tree);
-        nd.id(mnt);
-        nd.path(path);
-        nd.mount(mnt);
 
         // 搞定，返回
         tree.setTreeNode(nd);

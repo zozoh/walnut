@@ -1,20 +1,20 @@
 package org.nutz.walnut.api.io;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+
 import org.junit.Test;
-import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
+import org.nutz.walnut.WnStoreTest;
 import org.nutz.walnut.impl.WnBean;
-import org.nutz.walnut.impl.WnStoreFactoryImpl;
 
-public abstract class AbstractWnStoreTest extends AbstractWnIndexerTest {
+public abstract class AbstractWnStoreTest extends WnStoreTest {
 
     @Test
     public void test_simple_read_write() throws IOException {
@@ -33,20 +33,7 @@ public abstract class AbstractWnStoreTest extends AbstractWnIndexerTest {
         o = indexer.get(nd.id());
         assertEquals(Lang.sha1(str), o.sha1());
         assertEquals(str.length(), o.len());
-        assertEquals(o.lastModified().getTime(), o.nanoStamp() / 1000000L);
-    }
-
-    protected WnStore store;
-
-    protected void on_before(PropertiesProxy pp) {
-        super.on_before(pp);
-
-        storeFactory = new WnStoreFactoryImpl(indexer,
-                                              db,
-                                              pp.check("local-sha1"),
-                                              pp.check("local-data"));
-        store = storeFactory.get(tree.getTreeNode());
-        store._clean_for_unit_test();
+        assertEquals(o.lastModified(), o.nanoStamp() / 1000000L);
     }
 
 }

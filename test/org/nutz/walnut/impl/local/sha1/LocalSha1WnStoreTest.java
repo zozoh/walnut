@@ -1,4 +1,4 @@
-package org.nutz.walnut.api.io.local.sha1;
+package org.nutz.walnut.impl.local.sha1;
 
 import static org.junit.Assert.*;
 
@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
+import org.nutz.walnut.WnTUs;
 import org.nutz.walnut.api.io.AbstractWnStoreTest;
 import org.nutz.walnut.api.io.WnHistory;
 import org.nutz.walnut.api.io.WnNode;
@@ -19,8 +20,8 @@ import org.nutz.walnut.impl.WnBean;
 public class LocalSha1WnStoreTest extends AbstractWnStoreTest {
 
     @Override
-    protected String getTreeMount() {
-        return pp.check("mnt-mongo-a");
+    protected WnNode _create_top_tree_node() {
+        return WnTUs.create_tree_node(pp, "mnt-mongo-a");
     }
 
     @Test
