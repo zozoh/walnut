@@ -244,7 +244,7 @@ public class LocalWnTree extends AbstractWnTree {
         }
 
         // 直接是名字
-        if (null == pat) {
+        if (null == pat && null != str) {
             File f = Files.getFile(d, str);
             if (!f.exists())
                 return 0;
@@ -264,9 +264,13 @@ public class LocalWnTree extends AbstractWnTree {
         int nb = 0;
         File[] fileList = d.listFiles();
         for (File f : fileList) {
-            // 过滤
-            if (!pat.matcher(f.getName()).find())
+            // 忽略顶级节点索引目录
+            if (f.getName().equals(".wn"))
                 continue;
+            // 过滤
+            if (null != str)
+                if (!pat.matcher(f.getName()).find())
+                    continue;
 
             WnNode nd = _file_to_node(f, null, false);
 

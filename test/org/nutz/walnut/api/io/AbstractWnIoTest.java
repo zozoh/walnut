@@ -6,11 +6,56 @@ import java.util.List;
 
 import org.junit.Test;
 import org.nutz.lang.Lang;
+import org.nutz.lang.util.Callback;
 import org.nutz.walnut.WnIoTest;
 
 public abstract class AbstractWnIoTest extends WnIoTest {
 
     protected abstract String getAnotherTreeMount();
+
+    // -------------------------------------------------------------
+    // 测试类
+    static class WalkTest implements Callback<WnObj> {
+        StringBuilder sb;
+
+        public void invoke(WnObj obj) {
+            sb.append(obj.name());
+        }
+
+        public WalkTest reset() {
+            sb = new StringBuilder();
+            return this;
+        }
+
+        public String toString() {
+            return sb.toString();
+        }
+    }
+
+    // -------------------------------------------------------------
+
+    @Test
+    public void test_walk() {
+        io.create(null, "/a/b/c", WnRace.FILE);
+        io.create(null, "/a/b/d", WnRace.FILE);
+        io.create(null, "/a/b/e", WnRace.FILE);
+        io.create(null, "/a/x/y", WnRace.FILE);
+        io.create(null, "/a/x/z", WnRace.FILE);
+
+        WalkTest wt = new WalkTest();
+
+        io.walk(null, wt.reset(), WalkMode.BREADTH_FIRST);
+        assertEquals("abxcdeyz", wt.toString());
+
+        io.walk(null, wt.reset(), WalkMode.DEPTH_NODE_FIRST);
+        assertEquals("abcdexyz", wt.toString());
+
+        io.walk(null, wt.reset(), WalkMode.DEPTH_LEAF_FIRST);
+        assertEquals("cdebyzxa", wt.toString());
+
+        io.walk(null, wt.reset(), WalkMode.LEAF_ONLY);
+        assertEquals("cdeyz", wt.toString());
+    }
 
     @Test
     public void test_move_between_tree() {
@@ -37,10 +82,10 @@ public abstract class AbstractWnIoTest extends WnIoTest {
         // 创建目标
         WnObj ta = io.create(m, "ta", WnRace.DIR);
         assertTrue(ta.tree().equals(tree));
-        assertEquals("/a/data/ta",ta.path());
-        
+        assertEquals("/a/data/ta", ta.path());
+
         ta = io.get(ta.id());
-        assertEquals("/a/data/ta",ta.path());
+        assertEquals("/a/data/ta", ta.path());
 
         // 移动
         WnObj m2 = io.move(o, "/a/data/ta");

@@ -468,57 +468,76 @@ public abstract class AbstractWnTree implements WnTree {
     @Override
     public void walk(WnNode p, final Callback<WnNode> callback, final WalkMode mode) {
 
+        if (null != p)
+            System.out.println("walk: " + p.name());
+
         // DEPTH_LEAF_FIRST
         if (WalkMode.DEPTH_LEAF_FIRST == mode) {
-            _do_walk_children(p, new Callback<WnNode>() {
-                public void invoke(WnNode nd) {
-                    if (!nd.isFILE()) {
-                        walk(nd, callback, mode);
-                    }
-                    callback.invoke(nd);
-                }
-            });
+            __walk_DEPTH_LEAF_FIRST(p, callback);
         }
         // DEPTH_NODE_FIRST
-        if (WalkMode.DEPTH_LEAF_FIRST == mode) {
-            _do_walk_children(p, new Callback<WnNode>() {
-                public void invoke(WnNode nd) {
-                    callback.invoke(nd);
-                    if (!nd.isFILE()) {
-                        walk(nd, callback, mode);
-                    }
-                }
-            });
+        else if (WalkMode.DEPTH_NODE_FIRST == mode) {
+            __walk_DEPATH_NODE_FIRST(p, callback);
         }
         // 广度优先
         else if (WalkMode.BREADTH_FIRST == mode) {
-            final List<WnNode> list = new LinkedList<WnNode>();
-            _do_walk_children(p, new Callback<WnNode>() {
-                public void invoke(WnNode nd) {
-                    callback.invoke(nd);
-                    list.add(nd);
-                }
-            });
-            for (WnNode nd : list)
-                walk(nd, callback, mode);
+            __walk_BREADTH_FIRST(p, callback);
         }
         // 仅叶子节点
         else if (WalkMode.LEAF_ONLY == mode) {
-            _do_walk_children(p, new Callback<WnNode>() {
-                public void invoke(WnNode nd) {
-                    if (nd.isFILE() || nd.isOBJ())
-                        callback.invoke(nd);
-                    else
-                        walk(nd, callback, mode);
-                }
-            });
-
+            __walk_LEAF_ONLY(p, callback);
         }
         // 不可能
         else {
             throw Lang.impossible();
         }
 
+    }
+
+    private void __walk_LEAF_ONLY(WnNode p, final Callback<WnNode> callback) {
+        _do_walk_children(p, new Callback<WnNode>() {
+            public void invoke(WnNode nd) {
+                if (nd.isFILE() || nd.isOBJ())
+                    callback.invoke(nd);
+                else
+                    __walk_LEAF_ONLY(nd, callback);
+            }
+        });
+    }
+
+    private void __walk_BREADTH_FIRST(WnNode p, final Callback<WnNode> callback) {
+        final List<WnNode> list = new LinkedList<WnNode>();
+        _do_walk_children(p, new Callback<WnNode>() {
+            public void invoke(WnNode nd) {
+                callback.invoke(nd);
+                if (!nd.isFILE())
+                    list.add(nd);
+            }
+        });
+        for (WnNode nd : list)
+            __walk_BREADTH_FIRST(nd, callback);
+    }
+
+    private void __walk_DEPATH_NODE_FIRST(WnNode p, final Callback<WnNode> callback) {
+        _do_walk_children(p, new Callback<WnNode>() {
+            public void invoke(WnNode nd) {
+                callback.invoke(nd);
+                if (!nd.isFILE()) {
+                    __walk_DEPATH_NODE_FIRST(nd, callback);
+                }
+            }
+        });
+    }
+
+    private void __walk_DEPTH_LEAF_FIRST(WnNode p, final Callback<WnNode> callback) {
+        _do_walk_children(p, new Callback<WnNode>() {
+            public void invoke(WnNode nd) {
+                if (!nd.isFILE()) {
+                    __walk_DEPTH_LEAF_FIRST(nd, callback);
+                }
+                callback.invoke(nd);
+            }
+        });
     }
 
     @Override
