@@ -8,7 +8,7 @@ import org.nutz.walnut.api.io.WnIndexer;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnStoreFactory;
 import org.nutz.walnut.api.io.WnTreeFactory;
-import org.nutz.walnut.impl.mongo.MongoDB;
+import org.nutz.walnut.impl.io.mongo.MongoDB;
 import org.nutz.walnut.util.Wn;
 
 public abstract class WnApiTest {

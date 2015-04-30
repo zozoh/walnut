@@ -2,9 +2,9 @@ package org.nutz.walnut.impl;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.nutz.walnut.impl.local.AllLocalTest;
-import org.nutz.walnut.impl.mongo.AllMongoTest;
+import org.nutz.walnut.impl.io.AllImplIoTest;
+import org.nutz.walnut.impl.usr.AllImplUsrTest;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({AllLocalTest.class, AllMongoTest.class})
+@Suite.SuiteClasses({AllImplIoTest.class, AllImplUsrTest.class})
 public class AllImplTest {}

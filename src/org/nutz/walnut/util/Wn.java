@@ -3,8 +3,12 @@ package org.nutz.walnut.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
+import org.nutz.lang.segment.Segment;
+import org.nutz.lang.segment.Segments;
+import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
 
@@ -15,7 +19,7 @@ import org.nutz.trans.Atom;
  */
 public abstract class Wn {
 
-    public static class Context {
+    static class _CTX {
 
         private static ThreadLocal<WnContext> _wn_context = new ThreadLocal<WnContext>();
 
@@ -135,11 +139,21 @@ public abstract class Wn {
         return sb.toString();
     }
 
+    public static String evalName(String name, String id) {
+        Segment seg = Segments.create(name);
+        if (seg.hasKey()) {
+            Context c = Lang.context();
+            c.set("id", id);
+            name = seg.render(c).toString();
+        }
+        return name;
+    }
+
     public static WnContext WC() {
-        WnContext wc = Wn.Context.get();
+        WnContext wc = Wn._CTX.get();
         if (null == wc) {
             wc = new WnContext();
-            Context.set(wc);
+            _CTX.set(wc);
         }
         return wc;
     }

@@ -6,8 +6,8 @@ import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.walnut.api.io.WnNode;
-import org.nutz.walnut.impl.local.LocalWnNode;
-import org.nutz.walnut.impl.mongo.MongoWnNode;
+import org.nutz.walnut.impl.io.local.LocalWnNode;
+import org.nutz.walnut.impl.io.mongo.MongoWnNode;
 
 public class WnTUs {
 

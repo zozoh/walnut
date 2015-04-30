@@ -4,8 +4,8 @@ import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnTree;
-import org.nutz.walnut.impl.WnTreeFactoryImpl;
-import org.nutz.walnut.impl.mongo.MongoWnIndexer;
+import org.nutz.walnut.impl.io.WnTreeFactoryImpl;
+import org.nutz.walnut.impl.io.mongo.MongoWnIndexer;
 
 public abstract class WnIndexerTest extends WnApiTest {
 

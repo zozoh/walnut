@@ -4,8 +4,8 @@ import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Mirror;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
-import org.nutz.walnut.impl.MimeMapImpl;
-import org.nutz.walnut.impl.WnIoImpl;
+import org.nutz.walnut.impl.io.MimeMapImpl;
+import org.nutz.walnut.impl.io.WnIoImpl;
 
 public abstract class WnIoTest extends WnStoreTest {
 

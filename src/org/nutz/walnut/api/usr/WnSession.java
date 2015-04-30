@@ -2,25 +2,12 @@ package org.nutz.walnut.api.usr;
 
 import org.nutz.lang.util.NutMap;
 
-/**
- * 记录一个 ZSession 相关信息
- * 
- * @author zozoh(zozohtnt@gmail.com)
- */
-public class WnSession {
-
-    private String id;
-
-    private NutMap envs;
-
-    private String me;
+public interface WnSession {
 
     /**
      * @return 会话ID
      */
-    public String id() {
-        return id;
-    }
+    String id();
 
     /**
      * 设置会话 ID
@@ -29,34 +16,16 @@ public class WnSession {
      *            会话ID
      * @return 自身以便链式赋值
      */
-    public WnSession id(String id) {
-        this.id = id;
-        return this;
-    }
+    WnSession id(String id);
 
-    public NutMap envs() {
-        return envs;
-    }
+    NutMap envs();
 
-    public void envs(NutMap envs) {
-        this.envs = envs;
-    }
+    void envs(NutMap envs);
 
-    public WnSession env(String nm, Object val) {
-        if (null == envs) {
-            envs = new NutMap();
-        }
-        envs.setv(nm, val);
-        return this;
-    }
+    WnSession env(String nm, Object val);
 
-    public String me() {
-        return me;
-    }
+    String me();
 
-    public WnSession me(String me) {
-        this.me = me;
-        return this;
-    }
+    WnSession me(String me);
 
 }

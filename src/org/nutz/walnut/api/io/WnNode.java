@@ -10,8 +10,6 @@ public interface WnNode {
 
     WnNode id(String id);
 
-    WnNode genID();
-
     boolean hasID();
 
     boolean isSameId(WnNode o);

@@ -2,7 +2,7 @@ package org.nutz.walnut;
 
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.walnut.api.io.WnStore;
-import org.nutz.walnut.impl.WnStoreFactoryImpl;
+import org.nutz.walnut.impl.io.WnStoreFactoryImpl;
 
 public abstract class WnStoreTest extends WnIndexerTest {
 

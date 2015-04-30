@@ -1,88 +1,35 @@
 package org.nutz.walnut.api.usr;
 
-import org.nutz.lang.util.NutMap;
+public interface WnUsr {
 
-/**
- * 保存一个用户的所有信息
- * 
- * @author zozoh(zozohtnt@gmail.com)
- */
-@SuppressWarnings("serial")
-public class WnUsr extends NutMap {
+    String id();
 
-    /*
-     * @return 当前用户是否是root, 也就是名字为root
-     */
-    // public boolean isRoot() {
-    // return "root".equals(name());
-    // }
+    WnUsr id(String id);
 
-    public String id() {
-        return getString("id");
-    }
+    String name();
 
-    public WnUsr id(String id) {
-        this.setv("id", id);
-        return this;
-    }
+    WnUsr name(String name);
 
-    public String name() {
-        return getString("nm");
-    }
+    String alias();
 
-    public WnUsr name(String name) {
-        this.setv("nm", name);
-        return this;
-    }
+    WnUsr alias(String alias);
 
-    public String alias() {
-        return getString("aa");
-    }
+    String password();
 
-    public WnUsr alias(String alias) {
-        this.setv("aa", alias);
-        return this;
-    }
+    WnUsr password(String passwd);
 
-    public String password() {
-        return getString("passwd");
-    }
+    String email();
 
-    public WnUsr password(String passwd) {
-        this.setv("passwd", passwd);
-        return this;
-    }
+    WnUsr email(String email);
 
-    public String email() {
-        return getString("email");
-    }
+    String phone();
 
-    public WnUsr email(String email) {
-        this.setv("email", email);
-        return this;
-    }
+    WnUsr phone(String phone);
 
-    public String phone() {
-        return getString("phone");
-    }
+    String home();
 
-    public WnUsr phone(String phone) {
-        this.setv("phone", phone);
-        return this;
-    }
+    WnUsr home(String home);
 
-    public String home() {
-        return getString("home");
-    }
+    WnUsr clone();
 
-    public WnUsr home(String home) {
-        this.setv("home", home);
-        return this;
-    }
-
-    public WnUsr clone() {
-        WnUsr u = new WnUsr();
-        u.putAll(this);
-        return u;
-    }
 }
