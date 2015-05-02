@@ -67,4 +67,14 @@ public class IoWnSession implements WnSession {
         return this;
     }
 
+    @Override
+    public WnSession clone() {
+        IoWnSession se = new IoWnSession();
+        se.id = id;
+        se.me = me;
+        se.envs = new NutMap();
+        se.envs.putAll(envs);
+        return se;
+    }
+
 }

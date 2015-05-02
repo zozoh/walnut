@@ -1,9 +1,9 @@
 package org.nutz.walnut.impl.box;
 
 import org.nutz.walnut.api.box.WnBox;
-import org.nutz.walnut.api.box.WnBoxFactory;
+import org.nutz.walnut.api.box.WnBoxService;
 
-public class JvmWnBoxFactory implements WnBoxFactory {
+public class JvmBoxService implements WnBoxService {
 
     @Override
     public WnBox get(String boxId) {

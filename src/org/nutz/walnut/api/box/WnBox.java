@@ -3,28 +3,24 @@ package org.nutz.walnut.api.box;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.lang.util.Callback;
-
 public interface WnBox {
 
-    WnBoxFactory factory();
+    String id();
 
-    String getId();
+    WnBoxStatus status();
 
-    WnBoxStatus getStatus();
+    WnBoxRuntime runtime();
 
-    WnBoxRuntime getRuntime();
+    void setup(WnBoxContext bc);
 
-    void setup(WnBoxInfo boxInfo);
+    void run(String cmdLines);
 
-    void run(String cmd);
+    void setStdout(OutputStream ops);
 
-    void onClose(Callback<WnBox> callback);
+    void setStderr(OutputStream ops);
 
-    void onOutput(Callback<InputStream> callback);
+    void setStdin(InputStream ins);
 
-    void onError(Callback<InputStream> callback);
-
-    void onInput(Callback<OutputStream> callback);
+    void waitForIdle();
 
 }

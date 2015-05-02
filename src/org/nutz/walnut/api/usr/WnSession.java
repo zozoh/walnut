@@ -27,5 +27,7 @@ public interface WnSession {
     String me();
 
     WnSession me(String me);
+    
+    WnSession clone();
 
 }

@@ -4,6 +4,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.io.WnNode;
+import org.nutz.walnut.api.usr.WnSession;
 
 /**
  * 这个是 ThreadLocal 的上下文
@@ -12,10 +13,10 @@ import org.nutz.walnut.api.io.WnNode;
  */
 public class WnContext extends NutMap {
 
-    // private String seid;
-    //
-    // private ZSession se;
-    //
+    private String seid;
+
+    private WnSession se;
+
     private String me;
 
     private WnSecurity security;
@@ -149,9 +150,10 @@ public class WnContext extends NutMap {
     // this.PID = PID;
     // }
     //
-    // public String SEID() {
-    // return seid;
-    // }
+    public String SEID() {
+        return seid;
+    }
+
     //
     // public String checkSEID() {
     // if (null == seid) {
@@ -160,87 +162,34 @@ public class WnContext extends NutMap {
     // return seid;
     // }
     //
-    // public void SEID(String seid) {
-    // this.seid = seid;
-    // }
-    //
-    // public ZSession SE() {
-    // return se;
-    // }
-    //
-    // public void SE(ZSession se) {
-    // this.se = se;
-    // if (null != se) {
-    // this.seid = se.id();
-    // this.me = se.me();
-    // } else {
-    // this.seid = null;
-    // this.me = null;
-    // }
-    // }
-    //
-    // public ZSession checkSE() {
-    // if (null == seid) {
-    // throw Er.create("e.wc.null.seid");
-    // } else if (null == se) {
-    // throw Er.create("e.wc.null.se");
-    // } else if (!se.id().equals(seid)) {
-    // throw Er.create("e.wc.seid.nomatch");
-    // }
-    // return se;
-    // }
-    //
-    // public String me() {
-    // return me;
-    // }
-    //
+    public void SEID(String seid) {
+        this.seid = seid;
+    }
 
-    //
-    // public <T> T su(String usr, Proton<T> proton) {
-    // String u = me;
-    // try {
-    // me = usr;
-    // proton.run();
-    // return proton.get();
-    // }
-    // finally {
-    // me = u;
-    // }
-    //
-    // }
-    //
-    // public void su(String usr, Atom atom) {
-    // String u = me;
-    // try {
-    // me = usr;
-    // atom.run();
-    // }
-    // finally {
-    // me = u;
-    // }
-    //
-    // }
-    //
-    // public void watch(Callback<Obj> objWatcher, Atom atom) {
-    // Callback<Obj> ow = this.objWatcher;
-    // try {
-    // this.objWatcher = objWatcher;
-    // atom.run();
-    // }
-    // finally {
-    // this.objWatcher = ow;
-    // }
-    // }
-    //
-    // public void invokeWatcher(Obj o) {
-    // if (null != this.objWatcher)
-    // this.objWatcher.invoke(o);
-    // }
-    //
-    // public String toString() {
-    // return Json.toJson(this,
-    // JsonFormat.compact()
-    // .setLocked("^se|cache|objWatcher$")
-    // .setQuoteName(false));
-    // }
+    public WnSession SE() {
+        return se;
+    }
+
+    public void SE(WnSession se) {
+        this.se = se;
+        if (null != se) {
+            this.seid = se.id();
+            this.me = se.me();
+        } else {
+            this.seid = null;
+            this.me = null;
+        }
+    }
+
+    public WnSession checkSE() {
+        if (null == seid) {
+            throw Er.create("e.wc.null.seid");
+        } else if (null == se) {
+            throw Er.create("e.wc.null.se");
+        } else if (!se.id().equals(seid)) {
+            throw Er.create("e.wc.seid.nomatch");
+        }
+        return se;
+    }
+
 }

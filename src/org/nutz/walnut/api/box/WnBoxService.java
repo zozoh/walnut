@@ -1,6 +1,6 @@
 package org.nutz.walnut.api.box;
 
-public interface WnBoxFactory {
+public interface WnBoxService {
 
     WnBox get(String boxId);
 
