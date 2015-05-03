@@ -7,9 +7,9 @@ import java.util.List;
 import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.Callback;
-import org.nutz.walnut.WnIoTest;
+import org.nutz.walnut.BaseIoTest;
 
-public abstract class AbstractWnIoTest extends WnIoTest {
+public abstract class AbstractWnIoTest extends BaseIoTest {
 
     protected abstract String getAnotherTreeMount();
 

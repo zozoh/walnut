@@ -20,8 +20,6 @@ public class JvmBoxInput implements Closeable {
     }
 
     public String readLine() {
-        if (null == __r)
-            return null;
         try {
             return __r.readLine();
         }

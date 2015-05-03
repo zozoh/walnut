@@ -61,6 +61,7 @@ public class ZParams {
             int i = 0;
             for (; i < args.length; i++) {
                 String s = args[i];
+                // 键值
                 if (s.startsWith("-")) {
                     String key = s.substring(1);
                     // 是否是布尔值表
@@ -69,18 +70,10 @@ public class ZParams {
                         for (char c : cs) {
                             params.map.put("" + c, true);
                         }
-                        // 最后读取后面的值
-                        if (i >= args.length - 1)
-                            break;
-                        s = args[++i];
                     }
                     // 键就是布尔值
                     else if (null != bool_key && bool_key.matcher(key).matches()) {
                         params.map.put(key, true);
-                        // 最后读取后面的值
-                        if (i >= args.length - 1)
-                            break;
-                        s = args[++i];
                     }
                     // 木有后面的值了，那么作为 boolean
                     else if (i >= args.length - 1) {
@@ -89,29 +82,20 @@ public class ZParams {
                     }
                     // 如果有值 ...
                     else {
-                        s = args[++i];
+                        s = args[i+1];
                         if (s.startsWith("-")) {
                             params.map.put(key, true);
                             continue;
                         }
                         params.map.put(key, s);
-                        // 最后读取后面的值
-                        if (i >= args.length - 1)
-                            break;
-                        s = args[++i];
+                        // 跳过下一个值
+                        i++;
                     }
                 }
                 // 嗯，是普通值 ...
                 else {
                     list.add(s);
-                    if (i >= args.length - 1)
-                        break;
-                    s = args[++i];
                 }
-            }
-            // 一直添加值 ...
-            for (; i < args.length; i++) {
-                list.add(args[i]);
             }
         }
         params.vals = list.toArray(new String[list.size()]);

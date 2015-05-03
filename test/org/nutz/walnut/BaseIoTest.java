@@ -7,7 +7,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.impl.io.MimeMapImpl;
 import org.nutz.walnut.impl.io.WnIoImpl;
 
-public abstract class WnIoTest extends WnStoreTest {
+public abstract class BaseIoTest extends BaseStoreTest {
 
     protected WnIo io;
 

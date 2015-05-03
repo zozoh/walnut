@@ -11,7 +11,7 @@ import org.nutz.walnut.api.io.WnTreeFactory;
 import org.nutz.walnut.impl.io.mongo.MongoDB;
 import org.nutz.walnut.util.Wn;
 
-public abstract class WnApiTest {
+public abstract class BaseApiTest {
 
     // ------------------------------------------------ 这些是测试目标的构建
     protected WnIndexer indexer;

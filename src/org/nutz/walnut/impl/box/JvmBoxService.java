@@ -12,16 +12,16 @@ public class JvmBoxService implements WnBoxService {
 
     private List<JvmBox> boxes;
 
-    private JvmExecutorFactory executors;
+    private JvmExecutorFactory jef;
 
-    public JvmBoxService(JvmExecutorFactory executors) {
-        this.executors = executors;
+    public JvmBoxService(JvmExecutorFactory jef) {
+        this.jef = jef;
         this.boxes = new LinkedList<JvmBox>();
 
         // 创建一组初始的沙箱
         for (int i = 0; i < ASSIGN_SIZE; i++) {
             JvmBox jb = new JvmBox();
-            jb.executors = this.executors;
+            jb.jef = this.jef;
             jb.status = WnBoxStatus.FREE;
             boxes.add(jb);
         }
@@ -41,7 +41,7 @@ public class JvmBoxService implements WnBoxService {
         jb = __find_free();
         if (null == jb) {
             jb = new JvmBox();
-            jb.executors = this.executors;
+            jb.jef = this.jef;
             jb.status = WnBoxStatus.FREE;
             boxes.add(jb);
         }

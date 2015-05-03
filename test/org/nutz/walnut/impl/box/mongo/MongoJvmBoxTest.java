@@ -1,10 +1,10 @@
-package org.nutz.walnut.impl.usr.mongo;
+package org.nutz.walnut.impl.box.mongo;
 
 import org.nutz.walnut.Wnts;
 import org.nutz.walnut.api.io.WnNode;
-import org.nutz.walnut.impl.usr.BaseIoWnUsrTest;
+import org.nutz.walnut.impl.box.BaseJvmBoxTest;
 
-public class MongoWnUsrTest extends BaseIoWnUsrTest {
+public class MongoJvmBoxTest extends BaseJvmBoxTest {
 
     @Override
     protected WnNode _create_top_tree_node() {

@@ -17,7 +17,7 @@ public class JvmExecutorFactory {
     /**
      * 要搜索的包路径
      */
-    private String[] scanPkgs;
+    String[] scanPkgs;
 
     /**
      * 缓存搜索结果

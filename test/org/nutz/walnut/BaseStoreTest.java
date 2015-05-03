@@ -4,7 +4,7 @@ import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.walnut.api.io.WnStore;
 import org.nutz.walnut.impl.io.WnStoreFactoryImpl;
 
-public abstract class WnStoreTest extends WnIndexerTest {
+public abstract class BaseStoreTest extends BaseIndexerTest {
 
     protected WnStore store;
 

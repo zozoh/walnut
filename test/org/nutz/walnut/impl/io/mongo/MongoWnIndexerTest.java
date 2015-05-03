@@ -3,13 +3,13 @@ package org.nutz.walnut.impl.io.mongo;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.nutz.walnut.WnIndexerTest;
-import org.nutz.walnut.WnTUs;
+import org.nutz.walnut.BaseIndexerTest;
+import org.nutz.walnut.Wnts;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 
-public class MongoWnIndexerTest extends WnIndexerTest {
+public class MongoWnIndexerTest extends BaseIndexerTest {
 
     @Test
     public void test_simple_get_set() {
@@ -30,7 +30,7 @@ public class MongoWnIndexerTest extends WnIndexerTest {
 
     @Override
     protected WnNode _create_top_tree_node() {
-        return WnTUs.create_tree_node(pp, "mnt-mongo-a");
+        return Wnts.create_tree_node(pp, "mnt-mongo-a");
     }
 
 }

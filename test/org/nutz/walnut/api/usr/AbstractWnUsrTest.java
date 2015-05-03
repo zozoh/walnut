@@ -3,12 +3,11 @@ package org.nutz.walnut.api.usr;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.nutz.ioc.impl.PropertiesProxy;
-import org.nutz.walnut.WnIoTest;
+import org.nutz.walnut.BaseUsrTest;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 
-public abstract class AbstractWnUsrTest extends WnIoTest {
+public abstract class AbstractWnUsrTest extends BaseUsrTest {
 
     @Test
     public void se_login_logout() {
@@ -181,21 +180,5 @@ public abstract class AbstractWnUsrTest extends WnIoTest {
         io.check(null, u.home() + "/.people/" + u.id());
 
     }
-
-    protected WnUsrService usrs;
-
-    protected WnSessionService ses;
-
-    @Override
-    protected void on_before(PropertiesProxy pp) {
-        super.on_before(pp);
-
-        usrs = _create_usr_service(pp);
-        ses = _create_session_service(pp);
-    }
-
-    protected abstract WnSessionService _create_session_service(PropertiesProxy pp);
-
-    protected abstract WnUsrService _create_usr_service(PropertiesProxy pp);
 
 }

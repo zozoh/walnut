@@ -7,7 +7,7 @@ import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.impl.io.WnTreeFactoryImpl;
 import org.nutz.walnut.impl.io.mongo.MongoWnIndexer;
 
-public abstract class WnIndexerTest extends WnApiTest {
+public abstract class BaseIndexerTest extends BaseApiTest {
 
     protected WnTree tree;
 

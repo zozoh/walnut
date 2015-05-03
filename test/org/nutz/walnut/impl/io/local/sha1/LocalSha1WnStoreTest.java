@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
-import org.nutz.walnut.WnTUs;
+import org.nutz.walnut.Wnts;
 import org.nutz.walnut.api.io.AbstractWnStoreTest;
 import org.nutz.walnut.api.io.WnHistory;
 import org.nutz.walnut.api.io.WnNode;
@@ -21,7 +21,7 @@ public class LocalSha1WnStoreTest extends AbstractWnStoreTest {
 
     @Override
     protected WnNode _create_top_tree_node() {
-        return WnTUs.create_tree_node(pp, "mnt-mongo-a");
+        return Wnts.create_tree_node(pp, "mnt-mongo-a");
     }
 
     @Test

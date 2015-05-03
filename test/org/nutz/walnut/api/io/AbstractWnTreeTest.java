@@ -6,11 +6,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.nutz.ioc.impl.PropertiesProxy;
-import org.nutz.walnut.WnApiTest;
+import org.nutz.walnut.BaseApiTest;
 import org.nutz.walnut.impl.io.WnTreeFactoryImpl;
 import org.nutz.walnut.util.Wn;
 
-public abstract class AbstractWnTreeTest extends WnApiTest {
+public abstract class AbstractWnTreeTest extends BaseApiTest {
 
     @Test
     public void test_append() {

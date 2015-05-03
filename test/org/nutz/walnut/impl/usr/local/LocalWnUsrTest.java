@@ -1,14 +1,14 @@
 package org.nutz.walnut.impl.usr.local;
 
-import org.nutz.walnut.WnTUs;
+import org.nutz.walnut.Wnts;
 import org.nutz.walnut.api.io.WnNode;
-import org.nutz.walnut.impl.usr.AbstractIoWnUsrTest;
+import org.nutz.walnut.impl.usr.BaseIoWnUsrTest;
 
-public class LocalWnUsrTest extends AbstractIoWnUsrTest {
+public class LocalWnUsrTest extends BaseIoWnUsrTest {
 
     @Override
     protected WnNode _create_top_tree_node() {
-        return WnTUs.create_tree_node(pp, "mnt-local-a");
+        return Wnts.create_tree_node(pp, "mnt-local-a");
     }
 
 }

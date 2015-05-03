@@ -6,10 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.eclipse.jetty.util.log.Log;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.random.R;
+import org.nutz.lang.stream.NullInputStream;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxRuntime;
@@ -23,6 +25,8 @@ import org.nutz.walnut.util.JvmTurnnel;
 import org.nutz.walnut.util.Wn;
 
 public class JvmBox implements WnBox {
+
+    private static final Log log = Logs.get();
 
     private Object idleLock;
 
@@ -38,7 +42,7 @@ public class JvmBox implements WnBox {
 
     WnBoxRuntime runtime;
 
-    JvmExecutorFactory executors;
+    JvmExecutorFactory jef;
 
     private String id;
 
@@ -117,7 +121,7 @@ public class JvmBox implements WnBox {
             a = new JvmAtom(this, cmds[i]);
 
             // 找到执行器
-            a.executor = executors.check(a.cmdName);
+            a.executor = jef.check(a.cmdName);
 
             // 填充对应字段
             a.id = i;
@@ -131,7 +135,7 @@ public class JvmBox implements WnBox {
             a.sys.sessionService = bc.sessionService;
 
             // 看看是否重定向输出
-            if (null == a.redirectPath) {
+            if (null != a.redirectPath) {
                 String path = Wn.normalizePath(a.redirectPath, a.sys);
                 WnObj o = bc.io.createIfNoExists(null, path, WnRace.FILE);
                 OutputStream ops = bc.io.getOutputStream(o, a.redirectAppend ? -1 : 0);
@@ -140,11 +144,11 @@ public class JvmBox implements WnBox {
             }
 
             // 计数
-            i++;
+            atoms[i] = a;
         }
 
         // 为第一个原子分配标准输入
-        atoms[0].sys.in = new JvmBoxInput(in);
+        atoms[0].sys.in = new JvmBoxInput(null == in ? new NullInputStream() : in);
 
         // 如果没有重定向，为最后一个原子分配标准输出
         int lastIndex = atoms.length - 1;
@@ -201,11 +205,13 @@ public class JvmBox implements WnBox {
 
     private void __wait_for_idle() {
         // 如果只有一个原子，根本不用等，否则等通知，等原子运行结束
-        if (null != atoms && atoms.length >= 1) {
-            Lang.wait(idleLock, 0);
+        if (null != atoms && atoms.length > 1) {
+            if (!__is_all_stopped()) {
+                Lang.wait(idleLock, 0);
+            }
 
-            if (Log.isDebugEnabled())
-                Log.debug("box: check all stopped");
+            if (log.isDebugEnabled())
+                log.debug("box: check all stopped");
 
             // 如果收到了通知，那么等1毫秒，然后频繁检查
             // 睡1ms，会导致后面的线程都被执行一遍再执行当前线程
@@ -218,8 +224,8 @@ public class JvmBox implements WnBox {
 
             // 直到全部线程退出，才结束循环
             while (!__is_all_stopped()) {
-                if (Log.isDebugEnabled())
-                    Log.debug("box: no stopped yet, sleep 5ms");
+                if (log.isDebugEnabled())
+                    log.debug("box: no stopped yet, sleep 5ms");
                 Lang.wait(idleLock, 5);
             }
         }
@@ -231,18 +237,20 @@ public class JvmBox implements WnBox {
 
     void free() {
         // 强制停止所有线程
-        for (Thread t : threads)
-            if (t.isAlive())
-                t.interrupt();
+        if (null != threads)
+            for (Thread t : threads)
+                if (t.isAlive())
+                    t.interrupt();
 
         // 释放所有打开的句柄
-        for (OutputStream ops : opss) {
-            Streams.safeClose(ops);
-        }
+        if (null != opss)
+            for (OutputStream ops : opss) {
+                Streams.safeClose(ops);
+            }
 
         // 释放其他资源
-        if (Log.isDebugEnabled())
-            Log.debug("box: release resources");
+        if (log.isDebugEnabled())
+            log.debug("box: release resources");
         Streams.safeClose(out);
         Streams.safeClose(in);
         Streams.safeClose(err);
@@ -252,8 +260,8 @@ public class JvmBox implements WnBox {
                 Streams.safeClose(tnl);
 
         // 全部退出了，标记状态
-        if (Log.isDebugEnabled())
-            Log.debug("box: mark idle");
+        if (log.isDebugEnabled())
+            log.debug("box: mark idle");
     }
 
     private boolean __is_all_stopped() {

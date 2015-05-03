@@ -1,10 +1,10 @@
-package org.nutz.walnut.impl.io.local.tree;
+package org.nutz.walnut.impl.box.local;
 
 import org.nutz.walnut.Wnts;
-import org.nutz.walnut.api.io.AbstractWnStoreTest;
 import org.nutz.walnut.api.io.WnNode;
+import org.nutz.walnut.impl.box.BaseJvmBoxTest;
 
-public class LocalTreeWnStoreTest extends AbstractWnStoreTest {
+public class LocalJvmBoxTest extends BaseJvmBoxTest {
 
     @Override
     protected WnNode _create_top_tree_node() {

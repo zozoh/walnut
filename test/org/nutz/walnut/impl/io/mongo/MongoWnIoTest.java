@@ -1,6 +1,6 @@
 package org.nutz.walnut.impl.io.mongo;
 
-import org.nutz.walnut.WnTUs;
+import org.nutz.walnut.Wnts;
 import org.nutz.walnut.api.io.AbstractWnIoTest;
 import org.nutz.walnut.api.io.WnNode;
 
@@ -13,6 +13,6 @@ public class MongoWnIoTest extends AbstractWnIoTest {
 
     @Override
     protected WnNode _create_top_tree_node() {
-        return WnTUs.create_tree_node(pp,"mnt-mongo-a");
+        return Wnts.create_tree_node(pp,"mnt-mongo-a");
     }
 }

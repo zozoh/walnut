@@ -11,10 +11,10 @@ import java.io.OutputStreamWriter;
 import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
-import org.nutz.walnut.WnStoreTest;
+import org.nutz.walnut.BaseStoreTest;
 import org.nutz.walnut.impl.io.WnBean;
 
-public abstract class AbstractWnStoreTest extends WnStoreTest {
+public abstract class AbstractWnStoreTest extends BaseStoreTest {
 
     @Test
     public void test_simple_read_write() throws IOException {

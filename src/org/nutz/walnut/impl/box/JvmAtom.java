@@ -50,7 +50,6 @@ class JvmAtom extends JvmCmd implements Atom {
         }
         finally {
             Streams.safeFlush(sys.out);
-            Streams.safeClose(sys.out);
             box._finish(this);
         }
     }
