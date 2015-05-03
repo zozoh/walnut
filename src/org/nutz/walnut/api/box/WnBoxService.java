@@ -21,4 +21,8 @@ public interface WnBoxService {
      */
     void free(WnBox box);
 
+    /**
+     * 关闭所有正在运行的沙箱
+     */
+    void shutdown();
 }

@@ -1,5 +1,7 @@
 package org.nutz.walnut.api.err;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.nutz.web.WebException;
 import org.nutz.web.Webs;
 
@@ -23,6 +25,23 @@ public abstract class Er {
 
     public static WebException wrap(Throwable e) {
         return Webs.Err.wrap(e);
+    }
+
+    public static Throwable unwrap(Throwable e) {
+        if (e == null)
+            return null;
+        if (e instanceof InvocationTargetException) {
+            InvocationTargetException itE = (InvocationTargetException) e;
+            if (itE.getTargetException() != null)
+                return unwrap(itE.getTargetException());
+        }
+        if (e instanceof WebException) {
+            return e;
+        }
+
+        if (e instanceof RuntimeException && e.getCause() != null)
+            return unwrap(e.getCause());
+        return e;
     }
 
     public static WebException create(Throwable e, String key) {

@@ -1,7 +1,6 @@
 package org.nutz.walnut.util;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -44,12 +43,11 @@ public class ZParams {
      *            否则认为是一个普通的布尔字符串
      * @return 参数表
      */
-    public static ZParams parse(List<String> args, String bools) {
+    public static ZParams parse(String[] args, String bools) {
         ZParams params = new ZParams();
-        List<String> list = new ArrayList<String>(args.size());
+        List<String> list = new ArrayList<String>(args.length);
         params.map = new NutMap();
-        Iterator<String> it = args.iterator();
-        if (it.hasNext()) {
+        if (args.length > 0) {
             boolean is_define_bool_chars = false;
             Pattern bool_key = null;
             if (!Strings.isBlank(bools)) {
@@ -60,8 +58,9 @@ public class ZParams {
                 }
             }
             // 参数表 ...
-            String s = it.next();
-            while (null != s) {
+            int i = 0;
+            for (; i < args.length; i++) {
+                String s = args[i];
                 if (s.startsWith("-")) {
                     String key = s.substring(1);
                     // 是否是布尔值表
@@ -71,48 +70,48 @@ public class ZParams {
                             params.map.put("" + c, true);
                         }
                         // 最后读取后面的值
-                        if (!it.hasNext())
+                        if (i >= args.length - 1)
                             break;
-                        s = it.next();
+                        s = args[++i];
                     }
                     // 键就是布尔值
                     else if (null != bool_key && bool_key.matcher(key).matches()) {
                         params.map.put(key, true);
                         // 最后读取后面的值
-                        if (!it.hasNext())
+                        if (i >= args.length - 1)
                             break;
-                        s = it.next();
+                        s = args[++i];
                     }
                     // 木有后面的值了，那么作为 boolean
-                    else if (!it.hasNext()) {
+                    else if (i >= args.length - 1) {
                         params.map.put(key, true);
                         break;
                     }
                     // 如果有值 ...
                     else {
-                        s = it.next();
+                        s = args[++i];
                         if (s.startsWith("-")) {
                             params.map.put(key, true);
                             continue;
                         }
                         params.map.put(key, s);
                         // 最后读取后面的值
-                        if (!it.hasNext())
+                        if (i >= args.length - 1)
                             break;
-                        s = it.next();
+                        s = args[++i];
                     }
                 }
                 // 嗯，是普通值 ...
                 else {
                     list.add(s);
-                    if (!it.hasNext())
+                    if (i >= args.length - 1)
                         break;
-                    s = it.next();
+                    s = args[++i];
                 }
             }
             // 一直添加值 ...
-            while (it.hasNext()) {
-                list.add(it.next());
+            for (; i < args.length; i++) {
+                list.add(args[i]);
             }
         }
         params.vals = list.toArray(new String[list.size()]);

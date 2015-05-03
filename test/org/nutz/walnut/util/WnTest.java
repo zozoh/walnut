@@ -3,7 +3,9 @@ package org.nutz.walnut.util;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.impl.usr.IoWnSession;
+import org.nutz.walnut.impl.usr.IoWnUsr;
 
 public class WnTest {
 
@@ -26,15 +28,18 @@ public class WnTest {
 
     @Test
     public void test_normalize() {
-        NutMap env = new NutMap();
-        env.setv("HOME", "/home/zozoh");
-        env.setv("PWD", "$HOME/workspace/test");
-        env.setv("ABC", "haha");
+        WnSystem sys = new WnSystem();
+        sys.se = new IoWnSession();
+        sys.se.env("HOME", "/home/zozoh");
+        sys.se.env("PWD", "$HOME/workspace/test");
+        sys.se.env("ABC", "haha");
+        sys.me = new IoWnUsr();
+        sys.me.home("/home/zozoh");
 
-        assertEquals("/home/zozoh/bin", Wn.normalizePath("~/bin", env));
-        assertEquals("/home/zozoh/workspace/test/bin", Wn.normalizePath("./bin", env));
-        assertEquals("cmd_echo 'haha'", Wn.normalizeStr("cmd_echo '$ABC'", env));
-        assertEquals("~/abc", Wn.normalizeStr("~/abc", env));
+        assertEquals("/home/zozoh/bin", Wn.normalizePath("~/bin", sys));
+        assertEquals("/home/zozoh/workspace/test/bin", Wn.normalizePath("./bin", sys));
+        assertEquals("cmd_echo 'haha'", Wn.normalizeStr("cmd_echo '$ABC'", sys.se.envs()));
+        assertEquals("~/abc", Wn.normalizeStr("~/abc", sys.se.envs()));
     }
 
 }

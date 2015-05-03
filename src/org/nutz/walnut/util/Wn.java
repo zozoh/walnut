@@ -11,6 +11,7 @@ import org.nutz.lang.segment.Segments;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
+import org.nutz.walnut.impl.box.WnSystem;
 
 /**
  * Walnut 系统的各种帮助函数集合
@@ -102,17 +103,17 @@ public abstract class Wn {
      *            环境变量
      * @return 整理后的字符串
      */
-    public static String normalizePath(String ph, NutMap env) {
+    public static String normalizePath(String ph, WnSystem sys) {
         if (Strings.isBlank(ph))
             return ph;
         if (ph.startsWith("~")) {
-            ph = env.getString("HOME", "") + ph.substring(1);
+            ph = sys.me.home() + ph.substring(1);
         } else if (ph.startsWith("./")) {
-            ph = env.getString("PWD", "") + ph.substring(1);
+            ph = sys.se.envs().getString("PWD", "") + ph.substring(1);
         } else if (!ph.startsWith("/")) {
-            ph = env.getString("PWD", "") + "/" + ph;
+            ph = sys.se.envs().getString("PWD", "") + "/" + ph;
         }
-        return normalizeStr(ph, env);
+        return normalizeStr(ph, sys.se.envs());
     }
 
     public static String normalizeStr(String str, NutMap env) {

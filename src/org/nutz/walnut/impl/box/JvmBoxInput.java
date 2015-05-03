@@ -30,6 +30,23 @@ public class JvmBoxInput implements Closeable {
         }
     }
 
+    public String readAll() {
+        try {
+            return Streams.read(__r).toString();
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
+    }
+
+    public int read(byte[] b) throws IOException {
+        return ins.read(b);
+    }
+
+    public int read(byte[] b, int off, int len) throws IOException {
+        return ins.read(b, off, len);
+    }
+
     public void close() throws IOException {
         Streams.safeClose(__r);
     }

@@ -19,6 +19,7 @@ import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.*;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
+import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.web.filter.WnCheckSession;
 
 @IocBean
@@ -52,7 +53,8 @@ public class AppModule extends AbstractWnModule {
                     HttpServletResponse resp) throws IOException {
 
         // 得到命令行
-        String cmd = Strings.trim(URLDecoder.decode(req.getQueryString(), "UTF-8"));
+        String cmdText = Strings.trim(URLDecoder.decode(req.getQueryString(), "UTF-8"));
+        String[] cmdLines = Jvms.split(cmdText, true, '\n', ';');
 
         // 默认返回的 mime-type 是文本
         if (Strings.isBlank(mimeType))
@@ -71,6 +73,8 @@ public class AppModule extends AbstractWnModule {
         // 设置沙箱
         WnBoxContext bi = new WnBoxContext();
 
+        // TODO ...
+
         if (log.isDebugEnabled())
             log.debugf("box:setup: %s", bi);
 
@@ -88,13 +92,11 @@ public class AppModule extends AbstractWnModule {
 
         // 运行
         if (log.isDebugEnabled())
-            log.debugf("box:run: %s", cmd);
-        box.run(cmd);
-
-        // 等待沙箱运行结束
-        if (log.isDebugEnabled())
-            log.debug("box:waitForClose");
-        box.waitForIdle();
+            log.debugf("box:run: %s", cmdText);
+        for (String cmdLine : cmdLines) {
+            box.submit(cmdLine);
+        }
+        box.run();
 
         // 释放沙箱
         if (log.isDebugEnabled())

@@ -51,6 +51,10 @@ public class JvmBoxOutput implements Closeable, Flushable {
         write(msg + "\n");
     }
 
+    public void writeLinef(String fmt, Object... args) {
+        write(String.format(fmt, args) + "\n");
+    }
+
     public void writeJson(Object o, JsonFormat fmt) {
         Json.toJson(__w, o, fmt);
         try {
@@ -73,11 +77,8 @@ public class JvmBoxOutput implements Closeable, Flushable {
 
     @Override
     public void close() throws IOException {
-        // 关闭时，确保都写入了
+        // 关闭时，确保都写入了，不用真的关闭，因为Box 退出后会释放所有的输入的
         flush();
-
-        // 关闭写入
-        ops.close();
     }
 
     @Override

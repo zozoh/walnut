@@ -13,14 +13,14 @@ public interface WnBox {
 
     void setup(WnBoxContext bc);
 
-    void run(String cmdLines);
+    void submit(String cmdLine);
+
+    void run();
 
     void setStdout(OutputStream ops);
 
     void setStderr(OutputStream ops);
 
     void setStdin(InputStream ins);
-
-    void waitForIdle();
 
 }

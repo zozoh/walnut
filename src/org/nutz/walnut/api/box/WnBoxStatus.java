@@ -13,13 +13,13 @@ public enum WnBoxStatus {
     RUNNING,
 
     /**
-     * 沙箱是空闲的
+     * 沙箱已经被分配，但是还没有运行任务
      */
     IDLE,
 
     /**
-     * 沙箱已经被分配，但是还没有运行任务
+     * 沙箱没有被分配
      */
-    ALLOC
+    FREE
 
 }

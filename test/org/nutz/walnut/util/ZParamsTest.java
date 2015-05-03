@@ -9,7 +9,7 @@ public class ZParamsTest {
 
     @Test
     public void test() {
-        ZParams params = ZParams.parse(Lang.list("A", "-u", "B"), null);
+        ZParams params = ZParams.parse(Lang.array("A", "-u", "B"), null);
         assertEquals(1, params.vals.length);
         assertEquals("A", params.vals[0]);
 
