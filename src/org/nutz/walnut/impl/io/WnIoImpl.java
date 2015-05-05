@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.List;
 
 import org.nutz.json.Json;
@@ -73,14 +74,41 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public WnObj fetch(WnObj p, String path) {
+        // 判断是否是获取对象索引
+        String nm = Files.getName(path);
+        boolean rwmeta = false;
+        if (nm.startsWith(Wn.OBJ_META_PREFIX)) {
+            path = Files.renamePath(path, nm.substring(Wn.OBJ_META_PREFIX.length()));
+            rwmeta = true;
+        }
+
+        // 获取对象
         WnNode nd = tree.fetch(p, path);
-        return indexer.toObj(nd);
+        WnObj o = indexer.toObj(nd);
+        // 标记一下，如果读写的时候，只写这个对象的索引
+        if (rwmeta)
+            o.setv(Wn.OBJ_META_RW, rwmeta);
+        return o;
     }
 
     @Override
     public WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex) {
+
+        // 判断是否是获取对象索引
+        String nm = paths[toIndex - 1];
+        boolean rwmeta = false;
+        if (nm.startsWith(Wn.OBJ_META_PREFIX)) {
+            paths[toIndex - 1] = nm.substring(Wn.OBJ_META_PREFIX.length());
+            rwmeta = true;
+        }
+
+        // 获取对象
         WnNode nd = tree.fetch(p, paths, fromIndex, toIndex);
-        return indexer.toObj(nd);
+        WnObj o = indexer.toObj(nd);
+        // 标记一下，如果读写的时候，只写这个对象的索引
+        if (rwmeta)
+            o.setv(Wn.OBJ_META_RW, rwmeta);
+        return o;
     }
 
     @Override
@@ -276,12 +304,6 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
-    public void remove(String id) {
-        WnObj o = this.get(id);
-        delete(o);
-    }
-
-    @Override
     public int eachHistory(WnObj o, long nano, Each<WnHistory> callback) {
         WnStore store = stores.get(o);
         return store.eachHistory(o, nano, callback);
@@ -325,6 +347,13 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public InputStream getInputStream(WnObj o, long off) {
+        // 是读取元数据的
+        if (o.getBoolean(Wn.OBJ_META_RW)) {
+            WnObj o2 = (WnObj) o.duplicate();
+            o2.remove(Wn.OBJ_META_RW);
+            return new WnObjMetaInputStream(o2);
+        }
+        // 读取内容的
         WnStore store = stores.get(o);
         return store.getInputStream(o, off);
     }
@@ -337,22 +366,90 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public OutputStream getOutputStream(WnObj o, long off) {
+        // 是写入元数据的
+        if (o.getBoolean(Wn.OBJ_META_RW)) {
+            return new WnObjMetaOutputStream(o, indexer, off < 0);
+        }
+        // 写入内容
         WnStore store = stores.get(o);
         return store.getOutputStream(o, off);
     }
 
     @Override
+    public void writeMeta(WnObj o, Object meta) {
+        // 得到之前的配置
+        boolean rw = o.getBoolean(Wn.OBJ_META_RW);
+
+        // 确保是写 Meta
+        o.setv(Wn.OBJ_META_RW, true);
+
+        // 写入
+        String json = __to_meta_json(o, meta);
+        writeText(o, json);
+
+        // 恢复
+        if (!rw)
+            o.remove(Wn.OBJ_META_RW);
+    }
+
+    private String __to_meta_json(WnObj o, Object meta) {
+        // 空
+        if (null == meta) {
+            return "{}";
+        }
+        // 字符串
+        if (meta instanceof CharSequence) {
+            String str = Strings.trim(meta.toString());
+            // 空字符串，当做空对象
+            if (Strings.isBlank(str)) {
+                return "{}";
+            }
+            // 正则表达式
+            if (str.startsWith("^")) {
+                return Json.toJson(o.toMap(str), JsonFormat.compact());
+            }
+            // 如果是 JSON 对象
+            if (Strings.isQuoteBy(str, '{', '}')) {
+                return str;
+            }
+            // 否则，试图给其包裹上 map
+            return Json.toJson(Lang.map(str), JsonFormat.compact());
+        }
+        // 列表和数组是不可以的
+        if (meta instanceof Collection<?> || meta.getClass().isArray()) {
+            throw Er.create("e.io.meta.aslist", meta);
+        }
+        // 其他的对象，统统变 JSON 字符串
+        return Json.toJson(meta, JsonFormat.compact());
+    }
+
+    @Override
+    public void appendMeta(WnObj o, Object meta) {
+        // 得到之前的配置
+        boolean rw = o.getBoolean(Wn.OBJ_META_RW);
+
+        // 确保是写 Meta
+        o.setv(Wn.OBJ_META_RW, true);
+
+        // 写入
+        String json = __to_meta_json(o, meta);
+        appendText(o, json);
+
+        // 恢复
+        if (!rw)
+            o.remove(Wn.OBJ_META_RW);
+    }
+
+    @Override
     public String readText(WnObj o) {
-        WnStore store = stores.get(o);
-        InputStream ins = store.getInputStream(o, 0);
+        InputStream ins = this.getInputStream(o, 0);
         Reader r = Streams.buffr(new InputStreamReader(ins));
         return Streams.readAndClose(r);
     }
 
     @Override
     public <T> T readJson(WnObj o, Class<T> classOfT) {
-        WnStore store = stores.get(o);
-        InputStream ins = store.getInputStream(o, 0);
+        InputStream ins = this.getInputStream(o, 0);
         Reader r = Streams.buffr(Streams.utf8r(ins));
         try {
             return Json.fromJson(classOfT, r);
@@ -364,8 +461,7 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public long writeText(WnObj o, CharSequence cs) {
-        WnStore store = stores.get(o);
-        OutputStream ops = store.getOutputStream(o, 0);
+        OutputStream ops = this.getOutputStream(o, 0);
         Writer w = Streams.buffw(Streams.utf8w(ops));
         Streams.writeAndClose(w, cs);
         return o.len();
@@ -373,8 +469,7 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public long appendText(WnObj o, CharSequence cs) {
-        WnStore store = stores.get(o);
-        OutputStream ops = store.getOutputStream(o, -1);
+        OutputStream ops = this.getOutputStream(o, -1);
         Writer w = Streams.buffw(Streams.utf8w(ops));
         Streams.writeAndClose(w, cs);
         return o.len();
@@ -384,11 +479,16 @@ public class WnIoImpl implements WnIo {
     public long writeJson(WnObj o, Object obj, JsonFormat fmt) {
         if (null == fmt)
             fmt = JsonFormat.full().setQuoteName(true);
-        WnStore store = stores.get(o);
-        OutputStream ops = store.getOutputStream(o, 0);
+
+        Object json = obj;
+        if (obj instanceof CharSequence) {
+            json = Json.fromJson(obj.toString());
+        }
+
+        OutputStream ops = this.getOutputStream(o, 0);
         Writer w = Streams.buffw(Streams.utf8w(ops));
         try {
-            Json.toJson(w, obj, fmt);
+            Json.toJson(w, json, fmt);
         }
         finally {
             Streams.safeClose(w);
@@ -408,14 +508,6 @@ public class WnIoImpl implements WnIo {
         }
 
         return o.setNode(nd);
-    }
-
-    public WnObj toObj(WnNode nd) {
-        return indexer.toObj(nd);
-    }
-
-    public void set(WnObj o, String regex) {
-        indexer.set(o, regex);
     }
 
     public int each(WnQuery q, Each<WnObj> callback) {

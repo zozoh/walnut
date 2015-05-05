@@ -9,8 +9,18 @@ public interface WnTurnnel extends Closeable {
     InputStream asInputStream();
 
     OutputStream asOutputStream();
+    
+    boolean isReadable();
+    
+    boolean isWritable();
 
     void close();
+    
+    void closeRead();
+    
+    void closeWrite();
+    
+    void reset();
 
     byte read();
 

@@ -27,6 +27,8 @@ class JvmAtom extends JvmCmd implements Atom {
     @Override
     public void run() {
         try {
+            if (log.isDebugEnabled())
+                log.debugf("Atom(%s) before : %s", id, sys.original);
             executor.exec(sys, args);
         }
         catch (Throwable e) {
@@ -37,11 +39,11 @@ class JvmAtom extends JvmCmd implements Atom {
 
                 // 如果仅仅显示警告，则日志记录警告信息
                 if (log.isWarnEnabled()) {
-                    log.warn(e.toString());
+                    log.warnf("Atom[%d] ERROR: %s", id, e.toString());
                 }
                 // 否则如果需要显示更详细警告信息，则打印错误堆栈
                 else if (log.isDebugEnabled()) {
-                    log.warn(e.toString(), e);
+                    log.warn(String.format("Atom[%d] ERROR: %s", id, e.toString()), e);
                 }
                 // 输出到错误输出
                 sys.err.writeLine(ue.toString());
@@ -49,7 +51,11 @@ class JvmAtom extends JvmCmd implements Atom {
             }
         }
         finally {
+            if (log.isDebugEnabled())
+                log.debugf("Atom[%s] DONE", id);
+
             Streams.safeFlush(sys.out);
+            Streams.safeClose(sys.out);
             box._finish(this);
         }
     }

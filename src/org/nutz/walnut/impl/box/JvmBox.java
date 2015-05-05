@@ -22,6 +22,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.JvmTurnnel;
+import org.nutz.walnut.util.SyncWnTurnnel;
 import org.nutz.walnut.util.Wn;
 
 public class JvmBox implements WnBox {
@@ -164,7 +165,7 @@ public class JvmBox implements WnBox {
                 a = atoms[i];
                 // 如果没重定向输出，则上一个的输出等于下一个输入
                 if (a.sys.out == null) {
-                    JvmTurnnel tnl = new JvmTurnnel(8192);
+                    WnTurnnel tnl = new SyncWnTurnnel(new JvmTurnnel(8192));
                     tnls[i] = tnl;
                     a.sys.out = new JvmBoxOutput(tnl.asOutputStream());
                     atoms[i + 1].sys.in = new JvmBoxInput(tnl.asInputStream());

@@ -59,19 +59,32 @@ public class WnBean extends NutMap implements WnObj {
 
     public NutMap toMap4Update(String regex) {
         NutMap map = new NutMap();
-        if (Strings.isBlank(regex)) {
-            map.putAll(this);
-        } else {
-            for (Map.Entry<String, Object> en : this.entrySet()) {
-                String key = en.getKey();
-                // 如果 regex 为空，只要不是 id 就全要
-                if (null == regex && !"id".equals(key)) {
+        for (Map.Entry<String, Object> en : this.entrySet()) {
+            String key = en.getKey();
+            // 如果 regex 为空，只要不是 id 且不是 "__" 开头（表隐藏），则全要
+            if (null == regex) {
+                if (!"id".equals(key) && !key.startsWith("__"))
                     map.put(key, en.getValue());
-                }
-                // 否则只给出正则表达式匹配的部分，以及几个固定需要更新的字段
-                else if (key.matches("^nm|race|pid|mnt$") || key.matches(regex)) {
-                    map.put(key, en.getValue());
-                }
+            }
+            // 否则只给出正则表达式匹配的部分，以及几个固定需要更新的字段
+            else if (key.matches("^nm|race|pid|mnt$") || key.matches(regex)) {
+                map.put(key, en.getValue());
+            }
+        }
+        return map;
+    }
+
+    @Override
+    public NutMap toMap(String regex) {
+        NutMap map = new NutMap();
+        for (Map.Entry<String, Object> en : this.entrySet()) {
+            String key = en.getKey();
+            if (null == regex) {
+                map.put(key, en.getValue());
+            }
+            // 否则只给出正则表达式匹配的部分，以及几个固定需要更新的字段
+            else if (key.matches(regex)) {
+                map.put(key, en.getValue());
             }
         }
         return map;

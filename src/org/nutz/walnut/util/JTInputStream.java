@@ -2,11 +2,13 @@ package org.nutz.walnut.util;
 
 import java.io.InputStream;
 
+import org.nutz.walnut.api.box.WnTurnnel;
+
 public class JTInputStream extends InputStream {
 
-    private JvmTurnnel tnl;
+    private WnTurnnel tnl;
 
-    public JTInputStream(JvmTurnnel turnnel) {
+    public JTInputStream(WnTurnnel turnnel) {
         this.tnl = turnnel;
     }
 
@@ -22,7 +24,7 @@ public class JTInputStream extends InputStream {
 
     @Override
     public void close() {
-        tnl.r4R = null;
+        tnl.closeRead();
     }
 
 }

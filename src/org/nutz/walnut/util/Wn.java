@@ -3,6 +3,7 @@ package org.nutz.walnut.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
@@ -193,6 +194,15 @@ public abstract class Wn {
 
     public static String genId() {
         return R.UU32();
+    }
+
+    public static final String OBJ_META_PREFIX = ".wn_obj_meta_";
+
+    public static final String OBJ_META_RW = "__obj_meta_rw";
+
+    public static String metaPath(String ph) {
+        String nm = Files.getName(ph);
+        return Files.getParent(ph) + "/" + OBJ_META_PREFIX + nm;
     }
 
 }

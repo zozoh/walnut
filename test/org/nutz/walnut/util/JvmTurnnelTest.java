@@ -30,13 +30,20 @@ public class JvmTurnnelTest {
 
         Atom a = new Atom() {
             public void run() {
-                tnl.write(sbs);
+                synchronized (tnl) {
+                    tnl.write(sbs);
+                }
                 // System.out.println("a quite");
             }
         };
         Atom b = new Atom() {
             public void run() {
-                while (-1 == tnl.read(bs)) {}
+                int re = -1;
+                while (-1 == re) {
+                    synchronized (tnl) {
+                        re = tnl.read(bs);
+                    }
+                }
                 // System.out.println("b quite");
             }
         };

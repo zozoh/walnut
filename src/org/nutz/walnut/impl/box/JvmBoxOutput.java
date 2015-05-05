@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.box;
 
+import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +12,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 
-public class JvmBoxOutput implements Flushable {
+public class JvmBoxOutput implements Flushable, Closeable {
 
     private OutputStream ops;
 
@@ -77,5 +78,13 @@ public class JvmBoxOutput implements Flushable {
     @Override
     public void flush() throws IOException {
         __w.flush();
+        ops.flush();
     }
+
+    @Override
+    public void close() throws IOException {
+        flush();
+        Streams.safeClose(ops);
+    }
+
 }

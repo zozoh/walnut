@@ -10,10 +10,10 @@ public abstract class AbstractWnBoxTest extends BaseBoxTest {
 
     @Test
     public void test_simple_pipe() {
-        box.submit("echo 'hello' | md5sum");
+        box.submit("output -delay 1000 'hello' | md5sum");
         box.run();
 
-        assertEquals(Lang.md5("hello\n") , touts());
+        assertEquals(Lang.md5("hello\n"), touts());
     }
 
     @Test

@@ -68,6 +68,10 @@ public class IoWnSessionService implements WnSessionService {
                 envs.setv("PWD", en.getValue());
                 envs.setv("HOME", en.getValue());
             }
+            // 如果是大写的变量，则全部保留，比如 "PATH" 或者 "APP-PATH"
+            else if (key.toUpperCase().equals(key)) {
+                envs.setv(key, en.getValue());
+            }
             // 其他加前缀
             else {
                 envs.setv("MY_" + key.toUpperCase(), en.getValue());
@@ -83,7 +87,7 @@ public class IoWnSessionService implements WnSessionService {
         o.setv("du", duration);
         o.expireTime(o.lastModified() + duration);
         o.setv("me", u.name());
-        io.set(o, "^me|expi$");
+        io.appendMeta(o, "^me|expi$");
 
         return se;
     }
@@ -131,7 +135,7 @@ public class IoWnSessionService implements WnSessionService {
         int du = o.getInt("du", duration);
         o.nanoStamp(System.nanoTime());
         o.expireTime(o.lastModified() + du);
-        io.set(o, "^nano|lm|expi$");
+        io.appendMeta(o, "^nano|lm|expi$");
     }
 
     @Override

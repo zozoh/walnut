@@ -98,5 +98,7 @@ public interface WnObj extends WnNode, NutBean {
     boolean equals(Object obj);
 
     NutMap toMap4Update(String regex);
+    
+    NutMap toMap(String regex);
 
 }

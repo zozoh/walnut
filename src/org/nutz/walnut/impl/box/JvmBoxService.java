@@ -8,8 +8,6 @@ import org.nutz.walnut.api.box.WnBoxStatus;
 
 public class JvmBoxService implements WnBoxService {
 
-    private static final int ASSIGN_SIZE = 20;
-
     private List<JvmBox> boxes;
 
     private JvmExecutorFactory jef;
@@ -17,14 +15,6 @@ public class JvmBoxService implements WnBoxService {
     public JvmBoxService(JvmExecutorFactory jef) {
         this.jef = jef;
         this.boxes = new LinkedList<JvmBox>();
-
-        // 创建一组初始的沙箱
-        for (int i = 0; i < ASSIGN_SIZE; i++) {
-            JvmBox jb = new JvmBox();
-            jb.jef = this.jef;
-            jb.status = WnBoxStatus.FREE;
-            boxes.add(jb);
-        }
     }
 
     @Override

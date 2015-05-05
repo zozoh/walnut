@@ -7,7 +7,9 @@ import java.util.List;
 import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.BaseIoTest;
+import org.nutz.walnut.util.Wn;
 
 public abstract class AbstractWnIoTest extends BaseIoTest {
 
@@ -103,6 +105,92 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
 
         // 目标节点属于第二棵树
         assertTrue(m3.tree().equals(tree));
+    }
+
+    @Test
+    public void test_read_meta() {
+        WnObj o = io.create(null, "/a", WnRace.FILE);
+        io.appendMeta(o, "x:100, y:99");
+
+        o = io.fetch(null, Wn.metaPath("/a"));
+        System.out.println(io.readText(o));
+        NutMap map = io.readJson(o, NutMap.class);
+
+        assertEquals(100, map.getInt("x"));
+        assertEquals(99, map.getInt("y"));
+    }
+
+    @Test
+    public void test_append_meta() {
+        WnObj o = io.create(null, "/a", WnRace.FILE);
+        io.appendMeta(o, "x:100, y:99");
+        assertEquals(100, o.getInt("x"));
+        assertEquals(99, o.getInt("y"));
+
+        WnObj o2 = io.fetch(o, "/a");
+        assertEquals(o.type(), o2.type());
+        assertEquals(o.name(), o2.name());
+        assertEquals(o.path(), o2.path());
+        assertEquals(100, o2.getInt("x"));
+        assertEquals(99, o2.getInt("y"));
+
+        io.appendMeta(o, "{z:888}");
+        assertEquals(100, o.getInt("x"));
+        assertEquals(99, o.getInt("y"));
+        assertEquals(888, o.getInt("z"));
+
+        o2 = io.fetch(o, "/a");
+        assertEquals(o.type(), o2.type());
+        assertEquals(o.name(), o2.name());
+        assertEquals(o.path(), o2.path());
+        assertEquals(100, o2.getInt("x"));
+        assertEquals(99, o2.getInt("y"));
+        assertEquals(888, o2.getInt("z"));
+    }
+
+    @Test
+    public void test_write_meta() {
+        WnObj o = io.create(null, "/a", WnRace.FILE);
+        o.setv("x", 100).setv("y", 99);
+        io.writeMeta(o, "^x|y$");
+        assertEquals(100, o.getInt("x"));
+        assertEquals(99, o.getInt("y"));
+
+        WnObj o2 = io.fetch(o, "/a");
+        assertEquals(o.type(), o2.type());
+        assertEquals(o.name(), o2.name());
+        assertEquals(o.path(), o2.path());
+        assertEquals(100, o2.getInt("x"));
+        assertEquals(99, o2.getInt("y"));
+    }
+
+    @Test
+    public void test_write_meta2() {
+        io.create(null, "/a", WnRace.FILE);
+        WnObj o = io.fetch(null, Wn.metaPath("/a"));
+        io.writeMeta(o, "x:100,y:99");
+        assertEquals(100, o.getInt("x"));
+        assertEquals(99, o.getInt("y"));
+
+        WnObj o2 = io.fetch(o, "/a");
+        assertEquals(o.type(), o2.type());
+        assertEquals(o.name(), o2.name());
+        assertEquals(o.path(), o2.path());
+        assertEquals(100, o2.getInt("x"));
+        assertEquals(99, o2.getInt("y"));
+
+        io.writeMeta(o, "{z:888}");
+        assertEquals(-1, o.getInt("x"));
+        assertEquals(-1, o.getInt("y"));
+        assertEquals(888, o.getInt("z"));
+
+        o2 = io.fetch(o, "/a");
+        assertEquals(o.type(), o2.type());
+        assertEquals(o.name(), o2.name());
+        assertEquals(o.path(), o2.path());
+        assertEquals(-1, o2.getInt("x"));
+        assertEquals(-1, o2.getInt("y"));
+        assertEquals(888, o2.getInt("z"));
     }
 
     @Test

@@ -4,6 +4,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.err.Er;
@@ -34,6 +35,8 @@ public class IoWnUsrService implements WnUsrService {
 
     // ^[0-9a-zA-Z_.-]+@[0-9a-zA-Z_.-]+.[0-9a-zA-Z_.-]+$
     private Pattern regexEmail;
+
+    private NutMap initEnvs;
 
     private WnObj oUsrs;
 
@@ -100,6 +103,10 @@ public class IoWnUsrService implements WnUsrService {
         // 创建对象
         oU = io.create(oUsrs, "${id}", WnRace.FILE);
 
+        if (null != initEnvs) {
+            oU.setAll(initEnvs);
+        }
+
         // 创建用户对象
         WnUsr u = new IoWnUsr();
         u.id(oU.id()).name(oU.name()).password(pwd);
@@ -108,13 +115,11 @@ public class IoWnUsrService implements WnUsrService {
         if (q.containsKey("phone")) {
             u.phone(q.getString("phone"));
             oU.setv("phone", u.phone());
-            io.set(oU, "^phone$");
         }
         // 邮箱
         else if (q.containsKey("email")) {
             u.email(q.getString("email"));
             oU.setv("email", u.email());
-            io.set(oU, "^email$");
         }
         // 用户名
         else if (q.containsKey("nm")) {
@@ -126,6 +131,9 @@ public class IoWnUsrService implements WnUsrService {
             throw Lang.impossible();
         }
 
+        // 保存所有的索引信息
+        io.appendMeta(oU, "^phone|email$");
+
         // 创建主目录以及关键文件
         String phHome = "root".equals(u.name()) ? "/root" : "/home/" + u.name();
 
@@ -135,7 +143,7 @@ public class IoWnUsrService implements WnUsrService {
         WnObj oPeople = io.create(oHome, ".people", WnRace.DIR);
         WnObj oMe = io.create(oPeople, u.id(), WnRace.FILE);
         oMe.setv("role", Wn.ROLE.ADMIN);
-        io.set(oMe, "^role$");
+        io.appendMeta(oMe, "^role$");
 
         // 写入用户注册信息
         u.home(phHome);
@@ -212,7 +220,7 @@ public class IoWnUsrService implements WnUsrService {
         io.writeJson(o, u, null);
         // 更新索引
         o.setv("phone", phone);
-        io.set(o, "^phone$");
+        io.appendMeta(o, "^phone$");
 
         // 返回
         return u;
@@ -229,7 +237,7 @@ public class IoWnUsrService implements WnUsrService {
         io.writeJson(o, u, null);
         // 更新索引
         o.setv("email", email);
-        io.set(o, "^email$");
+        io.appendMeta(o, "^email$");
 
         // 返回
         return u;

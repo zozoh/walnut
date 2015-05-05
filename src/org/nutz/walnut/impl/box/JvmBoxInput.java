@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 
@@ -16,7 +18,7 @@ public class JvmBoxInput implements Closeable {
 
     public JvmBoxInput(InputStream ins) {
         this.ins = ins;
-        this.__r = Streams.buffr(Streams.utf8r(ins));
+        this.__r = Streams.buffr(new InputStreamReader(ins, Encoding.CHARSET_UTF8));
     }
 
     public String readLine() {

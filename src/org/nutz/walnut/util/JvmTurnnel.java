@@ -30,34 +30,63 @@ public class JvmTurnnel implements WnTurnnel {
     private JTOutputStream _ops;
 
     public JvmTurnnel(int width) {
-        r4W = new JTRow(null, width);
-        r4R = r4W;
         rowWidth = width;
+        reset();
+    }
+
+    @Override
+    public void reset() {
+        r4W = new JTRow(null, rowWidth);
+        r4R = r4W;
         rsum = 0;
-        _ins = new JTInputStream(this);
-        _ops = new JTOutputStream(this);
     }
 
     @Override
     public InputStream asInputStream() {
+        if (null == _ins) {
+            _ins = new JTInputStream(this);
+        }
         return _ins;
     }
 
     @Override
     public OutputStream asOutputStream() {
+        if (null == _ops) {
+            _ops = new JTOutputStream(this);
+        }
         return _ops;
     }
 
     @Override
-    public synchronized void close() {
+    public void close() {
         r4W = null;
         r4R = null;
     }
 
     @Override
-    public synchronized byte read() {
+    public void closeRead() {
+        r4R = null;
+    }
+
+    @Override
+    public void closeWrite() {
+        r4W = null;
+    }
+
+    @Override
+    public boolean isReadable() {
+        return null != r4R;
+    }
+
+    @Override
+    public boolean isWritable() {
+        return null != r4W;
+    }
+
+    @Override
+    public byte read() {
         if (null == r4R)
-            throw Er.create("e.box.jvm.close.read");
+            return -1;
 
         byte re = r4R.read();
         // 读到了
@@ -85,9 +114,9 @@ public class JvmTurnnel implements WnTurnnel {
     }
 
     @Override
-    public synchronized int read(byte[] bs, int off, int len) {
+    public int read(byte[] bs, int off, int len) {
         if (null == r4R)
-            throw Er.create("e.box.jvm.close.read");
+            return -1;
 
         if (len <= 0 || off >= bs.length)
             return 0;
@@ -129,7 +158,7 @@ public class JvmTurnnel implements WnTurnnel {
     }
 
     @Override
-    public synchronized void write(byte b) {
+    public void write(byte b) {
         if (null == r4W)
             throw Er.create("e.box.jvm.close.write");
 
@@ -142,7 +171,7 @@ public class JvmTurnnel implements WnTurnnel {
     }
 
     @Override
-    public synchronized void write(byte[] bs, int off, int len) {
+    public void write(byte[] bs, int off, int len) {
         if (null == r4W)
             throw Er.create("e.box.jvm.close.write");
 
@@ -171,6 +200,17 @@ public class JvmTurnnel implements WnTurnnel {
         return rsum;
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("r4W:%s   r4R:%s\n", r4W != null, r4R != null));
+        JTRow r = r4R;
+        while (null != r) {
+            sb.append(r.toString()).append("\n");
+            r = r.next;
+        }
+        return sb.toString();
+    }
+
     static class JTRow {
 
         byte[] bytes;
@@ -182,6 +222,34 @@ public class JvmTurnnel implements WnTurnnel {
         int iw;
 
         int remain;
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bytes.length; i++) {
+                sb.append('[');
+                if (ir == i) {
+                    sb.append(">>");
+                }
+                switch (bytes[i]) {
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                case '\r':
+                    sb.append("\\r");
+                    break;
+                case '\t':
+                    sb.append("\\t");
+                    break;
+                default:
+                    sb.append((char) bytes[i]);
+                }
+                if (iw == i) {
+                    sb.append("<<");
+                }
+                sb.append(']');
+            }
+            return sb.toString();
+        }
 
         JTRow(JTRow prev, int width) {
             bytes = new byte[width];
