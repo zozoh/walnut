@@ -86,8 +86,10 @@ public class WnIoImpl implements WnIo {
         WnNode nd = tree.fetch(p, path);
         WnObj o = indexer.toObj(nd);
         // 标记一下，如果读写的时候，只写这个对象的索引
-        if (rwmeta)
+        if (rwmeta) {
             o.setv(Wn.OBJ_META_RW, rwmeta);
+            o.mime(mimes.getMime("json"));
+        }
         return o;
     }
 
@@ -106,8 +108,10 @@ public class WnIoImpl implements WnIo {
         WnNode nd = tree.fetch(p, paths, fromIndex, toIndex);
         WnObj o = indexer.toObj(nd);
         // 标记一下，如果读写的时候，只写这个对象的索引
-        if (rwmeta)
+        if (rwmeta) {
             o.setv(Wn.OBJ_META_RW, rwmeta);
+            o.mime(mimes.getMime("json"));
+        }
         return o;
     }
 
@@ -262,12 +266,26 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public WnObj create(WnObj p, String path, WnRace race) {
+        // 判断是否是获取对象索引
+        String nm = Files.getName(path);
+        if (nm.startsWith(Wn.OBJ_META_PREFIX)) {
+            return fetch(p, path);
+        }
+
+        // 执行创建
         WnNode nd = tree.create(p, path, race);
         return __create_index(nd);
     }
 
     @Override
     public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
+        // 判断是否是获取对象索引
+        String nm = paths[toIndex - 1];
+        if (nm.startsWith(Wn.OBJ_META_PREFIX)) {
+            return fetch(p, paths, fromIndex, toIndex);
+        }
+
+        // 执行创建
         WnNode nd = tree.create(p, paths, fromIndex, toIndex, race);
         return __create_index(nd);
     }
