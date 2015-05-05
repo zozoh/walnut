@@ -22,10 +22,10 @@ public abstract class AbstractWnModule {
     @Inject("refer:usrService")
     protected WnUsrService usrs;
 
-    @Inject("refer:processService")
+    @Inject("refer:boxService")
     protected WnBoxService boxes;
 
-    @Inject("refer:mime")
-    protected MimeMap mime;
+    @Inject("refer:mimes")
+    protected MimeMap mimes;
 
 }

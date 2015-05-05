@@ -1,5 +1,8 @@
 var ioc = {
-	zIoService : {
+	ioService : {
+		events : {
+			create : "on_create"
+		},
 		fields : {
 			io : {
 				refer : "io"
@@ -7,40 +10,45 @@ var ioc = {
 		}
 	},
 	usrService : {
-		type : 'org.nutz.walnut.api.usr.ZUsrService',
-		parent : "zIoService",
+		type : 'org.nutz.walnut.impl.usr.IoWnUsrService',
+		parent : "ioService",
 		fields : {
-			regexUsrName : {
-				java : '$conf.get("regex-usr")'
+			initEnvs : {
+				java : '$conf.initUsrEnvs'
 			},
-			regexPassword : {
-				java : '$conf.get("regex-pwd")'
+			regexName : {
+				java : '$conf.get("usr-name")'
+			},
+			regexPhone : {
+				java : '$conf.get("usr-phone")'
+			},
+			regexEmail : {
+				java : '$conf.get("usr-email")'
 			}
 		}
 	},
 	sessionService : {
-		type : 'org.nutz.walnut.api.usr.ZSessionService',
-		parent : "zIoService",
+		type : 'org.nutz.walnut.impl.usr.IoWnSessionService',
+		parent : "ioService",
 		fields : {
 			usrs : {
 				refer : "usrService"
 			},
-			sessionExpired : {
-				java : '$conf.getInt("session-expired")'
+			duration : {
+				java : '$conf.getInt("se-duration", 3600000)'
 			}
 		}
 	},
-	processService : {
-		type : 'org.nutz.walnut.impl.light.LightProcessService',
-		parent : "zIoService",
-		fields : {
-			ioc : {
-				refer : "$Ioc"
-			},
-			sess : {
-				refer : "sessionService"
+	boxService : {
+		type : 'org.nutz.walnut.impl.box.JvmBoxService',
+		args : [ {
+			type : 'org.nutz.walnut.impl.box.JvmExecutorFactory',
+			fields : {
+				scanPkgs : {
+					java : '$conf.jvmboxPkgs'
+				}
 			}
-		}
+		} ]
 	}
 
 }

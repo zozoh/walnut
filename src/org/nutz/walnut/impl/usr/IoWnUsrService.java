@@ -41,6 +41,7 @@ public class IoWnUsrService implements WnUsrService {
     private WnObj oUsrs;
 
     public void on_create() {
+        Wn.WC().me("root", "root");
         oUsrs = io.createIfNoExists(null, "/usr", WnRace.DIR);
     }
 
@@ -131,12 +132,17 @@ public class IoWnUsrService implements WnUsrService {
             throw Lang.impossible();
         }
 
+        // 设定用户组
+        u.group(u.name());
+
         // 保存所有的索引信息
         io.appendMeta(oU, "^phone|email$");
 
         // 创建主目录以及关键文件
         String phHome = "root".equals(u.name()) ? "/root" : "/home/" + u.name();
 
+        // 创建对象
+        Wn.WC().me(u.name(), u.group());
         WnObj oHome = io.create(null, phHome, WnRace.DIR);
 
         // 创建相关账号权限

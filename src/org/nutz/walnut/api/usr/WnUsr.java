@@ -9,6 +9,10 @@ public interface WnUsr {
     String name();
 
     WnUsr name(String name);
+    
+    String group();
+    
+    WnUsr group(String grp);
 
     String alias();
 

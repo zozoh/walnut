@@ -34,6 +34,17 @@ public class IoWnUsr extends NutMap implements WnUsr {
     }
 
     @Override
+    public String group() {
+        return getString("grp");
+    }
+
+    @Override
+    public WnUsr group(String grp) {
+        this.setv("grp", grp);
+        return this;
+    }
+
+    @Override
     public String alias() {
         return getString("aa");
     }

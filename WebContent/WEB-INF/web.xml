@@ -31,10 +31,6 @@
 			<param-name>modules</param-name>
 			<param-value>org.nutz.walnut.web.WnMainModule</param-value>
 		</init-param>
-		<init-param>
-			<param-name>ignore</param-name>
-			<param-value>^[/]rs.?/.*$</param-value>
-		</init-param>
 	</filter>
 
 	<filter-mapping>
@@ -44,30 +40,6 @@
 		<dispatcher>FORWARD</dispatcher>
 		<dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
-
-	<filter>
-		<filter-name>Set Response Character Encoding</filter-name>
-		<filter-class>org.nutz.walnut.web.filter.WnRsEncodingFilter</filter-class>
-	</filter>
-
-	<filter-mapping>
-		<filter-name>Set Response Character Encoding</filter-name>
-		<url-pattern>/rs2/*</url-pattern>
-	</filter-mapping>
-
-	<filter>
-		<filter-name>staticRS</filter-name>
-		<filter-class>org.nutz.walnut.web.filter.WnStaticRSFilter</filter-class>
-	</filter>
-
-	<filter-mapping>
-		<filter-name>staticRS</filter-name>
-		<url-pattern>/rs/*</url-pattern>
-	</filter-mapping>
-
-	<listener>
-		<listener-class>org.nutz.mvc.NutSessionListener</listener-class>
-	</listener>
 
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>

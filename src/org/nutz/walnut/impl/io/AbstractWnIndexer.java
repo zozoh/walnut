@@ -59,6 +59,9 @@ public abstract class AbstractWnIndexer implements WnIndexer {
         WnObj o = get(nd.id());
         if (null == o) {
             o = new WnBean();
+            WnContext wc = Wn.WC();
+            o.mender(wc.checkMe());
+            o.group(wc.checkGroup());
         }
         o.setNode(nd);
         return o;

@@ -2,6 +2,7 @@ package org.nutz.walnut.impl.usr;
 
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.api.usr.WnUsr;
 
 /**
  * 记录一个 ZSession 相关信息
@@ -15,6 +16,8 @@ public class IoWnSession implements WnSession {
     private NutMap envs;
 
     private String me;
+
+    private String grp;
 
     /**
      * @return 会话ID
@@ -62,8 +65,14 @@ public class IoWnSession implements WnSession {
     }
 
     @Override
-    public WnSession me(String me) {
-        this.me = me;
+    public String group() {
+        return grp;
+    }
+
+    @Override
+    public WnSession me(WnUsr me) {
+        this.me = me.name();
+        this.grp = me.group();
         return this;
     }
 
@@ -72,6 +81,7 @@ public class IoWnSession implements WnSession {
         IoWnSession se = new IoWnSession();
         se.id = id;
         se.me = me;
+        se.grp = grp;
         se.envs = new NutMap();
         se.envs.putAll(envs);
         return se;

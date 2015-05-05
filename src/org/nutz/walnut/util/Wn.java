@@ -21,7 +21,7 @@ import org.nutz.walnut.impl.box.WnSystem;
  */
 public abstract class Wn {
 
-    static class _CTX {
+    public static class Ctx {
 
         private static ThreadLocal<WnContext> _wn_context = new ThreadLocal<WnContext>();
 
@@ -152,10 +152,10 @@ public abstract class Wn {
     }
 
     public static WnContext WC() {
-        WnContext wc = Wn._CTX.get();
+        WnContext wc = Wn.Ctx.get();
         if (null == wc) {
             wc = new WnContext();
-            _CTX.set(wc);
+            Ctx.set(wc);
         }
         return wc;
     }

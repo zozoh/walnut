@@ -14,6 +14,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsrService;
+import org.nutz.walnut.util.Wn;
 
 public class IoWnSessionService implements WnSessionService {
 
@@ -30,6 +31,7 @@ public class IoWnSessionService implements WnSessionService {
     private WnObj oSessions;
 
     public void on_create() {
+        Wn.WC().me("root", "root");
         oSessions = io.createIfNoExists(null, "/session", WnRace.DIR);
     }
 
@@ -54,7 +56,7 @@ public class IoWnSessionService implements WnSessionService {
 
         // 设置环境变量等 ..
         WnSession se = new IoWnSession();
-        se.id(o.id()).me(u.name());
+        se.id(o.id()).me(u);
 
         NutMap envs = new NutMap();
         for (Map.Entry<String, Object> en : u.entrySet()) {

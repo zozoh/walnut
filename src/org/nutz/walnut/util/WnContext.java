@@ -19,6 +19,8 @@ public class WnContext extends NutMap {
 
     private String me;
 
+    private String grp;
+
     private WnSecurity security;
 
     public WnSecurity getSecurity() {
@@ -66,8 +68,16 @@ public class WnContext extends NutMap {
         return me;
     }
 
-    public void me(String me) {
+    public String checkGroup() {
+        if (null == grp) {
+            throw Er.create("e.wc.null.grp");
+        }
+        return grp;
+    }
+
+    public void me(String me, String grp) {
         this.me = me;
+        this.grp = grp;
     }
 
     //

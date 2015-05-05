@@ -32,7 +32,7 @@ public class Wnts {
             return nd;
         }
         // Mongo
-        else if (mnt.startsWith("mongo:")) {
+        if (mnt.startsWith("mongo:")) {
             MongoWnNode nd = new MongoWnNode();
             nd.id(mnt);
             nd.path("/");

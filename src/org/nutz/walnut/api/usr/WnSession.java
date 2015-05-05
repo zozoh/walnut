@@ -25,8 +25,10 @@ public interface WnSession {
     WnSession env(String nm, Object val);
 
     String me();
+    
+    String group();
 
-    WnSession me(String me);
+    WnSession me(WnUsr me);
     
     WnSession clone();
 

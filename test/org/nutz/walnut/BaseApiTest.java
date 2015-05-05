@@ -39,7 +39,7 @@ public abstract class BaseApiTest {
         db.on_create();
 
         // 创建当前线程操作的用户
-        Wn.WC().me("zozoh");
+        Wn.WC().me("root","root");
 
         // 调用子类初始化
         on_before(pp);

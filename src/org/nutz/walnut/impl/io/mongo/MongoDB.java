@@ -45,4 +45,8 @@ public class MongoDB {
         return _zdb.cc(coName, false);
     }
 
+    public ZMoCo getCollection(String coName) {
+        return _zdb.cc(coName, false);
+    }
+
 }

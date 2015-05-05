@@ -1,6 +1,6 @@
 var ioc = {
-	lightDB : {
-		type : 'org.nutz.walnut.impl.light.LightDB',
+	mongoDB : {
+		type : 'org.nutz.walnut.impl.io.mongo.MongoDB',
 		events : {
 			create : "on_create",
 			depose : "on_depose"
@@ -10,7 +10,7 @@ var ioc = {
 				java : '$conf.get("mongo-host")'
 			},
 			port : {
-				java : '$conf.getInt("mongo-port", -1)'
+				java : '$conf.getInt("mongo-port")'
 			},
 			usr : {
 				java : '$conf.get("mongo-usr")'

@@ -56,7 +56,7 @@ public class WnCheckSession implements ActionFilter {
 
             // 记录到上下文
             Wn.WC().SE(se);
-            Wn.WC().me(se.me());
+            Wn.WC().me(se.me(), se.group());
             return null;
         } else {
             return new ServerRedirectView("/");

@@ -1,52 +1,57 @@
 var ioc = {
-	mime : {
-		type : 'org.nutz.walnut.impl.light.LightMimeMap',
+	mimes : {
+		type : 'org.nutz.walnut.impl.io.MimeMapImpl',
 		args : [ {
 			type : 'org.nutz.ioc.impl.PropertiesProxy',
-			args : [ 'mime.properties' ]
+			args : [ {
+				java : '$conf.get("mime","mime.properties")'
+			} ]
 		} ]
 	},
-	persist : {
-		type : 'org.nutz.walnut.impl.light.LightIoPersistence',
-		fields : {
-			home : {
-				java : '$conf.dataHome'
-			},
-			writeBufferSize : 8192,
-			deleteCateIfEmpty : true
-		}
+	treeFactory : {
+		type : 'org.nutz.walnut.impl.io.WnTreeFactoryImpl',
+		args : [ {
+			refer : 'mongoDB'
+		} ]
+	},
+	iocMakeHolder : {
+		type : 'org.nutz.walnut.web.WnIocMakeHolder',
+		args : [ {
+			refer : 'treeFactory'
+		}, {
+			java : '$conf.rootTreeNode'
+		}, {
+			refer : 'mongoDB'
+		}, {
+			java : '$conf.get("indexer-co","obj")'
+		} ]
+	},
+	storeFactory : {
+		type : 'org.nutz.walnut.impl.io.WnStoreFactoryImpl',
+		args : [ {
+			java : '$iocMakeHolder.indexer'
+		}, {
+			refer : 'mongoDB'
+		}, {
+			java : '$conf.check("local-sha1")'
+		}, {
+			java : '$conf.check("local-data")'
+		} ]
 	},
 	io : {
-		type : 'org.nutz.walnut.impl.light.LightIo',
+		type : 'org.nutz.walnut.impl.io.WnIoImpl',
 		fields : {
-			bufferSize : 8192,
-			mime : {
-				refer : 'mime'
+			mimes : {
+				refer : 'mimes'
 			},
-			contexts : {
-				type : 'org.nutz.walnut.impl.light.LightIoContextManager'
+			tree : {
+				java : '$iocMakeHolder.tree'
 			},
-			sync : {
-				type : 'org.nutz.walnut.impl.light.LightSync'
+			indexer : {
+				java : '$iocMakeHolder.indexer'
 			},
-			swaps : {
-				type : 'org.nutz.walnut.impl.light.LightIoSwap',
-				fields : {
-					home : {
-						java : '$conf.swapHome'
-					},
-					writeBufferSize : 8192,
-					deleteCateIfEmpty : true
-				}
-			},
-			persist : {
-				refer : "persist"
-			},
-			co : {
-				java : '$lightDB.db.cc("obj",false)'
-			},
-			chis : {
-				java : '$lightDB.db.cc("his",false)'
+			stores : {
+				refer : 'storeFactory'
 			}
 		}
 	}

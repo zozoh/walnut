@@ -53,7 +53,7 @@ public class WnMainModule extends AbstractWnModule {
 
             // 记录到上下文
             Wn.WC().SE(se);
-            Wn.WC().me(se.me());
+            Wn.WC().me(se.me(), se.group());
 
             // 查看会话环境变量，看看需要转到哪个应用
             String appPath = se.envs().getString("OPEN", mainApp);
