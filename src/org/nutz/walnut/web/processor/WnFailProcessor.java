@@ -37,7 +37,7 @@ public class WnFailProcessor extends ViewProcessor {
         }
         // 显示调试信息
         if (log.isInfoEnabled())
-            log.infof("--END URL: %s", ac.getPath());
+            log.info("  END URL");
 
         // 执行清除
         Wn.Ctx.clear();

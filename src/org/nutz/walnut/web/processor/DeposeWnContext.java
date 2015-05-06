@@ -15,7 +15,7 @@ public class DeposeWnContext extends AbstractProcessor {
 
         // 显示调试信息
         if (log.isInfoEnabled())
-            log.infof("--ENE URL: %s", ac.getPath());
+            log.info("  END URL");
 
         // 执行清除
         Wn.Ctx.clear();

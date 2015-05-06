@@ -31,7 +31,7 @@ public class CreateWnContext extends AbstractProcessor {
         }
         // 显示调试信息
         if (log.isInfoEnabled())
-            log.infof("BEGIN URL: %s", ac.getPath());
+            log.infof("BEGIN URL: %s", ac.getRequest().getServletPath());
 
         // 继续下一个处理
         doNext(ac);

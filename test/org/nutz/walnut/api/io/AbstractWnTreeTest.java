@@ -256,6 +256,33 @@ public abstract class AbstractWnTreeTest extends BaseApiTest {
         // Files.deleteDir(d);
     }
 
+    @Test
+    public void test_mount_another_tree3() {
+        // 找到一个节点，设置 mount
+        WnNode nd = tree.create(null, "workspace/data", WnRace.DIR);
+        assertEquals("/workspace/data", nd.path());
+
+        tree.setMount(nd, pp.get(_another_tree_mount_key()));
+
+        // 第二棵树生成一个节点
+        tree.create(null, "workspace/data/a", WnRace.FILE);
+        // 获取
+        WnNode a0 = tree.fetch(null, "workspace/data/a");
+        WnNode a1 = tree.fetch(nd, "a");
+        assertEquals(a0.id(), a1.id());
+        assertEquals(a0.name(), a1.name());
+        assertEquals(a0.path(), a1.path());
+
+        // 第二棵树生再成一个节点
+        tree.create(nd, "b", WnRace.FILE);
+        // 获取
+        WnNode b0 = tree.fetch(null, "workspace/data/b");
+        WnNode b1 = tree.fetch(nd, "b");
+        assertEquals(b0.id(), b1.id());
+        assertEquals(b0.name(), b1.name());
+        assertEquals(b0.path(), b1.path());
+    }
+
     private WnTree tree;
 
     protected void on_before(PropertiesProxy pp) {

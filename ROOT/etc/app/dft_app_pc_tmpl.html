@@ -15,7 +15,7 @@
 	<script src="${rs}/core/js/nutz/zutil.js"></script>
 </head>
 <body>
-<div id="app" appnm="${appnm}" ui-fitwindow="true"></div>
+<div id="app" appnm="${appName}" ui-fitwindow="true"></div>
 <script>
 window._app = ${app}
 
@@ -25,13 +25,13 @@ seajs.config({
 	base  : "${rs}",
 	debug : true,
 	alias : {
-		"walnut"     : "core/walnut/walnut.js", 
-		"zui"        : "core/nutz/zui.js",
-		"zui_css"    : "core/nutz/zui.css"
+		"walnut"     : "wn/walnut.js", 
+		"zui"        : "core/js/nutz/zui.js",
+		"zui_css"    : "core/js/nutz/zui.css"
 	},
 	paths : {
-		"app" : "/a/load/"+_app.name,
-		"ui"  : "${rs}/core/js/ui"
+		"ui"  : "core/js/ui",
+		"wn"  : "core/js/walnut"
 	},
 	charset: 'utf-8'
 });
@@ -42,12 +42,14 @@ seajs.on("error", function(data){
 });
 
 
+
+
 seajs.use("zui", function(ZUI){
 	ZUI.loadi18n("ui/i18n/{{lang}}.js", function(){
-		seajs.use("app/main.js", function(main){
+		seajs.use("/a/load/"+_app.name+"/main.js", function(main){
             main.init();
         });
-	})	
+	});	
 });
 
 </script>

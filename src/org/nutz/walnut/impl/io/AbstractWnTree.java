@@ -207,6 +207,12 @@ public abstract class AbstractWnTree implements WnTree {
             p = secu.enter(p);
         }
 
+        // 如果节点映射到另外一棵树，用另外的树逻辑获取
+        if (p.isMount(this)) {
+            WnTree mntTree = factory().check(p);
+            return mntTree.fetch(null, paths, fromIndex, toIndex);
+        }
+
         // 逐个进入目标节点的父
         WnNode nd;
         int rightIndex = toIndex - 1;

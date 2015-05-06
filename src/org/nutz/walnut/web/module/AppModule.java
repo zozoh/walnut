@@ -10,17 +10,24 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Lang;
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.lang.segment.Segment;
+import org.nutz.lang.segment.Segments;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.*;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.Jvms;
+import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.web.bean.WnApp;
 import org.nutz.walnut.web.filter.WnCheckSession;
+import org.nutz.walnut.web.view.WnObjDownloadView;
 
 @IocBean
 @At("/a")
@@ -32,17 +39,57 @@ public class AppModule extends AbstractWnModule {
     @Inject("java:$conf.getInt('box-alloc-timeout')")
     private int allocTimeout;
 
-    @At("/open/**")
+    @At("/open/?/**")
     @Ok("jsp:jsp.app")
     @Fail("jsp:jsp.show_text")
-    public Object open(String str) throws UnsupportedEncodingException {
-        throw Lang.noImplement();
+    public CharSequence open(String appName, String str) throws UnsupportedEncodingException {
+        WnObj oAppHome = this._check_app_home(appName);
+
+        // 要处理的对象
+        WnObj o = Strings.isBlank(str) ? null : Wn.checkObj(io, str);
+
+        // 生成 app 的对象
+        WnApp app = new WnApp();
+        app.setObj(o);
+        app.setSession(Wn.WC().checkSE());
+        app.setName(appName);
+
+        String appJson = Json.toJson(app, JsonFormat.forLook().setQuoteName(true));
+
+        // 找到主界面模板
+        String tt = "pc"; // 可以是 "pc" 或者 "mobile"
+
+        WnObj oTmpl = io.fetch(oAppHome, tt + "_tmpl.html");
+        if (null == oTmpl) {
+            oTmpl = io.check(null, "/etc/app/dft_app_" + tt + "_tmpl.html");
+        }
+
+        // 读取模板并分析
+        String tmpl = io.readText(oTmpl);
+        Segment seg = Segments.create(tmpl);
+
+        // 标题
+        String title = appName;
+        if (null != o)
+            title = o.name() + " : " + title;
+
+        // 填充模板占位符
+        seg.set("title", title);
+        seg.set("rs", conf.get("app-rs"));
+        seg.set("appName", appName);
+        seg.set("app", appJson);
+
+        // 渲染输出
+        return seg.render();
     }
 
     @At("/load/?/**")
-    @Ok("raw:application/x-javascript")
+    @Ok("void")
+    @Fail("http:404")
     public View load(String appName, String rsName) {
-        throw Lang.noImplement();
+        WnObj oAppHome = this._check_app_home(appName);
+        WnObj o = io.check(oAppHome, rsName);
+        return new WnObjDownloadView(io, o);
     }
 
     @At("/run/?/*")

@@ -104,13 +104,14 @@ public class IoWnUsrService implements WnUsrService {
         // 创建对象
         oU = io.create(oUsrs, "${id}", WnRace.FILE);
 
-        if (null != initEnvs) {
-            oU.setAll(initEnvs);
-        }
-
         // 创建用户对象
         WnUsr u = new IoWnUsr();
         u.id(oU.id()).name(oU.name()).password(pwd);
+
+        // 添加所有的初始环境变量
+        if (null != initEnvs) {
+            u.putAll(initEnvs);
+        }
 
         // 电话
         if (q.containsKey("phone")) {

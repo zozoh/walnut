@@ -47,9 +47,18 @@ public class WnIoImpl implements WnIo {
         indexer._clean_for_unit_test();
     }
 
+    private WnTree tree(WnNode p) {
+        if (null == p)
+            return tree;
+        WnTree re = p.tree();
+        if (null == re)
+            return tree;
+        return re;
+    }
+
     @Override
     public WnObj get(String id) {
-        WnNode nd = tree.getNode(id);
+        WnNode nd = tree(null).getNode(id);
         if (null == nd)
             return null;
         nd.loadParents(null, false);
@@ -83,7 +92,7 @@ public class WnIoImpl implements WnIo {
         }
 
         // 获取对象
-        WnNode nd = tree.fetch(p, path);
+        WnNode nd = tree(p).fetch(p, path);
         WnObj o = indexer.toObj(nd);
         // 标记一下，如果读写的时候，只写这个对象的索引
         if (rwmeta) {
@@ -105,7 +114,7 @@ public class WnIoImpl implements WnIo {
         }
 
         // 获取对象
-        WnNode nd = tree.fetch(p, paths, fromIndex, toIndex);
+        WnNode nd = tree(p).fetch(p, paths, fromIndex, toIndex);
         WnObj o = indexer.toObj(nd);
         // 标记一下，如果读写的时候，只写这个对象的索引
         if (rwmeta) {
@@ -117,7 +126,7 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public void walk(WnObj p, final Callback<WnObj> callback, WalkMode mode) {
-        tree.walk(p, new Callback<WnNode>() {
+        tree(p).walk(p, new Callback<WnNode>() {
             public void invoke(WnNode nd) {
                 WnObj o = indexer.toObj(nd);
                 if (null != callback)
@@ -161,12 +170,12 @@ public class WnIoImpl implements WnIo {
         // 看看目标是否存在
         String newName = null;
         String taPath = destPath;
-        WnNode ta = tree.fetch(null, taPath);
+        WnNode ta = tree(null).fetch(null, taPath);
 
         // 如果不存在，看看目标的父是否存在，并且可能也同时要改名
         if (null == ta) {
             taPath = Files.getParent(taPath);
-            ta = tree.fetch(null, taPath);
+            ta = tree(null).fetch(null, taPath);
             newName = Files.getName(destPath);
         }
         // 如果存在的是一个文件
@@ -273,7 +282,7 @@ public class WnIoImpl implements WnIo {
         }
 
         // 执行创建
-        WnNode nd = tree.create(p, path, race);
+        WnNode nd = tree(p).create(p, path, race);
         return __create_index(nd);
     }
 
@@ -286,7 +295,7 @@ public class WnIoImpl implements WnIo {
         }
 
         // 执行创建
-        WnNode nd = tree.create(p, paths, fromIndex, toIndex, race);
+        WnNode nd = tree(p).create(p, paths, fromIndex, toIndex, race);
         return __create_index(nd);
     }
 
@@ -309,7 +318,7 @@ public class WnIoImpl implements WnIo {
         WnStore store = stores.get(o);
         store.cleanHistoryBy(o, 0);
         indexer.remove(o.id());
-        tree.delete(o);
+        tree(o).delete(o);
     }
 
     @Override
@@ -349,7 +358,7 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public void setMount(WnObj o, String mnt) {
-        WnNode nd = tree.setMount(o, mnt);
+        WnNode nd = tree(o).setMount(o, mnt);
         o.setNode(nd);
         indexer.set(o, "^mnt$");
     }
@@ -510,7 +519,7 @@ public class WnIoImpl implements WnIo {
         if (null == o)
             return null;
 
-        WnNode nd = tree.getNode(o.id());
+        WnNode nd = tree(null).getNode(o.id());
 
         if (null == nd) {
             throw Er.create("e.io.lostnode", o);
