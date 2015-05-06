@@ -31,6 +31,10 @@
 			<param-name>modules</param-name>
 			<param-value>org.nutz.walnut.web.WnMainModule</param-value>
 		</init-param>
+		<init-param>
+			<param-name>ignore</param-name>
+			<param-value>^.+\\.jsp$</param-value>
+		</init-param>
 	</filter>
 
 	<filter-mapping>

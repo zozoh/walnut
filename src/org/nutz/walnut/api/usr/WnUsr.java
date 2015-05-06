@@ -1,6 +1,8 @@
 package org.nutz.walnut.api.usr;
 
-public interface WnUsr {
+import java.util.Map;
+
+public interface WnUsr extends Map<String, Object> {
 
     String id();
 
@@ -9,9 +11,9 @@ public interface WnUsr {
     String name();
 
     WnUsr name(String name);
-    
+
     String group();
-    
+
     WnUsr group(String grp);
 
     String alias();

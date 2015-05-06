@@ -48,10 +48,17 @@ public class WnBean extends NutMap implements WnObj {
 
         // 更新其他字段用作冗余记录
         this.setv("nm", nd.name());
-        this.setv("ph", nd.path());
+        this.name(nd.name());
+        this.path(nd.path());
+        this.parentId(nd.parentId());
         this.setv("race", nd.race());
-        this.setv("pid", nd.parentId());
         this.setv("mnt", Strings.sBlank(nd.mount(), nd.tree().getMount()));
+
+        // 如果节点给出了大小，也复用
+        long len = nd.len();
+        if (len > 0) {
+            this.len(len);
+        }
 
         // 返回
         return this;

@@ -17,6 +17,8 @@ var ioc = {
 	iocMakeHolder : {
 		type : 'org.nutz.walnut.web.WnIocMakeHolder',
 		args : [ {
+			refer : 'mimes'
+		}, {
 			refer : 'treeFactory'
 		}, {
 			java : '$conf.rootTreeNode'

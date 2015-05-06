@@ -44,6 +44,7 @@ public class LocalTreeWnStoreTable extends AbstractWnStoreTable {
                 return null;
 
             // 返回历史记录对象
+            o.data(f.getAbsolutePath());
             return new LocalObjWnHistory(o);
         }
 

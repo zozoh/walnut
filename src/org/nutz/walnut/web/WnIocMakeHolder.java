@@ -1,6 +1,8 @@
 package org.nutz.walnut.web;
 
+import org.nutz.lang.Mirror;
 import org.nutz.mongo.ZMoCo;
+import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIndexer;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnTree;
@@ -14,10 +16,15 @@ public class WnIocMakeHolder {
 
     private WnIndexer indexer;
 
-    public WnIocMakeHolder(WnTreeFactory tf, WnNode rootNode, MongoDB db, String coName) {
+    public WnIocMakeHolder(MimeMap mimes,
+                           WnTreeFactory tf,
+                           WnNode rootNode,
+                           MongoDB db,
+                           String coName) {
         tree = tf.check(rootNode);
         ZMoCo co = db.getCollection(coName);
         indexer = new MongoWnIndexer(co);
+        Mirror.me(indexer).setValue(indexer, "mimes", mimes);
     }
 
     public WnTree getTree() {

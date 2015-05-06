@@ -13,6 +13,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
+import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
 
@@ -45,11 +46,11 @@ public class IoWnSessionService implements WnSessionService {
             throw Er.create("e.usr.invalid.login");
         }
 
-        return create(u, true);
+        return create(u);
     }
 
     @Override
-    public WnSession create(final IoWnUsr u, final boolean reuse) {
+    public WnSession create(WnUsr u) {
         // 创建一个 Session 对象
         WnObj o = io.create(null, "/session/${id}", WnRace.FILE);
         io.changeType(o, SESSTP);

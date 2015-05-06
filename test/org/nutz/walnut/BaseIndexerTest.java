@@ -1,6 +1,7 @@
 package org.nutz.walnut;
 
 import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.lang.Mirror;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnTree;
@@ -21,6 +22,7 @@ public abstract class BaseIndexerTest extends BaseApiTest {
 
         ZMoCo co = db.getCollectionByMount("mongo:obj");
         indexer = new MongoWnIndexer(co);
+        Mirror.me(indexer).setValue(indexer, "mimes", mimes);
         indexer._clean_for_unit_test();
     }
 

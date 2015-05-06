@@ -47,9 +47,11 @@ public class JvmBoxService implements WnBoxService {
 
     @Override
     public synchronized void free(WnBox box) {
-        JvmBox jb = (JvmBox) box;
-        jb.free();
-        jb.status = WnBoxStatus.FREE;
+        if (null != box) {
+            JvmBox jb = (JvmBox) box;
+            jb.free();
+            jb.status = WnBoxStatus.FREE;
+        }
     }
 
     @Override

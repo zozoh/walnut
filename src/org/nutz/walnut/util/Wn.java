@@ -12,6 +12,10 @@ import org.nutz.lang.segment.Segments;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
+import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.MimeMap;
+import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.WnSystem;
 
 /**
@@ -48,6 +52,25 @@ public abstract class Wn {
             }
         }
 
+    }
+
+    public static WnObj getObj(WnIo io, String str) {
+        if (Strings.isBlank(str))
+            return null;
+
+        if (str.startsWith("id:")) {
+            String id = str.substring("id:".length());
+            return io.get(id);
+        }
+
+        return io.fetch(null, str);
+    }
+
+    public static WnObj checkObj(WnIo io, String str) {
+        WnObj o = getObj(io, str);
+        if (null == o)
+            throw Er.create("e.io.obj.noexists", str);
+        return o;
     }
 
     private static final String regex = "([$])([a-zA-Z0-9_]+)";
@@ -203,6 +226,21 @@ public abstract class Wn {
     public static String metaPath(String ph) {
         String nm = Files.getName(ph);
         return Files.getParent(ph) + "/" + OBJ_META_PREFIX + nm;
+    }
+
+    public static void set_type(MimeMap mimes, WnObj o, String tp) {
+        if (Strings.isBlank(tp))
+            tp = Files.getSuffixName(o.name());
+    
+        if (!o.hasType() || !o.isType(tp)) {
+            if (Strings.isBlank(tp)) {
+                tp = "txt";
+            }
+            o.type(tp);
+        }
+    
+        String mime = mimes.getMime(o.type());
+        o.mime(mime);
     }
 
 }

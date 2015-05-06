@@ -1,12 +1,15 @@
 package org.nutz.walnut.web;
 
 import org.nutz.ioc.Ioc;
+import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
@@ -27,20 +30,31 @@ public class WnSetup implements Setup {
 
         // 尝试看看组装的结果
         WnIo io = ioc.get(WnIo.class, "io");
-        System.out.println("io: " + io);
+
+        // 下面所有的操作都是 root 权限的
+        Wn.WC().me("root", "root");
 
         // 确保有 ROOT 用户
         WnUsrService usrs = ioc.get(WnUsrService.class, "usrService");
         WnUsr root = usrs.fetch("root");
         if (root == null) {
-            Wn.WC().me("root", "root");
             root = usrs.create("root", conf.get("root-init-passwd"));
-            if (log.isInfoEnabled())
-                log.infof("init root usr: %s", root.id());
+            log.infof("init root usr: %s", root.id());
         }
 
         // 获取沙箱服务
         boxes = ioc.get(WnBoxService.class, "boxService");
+
+        // 看看初始的 mount 是否被加载
+        for (WnInitMount wim : conf.getInitMount()) {
+            WnObj o = io.createIfNoExists(null, wim.path, WnRace.DIR);
+            if (Strings.isBlank(o.mount()) || !wim.mount.equals(o.mount())) {
+                io.setMount(o, wim.mount);
+                log.infof("+mount : %s > %s", wim.path, wim.mount);
+            } else {
+                log.infof("=mount : %s > %s", wim.path, wim.mount);
+            }
+        }
 
     }
 

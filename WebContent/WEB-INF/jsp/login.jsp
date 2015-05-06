@@ -14,7 +14,7 @@ button {
 <%/*------------------------------------------------*/%>
 <form method="POST" action="${base}/u/do/login">
 <div class="margin:20px auto;">
-<img src="${rs}/img/walnut_logo.png"/>
+<img src="${rs}/core/img/walnut_logo.png"/>
 </div>
 <table>
 	<tr>

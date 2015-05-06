@@ -210,7 +210,7 @@ public class LocalWnTree extends AbstractWnTree {
         if (!f.exists())
             return null;
 
-        return this._file_to_node(f, null, false);
+        return this._file_to_node(f, null, true);
     }
 
     @Override
@@ -249,7 +249,7 @@ public class LocalWnTree extends AbstractWnTree {
             File f = Files.getFile(d, str);
             if (!f.exists())
                 return 0;
-            WnNode nd = _file_to_node(f, null, false);
+            WnNode nd = _file_to_node(f, null, true);
             nd.setParent(p);
 
             try {
@@ -365,7 +365,7 @@ public class LocalWnTree extends AbstractWnTree {
         File f2 = new File(f.getParent() + "/" + newName);
 
         // 修改索引项目，因为指定了 ID，如果索引有这个 ID 的话，只会更新
-        return this._file_to_node(f2, nd.id(), false);
+        return this._file_to_node(f2, nd.id(), true);
     }
 
     @Override
@@ -382,7 +382,7 @@ public class LocalWnTree extends AbstractWnTree {
         }
 
         // 修改索引项目，因为指定了 ID，如果索引有这个 ID 的话，只会更新
-        return this._file_to_node(fdest, nd.id(), false);
+        return this._file_to_node(fdest, nd.id(), true);
     }
 
     @Override

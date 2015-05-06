@@ -63,6 +63,11 @@ public class MongoWnNode extends AbstractWnNode {
         return name;
     }
 
+    @Override
+    public long len() {
+        return -1;
+    }
+
     private static final Pattern P_NM = Pattern.compile("[/\\\\]");
 
     @Override

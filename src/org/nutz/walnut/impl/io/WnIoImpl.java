@@ -301,16 +301,7 @@ public class WnIoImpl implements WnIo {
     }
 
     private void __set_type(WnObj o, String tp) {
-        if (Strings.isBlank(tp))
-            tp = Files.getSuffixName(o.name());
-
-        if (!o.hasType() || !o.isType(tp)) {
-            if (Strings.isBlank(tp)) {
-                tp = "txt";
-            }
-            String mime = mimes.getMime(tp);
-            o.type(tp).mime(mime);
-        }
+        Wn.set_type(mimes, o, tp);
     }
 
     @Override

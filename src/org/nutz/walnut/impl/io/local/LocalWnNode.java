@@ -72,6 +72,11 @@ public class LocalWnNode extends AbstractWnNode {
     }
 
     @Override
+    public long len() {
+        return file.length();
+    }
+
+    @Override
     public WnRace race() {
         if (file.isDirectory())
             return WnRace.DIR;

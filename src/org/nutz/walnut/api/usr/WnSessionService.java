@@ -1,7 +1,6 @@
 package org.nutz.walnut.api.usr;
 
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.impl.usr.IoWnUsr;
 
 public interface WnSessionService {
 
@@ -26,11 +25,9 @@ public interface WnSessionService {
      * 
      * @param u
      *            用户
-     * @param reuse
-     *            是否重用当前会话。即当前会话如果与用户重名，直接重用
      * @return 会话对象
      */
-    WnSession create(IoWnUsr u, boolean reuse);
+    WnSession create(WnUsr u);
 
     /**
      * 销毁一个会话对象，如果会话对象有父，则将父会话的 lm 更新

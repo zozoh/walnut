@@ -6,6 +6,7 @@ import java.util.List;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIndexer;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnObj;
@@ -14,6 +15,8 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
 public abstract class AbstractWnIndexer implements WnIndexer {
+
+    private MimeMap mimes;
 
     @Override
     public WnObj get(String id) {
@@ -58,12 +61,16 @@ public abstract class AbstractWnIndexer implements WnIndexer {
 
         WnObj o = get(nd.id());
         if (null == o) {
-            o = new WnBean();
             WnContext wc = Wn.WC();
+            
+            o = new WnBean().setNode(nd);
             o.mender(wc.checkMe());
             o.group(wc.checkGroup());
+            Wn.set_type(mimes, o, null);
+            
+        } else {
+            o.setNode(nd);
         }
-        o.setNode(nd);
         return o;
     }
 

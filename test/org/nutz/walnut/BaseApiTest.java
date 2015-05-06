@@ -4,10 +4,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Mirror;
+import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIndexer;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnStoreFactory;
 import org.nutz.walnut.api.io.WnTreeFactory;
+import org.nutz.walnut.impl.io.MimeMapImpl;
 import org.nutz.walnut.impl.io.mongo.MongoDB;
 import org.nutz.walnut.util.Wn;
 
@@ -23,6 +25,8 @@ public abstract class BaseApiTest {
     protected PropertiesProxy pp;
 
     protected MongoDB db;
+    
+    protected MimeMap mimes;
 
     @Before
     public void before() {
@@ -37,6 +41,9 @@ public abstract class BaseApiTest {
         Mirror.me(db).setValue(db, "pwd", pp.get("mongo-pwd"));
         Mirror.me(db).setValue(db, "db", pp.get("mongo-db"));
         db.on_create();
+        
+        PropertiesProxy ppMime = new PropertiesProxy(pp.check("mime"));
+        mimes = new MimeMapImpl(ppMime);
 
         // 创建当前线程操作的用户
         Wn.WC().me("root","root");
