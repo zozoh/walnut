@@ -3,17 +3,17 @@ package org.nutz.walnut.util;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.walnut.api.box.WnTurnnel;
+import org.nutz.walnut.api.box.WnTunnel;
 
-public class SyncWnTurnnel implements WnTurnnel {
+public class SyncWnTunnel implements WnTunnel {
 
-    private WnTurnnel tnl;
+    private WnTunnel tnl;
 
     private SyncJTInputStream _ins;
 
     private SyncJTOutputStream _ops;
 
-    public SyncWnTurnnel(WnTurnnel tnl) {
+    public SyncWnTunnel(WnTunnel tnl) {
         this.tnl = tnl;
     }
 

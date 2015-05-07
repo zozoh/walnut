@@ -2,13 +2,13 @@ package org.nutz.walnut.util;
 
 import java.io.OutputStream;
 
-import org.nutz.walnut.api.box.WnTurnnel;
+import org.nutz.walnut.api.box.WnTunnel;
 
 public class JTOutputStream extends OutputStream {
 
-    private WnTurnnel tnl;
+    private WnTunnel tnl;
 
-    public JTOutputStream(WnTurnnel turnnel) {
+    public JTOutputStream(WnTunnel turnnel) {
         this.tnl = turnnel;
     }
 

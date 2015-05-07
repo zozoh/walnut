@@ -16,13 +16,13 @@ import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxRuntime;
 import org.nutz.walnut.api.box.WnBoxStatus;
-import org.nutz.walnut.api.box.WnTurnnel;
+import org.nutz.walnut.api.box.WnTunnel;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.util.JvmTurnnel;
-import org.nutz.walnut.util.SyncWnTurnnel;
+import org.nutz.walnut.util.JvmTunnel;
+import org.nutz.walnut.util.SyncWnTunnel;
 import org.nutz.walnut.util.Wn;
 
 public class JvmBox implements WnBox {
@@ -51,7 +51,7 @@ public class JvmBox implements WnBox {
 
     private Thread[] threads; // 启动了哪些线程
 
-    private WnTurnnel[] tnls; // 记录了线程间所有的隧道
+    private WnTunnel[] tnls; // 记录了线程间所有的隧道
 
     private List<OutputStream> opss; // 有多少重定向输出
 
@@ -169,12 +169,12 @@ public class JvmBox implements WnBox {
 
         // 为所有中间原子分配管道
         if (atoms.length > 1) {
-            tnls = new WnTurnnel[lastIndex];
+            tnls = new WnTunnel[lastIndex];
             for (int i = 0; i < lastIndex; i++) {
                 a = atoms[i];
                 // 如果没重定向输出，则上一个的输出等于下一个输入
                 if (a.sys.out == null) {
-                    WnTurnnel tnl = new SyncWnTurnnel(new JvmTurnnel(8192));
+                    WnTunnel tnl = new SyncWnTunnel(new JvmTunnel(8192));
                     tnls[i] = tnl;
                     a.sys.out = new JvmBoxOutput(tnl.asOutputStream());
                     atoms[i + 1].sys.in = new JvmBoxInput(tnl.asInputStream());
@@ -266,7 +266,7 @@ public class JvmBox implements WnBox {
         Streams.safeClose(err);
 
         if (null != tnls)
-            for (WnTurnnel tnl : tnls)
+            for (WnTunnel tnl : tnls)
                 Streams.safeClose(tnl);
 
         // 全部退出了，标记状态

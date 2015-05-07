@@ -12,7 +12,7 @@ public class cmd_output extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) {
         // 看看是否需要延迟
-        ZParams params = ZParams.parse(args, "te");
+        ZParams params = ZParams.parse(args, "tei");
         if (params.has("delay")) {
             long ms = params.getLong("delay");
             try {
@@ -25,6 +25,7 @@ public class cmd_output extends JvmExecutor {
 
         // 是否加入时间戳
         boolean t = params.is("t");
+        boolean showIndex = params.is("i");
 
         // 要输出的信息
         String msg;
@@ -60,28 +61,29 @@ public class cmd_output extends JvmExecutor {
             // 无限循环输出
             if (0 == n) {
                 while (true) {
-                    __print(jbo, i++, msg, t);
+                    __print(jbo, i++, msg, t, showIndex);
                     Thread.sleep(inteval);
                 }
             }
             // 有限次数输出
             else {
                 for (; i < n - 1; i++) {
-                    __print(jbo, i, msg, t);
+                    __print(jbo, i, msg, t, showIndex);
                     Thread.sleep(inteval);
                 }
                 // 输出最后一条
-                __print(jbo, i, msg, t);
+                __print(jbo, i, msg, t, showIndex);
             }
         }
         catch (InterruptedException e) {}
     }
 
-    protected void __print(JvmBoxOutput jbo, int i, String msg, boolean t) {
+    protected void __print(JvmBoxOutput jbo, int i, String msg, boolean t, boolean showIndex) {
+        String prefix = showIndex ? "" + i + ") " : "";
         if (!t) {
-            jbo.writeLinef("%d) %s", i, msg);
+            jbo.writeLinef("%s%s", prefix, msg);
         } else {
-            jbo.writeLinef("%d) %s %s", i, Times.format("HH:mm:ss.SSS", Times.now()), msg);
+            jbo.writeLinef("%s%s %s", prefix, Times.format("HH:mm:ss.SSS", Times.now()), msg);
         }
         jbo.flush();
     }

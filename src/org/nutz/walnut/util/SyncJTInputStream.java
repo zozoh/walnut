@@ -5,15 +5,15 @@ import java.io.InputStream;
 import org.nutz.lang.Lang;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
-import org.nutz.walnut.api.box.WnTurnnel;
+import org.nutz.walnut.api.box.WnTunnel;
 
 public class SyncJTInputStream extends InputStream {
 
     private static final Log log = Logs.get();
 
-    private WnTurnnel tnl;
+    private WnTunnel tnl;
 
-    public SyncJTInputStream(WnTurnnel turnnel) {
+    public SyncJTInputStream(WnTunnel turnnel) {
         this.tnl = turnnel;
     }
 

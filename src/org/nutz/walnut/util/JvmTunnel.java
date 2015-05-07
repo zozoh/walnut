@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.nutz.lang.Lang;
-import org.nutz.walnut.api.box.WnTurnnel;
+import org.nutz.walnut.api.box.WnTunnel;
 import org.nutz.walnut.api.err.Er;
 
 /**
@@ -12,7 +12,7 @@ import org.nutz.walnut.api.err.Er;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class JvmTurnnel implements WnTurnnel {
+public class JvmTunnel implements WnTunnel {
 
     JTRow r4W;
 
@@ -29,7 +29,7 @@ public class JvmTurnnel implements WnTurnnel {
 
     private JTOutputStream _ops;
 
-    public JvmTurnnel(int width) {
+    public JvmTunnel(int width) {
         rowWidth = width;
         reset();
     }

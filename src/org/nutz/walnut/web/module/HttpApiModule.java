@@ -24,12 +24,14 @@ import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.walnut.api.box.WnBox;
+import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 
 @IocBean
 @At("/api")
@@ -141,44 +143,59 @@ public class HttpApiModule extends AbstractWnModule {
         // 解析命令
         String cmdPattern = io.readText(oApi);
         Context c = Lang.context(oReq.toMap(null));
-        String cmd = Segments.replace(cmdPattern, c);
+        String cmdText = Segments.replace(cmdPattern, c);
+        String[] cmdLines = Jvms.split(cmdText, true, '\n', ';');
 
         // 执行命令
-        WnSession se = sess.create(u);
-        WnBox box = null;
-        int httpStatus = 200;
-        try {
-            box = boxes.alloc(0);
-            // 暂时粗暴的搞一下多行命令吧
-            // TODO 需要考虑 \ 的连接行，以及分号
-            String[] ss = Strings.splitIgnoreBlank(cmd, "\n");
-            for (String s : ss) {
-                box.submit(s);
-            }
-            
-            // TODO 这里设定沙箱的运行参数
-            
+        WnBox box = boxes.alloc(0);
 
-            // 最后将请求的对象设置一下清除标志
-            oReq.expireTime(System.currentTimeMillis() + 100L * 1000);
-            io.appendMeta(oReq, "^expi$");
-        }
-        // 出现错误
-        catch (Exception e) {
-            httpStatus = 500;
-            oReq.setv("http_error", e.toString());
-            io.appendMeta(oReq, "^http_error$");
-        }
-        // 清除会话的进程，并写入返回
-        finally {
-            boxes.free(box);
-        }
+        if (log.isDebugEnabled())
+            log.debugf("box:alloc: %s", box.id());
 
-        // TODO 这里不要了 !!! 写回返回
-        resp.setStatus(httpStatus);
-        resp.setContentType(oApi.getString("http-header-CONTENT-TYPE", "text/plain"));
-        resp.setCharacterEncoding("UTF-8");
-        resp.flushBuffer();
+        // 设置沙箱
+        WnContext wc = Wn.WC();
+        WnBoxContext bc = new WnBoxContext();
+        bc.io = io;
+        bc.me = usrs.check(wc.checkMe());
+        bc.session = wc.checkSE();
+        bc.usrService = usrs;
+        bc.sessionService = sess;
+
+        if (log.isDebugEnabled())
+            log.debugf("box:setup: %s", bc);
+        box.setup(bc);
+
+        // 准备回调
+        if (log.isDebugEnabled())
+            log.debug("box:set stdin/out/err");
+
+        OutputStream out = new AppRespOutputStreamWrapper(resp, 200);
+        OutputStream err = new AppRespOutputStreamWrapper(resp, 500);
+
+        box.setStdin(null); // HTTP GET 方式，不支持沙箱的 stdin
+        box.setStdout(out);
+        box.setStderr(err);
+
+        // 运行
+        if (log.isDebugEnabled())
+            log.debugf("box:run: %s", cmdText);
+        for (String cmdLine : cmdLines) {
+            box.submit(cmdLine);
+        }
+        box.run();
+
+        // 释放沙箱
+        if (log.isDebugEnabled())
+            log.debugf("box:free: %s", box.id());
+        boxes.free(box);
+
+        if (log.isDebugEnabled())
+            log.debug("box:done");
+
+        // 最后将请求的对象设置一下清除标志
+        oReq.expireTime(System.currentTimeMillis() + 100L * 1000);
+        io.appendMeta(oReq, "^expi$");
+
     }
 
 }

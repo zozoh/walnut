@@ -9,14 +9,14 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.box.WnTurnnel;
+import org.nutz.walnut.api.box.WnTunnel;
 import org.nutz.walnut.api.io.WnIndexer;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.util.JvmTurnnel;
+import org.nutz.walnut.util.JvmTunnel;
 
 public class WnObjMetaOutputStream extends OutputStream {
 
-    private WnTurnnel tnl;
+    private WnTunnel tnl;
 
     private WnObj o;
 
@@ -27,7 +27,7 @@ public class WnObjMetaOutputStream extends OutputStream {
     public WnObjMetaOutputStream(WnObj o, WnIndexer indexer, boolean append) {
         this.o = o;
         this.indexer = indexer;
-        this.tnl = new JvmTurnnel(256);
+        this.tnl = new JvmTunnel(256);
         this.append = append;
     }
 

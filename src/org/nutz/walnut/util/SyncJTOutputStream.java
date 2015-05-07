@@ -3,13 +3,13 @@ package org.nutz.walnut.util;
 import java.io.OutputStream;
 
 import org.nutz.lang.Lang;
-import org.nutz.walnut.api.box.WnTurnnel;
+import org.nutz.walnut.api.box.WnTunnel;
 
 public class SyncJTOutputStream extends OutputStream {
 
-    private WnTurnnel tnl;
+    private WnTunnel tnl;
 
-    public SyncJTOutputStream(WnTurnnel turnnel) {
+    public SyncJTOutputStream(WnTunnel turnnel) {
         this.tnl = turnnel;
     }
 

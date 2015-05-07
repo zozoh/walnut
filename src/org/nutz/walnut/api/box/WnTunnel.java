@@ -4,7 +4,7 @@ import java.io.Closeable;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public interface WnTurnnel extends Closeable {
+public interface WnTunnel extends Closeable {
 
     InputStream asInputStream();
 

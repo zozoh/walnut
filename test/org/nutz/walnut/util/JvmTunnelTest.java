@@ -7,21 +7,21 @@ import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.trans.Atom;
-import org.nutz.walnut.api.box.WnTurnnel;
-import org.nutz.walnut.util.JvmTurnnel;
+import org.nutz.walnut.api.box.WnTunnel;
+import org.nutz.walnut.util.JvmTunnel;
 
-public class JvmTurnnelTest {
+public class JvmTunnelTest {
 
-    private WnTurnnel tnl;
+    private WnTunnel tnl;
 
     @Before
     public void before() {
-        tnl = new JvmTurnnel(3);
+        tnl = new JvmTunnel(3);
     }
 
     @Test
     public void test_in_two_threads_in_8192() throws InterruptedException {
-        tnl = new JvmTurnnel(8192);
+        tnl = new JvmTunnel(8192);
         String src = Strings.dup('B', 99999999);
         final byte[] sbs = src.getBytes();
         System.out.printf("gen %d bytes ~ %d Mbytes\n", sbs.length, sbs.length / 1000 / 1000);
