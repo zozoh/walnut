@@ -39,27 +39,17 @@ public interface WnObj extends WnNode, NutBean {
 
     boolean isSameData(String data);
 
-    long len();
-
     WnObj len(long len);
 
     int remain();
 
     WnObj remain(int remain);
 
-    String creator();
-
     WnObj creator(String creator);
-
-    String mender();
 
     WnObj mender(String mender);
 
-    String group();
-
     WnObj group(String grp);
-
-    int mode();
 
     WnObj mode(int md);
 
@@ -89,16 +79,12 @@ public interface WnObj extends WnNode, NutBean {
 
     boolean isExpiredBy(long now);
 
-    long lastModified();
-
-    long nanoStamp();
-
     WnObj nanoStamp(long nano);
 
     boolean equals(Object obj);
 
     NutMap toMap4Update(String regex);
-    
+
     NutMap toMap(String regex);
 
 }

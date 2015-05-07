@@ -1,0 +1,37 @@
+# 命令简介 
+
+	`obj` 将显示或修改对象的元数据
+
+# 用法
+
+	obj [/path/to/obj] [-id $obj.id] [-u JSON] [-v $REGEX]
+	
+# 示例
+
+	显示当前对象 (PWD对应的)
+	obj 
+	
+	根据ID显示对象信息
+	obj -id 9rCTtaKaGX9eLinKeLD5k0
+	
+	根据路径显示对象信息
+	obj tmp/my.txt
+	
+	更新某个对象的某几个值
+	obj tmp/my.txt  -u "width:100, height:99"
+	
+	根据ID更新某个对象的某几个值
+	obj -id 9rCTtaKaGX9eLinKeLD5k0 -u "{width:100, height:99}"
+	
+	删除一个对象的属性
+	obj tmp/my.txt -u "width:null"
+	
+	显示对象的某几个属性。 如果只有一个对象的一个属性被显示，则仅输出属性值
+	obj -id 9rCTtaKaGX9eLinKeLD5k0 -v "^http-.*$"
+	
+	设置日期属性
+	obj abc.txt -u "lm:'$date:2015-09-21 12:34:24.444'"
+	
+	设置日期属性到当前时间
+	obj abc.txt -u "lm:'$date:now'"
+	

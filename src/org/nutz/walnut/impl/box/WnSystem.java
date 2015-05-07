@@ -9,6 +9,8 @@ import org.nutz.walnut.api.usr.WnUsrService;
 
 public class WnSystem {
 
+    public int pipeId;
+
     public String original;
 
     public WnUsr me;
@@ -28,5 +30,7 @@ public class WnSystem {
     public WnUsrService usrService;
 
     public WnBox box;
+
+    public JvmExecutorFactory jef;
 
 }

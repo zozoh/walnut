@@ -204,12 +204,12 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    protected WnNode _do_append(WnNode p, WnNode nd) {
+    protected WnNode _do_append(WnNode p, WnNode nd, String newName) {
         MongoWnNode mynd = __to_mongo_node(nd);
 
         // 开始移动
         ZMoDoc q = WnMongos.qID(mynd.id());
-        ZMoDoc doc = ZMoDoc.SET("pid", p.id());
+        ZMoDoc doc = ZMoDoc.SET("pid", p.id()).set("nm", newName);
         co.update(q, doc);
 
         // 返回

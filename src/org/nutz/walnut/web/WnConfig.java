@@ -10,6 +10,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnNode;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.io.local.LocalWnNode;
 import org.nutz.walnut.impl.io.mongo.MongoWnNode;
 import org.nutz.web.WebConfig;
@@ -58,6 +59,7 @@ public class WnConfig extends WebConfig {
             LocalWnNode nd = new LocalWnNode(d);
             nd.id(id);
             nd.path("/");
+            nd.race(WnRace.DIR);
             nd.mount(mnt);
             return nd;
         }
@@ -66,6 +68,7 @@ public class WnConfig extends WebConfig {
             MongoWnNode nd = new MongoWnNode();
             nd.id(id);
             nd.path("/");
+            nd.race(WnRace.DIR);
             nd.mount(mnt);
             nd.name(mnt);
             return nd;

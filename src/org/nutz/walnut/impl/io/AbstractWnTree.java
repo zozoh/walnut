@@ -142,7 +142,12 @@ public abstract class AbstractWnTree implements WnTree {
     @Override
     public int eachChildren(WnNode p, String str, final Each<WnNode> each) {
         if (null == p) {
-            p = treeNode.clone();
+            p = getTreeNode();
+        }
+        // 如果节点映射到另外一棵树，用另外的树逻辑获取
+        if (p.isMount(this)) {
+            WnTree mntTree = factory().check(p);
+            return mntTree.eachChildren(null, str, each);
         }
 
         // 读取所有的父节点
@@ -192,6 +197,11 @@ public abstract class AbstractWnTree implements WnTree {
         if (null == p) {
             p = getTreeNode();
         }
+        // 如果节点映射到另外一棵树，用另外的树逻辑获取
+        if (p.isMount(this)) {
+            WnTree mntTree = factory().check(p);
+            return mntTree.fetch(null, paths, fromIndex, toIndex);
+        }
 
         // 用尽路径元素了，则直接返回
         if (fromIndex >= toIndex)
@@ -205,12 +215,6 @@ public abstract class AbstractWnTree implements WnTree {
 
         if (null != secu) {
             p = secu.enter(p);
-        }
-
-        // 如果节点映射到另外一棵树，用另外的树逻辑获取
-        if (p.isMount(this)) {
-            WnTree mntTree = factory().check(p);
-            return mntTree.fetch(null, paths, fromIndex, toIndex);
         }
 
         // 逐个进入目标节点的父
@@ -270,9 +274,12 @@ public abstract class AbstractWnTree implements WnTree {
 
     protected abstract WnNode _fetch_one_by_name(WnNode p, String name);
 
-    public WnNode append(WnNode p, WnNode nd) {
+    public WnNode append(WnNode p, WnNode nd, String newName) {
         if (null == p)
             p = treeNode.clone();
+
+        if (null == newName)
+            newName = nd.name();
 
         // 只有同树的节点才能转移
         p.assertTree(nd.tree());
@@ -288,7 +295,8 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 得到节点检查的回调接口
-        WnSecurity secu = Wn.WC().getSecurity();
+        WnContext wc = Wn.WC();
+        WnSecurity secu = wc.getSecurity();
 
         // 分别检查节点
         if (null != secu) {
@@ -297,21 +305,22 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 如果重名，则禁止移动
-        if (null != this.fetch(p, nd.name())) {
-            throw Er.create("e.io.tree.exists", nd.name());
+        if (null != this.fetch(p, newName)) {
+            throw Er.create("e.io.tree.exists", newName);
         }
 
         // 执行移动
-        WnNode newNode = _do_append(p, nd);
+        WnNode newNode = _do_append(p, nd, newName);
         _flush_buffer();
 
         // 返回
         newNode.setTree(nd.tree());
-        newNode.path(p.path() + "/" + nd.name());
+        newNode.path(p.path() + "/" + newName);
+
         return newNode;
     }
 
-    protected abstract WnNode _do_append(WnNode p, WnNode nd);
+    protected abstract WnNode _do_append(WnNode p, WnNode nd, String newName);
 
     @Override
     public WnNode create(WnNode p, String path, WnRace race) {
@@ -349,17 +358,16 @@ public abstract class AbstractWnTree implements WnTree {
         if (null == p) {
             p = getTreeNode();
         }
-
-        // 加载父节点所有祖先
-        p.loadParents(null, false);
-
         // 如果节点挂载到了另外一颗树
         if (p.isMount(this)) {
             WnTree mntTree = factory().check(p);
             if (mntTree.equals(this))
                 throw Lang.impossible();
-            return mntTree.create(p, paths, fromIndex, toIndex, race);
+            return mntTree.create(null, paths, fromIndex, toIndex, race);
         }
+
+        // 加载父节点所有祖先
+        p.loadParents(null, false);
 
         // 创建所有的父
         WnNode nd;
@@ -381,11 +389,7 @@ public abstract class AbstractWnTree implements WnTree {
             }
             // 没有节点，创建一系列目录节点Ï
             for (; i < rightIndex; i++) {
-                nd = _create_node(p, null, paths[i], WnRace.DIR);
-                nd.setTree(this);
-                nd.setParent(p);
-                nd.path(p.path()).appendPath(nd.name());
-                p = nd;
+                p = createNode(p, null, paths[i], WnRace.DIR);
             }
         }
 
@@ -398,7 +402,8 @@ public abstract class AbstractWnTree implements WnTree {
     @Override
     public WnNode createNode(WnNode p, String id, String name, WnRace race) {
         // 得到节点检查的回调接口
-        WnSecurity secu = Wn.WC().getSecurity();
+        WnContext wc = Wn.WC();
+        WnSecurity secu = wc.getSecurity();
 
         // 创建前，检查一下父节点和要创建的节点类型是否匹配
         __assert_parent_can_create(p, race);
@@ -420,7 +425,9 @@ public abstract class AbstractWnTree implements WnTree {
 
         // 更新缓存并返回
         this._flush_buffer();
-        return nd;
+
+        // 调用回调并返回
+        return wc.whenCreate(nd);
     }
 
     private void __assert_duplicate_name(WnNode p, String name) {

@@ -134,10 +134,21 @@ public abstract class Wn {
             ph = sys.me.home() + ph.substring(1);
         } else if (ph.startsWith("./")) {
             ph = sys.se.envs().getString("PWD", "") + ph.substring(1);
-        } else if (!ph.startsWith("/")) {
-            ph = sys.se.envs().getString("PWD", "") + "/" + ph;
         }
+        // else if (!ph.startsWith("/")) {
+        // ph = sys.se.envs().getString("PWD", "") + "/" + ph;
+        // }
         return normalizeStr(ph, sys.se.envs());
+    }
+
+    public static String normalizeFullPath(String ph, WnSystem sys) {
+        if (Strings.isBlank(ph))
+            return ph;
+        String path = normalizePath(ph, sys);
+        if (!path.startsWith("/")) {
+            return sys.se.envs().getString("PWD", "") + "/" + path;
+        }
+        return path;
     }
 
     public static String normalizeStr(String str, NutMap env) {
@@ -201,6 +212,34 @@ public abstract class Wn {
 
         public static final int WX = W | X;
 
+        public static String modeToStr(int md) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 2; i >= 0; i--) {
+                int m = md >> (i * 3) & RWX;
+                sb.append((m & R) > 0 ? 'r' : '-');
+                sb.append((m & W) > 0 ? 'w' : '-');
+                sb.append((m & X) > 0 ? 'x' : '-');
+            }
+            return sb.toString();
+        }
+
+        public static int modeFromStr(String mds) {
+            int md = 0;
+            for (int i = 0; i < 3; i++) {
+                int m = 0;
+                int left = (2 - i) * 3;
+                char[] cs = mds.substring(left, left + 3).toCharArray();
+                if (cs[0] == 'r')
+                    m |= R;
+                if (cs[1] == 'w')
+                    m |= W;
+                if (cs[2] == 'x')
+                    m |= X;
+                md |= m << (i * 3);
+            }
+            return md;
+        }
+
     }
 
     public static class ROLE {
@@ -229,18 +268,20 @@ public abstract class Wn {
     }
 
     public static void set_type(MimeMap mimes, WnObj o, String tp) {
-        if (Strings.isBlank(tp))
-            tp = Files.getSuffixName(o.name());
-    
-        if (!o.hasType() || !o.isType(tp)) {
-            if (Strings.isBlank(tp)) {
-                tp = "txt";
+        if (o.isFILE()) {
+            if (Strings.isBlank(tp))
+                tp = Files.getSuffixName(o.name());
+
+            if (!o.hasType() || !o.isType(tp)) {
+                if (Strings.isBlank(tp)) {
+                    tp = "txt";
+                }
+                o.type(tp);
             }
-            o.type(tp);
+
+            String mime = mimes.getMime(o.type());
+            o.mime(mime);
         }
-    
-        String mime = mimes.getMime(o.type());
-        o.mime(mime);
     }
 
 }

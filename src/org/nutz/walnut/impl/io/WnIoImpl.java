@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.json.Json;
@@ -23,6 +24,7 @@ import org.nutz.walnut.api.io.WnHistory;
 import org.nutz.walnut.api.io.WnIndexer;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnNode;
+import org.nutz.walnut.api.io.WnNodeCallback;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -63,6 +65,23 @@ public class WnIoImpl implements WnIo {
             return null;
         nd.loadParents(null, false);
         return indexer.toObj(nd);
+    }
+
+    @Override
+    public WnObj getRootObj() {
+        WnNode nd = tree.getTreeNode().clone();
+        WnBean o = new WnBean();
+        o.setNode(nd);
+        o.name("");
+        o.race(WnRace.DIR);
+        return o;
+    }
+
+    @Override
+    public WnObj getParent(WnObj o) {
+        if (null == o)
+            return null;
+        return indexer.toObj(o.parent());
     }
 
     @Override
@@ -136,6 +155,27 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public int eachChildren(WnObj p, String str, final Each<WnObj> callback) {
+        return tree(p).eachChildren(p, str, new Each<WnNode>() {
+            public void invoke(int index, WnNode nd, int length) {
+                WnObj o = indexer.toObj(nd);
+                callback.invoke(index, o, length);
+            }
+        });
+    }
+
+    @Override
+    public List<WnObj> getChildren(WnObj p, String str) {
+        final List<WnObj> list = new LinkedList<WnObj>();
+        eachChildren(p, str, new Each<WnObj>() {
+            public void invoke(int index, WnObj o, int length) {
+                list.add(o);
+            }
+        });
+        return list;
+    }
+
+    @Override
     public void rename(WnObj o, String newName) {
         WnNode nd = o.tree().rename(o, newName);
         o.setNode(nd);
@@ -201,11 +241,8 @@ public class WnIoImpl implements WnIo {
         if (treeA.equals(treeB)) {
             // 否则只能允许把对象移动到对象下面
             if (ta.isDIR() || (ta.isOBJ() && src.isOBJ())) {
-                WnNode newNode = treeA.append(ta, src);
+                WnNode newNode = treeA.append(ta, src, newName);
                 re.setNode(newNode);
-                if (null != newName && !newName.equals(src.name())) {
-                    treeA.rename(re, newName);
-                }
             }
             // 这肯定是一个非法的移动
             else {
@@ -281,9 +318,28 @@ public class WnIoImpl implements WnIo {
             return fetch(p, path);
         }
 
-        // 执行创建
-        WnNode nd = tree(p).create(p, path, race);
-        return __create_index(nd);
+        // 创建时，附加创建索引的方法
+        WnContext wc = Wn.WC();
+        final WnNodeCallback old = wc.onCreate();
+
+        try {
+            // 给树设定回调，保证每次创建节点都会创建索引
+            wc.onCreate(new WnNodeCallback() {
+                public WnNode invoke(WnNode nd) {
+                    WnObj re = __create_index(nd);
+                    if (null != old)
+                        return old.invoke(re);
+                    return re;
+                }
+            });
+
+            // 执行创建
+            WnNode nd = tree(p).create(p, path, race);
+            return indexer.toObj(nd);
+        }
+        finally {
+            wc.onCreate(old);
+        }
     }
 
     @Override
@@ -294,18 +350,32 @@ public class WnIoImpl implements WnIo {
             return fetch(p, paths, fromIndex, toIndex);
         }
 
-        // 执行创建
-        WnNode nd = tree(p).create(p, paths, fromIndex, toIndex, race);
-        return __create_index(nd);
+        // 创建时，附加创建索引的方法
+        WnContext wc = Wn.WC();
+        final WnNodeCallback old = wc.onCreate();
+
+        try {
+            // 给树设定回调，保证每次创建节点都会创建索引
+            wc.onCreate(new WnNodeCallback() {
+                public WnNode invoke(WnNode nd) {
+                    WnObj re = __create_index(nd);
+                    if (null != old)
+                        return old.invoke(re);
+                    return re;
+                }
+            });
+
+            // 执行创建
+            WnNode nd = tree(p).create(p, paths, fromIndex, toIndex, race);
+            return indexer.toObj(nd);
+        }
+        finally {
+            wc.onCreate(old);
+        }
     }
 
     private WnObj __create_index(WnNode nd) {
         WnObj o = indexer.toObj(nd);
-        __set_type(o, null);
-        o.nanoStamp(System.nanoTime());
-        o.createTime(o.nanoStamp() / 1000000L);
-        indexer.set(o, "^lm|ct|nano|tp|mime$");
-
         return o;
     }
 
@@ -315,10 +385,32 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public void delete(WnObj o) {
-        WnStore store = stores.get(o);
-        store.cleanHistoryBy(o, 0);
+        // 目录的话，删除不能为空
+        if (hasChild(o)) {
+            throw Er.create("e.io.rm.noemptynode", o);
+        }
+        // 文件删除
+        if (!o.isDIR()) {
+            WnStore store = stores.get(o);
+            store.cleanHistoryBy(o, 0);
+        }
+        // 删除树节点和索引
         indexer.remove(o.id());
         tree(o).delete(o);
+    }
+
+    @Override
+    public boolean hasChild(WnObj p) {
+        if (p.isFILE())
+            return false;
+        final boolean[] re = new boolean[1];
+        tree(p).eachChildren(p, null, new Each<WnNode>() {
+            public void invoke(int index, WnNode ele, int length) {
+                re[0] = true;
+                Lang.Break();
+            }
+        });
+        return re[0];
     }
 
     @Override

@@ -18,32 +18,31 @@ public abstract class cmd_xxxsum extends JvmExecutor {
     }
 
     public void exec(WnSystem sys, String[] args) {
-        ZParams params = ZParams.parse(args, null);
-        // 如果有管道输入
-        if (null != sys.in) {
-            String str = sys.in.readAll();
-            if (null == str)
-                sys.out.writeLine("!NO DATA");
-            else
-                sys.out.writeLine(sum(str));
-        }
         // 文件输入
-        else if (params.vals.length == 1) {
-            String ph = Wn.normalizePath(params.vals[0], sys);
+        if (args.length == 1) {
+            String ph = Wn.normalizeFullPath(args[0], sys);
             WnObj o = sys.io.check(null, ph);
             InputStream ins = sys.io.getInputStream(o, 0);
             String _sum = sum(ins);
             sys.out.writeLine(_sum);
         }
         // 多个文件输入
-        else if (params.vals.length > 1) {
-            for (String val : params.vals) {
-                String ph = Wn.normalizePath(val, sys);
+        else if (args.length > 1) {
+            for (String val : args) {
+                String ph = Wn.normalizeFullPath(val, sys);
                 WnObj o = sys.io.check(null, ph);
                 InputStream ins = sys.io.getInputStream(o, 0);
                 String _sum = sum(ins);
                 sys.out.writeLinef("%s : %s(%s)", _sum, algorithm.toUpperCase(), val);
             }
+        }
+        // 如果有管道输入
+        else if (sys.pipeId > 0) {
+            String str = sys.in.readAll();
+            if (null == str)
+                sys.out.writeLine("!NO DATA");
+            else
+                sys.out.writeLine(sum(str));
         }
         // 否则
         else {

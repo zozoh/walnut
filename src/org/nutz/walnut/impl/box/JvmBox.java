@@ -101,7 +101,7 @@ public class JvmBox implements WnBox {
     }
 
     @SuppressWarnings("resource")
-    public void __run(String cmdLine) {
+    private void __run(String cmdLine) {
         // 准备标准输出输出
         JvmBoxOutput boxErr = new JvmBoxOutput(err);
         WnSession se = bc.session.clone();
@@ -122,22 +122,31 @@ public class JvmBox implements WnBox {
             a = new JvmAtom(this, cmds[i]);
 
             // 找到执行器
-            a.executor = jef.check(a.cmdName);
+            a.executor = jef.get(a.cmdName);
+
+            // 没有执行器，直接输出错误
+            if (null == a.executor) {
+                boxErr.writeLinef("e.cmd.notfound : %s", a.cmdName);
+                return;
+            }
 
             // 填充对应字段
             a.id = i;
             a.sys = new WnSystem();
+            a.sys.pipeId = i;
             a.sys.original = cmds[i];
             a.sys.original = cmds[i];
             a.sys.se = se;
             a.sys.me = me;
             a.sys.err = boxErr;
+            a.sys.io = bc.io;
             a.sys.usrService = bc.usrService;
             a.sys.sessionService = bc.sessionService;
+            a.sys.jef = jef;
 
             // 看看是否重定向输出
             if (null != a.redirectPath) {
-                String path = Wn.normalizePath(a.redirectPath, a.sys);
+                String path = Wn.normalizeFullPath(a.redirectPath, a.sys);
                 WnObj o = bc.io.createIfNoExists(null, path, WnRace.FILE);
                 OutputStream ops = bc.io.getOutputStream(o, a.redirectAppend ? -1 : 0);
                 a.sys.out = new JvmBoxOutput(ops);

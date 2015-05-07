@@ -68,29 +68,11 @@ define(function (require, exports, module) {
         dom: "ui/console/console.html",
         css: "ui/console/console.css",
         init: function (options) {
-            // this.listenModel("login:none"   ,this.on_login_none);
-            // this.listenModel("login:ok"     ,this.on_login_ok);
-            // this.listenModel("login:fail"   ,this.on_login_fail);
             this.listenModel("screen:clear", this.clearScreen);
             this.listenModel("cmd:wait", this.on_cmd_wait);
-            this.listenModel("show:info", this.info);
-            this.listenModel("show:err", this.err);
-            this.listenModel("show:text", this.info);
-            this.listenModel("show:form", this.form);
-            this.listenModel("objs:begin", this.on_objs_begin);
-            this.listenModel("objs:add", this.on_objs_add);
-            this.listenModel("objs:end", this.on_objs_end);
+            this.listenModel("show:err", this.on_show_err);
+            this.listenModel("show:txt", this.on_show_txt);
             this.listenModel("do:upload", this.on_do_upload);
-            /*
-             var jq = this.ccode("input");`
-             jq.children('.ui-console-ps').html("I am console");
-             this.arena.append(jq);
-             */
-            // this.$pel.on("click",function(){
-            //     $(this).find(".ui-arena .ui-console-inbox").focus();
-            //     var ele = $(this).find(".ui-arena .ui-console-inbox")[0];
-            //     ele.setSelectionRange(ele.value.length,ele.value.length)
-            // });
         },
         //..............................................................
         // 模块启动的主函数
@@ -112,48 +94,15 @@ define(function (require, exports, module) {
         clearScreen: function () {
             this.arena.empty();
         },
-        info: function (s) {
+        on_show_txt: function (s) {
             if (s[s.length - 1] == '\n')
                 s = s.substring(0, s.length - 1);
             this.arena.append(this.ccode("block").text(this.msg(s)));
         },
-        err: function (s) {
+        on_show_err: function (s) {
             if (s[s.length - 1] == '\n')
                 s = s.substring(0, s.length - 1);
             this.arena.append(this.ccode("error").text(this.msg(s)));
-        },
-        form: function (PID, form) {
-            var answer = {};
-            var keys = [];
-            var UI = this;
-            var Mod = this.model;
-            for (var key in form) {
-                keys.push(key);
-            }
-            // 有表单项
-            if (keys.length > 0) {
-                var _do_form = function (keys, index) {
-                    var key = keys[index];
-                    var af = form[key];
-                    UI.prompt(af.prompt, function (str, jBlock) {
-                        answer[key] = str;
-                        if (++index < keys.length) {
-                            _do_form(keys, index);
-                        }
-                        // 填充完毕，准备提交答案
-                        else {
-                            console.log(answer);
-                            Mod.trigger("form:submit", PID, answer);
-                        }
-                    });
-                };
-                // 开始填充
-                _do_form(keys, 0);
-            }
-            // 没有表单
-            else {
-                this.err("e.console.form.empty");
-            }
         },
         //...................................................................
         prompt: function (ps, callback, isPassword) {
@@ -170,44 +119,13 @@ define(function (require, exports, module) {
                 .focus();
         },
         //...................................................................
-        on_objs_begin: function (blockId, options) {
-            var jq = this.ccode("objs").attr("id", blockId).appendTo(this.arena);
-            jq.attr("objs-mode", options.mode || "short");
-        },
-        _gen_obj_nm: function (obj) {
-            var jq = $('<span att="nm"><span>' + obj.nm + '</span></span>');
-            var span = jq.children();
-            jq.addClass("ui-console-obj-" + obj.race);
-            return jq;
-        },
-        on_objs_add: function (blockId, obj) {
-            var jObjs = $("#" + blockId);
-            var mode = jObjs.attr("objs-mode");
-            var jq = this.ccode("objs.obj." + mode);
-            if ("long" == mode) {
-                jq.append($('<span att="race">' + obj.race.substring(0, 1) + '</span>'));
-                jq.append($('<span att="ow">' + obj.ow + '</span>'));
-                jq.append($('<span att="len">' + (obj.len ? obj.len : '--') + '</span>'));
-                jq.append($('<span att="lm">' + obj.lm + '</span>'));
-                jq.append(this._gen_obj_nm(obj));
-            }
-            else if ("short" == mode) {
-                jq.append(this._gen_obj_nm(obj));
-            }
-            else {
-                throw "Kao!!!!!";
-            }
-            $("#" + blockId).append(jq);
-        },
-        on_objs_end: function (blockId) {
-        },
-        //...................................................................
         on_cmd_wait: function (se) {
             this._watch_usr_input(se);
         },
         //...................................................................
         _watch_usr_input: function (se) {
             var UI = this;
+            var Mod = UI.model;
             var ps = se.me + "@" + UI.$pel.attr("appnm") + "$ ";
             UI.prompt(ps, function (str, jBlock) {
                 // 显示旧的输入行
@@ -218,21 +136,14 @@ define(function (require, exports, module) {
                 jBlock.remove();
 
                 // 进行判断 ...
-                UI.model.trigger("cmd:exec", str);
+                Mod.trigger("cmd:exec", str, function(){
+                    Mod.trigger("cmd:wait", se);
+                });
 
                 // 准备新的输入行
                 //UI._watch_usr_input(se);      
             });
         }
-        //...................................................................
-        // _show_login_form : function(){
-        //     var UI = this;
-        //     UI.prompt(UI.msg("login.usr")+":", function(loginName){
-        //         UI.prompt(UI.msg("login.pwd")+":", function(loginPwd){
-        //             UI.model.trigger("login:do", loginName, loginPwd);
-        //         }, true);
-        //     });
-        // }
         //...................................................................
     });
 //=======================================================================

@@ -154,6 +154,8 @@ public class LocalWnTree extends AbstractWnTree {
             else
                 nd.id(id);
             mnm.add(nd.id() + ":" + rpath);
+            // 持久化缓存
+            this._flush_buffer();
         }
         // 找到了索引就用索引填充节点对应的字段
         else {
@@ -369,11 +371,11 @@ public class LocalWnTree extends AbstractWnTree {
     }
 
     @Override
-    protected WnNode _do_append(WnNode p, WnNode nd) {
+    protected WnNode _do_append(WnNode p, WnNode nd, String newName) {
         File fp = _get_local_file(p);
         File fnd = _get_local_file(nd);
 
-        File fdest = Files.getFile(fp, fnd.getName());
+        File fdest = Files.getFile(fp, newName);
         try {
             Files.move(fnd, fdest);
         }

@@ -45,8 +45,10 @@ public abstract class AbstractWnIndexer implements WnIndexer {
     @Override
     public void remove(String id) {
         WnObj o = _get(id);
-        o = Wn.WC().whenAccess(o);
-        _remove(o);
+        if (null != o) {
+            o = Wn.WC().whenAccess(o);
+            _remove(o);
+        }
     }
 
     protected abstract void _remove(WnObj o);
@@ -61,13 +63,11 @@ public abstract class AbstractWnIndexer implements WnIndexer {
 
         WnObj o = get(nd.id());
         if (null == o) {
-            WnContext wc = Wn.WC();
-            
             o = new WnBean().setNode(nd);
-            o.mender(wc.checkMe());
-            o.group(wc.checkGroup());
             Wn.set_type(mimes, o, null);
-            
+            o.createTime(o.nanoStamp() / 1000000L);
+            this.set(o, "^lm|ct|nano|tp|mime|c|m|g$");
+
         } else {
             o.setNode(nd);
         }

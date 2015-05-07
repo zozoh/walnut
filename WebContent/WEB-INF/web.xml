@@ -20,7 +20,12 @@
 
 	<filter-mapping>
 		<filter-name>jettyGzipFilter</filter-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/gu/*</url-pattern>
+	</filter-mapping>
+	
+	<filter-mapping>
+		<filter-name>jettyGzipFilter</filter-name>
+		<url-pattern>/o/*</url-pattern>
 	</filter-mapping>
 
 	<!-- nutz-mvc -->

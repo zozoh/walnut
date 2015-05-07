@@ -12,7 +12,6 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.segment.Segment;
 import org.nutz.lang.segment.Segments;
@@ -25,6 +24,7 @@ import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.web.bean.WnApp;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.view.WnObjDownloadView;
@@ -118,24 +118,28 @@ public class AppModule extends AbstractWnModule {
         req.setAttribute(WnBox.class.getName(), box);
 
         // 设置沙箱
-        WnBoxContext bi = new WnBoxContext();
-
-        // TODO ...
+        WnContext wc = Wn.WC();
+        WnBoxContext bc = new WnBoxContext();
+        bc.io = io;
+        bc.me = usrs.check(wc.checkMe());
+        bc.session = wc.checkSE();
+        bc.usrService = usrs;
+        bc.sessionService = sess;
 
         if (log.isDebugEnabled())
-            log.debugf("box:setup: %s", bi);
-
-        box.setup(bi);
+            log.debugf("box:setup: %s", bc);
+        box.setup(bc);
 
         // 准备回调
         if (log.isDebugEnabled())
             log.debug("box:set stdin/out/err");
 
-        OutputStream ops = Streams.buff(resp.getOutputStream());
+        OutputStream out = new AppRespOutputStreamWrapper(resp, 200);
+        OutputStream err = new AppRespOutputStreamWrapper(resp, 500);
 
         box.setStdin(null); // HTTP GET 方式，不支持沙箱的 stdin
-        box.setStdout(ops);
-        box.setStderr(ops);
+        box.setStdout(out);
+        box.setStderr(err);
 
         // 运行
         if (log.isDebugEnabled())

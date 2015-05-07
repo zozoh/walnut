@@ -57,7 +57,7 @@ public interface WnTree extends UnitTestable {
 
     WnNode rename(WnNode nd, String newName);
 
-    WnNode append(WnNode p, WnNode nd);
+    WnNode append(WnNode p, WnNode nd, String newName);
 
     WnNode setMount(WnNode nd, String mnt);
 

@@ -16,14 +16,13 @@ define(function (require, exports, module) {
 
             this.set("app", app);
             this.on("cmd:exec", this.on_cmd_exec);
-            this.on("form:submit", this.on_form_submit);
 
             // 调用子类自定义的 init
             $z.invoke(this, "init", [app]);
         },
         //................................................................
         // 执行命令
-        on_cmd_exec: function (str) {
+        on_cmd_exec: function (str, callback) {
             var Mod = this;
             var app = Mod.get("app");
             var se = app.session;
@@ -64,89 +63,42 @@ define(function (require, exports, module) {
             }
 
             // 处理命令
-            // Mod.trigger("show:err", str);
-            // Mod.trigger("cmd:wait", se);
-            var myES = new EventSource('/a/run/' + app.name + '?' + encodeURIComponent(str));
-            myES.onmessage = function (e) {
-                var gi;
-                try {
-                    $z.log(e.data);
-                    gi = $z.fromJson(e.data);
-                } catch (e) {
-                    Mod.trigger("show:err", "e.data.notxt : " + str);
-                    return;
+            var url = '/a/run/' + app.name + '?' + encodeURIComponent(str);
+            // $.get(url).done(function(re){
+            //     Mod.trigger("show:txt", re);
+            //     if(typeof callback == "function")
+            //         callback.call(Mod, re);
+            // }).fail(function(re){
+            //     Mod.trigger("show:err", re.responseText);
+            //     if(typeof callback == "function")
+            //         callback.call(Mod, re.responseText);
+            // });
+            var oReq = new XMLHttpRequest();
+            oReq._last = 0;
+            oReq._show_msg = function(){
+                var str = oReq.responseText.substring(oReq._last);
+                oReq._last += str.length;
+                // 正常显示
+                if(oReq.status==200){
+                    Mod.trigger("show:txt", str);
                 }
-                //console.log("PID:" + gi.PID + ":" + gi.mode);
-                //console.log(gi);
-                // 流停止
-                if (gi.mode == "STREAM_END") {
-                    e.target.close();
-                    Mod.trigger("cmd:wait", se);
-                }
-                // 组开始
-                else if (gi.mode == "GROUP") {
-                    // 对象组
-                    if (gi.type == "obj") {
-                        Mod.trigger("objs:begin", gi.id, gi.options);
-                    }
-                }
-                // 组结束
-                else if (gi.mode == "GROUP_END") {
-                    Mod.trigger("objs:end", gi.groupId);
-                }
-                // 组内对象
-                else if (gi.groupId) {
-                    // 对象
-                    if (gi.type == "obj") {
-                        Mod.trigger("objs:add", gi.groupId, $z.fromJson(gi.content));
-                    }
-                    // 其他信息
-                    else {
-                        Mod.trigger("show:err", $z.toJson(gi));
-                    }
-                }
-                // 显示警告
-                else if (gi.type == "W") {
-                    Mod.trigger("show:err", gi.content);
-                }
-                // 显示信息
-                else if (gi.type == "I") {
-                    Mod.trigger("show:info", gi.content);
-                }
-                // 显示文本
-                else if (gi.type == "TXT") {
-                    Mod.trigger("show:text", gi.content);
-                }
-                // 显示表单
-                else if (gi.type == "form") {
-                    var form = _normlize_form($z.fromJson(gi.content));
-                    Mod.trigger("show:form", gi.PID, form);
-                }
-                // 显示上传界面
-                else if (gi.type == "upload") {
-                    var options = $z.fromJson(gi.content);
-                    Mod.trigger("do:upload", options);
-                }
-                // 其他形式，用文本显示
+                // 错误显示
                 else {
-                    Mod.trigger("show:info", gi.content);
+                    Mod.trigger("show:err", str);   
                 }
-            };  // end of myES.onmessage
-        },
-        //................................................................
-        on_form_submit: function (PID, answer) {
-            var Mod = this;
-            var data = (typeof answer == "string") ? answer : $z.toJson(answer);
-            $.ajax({
-                type: "POST",
-                url: "/a/answer/" + PID,
-                contentType: "application/jsonrequest",
-                data: data
-            }).done(function (re) {
-                Mod.trigger("show:info", $z.toJson(re));
-            }).fail(function (re) {
-                Mod.trigger("show:err", $z.toJson(re));
-            });
+            };
+            oReq.open("GET",url,true);
+            oReq.onreadystatechange = function(){
+                //console.log("rs:" + oReq.readyState + " status:" + oReq.status + " :: \n" + oReq.responseText);
+                // LOADING | DONE 只要有数据输入，显示一下信息
+                oReq._show_msg();
+                // DONE: 请求结束了，调用回调
+                if(oReq.readyState == 4){
+                    if(typeof callback == "function")
+                        callback.call(Mod, oReq.responseText);
+                }
+            };
+            oReq.send();
         }
     };
     //===================================================================

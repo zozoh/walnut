@@ -56,7 +56,19 @@ public interface WnNode {
 
     WnNode mount(String mnt);
 
+    String creator();
+
+    String mender();
+
+    String group();
+
+    int mode();
+
     long len();
+
+    long lastModified();
+
+    long nanoStamp();
 
     boolean isMount(WnTree myTree);
 

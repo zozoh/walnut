@@ -24,7 +24,7 @@ public class JvmExecutorFactory {
      */
     private Map<String, JvmExecutor> map;
 
-    public JvmExecutor check(String name) {
+    public JvmExecutor get(String name) {
         if (null == map) {
             synchronized (this) {
                 if (null == map) {

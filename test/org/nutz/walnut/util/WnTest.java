@@ -10,6 +10,24 @@ import org.nutz.walnut.impl.usr.IoWnUsr;
 public class WnTest {
 
     @Test
+    public void test_parse_mode() {
+        assertEquals("rwxrwxrwx", Wn.Io.modeToStr(0777));
+        assertEquals("rwxr-xr--", Wn.Io.modeToStr(0754));
+        assertEquals("rwxr-xr-x", Wn.Io.modeToStr(0755));
+        assertEquals("rwx------", Wn.Io.modeToStr(0700));
+        assertEquals("r-x------", Wn.Io.modeToStr(0500));
+        assertEquals("---------", Wn.Io.modeToStr(0000));
+
+        assertEquals(0777, Wn.Io.modeFromStr("rwxrwxrwx"));
+        assertEquals(0754, Wn.Io.modeFromStr("rwxr-xr--"));
+        assertEquals(0755, Wn.Io.modeFromStr("rwxr-xr-x"));
+        assertEquals(0700, Wn.Io.modeFromStr("rwx------"));
+        assertEquals(0500, Wn.Io.modeFromStr("r-x------"));
+        assertEquals(0000, Wn.Io.modeFromStr("---------"));
+
+    }
+
+    @Test
     public void test_wildcard() {
         assertTrue(Wn.matchWildcard("abc", "abc*"));
         assertTrue(Wn.matchWildcard("abcD", "abc*"));

@@ -1,31 +1,10 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import java.util.Date;
-
-import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Times;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
 
-/**
- * 首先从 "-s" 里读，如果没有，从 pipe 里读，还没有则用当前系统时间
- * 
- * <pre>
- *  -full    全部
- *  -dt      显示日期时间到秒
- *  -dtms    显示日期时间到毫秒
- *  -time    显示时间字符串到秒
- *  -timems  显示时间字符串到毫秒
- *  -ss      显示成秒数
- *  -ms      显示成毫秒数
- *  -fmt     日期字符串格式化
- *  -d       输入的日期字符串
- * </pre>
- * 
- * @author zozoh(zozohtnt@gmail.com)
- */
-@IocBean
 public class cmd_date extends JvmExecutor {
 
     @Override
@@ -33,57 +12,82 @@ public class cmd_date extends JvmExecutor {
         // 分析参数
         ZParams params = ZParams.parse(args, "f");
 
-        Date d;
-        // 得到原始时间
-        // 从参数里
+        // -ns
+        if (params.is("ns")) {
+            sys.out.writeLine("" + System.nanoTime());
+            return;
+        }
+        // -1ms
+        if (params.is("1ns")) {
+            long nano = System.nanoTime();
+            sys.out.writeLine("" + (nano - (nano / 1000000000L) * 1000000000L));
+            return;
+        }
+
+        // 将显示这个时间
+        long now;
+
+        // 从参数里解析日期字符串
         if (params.has("d")) {
-            d = Times.D(params.get("d"));
+            now = Times.D(params.get("d")).getTime();
+        }
+        // 从参数里解析纳秒字符串
+        else if (params.has("dns")) {
+            now = params.getLong("dns") / 1000000L;
+        }
+        // 从参数里解析毫秒字符串
+        else if (params.has("dms")) {
+            now = params.getLong("dms");
         }
         // 从管线里
-        else if (null != sys.in) {
+        else if (sys.pipeId > 0) {
             String s = sys.in.readAll();
-            d = Times.D(s);
+            now = Times.D(s).getTime();
         }
         // 当前时间
         else {
-            d = Times.now();
+            now = System.currentTimeMillis();
         }
 
         // -fmt
         if (params.has("fmt")) {
-            sys.out.writeLine(Times.format(params.get("fmt"), d));
+            sys.out.writeLine(Times.format(params.get("fmt"), Times.D(now)));
         }
         // -ss
         else if (params.is("ss")) {
-            sys.out.writeLine("" + d.getTime() / 1000);
+            sys.out.writeLine("" + now / 1000L);
         }
         // -ms
         else if (params.is("ms")) {
-            sys.out.writeLine("" + d.getTime());
+            sys.out.writeLine("" + now);
+        }
+        // -1ms
+        else if (params.is("1ms")) {
+            sys.out.writeLine("" + (now - (now / 1000L) * 1000L));
         }
         // -full
         else if (params.is("full")) {
-            sys.out.writeLine(d.toString());
+            sys.out.writeLine(Times.D(now).toString());
         }
         // -dt
         else if (params.is("dt")) {
-            sys.out.writeLine(Times.format("yyyy-MM-dd HH:mm:ss", d));
+            sys.out.writeLine(Times.format("yyyy-MM-dd HH:mm:ss", Times.D(now)));
         }
         // -dtms
         else if (params.is("dtms")) {
-            sys.out.writeLine(Times.format("yyyy-MM-dd HH:mm:ss.SSS", d));
+            sys.out.writeLine(Times.format("yyyy-MM-dd HH:mm:ss.SSS", Times.D(now)));
         }
         // -time
         else if (params.is("time")) {
-            sys.out.writeLine(Times.format("HH:mm:ss", d));
+            sys.out.writeLine(Times.format("HH:mm:ss", Times.D(now)));
         }
         // -timems
         else if (params.is("timems")) {
-            sys.out.writeLine(Times.format("HH:mm:ss.SSS", d));
+            sys.out.writeLine(Times.format("HH:mm:ss.SSS", Times.D(now)));
         }
         // 默认
         else {
-            sys.out.writeLine(Times.format("yy-MM-dd HH:mm:ss", d));
+            sys.out.writeLine(Times.format("yy-MM-dd HH:mm:ss", Times.D(now)));
         }
     }
 }

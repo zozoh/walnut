@@ -2,6 +2,7 @@ package org.nutz.walnut.util;
 
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnNodeCallback;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.usr.WnSession;
@@ -23,11 +24,13 @@ public class WnContext extends NutMap {
 
     private WnSecurity security;
 
+    private WnNodeCallback on_create;
+
     public WnSecurity getSecurity() {
         return security;
     }
 
-    public void setSecurity(WnSecurity callback) {
+    public void onSecurity(WnSecurity callback) {
         this.security = callback;
     }
 
@@ -59,6 +62,20 @@ public class WnContext extends NutMap {
         if (null != security)
             return security.view(nd);
         return nd;
+    }
+
+    public WnNode whenCreate(WnNode nd) {
+        if (null != on_create)
+            return on_create.invoke(nd);
+        return nd;
+    }
+
+    public void onCreate(WnNodeCallback callback) {
+        this.on_create = callback;
+    }
+
+    public WnNodeCallback onCreate() {
+        return on_create;
     }
 
     public String checkMe() {
@@ -182,12 +199,17 @@ public class WnContext extends NutMap {
 
     public void SE(WnSession se) {
         this.se = se;
+        // 设置
         if (null != se) {
             this.seid = se.id();
             this.me = se.me();
-        } else {
+            this.grp = se.group();
+        }
+        // 删除
+        else {
             this.seid = null;
             this.me = null;
+            this.grp = null;
         }
     }
 

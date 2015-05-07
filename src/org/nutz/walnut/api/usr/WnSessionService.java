@@ -29,19 +29,11 @@ public interface WnSessionService {
      */
     WnSession create(WnUsr u);
 
-    /**
-     * 销毁一个会话对象，如果会话对象有父，则将父会话的 lm 更新
-     * 
-     * @param seid
-     *            会话对象ID
-     * 
-     * @return null 表示当前用户没有 session 了，否则返回父 session 对象
-     */
     WnSession logout(String seid);
 
-    NutMap setEnvs(String seid, NutMap map);
+    void setEnvs(WnSession se, NutMap map);
 
-    NutMap setEnv(String seid, String nm, String val);
+    void setEnv(WnSession se, String nm, String val);
 
     NutMap removeEnv(String seid, String... nms);
 

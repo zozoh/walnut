@@ -47,7 +47,11 @@ public class JvmBoxOutput implements Flushable, Closeable {
         }
     }
 
-    public void writeLine(String msg) {
+    public void writeLine() {
+        write("\n");
+    }
+
+    public void writeLine(CharSequence msg) {
         write(msg + "\n");
     }
 
@@ -65,9 +69,9 @@ public class JvmBoxOutput implements Flushable, Closeable {
         }
     }
 
-    public void write(String msg) {
+    public void write(CharSequence msg) {
         try {
-            __w.write(msg);
+            __w.write(null == msg ? "null" : msg.toString());
             __w.flush();
         }
         catch (IOException e) {
@@ -76,13 +80,13 @@ public class JvmBoxOutput implements Flushable, Closeable {
     }
 
     @Override
-    public void flush() throws IOException {
-        __w.flush();
-        ops.flush();
+    public void flush() {
+        Streams.safeFlush(__w);
+        Streams.safeFlush(ops);
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         flush();
         Streams.safeClose(ops);
     }

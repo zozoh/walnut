@@ -12,6 +12,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 
 public class WnBean extends NutMap implements WnObj {
 
@@ -51,13 +52,37 @@ public class WnBean extends NutMap implements WnObj {
         this.name(nd.name());
         this.path(nd.path());
         this.parentId(nd.parentId());
-        this.setv("race", nd.race());
+        this.race(nd.race());
         this.setv("mnt", Strings.sBlank(nd.mount(), nd.tree().getMount()));
+
+        // 如果节点没有给出创建者，则默认用线程当前的用户
+        WnContext wc = Wn.WC();
+        if (Strings.isBlank(this.creator()))
+            this.creator(Strings.sBlank(nd.creator(), wc.checkMe()));
+
+        if (Strings.isBlank(this.mender()))
+            this.mender(Strings.sBlank(nd.mender(), wc.checkMe()));
+
+        if (Strings.isBlank(this.group()))
+            this.group(Strings.sBlank(nd.group(), wc.checkGroup()));
 
         // 如果节点给出了大小，也复用
         long len = nd.len();
         if (len > 0) {
             this.len(len);
+        }
+
+        // 没有设定权限码，用节点的
+        if (this.mode() <= 0)
+            this.mode(nd.mode());
+
+        // 看看节点有没有给出时间
+        if (nd.nanoStamp() > 0) {
+            this.nanoStamp(nd.nanoStamp());
+        }
+        // 没给时间的话如果自己也没有，用当前时间
+        else if (this.nanoStamp() <= 0) {
+            this.nanoStamp(System.nanoTime());
         }
 
         // 返回
@@ -410,7 +435,8 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public WnNode race(WnRace race) {
-        throw Er.create("e.io.obj.forbiden.set", "race=" + race);
+        setv("race", race);
+        return this;
     }
 
     public boolean isRace(WnRace race) {

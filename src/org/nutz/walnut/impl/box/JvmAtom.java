@@ -6,6 +6,7 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.util.Wn;
 
 class JvmAtom extends JvmCmd implements Atom {
 
@@ -27,23 +28,24 @@ class JvmAtom extends JvmCmd implements Atom {
     @Override
     public void run() {
         try {
+            Wn.WC().SE(sys.se);
             if (log.isDebugEnabled())
                 log.debugf("Atom(%s) before : %s", id, sys.original);
             executor.exec(sys, args);
         }
         catch (Throwable e) {
             // 如果不是被 InterruptedException， 记录错误
-            if (Lang.isCauseBy(e, InterruptedException.class)) {
+            if (!Lang.isCauseBy(e, InterruptedException.class)) {
                 // 拆包 ...
                 Throwable ue = Er.unwrap(e);
 
-                // 如果仅仅显示警告，则日志记录警告信息
-                if (log.isWarnEnabled()) {
-                    log.warnf("Atom[%d] ERROR: %s", id, e.toString());
-                }
                 // 否则如果需要显示更详细警告信息，则打印错误堆栈
-                else if (log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.warn(String.format("Atom[%d] ERROR: %s", id, e.toString()), e);
+                }
+                // 如果仅仅显示警告，则日志记录警告信息
+                else if (log.isWarnEnabled()) {
+                    log.warnf("Atom[%d] ERROR: %s", id, e.toString());
                 }
                 // 输出到错误输出
                 sys.err.writeLine(ue.toString());

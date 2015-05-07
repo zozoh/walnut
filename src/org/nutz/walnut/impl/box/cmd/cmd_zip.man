@@ -1,0 +1,16 @@
+# zip压缩命令
+
+	`zip` 命令将一些文件或目录压缩成一个zip文件
+
+# 用法
+
+	zip [-f] <zipfile> <dir1> [dir2....]
+	
+# 示例
+
+	// 压缩usb目录, 当usb.zip存在时,抛错
+	zip usb.zip usb
+	
+	// 压缩usb目录, 覆盖usb.zip(如果存在)
+	zip -f usb.zip usb
+	

@@ -36,14 +36,24 @@ public interface WnIo extends WnStore {
 
     WnObj getOne(WnQuery q);
 
+    WnObj getRootObj();
+    
+    WnObj getParent(WnObj o);
+
     int each(WnQuery q, Each<WnObj> callback);
 
     List<WnObj> query(WnQuery q);
 
+    int eachChildren(WnObj p, String str, Each<WnObj> each);
+
+    boolean hasChild(WnObj p);
+
+    List<WnObj> getChildren(WnObj p, String str);
+
     void setMount(WnObj o, String mnt);
 
     void writeMeta(WnObj o, Object meta);
-    
+
     void appendMeta(WnObj o, Object meta);
 
     String readText(WnObj o);

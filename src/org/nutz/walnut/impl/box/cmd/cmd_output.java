@@ -1,5 +1,7 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import org.nutz.lang.Times;
+import org.nutz.walnut.impl.box.JvmBoxOutput;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -10,7 +12,7 @@ public class cmd_output extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) {
         // 看看是否需要延迟
-        ZParams params = ZParams.parse(args, null);
+        ZParams params = ZParams.parse(args, "te");
         if (params.has("delay")) {
             long ms = params.getLong("delay");
             try {
@@ -21,6 +23,12 @@ public class cmd_output extends JvmExecutor {
             }
         }
 
+        // 是否加入时间戳
+        boolean t = params.is("t");
+
+        // 要输出的信息
+        String msg;
+
         // 有内容
         if (params.vals.length > 0) {
             StringBuilder sb = new StringBuilder();
@@ -30,11 +38,51 @@ public class cmd_output extends JvmExecutor {
             if (sb.length() > 0)
                 sb.deleteCharAt(sb.length() - 1);
 
-            sys.out.writeLine(sb.toString());
+            msg = sb.toString();
         }
         // 没内容，写空
         else {
-            sys.out.writeLine("");
+            msg = t ? "" : "-no-msg-";
         }
+
+        // 得到输出
+        JvmBoxOutput jbo = params.is("e") ? sys.err : sys.out;
+
+        // 看看是否需要多次输出
+        int n = params.getInt("n", -1);
+
+        // 输出的休息间隔（默认1s一个），最快不能超过1ms
+        long inteval = Math.max(1L, params.getLong("inteval", 1000L));
+
+        try {
+            // 计数
+            int i = 0;
+            // 无限循环输出
+            if (0 == n) {
+                while (true) {
+                    __print(jbo, i++, msg, t);
+                    Thread.sleep(inteval);
+                }
+            }
+            // 有限次数输出
+            else {
+                for (; i < n - 1; i++) {
+                    __print(jbo, i, msg, t);
+                    Thread.sleep(inteval);
+                }
+                // 输出最后一条
+                __print(jbo, i, msg, t);
+            }
+        }
+        catch (InterruptedException e) {}
+    }
+
+    protected void __print(JvmBoxOutput jbo, int i, String msg, boolean t) {
+        if (!t) {
+            jbo.writeLinef("%d) %s", i, msg);
+        } else {
+            jbo.writeLinef("%d) %s %s", i, Times.format("HH:mm:ss.SSS", Times.now()), msg);
+        }
+        jbo.flush();
     }
 }

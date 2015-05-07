@@ -1,0 +1,16 @@
+# 命令简介 
+
+	`session` 命令用来查看和管理会话的相关信息
+
+# 用法
+
+	session [-clear]
+	
+# 示例
+
+	显示当前会话所有信息
+	session
+	
+	清除所有过期会话
+	session -clear
+		
