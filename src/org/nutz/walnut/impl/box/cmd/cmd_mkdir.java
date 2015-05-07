@@ -7,6 +7,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 @IocBean
@@ -22,19 +23,17 @@ public class cmd_mkdir extends JvmExecutor {
             throw Er.create("e.cmd.mkdir.nopath");
         }
 
-        // 得到当前路径
-        WnObj p = this.getCurrentObj(sys);
-
         // 得到目标路径
-        for (String path : params.vals) {
+        for (String ph : params.vals) {
+            String path = Wn.normalizeFullPath(ph, sys);
             // 如果是创建父
             if (params.has("p")) {
-                sys.io.create(p, path, WnRace.DIR);
+                sys.io.create(null, path, WnRace.DIR);
             }
             // 不能自动创建父
             else {
                 String pph = Files.getParent(path);
-                WnObj pobj = sys.io.check(p, pph);
+                WnObj pobj = sys.io.check(null, pph);
                 String nm = Files.getName(path);
                 sys.io.create(pobj, nm, WnRace.DIR);
             }

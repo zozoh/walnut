@@ -28,6 +28,7 @@ import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.util.Wn;
@@ -66,9 +67,13 @@ public class HttpApiModule extends AbstractWnModule {
             }
 
             // 将当前线程切换到指定的用户
-            Wn.WC().me(u.name(), u.group());
+            WnContext wc = Wn.WC();
+            wc.me("root", "root");
+            WnSession se = sess.create(u);
+            wc.SE(se);
             try {
-                _do_api(req, resp, oHome, u, oApi);
+                String mimeType = Strings.trim(req.getQueryString());
+                _do_api(req, resp, mimeType, oHome, u, oApi);
             }
             catch (Exception e) {
                 resp.setStatus(500);
@@ -79,6 +84,11 @@ public class HttpApiModule extends AbstractWnModule {
                 catch (IOException e1) {
                     throw Lang.wrapThrow(e1);
                 }
+            }
+            // 确保退出登录
+            finally {
+                sess.logout(se.id());
+                wc.SE(null);
             }
         }
         catch (Exception e) {
@@ -96,10 +106,17 @@ public class HttpApiModule extends AbstractWnModule {
     @SuppressWarnings("unchecked")
     private void _do_api(HttpServletRequest req,
                          HttpServletResponse resp,
+                         String mimeType,
                          WnObj oHome,
                          WnUsr u,
                          WnObj oApi) throws UnsupportedEncodingException, IOException {
 
+        // 默认返回的 mime-type 是文本
+        if (Strings.isBlank(mimeType))
+            mimeType = "text/plain";
+        resp.setContentType(mimeType);
+
+        // 读取输入
         WnObj oTmp = io.createIfNoExists(oHome, ".regapi/tmp", WnRace.DIR);
 
         // 创建临时文件以便保存请求的内容

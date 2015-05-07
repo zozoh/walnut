@@ -92,7 +92,7 @@ public class AppModule extends AbstractWnModule {
         return new WnObjDownloadView(io, o);
     }
 
-    @At("/run/?/*")
+    @At("/run/?/**")
     @Ok("void")
     public void run(String appName,
                     String mimeType,
@@ -115,7 +115,7 @@ public class AppModule extends AbstractWnModule {
             log.debugf("box:alloc: %s", box.id());
 
         // 保存到请求属性中，box.onClose 的时候会删除这个属性
-        req.setAttribute(WnBox.class.getName(), box);
+        // req.setAttribute(WnBox.class.getName(), box);
 
         // 设置沙箱
         WnContext wc = Wn.WC();
