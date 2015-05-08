@@ -94,10 +94,73 @@ define(function (require, exports, module) {
         clearScreen: function () {
             this.arena.empty();
         },
+        _font : {
+            reset : function(){
+                this.font    = 0;      // [1,8]
+                this.color   = -1;     // [30,37]
+                this.bgcolor = -1;     // [40,47]
+            },
+            wrap : function(str){
+                var bFont    = this.font>=1 && this.font<=8;
+                var bColor   = this.color>=30 && this.color<=37;
+                var bBgColor = this.bgcolor>=40 && this.bgcolor<=47;
+                var html = '<span';
+                if(bFont || bColor || bBgColor){
+                    html += ' class="';
+                    if(bFont)    html += ' ui-console-f-font'   +this.font;
+                    if(bColor)   html += ' ui-console-f-color'  +this.color;
+                    if(bBgColor) html += ' ui-console-f-bgcolor'+this.bgcolor;
+                    html += '"';
+                }
+                html += '>' + str + '</span>';
+                return html;
+            },
+            parse : function(fs) {
+                var ss = fs.split(";");
+                if(ss.length>0){
+                    var f = parseInt(ss[0]);
+                    if(f == 0)
+                        this.reset();
+                    this.font = f;
+                }
+                if(ss.length>1){
+                    this.color = parseInt(ss[1]);
+                }
+                if(ss.length>2){
+                    this.bgcolor = parseInt(ss[2]);
+                }
+            }
+        },
         on_show_txt: function (s) {
-            if (s[s.length - 1] == '\n')
-                s = s.substring(0, s.length - 1);
-            this.arena.append(this.ccode("block").text(this.msg(s)));
+            var jq = this.ccode("block");
+            // 试图对颜色码进行分析
+            var l = 0;
+            var r = 0;
+            for(;r<s.length;r++){
+                var b = s.charCodeAt(r);
+                // 遇到颜色
+                if(b == 0x1b){
+                    // 有字符串，先消费
+                    if(r > l){
+                        jq.append($(this._font.wrap(s.substring(l,r))));
+                    }
+                    // 试图读取控制码
+                    r+=2; l = r;
+                    for(;r<s.length;r++) {
+                        var c = s.charAt(r);
+                        if(c == "m")
+                            break;
+                    }
+                    this._font.parse(s.substring(l,r));
+                    l = r+1;
+                }
+            }
+            // 最后输出剩余的
+            if(r > l){
+                jq.append($(this._font.wrap(s.substring(l,r))));
+            }
+            // 显示
+            this.arena.append(jq);
         },
         on_show_err: function (s) {
             if (s[s.length - 1] == '\n')

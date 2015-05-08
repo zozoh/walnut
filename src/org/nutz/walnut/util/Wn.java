@@ -73,6 +73,19 @@ public abstract class Wn {
         return o;
     }
 
+    public static WnObj checkObj(WnSystem sys, String str) {
+        // 用 ID
+        if (str.startsWith("id:")) {
+            String id = str.substring("id:".length());
+            return sys.io.checkById(id);
+        }
+
+        // 用路径
+        String path = normalizeFullPath(str, sys);
+        return sys.io.check(null, path);
+
+    }
+
     private static final String regex = "([$])([a-zA-Z0-9_]+)";
     private static final Pattern p = Pattern.compile(regex);
 

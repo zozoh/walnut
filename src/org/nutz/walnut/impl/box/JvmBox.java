@@ -134,6 +134,7 @@ public class JvmBox implements WnBox {
             a.id = i;
             a.sys = new WnSystem();
             a.sys.pipeId = i;
+            a.sys.nextId = i + 1;
             a.sys.original = cmds[i];
             a.sys.original = cmds[i];
             a.sys.se = se;
@@ -166,6 +167,7 @@ public class JvmBox implements WnBox {
         if (null == a.redirectPath) {
             a.sys.out = new JvmBoxOutput(out);
         }
+        a.sys.nextId = -1; // 最后一个原子 nextId 为 -1 表示没有后续管道原子处理它的输出
 
         // 为所有中间原子分配管道
         if (atoms.length > 1) {

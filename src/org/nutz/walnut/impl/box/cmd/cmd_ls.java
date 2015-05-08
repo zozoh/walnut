@@ -11,6 +11,7 @@ import org.nutz.lang.Times;
 import org.nutz.lang.util.Disks;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
+import org.nutz.walnut.impl.box.LinuxTerminal;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
@@ -115,17 +116,54 @@ public class cmd_ls extends JvmExecutor {
                 sb.append(Strings.alignRight(Times.format("d", lm), 2, ' '));
                 sb.append(' ');
                 sb.append(Times.format("HH:mm", lm)).append(' ');
+
                 // name
-                sb.append(o.name());
+                String nm = __get_display_name(o, sys);
+                sb.append(nm);
 
                 // 输出
                 sys.out.writeLine(sb);
             }
             // 简单模式
             else {
-                sys.out.writeLine(o.name());
+                String nm = __get_display_name(o, sys);
+                sys.out.writeLine(nm);
             }
         }
+    }
+
+    private String __get_display_name(WnObj o, WnSystem sys) {
+        String nm = o.name();
+        // 没有管道输出，则考虑输出颜色
+        int font = -1;
+        int color = -1;
+        if (sys.nextId < 0) {
+            // 目录
+            if (o.isDIR()) {
+                font = o.isHidden() ? 2 : 1;
+                color = 34;
+            }
+            // 对象
+            else if (o.isOBJ()) {
+                font = 3;
+                color = 33;
+            }
+            // 文件
+            else if (o.isFILE()) {
+                if (o.isHidden()) {
+                    font = 2;
+                }
+            }
+            // 不可能
+            else {
+                throw Lang.impossible();
+            }
+        }
+        // 输出颜色
+        if (font != -1 || color != -1) {
+            return LinuxTerminal.wrapFont(nm, font, color);
+        }
+        return nm;
     }
 
     private String __show_size(long sz, long d, int uoff, char... unit) {

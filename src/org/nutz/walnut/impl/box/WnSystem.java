@@ -11,6 +11,8 @@ public class WnSystem {
 
     public int pipeId;
 
+    public int nextId;
+
     public String original;
 
     public WnUsr me;
