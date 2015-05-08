@@ -23,10 +23,21 @@ define(function(require, exports, module) {
             // }
             // "keydown  .ui-console-inbox"     : on_keydown_at_inbox
             "click .ui-wedit-save" : function(){
-                var Mod = this.model;
+                var UI  = this;
+                var Mod = UI.model;
                 var obj = Mod.get("obj");
-                var content = this.arena.find('.ui-wedit-textarea').val();
-                Mod.set("content", content);
+                var content = UI.arena.find('.ui-wedit-textarea').val();
+                // 写入元数据
+                if(UI.$el.attr("meta")){
+                    var o2 = $z.fromJson(content);
+                    o2.id = obj.id;
+                    Mod.set("obj", o2);
+                    Mod.trigger("update:obj");
+                }
+                // 写入内容
+                else{
+                    Mod.set("content", content);
+                }
             },
             "click .ui-wedit-abc" : function(){
                 // var Mod = this.model;
@@ -47,9 +58,19 @@ define(function(require, exports, module) {
             var UI  = this;
             var Mod = UI.model;
             var obj = Mod.get("obj");
-            Mod.trigger("cmd:exec", "cat id:"+obj.id, function(re){
-                UI.wedit.on_redraw_content.call(UI,re);
-            });
+            UI.$el.attr("meta", obj.__obj_meta_rw);
+            // 读元数据
+            if(UI.$el.attr("meta")){
+                Mod.trigger("cmd:exec", "obj id:"+obj.id, function(re){
+                    UI.wedit.on_redraw_content.call(UI,re);
+                });
+            }
+            // 读内容
+            else{
+                Mod.trigger("cmd:exec", "cat id:"+obj.id, function(re){
+                    UI.wedit.on_redraw_content.call(UI,re);
+                });
+            }
             Mod.trigger("change:obj", Mod, obj, {});
             //$(".ui-wedit-abc").click();
         },

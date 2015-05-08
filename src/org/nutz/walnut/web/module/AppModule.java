@@ -47,21 +47,21 @@ public class AppModule extends AbstractWnModule {
     @At("/open/**")
     @Ok("jsp:jsp.app")
     @Fail("jsp:jsp.show_text")
-    public View open(String str, HttpServletRequest req) throws UnsupportedEncodingException {
+    public View open(String str, @Param("m") boolean meta) throws UnsupportedEncodingException {
         str = Strings.trim(str);
         str = URLDecoder.decode(str, "UTF-8");
-        
+
         // 分析
         int pos = str.indexOf(':');
         String appName;
-        if(pos>0){
-            appName = str.substring(0,pos);
-            str = Strings.trim(str.substring(pos+1));
-        }else{
+        if (pos > 0) {
+            appName = str.substring(0, pos);
+            str = Strings.trim(str.substring(pos + 1));
+        } else {
             appName = str;
             str = null;
         }
-        
+
         // 找到应用
         WnObj oAppHome = this._check_app_home(appName);
 
@@ -73,10 +73,15 @@ public class AppModule extends AbstractWnModule {
         if (!Strings.isEmpty(str)) {
             str = URLDecoder.decode(str, "UTF-8");
             o = Wn.checkObj(io, se, str);
-
+            if (meta)
+                o.setv(Wn.OBJ_META_RW, true);
             // 看看是否需要重定向一下
             if (!str.startsWith("~") && !str.startsWith("/") && !str.startsWith("id:")) {
-                return new ServerRedirectView("/a/open/" + appName + ":id:" + o.id());
+                String url = "/a/open/" + appName + ":id:" + o.id();
+                if (meta || o.getBoolean(Wn.OBJ_META_RW)) {
+                    url += "?m=true";
+                }
+                return new ServerRedirectView(url);
             }
         }
 

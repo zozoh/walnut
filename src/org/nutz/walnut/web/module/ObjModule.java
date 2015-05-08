@@ -59,7 +59,7 @@ public class ObjModule extends AbstractWnModule {
     @AdaptBy(type = JsonAdaptor.class)
     public WnObj set(String str, NutMap map) {
         WnObj o = Wn.checkObj(io, str);
-        io.appendMeta(o, map);
+        io.writeMeta(o, map);
         return o;
     }
 
