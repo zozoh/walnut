@@ -4,7 +4,7 @@
 
 # 用法
 
-	obj [/path/to/obj] [-id $obj.id] [-u JSON] [-v $REGEX]
+	obj [/path/to/obj] [-u JSON] [-e $REGEX]
 	
 # 示例
 
@@ -12,7 +12,7 @@
 	obj 
 	
 	根据ID显示对象信息
-	obj -id 9rCTtaKaGX9eLinKeLD5k0
+	obj id:9rCTtaKaGX9eLinKeLD5k0
 	
 	根据路径显示对象信息
 	obj tmp/my.txt
@@ -27,7 +27,7 @@
 	obj tmp/my.txt -u "width:null"
 	
 	显示对象的某几个属性。 如果只有一个对象的一个属性被显示，则仅输出属性值
-	obj -id 9rCTtaKaGX9eLinKeLD5k0 -v "^http-.*$"
+	obj id:9rCTtaKaGX9eLinKeLD5k0 -e "^http-.*$"
 	
 	设置日期属性
 	obj abc.txt -u "lm:'$date:2015-09-21 12:34:24.444'"

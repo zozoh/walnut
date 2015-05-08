@@ -144,6 +144,7 @@ public class JvmBox implements WnBox {
             a.sys.usrService = bc.usrService;
             a.sys.sessionService = bc.sessionService;
             a.sys.jef = jef;
+            a.sys.box = this;
 
             // 看看是否重定向输出
             if (null != a.redirectPath) {

@@ -57,7 +57,10 @@ class JvmAtom extends JvmCmd implements Atom {
                 log.debugf("Atom[%s] DONE", id);
 
             Streams.safeFlush(sys.out);
-            Streams.safeClose(sys.out);
+            // 不是最后一个 Atom则不是整个 box 的输出，因此需要关闭
+            if (sys.nextId > 0) {
+                Streams.safeClose(sys.out);
+            }
             box._finish(this);
         }
     }

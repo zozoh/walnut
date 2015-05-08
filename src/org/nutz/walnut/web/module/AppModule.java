@@ -19,9 +19,14 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.*;
+import org.nutz.mvc.view.JspView;
+import org.nutz.mvc.view.ServerRedirectView;
+import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
@@ -39,14 +44,41 @@ public class AppModule extends AbstractWnModule {
     @Inject("java:$conf.getInt('box-alloc-timeout')")
     private int allocTimeout;
 
-    @At("/open/?/**")
+    @At("/open/**")
     @Ok("jsp:jsp.app")
     @Fail("jsp:jsp.show_text")
-    public CharSequence open(String appName, String str) throws UnsupportedEncodingException {
+    public View open(String str, HttpServletRequest req) throws UnsupportedEncodingException {
+        str = Strings.trim(str);
+        str = URLDecoder.decode(str, "UTF-8");
+        
+        // 分析
+        int pos = str.indexOf(':');
+        String appName;
+        if(pos>0){
+            appName = str.substring(0,pos);
+            str = Strings.trim(str.substring(pos+1));
+        }else{
+            appName = str;
+            str = null;
+        }
+        
+        // 找到应用
         WnObj oAppHome = this._check_app_home(appName);
 
-        // 要处理的对象
-        WnObj o = Strings.isBlank(str) ? null : Wn.checkObj(io, str);
+        // 得到会话对象
+        WnSession se = Wn.WC().checkSE();
+
+        // 得到要处理的对象
+        WnObj o = null;
+        if (!Strings.isEmpty(str)) {
+            str = URLDecoder.decode(str, "UTF-8");
+            o = Wn.checkObj(io, se, str);
+
+            // 看看是否需要重定向一下
+            if (!str.startsWith("~") && !str.startsWith("/") && !str.startsWith("id:")) {
+                return new ServerRedirectView("/a/open/" + appName + ":id:" + o.id());
+            }
+        }
 
         // 生成 app 的对象
         WnApp app = new WnApp();
@@ -60,8 +92,18 @@ public class AppModule extends AbstractWnModule {
         String tt = "pc"; // 可以是 "pc" 或者 "mobile"
 
         WnObj oTmpl = io.fetch(oAppHome, tt + "_tmpl.html");
+
+        // 没有模板则一层层向上寻找
         if (null == oTmpl) {
-            oTmpl = io.check(null, "/etc/app/dft_app_" + tt + "_tmpl.html");
+            String nm = "dft_app_" + tt + "_tmpl.html";
+            WnObj p = oAppHome;
+            while (null == oTmpl && null != p && !p.isRootNode()) {
+                p = io.get(p.parent());
+                oTmpl = io.fetch(p, nm);
+            }
+            if (null == oTmpl) {
+                throw Er.create("e.app.notemplate", appName);
+            }
         }
 
         // 读取模板并分析
@@ -78,9 +120,10 @@ public class AppModule extends AbstractWnModule {
         seg.set("rs", conf.get("app-rs"));
         seg.set("appName", appName);
         seg.set("app", appJson);
+        seg.set("appClass", appName.replace('.', '_').toLowerCase());
 
         // 渲染输出
-        return seg.render();
+        return new ViewWrapper(new JspView("jsp.app"), seg.render());
     }
 
     @At("/load/?/**")

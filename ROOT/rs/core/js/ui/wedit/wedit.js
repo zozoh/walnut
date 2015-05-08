@@ -7,7 +7,6 @@ define(function(require, exports, module) {
         i18n : "ui/wedit/i18n/{{lang}}.js",
         init : function(options) {
             //console.log("I am wedit init")
-            this.listenModel("show:text"  ,this.wedit.on_redraw_content);
             this.listenModel("change:obj" ,this.wedit.on_change_obj);
             this.listenModel("save:start" ,this.wedit.on_save_start);
             this.listenModel("save:done"  ,this.wedit.on_save_done);
@@ -45,21 +44,17 @@ define(function(require, exports, module) {
             }
         },
         redraw : function(){
-            var Mod = this.model;
+            var UI  = this;
+            var Mod = UI.model;
             var obj = Mod.get("obj");
-            Mod.trigger("cmd:exec", "cat -id "+obj.id);
+            Mod.trigger("cmd:exec", "cat id:"+obj.id, function(re){
+                UI.wedit.on_redraw_content.call(UI,re);
+            });
             Mod.trigger("change:obj", Mod, obj, {});
             //$(".ui-wedit-abc").click();
         },
         //...............................................................
         resize : function(){
-            var jMain = this.arena.find('.ui-wedit-main');
-            var w = jMain.width();
-            var h = jMain.height();
-            jMain.find('.ui-wedit-textarea').css({
-                width : w,
-                height : h
-            })
         },
         //...............................................................
         wedit : {
@@ -69,7 +64,7 @@ define(function(require, exports, module) {
             },
             on_change_obj : function(Mod, obj){
                 this.arena.find('.ui-wedit-title .ui-tt').text(obj.nm);
-                this.arena.find('.ui-wedit-footer').text(obj.path);
+                this.arena.find('.ui-wedit-footer').text(obj.ph);
             },
             on_save_start : function(){
                 var jq = this.arena.find(".ui-wedit-save .fa");

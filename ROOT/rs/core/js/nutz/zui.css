@@ -14,7 +14,7 @@
 }
 
 body {
-    margin:0; overflow: hidden;
+    margin:0; overflow: hidden; background: #CCC;
 }
 
 body, font, td, form, p, input, textarea {

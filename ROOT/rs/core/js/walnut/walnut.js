@@ -54,8 +54,9 @@ define(function (require, exports, module) {
             // 打开
             var m = str.match(/(open)([ \t]+)([0-9a-zA-Z_.-]{1,})(([ \t]+)(.+))?/);
             if(m) {
+                console.log(m);
                 if(m[6])
-                    $z.openUrl("/a/open/" + m[3] + "/" + m[6]);
+                    $z.openUrl("/a/open/" + m[3] + ":" + m[6]);
                 else
                     $z.openUrl("/a/open/" + m[3]);
                 Mod.trigger("cmd:wait", se);

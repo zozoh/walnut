@@ -16,6 +16,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.impl.box.WnSystem;
 
 /**
@@ -74,15 +75,20 @@ public abstract class Wn {
     }
 
     public static WnObj checkObj(WnSystem sys, String str) {
+        return checkObj(sys.io, sys.se, str);
+
+    }
+
+    public static WnObj checkObj(WnIo io, WnSession se, String str) {
         // 用 ID
         if (str.startsWith("id:")) {
             String id = str.substring("id:".length());
-            return sys.io.checkById(id);
+            return io.checkById(id);
         }
 
         // 用路径
-        String path = normalizeFullPath(str, sys);
-        return sys.io.check(null, path);
+        String path = normalizeFullPath(str, se);
+        return io.check(null, path);
 
     }
 
@@ -131,35 +137,31 @@ public abstract class Wn {
         return p.matcher(s).matches();
     }
 
-    /**
-     * 根据给定的环境变量，整理字符串
-     * 
-     * @param ph
-     *            字符串
-     * @param env
-     *            环境变量
-     * @return 整理后的字符串
-     */
     public static String normalizePath(String ph, WnSystem sys) {
+        return normalizePath(ph, sys.se);
+    }
+
+    public static String normalizePath(String ph, WnSession se) {
         if (Strings.isBlank(ph))
             return ph;
         if (ph.startsWith("~")) {
-            ph = sys.me.home() + ph.substring(1);
+            ph = se.envs().getString("HOME") + ph.substring(1);
         } else if (ph.startsWith("./")) {
-            ph = sys.se.envs().getString("PWD", "") + ph.substring(1);
+            ph = se.envs().getString("PWD", "") + ph.substring(1);
         }
-        // else if (!ph.startsWith("/")) {
-        // ph = sys.se.envs().getString("PWD", "") + "/" + ph;
-        // }
-        return normalizeStr(ph, sys.se.envs());
+        return normalizeStr(ph, se.envs());
     }
 
     public static String normalizeFullPath(String ph, WnSystem sys) {
+        return normalizeFullPath(ph, sys.se);
+    }
+
+    public static String normalizeFullPath(String ph, WnSession se) {
         if (Strings.isBlank(ph))
             return ph;
-        String path = normalizePath(ph, sys);
+        String path = normalizePath(ph, se);
         if (!path.startsWith("/")) {
-            return sys.se.envs().getString("PWD", "") + "/" + path;
+            return se.envs().getString("PWD", "") + "/" + path;
         }
         return path;
     }

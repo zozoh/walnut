@@ -38,7 +38,7 @@ define(function (require, exports, module) {
             Mod.trigger("save:start");
             $.ajax({
                 type: "POST",
-                url: "/p/write/id:" + objId,
+                url: "/o/write/id:" + objId,
                 data: content
             }).done(function (re) {
                 Mod.trigger("save:done");

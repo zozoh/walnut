@@ -34,10 +34,12 @@ public interface WnIo extends WnStore {
 
     WnObj get(String id);
 
+    WnObj get(WnNode nd);
+
     WnObj getOne(WnQuery q);
 
     WnObj getRootObj();
-    
+
     WnObj getParent(WnObj o);
 
     int each(WnQuery q, Each<WnObj> callback);

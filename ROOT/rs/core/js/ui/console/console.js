@@ -161,6 +161,8 @@ define(function (require, exports, module) {
             }
             // 显示
             this.arena.append(jq);
+            //this.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
+            this.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
         },
         on_show_err: function (s) {
             if (s[s.length - 1] == '\n')
@@ -202,7 +204,6 @@ define(function (require, exports, module) {
                 Mod.trigger("cmd:exec", str, function(){
                     Mod.trigger("cmd:wait", se);
                 });
-
                 // 准备新的输入行
                 //UI._watch_usr_input(se);      
             });

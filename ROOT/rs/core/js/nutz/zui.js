@@ -363,7 +363,7 @@ define(function(require, exports, module){
             // 记录自身实例
             ME.$el.attr("ui-id", ME.cid);
             ZUI.instances[ME.cid] = ME;
-            if(document.body == ME.pel || ME.$pel.attr("ui-fitwindow") || ME.$pel.attr("ui-fitparent")){
+            if(document.body == ME.pel){
                 window.ZUI.tops.push(ME);
             }
 
@@ -451,31 +451,22 @@ define(function(require, exports, module){
         resize : function() {
             var ME = this;
             //console.log("_do_resize_ui")
-            // 是否将自身自适应窗口大小
-            if(ME.pel === document.body || ME.$pel.attr("ui-fitwindow")){
-                //console.log("fit window")
-                var winsz = $z.winsz();
-                ME.$pel.css({
-                    "width":winsz.width, 
-                    "height":winsz.height
-                });
-            }
             // 调整自身的顶级元素
-            var w = ME.$pel.width();
-            var h = ME.$pel.height();
-            ME.$el.css({"width":w, "height":h});
+            // var w = ME.$pel.width();
+            // var h = ME.$pel.height();
+            // ME.$el.css({"width":w, "height":h});
 
-            var w2 = ME.$el.width();
-            var h2 = ME.$el.height();
-            ME.arena.css({"width":w2, "height":h2});
+            // var w2 = ME.$el.width();
+            // var h2 = ME.$el.height();
+            // ME.arena.css({"width":w2, "height":h2});
 
-            // 根据布局，调整
-            if(ME.layout) {
-                adjust_layout(ME.layout, w2, h2);
-            }
+            // // 根据布局，调整
+            // if(ME.layout) {
+            //     adjust_layout(ME.layout, w2, h2);
+            // }
 
             // 调用自身的 resize
-            $z.invoke(ME.$ui, "resize", [w2, h2], ME);
+            $z.invoke(ME.$ui, "resize", [], ME);
 
             // 调用自身所有的子 UI 的 resize
             for(var key in ME.gasket){

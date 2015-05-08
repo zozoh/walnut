@@ -23,6 +23,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.view.WnObjDownloadView;
@@ -89,6 +90,15 @@ public class ObjModule extends AbstractWnModule {
         // 首先得到目标对象
         WnObj o = Wn.checkObj(io, str);
         return new WnObjDownloadView(io, o);
+    }
+
+    @At("/write/**")
+    public WnObj write(String str, InputStream ins) {
+        WnSession se = Wn.WC().checkSE();
+        WnObj o = Wn.checkObj(io, se, str);
+        OutputStream ops = io.getOutputStream(o, 0);
+        Streams.writeAndClose(ops, ins);
+        return o;
     }
 
     /**

@@ -68,6 +68,11 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public WnObj get(WnNode nd) {
+        return indexer.toObj(nd);
+    }
+
+    @Override
     public WnObj getRootObj() {
         WnNode nd = tree.getTreeNode().clone();
         WnBean o = new WnBean();
