@@ -30,14 +30,14 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
         assertEquals(se.me(), xiaobai.name());
 
         // 设置环境变量
-        ses.setEnv(se, "x", "100");
-        ses.setEnv(se, "say", "hello");
+        ses.setEnv(se.id(), "x", "100");
+        ses.setEnv(se.id(), "say", "hello");
         se = ses.check(se.id());
         assertEquals("100", se.envs().getString("x"));
         assertEquals("hello", se.envs().getString("say"));
 
         // 删除环境变量
-        ses.removeEnv(se.id(), "x", "say");
+        ses.removeEnvs(se.id(), "x", "say");
         se = ses.check(se.id());
         assertNull(se.envs().get("x"));
         assertNull(se.envs().get("say"));

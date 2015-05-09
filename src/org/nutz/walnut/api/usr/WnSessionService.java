@@ -31,11 +31,11 @@ public interface WnSessionService {
 
     WnSession logout(String seid);
 
-    void setEnvs(WnSession se, NutMap map);
+    WnSession setEnvs(String seid, NutMap map);
 
-    void setEnv(WnSession se, String nm, String val);
+    WnSession setEnv(String seid, String nm, String val);
 
-    NutMap removeEnv(String seid, String... nms);
+    WnSession removeEnvs(String seid, String... nms);
 
     void touch(String seid);
 

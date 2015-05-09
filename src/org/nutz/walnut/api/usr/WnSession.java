@@ -20,7 +20,7 @@ public interface WnSession {
 
     NutMap envs();
 
-    void envs(NutMap envs);
+    WnSession envs(NutMap envs);
 
     WnSession env(String nm, Object val);
 

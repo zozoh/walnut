@@ -35,7 +35,8 @@ public class cmd_cd extends JvmExecutor {
             ph = list.get(0).path();
         }
 
-        sys.sessionService.setEnv(sys.se, "PWD", ph);
+        // 修改会话中的设定
+        sys.se = sys.sessionService.setEnv(sys.se.id(), "PWD", ph);
     }
 
 }

@@ -46,8 +46,9 @@ public class IoWnSession implements WnSession {
     }
 
     @Override
-    public void envs(NutMap envs) {
+    public WnSession envs(NutMap envs) {
         this.envs = envs;
+        return this;
     }
 
     @Override

@@ -4,7 +4,7 @@
 
 # 用法
 
-	env [-p] [-u key] [key ...]
+	env [-u key] [key ...]
 	
 # 示例
 
@@ -13,9 +13,6 @@
 	
 	显示某几个环境变量
 	env PWD PATH
-	
-	将当前环境变量保存到 ~/.env 下
-	env -p
 	
 	移除某几个环境变量
 	env -u a,b,c

@@ -142,29 +142,24 @@ public class IoWnSessionService implements WnSessionService {
     }
 
     @Override
-    public void setEnvs(WnSession se, NutMap map) {
-        WnSession se2 = this.check(se.id());
-        if (!se2.me().equals(se.me())) {
-            throw Er.create("e.sess.me.changed", se.me() + "<!>" + se2.me());
-        }
-        se.envs(se2.envs());
-        se.envs().putAll(map);
-        __update(se);
+    public WnSession setEnvs(String seid, NutMap map) {
+        WnSession se = check(seid);
+        __update(se.envs(map));
+        return se;
     }
 
     @Override
-    public void setEnv(WnSession se, String nm, String val) {
-        setEnvs(se, Lang.map(nm, val));
-    }
-
-    @Override
-    public NutMap removeEnv(String seid, String... nms) {
+    public WnSession removeEnvs(String seid, String... nms) {
         WnSession se = this.check(seid);
-        for (String nm : nms) {
+        for (String nm : nms)
             se.envs().remove(nm);
-        }
         __update(se);
-        return se.envs();
+        return se;
+    }
+
+    @Override
+    public WnSession setEnv(String seid, String nm, String val) {
+        return setEnvs(seid, Lang.map(nm, val));
     }
 
     @Override
