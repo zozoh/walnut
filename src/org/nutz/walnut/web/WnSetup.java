@@ -1,11 +1,16 @@
 package org.nutz.walnut.web;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.nutz.ioc.Ioc;
+import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
+import org.nutz.resource.Scans;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -19,6 +24,8 @@ public class WnSetup implements Setup {
     private static final Log log = Logs.get();
 
     private WnBoxService boxes;
+
+    private List<Setup> setups;
 
     @Override
     public void init(NutConfig nc) {
@@ -56,10 +63,47 @@ public class WnSetup implements Setup {
             }
         }
 
+        // 最后加载所有的扩展 Setup
+        __load_init_setups(conf);
+
+        // 调用扩展的 Setup
+        for (Setup setup : setups)
+            setup.init(nc);
+
+    }
+
+    private void __load_init_setups(WnConfig conf) {
+        setups = new ArrayList<Setup>();
+        for (String str : conf.getInitSetup()) {
+            // 是一个类吗？
+            try {
+                Class<?> klass = Class.forName(str);
+                Mirror<?> mi = Mirror.me(klass);
+                if (mi.isOf(Setup.class)) {
+                    Setup setup = (Setup) mi.born();
+                    setups.add(setup);
+                }
+            }
+            // 那么就是个包咯
+            catch (ClassNotFoundException e) {
+                List<Class<?>> klasses = Scans.me().scanPackage(str);
+                for (Class<?> klass : klasses) {
+                    Mirror<?> mi = Mirror.me(klass);
+                    if (mi.isOf(Setup.class)) {
+                        Setup setup = (Setup) mi.born();
+                        setups.add(setup);
+                    }
+                }
+            }
+
+        }
     }
 
     @Override
     public void destroy(NutConfig nc) {
+        // 调用扩展的 Setup
+        for (Setup setup : setups)
+            setup.destroy(nc);
         // 关闭所有运行的沙箱
         boxes.shutdown();
     }

@@ -20,6 +20,13 @@ public class WnConfig extends WebConfig {
     public WnConfig(String path) {
         super(path);
     }
+    
+    public String[] getInitSetup() {
+        String str = this.get("init-setup");
+        if (Strings.isBlank(str))
+            return new String[0];
+        return Strings.splitIgnoreBlank(str, "\n");
+    }
 
     public String[] getJvmboxPkgs() {
         String str = this.get("jvmbox-pkgs");
