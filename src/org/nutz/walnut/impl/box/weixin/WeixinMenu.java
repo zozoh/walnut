@@ -1,6 +1,5 @@
 package org.nutz.walnut.impl.box.weixin;
 
-import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
@@ -10,7 +9,6 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.weixin.spi.WxApi2;
 import org.nutz.weixin.spi.WxResp;
 
-@IocBean
 public class WeixinMenu {
 
     public void handle(WnSystem sys, String str, String pnb) {

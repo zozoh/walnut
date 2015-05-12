@@ -162,7 +162,8 @@ define(function (require, exports, module) {
             // 显示
             this.arena.append(jq);
             //this.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
-            this.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
+            //this.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
+            jq[0].scrollIntoView({block: "end", behavior: "smooth"});
         },
         on_show_err: function (s) {
             if (s[s.length - 1] == '\n')

@@ -3,7 +3,6 @@ package org.nutz.walnut.impl.box.weixin;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
@@ -18,7 +17,6 @@ import org.nutz.weixin.bean.WxInMsg;
 import org.nutz.weixin.bean.WxOutMsg;
 import org.nutz.weixin.util.Wxs;
 
-@IocBean
 public class WeixinIn {
 
     public void handle(WnSystem sys, WnObj o) {

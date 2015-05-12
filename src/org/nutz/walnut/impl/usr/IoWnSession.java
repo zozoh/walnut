@@ -42,6 +42,13 @@ public class IoWnSession implements WnSession {
 
     @Override
     public NutMap envs() {
+        if (null == envs) {
+            synchronized (this) {
+                if (null == envs) {
+                    envs = new NutMap();
+                }
+            }
+        }
         return envs;
     }
 

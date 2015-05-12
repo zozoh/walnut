@@ -3,7 +3,7 @@ package org.nutz.walnut.impl.box.cmd;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.ioc.loader.annotation.IocBean;
+
 import org.nutz.lang.Streams;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -11,7 +11,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.Webs.Err;
 
-@IocBean
+
 public class cmd_cp extends JvmExecutor {
 
     @Override

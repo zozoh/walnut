@@ -7,6 +7,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnNode;
@@ -18,9 +19,24 @@ import org.nutz.web.WebConfig;
 public class WnConfig extends WebConfig {
 
     public WnConfig(String path) {
-        super(path);
+        super(Streams.fileInr(path));
+
     }
-    
+
+    public String[] getWebIocPkgs() {
+        String str = this.get("web-ioc-pkgs");
+        if (Strings.isBlank(str))
+            return new String[0];
+        return Strings.splitIgnoreBlank(str, "\n");
+    }
+
+    public String[] getWebModulePkgs() {
+        String str = this.get("web-module-pkgs");
+        if (Strings.isBlank(str))
+            return new String[0];
+        return Strings.splitIgnoreBlank(str, "\n");
+    }
+
     public String[] getInitSetup() {
         String str = this.get("init-setup");
         if (Strings.isBlank(str))

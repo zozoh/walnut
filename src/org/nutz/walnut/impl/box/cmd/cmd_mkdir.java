@@ -1,6 +1,5 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Files;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -10,7 +9,6 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
-@IocBean
 public class cmd_mkdir extends JvmExecutor {
 
     @Override

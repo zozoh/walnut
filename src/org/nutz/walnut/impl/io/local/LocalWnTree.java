@@ -275,7 +275,7 @@ public class LocalWnTree extends AbstractWnTree {
                 if (!pat.matcher(f.getName()).find())
                     continue;
 
-            WnNode nd = _file_to_node(f, null, false);
+            WnNode nd = _file_to_node(f, null, true);
 
             // 计数并调用回调
             try {

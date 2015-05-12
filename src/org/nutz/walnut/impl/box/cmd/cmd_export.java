@@ -1,12 +1,10 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.meta.Pair;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 
-@IocBean
 public class cmd_export extends JvmExecutor {
 
     @Override

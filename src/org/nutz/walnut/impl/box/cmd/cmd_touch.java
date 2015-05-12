@@ -1,6 +1,5 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -9,7 +8,6 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.Webs.Err;
 
-@IocBean
 public class cmd_touch extends JvmExecutor {
 
     @Override

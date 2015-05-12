@@ -1,7 +1,5 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import org.nutz.ioc.loader.annotation.Inject;
-import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
@@ -20,16 +18,18 @@ import org.nutz.weixin.bean.WxInMsg;
 import org.nutz.weixin.bean.WxOutMsg;
 import org.nutz.weixin.util.Wxs;
 
-@IocBean
 public class cmd_weixin extends JvmExecutor {
 
     private static final Log log = Logs.get();
 
-    @Inject("refer:weixinIn")
     private WeixinIn wxin;
 
-    @Inject("refer:weixinMenu")
     private WeixinMenu wxmenu;
+
+    public cmd_weixin() {
+        wxin = new WeixinIn();
+        wxmenu = new WeixinMenu();
+    }
 
     @Override
     public void exec(final WnSystem sys, String[] args) {

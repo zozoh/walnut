@@ -59,6 +59,16 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public boolean exists(WnObj p, String path) {
+        return tree(p).fetch(p, path) != null;
+    }
+
+    @Override
+    public boolean existsId(String id) {
+        return tree(null).getNode(id) != null;
+    }
+
+    @Override
     public WnObj get(String id) {
         WnNode nd = tree(null).getNode(id);
         if (null == nd)
@@ -556,6 +566,12 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public long readAndClose(WnObj o, OutputStream ops) {
+        InputStream ins = this.getInputStream(o, 0);
+        return Streams.writeAndClose(ops, ins);
+    }
+
+    @Override
     public String readText(WnObj o) {
         InputStream ins = this.getInputStream(o, 0);
         Reader r = Streams.buffr(new InputStreamReader(ins));
@@ -609,6 +625,12 @@ public class WnIoImpl implements WnIo {
             Streams.safeClose(w);
         }
         return o.len();
+    }
+
+    @Override
+    public long writeAndClose(WnObj o, InputStream ins) {
+        OutputStream ops = this.getOutputStream(o, 0);
+        return Streams.writeAndClose(ops, ins);
     }
 
     public WnObj getOne(WnQuery q) {

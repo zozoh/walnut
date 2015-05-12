@@ -144,7 +144,8 @@ public class IoWnSessionService implements WnSessionService {
     @Override
     public WnSession setEnvs(String seid, NutMap map) {
         WnSession se = check(seid);
-        __update(se.envs(map));
+        se.envs().putAll(map);
+        __update(se);
         return se;
     }
 

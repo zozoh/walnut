@@ -1,11 +1,14 @@
 package org.nutz.walnut.util;
 
 import org.nutz.lang.util.NutMap;
+import org.nutz.trans.Atom;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnNodeCallback;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.api.usr.WnUsr;
 
 /**
  * 这个是 ThreadLocal 的上下文
@@ -97,98 +100,44 @@ public class WnContext extends NutMap {
         this.grp = grp;
     }
 
-    //
-    // private String PID;
-    //
-    // private String frId;
-    //
-    // private Map<String, Obj> cache;
-    //
-    // private Callback<Obj> objWatcher;
-    //
-    // public void dup(WnContext wc) {
-    // this.seid = wc.seid;
-    // this.me = wc.me;
-    // this.PID = wc.PID;
-    // this.frId = wc.frId;
-    // this.objWatcher = wc.objWatcher;
-    // }
-    //
-    // public void cache(Map<String, Obj> cache) {
-    // this.cache = cache;
-    // }
-    //
-    // public Map<String, Obj> cache() {
-    // return cache;
-    // }
-    //
-    // public Map<String, Obj> cacheNew() {
-    // cache = new HashMap<String, Obj>();
-    // return cache;
-    // }
-    //
-    // public void cacheSet(Obj o) {
-    // if (null != cache) {
-    // cache.put(o.id(), o);
-    // }
-    // }
-    //
-    // public Obj cacheGet(String id) {
-    // if (null == cache)
-    // return null;
-    // return cache.get(id);
-    // }
-    //
-    // public Callback<Obj> objWatcher() {
-    // return objWatcher;
-    // }
-    //
-    // public void objWatcher(Callback<Obj> oWatcher) {
-    // objWatcher = oWatcher;
-    // }
-    //
-    // public String frId() {
-    // return frId;
-    // }
-    //
-    // public String checkFrId() {
-    // if (null == frId) {
-    // throw Er.create("e.wc.null.frId");
-    // }
-    // return frId;
-    // }
-    //
-    // public void frId(String frId) {
-    // this.frId = frId;
-    // }
-    //
-    // public String PID() {
-    // return PID;
-    // }
-    //
-    // public String checkPID() {
-    // if (null == PID) {
-    // throw Er.create("e.wc.null.PID");
-    // }
-    // return PID;
-    // }
-    //
-    // public void PID(String PID) {
-    // this.PID = PID;
-    // }
-    //
+    public <T> T su(WnUsr u, Proton<T> proton) {
+        String old = me;
+        try {
+            me = u.name();
+            grp = u.group();
+            proton.run();
+            return proton.get();
+        }
+        finally {
+            me = old;
+        }
+
+    }
+
+    public void su(WnUsr u, Atom atom) {
+        String old = me;
+        try {
+            me = u.name();
+            grp = u.group();
+            atom.run();
+        }
+        finally {
+            me = old;
+        }
+
+    }
+
     public String SEID() {
         return seid;
     }
 
-    //
-    // public String checkSEID() {
-    // if (null == seid) {
-    // throw Er.create("e.wc.null.seid");
-    // }
-    // return seid;
-    // }
-    //
+    public String checkSEID() {
+        if (null == seid) {
+            throw Er.create("e.wc.null.seid");
+        }
+        return seid;
+    }
+
     public void SEID(String seid) {
         this.seid = seid;
     }

@@ -8,6 +8,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
@@ -17,6 +18,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
+import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.util.Wn;
@@ -46,6 +48,25 @@ public abstract class AbstractWnModule {
 
     @Inject("refer:mimes")
     protected MimeMap mimes;
+
+    protected String _run_cmd(final String logPrefix, String unm, final String cmdText) {
+        // 检查用户和会话
+        final WnUsr u = usrs.check(unm);
+        final WnSession se = sess.create(u);
+        try {
+            // 执行命令
+            return Wn.WC().su(u, new Proton<String>() {
+                protected String exec() {
+                    return _run_cmd(logPrefix, se, null, cmdText);
+                }
+
+            });
+        }
+        finally {
+            // 退出会话
+            sess.logout(se.id());
+        }
+    }
 
     protected String _run_cmd(String logPrefix, WnSession se, String input, String cmdText) {
         StringBuilder sbOut = new StringBuilder();
@@ -100,7 +121,7 @@ public abstract class AbstractWnModule {
         // 运行
         if (log.isDebugEnabled())
             log.debugf("%sbox:run: %s", logPrefix, cmdText);
-        
+
         String[] cmdLines = Jvms.split(cmdText, true, '\n', ';');
         for (String cmdLine : cmdLines) {
             box.submit(cmdLine);
