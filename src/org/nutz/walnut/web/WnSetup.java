@@ -31,6 +31,14 @@ public class WnSetup implements Setup {
     public void init(NutConfig nc) {
         Ioc ioc = nc.getIoc();
 
+        // 初始化自定义的 IocLoader
+        // WnIocLoader wnLoader = ioc.get(WnIocLoader.class, "loader");
+        //
+        // log.infof("loader : %s : %s",
+        // wnLoader.getClass(),
+        // Lang.concat("\n     - ", wnLoader.getName()));
+
+        // 获取 app 资源，并记录一下以便页面使用
         WnConfig conf = ioc.get(WnConfig.class, "conf");
         nc.setAttribute("rs", conf.getAppRs());
 

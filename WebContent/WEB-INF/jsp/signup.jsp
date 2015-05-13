@@ -14,7 +14,7 @@ form input {
 	</tr>
 	<tr>
 		<td>Password:</td>
-		<td><input name="pwd" type="password"></td>
+		<td><input name="passwd" type="password"></td>
 	</tr>
 	<tr>
 		<td>Email:</td>
