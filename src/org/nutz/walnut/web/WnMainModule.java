@@ -19,14 +19,6 @@ import org.nutz.web.WebException;
 import org.nutz.web.ajax.AjaxViewMaker;
 
 @SetupBy(WnSetup.class)
-// @IocBy(type = ComboIocProvider.class,
-// args = {"*org.nutz.ioc.loader.json.JsonLoader",
-// "ioc",
-// "*org.nutz.ioc.loader.annotation.AnnotationIocLoader",
-// "org.nutz.walnut",
-// "$dynamic"})
-// @Modules(scanPackage = true, packages = {"org.nutz.walnut.web.module",
-// "$dynamic"})
 @IocBy(type = JsonIocProvider.class, args = {"ioc"}, init = {"loader"})
 @Modules(by = "ioc:webscan")
 @Localization("msg")
