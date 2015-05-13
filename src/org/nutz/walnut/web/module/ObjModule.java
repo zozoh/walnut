@@ -18,6 +18,7 @@ import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
+import org.nutz.mvc.annotation.POST;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -42,6 +43,12 @@ public class ObjModule extends AbstractWnModule {
 
     @At("/get/**")
     public WnObj get(String str) {
+        return Wn.checkObj(io, str);
+    }
+
+    @POST
+    @At("/fetch")
+    public WnObj fetch(@Param("str") String str) {
         return Wn.checkObj(io, str);
     }
 
