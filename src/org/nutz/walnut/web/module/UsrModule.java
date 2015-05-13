@@ -113,6 +113,17 @@ public class UsrModule extends AbstractWnModule {
         return se;
     }
 
+    @POST
+    @At("/do/login/ajax")
+    @Ok("ajax")
+    @Fail("ajax")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public WnSession do_login_ajax(@Param("nm") String nm, @Param("pwd") String passwd) {
+        WnSession se = sess.login(nm, passwd);
+        Wn.WC().SE(se);
+        return se;
+    }
+
     // /**
     // * 检查登陆信息, 看看是不是用户名密码都对了
     // *
