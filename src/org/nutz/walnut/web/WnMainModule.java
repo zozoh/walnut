@@ -2,7 +2,6 @@ package org.nutz.walnut.web;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.ioc.loader.json.JsonLoader;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.ChainBy;
 import org.nutz.mvc.annotation.IocBy;
@@ -11,7 +10,6 @@ import org.nutz.mvc.annotation.Modules;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.SetupBy;
 import org.nutz.mvc.annotation.Views;
-import org.nutz.mvc.ioc.provider.ComboIocProvider;
 import org.nutz.mvc.ioc.provider.JsonIocProvider;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
@@ -29,7 +27,7 @@ import org.nutz.web.ajax.AjaxViewMaker;
 // "$dynamic"})
 // @Modules(scanPackage = true, packages = {"org.nutz.walnut.web.module",
 // "$dynamic"})
-@IocBy(type = JsonIocProvider.class, args = {"ioc"})
+@IocBy(type = JsonIocProvider.class, args = {"ioc"}, init = {"loader"})
 @Modules(by = "ioc:webscan")
 @Localization("msg")
 @Views({AjaxViewMaker.class, WnViewMaker.class})
