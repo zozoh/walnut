@@ -1,8 +1,10 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.lang.Streams;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -40,8 +42,15 @@ public class cmd_cat extends JvmExecutor {
             }
             // 输出内容
             else {
-                String content = sys.io.readText(o);
-                sys.out.write(content);
+                // String content = sys.io.readText(o);
+                // sys.out.write(content);
+                InputStream ins = sys.io.getInputStream(o, 0);
+                try {
+                    sys.out.write(ins);
+                }
+                finally {
+                    Streams.safeClose(ins);
+                }
             }
         }
     }

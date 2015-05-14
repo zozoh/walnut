@@ -52,18 +52,17 @@ public abstract class AbstractWnModule {
     protected String _run_cmd(final String logPrefix, String unm, final String cmdText) {
         // 检查用户和会话
         final WnUsr u = usrs.check(unm);
-        final WnSession se = sess.create(u);
+        final WnSession se = Wn.WC().su(u, new Proton<WnSession>() {
+            protected WnSession exec() {
+                return sess.create(u);
+            }
+        });
+        // 执行命令
         try {
-            // 执行命令
-            return Wn.WC().su(u, new Proton<String>() {
-                protected String exec() {
-                    return _run_cmd(logPrefix, se, null, cmdText);
-                }
-
-            });
+            return _run_cmd(logPrefix, se, null, cmdText);
         }
+        // 退出会话
         finally {
-            // 退出会话
             sess.logout(se.id());
         }
     }

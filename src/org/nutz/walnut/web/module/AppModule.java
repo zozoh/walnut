@@ -53,6 +53,11 @@ public class AppModule extends AbstractWnModule {
             str = null;
         }
 
+        // 如果 appName 没有名称空间，补上 "wn"
+        if (appName.indexOf('.') < 0) {
+            appName = "wn." + appName;
+        }
+
         // 找到应用
         WnObj oAppHome = this._check_app_home(appName);
 

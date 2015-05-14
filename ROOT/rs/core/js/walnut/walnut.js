@@ -94,9 +94,26 @@ define(function (require, exports, module) {
                 // LOADING | DONE 只要有数据输入，显示一下信息
                 oReq._show_msg();
                 // DONE: 请求结束了，调用回调
-                if(oReq.readyState == 4){
-                    if(typeof callback == "function")
+                if(oReq.readyState == 4 && callback){
+                    // 一个回调处理所有的情况
+                    if(typeof callback == "function"){
                         callback.call(Mod, oReq.responseText);
+                    }
+                    // 对象 {done:..., fail:xxxx}
+                    else {
+                        // 成功
+                        if(oReq.status == 200) {
+                            if(typeof callback.done == "function"){
+                                callback.done.call(Mod, oReq.responseText);
+                            }
+                        }
+                        // 失败
+                        else {
+                            if(typeof callback.fail == "function"){
+                                callback.fail.call(Mod, oReq.responseText);
+                            }
+                        }
+                    }
                 }
             };
             oReq.send();

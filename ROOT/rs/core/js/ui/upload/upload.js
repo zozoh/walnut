@@ -22,21 +22,21 @@ define(function(require, exports, module) {
         i18n : "ui/upload/i18n/{{lang}}.js",
         //...............................................................
         init : function(options){
-            console.log("jjjjj init uploadd")
+            //console.log("jjjjj init uploadd")
         },
         //...............................................................
         redraw : function() {
             // this.listenTo(this.model, "ui:ready",   this.wedit.on_ready);
-            console.log("I am upload redraw")
+            //console.log("I am upload redraw")
             this.$el.delegate(".ui-upload-list", "dragover",  this.handlers.on_dragover);
             this.$el.delegate(".ui-upload-list", "dragleave", this.handlers.on_dragleave);
             this.$el.find(".ui-upload-list")[0]
                 .addEventListener("drop", this.handlers.on_drop, false);
-            console.log(this)
+            //console.log(this)
             this.$el.find(".ui-loader-dest").text(this.options.target);
         },
         depose : function(){
-            console.log("I am upload depose")
+            //console.log("I am upload depose")
             this.$el.find(".ui-upload-list")[0]
                 .removeEventListener("drop", this.handlers.on_drop, true);
         },
@@ -124,7 +124,7 @@ define(function(require, exports, module) {
                         else {
                             jItem.addClass("ui-upload-item-fail");
                             jItem.find(".thumbnail .fa").prop("className", "fa fa-warning");
-                            alert('Fail to upload "' + file.name + '"\n\n' + xhr.responseText);
+                            //alert('Fail to upload "' + file.name + '"\n\n' + xhr.responseText);
                         }
                     }
                 };

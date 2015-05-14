@@ -126,6 +126,7 @@ public class ObjModule extends AbstractWnModule {
      */
     @At("/upload/**")
     @AdaptBy(type = QueryStringAdaptor.class)
+    @Fail("http:500")
     public WnObj upload(String str,
                         @Param("nm") String nm,
                         @Param("sz") long sz,

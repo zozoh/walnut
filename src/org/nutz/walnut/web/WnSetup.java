@@ -62,11 +62,19 @@ public class WnSetup implements Setup {
         // 看看初始的 mount 是否被加载
         for (WnInitMount wim : conf.getInitMount()) {
             WnObj o = io.createIfNoExists(null, wim.path, WnRace.DIR);
-            if (Strings.isBlank(o.mount()) || !wim.mount.equals(o.mount())) {
+            // 添加
+            if (Strings.isBlank(o.mount())) {
                 io.setMount(o, wim.mount);
-                log.infof("+mount : %s > %s", wim.path, wim.mount);
-            } else {
-                log.infof("=mount : %s > %s", wim.path, wim.mount);
+                log.infof("++ mount : %s > %s", wim.path, wim.mount);
+            }
+            // 修改
+            else if (!wim.mount.equals(o.mount())) {
+                io.setMount(o, wim.mount);
+                log.infof(">> mount : %s > %s", wim.path, wim.mount);
+            }
+            // 维持不变
+            else {
+                log.infof("== mount : %s > %s", wim.path, wim.mount);
             }
         }
 
