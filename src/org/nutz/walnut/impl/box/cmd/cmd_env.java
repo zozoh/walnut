@@ -21,7 +21,7 @@ public class cmd_env extends JvmExecutor {
         // 没有参数，列出所有环境变量
         else if (params.vals.length == 0) {
             for (String key : sys.se.envs().keySet()) {
-                sys.out.writeLinef("%-8s : %s", key, sys.se.envs().getString(key));
+                sys.out.printlnf("%-8s : %s", key, sys.se.envs().getString(key));
             }
         }
         // 一个值，仅仅列出值
@@ -29,14 +29,14 @@ public class cmd_env extends JvmExecutor {
             String key = params.vals[0];
             String val = sys.se.envs().getString(key);
             if (null != val)
-                sys.out.writeLine(val);
+                sys.out.println(val);
         }
         // 一个个的列出环境变量
         else {
             for (String key : params.vals) {
                 String val = sys.se.envs().getString(key);
                 if (null != val)
-                    sys.out.writeLinef("%s : %s", key, val);
+                    sys.out.printlnf("%s : %s", key, val);
             }
         }
 

@@ -10,7 +10,7 @@ public class cmd_session extends JvmExecutor {
     public void exec(WnSystem sys, String[] args) {
         // ZParams params = ZParams.parse(args, "^v|clear$");
 
-        sys.out.writeLine(Json.toJson(sys.se));
+        sys.out.println(Json.toJson(sys.se));
     }
 
 }

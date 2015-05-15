@@ -82,7 +82,7 @@ public class WeixinIn {
             WxOutMsg om = Wxs.respText(im.getFromUserName(), "Get! " + Json.toJson(im));
             Wxs.fix(im, om);
             String xml = Wxs.asXml(om);
-            sys.out.writeLine(xml);
+            sys.out.println(xml);
             return;
         }
 
@@ -122,6 +122,6 @@ public class WeixinIn {
          * if( $tmpStr == $signature ){ return true; }else{ return false; }
          */
 
-        sys.out.writeLine(o.getString("http-qs-echostr"));
+        sys.out.println(o.getString("http-qs-echostr"));
     }
 }

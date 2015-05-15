@@ -12,7 +12,7 @@ public class cmd_export extends JvmExecutor {
         // 没参数显示所有环境变量
         if (args.length == 0) {
             for (String key : sys.se.envs().keySet()) {
-                sys.out.writeLinef("%-8s : %s", key, sys.se.envs().getString(key));
+                sys.out.printlnf("%-8s : %s", key, sys.se.envs().getString(key));
             }
         }
         // 逐个的添加

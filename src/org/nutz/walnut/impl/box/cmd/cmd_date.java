@@ -14,13 +14,13 @@ public class cmd_date extends JvmExecutor {
 
         // -ns
         if (params.is("ns")) {
-            sys.out.writeLine("" + System.nanoTime());
+            sys.out.println("" + System.nanoTime());
             return;
         }
         // -1ms
         if (params.is("1ns")) {
             long nano = System.nanoTime();
-            sys.out.writeLine("" + (nano - (nano / 1000000000L) * 1000000000L));
+            sys.out.println("" + (nano - (nano / 1000000000L) * 1000000000L));
             return;
         }
 
@@ -51,43 +51,43 @@ public class cmd_date extends JvmExecutor {
 
         // -fmt
         if (params.has("fmt")) {
-            sys.out.writeLine(Times.format(params.get("fmt"), Times.D(now)));
+            sys.out.println(Times.format(params.get("fmt"), Times.D(now)));
         }
         // -ss
         else if (params.is("ss")) {
-            sys.out.writeLine("" + now / 1000L);
+            sys.out.println("" + now / 1000L);
         }
         // -ms
         else if (params.is("ms")) {
-            sys.out.writeLine("" + now);
+            sys.out.println("" + now);
         }
         // -1ms
         else if (params.is("1ms")) {
-            sys.out.writeLine("" + (now - (now / 1000L) * 1000L));
+            sys.out.println("" + (now - (now / 1000L) * 1000L));
         }
         // -full
         else if (params.is("full")) {
-            sys.out.writeLine(Times.D(now).toString());
+            sys.out.println(Times.D(now).toString());
         }
         // -dt
         else if (params.is("dt")) {
-            sys.out.writeLine(Times.format("yyyy-MM-dd HH:mm:ss", Times.D(now)));
+            sys.out.println(Times.format("yyyy-MM-dd HH:mm:ss", Times.D(now)));
         }
         // -dtms
         else if (params.is("dtms")) {
-            sys.out.writeLine(Times.format("yyyy-MM-dd HH:mm:ss.SSS", Times.D(now)));
+            sys.out.println(Times.format("yyyy-MM-dd HH:mm:ss.SSS", Times.D(now)));
         }
         // -time
         else if (params.is("time")) {
-            sys.out.writeLine(Times.format("HH:mm:ss", Times.D(now)));
+            sys.out.println(Times.format("HH:mm:ss", Times.D(now)));
         }
         // -timems
         else if (params.is("timems")) {
-            sys.out.writeLine(Times.format("HH:mm:ss.SSS", Times.D(now)));
+            sys.out.println(Times.format("HH:mm:ss.SSS", Times.D(now)));
         }
         // 默认
         else {
-            sys.out.writeLine(Times.format("yy-MM-dd HH:mm:ss", Times.D(now)));
+            sys.out.println(Times.format("yy-MM-dd HH:mm:ss", Times.D(now)));
         }
     }
 }

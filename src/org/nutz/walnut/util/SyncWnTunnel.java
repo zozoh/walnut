@@ -23,6 +23,11 @@ public class SyncWnTunnel implements WnTunnel {
     }
 
     @Override
+    public synchronized long size() {
+        return this.tnl.size();
+    }
+
+    @Override
     public synchronized InputStream asInputStream() {
         if (null == _ins) {
             _ins = new SyncJTInputStream(this);

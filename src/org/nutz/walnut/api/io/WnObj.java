@@ -6,6 +6,8 @@ import org.nutz.lang.util.NutMap;
 public interface WnObj extends WnNode, NutBean {
 
     WnObj setNode(WnNode nd);
+    
+    boolean isLink();
 
     String link();
 

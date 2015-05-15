@@ -23,7 +23,7 @@ public abstract class cmd_xxxsum extends JvmExecutor {
             WnObj o = sys.io.check(null, ph);
             InputStream ins = sys.io.getInputStream(o, 0);
             String _sum = sum(ins);
-            sys.out.writeLine(_sum);
+            sys.out.println(_sum);
         }
         // 多个文件输入
         else if (args.length > 1) {
@@ -32,20 +32,18 @@ public abstract class cmd_xxxsum extends JvmExecutor {
                 WnObj o = sys.io.check(null, ph);
                 InputStream ins = sys.io.getInputStream(o, 0);
                 String _sum = sum(ins);
-                sys.out.writeLinef("%s : %s(%s)", _sum, algorithm.toUpperCase(), val);
+                sys.out.printlnf("%s : %s(%s)", _sum, algorithm.toUpperCase(), val);
             }
         }
         // 如果有管道输入
         else if (sys.pipeId > 0) {
-            String str = sys.in.readAll();
-            if (null == str)
-                sys.out.writeLine("!NO DATA");
-            else
-                sys.out.writeLine(sum(str));
+            InputStream ins = sys.in.getInputStream();
+            String _sum = sum(ins);
+            sys.out.println(_sum);
         }
         // 否则
         else {
-            sys.err.writeLine("!no input!");
+            sys.err.println("!no input!");
         }
     }
 

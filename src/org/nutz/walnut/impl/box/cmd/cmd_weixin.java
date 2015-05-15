@@ -91,7 +91,7 @@ public class cmd_weixin extends JvmExecutor {
             }
             // 写入标准输出
             String xml = Wxs.asXml(om);
-            sys.out.writeLine(xml);
+            sys.out.println(xml);
         }
         // 无法处理
         else {

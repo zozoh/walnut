@@ -72,6 +72,7 @@ define(function (require, exports, module) {
             this.listenModel("cmd:wait", this.on_cmd_wait);
             this.listenModel("show:err", this.on_show_err);
             this.listenModel("show:txt", this.on_show_txt);
+            this.listenModel("show:end", this.on_show_end);
             this.listenModel("do:upload", this.on_do_upload);
         },
         //..............................................................
@@ -112,8 +113,8 @@ define(function (require, exports, module) {
                     if(bBgColor) html += ' ui-console-f-bgcolor'+this.bgcolor;
                     html += '"';
                 }
-                html += '>' + str + '</span>';
-                return html;
+                html += '></span>';
+                return $(html).text(str);
             },
             parse : function(fs) {
                 var ss = fs.split(";");
@@ -131,7 +132,30 @@ define(function (require, exports, module) {
                 }
             }
         },
+        on_show_end: function(){
+            if(this._old_s){
+                this.__print_txt(this._old_s);
+                this._old_s = "";
+            }
+        },
         on_show_txt: function (s) {
+            var old = this._old_s || "";
+            s = old + s;
+            // 寻找最后换行，之前的输出
+            var i = s.length-1;
+            for(;i>=0;i--){
+                var b = s.charCodeAt(i);
+                if(b == 0x0a){
+                    i++;
+                    var str = s.substring(0, i);
+                    this.__print_txt(str);
+                    break;
+                }
+            }
+            // 记录还没显示的数据
+            this._old_s = s.substring(i);
+        },
+        __print_txt: function(s){
             var jq = this.ccode("block");
             // 试图对颜色码进行分析
             var l = 0;

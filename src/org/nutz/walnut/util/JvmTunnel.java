@@ -41,6 +41,16 @@ public class JvmTunnel implements WnTunnel {
         rsum = 0;
     }
 
+    public long size() {
+        long re = 0;
+        JTRow r = r4R;
+        while (null != r) {
+            re += r.iw - r.ir;
+            r = r.next;
+        }
+        return re;
+    }
+
     @Override
     public InputStream asInputStream() {
         if (null == _ins) {

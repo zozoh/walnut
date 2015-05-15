@@ -39,7 +39,7 @@ public class cmd_rm extends JvmExecutor {
     protected void _do_delete(final WnSystem sys, final ZParams params, final String base, WnObj o) {
         // 打印
         if (params.is("v")) {
-            sys.out.writeLinef(Disks.getRelativePath(base, o.path()));
+            sys.out.printlnf(Disks.getRelativePath(base, o.path()));
         }
         // 递归
         if (!o.isFILE() && params.is("r")) {

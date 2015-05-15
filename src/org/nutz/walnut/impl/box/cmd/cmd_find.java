@@ -29,7 +29,7 @@ public class cmd_find extends JvmExecutor {
         sys.io.walk(o, new Callback<WnObj>() {
             public void invoke(WnObj obj) {
                 String rph = Disks.getRelativePath(base, obj.path());
-                sys.out.writeLine(rph);
+                sys.out.println(rph);
             }
         }, WalkMode.DEPTH_NODE_FIRST);
 

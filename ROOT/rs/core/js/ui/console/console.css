@@ -22,8 +22,13 @@ body.zui-app-wn_console{
 .ui-console-block {
     line-height: 19px;
     margin: 0;
-    word-wrap: break-word;
+    width:100%;
+    word-wrap:break-word; word-break:break-all;
     padding:0;
+}
+
+pre.ui-console-block {
+    white-space:pre-wrap;
 }
 
 .ui-console-error {
@@ -117,7 +122,7 @@ input.ui-console-inbox {
 .ui-console-f-color30{color:#000;}
 .ui-console-f-color31{color:#A00;}
 .ui-console-f-color32{color:#AFA;}
-.ui-console-f-color33{color:#880;}
+.ui-console-f-color33{color:#FF0;}
 .ui-console-f-color34{color:#88F;}
 .ui-console-f-color35{color:#F8F;}
 .ui-console-f-color36{color:#AAF;}
@@ -135,10 +140,10 @@ input.ui-console-inbox {
 .ui-console-f-bgcolor40{background: black;}
 .ui-console-f-bgcolor41{background: red;}
 .ui-console-f-bgcolor42{background: green;}
-.ui-console-f-bgcolor43{background: yellow;}
+.ui-console-f-bgcolor43{background: #880;}
 .ui-console-f-bgcolor44{background: blue;}
-.ui-console-f-bgcolor45{background: #F0F;}
-.ui-console-f-bgcolor46{background: #0FF;}
+.ui-console-f-bgcolor45{background: #808;}
+.ui-console-f-bgcolor46{background: #088;}
 .ui-console-f-bgcolor47{background: #FFF;}
 
 

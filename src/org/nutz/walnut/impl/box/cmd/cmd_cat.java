@@ -38,19 +38,16 @@ public class cmd_cat extends JvmExecutor {
         for (WnObj o : list) {
             // 目录不能输出
             if (o.isDIR()) {
-                sys.err.writeLinef("e.io.readdir : %s", o.path());
+                sys.err.printlnf("e.io.readdir : %s", o.path());
+                continue;
             }
             // 输出内容
-            else {
-                // String content = sys.io.readText(o);
-                // sys.out.write(content);
-                InputStream ins = sys.io.getInputStream(o, 0);
-                try {
-                    sys.out.write(ins);
-                }
-                finally {
-                    Streams.safeClose(ins);
-                }
+            InputStream ins = sys.io.getInputStream(o, 0);
+            try {
+                sys.out.write(ins);
+            }
+            finally {
+                Streams.safeClose(ins);
             }
         }
     }

@@ -21,6 +21,14 @@ public class JvmBoxInput implements Closeable {
         this.__r = Streams.buffr(new InputStreamReader(ins, Encoding.CHARSET_UTF8));
     }
 
+    public BufferedReader getReader() {
+        return __r;
+    }
+
+    public InputStream getInputStream() {
+        return ins;
+    }
+
     public String readLine() {
         try {
             return __r.readLine();

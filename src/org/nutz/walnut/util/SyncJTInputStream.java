@@ -39,7 +39,7 @@ public class SyncJTInputStream extends InputStream {
             else
                 break;
             if (log.isDebugEnabled())
-                log.debugf("TURNNEL.retry: " + tnl);
+                log.debugf("TURNNEL.retry: %d/%d", tnl.size(), tnl.getReadSum());
             re = tnl.read(bs, off, len);
         }
         return re;

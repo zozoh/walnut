@@ -129,9 +129,12 @@ public class HttpApiModule extends AbstractWnModule {
 
         map.setv("http-protocol", req.getProtocol().toLowerCase());
         map.setv("http-method", req.getMethod().toUpperCase());
+        map.setv("http-uri", req.getRequestURI());
+        map.setv("http-url", req.getRequestURL());
 
         // 保存 QueryString
         String qs = req.getQueryString();
+        map.setv("http-qs", qs);
         if (!Strings.isBlank(qs)) {
             qs = URLDecoder.decode(qs, "UTF-8");
             String[] ss = Strings.splitIgnoreBlank(qs, "[&]");

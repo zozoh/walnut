@@ -23,6 +23,14 @@ public class JvmBoxOutput implements Flushable, Closeable {
         this.__w = Streams.utf8w(ops);
     }
 
+    public OutputStream getOutputStream() {
+        return ops;
+    }
+
+    public Writer getWriter() {
+        return __w;
+    }
+
     public void write(InputStream ins) {
         try {
             Streams.write(ops, ins);
@@ -47,16 +55,16 @@ public class JvmBoxOutput implements Flushable, Closeable {
         }
     }
 
-    public void writeLine() {
-        write("\n");
+    public void println() {
+        print("\n");
     }
 
-    public void writeLine(CharSequence msg) {
-        write(msg + "\n");
+    public void println(CharSequence msg) {
+        print(msg + "\n");
     }
 
-    public void writeLinef(String fmt, Object... args) {
-        write(String.format(fmt, args) + "\n");
+    public void printlnf(String fmt, Object... args) {
+        print(String.format(fmt, args) + "\n");
     }
 
     public void writeJson(Object o, JsonFormat fmt) {
@@ -69,7 +77,11 @@ public class JvmBoxOutput implements Flushable, Closeable {
         }
     }
 
-    public void write(CharSequence msg) {
+    public void printf(String fmt, Object... args) {
+        print(String.format(fmt, args));
+    }
+
+    public void print(CharSequence msg) {
         try {
             __w.write(null == msg ? "null" : msg.toString());
             __w.flush();

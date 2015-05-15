@@ -9,17 +9,17 @@ public interface WnTunnel extends Closeable {
     InputStream asInputStream();
 
     OutputStream asOutputStream();
-    
+
     boolean isReadable();
-    
+
     boolean isWritable();
 
     void close();
-    
+
     void closeRead();
-    
+
     void closeWrite();
-    
+
     void reset();
 
     byte read();
@@ -41,5 +41,7 @@ public interface WnTunnel extends Closeable {
      * @return 一共读取过多少字节
      */
     long getReadSum();
+
+    long size();
 
 }

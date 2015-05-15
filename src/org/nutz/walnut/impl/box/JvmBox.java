@@ -126,7 +126,7 @@ public class JvmBox implements WnBox {
 
             // 没有执行器，直接输出错误
             if (null == a.executor) {
-                boxErr.writeLinef("e.cmd.notfound : %s", a.cmdName);
+                boxErr.printlnf("e.cmd.notfound : %s", a.cmdName);
                 return;
             }
 

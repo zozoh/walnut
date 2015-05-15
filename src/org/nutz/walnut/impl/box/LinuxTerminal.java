@@ -127,4 +127,37 @@ public abstract class LinuxTerminal {
         return wrapFont(str, font, color, -1);
     }
 
+    public static String unwrapFont(String str) {
+        StringBuilder sb = new StringBuilder();
+        int l = 0;
+        int r = 0;
+        char[] cs = str.toCharArray();
+        for (; r < cs.length; r++) {
+            char b = cs[r];
+            // 遇到颜色
+            if (b == 0x1b) {
+                // 有字符串，先消费
+                if (r > l) {
+                    sb.append(new String(cs, l, r));
+                }
+                // 试图读取控制码
+                r += 2;
+                l = r;
+                for (; r < cs.length; r++) {
+                    char c = cs[r];
+                    if (c == 'm')
+                        break;
+                }
+                // this._font.parse(s.substring(l,r));
+                l = r + 1;
+            }
+        }
+        // 最后输出剩余的
+        if (r > l) {
+            sb.append(new String(cs, l, r));
+        }
+        // 返回
+        return sb.toString();
+    }
+
 }

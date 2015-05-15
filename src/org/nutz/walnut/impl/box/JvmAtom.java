@@ -48,7 +48,7 @@ class JvmAtom extends JvmCmd implements Atom {
                     log.warnf("Atom[%d] ERROR: %s", id, e.toString());
                 }
                 // 输出到错误输出
-                sys.err.writeLine(ue.toString());
+                sys.err.println(ue.toString());
                 Streams.safeFlush(sys.err);
             }
         }

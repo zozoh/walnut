@@ -103,7 +103,7 @@ public class WnIoImpl implements WnIo {
     public WnObj checkById(String id) {
         WnObj o = get(id);
         if (null == o)
-            throw Er.create("e.io.noexists" + "id:" + id);
+            throw Er.create("e.io.noexists", "id:" + id);
         return o;
     }
 
@@ -522,6 +522,10 @@ public class WnIoImpl implements WnIo {
         if (null == meta) {
             return "{}";
         }
+
+        // 准备格式化
+        JsonFormat fmt = JsonFormat.compact().setIgnoreNull(false);
+
         // 字符串
         if (meta instanceof CharSequence) {
             String str = Strings.trim(meta.toString());
@@ -538,14 +542,14 @@ public class WnIoImpl implements WnIo {
                 return str;
             }
             // 否则，试图给其包裹上 map
-            return Json.toJson(Lang.map(str), JsonFormat.compact());
+            return Json.toJson(Lang.map(str), fmt);
         }
         // 列表和数组是不可以的
         if (meta instanceof Collection<?> || meta.getClass().isArray()) {
             throw Er.create("e.io.meta.aslist", meta);
         }
         // 其他的对象，统统变 JSON 字符串
-        return Json.toJson(meta, JsonFormat.compact());
+        return Json.toJson(meta, fmt);
     }
 
     @Override

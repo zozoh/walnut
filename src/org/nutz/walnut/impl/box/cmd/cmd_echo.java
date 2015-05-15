@@ -17,11 +17,11 @@ public class cmd_echo extends JvmExecutor {
             if (sb.length() > 0)
                 sb.deleteCharAt(sb.length() - 1);
 
-            sys.out.writeLine(sb.toString());
+            sys.out.println(sb.toString());
         }
         // 没内容，写空
         else {
-            sys.out.writeLine("");
+            sys.out.println("");
         }
     }
 

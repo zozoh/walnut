@@ -95,6 +95,8 @@ define(function (require, exports, module) {
                 oReq._show_msg();
                 // DONE: 请求结束了，调用回调
                 if(oReq.readyState == 4 && callback){
+                    // 最后确保通知了显示流结束
+                    Mod.trigger("show:end"); 
                     // 一个回调处理所有的情况
                     if(typeof callback == "function"){
                         callback.call(Mod, oReq.responseText);

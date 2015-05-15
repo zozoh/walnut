@@ -48,8 +48,7 @@ public class WnObjMetaOutputStream extends OutputStream {
                     }
                     // 其他的设置
                     Object v = newObj.get(key);
-                    if (!append || null != v)
-                        o.setv(key, v);
+                    o.setv(key, v);
                 }
                 // 添加更多的字段
                 for (String key : newObj.keySet()) {

@@ -170,12 +170,16 @@ public class WnBean extends NutMap implements WnObj {
         return this;
     }
 
+    public boolean isLink() {
+        return !Strings.isBlank(link());
+    }
+
     public String link() {
         return this.getString("ln");
     }
 
     public WnBean link(String lid) {
-        this.setOrRemove("ln", lid);
+        this.setv("ln", lid);
         return this;
     }
 

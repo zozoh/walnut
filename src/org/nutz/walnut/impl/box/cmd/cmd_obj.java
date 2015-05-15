@@ -49,6 +49,7 @@ public class cmd_obj extends JvmExecutor {
                     }
                 }
                 sys.io.appendMeta(o, map);
+                
             }
             // 显示对象的值
             else if (params.has("e")) {
@@ -61,16 +62,16 @@ public class cmd_obj extends JvmExecutor {
                 }
                 // 只有一个值的话，则显示值
                 if (map.size() == 1) {
-                    sys.out.writeLine(map.values().iterator().next().toString());
+                    sys.out.println(map.values().iterator().next().toString());
                 }
                 // 否则显示全部匹配
                 else {
-                    sys.out.writeLine(Json.toJson(map));
+                    sys.out.println(Json.toJson(map));
                 }
             }
             // 显示对象全部的值
             else {
-                sys.out.writeLine(Json.toJson(o));
+                sys.out.println(Json.toJson(o));
             }
         }
     }

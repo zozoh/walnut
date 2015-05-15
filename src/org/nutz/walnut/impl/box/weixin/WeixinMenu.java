@@ -36,6 +36,6 @@ public class WeixinMenu {
 
         // 输出
         JsonFormat df = JsonFormat.nice().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        sys.out.writeLine(Json.toJson(resp, df));
+        sys.out.println(Json.toJson(resp, df));
     }
 }

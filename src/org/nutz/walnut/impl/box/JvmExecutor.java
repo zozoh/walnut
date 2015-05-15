@@ -14,7 +14,7 @@ import org.nutz.walnut.util.Wn;
 
 public abstract class JvmExecutor {
 
-    public abstract void exec(WnSystem sys, String[] args);
+    public abstract void exec(WnSystem sys, String[] args) throws Exception;
 
     public String getManual() {
         Class<?> klass = this.getClass();

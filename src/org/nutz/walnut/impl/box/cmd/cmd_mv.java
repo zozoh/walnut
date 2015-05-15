@@ -50,11 +50,11 @@ public class cmd_mv extends JvmExecutor {
             if (params.is("v")) {
                 // 换目录了
                 if (dest.contains("/")) {
-                    sys.out.writeLinef("%s -> %s/%s", oldName, dest, o.name());
+                    sys.out.printlnf("%s -> %s/%s", oldName, dest, o.name());
                 }
                 // 仅仅是改名
                 else {
-                    sys.out.writeLinef("%s -> %s", oldName, o.name());
+                    sys.out.printlnf("%s -> %s", oldName, o.name());
                 }
             }
         }
