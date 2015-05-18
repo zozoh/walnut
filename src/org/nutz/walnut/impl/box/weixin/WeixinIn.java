@@ -104,7 +104,7 @@ public class WeixinIn {
             String cmd = Segments.replace(cmdTmpl, c);
 
             // 执行命令，子命令会向标准输出里写入内容
-            sys.box.submit(cmd);
+            sys.exec(cmd);
         }
 
     }

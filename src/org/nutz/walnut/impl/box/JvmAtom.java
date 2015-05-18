@@ -18,17 +18,18 @@ class JvmAtom extends JvmCmd implements Atom {
 
     JvmExecutor executor;
 
-    JvmBox box;
+    JvmAtomRunner runner;
 
-    public JvmAtom(JvmBox box, String src) {
+    public JvmAtom(JvmAtomRunner box, String src) {
         super(src);
-        this.box = box;
+        this.runner = box;
     }
 
     @Override
     public void run() {
         try {
             Wn.WC().SE(sys.se);
+            sys._runner = runner.clone();
             if (log.isDebugEnabled())
                 log.debugf("Atom(%s) before : %s", id, sys.original);
             executor.exec(sys, args);
@@ -61,7 +62,7 @@ class JvmAtom extends JvmCmd implements Atom {
             if (sys.nextId > 0) {
                 Streams.safeClose(sys.out);
             }
-            box._finish(this);
+            runner._finish(this);
         }
     }
 

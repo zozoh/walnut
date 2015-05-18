@@ -1,27 +1,41 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import org.nutz.walnut.impl.box.JvmExecutor;
+import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.ZParams;
 
 public class cmd_echo extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
+        ZParams params = ZParams.parse(args, "en");
+
+        boolean escape = params.is("e");
+        boolean nonewline = params.is("n");
+
         // 有内容
-        if (args.length > 0) {
+        if (params.vals.length > 0) {
             StringBuilder sb = new StringBuilder();
-            for (String arg : args) {
-                sb.append(Wn.normalizeStr(arg, sys.se.envs())).append(' ');
+            for (String s : params.vals) {
+                if (escape)
+                    s = Jvms.evalEscape(s);
+                sb.append(Wn.normalizeStr(s, sys.se.envs())).append(' ');
             }
             if (sb.length() > 0)
                 sb.deleteCharAt(sb.length() - 1);
 
-            sys.out.println(sb.toString());
+            if (nonewline) {
+                sys.out.print(sb.toString());
+            } else {
+                sys.out.println(sb.toString());
+            }
         }
         // 没内容，写空
         else {
-            sys.out.println("");
+            if (!nonewline)
+                sys.out.println("");
         }
     }
 

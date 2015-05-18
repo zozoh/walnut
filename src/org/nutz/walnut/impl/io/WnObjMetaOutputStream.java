@@ -40,15 +40,24 @@ public class WnObjMetaOutputStream extends OutputStream {
             NutMap newObj = Json.fromJson(NutMap.class, json);
             // 追加模式，必须得给咱点啥才能追加呀
             if (!append || newObj.size() > 0) {
-                // 更新字段
-                for (String key : o.keySet()) {
-                    // 必须保留的
-                    if (key.matches("^id|nm|tp|ph|race|pid|mnt|len|sha1|data|nano|ct|lm|c|m|g|md|d[0-9]$")) {
-                        continue;
+                // 追加字段
+                if (append) {
+                    for (String key : newObj.keySet()) {
+                        Object v = newObj.get(key);
+                        o.setv(key, v);
                     }
-                    // 其他的设置
-                    Object v = newObj.get(key);
-                    o.setv(key, v);
+                }
+                // 更新字段
+                else {
+                    for (String key : o.keySet()) {
+                        // 必须保留的
+                        if (key.matches("^id|nm|tp|ph|race|pid|mnt|len|sha1|data|nano|ct|lm|c|m|g|md|d[0-9]$")) {
+                            continue;
+                        }
+                        // 其他的设置
+                        Object v = newObj.get(key);
+                        o.setv(key, v);
+                    }
                 }
                 // 添加更多的字段
                 for (String key : newObj.keySet()) {

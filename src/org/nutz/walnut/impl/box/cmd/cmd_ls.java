@@ -36,6 +36,7 @@ public class cmd_ls extends JvmExecutor {
         final WnObjTable tab = new WnObjTable(keys);
         final boolean useColor = sys.nextId < 0;
         final boolean briefSize = params.is("h");
+        final boolean showHidden = params.is("A");
 
         // 只有一个内容
         if (list.size() == 1) {
@@ -48,7 +49,8 @@ public class cmd_ls extends JvmExecutor {
             else {
                 sys.io.eachChildren(o, null, new Each<WnObj>() {
                     public void invoke(int index, WnObj child, int length) {
-                        tab.add(child, useColor, briefSize);
+                        if (!child.isHidden() || showHidden)
+                            tab.add(child, useColor, briefSize);
                     }
                 });
             }
@@ -69,7 +71,8 @@ public class cmd_ls extends JvmExecutor {
                     sys.out.println(rph + " :");
                     sys.io.eachChildren(o, null, new Each<WnObj>() {
                         public void invoke(int index, WnObj child, int length) {
-                            tab.add(child, useColor, briefSize);
+                            if (!child.isHidden() || showHidden)
+                                tab.add(child, useColor, briefSize);
                         }
                     });
                 }

@@ -30,7 +30,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
@@ -164,7 +163,6 @@ public class HttpApiModule extends AbstractWnModule {
         String cmdPattern = io.readText(oApi);
         Context c = Lang.context(oReq.toMap(null));
         String cmdText = Segments.replace(cmdPattern, c);
-        String[] cmdLines = Jvms.split(cmdText, true, '\n', ';');
 
         // 执行命令
         WnBox box = boxes.alloc(0);
@@ -199,10 +197,7 @@ public class HttpApiModule extends AbstractWnModule {
         // 运行
         if (log.isDebugEnabled())
             log.debugf("box:run: %s", cmdText);
-        for (String cmdLine : cmdLines) {
-            box.submit(cmdLine);
-        }
-        box.run();
+        box.run(cmdText);
 
         // 释放沙箱
         if (log.isDebugEnabled())

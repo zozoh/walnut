@@ -31,8 +31,7 @@ public class JvmBoxService implements WnBoxService {
         jb = __find_free();
         if (null == jb) {
             jb = new JvmBox();
-            jb.jef = this.jef;
-            jb.status = WnBoxStatus.FREE;
+            jb.setJvmExecutorFactory(this.jef);
             boxes.add(jb);
         }
         return jb;
@@ -50,7 +49,6 @@ public class JvmBoxService implements WnBoxService {
         if (null != box) {
             JvmBox jb = (JvmBox) box;
             jb.free();
-            jb.status = WnBoxStatus.FREE;
         }
     }
 

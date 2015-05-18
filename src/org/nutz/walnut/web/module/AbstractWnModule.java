@@ -20,7 +20,6 @@ import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
-import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.WnConfig;
 
@@ -121,11 +120,7 @@ public abstract class AbstractWnModule {
         if (log.isDebugEnabled())
             log.debugf("%sbox:run: %s", logPrefix, cmdText);
 
-        String[] cmdLines = Jvms.split(cmdText, true, '\n', ';');
-        for (String cmdLine : cmdLines) {
-            box.submit(cmdLine);
-        }
-        box.run();
+        box.run(cmdText);
 
         // 释放沙箱
         if (log.isDebugEnabled())

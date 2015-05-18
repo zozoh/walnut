@@ -9,6 +9,44 @@ import org.nutz.walnut.api.err.Er;
 
 public class Jvms {
 
+    public static String evalEscape(String str) {
+        StringBuilder sb = new StringBuilder();
+        char[] cs = str.toCharArray();
+        for (int i = 0; i < cs.length; i++) {
+            char c = cs[i];
+            // 如果是转义字符
+            if (c == '\\') {
+                c = cs[++i];
+                switch (c) {
+                case 'n':
+                    sb.append('\n');
+                    break;
+                case 'r':
+                    sb.append('\r');
+                    break;
+                case 't':
+                    sb.append('\t');
+                    break;
+                case 'b':
+                    sb.append('\b');
+                    break;
+                case '\'':
+                case '"':
+                case '\\':
+                    sb.append(c);
+                    break;
+                default:
+                    throw Er.create("e.cmd.escape.invald", c);
+                }
+            }
+            // 否则添加
+            else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
     public static String[] split(String str, boolean keepQuote, char... seps) {
         List<String> list = new LinkedList<String>();
         char[] cs = str.toCharArray();

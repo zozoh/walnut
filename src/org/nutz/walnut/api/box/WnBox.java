@@ -13,9 +13,9 @@ public interface WnBox {
 
     void setup(WnBoxContext bc);
 
-    void submit(String cmdLine);
+    // void submit(String cmdLine);
 
-    void run();
+    void run(String cmdText);
 
     void setStdout(OutputStream ops);
 

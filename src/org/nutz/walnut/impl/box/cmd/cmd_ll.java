@@ -9,9 +9,9 @@ public class cmd_ll extends JvmExecutor {
     public void exec(final WnSystem sys, String[] args) {
         int pos = sys.original.indexOf(' ');
         if (pos > 0) {
-            sys.box.submit("ls -l " + sys.original.substring(pos));
+            sys.exec("ls -l " + sys.original.substring(pos));
         } else {
-            sys.box.submit("ls -l");
+            sys.exec("ls -l");
         }
     }
 

@@ -1,6 +1,5 @@
 package org.nutz.walnut.impl.box;
 
-import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
@@ -31,8 +30,20 @@ public class WnSystem {
 
     public WnUsrService usrService;
 
-    public WnBox box;
-
     public JvmExecutorFactory jef;
+
+    JvmAtomRunner _runner;
+
+    public void exec(String cmdText) {
+        String[] cmdLines = Jvms.split(cmdText, true, '\n', ';');
+        _runner.out = new EscapeCloseOutputStream(out.getOutputStream());
+        _runner.err = new EscapeCloseOutputStream(err.getOutputStream());
+        _runner.in = new EscapeCloseInputStream(in.getInputStream());
+        for (String cmdLine : cmdLines) {
+            _runner.__run(cmdLine);
+            _runner.__wait_for_idle();
+        }
+        _runner.__free();
+    }
 
 }
