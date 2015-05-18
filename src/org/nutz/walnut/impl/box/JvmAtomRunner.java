@@ -98,6 +98,7 @@ public class JvmAtomRunner {
             // 填充对应字段
             a.id = i;
             a.sys = new WnSystem();
+            a.sys.boxId = this.boxId;
             a.sys.pipeId = i;
             a.sys.nextId = i + 1;
             a.sys.original = cmds[i];
