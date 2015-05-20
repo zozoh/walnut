@@ -33,28 +33,28 @@ public abstract class AbstractWnTreeTest extends BaseApiTest {
         StringBuilder sb_read = new StringBuilder();
         StringBuilder sb_write = new StringBuilder();
 
-        public <T extends WnNode> T enter(T nd) {
+        public WnNode enter(WnNode nd) {
             if (!nd.isRootNode())
                 sb_enter.append("/" + nd.name());
             return nd;
         }
 
-        public <T extends WnNode> T view(T nd) {
+        public WnNode view(WnNode nd) {
             sb_view.append("/" + nd.name());
             return nd;
         }
 
-        public <T extends WnNode> T access(T nd) {
+        public WnNode access(WnNode nd) {
             sb_access.append("/" + nd.name());
             return nd;
         }
 
-        public <T extends WnNode> T read(T nd) {
+        public WnNode read(WnNode nd) {
             sb_read.append("/" + nd.name());
             return nd;
         }
 
-        public <T extends WnNode> T write(T nd) {
+        public WnNode write(WnNode nd) {
             sb_write.append("/" + nd.name());
             return nd;
         }

@@ -2,14 +2,14 @@ package org.nutz.walnut.api.io;
 
 public interface WnSecurity {
 
-    <T extends WnNode> T enter(T nd);
+    WnNode enter(WnNode nd);
 
-    <T extends WnNode> T access(T nd);
+    WnNode access(WnNode nd);
 
-    <T extends WnNode> T view(T nd);
+    WnNode view(WnNode nd);
 
-    <T extends WnNode> T read(T nd);
+    WnNode read(WnNode nd);
 
-    <T extends WnNode> T write(T nd);
+    WnNode write(WnNode nd);
 
 }

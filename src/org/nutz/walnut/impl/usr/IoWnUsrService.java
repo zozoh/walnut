@@ -7,6 +7,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -40,9 +41,12 @@ public class IoWnUsrService implements WnUsrService {
 
     private WnObj oUsrs;
 
+    private WnObj oGrps;
+
     public void on_create() {
         Wn.WC().me("root", "root");
         oUsrs = io.createIfNoExists(null, "/usr", WnRace.DIR);
+        oGrps = io.create(null, "/grp", WnRace.DIR);
     }
 
     private WnQuery _eval_query(String str) {
@@ -105,7 +109,7 @@ public class IoWnUsrService implements WnUsrService {
         oU = io.create(oUsrs, "${id}", WnRace.FILE);
 
         // 创建用户对象
-        WnUsr u = new IoWnUsr();
+        final WnUsr u = new IoWnUsr();
         u.id(oU.id()).name(oU.name()).password(pwd);
 
         // 添加所有的初始环境变量
@@ -139,18 +143,20 @@ public class IoWnUsrService implements WnUsrService {
         // 保存所有的索引信息
         io.appendMeta(oU, "^phone|email$");
 
-        // 创建主目录以及关键文件
-        String phHome = "root".equals(u.name()) ? "/root" : "/home/" + u.name();
-
-        // 创建对象
-        Wn.WC().me(u.name(), u.group());
-        WnObj oHome = io.create(null, phHome, WnRace.DIR);
-
-        // 创建相关账号权限
-        WnObj oPeople = io.create(oHome, ".people", WnRace.DIR);
+        // 创建用户组
+        WnObj oPeople = io.create(oGrps, u.group() + "/people", WnRace.DIR);
         WnObj oMe = io.create(oPeople, u.id(), WnRace.FILE);
         oMe.setv("role", Wn.ROLE.ADMIN);
         io.appendMeta(oMe, "^role$");
+
+        // 创建组的主目录
+        final String phHome = "root".equals(u.name()) ? "/root" : "/home/" + u.name();
+        Wn.WC().su(u, new Atom() {
+            public void run() {
+                Wn.WC().me(u.name(), u.group());
+                io.create(null, phHome, WnRace.DIR);
+            }
+        });
 
         // 写入用户注册信息
         u.home(phHome);
@@ -158,6 +164,15 @@ public class IoWnUsrService implements WnUsrService {
 
         // 返回
         return u;
+    }
+
+    @Override
+    public int getRoleInGroup(WnUsr u, String grp) {
+        WnObj oMe = io.fetch(oGrps, grp + "/people/" + u.id());
+        if (null != oMe) {
+            return oMe.getInt("role");
+        }
+        return Wn.ROLE.OTHERS;
     }
 
     /**

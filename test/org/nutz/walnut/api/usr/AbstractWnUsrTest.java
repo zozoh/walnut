@@ -162,6 +162,7 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
         assertEquals("123456", u.password());
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());
+        assertEquals("xiaobai", u.group());
         assertNull(u.phone());
         assertNull(u.email());
 
@@ -169,15 +170,16 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
         WnObj oHome = io.check(null, u.home());
 
         // 检查权限设定
-        WnObj oMe = io.check(oHome, ".people/" + u.id());
+        WnObj oMe = io.check(oHome, "/grp/" + u.group() + "/people/" + u.id());
         assertEquals(Wn.ROLE.ADMIN, oMe.getInt("role"));
+        assertEquals(Wn.ROLE.ADMIN, usrs.getRoleInGroup(u, u.group()));
 
         // 删除就什么也没了
         usrs.delete(u);
         assertNull(usrs.fetch("xiaobai"));
 
         // 但是组目录还在
-        io.check(null, u.home() + "/.people/" + u.id());
+        io.check(oHome, "/grp/" + u.group() + "/people/" + u.id());
 
     }
 

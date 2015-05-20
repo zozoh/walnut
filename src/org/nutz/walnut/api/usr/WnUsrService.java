@@ -29,4 +29,6 @@ public interface WnUsrService {
 
     IoWnUsr check(String str);
 
+    int getRoleInGroup(WnUsr u, String grp);
+
 }

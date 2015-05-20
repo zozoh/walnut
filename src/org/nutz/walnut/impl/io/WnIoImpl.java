@@ -472,6 +472,9 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public InputStream getInputStream(WnObj o, long off) {
+        // 得到节点检查的回调接口
+        o = indexer.toObj(Wn.WC().whenRead(o));
+
         // 是读取元数据的
         if (o.getBoolean(Wn.OBJ_META_RW)) {
             WnObj o2 = (WnObj) o.duplicate();
@@ -491,6 +494,9 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public OutputStream getOutputStream(WnObj o, long off) {
+        // 得到节点检查的回调接口
+        o = indexer.toObj(Wn.WC().whenWrite(o));
+
         // 是写入元数据的
         if (o.getBoolean(Wn.OBJ_META_RW)) {
             return new WnObjMetaOutputStream(o, indexer, off < 0);

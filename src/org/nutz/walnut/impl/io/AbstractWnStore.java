@@ -43,9 +43,6 @@ public abstract class AbstractWnStore implements WnStore {
         if (null == his)
             return new NullInputStream();
 
-        // 得到节点检查的回调接口
-        o = Wn.WC().whenRead(o);
-
         // 返回输出流
         return _get_inputstream(his, off);
     }
@@ -54,9 +51,6 @@ public abstract class AbstractWnStore implements WnStore {
 
     @Override
     public OutputStream getOutputStream(WnObj o, long off) {
-        // 得到节点检查的回调接口
-        o = Wn.WC().whenWrite(o);
-
         // 返回输出流
         return _get_outputstream(o, off);
     }

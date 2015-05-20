@@ -21,7 +21,7 @@ public abstract class AbstractWnIndexer implements WnIndexer {
     @Override
     public WnObj get(String id) {
         WnObj o = _get(id);
-        return Wn.WC().whenAccess(o);
+        return toObj(Wn.WC().whenAccess(o));
     }
 
     protected abstract WnObj _get(String id);
@@ -32,7 +32,7 @@ public abstract class AbstractWnIndexer implements WnIndexer {
         final int[] re = new int[1];
         return _each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj o, int length) {
-                o = wc.whenView(o);
+                o = toObj(wc.whenView(o));
                 if (null != o) {
                     callback.invoke(re[0]++, o, -1);
                 }
@@ -46,7 +46,7 @@ public abstract class AbstractWnIndexer implements WnIndexer {
     public void remove(String id) {
         WnObj o = _get(id);
         if (null != o) {
-            o = Wn.WC().whenAccess(o);
+            o = toObj(Wn.WC().whenAccess(o));
             _remove(o);
         }
     }

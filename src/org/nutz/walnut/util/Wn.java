@@ -259,6 +259,8 @@ public abstract class Wn {
 
     public static class ROLE {
 
+        public static final int OTHERS = 0;
+
         public static final int ADMIN = 1;
 
         public static final int MEMBER = 10;

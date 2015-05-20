@@ -37,31 +37,31 @@ public class WnContext extends NutMap {
         this.security = callback;
     }
 
-    public <T extends WnNode> T whenEnter(T nd) {
+    public WnNode whenEnter(WnNode nd) {
         if (null != security)
             return security.enter(nd);
         return nd;
     }
 
-    public <T extends WnNode> T whenAccess(T nd) {
+    public WnNode whenAccess(WnNode nd) {
         if (null != security)
             return security.access(nd);
         return nd;
     }
 
-    public <T extends WnNode> T whenRead(T nd) {
+    public WnNode whenRead(WnNode nd) {
         if (null != security)
             return security.read(nd);
         return nd;
     }
 
-    public <T extends WnNode> T whenWrite(T nd) {
+    public WnNode whenWrite(WnNode nd) {
         if (null != security)
             return security.write(nd);
         return nd;
     }
 
-    public <T extends WnNode> T whenView(T nd) {
+    public WnNode whenView(WnNode nd) {
         if (null != security)
             return security.view(nd);
         return nd;

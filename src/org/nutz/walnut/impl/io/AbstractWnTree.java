@@ -265,8 +265,7 @@ public abstract class AbstractWnTree implements WnTree {
         nd.path(p.path()).appendPath(nd.name());
 
         // 确保节点可以访问
-        if (null != secu)
-            nd = secu.access(nd);
+        nd = Wn.WC().whenAccess(nd);
 
         // 搞定了，返回吧
         return nd;
