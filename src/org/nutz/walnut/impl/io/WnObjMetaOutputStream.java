@@ -50,22 +50,29 @@ public class WnObjMetaOutputStream extends OutputStream {
                 // 更新字段
                 else {
                     for (String key : o.keySet()) {
-                        // 必须保留的
-                        if (key.matches("^id|nm|tp|ph|race|pid|mnt|len|sha1|data|nano|ct|lm|c|m|g|md|d[0-9]$")) {
+                        // ID 不能改
+                        if ("id".equals(key)) {
+                            continue;
+                        }
+                        // 获取值
+                        Object v = newObj.get(key);
+                        // 不能为空
+                        if (null == v
+                            && key.matches("^nm|tp|ph|race|pid|mnt|len|sha1|data|nano|ct|lm|c|m|g|md|d[0-9]$")) {
                             continue;
                         }
                         // 其他的设置
-                        Object v = newObj.get(key);
                         o.setv(key, v);
                     }
-                }
-                // 添加更多的字段
-                for (String key : newObj.keySet()) {
-                    if (!o.containsKey(key)) {
-                        Object v = newObj.get(key);
-                        o.setv(key, v);
+                    // 添加更多的字段
+                    for (String key : newObj.keySet()) {
+                        if (!o.containsKey(key)) {
+                            Object v = newObj.get(key);
+                            o.setv(key, v);
+                        }
                     }
                 }
+
                 // 如果是追加，限制一下
                 String regex = null;
                 if (append) {

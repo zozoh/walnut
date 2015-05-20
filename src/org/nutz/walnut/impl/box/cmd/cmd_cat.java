@@ -1,7 +1,6 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import java.io.InputStream;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Streams;
@@ -24,11 +23,7 @@ public class cmd_cat extends JvmExecutor {
         ZParams params = ZParams.parse(args, null);
 
         // 计算要列出的要处理的对象
-        List<WnObj> list = new LinkedList<WnObj>();
-        evalCandidateObjs(sys, params.vals, list, false);
-
-        // 检查是否候选对象列表为空
-        checkCandidateObjsNoEmpty(args, list);
+        List<WnObj> list = evalCandidateObjsNoEmpty(sys, params.vals, false);
 
         // 没内容
         if (list.isEmpty()) {

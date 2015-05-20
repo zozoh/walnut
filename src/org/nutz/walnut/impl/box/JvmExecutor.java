@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.box;
 
 import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Each;
@@ -27,6 +28,11 @@ public abstract class JvmExecutor {
         }
 
         return Files.read(f);
+    }
+
+    public String getMyName() {
+        String nm = this.getClass().getSimpleName();
+        return nm.substring("cmd_".length());
     }
 
     protected WnObj getCurrentObj(WnSystem sys) {
@@ -106,6 +112,28 @@ public abstract class JvmExecutor {
         else if (!o.isFILE()) {
             __find_last_level_objs(io, o, ss, off, list);
         }
+    }
+
+    protected List<WnObj> evalCandidateObjsNoEmpty(WnSystem sys, String[] paths, boolean joinCurrent) {
+        LinkedList<WnObj> list = new LinkedList<WnObj>();
+        evalCandidateObjs(sys, paths, list, joinCurrent);
+        checkCandidateObjsNoEmpty(paths, list);
+        return list;
+    }
+
+    protected List<WnObj> evalCandidateObjs(WnSystem sys, String[] paths, boolean joinCurrent) {
+        LinkedList<WnObj> list = new LinkedList<WnObj>();
+        evalCandidateObjs(sys, paths, list, joinCurrent);
+        return list;
+    }
+
+    protected WnObj evalCandidateObjsNoEmpty(WnSystem sys,
+                                             String[] paths,
+                                             final List<WnObj> list,
+                                             boolean joinCurrent) {
+        WnObj re = evalCandidateObjs(sys, paths, list, joinCurrent);
+        checkCandidateObjsNoEmpty(paths, list);
+        return re;
     }
 
     protected WnObj evalCandidateObjs(WnSystem sys,
