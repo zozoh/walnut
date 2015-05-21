@@ -10,6 +10,29 @@ import org.nutz.walnut.util.Wn;
 public abstract class AbstractWnUsrTest extends BaseUsrTest {
 
     @Test
+    public void test_forbidden_read() {
+        // 创建两个用户
+
+        // A 用户建立一个文件，改变权限
+
+        // A 用户能读
+
+        // root 用户能读
+
+        // B 用户不能读
+
+        // 把 B 用户加入到组里就能读
+
+        // 变成管理员只读
+
+        // B 又不能读了
+
+        // 只有变成管理员
+
+        // 才能读
+    }
+
+    @Test
     public void se_login_logout() {
         WnUsr xiaobai = usrs.create("xiaobai", "123456");
         WnSession se = ses.login("xiaobai", "123456");

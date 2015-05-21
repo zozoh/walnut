@@ -21,8 +21,11 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.annotation.At;
+import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
+import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
@@ -32,9 +35,11 @@ import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
+import org.nutz.walnut.web.filter.WnAsUsr;
 
 @IocBean
 @At("/api")
+@Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
 public class HttpApiModule extends AbstractWnModule {
 
     private static final Log log = Logs.get();
@@ -49,6 +54,7 @@ public class HttpApiModule extends AbstractWnModule {
         final WnUsr u;
         final WnObj oHome;
         final WnObj oApi;
+        int respCode = 500;
         // 找到用户和对应的命令
         try {
             if (log.isInfoEnabled())
@@ -57,7 +63,29 @@ public class HttpApiModule extends AbstractWnModule {
             u = usrs.check(usr);
             String homePath = Strings.sBlank(u.home(), "/home/" + u.name());
             oHome = io.check(null, homePath);
-            oApi = io.check(oHome, ".regapi/api/" + api);
+            WnObj oApiHome = Wn.WC().su(u, new Proton<WnObj>() {
+                protected WnObj exec() {
+                    return io.createIfNoExists(oHome, ".regapi/api", WnRace.DIR);
+                }
+            });
+            WnObj o = io.fetch(oApiHome, api);
+            // 逐级寻找 default
+            if (null == o) {
+                WnObj p = oApiHome;
+                String[] ss = Strings.splitIgnoreBlank(api, "/");
+                int i = 0;
+                while (p != null) {
+                    WnObj oDft = io.fetch(p, "_default");
+                    if (null != oDft)
+                        o = oDft;
+                    p = io.fetch(p, ss, i, i + 1);
+                }
+            }
+            if (null == o) {
+                respCode = 404;
+                throw Er.create("e.api.nofound", api);
+            }
+            oApi = o;
 
             // 确保是文本文件
             String mime = oApi.mime();
@@ -74,16 +102,6 @@ public class HttpApiModule extends AbstractWnModule {
                 String mimeType = Strings.trim(req.getQueryString());
                 _do_api(req, resp, mimeType, oHome, u, oApi);
             }
-            catch (Exception e) {
-                resp.setStatus(500);
-                try {
-                    e.printStackTrace(resp.getWriter());
-                    resp.flushBuffer();
-                }
-                catch (IOException e1) {
-                    throw Lang.wrapThrow(e1);
-                }
-            }
             // 确保退出登录
             finally {
                 sess.logout(se.id());
@@ -94,7 +112,7 @@ public class HttpApiModule extends AbstractWnModule {
             if (log.isWarnEnabled()) {
                 log.warn("Fail to handle API", e);
             }
-            resp.setStatus(404);
+            resp.setStatus(respCode);
             e.printStackTrace(resp.getWriter());
             resp.flushBuffer();
             return;
@@ -106,7 +124,7 @@ public class HttpApiModule extends AbstractWnModule {
     private void _do_api(HttpServletRequest req,
                          HttpServletResponse resp,
                          String mimeType,
-                         WnObj oHome,
+                         final WnObj oHome,
                          WnUsr u,
                          WnObj oApi) throws UnsupportedEncodingException, IOException {
 
@@ -116,10 +134,18 @@ public class HttpApiModule extends AbstractWnModule {
         resp.setContentType(mimeType);
 
         // 读取输入
-        WnObj oTmp = io.createIfNoExists(oHome, ".regapi/tmp", WnRace.DIR);
+        final WnObj oTmp = Wn.WC().su(u, new Proton<WnObj>() {
+            protected WnObj exec() {
+                return io.createIfNoExists(oHome, ".regapi/tmp", WnRace.DIR);
+            }
+        });
 
         // 创建临时文件以便保存请求的内容
-        WnObj oReq = io.create(oTmp, "${id}", WnRace.FILE);
+        WnObj oReq = Wn.WC().su(u, new Proton<WnObj>() {
+            protected WnObj exec() {
+                return io.create(oTmp, "${id}", WnRace.FILE);
+            }
+        });
         Enumeration<String> hnms = req.getHeaderNames();
         NutMap map = new NutMap();
 

@@ -44,11 +44,6 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
     }
 
     @Test
-    public void test_forbidden_read() {
-        
-    }
-
-    @Test
     public void test_walk() {
         io.create(null, "/a/b/c", WnRace.FILE);
         io.create(null, "/a/b/d", WnRace.FILE);

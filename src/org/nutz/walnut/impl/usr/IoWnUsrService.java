@@ -46,7 +46,7 @@ public class IoWnUsrService implements WnUsrService {
     public void on_create() {
         Wn.WC().me("root", "root");
         oUsrs = io.createIfNoExists(null, "/usr", WnRace.DIR);
-        oGrps = io.create(null, "/grp", WnRace.DIR);
+        oGrps = io.createIfNoExists(null, "/grp", WnRace.DIR);
     }
 
     private WnQuery _eval_query(String str) {

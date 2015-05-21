@@ -59,11 +59,12 @@ HTTP Body   >> 存放为文件的内容，如果为 GET 请求，那么文件为
 ```
 $HOME
     [.regapi]
-        [tmp]          # 存放传入的请求
+        [tmp]              # 存放传入的请求
             45af..
-        [api]          # 存放注册的 API
+        [api]              # 存放注册的 API
             [util]
-                test   # $api 为 util/test
+                _default   # 泛匹配，响应 util/*
+                test       # $api 为 util/test
             weixin
 ```
 
