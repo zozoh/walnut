@@ -65,12 +65,12 @@ public abstract class AbstractWnTreeTest extends BaseApiTest {
         tree.create(null, "a/b/x", WnRace.FILE);
 
         FakeWnCallback secu = new FakeWnCallback();
-        Wn.WC().onSecurity(secu);
+        Wn.WC().setSecurity(secu);
         try {
             tree.create(null, "a/b/c", WnRace.FILE);
         }
         finally {
-            Wn.WC().onSecurity(null);
+            Wn.WC().setSecurity(null);
         }
 
         assertEquals("/a/b", secu.sb_enter.toString());

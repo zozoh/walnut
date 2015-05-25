@@ -167,7 +167,7 @@ tags:
     weixin -out "text:消息内容" [-inmsg id:$id]
     #
     # 一篇文章
-    weixin -out "article:标题:可选的描述:可选的超链接" [-inmsg id:$id]
+    weixin -out "article:标题;;可选的描述;;可选的超链接" [-inmsg id:$id]
 
 
 

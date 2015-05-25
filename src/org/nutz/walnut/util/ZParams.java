@@ -62,7 +62,7 @@ public class ZParams {
             for (; i < args.length; i++) {
                 String s = args[i];
                 // 键值
-                if (s.startsWith("-")) {
+                if (s.matches("^-[a-zA-Z_].*$")) {
                     String key = s.substring(1);
                     // 是否是布尔值表
                     if (is_define_bool_chars && _match_bool_char(key, bools)) {
@@ -83,7 +83,7 @@ public class ZParams {
                     // 如果有值 ...
                     else {
                         s = args[i+1];
-                        if (s.startsWith("-")) {
+                        if (s.matches("^-[a-zA-Z_].*$")) {
                             params.map.put(key, true);
                             continue;
                         }

@@ -9,6 +9,7 @@ import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 
 public class WnSecurityImpl implements WnSecurity {
 
@@ -26,32 +27,67 @@ public class WnSecurityImpl implements WnSecurity {
 
     @Override
     public WnNode enter(WnNode nd) {
-        WnObj o = __eval_obj(nd, true);
-        return __do_check(o, Wn.Io.RX, false);
+        WnContext wc = Wn.WC();
+        wc.setSecurity(null);
+        try {
+            WnObj o = __eval_obj(nd, true);
+            return __do_check(o, Wn.Io.RX, false);
+        }
+        finally {
+            wc.setSecurity(this);
+        }
     }
 
     @Override
     public WnNode access(WnNode nd) {
-        WnObj o = __eval_obj(nd, true);
-        return __do_check(o, Wn.Io.R, false);
+        WnContext wc = Wn.WC();
+        wc.setSecurity(null);
+        try {
+            WnObj o = __eval_obj(nd, true);
+            return __do_check(o, Wn.Io.R, false);
+        }
+        finally {
+            wc.setSecurity(this);
+        }
     }
 
     @Override
     public WnNode view(WnNode nd) {
-        WnObj o = __eval_obj(nd, false);
-        return __do_check(o, Wn.Io.R, true);
+        WnContext wc = Wn.WC();
+        wc.setSecurity(null);
+        try {
+            WnObj o = __eval_obj(nd, false);
+            return __do_check(o, Wn.Io.R, true);
+        }
+        finally {
+            wc.setSecurity(this);
+        }
     }
 
     @Override
     public WnNode read(WnNode nd) {
-        WnObj o = __eval_obj(nd, true);
-        return __do_check(o, Wn.Io.R, false);
+        WnContext wc = Wn.WC();
+        wc.setSecurity(null);
+        try {
+            WnObj o = __eval_obj(nd, true);
+            return __do_check(o, Wn.Io.R, false);
+        }
+        finally {
+            wc.setSecurity(this);
+        }
     }
 
     @Override
     public WnNode write(WnNode nd) {
-        WnObj o = __eval_obj(nd, true);
-        return __do_check(o, Wn.Io.W, false);
+        WnContext wc = Wn.WC();
+        wc.setSecurity(null);
+        try {
+            WnObj o = __eval_obj(nd, true);
+            return __do_check(o, Wn.Io.W, false);
+        }
+        finally {
+            wc.setSecurity(this);
+        }
     }
 
     private WnObj __eval_obj(WnNode nd, boolean auto_unlink) {

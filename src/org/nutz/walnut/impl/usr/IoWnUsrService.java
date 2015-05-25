@@ -170,9 +170,29 @@ public class IoWnUsrService implements WnUsrService {
     public int getRoleInGroup(WnUsr u, String grp) {
         WnObj oMe = io.fetch(oGrps, grp + "/people/" + u.id());
         if (null != oMe) {
-            return oMe.getInt("role");
+            return oMe.getInt("role", 0);
         }
         return Wn.ROLE.OTHERS;
+    }
+
+    @Override
+    public void setRoleInGroup(WnUsr u, String grp, int role) {
+        WnObj oMe = io.createIfNoExists(oGrps, grp + "/people/" + u.id(), WnRace.FILE);
+        if (!oMe.containsKey("role") || role != oMe.getInt("role")) {
+            oMe.setv("role", role);
+            io.appendMeta(oMe, "^role$");
+        }
+    }
+
+    @Override
+    public int removeRoleFromGroup(WnUsr u, String grp) {
+        WnObj oMe = io.fetch(oGrps, grp + "/people/" + u.id());
+        if (null == oMe)
+            return Wn.ROLE.OTHERS;
+
+        int re = oMe.getInt("role", 0);
+        io.delete(oMe);
+        return re;
     }
 
     /**

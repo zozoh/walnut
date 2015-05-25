@@ -29,7 +29,7 @@ public class cmd_ls extends JvmExecutor {
         // 准备要显示的表格
         String keys = "";
         if (params.is("l")) {
-            keys = "md,m,g,len,lm";
+            keys = "md,c,g,len,lm";
             if (params.is("i"))
                 keys = "id," + keys;
         }

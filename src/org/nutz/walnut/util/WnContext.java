@@ -33,7 +33,7 @@ public class WnContext extends NutMap {
         return security;
     }
 
-    public void onSecurity(WnSecurity callback) {
+    public void setSecurity(WnSecurity callback) {
         this.security = callback;
     }
 

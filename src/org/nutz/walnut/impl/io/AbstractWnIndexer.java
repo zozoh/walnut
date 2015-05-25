@@ -21,6 +21,8 @@ public abstract class AbstractWnIndexer implements WnIndexer {
     @Override
     public WnObj get(String id) {
         WnObj o = _get(id);
+        if (null == o)
+            return null;
         return toObj(Wn.WC().whenAccess(o));
     }
 

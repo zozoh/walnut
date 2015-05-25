@@ -34,6 +34,8 @@ public class LocalWnNode extends AbstractWnNode {
 
     public WnNode parent() {
         if (null == parent) {
+            if ("/".equals(this.path()))
+                return null;
             File pf = file.getParentFile();
             if (Files.getFile(pf, ".wn").exists()) {
                 parent = tree().getTreeNode();
@@ -47,6 +49,8 @@ public class LocalWnNode extends AbstractWnNode {
 
     @Override
     public String parentId() {
+        if ("/".equals(this.path()))
+            return null;
         return parent().id();
     }
 

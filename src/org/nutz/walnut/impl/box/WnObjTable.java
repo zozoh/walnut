@@ -36,21 +36,29 @@ public class WnObjTable {
         // 添加字段
         for (String key : keys) {
             Object val = o.get(key);
-            if (null == val) {
-                cells.add("--");
-                continue;
-            }
-            Mirror<?> mi = Mirror.me(val);
+
             // 尺寸
             if (key.equals("len")) {
+                if (null == val) {
+                    val = 0;
+                }
                 if (briefSize) {
                     cells.add(__len((Long) val, 1000, 0, 'B', 'K', 'M', 'G', 'T'));
                 } else {
                     cells.add(val.toString());
                 }
+                continue;
             }
+
+            // 剩下的，判断一下空值
+            if (null == val) {
+                cells.add("--");
+                continue;
+            }
+            Mirror<?> mi = Mirror.me(val);
+
             // 模式
-            else if (key.equals("md")) {
+            if (key.equals("md")) {
                 cells.add(__mode(o));
             }
             // 日期时间

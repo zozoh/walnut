@@ -31,4 +31,8 @@ public interface WnUsrService {
 
     int getRoleInGroup(WnUsr u, String grp);
 
+    void setRoleInGroup(WnUsr u, String grp, int role);
+
+    int removeRoleFromGroup(WnUsr u, String grp);
+
 }

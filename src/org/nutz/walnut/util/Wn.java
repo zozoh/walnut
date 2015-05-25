@@ -269,6 +269,38 @@ public abstract class Wn {
 
         public static final int BLOCK = -1;
 
+        public static String getRoleName(int role) {
+            switch (role) {
+            case Wn.ROLE.ADMIN:
+                return "ADMIN";
+            case Wn.ROLE.BLOCK:
+                return "BLOCK";
+            case Wn.ROLE.MEMBER:
+                return "MEMEBER";
+            case Wn.ROLE.OTHERS:
+                return "OTHERS";
+            case Wn.ROLE.REQUEST:
+                return "REQUEST";
+            default:
+                throw Er.create("e.io.role.invalid", role);
+            }
+        }
+
+        public static int getRoleValue(String roleName) {
+            String rn = roleName.toUpperCase();
+            if ("ADMIN".equals(rn))
+                return ADMIN;
+            if ("BLOCK".equals(rn))
+                return BLOCK;
+            if ("MEMBER".equals(rn))
+                return MEMBER;
+            if ("OTHERS".equals(rn))
+                return OTHERS;
+            if ("REQUEST".equals(rn))
+                return REQUEST;
+            throw Er.create("e.io.role.invalid", roleName);
+        }
+
     }
 
     public static String genId() {
