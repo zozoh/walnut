@@ -1,32 +1,48 @@
 # 命令简介 
 
-	`weixin` 用来处理 strato 的微信业务逻辑。
-	它的输入就是 httpapi 的数据文件输入
-	如果处理成功了，就会标识 'clean_after' 以便 objclean 命令清除
-	
-	本命令如果是主动向微信服务器发送请求，则需要读取 `~/.weixin/公众号` 目录下的 `wxconf` 文件。
-	该文件的格式为:
-	
-	{
-		appID      : 'wx0d4caad29f23b326',
-		appsecret  : 'd68d9507835139b0e21d28b4806c1aa7',
-		token      : 'TOKEN'
-	}
+    `weixin` 用来处理 strato 的微信业务逻辑。
+    它的输入就是 httpapi 的数据文件输入
+    如果处理成功了，就会标识 'clean_after' 以便 objclean 命令清除
+    
+    本命令如果是主动向微信服务器发送请求，则需要读取 `~/.weixin/公众号` 目录下的 `wxconf` 文件。
+    该文件的格式为:
+    
+    {
+    	appID      : 'wx0d4caad29f23b326',
+    	appsecret  : 'd68d9507835139b0e21d28b4806c1aa7',
+    	token      : 'TOKEN'
+    }
 
 # 用法
 
-	weixin [-in 请求文件] [-menu 菜单文件] [-pnm 微信号] [-out 发送文件]
+    weixin [-in 请求文件] [-menu 菜单文件] [-pnm 微信号] [-out 发送文件]
+           [-qrcode "{..}|$ticket"]
 	
 # 示例
 
-	执行微信业务逻辑处理的响应
-	weixin -pnb 微信号 -in id:tnctk3v6n4jnarjdo4uolegm38
-	
-	创建自定义菜单
-	weixin -pnb 微信号 -menu id:r30skk8j76if4pmckbjhr4lhso
-	
-	删除自定义菜单
-	weixin -pnb 微信号 -menu delete
-	
-	
+    执行微信业务逻辑处理的响应
+    weixin -in id:tnctk3v6n4jnarjdo4uolegm38
+    
+    创建自定义菜单
+    weixin -pnb 微信号 -menu id:r30skk8j76if4pmckbjhr4lhso
+    
+    删除自定义菜单
+    weixin -pnb 微信号 -menu delete
+    
+    创建临时二维码
+    weixin -pnb 微信号 -qrcode QR_SCENE -qrexpi 500 -qrsid 123
+    
+    创建永久时二维码
+    weixin -pnb 微信号 -qrcode QR_LIMIT_SCENE -qrsid 123
+    
+    创建永久时字符串形式二维码
+    weixin -pnb 微信号 -qrcode QR_LIMIT_STR_SCENE -qrsid "hello" 
+    
+    输出二维码图片地址到标准输出
+    weixin -qrcode url -qrticket gQH47joAAAAAAAAAASxodH..
+    
+    输出二维码图片内容到标准输出
+    weixin -qrcode img -qrticket gQH47joAAAAAAAAAASxodH..
+    
+
 	

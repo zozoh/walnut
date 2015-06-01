@@ -23,9 +23,12 @@ public class cmd_weixin extends JvmExecutor {
 
     private WeixinMenu wxmenu;
 
+    private WeixinQrcode wxqrcode;
+
     public cmd_weixin() {
         wxin = new WeixinIn();
         wxmenu = new WeixinMenu();
+        wxqrcode = new WeixinQrcode();
     }
 
     @Override
@@ -48,6 +51,10 @@ public class cmd_weixin extends JvmExecutor {
             catch (Exception e) {
                 log.warn("!!!", e);
             }
+        }
+        // 处理二维码
+        else if (params.has("qrcode")) {
+            wxqrcode.handle(sys, params);
         }
         // 输出微信的响应消息
         else if (params.has("out")) {
