@@ -11,11 +11,13 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 
 public class IoWnSessionService implements WnSessionService {
 
@@ -143,10 +145,18 @@ public class IoWnSessionService implements WnSessionService {
 
     @Override
     public WnSession setEnvs(String seid, NutMap map) {
-        WnSession se = check(seid);
-        se.envs().putAll(map);
-        __update(se);
-        return se;
+        WnContext wc = Wn.WC();
+        WnSecurity secu = wc.getSecurity();
+        wc.setSecurity(null);
+        try {
+            WnSession se = check(seid);
+            se.envs().putAll(map);
+            __update(se);
+            return se;
+        }
+        finally {
+            wc.setSecurity(secu);
+        }
     }
 
     @Override

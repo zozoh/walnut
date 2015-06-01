@@ -54,6 +54,14 @@ public interface WnObj extends WnNode, NutBean {
     WnObj group(String grp);
 
     WnObj mode(int md);
+    
+    String creator();
+
+    String mender();
+
+    String group();
+
+    int mode();
 
     String d0();
 

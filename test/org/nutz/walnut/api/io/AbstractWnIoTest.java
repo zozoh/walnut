@@ -37,6 +37,18 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
     // -------------------------------------------------------------
 
     @Test
+    public void test_simple_create_right() {
+        WnObj o = io.create(null, "/a", WnRace.DIR);
+        String g = Wn.WC().checkGroup();
+        String c = Wn.WC().checkMe();
+
+        assertEquals(g, o.group());
+        assertEquals(c, o.mender());
+        assertEquals(c, o.creator());
+        assertEquals(0750, o.mode());
+    }
+
+    @Test
     public void test_get_top_dir() {
         io.create(null, "/a", WnRace.DIR);
         WnObj o = io.check(null, "/a");

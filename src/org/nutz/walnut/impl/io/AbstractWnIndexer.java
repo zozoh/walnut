@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIndexer;
@@ -68,7 +69,34 @@ public abstract class AbstractWnIndexer implements WnIndexer {
             o = new WnBean().setNode(nd);
             Wn.set_type(mimes, o, null);
             o.createTime(o.nanoStamp() / 1000000L);
-            this.set(o, "^lm|ct|nano|tp|mime|c|m|g$");
+            // 设置创建者，以及权限相关
+            WnContext wc = Wn.WC();
+            String g = wc.checkGroup();
+            String c = wc.checkMe();
+            o.creator(c).mender(c).group(g);
+
+            // 计算 d0,d1
+            String ph = nd.path();
+            String[] ss = Strings.splitIgnoreBlank(ph, "/");
+            for (int i = 0; i < ss.length; i++) {
+                o.put("d" + i, ss[i]);
+            }
+
+            // 主节点和 home 必须是可以进入的
+            if (ss.length == 0 || (ph.equals("/home"))) {
+                o.mode(0755);
+            }
+            // 二级节点参照父
+            else if (ss.length == 2) {
+                WnObj p = toObj(nd.parent());
+                o.mode(p.mode());
+            }
+            // 其他的节点统统保护 >o<
+            else {
+                o.mode(0750);
+            }
+            // 保存到元数据表
+            this.set(o, "^d[0-9]|lm|ct|nano|tp|mime|c|m|g|md$");
 
         } else {
             o.setNode(nd);

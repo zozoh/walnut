@@ -40,7 +40,7 @@ public class WnObjTable {
             // 尺寸
             if (key.equals("len")) {
                 if (null == val) {
-                    val = 0;
+                    val = 0L;
                 }
                 if (briefSize) {
                     cells.add(__len((Long) val, 1000, 0, 'B', 'K', 'M', 'G', 'T'));

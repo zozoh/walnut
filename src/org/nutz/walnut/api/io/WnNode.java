@@ -56,13 +56,13 @@ public interface WnNode {
 
     WnNode mount(String mnt);
 
-    String creator();
-
-    String mender();
-
-    String group();
-
-    int mode();
+//    String creator();
+//
+//    String mender();
+//
+//    String group();
+//
+//    int mode();
 
     long len();
 

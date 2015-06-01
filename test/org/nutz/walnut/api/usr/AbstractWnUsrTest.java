@@ -8,23 +8,119 @@ import org.nutz.trans.Proton;
 import org.nutz.walnut.BaseUsrTest;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.impl.io.WnSecurityImpl;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
 public abstract class AbstractWnUsrTest extends BaseUsrTest {
 
-    //@Test
-    public void test_forbidden_read() {
+    @Test
+    public void test_forbidden_write() {
         // 创建两个用户
         final WnUsr ua = usrs.create("userA", "123456");
         final WnUsr ub = usrs.create("userB", "123456");
-        final WnUsr root = usrs.create("root", "123456");
 
         // 设置权限监控
         WnContext wc = Wn.WC();
 
-        wc.setSecurity(new WnSecurityImpl(indexer, tree, usrs));
+        wc.setSecurity(security);
+        try {
+            // A 用户建立一个文件，改变权限
+            final String path = ua.home() + "/aaa.txt";
+            wc.su(ua, new Atom() {
+                public void run() {
+                    WnObj o = io.create(null, path, WnRace.FILE);
+                    io.writeText(o, "hello");
+                }
+            });
+
+            // B 用户不能写
+            try {
+                wc.su(ub, new Atom() {
+                    public void run() {
+                        WnObj o = io.create(null, path, WnRace.FILE);
+                        io.writeText(o, "I am B");
+                    }
+                });
+                fail();
+            }
+            catch (Exception e) {
+                assertEquals("e.io.forbidden", e.toString());
+            }
+
+            // 将文件改成变成同组能写
+            wc.su(ua, new Atom() {
+                public void run() {
+                    WnObj o = io.check(null, path);
+                    io.appendMeta(o, "md:0770");
+                }
+            });
+
+            // 把 B 用户加入到组里就能写
+            usrs.setRoleInGroup(ub, ua.group(), Wn.ROLE.MEMBER);
+            String str = wc.su(ub, new Proton<String>() {
+                protected String exec() {
+                    WnObj o = io.check(null, path);
+                    io.writeText(o, "I am B");
+                    return io.readText(o);
+                }
+            });
+            assertEquals("I am B", str);
+
+            // 将文件改成变成管理员只写
+            wc.su(ua, new Atom() {
+                public void run() {
+                    WnObj o = io.check(null, path);
+                    io.appendMeta(o, "md:0700");
+                }
+            });
+
+            // B 又不能写了
+            try {
+                str = wc.su(ub, new Proton<String>() {
+                    protected String exec() {
+                        WnObj o = io.check(null, path);
+                        io.writeText(o, "I am B2");
+                        return io.readText(o);
+                    }
+                });
+                fail();
+            }
+            catch (Exception e) {
+                assertEquals("e.io.forbidden", e.toString());
+            }
+
+            // 只有变成管理员
+            wc.su(root, new Atom() {
+                public void run() {
+                    usrs.setRoleInGroup(ub, ua.group(), Wn.ROLE.ADMIN);
+                }
+            });
+
+            // 才能写
+            str = wc.su(ub, new Proton<String>() {
+                protected String exec() {
+                    WnObj o = io.check(null, path);
+                    io.writeText(o, "I am B2");
+                    return io.readText(o);
+                }
+            });
+            assertEquals("I am B2", str);
+        }
+        finally {
+            wc.setSecurity(null);
+        }
+    }
+
+    @Test
+    public void test_forbidden_read() {
+        // 创建两个用户
+        final WnUsr ua = usrs.create("userA", "123456");
+        final WnUsr ub = usrs.create("userB", "123456");
+
+        // 设置权限监控
+        WnContext wc = Wn.WC();
+
+        wc.setSecurity(security);
         try {
             // A 用户建立一个文件，改变权限
             final String path = ua.home() + "/aaa.txt";
@@ -44,15 +140,6 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
             });
             assertEquals("hello", str);
 
-            // root 用户能读
-            str = wc.su(root, new Proton<String>() {
-                protected String exec() {
-                    WnObj o = io.check(null, path);
-                    return io.readText(o);
-                }
-            });
-            assertEquals("hello", str);
-
             // B 用户不能读
             try {
                 str = wc.su(ub, new Proton<String>() {
@@ -64,7 +151,7 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
-                System.out.println(e.toString());
+                assertEquals("e.io.forbidden", e.toString());
             }
 
             // 把 B 用户加入到组里就能读
@@ -96,7 +183,7 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
-                System.out.println(e.toString());
+                assertEquals("e.io.forbidden", e.toString());
             }
 
             // 只有变成管理员

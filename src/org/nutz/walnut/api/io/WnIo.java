@@ -38,6 +38,8 @@ public interface WnIo extends WnStore {
 
     void delete(WnObj o);
 
+    WnObj toObj(WnNode nd);
+
     WnObj get(String id);
 
     WnObj get(WnNode nd);

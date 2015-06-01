@@ -101,7 +101,8 @@ public class WnContext extends NutMap {
     }
 
     public <T> T su(WnUsr u, Proton<T> proton) {
-        String old = me;
+        String old_me = me;
+        String old_grp = grp;
         try {
             me = u.name();
             grp = u.group();
@@ -109,20 +110,23 @@ public class WnContext extends NutMap {
             return proton.get();
         }
         finally {
-            me = old;
+            me = old_me;
+            grp = old_grp;
         }
 
     }
 
     public void su(WnUsr u, Atom atom) {
-        String old = me;
+        String old_me = me;
+        String old_grp = grp;
         try {
             me = u.name();
             grp = u.group();
             atom.run();
         }
         finally {
-            me = old;
+            me = old_me;
+            grp = old_grp;
         }
 
     }

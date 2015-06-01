@@ -78,25 +78,25 @@ public class MongoWnNode extends AbstractWnNode {
         return -1;
     }
 
-    @Override
-    public String creator() {
-        return null;
-    }
-
-    @Override
-    public String mender() {
-        return null;
-    }
-
-    @Override
-    public String group() {
-        return null;
-    }
-
-    @Override
-    public int mode() {
-        return 0750;
-    }
+//    @Override
+//    public String creator() {
+//        return null;
+//    }
+//
+//    @Override
+//    public String mender() {
+//        return null;
+//    }
+//
+//    @Override
+//    public String group() {
+//        return null;
+//    }
+//
+//    @Override
+//    public int mode() {
+//        return 0750;
+//    }
 
     private static final Pattern P_NM = Pattern.compile("[/\\\\]");
 

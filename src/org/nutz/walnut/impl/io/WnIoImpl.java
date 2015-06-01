@@ -69,6 +69,11 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public WnObj toObj(WnNode nd) {
+        return indexer.toObj(nd);
+    }
+
+    @Override
     public WnObj get(String id) {
         WnNode nd = tree(null).getNode(id);
         if (null == nd)

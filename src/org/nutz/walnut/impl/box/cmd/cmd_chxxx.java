@@ -26,7 +26,7 @@ abstract class cmd_chxxx extends JvmExecutor {
 
         // 得到路径
         cc.list = new LinkedList<WnObj>();
-        String[] paths = Arrays.copyOfRange(params.vals, 1, args.length);
+        String[] paths = Arrays.copyOfRange(params.vals, 1, params.vals.length);
         cc.current = evalCandidateObjsNoEmpty(sys, paths, cc.list, false);
         return cc;
     }

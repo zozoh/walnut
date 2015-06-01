@@ -90,25 +90,25 @@ public class LocalWnNode extends AbstractWnNode {
         return file.lastModified() * 1000000L;
     }
 
-    @Override
-    public String creator() {
-        return "_local";
-    }
-
-    @Override
-    public String mender() {
-        return "_local";
-    }
-
-    @Override
-    public String group() {
-        return "_local";
-    }
-
-    @Override
-    public int mode() {
-        return 0755;
-    }
+//    @Override
+//    public String creator() {
+//        return "_local";
+//    }
+//
+//    @Override
+//    public String mender() {
+//        return "_local";
+//    }
+//
+//    @Override
+//    public String group() {
+//        return "_local";
+//    }
+//
+//    @Override
+//    public int mode() {
+//        return 0755;
+//    }
 
     @Override
     public WnRace race() {

@@ -1,11 +1,10 @@
 package org.nutz.walnut.impl.io;
 
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
-import org.nutz.walnut.api.io.WnIndexer;
 import org.nutz.walnut.api.io.WnNode;
-import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
@@ -13,15 +12,12 @@ import org.nutz.walnut.util.WnContext;
 
 public class WnSecurityImpl implements WnSecurity {
 
-    private WnIndexer indexer;
-
-    private WnTree tree;
-
     private WnUsrService usrs;
 
-    public WnSecurityImpl(WnIndexer indexer, WnTree tree, WnUsrService usrs) {
-        this.indexer = indexer;
-        this.tree = tree;
+    private WnIo io;
+
+    public WnSecurityImpl(WnIo io, WnUsrService usrs) {
+        this.io = io;
         this.usrs = usrs;
     }
 
@@ -91,25 +87,23 @@ public class WnSecurityImpl implements WnSecurity {
     }
 
     private WnObj __eval_obj(WnNode nd, boolean auto_unlink) {
-        WnObj o = indexer.toObj(nd);
+        WnObj o = io.toObj(nd);
         // 处理链接文件
         if (auto_unlink && o.isLink()) {
             String ln = o.link();
             // 用 ID
             if (ln.startsWith("id:")) {
                 String id = ln.substring("id:".length());
-                nd = tree.getNode(id);
+                o = io.get(id);
             }
             // 用路径
             else {
-                nd = tree.fetch(nd, ln);
+                o = io.fetch(o, ln);
             }
             // 如果节点不存在
-            if (null == nd)
+            if (null == o)
                 throw Er.create("e.io.obj.noexists", ln);
 
-            // 转换为对象
-            o = indexer.toObj(nd);
         }
         return o;
     }

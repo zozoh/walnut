@@ -154,7 +154,10 @@ public class IoWnUsrService implements WnUsrService {
         Wn.WC().su(u, new Atom() {
             public void run() {
                 Wn.WC().me(u.name(), u.group());
-                io.create(null, phHome, WnRace.DIR);
+                WnObj oHome = io.create(null, phHome, WnRace.DIR);
+                // 保护主目录
+                oHome.mode(0750);
+                io.appendMeta(oHome, "^md$");
             }
         });
 

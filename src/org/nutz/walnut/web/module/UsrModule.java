@@ -1,5 +1,8 @@
 package org.nutz.walnut.web.module;
 
+import java.util.regex.Pattern;
+
+import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -27,6 +30,10 @@ import org.nutz.web.WebException;
 @At("/u")
 public class UsrModule extends AbstractWnModule {
 
+    // 可打印字符：[\p{Graph}\x20]
+    @Inject("java:$conf.get('usr-passwd','^\\p{Print}{6,}$')")
+    private Pattern regexPasswd;
+
     @At("/signup")
     @Ok("jsp:jsp.signup")
     public void signup() {}
@@ -53,7 +60,10 @@ public class UsrModule extends AbstractWnModule {
         if (Strings.isBlank(nm)) {
             throw Er.create("e.usr.name.blank");
         }
-        if (Strings.isBlank(passwd) || passwd.length() < 8) {
+        if (Strings.isBlank(passwd)) {
+            throw Er.create("e.usr.pwd.blank");
+        }
+        if (!regexPasswd.matcher(passwd).find()) {
             throw Er.create("e.usr.pwd.invalid");
         }
         WnUsr u = usrs.create(nm, passwd);
