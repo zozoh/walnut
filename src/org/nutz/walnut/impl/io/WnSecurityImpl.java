@@ -138,6 +138,10 @@ public class WnSecurityImpl implements WnSecurity {
         if (Wn.ROLE.ADMIN == role && ((md >> 6) & mask) == mask)
             return o;
 
+        // 看看是否允许为空
+        if (asNull)
+            return null;
+
         // 抛错，没有权限
         throw Er.create("e.io.forbidden");
     }

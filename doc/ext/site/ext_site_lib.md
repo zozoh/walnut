@@ -1,5 +1,5 @@
 ---
-title:网站的DOM规范
+title:网站的组件规范
 author:zozoh
 tags:
 - 系统
