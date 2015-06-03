@@ -3,21 +3,18 @@ package org.nutz.walnut.impl.io;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
-public class WnSecurityImpl implements WnSecurity {
+public class WnSecurityImpl extends WnEvalLink {
 
     private WnUsrService usrs;
 
-    private WnIo io;
-
     public WnSecurityImpl(WnIo io, WnUsrService usrs) {
-        this.io = io;
+        super(io);
         this.usrs = usrs;
     }
 
@@ -97,33 +94,6 @@ public class WnSecurityImpl implements WnSecurity {
         finally {
             wc.setSecurity(this);
         }
-    }
-
-    private WnObj __eval_obj(WnNode nd, boolean auto_unlink) {
-        WnObj o = io.toObj(nd);
-        // 处理链接文件
-        if (auto_unlink && o.isLink()) {
-            String ln = o.link();
-            // 用 ID
-            if (ln.startsWith("id:")) {
-                String id = ln.substring("id:".length());
-                o = io.get(id);
-            }
-            // 用路径
-            else {
-                if (ln.startsWith("/")) {
-                    o = io.fetch(null, ln);
-                } else {
-                    WnObj p = io.getParent(o);
-                    o = io.fetch(p, ln);
-                }
-            }
-            // 如果节点不存在
-            if (null == o)
-                throw Er.create("e.io.obj.noexists", ln);
-
-        }
-        return o;
     }
 
     private WnNode __do_check(WnObj o, int mask, boolean asNull) {

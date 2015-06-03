@@ -9,11 +9,38 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.BaseIoTest;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 
 public abstract class AbstractWnIoTest extends BaseIoTest {
 
     protected abstract String getAnotherTreeMount();
+
+    @Test
+    public void test_simple_link() {
+        Wn.WC().setSecurity(new WnEvalLink(io));
+        try {
+            io.create(null, "/a/b/c/e/f", WnRace.FILE);
+            WnObj z = io.create(null, "/x/y/z", WnRace.DIR);
+
+            io.appendMeta(z, "ln:'/a/b'");
+
+            WnObj o;
+
+            o = io.fetch(null, "/x/y/z");
+            assertEquals("z", o.name());
+            assertEquals("/x/y/z", o.path());
+
+            o = io.fetch(null, "/x/y/z/c");
+            assertEquals("c", o.name());
+            assertEquals("/x/y/z/c", o.path());
+
+        }
+        finally {
+            Wn.WC().setSecurity(null);
+        }
+
+    }
 
     // -------------------------------------------------------------
     // 测试类

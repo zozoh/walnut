@@ -22,6 +22,8 @@ public interface WnNode {
 
     WnNode path(String path);
 
+    String realPath();
+    
     WnNode appendPath(String path);
 
     String name();

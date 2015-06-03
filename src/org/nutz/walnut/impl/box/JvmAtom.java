@@ -7,7 +7,6 @@ import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnSecurity;
-import org.nutz.walnut.impl.io.WnSecurityImpl;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.web.WebException;
@@ -20,6 +19,8 @@ class JvmAtom extends JvmCmd implements Atom {
 
     WnSystem sys;
 
+    WnSecurity secu;
+
     JvmExecutor executor;
 
     JvmAtomRunner runner;
@@ -31,29 +32,30 @@ class JvmAtom extends JvmCmd implements Atom {
 
     @Override
     public void run() {
-        WnContext wc = Wn.WC();
-        WnSecurity oldsecu = wc.getSecurity();
-        try {
 
+        try {
+            final WnContext wc = Wn.WC();
+            // 设置会话
             wc.SE(sys.se);
             sys._runner = runner.clone();
 
             if (log.isDebugEnabled())
                 log.debugf("Atom(%s) before : %s", id, sys.original);
 
-            // 设置执行安全
-            wc.setSecurity(new WnSecurityImpl(sys.io, sys.usrService));
-
             // 切换线程上下文到当前用户，并执行业务逻辑
             try {
-                wc.su(sys.me, new Atom() {
+                wc.security(secu, new Atom() {
                     public void run() {
-                        try {
-                            executor.exec(sys, args);
-                        }
-                        catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
+                        wc.su(sys.me, new Atom() {
+                            public void run() {
+                                try {
+                                    executor.exec(sys, args);
+                                }
+                                catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        });
                     }
                 });
             }
@@ -92,9 +94,6 @@ class JvmAtom extends JvmCmd implements Atom {
                 Streams.safeClose(sys.out);
             }
             runner._finish(this);
-
-            // 恢复原始的安全设定
-            wc.setSecurity(oldsecu);
         }
     }
 

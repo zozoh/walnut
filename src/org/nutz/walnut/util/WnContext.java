@@ -37,6 +37,29 @@ public class WnContext extends NutMap {
         this.security = callback;
     }
 
+    public void security(WnSecurity secu, Atom atom) {
+        WnSecurity old = security;
+        try {
+            security = secu;
+            atom.run();
+        }
+        finally {
+            security = old;
+        }
+    }
+
+    public <T> T security(WnSecurity secu, Proton<T> proton) {
+        WnSecurity old = security;
+        try {
+            security = secu;
+            proton.run();
+            return proton.get();
+        }
+        finally {
+            security = old;
+        }
+    }
+
     public WnNode whenEnter(WnNode nd) {
         if (null != security)
             return security.enter(nd);
@@ -72,7 +95,7 @@ public class WnContext extends NutMap {
             return security.remove(nd);
         return nd;
     }
-    
+
     public WnNode whenCreate(WnNode nd) {
         if (null != on_create)
             return on_create.invoke(nd);

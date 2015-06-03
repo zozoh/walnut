@@ -10,16 +10,20 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.stream.NullInputStream;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.trans.Atom;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxStatus;
 import org.nutz.walnut.api.box.WnTunnel;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.impl.io.WnSecurityImpl;
 import org.nutz.walnut.util.JvmTunnel;
 import org.nutz.walnut.util.SyncWnTunnel;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 
 public class JvmAtomRunner {
 
@@ -79,6 +83,8 @@ public class JvmAtomRunner {
         String[] cmds = Jvms.split(cmdLine, true, '|');
 
         // 准备运行的线程原子
+        WnSecurity secu = new WnSecurityImpl(bc.io, bc.usrService);
+        WnContext wc = Wn.WC();
         JvmAtom a;
         atoms = new JvmAtom[cmds.length];
         opss = new ArrayList<OutputStream>(atoms.length);
@@ -110,14 +116,20 @@ public class JvmAtomRunner {
             a.sys.usrService = bc.usrService;
             a.sys.sessionService = bc.sessionService;
             a.sys.jef = jef;
+            a.secu = secu;
 
             // 看看是否重定向输出
             if (null != a.redirectPath) {
-                String path = Wn.normalizeFullPath(a.redirectPath, a.sys);
-                WnObj o = bc.io.createIfNoExists(null, path, WnRace.FILE);
-                OutputStream ops = bc.io.getOutputStream(o, a.redirectAppend ? -1 : 0);
-                a.sys.out = new JvmBoxOutput(ops);
-                opss.add(ops);
+                final JvmAtom _a = a;
+                wc.security(secu, new Atom() {
+                    public void run() {
+                        String path = Wn.normalizeFullPath(_a.redirectPath, _a.sys);
+                        WnObj o = bc.io.createIfNoExists(null, path, WnRace.FILE);
+                        OutputStream ops = bc.io.getOutputStream(o, _a.redirectAppend ? -1 : 0);
+                        _a.sys.out = new JvmBoxOutput(ops);
+                        opss.add(ops);
+                    }
+                });
             }
 
             // 计数

@@ -110,6 +110,11 @@ public abstract class AbstractWnNode implements WnNode {
     }
 
     @Override
+    public String realPath() {
+        return path;
+    }
+
+    @Override
     public WnNode path(String path) {
         this.path = path;
         return this;

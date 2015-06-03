@@ -64,7 +64,7 @@ public abstract class AbstractWnIndexer implements WnIndexer {
         if (nd instanceof WnObj)
             return (WnObj) nd;
 
-        WnObj o = get(nd.id());
+        WnObj o = _get(nd.id());
         if (null == o) {
             o = new WnBean().setNode(nd);
             Wn.set_type(mimes, o, null);

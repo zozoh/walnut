@@ -69,7 +69,7 @@ public class LocalWnTree extends AbstractWnTree {
         if (!nd.tree().equals(this))
             throw Er.create("e.io.tree.local.OutOfMount", nd);
 
-        String ph = nd.path();
+        String ph = nd.realPath();
         if (!ph.startsWith(rootPath))
             throw Er.create("e.io.tree.local.OutOfPath", ph + " <!> " + rootPath);
 

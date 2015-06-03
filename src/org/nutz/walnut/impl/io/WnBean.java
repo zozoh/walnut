@@ -12,7 +12,8 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.util.Wn;
-//import org.nutz.walnut.util.WnContext;
+
+// import org.nutz.walnut.util.WnContext;
 
 public class WnBean extends NutMap implements WnObj {
 
@@ -418,6 +419,11 @@ public class WnBean extends NutMap implements WnObj {
     public WnNode path(String path) {
         setv("ph", path);
         return this;
+    }
+
+    @Override
+    public String realPath() {
+        return _nd.realPath();
     }
 
     public WnNode appendPath(String path) {
