@@ -405,14 +405,17 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public void delete(WnObj o) {
-        // 目录的话，删除不能为空
-        if (hasChild(o)) {
-            throw Er.create("e.io.rm.noemptynode", o);
-        }
-        // 文件删除
-        if (!o.isDIR()) {
-            WnStore store = stores.get(o);
-            store.cleanHistoryBy(o, 0);
+        // 链接的话，就删了吧
+        if (!o.isLink()) {
+            // 目录的话，删除不能为空
+            if (hasChild(o)) {
+                throw Er.create("e.io.rm.noemptynode", o);
+            }
+            // 文件删除
+            if (!o.isDIR()) {
+                WnStore store = stores.get(o);
+                store.cleanHistoryBy(o, 0);
+            }
         }
         // 删除树节点和索引
         indexer.remove(o.id());

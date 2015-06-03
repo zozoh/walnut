@@ -49,7 +49,7 @@ public abstract class AbstractWnIndexer implements WnIndexer {
     public void remove(String id) {
         WnObj o = _get(id);
         if (null != o) {
-            o = toObj(Wn.WC().whenAccess(o));
+            o = toObj(Wn.WC().whenRemove(o));
             _remove(o);
         }
     }

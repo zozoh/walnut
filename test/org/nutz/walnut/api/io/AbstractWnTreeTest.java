@@ -32,6 +32,7 @@ public abstract class AbstractWnTreeTest extends BaseApiTest {
         StringBuilder sb_access = new StringBuilder();
         StringBuilder sb_read = new StringBuilder();
         StringBuilder sb_write = new StringBuilder();
+        StringBuilder sb_remove = new StringBuilder();
 
         public WnNode enter(WnNode nd) {
             if (!nd.isRootNode())
@@ -56,6 +57,11 @@ public abstract class AbstractWnTreeTest extends BaseApiTest {
 
         public WnNode write(WnNode nd) {
             sb_write.append("/" + nd.name());
+            return nd;
+        }
+
+        public WnNode remove(WnNode nd) {
+            sb_remove.append("/" + nd.name());
             return nd;
         }
     }

@@ -48,6 +48,19 @@ public class WnSecurityImpl implements WnSecurity {
     }
 
     @Override
+    public WnNode remove(WnNode nd) {
+        WnContext wc = Wn.WC();
+        wc.setSecurity(null);
+        try {
+            WnObj o = io.toObj(nd);
+            return __do_check(o, Wn.Io.RWX, false);
+        }
+        finally {
+            wc.setSecurity(this);
+        }
+    }
+
+    @Override
     public WnNode view(WnNode nd) {
         WnContext wc = Wn.WC();
         wc.setSecurity(null);
@@ -98,7 +111,12 @@ public class WnSecurityImpl implements WnSecurity {
             }
             // 用路径
             else {
-                o = io.fetch(o, ln);
+                if (ln.startsWith("/")) {
+                    o = io.fetch(null, ln);
+                } else {
+                    WnObj p = io.getParent(o);
+                    o = io.fetch(p, ln);
+                }
             }
             // 如果节点不存在
             if (null == o)

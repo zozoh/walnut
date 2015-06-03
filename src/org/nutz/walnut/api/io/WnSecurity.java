@@ -11,5 +11,7 @@ public interface WnSecurity {
     WnNode read(WnNode nd);
 
     WnNode write(WnNode nd);
+    
+    WnNode remove(WnNode nd);
 
 }

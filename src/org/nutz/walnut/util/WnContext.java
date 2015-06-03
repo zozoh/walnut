@@ -67,6 +67,12 @@ public class WnContext extends NutMap {
         return nd;
     }
 
+    public WnNode whenRemove(WnNode nd) {
+        if (null != security)
+            return security.remove(nd);
+        return nd;
+    }
+    
     public WnNode whenCreate(WnNode nd) {
         if (null != on_create)
             return on_create.invoke(nd);
