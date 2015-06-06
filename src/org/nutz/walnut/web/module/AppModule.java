@@ -18,7 +18,12 @@ import org.nutz.lang.segment.Segments;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
-import org.nutz.mvc.annotation.*;
+import org.nutz.mvc.annotation.At;
+import org.nutz.mvc.annotation.By;
+import org.nutz.mvc.annotation.Fail;
+import org.nutz.mvc.annotation.Filters;
+import org.nutz.mvc.annotation.Ok;
+import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
@@ -115,7 +120,7 @@ public class AppModule extends AbstractWnModule {
         WnObj oInitContext = io.fetch(oAppHome, "init_context");
         if (null != oInitContext) {
             String cmdText = io.readText(oInitContext);
-            String contextJson = _run_cmd("app-init-context", se, appJson, cmdText);
+            String contextJson = _run_cmd("app-init-context:", se, appJson, cmdText);
             map = Json.fromJson(NutMap.class, contextJson);
         }
 

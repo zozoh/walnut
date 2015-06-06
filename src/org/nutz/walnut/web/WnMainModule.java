@@ -1,6 +1,5 @@
 package org.nutz.walnut.web;
 
-import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.ChainBy;
@@ -27,9 +26,6 @@ import org.nutz.web.ajax.AjaxViewMaker;
 @IocBean
 public class WnMainModule extends AbstractWnModule {
 
-    @Inject("java:$conf.get('main-app', 'console')")
-    private String mainApp;
-
     @At("/version")
     @Ok("jsp:jsp.show_text")
     public String version() {
@@ -51,7 +47,7 @@ public class WnMainModule extends AbstractWnModule {
             Wn.WC().me(se.me(), se.group());
 
             // 查看会话环境变量，看看需要转到哪个应用
-            String appPath = se.envs().getString("OPEN", mainApp);
+            String appPath = se.envs().getString("OPEN");
 
             // 那么 Session 木有问题了
             return "/a/open/" + appPath;

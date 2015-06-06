@@ -120,7 +120,6 @@ public class HttpApiModule extends AbstractWnModule {
 
     }
 
-    @SuppressWarnings("unchecked")
     private void _do_api(HttpServletRequest req,
                          HttpServletResponse resp,
                          String mimeType,
