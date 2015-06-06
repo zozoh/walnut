@@ -37,6 +37,18 @@ public class cmd_cd extends JvmExecutor {
 
         // 修改会话中的设定
         sys.se = sys.sessionService.setEnv(sys.se.id(), "PWD", ph);
+
+        // 返回当前目录
+        String cph = null;
+        if (sys.me.home().equals(ph)) {
+            cph = "~";
+        } else if (ph.equals("/")) {
+            cph = "/";
+        } else {
+            cph = ph.substring(ph.lastIndexOf("/") + 1);
+        }
+        // 特殊格式 @目录@
+        sys.out.print("@" + cph + "@");
     }
 
 }
