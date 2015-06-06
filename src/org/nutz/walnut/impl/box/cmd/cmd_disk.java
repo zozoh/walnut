@@ -6,6 +6,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -26,10 +27,11 @@ public class cmd_disk extends JvmExecutor {
         checkCandidateObjsNoEmpty(args, list);
 
         final boolean showHidden = params.is("A");
+        final String tp = params.get("tp");
         // 先显示文件
         for (WnObj o : list) {
             if (o.isFILE()) {
-                sys.out.println(Json.toJson(o, JsonFormat.compact()));
+                showObj(sys, o, showHidden, tp);
             }
         }
         // 再输出所有的目录
@@ -37,11 +39,22 @@ public class cmd_disk extends JvmExecutor {
             if (!o.isFILE()) {
                 sys.io.eachChildren(o, null, new Each<WnObj>() {
                     public void invoke(int index, WnObj child, int length) {
-                        if (!child.isHidden() || showHidden)
-                            sys.out.println(Json.toJson(child, JsonFormat.compact()));
+                        showObj(sys, child, showHidden, tp);
                     }
                 });
             }
         }
+    }
+
+    private void showObj(WnSystem sys, WnObj obj, boolean showHidden, String tp) {
+        // 隐藏
+        if (obj.isHidden() && !showHidden) {
+            return;
+        }
+        // 过滤文件类型
+        if (!Strings.isBlank(tp) && !tp.equalsIgnoreCase(obj.type())) {
+            return;
+        }
+        sys.out.println(Json.toJson(obj, JsonFormat.compact()));
     }
 }

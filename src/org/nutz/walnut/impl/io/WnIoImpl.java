@@ -674,8 +674,8 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
-    public long countChildren(WnObj p, boolean withHidden) {
-        return tree(p).countNode(p, withHidden);
+    public long countChildren(WnObj p, String tp, boolean withHidden) {
+        return tree(p).countNode(p, tp, withHidden);
     }
 
 }

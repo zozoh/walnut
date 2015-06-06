@@ -417,21 +417,31 @@ public class LocalWnTree extends AbstractWnTree {
     }
 
     @Override
-    public long countNode(WnNode p, boolean addHiden) {
+    public long countNode(WnNode p, String tp, boolean withHiden) {
         File d = _check_local_file(p);
         if (!d.isDirectory())
             throw Er.create("e.io.tree.local.shouldBeDir", p.name());
         long nb = 0;
         File[] fileList = d.listFiles();
         for (File f : fileList) {
-            if (f.isHidden()) {
-                if (addHiden) {
-                    nb++;
-                }
-            } else {
-                nb++;
+            if (f.isHidden() && !withHiden) {
+                continue;
             }
+            if (!Strings.isBlank(tp) && !tp.equalsIgnoreCase(getFileSuffix(f))) {
+                continue;
+            }
+            nb++;
         }
         return nb;
+    }
+
+    private String getFileSuffix(File f) {
+        String fnm = f.getName();
+        int pi = fnm.lastIndexOf('.');
+        if (pi < 0) {
+            return null;
+        } else {
+            return fnm.substring(pi + 1);
+        }
     }
 }

@@ -56,7 +56,7 @@ public interface WnIo extends WnStore {
 
     int eachChildren(WnObj p, String str, Each<WnObj> each);
 
-    long countChildren(WnObj p, boolean withHidden);
+    long countChildren(WnObj p, String tp, boolean withHidden);
 
     boolean hasChild(WnObj p);
 

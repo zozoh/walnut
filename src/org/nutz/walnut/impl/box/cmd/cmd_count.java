@@ -15,6 +15,7 @@ public class cmd_count extends JvmExecutor {
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, "A");
         boolean showHidden = params.is("A");
+        String tp = params.get("tp");
 
         String path;
         if (params.vals.length == 0) {
@@ -37,7 +38,7 @@ public class cmd_count extends JvmExecutor {
 
         // 计算路径下的文件数
         WnObj phObj = sys.io.fetch(null, ph);
-        long childrenNum = sys.io.countChildren(phObj, showHidden);
+        long childrenNum = sys.io.countChildren(phObj, tp, showHidden);
         sys.out.print("" + childrenNum);
     }
 }
