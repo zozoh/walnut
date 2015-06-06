@@ -140,6 +140,7 @@ define(function (require, exports, module) {
             }
         },
         on_show_txt: function (s) {
+            console.log('st: ' + s);
             var old = this._old_s || "";
             s = old + s;
             // 特殊处理下cd的返回值,  @目录@
