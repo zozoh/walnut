@@ -17,6 +17,7 @@ import org.nutz.walnut.api.io.WnTreeFactory;
 import org.nutz.walnut.impl.io.AbstractWnTree;
 import org.nutz.walnut.util.Wn;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
@@ -243,6 +244,15 @@ public class MongoWnTree extends AbstractWnTree {
     @Override
     public void _clean_for_unit_test() {
         co.remove(ZMoDoc.NEW());
+    }
+
+    @Override
+    public long countNode(WnNode p, boolean addHiden) {
+        ZMoDoc q = ZMoDoc.NEW("pid", p.id());
+        if (!addHiden) { // 去掉隐藏文件, 不以.开头的文件
+            q.putv("nm", new BasicDBObject("$regex", Pattern.compile("^[^\\.]", Pattern.MULTILINE)));
+        }
+        return co.count(q);
     }
 
 }

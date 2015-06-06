@@ -416,4 +416,22 @@ public class LocalWnTree extends AbstractWnTree {
         mnm.writeAndClose(Streams.fileOutw(f));
     }
 
+    @Override
+    public long countNode(WnNode p, boolean addHiden) {
+        File d = _check_local_file(p);
+        if (!d.isDirectory())
+            throw Er.create("e.io.tree.local.shouldBeDir", p.name());
+        long nb = 0;
+        File[] fileList = d.listFiles();
+        for (File f : fileList) {
+            if (f.isHidden()) {
+                if (addHiden) {
+                    nb++;
+                }
+            } else {
+                nb++;
+            }
+        }
+        return nb;
+    }
 }
