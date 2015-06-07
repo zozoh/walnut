@@ -8,6 +8,7 @@ import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -40,8 +41,10 @@ import org.nutz.walnut.web.view.WnObjDownloadView;
 @Filters(@By(type = WnCheckSession.class))
 public class AppModule extends AbstractWnModule {
 
+    @Inject("java:$conf.get('page-app', 'app')")
+    private String page_app;
+
     @At("/open/**")
-    @Ok("jsp:jsp.app")
     @Fail("jsp:jsp.show_text")
     public View open(String str, @Param("m") boolean meta) throws UnsupportedEncodingException {
         str = Strings.trim(str);
@@ -140,7 +143,7 @@ public class AppModule extends AbstractWnModule {
             c.putAll(map);
 
         // 渲染输出
-        return new ViewWrapper(new JspView("jsp.app"), seg.render(c));
+        return new ViewWrapper(new JspView("jsp." + page_app), seg.render(c));
     }
 
     private String __find_tmpl(String appName, WnObj oAppHome) {
