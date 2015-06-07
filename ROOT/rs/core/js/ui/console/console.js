@@ -74,7 +74,13 @@ define(function (require, exports, module) {
             this.listenModel("show:txt", this.on_show_txt);
             this.listenModel("show:end", this.on_show_end);
             this.listenModel("do:upload", this.on_do_upload);
-            this.model.cph = "~"
+            var pwd = _app.session.envs.PWD
+            var home = _app.session.envs.HOME;
+            this.model.cph = (pwd == home ? "~" : pwd);
+            if (this.model.cph.length > 1) {
+                var li = this.model.cph.lastIndexOf('/');
+                this.model.cph = this.model.cph.substr(li + 1);
+            }
         },
         //..............................................................
         // 模块启动的主函数

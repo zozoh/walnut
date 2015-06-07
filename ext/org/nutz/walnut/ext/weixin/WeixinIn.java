@@ -110,18 +110,12 @@ public class WeixinIn {
     }
 
     private void do_GET(WnSystem sys, WnObj o) {
-        // TODO 这里是微信的认证逻辑
-        /*
-         * PHP: $signature = $_GET["signature"]; $timestamp =
-         * $_GET["timestamp"]; $nonce = $_GET["nonce"];
-         * 
-         * $token = TOKEN; $tmpArr = array($token, $timestamp, $nonce);
-         * sort($tmpArr, SORT_STRING); $tmpStr = implode( $tmpArr ); $tmpStr =
-         * sha1( $tmpStr );
-         * 
-         * if( $tmpStr == $signature ){ return true; }else{ return false; }
-         */
-
+        // TODO 这里的token 需要从公众号的配置中获取
+        String token = "";
+        String signature = o.getString("http-qs-signature");
+        String timestamp = o.getString("http-qs-timestamp");
+        String nonce = o.getString("http-qs-nonce");
+        // Wxs.check(token, signature, timestamp, nonce);
         sys.out.println(o.getString("http-qs-echostr"));
     }
 }
