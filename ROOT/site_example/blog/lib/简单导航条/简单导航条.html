@@ -1,0 +1,40 @@
+<section>
+    <template class="lib-prop" name="height" type="int">
+        <script type="text/x-template" class="IDE">
+        {
+            text  : "i18n:height",
+            type  : "input",
+            conf  : {
+                range : [40, 200]
+            }
+        }
+        </script>
+        <script class="SETTER">
+        function(val){
+            this.css("height", val);
+        }
+        </script>
+    </template>
+    <template class="lib-dom">
+       <div layout="row" theme="arena" nm="主区域">
+		    <div gasket="logo">
+                <section extend="logo" apply="logo">
+			        <template name="src">/imgs/zozoh.jpg</template>
+			    </section>
+		    </div>
+		    <div gasket="menu">
+				<section extend="menu" apply="menu-simple">
+				    <template name="links">
+		            [
+		                {text:"首页", href:"site:/page/index.hml"},
+		                {text:"下载", href:"site:/page/download.hml"},
+		                {text:"文档", href:"site:/page/documents.hml"},
+		                {text:"资源", href:"site:/page/resource.md"},
+		                {text:"关于", href:"site:/page/about.md"}
+		            ]
+		            </template>
+				</section>
+		    </div>
+		</div>
+    </template>
+</section>
