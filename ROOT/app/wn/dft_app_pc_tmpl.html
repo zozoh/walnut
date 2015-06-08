@@ -40,9 +40,6 @@ seajs.on("error", function(data){
 	alert("load '" + data.uri + "' failed!!!'");
 });
 
-
-
-
 seajs.use("zui", function(ZUI){
 	ZUI.loadi18n("ui/i18n/{{lang}}.js", function(){
 		seajs.use("/a/load/"+_app.name+"/main.js", function(main){

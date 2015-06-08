@@ -230,7 +230,7 @@ define(function (require, exports, module) {
         _watch_usr_input: function (se) {
             var UI = this;
             var Mod = UI.model;
-            var ps = "[" + se.me + "@" + UI.$pel.attr("appnm") + " " + Mod.cph + "]" + (se.me == "root" ? "#" : "$");
+            var ps = "[" + se.me + "@" + _app.name + " " + Mod.cph + "]" + (se.me == "root" ? "#" : "$");
             UI.prompt(ps, function (str, jBlock) {
                 // 显示旧的输入行
                 var jq = UI.ccode("prompt.read");
