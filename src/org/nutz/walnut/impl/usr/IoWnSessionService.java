@@ -7,6 +7,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -181,13 +182,18 @@ public class IoWnSessionService implements WnSessionService {
 
     @Override
     public WnSession fetch(String seid) {
-        WnObj o = this._fetch_seobj(seid);
+        final WnObj o = this._fetch_seobj(seid);
         if (null == o)
             return null;
 
         // 如果过期，删除
         if (o.isExpired()) {
-            io.delete(o);
+            WnUsr root = usrs.check("root");
+            Wn.WC().su(root, new Atom() {
+                public void run() {
+                    io.delete(o);
+                }
+            });
             return null;
         }
 
