@@ -53,6 +53,7 @@ public class WnMainModule extends AbstractWnModule {
             return "/a/open/" + appPath;
         }
         catch (WebException e) {
+            e.printStackTrace();
             return "/u/login";
         }
 

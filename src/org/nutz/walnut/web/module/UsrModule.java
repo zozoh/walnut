@@ -87,7 +87,7 @@ public class UsrModule extends AbstractWnModule {
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
     public WnUsr do_signup_ajax(@Param("nm") String nm,
-                                @Param("passwd") String passwd,
+                                @Param("pwd") String passwd,
                                 @Param("email") String email,
                                 @Param("phone") String phone) {
         return do_signup(nm, passwd, email, phone);
