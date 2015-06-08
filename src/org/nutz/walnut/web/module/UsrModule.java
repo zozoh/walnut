@@ -6,6 +6,7 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
@@ -13,6 +14,8 @@ import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.POST;
 import org.nutz.mvc.annotation.Param;
+import org.nutz.mvc.view.JspView;
+import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
@@ -90,10 +93,12 @@ public class UsrModule extends AbstractWnModule {
         return do_signup(nm, passwd, email, phone);
     }
 
+    @Inject("java:$conf.get('page-login','login')")
+    private String page_login;
+
     @At("/login")
-    @Ok("jsp:jsp.login")
     @Fail(">>:/")
-    public void show_login() {
+    public View show_login() {
         String seid = Wn.WC().SEID();
         if (null != seid) {
             try {
@@ -102,6 +107,7 @@ public class UsrModule extends AbstractWnModule {
             }
             catch (WebException e) {}
         }
+        return new ViewWrapper(new JspView("jsp." + page_login), null);
     }
 
     /**
@@ -134,29 +140,28 @@ public class UsrModule extends AbstractWnModule {
         return se;
     }
 
-    // /**
-    // * 检查登陆信息, 看看是不是用户名密码都对了
-    // *
-    // * @param nm
-    // * 用户名
-    // * @param pwd
-    // * 密码
-    // */
-    // @POST
-    // @At("/check/login")
-    // @Ok("ajax")
-    // @Fail("ajax")
-    // public boolean do_check_login(@Param("nm") String nm, @Param("pwd")
-    // String pwd) {
-    // if (Strings.isBlank(pwd))
-    // throw Er.create("e.usr.blank.pwd");
-    //
-    // WnUsr u = usrs.check(nm);
-    // if (!u.password().equals(pwd)) {
-    // throw Er.create("e.usr.invalid.login");
-    // }
-    // return true;
-    // }
+    /**
+     * 检查登陆信息, 看看是不是用户名密码都对了
+     *
+     * @param nm
+     *            用户名
+     * @param pwd
+     *            密码
+     */
+    @POST
+    @At("/check/login")
+    @Ok("ajax")
+    @Fail("ajax")
+    public boolean do_check_login(@Param("nm") String nm, @Param("pwd") String pwd) {
+        if (Strings.isBlank(pwd))
+            throw Er.create("e.usr.blank.pwd");
+
+        WnUsr u = usrs.check(nm);
+        if (!u.password().equals(pwd)) {
+            throw Er.create("e.usr.invalid.login");
+        }
+        return true;
+    }
 
     /**
      * 销毁用户的当前会话

@@ -1,0 +1,39 @@
+@import "effect/shadow";
+// 纸张的效果
+.paper {
+
+  overflow: hidden;
+
+  &.rounded {
+    border-radius: 2px;
+  }
+
+  &.circle {
+    border-radius: 50%;
+  }
+
+  &.z-depth-0 {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24);
+  }
+
+  &.z-depth-1 {
+    box-shadow: @zd1-shadow;
+  }
+
+  &.z-depth-2 {
+    box-shadow: @zd2-shadow;
+  }
+
+  &.z-depth-3 {
+    box-shadow: @zd3-shadow;
+  }
+
+  &.z-depth-4 {
+    box-shadow: @zd4-shadow;
+  }
+
+  &.z-depth-5 {
+    box-shadow: @zd5-shadow;
+  }
+
+}

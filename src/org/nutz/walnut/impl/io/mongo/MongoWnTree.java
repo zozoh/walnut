@@ -245,4 +245,18 @@ public class MongoWnTree extends AbstractWnTree {
         co.remove(ZMoDoc.NEW());
     }
 
+    @Override
+    public long countNode(WnNode p, String tp, boolean withHiden) {
+        ZMoDoc q = ZMoDoc.NEW("pid", p.id());
+        if (!withHiden) { // 去掉隐藏文件, 不以.开头的文件
+            q.put("nm", Pattern.compile("^[^\\.]", Pattern.MULTILINE));
+        }
+        if (!Strings.isBlank(tp)) {
+            // 这里co是tree 不能通过tp来判断
+            // FIXME 等了解清楚tree与obj是怎么回事再来修正
+            q.put("nm", Pattern.compile(tp + "$", Pattern.CASE_INSENSITIVE));
+        }
+        return co.count(q);
+    }
+
 }

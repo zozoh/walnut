@@ -30,6 +30,8 @@ public interface WnTree extends UnitTestable {
 
     boolean exists(WnNode p, String name);
 
+    long countNode(WnNode p, String tp, boolean withHidden);
+
     /**
      * 获取一个子节点
      * 

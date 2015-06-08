@@ -74,6 +74,13 @@ define(function (require, exports, module) {
             this.listenModel("show:txt", this.on_show_txt);
             this.listenModel("show:end", this.on_show_end);
             this.listenModel("do:upload", this.on_do_upload);
+            var pwd = _app.session.envs.PWD
+            var home = _app.session.envs.HOME;
+            this.model.cph = (pwd == home ? "~" : pwd);
+            if (this.model.cph.length > 1) {
+                var li = this.model.cph.lastIndexOf('/');
+                this.model.cph = this.model.cph.substr(li + 1);
+            }
         },
         //..............................................................
         // 模块启动的主函数
@@ -95,57 +102,63 @@ define(function (require, exports, module) {
         clearScreen: function () {
             this.arena.empty();
         },
-        _font : {
-            reset : function(){
-                this.font    = 0;      // [1,8]
-                this.color   = -1;     // [30,37]
+        _font: {
+            reset: function () {
+                this.font = 0;      // [1,8]
+                this.color = -1;     // [30,37]
                 this.bgcolor = -1;     // [40,47]
             },
-            wrap : function(str){
-                var bFont    = this.font>=1 && this.font<=8;
-                var bColor   = this.color>=30 && this.color<=37;
-                var bBgColor = this.bgcolor>=40 && this.bgcolor<=47;
+            wrap: function (str) {
+                var bFont = this.font >= 1 && this.font <= 8;
+                var bColor = this.color >= 30 && this.color <= 37;
+                var bBgColor = this.bgcolor >= 40 && this.bgcolor <= 47;
                 var html = '<span';
-                if(bFont || bColor || bBgColor){
+                if (bFont || bColor || bBgColor) {
                     html += ' class="';
-                    if(bFont)    html += ' ui-console-f-font'   +this.font;
-                    if(bColor)   html += ' ui-console-f-color'  +this.color;
-                    if(bBgColor) html += ' ui-console-f-bgcolor'+this.bgcolor;
+                    if (bFont)    html += ' ui-console-f-font' + this.font;
+                    if (bColor)   html += ' ui-console-f-color' + this.color;
+                    if (bBgColor) html += ' ui-console-f-bgcolor' + this.bgcolor;
                     html += '"';
                 }
                 html += '></span>';
                 return $(html).text(str);
             },
-            parse : function(fs) {
+            parse: function (fs) {
                 var ss = fs.split(";");
-                if(ss.length>0){
+                if (ss.length > 0) {
                     var f = parseInt(ss[0]);
-                    if(f == 0)
+                    if (f == 0)
                         this.reset();
                     this.font = f;
                 }
-                if(ss.length>1){
+                if (ss.length > 1) {
                     this.color = parseInt(ss[1]);
                 }
-                if(ss.length>2){
+                if (ss.length > 2) {
                     this.bgcolor = parseInt(ss[2]);
                 }
             }
         },
-        on_show_end: function(){
-            if(this._old_s){
+        on_show_end: function () {
+            if (this._old_s) {
                 this.__print_txt(this._old_s);
                 this._old_s = "";
             }
         },
         on_show_txt: function (s) {
+            console.log('st: ' + s);
             var old = this._old_s || "";
             s = old + s;
+            // 特殊处理下cd的返回值,  @目录@
+            if (s.length >= 3 && s[0] == "@" && s[s.length - 1] == "@") {
+                this.model.cph = s.substr(1, s.length - 2);
+                return;
+            }
             // 寻找最后换行，之前的输出
-            var i = s.length-1;
-            for(;i>=0;i--){
+            var i = s.length - 1;
+            for (; i >= 0; i--) {
                 var b = s.charCodeAt(i);
-                if(b == 0x0a){
+                if (b == 0x0a) {
                     i++;
                     var str = s.substring(0, i);
                     this.__print_txt(str);
@@ -155,33 +168,34 @@ define(function (require, exports, module) {
             // 记录还没显示的数据
             this._old_s = s.substring(i);
         },
-        __print_txt: function(s){
+        __print_txt: function (s) {
             var jq = this.ccode("block");
             // 试图对颜色码进行分析
             var l = 0;
             var r = 0;
-            for(;r<s.length;r++){
+            for (; r < s.length; r++) {
                 var b = s.charCodeAt(r);
                 // 遇到颜色
-                if(b == 0x1b){
+                if (b == 0x1b) {
                     // 有字符串，先消费
-                    if(r > l){
-                        jq.append($(this._font.wrap(s.substring(l,r))));
+                    if (r > l) {
+                        jq.append($(this._font.wrap(s.substring(l, r))));
                     }
                     // 试图读取控制码
-                    r+=2; l = r;
-                    for(;r<s.length;r++) {
+                    r += 2;
+                    l = r;
+                    for (; r < s.length; r++) {
                         var c = s.charAt(r);
-                        if(c == "m")
+                        if (c == "m")
                             break;
                     }
-                    this._font.parse(s.substring(l,r));
-                    l = r+1;
+                    this._font.parse(s.substring(l, r));
+                    l = r + 1;
                 }
             }
             // 最后输出剩余的
-            if(r > l){
-                jq.append($(this._font.wrap(s.substring(l,r))));
+            if (r > l) {
+                jq.append($(this._font.wrap(s.substring(l, r))));
             }
             // 显示
             this.arena.append(jq);
@@ -216,7 +230,7 @@ define(function (require, exports, module) {
         _watch_usr_input: function (se) {
             var UI = this;
             var Mod = UI.model;
-            var ps = se.me + "@" + UI.$pel.attr("appnm") + "$ ";
+            var ps = "[" + se.me + "@" + _app.name + " " + Mod.cph + "]" + (se.me == "root" ? "#" : "$");
             UI.prompt(ps, function (str, jBlock) {
                 // 显示旧的输入行
                 var jq = UI.ccode("prompt.read");
@@ -226,7 +240,7 @@ define(function (require, exports, module) {
                 jBlock.remove();
 
                 // 进行判断 ...
-                Mod.trigger("cmd:exec", str, function(){
+                Mod.trigger("cmd:exec", str, function () {
                     Mod.trigger("cmd:wait", se);
                 });
                 // 准备新的输入行

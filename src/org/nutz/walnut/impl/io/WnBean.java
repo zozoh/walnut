@@ -405,7 +405,13 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public String toString() {
-        return String.format("%s:%s[%s] %dbytes -> %s", id(), name(), sha1(), len(), mount());
+        return String.format("%s:%s[%s]%dbytes -> %s | %s",
+                             id(),
+                             name(),
+                             sha1(),
+                             len(),
+                             mount(),
+                             path());
     }
 
     // -----------------------------------------
