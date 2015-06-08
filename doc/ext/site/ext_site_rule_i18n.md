@@ -2,7 +2,6 @@
 title:网站的本地化规范
 author:zozoh
 tags:
-- 系统
 - 扩展
 - 网站
 ---

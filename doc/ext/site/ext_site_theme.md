@@ -2,7 +2,6 @@
 title:网站的主题
 author:zozoh
 tags:
-- 系统
 - 扩展
 - 网站
 ---
@@ -41,22 +40,22 @@ tags:
             #.......................................................
             template            # 主题的模板目录
                 home            # 任何模板都是一个目录
-                    dom.html    # [必须] 模板的 DOM 结构
+                    home.html   # [必须] 模板的 DOM 结构
                                 # 在《网站的DOM规范》有详细介绍
                 page            
-                    dom.html    # 模板的任何 js/css 都会被链接到最终网页
+                    page.html   # 模板的任何 js/css 都会被链接到最终网页
                     page.css    # 你可以随意制定你的 JS 和 css
                     page.js     # 在《网站的JS规范》有详细介绍
             #.......................................................
             lib                 # 主题的组件目录，与模板目录同理
                 menu            # 一个组件就是一个目录，其中包括
-                    dom.html    # [必须] 组件的 HTML 片段
+                    menu.html   # [必须] 组件的 HTML 片段
                     main.js     # 随意添加 js/css 文件
                 labels          # 因此，每个组件都可能会有很多不同
-                    dom.html
+                    labels.html
                     abc.js
                 links
-                    dom.html
+                    links.html
                     links.css
             #.......................................................
             i18n                # 主题的国际化语言包目录

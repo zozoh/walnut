@@ -39,7 +39,7 @@ public class cmd_ls extends JvmExecutor {
 
         // 只有一个内容
         if (list.size() == 1) {
-            WnObjTable tab = new WnObjTable(keys);
+            final WnObjTable tab = new WnObjTable(keys);
             WnObj o = list.get(0);
             // 本身就是文件
             if (o.isFILE()) {
@@ -70,7 +70,7 @@ public class cmd_ls extends JvmExecutor {
             for (WnObj o : list) {
                 if (!o.isFILE()) {
                     String rph = Disks.getRelativePath(p.path(), o.path());
-                    WnObjTable tabDir = new WnObjTable(keys);
+                    final WnObjTable tabDir = new WnObjTable(keys);
                     sys.out.println(rph + " :");
                     sys.io.eachChildren(o, null, new Each<WnObj>() {
                         public void invoke(int index, WnObj child, int length) {
