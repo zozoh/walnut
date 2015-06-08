@@ -98,7 +98,7 @@ public abstract class AbstractWnStore implements WnStore {
                 o.sha1(null);
                 o.len(0);
                 o.mender(Wn.WC().checkMe());
-                o.nanoStamp(System.nanoTime());
+                o.nanoStamp(Wn.nanoTime());
                 indexer.set(o, "^m|sha1|data|len|lm|nano$");
             }
         }

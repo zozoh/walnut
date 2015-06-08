@@ -31,7 +31,7 @@ public class LocalDataOutputStream extends AbstractLocalOutputStream {
         // 计算 SHA1
         String sha1 = Lang.sha1(f);
         long len = f.length();
-        long nano = System.nanoTime();
+        long nano = Wn.nanoTime();
 
         // 更新 Obj 状态 (obj.data 已经被 LocalDataWnStore 在之前设置好了）
         obj.mender(Wn.WC().checkMe());

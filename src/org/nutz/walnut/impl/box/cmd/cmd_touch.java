@@ -28,7 +28,7 @@ public class cmd_touch extends JvmExecutor {
             }
             // 否则更新最后修改时间
             else {
-                obj.nanoStamp(System.nanoTime());
+                obj.nanoStamp(Wn.nanoTime());
                 sys.io.appendMeta(obj, "^lm$");
             }
         }

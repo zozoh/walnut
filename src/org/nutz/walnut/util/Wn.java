@@ -26,6 +26,25 @@ import org.nutz.walnut.impl.box.WnSystem;
  */
 public abstract class Wn {
 
+    // public static void main(String[] args) throws InterruptedException {
+    // for (int i = 0; i < 10; i++) {
+    // System.out.println(" N:" + System.nanoTime());
+    // System.out.println("ms:" + System.currentTimeMillis());
+    // System.out.println("ns:" + Wn.nanoTime());
+    // System.out.println("---------------------------------");
+    // Thread.sleep(100);
+    // }
+    // }
+
+    private static long _nano_begin = System.nanoTime();
+
+    public static long nanoTime() {
+        long nano = System.nanoTime() - _nano_begin;
+        long ms = System.currentTimeMillis();
+
+        return (ms * 1000000L) + nano % 1000000L;
+    }
+
     public static class Ctx {
 
         private static ThreadLocal<WnContext> _wn_context = new ThreadLocal<WnContext>();
