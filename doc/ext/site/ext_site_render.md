@@ -33,7 +33,10 @@ tags:
 <body>
     ...
     <div .. gasket="menu">
-        <section extend="menu" apply="mymenu">
+        <section extend="menu" apply="mymenu">            # 这里组合上所有的扩展
+        ..
+        </section>
+        <section extend="menu" apply="topshadow">
         ..
         </section>
     </div>
