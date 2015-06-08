@@ -11,7 +11,7 @@ public interface WnIndexer extends UnitTestable {
 
     WnObj getOne(WnQuery q);
 
-    WnObj toObj(WnNode nd);
+    WnObj toObj(WnNode nd, ObjIndexStrategy ois);
 
     void set(WnObj o, String regex);
 

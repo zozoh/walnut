@@ -19,6 +19,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
+import org.nutz.walnut.api.io.ObjIndexStrategy;
 import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnHistory;
 import org.nutz.walnut.api.io.WnIndexer;
@@ -70,7 +71,7 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public WnObj toObj(WnNode nd) {
-        return indexer.toObj(nd);
+        return indexer.toObj(nd, ObjIndexStrategy.PARENT);
     }
 
     @Override
@@ -79,12 +80,12 @@ public class WnIoImpl implements WnIo {
         if (null == nd)
             return null;
         nd.loadParents(null, false);
-        return indexer.toObj(nd);
+        return indexer.toObj(nd, ObjIndexStrategy.PARENT);
     }
 
     @Override
     public WnObj get(WnNode nd) {
-        return indexer.toObj(nd);
+        return indexer.toObj(nd, ObjIndexStrategy.PARENT);
     }
 
     @Override
@@ -101,7 +102,7 @@ public class WnIoImpl implements WnIo {
     public WnObj getParent(WnObj o) {
         if (null == o)
             return null;
-        return indexer.toObj(o.parent());
+        return indexer.toObj(o.parent(), ObjIndexStrategy.PARENT);
     }
 
     @Override
@@ -132,7 +133,7 @@ public class WnIoImpl implements WnIo {
 
         // 获取对象
         WnNode nd = tree(p).fetch(p, path);
-        WnObj o = indexer.toObj(nd);
+        WnObj o = indexer.toObj(nd, ObjIndexStrategy.PARENT);
         // 标记一下，如果读写的时候，只写这个对象的索引
         if (rwmeta) {
             o.setv(Wn.OBJ_META_RW, rwmeta);
@@ -154,7 +155,7 @@ public class WnIoImpl implements WnIo {
 
         // 获取对象
         WnNode nd = tree(p).fetch(p, paths, fromIndex, toIndex);
-        WnObj o = indexer.toObj(nd);
+        WnObj o = indexer.toObj(nd, ObjIndexStrategy.PARENT);
         // 标记一下，如果读写的时候，只写这个对象的索引
         if (rwmeta) {
             o.setv(Wn.OBJ_META_RW, rwmeta);
@@ -167,7 +168,7 @@ public class WnIoImpl implements WnIo {
     public void walk(WnObj p, final Callback<WnObj> callback, WalkMode mode) {
         tree(p).walk(p, new Callback<WnNode>() {
             public void invoke(WnNode nd) {
-                WnObj o = indexer.toObj(nd);
+                WnObj o = indexer.toObj(nd, ObjIndexStrategy.PARENT);
                 if (null != callback)
                     callback.invoke(o);
             }
@@ -178,7 +179,7 @@ public class WnIoImpl implements WnIo {
     public int eachChildren(WnObj p, String str, final Each<WnObj> callback) {
         return tree(p).eachChildren(p, str, new Each<WnNode>() {
             public void invoke(int index, WnNode nd, int length) {
-                WnObj o = indexer.toObj(nd);
+                WnObj o = indexer.toObj(nd, ObjIndexStrategy.PARENT);
                 callback.invoke(index, o, length);
             }
         });
@@ -277,7 +278,7 @@ public class WnIoImpl implements WnIo {
             } else {
                 ndB = treeB.createNode(ta, src.id(), newName, src.race());
             }
-            WnObj oB = indexer.toObj(ndB);
+            WnObj oB = indexer.toObj(ndB, ObjIndexStrategy.WC);
 
             // 保持 mount
             if (src.isMount(treeA)) {
@@ -355,7 +356,7 @@ public class WnIoImpl implements WnIo {
 
             // 执行创建
             WnNode nd = tree(p).create(p, path, race);
-            return indexer.toObj(nd);
+            return indexer.toObj(nd, ObjIndexStrategy.WC);
         }
         finally {
             wc.onCreate(old);
@@ -387,7 +388,7 @@ public class WnIoImpl implements WnIo {
 
             // 执行创建
             WnNode nd = tree(p).create(p, paths, fromIndex, toIndex, race);
-            return indexer.toObj(nd);
+            return indexer.toObj(nd, ObjIndexStrategy.WC);
         }
         finally {
             wc.onCreate(old);
@@ -395,7 +396,7 @@ public class WnIoImpl implements WnIo {
     }
 
     private WnObj __create_index(WnNode nd) {
-        WnObj o = indexer.toObj(nd);
+        WnObj o = indexer.toObj(nd, ObjIndexStrategy.WC);
         return o;
     }
 
@@ -481,7 +482,7 @@ public class WnIoImpl implements WnIo {
     @Override
     public InputStream getInputStream(WnObj o, long off) {
         // 得到节点检查的回调接口
-        o = indexer.toObj(Wn.WC().whenRead(o));
+        o = indexer.toObj(Wn.WC().whenRead(o), ObjIndexStrategy.STRICT);
 
         // 是读取元数据的
         if (o.getBoolean(Wn.OBJ_META_RW)) {
@@ -503,7 +504,7 @@ public class WnIoImpl implements WnIo {
     @Override
     public OutputStream getOutputStream(WnObj o, long off) {
         // 得到节点检查的回调接口
-        o = indexer.toObj(Wn.WC().whenWrite(o));
+        o = indexer.toObj(Wn.WC().whenWrite(o), ObjIndexStrategy.STRICT);
 
         // 是写入元数据的
         if (o.getBoolean(Wn.OBJ_META_RW)) {

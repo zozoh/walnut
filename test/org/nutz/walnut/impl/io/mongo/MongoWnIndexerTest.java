@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.nutz.walnut.BaseIndexerTest;
 import org.nutz.walnut.Wnts;
+import org.nutz.walnut.api.io.ObjIndexStrategy;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -14,7 +15,7 @@ public class MongoWnIndexerTest extends BaseIndexerTest {
     @Test
     public void test_simple_get_set() {
         WnNode nd = tree.create(null, "/abc", WnRace.FILE);
-        WnObj o = indexer.toObj(nd);
+        WnObj o = indexer.toObj(nd, ObjIndexStrategy.WC);
         o.setv("x", 100).setv("y", 80).setv("z", 9000);
         indexer.set(o, "^x|y$");
 
