@@ -83,7 +83,7 @@ public class WnBean extends NutMap implements WnObj {
         }
         // 没给时间的话如果自己也没有，用当前时间
         else if (this.nanoStamp() <= 0) {
-            this.nanoStamp(System.nanoTime());
+            this.nanoStamp(Wn.nanoTime());
         }
 
         // 返回

@@ -2,6 +2,7 @@ package org.nutz.walnut.impl.usr;
 
 import java.util.Map;
 
+import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -94,6 +95,16 @@ public class IoWnSessionService implements WnSessionService {
         o.expireTime(o.lastModified() + duration);
         o.setv("me", u.name());
         io.appendMeta(o, "^me|expi$");
+
+        if (log.isDebugEnabled()) {
+            log.debugf("CreateWnSessionObj, %s", Json.toJson(o));
+            log.debugf("CreateWnSession, %s", Json.toJson(se));
+            log.debugf("ExpireTime\nsysNano: %d\nsysCurr: %d\nwnsNano: %d\nobjLaMo: %d",
+                       System.nanoTime(),
+                       System.currentTimeMillis(),
+                       Wn.nanoTime(),
+                       o.lastModified());
+        }
 
         return se;
     }

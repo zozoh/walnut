@@ -65,7 +65,7 @@ public class MongoWnStoreTable extends AbstractWnStoreTable {
     public WnHistory addHistory(String oid, String data, String sha1, long len) {
         WnHistory his = new MongoWnHistory();
         his.oid(oid).data(data).sha1(sha1).len(len);
-        his.nanoStamp(System.nanoTime());
+        his.nanoStamp(Wn.nanoTime());
         his.owner(Wn.WC().checkMe());
 
         ZMoDoc doc = ZMo.me().toDoc(his);
