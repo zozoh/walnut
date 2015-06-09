@@ -1,7 +1,6 @@
 package org.nutz.walnut.impl.io;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
@@ -593,7 +592,7 @@ public class WnIoImpl implements WnIo {
     @Override
     public String readText(WnObj o) {
         InputStream ins = this.getInputStream(o, 0);
-        Reader r = Streams.buffr(new InputStreamReader(ins));
+        Reader r = Streams.buffr(Streams.utf8r(ins));
         return Streams.readAndClose(r);
     }
 

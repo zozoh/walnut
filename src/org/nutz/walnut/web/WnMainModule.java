@@ -3,6 +3,7 @@ package org.nutz.walnut.web;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.ChainBy;
+import org.nutz.mvc.annotation.Encoding;
 import org.nutz.mvc.annotation.IocBy;
 import org.nutz.mvc.annotation.Localization;
 import org.nutz.mvc.annotation.Modules;
@@ -24,6 +25,7 @@ import org.nutz.web.ajax.AjaxViewMaker;
 @Views({AjaxViewMaker.class, WnViewMaker.class})
 @ChainBy(args = {"chain/walnut-chain.js"})
 @IocBean
+@Encoding(input = "UTF-8", output = "UTF-8")
 public class WnMainModule extends AbstractWnModule {
 
     @At("/version")
