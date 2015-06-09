@@ -1,6 +1,6 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import org.nutz.lang.meta.Pair;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -19,11 +19,14 @@ public class cmd_export extends JvmExecutor {
         else {
             NutMap envs = sys.se.envs();
             for (String s : args) {
-                Pair<String> attr = Pair.create(s);
-                envs.setv(attr.getName(), attr.getValue());
+                int pos = s.indexOf('=');
+                if (pos >= 0) {
+                    String key = Strings.trim(s.substring(0, pos));
+                    String val = s.substring(pos + 1);
+                    envs.setv(key, val);
+                }
             }
             sys.sessionService.setEnvs(sys.se.id(), envs);
         }
     }
-
 }

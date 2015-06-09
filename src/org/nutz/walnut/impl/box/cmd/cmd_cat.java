@@ -27,7 +27,7 @@ public class cmd_cat extends JvmExecutor {
 
         // 没内容
         if (list.isEmpty()) {
-            throw Er.create("e.io.obj.noexists", sys.original);
+            throw Er.create("e.io.obj.noexists", sys.cmdOriginal);
         }
         // 输出内容
         for (WnObj o : list) {

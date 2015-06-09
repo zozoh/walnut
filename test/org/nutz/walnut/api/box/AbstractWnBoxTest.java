@@ -10,7 +10,7 @@ public abstract class AbstractWnBoxTest extends BaseBoxTest {
 
     @Test
     public void test_simple_grap() {
-        box.run("echo 'a\\nbc\\nc\\nd' | grep c");
+        box.run("echo -e 'a\\nbc\\nc\\nd' | grep c");
 
         assertEquals("bc\nc\n", outs());
     }

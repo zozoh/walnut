@@ -3,6 +3,7 @@ package org.nutz.walnut.api.usr;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.nutz.json.Json;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.BaseUsrTest;
@@ -228,21 +229,37 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
         assertEquals(se.me(), xiaobai.name());
 
         // 设置环境变量
-        ses.setEnv(se.id(), "x", "100");
-        ses.setEnv(se.id(), "say", "hello");
-        se = ses.check(se.id());
-        assertEquals("100", se.envs().getString("x"));
-        assertEquals("hello", se.envs().getString("say"));
+        // TODO zozoh 自从改了自制的  nanoTime 以后，就老过不去
+        // 看起来是因为在很短的时间内，重复写文件，导致历史记录产生了问题？
+        try {
+            ses.setEnv(se.id(), "say", "hello");
+            ses.setEnv(se.id(), "x", "100");
 
-        // 删除环境变量
-        ses.removeEnvs(se.id(), "x", "say");
-        se = ses.check(se.id());
-        assertNull(se.envs().get("x"));
-        assertNull(se.envs().get("say"));
+            se = ses.check(se.id());
+            assertEquals("100", se.envs().getString("x"));
+            assertEquals("hello", se.envs().getString("say"));
 
-        // 注销
-        ses.logout(se.id());
-        assertNull(ses.fetch(se.id()));
+            // 删除环境变量
+            ses.removeEnvs(se.id(), "x", "say");
+            se = ses.check(se.id());
+            assertNull(se.envs().get("x"));
+            assertNull(se.envs().get("say"));
+
+            // 注销
+            ses.logout(se.id());
+            assertNull(ses.fetch(se.id()));
+
+        }
+        catch (Throwable e) {
+            System.out.println(Json.toJson(se));
+            System.out.println("--------------------check again:");
+            se = ses.check(se.id());
+            System.out.println(Json.toJson(se));
+            System.out.println("--------------------Obj:");
+            WnObj oSe2 = io.check(null, "/session/" + se.id());
+            System.out.println(Json.toJson(oSe2));
+            throw e;
+        }
     }
 
     @Test

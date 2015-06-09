@@ -15,7 +15,7 @@ public interface WnUsrService {
      */
     void delete(WnUsr u);
 
-    void setPassword(String str, String pwd);
+    WnUsr setPassword(String str, String pwd);
 
     WnUsr setName(String str, String nm);
 
@@ -24,6 +24,8 @@ public interface WnUsrService {
     WnUsr setEmail(String str, String email);
 
     WnUsr setHome(String str, String home);
+
+    WnUsr set(String str, String key, String val);
 
     WnUsr fetch(String str);
 

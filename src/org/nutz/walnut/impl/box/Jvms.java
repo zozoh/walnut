@@ -56,8 +56,18 @@ public class Jvms {
             // 遇到分隔符号
             if (Nums.isin(seps, c)) {
                 if (!Strings.isBlank(sb)) {
-                    list.add(Strings.trim(sb));
+                    list.add(sb.toString());
                     sb = new StringBuilder();
+                }
+            }
+            // 如果是转义字符
+            else if (c == '\\') {
+                i++;
+                if (i < cs.length) {
+                    c = cs[i];
+                    sb.append(c);
+                } else {
+                    break;
                 }
             }
             // 字符串
@@ -68,27 +78,13 @@ public class Jvms {
                     char c2 = cs[i];
                     // 如果是转义字符
                     if (c2 == '\\') {
-                        c2 = cs[++i];
-                        switch (c2) {
-                        case 'n':
-                            sb.append('\n');
-                            break;
-                        case 'r':
-                            sb.append('\r');
-                            break;
-                        case 't':
-                            sb.append('\t');
-                            break;
-                        case 'b':
-                            sb.append('\b');
-                            break;
-                        case '\'':
-                        case '"':
-                        case '\\':
+                        sb.append('\\');
+                        i++;
+                        if (i < cs.length) {
+                            c2 = cs[i];
                             sb.append(c2);
+                        } else {
                             break;
-                        default:
-                            throw Er.create("e.cmd.escape.invald", c2);
                         }
                     }
                     // 退出字符串
@@ -111,7 +107,7 @@ public class Jvms {
 
         // 添加最后一个
         if (!Strings.isBlank(sb)) {
-            list.add(Strings.trim(sb));
+            list.add(sb.toString());
         }
 
         // 返回拆分后的数组

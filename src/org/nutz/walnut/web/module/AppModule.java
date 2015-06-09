@@ -2,10 +2,11 @@ package org.nutz.walnut.web.module;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URLDecoder;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.Inject;
@@ -16,6 +17,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.segment.Segment;
 import org.nutz.lang.segment.Segments;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
@@ -28,6 +30,7 @@ import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
+import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
@@ -183,11 +186,9 @@ public class AppModule extends AbstractWnModule {
     @Ok("void")
     public void run(String appName,
                     String mimeType,
-                    HttpServletRequest req,
-                    HttpServletResponse resp) throws IOException {
-
-        // 得到命令行
-        String cmdText = Strings.trim(URLDecoder.decode(req.getQueryString(), "UTF-8"));
+                    @Param("mos") final String metaOutputSeparator,
+                    @Param("cmd") String cmdText,
+                    final HttpServletResponse resp) throws IOException {
 
         // 默认返回的 mime-type 是文本
         if (Strings.isBlank(mimeType))
@@ -197,10 +198,25 @@ public class AppModule extends AbstractWnModule {
         // 准备输出
         OutputStream out = new AppRespOutputStreamWrapper(resp, 200);
         OutputStream err = new AppRespOutputStreamWrapper(resp, 500);
+        final Writer w = new OutputStreamWriter(out);
 
         // 运行
         WnSession se = Wn.WC().checkSE();
-        _run_cmd("", se, cmdText, out, err, null);
+        _run_cmd("", se, cmdText, out, err, null, new Callback<WnBoxContext>() {
+            public void invoke(WnBoxContext bc) {
+                WnSession se = bc.sessionService.check(bc.session.id());
+                if (!Strings.isBlank(metaOutputSeparator))
+                    try {
+                        w.write("\n" + metaOutputSeparator + ":BEGIN:envs\n");
+                        w.write(Json.toJson(se.envs()));
+                        w.write("\n" + metaOutputSeparator + ":END\n");
+                        w.flush();
+                    }
+                    catch (IOException e) {
+                        throw Lang.wrapThrow(e);
+                    }
+            }
+        });
     }
 
 }

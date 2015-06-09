@@ -74,13 +74,6 @@ define(function (require, exports, module) {
             this.listenModel("show:txt", this.on_show_txt);
             this.listenModel("show:end", this.on_show_end);
             this.listenModel("do:upload", this.on_do_upload);
-            var pwd = _app.session.envs.PWD
-            var home = _app.session.envs.HOME;
-            this.model.cph = (pwd == home ? "~" : pwd);
-            if (this.model.cph.length > 1) {
-                var li = this.model.cph.lastIndexOf('/');
-                this.model.cph = this.model.cph.substr(li + 1);
-            }
         },
         //..............................................................
         // 模块启动的主函数
@@ -146,14 +139,8 @@ define(function (require, exports, module) {
             }
         },
         on_show_txt: function (s) {
-            console.log('st: ' + s);
             var old = this._old_s || "";
             s = old + s;
-            // 特殊处理下cd的返回值,  @目录@
-            if (s.length >= 3 && s[0] == "@" && s[s.length - 1] == "@") {
-                this.model.cph = s.substr(1, s.length - 2);
-                return;
-            }
             // 寻找最后换行，之前的输出
             var i = s.length - 1;
             for (; i >= 0; i--) {
@@ -170,6 +157,14 @@ define(function (require, exports, module) {
         },
         __print_txt: function (s) {
             var jq = this.ccode("block");
+            this.__join_txt(jq, s);
+            // 显示
+            this.arena.append(jq);
+            //this.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
+            //this.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
+            jq[0].scrollIntoView({block: "end", behavior: "smooth"});
+        },
+        __join_txt : function(jq, s){
             // 试图对颜色码进行分析
             var l = 0;
             var r = 0;
@@ -197,11 +192,6 @@ define(function (require, exports, module) {
             if (r > l) {
                 jq.append($(this._font.wrap(s.substring(l, r))));
             }
-            // 显示
-            this.arena.append(jq);
-            //this.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
-            //this.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
-            jq[0].scrollIntoView({block: "end", behavior: "smooth"});
         },
         on_show_err: function (s) {
             if (s[s.length - 1] == '\n')
@@ -227,10 +217,56 @@ define(function (require, exports, module) {
             this._watch_usr_input(se);
         },
         //...................................................................
+        _render_ps1: function(se) {
+            var envs = se.envs;
+            var ps1  = envs["PS1"] || "\\u:\\W\\$ ";
+            var re   = "";
+            for(var i=0;i<ps1.length;i++){
+                var c = ps1.charAt(i);
+                // 转义
+                if("\\"==c){
+                    c = ps1.charAt(++i);
+                    switch(c){
+                    case "u":
+                        re += envs["MY_NM"];
+                        break;
+                    case "w":
+                        var pwd = envs["PWD"];
+                        re += pwd==envs["HOME"] ? "~" : envs["PWD"];
+                        break;
+                    case "W":
+                        var pwd = envs["PWD"];
+                        if(pwd == envs["HOME"]){
+                            re += "~";
+                        }
+                        else if(pwd=="/"){
+                            re += "/";
+                        }
+                        else {
+                            re += pwd.substring(pwd.lastIndexOf("/")+1);
+                        }
+                        break;
+                    case "$":
+                        re += envs["MY_NM"]=="root" ? "#" : "$";
+                        break;
+                    default:
+                        re += c;
+                    }
+                }
+                // 其他字符输出
+                else{
+                    re += c;
+                }
+            }
+            return re;
+        },
+        //...................................................................
         _watch_usr_input: function (se) {
             var UI = this;
             var Mod = UI.model;
-            var ps = "[" + se.me + "@" + _app.name + " " + Mod.cph + "]" + (se.me == "root" ? "#" : "$");
+            //var ps = "[" + se.me + "@" + _app.name + " " + Mod.cph + "]" + (se.me == "root" ? "#" : "$");
+            //var ps = se.me + "@" + _app.name + "$ ";
+            var ps = this._render_ps1(se);
             UI.prompt(ps, function (str, jBlock) {
                 // 显示旧的输入行
                 var jq = UI.ccode("prompt.read");

@@ -213,7 +213,6 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
         io.appendMeta(o, "x:100, y:99");
 
         o = io.create(null, Wn.metaPath("/a"), WnRace.FILE);
-        System.out.println(io.readText(o));
         NutMap map = io.readJson(o, NutMap.class);
 
         assertEquals(100, map.getInt("x"));

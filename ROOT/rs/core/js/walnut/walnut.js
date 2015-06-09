@@ -64,61 +64,93 @@ define(function (require, exports, module) {
             }
 
             // 处理命令
-            var url = '/a/run/' + app.name + '?' + encodeURIComponent(str);
-            // $.get(url).done(function(re){
-            //     Mod.trigger("show:txt", re);
-            //     if(typeof callback == "function")
-            //         callback.call(Mod, re);
-            // }).fail(function(re){
-            //     Mod.trigger("show:err", re.responseText);
-            //     if(typeof callback == "function")
-            //         callback.call(Mod, re.responseText);
-            // });
+            var mos = "%%wn.meta." + $z.randomString(10) + "%%";
+            //var regex = new RegExp("^(\n"+mos+":BEGIN:)(\\w+)(.+)(\n"+mos+":END\n)$","m");
+            var mosHead = "\n" + mos + ":BEGIN:";
+            var mosTail = "\n" + mos + ":END\n";
+
+            var cmdText = encodeURIComponent(str);
+            var url = '/a/run/' + app.name + "?mos=" + encodeURIComponent(mos);
             var oReq = new XMLHttpRequest();
-            oReq._last = 0;
+            oReq._last    = 0;
+            oReq._content = "";
+            oReq._moss    = [];
             oReq._show_msg = function(){
+                oReq.responseText = "hello world";
                 var str = oReq.responseText.substring(oReq._last);
                 oReq._last += str.length;
-                // 正常显示
-                if(oReq.status==200){
-                    Mod.trigger("show:txt", str);
+                //console.log("### str: " + str);
+                // 是不是到了元数据输出的部分了
+                var pos = str.indexOf(mosHead);
+                //console.log("### pos:" + pos);
+                if(pos>=0){
+                    var from = pos+mosHead.length;
+                    var pl = str.indexOf("\n", from);
+                    var pr = str.indexOf(mosTail, pl);
+                    oReq._moss.push({
+                        type    : str.substring(from, pl),
+                        content : str.substring(pl+1,pr)
+                    });
+                    str = str.substring(0, pos);
+                    // for(var i=0;i<oReq._moss.length;i++){
+                    //     console.log("type:[" + oReq._moss[i].type+"]");
+                    //     console.log("content:\n" + oReq._moss[i].content);
+                    // }
                 }
-                // 错误显示
-                else {
-                    Mod.trigger("show:err", str);   
+                // 累计 Content
+                oReq._content += str;
+                if(str){
+                    // 正常显示
+                    if(oReq.status==200){
+                        Mod.trigger("show:txt", str);
+                    }
+                    // 错误显示
+                    else {
+                        Mod.trigger("show:err", str);   
+                    }
                 }
             };
-            oReq.open("GET",url,true);
+            oReq.open("POST",url,true);
             oReq.onreadystatechange = function(){
                 //console.log("rs:" + oReq.readyState + " status:" + oReq.status + " :: \n" + oReq.responseText);
                 // LOADING | DONE 只要有数据输入，显示一下信息
                 oReq._show_msg();
                 // DONE: 请求结束了，调用回调
                 if(oReq.readyState == 4 && callback){
+                    // 处理请求的状态更新命令
+                    for(var i=0;i<oReq._moss.length;i++){
+                        var mosc = oReq._moss[i];
+                        // 修改环境变量
+                        if("envs" == mosc.type) {
+                            var app = Mod.get("app");
+                            app.session.envs  = $z.fromJson(mosc.content);
+                        }
+                    }
                     // 最后确保通知了显示流结束
                     Mod.trigger("show:end"); 
                     // 一个回调处理所有的情况
                     if(typeof callback == "function"){
-                        callback.call(Mod, oReq.responseText);
+                        callback.call(Mod, oReq._content);
                     }
                     // 对象 {done:..., fail:xxxx}
                     else {
                         // 成功
                         if(oReq.status == 200) {
                             if(typeof callback.done == "function"){
-                                callback.done.call(Mod, oReq.responseText);
+                                callback.done.call(Mod, oReq._content);
                             }
                         }
                         // 失败
                         else {
                             if(typeof callback.fail == "function"){
-                                callback.fail.call(Mod, oReq.responseText);
+                                callback.fail.call(Mod, oReq._content);
                             }
                         }
                     }
                 }
             };
-            oReq.send();
+            oReq.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            oReq.send("cmd=" + cmdText);
         }
     };
     //===================================================================

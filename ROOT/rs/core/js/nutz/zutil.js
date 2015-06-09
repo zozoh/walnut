@@ -56,6 +56,19 @@
             return ((new Date()) + '').replace(/[ :\t*+()-]/g, '').toLowerCase();
         },
         //.............................................
+        // 生成一个随机字符串
+        randomString: function(length) {
+            var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
+            if (!length) {
+                length = Math.floor(Math.random() * chars.length);
+            }
+            var str = '';
+            for (var i = 0; i < length; i++) {
+                str += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return str;
+        },
+        //.............................................
         // 扩展第一个对象，深层的，如果遇到重名的对象，则递归
         extend: function (a, b) {
             if (_.isObject(a) && _.isObject(b)) {

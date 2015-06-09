@@ -39,10 +39,13 @@ public abstract class Wn {
     private static long _nano_begin = System.nanoTime();
 
     public static long nanoTime() {
-        long nano = System.nanoTime() - _nano_begin;
         long ms = System.currentTimeMillis();
+        long nano = System.nanoTime();
 
-        return (ms * 1000000L) + nano % 1000000L;
+        long ns = nano - _nano_begin;
+
+        return (ms * 1000000L) + ns % 1000000L;
+        // return System.nanoTime();
     }
 
     public static class Ctx {

@@ -1,8 +1,8 @@
 package org.nutz.walnut.api.usr;
 
-import java.util.Map;
+import org.nutz.lang.util.NutBean;
 
-public interface WnUsr extends Map<String, Object> {
+public interface WnUsr extends NutBean {
 
     String id();
 
