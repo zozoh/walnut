@@ -23,7 +23,7 @@ button {
 	</tr>
 	<tr>
 		<td>Password:</td>
-		<td><input name="pwd" type="password" value="123456"></td>
+		<td><input name="passwd" type="password" value="123456"></td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>

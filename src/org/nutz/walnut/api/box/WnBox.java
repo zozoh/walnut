@@ -3,6 +3,8 @@ package org.nutz.walnut.api.box;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.nutz.lang.util.Callback;
+
 public interface WnBox {
 
     String id();
@@ -22,5 +24,7 @@ public interface WnBox {
     void setStderr(OutputStream ops);
 
     void setStdin(InputStream ins);
+
+    void onBeforeFree(Callback<WnBoxContext> handler);
 
 }

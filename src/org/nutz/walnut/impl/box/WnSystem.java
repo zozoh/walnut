@@ -7,14 +7,14 @@ import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 
 public class WnSystem {
-    
+
     public String boxId;
 
     public int pipeId;
 
     public int nextId;
 
-    public String original;
+    public String cmdOriginal;
 
     public WnUsr me;
 

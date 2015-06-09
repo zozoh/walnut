@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.Callback;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.trans.Proton;
@@ -73,7 +74,7 @@ public abstract class AbstractWnModule {
         OutputStream err = Lang.ops(sbErr);
         InputStream in = null == input ? null : Lang.ins(input);
 
-        _run_cmd(logPrefix, se, cmdText, out, err, in);
+        _run_cmd(logPrefix, se, cmdText, out, err, in, null);
 
         if (sbErr.length() > 0)
             throw Er.create("e.cmd.error", sbErr);
@@ -86,7 +87,8 @@ public abstract class AbstractWnModule {
                             String cmdText,
                             OutputStream out,
                             OutputStream err,
-                            InputStream in) {
+                            InputStream in,
+                            Callback<WnBoxContext> on_before_free) {
         // 得到一个沙箱
         WnBox box = boxes.alloc(allocTimeout);
 
@@ -115,6 +117,7 @@ public abstract class AbstractWnModule {
         box.setStdin(in);
         box.setStdout(out);
         box.setStderr(err);
+        box.onBeforeFree(on_before_free);
 
         // 运行
         if (log.isDebugEnabled())

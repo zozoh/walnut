@@ -40,7 +40,7 @@ class JvmAtom extends JvmCmd implements Atom {
             sys._runner = runner.clone();
 
             if (log.isDebugEnabled())
-                log.debugf("Atom(%s) before : %s", id, sys.original);
+                log.debugf("Atom(%s) before : %s", id, sys.cmdOriginal);
 
             // 切换线程上下文到当前用户，并执行业务逻辑
             try {

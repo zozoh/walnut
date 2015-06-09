@@ -2,8 +2,10 @@ package org.nutz.walnut.impl.box;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import org.nutz.lang.Streams;
 import org.nutz.lang.random.R;
+import org.nutz.lang.util.Callback;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.box.WnBox;
@@ -28,6 +30,8 @@ public class JvmBox implements WnBox {
     private String id;
 
     private JvmAtomRunner runner;
+
+    private Callback<WnBoxContext> on_before_free;
 
     public JvmBox() {
         id = R.UU32();
@@ -62,6 +66,11 @@ public class JvmBox implements WnBox {
     }
 
     @Override
+    public void onBeforeFree(Callback<WnBoxContext> handler) {
+        this.on_before_free = handler;
+    }
+
+    @Override
     public void run(String cmdText) {
         String[] cmdLines = Jvms.split(cmdText, true, '\n', ';');
 
@@ -72,6 +81,10 @@ public class JvmBox implements WnBox {
     }
 
     void free() {
+        // 调用回调
+        if (null != this.on_before_free)
+            this.on_before_free.invoke(runner.bc);
+
         // 释放主运行器
         runner.__free();
 

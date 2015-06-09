@@ -7,9 +7,9 @@ public class cmd_ll extends JvmExecutor {
 
     @Override
     public void exec(final WnSystem sys, String[] args) {
-        int pos = sys.original.indexOf(' ');
+        int pos = sys.cmdOriginal.indexOf(' ');
         if (pos > 0) {
-            sys.exec("ls -l " + sys.original.substring(pos));
+            sys.exec("ls -l " + sys.cmdOriginal.substring(pos));
         } else {
             sys.exec("ls -l");
         }

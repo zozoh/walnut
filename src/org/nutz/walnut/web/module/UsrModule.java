@@ -87,7 +87,7 @@ public class UsrModule extends AbstractWnModule {
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
     public WnUsr do_signup_ajax(@Param("nm") String nm,
-                                @Param("pwd") String passwd,
+                                @Param("passwd") String passwd,
                                 @Param("email") String email,
                                 @Param("phone") String phone) {
         return do_signup(nm, passwd, email, phone);
@@ -123,7 +123,7 @@ public class UsrModule extends AbstractWnModule {
     @Ok("++cookie>>:/")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public WnSession do_login(@Param("nm") String nm, @Param("pwd") String passwd) {
+    public WnSession do_login(@Param("nm") String nm, @Param("passwd") String passwd) {
         WnSession se = sess.login(nm, passwd);
         Wn.WC().SE(se);
         return se;
@@ -134,7 +134,7 @@ public class UsrModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public WnSession do_login_ajax(@Param("nm") String nm, @Param("pwd") String passwd) {
+    public WnSession do_login_ajax(@Param("nm") String nm, @Param("passwd") String passwd) {
         WnSession se = sess.login(nm, passwd);
         Wn.WC().SE(se);
         return se;
@@ -152,7 +152,7 @@ public class UsrModule extends AbstractWnModule {
     @At("/check/login")
     @Ok("ajax")
     @Fail("ajax")
-    public boolean do_check_login(@Param("nm") String nm, @Param("pwd") String pwd) {
+    public boolean do_check_login(@Param("nm") String nm, @Param("passwd") String pwd) {
         if (Strings.isBlank(pwd))
             throw Er.create("e.usr.blank.pwd");
 

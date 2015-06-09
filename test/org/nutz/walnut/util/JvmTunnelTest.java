@@ -24,7 +24,7 @@ public class JvmTunnelTest {
         tnl = new JvmTunnel(8192);
         String src = Strings.dup('B', 99999999);
         final byte[] sbs = src.getBytes();
-        System.out.printf("gen %d bytes ~ %d Mbytes\n", sbs.length, sbs.length / 1000 / 1000);
+        //System.out.printf("gen %d bytes ~ %d Mbytes\n", sbs.length, sbs.length / 1000 / 1000);
         final Object lock = new Object();
         final byte[] bs = new byte[sbs.length];
 

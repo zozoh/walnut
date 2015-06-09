@@ -212,13 +212,15 @@ public class IoWnUsrService implements WnUsrService {
     }
 
     @Override
-    public void setPassword(String str, String pwd) {
-        __assert(null, str, "pwd");
+    public WnUsr setPassword(String str, String pwd) {
+        __assert(null, str, "passwd");
 
         WnObj o = _check_usr_obj(str);
         WnUsr u = io.readJson(o, IoWnUsr.class);
         u.password(pwd);
         io.writeJson(o, u, null);
+        
+        return u;
     }
 
     @Override
@@ -270,6 +272,25 @@ public class IoWnUsrService implements WnUsrService {
         // 返回
         return u;
 
+    }
+    
+    
+
+    @Override
+    public WnUsr set(String str, String key, String val) {
+        if(key.matches("^nm|pwd|phone|email")){
+            throw Er.create("e.u.forbiden.set", key);
+        }
+        if("home".equals(key)){
+            return this.setHome(str, val);
+        }
+        // 其他自由的属性
+        WnObj o = _check_usr_obj(str);
+        WnUsr u = io.readJson(o, IoWnUsr.class);
+        u.setOrRemove(key, val);
+        io.writeJson(o, u, null);
+        
+        return u;
     }
 
     @Override

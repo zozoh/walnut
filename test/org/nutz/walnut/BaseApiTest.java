@@ -25,7 +25,7 @@ public abstract class BaseApiTest {
     protected PropertiesProxy pp;
 
     protected MongoDB db;
-    
+
     protected MimeMap mimes;
 
     @Before
@@ -41,12 +41,12 @@ public abstract class BaseApiTest {
         Mirror.me(db).setValue(db, "pwd", pp.get("mongo-pwd"));
         Mirror.me(db).setValue(db, "db", pp.get("mongo-db"));
         db.on_create();
-        
+
         PropertiesProxy ppMime = new PropertiesProxy(pp.check("mime"));
         mimes = new MimeMapImpl(ppMime);
 
         // 创建当前线程操作的用户
-        Wn.WC().me("root","root");
+        Wn.WC().me("root", "root");
 
         // 调用子类初始化
         on_before(pp);
@@ -60,7 +60,7 @@ public abstract class BaseApiTest {
     protected void on_before(PropertiesProxy pp) {};
 
     protected void on_after(PropertiesProxy pp) {}
-    
+
     protected abstract WnNode _create_top_tree_node();
 
 }

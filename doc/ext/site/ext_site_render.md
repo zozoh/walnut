@@ -80,8 +80,36 @@ tags:
 ## 执行渲染网页
 
 1. 用 `HtmlUnit` 来执行这个本地临时文件
+2. 即，用 JS 将所有的组件的 DOM 展开，即 `<section extend...>` 节点会被组件的*DOM*替代
+3. 同时 *theme* 属性也会被 *class* 替代
+3. 因此保证这个网页包括渲染时需要的 JS,DOM 等所有必要内容
+4. 渲染的结果保留在内存中以备后续步骤使用
 
+## 整理渲染后的DOM
 
+1. 删除 `<head>` 内所有的 `<script>`
+2. 删除 `<section class="library">`
+3. 删除所有的 *gasket* 属性
+4. 删除所有的 *theme* 属性
+
+# 前端渲染策略
+
+每个页面标签都保存这样一个数据结构
+
+```
+{
+    library : <section class="library">     // 存放每个加载后的组件 DOM
+    template: <section class="template">    // 存放模板，模板定义了网页<body>的内容
+    content : xxxxx                         // 存放网页或者Markdown 等内容正文
+    canvas  : $(..)                         // 指向模板的显示区域
+}   
+```
+
+1. 编辑模板的时候，template 就是父模板，content 就是自己
+2. 修改组件属性的时候，会影响到 content 部分的属性定义
+3. 添加删除组件的时候，也会影响 content 部分的属性定义
+4. 每当 content 部分改动的时候会发消息 `page:change($content的组件节点)` 
+5. 之后会利用组件的渲染函数渲染 convas 对应的 DOM
 
 
 
