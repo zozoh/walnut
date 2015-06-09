@@ -214,10 +214,12 @@ $(document).ready(function () {
                 mphome.components.extSwtichOff.addClass('open');
                 mphome.nav.close();
                 mphome.components.navBtnGroup.addClass('close');
+                // 当前显示的tab获得焦点 FIXME 暂时直接找到input进行focus
+                mphome.components.extTabViewpage.find('.ext-tab-container.active input').focus();
                 setTimeout(function () {
                     mphome.components.ext.addClass('open');
                 }, 10)
-            }, 10)
+            }, 10);
         },
         'close': function () {
             if (mphome.components.extSwtich.hasClass('open')) {
