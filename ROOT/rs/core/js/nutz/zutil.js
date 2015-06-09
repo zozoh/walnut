@@ -14,8 +14,8 @@
             var posL = str.indexOf("{");
             var re = $.trim(str.substring(posL + 1, str.length - 1));
             // Safari 会自己加一个语句结尾，靠
-            if(re[re.length-1] == ";")
-                return re.substring(0, re.length-1);
+            if (re[re.length - 1] == ";")
+                return re.substring(0, re.length - 1);
             return re;
         },
         //.............................................
@@ -140,20 +140,22 @@
             return zUtil.dateToYYMMDD(date) + " " + zUtil.dateToHHMMSS(date);
         },
         // 返回当前时分秒
-        dateToYYMMDD: function (date) {
+        dateToYYMMDD: function (date, split) {
             date = date || new Date();
+            split = (split == null || split == undefined) ? "-" : split;
             var year = date.getFullYear();
             var month = date.getMonth() + 1;
             var day = date.getDate();
-            return year + "-" + zUtil.alignLeft(month, 2, '0') + "-" + zUtil.alignLeft(day, 2, '0');
+            return year + split + zUtil.alignLeft(month, 2, '0') + split + zUtil.alignLeft(day, 2, '0');
         },
         // 返回当前年月日
-        dateToHHMMSS: function (date) {
+        dateToHHMMSS: function (date, split) {
             date = date || new Date();
+            split = (split == null || split == undefined) ? "-" : split;
             var hours = date.getHours()
             var minutes = date.getMinutes();
             var seconds = date.getSeconds();
-            return zUtil.alignLeft(hours, 2, '0') + ":" + zUtil.alignLeft(minutes, 2, '0') + ":" + zUtil.alignLeft(seconds, 2, '0');
+            return zUtil.alignLeft(hours, 2, '0') + split + zUtil.alignLeft(minutes, 2, '0') + split + zUtil.alignLeft(seconds, 2, '0');
         },
         // 任何东西转换为字符串
         anyToString: function (obj) {
