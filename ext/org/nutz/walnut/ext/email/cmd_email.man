@@ -1,0 +1,27 @@
+# 命令简介 
+
+    `email` 用来发送邮件
+    
+    默认读取当前用户下的发送配置进行邮件发送 $HOME/.mail_send_conf, 格式如下:
+    
+    {
+    	host 	: "smtp.qq.com",
+		port 	: 25,
+    	account : 'root@walnut.com',
+		alias	: 'root',
+		password: '123456'
+    }
+
+# 用法
+
+    email [-c 指定发送配置文件] [-r 接收者] [-s 指定标题] [-msg 发送内容] [-a 附件] [-mail 指定的mail配置发送]
+	
+# 示例
+	
+	发送一封简单的邮件
+	email -r xiaobai@163.com -s 你好小白 -m 这是一封测试邮件
+	
+	同时发给多个接收者并指定名称
+	email -r xiaobai@163.com=小白,xiaohong@qq.com=小红 -s 你好,小白小红 -m 这是另一封测试邮件
+	
+	

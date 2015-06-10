@@ -1,6 +1,6 @@
 # 命令简介 
 
-    `weixin` 用来处理 strato 的微信业务逻辑。
+    `weixin` 用来处理微信业务逻辑。
     它的输入就是 httpapi 的数据文件输入
     如果处理成功了，就会标识 'clean_after' 以便 objclean 命令清除
     
