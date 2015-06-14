@@ -747,7 +747,7 @@ $(document).ready(function () {
 
                 // 初始化, 判断当前url
                 var $a = null;
-                var cui = location.href.indexOf('#');
+                var cui = window.location.href.indexOf('#');
                 var args = null;
                 if (cui != -1) {
                     var url = window.location.href.substr(cui + 1);
