@@ -13,6 +13,7 @@ tags:
 {
     // 项目显示文字，如果不写，则不显示项目名，支持占位符
     // 以 "i18n:" 开头的文字，从本地化语言字符集读取
+    // 如果值为 "!notitle"，则会在属性面板不显示项目名称
     text  : "i18n:msg.key",
     // 属性面板上用什么控件编辑，如果没有这个属性，则会根据值的类型
     // IDE 默认分配一个控件来编辑。一般的说，都是 input
@@ -104,31 +105,21 @@ tags:
 }
 ```
 
-## 控件:text
+## 控件:textEditor
 
 ```json
 {
-    type : "pickobj",
-    conf : {
-        base : "id:345cde..",    // 从哪个对象开始查找
-        query : {                // 查询对象
-            tp : "^png|jpg|jpeg$"
-        }
-    }
+    type : "textEditor",
+    conf : {}
 }
 ```
 
-## 控件:html
+## 控件:htmlEditor
 
 ```json
 {
-    type : "pickobj",
-    conf : {
-        base : "id:345cde..",    // 从哪个对象开始查找
-        query : {                // 查询对象
-            tp : "^png|jpg|jpeg$"
-        }
-    }
+    type : "htmlEditor",
+    conf : {}
 }
 ```
 

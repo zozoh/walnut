@@ -609,6 +609,18 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public Reader getReader(WnObj o, long off) {
+        InputStream ins = this.getInputStream(o, off);
+        return Streams.utf8r(ins);
+    }
+
+    @Override
+    public Writer getWriter(WnObj o, long off) {
+        OutputStream ops = this.getOutputStream(o, off);
+        return Streams.utf8w(ops);
+    }
+
+    @Override
     public long writeText(WnObj o, CharSequence cs) {
         OutputStream ops = this.getOutputStream(o, 0);
         Writer w = Streams.buffw(Streams.utf8w(ops));

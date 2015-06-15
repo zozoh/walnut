@@ -1,23 +1,26 @@
 <html>
-<head><title></title></head>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
 <body>
 <div layout="block" theme="navbar" gasket="nav">
-    <section extend="nav" apply="简单导航条">
-        <template name="height">90px</template>
-        <section extend="logo" apply="logo">
-            <template name="src">/imgs/zozoh.jpg</template>
-        </section>
-        <section extend="menu" apply="menu-simple">
-            <template name="links">
-            [
-	            {text:"首页", href:"site:/page/index.hml"},
-	            {text:"下载", href:"site:/page/download.hml"},
-	            {text:"文档", href:"site:/page/documents.hml"},
-	            {text:"资源", href:"site:/page/resource.md"},
-	            {text:"关于", href:"site:/page/about.md"}
-            ]
-            </template>
-        </section>
+    <section extend="nav" apply="简单导航条" old="true">
+        <template name="height">50px</template>
+		<section extend="logo" apply="logo" from="HOME">
+		    <template name="src">/imgs/zozoh.jpg</template>
+		</section>
+		<section extend="menu" apply="menu-simple" from="HOME">
+		    <template name="links">
+		    [
+		        {text:"首页", href:"site:/page/index.hml"},
+		        {text:"下载", href:"site:/page/download.hml"},
+		        {text:"文档", href:"site:/page/documents.hml"},
+		        {text:"资源", href:"site:/page/resource.md"},
+		        {text:"关于", href:"site:/page/about.md"}
+		    ]
+		    </template>
+		</section>
     </section>
 </div>
 <div layout="block" theme="banner" gasket="banner"></div>

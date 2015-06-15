@@ -2,6 +2,8 @@ package org.nutz.walnut.api.io;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.List;
 
 import org.nutz.json.JsonFormat;
@@ -81,4 +83,8 @@ public interface WnIo extends WnStore {
     long writeJson(WnObj o, Object obj, JsonFormat fmt);
 
     long writeAndClose(WnObj o, InputStream ins);
+
+    Reader getReader(WnObj o, long off);
+
+    Writer getWriter(WnObj o, long off);
 }
