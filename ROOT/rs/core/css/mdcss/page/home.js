@@ -213,7 +213,6 @@ $(document).ready(function () {
                 mphome.components.extSwtich.addClass('open');
                 mphome.components.extSwtichOff.addClass('open');
                 mphome.nav.close();
-                mphome.components.navBtnGroup.addClass('close');
                 // 当前显示的tab获得焦点 FIXME 暂时直接找到input进行focus
                 mphome.components.extTabViewpage.find('.ext-tab-container.active input').focus();
                 setTimeout(function () {
@@ -230,7 +229,6 @@ $(document).ready(function () {
                     mphome.components.ext.hide();
                 }, 1000)
                 mphome.mainOverlay.close();
-                mphome.components.navBtnGroup.removeClass('close');
             }
         },
         'makeExtBtnHtml': function (tabs) {
@@ -506,7 +504,7 @@ $(document).ready(function () {
 
             var html = "";
             // 独立页面
-            if (navItem.page) {
+            if (navItem.page == "true") {
                 html += '<iframe src="' + page + '"></iframe>';
                 mphome.components.main.html(html);
             }
@@ -749,7 +747,7 @@ $(document).ready(function () {
 
                 // 初始化, 判断当前url
                 var $a = null;
-                var cui = location.href.indexOf('#');
+                var cui = window.location.href.indexOf('#');
                 var args = null;
                 if (cui != -1) {
                     var url = window.location.href.substr(cui + 1);
