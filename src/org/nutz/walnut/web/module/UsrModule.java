@@ -23,6 +23,7 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.web.WebException;
+import org.nutz.web.ajax.Ajax;
 
 /**
  * 处理用户的登入登出，以及用户资料信息等的接口
@@ -161,6 +162,35 @@ public class UsrModule extends AbstractWnModule {
             throw Er.create("e.usr.invalid.login");
         }
         return true;
+    }
+
+    @POST
+    @At("/change/password")
+    @Ok("ajax")
+    @Fail("ajax")
+    public Object do_change_password(@Param("nm") String nm, @Param("passwd") String passwd) {
+        WnUsr u = usrs.check(nm);
+        if (Strings.isBlank(passwd)) {
+            throw Er.create("e.usr.pwd.blank");
+        }
+        if (!regexPasswd.matcher(passwd).find()) {
+            throw Er.create("e.usr.pwd.invalid");
+        }
+        if (!u.password().equals(passwd)) {
+            throw Er.create("e.usr.pwd.old.same");
+        } else {
+            usrs.setPassword(nm, passwd);
+        }
+        return Ajax.ok();
+    }
+
+    @POST
+    @At("/reset/password")
+    @Ok("ajax")
+    @Fail("ajax")
+    public Object do_change_password(@Param("nm") String nm) {
+        usrs.setPassword(nm, "123456");
+        return Ajax.ok();
     }
 
     /**
