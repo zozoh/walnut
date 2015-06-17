@@ -13,19 +13,22 @@
     content: "";
 }
 
-body {
-    margin:0; overflow: hidden; background: #CCC;
+body.ui-body {
+    margin: 0;
+    overflow: hidden;
+    background: #CCC;
 }
 
-body, font, td, form, p, input, textarea {
+body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-body input, body.ui-body textarea {
     font-family: arial, sans-serif;
 }
 
-a {
+.ui-body a {
     color: #0457ad;
     text-decoration: none;
 }
-a:hover {
+
+.ui-body a:hover {
     color: #ff3300;
     text-decoration: underline;
 }
@@ -58,7 +61,7 @@ a:hover {
     color: #FF0;
 }
 
-.fa {
+.ui-body .fa {
     cursor: default;
 }
 
