@@ -18,10 +18,10 @@ define(function (require, exports, module) {
             Mod.trigger("save:start");
             $.ajax({
                 type: "POST",
-                url: "/o/set/id:"+objId,
+                url: "/o/set/id:" + objId,
                 contentType: "application/jsonrequest",
                 data: $z.toJson(obj)
-            }).done(function(re) {
+            }).done(function (re) {
                 Mod.trigger("save:done");
             }).fail(function (re) {
                 Mod.trigger("save:fail");
