@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
@@ -33,11 +34,17 @@ public class ShRender implements SiteHdl {
         // 找到对象的模板
         Document tmpl = sc.getTemplateDom();
 
-        // 读取
+        // 为展开逻辑(js)标记关键信息
+        Element tmplBody = tmpl.body();
+        tmplBody.attr("site-path", sc.oHome.path());
+        tmplBody.attr("page-path", o.path());
+        tmplBody.attr("rpath", sc._rph);
+
+        // 读取源文件
         sys.out.print("r");
         String html = sys.io.readText(o);
 
-        // 解析
+        // 解析源文件
         sys.out.print("P");
         Document doc = Jsoup.parse(html);
 

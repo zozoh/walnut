@@ -9,12 +9,7 @@
         </script>
 	    <script class="SETTER" selector="img">
 	    function(val){
-	        var jq = $(this).empty();
-	        for(var i=0; i<val.length; i++){
-	            var v = val[i];
-	            var li = $('<li><a href='+v.href+'>'+v.text+'</a></li>');
-	            li.appendTo(jq);
-	        }
+	        $(this).prop("src", val);
 	    }
 	    </script>
 	</template>

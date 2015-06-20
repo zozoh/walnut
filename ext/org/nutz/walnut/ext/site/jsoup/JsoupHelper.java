@@ -93,16 +93,18 @@ public class JsoupHelper {
     private Elements __get_extends(String gasketName, Element... refs) {
         for (Element ref : refs) {
             Elements list = __get_extends_from_children(gasketName, ref);
-            if (!list.isEmpty())
+            if (null!=list)
                 return list;
         }
         return new Elements();
     }
 
     private Elements __get_extends_from_children(String gasketName, Element p) {
-        Elements list = new Elements();
+        Elements list = null;
         for (Element ext : p.children()) {
             if (gasketName.equals(ext.attr("extend"))) {
+                if(null==list)
+                    list = new Elements();
                 list.add(ext);
             }
         }
@@ -111,7 +113,15 @@ public class JsoupHelper {
 
     public void extendDoc() {
         extend_gaskets(doc_tmpl.body(), null, doc_refer.body());
+        // 整理文档的头
+        Element head = doc_tmpl.head().empty();
+        head.append("<script src='underscore.js'></script>");
+        head.append("<script src='jquery-2.1.3.js'></script>");
+        head.append("<script src='zutil.js'></script>");
+        head.append("<script src='site_dom.js'></script>");
+        head.append("<script>$(function(){$site.renderPage();});</script>");
     }
+    
 
     public String getHtml() {
         return doc_tmpl.toString();

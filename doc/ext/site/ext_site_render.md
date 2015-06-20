@@ -94,7 +94,7 @@ tags:
         找到组件 libDom // <section name="xxx">
         得到 libTmpl
         展开扩展点(libTmpl, ext, ext);
-        附加 ext 到 gasket 的子节点
+        附加 ext 到 gasket 的子节点    
 }
 //...........................................................
 ```
