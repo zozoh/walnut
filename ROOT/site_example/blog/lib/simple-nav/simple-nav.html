@@ -1,6 +1,6 @@
 <section>
-    <template class="lib-prop" name="height" type="int">
-        <script type="text/x-template" class="IDE">
+    <section class="lib-prop" name="height" type="int">
+        <section class="IDE">
         {
             text  : "i18n:height",
             type  : "input",
@@ -8,23 +8,23 @@
                 range : [40, 200]
             }
         }
-        </script>
-        <script class="SETTER">
+        </section>
+        <section class="SETTER">
         function(val){
             $(this).css("height", val);
         }
-        </script>
-    </template>
-    <template class="lib-dom">
+        </section>
+    </section>
+    <section class="lib-dom">
        <div layout="row" theme="arena">
 		    <div gasket="logo">
                 <section extend="logo" apply="logo" from="简单导航条">
-			        <script type="text/x-template" prop="src">/imgs/zozoh.jpg</script>
+			        <section prop="src">/imgs/zozoh.jpg</section>
 			    </section>
 		    </div>
 		    <div gasket="menu">
 				<section extend="menu" apply="menu-simple" from="简单导航条">
-				    <script type="text/x-template" prop="links">
+				    <section prop="links">
 		            [
 		                {text:"首页", href:"site:/page/index.hml"},
 		                {text:"下载", href:"site:/page/download.hml"},
@@ -32,9 +32,9 @@
 		                {text:"资源", href:"site:/page/resource.md"},
 		                {text:"关于", href:"site:/page/about.md"}
 		            ]
-		            </script>
+		            </section>
 				</section>
 		    </div>
 		</div>
-    </template>
+    </section>
 </section>

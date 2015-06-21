@@ -14,7 +14,7 @@ body.zui-app-wn_console{
 .ui-console .ui-arena {
 }
 
-.ui-console * {
+.ui-console *, .ui-console input.ui-console-inbox {
     font-family: Monaco, Consolas, Courier New;
     font-size: 13px;
 }

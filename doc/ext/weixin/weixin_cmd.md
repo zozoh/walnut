@@ -1,5 +1,5 @@
 ---
-title:微信扩展
+title:微信命令
 author:zozoh
 tags:
 - 系统

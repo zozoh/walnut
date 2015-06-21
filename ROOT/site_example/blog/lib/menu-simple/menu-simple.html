@@ -1,13 +1,13 @@
 <section>
-<template class="lib-prop" name="links" type="obj">
-    <script type="text/x-template" class="IDE">
+<section class="lib-prop" name="links" type="obj">
+    <section class="IDE">
     {
         text  : "i18n:menu-simple.links",
         type  : "linkList",
         conf  : {}
     }
-    </script>
-	<script class="SETTER" selector="ul">
+    </section>
+	<section class="SETTER" selector="ul"><![CDATA[
 	function(val){
 	    var jq = $(this).empty();
 	    for(var i=0; i<val.length; i++){
@@ -16,11 +16,11 @@
 	        li.appendTo(jq);
 	    }
 	}
-	</script>
-</template>
-<template class="lib-dom">
+	]]></section>
+</section>
+<section class="lib-dom">
 	<div class="menu-simple">
 	    <ul></ul>
 	</div>
-</template>
+</section>
 </section>
