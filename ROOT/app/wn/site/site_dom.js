@@ -83,7 +83,7 @@ var site_dom = {
         var lib = {name : libName};
 
         // 获取 DOM 模板
-        var frag = jq.children(".lib-dom")[0].content;
+        var frag = jq.children(".lib-dom");
         lib.dom = $(frag).children().clone();
 
         // 解析所有的动态属性
@@ -101,9 +101,9 @@ var site_dom = {
                 throw "unsupport prop type : " + prop.type;
             }
             // 属性的 IDE 设置
-            var eleIDE = this.content.querySelector("script.IDE");
-            if(eleIDE) {
-                prop.ide = eval('(' + eleIDE.innerHTML + ')');
+            var jIDE = me.children(".IDE");
+            if(jIDE.size()>0) {
+                prop.ide = eval('(' + jIDE.html() + ')');
             }
             // 默认
             else{
@@ -113,10 +113,10 @@ var site_dom = {
                 };
             }
             // 属性的设置函数
-            var jSetter = $(this.content.querySelector("script.SETTER"));
+            var jSetter = me.children(".SETTER");
             if(jSetter.size() == 0)
                 throw "!!! lib '" + libName + "' without SETTER";
-            prop.setter = eval('(' + jSetter.html() + ')');
+            prop.setter = eval('(' + jSetter.text() + ')');
             prop.selector = jSetter.attr("selector");
             // 计入属性列表
             lib.props[prop.name] = prop;
@@ -133,7 +133,7 @@ var site_dom = {
         var lib = site_dom.parseLibrary(libName);
         
         // 对组件的 DOM 进行设值
-        jExt.children("script[prop]").each(function(){
+        jExt.children("[prop]").each(function(){
             var pnm = $(this).attr("prop");
             var prop = lib.props[pnm];
             if(!prop)
@@ -163,7 +163,7 @@ var site_dom = {
         jExt.remove();
     },
     renderGasket : function(jG){
-        console.log("======================== render: " + jG.attr("gasket"))
+        //console.log("======================== render: " + jG.attr("gasket"))
         var sc = this;
         jG.children("section[apply]").each(function(){
             site_dom.renderComponent.call(sc, $(this), jG);
@@ -199,6 +199,7 @@ var site_dom = {
 
         // 整理扩展点的 theme 和 gasket 属性
         // 即， theme 变 className， gasket 删掉
+        /*
         jBody.find("[theme]").each(function(){
             var me = $(this);
             me.addClass(me.attr("theme"))
@@ -211,7 +212,7 @@ var site_dom = {
             var me = $(this);
             me.addClass("layout-" + me.attr("layout"))
                 .removeAttr("layout");
-        });
+        });*/
     }
 };
 //--------------------------------------------------------------------

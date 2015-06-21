@@ -5,13 +5,13 @@
 </head>
 <body>
 <div layout="block" theme="navbar" gasket="nav">
-    <section extend="nav" apply="简单导航条" old="true">
-        <script type="text/x-template" prop="height">50</script>
+    <section extend="nav" apply="simple-nav" old="true">
+        <section prop="height">50</section>
 		<section extend="logo" apply="logo" from="HOME">
-		    <script type="text/x-template" prop="src">/imgs/zozoh.jpg</script>
+		    <section prop="src">/imgs/zozoh.jpg</section>
 		</section>
 		<section extend="menu" apply="menu-simple" from="HOME">
-		    <script type="text/x-template" prop="links">
+		    <section prop="links">
 		    [
 		        {text:"首页", href:"site:/page/index.hml"},
 		        {text:"下载", href:"site:/page/download.hml"},
@@ -19,7 +19,7 @@
 		        {text:"资源", href:"site:/page/resource.md"},
 		        {text:"关于", href:"site:/page/about.md"}
 		    ]
-		    </script>
+		    </section>
 		</section>
     </section>
 </div>

@@ -66,7 +66,7 @@ public class JsoupHelper {
             Element libDom = this.getLibrary(libName);
 
             // 组件如果有扩展点，则扩展
-            Element libTmpl = libDom.select("template.lib-dom").first();
+            Element libTmpl = libDom.select(".lib-dom").first();
             extend_gaskets(libTmpl, ext, ext);
 
             // 附加到扩展点
@@ -93,7 +93,7 @@ public class JsoupHelper {
     private Elements __get_extends(String gasketName, Element... refs) {
         for (Element ref : refs) {
             Elements list = __get_extends_from_children(gasketName, ref);
-            if (null!=list)
+            if (null != list)
                 return list;
         }
         return new Elements();
@@ -103,7 +103,7 @@ public class JsoupHelper {
         Elements list = null;
         for (Element ext : p.children()) {
             if (gasketName.equals(ext.attr("extend"))) {
-                if(null==list)
+                if (null == list)
                     list = new Elements();
                 list.add(ext);
             }
@@ -115,13 +115,12 @@ public class JsoupHelper {
         extend_gaskets(doc_tmpl.body(), null, doc_refer.body());
         // 整理文档的头
         Element head = doc_tmpl.head().empty();
-        head.append("<script src='underscore.js'></script>");
-        head.append("<script src='jquery-2.1.3.js'></script>");
-        head.append("<script src='zutil.js'></script>");
-        head.append("<script src='site_dom.js'></script>");
+        head.append("<meta charset='UTF-8'>");
+        for (String key : sc.jsLibs.keySet()) {
+            head.append("<script src='" + key + "'></script>");
+        }
         head.append("<script>$(function(){$site.renderPage();});</script>");
     }
-    
 
     public String getHtml() {
         return doc_tmpl.toString();

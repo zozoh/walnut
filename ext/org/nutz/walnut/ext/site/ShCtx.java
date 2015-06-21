@@ -1,6 +1,8 @@
 package org.nutz.walnut.ext.site;
 
+import java.io.File;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jsoup.Jsoup;
@@ -32,9 +34,14 @@ public class ShCtx {
 
     private Map<String, Document> _libs;;
 
+    public Map<String, String> jsLibs;
+
+    public File dRenderHome;
+
     public ShCtx() {
         _tmpls = new HashMap<String, Document>();
         _libs = new HashMap<String, Document>();
+        jsLibs = new LinkedHashMap<String, String>();
     }
 
     public Document getTemplateDom() {
