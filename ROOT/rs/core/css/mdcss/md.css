@@ -216,10 +216,19 @@ input[type=password] {
 }
 .md-icon {
   color: #ffffff;
+  font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 .md-icon-flip {
   position: relative;
+  display: inline-block;
 }
 .md-icon-flip .close-icon {
   position: absolute;
@@ -303,6 +312,7 @@ input[type=password] {
   color: #ffffff;
   display: inline-block;
   width: 24px;
+  height: 24px;
   line-height: 24px;
   text-align: center;
   font: normal normal normal 14px/1 FontAwesome;
