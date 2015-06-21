@@ -377,11 +377,7 @@ $(document).ready(function () {
                 if (ni.type == 'url') {
                     navhtml += ' url="' + ni.url + '" ';
                     if (ni.args) {
-                        var argsStr = '';
-                        for (var k in ni.args) {
-                            argsStr += "&" + k + "=" + ni.args[k];
-                        }
-                        navhtml += ' args="' + argsStr.substr(1) + '"';
+                        navhtml += ' args="' + ni.args + '"';
                     }
                 } else if (ni.type == 'action') {
                     navhtml += ' action="' + ni.action + '"';
@@ -469,27 +465,17 @@ $(document).ready(function () {
             // 显示加载动画
 
             var isEssApp = !(url[0] == '/');   // 不是以 '/' 开头, 则为app名称
-            // ess的app, 格式为app/id:xxxxx
             if (isEssApp) {
-                // TODO
-                var si = url.indexOf('/');
-                var appname = null;
-                var obj = null;
-                if (si != -1) {
-                    appname = url.substr(0, si);
-                    // 获取obj对象
-                    var objId = url.substr(si + 1);
-                    obj = $http.syncGet("/o/get/" + objId).data;
-                } else {
-                    appname = url;
+                // TODO 暂时这样搞, 后面再开放接口
+                page = "/a/open/" + url;
+                if (navItem.args) {
+                    url += navItem.args;
+                    page += navItem.args;
                 }
-                args = {};
-                args.appname = appname;
-                args.obj = obj;
             }
             // 普通页面,  格式为/xxx/xxxx?a=b&c=d
             else {
-                page = url;
+                page = hconf.page_setting.page_rs + url;
                 if (navItem.args) {
                     url += "?" + navItem.args;
                     args = mphome.urlArgs(navItem.args);
@@ -500,7 +486,6 @@ $(document).ready(function () {
             mphome.module.showLabel(navItem.label);
             // 设置新的href
             window.location.href = (lhi > 0 ? lochref.substr(0, lhi) : lochref) + "#" + url;
-            page = hconf.page_setting.page_rs + page;
 
             var html = "";
             // 独立页面

@@ -9,12 +9,13 @@ define(function (require, exports, module) {
             this.listenModel("show:end", this.on_show_end);
         },
         redraw: function () {
-
         },
         resize: function () {
-
         },
         events: {
+
+        },
+        disk: {
 
         }
     });

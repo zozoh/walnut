@@ -24,6 +24,9 @@ body {
   color: rgba(0, 0, 0, 0.87);
   background-color: #f9f9f9;
 }
+body.md-home {
+  overflow: hidden;
+}
 #md-page-header {
   position: fixed;
   z-index: 1000;
@@ -45,7 +48,7 @@ body {
   content: "";
   background-color: #ffffff;
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   width: 4px;
   height: 4px;
@@ -132,8 +135,9 @@ body {
 }
 #md-page-header .mp-header-left #module-label {
   position: relative;
-  width: 300px;
+  width: 200px;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 #md-page-header .mp-header-left #module-label ._label {
   position: absolute;
