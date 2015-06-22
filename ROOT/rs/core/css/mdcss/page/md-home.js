@@ -180,6 +180,15 @@ $(document).ready(function () {
         }
     };
 
+    mphome.header = {
+        'asHeader': function () {
+            mphome.components.header.removeClass('notHeader');
+        },
+        'notHeader': function () {
+            mphome.components.header.addClass('notHeader');
+        }
+    }
+
     mphome.module = {
         'showLabel': function (ltxt) {
             var lbnm = mphome.components.modulelabel.attr('labelBlock');
@@ -487,6 +496,11 @@ $(document).ready(function () {
             // 设置新的href
             window.location.href = (lhi > 0 ? lochref.substr(0, lhi) : lochref) + "#" + url;
 
+
+            // header恢复默认样式
+            mphome.components.main.html("");
+            mphome.header.asHeader();
+            
             var html = "";
             // 独立页面
             if (navItem.page == "true") {

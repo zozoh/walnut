@@ -38,6 +38,9 @@ body.md-home {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
   padding: 4px 24px;
 }
+#md-page-header.notHeader {
+  box-shadow: none;
+}
 #md-page-header:after {
   opacity: 0;
   -webkit-transition: opacity 100ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
@@ -289,7 +292,7 @@ body.md-home {
 }
 #md-page-main-overlay {
   position: absolute;
-  z-index: 1;
+  z-index: 1001;
   opacity: 0;
   background-color: rgba(0, 0, 0, 0.12);
   -webkit-transition: opacity 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
@@ -302,7 +305,7 @@ body.md-home {
   opacity: 1;
 }
 #md-page-main-overlay.show {
-  top: 56px;
+  top: 0;
   bottom: 0;
   left: 0;
   right: 0;
@@ -314,7 +317,7 @@ body.md-home {
   user-select: none;
   position: fixed;
   z-index: 1001;
-  top: 56px;
+  top: 0;
   bottom: 0;
   left: 0;
   width: 288px;
@@ -341,6 +344,11 @@ body.md-home {
   transform: translate3d(0, 0, 0);
   opacity: 1;
 }
+#md-page-nav .md-page-nav-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
 #md-page-nav .nav-inner-scroll {
   width: 388px;
   height: 100%;
@@ -352,7 +360,7 @@ body.md-home {
 #md-page-nav .user-profile {
   width: 100%;
   height: 120px;
-  background-image: url("home_profile_landscape.jpg");
+  background-image: url("img/home_profile_landscape.jpg");
   background-size: cover;
   overflow: hidden;
 }
@@ -368,7 +376,7 @@ body.md-home {
   height: 48px;
   border-radius: 50%;
   margin-right: 16px;
-  background-image: url("home_avater.png");
+  background-image: url("img/home_avater.png");
   background-size: cover;
 }
 #md-page-nav .user-profile .user-info .user-name {
@@ -418,14 +426,14 @@ body.md-home {
 }
 #md-page-nav ._nav_menu li a {
   text-decoration: none;
-  padding: 12px 16px;
+  padding: 12px 48px 12px 72px;
   position: relative;
   color: rgba(0, 0, 0, 0.87);
   line-height: 24px;
-  padding-left: 72px;
   width: 100%;
   display: block;
   overflow: hidden;
+  text-overflow: ellipsis;
   -webkit-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   -moz-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   -ms-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
@@ -456,6 +464,8 @@ body.md-home {
 }
 #md-page-nav ._nav_menu li.has-sub-menu ._sub_menu_switch {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -472,6 +482,8 @@ body.md-home {
 }
 #md-page-nav ._nav_menu li.has-sub-menu > a:after {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -494,6 +506,8 @@ body.md-home {
 }
 #md-page-nav ._nav_menu li.has-sub-menu > a:before {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -523,6 +537,8 @@ body.md-home {
 }
 #md-page-nav ._nav_menu li.has-sub-menu.open > a:before {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -561,14 +577,14 @@ body.md-home {
 }
 #md-page-nav #user-menu li a {
   text-decoration: none;
-  padding: 12px 16px;
+  padding: 12px 48px 12px 72px;
   position: relative;
   color: rgba(0, 0, 0, 0.87);
   line-height: 24px;
-  padding-left: 72px;
   width: 100%;
   display: block;
   overflow: hidden;
+  text-overflow: ellipsis;
   -webkit-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   -moz-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   -ms-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
@@ -599,6 +615,8 @@ body.md-home {
 }
 #md-page-nav #user-menu li.has-sub-menu ._sub_menu_switch {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -615,6 +633,8 @@ body.md-home {
 }
 #md-page-nav #user-menu li.has-sub-menu > a:after {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -637,6 +657,8 @@ body.md-home {
 }
 #md-page-nav #user-menu li.has-sub-menu > a:before {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -666,6 +688,8 @@ body.md-home {
 }
 #md-page-nav #user-menu li.has-sub-menu.open > a:before {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -705,14 +729,14 @@ body.md-home {
 }
 #md-page-nav #main-menu li a {
   text-decoration: none;
-  padding: 12px 16px;
+  padding: 12px 48px 12px 72px;
   position: relative;
   color: rgba(0, 0, 0, 0.87);
   line-height: 24px;
-  padding-left: 72px;
   width: 100%;
   display: block;
   overflow: hidden;
+  text-overflow: ellipsis;
   -webkit-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   -moz-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   -ms-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
@@ -743,6 +767,8 @@ body.md-home {
 }
 #md-page-nav #main-menu li.has-sub-menu ._sub_menu_switch {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -759,6 +785,8 @@ body.md-home {
 }
 #md-page-nav #main-menu li.has-sub-menu > a:after {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -781,6 +809,8 @@ body.md-home {
 }
 #md-page-nav #main-menu li.has-sub-menu > a:before {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -810,6 +840,8 @@ body.md-home {
 }
 #md-page-nav #main-menu li.has-sub-menu.open > a:before {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -849,14 +881,14 @@ body.md-home {
 }
 #md-page-nav .sub-menu li a {
   text-decoration: none;
-  padding: 12px 16px;
+  padding: 12px 48px 12px 72px;
   position: relative;
   color: rgba(0, 0, 0, 0.87);
   line-height: 24px;
-  padding-left: 72px;
   width: 100%;
   display: block;
   overflow: hidden;
+  text-overflow: ellipsis;
   -webkit-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   -moz-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   -ms-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
@@ -887,6 +919,8 @@ body.md-home {
 }
 #md-page-nav .sub-menu li.has-sub-menu ._sub_menu_switch {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -903,6 +937,8 @@ body.md-home {
 }
 #md-page-nav .sub-menu li.has-sub-menu > a:after {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -925,6 +961,8 @@ body.md-home {
 }
 #md-page-nav .sub-menu li.has-sub-menu > a:before {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -954,6 +992,8 @@ body.md-home {
 }
 #md-page-nav .sub-menu li.has-sub-menu.open > a:before {
   right: 16px;
+  width: 24px;
+  text-align: center;
   display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
@@ -1292,7 +1332,7 @@ body.md-home {
 }
 @media screen and (max-width: 900px) {
   #md-page-header {
-    padding: 8px;
+    padding: 4px 8px;
   }
   #md-page-header li.module-arrow {
     display: none;

@@ -1,0 +1,55 @@
+@import "_page_vars";
+
+@disk-padding: 72px;
+
+.md-disk {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+
+  .md-disk-header-bg {
+    position: absolute;
+    z-index: @zi-header;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: @header-h * 2;
+    background-color: @primary-1-color;
+    box-shadow: @default-shadow;
+  }
+
+  .md-disk-container {
+    position: absolute;
+    z-index: @zi-header + 1;
+    top: @header-h / 3;
+    bottom: 0;
+    left: @disk-padding;
+    right: @disk-padding;
+    background: @white;
+    box-shadow: @default-shadow;
+  }
+}
+
+// 移动环境下
+@media screen {
+  @media (max-width: 900px) {
+
+    .md-disk {
+
+      .md-disk-header-bg {
+        display: none;
+      }
+
+      .md-disk-container {
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        box-shadow: none;
+      }
+
+    }
+
+  }
+}
