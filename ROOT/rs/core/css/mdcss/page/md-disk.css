@@ -47,14 +47,21 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
   overflow: hidden;
 }
+.md-disk .md-disk-container .disk-icon {
+  display: inline-block;
+  float: left;
+  width: 16px;
+  height: 16px;
+  background: #008800;
+  border-radius: 2px;
+}
 .md-disk .md-disk-container .md-disk-header {
   position: absolute;
   height: 56px;
   top: 0;
   left: 0;
   right: 0;
-  padding: 4px 16px;
-  overflow: hidden;
+  padding: 4px 24px;
 }
 .md-disk .md-disk-container .md-disk-header .disk-path {
   float: left;
@@ -64,10 +71,14 @@
 }
 .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj {
   display: inline-block;
+  float: left;
   position: relative;
   min-width: 60px;
   max-width: 140px;
   margin-right: 24px;
+}
+.md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj .disk-icon {
+  margin: 16px 4px 16px 0px;
 }
 .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj:after {
   right: -24px;
@@ -81,17 +92,8 @@
   text-rendering: auto;
   -webkit-font-smoothing: antialiased;
   position: absolute;
-  color: rgba(0, 0, 0, 0.87);
+  color: rgba(0, 0, 0, 0.54);
   content: '\f2c2';
-}
-.md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj .disk-icon {
-  display: inline-block;
-  float: left;
-  width: 16px;
-  height: 16px;
-  background: #008800;
-  border-radius: 2px;
-  margin: 16px 4px 16px 0px;
 }
 .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj .disk-path-nm {
   display: inline-block;
@@ -111,10 +113,60 @@
 .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj:last-child:after {
   display: none;
 }
+.md-disk .md-disk-container .md-disk-header .disk-menu-switch {
+  display: none;
+  float: right;
+  width: 48px;
+  height: 100%;
+}
 .md-disk .md-disk-container .md-disk-header .disk-menu {
   float: right;
   width: 144px;
   height: 100%;
+  display: inline-block;
+}
+.md-disk .md-disk-container .md-disk-header .disk-menu-item {
+  float: left;
+  display: block;
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 2px;
+  background-color: #ffffff;
+  -webkit-transition: background-color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  -moz-transition: background-color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  -ms-transition: background-color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  -o-transition: background-color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: background-color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.md-disk .md-disk-container .md-disk-header .disk-menu-item .md-menu {
+  display: none;
+}
+.md-disk .md-disk-container .md-disk-header .disk-menu-item:hover {
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.12);
+}
+.md-disk .md-disk-container .md-disk-header .disk-menu-item:hover .md-icon {
+  color: rgba(0, 0, 0, 0.87);
+}
+.md-disk .md-disk-container .md-disk-header .disk-menu-item:hover .md-menu {
+  display: block;
+}
+.md-disk .md-disk-container .md-disk-header .disk-menu-item .md-icon {
+  width: 48px;
+  height: 48px;
+  line-height: 48px;
+  text-align: center;
+  display: block;
+  color: rgba(0, 0, 0, 0.54);
+  -webkit-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  -moz-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  -ms-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  -o-transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.md-disk .md-disk-container .md-disk-header .disk-menu-item .disk-menu-nm {
+  display: none;
 }
 .md-disk .md-disk-container .md-disk-body {
   position: absolute;
@@ -122,7 +174,143 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 4px 16px;
+}
+.md-disk .md-disk-container .md-disk-body ._md-disk-cell {
+  display: block;
+  float: left;
+  height: 24px;
+  line-height: 24px;
+  margin: 12px 0;
+  padding: 0 16px;
+  font-size: 16.25px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title {
+  position: absolute;
+  top: 0;
+  height: 48px;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell {
+  display: block;
+  float: left;
+  height: 24px;
+  line-height: 24px;
+  margin: 12px 0;
+  padding: 0 16px;
+  font-size: 16.25px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: rgba(0, 0, 0, 0.54);
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell .md-disk-sort-asc {
+  display: none;
+  font-size: 22.75px;
+  color: rgba(0, 0, 0, 0.54);
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell .md-disk-sort-asc:before {
+  content: '\f2bf';
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell .md-disk-sort-desc {
+  display: none;
+  font-size: 22.75px;
+  color: rgba(0, 0, 0, 0.54);
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell .md-disk-sort-desc:before {
+  content: '\f2be';
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell.asc .md-disk-sort-asc {
+  display: inline-block;
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell.desc .md-disk-sort-desc {
+  display: inline-block;
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body {
+  position: absolute;
+  top: 48px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.12);
+  overflow-y: auto;
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item {
+  display: block;
+  float: left;
+  width: 100%;
+  height: 48px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item:hover {
+  background-color: rgba(0, 0, 0, 0.12);
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-disk-gi-preview {
+  display: none;
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item > [class^="gi-"] {
+  display: block;
+  float: left;
+  height: 24px;
+  line-height: 24px;
+  margin: 12px 0;
+  padding: 0 16px;
+  font-size: 16.25px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item > [class^="gi-"] .disk-icon {
+  margin: 4px 4px 4px 0px;
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item > .gi-name {
+  cursor: pointer;
+}
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-title {
+  display: none;
+}
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body {
+  top: 0;
+}
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item {
+  width: 160px;
+  height: 184px;
+  padding: 16px 16px 8px 16px;
+  border-bottom: none;
+}
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-disk-gi-preview {
+  display: block;
+  width: 128px;
+  height: 128px;
+  border-radius: 2px;
+  background: #008800;
+}
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item > [class^="gi-"] {
+  display: none;
+}
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item > .gi-name {
+  display: block;
+  padding: 0 8px;
+  margin: 8px 0;
+  width: 100%;
+}
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item > .gi-name .disk-icon {
+  margin: 2px 4px 0 0;
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-data {
+  display: none;
 }
 @media screen and (max-width: 900px) {
   .md-disk .md-disk-top-bg {
@@ -149,8 +337,5 @@
   }
   .md-disk .md-disk-container .md-disk-header .disk-menu {
     width: 48px;
-  }
-  .md-disk .md-disk-container .md-disk-body {
-    padding: 4px 0px;
   }
 }

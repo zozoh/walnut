@@ -32,14 +32,22 @@
     box-shadow: @default-shadow;
     overflow: hidden;
 
+    .disk-icon {
+      display: inline-block;
+      float: left;
+      width: 16px;
+      height: 16px;
+      background: #008800;
+      border-radius: 2px;
+    }
+
     .md-disk-header {
       position: absolute;
       height: @header-h;
       top: 0;
       left: 0;
       right: 0;
-      padding: 4px 16px;
-      overflow: hidden;
+      padding: 4px 24px;
 
       .disk-path {
         float: left;
@@ -49,10 +57,15 @@
 
         .disk-path-obj {
           display: inline-block;
+          float: left;
           position: relative;
           min-width: 60px;
           max-width: 140px;
           margin-right: 24px;
+
+          .disk-icon {
+            margin: 16px 4px 16px 0px;
+          }
 
           &:after {
             right: -24px;
@@ -66,22 +79,9 @@
             text-rendering: auto;
             -webkit-font-smoothing: antialiased;
             position: absolute;
-            color: @text-on-light;
+            color: @icon-on-light;
             content: '\f2c2';
           }
-
-          .disk-icon {
-            display: inline-block;
-            float: left;
-            width: 16px;
-            height: 16px;
-            background: #008800;
-            border-radius: 2px;
-            // 这里略微狭义了, 所以上提 1px
-            //margin: 14px 4px 17px 0px;
-            margin: 16px 4px 16px 0px;
-          }
-
           .disk-path-nm {
             display: inline-block;
             float: left;
@@ -104,10 +104,60 @@
         }
       }
 
+      // 菜单
+      .disk-menu-switch {
+        display: none;
+        float: right;
+        width: @menu-item-w;
+        height: 100%;
+      }
+
       .disk-menu {
         float: right;
         width: @menu-w;
         height: 100%;
+        display: inline-block;
+      }
+
+      .disk-menu-item {
+        float: left;
+        display: block;
+        position: relative;
+        width: 48px;
+        height: 48px;
+        border-radius: 2px;
+        background-color: @white;
+        .ease-out(@property: background-color);
+
+        .md-menu {
+          display: none;
+        }
+
+        &:hover {
+          cursor: pointer;
+          background-color: @divider-on-light;
+          .md-icon {
+            color: @text-on-light;
+          }
+
+          .md-menu {
+            display: block;
+          }
+        }
+
+        .md-icon {
+          width: 48px;
+          height: 48px;
+          line-height: 48px;
+          text-align: center;
+          display: block;
+          color: @icon-on-light;
+          .ease-out(@property: color);
+        }
+
+        .disk-menu-nm {
+          display: none;
+        }
       }
     }
 
@@ -117,7 +167,164 @@
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 4px 16px;
+
+      ._md-disk-cell {
+        display: block;
+        float: left;
+        height: 24px;
+        line-height: 24px;
+        margin: 12px 0;
+        padding: 0 16px;
+        font-size: @font-size-h4;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      // 显示列表信息
+      .md-disk-grid {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        border-top: 1px solid @faint-black;
+
+        @grid-row-h: 48px;
+
+        .md-disk-grid-title {
+          position: absolute;
+          top: 0;
+          height: @grid-row-h;
+          left: 0;
+          right: 0;
+          background: rgba(0, 0, 0, 0.05);
+          border-bottom: 1px solid @faint-black;
+
+          .md-disk-gt-cell {
+            ._md-disk-cell;
+            color: @icon-on-light;
+
+            .md-disk-sort-asc {
+              display: none;
+              font-size: @font-size-h3;
+              color: @icon-on-light;
+              &:before {
+                content: '\f2bf';
+              }
+            }
+
+            .md-disk-sort-desc {
+              display: none;
+              font-size: @font-size-h3;
+              color: @icon-on-light;
+              &:before {
+                content: '\f2be';
+              }
+            }
+
+            &.asc {
+              .md-disk-sort-asc {
+                display: inline-block;
+              }
+            }
+            &.desc {
+              .md-disk-sort-desc {
+                display: inline-block;
+              }
+            }
+          }
+        }
+
+        .md-disk-grid-body {
+          position: absolute;
+          top: @grid-row-h;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: @faint-white;
+          overflow-y: auto;
+
+          // 默认table格式
+          .md-disk-grid-item {
+            display: block;
+            float: left;
+            width: 100%;
+            height: 48px;
+            border-bottom: 1px solid @faint-black;
+
+            //&:last-child {
+            //  border-bottom: none;
+            //}
+
+            &:hover {
+              background-color: @divider-on-light;
+            }
+
+            .md-disk-gi-preview {
+              display: none;
+            }
+
+            & > [class^="gi-"] {
+              ._md-disk-cell;
+              font-size: @font-size-h5;
+              .disk-icon {
+                margin: 4px 4px 4px 0px;
+              }
+            }
+
+            & > .gi-name {
+              cursor: pointer;
+            }
+          }
+        }
+      }
+
+      // grid模式下
+      &.grid {
+        .md-disk-grid {
+
+          .md-disk-grid-title {
+            display: none;
+          }
+
+          .md-disk-grid-body {
+            top: 0;
+
+            .md-disk-grid-item {
+              width: 160px;
+              height: 184px;
+              padding: 16px 16px 8px 16px;
+              border-bottom: none;
+
+              .md-disk-gi-preview {
+                display: block;
+                width: 128px;
+                height: 128px;
+                border-radius: 2px;
+                background: #008800;
+              }
+
+              & > [class^="gi-"] {
+                display: none;
+              }
+
+              & > .gi-name {
+                display: block;
+                padding: 0 8px;
+                margin: 8px 0;
+                width: 100%;
+                .disk-icon {
+                  margin: 2px 4px 0 0;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // 显示对应信息
+      .md-disk-data {
+        display: none;
+      }
     }
 
   }
@@ -160,7 +367,6 @@
         }
 
         .md-disk-body {
-          padding: 4px 0px;
         }
       }
 
