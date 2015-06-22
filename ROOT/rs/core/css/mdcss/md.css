@@ -1891,14 +1891,22 @@ input[type=password] {
 }
 .md-menu > li {
   padding: 8px 16px;
+  width: 100%;
   display: block;
   text-decoration: none;
   position: relative;
   color: rgba(0, 0, 0, 0.87);
   line-height: 24px;
-  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.md-menu > li.divider {
+  height: 1px;
+  line-height: 1px;
+  width: 100%;
+  padding: 0;
+  margin: 2px 0;
+  background: rgba(0, 0, 0, 0.12);
 }
 .md-menu > li.active:before {
   content: "";
@@ -1907,8 +1915,9 @@ input[type=password] {
   top: 0;
   width: 4px;
   height: 100%;
-  background-color: #000;
+  background-color: #1976d2;
 }
 .md-menu > li:hover {
+  cursor: pointer;
   background-color: rgba(0, 0, 0, 0.12);
 }

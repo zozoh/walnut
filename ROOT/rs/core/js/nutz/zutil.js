@@ -57,7 +57,7 @@
         },
         //.............................................
         // 生成一个随机字符串
-        randomString: function(length) {
+        randomString: function (length) {
             var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
             if (!length) {
                 length = Math.floor(Math.random() * chars.length);
@@ -219,15 +219,34 @@
             throw new Error("Not implement yet!");
         },
         // 将字符串拆分，并无视空字符串
-        splitIgnoreEmpty: function(str, separator){
+        splitIgnoreEmpty: function (str, separator) {
             var ss = str.split(separator);
             var re = [];
-            for(var i=0;i<ss.length;i++){
+            for (var i = 0; i < ss.length; i++) {
                 var s = ss[i];
-                if(s)
+                if (s)
                     re.push(s);
             }
             return re;
+        },
+        //============== 计算文件大小
+        sizeText: function (sz) {
+            sz = parseInt(sz);
+            // KB
+            var ckb = sz / 1024;
+            if (ckb > 1024) {
+                // MB
+                var cmb = ckb / 1024;
+                if (cmb > 1024) {
+                    // GB
+                    var cgb = cmb / 1024;
+                    return cgb.toFixed(2) + " GB";
+                } else {
+                    return cmb.toFixed(2) + " MB";
+                }
+            } else {
+                return ckb.toFixed(2) + " KB";
+            }
         }
     };
 

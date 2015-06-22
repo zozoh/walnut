@@ -1,11 +1,44 @@
 <div class="ui-code-template" common-class="ui-console-block">
-
+    <div code-id="gi-r-menu" class='rclick-menu-bg' oncontextmenu="return false;">
+        <ul class="rclick-menu  paper z-depth-2 rounded md-menu">
+            <li class="">查看详情</li>
+            <li class="divider"></li>
+            <li class="">打开</li>
+            <li class="">重命名</li>
+            <li class="divider"></li>
+            <li class="">复制到</li>
+            <li class="">移动到</li>
+            <li class="">制作副本</li>
+            <li class="">删除</li>
+        </ul>
+    </div>
+    <div code-id="gbody-r-menu" class='rclick-menu-bg' oncontextmenu="return false;">
+        <ul class="rclick-menu  paper z-depth-2 rounded md-menu">
+            <li class="">查看详情</li>
+            <li class="divider"></li>
+            <li class="">上传文件</li>
+            <li class="">新建文件</li>
+            <li class="">新建文件夹</li>
+            <li class="">返回上一层</li>
+        </ul>
+    </div>
+    <div code-id="gi-item" class="md-disk-grid-item">
+        <div class="md-disk-gi-preview"></div>
+        <div class="md-gi-group">
+            <div class="gi-name md-w40">
+                <i class="disk-icon"></i>
+            </div>
+            <div class="gi-owner md-w20"></div>
+            <div class="gi-lm md-w20"></div>
+            <div class="gi-size md-w20"></div>
+        </div>
+    </div>
 </div>
-<div class="ui-arena md-disk">
+<div class="ui-arena md-disk" oncontextmenu="return false;">
     <div class="md-disk-top-bg">
     </div>
     <div class="md-disk-container">
-        <div class="md-disk-body grid">
+        <div class="md-disk-body">
             <!--表格-->
             <div class="md-disk-grid">
                 <div class="md-disk-grid-title">
@@ -29,54 +62,6 @@
                     </div>
                 </div>
                 <div class="md-disk-grid-body">
-                    <div class="md-disk-grid-item">
-                        <div class="md-disk-gi-preview"></div>
-                        <div class="md-gi-group">
-                            <div class="gi-name md-w40">
-                                <i class="disk-icon"></i>
-                                出货管理
-                            </div>
-                            <div class="gi-owner md-w20">root</div>
-                            <div class="gi-lm md-w20">2015-07-01</div>
-                            <div class="gi-size md-w20">25 KB</div>
-                        </div>
-                    </div>
-                    <div class="md-disk-grid-item active">
-                        <div class="md-disk-gi-preview"></div>
-                        <div class="md-gi-group">
-                            <div class="gi-name md-w40">
-                                <i class="disk-icon"></i>
-                                出货管理
-                            </div>
-                            <div class="gi-owner md-w20">root</div>
-                            <div class="gi-lm md-w20">2015-07-01</div>
-                            <div class="gi-size md-w20">25 KB</div>
-                        </div>
-                    </div>
-                    <div class="md-disk-grid-item">
-                        <div class="md-disk-gi-preview"></div>
-                        <div class="md-gi-group">
-                            <div class="gi-name md-w40">
-                                <i class="disk-icon"></i>
-                                出货管理
-                            </div>
-                            <div class="gi-owner md-w20">root</div>
-                            <div class="gi-lm md-w20">2015-07-01</div>
-                            <div class="gi-size md-w20">25 KB</div>
-                        </div>
-                    </div>
-                    <div class="md-disk-grid-item">
-                        <div class="md-disk-gi-preview"></div>
-                        <div class="md-gi-group">
-                            <div class="gi-name md-w40">
-                                <i class="disk-icon"></i>
-                                出货管理
-                            </div>
-                            <div class="gi-owner md-w20">root</div>
-                            <div class="gi-lm md-w20">2015-07-01</div>
-                            <div class="gi-size md-w20">25 KB</div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <!-- 对象 -->
@@ -102,8 +87,8 @@
                 <li class="disk-menu-item">
                     <i class="md-icon zmdi-view-dashboard"></i><span class="disk-menu-nm">切换视图</span>
                     <ol class="md-menu align-right">
-                        <li class="active grid-mode mode-grid">图示</li>
-                        <li class="grid-mode mode-list">列表</li>
+                        <li class="grid-mode mode-list active">列表</li>
+                        <li class="grid-mode mode-grid">图示</li>
                     </ol>
                 </li>
                 <li class="disk-menu-item">

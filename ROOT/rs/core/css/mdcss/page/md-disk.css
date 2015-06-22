@@ -297,7 +297,7 @@
   font-size: 13px;
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > [class^="gi-"] .disk-icon {
-  margin: 4px 4px 4px 0px;
+  margin: 4px 8px 4px 0px;
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > .gi-name {
   cursor: pointer;
