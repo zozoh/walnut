@@ -736,11 +736,24 @@ $(document).ready(function () {
                 var args = null;
                 if (cui != -1) {
                     var url = window.location.href.substr(cui + 1);
-                    var qi = url.indexOf('?');
-                    // 带着参数吗
-                    if (qi != -1) {
-                        args = url.substr(qi + 1);
-                        url = url.substr(0, qi);
+
+                    var isEssApp = !(url[0] == '/');   // 不是以 '/' 开头, 则为app名称
+                    if (isEssApp) {
+                        // 带着:参数吗
+                        var qi = url.indexOf(':');
+                        if (qi != -1) {
+                            args = url.substr(qi);
+                            url = url.substr(0, qi);
+                        }
+                    }
+                    // 普通页面,  格式为/xxx/xxxx?a=b&c=d
+                    else {
+                        // 带着?参数吗
+                        var qi = url.indexOf('?');
+                        if (qi != -1) {
+                            args = url.substr(qi + 1);
+                            url = url.substr(0, qi);
+                        }
                     }
                     $a = $('a[url="' + url + '"]');
                     if ($a.length > 0) {
@@ -751,6 +764,9 @@ $(document).ready(function () {
                             'page': $a.attr('page')
                         });
                         $a.parent().addClass('active');
+                    } else {
+                        $a = mphome.components.mainMenu.find('li:not(.has-sub-menu) > a').first();
+                        $a.click();
                     }
                 } else {
                     $a = mphome.components.mainMenu.find('li:not(.has-sub-menu) > a').first();
