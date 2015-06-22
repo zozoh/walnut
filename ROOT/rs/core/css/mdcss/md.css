@@ -216,6 +216,7 @@ input[type=password] {
 }
 .md-icon {
   color: #ffffff;
+  display: inline-block;
   font: normal normal normal 14px/1 'Material Design Iconic Font';
   font-size: 24px;
   width: 24px;

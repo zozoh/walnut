@@ -26,28 +26,106 @@
   overflow: hidden;
   position: relative;
 }
-.md-disk .md-disk-header-bg {
+.md-disk .md-disk-top-bg {
   position: absolute;
   z-index: 1000;
   top: 0;
   left: 0;
   right: 0;
-  height: 112px;
+  height: 84px;
   background-color: #2196f3;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
 }
 .md-disk .md-disk-container {
   position: absolute;
   z-index: 1001;
-  top: 18.66666667px;
+  top: 28px;
   bottom: 0;
   left: 72px;
   right: 72px;
   background: #ffffff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
+  overflow: hidden;
+}
+.md-disk .md-disk-container .md-disk-header {
+  position: absolute;
+  height: 56px;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 4px 16px;
+  overflow: hidden;
+}
+.md-disk .md-disk-container .md-disk-header .disk-path {
+  float: left;
+  width: calc(100% - 144px);
+  height: 100%;
+  overflow: hidden;
+}
+.md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj {
+  display: inline-block;
+  position: relative;
+  min-width: 60px;
+  max-width: 140px;
+  margin-right: 24px;
+}
+.md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj:after {
+  right: -24px;
+  top: 12px;
+  width: 24px;
+  text-align: center;
+  display: inline-block;
+  font: normal normal normal 14px/1 'Material Design Iconic Font';
+  font-size: 24px;
+  font-weight: 100;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  position: absolute;
+  color: rgba(0, 0, 0, 0.87);
+  content: '\f2c2';
+}
+.md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj .disk-icon {
+  display: inline-block;
+  float: left;
+  width: 16px;
+  height: 16px;
+  background: #008800;
+  border-radius: 2px;
+  margin: 16px 4px 16px 0px;
+}
+.md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj .disk-path-nm {
+  display: inline-block;
+  float: left;
+  height: 48px;
+  line-height: 48px;
+  min-width: 40px;
+  max-width: 120px;
+  font-size: 16.25px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj:last-child {
+  margin-right: 0px;
+}
+.md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj:last-child:after {
+  display: none;
+}
+.md-disk .md-disk-container .md-disk-header .disk-menu {
+  float: right;
+  width: 144px;
+  height: 100%;
+}
+.md-disk .md-disk-container .md-disk-body {
+  position: absolute;
+  top: 56px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 4px 16px;
 }
 @media screen and (max-width: 900px) {
-  .md-disk .md-disk-header-bg {
+  .md-disk .md-disk-top-bg {
     display: none;
   }
   .md-disk .md-disk-container {
@@ -56,5 +134,23 @@
     left: 0;
     right: 0;
     box-shadow: none;
+  }
+  .md-disk .md-disk-container .md-disk-header {
+    padding: 4px 8px;
+  }
+  .md-disk .md-disk-container .md-disk-header .disk-path {
+    width: calc(100% - 48px);
+  }
+  .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj {
+    margin-right: 0;
+  }
+  .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj:after {
+    display: none;
+  }
+  .md-disk .md-disk-container .md-disk-header .disk-menu {
+    width: 48px;
+  }
+  .md-disk .md-disk-container .md-disk-body {
+    padding: 4px 0px;
   }
 }

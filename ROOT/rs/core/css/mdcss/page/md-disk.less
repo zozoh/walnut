@@ -1,6 +1,8 @@
 @import "_page_vars";
 
 @disk-padding: 72px;
+@menu-item-w: 48px;
+@menu-w: @menu-item-w * 3;
 
 .md-disk {
   width: 100%;
@@ -8,13 +10,13 @@
   overflow: hidden;
   position: relative;
 
-  .md-disk-header-bg {
+  .md-disk-top-bg {
     position: absolute;
     z-index: @zi-header;
     top: 0;
     left: 0;
     right: 0;
-    height: @header-h * 2;
+    height: @header-h / 2 * 3;
     background-color: @primary-1-color;
     box-shadow: @default-shadow;
   }
@@ -22,12 +24,102 @@
   .md-disk-container {
     position: absolute;
     z-index: @zi-header + 1;
-    top: @header-h / 3;
+    top: @header-h / 2;
     bottom: 0;
     left: @disk-padding;
     right: @disk-padding;
     background: @white;
     box-shadow: @default-shadow;
+    overflow: hidden;
+
+    .md-disk-header {
+      position: absolute;
+      height: @header-h;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 4px 16px;
+      overflow: hidden;
+
+      .disk-path {
+        float: left;
+        width: calc(~"100% - @{menu-w}");
+        height: 100%;
+        overflow: hidden;
+
+        .disk-path-obj {
+          display: inline-block;
+          position: relative;
+          min-width: 60px;
+          max-width: 140px;
+          margin-right: 24px;
+
+          &:after {
+            right: -24px;
+            top: 12px;
+            width: 24px;
+            text-align: center;
+            display: inline-block;
+            font: normal normal normal 14px/1 'Material Design Iconic Font';
+            font-size: 24px;
+            font-weight: 100;
+            text-rendering: auto;
+            -webkit-font-smoothing: antialiased;
+            position: absolute;
+            color: @text-on-light;
+            content: '\f2c2';
+          }
+
+          .disk-icon {
+            display: inline-block;
+            float: left;
+            width: 16px;
+            height: 16px;
+            background: #008800;
+            border-radius: 2px;
+            // 这里略微狭义了, 所以上提 1px
+            //margin: 14px 4px 17px 0px;
+            margin: 16px 4px 16px 0px;
+          }
+
+          .disk-path-nm {
+            display: inline-block;
+            float: left;
+            height: 48px;
+            line-height: 48px;
+            min-width: 40px;
+            max-width: 120px;
+            font-size: @font-size-h4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+
+        .disk-path-obj:last-child {
+          margin-right: 0px;
+          &:after {
+            display: none;
+          }
+        }
+      }
+
+      .disk-menu {
+        float: right;
+        width: @menu-w;
+        height: 100%;
+      }
+    }
+
+    .md-disk-body {
+      position: absolute;
+      top: @header-h;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 4px 16px;
+    }
+
   }
 }
 
@@ -37,7 +129,7 @@
 
     .md-disk {
 
-      .md-disk-header-bg {
+      .md-disk-top-bg {
         display: none;
       }
 
@@ -47,6 +139,29 @@
         left: 0;
         right: 0;
         box-shadow: none;
+
+        .md-disk-header {
+          padding: 4px 8px;
+
+          @menu-w : @menu-item-w;
+          .disk-path {
+            width: calc(~"100% - @{menu-w}");
+            .disk-path-obj {
+              margin-right: 0;
+              &:after {
+                display: none;
+              }
+            }
+          }
+
+          .disk-menu {
+            width: @menu-w;
+          }
+        }
+
+        .md-disk-body {
+          padding: 4px 0px;
+        }
       }
 
     }
