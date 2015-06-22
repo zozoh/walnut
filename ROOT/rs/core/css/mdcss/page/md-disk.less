@@ -76,7 +76,7 @@
           margin-right: 24px;
 
           .disk-icon {
-            margin: 16px 4px 16px 0px;
+            margin: 16px 8px 16px 0px;
           }
 
           &:after {
@@ -444,6 +444,9 @@
           }
 
           &.grid {
+            .md-disk-header {
+              background: rgba(0, 0, 0, 0.05);
+            }
             .md-disk-grid {
               .md-disk-grid-body {
                 right: -10px;
@@ -473,14 +476,51 @@
 
         .md-disk-header {
           padding: 4px 8px;
-
           @menu-w : @menu-item-w;
           .disk-path {
+            padding-left: 48px;
             width: calc(~"100% - @{menu-w}");
             .disk-path-obj {
+              display: none;
               margin-right: 0;
               &:after {
                 display: none;
+              }
+              &:last-child {
+                display: block;
+                position: relative;
+                &:before {
+                  left: -36px;
+                  top: 12px;
+                  width: 24px;
+                  text-align: center;
+                  display: inline-block;
+                  font: normal normal normal 14px/1 'Material Design Iconic Font';
+                  font-size: 24px;
+                  font-weight: 100;
+                  text-rendering: auto;
+                  -webkit-font-smoothing: antialiased;
+                  position: absolute;
+                  color: @icon-on-light;
+                  content: '\f2b5';
+                }
+              }
+              &:first-child {
+                &:before {
+                  left: -36px;
+                  top: 12px;
+                  width: 24px;
+                  text-align: center;
+                  display: inline-block;
+                  font: normal normal normal 14px/1 'Material Design Iconic Font';
+                  font-size: 24px;
+                  font-weight: 100;
+                  text-rendering: auto;
+                  -webkit-font-smoothing: antialiased;
+                  position: absolute;
+                  color: @icon-on-light;
+                  content: '\f15e';
+                }
               }
             }
           }

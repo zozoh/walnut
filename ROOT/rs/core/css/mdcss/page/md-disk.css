@@ -87,7 +87,7 @@
   margin-right: 24px;
 }
 .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj .disk-icon {
-  margin: 16px 4px 16px 0px;
+  margin: 16px 8px 16px 0px;
 }
 .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj:after {
   right: -24px;
@@ -395,6 +395,9 @@
     width: 40%;
     display: block;
   }
+  .md-disk .md-disk-container .md-disk-body.grid .md-disk-header {
+    background: rgba(0, 0, 0, 0.05);
+  }
   .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body {
     right: -10px;
     padding: 0px;
@@ -417,13 +420,49 @@
     padding: 4px 8px;
   }
   .md-disk .md-disk-container .md-disk-header .disk-path {
+    padding-left: 48px;
     width: calc(100% - 48px);
   }
   .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj {
+    display: none;
     margin-right: 0;
   }
   .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj:after {
     display: none;
+  }
+  .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj:last-child {
+    display: block;
+    position: relative;
+  }
+  .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj:last-child:before {
+    left: -36px;
+    top: 12px;
+    width: 24px;
+    text-align: center;
+    display: inline-block;
+    font: normal normal normal 14px/1 'Material Design Iconic Font';
+    font-size: 24px;
+    font-weight: 100;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    position: absolute;
+    color: rgba(0, 0, 0, 0.54);
+    content: '\f2b5';
+  }
+  .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj:first-child:before {
+    left: -36px;
+    top: 12px;
+    width: 24px;
+    text-align: center;
+    display: inline-block;
+    font: normal normal normal 14px/1 'Material Design Iconic Font';
+    font-size: 24px;
+    font-weight: 100;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    position: absolute;
+    color: rgba(0, 0, 0, 0.54);
+    content: '\f15e';
   }
   .md-disk .md-disk-container .md-disk-header .disk-menu {
     width: 48px;
