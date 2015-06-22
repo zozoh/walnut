@@ -26,6 +26,15 @@
   overflow: hidden;
   position: relative;
 }
+.md-disk.full .md-disk-top-bg {
+  display: none;
+}
+.md-disk.full .md-disk-container {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
 .md-disk .md-disk-top-bg {
   position: absolute;
   z-index: 1000;
@@ -215,8 +224,10 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   color: rgba(0, 0, 0, 0.54);
+  cursor: pointer;
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell .md-disk-sort-asc {
+  float: left;
   display: none;
   font-size: 22.75px;
   color: rgba(0, 0, 0, 0.54);
@@ -225,6 +236,7 @@
   content: '\f2bf';
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell .md-disk-sort-desc {
+  float: left;
   display: none;
   font-size: 22.75px;
   color: rgba(0, 0, 0, 0.54);
@@ -233,10 +245,10 @@
   content: '\f2be';
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell.asc .md-disk-sort-asc {
-  display: inline-block;
+  display: block;
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell.desc .md-disk-sort-desc {
-  display: inline-block;
+  display: block;
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body {
   position: absolute;
@@ -271,7 +283,7 @@
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-disk-gi-preview {
   display: none;
 }
-.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item > [class^="gi-"] {
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > [class^="gi-"] {
   display: block;
   float: left;
   height: 24px;
@@ -284,10 +296,10 @@
   text-overflow: ellipsis;
   font-size: 13px;
 }
-.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item > [class^="gi-"] .disk-icon {
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > [class^="gi-"] .disk-icon {
   margin: 4px 4px 4px 0px;
 }
-.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item > .gi-name {
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > .gi-name {
   cursor: pointer;
 }
 .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-title {
@@ -316,7 +328,7 @@
 .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item.active:before {
   display: none;
 }
-.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item.active > .gi-name {
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item.active .md-gi-group > .gi-name {
   color: rgba(0, 0, 0, 0.87);
 }
 .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item:hover {
@@ -328,10 +340,10 @@
   width: 160px;
   height: 160px;
 }
-.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item > [class^="gi-"] {
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > [class^="gi-"] {
   display: none;
 }
-.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item > .gi-name {
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > .gi-name {
   display: block;
   border-top: 1px solid rgba(0, 0, 0, 0.12);
   padding: 8px;
@@ -340,7 +352,7 @@
   width: 100%;
   background: #ffffff;
 }
-.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item > .gi-name .disk-icon {
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > .gi-name .disk-icon {
   margin: 2px 8px 0 0;
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-data {
@@ -357,6 +369,50 @@
     right: 0;
     box-shadow: none;
   }
+  .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell {
+    display: none;
+  }
+  .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell:first-child {
+    width: 60%;
+    display: block;
+  }
+  .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title .md-disk-gt-cell:last-child {
+    width: 40%;
+    display: block;
+  }
+  .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body {
+    right: -10px;
+    padding: 0px;
+  }
+  .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > [class^="gi-"] {
+    display: none;
+  }
+  .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > [class^="gi-"]:first-child {
+    width: 60%;
+    display: block;
+  }
+  .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > [class^="gi-"]:last-child {
+    width: 40%;
+    display: block;
+  }
+  .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body {
+    right: -10px;
+    padding: 0px;
+  }
+  .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item {
+    width: calc(50% - 16px);
+    margin: 16px 8px;
+  }
+  .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-disk-gi-preview {
+    width: 100%;
+  }
+  .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > [class^="gi-"] {
+    display: none;
+  }
+  .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > [class^="gi-"]:first-child {
+    width: 100%;
+    display: block;
+  }
   .md-disk .md-disk-container .md-disk-header {
     padding: 4px 8px;
   }
@@ -371,5 +427,11 @@
   }
   .md-disk .md-disk-container .md-disk-header .disk-menu {
     width: 48px;
+  }
+  .md-disk .md-disk-container .md-disk-header .disk-menu .disk-menu-item {
+    display: none;
+  }
+  .md-disk .md-disk-container .md-disk-header .disk-menu .disk-menu-item:first-child {
+    display: block;
   }
 }

@@ -10,6 +10,18 @@
   overflow: hidden;
   position: relative;
 
+  &.full {
+    .md-disk-top-bg {
+      display: none;
+    }
+    .md-disk-container {
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+  }
+
   .md-disk-top-bg {
     position: absolute;
     z-index: @zi-header;
@@ -203,8 +215,10 @@
           .md-disk-gt-cell {
             ._md-disk-cell;
             color: @icon-on-light;
+            cursor: pointer;
 
             .md-disk-sort-asc {
+              float: left;
               display: none;
               font-size: @font-size-h3;
               color: @icon-on-light;
@@ -214,6 +228,7 @@
             }
 
             .md-disk-sort-desc {
+              float: left;
               display: none;
               font-size: @font-size-h3;
               color: @icon-on-light;
@@ -224,12 +239,12 @@
 
             &.asc {
               .md-disk-sort-asc {
-                display: inline-block;
+                display: block;
               }
             }
             &.desc {
               .md-disk-sort-desc {
-                display: inline-block;
+                display: block;
               }
             }
           }
@@ -274,17 +289,20 @@
               display: none;
             }
 
-            & > [class^="gi-"] {
-              ._md-disk-cell;
-              font-size: @font-size-h5;
-              .disk-icon {
-                margin: 4px 4px 4px 0px;
+            .md-gi-group {
+              & > [class^="gi-"] {
+                ._md-disk-cell;
+                font-size: @font-size-h5;
+                .disk-icon {
+                  margin: 4px 4px 4px 0px;
+                }
+              }
+
+              & > .gi-name {
+                cursor: pointer;
               }
             }
 
-            & > .gi-name {
-              cursor: pointer;
-            }
           }
         }
       }
@@ -315,9 +333,12 @@
                 &:before {
                   display: none;
                 }
-                & > .gi-name {
-                  color: @text-on-light;
+                .md-gi-group {
+                  & > .gi-name {
+                    color: @text-on-light;
+                  }
                 }
+
               }
 
               &:hover {
@@ -332,22 +353,25 @@
                 //margin: 16px 16px 0;
               }
 
-              & > [class^="gi-"] {
-                display: none;
-              }
+              .md-gi-group {
+                & > [class^="gi-"] {
+                  display: none;
+                }
 
-              & > .gi-name {
-                display: block;
-                border-top: 1px solid @divider-on-light;
-                padding: 8px;
-                margin: 0;
-                height: 40px;
-                width: 100%;
-                background: @white;
-                .disk-icon {
-                  margin: 2px 8px 0 0;
+                & > .gi-name {
+                  display: block;
+                  border-top: 1px solid @divider-on-light;
+                  padding: 8px;
+                  margin: 0;
+                  height: 40px;
+                  width: 100%;
+                  background: @white;
+                  .disk-icon {
+                    margin: 2px 8px 0 0;
+                  }
                 }
               }
+
             }
           }
         }
@@ -358,7 +382,6 @@
         display: none;
       }
     }
-
   }
 }
 
@@ -379,6 +402,75 @@
         right: 0;
         box-shadow: none;
 
+        .md-disk-body {
+
+          .md-disk-grid {
+
+            .md-disk-grid-title {
+              .md-disk-gt-cell {
+                display: none;
+                &:first-child {
+                  width: 60%;
+                  display: block;
+                }
+                &:last-child {
+                  width: 40%;
+                  display: block;
+                }
+              }
+            }
+
+            .md-disk-grid-body {
+              right: -10px;
+              padding: 0px;
+              .md-disk-grid-item {
+
+                .md-gi-group {
+
+                  & > [class^="gi-"] {
+                    display: none;
+                    &:first-child {
+                      width: 60%;
+                      display: block;
+                    }
+                    &:last-child {
+                      width: 40%;
+                      display: block;
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          &.grid {
+            .md-disk-grid {
+              .md-disk-grid-body {
+                right: -10px;
+                padding: 0px;
+                .md-disk-grid-item {
+                  width: calc(~"50% - 16px");
+                  margin: 16px 8px;
+                  .md-disk-gi-preview {
+                    width: 100%;
+                  }
+
+                  .md-gi-group {
+
+                    & > [class^="gi-"] {
+                      display: none;
+                      &:first-child {
+                        width: 100%;
+                        display: block;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
         .md-disk-header {
           padding: 4px 8px;
 
@@ -395,6 +487,14 @@
 
           .disk-menu {
             width: @menu-w;
+
+            .disk-menu-item {
+              display: none;
+            }
+
+            .disk-menu-item:first-child {
+              display: block;
+            }
           }
         }
 

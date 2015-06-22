@@ -27,7 +27,7 @@ $(document).ready(function () {
             }
         },
         closeQuick: false
-    }, _md_page_home_ || {});
+    }, window._md_page_home_ || {});
 
 
     var mphome = {
