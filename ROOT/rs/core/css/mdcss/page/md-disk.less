@@ -44,6 +44,40 @@
     box-shadow: @default-shadow;
     overflow: hidden;
 
+    &.obj {
+
+      .md-disk-grid {
+        display: none;
+      }
+
+      .md-disk-body {
+
+        .md-disk-data {
+          display: block;
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          overflow: hidden;
+          background: rgba(0, 0, 0, 0.02);
+        }
+      }
+
+      .md-disk-header {
+        .disk-menu {
+          width: 48px;
+
+          .disk-menu-item {
+            display: none;
+          }
+          .disk-menu-item:last-child {
+            display: block;
+          }
+        }
+      }
+    }
+
     .disk-icon {
       display: inline-block;
       float: left;
@@ -71,7 +105,7 @@
           float: left;
           position: relative;
           min-width: 60px;
-          max-width: 140px;
+          max-width: 160px;
           margin-right: 24px;
 
           .disk-icon {
@@ -98,12 +132,17 @@
             float: left;
             height: 48px;
             line-height: 48px;
-            min-width: 40px;
+            min-width: 36px;
             max-width: 120px;
             font-size: @font-size-h4;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+
+            &:hover {
+              cursor: pointer;
+              text-decoration: underline;
+            }
           }
         }
 
@@ -113,6 +152,7 @@
             display: none;
           }
         }
+
       }
 
       // 菜单
@@ -289,6 +329,11 @@
 
             &:hover {
               background-color: @divider-on-light;
+
+              .gi-nm {
+                text-decoration: underline;
+                cursor: pointer;
+              }
             }
 
             .md-disk-gi-preview {
@@ -303,10 +348,6 @@
                 .disk-icon {
                   margin: 4px 8px 4px 0px;
                 }
-              }
-
-              & > .gi-nm {
-                cursor: pointer;
               }
             }
 

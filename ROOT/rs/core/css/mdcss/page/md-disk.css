@@ -56,6 +56,28 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
   overflow: hidden;
 }
+.md-disk .md-disk-container.obj .md-disk-grid {
+  display: none;
+}
+.md-disk .md-disk-container.obj .md-disk-body .md-disk-data {
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.02);
+}
+.md-disk .md-disk-container.obj .md-disk-header .disk-menu {
+  width: 48px;
+}
+.md-disk .md-disk-container.obj .md-disk-header .disk-menu .disk-menu-item {
+  display: none;
+}
+.md-disk .md-disk-container.obj .md-disk-header .disk-menu .disk-menu-item:last-child {
+  display: block;
+}
 .md-disk .md-disk-container .disk-icon {
   display: inline-block;
   float: left;
@@ -82,7 +104,7 @@
   float: left;
   position: relative;
   min-width: 60px;
-  max-width: 140px;
+  max-width: 160px;
   margin-right: 24px;
 }
 .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj .disk-icon {
@@ -108,12 +130,16 @@
   float: left;
   height: 48px;
   line-height: 48px;
-  min-width: 40px;
+  min-width: 36px;
   max-width: 120px;
   font-size: 16.25px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj .disk-path-nm:hover {
+  cursor: pointer;
+  text-decoration: underline;
 }
 .md-disk .md-disk-container .md-disk-header .disk-path .disk-path-obj:last-child {
   margin-right: 0px;
@@ -285,6 +311,10 @@
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item:hover {
   background-color: rgba(0, 0, 0, 0.12);
 }
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item:hover .gi-nm {
+  text-decoration: underline;
+  cursor: pointer;
+}
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-disk-gi-preview {
   background-size: cover;
   display: none;
@@ -304,9 +334,6 @@
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > [class^="gi-"] .disk-icon {
   margin: 4px 8px 4px 0px;
-}
-.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > .gi-nm {
-  cursor: pointer;
 }
 .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-title {
   display: none;

@@ -1,6 +1,14 @@
 define(function (require, exports, module) {
     var ZUI = require("zui");
 
+    function getObj(id) {
+        return $http.syncGet("/o/get/id:" + id).data;
+    }
+
+    function getObjPath(path) {
+        return $http.syncGet("/o/get/" + path).data;
+    }
+
     function addMenuOnBody($menu, e) {
         $(document.body).append($menu);
         $menu.find('.rclick-menu').css({
@@ -13,7 +21,6 @@ define(function (require, exports, module) {
     }
 
     function on_keydown_at_gi(e) {
-        e.stopPropagation();
         var $gi = $(e.currentTarget);
         if (!$gi.hasClass('active')) {
             $gi.siblings().removeClass('active');
@@ -27,15 +34,16 @@ define(function (require, exports, module) {
         if (3 == e.which) {
             // 显示菜单
             addMenuOnBody(this.ccode('gi-r-menu'), e);
+            e.stopPropagation();
         }
     }
 
     function on_keydown_at_gbody(e) {
-        e.stopPropagation();
         $(e.currentTarget).find('.md-disk-grid-item').removeClass('active');
         if (3 == e.which) {
             // 显示菜单
             addMenuOnBody(this.ccode('gbody-r-menu'), e);
+            e.stopPropagation();
         }
     }
 
@@ -51,6 +59,33 @@ define(function (require, exports, module) {
         this.render_disk();
     }
 
+    function on_click_path_item(e) {
+        var path = null;
+        var $pli = $(e.currentTarget);
+        var $next = $pli.next();
+        var $prev = $pli.prev();
+        if ($pli.next().length == 0) {
+            if ($prev.length > 0 && $prev.css('display') == 'none') {
+                // mobile模式
+                path = $prev.attr('path');
+            }
+            if (path == null) {
+                return;
+            }
+        } else {
+            path = $pli.attr('path');
+        }
+        var nobj = getObjPath(path);
+        this.open_file(nobj);
+    }
+
+    function on_click_gi_item(e) {
+        var $gi = $(e.currentTarget).parent().parent();
+        var nobj = $gi.data(WOBJ);
+        this.open_file(nobj);
+    }
+
+    var COBJ = "current-walnut-obj";
     var WOBJ = "walnut-obj";
     var WOList = "walnut-obj-list";
     var SORT = "SORT";
@@ -63,7 +98,9 @@ define(function (require, exports, module) {
             this.listenModel("show:err", this.on_show_err);
             this.listenModel("show:txt", this.on_show_txt);
             this.listenModel("show:end", this.on_show_end);
-            this.load_disk("$PWD");
+            var cid = _app.obj !== undefined ? ("id:" + _app.obj.id) : _app.session.envs["PWD"];
+            var cobj = $http.syncGet("/o/get/" + cid).data;
+            this.open_file(cobj);
             this.model.set(WOList, []);
             this.model.set(SORT, "name");
             this.model.set(ASC, true);
@@ -76,15 +113,31 @@ define(function (require, exports, module) {
             "mousedown .md-disk .md-disk-container .md-disk-grid-item": on_keydown_at_gi,
             "mousedown .md-disk .md-disk-grid-body": on_keydown_at_gbody,
             "click .md-disk .md-disk-container .md-disk-grid-title .md-disk-gt-cell": on_click_sort,
+            "click .md-disk .disk-path-obj": on_click_path_item,
+            "click .md-disk .md-gi-group .gi-nm": on_click_gi_item,
         },
         clear_disk: function () {
             this.$el.find('.md-disk-grid-body').empty();
         },
-        load_disk: function (id) {
+        open_file: function (obj) {
             var UI = this;
             var Mod = UI.model;
             Mod.set(WOList, []);
-            Mod.trigger("cmd:exec", "disk " + id, function () {
+            Mod.set(COBJ, obj);
+            var isDir = obj.race == "DIR";
+            var tp = isDir ? "folder" : obj.tp.toLowerCase();
+            if (isDir) {
+                this.$el.find('.md-disk-container').removeClass('obj');
+                this.open_dir(obj);
+            } else {
+                this.$el.find('.md-disk-container').addClass('obj');
+                this.render_obj(obj);
+            }
+        },
+        open_dir: function (obj) {
+            var UI = this;
+            var Mod = UI.model;
+            Mod.trigger("cmd:exec", "disk id:" + obj.id, function () {
             });
         },
         sort_wolist: function () {
@@ -106,6 +159,7 @@ define(function (require, exports, module) {
         },
         render_disk: function () {
             this.clear_disk();
+            this.render_path();
             this.sort_wolist()
             var wolist = this.model.get(WOList);
             for (var i = 0; i < wolist.length; i++) {
@@ -122,6 +176,44 @@ define(function (require, exports, module) {
                 $gi.data(WOBJ, obj);
                 this.$el.find('.md-disk-grid-body').append($gi);
             }
+        },
+        render_path: function () {
+            var cobj = this.model.get(COBJ);
+            var $dp = this.$el.find('.disk-path').empty();
+            // 重新编译
+            var i = 0;
+            var $lgip = null;
+            var path = "";
+            while (true) {
+                var pnm = cobj["d" + i];
+                if (pnm != undefined) {
+                    path += '/' + pnm;
+                    var $gip = this.ccode('gi-path-item');
+                    $gip.find('.disk-icon').addClass('folder');
+                    $gip.find('.disk-path-nm').append(pnm);
+                    $gip.attr('path', path);
+                    if ($lgip != null) {
+                        $dp.append($lgip);
+                    }
+                    $lgip = $gip;
+                } else {
+                    // 到头了, 显示自己然后退出
+                    var isDir = cobj.race == "DIR";
+                    var tp = isDir ? "folder" : cobj.tp.toLowerCase();
+                    var $gip = this.ccode('gi-path-item');
+                    $gip.find('.disk-icon').addClass(tp);
+                    $gip.find('.disk-path-nm').append(cobj.nm);
+                    $gip.attr('path', path);
+                    $dp.append($gip);
+                    break;
+                }
+                i++;
+            }
+        },
+        render_obj: function (obj) {
+            this.clear_disk();
+            this.render_path();
+            // TODO 按照类型打开
         },
         __print_txt: function (s) {
             var olines = s.split("\n");
