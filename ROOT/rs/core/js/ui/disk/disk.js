@@ -64,7 +64,7 @@ define(function (require, exports, module) {
         var $pli = $(e.currentTarget);
         var $next = $pli.next();
         var $prev = $pli.prev();
-        if ($pli.next().length == 0) {
+        if ($next.length == 0) {
             if ($prev.length > 0 && $prev.css('display') == 'none') {
                 // mobile模式
                 path = $prev.attr('path');
@@ -114,7 +114,7 @@ define(function (require, exports, module) {
             "mousedown .md-disk .md-disk-grid-body": on_keydown_at_gbody,
             "click .md-disk .md-disk-container .md-disk-grid-title .md-disk-gt-cell": on_click_sort,
             "click .md-disk .disk-path-obj": on_click_path_item,
-            "click .md-disk .md-gi-group .gi-nm": on_click_gi_item,
+            "click .md-gi-group .gi-nm": on_click_gi_item,
         },
         clear_disk: function () {
             this.$el.find('.md-disk-grid-body').empty();
