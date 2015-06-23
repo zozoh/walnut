@@ -196,7 +196,7 @@ define(function (require, exports, module) {
             }
             else if (act == "upload") {
                 // FIXME
-                UI.model.trigger("cmd:exec", "open upload id:" + cobj.id, function () {
+                UI.model.trigger("cmd:exec", "open upload " + $po.attr('path'), function () {
                 });
             }
         },
@@ -225,6 +225,7 @@ define(function (require, exports, module) {
             var UI = this;
             var Mod = UI.model;
             Mod.trigger("cmd:exec", "disk id:" + obj.id, function () {
+                Mod.trigger("cmd:exec", "cd id:" + obj.id);
             });
         },
         sort_wolist: function () {
