@@ -61,7 +61,6 @@
   float: left;
   width: 16px;
   height: 16px;
-  background: #008800;
   border-radius: 2px;
 }
 .md-disk .md-disk-container .md-disk-header {
@@ -281,6 +280,7 @@
   background-color: rgba(0, 0, 0, 0.12);
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-disk-gi-preview {
+  background-size: cover;
   display: none;
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > [class^="gi-"] {

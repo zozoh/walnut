@@ -77,8 +77,12 @@ define(function (require, exports, module) {
                 console.log(objstr);
                 var obj = $z.fromJson(olines[i]);
                 var $gi = this.ccode('gi-item');
+
+                var isDir = obj.race == "DIR";
+                var tp = isDir ? "folder" : obj.tp.toLowerCase();
                 $gi.find('.gi-name').append(obj.nm);
-                $gi.find('.gi-name .disk-icon').addClass(obj.tp || "unknow");
+                $gi.find('.gi-name .disk-icon').addClass(tp);
+                $gi.find('.disk-preview').addClass(tp);
                 $gi.find('.gi-owner').append(obj.c || "unknow");
                 $gi.find('.gi-lm').append($z.currentTime(new Date(obj.lm)));
                 $gi.find('.gi-size').append((obj.len ? $z.sizeText(obj.len) : "-" ));
