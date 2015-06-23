@@ -305,7 +305,7 @@
 .md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > [class^="gi-"] .disk-icon {
   margin: 4px 8px 4px 0px;
 }
-.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > .gi-name {
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > .gi-nm {
   cursor: pointer;
 }
 .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-title {
@@ -334,7 +334,7 @@
 .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item.active:before {
   display: none;
 }
-.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item.active .md-gi-group > .gi-name {
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item.active .md-gi-group > .gi-nm {
   color: rgba(0, 0, 0, 0.87);
 }
 .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item:hover {
@@ -349,7 +349,7 @@
 .md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > [class^="gi-"] {
   display: none;
 }
-.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > .gi-name {
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > .gi-nm {
   display: block;
   border-top: 1px solid rgba(0, 0, 0, 0.12);
   padding: 8px;
@@ -358,7 +358,7 @@
   width: 100%;
   background: #ffffff;
 }
-.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > .gi-name .disk-icon {
+.md-disk .md-disk-container .md-disk-body.grid .md-disk-grid .md-disk-grid-body .md-disk-grid-item .md-gi-group > .gi-nm .disk-icon {
   margin: 2px 8px 0 0;
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-data {

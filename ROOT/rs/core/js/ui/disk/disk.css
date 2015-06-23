@@ -26,16 +26,16 @@
 }
 .disk-icon.jpg,
 .disk-icon.jpeg {
-  background: url(../../../img/file/16_jpg.png);
+  background: url(../../../img/file/16_image.png);
 }
 .disk-icon.png {
-  background: url(../../../img/file/16_png.png);
+  background: url(../../../img/file/16_image.png);
 }
 .disk-icon.gif {
-  background: url(../../../img/file/16_gif.png);
+  background: url(../../../img/file/16_image.png);
 }
 .disk-icon.bmp {
-  background: url(../../../img/file/16_bmp.png);
+  background: url(../../../img/file/16_image.png);
 }
 .disk-icon.mp4 {
   background: url(../../../img/file/16_video.png);
@@ -64,16 +64,16 @@
 }
 .disk-preview.jpg,
 .disk-preview.jpeg {
-  background: url(../../../img/file/256_jpg.png);
+  background: url(../../../img/file/256_image.png);
 }
 .disk-preview.png {
-  background: url(../../../img/file/256_png.png);
+  background: url(../../../img/file/256_image.png);
 }
 .disk-preview.gif {
-  background: url(../../../img/file/256_gif.png);
+  background: url(../../../img/file/256_image.png);
 }
 .disk-preview.bmp {
-  background: url(../../../img/file/256_bmp.png);
+  background: url(../../../img/file/256_image.png);
 }
 .disk-preview.mp4 {
   background: url(../../../img/file/256_video.png);
