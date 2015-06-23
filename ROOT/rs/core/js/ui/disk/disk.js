@@ -91,6 +91,28 @@ define(function (require, exports, module) {
     var SORT = "SORT";
     var ASC = "ASC";
 
+    var PLAY_MAP = {
+        'txt': 'plainText',
+        'jpg': 'image',
+        'jpeg': 'image',
+        'png': 'image',
+        'gif': 'image',
+        'bmp': 'image',
+        'mp4': 'video',
+        'avi': 'video',
+        'vod': 'video',
+        'wmv': 'video',
+        'mov': 'video'
+    }
+
+    function getPlayer(tp) {
+        var player = PLAY_MAP[tp];
+        if (player == null) {
+            return "unknow";
+        }
+        return player;
+    }
+
     module.exports = ZUI.def("ui.disk", {
         dom: "ui/disk/disk.html",
         css: "ui/disk/disk.css",
@@ -104,6 +126,11 @@ define(function (require, exports, module) {
             this.model.set(WOList, []);
             this.model.set(SORT, "name");
             this.model.set(ASC, true);
+            var UI = this;
+            $(document.body).delegate('.rclick-menu .menu-action', 'mousedown', function () {
+                var act = $(this).attr('action');
+                UI.rclick_action(act);
+            });
         },
         redraw: function () {
         },
@@ -116,12 +143,72 @@ define(function (require, exports, module) {
             "click .md-disk .disk-path-obj": on_click_path_item,
             "click .md-gi-group .gi-nm": on_click_gi_item,
         },
+        rclick_action: function (act) {
+            var UI = this;
+            var $ac = this.$el.find('.md-disk-grid-item.active');
+            var $po = this.$el.find('.disk-path-obj.active');
+            var cobj = $ac.length > 0 ? $ac.data(WOBJ) : null;
+            if (act == "open") {
+                this.open_file(cobj);
+            }
+            else if (act == "info") {
+                // TODO
+            }
+            else if (act == "rename") {
+                // TODO
+            }
+            else if (act == "move") {
+                // TODO
+            }
+            else if (act == "copy") {
+                // TODO
+            }
+            else if (act == "dup") {
+                // TODO
+            }
+            else if (act == "move") {
+                // TODO
+            }
+            else if (act == "delete") {
+                // TODO
+            }
+            else if (act == "back") {
+                var $cpo = $po;
+                if ($cpo.prev().length > 0) {
+                    var nobj = getObjPath($cpo.prev().attr('path'));
+                    UI.open_file(nobj);
+                } else {
+                    alert('没有上一层, 无法返回');
+                }
+            }
+            else if (act == "mkdir") {
+                setTimeout(function () {
+                    // TODO
+                    var dirnm = prompt("请输入文件名称", "新建文件夹");
+                    if (dirnm == undefined || dirnm == null) {
+                        return;
+                    }
+                    var cpath = $po.attr('path');
+                    UI.model.trigger("cmd:exec", "mkdir " + cpath + "/" + dirnm, function () {
+                        UI.open_file();
+                    });
+                }, 100);
+            }
+            else if (act == "upload") {
+                // FIXME
+                UI.model.trigger("cmd:exec", "open upload id:" + cobj.id, function () {
+                });
+            }
+        },
         clear_disk: function () {
             this.$el.find('.md-disk-grid-body').empty();
         },
         open_file: function (obj) {
             var UI = this;
             var Mod = UI.model;
+            if (obj == null) {
+                obj = Mod.get(COBJ);
+            }
             Mod.set(WOList, []);
             Mod.set(COBJ, obj);
             var isDir = obj.race == "DIR";
@@ -201,6 +288,7 @@ define(function (require, exports, module) {
                     var isDir = cobj.race == "DIR";
                     var tp = isDir ? "folder" : cobj.tp.toLowerCase();
                     var $gip = this.ccode('gi-path-item');
+                    $gip.addClass('active');
                     $gip.find('.disk-icon').addClass(tp);
                     $gip.find('.disk-path-nm').append(cobj.nm);
                     $gip.attr('path', path);
@@ -213,7 +301,13 @@ define(function (require, exports, module) {
         render_obj: function (obj) {
             this.clear_disk();
             this.render_path();
-            // TODO 按照类型打开
+            var $sel = this.$el.find('.md-disk-data').empty();
+            var obj = this.model.get(COBJ);
+            var tp = obj.tp.toLowerCase();
+            // 扎到应类型的播放器打开它
+            seajs.use("ui/open/" + getPlayer(tp), function (player) {
+                player.open($sel, obj);
+            });
         },
         __print_txt: function (s) {
             var olines = s.split("\n");

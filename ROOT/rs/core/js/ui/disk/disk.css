@@ -26,28 +26,28 @@
 }
 .disk-icon.jpg,
 .disk-icon.jpeg {
-  background: url(../../../img/file/16_image.png);
+  background: url(../../../img/file/16_jpg.png);
 }
 .disk-icon.png {
-  background: url(../../../img/file/16_image.png);
+  background: url(../../../img/file/16_png.png);
 }
 .disk-icon.gif {
-  background: url(../../../img/file/16_image.png);
+  background: url(../../../img/file/16_gif.png);
 }
 .disk-icon.bmp {
-  background: url(../../../img/file/16_image.png);
+  background: url(../../../img/file/16_bmp.png);
 }
 .disk-icon.mp4 {
-  background: url(../../../img/file/16_video.png);
+  background: url(../../../img/file/16_mp4.png);
 }
 .disk-icon.avi {
-  background: url(../../../img/file/16_video.png);
+  background: url(../../../img/file/16_avi.png);
 }
 .disk-icon.mov {
   background: url(../../../img/file/16_video.png);
 }
 .disk-icon.mpg {
-  background: url(../../../img/file/16_video.png);
+  background: url(../../../img/file/16_mpg.png);
 }
 .disk-icon.vod {
   background: url(../../../img/file/16_video.png);
@@ -64,29 +64,37 @@
 }
 .disk-preview.jpg,
 .disk-preview.jpeg {
-  background: url(../../../img/file/256_image.png);
+  background: url(../../../img/file/256_jpg.png);
 }
 .disk-preview.png {
-  background: url(../../../img/file/256_image.png);
+  background: url(../../../img/file/256_png.png);
 }
 .disk-preview.gif {
-  background: url(../../../img/file/256_image.png);
+  background: url(../../../img/file/256_gif.png);
 }
 .disk-preview.bmp {
-  background: url(../../../img/file/256_image.png);
+  background: url(../../../img/file/256_bmp.png);
 }
 .disk-preview.mp4 {
-  background: url(../../../img/file/256_video.png);
+  background: url(../../../img/file/256_mp4.png);
 }
 .disk-preview.avi {
-  background: url(../../../img/file/256_video.png);
+  background: url(../../../img/file/256_avi.png);
 }
 .disk-preview.mov {
   background: url(../../../img/file/256_video.png);
 }
 .disk-preview.mpg {
-  background: url(../../../img/file/256_video.png);
+  background: url(../../../img/file/256_mpg.png);
 }
 .disk-preview.vod {
   background: url(../../../img/file/256_video.png);
+}
+.full-screen {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+img.full-screen {
+  background-size: cover;
 }

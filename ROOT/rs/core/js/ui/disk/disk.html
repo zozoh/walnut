@@ -1,25 +1,26 @@
 <div class="ui-code-template">
     <div code-id="gi-r-menu" class='rclick-menu-bg' oncontextmenu="return false;">
         <ul class="rclick-menu  paper z-depth-2 rounded md-menu">
-            <li class="">查看详情</li>
+            <li class="menu-action" action="info">查看详情</li>
             <li class="divider"></li>
-            <li class="">打开</li>
-            <li class="">重命名</li>
+            <li class="menu-action" action="open">打开</li>
+            <li class="menu-action" action="rename">重命名</li>
             <li class="divider"></li>
-            <li class="">复制到</li>
-            <li class="">移动到</li>
-            <li class="">制作副本</li>
-            <li class="">删除</li>
+            <li class="menu-action" action="copy">复制到</li>
+            <li class="menu-action" action="move">移动到</li>
+            <li class="menu-action" action="dup">制作副本</li>
+            <li class="menu-action" action="delete">删除</li>
         </ul>
     </div>
     <div code-id="gbody-r-menu" class='rclick-menu-bg' oncontextmenu="return false;">
         <ul class="rclick-menu  paper z-depth-2 rounded md-menu">
-            <li class="">查看详情</li>
+            <li class="menu-action" action="back">返回上一层</li>
             <li class="divider"></li>
-            <li class="">上传文件</li>
-            <li class="">新建文件</li>
-            <li class="">新建文件夹</li>
-            <li class="">返回上一层</li>
+            <li class="menu-action" action="info">查看详情</li>
+            <li class="divider"></li>
+            <li class="menu-action" action="upload">上传文件</li>
+            <!--<li class="">新建文件</li>-->
+            <li class="menu-action" action="mkdir">新建文件夹</li>
         </ul>
     </div>
     <div code-id="gi-item" class="md-disk-grid-item">
@@ -37,7 +38,7 @@
         <i class="disk-icon"></i><span class="disk-path-nm"></span>
     </li>
 </div>
-<div class="ui-arena md-disk">
+<div class="ui-arena md-disk" oncontextmenu="return false;">
     <div class="md-disk-top-bg">
     </div>
     <div class="md-disk-container">
@@ -68,7 +69,6 @@
             </div>
             <!-- 对象 -->
             <div class="md-disk-data">
-
             </div>
         </div>
         <!--信息-->
