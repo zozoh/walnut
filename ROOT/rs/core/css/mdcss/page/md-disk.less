@@ -202,6 +202,10 @@
         @grid-row-h: 48px;
 
         .md-disk-grid-title {
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;;
           position: absolute;
           top: 0;
           height: @grid-row-h;
@@ -214,7 +218,10 @@
           .md-disk-gt-cell {
             ._md-disk-cell;
             color: @icon-on-light;
-            cursor: pointer;
+
+            &[sort] {
+              cursor: pointer;
+            }
 
             .md-disk-sort-asc {
               float: left;

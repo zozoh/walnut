@@ -25,16 +25,16 @@
     <div code-id="gi-item" class="md-disk-grid-item">
         <div class="md-disk-gi-preview disk-preview"></div>
         <div class="md-gi-group">
-            <div class="gi-name md-w40">
+            <div class="gi-nm md-w40">
                 <i class="disk-icon"></i>
             </div>
             <div class="gi-owner md-w20"></div>
             <div class="gi-lm md-w20"></div>
-            <div class="gi-size md-w20"></div>
+            <div class="gi-len md-w20"></div>
         </div>
     </div>
 </div>
-<div class="ui-arena md-disk" oncontextmenu="return false;">
+<div class="ui-arena md-disk">
     <div class="md-disk-top-bg">
     </div>
     <div class="md-disk-container">
@@ -42,20 +42,19 @@
             <!--表格-->
             <div class="md-disk-grid">
                 <div class="md-disk-grid-title">
-                    <div class="md-disk-gt-cell md-w40 asc" sort="name">
+                    <div class="md-disk-gt-cell md-w40 asc" sort="nm">
                         名称
                         <i class="md-icon md-disk-sort-asc"></i>
                         <i class="md-icon md-disk-sort-desc"></i>
                     </div>
-                    <div class="md-disk-gt-cell md-w20" sort="owner">
+                    <div class="md-disk-gt-cell md-w20">
                         所有者
-                        <i class="md-icon md-disk-sort-asc"></i><i class="md-icon md-disk-sort-desc"></i>
                     </div>
                     <div class="md-disk-gt-cell md-w20" sort="lm">
                         最后修改时间
                         <i class="md-icon md-disk-sort-asc"></i><i class="md-icon md-disk-sort-desc"></i>
                     </div>
-                    <div class="md-disk-gt-cell md-w20" sort="size">
+                    <div class="md-disk-gt-cell md-w20" sort="len">
                         文件大小
                         <i class="md-icon md-disk-sort-asc"></i>
                         <i class="md-icon md-disk-sort-desc"></i>
@@ -94,9 +93,9 @@
                 <li class="disk-menu-item">
                     <i class="md-icon zmdi-sort-by-alpha"></i><span class="disk-menu-nm">排序</span>
                     <ol class="md-menu align-right">
-                        <li class="active sort-mode" sort="name">名称</li>
-                        <li class="sort-mode" sort="size">文件大小</li>
+                        <li class="active sort-mode" sort="nm">名称</li>
                         <li class="sort-mode" sort="lm">最后修改时间</li>
+                        <li class="sort-mode" sort="len">文件大小</li>
                     </ol>
                 </li>
                 <li class="disk-menu-item">

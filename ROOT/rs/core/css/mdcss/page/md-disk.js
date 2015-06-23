@@ -46,6 +46,10 @@ $(document).ready(function () {
 
             $bd.delegate('.md-disk .md-disk-container .md-disk-grid-title .md-disk-gt-cell', 'click', function () {
                 var $st = $(this);
+                var sort = $st.attr('sort');
+                if (sort == undefined) {
+                    return;
+                }
                 if ($st.hasClass('asc')) {
                     $st.addClass('desc').removeClass('asc');
                 } else if ($st.hasClass('desc')) {
