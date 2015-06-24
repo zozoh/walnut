@@ -429,7 +429,7 @@ define(function (require, exports, module) {
                     }
                     // DOM 片段存放在另外一个地址
                     else {
-                        seajs.use(ME.$ui.dom, function (html) {
+                        require.async(ME.$ui.dom, function (html) {
                             parse_dom.call(ME, html);
                             do_render();
                         });

@@ -120,6 +120,8 @@ define(function (require, exports, module) {
             this.listenModel("show:err", this.on_show_err);
             this.listenModel("show:txt", this.on_show_txt);
             this.listenModel("show:end", this.on_show_end);
+        },
+        redraw: function () {
             var cid = _app.obj !== undefined ? ("id:" + _app.obj.id) : _app.session.envs["PWD"];
             var cobj = $http.syncGet("/o/get/" + cid).data;
             this.open_file(cobj);
@@ -131,10 +133,6 @@ define(function (require, exports, module) {
                 var act = $(this).attr('action');
                 UI.rclick_action(act);
             });
-        },
-        redraw: function () {
-        },
-        resize: function () {
         },
         events: {
             "mousedown .md-disk .md-disk-container .md-disk-grid-item": on_keydown_at_gi,
