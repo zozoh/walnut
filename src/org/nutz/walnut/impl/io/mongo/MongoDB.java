@@ -1,6 +1,8 @@
 package org.nutz.walnut.impl.io.mongo;
 
 import org.nutz.lang.Strings;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDB;
 import org.nutz.mongo.ZMongo;
@@ -9,6 +11,8 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 
 public class MongoDB {
+
+    private static final Log log = Logs.get();
 
     private String host;
     private int port;
@@ -24,6 +28,8 @@ public class MongoDB {
         MongoCredential cred = null;
         if (!Strings.isBlank(usr))
             cred = MongoCredential.createPlainCredential(usr, db, pwd.toCharArray());
+        if (log.isInfoEnabled())
+            log.infof("MongoCredential : '%s'", cred);
         // 连接数据库
         _zm = ZMongo.me(sa, cred, null);
         _zdb = _zm.db(db);
