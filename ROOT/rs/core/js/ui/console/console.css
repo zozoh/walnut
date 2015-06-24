@@ -1,14 +1,18 @@
-body.zui-app-wn_console{
+body.zui-app-wn_console {
     background: #000;
     overflow-x: hidden;
-    overflow-y: scroll;
-    margin: 10px;
+    overflow-y: auto;
+    padding: 10px;
 }
 
 .ui-console {
     background: #000;
     color: #CCC;
-    position: absolute; top:10px; left:10px; right:10px; bottom: 10px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
 }
 
 .ui-console .ui-arena {
@@ -22,13 +26,14 @@ body.zui-app-wn_console{
 .ui-console-block {
     line-height: 19px;
     margin: 0;
-    width:100%;
-    word-wrap:break-word; word-break:break-all;
-    padding:0;
+    width: 100%;
+    word-wrap: break-word;
+    word-break: break-all;
+    padding: 0;
 }
 
 pre.ui-console-block {
-    white-space:pre-wrap;
+    white-space: pre-wrap;
 }
 
 .ui-console-error {
@@ -102,13 +107,31 @@ input.ui-console-inbox {
    7 Reverse
    8 Hidden
 */
-.ui-console-f-font0{} 
-.ui-console-f-font1{font-weight: bold;} 
-.ui-console-f-font2{opacity: 0.618;}
-.ui-console-f-font3{text-decoration: underline;}
-.ui-console-f-font5{}
-.ui-console-f-font7{}
-.ui-console-f-font8{display:none;}
+.ui-console-f-font0 {
+}
+
+.ui-console-f-font1 {
+    font-weight: bold;
+}
+
+.ui-console-f-font2 {
+    opacity: 0.618;
+}
+
+.ui-console-f-font3 {
+    text-decoration: underline;
+}
+
+.ui-console-f-font5 {
+}
+
+.ui-console-f-font7 {
+}
+
+.ui-console-f-font8 {
+    display: none;
+}
+
 /*
     30 black
     31 dark red
@@ -119,14 +142,38 @@ input.ui-console-inbox {
     36 light blue, cyan
     37 white  
 */
-.ui-console-f-color30{color:#000;}
-.ui-console-f-color31{color:#A00;}
-.ui-console-f-color32{color:#AFA;}
-.ui-console-f-color33{color:#FF0;}
-.ui-console-f-color34{color:#88F;}
-.ui-console-f-color35{color:#F8F;}
-.ui-console-f-color36{color:#AAF;}
-.ui-console-f-color37{color:#FFF;}
+.ui-console-f-color30 {
+    color: #000;
+}
+
+.ui-console-f-color31 {
+    color: #A00;
+}
+
+.ui-console-f-color32 {
+    color: #AFA;
+}
+
+.ui-console-f-color33 {
+    color: #FF0;
+}
+
+.ui-console-f-color34 {
+    color: #88F;
+}
+
+.ui-console-f-color35 {
+    color: #F8F;
+}
+
+.ui-console-f-color36 {
+    color: #AAF;
+}
+
+.ui-console-f-color37 {
+    color: #FFF;
+}
+
 /*
     40 black
     41 red
@@ -137,14 +184,37 @@ input.ui-console-inbox {
     46 cyan
     47 white
 */
-.ui-console-f-bgcolor40{background: black;}
-.ui-console-f-bgcolor41{background: red;}
-.ui-console-f-bgcolor42{background: green;}
-.ui-console-f-bgcolor43{background: #880;}
-.ui-console-f-bgcolor44{background: blue;}
-.ui-console-f-bgcolor45{background: #808;}
-.ui-console-f-bgcolor46{background: #088;}
-.ui-console-f-bgcolor47{background: #FFF;}
+.ui-console-f-bgcolor40 {
+    background: black;
+}
+
+.ui-console-f-bgcolor41 {
+    background: red;
+}
+
+.ui-console-f-bgcolor42 {
+    background: green;
+}
+
+.ui-console-f-bgcolor43 {
+    background: #880;
+}
+
+.ui-console-f-bgcolor44 {
+    background: blue;
+}
+
+.ui-console-f-bgcolor45 {
+    background: #808;
+}
+
+.ui-console-f-bgcolor46 {
+    background: #088;
+}
+
+.ui-console-f-bgcolor47 {
+    background: #FFF;
+}
 
 
 
