@@ -500,7 +500,7 @@ $(document).ready(function () {
             // header恢复默认样式
             mphome.components.main.html("");
             mphome.header.asHeader();
-            
+
             var html = "";
             // 独立页面
             if (navItem.page == "true") {
@@ -771,6 +771,10 @@ $(document).ready(function () {
                     }
                     $a = $('a[url="' + url + '"]');
                     if ($a.length > 0) {
+                        // TODO 如果匹配上了多个?看看参数
+                        if ($a.length > 1) {
+
+                        }
                         mphome.nav.navUrl({
                             'url': url,
                             'label': $a.attr('label'),

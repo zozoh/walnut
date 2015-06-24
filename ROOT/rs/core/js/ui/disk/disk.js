@@ -6,7 +6,7 @@ define(function (require, exports, module) {
     }
 
     function getObjPath(path) {
-        return $http.syncGet("/o/get/" + path).data;
+        return $http.syncPost("/o/fetch", {'str': path}).data;
     }
 
     function addMenuOnBody($menu, e) {
@@ -122,8 +122,7 @@ define(function (require, exports, module) {
             this.listenModel("show:end", this.on_show_end);
         },
         redraw: function () {
-            var cid = _app.obj !== undefined ? ("id:" + _app.obj.id) : _app.session.envs["PWD"];
-            var cobj = $http.syncGet("/o/get/" + cid).data;
+            var cobj = _app.obj !== undefined ? getObj(_app.obj.id) : getObjPath(_app.session.envs["PWD"]);
             this.open_file(cobj);
             this.model.set(WOList, []);
             this.model.set(SORT, "name");
