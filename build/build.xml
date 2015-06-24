@@ -12,12 +12,13 @@
 	<property name="PROJECT_HOME" value="${env.PROJECT_HOME}" />
 
 	<property name="SRC" location="${PROJECT_HOME}/src" />
+	<property name="EXT" location="${PROJECT_HOME}/ext" />
 	<property name="TMP" value="${PROJECT_HOME}/build/temp" />
 
 	<property name="JDK_VERSION" value="1.7" />
 
 
-	<property name="v" value="1.1" />
+	<property name="v" value="1.2" />
 
 	<path id="CLASSPATH">
 		<fileset dir="${DEPS}" casesensitive="no">
@@ -26,11 +27,8 @@
 		<pathelement location="${JAVA_HOME}/lib/rt.jar" />
 	</path>
 
-	<target name="init">
-		<mkdir dir="${TMP}" />
-	</target>
-
-	<target name="compile" depends="init">
+	<target name="compile-core">
+	    <mkdir dir="${TMP}" />
 		<javac srcdir="${SRC}" destdir="${TMP}" debuglevel="lines,vars,source" debug="true" 
 			source="${JDK_VERSION}" target="${JDK_VERSION}" 
 			encoding="UTF-8" listfiles="off"
@@ -44,7 +42,7 @@
 		</copy>
 	</target>
 
-	<target name="jar" depends="compile">
+	<target name="jar-core" depends="compile-core">
 		<echo message="TMP: ${TMP}" />
 		<jar destfile="${DEST}/walnut-${v}.jar" 
 			 basedir="${TMP}"
@@ -53,8 +51,42 @@
 					 basedir="${SRC}"
 				     includes="**"/>
 	</target>
+	
+	<path id="CLASSPATH2">
+        <fileset dir="${DEPS}" casesensitive="no">
+            <include name="**/*.jar" />
+        </fileset>
+        <pathelement location="${JAVA_HOME}/lib/rt.jar" />
+        <pathelement location="${DEST}/walnut-${v}.jar" />
+    </path>
+	
+	<target name="compile-ext" depends="jar-core">
+	    <delete dir="${TMP}" />
+	    <mkdir dir="${TMP}" />
+        <javac srcdir="${EXT}" destdir="${TMP}" debuglevel="lines,vars,source" debug="true" 
+            source="${JDK_VERSION}" target="${JDK_VERSION}" 
+            encoding="UTF-8" listfiles="off"
+            includeantruntime="false"
+            fork="true">
+            <compilerarg value="-Xlint:all" />
+            <classpath refid="CLASSPATH2" />
+        </javac>
+        <copy todir="${TMP}">
+            <fileset dir="${SRC}" excludes="**/*.java" />
+        </copy>
+    </target>
 
-	<target name="run" depends="jar">
+    <target name="jar-ext" depends="compile-ext">
+        <echo message="TMP: ${TMP}" />
+        <jar destfile="${DEST}/walnut-ext-${v}.jar" 
+             basedir="${TMP}"
+             includes="**" />
+        <jar destfile="${DEST}/walnut-ext-${v}-source.jar"
+                     basedir="${EXT}"
+                     includes="**"/>
+    </target>
+
+	<target name="run" depends="jar-ext">
 		<delete dir="${TMP}" />
 	</target>
 </project>

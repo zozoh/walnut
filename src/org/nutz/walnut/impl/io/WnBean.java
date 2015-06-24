@@ -338,11 +338,11 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public String[] labels() {
-        return this.getArray("lbs", String.class);
+        return this.getArray("lbls", String.class);
     }
 
     public WnBean labels(String[] lbs) {
-        this.setOrRemove("lbs", lbs);
+        this.setOrRemove("lbls", lbs);
         return this;
     }
 
