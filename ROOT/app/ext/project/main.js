@@ -7,11 +7,7 @@ define(function (require, exports, module) {
         new UI({
             $pel: $(document.body),
             model: new Mod(window._app)
-        }).render(function () {
-                if ($mp) {
-                    $mp.home.header.notHeader();
-                }
-            });
+        }).render();
     }
 
     exports.init = init;
