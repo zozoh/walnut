@@ -181,12 +181,25 @@ define(function (require, exports, module) {
             else if (act == "mkdir") {
                 setTimeout(function () {
                     // TODO
-                    var dirnm = prompt("请输入文件名称", "新建文件夹");
+                    var dirnm = prompt("请输入文件夹名称", "新建文件夹");
                     if (dirnm == undefined || dirnm == null) {
                         return;
                     }
                     var cpath = $po.attr('path');
                     UI.model.trigger("cmd:exec", "mkdir " + cpath + "/" + dirnm, function () {
+                        UI.open_file();
+                    });
+                }, 100);
+            }
+            else if (act == "touch") {
+                setTimeout(function () {
+                    // TODO
+                    var dirnm = prompt("请输入文件名称", "新建文件");
+                    if (dirnm == undefined || dirnm == null) {
+                        return;
+                    }
+                    var cpath = $po.attr('path');
+                    UI.model.trigger("cmd:exec", "touch " + cpath + "/" + dirnm, function () {
                         UI.open_file();
                     });
                 }, 100);
