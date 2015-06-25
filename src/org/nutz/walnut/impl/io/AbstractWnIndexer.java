@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
@@ -105,15 +104,10 @@ public abstract class AbstractWnIndexer implements WnIndexer {
             }
 
             // 计算 d0,d1
-            String ph = nd.path();
-            String[] ss = Strings.splitIgnoreBlank(ph, "/");
-            int max = Math.min(ss.length, 2);
-            for (int i = 0; i < max; i++) {
-                o.put("d" + i, ss[i]);
-            }
+            String[] ss = Wn.Io.eval_dn(o);
 
             // 主节点和 home 必须是可以进入的
-            if (ss.length == 0 || (ph.equals("/home"))) {
+            if (ss.length == 0 || (ss.length == 1 && ss[0].equals("home"))) {
                 o.mode(0755);
             }
             // 二级节点参照父
@@ -128,7 +122,7 @@ public abstract class AbstractWnIndexer implements WnIndexer {
             }
             // 保存到元数据表
             if (ObjIndexStrategy.IMPLICT != ois) {
-                this.set(o, "^d[0-9]|lm|ct|nano|tp|mime|c|m|g|md$");
+                this.set(o, "^d0|d1|lm|ct|nano|tp|mime|c|m|g|md$");
             }
 
         }

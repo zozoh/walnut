@@ -277,6 +277,25 @@ public abstract class Wn {
             return md;
         }
 
+        /**
+         * 计算对象的 d0,d1，并填充字段
+         * 
+         * @param o
+         *            对象
+         * @return 对象路径数组
+         */
+        public static String[] eval_dn(WnObj o) {
+            String ph = o.path();
+            String[] ss = Strings.splitIgnoreBlank(ph, "/");
+            for (int i = 0; i < 2; i++) {
+                if (i < ss.length)
+                    o.put("d" + i, ss[i]);
+                else
+                    o.put("d" + i, null);
+            }
+            return ss;
+        }
+
     }
 
     public static class ROLE {

@@ -211,6 +211,10 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public WnObj move(WnObj src, String destPath) {
+        // 保存之前的 d0,d1
+        String old_d0 = src.d0();
+        String old_d1 = src.d1();
+
         // 得到自身节点
         src.loadParents(null, false);
 
@@ -309,11 +313,27 @@ public class WnIoImpl implements WnIo {
             re = oB;
         }
 
+        // 修改新对象的 d0, d1
+        Wn.Io.eval_dn(re);
+
         // 更新一下索引的记录
         __set_type(re, src.type());
         re.setv("pid", ta.id());
-        indexer.set(re, "^pid|tp|mime$");
+        indexer.set(re, "^d0|d1|pid|tp|mime$");
 
+        // 如果是目录，且d0,d1 改变了，需要递归
+        if (re.isDIR()) {
+            final String d0 = re.d0();
+            final String d1 = re.d1();
+            if (!Lang.equals(d0, old_d0) || !Lang.equals(d1, old_d1)) {
+                this.walk(re, new Callback<WnObj>() {
+                    public void invoke(WnObj obj) {
+                        obj.d0(d0).d1(d1);
+                        indexer.set(obj, "^d0|d1$");
+                    }
+                }, WalkMode.DEPTH_NODE_FIRST);
+            }
+        }
         // 返回
         return re;
     }
