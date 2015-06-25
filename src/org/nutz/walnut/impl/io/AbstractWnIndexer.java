@@ -107,7 +107,8 @@ public abstract class AbstractWnIndexer implements WnIndexer {
             // 计算 d0,d1
             String ph = nd.path();
             String[] ss = Strings.splitIgnoreBlank(ph, "/");
-            for (int i = 0; i < ss.length; i++) {
+            int max = Math.min(ss.length, 2);
+            for (int i = 0; i < max; i++) {
                 o.put("d" + i, ss[i]);
             }
 
