@@ -24,7 +24,6 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.view.WnObjDownloadView;
@@ -43,13 +42,13 @@ public class ObjModule extends AbstractWnModule {
 
     @At("/get/**")
     public WnObj get(String str) {
-        return Wn.checkObj(io, str);
+        return Wn.checkObj(io, Wn.WC().checkSE(), str);
     }
 
     @POST
     @At("/fetch")
     public WnObj fetch(@Param("str") String str) {
-        return Wn.checkObj(io, str);
+        return Wn.checkObj(io, Wn.WC().checkSE(), str);
     }
 
     /**
@@ -65,7 +64,7 @@ public class ObjModule extends AbstractWnModule {
     @At("/set/**")
     @AdaptBy(type = JsonAdaptor.class)
     public WnObj set(String str, NutMap map) {
-        WnObj o = Wn.checkObj(io, str);
+        WnObj o = Wn.checkObj(io, Wn.WC().checkSE(), str);
         io.writeMeta(o, map);
         return o;
     }
@@ -95,14 +94,13 @@ public class ObjModule extends AbstractWnModule {
     @Ok("void")
     public View read(String str) {
         // 首先得到目标对象
-        WnObj o = Wn.checkObj(io, str);
+        WnObj o = Wn.checkObj(io, Wn.WC().checkSE(), str);
         return new WnObjDownloadView(io, o);
     }
 
     @At("/write/**")
     public WnObj write(String str, InputStream ins) {
-        WnSession se = Wn.WC().checkSE();
-        WnObj o = Wn.checkObj(io, se, str);
+        WnObj o = Wn.checkObj(io, Wn.WC().checkSE(), str);
         OutputStream ops = io.getOutputStream(o, 0);
         Streams.writeAndClose(ops, ins);
         return o;
@@ -133,7 +131,7 @@ public class ObjModule extends AbstractWnModule {
                         @Param("mime") String mime,
                         InputStream ins) {
         // 首先得到目标对象
-        WnObj ta = Wn.checkObj(io, str);
+        WnObj ta = Wn.checkObj(io, Wn.WC().checkSE(), str);
 
         WnObj o;
         // 如果目标对象是个文件

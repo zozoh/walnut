@@ -6,7 +6,7 @@ define(function (require, exports, module) {
     }
 
     function getObjPath(path) {
-        return $http.syncGet("/o/get/" + path).data;
+        return $http.syncPost("/o/fetch", {'str': path}).data;
     }
 
     function addMenuOnBody($menu, e) {
@@ -120,8 +120,9 @@ define(function (require, exports, module) {
             this.listenModel("show:err", this.on_show_err);
             this.listenModel("show:txt", this.on_show_txt);
             this.listenModel("show:end", this.on_show_end);
-            var cid = _app.obj !== undefined ? ("id:" + _app.obj.id) : _app.session.envs["PWD"];
-            var cobj = $http.syncGet("/o/get/" + cid).data;
+        },
+        redraw: function () {
+            var cobj = _app.obj !== undefined ? getObj(_app.obj.id) : getObjPath(_app.session.envs["PWD"]);
             this.open_file(cobj);
             this.model.set(WOList, []);
             this.model.set(SORT, "name");
@@ -131,10 +132,6 @@ define(function (require, exports, module) {
                 var act = $(this).attr('action');
                 UI.rclick_action(act);
             });
-        },
-        redraw: function () {
-        },
-        resize: function () {
         },
         events: {
             "mousedown .md-disk .md-disk-container .md-disk-grid-item": on_keydown_at_gi,
@@ -184,12 +181,25 @@ define(function (require, exports, module) {
             else if (act == "mkdir") {
                 setTimeout(function () {
                     // TODO
-                    var dirnm = prompt("请输入文件名称", "新建文件夹");
+                    var dirnm = prompt("请输入文件夹名称", "新建文件夹");
                     if (dirnm == undefined || dirnm == null) {
                         return;
                     }
                     var cpath = $po.attr('path');
                     UI.model.trigger("cmd:exec", "mkdir " + cpath + "/" + dirnm, function () {
+                        UI.open_file();
+                    });
+                }, 100);
+            }
+            else if (act == "touch") {
+                setTimeout(function () {
+                    // TODO
+                    var dirnm = prompt("请输入文件名称", "新建文件");
+                    if (dirnm == undefined || dirnm == null) {
+                        return;
+                    }
+                    var cpath = $po.attr('path');
+                    UI.model.trigger("cmd:exec", "touch " + cpath + "/" + dirnm, function () {
                         UI.open_file();
                     });
                 }, 100);

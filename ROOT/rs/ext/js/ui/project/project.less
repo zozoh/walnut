@@ -1,0 +1,125 @@
+@task-h: 48px;
+
+.ext-project {
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  .project-tabs {
+  }
+
+  .project-info {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+  }
+
+  .project-empty {
+    margin: 50px auto;
+    font-size: 1.5em;
+    text-align: center;
+  }
+
+  @t-border: 1px solid rgba(0, 0, 0, 0.13);
+
+  .project-task {
+    width: 100%;
+    height: @task-h + 16;
+    position: relative;
+    padding: 8px 0;
+    border-bottom: @t-border;
+
+    .task-name {
+      float: left;
+      width: 20%;
+      height: @task-h;
+      line-height: @task-h;
+      padding: 0 8px;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 1.1em;
+    }
+
+    .task-detail {
+      float: left;
+      width: 40%;
+      height: @task-h;
+
+      .task-priority, .task-level {
+        float: left;
+        width: 50%;
+        height: @task-h /2;
+        line-height: @task-h /2;
+        padding: 0 2px;
+      }
+
+      .task-description {
+        float: left;
+        width: 100%;
+        height: @task-h /2;
+        line-height: @task-h /2;
+        padding: 0 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+    }
+
+    .task-progress {
+      float: left;
+      width: 20%;
+      line-height: @task-h;
+      height: @task-h;
+      padding: 0 2px;
+      text-align: center;
+    }
+
+    .dead-line {
+      float: left;
+      width: 20%;
+      height: @task-h;
+
+      .dl-left, .dl {
+        float: left;
+        width: 100%;
+        text-align: center;
+        height: @task-h /2;
+        line-height: @task-h /2;
+        padding: 0 2px;
+      }
+    }
+  }
+
+}
+
+@media screen {
+  @media (max-width: 600px) {
+    .ext-project {
+      .project-task {
+        width: 100%;
+
+        .task-name {
+          width: 40%;
+        }
+
+        .task-detail {
+          display: none;
+        }
+
+        .task-progress {
+          width: 30%;
+        }
+
+        .dead-line {
+          width: 30%;
+        }
+      }
+    }
+
+  }
+}
+

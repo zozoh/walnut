@@ -1,0 +1,97 @@
+.ext-project {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.ext-project .project-info {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+}
+.ext-project .project-empty {
+  margin: 50px auto;
+  font-size: 1.5em;
+  text-align: center;
+}
+.ext-project .project-task {
+  width: 100%;
+  height: 64px;
+  position: relative;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.13);
+}
+.ext-project .project-task .task-name {
+  float: left;
+  width: 20%;
+  height: 48px;
+  line-height: 48px;
+  padding: 0 8px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 1.1em;
+}
+.ext-project .project-task .task-detail {
+  float: left;
+  width: 40%;
+  height: 48px;
+}
+.ext-project .project-task .task-detail .task-priority,
+.ext-project .project-task .task-detail .task-level {
+  float: left;
+  width: 50%;
+  height: 24px;
+  line-height: 24px;
+  padding: 0 2px;
+}
+.ext-project .project-task .task-detail .task-description {
+  float: left;
+  width: 100%;
+  height: 24px;
+  line-height: 24px;
+  padding: 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ext-project .project-task .task-progress {
+  float: left;
+  width: 20%;
+  line-height: 48px;
+  height: 48px;
+  padding: 0 2px;
+  text-align: center;
+}
+.ext-project .project-task .dead-line {
+  float: left;
+  width: 20%;
+  height: 48px;
+}
+.ext-project .project-task .dead-line .dl-left,
+.ext-project .project-task .dead-line .dl {
+  float: left;
+  width: 100%;
+  text-align: center;
+  height: 24px;
+  line-height: 24px;
+  padding: 0 2px;
+}
+@media screen and (max-width: 600px) {
+  .ext-project .project-task {
+    width: 100%;
+  }
+  .ext-project .project-task .task-name {
+    width: 40%;
+  }
+  .ext-project .project-task .task-detail {
+    display: none;
+  }
+  .ext-project .project-task .task-progress {
+    width: 30%;
+  }
+  .ext-project .project-task .dead-line {
+    width: 30%;
+  }
+}
