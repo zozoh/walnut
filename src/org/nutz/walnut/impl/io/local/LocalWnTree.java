@@ -217,7 +217,10 @@ public class LocalWnTree extends AbstractWnTree {
 
     @Override
     public boolean exists(WnNode p, String name) {
-        File d = _check_local_file(p);
+        File d = _get_local_file(p);
+        if (null == d || !d.exists()) {
+            return false;
+        }
         File f = Files.getFile(d, name);
         return f.exists();
     }

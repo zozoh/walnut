@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.io.AbstractWnNode;
@@ -30,6 +31,21 @@ public class LocalWnNode extends AbstractWnNode {
 
     public File getFile() {
         return file;
+    }
+
+    @Override
+    public String realPath() {
+        String mnt = this.tree().getTreeNode().mount();
+        if (!mnt.startsWith("file://")) {
+            throw Lang.impossible();
+        }
+        String treeRootPath = mnt.substring("file://".length());
+        File treeRootFile = Files.findFile(treeRootPath);
+        if (null == treeRootFile) {
+            throw Er.create("e.tree.local.weird.rootPath", treeRootPath);
+        }
+        String abstrph = treeRootFile.getAbsolutePath();
+        return file.getAbsolutePath().substring(abstrph.length());
     }
 
     public WnNode parent() {
@@ -90,25 +106,25 @@ public class LocalWnNode extends AbstractWnNode {
         return file.lastModified() * 1000000L;
     }
 
-//    @Override
-//    public String creator() {
-//        return "_local";
-//    }
-//
-//    @Override
-//    public String mender() {
-//        return "_local";
-//    }
-//
-//    @Override
-//    public String group() {
-//        return "_local";
-//    }
-//
-//    @Override
-//    public int mode() {
-//        return 0755;
-//    }
+    // @Override
+    // public String creator() {
+    // return "_local";
+    // }
+    //
+    // @Override
+    // public String mender() {
+    // return "_local";
+    // }
+    //
+    // @Override
+    // public String group() {
+    // return "_local";
+    // }
+    //
+    // @Override
+    // public int mode() {
+    // return 0755;
+    // }
 
     @Override
     public WnRace race() {

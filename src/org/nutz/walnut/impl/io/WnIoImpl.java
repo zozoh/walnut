@@ -197,10 +197,21 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public void rename(WnObj o, String newName) {
+        String old_d0 = o.d0();
+        String old_d1 = o.d1();
+
         WnNode nd = o.tree().rename(o, newName);
         o.setNode(nd);
+
+        // 修改新对象的 d0, d1
+        Wn.Io.eval_dn(o);
+
+        // 保存元数据
         __set_type(o, null);
-        indexer.set(o, "^nm|tp|mime$");
+        indexer.set(o, "^d0|d1|nm|tp|mime$");
+
+        // 如果是目录，且d0,d1 改变了，需要递归
+        __check_dn(old_d0, old_d1, o);
     }
 
     @Override
@@ -319,14 +330,21 @@ public class WnIoImpl implements WnIo {
         // 更新一下索引的记录
         __set_type(re, src.type());
         re.setv("pid", ta.id());
-        indexer.set(re, "^d0|d1|pid|tp|mime$");
+        indexer.set(re, "^d0|d1|nm|pid|tp|mime$");
 
         // 如果是目录，且d0,d1 改变了，需要递归
-        if (re.isDIR()) {
-            final String d0 = re.d0();
-            final String d1 = re.d1();
+        __check_dn(old_d0, old_d1, re);
+
+        // 返回
+        return re;
+    }
+
+    private void __check_dn(String old_d0, String old_d1, WnObj o) {
+        if (o.isDIR()) {
+            final String d0 = o.d0();
+            final String d1 = o.d1();
             if (!Lang.equals(d0, old_d0) || !Lang.equals(d1, old_d1)) {
-                this.walk(re, new Callback<WnObj>() {
+                this.walk(o, new Callback<WnObj>() {
                     public void invoke(WnObj obj) {
                         obj.d0(d0).d1(d1);
                         indexer.set(obj, "^d0|d1$");
@@ -334,8 +352,6 @@ public class WnIoImpl implements WnIo {
                 }, WalkMode.DEPTH_NODE_FIRST);
             }
         }
-        // 返回
-        return re;
     }
 
     @Override
@@ -694,6 +710,7 @@ public class WnIoImpl implements WnIo {
             throw Er.create("e.io.lostnode", o);
         }
 
+        nd.loadParents(null, false);
         return o.setNode(nd);
     }
 

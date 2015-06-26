@@ -290,6 +290,9 @@ public abstract class AbstractWnTree implements WnTree {
 
         // 看看有没有必要移动
         if (nd.isMyParent(p)) {
+            if (!nd.name().equals(newName)) {
+                this.rename(nd, newName);
+            }
             return nd;
         }
 

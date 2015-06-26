@@ -424,6 +424,9 @@ public class WnBean extends NutMap implements WnObj {
 
     public WnNode path(String path) {
         setv("ph", path);
+        if (null != _nd) {
+            _nd.path(path);
+        }
         return this;
     }
 
@@ -443,6 +446,9 @@ public class WnBean extends NutMap implements WnObj {
 
     public WnNode name(String nm) {
         setv("nm", nm);
+        if (null != _nd) {
+            _nd.name(nm);
+        }
         return this;
     }
 
@@ -519,7 +525,10 @@ public class WnBean extends NutMap implements WnObj {
 
     @Override
     public WnNode loadParents(List<WnNode> list, boolean force) {
-        return nd().loadParents(list, force);
+        WnNode nd = nd();
+        nd.loadParents(list, force);
+        this.path(nd.path());
+        return nd;
     }
 
     public boolean isMyParent(WnNode p) {
