@@ -2,6 +2,7 @@ package org.nutz.walnut.api.io;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -17,6 +18,75 @@ import org.nutz.walnut.util.WnContext;
 public abstract class AbstractWnIoTest extends BaseIoTest {
 
     protected abstract String getAnotherTreeMount();
+
+    @Test
+    public void test_load_parents_twice() {
+        WnObj c = io.create(null, "/a/b/c", WnRace.FILE);
+
+        List<WnNode> l0 = new ArrayList<WnNode>(2);
+        List<WnNode> l1 = new ArrayList<WnNode>(2);
+
+        c.loadParents(l0, false);
+        assertEquals(2, l0.size());
+        assertEquals("a", l0.get(0).name());
+        assertEquals("b", l0.get(1).name());
+
+        c.loadParents(l1, false);
+        assertEquals(2, l1.size());
+        assertEquals("a", l1.get(0).name());
+        assertEquals("b", l1.get(1).name());
+    }
+
+    @Test
+    public void test_sync_time() throws InterruptedException {
+        io.create(null, "/a/b/c/d", WnRace.FILE);
+        WnObj b = io.check(null, "/a/b");
+
+        // 同步时间不存在
+        long st = b.syncTime();
+        assertTrue(st <= 0);
+
+        // 修改自身，同步时间还是不存在
+        io.changeType(b, "abc");
+        assertTrue(io.check(null, "/a/b").syncTime() <= 0);
+
+        // 修改子节点，同步时间不存在
+        WnObj c = io.check(b, "c");
+        io.rename(c, "haha");
+        assertTrue(io.check(null, "/a/b").syncTime() <= 0);
+
+        // 修改孙文件，同步时间不存在
+        WnObj d = io.check(c, "d");
+        io.writeText(d, "hello");
+        assertTrue(io.check(null, "/a/b").syncTime() <= 0);
+
+        // 添加同步时间描述
+        long last_st = System.currentTimeMillis();
+        io.appendMeta(b, "st:" + last_st);
+
+        Thread.sleep(5);
+
+        // 修改子节点，同步时间改变了
+        Thread.sleep(5);
+        io.rename(c, "c");
+        st = io.check(null, "/a/b").syncTime();
+        assertTrue(st > last_st);
+        last_st = st;
+
+        // 修改孙文件，同步时间改变了
+        Thread.sleep(5);
+        io.writeText(d, "hello world");
+        st = io.check(null, "/a/b").syncTime();
+        assertTrue(st > last_st);
+        last_st = st;
+
+        // 孙文件没改动，同步时间不改变
+        Thread.sleep(5);
+        io.writeText(d, "hello world");
+        st = io.check(null, "/a/b").syncTime();
+        assertTrue(st == last_st);
+
+    }
 
     /**
      * for issue #17

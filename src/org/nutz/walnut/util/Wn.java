@@ -1,5 +1,7 @@
 package org.nutz.walnut.util;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +17,7 @@ import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -294,6 +297,44 @@ public abstract class Wn {
                     o.put("d" + i, null);
             }
             return ss;
+        }
+
+        /**
+         * 修改一个对象所有祖先的同步时间。当然，未设置同步的祖先会被无视
+         * 
+         * @param io
+         *            读写接口
+         * @param o
+         *            对象
+         * @param includeSelf
+         *            是否也检视自身的同步时间
+         */
+        public static void update_ancestor_synctime(final WnIo io,
+                                                    final WnObj o,
+                                                    final boolean includeSelf) {
+            WnContext wc = Wn.WC();
+
+            // 防止无穷递归
+            if (wc.isSynctimeOff())
+                return;
+
+            final List<WnNode> list = new LinkedList<WnNode>();
+            o.loadParents(list, false);
+            final long synctime = System.currentTimeMillis();
+            wc.synctimeOff(new Atom() {
+                public void run() {
+                    for (WnNode an : list) {
+                        WnObj ano = io.toObj(an);
+                        if (ano.syncTime() > 0) {
+                            io.appendMeta(ano, "st:" + synctime);
+                        }
+                    }
+                    if (includeSelf) {
+                        if (o.syncTime() > 0)
+                            io.appendMeta(o, "st:" + synctime);
+                    }
+                }
+            });
         }
 
     }

@@ -355,6 +355,17 @@ public class WnBean extends NutMap implements WnObj {
         return this;
     }
 
+    @Override
+    public long syncTime() {
+        return this.getLong("st", -1);
+    }
+
+    @Override
+    public WnObj syncTime(long st) {
+        this.setOrRemove("st", st);
+        return this;
+    }
+
     public long expireTime() {
         return this.getLong("expi", -1);
     }

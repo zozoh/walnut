@@ -29,6 +29,22 @@ public class WnContext extends NutMap {
 
     private WnNodeCallback on_create;
 
+    private boolean synctime_off;
+
+    public boolean isSynctimeOff() {
+        return synctime_off;
+    }
+
+    public void synctimeOff(Atom atom) {
+        try {
+            synctime_off = true;
+            atom.run();
+        }
+        finally {
+            synctime_off = false;
+        }
+    }
+
     public WnSecurity getSecurity() {
         return security;
     }

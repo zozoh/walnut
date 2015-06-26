@@ -212,12 +212,20 @@ public class WnIoImpl implements WnIo {
 
         // 如果是目录，且d0,d1 改变了，需要递归
         __check_dn(old_d0, old_d1, o);
+
+        // 触发同步时间修改
+        Wn.Io.update_ancestor_synctime(this, o, false);
     }
 
     @Override
     public void changeType(WnObj o, String tp) {
-        __set_type(o, tp);
-        indexer.set(o, "^tp|mime$");
+        if (!Lang.equals(o.type(), tp)) {
+            __set_type(o, tp);
+            indexer.set(o, "^tp|mime$");
+
+            // 触发同步时间修改
+            Wn.Io.update_ancestor_synctime(this, o, false);
+        }
     }
 
     @Override
@@ -228,6 +236,9 @@ public class WnIoImpl implements WnIo {
 
         // 得到自身节点
         src.loadParents(null, false);
+
+        // 得到自身的原始的父
+        WnObj oldSrcParent = toObj(src.parent());
 
         // 不用移动
         if (src.path().equals(destPath)) {
@@ -334,6 +345,10 @@ public class WnIoImpl implements WnIo {
 
         // 如果是目录，且d0,d1 改变了，需要递归
         __check_dn(old_d0, old_d1, re);
+
+        // 触发同步时间修改
+        Wn.Io.update_ancestor_synctime(this, re, false);
+        Wn.Io.update_ancestor_synctime(this, oldSrcParent, true);
 
         // 返回
         return re;
@@ -547,7 +562,9 @@ public class WnIoImpl implements WnIo {
         }
         // 写入内容
         WnStore store = stores.get(o);
-        return store.getOutputStream(o, off);
+        OutputStream ops = store.getOutputStream(o, off);
+        return new WnIoOutputStreamWrapper(this, o, ops);
+        //return ops;
     }
 
     @Override

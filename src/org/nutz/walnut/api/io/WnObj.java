@@ -6,7 +6,7 @@ import org.nutz.lang.util.NutMap;
 public interface WnObj extends WnNode, NutBean {
 
     WnObj setNode(WnNode nd);
-    
+
     boolean isLink();
 
     String link();
@@ -54,7 +54,7 @@ public interface WnObj extends WnNode, NutBean {
     WnObj group(String grp);
 
     WnObj mode(int md);
-    
+
     String creator();
 
     String mender();
@@ -84,6 +84,10 @@ public interface WnObj extends WnNode, NutBean {
     long expireTime();
 
     WnObj expireTime(long expi);
+
+    long syncTime();
+
+    WnObj syncTime(long st);
 
     boolean isExpired();
 

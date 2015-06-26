@@ -54,6 +54,10 @@ public abstract class AbstractWnNode implements WnNode {
             if (Strings.isBlank(path)) {
                 path(parent.path()).appendPath(name());
             }
+            if (null != list && !parent.path().equals("/")) {
+                parent.loadParents(list, force);
+                list.add(parent);
+            }
             return parent;
         }
 

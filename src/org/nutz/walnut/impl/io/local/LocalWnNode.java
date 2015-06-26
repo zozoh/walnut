@@ -57,7 +57,7 @@ public class LocalWnNode extends AbstractWnNode {
                 parent = tree().getTreeNode();
             } else {
                 LocalWnTree tree = (LocalWnTree) tree();
-                parent = tree._file_to_node(pf, null, false);
+                parent = tree._file_to_node(pf, null, true);
             }
         }
         return parent;
