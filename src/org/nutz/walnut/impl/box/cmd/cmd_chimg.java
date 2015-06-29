@@ -25,6 +25,34 @@ public class cmd_chimg extends cmd_image {
 
     private String tmpDir = System.getProperty("java.io.tmpdir");
 
+    private Color getColor(String colorStr) {
+        Color re = null;
+        colorStr = colorStr.toLowerCase();
+        try {
+            // RGB
+            if (colorStr.startsWith("rgb(") && colorStr.endsWith(")")) {
+                colorStr = colorStr.substring(4, colorStr.length() - 1);
+                String[] rgb = colorStr.split(",");
+                int r = Integer.parseInt(rgb[0]);
+                int g = Integer.parseInt(rgb[1]);
+                int b = Integer.parseInt(rgb[2]);
+                re = new Color(r, g, b);
+            }
+            // RGBA
+            else if (colorStr.startsWith("rgba(") && colorStr.endsWith(")")) {
+                colorStr = colorStr.substring(5, colorStr.length() - 1);
+                String[] rgba = colorStr.split(",");
+                int r = Integer.parseInt(rgba[0]);
+                int g = Integer.parseInt(rgba[1]);
+                int b = Integer.parseInt(rgba[2]);
+                float a = Float.parseFloat(rgba[3]);
+                re = new Color(r, g, b, (int) (a * 255 + 0.5));
+            }
+        }
+        catch (Exception e) {}
+        return re;
+    }
+
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, "z");
@@ -63,7 +91,11 @@ public class cmd_chimg extends cmd_image {
                 // -bg 背景颜色
                 String pa_bg = params.get("bg");
                 if (!Strings.isBlank(pa_bg)) {
-                    // TODO
+                    bgcolor = getColor(pa_bg);
+                    if (bgcolor == null) {
+                        sys.err.printf("bg-color has err, please check %s", pa_bg);
+                        return;
+                    }
                 }
             }
             // -o 输出
