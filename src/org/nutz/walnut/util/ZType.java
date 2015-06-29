@@ -66,7 +66,7 @@ public class ZType {
     // --------------------------------- 默认的几种类型
 
     private static boolean _isXXX(String cate, String tp) {
-        return getCategory(cate).contains(tp);
+        return getType(cate).contains(tp);
     }
 
     public static boolean isImage(String tp) {
