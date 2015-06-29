@@ -393,10 +393,12 @@ public class WnIoImpl implements WnIo {
         WnContext wc = Wn.WC();
         final WnNodeCallback old = wc.onCreate();
 
+        WnObj o = null;
         try {
             // 给树设定回调，保证每次创建节点都会创建索引
             wc.onCreate(new WnNodeCallback() {
                 public WnNode invoke(WnNode nd) {
+                    //System.out.println("~~~~~~~~~~~~~~!!!!!!!!!! " + nd.id());
                     WnObj re = __create_index(nd);
                     if (null != old)
                         return old.invoke(re);
@@ -406,11 +408,18 @@ public class WnIoImpl implements WnIo {
 
             // 执行创建
             WnNode nd = tree(p).create(p, path, race);
-            return indexer.toObj(nd, ObjIndexStrategy.WC);
+            o = indexer.toObj(nd, ObjIndexStrategy.WC);
+
+            // 触发钩子
+            o = wc.doHook("create", o);
+
+            // 搞定，返回
+            return o;
         }
         finally {
             wc.onCreate(old);
         }
+
     }
 
     @Override
@@ -446,8 +455,7 @@ public class WnIoImpl implements WnIo {
     }
 
     private WnObj __create_index(WnNode nd) {
-        WnObj o = indexer.toObj(nd, ObjIndexStrategy.WC);
-        return o;
+        return indexer.toObj(nd, ObjIndexStrategy.WC);
     }
 
     private void __set_type(WnObj o, String tp) {
@@ -564,7 +572,7 @@ public class WnIoImpl implements WnIo {
         WnStore store = stores.get(o);
         OutputStream ops = store.getOutputStream(o, off);
         return new WnIoOutputStreamWrapper(this, o, ops);
-        //return ops;
+        // return ops;
     }
 
     @Override

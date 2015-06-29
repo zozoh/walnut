@@ -8,6 +8,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.io.AbstractWnNode;
+import org.nutz.walnut.util.Wn;
 
 public class LocalWnNode extends AbstractWnNode {
 
@@ -45,7 +46,9 @@ public class LocalWnNode extends AbstractWnNode {
             throw Er.create("e.tree.local.weird.rootPath", treeRootPath);
         }
         String abstrph = treeRootFile.getAbsolutePath();
-        return file.getAbsolutePath().substring(abstrph.length());
+        String ndph = file.getAbsolutePath().substring(abstrph.length());
+        String basePath = tree().getTreeNode().path();
+        return Wn.appendPath(basePath, ndph);
     }
 
     public WnNode parent() {

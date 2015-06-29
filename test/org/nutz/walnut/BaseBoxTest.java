@@ -6,6 +6,8 @@ import org.nutz.lang.Strings;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
+import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.api.usr.WnUsr;
 
 public abstract class BaseBoxTest extends BaseUsrTest {
 
@@ -16,6 +18,12 @@ public abstract class BaseBoxTest extends BaseUsrTest {
     protected StringBuilder out;
 
     protected StringBuilder err;
+
+    protected WnUsr me;
+
+    protected WnSession se;
+
+    protected WnBoxContext bc;
 
     protected String outs() {
         return out.toString();
@@ -37,24 +45,31 @@ public abstract class BaseBoxTest extends BaseUsrTest {
     protected void on_before(PropertiesProxy pp) {
         super.on_before(pp);
 
+        boxes = _create_box_service(pp);
+
+        me = usrs.create("xiaobai", "123456");
+        se = ses.create(me);
+
         out = new StringBuilder();
         err = new StringBuilder();
 
-        boxes = _create_box_service(pp);
-
-        box = boxes.alloc(0);
-        box.setStdin(null);
-        box.setStdout(Lang.ops(out));
-        box.setStderr(Lang.ops(err));
-
-        WnBoxContext bc = new WnBoxContext();
+        bc = new WnBoxContext();
         bc.io = io;
-        bc.me = usrs.create("xiaobai", "123456");
-        bc.session = ses.login("xiaobai", "123456");
+        bc.me = me;
+        bc.session = se;
         bc.usrService = usrs;
         bc.sessionService = ses;
 
+        box = _alloc_box();
+    }
+
+    protected WnBox _alloc_box() {
+        WnBox box = boxes.alloc(0);
+        box.setStdin(null);
+        box.setStdout(Lang.ops(out));
+        box.setStderr(Lang.ops(err));
         box.setup(bc);
+        return box;
     }
 
     @Override
