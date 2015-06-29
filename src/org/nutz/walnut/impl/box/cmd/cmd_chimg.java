@@ -67,7 +67,7 @@ public class cmd_chimg extends cmd_image {
                 }
             }
             // -o 输出
-            String pa_o = params.check("o");
+            String pa_o = params.get("o");
             if (Strings.isBlank(pa_o)) {
                 outObj = inObj;
             } else {
@@ -75,7 +75,7 @@ public class cmd_chimg extends cmd_image {
                     String id = pa_o.substring("id:".length());
                     outObj = sys.io.checkById(id);
                 } else {
-                    String path = Wn.normalizePath(pa_o, sys);
+                    String path = Wn.normalizeFullPath(pa_o, sys);
                     outObj = sys.io.fetch(null, path);
                     if (outObj == null) {
                         outObj = sys.io.create(null, path, WnRace.FILE);
