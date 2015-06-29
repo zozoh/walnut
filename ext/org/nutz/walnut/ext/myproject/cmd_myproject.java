@@ -21,15 +21,15 @@ public class cmd_myproject extends JvmExecutor {
 
     @Override
     @SuppressWarnings("rawtypes")
-    public void exec(WnSystem sys, String[] args) throws Exception {
+    public void exec(final WnSystem sys, String[] args) throws Exception {
         String projectPath = "~/.project";
-        List<NutMap> re = new ArrayList<NutMap>();
+        final List<NutMap> re = new ArrayList<NutMap>();
         WnObj projectObj = Wn.checkObj(sys, projectPath);
         sys.io.eachChildren(projectObj, null, new Each<WnObj>() {
             @Override
             public void invoke(int index, WnObj project, int length) throws ExitLoop, ContinueLoop,
                     LoopException {
-                List<Map> tasks = new ArrayList<Map>();
+                final List<Map> tasks = new ArrayList<Map>();
                 NutMap pinfo = NutMap.NEW();
                 pinfo.put("name", project.name());
                 pinfo.put("tasks", tasks);
