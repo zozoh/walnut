@@ -13,6 +13,7 @@ import org.nutz.walnut.api.box.WnTunnel;
 import org.nutz.walnut.api.io.WnIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.JvmTunnel;
+import org.nutz.walnut.util.Wn;
 
 public class WnObjMetaOutputStream extends OutputStream {
 
@@ -85,6 +86,9 @@ public class WnObjMetaOutputStream extends OutputStream {
 
         // 清空缓存
         tnl.reset();
+
+        // 调用钩子
+        Wn.WC().doHook("meta", o);
     }
 
     public void close() {

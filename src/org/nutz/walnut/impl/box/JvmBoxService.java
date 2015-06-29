@@ -30,7 +30,7 @@ public class JvmBoxService implements WnBoxService {
         JvmBox jb = null;
         jb = __find_free();
         if (null == jb) {
-            jb = new JvmBox();
+            jb = new JvmBox(this);
             jb.setJvmExecutorFactory(this.jef);
             boxes.add(jb);
         }

@@ -25,7 +25,7 @@ public class WnHookContext {
     protected WnBoxContext _bc;
 
     protected WnBoxService _boxes;
-    
+
     public WnHookService service;
 
     public void exec(String cmdText) {
@@ -45,6 +45,15 @@ public class WnHookContext {
         // 释放
         _boxes.free(box);
 
+    }
+
+    public WnHookContext clone() {
+        WnHookContext hc = new WnHookContext(_boxes, _bc);
+        hc.io = io;
+        hc.me = me;
+        hc.se = se;
+        hc.service = service;
+        return hc;
     }
 
 }

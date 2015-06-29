@@ -2,8 +2,6 @@ package org.nutz.walnut.impl.box;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
@@ -12,8 +10,10 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.box.WnBoxContext;
+import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.box.WnBoxStatus;
 import org.nutz.walnut.api.box.WnTunnel;
+import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
@@ -29,6 +29,8 @@ public class JvmAtomRunner {
 
     private static final Log log = Logs.get();
 
+    WnBoxService boxes;
+
     String boxId;
 
     private Object idleLock;
@@ -41,24 +43,25 @@ public class JvmAtomRunner {
 
     WnTunnel[] tnls; // 记录了线程间所有的隧道
 
-    List<OutputStream> opss; // 有多少重定向输出
+    // List<OutputStream> opss; // 有多少重定向输出
 
     WnBoxContext bc;
 
-    OutputStream out;
+    public OutputStream out;
 
-    OutputStream err;
+    public OutputStream err;
 
-    InputStream in;
+    public InputStream in;
 
     JvmExecutorFactory jef;
 
-    public JvmAtomRunner() {
-        idleLock = new Object();
+    public JvmAtomRunner(WnBoxService boxes) {
+        this.idleLock = new Object();
+        this.boxes = boxes;
     }
 
     public JvmAtomRunner clone() {
-        JvmAtomRunner re = new JvmAtomRunner();
+        JvmAtomRunner re = new JvmAtomRunner(boxes);
         re.boxId = boxId;
         re.status = WnBoxStatus.IDLE;
         re.bc = bc;
@@ -70,7 +73,7 @@ public class JvmAtomRunner {
     }
 
     @SuppressWarnings("resource")
-    void __run(String cmdLine) {
+    public void __run(String cmdLine) {
         // 准备标准输出输出
         JvmBoxOutput boxErr = new JvmBoxOutput(err);
         WnSession se = bc.session.clone();
@@ -83,11 +86,24 @@ public class JvmAtomRunner {
         String[] cmds = Jvms.split(cmdLine, true, '|');
 
         // 准备运行的线程原子
-        WnSecurity secu = new WnSecurityImpl(bc.io, bc.usrService);
-        WnContext wc = Wn.WC();
+        final WnContext wc = Wn.WC();
+
+        // 启动安全检查接口
+        final WnSecurity secu = new WnSecurityImpl(bc.io, bc.usrService);
+
+        // 如果调用线程设置了钩子，那么本执行器所有的线程也都要执行相同的钩子设定
+        // 只是需要确保会话和当前用户与 Box 一致
+        WnHookContext hc = wc.getHookContext();
+        if (null != hc) {
+            hc = hc.clone();
+            hc.me = me;
+            hc.se = se;
+        }
+
+        // 分析每个执行原子
         JvmAtom a;
         atoms = new JvmAtom[cmds.length];
-        opss = new ArrayList<OutputStream>(atoms.length);
+        // opss = new ArrayList<OutputStream>(atoms.length);
         for (int i = 0; i < cmds.length; i++) {
             // 生成原子并解析命令字符串
             a = new JvmAtom(this, cmds[i]);
@@ -117,28 +133,35 @@ public class JvmAtomRunner {
             a.sys.sessionService = bc.sessionService;
             a.sys.jef = jef;
             a.secu = secu;
+            a.hc = hc;
 
             // 看看是否重定向输出
             if (null != a.redirectPath) {
                 final JvmAtom _a = a;
-                wc.security(secu, new Atom() {
+                wc.hooking(null, new Atom() {
                     public void run() {
-                        WnObj o;
-                        // 采用 id:xxx
-                        if (_a.redirectPath.startsWith("id:")) {
-                            String id = _a.redirectPath.substring("id:".length());
-                            o = bc.io.checkById(id);
-                        }
-                        // 采用路径
-                        else {
-                            String path = Wn.normalizeFullPath(_a.redirectPath, _a.sys);
-                            o = bc.io.createIfNoExists(null, path, WnRace.FILE);
-                        }
-                        OutputStream ops = bc.io.getOutputStream(o, _a.redirectAppend ? -1 : 0);
-                        _a.sys.out = new JvmBoxOutput(ops);
-                        opss.add(ops);
+                        wc.security(secu, new Atom() {
+                            public void run() {
+                                WnObj o;
+                                // 采用 id:xxx
+                                if (_a.redirectPath.startsWith("id:")) {
+                                    String id = _a.redirectPath.substring("id:".length());
+                                    o = bc.io.checkById(id);
+                                }
+                                // 采用路径
+                                else {
+                                    String path = Wn.normalizeFullPath(_a.redirectPath, _a.sys);
+                                    o = bc.io.createIfNoExists(null, path, WnRace.FILE);
+                                }
+                                OutputStream ops = bc.io.getOutputStream(o, _a.redirectAppend ? -1
+                                                                                             : 0);
+                                _a.sys.out = new JvmBoxOutput(ops);
+                                // opss.add(ops);
+                            }
+                        });
                     }
                 });
+
             }
 
             // 计数
@@ -202,7 +225,7 @@ public class JvmAtomRunner {
         Lang.notifyAll(idleLock);
     }
 
-    void __wait_for_idle() {
+    public void __wait_for_idle() {
         // 如果只有一个原子，根本不用等，否则等通知，等原子运行结束
         if (null != atoms && atoms.length > 1) {
             if (!__is_all_stopped()) {
@@ -241,7 +264,7 @@ public class JvmAtomRunner {
         return true;
     }
 
-    void __free() {
+    public void __free() {
         // 强制停止所有线程
         if (null != threads)
             for (Thread t : threads)
@@ -249,10 +272,10 @@ public class JvmAtomRunner {
                     t.interrupt();
 
         // 释放所有打开的句柄
-        if (null != opss)
-            for (OutputStream ops : opss) {
-                Streams.safeClose(ops);
-            }
+        // if (null != opss)
+        // for (OutputStream ops : opss) {
+        // Streams.safeClose(ops);
+        // }
 
         // 释放其他资源
         if (log.isDebugEnabled())

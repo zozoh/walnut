@@ -11,14 +11,13 @@ import org.nutz.log.Logs;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxRuntime;
+import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.box.WnBoxStatus;
 
 public class JvmBox implements WnBox {
 
     private static final Log log = Logs.get();
 
-    // WnBoxContext bc;
-    //
     OutputStream out;
 
     OutputStream err;
@@ -33,10 +32,10 @@ public class JvmBox implements WnBox {
 
     private Callback<WnBoxContext> on_before_free;
 
-    public JvmBox() {
+    public JvmBox(WnBoxService boxes) {
         id = R.UU32();
         runtime = new WnBoxRuntime();
-        runner = new JvmAtomRunner();
+        runner = new JvmAtomRunner(boxes);
         runner.boxId = id;
         runner.status = WnBoxStatus.FREE;
     }

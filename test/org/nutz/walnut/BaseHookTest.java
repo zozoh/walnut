@@ -6,7 +6,6 @@ import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.hook.CachedWnHookService;
-import org.nutz.walnut.util.Wn;
 
 public abstract class BaseHookTest extends BaseBoxTest {
 
@@ -16,17 +15,9 @@ public abstract class BaseHookTest extends BaseBoxTest {
 
     protected WnHookContext hc;
 
-    private String __old_me;
-    private String __old_grp;
-
     @Override
     protected void on_before(PropertiesProxy pp) {
         super.on_before(pp);
-
-        // 将测试线程切换到当前测试账号
-        __old_me = Wn.WC().checkMe();
-        __old_grp = Wn.WC().checkGroup();
-        Wn.WC().SE(se);
 
         // 检查钩子目录
         oHome = io.check(null, me.home());
@@ -50,8 +41,6 @@ public abstract class BaseHookTest extends BaseBoxTest {
     @Override
     protected void on_after(PropertiesProxy pp) {
         super.on_after(pp);
-        Wn.WC().SE(null);
-        Wn.WC().me(__old_me, __old_grp);
     }
 
 }

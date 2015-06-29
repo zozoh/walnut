@@ -5,8 +5,17 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.walnut.BaseBoxTest;
+import org.nutz.walnut.api.io.WnObj;
 
 public abstract class AbstractWnBoxTest extends BaseBoxTest {
+
+    @Test
+    public void test_append_redirect() {
+        box.run("echo 'hello' >> ~/abc.txt");
+        WnObj o = io.check(null, me.home() + "/abc.txt");
+        String txt = io.readText(o);
+        assertEquals("hello\n", txt);
+    }
 
     @Test
     public void test_simple_grap() {

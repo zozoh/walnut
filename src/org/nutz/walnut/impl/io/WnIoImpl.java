@@ -197,6 +197,10 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public void rename(WnObj o, String newName) {
+        // 调用钩子
+        o.setv("_new_nm", newName);
+        Wn.WC().doHook("rename", o);
+
         String old_d0 = o.d0();
         String old_d1 = o.d1();
 
@@ -230,6 +234,12 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public WnObj move(WnObj src, String destPath) {
+        WnContext wc = Wn.WC();
+
+        // 调用钩子
+        src.setv("_mv_dest", destPath);
+        wc.doHook("move", src);
+
         // 保存之前的 d0,d1
         String old_d0 = src.d0();
         String old_d1 = src.d1();
@@ -244,8 +254,6 @@ public class WnIoImpl implements WnIo {
         if (src.path().equals(destPath)) {
             return src;
         }
-
-        WnContext wc = Wn.WC();
 
         // 确保源是可以访问的
         wc.whenAccess(src);
@@ -398,7 +406,8 @@ public class WnIoImpl implements WnIo {
             // 给树设定回调，保证每次创建节点都会创建索引
             wc.onCreate(new WnNodeCallback() {
                 public WnNode invoke(WnNode nd) {
-                    //System.out.println("~~~~~~~~~~~~~~!!!!!!!!!! " + nd.id());
+                    // System.out.println("~~~~~~~~~~~~~~!!!!!!!!!! " +
+                    // nd.id());
                     WnObj re = __create_index(nd);
                     if (null != old)
                         return old.invoke(re);
@@ -464,6 +473,9 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public void delete(WnObj o) {
+        // 调用回调
+        Wn.WC().doHook("delete", o);
+
         // 链接的话，就删了吧
         if (!o.isLink()) {
             // 目录的话，删除不能为空

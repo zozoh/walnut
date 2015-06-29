@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
@@ -18,7 +19,7 @@ public class cmd_obj extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        ZParams params = ZParams.parse(args, null);
+        ZParams params = ZParams.parse(args, "cV");
 
         // 首先获取对象
         // 计算要列出的要处理的对象
@@ -49,7 +50,7 @@ public class cmd_obj extends JvmExecutor {
                     }
                 }
                 sys.io.appendMeta(o, map);
-                
+
             }
             // 显示对象的值
             else if (params.has("e")) {
@@ -63,6 +64,17 @@ public class cmd_obj extends JvmExecutor {
                 // 只有一个值的话，则显示值
                 if (map.size() == 1) {
                     sys.out.println(map.values().iterator().next().toString());
+                }
+                // 紧凑显示
+                else if (params.is("c")) {
+                    sys.out.println(Json.toJson(map, JsonFormat.compact()));
+                }
+                // 只显示值
+                else if (params.is("V")) {
+                    for (Object v : map.values()) {
+                        sys.out.print(v.toString());
+                    }
+                    sys.out.println();
                 }
                 // 否则显示全部匹配
                 else {

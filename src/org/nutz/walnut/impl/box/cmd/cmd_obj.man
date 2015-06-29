@@ -4,7 +4,7 @@
 
 # 用法
 
-	obj [/path/to/obj] [-u JSON] [-e $REGEX]
+	obj [/path/to/obj] [-u JSON] [-e $REGEX] [-Vc]
 	
 # 示例
 
@@ -27,7 +27,13 @@
 	obj tmp/my.txt -u "width:null"
 	
 	显示对象的某几个属性。 如果只有一个对象的一个属性被显示，则仅输出属性值
-	obj id:9rCTtaKaGX9eLinKeLD5k0 -e "^http-.*$"
+	obj tmp/my.txt -e "^http-.*$"
+	
+	显示对象的某几个属性。 强制只输出值，用逗号分隔
+	obj tmp/my.txt -e "^http-.*$" -V
+	
+	显示对象的某几个属性。 强制在一行显示
+    obj tmp/my.txt -e "^http-.*$" -c
 	
 	设置日期属性
 	obj abc.txt -u "lm:'$date:2015-09-21 12:34:24.444'"

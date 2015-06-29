@@ -11,6 +11,7 @@ import java.io.RandomAccessFile;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnHistory;
@@ -81,31 +82,27 @@ public class LocalSha1WnStore extends AbstractWnStore {
     protected OutputStream _get_outputstream(WnObj o, long off) {
         // 初始化临时的数据文件
         File swap = Files.getFile(swapHome, R.UU16());
+        Files.createFileIfNoExists(swap);
 
-        // 从头写，那么就用这个空文件
-        if (0 == off) {
-            Files.createFileIfNoExists(swap);
-        }
         // 那么要把原来的文件复制一下，复制多少呢？ 看 off 咯
-        else {
+        if (off != 0) {
             // 找到原来文件
             File org = null;
             String sha1 = o.sha1();
-            if (o.hasSha1()) {
+            if (!Strings.isBlank(sha1)) {
                 org = Files.getFile(sha1Home, Locals.key2path(sha1));
             }
             // 如果原来的文件存在，复制
             if (null != org && org.exists()) {
                 try {
-                    Files.copyFile(org, swap, off);
+                    if (off > 0)
+                        Files.copyFile(org, swap, off);
+                    else
+                        Files.copy(org, swap);
                 }
                 catch (IOException e) {
                     throw Lang.wrapThrow(e);
                 }
-            }
-            // 否则不能忍受，抛错吧，肯定有啥错了
-            else {
-                throw Er.create("o.io.store.nosha1", sha1);
             }
         }
 
