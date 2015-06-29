@@ -80,6 +80,10 @@ public class JvmBox implements WnBox {
         }
     }
 
+    void idle() {
+        runner.status = WnBoxStatus.IDLE;
+    }
+
     void free() {
         // 调用回调
         if (null != this.on_before_free)

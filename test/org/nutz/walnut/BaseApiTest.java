@@ -59,7 +59,9 @@ public abstract class BaseApiTest {
 
     protected void on_before(PropertiesProxy pp) {};
 
-    protected void on_after(PropertiesProxy pp) {}
+    protected void on_after(PropertiesProxy pp) {
+        Wn.WC().me("root", "root");
+    }
 
     protected abstract WnNode _create_top_tree_node();
 

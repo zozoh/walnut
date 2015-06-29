@@ -34,6 +34,7 @@ public class JvmBoxService implements WnBoxService {
             jb.setJvmExecutorFactory(this.jef);
             boxes.add(jb);
         }
+        jb.idle();
         return jb;
     }
 

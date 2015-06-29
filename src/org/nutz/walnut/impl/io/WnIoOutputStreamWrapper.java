@@ -64,6 +64,9 @@ public class WnIoOutputStreamWrapper extends OutputStream {
         else {
             Wn.Io.update_ancestor_synctime(io, o, false);
         }
+
+        // 最后触发修改的钩子
+        Wn.WC().doHook("write", o);
     }
 
     public String toString() {

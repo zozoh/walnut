@@ -1,10 +1,19 @@
 package org.nutz.walnut.util;
 
+import java.util.List;
+
+import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.hook.WnHook;
+import org.nutz.walnut.api.hook.WnHookBreak;
+import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.io.WnNodeCallback;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.usr.WnSession;
@@ -16,6 +25,8 @@ import org.nutz.walnut.api.usr.WnUsr;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class WnContext extends NutMap {
+
+    private static final Log log = Logs.get();
 
     private String seid;
 
@@ -30,6 +41,90 @@ public class WnContext extends NutMap {
     private WnNodeCallback on_create;
 
     private boolean synctime_off;
+
+    private WnHookContext hookContext;
+
+    public WnObj doHook(String action, WnObj o) {
+        if (null != hookContext) {
+            Stopwatch sw = Stopwatch.begin();
+            if (log.isDebugEnabled())
+                log.debugf("do hook when '%s' : %s", action, o);
+
+            List<WnHook> hooks = hookContext.service.get(action, o);
+            if (null != hooks && hooks.size() > 0) {
+                if (log.isDebugEnabled())
+                    log.debugf(" - found %d hooks", hooks.size());
+
+                // 为了防止无穷递归，钩子里不再触发钩子
+                WnHookContext hc = hookContext;
+                hookContext = null;
+                try {
+                    int i = 0;
+                    for (WnHook hook : hooks) {
+                        if (log.isDebugEnabled())
+                            log.debugf(" @[%d]: %s", i++, hook.getClass().getSimpleName());
+
+                        try {
+                            hook.invoke(hc, o);
+                        }
+                        catch (WnHookBreak e) {
+                            if (log.isDebugEnabled())
+                                log.debug(" ! break !");
+                            break;
+                        }
+                        catch (Exception e) {
+                            if (log.isWarnEnabled())
+                                log.warn(" !! hook wrong", e);
+                        }
+                    }
+                }
+                // 恢复钩子上下文
+                finally {
+                    hookContext = hc;
+                }
+
+                sw.stop();
+                if (log.isDebugEnabled())
+                    log.debugf("done in %dms", sw.getDuration());
+
+                // 调用了钩子，则重新获取
+                return hookContext.io.checkById(o.id());
+            }
+        }
+        // 没有调用钩子，返回自身
+        return o;
+    }
+
+    public WnHookContext getHookContext() {
+        return hookContext;
+    }
+
+    public void setHookContext(WnHookContext hookContext) {
+        this.hookContext = hookContext;
+    }
+
+    public void hooking(WnHookContext hc, Atom atom) {
+        WnHookContext old = hookContext;
+        try {
+            hookContext = hc;
+            atom.run();
+        }
+        finally {
+            hookContext = old;
+        }
+    }
+
+    public <T> T hooking(WnHookContext hc, Proton<T> proton) {
+        WnHookContext old = hookContext;
+        try {
+            hookContext = hc;
+            proton.run();
+            return proton.get();
+        }
+        finally {
+            hookContext = old;
+        }
+    }
 
     public boolean isSynctimeOff() {
         return synctime_off;
