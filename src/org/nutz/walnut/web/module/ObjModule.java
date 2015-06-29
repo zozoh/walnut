@@ -42,7 +42,7 @@ public class ObjModule extends AbstractWnModule {
 
     @At("/get/**")
     public WnObj get(String str) {
-        return Wn.checkObj(io, Wn.WC().checkSE(), str);
+        return Wn.checkObj(io, str);
     }
 
     @POST
@@ -64,7 +64,7 @@ public class ObjModule extends AbstractWnModule {
     @At("/set/**")
     @AdaptBy(type = JsonAdaptor.class)
     public WnObj set(String str, NutMap map) {
-        WnObj o = Wn.checkObj(io, Wn.WC().checkSE(), str);
+        WnObj o = Wn.checkObj(io, str);
         io.writeMeta(o, map);
         return o;
     }
@@ -94,13 +94,13 @@ public class ObjModule extends AbstractWnModule {
     @Ok("void")
     public View read(String str) {
         // 首先得到目标对象
-        WnObj o = Wn.checkObj(io, Wn.WC().checkSE(), str);
+        WnObj o = Wn.checkObj(io, str);
         return new WnObjDownloadView(io, o);
     }
 
     @At("/write/**")
     public WnObj write(String str, InputStream ins) {
-        WnObj o = Wn.checkObj(io, Wn.WC().checkSE(), str);
+        WnObj o = Wn.checkObj(io, str);
         OutputStream ops = io.getOutputStream(o, 0);
         Streams.writeAndClose(ops, ins);
         return o;
@@ -131,7 +131,7 @@ public class ObjModule extends AbstractWnModule {
                         @Param("mime") String mime,
                         InputStream ins) {
         // 首先得到目标对象
-        WnObj ta = Wn.checkObj(io, Wn.WC().checkSE(), str);
+        WnObj ta = Wn.checkObj(io, str);
 
         WnObj o;
         // 如果目标对象是个文件
