@@ -1,7 +1,5 @@
 package org.nutz.walnut.api.hook;
 
-import org.nutz.lang.stream.VoidInputStream;
-import org.nutz.lang.stream.VoidOutputStream;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
@@ -25,7 +23,7 @@ public class WnHookContext {
     protected WnBoxContext _bc;
 
     protected WnBoxService _boxes;
-    
+
     public WnHookService service;
 
     public void exec(String cmdText) {
@@ -35,9 +33,9 @@ public class WnHookContext {
         box.setup(_bc);
 
         // 设置标准输入输出
-        box.setStderr(new VoidOutputStream());
-        box.setStdout(new VoidOutputStream());
-        box.setStdin(new VoidInputStream());
+        // box.setStderr(new VoidOutputStream());
+        // box.setStdout(new VoidOutputStream());
+        // box.setStdin(new VoidInputStream());
 
         // 执行
         box.run(cmdText);

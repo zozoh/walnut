@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.ioc.Ioc;
+import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
@@ -18,6 +19,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.ZType;
 
 public class WnSetup implements Setup {
 
@@ -37,6 +39,9 @@ public class WnSetup implements Setup {
         // log.infof("loader : %s : %s",
         // wnLoader.getClass(),
         // Lang.concat("\n     - ", wnLoader.getName()));
+
+        // 读取默认的category
+        ZType.loadCategory(new PropertiesProxy("cate.properties"));
 
         // 获取 app 资源，并记录一下以便页面使用
         WnConfig conf = ioc.get(WnConfig.class, "conf");
