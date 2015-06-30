@@ -28,7 +28,7 @@ public interface WnIo extends WnStore {
 
     WnObj move(WnObj src, String destPath);
 
-    void rename(WnObj o, String newName);
+    WnObj rename(WnObj o, String newName);
 
     void changeType(WnObj o, String tp);
 

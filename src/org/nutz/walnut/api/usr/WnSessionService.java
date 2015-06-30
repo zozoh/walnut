@@ -3,6 +3,8 @@ package org.nutz.walnut.api.usr;
 import org.nutz.lang.util.NutMap;
 
 public interface WnSessionService {
+    
+    WnUsrService usrs();
 
     /**
      * 创建一个新的会话

@@ -18,6 +18,8 @@ public abstract class IoWnHookService implements WnHookService {
         return this;
     }
 
+    public void on_create() {}
+
     protected HookReload reload(WnObj ohh) {
         HookReload hr = new HookReload();
 

@@ -16,6 +16,31 @@ import org.nutz.walnut.util.Wn;
 public abstract class AbstractWnHookTest extends BaseHookTest {
 
     @Test
+    public void test_mount() {
+        // 准备钩子
+        WnObj oHook = io.createIfNoExists(oHookHome, "mount/do_log", WnRace.FILE);
+        io.writeText(oHook, "echo '${nm} - ${mnt} - ${_old_mnt}' >> ~/testlog");
+
+        // 执行
+        Wn.WC().hooking(hc, new Atom() {
+            public void run() {
+                WnObj o = io.create(null, "~/mydir", WnRace.DIR);
+                io.setMount(o, "file://~/tmp/walnuta");
+                io.setMount(o, null);
+            }
+        });
+
+        // 查看 log
+        String oldmnt = oHook.mount();
+        WnObj oLog = io.check(oHome, "testlog");
+        String log = io.readText(oLog);
+        String[] lines = Strings.splitIgnoreBlank(log, "\n");
+        assertEquals(2, lines.length);
+        assertEquals("mydir - file://~/tmp/walnuta - " + oldmnt, lines[0]);
+        assertEquals("mydir - " + oldmnt + " - file://~/tmp/walnuta", lines[1]);
+    }
+
+    @Test
     public void test_meta() {
         // 准备钩子
         WnObj oHook = io.createIfNoExists(oHookHome, "meta/do_log", WnRace.FILE);

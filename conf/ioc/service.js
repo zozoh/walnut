@@ -49,6 +49,10 @@ var ioc = {
 				}
 			}
 		} ]
+	},
+	hookService : {
+		type : 'org.nutz.walnut.impl.hook.CachedWnHookService',
+		parent : "ioService"
 	}
 
 }

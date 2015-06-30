@@ -47,7 +47,8 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
         assertTrue(st <= 0);
 
         // 修改自身，同步时间还是不存在
-        io.changeType(b, "abc");
+        //io.changeType(b, "abc");
+        io.appendMeta(b, "tp:'abc'");
         assertTrue(io.check(null, "/a/b").syncTime() <= 0);
 
         // 修改子节点，同步时间不存在
@@ -86,6 +87,28 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
         st = io.check(null, "/a/b").syncTime();
         assertTrue(st == last_st);
 
+    }
+
+    /**
+     * mount 一个节点后，unmount 它，会回到原来的 mount
+     */
+    @Test
+    public void test_mount_unmount() {
+        WnObj b = io.create(null, "/a/b", WnRace.DIR);
+
+        String oldmnt = b.mount();
+
+        io.setMount(b, "file://~/noexists/dir");
+        assertEquals("file://~/noexists/dir", b.mount());
+
+        b = io.checkById(b.id());
+        assertEquals("file://~/noexists/dir", b.mount());
+
+        io.setMount(b, null);
+        assertEquals(oldmnt, b.mount());
+
+        b = io.checkById(b.id());
+        assertEquals(oldmnt, b.mount());
     }
 
     /**

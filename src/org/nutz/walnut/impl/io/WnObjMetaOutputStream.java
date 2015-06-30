@@ -10,7 +10,6 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.box.WnTunnel;
-import org.nutz.walnut.api.io.WnIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.JvmTunnel;
 import org.nutz.walnut.util.Wn;
@@ -21,13 +20,13 @@ public class WnObjMetaOutputStream extends OutputStream {
 
     private WnObj o;
 
-    private WnIndexer indexer;
-
     private boolean append;
 
-    public WnObjMetaOutputStream(WnObj o, WnIndexer indexer, boolean append) {
+    private WnIoImpl io;
+
+    public WnObjMetaOutputStream(WnObj o, WnIoImpl io, boolean append) {
         this.o = o;
-        this.indexer = indexer;
+        this.io = io;
         this.tnl = new JvmTunnel(256);
         this.append = append;
     }
@@ -80,12 +79,15 @@ public class WnObjMetaOutputStream extends OutputStream {
                     regex = "^" + Lang.concat("|", newObj.keySet()) + "$";
                 }
                 // 计入索引
-                indexer.set(o, regex);
+                io.indexer.set(o, regex);
             }
         }
 
         // 清空缓存
         tnl.reset();
+
+        // 触发同步时间修改
+        Wn.Io.update_ancestor_synctime(io, o, false);
 
         // 调用钩子
         Wn.WC().doHook("meta", o);

@@ -212,6 +212,10 @@ public class MongoWnTree extends AbstractWnTree {
         ZMoDoc doc = ZMoDoc.SET("pid", p.id()).set("nm", newName);
         co.update(q, doc);
 
+        // 更新内存
+        mynd.path(Wn.appendPath(p.path(), newName));
+        mynd.name(newName);
+
         // 返回
         mynd.parentId(p.id());
         return mynd;

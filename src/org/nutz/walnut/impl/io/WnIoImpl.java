@@ -40,7 +40,7 @@ public class WnIoImpl implements WnIo {
 
     private WnStoreFactory stores;
 
-    private WnIndexer indexer;
+    WnIndexer indexer;
 
     private MimeMap mimes;
 
@@ -196,7 +196,7 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
-    public void rename(WnObj o, String newName) {
+    public WnObj rename(WnObj o, String newName) {
         // 调用钩子
         o.setv("_new_nm", newName);
         Wn.WC().doHook("rename", o);
@@ -219,6 +219,9 @@ public class WnIoImpl implements WnIo {
 
         // 触发同步时间修改
         Wn.Io.update_ancestor_synctime(this, o, false);
+        return o;
+        // String destPath = Wn.appendPath(Files.getParent(o.path()), newName);
+        // return this.move(o, destPath);
     }
 
     @Override
@@ -347,7 +350,11 @@ public class WnIoImpl implements WnIo {
         Wn.Io.eval_dn(re);
 
         // 更新一下索引的记录
-        __set_type(re, src.type());
+        if (null != newName) {
+            // __set_type(re, src.type());
+            re.name(newName);
+            Wn.set_type(mimes, re, null);
+        }
         re.setv("pid", ta.id());
         indexer.set(re, "^d0|d1|nm|pid|tp|mime$");
 
@@ -356,7 +363,10 @@ public class WnIoImpl implements WnIo {
 
         // 触发同步时间修改
         Wn.Io.update_ancestor_synctime(this, re, false);
-        Wn.Io.update_ancestor_synctime(this, oldSrcParent, true);
+        // 如果对象换了父节点，之前的父节点也要被触发修改时间
+        if (!oldSrcParent.isSameId(re.parentId())) {
+            Wn.Io.update_ancestor_synctime(this, oldSrcParent, true);
+        }
 
         // 返回
         return re;
@@ -544,9 +554,21 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public void setMount(WnObj o, String mnt) {
+        // 保存旧 mount 信息
+        o.setv("_old_mnt", o.mount());
+
+        // 挂载
         WnNode nd = tree(o).setMount(o, mnt);
         o.setNode(nd);
+
+        // 如果是 unmount，则恢复到父节点的 mount
+        if (null == mnt) {
+            o.mount(getParent(o).mount());
+        }
         indexer.set(o, "^mnt$");
+
+        // 调用钩子
+        Wn.WC().doHook("mount", o);
     }
 
     @Override
@@ -578,7 +600,7 @@ public class WnIoImpl implements WnIo {
 
         // 是写入元数据的
         if (o.getBoolean(Wn.OBJ_META_RW)) {
-            return new WnObjMetaOutputStream(o, indexer, off < 0);
+            return new WnObjMetaOutputStream(o, this, off < 0);
         }
         // 写入内容
         WnStore store = stores.get(o);

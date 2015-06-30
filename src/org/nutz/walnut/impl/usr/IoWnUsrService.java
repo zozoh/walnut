@@ -130,7 +130,7 @@ public class IoWnUsrService implements WnUsrService {
         // 用户名
         else if (q.containsKey("nm")) {
             u.name(q.getString("nm"));
-            io.rename(oU, u.name());
+            oU = io.rename(oU, u.name());
         }
         // 不可能
         else {
@@ -219,7 +219,7 @@ public class IoWnUsrService implements WnUsrService {
         WnUsr u = io.readJson(o, IoWnUsr.class);
         u.password(pwd);
         io.writeJson(o, u, null);
-        
+
         return u;
     }
 
@@ -234,7 +234,7 @@ public class IoWnUsrService implements WnUsrService {
 
         // 如果节点名字发生变化
         if (!o.name().equals(nm)) {
-            io.rename(o, nm);
+            o = io.rename(o, nm);
 
             // 修改主目录名称
             String phHome = "/home/" + u.id();
@@ -273,15 +273,13 @@ public class IoWnUsrService implements WnUsrService {
         return u;
 
     }
-    
-    
 
     @Override
     public WnUsr set(String str, String key, String val) {
-        if(key.matches("^nm|pwd|phone|email")){
+        if (key.matches("^nm|pwd|phone|email")) {
             throw Er.create("e.u.forbiden.set", key);
         }
-        if("home".equals(key)){
+        if ("home".equals(key)) {
             return this.setHome(str, val);
         }
         // 其他自由的属性
@@ -289,7 +287,7 @@ public class IoWnUsrService implements WnUsrService {
         WnUsr u = io.readJson(o, IoWnUsr.class);
         u.setOrRemove(key, val);
         io.writeJson(o, u, null);
-        
+
         return u;
     }
 

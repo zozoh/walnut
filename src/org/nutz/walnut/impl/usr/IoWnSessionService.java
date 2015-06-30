@@ -41,6 +41,11 @@ public class IoWnSessionService implements WnSessionService {
     }
 
     @Override
+    public WnUsrService usrs() {
+        return usrs;
+    }
+
+    @Override
     public WnSession login(final String nm, final String pwd) {
         if (Strings.isBlank(pwd))
             throw Er.create("e.usr.blank.pwd");

@@ -13,6 +13,20 @@ import org.nutz.walnut.util.Wn;
 public abstract class AbstractWnTreeTest extends BaseApiTest {
 
     @Test
+    public void test_append2() {
+        WnNode nd = tree.create(null, "/a/b/c", WnRace.FILE);
+        WnNode p = tree.create(null, "/x/y", WnRace.DIR);
+
+        WnNode nd2 = tree.append(p, nd, "m.js");
+
+        assertEquals(nd.id(), nd2.id());
+        assertEquals(p.id(), nd2.parentId());
+        assertEquals("/x/y/m.js", nd2.path());
+        assertEquals("m.js", nd2.name());
+
+    }
+
+    @Test
     public void test_append() {
         WnNode nd = tree.create(null, "/a/b/c", WnRace.FILE);
         WnNode p = tree.create(null, "/x/y", WnRace.DIR);

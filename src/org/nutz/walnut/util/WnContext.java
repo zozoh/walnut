@@ -90,6 +90,11 @@ public class WnContext extends NutMap {
                 // 调用了钩子，则重新获取
                 return hookContext.io.checkById(o.id());
             }
+            
+            // 没有调用钩子，也记录一下时间 
+            sw.stop();
+            if (log.isDebugEnabled())
+                log.debugf("done in %dms", sw.getDuration());
         }
         // 没有调用钩子，返回自身
         return o;
