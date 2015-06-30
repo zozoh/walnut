@@ -63,12 +63,19 @@ define(function (require, exports, module) {
         },
         render_project_tasks: function (pinfo) {
             var $pi = this.$el.find('.project-info');
-            $pi.empty();
-            if (pinfo.tasks.length == 0) {
-                $pi.append('<div class="project-empty" >没有任务</div>')
-            } else {
-                for (var i = 0; i < pinfo.tasks.length; i++) {
-                    var pt = pinfo.tasks[i];
+            this._render_tasks($pi.find('.tasks-overdue'), pinfo.tasks_overdue);
+            this._render_tasks($pi.find('.tasks-7day'), pinfo.tasks_7day);
+            this._render_tasks($pi.find('.tasks-after'), pinfo.tasks_after);
+            this._render_tasks($pi.find('.tasks-done'), pinfo.tasks_done);
+        },
+        _render_tasks: function ($con, tasks) {
+            var $ul = $con.find('ul');
+            $ul.empty();
+            var $em = $con.find('.project-task-title em');
+            $em.html(tasks.length);
+            if (tasks.length > 0) {
+                for (var i = 0; i < tasks.length; i++) {
+                    var pt = tasks[i];
                     var $ptask = this.ccode('project-task-tmpl');
                     $ptask.find('.task-name').html(pt.name);
                     $ptask.find('.task-description').html(pt.description);
@@ -77,7 +84,7 @@ define(function (require, exports, module) {
                     $ptask.find('.task-progress span').html(pt.progress);
                     $ptask.find('.dl').html(pt.deadline);
                     $ptask.find('.dl-left span').html(pt.leftDays);
-                    $pi.append($ptask);
+                    $ul.append($ptask);
                 }
             }
         }

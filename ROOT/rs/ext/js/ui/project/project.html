@@ -2,7 +2,7 @@
     <li code-id="project-tab-tmpl">
         <div class="ripple-button"></div>
     </li>
-    <div code-id="project-task-tmpl" class="project-task">
+    <li code-id="project-task-tmpl" class="project-task">
         <div class="task-name"></div>
         <div class="task-detail">
             <div class="task-priority">优先级: <span></span></div>
@@ -11,16 +11,55 @@
         </div>
         <div class="task-progress"><span></span>%</div>
         <div class="dead-line">
-            <div class="dl-left">还有: <span>-</span> 天</div>
+            <div class="dl-left"><span>0</span>天</div>
             <div class="dl">未定</div>
         </div>
-    </div>
+    </li>
 </div>
 <div class="ui-arena">
     <ul class="project-tabs md-tab-group">
         <div class="tab-bottom"></div>
     </ul>
     <div class="project-info">
+        <div class="project-task-container tasks-overdue paper rounded z-depth-1">
+            <div class="project-task-title">
+                <span>已过期</span>
+                <em class="err">0</em>
+                <!-- TODO 展开/收起-->
+            </div>
+            <ul>
 
+            </ul>
+        </div>
+        <div class="project-task-container tasks-7day paper rounded z-depth-1">
+            <div class="project-task-title">
+                <span>最近七天</span>
+                <em>0</em>
+                <!-- TODO 展开/收起-->
+            </div>
+            <ul>
+
+            </ul>
+        </div>
+        <div class="project-task-container tasks-after paper rounded z-depth-1">
+            <div class="project-task-title">
+                <span>七天以后</span>
+                <em>0</em>
+                <!-- TODO 展开/收起-->
+            </div>
+            <ul>
+
+            </ul>
+        </div>
+        <div class="project-task-container tasks-done paper rounded z-depth-1">
+            <div class="project-task-title">
+                <span>已完成</span>
+                <em>0</em>
+                <!-- TODO 展开/收起-->
+            </div>
+            <ul>
+
+            </ul>
+        </div>
     </div>
 </div>
