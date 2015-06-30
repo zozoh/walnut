@@ -55,6 +55,7 @@ public abstract class BaseApiTest {
     @After
     public void after() {
         on_after(pp);
+        db.on_depose();
     }
 
     protected void on_before(PropertiesProxy pp) {};
