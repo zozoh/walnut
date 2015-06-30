@@ -167,7 +167,9 @@ define(function (require, exports, module) {
                 // TODO
             }
             else if (act == "delete") {
-                // TODO
+                UI.model.trigger("cmd:exec", "rm " + cobj.ph, function () {
+                    UI.open_file();
+                });
             }
             else if (act == "back") {
                 var $cpo = $po;
@@ -179,30 +181,25 @@ define(function (require, exports, module) {
                 }
             }
             else if (act == "mkdir") {
-                setTimeout(function () {
-                    // TODO
-                    var dirnm = prompt("请输入文件夹名称", "新建文件夹");
-                    if (dirnm == undefined || dirnm == null) {
-                        return;
-                    }
-                    var cpath = $po.attr('path');
-                    UI.model.trigger("cmd:exec", "mkdir " + cpath + "/" + dirnm, function () {
-                        UI.open_file();
-                    });
-                }, 100);
+                var dirnm = prompt("请输入文件夹名称", "新建文件夹");
+                if (dirnm == undefined || dirnm == null) {
+                    return;
+                }
+                var cpath = $po.attr('path');
+                UI.model.trigger("cmd:exec", "mkdir " + cpath + "/" + dirnm, function () {
+                    UI.open_file();
+                });
             }
             else if (act == "touch") {
-                setTimeout(function () {
-                    // TODO
-                    var dirnm = prompt("请输入文件名称", "新建文件");
-                    if (dirnm == undefined || dirnm == null) {
-                        return;
-                    }
-                    var cpath = $po.attr('path');
-                    UI.model.trigger("cmd:exec", "touch " + cpath + "/" + dirnm, function () {
-                        UI.open_file();
-                    });
-                }, 100);
+                // TODO
+                var dirnm = prompt("请输入文件名称", "新建文件");
+                if (dirnm == undefined || dirnm == null) {
+                    return;
+                }
+                var cpath = $po.attr('path');
+                UI.model.trigger("cmd:exec", "touch " + cpath + "/" + dirnm, function () {
+                    UI.open_file();
+                });
             }
             else if (act == "upload") {
                 // FIXME
@@ -281,33 +278,25 @@ define(function (require, exports, module) {
             // 重新编译
             var i = 0;
             var $lgip = null;
-            var path = "";
-            while (true) {
-                var pnm = cobj["d" + i];
-                if (pnm != undefined) {
-                    path += '/' + pnm;
-                    var $gip = this.ccode('gi-path-item');
-                    $gip.find('.disk-icon').addClass('folder');
-                    $gip.find('.disk-path-nm').append(pnm);
-                    $gip.attr('path', path);
-                    if ($lgip != null) {
-                        $dp.append($lgip);
-                    }
-                    $lgip = $gip;
-                } else {
-                    // 到头了, 显示自己然后退出
-                    var isDir = cobj.race == "DIR";
-                    var tp = isDir ? "folder" : cobj.tp.toLowerCase();
-                    var $gip = this.ccode('gi-path-item');
-                    $gip.addClass('active');
-                    $gip.find('.disk-icon').addClass(tp);
-                    $gip.find('.disk-path-nm').append(cobj.nm);
-                    $gip.attr('path', path);
-                    $dp.append($gip);
-                    break;
-                }
-                i++;
+            var path = cobj.ph;
+            var pis = path.substr(1).split('/');
+            var cph = '';
+            for (var i = 0; i < pis.length - 1; i++) {
+                cph += '/' + pis[i];
+                var $gip = this.ccode('gi-path-item');
+                $gip.find('.disk-icon').addClass('folder');
+                $gip.find('.disk-path-nm').append(pis[i]);
+                $gip.attr('path', cph);
+                $dp.append($gip);
             }
+            var isDir = cobj.race == "DIR";
+            var tp = isDir ? "folder" : cobj.tp.toLowerCase();
+            var $gip = this.ccode('gi-path-item');
+            $gip.addClass('active');
+            $gip.find('.disk-icon').addClass(tp);
+            $gip.find('.disk-path-nm').append(cobj.nm);
+            $gip.attr('path', path);
+            $dp.append($gip);
         },
         render_obj: function (obj) {
             this.clear_disk();

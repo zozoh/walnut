@@ -74,6 +74,9 @@ define(function (require, exports, module) {
             var $em = $con.find('.project-task-title em');
             $em.html(tasks.length);
             if (tasks.length > 0) {
+                tasks.sort(function (x, y) {
+                    return x.leftDays - y.leftDays;
+                });
                 for (var i = 0; i < tasks.length; i++) {
                     var pt = tasks[i];
                     var $ptask = this.ccode('project-task-tmpl');

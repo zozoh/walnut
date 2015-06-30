@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.myproject;
 
-import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -10,7 +10,9 @@ import org.nutz.json.Json;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
+import org.nutz.lang.Lang;
 import org.nutz.lang.LoopException;
+import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -18,6 +20,25 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 
 public class cmd_myproject extends JvmExecutor {
+
+    private long getDLTime(String dl) {
+        try {
+            return Times.parse("yyyy-MM-dd HH:mm:ss", dl + " 00:00:00").getTime();
+        }
+        catch (ParseException e) {
+            throw Lang.wrapThrow(e);
+        }
+    }
+
+    private long getTodayTime() {
+        String tdstr = Times.sD(new Date());
+        try {
+            return Times.parse("yyyy-MM-dd HH:mm:ss", tdstr + " 00:00:00").getTime();
+        }
+        catch (ParseException e) {
+            throw Lang.wrapThrow(e);
+        }
+    }
 
     @Override
     @SuppressWarnings("rawtypes")
@@ -53,17 +74,12 @@ public class cmd_myproject extends JvmExecutor {
                                 progress = (int) tjson.get("progress");
                             }
                             if (tjson.containsKey("deadline")) {
-                                String dl = (String) tjson.get("deadline");
-                                Date dldate = new SimpleDateFormat("yyyy-MM-dd").parse(dl);
-                                Date today = new Date();
-                                if (dldate.getTime() > today.getTime()) {
-                                    ldays = (int) ((dldate.getTime() - today.getTime()) / 86400000);
+                                long dlTime = getDLTime((String) tjson.get("deadline"));
+                                long toTime = getTodayTime();
+                                if (dlTime == toTime) {
+                                    ldays = 0;
                                 } else {
-                                    ldays = -(int) ((today.getTime() - dldate.getTime())
-                                                    / 86400000);
-                                    if (ldays == 0) {
-                                        ldays = -1;
-                                    }
+                                    ldays = (int) ((dlTime - toTime) / 86400000);
                                 }
                                 tjson.put("leftDays", ldays);
                             }
