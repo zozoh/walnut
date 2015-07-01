@@ -15,9 +15,6 @@ define(function (require, exports, module) {
             'top': e.clientY,
             'left': e.clientX,
         });
-        $(document.body).one('mousedown', function () {
-            $menu.remove();
-        });
     }
 
     function on_keydown_at_gi(e) {
@@ -130,7 +127,9 @@ define(function (require, exports, module) {
             this.model.set(ASC, true);
             var UI = this;
             $(document.body).delegate('.rclick-menu .menu-action', 'mousedown', function () {
+                var $menu = $(this).parents('.rclick-menu-bg');
                 var act = $(this).attr('action');
+                $menu.remove();
                 UI.rclick_action(act);
             });
         },
@@ -153,7 +152,17 @@ define(function (require, exports, module) {
                 // TODO
             }
             else if (act == "rename") {
-                // TODO
+                var new_nm = prompt("重命名", cobj.nm);
+                if (new_nm == undefined || new_nm == null) {
+                    return;
+                }
+                new_nm = new_nm.trim();
+                if (new_nm == cobj.nm) {
+                    return;
+                }
+                UI.model.trigger("cmd:exec", "mv " + cobj.nm + " " + new_nm, function () {
+                    UI.open_file();
+                });
             }
             else if (act == "move") {
                 // TODO
@@ -168,9 +177,12 @@ define(function (require, exports, module) {
                 // TODO
             }
             else if (act == "delete") {
-                UI.model.trigger("cmd:exec", "rm " + cobj.ph, function () {
-                    UI.open_file();
-                });
+                var doDel = confirm('确定要删除"' + cobj.nm + '"');
+                if (doDel) {
+                    UI.model.trigger("cmd:exec", "rm " + cobj.ph, function () {
+                        UI.open_file();
+                    });
+                }
             }
             else if (act == "back") {
                 var $cpo = $po;
@@ -192,7 +204,7 @@ define(function (require, exports, module) {
                 });
             }
             else if (act == "touch") {
-                // TODO
+                // FIXME
                 var dirnm = prompt("请输入文件名称", "新建文件");
                 if (dirnm == undefined || dirnm == null) {
                     return;
