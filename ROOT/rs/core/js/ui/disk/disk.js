@@ -15,6 +15,7 @@ define(function (require, exports, module) {
             'top': e.clientY,
             'left': e.clientX,
         });
+
         $(document.body).one('mousedown', function () {
             $menu.remove();
         });
@@ -123,13 +124,16 @@ define(function (require, exports, module) {
         },
         redraw: function () {
             var cobj = _app.obj !== undefined ? getObj(_app.obj.id) : getObjPath(_app.session.envs["PWD"]);
+            this._root_obj = cobj;
             this.open_file(cobj);
             this.model.set(WOList, []);
             this.model.set(SORT, "name");
             this.model.set(ASC, true);
             var UI = this;
             $(document.body).delegate('.rclick-menu .menu-action', 'mousedown', function () {
+                var $menu = $(this).parents('.rclick-menu-bg');
                 var act = $(this).attr('action');
+                $menu.remove();
                 UI.rclick_action(act);
             });
         },
@@ -152,7 +156,17 @@ define(function (require, exports, module) {
                 // TODO
             }
             else if (act == "rename") {
-                // TODO
+                var new_nm = prompt("重命名", cobj.nm);
+                if (new_nm == undefined || new_nm == null) {
+                    return;
+                }
+                new_nm = new_nm.trim();
+                if (new_nm == cobj.nm) {
+                    return;
+                }
+                UI.model.trigger("cmd:exec", "mv " + cobj.nm + " " + new_nm, function () {
+                    UI.open_file();
+                });
             }
             else if (act == "move") {
                 // TODO
@@ -167,9 +181,12 @@ define(function (require, exports, module) {
                 // TODO
             }
             else if (act == "delete") {
-                UI.model.trigger("cmd:exec", "rm " + cobj.ph, function () {
-                    UI.open_file();
-                });
+                var doDel = confirm('确定要删除"' + cobj.nm + '"');
+                if (doDel) {
+                    UI.model.trigger("cmd:exec", "rm " + cobj.ph, function () {
+                        UI.open_file();
+                    });
+                }
             }
             else if (act == "back") {
                 var $cpo = $po;
@@ -191,7 +208,7 @@ define(function (require, exports, module) {
                 });
             }
             else if (act == "touch") {
-                // TODO
+                // FIXME
                 var dirnm = prompt("请输入文件名称", "新建文件");
                 if (dirnm == undefined || dirnm == null) {
                     return;
@@ -273,21 +290,27 @@ define(function (require, exports, module) {
             }
         },
         render_path: function () {
+            var rootCObj = this._root_obj;
             var cobj = this.model.get(COBJ);
             var $dp = this.$el.find('.disk-path').empty();
-            // 重新编译
             var i = 0;
             var $lgip = null;
             var path = cobj.ph;
             var pis = path.substr(1).split('/');
             var cph = '';
+            var addToPath = false;
             for (var i = 0; i < pis.length - 1; i++) {
                 cph += '/' + pis[i];
                 var $gip = this.ccode('gi-path-item');
                 $gip.find('.disk-icon').addClass('folder');
                 $gip.find('.disk-path-nm').append(pis[i]);
                 $gip.attr('path', cph);
-                $dp.append($gip);
+                if (!addToPath && cph == rootCObj.ph) {
+                    addToPath = true;
+                }
+                if (addToPath) {
+                    $dp.append($gip);
+                }
             }
             var isDir = cobj.race == "DIR";
             var tp = isDir ? "folder" : cobj.tp.toLowerCase();
