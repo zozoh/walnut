@@ -197,42 +197,8 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public WnObj rename(WnObj o, String newName) {
-        // 调用钩子
-        o.setv("_new_nm", newName);
-        Wn.WC().doHook("rename", o);
-
-        String old_d0 = o.d0();
-        String old_d1 = o.d1();
-
-        WnNode nd = o.tree().rename(o, newName);
-        o.setNode(nd);
-
-        // 修改新对象的 d0, d1
-        Wn.Io.eval_dn(o);
-
-        // 保存元数据
-        __set_type(o, null);
-        indexer.set(o, "^d0|d1|nm|tp|mime$");
-
-        // 如果是目录，且d0,d1 改变了，需要递归
-        __check_dn(old_d0, old_d1, o);
-
-        // 触发同步时间修改
-        Wn.Io.update_ancestor_synctime(this, o, false);
-        return o;
-        // String destPath = Wn.appendPath(Files.getParent(o.path()), newName);
-        // return this.move(o, destPath);
-    }
-
-    @Override
-    public void changeType(WnObj o, String tp) {
-        if (!Lang.equals(o.type(), tp)) {
-            __set_type(o, tp);
-            indexer.set(o, "^tp|mime$");
-
-            // 触发同步时间修改
-            Wn.Io.update_ancestor_synctime(this, o, false);
-        }
+        String destPath = Wn.appendPath(Files.getParent(o.path()), newName);
+        return this.move(o, destPath);
     }
 
     @Override
@@ -475,10 +441,6 @@ public class WnIoImpl implements WnIo {
 
     private WnObj __create_index(WnNode nd) {
         return indexer.toObj(nd, ObjIndexStrategy.WC);
-    }
-
-    private void __set_type(WnObj o, String tp) {
-        Wn.set_type(mimes, o, tp);
     }
 
     @Override
@@ -784,6 +746,11 @@ public class WnIoImpl implements WnIo {
     @Override
     public long countChildren(WnObj p, String tp, boolean withHidden) {
         return tree(p).countNode(p, tp, withHidden);
+    }
+
+    @Override
+    public MimeMap mimes() {
+        return this.mimes;
     }
 
 }

@@ -20,6 +20,38 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
     protected abstract String getAnotherTreeMount();
 
     @Test
+    public void test_move_chtype() {
+        io.create(null, "/m/n", WnRace.DIR);
+        WnObj c = io.create(null, "/a/b/c", WnRace.FILE);
+        WnObj o = io.move(c, "/m/n/xyz.js");
+
+        assertEquals("xyz.js", o.name());
+        assertEquals("/m/n/xyz.js", o.path());
+        assertEquals("js", o.type());
+        assertEquals(mimes.getMime("js"), o.mime());
+    }
+
+    @Test
+    public void test_rename_chtype() {
+        WnObj c = io.create(null, "/a/b/c", WnRace.FILE);
+        WnObj o = io.rename(c, "xyz.js");
+
+        assertEquals("xyz.js", o.name());
+        assertEquals("/a/b/xyz.js", o.path());
+        assertEquals("js", o.type());
+        assertEquals(mimes.getMime("js"), o.mime());
+    }
+
+    @Test
+    public void test_rename() {
+        WnObj c = io.create(null, "/a/b/c", WnRace.FILE);
+        WnObj o = io.rename(c, "xyz");
+
+        assertEquals("xyz", o.name());
+        assertEquals("/a/b/xyz", o.path());
+    }
+
+    @Test
     public void test_load_parents_twice() {
         WnObj c = io.create(null, "/a/b/c", WnRace.FILE);
 
@@ -47,7 +79,7 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
         assertTrue(st <= 0);
 
         // 修改自身，同步时间还是不存在
-        //io.changeType(b, "abc");
+        // io.changeType(b, "abc");
         io.appendMeta(b, "tp:'abc'");
         assertTrue(io.check(null, "/a/b").syncTime() <= 0);
 

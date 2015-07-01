@@ -67,36 +67,6 @@ public abstract class AbstractWnHookTest extends BaseHookTest {
     }
 
     @Test
-    public void test_rename() {
-        // 准备钩子
-        WnObj oHook = io.createIfNoExists(oHookHome, "rename/do_log", WnRace.FILE);
-        io.writeText(oHook, "echo 'rename:${nm} to ${_new_nm}' >> ~/testlog");
-
-        // 执行
-        Wn.WC().hooking(hc, new Atom() {
-            public void run() {
-                WnObj o = io.create(oHome, "abc.js", WnRace.FILE);
-                io.rename(o, "abc_new.js");
-
-                o = io.create(oHome, "bbc.js", WnRace.FILE);
-                io.rename(o, "bbc_new.js");
-
-                o = io.create(oHome, "cbc.js", WnRace.FILE);
-                io.rename(o, "cbc_new.js");
-            }
-        });
-
-        // 查看 log
-        WnObj oLog = io.check(oHome, "testlog");
-        String log = io.readText(oLog);
-        String[] lines = Strings.splitIgnoreBlank(log, "\n");
-        assertEquals(3, lines.length);
-        assertEquals("rename:abc.js to abc_new.js", lines[0]);
-        assertEquals("rename:bbc.js to bbc_new.js", lines[1]);
-        assertEquals("rename:cbc.js to cbc_new.js", lines[2]);
-    }
-
-    @Test
     public void test_move() {
         // 准备钩子
         WnObj oHook = io.createIfNoExists(oHookHome, "move/do_log", WnRace.FILE);
