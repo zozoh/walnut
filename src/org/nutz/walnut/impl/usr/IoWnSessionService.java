@@ -62,7 +62,8 @@ public class IoWnSessionService implements WnSessionService {
     public WnSession create(WnUsr u) {
         // 创建一个 Session 对象
         WnObj o = io.create(null, "/session/${id}", WnRace.FILE);
-        io.changeType(o, SESSTP);
+        // io.changeType(o, SESSTP);
+        io.appendMeta(o, Lang.mapf("tp:'%s',mime:'%s'", SESSTP, "application/json"));
 
         // 设置环境变量等 ..
         WnSession se = new IoWnSession();

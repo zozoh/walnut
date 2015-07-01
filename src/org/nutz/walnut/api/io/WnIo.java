@@ -30,8 +30,6 @@ public interface WnIo extends WnStore {
 
     WnObj rename(WnObj o, String newName);
 
-    void changeType(WnObj o, String tp);
-
     WnObj createIfNoExists(WnObj p, String path, WnRace race);
 
     WnObj create(WnObj p, String path, WnRace race);
@@ -87,4 +85,6 @@ public interface WnIo extends WnStore {
     Reader getReader(WnObj o, long off);
 
     Writer getWriter(WnObj o, long off);
+
+    MimeMap mimes();
 }

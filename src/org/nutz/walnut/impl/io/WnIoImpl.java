@@ -197,42 +197,8 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public WnObj rename(WnObj o, String newName) {
-        // 调用钩子
-        o.setv("_new_nm", newName);
-        Wn.WC().doHook("rename", o);
-
-        String old_d0 = o.d0();
-        String old_d1 = o.d1();
-
-        WnNode nd = o.tree().rename(o, newName);
-        o.setNode(nd);
-
-        // 修改新对象的 d0, d1
-        Wn.Io.eval_dn(o);
-
-        // 保存元数据
-        __set_type(o, null);
-        indexer.set(o, "^d0|d1|nm|tp|mime$");
-
-        // 如果是目录，且d0,d1 改变了，需要递归
-        __check_dn(old_d0, old_d1, o);
-
-        // 触发同步时间修改
-        Wn.Io.update_ancestor_synctime(this, o, false);
-        return o;
-        // String destPath = Wn.appendPath(Files.getParent(o.path()), newName);
-        // return this.move(o, destPath);
-    }
-
-    @Override
-    public void changeType(WnObj o, String tp) {
-        if (!Lang.equals(o.type(), tp)) {
-            __set_type(o, tp);
-            indexer.set(o, "^tp|mime$");
-
-            // 触发同步时间修改
-            Wn.Io.update_ancestor_synctime(this, o, false);
-        }
+        String destPath = Wn.appendPath(Files.getParent(o.path()), newName);
+        return this.move(o, destPath);
     }
 
     @Override
@@ -411,7 +377,6 @@ public class WnIoImpl implements WnIo {
         WnContext wc = Wn.WC();
         final WnNodeCallback old = wc.onCreate();
 
-        WnObj o = null;
         try {
             // 给树设定回调，保证每次创建节点都会创建索引
             wc.onCreate(new WnNodeCallback() {
@@ -427,7 +392,10 @@ public class WnIoImpl implements WnIo {
 
             // 执行创建
             WnNode nd = tree(p).create(p, path, race);
-            o = indexer.toObj(nd, ObjIndexStrategy.WC);
+            WnObj o = indexer.toObj(nd, ObjIndexStrategy.WC);
+
+            // 触发同步时间修改
+            Wn.Io.update_ancestor_synctime(this, o, false);
 
             // 触发钩子
             o = wc.doHook("create", o);
@@ -466,7 +434,16 @@ public class WnIoImpl implements WnIo {
 
             // 执行创建
             WnNode nd = tree(p).create(p, paths, fromIndex, toIndex, race);
-            return indexer.toObj(nd, ObjIndexStrategy.WC);
+            WnObj o = indexer.toObj(nd, ObjIndexStrategy.WC);
+
+            // 触发同步时间修改
+            Wn.Io.update_ancestor_synctime(this, o, false);
+
+            // 触发钩子
+            o = wc.doHook("create", o);
+
+            // 搞定，返回
+            return o;
         }
         finally {
             wc.onCreate(old);
@@ -477,30 +454,31 @@ public class WnIoImpl implements WnIo {
         return indexer.toObj(nd, ObjIndexStrategy.WC);
     }
 
-    private void __set_type(WnObj o, String tp) {
-        Wn.set_type(mimes, o, tp);
-    }
-
     @Override
     public void delete(WnObj o) {
         // 调用回调
-        Wn.WC().doHook("delete", o);
+        o = Wn.WC().doHook("delete", o);
 
         // 链接的话，就删了吧
-        if (!o.isLink()) {
-            // 目录的话，删除不能为空
-            if (hasChild(o)) {
-                throw Er.create("e.io.rm.noemptynode", o);
+        if (null != o) {
+            if (!o.isLink()) {
+                // 目录的话，删除不能为空
+                if (hasChild(o)) {
+                    throw Er.create("e.io.rm.noemptynode", o);
+                }
+                // 文件删除
+                if (!o.isDIR()) {
+                    WnStore store = stores.get(o);
+                    store.cleanHistoryBy(o, 0);
+                }
             }
-            // 文件删除
-            if (!o.isDIR()) {
-                WnStore store = stores.get(o);
-                store.cleanHistoryBy(o, 0);
-            }
+            // 删除树节点和索引
+            indexer.remove(o.id());
+            tree(o).delete(o);
+
+            // 触发同步时间修改
+            Wn.Io.update_ancestor_synctime(this, o, false);
         }
-        // 删除树节点和索引
-        indexer.remove(o.id());
-        tree(o).delete(o);
     }
 
     @Override
@@ -784,6 +762,11 @@ public class WnIoImpl implements WnIo {
     @Override
     public long countChildren(WnObj p, String tp, boolean withHidden) {
         return tree(p).countNode(p, tp, withHidden);
+    }
+
+    @Override
+    public MimeMap mimes() {
+        return this.mimes;
     }
 
 }
