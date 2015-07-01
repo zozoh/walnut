@@ -15,6 +15,10 @@ define(function (require, exports, module) {
             'top': e.clientY,
             'left': e.clientX,
         });
+
+        $(document.body).one('mousedown', function () {
+            $menu.remove();
+        });
     }
 
     function on_keydown_at_gi(e) {
