@@ -2,7 +2,6 @@ package org.nutz.walnut.impl.io.mongo;
 
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Strings;
 import org.nutz.mongo.annotation.MoField;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnNode;
@@ -78,32 +77,12 @@ public class MongoWnNode extends AbstractWnNode {
         return -1;
     }
 
-//    @Override
-//    public String creator() {
-//        return null;
-//    }
-//
-//    @Override
-//    public String mender() {
-//        return null;
-//    }
-//
-//    @Override
-//    public String group() {
-//        return null;
-//    }
-//
-//    @Override
-//    public int mode() {
-//        return 0750;
-//    }
-
     private static final Pattern P_NM = Pattern.compile("[/\\\\]");
 
     @Override
     public MongoWnNode name(String nm) {
-        if (Strings.isBlank(nm))
-            throw Er.create("e.io.obj.nm.blank");
+        // if (Strings.isBlank(nm))
+        // throw Er.create("e.io.obj.nm.blank");
 
         if (nm.equals(".") || nm.equals("..") || P_NM.matcher(nm).find())
             throw Er.create("e.io.obj.nm.invalid", nm);

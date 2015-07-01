@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.lang.Each;
+import org.nutz.lang.Lang;
 import org.nutz.walnut.api.io.WnHistory;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.io.AbstractWnStoreTable;
@@ -20,6 +21,9 @@ public class LocalTreeWnStoreTable extends AbstractWnStoreTable {
     public LocalTreeWnStoreTable(File home, String rootPath) {
         this.home = home;
         this.rootPath = rootPath;
+        if (null == rootPath) {
+            throw Lang.makeThrow("!!! rootPath null : home='%s'", home);
+        }
     }
 
     @Override
