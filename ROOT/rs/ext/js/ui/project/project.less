@@ -1,3 +1,5 @@
+@import "/Users/pw/gitrep/nutz-project/walnut/ROOT/rs/core/css/mdcss/md";
+
 @task-h: 48px;
 
 .ext-project {
@@ -17,28 +19,65 @@
     overflow-y: auto;
   }
 
-  .project-empty {
-    margin: 50px auto;
-    font-size: 1.5em;
-    text-align: center;
-  }
-
   @t-border: 1px solid rgba(0, 0, 0, 0.13);
 
+  .project-task-container {
+    min-height: 64px;
+    margin: 16px;
+    padding: 8px;
+    position: relative;
+  }
+
+  .project-task-title {
+    width: 100%;
+    height: 48px;
+    line-height: 48px;
+
+    span {
+      display: block;
+      float: left;
+      padding-right: 8px;
+      font-size: @font-size-h4;
+    }
+
+    em {
+      display: block;
+      float: left;
+      min-width: 30px;
+      padding: 0px 8px;
+      height: 20px;
+      margin-top: 12px;
+      border-radius: 10px;
+      line-height: 20px;
+      text-align: center;
+      color: @white;
+      background-color: @primary-1-color;
+
+      &.err {
+        background-color: @accent-2-color;
+      }
+    }
+
+  }
+
   .project-task {
+    display: block;
     width: 100%;
     height: @task-h + 16;
     position: relative;
     padding: 8px 0;
     border-bottom: @t-border;
 
+    &:last-child {
+      border-bottom: none;
+    }
+
     .task-name {
       float: left;
       width: 20%;
       height: @task-h;
       line-height: @task-h;
-      padding: 0 8px;
-      text-align: center;
+      text-align: left;
       overflow: hidden;
       text-overflow: ellipsis;
       font-size: 1.1em;
