@@ -119,6 +119,20 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
         st = io.check(null, "/a/b").syncTime();
         assertTrue(st == last_st);
 
+        // 添加一个子节点，同步时间改变
+        Thread.sleep(5);
+        WnObj oNew = io.create(null, "/a/b/c/newfile", WnRace.FILE);
+        st = io.check(null, "/a/b").syncTime();
+        assertTrue(st > last_st);
+        last_st = st;
+
+        // 删除一个子节点，同步时间改变
+        Thread.sleep(5);
+        io.delete(oNew);
+        st = io.check(null, "/a/b").syncTime();
+        assertTrue(st > last_st);
+        last_st = st;
+
     }
 
     /**

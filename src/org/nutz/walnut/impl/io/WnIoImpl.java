@@ -377,7 +377,6 @@ public class WnIoImpl implements WnIo {
         WnContext wc = Wn.WC();
         final WnNodeCallback old = wc.onCreate();
 
-        WnObj o = null;
         try {
             // 给树设定回调，保证每次创建节点都会创建索引
             wc.onCreate(new WnNodeCallback() {
@@ -393,7 +392,10 @@ public class WnIoImpl implements WnIo {
 
             // 执行创建
             WnNode nd = tree(p).create(p, path, race);
-            o = indexer.toObj(nd, ObjIndexStrategy.WC);
+            WnObj o = indexer.toObj(nd, ObjIndexStrategy.WC);
+
+            // 触发同步时间修改
+            Wn.Io.update_ancestor_synctime(this, o, false);
 
             // 触发钩子
             o = wc.doHook("create", o);
@@ -432,7 +434,16 @@ public class WnIoImpl implements WnIo {
 
             // 执行创建
             WnNode nd = tree(p).create(p, paths, fromIndex, toIndex, race);
-            return indexer.toObj(nd, ObjIndexStrategy.WC);
+            WnObj o = indexer.toObj(nd, ObjIndexStrategy.WC);
+
+            // 触发同步时间修改
+            Wn.Io.update_ancestor_synctime(this, o, false);
+
+            // 触发钩子
+            o = wc.doHook("create", o);
+
+            // 搞定，返回
+            return o;
         }
         finally {
             wc.onCreate(old);
@@ -446,23 +457,28 @@ public class WnIoImpl implements WnIo {
     @Override
     public void delete(WnObj o) {
         // 调用回调
-        Wn.WC().doHook("delete", o);
+        o = Wn.WC().doHook("delete", o);
 
         // 链接的话，就删了吧
-        if (!o.isLink()) {
-            // 目录的话，删除不能为空
-            if (hasChild(o)) {
-                throw Er.create("e.io.rm.noemptynode", o);
+        if (null != o) {
+            if (!o.isLink()) {
+                // 目录的话，删除不能为空
+                if (hasChild(o)) {
+                    throw Er.create("e.io.rm.noemptynode", o);
+                }
+                // 文件删除
+                if (!o.isDIR()) {
+                    WnStore store = stores.get(o);
+                    store.cleanHistoryBy(o, 0);
+                }
             }
-            // 文件删除
-            if (!o.isDIR()) {
-                WnStore store = stores.get(o);
-                store.cleanHistoryBy(o, 0);
-            }
+            // 删除树节点和索引
+            indexer.remove(o.id());
+            tree(o).delete(o);
+
+            // 触发同步时间修改
+            Wn.Io.update_ancestor_synctime(this, o, false);
         }
-        // 删除树节点和索引
-        indexer.remove(o.id());
-        tree(o).delete(o);
     }
 
     @Override
