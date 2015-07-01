@@ -123,6 +123,7 @@ define(function (require, exports, module) {
         },
         redraw: function () {
             var cobj = _app.obj !== undefined ? getObj(_app.obj.id) : getObjPath(_app.session.envs["PWD"]);
+            this._root_obj = cobj;
             this.open_file(cobj);
             this.model.set(WOList, []);
             this.model.set(SORT, "name");
@@ -273,21 +274,27 @@ define(function (require, exports, module) {
             }
         },
         render_path: function () {
+            var rootCObj = this._root_obj;
             var cobj = this.model.get(COBJ);
             var $dp = this.$el.find('.disk-path').empty();
-            // 重新编译
             var i = 0;
             var $lgip = null;
             var path = cobj.ph;
             var pis = path.substr(1).split('/');
             var cph = '';
+            var addToPath = false;
             for (var i = 0; i < pis.length - 1; i++) {
                 cph += '/' + pis[i];
                 var $gip = this.ccode('gi-path-item');
                 $gip.find('.disk-icon').addClass('folder');
                 $gip.find('.disk-path-nm').append(pis[i]);
                 $gip.attr('path', cph);
-                $dp.append($gip);
+                if (!addToPath && cph == rootCObj.ph) {
+                    addToPath = true;
+                }
+                if (addToPath) {
+                    $dp.append($gip);
+                }
             }
             var isDir = cobj.race == "DIR";
             var tp = isDir ? "folder" : cobj.tp.toLowerCase();
