@@ -59,7 +59,9 @@ define(function (require, exports, module) {
                 }
             }
             // 显示第一个
-            $f_li.click();
+            if ($f_li) {
+                $f_li.click();
+            }
         },
         render_project_tasks: function (pinfo) {
             var $pi = this.$el.find('.project-info');
