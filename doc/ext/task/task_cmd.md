@@ -111,9 +111,11 @@ tags:
 
 ```
 # 创建一个任务
-#  - 如果 task create ... 则表示创建顶级任务
+#  - 如果 `task add xxx` 则表示创建顶级任务
+#  - 如果 `task 45cd.. add xxx` 表示创建子任务
 #  - 如果创建子任务，没有指定 -prev|-next 的时候，默认附加在末尾
-task 3acd.. create '任务标题' 
+#  - 当然，如果 task add xxx -prev cde3.. ，创建的任务和 `cde3..`平级
+task [3acd..] add '任务标题' 
             [-prev 'fd21..']     # 新任务应该插在什么任务之前
             [-next '996e..']     # 新任务应该插在什么任务之后
             [-lbl "标签A,标签B"]

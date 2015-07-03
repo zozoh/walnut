@@ -41,6 +41,7 @@ public class cmd_site extends JvmExecutor {
         // 啥都木有，打印一下帮助
         if (null == sc.hdlName) {
             sys.out.println(this.getManual());
+            return;
         }
 
         // 找到控制器

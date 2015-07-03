@@ -120,6 +120,9 @@ public abstract class AbstractWnNode implements WnNode {
 
     @Override
     public WnNode path(String path) {
+        if (null == path) {
+            throw Er.create("e.tree.path.null", this);
+        }
         this.path = path;
         return this;
     }

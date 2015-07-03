@@ -20,6 +20,42 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
     protected abstract String getAnotherTreeMount();
 
     @Test
+    public void test_create_by_id() {
+        WnObj a = io.createById(null, "id0", "a", WnRace.DIR);
+        WnObj b = io.createById(a, "id1", "b", WnRace.DIR);
+        WnObj c = io.createById(b, "id2", "c", WnRace.FILE);
+
+        assertEquals("id0", a.id());
+        assertEquals("a", a.name());
+        assertEquals("id1", b.id());
+        assertEquals("b", b.name());
+        assertEquals("id2", c.id());
+        assertEquals("c", c.name());
+
+        a = io.check(null, "/a");
+        b = io.check(null, "/a/b");
+        c = io.check(null, "/a/b/c");
+
+        assertEquals("id0", a.id());
+        assertEquals("a", a.name());
+        assertEquals("id1", b.id());
+        assertEquals("b", b.name());
+        assertEquals("id2", c.id());
+        assertEquals("c", c.name());
+
+        a = io.checkById("id0");
+        b = io.checkById("id1");
+        c = io.checkById("id2");
+
+        assertEquals("id0", a.id());
+        assertEquals("a", a.name());
+        assertEquals("id1", b.id());
+        assertEquals("b", b.name());
+        assertEquals("id2", c.id());
+        assertEquals("c", c.name());
+    }
+
+    @Test
     public void test_move_chtype() {
         io.create(null, "/m/n", WnRace.DIR);
         WnObj c = io.create(null, "/a/b/c", WnRace.FILE);

@@ -36,6 +36,8 @@ public interface WnIo extends WnStore {
 
     WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race);
 
+    WnObj createById(WnObj p, String id, String name, WnRace race);
+
     void delete(WnObj o);
 
     WnObj toObj(WnNode nd);

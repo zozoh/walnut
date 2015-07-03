@@ -410,6 +410,22 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public WnObj createById(WnObj p, String id, String name, WnRace race) {
+        // 执行创建
+        WnNode nd = tree(p).createNode(p, id, name, race);
+        WnObj o = indexer.toObj(nd, ObjIndexStrategy.WC);
+
+        // 触发同步时间修改
+        Wn.Io.update_ancestor_synctime(this, o, false);
+
+        // 触发钩子
+        o = Wn.WC().doHook("create", o);
+
+        // 搞定，返回
+        return o;
+    }
+
+    @Override
     public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
         // 判断是否是获取对象索引
         String nm = paths[toIndex - 1];

@@ -37,12 +37,18 @@ public abstract class AbstractWnTree implements WnTree {
 
     @Override
     public void setTreeNode(WnNode treeNode) {
-        this.treeNode = treeNode;
-        if (null != treeNode) {
-            if (null == treeNode.tree())
-                treeNode.setTree(this);
-            rootPath = Strings.sBlank(treeNode.path(), "");
+        // 不能接受空的树根节点
+        if (null == treeNode) {
+            throw Er.create("e.tree.null.treeNode");
         }
+
+        this.treeNode = treeNode.clone();
+        if (null == treeNode.tree()) {
+            treeNode.setTree(this);
+            this.treeNode.setTree(this);
+        }
+        rootPath = Strings.sBlank(treeNode.path(), "");
+
     }
 
     @Override
@@ -407,6 +413,9 @@ public abstract class AbstractWnTree implements WnTree {
         WnContext wc = Wn.WC();
         WnSecurity secu = wc.getSecurity();
 
+        if (null == p)
+            p = this.getTreeNode();
+
         // 创建前，检查一下父节点和要创建的节点类型是否匹配
         __assert_parent_can_create(p, race);
 
@@ -420,7 +429,7 @@ public abstract class AbstractWnTree implements WnTree {
         __assert_duplicate_name(p, name);
 
         // 创建自己
-        WnNode nd = _create_node(p, null, name, race);
+        WnNode nd = _create_node(p, id, name, race);
         nd.setTree(this);
         nd.setParent(p);
         nd.path(p.path()).appendPath(nd.name());
