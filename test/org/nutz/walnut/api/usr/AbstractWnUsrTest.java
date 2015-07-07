@@ -45,7 +45,7 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
-                assertEquals("e.io.forbidden", e.toString());
+                assertEquals("e.io.forbidden : /home/userA", e.toString());
             }
 
             // 将文件改成变成同组能写
@@ -87,7 +87,7 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
-                assertEquals("e.io.forbidden", e.toString());
+                assertEquals("e.io.forbidden : /home/userA/aaa.txt", e.toString());
             }
 
             // 只有变成管理员
@@ -152,7 +152,7 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
-                assertEquals("e.io.forbidden", e.toString());
+                assertEquals("e.io.forbidden : /home/userA", e.toString());
             }
 
             // 把 B 用户加入到组里就能读
@@ -184,7 +184,7 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
-                assertEquals("e.io.forbidden", e.toString());
+                assertEquals("e.io.forbidden : /home/userA/aaa.txt", e.toString());
             }
 
             // 只有变成管理员

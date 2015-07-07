@@ -153,15 +153,16 @@ public class JvmAtomRunner {
                                     String path = Wn.normalizeFullPath(_a.redirectPath, _a.sys);
                                     o = bc.io.createIfNoExists(null, path, WnRace.FILE);
                                 }
-                                OutputStream ops = bc.io.getOutputStream(o, _a.redirectAppend ? -1
-                                                                                             : 0);
+                                OutputStream ops = bc.io.getOutputStream(o,
+                                                                         _a.redirectAppend ? -1
+                                                                                           : 0);
                                 _a.sys.out = new JvmBoxOutput(ops);
                                 // opss.add(ops);
                             }
                         });
                     }
                 });
-
+                a.sys.isOutRedirect = true;
             }
 
             // 计数

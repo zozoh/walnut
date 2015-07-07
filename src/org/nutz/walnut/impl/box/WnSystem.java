@@ -14,6 +14,8 @@ public class WnSystem {
 
     public int nextId;
 
+    public boolean isOutRedirect;
+
     public String cmdOriginal;
 
     public WnUsr me;

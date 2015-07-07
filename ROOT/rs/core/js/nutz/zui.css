@@ -19,7 +19,7 @@ body.ui-body {
     background: #CCC;
 }
 
-body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-body input, body.ui-body textarea {
+body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-body input, body.ui-body {
     font-family: arial, sans-serif;
 }
 

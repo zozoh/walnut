@@ -55,6 +55,12 @@ public class IoWnSessionService implements WnSessionService {
             throw Er.create("e.usr.invalid.login");
         }
 
+        // 如果主目录过期，也不能登录
+        WnObj oHome = io.check(null, u.home());
+        if (oHome.isExpired()) {
+            throw Er.create("e.usr.home.expired");
+        }
+
         return create(u);
     }
 

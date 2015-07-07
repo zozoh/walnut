@@ -341,8 +341,8 @@ public class WnBean extends NutMap implements WnObj {
         return this.getArray("lbls", String.class);
     }
 
-    public WnBean labels(String[] lbs) {
-        this.setOrRemove("lbls", lbs);
+    public WnBean labels(String[] lbls) {
+        this.setOrRemove("lbls", lbls);
         return this;
     }
 
@@ -382,7 +382,7 @@ public class WnBean extends NutMap implements WnObj {
     @Override
     public boolean isExpiredBy(long now) {
         long expi = expireTime();
-        if (expi < 0)
+        if (expi <= 0)
             return false;
         return expi < now;
     }
@@ -526,6 +526,10 @@ public class WnBean extends NutMap implements WnObj {
 
     public void setParent(WnNode parent) {
         nd().setParent(parent);
+        if (null != parent)
+            this.parentId(parent.id());
+        else
+            this.parentId(null);
     }
 
     @Override

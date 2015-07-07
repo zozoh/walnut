@@ -25,7 +25,7 @@ import org.nutz.walnut.util.ZParams;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
-public class ShRender implements SiteHdl {
+public class Sh_render implements SiteHdl {
 
     private static final String _TMP_DIR = "~/.walnut/dom";
 
@@ -33,7 +33,7 @@ public class ShRender implements SiteHdl {
 
     private WebClient webc;
 
-    public ShRender() {
+    public Sh_render() {
         webc = new WebClient();
     }
 

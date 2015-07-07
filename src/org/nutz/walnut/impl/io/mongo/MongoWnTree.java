@@ -9,6 +9,7 @@ import org.nutz.lang.Strings;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
+import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnRace;
@@ -16,6 +17,7 @@ import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.api.io.WnTreeFactory;
 import org.nutz.walnut.impl.io.AbstractWnTree;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -51,10 +53,18 @@ public class MongoWnTree extends AbstractWnTree {
             int i = 0;
             int n = 0;
 
+            WnContext wc = Wn.WC();
             while (cu.hasNext()) {
                 DBObject dbobj = cu.next();
-                WnNode nd = WnMongos.toWnNode(dbobj);
+                final WnNode nd = WnMongos.toWnNode(dbobj);
                 nd.setTree(this);
+                if (null == nd.path()) {
+                    wc.security(null, new Atom() {
+                        public void run() {
+                            nd.loadParents(null, false);
+                        }
+                    });
+                }
 
                 WnTree tree = factory().check(nd);
 

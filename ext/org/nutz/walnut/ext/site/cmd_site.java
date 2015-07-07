@@ -91,7 +91,7 @@ public class cmd_site extends JvmExecutor {
             if (mi.isOf(SiteHdl.class)) {
                 // 获取 Key
                 String nm = klass.getSimpleName();
-                if (!nm.startsWith("Sh")) {
+                if (!nm.startsWith("Sh_")) {
                     throw Er.create("e.cmd.site.wrongName", klass.getName());
                 }
                 String key = nm.substring(2).toLowerCase();

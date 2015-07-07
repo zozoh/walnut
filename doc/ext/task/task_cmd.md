@@ -70,8 +70,7 @@ tags:
     tp       : "task",      # 任务是特殊类型的目录
     ow       : "xiaobai",   # 任务的所有者
     lbls     : [..],        # 任务的标签
-    tt       : "xxxxx",     # 任务的标题
-    prev     : "ec5f..",    # 前置任务，表示本任务执行的前提条件
+    title    : "xxxxx",     # 任务的标题
     tzone    : "GMT+8:00",  # 任务所在时区
     d_start  : 1432..,      # 任务被接受的时间（绝对毫秒）
     d_stop   : 1432..,      # 任务处理完成的时间（绝对毫秒）
@@ -79,7 +78,9 @@ tags:
     status   : "NEW",       # 任务的状态: NEW|ACCEPT|ING|PAUSE|DONE|REOPEN
     done     : "2015..004", # 任务被完成的注释，没有这个字段的 DONE 任务，表示无需完成
     verify   : "2015..312", # 任务被审核的注释，有这个字段的任务才表示审核通过
-    child0   : "34cd..",    # 第一个子任务的 ID，如果为空，则表示没有子任务
+    #......................................................................
+    # 任务的顺序，由 next 和 prev 表示的一个双向链表决定
+    # 显然，prev 为空的任务为第一个子任务，next 为空的为最后一个子任务
     prev     : "ec21..",    # 指向本任务前面的任务，空表示本任务为第一个子任务
     next     : "ccda.."     # 指向本任务后面的任务，空表示本任务为最后一个子任务
 }
@@ -118,20 +119,58 @@ tags:
 task [3acd..] add '任务标题' 
             [-prev 'fd21..']     # 新任务应该插在什么任务之前
             [-next '996e..']     # 新任务应该插在什么任务之后
-            [-lbl "标签A,标签B"]
+            [-lbls "标签A,标签B"]
             [-id 'ddc0..']       # 为新任务指定 ID
+            [-ow      "zozoh"]   # 指定任务分配账号
 
-# 改变任务的顺序
-task 3acd.. before|after ee13..
+# 将任务移到某任务后面
+#                  [X]
+#   prev [A]       [Y]
+#        [B] -----> after Y 
+#   next [C]       [Z]
+#
+# 改动:
+#    A.next = C
+#    C.prev = A
+#    B.prev = Y
+#    B.next = Z
+#    Y.next = B
+#    Z.prev = B
+#
+task 3acd.. after ee13..
+
+# 将任务移到某任务前面
+#
+#   prev [A]       [X]
+#        [B] -----> before Y 
+#   next [C]       [Y]
+#                  [Z]
+# 改动:
+#    A.next = C
+#    C.prev = A
+#    B.prev = X
+#    B.next = Y
+#    X.next = B
+#    Y.prev = B
+#
+task 3acd.. before ee13..
 
 # 删除一个任务
 #  - 如果不注明 -r，那么如果任务还有子任务，则会被拒绝删除
-task 3acd.. rm -r '任务AID' '任务BID'
+task rm -r '任务AID' '任务BID'
 
 # 修改一个任务
 #  - 至少要有一项
 #  - 否则抛错
-task 3acd.. update '任务标题' -lbl "标签A,标签B" -prev '前置任务ID' -pid '父任务ID'
+task 3acd.. update '任务标题'
+        -lbls    "标签A,标签B" 
+        -status  "DONE|NEW" 
+        -ow      "zozoh"
+        -d_start "2015-07-21 13:33:32"
+        -d_stop  "2015-07-21 14:33:32"
+        -du      3600000
+        -done    "2015..004"
+        -verify  "2015..781"
 
 # 检索所有根任务
 task query
@@ -143,34 +182,26 @@ task query -pid '父任务ID' -order logic
 
 # 自由检索任务
 #  - 标题关键字，如果以 ^ 开头，则表示正则表达式
-task query 
-     -tt '标题关键字' 
-     -lbl "标签A,标签B" 
-     -status "DONE|NEW" 
-     -ow "zozoh|xiaobai"
-     -c  "zozoh"
-     -ct  "(2014-09-21, 2015-07-21 13:33:32)"
-     -lm  "(2014-09-21, 2015-07-21 13:33:32]"
-     -d_start "[,2015-07-21 13:33:32)"
-     -d_stop  "[2014-09-21,]"
-     -du  "[,80000]"
-     -donetrue
-     -verify  false
-     -order   "logic|none|asc:tt,desc:ct"
-     -limit   20 | 0
-     -skip    100
-
-# 修改一个任务状态
-#  - 如果状态没必要改变，则不计入历史
-#  - NEW 可以变成任何状态
-#  - 其他状态不能变成 NEW
-#  - 状态，大小写不敏感
-task 3acd.. DONE
-
-# 分配任务
-#  - 将任务分配个一个人
-#  - 如果所有者没必要改变，则不计入历史
-task 3acd.. assign zozoh
+#  - 如果声明了 pid，则排序一定是 logic 的
+#  - 如果是列表， `|`分隔表示`或`， `,`分隔表示`与`
+task query '标题关键字'
+        -json     # 按json输出，便于解析，默认按行输出
+        -g        "任务所在的组，可用半角逗号分隔"
+        -pid     "父任务ID"
+        -lbls    "标签A,标签B" 
+        -status  "DONE,NEW" 
+        -ow      "zozoh,xiaobai"
+        -c       "zozoh"
+        -ct      "(2014-09-21, 2015-07-21 13:33:32)"
+        -lm      "(2014-09-21, 2015-07-21 13:33:32]"
+        -d_start "[,2015-07-21 13:33:32)"
+        -d_stop  "[2014-09-21,]"
+        -du      "[,80000]"
+        -done    true
+        -verify  false
+        -order   "asc:tt,desc:ct"
+        -limit   20 | 0
+        -skip    100
 
 # 添加任务注释
 task 3acd.. comment add "搞定了，呼" 

@@ -14,10 +14,33 @@ import org.nutz.walnut.BaseIoTest;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
+import org.nutz.web.WebException;
 
 public abstract class AbstractWnIoTest extends BaseIoTest {
 
     protected abstract String getAnotherTreeMount();
+
+    @Test
+    public void test_short_id() {
+        WnObj p = io.create(null, "/tt", WnRace.DIR);
+        WnObj a = io.createById(p, "a003vgv123c", "a", WnRace.DIR);
+        WnObj b = io.createById(p, "a029hd83219", "b", WnRace.DIR);
+
+        try {
+            io.get("a0");
+            fail();
+        }
+        catch (WebException e) {
+            assertEquals("e.io.obj.get.shortid : a0", e.toString());
+        }
+
+        WnObj a2 = io.checkById("a00");
+        assertEquals(a.id(), a2.id());
+        assertEquals(a.path(), a2.path());
+        WnObj b2 = io.checkById("a02");
+        assertEquals(b.id(), b2.id());
+        assertEquals(b.path(), b2.path());
+    }
 
     @Test
     public void test_create_by_id() {
