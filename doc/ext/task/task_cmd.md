@@ -130,10 +130,10 @@ task [3acd..] add '任务标题'
 #   next [C]       [Z]
 #
 # 改动:
-#    A.next = C
-#    C.prev = A
+#    A.next = B.next
+#    C.prev = B.prev
 #    B.prev = Y
-#    B.next = Z
+#    B.next = Y.next
 #    Y.next = B
 #    Z.prev = B
 #
@@ -146,9 +146,9 @@ task 3acd.. after ee13..
 #   next [C]       [Y]
 #                  [Z]
 # 改动:
-#    A.next = C
-#    C.prev = A
-#    B.prev = X
+#    A.next = B.next
+#    C.prev = B.prev
+#    B.prev = Y.prev
 #    B.next = Y
 #    X.next = B
 #    Y.prev = B

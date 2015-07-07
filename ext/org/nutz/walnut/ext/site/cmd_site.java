@@ -84,8 +84,18 @@ public class cmd_site extends JvmExecutor {
         List<Class<?>> list = Scans.me().scanPackage(this.getClass());
         for (Class<?> klass : list) {
             // 跳过抽象类
-            if (Modifier.isAbstract(klass.getModifiers()))
+            int mod = klass.getModifiers();
+            if (Modifier.isAbstract(mod))
                 continue;
+
+            // 跳过非公共的类
+            if (!Modifier.isPublic(klass.getModifiers()))
+                continue;
+
+            // 跳过内部类
+            if (klass.getName().contains("$"))
+                continue;
+
             // 如果是 SiteHdl 的实现类 ...
             Mirror<?> mi = Mirror.me(klass);
             if (mi.isOf(SiteHdl.class)) {

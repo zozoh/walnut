@@ -39,7 +39,7 @@ public class Th_add extends AbstractTaskHdl {
         // 如果指定了 next
         else if (params.has("next")) {
             oNext = sys.io.checkById(params.check("next"));
-            oParent = sys.io.getParent(oPrev);
+            oParent = sys.io.getParent(oNext);
             String prevId = oNext.getString("prev");
             if (!Strings.isBlank(prevId)) {
                 oPrev = sys.io.checkById(prevId);

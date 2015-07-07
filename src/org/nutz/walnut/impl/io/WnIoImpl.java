@@ -84,6 +84,8 @@ public class WnIoImpl implements WnIo {
             WnQuery q = new WnQuery().limit(2);
             q.setv("id", Pattern.compile("^" + id));
             List<WnObj> objs = this.query(q);
+            if (objs.isEmpty())
+                return null;
             if (objs.size() > 1)
                 throw Er.create("e.io.obj.get.shortid", id);
             WnObj o = objs.get(0);
@@ -657,7 +659,7 @@ public class WnIoImpl implements WnIo {
             }
             // 正则表达式
             if (str.startsWith("^")) {
-                return Json.toJson(o.toMap(str), JsonFormat.compact());
+                return Json.toJson(o.toMap(str), fmt);
             }
             // 如果是 JSON 对象
             if (Strings.isQuoteBy(str, '{', '}')) {
