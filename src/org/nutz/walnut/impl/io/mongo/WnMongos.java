@@ -1,9 +1,11 @@
 package org.nutz.walnut.impl.io.mongo;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
 import org.bson.BSONObject;
+import org.nutz.lang.Mirror;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Region;
 import org.nutz.mongo.ZMo;
@@ -41,7 +43,7 @@ public abstract class WnMongos {
                 join_region(list, key, (Region<?>) v);
             }
             // 数组
-            if (v.getClass().isArray()) {
+            else if (v.getClass().isArray()) {
                 join_str_array(list, key, q.get(key));
             }
             // 其他的当做字符串
@@ -94,7 +96,20 @@ public abstract class WnMongos {
         }
         // Simple value
         else {
-            list.add(ZMoDoc.NEW(key, v.toString()));
+            Mirror<?> mi = Mirror.me(v);
+            if (mi.isStringLike()) {
+                String s = v.toString();
+                // 非空
+                if (s.length() == 0) {
+                    list.add(ZMoDoc.NEW().ne(key, null));
+                }
+                // 普通字符串
+                else {
+                    list.add(ZMoDoc.NEW(key, s));
+                }
+            } else {
+                list.add(ZMoDoc.NEW(key, v));
+            }
         }
     }
 
@@ -142,9 +157,9 @@ public abstract class WnMongos {
         if (ss.length == 1) {
             list.add(ZMoDoc.NEW(key, ss[0]));
         }
-        // 多个值，均需匹配
+        // 多个值，匹配一个即可
         else if (ss.length > 0) {
-            list.add(ZMoDoc.NEW().all(key, ss));
+            list.add(ZMoDoc.NEW().in(key, ss));
         }
     }
 
@@ -174,10 +189,24 @@ public abstract class WnMongos {
 
     static ZMoDoc enum_to_Doc(String key, String[] ss) {
         ZMoDoc r = null;
+        // 单个值
         if (ss.length == 1) {
             r = ZMoDoc.NEW(key, ss[0]);
-        } else if (ss.length > 0) {
-            r = ZMoDoc.NEW().in(key, ss);
+        }
+        // 多个值，看看是 “与” 还是 “或”
+        else if (ss.length > 0) {
+            // 指明 in
+            if (ss[0].equals("in")) {
+                r = ZMoDoc.NEW().all(key, Arrays.copyOfRange(ss, 1, ss.length));
+            }
+            // 指明 all
+            else if (ss[0].equals("all")) {
+                r = ZMoDoc.NEW().all(key, Arrays.copyOfRange(ss, 1, ss.length));
+            }
+            // 默认用 all
+            else {
+                r = ZMoDoc.NEW().all(key, ss);
+            }
         }
         return r;
     }

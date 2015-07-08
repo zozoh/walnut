@@ -9,6 +9,7 @@ import java.util.Map;
 import org.nutz.lang.Mirror;
 import org.nutz.resource.Scans;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -31,7 +32,10 @@ public class cmd_task extends JvmExecutor {
         // 如果找不到
         if (null == hdl) {
             // 那么第一个参数必须是一个任务 ID
-            sc.oTask = sys.io.checkById(args[pos]);
+            sc.oTask = sys.io.checkById(sc.hdlName);
+            if (!sc.oTask.isType("task"))
+                throw Er.create("e.cmd.task.notask", sc.hdlName);
+
             // 并且第二个参数必须是一个控制器
             sc.hdlName = args[++pos];
             hdl = hdls.get(sc.hdlName);
@@ -44,7 +48,9 @@ public class cmd_task extends JvmExecutor {
 
         // 找到主目录
         sc.oCurrent = this.getCurrentObj(sys);
-        sc.oHome = sys.io.check(null, Wn.normalizeFullPath("~/.task", sys.se));
+        sc.oHome = sys.io.createIfNoExists(null,
+                                           Wn.normalizeFullPath("~/.task", sys.se),
+                                           WnRace.DIR);
 
         // 调用执行器
         hdl.invoke(sys, sc);
@@ -59,17 +65,27 @@ public class cmd_task extends JvmExecutor {
         List<Class<?>> list = Scans.me().scanPackage(this.getClass());
         for (Class<?> klass : list) {
             // 跳过抽象类
-            if (Modifier.isAbstract(klass.getModifiers()))
+            int mod = klass.getModifiers();
+            if (Modifier.isAbstract(mod))
                 continue;
+
+            // 跳过非公共的类
+            if (!Modifier.isPublic(klass.getModifiers()))
+                continue;
+
+            // 跳过内部类
+            if (klass.getName().contains("$"))
+                continue;
+
             // 如果是 TaskHdl 的实现类 ...
             Mirror<?> mi = Mirror.me(klass);
             if (mi.isOf(TaskHdl.class)) {
                 // 获取 Key
                 String nm = klass.getSimpleName();
-                if (!nm.startsWith("Th")) {
+                if (!nm.startsWith("Th_")) {
                     throw Er.create("e.cmd.site.wrongName", klass.getName());
                 }
-                String key = nm.substring(2).toLowerCase();
+                String key = nm.substring(3).toLowerCase();
                 TaskHdl hdl = (TaskHdl) mi.born();
                 hdls.put(key, hdl);
             }

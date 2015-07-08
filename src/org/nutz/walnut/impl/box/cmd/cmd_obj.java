@@ -39,12 +39,22 @@ public class cmd_obj extends JvmExecutor {
                     Object v = en.getValue();
                     if (null != v && v instanceof String) {
                         String s = v.toString();
+                        // 日期对象
                         if (s.startsWith("$date:")) {
                             String str = s.substring("$date:".length());
                             if ("now".equals(str)) {
                                 en.setValue(Times.now());
                             } else {
                                 en.setValue(Times.D(str));
+                            }
+                        }
+                        // 毫米数
+                        else if (s.startsWith("$ms:")) {
+                            String str = s.substring("$ms:".length());
+                            if ("now".equals(str)) {
+                                en.setValue(System.currentTimeMillis());
+                            } else {
+                                en.setValue(Times.D(str).getTime());
                             }
                         }
                     }

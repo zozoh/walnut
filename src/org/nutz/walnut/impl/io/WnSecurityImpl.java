@@ -102,6 +102,15 @@ public class WnSecurityImpl extends WnEvalLink {
         String me = Wn.WC().checkMe();
         WnUsr u = usrs.check(me);
 
+        // 对于 root 用户，啥都不检查
+        if ("root".equals(u.name()))
+            return o;
+
+        // 如果对象过期了，抛错
+        if (o.isExpired()) {
+            throw Er.create("e.io.obj.expired", o);
+        }
+
         // 对象组给我啥权限
         int role = usrs.getRoleInGroup(u, o.group());
 
@@ -131,7 +140,7 @@ public class WnSecurityImpl extends WnEvalLink {
             return null;
 
         // 抛错，没有权限
-        throw Er.create("e.io.forbidden");
+        throw Er.create("e.io.forbidden", o.path());
     }
 }
 // // 检查基本权限

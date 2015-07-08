@@ -75,7 +75,7 @@ public interface WnObj extends WnNode, NutBean {
 
     String[] labels();
 
-    WnObj labels(String[] lbs);
+    WnObj labels(String[] lbls);
 
     long createTime();
 

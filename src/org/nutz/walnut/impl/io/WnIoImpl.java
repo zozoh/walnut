@@ -7,6 +7,7 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -75,6 +76,26 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public WnObj get(String id) {
+        if (null == id)
+            return null;
+
+        // 如果是不完整的 ID
+        if (!id.matches("[0-9a-v]{26}")) {
+            WnQuery q = new WnQuery().limit(2);
+            q.setv("id", Pattern.compile("^" + id));
+            List<WnObj> objs = this.query(q);
+            if (objs.isEmpty())
+                return null;
+            if (objs.size() > 1)
+                throw Er.create("e.io.obj.get.shortid", id);
+            WnObj o = objs.get(0);
+            WnNode nd = tree(null).getNode(o.id());
+            nd.loadParents(null, false);
+            o.setNode(nd);
+            return o;
+        }
+
+        // 如果是完整的 ID
         WnNode nd = tree(null).getNode(id);
         if (null == nd)
             return null;
@@ -638,7 +659,7 @@ public class WnIoImpl implements WnIo {
             }
             // 正则表达式
             if (str.startsWith("^")) {
-                return Json.toJson(o.toMap(str), JsonFormat.compact());
+                return Json.toJson(o.toMap(str), fmt);
             }
             // 如果是 JSON 对象
             if (Strings.isQuoteBy(str, '{', '}')) {

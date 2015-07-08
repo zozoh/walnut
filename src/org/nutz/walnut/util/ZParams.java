@@ -82,7 +82,7 @@ public class ZParams {
                     }
                     // 如果有值 ...
                     else {
-                        s = args[i+1];
+                        s = args[i + 1];
                         if (s.matches("^-[a-zA-Z_].*$")) {
                             params.map.put(key, true);
                             continue;
@@ -154,6 +154,22 @@ public class ZParams {
 
     public String get(String key, String dft) {
         return map.getString(key, dft);
+    }
+
+    public <T extends Enum<T>> T getEnum(String key, Class<T> classOfEnum) {
+        return map.getEnum(key, classOfEnum);
+    }
+
+    public <T> T getAs(String key, Class<T> classOfT) {
+        return map.getAs(key, classOfT);
+    }
+
+    public <T> T getAs(String key, Class<T> classOfT, T dft) {
+        return map.getAs(key, classOfT, dft);
+    }
+
+    public <T> List<T> getList(String key, Class<T> eleType) {
+        return map.getList(key, eleType);
     }
 
     public String check(String key) {
