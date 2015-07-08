@@ -64,7 +64,7 @@ tags:
 
 ## task 的元数据
 
-```json
+```
 {
     nm       : "$id",       # 任务的名称与 ID 相同
     tp       : "task",      # 任务是特殊类型的目录
@@ -88,7 +88,7 @@ tags:
 
 ## tag 的元数据
 
-```json
+```
 {
     nm : "Bug",     # 就是文件名
     tp : "tag"      # 类型可以是 tag | milestone | thread
