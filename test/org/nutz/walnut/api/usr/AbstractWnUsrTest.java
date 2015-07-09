@@ -209,7 +209,7 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
     }
 
     @Test
-    public void se_login_logout() {
+    public void se_login_logout() throws Throwable {
         WnUsr xiaobai = usrs.create("xiaobai", "123456");
         WnSession se = ses.login("xiaobai", "123456");
 
