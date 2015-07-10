@@ -19,10 +19,10 @@
 # 示例
 
 	最简单调用, 用到了call和sys实例. 注意, call方法必须带参数
-	jsc "walnut.call('ls /' + walnut.sys.me.nm);"
+	jsc "walnut.sys.exec('ls /' + walnut.sys.me.nm);"
 	
 	带调试信息
-	jsc -debug "var abc=1+1;walnut.call('touch /' + walnut.sys.me.nm + '/.bashrc');"
+	jsc -debug "var abc=1+1;walnut.sys.exec('touch /' + walnut.sys.me.nm + '/.bashrc');"
 	
 	执行脚本文件
 	jsc -f /root/.js/clear_caches.js

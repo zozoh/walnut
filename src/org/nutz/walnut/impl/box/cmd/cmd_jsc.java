@@ -4,7 +4,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -60,23 +59,15 @@ public class cmd_jsc extends JvmExecutor {
         }
         
         // 过渡一下
-        engine.put("_walnut_call", this);
-        
         NutMap walnut = new NutMap();
         walnut.put("vars", vars);
         walnut.put("sys", sys);
         engine.put("walnut", walnut);
-        String js = jsStr.replaceAll("walnut\\.call\\(", "_walnut_call['call(WnSystem, String[])'](walnut.sys,");
         if (debug)
-            sys.out.println("js=" + js + "\n");
-        Object obj = engine.eval(js);
+            sys.out.println("js=" + jsStr + "\n");
+        Object obj = engine.eval(jsStr);
         if (debug) {
             sys.out.println("re=" + obj);
         }
-    }
-
-    public Object call(WnSystem sys, String...args) {
-        sys.exec(Strings.join(" ", args));
-        return "";
     }
 }
