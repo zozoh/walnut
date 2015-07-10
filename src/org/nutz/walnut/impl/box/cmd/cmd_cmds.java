@@ -17,6 +17,7 @@ public class cmd_cmds extends JvmExecutor {
 
     public void exec(WnSystem sys, String[] args) throws Exception {
         List<String> cmdNames = new ArrayList<>(sys.jef.keys());
+        cmdNames.remove("cmds");
         Collections.sort(cmdNames);
         StringBuilder sb = new StringBuilder();
         int lineCount = 10;
