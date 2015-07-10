@@ -1,0 +1,31 @@
+# 执行脚本(实验性质) 
+
+	`jsc` 将执行一段脚本或一个js文件,可以传入参数及调用其他命令
+
+# 用法
+
+	jsc [-debug] [-engine 引擎名称] [-f 文件路径] [js代码]
+	
+# 可用对象及方法
+
+	所有对象均位于walnut对象下
+	
+	{
+		sys :  WnSystem实例, // 对应的就是调用jsc时的WnSystem实例
+		vars : {...},        // jsc -vars "{age:30}" 所对应的变量
+		call : function(){}  // 影子方法,执行脚本前会替换
+	}
+	
+# 示例
+
+	最简单调用, 用到了call和sys实例. 注意, call方法必须带参数
+	jsc "walnut.call('ls /' + walnut.sys.me.nm);"
+	
+	带调试信息
+	jsc -debug "var abc=1+1;walnut.call('touch /' + walnut.sys.me.nm + '/.bashrc');"
+	
+	执行脚本文件
+	jsc -f /root/.js/clear_caches.js
+	
+	
+	
