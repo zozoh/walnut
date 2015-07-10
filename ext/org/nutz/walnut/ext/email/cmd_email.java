@@ -20,6 +20,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -125,7 +126,11 @@ public class cmd_email extends JvmExecutor {
             limit = 10;
         WnQuery q = new WnQuery().limit(limit);
         q.setv("pid", mh.id());
-        return sys.io.query(q);
+        List<WnObj> list = sys.io.query(q);
+        for (WnObj o : list) {
+            //o.loadParents(new ArrayList<>(), true); // 无效
+        }
+        return list;
     }
 
     public void listLocalMail(MailCtx mc, int limit) {
