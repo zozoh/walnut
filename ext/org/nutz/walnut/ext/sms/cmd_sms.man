@@ -15,5 +15,5 @@
 	
 # 示例
 	
-	sms -debug -r 13416121384 -r 18506419566 机器AABBCCDDEEFF流量异常500mb
+	sms -debug -r 13416121384,18506419566 机器AABBCCDDEEFF流量异常500mb
 	

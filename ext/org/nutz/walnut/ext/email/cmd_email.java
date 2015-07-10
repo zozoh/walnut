@@ -26,6 +26,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.ZParams;
 
 /**
  * 发送email
@@ -41,50 +42,19 @@ public class cmd_email extends JvmExecutor {
     public void exec(WnSystem sys, String[] args) throws Exception {
         MailCtx mc = new MailCtx();
         mc.sys = sys;
-        List<String> _args = new ArrayList<String>(args.length);
-        for (int i = 0; i < args.length; i++) {
-            String arg = args[i];
-            switch (arg) {
-            case "-c":
-            case "-config": //配置文件
-                mc.config = args[++i];
-                continue;
-            case "-debug": // 详细模式
-                mc.debug = true;
-                continue;
-            case "-cc":
-                mc.cc.addAll(Arrays.asList(args[++i].split(",")));
-                continue;
-            case "-to":
-            case "-r": // 接收者清单,可以用逗号分隔,可以多次
-                mc.receivers.addAll(Arrays.asList(args[++i].split(",")));
-                continue;
-            case "-m":
-            case "-msg": // 内容
-                mc.msg = args[++i];
-                continue;
-            case "-s":   // 标题
-            case "-subject":
-                mc.subject = args[++i];
-                continue;
-            case "-a":   // 附件,可以多个
-            case "-attach":
-                mc.attachs.add(args[++i]);
-                continue;
-            case "-vars": // 模板变量,必须是个json
-                mc.vars = args[++i];
-                continue;
-            case "-tmpl": // 模板文件
-                mc.tmpl = args[++i];
-                continue;
-            case "-local":
-                mc.local = true;
-                continue;
-            default:
-               _args.add(arg);
-               continue;
-            }
-        }
+        ZParams params = ZParams.parse(args, "^(debug|local)$");
+        mc.debug = params.is("debug");
+        mc.config = params.get("config");
+        mc.receivers = params.get("r");
+        mc.ccs = params.get("cc");
+        mc.msg = params.get("msg");
+        mc.subject = params.get("s");
+        mc.tmpl = params.get("tmpl");
+        mc.local = params.is("local");
+        mc.vars = params.get("vars");
+        mc.attachs.add(params.get("attach"));
+        
+        List<String> _args = Arrays.asList(params.vals);
         if (!_args.isEmpty()) {
             String type = _args.get(0);
             int limit = 10;
@@ -178,7 +148,7 @@ public class cmd_email extends JvmExecutor {
         
         // 解析收件人及抄送
         List<MailReceiver> rc = parse(mc, mc.receivers);
-        List<MailReceiver> cc = parse(mc, mc.cc);
+        List<MailReceiver> cc = parse(mc, mc.ccs);
         
         
         // 加载附件,如果有的话, TODO 实现发附件
@@ -233,9 +203,9 @@ public class cmd_email extends JvmExecutor {
         WnSystem sys = mc.sys;
         sys.out.printf("//Mail Id=%s\n", obj.id());
         sys.out.printf("From   : %s\n", mc.sender);
-        sys.out.printf("To     : %s\n", Strings.join(",", mc.receivers.toArray()));
-        if (!mc.cc.isEmpty())
-            sys.out.printf("CC     : %s\n", Strings.join(",", mc.cc.toArray()));
+        sys.out.printf("To     : %s\n", mc.receivers);
+        if (mc.ccs != null)
+            sys.out.printf("CC     : %s\n", mc.ccs);
         sys.out.printf("Subject: %s\n", mc.subject);
         sys.out.print("====================================\n");
         sys.out.print(mc.msg);
@@ -251,9 +221,13 @@ public class cmd_email extends JvmExecutor {
         return "root".equals(u.name()) ? "/root" : "/home/" + u.name();
     }
     
-    public List<MailReceiver> parse(MailCtx mc, List<String> names) {
+    public List<MailReceiver> parse(MailCtx mc, String names) {
         List<MailReceiver> rs = new ArrayList<>();
-        for (String rev : names) {
+        if (names == null)
+            return rs;
+        for (String rev : Strings.splitIgnoreBlank(names, ",")) {
+            if (rev == null || rev.length() == 0)
+                continue;
             MailReceiver mr = new MailReceiver();
             if (rev.contains("=")) {
                 String[] t = rev.split("=");
