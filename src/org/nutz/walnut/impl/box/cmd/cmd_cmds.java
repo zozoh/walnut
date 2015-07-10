@@ -1,9 +1,10 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
-import org.nutz.lang.Strings;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 
@@ -15,7 +16,8 @@ import org.nutz.walnut.impl.box.WnSystem;
 public class cmd_cmds extends JvmExecutor {
 
     public void exec(WnSystem sys, String[] args) throws Exception {
-        Set<String> cmdNames = sys.jef.keys();
+        List<String> cmdNames = new ArrayList<>(sys.jef.keys());
+        Collections.sort(cmdNames);
         StringBuilder sb = new StringBuilder();
         int lineCount = 10;
         if (args.length > 0) {
