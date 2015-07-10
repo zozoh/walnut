@@ -4,6 +4,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.nutz.lang.Mirror;
 import org.nutz.log.Log;
@@ -56,4 +57,7 @@ public class JvmExecutorFactory {
         return map.get(name);
     }
 
+    public Set<String> keys() {
+        return map.keySet();
+    }
 }
