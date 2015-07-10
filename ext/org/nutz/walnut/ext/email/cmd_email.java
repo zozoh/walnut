@@ -47,7 +47,7 @@ public class cmd_email extends JvmExecutor {
         mc.config = params.get("config");
         mc.receivers = params.get("r");
         mc.ccs = params.get("cc");
-        mc.msg = params.get("msg");
+        mc.msg = params.get("m");
         mc.subject = params.get("s");
         mc.tmpl = params.get("tmpl");
         mc.local = params.is("local");
