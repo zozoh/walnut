@@ -20,6 +20,23 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
 
     protected abstract String getAnotherTreeMount();
 
+    /**
+     * for issue #29
+     */
+    @Test
+    public void test_query_and_read() {
+        WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
+        io.writeText(o, "hello");
+
+        WnQuery q = new WnQuery();
+        q.setv("nm", "c");
+
+        o = io.query(q).get(0);
+        String txt = io.readText(o);
+
+        assertEquals("hello", txt);
+    }
+
     @Test
     public void test_short_id() {
         WnObj p = io.create(null, "/tt", WnRace.DIR);

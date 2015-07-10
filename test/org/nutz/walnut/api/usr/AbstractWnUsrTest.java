@@ -229,7 +229,7 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
         assertEquals(se.me(), xiaobai.name());
 
         // 设置环境变量
-        // TODO zozoh 自从改了自制的  nanoTime 以后，就老过不去
+        // TODO zozoh 自从改了自制的 nanoTime 以后，就老过不去
         // 看起来是因为在很短的时间内，重复写文件，导致历史记录产生了问题？
         try {
             ses.setEnv(se.id(), "say", "hello");

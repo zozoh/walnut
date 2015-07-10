@@ -11,9 +11,12 @@ import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
+import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.LoopException;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
@@ -788,12 +791,30 @@ public class WnIoImpl implements WnIo {
         return o.setNode(nd);
     }
 
-    public int each(WnQuery q, Each<WnObj> callback) {
-        return indexer.each(q, callback);
+    public int each(WnQuery q, final Each<WnObj> callback) {
+        if (null == callback)
+            return 0;
+
+        return indexer.each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj o, int length) {
+                WnNode nd = tree.getNode(o.id());
+                if (null == nd)
+                    throw Er.create("e.io.q.nd.noexists", o);
+                nd.loadParents(null, false);
+                o.setNode(nd);
+                callback.invoke(index, o, length);
+            }
+        });
     }
 
     public List<WnObj> query(WnQuery q) {
-        return indexer.query(q);
+        final List<WnObj> list = new LinkedList<WnObj>();
+        this.each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj o, int length) {
+                list.add(o);
+            }
+        });
+        return list;
     }
 
     @Override
