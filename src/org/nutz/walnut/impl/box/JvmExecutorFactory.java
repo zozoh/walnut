@@ -28,7 +28,7 @@ public class JvmExecutorFactory {
         if (null == map) {
             synchronized (this) {
                 if (null == map) {
-                    map = new HashMap<String, JvmExecutor>();
+                    Map<String, JvmExecutor> map = new HashMap<String, JvmExecutor>();
                     // 搜索包
                     for (String pkg : scanPkgs) {
                         List<Class<?>> list = Scans.me().scanPackage(pkg);
@@ -48,6 +48,7 @@ public class JvmExecutorFactory {
                             }
                         }
                     }
+                    this.map = map;
                 }
             }
         }
