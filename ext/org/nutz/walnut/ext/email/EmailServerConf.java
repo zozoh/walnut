@@ -6,7 +6,7 @@ package org.nutz.walnut.ext.email;
  * @author pw
  *
  */
-public class SendConf {
+public class EmailServerConf {
 
     public String host;
 
@@ -17,5 +17,8 @@ public class SendConf {
     public String alias;
 
     public String password;
-
+    
+    public boolean ssl;
+    
+    public String from;
 }
