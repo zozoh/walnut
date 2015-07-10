@@ -5,16 +5,18 @@
     默认读取当前用户下的发送配置进行邮件发送 $HOME/.mail_send_conf, 格式如下:
     
     {
-    	host 	: "smtp.qq.com",
+		host 	: "smtp.qq.com",
 		port 	: 25,
-    	account : 'root@walnut.com',
+		account : 'root@walnut.com',
 		alias	: 'root',
-		password: '123456'
+		password: '123456',
+		from    : "root@walnut.com", // 当account不是email地址时需要填写
+		ssl     : true
     }
 
 # 用法
 
-    email [-c 指定发送配置文件] [-r 接收者] [-s 指定标题] [-msg 发送内容] [-a 附件] [-mail 指定的mail配置发送]
+    email [-c 指定发送配置文件] [-r 接收者]+ [-cc 抄送者]+ [-s 指定标题] [-msg 发送内容] [-a 附件] [-debug] [-tmpl 模板文件] [-vars map变量json字符串] [list|clear] [limit]
 	
 # 示例
 	
@@ -24,4 +26,20 @@
 	同时发给多个接收者并指定名称
 	email -r xiaobai@163.com=小白,xiaohong@qq.com=小红 -s 你好,小白小红 -m 这是另一封测试邮件
 	
+	发送模板邮件
+	email -r xiaobai@163.com -s 标题你好 -tmpl /root/3g_mail.tmpl -vars "{count:1024,mac:'AABBCCDDEEFF'}"
 	
+	发送多份内部邮件, 注意-r的参数需要时一个合法的内部用户名
+	email -r wendal -r peter -s 出去郊游 -m 收到请回复 -local
+	
+	列出20封本地邮件,默认10封
+	email list 20
+	
+	清除30封本地邮件,默认10封
+	email clear 30
+	
+	debug为调试开关
+	email -r xiaobai@163.com -s 你好小白 -m 这是一封测试邮件 -debug
+	
+	异步发送(未完成)
+	email -async -r xiaobai@163.com -s 你好小白 -m 这是一封测试邮件

@@ -2,10 +2,18 @@
 
     `sms` 用来发送短信
     
+        默认读取当前用户下的发送配置进行邮件发送 $HOME/.sms/config_${provider}, 格式如下:
+    
+	{
+		apikey : "2bec078d2f51f5fccdda7b4619fea147", // 提供商的apikey
+		header : "【德纳科技】" //强制添加头部
+	}
+    
 # 用法
 
+	sms [-debug] [-config 配置文件路径] [-provider 提供商(当前仅Yunpian)] [-r 接收者的手机]+ <msg>
 	
 # 示例
 	
-	
+	sms -debug -r 13416121384 -r 18506419566 机器AABBCCDDEEFF流量异常500mb
 	

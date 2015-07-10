@@ -4,6 +4,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.nutz.lang.Mirror;
 import org.nutz.log.Log;
@@ -28,7 +29,7 @@ public class JvmExecutorFactory {
         if (null == map) {
             synchronized (this) {
                 if (null == map) {
-                    map = new HashMap<String, JvmExecutor>();
+                    Map<String, JvmExecutor> map = new HashMap<String, JvmExecutor>();
                     // 搜索包
                     for (String pkg : scanPkgs) {
                         List<Class<?>> list = Scans.me().scanPackage(pkg);
@@ -48,6 +49,7 @@ public class JvmExecutorFactory {
                             }
                         }
                     }
+                    this.map = map;
                 }
             }
         }
@@ -55,4 +57,7 @@ public class JvmExecutorFactory {
         return map.get(name);
     }
 
+    public Set<String> keys() {
+        return map.keySet();
+    }
 }
