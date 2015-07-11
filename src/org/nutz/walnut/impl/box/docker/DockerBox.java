@@ -3,6 +3,9 @@ package org.nutz.walnut.impl.box.docker;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,7 +16,6 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
-import org.nutz.walnut.api.box.WnBoxRuntime;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.box.WnBoxStatus;
 
@@ -25,9 +27,9 @@ import org.nutz.walnut.api.box.WnBoxStatus;
 public class DockerBox implements WnBox {
     
     protected String id;
-    protected WnBoxRuntime runtime;
     protected WnBoxStatus stat;
     protected WnBoxContext bc;
+    protected String fuseRoot;
 
     protected InputStream in;
     protected OutputStream out;
@@ -37,10 +39,10 @@ public class DockerBox implements WnBox {
     
     private static final Log log = Logs.get();
     
-    public DockerBox(WnBoxService boxes) {
+    public DockerBox(WnBoxService boxes, String fuseRoot) {
         id = R.UU32();
-        runtime = new WnBoxRuntime();
         stat = WnBoxStatus.FREE;
+        this.fuseRoot = fuseRoot;
     }
 
     public String id() {
@@ -51,18 +53,20 @@ public class DockerBox implements WnBox {
         return stat;
     }
 
-    public WnBoxRuntime runtime() {
-        return runtime;
-    }
-
     public void setup(WnBoxContext bc) {
         this.bc = bc;
     }
 
     public void run(String cmdText) {
+        // 准备启动参数
+        List<String> cmds = new ArrayList<>();
+        cmds.addAll(Arrays.asList("docker", "run", "-it", "--rm")); //基本参数
+        cmds.addAll(Arrays.asList("-v", fuseRoot + ":/walnut_root")); // 将walnut的根目录映射的到一个固定路径
+        cmds.add("walnut/dockerbox"); // 定制好的镜像
+        // walnut_docker_box_run的工作: 在执行环境中,构建一个新的根文件夹系统(/bin,$HOME),然后chroot过去,最后用bash执行cmdText
+        cmds.addAll(Arrays.asList("/walnut_docker_box_run", "HOME="+bc.session.envs().getString("HOME"), "CMD="+cmdText));
         // 启动一个docker容器
-        ProcessBuilder pb = new ProcessBuilder("docker", "run", "-it", "--rm", "ubuntu", "/bin/bash", "-c",  cmdText);
-        // 问题是, 怎么映射walnut的文件夹呢...
+        ProcessBuilder pb = new ProcessBuilder(cmds);
         ExecutorService es = Executors.newFixedThreadPool(3);
         try {
             stat = WnBoxStatus.RUNNING;

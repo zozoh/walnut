@@ -11,8 +11,6 @@ public interface WnBox {
 
     WnBoxStatus status();
 
-    WnBoxRuntime runtime();
-
     void setup(WnBoxContext bc);
 
     // void submit(String cmdLine);
