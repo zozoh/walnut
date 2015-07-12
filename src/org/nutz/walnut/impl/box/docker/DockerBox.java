@@ -61,7 +61,8 @@ public class DockerBox implements WnBox {
         // 准备启动参数
         List<String> cmds = new ArrayList<>();
         cmds.addAll(Arrays.asList("docker", "run", "-it", "--rm")); //基本参数
-        cmds.addAll(Arrays.asList("-v", fuseRoot + ":/walnut_root")); // 将walnut的根目录映射的到一个固定路径
+        // 将walnut的根目录映射的到一个固定路径, 外部路径带上id和用户名,就能在fuse中分辨Box和用户了
+        cmds.addAll(Arrays.asList("-v", String.format("%s/%s/%s:/walnut_root", fuseRoot, id, bc.me.name())));
         cmds.add("walnut/dockerbox"); // 定制好的镜像
         // walnut_docker_box_run的工作: 在执行环境中,构建一个新的根文件夹系统(/bin,$HOME),然后chroot过去,最后用bash执行cmdText
         cmds.addAll(Arrays.asList("/walnut_docker_box_run", "HOME="+bc.session.envs().getString("HOME"), "CMD="+cmdText));
