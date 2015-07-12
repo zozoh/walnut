@@ -85,8 +85,10 @@ public class JvmBox implements WnBox {
 
     void free() {
         // 调用回调
-        if (null != this.on_before_free)
+        if (null != this.on_before_free) {
             this.on_before_free.invoke(runner.bc);
+            this.on_before_free = null;
+        }
 
         // 释放主运行器
         runner.__free();

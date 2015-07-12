@@ -8,6 +8,24 @@
 //===================================================================
     var zUtil = {
         //.............................................
+        // 设置一个 input 的值，如果值与 placeholder 相同，则清除值
+        setInputVal : function(jInput, val){
+            var dft = jInput.attr("placeholder");
+            if(dft == val)
+                jInput.val("");
+            else
+                jInput.val(val);
+        },
+        //.............................................
+        // 获得页面的锚值，即在 href 后面的
+        pageAnchor : function(){
+            var href = window.location.href;
+            var pos = href.lastIndexOf("#");
+            if(pos>0)
+                return href.substring(pos+1);
+            return null;
+        },     
+        //.............................................
         // 得到函数体的代码
         getFuncBodyAsStr: function (func) {
             var str = func.toString();

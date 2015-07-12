@@ -88,6 +88,9 @@
  // 即， /* 和 * / 包裹，那么中间的内容会被 ZUI 当做你的代码模板，
  // 它就不会去加载，而是直接使用你的这段 HTML
  dom     : "/path/to/html",
+
+ // 指定了本 UI 所用的多国语言字符串
+ // 同时，如果值为 ".." 则表示采用父 UI 的多国语言字符串集合
  i18n    : "app/abc/i18n/{{lang}}.json",
 
  // 初始化函数，UI 可以在其中加载自己需要的资源
@@ -440,25 +443,43 @@ define(function (require, exports, module) {
                     do_render();
                 }
             };
-            if (ME.$ui.i18n) {
+            // 采用父 UI 的字符串
+            if(".." == ME.$ui.i18n){
+                callback(ME.parent._msg_map);
+            }
+            // 采用自己的字符串
+            else if (ME.$ui.i18n) {
                 ME.$ui.i18n = _.template(ME.$ui.i18n)({lang: window.$zui_i18n || "zh-cn"});
                 require.async(ME.$ui.i18n, callback);
-            } else {
+            }
+            // 空的
+            else {
                 callback({});
             }
         },
         // 修改 UI 的大小
         resize: function () {
             var ME = this;
-            //console.log("_do_resize_ui")
-            // 调整自身的顶级元素
-            // var w = ME.$pel.width();
-            // var h = ME.$pel.height();
-            // ME.$el.css({"width":w, "height":h});
+            
+            // 需要调整自身，适应父大小
+            if(this.options.fitparent) {
+                // 调整自身的顶级元素
+                var w, h;
+                if(this.pel === document.body){
+                    var winsz = $z.winsz();
+                    w = winsz.width;
+                    h = winsz.height;
+                }else{
+                    w = ME.$pel.width();
+                    h = ME.$pel.height();
+                }
+                ME.$el.css({"width":w, "height":h});
 
-            // var w2 = ME.$el.width();
-            // var h2 = ME.$el.height();
-            // ME.arena.css({"width":w2, "height":h2});
+                var w2 = ME.$el.width();
+                var h2 = ME.$el.height();
+                ME.arena.css({"width":w2, "height":h2});
+            }
+            
 
             // // 根据布局，调整
             // if(ME.layout) {
