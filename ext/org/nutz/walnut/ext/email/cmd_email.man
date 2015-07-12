@@ -16,7 +16,7 @@
 
 # 用法
 
-    email [-c 指定发送配置文件] [-r 接收者]+ [-cc 抄送者]+ [-s 指定标题] [-msg 发送内容] [-a 附件] [-debug] [-tmpl 模板文件] [-vars map变量json字符串] [list|clear] [limit]
+    email [-c 指定发送配置文件] [-r 接收者] [-cc 抄送者] [-s 指定标题] [-m 发送内容] [-a 附件] [-debug] [-tmpl 模板文件] [-vars map变量json字符串] [list|clear] [limit]
 	
 # 示例
 	
@@ -30,7 +30,7 @@
 	email -r xiaobai@163.com -s 标题你好 -tmpl /root/3g_mail.tmpl -vars "{count:1024,mac:'AABBCCDDEEFF'}"
 	
 	发送多份内部邮件, 注意-r的参数需要时一个合法的内部用户名
-	email -r wendal -r peter -s 出去郊游 -m 收到请回复 -local
+	email -r wendal,peter -s 出去郊游 -m 收到请回复 -local
 	
 	列出20封本地邮件,默认10封
 	email list 20

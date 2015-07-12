@@ -4,8 +4,10 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import org.nutz.lang.Each;
 import org.nutz.lang.Mirror;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -37,6 +39,9 @@ public class JvmExecutorFactory {
                             // 跳过抽象类
                             if (Modifier.isAbstract(klass.getModifiers()))
                                 continue;
+                            // 跳过内部类
+                            if (klass.getName().contains("$"))
+                                continue;
 
                             // 看看是不是一个 JvmExecutor
                             Mirror<?> mi = Mirror.me(klass);
@@ -59,5 +64,19 @@ public class JvmExecutorFactory {
 
     public Set<String> keys() {
         return map.keySet();
+    }
+    
+    public JvmExecutor put(String nm, JvmExecutor exec) {
+        return map.put(nm, exec);
+    }
+    
+    public JvmExecutor remove(String nm) {
+        return map.remove(nm);
+    }
+    
+    public void each(Each<Entry<String, JvmExecutor>> callback) {
+        for (Entry<String, JvmExecutor> en : map.entrySet()) {
+            callback.invoke(0, en, map.size());
+        }
     }
 }

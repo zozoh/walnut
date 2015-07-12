@@ -11,8 +11,8 @@ public class MailCtx {
     @JsonField(ignore=true)
     public WnSystem sys;
     public String config;
-    public List<String> receivers = new ArrayList<>();
-    public List<String> cc = new ArrayList<>();
+    public String receivers;
+    public String ccs;
     public String subject;
     public String tmpl;
     public String vars;
