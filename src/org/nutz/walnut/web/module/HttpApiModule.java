@@ -99,8 +99,7 @@ public class HttpApiModule extends AbstractWnModule {
             WnSession se = sess.create(u);
             wc.SE(se);
             try {
-                String mimeType = Strings.trim(req.getHeader("Response-Content-Type"));
-                _do_api(req, resp, mimeType, oHome, u, oApi);
+                _do_api(req, resp, oHome, u, oApi);
             }
             // 确保退出登录
             finally {
@@ -122,15 +121,9 @@ public class HttpApiModule extends AbstractWnModule {
 
     private void _do_api(HttpServletRequest req,
                          HttpServletResponse resp,
-                         String mimeType,
                          final WnObj oHome,
                          WnUsr u,
                          WnObj oApi) throws UnsupportedEncodingException, IOException {
-
-        // 默认返回的 mime-type 是文本
-        if (Strings.isBlank(mimeType))
-            mimeType = "text/plain";
-        resp.setContentType(mimeType);
 
         // 读取输入
         final WnObj oTmp = Wn.WC().su(u, new Proton<WnObj>() {
@@ -156,7 +149,10 @@ public class HttpApiModule extends AbstractWnModule {
         map.setv("http-uri", req.getRequestURI());
         map.setv("http-url", req.getRequestURL());
 
-        // 保存 QueryString
+        // 默认返回的 mime-type 是文本
+        String mimeType = "text/plain";
+
+        // 保存 QueryString，同时，看看有没必要更改 mime-type
         String qs = req.getQueryString();
         map.setv("http-qs", qs);
         if (!Strings.isBlank(qs)) {
@@ -164,10 +160,18 @@ public class HttpApiModule extends AbstractWnModule {
             String[] ss = Strings.splitIgnoreBlank(qs, "[&]");
             for (String s : ss) {
                 Pair<String> pair = Pair.create(s);
-                map.setv("http-qs-" + pair.getName(),
+                map.setv("http-qs-"
+                         + pair.getName(),
                          pair.getValue() == null ? true : pair.getValue());
+                // 如果声明的是 mimeType
+                if ("resp_mime".equals(pair.getName())) {
+                    mimeType = pair.getValue();
+                }
             }
         }
+
+        // 设置响应的 content-type
+        resp.setContentType(mimeType);
 
         // 保存请求头
         while (hnms.hasMoreElements()) {
