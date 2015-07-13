@@ -99,7 +99,7 @@ public class HttpApiModule extends AbstractWnModule {
             WnSession se = sess.create(u);
             wc.SE(se);
             try {
-                String mimeType = Strings.trim(req.getQueryString());
+                String mimeType = Strings.trim(req.getHeader("Response-Content-Type"));
                 _do_api(req, resp, mimeType, oHome, u, oApi);
             }
             // 确保退出登录

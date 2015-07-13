@@ -62,10 +62,10 @@ public class DockerBox implements WnBox {
         List<String> cmds = new ArrayList<>();
         cmds.addAll(Arrays.asList("docker", "run", "-it", "--rm")); //基本参数
         // 将walnut的根目录映射的到一个固定路径, 外部路径带上id和用户名,就能在fuse中分辨Box和用户了
-        cmds.addAll(Arrays.asList("-v", String.format("%s/%s/%s:/walnut_root", fuseRoot, id, bc.me.name())));
+        cmds.addAll(Arrays.asList("-v", String.format("/%s/.dockerbox/%s/%s:/walnut_root", fuseRoot, bc.me.name(), id)));
         cmds.add("walnut/dockerbox"); // 定制好的镜像
         // walnut_docker_box_run的工作: 在执行环境中,构建一个新的根文件夹系统(/bin,$HOME),然后chroot过去,最后用bash执行cmdText
-        cmds.addAll(Arrays.asList("/walnut_docker_box_run", "HOME="+bc.session.envs().getString("HOME"), "CMD="+cmdText));
+        cmds.addAll(Arrays.asList("/walnut_docker_box_run", "-HOME="+bc.session.envs().getString("HOME"), "-CMD="+cmdText));
         // 启动一个docker容器
         ProcessBuilder pb = new ProcessBuilder(cmds);
         ExecutorService es = Executors.newFixedThreadPool(3);
@@ -97,12 +97,16 @@ public class DockerBox implements WnBox {
         this.in = ins;
     }
 
-    public void onBeforeFree(Callback<WnBoxContext> handler) {}
+    public void onBeforeFree(Callback<WnBoxContext> handler) {
+        this.on_before_free = handler;
+    }
 
     void free() {
         // 调用回调
-        if (null != this.on_before_free)
+        if (null != this.on_before_free) {
             this.on_before_free.invoke(bc);
+            this.on_before_free = null;
+        }
 
         // 释放主运行器? what?
         //runner.__free();
