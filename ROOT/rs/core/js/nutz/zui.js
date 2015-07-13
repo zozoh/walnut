@@ -418,10 +418,10 @@ define(function (require, exports, module) {
                 // 定义后续处理
                 var do_render = function () {
                     $z.invoke(ME.$ui, "redraw", [], ME);
-                    ME.resize();
                     if (typeof afterRender === "function") {
                         afterRender.call(ME);
                     }
+                    ME.resize();
                 };
                 // 看看是否需要解析 DOM
                 if (ME.$ui.dom) {

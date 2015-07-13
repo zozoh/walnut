@@ -52,8 +52,11 @@ define(function(require, exports, module) {
             }
         },
         //...............................................................
-        resize : function(W, H){
-            var options = this.options;
+        resize : function(){
+            var winsz = $z.winsz();
+            var W = winsz.width;
+            var H = winsz.height;
+            console.log(W,H)
             // 计算主区域的宽高和位置
             var mW = this.options.width  || parseInt(W * 0.618);
             var mH = this.options.height || parseInt(H * 0.618);
