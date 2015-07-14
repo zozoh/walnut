@@ -1,43 +1,67 @@
 # 命令简介 
 
-	`obj` 将显示或修改对象的元数据
+    `obj` 将显示或修改对象的元数据
 
 # 用法
 
-	obj [/path/to/obj] [-u JSON] [-e $REGEX] [-Vc]
-	
+    obj [id:ea81..|/path/to/obj] 
+        [-u $JSON] 
+        [-e $REGEX] 
+        [-t fld0,fld1..]
+        [-iocnqhbsl]
+        [-ibase 1 or 0]
+    
+    -u      用一个 JSON 表示要更新对象的哪些字段，JSON 字符串可以不用 "{}" 包裹
+    -e      输出对象字段的时候，符合正则表达式的字段才会被输出，如果以 ! 开头，表示取反
+    
+    -o      是否强制输出，默认 -u 的时候不输出，默认的输出方式为 json，除非指定了 -cols
+    
+    -c      按json输出时，紧凑显示
+    -n      按json输出时，如果有 null 值的键也不忽略
+    -q      按json输出时，键值用双引号包裹
+    -l      按json输出时，强制输出成列表。默认的，多个结果才显示成列表
+    
+    -t      按表格输出，这个参数指定了表格的列
+    -i      按表格输出时，显示序号，默认不显示序号
+    -ibase  按表格输出时，显示序号起始值，默认为 0
+    -h      按表格输出时，显示表头
+    -b      按表格输出时，显示表格边框
+    -s      按表格输出时，在表格后显示脚注
+    
+    
+    
 # 示例
 
-	显示当前对象 (PWD对应的)
-	obj 
-	
-	根据ID显示对象信息
-	obj id:9rCTtaKaGX9eLinKeLD5k0
-	
-	根据路径显示对象信息
-	obj tmp/my.txt
-	
-	更新某个对象的某几个值
-	obj tmp/my.txt  -u "width:100, height:99"
-	
-	根据ID更新某个对象的某几个值
-	obj -id 9rCTtaKaGX9eLinKeLD5k0 -u "{width:100, height:99}"
-	
-	删除一个对象的属性
-	obj tmp/my.txt -u "width:null"
-	
-	显示对象的某几个属性。 如果只有一个对象的一个属性被显示，则仅输出属性值
-	obj tmp/my.txt -e "^http-.*$"
-	
-	显示对象的某几个属性。 强制只输出值，用逗号分隔
-	obj tmp/my.txt -e "^http-.*$" -V
-	
-	显示对象的某几个属性。 强制在一行显示
-    obj tmp/my.txt -e "^http-.*$" -c
-	
-	设置日期属性
-	obj abc.txt -u "lm:'$date:2015-09-21 12:34:24.444'"
-	
-	设置日期属性到当前时间
-	obj abc.txt -u "lm:'$date:now'"
-	
+    显示当前对象 (PWD对应的)
+    obj .
+    
+    根据ID显示对象信息
+    obj id:9rCTtaKaGX9eLinKeLD5k0
+    
+    根据路径显示对象信息
+    obj tmp/my.txt
+    
+    更新某个对象的某几个值
+    obj tmp/my.txt  -u "width:100, height:99"
+    
+    根据ID更新某个对象的某几个值
+    obj -id 9rCTtaKaGX9eLinKeLD5k0 -u "{width:100, height:99}"
+    
+    删除一个对象的属性
+    obj tmp/my.txt -u "width:null"
+    
+    显示对象的某几个属性。 如果只有一个对象的一个属性被显示，则仅输出属性值
+    obj tmp/my.txt -e "^http-.*$"
+    
+    设置日期属性
+    obj abc.txt -u "someday:'$date:2015-09-21 12:34:24.444'"
+    
+    设置日期属性到当前时间
+    obj abc.txt -u "someday:'$date:now'"
+    
+    设置绝对毫秒值
+    obj abc.txt -u "lm:'$ms:1436888941391'"
+    
+    设置绝对毫秒值到当前时间
+    obj abc.txt -u "lm:'$ms:now'"
+    
