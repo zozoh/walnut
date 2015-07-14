@@ -42,7 +42,7 @@
             if (obj) {
                 var func = obj[funcName];
                 if (typeof func == 'function') {
-                    func.apply(me || obj, args);
+                    func.apply(me || obj, args || []);
                 }
             }
         },

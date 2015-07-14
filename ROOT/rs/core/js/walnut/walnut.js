@@ -130,22 +130,24 @@ define(function (require, exports, module) {
                     Mod.trigger("show:end");
                     // 一个回调处理所有的情况
                     if (typeof callback == "function") {
-                        callback.call(Mod, oReq._content);
+                        callback = {complete : callback};
                     }
                     // 对象 {done:..., fail:xxxx}
+                    // 成功
+                    if (oReq.status == 200) {
+                        if (typeof callback.done == "function") 
+                            callback.done.call(Mod, oReq._content);
+
+                        if (typeof callback.complete == "function")
+                            callback.complete.call(Mod, oReq._content, "done");
+                    }
+                    // 失败
                     else {
-                        // 成功
-                        if (oReq.status == 200) {
-                            if (typeof callback.done == "function") {
-                                callback.done.call(Mod, oReq._content);
-                            }
-                        }
-                        // 失败
-                        else {
-                            if (typeof callback.fail == "function") {
-                                callback.fail.call(Mod, oReq._content);
-                            }
-                        }
+                        if (typeof callback.fail == "function")
+                            callback.fail.call(Mod, oReq._content);
+                        
+                        if (typeof callback.complete == "function")
+                            callback.complete.call(Mod, oReq._content, "fail");
                     }
                 }
             };

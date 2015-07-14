@@ -516,7 +516,7 @@ define(function (require, exports, module) {
             else {
                 key = keys + "+" + which;
             }
-            console.log("watchKey : '" + key + "' : " + this.cid);
+            //console.log("watchKey : '" + key + "' : " + this.cid);
             var wk = ZUI.keymap[key];
             // 为当前插件创建映射
             if (wk) {
@@ -558,8 +558,18 @@ define(function (require, exports, module) {
                 delete this._watch_keys[key];
         },
         // 得到多国语言字符串
-        msg: function (key) {
-            return this._msg_map[key] || key;
+        msg: function (key, ctx) {
+            var re = this._msg_map;
+            var ks = key.split(".");
+            for(var i=0;i<ks.length;i++){
+                re = re[ks[i]];
+                if(!re) return key;
+            }
+            // 需要解析
+            if(typeof ctx == "object") {
+                re = (_.template(re))(ctx);
+            }
+            return re;
         },
         // 监听模块事件
         listenModel: function (event, handler) {

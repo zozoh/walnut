@@ -9,8 +9,11 @@
 
 调用方式
     new Mask({
-        closer : true | false,    // 是否显示关闭按钮
-        escape : true | false     // 是否支持 esc 键退出
+        closer  : true | false,   // 是否显示关闭按钮
+        escape  : true | false,   // 是否支持 esc 键退出
+        onclose : functioin(){    // 声明了关闭前回调
+            // this 为 mask UI 实例本身
+        }
     }).render(function(){
         // 创建一个新 UI，并将 UI 插入 mask 的 "main" 扩展点 
         new OtherUI({
@@ -40,15 +43,14 @@ define(function(require, exports, module) {
             }
             if(!(options.escape === false)) {
                 this.watchKey(27, function(e){
-                    this.destroy();
-                    //console.log(ZUI.keymap);
+                    this.close();
                 });
             }
         },
         //...............................................................
         events : {
             "click .ui-mask-closer" : function(e){
-                this.destroy();
+                this.close();
             }
         },
         //...............................................................
@@ -56,7 +58,7 @@ define(function(require, exports, module) {
             var winsz = $z.winsz();
             var W = winsz.width;
             var H = winsz.height;
-            console.log(W,H)
+            //console.log(W,H)
             // 计算主区域的宽高和位置
             var mW = this.options.width  || parseInt(W * 0.618);
             var mH = this.options.height || parseInt(H * 0.618);
@@ -82,6 +84,11 @@ define(function(require, exports, module) {
         depose : function(){
             // 将之前的对象的半透明度，都设置回来
             this.$el.prevAll().removeClass("ui-mask-others");
+        },
+        //...............................................................
+        close : function(){
+            $z.invoke(this.options, "onclose", [], this);
+            this.destroy();
         }
     });
 //===================================================================
