@@ -1,5 +1,6 @@
 define({
     "upload" : {
+        "invalid" : "文件{{name}}不符合要求!",
         "multi" : {
             "sky" : '<i class="fa fa-plus"></i> <b>上传多个文件至</b> : {{ph}}',
             "tip" : '<i class="fa fa-upload"></i> 将文件们拖动到这里'

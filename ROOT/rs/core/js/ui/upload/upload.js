@@ -20,7 +20,7 @@ new UploadUI({
     replaceable : false | true,
     //.......................................
     // 声明校验函数，或者一个正则表达式验证文件名
-    valicate : function(file){
+    validate : function(file){
         throw "如果错误抛出错误消息"
     } || "^.+[.]png$" || /^.+[.]png$/
 }).render();
@@ -36,7 +36,23 @@ define(function(require, exports, module) {
         i18n : "ui/upload/i18n/{{lang}}.js",
         //...............................................................
         init : function(options){
+            var UI = this;
             //console.log("jjjjj init uploadd")
+            if(options.validate && !_.isFunction(options.validate)){
+                var regex;
+                if(_.isString(options.validate)){
+                    regex = new RegExp(options.validate);
+                }else if(_.isRegExp(options.validate)){
+                    regex = options.validate;
+                }else{
+                    throw "invalid params validate";
+                }
+                options.validate = function(file){
+                    if(!regex.test(file.name)){
+                        throw UI.msg("upload.invalid", file);
+                    }
+                };
+            }
         },
         //...............................................................
         redraw : function() {
@@ -122,6 +138,8 @@ define(function(require, exports, module) {
                 }
                 // 得到这个文件
                 var file = e.dataTransfer.files[0];
+                if(!UI._do_validate(file))
+                    return;
                 // 开始上传
                 jSingle.attr("ing", "yes");
                 $z.uploadFile({
@@ -165,19 +183,23 @@ define(function(require, exports, module) {
                 e.stopPropagation();
                 e.preventDefault();
                 var UI = ZUI.checkInstance(this);
-                UI.multi.addFiles.call(UI, e.dataTransfer.files);
+                if(!UI.multi.addFiles.call(UI, e.dataTransfer.files))
+                    return;
                 UI.multi.doUpload.call(UI);
             },
             addFiles : function(files) {
+                var UI = this;
                 var jList = this.arena.find(".ui-upload-multi").empty();
                 for(var i=0;i<files.length;i++){
                     var file = files[i];
-                    console.log(file)
+                    if(!UI._do_validate(file))
+                        return false;
                     var jItem = this.ccode("list.item");
                     jItem.data("FILE", file).find(".fname").text(file.name);
                     jList.append(jItem);
                 }
                 this.resize();
+                return true;
             },
             doUpload : function(){
                 var UI = this;
@@ -197,7 +219,6 @@ define(function(require, exports, module) {
                     // 上传前修改提示图标的标签
                     beforeSend : function(xhr){
                         jItem.find(".thumbnail .fa").prop("className","fa fa-spinner fa-spin");
-                        console.log(jItem.find(".rname .fa").size())
                         jItem.find(".remote .fa").addClass("fa-spin");
                     },
                     evalReturn : "ajax",
@@ -223,6 +244,15 @@ define(function(require, exports, module) {
                                 + "&mime={{file.type}}"
                                 + (UI.options.replaceable?"":"&dupp=${major}(${nb})${suffix}")
                 });
+            }
+        },
+        _do_validate : function(file){
+            try{
+                $z.invoke(this.options, "validate", [file]);
+                return true;
+            }catch(e){
+                alert(e);
+                return false;
             }
         },
         //...............................................................
