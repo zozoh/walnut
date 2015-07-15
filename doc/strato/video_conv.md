@@ -31,8 +31,10 @@ $HOME/.video_conv/
 
 # 转换流程
 
-v_ 代表video相关
-vc_ 代表video_conv相关
+```
+	v_ 	代表video相关
+	vc_ 代表video_conv相关
+```
 
 1. 上传视频, 生成obj对象
 2. 读取文件, obj添加如下meta属性
