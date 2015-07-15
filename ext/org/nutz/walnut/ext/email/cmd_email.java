@@ -36,7 +36,7 @@ import org.nutz.walnut.util.ZParams;
  *
  */
 public class cmd_email extends JvmExecutor {
-    
+
     private static final Log log = Logs.get();
 
     public void exec(WnSystem sys, String[] args) throws Exception {
@@ -53,7 +53,7 @@ public class cmd_email extends JvmExecutor {
         mc.local = params.is("local");
         mc.vars = params.get("vars");
         mc.attachs.add(params.get("attach"));
-        
+
         List<String> _args = Arrays.asList(params.vals);
         if (!_args.isEmpty()) {
             String type = _args.get(0);
@@ -81,7 +81,7 @@ public class cmd_email extends JvmExecutor {
         }
         send(mc);
     }
-    
+
     public List<WnObj> _listLocal(MailCtx mc, int limit) {
         WnSystem sys = mc.sys;
         WnUsr u = sys.me;
@@ -111,7 +111,7 @@ public class cmd_email extends JvmExecutor {
             }
         }
     }
-    
+
     public void clearLocalMail(MailCtx mc, int limit) {
         List<WnObj> mails = _listLocal(mc, limit);
         if (mails == null)
@@ -120,7 +120,7 @@ public class cmd_email extends JvmExecutor {
             mc.sys.io.delete(mail);
         }
     }
-    
+
     public void send(MailCtx mc) {
         if (mc.debug) {
             mc.sys.out.printf("/*\n%s\n*/", Json.toJson(mc));
@@ -132,7 +132,7 @@ public class cmd_email extends JvmExecutor {
         }
         WnObj tmp = io.check(null, mc.config);
         EmailServerConf hostCnf = io.readJson(tmp, EmailServerConf.class);
-        
+
         // 处理模板,如果指定了的话
         if (mc.tmpl != null) {
             tmp = io.check(null, mc.tmpl);
@@ -145,19 +145,23 @@ public class cmd_email extends JvmExecutor {
             }
             mc.msg = seg.render(_c).toString();
         }
-        
+
         // 解析收件人及抄送
         List<MailReceiver> rc = parse(mc, mc.receivers);
         List<MailReceiver> cc = parse(mc, mc.ccs);
-        
-        
+
         // 加载附件,如果有的话, TODO 实现发附件
         if (mc.local) {
             // TODO 切换到root,否则没法往其他用户的文件夹写文件吧
-            String mailName = Times.sD(Times.now()) + "_" + mc.sys.me.name() + "_" + R.UU32() + ".mail";
+            String mailName = Times.sD(Times.now())
+                              + "_"
+                              + mc.sys.me.name()
+                              + "_"
+                              + R.UU32()
+                              + ".mail";
             for (MailReceiver mailReceiver : rc) {
                 WnUsr u = mc.sys.usrService.check(mailReceiver.name);
-                String localMailHome =  userHome(u) + "/.mail/";
+                String localMailHome = userHome(u) + "/.mail/";
                 if (!io.exists(null, localMailHome))
                     io.create(null, localMailHome, WnRace.DIR);
                 tmp = io.create(null, userHome(u) + "/.mail/" + mailName, WnRace.FILE);
@@ -165,7 +169,7 @@ public class cmd_email extends JvmExecutor {
             }
             for (MailReceiver mailReceiver : cc) {
                 WnUsr u = mc.sys.usrService.check(mailReceiver.name);
-                String localMailHome =  userHome(u) + "/.mail/";
+                String localMailHome = userHome(u) + "/.mail/";
                 if (!io.exists(null, localMailHome))
                     io.create(null, localMailHome, WnRace.DIR);
                 tmp = io.create(null, localMailHome + mailName, WnRace.FILE);
@@ -181,7 +185,8 @@ public class cmd_email extends JvmExecutor {
             ihe.setSSLOnConnect(hostCnf.ssl);
             ihe.setSubject(mc.subject);
             try {
-                ihe.setFrom(hostCnf.from == null ? hostCnf.account : hostCnf.from, mc.sys.me.name());
+                ihe.setFrom(hostCnf.from == null ? hostCnf.account : hostCnf.from,
+                            mc.sys.me.name());
                 ihe.setHtmlMsg(mc.msg);
                 for (MailReceiver mailReceiver : rc) {
                     ihe.addTo(mailReceiver.email, mailReceiver.name);
@@ -198,7 +203,7 @@ public class cmd_email extends JvmExecutor {
             }
         }
     }
-    
+
     public void printMail(WnObj obj, MailCtx mc) {
         WnSystem sys = mc.sys;
         sys.out.printf("//Mail Id=%s\n", obj.id());
@@ -216,11 +221,11 @@ public class cmd_email extends JvmExecutor {
         }
         sys.out.print("====================================\n");
     }
-    
+
     public String userHome(WnUsr u) {
         return "root".equals(u.name()) ? "/root" : "/home/" + u.name();
     }
-    
+
     public List<MailReceiver> parse(MailCtx mc, String names) {
         List<MailReceiver> rs = new ArrayList<>();
         if (names == null)
