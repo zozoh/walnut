@@ -9,18 +9,19 @@ define(function(require, exports, module) {
 		// 有目标的话，直接渲染
 		if(app.obj) {
 			new UIDef({
-	            $pel  : $(document.body),
-	            model : Mod,
-	            target : app.obj.ph
+	            $pel    : $(document.body),
+	            model   : Mod,
+	            target  : app.obj
 	        }).render();
 		}
 		// 没有的话，获取当前目录
 		else{
-			Mod.trigger("cmd:exec", "pwd", function(re){
+			Mod.trigger("cmd:exec", "obj . -q", function(re){
 				new UIDef({
-		            $pel  : $(document.body),
-		            model : Mod,
-		            target : $.trim(re)
+					replaceable : true,
+		            $pel        : $(document.body),
+		            model       : Mod,
+		            target      : $z.fromJson(re)
 		        }).render();
 			});
 		}

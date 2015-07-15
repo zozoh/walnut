@@ -2,14 +2,28 @@
 在 $pel 内创建一组 DOM，用来提供用户的文件上传界面
 对应的 options 可以有以下选项
 ..............................................................
-目标，下面两个值，targetId 更优先。如果目标是一个文件夹，则在其内创建
-如果目标是一个文件，则看模块的
- - target   : 上传的目标对象的 ID
+使用方法:
 
-校验
- - name : "$REGEX"  # 名称的正则表达式校验
- - type : "$REGEX"  # 类型的校验
- - mime : "$REGEX"  # 内容类型的校验
+var UploadUI = require("ui/upload/upload");
+new UploadUI({
+    $pel  : $(document.body),
+    //.......................................
+    // 设置标题，如果 false 将隐藏标题栏
+    // 自定义标题支持字符串模板，占位符为 target 的所有字段 
+    title : false|true|"自定义",
+    //.......................................
+    // 一个 WnObj 的实例表示上传目标 
+    target : {..},
+    //.......................................
+    // 如果是多文件上传，重名文件是否自动替换
+    // 默认 false
+    replaceable : false | true,
+    //.......................................
+    // 声明校验函数，或者一个正则表达式验证文件名
+    valicate : function(file){
+        throw "如果错误抛出错误消息"
+    } || "^.+[.]png$" || /^.+[.]png$/
+}).render();
 
 */
 define(function(require, exports, module) {
@@ -27,67 +41,141 @@ define(function(require, exports, module) {
         //...............................................................
         redraw : function() {
             // this.listenTo(this.model, "ui:ready",   this.wedit.on_ready);
-            //console.log("I am upload redraw")
-            this.$el.delegate(".ui-upload-list", "dragover",  this.handlers.on_dragover);
-            this.$el.delegate(".ui-upload-list", "dragleave", this.handlers.on_dragleave);
-            this.$el.find(".ui-upload-list")[0]
-                .addEventListener("drop", this.handlers.on_drop, false);
-            //console.log(this)
-            this.$el.find(".ui-loader-dest").text(this.options.target);
+            var UI = this;
+            var opt = UI.options;
+            var title = opt.title;
+            // 上传到目录
+            if(opt.target.race == 'DIR'){
+                UI.$el.delegate(".ui-upload-arena", "dragover",  UI.multi.on_dragover);
+                UI.$el.delegate(".ui-upload-arena", "dragleave", UI.multi.on_dragleave);
+                UI.$el.find(".ui-upload-arena")[0].addEventListener("drop", UI.multi.on_drop, true);
+                if(title === true || title == undefined)
+                    title = UI.msg("upload.multi.sky");
+                UI.arena.find(".ui-upload-arena").append(UI.ccode("multi.main"));
+            }
+            // 替换单个文件
+            else if(UI.options.target.race == 'FILE'){
+                UI.$el.delegate(".ui-upload-arena", "dragover",  UI.single.on_dragover);
+                UI.$el.delegate(".ui-upload-arena", "dragleave", UI.single.on_dragleave);
+                UI.$el.find(".ui-upload-arena")[0].addEventListener("drop", UI.single.on_drop, true);
+                if(title === true || title == undefined)
+                    title = UI.msg("upload.single.sky");
+                UI.arena.find(".ui-upload-arena").append(UI.ccode("single.main"));
+            }
+            // 不可能
+            else{
+                throw "!!! wrong target race : '"+UI.options.target.race+"'";
+            }
+            // 更新标题 
+            if(title){
+                title = (_.template(title))(opt.target);
+                UI.$el.find(".ui-upload-sky").html(title);
+            }else{
+                UI.$el.find(".ui-upload-sky").hide();
+            }
         },
         depose : function(){
             //console.log("I am upload depose")
-            this.$el.find(".ui-upload-list")[0]
-                .removeEventListener("drop", this.handlers.on_drop, true);
+            var ele = this.$el.find(".ui-upload-arena")[0];
+            ele.removeEventListener("drop", this.multi.on_drop, true);
+            ele.removeEventListener("drop", this.single.on_drop, true);
         },
         //...............................................................
         events : {
-            "click .ui-upload-choose" : function() {
-                alert(this.msg("e.noimplement"));
-            },
-            "click .ui-upload-done" : function() {
-                if(this.parent)
-                    this.parent.destroy();
-            }
+            
         },
         //...............................................................
         resize : function(){
-            // var W = parseInt(this.regions.list.width() * 0.8);
-            // console.log(W)
-            // this.regions.list.find(".ui-upload-item .progress")
-            //     .each(function(){
-            //     $(this).css("width", W);
-            // });
+            var UI = this;
+            var jSky    = UI.arena.find(".ui-upload-sky");
+            var jMain   = UI.arena.find(".ui-upload-arena");
+            var jFooter = UI.arena.find(".ui-upload-footer");
+            var H       = UI.arena.height();
+            var hSky    = jSky.outerHeight();
+            var hFooter = jFooter.outerHeight(); 
+            jMain.css("height", H - hSky - hFooter);
         },
         //...............................................................
-        handlers : {
+        single : {
             on_dragover : function(e){
                 e.stopPropagation();
                 e.preventDefault();
-                $(this).addClass("ui-upload-list-dragover");
+                $(this).attr("drag","over");
             },
             on_dragleave : function(e){
-                $(this).removeClass("ui-upload-list-dragover");
+                $(this).removeAttr("drag");
             },
             on_drop : function(e) {
-                $(this).removeClass("ui-upload-list-dragover");
+                var UI = ZUI.checkInstance(this);
+                var jSingle = $(this).removeAttr("drag").find(".ui-upload-single");
                 e.stopPropagation();
                 e.preventDefault();
+                if("yes" == jSingle.attr("ing")) {
+                    alert(UI.msg("upload.single.err_ing"));
+                    return;
+                }
                 var UI = ZUI.checkInstance(this);
-                UI.upload.addFiles.call(UI, e.dataTransfer.files);
-                UI.upload.doUpload.call(UI);
+                // 只能允许一个文件
+                if(e.dataTransfer.files.length != 1) {
+                    alert(UI.msg("upload.single.err_multi"));
+                    return;
+                }
+                // 得到这个文件
+                var file = e.dataTransfer.files[0];
+                // 开始上传
+                jSingle.attr("ing", "yes");
+                $z.uploadFile({
+                    file : file,
+                    progress : function(e){  
+                        UI.updateProgress.call(UI, jSingle, e.loaded, e.total);
+                    },
+                    evalReturn : "ajax",
+                    done : function(re){
+                    },
+                    fail : function(re){
+                        alert(re.msg);
+                    },
+                    complete : function(re, status){
+                        if("fail" == status)
+                            alert(re.msg);
+                        jSingle.attr("ing", "no")
+                            .find(".inner").css("width", "1px");
+                    },
+                    // 下面是上传到服务器的目标设置
+                    // 上传的目标url是一个字符串模板，会用本对象自身的键值来填充
+                    url  : "/o/upload/id:"+UI.options.target.id
+                                + "?nm={{file.name}}"
+                                + "&sz={{file.size}}"
+                                + "&mime={{file.type}}"
+                });
             }
         },
         //...............................................................
-        upload : {
+        multi : {
+            on_dragover : function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                $(this).attr("drag","over");
+            },
+            on_dragleave : function(e){
+                $(this).removeAttr("drag");
+            },
+            on_drop : function(e) {
+                $(this).removeAttr("drag");
+                e.stopPropagation();
+                e.preventDefault();
+                var UI = ZUI.checkInstance(this);
+                UI.multi.addFiles.call(UI, e.dataTransfer.files);
+                UI.multi.doUpload.call(UI);
+            },
             addFiles : function(files) {
-                this.arena.find(".ui-upload-tip").remove();
+                var jList = this.arena.find(".ui-upload-multi").empty();
                 for(var i=0;i<files.length;i++){
                     var file = files[i];
                     console.log(file)
                     var jItem = this.ccode("list.item");
                     jItem.data("FILE", file).find(".fname").text(file.name);
-                    this.arena.find(".ui-upload-list").append(jItem);
+                    jList.append(jItem);
                 }
                 this.resize();
             },
@@ -101,56 +189,52 @@ define(function(require, exports, module) {
                 if(jItem.size()<=0) 
                     return;
                 // 开始上传
-                var file = jItem.data("FILE");
-                var xhr = new XMLHttpRequest();
-                // 检查
-                if (!xhr.upload) {
-                    throw "XMLHttpRequest object don't support upload for your browser!!!";
-                }
-                // 进度回调
-                xhr.upload.addEventListener("progress", function(e) {
-                    UI.upload.updateProgress.call(UI, jItem, e.loaded, e.total);
-                }, false);
-                // 完成的处理
-                xhr.onreadystatechange = function(e) {
-                    if (xhr.readyState == 4) {
-                        // 上传成功，标记完成，并处理下一个项目
-                        if (xhr.status == 200) {
-                            jItem.addClass("ui-upload-item-done");
-                            jItem.find(".thumbnail .fa").prop("className", "fa fa-check-circle");
-                            UI.upload.doUpload.call(UI);
-                        }
-                        // 出错处理
-                        else {
-                            jItem.addClass("ui-upload-item-fail");
-                            jItem.find(".thumbnail .fa").prop("className", "fa fa-warning");
-                            //alert('Fail to upload "' + file.name + '"\n\n' + xhr.responseText);
-                        }
-                    }
-                };
-                // 准备请求对象头部信息
-                var url = "/o/upload/"+this.options.target
-                                + "?nm="   + file.name
-                                + "&sz="   + file.size
-                                + "&mime=" + file.type
-                xhr.open("POST", url, true);
-                xhr.setRequestHeader('Content-type', "application/x-www-form-urlencoded; charset=utf-8");
-                // 修改提示图标的标签
-                jItem.find(".thumbnail .fa").prop("className", "fa fa-spinner fa-spin");
-                // 执行上传
-                xhr.send(file);
-            },
-            updateProgress : function(jItem, loaded, total){
-                var jOuter = jItem.find(".outer");
-                var jInner = jItem.find(".inner");
-                var jNb    = jItem.find(".nb");
-                var W = jOuter.width();
-                var per = loaded / total;
-                jNb.text(parseInt(per * 1000) / 10 + "%");
-                jInner.css("width", W * per);
+                $z.uploadFile({
+                    file : jItem.data("FILE"),
+                    progress : function(e){  
+                        UI.updateProgress.call(UI, jItem, e.loaded, e.total);
+                    },
+                    // 上传前修改提示图标的标签
+                    beforeSend : function(xhr){
+                        jItem.find(".thumbnail .fa").prop("className","fa fa-spinner fa-spin");
+                        console.log(jItem.find(".rname .fa").size())
+                        jItem.find(".remote .fa").addClass("fa-spin");
+                    },
+                    evalReturn : "ajax",
+                    done : function(re){
+                        jItem.addClass("ui-upload-item-done");
+                        jItem.find(".thumbnail .fa").prop("className", "fa fa-check-circle");
+                        jItem.find(".rname").text(re.nm);
+                    },
+                    fail : function(re){
+                        jItem.addClass("ui-upload-item-fail");
+                        jItem.find(".thumbnail .fa").prop("className", "fa fa-warning");
+                        jItem.find(".rname").text(re.msg)
+                    },
+                    complete : function(re, status){
+                        jItem.find(".remote .fa").removeClass("fa-spin");
+                        UI.multi.doUpload.call(UI);
+                    },
+                    // 下面是上传到服务器的目标设置
+                    // 上传的目标url是一个字符串模板，会用本对象自身的键值来填充
+                    url  : "/o/upload/id:"+UI.options.target.id
+                                + "?nm={{file.name}}"
+                                + "&sz={{file.size}}"
+                                + "&mime={{file.type}}"
+                                + (UI.options.replaceable?"":"&dupp=${major}(${nb})${suffix}")
+                });
             }
-        }
+        },
         //...............................................................
+        updateProgress : function(jq, loaded, total){
+            var jOuter = jq.find(".outer");
+            var jInner = jq.find(".inner");
+            var jNb    = jq.find(".nb");
+            var W = jOuter.width();
+            var per = loaded / total;
+            jNb.text(parseInt(per * 1000) / 10 + "%");
+            jInner.css("width", W * per);
+        }
     });
 //===================================================================
 });

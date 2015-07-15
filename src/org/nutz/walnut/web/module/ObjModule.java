@@ -6,8 +6,12 @@ import java.util.List;
 
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.lang.segment.Segment;
+import org.nutz.lang.segment.Segments;
+import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
 import org.nutz.mvc.adaptor.JsonAdaptor;
@@ -118,17 +122,38 @@ public class ObjModule extends AbstractWnModule {
      *            本地文件尺寸
      * @param mime
      *            本地文件的内容类型
+     * @param dupp
+     *            如果目录下有重名，应该用什么样的文件名格式生成新文件。 <br>
+     *            默认为 null 则表示，遇到重名的就覆盖<br>
+     *            参数的值的意义为:
+     * 
+     *            <pre>
+     *            # 参数就是一个字符串模板，比如
+     *            "${major}(${nb})${suffix}"
+     *            
+     *            - 里面一定有三个固定的占位符 major, nb, suffix
+     *            - 比如 abc.png 那么，它的 major 是 "abc" 它的 suffix 是 ".png"
+     *            - 根据这个字符串模板，函数会从 nb=1 开始试验有没有重名，直到发现不重名的对象为止
+     *            - 对于 abc.png ，对于上面那个模板重试的顺序就是
+     *            -- abc(1).png
+     *            -- abc(2).png
+     *            -- abc(3).png
+     *            -- ..
+     *            - 总之根据这个字符串模板，你可以定制自己的重命名方式
+     * 
+     *            </pre>
+     * 
      * @param ins
      *            文件内容流
      * @return 创建的对象
      */
     @At("/upload/**")
     @AdaptBy(type = QueryStringAdaptor.class)
-    @Fail("http:500")
     public WnObj upload(String str,
                         @Param("nm") String nm,
                         @Param("sz") long sz,
                         @Param("mime") String mime,
+                        @Param("dupp") String dupp,
                         InputStream ins) {
         // 首先得到目标对象
         WnObj ta = Wn.checkObj(io, str);
@@ -141,20 +166,26 @@ public class ObjModule extends AbstractWnModule {
         // 如果是个目录，则试图创建一个新文件
         else if (ta.isDIR()) {
             String fname = nm;
-            String majorName = Files.getMajorName(nm);
-            String suffix = Files.getSuffixName(nm);
-            if (!Strings.isBlank(suffix))
-                suffix = "." + suffix;
-            else
-                suffix = "";
-            // 如果遇到重名的文件，则生成一个新的名字
-            int nb = 1;
-            while (io.fetch(ta, fname) != null) {
-                fname = String.format("%s(%d)%s", majorName, nb++, suffix);
+            // 如果重名就覆盖的话 ...
+            if (Strings.isBlank(dupp)) {
+                o = io.createIfNoExists(ta, fname, WnRace.FILE);
             }
-
-            // 创建文件对象
-            o = io.create(ta, fname, WnRace.FILE);
+            // 那么重名的话，则创建新文件
+            else {
+                if (io.exists(ta, fname)) {
+                    Context c = Lang.context();
+                    c.set("major", Files.getMajorName(nm));
+                    c.set("suffix", Files.getSuffix(nm));
+                    Segment seg = Segments.create(dupp);
+                    int i = 1;
+                    do {
+                        c.set("nb", i++);
+                        fname = seg.render(c).toString();
+                    } while (io.exists(ta, fname));
+                }
+                // 创建文件对象
+                o = io.create(ta, fname, WnRace.FILE);
+            }
         }
         // 否则则抛错
         else {

@@ -1,36 +1,41 @@
 <!--这里是一些动态生成的代码模板-->
 <div class="ui-code-template">
-    <div code-id="list.item" class="ui-upload-item">
+    <div code-id="list.item" class="ui-upload-item ui-clr">
         <div class="thumbnail">
             <i class="fa fa-file"></i>
             <!--i class="fa fa-spinner fa-spin"></i>
-            <i class="fa fa-check-circle"></i-->
+            <i class="fa fa-check-circle fa-lg"></i-->
+        </div>
+        <div class="local">
+            <span class="fname"></span>
+            <span class="progress">
+                <span class="outer"><span class="inner"></span></span>
+            </span>
+            <span class="nb">2%</span>
+        </div>
+        <div class="remote">
+            <span class="rname">...</span>
+            <i class="fa fa-cog"></i>
+        </div>
+    </div>
+    <div code-id="multi.main" class="ui-upload-multi">
+        <div code-id="multi.tip" class="ui-upload-multi-tip">
+            <%=upload.multi.tip%>
+        </div>
+    </div>
+    <div code-id="single.main" class="ui-upload-single" ing="no">
+        <div class="ui-upload-single-tip">
+            <%=upload.single.tip%>
         </div>
         <div class="progress">
-            <div class="outer">
-                <div class="inner"></div>
-                <div class="nb">2%</div>
-            </div>
+            <div class="nb">2%</div>
+            <div class="outer"><div class="inner"></div></div>
         </div>
-        <div class="fname"></div>
     </div>
 </div>
 <!--这里是主区域-->
 <div class="ui-arena">
-    <div class="ui-upload-sky">
-        <b>{{ui_upload_dest}}</b> : <em class="ui-loader-dest"></em>
-    </div>
-    <div class="ui-upload-list">
-        <div class="ui-upload-tip">{{ui_upload_tip}}</div>
-    </div>
-    <div class="ui-upload-footer">
-        <b class="ui-btn ui-upload-choose">
-            <i class="fa fa-cloud-upload"></i>
-            <span>{{ui_upload_choose}}</span>
-        </b>
-        <b class="ui-btn ui-upload-done">
-            <i class="fa fa-angellist"></i>
-            <span>{{ui_upload_done}}</span>
-        </b>
-    </div>
+    <div class="ui-upload-sky"></div>
+    <div class="ui-upload-arena"></div>
+    <div class="ui-upload-footer"></div>
 </div>

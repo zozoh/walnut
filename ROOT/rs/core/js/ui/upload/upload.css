@@ -1,77 +1,67 @@
-body.zui-app-wn_upload {
-    background: #FFF; margin: 20px;
-}
+body.zui-app-wn_upload {background: #FFF; margin: 0;}
+/*-----------------------------------------------------------------------------------------*/
+.ui-upload {width:100%; height:100%;}
 
-.ui-upload {
-    position: absolute;
-    top:10px; left:10px; bottom:10px; right:10px;
+.ui-upload .ui-arena {width:100%; height:100%; }
+.ui-upload-sky {background-color:#DDD; padding:10px;}
+.ui-upload-footer {background: #08F;}
+.ui-upload-arena {background-color:#EEE; overflow: auto; padding:0px;}
+/*-----------------------------------------------------------------------------------------*/
+.ui-upload .progress .outer {display: block; width:100%; height:6px; border:1px solid #CCC;}
+.ui-upload .progress .inner {display: block;width:1px; height:100%; background: #0F0; }
+.ui-upload .nb {color: #88F;}
+/*-----------------------------------------------------------------------------------------*/
+.ui-upload-single {width:100%; height:100%;}
+.ui-upload-single-tip {
+    position: absolute; top:0; left:0; right:0; bottom:0; display: none;
+    color:#888; font-size:18px;text-align: center;
 }
+.ui-upload-single[ing=no]:hover .ui-upload-single-tip,
+.ui-upload-arena[drag] .ui-upload-single-tip
+{display: block;}
+.ui-upload-single-tip:before {height: 36%;display: block;content: "";}
 
-.ui-upload .ui-arena {
-    width:100%; height:100%; 
+.ui-upload-single .progress {
+    position: absolute; bottom:30px; left:30px; right:30px;
 }
-
-.ui-upload-sky {
-    background-color:rgba(0,0,0,0.3); padding:20px;
-}
-
-.ui-upload-footer {
-    position: absolute;
-    left:0px; right:0; bottom:0;
-    background-color:rgba(0,0,0,0.3); padding:20px; text-align: center;
-}
-
-.ui-upload-tip{
+.ui-upload-single .nb {text-align: center;}
+.ui-upload-single[ing=no] .progress{display: none;}
+/*-----------------------------------------------------------------------------------------*/
+.ui-upload-multi {width:100%; height:100%; padding:10px 14px;}
+.ui-upload-arena[drag] .ui-upload-multi{background: #CCF;}
+.ui-upload-multi-tip{
     color:#888; font-size:18px;
     text-align: center;
-    padding-top:10%;
+    width:100%; height:100%;
 }
-
-.ui-upload-list {
-    position: absolute;
-    left:0px; right:0; top:59px; bottom:72px;
-    overflow: auto; padding:10px;
-}
-
-.ui-upload-list-dragover {
-    background: #CCF; box-shadow: 0 0 20px #FFF;
-}
-/*-----------------------------------------------------------*/
+.ui-upload-multi-tip:before {height: 36%;display: block;content: "";}
+/*-----------------------------------------------------------------------------------------*/
 .ui-upload-item {
     position: relative;
-    padding:8px 0; line-height: 18px;
+    padding:0; line-height: 32px;
     border-bottom:1px dashed #CCC;
 }
+.ui-upload-item:last-child{border-bottom: 0;}
 
 .ui-upload-item .fname {
-    padding:0 10px; font-size:12px;
-    overflow: hidden;
-    text-overflow : ellipsis; 
+    display: inline-block; vertical-align: middle;
+    padding:0 10px; font-size:12px; overflow: hidden; min-width: 160px;
 }
 
-.ui-upload-item .progress {
-    float:right;
-    width:80px; height:20px; background: #EEE;
-}
+.ui-upload-item .progress { display: inline-block; vertical-align: middle; min-width:80px;}
+.ui-upload-item .nb {display: inline-block; vertical-align: middle; font-size:9px;}
 
-.ui-upload-item .progress .outer {
-    width:100%; height:100%;
-    border:1px solid #CCC; position: relative;
-}
-
-.ui-upload-item .progress .inner {
-    width:1px; height:100%; line-height: 20px; 
-    background: #0F0; 
-}
-
-.ui-upload-item .progress .nb {
-    position: absolute; top:0; right:4px; line-height: 18px;
-    color: #88F; font-size:9px; 
-}
-
-.ui-upload-item .thumbnail {
-    float: left;
-}
+.ui-upload-item .thumbnail {float: left;}
+.ui-upload-item .local {float: left;}
+.ui-upload-item .remote {float: right; color:#AAA;}
+.ui-upload-item .remote .rname {display: inline-block; font-size:12px;}
+.ui-upload-item .remote .fa {font-size:1.3em;}
+.ui-upload-item-done .remote .fa, 
+.ui-upload-item-fail .remote .fa {font-size:1em;}
+.ui-upload-item-done .remote {color:#08F;}
+.ui-upload-item-fail .remote {color:#F00;}
+.ui-upload-item-fail .progress {opacity: 0.2;}
+.ui-upload-item-fail .nb {opacity: 0.2;}
 
 .ui-upload-item .thumbnail .fa-file         {color:#888;}
 .ui-upload-item .thumbnail .fa-spinner      {color:#000;}
@@ -80,7 +70,7 @@ body.zui-app-wn_upload {
 .ui-upload-item .thumbnail .fa-warning      {color:#A00;}
 
 .ui-upload-item-done {color:#080;}
-.ui-upload-item-fail {color:#A00;}
+.ui-upload-item-fail {color:#F00;}
 
 
 
