@@ -152,64 +152,6 @@ define(function (require, exports, module) {
     // 采用统一的 ZUI.css
     seajs.use("zui_css");
 
-    // 对 layout 的解析
-    var parse_layout = function (li, jq) {
-        li.$ele = jq;
-        li.val = $.trim(jq.attr("layout-val")) || null;
-        if (li.val) {
-            // 百分比，不能超过 100%
-            if (/^[0-9]+%$/.test(li.val)) {
-                li.val = li.val.substring(0, li.val.length - 1) * 1 / 100;
-                if (li.val > 1) {
-                    console.log("invalid layout-val : '" + li.val * 100 + "%'");
-                    li.val = 1.0;
-                }
-            }
-            // 数字表示精确像素
-            else if (/^[0-9]+$/.test(li.val)) {
-                li.val = li.val * 1;
-            }
-            // 其他必须是 *
-            else if ("*" != li.val) {
-                console.log("invalid layout-val : '" + li.val + "'");
-                li.val = "*";
-            }
-        } else {
-            li.val = "$SELF";   // 表示保留元素原始的尺寸
-        }
-
-        // 递归 ...
-        var mode = $.trim(jq.attr("layout-mode"));
-        if (mode) {
-            li.mode = mode;
-            li.children = [];
-            jq.children().each(function () {
-                var me = $(this);
-                var sub = parse_layout({}, me);
-                li.children.push(sub);
-                // 所有的区块外边距必须为 0
-                me.css({
-                    "margin": 0,
-                    "position": "relative"
-                });
-                if ("horizontal" == mode) {
-                    me.css({
-                        "top": 0,
-                        "position": "absolute"
-                    });
-                }
-                if ("$SELF" == sub.val) {
-                    sub.val = "horizontal" == mode ?
-                        me.outerWidth()
-                        : me.outerHeight();
-                }
-            });
-        }
-
-        // 返回
-        return li;
-    };
-
     // 这个逻辑用来解析 UI 的 DOM， 并根据约定，预先得到 gasket 和 layout
     // 当然 layout 不是必须有的
     var parse_dom = function (html) {
@@ -248,88 +190,6 @@ define(function (require, exports, module) {
 
         // DOM 解析完成
     };
-
-    // 在一块区域内( W * H )，为 li.children 分配宽高
-    var adjust_layout = function (li, W, H) {
-        if (!li.children || li.children.length <= 0)
-            return;
-        // 要分配的值
-        var max = "vertical" == li.mode ? H : W;
-        var remain = max;
-
-        // 循环分配值
-        var vals = [];
-        var remainIndex = [];
-        for (var i = 0; i < li.children.length; i++) {
-            var sub = li.children[i];
-            if ("*" == sub.val) {
-                vals[i] = 0;
-                remainIndex.push(i);
-            } else if (_.isNumber(sub.val)) {
-                if (sub.val < 1) {
-                    vals[i] = parseInt(max * sub.val);
-                    remain -= vals[i];
-                } else {
-                    vals[i] = sub.val;
-                    remain -= vals[i];
-                }
-            } else {
-                throw "invalid sub.val : " + sub.val;
-            }
-        }
-        // 分配剩余值
-        if (remainIndex.length > 0) {
-            var n = parseInt(remain / remainIndex.length);
-            var i = 0;
-            for (; i < remainIndex.length; i++) {
-                vals[remainIndex[i]] = n;
-            }
-            remain -= n * remainIndex.length;
-            // 继续分配每个剩余的像素
-            i = 0;
-            while (remain > 0) {
-                var index = remainIndex[i++];
-                vals[index]++;
-                remain--;
-                if (i >= remainIndex.length)
-                    i = 0;
-            }
-        }
-
-        // 垂直布局
-        if ("vertical" == li.mode) {
-            for (var i = 0; i < li.children.length; i++) {
-                var sub = li.children[i];
-                sub.area = {w: W, h: vals[i]};
-                sub.$ele.css({
-                    "width": W,
-                    "height": vals[i]
-                });
-            }
-        }
-        // 水平布局
-        else {
-            var left = 0;
-            for (var i = 0; i < li.children.length; i++) {
-                var sub = li.children[i];
-                sub.area = {w: vals[i], h: H};
-                sub.$ele.css({
-                    "left": left,
-                    "width": vals[i],
-                    "height": H
-                });
-                left += sub.area.w;
-            }
-        }
-
-        // 处理自己的下一层
-        for (var i = 0; i < li.children.length; i++) {
-            var sub = li.children[i];
-            if (sub.mode) {
-                adjust_layout(sub, sub.area.w, sub.area.h);
-            }
-        }
-    };  // end of adjust_layout
 
     // 输出模块 ZUI，同时全局也声明一个 ZUI 变量
     var ZUI = exports;
@@ -462,7 +322,8 @@ define(function (require, exports, module) {
             var ME = this;
             
             // 需要调整自身，适应父大小
-            if(this.options.fitparent) {
+            var fp = this.options.fitparent;
+            if(typeof fp == "undefined" || fp == true) {
                 // 调整自身的顶级元素
                 var w, h;
                 if(this.pel === document.body){
@@ -475,25 +336,25 @@ define(function (require, exports, module) {
                 }
                 ME.$el.css({"width":w, "height":h});
 
-                var w2 = ME.$el.width();
-                var h2 = ME.$el.height();
-                ME.arena.css({"width":w2, "height":h2});
-            }
-            
+                // 有时候，初始化的时候已经将自身加入父UI的gasket
+                // 父 UI resize 的时候会同时 resize 子
+                // 但是自己这时候还没有初始化完 DOM (异步加载)
+                // 那么自己的 arena 就是未定义，因此不能继续执行 resize
+                if(ME.arena){
+                    var w2 = ME.$el.width();
+                    var h2 = ME.$el.height();
+                    ME.arena.css({"width":w2, "height":h2});
 
-            // // 根据布局，调整
-            // if(ME.layout) {
-            //     adjust_layout(ME.layout, w2, h2);
-            // }
+                    // 调用自身的 resize
+                    $z.invoke(ME.$ui, "resize", [], ME);
 
-            // 调用自身的 resize
-            $z.invoke(ME.$ui, "resize", [], ME);
-
-            // 调用自身所有的子 UI 的 resize
-            for (var key in ME.gasket) {
-                var sub = ME.gasket[key];
-                if (sub && sub.ui) {
-                    sub.ui.resize();
+                    // 调用自身所有的子 UI 的 resize
+                    for (var key in ME.gasket) {
+                        var sub = ME.gasket[key];
+                        if (sub && sub.ui) {
+                            sub.ui.resize();
+                        }
+                    } 
                 }
             }
         },
@@ -548,7 +409,7 @@ define(function (require, exports, module) {
             else {
                 key = "" + which;
             }
-            console.log("unwatchKey : '" + key + "' : " + this.cid);
+            // console.log("unwatchKey : '" + key + "' : " + this.cid);
             // 删除全局索引
             if (ZUI.keymap[key])
                 delete ZUI.keymap[key][which];
