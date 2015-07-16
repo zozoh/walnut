@@ -249,7 +249,7 @@ define(function (require, exports, module) {
             var UI = this;
             var Mod = UI.model;
             Mod.trigger("cmd:exec", "disk id:" + obj.id, function () {
-                Mod.trigger("cmd:exec", "cd id:" + obj.id);
+                //Mod.trigger("cmd:exec", "cd id:" + obj.id);
             });
         },
         sort_wolist: function () {

@@ -415,4 +415,9 @@ public abstract class Wn {
         }
     }
 
+    public static boolean hasVCLibrary() {
+        String vcPath = System.getenv("VIDEO_CONVERT_PATH");
+        return !Strings.isBlank(vcPath);
+    }
+
 }

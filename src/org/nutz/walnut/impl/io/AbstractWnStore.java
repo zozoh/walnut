@@ -30,6 +30,17 @@ public abstract class AbstractWnStore implements WnStore {
     }
 
     @Override
+    public String getRealPath(WnObj o) {
+        // TODO 模仿getInputStream
+        WnHistory his = table.getHistory(o, o.nanoStamp());
+        if (null == his)
+            return null;
+        return _get_realpath(his);
+    }
+
+    protected abstract String _get_realpath(WnHistory his);
+
+    @Override
     public InputStream getInputStream(WnObj o, long off) {
         // TODO zozoh: 这个应该弄的复杂点，如果 InputStream 读到尾部了，还能继续读才对
         WnHistory his = table.getHistory(o, o.nanoStamp());

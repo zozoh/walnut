@@ -49,6 +49,18 @@ public class LocalSha1WnStore extends AbstractWnStore {
     }
 
     @Override
+    protected String _get_realpath(WnHistory his) {
+        // 根据 sha1 得到文件路径
+        String sha1 = his.sha1();
+        String ph = Locals.key2path(sha1);
+        File f = Files.getFile(sha1Home, ph);
+        if (!f.exists()) {
+            throw Er.create("e.io.store.sha1.noexists", his);
+        }
+        return f.getAbsolutePath();
+    }
+
+    @Override
     protected InputStream _get_inputstream(WnHistory his, long off) {
         // 根据 sha1 得到文件路径
         String sha1 = his.sha1();

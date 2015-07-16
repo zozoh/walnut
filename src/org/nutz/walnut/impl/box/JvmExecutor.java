@@ -12,6 +12,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.ZParams;
 
 public abstract class JvmExecutor {
 
@@ -114,7 +115,9 @@ public abstract class JvmExecutor {
         }
     }
 
-    protected List<WnObj> evalCandidateObjsNoEmpty(WnSystem sys, String[] paths, boolean joinCurrent) {
+    protected List<WnObj> evalCandidateObjsNoEmpty(WnSystem sys,
+                                                   String[] paths,
+                                                   boolean joinCurrent) {
         LinkedList<WnObj> list = new LinkedList<WnObj>();
         evalCandidateObjs(sys, paths, list, joinCurrent);
         checkCandidateObjsNoEmpty(paths, list);
@@ -163,5 +166,21 @@ public abstract class JvmExecutor {
         if (list.isEmpty()) {
             throw Er.create("e.io.obj.noexists", Lang.concat(", ", args));
         }
+    }
+
+    protected WnObj getObj(WnSystem sys, String[] args) {
+        ZParams params = ZParams.parse(args, null);
+        List<WnObj> list = new LinkedList<WnObj>();
+        evalCandidateObjs(sys, params.vals, list, false);
+        if (list.size() <= 0) {
+            sys.err.print("need a obj");
+            return null;
+        }
+        if (list.size() > 1) {
+            sys.err.print("too many objs, only handler one obj at once");
+            return null;
+        }
+        // 默认只处理第一个
+        return list.get(0);
     }
 }
