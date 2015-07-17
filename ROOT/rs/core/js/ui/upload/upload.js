@@ -56,45 +56,51 @@ define(function(require, exports, module) {
         },
         //...............................................................
         redraw : function() {
-            // this.listenTo(this.model, "ui:ready",   this.wedit.on_ready);
-            var UI = this;
-            var opt = UI.options;
+            var UI    = this;
+            var opt   = UI.options;
             var title = opt.title;
+            var ta    = opt.target;
             // 上传到目录
-            if(opt.target.race == 'DIR'){
+            if(ta.race == 'DIR'){
                 UI.$el.delegate(".ui-upload-arena", "dragover",  UI.multi.on_dragover);
                 UI.$el.delegate(".ui-upload-arena", "dragleave", UI.multi.on_dragleave);
-                UI.$el.find(".ui-upload-arena")[0].addEventListener("drop", UI.multi.on_drop, true);
+                UI.$el.find(".ui-upload-arena")[0].addEventListener("drop", UI.multi.on_drop, false);
                 if(title === true || title == undefined)
                     title = UI.msg("upload.multi.sky");
                 UI.arena.find(".ui-upload-arena").append(UI.ccode("multi.main"));
             }
             // 替换单个文件
-            else if(UI.options.target.race == 'FILE'){
+            else if(ta.race == 'FILE'){
                 UI.$el.delegate(".ui-upload-arena", "dragover",  UI.single.on_dragover);
                 UI.$el.delegate(".ui-upload-arena", "dragleave", UI.single.on_dragleave);
-                UI.$el.find(".ui-upload-arena")[0].addEventListener("drop", UI.single.on_drop, true);
+                UI.$el.find(".ui-upload-arena")[0].addEventListener("drop", UI.single.on_drop, false);
                 if(title === true || title == undefined)
                     title = UI.msg("upload.single.sky");
                 UI.arena.find(".ui-upload-arena").append(UI.ccode("single.main"));
+                // 如果上传目标是图片
+                if(/^image\//.test(ta.mime)){
+                    UI.arena.find(".ui-upload-single").css({
+                        "background-image" : "url(/o/read/id:"+ta.id+"?"+$z.timestamp()+")"
+                    });
+                }
             }
             // 不可能
             else{
-                throw "!!! wrong target race : '"+UI.options.target.race+"'";
+                throw "!!! wrong target race : '"+ta.race+"'";
             }
             // 更新标题 
             if(title){
-                title = (_.template(title))(opt.target);
+                title = (_.template(title))(ta);
                 UI.$el.find(".ui-upload-sky").html(title);
             }else{
-                UI.$el.find(".ui-upload-sky").hide();
+                UI.$el.find(".ui-upload-sky").remove();
             }
         },
         depose : function(){
             //console.log("I am upload depose")
             var ele = this.$el.find(".ui-upload-arena")[0];
-            ele.removeEventListener("drop", this.multi.on_drop, true);
-            ele.removeEventListener("drop", this.single.on_drop, true);
+            ele.removeEventListener("drop", this.multi.on_drop, false);
+            ele.removeEventListener("drop", this.single.on_drop, false);
         },
         //...............................................................
         events : {
@@ -109,6 +115,7 @@ define(function(require, exports, module) {
             var H       = UI.arena.height();
             var hSky    = jSky.outerHeight();
             var hFooter = jFooter.outerHeight(); 
+            // console.log(H, hSky, hFooter)
             jMain.css("height", H - hSky - hFooter);
         },
         //...............................................................
@@ -131,6 +138,7 @@ define(function(require, exports, module) {
                     return;
                 }
                 var UI = ZUI.checkInstance(this);
+                var ta = UI.options.target;
                 // 只能允许一个文件
                 if(e.dataTransfer.files.length != 1) {
                     alert(UI.msg("upload.single.err_multi"));
@@ -158,6 +166,12 @@ define(function(require, exports, module) {
                             alert(re.msg);
                         jSingle.attr("ing", "no")
                             .find(".inner").css("width", "1px");
+                        // 修改显示
+                        if(/^image\//.test(ta.mime)){
+                            UI.arena.find(".ui-upload-single").css({
+                                "background-image" : "url(/o/read/id:"+ta.id+"?"+$z.timestamp()+")"
+                            });
+                        }
                     },
                     // 下面是上传到服务器的目标设置
                     // 上传的目标url是一个字符串模板，会用本对象自身的键值来填充
@@ -207,6 +221,7 @@ define(function(require, exports, module) {
                                 .not(".ui-upload-item-done")
                                 .not(".ui-upload-item-fail")
                                 .first();
+                jItem[0].scrollIntoView();
                 // 没有更多项目了，返回
                 if(jItem.size()<=0) 
                     return;
