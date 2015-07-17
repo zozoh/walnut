@@ -31,11 +31,6 @@ public class cmd_chimg extends cmd_image {
         WnObj inObj = getObj(sys, args);
         WnObj outObj = null;
         if (inObj != null) {
-            // /etc/thumbnail 或 $HOME/.thumbnail 下的图片, 不再生成对应的缩率图,
-            // if (inObj.path().startsWith("/etc/thumbnail") ||
-            // inObj.path().contains("/.thumbnail")) {
-            // return;
-            // }
             // -s 大小
             int sw = 0;
             int sh = 0;
@@ -58,7 +53,7 @@ public class cmd_chimg extends cmd_image {
                 }
             }
             // -z 保持比例
-            Color bgcolor = Color.white;
+            Color bgcolor = null;
             boolean scaleZoom = params.has("z");
             if (scaleZoom) {
                 // -bg 背景颜色
@@ -132,7 +127,7 @@ public class cmd_chimg extends cmd_image {
                 int g = Integer.parseInt(rgba[1]);
                 int b = Integer.parseInt(rgba[2]);
                 float a = Float.parseFloat(rgba[3]);
-                re = new Color(r, g, b, (int) (a * 255 + 0.5));
+                re = new Color(r, g, b, (int) (a * 255));
             }
             // #开头
             else if (colorStr.startsWith("#")) {

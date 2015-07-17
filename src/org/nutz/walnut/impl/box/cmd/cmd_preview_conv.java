@@ -20,6 +20,10 @@ public class cmd_preview_conv extends JvmExecutor {
         if (obj == null) {
             return;
         }
+        // /etc/thumbnail 不再生成对应的缩率图,
+        if (obj.path().startsWith("/etc/thumbnail")) {
+            return;
+        }
         // 圖片
         if (ZType.isImage(obj.type())) {
             createImagePreview(sys, obj);
@@ -34,23 +38,18 @@ public class cmd_preview_conv extends JvmExecutor {
         }
     }
 
-    private String bgcolor_white = "rgb(255,255,255)";
-    private String bgcolor_black = "rgb(0,0,0)";
-    private String size_l = "256x256";
-    private String size_m = "64x64";
-    private String size_s = "24x24";
-
     private void createImagePreview(WnSystem sys, WnObj obj) {
         WnObj pdir = createThunbnailDirBySha1(sys, obj);
-        createThunbnail(sys, pdir, obj, size_l);
-        createThunbnail(sys, pdir, obj, size_m);
-        createThunbnail(sys, pdir, obj, size_s);
+        createThunbnail(sys, pdir, obj, Wn.thumbnail.size_256);
+        createThunbnail(sys, pdir, obj, Wn.thumbnail.size_64);
+        createThunbnail(sys, pdir, obj, Wn.thumbnail.size_24);
+        // createThunbnail(sys, pdir, obj, Wn.thumbnail.size_s);
     }
 
     private void createThunbnail(WnSystem sys, WnObj targetDir, WnObj src, String size) {
         sys.exec(String.format("chimg %s -z -bg %s -s %s -o %s",
                                src.path(),
-                               bgcolor_black,
+                               Wn.thumbnail.bgcolor_black,
                                size,
                                targetDir.path() + "/" + size + "." + src.type()));
     }
@@ -67,6 +66,7 @@ public class cmd_preview_conv extends JvmExecutor {
             // 生成预览图片
             createVideoPreviewImage(sys, obj, tmpdir, srcPath, pdir);
             // 生成预览视频
+            // TODO
         }
     }
 
@@ -86,9 +86,9 @@ public class cmd_preview_conv extends JvmExecutor {
         WnObj ptmpObj = sys.io.createIfNoExists(null, ptmp, WnRace.FILE);
         sys.io.writeAndClose(ptmpObj, Streams.fileIn(previewImg));
         // 2.生成缩略图
-        createThunbnail(sys, pdir, ptmpObj, size_l);
-        createThunbnail(sys, pdir, ptmpObj, size_m);
-        createThunbnail(sys, pdir, ptmpObj, size_s);
+        createThunbnail(sys, pdir, ptmpObj, Wn.thumbnail.size_256);
+        createThunbnail(sys, pdir, ptmpObj, Wn.thumbnail.size_64);
+        createThunbnail(sys, pdir, ptmpObj, Wn.thumbnail.size_24);
         // 3.删除临时文件
         sys.io.delete(ptmpObj);
     }

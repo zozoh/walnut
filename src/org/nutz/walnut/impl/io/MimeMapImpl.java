@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.io;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Strings;
@@ -26,6 +27,11 @@ public class MimeMapImpl implements MimeMap {
     @Override
     public String getMime(String type) {
         return getMime(type, "application/octet-stream");
+    }
+
+    @Override
+    public Set<String> keys() {
+        return map.keySet();
     }
 
 }

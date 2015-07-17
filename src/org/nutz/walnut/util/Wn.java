@@ -420,4 +420,17 @@ public abstract class Wn {
         return !Strings.isBlank(vcPath);
     }
 
+    public static class thumbnail {
+        public final static String bgcolor_white = "rgb(255,255,255)";
+        public final static String bgcolor_black = "rgb(0,0,0)";
+        public final static String bgcolor_trans = "rgba(255,255,255,0)";
+        public final static String size_256 = "256x256";
+        public final static String size_64 = "64x64";
+        public final static String size_24 = "24x24";
+        public final static String size_16 = "16x16";
+        // public final static int size_16 = 16;
+        // public final static int size_24 = 24;
+        // public final static int size_64 = 64;
+        // public final static int size_256 = 256;
+    }
 }
