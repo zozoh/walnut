@@ -5,6 +5,7 @@ import java.io.OutputStream;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.log.Log;
@@ -89,11 +90,14 @@ public abstract class AbstractWnModule {
                             OutputStream err,
                             InputStream in,
                             Callback<WnBoxContext> on_before_free) {
+        Stopwatch sw = null;
         // 得到一个沙箱
         WnBox box = boxes.alloc(allocTimeout);
 
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
+            sw = Stopwatch.begin();
             log.debugf("%sbox:alloc: %s", logPrefix, box.id());
+        }
 
         // 保存到请求属性中，box.onClose 的时候会删除这个属性
         // req.setAttribute(WnBox.class.getName(), box);
@@ -130,8 +134,10 @@ public abstract class AbstractWnModule {
             log.debugf("%sbox:free: %s", logPrefix, box.id());
         boxes.free(box);
 
-        if (log.isDebugEnabled())
-            log.debugf("%sbox:done", logPrefix);
+        if (log.isDebugEnabled()) {
+            sw.stop();
+            log.debugf("%sbox:done : %dms", logPrefix, sw.getDuration());
+        }
     }
 
     protected WnObj _find_app_home(String appName) {

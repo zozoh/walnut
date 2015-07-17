@@ -14,8 +14,11 @@ public class DeposeWnContext extends AbstractProcessor {
     public void process(ActionContext ac) throws Throwable {
 
         // 显示调试信息
-        if (log.isInfoEnabled())
-            log.info("  END URL");
+        if (log.isInfoEnabled()) {
+            long ts = Wn.WC()._timestamp;
+            long du = ts > 0 ? System.currentTimeMillis() - ts : ts;
+            log.infof("URL_OK:%3dms: %s", du, ac.getRequest().getServletPath());
+        }
 
         // 执行清除
         Wn.Ctx.clear();

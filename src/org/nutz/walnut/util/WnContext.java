@@ -44,11 +44,16 @@ public class WnContext extends NutMap {
 
     private WnHookContext hookContext;
 
+    public long _timestamp;
+
     public WnObj doHook(String action, WnObj o) {
         if (null != hookContext) {
-            Stopwatch sw = Stopwatch.begin();
-            if (log.isDebugEnabled())
-                log.debugf("do hook when '%s' : %s", action, o);
+            Stopwatch sw = null;
+            if (log.isInfoEnabled()) {
+                if (log.isDebugEnabled())
+                    sw = Stopwatch.begin();
+                log.infof("HOOK@%s:BEGIN:%s", action, o.path());
+            }
 
             List<WnHook> hooks = hookContext.service.get(action, o);
             if (null != hooks && hooks.size() > 0) {
@@ -85,16 +90,17 @@ public class WnContext extends NutMap {
 
                 sw.stop();
                 if (log.isDebugEnabled())
-                    log.debugf("done in %dms", sw.getDuration());
+                    log.debugf("HOOK@%s: DONE %dms", action, sw.getDuration());
 
                 // 调用了钩子，则重新获取
                 return hookContext.io.checkById(o.id());
             }
-            
-            // 没有调用钩子，也记录一下时间 
-            sw.stop();
-            if (log.isDebugEnabled())
-                log.debugf("done in %dms", sw.getDuration());
+
+            // 没有调用钩子，也记录一下时间
+            if (log.isDebugEnabled()) {
+                sw.stop();
+                log.debugf("HOOK@%s: DONE:%dms:%s", action, sw.getDuration(), o.path());
+            }
         }
         // 没有调用钩子，返回自身
         return o;
