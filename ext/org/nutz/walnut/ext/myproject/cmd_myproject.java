@@ -15,6 +15,7 @@ import org.nutz.lang.LoopException;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -43,7 +44,8 @@ public class cmd_myproject extends JvmExecutor {
     @Override
     @SuppressWarnings("rawtypes")
     public void exec(final WnSystem sys, String[] args) throws Exception {
-        String projectPath = "~/.project";
+        String projectPath = Wn.normalizeFullPath("~/.project", sys);
+        sys.io.createIfNoExists(null, projectPath, WnRace.DIR);
         final List<NutMap> re = new ArrayList<NutMap>();
         WnObj projectObj = Wn.checkObj(sys, projectPath);
         sys.io.eachChildren(projectObj, null, new Each<WnObj>() {

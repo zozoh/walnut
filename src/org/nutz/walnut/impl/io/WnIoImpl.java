@@ -603,6 +603,17 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public String getRealPath(WnObj o) {
+        if (o.race() == WnRace.FILE) {
+            o = indexer.toObj(Wn.WC().whenRead(o), ObjIndexStrategy.STRICT);
+            // 读取内容的
+            WnStore store = stores.get(o);
+            return store.getRealPath(o);
+        }
+        return null;
+    }
+
+    @Override
     public InputStream getInputStream(WnObj o, WnHistory his, long off) {
         WnStore store = stores.get(o);
         return store.getInputStream(o, his, off);

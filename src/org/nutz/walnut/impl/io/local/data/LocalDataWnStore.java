@@ -47,6 +47,21 @@ public class LocalDataWnStore extends AbstractWnStore {
     }
 
     @Override
+    protected String _get_realpath(WnHistory his) {
+        // 根据 data 得到文件路径
+        String data = his.data();
+        // 返回空输入流
+        if (Strings.isBlank(data))
+            return null;
+        String ph = Locals.key2path(data);
+        File f = Files.getFile(home, ph);
+        if (!f.exists()) {
+            throw Er.create("e.io.store.data.noexists", his);
+        }
+        return f.getAbsolutePath();
+    }
+
+    @Override
     protected InputStream _get_inputstream(WnHistory his, long off) {
         // 根据 data 得到文件路径
         String data = his.data();

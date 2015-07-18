@@ -33,6 +33,16 @@ public class LocalTreeWnStore extends AbstractWnStore {
     protected void _do_real_remove_history_data(WnHistory his) {}
 
     @Override
+    protected String _get_realpath(WnHistory his) {
+        File f = new File(his.data());
+        // 不存在
+        if (!f.exists()) {
+            return null;
+        }
+        return f.getAbsolutePath();
+    }
+
+    @Override
     public InputStream _get_inputstream(WnHistory his, long off) {
         File f = new File(his.data());
 

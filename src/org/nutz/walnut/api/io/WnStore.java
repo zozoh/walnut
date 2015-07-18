@@ -36,4 +36,12 @@ public interface WnStore extends WnStoreTable {
      */
     OutputStream getOutputStream(WnObj o, long off);
 
+    /**
+     * 活动文件真实存放路径
+     * 
+     * @param o
+     * @return
+     */
+    String getRealPath(WnObj o);
+
 }

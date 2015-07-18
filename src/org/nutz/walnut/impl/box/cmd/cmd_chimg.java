@@ -25,44 +25,12 @@ public class cmd_chimg extends cmd_image {
 
     private String tmpDir = System.getProperty("java.io.tmpdir");
 
-    private Color getColor(String colorStr) {
-        Color re = null;
-        colorStr = colorStr.toLowerCase();
-        try {
-            // RGB
-            if (colorStr.startsWith("rgb(") && colorStr.endsWith(")")) {
-                colorStr = colorStr.substring(4, colorStr.length() - 1);
-                String[] rgb = colorStr.split(",");
-                int r = Integer.parseInt(rgb[0]);
-                int g = Integer.parseInt(rgb[1]);
-                int b = Integer.parseInt(rgb[2]);
-                re = new Color(r, g, b);
-            }
-            // RGBA
-            else if (colorStr.startsWith("rgba(") && colorStr.endsWith(")")) {
-                colorStr = colorStr.substring(5, colorStr.length() - 1);
-                String[] rgba = colorStr.split(",");
-                int r = Integer.parseInt(rgba[0]);
-                int g = Integer.parseInt(rgba[1]);
-                int b = Integer.parseInt(rgba[2]);
-                float a = Float.parseFloat(rgba[3]);
-                re = new Color(r, g, b, (int) (a * 255 + 0.5));
-            }
-        }
-        catch (Exception e) {}
-        return re;
-    }
-
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, "z");
-        WnObj inObj = getImgObj(sys, params);
+        WnObj inObj = getObj(sys, args);
         WnObj outObj = null;
         if (inObj != null) {
-            // /etc/thumbnail 或 $HOME/.thumbnail 下的图片, 不再生成对应的缩率图,
-            if (inObj.path().startsWith("/etc/thumbnail") || inObj.path().contains("/.thumbnail")) {
-                return;
-            }
             // -s 大小
             int sw = 0;
             int sh = 0;
@@ -85,7 +53,7 @@ public class cmd_chimg extends cmd_image {
                 }
             }
             // -z 保持比例
-            Color bgcolor = Color.white;
+            Color bgcolor = null;
             boolean scaleZoom = params.has("z");
             if (scaleZoom) {
                 // -bg 背景颜色
@@ -110,7 +78,7 @@ public class cmd_chimg extends cmd_image {
                     String path = Wn.normalizeFullPath(pa_o, sys);
                     outObj = sys.io.fetch(null, path);
                     if (outObj == null) {
-                        outObj = sys.io.create(null, path, WnRace.FILE);
+                        outObj = sys.io.createIfNoExists(null, path, WnRace.FILE);
                     }
                 }
             }
@@ -125,7 +93,8 @@ public class cmd_chimg extends cmd_image {
             }
 
             // 写入临时文件
-            File tmp = Files.createFileIfNoExists(new File(tmpDir, System.nanoTime()
+            File tmp = Files.createFileIfNoExists(new File(tmpDir,
+                                                           System.nanoTime()
                                                                    + "."
                                                                    + outObj.type()));
             Images.write(outImg, tmp);
@@ -135,5 +104,37 @@ public class cmd_chimg extends cmd_image {
             // 清除临时文件
             tmp.delete();
         }
+    }
+
+    private Color getColor(String colorStr) {
+        Color re = null;
+        colorStr = colorStr.toLowerCase();
+        try {
+            // RGB
+            if (colorStr.startsWith("rgb(") && colorStr.endsWith(")")) {
+                colorStr = colorStr.substring(4, colorStr.length() - 1);
+                String[] rgb = colorStr.split(",");
+                int r = Integer.parseInt(rgb[0]);
+                int g = Integer.parseInt(rgb[1]);
+                int b = Integer.parseInt(rgb[2]);
+                re = new Color(r, g, b);
+            }
+            // RGBA
+            else if (colorStr.startsWith("rgba(") && colorStr.endsWith(")")) {
+                colorStr = colorStr.substring(5, colorStr.length() - 1);
+                String[] rgba = colorStr.split(",");
+                int r = Integer.parseInt(rgba[0]);
+                int g = Integer.parseInt(rgba[1]);
+                int b = Integer.parseInt(rgba[2]);
+                float a = Float.parseFloat(rgba[3]);
+                re = new Color(r, g, b, (int) (a * 255));
+            }
+            // #开头
+            else if (colorStr.startsWith("#")) {
+
+            }
+        }
+        catch (Exception e) {}
+        return re;
     }
 }
