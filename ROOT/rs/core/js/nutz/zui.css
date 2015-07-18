@@ -56,6 +56,13 @@ body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-b
     user-select: none;
 }
 
+.ui-noselect {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;  
+}
+
 .ui-btn:hover {
     background-color: #4AF;
     color: #FF0;

@@ -148,7 +148,7 @@ var zUtil = {
     //.............................................
     // 返回一个时间戳，其它应用可以用来阻止浏览器缓存
     timestamp: function () {
-        return ((new Date()) + '').replace(/[ :\t*+()-]/g, '').toLowerCase();
+        return new Date().getTime();
     },
     //.............................................
     // 生成一个随机字符串
@@ -221,7 +221,11 @@ var zUtil = {
     fromJson: function (str, fltFunc) {
         if (!str)
             return null;
-        return JSON.parse(str, fltFunc);
+        try{
+            return JSON.parse(str, fltFunc);
+        }catch(E){
+            throw E + " \n" + str;
+        }
     },
     //.............................................
     // 获得当前系统当前浏览器中滚动条的宽度

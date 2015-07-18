@@ -48,7 +48,6 @@ define(function (require, exports, module) {
             // 清屏幕
             if ("clear" == str) {
                 Mod.trigger("screen:clear");
-                Mod.trigger("cmd:wait", se);
                 return;
             }
             // 打开
@@ -59,7 +58,7 @@ define(function (require, exports, module) {
                     $z.openUrl("/a/open/" + m[3] + ":" + m[6]);
                 else
                     $z.openUrl("/a/open/" + m[3]);
-                Mod.trigger("cmd:wait", se);
+                Mod.trigger("cmd:wait");
                 return;
             }
 

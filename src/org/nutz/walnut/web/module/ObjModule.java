@@ -143,6 +143,11 @@ public class ObjModule extends AbstractWnModule {
      * 
      *            </pre>
      * 
+     * @param objnm
+     *            指定了上传的对象名称，如果这个对象不存在，创建它。<br>
+     *            如果 str 指定的上传目标是个文件，且名称与 objnm 不同<br>
+     *            则在同目录下再创建一个文件
+     * 
      * @param ins
      *            文件内容流
      * @return 创建的对象
@@ -154,6 +159,7 @@ public class ObjModule extends AbstractWnModule {
                         @Param("sz") long sz,
                         @Param("mime") String mime,
                         @Param("dupp") String dupp,
+                        @Param("objnm") String objnm,
                         InputStream ins) {
         // 首先得到目标对象
         WnObj ta = Wn.checkObj(io, str);
@@ -162,12 +168,21 @@ public class ObjModule extends AbstractWnModule {
         // 如果目标对象是个文件
         if (ta.isFILE()) {
             o = ta;
+            // 如果指定了名称
+            if (!Strings.isBlank(objnm) && !o.name().equals(objnm)) {
+                WnObj p = io.getParent(o);
+                o = io.createIfNoExists(p, objnm, WnRace.FILE);
+            }
         }
         // 如果是个目录，则试图创建一个新文件
         else if (ta.isDIR()) {
             String fname = nm;
+            // 如果指定了名称
+            if (!Strings.isBlank(objnm)) {
+                o = io.createIfNoExists(ta, objnm, WnRace.FILE);
+            }
             // 如果重名就覆盖的话 ...
-            if (Strings.isBlank(dupp)) {
+            else if (Strings.isBlank(dupp)) {
                 o = io.createIfNoExists(ta, fname, WnRace.FILE);
             }
             // 那么重名的话，则创建新文件

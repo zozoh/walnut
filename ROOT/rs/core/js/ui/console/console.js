@@ -55,6 +55,10 @@ define(function (require, exports, module) {
             me.val(s);
             //me.val(s);//[0].setSelectionRange(s.length, s.length);
         }
+        // Ctrl+K 清除历史
+        else if(e.which == 75 && e.metaKey){
+            this.clearScreen();
+        }
     };
 
     // 点击 .ui-arena 应该聚焦到输入框
@@ -94,6 +98,7 @@ define(function (require, exports, module) {
         //...................................................................
         clearScreen: function () {
             this.arena.empty();
+            this.on_cmd_wait();
         },
         _font: {
             reset: function () {
@@ -199,21 +204,26 @@ define(function (require, exports, module) {
             this.arena.append(this.ccode("error").text(this.msg(s)));
         },
         //...................................................................
-        prompt: function (ps, callback, isPassword) {
+        _prompt: function (ps, callback, isPassword) {
             var UI = this;
             var jq = UI.ccode("prompt");
             UI.arena.append(jq);
-            var left = jq.find(".ui-console-ps").text(ps).width();
+            var left = jq.find(".ui-console-ps").text(ps).outerWidth();
             var jInbox = jq.find(".ui-console-inbox");
             if (isPassword)
                 jInbox.attr("type", "password");
             jInbox
                 .css("padding-left", left + 9)
                 .data("on_key_enter", callback)
-                .focus();
+                .focus().click();
+            UI.arena.click();
         },
         //...................................................................
-        on_cmd_wait: function (se) {
+        on_cmd_wait: function () {
+            var UI = this;
+            var Mod = UI.model;
+            var app = Mod.get("app");
+            var se = app.session;
             this._watch_usr_input(se);
         },
         //...................................................................
@@ -267,7 +277,7 @@ define(function (require, exports, module) {
             //var ps = "[" + se.me + "@" + _app.name + " " + Mod.cph + "]" + (se.me == "root" ? "#" : "$");
             //var ps = se.me + "@" + _app.name + "$ ";
             var ps = this._render_ps1(se);
-            UI.prompt(ps, function (str, jBlock) {
+            UI._prompt(ps, function (str, jBlock) {
                 // 显示旧的输入行
                 var jq = UI.ccode("prompt.read");
                 jq.find('.ui-console-ps').text(ps);

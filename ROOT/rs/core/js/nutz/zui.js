@@ -250,7 +250,8 @@ define(function (require, exports, module) {
             $z.invoke(this.$ui, "depose", [], this);
 
             // 删除自己的 DOM 节点
-            this.$el.remove();
+            $z.invoke(this.$el, "undelegate", []);
+            this.$el.off().remove();
             // 移除注册
             delete ZUI.instances[this.cid];
             // 删除顶级节点记录
@@ -558,6 +559,7 @@ define(function (require, exports, module) {
                 func.call(ui, e);
             }
         });
+        // TODO 捕获 ondrop，整个界面不能被拖拽改变
         // 标记以便能不要再次绑定了
         window._zui_events_binding = true;
     }

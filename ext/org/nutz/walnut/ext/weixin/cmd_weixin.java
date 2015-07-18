@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.weixin;
 
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -13,6 +14,8 @@ import org.nutz.walnut.util.ZParams;
 import org.nutz.weixin.bean.WxArticle;
 import org.nutz.weixin.bean.WxInMsg;
 import org.nutz.weixin.bean.WxOutMsg;
+import org.nutz.weixin.spi.WxApi2;
+import org.nutz.weixin.spi.WxResp;
 import org.nutz.weixin.util.Wxs;
 
 public class cmd_weixin extends JvmExecutor {
@@ -51,6 +54,21 @@ public class cmd_weixin extends JvmExecutor {
             catch (Exception e) {
                 log.warn("!!!", e);
             }
+        }
+        // 处理摇一摇
+        else if (params.has("shake")) {
+            String pnb = params.check("pnb");
+            String ticket = params.get("shake");
+
+            // 创建微信 API
+            WnObj wxHome = sys.io.check(null, Wn.normalizeFullPath("~/.weixin/" + pnb, sys));
+            WxApi2 wxApi = new WnIoWeixinApi(sys.io, wxHome);
+
+            // 执行
+            WxResp resp = wxApi.getShakeInfo(ticket, 0);
+
+            // 输出
+            sys.out.println(Json.toJson(resp, JsonFormat.forLook()));
         }
         // 处理二维码
         else if (params.has("qrcode")) {

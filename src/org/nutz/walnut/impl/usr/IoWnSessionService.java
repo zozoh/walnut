@@ -108,15 +108,16 @@ public class IoWnSessionService implements WnSessionService {
         o.setv("me", u.name());
         io.appendMeta(o, "^me|expi$");
 
-        if (log.isDebugEnabled()) {
-            log.debugf("CreateWnSessionObj, %s", Json.toJson(o));
-            log.debugf("CreateWnSession, %s", Json.toJson(se));
-            log.debugf("ExpireTime\nsysNano: %d\nsysCurr: %d\nwnsNano: %d\nobjLaMo: %d",
-                       System.nanoTime(),
-                       System.currentTimeMillis(),
-                       Wn.nanoTime(),
-                       o.lastModified());
-        }
+        // if (log.isDebugEnabled()) {
+        // log.debugf("CreateWnSessionObj, %s", Json.toJson(o));
+        // log.debugf("CreateWnSession, %s", Json.toJson(se));
+        // log.debugf("ExpireTime\nsysNano: %d\nsysCurr: %d\nwnsNano:
+        // %d\nobjLaMo: %d",
+        // System.nanoTime(),
+        // System.currentTimeMillis(),
+        // Wn.nanoTime(),
+        // o.lastModified());
+        // }
 
         return se;
     }
