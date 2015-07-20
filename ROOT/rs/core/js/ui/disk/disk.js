@@ -280,8 +280,8 @@ define(function (require, exports, module) {
                 var isDir = obj.race == "DIR";
                 var tp = isDir ? "folder" : obj.tp.toLowerCase();
                 $gi.find('.gi-nm').append(obj.nm);
-                $gi.find('.gi-nm .disk-icon').addClass(tp);
-                $gi.find('.disk-preview').addClass(tp);
+                $gi.find('.gi-nm .disk-icon').css('background-image', "url('" + '/p/default/thumbnail?tp=' + obj.tp + "&size=16')");
+                $gi.find('.disk-preview').css('background-image', "url('" + '/p/thumbnail?obj=' + obj.id + "&size=256')");
                 $gi.find('.gi-owner').append(obj.c || "unknow");
                 $gi.find('.gi-lm').append($z.currentTime(new Date(obj.lm)));
                 $gi.find('.gi-len').append((obj.len ? $z.sizeText(obj.len) : "-" ));
@@ -302,7 +302,7 @@ define(function (require, exports, module) {
             for (var i = 0; i < pis.length - 1; i++) {
                 cph += '/' + pis[i];
                 var $gip = this.ccode('gi-path-item');
-                $gip.find('.disk-icon').addClass('folder');
+                $gip.find('.disk-icon').css('background-image', "url('" + '/p/default/thumbnail?tp=' + cobj.tp + "&size=16')");
                 $gip.find('.disk-path-nm').append(pis[i]);
                 $gip.attr('path', cph);
                 if (!addToPath && cph == rootCObj.ph) {
@@ -316,7 +316,7 @@ define(function (require, exports, module) {
             var tp = isDir ? "folder" : cobj.tp.toLowerCase();
             var $gip = this.ccode('gi-path-item');
             $gip.addClass('active');
-            $gip.find('.disk-icon').addClass(tp);
+            $gip.find('.disk-icon').css('background-image', "url('" + '/p/default/thumbnail?tp=' + cobj.tp + "&size=16')");
             $gip.find('.disk-path-nm').append(cobj.nm);
             $gip.attr('path', path);
             $dp.append($gip);

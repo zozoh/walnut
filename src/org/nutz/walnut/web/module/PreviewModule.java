@@ -95,9 +95,9 @@ public class PreviewModule extends AbstractWnModule {
 
     @At("/default/thumbnail")
     @Ok("raw")
-    private Object getDefaultPreviewThumbnail(@Param("tp") String tp,
-                                              @Param("size") int size,
-                                              HttpServletResponse resp) {
+    public Object getDefaultPreviewThumbnail(@Param("tp") String tp,
+                                             @Param("size") int size,
+                                             HttpServletResponse resp) {
         WnObj re = null;
         WnObj etpdir = io.fetch(null, "/etc/thumbnail");
         WnObj pdir = io.fetch(etpdir, tp);
@@ -106,7 +106,7 @@ public class PreviewModule extends AbstractWnModule {
         }
         // 返回unknow類型
         if (re == null) {
-            re = getThumbnailObj(io.fetch(etpdir, "know"), size);
+            re = getThumbnailObj(io.fetch(etpdir, "unknow"), size);
         }
         if (re == null) {
             throw Lang.impossible();
