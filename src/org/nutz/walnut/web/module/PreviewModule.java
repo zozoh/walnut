@@ -12,8 +12,6 @@ import org.nutz.mvc.annotation.Param;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 
-import com.dnet.strato.videoconv.VideoConvState;
-
 /**
  * 为obj对象提供预览功能
  *
@@ -153,7 +151,7 @@ public class PreviewModule extends AbstractWnModule {
         } else {
             tobj = io.get(obj);
         }
-        if (tobj != null && VideoConvState.done.equals(tobj.getString("vcp_state"))) {
+        if (tobj != null && "done".equals(tobj.getString("vcp_state"))) {
             String pvpath = previewVideoPath(tobj);
             WnObj pvobj = io.fetch(null, pvpath);
             if (pvobj != null) {
