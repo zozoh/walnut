@@ -489,7 +489,7 @@ define(function (require, exports, module) {
             };
             // 将 UI 的保留方法放入 $ui 中，其余 copy
             for (var key in conf) {
-                if (/^css|dom|i18n|init|redraw|depose|resize$/.test(key)) {
+                if (/^(css|dom|i18n|init|redraw|depose|resize)$/.test(key)) {
                     viewOptions.$ui[key] = conf[key];
                 } else {
                     viewOptions[key] = conf[key] || viewOptions[key];

@@ -238,7 +238,8 @@ define(function(require, exports, module) {
                 return true;
             },
             doUpload : function(){
-                var UI = this;
+                var UI  = this;
+                var opt = UI.options;
                 var jItem  = this.arena.find(".ui-upload-item")
                                 .not(".ui-upload-item-done")
                                 .not(".ui-upload-item-fail")
