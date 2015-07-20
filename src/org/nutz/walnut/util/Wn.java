@@ -423,6 +423,7 @@ public abstract class Wn {
     public static class thumbnail {
         public final static String bgcolor_white = "rgb(255,255,255)";
         public final static String bgcolor_black = "rgb(0,0,0)";
+        public final static String bgcolor_default = bgcolor_black;
         public final static String bgcolor_trans = "rgba(255,255,255,0)";
         public final static String size_256 = "256x256";
         public final static String size_64 = "64x64";

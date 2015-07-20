@@ -305,7 +305,7 @@ define(function (require, exports, module) {
                 }
             };
             // 采用父 UI 的字符串
-            if(".." == ME.$ui.i18n){
+            if (".." == ME.$ui.i18n) {
                 callback(ME.parent._msg_map);
             }
             // 采用自己的字符串
@@ -321,30 +321,30 @@ define(function (require, exports, module) {
         // 修改 UI 的大小
         resize: function () {
             var ME = this;
-            
+
             // 需要调整自身，适应父大小
             var fp = this.options.fitparent;
-            if(typeof fp == "undefined" || fp == true) {
+            if (fp == true) {
                 // 调整自身的顶级元素
                 var w, h;
-                if(this.pel === document.body){
+                if (this.pel === document.body) {
                     var winsz = $z.winsz();
                     w = winsz.width;
                     h = winsz.height;
-                }else{
+                } else {
                     w = ME.$pel.width();
                     h = ME.$pel.height();
                 }
-                ME.$el.css({"width":w, "height":h});
+                ME.$el.css({"width": w, "height": h});
 
                 // 有时候，初始化的时候已经将自身加入父UI的gasket
                 // 父 UI resize 的时候会同时 resize 子
                 // 但是自己这时候还没有初始化完 DOM (异步加载)
                 // 那么自己的 arena 就是未定义，因此不能继续执行 resize
-                if(ME.arena){
+                if (ME.arena) {
                     var w2 = ME.$el.width();
                     var h2 = ME.$el.height();
-                    ME.arena.css({"width":w2, "height":h2});
+                    ME.arena.css({"width": w2, "height": h2});
 
                     // 调用自身的 resize
                     $z.invoke(ME.$ui, "resize", [], ME);
@@ -355,7 +355,7 @@ define(function (require, exports, module) {
                         if (sub && sub.ui) {
                             sub.ui.resize();
                         }
-                    } 
+                    }
                 }
             }
         },
@@ -423,12 +423,12 @@ define(function (require, exports, module) {
         msg: function (key, ctx) {
             var re = this._msg_map;
             var ks = key.split(".");
-            for(var i=0;i<ks.length;i++){
+            for (var i = 0; i < ks.length; i++) {
                 re = re[ks[i]];
-                if(!re) return key;
+                if (!re) return key;
             }
             // 需要解析
-            if(typeof ctx == "object") {
+            if (typeof ctx == "object") {
                 re = (_.template(re))(ctx);
             }
             return re;

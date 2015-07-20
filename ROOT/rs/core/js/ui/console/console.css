@@ -1,14 +1,24 @@
-body.zui-app-wn_console { background: #000; margin:0; }
-.ui-console {background: #000; color: #CCC; }
+body.zui-app-wn_console {
+    background: #000;
+    margin: 0;
+}
 
-.ui-console>.ui-arena {
-    width:100%; height:100%; overflow-x: hidden; overflow-y: scroll;
-    padding:10px;
+.ui-console {
+    background: #000;
+    color: #CCC;
+}
+
+.ui-console > .ui-arena {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    padding: 10px;
 }
 
 .ui-console *, .ui-console input.ui-console-inbox {
     font-family: Monaco, Consolas, Courier New;
-    font-size: 13px; -webkit-font-smoothing: auto;
+    font-size: 13px;
+    -webkit-font-smoothing: auto;
 }
 
 .ui-console-block {

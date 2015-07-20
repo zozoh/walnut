@@ -12,6 +12,8 @@ import org.nutz.mvc.annotation.Param;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 
+import com.dnet.strato.videoconv.VideoConvState;
+
 /**
  * 为obj对象提供预览功能
  *
@@ -27,7 +29,7 @@ import org.nutz.walnut.util.Wn;
  *
  */
 @IocBean
-@At("/preview")
+@At("/p")
 public class PreviewModule extends AbstractWnModule {
 
     /**
@@ -142,8 +144,41 @@ public class PreviewModule extends AbstractWnModule {
     }
 
     @At("/video")
-    public Object getPreviewVideo(@Param("obj") String obj) {
+    @Ok("raw")
+    public Object getPreviewVideo(@Param("obj") String obj, HttpServletResponse resp) {
+        WnObj tobj = null;
+        // 找到obj对象
+        if (obj.indexOf("/") != -1) {
+            tobj = io.fetch(null, obj);
+        } else {
+            tobj = io.get(obj);
+        }
+        if (tobj != null && VideoConvState.done.equals(tobj.getString("vcp_state"))) {
+            String pvpath = previewVideoPath(tobj);
+            WnObj pvobj = io.fetch(null, pvpath);
+            if (pvobj != null) {
+                try {
+                    String fnm = tobj.name() + "_preview." + pvobj.type();
+                    String encode = new String(fnm.getBytes("UTF-8"), "ISO8859-1");
+                    resp.setHeader("Content-Disposition", "attachment; filename=" + encode);
+                    resp.setHeader("Content-Type", pvobj.mime());
+                }
+                catch (Exception e) {}
+                return new File(io.getRealPath(pvobj));
+            }
+        }
         return null;
+    }
+
+    private String previewVideoPath(WnObj obj) {
+        String d0 = obj.d0();
+        String d1 = obj.d1();
+        String dir = "/sha1/" + obj.sha1() + "/preview.mp4";
+        if ("root".equals(d0)) {
+            return "/root/.preview_video" + dir;
+        } else {
+            return "/" + d0 + "/" + d1 + "/.preview_video" + dir;
+        }
     }
 
 }
