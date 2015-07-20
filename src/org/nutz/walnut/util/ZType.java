@@ -25,7 +25,6 @@ public class ZType {
     // tp -> [cate, cate, cate]
     public static Map<String, Set<String>> tp2catelist = new HashMap<String, Set<String>>();
 
-    @SuppressWarnings("unchecked")
     public static void loadCategory(PropertiesProxy cgpp) {
         synchronized (cate2tplist) {
             StringBuilder sb = new StringBuilder();
