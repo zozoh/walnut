@@ -37,7 +37,7 @@ public class ZType {
                     tplist = new HashSet<String>();
                     cate2tplist.put(cg, tplist);
                 }
-                sb.append(Strings.join(",", cgpp.getList(cg))).append("\n");
+                sb.append(Strings.join(",", cgpp.getList(cg).toArray())).append("\n");
                 for (String tp : cgpp.getList(cg)) {
                     tplist.add(tp);
                     // catelist
