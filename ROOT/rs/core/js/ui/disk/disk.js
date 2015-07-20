@@ -123,7 +123,7 @@ define(function (require, exports, module) {
             this.listenModel("show:end", this.on_show_end);
         },
         redraw: function () {
-            var cobj = _app.obj !== undefined ? getObj(_app.obj.id) : getObjPath(_app.session.envs["PWD"]);
+            var cobj = _app.obj !== undefined ? getObj(_app.obj.id) : getObjPath(_app.session.envs["HOME"]);
             this._root_obj = cobj;
             this.open_file(cobj);
             this.model.set(WOList, []);

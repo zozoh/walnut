@@ -6,7 +6,8 @@ define(function (require, exports, module) {
     function init() {
         new UI({
             $pel: $(document.body),
-            model: new Mod(window._app)
+            model: new Mod(window._app),
+            fitself: true
         }).render();
     }
 
