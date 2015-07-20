@@ -327,9 +327,12 @@ define(function (require, exports, module) {
             // 但是自己这时候还没有初始化完 DOM (异步加载)
             // 那么自己的 arena 就是未定义，因此不能继续执行 resize
             if (ME.arena) {
+                console.log(ME.options.fitparent === true, ME.arena.attr("ui-fitparent"))
                 // 需要调整自身，适应父大小
-                if (ME.options.fitparent == true || ME.arena.attr("ui-fitparent")) {
+                if (ME.options.fitparent === true 
+                    || (ME.options.fitparent !== false && ME.arena.attr("ui-fitparent"))) {
                     // 调整自身的顶级元素
+                    console.log("resize", ME.$el)
                     var w, h;
                     if (this.pel === document.body) {
                         var winsz = $z.winsz();
