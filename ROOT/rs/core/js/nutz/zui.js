@@ -322,39 +322,38 @@ define(function (require, exports, module) {
         resize: function () {
             var ME = this;
 
-            // 需要调整自身，适应父大小
-            var fp = this.options.fitparent;
-            if (fp == true) {
-                // 调整自身的顶级元素
-                var w, h;
-                if (this.pel === document.body) {
-                    var winsz = $z.winsz();
-                    w = winsz.width;
-                    h = winsz.height;
-                } else {
-                    w = ME.$pel.width();
-                    h = ME.$pel.height();
+            // 有时候，初始化的时候已经将自身加入父UI的gasket
+            // 父 UI resize 的时候会同时 resize 子
+            // 但是自己这时候还没有初始化完 DOM (异步加载)
+            // 那么自己的 arena 就是未定义，因此不能继续执行 resize
+            if (ME.arena) {
+                // 需要调整自身，适应父大小
+                if (ME.options.fitparent == true || ME.arena.attr("ui-fitparent")) {
+                    // 调整自身的顶级元素
+                    var w, h;
+                    if (this.pel === document.body) {
+                        var winsz = $z.winsz();
+                        w = winsz.width;
+                        h = winsz.height;
+                    } else {
+                        w = ME.$pel.width();
+                        h = ME.$pel.height();
+                    }
+                    ME.$el.css({"width": w, "height": h});
                 }
-                ME.$el.css({"width": w, "height": h});
 
-                // 有时候，初始化的时候已经将自身加入父UI的gasket
-                // 父 UI resize 的时候会同时 resize 子
-                // 但是自己这时候还没有初始化完 DOM (异步加载)
-                // 那么自己的 arena 就是未定义，因此不能继续执行 resize
-                if (ME.arena) {
-                    var w2 = ME.$el.width();
-                    var h2 = ME.$el.height();
-                    ME.arena.css({"width": w2, "height": h2});
+                var w2 = ME.$el.width();
+                var h2 = ME.$el.height();
+                ME.arena.css({"width": w2, "height": h2});
 
-                    // 调用自身的 resize
-                    $z.invoke(ME.$ui, "resize", [], ME);
+                // 调用自身的 resize
+                $z.invoke(ME.$ui, "resize", [], ME);
 
-                    // 调用自身所有的子 UI 的 resize
-                    for (var key in ME.gasket) {
-                        var sub = ME.gasket[key];
-                        if (sub && sub.ui) {
-                            sub.ui.resize();
-                        }
+                // 调用自身所有的子 UI 的 resize
+                for (var key in ME.gasket) {
+                    var sub = ME.gasket[key];
+                    if (sub && sub.ui) {
+                        sub.ui.resize();
                     }
                 }
             }
