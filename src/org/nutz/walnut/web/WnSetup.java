@@ -109,9 +109,7 @@ public class WnSetup implements Setup {
             }
         }
 
-        // 最后加载所有的扩展 Setup
-        __load_init_setups(conf);
-
+        // 添加默认缩略图
         // etc/thumbnail
         WnObj thumbnailDir = io.createIfNoExists(null, "/etc/thumbnail/", WnRace.DIR);
         MimeMap mimes = ioc.get(MimeMap.class, "mimes");
@@ -126,11 +124,14 @@ public class WnSetup implements Setup {
                     continue;
                 }
             }
-            createDefaultThumbnail(io, se, thumbnailDir, tp);
+            createDefaultThumbnail(io, se, thumbnailDir, tp, resetThumbnail);
         }
         // 非mime类型
-        createDefaultThumbnail(io, se, thumbnailDir, "folder");
-        createDefaultThumbnail(io, se, thumbnailDir, "unknow");
+        createDefaultThumbnail(io, se, thumbnailDir, "folder", resetThumbnail);
+        createDefaultThumbnail(io, se, thumbnailDir, "unknow", resetThumbnail);
+
+        // 最后加载所有的扩展 Setup
+        __load_init_setups(conf);
 
         // 调用扩展的 Setup
         for (Setup setup : setups)
@@ -138,7 +139,11 @@ public class WnSetup implements Setup {
 
     }
 
-    private void createDefaultThumbnail(WnIo io, WnSession se, WnObj pdir, String tp) {
+    private void createDefaultThumbnail(WnIo io,
+                                        WnSession se,
+                                        WnObj pdir,
+                                        String tp,
+                                        boolean reset) {
         WnObj tpDir = io.createIfNoExists(pdir, tp, WnRace.DIR);
         try {
             // copy对应的图片过去
@@ -149,10 +154,12 @@ public class WnSetup implements Setup {
                 WnObj s256 = io.createIfNoExists(tpDir,
                                                  Wn.thumbnail.size_256 + ".png",
                                                  WnRace.FILE);
-                io.writeAndClose(s256, Streams.fileIn(tpf));
-                createThunbnail(se, tpDir, s256, Wn.thumbnail.size_64);
-                createThunbnail(se, tpDir, s256, Wn.thumbnail.size_24);
-                createThunbnail(se, tpDir, s256, Wn.thumbnail.size_16);
+                if (s256.len() == 0 || reset) {
+                    io.writeAndClose(s256, Streams.fileIn(tpf));
+                    createThunbnail(se, tpDir, s256, Wn.thumbnail.size_64);
+                    createThunbnail(se, tpDir, s256, Wn.thumbnail.size_24);
+                    createThunbnail(se, tpDir, s256, Wn.thumbnail.size_16);
+                }
             }
         }
         catch (Exception e) {}
