@@ -62,11 +62,27 @@ public class WnSetup implements Setup {
         // 尝试看看组装的结果
         WnIo io = ioc.get(WnIo.class, "io");
 
-        // WnRun
-        wnRun = ioc.get(WnRun.class, "wnRun");
-
         // 下面所有的操作都是 root 权限的
         Wn.WC().me("root", "root");
+
+        // 看看初始的 mount 是否被加载
+        for (WnInitMount wim : conf.getInitMount()) {
+            WnObj o = io.createIfNoExists(null, wim.path, WnRace.DIR);
+            // 添加
+            if (Strings.isBlank(o.mount())) {
+                io.setMount(o, wim.mount);
+                log.infof("++ mount : %s > %s", wim.path, wim.mount);
+            }
+            // 修改
+            else if (!wim.mount.equals(o.mount())) {
+                io.setMount(o, wim.mount);
+                log.infof(">> mount : %s > %s", wim.path, wim.mount);
+            }
+            // 维持不变
+            else {
+                log.infof("== mount : %s > %s", wim.path, wim.mount);
+            }
+        }
 
         // 确保有 ROOT 用户
         WnUsrService usrs = ioc.get(WnUsrService.class, "usrService");
@@ -90,27 +106,12 @@ public class WnSetup implements Setup {
             }
         });
 
-        // 看看初始的 mount 是否被加载
-        for (WnInitMount wim : conf.getInitMount()) {
-            WnObj o = io.createIfNoExists(null, wim.path, WnRace.DIR);
-            // 添加
-            if (Strings.isBlank(o.mount())) {
-                io.setMount(o, wim.mount);
-                log.infof("++ mount : %s > %s", wim.path, wim.mount);
-            }
-            // 修改
-            else if (!wim.mount.equals(o.mount())) {
-                io.setMount(o, wim.mount);
-                log.infof(">> mount : %s > %s", wim.path, wim.mount);
-            }
-            // 维持不变
-            else {
-                log.infof("== mount : %s > %s", wim.path, wim.mount);
-            }
-        }
+        // 最后加载所有的扩展 Setup
+        __load_init_setups(conf);
 
-        // 添加默认缩略图
         // etc/thumbnail
+        // WnRun
+        wnRun = ioc.get(WnRun.class, "wnRun");
         WnObj thumbnailDir = io.createIfNoExists(null, "/etc/thumbnail/", WnRace.DIR);
         MimeMap mimes = ioc.get(MimeMap.class, "mimes");
         boolean resetThumbnail = conf.getBoolean("reset-thumbnail", false);
