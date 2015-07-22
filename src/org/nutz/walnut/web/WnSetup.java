@@ -128,7 +128,8 @@ public class WnSetup implements Setup {
             }
             createDefaultThumbnail(io, se, thumbnailDir, tp);
         }
-        // 未知类型
+        // 非mime类型
+        createDefaultThumbnail(io, se, thumbnailDir, "folder");
         createDefaultThumbnail(io, se, thumbnailDir, "unknow");
 
         // 调用扩展的 Setup

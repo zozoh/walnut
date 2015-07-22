@@ -7,6 +7,31 @@ define(function (require, exports, module) {
         this.render_project_tasks(pinfo);
     }
 
+    function getObj(id) {
+        return $http.syncGet("/o/get/id:" + id).data;
+    }
+
+    function on_click_task(e) {
+        var id = $(e.currentTarget).attr('oid');
+        window._app.obj = getObj(id);
+        // 修改当前
+        seajs.use(['ui/mask/mask', 'ui/wedit/wedit', 'wn/walnut.obj'], function (Mask, wedit, wobj) {
+            new Mask({
+                closer: true,
+                escape: true,
+                onclose: function () {
+                    // TODO reload
+                }
+            }).render(function () {
+                    new wedit({
+                        $el: this.arena,
+                        model: new wobj(window._app),
+                        fitparent: true
+                    }).render();
+                });
+        });
+    }
+
     module.exports = ZUI.def("ext.project", {
         dom: "ext/project/project.html",
         css: "ext/project/project.css",
@@ -25,7 +50,8 @@ define(function (require, exports, module) {
         resize: function () {
         },
         events: {
-            'click .project-tabs.md-tab-group li': on_click_project
+            'click .project-tabs.md-tab-group li': on_click_project,
+            'click .task-name': on_click_task
         },
         on_show_end: function () {
             this.render_project(this._old_s);
@@ -82,11 +108,12 @@ define(function (require, exports, module) {
                 for (var i = 0; i < tasks.length; i++) {
                     var pt = tasks[i];
                     var $ptask = this.ccode('project-task-tmpl');
-                    $ptask.find('.task-name').html(pt.name);
+                    $ptask.find('.task-name').html(pt.name).attr("oid", pt.id);
                     $ptask.find('.task-description').html(pt.description);
                     $ptask.find('.task-priority span').html(pt.priority);
                     $ptask.find('.task-level span').html(pt.level);
-                    $ptask.find('.task-progress span').html(pt.progress);
+                    $ptask.find('.task-progress .task-progress-tip').html(pt.progress + "%");
+                    $ptask.find('.task-progress .task-progress-bar').css('width', pt.progress + "%");
                     $ptask.find('.dl').html(pt.deadline);
                     $ptask.find('.dl-left span').html(pt.leftDays);
                     $ul.append($ptask);

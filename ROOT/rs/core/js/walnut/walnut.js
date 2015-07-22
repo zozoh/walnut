@@ -74,6 +74,8 @@ define(function (require, exports, module) {
             oReq._last = 0;
             oReq._content = "";
             oReq._moss = [];
+            oReq._moss_str = "";
+            qReq._moss_ing = false;
             oReq._show_msg = function () {
                 oReq.responseText = "hello world";
                 var str = oReq.responseText.substring(oReq._last);
@@ -81,20 +83,26 @@ define(function (require, exports, module) {
                 //console.log("### str: " + str);
                 // 是不是到了元数据输出的部分了
                 var pos = str.indexOf(mosHead);
+                var tailpos = str.indexOf(mosTail);
                 //console.log("### pos:" + pos);
                 if (pos >= 0) {
                     var from = pos + mosHead.length;
                     var pl = str.indexOf("\n", from);
-                    var pr = str.indexOf(mosTail, pl);
-                    oReq._moss.push({
-                        type: str.substring(from, pl),
-                        content: str.substring(pl + 1, pr)
-                    });
+                    var pr;
+                    if (tailpos >= 0) {
+                        pr = str.indexOf(mosTail, pl);
+                        oReq._moss.push({
+                            type: str.substring(from, pl),
+                            content: str.substring(pl + 1, pr)
+                        });
+                    } else {
+                        pr = str.length;
+                        oReq._moss_tmp = {
+                            type: str.substring(from, pl),
+                            content: str.substring(pl + 1, pr)
+                        };
+                    }
                     str = str.substring(0, pos);
-                    // for(var i=0;i<oReq._moss.length;i++){
-                    //     console.log("type:[" + oReq._moss[i].type+"]");
-                    //     console.log("content:\n" + oReq._moss[i].content);
-                    // }
                 }
                 // 累计 Content
                 oReq._content += str;
@@ -129,12 +137,12 @@ define(function (require, exports, module) {
                     Mod.trigger("show:end");
                     // 一个回调处理所有的情况
                     if (typeof callback == "function") {
-                        callback = {complete : callback};
+                        callback = {complete: callback};
                     }
                     // 对象 {done:..., fail:xxxx}
                     // 成功
                     if (oReq.status == 200) {
-                        if (typeof callback.done == "function") 
+                        if (typeof callback.done == "function")
                             callback.done.call(Mod, oReq._content);
 
                         if (typeof callback.complete == "function")
@@ -144,7 +152,7 @@ define(function (require, exports, module) {
                     else {
                         if (typeof callback.fail == "function")
                             callback.fail.call(Mod, oReq._content);
-                        
+
                         if (typeof callback.complete == "function")
                             callback.complete.call(Mod, oReq._content, "fail");
                     }

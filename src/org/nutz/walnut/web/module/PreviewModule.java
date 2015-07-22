@@ -10,6 +10,7 @@ import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 
 /**
@@ -58,19 +59,20 @@ public class PreviewModule extends AbstractWnModule {
         } else {
             tobj = io.get(obj);
         }
+        String dtp = tobj.race().equals(WnRace.DIR) ? "folder" : tobj.type().toLowerCase();
         // 查找对应的缩略图对象
         pdir = io.fetch(null, thumbnailPath(tobj, true)); // id
         if (pdir == null) {
             pdir = io.fetch(null, thumbnailPath(tobj, false)); // sha1
             if (pdir == null) {
                 // 没有的话返回默认缩略图
-                return getDefaultPreviewThumbnail(tobj.type(), size, resp);
+                return getDefaultPreviewThumbnail(dtp, size, resp);
             }
         }
         // 找到了目錄
         re = getThumbnailObj(pdir, size);
         if (re == null) {
-            return getDefaultPreviewThumbnail(tobj.type(), size, resp);
+            return getDefaultPreviewThumbnail(dtp, size, resp);
         }
         try {
             String fnm = tobj.name() + "_" + size + "." + re.type();

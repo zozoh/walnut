@@ -81,6 +81,11 @@
       overflow: hidden;
       text-overflow: ellipsis;
       font-size: 1.1em;
+
+      &:hover {
+        text-decoration: underline;
+        cursor: pointer;
+      }
     }
 
     .task-detail {
@@ -108,6 +113,8 @@
 
     }
 
+    @progress-color: rgba(0, 128, 0, 0.9);
+
     .task-progress {
       float: left;
       width: 20%;
@@ -115,6 +122,29 @@
       height: @task-h;
       padding: 0 2px;
       text-align: center;
+      position: relative;
+      border: 1px solid @progress-color;
+      border-radius: 2px;
+
+      .task-progress-tip {
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        font-size: 1.2em;
+        color: @accent-2-color;
+      }
+
+      .task-progress-bar {
+        width: 100%;
+        height: 100%;
+        background: @progress-color;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
     }
 
     .dead-line {
