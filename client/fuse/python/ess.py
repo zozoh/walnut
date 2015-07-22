@@ -14,18 +14,12 @@ class ESS(LoggingMixIn, Operations):
     
     '''
 
-    def __init__(self, host="127.0.0.1", port=8080, user="root", password="123456"):
+    def __init__(self, seid, host="127.0.0.1", port=8080):
+    	self.seid = seid
         self.host = host
         self.port = port
-        self.user = user
-        self.password = password
         self.session = requests.Session()
-        self.session.auth = (user, password)
-        resp = self._get("getattr", dict(path="/root"))
-        if resp.status_code != 200 :
-            raise FuseOSError(EACCES)
-        resp.close()
-        print resp.cookies
+        self.session.headers.update({"SEID":seid})
         
     def _url(self, uri):
         return "http://%s:%d/fuse/%s" % (self.host, self.port, uri)
@@ -94,9 +88,9 @@ class ESS(LoggingMixIn, Operations):
         with closing(self._get("rmdir", dict(path=path))) as resp :
             return 0
 
-    def symlink(self, source, target):
-        with closing(self._get("symlink", dict(target=target, source=source))) as resp :
-            return 0
+    #def symlink(self, source, target):
+    #    with closing(self._get("symlink", dict(target=target, source=source))) as resp :
+    #        return 0
 
     def truncate(self, path, length, fh=None):
         with closing(self._get("truncate", dict(path=path, length=length))) as resp :
@@ -123,10 +117,10 @@ if __name__ == '__main__':
     import sys
     argv = sys.argv
     if len(argv) != 6:
-        print('usage: %s <host> <port> <user> <password> <mountpoint>' % argv[0])
+        print('usage: %s <seid> <host> <port> <mountpoint>' % argv[0])
         exit(1)
     import  logging
     logging.basicConfig(filename='ess.log',level=logging.INFO)
-    fuse = FUSE(ESS(argv[1], int(argv[2]), argv[3], argv[4]), argv[5], foreground=True)
+    fuse = FUSE(ESS(argv[1], argv[2], int(argv[3])), argv[4], foreground=True)
     
     
