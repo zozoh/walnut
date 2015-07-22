@@ -23,8 +23,10 @@ define(function (require, exports, module) {
                     // TODO reload
                 }
             }).render(function () {
+                    var uiMask = this;
                     new wedit({
-                        $el: this.arena,
+                        gasketName: "main",
+                        parent: uiMask,
                         model: new wobj(window._app),
                         fitparent: true
                     }).render();
