@@ -10,6 +10,7 @@ import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 
 /**
@@ -58,19 +59,20 @@ public class PreviewModule extends AbstractWnModule {
         } else {
             tobj = io.get(obj);
         }
+        String dtp = tobj.race().equals(WnRace.DIR) ? "folder" : tobj.type().toLowerCase();
         // 查找对应的缩略图对象
         pdir = io.fetch(null, thumbnailPath(tobj, true)); // id
         if (pdir == null) {
             pdir = io.fetch(null, thumbnailPath(tobj, false)); // sha1
             if (pdir == null) {
                 // 没有的话返回默认缩略图
-                return getDefaultPreviewThumbnail(tobj.type(), size, resp);
+                return getDefaultPreviewThumbnail(dtp, size, resp);
             }
         }
         // 找到了目錄
         re = getThumbnailObj(pdir, size);
         if (re == null) {
-            return getDefaultPreviewThumbnail(tobj.type(), size, resp);
+            return getDefaultPreviewThumbnail(dtp, size, resp);
         }
         try {
             String fnm = tobj.name() + "_" + size + "." + re.type();
@@ -95,9 +97,9 @@ public class PreviewModule extends AbstractWnModule {
 
     @At("/default/thumbnail")
     @Ok("raw")
-    private Object getDefaultPreviewThumbnail(@Param("tp") String tp,
-                                              @Param("size") int size,
-                                              HttpServletResponse resp) {
+    public Object getDefaultPreviewThumbnail(@Param("tp") String tp,
+                                             @Param("size") int size,
+                                             HttpServletResponse resp) {
         WnObj re = null;
         WnObj etpdir = io.fetch(null, "/etc/thumbnail");
         WnObj pdir = io.fetch(etpdir, tp);
@@ -106,7 +108,7 @@ public class PreviewModule extends AbstractWnModule {
         }
         // 返回unknow類型
         if (re == null) {
-            re = getThumbnailObj(io.fetch(etpdir, "know"), size);
+            re = getThumbnailObj(io.fetch(etpdir, "unknow"), size);
         }
         if (re == null) {
             throw Lang.impossible();

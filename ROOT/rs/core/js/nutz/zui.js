@@ -322,13 +322,19 @@ define(function (require, exports, module) {
         resize: function () {
             var ME = this;
 
+            // 如果是选择自适应
+            if (ME.options.fitself) {
+                return;
+            }
+
             // 有时候，初始化的时候已经将自身加入父UI的gasket
             // 父 UI resize 的时候会同时 resize 子
             // 但是自己这时候还没有初始化完 DOM (异步加载)
             // 那么自己的 arena 就是未定义，因此不能继续执行 resize
             if (ME.arena) {
+
                 // 需要调整自身，适应父大小
-                if (ME.options.fitparent === true 
+                if (ME.options.fitparent === true
                     || (ME.options.fitparent !== false && ME.arena.attr("ui-fitparent"))) {
                     // 调整自身的顶级元素
                     var w, h;

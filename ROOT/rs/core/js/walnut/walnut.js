@@ -74,15 +74,15 @@ define(function (require, exports, module) {
             oReq._last = 0;
             oReq._content = "";
             oReq._moss = [];
+            oReq._moss_tp = "";
+            oReq._moss_str = "";
             oReq._show_msg = function () {
-                oReq.responseText = "hello world";
                 var str = oReq.responseText.substring(oReq._last);
                 oReq._last += str.length;
-                //console.log("### str: " + str);
-                // 是不是到了元数据输出的部分了
                 var pos = str.indexOf(mosHead);
-                //console.log("### pos:" + pos);
-                if (pos >= 0) {
+                var tailpos = str.indexOf(mosTail);
+                // 发现完整的mos
+                if (pos >= 0 && tailpos >= 0) {
                     var from = pos + mosHead.length;
                     var pl = str.indexOf("\n", from);
                     var pr = str.indexOf(mosTail, pl);
@@ -91,10 +91,25 @@ define(function (require, exports, module) {
                         content: str.substring(pl + 1, pr)
                     });
                     str = str.substring(0, pos);
-                    // for(var i=0;i<oReq._moss.length;i++){
-                    //     console.log("type:[" + oReq._moss[i].type+"]");
-                    //     console.log("content:\n" + oReq._moss[i].content);
-                    // }
+                }
+                // 发现开头
+                else if (pos >= 0 && tailpos < 0) {
+                    var from = pos + mosHead.length;
+                    var pl = str.indexOf("\n", from);
+                    oReq._moss_tp = str.substring(from, pl);
+                    oReq._moss_str = str.substring(pl + 1);
+                    str = str.substring(0, pos);
+                }
+                // 发现结尾
+                else if (pos < 0 && tailpos >= 0) {
+                    oReq._moss_str += str.substr(0, tailpos);
+                    oReq._moss.push({
+                        type: oReq._moss_tp,
+                        content: oReq._moss_str
+                    });
+                    oReq._moss_tp = "";
+                    oReq._moss_str = "";
+                    str = str.substring(tailpos + mosTail.length + 1);
                 }
                 // 累计 Content
                 oReq._content += str;
@@ -129,12 +144,12 @@ define(function (require, exports, module) {
                     Mod.trigger("show:end");
                     // 一个回调处理所有的情况
                     if (typeof callback == "function") {
-                        callback = {complete : callback};
+                        callback = {complete: callback};
                     }
                     // 对象 {done:..., fail:xxxx}
                     // 成功
                     if (oReq.status == 200) {
-                        if (typeof callback.done == "function") 
+                        if (typeof callback.done == "function")
                             callback.done.call(Mod, oReq._content);
 
                         if (typeof callback.complete == "function")
@@ -144,7 +159,7 @@ define(function (require, exports, module) {
                     else {
                         if (typeof callback.fail == "function")
                             callback.fail.call(Mod, oReq._content);
-                        
+
                         if (typeof callback.complete == "function")
                             callback.complete.call(Mod, oReq._content, "fail");
                     }

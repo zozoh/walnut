@@ -71,6 +71,7 @@ public class cmd_myproject extends JvmExecutor {
                             if (tjson == null) {
                                 return;
                             }
+                            tjson.put("id", task.id());
                             tjson.put("name", task.name());
                             if (tjson.containsKey("progress")) {
                                 progress = (int) tjson.get("progress");
