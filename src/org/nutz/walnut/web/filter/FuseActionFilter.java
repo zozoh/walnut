@@ -1,10 +1,13 @@
 package org.nutz.walnut.web.filter;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.nutz.ioc.Ioc;
+import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.ActionFilter;
 import org.nutz.mvc.View;
-import org.nutz.mvc.view.ServerRedirectView;
+import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.hook.WnHookContext;
@@ -17,15 +20,10 @@ import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
-/**
- * 如果 TL 设置了 SessionId，将其取出，并且如果 Session 过期，则抛错
- * 
- * @author zozoh(zozohtnt@gmail.com)
- */
-public class WnCheckSession implements ActionFilter {
+// TODO 与WnCheckSession合并
+@IocBean
+public class FuseActionFilter implements ActionFilter {
     
-    protected boolean needSession;
-
     @Override
     public View match(ActionContext ac) {
 
@@ -38,6 +36,9 @@ public class WnCheckSession implements ActionFilter {
         WnSession se = null;
         if (seid != null) {
             se = sess.fetch(seid);
+        } else {
+            // 不允许新建
+            return HttpStatusView.HTTP_502;
         }
         if (se != null) {
             sess.touch(se.id());
@@ -66,11 +67,25 @@ public class WnCheckSession implements ActionFilter {
             hc.service = ioc.get(WnHookService.class, "hookService");
 
             wc.setHookContext(hc);
+            
+            String path = ac.getPath();
+            if (!path.endsWith("mkdir") && !path.endsWith("create")) {
+                HttpServletRequest req = ac.getRequest();
+                if (req.getParameter("path") != null) {
+                    if (io.fetch(null, req.getParameter("path")) == null)
+                        return HttpStatusView.HTTP_404;
+                }
+                if (req.getParameter("source") != null) {
+                    if (io.fetch(null, req.getParameter("source")) == null)
+                        return HttpStatusView.HTTP_404;
+                }
 
+            }
             // 返回空，继续下面的逻辑
             return null;
         } else {
-            return new ServerRedirectView("/");
+            // 必须存在
+            return HttpStatusView.HTTP_502;
         }
 
     }
