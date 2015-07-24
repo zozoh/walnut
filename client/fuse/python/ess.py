@@ -26,7 +26,7 @@ class ESS(LoggingMixIn, Operations):
         
     def _get(self, uri, params, do_print=True):
         print self._url(uri), params
-        resp = self.session.get(self._url(uri), params=params)
+        resp = self.session.get(self._url(uri), params=params, headers={"Cookie":"SEID="+self.seid})
         if do_print :
             print "resp", resp.status_code, len(resp.content)
         if resp.status_code == 404 :
@@ -77,8 +77,8 @@ class ESS(LoggingMixIn, Operations):
         with closing(self._get("readdir", dict(path=path))) as resp :
             return resp.json()
 
-    #def readlink(self, path):
-    #    return self.sftp.readlink(path)
+    def readlink(self, path):
+        return self.sftp.readlink(path)
 
     def rename(self, source, target):
         with closing(self._get("rename", dict(source=source, target=target))) as resp :
@@ -95,19 +95,18 @@ class ESS(LoggingMixIn, Operations):
     def truncate(self, path, length, fh=None):
         with closing(self._get("truncate", dict(path=path, length=length))) as resp :
             pass
-        #return 0
+        return 0
 
     def unlink(self, path):
         with closing(self._get("unlink", dict(path=path))) as resp :
             return 0
 
-    def utimens(self, path, times=None):
-        pass
-        #return self._get("utimens", dict(path=path)).json()
+    #def utimens(self, path, times=None):
+    #    return self._get("utimens", dict(path=path)).json()
 
     def write(self, path, data, offset, fh):
         URI = "write?offset=%d&size=%d&path=%s" % (offset, len(data), path)
-        headers = {"content-type":"application/octet-stream"}
+        headers = {"content-type":"application/octet-stream", "Cookie":"SEID=" + self.seid}
         with closing(self.session.post(self._url(URI), data=data, headers=headers)) as resp :
             if resp.status_code == 200:
                 return resp.json()
@@ -116,11 +115,11 @@ class ESS(LoggingMixIn, Operations):
 if __name__ == '__main__':
     import sys
     argv = sys.argv
-    if len(argv) != 6:
+    if len(argv) != 5:
         print('usage: %s <seid> <host> <port> <mountpoint>' % argv[0])
         exit(1)
     import  logging
     logging.basicConfig(filename='ess.log',level=logging.INFO)
-    fuse = FUSE(ESS(argv[1], argv[2], int(argv[3])), argv[4], foreground=True)
+    fuse = FUSE(ESS(argv[1], argv[2], int(argv[3])), argv[4], foreground=1, debug=1)
     
     

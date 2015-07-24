@@ -23,7 +23,7 @@ import org.nutz.walnut.util.WnContext;
 // TODO 与WnCheckSession合并
 @IocBean
 public class FuseActionFilter implements ActionFilter {
-    
+
     @Override
     public View match(ActionContext ac) {
 
@@ -67,7 +67,7 @@ public class FuseActionFilter implements ActionFilter {
             hc.service = ioc.get(WnHookService.class, "hookService");
 
             wc.setHookContext(hc);
-            
+
             String path = ac.getPath();
             if (!path.endsWith("mkdir") && !path.endsWith("create")) {
                 HttpServletRequest req = ac.getRequest();
