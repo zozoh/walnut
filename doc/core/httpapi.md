@@ -78,12 +78,46 @@ $HOME
 
 系统启动一个进程，执行命令，并将返回写回到请求的响应体里。
 
-# 命令的返回
+# 指定响应头
 
 通常的，你的命令执行结果会被当做  `text/plain; charset=utf-8`。
 但是如果你需要返回一个指定的 `Content-Type` 的时候，你可以为你的
 API 注册文件添加一些元数据，用来指定 HTTP Response 的 Header:
 
-    http-header-CONTENT-TYPE : "image/png"
+    http-header-Content-Type : "image/png"
 
 API 注册文件的属性列表中，任何 `http-header-` 开头的属性会被当做响应的请求头。
+后面响应头的键会被转成全大写，写回响应
+
+**注意**
+
+> `http-header-Content-Type` 会导致添加响应的 HTTP 头 "Content-Type"。
+> 但是如果你分别设置了 `http-header-Content-Type` 和 `http-header-CONTENT-TYPE` 
+> 因为系统执行是大小写敏感的，这两个信息会分别添加，那么可能会导致不符合你预期的结果。
+> 因此你最好统一你的 HTTP 头书写方式
+
+# 客户端决定响应内容类型
+
+请求如果带有特殊的参数 `resp-mime`，则表示客户端指定了响应的类型。
+这个设定会比在命令执行文件里添加 `http-header-Content-Type` 还要优先
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
