@@ -13,6 +13,7 @@ import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
@@ -72,12 +73,16 @@ public class FuseActionFilter implements ActionFilter {
             if (!path.endsWith("mkdir") && !path.endsWith("create")) {
                 HttpServletRequest req = ac.getRequest();
                 if (req.getParameter("path") != null) {
-                    if (io.fetch(null, req.getParameter("path")) == null)
+                    WnObj obj = io.fetch(null, req.getParameter("path"));
+                    if (obj == null)
                         return HttpStatusView.HTTP_404;
+                    req.setAttribute("fuse_obj", obj);
                 }
                 if (req.getParameter("source") != null) {
-                    if (io.fetch(null, req.getParameter("source")) == null)
+                    WnObj obj = io.fetch(null, req.getParameter("source"));
+                    if (obj == null)
                         return HttpStatusView.HTTP_404;
+                    req.setAttribute("fuse_obj", obj);
                 }
 
             }

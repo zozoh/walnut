@@ -16,6 +16,7 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
@@ -43,7 +44,7 @@ public class FuseModule extends AbstractWnModule {
 
     @At
     public void link(@Param("source") String source, @Param("target") String target) {
-        WnObj s = io.check(null, source);
+        WnObj s = _obj();
         WnObj t = io.create(null, target, WnRace.FILE);
         io.writeAndClose(t, io.getInputStream(s, 0));
     }
@@ -61,7 +62,7 @@ public class FuseModule extends AbstractWnModule {
                      HttpServletResponse resp) throws IOException {
         if (log.isDebugEnabled())
             log.debugf("path=%s, size=%s, offset=%s", path, size, offset);
-        InputStream in = io.getInputStream(io.check(null, path), offset);
+        InputStream in = io.getInputStream(_obj(), offset);
         OutputStream out = resp.getOutputStream();
         byte[] buf = new byte[16 * 1024];
         int len = 0;
@@ -84,7 +85,7 @@ public class FuseModule extends AbstractWnModule {
     @At
     @Ok("json")
     public NutMap getattr(@Param("path") String path) {
-        return _getattr(io.check(null, path));
+        return _getattr(_obj());
     }
 
     protected NutMap _getattr(WnObj obj) {
@@ -113,7 +114,7 @@ public class FuseModule extends AbstractWnModule {
     @At
     @Ok("json")
     public List<String> readdir(@Param("path") String path) {
-        WnObj p = io.check(null, path);
+        WnObj p = _obj();
         List<WnObj> ls = io.getChildren(p, null);
         List<String> re = new ArrayList<String>();
         for (WnObj w : ls) {
@@ -124,7 +125,7 @@ public class FuseModule extends AbstractWnModule {
 
     @At
     public void rmdir(@Param("path") String path) {
-        io.delete(io.check(null, path));
+        io.delete(_obj());
     }
 
     @At
@@ -145,15 +146,13 @@ public class FuseModule extends AbstractWnModule {
 
     @At
     public void unlink(@Param("path") String path) {
-        io.delete(io.check(null, path));
+        io.delete(_obj());
     }
 
     @At
     @Ok("json")
     public double[] utimens(@Param("path") String path) {
-        return new double[]{System.currentTimeMillis()
-                            / 100.0,
-                            io.check(null, path).lastModified() / 100.0};
+        return new double[]{System.currentTimeMillis() / 100.0, _obj().lastModified() / 100.0};
     }
 
     @At
@@ -162,7 +161,7 @@ public class FuseModule extends AbstractWnModule {
                       InputStream ins,
                       @Param("offset") int offset,
                       @Param("size") int size) throws IOException {
-        WnObj obj = io.check(null, path);
+        WnObj obj = _obj();
         if (log.isDebugEnabled())
             log.debugf("write file path=%s, offset=%s, old_len=%d, size=%d",
                        path,
@@ -217,6 +216,10 @@ public class FuseModule extends AbstractWnModule {
     @At
     public void rename(@Param("source") String source, @Param("target") String _target)
             throws Exception {
-        io.move(io.check(null, source), _target);
+        io.move(_obj(), _target);
+    }
+
+    public WnObj _obj() {
+        return (WnObj) Mvcs.getReq().getAttribute("fuse_obj");
     }
 }
