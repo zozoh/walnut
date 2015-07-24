@@ -87,12 +87,6 @@ public class HttpApiModule extends AbstractWnModule {
             }
             oApi = o;
 
-            // 确保是文本文件
-            String mime = oApi.mime();
-            if (!mime.startsWith("text")) {
-                throw Er.create("e.api.notext", oApi);
-            }
-
             // 将当前线程切换到指定的用户
             WnContext wc = Wn.WC();
             wc.me("root", "root");
@@ -149,8 +143,8 @@ public class HttpApiModule extends AbstractWnModule {
         map.setv("http-uri", req.getRequestURI());
         map.setv("http-url", req.getRequestURL());
 
-        // 默认返回的 mime-type 是文本
-        String mimeType = "text/plain";
+        // 记录是否客户端设定了响应的 ContentType
+        String mimeType = null;
 
         // 保存 QueryString，同时，看看有没必要更改 mime-type
         String qs = req.getQueryString();
@@ -163,15 +157,12 @@ public class HttpApiModule extends AbstractWnModule {
                 map.setv("http-qs-"
                          + pair.getName(),
                          pair.getValue() == null ? true : pair.getValue());
-                // 如果声明的是 mimeType
-                if ("resp_mime".equals(pair.getName())) {
+                // 如果客户端声明的是 mimeType
+                if ("resp-mime".equals(pair.getName())) {
                     mimeType = pair.getValue();
                 }
             }
         }
-
-        // 设置响应的 content-type
-        resp.setContentType(mimeType);
 
         // 保存请求头
         while (hnms.hasMoreElements()) {
@@ -192,6 +183,25 @@ public class HttpApiModule extends AbstractWnModule {
         String cmdPattern = io.readText(oApi);
         Context c = Lang.context(oReq.toMap(null));
         String cmdText = Segments.replace(cmdPattern, c);
+
+        // 设置响应头，并看看是否指定了 content-type
+        for (String key : oApi.keySet()) {
+            if (key.startsWith("http-header-")) {
+                String nm = key.substring("http-header-".length()).toUpperCase();
+                // 指定了响应内容
+                if (nm.equals("CONTENT-TYPE")) {
+                    mimeType = oApi.getString(key);
+                }
+                // 其他头，添加
+                else {
+                    resp.setHeader(nm, oApi.getString(key));
+                }
+            }
+        }
+        // 最后设定响应内容
+        resp.setContentType(Strings.sBlank(mimeType,"text/plain"));
+
+        // 设定其他的响应头
 
         // 执行命令
         WnBox box = boxes.alloc(0);

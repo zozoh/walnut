@@ -30,23 +30,6 @@
  "chute" : $<..>
  "arena" : $<..>
  },
- // 当 resize  的时候，UI 会根据 layout 指明的层级结构
- // 将对应的 DOM 节点尺寸进行对应的修改。
- // 这个属性也是由 parseDom 进行初始化的。前提是你必须在
- // $el 上声明 "layout-mode" 属性，否则这个属性会为 null
- layout     : {
- $ele : $el       // 指向顶级DOM节点
- mode : "vertical",
- children : [
- {$ele:$(DIV), val:"*"},
- {$ele:$(DIV), val:0.2},
- {$ele:$(DIV), val:132},
- {$ele:$(DIV), mode:"horizontal", val:"*", children: [
- {$ele:$(DIV), val:"*"},
- {$ele:$(DIV), val:200},
- ]},
- ]
- },
  //---------------------------------------------------
  // 存放多国语言字符串
  //---------------------------------------------------
