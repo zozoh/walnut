@@ -1,5 +1,7 @@
 package org.nutz.walnut.web.filter;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.mvc.ActionContext;
@@ -21,7 +23,7 @@ import org.nutz.walnut.util.WnContext;
 // TODO 与WnCheckSession合并
 @IocBean
 public class FuseActionFilter implements ActionFilter {
-
+    
     @Override
     public View match(ActionContext ac) {
 
@@ -65,7 +67,20 @@ public class FuseActionFilter implements ActionFilter {
             hc.service = ioc.get(WnHookService.class, "hookService");
 
             wc.setHookContext(hc);
+            
+            String path = ac.getPath();
+            if (!path.endsWith("mkdir") && !path.endsWith("create")) {
+                HttpServletRequest req = ac.getRequest();
+                if (req.getParameter("path") != null) {
+                    if (io.fetch(null, req.getParameter("path")) == null)
+                        return HttpStatusView.HTTP_404;
+                }
+                if (req.getParameter("source") != null) {
+                    if (io.fetch(null, req.getParameter("source")) == null)
+                        return HttpStatusView.HTTP_404;
+                }
 
+            }
             // 返回空，继续下面的逻辑
             return null;
         } else {

@@ -20,6 +20,7 @@ import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.FuseActionFilter;
 
 @IocBean
@@ -88,13 +89,13 @@ public class FuseModule extends AbstractWnModule {
 		
 		if (obj.isDIR()) {
 			map.put("st_size", 0);
-			map.put("st_mode", 0755 | 0x4000);
+			map.put("st_mode", 0777 | 0x4000);
 		} else if (obj.isFILE()) {
 			map.put("st_size", obj.len() > 0 ? obj.len() : 0);
-			map.put("st_mode", 0755 | 0x8000);
+			map.put("st_mode", 0777 | 0x8000);
 		} else {
 			map.put("st_size", 0);
-			map.put("st_mode", 0755 | 0xA000);
+			map.put("st_mode", 0777 | 0xA000);
 		}
 		map.put("name", obj.name());
 		
@@ -104,12 +105,12 @@ public class FuseModule extends AbstractWnModule {
 	
 	@At
 	@Ok("json")
-	public List<Object> readdir(@Param("path")String path) {
+	public List<String> readdir(@Param("path")String path) {
 	    WnObj p = io.check(null, path);
 	    List<WnObj> ls = io.getChildren(p, null);
-		List<Object> re = new ArrayList<Object>();
+		List<String> re = new ArrayList<String>();
 		for (WnObj w : ls) {
-			re.add(_getattr(w));
+			re.add(w.name());
 		}
 		return re;
 	}
@@ -120,8 +121,8 @@ public class FuseModule extends AbstractWnModule {
 	}
 	
 	@At
-	public void symlink(@Param("target")String target) {
-	 // TODO 等待 issue 35
+	public void symlink(@Param("source")String source, @Param("target")String target) {
+	    _run_cmd("fuse_ln", null, "ln -s " + Wn.normalizeFullPath(source, Wn.WC().SE()) + " " + Wn.normalizeFullPath(target, Wn.WC().SE()));
 	}
 	
 	@At
@@ -159,7 +160,7 @@ public class FuseModule extends AbstractWnModule {
                     break;
                 if (len > 0) {
                     count += len;
-                    out.write(buf);
+                    out.write(buf, 0, len);
                 }
             }
             return count;
