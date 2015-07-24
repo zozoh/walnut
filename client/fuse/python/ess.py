@@ -120,6 +120,12 @@ if __name__ == '__main__':
         exit(1)
     import  logging
     logging.basicConfig(filename='ess.log',level=logging.INFO)
-    fuse = FUSE(ESS(argv[1], argv[2], int(argv[3])), argv[4], foreground=1, debug=1)
+    fuse = FUSE(ESS(argv[1], argv[2], int(argv[3])), argv[4], foreground=1, debug=1, 
+					entry_timeout=5, attr_timeout=5
+					, big_writes=True
+					, kernel_cache=True
+					, auto_cache=True
+					#,large_read=True
+					)
     
     

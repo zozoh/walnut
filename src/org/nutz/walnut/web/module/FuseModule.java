@@ -113,12 +113,12 @@ public class FuseModule extends AbstractWnModule {
 
     @At
     @Ok("json")
-    public List<String> readdir(@Param("path") String path) {
+    public List<Object> readdir(@Param("path") String path) {
         WnObj p = _obj();
         List<WnObj> ls = io.getChildren(p, null);
-        List<String> re = new ArrayList<String>();
+        List<Object> re = new ArrayList<Object>();
         for (WnObj w : ls) {
-            re.add(w.name());
+            re.add(new Object[]{w.name(), _getattr(w) , 0});
         }
         return re;
     }
