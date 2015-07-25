@@ -23,7 +23,7 @@ public class cmd_obj extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        ZParams params = ZParams.parse(args, "iocnqhbsl");
+        ZParams params = ZParams.parse(args, "iocnqhbslVN");
 
         // 首先获取对象
         // 计算要列出的要处理的对象
@@ -98,8 +98,20 @@ public class cmd_obj extends JvmExecutor {
         }
         // 当没有更新，或者强制输出的时候，执行输出
         if (outs.size() > 0 && (params.is("o") || !params.has("u"))) {
+            // 仅输出值
+            if (params.is("V")) {
+                String sep = params.get("sep", "");
+                for (NutMap map : outs) {
+                    sys.out.print(Lang.concat(sep, map.values()));
+                    if (params.is("N")) {
+                        sys.out.println();
+                    }
+                }
+                if (!params.is("N"))
+                    sys.out.println();
+            }
             // 按表格输出
-            if (params.has("t")) {
+            else if (params.has("t")) {
                 String sCols = params.get("t");
                 String[] aCols = Strings.splitIgnoreBlank(sCols);
                 if (params.is("i")) {
