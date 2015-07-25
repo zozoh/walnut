@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.ioc.Ioc;
 import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
@@ -15,6 +16,8 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public abstract class JvmExecutor {
+    
+    protected Ioc ioc;
 
     public abstract void exec(WnSystem sys, String[] args) throws Exception;
 

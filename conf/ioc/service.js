@@ -46,6 +46,9 @@ var ioc = {
 			fields : {
 				scanPkgs : {
 					java : '$conf.jvmboxPkgs'
+				},
+				ioc : {
+					refer : '$Ioc'
 				}
 			}
 		} ]

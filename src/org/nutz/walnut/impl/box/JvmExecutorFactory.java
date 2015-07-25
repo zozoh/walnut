@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.nutz.ioc.Ioc;
 import org.nutz.lang.Each;
 import org.nutz.lang.Mirror;
 import org.nutz.log.Log;
@@ -21,6 +22,11 @@ public class JvmExecutorFactory {
      * 要搜索的包路径
      */
     String[] scanPkgs;
+
+    /**
+     * Ioc 接口，以便执行器能用到
+     */
+    Ioc ioc;
 
     /**
      * 缓存搜索结果
@@ -47,6 +53,7 @@ public class JvmExecutorFactory {
                             Mirror<?> mi = Mirror.me(klass);
                             if (mi.isOf(JvmExecutor.class)) {
                                 JvmExecutor je = (JvmExecutor) mi.born();
+                                je.ioc = ioc;
                                 String nm = klass.getSimpleName().substring("cmd_".length());
                                 map.put(nm, je);
                                 if (log.isInfoEnabled())
@@ -65,15 +72,15 @@ public class JvmExecutorFactory {
     public Set<String> keys() {
         return map.keySet();
     }
-    
+
     public JvmExecutor put(String nm, JvmExecutor exec) {
         return map.put(nm, exec);
     }
-    
+
     public JvmExecutor remove(String nm) {
         return map.remove(nm);
     }
-    
+
     public void each(Each<Entry<String, JvmExecutor>> callback) {
         for (Entry<String, JvmExecutor> en : map.entrySet()) {
             callback.invoke(0, en, map.size());
