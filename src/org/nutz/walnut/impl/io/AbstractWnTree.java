@@ -227,8 +227,14 @@ public abstract class AbstractWnTree implements WnTree {
         WnNode nd;
         int rightIndex = toIndex - 1;
         for (int i = fromIndex; i < rightIndex; i++) {
+            String ph = paths[i];
+            if (ph.equals("..")) {
+                nd = p.parent();
+            }
             // 找子节点，找不到，就返回 null
-            nd = this._fetch_one_by_name(p, paths[i]);
+            else {
+                nd = this._fetch_one_by_name(p, ph);
+            }
             if (null == nd)
                 return null;
 
