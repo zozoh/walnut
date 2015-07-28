@@ -21,7 +21,6 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.ObjIndexStrategy;
 import org.nutz.walnut.api.io.WalkMode;
-import org.nutz.walnut.api.io.WnHistory;
 import org.nutz.walnut.api.io.WnIndexer;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnNode;
@@ -30,7 +29,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnStore;
-import org.nutz.walnut.api.io.WnStoreFactory;
 import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
@@ -39,7 +37,7 @@ public class WnIoImpl implements WnIo {
 
     private WnTree tree;
 
-    private WnStoreFactory stores;
+    private WnStore store;
 
     WnIndexer indexer;
 
@@ -147,7 +145,8 @@ public class WnIoImpl implements WnIo {
         String nm = Files.getName(path);
         boolean rwmeta = false;
         if (nm.startsWith(Wn.OBJ_META_PREFIX)) {
-            path = Files.renamePath(path, nm.substring(Wn.OBJ_META_PREFIX.length())).replace('\\', '/');
+            path = Files.renamePath(path, nm.substring(Wn.OBJ_META_PREFIX.length())).replace('\\',
+                                                                                             '/');
             rwmeta = true;
         }
 
@@ -293,44 +292,9 @@ public class WnIoImpl implements WnIo {
                 throw Er.create("e.io.move.forbidden", src.path() + " >> " + destPath);
             }
         }
-        // 如果不是同一棵树，则一棵树上创建一颗树上删除
+        // 如果不是同一棵树，由于不能确认是怎么存储的，抛错
         else {
-            WnNode ndB;
-            if (null == newName) {
-                ndB = treeB.createNode(ta, src.id(), src.name(), src.race());
-            } else {
-                ndB = treeB.createNode(ta, src.id(), newName, src.race());
-            }
-            WnObj oB = indexer.toObj(ndB, ObjIndexStrategy.WC);
-
-            // 保持 mount
-            if (src.isMount(treeA)) {
-                treeB.setMount(ndB, src.mount());
-            }
-
-            // copy 内容
-            if (src.len() > 0) {
-                WnStore storeA = stores.get(src);
-                WnStore storeB = stores.get(ndB);
-
-                InputStream ins = storeA.getInputStream(src, 0);
-                OutputStream ops = storeB.getOutputStream(oB, 0);
-                Streams.writeAndClose(ops, ins);
-
-                // 删除原来的内容
-                try {
-                    wc.setv("store:clean_not_update_indext", true);
-                    storeA.cleanHistory(src, -1);
-                }
-                finally {
-                    wc.remove("store:clean_not_update_indext");
-                }
-            }
-            // 删除旧节点
-            treeA.delete(src);
-
-            // 那么返回的就是 oB
-            re = oB;
+            throw Er.create("e.io.move.forbidden", src.path() + " >> " + destPath);
         }
 
         // 修改新对象的 d0, d1
@@ -505,8 +469,7 @@ public class WnIoImpl implements WnIo {
                 }
                 // 文件删除
                 if (!o.isDIR()) {
-                    WnStore store = stores.get(o);
-                    store.cleanHistoryBy(o, 0);
+                    store.delete(o);
                 }
             }
             // 删除树节点和索引
@@ -530,41 +493,6 @@ public class WnIoImpl implements WnIo {
             }
         });
         return re[0];
-    }
-
-    @Override
-    public int eachHistory(WnObj o, long nano, Each<WnHistory> callback) {
-        WnStore store = stores.get(o);
-        return store.eachHistory(o, nano, callback);
-    }
-
-    @Override
-    public List<WnHistory> getHistoryList(WnObj o, long nano) {
-        WnStore store = stores.get(o);
-        return store.getHistoryList(o, nano);
-    }
-
-    @Override
-    public WnHistory getHistory(WnObj o, long nano) {
-        WnStore store = stores.get(o);
-        return store.getHistory(o, nano);
-    }
-
-    @Override
-    public WnHistory addHistory(String oid, String data, String sha1, long len) {
-        throw Lang.noImplement();
-    }
-
-    @Override
-    public List<WnHistory> cleanHistory(WnObj o, long nano) {
-        WnStore store = stores.get(o);
-        return store.cleanHistory(o, nano);
-    }
-
-    @Override
-    public List<WnHistory> cleanHistoryBy(WnObj o, int remain) {
-        WnStore store = stores.get(o);
-        return store.cleanHistoryBy(o, remain);
     }
 
     @Override
@@ -598,25 +526,7 @@ public class WnIoImpl implements WnIo {
             return new WnObjMetaInputStream(o2);
         }
         // 读取内容的
-        WnStore store = stores.get(o);
         return store.getInputStream(o, off);
-    }
-
-    @Override
-    public String getRealPath(WnObj o) {
-        if (o.race() == WnRace.FILE) {
-            o = indexer.toObj(Wn.WC().whenRead(o), ObjIndexStrategy.STRICT);
-            // 读取内容的
-            WnStore store = stores.get(o);
-            return store.getRealPath(o);
-        }
-        return null;
-    }
-
-    @Override
-    public InputStream getInputStream(WnObj o, WnHistory his, long off) {
-        WnStore store = stores.get(o);
-        return store.getInputStream(o, his, off);
     }
 
     @Override
@@ -629,7 +539,6 @@ public class WnIoImpl implements WnIo {
             return new WnObjMetaOutputStream(o, this, off < 0);
         }
         // 写入内容
-        WnStore store = stores.get(o);
         OutputStream ops = store.getOutputStream(o, off);
         return new WnIoOutputStreamWrapper(this, o, ops);
         // return ops;
@@ -834,5 +743,37 @@ public class WnIoImpl implements WnIo {
     public MimeMap mimes() {
         return this.mimes;
     }
+
+    @Override
+    public String open(WnObj o, int mode) {
+        return store.open(o, mode);
+    }
+
+    @Override
+    public void close(String hid) {
+        store.close(hid);
+    }
+
+    @Override
+    public int read(String hid, byte[] bs, int off, int len) {
+        return store.read(hid, bs, off, len);
+    }
+
+    @Override
+    public void write(String hid, byte[] bs, int off, int len) {
+        store.write(hid, bs, off, len);
+    }
+
+    @Override
+    public int read(String hid, byte[] bs) {
+        return store.read(hid, bs);
+    }
+
+    @Override
+    public void write(String hid, byte[] bs) {
+        store.write(hid, bs);
+    }
+    
+    
 
 }

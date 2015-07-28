@@ -90,5 +90,4 @@ public interface WnIo extends WnStore {
 
     MimeMap mimes();
 
-    String getRealPath(WnObj o);
 }

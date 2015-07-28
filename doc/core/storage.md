@@ -21,13 +21,13 @@ lm                # 句柄最后一次被访问的时间（绝对毫秒数）
 mode = R|W|RW     # 句柄打开类型
 
 obj  -> {..}      # 对象的索引
-off  = 0          # 打开针对对象原有数据何处进行操作
+offset = 0        # 打开针对对象原有数据何处进行操作
                   # 对于写操作，-1 表示在结尾追加
 
 posr = 0          # 针对 swap 读操作的位置
 posw = 0          # 针对 swap 写操作的位置
 
-bucket            # 指向一个数据桶的 ID，读写操作都是针对这个桶的
+swap              # 指向一个数据桶的 ID，读写操作都是针对这个桶的
                   # 如果关闭句柄，如果是写操作，自然会将这个桶的 ID 更新
                   # 到 obj.data 字段里
 ```
@@ -41,9 +41,11 @@ sha1              # 桶内有效数据的 SHA1 指纹
 len               # 桶的数据总长度
 
 ct                # 桶被创建的时间（绝对毫秒数）
-lm                # 桶被最后修改的时间
+lm                # 桶被最后修改的时间，新桶，等于 ct
 lread             # 桶被最后读取的时间
 lsync             # 桶被最后被持久化的时间
+lseal             # 桶被最后被盖上的时间
+lopen             # 桶被最后被打开的时间，新桶，等于 ct
 
 refer_count       # 桶的引用计数
 read_count        # 桶历史被读取的次数
@@ -78,25 +80,15 @@ $BUCKET_HOME
 # 桶接口
 
 ```
-id()
-isSealed()
-len()
-createTime()
-lastModified()
-lastReaded()
-lastSync()
-referCount()
-readCount()
-blockSize()
-blockNumber()
-#..........................................
 sha1(gen)  : 获取桶的数据指纹，gen 表示如果没生成过，是否立即生成 sha1
 #..........................................
 # 读取桶的一部分数据
-read(byte[] bs, int off, int len)
+read(long pos, byte[] bs):int
+read(long pos, byte[] bs, int off, int len):int
 #..........................................
 # 写入桶
-write(byte[] bs, int off, int len)
+write(long pos, byte[] bs)
+write(long pos, byte[] bs, int off, int len)
 #..........................................
 # 封装桶，封装成功，返回桶数据的 SHA1
 seal()    : SHA1
@@ -116,6 +108,14 @@ checkById(buid)  : Bucket  # 获得一个桶，不存在即抛错
 getBySha1(sha1)  : Bucket  # 根据 sha1 获得一个桶
 checkBySha1(sha1): Bucket  # 根据 sha1 获得一个桶，不存在即抛错
 ```
+
+# WnStore & WnStoreFactory
+
+存储接口的实现有两种
+
+1. 将对象存成本地文件，即某个节点完全映射到一个本地目录
+2. 将对象存储成桶
+
 
 
 
