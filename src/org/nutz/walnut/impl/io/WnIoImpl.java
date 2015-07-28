@@ -147,7 +147,7 @@ public class WnIoImpl implements WnIo {
         String nm = Files.getName(path);
         boolean rwmeta = false;
         if (nm.startsWith(Wn.OBJ_META_PREFIX)) {
-            path = Files.renamePath(path, nm.substring(Wn.OBJ_META_PREFIX.length()));
+            path = Files.renamePath(path, nm.substring(Wn.OBJ_META_PREFIX.length())).replace('\\', '/');
             rwmeta = true;
         }
 
