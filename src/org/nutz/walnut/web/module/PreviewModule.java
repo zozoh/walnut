@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
@@ -59,7 +60,8 @@ public class PreviewModule extends AbstractWnModule {
         } else {
             tobj = io.get(obj);
         }
-        String dtp = tobj.race().equals(WnRace.DIR) ? "folder" : tobj.type().toLowerCase();
+        String dtp = (tobj.race().equals(WnRace.DIR)
+                      && Strings.isBlank(tobj.type())) ? "folder" : tobj.type().toLowerCase();
         // 查找对应的缩略图对象
         pdir = io.fetch(null, thumbnailPath(tobj, true)); // id
         if (pdir == null) {

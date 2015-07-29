@@ -1,27 +1,22 @@
 package org.nutz.walnut.web;
 
-import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Mirror;
-import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.resource.Scans;
-import org.nutz.trans.Proton;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
@@ -41,22 +36,19 @@ public class WnSetup implements Setup {
 
     private List<Setup> setups;
 
+    private Ioc ioc;
+
+    private WnConfig conf;
+
     @Override
     public void init(NutConfig nc) {
-        Ioc ioc = nc.getIoc();
-
-        // 初始化自定义的 IocLoader
-        // WnIocLoader wnLoader = ioc.get(WnIocLoader.class, "loader");
-        //
-        // log.infof("loader : %s : %s",
-        // wnLoader.getClass(),
-        // Lang.concat("\n - ", wnLoader.getName()));
+        ioc = nc.getIoc();
 
         // 读取默认的category
         ZType.loadCategory(new PropertiesProxy("cate.properties"));
 
         // 获取 app 资源，并记录一下以便页面使用
-        WnConfig conf = ioc.get(WnConfig.class, "conf");
+        conf = ioc.get(WnConfig.class, "conf");
         nc.setAttribute("rs", conf.getAppRs());
 
         // 尝试看看组装的结果
@@ -98,38 +90,11 @@ public class WnSetup implements Setup {
         // 获取沙箱服务
         boxes = ioc.get(WnBoxService.class, "boxService");
 
-        // 获得用户与se
-        final WnUsr u = usrs.check("root");
-        WnSession se = Wn.WC().su(u, new Proton<WnSession>() {
-            protected WnSession exec() {
-                return sess.create(u);
-            }
-        });
-
-        // 最后加载所有的扩展 Setup
-        __load_init_setups(conf);
+        // 获得wnRun
+        wnRun = ioc.get(WnRun.class, "wnRun");
 
         // etc/thumbnail
-        // WnRun
-        wnRun = ioc.get(WnRun.class, "wnRun");
-        WnObj thumbnailDir = io.createIfNoExists(null, "/etc/thumbnail/", WnRace.DIR);
-        MimeMap mimes = ioc.get(MimeMap.class, "mimes");
-        boolean resetThumbnail = conf.getBoolean("reset-thumbnail", false);
-        // mime中的类型
-        for (String tp : mimes.keys()) {
-            boolean existThumb = io.exists(thumbnailDir, tp);
-            if (existThumb) {
-                if (resetThumbnail) {
-                    io.delete(io.fetch(thumbnailDir, tp));
-                } else {
-                    continue;
-                }
-            }
-            createDefaultThumbnail(io, se, thumbnailDir, tp, resetThumbnail);
-        }
-        // 非mime类型
-        createDefaultThumbnail(io, se, thumbnailDir, "folder", resetThumbnail);
-        createDefaultThumbnail(io, se, thumbnailDir, "unknow", resetThumbnail);
+        initThumbnail();
 
         // 最后加载所有的扩展 Setup
         __load_init_setups(conf);
@@ -140,40 +105,22 @@ public class WnSetup implements Setup {
 
     }
 
-    private void createDefaultThumbnail(WnIo io,
-                                        WnSession se,
-                                        WnObj pdir,
-                                        String tp,
-                                        boolean reset) {
-        WnObj tpDir = io.createIfNoExists(pdir, tp, WnRace.DIR);
-        try {
-            // copy对应的图片过去
-            URL tpurl = this.getClass().getResource("/thumbnail/" + tp + ".png");
-            String tppath = tpurl.getPath();
-            if (!Strings.isBlank(tppath)) {
-                File tpf = new File(tppath);
-                WnObj s256 = io.createIfNoExists(tpDir,
-                                                 Wn.thumbnail.size_256 + ".png",
-                                                 WnRace.FILE);
-                if (s256.len() == 0 || reset) {
-                    io.writeAndClose(s256, Streams.fileIn(tpf));
-                    createThunbnail(se, tpDir, s256, Wn.thumbnail.size_64);
-                    createThunbnail(se, tpDir, s256, Wn.thumbnail.size_24);
-                    createThunbnail(se, tpDir, s256, Wn.thumbnail.size_16);
-                }
-            }
+    private void initThumbnail() {
+        MimeMap mimes = ioc.get(MimeMap.class, "mimes");
+        boolean resetTB = conf.getBoolean("reset-thumbnail", false);
+        // mime中的类型
+        for (String tp : mimes.keys()) {
+            createThumbnail(tp, resetTB);
         }
-        catch (Exception e) {}
+        // 非mime类型
+        createThumbnail("folder", resetTB);
+        createThumbnail("unknow", resetTB);
     }
 
-    private void createThunbnail(WnSession se, WnObj targetDir, WnObj src, String size) {
-        wnRun.exec("default-thumbnail",
-                   se,
-                   null,
-                   String.format("chimg %s -z -s %s -o %s",
-                                 src.path(),
-                                 size,
-                                 targetDir.path() + "/" + size + "." + src.type()));
+    private void createThumbnail(String tp, boolean reset) {
+        wnRun.exec("init-thumbnail",
+                   "root",
+                   String.format("defthumbnail -tp %s %s", tp, (reset ? "-r" : "")));
     }
 
     private void __load_init_setups(WnConfig conf) {

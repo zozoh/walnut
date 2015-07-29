@@ -353,7 +353,7 @@
         }
     };
 
-// log
+    // log
     zUtil.logConf = {
         enable: true,               // 是否启动log输出
         trace: false,               // 是否显示调用trace

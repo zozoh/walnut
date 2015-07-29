@@ -426,7 +426,9 @@ public abstract class Wn {
         public final static String bgcolor_default = bgcolor_black;
         public final static String bgcolor_trans = "rgba(255,255,255,0)";
         public final static String size_256 = "256x256";
+        public final static String size_128 = "128x128";
         public final static String size_64 = "64x64";
+        public final static String size_32 = "32x32";
         public final static String size_24 = "24x24";
         public final static String size_16 = "16x16";
         // public final static int size_16 = 16;

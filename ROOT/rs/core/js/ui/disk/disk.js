@@ -1,12 +1,24 @@
 define(function (require, exports, module) {
     var ZUI = require("zui");
 
+    var objCache = {};
+
     function getObj(id) {
-        return $http.syncGet("/o/get/id:" + id).data;
+        if (objCache[id]) {
+            return objCache[id];
+        }
+        var obj = $http.syncGet("/o/get/id:" + id).data;
+        objCache[id] = obj;
+        return obj;
     }
 
     function getObjPath(path) {
-        return $http.syncPost("/o/fetch", {'str': path}).data;
+        if (objCache[path]) {
+            return objCache[path];
+        }
+        var obj = $http.syncPost("/o/fetch", {'str': path}).data;
+        objCache[path] = obj;
+        return obj;
     }
 
     function addMenuOnBody($menu, e) {
@@ -281,8 +293,8 @@ define(function (require, exports, module) {
                 var obj = wolist[i];
                 var $gi = this.ccode('gi-item');
                 var isDir = obj.race == "DIR";
-                var tp = isDir ? "folder" : obj.tp.toLowerCase();
-                $gi.find('.gi-nm').append(obj.nm);
+                var tp = isDir && !obj.tp ? "folder" : obj.tp.toLowerCase();
+                $gi.find('.gi-nm').append(obj.alias ? obj.alias : obj.nm);
                 $gi.find('.gi-nm .disk-icon').css('background-image', "url('" + '/p/default/thumbnail?tp=' + tp + "&size=16')");
                 $gi.find('.disk-preview').css('background-image', "url('" + '/p/thumbnail?obj=' + obj.id + "&size=256')");
                 $gi.find('.gi-owner').append(obj.c || "unknow");
@@ -304,9 +316,12 @@ define(function (require, exports, module) {
             var addToPath = false;
             for (var i = 0; i < pis.length - 1; i++) {
                 cph += '/' + pis[i];
+                var phobj = getObjPath(cph);
+                var isDir = phobj.race == "DIR";
+                var tp = isDir && !phobj.tp ? "folder" : phobj.tp.toLowerCase();
                 var $gip = this.ccode('gi-path-item');
-                $gip.find('.disk-icon').css('background-image', "url('" + '/p/default/thumbnail?tp=' + (cobj.race == 'DIR' ? 'folder' : cobj.tp.toLowerCase()) + "&size=16')");
-                $gip.find('.disk-path-nm').append(pis[i]);
+                $gip.find('.disk-icon').css('background-image', "url('" + '/p/default/thumbnail?tp=' + tp + "&size=16')");
+                $gip.find('.disk-path-nm').append(phobj.alias ? phobj.alias : phobj.nm);
                 $gip.attr('path', cph);
                 if (!addToPath && cph == rootCObj.ph) {
                     addToPath = true;
@@ -316,11 +331,11 @@ define(function (require, exports, module) {
                 }
             }
             var isDir = cobj.race == "DIR";
-            var tp = isDir ? "folder" : cobj.tp.toLowerCase();
+            var tp = isDir && !cobj.tp ? "folder" : cobj.tp.toLowerCase();
             var $gip = this.ccode('gi-path-item');
             $gip.addClass('active');
             $gip.find('.disk-icon').css('background-image', "url('" + '/p/default/thumbnail?tp=' + tp + "&size=16')");
-            $gip.find('.disk-path-nm').append(cobj.nm);
+            $gip.find('.disk-path-nm').append(cobj.alias ? cobj.alias : cobj.nm);
             $gip.attr('path', path);
             $dp.append($gip);
         },

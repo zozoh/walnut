@@ -623,7 +623,7 @@ $(document).ready(function () {
                 $li.addClass('open');
                 mphome.setUlHeight($li.children('ul'));
                 // 其他打开的关闭掉
-                var $siblings = $li.siblings('li.has-sub-menu');
+                var $siblings = $li.siblings('.has-sub-menu.open');
                 if ($siblings.length > 0) {
                     $siblings.removeClass('open');
                     mphome.clearUlHeight($siblings.children('ul'));
@@ -788,6 +788,7 @@ $(document).ready(function () {
                             'page': $realA.attr('page')
                         });
                         $realA.parent().addClass('active');
+                        $a = $realA;
                     } else {
                         $a = mphome.components.mainMenu.find('li:not(.has-sub-menu) > a').first();
                         $a.click();
