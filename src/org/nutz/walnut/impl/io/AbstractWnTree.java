@@ -478,7 +478,7 @@ public abstract class AbstractWnTree implements WnTree {
         nd.name(newName);
         String ph = nd.path();
         if (!Strings.isBlank(ph)) {
-            nd.path(Files.renamePath(ph, newName));
+            nd.path(Files.renamePath(ph, newName).replace('\\', '/'));
         }
 
         // 返回
