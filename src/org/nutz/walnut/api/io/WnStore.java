@@ -3,7 +3,9 @@ package org.nutz.walnut.api.io;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public interface WnStore {
+import org.nutz.walnut.util.UnitTestable;
+
+public interface WnStore extends UnitTestable{
 
     /**
      * 打开一个句柄
@@ -62,6 +64,13 @@ public interface WnStore {
      * @see #write(byte[], int, int)
      */
     void write(String hid, byte[] bs);
+    
+    /**
+     * 将缓冲中的内容写入到对应的桶内
+     * 
+     * @param hid 句柄ID
+     */
+    void flush(String hid);
 
     /**
      * 删除对象对应的存储空间
