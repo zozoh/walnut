@@ -1,11 +1,79 @@
 package org.nutz.walnut.api.io;
 
+import java.util.List;
+
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
-public interface WnObj extends WnNode, NutBean {
+public interface WnObj extends NutBean {
 
-    WnObj setNode(WnNode nd);
+    WnTree tree();
+
+    WnObj setTree(WnTree tree);
+
+    boolean isRootNode();
+
+    String id();
+
+    WnObj id(String id);
+
+    boolean hasID();
+
+    boolean isSameId(WnObj o);
+
+    boolean isSameId(String id);
+
+    boolean isMyParent(WnObj p);
+
+    String path();
+
+    WnObj path(String path);
+
+    WnObj appendPath(String path);
+
+    String name();
+
+    WnObj name(String nm);
+
+    WnRace race();
+
+    WnObj race(WnRace race);
+
+    boolean isRace(WnRace race);
+
+    boolean isDIR();
+
+    boolean isFILE();
+
+    boolean isHidden();
+
+    boolean hasParent();
+
+    WnObj parent();
+
+    WnObj loadParents(List<WnObj> list, boolean force);
+
+    void setParent(WnObj parent);
+
+    String parentId();
+
+    String mount();
+
+    WnObj mount(String mnt);
+
+    boolean isMount(String mntType);
+
+    long len();
+
+    long lastModified();
+
+    long nanoStamp();
+
+    String toString();
+
+    WnObj clone();
+
+    WnObj duplicate();
 
     boolean isLink();
 

@@ -1,68 +1,53 @@
 package org.nutz.walnut.api.io;
 
+import java.util.List;
+
 import org.nutz.lang.Each;
 import org.nutz.lang.util.Callback;
 import org.nutz.walnut.util.UnitTestable;
 
 public interface WnTree extends UnitTestable {
 
-    WnTreeFactory factory();
+    boolean exists(WnObj p, String path);
 
-    WnNode getTreeNode();
+    boolean existsId(String id);
 
-    void setTreeNode(WnNode treeNode);
+    WnObj checkById(String id);
 
-    String getMount();
+    WnObj check(WnObj p, String path);
 
-    int eachMountTree(Each<WnTree> callback);
+    WnObj fetch(WnObj p, String path);
 
-    boolean isTreeNode(String id);
+    WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex);
 
-    WnNode getNode(String id);
+    void walk(WnObj p, Callback<WnObj> callback, WalkMode mode);
 
-    int eachChildren(WnNode p, String str, Each<WnNode> each);
+    WnObj move(WnObj src, String destPath);
 
-    boolean hasChildren(WnNode nd);
+    void set(WnObj o, String regex);
 
-    void walk(WnNode p, Callback<WnNode> callback, WalkMode mode);
+    WnObj createIfNoExists(WnObj p, String path, WnRace race);
 
-    WnNode fetch(WnNode p, String path);
+    WnObj create(WnObj p, String path, WnRace race);
 
-    boolean exists(WnNode p, String name);
+    WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race);
 
-    long countNode(WnNode p, String tp, boolean withHidden);
+    WnObj createById(WnObj p, String id, String name, WnRace race);
 
-    /**
-     * 获取一个子节点
-     * 
-     * @param p
-     *            父节点
-     * @param paths
-     *            路径数组（0 base）
-     * @param fromIndex
-     *            数组开始下标（包含）
-     * @param toIndex
-     *            数组结束下标（不包含）
-     * @param callback
-     *            每次进入一个节点的回调
-     * @return 节点
-     */
-    WnNode fetch(WnNode p, String[] paths, int fromIndex, int toIndex);
+    void delete(WnObj o);
 
-    WnNode create(WnNode p, String path, WnRace race);
+    WnObj get(String id);
 
-    WnNode create(WnNode p, String[] paths, int fromIndex, int toIndex, WnRace race);
+    WnObj getOne(WnQuery q);
 
-    WnNode createNode(WnNode p, String id, String name, WnRace race);
+    WnObj getParent(WnObj o);
 
-    void delete(WnNode nd);
+    WnObj getRoot();
 
-    WnNode rename(WnNode nd, String newName);
+    int each(WnQuery q, Each<WnObj> callback);
 
-    WnNode append(WnNode p, WnNode nd, String newName);
+    List<WnObj> query(WnQuery q);
 
-    WnNode setMount(WnNode nd, String mnt);
-
-    boolean equals(Object obj);
+    boolean hasChild(WnObj p);
 
 }

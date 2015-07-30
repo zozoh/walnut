@@ -7,7 +7,6 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnTree;
@@ -17,77 +16,23 @@ import org.nutz.walnut.util.Wn;
 
 public class WnBean extends NutMap implements WnObj {
 
+    private WnTree tree;
+
+    public WnTree tree() {
+        return tree;
+    }
+
+    public WnObj setTree(WnTree tree) {
+        this.tree = tree;
+        return this;
+    }
+
     public WnBean() {}
 
     public WnBean(WnBean o) {
         this.putAll(o);
-        if (null != o._nd)
-            this.setNode(o._nd.duplicate());
-    }
+        this.setTree(tree);
 
-    private WnNode _nd;
-
-    public WnNode nd() {
-        return _nd;
-    }
-
-    public WnObj setNode(WnNode nd) {
-        if (nd == this || nd == _nd)
-            return this;
-
-        // 如果已经设置了 ID, 那么必须一致
-        String id = id();
-        if (!Strings.isBlank(id)) {
-            if (!nd.isSameId(id)) {
-                throw Er.create("e.io.obj.nd.NoSameId", id + " != " + nd.id());
-            }
-        } else {
-            id(nd.id());
-        }
-
-        // 设置节点
-        this._nd = nd;
-
-        // 更新其他字段用作冗余记录
-        this.setv("nm", nd.name());
-        this.name(nd.name());
-        this.path(nd.path());
-        this.parentId(nd.parentId());
-        this.race(nd.race());
-        this.setv("mnt", Strings.sBlank(nd.mount(), nd.tree().getMount()));
-
-        // 如果节点没有给出创建者，则默认用线程当前的用户
-        // WnContext wc = Wn.WC();
-        // if (Strings.isBlank(this.creator()))
-        // this.creator(Strings.sBlank(nd.creator(), wc.checkMe()));
-        //
-        // if (Strings.isBlank(this.mender()))
-        // this.mender(Strings.sBlank(nd.mender(), wc.checkMe()));
-        //
-        // if (Strings.isBlank(this.group()))
-        // this.group(Strings.sBlank(nd.group(), wc.checkGroup()));
-
-        // 如果节点给出了大小，也复用
-        long len = nd.len();
-        if (len > 0) {
-            this.len(len);
-        }
-
-        // 没有设定权限码，用节点的
-        // if (this.mode() <= 0)
-        // this.mode(nd.mode());
-
-        // 看看节点有没有给出时间
-        if (nd.nanoStamp() > 0) {
-            this.nanoStamp(nd.nanoStamp());
-        }
-        // 没给时间的话如果自己也没有，用当前时间
-        else if (this.nanoStamp() <= 0) {
-            this.nanoStamp(Wn.nanoTime());
-        }
-
-        // 返回
-        return this;
     }
 
     public NutMap toMap4Update(String regex) {
@@ -127,14 +72,7 @@ public class WnBean extends NutMap implements WnObj {
         return getString("id");
     }
 
-    public WnNode id(String id) {
-        // 如果已经设置了 Node，那么必须一致
-        WnNode nd = nd();
-        if (null != nd) {
-            if (!nd.isSameId(id)) {
-                throw Er.create("e.io.obj.id.NoSameId", id + " != " + nd.id());
-            }
-        }
+    public WnObj id(String id) {
         setv("id", id);
         return this;
     }
@@ -143,15 +81,11 @@ public class WnBean extends NutMap implements WnObj {
         return !Strings.isBlank(id());
     }
 
-    public boolean isSameId(WnNode o) {
-        return o.isSameId(id());
-    }
-
     public boolean isSameId(String id) {
         return id().equals(id);
     }
 
-    public WnNode genID() {
+    public WnObj genID() {
         throw Er.create("e.io.obj.forbiden.genid");
     }
 
@@ -164,11 +98,6 @@ public class WnBean extends NutMap implements WnObj {
 
     public boolean isSameId(WnObj o) {
         return isSameId(o.id());
-    }
-
-    public WnBean parentId(String pid) {
-        this.setv("pid", pid);
-        return this;
     }
 
     public boolean isLink() {
@@ -424,23 +353,20 @@ public class WnBean extends NutMap implements WnObj {
     // -----------------------------------------
 
     public String path() {
-        return getString("ph");
+        String ph = getString("ph");
+        if (Strings.isBlank(ph)) {
+            this.loadParents(null, true);
+            ph = getString("ph");
+        }
+        return ph;
     }
 
-    public WnNode path(String path) {
+    public WnObj path(String path) {
         setv("ph", path);
-        if (null != _nd) {
-            _nd.path(path);
-        }
         return this;
     }
 
-    @Override
-    public String realPath() {
-        return _nd.realPath();
-    }
-
-    public WnNode appendPath(String path) {
+    public WnObj appendPath(String path) {
         path(Wn.appendPath(path(), path));
         return this;
     }
@@ -449,11 +375,8 @@ public class WnBean extends NutMap implements WnObj {
         return getString("nm");
     }
 
-    public WnNode name(String nm) {
+    public WnObj name(String nm) {
         setv("nm", nm);
-        if (null != _nd) {
-            _nd.name(nm);
-        }
         return this;
     }
 
@@ -461,17 +384,13 @@ public class WnBean extends NutMap implements WnObj {
         return getEnum("race", WnRace.class);
     }
 
-    public WnNode race(WnRace race) {
+    public WnObj race(WnRace race) {
         setv("race", race);
         return this;
     }
 
     public boolean isRace(WnRace race) {
         return race() == race;
-    }
-
-    public boolean isOBJ() {
-        return isRace(WnRace.OBJ);
     }
 
     public boolean isDIR() {
@@ -495,73 +414,101 @@ public class WnBean extends NutMap implements WnObj {
         return getString("mnt");
     }
 
-    public WnNode mount(String mnt) {
+    public WnObj mount(String mnt) {
         setv("mnt", mnt);
-        if (null != _nd)
-            _nd.mount(mnt);
         return this;
     }
 
-    // -----------------------------------------
-    // 下面是委托 _nd 属性的方法
-    // -----------------------------------------
+    @Override
+    public boolean isMount(String mntType) {
+        String mnt = mount();
+        return mnt != null && mnt.startsWith(mntType);
+    }
 
     public boolean isHidden() {
-        return nd().isHidden();
+        return name().startsWith(".");
     }
 
     @Override
     public boolean isRootNode() {
-        return nd().isRootNode();
+        return !this.hasParent();
+    }
+
+    private WnObj parent;
+
+    public WnObj parent() {
+        if (null == parent && hasParent()) {
+            parent = tree.getParent(this);
+        }
+        return parent;
+    }
+
+    public void setParent(WnObj parent) {
+        this.parent = parent;
+        String pid = (null == parent ? null : parent.id());
+        this.setv("pid", pid);
     }
 
     @Override
-    public boolean isMount(WnTree myTree) {
-        return nd().isMount(myTree);
+    public WnObj loadParents(List<WnObj> list, boolean force) {
+        // 已经加载过了，且不是强制加载，就啥也不干
+        if (null != parent && !force) {
+            if (Strings.isBlank(path())) {
+                path(parent.path()).appendPath(name());
+            }
+            if (null != list && !parent.path().equals("/")) {
+                parent.loadParents(list, force);
+                list.add(parent);
+            }
+            return parent;
+        }
+
+        // 如果自己就是树的根节点则表示到头了
+        // 因为 Mount 的树，它的树对象是父树
+        if (!this.hasParent()) {
+            path("/");
+            return this;
+        }
+
+        // 得到父节点
+        String pid = parentId();
+        WnObj p = tree.get(pid);
+
+        // 没有父，是不可能的
+        if (null == p) {
+            throw Lang.impossible();
+        }
+
+        // 递归加载父节点的祖先
+        p.loadParents(list, force);
+
+        // 确保可访问
+        p = Wn.WC().whenEnter(p);
+
+        // 设置成自己的父
+        parent = p;
+
+        // 记录到输出列表
+        if (null != list)
+            list.add(parent);
+
+        // 更新路径
+        path(parent.path()).appendPath(name());
+
+        // 返回父节点
+        return parent;
     }
 
-    public WnNode parent() {
-        return nd().parent();
+    public boolean isMyParent(WnObj p) {
+        return Lang.equals(parentId(), p.id());
     }
 
-    public void setParent(WnNode parent) {
-        nd().setParent(parent);
-        if (null != parent)
-            this.parentId(parent.id());
-        else
-            this.parentId(null);
-    }
-
-    @Override
-    public WnNode loadParents(List<WnNode> list, boolean force) {
-        WnNode nd = nd();
-        nd.loadParents(list, force);
-        this.path(nd.path());
-        return nd;
-    }
-
-    public boolean isMyParent(WnNode p) {
-        return nd().isMyParent(p);
-    }
-
-    public WnTree tree() {
-        return nd().tree();
-    }
-
-    public void setTree(WnTree tree) {
-        nd().setTree(tree);
-    }
-
-    public void assertTree(WnTree tree) {
-        nd().assertTree(tree);
-    }
-
-    public WnNode clone() {
+    public WnObj clone() {
         return duplicate();
     }
 
     @Override
-    public WnNode duplicate() {
+    public WnObj duplicate() {
         return new WnBean(this);
     }
 

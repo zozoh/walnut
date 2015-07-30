@@ -17,8 +17,8 @@ import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
-import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.impl.box.WnSystem;
 
@@ -318,15 +318,14 @@ public abstract class Wn {
             if (wc.isSynctimeOff())
                 return;
 
-            final List<WnNode> list = new LinkedList<WnNode>();
+            final List<WnObj> list = new LinkedList<WnObj>();
             o.loadParents(list, false);
             final long synctime = System.currentTimeMillis();
             wc.synctimeOff(new Atom() {
                 public void run() {
-                    for (WnNode an : list) {
-                        WnObj ano = io.toObj(an);
-                        if (ano.syncTime() > 0) {
-                            io.appendMeta(ano, "st:" + synctime);
+                    for (WnObj an : list) {
+                        if (an.syncTime() > 0) {
+                            io.appendMeta(an, "st:" + synctime);
                         }
                     }
                     if (includeSelf) {
@@ -387,6 +386,26 @@ public abstract class Wn {
 
     public static String genId() {
         return R.UU32();
+    }
+
+    public static class Q {
+
+        public static WnQuery id(WnObj o) {
+            return id(o.id());
+        }
+
+        public static WnQuery id(String id) {
+            return new WnQuery().setv("id", id);
+        }
+
+        public static WnQuery pid(WnObj p) {
+            return pid(p.id());
+        }
+
+        public static WnQuery pid(String pid) {
+            return new WnQuery().setv("pid", pid);
+        }
+
     }
 
     public static final String OBJ_META_PREFIX = ".wn_obj_meta_";

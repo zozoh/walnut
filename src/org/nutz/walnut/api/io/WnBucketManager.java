@@ -4,8 +4,6 @@ public interface WnBucketManager {
 
     WnBucket alloc(int blockSize);
 
-    WnBucket free(String buid);
-
     WnBucket getById(String buid);
 
     WnBucket checkById(String buid);
@@ -13,5 +11,5 @@ public interface WnBucketManager {
     WnBucket getBySha1(String sha1);
 
     WnBucket checkBySha1(String sha1);
-    
+
 }

@@ -65,6 +65,8 @@ public interface WnStore extends UnitTestable{
      */
     void write(String hid, byte[] bs);
     
+    void seek(String hid, long pos);
+    
     /**
      * 将缓冲中的内容写入到对应的桶内
      * 

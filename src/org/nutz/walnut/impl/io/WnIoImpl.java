@@ -48,29 +48,17 @@ public class WnIoImpl implements WnIo {
         indexer._clean_for_unit_test();
     }
 
-    private WnTree tree(WnNode p) {
-        if (null == p)
-            return tree;
-        WnTree re = p.tree();
-        if (null == re)
-            return tree;
-        return re;
-    }
 
     @Override
     public boolean exists(WnObj p, String path) {
-        return tree(p).fetch(p, path) != null;
+        return tree.fetch(p, path) != null;
     }
 
     @Override
     public boolean existsId(String id) {
-        return tree(null).getNode(id) != null;
+        return tree.existsId(id);
     }
 
-    @Override
-    public WnObj toObj(WnNode nd) {
-        return indexer.toObj(nd, ObjIndexStrategy.PARENT);
-    }
 
     @Override
     public WnObj get(String id) {
@@ -87,14 +75,14 @@ public class WnIoImpl implements WnIo {
             if (objs.size() > 1)
                 throw Er.create("e.io.obj.get.shortid", id);
             WnObj o = objs.get(0);
-            WnNode nd = tree(null).getNode(o.id());
+            WnNode nd = tree.getNode(o.id());
             nd.loadParents(null, false);
             o.setNode(nd);
             return o;
         }
 
         // 如果是完整的 ID
-        WnNode nd = tree(null).getNode(id);
+        WnNode nd = tree.getNode(id);
         if (null == nd)
             return null;
         nd.loadParents(null, false);
@@ -151,7 +139,7 @@ public class WnIoImpl implements WnIo {
         }
 
         // 获取对象
-        WnNode nd = tree(p).fetch(p, path);
+        WnNode nd = tree.fetch(p, path);
         WnObj o = indexer.toObj(nd, ObjIndexStrategy.PARENT);
         // 标记一下，如果读写的时候，只写这个对象的索引
         if (rwmeta) {
@@ -173,7 +161,7 @@ public class WnIoImpl implements WnIo {
         }
 
         // 获取对象
-        WnNode nd = tree(p).fetch(p, paths, fromIndex, toIndex);
+        WnNode nd = tree.fetch(p, paths, fromIndex, toIndex);
         WnObj o = indexer.toObj(nd, ObjIndexStrategy.PARENT);
         // 标记一下，如果读写的时候，只写这个对象的索引
         if (rwmeta) {
@@ -185,7 +173,7 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public void walk(WnObj p, final Callback<WnObj> callback, WalkMode mode) {
-        tree(p).walk(p, new Callback<WnNode>() {
+        tree.walk(p, new Callback<WnNode>() {
             public void invoke(WnNode nd) {
                 WnObj o = indexer.toObj(nd, ObjIndexStrategy.PARENT);
                 if (null != callback)
@@ -196,7 +184,7 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public int eachChildren(WnObj p, String str, final Each<WnObj> callback) {
-        return tree(p).eachChildren(p, str, new Each<WnNode>() {
+        return tree.eachChildren(p, str, new Each<WnNode>() {
             public void invoke(int index, WnNode nd, int length) {
                 WnObj o = indexer.toObj(nd, ObjIndexStrategy.PARENT);
                 callback.invoke(index, o, length);
@@ -253,12 +241,12 @@ public class WnIoImpl implements WnIo {
         // 看看目标是否存在
         String newName = null;
         String taPath = destPath;
-        WnNode ta = tree(null).fetch(null, taPath);
+        WnNode ta = tree.fetch(null, taPath);
 
         // 如果不存在，看看目标的父是否存在，并且可能也同时要改名
         if (null == ta) {
             taPath = Files.getParent(taPath);
-            ta = tree(null).fetch(null, taPath);
+            ta = tree.fetch(null, taPath);
             newName = Files.getName(destPath);
         }
         // 如果存在的是一个文件
@@ -376,7 +364,7 @@ public class WnIoImpl implements WnIo {
             });
 
             // 执行创建
-            WnNode nd = tree(p).create(p, path, race);
+            WnNode nd = tree.create(p, path, race);
             WnObj o = indexer.toObj(nd, ObjIndexStrategy.WC);
 
             // 触发同步时间修改
@@ -397,7 +385,7 @@ public class WnIoImpl implements WnIo {
     @Override
     public WnObj createById(WnObj p, String id, String name, WnRace race) {
         // 执行创建
-        WnNode nd = tree(p).createNode(p, id, name, race);
+        WnNode nd = tree.createNode(p, id, name, race);
         WnObj o = indexer.toObj(nd, ObjIndexStrategy.WC);
 
         // 触发同步时间修改
@@ -434,7 +422,7 @@ public class WnIoImpl implements WnIo {
             });
 
             // 执行创建
-            WnNode nd = tree(p).create(p, paths, fromIndex, toIndex, race);
+            WnNode nd = tree.create(p, paths, fromIndex, toIndex, race);
             WnObj o = indexer.toObj(nd, ObjIndexStrategy.WC);
 
             // 触发同步时间修改
@@ -474,7 +462,7 @@ public class WnIoImpl implements WnIo {
             }
             // 删除树节点和索引
             indexer.remove(o.id());
-            tree(o).delete(o);
+            tree.delete(o);
 
             // 触发同步时间修改
             Wn.Io.update_ancestor_synctime(this, o, false);
@@ -486,7 +474,7 @@ public class WnIoImpl implements WnIo {
         if (p.isFILE())
             return false;
         final boolean[] re = new boolean[1];
-        tree(p).eachChildren(p, null, new Each<WnNode>() {
+        tree.eachChildren(p, null, new Each<WnNode>() {
             public void invoke(int index, WnNode ele, int length) {
                 re[0] = true;
                 Lang.Break();
@@ -501,7 +489,7 @@ public class WnIoImpl implements WnIo {
         o.setv("_old_mnt", o.mount());
 
         // 挂载
-        WnNode nd = tree(o).setMount(o, mnt);
+        WnNode nd = tree.setMount(o, mnt);
         o.setNode(nd);
 
         // 如果是 unmount，则恢复到父节点的 mount
@@ -698,7 +686,7 @@ public class WnIoImpl implements WnIo {
         if (null == o)
             return null;
 
-        WnNode nd = tree(null).getNode(o.id());
+        WnNode nd = tree.getNode(o.id());
 
         if (null == nd) {
             throw Er.create("e.io.lostnode", o);
@@ -734,10 +722,7 @@ public class WnIoImpl implements WnIo {
         return list;
     }
 
-    @Override
-    public long countChildren(WnObj p, String tp, boolean withHidden) {
-        return tree(p).countNode(p, tp, withHidden);
-    }
+    
 
     @Override
     public MimeMap mimes() {
@@ -773,7 +758,15 @@ public class WnIoImpl implements WnIo {
     public void write(String hid, byte[] bs) {
         store.write(hid, bs);
     }
-    
-    
+
+    @Override
+    public void seek(String hid, long pos) {
+        store.seek(hid, pos);
+    }
+
+    @Override
+    public void flush(String hid) {
+        store.flush(hid);
+    }
 
 }

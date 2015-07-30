@@ -2,7 +2,6 @@ package org.nutz.walnut.impl.io;
 
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
-import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
 
@@ -15,37 +14,36 @@ public class WnEvalLink implements WnSecurity {
     }
 
     @Override
-    public WnNode enter(WnNode nd) {
+    public WnObj enter(WnObj nd) {
         return __eval_obj(nd, true);
     }
 
     @Override
-    public WnNode access(WnNode nd) {
+    public WnObj access(WnObj nd) {
         return __eval_obj(nd, true);
     }
 
     @Override
-    public WnNode view(WnNode nd) {
+    public WnObj view(WnObj nd) {
         return __eval_obj(nd, false);
     }
 
     @Override
-    public WnNode read(WnNode nd) {
+    public WnObj read(WnObj nd) {
         return __eval_obj(nd, true);
     }
 
     @Override
-    public WnNode write(WnNode nd) {
+    public WnObj write(WnObj nd) {
         return __eval_obj(nd, true);
     }
 
     @Override
-    public WnNode remove(WnNode nd) {
+    public WnObj remove(WnObj nd) {
         return __eval_obj(nd, false);
     }
 
-    protected WnObj __eval_obj(WnNode nd, boolean auto_unlink) {
-        WnObj o = io.toObj(nd);
+    protected WnObj __eval_obj(WnObj o, boolean auto_unlink) {
         // 处理链接文件
         if (auto_unlink && o.isLink()) {
             String ln = o.link();
@@ -66,9 +64,6 @@ public class WnEvalLink implements WnSecurity {
             // 如果节点不存在
             if (null == o)
                 throw Er.create("e.io.obj.noexists", ln);
-
-            o.path(nd.path());
-            o.name(nd.name());
         }
         return o;
     }
