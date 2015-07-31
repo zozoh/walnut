@@ -1,19 +1,16 @@
 package org.nutz.walnut.web;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.io.WnNode;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.impl.io.local.LocalWnNode;
-import org.nutz.walnut.impl.io.mongo.MongoWnNode;
+import org.nutz.walnut.impl.io.WnBean;
+import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebConfig;
 
 public class WnConfig extends WebConfig {
@@ -70,33 +67,20 @@ public class WnConfig extends WebConfig {
         return Json.fromJson(NutMap.class, str);
     }
 
-    public WnNode getRootTreeNode() {
+    public WnObj getRootTreeNode() {
         String id = this.get("root-id");
-        String mnt = this.get("root-mnt");
 
-        // 本地
-        if (mnt.startsWith("file://")) {
-            String localPath = mnt.substring("file://".length());
-            File d = Files.createDirIfNoExists(localPath);
+        WnObj o = new WnBean();
+        o.id(id);
+        o.path("/");
+        o.race(WnRace.DIR);
+        o.name("");
+        o.nanoStamp(Wn.nanoTime());
+        o.createTime(System.currentTimeMillis());
+        o.creator("root").mender("root").group("root");
+        o.mode(0750);
 
-            LocalWnNode nd = new LocalWnNode(d);
-            nd.id(id);
-            nd.path("/");
-            nd.race(WnRace.DIR);
-            nd.mount(mnt);
-            return nd;
-        }
-        // Mongo
-        if (mnt.startsWith("mongo:")) {
-            MongoWnNode nd = new MongoWnNode();
-            nd.id(id);
-            nd.path("/");
-            nd.race(WnRace.DIR);
-            nd.mount(mnt);
-            nd.name(mnt);
-            return nd;
-        }
-        throw Lang.impossible();
+        return o;
     }
 
 }

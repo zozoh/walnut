@@ -285,11 +285,4 @@ public abstract class WnMongos {
         return o;
     }
 
-    public static MongoWnHistory toWnHistory(DBObject doc) {
-        if (null == doc)
-            return null;
-        MongoWnHistory his = ZMo.me().fromDocToObj(doc, MongoWnHistory.class);
-        return his;
-    }
-
 }

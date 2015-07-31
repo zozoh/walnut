@@ -1,7 +1,5 @@
 package org.nutz.walnut.web.module;
 
-import java.io.File;
-
 import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.IocBean;
@@ -81,7 +79,8 @@ public class PreviewModule extends AbstractWnModule {
             resp.setHeader("Content-Type", re.mime());
         }
         catch (Exception e) {}
-        return new File(io.getRealPath(re));
+        // return new File(io.getRealPath(re));
+        return null;
     }
 
     private String thumbnailPath(WnObj obj, boolean useId) {
@@ -120,7 +119,8 @@ public class PreviewModule extends AbstractWnModule {
             resp.setHeader("Content-Type", re.mime());
         }
         catch (Exception e) {}
-        return new File(io.getRealPath(re));
+        // return new File(io.getRealPath(re));
+        return null;
     }
 
     // 缩略图后缀搜索的顺序是 png > jpg > gif > jpeg
@@ -164,7 +164,7 @@ public class PreviewModule extends AbstractWnModule {
                     resp.setHeader("Content-Type", pvobj.mime());
                 }
                 catch (Exception e) {}
-                return new File(io.getRealPath(pvobj));
+                // return new File(io.getRealPath(pvobj));
             }
         }
         return null;

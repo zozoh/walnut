@@ -9,6 +9,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_rm extends JvmExecutor {
@@ -43,7 +44,7 @@ public class cmd_rm extends JvmExecutor {
         }
         // 递归
         if (!o.isFILE() && params.is("r")) {
-            sys.io.eachChildren(o, null, new Each<WnObj>() {
+            sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
                 public void invoke(int index, WnObj child, int length) {
                     _do_delete(sys, params, base, child);
                 }

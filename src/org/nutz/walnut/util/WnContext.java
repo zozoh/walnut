@@ -147,6 +147,18 @@ public class WnContext extends NutMap {
         }
     }
 
+    public <T> T synctimeOff(Proton<T> proton) {
+
+        try {
+            synctime_off = true;
+            proton.run();
+            return proton.get();
+        }
+        finally {
+            synctime_off = false;
+        }
+    }
+
     public WnSecurity getSecurity() {
         return security;
     }

@@ -122,11 +122,6 @@ public class WnObjTable {
             font = o.isHidden() ? 2 : 1;
             color = 34;
         }
-        // 对象
-        else if (o.isOBJ()) {
-            font = 3;
-            color = 33;
-        }
         // 文件
         else if (o.isFILE()) {
             font = o.isHidden() ? 2 : 0;
@@ -150,9 +145,6 @@ public class WnObjTable {
             break;
         case FILE:
             sb.append('-');
-            break;
-        case OBJ:
-            sb.append('o');
             break;
         default:
             throw Lang.impossible();

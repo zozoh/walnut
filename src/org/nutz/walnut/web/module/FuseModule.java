@@ -115,7 +115,7 @@ public class FuseModule extends AbstractWnModule {
     @Ok("json")
     public List<Object> readdir(@Param("path") String path) {
         WnObj p = _obj();
-        List<WnObj> ls = io.getChildren(p, null);
+        List<WnObj> ls = io.query(Wn.Q.pid(p));
         List<Object> re = new ArrayList<Object>();
         for (WnObj w : ls) {
             re.add(new Object[]{w.name(), _getattr(w) , 0});
@@ -168,8 +168,10 @@ public class FuseModule extends AbstractWnModule {
                        offset,
                        obj.len(),
                        size);
-        if (offset > 1024 * 1024)
-            io.cleanHistory(obj, 0);
+        if (offset > 1024 * 1024){
+            // TODO 啥意思？
+            //io.cleanHistory(obj, 0);
+        }
 
         if (obj.len() == offset) {
             OutputStream out = io.getOutputStream(obj, offset);

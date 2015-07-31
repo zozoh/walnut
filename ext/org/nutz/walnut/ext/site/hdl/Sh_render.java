@@ -20,6 +20,7 @@ import org.nutz.walnut.ext.site.ShCtx;
 import org.nutz.walnut.ext.site.SiteHdl;
 import org.nutz.walnut.ext.site.jsoup.JsoupHelper;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -96,7 +97,7 @@ public class Sh_render implements SiteHdl {
         // 如果是目录
         if (o.isDIR()) {
             sys.out.println("enter");
-            sc.sys.io.eachChildren(o, null, new Each<WnObj>() {
+            sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
                 public void invoke(int index, WnObj child, int length) {
                     __do_render_obj(sys, sc, child);
                 }

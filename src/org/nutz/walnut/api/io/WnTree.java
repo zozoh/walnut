@@ -24,6 +24,8 @@ public interface WnTree extends UnitTestable {
 
     WnObj move(WnObj src, String destPath);
 
+    WnObj rename(WnObj o, String nm);
+
     void set(WnObj o, String regex);
 
     WnObj createIfNoExists(WnObj p, String path, WnRace race);
@@ -40,13 +42,13 @@ public interface WnTree extends UnitTestable {
 
     WnObj getOne(WnQuery q);
 
-    WnObj getParent(WnObj o);
-
     WnObj getRoot();
 
     int each(WnQuery q, Each<WnObj> callback);
 
     List<WnObj> query(WnQuery q);
+
+    long count(WnQuery q);
 
     boolean hasChild(WnObj p);
 

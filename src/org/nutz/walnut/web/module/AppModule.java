@@ -160,7 +160,7 @@ public class AppModule extends AbstractWnModule {
             String nm = "dft_app_" + tt + "_tmpl.html";
             WnObj p = oAppHome;
             while (null == oTmpl && null != p && !p.isRootNode()) {
-                p = io.get(p.parent());
+                p = p.parent();
                 oTmpl = io.fetch(p, nm);
             }
             if (null == oTmpl) {

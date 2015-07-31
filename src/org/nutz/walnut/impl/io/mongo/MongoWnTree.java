@@ -1,27 +1,17 @@
 package org.nutz.walnut.impl.io.mongo;
 
 import java.util.Map;
-import java.util.regex.Pattern;
-
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
-import org.nutz.trans.Atom;
-import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.impl.io.AbstractWnTree;
-import org.nutz.walnut.impl.io.WnBean;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnContext;
-
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
@@ -108,6 +98,12 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
+    public long count(WnQuery q) {
+        ZMoDoc qDoc = null == q ? ZMoDoc.NEW() : WnMongos.toQueryDoc(q);
+        return co.count(qDoc);
+    }
+
+    @Override
     protected void _set(String id, NutMap map) {
         // 更新或者创建
         if (map.size() > 0) {
@@ -130,35 +126,10 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    protected WnObj _create_node(WnObj p, String id, String name, WnRace race) {
-        // 创建子节点
-        WnBean mnd = new WnBean();
-        if (Strings.isBlank(id))
-            id = Wn.genId();
-
-        mnd.id(id);
-        mnd.setParent(p);
-        mnd.race(race);
-        mnd.setTree(this);
-
-        // 展开名字
-        mnd.name(Wn.evalName(name, id));
-
-        // 检查同名
-        if (null != mnd.parentId()) {
-            ZMoDoc q = ZMoDoc.NEW("pid", mnd.parentId());
-            q.put("nm", mnd.name());
-            if (null != co.findOne(q)) {
-                throw Er.create("e.io.tree.nd.exists", mnd);
-            }
-        }
-
-        // 开始创建
-        ZMoDoc doc = ZMo.me().toDoc(mnd).genID();
+    protected void _create_node(WnObj o) {
+        ZMoDoc doc = ZMo.me().toDoc(o).genID();
+        doc.removeField("ph");
         co.save(doc);
-
-        // 返回
-        return mnd;
     }
 
     @Override

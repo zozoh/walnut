@@ -261,6 +261,17 @@ public class WnBean extends NutMap implements WnObj {
         return this;
     }
 
+    public String[] dN() {
+        String d0 = d0();
+        String d1 = d1();
+
+        if (Strings.isBlank(d0))
+            return new String[0];
+        if (Strings.isBlank(d1))
+            return Lang.array(d0);
+        return Lang.array(d0, d1);
+    }
+
     public WnBean update(NutMap map) {
         this.putAll(map);
         return this;
@@ -355,7 +366,7 @@ public class WnBean extends NutMap implements WnObj {
     public String path() {
         String ph = getString("ph");
         if (Strings.isBlank(ph)) {
-            this.loadParents(null, true);
+            this.loadParents(null, false);
             ph = getString("ph");
         }
         return ph;
@@ -438,7 +449,7 @@ public class WnBean extends NutMap implements WnObj {
 
     public WnObj parent() {
         if (null == parent && hasParent()) {
-            parent = tree.getParent(this);
+            this.setParent(tree.getOne(Wn.Q.id(parentId())));
         }
         return parent;
     }
@@ -447,6 +458,8 @@ public class WnBean extends NutMap implements WnObj {
         this.parent = parent;
         String pid = (null == parent ? null : parent.id());
         this.setv("pid", pid);
+        this.path(parent.path()).appendPath(name());
+        Wn.Io.eval_dn(this);
     }
 
     @Override

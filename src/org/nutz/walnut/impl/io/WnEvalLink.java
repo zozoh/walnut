@@ -57,7 +57,7 @@ public class WnEvalLink implements WnSecurity {
                 if (ln.startsWith("/")) {
                     o = io.fetch(null, ln);
                 } else {
-                    WnObj p = io.getParent(o);
+                    WnObj p = o.parent();
                     o = io.fetch(p, ln);
                 }
             }

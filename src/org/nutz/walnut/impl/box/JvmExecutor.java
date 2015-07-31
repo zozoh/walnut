@@ -12,11 +12,12 @@ import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public abstract class JvmExecutor {
-    
+
     protected Ioc ioc;
 
     public abstract void exec(WnSystem sys, String[] args) throws Exception;
@@ -66,7 +67,7 @@ public abstract class JvmExecutor {
 
         // 根节点
         if (ss.length == 0) {
-            list.add(sys.io.getRootObj());
+            list.add(sys.io.getRoot());
         }
         // 试图按路径查找
         else {
@@ -87,12 +88,13 @@ public abstract class JvmExecutor {
         }
         // 回退一级
         else if ("..".equals(nm)) {
-            WnObj o = io.getParent(p);
+            WnObj o = p.parent();
             __find_last_level_objs_handle(io, ss, off + 1, list, o);
         }
         // 继续查找
         else {
-            io.eachChildren(p, nm, new Each<WnObj>() {
+            WnQuery q = Wn.Q.pid(p.id()).setv("nm", nm);
+            io.each(q, new Each<WnObj>() {
                 public void invoke(int index, WnObj o, int length) {
                     __find_last_level_objs_handle(io, ss, off + 1, list, o);
                 }
@@ -108,7 +110,7 @@ public abstract class JvmExecutor {
         // 如果到了最后一层，才加入 list
         if (off >= ss.length) {
             if (null == o)
-                list.add(io.getRootObj());
+                list.add(io.getRoot());
             else
                 list.add(o);
         }

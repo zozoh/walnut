@@ -19,6 +19,7 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.impl.box.WnSystem;
 
@@ -302,14 +303,14 @@ public abstract class Wn {
         /**
          * 修改一个对象所有祖先的同步时间。当然，未设置同步的祖先会被无视
          * 
-         * @param io
-         *            读写接口
+         * @param tree
+         *            元数据读写接口
          * @param o
          *            对象
          * @param includeSelf
          *            是否也检视自身的同步时间
          */
-        public static void update_ancestor_synctime(final WnIo io,
+        public static void update_ancestor_synctime(final WnTree tree,
                                                     final WnObj o,
                                                     final boolean includeSelf) {
             WnContext wc = Wn.WC();
@@ -325,12 +326,13 @@ public abstract class Wn {
                 public void run() {
                     for (WnObj an : list) {
                         if (an.syncTime() > 0) {
-                            io.appendMeta(an, "st:" + synctime);
+                            an.syncTime(synctime);
+                            tree.set(an, "^st$");
                         }
                     }
-                    if (includeSelf) {
-                        if (o.syncTime() > 0)
-                            io.appendMeta(o, "st:" + synctime);
+                    if (includeSelf && o.syncTime() > 0) {
+                        o.syncTime(synctime);
+                        tree.set(o, "^st$");
                     }
                 }
             });

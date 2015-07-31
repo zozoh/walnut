@@ -10,6 +10,7 @@ import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_disk extends JvmExecutor {
@@ -37,7 +38,7 @@ public class cmd_disk extends JvmExecutor {
         // 再输出所有的目录
         for (WnObj o : list) {
             if (!o.isFILE()) {
-                sys.io.eachChildren(o, null, new Each<WnObj>() {
+                sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
                     public void invoke(int index, WnObj child, int length) {
                         showObj(sys, child, showHidden, tp);
                     }

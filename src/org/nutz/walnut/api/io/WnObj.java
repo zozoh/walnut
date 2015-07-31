@@ -138,6 +138,8 @@ public interface WnObj extends NutBean {
     String d1();
 
     WnObj d1(String d1);
+    
+    String[] dN();
 
     WnObj update(NutMap map);
 
