@@ -1,4 +1,4 @@
-package org.nutz.walnut.api.io;
+package org.nutz.walnut.impl.io;
 
 import static org.junit.Assert.assertEquals;
 
@@ -12,14 +12,17 @@ import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.walnut.BaseStoreTest;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.io.WnBean;
 
-public abstract class AbstractWnStoreTest extends BaseStoreTest {
+public class WnStoreImplTest extends BaseStoreTest {
 
     @Test
     public void test_simple_read_write() throws IOException {
-        WnNode nd = tree.create(null, "abc.txt", WnRace.FILE);
-        WnObj o = new WnBean().setNode(nd);
+        WnObj o = new WnBean();
+
+        // TODO 这里初始化 Obj 的字段
+
         String str = "hello";
 
         OutputStream ops = store.getOutputStream(o, 0);
@@ -29,11 +32,9 @@ public abstract class AbstractWnStoreTest extends BaseStoreTest {
         String str2 = Streams.readAndClose(new InputStreamReader(ins));
 
         assertEquals(str, str2);
-
-        o = indexer.get(nd.id());
-        assertEquals(Lang.sha1(str), o.sha1());
         assertEquals(str.length(), o.len());
-        assertEquals(o.lastModified(), o.nanoStamp() / 1000000L);
+        assertEquals(Lang.sha1(str), o.sha1());
+
     }
 
 }

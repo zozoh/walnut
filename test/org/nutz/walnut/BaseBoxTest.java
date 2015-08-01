@@ -2,12 +2,15 @@ package org.nutz.walnut;
 
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.impl.box.JvmBoxService;
+import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.util.Wn;
 
 public abstract class BaseBoxTest extends BaseUsrTest {
@@ -49,7 +52,7 @@ public abstract class BaseBoxTest extends BaseUsrTest {
     protected void on_before(PropertiesProxy pp) {
         super.on_before(pp);
 
-        boxes = _create_box_service(pp);
+        boxes = _create_box_service();
 
         me = usrs.create("xiaobai", "123456");
         se = ses.create(me);
@@ -89,6 +92,10 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         super.on_after(pp);
     }
 
-    protected abstract WnBoxService _create_box_service(PropertiesProxy pp);
+    private WnBoxService _create_box_service() {
+        JvmExecutorFactory jef = new JvmExecutorFactory();
+        Mirror.me(jef).setValue(jef, "scanPkgs", Lang.array("org.nutz.walnut.impl.box.cmd"));
+        return new JvmBoxService(jef);
+    }
 
 }

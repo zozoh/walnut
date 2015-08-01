@@ -3,13 +3,13 @@ package org.nutz.walnut.impl;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.nutz.walnut.impl.box.AllImplBoxTest;
-import org.nutz.walnut.impl.hook.AllImplHookTest;
+import org.nutz.walnut.impl.hook.IoHookTest;
 import org.nutz.walnut.impl.io.AllImplIoTest;
-import org.nutz.walnut.impl.usr.AllImplUsrTest;
+import org.nutz.walnut.impl.usr.IoWnUsrTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({AllImplIoTest.class,
-                     AllImplUsrTest.class,
+                     IoWnUsrTest.class,
                      AllImplBoxTest.class,
-                     AllImplHookTest.class})
+                     IoHookTest.class})
 public class AllImplTest {}

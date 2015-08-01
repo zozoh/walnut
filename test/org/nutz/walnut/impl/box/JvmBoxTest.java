@@ -1,13 +1,13 @@
-package org.nutz.walnut.api.box;
+package org.nutz.walnut.impl.box;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.walnut.BaseBoxTest;
 import org.nutz.walnut.api.io.WnObj;
 
-public abstract class AbstractWnBoxTest extends BaseBoxTest {
+public class JvmBoxTest extends BaseBoxTest {
 
     @Test
     public void test_append_redirect() {

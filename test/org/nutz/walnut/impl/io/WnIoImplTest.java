@@ -1,6 +1,9 @@
-package org.nutz.walnut.api.io;
+package org.nutz.walnut.impl.io;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,14 +14,15 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.BaseIoTest;
-import org.nutz.walnut.impl.io.WnEvalLink;
+import org.nutz.walnut.api.io.WalkMode;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.web.WebException;
 
-public abstract class AbstractWnIoTest extends BaseIoTest {
-
-    protected abstract String getAnotherTreeMount();
+public class WnIoImplTest extends BaseIoTest {
 
     /**
      * for issue #29
@@ -131,8 +135,8 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
     public void test_load_parents_twice() {
         WnObj c = io.create(null, "/a/b/c", WnRace.FILE);
 
-        List<WnNode> l0 = new ArrayList<WnNode>(2);
-        List<WnNode> l1 = new ArrayList<WnNode>(2);
+        List<WnObj> l0 = new ArrayList<WnObj>(2);
+        List<WnObj> l1 = new ArrayList<WnObj>(2);
 
         c.loadParents(l0, false);
         assertEquals(2, l0.size());
@@ -375,54 +379,6 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
     }
 
     @Test
-    public void test_move_between_tree() {
-        WnObj home = io.create(null, "/a", WnRace.DIR);
-        assertFalse(home.isMount(home.tree()));
-
-        WnObj o = io.create(home, "b/c", WnRace.FILE);
-
-        // 写入内容
-        io.writeText(o, "I am great!");
-
-        // 挂载到另外一棵树
-        WnObj m = io.create(home, "data", WnRace.DIR);
-        String mnt = getAnotherTreeMount();
-        io.setMount(m, mnt);
-        assertEquals("/a/data", m.path());
-        assertEquals(mnt, m.mount());
-        assertTrue(m.isMount(home.tree()));
-
-        // 清除数据
-        WnTree tree = treeFactory.check(m);
-        tree._clean_for_unit_test();
-
-        // 创建目标
-        WnObj ta = io.create(m, "ta", WnRace.DIR);
-        assertTrue(ta.tree().equals(tree));
-        assertEquals("/a/data/ta", ta.path());
-
-        ta = io.get(ta.id());
-        assertEquals("/a/data/ta", ta.path());
-
-        // 移动
-        WnObj m2 = io.move(o, "/a/data/ta");
-        assertEquals(o.len(), m2.len());
-        assertEquals("I am great!", io.readText(m2));
-        assertTrue(m2.tree().equals(tree));
-
-        // 原节点不在了
-        assertNull(io.fetch(null, "/a/b/c"));
-
-        // 目标节点存在
-        WnObj m3 = io.fetch(null, "/a/data/ta/c");
-        assertEquals(o.len(), m3.len());
-        assertEquals("I am great!", io.readText(m3));
-
-        // 目标节点属于第二棵树
-        assertTrue(m3.tree().equals(tree));
-    }
-
-    @Test
     public void test_read_meta() {
         WnObj o = io.create(null, "/a", WnRace.FILE);
         io.appendMeta(o, "x:100, y:99");
@@ -545,23 +501,10 @@ public abstract class AbstractWnIoTest extends BaseIoTest {
         assertEquals(str.length(), o.len());
         assertEquals(Lang.sha1(str), o.sha1());
 
-        // 必然有一条历史
-        List<WnHistory> list = io.getHistoryList(o, -1);
-        assertEquals(1, list.size());
-
-        WnHistory his = list.get(0);
-        assertEquals(Lang.sha1(str), his.sha1());
-        assertEquals(str.length(), his.len());
-        assertEquals(o.nanoStamp(), his.nanoStamp());
-
         // 删除
         io.delete(o);
 
         assertNull(io.fetch(null, "/a/b/c"));
-
-        // 没历史了
-        assertNull(io.getHistory(o, -1));
-        assertEquals(0, io.getHistoryList(o, -1).size());
 
         // 但是之前的目录还在
         WnObj a = io.fetch(null, "/a");

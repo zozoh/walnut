@@ -1,6 +1,9 @@
-package org.nutz.walnut.api.usr;
+package org.nutz.walnut.impl.usr;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.nutz.json.Json;
@@ -9,10 +12,12 @@ import org.nutz.trans.Proton;
 import org.nutz.walnut.BaseUsrTest;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
-public abstract class AbstractWnUsrTest extends BaseUsrTest {
+public class IoWnUsrTest extends BaseUsrTest {
 
     @Test
     public void test_forbidden_write() {
@@ -399,3 +404,4 @@ public abstract class AbstractWnUsrTest extends BaseUsrTest {
     }
 
 }
+

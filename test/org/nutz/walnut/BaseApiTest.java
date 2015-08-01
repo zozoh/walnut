@@ -5,10 +5,6 @@ import org.junit.Before;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Mirror;
 import org.nutz.walnut.api.io.MimeMap;
-import org.nutz.walnut.api.io.WnIndexer;
-import org.nutz.walnut.api.io.WnNode;
-import org.nutz.walnut.api.io.WnStoreFactory;
-import org.nutz.walnut.api.io.WnTreeFactory;
 import org.nutz.walnut.impl.io.MimeMapImpl;
 import org.nutz.walnut.impl.io.mongo.MongoDB;
 import org.nutz.walnut.util.Wn;
@@ -16,12 +12,6 @@ import org.nutz.walnut.util.Wn;
 public abstract class BaseApiTest {
 
     // ------------------------------------------------ 这些是测试目标的构建
-    protected WnIndexer indexer;
-
-    protected WnTreeFactory treeFactory;
-
-    protected WnStoreFactory storeFactory;
-
     protected PropertiesProxy pp;
 
     protected MongoDB db;
@@ -45,9 +35,6 @@ public abstract class BaseApiTest {
         PropertiesProxy ppMime = new PropertiesProxy(pp.check("mime"));
         mimes = new MimeMapImpl(ppMime);
 
-        // 创建当前线程操作的用户
-        Wn.WC().me("root", "root");
-
         // 调用子类初始化
         on_before(pp);
     }
@@ -58,12 +45,13 @@ public abstract class BaseApiTest {
         db.on_depose();
     }
 
-    protected void on_before(PropertiesProxy pp) {};
+    protected void on_before(PropertiesProxy pp) {
+        // 默认每个测试运行都是用 root
+        Wn.WC().me("root", "root");
+    };
 
     protected void on_after(PropertiesProxy pp) {
         Wn.WC().me("root", "root");
     }
-
-    protected abstract WnNode _create_top_tree_node();
 
 }

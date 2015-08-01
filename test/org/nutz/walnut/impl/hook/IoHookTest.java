@@ -1,6 +1,8 @@
-package org.nutz.walnut.api.hook;
+package org.nutz.walnut.impl.hook;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 import org.nutz.lang.Lang;
@@ -13,7 +15,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 
-public abstract class AbstractWnHookTest extends BaseHookTest {
+public class IoHookTest extends BaseHookTest {
 
     @Test
     public void test_mount() {
@@ -286,5 +288,6 @@ public abstract class AbstractWnHookTest extends BaseHookTest {
         assertEquals("/home/xiaobai/abc.txt\n", txt);
         assertEquals(Lang.sha1(txt), o.sha1());
     }
+
 
 }
