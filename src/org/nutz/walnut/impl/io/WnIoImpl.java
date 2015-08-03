@@ -428,15 +428,30 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public String open(WnObj o, int mode) {
-        return store.open(o, mode);
+        String hid = store.open(o, mode);
+        if (o.hasRWMetaKeys()) {
+            tree.set(o, o.getRWMetaKeys());
+            o.clearRWMetaKeys();
+        }
+        return hid;
+    }
+
+    @Override
+    public WnObj flush(String hid) {
+        WnObj o = store.flush(hid);
+        if (o.hasRWMetaKeys()) {
+            tree.set(o, o.getRWMetaKeys());
+            o.clearRWMetaKeys();
+        }
+        return o;
     }
 
     @Override
     public WnObj close(String hid) {
         WnObj o = store.close(hid);
         if (o.hasRWMetaKeys()) {
-            String regex = o.getRWMetaKeys();
-            tree.set(o, regex);
+            tree.set(o, o.getRWMetaKeys());
+            o.clearRWMetaKeys();
         }
         return o;
     }
@@ -474,11 +489,6 @@ public class WnIoImpl implements WnIo {
     @Override
     public void seek(String hid, long pos) {
         store.seek(hid, pos);
-    }
-
-    @Override
-    public void flush(String hid) {
-        store.flush(hid);
     }
 
 }

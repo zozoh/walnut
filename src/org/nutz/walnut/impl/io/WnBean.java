@@ -77,6 +77,19 @@ public class WnBean extends NutMap implements WnObj {
         return this;
     }
 
+    public boolean hasWriteHandle() {
+        return this.has("_write_handle");
+    }
+
+    public String getWriteHandle() {
+        return this.getString("_write_handle");
+    }
+
+    public WnObj setWriteHandle(String hid) {
+        this.setv("_write_handle", hid);
+        return this;
+    }
+
     public boolean hasID() {
         return !Strings.isBlank(id());
     }
@@ -546,6 +559,12 @@ public class WnBean extends NutMap implements WnObj {
     @Override
     public WnObj setRWMetaKeys(String regex) {
         this.setv("__store_update_meta", regex);
+        return this;
+    }
+
+    @Override
+    public WnObj clearRWMetaKeys() {
+        this.remove("__store_update_meta");
         return this;
     }
 

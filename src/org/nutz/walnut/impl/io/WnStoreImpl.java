@@ -1,8 +1,6 @@
 package org.nutz.walnut.impl.io;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -10,14 +8,17 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnBucket;
 import org.nutz.walnut.api.io.WnBucketManager;
+import org.nutz.walnut.api.io.WnBucketSealStrategy;
+import org.nutz.walnut.api.io.WnHandle;
+import org.nutz.walnut.api.io.WnHandleManager;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnStore;
 import org.nutz.walnut.impl.io.bucket.LocalFileBucket;
 import org.nutz.walnut.impl.io.bucket.MemoryBucket;
-import org.nutz.walnut.io.WnHandle;
 import org.nutz.walnut.util.Wn;
 
 public class WnStoreImpl implements WnStore {
@@ -26,14 +27,12 @@ public class WnStoreImpl implements WnStore {
 
     private WnBucketManager buckets;
 
-    private Map<String, WnHandle> handles;
+    private WnHandleManager handles;
 
-    public void on_create() {
-        handles = new HashMap<String, WnHandle>();
-    }
+    private WnBucketSealStrategy bss;
 
     public void on_depose() {
-        handles.clear();
+        handles.dropAll();
     }
 
     @Override
@@ -49,8 +48,13 @@ public class WnStoreImpl implements WnStore {
             throw Er.create("e.io.dir.open", o);
         }
 
+        // 一个对象只能打开一个写句柄
+        if (Wn.S.isWite(mode) && o.hasWriteHandle()) {
+            throw Er.create("e.io.obj.w.opened", o);
+        }
+
         // 创建句柄
-        WnHandle hdl = new WnHandle();
+        WnHandle hdl = handles.create();
         hdl.id = R.UU64();
         hdl.ct = System.currentTimeMillis();
         hdl.lm = hdl.ct;
@@ -78,9 +82,9 @@ public class WnStoreImpl implements WnStore {
             File f = Files.findFile(ph);
             if (null == f)
                 throw Er.create("e.io.local.noexists", ph);
-            hdl.bucket = new LocalFileBucket(f);
+            hdl.bucket = new LocalFileBucket(f, DFT_BUCKET_BLOCK_SIZE);
         }
-        // 否则
+        // 否则就是默认的桶实现
         else {
             // 获取对象原有的桶
             WnBucket bu = Strings.isBlank(data) ? null : buckets.checkById(data);
@@ -92,7 +96,7 @@ public class WnStoreImpl implements WnStore {
                     hdl.bucket = buckets.alloc(DFT_BUCKET_BLOCK_SIZE);
                 }
                 // 如果有桶，且已封盖，在写入模式下的时候就创建一个新桶
-                else if (bu.sealed) {
+                else if (bu.isSealed()) {
                     hdl.bucket = bu.duplicate(true);
                 }
                 // 没有封盖的桶，继续使用
@@ -101,14 +105,22 @@ public class WnStoreImpl implements WnStore {
                 }
 
                 // 准备缓冲区
-                hdl.swap = new byte[bu.block_size];
+                hdl.swap = new byte[bu.getBlockSize()];
                 hdl.swap_size = 0;
+
+                // 记录一下，对象已经被占用
+                o.setWriteHandle(hdl.id);
+                o.setRWMetaKeys("^_write_handle$");
+
+            }
+            // 读模式，就用原来的桶即可
+            else {
+                hdl.bucket = bu;
             }
         }
 
-        // 持有句柄并返回
-        handles.put(hdl.id, hdl);
-
+        // 返回
+        handles.save(hdl);
         return hdl.id;
     }
 
@@ -119,20 +131,110 @@ public class WnStoreImpl implements WnStore {
         // 刷新缓存
         __flush(hdl);
 
+        // 写操作的句柄需要额外处理，读操作就神马也表用做了
+        if (Wn.S.isWite(hdl.mode)) {
+            // 如果是修改元数据
+            if (hdl.obj.isRWMeta()) {
+                String json = hdl.bucket.getString();
+                NutMap map = Json.fromJson(NutMap.class, json);
+                // 删除不该修改的 KEY
+                map.remove("id");
+
+                // 修改元数据
+                hdl.obj.putAll(map);
+
+                // 生成需要修改的元数据正则表达式
+                hdl.obj.setRWMetaKeys("^(" + Lang.concat("|", map.keySet()) + ")$");
+            }
+            // 仅仅是修改内容
+            else {
+                // 如果是复制的桶，需要额外做些事情
+                if (hdl.bucket.isDuplicated()) {
+                    // 那么需要合并原桶
+                    WnBucket srcBucket = buckets.checkById(hdl.bucket.getFromBucketId());
+                    hdl.bucket.margeWith(srcBucket);
+
+                    // 将对象指向新桶
+                    hdl.obj.data(hdl.bucket.getId());
+
+                    // 并释放原桶
+                    srcBucket.free();
+                }
+
+                // 更新对象的关键字段索引
+                hdl.obj.len(hdl.bucket.getSize());
+                hdl.obj.lastModified(hdl.bucket.getLastModified());
+
+                // 确保引用桶
+                __refer_to_bucket(hdl);
+
+                // 最后根据配置的策略，决定是否需要封盖桶
+                if (bss.shouldSealed(hdl.obj)) {
+                    String sha1 = hdl.bucket.seal();
+                    hdl.obj.sha1(sha1);
+                }
+                // 如果不封盖桶，则仅仅计算 sha1
+                else {
+                    hdl.obj.sha1(hdl.bucket.getSha1());
+                }
+
+                // 标记对象不在被写占用
+                hdl.obj.setWriteHandle(null);
+
+                // 标记元数据
+                hdl.obj.setRWMetaKeys("^(_write_handle|lm|len|sha1|data)$");
+            }
+        }
+
         // 移除句柄
         handles.remove(hid);
 
-        // 如果是追加
-        if (Wn.S.isAppend(hdl.mode)) {
-
-        }
-        // 如果是写
-        else if (Wn.S.isWite(hdl.mode)) {
-
-        }
-
         // 返回
         return hdl.obj;
+    }
+
+    @Override
+    public WnObj flush(String hid) {
+        WnHandle hdl = __check_hdl(hid);
+
+        // 刷新缓冲
+        __flush(hdl);
+
+        // 不是读写元数据的话，则需要更新对象的索引
+        if (hdl.swap_size > 0 && !hdl.obj.isRWMeta()) {
+            // 修改对象的索引
+            hdl.obj.len(hdl.bucket.getSize());
+            hdl.obj.sha1(null);
+            hdl.obj.lastModified(hdl.bucket.getLastModified());
+
+            // 引用桶
+            __refer_to_bucket(hdl);
+
+            // 标记要修改的元数据
+            hdl.obj.setRWMetaKeys("^(data|sha1|len|lm)$");
+        }
+
+        return hdl.obj;
+    }
+
+    private void __refer_to_bucket(WnHandle hdl) {
+        if (!Lang.equals(hdl.obj.data(), hdl.bucket.getId())) {
+            hdl.obj.data(hdl.bucket.getId());
+            hdl.bucket.refer();
+        }
+    }
+
+    public void __flush(WnHandle hdl) {
+        if (hdl.swap_size > 0) {
+            // 存入桶
+            hdl.bucket.write(hdl.pos, hdl.swap, 0, hdl.swap_size);
+
+            // 移动指针
+            hdl.pos += hdl.swap_size;
+
+            // 缓冲归零
+            hdl.swap_size = 0;
+        }
     }
 
     @Override
@@ -180,24 +282,33 @@ public class WnStoreImpl implements WnStore {
     }
 
     @Override
-    public void flush(String hid) {
-        WnHandle hdl = __check_hdl(hid);
-        __flush(hdl);
-    }
-
-    public void __flush(WnHandle hdl) {
-        if (hdl.swap_size > 0) {
-            long index = hdl.pos / hdl.bucket.block_nb;
-            int padding = (int) (hdl.pos - index * hdl.bucket.block_nb);
-            hdl.bucket.write(index, padding, hdl.swap, hdl.swap_size);
-            hdl.pos += hdl.swap_size;
-            hdl.swap_size = 0;
-        }
-    }
-
-    @Override
     public void delete(WnObj o) {
-        throw Lang.noImplement();
+        // 对象元数据句柄，忽略
+        if (o.isRWMeta()) {
+            return;
+        }
+
+        // 空对象
+        if (!o.hasData())
+            return;
+
+        // 分析文件数据
+        String data = o.data();
+
+        // 如果是映射到本地文件，只读
+        if (null != data && data.startsWith("file://")) {
+            throw Er.create("e.io.local.readonly", o);
+        }
+
+        // 如果是映射到本地文件，只读
+        if (null != data && data.startsWith("file://")) {
+            throw Er.create("e.io.local.readonly", o);
+        }
+
+        // 否则就是默认的桶实现
+        WnBucket bu = buckets.checkById(data);
+        bu.free();
+
     }
 
     private WnHandle __check_hdl(String hid) {

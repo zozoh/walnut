@@ -38,14 +38,13 @@ bucket            # 指向一个数据桶的 ID，读写操作都是针对这个
 ```
 id                # 桶的唯一标识，一个 UUID32 字符串
 sealed            # 桶是否设成只读
-premier           # 桶如果刚创建，则为 true，如果填充过内容，则为 false
 sha1              # 桶内有效数据的 SHA1 指纹
 len               # 桶的有效数据总长度
 
 ct                # 桶被创建的时间（绝对毫秒数）
 lm                # 桶被最后修改的时间，新桶，等于 ct
 lread             # 桶被最后读取的时间
-lsync             # 桶被最后被持久化的时间
+lwrite            # 桶被最后被写入的时间
 lseal             # 桶被最后被盖上的时间
 lopen             # 桶被最后被打开的时间，新桶，等于 ct
 
@@ -54,6 +53,8 @@ read_count        # 桶历史被读取的次数
 
 block_size        # 桶的数据块大小
 block_nb          # 桶的数据块数量，一个桶逻辑空间大小应该是 block_size * block_nb
+
+fromBucketId      # 如果桶是复制出来的，这里给出原桶的 ID
 ```
 
 1. 数据桶存放尺寸大小一致的数据块

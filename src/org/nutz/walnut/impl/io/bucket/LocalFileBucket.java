@@ -5,51 +5,127 @@ import java.io.RandomAccessFile;
 
 import org.nutz.lang.Lang;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.api.io.WnBucketBlockInfo;
+import org.nutz.walnut.api.io.AbstractBucket;
 import org.nutz.walnut.api.io.WnBucket;
+import org.nutz.walnut.api.io.WnBucketBlockInfo;
 
-public class LocalFileBucket extends WnBucket {
+public class LocalFileBucket extends AbstractBucket {
 
     private File f;
 
     private RandomAccessFile raf;
 
-    public LocalFileBucket(File f) {
-        this.f = f;
-        this.id = "file://" + f.getAbsolutePath();
-        this.sealed = false;
-        this.premier = false;
-        this.size = f.length();
+    private int blockSize;
 
-        this.ct = f.lastModified();
-        this.lm = f.lastModified();
-        this.lread = System.currentTimeMillis();
-        this.lsync = f.lastModified();
-        this.lseal = f.lastModified();
-        this.lopen = this.lread;
+    private long blockNumber;
 
-        this.refer_count = 1;
-        this.read_count = 1;
-
-        this.block_size = 8192;
-        this.block_nb = (long) Math.ceil(((double) size) / ((double) block_size));
+    @Override
+    public String getId() {
+        return "file://" + f.getAbsolutePath();
     }
 
     @Override
-    public String sha1() {
+    public boolean isSealed() {
+        return false;
+    }
+
+    @Override
+    public long getCreateTime() {
+        return f.lastModified();
+    }
+
+    @Override
+    public long getLastModified() {
+        return f.lastModified();
+    }
+
+    @Override
+    public long getLastReaded() {
+        return f.lastModified();
+    }
+
+    @Override
+    public long getLastWrited() {
+        return f.lastModified();
+    }
+
+    @Override
+    public long getLastSealed() {
+        return f.lastModified();
+    }
+
+    @Override
+    public long getLastOpened() {
+        return f.lastModified();
+    }
+
+    @Override
+    public long getCountRefer() {
+        return 1;
+    }
+
+    @Override
+    public long getCountRead() {
+        return 1;
+    }
+
+    @Override
+    public int getBlockSize() {
+        return blockSize;
+    }
+
+    @Override
+    public long getBlockNumber() {
+        return blockNumber;
+    }
+
+    @Override
+    public String getFromBucketId() {
+        return null;
+    }
+
+    @Override
+    public void setFromBucketId(String buid) {}
+
+    @Override
+    public boolean isDuplicated() {
+        return false;
+    }
+
+    @Override
+    public void setSize(long size) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public long getSize() {
+        return f.length();
+    }
+
+    public LocalFileBucket(File f, int blockSize) {
+        this.f = f;
+        long size = f.length();
+        this.blockSize = 8192;
+        this.blockNumber = (long) Math.ceil(((double) size) / ((double) blockSize));
+    }
+
+    @Override
+    public String getSha1() {
         return Lang.sha1(f);
     }
 
     @Override
-    public WnBucketBlockInfo read(long index, byte[] bs) {
-        WnBucketBlockInfo re = new WnBucketBlockInfo();
+    public int read(long index, byte[] bs, WnBucketBlockInfo bi) {
 
-        long pos = index * block_size;
-        re.paddingLeft = 0;
-        re.size = read(pos, bs, 0, bs.length);
-        re.paddingRight = bs.length - re.size;
+        long pos = index * getBlockSize();
+        int pl = 0;
+        int sz = read(pos, bs, 0, bs.length);
+        int pr = bs.length - sz;
 
-        return re;
+        if (null != bi)
+            bi.set(pl, sz, pr);
+
+        return sz;
     }
 
     @Override
@@ -84,7 +160,7 @@ public class LocalFileBucket extends WnBucket {
 
     @Override
     public String seal() {
-        return sha1();
+        return getSha1();
     }
 
     @Override
@@ -92,7 +168,7 @@ public class LocalFileBucket extends WnBucket {
 
     @Override
     public WnBucket duplicate(boolean dropData) {
-        return new LocalFileBucket(f);
+        return new LocalFileBucket(f, this.getBlockSize());
     }
 
     @Override
@@ -102,12 +178,12 @@ public class LocalFileBucket extends WnBucket {
 
     @Override
     public long refer() {
-        return 0;
+        return 1;
     }
 
     @Override
-    public int free() {
-        return 0;
+    public long free() {
+        return 1;
     }
 
 }

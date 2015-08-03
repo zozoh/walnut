@@ -20,6 +20,18 @@ public interface WnStore extends UnitTestable {
     String open(WnObj o, int mode);
 
     /**
+     * 将缓冲中的内容写入到对应的桶内
+     * 
+     * @param hid
+     *            句柄ID
+     * 
+     * @return 对象。与 close() 方法的返回做相同的处理
+     * 
+     * @see #close(String)
+     */
+    WnObj flush(String hid);
+
+    /**
      * 关闭一个句柄
      * 
      * @param hid
@@ -84,14 +96,6 @@ public interface WnStore extends UnitTestable {
      *             追加模式抛错
      */
     void seek(String hid, long pos);
-
-    /**
-     * 将缓冲中的内容写入到对应的桶内
-     * 
-     * @param hid
-     *            句柄ID
-     */
-    void flush(String hid);
 
     /**
      * 删除对象对应的存储空间

@@ -2,6 +2,15 @@ package org.nutz.walnut.api.io;
 
 public class WnBucketBlockInfo {
 
+    public WnBucketBlockInfo() {}
+
+    public WnBucketBlockInfo set(int pl, int sz, int pr) {
+        this.size = sz;
+        this.paddingLeft = pl;
+        this.paddingRight = pr;
+        return this;
+    }
+
     /**
      * 有效数据长度
      */

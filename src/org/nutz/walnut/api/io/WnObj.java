@@ -17,6 +17,12 @@ public interface WnObj extends NutBean {
 
     WnObj id(String id);
 
+    boolean hasWriteHandle();
+
+    String getWriteHandle();
+
+    WnObj setWriteHandle(String hid);
+
     boolean hasID();
 
     boolean isSameId(WnObj o);
@@ -34,6 +40,8 @@ public interface WnObj extends NutBean {
     String getRWMetaKeys();
 
     WnObj setRWMetaKeys(String regex);
+
+    WnObj clearRWMetaKeys();
 
     String path();
 

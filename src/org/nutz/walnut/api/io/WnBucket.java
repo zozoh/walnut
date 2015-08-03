@@ -1,59 +1,48 @@
 package org.nutz.walnut.api.io;
 
-import org.nutz.lang.Encoding;
-import org.nutz.walnut.api.err.Er;
+public interface WnBucket {
 
-public abstract class WnBucket extends WnBucketInfo {
+    String getId();
 
-    public abstract String sha1();
+    boolean isSealed();
 
-    public String getString() {
-        if (size == 0)
-            return "";
+    long getCreateTime();
 
-        byte[] bs = new byte[(int) size];
-        this.read(0, bs, 0, bs.length);
-        return new String(bs, Encoding.CHARSET_UTF8);
-    }
+    long getLastModified();
 
-    public void write(String s) {
-        byte[] bs = s.getBytes(Encoding.CHARSET_UTF8);
-        write(0, bs, 0, bs.length);
-    }
+    long getLastReaded();
 
-    public long write(long pos, byte[] bs, int off, int len) {
-        if (len <= 0) {
-            trancate(0);
-            return 0L;
-        }
+    long getLastWrited();
 
-        // 从桶的哪个块开始写
-        long index = pos / block_size;
-        // 桶修改后，有效数据长度，以及一共有多少块
-        size = pos + len;
+    long getLastSealed();
 
-        // 第一个块
-        int b_first_off = (int) (pos - index * block_size);
-        int sz = Math.min(block_size - b_first_off, len);
-        this.write(index, b_first_off, bs, off, sz);
-        index++;
-        len -= sz;
-        off += sz;
+    long getLastOpened();
 
-        // 中间的块
-        while (len > block_size) {
-            this.write(index, 0, bs, off, block_size);
-            index++;
-            len -= block_size;
-            off += block_size;
-        }
+    long getCountRefer();
 
-        // 最后一个块
-        this.write(index, 0, bs, off, len);
+    long getCountRead();
 
-        // 返回最后一个操作的桶块下标
-        return index;
-    }
+    int getBlockSize();
+
+    long getBlockNumber();
+
+    String getFromBucketId();
+
+    void setFromBucketId(String buid);
+
+    boolean isDuplicated();
+
+    long getSize();
+
+    void setSize(long size);
+
+    String getSha1();
+
+    String getString();
+
+    void write(String s);
+
+    long write(long pos, byte[] bs, int off, int len);
 
     /**
      * 读取一个桶块
@@ -62,14 +51,17 @@ public abstract class WnBucket extends WnBucketInfo {
      *            桶块的下标，0 Base
      * @param bs
      *            字节数组，长度必须不能小于 block_size，桶块的字节将全部输出到这个数组
-     * @return 输出的字节数组的具体布局
+     * @param bi
+     *            【选】输出的字节数组的具体布局
+     * 
+     * @return 输出了多少有效字节
      * 
      * @throws "e.bucket.OutputRange"
      *             桶块下标越界
      * 
      * @see WnBucketBlockInfo
      */
-    public abstract WnBucketBlockInfo read(long index, byte[] bs);
+    int read(long index, byte[] bs, WnBucketBlockInfo bi);
 
     /**
      * 从桶中读取一些字节
@@ -84,14 +76,7 @@ public abstract class WnBucket extends WnBucketInfo {
      *            最多写多少
      * @return 实际读取了多少有效字节
      */
-    public abstract int read(long pos, byte[] bs, int off, int len);
-
-    /**
-     * @see #write(long, int, byte[], int, int)
-     */
-    public void write(long index, int padding, byte[] bs, int len) {
-        write(index, padding, bs, 0, len);
-    }
+    int read(long pos, byte[] bs, int off, int len);
 
     /**
      * 写入一个桶块。如果桶块空间还有富余，则用空白填充
@@ -107,7 +92,7 @@ public abstract class WnBucket extends WnBucketInfo {
      * @param len
      *            写多长
      */
-    public abstract void write(long index, int padding, byte[] bs, int off, int len);
+    void write(long index, int padding, byte[] bs, int off, int len);
 
     /**
      * 忠实的安装给定的字节填充桶块
@@ -117,7 +102,7 @@ public abstract class WnBucket extends WnBucketInfo {
      * @param bs
      *            字节数组，里面的字节会被写入桶块，长度等于桶块。
      */
-    public abstract void write(long index, byte[] bs);
+    void write(long index, byte[] bs);
 
     /**
      * 剪裁桶的有效数据大小
@@ -125,11 +110,11 @@ public abstract class WnBucket extends WnBucketInfo {
      * @param nb
      *            将桶块裁剪到多少个
      */
-    public abstract void trancate(long nb);
+    void trancate(long nb);
 
-    public abstract String seal();
+    String seal();
 
-    public abstract void unseal();
+    void unseal();
 
     /**
      * 复制出一个新桶
@@ -139,7 +124,7 @@ public abstract class WnBucket extends WnBucketInfo {
      * 
      * @return 新桶
      */
-    public abstract WnBucket duplicate(boolean dropData);
+    WnBucket duplicate(boolean dropData);
 
     /**
      * 将另外一个桶的数据合并到当前的桶，本桶的 sha1 等字段会发生响应的改变。
@@ -153,22 +138,18 @@ public abstract class WnBucket extends WnBucketInfo {
      * 
      * @return 自身以便链式赋值
      */
-    public abstract WnBucket margeWith(WnBucket bucket);
+    WnBucket margeWith(WnBucket bucket);
 
-    public abstract long refer();
+    /**
+     * 引用一个桶，返回引用后的计数
+     * 
+     * @return 引用计数
+     */
+    long refer();
 
     /**
      * @return 释放后，桶的引用计数，0 表示这个桶的数据将会被释放
      */
-    public abstract int free();
+    long free();
 
-    protected void _assert_index_not_out_of_range(long index) {
-        if (index >= block_nb)
-            throw Er.create("e.bucket.OutputRange");
-    }
-
-    protected void _assert_no_sealed() {
-        if (sealed)
-            throw Er.create("e.bucket.sealed");
-    }
 }

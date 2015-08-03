@@ -1,7 +1,4 @@
-package org.nutz.walnut.io;
-
-import org.nutz.walnut.api.io.WnBucket;
-import org.nutz.walnut.api.io.WnObj;
+package org.nutz.walnut.api.io;
 
 /**
  * 句柄的结构体

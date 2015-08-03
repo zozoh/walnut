@@ -25,24 +25,28 @@ public abstract class Bus {
      *            块的字节数组
      * @return 块的边距信息
      */
-    public static WnBucketBlockInfo getInfo(byte[] block) {
-        WnBucketBlockInfo bi = new WnBucketBlockInfo();
+    public static int getInfo(byte[] block, WnBucketBlockInfo bi) {
 
         // 左边距
-        for (; bi.paddingLeft < block.length; bi.paddingLeft++)
-            if (block[bi.paddingLeft] != 0)
+        int pl = 0;
+        for (; pl < block.length; pl++)
+            if (block[pl] != 0)
                 break;
 
         // 右边距
-        for (; bi.paddingRight >= bi.paddingLeft; bi.paddingRight++)
-            if (block[block.length - bi.paddingRight - 1] != 0)
+        int pr = 0;
+        for (; pr >= pl; pr++)
+            if (block[block.length - pr - 1] != 0)
                 break;
 
         // 有效数据长度
-        bi.size = block.length - bi.paddingLeft - bi.paddingRight;
+        int sz = block.length - pl - pr;
+
+        if (null != bi)
+            bi.set(pl, sz, pr);
 
         // 搞定返回
-        return bi;
+        return sz;
     }
 
 }
