@@ -3,19 +3,16 @@ package org.nutz.walnut.impl.io;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-
 import org.junit.Test;
 import org.nutz.lang.Lang;
-import org.nutz.lang.Streams;
 import org.nutz.walnut.BaseStoreTest;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.io.WnBean;
+import org.nutz.walnut.util.Wn;
 
 public class WnStoreImplTest extends BaseStoreTest {
+
+    private WnObj _o;
 
     @Test
     public void test_simple_read_write() throws IOException {
@@ -25,11 +22,11 @@ public class WnStoreImplTest extends BaseStoreTest {
 
         String str = "hello";
 
-        OutputStream ops = store.getOutputStream(o, 0);
-        Streams.writeAndClose(new OutputStreamWriter(ops), str);
+        String hid = store.open(_o, Wn.S.RW);
 
-        InputStream ins = store.getInputStream(o, 0);
-        String str2 = Streams.readAndClose(new InputStreamReader(ins));
+        store.write(hid, str);
+
+        String str2 = store.getString(hid);
 
         assertEquals(str, str2);
         assertEquals(str.length(), o.len());

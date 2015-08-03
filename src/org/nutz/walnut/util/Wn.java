@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Maths;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.segment.Segment;
@@ -39,18 +40,6 @@ public abstract class Wn {
     // Thread.sleep(100);
     // }
     // }
-
-    private static long _nano_begin = System.nanoTime();
-
-    public static long nanoTime() {
-        long ms = System.currentTimeMillis();
-        long nano = System.nanoTime();
-
-        long ns = nano - _nano_begin;
-
-        return (ms * 1000000L) + ns % 1000000L;
-        // return System.nanoTime();
-    }
 
     public static class Ctx {
 
@@ -386,6 +375,42 @@ public abstract class Wn {
 
     }
 
+    public static class S {
+
+        public static final int A = 1;
+        public static final int W = 1 << 1;
+        public static final int R = 1 << 2;
+        public static final int RW = R | W;
+
+        public static boolean isRead(int mode) {
+            return Maths.isMask(mode, R);
+        }
+
+        public static boolean isReadOnly(int mode) {
+            return Maths.isMaskAll(mode, R);
+        }
+
+        public static boolean isWite(int mode) {
+            return Maths.isMask(mode, W);
+        }
+
+        public static boolean isWriteOnly(int mode) {
+            return Maths.isMaskAll(mode, W);
+        }
+
+        public static boolean isAppend(int mode) {
+            return Maths.isMask(mode, A);
+        }
+
+        public static boolean isWriteOrAppend(int mode) {
+            return Maths.isMask(mode, W | A);
+        }
+
+        public static boolean isReadWrite(int mode) {
+            return Maths.isMask(mode, RW);
+        }
+    }
+
     public static String genId() {
         return R.UU32();
     }
@@ -411,8 +436,6 @@ public abstract class Wn {
     }
 
     public static final String OBJ_META_PREFIX = ".wn_obj_meta_";
-
-    public static final String OBJ_META_RW = "__obj_meta_rw";
 
     public static String metaPath(String ph) {
         String nm = Files.getName(ph);

@@ -331,6 +331,12 @@ public class WnBean extends NutMap implements WnObj {
         return this.getLong("lm");
     }
 
+    @Override
+    public WnObj lastModified(long lm) {
+        this.setv("lm", lm);
+        return this;
+    }
+
     public long nanoStamp() {
         return this.getLong("nano");
     }
@@ -514,6 +520,33 @@ public class WnBean extends NutMap implements WnObj {
 
     public boolean isMyParent(WnObj p) {
         return Lang.equals(parentId(), p.id());
+    }
+
+    @Override
+    public boolean isRWMeta() {
+        return getBoolean("__obj_meta_rw");
+    }
+
+    @Override
+    public WnObj setRWMeta(boolean rwmeta) {
+        this.setv("__obj_meta_rw", rwmeta);
+        return this;
+    }
+
+    @Override
+    public boolean hasRWMetaKeys() {
+        return has("__store_update_meta");
+    }
+
+    @Override
+    public String getRWMetaKeys() {
+        return getString("__store_update_meta");
+    }
+
+    @Override
+    public WnObj setRWMetaKeys(String regex) {
+        this.setv("__store_update_meta", regex);
+        return this;
     }
 
     public WnObj clone() {

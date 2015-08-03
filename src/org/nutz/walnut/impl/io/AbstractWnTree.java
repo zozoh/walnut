@@ -267,8 +267,9 @@ public abstract class AbstractWnTree implements WnTree {
         o.setParent(p);
         o.race(race);
         o.setTree(this);
-        o.nanoStamp(Wn.nanoTime());
-        o.createTime(System.currentTimeMillis());
+        long now = System.currentTimeMillis();
+        o.createTime(now);
+        o.lastModified(now);
 
         // 顶级节点，均属于 root
         if (Strings.isBlank(o.d1())) {

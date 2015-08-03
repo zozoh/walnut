@@ -10,7 +10,6 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.io.WnBean;
-import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebConfig;
 
 public class WnConfig extends WebConfig {
@@ -75,7 +74,7 @@ public class WnConfig extends WebConfig {
         o.path("/");
         o.race(WnRace.DIR);
         o.name("");
-        o.nanoStamp(Wn.nanoTime());
+        o.lastModified(System.currentTimeMillis());
         o.createTime(System.currentTimeMillis());
         o.creator("root").mender("root").group("root");
         o.mode(0750);

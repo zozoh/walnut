@@ -130,7 +130,7 @@ public class WnIoImpl implements WnIo {
         WnObj o = tree.fetch(p, path);
         // 标记一下，如果读写的时候，只写这个对象的索引
         if (rwmeta) {
-            o.setv(Wn.OBJ_META_RW, rwmeta);
+            o.setRWMeta(rwmeta);
             o.mime(mimes.getMime("json"));
         }
         return o;
@@ -152,7 +152,7 @@ public class WnIoImpl implements WnIo {
 
         // 标记一下，如果读写的时候，只写这个对象的索引
         if (rwmeta) {
-            o.setv(Wn.OBJ_META_RW, rwmeta);
+            o.setRWMeta(rwmeta);
             o.mime(mimes.getMime("json"));
         }
         return o;
@@ -249,34 +249,36 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public InputStream getInputStream(WnObj o, long off) {
-        // 是读取元数据的
-        if (o.getBoolean(Wn.OBJ_META_RW)) {
-            WnObj o2 = (WnObj) o.duplicate();
-            o2.remove(Wn.OBJ_META_RW);
-            return new WnObjMetaInputStream(o2);
-        }
-        // 读取内容的
-        return store.getInputStream(o, off);
+        // // 是读取元数据的
+        // if (o.getBoolean(Wn.OBJ_META_RW)) {
+        // WnObj o2 = (WnObj) o.duplicate();
+        // o2.remove(Wn.OBJ_META_RW);
+        // return new WnObjMetaInputStream(o2);
+        // }
+        // // 读取内容的
+        // return store.getInputStream(o, off);
+        throw Lang.noImplement();
     }
 
     @Override
     public OutputStream getOutputStream(WnObj o, long off) {
-        // 是写入元数据的
-        if (o.getBoolean(Wn.OBJ_META_RW)) {
-            return new WnObjMetaOutputStream(o, this, off < 0);
-        }
-        // 写入内容
-        OutputStream ops = store.getOutputStream(o, off);
-        return new WnIoOutputStreamWrapper(this, o, ops);
+        // // 是写入元数据的
+        // if (o.getBoolean(Wn.OBJ_META_RW)) {
+        // return new WnObjMetaOutputStream(o, this, off < 0);
+        // }
+        // // 写入内容
+        // OutputStream ops = store.getOutputStream(o, off);
+        // return new WnIoOutputStreamWrapper(this, o, ops);
+        throw Lang.noImplement();
     }
 
     @Override
     public void writeMeta(WnObj o, Object meta) {
         // 得到之前的配置
-        boolean rw = o.getBoolean(Wn.OBJ_META_RW);
+        boolean rw = o.isRWMeta();
 
         // 确保是写 Meta
-        o.setv(Wn.OBJ_META_RW, true);
+        o.setRWMeta(true);
 
         // 写入
         String json = __to_meta_json(o, meta);
@@ -284,7 +286,7 @@ public class WnIoImpl implements WnIo {
 
         // 恢复
         if (!rw)
-            o.remove(Wn.OBJ_META_RW);
+            o.setRWMeta(rw);
     }
 
     private String __to_meta_json(WnObj o, Object meta) {
@@ -325,10 +327,10 @@ public class WnIoImpl implements WnIo {
     @Override
     public void appendMeta(WnObj o, Object meta) {
         // 得到之前的配置
-        boolean rw = o.getBoolean(Wn.OBJ_META_RW);
+        boolean rw = o.isRWMeta();
 
         // 确保是写 Meta
-        o.setv(Wn.OBJ_META_RW, true);
+        o.setRWMeta(true);
 
         // 写入
         String json = __to_meta_json(o, meta);
@@ -336,7 +338,7 @@ public class WnIoImpl implements WnIo {
 
         // 恢复
         if (!rw)
-            o.remove(Wn.OBJ_META_RW);
+            o.setRWMeta(rw);
     }
 
     @Override
@@ -430,8 +432,13 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
-    public void close(String hid) {
-        store.close(hid);
+    public WnObj close(String hid) {
+        WnObj o = store.close(hid);
+        if (o.hasRWMetaKeys()) {
+            String regex = o.getRWMetaKeys();
+            tree.set(o, regex);
+        }
+        return o;
     }
 
     @Override
@@ -452,6 +459,16 @@ public class WnIoImpl implements WnIo {
     @Override
     public void write(String hid, byte[] bs) {
         store.write(hid, bs);
+    }
+
+    @Override
+    public String getString(String hid) {
+        return store.getString(hid);
+    }
+
+    @Override
+    public void write(String hid, String s) {
+        store.write(hid, s);
     }
 
     @Override

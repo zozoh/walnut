@@ -25,6 +25,16 @@ public interface WnObj extends NutBean {
 
     boolean isMyParent(WnObj p);
 
+    boolean isRWMeta();
+
+    WnObj setRWMeta(boolean rwmeta);
+
+    boolean hasRWMetaKeys();
+
+    String getRWMetaKeys();
+
+    WnObj setRWMetaKeys(String regex);
+
     String path();
 
     WnObj path(String path);
@@ -67,7 +77,7 @@ public interface WnObj extends NutBean {
 
     long lastModified();
 
-    long nanoStamp();
+    WnObj lastModified(long lm);
 
     String toString();
 
@@ -138,7 +148,7 @@ public interface WnObj extends NutBean {
     String d1();
 
     WnObj d1(String d1);
-    
+
     String[] dN();
 
     WnObj update(NutMap map);
@@ -162,8 +172,6 @@ public interface WnObj extends NutBean {
     boolean isExpired();
 
     boolean isExpiredBy(long now);
-
-    WnObj nanoStamp(long nano);
 
     boolean equals(Object obj);
 

@@ -162,7 +162,7 @@ public class IoWnSessionService implements WnSessionService {
 
     private void _touch(WnObj o) {
         int du = o.getInt("du", duration);
-        o.nanoStamp(Wn.nanoTime());
+        o.lastModified(System.currentTimeMillis());
         o.expireTime(o.lastModified() + du);
         io.appendMeta(o, "^nano|lm|expi$");
     }
