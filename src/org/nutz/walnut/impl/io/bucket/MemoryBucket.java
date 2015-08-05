@@ -1,13 +1,10 @@
 package org.nutz.walnut.impl.io.bucket;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.AbstractBucket;
 import org.nutz.walnut.api.io.WnBucket;
 import org.nutz.walnut.api.io.WnBucketBlockInfo;
@@ -28,10 +25,11 @@ public class MemoryBucket extends AbstractBucket {
     private long countRefer;
     private long countRead;
     private int blockSize;
-    private long blockNumber;
-    private String fromBucketId;
+    private int blockNumber;
     private long size;
     private String sha1;
+
+    private WnBucket parentBucket;
 
     private List<byte[]> list;
 
@@ -42,57 +40,56 @@ public class MemoryBucket extends AbstractBucket {
 
     @Override
     public String getSha1() {
-        if (null == sha1) {
-            try {
-                MessageDigest md = MessageDigest.getInstance("SHA1");
+        if (null == sha1)
+            sha1 = _gen_sha1();
 
-                WnBucketBlockInfo bi = new WnBucketBlockInfo();
-                for (byte[] bs : list) {
-                    Bus.getInfo(bs, bi);
-                    md.update(bs, bi.paddingLeft, bi.size);
-                }
-
-                byte[] hashBytes = md.digest();
-                sha1 = Lang.fixedHexString(hashBytes);
-            }
-            catch (NoSuchAlgorithmException e) {
-                throw Lang.impossible();
-            }
-        }
         return sha1;
     }
 
     @Override
-    public int read(long index, byte[] bs, WnBucketBlockInfo bi) {
+    public int read(int index, byte[] bs, WnBucketBlockInfo bi) {
         _assert_index_not_out_of_range(index);
 
-        int i = (int) index;
-        byte[] block = i >= list.size() ? null : list.get(i);
+        byte[] block = index >= list.size() ? null : list.get(index);
         if (null == block)
             Arrays.fill(bs, B0);
         else
             System.arraycopy(block, 0, bs, 0, block.length);
-        return Bus.getInfo(block, bi);
+
+        // 计数
+        this.countRead++;
+
+        // 获得信息并返回
+        return Bus.evalInfo(block, bi);
+
     }
 
     @Override
     public int read(long pos, byte[] bs, int off, int len) {
         int re = 0;
         WnBucketBlockInfo bi = new WnBucketBlockInfo();
-        while (pos < len && re < len) {
+        while (pos < size && len > 0) {
             // 找到块
             int index = (int) (pos / blockSize);
-            _assert_index_not_out_of_range(index);
 
             // 找到偏移
             int from = (int) (pos - index * blockSize);
 
             // 读取
             byte[] block = list.get(index);
-            int sz = Bus.getInfo(block, bi);
-            int n = Math.min(sz, len);
-            System.arraycopy(block, bi.paddingLeft + from, bs, off, n);
 
+            int n;
+            // 空块
+            if (null == block) {
+                n = Math.min(blockSize - from, len);
+            }
+            // 有内容，分析一下
+            else {
+                Bus.evalInfo(block, bi);
+                int pos0 = Math.max(from, bi.paddingLeft);
+                n = Math.min(len, blockSize - bi.paddingRight - pos0);
+                System.arraycopy(block, pos0, bs, off, n);
+            }
             // 计数
             re += n;
             len -= n;
@@ -100,12 +97,19 @@ public class MemoryBucket extends AbstractBucket {
             pos += n;
 
         }
+
+        // 计数
+        this.countRead++;
+
+        // 返回读取的有效字节数
         return re;
     }
 
     @Override
-    public void write(long index, int padding, byte[] bs, int off, int len) {
+    public int write(int index, int padding, byte[] bs, int off, int len) {
         _assert_no_sealed();
+
+        int n;
 
         // 添加新的桶块
         if (index >= blockNumber) {
@@ -116,54 +120,64 @@ public class MemoryBucket extends AbstractBucket {
 
             // 追加一个桶块
             byte[] block = new byte[blockSize];
-            Bus.fillBlock(block, padding, bs, off, len);
             list.add(block);
+
+            // 最多填充多少字节
+            n = Math.min(blockSize - padding, len);
+
+            // 填充
+            System.arraycopy(bs, off, block, padding, n);
+
+            // 计算结果
             blockNumber = index + 1;
+            size = index * blockSize + n;
         }
         // 修改已有的桶块
         else {
-            byte[] block = new byte[blockSize];
-            Bus.fillBlock(block, padding, bs, off, len);
-            list.set((int) index, bs);
-        }
-    }
-
-    @Override
-    public void write(long index, byte[] bs) {
-        _assert_no_sealed();
-
-        // 添加新的桶块
-        if (index >= blockNumber) {
-            // 补充空余的桶块
-            for (int i = list.size(); i < index; i++) {
-                list.add(null);
+            byte[] block = list.get(index);
+            // 确保桶块不为 null
+            if (null == block) {
+                block = new byte[blockSize];
+                list.set(index, block);
             }
+            // 最多填充多少字节
+            n = Math.min(blockSize - padding, len);
 
-            // 追加一个桶块
-            byte[] block = new byte[blockSize];
-            Bus.fillBlock(block, 0, bs, 0, bs.length);
-            list.add(block);
-            blockNumber = index + 1;
+            // 填充
+            System.arraycopy(bs, off, block, padding, n);
+
+            // 如果是最后一个桶块 ...
+            if (index == blockNumber - 1) {
+                WnBucketBlockInfo bi = Bus.getInfo(block);
+                size = index * blockSize - bi.paddingRight;
+            }
         }
-        // 修改已有的桶块
-        else {
-            byte[] block = new byte[blockSize];
-            Bus.fillBlock(block, 0, bs, 0, bs.length);
-            list.set((int) index, block);
-        }
+
+        // 删除指纹缓冲
+        sha1 = null;
+
+        // 返回实际写入的字节数
+        return n;
     }
 
     @Override
-    public void trancate(long nb) {
+    public void trancate(int nb) {
+        if (nb == blockNumber) {
+            return;
+        }
+
+        // 清零
         if (nb == 0) {
             list.clear();
             blockNumber = 0;
-            size = 0;
-        } else if (nb < list.size()) {
+        }
+        // 剪裁
+        else if (nb < list.size()) {
             list = list.subList(0, (int) nb);
             blockNumber = nb;
-            size = nb * blockSize;
         }
+        // 清除指纹
+        sha1 = null;
     }
 
     @Override
@@ -175,12 +189,10 @@ public class MemoryBucket extends AbstractBucket {
     public void unseal() {}
 
     @Override
-    public WnBucket duplicate(boolean dropData) {
-        throw Lang.noImplement();
-    }
+    public void update() {}
 
     @Override
-    public WnBucket margeWith(WnBucket bucket) {
+    public WnBucket duplicateVirtual() {
         throw Lang.noImplement();
     }
 
@@ -238,20 +250,20 @@ public class MemoryBucket extends AbstractBucket {
         return blockSize;
     }
 
-    public long getBlockNumber() {
+    public int getBlockNumber() {
         return blockNumber;
     }
 
-    public String getFromBucketId() {
-        return fromBucketId;
+    public String getParentBucketId() {
+        return null == parentBucket ? null : parentBucket.getId();
     }
 
-    public void setFromBucketId(String fromBucketId) {
-        this.fromBucketId = fromBucketId;
+    public void setParentBucket(WnBucket bu) {
+        this.parentBucket = bu;
     }
 
     public boolean isDuplicated() {
-        return !Strings.isBlank(fromBucketId);
+        return null != this.parentBucket;
     }
 
     public long getSize() {
@@ -259,7 +271,23 @@ public class MemoryBucket extends AbstractBucket {
     }
 
     public void setSize(long size) {
+        // 应该有多少块
+        long b_nb = (long) Math.ceil(((double) size) / ((double) blockSize));
+
+        // 补充空块
+        for (long i = blockNumber; i < b_nb; i++)
+            list.add(null);
+
+        // 裁剪
+        if (b_nb < blockNumber) {
+            list = list.subList(0, (int) blockNumber);
+        }
+
+        // 保存有效尺寸
         this.size = size;
+
+        // 清除指纹
+        this.sha1 = null;
     }
 
 }

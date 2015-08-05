@@ -8,6 +8,7 @@ public class WnBucketBlockInfo {
         this.size = sz;
         this.paddingLeft = pl;
         this.paddingRight = pr;
+        this.len = sz + pl;
         return this;
     }
 
@@ -25,5 +26,10 @@ public class WnBucketBlockInfo {
      * 结尾填充字节数
      */
     public int paddingRight;
+
+    /**
+     * 占用数据长度。即 size + paddingLeft
+     */
+    public int len;
 
 }

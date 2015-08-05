@@ -17,7 +17,7 @@ public class LocalFileBucket extends AbstractBucket {
 
     private int blockSize;
 
-    private long blockNumber;
+    private int blockNumber;
 
     @Override
     public String getId() {
@@ -75,17 +75,17 @@ public class LocalFileBucket extends AbstractBucket {
     }
 
     @Override
-    public long getBlockNumber() {
+    public int getBlockNumber() {
         return blockNumber;
     }
 
     @Override
-    public String getFromBucketId() {
+    public String getParentBucketId() {
         return null;
     }
 
     @Override
-    public void setFromBucketId(String buid) {}
+    public void setParentBucket(WnBucket bu) {}
 
     @Override
     public boolean isDuplicated() {
@@ -106,7 +106,7 @@ public class LocalFileBucket extends AbstractBucket {
         this.f = f;
         long size = f.length();
         this.blockSize = 8192;
-        this.blockNumber = (long) Math.ceil(((double) size) / ((double) blockSize));
+        this.blockNumber = (int) Math.ceil(((double) size) / ((double) blockSize));
     }
 
     @Override
@@ -115,7 +115,7 @@ public class LocalFileBucket extends AbstractBucket {
     }
 
     @Override
-    public int read(long index, byte[] bs, WnBucketBlockInfo bi) {
+    public int read(int index, byte[] bs, WnBucketBlockInfo bi) {
 
         long pos = index * getBlockSize();
         int pl = 0;
@@ -144,17 +144,12 @@ public class LocalFileBucket extends AbstractBucket {
     }
 
     @Override
-    public void write(long index, int padding, byte[] bs, int off, int len) {
+    public int write(int index, int padding, byte[] bs, int off, int len) {
         throw Er.create("e.io.bucket.file.readonly", f);
     }
 
     @Override
-    public void write(long index, byte[] bs) {
-        throw Er.create("e.io.bucket.file.readonly", f);
-    }
-
-    @Override
-    public void trancate(long nb) {
+    public void trancate(int nb) {
         throw Er.create("e.io.bucket.file.readonly", f);
     }
 
@@ -167,13 +162,11 @@ public class LocalFileBucket extends AbstractBucket {
     public void unseal() {}
 
     @Override
-    public WnBucket duplicate(boolean dropData) {
-        return new LocalFileBucket(f, this.getBlockSize());
-    }
+    public void update() {}
 
     @Override
-    public WnBucket margeWith(WnBucket bucket) {
-        throw Er.create("e.io.bucket.file.readonly", f);
+    public WnBucket duplicateVirtual() {
+        return new LocalFileBucket(f, this.getBlockSize());
     }
 
     @Override

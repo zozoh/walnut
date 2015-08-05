@@ -12,7 +12,6 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnBucket;
 import org.nutz.walnut.api.io.WnBucketManager;
-import org.nutz.walnut.api.io.WnBucketSealStrategy;
 import org.nutz.walnut.api.io.WnHandle;
 import org.nutz.walnut.api.io.WnHandleManager;
 import org.nutz.walnut.api.io.WnObj;
@@ -28,8 +27,6 @@ public class WnStoreImpl implements WnStore {
     private WnBucketManager buckets;
 
     private WnHandleManager handles;
-
-    private WnBucketSealStrategy bss;
 
     public void on_depose() {
         handles.dropAll();
@@ -95,9 +92,14 @@ public class WnStoreImpl implements WnStore {
                 if (null == bu) {
                     hdl.bucket = buckets.alloc(DFT_BUCKET_BLOCK_SIZE);
                 }
-                // 如果有桶，且已封盖，在写入模式下的时候就创建一个新桶
+                // 如果有桶，且已封盖，且已经被其他对象使用，在写入模式下的时候就创建一个新桶
                 else if (bu.isSealed()) {
-                    hdl.bucket = bu.duplicate(true);
+                    if (bu.getCountRefer() > 1) {
+                        hdl.bucket = bu.duplicateVirtual();
+                    } else {
+                        bu.unseal();
+                        hdl.bucket = bu;
+                    }
                 }
                 // 没有封盖的桶，继续使用
                 else {
@@ -148,19 +150,6 @@ public class WnStoreImpl implements WnStore {
             }
             // 仅仅是修改内容
             else {
-                // 如果是复制的桶，需要额外做些事情
-                if (hdl.bucket.isDuplicated()) {
-                    // 那么需要合并原桶
-                    WnBucket srcBucket = buckets.checkById(hdl.bucket.getFromBucketId());
-                    hdl.bucket.margeWith(srcBucket);
-
-                    // 将对象指向新桶
-                    hdl.obj.data(hdl.bucket.getId());
-
-                    // 并释放原桶
-                    srcBucket.free();
-                }
-
                 // 更新对象的关键字段索引
                 hdl.obj.len(hdl.bucket.getSize());
                 hdl.obj.lastModified(hdl.bucket.getLastModified());
@@ -168,15 +157,9 @@ public class WnStoreImpl implements WnStore {
                 // 确保引用桶
                 __refer_to_bucket(hdl);
 
-                // 最后根据配置的策略，决定是否需要封盖桶
-                if (bss.shouldSealed(hdl.obj)) {
-                    String sha1 = hdl.bucket.seal();
-                    hdl.obj.sha1(sha1);
-                }
-                // 如果不封盖桶，则仅仅计算 sha1
-                else {
-                    hdl.obj.sha1(hdl.bucket.getSha1());
-                }
+                // 最后封盖桶
+                String sha1 = hdl.bucket.seal();
+                hdl.obj.sha1(sha1);
 
                 // 标记对象不在被写占用
                 hdl.obj.setWriteHandle(null);

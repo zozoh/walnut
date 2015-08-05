@@ -24,11 +24,11 @@ public interface WnBucket {
 
     int getBlockSize();
 
-    long getBlockNumber();
+    int getBlockNumber();
 
-    String getFromBucketId();
+    String getParentBucketId();
 
-    void setFromBucketId(String buid);
+    void setParentBucket(WnBucket bu);
 
     boolean isDuplicated();
 
@@ -39,10 +39,6 @@ public interface WnBucket {
     String getSha1();
 
     String getString();
-
-    void write(String s);
-
-    long write(long pos, byte[] bs, int off, int len);
 
     /**
      * 读取一个桶块
@@ -61,7 +57,7 @@ public interface WnBucket {
      * 
      * @see WnBucketBlockInfo
      */
-    int read(long index, byte[] bs, WnBucketBlockInfo bi);
+    int read(int index, byte[] bs, WnBucketBlockInfo bi);
 
     /**
      * 从桶中读取一些字节
@@ -91,18 +87,13 @@ public interface WnBucket {
      *            从字节数组什么地方开始写
      * @param len
      *            写多长
+     * @return 实际写入的字节数
      */
-    void write(long index, int padding, byte[] bs, int off, int len);
+    int write(int index, int padding, byte[] bs, int off, int len);
 
-    /**
-     * 忠实的安装给定的字节填充桶块
-     * 
-     * @param index
-     *            桶块的下标
-     * @param bs
-     *            字节数组，里面的字节会被写入桶块，长度等于桶块。
-     */
-    void write(long index, byte[] bs);
+    int write(String s);
+
+    int write(long pos, byte[] bs, int off, int len);
 
     /**
      * 剪裁桶的有效数据大小
@@ -110,35 +101,25 @@ public interface WnBucket {
      * @param nb
      *            将桶块裁剪到多少个
      */
-    void trancate(long nb);
+    void trancate(int nb);
 
     String seal();
-
+    
     void unseal();
 
     /**
-     * 复制出一个新桶
-     * 
-     * @param dropData
-     *            复制的时候是否丢掉旧桶的数据
-     * 
-     * @return 新桶
+     * 更新桶的状态。如果桶是分布式实现的，这是个同步桶元数据的好时机
      */
-    WnBucket duplicate(boolean dropData);
+    void update();
 
     /**
-     * 将另外一个桶的数据合并到当前的桶，本桶的 sha1 等字段会发生响应的改变。
-     * <ul>
-     * <li>如果原桶的桶块可以与本桶大小不一致
-     * <li>本桶的填充字节会被原桶对应的自己替代
-     * <ul>
+     * 复制出一个新的桶，逻辑上是接着本桶的，但是里面没有数据 <br>
+     * 本桶的最后一块如果没满，也将被复制<br>
+     * 数据读取时，会复制的桶会连接本桶读取
      * 
-     * @param bucket
-     *            原桶
-     * 
-     * @return 自身以便链式赋值
+     * @return 新的桶
      */
-    WnBucket margeWith(WnBucket bucket);
+    WnBucket duplicateVirtual();
 
     /**
      * 引用一个桶，返回引用后的计数

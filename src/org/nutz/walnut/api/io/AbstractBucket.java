@@ -1,6 +1,10 @@
 package org.nutz.walnut.api.io;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import org.nutz.lang.Encoding;
+import org.nutz.lang.Lang;
 import org.nutz.walnut.api.err.Er;
 
 public abstract class AbstractBucket implements WnBucket {
@@ -17,45 +21,65 @@ public abstract class AbstractBucket implements WnBucket {
     }
 
     @Override
-    public void write(String s) {
+    public int write(String s) {
         byte[] bs = s.getBytes(Encoding.CHARSET_UTF8);
-        write(0, bs, 0, bs.length);
+        return write(0, bs, 0, bs.length);
     }
 
     @Override
-    public long write(long pos, byte[] bs, int off, int len) {
+    public int write(long pos, byte[] bs, int off, int len) {
+        int re = 0;
         if (len <= 0) {
             trancate(0);
-            return 0L;
+            return re;
         }
 
         // 从桶的哪个块开始写
         int block_size = getBlockSize();
-        long index = pos / block_size;
-        // 桶修改后，有效数据长度，以及一共有多少块
-        setSize(pos + len);
+        int index = (int) pos / block_size;
 
         // 第一个块
         int b_first_off = (int) (pos - index * block_size);
         int sz = Math.min(block_size - b_first_off, len);
-        this.write(index, b_first_off, bs, off, sz);
+        re += write(index, b_first_off, bs, off, sz);
         index++;
         len -= sz;
         off += sz;
 
         // 中间的块
         while (len > block_size) {
-            this.write(index, 0, bs, off, block_size);
+            re += write(index, 0, bs, off, block_size);
             index++;
             len -= block_size;
             off += block_size;
         }
 
         // 最后一个块
-        this.write(index, 0, bs, off, len);
+        re += write(index, 0, bs, off, len);
 
         // 返回最后一个操作的桶块下标
-        return index;
+        return re;
+    }
+
+    protected String _gen_sha1() {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA1");
+
+            WnBucketBlockInfo bi = new WnBucketBlockInfo();
+            int b_sz = this.getBlockSize();
+            int b_nb = this.getBlockNumber();
+            byte[] bs = new byte[b_sz];
+            for (int i = 0; i < b_nb; i++) {
+                this.read(i, bs, bi);
+                md.update(bs, 0, bi.len);
+            }
+
+            byte[] hashBytes = md.digest();
+            return Lang.fixedHexString(hashBytes);
+        }
+        catch (NoSuchAlgorithmException e) {
+            throw Lang.impossible();
+        }
     }
 
     protected void _assert_index_not_out_of_range(long index) {
