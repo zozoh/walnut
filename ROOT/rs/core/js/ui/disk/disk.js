@@ -336,7 +336,9 @@ define(function (require, exports, module) {
         },
         load_objinfo: function (obj) {
             var $minfo = this.$el.find('.md-disk-info');
-            $minfo.find('.title img').attr("src", "/p/thumbnail?obj=" + obj.id + "&size=32");
+            var isDir = obj.race == "DIR";
+            var tp = isDir && !obj.tp ? "folder" : obj.tp.toLowerCase();
+            $minfo.find('.title img').attr("src", "/p/default/thumbnail?tp=" + tp + "&size=32");
             $minfo.find('.title span').html(obj.alias ? obj.alias : obj.nm);
             // 详细信息
             //<div class="obj-attr-key"></div><div class="obj-attr-val"></div>
@@ -349,7 +351,13 @@ define(function (require, exports, module) {
                 label: '文件名'
             }, {
                 nm: 'alias',
-                label: '别名'
+                label: '别名',
+                render: function (alias) {
+                    if(alias){
+                        return alias;
+                    }
+                    return "-";
+                }
             }, {
                 nm: 'ph',
                 label: '位置'
