@@ -1,6 +1,7 @@
 define(function (require, exports, module) {
     var ZUI = require("zui");
 
+    // obj缓存
     var objCache = {};
 
     function getObj(id) {
@@ -21,42 +22,80 @@ define(function (require, exports, module) {
         return obj;
     }
 
-    function addMenuOnBody($menu, e) {
-        $(document.body).append($menu);
-        $menu.find('.rclick-menu').css({
-            'top': e.clientY,
-            'left': e.clientX,
-        });
-
-        $(document.body).one('mousedown', function () {
-            $menu.remove();
-        });
-    }
-
     function on_keydown_at_gi(e) {
         var $gi = $(e.currentTarget);
         if (!$gi.hasClass('active')) {
             $gi.siblings().removeClass('active');
             $gi.addClass('active');
         }
+        var nobj = $gi.data(WOBJ);
+        this.load_objinfo(nobj);
         // 左键
         if (1 == e.which) {
             // 如果是名字的话, 就是直接打开了
         }
         // 右键
         if (3 == e.which) {
-            // 显示菜单
-            addMenuOnBody(this.ccode('gi-r-menu'), e);
-            e.stopPropagation();
+            $(document.body).find(".md-menu.lvl-0").remove();
+            // 显示选中菜单
+            var $menu = $mp.menu({
+                'e': e,
+                'menu': [{
+                    "label": '查看详情',
+                    "action": "info"
+                }, {
+                    "label": '打开',
+                    "action": "open"
+                }, {
+                    "label": '重命名',
+                    "action": "rename"
+                }, {
+                    "label": '其他操作',
+                    "menu": [{
+                        "label": '移动到',
+                        "action": "move"
+                    }, {
+                        "label": '复制到',
+                        "action": "copy"
+                    }, {
+                        "label": '制作副本',
+                        "action": "dup"
+                    }]
+                }, {
+                    "label": '删除',
+                    "action": "delete"
+                }]
+            });
+            $(document.body).one('mousedown', function () {
+                $menu.remove();
+            });
         }
     }
 
     function on_keydown_at_gbody(e) {
         $(e.currentTarget).find('.md-disk-grid-item').removeClass('active');
         if (3 == e.which) {
+            $(document.body).find(".md-menu.lvl-0").remove();
             // 显示菜单
-            addMenuOnBody(this.ccode('gbody-r-menu'), e);
-            e.stopPropagation();
+            var $menu = $mp.menu({
+                'e': e,
+                'menu': [{
+                    "label": '返回上一层',
+                    "action": "back"
+                }, {
+                    "label": '上传文件',
+                    "action": "upload"
+                }, {
+                    "label": '新建文件夹',
+                    "action": "mkdir"
+                }, {
+                    "label": '新建文件',
+                    "action": "touch"
+                }]
+            });
+            $(document.body).one('mousedown', function () {
+                $menu.remove();
+            });
         }
     }
 
@@ -96,6 +135,18 @@ define(function (require, exports, module) {
         var $gi = $(e.currentTarget).parent().parent();
         var nobj = $gi.data(WOBJ);
         this.open_file(nobj);
+    }
+
+    function on_switch_infotab(e) {
+        var $li = $(e.currentTarget);
+        var tnm = $li.attr('tnm');
+        var $tc = $li.parents('.md-disk-info').find('.tab-containers .tc.' + tnm);
+        if ($tc.hasClass('active')) {
+            return;
+        } else {
+            $tc.siblings().removeClass('active');
+            $tc.addClass('active');
+        }
     }
 
     var COBJ = "current-walnut-obj";
@@ -145,10 +196,9 @@ define(function (require, exports, module) {
             this.model.set(SORT, "name");
             this.model.set(ASC, true);
             var UI = this;
-            $(document.body).delegate('.rclick-menu .menu-action', 'mousedown', function () {
-                var $menu = $(this).parents('.rclick-menu-bg');
-                var act = $(this).attr('action');
-                $menu.remove();
+            $(document.body).delegate('.md-menu li.has-action', 'mousedown', function () {
+                var $li = $(this);
+                var act = $li.attr('action');
                 UI.rclick_action(act);
             });
         },
@@ -158,6 +208,7 @@ define(function (require, exports, module) {
             "click .md-disk .md-disk-container .md-disk-grid-title .md-disk-gt-cell": on_click_sort,
             "click .md-disk .disk-path-obj": on_click_path_item,
             "click .md-gi-group .gi-nm": on_click_gi_item,
+            "click .md-disk .md-disk-info .tabs li": on_switch_infotab,
         },
         rclick_action: function (act) {
             var UI = this;
@@ -168,40 +219,44 @@ define(function (require, exports, module) {
                 this.open_file(cobj);
             }
             else if (act == "info") {
-                // TODO
+                this.load_objinfo(cobj);
+                this.$el.find('.md-disk-container').addClass('info');
             }
             else if (act == "rename") {
-                var new_nm = prompt("重命名", cobj.nm);
-                if (new_nm == undefined || new_nm == null) {
-                    return;
-                }
-                new_nm = new_nm.trim();
-                if (new_nm == cobj.nm) {
-                    return;
-                }
-                UI.model.trigger("cmd:exec", "mv " + cobj.nm + " " + new_nm, function () {
-                    UI.open_file();
+                $mp.prompt("重命名", cobj.nm, function (new_nm) {
+                    if (new_nm) {
+                        new_nm = new_nm.trim();
+                        if (new_nm == cobj.nm) {
+                            return;
+                        }
+                        UI.model.trigger("cmd:exec", "mv " + cobj.nm + " " + new_nm, function () {
+                            UI.open_file();
+                        });
+                    }
                 });
             }
             else if (act == "move") {
                 // TODO
+                $mp.message('还有bug,暂停使用!')
             }
             else if (act == "copy") {
                 // TODO
+                $mp.message('还有bug,暂停使用!')
             }
             else if (act == "dup") {
-                // TODO
-            }
-            else if (act == "move") {
-                // TODO
+                //UI.model.trigger("cmd:exec", "cp " + cobj.ph + " " + cobj.ph, function () {
+                //    UI.open_file();
+                //});
+                $mp.message('还有bug,暂停使用!')
             }
             else if (act == "delete") {
-                var doDel = confirm('确定要删除"' + cobj.nm + '"');
-                if (doDel) {
-                    UI.model.trigger("cmd:exec", "rm " + cobj.ph, function () {
-                        UI.open_file();
-                    });
-                }
+                $mp.confirm('确定要删除"' + cobj.nm + '"', '删除文件', function (re) {
+                    if (re) {
+                        UI.model.trigger("cmd:exec", "rm " + cobj.ph, function () {
+                            UI.open_file();
+                        });
+                    }
+                });
             }
             else if (act == "back") {
                 var $cpo = $po;
@@ -209,32 +264,30 @@ define(function (require, exports, module) {
                     var nobj = getObjPath($cpo.prev().attr('path'));
                     UI.open_file(nobj);
                 } else {
-                    alert('没有上一层, 无法返回');
+                    $mp.message('没有上一层, 无法返回');
                 }
             }
             else if (act == "mkdir") {
-                var dirnm = prompt("请输入文件夹名称", "新建文件夹");
-                if (dirnm == undefined || dirnm == null) {
-                    return;
-                }
-                var cpath = $po.attr('path');
-                UI.model.trigger("cmd:exec", "mkdir " + cpath + "/" + dirnm, function () {
-                    UI.open_file();
+                $mp.prompt("新建文件夹", "无标题文件夹", function (re) {
+                    if (re) {
+                        var cpath = $po.attr('path');
+                        UI.model.trigger("cmd:exec", "mkdir " + cpath + "/" + re, function () {
+                            UI.open_file();
+                        });
+                    }
                 });
             }
             else if (act == "touch") {
-                // FIXME
-                var dirnm = prompt("请输入文件名称", "新建文件");
-                if (dirnm == undefined || dirnm == null) {
-                    return;
-                }
-                var cpath = $po.attr('path');
-                UI.model.trigger("cmd:exec", "touch " + cpath + "/" + dirnm, function () {
-                    UI.open_file();
+                $mp.prompt("新建文件", "无标题文件", function (re) {
+                    if (re) {
+                        var cpath = $po.attr('path');
+                        UI.model.trigger("cmd:exec", "touch " + cpath + "/" + re, function () {
+                            UI.open_file();
+                        });
+                    }
                 });
             }
             else if (act == "upload") {
-                // FIXME
                 UI.model.trigger("cmd:exec", "open upload " + $po.attr('path'), function () {
                 });
             }
@@ -255,17 +308,99 @@ define(function (require, exports, module) {
             if (isDir) {
                 this.$el.find('.md-disk-container').removeClass('obj');
                 this.open_dir(obj);
+                this.load_objinfo(obj);
             } else {
                 this.$el.find('.md-disk-container').addClass('obj');
                 this.render_obj(obj);
+                this.load_objinfo(obj);
             }
         },
         open_dir: function (obj) {
             var UI = this;
             var Mod = UI.model;
+            UI.beforeLoading();
             Mod.trigger("cmd:exec", "disk id:" + obj.id, function () {
-                //Mod.trigger("cmd:exec", "cd id:" + obj.id);
+                UI.afterLoading(true);
             });
+        },
+        beforeLoading: function () {
+            var $db = this.$el.find('.md-disk-body');
+            $db.removeClass('empty').addClass('loading');
+        },
+        afterLoading: function (chkEmpty) {
+            var $db = this.$el.find('.md-disk-body')
+            $db.removeClass('loading');
+            if (chkEmpty && $db.find('.md-disk-grid-body .md-disk-grid-item').length == 0) {
+                $db.addClass('empty');
+            }
+        },
+        load_objinfo: function (obj) {
+            var $minfo = this.$el.find('.md-disk-info');
+            $minfo.find('.title img').attr("src", "/p/thumbnail?obj=" + obj.id + "&size=32");
+            $minfo.find('.title span').html(obj.alias ? obj.alias : obj.nm);
+            // 详细信息
+            //<div class="obj-attr-key"></div><div class="obj-attr-val"></div>
+            var $attr = $minfo.find('.tc.detail .obj-attrs');
+            var dtmap = [{
+                nm: 'id',
+                label: 'ID'
+            }, {
+                nm: 'nm',
+                label: '文件名'
+            }, {
+                nm: 'alias',
+                label: '别名'
+            }, {
+                nm: 'ph',
+                label: '位置'
+            }, {
+                nm: 'len',
+                label: '大小',
+                render: function (len) {
+                    if (len) {
+                        return $z.sizeText(len);
+                    } else {
+                        return "-";
+                    }
+                }
+            }, {
+                nm: 'race',
+                label: '文件种类'
+            }, {
+                nm: 'tp',
+                label: '文件类型'
+            }, {
+                nm: 'c',
+                label: '所有者'
+            }, {
+                nm: 'g',
+                label: '所属组'
+            }, {
+                nm: 'md',
+                label: '权限'
+            }, {
+                nm: 'ct',
+                label: '创建时间',
+                render: function (ct) {
+                    return $z.currentTime(new Date(ct));
+                }
+            }, {
+                nm: 'lt',
+                label: '上次修改',
+                render: function (ct) {
+                    return $z.currentTime(new Date().setTime(ct));
+                }
+            }];
+            $attr.empty();
+            for (var i = 0; i < dtmap.length; i++) {
+                var dc = dtmap[i];
+                var html = '';
+                html += '<div class="obj-attr-row">';
+                html += '<div class="key">' + dc.label + '</div>'
+                html += '<div class="val">' + (dc.render ? dc.render(obj[dc.nm]) : obj[dc.nm]) + '</div>'
+                html += '</div>';
+                $attr.append(html);
+            }
         },
         sort_wolist: function () {
             var nm = this.model.get(SORT);
@@ -342,11 +477,14 @@ define(function (require, exports, module) {
         render_obj: function (obj) {
             this.clear_disk();
             this.render_path();
+            var UI = this;
             var $sel = this.$el.find('.md-disk-data').empty();
             var obj = this.model.get(COBJ);
             var tp = obj.tp.toLowerCase();
             // 扎到应类型的播放器打开它
+            UI.beforeLoading();
             seajs.use("ui/open/" + getPlayer(tp), function (player) {
+                UI.afterLoading();
                 player.open($sel, obj);
             });
         },
@@ -390,7 +528,7 @@ define(function (require, exports, module) {
             this._old_s = s.substring(i);
         },
         on_show_err: function (s) {
-            alert(s);
+            $mp.message(s);
         }
     });
 //=======================================================================

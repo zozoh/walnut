@@ -1,29 +1,29 @@
 <div class="ui-code-template">
-    <div code-id="gi-r-menu" class='rclick-menu-bg' oncontextmenu="return false;">
-        <ul class="rclick-menu  paper z-depth-2 rounded md-menu">
-            <li class="menu-action" action="info">查看详情</li>
-            <li class="divider"></li>
-            <li class="menu-action" action="open">打开</li>
-            <li class="menu-action" action="rename">重命名</li>
-            <li class="divider"></li>
-            <li class="menu-action" action="copy">复制到</li>
-            <li class="menu-action" action="move">移动到</li>
-            <li class="menu-action" action="dup">制作副本</li>
-            <li class="menu-action" action="delete">删除</li>
-        </ul>
-    </div>
-    <div code-id="gbody-r-menu" class='rclick-menu-bg' oncontextmenu="return false;">
-        <ul class="rclick-menu  paper z-depth-2 rounded md-menu">
-            <li class="menu-action" action="back">返回上一层</li>
-            <li class="divider"></li>
-            <li class="menu-action" action="info">查看详情</li>
-            <li class="divider"></li>
-            <li class="menu-action" action="upload">上传文件</li>
-            <!--<li class="">新建文件</li>-->
-            <li class="menu-action" action="mkdir">新建文件夹</li>
-            <li class="menu-action" action="touch">新建文件</li>
-        </ul>
-    </div>
+    <!--<div code-id="gi-r-menu" class='rclick-menu-bg' oncontextmenu="return false;">-->
+    <!--<ul class="rclick-menu  paper z-depth-2 rounded md-menu">-->
+    <!--<li class="menu-action" action="info">查看详情</li>-->
+    <!--<li class="divider"></li>-->
+    <!--<li class="menu-action" action="open">打开</li>-->
+    <!--<li class="menu-action" action="rename">重命名</li>-->
+    <!--<li class="divider"></li>-->
+    <!--<li class="menu-action" action="copy">复制到</li>-->
+    <!--<li class="menu-action" action="move">移动到</li>-->
+    <!--<li class="menu-action" action="dup">制作副本</li>-->
+    <!--<li class="menu-action" action="delete">删除</li>-->
+    <!--</ul>-->
+    <!--</div>-->
+    <!--<div code-id="gbody-r-menu" class='rclick-menu-bg' oncontextmenu="return false;">-->
+    <!--<ul class="rclick-menu  paper z-depth-2 rounded md-menu">-->
+    <!--<li class="menu-action" action="back">返回上一层</li>-->
+    <!--<li class="divider"></li>-->
+    <!--<li class="menu-action" action="info">查看详情</li>-->
+    <!--<li class="divider"></li>-->
+    <!--<li class="menu-action" action="upload">上传文件</li>-->
+    <!--&lt;!&ndash;<li class="">新建文件</li>&ndash;&gt;-->
+    <!--<li class="menu-action" action="mkdir">新建文件夹</li>-->
+    <!--<li class="menu-action" action="touch">新建文件</li>-->
+    <!--</ul>-->
+    <!--</div>-->
     <div code-id="gi-item" class="md-disk-grid-item">
         <div class="md-disk-gi-preview disk-preview"></div>
         <div class="md-gi-group">
@@ -40,6 +40,7 @@
     </li>
 </div>
 <div class="ui-arena md-disk" oncontextmenu="return false;">
+    <!--<div class="ui-arena md-disk">-->
     <div class="md-disk-top-bg">
     </div>
     <div class="md-disk-container">
@@ -68,37 +69,77 @@
                 <div class="md-disk-grid-body">
                 </div>
             </div>
-            <!-- 对象 -->
-            <div class="md-disk-data">
+            <!-- 提示信息 -->
+            <div class="md-disk-data"></div>
+            <!-- 提示信息 -->
+            <div class="md-disk-tip">
+                <div class="loading">努力加载中</div>
+                <div class="empty">没有文件, 单击鼠标右键, 上传或新建</div>
             </div>
         </div>
-        <!--信息-->
-        <div class="mi-disk-info">
-        </div>
+        <!--表头-->
         <div class="md-disk-header">
             <ul class="disk-path">
             </ul>
-            <div class="disk-menu-switch"></div>
             <ul class="disk-menu">
-                <li class="disk-menu-item">
-                    <i class="md-icon zmdi-view-dashboard"></i><span class="disk-menu-nm">切换视图</span>
-                    <ol class="md-menu align-right">
-                        <li class="grid-mode mode-list">列表</li>
-                        <li class="grid-mode mode-grid active">图示</li>
+                <li class="disk-menu-item disk-menu-display grid">
+                    <i class="md-icon zmdi-apps"></i>
+                    <i class="md-icon zmdi-view-list"></i>
+                </li>
+                <li class="disk-menu-item disk-menu-sortby">
+                    <i class="md-icon zmdi-sort-by-alpha"></i>
+                    <ol class="md-menu align-right no-icon">
+                        <li class="active" sort="nm">
+                            <a class="ripple-button" onclick="return false;">名称</a>
+                        </li>
+                        <li sort="lm">
+                            <a class="ripple-button" onclick="return false;">最后修改时间</a>
+                        </li>
+                        <li sort="len">
+                            <a class="ripple-button" onclick="return false;">文件大小</a>
+                        </li>
                     </ol>
                 </li>
-                <li class="disk-menu-item">
-                    <i class="md-icon zmdi-sort-by-alpha"></i><span class="disk-menu-nm">排序</span>
-                    <ol class="md-menu align-right">
-                        <li class="active sort-mode" sort="nm">名称</li>
-                        <li class="sort-mode" sort="lm">最后修改时间</li>
-                        <li class="sort-mode" sort="len">文件大小</li>
-                    </ol>
-                </li>
-                <li class="disk-menu-item">
-                    <i class="md-icon zmdi-info"></i><span class="disk-menu-nm">详细信息</span>
+                <li class="disk-menu-item disk-menu-info">
+                    <i class="md-icon zmdi-info"></i>
                 </li>
             </ul>
         </div>
+        <!--信息-->
+        <div class="md-disk-info">
+            <div class="title">
+                <img class="obj-tp">
+                <span class="obj-nm"></span>
+            </div>
+            <ul class="tabs">
+                <li class="active" style="width: 33%" tnm="detail">
+                    <div class="ripple-button">详情</div>
+                </li>
+                <li style="width: 33%" tnm="remark">
+                    <div class="ripple-button">备注</div>
+                </li>
+                <li style="width: 33%" tnm="history">
+                    <div class="ripple-button">操作记录</div>
+                </li>
+            </ul>
+            <div class="tab-containers">
+                <div class="tc detail active">
+                    <div class="obj-preview">
+                        预览稍后实现....
+                    </div>
+                    <div class="divider"></div>
+                    <div class="obj-attrs">
+
+                    </div>
+                </div>
+                <div class="tc remark">
+                    <h1>备注功能, 稍后实现</h1>
+                </div>
+                <div class="tc history">
+                    <h1>操作历史查询, 稍后实现</h1>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 </div>

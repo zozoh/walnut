@@ -8,26 +8,24 @@ $(document).ready(function () {
     //
     var mpdisk = {
         startListen: function () {
+
             // 切换显示模式
-            $bd.delegate('.md-disk .md-disk-header .md-menu li.grid-mode', 'click', function () {
-                var $li = $(this);
-                if ($li.hasClass('active')) {
-                    return;
+            $bd.delegate('.md-disk .md-disk-header .disk-menu-display', 'click', function () {
+                var sbtn = $(this);
+                var useGrid = !sbtn.hasClass('grid');
+                // 切换显示方式
+                var $mdb = sbtn.parents('.md-disk-container').find('.md-disk-body');
+                if (useGrid) {
+                    $mdb.addClass('grid');
+                    sbtn.addClass('grid');
                 } else {
-                    $li.siblings().removeClass('active');
-                    $li.addClass('active');
-                    // 切换显示方式
-                    var $mdb = $li.parents('.md-disk-container').find('.md-disk-body');
-                    if ($li.hasClass('mode-grid')) {
-                        $mdb.addClass('grid');
-                    } else {
-                        $mdb.removeClass('grid');
-                    }
+                    $mdb.removeClass('grid');
+                    sbtn.removeClass('grid');
                 }
             });
 
             // 切换排序
-            $bd.delegate('.md-disk .md-disk-header .md-menu li.sort-mode', 'click', function () {
+            $bd.delegate('.md-disk .md-disk-header .disk-menu-sortby li', 'click', function () {
                 var $li = $(this);
                 if ($li.hasClass('active')) {
                     return;
@@ -41,6 +39,23 @@ $(document).ready(function () {
                     if ($st.length > 0) {
                         $st.click();
                     }
+                }
+            });
+
+            // 显示info
+            $bd.delegate('.md-disk .md-disk-header .disk-menu-info', 'click', function () {
+                var $dcon = $(this).parents('.md-disk-container');
+                $dcon.toggleClass('info');
+            });
+
+            // 切换info的tab
+            $bd.delegate('.md-disk .md-disk-info .tabs li', 'click', function () {
+                var $li = $(this);
+                if ($li.hasClass('active')) {
+                    return;
+                } else {
+                    $li.siblings().removeClass('active');
+                    $li.addClass('active');
                 }
             });
 
@@ -76,6 +91,7 @@ $(document).ready(function () {
                     // 显示菜单
                 }
             });
+
         }
     };
     mpdisk.startListen();
