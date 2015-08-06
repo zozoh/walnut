@@ -1,4 +1,4 @@
-package org.nutz.walnut.api.io;
+package org.nutz.walnut.impl.io;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -6,6 +6,8 @@ import java.security.NoSuchAlgorithmException;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnBucket;
+import org.nutz.walnut.api.io.WnBucketBlockInfo;
 
 public abstract class AbstractBucket implements WnBucket {
 
@@ -23,7 +25,26 @@ public abstract class AbstractBucket implements WnBucket {
     @Override
     public int write(String s) {
         byte[] bs = s.getBytes(Encoding.CHARSET_UTF8);
-        return write(0, bs, 0, bs.length);
+        int re = write(0, bs, 0, bs.length);
+        this.setSize(bs.length);
+        return re;
+    }
+
+    @Override
+    public int append(String s) {
+        byte[] bs = s.getBytes(Encoding.CHARSET_UTF8);
+        long sz = this.getSize();
+        int re = write(sz, bs, 0, bs.length);
+        this.setSize(sz + bs.length);
+        return re;
+    }
+
+    @Override
+    public int append(byte[] bs, int off, int len) {
+        long sz = this.getSize();
+        int re = write(sz, bs, off, len);
+        this.setSize(sz + len - off);
+        return re;
     }
 
     @Override
@@ -55,7 +76,8 @@ public abstract class AbstractBucket implements WnBucket {
         }
 
         // 最后一个块
-        re += write(index, 0, bs, off, len);
+        if (len > 0)
+            re += write(index, 0, bs, off, len);
 
         // 返回最后一个操作的桶块下标
         return re;

@@ -28,7 +28,7 @@ public interface WnBucket {
 
     String getParentBucketId();
 
-    void setParentBucket(WnBucket bu);
+    void setParentBucketId(String pbid);
 
     boolean isDuplicated();
 
@@ -80,7 +80,7 @@ public interface WnBucket {
      * @param index
      *            桶块的下标
      * @param padding
-     *            桶块开始的空白填充
+     *            从桶块哪个位置开始写
      * @param bs
      *            字节数组，里面的字节会被写入桶块
      * @param off
@@ -93,7 +93,11 @@ public interface WnBucket {
 
     int write(String s);
 
+    int append(String s);
+
     int write(long pos, byte[] bs, int off, int len);
+
+    int append(byte[] bs, int off, int len);
 
     /**
      * 剪裁桶的有效数据大小
@@ -104,7 +108,7 @@ public interface WnBucket {
     void trancate(int nb);
 
     String seal();
-    
+
     void unseal();
 
     /**

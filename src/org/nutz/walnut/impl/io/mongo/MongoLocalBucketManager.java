@@ -4,7 +4,6 @@ import java.io.File;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoCo;
@@ -33,6 +32,16 @@ public class MongoLocalBucketManager implements WnBucketManager {
 
     @Override
     public WnBucket alloc(int blockSize) {
+        MongoLocalBucket bu = _create(blockSize);
+
+        // 保存桶对象
+        bu.update();
+
+        // 返回
+        return bu;
+    }
+
+    protected MongoLocalBucket _create(int blockSize) {
         // 得到 ID
         String id = R.UU32();
 
@@ -42,7 +51,7 @@ public class MongoLocalBucketManager implements WnBucketManager {
         dir.mkdirs();
 
         // 创建桶对象
-        MongoLocalBucket bu = new MongoLocalBucket().co(co).dir(dir);
+        MongoLocalBucket bu = new MongoLocalBucket().co(co).dir(dir).manager(this);
         bu.setId(id);
         long nowms = System.currentTimeMillis();
         bu.setCreateTime(nowms);
@@ -50,11 +59,6 @@ public class MongoLocalBucketManager implements WnBucketManager {
         bu.setLastOpened(nowms);
         bu.setBlockSize(blockSize);
         bu.setBlockNumber(0);
-
-        // 保存桶对象
-        bu.update();
-
-        // 返回
         return bu;
     }
 
@@ -105,12 +109,7 @@ public class MongoLocalBucketManager implements WnBucketManager {
 
     private MongoLocalBucket __setup_bucket(MongoLocalBucket bu) {
         File dir = Files.getFile(home, __id2path(bu.getId()));
-        bu.co(co).dir(dir);
-
-        String pbid = bu.getParentBucketId();
-        if (!Strings.isBlank(pbid)) {
-            bu.setParentBucket(this.checkById(pbid));
-        }
+        bu.co(co).dir(dir).manager(this);
         return bu;
     }
 }

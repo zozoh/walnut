@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.nutz.lang.Lang;
-import org.nutz.walnut.api.io.AbstractBucket;
 import org.nutz.walnut.api.io.WnBucket;
 import org.nutz.walnut.api.io.WnBucketBlockInfo;
+import org.nutz.walnut.impl.io.AbstractBucket;
 import org.nutz.walnut.util.Bus;
 
 public class MemoryBucket extends AbstractBucket {
@@ -28,8 +28,6 @@ public class MemoryBucket extends AbstractBucket {
     private int blockNumber;
     private long size;
     private String sha1;
-
-    private WnBucket parentBucket;
 
     private List<byte[]> list;
 
@@ -255,15 +253,15 @@ public class MemoryBucket extends AbstractBucket {
     }
 
     public String getParentBucketId() {
-        return null == parentBucket ? null : parentBucket.getId();
+        throw Lang.noImplement();
     }
 
-    public void setParentBucket(WnBucket bu) {
-        this.parentBucket = bu;
+    public void setParentBucketId(String pbid) {
+        throw Lang.noImplement();
     }
 
     public boolean isDuplicated() {
-        return null != this.parentBucket;
+        return false;
     }
 
     public long getSize() {
@@ -271,6 +269,9 @@ public class MemoryBucket extends AbstractBucket {
     }
 
     public void setSize(long size) {
+        if (this.size == size)
+            return;
+
         // 应该有多少块
         long b_nb = (long) Math.ceil(((double) size) / ((double) blockSize));
 

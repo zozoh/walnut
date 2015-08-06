@@ -5,9 +5,9 @@ import java.io.RandomAccessFile;
 
 import org.nutz.lang.Lang;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.api.io.AbstractBucket;
 import org.nutz.walnut.api.io.WnBucket;
 import org.nutz.walnut.api.io.WnBucketBlockInfo;
+import org.nutz.walnut.impl.io.AbstractBucket;
 
 public class LocalFileBucket extends AbstractBucket {
 
@@ -85,7 +85,7 @@ public class LocalFileBucket extends AbstractBucket {
     }
 
     @Override
-    public void setParentBucket(WnBucket bu) {}
+    public void setParentBucketId(String pbid) {}
 
     @Override
     public boolean isDuplicated() {

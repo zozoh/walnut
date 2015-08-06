@@ -2,6 +2,7 @@ package org.nutz.walnut.impl.io.mongo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,9 +19,9 @@ import org.nutz.mongo.ZMoDoc;
 import org.nutz.mongo.annotation.MoField;
 import org.nutz.mongo.annotation.MoIgnore;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.api.io.AbstractBucket;
 import org.nutz.walnut.api.io.WnBucket;
 import org.nutz.walnut.api.io.WnBucketBlockInfo;
+import org.nutz.walnut.impl.io.AbstractBucket;
 
 public class MongoLocalBucket extends AbstractBucket {
 
@@ -33,7 +34,19 @@ public class MongoLocalBucket extends AbstractBucket {
     private File dir;
 
     @MoIgnore
-    private WnBucket pbu;
+    private WnBucket _pbu;
+
+    @MoIgnore
+    private MongoLocalBucketManager buckets;
+
+    private WnBucket pbu() {
+        if (null == _pbu && this.isDuplicated()) {
+            if (!Strings.isBlank(parentBucketId)) {
+                _pbu = buckets.checkById(parentBucketId);
+            }
+        }
+        return _pbu;
+    }
 
     public MongoLocalBucket co(ZMoCo co) {
         this._co = co;
@@ -42,6 +55,11 @@ public class MongoLocalBucket extends AbstractBucket {
 
     public MongoLocalBucket dir(File dir) {
         this.dir = dir;
+        return this;
+    }
+
+    public MongoLocalBucket manager(MongoLocalBucketManager buckets) {
+        this.buckets = buckets;
         return this;
     }
 
@@ -55,6 +73,11 @@ public class MongoLocalBucket extends AbstractBucket {
     @Override
     public int read(int index, byte[] bs, WnBucketBlockInfo bi) {
         this._assert_index_not_out_of_range(index);
+
+        // 读虚桶
+        if (index < beginIndex) {
+            return this.pbu().read(index, bs, bi);
+        }
 
         // 文件大小与块不相等
         if (blockSize != bs.length) {
@@ -107,7 +130,17 @@ public class MongoLocalBucket extends AbstractBucket {
     public int read(long pos, byte[] bs, int off, int len) {
         int re = 0;
 
-        // 按块读取
+        // 读虚桶
+        int vsz = beginIndex * blockSize;
+        if (pos < vsz) {
+            int vlen = vsz - (int) pos;
+            this.pbu().read(pos, bs, off, vlen);
+            pos += vlen;
+            off += vlen;
+            len -= vlen;
+        }
+
+        // 按块读取本桶
         while (pos < size && len > 0) {
             // 找到块
             long index = pos / blockSize;
@@ -139,8 +172,8 @@ public class MongoLocalBucket extends AbstractBucket {
         }
 
         // 记录
-        this.setCountRead(countRead + 1);
-        this.setLastReaded(System.currentTimeMillis());
+        countRead++;
+        lastReaded = System.currentTimeMillis();
 
         // 返回
         return re;
@@ -148,8 +181,38 @@ public class MongoLocalBucket extends AbstractBucket {
 
     @Override
     public int write(int index, int padding, byte[] bs, int off, int len) {
+        // 不能写爆掉
+        if (padding + len > blockSize)
+            throw Er.createf("e.io.bucket.block.w.OutOfRange",
+                             "index=%d,padding=%d,len=%d",
+                             index,
+                             padding,
+                             len);
+
+        // 如果写在了桶的虚空间里，则立刻将桶虚空间变实
+        if (index < this.beginIndex) {
+            // copy 之前的桶块
+            byte[] buf = new byte[blockSize];
+            for (int i = 0; i < this.beginIndex; i++) {
+                Arrays.fill(buf, B0);
+                this.read(i, buf, null);
+                File f = Files.getFile(dir, "" + i);
+                Files.createFileIfNoExists(f);
+                Files.write(f, buf);
+            }
+
+            // 脱离桶链
+            this.parentBucketId = null;
+            this.beginIndex = 0;
+            this.pbu().free();
+
+            // 更新
+            this.update();
+        }
+
         // 实际写入的字节数
         int re;
+
         // 创建文件
         File f = Files.getFile(dir, "" + index);
         if (!f.exists())
@@ -160,27 +223,44 @@ public class MongoLocalBucket extends AbstractBucket {
                 throw Lang.wrapThrow(e1);
             }
 
-        // 写文件
-        OutputStream ops = null;
-        try {
-            ops = Streams.fileOut(f);
-
-            // 写左边距
-            if (padding > 0) {
-                byte[] pls = new byte[padding];
-                ops.write(pls);
+        // 改写文件中间
+        if (padding < f.length()) {
+            RandomAccessFile raf = null;
+            try {
+                raf = new RandomAccessFile(f, "rw");
+                if (padding > 0)
+                    raf.seek(padding);
+                raf.write(bs, off, len);
+                re = len;
             }
-
-            // 填充字节
-            int n = Math.min(blockSize - padding, len);
-            ops.write(bs, off, n);
-            re = n + padding;
+            catch (IOException e1) {
+                throw Lang.wrapThrow(e1);
+            }
+            finally {
+                Streams.safeClose(raf);
+            }
         }
-        catch (IOException e) {
-            throw Lang.wrapThrow(e);
-        }
-        finally {
-            Streams.safeClose(ops);
+        // 追加文件末尾
+        else {
+            OutputStream ops = null;
+            try {
+                ops = new FileOutputStream(f, true);
+                // 首先写入空字节
+                int n = padding - (int) f.length();
+                if (n > 0) {
+                    byte[] buf = new byte[n];
+                    ops.write(buf);
+                }
+                // 写入真正的内容
+                ops.write(bs, off, len);
+                re = n + len;
+            }
+            catch (IOException e2) {
+                throw Lang.wrapThrow(e2);
+            }
+            finally {
+                Streams.safeClose(ops);
+            }
         }
 
         // 看看是否需要修改块的数量
@@ -197,7 +277,8 @@ public class MongoLocalBucket extends AbstractBucket {
         sha1 = null;
 
         // 记录
-        this.setLastWrited(System.currentTimeMillis());
+        this.lastWrited = System.currentTimeMillis();
+        this.lastModified = this.lastWrited;
 
         // 返回实际写入的字节数
         return re;
@@ -212,44 +293,110 @@ public class MongoLocalBucket extends AbstractBucket {
                 if (f.exists())
                     f.delete();
             }
-            this.setBlockNumber(nb);
+            this.blockNumber = nb;
+            this.lastModified = System.currentTimeMillis();
         }
-    }
-
-    @Override
-    public String seal() {
-        return null;
-    }
-
-    @Override
-    public void unseal() {
-        throw Lang.noImplement();
-    }
-
-    @Override
-    public void update() {
-        ZMoDoc doc = ZMo.me().toDoc(this);
-        _co.save(doc);
     }
 
     @Override
     public WnBucket duplicateVirtual() {
-        return null;
+        // 未封盖的桶不能被复制
+        if (!isSealed()) {
+            throw Er.create("e.io.bucket.noseal", id);
+        }
+
+        // 创建一个桶
+        MongoLocalBucket bu = (MongoLocalBucket) buckets.alloc(blockSize);
+
+        // 标记头等元数据
+        bu.setBlockNumber(blockNumber);
+
+        // 如果桶是有内容的，考虑一下最后一块
+        if (size > 0) {
+            // 新桶下标从原桶结尾开始
+            bu.beginIndex = blockNumber - 1;
+
+            // 最后一块没满复制最后一个块
+            if (blockNumber * blockSize != size) {
+                int li = bu.beginIndex;
+                byte[] bs = new byte[blockSize];
+                int sz = this.read(li, bs, null);
+                bu.write(li, 0, bs, 0, sz);
+            }
+
+            // 桶多于一个块，或者第一个块满了，则需要引用原桶
+            if (blockNumber > 1 || size >= blockSize) {
+                bu.setParentBucketId(id);
+                this.refer();
+            }
+        }
+
+        // 最后更新桶的信息
+        bu.update();
+
+        // 返回
+        return bu;
+    }
+
+    @Override
+    public String seal() {
+        sealed = true;
+        nodup = true;
+        lastSealed = System.currentTimeMillis();
+        lastModified = lastSealed;
+
+        // 确保生成指纹
+        getSha1();
+
+        // 更新索引
+        this.update();
+
+        // 返回的 sha1
+        return sha1;
+    }
+
+    @Override
+    public void unseal() {
+        sealed = false;
+        lastOpened = System.currentTimeMillis();
+
+        update();
+
+    }
+
+    @Override
+    public void update() {
+        ZMoDoc doc = ZMoDoc.SET(ZMo.me().toDoc(this));
+        _co.update(WnMongos.qID(id), doc, true, false);
     }
 
     @Override
     public long refer() {
-        return ++countRefer;
+        ZMoDoc doc = _co.findAndModify(WnMongos.qID(id),
+                                       ZMoDoc.NEW("refer", 1),
+                                       null,
+                                       false,
+                                       ZMoDoc.M("$inc", "refer", 1),
+                                       true,
+                                       false);
+        return doc.getLong("refer");
     }
 
     @Override
     public long free() {
-        countRefer--;
-        if (countRefer <= 0) {
+        ZMoDoc doc = _co.findAndModify(WnMongos.qID(id),
+                                       ZMoDoc.NEW("refer", 1),
+                                       null,
+                                       false,
+                                       ZMoDoc.M("$inc", "refer", -1),
+                                       true,
+                                       false);
+        long refer = doc.getLong("refer");
+        if (refer <= 0) {
             Files.deleteDir(dir);
             _co.remove(WnMongos.qID(id));
         }
-        return this.countRefer;
+        return refer;
     }
 
     @MoField("id")
@@ -276,9 +423,6 @@ public class MongoLocalBucket extends AbstractBucket {
     @MoField("lopen")
     private long lastOpened;
 
-    @MoField("crefer")
-    private long countRefer;
-
     @MoField("cread")
     private long countRead;
 
@@ -291,11 +435,17 @@ public class MongoLocalBucket extends AbstractBucket {
     @MoField("pbid")
     private String parentBucketId;
 
+    @MoField("bei")
+    private int beginIndex;
+
     @MoField("sz")
     private long size;
 
     @MoField("sha1")
     private String sha1;
+
+    @MoField("nodup")
+    private boolean nodup;
 
     public String getId() {
         return id;
@@ -307,10 +457,6 @@ public class MongoLocalBucket extends AbstractBucket {
 
     public boolean isSealed() {
         return sealed;
-    }
-
-    public void setSealed(boolean sealed) {
-        this.sealed = sealed;
     }
 
     public long getCreateTime() {
@@ -362,11 +508,8 @@ public class MongoLocalBucket extends AbstractBucket {
     }
 
     public long getCountRefer() {
-        return countRefer;
-    }
-
-    public void setCountRefer(long countRefer) {
-        this.countRefer = countRefer;
+        ZMoDoc doc = _co.findOne(WnMongos.qID(id), ZMoDoc.NEW("refer", 1));
+        return doc.getLong("refer");
     }
 
     public long getCountRead() {
@@ -397,9 +540,8 @@ public class MongoLocalBucket extends AbstractBucket {
         return parentBucketId;
     }
 
-    public void setParentBucket(WnBucket bu) {
-        this.parentBucketId = bu.getId();
-        this.pbu = bu;
+    public void setParentBucketId(String pbid) {
+        this.parentBucketId = pbid;
     }
 
     public long getSize() {
@@ -408,6 +550,14 @@ public class MongoLocalBucket extends AbstractBucket {
 
     public void setSize(long size) {
         this.size = size;
+
+        int lb_sz = (int) size % blockSize;
+        int b_nb = (int) (size / blockSize) + (lb_sz > 0 ? 1 : 0);
+
+        if (b_nb != blockNumber) {
+            this.trancate(b_nb);
+        }
+
     }
 
     public String getSha1() {

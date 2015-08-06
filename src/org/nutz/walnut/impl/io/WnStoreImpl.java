@@ -201,10 +201,24 @@ public class WnStoreImpl implements WnStore {
     }
 
     private void __refer_to_bucket(WnHandle hdl) {
-        if (!Lang.equals(hdl.obj.data(), hdl.bucket.getId())) {
+        String data = hdl.obj.data();
+        // 首次给对象附加桶
+        if (null == data) {
             hdl.obj.data(hdl.bucket.getId());
             hdl.bucket.refer();
         }
+        // 切换桶
+        else if (!data.equals(hdl.bucket.getId())) {
+            // 需要释放原桶
+            WnBucket bu = buckets.getById(data);
+            if (null != bu) {
+                bu.free();
+            }
+            // 再引用新桶
+            hdl.obj.data(hdl.bucket.getId());
+            hdl.bucket.refer();
+        }
+        // 否则没啥需要做的
     }
 
     public void __flush(WnHandle hdl) {
@@ -218,12 +232,6 @@ public class WnStoreImpl implements WnStore {
             // 缓冲归零
             hdl.swap_size = 0;
         }
-    }
-
-    @Override
-    public int read(String hid, byte[] bs, int off, int len) {
-        WnHandle hdl = __check_hdl(hid);
-        return hdl.bucket.read(hdl.pos, bs, off, len);
     }
 
     @Override
@@ -245,8 +253,18 @@ public class WnStoreImpl implements WnStore {
     }
 
     @Override
+    public int read(String hid, byte[] bs, int off, int len) {
+        WnHandle hdl = __check_hdl(hid);
+        if (null == hdl.bucket)
+            return 0;
+        return hdl.bucket.read(hdl.pos, bs, off, len);
+    }
+
+    @Override
     public int read(String hid, byte[] bs) {
         WnHandle hdl = __check_hdl(hid);
+        if (null == hdl.bucket)
+            return 0;
         return hdl.bucket.read(hdl.pos, bs, 0, bs.length);
     }
 
