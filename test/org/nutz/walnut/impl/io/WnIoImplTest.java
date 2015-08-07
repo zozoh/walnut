@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
@@ -19,7 +18,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnContext;
 import org.nutz.web.WebException;
 
 public class WnIoImplTest extends BaseIoTest {
@@ -177,37 +175,45 @@ public class WnIoImplTest extends BaseIoTest {
         long last_st = System.currentTimeMillis();
         io.appendMeta(b, "st:" + last_st);
 
+        // 等几毫秒 ...
         Thread.sleep(5);
 
         // 修改子节点，同步时间改变了
-        Thread.sleep(5);
         io.rename(c, "c");
         st = io.check(null, "/a/b").syncTime();
         assertTrue(st > last_st);
         last_st = st;
 
-        // 修改孙文件，同步时间改变了
+        // 等几毫秒 ...
         Thread.sleep(5);
+
+        // 修改孙文件，同步时间改变了
         io.writeText(d, "hello world");
         st = io.check(null, "/a/b").syncTime();
         assertTrue(st > last_st);
         last_st = st;
 
-        // 孙文件没改动，同步时间不改变
+        // 等几毫秒 ...
         Thread.sleep(5);
+
+        // 孙文件没改动，同步时间不改变
         io.writeText(d, "hello world");
         st = io.check(null, "/a/b").syncTime();
         assertTrue(st == last_st);
 
-        // 添加一个子节点，同步时间改变
+        // 等几毫秒 ...
         Thread.sleep(5);
+
+        // 添加一个子节点，同步时间改变
         WnObj oNew = io.create(null, "/a/b/c/newfile", WnRace.FILE);
         st = io.check(null, "/a/b").syncTime();
         assertTrue(st > last_st);
         last_st = st;
 
-        // 删除一个子节点，同步时间改变
+        // 等几毫秒 ...
         Thread.sleep(5);
+
+        // 删除一个子节点，同步时间改变
         io.delete(oNew);
         st = io.check(null, "/a/b").syncTime();
         assertTrue(st > last_st);
@@ -237,57 +243,7 @@ public class WnIoImplTest extends BaseIoTest {
         assertEquals(oldmnt, b.mount());
     }
 
-    /**
-     * for issue #17
-     */
-    @Test
-    public void test_mount_local_auto_use_root_cgm() {
-        WnObj b = io.create(null, "/a/b", WnRace.DIR);
-
-        // 创建临时目录
-        try {
-            Files.createFileIfNoExists2("~/.walnut/tmp/dir/x/y.txt");
-
-            // 挂载目录
-            WnContext wc = Wn.WC();
-            String me = wc.checkMe();
-            String grp = wc.checkGroup();
-            wc.me("nobody", "nogrp");
-            try {
-                io.setMount(b, "file://~/.walnut/tmp/dir");
-
-                // 获取
-                WnObj o = io.check(null, "/a/b/x/y.txt");
-                assertEquals("y.txt", o.name());
-                assertTrue(o.isFILE());
-                assertEquals(me, o.creator());
-                assertEquals(me, o.mender());
-                assertEquals(grp, o.group());
-
-                o = io.check(null, "/a/b/x");
-                assertEquals("x", o.name());
-                assertTrue(o.isDIR());
-                assertEquals(me, o.creator());
-                assertEquals(me, o.mender());
-                assertEquals(grp, o.group());
-
-                o = io.check(null, "/a/b");
-                assertEquals("b", o.name());
-                assertTrue(o.isDIR());
-                assertEquals(me, o.creator());
-                assertEquals(me, o.mender());
-                assertEquals(grp, o.group());
-
-            }
-            finally {
-                wc.me(me, grp);
-            }
-        }
-        // 删除临时目录
-        finally {
-            Files.deleteDir(Files.findFile("~/.walnut/tmp"));
-        }
-    }
+    
 
     @Test
     public void test_simple_link() {
@@ -466,14 +422,17 @@ public class WnIoImplTest extends BaseIoTest {
     @Test
     public void test_move() {
         WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
-        assertEquals("/a/b/c", o.path());
         String oid = o.id();
 
         io.create(null, "/x/y", WnRace.DIR);
         io.move(o, "/x/y/z");
+        assertEquals("z", o.name());
+        assertEquals("/x/y/z", o.path());
 
-        WnObj o2 = io.fetch(null, "/x/y/z");
-        assertEquals(oid, o2.id());
+        o = io.fetch(null, "/x/y/z");
+        assertEquals(oid, o.id());
+        assertEquals("z", o.name());
+        assertEquals("/x/y/z", o.path());
     }
 
     @Test

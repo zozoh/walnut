@@ -6,8 +6,5 @@ import org.nutz.walnut.impl.io.bucket.MemoryBucketTest;
 import org.nutz.walnut.impl.io.mongo.MongoLocalBucketTest;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({WnStoreImplTest.class,
-                     WnIoImplTest.class,
-                     MemoryBucketTest.class,
-                     MongoLocalBucketTest.class})
+@Suite.SuiteClasses({MemoryBucketTest.class, MongoLocalBucketTest.class, WnIoImplTest.class})
 public class AllImplIoTest {}

@@ -15,6 +15,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
+import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WalkMode;
@@ -25,6 +26,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnStore;
 import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 
 public class WnIoImpl implements WnIo {
 
@@ -50,8 +52,19 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
-    public void set(WnObj o, String regex) {
+    public void set(final WnObj o, String regex) {
         tree.set(o, regex);
+
+        // 调用钩子
+        WnContext wc = Wn.WC();
+        wc.doHook("meta", o);
+
+        // 触发同步时间修改
+        wc.hooking(null, new Atom() {
+            public void run() {
+                Wn.Io.update_ancestor_synctime(tree, o, false);
+            }
+        });
     }
 
     @Override
@@ -97,6 +110,21 @@ public class WnIoImpl implements WnIo {
     @Override
     public WnObj getRoot() {
         return tree.getRoot();
+    }
+
+    @Override
+    public String getRootId() {
+        return tree.getRootId();
+    }
+
+    @Override
+    public boolean isRoot(String id) {
+        return tree.isRoot(id);
+    }
+
+    @Override
+    public boolean isRoot(WnObj o) {
+        return tree.isRoot(o);
     }
 
     @Override
@@ -249,27 +277,25 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public InputStream getInputStream(WnObj o, long off) {
-        // // 是读取元数据的
-        // if (o.getBoolean(Wn.OBJ_META_RW)) {
-        // WnObj o2 = (WnObj) o.duplicate();
-        // o2.remove(Wn.OBJ_META_RW);
-        // return new WnObjMetaInputStream(o2);
-        // }
-        // // 读取内容的
-        // return store.getInputStream(o, off);
-        throw Lang.noImplement();
+        // 是读取元数据的
+        if (o.isRWMeta()) {
+            WnObj o2 = (WnObj) o.clone();
+            o2.setRWMeta(false);
+            return new WnObjMetaInputStream(o2);
+        }
+        // 读取内容的
+        return new WnStoreInputStream(o, this, off);
     }
 
     @Override
     public OutputStream getOutputStream(WnObj o, long off) {
-        // // 是写入元数据的
-        // if (o.getBoolean(Wn.OBJ_META_RW)) {
-        // return new WnObjMetaOutputStream(o, this, off < 0);
-        // }
-        // // 写入内容
-        // OutputStream ops = store.getOutputStream(o, off);
-        // return new WnIoOutputStreamWrapper(this, o, ops);
-        throw Lang.noImplement();
+        // 是写入元数据的
+        if (o.isRWMeta()) {
+            return new WnObjMetaOutputStream(o, this, off < 0);
+        }
+        // 写入内容
+        OutputStream ops = new WnStoreOutputStream(o, this, off);
+        return new WnIoOutputStreamWrapper(this, o, ops);
     }
 
     @Override
@@ -427,7 +453,12 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
-    public String open(WnObj o, int mode) {
+    public String open(final WnObj o, int mode) {
+        // 首先确保对象本身不会被篡改，那么重新从数据库里拿一遍是好办法
+        WnObj o2 = tree.checkById(o.id());
+        o.update2(o2);
+
+        // 打开句柄
         String hid = store.open(o, mode);
         if (o.hasRWMetaKeys()) {
             tree.set(o, o.getRWMetaKeys());
@@ -474,16 +505,6 @@ public class WnIoImpl implements WnIo {
     @Override
     public void write(String hid, byte[] bs) {
         store.write(hid, bs);
-    }
-
-    @Override
-    public String getString(String hid) {
-        return store.getString(hid);
-    }
-
-    @Override
-    public void write(String hid, String s) {
-        store.write(hid, s);
     }
 
     @Override

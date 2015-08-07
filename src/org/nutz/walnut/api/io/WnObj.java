@@ -1,6 +1,7 @@
 package org.nutz.walnut.api.io;
 
 import java.util.List;
+import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -91,7 +92,9 @@ public interface WnObj extends NutBean {
 
     WnObj clone();
 
-    WnObj duplicate();
+    WnObj update(Map<? extends String, ? extends Object> map);
+
+    WnObj update2(WnObj o);
 
     boolean isLink();
 
@@ -158,8 +161,6 @@ public interface WnObj extends NutBean {
     WnObj d1(String d1);
 
     String[] dN();
-
-    WnObj update(NutMap map);
 
     String[] labels();
 

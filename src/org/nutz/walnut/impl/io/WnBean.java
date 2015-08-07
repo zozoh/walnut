@@ -3,6 +3,7 @@ package org.nutz.walnut.impl.io;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -11,8 +12,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.util.Wn;
-
-// import org.nutz.walnut.util.WnContext;
 
 public class WnBean extends NutMap implements WnObj {
 
@@ -28,12 +27,6 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public WnBean() {}
-
-    public WnBean(WnBean o) {
-        this.putAll(o);
-        this.setTree(tree);
-
-    }
 
     public NutMap toMap4Update(String regex) {
         NutMap map = new NutMap();
@@ -285,8 +278,30 @@ public class WnBean extends NutMap implements WnObj {
         return Lang.array(d0, d1);
     }
 
-    public WnBean update(NutMap map) {
+    public WnBean update(Map<? extends String, ? extends Object> map) {
         this.putAll(map);
+        return this;
+    }
+
+    @Override
+    public WnObj update2(WnObj o) {
+        // 更新全部元数据
+        this.putAll(o);
+
+        // 更新自己的私有属性
+        if (o instanceof WnBean) {
+            this.tree = ((WnBean) o).tree;
+            this.parent = ((WnBean) o).parent;
+        } else {
+            this.tree = o.tree();
+            this.parent = o.parent();
+        }
+
+        // 确保自己和对方的 parent 不会重复
+        if (null != this.parent)
+            this.parent = this.parent.clone();
+
+        // 返回自身以便链式赋值
         return this;
     }
 
@@ -407,6 +422,10 @@ public class WnBean extends NutMap implements WnObj {
 
     public WnObj name(String nm) {
         setv("nm", nm);
+        String ph = getString("ph");
+        if (!Strings.isBlank(ph)) {
+            path(Files.renamePath(ph, nm));
+        }
         return this;
     }
 
@@ -504,7 +523,7 @@ public class WnBean extends NutMap implements WnObj {
 
         // 得到父节点
         String pid = parentId();
-        WnObj p = tree.get(pid);
+        WnObj p = tree.isRoot(pid) ? tree.getRoot() : tree.get(pid);
 
         // 没有父，是不可能的
         if (null == p) {
@@ -569,12 +588,7 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public WnObj clone() {
-        return duplicate();
-    }
-
-    @Override
-    public WnObj duplicate() {
-        return new WnBean(this);
+        return new WnBean().update2(this);
     }
 
 }

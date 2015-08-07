@@ -214,17 +214,17 @@ public class WnContext extends NutMap {
         return nd;
     }
 
-    public WnObj whenView(WnObj nd) {
-        if (null != security)
-            return security.view(nd);
-        return nd;
-    }
+    // public WnObj whenView(WnObj nd) {
+    // if (null != security)
+    // return security.view(nd);
+    // return nd;
+    // }
 
-    public WnObj whenRemove(WnObj nd) {
-        if (null != security)
-            return security.remove(nd);
-        return nd;
-    }
+    // public WnObj whenRemove(WnObj nd) {
+    // if (null != security)
+    // return security.remove(nd);
+    // return nd;
+    // }
 
     public String checkMe() {
         if (null == me) {

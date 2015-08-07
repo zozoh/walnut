@@ -107,7 +107,7 @@ public class WnStoreImpl implements WnStore {
                 }
 
                 // 准备缓冲区
-                hdl.swap = new byte[bu.getBlockSize()];
+                hdl.swap = new byte[hdl.bucket.getBlockSize()];
                 hdl.swap_size = 0;
 
                 // 记录一下，对象已经被占用
@@ -237,41 +237,31 @@ public class WnStoreImpl implements WnStore {
     @Override
     public void write(String hid, byte[] bs, int off, int len) {
         WnHandle hdl = __check_hdl(hid);
-        hdl.bucket.write(hdl.pos, bs, off, len);
+        hdl.pos += hdl.bucket.write(hdl.pos, bs, off, len);
     }
 
     @Override
     public void write(String hid, byte[] bs) {
-        WnHandle hdl = __check_hdl(hid);
-        hdl.bucket.write(hdl.pos, bs, 0, bs.length);
-    }
-
-    @Override
-    public void write(String hid, String s) {
-        WnHandle hdl = __check_hdl(hid);
-        hdl.bucket.write(s);
+        write(hid, bs, 0, bs.length);
     }
 
     @Override
     public int read(String hid, byte[] bs, int off, int len) {
         WnHandle hdl = __check_hdl(hid);
         if (null == hdl.bucket)
-            return 0;
-        return hdl.bucket.read(hdl.pos, bs, off, len);
+            return -1;
+
+        if (hdl.pos >= hdl.bucket.getSize())
+            return -1;
+
+        int re = hdl.bucket.read(hdl.pos, bs, off, len);
+        hdl.pos += re;
+        return re;
     }
 
     @Override
     public int read(String hid, byte[] bs) {
-        WnHandle hdl = __check_hdl(hid);
-        if (null == hdl.bucket)
-            return 0;
-        return hdl.bucket.read(hdl.pos, bs, 0, bs.length);
-    }
-
-    @Override
-    public String getString(String hid) {
-        WnHandle hdl = __check_hdl(hid);
-        return hdl.bucket.getString();
+        return read(hid, bs, 0, bs.length);
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
+import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.io.AbstractWnTree;
@@ -19,8 +20,10 @@ public class MongoWnTree extends AbstractWnTree {
 
     private ZMoCo co;
 
-    public MongoWnTree(ZMoCo co) {
+    public MongoWnTree(ZMoCo co, WnObj root, MimeMap mimes) {
         this.co = co;
+        this.setRoot(root);
+        this.mimes = mimes;
     }
 
     @Override
@@ -58,7 +61,7 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    public int each(WnQuery q, Each<WnObj> callback) {
+    public int _each(WnQuery q, Each<WnObj> callback) {
         if (null == callback)
             return 0;
         ZMoDoc qDoc = null == q ? ZMoDoc.NEW() : WnMongos.toQueryDoc(q);

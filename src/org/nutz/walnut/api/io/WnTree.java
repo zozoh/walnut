@@ -44,6 +44,12 @@ public interface WnTree extends UnitTestable {
 
     WnObj getRoot();
 
+    String getRootId();
+
+    boolean isRoot(String id);
+
+    boolean isRoot(WnObj o);
+
     int each(WnQuery q, Each<WnObj> callback);
 
     List<WnObj> query(WnQuery q);

@@ -10,7 +10,6 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
-import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
@@ -35,6 +34,21 @@ public abstract class AbstractWnTree implements WnTree {
     @Override
     public WnObj getRoot() {
         return root.clone();
+    }
+
+    @Override
+    public String getRootId() {
+        return root.id();
+    }
+
+    @Override
+    public boolean isRoot(String id) {
+        return root.isSameId(id);
+    }
+
+    @Override
+    public boolean isRoot(WnObj o) {
+        return root.isSameId(o);
     }
 
     public void setRoot(WnObj root) {
@@ -107,7 +121,7 @@ public abstract class AbstractWnTree implements WnTree {
         WnSecurity secu = Wn.WC().getSecurity();
 
         if (null != secu) {
-            p = secu.enter(p);
+            p = __enter_dir(p, secu);
         }
 
         // 逐个进入目标节点的父
@@ -137,7 +151,7 @@ public abstract class AbstractWnTree implements WnTree {
 
             // 确保节点可进入
             if (null != secu) {
-                nd = secu.enter(nd);
+                nd = __enter_dir(nd, secu);
             }
 
             // 指向下一个节点
@@ -160,6 +174,16 @@ public abstract class AbstractWnTree implements WnTree {
 
         // 搞定了，返回吧
         return nd;
+    }
+
+    private WnObj __enter_dir(WnObj o, WnSecurity secu) {
+        WnObj dir = secu.enter(o);
+        // 肯定遇到了链接目录
+        if (!dir.isSameId(o)) {
+            dir.name(o.name());
+            dir.setParent(o.parent());
+        }
+        return dir;
     }
 
     protected abstract WnObj _fetch_one_by_name(WnObj p, String name);
@@ -250,7 +274,7 @@ public abstract class AbstractWnTree implements WnTree {
 
         // 应对一下回调
         if (null != secu) {
-            p = secu.enter(p);
+            p = __enter_dir(p, secu);
             p = secu.write(p);
         }
 
@@ -263,13 +287,24 @@ public abstract class AbstractWnTree implements WnTree {
         if (Strings.isBlank(id))
             id = Wn.genId();
 
+        // 设置元数据
         o.id(id);
-        o.setParent(p);
         o.race(race);
         o.setTree(this);
         long now = System.currentTimeMillis();
         o.createTime(now);
         o.lastModified(now);
+
+        // 展开名字
+        o.name(Wn.evalName(name, id));
+        Wn.set_type(mimes, o, null);
+
+        // 文件设置类型
+        if (o.isFILE())
+            Wn.set_type(mimes, o, null);
+
+        // 关联父节点
+        o.setParent(p);
 
         // 顶级节点，均属于 root
         if (Strings.isBlank(o.d1())) {
@@ -303,14 +338,6 @@ public abstract class AbstractWnTree implements WnTree {
         else {
             o.mode(0750);
         }
-
-        // 展开名字
-        o.name(Wn.evalName(name, id));
-        Wn.set_type(mimes, o, null);
-
-        // 文件设置类型
-        if (o.isFILE())
-            Wn.set_type(mimes, o, null);
 
         // 执行保存
         _create_node(o);
@@ -357,7 +384,7 @@ public abstract class AbstractWnTree implements WnTree {
         WnObj oldSrcParent = src.parent();
 
         // 确保源是可以访问的
-        wc.whenAccess(src);
+        src = wc.whenAccess(src);
 
         // 确保源的父是可以写入的
         wc.whenWrite(src.parent());
@@ -386,14 +413,16 @@ public abstract class AbstractWnTree implements WnTree {
         // 确认目标能写入
         wc.whenWrite(ta);
 
-        // 改变父
-        src.setParent(ta);
-
-        // 更新一下索引的记录
+        // 改变名称和类型
         if (null != newName) {
             src.name(newName);
             Wn.set_type(mimes, src, null);
         }
+
+        // 改变父
+        src.setParent(ta);
+
+        // 更新一下索引的记录
         set(src, "^d0|d1|nm|pid|tp|mime$");
 
         // 如果是目录，且d0,d1 改变了，需要递归
@@ -425,25 +454,12 @@ public abstract class AbstractWnTree implements WnTree {
     @Override
     public void set(final WnObj o, String regex) {
         _set(o.id(), o.toMap4Update(regex));
-
-        // 调用钩子
-        WnContext wc = Wn.WC();
-        wc.doHook("meta", o);
-
-        // 触发同步时间修改
-        final WnTree tree = this;
-        wc.hooking(null, new Atom() {
-            public void run() {
-                Wn.Io.update_ancestor_synctime(tree, o, false);
-            }
-        });
-
     }
 
     protected abstract void _set(String id, NutMap map);
 
     protected void _do_walk_children(WnObj p, final Callback<WnObj> callback) {
-        this.each(Wn.Q.pid(p), new Each<WnObj>() {
+        this.each(Wn.Q.pid(null == p ? getRootId() : p.id()), new Each<WnObj>() {
             public void invoke(int index, WnObj nd, int length) {
                 callback.invoke(nd);
             }
@@ -574,6 +590,20 @@ public abstract class AbstractWnTree implements WnTree {
 
         return o;
     }
+
+    @Override
+    public int each(WnQuery q, final Each<WnObj> callback) {
+        final WnTree tree = this;
+        return _each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj o, int length) {
+                o.setTree(tree);
+                if (null != callback)
+                    callback.invoke(index, o, length);
+            }
+        });
+    }
+
+    protected abstract int _each(WnQuery q, Each<WnObj> callback);
 
     @Override
     public WnObj getOne(WnQuery q) {

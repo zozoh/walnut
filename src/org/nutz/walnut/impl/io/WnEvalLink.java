@@ -15,37 +15,37 @@ public class WnEvalLink implements WnSecurity {
 
     @Override
     public WnObj enter(WnObj nd) {
-        return __eval_obj(nd, true);
+        return __eval_obj(nd);
     }
 
     @Override
     public WnObj access(WnObj nd) {
-        return __eval_obj(nd, true);
+        return nd;
     }
 
-    @Override
-    public WnObj view(WnObj nd) {
-        return __eval_obj(nd, false);
-    }
+    // @Override
+    // public WnObj view(WnObj nd) {
+    // return __eval_obj(nd, false);
+    // }
 
     @Override
     public WnObj read(WnObj nd) {
-        return __eval_obj(nd, true);
+        return __eval_obj(nd);
     }
 
     @Override
     public WnObj write(WnObj nd) {
-        return __eval_obj(nd, true);
+        return __eval_obj(nd);
     }
 
-    @Override
-    public WnObj remove(WnObj nd) {
-        return __eval_obj(nd, false);
-    }
+    // @Override
+    // public WnObj remove(WnObj nd) {
+    // return __eval_obj(nd, false);
+    // }
 
-    protected WnObj __eval_obj(WnObj o, boolean auto_unlink) {
+    protected WnObj __eval_obj(WnObj o) {
         // 处理链接文件
-        if (auto_unlink && o.isLink()) {
+        if (o.isLink()) {
             String ln = o.link();
             // 用 ID
             if (ln.startsWith("id:")) {

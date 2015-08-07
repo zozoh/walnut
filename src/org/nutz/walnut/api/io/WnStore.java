@@ -4,10 +4,6 @@ import org.nutz.walnut.util.UnitTestable;
 
 public interface WnStore extends UnitTestable {
 
-    String getString(String hid);
-
-    void write(String hid, String s);
-
     /**
      * 打开一个句柄
      * 
