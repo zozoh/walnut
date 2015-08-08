@@ -512,4 +512,9 @@ public class WnIoImpl implements WnIo {
         store.seek(hid, pos);
     }
 
+    @Override
+    public void trancate(WnObj o, long len) {
+        store.trancate(o, len);
+    }
+
 }

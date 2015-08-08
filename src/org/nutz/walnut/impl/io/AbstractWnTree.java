@@ -1,7 +1,10 @@
 package org.nutz.walnut.impl.io;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Each;
@@ -19,14 +22,25 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.io.WnTree;
+import org.nutz.walnut.impl.io.mnt.LocalFileMounter;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
 public abstract class AbstractWnTree implements WnTree {
 
+    private static final Pattern regex_id_mnt2 = Pattern.compile("^([\\d\\w]+)://(.+)$");
+    private static final Pattern regex_id_mnt3 = Pattern.compile("^([0-9a-v]{4,26}):([\\d\\w]+)://(.+)$");
+
     protected WnObj root;
 
     protected MimeMap mimes;
+
+    private Map<String, WnMounter> mounters;
+
+    public AbstractWnTree() {
+        mounters = new HashMap<String, WnMounter>();
+        mounters.put("file", new LocalFileMounter());
+    }
 
     @Override
     public void _clean_for_unit_test() {}
@@ -61,6 +75,23 @@ public abstract class AbstractWnTree implements WnTree {
         if (null == id)
             return null;
 
+        // 如果是 mount 的 ID
+        // 那么形式应该类似 34cdqef:file://path/to/file
+        Matcher m = regex_id_mnt3.matcher(id);
+        if (m.find()) {
+            // 得到挂载点对象
+            String mntId = m.group(1);
+            WnObj mo = this.checkById(mntId);
+
+            // 分析出挂载点类型以及值
+            String mntType = m.group(2);
+            String val = m.group(3);
+            String[] ss = Strings.splitIgnoreBlank(val, "[/]");
+
+            // 返回挂载对象
+            return __eval_mnt_obj(mo, mntType, ss, 0, ss.length);
+        }
+
         // 如果是不完整的 ID
         if (!id.matches("[0-9a-v]{26}")) {
             WnQuery q = new WnQuery().limit(2);
@@ -80,6 +111,22 @@ public abstract class AbstractWnTree implements WnTree {
         return o;
     }
 
+    private WnObj __eval_mnt_obj(WnObj mo,
+                                 String mntType,
+                                 String[] paths,
+                                 int fromIndex,
+                                 int toIndex) {
+        // 根据类型得到挂载的实现
+        WnMounter wm = mounters.get(mntType);
+        if (null == wm)
+            throw Er.createf("e.io.mnt.unknownType",
+                             "%s://%s",
+                             mntType,
+                             Lang.concat(fromIndex, toIndex - fromIndex, '/', paths));
+
+        return wm.get(mimes, mo, paths, fromIndex, toIndex);
+    }
+
     protected abstract WnObj _get_my_node(String id);
 
     private void __assert_parent_can_create(WnObj p, WnRace race) {
@@ -88,9 +135,9 @@ public abstract class AbstractWnTree implements WnTree {
             throw Er.create("e.io.tree.nd.file_as_parent", p);
         }
 
-        // 如果映射到本地目录，则只读
-        if (p.isMount("file:")) {
-            throw Er.create("e.io.tree.c.readonly.local", p);
+        // 如果是映射节点，只读
+        if (p.isMount()) {
+            throw Er.create("e.io.tree.c.readonly.mnt", p);
         }
     }
 
@@ -124,6 +171,17 @@ public abstract class AbstractWnTree implements WnTree {
             p = __enter_dir(p, secu);
         }
 
+        // 处理挂载节点
+        if (p.isMount()) {
+            Matcher m = regex_id_mnt2.matcher(p.mount());
+            if (m.find()) {
+                String mntType = m.group(1);
+                return this.__eval_mnt_obj(p, mntType, paths, fromIndex, toIndex);
+            } else {
+                throw Er.create("e.io.mnt.invalid", p.mount());
+            }
+        }
+
         // 逐个进入目标节点的父
         WnObj nd;
         int rightIndex = toIndex - 1;
@@ -152,6 +210,17 @@ public abstract class AbstractWnTree implements WnTree {
             // 确保节点可进入
             if (null != secu) {
                 nd = __enter_dir(nd, secu);
+            }
+
+            // 处理挂载节点
+            if (nd.isMount()) {
+                Matcher m = regex_id_mnt2.matcher(nd.mount());
+                if (m.find()) {
+                    String mntType = m.group(1);
+                    return this.__eval_mnt_obj(nd, mntType, paths, i + 1, toIndex);
+                } else {
+                    throw Er.create("e.io.mnt.invalid", nd.mount());
+                }
             }
 
             // 指向下一个节点

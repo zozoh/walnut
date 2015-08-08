@@ -77,7 +77,7 @@ public class WnConfig extends WebConfig {
         o.lastModified(System.currentTimeMillis());
         o.createTime(System.currentTimeMillis());
         o.creator("root").mender("root").group("root");
-        o.mode(0750);
+        o.mode(0755);
 
         return o;
     }

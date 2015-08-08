@@ -469,9 +469,9 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     @Override
-    public boolean isMount(String mntType) {
+    public boolean isMount() {
         String mnt = mount();
-        return mnt != null && mnt.startsWith(mntType);
+        return !Strings.isBlank(mnt);
     }
 
     public boolean isHidden() {

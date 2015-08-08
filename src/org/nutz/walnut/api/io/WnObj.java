@@ -80,7 +80,7 @@ public interface WnObj extends NutBean {
 
     WnObj mount(String mnt);
 
-    boolean isMount(String mntType);
+    boolean isMount();
 
     long len();
 

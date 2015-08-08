@@ -377,9 +377,25 @@ public abstract class Wn {
 
     public static class S {
 
+        /**
+         * 追加模式，句柄不可 seek，只会向后面添加内容
+         */
         public static final int A = 1;
+        /**
+         * 写模式，可以和修改模式(M)混用
+         */
         public static final int W = 1 << 1;
+        /**
+         * 读模式
+         */
         public static final int R = 1 << 2;
+        /**
+         * 修改模式，如果非修改模式，关闭句柄，会删除后面的内容
+         */
+        public static final int M = 1 << 3;
+        /**
+         * 读写模式
+         */
         public static final int RW = R | W;
 
         public static boolean isRead(int mode) {
@@ -392,6 +408,10 @@ public abstract class Wn {
 
         public static boolean isWite(int mode) {
             return Maths.isMask(mode, W);
+        }
+
+        public static boolean isModify(int mode) {
+            return Maths.isMask(mode, M);
         }
 
         public static boolean isWriteOnly(int mode) {

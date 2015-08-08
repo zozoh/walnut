@@ -93,7 +93,8 @@ public class MongoLocalBucket extends AbstractBucket {
         }
 
         // 最多读取一个块大小，如果文件比一个块长，则忽略长出的部分
-        int fLen = (int) Math.min(f.length(), blockSize);
+        int fLen = (int) Math.min(f.length(),
+                                  index + 1 == blockNumber ? size - index * blockSize : blockSize);
 
         // 填充字节
         byte[] buf = new byte[blockSize];
@@ -155,7 +156,7 @@ public class MongoLocalBucket extends AbstractBucket {
 
             // 文件存在才读取
             if (f.exists()) {
-                n = Math.min((int) f.length(), len);
+                n = Math.min((int) (size - pos), len);
                 n = this.__fill_buffer_by_file(f, from, bs, off, n);
             }
             // 否则全当读过了一个块
@@ -268,9 +269,10 @@ public class MongoLocalBucket extends AbstractBucket {
             blockNumber = index + 1;
         }
 
-        // 如果写的是最后的块，修改有效逻辑长度
-        if (index == (blockNumber - 1)) {
-            size = index * blockSize + re;
+        // 看看是否导致桶的长度改变
+        long sz = ((long) index) * ((long) blockSize) + ((long) padding) + ((long) len);
+        if (sz > size) {
+            size = sz;
         }
 
         // 清除指纹
@@ -549,15 +551,18 @@ public class MongoLocalBucket extends AbstractBucket {
     }
 
     public void setSize(long size) {
-        this.size = size;
+        if (this.size != size) {
+            this.size = size;
+            this.sha1 = null;
+            this.lastModified = System.currentTimeMillis();
 
-        int lb_sz = (int) size % blockSize;
-        int b_nb = (int) (size / blockSize) + (lb_sz > 0 ? 1 : 0);
+            int lb_sz = (int) size % blockSize;
+            int b_nb = (int) (size / blockSize) + (lb_sz > 0 ? 1 : 0);
 
-        if (b_nb != blockNumber) {
-            this.trancate(b_nb);
+            if (b_nb != blockNumber) {
+                this.trancate(b_nb);
+            }
         }
-
     }
 
     public String getSha1() {

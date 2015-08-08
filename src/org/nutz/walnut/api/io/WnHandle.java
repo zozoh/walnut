@@ -18,6 +18,7 @@ public class WnHandle {
     public WnObj obj;
 
     public long pos;
+    public boolean updated;
 
     public byte[] swap;
     public int swap_size;

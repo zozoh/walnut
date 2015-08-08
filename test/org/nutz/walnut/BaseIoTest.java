@@ -41,7 +41,7 @@ public abstract class BaseIoTest extends BaseStoreTest {
         root.lastModified(System.currentTimeMillis());
         root.createTime(System.currentTimeMillis());
         root.creator("root").mender("root").group("root");
-        root.mode(0750);
+        root.mode(0755);
 
         return new MongoWnTree(co, root, mimes);
     }

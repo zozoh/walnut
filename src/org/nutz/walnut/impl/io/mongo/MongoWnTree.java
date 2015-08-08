@@ -21,6 +21,7 @@ public class MongoWnTree extends AbstractWnTree {
     private ZMoCo co;
 
     public MongoWnTree(ZMoCo co, WnObj root, MimeMap mimes) {
+        super();
         this.co = co;
         this.setRoot(root);
         this.mimes = mimes;

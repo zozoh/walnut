@@ -21,7 +21,7 @@ public class IoHookTest extends BaseHookTest {
     public void test_mount() {
         // 准备钩子
         WnObj oHook = io.createIfNoExists(oHookHome, "mount/do_log", WnRace.FILE);
-        io.writeText(oHook, "echo '${nm} - ${mnt} - ${_old_mnt}' >> ~/testlog");
+        io.writeText(oHook, "echo '${nm} mnt:[${mnt}] old:[${_old_mnt}]' >> ~/testlog");
 
         // 执行
         Wn.WC().hooking(hc, new Atom() {
@@ -33,13 +33,12 @@ public class IoHookTest extends BaseHookTest {
         });
 
         // 查看 log
-        String oldmnt = oHook.mount();
         WnObj oLog = io.check(oHome, "testlog");
         String log = io.readText(oLog);
         String[] lines = Strings.splitIgnoreBlank(log, "\n");
         assertEquals(2, lines.length);
-        assertEquals("mydir - file://~/tmp/walnuta - " + oldmnt, lines[0]);
-        assertEquals("mydir - " + oldmnt + " - file://~/tmp/walnuta", lines[1]);
+        assertEquals("mydir mnt:[file://~/tmp/walnuta] old:[]", lines[0]);
+        assertEquals("mydir mnt:[] old:[file://~/tmp/walnuta]", lines[1]);
     }
 
     @Test
@@ -227,7 +226,11 @@ public class IoHookTest extends BaseHookTest {
         // 验证
         WnObj o = io.check(oHome, "abc.txt");
         String txt = io.readText(o);
-        assertEquals(Lang.md5("hello\n") + "\n" + Lang.sha1(Lang.md5("hello\n") + "\n") + "\n", txt);
+        assertEquals(Lang.md5("hello\n")
+                     + "\n"
+                     + Lang.sha1(Lang.md5("hello\n") + "\n")
+                     + "\n",
+                     txt);
         assertEquals(Lang.sha1(txt), o.sha1());
     }
 
@@ -288,6 +291,5 @@ public class IoHookTest extends BaseHookTest {
         assertEquals("/home/xiaobai/abc.txt\n", txt);
         assertEquals(Lang.sha1(txt), o.sha1());
     }
-
 
 }

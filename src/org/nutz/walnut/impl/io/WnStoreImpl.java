@@ -58,6 +58,7 @@ public class WnStoreImpl implements WnStore {
         hdl.mode = mode;
         hdl.obj = o;
         hdl.pos = Wn.S.isAppend(mode) ? o.len() : 0;
+        hdl.updated = false;
 
         // 分析文件数据
         String data = o.data();
@@ -134,7 +135,7 @@ public class WnStoreImpl implements WnStore {
         __flush(hdl);
 
         // 写操作的句柄需要额外处理，读操作就神马也表用做了
-        if (Wn.S.isWite(hdl.mode)) {
+        if (Wn.S.isWite(hdl.mode) && hdl.updated) {
             // 如果是修改元数据
             if (hdl.obj.isRWMeta()) {
                 String json = hdl.bucket.getString();
@@ -150,8 +151,17 @@ public class WnStoreImpl implements WnStore {
             }
             // 仅仅是修改内容
             else {
-                // 更新对象的关键字段索引
-                hdl.obj.len(hdl.bucket.getSize());
+                // 如果是修改模式，采用桶的长度作为对象的长度
+                if (Wn.S.isModify(hdl.mode)) {
+                    hdl.obj.len(hdl.bucket.getSize());
+                }
+                // 否则将会剪裁桶的长度
+                else if (hdl.pos >= 0) {
+                    hdl.obj.len(hdl.pos);
+                    hdl.bucket.setSize(hdl.pos);
+                }
+
+                // 保存最后修改时间
                 hdl.obj.lastModified(hdl.bucket.getLastModified());
 
                 // 确保引用桶
@@ -176,15 +186,32 @@ public class WnStoreImpl implements WnStore {
         return hdl.obj;
     }
 
+    private void __flush(WnHandle hdl) {
+        if (hdl.swap_size > 0) {
+            // 存入桶
+            hdl.bucket.write(hdl.pos, hdl.swap, 0, hdl.swap_size);
+
+            // 移动指针
+            hdl.pos += hdl.swap_size;
+
+            // 缓冲归零
+            hdl.swap_size = 0;
+        }
+    }
+
     @Override
     public WnObj flush(String hid) {
         WnHandle hdl = __check_hdl(hid);
 
+        // 读操作不需要刷新缓冲
+        if (Wn.S.isReadOnly(hdl.mode))
+            return hdl.obj;
+
         // 刷新缓冲
         __flush(hdl);
 
-        // 不是读写元数据的话，则需要更新对象的索引
-        if (hdl.swap_size > 0 && !hdl.obj.isRWMeta()) {
+        // 不是读写元数据的话，如果写过数据则需要更新对象的索引
+        if (hdl.updated && !hdl.obj.isRWMeta()) {
             // 修改对象的索引
             hdl.obj.len(hdl.bucket.getSize());
             hdl.obj.sha1(null);
@@ -221,22 +248,15 @@ public class WnStoreImpl implements WnStore {
         // 否则没啥需要做的
     }
 
-    public void __flush(WnHandle hdl) {
-        if (hdl.swap_size > 0) {
-            // 存入桶
-            hdl.bucket.write(hdl.pos, hdl.swap, 0, hdl.swap_size);
-
-            // 移动指针
-            hdl.pos += hdl.swap_size;
-
-            // 缓冲归零
-            hdl.swap_size = 0;
-        }
-    }
-
     @Override
     public void write(String hid, byte[] bs, int off, int len) {
         WnHandle hdl = __check_hdl(hid);
+
+        // 标志第一次写
+        if (!hdl.updated && len > 0)
+            hdl.updated = true;
+
+        // 真的写
         hdl.pos += hdl.bucket.write(hdl.pos, bs, off, len);
     }
 
@@ -267,21 +287,30 @@ public class WnStoreImpl implements WnStore {
     @Override
     public void seek(String hid, long pos) {
         WnHandle hdl = __check_hdl(hid);
-
         if (Wn.S.isAppend(hdl.mode))
             throw Er.create("e.io.seek.append", hdl.obj);
+
+        hdl.pos = pos;
+        handles.save(hdl);
     }
 
     @Override
     public void delete(WnObj o) {
+        WnBucket bu = __check_bucket(o);
+        if (null != bu)
+            bu.free();
+
+    }
+
+    private WnBucket __check_bucket(WnObj o) {
         // 对象元数据句柄，忽略
         if (o.isRWMeta()) {
-            return;
+            return null;
         }
 
         // 空对象
         if (!o.hasData())
-            return;
+            return null;
 
         // 分析文件数据
         String data = o.data();
@@ -297,9 +326,35 @@ public class WnStoreImpl implements WnStore {
         }
 
         // 否则就是默认的桶实现
-        WnBucket bu = buckets.checkById(data);
-        bu.free();
+        return buckets.checkById(data);
+    }
 
+    @Override
+    public void trancate(WnObj o, long len) {
+        if (o.len() != len) {
+            WnBucket bu = __check_bucket(o);
+            // 剪裁桶
+            if (null != bu) {
+                bu.setSize(len);
+                o.len(len);
+                o.sha1(bu.getSha1());
+                o.lastModified(bu.getLastModified());
+                bu.update();
+            }
+            // 没对象的话，长度必须是 0
+            else if (len != 0) {
+                throw Er.createf("e.io.store.trancate.nodata", "%s => %dbytes", o, len);
+            }
+            // 将对象置空
+            else {
+                o.len(len);
+                o.sha1(Lang.sha1(""));
+                o.lastModified(System.currentTimeMillis());
+            }
+
+            // 标记要修改的元数据
+            o.setRWMetaKeys("^(sha1|len|lm)$");
+        }
     }
 
     private WnHandle __check_hdl(String hid) {

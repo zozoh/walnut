@@ -243,8 +243,6 @@ public class WnIoImplTest extends BaseIoTest {
         assertEquals(oldmnt, b.mount());
     }
 
-    
-
     @Test
     public void test_simple_link() {
         Wn.WC().setSecurity(new WnEvalLink(io));
@@ -433,6 +431,30 @@ public class WnIoImplTest extends BaseIoTest {
         assertEquals(oid, o.id());
         assertEquals("z", o.name());
         assertEquals("/x/y/z", o.path());
+    }
+
+    @Test
+    public void test_rewrite_content() {
+        WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
+
+        io.writeText(o, "ABC");
+        io.writeText(o, "A");
+
+        assertEquals(1, o.len());
+        assertEquals("A", io.readText(o));
+        assertEquals(Lang.sha1("A"), o.sha1());
+    }
+
+    @Test
+    public void test_simple_append() {
+        WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
+
+        io.writeText(o, "A");
+        io.appendText(o, "B");
+
+        assertEquals(2, o.len());
+        assertEquals(Lang.sha1("AB"), o.sha1());
+        assertEquals("AB", io.readText(o));
     }
 
     @Test
