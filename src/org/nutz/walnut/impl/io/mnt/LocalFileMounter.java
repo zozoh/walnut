@@ -50,12 +50,12 @@ public class LocalFileMounter implements WnMounter {
             o.id(String.format("%s:file://%s", mo.id(), rph));
 
             o.name(f.getName());
-            Wn.set_type(mimes, o, null);
             if (f.isFile())
                 o.race(WnRace.FILE);
             else
                 o.race(WnRace.DIR);
-
+            
+            Wn.set_type(mimes, o, null);
             o.setParent(p);
 
             o.sha1("-no-sha1-");
@@ -67,6 +67,8 @@ public class LocalFileMounter implements WnMounter {
 
             o.mode(0750);
             o.creator(mo.creator()).group(mo.creator()).mender(mo.creator());
+
+            o.mount(p.mount() + "/" + o.name());
 
             // 作为下一圈的父
             p = o;

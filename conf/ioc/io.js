@@ -8,37 +8,31 @@ var ioc = {
 			} ]
 		} ]
 	},
-	treeFactory : {
-		type : 'org.nutz.walnut.impl.io.WnTreeFactoryImpl',
+	tree : {
+		type : 'org.nutz.walnut.impl.io.mongo.MongoWnTree',
 		args : [ {
-			refer : 'mongoDB'
-		} ]
-	},
-	iocMakeHolder : {
-		type : 'org.nutz.walnut.web.WnIocMakeHolder',
-		args : [ {
-			refer : 'mimes'
-		}, {
-			refer : 'treeFactory'
+			java : '$mongoDB.getCollection("obj")'
 		}, {
 			java : '$conf.rootTreeNode'
 		}, {
-			refer : 'mongoDB'
-		}, {
-			java : '$conf.get("indexer-co","obj")'
+			refer : 'mimes'
 		} ]
 	},
-	storeFactory : {
-		type : 'org.nutz.walnut.impl.io.WnStoreFactoryImpl',
-		args : [ {
-			java : '$iocMakeHolder.indexer'
-		}, {
-			refer : 'mongoDB'
-		}, {
-			java : '$conf.check("local-sha1")'
-		}, {
-			java : '$conf.check("local-data")'
-		} ]
+	store : {
+		type : 'org.nutz.walnut.impl.io.WnStoreImpl',
+		fields : {
+			buckets : {
+				type : 'org.nutz.walnut.impl.io.mongo.MongoLocalBucketManager',
+				args : [ {
+					java : '$conf.bucketHome'
+				}, {
+					java : '$mongoDB.getCollection("bucket")'
+				} ]
+			},
+			handles : {
+				type : 'org.nutz.walnut.impl.io.handle.WnHandleManagerImpl'
+			}
+		}
 	},
 	io : {
 		type : 'org.nutz.walnut.impl.io.WnIoImpl',
@@ -47,13 +41,10 @@ var ioc = {
 				refer : 'mimes'
 			},
 			tree : {
-				java : '$iocMakeHolder.tree'
+				refer : 'tree'
 			},
-			indexer : {
-				java : '$iocMakeHolder.indexer'
-			},
-			stores : {
-				refer : 'storeFactory'
+			store : {
+				refer : 'store'
 			}
 		}
 	}

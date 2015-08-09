@@ -29,7 +29,7 @@ public abstract class BaseIoTest extends BaseStoreTest {
     }
 
     private WnTree _create_tree() {
-        ZMoCo co = db.getCollectionByMount("mongo:obj");
+        ZMoCo co = db.getCollection("obj");
 
         String id = pp.get("root-id");
 

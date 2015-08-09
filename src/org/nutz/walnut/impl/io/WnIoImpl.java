@@ -455,8 +455,10 @@ public class WnIoImpl implements WnIo {
     @Override
     public String open(final WnObj o, int mode) {
         // 首先确保对象本身不会被篡改，那么重新从数据库里拿一遍是好办法
-        WnObj o2 = tree.checkById(o.id());
-        o.update2(o2);
+        if (Wn.S.isWite(mode)) {
+            WnObj o2 = tree.checkById(o.id());
+            o.update2(o2);
+        }
 
         // 打开句柄
         String hid = store.open(o, mode);
