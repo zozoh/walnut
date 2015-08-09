@@ -59,8 +59,8 @@ public abstract class JvmExecutor {
         String ph = Wn.normalizePath(str, sys);
 
         // 从根开始的路径...
-        if (ph.startsWith("/"))
-            p = null;
+        if (ph.startsWith("/") || null == p)
+            p = sys.io.getRoot();
 
         // 因为要考虑通配符，逐次进入
         String[] ss = Strings.splitIgnoreBlank(ph, "/");
