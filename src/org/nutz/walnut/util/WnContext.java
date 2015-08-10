@@ -12,10 +12,8 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.hook.WnHook;
 import org.nutz.walnut.api.hook.WnHookBreak;
 import org.nutz.walnut.api.hook.WnHookContext;
-import org.nutz.walnut.api.io.WnNodeCallback;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
-import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 
@@ -37,8 +35,6 @@ public class WnContext extends NutMap {
     private String grp;
 
     private WnSecurity security;
-
-    private WnNodeCallback on_create;
 
     private boolean synctime_off;
 
@@ -151,6 +147,18 @@ public class WnContext extends NutMap {
         }
     }
 
+    public <T> T synctimeOff(Proton<T> proton) {
+
+        try {
+            synctime_off = true;
+            proton.run();
+            return proton.get();
+        }
+        finally {
+            synctime_off = false;
+        }
+    }
+
     public WnSecurity getSecurity() {
         return security;
     }
@@ -182,55 +190,41 @@ public class WnContext extends NutMap {
         }
     }
 
-    public WnNode whenEnter(WnNode nd) {
+    public WnObj whenEnter(WnObj nd) {
         if (null != security)
             return security.enter(nd);
         return nd;
     }
 
-    public WnNode whenAccess(WnNode nd) {
+    public WnObj whenAccess(WnObj nd) {
         if (null != security)
             return security.access(nd);
         return nd;
     }
 
-    public WnNode whenRead(WnNode nd) {
+    public WnObj whenRead(WnObj nd) {
         if (null != security)
             return security.read(nd);
         return nd;
     }
 
-    public WnNode whenWrite(WnNode nd) {
+    public WnObj whenWrite(WnObj nd) {
         if (null != security)
             return security.write(nd);
         return nd;
     }
 
-    public WnNode whenView(WnNode nd) {
-        if (null != security)
-            return security.view(nd);
-        return nd;
-    }
+    // public WnObj whenView(WnObj nd) {
+    // if (null != security)
+    // return security.view(nd);
+    // return nd;
+    // }
 
-    public WnNode whenRemove(WnNode nd) {
-        if (null != security)
-            return security.remove(nd);
-        return nd;
-    }
-
-    public WnNode whenCreate(WnNode nd) {
-        if (null != on_create)
-            return on_create.invoke(nd);
-        return nd;
-    }
-
-    public void onCreate(WnNodeCallback callback) {
-        this.on_create = callback;
-    }
-
-    public WnNodeCallback onCreate() {
-        return on_create;
-    }
+    // public WnObj whenRemove(WnObj nd) {
+    // if (null != security)
+    // return security.remove(nd);
+    // return nd;
+    // }
 
     public String checkMe() {
         if (null == me) {

@@ -2,16 +2,16 @@ package org.nutz.walnut.api.io;
 
 public interface WnSecurity {
 
-    WnNode enter(WnNode nd);
+    WnObj enter(WnObj nd);
 
-    WnNode access(WnNode nd);
+    WnObj access(WnObj nd);
 
-    WnNode view(WnNode nd);
+    // WnObj view(WnObj nd);
 
-    WnNode read(WnNode nd);
+    WnObj read(WnObj nd);
 
-    WnNode write(WnNode nd);
-    
-    WnNode remove(WnNode nd);
+    WnObj write(WnObj nd);
+
+    // WnObj remove(WnObj nd);
 
 }

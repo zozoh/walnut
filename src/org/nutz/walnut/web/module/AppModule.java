@@ -81,11 +81,11 @@ public class AppModule extends AbstractWnModule {
             str = URLDecoder.decode(str, "UTF-8");
             o = Wn.checkObj(io, se, str);
             if (meta)
-                o.setv(Wn.OBJ_META_RW, true);
+                o.setRWMeta(true);
             // 看看是否需要重定向一下
             if (!str.startsWith("~") && !str.startsWith("/") && !str.startsWith("id:")) {
                 String url = "/a/open/" + appName + ":id:" + o.id();
-                if (meta || o.getBoolean(Wn.OBJ_META_RW)) {
+                if (meta || o.isRWMeta()) {
                     url += "?m=true";
                 }
                 return new ServerRedirectView(url);
@@ -160,7 +160,7 @@ public class AppModule extends AbstractWnModule {
             String nm = "dft_app_" + tt + "_tmpl.html";
             WnObj p = oAppHome;
             while (null == oTmpl && null != p && !p.isRootNode()) {
-                p = io.get(p.parent());
+                p = p.parent();
                 oTmpl = io.fetch(p, nm);
             }
             if (null == oTmpl) {

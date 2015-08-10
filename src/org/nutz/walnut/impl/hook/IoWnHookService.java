@@ -8,6 +8,7 @@ import org.nutz.walnut.api.hook.WnHook;
 import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.Wn;
 
 public abstract class IoWnHookService implements WnHookService {
 
@@ -27,7 +28,7 @@ public abstract class IoWnHookService implements WnHookService {
         if (!hr.oDir.isDIR())
             throw Er.create("e.hook.load.nodir", hr.oDir);
 
-        List<WnObj> oHooks = io.getChildren(hr.oDir, null);
+        List<WnObj> oHooks = io.query(Wn.Q.pid(hr.oDir));
         hr.hooks = new ArrayList<WnHook>(oHooks.size());
         for (WnObj oHook : oHooks) {
             AbstractWnHook hook;

@@ -170,7 +170,7 @@ public class ObjModule extends AbstractWnModule {
             o = ta;
             // 如果指定了名称
             if (!Strings.isBlank(objnm) && !o.name().equals(objnm)) {
-                WnObj p = io.getParent(o);
+                WnObj p = o.parent();
                 o = io.createIfNoExists(p, objnm, WnRace.FILE);
             }
         }

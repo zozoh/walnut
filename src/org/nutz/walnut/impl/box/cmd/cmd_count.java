@@ -3,10 +3,13 @@ package org.nutz.walnut.impl.box.cmd;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_count extends JvmExecutor {
@@ -38,7 +41,14 @@ public class cmd_count extends JvmExecutor {
 
         // 计算路径下的文件数
         WnObj phObj = sys.io.fetch(null, ph);
-        long childrenNum = sys.io.countChildren(phObj, tp, showHidden);
+        WnQuery q = Wn.Q.pid(phObj.id());
+        if (!showHidden) {
+            q.setv("nm", "^[^.].+$");
+        }
+        if (!Strings.isBlank(tp)) {
+            q.setv("tp", tp);
+        }
+        long childrenNum = sys.io.count(q);
         sys.out.print("" + childrenNum);
     }
 }

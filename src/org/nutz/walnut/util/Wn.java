@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Maths;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.segment.Segment;
@@ -17,8 +18,9 @@ import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
-import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.impl.box.WnSystem;
 
@@ -38,18 +40,6 @@ public abstract class Wn {
     // Thread.sleep(100);
     // }
     // }
-
-    private static long _nano_begin = System.nanoTime();
-
-    public static long nanoTime() {
-        long ms = System.currentTimeMillis();
-        long nano = System.nanoTime();
-
-        long ns = nano - _nano_begin;
-
-        return (ms * 1000000L) + ns % 1000000L;
-        // return System.nanoTime();
-    }
 
     public static class Ctx {
 
@@ -302,14 +292,14 @@ public abstract class Wn {
         /**
          * 修改一个对象所有祖先的同步时间。当然，未设置同步的祖先会被无视
          * 
-         * @param io
-         *            读写接口
+         * @param tree
+         *            元数据读写接口
          * @param o
          *            对象
          * @param includeSelf
          *            是否也检视自身的同步时间
          */
-        public static void update_ancestor_synctime(final WnIo io,
+        public static void update_ancestor_synctime(final WnTree tree,
                                                     final WnObj o,
                                                     final boolean includeSelf) {
             WnContext wc = Wn.WC();
@@ -318,20 +308,20 @@ public abstract class Wn {
             if (wc.isSynctimeOff())
                 return;
 
-            final List<WnNode> list = new LinkedList<WnNode>();
+            final List<WnObj> list = new LinkedList<WnObj>();
             o.loadParents(list, false);
             final long synctime = System.currentTimeMillis();
             wc.synctimeOff(new Atom() {
                 public void run() {
-                    for (WnNode an : list) {
-                        WnObj ano = io.toObj(an);
-                        if (ano.syncTime() > 0) {
-                            io.appendMeta(ano, "st:" + synctime);
+                    for (WnObj an : list) {
+                        if (an.syncTime() > 0) {
+                            an.syncTime(synctime);
+                            tree.set(an, "^st$");
                         }
                     }
-                    if (includeSelf) {
-                        if (o.syncTime() > 0)
-                            io.appendMeta(o, "st:" + synctime);
+                    if (includeSelf && o.syncTime() > 0) {
+                        o.syncTime(synctime);
+                        tree.set(o, "^st$");
                     }
                 }
             });
@@ -385,13 +375,87 @@ public abstract class Wn {
 
     }
 
+    public static class S {
+
+        /**
+         * 追加模式，句柄不可 seek，只会向后面添加内容
+         */
+        public static final int A = 1;
+        /**
+         * 写模式，可以和修改模式(M)混用
+         */
+        public static final int W = 1 << 1;
+        /**
+         * 读模式
+         */
+        public static final int R = 1 << 2;
+        /**
+         * 修改模式，如果非修改模式，关闭句柄，会删除后面的内容
+         */
+        public static final int M = 1 << 3;
+        /**
+         * 读写模式
+         */
+        public static final int RW = R | W;
+
+        public static boolean isRead(int mode) {
+            return Maths.isMask(mode, R);
+        }
+
+        public static boolean isReadOnly(int mode) {
+            return Maths.isMaskAll(mode, R);
+        }
+
+        public static boolean isWite(int mode) {
+            return Maths.isMask(mode, W);
+        }
+
+        public static boolean isModify(int mode) {
+            return Maths.isMask(mode, M);
+        }
+
+        public static boolean isWriteOnly(int mode) {
+            return Maths.isMaskAll(mode, W);
+        }
+
+        public static boolean isAppend(int mode) {
+            return Maths.isMask(mode, A);
+        }
+
+        public static boolean isWriteOrAppend(int mode) {
+            return Maths.isMask(mode, W | A);
+        }
+
+        public static boolean isReadWrite(int mode) {
+            return Maths.isMask(mode, RW);
+        }
+    }
+
     public static String genId() {
         return R.UU32();
     }
 
-    public static final String OBJ_META_PREFIX = ".wn_obj_meta_";
+    public static class Q {
 
-    public static final String OBJ_META_RW = "__obj_meta_rw";
+        public static WnQuery id(WnObj o) {
+            return id(o.id());
+        }
+
+        public static WnQuery id(String id) {
+            return new WnQuery().setv("id", id);
+        }
+
+        public static WnQuery pid(WnObj p) {
+            return pid(p.id());
+        }
+
+        public static WnQuery pid(String pid) {
+            return new WnQuery().setv("pid", pid);
+        }
+
+    }
+
+    public static final String OBJ_META_PREFIX = ".wn_obj_meta_";
 
     public static String metaPath(String ph) {
         String nm = Files.getName(ph);

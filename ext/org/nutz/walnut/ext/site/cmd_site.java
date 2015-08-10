@@ -58,7 +58,7 @@ public class cmd_site extends JvmExecutor {
 
         sc.oConf = sys.io.fetch(sc.oHome, "site.conf");
         while (null == sc.oConf && sc.oHome.hasParent()) {
-            sc.oHome = sys.io.getParent(sc.oHome);
+            sc.oHome = sc.oHome.parent();
         }
 
         if (null == sc.oConf) {

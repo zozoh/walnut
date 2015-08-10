@@ -4,6 +4,7 @@ import org.nutz.lang.Each;
 import org.nutz.lang.util.Disks;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 
 public class cmd_chgrp extends cmd_chxxx {
 
@@ -28,7 +29,7 @@ public class cmd_chgrp extends cmd_chxxx {
         }
 
         if (cc.R && !o.isFILE()) {
-            sys.io.eachChildren(o, null, new Each<WnObj>() {
+            sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
                 public void invoke(int index, WnObj child, int length) {
                     __do_ch(sys, cc, child);
                 }

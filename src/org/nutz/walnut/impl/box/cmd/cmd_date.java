@@ -3,7 +3,6 @@ package org.nutz.walnut.impl.box.cmd;
 import org.nutz.lang.Times;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_date extends JvmExecutor {
@@ -12,18 +11,6 @@ public class cmd_date extends JvmExecutor {
     public void exec(WnSystem sys, String[] args) {
         // 分析参数
         ZParams params = ZParams.parse(args, "f");
-
-        // -ns
-        if (params.is("ns")) {
-            sys.out.println("" + Wn.nanoTime());
-            return;
-        }
-        // -1ms
-        if (params.is("1ns")) {
-            long nano = Wn.nanoTime();
-            sys.out.println("" + (nano - (nano / 1000000000L) * 1000000000L));
-            return;
-        }
 
         // 将显示这个时间
         long now;

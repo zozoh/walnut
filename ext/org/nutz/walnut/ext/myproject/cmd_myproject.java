@@ -48,7 +48,7 @@ public class cmd_myproject extends JvmExecutor {
         sys.io.createIfNoExists(null, projectPath, WnRace.DIR);
         final List<NutMap> re = new ArrayList<NutMap>();
         WnObj projectObj = Wn.checkObj(sys, projectPath);
-        sys.io.eachChildren(projectObj, null, new Each<WnObj>() {
+        sys.io.each(Wn.Q.pid(projectObj.id()), new Each<WnObj>() {
             @Override
             public void invoke(int index, WnObj project, int length)
                     throws ExitLoop, ContinueLoop, LoopException {
@@ -57,7 +57,7 @@ public class cmd_myproject extends JvmExecutor {
                 final List<Map> tasks_7day_after = new ArrayList<Map>();
                 final List<Map> tasks_done = new ArrayList<Map>();
                 // 遍历所有任务
-                sys.io.eachChildren(project, null, new Each<WnObj>() {
+                sys.io.each(Wn.Q.pid(project.id()), new Each<WnObj>() {
                     @SuppressWarnings("unchecked")
                     @Override
                     public void invoke(int index, WnObj task, int length)

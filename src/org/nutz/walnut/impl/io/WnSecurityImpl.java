@@ -3,7 +3,6 @@ package org.nutz.walnut.impl.io;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnNode;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
@@ -19,11 +18,11 @@ public class WnSecurityImpl extends WnEvalLink {
     }
 
     @Override
-    public WnNode enter(WnNode nd) {
+    public WnObj enter(WnObj nd) {
         WnContext wc = Wn.WC();
         wc.setSecurity(null);
         try {
-            WnObj o = __eval_obj(nd, true);
+            WnObj o = __eval_obj(nd);
             return __do_check(o, Wn.Io.RX, false);
         }
         finally {
@@ -32,11 +31,49 @@ public class WnSecurityImpl extends WnEvalLink {
     }
 
     @Override
-    public WnNode access(WnNode nd) {
+    public WnObj access(WnObj nd) {
         WnContext wc = Wn.WC();
         wc.setSecurity(null);
         try {
-            WnObj o = __eval_obj(nd, true);
+            // WnObj o = __eval_obj(nd, true);
+            return __do_check(nd, Wn.Io.R, false);
+        }
+        finally {
+            wc.setSecurity(this);
+        }
+    }
+
+    // @Override
+    // public WnObj remove(WnObj nd) {
+    // WnContext wc = Wn.WC();
+    // wc.setSecurity(null);
+    // try {
+    // return __do_check(nd, Wn.Io.RW, false);
+    // }
+    // finally {
+    // wc.setSecurity(this);
+    // }
+    // }
+
+    // @Override
+    // public WnObj view(WnObj nd) {
+    // WnContext wc = Wn.WC();
+    // wc.setSecurity(null);
+    // try {
+    // WnObj o = __eval_obj(nd, false);
+    // return __do_check(o, Wn.Io.R, true);
+    // }
+    // finally {
+    // wc.setSecurity(this);
+    // }
+    // }
+
+    @Override
+    public WnObj read(WnObj nd) {
+        WnContext wc = Wn.WC();
+        wc.setSecurity(null);
+        try {
+            WnObj o = __eval_obj(nd);
             return __do_check(o, Wn.Io.R, false);
         }
         finally {
@@ -45,50 +82,11 @@ public class WnSecurityImpl extends WnEvalLink {
     }
 
     @Override
-    public WnNode remove(WnNode nd) {
+    public WnObj write(WnObj nd) {
         WnContext wc = Wn.WC();
         wc.setSecurity(null);
         try {
-            WnObj o = io.toObj(nd);
-            return __do_check(o, Wn.Io.RWX, false);
-        }
-        finally {
-            wc.setSecurity(this);
-        }
-    }
-
-    @Override
-    public WnNode view(WnNode nd) {
-        WnContext wc = Wn.WC();
-        wc.setSecurity(null);
-        try {
-            WnObj o = __eval_obj(nd, false);
-            return __do_check(o, Wn.Io.R, true);
-        }
-        finally {
-            wc.setSecurity(this);
-        }
-    }
-
-    @Override
-    public WnNode read(WnNode nd) {
-        WnContext wc = Wn.WC();
-        wc.setSecurity(null);
-        try {
-            WnObj o = __eval_obj(nd, true);
-            return __do_check(o, Wn.Io.R, false);
-        }
-        finally {
-            wc.setSecurity(this);
-        }
-    }
-
-    @Override
-    public WnNode write(WnNode nd) {
-        WnContext wc = Wn.WC();
-        wc.setSecurity(null);
-        try {
-            WnObj o = __eval_obj(nd, true);
+            WnObj o = __eval_obj(nd);
             return __do_check(o, Wn.Io.W, false);
         }
         finally {
@@ -96,7 +94,7 @@ public class WnSecurityImpl extends WnEvalLink {
         }
     }
 
-    private WnNode __do_check(WnObj o, int mask, boolean asNull) {
+    private WnObj __do_check(WnObj o, int mask, boolean asNull) {
 
         // 我是谁？
         String me = Wn.WC().checkMe();
@@ -143,22 +141,3 @@ public class WnSecurityImpl extends WnEvalLink {
         throw Er.create("e.io.forbidden", o.path());
     }
 }
-// // 检查基本权限
-// int mode = last.mode();
-//
-// // 检查 other
-// int m = mode & 7;
-// if (!Maths.isMaskAll(m, mode))
-// throw Er.create("e.io.forbiden", nd);
-//
-// // 检查 member
-// m = mode >> 3 & 7;
-// if (!Maths.isMaskAll(m, mode))
-// throw Er.create("e.io.forbiden", nd);
-//
-// // 检查 admin
-// m = mode >> 6 & 7;
-// if (!Maths.isMaskAll(m, mode))
-// throw Er.create("e.io.forbiden", nd);
-
-//

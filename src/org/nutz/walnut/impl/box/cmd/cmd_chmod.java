@@ -96,7 +96,7 @@ public class cmd_chmod extends cmd_chxxx {
         }
 
         if (cc.R && !o.isFILE()) {
-            sys.io.eachChildren(o, null, new Each<WnObj>() {
+            sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
                 public void invoke(int index, WnObj child, int length) {
                     __do_ch(sys, cc, op, md, child);
                 }

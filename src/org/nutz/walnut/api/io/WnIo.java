@@ -4,65 +4,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.List;
-
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Each;
-import org.nutz.lang.util.Callback;
 
-public interface WnIo extends WnStore {
-
-    boolean exists(WnObj p, String path);
-
-    boolean existsId(String id);
-
-    WnObj checkById(String id);
-
-    WnObj check(WnObj p, String path);
-
-    WnObj fetch(WnObj p, String path);
-
-    WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex);
-
-    void walk(WnObj p, Callback<WnObj> callback, WalkMode mode);
-
-    WnObj move(WnObj src, String destPath);
-
-    WnObj rename(WnObj o, String newName);
-
-    WnObj createIfNoExists(WnObj p, String path, WnRace race);
-
-    WnObj create(WnObj p, String path, WnRace race);
-
-    WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race);
-
-    WnObj createById(WnObj p, String id, String name, WnRace race);
-
-    void delete(WnObj o);
-
-    WnObj toObj(WnNode nd);
-
-    WnObj get(String id);
-
-    WnObj get(WnNode nd);
-
-    WnObj getOne(WnQuery q);
-
-    WnObj getRootObj();
-
-    WnObj getParent(WnObj o);
-
-    int each(WnQuery q, Each<WnObj> callback);
-
-    List<WnObj> query(WnQuery q);
-
-    int eachChildren(WnObj p, String str, Each<WnObj> each);
-
-    long countChildren(WnObj p, String tp, boolean withHidden);
-
-    boolean hasChild(WnObj p);
-
-    List<WnObj> getChildren(WnObj p, String str);
+public interface WnIo extends WnStore, WnTree {
 
     void setMount(WnObj o, String mnt);
 
@@ -88,7 +32,35 @@ public interface WnIo extends WnStore {
 
     Writer getWriter(WnObj o, long off);
 
+    /**
+     * 获取一个对象的输入流
+     * 
+     * @param o
+     *            对象
+     * @param off
+     *            0 表示从头读取，-1 非法，>0 表示从某一个特殊位置
+     * @return 对象的输入流
+     */
+    InputStream getInputStream(WnObj o, long off);
+
+    /**
+     * 获取一个对象的写入流。当输入流关闭后，会自动更新传入的对象的内部状态。 <br>
+     * 更新的字段包括
+     * <ul>
+     * <li>lm : 最后修改时间
+     * <li>len : 内容长度
+     * <li>sha1 : 文件的 SHA1 指纹
+     * <li>data : 文件的数据键
+     * </ul>
+     * 
+     * @param o
+     *            对象
+     * @param off
+     *            -1 表示从尾部写，0 表示从头覆盖
+     * @return 对象的写入流
+     */
+    OutputStream getOutputStream(WnObj o, long off);
+
     MimeMap mimes();
 
-    String getRealPath(WnObj o);
 }

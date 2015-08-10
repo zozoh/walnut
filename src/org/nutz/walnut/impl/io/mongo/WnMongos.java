@@ -33,6 +33,34 @@ public abstract class WnMongos {
             // 空值表示没有
             if (null == v) {
                 list.add(ZMoDoc.NEW(key, null));
+                continue;
+            }
+            // 如果是名称
+            if ("nm".equals(key)) {
+                // 本身就是正则
+                if (v instanceof Pattern) {
+                    list.add(ZMoDoc.NEW(key, v));
+                    continue;
+                }
+
+                // 字符串
+                String str = v.toString();
+                // 本身就是正则
+                if (str.startsWith("^")) {
+                    list.add(ZMoDoc.NEW(key, Pattern.compile(str)));
+                    continue;
+                }
+                // 看看是通配符还是普通名字
+                String s = str.replace("*", ".*");
+                // 直接的名字
+                if (s.equals(str)) {
+                    list.add(ZMoDoc.NEW(key, str));
+                }
+                // 通配符
+                else {
+                    list.add(ZMoDoc.NEW(key, Pattern.compile("^" + s)));
+                }
+                continue;
             }
             // 数字类型
             else if (v instanceof Number) {
@@ -249,26 +277,12 @@ public abstract class WnMongos {
         return ZMoDoc.NEW("id", id);
     }
 
-    public static MongoWnNode toWnNode(DBObject doc) {
-        if (null == doc)
-            return null;
-        MongoWnNode nd = ZMo.me().fromDocToObj(doc, MongoWnNode.class);
-        return nd;
-    }
-
     public static WnObj toWnObj(DBObject doc) {
         if (null == doc)
             return null;
         WnObj o = ZMo.me().fromDocToMap(doc, WnBean.class);
         o.unset("_id");
         return o;
-    }
-
-    public static MongoWnHistory toWnHistory(DBObject doc) {
-        if (null == doc)
-            return null;
-        MongoWnHistory his = ZMo.me().fromDocToObj(doc, MongoWnHistory.class);
-        return his;
     }
 
 }

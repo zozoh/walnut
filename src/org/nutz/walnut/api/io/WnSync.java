@@ -13,10 +13,10 @@ public interface WnSync {
 
     <T> T mutex2(String key, Proton<T> proton);
 
-    void cnd_await(String key, String type, long ms);
+    void cnd_await(String key, long ms);
 
-    void cnd_signal(String key, String type);
+    void cnd_signal(String key);
 
-    void cnd_signalAll(String key, String type);
-    
+    void cnd_signalAll(String key);
+
 }

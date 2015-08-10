@@ -9,6 +9,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnObjTable;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_ls extends JvmExecutor {
@@ -47,7 +48,7 @@ public class cmd_ls extends JvmExecutor {
             }
             // 是个目录
             else {
-                sys.io.eachChildren(o, null, new Each<WnObj>() {
+                sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
                     public void invoke(int index, WnObj child, int length) {
                         if (!child.isHidden() || showHidden)
                             tab.add(child, useColor, briefSize);
@@ -72,7 +73,7 @@ public class cmd_ls extends JvmExecutor {
                     String rph = Disks.getRelativePath(p.path(), o.path());
                     final WnObjTable tabDir = new WnObjTable(keys);
                     sys.out.println(rph + " :");
-                    sys.io.eachChildren(o, null, new Each<WnObj>() {
+                    sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
                         public void invoke(int index, WnObj child, int length) {
                             if (!child.isHidden() || showHidden)
                                 tabDir.add(child, useColor, briefSize);

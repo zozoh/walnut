@@ -12,7 +12,6 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.box.WnTunnel;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.JvmTunnel;
-import org.nutz.walnut.util.Wn;
 
 public class WnObjMetaOutputStream extends OutputStream {
 
@@ -79,18 +78,13 @@ public class WnObjMetaOutputStream extends OutputStream {
                     regex = "^" + Lang.concat("|", newObj.keySet()) + "$";
                 }
                 // 计入索引
-                io.indexer.set(o, regex);
+                io.set(o, regex);
             }
         }
 
         // 清空缓存
         tnl.reset();
 
-        // 触发同步时间修改
-        Wn.Io.update_ancestor_synctime(io, o, false);
-
-        // 调用钩子
-        Wn.WC().doHook("meta", o);
     }
 
     public void close() {
