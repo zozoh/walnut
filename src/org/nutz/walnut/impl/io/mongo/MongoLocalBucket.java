@@ -103,13 +103,14 @@ public class MongoLocalBucket extends AbstractBucket {
 
         // 分析左边距
         int pl = 0;
-        for (; pl < buf.length; pl++)
+        for (; pl < fLen; pl++)
             if (buf[pl] != 0)
                 break;
 
         // 填充到输出数组，边距透明
         int sz = fLen - pl;
-        System.arraycopy(buf, pl, bs, pl, sz);
+        if (sz > 0)
+            System.arraycopy(buf, pl, bs, pl, sz);
 
         // 分析布局
         if (null != bi) {

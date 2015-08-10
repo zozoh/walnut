@@ -512,14 +512,14 @@ public class WnIoImplTest extends BaseIoTest {
         WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
 
         assertEquals("/a/b/c", o.path());
-        
+
         io.writeText(o, "abc");
-        
-        OutputStream out = io.getOutputStream(o, 1);
-        out.write("z".getBytes());
-        out.flush();
-        out.close();
-        
+
+        String hid = io.open(o, Wn.S.WM);
+        io.seek(hid, 1);
+        io.write(hid, "z".getBytes());
+        io.close(hid);
+
         assertEquals("azc", io.readText(o));
     }
 }

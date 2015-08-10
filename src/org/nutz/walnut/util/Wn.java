@@ -397,6 +397,7 @@ public abstract class Wn {
          * 读写模式
          */
         public static final int RW = R | W;
+        public static final int WM = W | M;
 
         public static boolean isRead(int mode) {
             return Maths.isMask(mode, R);
