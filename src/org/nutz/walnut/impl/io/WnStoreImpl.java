@@ -135,7 +135,7 @@ public class WnStoreImpl implements WnStore {
         __flush(hdl);
 
         // 写操作的句柄需要额外处理，读操作就神马也表用做了
-        if (Wn.S.isWite(hdl.mode) && hdl.updated) {
+        if (Wn.S.isWite(hdl.mode)) {
             // 如果是修改元数据
             if (hdl.obj.isRWMeta()) {
                 String json = hdl.bucket.getString();
@@ -150,7 +150,7 @@ public class WnStoreImpl implements WnStore {
                 hdl.obj.setRWMetaKeys("^(" + Lang.concat("|", map.keySet()) + ")$");
             }
             // 仅仅是修改内容
-            else {
+            else if (hdl.updated) {
                 // 如果是修改模式，采用桶的长度作为对象的长度
                 if (Wn.S.isModify(hdl.mode)) {
                     hdl.obj.len(hdl.bucket.getSize());
@@ -176,6 +176,11 @@ public class WnStoreImpl implements WnStore {
 
                 // 标记元数据
                 hdl.obj.setRWMetaKeys("^(_write_handle|lm|len|sha1|data)$");
+            }
+            // 没有修改内容，将写占位置空
+            else {
+                hdl.obj.setWriteHandle(null);
+                hdl.obj.setRWMetaKeys("^_write_handle$");
             }
         }
 

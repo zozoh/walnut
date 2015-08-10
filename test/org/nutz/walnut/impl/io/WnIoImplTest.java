@@ -22,6 +22,15 @@ import org.nutz.web.WebException;
 
 public class WnIoImplTest extends BaseIoTest {
 
+    @Test
+    public void test_write_empty() {
+        String path = "/a/b/c";
+        WnObj o = io.create(null, path, WnRace.FILE);
+        io.writeText(o, "");
+        WnObj o2 = io.check(null, "/a/b/c");
+        assertNull(o2.get("_write_handle"));
+    }
+
     /**
      * for issue #29
      */
