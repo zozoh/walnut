@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -505,4 +507,19 @@ public class WnIoImplTest extends BaseIoTest {
         assertEquals("/a/b", b.path());
     }
 
+    @Test
+    public void test_random_write() throws IOException {
+        WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
+
+        assertEquals("/a/b/c", o.path());
+        
+        io.writeText(o, "abc");
+        
+        OutputStream out = io.getOutputStream(o, 1);
+        out.write("z".getBytes());
+        out.flush();
+        out.close();
+        
+        assertEquals("azc", io.readText(o));
+    }
 }
