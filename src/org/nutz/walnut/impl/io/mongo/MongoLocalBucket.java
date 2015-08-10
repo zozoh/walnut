@@ -288,7 +288,7 @@ public class MongoLocalBucket extends AbstractBucket {
     }
 
     @Override
-    public void trancate(int nb) {
+    public void trancateBlock(int nb) {
         if (nb < blockNumber) {
             for (long i = nb; i < blockNumber; i++) {
                 File f = Files.getFile(dir, "" + i);
@@ -550,7 +550,7 @@ public class MongoLocalBucket extends AbstractBucket {
         return size;
     }
 
-    public void setSize(long size) {
+    public void trancateSize(long size) {
         if (this.size != size) {
             this.size = size;
             this.sha1 = null;
@@ -560,7 +560,7 @@ public class MongoLocalBucket extends AbstractBucket {
             int b_nb = (int) (size / blockSize) + (lb_sz > 0 ? 1 : 0);
 
             if (b_nb != blockNumber) {
-                this.trancate(b_nb);
+                this.trancateBlock(b_nb);
             }
         }
     }

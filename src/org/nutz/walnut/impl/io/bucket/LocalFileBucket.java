@@ -93,7 +93,7 @@ public class LocalFileBucket extends AbstractBucket {
     }
 
     @Override
-    public void setSize(long size) {
+    public void trancateSize(long size) {
         throw Lang.noImplement();
     }
 
@@ -149,7 +149,7 @@ public class LocalFileBucket extends AbstractBucket {
     }
 
     @Override
-    public void trancate(int nb) {
+    public void trancateBlock(int nb) {
         throw Er.create("e.io.bucket.file.readonly", f);
     }
 

@@ -26,7 +26,7 @@ public abstract class AbstractBucket implements WnBucket {
     public int write(String s) {
         byte[] bs = s.getBytes(Encoding.CHARSET_UTF8);
         int re = write(0, bs, 0, bs.length);
-        this.setSize(bs.length);
+        this.trancateSize(bs.length);
         return re;
     }
 
@@ -35,7 +35,7 @@ public abstract class AbstractBucket implements WnBucket {
         byte[] bs = s.getBytes(Encoding.CHARSET_UTF8);
         long sz = this.getSize();
         int re = write(sz, bs, 0, bs.length);
-        this.setSize(sz + bs.length);
+        this.trancateSize(sz + bs.length);
         return re;
     }
 
@@ -43,7 +43,7 @@ public abstract class AbstractBucket implements WnBucket {
     public int append(byte[] bs, int off, int len) {
         long sz = this.getSize();
         int re = write(sz, bs, off, len);
-        this.setSize(sz + len - off);
+        this.trancateSize(sz + len - off);
         return re;
     }
 
@@ -51,7 +51,7 @@ public abstract class AbstractBucket implements WnBucket {
     public int write(long pos, byte[] bs, int off, int len) {
         int re = 0;
         if (len <= 0) {
-            trancate(0);
+            trancateBlock(0);
             return re;
         }
 

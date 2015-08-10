@@ -34,8 +34,6 @@ public interface WnBucket {
 
     long getSize();
 
-    void setSize(long size);
-
     String getSha1();
 
     String getString();
@@ -105,7 +103,9 @@ public interface WnBucket {
      * @param nb
      *            将桶块裁剪到多少个
      */
-    void trancate(int nb);
+    void trancateBlock(int nb);
+
+    void trancateSize(long size);
 
     String seal();
 

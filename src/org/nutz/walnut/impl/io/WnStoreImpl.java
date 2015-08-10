@@ -158,7 +158,7 @@ public class WnStoreImpl implements WnStore {
                 // 否则将会剪裁桶的长度
                 else if (hdl.pos >= 0) {
                     hdl.obj.len(hdl.pos);
-                    hdl.bucket.setSize(hdl.pos);
+                    hdl.bucket.trancateSize(hdl.pos);
                 }
 
                 // 保存最后修改时间
@@ -335,7 +335,7 @@ public class WnStoreImpl implements WnStore {
             WnBucket bu = __check_bucket(o);
             // 剪裁桶
             if (null != bu) {
-                bu.setSize(len);
+                bu.trancateSize(len);
                 o.len(len);
                 o.sha1(bu.getSha1());
                 o.lastModified(bu.getLastModified());

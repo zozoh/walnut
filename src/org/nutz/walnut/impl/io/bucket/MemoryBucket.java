@@ -159,7 +159,7 @@ public class MemoryBucket extends AbstractBucket {
     }
 
     @Override
-    public void trancate(int nb) {
+    public void trancateBlock(int nb) {
         if (nb == blockNumber) {
             return;
         }
@@ -268,7 +268,7 @@ public class MemoryBucket extends AbstractBucket {
         return size;
     }
 
-    public void setSize(long size) {
+    public void trancateSize(long size) {
         if (this.size == size)
             return;
 
