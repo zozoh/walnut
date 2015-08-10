@@ -17,7 +17,6 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
@@ -30,7 +29,7 @@ public class WnSetup implements Setup {
 
     private WnBoxService boxes;
 
-    private WnSessionService sess;
+    // private WnSessionService sess;
 
     private WnRun wnRun;
 
@@ -85,7 +84,7 @@ public class WnSetup implements Setup {
         }
 
         // 获得session服务
-        sess = ioc.get(WnSessionService.class, "sessionService");
+        // sess = ioc.get(WnSessionService.class, "sessionService");
 
         // 获取沙箱服务
         boxes = ioc.get(WnBoxService.class, "boxService");
