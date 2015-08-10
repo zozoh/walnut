@@ -69,7 +69,11 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public WnObj getOne(WnQuery q) {
-        return tree.getOne(q);
+        WnObj o = tree.getOne(q);
+        // 确保有全路径
+        if (null != o)
+            o.path();
+        return o;
     }
 
     @Override
@@ -104,7 +108,11 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public WnObj get(String id) {
-        return tree.get(id);
+        WnObj o = tree.get(id);
+        // 确保有全路径
+        if (null != o)
+            o.path();
+        return o;
     }
 
     @Override
@@ -156,10 +164,15 @@ public class WnIoImpl implements WnIo {
 
         // 获取对象
         WnObj o = tree.fetch(p, path);
-        // 标记一下，如果读写的时候，只写这个对象的索引
-        if (rwmeta) {
-            o.setRWMeta(rwmeta);
-            o.mime(mimes.getMime("json"));
+        // 确保有全路径
+        if (null != o) {
+            // 标记一下，如果读写的时候，只写这个对象的索引
+            if (rwmeta) {
+                o.setRWMeta(rwmeta);
+                o.mime(mimes.getMime("json"));
+            }
+
+            o.path();
         }
         return o;
     }

@@ -42,6 +42,38 @@ public class WnContext extends NutMap {
 
     public long _timestamp;
 
+    /**
+     * query|each 的时候，是否自动加载全路径，默认应该是 false
+     */
+    private boolean autoPath;
+
+    public boolean isAutoPath() {
+        return autoPath;
+    }
+
+    public void autoPath(boolean autoPath, Atom atom) {
+        boolean oldAutoPath = this.autoPath;
+        try {
+            this.autoPath = autoPath;
+            atom.run();
+        }
+        finally {
+            this.autoPath = oldAutoPath;
+        }
+    }
+
+    public <T> T autoPath(boolean autoPath, Proton<T> proton) {
+        boolean oldAutoPath = this.autoPath;
+        try {
+            this.autoPath = autoPath;
+            proton.run();
+            return proton.get();
+        }
+        finally {
+            this.autoPath = oldAutoPath;
+        }
+    }
+
     public WnObj doHook(String action, WnObj o) {
         if (null != hookContext) {
             Stopwatch sw = null;
