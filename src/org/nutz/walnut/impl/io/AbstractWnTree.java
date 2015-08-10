@@ -662,10 +662,14 @@ public abstract class AbstractWnTree implements WnTree {
 
     @Override
     public int each(WnQuery q, final Each<WnObj> callback) {
+        final boolean autoPath = Wn.WC().isAutoPath();
         final WnTree tree = this;
         return _each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj o, int length) {
                 o.setTree(tree);
+                // 确保有全路径
+                if(autoPath)
+                    o.path();
                 if (null != callback)
                     callback.invoke(index, o, length);
             }
