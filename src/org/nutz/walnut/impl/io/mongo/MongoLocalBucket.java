@@ -99,7 +99,7 @@ public class MongoLocalBucket extends AbstractBucket {
         // 填充字节
         byte[] buf = new byte[blockSize];
         Arrays.fill(buf, B0);
-        int re = __fill_buffer_by_file(f, 0, buf, 0, fLen);
+        int re = __fill_buffer_by_file(f, 0, buf, 0, Math.min(fLen, blockSize));
 
         // 分析左边距
         int pl = 0;
@@ -144,6 +144,8 @@ public class MongoLocalBucket extends AbstractBucket {
 
         // 按块读取本桶
         while (pos < size && len > 0) {
+            if (bs.length - off == 0)
+                break;
             // 找到块
             long index = pos / blockSize;
             _assert_index_not_out_of_range(index);
@@ -158,7 +160,12 @@ public class MongoLocalBucket extends AbstractBucket {
             // 文件存在才读取
             if (f.exists()) {
                 n = Math.min((int) (size - pos), len);
-                n = this.__fill_buffer_by_file(f, from, bs, off, n);
+                n = Math.min(n, bs.length - off);
+                if (n < 1)
+                    break;
+                n = this.__fill_buffer_by_file(f, from, bs, off, Math.min(n, bs.length - off));
+                if (n == -1)
+                    break;
             }
             // 否则全当读过了一个块
             else {
@@ -583,6 +590,10 @@ public class MongoLocalBucket extends AbstractBucket {
             catch (IOException e) {
                 throw Lang.wrapThrow(e);
             }
+            catch (IndexOutOfBoundsException e) {
+                //System.out.printf("bs[len=%d],off=%d,len=%d\n", bs.length, off, len);
+                throw e;
+            }
             finally {
                 Streams.safeClose(ins);
             }
@@ -598,6 +609,10 @@ public class MongoLocalBucket extends AbstractBucket {
             }
             catch (IOException e) {
                 throw Lang.wrapThrow(e);
+            }
+            catch (IndexOutOfBoundsException e) {
+                //System.out.printf("bs[len=%d],off=%d,len=%d\n", bs.length, off, len);
+                throw e;
             }
             finally {
                 Streams.safeClose(raf);

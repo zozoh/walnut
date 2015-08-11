@@ -107,9 +107,12 @@ class ESS(LoggingMixIn, Operations):
     def write(self, path, data, offset, fh):
         URI = "write?offset=%d&size=%d&path=%s" % (offset, len(data), path)
         headers = {"content-type":"application/octet-stream", "Cookie":"SEID=" + self.seid}
+        print URI, headers
         with closing(self.session.post(self._url(URI), data=data, headers=headers)) as resp :
             if resp.status_code == 200:
                 return resp.json()
+            else:
+                print "resp", resp.status_code, len(resp.content)
         raise FuseOSError(EBUSY)
 
 if __name__ == '__main__':
@@ -120,7 +123,7 @@ if __name__ == '__main__':
         exit(1)
     import  logging
     logging.basicConfig(filename='ess.log',level=logging.INFO)
-    fuse = FUSE(ESS(argv[1], argv[2], int(argv[3])), argv[4], foreground=1, debug=1, 
+    fuse = FUSE(ESS(argv[1], argv[2], int(argv[3])), argv[4], foreground=1, debug=0, 
 					entry_timeout=5, attr_timeout=5
 					, big_writes=True
 					, kernel_cache=True
