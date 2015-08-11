@@ -13,6 +13,8 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
@@ -24,6 +26,8 @@ import org.nutz.walnut.api.io.WnBucketBlockInfo;
 import org.nutz.walnut.impl.io.AbstractBucket;
 
 public class MongoLocalBucket extends AbstractBucket {
+
+    private static final Log log = Logs.get();
 
     private static final byte B0 = (byte) 0;
 
@@ -99,6 +103,8 @@ public class MongoLocalBucket extends AbstractBucket {
         // 填充字节
         byte[] buf = new byte[blockSize];
         Arrays.fill(buf, B0);
+        // TODO zozoh: 奇怪喔，按照上面的计算，fLen 不应该超过 blockSize 的。
+        // 可能是 setSize 的时候有些什么问题，需要查一查
         int re = __fill_buffer_by_file(f, 0, buf, 0, Math.min(fLen, blockSize));
 
         // 分析左边距
@@ -144,7 +150,9 @@ public class MongoLocalBucket extends AbstractBucket {
 
         // 按块读取本桶
         while (pos < size && len > 0) {
-            if (bs.length - off == 0)
+            // TODO zozoh: 这个防守也很奇怪，if(bs.length-off ==0)
+            // 不过为了安全，我还是把条件改的宽泛点吧
+            if (off >= bs.length)
                 break;
             // 找到块
             long index = pos / blockSize;
@@ -591,7 +599,8 @@ public class MongoLocalBucket extends AbstractBucket {
                 throw Lang.wrapThrow(e);
             }
             catch (IndexOutOfBoundsException e) {
-                //System.out.printf("bs[len=%d],off=%d,len=%d\n", bs.length, off, len);
+                // System.out.printf("bs[len=%d],off=%d,len=%d\n", bs.length,
+                // off, len);
                 throw e;
             }
             finally {
@@ -611,7 +620,8 @@ public class MongoLocalBucket extends AbstractBucket {
                 throw Lang.wrapThrow(e);
             }
             catch (IndexOutOfBoundsException e) {
-                //System.out.printf("bs[len=%d],off=%d,len=%d\n", bs.length, off, len);
+                if (log.isWarnEnabled())
+                    log.warnf("bs[len=%d],off=%d,len=%d\n", bs.length, off, len);
                 throw e;
             }
             finally {
