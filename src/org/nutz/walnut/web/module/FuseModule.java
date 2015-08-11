@@ -1,11 +1,9 @@
 package org.nutz.walnut.web.module;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,24 +60,32 @@ public class FuseModule extends AbstractWnModule {
                      HttpServletResponse resp) throws IOException {
         if (log.isDebugEnabled())
             log.debugf("path=%s, size=%s, offset=%s", path, size, offset);
-        InputStream in = io.getInputStream(_obj(), offset);
-        OutputStream out = resp.getOutputStream();
-        byte[] buf = new byte[16 * 1024];
-        int len = 0;
-        int count = 0;
-        while (size - count > 0) {
-            if (size - count > buf.length)
-                len = in.read(buf);
-            else
-                len = in.read(buf, 0, size - count);
-            if (len < 0)
-                break;
-            if (len > 0) {
-                out.write(buf, 0, len);
-                count += len;
+        InputStream ins = io.getInputStream(_obj(), offset);
+        try {
+            ByteArrayOutputStream bao = new ByteArrayOutputStream();
+            int len = 0;
+            byte[] buf = new byte[4096];
+            int count = 0;
+            while (true) {
+                if (size <= count)
+                    break;
+                len = ins.read(buf, 0, size - count);
+                if (len == -1)
+                    break;
+                if (len > 0) {
+                    bao.write(buf, 0, len);
+                    count += len;
+                } else {
+                    break; // TODO 为啥总是返回0了呢,没数据的时候
+                }
             }
+            buf = bao.toByteArray();
+            resp.setContentLength(buf.length);
+            resp.getOutputStream().write(buf);
         }
-        in.close();
+        finally {
+            Streams.safeClose(ins);
+        }
     }
 
     @At
@@ -141,7 +147,7 @@ public class FuseModule extends AbstractWnModule {
     @At
     public void truncate(@Param("path") String path, @Param("length") int length)
             throws IOException {
-        // TODO 等待 issue 34
+        io.trancate(io.check(null, path), length);
     }
 
     @At
@@ -168,51 +174,18 @@ public class FuseModule extends AbstractWnModule {
                        offset,
                        obj.len(),
                        size);
-        if (offset > 1024 * 1024){
-            // TODO 啥意思？
-            //io.cleanHistory(obj, 0);
+        String hid = io.open(obj, Wn.S.WM);
+        io.seek(hid, offset);
+        ByteArrayOutputStream bao = new ByteArrayOutputStream();
+        byte[] buf = new byte[8192];
+        int len = 0;
+        while (-1 != (len = ins.read(buf))) {
+            bao.write(buf, 0, len);
         }
-
-        if (obj.len() == offset) {
-            OutputStream out = io.getOutputStream(obj, offset);
-            return Streams.writeAndClose(out, ins);
-        }
-        // --------------------------------------
-        java.io.File tmp = java.io.File.createTempFile("ess_fuse", ".bin");
-        OutputStream out = null;
-        try {
-            if (obj.len() > 0) {
-                out = new FileOutputStream(tmp);
-                Streams.writeAndClose(out, io.getInputStream(obj, 0));
-                out = null;
-            }
-            RandomAccessFile raf = new RandomAccessFile(tmp, "rw");
-            raf.seek(offset);
-            byte[] buf = new byte[4096]; // 一般就是4kb
-            int len = 0;
-            int count = 0;
-            while (true) {
-                len = ins.read(buf);
-                if (len < 0)
-                    break;
-                if (len > 0) {
-                    raf.write(buf, 0, len);
-                    count += len;
-                }
-            }
-            raf.close();
-            ins = new FileInputStream(tmp);
-            io.writeAndClose(obj, ins);
-            ins = null;
-            return count;
-        }
-        finally {
-            if (out != null)
-                Streams.safeClose(out);
-            if (ins != null)
-                Streams.safeClose(ins);
-            tmp.delete();
-        }
+        buf = bao.toByteArray();
+        io.write(hid, buf);
+        io.close(hid);
+        return buf.length;
     }
 
     @At
