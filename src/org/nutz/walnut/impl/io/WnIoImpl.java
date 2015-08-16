@@ -68,6 +68,11 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public int inc(String id, String metaName, int val) {
+        return tree.inc(id, metaName, val);
+    }
+
+    @Override
     public WnObj getOne(WnQuery q) {
         WnObj o = tree.getOne(q);
         // 确保有全路径

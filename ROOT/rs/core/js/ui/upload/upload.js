@@ -12,15 +12,20 @@ new UploadUI({
     // 自定义标题支持字符串模板，占位符为 target 的所有字段 
     title : false|true|"自定义",
     //.......................................
+    // 指定多文件上传，默认为 false
+    multi : true | false,
+    //.......................................
     // 一个 WnObj 的实例表示上传目标
     // 如果是个目录就是多文件上传，如果是文件就是单文件上传
-    target  : {..},
-    // 指定上传的对象名称，如果不存在，则会创建
-    // 如果指定了这个属性，即使 target 目录也被认为是单文件上传
-    // 如果 target 是个文件的话，那么与 target.parent 等效
-    objName : "one_name",
-    // 仅对单文件上传有效，是否要显示对象内容的预览
-    preview : true,
+    target  : {
+        id : "34acde..",     // 如果指定了 ID 则必须是已经存在的目标
+        ph : "/path/to/ta",  // 否则采用 Path, 不存在就创建
+        race : "DIR"         // 特指 ph 对应对象的类型
+    },
+    // 仅对单文件上传有效，没有声明，则不显示文件预览
+    // 如果给的是一个 url，则位对象默认预览图
+    // 如果 target.id 存在，则用 target.id 预览
+    preview : true | "/url/to/target",
     //.......................................
     // 如果是多文件上传，重名文件是否自动替换
     // 默认 false
@@ -49,6 +54,25 @@ new UploadUI({
 
 */
 define(function(require, exports, module) {
+//===================================================================
+function gen_url(opt) {
+    var ta = opt.target;
+    var url = "/o/upload/";
+    // 指定的 ID，所以对象必须存在
+    if(ta.id){
+        url += "id:"+ta.id+"?";
+    }
+    // 否则可以自动创建
+    else {
+        url += ta.ph+"?race="+ta.race+"&cie=true&";
+    }
+    url += "nm={{file.name}}&sz={{file.size}}&mime={{file.type}}";
+
+    if(!opt.replaceable)
+        url += "&dupp=${major}(${nb})${suffix}";
+
+    return url;
+}
 //===================================================================
     var ZUI = require("zui");
     module.exports = ZUI.def("ui.upload", {
@@ -82,23 +106,8 @@ define(function(require, exports, module) {
             var opt   = UI.options;
             var title = opt.title;
             var ta    = opt.target;
-            // 替换单个文件
-            if(ta.race == 'FILE' || opt.objName){
-                UI.$el.on("dragover",  ".ui-upload-arena", UI.single.on_dragover);
-                UI.$el.on("dragleave", ".ui-upload-arena", UI.single.on_dragleave);
-                UI.$el.on("drop",      ".ui-upload-arena", UI.single.on_drop);
-                if(title === true || title == undefined)
-                    title = UI.msg("upload.single.sky");
-                UI.arena.find(".ui-upload-arena").append(UI.ccode("single.main"));
-                // 如果上传目标是图片
-                if(false !=opt.preview && /^image\//.test(ta.mime)){
-                    UI.arena.find(".ui-upload-single").css({
-                        "background-image" : "url(/o/read/id:"+ta.id+"?"+$z.timestamp()+")"
-                    });
-                }
-            }
-            // 上传到目录
-            else if(ta.race == 'DIR'){
+            // 多文件上传
+            if(opt.multi){
                 UI.$el.on("dragover",  ".ui-upload-arena", UI.multi.on_dragover);
                 UI.$el.on("dragleave", ".ui-upload-arena", UI.multi.on_dragleave);
                 UI.$el.on("drop",      ".ui-upload-arena", UI.multi.on_drop);
@@ -106,9 +115,23 @@ define(function(require, exports, module) {
                     title = UI.msg("upload.multi.sky");
                 UI.arena.find(".ui-upload-arena").append(UI.ccode("multi.main"));
             }
-            // 不可能
+            // 单文件上传
             else{
-                throw "!!! wrong target race : '"+ta.race+"'";
+                UI.$el.on("dragover",  ".ui-upload-arena", UI.single.on_dragover);
+                UI.$el.on("dragleave", ".ui-upload-arena", UI.single.on_dragleave);
+                UI.$el.on("drop",      ".ui-upload-arena", UI.single.on_drop);
+                if(title === true || title == undefined)
+                    title = UI.msg("upload.single.sky");
+                UI.arena.find(".ui-upload-arena").append(UI.ccode("single.main"));
+                // 如果上传目标是图片
+                if(opt.preview || /^image\//.test(ta.mime)){
+                    var bgurl = ta.id ? "/o/read/id:"+ta.id : opt.preview;
+                    bgurl += "?" + $z.timestamp();
+                    UI.arena.find(".ui-upload-single").css({
+                        "background-image" : "url("+bgurl+")",
+                        "background-size"  : opt.backgroundSize || "cover"
+                    });
+                }
             }
             // 更新标题 
             if(title){
@@ -117,11 +140,19 @@ define(function(require, exports, module) {
             }else{
                 UI.$el.find(".ui-upload-sky").remove();
             }
+            // 更新帮助
+            if(opt.tip) {
+                UI.arena.find(".ui-upload-tip").html(opt.tip);
+            }
         },
         depose : function(){},
         //...............................................................
         events : {
-            
+            "dblclick .ui-upload-multi" : function(){
+                var jList = this.arena.find(".ui-upload-multi");
+                var jTip = jList.find(".ui-upload-multi-tip").show();
+                jList.children().not(".ui-upload-multi-tip").remove();
+            }
         },
         //...............................................................
         resize : function(){
@@ -169,6 +200,7 @@ define(function(require, exports, module) {
                 // 开始上传
                 jSingle.attr("ing", "yes");
                 $z.uploadFile({
+                    url : gen_url(opt),
                     file : file,
                     progress : function(e){  
                         UI.updateProgress.call(UI, jSingle, e.loaded, e.total);
@@ -185,22 +217,15 @@ define(function(require, exports, module) {
                         jSingle.attr("ing", "no")
                             .find(".inner").css("width", "1px");
                         // 修改显示
-                        if(false !=opt.preview && /^image\//.test(ta.mime)){
+                        if(opt.preview || /^image\//.test(ta.mime)){
                             UI.arena.find(".ui-upload-single").css({
-                                "background-image" : "url(/o/read/id:"+ta.id+"?"+$z.timestamp()+")"
+                                "background-image" : "url(/o/read/id:"+re.id+"?"+$z.timestamp()+")"
                             });
                         }
                         // 调用回调
                         $z.invoke(opt, "complete", [re, status], UI);
                         $z.invoke(opt, "finish", [], UI);
-                    },
-                    // 下面是上传到服务器的目标设置
-                    // 上传的目标url是一个字符串模板，会用本对象自身的键值来填充
-                    url  : "/o/upload/id:"+UI.options.target.id
-                                + "?nm={{file.name}}"
-                                + "&sz={{file.size}}"
-                                + "&mime={{file.type}}"
-                                + (opt.objName ? "&objnm="+opt.objName : "")
+                    }
                 });
             }
         },
@@ -225,7 +250,9 @@ define(function(require, exports, module) {
             },
             addFiles : function(files) {
                 var UI = this;
-                var jList = this.arena.find(".ui-upload-multi").empty();
+                var jList = this.arena.find(".ui-upload-multi");
+                var jTip = jList.find(".ui-upload-multi-tip").hide();
+                jList.children().not(".ui-upload-multi-tip").remove();
                 for(var i=0;i<files.length;i++){
                     var file = files[i];
                     if(!UI._do_validate(file))
@@ -252,6 +279,7 @@ define(function(require, exports, module) {
                 jItem[0].scrollIntoView();
                 // 开始上传
                 $z.uploadFile({
+                    url : gen_url(opt),
                     file : jItem.data("FILE"),
                     progress : function(e){  
                         UI.updateProgress.call(UI, jItem, e.loaded, e.total);
@@ -278,14 +306,7 @@ define(function(require, exports, module) {
                         jItem.find(".remote .fa").removeClass("fa-spin");
                         $z.invoke(opt, "complete", [re, status], UI);
                         UI.multi.doUpload.call(UI);
-                    },
-                    // 下面是上传到服务器的目标设置
-                    // 上传的目标url是一个字符串模板，会用本对象自身的键值来填充
-                    url  : "/o/upload/id:"+UI.options.target.id
-                                + "?nm={{file.name}}"
-                                + "&sz={{file.size}}"
-                                + "&mime={{file.type}}"
-                                + (UI.options.replaceable?"":"&dupp=${major}(${nb})${suffix}")
+                    }
                 });
             }
         },

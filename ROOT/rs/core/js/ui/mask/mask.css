@@ -22,7 +22,7 @@
     padding-left:7px;
     border:3px solid #888;
 }
-.ui-body .ui-mask-closer {cursor:pointer;}
+.ui-body .ui-mask-closer {cursor:pointer; }
 
 .ui-mask-closer:hover {
     color:#FFF; border-color:#FFF; text-shadow:0 0 4px #FFF;

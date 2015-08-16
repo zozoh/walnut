@@ -93,7 +93,7 @@ public class WnSetup implements Setup {
         wnRun = ioc.get(WnRun.class, "wnRun");
 
         // etc/thumbnail
-        initThumbnail();
+        //initThumbnail();
 
         // 最后加载所有的扩展 Setup
         __load_init_setups(conf);

@@ -3,7 +3,6 @@ package org.nutz.walnut.web.module;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,7 +123,7 @@ public class FuseModule extends AbstractWnModule {
         List<WnObj> ls = io.query(Wn.Q.pid(p));
         List<Object> re = new ArrayList<Object>();
         for (WnObj w : ls) {
-            re.add(new Object[]{w.name(), _getattr(w) , 0});
+            re.add(new Object[]{w.name(), _getattr(w), 0});
         }
         return re;
     }

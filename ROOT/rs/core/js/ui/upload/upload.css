@@ -2,7 +2,7 @@ body.zui-app-wn_upload {background: #FFF; margin: 0;}
 /*-----------------------------------------------------------------------------------------*/
 .ui-upload-sky {background-color:#DDD; padding:10px 12px;}
 .ui-upload-footer {background: #08F;}
-.ui-upload-arena {overflow: auto; padding:0px;}
+.ui-upload-arena {padding:0px;}
 /*-----------------------------------------------------------------------------------------*/
 .ui-upload-arena .progress .outer {display: block; width:100%; height:6px; border:1px solid #CCC;}
 .ui-upload-arena .progress .inner {display: block;width:1px; height:100%; background: #0F0; }
@@ -30,7 +30,7 @@ body.zui-app-wn_upload {background: #FFF; margin: 0;}
 .ui-upload-single .nb {text-align: center;}
 .ui-upload-single[ing=no] .progress{display: none;}
 /*-----------------------------------------------------------------------------------------*/
-.ui-upload-multi {width:100%; height:100%; padding:10px 14px;}
+.ui-upload-multi {width:100%; height:100%; padding:10px 14px;cursor: default; overflow: auto; }
 .ui-upload-arena[drag] .ui-upload-multi{background: #CCF;}
 .ui-upload-multi-tip{
     color:#888; font-size:18px;

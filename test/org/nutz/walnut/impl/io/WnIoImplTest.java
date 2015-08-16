@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +22,17 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
 
 public class WnIoImplTest extends BaseIoTest {
+
+    @Test
+    public void test_inc() {
+        WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
+        o.setv("nb", 10);
+        io.set(o, "nb");
+
+        assertEquals(10, io.inc(o.id(), "nb", -1));
+        assertEquals(9, io.inc(o.id(), "nb", 3));
+        assertEquals(12, io.inc(o.id(), "nb", -2));
+    }
 
     @Test
     public void test_write_empty() {

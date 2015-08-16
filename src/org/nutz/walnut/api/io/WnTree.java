@@ -28,6 +28,19 @@ public interface WnTree extends UnitTestable {
 
     void set(WnObj o, String regex);
 
+    /**
+     * 修改某对象的某个整型元数据
+     * 
+     * @param id
+     *            对象 ID
+     * @param metaName
+     *            元数据名称
+     * @param val
+     *            修改的值
+     * @return 修改前的值
+     */
+    int inc(String id, String metaName, int val);
+
     WnObj createIfNoExists(WnObj p, String path, WnRace race);
 
     WnObj create(WnObj p, String path, WnRace race);

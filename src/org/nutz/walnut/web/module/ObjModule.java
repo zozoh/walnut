@@ -156,33 +156,32 @@ public class ObjModule extends AbstractWnModule {
     @AdaptBy(type = QueryStringAdaptor.class)
     public WnObj upload(String str,
                         @Param("nm") String nm,
+                        @Param("cie") boolean createIfNoExists,
+                        @Param("race") WnRace race,
                         @Param("sz") long sz,
                         @Param("mime") String mime,
                         @Param("dupp") String dupp,
-                        @Param("objnm") String objnm,
                         InputStream ins) {
         // 首先得到目标对象
-        WnObj ta = Wn.checkObj(io, str);
+        WnObj ta;
+        if (createIfNoExists && !str.startsWith("id:")) {
+            String ph = Wn.normalizeFullPath(str, Wn.WC().checkSE());
+            ta = io.createIfNoExists(null, ph, race);
+        } else {
+            String id = str.substring("id:".length());
+            ta = io.checkById(id);
+        }
 
         WnObj o;
         // 如果目标对象是个文件
         if (ta.isFILE()) {
             o = ta;
-            // 如果指定了名称
-            if (!Strings.isBlank(objnm) && !o.name().equals(objnm)) {
-                WnObj p = o.parent();
-                o = io.createIfNoExists(p, objnm, WnRace.FILE);
-            }
         }
         // 如果是个目录，则试图创建一个新文件
         else if (ta.isDIR()) {
             String fname = nm;
-            // 如果指定了名称
-            if (!Strings.isBlank(objnm)) {
-                o = io.createIfNoExists(ta, objnm, WnRace.FILE);
-            }
             // 如果重名就覆盖的话 ...
-            else if (Strings.isBlank(dupp)) {
+            if (Strings.isBlank(dupp)) {
                 o = io.createIfNoExists(ta, fname, WnRace.FILE);
             }
             // 那么重名的话，则创建新文件

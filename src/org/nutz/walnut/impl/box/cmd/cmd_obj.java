@@ -23,7 +23,7 @@ public class cmd_obj extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        ZParams params = ZParams.parse(args, "iocnqhbslVN");
+        ZParams params = ZParams.parse(args, "iocnqhbslVNP");
 
         // 首先获取对象
         // 计算要列出的要处理的对象
@@ -32,6 +32,12 @@ public class cmd_obj extends JvmExecutor {
 
         // 检查是否候选对象列表为空
         checkCandidateObjsNoEmpty(args, list);
+
+        // 是否强制输出路径
+        if (list.size() == 1 || params.is("P")) {
+            for (WnObj o : list)
+                o.path();
+        }
 
         // 一次处理所有对象
         List<NutMap> outs = new ArrayList<NutMap>(list.size());

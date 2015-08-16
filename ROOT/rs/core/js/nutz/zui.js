@@ -157,17 +157,15 @@ define(function (require, exports, module) {
         });
         ME.arena = ME.$el.children('.ui-arena');
 
-        // 解析布局
-        if (ME.arena.attr("layout-mode"))
-            ME.layout = parse_layout({}, ME.arena);
-
         // 搜索所有的 DOM 扩展点
         ME.gasket = {};
         ME.arena.find("[ui-gasket]").each(function () {
-            var nm = $.trim($(this).attr("ui-gasket"));
+            var me = $(this);
+            var nm = $.trim(me.attr("ui-gasket"));
             ME.gasket[nm] = {
-                ui: null,
-                jq: $(this)
+                ui    : [],
+                jq    : $(this),
+                multi : me.attr("ui-multi") || false
             };
         });
 
@@ -194,7 +192,15 @@ define(function (require, exports, module) {
                 var gas = ME.parent.gasket[ME.gasketName];
                 if (!gas)
                     throw "Fail to found gasket '" + ME.gasketName + "'";
-                gas.ui = ME;
+                // 如果已经存在了插件，是否需要释放
+                if(!gas.multi && gas.ui.length>0) {
+                    gas.ui.forEach(function(ui){
+                        ui.destroy();
+                    });
+                    gas.ui = [];
+                }
+                // 将自己添加到父插件
+                gas.ui.push(ME);
                 ME.$pel = gas.jq;
                 ME.pel = gas.jq[0];
             }
@@ -222,9 +228,11 @@ define(function (require, exports, module) {
             // 释放掉自己所有的子
             for (var key in this.gasket) {
                 var sub = this.gasket[key];
-                if (sub.ui)
-                    sub.ui.destroy();
+                sub.ui.forEach(function(ui){
+                    ui.destroy();
+                }); 
             }
+            this.gasket = {};
             // 移除自己的监听事件
             for (var key in this._watch_keys) {
                 delete ZUI.keymap[key];
@@ -239,12 +247,10 @@ define(function (require, exports, module) {
             delete ZUI.instances[this.cid];
             // 删除顶级节点记录
             var list = [];
-            for (var i = 0; i < ZUI.tops.length; i++) {
-                var top = ZUI.tops[i];
-                if (top != this) {
+            ZUI.tops.forEach(function(top){
+                if (top != this)
                     list.push(top)
-                }
-            }
+            }, this);
             ZUI.tops = list;
 
         },
@@ -315,7 +321,6 @@ define(function (require, exports, module) {
             // 但是自己这时候还没有初始化完 DOM (异步加载)
             // 那么自己的 arena 就是未定义，因此不能继续执行 resize
             if (ME.arena) {
-
                 // 需要调整自身，适应父大小
                 if (ME.options.fitparent === true
                     || (ME.options.fitparent !== false && ME.arena.attr("ui-fitparent"))) {
@@ -342,9 +347,9 @@ define(function (require, exports, module) {
                 // 调用自身所有的子 UI 的 resize
                 for (var key in ME.gasket) {
                     var sub = ME.gasket[key];
-                    if (sub && sub.ui) {
-                        sub.ui.resize();
-                    }
+                    sub.ui.forEach(function(ui){
+                        ui.resize();
+                    });
                 }
             }
         },

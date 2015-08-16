@@ -130,6 +130,13 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
+    public int inc(String id, String metaName, int val) {
+        ZMoDoc q = ZMoDoc.NEW("id", id);
+        ZMoDoc doc = co.findAndModify(q, ZMoDoc.NEW().m("$inc", metaName, val));
+        return doc.getInt(metaName);
+    }
+
+    @Override
     protected void _create_node(WnObj o) {
         ZMoDoc doc = ZMo.me().toDoc(o).genID();
         doc.removeField("ph");
