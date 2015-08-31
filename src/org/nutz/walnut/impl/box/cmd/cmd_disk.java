@@ -56,6 +56,7 @@ public class cmd_disk extends JvmExecutor {
         if (!Strings.isBlank(tp) && !tp.equalsIgnoreCase(obj.type())) {
             return;
         }
+        obj.path();
         sys.out.println(Json.toJson(obj, JsonFormat.compact()));
     }
 }

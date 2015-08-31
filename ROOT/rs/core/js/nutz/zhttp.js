@@ -19,7 +19,8 @@
         },
         ajax: {
             useAjaxReturn: true,
-            useJson: true
+            useJson: true,
+            hdlError: false
         }
     };
 
@@ -53,7 +54,11 @@
             if (re.ok) {
                 callback(re);
             } else {
-                _ajaxErrorMsg(re);
+                if (http.constant.ajax.hdlError) {
+                    _ajaxErrorMsg(re);
+                } else {
+                    callback(re);
+                }
             }
         } else {
             callback(re);

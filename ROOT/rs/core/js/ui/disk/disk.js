@@ -1,7 +1,7 @@
 define(function (require, exports, module) {
     var ZUI = require("zui");
 
-    // obj缓存
+    // --------------------------------------- obj缓存
     var objCache = {};
 
     function getObj(id) {
@@ -21,6 +21,63 @@ define(function (require, exports, module) {
         objCache[path] = obj;
         return obj;
     }
+
+    // ---------------------------------------- 默认的几个动作
+    // 打开
+    $mp.disk.uis.addAction('open', function (UI, obj) {
+        UI.open_file(obj);
+    });
+    // 查看详情
+    $mp.disk.uis.addAction('info', function (UI, obj) {
+        UI.load_objinfo(obj);
+        UI.$el.find('.md-disk-container').addClass('info');
+    });
+    // 重命名
+    $mp.disk.uis.addAction('rename', function (UI, obj) {
+        $mp.prompt("重命名", obj.nm, function (new_nm) {
+            if (new_nm) {
+                new_nm = new_nm.trim();
+                if (new_nm == obj.nm) {
+                    return;
+                }
+                UI.model.trigger("cmd:exec", "mv " + obj.nm + " " + new_nm, function () {
+                    UI.open_file();
+                });
+            }
+        });
+    });
+    // 删除
+    $mp.disk.uis.addAction('delete', function (UI, obj) {
+        $mp.confirm('确定要删除"' + obj.nm + '"', '删除文件', function (re) {
+            if (re) {
+                UI.model.trigger("cmd:exec", "rm " + obj.ph, function () {
+                    UI.open_file();
+                });
+            }
+        });
+    });
+    // 刷新
+    $mp.disk.uis.addAction('refresh', function (UI, obj) {
+        UI.open_file();
+    });
+    // 返回上一层
+    $mp.disk.uis.addAction('back', function (UI, obj) {
+        var $cpo = UI.$el.find('.disk-path-obj.active');
+        if ($cpo.prev().length > 0) {
+            var nobj = getObjPath($cpo.prev().attr('path'));
+            UI.open_file(nobj);
+        } else {
+            $mp.message('没有上一层, 无法返回');
+        }
+    });
+    //
+    $mp.disk.uis.addAction('', function (UI, obj) {
+
+    });
+    //
+    $mp.disk.uis.addAction('', function (UI, obj) {
+
+    });
 
     function on_keydown_at_gi(e) {
         var $gi = $(e.currentTarget);
@@ -353,7 +410,7 @@ define(function (require, exports, module) {
                 nm: 'alias',
                 label: '别名',
                 render: function (alias) {
-                    if(alias){
+                    if (alias) {
                         return alias;
                     }
                     return "-";

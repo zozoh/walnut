@@ -45,6 +45,14 @@ public class WnStoreImpl implements WnStore {
             throw Er.create("e.io.dir.open", o);
         }
 
+        // secu下
+        if (Wn.S.isRead(mode)) {
+            o = Wn.WC().whenRead(o);
+        }
+        if (Wn.S.isWriteOrAppend(mode)) {
+            o = Wn.WC().whenWrite(o);
+        }
+
         // 一个对象只能打开一个写句柄
         if (Wn.S.isWite(mode) && o.hasWriteHandle()) {
             throw Er.create("e.io.obj.w.opened", o);

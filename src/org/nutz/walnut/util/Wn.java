@@ -1,5 +1,9 @@
 package org.nutz.walnut.util;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -8,6 +12,7 @@ import java.util.regex.Pattern;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Maths;
+import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.segment.Segment;
@@ -20,9 +25,11 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.web.Webs.Err;
 
 /**
  * Walnut 系统的各种帮助函数集合
@@ -496,9 +503,38 @@ public abstract class Wn {
         public final static String size_32 = "32x32";
         public final static String size_24 = "24x24";
         public final static String size_16 = "16x16";
-        // public final static int size_16 = 16;
-        // public final static int size_24 = 24;
-        // public final static int size_64 = 64;
-        // public final static int size_256 = 256;
+    }
+
+    /**
+     * 获得一个copy过来的文件, 推荐用完直接删除
+     * 
+     * @param obj
+     * @return 文件
+     */
+    public static File getCopyFile(WnIo io, WnObj obj) {
+        // 非文件类, size为0就不要掺和了
+        if (obj.race() != WnRace.FILE || obj.size() == 0) {
+            return null;
+        }
+        // 生成临时文件
+        OutputStream out = null;
+        File cf = null;
+        try {
+            cf = File.createTempFile(Strings.alignLeft(obj.name(), 3, 'a'),
+                                     !Strings.isBlank(obj.type()) ? "." + obj.type() : null);
+            out = new FileOutputStream(cf);
+            io.readAndClose(obj, out);
+            out.flush();
+            out.close();
+            out = null;
+        }
+        catch (IOException e) {
+            throw Err.wrap(e);
+        }
+        finally {
+            if (out != null)
+                Streams.safeClose(out);
+        }
+        return cf;
     }
 }

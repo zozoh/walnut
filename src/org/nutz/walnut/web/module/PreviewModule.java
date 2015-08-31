@@ -1,9 +1,13 @@
 package org.nutz.walnut.web.module;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.Ok;
@@ -81,8 +85,7 @@ public class PreviewModule extends AbstractWnModule {
             resp.setHeader("Content-Type", re.mime());
         }
         catch (Exception e) {}
-        // return new File(io.getRealPath(re));
-        return null;
+        return Wn.getCopyFile(io, re);
     }
 
     private String thumbnailPath(WnObj obj, boolean useId) {
@@ -119,9 +122,12 @@ public class PreviewModule extends AbstractWnModule {
             String encode = new String(fnm.getBytes("UTF-8"), "ISO8859-1");
             resp.setHeader("Content-Disposition", "attachment; filename=" + encode);
             resp.setHeader("Content-Type", re.mime());
+            OutputStream ops = resp.getOutputStream();
+            InputStream ins = io.getInputStream(re, 0);
+            Streams.writeAndClose(ops, ins);
+            ops.flush();
         }
         catch (Exception e) {}
-        // return new File(io.getRealPath(re));
         return null;
     }
 
@@ -166,7 +172,7 @@ public class PreviewModule extends AbstractWnModule {
                     resp.setHeader("Content-Type", pvobj.mime());
                 }
                 catch (Exception e) {}
-                // return new File(io.getRealPath(pvobj));
+                return Wn.getCopyFile(io, pvobj);
             }
         }
         return null;
