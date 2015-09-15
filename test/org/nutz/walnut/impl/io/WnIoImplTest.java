@@ -315,6 +315,33 @@ public class WnIoImplTest extends BaseIoTest {
         }
     }
 
+    @Test
+    public void test_read_write_link_dir() throws Exception {
+        Wn.WC().setSecurity(new WnEvalLink(io));
+        WnObj a = io.create(null, "/linktest/a", WnRace.DIR);
+        WnObj a1 = io.create(null, "/linktest/a/a1", WnRace.FILE);
+        WnObj b = io.create(null, "/linktest/b", WnRace.DIR);
+        try {
+            io.writeText(a1, "haha");
+            io.appendMeta(b, "ln:'/linktest/a'");
+
+            assertEquals("haha", io.readText(io.fetch(null, "/linktest/a/a1")));
+            assertEquals("haha", io.readText(io.fetch(null, "/linktest/b/a1")));
+
+            io.writeText(io.fetch(null, "/linktest/b/a1"), "hehe");
+
+            assertEquals("hehe", io.readText(io.fetch(null, "/linktest/a/a1")));
+            assertEquals("hehe", io.readText(io.fetch(null, "/linktest/b/a1")));
+
+        }
+        finally {
+            io.delete(a1);
+            io.delete(a);
+            io.delete(b);
+            Wn.WC().setSecurity(null);
+        }
+    }
+
     // -------------------------------------------------------------
     // 测试类
     static class WalkTest implements Callback<WnObj> {

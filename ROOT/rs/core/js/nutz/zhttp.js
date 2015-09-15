@@ -46,6 +46,8 @@
         if (http.constant.ajax.useJson) {
             if (typeof re === 'string') {
                 re = $z.fromJson(re);
+            } else if (typeof form == "function") {
+                // TODO Nothing
             } else {
                 throw new Error("ajaxReturn is not a String, can't be use as JSON");
             }
@@ -156,6 +158,21 @@
             }
         });
         return re;
+    };
+
+    http.json = function (url, form, callback) {
+        if (typeof form === 'function') {
+            callback = form;
+            form = null;
+        }
+        $.ajax({
+            type: http.constant.method.POST,
+            url: url,
+            contentType: "application/jsonrequest",
+            data: $z.toJson(form)
+        }).done(function (re) {
+            _ajaxDone(re, callback);
+        }).fail(_ajaxFail);
     };
 
     //============================================= XMLHttpRequest

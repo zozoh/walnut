@@ -81,7 +81,7 @@
             $ta2.val('');
             $ta1.val($z.formatJson(sform, true));
 
-            $http.get(sform.url, sform.params, function (re) {
+            $http.json(sform.url, sform.params, function (re) {
                 $ta2.val($z.formatJson(re, true));
             });
         });
