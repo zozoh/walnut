@@ -377,7 +377,7 @@ body {
   font-size: 22.75px;
   color: rgba(0, 0, 0, 0.26);
   text-align: center;
-  margin: 50px auto;
+  margin: 150px auto;
   display: none;
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-tip .loading {
@@ -387,7 +387,7 @@ body {
   font-size: 22.75px;
   color: rgba(0, 0, 0, 0.26);
   text-align: center;
-  margin: 50px auto;
+  margin: 150px auto;
   display: none;
 }
 .md-disk .md-disk-container .md-disk-body .md-disk-tip .empty {
@@ -397,7 +397,7 @@ body {
   font-size: 22.75px;
   color: rgba(0, 0, 0, 0.26);
   text-align: center;
-  margin: 50px auto;
+  margin: 150px auto;
   display: none;
 }
 .md-disk .md-disk-container .md-disk-body.loading .md-disk-tip {
@@ -428,12 +428,12 @@ body {
   width: 100%;
   height: 100%;
   position: relative;
-}
-.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+.md-disk .md-disk-container .md-disk-body .md-disk-grid .md-disk-grid-title {
   position: absolute;
   top: 0;
   height: 48px;

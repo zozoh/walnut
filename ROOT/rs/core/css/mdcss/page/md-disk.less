@@ -388,7 +388,7 @@
           font-size: @font-size-h3;
           color: @hint-on-light;
           text-align: center;
-          margin: 50px auto;
+          margin: 150px auto;
           display: none;
         }
 
@@ -437,14 +437,13 @@
         width: 100%;
         height: 100%;
         position: relative;
-
         @grid-row-h: 48px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
 
         .md-disk-grid-title {
-          -webkit-user-select: none;
-          -moz-user-select: none;
-          -ms-user-select: none;
-          user-select: none;;
           position: absolute;
           top: 0;
           height: @grid-row-h;

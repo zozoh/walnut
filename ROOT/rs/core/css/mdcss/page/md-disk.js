@@ -2,13 +2,11 @@ $(document).ready(function () {
 
     var $bd = $(document.body);
 
-
     // 查找当前环境下的配置文件
     var hconf = $.extend(true, {}, (window._md_page_disk_ || {}));
     //
     var mpdisk = {
         startListen: function () {
-
             // 切换显示模式
             $bd.delegate('.md-disk .md-disk-header .disk-menu-display', 'click', function () {
                 var sbtn = $(this);
@@ -23,7 +21,6 @@ $(document).ready(function () {
                     sbtn.removeClass('grid');
                 }
             });
-
             // 切换排序
             $bd.delegate('.md-disk .md-disk-header .disk-menu-sortby li', 'click', function () {
                 var $li = $(this);
@@ -41,13 +38,11 @@ $(document).ready(function () {
                     }
                 }
             });
-
             // 显示info
             $bd.delegate('.md-disk .md-disk-header .disk-menu-info', 'click', function () {
                 var $dcon = $(this).parents('.md-disk-container');
                 $dcon.toggleClass('info');
             });
-
             // 切换info的tab
             $bd.delegate('.md-disk .md-disk-info .tabs li', 'click', function () {
                 var $li = $(this);
@@ -58,7 +53,7 @@ $(document).ready(function () {
                     $li.addClass('active');
                 }
             });
-
+            // 切换排序
             $bd.delegate('.md-disk .md-disk-container .md-disk-grid-title .md-disk-gt-cell', 'click', function () {
                 var $st = $(this);
                 var sort = $st.attr('sort');
@@ -74,7 +69,6 @@ $(document).ready(function () {
                     $st.addClass('asc');
                 }
             });
-
             // 切换选中obj
             $bd.delegate('.md-disk .md-disk-container .md-disk-grid-item', 'mousedown', function (e) {
                 var $gi = $(this);
@@ -82,18 +76,27 @@ $(document).ready(function () {
                     $gi.siblings().removeClass('active');
                     $gi.addClass('active');
                 }
-                // 左键
-                if (1 == e.which) {
-                    // 就是选中
-                }
-                // 右键
-                else if (3 == e.which) {
-                    // 显示菜单
-                }
             });
 
         }
     };
+
+
+    // disk注册ui
+    mpdisk.uis = {
+        // 操作
+        _actions: {},
+        // 菜单html
+        _menus: {},
+        // 添加新类型菜单
+        addUI: function(tp, uiconf) {
+
+        },
+        addAction: function(nm, ac) {
+
+        }
+    };
+
     mpdisk.startListen();
 
     window.$mp = window.$mp || {};

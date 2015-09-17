@@ -46,6 +46,12 @@ public abstract class JvmExecutor {
         return sys.io.check(null, path);
     }
 
+    protected WnObj getHome(WnSystem sys) {
+        String pwd = sys.se.envs().getString("HOME");
+        String path = Wn.normalizePath(pwd, sys);
+        return sys.io.check(null, path);
+    }
+
     protected void joinObjByPath(WnSystem sys, final List<WnObj> list, WnObj p, String str) {
         // 用 ID
         if (str.startsWith("id:")) {
