@@ -1,13 +1,11 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.nutz.lang.Lang;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 
 public class cmd_cd extends JvmExecutor {
 
@@ -21,22 +19,18 @@ public class cmd_cd extends JvmExecutor {
             vals = args;
         }
 
-        // 计算要列出的目录并得到当前目录
-        List<WnObj> list = new LinkedList<WnObj>();
-        WnObj p = evalCandidateObjs(sys, vals, list, true);
+        // 得到要进入的目录
+        String ph = Wn.normalizeFullPath(vals[0], sys.se);
 
-        String ph;
-        if (list.isEmpty()) {
-            if (args.length > 0) {
-                throw Er.create("e.io.obj.noexists", args[0]);
-            }
-            ph = p.path();
-        } else {
-            ph = list.get(0).path();
+        // 检查这个目录是否存在
+        WnObj o = sys.io.check(null, ph);
+
+        if (!o.isDIR()) {
+            throw Er.create("e.cmd.cd.nodir", ph);
         }
 
         // 修改会话中的设定
-        sys.se = sys.sessionService.setEnv(sys.se.id(), "PWD", ph);
+        sys.se = sys.sessionService.setEnv(sys.se.id(), "PWD", o.path());
 
     }
 

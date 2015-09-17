@@ -41,16 +41,16 @@ public class IoWnUsrTest extends BaseUsrTest {
 
             // B 用户不能写
             try {
+                final WnObj o = io.check(null, path);
                 wc.su(ub, new Atom() {
                     public void run() {
-                        WnObj o = io.create(null, path, WnRace.FILE);
                         io.writeText(o, "I am B");
                     }
                 });
                 fail();
             }
             catch (Exception e) {
-                assertEquals("e.io.forbidden : /home/userA", e.toString());
+                assertEquals("e.io.forbidden : /home/userA/aaa.txt", e.toString());
             }
 
             // 将文件改成变成同组能写
@@ -82,9 +82,9 @@ public class IoWnUsrTest extends BaseUsrTest {
 
             // B 又不能写了
             try {
+                final WnObj o = io.check(null, path);
                 str = wc.su(ub, new Proton<String>() {
                     protected String exec() {
-                        WnObj o = io.check(null, path);
                         io.writeText(o, "I am B2");
                         return io.readText(o);
                     }
@@ -180,9 +180,9 @@ public class IoWnUsrTest extends BaseUsrTest {
 
             // B 又不能读了
             try {
+                final WnObj o = io.check(null, path);
                 str = wc.su(ub, new Proton<String>() {
                     protected String exec() {
-                        WnObj o = io.check(null, path);
                         return io.readText(o);
                     }
                 });
@@ -404,4 +404,3 @@ public class IoWnUsrTest extends BaseUsrTest {
     }
 
 }
-

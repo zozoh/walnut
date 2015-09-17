@@ -36,7 +36,7 @@ public class WnSecurityImpl extends WnEvalLink {
         wc.setSecurity(null);
         try {
             // WnObj o = __eval_obj(nd, true);
-            return __do_check(nd, Wn.Io.R, false);
+            return __do_check(nd, Wn.Io.R, true);
         }
         finally {
             wc.setSecurity(this);
@@ -106,6 +106,8 @@ public class WnSecurityImpl extends WnEvalLink {
 
         // 如果对象过期了，抛错
         if (o.isExpired()) {
+            if (asNull)
+                return null;
             throw Er.create("e.io.obj.expired", o);
         }
 
@@ -113,8 +115,11 @@ public class WnSecurityImpl extends WnEvalLink {
         int role = usrs.getRoleInGroup(u, o.group());
 
         // 黑名单的话，禁止
-        if (Wn.ROLE.BLOCK == role)
+        if (Wn.ROLE.BLOCK == role) {
+            if (asNull)
+                return null;
             throw Er.create("e.io.forbidden");
+        }
 
         // 对象的权限设定
         // TODO zozoh: 这里考虑一下 /grp/$grp/pvg 下的权限设定

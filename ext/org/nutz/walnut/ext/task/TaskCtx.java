@@ -13,7 +13,7 @@ public class TaskCtx {
 
     public WnObj oCurrent;
 
-    public WnObj oHome;
+    public WnObj oTaskHome;
 
     public WnObj oTask;
 

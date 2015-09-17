@@ -87,7 +87,8 @@ public class WnObjMetaOutputStream extends OutputStream {
 
     }
 
-    public void close() {
+    public void close() throws IOException {
+        this.flush();
         tnl = null;
     }
 

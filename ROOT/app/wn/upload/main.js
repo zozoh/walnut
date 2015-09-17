@@ -1,6 +1,6 @@
 define(function(require, exports, module) {
 
-	var UIDef  = require("ui/upload/upload");
+	var UIUpload  = require("ui/upload/upload");
 	var ModDef = require("wn/walnut.client"); 
 	
 	function init(){
@@ -8,7 +8,7 @@ define(function(require, exports, module) {
 		var Mod = new ModDef(app);
 		// 有目标的话，直接渲染
 		if(app.obj) {
-			new UIDef({
+			new UIUpload({
 	            $pel    : $(document.body),
 	            model   : Mod,
 	            target  : app.obj
@@ -17,7 +17,7 @@ define(function(require, exports, module) {
 		// 没有的话，获取当前目录
 		else{
 			Mod.trigger("cmd:exec", "obj . -q", function(re){
-				new UIDef({
+				new UIUpload({
 					replaceable : true,
 		            $pel        : $(document.body),
 		            model       : Mod,

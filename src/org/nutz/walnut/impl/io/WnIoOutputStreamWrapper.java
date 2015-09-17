@@ -50,6 +50,7 @@ public class WnIoOutputStreamWrapper extends OutputStream {
     }
 
     public void close() throws IOException {
+        ops.flush();
         ops.close();
 
         // 文件:触发同步时间修改

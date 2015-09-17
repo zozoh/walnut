@@ -12,7 +12,7 @@ import org.nutz.walnut.ext.task.TaskStatus;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
 
-public class Th_add extends AbstractTaskHdl {
+public class Th_add extends AbstractTaskModifyHdl {
 
     @Override
     public void invoke(WnSystem sys, TaskCtx sc) throws Exception {
@@ -54,7 +54,7 @@ public class Th_add extends AbstractTaskHdl {
         }
         // 那么必须是根任务了
         else {
-            oParent = sys.io.createIfNoExists(sc.oHome, "mine", WnRace.DIR);
+            oParent = sys.io.createIfNoExists(sc.oTaskHome, "root", WnRace.DIR);
         }
 
         // 创建新的任务对象
@@ -79,13 +79,14 @@ public class Th_add extends AbstractTaskHdl {
             String[] lbls = Strings.splitIgnoreBlank(params.get("lbls"));
             oNew.labels(lbls);
         }
-        if(params.has("ow")){
+        if (params.has("ow")) {
             oNew.setv("ow", params.get("ow"));
         }
         oNew.setv("status", TaskStatus.NEW);
         oNew.setv("tzone", TimeZone.getDefault().getID());
         oNew.type("task");
-        sys.io.appendMeta(oNew, "^ow|tp|lbls|title|tzone|status|prev|next$");
+        oNew.setv("cmtnb", 0);
+        sys.io.appendMeta(oNew, "^ow|tp|cmtnb|lbls|title|tzone|status|prev|next$");
 
         // 完毕
         this._done(sys, params, oNew);

@@ -68,7 +68,8 @@ public class TextTable {
             if (i >= sz)
                 break;
             row[i] = Strings.sNull(str, "");
-            cell_width[i] = Math.max(cell_width[i], row[i].length());
+            int width = LinuxTerminal.unwrapFont(str).length();
+            cell_width[i] = Math.max(cell_width[i], width);
             i++;
         }
         // 填充不足
@@ -88,7 +89,8 @@ public class TextTable {
             if (i >= sz)
                 break;
             row[i] = Strings.sNull(str, "");
-            cell_width[i] = Math.max(cell_width[i], row[i].length());
+            int width = LinuxTerminal.unwrapFont(str).length();
+            cell_width[i] = Math.max(cell_width[i], width);
             i++;
         }
         // 填充不足
@@ -122,10 +124,22 @@ public class TextTable {
                 int last = row.length - 1;
                 for (int i = 0; i < last; i++) {
                     String cell = row[i];
+                    int width = LinuxTerminal.unwrapFont(cell).length();
+                    // 居左
                     if (cell_align_left[i]) {
-                        sb.append(Strings.alignLeft(cell, cell_width[i], ' '));
-                    } else {
-                        sb.append(Strings.alignRight(cell, cell_width[i], ' '));
+                        sb.append(cell);
+                        if (width < cell_width[i]) {
+                            for (int m = width; m < cell_width[i]; m++)
+                                sb.append(' ');
+                        }
+                    }
+                    // 居右
+                    else {
+                        if (width < cell_width[i]) {
+                            for (int m = width; m < cell_width[i]; m++)
+                                sb.append(' ');
+                        }
+                        sb.append(cell);
                     }
                     sb.append(Strings.dup(' ', spacing));
                     if (showBorder) {

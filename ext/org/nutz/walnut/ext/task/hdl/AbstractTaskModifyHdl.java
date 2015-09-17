@@ -7,7 +7,7 @@ import org.nutz.walnut.ext.task.TaskHierarchy;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
 
-public abstract class AbstractTaskHdl implements TaskHdl {
+public abstract class AbstractTaskModifyHdl implements TaskHdl {
 
     protected TaskHierarchy _hierarchy_gen(WnSystem sys, WnObj oTask) {
         TaskHierarchy thi = new TaskHierarchy();

@@ -19,7 +19,7 @@ button {
 <table>
 	<tr>
 		<td>UserName:</td>
-		<td><input name="nm"  type="text" value="root"></td>
+		<td><input name="nm"  type="text" value="demo"></td>
 	</tr>
 	<tr>
 		<td>Password:</td>

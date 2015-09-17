@@ -106,6 +106,10 @@ function gen_url(opt) {
             var opt   = UI.options;
             var title = opt.title;
             var ta    = opt.target;
+            // 默认根据目标的 race 判断模式
+            if(typeof opt.multi == "undefined"){
+                opt.multi = (ta.race == 'DIR');
+            }
             // 多文件上传
             if(opt.multi){
                 UI.$el.on("dragover",  ".ui-upload-arena", UI.multi.on_dragover);

@@ -101,8 +101,8 @@ package org.nutz.walnut.impl.box;
  * </pre>
  * 
  * @author zozoh(zozohtnt@gmail.com)
- * @see <a
- *      href="http://www.cnblogs.com/icejoywoo/archive/2011/05/28/2061323.html">
+ * @see <a href=
+ *      "http://www.cnblogs.com/icejoywoo/archive/2011/05/28/2061323.html">
  *      linux终端输出带有颜色的字体</a>
  */
 public abstract class LinuxTerminal {
@@ -138,7 +138,7 @@ public abstract class LinuxTerminal {
             if (b == 0x1b) {
                 // 有字符串，先消费
                 if (r > l) {
-                    sb.append(new String(cs, l, r));
+                    sb.append(new String(cs, l, r - l));
                 }
                 // 试图读取控制码
                 r += 2;

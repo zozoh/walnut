@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.io;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -10,6 +11,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
@@ -425,16 +427,36 @@ public class WnIoImpl implements WnIo {
     @Override
     public long writeText(WnObj o, CharSequence cs) {
         OutputStream ops = this.getOutputStream(o, 0);
-        Writer w = Streams.buffw(Streams.utf8w(ops));
-        Streams.writeAndClose(w, cs);
+        // Writer w = Streams.utf8w(ops);
+        // Streams.writeAndClose(w, cs);
+        byte[] b = cs.toString().getBytes(Encoding.CHARSET_UTF8);
+        try {
+            ops.write(b);
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
+        finally {
+            Streams.safeClose(ops);
+        }
         return o.len();
     }
 
     @Override
     public long appendText(WnObj o, CharSequence cs) {
         OutputStream ops = this.getOutputStream(o, -1);
-        Writer w = Streams.buffw(Streams.utf8w(ops));
-        Streams.writeAndClose(w, cs);
+        // Writer w = Streams.utf8w(ops);
+        // Streams.writeAndClose(w, cs);
+        byte[] b = cs.toString().getBytes(Encoding.CHARSET_UTF8);
+        try {
+            ops.write(b);
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
+        finally {
+            Streams.safeClose(ops);
+        }
         return o.len();
     }
 
@@ -474,8 +496,12 @@ public class WnIoImpl implements WnIo {
     public String open(final WnObj o, int mode) {
         // 首先确保对象本身不会被篡改，那么重新从数据库里拿一遍是好办法
         if (Wn.S.isWite(mode)) {
-            WnObj o2 = tree.checkById(o.id());
-            o.update2(o2);
+            Wn.WC().security(null, new Atom() {
+                public void run() {
+                    WnObj o2 = tree.checkById(o.id());
+                    o.update2(o2);
+                }
+            });
         }
 
         // 打开句柄

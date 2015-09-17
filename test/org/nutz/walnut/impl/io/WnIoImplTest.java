@@ -6,11 +6,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
+import org.nutz.lang.Xmls;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.BaseIoTest;
@@ -20,8 +24,48 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
+import org.w3c.dom.Document;
 
 public class WnIoImplTest extends BaseIoTest {
+
+    @Test
+    public void test_write_empty_text() {
+        WnObj o = io.create(null, "/abc", WnRace.FILE);
+        io.writeText(o, "AA");
+        assertEquals(2, o.len());
+        assertEquals(2, io.check(null, "/abc").len());
+
+        io.writeText(o, "");
+        assertEquals(0, o.len());
+        assertEquals(0, io.check(null, "/abc").len());
+    }
+
+    @Test
+    public void test_read_text() {
+        WnObj o = io.create(null, "/a.xml", WnRace.FILE);
+        String path = "org/nutz/walnut/impl/io/test.xml";
+        String xml = Files.read(path);
+        io.writeText(o, xml);
+
+        String exp = Files.read(path);
+
+        InputStream ins = io.getInputStream(o, 0);
+        String str = Streams.readAndClose(Streams.utf8r(ins));
+
+        assertEquals(exp, str);
+    }
+
+    @Test
+    public void test_read_xml() {
+        WnObj o = io.create(null, "/a.xml", WnRace.FILE);
+        String path = "org/nutz/walnut/impl/io/test.xml";
+        String xml = Files.read(path);
+        io.writeText(o, xml);
+
+        InputStream ins = io.getInputStream(o, 0);
+        Document doc = Xmls.xml(ins);
+        assertEquals("a", doc.getDocumentElement().getTagName());
+    }
 
     @Test
     public void test_inc() {

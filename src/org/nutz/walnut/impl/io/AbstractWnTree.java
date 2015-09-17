@@ -108,7 +108,9 @@ public abstract class AbstractWnTree implements WnTree {
         WnObj o = _get_my_node(id);
         if (null != o)
             o.setTree(this);
-        return o;
+
+        // 最后校验一下权限
+        return Wn.WC().whenAccess(o);
     }
 
     private WnObj __eval_mnt_obj(WnObj mo,
@@ -165,7 +167,8 @@ public abstract class AbstractWnTree implements WnTree {
         p.loadParents(null, false);
 
         // 得到节点检查的回调接口
-        WnSecurity secu = Wn.WC().getSecurity();
+        WnContext wc = Wn.WC();
+        WnSecurity secu = wc.getSecurity();
 
         if (null != secu) {
             p = __enter_dir(p, secu);
@@ -184,6 +187,7 @@ public abstract class AbstractWnTree implements WnTree {
 
         // 逐个进入目标节点的父
         WnObj nd;
+        String nm;
         int rightIndex = toIndex - 1;
         for (int i = fromIndex; i < rightIndex; i++) {
             // 因为支持回退上一级，所以有可能 p 为空
@@ -191,9 +195,14 @@ public abstract class AbstractWnTree implements WnTree {
                 p = root.clone();
             }
 
-            String nm = paths[i];
+            nm = paths[i];
             if (nm.equals("..")) {
                 nd = p.parent();
+            }
+            // 子节点采用的通配符或者正则表达式
+            else if (nm.startsWith("^") || nm.contains("*")) {
+                WnQuery q = Wn.Q.pid(p).setv("nm", nm).limit(1);
+                nd = Lang.first(this.query(q));
             }
             // 找子节点，找不到，就返回 null
             else {
@@ -228,7 +237,16 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 最后再检查一下目标节点
-        nd = this._fetch_one_by_name(p, paths[rightIndex]);
+        nm = paths[rightIndex];
+        // 目标是通配符或正则表达式
+        if (nm.startsWith("^") || nm.contains("*")) {
+            WnQuery q = Wn.Q.pid(p).setv("nm", nm).limit(1);
+            nd = Lang.first(this.query(q));
+        }
+        // 仅仅是普通名称
+        else {
+            nd = this._fetch_one_by_name(p, nm);
+        }
 
         if (null == nd)
             return null;
@@ -239,7 +257,7 @@ public abstract class AbstractWnTree implements WnTree {
         nd.path(p.path()).appendPath(nd.name());
 
         // 确保节点可以访问
-        nd = Wn.WC().whenAccess(nd);
+        nd = wc.whenAccess(nd);
 
         // 搞定了，返回吧
         return nd;
@@ -664,11 +682,15 @@ public abstract class AbstractWnTree implements WnTree {
     public int each(WnQuery q, final Each<WnObj> callback) {
         final boolean autoPath = Wn.WC().isAutoPath();
         final WnTree tree = this;
+        final WnContext wc = Wn.WC();
         return _each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj o, int length) {
+                o = wc.whenAccess(o);
+                if (null == o)
+                    return;
                 o.setTree(tree);
                 // 确保有全路径
-                if(autoPath)
+                if (autoPath)
                     o.path();
                 if (null != callback)
                     callback.invoke(index, o, length);

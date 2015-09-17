@@ -19,6 +19,7 @@ import org.nutz.walnut.api.io.WnStore;
 import org.nutz.walnut.impl.io.bucket.LocalFileBucket;
 import org.nutz.walnut.impl.io.bucket.MemoryBucket;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 
 public class WnStoreImpl implements WnStore {
 
@@ -48,6 +49,15 @@ public class WnStoreImpl implements WnStore {
         // 一个对象只能打开一个写句柄
         if (Wn.S.isWite(mode) && o.hasWriteHandle()) {
             throw Er.create("e.io.obj.w.opened", o);
+        }
+
+        // 检查一些读写权限
+        WnContext wc = Wn.WC();
+        if (Wn.S.isWriteOrAppend(mode)) {
+            o = wc.whenWrite(o);
+        }
+        if (Wn.S.isRead(mode)) {
+            o = wc.whenRead(o);
         }
 
         // 创建句柄
@@ -258,7 +268,7 @@ public class WnStoreImpl implements WnStore {
         WnHandle hdl = __check_hdl(hid);
 
         // 标志第一次写
-        if (!hdl.updated && len > 0)
+        if (!hdl.updated)
             hdl.updated = true;
 
         // 真的写

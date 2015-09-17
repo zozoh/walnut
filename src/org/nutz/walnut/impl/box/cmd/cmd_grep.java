@@ -22,7 +22,7 @@ public class cmd_grep extends JvmExecutor {
     public void exec(WnSystem sys, String[] args) {
         ZParams params = ZParams.parse(args, null);
 
-        Pattern p = params.has("e") ? Pattern.compile(params.get("E")) : null;
+        Pattern p = params.has("e") ? Pattern.compile(params.get("e")) : null;
         String pstr = params.vals.length > 0 ? params.vals[0] : null;
 
         if (p == null && pstr == null) {

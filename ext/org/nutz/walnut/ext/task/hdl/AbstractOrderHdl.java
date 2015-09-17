@@ -6,7 +6,7 @@ import org.nutz.lang.Lang;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.WnSystem;
 
-public abstract class AbstractOrderHdl extends AbstractTaskHdl {
+public abstract class AbstractOrderHdl extends AbstractTaskModifyHdl {
 
     protected void _save(WnSystem sys, Map<String, OrderUpdateInfo> map) {
         for (OrderUpdateInfo oui : map.values()) {

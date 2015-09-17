@@ -57,14 +57,20 @@ public class WnStoreOutputStream extends OutputStream {
 
     @Override
     public void flush() throws IOException {
-        __apply_buf();
-        io.flush(hid);
+        if (null != hid) {
+            __apply_buf();
+            io.flush(hid);
+        }
     }
 
     @Override
     public void close() throws IOException {
-        __apply_buf();
-        io.close(hid);
+        if (null != hid) {
+            __apply_buf();
+            io.flush(hid);
+            io.close(hid);
+            hid = null;
+        }
     }
 
 }

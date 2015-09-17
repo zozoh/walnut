@@ -48,9 +48,9 @@ public class cmd_task extends JvmExecutor {
 
         // 找到主目录
         sc.oCurrent = this.getCurrentObj(sys);
-        sc.oHome = sys.io.createIfNoExists(null,
-                                           Wn.normalizeFullPath("~/.task", sys.se),
-                                           WnRace.DIR);
+        sc.oTaskHome = sys.io.createIfNoExists(null,
+                                               Wn.normalizeFullPath("~/.task", sys.se),
+                                               WnRace.DIR);
 
         // 调用执行器
         hdl.invoke(sys, sc);

@@ -27,7 +27,7 @@ import org.nutz.walnut.util.ZParams;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class Th_update extends AbstractTaskHdl {
+public class Th_update extends AbstractTaskModifyHdl {
 
     @Override
     public void invoke(WnSystem sys, TaskCtx sc) throws Exception {

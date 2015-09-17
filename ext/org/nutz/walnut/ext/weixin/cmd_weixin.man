@@ -27,7 +27,10 @@
     weixin -pnb 微信号 -menu id:r30skk8j76if4pmckbjhr4lhso
     
     删除自定义菜单
-    weixin -pnb 微信号 -menu delete
+    weixin -pnb 微信号 -menu :delete
+    
+    查询自定义菜单
+    weixin -pnb 微信号 -menu :get
     
     创建临时二维码
     weixin -pnb 微信号 -qrcode QR_SCENE -qrexpi 500 -qrsid 123

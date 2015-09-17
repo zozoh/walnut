@@ -62,7 +62,7 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    public int _each(WnQuery q, Each<WnObj> callback) {
+    protected int _each(WnQuery q, Each<WnObj> callback) {
         if (null == callback)
             return 0;
         ZMoDoc qDoc = null == q ? ZMoDoc.NEW() : WnMongos.toQueryDoc(q);
