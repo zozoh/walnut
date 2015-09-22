@@ -106,6 +106,7 @@ public abstract class AbstractWnTree implements WnTree {
 
         // 如果是完整的 ID
         WnObj o = _get_my_node(id);
+        o.remove("ph");
         if (null != o)
             o.setTree(this);
 
@@ -198,9 +199,11 @@ public abstract class AbstractWnTree implements WnTree {
             nm = paths[i];
             if (nm.equals("..")) {
                 nd = p.parent();
+                p = nd;
+                continue;
             }
             // 子节点采用的通配符或者正则表达式
-            else if (nm.startsWith("^") || nm.contains("*")) {
+            if (nm.startsWith("^") || nm.contains("*")) {
                 WnQuery q = Wn.Q.pid(p).setv("nm", nm).limit(1);
                 nd = Lang.first(this.query(q));
             }
@@ -238,6 +241,12 @@ public abstract class AbstractWnTree implements WnTree {
 
         // 最后再检查一下目标节点
         nm = paths[rightIndex];
+        
+        // 纯粹返回上一级
+        if(nm.equals("..")){
+            return p.parent();
+        }
+        
         // 目标是通配符或正则表达式
         if (nm.startsWith("^") || nm.contains("*")) {
             WnQuery q = Wn.Q.pid(p).setv("nm", nm).limit(1);
@@ -381,6 +390,7 @@ public abstract class AbstractWnTree implements WnTree {
         long now = System.currentTimeMillis();
         o.createTime(now);
         o.lastModified(now);
+        o.remove("ph");
 
         // 展开名字
         o.name(Wn.evalName(name, id));

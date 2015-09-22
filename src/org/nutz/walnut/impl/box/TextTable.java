@@ -88,7 +88,8 @@ public class TextTable {
         for (String str : col) {
             if (i >= sz)
                 break;
-            row[i] = Strings.sNull(str, "");
+            str = Strings.sNull(str, "");
+            row[i] = str;
             int width = LinuxTerminal.unwrapFont(str).length();
             cell_width[i] = Math.max(cell_width[i], width);
             i++;

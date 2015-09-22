@@ -72,11 +72,11 @@ public abstract class WnMongos {
             }
             // 数组
             else if (v.getClass().isArray()) {
-                join_str_array(list, key, q.get(key));
+                join_array(list, key, q.get(key));
             }
             // 其他的当做字符串
             else {
-                join_str(list, key, v);
+                join_other(list, key, v);
             }
         }
 
@@ -99,7 +99,7 @@ public abstract class WnMongos {
     }
 
     @SuppressWarnings("unchecked")
-    static void join_str(BasicDBList list, String key, Object v) {
+    static void join_other(BasicDBList list, String key, Object v) {
         if (null == v)
             return;
 
@@ -116,11 +116,11 @@ public abstract class WnMongos {
             for (Object o : col) {
                 ss[i++] = o.toString();
             }
-            join_str_enum(list, key, (String[]) ss);
+            join_enum(list, key, (String[]) ss);
         }
         // Array
         else if (v.getClass().isArray()) {
-            join_str_enum(list, key, (String[]) v);
+            join_enum(list, key, (String[]) v);
         }
         // Simple value
         else {
@@ -156,11 +156,11 @@ public abstract class WnMongos {
     }
 
     @SuppressWarnings("unchecked")
-    static void join_str_array(BasicDBList list, String key, Object v) {
+    static void join_array(BasicDBList list, String key, Object v) {
         if (v == null)
             return;
 
-        String[] ss;
+        Object[] ss;
 
         // Collection
         if (v instanceof Collection) {
@@ -173,7 +173,7 @@ public abstract class WnMongos {
         }
         // Array
         else if (v.getClass().isArray()) {
-            ss = (String[]) v;
+            ss = (Object[]) v;
         }
         // Simple value
         else {
@@ -209,13 +209,13 @@ public abstract class WnMongos {
         }
     }
 
-    static void join_str_enum(BasicDBList list, String key, String[] ss) {
+    static void join_enum(BasicDBList list, String key, Object[] ss) {
         ZMoDoc r = enum_to_Doc(key, ss);
         if (null != r)
             list.add(r);
     }
 
-    static ZMoDoc enum_to_Doc(String key, String[] ss) {
+    static ZMoDoc enum_to_Doc(String key, Object[] ss) {
         ZMoDoc r = null;
         // 单个值
         if (ss.length == 1) {
@@ -225,15 +225,15 @@ public abstract class WnMongos {
         else if (ss.length > 0) {
             // 指明 in
             if (ss[0].equals("in")) {
-                r = ZMoDoc.NEW().all(key, Arrays.copyOfRange(ss, 1, ss.length));
+                r = ZMoDoc.NEW().in(key, Arrays.copyOfRange(ss, 1, ss.length));
             }
             // 指明 all
             else if (ss[0].equals("all")) {
                 r = ZMoDoc.NEW().all(key, Arrays.copyOfRange(ss, 1, ss.length));
             }
-            // 默认用 all
+            // 默认用 in
             else {
-                r = ZMoDoc.NEW().all(key, ss);
+                r = ZMoDoc.NEW().in(key, ss);
             }
         }
         return r;
