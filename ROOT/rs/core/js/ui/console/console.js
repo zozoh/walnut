@@ -25,35 +25,32 @@ define(function (require, exports, module) {
     // View 的监听函数，this 为 View 本身
     var on_keydown_at_inbox = function (e) {
         var ele = e.currentTarget;
+        var UI = ZUI.checkInstance(ele);
         var me = $(ele);
         var isPassword = me.attr("type") == "password";
-        var Mod = this.model;
+        
         // 如果是 tab
         if (e.which == 9) {
             e.preventDefault();
         }
-        // 回车，清除历史
+        // 回车，添加历史记录，并清除索引
         else if (e.which == 13) {
-            Mod.resetCommandIndex();
+            var str = $.trim(me.val());
+            UI.history(str);
         }
         // 上箭头
         else if (e.which == 38) {
             e.preventDefault();
-            var s = Mod.prevCommand();
-            me.val(s);//[0].setSelectionRange(s.length, s.length);
-            //ele.value = s;
-            //ele.setSelectionRange(ele.value.length,ele.value.length)
-            //L(s.length + " : " + s)
-            //alert("haha")
-            //me.focus();
-            //ele.setSelectionRange(2, 2);
+            var s = UI.history(-1);
+            if(s)
+                me.val(s);
         }
         // 下箭头 
         else if (e.which == 40) {
             e.preventDefault();
-            var s = Mod.nextCommand();
-            me.val(s);
-            //me.val(s);//[0].setSelectionRange(s.length, s.length);
+            var s = UI.history(1);
+            if(s)
+                me.val(s);
         }
         // Ctrl+K 清除历史
         else if(e.which == 75 && e.metaKey){
@@ -82,8 +79,7 @@ define(function (require, exports, module) {
         //..............................................................
         // 模块启动的主函数
         redraw: function () {
-            var app = this.model.get("app");
-            this.model.trigger("cmd:wait", app.session);
+            this.on_cmd_wait();
         },
         //...................................................................
         resize: function () {
@@ -221,8 +217,7 @@ define(function (require, exports, module) {
         //...................................................................
         on_cmd_wait: function () {
             var UI = this;
-            var Mod = UI.model;
-            var app = Mod.get("app");
+            var app = UI.app();
             var se = app.session;
             this._watch_usr_input(se);
         },
@@ -273,7 +268,6 @@ define(function (require, exports, module) {
         //...................................................................
         _watch_usr_input: function (se) {
             var UI = this;
-            var Mod = UI.model;
             //var ps = "[" + se.me + "@" + _app.name + " " + Mod.cph + "]" + (se.me == "root" ? "#" : "$");
             //var ps = se.me + "@" + _app.name + "$ ";
             var ps = this._render_ps1(se);
@@ -286,12 +280,62 @@ define(function (require, exports, module) {
                 jBlock.remove();
 
                 // 进行判断 ...
-                Mod.trigger("cmd:exec", str, function () {
-                    Mod.trigger("cmd:wait", se);
+                UI.exec(str, {
+                    msgShow  : UI.on_show_txt,
+                    msgError : UI.on_show_err,
+                    msgEnd   : UI.on_show_end,
+                    complete : function () {
+                        this.on_cmd_wait();
+                    }
                 });
                 // 准备新的输入行
                 //UI._watch_usr_input(se);      
             });
+        },
+        //...................................................................
+        // 添加或者获取历史记录
+        history : function(obj){
+            // 获得自己本地的命令历史记录
+            var UI = this;
+            var history = [];
+            var session = UI.app().session;
+            var his_key = "console_" + session.me;
+            if (localStorage) {
+                history = $z.fromJson(localStorage.getItem(his_key) || "[]");
+            }
+            // 添加历史记录
+            if(typeof obj == "string"){
+                var s = $.trim(obj);
+                if(s){
+                    history.push(obj);
+                    // 最多记录  1000 个历史
+                    var n = 1000;
+                    if(history.length>n){
+                        history = history.slice(history.length - n, history.length);
+                    }
+                    localStorage.setItem(his_key, $z.toJson(history));
+                    //localStorage.setItem(his_key, "[]");
+                }
+                UI.$el.removeAttr("console-his-index");
+                return history.length;
+            }
+
+            // 如果没有历史记录，返回空
+            if(history.length == 0)
+                return null;
+
+            // 那么必然就是获取历史信息咯, 向前是 -1 向后是  1
+            var off = obj>0 ? 1 : -1;
+            // 获取当前的索引信息
+            var indexAttr = UI.$el.attr("console-his-index");
+            var index = off + ( indexAttr ? indexAttr*1 : history.length);
+
+            // 取不到历史记录
+            if(index<0 || index >= history.length)
+                return null;
+            // 记录索引并返回内容
+            UI.$el.attr("console-his-index", index);
+            return history[index];
         }
         //...................................................................
     });
