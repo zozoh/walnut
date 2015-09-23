@@ -272,6 +272,7 @@ define(function (require, exports, module) {
             //var ps = se.me + "@" + _app.name + "$ ";
             var ps = this._render_ps1(se);
             UI._prompt(ps, function (str, jBlock) {
+                str = $.trim(str);
                 // 显示旧的输入行
                 var jq = UI.ccode("prompt.read");
                 jq.find('.ui-console-ps').text(ps);
@@ -279,13 +280,36 @@ define(function (require, exports, module) {
                 UI.arena.append(jq);
                 jBlock.remove();
 
-                // 进行判断 ...
+                // 退出登录
+                if ("exit" == str) {
+                    $.get("/u/do/logout", function (re) {
+                        window.location = "/";
+                    });
+                    return;
+                }
+                // 清屏幕
+                if ("clear" == str) {
+                    UI.clearScreen();
+                    return;
+                }
+                // 打开
+                var m = str.match(/(open)([ \t]+)([0-9a-zA-Z_.-]{1,})(([ \t]+)(.+))?/);
+                if (m) {
+                    if (m[6])
+                        $z.openUrl("/a/open/" + m[3] + ":" + m[6]);
+                    else
+                        $z.openUrl("/a/open/" + m[3]);
+                    UI.on_cmd_wait();
+                    return;
+                }
+
+                // 处理命令
                 UI.exec(str, {
                     msgShow  : UI.on_show_txt,
                     msgError : UI.on_show_err,
                     msgEnd   : UI.on_show_end,
                     complete : function () {
-                        this.on_cmd_wait();
+                        UI.on_cmd_wait();
                     }
                 });
                 // 准备新的输入行
