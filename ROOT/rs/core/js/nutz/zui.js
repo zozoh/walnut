@@ -271,7 +271,7 @@ define(function (require, exports, module) {
                     if (typeof afterRender === "function") {
                         afterRender.call(ME);
                     }
-                    ME.resize();
+                    ME.resize(true);
                 };
                 // 看看是否需要解析 DOM
                 if (ME.$ui.dom) {
@@ -308,7 +308,7 @@ define(function (require, exports, module) {
             }
         },
         // 修改 UI 的大小
-        resize: function () {
+        resize: function (deep) {
             var ME = this;
 
             // 如果是选择自适应
@@ -345,12 +345,13 @@ define(function (require, exports, module) {
                 $z.invoke(ME.$ui, "resize", [], ME);
 
                 // 调用自身所有的子 UI 的 resize
-                for (var key in ME.gasket) {
-                    var sub = ME.gasket[key];
-                    sub.ui.forEach(function(ui){
-                        ui.resize();
-                    });
-                }
+                if(deep)
+                    for (var key in ME.gasket) {
+                        var sub = ME.gasket[key];
+                        sub.ui.forEach(function(ui){
+                            ui.resize();
+                        });
+                    }
             }
         },
         // 监听一个事件
@@ -658,7 +659,7 @@ define(function (require, exports, module) {
         $(window).resize(function () {
             for (var i = 0; i < window.ZUI.tops.length; i++) {
                 var topUI = window.ZUI.tops[i];
-                topUI.resize();
+                topUI.resize(true);
             }
         });
         // 快捷键
