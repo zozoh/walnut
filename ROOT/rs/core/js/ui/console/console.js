@@ -64,6 +64,7 @@ define(function (require, exports, module) {
     };
 
     //=======================================================================
+    var Wn  = require("wn/util");
     var ZUI = require("zui");
     module.exports = ZUI.def("ui.console", {
         dom: "ui/console/console.html",
@@ -217,7 +218,7 @@ define(function (require, exports, module) {
         //...................................................................
         on_cmd_wait: function () {
             var UI = this;
-            var app = UI.app();
+            var app = Wn.app();
             var se = app.session;
             this._watch_usr_input(se);
         },
@@ -304,7 +305,8 @@ define(function (require, exports, module) {
                 }
 
                 // 处理命令
-                UI.exec(str, {
+                Wn.exec(str, {
+                    context  : UI,
                     msgShow  : UI.on_show_txt,
                     msgError : UI.on_show_err,
                     msgEnd   : UI.on_show_end,
@@ -322,7 +324,7 @@ define(function (require, exports, module) {
             // 获得自己本地的命令历史记录
             var UI = this;
             var history = [];
-            var session = UI.app().session;
+            var session = Wn.app().session;
             var his_key = "console_" + session.me;
             if (localStorage) {
                 history = $z.fromJson(localStorage.getItem(his_key) || "[]");
