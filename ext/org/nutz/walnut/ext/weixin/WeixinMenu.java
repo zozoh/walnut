@@ -6,17 +6,17 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.ZParams;
 import org.nutz.weixin.spi.WxApi2;
 import org.nutz.weixin.spi.WxResp;
 
 public class WeixinMenu {
 
-    public void handle(WnSystem sys, String str, String pnb) {
-        // 得到微信的配置目录
-        WnObj wxHome = sys.io.check(null, Wn.normalizeFullPath("~/.weixin/" + pnb, sys));
+    public void handle(WnSystem sys, ZParams params) {
+        String str = params.check("menu");
 
         // 创建微信 API
-        WxApi2 wxApi = new WnIoWeixinApi(sys.io, wxHome);
+        WxApi2 wxApi = WxUtil.newWxApi(sys, params);
 
         WxResp resp;
         // 删除菜单

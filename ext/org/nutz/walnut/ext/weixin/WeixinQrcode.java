@@ -6,9 +6,7 @@ import org.nutz.http.Http;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.weixin.spi.WxApi2;
 import org.nutz.weixin.spi.WxResp;
@@ -38,14 +36,8 @@ public class WeixinQrcode {
             return;
         }
 
-        // 需要用到公众号的 API 了，先得到公众号
-        String pnb = params.check("pnb");
-
-        // 得到微信的配置目录
-        WnObj wxHome = sys.io.check(null, Wn.normalizeFullPath("~/.weixin/" + pnb, sys));
-
         // 创建微信 API
-        WxApi2 wxApi = new WnIoWeixinApi(sys.io, wxHome);
+        WxApi2 wxApi = WxUtil.newWxApi(sys, params);
 
         JsonFormat df = JsonFormat.nice().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         // 临时二维码

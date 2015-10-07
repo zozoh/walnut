@@ -36,14 +36,10 @@ public abstract class cmd_xxxsum extends JvmExecutor {
             }
         }
         // 如果有管道输入
-        else if (sys.pipeId > 0) {
+        else {
             InputStream ins = sys.in.getInputStream();
             String _sum = sum(ins);
             sys.out.println(_sum);
-        }
-        // 否则
-        else {
-            sys.err.println("!no input!");
         }
     }
 

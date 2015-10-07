@@ -29,6 +29,24 @@ import org.w3c.dom.Document;
 public class WnIoImplTest extends BaseIoTest {
 
     @Test
+    public void test_get_meta_directly() {
+        WnObj o = io.create(null, "/abc", WnRace.FILE);
+        o.setv("x", 100);
+        o.setv("y", 4000);
+        o.setv("map", "{txt:'haha'}");
+        io.set(o, "^(x|y|map)$");
+
+        String id = o.id();
+
+        assertEquals(100, io.getInt(id, "x", -1));
+        assertEquals(4000, io.getLong(id, "y", -1));
+        assertEquals("abc", io.getString(id, "nm", null));
+        NutMap map = io.getAs(id, "map", NutMap.class, null);
+        assertEquals(1, map.size());
+        assertEquals("haha", map.get("txt"));
+    }
+
+    @Test
     public void test_write_empty_text() {
         WnObj o = io.create(null, "/abc", WnRace.FILE);
         io.writeText(o, "AA");

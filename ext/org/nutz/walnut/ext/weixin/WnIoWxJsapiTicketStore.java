@@ -18,7 +18,7 @@ public class WnIoWxJsapiTicketStore implements WxJsapiTicketStore {
 
     @Override
     public WxJsapiTicket get() {
-        WnObj oAt = io.fetch(home, "token");
+        WnObj oAt = io.fetch(home, "jsapi_ticket");
         if (null != oAt) {
             WxJsapiTicket wat = new WxJsapiTicket();
             wat.setTicket(oAt.getString("wx_jt_ticket"));

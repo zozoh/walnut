@@ -36,7 +36,8 @@ define(function (require, exports, module) {
         // 回车，添加历史记录，并清除索引
         else if (e.which == 13) {
             var str = $.trim(me.val());
-            UI.history(str);
+            if(!/^(exit|clear)$/g.test(str))
+                UI.history(str);
         }
         // 上箭头
         else if (e.which == 38) {

@@ -37,6 +37,8 @@ tags:
         appID      : 'wx0d4caad29f23b326',
         appsecret  : 'd68d9507835139b0e21d28b4806c1aa7',
         token      : 'TOKEN',
+        jsSdkUrl   : "http://...",     // 对于JS-SDK默认的URL
+        jsApiList  : [..],             // 对于JS-SDK默认的api列表 
         // 一个数组声明了如何处理微信输入消息
         // 如果一旦匹配，就会退出循环，如果找不到匹配，会返回标准回复信息
         handlers : [

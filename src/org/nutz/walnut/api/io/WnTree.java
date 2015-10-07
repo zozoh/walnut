@@ -33,13 +33,21 @@ public interface WnTree extends UnitTestable {
      * 
      * @param id
      *            对象 ID
-     * @param metaName
+     * @param key
      *            元数据名称
      * @param val
      *            修改的值
      * @return 修改前的值
      */
-    int inc(String id, String metaName, int val);
+    int inc(String id, String key, int val);
+
+    int getInt(String id, String key, int dft);
+
+    long getLong(String id, String key, long dft);
+
+    String getString(String id, String key, String dft);
+
+    <T> T getAs(String id, String key, Class<T> classOfT, T dft);
 
     WnObj createIfNoExists(WnObj p, String path, WnRace race);
 

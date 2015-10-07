@@ -1,0 +1,10 @@
+.ui-otable table {
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+.ui-otable td {
+    padding:6px;
+}
+
+.otable-row-actived {background: #FDA;}

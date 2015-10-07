@@ -160,12 +160,27 @@ public abstract class AbstractWnTree implements WnTree {
             p = root.clone();
         }
 
+        // 尝试从后查找，如果有 id:xxx 那么就截断，因为前面的就木有意义了
+        for (int i = toIndex - 1; i >= fromIndex; i--) {
+            String nm = paths[i];
+            if (nm.startsWith("id:")) {
+                p = this.checkById(nm.substring(3));
+                fromIndex = i + 1;
+                break;
+            }
+        }
+
         // 用尽路径元素了，则直接返回
         if (fromIndex >= toIndex)
             return p;
 
         // 确保读取所有的父
         p.loadParents(null, false);
+
+        // 确保是目录
+        if (!p.isDIR()) {
+            p = p.parent();
+        }
 
         // 得到节点检查的回调接口
         WnContext wc = Wn.WC();
@@ -197,7 +212,14 @@ public abstract class AbstractWnTree implements WnTree {
             }
 
             nm = paths[i];
-            if (nm.equals("..")) {
+
+            // 就是当前
+            if (".".equals(nm)) {
+                continue;
+            }
+
+            // 回退一级
+            if ("..".equals(nm)) {
                 nd = p.parent();
                 p = nd;
                 continue;
@@ -241,12 +263,17 @@ public abstract class AbstractWnTree implements WnTree {
 
         // 最后再检查一下目标节点
         nm = paths[rightIndex];
-        
+
         // 纯粹返回上一级
-        if(nm.equals("..")){
+        if (nm.equals("..")) {
             return p.parent();
         }
-        
+
+        // 因为支持回退上一级，所以有可能 p 为空
+        if (null == p) {
+            p = root.clone();
+        }
+
         // 目标是通配符或正则表达式
         if (nm.startsWith("^") || nm.contains("*")) {
             WnQuery q = Wn.Q.pid(p).setv("nm", nm).limit(1);

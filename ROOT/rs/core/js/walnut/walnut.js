@@ -165,8 +165,10 @@ define(function (require, exports, module) {
                     }
                 }
             };
-            oReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            oReq.send("cmd=" + cmdText);
+            // oReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            // oReq.send("cmd=" + cmdText);
+            oReq.setRequestHeader("Content-type", "text/html");
+            oReq.send(cmdText);
         }
     };
     //===================================================================

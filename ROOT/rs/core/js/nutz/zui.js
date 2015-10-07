@@ -1,133 +1,3 @@
-/*
- 这里声明一个 UI 模块，这个模块就是一个工厂类，用来构建各个 UI 的实例
- 每一个 UI 的实例都是一个 Backbone.View 它的数据结构
-
- ```
- {
-
- //---------------------------------------------------
- // 下面这些属性都由调用者在 new 的时候提供
- //  * 其中 `$pel` 和 `parent/gasketName` 互斥，优先级低
- //  * model 是可选的，但大多数消息驱动的 UI 都需要它
- //---------------------------------------------------
- uiName     : "ui.name"  // UI 类型名
- cid        : "v1"       // Backbone 生成的实例ID
- tagName    : "div"      // 本UI的顶级DOM节点是什么标签，默认DIV
- className  : ".."       // 顶级DOM节点的类选择器，默认采用uiName
-
- $pel       : $<..>      // 本 UI 附着在哪个 DOM 节点上
- $el        : $<..>      // 本 UI 的顶级 DOM 节点是什么
-
- parent     : UI(..)     // 父 UI 的实例
- gasketName : ".."       // UI 所在的父元素的扩展点名称
- model      : {..}       // 本 UI 对应的 Backbone Model 是什么
- //---------------------------------------------------
- // 记录了自己的扩展点的名称，以及对应的 DOM
- // 这个属性由 parseDom 函数来生成，即 ui 的实例的 $ui.init 函数
- // 需要主动调用 parseDom 来生成下面两个属性
- //---------------------------------------------------
- gasket    : {
- "chute" : $<..>
- "arena" : $<..>
- },
- //---------------------------------------------------
- // 存放多国语言字符串
- //---------------------------------------------------
- _msg_map : {
- ...
- }
- //---------------------------------------------------
- // 下面这些属性都由 ZUI 的工厂函数(ZUI.def)提供
- // UI 的实现者不可私自修改 !!!
- //---------------------------------------------------
- initialize  : func(){..}   // Backbone.View 的初始化函数
- destroy     : func(){..}   // UI 的释放资源函数
- watchKey    : func(){..}   // 监听快捷键
- unwatchKey  : func(){..}   // 取消监听快捷键
- listenModel : func(){..}   // 监听模块消息
- msg         : func(){..}   // 得到本地化字符串
- resize      : func(){..}   // 将自身设置为符合父选区的大小
- //---------------------------------------------------
- // 视图的渲染方法，实际上这是视图的主要渲染逻辑
- // 它最终会调用 $ui.redraw 方法完成视图的最终显示
- // 在这之前，它会根据视图的自身属性，进行代码模板等资源的加载
- // 这些加载(尤其是本地化字符串的加载)是异步的
- // 因此，调用完 render 并不能马上得到渲染的结果
- //---------------------------------------------------
- render      : func(){..}
- //---------------------------------------------------
- // Backbone.View 的事件监听
- // 所有的方法的 this 都是 ui 实例本身
- events      : {...}
- //---------------------------------------------------
- // 下面这些属性在 ZUI.def 的时候，由UI实现者提供
- // 这些构成了 UI 的主要业务逻辑
- // 所有的方法的 this 都是 ui 实例本身
- $ui         : {
- css     : "/path/to/css" | ["path1", "path2"],
- // DOM 字段可以是一个 URI，这样 ZUI 会用类加载器去向服务器请求这个资源
- // 由于 seajs 用的是 xhr，那么就会有跨域的问题，为此，这个字段
- // 也可以是一个 HTML 代码本身，只要开头和结尾都有块注释
- // 即， /* 和 * / 包裹，那么中间的内容会被 ZUI 当做你的代码模板，
- // 它就不会去加载，而是直接使用你的这段 HTML
- dom     : "/path/to/html",
-
- // 指定了本 UI 所用的多国语言字符串
- // 同时，如果值为 ".." 则表示采用父 UI 的多国语言字符串集合
- i18n    : "app/abc/i18n/{{lang}}.json",
-
- // 初始化函数，UI 可以在其中加载自己需要的资源
- //  @ 会被 initialize 在实例构造时调用
- init    : func(){..},
-
- // UI 的主要绘制逻辑
- redraw  : func(){..},
-
- // 释放 UI 的资源
- //  @ 会被 destroy 在实例销毁的时候调用
- depose  : func(){..},
-
- // 修改自身大小以适应选区
- //  @ 会被 resize 在适当的时候调用
- resize  : func(){..},
- }
- }
- ```
-
- 任何一个 UI 都可以用如下方法定义，第二个参数就是 UI 的 conf
-
- ```
- var UI = ZUI.def("ui.name", {
- // Backbone.View 需要的事件映射
- events : {...},
- // ZUI 需要的特殊属性
- css     : "/path/to/css" | ["path1", "path2"],
- dom     : "/path/to/html",
- i18n : "app/abc/i18n/{{lang}}.json",
- init    : func(){..}
- redraw  : func(){..}
- depose  : func(){..}
- resize  : func(){..}
-
- // 随便你添加更多的方法和属性了
- on_xxxx : func(){..}
- x : 2.16,
- y : 9.21
- });
- ```
-
- 并用下面的方法生成实例
-
- ```
- var ui = new UI({
- $pel       : <..>
- parent     : UI(..)
- gasketName : ".."
- model      : {..}
- ... UI 的特殊配置 ...
- });
- ```
- */
 define(function (require, exports, module) {
     //console.log("***************** define the ZUI ***********************");
     //console.log(module);
@@ -172,26 +42,27 @@ define(function (require, exports, module) {
         // DOM 解析完成
     };
 
-    // 输出模块 ZUI，同时全局也声明一个 ZUI 变量
-    var ZUI = exports;
-    window.ZUI = ZUI;
     // 定义一个 UI 的原型
     var ZUIPrototype = {
         // Backbone.View 的初始化函数
         initialize: function (options) {
-            var ME = this;
+            var UI = this;
             // 初始化必要的内部字段
-            ME._code_templates = {};  // 代码模板
-            ME._watch_keys = {};
-            ME.options = options;
-            ME.parent = options.parent;
-            ME.gasketName = options.gasketName;
+            UI._nutz_ui = "1.a.0";
+            UI.uiKey = options.uiKey;
+            UI._code_templates = {};  // 代码模板
+            UI._watch_keys = {};
+            UI.options = options;
+            UI.parent = options.parent;
+            UI.gasketName = options.gasketName;
+
+            UI.$el.attr(options.theme || "w0");
 
             // 考虑将自己组合到自己的父插件
-            if (ME.parent && ME.gasketName) {
-                var gas = ME.parent.gasket[ME.gasketName];
+            if (UI.parent && UI.gasketName) {
+                var gas = UI.parent.gasket[UI.gasketName];
                 if (!gas)
-                    throw "Fail to found gasket '" + ME.gasketName + "'";
+                    throw "Fail to found gasket '" + UI.gasketName + "'";
                 // 如果已经存在了插件，是否需要释放
                 if(!gas.multi && gas.ui.length>0) {
                     gas.ui.forEach(function(ui){
@@ -200,90 +71,159 @@ define(function (require, exports, module) {
                     gas.ui = [];
                 }
                 // 将自己添加到父插件
-                gas.ui.push(ME);
-                ME.$pel = gas.jq;
-                ME.pel = gas.jq[0];
+                gas.ui.push(UI);
+                UI.$pel = gas.jq;
+                UI.pel = gas.jq[0];
             }
             // 采用给定的父，如果没指定父，则直接添加到 document.body 上
             else {
-                ME.$pel = options.$pel || $(document.body);
-                ME.pel = ME.$pel[0];
+                UI.$pel = options.$pel || $(document.body);
+                UI.pel = UI.$pel[0];
             }
             // 加入 DOM 树
-            ME.$pel.append(ME.$el);
+            UI.$pel.append(UI.$el);
 
             // 记录自身实例
-            ME.$el.attr("ui-id", ME.cid);
-            ZUI.instances[ME.cid] = ME;
-            if (document.body == ME.pel) {
-                window.ZUI.tops.push(ME);
+            UI.$el.attr("ui-id", UI.cid);
+            ZUI.instances[UI.cid] = UI;
+            if (document.body == UI.pel || !UI.parent) {
+                window.ZUI.tops.push(UI);
             }
 
-            // 调用子类自定义的 init
-            if (typeof ME.$ui.init == 'function')
-                ME.$ui.init.call(ME, options);
+            // 确定 uiKey，并用其索引自身实例
+            if(UI.uiKey){
+                if(ZUI.getByKey(UI.uiKey)){
+                    throw 'UI : uiKey="'+uiKey+'" exists!!!';
+                }
+                ZUI._uis[UI.uiKey] = UI;
+                // 看看有没有要延迟监听的
+                var dl = ZUI._defer_listen[UI.uiKey];
+                if(dl){
+                    for(var i in dl){
+                        var dlo = dl[0];
+                        dlo.context.listenUI(UI, dlo.event, dlo.handler);
+                    }
+                    delete ZUI._defer_listen[UI.uiKey];
+                }
+            }
 
+            // 调用子类自定义的 init，以及触发事件
+            $z.invoke(UI.$ui, "init", [options], UI);
+            $z.invoke(UI.options, "on_init", [], UI);
+            UI.trigger("ui:init", UI);
+
+            // 最后调用自定义的 UI 监听
+            if(UI.options.do_ui_listen){
+                for(var key in UI.options.do_ui_listen){
+                    var m = /^([^ ]+)[ ]+(.+)$/.exec(key);
+                    if(null==m){
+                        throw "wrong do_ui_listen key: " + key;
+                    }
+                    var handle = UI.options.do_ui_listen[key];
+                    if(!_.isFunction(handle)){
+                        handle = UI[handle];
+                    }
+                    UI.listenUI(m[1], m[2], handle);
+                }
+            }
         },
         destroy: function () {
+            var UI = this;
+            // 触发事件
+            $z.invoke(UI.options, "on_depose", [], UI);
+            UI.trigger("ui:depose", UI);
+
             // 释放掉自己所有的子
-            for (var key in this.gasket) {
-                var sub = this.gasket[key];
+            for (var key in UI.gasket) {
+                var sub = UI.gasket[key];
                 sub.ui.forEach(function(ui){
                     ui.destroy();
                 }); 
             }
-            this.gasket = {};
+            UI.gasket = {};
             // 移除自己的监听事件
-            for (var key in this._watch_keys) {
+            for (var key in UI._watch_keys) {
                 delete ZUI.keymap[key];
             }
             // 释放掉自己
-            $z.invoke(this.$ui, "depose", [], this);
+            $z.invoke(UI.$ui, "depose", [], UI);
 
             // 删除自己的 DOM 节点
-            $z.invoke(this.$el, "undelegate", []);
-            this.$el.off().remove();
+            $z.invoke(UI.$el, "undelegate", []);
+            UI.$el.off().remove();
             // 移除注册
-            delete ZUI.instances[this.cid];
+            delete ZUI.instances[UI.cid];
+            // 移除 uiKey
+            if(UI.uiKey){
+                delete ZUI._uis[UI.uiKey];
+            }
+
             // 删除顶级节点记录
             var list = [];
             ZUI.tops.forEach(function(top){
-                if (top != this)
+                if (top != UI)
                     list.push(top)
-            }, this);
+            }, UI);
             ZUI.tops = list;
-
         },
         // 渲染自身
         render: function (afterRender) {
-            var ME = this;
+            var UI = this;
             // 加载 CSS
-            if (ME.$ui.css) {
-                seajs.use(ME.$ui.css);
+            if (UI.$ui.css) {
+                seajs.use(UI.$ui.css);
             }
             // 看看是否需要异步加载多国语言字符串
             var callback = function (mm) {
                 // 存储多国语言字符串
-                ME._msg_map = $z.extend(_.extend({}, ZUI.g_msg_map), mm || {});
+                UI._msg_map = $z.extend(_.extend({}, ZUI.g_msg_map), 
+                                        UI.parent ?  UI.parent._msg_map : {},
+                                        mm || {});
+                // 用户自定义 redraw 执行完毕的处理
+                var do_after_redraw = function(){
+                    //console.log("!!!!! do_after_redraw:", UI.uiName, UI._defer_uiTypes)
+                    // 回调
+                    if (typeof afterRender === "function") {
+                        afterRender.call(UI);
+                    }
+
+                    // 触发事件
+                    $z.invoke(UI.options, "on_redraw", [], UI);
+                    UI.trigger("ui:redraw", UI);
+
+                    // 因为重绘了，看看有木有必要重新计算尺寸
+                    UI.resize(true);
+                };
                 // 定义后续处理
                 var do_render = function () {
-                    $z.invoke(ME.$ui, "redraw", [], ME);
-                    if (typeof afterRender === "function") {
-                        afterRender.call(ME);
+                    // 调用UI的特殊重绘方法，如果方法返回了一组 ui 的类型，那么就表示
+                    // 用户在方法里采用了异步还要加载这组 UI
+                    // 加载完毕后，调用者需要主动在自己的 redraw 函数里，调用 
+                    //  UI.defer_report(i, uiType)
+                    // 标识加载完成，待全部异步加载的 UI 完成后，会调才会调用 do_after_redraw
+                    var uiTypes = $z.invoke(UI.$ui, "redraw", [], UI);
+                    if(!uiTypes || uiTypes.length == 0){
+                        do_after_redraw();
                     }
-                    ME.resize(true);
+                    // 哦？ 是异步的绘制，那么先存储一下回调，等待 UI 全部加载完再调用
+                    else {
+                        UI._defer_do_after_redraw = do_after_redraw;
+                        UI._defer_uiTypes = uiTypes;
+                        UI._check_defer_done("redraw");
+                    }
+                    //console.log("do_render:", UI.uiName, UI._defer_uiTypes)
                 };
                 // 看看是否需要解析 DOM
-                if (ME.$ui.dom) {
+                if (UI.$ui.dom) {
                     // DOM 片段本身就是一段 HTML 代码 
-                    if (/^\/\*.+\*\/$/m.test(ME.$ui.dom.replace(/\n/g, ""))) {
-                        parse_dom.call(ME, ME.$ui.dom.substring(2, ME.$ui.dom.length - 2));
+                    if (/^\/\*.+\*\/$/m.test(UI.$ui.dom.replace(/\n/g, ""))) {
+                        parse_dom.call(UI, UI.$ui.dom.substring(2, UI.$ui.dom.length - 2));
                         do_render();
                     }
                     // DOM 片段存放在另外一个地址
                     else {
-                        require.async(ME.$ui.dom, function (html) {
-                            parse_dom.call(ME, html);
+                        require.async(UI.$ui.dom, function (html) {
+                            parse_dom.call(UI, html);
                             do_render();
                         });
                     }
@@ -294,25 +234,51 @@ define(function (require, exports, module) {
                 }
             };
             // 采用父 UI 的字符串
-            if (".." == ME.$ui.i18n) {
-                callback(ME.parent._msg_map);
+            if (".." == UI.$ui.i18n) {
+                callback({});
             }
             // 采用自己的字符串
-            else if (ME.$ui.i18n) {
-                ME.$ui.i18n = _.template(ME.$ui.i18n)({lang: window.$zui_i18n || "zh-cn"});
-                require.async(ME.$ui.i18n, callback);
+            else if (UI.$ui.i18n) {
+                UI.$ui.i18n = _.template(UI.$ui.i18n)({lang: window.$zui_i18n || "zh-cn"});
+                require.async(UI.$ui.i18n, callback);
             }
             // 空的
             else {
                 callback({});
             }
+            // 返回自身
+            return UI;
+        },
+        // 汇报自己完成了哪个延迟加载的 UI
+        defer_report : function(i, uiType){
+            var UI = this;
+            if(!UI._loaded_uiTypes)
+                UI._loaded_uiTypes = [];
+            UI._loaded_uiTypes[i] = uiType;
+            UI._check_defer_done("" + i + uiType);
+        },
+        _check_defer_done : function(msg){
+            var UI = this;
+            if(UI._loaded_uiTypes && UI._defer_uiTypes && UI._defer_do_after_redraw){
+                if(UI._loaded_uiTypes.length == UI._defer_uiTypes.length){
+                    for(var i=0; i<UI._loaded_uiTypes.length; i++){
+                        if(UI._loaded_uiTypes[i] != UI._defer_uiTypes[i]){
+                            return;
+                        }
+                    }
+                    UI._defer_do_after_redraw.call(UI);
+                    delete UI._defer_uiTypes;
+                    delete UI._loaded_uiTypes;
+                    delete UI._defer_do_after_redraw;
+                }
+            }
         },
         // 修改 UI 的大小
         resize: function (deep) {
-            var ME = this;
+            var UI = this;
 
             // 如果是选择自适应
-            if (ME.options.fitself) {
+            if (UI.options.fitself) {
                 return;
             }
 
@@ -320,10 +286,10 @@ define(function (require, exports, module) {
             // 父 UI resize 的时候会同时 resize 子
             // 但是自己这时候还没有初始化完 DOM (异步加载)
             // 那么自己的 arena 就是未定义，因此不能继续执行 resize
-            if (ME.arena) {
+            if (UI.arena) {
                 // 需要调整自身，适应父大小
-                if (ME.options.fitparent === true
-                    || (ME.options.fitparent !== false && ME.arena.attr("ui-fitparent"))) {
+                if (UI.options.fitparent === true
+                    || (UI.options.fitparent !== false && UI.arena.attr("ui-fitparent"))) {
                     // 调整自身的顶级元素
                     var w, h;
                     if (this.pel === document.body) {
@@ -331,23 +297,30 @@ define(function (require, exports, module) {
                         w = winsz.width;
                         h = winsz.height;
                     } else {
-                        w = ME.$pel.width();
-                        h = ME.$pel.height();
+                        w = UI.$pel.width();
+                        h = UI.$pel.height();
                     }
-                    ME.$el.css({"width": w, "height": h});
+                    UI.$el.css({
+                        "width": w, 
+                        "height": h
+                    });
+                    UI.arena.css({
+                        "width": UI.$el.width(), 
+                        "height": UI.$el.height()
+                    });
                 }
 
-                var w2 = ME.$el.width();
-                var h2 = ME.$el.height();
-                ME.arena.css({"width": w2, "height": h2});
-
                 // 调用自身的 resize
-                $z.invoke(ME.$ui, "resize", [], ME);
+                $z.invoke(UI.$ui, "resize", [deep], UI);
+
+                // 触发事件
+                $z.invoke(UI.options, "on_resize", [], UI);
+                UI.trigger("ui:resize", UI);
 
                 // 调用自身所有的子 UI 的 resize
                 if(deep){
-                    for (var key in ME.gasket) {
-                        var sub = ME.gasket[key];
+                    for (var key in UI.gasket) {
+                        var sub = UI.gasket[key];
                         sub.ui.forEach(function(ui){
                             ui.resize(deep);
                         });
@@ -356,9 +329,9 @@ define(function (require, exports, module) {
             }
         },
         // 监听一个事件
-        // ui.watchKey(27, "ctrl", func(){..})
-        // ui.watchKey(27, ["ctrl","meta"], func(){..})
-        // ui.watchKey(27, func(){..})
+        // ui.watchKey(27, "ctrl", F(..))
+        // ui.watchKey(27, ["ctrl","meta"], F(..))
+        // ui.watchKey(27, F(..))
         watchKey: function (which, keys, handler) {
             var key;
             // 没有特殊 key
@@ -418,22 +391,100 @@ define(function (require, exports, module) {
         // 得到多国语言字符串
         msg: function (key, ctx) {
             var re = this._msg_map;
-            var ks = key.split(".");
-            for (var i = 0; i < ks.length; i++) {
-                re = re[ks[i]];
-                if (!re) return key;
+            var re = $z.getValue(this._msg_map, key);
+            if(!re){
+                return key;
             }
             // 需要解析
-            if (typeof ctx == "object") {
+            if (re && _.isObject(ctx)) {
                 re = (_.template(re))(ctx);
             }
             return re;
         },
-        // 监听模块事件
-        listenModel: function (event, handler) {
-            if (this.model)
-                this.listenTo(this.model, event, handler);
+        // 对一个字符串进行文本转移，如果是 i18n: 开头采用 i18n
+        text: function(str, ctx){
+            // 多国语言
+            if(/^i18n:.+$/g.test(str)){
+                return this.msg(str.substring(5), ctx);
+            }
+            // 字符串模板
+            if(str && _.isObject(ctx)){
+                return (_.template(str))(ctx);
+            }
+            // 普通字符串
+            return str;
         },
+        // 处理一个对象的字段，将其记录成特殊显示的值
+        eval_obj_display : function(obj, displayMap){
+            if(!_.isObject(obj))
+                return;
+            if(!_.isObject(displayMap))
+                return;
+            obj._display = {};
+            for(var key in displayMap){
+                var val = obj[key];
+                var str = displayMap[key][val];
+                if(/^i18n:.+$/g.test(str)){
+                    str = this.msg(str.substring(5));
+                }
+                obj._display[key] = str || val;
+            }
+        },
+        // 字段显示方式可以是模板或者回调，这个函数统一成一个方法
+        eval_tmpl_func : function(obj, nm){
+            var F = obj ? obj[nm] : null;
+            if(!F)
+                return null;
+            return _.isFunction(F) ? F : _.template(F);
+        },
+        // 监听本 UI 的模块事件
+        listenModel: function (event, handler) {
+            this._listen_to(this.model, event, handler);
+        },
+        // 监听本 UI 的父UI事件
+        listenParent : function(event, handler) {
+            this._listen_to(this.parent, event, handler);
+        },
+        // 监听某个 UI 的事件
+        listenUI : function(uiKey, event, handler) {
+            // 给的就是一个 UI 实例，那么直接监听了
+            if(uiKey._nutz_ui){
+                this._listen_to(uiKey, event, handler);
+            }
+            // 否则看看是不是需要推迟建立
+            else{
+                var taUI = ZUI.getByKey(uiKey);
+                // 不需要推迟
+                if(taUI) {
+                    this._listen_to(taUI, event, handler);       
+                }
+                // 暂存
+                else {
+                    var dl = ZUI._defer_listen[uiKey];
+                    if(!dl){
+                        dl = [];
+                        ZUI._defer_listen[uiKey] = dl;
+                    }
+                    dl.push({
+                        event : event, 
+                        handler : handler,
+                        context : this
+                    });
+                }
+            }
+        },
+        // 监听某个 backbone 的模块消息 
+        _listen_to: function (target, event, handler) {
+            if (target){
+                // 如果给的是一个字符串，那么就表示当前对象的一个方法
+                // 支持 . 访问子对象
+                if(_.isString(handler)){
+                    handler = $z.getValue(this, handler);
+                }
+                this.listenTo(target, event, handler);
+            }
+        },
+        // 监听父UI的事件
         // 返回一个对应的 DOM 节点的克隆
         ccode: function (codeId) {
             var jq = this._code_templates[codeId];
@@ -465,12 +516,35 @@ define(function (require, exports, module) {
         }
     };
 
+    // ZUI 就是一个处理方法 
+    var ZUI = function(arg0, arg1){
+        // 定义
+        if(_.isString(arg0) && _.isObject(arg1)){
+            return this.def(arg0, arg1);
+        }
+        // 获取实例
+        else if(_.isElement(arg0) || (arg0 instanceof jQuery)){
+            return arg1 ? this.checkInstance(arg0)
+                        : this.getInstance(arg0);
+        }
+        // 根据 uiKey
+        else if(_.isString(arg0)){
+            return arg1 ? this.checkByKey(arg0)
+                        : this.getByKey(arg0);
+        }
+        // 未知处理
+        throw "Unknown arg0 : " + arg0 + ", arg1" + arg1;
+    };
     // 初始化 ZUI 工厂类对象
     /*这些字段用来存放 UI 相关的运行时数据*/
     ZUI.keymap = {};
     ZUI.tops = [];
     ZUI.definitions = {};
-    ZUI.instances = {};
+    ZUI.instances = {};  // 根据cid索引的 UI 实例
+    ZUI._uis = {};       // 根据键值索引的 UI 实例，没声明 key 的 UI 会被忽略
+    // 如果监听一个 UI 的键值，但是这个 UI 的实例因为异步还没有被加载
+    // 那么，先暂存到这个属性里，当 UI 实例被加载完毕了，会自动应用这个监听的
+    ZUI._defer_listen = {}
 
     // 这个函数用来定义一个 UI 模块，返回一个 Backbone.View 的类用来实例化
     ZUI.def = function (uiName, conf) {
@@ -485,7 +559,7 @@ define(function (require, exports, module) {
             };
             // 将 UI 的保留方法放入 $ui 中，其余 copy
             for (var key in conf) {
-                if (/^(css|dom|i18n|init|redraw|depose|resize)$/.test(key)) {
+                if (/^(css|dom|i18n|init|redraw|depose|resize)$/g.test(key)) {
                     viewOptions.$ui[key] = conf[key];
                 } else {
                     viewOptions[key] = conf[key] || viewOptions[key];
@@ -504,6 +578,16 @@ define(function (require, exports, module) {
     };
 
     // 根据任何一个 DOM 元素，获取其所在的 UI 对象
+    ZUI.getInstance = function (el) {
+        var jq = $(el);
+        var jui = jq.parents("[ui-id]");
+        if (jui.size() == 0) {
+            console.warn(el);
+            throw "Current DOMElement no belone to any UI!";
+        }
+        var cid = jui.attr("ui-id");
+        return getByCid(cid);
+    };
     ZUI.checkInstance = function (el) {
         var jq = $(el);
         var jui = jq.parents("[ui-id]");
@@ -512,7 +596,29 @@ define(function (require, exports, module) {
             throw "Current DOMElement no belone to any UI!";
         }
         var cid = jui.attr("ui-id");
+        return this.checkByCid(cid);
+    };
+
+    // 根据 cid 获取 UI 的实例 
+    ZUI.getByCid = function(cid){
         return this.instances[cid];
+    };
+    ZUI.checkByCid = function(cid){
+        var UI = this.getByCid(cid);
+        if(!UI)
+            throw "UI instances 'cid="+cid+"' no exists!";
+        return UI;
+    };
+
+    // 根据 uiKey 获取 UI 的实例 
+    ZUI.getByKey = function(uiKey){
+        return this._uis[uiKey];
+    };
+    ZUI.checkByKey = function(uiKey){
+        var UI = this.getByKey(uiKey);
+        if(!UI)
+            throw "UI instances 'uiKey="+uiKey+"' no exists!";
+        return UI;
     };
 
     // 异步读取全局的消息字符串
@@ -524,6 +630,10 @@ define(function (require, exports, module) {
         });
     };
 
+    // 创建全局变量，以及模块导出
+    window.ZUI = ZUI;
+    module.exports = ZUI;
+    //===================================================================
     // 注册 window 的 resize 和键盘事件
     // 以便统一处理所有 UI 的 resize 行为和快捷键行为 
     if (!window._zui_events_binding) {

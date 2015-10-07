@@ -53,32 +53,44 @@ public abstract class JvmExecutor {
     }
 
     protected void joinObjByPath(WnSystem sys, final List<WnObj> list, WnObj p, String str) {
-        // 用 ID
-        if (str.startsWith("id:")) {
-            String id = str.substring("id:".length());
-            WnObj o = sys.io.checkById(id);
-            list.add(o);
-            return;
-        }
-
-        // 用路径
-        String ph = Wn.normalizePath(str, sys);
-
-        // 从根开始的路径...
-        if (ph.startsWith("/") || null == p)
+        // 分析路径
+        str = Wn.normalizePath(str, sys);
+        
+        // 看看是否需要回到根
+        if(str.startsWith("/") || null==p){
             p = sys.io.getRoot();
-
-        // 因为要考虑通配符，逐次进入
-        String[] ss = Strings.splitIgnoreBlank(ph, "/");
+        }
+        
+        // 将路径拆分成数组
+        String[] ss = Strings.splitIgnoreBlank(str, "/");
 
         // 根节点
         if (ss.length == 0) {
-            list.add(sys.io.getRoot());
+            list.add(p);
+            return;
         }
         // 试图按路径查找
-        else {
-            __find_last_level_objs(sys.io, p, ss, 0, list);
+        // 如果路径中有 id:xxx 那么就应该从这个位置开始
+        // 尝试从后查找，如果有 id:xxx 那么就截断，因为前面的就木有意义了
+        int off = 0;
+        for (int i = ss.length - 1; i >= 0; i--) {
+            String nm = ss[i];
+            if (nm.startsWith("id:")) {
+                p = sys.io.checkById(nm.substring(3));
+                off = i + 1;
+                break;
+            }
         }
+
+        // 直接干到结尾了
+        if (off >= ss.length){
+            list.add(p);
+            return;
+        }
+
+        // 递归查找
+        __find_last_level_objs(sys.io, p, ss, off, list);
+
     }
 
     private void __find_last_level_objs(final WnIo io,
@@ -96,6 +108,11 @@ public abstract class JvmExecutor {
         else if ("..".equals(nm)) {
             WnObj o = p.parent();
             __find_last_level_objs_handle(io, ss, off + 1, list, o);
+        }
+        // 根据 ID
+        else if (nm.startsWith("id:")) {
+            WnObj o = io.checkById(nm.substring("id:".length()));
+            __find_last_level_objs(io, o, ss, off + 1, list);
         }
         // 继续查找
         else {
@@ -160,8 +177,9 @@ public abstract class JvmExecutor {
         // 计算要列出的目录
         // 没参数认为是当前目录
         if (paths.length == 0) {
-            if (joinCurrent)
+            if (joinCurrent) {
                 list.add(p);
+            }
         }
         // 否则根据路径归纳需要列的目录
         else {

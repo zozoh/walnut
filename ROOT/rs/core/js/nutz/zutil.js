@@ -11,6 +11,18 @@
 
     var zUtil = {
         //.............................................
+        // 根据键获取某对象的值，如果键是  "." 分隔的，则依次一层层进入对象获取值
+        getValue : function(obj, key, dft){
+            var ks = key.split(".");
+            var re = obj;
+            for (var i = 0; i < ks.length; i++) {
+                re = re[ks[i]];
+                if (!re)
+                    return dft;
+            }
+            return re;
+        },
+        //.............................................
         // 执行一个 HTML5 的文件上传操作，函数接受一个配置对象：
         //
         // {
@@ -87,6 +99,88 @@
             // 执行上传
             xhr.send(opt.file);
         },
+        /*
+        获取数据的方法，它的值可能性比较多:
+        - 数组为静态数据，每个数据都必须是你希望的对象，那么这个数据会被直接使用
+            [..]
+        - 异步获取数据: 函数
+          那么你的函数必须接收一个回调，当你处理完数据，调用这个回调，把你获得数组传回来
+            function(callback){
+                // TODO 不管怎样，获得一个对象数组
+                // 假设你的对象数组是 objList，那么你必须这样调用回调
+                callback(objList);
+            }
+        - 异步获取数据: ajaxReturn 或者是简单的 JSON 数组
+          假设你给的 URL 的返回，根据鸭子法则(ok,data) 来判断是否是 AjaxReturn
+          还是普通的 JSON 对象(数组)
+            {
+                url    : "/path/to/url",  // 请求的地址
+                data   : {..},            // 请求的参数
+                method : "GET"            // 请求方法，默认为 GET
+                // 总之就是一个 jQuery 的 ajax 对象，但是 sucess 和 error 被定制了
+            }
+        */
+        // data     - 待评估的数据源
+        // params   - 【选】输入的参数,根据不同种类的数据源，会有不同的处理，
+        //             不想输入参数，请输入 null
+        // callback - 解析完数据调用的回调
+        // context  - 指明特殊的回调的 this 参数，如果未定义，则采用本函数的 this
+        evalData : function(data, params, callback, context) {
+            if(!data){
+                return;
+            }
+            // // 如果 params 没定义，直接就 callback 了 ...
+            // if(_.isFunction(params)){
+            //     context  = callback;
+            //     callback = params;
+            //     params = {};
+            // }
+            // 确保有 context
+            context = context || this;
+            // 数组
+            if(_.isArray(data)){
+                return callback.apply(context, [data]);
+            }
+            // 函数
+            if(_.isFunction(data)){
+                return data.call(context, params, function(objs){
+                    callback.apply(context, [objs]);
+                });
+            }
+            // 字符串，试图看看 context 里有没有 exec 方法
+            if(_.isString(data)){
+                var str  = (_.template(data))(params);
+                //console.log(">> exec: ", str)
+                var execFunc = context.exec || (context.options||{}).exec;
+                if(_.isFunction(execFunc)){
+                    return execFunc(str, function(re){
+                        var objs = $z.fromJson(re);
+                        callback.apply(context, [objs]);
+                    });
+                }
+                throw "context DO NOT support exec : " + context;
+            }
+            // 执行 ajax 请求
+            if(data.url){
+                return $.ajax(_.extend({}, {
+                    method   : "GET",
+                    data     : params,
+                    dataType : "json",
+                    sucess   : function(re){
+                        if(_.isBoolean(re.ok) && re.data){
+                            callback.apply(context, [re.data]);
+                        }else{
+                            callback.apply(context, re);
+                        }
+                    },
+                    error : function(xhr, textStatus, e){
+                        alert("OMG wnApi.evalData: " + textStatus + " : " + e);
+                    }
+                }, data));
+            }
+            // 靠，什么鬼玩意
+            throw "Shit!!! unknown data: <" + data + ">";
+        },
         //.............................................
         // 设置一个 input 的值，如果值与 placeholder 相同，则清除值
         setInputVal: function (jInput, val) {
@@ -117,13 +211,76 @@
             return re;
         },
         //.............................................
+        // 如果一个对象某字段是 undefined，那么为其赋值
+        setUndefined : function(obj, key, val){
+            if(_.isUndefined(obj[key]))
+                obj[key] = val;
+        },
+        //.............................................
+        jq : function(jP, arg, selector){
+            // 没有参数，那么全部 children 都会被选中
+            if(_.isUndefined(arg)){
+                return jP.children();
+            }
+            // DOM 元素
+            if(arg instanceof jQuery || _.isElement(arg)){
+                return $(arg);
+            }
+            // 数字 
+            if(_.isNumber(arg)){
+                return jP.find(selector).eq(arg);
+            }
+            // selector
+            if(_.isString(arg)){
+                return jP.find(arg);
+            }
+            // 查找匹配对象 
+            if(_.isObject(arg)){
+                return jP.find(selector).filter(function(){
+                    var o = $(this).data("OBJ");
+                    return _.isMatch(o, arg);
+                });
+            }
+            // 靠，神马玩意
+            throw "Fuck! unknown arg : " + arg;
+        },
+        //............................................
+        // 对一个字符串进行转换，相当于 $(..).text(str) 的效果
+        __escape_ele : $(document.createElement("b")),
+        escapeText : function(str){
+            return __escape_ele.text(str).text();
+        },
+        //.............................................
         // 调用某对象的方法，如果方法不存在或者不是函数，无视
         invoke: function (obj, funcName, args, me) {
             if (obj) {
                 var func = obj[funcName];
                 if (typeof func == 'function') {
-                    func.apply(me || obj, args || []);
+                    return func.apply(me || obj, args || []);
                 }
+            }
+        },
+        //.............................................
+        // 声明模块，回调必须返回这个模块本身
+        // deps 是依赖的模块数组
+        // 函数会自动根据 CMD / AMD 等约定自行选择怎么定义模块
+        declare : function(deps, callback){
+            if (typeof define === "function" && define.cmd) {
+                if(_.isString(deps)){
+                    deps = [deps];
+                }
+                define(deps, function(require){
+                    var args = [];
+                    require.async(deps, function(){
+                        for(var i=0; i<arguments.length; i++){
+                            args.push(arguments[i]);
+                        }
+                    });
+                    return callback.apply(this, args);
+                });
+            }
+            else{
+                throw "Fuck!!!!"
             }
         },
         //.............................................
@@ -169,7 +326,9 @@
         //.............................................
         // 扩展第一个对象，深层的，如果遇到重名的对象，则递归
         extend: function (a, b) {
-            if (_.isObject(a) && _.isObject(b)) {
+            var a = arguments[0];
+            for(var i=1;i<arguments.length;i++){
+                var b = arguments[i];
                 for (var key in b) {
                     var av = a[key];
                     if (_.isArray(av) || _.isFunction(av) || _.isDate(av) || _.isRegExp(av)) {
@@ -180,10 +339,10 @@
                         a[key] = b[key];
                     }
                 }
-                return a;
             }
+            return a;
             // 否则不能接受
-            throw "can not extend a:" + a + " by b:" + b;
+            //throw "can not extend a:" + a + " by b:" + b;
         },
         //.............................................
         winsz: function () {
@@ -452,9 +611,10 @@
         }
     };
 
-// 创建 NutzUtil 的别名
-    window.$z = zUtil;
-//===================================================================
+    // 创建 NutzUtil 的别名
+    window.NutzUtil = zUtil;
+    window.$z       = zUtil;
+    //===============================================================
     if (typeof define === "function" && define.cmd) {
         define("zutil", ["underscore"], function () {
             return zUtil;

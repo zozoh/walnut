@@ -130,10 +130,43 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    public int inc(String id, String metaName, int val) {
+    public int inc(String id, String key, int val) {
         ZMoDoc q = ZMoDoc.NEW("id", id);
-        ZMoDoc doc = co.findAndModify(q, ZMoDoc.NEW().m("$inc", metaName, val));
-        return doc.getInt(metaName);
+        // TODO 靠，得换个方法，效率高点
+        ZMoDoc doc = co.findAndModify(q, ZMoDoc.NEW().m("$inc", key, val));
+        return doc.getInt(key);
+    }
+
+    @Override
+    public int getInt(String id, String key, int dft) {
+        ZMoDoc q = ZMoDoc.NEW("id", id);
+        ZMoDoc flds = ZMoDoc.NEW(key, 1);
+        ZMoDoc doc = co.findOne(q, flds);
+        return doc.getInt(key, dft);
+    }
+
+    @Override
+    public long getLong(String id, String key, long dft) {
+        ZMoDoc q = ZMoDoc.NEW("id", id);
+        ZMoDoc flds = ZMoDoc.NEW(key, 1);
+        ZMoDoc doc = co.findOne(q, flds);
+        return doc.getLong(key, dft);
+    }
+
+    @Override
+    public String getString(String id, String key, String dft) {
+        ZMoDoc q = ZMoDoc.NEW("id", id);
+        ZMoDoc flds = ZMoDoc.NEW(key, 1);
+        ZMoDoc doc = co.findOne(q, flds);
+        return doc.getString(key, dft);
+    }
+
+    @Override
+    public <T> T getAs(String id, String key, Class<T> classOfT, T dft) {
+        ZMoDoc q = ZMoDoc.NEW("id", id);
+        ZMoDoc flds = ZMoDoc.NEW(key, 1);
+        ZMoDoc doc = co.findOne(q, flds);
+        return doc.getAs(key, classOfT, dft);
     }
 
     @Override

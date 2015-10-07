@@ -70,8 +70,28 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
-    public int inc(String id, String metaName, int val) {
-        return tree.inc(id, metaName, val);
+    public int inc(String id, String key, int val) {
+        return tree.inc(id, key, val);
+    }
+
+    @Override
+    public int getInt(String id, String key, int dft) {
+        return tree.getInt(id, key, dft);
+    }
+
+    @Override
+    public long getLong(String id, String key, long dft) {
+        return tree.getLong(id, key, dft);
+    }
+
+    @Override
+    public String getString(String id, String key, String dft) {
+        return tree.getString(id, key, dft);
+    }
+
+    @Override
+    public <T> T getAs(String id, String key, Class<T> classOfT, T dft) {
+        return tree.getAs(id, key, classOfT, dft);
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLDecoder;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.Inject;
@@ -14,6 +15,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.segment.Segment;
 import org.nutz.lang.segment.Segments;
@@ -21,6 +23,8 @@ import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
+import org.nutz.mvc.adaptor.QueryStringAdaptor;
+import org.nutz.mvc.annotation.AdaptBy;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
@@ -182,14 +186,18 @@ public class AppModule extends AbstractWnModule {
         return new WnObjDownloadView(io, o);
     }
 
+    @AdaptBy(type=QueryStringAdaptor.class)
     @At("/run/?/**")
     @Ok("void")
     public void run(String appName,
                     String mimeType,
                     @Param("mos") final String metaOutputSeparator,
-                    @Param("cmd") String cmdText,
+                    HttpServletRequest req,
                     final HttpServletResponse resp) throws IOException {
-
+        String cmdText = Streams.readAndClose(req.getReader());
+        cmdText = URLDecoder.decode(cmdText, "UTF-8");
+        
+        
         // 默认返回的 mime-type 是文本
         if (Strings.isBlank(mimeType))
             mimeType = "text/plain";

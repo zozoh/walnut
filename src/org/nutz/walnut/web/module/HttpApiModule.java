@@ -142,6 +142,9 @@ public class HttpApiModule extends AbstractWnModule {
         map.setv("http-method", req.getMethod().toUpperCase());
         map.setv("http-uri", req.getRequestURI());
         map.setv("http-url", req.getRequestURL());
+        map.setv("http-remote-addr", req.getRemoteAddr());
+        map.setv("http-remote-host", req.getRemoteHost());
+        map.setv("http-remote-port", req.getRemotePort());
 
         // 记录是否客户端设定了响应的 ContentType
         String mimeType = null;
@@ -154,9 +157,15 @@ public class HttpApiModule extends AbstractWnModule {
             String[] ss = Strings.splitIgnoreBlank(qs, "[&]");
             for (String s : ss) {
                 Pair<String> pair = Pair.create(s);
-                map.setv("http-qs-"
-                         + pair.getName(),
-                         pair.getValue() == null ? true : pair.getValue());
+                int pos = s.indexOf('=');
+                if (pos > 0) {
+                    String nm = s.substring(0, pos);
+                    String val = s.substring(pos + 1);
+                    map.setv("http-qs-" + nm, val);
+                } else {
+                    map.setv("http-qs-" + s, "");
+                }
+
                 // 如果客户端声明的是 mimeType
                 if ("resp-mime".equals(pair.getName())) {
                     mimeType = pair.getValue();
@@ -199,7 +208,7 @@ public class HttpApiModule extends AbstractWnModule {
             }
         }
         // 最后设定响应内容
-        resp.setContentType(Strings.sBlank(mimeType,"text/plain"));
+        resp.setContentType(Strings.sBlank(mimeType, "text/plain"));
 
         // 设定其他的响应头
 

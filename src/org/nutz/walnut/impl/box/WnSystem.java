@@ -1,5 +1,9 @@
 package org.nutz.walnut.impl.box;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.nutz.lang.Lang;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
@@ -39,15 +43,40 @@ public class WnSystem {
     JvmAtomRunner _runner;
 
     public void exec(String cmdText) {
+        exec(cmdText, out.getOutputStream(), err.getOutputStream(), in.getInputStream());
+    }
+
+    public void exec(String cmdText, OutputStream stdOut, OutputStream stdErr, InputStream stdIn) {
         String[] cmdLines = Jvms.split(cmdText, true, '\n', ';');
-        _runner.out = new EscapeCloseOutputStream(out.getOutputStream());
-        _runner.err = new EscapeCloseOutputStream(err.getOutputStream());
-        _runner.in = new EscapeCloseInputStream(in.getInputStream());
+        _runner.out = new EscapeCloseOutputStream(null == stdOut ? out.getOutputStream() : stdOut);
+        _runner.err = new EscapeCloseOutputStream(null == stdErr ? err.getOutputStream() : stdErr);
+        _runner.in = new EscapeCloseInputStream(null == stdIn ? in.getInputStream() : stdIn);
         for (String cmdLine : cmdLines) {
             _runner.__run(cmdLine);
             _runner.__wait_for_idle();
         }
         _runner.__free();
+    }
+
+    public void exec(String cmdText,
+                     StringBuilder stdOut,
+                     StringBuilder stdErr,
+                     CharSequence stdIn) {
+        InputStream ins = null == stdIn ? in.getInputStream() : Lang.ins(stdIn);
+        OutputStream out = null == stdOut ? null : Lang.ops(stdOut);
+        OutputStream err = null == stdErr ? null : Lang.ops(stdErr);
+
+        exec(cmdText, out, err, ins);
+    }
+
+    public String exec2(String cmdText) {
+        return exec2(cmdText, null);
+    }
+
+    public String exec2(String cmdText, CharSequence input) {
+        StringBuilder sb = new StringBuilder();
+        exec(cmdText, sb, sb, input);
+        return sb.toString();
     }
 
 }

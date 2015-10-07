@@ -4,15 +4,6 @@
     box-sizing: border-box;
 }
 
-.ui-clr:after {
-    clear: both;
-    height: 1px;
-    line-height: 1px;
-    overflow: hidden;
-    display: block;
-    content: "";
-}
-
 body.ui-body {
     margin: 0;
     overflow: hidden;
@@ -56,13 +47,6 @@ body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-b
     user-select: none;
 }
 
-.ui-noselect {
-    -moz-user-select: none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;  
-}
-
 .ui-btn:hover {
     background-color: #4AF;
     color: #FF0;
@@ -72,7 +56,29 @@ body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-b
     cursor: default;
 }
 
+.ui-noselect, ul.ui-tabs {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;  
+}
 
+.ui-clr:after, .ui-tabs:after {
+    clear: both;
+    height: 1px;
+    line-height: 1px;
+    overflow: hidden;
+    display: block;
+    content: "";
+}
+
+ul.ui-tabs {
+    list-style: none; margin: 0; padding:0;
+}
+
+.ui-tabs>* {
+    float: left; 
+}
 
 
 

@@ -1,0 +1,4 @@
+[layout-mode=horizontal] .ui-layout-wrapper {
+    display: inline-block; vertical-align: middle;
+    height:100%;
+}
