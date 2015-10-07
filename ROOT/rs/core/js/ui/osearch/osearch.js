@@ -19,7 +19,7 @@ function __check_ui_part(UI, key, uiTypes, uiConfs){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
-    <ul code-id="check.dft" class="osearch-check-opts ui-tabs">
+    <ul code-id="check.dft" class="osearch-check-opts">
         <li tp="all">{{osearch.check.all}}</li>
         <li tp="none">{{osearch.check.none}}</li>
         <li tp="toggle">{{osearch.check.toggle}}</li>
@@ -42,7 +42,7 @@ return ZUI.def("ui.osearch", {
     i18n : "ui/osearch/i18n/{{lang}}.js",
     init : function(options){
         var UI = this;
-
+        console.log("^^^^^^^^^^^^^^^^^^^")
         $z.setUndefined(options, "checkable", options.list.uiConf.checkable ? true : false);
         $z.setUndefined(options, "dftQuery", {
             pn   :1,
@@ -68,6 +68,22 @@ return ZUI.def("ui.osearch", {
         "click .osearch-action-btn" : function(e){
             var handler = $(e.currentTarget).data("handler");
             handler.call(this, e);
+        },
+        "click .osearch-check-opts [tp]" : function(e){
+            var me = $(e.currentTarget);
+            var tp = me.attr("tp");
+            var UI = ZUI.checkInstance(me);
+            switch(tp){
+            case "all":
+                UI._list.check();
+                break;
+            case "none":
+                UI._list.uncheck();
+                break;
+            case "toggle":
+                UI._list.toggle();
+                break;
+            }
         }
     },
     //...............................................................

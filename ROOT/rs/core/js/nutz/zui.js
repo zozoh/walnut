@@ -56,7 +56,7 @@ define(function (require, exports, module) {
             UI.parent = options.parent;
             UI.gasketName = options.gasketName;
 
-            UI.$el.attr(options.theme || "w0");
+            UI.$el.attr("theme", options.theme || "w0");
 
             // 考虑将自己组合到自己的父插件
             if (UI.parent && UI.gasketName) {
@@ -191,8 +191,11 @@ define(function (require, exports, module) {
                     $z.invoke(UI.options, "on_redraw", [], UI);
                     UI.trigger("ui:redraw", UI);
 
-                    // 因为重绘了，看看有木有必要重新计算尺寸
-                    UI.resize(true);
+                    // 因为重绘了，看看有木有必要重新计算尺寸，这里用 setTimeout 确保 resize 是最后执行的指令
+                    // TODO 这里可以想办法把 resize 的重复程度降低
+                    window.setTimeout(function(){
+                        UI.resize(true);
+                    }, 1);
                 };
                 // 定义后续处理
                 var do_render = function () {

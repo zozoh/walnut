@@ -110,7 +110,6 @@ return ZUI.def("ui.otable", {
         var UI = this;
         var jTbody = UI.arena.find(".otable-body-t>tbody");
         var jq = $z.jq(jTbody, arg, ".otable-row").not(".otable-row-checked");
-        
         if(jq.size()>0){
             var objs = [];
             jq.addClass("otable-row-checked").each(function(){
@@ -126,8 +125,8 @@ return ZUI.def("ui.otable", {
     //...............................................................
     uncheck : function(arg){
         var UI = this;
-        var jq = $z.jq(UI.arena, arg, ".otable-row").has(".otable-row-checked");
-        
+        var jTbody = UI.arena.find(".otable-body-t>tbody");
+        var jq = $z.jq(jTbody, arg, ".otable-row-checked");
         if(jq.size()>0){
             var objs = [];
             jq.removeClass("otable-row-checked").each(function(){
@@ -143,7 +142,8 @@ return ZUI.def("ui.otable", {
     //...............................................................
     toggle : function(arg){
         var UI = this;
-        var jq = $z.jq(UI.arena, arg, ".otable-row");
+        var jTbody = UI.arena.find(".otable-body-t>tbody");
+        var jq = $z.jq(jTbody, arg, ".otable-row");
         if(jq.size()>0){
             var checkeds = [];
             var unchecks = [];

@@ -2,4 +2,16 @@
   white-space: nowrap;
   cursor: pointer;
 }
-/*................................. 主题 w0 .....*/
+/*theme:w0 .................................................*/
+[theme="w0"] .menu-top-table {
+  border-spacing: 1px;
+  background: #888;
+}
+[theme="w0"] .menu-item[md="top"] {
+  background: #DDD;
+  padding: 4px 8px;
+  color: #08F;
+}
+[theme="w0"] .menu-item[md="top"]:hover {
+  background: #EEF;
+}

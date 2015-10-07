@@ -1,0 +1,56 @@
+@import "../ui";
+
+/*theme:w0 .................................................*/
+[theme="w0"] {
+    .osearch-sky {
+        padding:10px; position: relative;
+    }
+
+    .osearch-list {
+        min-height: 300px; padding:10px;
+    }
+    .osearch-checkbox, .osearch-actions {
+        display: inline-block; vertical-align: middle;
+    }
+    /*.............................................. check*/
+    .osearch-check-opts {.tabs()}
+    .osearch-check-opts>li{
+        float:left;
+        padding:0 4px; border-right:1px solid #AAA;
+        font-size:12px; color:#08F; cursor: pointer;
+    }
+    .osearch-check-opts>li:hover{color:#F80;}
+    .osearch-check-opts>li:last-child{border-right:0;}
+    /*.............................................. actions*/
+    .osearch-actions {
+        padding-left:10px;
+    }
+    /*.............................................. filter*/
+    .ofilter-keyword {
+        padding:0px;
+    }
+    .ofilter-keyword input{
+        font-size:16px; padding:10px; width:100%;
+    }
+
+    /*.............................................. pager*/
+    .opager-tip {
+        color:#888; font-style: normal; margin-right:10px;
+        display: inline-block; vertical-align: middle;
+        padding:5px 8px;
+    }
+    .opager-btn {
+        display: inline-block; vertical-align: middle;
+        border:1px solid #CCC; color:#08F; padding:4px 8px;
+        border-radius: 2px; margin: 0 1px; cursor: pointer;
+        font-size:12px;
+    }
+
+    .opager-btn:hover {
+        background: #CEF;
+    }
+
+    .opager-disable, .opager-disable:hover {
+        background: #CCC; color:#888; opacity: 0.6;
+    }
+}

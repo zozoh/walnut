@@ -1,7 +1,18 @@
-.ui-olist>.ui-arena {padding:20px;}
-
-.olist-item {padding:8px; cursor:pointer;}
-.olist-item [tp] {margin:0 2px; width:1.1em;}
-.olist-item [tp=icon] {margin-right:6px;}
-
-.olist-item-actived {background: #08F;}
+/*theme:w0 .................................................*/
+[theme="w0"] .ui-olist > .ui-arena {
+  padding: 20px;
+}
+[theme="w0"] .olist-item {
+  padding: 8px;
+  cursor: pointer;
+}
+[theme="w0"] .olist-item [tp] {
+  margin: 0 2px;
+  width: 1.1em;
+}
+[theme="w0"] .olist-item [tp=icon] {
+  margin-right: 6px;
+}
+[theme="w0"] .olist-item-actived {
+  background: #08F;
+}
