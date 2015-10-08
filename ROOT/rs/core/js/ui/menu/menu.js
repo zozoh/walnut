@@ -62,7 +62,6 @@ return ZUI.def("ui.menu", {
                 throw "ui.menu said: AO! Dont know this: " + $z.toJson(mi);
             }
         }
-        console.log("I am menu redraw")
     },
     //..............................................
     __draw_button : function(mi, jP){

@@ -4,5 +4,7 @@ define({
     "new"     : "新建",
     "delete"  : "删除",
     "edit"    : "编辑",
-    "clear"   : "清除"
+    "clear"   : "清除",
+    "others"  : "其他",
+    "other"   : "其他"
 });

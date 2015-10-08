@@ -11,6 +11,26 @@
 
     var zUtil = {
         //.............................................
+        // 计算尺寸
+        //  -v : 要计算的尺寸值的类型可以是
+        //       500   - 整数，直接返回
+        //       .12   - 浮点，且小于等于1，相当于一个百分比
+        //       "12%" - 百分比，相当于 .12
+        // - base : 百分比的基数
+        dimension : function(v, base) {
+            if(_.isNumber(v)){
+                if(v>1) return v;
+                return v * base;
+            }
+            // 百分比
+            var m = /^([0-9]{1,2})%$/g.exec(v);
+            if(m){
+                return (m[1] / 100) * base;
+            }
+            // 靠不知道是啥
+            throw  "fail to dimension : " + v;
+        },
+        //.............................................
         // 根据键获取某对象的值，如果键是  "." 分隔的，则依次一层层进入对象获取值
         getValue : function(obj, key, dft){
             var ks = key.split(".");
@@ -453,7 +473,7 @@
             zUtil.noImplement();
         },
         // 补全右边
-        alignRight: function (str, length, char) {
+        alignLeft: function (str, length, char) {
             str = zUtil.anyToString(str);
             if (str.length >= length) {
                 return str;
@@ -461,7 +481,7 @@
             return str + zUtil.dupString(char, length - str.length);
         },
         // 补全左边
-        alignLeft: function (str, length, char) {
+        alignRight: function (str, length, char) {
             str = zUtil.anyToString(str);
             if (str.length >= length) {
                 return str;

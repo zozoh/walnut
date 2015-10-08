@@ -85,7 +85,7 @@ new UIOList({
     iconClass : {..} | F(o)
 
     // 对于列表项显示的内容也是一样，可以用 html 代码模板，或者一个函数
-    text : '<b>{{nm}}</b>' | F(o){/*根据 o 返回一段HTML*/}
+    text : Tmpl(HTML) | F(o):HTML
 
     // 列表还有一个显示文字的问题。通过 display 段的定义，可以为每个字段定制显示方式
     // 比如，定义了 "nm"，那么会在对象里增加一个 "_display.nm" 的字段。

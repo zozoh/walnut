@@ -37,21 +37,23 @@ module.exports = ZUI.def("ui.layout", {
             }
         });
         seajs.use(uiTypes, function(){
-            for(var index in arguments){
-                var subUI = arguments[index];
+            // 清空扩展点
+            UI.gasket = {};
+            for(var index in uiTypes){
+                var SubUI = arguments[index];
                 var conf = setups[index];
                 var jq = jqs[index];
-                var gnm = jq.attr("ui-gasket");
-                var G = {
-                    ui : [new subUI(_.extend({}, conf.uiConf, {
-                        $pel : jq
-                    }))],
+                var uiConf = _.extend({}, conf.uiConf);
+                uiConf.gasketName = jq.attr("ui-gasket");
+                uiConf.parent = UI;
+                UI.gasket[uiConf.gasketName] = {
+                    ui : [],
                     jq : jq,
                     multi : false
-                }
-                UI.gasket[gnm] = G;
+                };
+
                 (function(index, uiType){
-                    G.ui[0].render(function(){
+                    new SubUI(uiConf).render(function(){
                         UI.defer_report(index, uiType);
                     });
                 })(index, uiTypes[index]);

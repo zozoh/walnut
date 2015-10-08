@@ -63,7 +63,6 @@ return ZUI.def("ui.shelf", {
         if(typeof options.fitparent == "undefined")
             options.fitparent = true;
         options.display = options.display || {};
-        _check_display_item(options, "dock", {size:80, position:"bottom", autoHide:true});
         _check_display_item(options, "sky",    80);
         _check_display_item(options, "chute",  240);
         _check_display_item(options, "main",   "*");
@@ -112,9 +111,6 @@ return ZUI.def("ui.shelf", {
     resize : function(){
         var UI = this;
         var dis = UI.options.display;
-        if(dis.dock){
-
-        }
         var sz = {
             width  : UI.arena.width(),
             height : UI.arena.height()

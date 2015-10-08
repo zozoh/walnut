@@ -24,6 +24,8 @@ new UIOList({
     icon : Template | F(o):HTML     // @see olist.icon
     iconClass : {..} | F(o)         // @see olist.iconClass
 
+    text : Tmpl(HTML)|F(o)          // @see olist.text
+
     display : {..}                  // @see olist.display
 
     // 这些事件意义也是相同的
@@ -48,7 +50,7 @@ new UIOList({
 
         // 下面的可以用来编辑
         type     : "String",      // 值的类型
-        editor   : "input",       // 编辑控件，为空则不可编辑
+        editAs   : "input",       // 编辑控件，为空则不可编辑
     }]
 
 

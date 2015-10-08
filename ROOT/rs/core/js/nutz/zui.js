@@ -55,6 +55,7 @@ define(function (require, exports, module) {
             UI.options = options;
             UI.parent = options.parent;
             UI.gasketName = options.gasketName;
+            UI.depth = UI.parent ? UI.parent.depth + 1 : 0;
 
             UI.$el.attr("theme", options.theme || "w0");
 
@@ -169,6 +170,10 @@ define(function (require, exports, module) {
         // 渲染自身
         render: function (afterRender) {
             var UI = this;
+            
+            // 确定语言
+            UI.lang = (UI.parent||{}).lang || window.$zui_i18n || "zh-cn";
+
             // 加载 CSS
             if (UI.$ui.css) {
                 seajs.use(UI.$ui.css);
@@ -195,7 +200,7 @@ define(function (require, exports, module) {
                     // TODO 这里可以想办法把 resize 的重复程度降低
                     window.setTimeout(function(){
                         UI.resize(true);
-                    }, 1);
+                    }, 100);
                 };
                 // 定义后续处理
                 var do_render = function () {
@@ -242,7 +247,7 @@ define(function (require, exports, module) {
             }
             // 采用自己的字符串
             else if (UI.$ui.i18n) {
-                UI.$ui.i18n = _.template(UI.$ui.i18n)({lang: window.$zui_i18n || "zh-cn"});
+                UI.$ui.i18n = _.template(UI.$ui.i18n)({lang: UI.lang});
                 require.async(UI.$ui.i18n, callback);
             }
             // 空的
@@ -392,26 +397,25 @@ define(function (require, exports, module) {
                 delete this._watch_keys[key];
         },
         // 得到多国语言字符串
-        msg: function (key, ctx) {
-            var re = this._msg_map;
-            var re = $z.getValue(this._msg_map, key);
+        msg: function (key, ctx, msgMap) {
+            var re = $z.getValue(msgMap || this._msg_map, key);
             if(!re){
                 return key;
             }
             // 需要解析
-            if (re && _.isObject(ctx)) {
+            if (re && ctx && _.isObject(ctx)) {
                 re = (_.template(re))(ctx);
             }
             return re;
         },
         // 对一个字符串进行文本转移，如果是 i18n: 开头采用 i18n
-        text: function(str, ctx){
+        text: function(str, ctx, msgMap){
             // 多国语言
             if(/^i18n:.+$/g.test(str)){
-                return this.msg(str.substring(5), ctx);
+                return this.msg(str.substring(5), ctx, msgMap);
             }
             // 字符串模板
-            if(str && _.isObject(ctx)){
+            if(str && ctx && _.isObject(ctx)){
                 return (_.template(str))(ctx);
             }
             // 普通字符串
@@ -492,7 +496,7 @@ define(function (require, exports, module) {
         ccode: function (codeId) {
             var jq = this._code_templates[codeId];
             if (jq)
-                return jq.clone();
+                return jq.clone().removeAttr("code-id");
             throw "Can not found code-template '" + codeId + "'";
         },
         //...................................................................
@@ -545,6 +549,42 @@ define(function (require, exports, module) {
     ZUI.definitions = {};
     ZUI.instances = {};  // 根据cid索引的 UI 实例
     ZUI._uis = {};       // 根据键值索引的 UI 实例，没声明 key 的 UI 会被忽略
+
+    // 调试方法，打印当前 UI 的级联 tree
+    ZUI.dump_tree = function(UI, depth){
+        // 显示一个 UI 的树
+        if(UI){
+            var depth = _.isUndefined(depth) ? 0 : depth
+            var prefix = $z.dupString("    ", depth);
+            var str = (_.template("{{nm}}({{cid}}){{uiKey}}"))({
+                nm     : UI.uiName,
+                cid    : UI.cid,
+                uiKey  : UI.uiKey ? "["+UI.uiKey+"]" : ""
+            });
+            for(var key in UI.gasket) {
+                var G = UI.gasket[key];
+                if(G.ui && G.ui.length == 1){
+                    str += "\n" + prefix 
+                           + "  @" + $z.alignLeft('"' + key + '"', 8, " ")
+                           + "-> " + ZUI.dump_tree(G.ui[0], depth+1);
+                }
+                else if(G.ui && G.ui.length > 1){
+                    str += "\n" + prefix + "  @'" + key + "'-> " + G.ui.length + "UIs: "
+                    for(var i in G.ui){
+                        str += "\n" + ZUI.dump_tree(G.ui[i], depth+1);
+                    }
+                }
+            }
+            return str;
+        }
+        // 显示全部顶层 UI
+        var str = "";
+        for(var i in ZUI.tops){
+            str += "-> " + ZUI.dump_tree(ZUI.tops[i], 0) + "\n"; 
+        }
+        return str;
+    };
+
     // 如果监听一个 UI 的键值，但是这个 UI 的实例因为异步还没有被加载
     // 那么，先暂存到这个属性里，当 UI 实例被加载完毕了，会自动应用这个监听的
     ZUI._defer_listen = {}

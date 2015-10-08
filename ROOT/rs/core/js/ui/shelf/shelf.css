@@ -1,25 +1,20 @@
-.ui-shelf>.ui-arena {
-    position: relative;
+.ui-shelf > .ui-arena {
+  position: relative;
 }
-
-.ui-shelf>.ui-arena>div{
-    position: absolute; border:1px solid #888;
+.ui-shelf > .ui-arena > div {
+  position: absolute;
 }
-
-.shelf-sky{
-    top:0; left:0; 
+.shelf-sky {
+  top: 0;
+  left: 0;
 }
-
-.shelf-footer{
-    bottom:0; left:0; 
+.shelf-footer {
+  bottom: 0;
+  left: 0;
 }
-
-.shelf-chute{
-    left:0;
+.shelf-chute {
+  left: 0;
 }
-
-.shelf-view{
-    right:0;
+.shelf-view {
+  right: 0;
 }
-
-.shelf-main{}

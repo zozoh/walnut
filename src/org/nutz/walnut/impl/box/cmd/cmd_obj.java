@@ -16,17 +16,18 @@ import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.TextTable;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.impl.io.WnBean;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_obj extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        ZParams params = ZParams.parse(args, "iocnqhbslVNP");
+        ZParams params = ZParams.parse(args, "iocnqhbslVNPH");
 
         int skip = params.getInt("skip", -1);
         int limit = params.getInt("limit", -1);
@@ -44,8 +45,46 @@ public class cmd_obj extends JvmExecutor {
         // 计算要列出的要处理的对象
         List<WnObj> list;
 
+        // 创建新对象
+        if (params.has("new")) {
+            String json = params.get("new", "{}");
+            NutMap meta;
+            if (json.equals("true"))
+                meta = new NutMap();
+            else
+                meta = Lang.map(json);
+            String pid = meta.getString("pid");
+            WnRace race = meta.getAs("race", WnRace.class, WnRace.FILE);
+
+            // 得到父对象
+            WnObj oP;
+            // 根据路径
+            if (params.vals.length > 0) {
+                WnObj oCurrent = this.getCurrentObj(sys);
+                String path = Wn.normalizePath(params.vals[0], sys);
+                oP = sys.io.check(oCurrent, path);
+            }
+            // 指明了 pid
+            else if (null != pid) {
+                oP = sys.io.checkById(pid);
+            }
+            // 采用当前路径
+            else {
+                oP = this.getCurrentObj(sys);
+            }
+
+            // 创建对象
+            WnObj o = sys.io.create(oP, meta.getString("nm", "${id}"), race);
+
+            // 更新
+            sys.io.appendMeta(o, meta);
+
+            // 记录到列表以备后续操作
+            list = Lang.list(o);
+
+        }
         // 指定查询
-        if (params.vals.length == 0) {
+        else if (params.vals.length == 0) {
             String json = params.get("match", "{}");
             WnQuery q = new WnQuery();
             q.setv("d1", sys.se.group());
@@ -133,36 +172,53 @@ public class cmd_obj extends JvmExecutor {
                         }
                     }
                 }
+                // 执行更新
                 sys.io.appendMeta(o, map);
             }
             // ................................................
             // 记录输出
             // 显示对象某几个值
-            if (params.has("e")) {
-                String regex = params.check("e");
+            else {
+                // true 表示输出的时候，也显示双下划线开头的隐藏字段
+                boolean isShowAutoHide = params.is("H");
+
+                // 字段过滤正则表达式
+                Pattern p = null;
                 boolean not = false;
-                if (regex.startsWith("!")) {
-                    not = true;
-                    regex = regex.substring(1);
+                String regex = params.get("e");
+                if (!Strings.isBlank(regex)) {
+                    if (regex.startsWith("!")) {
+                        not = true;
+                        regex = regex.substring(1);
+                    }
+                    p = Pattern.compile(regex);
                 }
-                Pattern p = Pattern.compile(regex);
+
+                // 依次判断字段
                 NutMap map = new NutMap();
                 for (String key : o.keySet()) {
-                    if (p.matcher(key).matches()) {
-                        if (!not)
+                    // 忽略自动隐藏字段
+                    if (!isShowAutoHide && key.startsWith("__"))
+                        continue;
+
+                    // 用正则表达式判断
+                    if (null != p) {
+                        if (p.matcher(key).matches()) {
+                            if (!not)
+                                map.put(key, o.get(key));
+                        } else if (not) {
                             map.put(key, o.get(key));
-                    } else if (not) {
+                        }
+                    }
+                    // 那么一定要添加的
+                    else {
                         map.put(key, o.get(key));
                     }
                 }
+
+                // 添加到输出结果里
                 outs.add(map);
-            }
-            // 显示对象全部的值
-            else {
-                if (o instanceof WnBean)
-                    outs.add((NutMap) o);
-                else
-                    outs.add(o.toMap(null));
+
             }
         }
         // 当没有更新，或者强制输出的时候，执行输出

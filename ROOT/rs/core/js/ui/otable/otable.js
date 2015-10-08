@@ -22,6 +22,7 @@ return ZUI.def("ui.otable", {
         $z.setUndefined(options, "activable", true);
         $z.setUndefined(options, "blurable",  true);
         $z.setUndefined(options, "idKey",     "id");
+        $z.setUndefined(options, "nameKey",   "name");
         $z.setUndefined(options, "columns",   []);
         if(options.checkable === true) {
             options.checkable = {
@@ -29,6 +30,8 @@ return ZUI.def("ui.otable", {
                 normal  : "fa fa-square-o"
             };
         }
+        // 准备列表的显示项
+        options.text = options.text || '<b tp="text">{{nm}}</b>';
         // 准备 iconClass 的解析函数
         if(options.icon){
             if(_.isFunction(options.iconClass)){
@@ -214,8 +217,10 @@ return ZUI.def("ui.otable", {
     _draw_data : function(objs){
         var UI = this;
         var idKey = UI.options.idKey;
+        var nameKey = UI.options.nameKey;
 
         var iconFunc  = UI.eval_tmpl_func(UI.options, "icon");
+        var textFunc  = UI.eval_tmpl_func(UI.options, "text");
         var checkable = UI.options.checkable;
         
         var jHeadT = UI.arena.find(".otable-head-t");
@@ -235,9 +240,13 @@ return ZUI.def("ui.otable", {
             jTr.attr("index", index).data("OBJ", o);
             if(o[idKey])
                 jTr.attr("oid", o[idKey]);
+
+            // .....................................
+            // 创建第一列单元格
+            var jNm = $('<td class="otable-row-nm">').appendTo(jTr);
             // .............................. 选择框
             if(checkable){
-                jTr.append('<td><i class="' + checkable.normal + '" tp="checkbox">');
+                jNm.append('<i class="' + checkable.normal + '" tp="checkbox">');
             }
             // .............................. icon
             if(UI._eval_icon_class){
@@ -245,7 +254,10 @@ return ZUI.def("ui.otable", {
             }
             var iconHtml = iconFunc ? iconFunc(o) : null;
             if(iconHtml)
-                $('<td>'+iconHtml+'</td>').attr("tp","icon").appendTo(jTr);
+                $(iconHtml).attr("tp","icon").appendTo(jNm);
+            // .............................. 输出文字
+            if(textFunc)
+                jNm.append($(textFunc(o)));
             // .............................. 循环输出每一列
             // 依次创建单元格
             UI.options.columns.forEach(function(col){

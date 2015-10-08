@@ -17,6 +17,7 @@ author:zozoh
 //---------------------------------------------------
 uiName     : "ui.name"  // UI 类型名
 uiKey      : "myUi"     // 用户指定的 UI 助记ID，可以用 UI.get/checkByKey 接获取实例
+depth      : 0          // UI 的深度，顶层 UI 为 0，它的子UI为 1，依次类推
 cid        : "view1"    // Backbone 生成的实例ID （只能读取）
 tagName    : "div"      // 本UI的顶级DOM节点是什么标签，默认DIV
 className  : ".."       // 顶级DOM节点的类选择器，默认采用uiName
@@ -25,14 +26,21 @@ $el        : $<..>      // 本 UI 的顶级 DOM 节点是什么
 parent     : UI(..)     // 父 UI 的实例
 gasketName : ".."       // UI 所在的父元素的扩展点名称
 model      : {..}       // 本 UI 对应的 Backbone Model 是什么
+lang       : "zh-cn"    // 本 UI 采用的语言，默认 zh-cn
 //---------------------------------------------------
 // 记录了自己的扩展点的名称，以及对应的 DOM
 // 这个属性由 parseDom 函数来生成，即 ui 的实例的 $ui.init 函数
 // 需要主动调用 parseDom 来生成下面两个属性
 //---------------------------------------------------
 gasket    : {
-"chute" : $<..>
-"arena" : $<..>
+    "chute" : {
+        ui    : []      // 插入点的 UI 对象，必须是一个数组，以便容纳多个
+        multi : false   // 默认false，新 UI 会导致之前的 UI 被销毁
+        jq    : $<..>   // 插入点的 DOM 元素的 jQuery 包裹
+    }
+    "arena" : {
+        ...
+    }
 },
 //---------------------------------------------------
 // 存放多国语言字符串

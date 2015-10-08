@@ -1,5 +1,6 @@
 (function($z){
-$z.declare('zui', function(ZUI){
+$z.declare(['zui', 'ui/mask/mask'], function(ZUI, MaskUI){
+//==============================================
 function __check_ui_part(UI, key, uiTypes, uiConfs){
     var uiD = UI.options[key];
     var jq = UI.arena.find(".osearch-"+key);
@@ -42,7 +43,6 @@ return ZUI.def("ui.osearch", {
     i18n : "ui/osearch/i18n/{{lang}}.js",
     init : function(options){
         var UI = this;
-        console.log("^^^^^^^^^^^^^^^^^^^")
         $z.setUndefined(options, "checkable", options.list.uiConf.checkable ? true : false);
         $z.setUndefined(options, "dftQuery", {
             pn   :1,
@@ -65,10 +65,6 @@ return ZUI.def("ui.osearch", {
     },
     //...............................................................
     events : {
-        "click .osearch-action-btn" : function(e){
-            var handler = $(e.currentTarget).data("handler");
-            handler.call(this, e);
-        },
         "click .osearch-check-opts [tp]" : function(e){
             var me = $(e.currentTarget);
             var tp = me.attr("tp");
@@ -93,11 +89,50 @@ return ZUI.def("ui.osearch", {
     //...............................................................
     do_action_new : function(){
         var UI = this;
-        alert("I am new");
+        var o = UI.$el.data("@DATA");
+        // 找到 form 的配置 
+        //var 
+
+        // 打开遮罩，创建 form
+        new MaskUI({
+            width   : "80%",
+            height  : .56,
+            setup : {
+                uiType : "ui/oform/oform",
+                uiConf : {
+                    hideGroupTitleWhenSingle : false,
+                    mode : "tabs",
+                    fields : [{
+                            key    : "nm",
+                            title  : "名称"
+                        },{
+                            key    : "age",
+                            title  : "年龄"
+                        },{
+                            title  : "教育经历",
+                            items  : [{
+                                key   : "aa",
+                                title : "小学" 
+                            }, {
+                                key   : "bb",
+                                title : "中学" 
+                            }]
+                        },{
+                            key    : "nm",
+                            title  : "名族"
+                        },{
+                            key    : "age",
+                            title  : "婚姻"
+                        }]
+                }
+            }
+        }).render(function(){
+            console.log(ZUI.dump_tree())
+        });
     },
     do_action_delete : function(){
         var UI = this;
-        alert("I am del");
+        console.log(ZUI.dump_tree())
     },
     do_action_edit : function(){
         var UI = this;
