@@ -75,6 +75,23 @@ define(function (require, exports, module) {
         if (document.body == UI.pel || !UI.parent) {
             window.ZUI.tops.push(UI);
         }
+
+        // 确定 uiKey，并用其索引自身实例
+        if(UI.uiKey){
+            if(ZUI.getByKey(UI.uiKey)){
+                throw 'UI : uiKey="'+UI.uiKey+'" exists!!!';
+            }
+            ZUI._uis[UI.uiKey] = UI;
+            // 看看有没有要延迟监听的
+            var dl = ZUI._defer_listen[UI.uiKey];
+            if(dl){
+                for(var i in dl){
+                    var dlo = dl[0];
+                    dlo.context.listenUI(UI, dlo.event, dlo.handler);
+                }
+                delete ZUI._defer_listen[UI.uiKey];
+            }
+        }
     };
 
     // 定义一个 UI 的原型
@@ -93,25 +110,6 @@ define(function (require, exports, module) {
             UI.depth = UI.parent ? UI.parent.depth + 1 : 0;
             // 继承执行器
             UI.exec = options.exec || (UI.parent||{}).exec;
-
-            // ???
-
-            // 确定 uiKey，并用其索引自身实例
-            if(UI.uiKey){
-                if(ZUI.getByKey(UI.uiKey)){
-                    throw 'UI : uiKey="'+UI.uiKey+'" exists!!!';
-                }
-                ZUI._uis[UI.uiKey] = UI;
-                // 看看有没有要延迟监听的
-                var dl = ZUI._defer_listen[UI.uiKey];
-                if(dl){
-                    for(var i in dl){
-                        var dlo = dl[0];
-                        dlo.context.listenUI(UI, dlo.event, dlo.handler);
-                    }
-                    delete ZUI._defer_listen[UI.uiKey];
-                }
-            }
 
             // 调用子类自定义的 init，以及触发事件
             $z.invoke(UI.$ui, "init", [options], UI);
