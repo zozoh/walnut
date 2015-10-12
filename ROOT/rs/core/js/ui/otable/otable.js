@@ -70,7 +70,7 @@ return ZUI.def("ui.otable", {
     },
     //...............................................................
     getActived : function(){
-        return UI.arena.find(".otable-row-actived").data("OBJ");
+        return this.arena.find(".otable-row-actived").data("OBJ");
     },
     //...............................................................
     setActived : function(arg){
@@ -102,8 +102,9 @@ return ZUI.def("ui.otable", {
     },
     //...............................................................
     getChecked : function(){
+        var UI = this;
         var objs = [];
-        UI.arena.children(".otable-row-checked").each(function(){
+        UI.arena.find(".otable-row-checked").each(function(){
             objs.push($(this).data("OBJ"));
         });
         return objs;
@@ -199,9 +200,21 @@ return ZUI.def("ui.otable", {
         UI.refresh.call(UI, d, callback);
     },
     //...............................................................
-    redraw : function(callback){
-        this.refresh(null, callback);
-        return _.isFunction(callback);
+    addLast : function(obj) {
+        var UI = this;
+        var objs = _.isArray(obj) ? obj : [obj];
+
+        objs.forEach(function(o, index){
+            UI._append_row(o, -1);
+        });
+
+        // 最后触发消息
+        UI.trigger("otable:push", objs);
+        $z.invoke(UI.options, "on_push", [objs], UI);
+    },
+    //...............................................................
+    redraw : function(){
+        this.refresh();
     },
     //..............................................
     refresh : function(d, callback){
@@ -236,42 +249,59 @@ return ZUI.def("ui.otable", {
         
         // 输出表格内容 
         objs.forEach(function(o, index){
-            var jTr = $('<tr class="otable-row">');
-            jTr.attr("index", index).data("OBJ", o);
-            if(o[idKey])
-                jTr.attr("oid", o[idKey]);
-
-            // .....................................
-            // 创建第一列单元格
-            var jNm = $('<td class="otable-row-nm">').appendTo(jTr);
-            // .............................. 选择框
-            if(checkable){
-                jNm.append('<i class="' + checkable.normal + '" tp="checkbox">');
-            }
-            // .............................. icon
-            if(UI._eval_icon_class){
-                o['_icon_class'] = UI._eval_icon_class(o) || "";
-            }
-            var iconHtml = iconFunc ? iconFunc(o) : null;
-            if(iconHtml)
-                $(iconHtml).attr("tp","icon").appendTo(jNm);
-            // .............................. 输出文字
-            if(textFunc)
-                jNm.append($(textFunc(o)));
-            // .............................. 循环输出每一列
-            // 依次创建单元格
-            UI.options.columns.forEach(function(col){
-                var jTd = $('<td>');
-                UI._draw_col(jTd, col, o);
-                jTd.appendTo(jTr);
-            });
-
-            // 添加到表格
-            jTr.appendTo(jBodyT);
+            UI._append_row(o, index, iconFunc, textFunc, jBodyT);
         });
         // 最后触发消息
         UI.trigger("otable:change", objs);
         $z.invoke(UI.options, "on_change", [objs], UI);
+    },
+    //...............................................................
+    _append_row : function(o, index, iconFunc, textFunc, jBodyT){
+        var UI = this;
+        var idKey     = UI.options.idKey;
+        var nameKey   = UI.options.nameKey;
+        var checkable = UI.options.checkable;
+
+        iconFunc  = iconFunc || UI.eval_tmpl_func(UI.options, "icon");
+        textFunc  = textFunc || UI.eval_tmpl_func(UI.options, "text");
+        
+        jBodyT = jBodyT || UI.arena.find(".otable-body-t");
+
+        if(!_.isNumber(index) || index<0)
+            index = jBodyT.children().size();
+
+        var jTr = $('<tr class="otable-row">');
+        jTr.attr("index", index).data("OBJ", o);
+        if(o[idKey])
+            jTr.attr("oid", o[idKey]);
+
+        // .....................................
+        // 创建第一列单元格
+        var jNm = $('<td class="otable-row-nm">').appendTo(jTr);
+        // .............................. 选择框
+        if(checkable){
+            jNm.append('<i class="' + checkable.normal + '" tp="checkbox">');
+        }
+        // .............................. icon
+        if(UI._eval_icon_class){
+            o['_icon_class'] = UI._eval_icon_class(o) || "";
+        }
+        var iconHtml = iconFunc ? iconFunc(o) : null;
+        if(iconHtml)
+            $(iconHtml).attr("tp","icon").appendTo(jNm);
+        // .............................. 输出文字
+        if(textFunc)
+            jNm.append($(textFunc(o)));
+        // .............................. 循环输出每一列
+        // 依次创建单元格
+        UI.options.columns.forEach(function(col){
+            var jTd = $('<td>');
+            UI._draw_col(jTd, col, o);
+            jTd.appendTo(jTr);
+        });
+
+        // 添加到表格
+        jTr.appendTo(jBodyT);
     },
     //...............................................................
     _draw_col : function(jTd, col, o){

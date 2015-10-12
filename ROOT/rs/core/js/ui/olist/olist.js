@@ -57,7 +57,7 @@ return ZUI.def("ui.olist", {
     },
     //...............................................................
     getActived : function(){
-        return UI.arena.find(".olist-item-actived").data("OBJ");
+        return this.arena.find(".olist-item-actived").data("OBJ");
     },
     //...............................................................
     setActived : function(arg){
@@ -65,7 +65,6 @@ return ZUI.def("ui.olist", {
         if(!UI.options.activable)
             return;
         var jq = $z.jq(UI.arena, arg, ".olist-item").first();
-
         if(jq.hasClass("olist-item") && !jq.hasClass("olist-item-actived")){
             UI.blur();
             jq.addClass("olist-item-actived");
@@ -89,6 +88,7 @@ return ZUI.def("ui.olist", {
     },
     //...............................................................
     getChecked : function(){
+        var UI = this;
         var objs = [];
         UI.arena.children(".olist-item-checked").each(function(){
             objs.push($(this).data("OBJ"));
@@ -115,8 +115,8 @@ return ZUI.def("ui.olist", {
     //...............................................................
     uncheck : function(arg){
         var UI = this;
-        var jq = $z.jq(UI.arena, arg, ".olist-item").has(".olist-item-checked");
-        
+        var jq = $z.jq(UI.arena, arg, ".olist-item-checked");
+        console.log(jq.size())
         if(jq.size()>0){
             var objs = [];
             jq.removeClass("olist-item-checked").each(function(){
@@ -175,6 +175,10 @@ return ZUI.def("ui.olist", {
     //...............................................................
     setData : function(d, permanent, callback){
         var UI = this;
+        if(_.isFunction(permanent)){
+            callback = permanent;
+            permanent = false;
+        }
         if(permanent)
             UI.options.data = d;
         UI.refresh.call(UI, d, callback);
@@ -191,6 +195,20 @@ return ZUI.def("ui.olist", {
     refresh : function(d, callback){
         var UI = this;
         $z.evalData(d || UI.options.data, null, function(objs){
+            if(_.isFunction(UI.options.filter)){
+                var list = [];
+                objs.forEach(function(o){
+                    o = UI.options.filter(o);
+                    if(o)
+                        list.push(o);
+                });
+                objs = list;
+            }
+
+            if(_.isFunction(UI.options.comparer)){
+                objs.sort(UI.options.comparer);
+            }
+
             UI._draw_data(objs);
             if(_.isFunction(callback)){
                 callback.call(UI, objs);

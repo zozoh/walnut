@@ -3,6 +3,8 @@ package org.nutz.walnut.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
@@ -37,17 +39,31 @@ public class WnObjMetaOutputStream extends OutputStream {
 
         if (!Strings.isBlank(json)) {
             NutMap newObj = Json.fromJson(NutMap.class, json);
+            List<String> keys = new ArrayList<String>(newObj.size() + o.size());
             // 追加模式，必须得给咱点啥才能追加呀
-            if (!append || newObj.size() > 0) {
-                // 追加字段
+            if (newObj.size() > 0) {
+                // 追加模式
                 if (append) {
                     for (String key : newObj.keySet()) {
+                        // ID 不能改
+                        if ("id".equals(key)) {
+                            continue;
+                        }
+                        // 获取值
                         Object v = newObj.get(key);
+                        // 不能为空
+                        if (null == v
+                            && key.matches("^(nm|tp|ph|race|pid|mnt|len|sha1|data|nano|ct|lm|c|m|g|md|d[0-9])$")) {
+                            continue;
+                        }
+                        // 计入对象
+                        keys.add(key);
                         o.setv(key, v);
                     }
                 }
-                // 更新字段
+                // 更新模式，要检查全部字段
                 else {
+                    // 循环对象
                     for (String key : o.keySet()) {
                         // ID 不能改
                         if ("id".equals(key)) {
@@ -57,29 +73,30 @@ public class WnObjMetaOutputStream extends OutputStream {
                         Object v = newObj.get(key);
                         // 不能为空
                         if (null == v
-                            && key.matches("^nm|tp|ph|race|pid|mnt|len|sha1|data|nano|ct|lm|c|m|g|md|d[0-9]$")) {
+                            && key.matches("^(nm|tp|ph|race|pid|mnt|len|sha1|data|nano|ct|lm|c|m|g|md|d[0-9])$")) {
                             continue;
                         }
-                        // 其他的设置
+                        // 计入对象
+                        keys.add(key);
                         o.setv(key, v);
                     }
                     // 添加更多的字段
                     for (String key : newObj.keySet()) {
                         if (!o.containsKey(key)) {
                             Object v = newObj.get(key);
+                            keys.add(key);
                             o.setv(key, v);
                         }
                     }
                 }
-
-                // 如果是追加，限制一下
-                String regex = null;
-                if (append) {
-                    regex = "^" + Lang.concat("|", newObj.keySet()) + "$";
-                }
-                // 计入索引
-                io.set(o, regex);
             }
+
+            // 没啥好改的，就手工咯
+            if (keys.isEmpty())
+                return;
+            String regex = "^(" + Lang.concat("|", keys) + ")$";
+            // 计入索引
+            io.set(o, regex);
         }
 
         // 清空缓存

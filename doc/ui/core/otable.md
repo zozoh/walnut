@@ -69,6 +69,7 @@ new UIOList({
 * toggle
 * getData
 * setData
+* addLast
 * refresh
 
 

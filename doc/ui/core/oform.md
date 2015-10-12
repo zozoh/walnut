@@ -34,27 +34,25 @@ new OFormUI({
         icon    : '<i class=..>'  // 【选】是否显示图标，以及图标的 HTML 片段
         text    : "i18n:xxx"      // 按钮文字，支持 i18n
 
+        context : {..}            // 【选】回调上下文，默认 UIForm
+
         // 按钮的动作是调用一个回调函数
         handler : {context}F(o)
-        context : undefined       // 回调时，特殊的调用上下文，默认采用全局配置
-        args    : undefined       // 回调时特殊的参数，格式是一个数组，默认没参数 
 
         // 按钮的动作是发送一个请求
-        url    : URL
-        ajax   : {..}       // @see jQuery ajax 请求的配置信息，默认为 POST + JSON
-        reType : "json"     // 【json】返回的直接是一个 JSON 对象，可以用来 setData
-                            //   "ajax" - 则表示 NutzWeb 的 AjaxReturn
-                            // 其他值非法
+        // ajax 字段 @see jQuery ajax 请求的配置信息，默认为 POST + JSON
+        // 调用者可以通过这个字段设置自己的回调函数，以及特殊的请求字段
+        ajax   : {..}       
+
+        // 按钮的动作是执行一个命令的模板字符串
+        //  - 需要 UI.exec
+        cmd  : {
+            templ : Template      // 命令模板
+            data  : F(d)          // 【选】定制数据，d 为 {o:getData(), json:xxxx}
+            done ,fail, complete  // 【选】命令运行回调，{context}F(re)
+        }
 
     }]
-    
-    // 字段的国际化表，如果没有给定，默认当做 {"zh-cn":{}}
-    // "deault" 指明了默认采用的语言字符串集，如果没有指明，采用第一个
-    field_i18n : {
-        "default" : "zh-cn"
-        "zh-cn"   : {..}
-        "en-us"   : {..}
-    }
     
     // 控件最主要的属性，表示控件将展示一个对象的哪些字段
     // 值必须是一个数组，元素可以是字段或者字段组
@@ -64,14 +62,14 @@ new OFormUI({
         key      : "nm"          // 字段对应的对象键
         icon     : HTML          // 字段的图标
         title    : "i18n:xxx"    // 字段的标题
-        type     : "String"      // 【String】值的类型,下面有详细介绍
+        type     : "string"      // 【String】值的类型,下面有详细介绍
         editAs   : "input"       // 【input】 编辑控件,下面有详细介绍
     }, {
         // 如果 items 就是普通组
         icon     : HTML          // 组的图标
         title    : "i18n:xxx"    // 组不能再有子组了，如果写了，会被忽略
                                  // 组如果没有标题，就不显示
-        type     : "String"      // 组默认的值类型,下面有详细介绍
+        type     : "string"      // 组默认的值类型,下面有详细介绍
         editAs   : "input"       // 组默认的编辑控件,下面有详细介绍
         items    : [..]          // 组里的字段
     }, {
@@ -84,13 +82,14 @@ new OFormUI({
         filter   : "!^__.+$"
         // 依然支持下面的属性
         icon   : HTML
-        type   : "String"
+        type   : "string"
         editAs : "input"
     }]
 
-    // 控件的事件
-    on_change  : F(v,fld)     // "oform:change"  每当一个字段被修改触发
-
+    // 指明对象哪个字段是 ID，默认为 "id"
+    //  - ID 字段如果在 fields 里，则它不可编辑
+    //  - 如果 mergeData==true，那么至少会保留源对象的 ID 字段，如果它有的话
+    idKey : "id"
 }).render();
 ```
 
@@ -103,12 +102,12 @@ new OFormUI({
 groups : [{
        group  : true,    // 普通组
        title  : "i18n:xxx",
-       type   : "String",
+       type   : "string",
        editAs : "input",
        items  : [{
             key    : "nm",
             title  : "xxxx",
-            type   : "String",
+            type   : "string",
             editAs : "input",
             $el    : jQuery    // 本字段对应的 DOM 元素
             $nm    : jQuery    // 名称对应的DOM元素
@@ -116,11 +115,12 @@ groups : [{
         }],
         $el     : jQuery        // 记录了自己对应的 DOM 元素
     },{
-       others : true,    // 动态组
+       others : true,           // 动态组
        title  : "i18n:xxx",
-       type   : "String",
+       type   : "string",
+       filter : RegExp, 
        editAs : "input",
-       items  : [..],
+       items  : [..],           // 记录自己的动态字段
        $el     : jQuery
     }]
 ```

@@ -17,6 +17,29 @@ function __check_ui_part(UI, key, uiTypes, uiConfs){
         jq.remove();
     }
 }
+
+function normalize_sub(options, key, dft) {
+    var ud = options[key];
+    // 未定义采用默认的
+    if(!ud){
+        options[key] = dft;
+    }
+    // 定义了类型
+    else if(_.isString(ud)){
+        options[key] = {
+            uiType : ud,
+            uiConf : {}
+        };
+    }
+    // 其他的必须保证有 uiType
+    else if(ud.uiType){
+        $z.setUndefined(ud, "uiConf", {});
+    }
+    // 靠，什么玩意
+    else{
+        throw "osearch invalid define for [" + key + "]:\n" + $z.toJson(ud);
+    }
+}
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
@@ -47,20 +70,26 @@ return ZUI.def("ui.osearch", {
         $z.setUndefined(options, "dftQuery", {
             pn   :1,
             skip : 0,
-            pgsz : 3,
+            pgsz : 50,
         });
         // 必须制定获取数据的方法
         if(!options.data){
             // 如果设置了执行器，默认用可执行命令来执行
-            if(options.exec)
+            if(UI.exec)
                 options.data = "obj -match '<%=condition%>' -skip {{skip}} -limit {{pgsz}} -json -pager"
             else
                 throw "osearch require data field!!!";
         }
 
+        // 确保 filter,list,pager 三个参数格式标准 
+        normalize_sub(options, "filter", {uiType:"ui/osearch/ofilter",uiConf:{}});
+        normalize_sub(options, "list", {uiType:"ui/otable/otable",uiConf:{checkable:true}});
+        normalize_sub(options, "pager",  {uiType:"ui/osearch/opager",uiConf:{}});
+
         // 加载完毕，触发的事件
         UI.on("ui:redraw", function(){
             UI.listenUI(UI._pager, "pager:change", "do_change_page");
+            // UI.arena.find(".menu-item").first().click();
         });
     },
     //...............................................................
@@ -87,60 +116,94 @@ return ZUI.def("ui.osearch", {
         this.do_search(null, pg);
     },
     //...............................................................
-    do_action_new : function(){
+    __check_obj_fld : function(key){
         var UI = this;
-        var o = UI.$el.data("@DATA");
+        var D = UI.$el.data("@DATA");
         // 找到 form 的配置 
-        //var 
-
-        // 打开遮罩，创建 form
-        new MaskUI({
-            width   : "80%",
-            height  : .56,
+        var conf = D[key]; 
+        if(!conf) {
+            var eKey = "osearch.e.o_no_" + key;
+            alert(UI.msg(eKey));
+            throw eKey + ":\n" + $z.toJson(D);
+        }
+        return conf;
+    },
+    //...............................................................
+    __mask_form : function(cmd){
+        var UI = this;
+        return _.extend({
             setup : {
                 uiType : "ui/oform/oform",
-                uiConf : {
-                    hideGroupTitleWhenSingle : false,
-                    mode : "tabs",
-                    fields : [{
-                            key    : "nm",
-                            title  : "名称"
-                        },{
-                            key    : "age",
-                            title  : "年龄"
-                        },{
-                            title  : "教育经历",
-                            items  : [{
-                                key   : "aa",
-                                title : "小学" 
-                            }, {
-                                key   : "bb",
-                                title : "中学" 
-                            }]
-                        },{
-                            key    : "nm",
-                            title  : "名族"
-                        },{
-                            key    : "age",
-                            title  : "婚姻"
-                        }]
-                }
+                uiConf : _.extend(UI.__check_obj_fld("uiForm"), {
+                    exec : UI.exec,
+                    actions : [{
+                        text : "i18n:ok",
+                        cmd  : cmd
+                    },{
+                        text : "i18n:cancel",
+                        handler : function(){
+                            this.parent.close();
+                        }
+                    }]
+                })
             }
-        }).render(function(){
-            console.log(ZUI.dump_tree())
+        }, UI.options.formMask);
+    },
+    //...............................................................
+    do_action_new : function(){
+        var UI = this;
+        var D = UI.$el.data("@DATA");
+        new MaskUI(UI.__mask_form({
+            command  : "obj id:"+D.id+" -new '<%=json%>'",
+            complete : function(re){
+                var obj = $z.fromJson(re);
+                UI._list.addLast(obj);
+                this.parent.close();
+            }
+        })).render(function(){
+            this.body.setData({});
         });
     },
     do_action_delete : function(){
         var UI = this;
-        console.log(ZUI.dump_tree())
+        var objs = UI._list.getChecked();
+        // 生成命令
+        if(objs && objs.length > 0){
+            var str = "";
+            objs.forEach(function(obj){
+                str += "rm -rf id:"+obj.id+"\n";
+            });
+            // 执行命令
+            console.log(str)
+            UI.exec(str, function(){
+                UI.do_search();
+            });
+        }
+        // 警告
+        else{
+            alert(UI.msg("osearch.e.nochecked"));
+        }
     },
     do_action_edit : function(){
         var UI = this;
-        alert("I am edit");
+        var obj = UI._list.getActived();
+        if(!obj){
+            alert(UI.msg("osearch.e.noactived"));
+            return;
+        }
+        new MaskUI(UI.__mask_form({
+            command  : "obj id:"+obj.id+" -u '<%=json%>'",
+            complete : function(re){
+                UI.do_search();
+                this.parent.close();
+            }
+        })).render(function(){
+            this.body.setData(obj);
+        });
     },
     do_action_refresh : function(){
         var UI = this;
-        alert("I am refresh");
+        UI.do_search();
     },
     //...............................................................
     redraw : function(){
@@ -260,23 +323,29 @@ return ZUI.def("ui.osearch", {
         jCheck.css("margin-top",   (sky_h - sky_padding_v - jCheck.outerHeight())/2);
         jActions.css("margin-top", (sky_h - sky_padding_v - jActions.outerHeight())/2);
 
+        // 计算中间部分的高度
+        var jPager = UI.arena.children(".osearch-pager");
+        var jList = UI.arena.children(".osearch-list");
+        var lH = UI.arena.height() - jSky.outerHeight() - jPager.outerHeight();
+        jList.css("height", lH);
+
     },
     //...............................................................
-    setData : function(o){
+    setData : function(D, callback){
         var UI = this;
         
         // 保存数据
-        UI.$el.data("@DATA", o);
+        UI.$el.data("@DATA", D);
 
         // 将数据丢掉过滤器里，并取出查询信息
-        UI._filter.setData(o);
+        UI._filter.setData(D);
         
         return UI.do_search(null, {
             skip : 0
-        });
+        }, callback);
     },
     //...............................................................
-    do_search : function(cnd, pg){
+    do_search : function(cnd, pg, callback){
         //console.log("do_search",cnd, pg)
         var UI = this;
         cnd = cnd || UI._filter.getData();
@@ -286,7 +355,7 @@ return ZUI.def("ui.osearch", {
         var q = _.extend({}, UI.options.dftQuery, cnd, pg);
         $z.evalData(UI.options.data, q, function(re){
             // 将查询的结果分别设置到列表以及分页器里
-            UI._list.setData(re ? re.list : [], true);
+            UI._list.setData(re ? re.list : [], true, callback);
             UI._pager.setData(re? re.pager: {pn:0, pgnb:0, pgsz:0, nb:0, sum:0});
         }, UI);
 

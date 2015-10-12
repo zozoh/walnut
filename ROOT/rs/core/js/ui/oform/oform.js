@@ -1,9 +1,40 @@
 (function($z){
 $z.declare('zui', function(ZUI){
 //==============================================
+function getEditByType(UI, key, vType){
+    if(UI.options.idKey == key)
+        return "label";
+    
+    return "input";
+}
+
+function normalize_field(UI, grp, fld){
+    // 必须有 key
+    if(!_.isString(fld.key)){
+        throw "!!! oform said : fld noKey : " + $z.toJson(fld);
+    }
+    // 将字段标题本地化
+    if(fld.title)
+        fld.title = UI.text(fld.title);
+    
+    // 处理字段类型
+    if(!fld.type)
+        fld.type = grp.type;
+
+    // 处理字段控件
+    if(UI.options.idKey == fld.key){
+        fld.editAs = "label";
+    }
+    else if(!fld.editAs) {
+        fld.editAs = grp.editAs;
+    }
+
+}
+//==============================================
 var html = function(){/*
 <div class="ui-code-template">
     <div code-id="flow" class="oform-flow">
+        <div class="oform-actions"></div>
         <div class="oform-flow-main"></div>
     </div>
     <div code-id="flowGroupHead" class="oform-flow-ghead">
@@ -13,9 +44,10 @@ var html = function(){/*
         <div class="oform-tabs-viewport">
             <div class="oform-tabs-main"></div>
         </div>
+        <div class="oform-actions"></div>
     </div>
 </div>
-<div class="ui-arena"></div>
+<div class="ui-arena" ui-fitparent="yes"></div>
 */};
 //===================================================================
 return ZUI.def("ui.oform", {
@@ -29,18 +61,11 @@ return ZUI.def("ui.oform", {
         $z.setUndefined(options, "mode", "flow");
         $z.setUndefined(options, "hideGroupTitleWhenSingle", true);
         $z.setUndefined(options, "actions", []);
-        $z.setUndefined(options, "field_i18n", {"zh-cn":{}});
         $z.setUndefined(options, "fields", [{
             others : true,
             title  : "i18n:others"
         }]);
-        
-        // 首先分析消息字符串，将其扩展到 UI 本身的字符串集合里
-        var mm = options.field_i18n[UI.lang];
-        var i18nKeys = Object.keys(options.field_i18n);
-        if(!mm && i18nKeys.length > 0)
-            mm = options.field_i18n[i18nKeys[0]];
-        _.extend(UI._msg_map, mm);
+        $z.setUndefined(options, "idKey", "id");
 
         // 整理 fields 字段
         var grpList = [];
@@ -50,50 +75,52 @@ return ZUI.def("ui.oform", {
             if(!_.isString(fld.key)){
                 // 将之前的收集字段用组添加进列表
                 if(grp){
-                    grpList.push(grp)
-                    grp = undefined;
+                    grpList.push(grp);
                 }
+                // 当前组
+                grp = _.extend({
+                    type   : "string",
+                    editAs : "input"
+                }, fld);
+
                 // 解析自身的多国语言
-                if(fld.title)
-                    fld.title = UI.text(fld.title);
+                if(grp.title)
+                    grp.title = UI.text(grp.title);
 
                 // 解析自己所有的字段的多国语言标题
                 // 确保自身的类型，有 items 就是普通组
-                if(fld.items){
-                    fld.groups = true;
-                    fld.items.forEach(function(fld){
-                        // 必须有 key
-                        if(!_.isString(fld.key)){
-                            throw "!!! oform said : fld noKey : " + $z.toJson(fld);
-                        }
-                        if(fld.title)
-                            fld.title = UI.text(fld.title);
+                if(grp.items){
+                    grp.group = true;
+                    grp.items.forEach(function(fld){
+                        normalize_field(UI, grp, fld);
                     });
                 }
                 // 动态组
                 else{
                     fld.others = true;
+                    if(_.isString(fld.filter)){
+                        fld.filter = new RegExp(fld.filter, "g");
+                    }
                 }
 
                 // 添加自身
-                grpList.push(_.extend({
-                    type   : "String",
-                    editAs : "input"
-                }, fld));
+                grpList.push(grp);
+                grp = undefined;
             }
             // 普通字段，归纳到组里
             else{
                 // 初始化归纳组
-                if(!grp)
+                if(!grp) {
                     grp = {
                         group  : true,
-                        type   : "String",
+                        type   : "string",
                         editAs : "input",
                         items  : []
                     };
-                // 解析自身的多国语言
-                if(fld.title)
-                    fld.title = UI.text(fld.title);
+                }
+                // 整理
+                normalize_field(UI, grp, fld);
+
                 // 记录到归纳组里
                 grp.items.push(fld);
             }
@@ -104,39 +131,176 @@ return ZUI.def("ui.oform", {
         }
         // 嗯，那么现在所有的顶层对象都是组了
         UI.groups = grpList;
+
+        // 最后等重绘完毕模拟点击
+        UI.on("ui:redraw", function(){
+            UI.arena.find(".oform-tabs-li").first().click();
+        });
+    },
+    //...............................................................
+    // 调试用 dump 函数
+    _dump_groups : function(noShowFieldDetail, grps){
+        var UI = this;
+        var str = "";
+        if(grps) {
+            if(!_.isArray(grps)){
+                grps = [grps];
+            }
+        }else{
+            grps = UI.groups;
+        }
+        grps.forEach(function(grp){
+            str += (_.template("{{_gmode}}[{{title}}] type:'{{type}}'"
+                              + " editAs:'{{editAs}}'"
+                              + " {{items.length}} fields"))(_.extend({
+                title : "NoTitle", type:"?", editAs:"?", 
+                items : [], _gmode : grp.group ? "G" : "?"
+            }, grp));
+            // 简单显示字段名
+            if(noShowFieldDetail) {
+                str += " {";
+                grp.items.forEach(function(fld){
+                    str += '[' + fld.key + "]";
+                });
+                str += "}";
+            }
+            // 显示所有组的字段的细节
+            else {
+                if(grp.items && grp.items.length>0)
+                    grp.items.forEach(function(fld){
+                        str += '\n  @' + UI._dump_field(fld);
+                    });
+                else
+                    str += "\n    ...";
+            }
+            str += "\n";
+        });
+        return str;
+    },
+    _dump_field : function(fld){
+        return (_.template('"{{key}}" : {{type}} >>> {{editAs}} #{{title}}'))(_.extend({
+            type : "?", editAs : "?"
+        }, fld));
+    },
+    //...............................................................
+    events : {
+        "click .oform-tabs-li" : function(e){
+            var UI = this;
+            var jq = $(e.currentTarget);
+            if(jq.attr("highlight"))
+                return;
+            // 改变标签的显示样式
+            jq.parents(".oform-tabs-bar").children().removeAttr("highlight");
+            jq.attr("highlight", "true");
+            
+            // 显示当前的组
+            var index = jq.attr("grp-index") * 1;
+            UI.arena.find(".oform-tabs-main").children()
+                .hide()
+                    .eq(index).show();
+        },
+        "click .oform-abtn" : function(e){
+            var UI = this;
+            var jBtn = $(e.currentTarget);
+            var aa = jBtn.data("@ACTION");
+            var o = UI.getData();
+            var context = aa.context || UI;
+            // 回调函数
+            if(aa.handler){
+                aa.handler.call(context, o);
+            }
+            // URL
+            else if(aa.url){
+                $.ajax(_.extend({
+                    url    : url,
+                    method : "POST",
+                    contentType : "application/json",
+                    dataType : "json",
+                    data : $z.toJson(o)
+                }, aa.ajax));
+            }
+            // 执行命令
+            else if(aa.cmd && UI.exec){
+                // 计算命令模板的上下文 
+                var oJson = _.extend({}, o);
+                if(oJson[UI.options.idKey])
+                    delete oJson[UI.options.idKey];
+                var d = {
+                    o : o, 
+                    json : $z.toJson(oJson).replace("'", "\\'")
+                };
+                // 用户要求自定义这个上下文
+                if(_.isFunction(aa.cmd.data)){
+                    d = aa.cmd.data(d);
+                }
+                // 生成命令字符串
+                var str = (_.template(aa.cmd.command))(d);
+                console.log(str)
+                // 执行命令
+                UI.exec(str, {
+                    context  : context,
+                    done     : aa.cmd.done,
+                    fail     : aa.cmd.fail,
+                    complete : aa.cmd.complete
+                });
+            }
+            // 不知道
+            else{
+                throw "Dont know how to run btn : " + jBtn.text() + ":\n" + $z.toJson(aa);
+            }
+
+        }
     },
     //...............................................................
     redraw : function() {
         var UI = this;
         UI.arena.empty();
 
-        // 如果只有一个组，那么看看是否全部展示
-        if(UI.groups.length==1 && UI.options.hideGroupTitleWhenSingle){
-            UI.__draw_group_fields(UI.groups[0], UI.arena);
-        }
-        // 根据显示模式绘制字段组
-        else{
-            // 得到控制器
-            var _C = UI[UI.options.mode];
+        // 得到控制器
+        var _C = UI[UI.options.mode];
 
-            // 设置主区域
-            _C.setupArena(UI);
-        }
+        // 设置主区域
+        _C.setupArena(UI);
+
+        // 最后绘制动作按钮
+        if(UI.options.actions.length > 0)
+            UI.__draw_actions();
+        else
+            UI.arena.find(".oform-actions").remove();
+    },
+    //...............................................................
+    __draw_actions : function(){
+        var UI = this;
+        var jActions = UI.arena.find(".oform-actions");
+        UI.options.actions.forEach(function(a){
+            var jBtn = $('<div class="oform-abtn">');
+            if(a.icon)
+                jBtn.html(a.icon);
+            if(a.text)
+                $('<span>').text(UI.text(a.text)).appendTo(jBtn);
+            jBtn.data("@ACTION", a);
+            jBtn.appendTo(jActions);
+        });
     },
     //...............................................................
     __draw_group_fields : function(grp, jq){
         var UI = this;
         grp.$el = $('<table class="oform-grp">').appendTo(jq);
-        console.log("FLD  ", grp)
-        grp.items.forEach(function(fld){
-            fld.$el  = $('<tr class="oform-fld">').appendTo(grp.$el);
-            fld.$nm  = $('<td class="oform-fldnm">').appendTo(fld.$el)
-            fld.$val = $('<td class="oform-fldval">').appendTo(fld.$el)
+        // 仅绘制普通组的字段，动态组的字段是不固定的，只有设置了数据才能绘制
+        if(grp.group && grp.items && grp.items.length>0){
+            grp.items.forEach(function(fld){
+                UI.__append_field(grp,fld);
+            });    
+        }
+    },
+    __append_field : function(grp, fld){
+        fld.$el  = $('<tr class="oform-fld">').appendTo(grp.$el);
+        fld.$nm  = $('<td class="oform-fldnm">').appendTo(fld.$el)
+        fld.$val = $('<td class="oform-fldval">').appendTo(fld.$el)
 
-            if(fld.icon)
-                $(fld.icon).attr("tp","icon").appendTo(fld.$nm);
-            $('<span tp="title">' + (fld.title||fld.key) + '</span>').appendTo(fld.$nm);
-        });
+        if(fld.icon)
+            $(fld.icon).attr("tp","icon").appendTo(fld.$nm);
+        $('<span tp="title">' + (fld.title||fld.key) + '</span>').appendTo(fld.$nm);
     },
     //...............................................................
     flow : {
@@ -147,15 +311,18 @@ return ZUI.def("ui.oform", {
             // 循环绘制每个组
             UI.groups.forEach(function(grp){
                 // 绘制组的标题
-                if(grp.title){
-                    UI.ccode("flowGroupHead").text(grp.title).appendTo(jMain);
+                if(UI.groups.length>1 || !UI.options.hideGroupTitleWhenSingle){
+                   UI.ccode("flowGroupHead").text(grp.title || "NoTitle").appendTo(jMain);
                 }
                 // 绘制组内每个字段
                 UI.__draw_group_fields(grp, jMain);
             });
         },
         resize : function(UI){
-
+            var jMain = UI.arena.find(".oform-flow-main");
+            var jActions = UI.arena.find(".oform-actions");
+            var H = UI.arena.height();
+            jMain.css("height", H - jActions.outerHeight());
         }
     },
     //...............................................................
@@ -163,26 +330,152 @@ return ZUI.def("ui.oform", {
         setupArena : function(UI){
             var jq = UI.ccode("tabs").appendTo(UI.arena);
             var jBar  = jq.find(".oform-tabs-bar");
-            var jMain = jq.find(".oform-tabs-main");
+            var jMain = jq.find(".oform-tabs-main").attr("grp-nb", UI.groups.length);
+
+            // 如果没必要显示标签，删除 
+            if(UI.groups.length<=1 && UI.options.hideGroupTitleWhenSingle){
+                jBar.remove(); 
+            }
             
             // 循环绘制
             UI.groups.forEach(function(grp, index){
                 // 每个组的标题
-                var jq = $('<li class="oform-tabs-li">').appendTo(jBar);
-                jq.attr("grp-index", index).text(grp.title || "Group"+index);
+                if(jBar.size()>0){
+                    var jq = $('<li class="oform-tabs-li">').appendTo(jBar);
+                    jq.attr("grp-index", index).text(grp.title || "Group"+index);
+                }
             
                 // 绘制组内每个字段
                 UI.__draw_group_fields(grp, jMain);
             });
+
         },
         resize : function(UI){
-
+            var jBar = UI.arena.find(".oform-tabs-bar");
+            var jViewPort = UI.arena.find(".oform-tabs-viewport");
+            var jActions = UI.arena.find(".oform-actions");
+            var H = UI.arena.height();
+            jViewPort.css("height", H - jBar.outerHeight() - jActions.outerHeight());
         }
     },
     //...............................................................
-    events : {
-        "click .ui-mask-closer" : function(e){
-            this.close();
+    setData : function(o){
+        //console.log(this._dump_groups());
+        var UI = this;
+        var dynamics = [];
+        var keys = _.extend({}, o);
+        // 保存原始对象
+        UI.$el.data("@DATA", o);
+        // 对每个组循环显示
+        UI.groups.forEach(function(grp){
+            // 普通组
+            if(grp.group){
+                grp.items.forEach(function(fld){
+                    // 设置字段的编辑控件 
+                    UI._set_field(o, fld, grp);
+                    // 移除已经处理过的字段
+                    if(keys[fld.key])
+                        delete keys[fld.key];
+                });
+            }
+            // 动态组
+            else{
+                dynamics.push(grp);
+                // 清除自己的动态字段
+                if(grp.items && grp.items.length > 0){
+                    grp.items.forEach(function(fld){
+                        fld.$el.remove();
+                    });
+                }
+                grp.items = [];
+            }
+        });
+        // 最后用动态组再消化一遍没处理过的字段
+        dynamics.forEach(function(grp){
+            for(var key in keys){
+                if(!grp.filter || new RegExp(grp.filter).test(key)){
+                    var v = o[key];
+                    var vType = typeof v;
+                    // 创建一个字段 
+                    var fld = {
+                        key    : key,
+                        title  : key,
+                        type   : vType,
+                        editAs : getEditByType(UI, key, vType)
+                    };
+                    // 绘制这个字段
+                    UI.__append_field(grp, fld);
+                    grp.items.push(fld);
+                    // 设置值
+                    UI._set_field(o, fld, grp);
+                    // 删除记录
+                    delete keys[key];
+                }
+            }
+        });
+    },
+    //...............................................................
+    getData : function(){
+        var UI = this;
+        var re = UI.options.mergeData ? _.extend({}, UI.$el.data("@DATA")) : {};
+        UI.groups.forEach(function(grp){
+            if(grp.items.length > 0){
+                grp.items.forEach(function(fld){
+                    re[fld.key] = UI._get_field(grp, fld);
+                    // 动态组的话，删除空值
+                    if(grp.others && !re[fld.key]){
+                        delete re[fld.key];
+                    }
+                });
+            }
+        });
+        return re;
+    },
+    //...............................................................
+    _set_field : function(o, fld, grp) {
+        var UI = this;
+        var edit = UI._FLD_EDIT[fld.editAs || grp.editAs];
+        if(!edit){
+            throw "Unsupport editor for field: " + UI._dump_field(fld) 
+                  + "\nin group:\n" + UI._dump_groups(true, grp);
+        }
+        // 显示字段编辑控件
+        edit.set(grp, fld, o);
+    },
+    //...............................................................
+    _get_field : function(grp, fld) {
+        var UI = this;
+        var edit = UI._FLD_EDIT[fld.editAs || grp.editAs];
+        if(!edit){
+            throw "!Un support field editor ["+fld.editAs+"]:" + $z.toJson(fld);
+        }
+        // 显示字段编辑控件
+        return edit.get(fld);
+    },
+    //...............................................................
+    _FLD_EDIT : {
+        "input" : {
+            set : function(grp, fld, obj){
+                var v = obj[fld.key] || "";
+                var jq = fld.$val.find(".oform-e-input");
+                if(jq.size() == 0)
+                    jq = $('<input class="oform-e-input">').appendTo(fld.$val);
+                jq.val(v);
+            },
+            get : function(fld){
+                var jq = fld.$val.find(".oform-e-input");
+                var v =  jq.val();
+                return $z.strToJsObj(v, fld.type);
+            }
+        }, 
+        "label" : {
+            set : function(grp, fld, obj){
+                var v = obj[fld.key] || "";
+                $('<div class="oform-e-label">').text(v).appendTo(fld.$val);
+            },
+            get : function(fld){
+                return fld.$val.text();
+            }
         }
     },
     //...............................................................

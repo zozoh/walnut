@@ -1,4 +1,159 @@
-/*theme:w0 .................................................*/
-[theme="w0"] .oform-field {
+[theme="w0"] .oform-fldnm {
+  width: 30%;
   text-align: right;
+  padding: 16px;
+  color: #444444;
+  font-size: 14px;
+}
+[theme="w0"] .oform-fldval {
+  width: 70%;
+  padding: 4px;
+}
+[theme="w0"] .oform-grp {
+  width: 100%;
+  border-collapse: collapse;
+}
+[theme="w0"] .oform-grp td {
+  border: 1px solid #dddddd;
+  vertical-align: top;
+}
+[theme="w0"] .oform-e-input {
+  font-size: 18px;
+  padding: 8px;
+  width: 100%;
+}
+[theme="w0"] .oform-e-label {
+  font: 18px 'Lucida Console', Monaco, monospace;
+  padding: 16px 16px;
+}
+[theme="w0"] .oform-flow {
+  width: 100%;
+  height: 100%;
+}
+[theme="w0"] .oform-flow .oform-flow-main {
+  overflow: auto;
+}
+[theme="w0"] .oform-flow .oform-actions {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  list-style: none;
+  text-align: center;
+  margin: 0;
+  border-bottom: 1px solid #ff8800;
+  padding: 8px;
+}
+[theme="w0"] .oform-flow .oform-actions:after {
+  clear: both;
+  height: 1px;
+  overflow: hidden;
+  display: block;
+  content: "";
+}
+[theme="w0"] .oform-flow .oform-abtn {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  margin: 0 2px;
+  padding: 8px 32px;
+  border: 1px solid #cccccc;
+  background: #eeeeee;
+  color: #0088ff;
+  border-radius: 4px;
+}
+[theme="w0"] .oform-flow .oform-abtn:hover {
+  color: #44aaff;
+  background: #ddddff;
+}
+[theme="w0"] .oform-flow .oform-flow-ghead {
+  padding: 16px;
+  font-size: 18px;
+}
+[theme="w0"] .oform-tabs {
+  width: 100%;
+  height: 100%;
+}
+[theme="w0"] .oform-tabs .oform-tabs-viewport {
+  width: 100%;
+  height: 100%;
+}
+[theme="w0"] .oform-tabs .oform-tabs-main {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+[theme="w0"] .oform-tabs .oform-tabs-bar {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  list-style: none;
+  text-align: center;
+  margin: 0;
+  padding: 16px 0 0 0;
+  border-bottom: 1px solid #ff8800;
+}
+[theme="w0"] .oform-tabs .oform-tabs-bar:after {
+  clear: both;
+  height: 1px;
+  overflow: hidden;
+  display: block;
+  content: "";
+}
+[theme="w0"] .oform-tabs .oform-tabs-li {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  margin: 0 2px;
+  padding: 8px 32px;
+  border: 1px solid #cccccc;
+  border-bottom: 0;
+  background: #dddddd;
+  color: #444444;
+  border-radius: 4px 4px 0 0;
+}
+[theme="w0"] .oform-tabs .oform-tabs-li[highlight] {
+  color: #ffffff;
+  background: #ff8800;
+  border-color: #ff8800;
+}
+[theme="w0"] .oform-tabs .oform-actions {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  list-style: none;
+  text-align: center;
+  margin: 0;
+  border-top: 1px solid #ff8800;
+  padding: 16px;
+}
+[theme="w0"] .oform-tabs .oform-actions:after {
+  clear: both;
+  height: 1px;
+  overflow: hidden;
+  display: block;
+  content: "";
+}
+[theme="w0"] .oform-tabs .oform-abtn {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  margin: 0 2px;
+  padding: 8px 32px;
+  border: 1px solid #cccccc;
+  background: #eeeeee;
+  color: #0088ff;
+  border-radius: 4px;
+}
+[theme="w0"] .oform-tabs .oform-abtn:hover {
+  color: #44aaff;
+  background: #ddddff;
+}
+[theme="w0"] .oform-tabs .oform-grp {
+  display: none;
+}
+[theme="w0"] .oform-tabs .oform-tabs-main[grp-nb="1"] .oform-grp {
+  display: table;
 }

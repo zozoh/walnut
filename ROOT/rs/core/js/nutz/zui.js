@@ -29,7 +29,7 @@ define(function (require, exports, module) {
 
         // 搜索所有的 DOM 扩展点
         ME.gasket = {};
-        ME.arena.find("[ui-gasket]").each(function () {
+        ME.$el.find("[ui-gasket]").each(function () {
             var me = $(this);
             var nm = $.trim(me.attr("ui-gasket"));
             ME.gasket[nm] = {
@@ -40,6 +40,41 @@ define(function (require, exports, module) {
         });
 
         // DOM 解析完成
+    };
+
+    var register = function(UI) {
+        var options = UI.options;
+        // 考虑将自己组合到自己的父插件
+        if (UI.parent && UI.gasketName) {
+            var gas = UI.parent.gasket[UI.gasketName];
+            if (!gas)
+                throw "Fail to found gasket '" + UI.gasketName + "'";
+            // 如果已经存在了插件，是否需要释放
+            if(!gas.multi && gas.ui.length>0) {
+                gas.ui.forEach(function(ui){
+                    ui.destroy();
+                });
+                gas.ui = [];
+            }
+            // 将自己添加到父插件
+            gas.ui.push(UI);
+            UI.$pel = gas.jq;
+            UI.pel = gas.jq[0];
+        }
+        // 采用给定的父，如果没指定父，则直接添加到 document.body 上
+        else {
+            UI.$pel = options.$pel || $(document.body);
+            UI.pel = UI.$pel[0];
+        }
+        // 加入 DOM 树
+        UI.$pel.append(UI.$el);
+
+        // 记录自身实例
+        UI.$el.attr("ui-id", UI.cid);
+        ZUI.instances[UI.cid] = UI;
+        if (document.body == UI.pel || !UI.parent) {
+            window.ZUI.tops.push(UI);
+        }
     };
 
     // 定义一个 UI 的原型
@@ -56,45 +91,15 @@ define(function (require, exports, module) {
             UI.parent = options.parent;
             UI.gasketName = options.gasketName;
             UI.depth = UI.parent ? UI.parent.depth + 1 : 0;
+            // 继承执行器
+            UI.exec = options.exec || (UI.parent||{}).exec;
 
-            UI.$el.attr("theme", options.theme || "w0");
-
-            // 考虑将自己组合到自己的父插件
-            if (UI.parent && UI.gasketName) {
-                var gas = UI.parent.gasket[UI.gasketName];
-                if (!gas)
-                    throw "Fail to found gasket '" + UI.gasketName + "'";
-                // 如果已经存在了插件，是否需要释放
-                if(!gas.multi && gas.ui.length>0) {
-                    gas.ui.forEach(function(ui){
-                        ui.destroy();
-                    });
-                    gas.ui = [];
-                }
-                // 将自己添加到父插件
-                gas.ui.push(UI);
-                UI.$pel = gas.jq;
-                UI.pel = gas.jq[0];
-            }
-            // 采用给定的父，如果没指定父，则直接添加到 document.body 上
-            else {
-                UI.$pel = options.$pel || $(document.body);
-                UI.pel = UI.$pel[0];
-            }
-            // 加入 DOM 树
-            UI.$pel.append(UI.$el);
-
-            // 记录自身实例
-            UI.$el.attr("ui-id", UI.cid);
-            ZUI.instances[UI.cid] = UI;
-            if (document.body == UI.pel || !UI.parent) {
-                window.ZUI.tops.push(UI);
-            }
+            // ???
 
             // 确定 uiKey，并用其索引自身实例
             if(UI.uiKey){
                 if(ZUI.getByKey(UI.uiKey)){
-                    throw 'UI : uiKey="'+uiKey+'" exists!!!';
+                    throw 'UI : uiKey="'+UI.uiKey+'" exists!!!';
                 }
                 ZUI._uis[UI.uiKey] = UI;
                 // 看看有没有要延迟监听的
@@ -130,6 +135,7 @@ define(function (require, exports, module) {
         },
         destroy: function () {
             var UI = this;
+            console.log("destroy: " + UI.uiName)
             // 触发事件
             $z.invoke(UI.options, "on_depose", [], UI);
             UI.trigger("ui:depose", UI);
@@ -170,13 +176,17 @@ define(function (require, exports, module) {
         // 渲染自身
         render: function (afterRender) {
             var UI = this;
+            var options = UI.options;
             
             // 确定语言
             UI.lang = (UI.parent||{}).lang || window.$zui_i18n || "zh-cn";
 
+            register(UI);
+
             // 加载 CSS
-            if (UI.$ui.css) {
-                seajs.use(UI.$ui.css);
+            var uiCSS = UI.options.css || UI.$ui.css;
+            if (uiCSS) {
+                seajs.use(uiCSS);
             }
             // 看看是否需要异步加载多国语言字符串
             var callback = function (mm) {
@@ -186,7 +196,8 @@ define(function (require, exports, module) {
                                         mm || {});
                 // 用户自定义 redraw 执行完毕的处理
                 var do_after_redraw = function(){
-                    //console.log("!!!!! do_after_redraw:", UI.uiName, UI._defer_uiTypes)
+                    // if("ui.mask" == UI.uiName)
+                    //     console.log("!!!!! do_after_redraw:", UI.uiName, UI._defer_uiTypes)
                     // 回调
                     if (typeof afterRender === "function") {
                         afterRender.call(UI);
@@ -222,15 +233,16 @@ define(function (require, exports, module) {
                     //console.log("do_render:", UI.uiName, UI._defer_uiTypes)
                 };
                 // 看看是否需要解析 DOM
-                if (UI.$ui.dom) {
+                var uiDOM = UI.options.dom || UI.$ui.dom;
+                if (uiDOM) {
                     // DOM 片段本身就是一段 HTML 代码 
-                    if (/^\/\*.+\*\/$/m.test(UI.$ui.dom.replace(/\n/g, ""))) {
-                        parse_dom.call(UI, UI.$ui.dom.substring(2, UI.$ui.dom.length - 2));
+                    if (/^\/\*.+\*\/$/m.test(uiDOM.replace(/\n/g, ""))) {
+                        parse_dom.call(UI, uiDOM.substring(2, uiDOM.length - 2));
                         do_render();
                     }
                     // DOM 片段存放在另外一个地址
                     else {
-                        require.async(UI.$ui.dom, function (html) {
+                        require.async(uiDOM, function (html) {
                             parse_dom.call(UI, html);
                             do_render();
                         });
@@ -242,13 +254,14 @@ define(function (require, exports, module) {
                 }
             };
             // 采用父 UI 的字符串
-            if (".." == UI.$ui.i18n) {
+            var uiI18N = UI.options.i18n || UI.$ui.i18n;
+            if (".." == uiI18N) {
                 callback({});
             }
             // 采用自己的字符串
-            else if (UI.$ui.i18n) {
-                UI.$ui.i18n = _.template(UI.$ui.i18n)({lang: UI.lang});
-                require.async(UI.$ui.i18n, callback);
+            else if (uiI18N) {
+                uiI18N = _.template(uiI18N)({lang: UI.lang});
+                require.async(uiI18N, callback);
             }
             // 空的
             else {
@@ -274,10 +287,13 @@ define(function (require, exports, module) {
                             return;
                         }
                     }
-                    UI._defer_do_after_redraw.call(UI);
-                    delete UI._defer_uiTypes;
-                    delete UI._loaded_uiTypes;
-                    delete UI._defer_do_after_redraw;
+                    // 延迟调用
+                    window.setTimeout(function(){
+                        UI._defer_do_after_redraw.call(UI);
+                        delete UI._defer_uiTypes;
+                        delete UI._loaded_uiTypes;
+                        delete UI._defer_do_after_redraw;
+                    }, 0);
                 }
             }
         },
@@ -527,17 +543,17 @@ define(function (require, exports, module) {
     var ZUI = function(arg0, arg1){
         // 定义
         if(_.isString(arg0) && _.isObject(arg1)){
-            return this.def(arg0, arg1);
+            return ZUI.def(arg0, arg1);
         }
         // 获取实例
         else if(_.isElement(arg0) || (arg0 instanceof jQuery)){
-            return arg1 ? this.checkInstance(arg0)
-                        : this.getInstance(arg0);
+            return arg1 ? ZUI.checkInstance(arg0)
+                        : ZUI.getInstance(arg0);
         }
         // 根据 uiKey
         else if(_.isString(arg0)){
-            return arg1 ? this.checkByKey(arg0)
-                        : this.getByKey(arg0);
+            return arg1 ? ZUI.checkByKey(arg0)
+                        : ZUI.getByKey(arg0);
         }
         // 未知处理
         throw "Unknown arg0 : " + arg0 + ", arg1" + arg1;
@@ -593,6 +609,18 @@ define(function (require, exports, module) {
     ZUI.def = function (uiName, conf) {
         var UIDef = this.definitions[uiName];
         if (!UIDef) {
+            // 这里准备将所有用户自定义事件包裹一下
+            // 以便能够控制不让按钮被连续点击之类的
+            // if("ui.opager" == uiName)
+            // if(_.isObject(conf.events)){
+            //     for(var eKey in conf.events){
+            //         var func = conf.events[eKey];
+            //         conf.events[eKey] = function(e){
+            //             func.call(this, e);
+            //         };
+            //     }
+            // }
+
             // 准备配置对象的默认属性
             var viewOptions = {
                 uiName: uiName,
@@ -680,6 +708,10 @@ define(function (require, exports, module) {
     // 注册 window 的 resize 和键盘事件
     // 以便统一处理所有 UI 的 resize 行为和快捷键行为 
     if (!window._zui_events_binding) {
+        // 设定主题
+        if(!$(document.body).attr("theme"))
+            $(document.body).attr("theme", "w0");
+
         // 改变窗口大小
         $(window).resize(function () {
             for (var i = 0; i < window.ZUI.tops.length; i++) {

@@ -11,7 +11,7 @@
 }
 [theme="w0"] .osearch-list {
   min-height: 300px;
-  padding: 10px;
+  padding: 10px 0;
 }
 [theme="w0"] .osearch-checkbox,
 [theme="w0"] .osearch-actions {
@@ -20,8 +20,8 @@
 }
 [theme="w0"] .osearch-check-opts {
   list-style: none;
-  margin: 0;
   padding: 0;
+  margin: 0;
 }
 [theme="w0"] .osearch-check-opts > li {
   float: left;

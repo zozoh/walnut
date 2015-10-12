@@ -98,6 +98,13 @@ new UIOList({
         }
     }
 
+    // 定义一个过滤器，在绘制数据之前，每个数据都要经过过滤函数
+    // 函数 return 一个经过过滤的绘制对象。 如果返回空或未定义，那么将不绘制
+    filter : F(o)
+
+    // 定义一个自定义的比较方法，这样，输出列表的时候，就会默认依照这个排序
+    comparer : F(o1,o2)
+
     // 下面是一组回调，当响应行为发生的时候会触发对应的回调
     // 同时作为 Backbone 的插件，它也会触发一个消息，请参看对应的注释
     // 所有的回调函数的 this 都为 UI 对象本身
@@ -186,6 +193,12 @@ var objList = olist.getData();
 // permanent - 为 true 则修改 options.data 的设定，即下次 refresh 还是用这个数据
 olist.setData(d, permanent)
 ```
+
+## addLast
+
+```
+```
+
 
 ## refresh
 

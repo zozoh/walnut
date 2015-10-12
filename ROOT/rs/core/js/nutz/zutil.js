@@ -11,6 +11,30 @@
 
     var zUtil = {
         //.............................................
+        // 将一个字符串，根据 Javascript 的类型进行转换
+        strToJsObj : function(v, type){
+            switch(type){
+                case 'string':
+                    return v || null;
+                case 'number':
+                    var re = v * 1; 
+                    return v == re ? re : -1;
+                case 'int':
+                    var re = v * 1; 
+                    return v == re ? parseInt(re) : -1;
+                case 'object':
+                    return this.fromJson(v);
+                case 'boolean':
+                    return /^(true|yes|on|ok)$/.test(v);
+                case 'date':
+                case 'datetime':
+                case 'time':
+                    return v;
+                default:
+                    throw "Unknown type ["+type+"] for value:" + v;
+            }
+        },
+        //.............................................
         // 计算尺寸
         //  -v : 要计算的尺寸值的类型可以是
         //       500   - 整数，直接返回
@@ -162,13 +186,13 @@
                 return callback.apply(context, [data]);
             }
             // 函数
-            if(_.isFunction(data)){
+            else if(_.isFunction(data)){
                 return data.call(context, params, function(objs){
                     callback.apply(context, [objs]);
                 });
             }
             // 字符串，试图看看 context 里有没有 exec 方法
-            if(_.isString(data)){
+            else if(_.isString(data)){
                 var str  = (_.template(data))(params);
                 //console.log(">> exec: ", str)
                 var execFunc = context.exec || (context.options||{}).exec;
@@ -181,8 +205,8 @@
                 throw "context DO NOT support exec : " + context;
             }
             // 执行 ajax 请求
-            if(data.url){
-                return $.ajax(_.extend({}, {
+            else if(data.url){
+                return $.ajax(_.extend({
                     method   : "GET",
                     data     : params,
                     dataType : "json",
@@ -198,8 +222,10 @@
                     }
                 }, data));
             }
-            // 靠，什么鬼玩意
-            throw "Shit!!! unknown data: <" + data + ">";
+            // 厄，弱弱的直接返回一下吧
+            else{
+                callback.apply(context, [data]);
+            }
         },
         //.............................................
         // 设置一个 input 的值，如果值与 placeholder 相同，则清除值
@@ -498,6 +524,12 @@
                 str += char;
             }
             return str;
+        },
+        // 显示一个元素的尺寸，调试用
+        _dumpSize : function(ele){
+            var jq = $(ele);
+            console.log("height:", jq.height() ," out:", jq.outerHeight(), " inner:", jq.innerHeight());
+            console.log("width:", jq.width() ," out:", jq.outerWidth(), " inner:", jq.innerWidth());
         },
         // 未实现
         noImplement: function () {

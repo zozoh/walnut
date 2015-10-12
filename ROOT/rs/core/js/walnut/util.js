@@ -32,6 +32,10 @@ exports.exec = function (str, options) {
     if (typeof options == "function") {
         options = {complete: options};
     }
+    // 没有 options 就给个空对象
+    else if(_.isUndefined(options)){
+        options = {};
+    }
 
     var context = options.context || this;
 

@@ -45,7 +45,7 @@
 }
 [theme="w0"] .ui-mask-main {
   position: absolute;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 6px;
   border: 1px solid #888;
   overflow: hidden;

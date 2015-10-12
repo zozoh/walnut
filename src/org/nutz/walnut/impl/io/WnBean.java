@@ -475,7 +475,8 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public boolean isHidden() {
-        return name().startsWith(".");
+        String nm = name();
+        return null != nm && nm.startsWith(".");
     }
 
     @Override

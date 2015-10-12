@@ -107,6 +107,11 @@ options : {
     parent     : UI(..)
     gasketName : ".."
     model      : {..}
+    // 这些可以重载 ZUI 的定义
+    i18n
+    dom
+    css
+    redraw
     // 主题，默认为 w0
     theme      : "w0" 
     // 下面四个事件是 UI 四种行为时的标准回调，你可以在生成实例的参数里做自定义 

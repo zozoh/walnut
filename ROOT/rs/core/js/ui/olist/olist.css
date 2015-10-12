@@ -1,6 +1,6 @@
 /*theme:w0 .................................................*/
 [theme="w0"] .ui-olist > .ui-arena {
-  padding: 20px;
+  padding: 20px; overflow: auto;
 }
 [theme="w0"] .olist-item {
   padding: 8px;

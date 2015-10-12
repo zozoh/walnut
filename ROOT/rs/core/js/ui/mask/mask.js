@@ -40,7 +40,7 @@ return ZUI.def("ui.mask", {
             });
             // 建立 UI 并记录实例到自己的属性
             seajs.use(uiType, function(BodyUI){
-                UI._body = new BodyUI(uiConf).render(function(){
+                UI.body = new BodyUI(uiConf).render(function(){
                     UI.defer_report(0, uiType);
                 });
             });
@@ -61,8 +61,21 @@ return ZUI.def("ui.mask", {
         var H = winsz.height;
         //console.log(W,H)
         // 计算主区域的宽高和位置
-        var mW = $z.dimension(UI.options.width, W);
-        var mH = $z.dimension(UI.options.height, W);
+        var uoW = UI.options.width;
+        var uoH = UI.options.height;
+
+        var mW, mH;
+        // 高度先计算
+        if(_.isString(uoH) || parseInt(uoH) == uoH){
+            mH = $z.dimension(UI.options.height, H);
+            mW = $z.dimension(UI.options.width, mH)
+        }
+        // 那就一定是宽度先计算咯
+        else{
+            mW = $z.dimension(UI.options.width, W)
+            mH = $z.dimension(UI.options.height, mW);
+        }
+
         var mL = (W-mW)/2
         var mT = (H-mH)*0.382;
         UI.arena.find(".ui-mask-main").css({

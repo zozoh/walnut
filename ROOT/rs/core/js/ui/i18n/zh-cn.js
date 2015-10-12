@@ -5,6 +5,14 @@ define({
     "delete"  : "删除",
     "edit"    : "编辑",
     "clear"   : "清除",
+    "close"   : "关闭",
+    "ok"      : "确定",
+    "cancel"  : "取消",
+    "yes"     : "是",
+    "no"      : "否",
     "others"  : "其他",
-    "other"   : "其他"
+    "other"   : "其他",
+    "exit"    : "退出",
+    "walcome" : "欢迎",
+    "e_ajax"  : "靠，有问题啦， 错误码:{{errCode}}  细节:{{msg}} : {{data}}"
 });
