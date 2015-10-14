@@ -498,7 +498,8 @@ $(document).ready(function () {
 
 
             // header恢复默认样式
-            mphome.components.main.html("");
+            mphome.components.main.empty();
+
             mphome.header.asHeader();
 
             var html = "";

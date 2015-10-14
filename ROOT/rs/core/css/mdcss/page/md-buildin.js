@@ -31,7 +31,7 @@ $(document).ready(function () {
 
         $msg.animate({
             opacity: 1,
-        }, 'fast', function () {
+        }, 'slow', function () {
             setTimeout(function () {
                 $msg.animate({
                     opacity: 0,
