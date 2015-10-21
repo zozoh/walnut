@@ -44,13 +44,13 @@ public class cmd_weixin extends JvmExecutor {
     @Override
     public void exec(final WnSystem sys, String[] args) {
         // 分析参数
-        ZParams params = ZParams.parse(args, null);
+        ZParams params = ZParams.parse(args, "^debug$");
 
         // 处理输入
         if (params.has("in")) {
             String str = params.get("in");
             WnObj o = Wn.checkObj(sys, str);
-            wxin.handle(sys, o);
+            wxin.handle(sys, o, params.is("debug"));
         }
         // 处理菜单
         else if (params.has("menu")) {
@@ -84,11 +84,27 @@ public class cmd_weixin extends JvmExecutor {
         else if (params.has("info")) {
             __do_info(sys, params);
         }
+        // 根据 OpenId 获得某用户的信息
+        else if (params.has("openid")) {
+            __do_get_user_info_by_openid(sys, params);
+        }
         // 无法处理
         else {
             throw Er.create("e.cmd.weixin.invalid", args);
         }
 
+    }
+
+    private void __do_get_user_info_by_openid(WnSystem sys, ZParams params) {
+        // 读取微信配置信息
+        WnIoWeixinApi wxApi = WxUtil.newWxApi(sys, params);
+
+        String openid = params.check("openid");
+        String lang = params.get("lang", "zh_CN");
+
+        WxResp resp = wxApi.user_info(openid, lang);
+
+        sys.out.println(Json.toJson(resp, JsonFormat.forLook()));
     }
 
     private void __do_info(WnSystem sys, ZParams params) {

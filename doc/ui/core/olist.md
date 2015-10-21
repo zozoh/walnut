@@ -183,6 +183,12 @@ olist.toggle(Element | jQuery | Number | "selector" | {..})
 ```
 // 获取当前正在显示的 WnObj 的数组
 var objList = olist.getData();
+
+// 根据下标获取某一个对象，如果下标为负数，则从末尾拿，-1 表示最后一个对象
+var obj = olist.getData(5);
+
+// 根据 ID 获取某个对象
+var obj = olist.getData("cdaa6651da3cd..");
 ```
 
 ## setData
@@ -206,7 +212,12 @@ olist.setData(d, permanent)
 // 重新从 options.data 处获取数据，并刷新显示
 ```
 
+## showLoading
 
+```
+// 显示界面显示加载数据字样
+olist.showLoading();
+```
 
 
 

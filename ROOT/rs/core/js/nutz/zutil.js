@@ -11,6 +11,48 @@
 
     var zUtil = {
         //.............................................
+        // 本地存储保存某用户的某个界面的设置
+        // appName : 应用名称
+        // me      : 用户标识
+        // key     : 保存的键
+        // val     : 值
+        // 如果没有 val 表示获取
+        // 如果不支持 localStorage，则抛错
+        local : function(appName, me,  key, val){
+            if(!localStorage)
+                throw "Browser don't support localStorage! "+appName+"-"+key;
+
+            var appConf = $z.fromJson(localStorage.getItem(appName) || "{}");
+            var myConf = appConf[me] || {};
+            // 设置
+            if(!_.isUndefined(val)){
+                myConf[key] = val;
+                appConf[me] = myConf;
+                localStorage.setItem(appName, $z.toJson(appConf));
+                return myConf;
+            }
+            // 获取
+            else{
+                return myConf[key];
+            }
+        },
+        //.............................................
+        // 获取当前文档所有被选择的文字内容
+        //  - forceReturnArray true 表示强制返回数组
+        // 返回一个字符串数组，表示各个 Range 所选择的内容
+        getSelectedTexts : function(forceReturnArray){
+            var sel = getSelection();
+            var re = [];
+            if(sel){
+                for(var i=0; i<sel.rangeCount; i++){
+                    var rag = sel.getRangeAt(i);
+                    if(!rag.collapsed)
+                        re.push(rag.toString());
+                }
+            }
+            return re.length == 0 ? (forceReturnArray?re:null) : re;
+        },
+        //.............................................
         // 将一个字符串，根据 Javascript 的类型进行转换
         strToJsObj : function(v, type){
             switch(type){
@@ -55,16 +97,67 @@
             throw  "fail to dimension : " + v;
         },
         //.............................................
+        // 从数组里获取值
+        //   arr   : 数组
+        //   index : 下标
+        //   dft   : 如果下标越界，返回的东东
+        getItem : function(arr, index, dft){
+            // 从后面取重新计算一下下标
+            if(index < 0) {
+                index = arr.length + index;
+            }
+            if(index<0 || index>=arr.length)
+                return dft;
+            return arr[index];
+        },
+        //.............................................
+        // 从普通对象里获取值
         // 根据键获取某对象的值，如果键是  "." 分隔的，则依次一层层进入对象获取值
+        //   obj : 对象
+        //   key : 键值，支持 "."
+        //   dft : 如果木找到，返回的东东
         getValue : function(obj, key, dft){
+            var re = obj[key];
+            if(re)
+                return re;
+            
             var ks = key.split(".");
-            var re = obj;
-            for (var i = 0; i < ks.length; i++) {
-                re = re[ks[i]];
-                if (!re)
+            if(ks.length>1){
+                re = obj[ks[0]];
+                if(!re)
                     return dft;
+                for (var i = 1; i < ks.length; i++) {
+                    re = re[ks[i]];
+                    if (!re)
+                        return dft;
+                }
             }
             return re;
+        },
+        //.............................................
+        // 向普通对象里设置值
+        // 根据键获取某对象的值，如果键是  "." 分隔的，则依次一层层进入对象设值
+        //   obj : 对象
+        //   key : 键值，支持 "."
+        //   val : 值
+        setValue : function(obj, key, val){         
+            var ks = key.split(".");
+            if(ks.length>1){
+                o = obj;
+                var lastIndex = ks.length - 1;
+                for (var i = 0; i < lastIndex; i++) {
+                    var key = ks[i];
+                    o = o[key];
+                    if(!o){
+                        o = {};
+                        obj[key] = o;
+                    }
+                }
+                o[ks[lastIndex]] = val;
+            }
+            else{
+                obj[key] = val;
+            }
         },
         //.............................................
         // 执行一个 HTML5 的文件上传操作，函数接受一个配置对象：
@@ -142,6 +235,50 @@
             $z.invoke(opt, "beforeSend", [xhr]);
             // 执行上传
             xhr.send(opt.file);
+        },
+        // 深层遍历一个给定的 Object，如果对象的字段有类似 "function(...}" 的字符串，将其变成函数对象 
+        evalFunctionField : function(obj, memo){
+            if(!memo)
+                memo = [];
+            for(var key in obj){
+                var v = obj[key];
+                // 字符串
+                if(_.isString(v)){
+                    if(/^[ \t]*function[ \t]*\(.+\}[ \t]*/.test(v)){
+                        obj[key] = eval('(' + v + ')');
+                    }
+                }
+                // 数组针对每个对象都来一下
+                else if(_.isArray(v)){
+                    v.forEach(function(ele){
+                        $z.evalFunctionField(ele, memo);
+                    });
+                }
+                // 如果是对象，但是应该无视
+                else if(v instanceof jQuery
+                       || _.isElement(v)){
+
+                }
+                // 如果是普通对象，那么递归
+                else if(_.isObject(v)){
+                    // 如果是特别指明 UI 调用的，变函数
+                    if(window.ZUI && v.callUI && v.method){
+                        var UI = window.ZUI(v.callUI);
+                        var func = UI[v.method] || UI.options[v.method];
+                        if(_.isFunction(func)){
+                            obj[key] = func;
+                        }else{
+                            throw "ZUI: " + v.callUI + "." + v.method + " not a function!!!";
+                        }
+                    }
+                    // 否则递归
+                    else if(memo.indexOf(v)==-1){
+                        memo.push(v);
+                        $z.evalFunctionField(v, memo);
+                    }
+                }
+            }
+            return obj;
         },
         /*
         获取数据的方法，它的值可能性比较多:

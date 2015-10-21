@@ -34,8 +34,8 @@ tags:
 ## wxconf 的文件格式 
 
     {
-        appID      : 'wx0d4caad29f23b326',
-        appsecret  : 'd68d9507835139b0e21d28b4806c1aa7',
+        appID      : 'urAppID',
+        appsecret  : 'urAppsecret',
         token      : 'TOKEN',
         jsSdkUrl   : "http://...",     // 对于JS-SDK默认的URL
         jsApiList  : [..],             // 对于JS-SDK默认的api列表 
@@ -125,12 +125,79 @@ tags:
 当然你可以不填写 `handlers` 字段，也不会影响微信服务器的验证的。但是如果你
 想根据用户的发来的消息，自动做点什么事情，这个字段就是存放你业务逻辑的地方。 
 
+比如:
+```
+{
+    appID      : 'wx45ac..',
+    appsecret  : '39b0..',
+    token      : 'YOUR-TOKEN',
+    handlers   : [{
+        match   : ['XXX', {'EventKey' : 'LUCK'}],
+        command : 'weixin -out "article:赢大奖，送豪礼;;点击进入抽奖界面;;http://host/path/to/url?openId=${weixin_fromUserName}" -inmsg id:${id}'
+    }]
+}
+```
+
+# 微信请求对象的例子
+
+## 公众号关注
+
+```
+{
+   id :"rg4gncs052jm4qfnjpfkr5i3ng",
+   race :"FILE",
+   ct :1445182719493,
+   lm :1445182719499,
+   nm :"rg4gncs052jm4qfnjpfkr5i3ng",
+   tp :"txt",
+   mime :"text/plain",
+   pid :"phug49p1h8g2lp9jg9chaqoa8g",
+   d0 :"home",
+   d1 :"demo",
+   c :"demo",
+   m :"demo",
+   g :"demo",
+   md :488,
+   "http-usr" :"demo",
+   "http-api" :"in",
+   "http-protocol" :"http/1.0",
+   "http-method" :"POST",
+   "http-uri" :"/api/demo/weixin/in",
+   "http-url" :"http://ngrok.woodpeax.com/api/demo/weixin/in",
+   "http-remote-addr" :"127.0.0.1",
+   "http-remote-host" :"127.0.0.1",
+   "http-remote-port" :58556,
+   "http-qs" :"signature=f33a11e98439ccaeb6f06c3059216a4b3dd018b7&timestamp=1445182719&nonce=1271527330",
+   "http-qs-signature" :"f33a11e98439ccaeb6f06c3059216a4b3dd018b7",
+   "http-qs-timestamp" :"1445182719",
+   "http-qs-nonce" :"1271527330",
+   "http-header-USER-AGENT" :"Mozilla/4.0",
+   "http-header-ACCEPT" :"*/*",
+   "http-header-HOST" :"ngrok.woodpeax.com",
+   "http-header-PRAGMA" :"no-cache",
+   "http-header-CONTENT-LENGTH" :"278",
+   "http-header-CONTENT-TYPE" :"text/xml",
+   len :278,
+   sha1 :"be21688a424d6690559d53ca88b3d3c2950024c5",
+   data :"si7flgcp8ujrcrmgc6cc60j9b0",
+   weixin_MsgType :"event",
+   weixin_Location_X :0.0,
+   weixin_MsgId :0,
+   weixin_Location_Y :0.0,
+   weixin_Scale :0.0,
+   weixin_FromUserName :"okyjlsv00EwLDRHnf_vWoq2iKJaE",
+   weixin_CreateTime :1445182719,
+   weixin_ToUserName :"gh_8a067ab889a2",
+   weixin_Event :"subscribe"
+}
+```
+
 ## 注册 httpapi
 
 首先需要在 `~/.regapi/api/` 目录下建立一个注册的 api，
 比如 `~/.regapi/api/demo/myweixin`。内容是:
 
-    weixin -in id:${id}
+        weixin -in id:${id}
 
 ## 配置转发 URL
 

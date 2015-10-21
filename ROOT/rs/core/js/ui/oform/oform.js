@@ -1,44 +1,13 @@
 (function($z){
 $z.declare('zui', function(ZUI){
 //==============================================
-function getEditByType(UI, key, vType){
-    if(UI.options.idKey == key)
-        return "label";
-    
-    return "input";
-}
-
-function normalize_field(UI, grp, fld){
-    // 必须有 key
-    if(!_.isString(fld.key)){
-        throw "!!! oform said : fld noKey : " + $z.toJson(fld);
-    }
-    // 将字段标题本地化
-    if(fld.title)
-        fld.title = UI.text(fld.title);
-    
-    // 处理字段类型
-    if(!fld.type)
-        fld.type = grp.type;
-
-    // 处理字段控件
-    if(UI.options.idKey == fld.key){
-        fld.editAs = "label";
-    }
-    else if(!fld.editAs) {
-        fld.editAs = grp.editAs;
-    }
-
-}
-//==============================================
 var html = function(){/*
 <div class="ui-code-template">
     <div code-id="flow" class="oform-flow">
         <div class="oform-actions"></div>
         <div class="oform-flow-main"></div>
     </div>
-    <div code-id="flowGroupHead" class="oform-flow-ghead">
-    </div>
+    <div code-id="flowGroupHead" class="oform-flow-ghead"></div>
     <div code-id="tabs" class="oform-tabs">
         <ul class="oform-tabs-bar"></ul>
         <div class="oform-tabs-viewport">
@@ -57,6 +26,7 @@ return ZUI.def("ui.oform", {
     //...............................................................
     init : function(options){
         var UI = this;
+        $z.evalFunctionField(options);
         $z.setUndefined(options, "mergeData", true);
         $z.setUndefined(options, "mode", "flow");
         $z.setUndefined(options, "hideGroupTitleWhenSingle", true);
@@ -92,7 +62,7 @@ return ZUI.def("ui.oform", {
                 if(grp.items){
                     grp.group = true;
                     grp.items.forEach(function(fld){
-                        normalize_field(UI, grp, fld);
+                        UI.normalize_field(fld, grp);
                     });
                 }
                 // 动态组
@@ -119,7 +89,7 @@ return ZUI.def("ui.oform", {
                     };
                 }
                 // 整理
-                normalize_field(UI, grp, fld);
+                UI.normalize_field(fld, grp);
 
                 // 记录到归纳组里
                 grp.items.push(fld);
@@ -204,6 +174,7 @@ return ZUI.def("ui.oform", {
             var jBtn = $(e.currentTarget);
             var aa = jBtn.data("@ACTION");
             var o = UI.getData();
+            //console.log(o)
             var context = aa.context || UI;
             // 回调函数
             if(aa.handler){
@@ -235,7 +206,7 @@ return ZUI.def("ui.oform", {
                 }
                 // 生成命令字符串
                 var str = (_.template(aa.cmd.command))(d);
-                console.log(str)
+                //console.log(str)
                 // 执行命令
                 UI.exec(str, {
                     context  : context,
@@ -249,6 +220,11 @@ return ZUI.def("ui.oform", {
                 throw "Dont know how to run btn : " + jBtn.text() + ":\n" + $z.toJson(aa);
             }
 
+        },
+        "click .oform-e-bool-switch li" : function(e){
+            var jq = $(e.currentTarget);
+            jq.parents(".oform-e-bool-switch").find("li").removeClass("checked");
+            jq.addClass("checked");
         }
     },
     //...............................................................
@@ -372,7 +348,7 @@ return ZUI.def("ui.oform", {
             if(grp.group){
                 grp.items.forEach(function(fld){
                     // 设置字段的编辑控件 
-                    UI._set_field(o, fld, grp);
+                    UI.edit_set(fld, o);
                     // 移除已经处理过的字段
                     if(keys[fld.key])
                         delete keys[fld.key];
@@ -407,7 +383,7 @@ return ZUI.def("ui.oform", {
                     UI.__append_field(grp, fld);
                     grp.items.push(fld);
                     // 设置值
-                    UI._set_field(o, fld, grp);
+                    UI.edit_set(fld, o);
                     // 删除记录
                     delete keys[key];
                 }
@@ -421,62 +397,18 @@ return ZUI.def("ui.oform", {
         UI.groups.forEach(function(grp){
             if(grp.items.length > 0){
                 grp.items.forEach(function(fld){
-                    re[fld.key] = UI._get_field(grp, fld);
-                    // 动态组的话，删除空值
-                    if(grp.others && !re[fld.key]){
-                        delete re[fld.key];
+                    var v = UI.edit_get(fld);
+                    // 如果返回 undefined，表示控件不想修改值
+                    if(_.isUndefined(v)){
+                        return;
                     }
+                    // 更新数据的值
+                    $z.setValue(re, fld.key, v);
                 });
             }
         });
+        console.log(re)
         return re;
-    },
-    //...............................................................
-    _set_field : function(o, fld, grp) {
-        var UI = this;
-        var edit = UI._FLD_EDIT[fld.editAs || grp.editAs];
-        if(!edit){
-            throw "Unsupport editor for field: " + UI._dump_field(fld) 
-                  + "\nin group:\n" + UI._dump_groups(true, grp);
-        }
-        // 显示字段编辑控件
-        edit.set(grp, fld, o);
-    },
-    //...............................................................
-    _get_field : function(grp, fld) {
-        var UI = this;
-        var edit = UI._FLD_EDIT[fld.editAs || grp.editAs];
-        if(!edit){
-            throw "!Un support field editor ["+fld.editAs+"]:" + $z.toJson(fld);
-        }
-        // 显示字段编辑控件
-        return edit.get(fld);
-    },
-    //...............................................................
-    _FLD_EDIT : {
-        "input" : {
-            set : function(grp, fld, obj){
-                var v = obj[fld.key] || "";
-                var jq = fld.$val.find(".oform-e-input");
-                if(jq.size() == 0)
-                    jq = $('<input class="oform-e-input">').appendTo(fld.$val);
-                jq.val(v);
-            },
-            get : function(fld){
-                var jq = fld.$val.find(".oform-e-input");
-                var v =  jq.val();
-                return $z.strToJsObj(v, fld.type);
-            }
-        }, 
-        "label" : {
-            set : function(grp, fld, obj){
-                var v = obj[fld.key] || "";
-                $('<div class="oform-e-label">').text(v).appendTo(fld.$val);
-            },
-            get : function(fld){
-                return fld.$val.text();
-            }
-        }
     },
     //...............................................................
     resize : function(){

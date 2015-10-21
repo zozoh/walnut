@@ -46,6 +46,11 @@ public class WnSystem {
         exec(cmdText, out.getOutputStream(), err.getOutputStream(), in.getInputStream());
     }
 
+    public void execf(String fmt, Object... args) {
+        String cmdText = String.format(fmt, args);
+        exec(cmdText);
+    }
+
     public void exec(String cmdText, OutputStream stdOut, OutputStream stdErr, InputStream stdIn) {
         String[] cmdLines = Jvms.split(cmdText, true, '\n', ';');
         _runner.out = new EscapeCloseOutputStream(null == stdOut ? out.getOutputStream() : stdOut);
@@ -71,6 +76,11 @@ public class WnSystem {
 
     public String exec2(String cmdText) {
         return exec2(cmdText, null);
+    }
+
+    public String exec2f(String fmt, Object... args) {
+        String cmdText = String.format(fmt, args);
+        return exec2(cmdText);
     }
 
     public String exec2(String cmdText, CharSequence input) {

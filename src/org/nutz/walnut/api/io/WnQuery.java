@@ -1,11 +1,14 @@
 package org.nutz.walnut.api.io;
 
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Region;
 
-public class WnQuery extends NutMap {
+public class WnQuery {
 
     private int skip;
 
@@ -13,39 +16,61 @@ public class WnQuery extends NutMap {
 
     private NutMap sort;
 
-    private boolean or;
+    private List<NutMap> list;
 
     public WnQuery() {
         this.sort = new NutMap();
+        this.list = new ArrayList<NutMap>(5);
     }
 
-    public WnQuery range(String key, Region<?> rg) {
-        this.setOrRemove(key, rg);
+    public WnQuery add(NutMap map) {
+        list.add(map);
         return this;
     }
 
-    @Override
-    public WnQuery setv(String key, Object value) {
-        return (WnQuery) super.setv(key, value);
+    public WnQuery addAll(List<NutMap> maps) {
+        list.addAll(maps);
+        return this;
     }
 
-    public WnQuery setRegex(String key, String regex) {
-        return setv(key, Pattern.compile(regex));
+    public List<NutMap> getList() {
+        return list;
+    }
+
+    public NutMap first() {
+        NutMap ele;
+        if (list.isEmpty()) {
+            ele = new NutMap();
+            list.add(ele);
+        } else {
+            ele = list.get(0);
+        }
+        return ele;
+    }
+
+    public NutMap item(int index) {
+        if (index > 0 && index < list.size())
+            return list.get(index);
+        return null;
+    }
+
+    public WnQuery setv(String key, Object value) {
+        NutMap ele = first();
+        ele.setv(key, value);
+        return this;
+    }
+
+    public WnQuery setAll(Map<String, Object> map) {
+        NutMap ele = first();
+        ele.setAll(map);
+        return this;
     }
 
     public void reset() {
-        clear();
+        list.clear();
         sort.clear();
         skip(-1);
         limit(-1);
-    }
-
-    public boolean isOr() {
-        return or;
-    }
-
-    public void setOr(boolean or) {
-        this.or = or;
     }
 
     public int skip() {
@@ -98,4 +123,11 @@ public class WnQuery extends NutMap {
         return sortBy(nm, -1);
     }
 
+    public String toString() {
+        return String.format("+%d : %d @ %s: %s",
+                             skip,
+                             limit,
+                             Json.toJson(sort, JsonFormat.compact().setQuoteName(false)),
+                             Json.toJson(list, JsonFormat.forLook().setQuoteName(false)));
+    }
 }

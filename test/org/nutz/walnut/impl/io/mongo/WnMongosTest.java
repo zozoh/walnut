@@ -15,7 +15,20 @@ public class WnMongosTest {
     @Test
     public void test_int_range() {
         WnQuery q = Wn.Q.pid("--pid--");
-        q.range("nb", Region.Int("[1,)"));
+        q.setv("nb", Region.Int("[1,)"));
+        ZMoDoc doc = WnMongos.toQueryDoc(q);
+
+        assertEquals("--pid--", doc.get("pid"));
+
+        DBObject cNB = (DBObject) doc.get("nb");
+        assertEquals(1, cNB.keySet().size());
+        assertEquals(1, cNB.get("$gte"));
+    }
+
+    @Test
+    public void test_int_range_s() {
+        WnQuery q = Wn.Q.pid("--pid--");
+        q.setv("nb", "[1,)");
         ZMoDoc doc = WnMongos.toQueryDoc(q);
 
         assertEquals("--pid--", doc.get("pid"));

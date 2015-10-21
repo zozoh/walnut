@@ -5,6 +5,7 @@ import java.util.Map;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -16,7 +17,8 @@ public abstract class WxUtil {
     public static void saveToObj(WxInMsg im, WnObj o) {
         Map<String, Object> imMap = Lang.obj2map(im);
         for (Map.Entry<String, Object> en : imMap.entrySet()) {
-            o.setOrRemove("weixin_" + en.getKey(), en.getValue());
+            String key = Strings.upperFirst(en.getKey());
+            o.setOrRemove("weixin_" + key, en.getValue());
         }
     }
 
@@ -29,7 +31,8 @@ public abstract class WxUtil {
                 continue;
 
             if (key.startsWith("weixin_")) {
-                map.put(key.substring("weixin_".length()), val);
+                String objKey = key.substring("weixin_".length());
+                map.put(Strings.lowerFirst(objKey), val);
             }
         }
         return Lang.map2Object(map, WxInMsg.class);
@@ -51,6 +54,10 @@ public abstract class WxUtil {
                 o = o.parent();
                 oConf = sys.io.fetch(oCurrent, "wxconf");
             }
+
+            if (null == oConf)
+                throw Er.create("e.weixin.lack.pnb");
+
         }
         // 创建微信 API
         else {

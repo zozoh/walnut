@@ -5,13 +5,16 @@
   /*.............................................. filter*/
   /*.............................................. pager*/
 }
-[theme="w0"] .osearch-sky {
-  padding: 10px;
-  position: relative;
+[theme="w0"] .osearch-sky:after {
+  clear: both;
+  height: 1px;
+  overflow: hidden;
+  display: block;
+  content: "";
 }
 [theme="w0"] .osearch-list {
   min-height: 300px;
-  padding: 10px 0;
+  padding-right: 10px;
 }
 [theme="w0"] .osearch-checkbox,
 [theme="w0"] .osearch-actions {
@@ -38,7 +41,12 @@
   border-right: 0;
 }
 [theme="w0"] .osearch-actions {
-  padding-left: 10px;
+  padding: 10px;
+  float: left;
+}
+[theme="w0"] .osearch-filter {
+  float: left;
+  padding: 4px;
 }
 [theme="w0"] .ofilter-keyword {
   padding: 0px;
@@ -47,6 +55,9 @@
   font-size: 16px;
   padding: 10px;
   width: 100%;
+}
+[theme="w0"] .osearch-pager {
+  padding: 10px;
 }
 [theme="w0"] .opager-tip {
   color: #888;

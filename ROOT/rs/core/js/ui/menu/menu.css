@@ -4,14 +4,29 @@
 }
 /*theme:w0 .................................................*/
 [theme="w0"] .menu-top-table {
-  border-spacing: 1px;
-  background: #888;
+  border-spacing: 0;
+}
+[theme="w0"] .menu-item {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+[theme="w0"] .mi-wrapper {
+  font-size: 12px;
 }
 [theme="w0"] .menu-item[md="top"] {
-  background: #DDD;
-  padding: 4px 8px;
-  color: #08F;
+  padding: 0;
 }
-[theme="w0"] .menu-item[md="top"]:hover {
-  background: #EEF;
+[theme="w0"] .menu-item[md="top"] .mi-wrapper {
+  padding: 8px 16px;
+  border: 1px solid #aaaaaa;
+  border-radius: 3px;
+  color: #0088ff;
+  margin-left: 1px;
+}
+[theme="w0"] .menu-item[md="top"] .mi-wrapper:hover {
+  border-color: #0088ff;
+  background: #0088ff;
+  color: #ffffff;
 }

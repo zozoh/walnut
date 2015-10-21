@@ -32,13 +32,17 @@ public class WnBean extends NutMap implements WnObj {
         NutMap map = new NutMap();
         for (Map.Entry<String, Object> en : this.entrySet()) {
             String key = en.getKey();
-            // 如果 regex 为空，只要不是 id 且不是 "__" 开头（表隐藏），则全要
-            if (null == regex) {
-                if (!"id".equals(key) && !key.startsWith("__"))
+            // id 是绝对不可以的
+            if ("id".equals(key)) {
+                continue;
+            }
+            // 如果 regex 为空，不是 "__" 开头（表隐藏），则全要
+            else if (null == regex) {
+                if (!key.startsWith("__"))
                     map.put(key, en.getValue());
             }
-            // 否则只给出正则表达式匹配的部分，以及几个固定需要更新的字段
-            else if (key.matches("^nm|race|pid|mnt$") || key.matches(regex)) {
+            // 否则只给出正则表达式匹配的部分
+            else if (key.matches(regex)) {
                 map.put(key, en.getValue());
             }
         }

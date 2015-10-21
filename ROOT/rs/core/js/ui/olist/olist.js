@@ -2,6 +2,11 @@
 $z.declare('zui', function(ZUI){
 //==============================================
 var html = function(){/*
+<div class="ui-code-template">
+    <div code-id="data.loading" class="ui-loading">
+        <i class="fa fa-spinner fa-pulse"></i> <span>{{loading}}</span>
+    </div>
+</div>
 <div class="ui-arena"></div>
 */};
 //==============================================
@@ -64,14 +69,20 @@ return ZUI.def("ui.olist", {
         var UI = this;
         if(!UI.options.activable)
             return;
+        // 字符串表示对象 ID
+        if(_.isString(arg)){
+            arg = '[oid="' + arg + '"]';
+        }
+        // 执行查找
         var jq = $z.jq(UI.arena, arg, ".olist-item").first();
         if(jq.hasClass("olist-item") && !jq.hasClass("olist-item-actived")){
             UI.blur();
             jq.addClass("olist-item-actived");
             var o = jq.data("OBJ");
+            var index = jq.attr("index") * 1;
             // 触发消息 
-            UI.trigger("olist:actived", o);
-            $z.invoke(UI.options, "on_actived", [o], UI);
+            UI.trigger("olist:actived", o, index);
+            $z.invoke(UI.options, "on_actived", [o, index], UI);
         }
     },
     //...............................................................
@@ -166,7 +177,19 @@ return ZUI.def("ui.olist", {
         }
     },
     //...............................................................
-    getData : function(){
+    getData : function(arg){
+        var UI = this;
+        // 数字下标
+        if(_.isNumber(arg)){
+            var jq = $z.jq(UI.arena, arg);
+            return jq.data("OBJ");
+        }
+        // ID
+        if(_.isString(arg)){
+            var jq = UI.arena.children('[oid="' + arg + '"]');
+            return jq.data("OBJ");
+        }
+        // 获取完整的列表
         var objs = [];
         this.arena.children('.olist-item').each(function(){
             objs.push($(this).data("OBJ"));
@@ -184,6 +207,12 @@ return ZUI.def("ui.olist", {
         UI.refresh.call(UI, d, callback);
     },
     //...............................................................
+    showLoading : function(){
+        var UI = this;
+        var jq = UI.ccode("data.loading");
+        UI.arena.empty().append(jq);
+    },
+    //...............................................................
     redraw : function(){
         var UI = this;
         UI.refresh(null, function(){
@@ -194,6 +223,7 @@ return ZUI.def("ui.olist", {
     //..............................................
     refresh : function(d, callback){
         var UI = this;
+        UI.showLoading();
         $z.evalData(d || UI.options.data, null, function(objs){
             if(_.isFunction(UI.options.filter)){
                 var list = [];

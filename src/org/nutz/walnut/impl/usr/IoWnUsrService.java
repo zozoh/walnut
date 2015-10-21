@@ -118,18 +118,18 @@ public class IoWnUsrService implements WnUsrService {
         }
 
         // 电话
-        if (q.containsKey("phone")) {
-            u.phone(q.getString("phone"));
+        if (q.first().containsKey("phone")) {
+            u.phone(q.first().getString("phone"));
             oU.setv("phone", u.phone());
         }
         // 邮箱
-        else if (q.containsKey("email")) {
-            u.email(q.getString("email"));
+        else if (q.first().containsKey("email")) {
+            u.email(q.first().getString("email"));
             oU.setv("email", u.email());
         }
         // 用户名
-        else if (q.containsKey("nm")) {
-            u.name(q.getString("nm"));
+        else if (q.first().containsKey("nm")) {
+            u.name(q.first().getString("nm"));
             oU = io.rename(oU, u.name());
         }
         // 不可能

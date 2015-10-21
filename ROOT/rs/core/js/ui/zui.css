@@ -4,6 +4,15 @@
     box-sizing: border-box;
 }
 
+.ui-clr:after {
+    clear: both;
+    height: 1px;
+    line-height: 1px;
+    overflow: hidden;
+    display: block;
+    content: "";
+}
+
 body.ui-body {
     margin: 0;
     overflow: hidden;
@@ -47,15 +56,6 @@ body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-b
     user-select: none;
 }
 
-.ui-btn:hover {
-    background-color: #4AF;
-    color: #FF0;
-}
-
-.ui-body .fa {
-    cursor: default;
-}
-
 .ui-noselect {
     -moz-user-select: none;
     -khtml-user-select: none;
@@ -63,13 +63,13 @@ body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-b
     user-select: none;  
 }
 
-.ui-clr:after {
-    clear: both;
-    height: 1px;
-    line-height: 1px;
-    overflow: hidden;
-    display: block;
-    content: "";
+.ui-btn:hover {
+    background-color: #4AF;
+    color: #FF0;
+}
+
+.ui-body .fa {
+    cursor: default;
 }
 
 

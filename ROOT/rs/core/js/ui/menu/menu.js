@@ -69,10 +69,13 @@ return ZUI.def("ui.menu", {
         var isTopItem = jP.hasClass("menu-tops");
         var jq = isTopItem ? $('<td>') : $('<div>');
         jq.addClass("menu-item").attr("tp","button");
+
+        jq2 = $('<div class="mi-wrapper"></div>').appendTo(jq);
+
         // 图标：不是顶层项目，一律添加图标以便下拉时对其
         if(!isTopItem){
             jq.attr("md", "sub");
-            var jIcon = $('<span class="menu-item-icon">').appendTo(jq);
+            var jIcon = $('<span class="menu-item-icon">').appendTo(jq2);
             if(mi.icon){
                 jIcon.html(mi.icon);
             }
@@ -83,7 +86,7 @@ return ZUI.def("ui.menu", {
         }
         // 文字
         if(mi.text){
-            var jT = $('<span class="menu-item-text">').appendTo(jq);
+            var jT = $('<span class="menu-item-text">').appendTo(jq2);
             jT.text(UI.text(mi.text));
         }
         // 函数

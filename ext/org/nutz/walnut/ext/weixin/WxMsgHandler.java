@@ -9,6 +9,8 @@ import org.nutz.weixin.bean.WxInMsg;
 
 public class WxMsgHandler {
 
+    public String id;
+
     public Object match;
 
     public boolean context;

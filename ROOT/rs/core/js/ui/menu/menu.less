@@ -6,16 +6,24 @@
 
 /*theme:w0 .................................................*/
 [theme="w0"] {
-    .menu-top-table {
-        border-spacing: 1px;
-        background: #888;
-    }
+    .theme_w0();
+
+    .menu-top-table {border-spacing: 0;}
+    .menu-item {@noselect();}
+    .mi-wrapper {font-size:@f_small;}
 
     .menu-item[md="top"] {
-        background: #DDD; padding:4px 8px; color:#08F;
+        padding:0;
+        .mi-wrapper {
+            padding:@normal @big; border:1px solid @c_gray_shallow;
+            border-radius: 3px;
+            color:@c_main_blue; margin-left:1px;
+        }
+
+        .mi-wrapper:hover {
+            border-color:@c_main_blue; background: @c_main_blue; color:@c_white;
+        }
     }
 
-    .menu-item[md="top"]:hover {
-        background: #EEF;
-    }
+    
 }

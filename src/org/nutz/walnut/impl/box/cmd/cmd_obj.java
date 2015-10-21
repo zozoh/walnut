@@ -32,8 +32,8 @@ public class cmd_obj extends JvmExecutor {
         int skip = params.getInt("skip", -1);
         int limit = params.getInt("limit", -1);
         boolean countPage = params.is("pager");
-        int pn = skip / limit + 1;
-        int pgsz = limit;
+        int pgsz = limit > 0 ? limit : 50;
+        int pn = skip > 0 ? skip / pgsz + 1 : 1;
         int sum_count = -1;
         int sum_page = -1;
         NutMap sort = null;
@@ -87,8 +87,18 @@ public class cmd_obj extends JvmExecutor {
         else if (params.vals.length == 0) {
             String json = params.get("match", "{}");
             WnQuery q = new WnQuery();
+            // 条件是"或"
+            if (Strings.isQuoteBy(json, '[', ']')) {
+                List<NutMap> ors = Json.fromJsonAsList(NutMap.class, json);
+                q.addAll(ors);
+            }
+            // 条件是"与"
+            else {
+                q.add(Lang.map(json));
+            }
+
+            // 添加更多条件
             q.setv("d1", sys.se.group());
-            q.setAll(Lang.map(json));
 
             // 看看是否需要查询分页信息
             if (countPage && limit > 0) {
@@ -122,15 +132,26 @@ public class cmd_obj extends JvmExecutor {
                 __do_sort(sort, list);
             }
 
+            // 看看是否需要查询分页信息
+            if (countPage && limit > 0) {
+                sum_count = list.size();
+                sum_page = (int) Math.ceil(((double) sum_count) / ((double) limit));
+            }
+
             // skip 大于 0
             if (skip > 0) {
-                if (limit > 0)
+                // 截取一部分
+                int toIndex = skip + limit;
+                if (toIndex > skip && toIndex < list.size()) {
                     list = list.subList(skip, skip + limit);
-                else
+                }
+                // 从 skip 开始全部的
+                else {
                     list = list.subList(skip, list.size() - skip);
+                }
             }
             // limit 大于 0
-            else if (limit > 0) {
+            else if (limit > 0 && limit < list.size()) {
                 list = list.subList(0, limit);
             }
         }

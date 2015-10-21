@@ -96,7 +96,7 @@ public abstract class AbstractTaskQueryHdl implements TaskHdl {
                 String v = params.get(key);
                 // 区间
                 if (v.matches("^[\\[\\(][0-9,]+[\\]\\)]$")) {
-                    q.range(key, Region.Int(v));
+                    q.setv(key, Region.Int(v));
                 }
                 // 默认用单个值
                 else {

@@ -3,7 +3,28 @@ define(function (require, exports, module) {
     //console.log(module);
     //console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
     // 采用统一的 ZUI.css
-    seajs.use("zui_css");
+    seajs.use(["ui/zui.css", "ui/data_editing.css"]);
+
+    // 提供数据类型的支持
+    var DTYPES = require('./data_types');
+    var _type = function(fld){
+        var hdl = DTYPES[fld.type];
+        if(!hdl){
+            throw "!! Field without type : " + $z.toJson(fld);
+        }
+        return hdl;
+    };
+
+    // 提供基本的数据显示控件
+    var EDITS = require("./data_editing");
+    var _edit = function(fld){
+        var edit = EDITS[fld.editAs];
+        if(!edit){
+            throw "!! Field without editAs : " + $z.toJson(fld);
+        }
+        return edit;
+    };
+
 
     // 这个逻辑用来解析 UI 的 DOM， 并根据约定，预先得到 gasket 和 layout
     // 当然 layout 不是必须有的
@@ -110,6 +131,8 @@ define(function (require, exports, module) {
             UI.depth = UI.parent ? UI.parent.depth + 1 : 0;
             // 继承执行器
             UI.exec = options.exec || (UI.parent||{}).exec;
+            // 继承应用信息
+            UI.app = options.app || (UI.parent||{}).app;
 
             // 调用子类自定义的 init，以及触发事件
             $z.invoke(UI.$ui, "init", [options], UI);
@@ -133,7 +156,7 @@ define(function (require, exports, module) {
         },
         destroy: function () {
             var UI = this;
-            console.log("destroy: " + UI.uiName)
+            //console.log("destroy: " + UI.uiName)
             // 触发事件
             $z.invoke(UI.options, "on_depose", [], UI);
             UI.trigger("ui:depose", UI);
@@ -196,14 +219,16 @@ define(function (require, exports, module) {
                 var do_after_redraw = function(){
                     // if("ui.mask" == UI.uiName)
                     //     console.log("!!!!! do_after_redraw:", UI.uiName, UI._defer_uiTypes)
-                    // 回调
-                    if (typeof afterRender === "function") {
-                        afterRender.call(UI);
-                    }
+                    // 回调，延迟处理，以便调用者拿到返回值之类的
+                    window.setTimeout(function(){
+                        if (typeof afterRender === "function") {
+                            afterRender.call(UI);
+                        }
 
-                    // 触发事件
-                    $z.invoke(UI.options, "on_redraw", [], UI);
-                    UI.trigger("ui:redraw", UI);
+                        // 触发事件
+                        $z.invoke(UI.options, "on_redraw", [], UI);
+                        UI.trigger("ui:redraw", UI);
+                    }, 10);
 
                     // 因为重绘了，看看有木有必要重新计算尺寸，这里用 setTimeout 确保 resize 是最后执行的指令
                     // TODO 这里可以想办法把 resize 的重复程度降低
@@ -257,9 +282,13 @@ define(function (require, exports, module) {
                 callback({});
             }
             // 采用自己的字符串
-            else if (uiI18N) {
+            else if (_.isString(uiI18N)) {
                 uiI18N = _.template(uiI18N)({lang: UI.lang});
                 require.async(uiI18N, callback);
+            }
+            // 直接传入了一个集合
+            else if(_.isObject(uiI18N)){
+                callback(uiI18N);
             }
             // 空的
             else {
@@ -451,6 +480,17 @@ define(function (require, exports, module) {
                 obj._display[key] = str || val;
             }
         },
+        // 快捷方法，帮助 UI 存储本地状态
+        // 需要设置 "app" 段
+        // 参数 appName 默认会用 app.name 来替代 
+        local : function(key,val, appName){
+            var UI = this;
+            var app = UI.app;
+            if(!app || !app.session || !app.session.me){
+                throw "UI.local need 'app.session.me'";
+            }
+            return $z.local(appName||app.name, app.session.me, key, val);
+        },
         // 字段显示方式可以是模板或者回调，这个函数统一成一个方法
         eval_tmpl_func : function(obj, nm){
             var F = obj ? obj[nm] : null;
@@ -512,6 +552,84 @@ define(function (require, exports, module) {
             if (jq)
                 return jq.clone().removeAttr("code-id");
             throw "Can not found code-template '" + codeId + "'";
+        },
+        //...................................................................
+        val_set : function(fld, o, v){
+            var UI = this;
+            var hdl = _type(fld);
+            hdl.set.apply(UI, [fld, o, v]);
+            return UI;
+        },
+        val_get : function(fld, o){
+            var UI = this;
+            var hdl = _type(fld);
+            return hdl.get.apply(UI, [fld, o]);
+        },
+        val_display : function(fld, o){
+            var UI = this;
+            // 如果自定义了显示方法
+            if(_.isFunction(fld._disfunc)){
+                return fld._disfunc(o, fld, UI);
+            }
+            // 否则采用标准的显示方式
+            var hdl = _type(fld);
+            return hdl.display.apply(UI, [fld, o]);
+        },
+        normalize_field : function(fld, dft){
+            var UI = this;
+
+            // 确保字段有类型 
+            if(dft){
+                fld.type = fld.type || dft.type || 'string';
+            }else{
+                fld.type = fld.type || 'string';
+            }
+
+            // 得到控制器
+            var hdl = _type(fld);
+
+            // 必须有 key
+            if(!_.isString(fld.key)){
+                throw "!!! ZUI : fld noKey : " + $z.toJson(fld);
+            }
+            // 将字段标题本地化
+            if(fld.title)
+                fld.title = UI.text(fld.title);
+            else
+                fld.title = fld.key;
+
+            // 处理字段控件
+            if(UI.options.idKey == fld.key){
+                fld.editAs = "label";
+            }
+            // 处理字段控件
+            if(!fld.editAs) {
+                fld.editAs = hdl.defaultEditAs;
+            }
+
+            // 根据类型处理各个字段的配置信息 
+            hdl.normalize.apply(UI, [fld]);
+
+            // 显示方法
+            fld._disfunc = UI.eval_tmpl_func(fld, "display");
+            $z.setUndefined(fld, "escapeHtml",  true);
+            
+            // 返回自身以便链式赋值
+            return UI;
+        },
+        //...............................................................
+        edit_set : function(fld, o) {
+            var UI = this;
+            var edit = _edit(fld);
+            edit.set.apply(UI, [fld, o]);
+            return UI;
+        },
+        //...............................................................
+        edit_get : function(fld) {
+            var UI = this;
+            var edit = _edit(fld);
+            // 显示字段编辑控件
+            return edit.get.apply(UI, [fld]);
         },
         //...................................................................
         // 提供一个通用的文件上传界面，任何 UI 可以通过

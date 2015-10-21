@@ -2,17 +2,23 @@ package org.nutz.walnut.impl.io.mongo;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.bson.BSONObject;
 import org.nutz.lang.Mirror;
+import org.nutz.lang.util.DateRegion;
+import org.nutz.lang.util.FloatRegion;
+import org.nutz.lang.util.IntRegion;
+import org.nutz.lang.util.LongRegion;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Region;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoDoc;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.io.WnBean;
+import org.nutz.walnut.util.WnRg;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.DBCursor;
@@ -28,215 +34,197 @@ public abstract class WnMongos {
     public static ZMoDoc toQueryDoc(WnQuery q) {
         BasicDBList list = new BasicDBList();
         // 遍历所有的查询条件
-        for (String key : q.keySet()) {
-            Object v = q.get(key);
-            // 空值表示没有
-            if (null == v) {
-                list.add(ZMoDoc.NEW(key, null));
-                continue;
+        for (NutMap map : q.getList()) {
+            ZMoDoc doc = ZMoDoc.NEW();
+            for (Map.Entry<String, Object> en : map.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                _set_to_doc(doc, key, val);
             }
-            // 如果是名称
-            if ("nm".equals(key)) {
-                // 本身就是正则
-                if (v instanceof Pattern) {
-                    list.add(ZMoDoc.NEW(key, v));
-                    continue;
-                }
-
-                // 字符串
-                String str = v.toString();
-                // 本身就是正则
-                if (str.startsWith("^")) {
-                    list.add(ZMoDoc.NEW(key, Pattern.compile(str)));
-                    continue;
-                }
-                // 看看是通配符还是普通名字
-                String s = str.replace("*", ".*");
-                // 直接的名字
-                if (s.equals(str)) {
-                    list.add(ZMoDoc.NEW(key, str));
-                }
-                // 通配符
-                else {
-                    list.add(ZMoDoc.NEW(key, Pattern.compile("^" + s)));
-                }
-                continue;
-            }
-            // 数字类型
-            else if (v instanceof Number) {
-                join_number(list, key, v);
-            }
-            // 范围
-            else if (v instanceof Region) {
-                join_region(list, key, (Region<?>) v);
-            }
-            // 数组
-            else if (v.getClass().isArray()) {
-                join_array(list, key, q.get(key));
-            }
-            // 其他的当做字符串
-            else {
-                join_other(list, key, v);
-            }
+            list.add(doc);
         }
 
         // 根据列表生成查询条件
         ZMoDoc qDoc = null;
         if (!list.isEmpty()) {
-            qDoc = ZMoDoc.NEW();
-            // 全是 "或"
-            if (q.isOr()) {
+            // 查询是个多元素数组，则表示 or
+            if (list.size() > 1) {
+                qDoc = ZMoDoc.NEW();
                 qDoc.put("$or", list);
             }
-            // 如果是 AND，那么就全都丢到 _q 里 ...
+            // 否则就单单一个对象
             else {
-                for (Object o : list) {
-                    qDoc.putAll((BSONObject) o);
-                }
+                qDoc = (ZMoDoc) list.get(0);
             }
         }
         return qDoc;
     }
 
     @SuppressWarnings("unchecked")
-    static void join_other(BasicDBList list, String key, Object v) {
-        if (null == v)
-            return;
-
+    static void _set_to_doc(ZMoDoc q, String key, Object v) {
+        if (null == v) {
+            q.put(key, null);
+        }
+        // 数字类型
+        else if (v instanceof Number) {
+            q.put(key, v);
+        }
+        // 范围
+        else if (v instanceof Region) {
+            __set_region_to_doc(q, key, (Region<?>) v);
+        }
         // Regex
-        if (v instanceof Pattern) {
-            list.add(ZMoDoc.NEW(key, v));
-
+        else if (v instanceof Pattern) {
+            q.put(key, v);
         }
         // Collection
         else if (v instanceof Collection) {
             Collection<Object> col = (Collection<Object>) v;
-            String[] ss = new String[col.size()];
-            int i = 0;
-            for (Object o : col) {
-                ss[i++] = o.toString();
-            }
-            join_enum(list, key, (String[]) ss);
+            Object[] vv = col.toArray(new Object[col.size()]);
+            _set_array_to_doc(q, key, vv);
         }
         // Array
         else if (v.getClass().isArray()) {
-            join_enum(list, key, (String[]) v);
+            _set_array_to_doc(q, key, (Object[]) v);
+        }
+        // Map
+        else if (v instanceof Map) {
+            _set_map_to_doc(q, key, (Map<String, Object>) v);
         }
         // Simple value
         else {
             Mirror<?> mi = Mirror.me(v);
+            // 字符串
             if (mi.isStringLike()) {
                 String s = v.toString();
                 // 非空
                 if (s.length() == 0) {
-                    list.add(ZMoDoc.NEW().ne(key, null));
+                    q.ne(key, null);
+                }
+                // 正则表达式
+                else if (s.startsWith("^")) {
+                    q.put(key, Pattern.compile(s));
+                }
+                // 通配符
+                else if (s.contains("*")) {
+                    String regex = "^" + s.replace("*", ".*");
+                    q.put(key, Pattern.compile(regex));
+                }
+                // 整数范围
+                else if (s.matches(WnRg.intRegion())) {
+                    IntRegion rg = Region.Int(s);
+                    __set_region_to_doc(q, key, rg);
+                }
+                // 长整数范围
+                else if (s.matches(WnRg.longRegion())) {
+                    LongRegion rg = Region.Long(s);
+                    __set_region_to_doc(q, key, rg);
+                }
+                // 浮点范围
+                else if (s.matches(WnRg.floatRegion())) {
+                    FloatRegion rg = Region.Float(s);
+                    __set_region_to_doc(q, key, rg);
+                }
+                // 日期范围
+                else if (s.matches(WnRg.dateRegion())) {
+                    DateRegion rg = Region.Date(s);
+                    __set_region_to_doc(q, key, rg);
                 }
                 // 普通字符串
                 else {
-                    list.add(ZMoDoc.NEW(key, s));
+                    q.put(key, s);
                 }
-            } else {
-                list.add(ZMoDoc.NEW(key, v));
             }
-        }
-    }
-
-    static void join_number(BasicDBList list, String key, Object v) {
-        if (null == v)
-            return;
-
-        // 精确值
-        if (v instanceof Number) {
-            list.add(ZMoDoc.NEW(key, v));
-        }
-        // 范围
-        else if (v instanceof Region) {
-            join_region(list, key, (Region<?>) v);
+            // 其他直接搞吧
+            else {
+                q.put(key, v);
+            }
         }
     }
 
     @SuppressWarnings("unchecked")
-    static void join_array(BasicDBList list, String key, Object v) {
-        if (v == null)
-            return;
+    private static void _set_array_to_doc(ZMoDoc q, String key, Object[] vv) {
+        if (vv.length > 0) {
+            Mirror<?> mi = Mirror.me(vv[0]);
 
-        Object[] ss;
-
-        // Collection
-        if (v instanceof Collection) {
-            Collection<Object> col = (Collection<Object>) v;
-            ss = new String[col.size()];
-            int i = 0;
-            for (Object o : col) {
-                ss[i++] = o.toString();
+            // 是联合的查询
+            if (mi.isMap()) {
+                // 那么 key 必须是 $and 或者 $or
+                if ("$and".equals(key) || "$or".equals(key)) {
+                    BasicDBList list = new BasicDBList();
+                    // 遍历所有的查询条件
+                    for (Object v2 : vv) {
+                        Map<String, Object> map = (Map<String, Object>) v2;
+                        ZMoDoc doc = ZMoDoc.NEW();
+                        for (Map.Entry<String, Object> en : map.entrySet()) {
+                            String key2 = en.getKey();
+                            Object val2 = en.getValue();
+                            _set_to_doc(doc, key2, val2);
+                        }
+                        list.add(doc);
+                    }
+                    q.put(key, list);
+                }
+                // 靠，错误的 Key
+                else {
+                    throw Er.create("e.io.query.unsuport", q.toString());
+                }
             }
-        }
-        // Array
-        else if (v.getClass().isArray()) {
-            ss = (Object[]) v;
-        }
-        // Simple value
-        else {
-            list.add(ZMoDoc.NEW(key, v.toString()));
-            return;
-        }
-
-        // 单个值
-        if (ss.length == 1) {
-            list.add(ZMoDoc.NEW(key, ss[0]));
-        }
-        // 多个值，匹配一个即可
-        else if (ss.length > 0) {
-            list.add(ZMoDoc.NEW().in(key, ss));
+            // 那就作为普通元素的枚举
+            else {
+                _set_enum_to_doc(q, key, vv);
+            }
         }
     }
 
-    static void join_region(BasicDBList list, String key, Region<?> rg) {
+    private static void __set_region_to_doc(ZMoDoc q, String key, Region<?> rg) {
         // 如果是一个范围
         if (rg.isRegion()) {
-            ZMoDoc q = ZMoDoc.NEW();
+            ZMoDoc doc = ZMoDoc.NEW();
             if (rg.left() != null) {
-                q.put(rg.leftOpt("$gt", "$gte"), rg.left());
+                doc.put(rg.leftOpt("$gt", "$gte"), rg.left());
             }
             if (rg.right() != null) {
-                q.put(rg.rightOpt("$lt", "$lte"), rg.right());
+                doc.put(rg.rightOpt("$lt", "$lte"), rg.right());
             }
-            list.add(ZMoDoc.NEW(key, q));
+            q.put(key, doc);
         }
         // 如果是一个精确的值
         else if (!rg.isNull()) {
-            list.add(ZMoDoc.NEW(key, rg.left()));
+            q.put(key, rg.left());
         }
     }
 
-    static void join_enum(BasicDBList list, String key, Object[] ss) {
-        ZMoDoc r = enum_to_Doc(key, ss);
-        if (null != r)
-            list.add(r);
+    private static void _set_map_to_doc(ZMoDoc q, String key, Map<String, Object> map) {
+        ZMoDoc doc = ZMoDoc.NEW();
+        for (Map.Entry<String, Object> en : map.entrySet()) {
+            String key2 = en.getKey();
+            Object val2 = en.getValue();
+            _set_to_doc(doc, key2, val2);
+        }
+        q.put(key, doc);
     }
 
-    static ZMoDoc enum_to_Doc(String key, Object[] ss) {
-        ZMoDoc r = null;
+    private static void _set_enum_to_doc(ZMoDoc q, String key, Object[] ss) {
         // 单个值
         if (ss.length == 1) {
-            r = ZMoDoc.NEW(key, ss[0]);
+            q.put(key, ss[0]);
         }
         // 多个值，看看是 “与” 还是 “或”
         else if (ss.length > 0) {
             // 指明 in
             if (ss[0].equals("in")) {
-                r = ZMoDoc.NEW().in(key, Arrays.copyOfRange(ss, 1, ss.length));
+                q.in(key, Arrays.copyOfRange(ss, 1, ss.length));
             }
             // 指明 all
             else if (ss[0].equals("all")) {
-                r = ZMoDoc.NEW().all(key, Arrays.copyOfRange(ss, 1, ss.length));
+                q.all(key, Arrays.copyOfRange(ss, 1, ss.length));
             }
             // 默认用 in
             else {
-                r = ZMoDoc.NEW().in(key, ss);
+                q.in(key, ss);
             }
         }
-        return r;
     }
 
     /**

@@ -55,20 +55,34 @@ new UIOAdaptor({
 
 # 控件方法
 
-## ui
+## getData
 
 ```
-// 获取当前正在工作的 UI 实例，如果没有任何可用实例，返回 null
-var UI = oadaptor.ui();
+// 如果当前已经创建了一个 UI 实例，并且有 getData 方法，那么调用
+// 否则返回 null
+var d = oadaptor.getData();
+```
+
+## setData
+
+```
+// 如果当前已经创建了一个 UI 实例，并且有 setData 方法，那么调用
+// 否则无视，当然，调用也会传递 callback
+// 同时 oadaptor 有一个约定，如果你传入的参数 o 包括了 "uiAdaptor" 字段
+// 就表示需要先 changeUI 再调用这个新 UI 实例的 setData
+// 这里需要主意的是，如果你的代理 UI.setData 不支持 callback 和 context 参数，那么
+// oadaptor.setData 传了这两个参数也木用。
+oadaptor.setData(o, callback, context);
 ```
 
 ## changeUI
 
 ```
-// 根据对象，按照规则加载 UI
-//  o - 要加载的 UI
-//  callback - 如果 UI 渲染完毕的回调
-var UI = oadaptor.changeUI(o, callback);
+// 触发当前控件
+//  - uiDef    : UI 的定义对象，需要有两个属性 {uiType:"xxx", uiConf:{..}}
+//  - callback : UI 渲染完的回调，默认 context 为新 UI 实例本身
+//  - context  : 这里可以指定回调的实例
+oadaptor.changeUI(uiDef, callback, context)
 ```
 
 

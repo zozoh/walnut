@@ -2,16 +2,27 @@
 $z.declare('zui', function(ZUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena">
-    <div class="otable-head">
-        <table class="otable-head-t"><tbody></tbody></table>
+<div class="ui-code-template">
+    <div code-id="data.table" class="otable">
+        <div class="otable-head">
+            <table class="otable-head-t"><tr></tr></table>
+            <div class="otable-checker"></div>
+        </div>
+        <div class="otable-body">
+            <table class="otable-body-t"><tbody></tbody></table>
+            <div class="otable-ruler"></div>
+        </div>
     </div>
-    <div class="otable-body">
-        <table class="otable-body-t"><tbody></tbody></table>
+    <div code-id="data.loading" class="ui-loading">
+        <i class="fa fa-spinner fa-pulse"></i> <span>{{loading}}</span>
+    </div>
+    <div code-id="thead.cell">
+        <b class="otable-col-tt"></b>
     </div>
 </div>
+<div class="ui-arena"></div>
 */};
-//=======================================================================
+//==============================================
 return ZUI.def("ui.otable", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/otable/otable.css",
@@ -22,8 +33,15 @@ return ZUI.def("ui.otable", {
         $z.setUndefined(options, "activable", true);
         $z.setUndefined(options, "blurable",  true);
         $z.setUndefined(options, "idKey",     "id");
-        $z.setUndefined(options, "nameKey",   "name");
+        $z.setUndefined(options, "nameTitle", "i18n:title");
         $z.setUndefined(options, "columns",   []);
+        $z.setUndefined(options, "layout",   {});
+        $z.setUndefined(options.layout, "sizeHint"  , -200);
+        $z.setUndefined(options.layout, "cellWrap"  , "nowrap");
+        $z.setUndefined(options.layout, "withHeader", true);
+
+        //console.log(options.layout)
+
         if(options.checkable === true) {
             options.checkable = {
                 checked : "fa fa-check-square-o",
@@ -48,10 +66,24 @@ return ZUI.def("ui.otable", {
         }
         // 处理每个列的显示函数 
         options.columns.forEach(function(col){
-            col._disfunc = UI.eval_tmpl_func(col, "display")
-                           || function(o, key){return o[key];};
-            $z.setUndefined(col, "escapeHtml",  true);
+            UI.normalize_field(col);
         });
+
+        // 最后等重绘完毕模拟点击
+        UI.on("otable:change", function(){
+            var jHead = UI.arena.find(".otable-head");
+            UI.arena.find(".otable-body").scroll(function(e){
+                var jq = $(this);
+                var left = jq.scrollLeft();
+                //console.log(left, jq.scrollTop(),jHead.size());
+                jHead.css("left", left * -1);
+            });
+        });
+    },
+    //...............................................................
+    depose : function(){
+        var UI = this;
+        UI.arena.find(".otable-body").unbind();
     },
     //...............................................................
     events : {
@@ -66,6 +98,20 @@ return ZUI.def("ui.otable", {
         "click .ui-arena" : function(){
             if(this.options.blurable)
                 this.blur();
+        },
+        "click .otable-checker>*" : function(e){
+            var UI = this;
+            var jChecker = UI.arena.find(".otable-checker");
+            var tp = $(e.currentTarget).attr("tp");
+            //console.log("tp", tp)
+            // 全选
+            if("none" == tp){
+                UI.check();
+            }
+            // 全取消
+            else{
+                UI.uncheck();
+            }
         }
     },
     //...............................................................
@@ -77,15 +123,20 @@ return ZUI.def("ui.otable", {
         var UI = this;
         if(!UI.options.activable)
             return;
+        // 字符串表示对象 ID
+        if(_.isString(arg)){
+            arg = '[oid="' + arg + '"]';
+        }
+        // 执行查找
         var jq = $z.jq(UI.arena, arg, ".otable-row").first();
-
         if(jq.hasClass("otable-row") && !jq.hasClass("otable-row-actived")){
             UI.blur();
             jq.addClass("otable-row-actived");
             var o = jq.data("OBJ");
+            var index = jq.attr("index") * 1;
             // 触发消息 
-            UI.trigger("otable:actived", o);
-            $z.invoke(UI.options, "on_actived", [o], UI);
+            UI.trigger("otable:actived", o, index);
+            $z.invoke(UI.options, "on_actived", [o, index], UI);
         }
     },
     //...............................................................
@@ -124,6 +175,9 @@ return ZUI.def("ui.otable", {
             // 触发消息 
             UI.trigger("otable:checked", objs);
             $z.invoke(UI.options, "on_checked", [objs], UI);
+
+            // 同步选择器 
+            UI.__sync_checker();
         }
     },
     //...............................................................
@@ -141,6 +195,35 @@ return ZUI.def("ui.otable", {
             // 触发消息 
             UI.trigger("otable:uncheck", objs);
             $z.invoke(UI.options, "on_uncheck", [objs], UI);
+
+            // 同步选择器 
+            UI.__sync_checker();
+        }
+    },
+    //...............................................................
+    __sync_checker : function(){
+        var UI = this;
+        var jChecker = UI.arena.find(".otable-checker:visible");
+
+        if(jChecker.size()<=0){
+            return;
+        }
+
+        var jRows = UI.arena.find(".otable-row");
+        var row_nb = jRows.size();
+        var row_unchecked = jRows.not(".otable-row-checked").size();
+
+        // 全都选中了
+        if(row_nb > 0 && row_unchecked==0){
+            jChecker.children().removeClass("current").filter('[tp="all"]').addClass("current");   
+        }
+        // 全木选中
+        else if(row_nb == row_unchecked){
+            jChecker.children().removeClass("current").filter('[tp="none"]').addClass("current");   
+        }
+        // 部分选中
+        else{
+            jChecker.children().removeClass("current").filter('[tp="part"]').addClass("current");   
         }
     },
     //...............................................................
@@ -173,6 +256,10 @@ return ZUI.def("ui.otable", {
                     checkeds.push(o);
                 }
             });
+
+            // 同步选择器 
+            UI.__sync_checker();
+
             // 触发消息 : checked
             if(checkeds.length > 0) {
                 UI.trigger("otable:checked", checkeds);
@@ -187,8 +274,21 @@ return ZUI.def("ui.otable", {
     },
     //...............................................................
     getData : function(){
+        var UI = this;
+        var jTBody = UI.arena.find(".otable-body-t>tbody");
+        // 数字下标
+        if(_.isNumber(arg)){
+            var jq = $z.jq(jTBody, arg);
+            return jq.data("OBJ");
+        }
+        // ID
+        if(_.isString(arg)){
+            var jq = jTBody.children('[oid="' + arg + '"]');
+            return jq.data("OBJ");
+        }
+        // 获取完整的列表
         var objs = [];
-        this.arena.find('.otable-row').each(function(){
+        jTBody.children('.otable-row').each(function(){
             objs.push($(this).data("OBJ"));
         });
     },
@@ -213,10 +313,16 @@ return ZUI.def("ui.otable", {
         $z.invoke(UI.options, "on_push", [objs], UI);
     },
     //...............................................................
+    showLoading : function(){
+        var UI = this;
+        var jq = UI.ccode("data.loading");
+        UI.arena.empty().append(jq);
+    },
+    //...............................................................
     redraw : function(){
         this.refresh();
     },
-    //..............................................
+    //...............................................................
     refresh : function(d, callback){
         var UI = this;
         $z.evalData(d || UI.options.data, null, function(objs){
@@ -230,36 +336,93 @@ return ZUI.def("ui.otable", {
     _draw_data : function(objs){
         var UI = this;
         var idKey = UI.options.idKey;
-        var nameKey = UI.options.nameKey;
 
         var iconFunc  = UI.eval_tmpl_func(UI.options, "icon");
         var textFunc  = UI.eval_tmpl_func(UI.options, "text");
         var checkable = UI.options.checkable;
-        
-        var jHeadT = UI.arena.find(".otable-head-t");
-        var jBodyT = UI.arena.find(".otable-body-t");
 
-        jHeadT.empty();
-        jBodyT.empty();
+        var jq = UI.ccode("data.table");
+
+        UI.arena.find(".otable-body").unbind();
+        UI.arena.empty().append(jq);
+        
+        var jBodyT = jq.find(".otable-body-t");
 
         if(!objs)
             return;
 
         objs = _.isArray(objs) ? objs : [objs];
-        
+
+        // 输出表头
+        var jHeadT = UI._redraw_header();
+        var jHead = jHeadT.parent();
+
+        // 看看要不要输出 checkbox
+        var jChecker = jHead.children('.otable-checker')
+        if(UI.options.checkable){
+            var cc = UI.options.checkable;
+            $('<i tp="all">').addClass(cc.checked).appendTo(jChecker);
+            $('<i tp="none" class="current">').addClass(cc.normal).appendTo(jChecker);
+            $('<i tp="part">').addClass(cc.checked).appendTo(jChecker);
+            jChecker.show();
+        }else{
+            jChecker.hide();
+        }
+
         // 输出表格内容 
         objs.forEach(function(o, index){
             UI._append_row(o, index, iconFunc, textFunc, jBodyT);
         });
+
+        // 记录一下各个列原始的宽度
+        UI._cols_org_size = [];
+        jBodyT.find("tr:first-child td").each(function(index){
+            UI._cols_org_size[index] = $(this).outerWidth();
+        });
+        // 连同 Header 的原始宽度也一并计算 
+        if(UI.options.layout.withHeader)
+            jHeadT.find("tr:first-child td").each(function(index){
+                var jTd = $(this);
+                var w = Math.max(jTd.outerWidth(), UI._cols_org_size[index]);
+                UI._cols_org_size[index] = w;
+                jTd.attr("org-width", w);
+            });
+
+        // 设置固定属性，以便 resize 函数时时计算宽度
+        jHeadT.css("table-layout", "fixed");
+        jBodyT.css("table-layout", "fixed");
+
+        // 重新计算尺寸
+        UI.resize();
+
         // 最后触发消息
         UI.trigger("otable:change", objs);
         $z.invoke(UI.options, "on_change", [objs], UI);
     },
     //...............................................................
+    _redraw_header : function(){
+        var UI = this;
+        var jHeadT = UI.arena.find(".otable-head-t");
+        var jTr = jHeadT.find("tr").first();
+
+        // 绘制标题列
+        var jNm = $('<td class="otable-col-nm">').appendTo(jTr);
+        jNm.append(UI.ccode("thead.cell"));
+        jNm.find(".otable-col-tt").text(UI.text(UI.options.nameTitle));
+
+        // 绘制其他列
+        UI.options.columns.forEach(function(col){
+            var jTd = $('<td class="otable-col-o">').appendTo(jTr);
+            jTd.append(UI.ccode("thead.cell"));
+            jTd.find(".otable-col-tt").text(UI.text(col.title || col.key));
+        });
+
+        return jHeadT;
+    },
+    //...............................................................
     _append_row : function(o, index, iconFunc, textFunc, jBodyT){
         var UI = this;
         var idKey     = UI.options.idKey;
-        var nameKey   = UI.options.nameKey;
         var checkable = UI.options.checkable;
 
         iconFunc  = iconFunc || UI.eval_tmpl_func(UI.options, "icon");
@@ -305,14 +468,122 @@ return ZUI.def("ui.otable", {
     },
     //...............................................................
     _draw_col : function(jTd, col, o){
+        var UI = this;
         jTd.attr("key", col.key);
-        var val = col._disfunc(o, col.key);
+        var txt = UI.val_display(col, o);
+        var val = UI.text(txt);
         if(col.escapeHtml)
-            val = $('<div/>').text(val).html();
+            val = $('<div>').text(val).html();
         jTd.html(val);
     },
     //...............................................................
     resize : function(){
+        var UI = this;
+        var jHead  = UI.arena.find(".otable-head");
+        var jHeadT = jHead.children(".otable-head-t");
+        var jBody  = UI.arena.find(".otable-body");
+        var jBodyT = jBody.children(".otable-body-t");
+        var jRuler = UI.arena.find(".otable-ruler");
+        var W = jRuler.outerWidth();   // 视口的宽度 
+        // console.log(jBody.width()
+        //             ,jBody.outerWidth()
+        //             ,jBody.outerWidth(true)
+        //             ,jBody.innerWidth()
+        //             , "ruler:"
+        //             ,jRuler.outerWidth()
+        //             ,jRuler.innerWidth()
+        //             ,jRuler.width())
+        // 计算 body 区域，是否有滚动条，如果有滚动条，将标题区域也加一个边距
+        var jSBWidth = jBody.width() - W;
+        if(jSBWidth>0){
+            jHead.css("padding-right", jSBWidth+"px");
+        }
+        // 计算各个列的初始的宽度
+        var _ws = [].concat(UI._cols_org_size);
+
+        // 根据配置的 sizeHint 来调整宽度 
+        var szht = UI.options.layout.sizeHint;
+        if(_.isArray(szht)){
+            var len = Math.min(szht.length, _ws.length);
+            for(var i=0;i<len;i++){
+                _ws[i] = szht[i];
+            }
+        }
+        // 数字表示第一列
+        else if(_.isNumber(szht)){
+            _ws[0] = szht;
+        }
+        // 错误
+        else{
+            throw "Unsuport sizeHint : " + szht;
+        }
+
+        // 计算一下和，以及需要分配的剩余宽度的列
+        var w_sum = 0;
+        var d_cols_index = [];
+        for(var i=0;i<_ws.length;i++){
+            var v = _ws[i];
+            // 零：完全参与自动分配
+            if(v == 0){
+                d_cols_index.push(i);
+            }
+            // 负数：参与自动分配，但是不会低于最小值
+            else if(v < 0){
+                v = Math.abs(v);
+                w_sum += v;
+                _ws[i] = v;
+                d_cols_index.push(i);
+            }
+            // 正数：不参与自动分配
+            else{
+                w_sum += v;
+            }
+        }
+
+        //console.log("A:sum", w_sum, "cols:", _ws);
+
+        // 开始分配剩余
+        if(d_cols_index.length>0 && W > w_sum){
+            var w_remain = W - w_sum;
+            var w_ele = parseInt(w_remain / d_cols_index.length);
+            // 再次分配的剩余
+            var w_re2 = w_remain - (w_ele * d_cols_index.length);
+
+            // 开始分配
+            for(var x = 0; x<d_cols_index.length; x++){
+                var index = d_cols_index[x];
+                _ws[index] += w_ele;
+            }
+            // 二次分配
+            for(var x = 0; x<w_re2; x++){
+                var index = d_cols_index[x];
+                _ws[index]++;
+            }
+        }
+
+        //console.log("B:sum", w_sum, "cols:", _ws);
+
+        // 计算总宽度 
+        var w_table = 0;
+        for(var x = 0; x<_ws.length; x++){
+            w_table += _ws[x];
+        }
+        jHeadT.css("width", w_table);
+        jBodyT.css("width", w_table);
+
+
+        // 好，那么开始调整表头的第一列
+        jHeadT.find("tr:first-child td").each(function(index){
+            $(this).css("width", _ws[index]);
+        });
+
+        // 继续调整表体的第一列
+        jBodyT.find("tr:first-child td").each(function(index){
+            $(this).css("width", _ws[index]);
+        });
+
+        // 嗯，搞定收工
+
     }
     //...............................................................
 });

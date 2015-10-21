@@ -19,7 +19,7 @@ import org.nutz.weixin.util.Wxs;
 
 public class WeixinIn {
 
-    public void handle(WnSystem sys, WnObj o) {
+    public void handle(WnSystem sys, WnObj o, boolean debug) {
         Object method = o.get("http-method");
         // 认证
         if ("GET".equals(method)) {
@@ -27,13 +27,13 @@ public class WeixinIn {
         }
         // 消息输入
         else if ("POST".equals(method)) {
-            do_POST(sys, o);
+            do_POST(sys, o, debug);
         }
         // 最后设置删除时间（缓存10分钟）
         sys.io.appendMeta(o, Lang.map("expi", System.currentTimeMillis() + 600 * 1000));
     }
 
-    private void do_POST(WnSystem sys, WnObj o) {
+    private void do_POST(WnSystem sys, WnObj o, boolean debug) {
         // 分析一下微信的消息
         WxInMsg im = Wxs.convert(sys.io.getInputStream(o, 0));
 
@@ -65,7 +65,8 @@ public class WeixinIn {
                     if (hdl.isMatched(im)) {
                         Lang.each(hdl.command, new Each<String>() {
                             public void invoke(int index, String ele, int length) {
-                                cmdTmpls.add(ele);
+                                if (!Strings.isBlank(ele))
+                                    cmdTmpls.add(ele);
                             }
                         });
                         // 看看是否需要生成上下文
@@ -79,10 +80,12 @@ public class WeixinIn {
 
         // 实在没有命令模板了，直接返回一条消息了事。
         if (cmdTmpls.isEmpty()) {
-            WxOutMsg om = Wxs.respText(im.getFromUserName(), "Get! " + Json.toJson(im));
-            Wxs.fix(im, om);
-            String xml = Wxs.asXml(om);
-            sys.out.println(xml);
+            if (debug) {
+                WxOutMsg om = Wxs.respText(im.getFromUserName(), "Get! " + Json.toJson(im));
+                Wxs.fix(im, om);
+                String xml = Wxs.asXml(om);
+                sys.out.println(xml);
+            }
             return;
         }
 

@@ -96,6 +96,7 @@ public abstract class AbstractWnTree implements WnTree {
         if (!id.matches("[0-9a-v]{26}")) {
             WnQuery q = new WnQuery().limit(2);
             q.setv("id", Pattern.compile("^" + id));
+            q.limit(2);
             List<WnObj> objs = this.query(q);
             if (objs.isEmpty())
                 return null;

@@ -1,12 +1,7 @@
 define({
     "osearch" : {
-        "check" : {
-            "all"    : "全",
-            "none"   : "无",
-            "toggle" : "反",
-        },
         "filter": {
-            "tip"   : "请输出查询关键字"
+            "tip"   : "请输入查询条件"
         },
         "pager" : {
             "tip"   : '页 {{pn}}/{{pgnb}} - 记录数 {{nb}}/{{sum}}',

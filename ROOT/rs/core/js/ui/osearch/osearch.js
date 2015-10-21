@@ -42,18 +42,10 @@ function normalize_sub(options, key, dft) {
 }
 //==============================================
 var html = function(){/*
-<div class="ui-code-template">
-    <ul code-id="check.dft" class="osearch-check-opts">
-        <li tp="all">{{osearch.check.all}}</li>
-        <li tp="none">{{osearch.check.none}}</li>
-        <li tp="toggle">{{osearch.check.toggle}}</li>
-    </ul>
-</div>
 <div class="ui-arena" ui-fitparent="true">
     <div class="osearch-sky">
-        <div class="osearch-checkbox ui-noselect"></div>
-        <div class="osearch-actions" ui-gasket="menu"></div>
         <div class="osearch-filter" ui-gasket="filter"></div>
+        <div class="osearch-actions" ui-gasket="menu"></div>
     </div>
     <div class="osearch-list"  ui-gasket="list"></div>
     <div class="osearch-pager" ui-gasket="pager"></div>
@@ -76,7 +68,7 @@ return ZUI.def("ui.osearch", {
         if(!options.data){
             // 如果设置了执行器，默认用可执行命令来执行
             if(UI.exec)
-                options.data = "obj -match '<%=condition%>' -skip {{skip}} -limit {{pgsz}} -json -pager"
+                options.data = "obj -match '<%=condition%>' -skip {{skip}} -limit {{pgsz}} -json -pager -sort 'nm:1'"
             else
                 throw "osearch require data field!!!";
         }
@@ -88,32 +80,18 @@ return ZUI.def("ui.osearch", {
 
         // 加载完毕，触发的事件
         UI.on("ui:redraw", function(){
-            UI.listenUI(UI._pager, "pager:change", "do_change_page");
+            UI.listenUI(UI._filter, "filter:change", "do_change_filter");
+            UI.listenUI(UI._pager,  "pager:change",  "do_change_page");
             // UI.arena.find(".menu-item").first().click();
         });
     },
     //...............................................................
-    events : {
-        "click .osearch-check-opts [tp]" : function(e){
-            var me = $(e.currentTarget);
-            var tp = me.attr("tp");
-            var UI = ZUI.checkInstance(me);
-            switch(tp){
-            case "all":
-                UI._list.check();
-                break;
-            case "none":
-                UI._list.uncheck();
-                break;
-            case "toggle":
-                UI._list.toggle();
-                break;
-            }
-        }
-    },
-    //...............................................................
     do_change_page : function(pg){
         this.do_search(null, pg);
+    },
+    //...............................................................
+    do_change_filter : function(q){
+        this.do_search(q, null);
     },
     //...............................................................
     __check_obj_fld : function(key){
@@ -136,6 +114,7 @@ return ZUI.def("ui.osearch", {
                 uiType : "ui/oform/oform",
                 uiConf : _.extend(UI.__check_obj_fld("uiForm"), {
                     exec : UI.exec,
+                    i18n : UI._msg_map,
                     actions : [{
                         text : "i18n:ok",
                         cmd  : cmd
@@ -158,6 +137,7 @@ return ZUI.def("ui.osearch", {
             complete : function(re){
                 var obj = $z.fromJson(re);
                 UI._list.addLast(obj);
+                UI._list.resize();
                 this.parent.close();
             }
         })).render(function(){
@@ -167,6 +147,13 @@ return ZUI.def("ui.osearch", {
     do_action_delete : function(){
         var UI = this;
         var objs = UI._list.getChecked();
+        if(!(objs && objs.length>0)){
+            var a_obj = UI._list.getActived();
+            if(a_obj){
+                objs = [a_obj];
+            }
+        }
+
         // 生成命令
         if(objs && objs.length > 0){
             var str = "";
@@ -195,6 +182,7 @@ return ZUI.def("ui.osearch", {
             command  : "obj id:"+obj.id+" -u '<%=json%>'",
             complete : function(re){
                 UI.do_search();
+                UI._list.resize();
                 this.parent.close();
             }
         })).render(function(){
@@ -234,9 +222,6 @@ return ZUI.def("ui.osearch", {
                 })(index,UI.setup.uiTypes[index]);
             };
         });
-
-        // 绘制选择框
-        UI._draw_check();
 
         var deferUiTypes = [].concat(UI.setup.uiTypes);
 
@@ -291,37 +276,36 @@ return ZUI.def("ui.osearch", {
         return false;
     },
     //...............................................................
-    _draw_check : function(){
-        var UI = this;
-        if(UI.options.checkable){
-            var jq = UI.ccode("check.dft");
-            UI.arena.find(".osearch-checkbox").empty().append(jq);
-        }
-    },
-    //...............................................................
     resize : function(deep){
         var UI = this;
         var jSky = UI.arena.find(".osearch-sky");
-        var jCheck = jSky.children(".osearch-checkbox");
         var jActions = jSky.children(".osearch-actions");
         var jFilter = jSky.children(".osearch-filter");
 
         // 得到 jSky 上下空白
-        var sky_padding_v = jSky.outerHeight() - jSky.height();
-        var sky_padding_h = jSky.outerWidth() - jSky.width();
-        var flt_h = jFilter.outerHeight();
-        var flt_left = jCheck.outerWidth() + jActions.outerWidth();
-        var sky_h = flt_h + sky_padding_v;
+        // var sky_padding_v = jSky.outerHeight() - jSky.height();
+        // var sky_padding_h = jSky.outerWidth() - jSky.width();
+        // var flt_h = jFilter.outerHeight();
+        // var flt_right = jActions.outerWidth();
+        // var sky_h = flt_h + sky_padding_v;
         
-        jSky.css("height", sky_h);
+        // jSky.css("height", sky_h);
+        // jFilter.css({
+        //     "position" : "absolute",
+        //     "right"    : flt_right + sky_padding_h*2,
+        //     "top"      : sky_padding_v / 2,
+        //     "left"     : sky_padding_h / 2
+        // });
+        // jActions.css("margin-top", (sky_h - sky_padding_v - jActions.outerHeight())/2);
+        var w_sky = jSky.width();
+        var w_action = jActions.outerWidth(true);
+        var w_filter = w_sky - w_action;
+        if(w_filter<200){
+            w_filter = w_sky;
+        }
         jFilter.css({
-            "position" : "absolute",
-            "left"     : flt_left + sky_padding_h*2,
-            "top"      : sky_padding_v / 2,
-            "right"    : sky_padding_h / 2
+            "width"  : w_filter
         });
-        jCheck.css("margin-top",   (sky_h - sky_padding_v - jCheck.outerHeight())/2);
-        jActions.css("margin-top", (sky_h - sky_padding_v - jActions.outerHeight())/2);
 
         // 计算中间部分的高度
         var jPager = UI.arena.children(".osearch-pager");
@@ -345,14 +329,17 @@ return ZUI.def("ui.osearch", {
         }, callback);
     },
     //...............................................................
-    do_search : function(cnd, pg, callback){
-        //console.log("do_search",cnd, pg)
+    do_search : function(q, pg, callback){
+        //console.log("do_search",q, pg)
         var UI = this;
-        cnd = cnd || UI._filter.getData();
-        pg  = pg  || UI._pager.getData();
+        q  = q  || UI._filter.getData();
+        pg = pg || UI.options.dftQuery;
+
+        // 显示正在加载数据
+        UI._list.showLoading();
 
         // 组合成查询条件，执行查询
-        var q = _.extend({}, UI.options.dftQuery, cnd, pg);
+        var q = _.extend({}, UI.options.dftQuery, q, pg);
         $z.evalData(UI.options.data, q, function(re){
             // 将查询的结果分别设置到列表以及分页器里
             UI._list.setData(re ? re.list : [], true, callback);

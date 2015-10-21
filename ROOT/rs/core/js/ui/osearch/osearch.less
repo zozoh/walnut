@@ -2,12 +2,13 @@
 
 /*theme:w0 .................................................*/
 [theme="w0"] {
-    .osearch-sky {
-        padding:10px; position: relative;
-    }
+    .theme_w0();
+
+    .osearch-sky {}
+    .osearch-sky:after{@clr();}
 
     .osearch-list {
-        min-height: 300px; padding:10px 0;
+        min-height: 300px; padding-right:10px;
     }
     .osearch-checkbox, .osearch-actions {
         display: inline-block; vertical-align: middle;
@@ -23,9 +24,13 @@
     .osearch-check-opts>li:last-child{border-right:0;}
     /*.............................................. actions*/
     .osearch-actions {
-        padding-left:10px;
+        padding:10px; float: left;
     }
     /*.............................................. filter*/
+    .osearch-filter {
+        float: left; padding:4px;
+    }
+
     .ofilter-keyword {
         padding:0px;
     }
@@ -34,6 +39,7 @@
     }
 
     /*.............................................. pager*/
+    .osearch-pager {padding:10px;}
     .opager-tip {
         color:#888; font-style: normal; margin-right:10px;
         display: inline-block; vertical-align: middle;

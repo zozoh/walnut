@@ -1,0 +1,41 @@
+[theme="w0"] .ui-fld-edit-input {
+  font-size: 18px;
+  padding: 8px;
+  width: 100%;
+}
+[theme="w0"] .ui-fld-edit-label {
+  font: 18px 'Lucida Console', Monaco, monospace;
+  padding: 16px 16px;
+}
+[theme="w0"] .ui-fld-edit-bool-switch {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  display: inline-block;
+  cursor: pointer;
+  list-style: none;
+  padding: 1px 0 1px 1px;
+  margin: 3px;
+  border: 1px solid #dddddd;
+  background: #ffffff;
+  color: #888888;
+  font-size: 10px;
+}
+[theme="w0"] .ui-fld-edit-bool-switch li {
+  float: left;
+  padding: 8px 16px;
+  margin-right: 1px;
+  background: #dddddd;
+}
+[theme="w0"] .ui-fld-edit-bool-switch li.checked {
+  color: #ffffff;
+  background: #008800;
+}
+[theme="w0"] .ui-fld-edit-bool-switch:after {
+  clear: both;
+  height: 1px;
+  overflow: hidden;
+  display: block;
+  content: "";
+}
