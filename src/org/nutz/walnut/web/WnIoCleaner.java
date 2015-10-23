@@ -12,6 +12,7 @@ import org.nutz.trans.Atom;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.util.Wn;
 
 public class WnIoCleaner implements Atom {
 
@@ -39,7 +40,8 @@ public class WnIoCleaner implements Atom {
                         log.warnf("something wrong!", e);
                 }
                 // 休息一个时间间隔
-                Thread.sleep(5000);
+                Thread.sleep(60000);
+                Lang.wait(Wn.class, 60000);
             }
         }
         catch (InterruptedException e) {

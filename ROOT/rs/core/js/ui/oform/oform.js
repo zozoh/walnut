@@ -16,7 +16,10 @@ var html = function(){/*
         <div class="oform-actions"></div>
     </div>
 </div>
-<div class="ui-arena" ui-fitparent="yes"></div>
+<div class="ui-arena" ui-fitparent="yes">
+    <div class="oform-title"></div>
+    <div class="oform-body"></div>
+</div>
 */};
 //===================================================================
 return ZUI.def("ui.oform", {
@@ -173,7 +176,15 @@ return ZUI.def("ui.oform", {
             var UI = this;
             var jBtn = $(e.currentTarget);
             var aa = jBtn.data("@ACTION");
-            var o = UI.getData();
+            var o;
+            try {
+                o = UI.getData();
+            }
+            // 处理错误的值
+            catch (E) {
+                alert(UI.text(E.code) + "\nvalue: '" + E.val + "'\n" + $z.toJson(E.fld));
+                return;
+            } 
             //console.log(o)
             var context = aa.context || UI;
             // 回调函数
@@ -183,11 +194,12 @@ return ZUI.def("ui.oform", {
             // URL
             else if(aa.url){
                 $.ajax(_.extend({
-                    url    : url,
+                    url    : aa.url,
                     method : "POST",
                     contentType : "application/json",
                     dataType : "json",
-                    data : $z.toJson(o)
+                    data : $z.toJson(o),
+                    context : UI
                 }, aa.ajax));
             }
             // 执行命令
@@ -230,7 +242,17 @@ return ZUI.def("ui.oform", {
     //...............................................................
     redraw : function() {
         var UI = this;
-        UI.arena.empty();
+        var jTitle = UI.arena.children(".oform-title");
+        var jBody = UI.arena.children(".oform-body");
+        jBody.empty();
+
+        // 设置标题区域
+        if(UI.options.title){
+            jTitle.html(UI.options.title);
+        }
+        else{
+            jTitle.hide();
+        }
 
         // 得到控制器
         var _C = UI[UI.options.mode];
@@ -271,17 +293,25 @@ return ZUI.def("ui.oform", {
     },
     __append_field : function(grp, fld){
         fld.$el  = $('<tr class="oform-fld">').appendTo(grp.$el);
+        if(fld.hide)
+            fld.$el.hide();
         fld.$nm  = $('<td class="oform-fldnm">').appendTo(fld.$el)
         fld.$val = $('<td class="oform-fldval">').appendTo(fld.$el)
 
         if(fld.icon)
             $(fld.icon).attr("tp","icon").appendTo(fld.$nm);
+
+        if(fld.key == "pa_last_jz"){
+            console.log("__append_field", fld)
+        }
+
         $('<span tp="title">' + (fld.title||fld.key) + '</span>').appendTo(fld.$nm);
     },
     //...............................................................
     flow : {
         setupArena : function(UI){
-            var jq = UI.ccode("flow").appendTo(UI.arena);
+            var jBody = UI.arena.children(".oform-body");
+            var jq = UI.ccode("flow").appendTo(jBody);
             var jMain = jq.find(".oform-flow-main");
 
             // 循环绘制每个组
@@ -295,16 +325,18 @@ return ZUI.def("ui.oform", {
             });
         },
         resize : function(UI){
+            var jBody = UI.arena.children(".oform-body");
             var jMain = UI.arena.find(".oform-flow-main");
             var jActions = UI.arena.find(".oform-actions");
-            var H = UI.arena.height();
+            var H = jBody.height();
             jMain.css("height", H - jActions.outerHeight());
         }
     },
     //...............................................................
     tabs : {
         setupArena : function(UI){
-            var jq = UI.ccode("tabs").appendTo(UI.arena);
+            var jBody = UI.arena.children(".oform-body");
+            var jq = UI.ccode("tabs").appendTo(jBody);
             var jBar  = jq.find(".oform-tabs-bar");
             var jMain = jq.find(".oform-tabs-main").attr("grp-nb", UI.groups.length);
 
@@ -327,10 +359,11 @@ return ZUI.def("ui.oform", {
 
         },
         resize : function(UI){
+            var jBody = UI.arena.children(".oform-body");
             var jBar = UI.arena.find(".oform-tabs-bar");
             var jViewPort = UI.arena.find(".oform-tabs-viewport");
             var jActions = UI.arena.find(".oform-actions");
-            var H = UI.arena.height();
+            var H = jBody.height();
             jViewPort.css("height", H - jBar.outerHeight() - jActions.outerHeight());
         }
     },
@@ -407,12 +440,23 @@ return ZUI.def("ui.oform", {
                 });
             }
         });
-        console.log(re)
         return re;
     },
     //...............................................................
     resize : function(){
         var UI = this;
+
+        var W = UI.arena.width();
+        var H = UI.arena.height();
+
+        var jTitle = UI.arena.children(".oform-title");
+        var jBody = UI.arena.children(".oform-body");
+
+        jBody.css({
+            "width" : W,
+            "height" : H - jTitle.outerHeight(true)
+        });
+
         var _C = UI[UI.options.mode];
         _C.resize(UI);
     }

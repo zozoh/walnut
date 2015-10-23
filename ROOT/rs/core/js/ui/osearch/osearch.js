@@ -97,8 +97,9 @@ return ZUI.def("ui.osearch", {
     __check_obj_fld : function(key){
         var UI = this;
         var D = UI.$el.data("@DATA");
+        //console.log("osearch.__check_obj_fld:", D.uiForm);
         // 找到 form 的配置 
-        var conf = D[key]; 
+        var conf = ZUI.loadResource(D[key]);
         if(!conf) {
             var eKey = "osearch.e.o_no_" + key;
             alert(UI.msg(eKey));
@@ -132,6 +133,7 @@ return ZUI.def("ui.osearch", {
     do_action_new : function(){
         var UI = this;
         var D = UI.$el.data("@DATA");
+        var race = UI.options.new_race || 'FILE';
         new MaskUI(UI.__mask_form({
             command  : "obj id:"+D.id+" -new '<%=json%>'",
             complete : function(re){
@@ -161,7 +163,7 @@ return ZUI.def("ui.osearch", {
                 str += "rm -rf id:"+obj.id+"\n";
             });
             // 执行命令
-            console.log(str)
+            //console.log(str)
             UI.exec(str, function(){
                 UI.do_search();
             });
@@ -299,7 +301,7 @@ return ZUI.def("ui.osearch", {
         // jActions.css("margin-top", (sky_h - sky_padding_v - jActions.outerHeight())/2);
         var w_sky = jSky.width();
         var w_action = jActions.outerWidth(true);
-        var w_filter = w_sky - w_action;
+        var w_filter = w_sky - w_action - 10;
         if(w_filter<200){
             w_filter = w_sky;
         }
@@ -315,18 +317,32 @@ return ZUI.def("ui.osearch", {
 
     },
     //...............................................................
+    getData : function(){
+        var D = this.$el.data("@DATA");
+        console.log("osearch.getData:", D.uiForm)
+        return D;
+    },
+    //...............................................................
     setData : function(D, callback){
         var UI = this;
         
         // 保存数据
         UI.$el.data("@DATA", D);
 
+        //console.log("A osearch.setData:", D.uiForm)
+
         // 将数据丢掉过滤器里，并取出查询信息
         UI._filter.setData(D);
+
+        //console.log("B osearch.setData:", D.uiForm)
         
         return UI.do_search(null, {
             skip : 0
         }, callback);
+    },
+    //...............................................................
+    refresh : function(){
+        this.do_search();
     },
     //...............................................................
     do_search : function(q, pg, callback){

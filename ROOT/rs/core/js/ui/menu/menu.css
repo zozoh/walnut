@@ -18,6 +18,9 @@
 [theme="w0"] .menu-item[md="top"] {
   padding: 0;
 }
+[theme="w0"] .menu-item[md="top"] .menu-item-icon {
+  margin-right: 4px;
+}
 [theme="w0"] .menu-item[md="top"] .mi-wrapper {
   padding: 8px 16px;
   border: 1px solid #aaaaaa;

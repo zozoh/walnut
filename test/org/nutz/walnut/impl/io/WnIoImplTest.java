@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
@@ -27,6 +28,51 @@ import org.nutz.web.WebException;
 import org.w3c.dom.Document;
 
 public class WnIoImplTest extends BaseIoTest {
+
+    @Test
+    public void test_query_no_null() {
+        WnObj a = io.create(null, "/a", WnRace.FILE);
+        io.appendMeta(a, "alias:'aaa'");
+        WnObj b = io.create(null, "/b", WnRace.FILE);
+        io.appendMeta(b, "alias:null");
+        WnObj c = io.create(null, "/c", WnRace.FILE);
+
+        WnQuery q;
+        List<WnObj> list;
+
+        q = new WnQuery();
+        q.setv("alias", Lang.map("$ne:null"));
+        list = io.query(q);
+        assertEquals(1, list.size());
+        assertEquals(a.id(), list.get(0).id());
+
+        q = new WnQuery();
+        q.setv("alias", null).asc("nm");
+        list = io.query(q);
+        assertEquals(2, list.size());
+        assertEquals(b.id(), list.get(0).id());
+        assertEquals(c.id(), list.get(1).id());
+
+        q = new WnQuery();
+        q.setv("$and", Json.fromJson("[{alias:null}, {alias:{$exists:true}}]"));
+        list = io.query(q);
+        assertEquals(1, list.size());
+        assertEquals(b.id(), list.get(0).id());
+
+        q = new WnQuery();
+        q.setv("alias", Lang.map("$exists:true")).asc("nm");
+        list = io.query(q);
+        assertEquals(2, list.size());
+        assertEquals(a.id(), list.get(0).id());
+        assertEquals(b.id(), list.get(1).id());
+
+        q = new WnQuery();
+        q.setv("alias", Lang.map("$exists:false"));
+        list = io.query(q);
+        assertEquals(1, list.size());
+        assertEquals(c.id(), list.get(0).id());
+
+    }
 
     @Test
     public void test_get_meta_directly() {

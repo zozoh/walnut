@@ -66,6 +66,7 @@
   display: inline-block;
   vertical-align: middle;
   padding: 5px 8px;
+  font-size: 12px;
 }
 [theme="w0"] .opager-btn {
   display: inline-block;

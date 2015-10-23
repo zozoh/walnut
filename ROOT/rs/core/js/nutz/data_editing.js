@@ -7,79 +7,85 @@ define(function (require, exports, module) {
         <li index="1"><span></span></li>
     </ul>
 */
-function $html(tagName, className){
-    return $('<'+tagName+'>').addClass("ui-fld-edit-" + (className||tagName));
-}
-
-function _C(className){
-    return "ui-fld-edit-" + className;
+function $html(fld, tagName, className){
+    fld.$val.empty();
+    var jq = $('<'+tagName+'>').addClass("ui-fld-edit-" + (className||tagName));
+    fld.$val.addClass("ui-fld").data("@FLD", fld);
+    return jq.appendTo(fld.$val);
 }
 
 module.exports = {
     //.............................................................
     "input" : {
+        events : {
+            "change .ui-fld-edit-input" : function(e){
+                console.log($(this))
+                var fld = $(this).parents(".ui-fld").data("@FLD");
+                var val = $(e.currentTarget).val();
+                var UI = ZUI(fld.$val);
+                try{
+                    UI.val_test(fld, val);
+                }
+                catch(E){
+                    var str = UI.text(E.code) + "\nvalue: '" + E.val + "'\n" + $z.toJson(E.fld,null,4);
+                    alert(str);
+                }
+            }
+        },
         set : function(fld, obj){
-            fld.$val.empty();
-            var v = $z.getValue(obj,fld.key);
-            var jq = $html("input");
+            var v = this.val_edit(fld, obj);
+
+            var jq = $html(fld, "input");
             jq.attr("placeholder", fld.tip);
             jq.val(v);
-            jq.appendTo(fld.$val);
         },
         get : function(fld){
             var jq = fld.$val.find("input");
             var v =  jq.val() || fld.dft;
-            return $z.strToJsObj(v, fld.type);
+            //console.log(fld.key, ":", jq.size(), ":", v)
+            return this.val_check(fld, v);
         }
     }, 
     //.............................................................
     "label" : {
         set : function(fld, obj){
             var UI = this;
-            fld.$val.empty();
-            var jq = $html("div", "label");
+            var jq = $html(fld, "div", "label");
             var txt = UI.text(UI.val_display(fld, obj));
-            jq.text(txt).appendTo(fld.$val);
+            jq.text(txt);
         },
         get : function(fld){
             return undefined;
         }
     },
     //.............................................................
-    "bool_switch" : {
+    "switchs" : {
         events : {
-             "click .ui-fld-edit-bool-switch li" : function(e){
+             "click .ui-fld-edit-switchs li" : function(e){
                 var jq = $(e.currentTarget);
-                jq.parents(".ui-fld-edit-bool-switch").find("li").removeClass("checked");
+                jq.parents(".ui-fld-edit-switchs").find("li").removeClass("checked");
                 jq.addClass("checked");
             }
         },
         set : function(fld, obj){
             var UI = this;
-            fld.$val.empty();
-            var jq = $html("ul", "bool-switch");
+            var jq = $html(fld, "ul", "switchs");
 
             // 得到值
-            var v = $z.getValue(obj, fld.key, fld.dft);
+            var v = this.val_check(fld, obj[fld.key] || fld.dft);
 
-            // 根据配置，将值转换成布尔，并设置控件
-            var vIndex = (v === fld.setup[1].val) ? 1 : 0;
-            
-            // 设置两个开关
-            for(var i=0; i<2; i++) {
-                var jLi = $('<li index="'+i+'">').appendTo(jq);
-                $('<span>').text(UI.text(fld.setup[i].text)).appendTo(jLi);
-                if(vIndex == i){
+            // 绘制所有的项目
+            fld.setup.value.forEach(function(item, index){
+                var jLi = $('<li index="'+index+'">').appendTo(jq);
+                $('<span>').text(UI.text(item.text)).appendTo(jLi);
+                if(item.val == v){
                     jLi.addClass("checked");
                 } 
-            }
-
-            // 加入到 DOM
-            jq.appendTo(fld.$val);
+            });
         },
         get : function(fld){
             var index = fld.$val.find(".checked").attr("index") * 1;
-            return fld.setup[index].val;
+            return fld.setup.value[index].val;
         }
     }
 };

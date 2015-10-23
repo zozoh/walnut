@@ -83,6 +83,18 @@ public class cmd_obj extends JvmExecutor {
             list = Lang.list(o);
 
         }
+        // 确保某一路径存在
+        else if (params.has("check")) {
+            String path = Wn.normalizeFullPath(params.check("check"), sys);
+
+            WnRace race = params.getEnum("race", WnRace.class);
+            if (null == race)
+                race = WnRace.FILE;
+
+            WnObj o = sys.io.createIfNoExists(null, path, race);
+            list = Lang.list(o);
+
+        }
         // 指定查询
         else if (params.vals.length == 0) {
             String json = params.get("match", "{}");

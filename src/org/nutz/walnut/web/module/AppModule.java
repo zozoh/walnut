@@ -6,6 +6,8 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLDecoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,6 +21,7 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.segment.Segment;
 import org.nutz.lang.segment.Segments;
+import org.nutz.lang.stream.StringInputStream;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
@@ -180,13 +183,43 @@ public class AppModule extends AbstractWnModule {
     @At("/load/?/**")
     @Ok("void")
     @Fail("http:404")
-    public View load(String appName, String rsName) {
+    public View load(String appName,
+                     String rsName,
+                     @Param("mime") String mimeType,
+                     @Param("auto_unwrap") boolean auto_unwrap) {
         WnObj oAppHome = this._check_app_home(appName);
         WnObj o = io.check(oAppHome, rsName);
+        String text = null;
+
+        if (auto_unwrap) {
+            text = io.readText(o);
+            Matcher m = Pattern.compile("^var +\\w+ += *([\\[{].+[\\]}]);$", Pattern.DOTALL)
+                               .matcher(text);
+            if (m.find()) {
+                text = m.group(1);
+            }
+        }
+
+        // 如果是 JSON ，那么特殊的格式化一下
+        if ("application/json".equals(mimeType)) {
+            NutMap json = Json.fromJson(NutMap.class, text);
+            text = Json.toJson(json, JsonFormat.nice());
+        }
+
+        // 已经预先处理了内容
+        if (null != text) {
+            StringInputStream ins = new StringInputStream(text);
+            return new WnObjDownloadView(ins, ins.available(), mimeType);
+        }
+        // 指定了 mimeType
+        else if (!Strings.isBlank(mimeType)) {
+            return new WnObjDownloadView(io, o, mimeType);
+        }
+        // 其他就默认咯
         return new WnObjDownloadView(io, o);
     }
 
-    @AdaptBy(type=QueryStringAdaptor.class)
+    @AdaptBy(type = QueryStringAdaptor.class)
     @At("/run/?/**")
     @Ok("void")
     public void run(String appName,
@@ -196,8 +229,7 @@ public class AppModule extends AbstractWnModule {
                     final HttpServletResponse resp) throws IOException {
         String cmdText = Streams.readAndClose(req.getReader());
         cmdText = URLDecoder.decode(cmdText, "UTF-8");
-        
-        
+
         // 默认返回的 mime-type 是文本
         if (Strings.isBlank(mimeType))
             mimeType = "text/plain";

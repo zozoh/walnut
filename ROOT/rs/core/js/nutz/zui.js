@@ -3,6 +3,7 @@ define(function (require, exports, module) {
     //console.log(module);
     //console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
     // 采用统一的 ZUI.css
+    var dt = require("ui/dateformat.js");
     seajs.use(["ui/zui.css", "ui/data_editing.css"]);
 
     // 提供数据类型的支持
@@ -10,7 +11,7 @@ define(function (require, exports, module) {
     var _type = function(fld){
         var hdl = DTYPES[fld.type];
         if(!hdl){
-            throw "!! Field without type : " + $z.toJson(fld);
+            throw "!! Field type [" + fld.type + "] invalid: " + $z.toJson(fld);
         }
         return hdl;
     };
@@ -238,6 +239,11 @@ define(function (require, exports, module) {
                 };
                 // 定义后续处理
                 var do_render = function () {
+                    // 首先看看是否有增加 class
+                    if(options.arenaClass){
+                        UI.arena.addClass(options.arenaClass);
+                    }
+
                     // 调用UI的特殊重绘方法，如果方法返回了一组 ui 的类型，那么就表示
                     // 用户在方法里采用了异步还要加载这组 UI
                     // 加载完毕后，调用者需要主动在自己的 redraw 函数里，调用 
@@ -554,18 +560,23 @@ define(function (require, exports, module) {
             throw "Can not found code-template '" + codeId + "'";
         },
         //...................................................................
-        val_set : function(fld, o, v){
+        val_check : function(fld, v){
             var UI = this;
             var hdl = _type(fld);
-            hdl.set.apply(UI, [fld, o, v]);
-            return UI;
+            var val = hdl.test.apply(UI, [fld, v]);
+            return hdl.asValue.apply(UI, [fld, val]);
         },
-        val_get : function(fld, o){
+        val_edit : function(fld, o){
             var UI = this;
             var hdl = _type(fld);
-            return hdl.get.apply(UI, [fld, o]);
+            var val = hdl.test.apply(UI, [fld, o[fld.key]]);
+            return hdl.asEdit.apply(UI, [fld, val]);
         },
         val_display : function(fld, o){
+            // 读取缓存
+            if(o.$txt && o.$txt[fld.key])
+                return o.$txt[fld.key];
+
             var UI = this;
             // 如果自定义了显示方法
             if(_.isFunction(fld._disfunc)){
@@ -573,7 +584,16 @@ define(function (require, exports, module) {
             }
             // 否则采用标准的显示方式
             var hdl = _type(fld);
-            return hdl.display.apply(UI, [fld, o]);
+            var val = hdl.test.apply(UI, [fld, o[fld.key]]);
+            if(fld.type == 'boolean'){
+                console.log("val_display:", fld, o[fld.key], val)
+            }
+            return hdl.asEdit.apply(UI, [fld, val]);
+        },
+        val_test : function(fld, v){
+            var UI = this;
+            var hdl = _type(fld);
+            return hdl.test.apply(UI, [fld, v]);
         },
         normalize_field : function(fld, dft){
             var UI = this;
@@ -607,6 +627,11 @@ define(function (require, exports, module) {
                 fld.editAs = hdl.defaultEditAs;
             }
 
+            // 预先加载字段的配置
+            if(fld.setup){
+                fld.setup = ZUI.loadResource(fld.setup);
+            }
+
             // 根据类型处理各个字段的配置信息 
             hdl.normalize.apply(UI, [fld]);
 
@@ -630,6 +655,27 @@ define(function (require, exports, module) {
             var edit = _edit(fld);
             // 显示字段编辑控件
             return edit.get.apply(UI, [fld]);
+        },
+        //...................................................................
+        ajaxReturn : function(re, option, context){
+            var UI = this;
+            context = context || UI;
+            if(_.isString(re)){
+                re = $z.fromJson(re);
+            }
+            // 格式化 callback
+            if(_.isFunction(option)){
+                option = {
+                    success : option
+                }
+            }
+            // 如果失败了
+            if(!re.ok){
+                console.warn(UI.msg(re.errCode) + "\n\n" + re.msg);
+                return $z.doCallback(option.fail, [re], context);
+            }
+            // 如果成功了
+            return $z.doCallback(option.success, [re.data], context);
         },
         //...................................................................
         // 提供一个通用的文件上传界面，任何 UI 可以通过
@@ -681,6 +727,71 @@ define(function (require, exports, module) {
     ZUI.definitions = {};
     ZUI.instances = {};  // 根据cid索引的 UI 实例
     ZUI._uis = {};       // 根据键值索引的 UI 实例，没声明 key 的 UI 会被忽略
+
+    ZUI._app_rs = {};    // 应用加载的静态资源
+
+    // 读取静态资源并且缓存
+    // 资源描述符如果不可识别将原样返回，现在支持下列资源种类
+    //  - json:///path/to/json
+    //  - text:///path/to/text
+    //  - js:///path/to/jpeg_or_jpg
+    ZUI.loadResource = function(rs, callback, context){
+        if(_.isString(rs)){
+            // 看看缓冲里有木有
+            context  = context || this;
+            var reObj = ZUI._app_rs[rs];
+            // 缓冲里有，那么就不用请求
+            if(reObj){
+                return $z.doCallback(callback, [reObj], context);
+            }
+
+            // 看来要发起个请求喔
+            var m = /^(jso|json|text):\/\/(.+)$/.exec(rs);
+            if(m){
+                var type = m[1];
+                var url  = m[2];
+                var async = _.isFunction(callback);
+                // console.log("async:", async)
+                var ajaxConf = {
+                    method  : "GET",
+                    async   : async,
+                    data    : {
+                        auto_unwrap : /^json?$/.test(type)
+                    },
+                    dataType : "text",
+                    success  : function(re){
+                        // console.log("success:", re);
+                        // 根据特定的类型处理数据
+                        if("json" == type){
+                            reObj = $z.fromJson(re);
+                        }
+                        else if("jso" == type){
+                            reObj = eval('(' + re + ')');
+                        }
+                        else{
+                            reObj = re;
+                        }
+                        
+                        // 计入缓存
+                        ZUI._app_rs[rs] = reObj;
+                        // 调用回调
+                        if(_.isFunction(callback)){
+                            callback.call(context, reObj);
+                        }
+                    },
+                    error : function(re, reason){
+                        alert("fail to load resource: " + rs + " : because " + reason);
+                    }
+                };
+                // 发送请求
+                $.ajax(url, ajaxConf);
+
+                // 返回
+                return reObj;
+            }
+        }
+        return $z.doCallback(callback, [rs], context);
+    };
 
     // 调试方法，打印当前 UI 的级联 tree
     ZUI.dump_tree = function(UI, depth){
@@ -748,7 +859,8 @@ define(function (require, exports, module) {
             for (var key in conf) {
                 if (/^(css|dom|i18n|init|redraw|depose|resize)$/g.test(key)) {
                     viewOptions.$ui[key] = conf[key];
-                } else {
+                } 
+                else {
                     viewOptions[key] = conf[key] || viewOptions[key];
                 }
             }
@@ -773,7 +885,7 @@ define(function (require, exports, module) {
             throw "Current DOMElement no belone to any UI!";
         }
         var cid = jui.attr("ui-id");
-        return getByCid(cid);
+        return this.getByCid(cid);
     };
     ZUI.checkInstance = function (el) {
         var jq = $(el);

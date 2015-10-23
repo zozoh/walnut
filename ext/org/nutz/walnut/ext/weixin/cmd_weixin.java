@@ -1,9 +1,12 @@
 package org.nutz.walnut.ext.weixin;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.nutz.http.Http;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
@@ -42,7 +45,7 @@ public class cmd_weixin extends JvmExecutor {
     }
 
     @Override
-    public void exec(final WnSystem sys, String[] args) {
+    public void exec(final WnSystem sys, String[] args) throws Exception {
         // 分析参数
         ZParams params = ZParams.parse(args, "^debug$");
 
@@ -88,11 +91,91 @@ public class cmd_weixin extends JvmExecutor {
         else if (params.has("openid")) {
             __do_get_user_info_by_openid(sys, params);
         }
+        // 生成 OAuth2.0 的验证字符串
+        else if (params.has("oauth2")) {
+            __do_gen_oauth2(sys, params);
+        }
+        // 根据 OAuth2.0 的 code 字符串，得到用户的信息
+        else if (params.has("oauth2-code")) {
+            __do_get_user_info_by_oauth2(sys, params);
+        }
         // 无法处理
         else {
             throw Er.create("e.cmd.weixin.invalid", args);
         }
 
+    }
+
+    private void __do_get_user_info_by_oauth2(WnSystem sys, ZParams params) {
+        // 读取微信配置信息
+        WnIoWeixinApi wxApi = WxUtil.newWxApi(sys, params);
+        WxConf wxConf = wxApi.getConfig();
+
+        String code = params.check("oauth2-code");
+
+        String fmt = "https://api.weixin.qq.com/sns/oauth2/access_token"
+                     + "?appid=%s"
+                     + "&secret=%s"
+                     + "&code=%s"
+                     + "&grant_type=authorization_code";
+
+        String url = String.format(fmt, wxConf.appID, wxConf.appsecret, code);
+
+        String json = Http.get(url).getContent();
+        NutMap map = Json.fromJson(NutMap.class, json);
+
+        // 如果想进一步获取用户完整的信息
+        // 根据参数 infol :
+        // - openid: 到此为止
+        // - follower: 根据 openid 获取信息
+        // - others: 认为本次授权是 "snsapi_userinfo"，则试图根据 refresh_token 获取更多信息
+        String infoLevel = params.get("infol", "openid");
+
+        // follower: 根据 openid 获取信息
+        if ("follower".equals(infoLevel)) {
+            String openid = map.getString("openid");
+            String lang = params.get("lang", "zh_CN");
+
+            WxResp resp = wxApi.user_info(openid, lang);
+            map = resp;
+        }
+
+        // 最后打印结果
+        String across_call = params.get("acroll_call");
+        // 直接打印 JSON
+        if (Strings.isBlank(across_call)) {
+            sys.out.println(Json.toJson(map, JsonFormat.forLook()));
+        }
+        // 打印跨域脚本
+        else {
+            sys.out.printlnf("<script>var obj=%s; window.parent.%s(obj);</script>",
+                             Json.toJson(map, JsonFormat.forLook()),
+                             across_call);
+        }
+
+    }
+
+    private void __do_gen_oauth2(WnSystem sys, ZParams params) throws UnsupportedEncodingException {
+        // 读取微信配置信息
+        WnIoWeixinApi wxApi = WxUtil.newWxApi(sys, params);
+
+        String url = params.check("oauth2");
+        String state = params.get("state");
+        String scope = params.get("scope", "snsapi_base");
+
+        String fmt = "https://open.weixin.qq.com/connect/oauth2/authorize?"
+                     + "appid=%s"
+                     + "&redirect_uri=%s"
+                     + "&response_type=code"
+                     + "&scope=%s"
+                     + "%s"
+                     + "#wechat_redirect";
+
+        sys.out.println(String.format(fmt,
+                                      wxApi.getConfig().appID,
+                                      URLEncoder.encode(url, "UTF-8"),
+                                      scope,
+                                      Strings.isBlank(state) ? "" : "&state=" + state));
     }
 
     private void __do_get_user_info_by_openid(WnSystem sys, ZParams params) {

@@ -10,6 +10,13 @@
     var INDENT_BY = "    ";
 
     var zUtil = {
+        doCallback : function(callback, args, context){
+            if(_.isFunction(callback)){
+                callback.apply(context||this, args);
+                return;
+            }
+            return args.length == 1 ? args[0] : args;
+        },
         //.............................................
         // 本地存储保存某用户的某个界面的设置
         // appName : 应用名称
@@ -57,6 +64,8 @@
         strToJsObj : function(v, type){
             switch(type){
                 case 'string':
+                    if(_.isString(v))
+                        return v;
                     return v || null;
                 case 'number':
                     var re = v * 1; 
@@ -67,14 +76,13 @@
                 case 'object':
                     return this.fromJson(v);
                 case 'boolean':
+                    if(_.isBoolean(v))
+                        return v;
+                    if(_.isUndefined(v))
+                        return false;
                     return /^(true|yes|on|ok)$/.test(v);
-                case 'date':
-                case 'datetime':
-                case 'time':
-                    return v;
-                default:
-                    throw "Unknown type ["+type+"] for value:" + v;
             }
+            return v;
         },
         //.............................................
         // 计算尺寸
@@ -118,21 +126,21 @@
         //   dft : 如果木找到，返回的东东
         getValue : function(obj, key, dft){
             var re = obj[key];
-            if(re)
+            if(!_.isUndefined(re))
                 return re;
             
             var ks = key.split(".");
             if(ks.length>1){
                 re = obj[ks[0]];
-                if(!re)
+                if(_.isUndefined(re))
                     return dft;
                 for (var i = 1; i < ks.length; i++) {
                     re = re[ks[i]];
-                    if (!re)
+                    if(_.isUndefined(re))
                         return dft;
                 }
             }
-            return re;
+            return _.isUndefined(re) ? dft : re;
         },
         //.............................................
         // 向普通对象里设置值

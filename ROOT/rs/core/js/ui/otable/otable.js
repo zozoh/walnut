@@ -273,7 +273,7 @@ return ZUI.def("ui.otable", {
         }
     },
     //...............................................................
-    getData : function(){
+    getData : function(arg){
         var UI = this;
         var jTBody = UI.arena.find(".otable-body-t>tbody");
         // 数字下标
@@ -412,6 +412,8 @@ return ZUI.def("ui.otable", {
 
         // 绘制其他列
         UI.options.columns.forEach(function(col){
+            if(col.hide)
+                return;
             var jTd = $('<td class="otable-col-o">').appendTo(jTr);
             jTd.append(UI.ccode("thead.cell"));
             jTd.find(".otable-col-tt").text(UI.text(col.title || col.key));
@@ -453,11 +455,19 @@ return ZUI.def("ui.otable", {
         if(iconHtml)
             $(iconHtml).attr("tp","icon").appendTo(jNm);
         // .............................. 输出文字
-        if(textFunc)
+        if(textFunc){
+            // 预先为每个列都预先处理显示列
+            o.$txt = {};
+            UI.options.columns.forEach(function(col){
+                o.$txt[col.key] = UI.val_display(col, o);
+            });
             jNm.append($(textFunc(o)));
+        }
         // .............................. 循环输出每一列
         // 依次创建单元格
         UI.options.columns.forEach(function(col){
+            if(col.hide)
+                return;
             var jTd = $('<td>');
             UI._draw_col(jTd, col, o);
             jTd.appendTo(jTr);
@@ -470,11 +480,12 @@ return ZUI.def("ui.otable", {
     _draw_col : function(jTd, col, o){
         var UI = this;
         jTd.attr("key", col.key);
+        // console.log("_draw_col", col.key, o)
         var txt = UI.val_display(col, o);
-        var val = UI.text(txt);
+        txt = UI.text(txt);
         if(col.escapeHtml)
-            val = $('<div>').text(val).html();
-        jTd.html(val);
+            txt = $('<div>').text(txt).html();
+        jTd.html(txt);
     },
     //...............................................................
     resize : function(){

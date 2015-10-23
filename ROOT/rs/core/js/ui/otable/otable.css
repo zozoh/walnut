@@ -69,6 +69,7 @@
   padding: 16px;
   border-bottom: 1px dashed #dddddd;
   white-space: nowrap;
+  font-size: 12px;
 }
 [theme="w0"] .otable-row-nm [tp="checkbox"] {
   width: 12px;

@@ -193,25 +193,6 @@ public class HttpApiModule extends AbstractWnModule {
         Context c = Lang.context(oReq.toMap(null));
         String cmdText = Segments.replace(cmdPattern, c);
 
-        // 设置响应头，并看看是否指定了 content-type
-        for (String key : oApi.keySet()) {
-            if (key.startsWith("http-header-")) {
-                String nm = key.substring("http-header-".length()).toUpperCase();
-                // 指定了响应内容
-                if (nm.equals("CONTENT-TYPE")) {
-                    mimeType = oApi.getString(key);
-                }
-                // 其他头，添加
-                else {
-                    resp.setHeader(nm, oApi.getString(key));
-                }
-            }
-        }
-        // 最后设定响应内容
-        resp.setContentType(Strings.sBlank(mimeType, "text/plain"));
-
-        // 设定其他的响应头
-
         // 执行命令
         WnBox box = boxes.alloc(0);
 
@@ -231,6 +212,74 @@ public class HttpApiModule extends AbstractWnModule {
             log.debugf("box:setup: %s", bc);
         box.setup(bc);
 
+        // 根据返回码决定怎么处理
+        int respCode = oApi.getInt("http-resp-code", 200);
+        // 重定向
+        if (respCode == 301 || respCode == 302) {
+            StringBuilder sbOut = new StringBuilder();
+            StringBuilder sbErr = new StringBuilder();
+            OutputStream out = Lang.ops(sbOut);
+            OutputStream err = Lang.ops(sbErr);
+
+            box.setStdin(null); // HTTP GET 方式，不支持沙箱的 stdin
+            box.setStdout(out);
+            box.setStderr(err);
+
+            // 运行
+            if (log.isDebugEnabled())
+                log.debugf("box:run: %s", cmdText);
+            box.run(cmdText);
+
+            // 处理出错了
+            if (sbErr.length() > 0) {
+                resp.sendError(500, sbErr.toString());
+            }
+            // 正常的重定向
+            else {
+                resp.sendRedirect(sbOut.toString());
+            }
+        }
+        // 肯定要写入返回流
+        else {
+            _do_run_box(oApi, mimeType, resp, cmdText, box);
+        }
+
+        // 释放沙箱
+        if (log.isDebugEnabled())
+            log.debugf("box:free: %s", box.id());
+        boxes.free(box);
+
+        if (log.isDebugEnabled())
+            log.debug("box:done");
+
+        // 最后将请求的对象设置一下清除标志
+        oReq.expireTime(System.currentTimeMillis() + 100L * 1000);
+        io.appendMeta(oReq, "^expi$");
+
+    }
+
+    private void _do_run_box(WnObj oApi,
+                             String mimeType,
+                             HttpServletResponse resp,
+                             String cmdText,
+                             WnBox box) {
+        // 设置响应头，并看看是否指定了 content-type
+        for (String key : oApi.keySet()) {
+            if (key.startsWith("http-header-")) {
+                String nm = key.substring("http-header-".length()).toUpperCase();
+                // 指定了响应内容
+                if (nm.equals("CONTENT-TYPE")) {
+                    mimeType = oApi.getString(key);
+                }
+                // 其他头，添加
+                else {
+                    resp.setHeader(nm, oApi.getString(key));
+                }
+            }
+        }
+        // 最后设定响应内容
+        resp.setContentType(Strings.sBlank(mimeType, "text/plain"));
+
         // 准备回调
         if (log.isDebugEnabled())
             log.debug("box:set stdin/out/err");
@@ -246,19 +295,6 @@ public class HttpApiModule extends AbstractWnModule {
         if (log.isDebugEnabled())
             log.debugf("box:run: %s", cmdText);
         box.run(cmdText);
-
-        // 释放沙箱
-        if (log.isDebugEnabled())
-            log.debugf("box:free: %s", box.id());
-        boxes.free(box);
-
-        if (log.isDebugEnabled())
-            log.debug("box:done");
-
-        // 最后将请求的对象设置一下清除标志
-        oReq.expireTime(System.currentTimeMillis() + 100L * 1000);
-        io.appendMeta(oReq, "^expi$");
-
     }
 
 }

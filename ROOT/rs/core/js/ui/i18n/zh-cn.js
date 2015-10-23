@@ -16,5 +16,12 @@ define({
     "walcome" : "欢迎",
     "title"   : "标题",
     "loading" : "正在加载...",
-    "e_ajax"  : "靠，有问题啦， 错误码:{{errCode}}  细节:{{msg}} : {{data}}"
+    "e_ajax"  : "靠，有问题啦， 错误码:{{errCode}}  细节:{{msg}} : {{data}}",
+    "e" : {
+        "fld" : {
+            "invalid" : {
+                "datetime" : "错误的日期时间格式"
+            }
+        }
+    }
 });

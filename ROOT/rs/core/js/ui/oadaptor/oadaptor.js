@@ -23,27 +23,27 @@ return ZUI.def("ui.oadaptor", {
         //console.log("oadasptor:", o)
         if(o) {
             //UI.$el.data("@DATA", D);
-            var uiDef = o.uiAdaptor;
-            //console.log(({}||UI.delegateUI).uiName, uiDef)
-
-            // 普通设置数据
-            if(!uiDef) {
-                if(UI.delegateUI){
-                    UI.__set_data(o, callback, context);
+            ZUI.loadResource(o.uiAdaptor, function(uiDef){
+                // 普通设置数据
+                if(!uiDef) {
+                    if(UI.delegateUI){
+                        UI.__set_data(o, callback, context);
+                    }
                 }
-            }
-            // 按照约定，需要先改变 UI 再设置数据
-            else{
-                UI.changeUI(uiDef, function(){
-                    //console.log("it will set data:", UI.delegateUI)
-                    UI.__set_data(o, callback, context);
-                });
-            }
+                // 按照约定，需要先改变 UI 再设置数据
+                else{
+                    UI.changeUI(uiDef, function(){
+                        //console.log("it will set data:", UI.delegateUI)
+                        UI.__set_data(o, callback, context);
+                    });
+                }
+            });
         }
     },
     __set_data : function(o, callback, context){
         var UI = this;
         // 适配 UI 可以设置数据
+        //console.log("oadasptor.__set_data:", o)
         if(UI.delegateUI){
             if(_.isFunction(UI.delegateUI.setData)){
                 UI.delegateUI.setData(o, callback, context);

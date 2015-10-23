@@ -5,14 +5,14 @@
     .theme_w0();
     
     .ui-fld-edit-input {
-        font-size: @f_big; padding: @normal; width:100%;
+        font-size: @f_normal; padding: @f_normal; width:100%;
     }
 
     .ui-fld-edit-label {
-        font:@f_big @ff_code; padding:@big @big;
+        font:@f_small @ff_code; padding:@big @big;
     }
 
-    .ui-fld-edit-bool-switch {@noselect();
+    .ui-fld-edit-switchs {@noselect();
         display: inline-block; cursor:pointer;
         list-style: none; padding:1px 0 1px 1px; margin:3px;
         border:1px solid @c_gray_b; background: @c_white;
@@ -27,6 +27,6 @@
             color:@c_white; background: @c_green_f;
         }
     }
-    .ui-fld-edit-bool-switch:after{@clr();}
+    .ui-fld-edit-switchs:after{@clr();}
 
 }

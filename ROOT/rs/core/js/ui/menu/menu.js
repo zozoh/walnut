@@ -83,7 +83,12 @@ return ZUI.def("ui.menu", {
         // 顶层项目添加特殊属性
         else{
             jq.attr("md", "top");
+            if(mi.icon){
+                var jIcon = $('<span class="menu-item-icon">').appendTo(jq2);
+                jIcon.html(mi.icon);
+            }
         }
+
         // 文字
         if(mi.text){
             var jT = $('<span class="menu-item-text">').appendTo(jq2);

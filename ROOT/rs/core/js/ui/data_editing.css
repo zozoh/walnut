@@ -1,13 +1,13 @@
 [theme="w0"] .ui-fld-edit-input {
-  font-size: 18px;
-  padding: 8px;
+  font-size: 14px;
+  padding: 14px;
   width: 100%;
 }
 [theme="w0"] .ui-fld-edit-label {
-  font: 18px 'Lucida Console', Monaco, monospace;
+  font: 12px 'Lucida Console', Monaco, monospace;
   padding: 16px 16px;
 }
-[theme="w0"] .ui-fld-edit-bool-switch {
+[theme="w0"] .ui-fld-edit-switchs {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
@@ -22,17 +22,17 @@
   color: #888888;
   font-size: 10px;
 }
-[theme="w0"] .ui-fld-edit-bool-switch li {
+[theme="w0"] .ui-fld-edit-switchs li {
   float: left;
   padding: 8px 16px;
   margin-right: 1px;
   background: #dddddd;
 }
-[theme="w0"] .ui-fld-edit-bool-switch li.checked {
+[theme="w0"] .ui-fld-edit-switchs li.checked {
   color: #ffffff;
   background: #008800;
 }
-[theme="w0"] .ui-fld-edit-bool-switch:after {
+[theme="w0"] .ui-fld-edit-switchs:after {
   clear: both;
   height: 1px;
   overflow: hidden;
