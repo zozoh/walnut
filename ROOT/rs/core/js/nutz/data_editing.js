@@ -36,7 +36,10 @@ module.exports = {
             var v = this.val_edit(fld, obj);
 
             var jq = $html(fld, "input");
-            jq.attr("placeholder", fld.tip);
+            if(!_.isUndefined(fld.dft))
+                jq.attr("placeholder", fld.dft);
+            else if(fld.tip && fld.hideTip)
+                jq.attr("placeholder", fld.tip);
             jq.val(v);
         },
         get : function(fld){

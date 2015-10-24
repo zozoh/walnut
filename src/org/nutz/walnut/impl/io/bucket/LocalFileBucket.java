@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.io.bucket;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import org.nutz.lang.Lang;
@@ -140,6 +141,17 @@ public class LocalFileBucket extends AbstractBucket {
         }
         catch (Exception e) {
             throw Lang.wrapThrow(e);
+        }
+    }
+
+    public void closeFile() {
+        if (null != raf) {
+            try {
+                raf.close();
+            }
+            catch (IOException e) {
+                throw Lang.wrapThrow(e);
+            }
         }
     }
 

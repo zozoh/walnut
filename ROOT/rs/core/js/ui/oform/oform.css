@@ -12,9 +12,19 @@
   color: #444444;
   font-size: 12px;
 }
+[theme="w0"] .oform-fld-required {
+  color: #ff0000;
+  font-weight: bolder;
+  margin-right: 4px;
+}
 [theme="w0"] .oform-fldval {
   width: 70%;
   padding: 4px;
+}
+[theme="w0"] .oform-fldcmt {
+  padding: 4px;
+  color: #888888;
+  font-size: 12px;
 }
 [theme="w0"] .oform-grp {
   width: 100%;

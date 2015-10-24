@@ -295,8 +295,15 @@ return ZUI.def("ui.oform", {
         fld.$el  = $('<tr class="oform-fld">').appendTo(grp.$el);
         if(fld.hide)
             fld.$el.hide();
-        fld.$nm  = $('<td class="oform-fldnm">').appendTo(fld.$el)
-        fld.$val = $('<td class="oform-fldval">').appendTo(fld.$el)
+        fld.$nm  = $('<td class="oform-fldnm">').appendTo(fld.$el);
+        var jTd = $('<td class="oform-fldval">').appendTo(fld.$el);
+        fld.$val = $('<div class="oform-fldedit">').appendTo(jTd);
+        if(fld.tip && !fld.hideType)
+            $('<div class="oform-fldcmt">').appendTo(jTd).text(fld.tip);
+
+        if(fld.required){
+            $('<span class="oform-fld-required">*</span>').appendTo(fld.$nm);
+        }
 
         if(fld.icon)
             $(fld.icon).attr("tp","icon").appendTo(fld.$nm);

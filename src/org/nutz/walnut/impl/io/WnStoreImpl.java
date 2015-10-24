@@ -23,7 +23,7 @@ import org.nutz.walnut.util.WnContext;
 
 public class WnStoreImpl implements WnStore {
 
-    private static final int DFT_BUCKET_BLOCK_SIZE = 8192;
+    private static final int DFT_BUCKET_BLOCK_SIZE = 8192 * 1000;
 
     private WnBucketManager buckets;
 
@@ -200,6 +200,11 @@ public class WnStoreImpl implements WnStore {
                 hdl.obj.setWriteHandle(null);
                 hdl.obj.setRWMetaKeys("^_write_handle$");
             }
+        }
+
+        // 如果句柄引用了本地桶，还是要释放一下的
+        if (null != hdl.bucket && hdl.bucket instanceof LocalFileBucket) {
+            ((LocalFileBucket) hdl.bucket).closeFile();
         }
 
         // 移除句柄

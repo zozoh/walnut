@@ -44,8 +44,8 @@ function normalize_sub(options, key, dft) {
 var html = function(){/*
 <div class="ui-arena" ui-fitparent="true">
     <div class="osearch-sky">
-        <div class="osearch-filter" ui-gasket="filter"></div>
         <div class="osearch-actions" ui-gasket="menu"></div>
+        <div class="osearch-filter" ui-gasket="filter"></div>
     </div>
     <div class="osearch-list"  ui-gasket="list"></div>
     <div class="osearch-pager" ui-gasket="pager"></div>
