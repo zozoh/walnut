@@ -59,6 +59,7 @@
 }
 [theme="w0"] .osearch-pager {
   padding: 10px;
+  text-align: center;
 }
 [theme="w0"] .opager-tip {
   color: #888;
@@ -76,7 +77,7 @@
   color: #08F;
   padding: 4px 8px;
   border-radius: 2px;
-  margin: 0 1px;
+  margin: 1px;
   cursor: pointer;
   font-size: 12px;
 }

@@ -88,12 +88,13 @@
         // 计算尺寸
         //  -v : 要计算的尺寸值的类型可以是
         //       500   - 整数，直接返回
-        //       .12   - 浮点，且小于等于1，相当于一个百分比
+        //       .12   - 浮点，相当于一个百分比，可以大于 1.0
         //       "12%" - 百分比，相当于 .12
         // - base : 百分比的基数
         dimension : function(v, base) {
             if(_.isNumber(v)){
-                if(v>1) return v;
+                if(parseInt(v) == v)
+                    return v;
                 return v * base;
             }
             // 百分比

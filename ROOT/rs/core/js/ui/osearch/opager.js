@@ -5,9 +5,9 @@ var html = function(){/*
 <div class="ui-arena ui-noselect">
     <b class="opager-btn" first>{{osearch.pager.first}}</b>
     <b class="opager-btn" prev >{{osearch.pager.prev}}</b>
-    <em class="opager-tip"></em>
     <b class="opager-btn" next >{{osearch.pager.next}}</b>
     <b class="opager-btn" last >{{osearch.pager.last}}</b>
+    <em class="opager-tip"></em>
 </div>
 */};
 //==============================================

@@ -456,7 +456,7 @@ return ZUI.def("ui.oform", {
         var W = UI.arena.width();
         var H = UI.arena.height();
 
-        var jTitle = UI.arena.children(".oform-title");
+        var jTitle = UI.arena.children(".oform-title:visible");
         var jBody = UI.arena.children(".oform-body");
 
         jBody.css({

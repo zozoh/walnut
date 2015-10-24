@@ -6,8 +6,8 @@ define({
         "pager" : {
             "tip"   : '页 {{pn}}/{{pgnb}} - 记录数 {{nb}}/{{sum}}',
             "first" : '首页',
-            "prev"  : '上一页',
-            "next"  : '下一页',
+            "prev"  : '上页',
+            "next"  : '下页',
             "last"  : '尾页'
         },
         "e" : {

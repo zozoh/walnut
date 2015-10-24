@@ -194,13 +194,17 @@ module.exports = {
     "int" : {
         defaultEditAs : "input",
         normalize : function(fld){
-
+            if(!_.isNumber(fld.dft)){
+                fld.dft = parseInt(fld.dft);
+                if(isNaN(fld.dft))
+                    fld.dft = -1;
+            }
         },
         asEdit : function(fld, n){
-            return n;
+            return isNaN(n) ? fld.dft : n;
         },
         asValue : function(fld, n){
-            return n;
+            return isNaN(n) ? fld.dft : n;
         },
         test : function(fld, v){
             return parseInt(v);
@@ -246,7 +250,6 @@ module.exports = {
             return en.val;
         },
         test : function(fld, v){
-            console.log(fld)
             if(_.isUndefined(v))
                 return fld.setup.value[0];
             if(_.isString(v)){

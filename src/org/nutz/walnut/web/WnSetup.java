@@ -93,14 +93,18 @@ public class WnSetup implements Setup {
         wnRun = ioc.get(WnRun.class, "wnRun");
 
         // etc/thumbnail
-        //initThumbnail();
+        // initThumbnail();
 
         // 最后加载所有的扩展 Setup
         __load_init_setups(conf);
 
         // 调用扩展的 Setup
-        for (Setup setup : setups)
+        for (Setup setup : setups) {
+            if (log.isInfoEnabled()) {
+                log.infof("do setup: %s", setup);
+            }
             setup.init(nc);
+        }
 
     }
 
@@ -125,11 +129,20 @@ public class WnSetup implements Setup {
     private void __load_init_setups(WnConfig conf) {
         setups = new ArrayList<Setup>();
         for (String str : conf.getInitSetup()) {
+            if (log.isInfoEnabled()) {
+                log.info("scan setup: " + str);
+            }
             // 是一个类吗？
             try {
                 Class<?> klass = Class.forName(str);
                 Mirror<?> mi = Mirror.me(klass);
+                if (log.isDebugEnabled()) {
+                    log.debug("  - found class: " + klass.getName());
+                }
                 if (mi.isOf(Setup.class)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("    ... and it is a Setup");
+                    }
                     Setup setup = (Setup) mi.born();
                     setups.add(setup);
                 }
@@ -137,9 +150,15 @@ public class WnSetup implements Setup {
             // 那么就是个包咯
             catch (ClassNotFoundException e) {
                 List<Class<?>> klasses = Scans.me().scanPackage(str);
+                if (log.isDebugEnabled()) {
+                    log.debugf("  - scan package: '%s' -> %d items", str, klasses.size());
+                }
                 for (Class<?> klass : klasses) {
                     Mirror<?> mi = Mirror.me(klass);
                     if (mi.isOf(Setup.class)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("      - found Setup: " + klass.getName());
+                        }
                         Setup setup = (Setup) mi.born();
                         setups.add(setup);
                     }

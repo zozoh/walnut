@@ -569,7 +569,8 @@ define(function (require, exports, module) {
         val_edit : function(fld, o){
             var UI = this;
             var hdl = _type(fld);
-            var val = hdl.test.apply(UI, [fld, o[fld.key]]);
+            var v = $z.getValue(o, fld.key, fld.dft);
+            var val = hdl.test.apply(UI, [fld, v]);
             return hdl.asEdit.apply(UI, [fld, val]);
         },
         val_display : function(fld, o){
@@ -584,10 +585,8 @@ define(function (require, exports, module) {
             }
             // 否则采用标准的显示方式
             var hdl = _type(fld);
-            var val = hdl.test.apply(UI, [fld, o[fld.key]]);
-            if(fld.type == 'boolean'){
-                console.log("val_display:", fld, o[fld.key], val)
-            }
+            var v = $z.getValue(o, fld.key, fld.dft);
+            var val = hdl.test.apply(UI, [fld, v]);
             return hdl.asEdit.apply(UI, [fld, val]);
         },
         val_test : function(fld, v){
