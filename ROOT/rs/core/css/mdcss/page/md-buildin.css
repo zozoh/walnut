@@ -90,17 +90,24 @@ body {
   text-align: center;
 }
 .md-confirm,
-.md-prompt {
+.md-prompt,
+.md-win {
   background: #ffffff;
   padding: 16px 32px;
 }
 .md-confirm .md-buildin-content,
-.md-prompt .md-buildin-content {
+.md-prompt .md-buildin-content,
+.md-win .md-buildin-content {
   margin: 16px 0;
 }
 .md-confirm .md-buildin-input,
-.md-prompt .md-buildin-input {
+.md-prompt .md-buildin-input,
+.md-win .md-buildin-input {
   margin: 16px 0;
+}
+.md-win .md-buildin-content {
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .md-buildin-title {
   height: 38.4px;

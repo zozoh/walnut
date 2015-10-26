@@ -1668,6 +1668,29 @@ body {
 .md-text-field.has-value input {
   opacity: 1;
 }
+.md-text-field.highlight label {
+  color: #1976d2;
+  -webkit-transform: scale(0.75) translate3d(0, -18px, 0);
+  -moz-transform: scale(0.75) translate3d(0, -18px, 0);
+  -ms-transform: scale(0.75) translate3d(0, -18px, 0);
+  -o-transform: scale(0.75) translate3d(0, -18px, 0);
+  transform: scale(0.75) translate3d(0, -18px, 0);
+}
+.md-text-field.highlight input {
+  opacity: 1;
+}
+.md-text-field.read-only label {
+  color: #f44336;
+  -webkit-transform: scale(0.75) translate3d(0, -18px, 0);
+  -moz-transform: scale(0.75) translate3d(0, -18px, 0);
+  -ms-transform: scale(0.75) translate3d(0, -18px, 0);
+  -o-transform: scale(0.75) translate3d(0, -18px, 0);
+  transform: scale(0.75) translate3d(0, -18px, 0);
+}
+.md-text-field.read-only input {
+  opacity: 1;
+  cursor: not-allowed;
+}
 .md-text-field.has-err label {
   color: #f44336;
 }
