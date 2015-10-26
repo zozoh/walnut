@@ -53,7 +53,7 @@
   }
 }
 
-.md-confirm, .md-prompt {
+.md-confirm, .md-prompt, .md-win {
   background: @white;
   padding: @buildin-padding /2 @buildin-padding;
   .md-buildin-content {
@@ -63,6 +63,16 @@
     margin: 16px 0;
   }
 }
+
+.md-win {
+  .md-buildin-content {
+    //border-top: 1px solid @hint-on-light;
+    //border-bottom: 1px solid @hint-on-light;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
 
 .md-buildin-title {
   height: @buildin-height * 1.2;

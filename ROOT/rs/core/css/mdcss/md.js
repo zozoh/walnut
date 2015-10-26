@@ -10,6 +10,8 @@
     var _clz_isFocus = "is-focus";
     var _clz_isDisabled = "is-disabled";
     var _clz_hasValue = "has-value";
+    var _clz_readOnly = "read-only";
+    var _clz_highlight = "highlight";
     var _clz_hasErr = "has-err";
     var _clz_hasChecked = "has-checked";
 
@@ -37,6 +39,7 @@
                     $tf.addClass(_clz_hasValue);
                 } else {
                     $tf.removeClass(_clz_hasValue);
+                    $tf.removeClass(_clz_highlight);
                 }
             }
         },
