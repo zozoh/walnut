@@ -14,6 +14,8 @@ public interface WnUsrService {
      * @return 被删除的用户，null 表用户不存在
      */
     void delete(WnUsr u);
+    
+    boolean checkPassword(String nm, String pwd);
 
     WnUsr setPassword(String str, String pwd);
 

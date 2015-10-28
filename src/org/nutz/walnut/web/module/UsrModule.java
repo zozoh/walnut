@@ -156,9 +156,8 @@ public class UsrModule extends AbstractWnModule {
     public boolean do_check_login(@Param("nm") String nm, @Param("passwd") String pwd) {
         if (Strings.isBlank(pwd))
             throw Er.create("e.usr.blank.pwd");
-
-        WnUsr u = usrs.check(nm);
-        if (!u.password().equals(pwd)) {
+        
+        if (!usrs.checkPassword(nm, pwd)) {
             throw Er.create("e.usr.invalid.login");
         }
         return true;
@@ -169,18 +168,19 @@ public class UsrModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     public Object do_change_password(@Param("nm") String nm, @Param("passwd") String passwd) {
-        WnUsr u = usrs.check(nm);
+        //WnUsr u = usrs.check(nm); // 为啥要check呢? 应该从当前登陆用户去吧? 有点问题
         if (Strings.isBlank(passwd)) {
             throw Er.create("e.usr.pwd.blank");
         }
         if (!regexPasswd.matcher(passwd).find()) {
             throw Er.create("e.usr.pwd.invalid");
         }
-        if (!u.password().equals(passwd)) {
-            throw Er.create("e.usr.pwd.old.same");
-        } else {
-            usrs.setPassword(nm, passwd);
-        }
+        // 不要去检查是否跟旧密码一样,这没有意义,反正Ta要改,那就改呗
+        //if (!u.password().equals(passwd)) {
+        //    throw Er.create("e.usr.pwd.old.same");
+        //} else {
+        usrs.setPassword(nm, passwd);
+        //}
         return Ajax.ok();
     }
 
