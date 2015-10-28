@@ -4,6 +4,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -110,7 +111,8 @@ public class IoWnUsrService implements WnUsrService {
 
         // 创建用户对象
         final WnUsr u = new IoWnUsr();
-        u.id(oU.id()).name(oU.name()).password(pwd);
+        u.id(oU.id()).name(oU.name()).salt(R.UU32());
+        u.password(Lang.sha1(pwd + u.salt())); // 这里的hash算法与checkPassword/setPassword中一致
 
         // 添加所有的初始环境变量
         if (null != initEnvs) {
@@ -217,10 +219,25 @@ public class IoWnUsrService implements WnUsrService {
 
         WnObj o = _check_usr_obj(str);
         WnUsr u = io.readJson(o, IoWnUsr.class);
-        u.password(pwd);
+        u.salt(R.UU32()); // 先设置salt
+        u.password(Lang.sha1(pwd + u.salt())); // 然后设置加盐后的密码
         io.writeJson(o, u, null);
 
         return u;
+    }
+    
+    @Override
+    public boolean checkPassword(String nm, String pwd) {
+        __assert(null, nm, "passwd");
+
+        WnObj o = _check_usr_obj(nm);
+        if (o == null)
+            return false;
+        WnUsr u = io.readJson(o, IoWnUsr.class);
+        if (u.salt() == null) { // 没有加盐? 加盐之
+            u = setPassword(nm, u.password());
+        }
+        return Lang.sha1(pwd+u.salt()).equals(u.password());
     }
 
     @Override

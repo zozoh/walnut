@@ -216,7 +216,7 @@ public class cmd_email extends JvmExecutor {
         sys.out.print(mc.msg);
         sys.out.print("====================================\n");
         if (!mc.attachs.isEmpty()) {
-            sys.out.printf("Attach :\n%s\n", Strings.join("\n", mc.attachs.toArray()));
+            sys.out.printf("Attach :\n%s\n", Strings.join2("\n", mc.attachs.toArray()));
             sys.out.print("====================================\n");
         }
         sys.out.print("====================================\n");

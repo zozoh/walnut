@@ -273,7 +273,8 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 获取一个
         WnUsr u = usrs.fetch("xiaobai@nutzam.com");
-        assertEquals("123456", u.password());
+        //assertEquals("123456", u.password());
+        assertTrue(usrs.checkPassword("xiaobai@nutzam.com", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals(xiaobai.id(), u.name());
         assertEquals("xiaobai@nutzam.com", u.email());
@@ -287,7 +288,8 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 再次按照 Email 获取
         u = usrs.fetch("xiaobai@nutzam.com");
-        assertEquals("123456", u.password());
+        //assertEquals("123456", u.password());
+        assertTrue(usrs.checkPassword("xiaobai@nutzam.com", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());
         assertEquals("xiaobai@nutzam.com", u.email());
@@ -298,7 +300,8 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 按照 Name 获取
         u = usrs.fetch("xiaobai");
-        assertEquals("123456", u.password());
+        //assertEquals("123456", u.password());
+        assertTrue(usrs.checkPassword("xiaobai", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());
         assertEquals("xiaobai@nutzam.com", u.email());
@@ -309,7 +312,8 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 按照 Name 获取
         u = usrs.fetch("xiaobai");
-        assertEquals("123456", u.password());
+        //assertEquals("123456", u.password());
+        assertTrue(usrs.checkPassword("xiaobai", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());
         assertEquals("13910110054", u.phone());
@@ -326,7 +330,8 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 获取一个
         WnUsr u = usrs.fetch("13910110054");
-        assertEquals("123456", u.password());
+        //assertEquals("123456", u.password());
+        assertTrue(usrs.checkPassword("13910110054", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals(xiaobai.id(), u.name());
         assertEquals("13910110054", u.phone());
@@ -340,7 +345,8 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 再次按照 Phone 获取
         u = usrs.fetch("13910110054");
-        assertEquals("123456", u.password());
+        //assertEquals("123456", u.password());
+        assertTrue(usrs.checkPassword("13910110054", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());
         assertEquals("13910110054", u.phone());
@@ -351,7 +357,8 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 按照 Name 获取
         u = usrs.fetch("xiaobai");
-        assertEquals("123456", u.password());
+        //assertEquals("123456", u.password());
+        assertTrue(usrs.checkPassword("xiaobai", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("13910110054", u.phone());
         assertEquals("xiaobai", u.name());
@@ -362,7 +369,8 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 按照 Name 获取
         u = usrs.fetch("xiaobai");
-        assertEquals("123456", u.password());
+        //assertEquals("123456", u.password());
+        assertTrue(usrs.checkPassword("xiaobai", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());
         assertEquals("13910110054", u.phone());
@@ -379,7 +387,8 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 获取一个
         WnUsr u = usrs.fetch("xiaobai");
-        assertEquals("123456", u.password());
+        //assertEquals("123456", u.password());
+        assertTrue(usrs.checkPassword("xiaobai", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());
         assertEquals("xiaobai", u.group());

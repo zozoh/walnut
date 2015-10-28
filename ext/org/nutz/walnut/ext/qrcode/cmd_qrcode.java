@@ -99,7 +99,7 @@ public class cmd_qrcode extends JvmExecutor {
             ByteArrayOutputStream out = new ByteArrayOutputStream(width * height);
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
-                    out.write(matrix.get(x, y) ? '#' : ' ');
+                    out.write(matrix.get(x, y) ? '@' : ' ');
                 }
                 out.write('\n');
             }

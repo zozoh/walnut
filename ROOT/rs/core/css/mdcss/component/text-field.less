@@ -87,6 +87,28 @@
     }
   }
 
+  &.highlight {
+    label {
+      color: @primary-2-color;
+      .user-transform(scale(0.75) translate3d(0, -18px, 0));
+    }
+    input {
+      opacity: 1;
+    }
+  }
+
+  // 有内容的状态
+  &.read-only {
+    label {
+      color: @err-color;
+      .user-transform(scale(0.75) translate3d(0, -18px, 0));
+    }
+    input {
+      opacity: 1;
+      cursor: not-allowed;
+    }
+  }
+
   // 错误的状态
   &.has-err {
     label {

@@ -65,6 +65,15 @@ public class IoWnUsr extends NutMap implements WnUsr {
         this.setv("passwd", passwd);
         return this;
     }
+    
+    public WnUsr salt(String salt) {
+        this.setv("salt", salt);
+        return this;
+    }
+    
+    public String salt() {
+        return this.getString("salt");
+    }
 
     @Override
     public String email() {

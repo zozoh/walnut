@@ -23,6 +23,10 @@ public interface WnUsr extends NutBean {
     String password();
 
     WnUsr password(String passwd);
+    
+    String salt();
+    
+    WnUsr salt(String salt);
 
     String email();
 
