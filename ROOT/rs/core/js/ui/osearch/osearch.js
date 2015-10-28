@@ -345,6 +345,13 @@ return ZUI.def("ui.osearch", {
         this.do_search();
     },
     //...............................................................
+    getQuery : function(q, pg){
+        var UI = this;
+        q  = q  || UI._filter.getData();
+        pg = pg || UI.options.dftQuery;
+        return _.extend({}, UI.options.dftQuery, q, pg);
+    },
+    //...............................................................
     do_search : function(q, pg, callback){
         //console.log("do_search",q, pg)
         var UI = this;
@@ -353,15 +360,13 @@ return ZUI.def("ui.osearch", {
         // 推迟运行，以便确保界面都加载完毕了
         // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题
         window.setTimeout(function(){
-            q  = q  || UI._filter.getData();
-            pg = pg || UI.options.dftQuery;
-
+            var q = UI.getQuery(q, pg);
+            
             // 显示正在加载数据
             if(UI._list)
                 UI._list.showLoading();
 
             // 组合成查询条件，执行查询
-            var q = _.extend({}, UI.options.dftQuery, q, pg);
             $z.evalData(UI.options.data, q, function(re){
                 // 将查询的结果分别设置到列表以及分页器里
                 UI._list.setData(re ? re.list : [], true, callback);

@@ -308,10 +308,6 @@ return ZUI.def("ui.oform", {
         if(fld.icon)
             $(fld.icon).attr("tp","icon").appendTo(fld.$nm);
 
-        if(fld.key == "pa_last_jz"){
-            console.log("__append_field", fld)
-        }
-
         $('<span tp="title">' + (fld.title||fld.key) + '</span>').appendTo(fld.$nm);
     },
     //...............................................................

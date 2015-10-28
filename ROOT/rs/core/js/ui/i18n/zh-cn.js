@@ -15,6 +15,7 @@ define({
     "exit"    : "退出",
     "walcome" : "欢迎",
     "title"   : "标题",
+    "download": "下载",
     "loading" : "正在加载...",
     "e_ajax"  : "靠，有问题啦， 错误码:{{errCode}}  细节:{{msg}} : {{data}}",
     "e" : {

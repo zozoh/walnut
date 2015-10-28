@@ -41,7 +41,21 @@ public class cmd_obj extends JvmExecutor {
             sort = Lang.map(params.check("sort"));
         }
 
-        // 首先获取对象
+        // 如果是要更新，首先分析一下更新参数
+        NutMap u_map = null;
+        if (params.has("u")) {
+            String mapstr;
+            // 从管道里读取
+            if (sys.pipeId > 0 && "true".equals(params.get("u"))) {
+                mapstr = sys.in.readAll();
+            }
+            // 从内容里读取
+            else {
+                mapstr = params.get("u");
+            }
+            u_map = Lang.map(mapstr);
+        }
+
         // 计算要列出的要处理的对象
         List<WnObj> list;
 
@@ -95,42 +109,8 @@ public class cmd_obj extends JvmExecutor {
             list = Lang.list(o);
 
         }
-        // 指定查询
-        else if (params.vals.length == 0) {
-            String json = params.get("match", "{}");
-            WnQuery q = new WnQuery();
-            // 条件是"或"
-            if (Strings.isQuoteBy(json, '[', ']')) {
-                List<NutMap> ors = Json.fromJsonAsList(NutMap.class, json);
-                q.addAll(ors);
-            }
-            // 条件是"与"
-            else {
-                q.add(Lang.map(json));
-            }
-
-            // 添加更多条件
-            q.setv("d1", sys.se.group());
-
-            // 看看是否需要查询分页信息
-            if (countPage && limit > 0) {
-                sum_count = (int) sys.io.count(q);
-                sum_page = (int) Math.ceil(((double) sum_count) / ((double) limit));
-            }
-
-            if (skip > 0)
-                q.skip(skip);
-
-            if (limit > 0)
-                q.limit(limit);
-
-            if (null != sort)
-                q.sort(sort);
-
-            list = sys.io.query(q);
-        }
         // 给定的路径
-        else {
+        else if (params.vals.length > 0) {
             list = new LinkedList<WnObj>();
             evalCandidateObjs(sys, params.vals, list, false);
 
@@ -167,6 +147,49 @@ public class cmd_obj extends JvmExecutor {
                 list = list.subList(0, limit);
             }
         }
+        // 指定查询
+        else if (params.has("match")) {
+            String json = params.get("match", "{}");
+            WnQuery q = new WnQuery();
+            // 条件是"或"
+            if (Strings.isQuoteBy(json, '[', ']')) {
+                List<NutMap> ors = Json.fromJsonAsList(NutMap.class, json);
+                q.addAll(ors);
+            }
+            // 条件是"与"
+            else {
+                q.add(Lang.map(json));
+            }
+
+            // 添加更多条件
+            q.setv("d1", sys.se.group());
+
+            // 看看是否需要查询分页信息
+            if (countPage && limit > 0) {
+                sum_count = (int) sys.io.count(q);
+                sum_page = (int) Math.ceil(((double) sum_count) / ((double) limit));
+            }
+
+            if (skip > 0)
+                q.skip(skip);
+
+            if (limit > 0)
+                q.limit(limit);
+
+            if (null != sort)
+                q.sort(sort);
+
+            list = sys.io.query(q);
+        }
+        // 全都没有，那么看看 u_map 里是不是有 id
+        else if (null != u_map && u_map.has("id")) {
+            String id = u_map.getString("id");
+            list = Lang.list(sys.io.checkById(id));
+        }
+        // 啥都木有，那就用当前路径吧
+        else {
+            list = Lang.list(this.getCurrentObj(sys));
+        }
 
         // 是否强制输出路径
         if (list.size() == 1 || params.is("P")) {
@@ -178,8 +201,9 @@ public class cmd_obj extends JvmExecutor {
         List<NutMap> outs = new ArrayList<NutMap>(list.size());
         for (WnObj o : list) {
             // 更新对象
-            if (params.has("u")) {
-                NutMap map = Lang.map(params.get("u"));
+            if (null != u_map) {
+                NutMap map = u_map;
+                map.remove("id");
                 // 将日期的字符串，搞一下
                 for (Map.Entry<String, Object> en : map.entrySet()) {
                     Object v = en.getValue();

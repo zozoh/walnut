@@ -5,12 +5,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Enumeration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -241,7 +245,7 @@ public class HttpApiModule extends AbstractWnModule {
         }
         // 肯定要写入返回流
         else {
-            _do_run_box(oApi, mimeType, resp, cmdText, box);
+            _do_run_box(oApi, oReq, mimeType, resp, cmdText, box);
         }
 
         // 释放沙箱
@@ -258,11 +262,14 @@ public class HttpApiModule extends AbstractWnModule {
 
     }
 
+    private static final Pattern P = Pattern.compile("^(attachment; *filename=\")(.+)(\")$");
+
     private void _do_run_box(WnObj oApi,
+                             WnObj oReq,
                              String mimeType,
                              HttpServletResponse resp,
                              String cmdText,
-                             WnBox box) {
+                             WnBox box) throws UnsupportedEncodingException {
         // 设置响应头，并看看是否指定了 content-type
         for (String key : oApi.keySet()) {
             if (key.startsWith("http-header-")) {
@@ -270,6 +277,32 @@ public class HttpApiModule extends AbstractWnModule {
                 // 指定了响应内容
                 if (nm.equals("CONTENT-TYPE")) {
                     mimeType = oApi.getString(key);
+                }
+                // 指定了下载目标
+                else if (nm.equals("CONTENT-DISPOSITION")) {
+                    String val = Strings.trim(oApi.getString(key));
+
+                    Matcher m = P.matcher(val);
+                    String fnm;
+                    if (m.find()) {
+                        fnm = m.group(2);
+                    } else {
+                        fnm = val;
+                    }
+                    String ua = oReq.getString("http-header-USER-AGENT", "");
+                    // Safari 狗屎
+                    if (ua.contains(" Safari/")) {
+                        resp.setHeader(nm,
+                                       "attachment; filename=\""
+                                           + new String(fnm.getBytes("UTF-8"), "ISO8859-1")
+                                           + "\"");
+                    }
+                    // 其他用标准
+                    else {
+                        resp.setHeader(nm,
+                                       "attachment; filename*=utf-8'zh_cn'"
+                                           + URLEncoder.encode(fnm, Encoding.UTF8));
+                    }
                 }
                 // 其他头，添加
                 else {
