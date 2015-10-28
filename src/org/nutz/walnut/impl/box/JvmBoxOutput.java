@@ -5,6 +5,8 @@ import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
 import org.nutz.json.Json;
@@ -16,11 +18,10 @@ public class JvmBoxOutput implements Flushable, Closeable {
 
     private OutputStream ops;
 
-    private Writer __w;
+    private Writer _w;
 
     public JvmBoxOutput(OutputStream ops) {
         this.ops = ops;
-        this.__w = Streams.utf8w(ops);
     }
 
     public OutputStream getOutputStream() {
@@ -28,7 +29,22 @@ public class JvmBoxOutput implements Flushable, Closeable {
     }
 
     public Writer getWriter() {
-        return __w;
+        if (null == _w) {
+            _w = Streams.utf8w(ops);
+        }
+        return _w;
+    }
+
+    public Writer getWriter(String charset) {
+        if (null == _w) {
+            try {
+                _w = new OutputStreamWriter(ops, charset);
+            }
+            catch (UnsupportedEncodingException e) {
+                throw Lang.wrapThrow(e);
+            }
+        }
+        return _w;
     }
 
     public void write(InputStream ins) {
@@ -68,9 +84,10 @@ public class JvmBoxOutput implements Flushable, Closeable {
     }
 
     public void writeJson(Object o, JsonFormat fmt) {
-        Json.toJson(__w, o, fmt);
+        Writer w = getWriter();
+        Json.toJson(w, o, fmt);
         try {
-            __w.flush();
+            w.flush();
         }
         catch (IOException e) {
             throw Lang.wrapThrow(e);
@@ -82,9 +99,10 @@ public class JvmBoxOutput implements Flushable, Closeable {
     }
 
     public void print(CharSequence msg) {
+        Writer w = getWriter();
         try {
-            __w.write(null == msg ? "null" : msg.toString());
-            __w.flush();
+            w.write(null == msg ? "null" : msg.toString());
+            w.flush();
         }
         catch (IOException e) {
             throw Lang.wrapThrow(e);
@@ -93,7 +111,7 @@ public class JvmBoxOutput implements Flushable, Closeable {
 
     @Override
     public void flush() {
-        Streams.safeFlush(__w);
+        Streams.safeFlush(_w);
         Streams.safeFlush(ops);
     }
 
