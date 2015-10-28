@@ -4,6 +4,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -110,7 +111,7 @@ public class IoWnUsrService implements WnUsrService {
 
         // 创建用户对象
         final WnUsr u = new IoWnUsr();
-        u.id(oU.id()).name(oU.name()).password(pwd);
+        u.id(oU.id()).name(oU.name()).password(pwd).salt(R.UU32());
 
         // 添加所有的初始环境变量
         if (null != initEnvs) {
