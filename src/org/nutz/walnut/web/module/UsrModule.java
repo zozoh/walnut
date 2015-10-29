@@ -167,8 +167,11 @@ public class UsrModule extends AbstractWnModule {
     @At("/change/password")
     @Ok("ajax")
     @Fail("ajax")
-    public Object do_change_password(@Param("nm") String nm, @Param("passwd") String passwd) {
+    @Filters(@By(type = WnCheckSession.class))
+    public Object do_change_password(@Param("passwd") String passwd) {
         //WnUsr u = usrs.check(nm); // 为啥要check呢? 应该从当前登陆用户去吧? 有点问题
+        String seid = Wn.WC().SEID();
+        String me = sess.check(seid).me();
         if (Strings.isBlank(passwd)) {
             throw Er.create("e.usr.pwd.blank");
         }
@@ -179,7 +182,7 @@ public class UsrModule extends AbstractWnModule {
         //if (!u.password().equals(passwd)) {
         //    throw Er.create("e.usr.pwd.old.same");
         //} else {
-        usrs.setPassword(nm, passwd);
+        usrs.setPassword(me, passwd);
         //}
         return Ajax.ok();
     }
@@ -188,7 +191,12 @@ public class UsrModule extends AbstractWnModule {
     @At("/reset/password")
     @Ok("ajax")
     @Fail("ajax")
-    public Object do_change_password(@Param("nm") String nm) {
+    @Filters(@By(type = WnCheckSession.class))
+    public Object do_reset_password(@Param("nm") String nm) {
+        String seid = Wn.WC().SEID();
+        String me = sess.check(seid).me();
+        if (!"root".equals(me)) // 只有root可以改其他人的密码
+            throw Er.create("e.usr.not.root");
         usrs.setPassword(nm, "123456");
         return Ajax.ok();
     }
