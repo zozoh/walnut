@@ -477,11 +477,17 @@
         },
         //.............................................
         // 打开一个新的窗口
-        openUrl: function (url, target) {
-            var html = '<form target="' + (target || '_blank') + '" method="GET"';
+        openUrl: function (url, target, method, params) {
+            var html = '<form target="' + (target || '_blank') + '" method="'+(method||"GET")+'"';
             html += ' action="' + url + '" style="display:none;">';
             html += '</form>';
             var jq = $(html).appendTo(document.body);
+            if(params)
+                for(var key in params){
+                    $('<input type="hidden">').appendTo(jq)
+                        .prop("name", key)
+                        .val(params[key]);
+                }
             jq[0].submit();
             jq.remove();
         },

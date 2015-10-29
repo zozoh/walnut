@@ -23,6 +23,10 @@ public class cmd_cp extends JvmExecutor {
         WnObj src = sys.io.check(null, ph_src);
         WnObj dst = sys.io.fetch(null, ph_dst);
 
+        if (null == dst) {
+            dst = sys.io.createIfNoExists(null, ph_dst, src.race());
+        }
+
         // Copy 单个文件
         if (src.isFILE()) {
             __cp_src_as_file(sys, src, dst);
