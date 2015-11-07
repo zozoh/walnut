@@ -20,7 +20,7 @@ return ZUI.def("ui.ofilter", {
     events : {
         "change input" : function(e){
             var q = this.getData();
-            console.log(q)
+            //console.log(q)
             this.trigger("filter:change", q);
         }
     },

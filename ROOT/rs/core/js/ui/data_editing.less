@@ -29,4 +29,30 @@
     }
     .ui-fld-edit-switchs:after{@clr();}
 
+    .ui-fld-edit-multiselectbox {
+        position: relative;
+        font-size:@f_small;
+        .msb-item {
+            padding:@small @normal; cursor: pointer; margin:@tiny;
+            border:1px solid @c_gray_f;  background:@c_gray_b; display: inline-block;
+        }
+        .msb-box {
+            padding: @normal;
+        }
+        .msb-box[empty]>div {
+            font-size: @f_normal; padding: @small; color:@c_gray_f; cursor: pointer;
+        }
+        .msb-box:hover {
+            background: @c_text_hover_bg;
+        }
+        .msb-box:after{@clr();}
+        .msb-pad {@noselect();
+            position: absolute; left:0; right:0; display: none;
+            padding:@small; border:@tiny solid #CCC; background: #FFF;
+            min-height: @large;
+        }
+        .msb-pad:after{@clr();}
+
+    }
+
 }

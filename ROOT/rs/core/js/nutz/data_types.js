@@ -22,6 +22,7 @@ function tPad(n){
 }
 
 function enum_test(fld, v){
+    var re = null;
     for(var i=0; i<fld.setup.value.length; i++) {
         var item = fld.setup.value[i];
         if(v == item.val || v == item.text){
@@ -29,9 +30,17 @@ function enum_test(fld, v){
                 val  : item.val,
                 text : item.text 
             };
+        }else if (fld.dft == item.val || fld.dft == item.text){
+            re = {
+                val  : item.val,
+                text : item.text 
+            };
         }
     }
-    throw _E("i18n:e.fld.invalid.enum",fld,v);
+    //throw _E("i18n:e.fld.invalid.enum",fld,v);
+    if(!re)
+        return _.extend({}, fld.setup.value[0]);
+    return re;
 }
 //==================================================
 module.exports = {
@@ -119,8 +128,9 @@ module.exports = {
                 }
                 return d;
             }
-            // 未通过校验，抛错
-            throw _E("i18n:e.fld.invalid.datetime",fld,v);
+            // 未通过校验，返回默认值
+            //throw _E("i18n:e.fld.invalid.datetime",fld,v);
+            return fld.dft;
         }
     },
     //......................................
@@ -288,6 +298,91 @@ module.exports = {
         },
         test : function(fld, v){
             return enum_test(fld, v);
+        }
+    },
+    //......................................
+    /*
+    标准配置结构为:
+    {
+        data    : ...  // 同步函数或者数组
+        _list   : ...  // 缓存所有备选数据
+        key_txt : "txt",
+        key_val : "val"
+    }
+    */
+    "array" : {
+        defaultEditAs : "multiselectbox",
+        normalize : function(fld){
+            $z.setUndefined(fld, "setup", {});
+            if(!fld.setup.data)
+                throw "fld '"+fld.key+"' not setup.data";
+            $z.setUndefined(fld.setup, "key_txt", "txt");
+            $z.setUndefined(fld.setup, "key_val", "val");
+        },
+        asEdit : function(fld, en){
+            var ss = [];
+
+            en.forEach(function(v){
+                ss.push(fld._val_map[v]);
+            });
+
+            return ss.join(", ");
+        },
+        asValue : function(fld, en){
+            return en;
+        },
+        test : function(fld, v){
+            var UI = this;
+
+            // 读取数据 
+            if(!fld._list){
+                var list;
+                // 如果是字符串，那就是命令，要缓存一下结果
+                if(_.isString(fld.setup.data)){
+                    var jBody = $(document.body);
+                    var cache = jBody.data("@multiselectbox");
+                    if(!cache){
+                        cache = {};
+                        jBody.data("@multiselectbox", cache);
+                    }
+                    list = cache[fld.setup.data];
+                    if(!list){
+                        list = $z.evalData(fld.setup.data, null, UI);
+                        cache[fld.setup.data] = list;
+                    }
+                }
+                // 其他的，转换一下
+                else{
+                    list = $z.evalData(fld.setup.data, null, UI);
+                }
+
+                if(!list){
+                    list = [];
+                }
+                else if(!_.isArray(list)){
+                    list = [list];
+                }
+
+                // 缓存一下，以便显示控件等能得到数据
+                fld._list = list;
+
+                // 生成  val map
+                fld._val_map = {};
+                list.forEach(function(v){
+                    fld._val_map[v[fld.setup.key_val]] = v[fld.setup.key_txt];
+                });
+            }
+
+            if(!v){
+                return [];
+            }
+            if(_.isString(v)){
+                return v.split("/[ \t]*[,;，][ \t]*/");
+            }
+            else if(!_.isArray(v)){
+                return [v];
+            }
+            return v;
         }
     }
 };

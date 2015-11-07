@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.nutz.lang.Lang;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
@@ -11,6 +13,8 @@ import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 
 public class WnSystem {
+
+    private static final Log log = Logs.get();
 
     public String boxId;
 
@@ -56,6 +60,10 @@ public class WnSystem {
         _runner.out = new EscapeCloseOutputStream(null == stdOut ? out.getOutputStream() : stdOut);
         _runner.err = new EscapeCloseOutputStream(null == stdErr ? err.getOutputStream() : stdErr);
         _runner.in = new EscapeCloseInputStream(null == stdIn ? in.getInputStream() : stdIn);
+
+        if (log.isInfoEnabled())
+            log.info(" > sys.exec: " + cmdText);
+
         for (String cmdLine : cmdLines) {
             _runner.__run(cmdLine);
             _runner.__wait_for_idle();

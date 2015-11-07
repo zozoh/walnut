@@ -7,6 +7,14 @@ import org.junit.Test;
 public class JvmsTest {
 
     @Test
+    public void test_split_with_escape_quote() {
+        String[] list = Jvms.split("a \"nm:\\\"A\\\"\"", false, ' ');
+        assertEquals(2, list.length);
+        assertEquals("a", list[0]);
+        assertEquals("nm:\"A\"", list[1]);
+    }
+
+    @Test
     public void test_split_by_whitespace() {
         String[] list = Jvms.split("  a   b   ", false, ' ');
         assertEquals(2, list.length);

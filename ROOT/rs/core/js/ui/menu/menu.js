@@ -19,7 +19,7 @@ return ZUI.def("ui.menu", {
         }
     },
     //..............................................
-    fire : function(item){
+    fire : function(item, e){
         var jq = $(item);
         if(!jq.hasClass("menu-item")){
             jq = jq.parents(".menu-item");
@@ -34,7 +34,7 @@ return ZUI.def("ui.menu", {
             var UI = ZUI.checkInstance(jq);
             var context = mi.context || UI.options.context || UI.parent || UI;
             if(_.isFunction(mi.handler)){
-                mi.handler.apply(context, mi.args || []);
+                mi.handler.apply(context, [jq, e]);
             }
         }
         // 处理不了

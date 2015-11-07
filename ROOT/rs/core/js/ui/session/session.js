@@ -13,9 +13,8 @@ return ZUI.def("ui.session", {
     //...............................................................
     redraw : function(){
         var UI = this;
-        $z.evalData(UI.options.data, null, function(se){
-            UI.arena.find("b").text(se.me);
-        }, UI);
+        var se = UI.app.session;
+        UI.arena.find("b").text(se.me);
     },
     //...............................................................
 });

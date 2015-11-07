@@ -25,12 +25,11 @@ new UIMenu({
 
 ```
 {
-    type    : "button"        // 类型
-    icon    : '<i class=..>'  // 【选】是否显示图标，以及图标的 HTML 片段
-    text    : "i18n:xxx"      // 按钮文字，支持 i18n
-    handler : {context}F(e)   // 菜单项的回调
-    context : undefined       // 菜单项回调时，特殊的调用上下文，默认采用全局配置
-    args    : undefined       // 菜单项回调时特殊的参数，格式是一个数组，默认没参数 
+    type    : "button"           // 类型
+    icon    : '<i class=..>'     // 【选】是否显示图标，以及图标的 HTML 片段
+    text    : "i18n:xxx"         // 按钮文字，支持 i18n
+    handler : {c}F($jq[,e])      // 菜单项的回调
+    context : undefined          // 菜单项回调时，特殊的调用上下文，默认采用全局配置
 }
 ```
 

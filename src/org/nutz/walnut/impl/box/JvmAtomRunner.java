@@ -24,6 +24,7 @@ import org.nutz.walnut.util.JvmTunnel;
 import org.nutz.walnut.util.SyncWnTunnel;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
+import org.nutz.web.WebException;
 
 public class JvmAtomRunner {
 
@@ -106,7 +107,13 @@ public class JvmAtomRunner {
         // opss = new ArrayList<OutputStream>(atoms.length);
         for (int i = 0; i < cmds.length; i++) {
             // 生成原子并解析命令字符串
-            a = new JvmAtom(this, cmds[i]);
+            try {
+                a = new JvmAtom(this, cmds[i]);
+            }
+            catch (WebException e) {
+                boxErr.printlnf("%s : %s", e.getKey(), e.getReasonString());
+                throw e;
+            }
 
             // 找到执行器
             a.executor = jef.get(a.cmdName);

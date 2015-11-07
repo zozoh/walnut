@@ -56,7 +56,10 @@ public class Jvms {
             // 遇到分隔符号
             if (Nums.isin(seps, c)) {
                 if (!Strings.isBlank(sb)) {
-                    list.add(sb.toString());
+                    String s2 = sb.toString();
+                    if (!keepQuote)
+                        s2 = Jvms.evalEscape(s2);
+                    list.add(s2);
                     sb = new StringBuilder();
                 }
             }
@@ -107,7 +110,10 @@ public class Jvms {
 
         // 添加最后一个
         if (!Strings.isBlank(sb)) {
-            list.add(sb.toString());
+            String s2 = sb.toString();
+            if (!keepQuote)
+                s2 = Jvms.evalEscape(s2);
+            list.add(s2);
         }
 
         // 返回拆分后的数组

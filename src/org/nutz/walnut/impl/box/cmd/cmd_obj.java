@@ -57,16 +57,21 @@ public class cmd_obj extends JvmExecutor {
         }
 
         // 计算要列出的要处理的对象
-        List<WnObj> list;
+        List<WnObj> list = new LinkedList<WnObj>();
 
         // 创建新对象
         if (params.has("new")) {
             String json = params.get("new", "{}");
             NutMap meta;
-            if (json.equals("true"))
+            // 类似 cat xxx | obj -new -u 的方式创建对象
+            if (json.equals("true")) {
                 meta = new NutMap();
-            else
+            }
+            // 解析 JSON
+            else {
                 meta = Lang.map(json);
+            }
+
             String pid = meta.getString("pid");
             WnRace race = meta.getAs("race", WnRace.class, WnRace.FILE);
 
@@ -90,11 +95,19 @@ public class cmd_obj extends JvmExecutor {
             // 创建对象
             WnObj o = sys.io.create(oP, meta.getString("nm", "${id}"), race);
 
-            // 更新
-            sys.io.appendMeta(o, meta);
+            // 准备更新的元数据
+            meta.remove("id");
+            meta.remove("pid");
+            meta.remove("race");
+            meta.remove("nm");
+            if (null == u_map) {
+                u_map = meta;
+            } else {
+                u_map.putAll(meta);
+            }
 
             // 记录到列表以备后续操作
-            list = Lang.list(o);
+            list.add(o);
 
         }
         // 确保某一路径存在
@@ -106,7 +119,7 @@ public class cmd_obj extends JvmExecutor {
                 race = WnRace.FILE;
 
             WnObj o = sys.io.createIfNoExists(null, path, race);
-            list = Lang.list(o);
+            list.add(o);
 
         }
         // 给定的路径
@@ -184,17 +197,11 @@ public class cmd_obj extends JvmExecutor {
         // 全都没有，那么看看 u_map 里是不是有 id
         else if (null != u_map && u_map.has("id")) {
             String id = u_map.getString("id");
-            list = Lang.list(sys.io.checkById(id));
+            list.add(sys.io.checkById(id));
         }
         // 啥都木有，那就用当前路径吧
         else {
-            list = Lang.list(this.getCurrentObj(sys));
-        }
-
-        // 是否强制输出路径
-        if (list.size() == 1 || params.is("P")) {
-            for (WnObj o : list)
-                o.path();
+            list.add(this.getCurrentObj(sys));
         }
 
         // 一次处理所有对象
@@ -231,55 +238,29 @@ public class cmd_obj extends JvmExecutor {
                 }
                 // 执行更新
                 sys.io.appendMeta(o, map);
+
+                // 是否要输出
+                if (params.is("o")) {
+                    // 是否强制输出路径
+                    if (list.size() == 1 || params.is("P")) {
+                        o.path();
+                    }
+                    outs.add(__obj_to_outmap(o, params));
+                }
+
             }
             // ................................................
-            // 记录输出
-            // 显示对象某几个值
+            // 添加到输出结果里
             else {
-                // true 表示输出的时候，也显示双下划线开头的隐藏字段
-                boolean isShowAutoHide = params.is("H");
-
-                // 字段过滤正则表达式
-                Pattern p = null;
-                boolean not = false;
-                String regex = params.get("e");
-                if (!Strings.isBlank(regex)) {
-                    if (regex.startsWith("!")) {
-                        not = true;
-                        regex = regex.substring(1);
-                    }
-                    p = Pattern.compile(regex);
+                // 是否强制输出路径
+                if (list.size() == 1 || params.is("P")) {
+                    o.path();
                 }
-
-                // 依次判断字段
-                NutMap map = new NutMap();
-                for (String key : o.keySet()) {
-                    // 忽略自动隐藏字段
-                    if (!isShowAutoHide && key.startsWith("__"))
-                        continue;
-
-                    // 用正则表达式判断
-                    if (null != p) {
-                        if (p.matcher(key).matches()) {
-                            if (!not)
-                                map.put(key, o.get(key));
-                        } else if (not) {
-                            map.put(key, o.get(key));
-                        }
-                    }
-                    // 那么一定要添加的
-                    else {
-                        map.put(key, o.get(key));
-                    }
-                }
-
-                // 添加到输出结果里
-                outs.add(map);
-
+                outs.add(__obj_to_outmap(o, params));
             }
         }
         // 当没有更新，或者强制输出的时候，执行输出
-        if (outs.size() > 0 && (params.is("o") || !params.has("u"))) {
+        if (outs.size() > 0) {
             // 仅输出值
             if (params.is("V")) {
                 __output_as_value(sys, params, outs);
@@ -301,6 +282,46 @@ public class cmd_obj extends JvmExecutor {
                 __output_as_json(sys, params, countPage, pn, pgsz, sum_count, sum_page, skip, outs);
             }
         }
+    }
+
+    private NutMap __obj_to_outmap(WnObj o, ZParams params) {
+        // true 表示输出的时候，也显示双下划线开头的隐藏字段
+        boolean isShowAutoHide = params.is("H");
+
+        // 字段过滤正则表达式
+        Pattern p = null;
+        boolean not = false;
+        String regex = params.get("e");
+        if (!Strings.isBlank(regex)) {
+            if (regex.startsWith("!")) {
+                not = true;
+                regex = regex.substring(1);
+            }
+            p = Pattern.compile(regex);
+        }
+
+        // 依次判断字段
+        NutMap map = new NutMap();
+        for (String key : o.keySet()) {
+            // 忽略自动隐藏字段
+            if (!isShowAutoHide && key.startsWith("__"))
+                continue;
+
+            // 用正则表达式判断
+            if (null != p) {
+                if (p.matcher(key).matches()) {
+                    if (!not)
+                        map.put(key, o.get(key));
+                } else if (not) {
+                    map.put(key, o.get(key));
+                }
+            }
+            // 那么一定要添加的
+            else {
+                map.put(key, o.get(key));
+            }
+        }
+        return map;
     }
 
     private void __output_as_value(WnSystem sys, ZParams params, List<NutMap> outs) {

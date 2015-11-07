@@ -1,21 +1,79 @@
 define(function (require, exports, module) {
+var Wn = {
 //=======================================================================
 // 获取当前的 app 的通用方法，不建议 UI 们直接获取 window._app
 // 因为以后这个对象可能会被改名或变到别的地方
-exports.app = function(){
+app : function(){
     return window._app;
-};
+},
+/*................................................................
+执行一个命令，并且在一个弹出的日志窗口显示命令的返回情况
+ - cmdText  : "xxxx"        # 命令文本
+ - maskConf : {..}          # 可选，是弹出的遮罩层的配置信息
+ - callback : {c}F(re)      # 可选，命令执行完毕后的回调，参数为命令的返回
+或者，你可以用更精细的方法来调用
+logpanel({
+   cmdText  : "xxxxx",
+   maskConf : {...},
+   // .. 下面的参数字段与 exec 相同
+   async
+   complete
+   done
+   fail
+   context
+   // msgShow,msgError,msgEnd 会被本函数覆盖，你设置了也木用
+});
+*/
+logpanel : function(cmdText, maskConf, callback){
+    var options;
+    if(_.isString(cmdText)){
+        options = {cmdText: cmdText};
+        if(_.isFunction(maskConf)){
+            options.maskConf = {};
+            options.complete = maskConf;
+        }else{
+            options.maskConf = maskConf;
+            options.complete = callback;
+        }
+    }else{
+        options = cmdText;
+    }
+    // 显示遮罩
+    var MaskUI = require('ui/mask/mask');
+    new MaskUI(_.extend({
+        width : "60%"
+    }, options.maskConf)).render(function(){
+        var jPre = $('<pre class="ui-log">').appendTo(this.$main);
+        Wn.exec(options.cmdText, _.extend(options, {
+            msgShow : function(str){
+                $('<div class="ui-log-info">')
+                    .text(str)
+                    .appendTo(jPre)[0].scrollIntoView({
+                        block: "end", behavior: "smooth"
+                    });
+            },
+            msgError : function(str){
+                $('<div class="ui-log-err">')
+                    .text(str)
+                    .appendTo(jPre)[0].scrollIntoView({
+                        block: "end", behavior: "smooth"
+                    });
+            }
+        }));
+    });
+},
 /*................................................................
 # 执行命令的 options 是一组回调
 {
+    async    : true      // 指明同步异步，默认 true
     // 当得到返回的回调
-    msgShow  : function(line){..}    // 显示一行输出
-    msgError : function(line){..}    // 显示一行错误输出
-    msgEnd   : function(){..}        // 表示不会再有输出了
+    msgShow  : {c}F(line){..}      // 显示一行输出
+    msgError : {c}F(line){..}      // 显示一行错误输出
+    msgEnd   : {c}F(){..}          // 表示不会再有输出了
     // 请求完毕的回调
-    complete : function(content){..}     // 全部执行完
-    done     : function(content){..}     // 执行成功
-    fail     : function(Content){..}     // 执行失败
+    complete : {c}F(content){..}   // 全部执行完
+    done     : {c}F(content){..}   // 执行成功
+    fail     : {c}F(Content){..}   // 执行失败
     // 所有回调的 this 对象，默认用本函数的 this
     context  : {..}
 }
@@ -24,19 +82,29 @@ exports.app = function(){
     complate : function(content){..}
 }
 */
-exports.exec = function (str, options) {
+exec : function (str, options) {
     var app = window._app;
     var se = app.session;
-    
-    // 一个回调处理所有的情况
-    if (typeof options == "function") {
-        options = {complete: options};
+    var re = undefined;
+
+    // 没设置回调，则默认认为是同步调用
+    if(_.isUndefined(options)){
+        options = {
+            async : false,
+            complete : function(content){
+                re = content;
+            }
+        };
     }
-    // 没有 options 就给个空对象
-    else if(_.isUndefined(options)){
-        options = {};
+    // 一个回调处理所有的情况
+    else if (_.isFunction(options)) {
+        options = {async:true, complete: options};
     }
 
+    // 有 options 的情况，默认是异步
+    $z.setUndefined(options, "async", true);
+    
+    // 固定上下文
     var context = options.context || this;
 
     // 没内容，那么就表执行了，直接回调吧
@@ -60,6 +128,7 @@ exports.exec = function (str, options) {
     oReq._moss = [];
     oReq._moss_tp = "";
     oReq._moss_str = "";
+
     oReq._show_msg = function () {
         var str = oReq.responseText.substring(oReq._last);
         oReq._last += str.length;
@@ -108,11 +177,13 @@ exports.exec = function (str, options) {
             }
         }
     };
-    oReq.open("POST", url, true);
+    
+    oReq.open("POST", url, options.async);
     oReq.onreadystatechange = function () {
         //console.log("rs:" + oReq.readyState + " status:" + oReq.status + " :: \n" + oReq.responseText);
         // LOADING | DONE 只要有数据输入，显示一下信息
-        oReq._show_msg();
+        if(oReq._show_msg)
+            oReq._show_msg();
         // DONE: 请求结束了，调用回调
         if (oReq.readyState == 4) {
             // 处理请求的状态更新命令
@@ -136,6 +207,13 @@ exports.exec = function (str, options) {
     // oReq.send("cmd=" + cmdText);
     oReq.setRequestHeader("Content-type", "text/html");
     oReq.send(cmdText);
-};
+
+    // 返回返回值，如同是同步的时候，会被设置的
+    return re;
+}
+}; // ~End wn
+// 输出
+_.extend(exports, Wn);
+window.Wn = Wn;
 //=======================================================================
 });

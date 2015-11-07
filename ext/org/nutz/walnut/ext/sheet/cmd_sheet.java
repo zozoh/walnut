@@ -106,6 +106,7 @@ public class cmd_sheet extends JvmExecutor {
         FKey[] keys;
         String title;
         String dft;
+        String dft_blank;
 
         Fld(String str) {
             String[] ss = Strings.splitIgnoreBlank(str, ":");
@@ -114,17 +115,33 @@ public class cmd_sheet extends JvmExecutor {
             for (int i = 0; i < sKeys.length; i++)
                 this.keys[i] = new FKey(sKeys[i]);
             this.title = ss.length > 1 ? Strings.sBlank(ss[1], this.keys[0].key) : this.keys[0].key;
-            this.dft = ss.length > 2 ? ss[2] : null;
+            this.dft = ss.length > 2 ? ss[2] : "";
+            // 分析两种默认值
+            int pos = this.dft.indexOf("/");
+            if (pos > 0) {
+                this.dft_blank = Strings.trim(this.dft.substring(pos + 1));
+                this.dft = Strings.trim(this.dft.substring(0, pos));
+            } else {
+                this.dft = Strings.trim(this.dft);
+                this.dft_blank = this.dft;
+            }
         }
 
         String getValue(NutMap obj) {
+            String re = null;
             for (int i = 0; i < keys.length; i++) {
-                String re = keys[i].getValue(obj);
-                if (!Strings.isBlank(re)) {
-                    return re;
-                }
+                re = keys[i].getValue(obj);
+                if (null != re)
+                    break;
             }
-            return this.dft;
+
+            if (null == re)
+                return this.dft;
+
+            if (Strings.isBlank(re))
+                return this.dft_blank;
+
+            return re;
         }
     }
 
@@ -138,7 +155,7 @@ public class cmd_sheet extends JvmExecutor {
             throw Er.create("e.cmd.sheet.unsupport_mode", type);
         }
 
-        String sep = params.get("sep", ",");
+        String sep = params.get("sep", ";");
 
         // 读取输入
         String json = sys.in.readAll();

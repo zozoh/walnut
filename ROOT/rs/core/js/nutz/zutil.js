@@ -319,21 +319,30 @@
             if(!data){
                 return;
             }
-            // // 如果 params 没定义，直接就 callback 了 ...
-            // if(_.isFunction(params)){
-            //     context  = callback;
-            //     callback = params;
-            //     params = {};
-            // }
+
+            // 异步的时候，返回值一定是 undefined
+            var eval_re = undefined;
+            var async = true;
+
+            // 如果回调不是函数，那么将其视为 context，同时这必定是一个同步调用
+            // 那么这里会设置返回值
+            if(!_.isFunction(callback)){
+                context = context || callback;
+                async = false;
+                callback = function(objs){
+                    eval_re = objs;
+                };
+            }
+
             // 确保有 context
             context = context || this;
             // 数组
             if(_.isArray(data)){
-                return callback.apply(context, [data]);
+                callback.apply(context, [data]);
             }
             // 函数
             else if(_.isFunction(data)){
-                return data.call(context, params, function(objs){
+                data.call(context, params, function(objs){
                     callback.apply(context, [objs]);
                 });
             }
@@ -343,19 +352,24 @@
                 //console.log(">> exec: ", str)
                 var execFunc = context.exec || (context.options||{}).exec;
                 if(_.isFunction(execFunc)){
-                    return execFunc(str, function(re){
-                        var objs = $z.fromJson(re);
-                        callback.apply(context, [objs]);
+                    execFunc.call(context, str, {
+                        async    : async,
+                        complete : function(re){
+                            var objs = $z.fromJson(re);
+                            callback.apply(context, [objs]);
+                        }
                     });
+                }else{
+                    throw "context DO NOT support exec : " + context;
                 }
-                throw "context DO NOT support exec : " + context;
             }
             // 执行 ajax 请求
             else if(data.url){
-                return $.ajax(_.extend({
+                $.ajax(_.extend({
                     method   : "GET",
                     data     : params,
                     dataType : "json",
+                    async    : async,
                     sucess   : function(re){
                         if(_.isBoolean(re.ok) && re.data){
                             callback.apply(context, [re.data]);
@@ -369,9 +383,11 @@
                 }, data));
             }
             // 厄，弱弱的直接返回一下吧
-            else{
+            else if(callback){
                 callback.apply(context, [data]);
             }
+            // 返回
+            return eval_re;
         },
         //.............................................
         // 设置一个 input 的值，如果值与 placeholder 相同，则清除值
@@ -420,7 +436,9 @@
             }
             // 数字 
             if(_.isNumber(arg)){
-                return jP.find(selector).eq(arg);
+                if(selector)
+                    return jP.find(selector).eq(arg);
+                return jP.children().eq(arg);
             }
             // selector
             if(_.isString(arg)){
@@ -562,6 +580,183 @@
             };
         },
         //.............................................
+        // 获得当前系统当前浏览器中滚动条的宽度
+        // TODO 代码实现的太恶心，要重构!
+        scrollBarWidth: function () {
+            if (!window.SCROLL_BAR_WIDTH) {
+                var newDivOut = "<div id='div_out' style='position:relative;width:100px;height:100px;overflow-y:scroll;overflow-x:scroll'></div>";
+                var newDivIn = "<div id='div_in' style='position:absolute;width:100%;height:100%;'></div>";
+                var scrollWidth = 0;
+                $('body').append(newDivOut);
+                $('#div_out').append(newDivIn);
+                var divOutS = $('#div_out');
+                var divInS = $('#div_in');
+                scrollWidth = divOutS.width() - divInS.width();
+                $('#div_out').remove();
+                $('#div_in').remove();
+                window.SCROLL_BAR_WIDTH = scrollWidth;
+            }
+            return window.SCROLL_BAR_WIDTH;
+        },
+        //---------------------------------------------------------------------------------------
+        /**
+         * jq - 要闪烁的对象
+         * opt.after - 当移除完成后的操作
+         * opt.html - 占位符的 HTML，默认是 DIV.z_blink_light
+         * opt.speed - 闪烁的速度，默认为  500
+         */
+        blinkIt: function(jq, opt) {
+            // 格式化参数
+            jq = $(jq);
+            opt = opt || {};
+            if (typeof opt == "function") {
+                opt = {
+                    after: opt
+                };
+            } else if (typeof opt == "number") {
+                opt = {
+                    speed: opt
+                };
+            }
+            // 得到文档中的
+            var off = jq.offset();
+            // 样式
+            var css = {
+                "width": jq.outerWidth(),
+                "height": jq.outerHeight(),
+                "border-color": "#FF0",
+                "background": "#FFA",
+                "opacity": 0.8,
+                "position": "fixed",
+                "top": off.top,
+                "left": off.left,
+                "z-index": 9999999
+            };
+            // 建立闪烁层
+            var lg = $(opt.html || '<div class="z_blink_light">&nbsp;</div>');
+            lg.css(css).appendTo(document.body);
+            lg.animate({
+                opacity: 0.1
+            }, opt.speed || 500, function() {
+                $(this).remove();
+                if (typeof opt.after == "function") opt.after.apply(jq);
+            });
+        },
+         //---------------------------------------------------------------------------------------
+        /**
+         * jq - 要移除的对象
+         * opt.after - 当移除完成后的操作, this 为 jq 对象
+         * opt.holder - 占位符的 HTML，默认是 DIV.z_remove_holder
+         * opt.speed - 移除的速度，默认为  300
+         * opt.appendTo - (优先)一个目标，如果声明，则不会 remove jq，而是 append 到这个地方
+         * opt.prependTo - 一个目标，如果声明，则不会 remove jq，而是 preppend 到这个地方
+         */
+        removeIt: function(jq, opt) {
+            // 格式化参数
+            jq = $(jq);
+            opt = opt || {};
+            if (typeof opt == "function") {
+                opt = {
+                    after: opt
+                };
+            } else if (typeof opt == "number") {
+                opt = {
+                    speed: opt
+                };
+            }
+            // 计算尺寸
+            var w = jq.outerWidth();
+            var h = jq.outerHeight();
+            // 增加占位对象，以及移动 me
+            var html = opt.holder || '<div class="z_remove_holder">&nbsp;</div>';
+            var holder = $(html).css({
+                "width": w,
+                "height": h,
+                "display": "inline-block"
+            }).insertAfter(jq);
+            // 删除元素
+            if (opt.appendTo) jq.appendTo(opt.appendTo);
+            else if (opt.prependTo) jq.prependTo(opt.prependTo);
+            else jq.remove();
+            // 显示动画
+            holder.animate({
+                width: 0,
+                height: 0
+            }, opt.speed || 300, function() {
+                $(this).remove();
+                if (typeof opt.after == "function") opt.after.apply(jq);
+            });
+        },
+        //---------------------------------------------------------------------------------------
+        /**
+         * ele - 为任何可以有子元素的 DOM 或者 jq，本函数在该元素的位置绘制一个 input 框，让用户输入新值
+         * opt - object | function
+         * opt.multi - 是否是多行文本
+         * opt.text - 初始文字，如果没有给定，采用 ele 的文本
+         * opt.width - 指定宽度
+         * opt.height - 指定高度
+         * opt.after - function(newval, oldval){...} 修改之后，
+         *   - this 为被 edit 的 DOM 元素 (jq 包裹)
+         *   - 传入 newval 和 oldval
+         *   - 如果不给定这个参数，则本函数会给一个默认的实现
+         */
+        editIt: function(ele, opt) {
+            // 处理参数
+            var me = $(ele);
+            var opt = opt || {};
+            if (typeof opt == "function") {
+                opt = {
+                    after: opt
+                };
+            } else if (typeof opt == "boolean") {
+                opt = {
+                    multi: true
+                };
+            }
+            if (typeof opt.after != "function") opt.after = function(newval, oldval) {
+                if (newval != oldval) this.text(newval);
+            };
+            // 定义处理函数
+            var onKeydown = function(e) {
+                // Esc
+                if (27 == e.which) {
+                    $(this).val($(this).attr("old-val")).blur();
+                }
+                // Ctrl + Enter
+                else if (e.which == 13) {
+                    if(window.keyboard){
+                        if(window.keyboard.ctrl){
+                            $(this).blur();    
+                        }
+                    }
+                    else {
+                        $(this).blur();
+                    }
+                }
+            };
+            var func = function() {
+                var me = $(this);
+                var opt = me.data("z-editit-opt");
+                opt.after.apply(me.parent(), [me.val(), me.attr("old-val")]);
+                me.unbind("keydown", onKeydown).remove();
+            };
+            // 准备显示输入框
+            var val = opt.text || me.text();
+            var html = opt.multi ? '<textarea></textarea>' : '<input>';
+            // 计算宽高
+            var css = {
+                "width": opt.width || me.outerWidth(),
+                "height": opt.height || me.outerHeight(),
+                "position": "absolute",
+                "z-index": 999999
+            };
+
+            // 显示输入框
+            var jq = $(html).prependTo(me).val(val).attr("old-val", val).addClass("z_editit").css(css);
+            jq.data("z-editit-opt", opt);
+            return jq.one("blur", func).one("change", func).keydown(onKeydown).select();
+        },
+        //.............................................
         // json : function(obj, fltFunc, tab){
         //     // toJson
         //     if(typeof obj == "object"){
@@ -592,24 +787,6 @@
             }
         },
         //.............................................
-        // 获得当前系统当前浏览器中滚动条的宽度
-        // TODO 代码实现的太恶心，要重构!
-        scrollBarWidth: function () {
-            if (!window.SCROLL_BAR_WIDTH) {
-                var newDivOut = "<div id='div_out' style='position:relative;width:100px;height:100px;overflow-y:scroll;overflow-x:scroll'></div>";
-                var newDivIn = "<div id='div_in' style='position:absolute;width:100%;height:100%;'></div>";
-                var scrollWidth = 0;
-                $('body').append(newDivOut);
-                $('#div_out').append(newDivIn);
-                var divOutS = $('#div_out');
-                var divInS = $('#div_in');
-                scrollWidth = divOutS.width() - divInS.width();
-                $('#div_out').remove();
-                $('#div_in').remove();
-                window.SCROLL_BAR_WIDTH = scrollWidth;
-            }
-            return window.SCROLL_BAR_WIDTH;
-        },
         // 返回当前时间
         currentTime: function (date) {
             date = date || new Date();

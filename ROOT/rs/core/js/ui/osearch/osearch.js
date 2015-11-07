@@ -44,8 +44,9 @@ function normalize_sub(options, key, dft) {
 var html = function(){/*
 <div class="ui-arena" ui-fitparent="true">
     <div class="osearch-sky">
-        <div class="osearch-actions" ui-gasket="menu"></div>
-        <div class="osearch-filter" ui-gasket="filter"></div>
+        <div class="osearch-actions" ui-gasket="menu">
+        </div><div class="osearch-filter" ui-gasket="filter">
+        </div>
     </div>
     <div class="osearch-list"  ui-gasket="list"></div>
     <div class="osearch-pager" ui-gasket="pager"></div>
@@ -68,7 +69,7 @@ return ZUI.def("ui.osearch", {
         if(!options.data){
             // 如果设置了执行器，默认用可执行命令来执行
             if(UI.exec)
-                options.data = "obj -match '<%=condition%>' -skip {{skip}} -limit {{pgsz}} -json -pager -sort 'nm:1'"
+                options.data = "obj -match '<%=condition%>' -skip {{skip}} -limit {{pgsz}} -json -pager -sort 'nm:1'";
             else
                 throw "osearch require data field!!!";
         }
@@ -135,7 +136,7 @@ return ZUI.def("ui.osearch", {
         var D = UI.$el.data("@DATA");
         var race = UI.options.new_race || 'FILE';
         new MaskUI(UI.__mask_form({
-            command  : "obj id:"+D.id+" -new '<%=json%>'",
+            command  : "obj id:"+D.id+" -new '<%=json%>' -o",
             complete : function(re){
                 var obj = $z.fromJson(re);
                 UI._list.addLast(obj);
@@ -284,30 +285,26 @@ return ZUI.def("ui.osearch", {
         var jActions = jSky.children(".osearch-actions");
         var jFilter = jSky.children(".osearch-filter");
 
-        // 得到 jSky 上下空白
-        // var sky_padding_v = jSky.outerHeight() - jSky.height();
-        // var sky_padding_h = jSky.outerWidth() - jSky.width();
-        // var flt_h = jFilter.outerHeight();
-        // var flt_right = jActions.outerWidth();
-        // var sky_h = flt_h + sky_padding_v;
-        
-        // jSky.css("height", sky_h);
-        // jFilter.css({
-        //     "position" : "absolute",
-        //     "right"    : flt_right + sky_padding_h*2,
-        //     "top"      : sky_padding_v / 2,
-        //     "left"     : sky_padding_h / 2
-        // });
-        // jActions.css("margin-top", (sky_h - sky_padding_v - jActions.outerHeight())/2);
-        var w_sky = jSky.width();
-        var w_action = jActions.outerWidth(true);
-        var w_filter = w_sky - w_action - 10;
-        if(w_filter<200){
-            w_filter = w_sky;
+        var w_action = jActions.attr("org-width") * 1;
+        if(!w_action){
+            w_action = jActions.outerWidth(true);
+            jActions.attr("org-width", w_action);
+            jFilter.css("height", jActions.outerHeight());
         }
-        jFilter.css({
-            "width"  : w_filter
-        });
+
+        var w_sky = jSky.width();
+
+        // 太窄
+        if(w_sky < w_action*2){
+            jActions.css("width", w_sky).attr("narrow","yes");
+            jFilter.css("width", w_sky);
+        }
+        // 并排
+        else{
+            jActions.css("width", w_action).removeAttr("narrow");
+            jFilter.css("width",  w_sky - w_action);
+        }
+        
 
         // 计算中间部分的高度
         var jPager = UI.arena.children(".osearch-pager");

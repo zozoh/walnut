@@ -39,6 +39,7 @@ return ZUI.def("ui.otable", {
         $z.setUndefined(options.layout, "sizeHint"  , -200);
         $z.setUndefined(options.layout, "cellWrap"  , "nowrap");
         $z.setUndefined(options.layout, "withHeader", true);
+        $z.setUndefined(options, "evalData", $z.evalData);
 
         //console.log(options.layout)
 
@@ -88,15 +89,16 @@ return ZUI.def("ui.otable", {
     //...............................................................
     events : {
         "click .otable-row" : function(e){
-            e.stopPropagation();
             this.setActived(e.currentTarget);
         },
         "click .otable-row [tp=checkbox]" : function(e){
             e.stopPropagation();
             this.toggle(e.currentTarget);
         },
-        "click .ui-arena" : function(){
-            if(this.options.blurable)
+        "click .ui-arena" : function(e){
+            var jq = $(e.target);
+            var jRow = jq.parents(".otable-row");
+            if(this.options.blurable && !jRow.hasClass("otable-row-actived"))
                 this.blur();
         },
         "click .otable-checker>*" : function(e){
@@ -291,6 +293,7 @@ return ZUI.def("ui.otable", {
         jTBody.children('.otable-row').each(function(){
             objs.push($(this).data("OBJ"));
         });
+        return objs;
     },
     //...............................................................
     setData : function(d, permanent, callback){
@@ -311,6 +314,10 @@ return ZUI.def("ui.otable", {
         // 最后触发消息
         UI.trigger("otable:push", objs);
         $z.invoke(UI.options, "on_push", [objs], UI);
+
+        objs = UI.getData();
+        UI.trigger("otable:change", objs);
+        $z.invoke(UI.options, "on_change", [objs], UI);
     },
     //...............................................................
     showLoading : function(){
@@ -325,7 +332,7 @@ return ZUI.def("ui.otable", {
     //...............................................................
     refresh : function(d, callback){
         var UI = this;
-        $z.evalData(d || UI.options.data, null, function(objs){
+        UI.options.evalData.call(UI, d || UI.options.data, null, function(objs){
             UI._draw_data(objs);
             if(_.isFunction(callback)){
                 callback.call(UI, objs);
@@ -456,11 +463,6 @@ return ZUI.def("ui.otable", {
             $(iconHtml).attr("tp","icon").appendTo(jNm);
         // .............................. 输出文字
         if(textFunc){
-            // 预先为每个列都预先处理显示列
-            o.$txt = {};
-            UI.options.columns.forEach(function(col){
-                o.$txt[col.key] = UI.val_display(col, o);
-            });
             jNm.append($(textFunc(o)));
         }
         // .............................. 循环输出每一列

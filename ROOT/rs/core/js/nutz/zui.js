@@ -264,9 +264,14 @@ define(function (require, exports, module) {
                 // 看看是否需要解析 DOM
                 var uiDOM = UI.options.dom || UI.$ui.dom;
                 if (uiDOM) {
-                    // DOM 片段本身就是一段 HTML 代码 
-                    if (/^\/\*.+\*\/$/m.test(uiDOM.replace(/\n/g, ""))) {
+                    // DOM 片段本身就是一段 HTML 代码  /*...*/ 包裹
+                    if (/^(\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)$/.test(uiDOM)) {
                         parse_dom.call(UI, uiDOM.substring(2, uiDOM.length - 2));
+                        do_render();
+                    }
+                    // DOM 片段就是一段 HTML 代码
+                    else if(/^[ \t\n\r]*<.+>[ \t\n\r]*$/m.test(uiDOM)){
+                        parse_dom.call(UI, uiDOM);
                         do_render();
                     }
                     // DOM 片段存放在另外一个地址
@@ -566,6 +571,13 @@ define(function (require, exports, module) {
             var val = hdl.test.apply(UI, [fld, v]);
             return hdl.asValue.apply(UI, [fld, val]);
         },
+        val_get : function(fld, o){
+            var UI = this;
+            var hdl = _type(fld);
+            var v = $z.getValue(o, fld.key, fld.dft);
+            var val = hdl.test.apply(UI, [fld, v]);
+            return hdl.asValue.apply(UI, [fld, val]);
+        },
         val_edit : function(fld, o){
             var UI = this;
             var hdl = _type(fld);
@@ -574,10 +586,6 @@ define(function (require, exports, module) {
             return hdl.asEdit.apply(UI, [fld, val]);
         },
         val_display : function(fld, o){
-            // 读取缓存
-            if(o.$txt && o.$txt[fld.key])
-                return o.$txt[fld.key];
-
             var UI = this;
             // 如果自定义了显示方法
             if(_.isFunction(fld._disfunc)){
@@ -587,7 +595,14 @@ define(function (require, exports, module) {
             var hdl = _type(fld);
             var v = $z.getValue(o, fld.key, fld.dft);
             var val = hdl.test.apply(UI, [fld, v]);
-            return hdl.asEdit.apply(UI, [fld, val]);
+            var obj = hdl.asEdit.apply(UI, [fld, val]);
+            if(_.isNull(obj) || _.isUndefined(obj)){
+                return obj;
+            }
+            else if(_.isArray(obj)){
+                return obj.join(",");
+            }
+            return obj.toString();
         },
         val_test : function(fld, v){
             var UI = this;

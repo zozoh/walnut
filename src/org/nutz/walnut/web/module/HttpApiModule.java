@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -40,6 +38,7 @@ import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.web.filter.WnAsUsr;
+import org.nutz.walnut.web.util.WnWeb;
 
 @IocBean
 @At("/api")
@@ -121,7 +120,7 @@ public class HttpApiModule extends AbstractWnModule {
                          HttpServletResponse resp,
                          final WnObj oHome,
                          WnUsr u,
-                         WnObj oApi) throws UnsupportedEncodingException, IOException {
+                         WnObj oApi) throws IOException {
 
         // 读取输入
         final WnObj oTmp = Wn.WC().su(u, new Proton<WnObj>() {
@@ -290,19 +289,7 @@ public class HttpApiModule extends AbstractWnModule {
                         fnm = val;
                     }
                     String ua = oReq.getString("http-header-USER-AGENT", "");
-                    // Safari 狗屎
-                    if (ua.contains(" Safari/")) {
-                        resp.setHeader(nm,
-                                       "attachment; filename=\""
-                                           + new String(fnm.getBytes("UTF-8"), "ISO8859-1")
-                                           + "\"");
-                    }
-                    // 其他用标准
-                    else {
-                        resp.setHeader(nm,
-                                       "attachment; filename*=utf-8'zh_cn'"
-                                           + URLEncoder.encode(fnm, Encoding.UTF8));
-                    }
+                    WnWeb.setHttpRespHeaderContentDisposition(resp, fnm, ua);
                 }
                 // 其他头，添加
                 else {
@@ -317,8 +304,9 @@ public class HttpApiModule extends AbstractWnModule {
         if (log.isDebugEnabled())
             log.debug("box:set stdin/out/err");
 
-        OutputStream out = new AppRespOutputStreamWrapper(resp, 200);
-        OutputStream err = new AppRespOutputStreamWrapper(resp, 500);
+        HttpRespStatusSetter _resp = new HttpRespStatusSetter(resp);
+        OutputStream out = new AppRespOutputStreamWrapper(_resp, 200);
+        OutputStream err = new AppRespOutputStreamWrapper(_resp, 500);
 
         box.setStdin(null); // HTTP GET 方式，不支持沙箱的 stdin
         box.setStdout(out);

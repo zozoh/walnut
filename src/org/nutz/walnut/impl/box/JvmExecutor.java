@@ -37,7 +37,9 @@ public abstract class JvmExecutor {
 
     public String getMyName() {
         String nm = this.getClass().getSimpleName();
-        return nm.substring("cmd_".length());
+        if (nm.startsWith("cmd_"))
+            nm = nm.substring("cmd_".length());
+        return Strings.lowerWord(nm, '-');
     }
 
     protected WnObj getCurrentObj(WnSystem sys) {
@@ -55,12 +57,12 @@ public abstract class JvmExecutor {
     protected void joinObjByPath(WnSystem sys, final List<WnObj> list, WnObj p, String str) {
         // 分析路径
         str = Wn.normalizePath(str, sys);
-        
+
         // 看看是否需要回到根
-        if(str.startsWith("/") || null==p){
+        if (str.startsWith("/") || null == p) {
             p = sys.io.getRoot();
         }
-        
+
         // 将路径拆分成数组
         String[] ss = Strings.splitIgnoreBlank(str, "/");
 
@@ -83,7 +85,7 @@ public abstract class JvmExecutor {
         }
 
         // 直接干到结尾了
-        if (off >= ss.length){
+        if (off >= ss.length) {
             list.add(p);
             return;
         }

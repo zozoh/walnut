@@ -1,0 +1,59 @@
+# 命令简介 
+
+`json` 将输入的 JSON 文本进行格式后再输出
+
+# 用法
+
+	cat xxx | json [-cqnr] [-e $REGEX+] [-d yyyyMMdd]
+	
+	-c            # 紧凑格式输出
+	-q            # 不用双引号包裹键值
+	-n            # 忽略 null 值
+	-r            # 遇到对象，的值也递归
+	-e            # 正则表达式表示指定输出的字段，! 开始表示取反
+	-d            # 对日期时间格式的字段格式化
+	-prefix       # 对 JSON 字段增加前缀
+	-prefix_key   # 一个正则表达式说明特殊的字段才增加前缀
+	
+	-get          # 从一个 JSON 文本中取值，键值支持 . 的路径操作
+	              # 如果是列表，则参数是下标
+	
+	
+	
+# 示例
+
+    # 格式化输出
+	$:> echo '{x:100,y:80}' | json
+	{
+	   "x" : 100,
+	   "y" : 80
+	}
+	
+	# 增加前缀
+	$:> echo '{x:100,y:80}' | json -prefix "pos_"
+	{
+	   "pos_x" : 100,
+	   "pos_y" : 80
+	}
+	
+	# 为指定字段增加前缀
+	$:> echo '{x:100,y:80}' | json -prefix "pos_" -prefix_key "^x$"
+	{
+	   "pos_x" : 100,
+	   "y" : 80
+	}
+	
+	$:> echo '{x:100,y:80}' | json -prefix "pos_" -prefix_key "!^x$"
+	{
+	   "x" : 100,
+	   "pos_y" : 80
+	}
+	
+	# 从复杂对象里取值
+	$:> echo '{pos : {x:100,y:80}}' | json -get "pos.x"
+	100
+	
+	# 从复杂列表里取值
+	$:> echo '[{pos : {x:100,y:80}},{}]' | json -get "0.pos.x"
+	100
+	

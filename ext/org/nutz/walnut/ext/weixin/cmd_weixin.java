@@ -390,13 +390,16 @@ public class cmd_weixin extends JvmExecutor {
         String out = params.get("out");
         WxOutMsg om = null;
 
+        String openid = params.get("openid");
+        String pnb = params.get("pnb");
+
         // 一个 JSON
         if (Strings.isQuoteBy(out, '{', '}')) {
             om = Json.fromJson(WxOutMsg.class, out);
         }
         // 一个简单的文本
         else if (out.startsWith("text:")) {
-            om = Wxs.respText(null, out.substring("text:".length()));
+            om = Wxs.respText(openid, out.substring("text:".length()));
         }
         // 一篇简单的文章
         else if (out.startsWith("article:")) {
@@ -409,11 +412,26 @@ public class cmd_weixin extends JvmExecutor {
                 arti.setUrl(ss[2]);
             om = Wxs.respNews(null, arti);
         }
+        // 从管线里读取纯文本内容
+        else if (sys.pipeId > 0 && out.equals("true")) {
+            String content = Strings.trim(sys.in.readAll());
+            om = Wxs.respText(openid, content);
+        }
         // 试图从一个对象里读取文本内容
         else {
             WnObj oMsg = Wn.checkObj(sys, out);
             om = sys.io.readJson(oMsg, WxOutMsg.class);
         }
+
+        // 设置创建时间
+        om.setCreateTime(System.currentTimeMillis() / 1000);
+
+        if (!Strings.isBlank(openid))
+            om.setToUserName(openid);
+
+        if (!Strings.isBlank(pnb))
+            om.setFromUserName(pnb);
+
         // 如果指明了输入源，则视图覆盖 from/toUserName
         String inmsg = params.get("inmsg");
         WnObj oi = null;

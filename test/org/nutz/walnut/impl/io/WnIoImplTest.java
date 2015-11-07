@@ -30,6 +30,26 @@ import org.w3c.dom.Document;
 public class WnIoImplTest extends BaseIoTest {
 
     @Test
+    public void test_quey_not() {
+        WnObj a = io.create(null, "/a", WnRace.FILE);
+        io.appendMeta(a, "x:100");
+        WnObj b = io.create(null, "/b", WnRace.FILE);
+        io.appendMeta(b, "x:99");
+        WnObj c = io.create(null, "/c", WnRace.FILE);
+        io.appendMeta(c, "x:98");
+
+        WnQuery q;
+        List<WnObj> list;
+
+        q = new WnQuery();
+        q.setv("x", Lang.map("$ne:100")).asc("nm");
+        list = io.query(q);
+        assertEquals(2, list.size());
+        assertEquals(b.id(), list.get(0).id());
+        assertEquals(c.id(), list.get(1).id());
+    }
+
+    @Test
     public void test_query_no_null() {
         WnObj a = io.create(null, "/a", WnRace.FILE);
         io.appendMeta(a, "alias:'aaa'");

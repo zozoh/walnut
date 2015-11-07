@@ -18,6 +18,11 @@ define({
     "download": "下载",
     "loading" : "正在加载...",
     "e_ajax"  : "靠，有问题啦， 错误码:{{errCode}}  细节:{{msg}} : {{data}}",
+    "editing" : {
+        "multiselectbox" : {
+            "empty" : "点击选择项目"
+        }
+    },
     "e" : {
         "fld" : {
             "invalid" : {

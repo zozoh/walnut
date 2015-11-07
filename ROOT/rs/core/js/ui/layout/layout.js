@@ -15,6 +15,17 @@ module.exports = ZUI.def("ui.layout", {
         
     },
     //...............................................................
+    setData : function(o){
+        var UI = this;
+        for (var key in UI.gasket) {
+            var sub = UI.gasket[key];
+            sub.ui.forEach(function(ui){
+                if(_.isFunction(ui.setData))
+                    ui.setData(o);
+            });
+        }
+    },
+    //...............................................................
     redraw : function(){
         var UI = this;
         // 确保自己的布局

@@ -236,8 +236,9 @@ public class AppModule extends AbstractWnModule {
         resp.setContentType(mimeType);
 
         // 准备输出
-        OutputStream out = new AppRespOutputStreamWrapper(resp, 200);
-        OutputStream err = new AppRespOutputStreamWrapper(resp, 500);
+        HttpRespStatusSetter _resp = new HttpRespStatusSetter(resp);
+        OutputStream out = new AppRespOutputStreamWrapper(_resp, 200);
+        OutputStream err = new AppRespOutputStreamWrapper(_resp, 500);
         final Writer w = new OutputStreamWriter(out);
 
         // 运行

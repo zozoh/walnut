@@ -8,7 +8,7 @@
     .osearch-sky:after{@clr();}
 
     .osearch-list {
-        min-height: 300px; padding-right:10px;
+        min-height: 300px; padding-right:1px;
     }
     .osearch-checkbox, .osearch-actions {
         display: inline-block; vertical-align: middle;
@@ -24,11 +24,15 @@
     .osearch-check-opts>li:last-child{border-right:0;}
     /*.............................................. actions*/
     .osearch-actions {
-        padding:10px; float: left;
+        padding:10px 2px; 
+        display:inline-block; vertical-align: middle;
     }
+    .osearch-actions[narrow] {padding-bottom:0px;}
+    .osearch-actions[narrow] .menu-top-table {margin:0 auto;}
     /*.............................................. filter*/
     .osearch-filter {
-        float: left; padding:4px;
+         padding:9px 2px; 
+         display:inline-block; vertical-align: middle;
     }
 
     .ofilter-keyword {
@@ -36,6 +40,8 @@
     }
     .ofilter-keyword input{
         font-size:@f_normal; padding:@normal; width:100%; color:@c_gray_f;
+        border:1px solid @c_gray_shallow;
+        border-radius: 2px;
     }
 
     /*.............................................. pager*/

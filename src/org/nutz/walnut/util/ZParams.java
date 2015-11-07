@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.segment.Segments;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 
@@ -154,6 +156,18 @@ public class ZParams {
 
     public String get(String key, String dft) {
         return map.getString(key, dft);
+    }
+
+    public String wrap(String key, String fmt) {
+        return wrap(key, fmt, "");
+    }
+
+    public String wrap(String key, String fmt, String dft) {
+        String val = this.get(key);
+        if (Strings.isBlank(val)) {
+            return dft;
+        }
+        return String.format(fmt, val);
     }
 
     public <T extends Enum<T>> T getEnum(String key, Class<T> classOfEnum) {

@@ -29,8 +29,18 @@ public class WeixinMenu {
         }
         // 创建菜单
         else {
-            WnObj o = Wn.checkObj(sys, str);
-            NutMap map = sys.io.readJson(o, NutMap.class);
+            String json;
+            // 从管道读取
+            if (sys.pipeId > 0) {
+                json = sys.in.readAll();
+            }
+            // 从对象读取
+            else {
+                WnObj o = Wn.checkObj(sys, str);
+                json = sys.io.readText(o);
+            }
+
+            NutMap map = Json.fromJson(NutMap.class, json);
             resp = wxApi.menu_create(map);
         }
 

@@ -23,6 +23,7 @@ return ZUI.def("ui.mask", {
         var UI = this;
         var options = this.options;
         UI.$el.prevAll().addClass("ui-mask-others");
+        UI.$main = UI.arena.children(".ui-mask-main");
         if(options.closer === false) {
             this.arena.find(".ui-mask-closer").hide();
         }

@@ -17,7 +17,9 @@ return ZUI.def("ui.olist", {
         $z.setUndefined(options, "fitparent", true);
         $z.setUndefined(options, "activable", true);
         $z.setUndefined(options, "blurable",  true);
+        $z.setUndefined(options, "evalData", $z.evalData);
         $z.setUndefined(options, "idKey",     "id");
+        $z.setUndefined(options, "nmKey",     "nm");
         if(options.checkable === true) {
             options.checkable = {
                 checked : "fa fa-check-square-o",
@@ -48,15 +50,16 @@ return ZUI.def("ui.olist", {
     //...............................................................
     events : {
         "click .olist-item" : function(e){
-            e.stopPropagation();
             this.setActived(e.currentTarget);
         },
         "click .olist-item [tp=checkbox]" : function(e){
             e.stopPropagation();
             this.toggle($(e.currentTarget).parent());
         },
-        "click .ui-arena" : function(){
-            if(this.options.blurable)
+        "click .ui-arena" : function(e){
+            var jq = $(e.target);
+            var jItem = jq.parents(".olist-item");
+            if(this.options.blurable && !jItem.hasClass("olist-item-actived"))
                 this.blur();
         }
     },
@@ -194,6 +197,7 @@ return ZUI.def("ui.olist", {
         this.arena.children('.olist-item').each(function(){
             objs.push($(this).data("OBJ"));
         });
+        return objs;
     },
     //...............................................................
     setData : function(d, permanent, callback){
@@ -205,6 +209,23 @@ return ZUI.def("ui.olist", {
         if(permanent)
             UI.options.data = d;
         UI.refresh.call(UI, d, callback);
+    },
+    //...............................................................
+    addLast : function(obj) {
+        var UI = this;
+        var objs = _.isArray(obj) ? obj : [obj];
+
+        objs.forEach(function(o, index){
+            UI._append_item(o);
+        });
+
+        // 最后触发消息
+        UI.trigger("olist:push", objs);
+        $z.invoke(UI.options, "on_push", [objs], UI);
+
+        objs = UI.getData();
+        UI.trigger("olist:change", objs);
+        $z.invoke(UI.options, "on_change", [objs], UI);
     },
     //...............................................................
     showLoading : function(){
@@ -224,7 +245,7 @@ return ZUI.def("ui.olist", {
     refresh : function(d, callback){
         var UI = this;
         UI.showLoading();
-        $z.evalData(d || UI.options.data, null, function(objs){
+        UI.options.evalData.call(UI, d || UI.options.data, null, function(objs){
             if(_.isFunction(UI.options.filter)){
                 var list = [];
                 objs.forEach(function(o){
@@ -248,44 +269,57 @@ return ZUI.def("ui.olist", {
     //...............................................................
     _draw_data : function(objs){
         var UI = this;
-        var idKey = UI.options.idKey;
-        var iconFunc = UI.eval_tmpl_func(UI.options, "icon");
-        var textFunc = UI.eval_tmpl_func(UI.options, "text");
-        
-        var checkable = UI.options.checkable;
 
         objs = _.isArray(objs) ? objs : [objs];
 
         UI.arena.empty();
         
         objs.forEach(function(o, index){
-            var jq = $('<div class="olist-item">').appendTo(UI.arena);
-            jq.attr("index", index);
-            if(o[idKey])
-                jq.attr("oid", o[idKey]);
-
-            if(checkable){
-                jq.append('<i class="' + checkable.normal + '" tp="checkbox">');
-            }
-
-            // 分析 icon
-            if(UI._eval_icon_class){
-                o['_icon_class'] = UI._eval_icon_class(o) || "";
-            }
-            var iconHtml = iconFunc ? $(iconFunc(o)) : null;
-            if(iconHtml)
-                $(iconHtml).attr("tp","icon").appendTo(jq);
-            
-            // 解析列表项内容
-            UI.eval_obj_display(o, UI.options.display);
-            if(textFunc)
-                jq.append($(textFunc(o)));
-            // 记录数据
-            jq.data("OBJ", o);
+            UI._append_item(o, index);
         });
         // 最后触发消息
         UI.trigger("olist:change", objs);
         $z.invoke(UI.options, "on_change", [objs], UI);
+    },
+    //..............................................
+    _append_item : function(o, index){
+        var UI = this;
+        var idKey = UI.options.idKey;
+        var nmKey = UI.options.nmKey;
+        var iconFunc = UI.eval_tmpl_func(UI.options, "icon");
+        var textFunc = UI.eval_tmpl_func(UI.options, "text");
+
+        if(_.isUndefined(index)){
+            index = UI.arena.children().size();
+        }
+        
+        var checkable = UI.options.checkable;
+        var jq = $('<div class="olist-item">').appendTo(UI.arena);
+        jq.attr("index", index);
+        if(o[idKey])
+            jq.attr("oid", o[idKey]);
+
+        if(o[nmKey])
+            jq.attr("onm", o[nmKey]);
+
+        if(checkable){
+            jq.append('<i class="' + checkable.normal + '" tp="checkbox">');
+        }
+
+        // 分析 icon
+        if(UI._eval_icon_class){
+            o['_icon_class'] = UI._eval_icon_class(o) || "";
+        }
+        var iconHtml = iconFunc ? $(iconFunc(o)) : null;
+        if(iconHtml)
+            $(iconHtml).attr("tp","icon").appendTo(jq);
+        
+        // 解析列表项内容
+        UI.eval_obj_display(o, UI.options.display);
+        if(textFunc)
+            jq.append($(textFunc(o)));
+        // 记录数据
+        jq.data("OBJ", o);
     },
     //..............................................
     resize : function(){

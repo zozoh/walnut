@@ -1,137 +1,96 @@
 package org.nutz.walnut.ext.qrcode;
 
-import java.awt.Color;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
+import java.io.OutputStream;
 import javax.imageio.ImageIO;
 
-import org.nutz.img.Images;
 import org.nutz.lang.Streams;
+import org.nutz.qrcode.QRCode;
+import org.nutz.qrcode.QRCodeFormat;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
-
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.ChecksumException;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.FormatException;
-import com.google.zxing.LuminanceSource;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.Result;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.common.HybridBinarizer;
-import com.google.zxing.qrcode.QRCodeReader;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 public class cmd_qrcode extends JvmExecutor {
 
     public void exec(WnSystem sys, String[] args) throws Exception {
-        if (args.length == 0) {
-            sys.err.println(this.getManual());
-            return;
+
+        // 分析参数
+        ZParams params = ZParams.parse(args, "d");
+
+        // 解码
+        if (params.is("d")) {
+            __do_decode(sys, params);
         }
-        ZParams params = ZParams.parse(args, "dp");
-        boolean decode = params.is("d");
-        if (decode) {
-            _decode(sys, params);
-        } else {
-            _encode(sys, params);
+        // 编码
+        else {
+            __do_encode(sys, params);
         }
+
     }
 
-    public void _encode(WnSystem sys, ZParams params) {
-        if (params.vals.length == 0) { // TODO 支持从输入流读取
-            sys.err.println(this.getManual());
-            return;
-        }
-        int size = params.getInt("size", 256);
+    private void __do_encode(WnSystem sys, ZParams params) throws IOException {
+
         // 当前仅支持输入字符串
-        String content = params.vals[0];
-        
-        
-        BitMatrix matrix = null;
-        try {
-            Map<EncodeHintType, Object> hints = new HashMap<>();
-            hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
-            hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
-            hints.put(EncodeHintType.MARGIN, 0);
-            matrix = new QRCodeWriter().encode(content,
-                                               BarcodeFormat.QR_CODE,
-                                               size,
-                                               size,
-                                               hints);
-        }
-        catch (WriterException e) {
-            throw new RuntimeException(e);
+        String content;
+
+        // 从管道里读取
+        if (sys.pipeId <= 0) {
+            throw Er.create("e.cmd.qrcode.encode.noinput");
         }
 
-        int width = matrix.getWidth();
-        int height = matrix.getHeight();
-        int fgColor = Color.BLACK.getRGB();
-        int bgColor = Color.WHITE.getRGB();
-        if (params.vals.length > 1) {
-            BufferedImage image = new BufferedImage(width, height, ColorSpace.TYPE_RGB);
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    image.setRGB(x, y, matrix.get(x, y) ? fgColor : bgColor);
-                }
-            }
-            WnObj f = sys.io.create(null, params.vals[1], WnRace.FILE);
-            try {
-                ImageIO.write(image, "png", sys.io.getOutputStream(f, 0));
-            }
-            catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            ByteArrayOutputStream out = new ByteArrayOutputStream(width * height);
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    out.write(matrix.get(x, y) ? '@' : ' ');
-                }
-                out.write('\n');
-            }
-            sys.out.write(out.toByteArray());
-        }
+        content = sys.in.readAll();
+
+        // 生成的图片格式
+        String fmt = params.get("fmt", "png");
+
+        // 生成二维码
+        QRCodeFormat qrcf = QRCodeFormat.NEW();
+        qrcf.setSize(params.getInt("size", 256));
+        qrcf.setImageFormat(fmt);
+        qrcf.setMargin(params.getInt("margin", 0));
+
+        // 输出
+        BufferedImage im = QRCode.toQRCode(content, qrcf);
+        OutputStream ops = sys.out.getOutputStream();
+        ImageIO.write(im, fmt, ops);
+
     }
 
-    public void _decode(WnSystem sys, ZParams params) {
-        if (params.vals.length == 0) { // TODO 支持从输入流读取
-            sys.err.println(this.getManual());
-            return;
-        }
-        WnObj image = sys.io.check(null, params.vals[0]);
-        InputStream ins = sys.io.getInputStream(image, 0);
-        BufferedImage img = Images.read(ins);
-        Streams.safeClose(ins);
-        LuminanceSource source = new BufferedImageLuminanceSource(img);
-        BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+    private void __do_decode(WnSystem sys, ZParams params) throws IOException {
+        InputStream ins = null;
+
         try {
-            Result result = new QRCodeReader().decode(bitmap);
-            String content = result.getText();
-            sys.out.print(content);
-            return;
+            // 从对象读取
+            if (params.vals.length > 0) {
+                String ph = params.vals[0];
+                ph = Wn.normalizeFullPath(ph, sys);
+                WnObj image = sys.io.check(null, ph);
+                ins = sys.io.getInputStream(image, 0);
+            }
+            // 从管道读取
+            else {
+                ins = sys.in.getInputStream();
+            }
+
+            // 解析
+            BufferedImage im = ImageIO.read(ins);
+            String content = QRCode.from(im);
+
+            // 输出
+            if (params.is("n"))
+                sys.out.println(content);
+            else
+                sys.out.print(content);
         }
-        catch (NotFoundException e) {
-            throw new RuntimeException(e);
+        finally {
+            Streams.safeClose(ins);
         }
-        catch (ChecksumException e) {
-            throw new RuntimeException(e);
-        }
-        catch (FormatException e) {
-            throw new RuntimeException(e);
-        }
+
     }
 }

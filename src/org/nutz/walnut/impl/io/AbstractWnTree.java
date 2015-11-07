@@ -476,7 +476,7 @@ public abstract class AbstractWnTree implements WnTree {
 
     private void __assert_duplicate_name(WnObj p, String name) {
         if (exists(p, name))
-            throw Er.create("e.io.exists", p);
+            throw Er.createf("e.io.obj.exists", "%s/%s", p.path(), name);
     }
 
     @Override
@@ -489,7 +489,7 @@ public abstract class AbstractWnTree implements WnTree {
     @Override
     public WnObj move(WnObj src, String destPath) {
         // 不用移动
-        String srcPath = src.path();
+        String srcPath = this.checkById(src.id()).path();
         if (srcPath.equals(destPath)) {
             return src;
         }
@@ -548,7 +548,7 @@ public abstract class AbstractWnTree implements WnTree {
         src.setParent(ta);
 
         // 更新一下索引的记录
-        set(src, "^d0|d1|nm|pid|tp|mime$");
+        _set_quiet(src, "^(d0|d1|nm|pid|tp|mime)$");
 
         // 如果是目录，且d0,d1 改变了，需要递归
         if (src.isDIR()) {
@@ -558,7 +558,7 @@ public abstract class AbstractWnTree implements WnTree {
                 this.walk(src, new Callback<WnObj>() {
                     public void invoke(WnObj obj) {
                         obj.d0(d0).d1(d1);
-                        set(obj, "^d0|d1$");
+                        _set_quiet(obj, "^d0|d1$");
                     }
                 }, WalkMode.DEPTH_NODE_FIRST);
             }
@@ -577,7 +577,37 @@ public abstract class AbstractWnTree implements WnTree {
     }
 
     @Override
-    public void set(final WnObj o, String regex) {
+    public void set(WnObj o, String regex) {
+        NutMap map = o.toMap4Update(regex);
+
+        // 改名
+        String nm = map.getString("nm");
+        map.remove("nm");
+
+        // 改动路径
+        String pid = map.getString("pid");
+        map.remove("pid");
+
+        // 移动到另外的目录
+        if (!Strings.isBlank(pid)) {
+            String newPath = this.checkById(pid).path();
+            if (!Strings.isBlank(nm)) {
+                newPath = Wn.appendPath(newPath, nm);
+            } else {
+                newPath = Wn.appendPath(newPath, o.name());
+            }
+            this.move(o, newPath);
+        }
+        // 仅仅是改名
+        else if (!Strings.isBlank(nm)) {
+            this.rename(o, nm);
+        }
+
+        // 修改元数据
+        _set(o.id(), map);
+    }
+
+    protected void _set_quiet(WnObj o, String regex) {
         _set(o.id(), o.toMap4Update(regex));
     }
 

@@ -4,8 +4,11 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.Region;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.weixin.bean.WxInMsg;
+import org.nutz.weixin.bean.WxScanCodeInfo;
+import org.nutz.weixin.bean.WxSendLocationInfo;
 
 public class WxMsgHandler {
 
@@ -71,12 +74,70 @@ public class WxMsgHandler {
                 if (!_do_match(val, im.getEventKey()))
                     return false;
             }
+            // ScanCodeInfo
+            else if (key.startsWith("ScanCodeInfo.")) {
+                String subKey = key.substring("ScanCodeInfo.".length());
+                WxScanCodeInfo scinfo = im.getScanCodeInfo();
+                // ScanCodeInfo.ScanType
+                if ("ScanType".equals(subKey)) {
+                    if (!_do_match(val, scinfo.getScanType()))
+                        return false;
+                }
+                // ScanCodeInfo
+                else if ("ScanResult".equals(subKey)) {
+                    if (!_do_match(val, scinfo.getScanResult()))
+                        return false;
+                }
+                // 错误的键
+                else {
+                    throw Er.create("e.cmd.weixin.invalid.matchkey.ScanCodeInfo", subKey);
+                }
+            }
+            // SendLocationInfo
+            else if (key.startsWith("SendLocationInfo.")) {
+                String subKey = key.substring("SendLocationInfo.".length());
+                WxSendLocationInfo slinfo = im.getSendLocationInfo();
+                // Label.ScanType
+                if ("Label".equals(subKey)) {
+                    if (!_do_match(val, slinfo.getLabel()))
+                        return false;
+                }
+                // ScanCodeInfo
+                else if ("Poiname".equals(subKey)) {
+                    if (!_do_match(val, slinfo.getPoiname()))
+                        return false;
+                }
+                // Location_X
+                else if ("Location_X".equals(subKey)) {
+                    if (!_do_match_double_region(val, slinfo.getLocation_X()))
+                        return false;
+                }
+                // Location_Y
+                else if ("Location_Y".equals(subKey)) {
+                    if (!_do_match_double_region(val, slinfo.getLocation_Y()))
+                        return false;
+                }
+                // Scale
+                else if ("Scale".equals(subKey)) {
+                    if (!_do_match_double_region(val, slinfo.getScale()))
+                        return false;
+                }
+                // 错误的键
+                else {
+                    throw Er.create("e.cmd.weixin.invalid.matchkey.SendLocationInfo", subKey);
+                }
+            }
             // 不可能
             else {
                 throw Er.create("e.cmd.weixin.invalid.matchkey", key);
             }
         }
         return true;
+    }
+
+    private boolean _do_match_double_region(Object val, double nb) {
+        Region<Double> rg = Region.Double(val.toString());
+        return rg.match(nb);
     }
 
     @SuppressWarnings("unchecked")

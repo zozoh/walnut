@@ -54,7 +54,7 @@ public class JvmExecutorFactory {
                             if (mi.isOf(JvmExecutor.class)) {
                                 JvmExecutor je = (JvmExecutor) mi.born();
                                 je.ioc = ioc;
-                                String nm = klass.getSimpleName().substring("cmd_".length());
+                                String nm = je.getMyName();
                                 map.put(nm, je);
                                 if (log.isInfoEnabled())
                                     log.infof("jvmexec: '%s' -> %s", nm, klass.getName());

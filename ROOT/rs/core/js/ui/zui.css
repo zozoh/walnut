@@ -72,8 +72,18 @@ body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-b
     cursor: default;
 }
 
+.ui-log {
+    padding:10px; margin:0;
+    width:100%; height:100%; overflow: auto; 
+    background: #000; 
+    font-family: Monaco, Consolas, Courier New;
+    font-size: 13px;
+    -webkit-font-smoothing: auto;
+    white-space: pre-wrap;
+}
 
-
+.ui-log-info {color:#CCC;}
+.ui-log-err {color:#F00;}
 
 
 

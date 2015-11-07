@@ -19,7 +19,6 @@ module.exports = {
     "input" : {
         events : {
             "change .ui-fld-edit-input" : function(e){
-                console.log($(this))
                 var fld = $(this).parents(".ui-fld").data("@FLD");
                 var val = $(e.currentTarget).val();
                 var UI = ZUI(fld.$val);
@@ -75,7 +74,8 @@ module.exports = {
             var jq = $html(fld, "ul", "switchs");
 
             // 得到值
-            var v = this.val_check(fld, obj[fld.key] || fld.dft);
+            //var v = this.val_check(fld, obj[fld.key] || fld.dft);
+            var v = this.val_get(fld, obj);
 
             // 绘制所有的项目
             fld.setup.value.forEach(function(item, index){
@@ -89,6 +89,92 @@ module.exports = {
         get : function(fld){
             var index = fld.$val.find(".checked").attr("index") * 1;
             return fld.setup.value[index].val;
+        }
+    },
+    //.............................................................
+    /*
+    标准配置结构为:
+    setup : {
+        data    : ...  // 同步函数或者数组
+        key_txt : "txt",
+        key_val : "val"
+    }
+    */
+    "multiselectbox" : {
+        events : {
+            "click .ui-fld-edit-multiselectbox .msb-box" : function(e){
+                e.stopPropagation();
+                var jq = $(e.currentTarget);
+                jq.parent().children(".msb-pad").fadeIn(500);
+                $(document.body).one("click", function(){
+                    $(".ui-fld-edit-multiselectbox .msb-pad").fadeOut(300);
+                });
+            },
+            "click .ui-fld-edit-multiselectbox .msb-pad" : function(e){
+                e.stopPropagation();
+            },
+            "click .ui-fld-edit-multiselectbox .msb-pad .msb-item" : function(e){
+                e.stopPropagation();
+                var jq = $(e.currentTarget);
+                var jBox = jq.parents(".ui-fld-edit-multiselectbox").children(".msb-box");
+                $z.removeIt(jq, function(){
+                    if(jBox.attr("empty")){
+                        jBox.empty().removeAttr("empty");
+                    }
+                    jq.appendTo(jBox);
+                    $z.blinkIt(jq);
+                });
+            },
+            "click .ui-fld-edit-multiselectbox .msb-box .msb-item" : function(e){
+                e.stopPropagation();
+                var jq = $(e.currentTarget);
+                var UI = ZUI(jq);
+                var jBox = jq.parents(".msb-box");
+                var jPad = jq.parents(".ui-fld-edit-multiselectbox").children(".msb-pad");
+                $z.removeIt(jq, function(){
+                    jq.appendTo(jPad);
+                    $z.blinkIt(jq);
+                    if(jBox.children().size() == 0){
+                        jBox.attr("empty","true").html('<div>'+UI.msg("editing.multiselectbox.empty")+'</div>');
+                    }
+                });
+            }
+        },
+        set : function(fld, obj){
+            var UI = this;
+
+            var v = this.val_get(fld, obj);
+            //console.log("obj v:",  v)
+
+            // 生成 dom 结构 
+            var list = fld._list;
+            var jq = $html(fld, "div", "multiselectbox");
+            var jBox = $('<div class="msb-box">').appendTo(jq);
+            var jPad = $('<div class="msb-pad">').appendTo(jq);
+            for(var i=0;i<list.length;i++){
+                var ele = list[i];
+                var txt = ele[fld.setup.key_txt];
+                var val = ele[fld.setup.key_val];
+                var jItem = $('<div class="msb-item">').attr("val", val).text(txt);
+                // 显示出来，还是放入备选
+                if(v.indexOf(val) >= 0){
+                    jBox.append(jItem);
+                }else{
+                    jPad.append(jItem);
+                }
+            }
+
+            // 显示帮助
+            if(jBox.children().size()==0){
+                jBox.attr("empty","true").html('<div>'+UI.msg("editing.multiselectbox.empty")+'</div>');
+            }
+        },
+        get : function(fld){
+            var re = [];
+            fld.$val.find(".msb-box .msb-item").each(function(){
+                re.push($(this).attr("val"));
+            });
+            return re;
         }
     }
 };
