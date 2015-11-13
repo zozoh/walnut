@@ -4,7 +4,7 @@
 [theme="w0"] {
     .theme_w0();
 
-    .osearch-sky {}
+    .osearch-sky {position: relative; min-height: 30px;}
     .osearch-sky:after{@clr();}
 
     .osearch-list {
@@ -24,24 +24,33 @@
     .osearch-check-opts>li:last-child{border-right:0;}
     /*.............................................. actions*/
     .osearch-actions {
-        padding:10px 2px; 
-        display:inline-block; vertical-align: middle;
+        padding:10px; 
+        position: absolute; top:0; right:0;
     }
-    .osearch-actions[narrow] {padding-bottom:0px;}
-    .osearch-actions[narrow] .menu-top-table {margin:0 auto;}
+    [narrow] .osearch-actions {
+        top:0; left:0; right:0;
+
+        table.menu-top-table {
+            margin:0 auto;
+        }
+    }
     /*.............................................. filter*/
     .osearch-filter {
-         padding:9px 2px; 
-         display:inline-block; vertical-align: middle;
+        padding:9px; 
+        position: absolute; top:0; left:0;
     }
 
+
     .ofilter-keyword {
-        padding:0px;
+        padding:0px; position: relative;
     }
     .ofilter-keyword input{
-        font-size:@f_normal; padding:@normal; width:100%; color:@c_gray_f;
+        font-size:@f_normal; padding:@normal @big @normal @bigger; width:100%; color:@c_gray_f;
         border:1px solid @c_gray_shallow;
-        border-radius: 2px;
+        border-radius: @hug; outline: none;
+    }
+    .ofilter-icon {
+        position: absolute; top:0;left:0; padding:@normal; color:@c_gray_b;
     }
 
     /*.............................................. pager*/

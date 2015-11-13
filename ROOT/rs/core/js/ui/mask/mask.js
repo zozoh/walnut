@@ -5,7 +5,7 @@ var html = function(){/*
 <div class="ui-arena" ui-fitparent="yes">
     <div class="ui-mask-bg"></div>
     <div class="ui-mask-main" ui-gasket="main"></div>
-    <i class="fa fa-close ui-mask-closer "></i>
+    <div class="ui-mask-closer"><i class="fa fa-close"></i></div>
 </div>
 */};
 //===================================================================
@@ -69,12 +69,14 @@ return ZUI.def("ui.mask", {
         // 高度先计算
         if(_.isString(uoH) || parseInt(uoH) == uoH){
             mH = $z.dimension(UI.options.height, H);
-            mW = $z.dimension(UI.options.width, mH)
+            var _n = UI.options.width;
+            mW = $z.dimension(_n, _.isString(_n) ? W : mH)
         }
         // 那就一定是宽度先计算咯
         else{
             mW = $z.dimension(UI.options.width, W)
-            mH = $z.dimension(UI.options.height, mW);
+            var _n = UI.options.height;
+            mH = $z.dimension(_n, _.isString(_n) ? H : mW);
         }
 
         var mL = (W-mW)/2

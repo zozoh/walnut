@@ -273,14 +273,14 @@ public class HttpApiModule extends AbstractWnModule {
         for (String key : oApi.keySet()) {
             if (key.startsWith("http-header-")) {
                 String nm = key.substring("http-header-".length()).toUpperCase();
+                String val = Strings.trim(oApi.getString(key));
+                val = Segments.replace(val, oReq);
                 // 指定了响应内容
                 if (nm.equals("CONTENT-TYPE")) {
-                    mimeType = oApi.getString(key);
+                    mimeType = val;
                 }
                 // 指定了下载目标
                 else if (nm.equals("CONTENT-DISPOSITION")) {
-                    String val = Strings.trim(oApi.getString(key));
-
                     Matcher m = P.matcher(val);
                     String fnm;
                     if (m.find()) {
@@ -293,7 +293,7 @@ public class HttpApiModule extends AbstractWnModule {
                 }
                 // 其他头，添加
                 else {
-                    resp.setHeader(nm, oApi.getString(key));
+                    resp.setHeader(nm, val);
                 }
             }
         }

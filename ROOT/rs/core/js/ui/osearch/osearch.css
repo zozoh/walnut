@@ -5,6 +5,10 @@
   /*.............................................. filter*/
   /*.............................................. pager*/
 }
+[theme="w0"] .osearch-sky {
+  position: relative;
+  min-height: 30px;
+}
 [theme="w0"] .osearch-sky:after {
   clear: both;
   height: 1px;
@@ -41,31 +45,44 @@
   border-right: 0;
 }
 [theme="w0"] .osearch-actions {
-  padding: 10px 2px;
-  display: inline-block;
-  vertical-align: middle;
+  padding: 10px;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
-[theme="w0"] .osearch-actions[narrow] {
-  padding-bottom: 0px;
+[theme="w0"] [narrow] .osearch-actions {
+  top: 0;
+  left: 0;
+  right: 0;
 }
-[theme="w0"] .osearch-actions[narrow] .menu-top-table {
+[theme="w0"] [narrow] .osearch-actions table.menu-top-table {
   margin: 0 auto;
 }
 [theme="w0"] .osearch-filter {
-  padding: 9px 2px;
-  display: inline-block;
-  vertical-align: middle;
+  padding: 9px;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 [theme="w0"] .ofilter-keyword {
   padding: 0px;
+  position: relative;
 }
 [theme="w0"] .ofilter-keyword input {
   font-size: 14px;
-  padding: 8px;
+  padding: 8px 16px 8px 32px;
   width: 100%;
   color: #888888;
   border: 1px solid #aaaaaa;
-  border-radius: 2px;
+  border-radius: 128px;
+  outline: none;
+}
+[theme="w0"] .ofilter-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 8px;
+  color: #dddddd;
 }
 [theme="w0"] .osearch-pager {
   padding: 10px;

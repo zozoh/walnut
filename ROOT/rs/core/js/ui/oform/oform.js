@@ -182,7 +182,11 @@ return ZUI.def("ui.oform", {
             }
             // 处理错误的值
             catch (E) {
-                alert(UI.text(E.code) + "\nvalue: '" + E.val + "'\n" + $z.toJson(E.fld));
+                if(_.isString(E)){
+                    alert(E);
+                }else{
+                    alert(UI.text(E.code) + "\nvalue: '" + E.val + "'\n" + $z.toJson(E.fld));
+                }
                 return;
             } 
             //console.log(o)

@@ -5,6 +5,7 @@ var html = function(){/*
 <div class="ui-arena" ui-fitparent="yes">
 <div class="ofilter-keyword">
     <input placeholder="{{osearch.filter.tip}}">
+    <div class="ofilter-icon"><i class="fa fa-search"></i></div>
 </div>
 </div>
 */};
@@ -25,7 +26,9 @@ return ZUI.def("ui.ofilter", {
         }
     },
     //..............................................
-    redraw : function(callback){
+    redraw : function(){
+        var UI = this;
+        UI.arena.find(".ofilter-keyword input").val(UI.options.query);
     },
     //..............................................
     resize : function(){
@@ -51,6 +54,42 @@ return ZUI.def("ui.ofilter", {
         };
         // 处理关键字
         var kwd = UI.arena.find("input").val();
+
+        var regex = /((\w+)=([^'" ]+))|((\w+)="([^" ]+)")|((\w+)='([^' ]+)')|('([^']+)')|("([^"]+)")|([^ \t'"]+)/g;
+        var i = 0;
+        var m = regex.exec(kwd);
+        var ss = [];
+        while(m){
+            if(i++>100)
+                break;
+            m.forEach(function(v, index){
+                console.log(i+"."+index+")", v);
+            });
+            // 找到纯字符串 
+            if(m[14]){
+                ss.push(m[14]);
+            }
+            else if(m[13]){
+                ss.push(m[13]);
+            }
+            else if(m[11]){
+                ss.push(m[11]);
+            }
+            // 找到等式
+            else if(m[7]){
+                q[m[8]] = m[9];
+            }
+            else if(m[4]){
+                q[m[5]] = m[6];
+            }
+            else if(m[1]){
+                q[m[2]] = $z.strToJsObj(m[3]);
+            }
+            // 继续执行
+            m = regex.exec(kwd);
+        }
+
+        kwd = ss.join(" ");
         if(kwd && UI.options.keyField.length>0) {
             var kwdList = [];
             UI.options.keyField.forEach(function(key){
@@ -58,7 +97,7 @@ return ZUI.def("ui.ofilter", {
                 map[key] = "*" + kwd + "*";
                 kwdList.push(map);
             });
-            console.log(kwdList)
+            // console.log(kwdList)
             // 只有一个，那么不用『或』了
             if(kwdList.length == 1){
                 _.extend(q, kwdList[0]);
@@ -69,8 +108,9 @@ return ZUI.def("ui.ofilter", {
             }
         }
         // 返回
+        var json = $z.toJson(q);
         return {
-            condition : $z.toJson(q)
+            condition : json
         }
     }
     //..............................................

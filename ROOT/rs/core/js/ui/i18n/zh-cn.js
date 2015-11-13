@@ -3,6 +3,7 @@ define({
     "refresh" : "刷新",
     "new"     : "新建",
     "delete"  : "删除",
+    "delwarn" : "你确定要删除吗？",
     "edit"    : "编辑",
     "clear"   : "清除",
     "close"   : "关闭",

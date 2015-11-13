@@ -58,7 +58,7 @@ return ZUI.def("ui.olist", {
         },
         "click .ui-arena" : function(e){
             var jq = $(e.target);
-            var jItem = jq.parents(".olist-item");
+            var jItem = jq.hasClass("olist-item") ? jq : jq.parents(".olist-item");
             if(this.options.blurable && !jItem.hasClass("olist-item-actived"))
                 this.blur();
         }
@@ -188,9 +188,15 @@ return ZUI.def("ui.olist", {
             return jq.data("OBJ");
         }
         // ID
-        if(_.isString(arg)){
-            var jq = UI.arena.children('[oid="' + arg + '"]');
+        var m = /^id:(.+)$/g.exec(arg);
+        if(m){
+            var jq = UI.arena.children('[oid="' + m[1] + '"]');
             return jq.data("OBJ");
+        }
+        // Name
+        if(_.isString(arg)){
+            var jq = UI.arena.children('[onm="' + arg + '"]');
+            return jq.data("OBJ");   
         }
         // 获取完整的列表
         var objs = [];

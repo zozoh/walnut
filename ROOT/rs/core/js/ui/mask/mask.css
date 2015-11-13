@@ -32,8 +32,8 @@
   width: 32px;
   height: 32px;
   line-height: 25px;
-  padding-left: 7px;
   border: 3px solid #888;
+  text-align: center;
 }
 [theme="w0"] .ui-body .ui-mask-closer {
   cursor: pointer;

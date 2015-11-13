@@ -44,9 +44,8 @@ function normalize_sub(options, key, dft) {
 var html = function(){/*
 <div class="ui-arena" ui-fitparent="true">
     <div class="osearch-sky">
-        <div class="osearch-actions" ui-gasket="menu">
-        </div><div class="osearch-filter" ui-gasket="filter">
-        </div>
+        <div class="osearch-actions" ui-gasket="menu"></div>
+        <div class="osearch-filter" ui-gasket="filter"></div>
     </div>
     <div class="osearch-list"  ui-gasket="list"></div>
     <div class="osearch-pager" ui-gasket="pager"></div>
@@ -71,7 +70,7 @@ return ZUI.def("ui.osearch", {
             if(UI.exec)
                 options.data = "obj -match '<%=condition%>' -skip {{skip}} -limit {{pgsz}} -json -pager -sort 'nm:1'";
             else
-                throw "osearch require data field!!!";
+                throw "osearch require data or exec field!!!";
         }
 
         // 确保 filter,list,pager 三个参数格式标准 
@@ -91,8 +90,8 @@ return ZUI.def("ui.osearch", {
         this.do_search(null, pg);
     },
     //...............................................................
-    do_change_filter : function(q){
-        this.do_search(q, null);
+    do_change_filter : function(cnd){
+        this.do_search(cnd, null);
     },
     //...............................................................
     __check_obj_fld : function(key){
@@ -149,6 +148,7 @@ return ZUI.def("ui.osearch", {
     },
     do_action_delete : function(){
         var UI = this;
+        
         var objs = UI._list.getChecked();
         if(!(objs && objs.length>0)){
             var a_obj = UI._list.getActived();
@@ -164,10 +164,11 @@ return ZUI.def("ui.osearch", {
                 str += "rm -rf id:"+obj.id+"\n";
             });
             // 执行命令
-            //console.log(str)
-            UI.exec(str, function(){
-                UI.do_search();
-            });
+            if(confirm(UI.msg("delwarn"))){
+                UI.exec(str, function(){
+                    UI.do_search();
+                });
+            }
         }
         // 警告
         else{
@@ -231,6 +232,8 @@ return ZUI.def("ui.osearch", {
         // 绘制动作按钮
         if(UI._draw_actions()){
             deferUiTypes.push("ui/menu/menu");
+        }else{
+            UI.arena.find(".osearch-actions").remove();
         }
 
         // 标识这是一次异步重绘
@@ -285,24 +288,47 @@ return ZUI.def("ui.osearch", {
         var jActions = jSky.children(".osearch-actions");
         var jFilter = jSky.children(".osearch-filter");
 
-        var w_action = jActions.attr("org-width") * 1;
-        if(!w_action){
-            w_action = jActions.outerWidth(true);
-            jActions.attr("org-width", w_action);
-            jFilter.css("height", jActions.outerHeight());
-        }
-
         var w_sky = jSky.width();
 
-        // 太窄
-        if(w_sky < w_action*2){
-            jActions.css("width", w_sky).attr("narrow","yes");
-            jFilter.css("width", w_sky);
+        // 没有 action
+        if(jActions.size() == 0){
+            jFilter.css("width", "100%");
+            jSky.css("height", jFilter.outerHeight(true));
         }
-        // 并排
-        else{
-            jActions.css("width", w_action).removeAttr("narrow");
-            jFilter.css("width",  w_sky - w_action);
+        else {
+            var w_action = jActions.outerWidth(true);
+            var h_action = jActions.outerHeight();
+            var w_action_inner = jActions.find(".menu-top-table").outerWidth();
+            // if(!w_action){
+            //     w_action = jActions.outerWidth(true);
+            //     jActions.attr("org-width", w_action);
+            //     jActions.attr("org-width-inner", jActions.children().outerWidth(true));
+            //     jFilter.css("height", jActions.outerHeight());
+            // }
+            jFilter.css("height", h_action);
+            
+            // 太窄
+            if(w_sky/1.5 < w_action_inner){
+                var hh = jActions.outerHeight(true);
+                var pad = jFilter.outerHeight(true) - jFilter.height();
+                jSky.css("height", hh * 2 - (pad/2)).attr("narrow","true");
+                jActions.css({
+                    top:0
+                });
+                jFilter.css({
+                    top: hh - (pad/2), width:w_sky
+                });
+            }
+            // 并排
+            else{
+                var hh = jActions.outerHeight(true);
+                var pad = jFilter.outerWidth(true) - jFilter.width();
+                jSky.css("height", hh).removeAttr("narrow");
+                jFilter.css({
+                    top   : 0,
+                    width : w_sky - w_action + (pad/2)
+                }); 
+            }
         }
         
 
@@ -316,7 +342,7 @@ return ZUI.def("ui.osearch", {
     //...............................................................
     getData : function(){
         var D = this.$el.data("@DATA");
-        console.log("osearch.getData:", D.uiForm)
+        //console.log("osearch.getData:", D.uiForm)
         return D;
     },
     //...............................................................
@@ -342,14 +368,14 @@ return ZUI.def("ui.osearch", {
         this.do_search();
     },
     //...............................................................
-    getQuery : function(q, pg){
+    getQuery : function(cnd, pg){
         var UI = this;
-        q  = q  || UI._filter.getData();
-        pg = pg || UI.options.dftQuery;
-        return _.extend({}, UI.options.dftQuery, q, pg);
+        cnd = cnd  || UI._filter.getData();
+        pg  = pg   || UI.options.dftQuery;
+        return _.extend({}, UI.options.dftQuery, cnd, pg);
     },
     //...............................................................
-    do_search : function(q, pg, callback){
+    do_search : function(cnd, pg, callback){
         //console.log("do_search",q, pg)
         var UI = this;
 
@@ -357,7 +383,7 @@ return ZUI.def("ui.osearch", {
         // 推迟运行，以便确保界面都加载完毕了
         // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题
         window.setTimeout(function(){
-            var q = UI.getQuery(q, pg);
+            var q = UI.getQuery(cnd, pg);
             
             // 显示正在加载数据
             if(UI._list)
@@ -368,6 +394,7 @@ return ZUI.def("ui.osearch", {
                 // 将查询的结果分别设置到列表以及分页器里
                 UI._list.setData(re ? re.list : [], true, callback);
                 UI._pager.setData(re? re.pager: {pn:0, pgnb:0, pgsz:0, nb:0, sum:0});
+                UI.resize();
             }, UI);
         }, 0);
 

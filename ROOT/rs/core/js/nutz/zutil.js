@@ -62,26 +62,50 @@
         //.............................................
         // 将一个字符串，根据 Javascript 的类型进行转换
         strToJsObj : function(v, type){
-            switch(type){
-                case 'string':
-                    if(_.isString(v))
-                        return v;
-                    return v || null;
-                case 'number':
-                    var re = v * 1; 
-                    return v == re ? re : -1;
-                case 'int':
-                    var re = v * 1; 
-                    return v == re ? parseInt(re) : -1;
-                case 'object':
-                    return this.fromJson(v);
-                case 'boolean':
-                    if(_.isBoolean(v))
-                        return v;
-                    if(_.isUndefined(v))
-                        return false;
-                    return /^(true|yes|on|ok)$/.test(v);
+            // 指定了类型
+            if(type){
+                switch(type){
+                    case 'string':
+                        if(_.isString(v))
+                            return v;
+                        return v || null;
+                    case 'number':
+                        var re = v * 1; 
+                        return v == re ? re : -1;
+                    case 'int':
+                        var re = v * 1; 
+                        return v == re ? parseInt(re) : -1;
+                    case 'object':
+                        return this.fromJson(v);
+                    case 'boolean':
+                        if(_.isBoolean(v))
+                            return v;
+                        if(_.isUndefined(v))
+                            return false;
+                        return /^(true|yes|on|ok)$/.test(v);
+                    default:
+                        throw "strToJsObj unknown type ["+type+"] for: " + v;
+                }
             }
+
+            // 没指定类型，那么自动判断
+            // 数字
+            if(/-?[\d.]+/.test(v)){
+                return v*1;
+            }
+            // 日期
+            var regex = /^(\d{4})-(\d{2})-(\d{2})$/;
+            if(regex.test(v)){
+                return this.parseDate(v, regex);
+            }
+            // 布尔
+            regex = /^ *(true|false|yes|no|on|off) *$/i;
+            var m = regex.exec(v);
+            if(m){
+                return /^true|yes|on$/i.test(m[1]);
+            }
+
+            // 返回自身了事
             return v;
         },
         //.............................................
@@ -264,9 +288,7 @@
                     });
                 }
                 // 如果是对象，但是应该无视
-                else if(v instanceof jQuery
-                       || _.isElement(v)){
-
+                else if(v instanceof jQuery || _.isElement(v)){
                 }
                 // 如果是普通对象，那么递归
                 else if(_.isObject(v)){
@@ -388,6 +410,109 @@
             }
             // 返回
             return eval_re;
+        },
+        //.............................................
+        // 解析日期字符串为一个日期对象
+        /*
+         - str : 日期字符串，当然你也可以传一个绝对毫秒数或者另外一个日期对象
+         - regex :  如果参数是字符串，会用这个正则式来解析，
+                    匹配的组 1,2,3,4,5,6 分别年月日，时分秒
+                    你可以匹配到 3，也可以匹配到 5 还可以说匹配到 6
+        @return 标准的 Date 对象
+        */
+        parseDate : function(str,  regex){
+            // 日期对象
+            if(_.isDate(str)){
+                return new Date(str);
+            }
+            // 数字则表示绝对毫秒数
+            if(_.isNumber(str)){
+                d = new Date();
+                d.setTime(str);
+                return d;
+            }
+            // 否则当做字符串
+            var REG = _.isRegExp(regex) ? new RegExp(regex)
+                      : new RegExp(regex || "^(\d{4})-(\d{2})-(\d{2})$");
+            var m = REG.exec(str);
+            // 格式正确
+            if(m && m.length>=4){
+                var d;
+                // 仅仅是日期
+                if(m.length == 4){
+                    d = new Date(m[1]*1, m[2]*1-1, m[3]*1);
+                }
+                // 精确到分
+                else if(m.length == 6){
+                    d = new Date(m[1]*1, m[2]*1-1, m[3]*1, m[4]*1, m[5]*1, 0);
+                }
+                // 精确到秒
+                else if(m.length > 6){
+                    d = new Date(m[1]*1, m[2]*1-1, m[3]*1, m[4]*1, m[5]*1, m[6]*1);
+                }
+                return d;
+            }
+            throw "invalid date '" + str + "' can not match : " + regex;
+        },
+        //.............................................
+        // 解析日期字符串为一个日期对象
+        /*
+         - str : 日期字符串，当然你也可以传一个当天绝对秒数或者一个日期对象
+         - regex :  如果参数是字符串，会用这个正则式来解析，
+                    匹配的组 1,2,3,4,5,6 分别年月日，时分秒
+                    你可以匹配到 3，也可以匹配到 5 还可以说匹配到 6
+        @return {
+            HH : 23,
+            MM : 09,
+            ss : 45
+        }
+        */
+        parseTime : function(v,  regex){
+            // 会解析成这个时间对象
+            var _t = {};
+            // 日期对象
+            if(_.isDate(v)){
+                _t.HH = v.getHours();
+                _t.MM = v.getMinutes();
+                _t.ss = v.getSeconds();
+            }
+            // 数字则表示绝对秒数
+            if(_.isNumber(v)){
+                var n = parseInt(v);
+                _t.HH = parseInt(n / 3600);
+                n -= _t.HH * 3600;
+                _t.MM = parseInt((n - _t.HH) / 60);
+                _t.ss = n - _t.MM * 60;
+            }
+            // 否则当做字符串
+            else{
+                var regex = _.isRegExp(regex) ? new RegExp(regex)
+                            : new RegExp(regex || "^(\d{1,2}):(\d{1,2}):(\d{1,2})$");
+                var m = regex.exec(v);
+                // 格式正确
+                if(m){
+                    var d;
+                    // 仅仅是到分
+                    if(m.length == 3){
+                        _t.HH = m[1] * 1;
+                        _t.MM = m[2] * 1;
+                        _t.ss = 0;
+                    }
+                    // 精确到秒
+                    else if(m.length == 4){
+                        _t.HH = m[1] * 1;
+                        _t.MM = m[2] * 1;
+                        _t.ss = m[3] * 1;
+                    }
+                }
+                // 未通过校验，抛错
+                else{
+                    throw "invalid time '" + v + "' can not match : " + regex;
+                }
+            }
+            _t.sec = _t.HH * 3600 + _t.MM*60 + _t.ss;
+            // 返回
+            return _t;
         },
         //.............................................
         // 设置一个 input 的值，如果值与 placeholder 相同，则清除值
@@ -541,24 +666,84 @@
         },
         //.............................................
         // 扩展第一个对象，深层的，如果遇到重名的对象，则递归
-        extend: function (a, b) {
+        // 调用方法 $z.extend(a,b,c..)
+        extend: function () {
             var a = arguments[0];
+            var memo = [];
             for(var i=1;i<arguments.length;i++){
                 var b = arguments[i];
                 for (var key in b) {
-                    var av = a[key];
-                    if (_.isArray(av) || _.isFunction(av) || _.isDate(av) || _.isRegExp(av)) {
-                        a[key] = b[key];
-                    } else if (_.isObject(av)) {
-                        this.extend(av, b[key]);
-                    } else {
-                        a[key] = b[key];
-                    }
+                    a[key] = this.clone(b[key], memo);
                 }
             }
             return a;
             // 否则不能接受
             //throw "can not extend a:" + a + " by b:" + b;
+        },
+        //.............................................
+        // 对一个对象深层的clone，如果不是数组或者Object，则直接返回
+        clone: function(obj, memo){
+            memo  = memo || [];
+            for(var i=0;i<memo.length;i++){
+                if(obj === memo[i])
+                    return obj;
+            }
+            // 数组
+            if(_.isArray(obj)){
+                var re = [];
+                memo.push(obj);
+                for(var i=0;i<obj.length;i++){
+                    re.push(this.clone(obj[i], memo));
+                }
+                return re;
+            }
+            // jQuery 或者 Elemet
+            if(obj instanceof jQuery || _.isElement(obj)){
+                return obj;
+            }
+            // 函数
+            if(_.isFunction(obj)){
+                return obj;
+            }
+            // 日期对象
+            if(_.isDate(obj)){
+                return new Date(obj);
+            }
+            // 正则表达式 
+            if(_.isRegExp(obj)){
+                return new RegExp(obj);
+            }
+            // 普通对象
+            if(_.isObject(obj)){
+                var re = {};
+                memo.push(obj);
+                for(var key in obj){
+                    if(key == "__clone_index")
+                        continue;
+                    re[key] = this.clone(obj[key], memo);
+                }
+                return re;
+            }
+            return obj;
+        },
+        //.............................................
+        // 判断一个对象是否是简单的 POJO
+        isPlainObj : function(obj){
+            if(_.isUndefined(obj))
+                return false;
+            if(_.isNull(obj))
+                return false;
+            if(_.isDate(obj))
+                return false;
+            if(_.isRegExp(obj))
+                return false;
+            if(_.isArray(obj))
+                return false;
+            if(_.isElement(obj))
+                return false;
+            if(obj instanceof jQuery)
+                return false;
+            return _.isObject(obj);
         },
         //.............................................
         winsz: function () {

@@ -24,6 +24,7 @@ return ZUI.def("ui.oadaptor", {
         if(o) {
             //UI.$el.data("@DATA", D);
             ZUI.loadResource(o.uiAdaptor, function(uiDef){
+                // console.log("ahhahah", _.extend({},uiDef))
                 // 普通设置数据
                 if(!uiDef) {
                     if(UI.delegateUI){
@@ -69,7 +70,6 @@ return ZUI.def("ui.oadaptor", {
             //console.log("loadUI", uiDef.uiType)
             seajs.use(uiDef.uiType, function(MyUI){
                 var uiConf = $z.evalFunctionField(uiDef.uiConf);
-
                 UI.delegateUI = new MyUI(_.extend(uiConf || {},{
                     parent : UI,
                     gasketName : "main"

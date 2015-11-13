@@ -199,8 +199,8 @@ public class AppInfo {
                 // 遇到http头据行
                 Matcher m = P_API_HEADER.matcher(line);
                 if (m.find()) {
-                    String key = m.group(1);
-                    String val = Segments.replace(m.group(2), c);
+                    String key = Strings.trim(m.group(1));
+                    String val = Segments.replace(Strings.trim(m.group(2)), c);
                     item.headers.put(key.toUpperCase(), val);
                     continue;
                 }
@@ -208,7 +208,7 @@ public class AppInfo {
                 /// 遇到元数据行
                 m = P_API_META.matcher(line);
                 if (m.find()) {
-                    String key = m.group(1);
+                    String key = Strings.trim(m.group(1));
                     String val = m.group(2);
                     item.metas.put(key, __str_to_obj(val, c));
                     continue;
@@ -303,7 +303,7 @@ public class AppInfo {
                     item.metas.put(key, __str_to_obj(sb.toString(), c));
                     sb = new StringBuilder();
                 }
-                key = m.group(1);
+                key = Strings.trim(m.group(1));
                 String val = m.group(2);
                 sb.append(val);
             }
@@ -322,7 +322,7 @@ public class AppInfo {
     }
 
     private Object __str_to_obj(String tmpl, Context c) {
-        String s = Segments.replace(tmpl, c);
+        String s = Segments.replace(Strings.trim(tmpl), c);
         // 整数
         if (s.matches("^[0-9]+$"))
             return Integer.valueOf(s);

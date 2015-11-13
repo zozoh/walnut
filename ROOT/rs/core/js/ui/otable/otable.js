@@ -33,6 +33,7 @@ return ZUI.def("ui.otable", {
         $z.setUndefined(options, "activable", true);
         $z.setUndefined(options, "blurable",  true);
         $z.setUndefined(options, "idKey",     "id");
+        $z.setUndefined(options, "nmKey",     "nm");
         $z.setUndefined(options, "nameTitle", "i18n:title");
         $z.setUndefined(options, "columns",   []);
         $z.setUndefined(options, "layout",   {});
@@ -284,9 +285,15 @@ return ZUI.def("ui.otable", {
             return jq.data("OBJ");
         }
         // ID
-        if(_.isString(arg)){
-            var jq = jTBody.children('[oid="' + arg + '"]');
+        var m = /^id:(.+)$/g.exec(arg);
+        if(m){
+            var jq = jTBody.children('[oid="' + m[1] + '"]');
             return jq.data("OBJ");
+        }
+        // Name
+        if(_.isString(arg)){
+            var jq = jTBody.children('[onm="' + arg + '"]');
+            return jq.data("OBJ");   
         }
         // 获取完整的列表
         var objs = [];
@@ -342,7 +349,6 @@ return ZUI.def("ui.otable", {
     //...............................................................
     _draw_data : function(objs){
         var UI = this;
-        var idKey = UI.options.idKey;
 
         var iconFunc  = UI.eval_tmpl_func(UI.options, "icon");
         var textFunc  = UI.eval_tmpl_func(UI.options, "text");
@@ -432,6 +438,7 @@ return ZUI.def("ui.otable", {
     _append_row : function(o, index, iconFunc, textFunc, jBodyT){
         var UI = this;
         var idKey     = UI.options.idKey;
+        var nmKey = UI.options.nmKey;
         var checkable = UI.options.checkable;
 
         iconFunc  = iconFunc || UI.eval_tmpl_func(UI.options, "icon");
@@ -446,6 +453,9 @@ return ZUI.def("ui.otable", {
         jTr.attr("index", index).data("OBJ", o);
         if(o[idKey])
             jTr.attr("oid", o[idKey]);
+
+        if(o[nmKey])
+            jTr.attr("onm", o[nmKey]);
 
         // .....................................
         // 创建第一列单元格

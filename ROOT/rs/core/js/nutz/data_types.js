@@ -82,10 +82,10 @@ module.exports = {
                 $z.setUndefined(fld.setup, "format", "yyyy-mm-dd");
             }
             if(_.isString(fld.setup.validate)){
-                fld.setup.validate = new RegExp(fld.setup.validate, "g");
+                fld.setup.validate = new RegExp(fld.setup.validate);
             }
             else if(_.isUndefined(fld.setup.validate)){
-                fld.setupvalidate = /^(\d{4})-(\d{2})-(\d{2})$/g;
+                fld.setup.validate = /^(\d{4})-(\d{2})-(\d{2})$/;
             }
         },
         asEdit : function(fld, d){
@@ -99,38 +99,11 @@ module.exports = {
                 v = $.trim(v);
             }
             if(!v)
+                v = fld.dft;
+            if(!v)
                 return null;
             //console.log("fld test : ", fld.key, ":["+v+"]", "test:", (v?true:false));
-            var d;
-            // 数字则表示绝对毫秒数
-            if(_.isNumber(v)){
-                d = new Date();
-                d.setTime(v);
-                return d;
-            }
-            // 否则当做字符串
-            var regex = new RegExp(fld.setup.validate);
-            var m = regex.exec(v);
-            // 格式正确
-            if(m && m.length>=4){
-                var d;
-                // 仅仅是日期
-                if(m.length == 4){
-                    d = new Date(m[1]*1, m[2]*1-1, m[3]*1);
-                }
-                // 精确到分
-                else if(m.length == 6){
-                    d = new Date(m[1]*1, m[2]*1-1, m[3]*1, m[4]*1, m[5]*1, 0);
-                }
-                // 精确到秒
-                else if(m.length == 6){
-                    d = new Date(m[1]*1, m[2]*1-1, m[3]*1, m[4]*1, m[5]*1, m[6]*1);
-                }
-                return d;
-            }
-            // 未通过校验，返回默认值
-            //throw _E("i18n:e.fld.invalid.datetime",fld,v);
-            return fld.dft;
+            return $z.parseDate(v, fld.setup.validate);
         }
     },
     //......................................
@@ -140,14 +113,14 @@ module.exports = {
             $z.setUndefined(fld, "setup", {});
             $z.setUndefined(fld.setup, "format", "@min");
             if(_.isString(fld.setup.validate)){
-                fld.setup.validate = new RegExp(fld.validate, "g");
+                fld.setup.validate = new RegExp(fld.validate);
             }
             else if(_.isUndefined(fld.setup.validate)){
                 if("@min" == fld.setup.format){
-                    fld.setup.validate = /^(\d{1,2}):(\d{1,2})$/g;
+                    fld.setup.validate = /^(\d{1,2}):(\d{1,2})$/;
                 }
                 else{
-                    fld.setup.validate = /^(\d{1,2}):(\d{1,2}):(\d{1,2})$/g;
+                    fld.setup.validate = /^(\d{1,2}):(\d{1,2}):(\d{1,2})$/;
                 }
             }
         },
@@ -160,44 +133,7 @@ module.exports = {
             return _t.sec;
         },
         test : function(fld, v){
-            // 会解析成这个时间对象
-            var _t = {};
-            // 数字则表示绝对秒数
-            if(_.isNumber(v)){
-                var n = parseInt(v);
-                _t.HH = parseInt(n / 3600);
-                n -= _t.HH * 3600;
-                _t.MM = parseInt((n - _t.HH) / 60);
-                _t.ss = n - _t.MM * 60;
-            }
-            // 否则当做字符串
-            else{
-                var regex = new RegExp(fld.setup.validate);
-                var m = regex.exec(v);
-                // 格式正确
-                if(m){
-                    var d;
-                    // 仅仅是到分
-                    if(m.length == 3){
-                        _t.HH = m[1] * 1;
-                        _t.MM = m[2] * 1;
-                        _t.ss = 0;
-                    }
-                    // 精确到秒
-                    else if(m.length == 4){
-                        _t.HH = m[1] * 1;
-                        _t.MM = m[2] * 1;
-                        _t.ss = m[3] * 1;
-                    }
-                }
-                // 未通过校验，抛错
-                else{
-                    throw _E("i18n:e.fld.invalid.time",fld,v);
-                }
-            }
-            _t.sec = _t.HH * 3600 + _t.MM*60 + _t.ss;
-            // 返回
-            return _t;
+            return $z.parseTime(v, fld.setup.validate);
         }
     },
     //......................................
@@ -263,7 +199,7 @@ module.exports = {
             if(_.isUndefined(v))
                 return fld.setup.value[0];
             if(_.isString(v)){
-                var i =  /^yes|on|true$/gi.test(v) ? 1 : 0;
+                var i =  /^yes|on|true$/i.test(v) ? 1 : 0;
                 return fld.setup.value[i];
             }
             return fld.setup.value[ v ? 1:0];

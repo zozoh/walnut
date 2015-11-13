@@ -30,11 +30,11 @@ define(function (require, exports, module) {
     // 这个逻辑用来解析 UI 的 DOM， 并根据约定，预先得到 gasket 和 layout
     // 当然 layout 不是必须有的
     var parse_dom = function (html) {
-        var ME = this;
+        var UI = this;
         // 解析代码模板
         var tmpl = _.template(html);
-        html = tmpl(ME._msg_map);
-        ME.$el[0].innerHTML = html;  // FIXME 这里有严重的bug, tr不能被加入到页面中
+        html = tmpl(UI._msg_map);
+        UI.$el[0].innerHTML = html;  // FIXME 这里有严重的bug, tr不能被加入到页面中
 
         // 分析 DOM 结构
         var map = this._code_templates;
@@ -47,14 +47,14 @@ define(function (require, exports, module) {
             var key = jq.attr('code-id');
             map[key] = jq;
         });
-        ME.arena = ME.$el.children('.ui-arena');
+        UI.arena = UI.$el.children('.ui-arena');
 
         // 搜索所有的 DOM 扩展点
-        ME.gasket = {};
-        ME.$el.find("[ui-gasket]").each(function () {
+        UI.gasket = {};
+        UI.$el.find("[ui-gasket]").each(function () {
             var me = $(this);
             var nm = $.trim(me.attr("ui-gasket"));
-            ME.gasket[nm] = {
+            UI.gasket[nm] = {
                 ui    : [],
                 jq    : $(this),
                 multi : me.attr("ui-multi") || false
@@ -213,9 +213,7 @@ define(function (require, exports, module) {
             // 看看是否需要异步加载多国语言字符串
             var callback = function (mm) {
                 // 存储多国语言字符串
-                UI._msg_map = $z.extend(_.extend({}, ZUI.g_msg_map), 
-                                        UI.parent ?  UI.parent._msg_map : {},
-                                        mm || {});
+                UI._msg_map = _.extend({}, UI.parent?UI.parent._msg_map:ZUI.g_msg_map, mm||{});
                 // 用户自定义 redraw 执行完毕的处理
                 var do_after_redraw = function(){
                     // if("ui.mask" == UI.uiName)
@@ -756,7 +754,7 @@ define(function (require, exports, module) {
             var reObj = ZUI._app_rs[rs];
             // 缓冲里有，那么就不用请求
             if(reObj){
-                return $z.doCallback(callback, [reObj], context);
+                return $z.doCallback(callback, [$z.extend({},reObj)], context);
             }
 
             // 看来要发起个请求喔
@@ -774,7 +772,7 @@ define(function (require, exports, module) {
                     },
                     dataType : "text",
                     success  : function(re){
-                        // console.log("success:", re);
+                        //console.log("success:", re);
                         // 根据特定的类型处理数据
                         if("json" == type){
                             reObj = $z.fromJson(re);
@@ -790,7 +788,7 @@ define(function (require, exports, module) {
                         ZUI._app_rs[rs] = reObj;
                         // 调用回调
                         if(_.isFunction(callback)){
-                            callback.call(context, reObj);
+                            callback.call(context, $z.extend({},reObj));
                         }
                     },
                     error : function(re, reason){
