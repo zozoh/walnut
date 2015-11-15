@@ -511,7 +511,7 @@ body {
   border-radius: 2px;
   background-color: #ffffff;
   color: rgba(0, 0, 0, 0.87);
-  min-width: 88px;
+  min-width: 20px;
 }
 .flat-button .touch-ripple {
   background: rgba(0, 0, 0, 0.1);
@@ -558,7 +558,7 @@ body {
   text-transform: uppercase;
   font-weight: 600;
   border-radius: 2px;
-  min-width: 88px;
+  min-width: 20px;
   background-color: inherit;
   color: inherit;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24), 0 1px 6px rgba(0, 0, 0, 0.12);
