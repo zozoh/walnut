@@ -15,6 +15,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
+import org.nutz.mapl.Mapl;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -84,8 +85,8 @@ public class cmd_sheet extends JvmExecutor {
                     Lang.each(v, new Each<Map<String, Object>>() {
                         public void invoke(int index, Map<String, Object> ele, int length) {
                             NutMap map = NutMap.WRAP(ele);
-                            map.setKeySep("[.]");
-                            vals[index] = map.getString(arrayKey, "--");
+                            Object val = Mapl.cell(map, arrayKey);
+                            vals[index] = null == val ? "--" : val.toString();
                         }
                     });
                     return Lang.concat(", ", vals).toString();
@@ -204,7 +205,6 @@ public class cmd_sheet extends JvmExecutor {
 
         // 写入输出
         for (NutMap ele : list) {
-            ele.setKeySep("[.]");
             sys.out.printf("\"%s\"", flds[0].getValue(ele));
             for (int i = 1; i < flds.length; i++) {
                 sys.out.printf("%s\"%s\"", sep, flds[i].getValue(ele));
