@@ -155,6 +155,7 @@ public class ObjModule extends AbstractWnModule {
     @At("/upload/**")
     @AdaptBy(type = QueryStringAdaptor.class)
     public WnObj upload(String str,
+                        @Param("abpath") boolean abpath,
                         @Param("nm") String nm,
                         @Param("cie") boolean createIfNoExists,
                         @Param("race") WnRace race,
@@ -165,6 +166,10 @@ public class ObjModule extends AbstractWnModule {
         // 首先得到目标对象
         WnObj ta;
         if (createIfNoExists && !str.startsWith("id:")) {
+            // 绝对目录 会丢失第一个字符 /
+            if (abpath && !str.startsWith("/")) {
+                str = "/" + str;
+            }
             String ph = Wn.normalizeFullPath(str, Wn.WC().checkSE());
             ta = io.createIfNoExists(null, ph, race);
         } else {
