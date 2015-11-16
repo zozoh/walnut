@@ -79,6 +79,10 @@ public interface WnObj extends NutBean {
     String mount();
 
     WnObj mount(String mnt);
+    
+    String mountRootId();
+    
+    WnObj mountRootId(String mrid);
 
     boolean isMount();
 

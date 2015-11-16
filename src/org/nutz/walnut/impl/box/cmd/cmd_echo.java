@@ -21,7 +21,7 @@ public class cmd_echo extends JvmExecutor {
             for (String s : params.vals) {
                 if (escape)
                     s = Jvms.evalEscape(s);
-                sb.append(Wn.normalizeStr(s, sys.se.envs())).append(' ');
+                sb.append(Wn.normalizeStr(s, sys.se.vars())).append(' ');
             }
             if (sb.length() > 0)
                 sb.deleteCharAt(sb.length() - 1);

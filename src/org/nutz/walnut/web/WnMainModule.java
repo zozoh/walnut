@@ -49,7 +49,7 @@ public class WnMainModule extends AbstractWnModule {
             Wn.WC().me(se.me(), se.group());
 
             // 查看会话环境变量，看看需要转到哪个应用
-            String appPath = se.envs().getString("OPEN");
+            String appPath = se.vars().getString("OPEN");
 
             // 那么 Session 木有问题了
             return "/a/open/" + appPath;

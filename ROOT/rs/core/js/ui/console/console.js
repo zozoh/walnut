@@ -72,12 +72,34 @@ return ZUI.def("ui.console", {
     dom: "ui/console/console.html",
     css: "ui/console/console.css",
     init: function (options) {
-        this.listenModel("screen:clear", this.clearScreen);
-        this.listenModel("cmd:wait", this.on_cmd_wait);
-        this.listenModel("show:err", this.on_show_err);
-        this.listenModel("show:txt", this.on_show_txt);
-        this.listenModel("show:end", this.on_show_end);
-        this.listenModel("do:upload", this.on_do_upload);
+        var UI  = this;
+        var app = Wn.app();
+        UI.app = app;
+
+        // 消费原本的 PWD
+        var oldPWD = UI.local("PWD");
+        if(oldPWD){
+            console.log("oldPWD", oldPWD)
+            UI.local("PWD", null);
+            app.session.envs.PWD = oldPWD;
+        }else{
+            console.log("oldPWD nil")
+        }
+
+        UI.listenModel("screen:clear", UI.clearScreen);
+        UI.listenModel("cmd:wait", UI.on_cmd_wait);
+        UI.listenModel("show:err", UI.on_show_err);
+        UI.listenModel("show:txt", UI.on_show_txt);
+        UI.listenModel("show:end", UI.on_show_end);
+        UI.listenModel("do:upload", UI.on_do_upload);
+
+        // 如果页面重新加载
+        window.addEventListener("beforeunload", function (event) {
+            var PWD = UI.app.session.envs.PWD;
+            event.returnValue = UI.msg("console.unload") + " : " + PWD;
+            UI.local("PWD", PWD);
+            return event.returnValue;
+        });
     },
     //..............................................................
     // 模块启动的主函数

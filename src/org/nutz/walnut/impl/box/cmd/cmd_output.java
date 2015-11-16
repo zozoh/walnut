@@ -34,7 +34,7 @@ public class cmd_output extends JvmExecutor {
         if (params.vals.length > 0) {
             StringBuilder sb = new StringBuilder();
             for (String v : params.vals) {
-                sb.append(Wn.normalizeStr(v, sys.se.envs())).append(' ');
+                sb.append(Wn.normalizeStr(v, sys.se.vars())).append(' ');
             }
             if (sb.length() > 0)
                 sb.deleteCharAt(sb.length() - 1);

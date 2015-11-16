@@ -48,12 +48,11 @@ public class cmd_ls extends JvmExecutor {
             }
             // 是个目录
             else {
-                sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
-                    public void invoke(int index, WnObj child, int length) {
-                        if (!child.isHidden() || showHidden)
-                            tab.add(child, useColor, briefSize);
-                    }
-                });
+                List<WnObj> children = sys.io.getChildren(o, null);
+                for (WnObj child : children) {
+                    if (!child.isHidden() || showHidden)
+                        tab.add(child, useColor, briefSize);
+                }
             }
             sys.out.print(tab.toString());
         }

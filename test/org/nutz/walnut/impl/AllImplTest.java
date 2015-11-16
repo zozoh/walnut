@@ -10,6 +10,6 @@ import org.nutz.walnut.impl.usr.IoWnUsrTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({AllImplIoTest.class,
                      IoWnUsrTest.class,
-                     AllImplBoxTest.class,
-                     IoHookTest.class})
+                     IoHookTest.class,
+                     AllImplBoxTest.class,})
 public class AllImplTest {}

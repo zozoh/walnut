@@ -120,8 +120,14 @@ exec : function (str, options) {
     var mosHead = "\n" + mos + ":BEGIN:";
     var mosTail = "\n" + mos + ":END\n";
 
-    var cmdText = encodeURIComponent(str);
-    var url = '/a/run/' + app.name + "?mos=" + encodeURIComponent(mos);
+    // 执行命令的地址
+    var url = '/a/run/' + app.name;
+
+    // 准备发送的数据
+    var sendData = "mos=" + encodeURIComponent(mos);
+    sendData += "&PWD=" + encodeURIComponent(se.envs.PWD);
+    sendData += "&cmd=" + encodeURIComponent(str);
+
     var oReq = new XMLHttpRequest();
     oReq._last = 0;
     oReq._content = "";
@@ -203,10 +209,11 @@ exec : function (str, options) {
             $z.invoke(options, "complete", [oReq._content], context);
         }
     };
-    // oReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    oReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     // oReq.send("cmd=" + cmdText);
-    oReq.setRequestHeader("Content-type", "text/html");
-    oReq.send(cmdText);
+    //oReq.setRequestHeader("Content-length", sendData.length);
+    oReq.send(sendData);
+    //oReq.send("mos=haha&pwd=/home/zozoh&cmd=cd")
 
     // 返回返回值，如同是同步的时候，会被设置的
     return re;

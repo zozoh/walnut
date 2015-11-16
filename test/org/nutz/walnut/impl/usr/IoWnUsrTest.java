@@ -218,8 +218,8 @@ public class IoWnUsrTest extends BaseUsrTest {
         WnUsr xiaobai = usrs.create("xiaobai", "123456");
         WnSession se = ses.login("xiaobai", "123456");
 
-        assertEquals(se.envs().getString("MY_ID"), xiaobai.id());
-        assertEquals(se.envs().getString("HOME"), xiaobai.home());
+        assertEquals(se.vars().getString("MY_ID"), xiaobai.id());
+        assertEquals(se.vars().getString("HOME"), xiaobai.home());
         assertEquals(se.me(), xiaobai.name());
 
         // 检查对象
@@ -229,26 +229,32 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 获取
         se = ses.check(se.id());
-        assertEquals(se.envs().getString("MY_ID"), xiaobai.id());
-        assertEquals(se.envs().getString("HOME"), xiaobai.home());
+        assertEquals(se.vars().getString("MY_ID"), xiaobai.id());
+        assertEquals(se.vars().getString("HOME"), xiaobai.home());
         assertEquals(se.me(), xiaobai.name());
 
         // 设置环境变量
         // TODO zozoh 自从改了自制的 nanoTime 以后，就老过不去
         // 看起来是因为在很短的时间内，重复写文件，导致历史记录产生了问题？
         try {
-            ses.setEnv(se.id(), "say", "hello");
-            ses.setEnv(se.id(), "x", "100");
+            se.var("say", "hello");
+            se.var("x", "100");
+            se.persist("say", "x");
+            ses.save(se);
 
             se = ses.check(se.id());
-            assertEquals("100", se.envs().getString("x"));
-            assertEquals("hello", se.envs().getString("say"));
+            assertEquals("100", se.vars().getString("x"));
+            assertEquals("hello", se.vars().getString("say"));
 
             // 删除环境变量
-            ses.removeEnvs(se.id(), "x", "say");
+            se.var("say", null);
+            se.var("x", null);
+            se.persist("say", "x");
+            ses.save(se);
+
             se = ses.check(se.id());
-            assertNull(se.envs().get("x"));
-            assertNull(se.envs().get("say"));
+            assertNull(se.vars().get("x"));
+            assertNull(se.vars().get("say"));
 
             // 注销
             ses.logout(se.id());
@@ -273,7 +279,7 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 获取一个
         WnUsr u = usrs.fetch("xiaobai@nutzam.com");
-        //assertEquals("123456", u.password());
+        // assertEquals("123456", u.password());
         assertTrue(usrs.checkPassword("xiaobai@nutzam.com", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals(xiaobai.id(), u.name());
@@ -288,7 +294,7 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 再次按照 Email 获取
         u = usrs.fetch("xiaobai@nutzam.com");
-        //assertEquals("123456", u.password());
+        // assertEquals("123456", u.password());
         assertTrue(usrs.checkPassword("xiaobai@nutzam.com", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());
@@ -300,7 +306,7 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 按照 Name 获取
         u = usrs.fetch("xiaobai");
-        //assertEquals("123456", u.password());
+        // assertEquals("123456", u.password());
         assertTrue(usrs.checkPassword("xiaobai", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());
@@ -312,7 +318,7 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 按照 Name 获取
         u = usrs.fetch("xiaobai");
-        //assertEquals("123456", u.password());
+        // assertEquals("123456", u.password());
         assertTrue(usrs.checkPassword("xiaobai", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());
@@ -330,7 +336,7 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 获取一个
         WnUsr u = usrs.fetch("13910110054");
-        //assertEquals("123456", u.password());
+        // assertEquals("123456", u.password());
         assertTrue(usrs.checkPassword("13910110054", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals(xiaobai.id(), u.name());
@@ -345,7 +351,7 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 再次按照 Phone 获取
         u = usrs.fetch("13910110054");
-        //assertEquals("123456", u.password());
+        // assertEquals("123456", u.password());
         assertTrue(usrs.checkPassword("13910110054", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());
@@ -357,7 +363,7 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 按照 Name 获取
         u = usrs.fetch("xiaobai");
-        //assertEquals("123456", u.password());
+        // assertEquals("123456", u.password());
         assertTrue(usrs.checkPassword("xiaobai", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("13910110054", u.phone());
@@ -369,7 +375,7 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 按照 Name 获取
         u = usrs.fetch("xiaobai");
-        //assertEquals("123456", u.password());
+        // assertEquals("123456", u.password());
         assertTrue(usrs.checkPassword("xiaobai", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());
@@ -387,7 +393,7 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 获取一个
         WnUsr u = usrs.fetch("xiaobai");
-        //assertEquals("123456", u.password());
+        // assertEquals("123456", u.password());
         assertTrue(usrs.checkPassword("xiaobai", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());

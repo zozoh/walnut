@@ -23,8 +23,14 @@ public class cmd_mount extends JvmExecutor {
         String val = params.vals[1];
 
         // 目标必须是一个目录
-        String ph = Wn.normalizeFullPath(val, sys.se);
-        WnObj o = sys.io.createIfNoExists(null, ph, WnRace.DIR);
+        String ph = Wn.normalizePath(val, sys);
+        WnObj oCurrent = this.getCurrentObj(sys);
+        WnObj o = sys.io.createIfNoExists(oCurrent, ph, WnRace.DIR);
+
+        // 不能改变当前目录的 mount，只能在父目录改变它
+        if (o.isSameId(oCurrent)) {
+            throw Er.create("e.cmd.mount.mountself", ph);
+        }
 
         // 设置挂载点
         sys.io.setMount(o, mnt);

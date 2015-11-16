@@ -53,7 +53,7 @@ public class WnObjMetaOutputStream extends OutputStream {
                         Object v = newObj.get(key);
                         // 不能为空
                         if (null == v
-                            && key.matches("^(nm|tp|ph|race|pid|mnt|len|sha1|data|nano|ct|lm|c|m|g|md|d[0-9])$")) {
+                            && key.matches("^(nm|tp|ph|race|pid|len|sha1|data|nano|ct|lm|c|m|g|md|d[0-9])$")) {
                             continue;
                         }
                         // 计入对象
@@ -73,7 +73,7 @@ public class WnObjMetaOutputStream extends OutputStream {
                         Object v = newObj.get(key);
                         // 不能为空
                         if (null == v
-                            && key.matches("^(nm|tp|ph|race|pid|mnt|len|sha1|data|nano|ct|lm|c|m|g|md|d[0-9])$")) {
+                            && key.matches("^(nm|tp|ph|race|pid|len|sha1|data|nano|ct|lm|c|m|g|md|d[0-9])$")) {
                             continue;
                         }
                         // 计入对象

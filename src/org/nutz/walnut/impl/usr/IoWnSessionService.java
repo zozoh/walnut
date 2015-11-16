@@ -2,6 +2,7 @@ package org.nutz.walnut.impl.usr;
 
 import java.util.Map;
 
+import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -12,13 +13,11 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnContext;
 
 public class IoWnSessionService implements WnSessionService {
 
@@ -83,7 +82,6 @@ public class IoWnSessionService implements WnSessionService {
             }
             // HOME 特殊处理
             if ("home".equals(key)) {
-                envs.setv("PWD", en.getValue());
                 envs.setv("HOME", en.getValue());
             }
             // 如果是大写的变量，则全部保留，比如 "PATH" 或者 "APP-PATH"
@@ -96,7 +94,8 @@ public class IoWnSessionService implements WnSessionService {
             }
         }
 
-        se.envs(envs);
+        se.setEnvs(envs);
+        se.var("PWD", u.home());
 
         // 持久化
         io.writeJson(o, se, null);
@@ -105,7 +104,7 @@ public class IoWnSessionService implements WnSessionService {
         o.setv("du", duration);
         o.expireTime(o.lastModified() + duration);
         o.setv("me", u.name());
-        io.appendMeta(o, "^me|expi$");
+        io.set(o, "^me|expi$");
 
         // if (log.isDebugEnabled()) {
         // log.debugf("CreateWnSessionObj, %s", Json.toJson(o));
@@ -149,7 +148,8 @@ public class IoWnSessionService implements WnSessionService {
         return re;
     }
 
-    private void __update(WnSession se) {
+    @Override
+    public void save(WnSession se) {
         // 确保 Session 对象
         WnObj o = _check_seobj(se.id());
 
@@ -165,36 +165,6 @@ public class IoWnSessionService implements WnSessionService {
         o.lastModified(System.currentTimeMillis());
         o.expireTime(o.lastModified() + du);
         io.appendMeta(o, "^nano|lm|expi$");
-    }
-
-    @Override
-    public WnSession setEnvs(String seid, NutMap map) {
-        WnContext wc = Wn.WC();
-        WnSecurity secu = wc.getSecurity();
-        wc.setSecurity(null);
-        try {
-            WnSession se = check(seid);
-            se.envs().putAll(map);
-            __update(se);
-            return se;
-        }
-        finally {
-            wc.setSecurity(secu);
-        }
-    }
-
-    @Override
-    public WnSession removeEnvs(String seid, String... nms) {
-        WnSession se = this.check(seid);
-        for (String nm : nms)
-            se.envs().remove(nm);
-        __update(se);
-        return se;
-    }
-
-    @Override
-    public WnSession setEnv(String seid, String nm, String val) {
-        return setEnvs(seid, Lang.map(nm, val));
     }
 
     @Override
@@ -220,8 +190,8 @@ public class IoWnSessionService implements WnSessionService {
             return null;
         }
 
-        WnSession se = io.readJson(o, IoWnSession.class);
-        return se;
+        String json = io.readText(o);
+        return Json.fromJson(IoWnSession.class, json);
     }
 
     @Override

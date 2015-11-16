@@ -48,16 +48,16 @@ public class WnTest {
     public void test_normalize() {
         WnSystem sys = new WnSystem();
         sys.se = new IoWnSession();
-        sys.se.env("HOME", "/home/zozoh");
-        sys.se.env("PWD", "$HOME/workspace/test");
-        sys.se.env("ABC", "haha");
+        sys.se.var("HOME", "/home/zozoh");
+        sys.se.var("PWD", "$HOME/workspace/test");
+        sys.se.var("ABC", "haha");
         sys.me = new IoWnUsr();
         sys.me.home("/home/zozoh");
 
         assertEquals("/home/zozoh/bin", Wn.normalizePath("~/bin", sys));
         assertEquals("/home/zozoh/workspace/test/bin", Wn.normalizePath("./bin", sys));
-        assertEquals("cmd_echo 'haha'", Wn.normalizeStr("cmd_echo '$ABC'", sys.se.envs()));
-        assertEquals("~/abc", Wn.normalizeStr("~/abc", sys.se.envs()));
+        assertEquals("cmd_echo 'haha'", Wn.normalizeStr("cmd_echo '$ABC'", sys.se.vars()));
+        assertEquals("~/abc", Wn.normalizeStr("~/abc", sys.se.vars()));
     }
 
 }

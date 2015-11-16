@@ -75,6 +75,8 @@ public interface WnTree extends UnitTestable {
 
     List<WnObj> query(WnQuery q);
 
+    List<WnObj> getChildren(WnObj o,String name);
+
     long count(WnQuery q);
 
     boolean hasChild(WnObj p);

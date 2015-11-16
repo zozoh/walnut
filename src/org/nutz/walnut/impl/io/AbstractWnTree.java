@@ -29,7 +29,7 @@ import org.nutz.walnut.util.WnContext;
 public abstract class AbstractWnTree implements WnTree {
 
     private static final Pattern regex_id_mnt2 = Pattern.compile("^([\\d\\w]+)://(.+)$");
-    private static final Pattern regex_id_mnt3 = Pattern.compile("^([0-9a-v]{4,26}):([\\d\\w]+)://(.+)$");
+    private static final Pattern regex_id_mnt3 = Pattern.compile("^([0-9a-v]{4,26}):([\\d\\w]+):%%(.+)$");
 
     protected WnObj root;
 
@@ -86,7 +86,7 @@ public abstract class AbstractWnTree implements WnTree {
             // 分析出挂载点类型以及值
             String mntType = m.group(2);
             String val = m.group(3);
-            String[] ss = Strings.splitIgnoreBlank(val, "[/]");
+            String[] ss = Strings.splitIgnoreBlank(val, "[%]");
 
             // 返回挂载对象
             return __eval_mnt_obj(mo, mntType, ss, 0, ss.length);
@@ -121,14 +121,15 @@ public abstract class AbstractWnTree implements WnTree {
                                  int fromIndex,
                                  int toIndex) {
         // 根据类型得到挂载的实现
+        WnMounter wm = __check_mounter(mntType);
+        return wm.get(mimes, mo, paths, fromIndex, toIndex);
+    }
+
+    private WnMounter __check_mounter(String mntType) {
         WnMounter wm = mounters.get(mntType);
         if (null == wm)
-            throw Er.createf("e.io.mnt.unknownType",
-                             "%s://%s",
-                             mntType,
-                             Lang.concat(fromIndex, toIndex - fromIndex, '/', paths));
-
-        return wm.get(mimes, mo, paths, fromIndex, toIndex);
+            throw Er.createf("e.io.mnt.unknownType", mntType);
+        return wm;
     }
 
     protected abstract WnObj _get_my_node(String id);
@@ -736,6 +737,10 @@ public abstract class AbstractWnTree implements WnTree {
 
     @Override
     public WnObj createIfNoExists(WnObj p, String path, WnRace race) {
+        // 就是自己
+        if (".".equals(path))
+            return p;
+
         WnObj o = fetch(p, path);
         if (null == o)
             return create(p, path, race);
@@ -791,6 +796,26 @@ public abstract class AbstractWnTree implements WnTree {
             }
         });
         return list;
+    }
+
+    @Override
+    public List<WnObj> getChildren(WnObj o, String name) {
+        // 挂载点，用挂载点执行器来获取子
+        if (o.isMount()) {
+            Matcher m = regex_id_mnt2.matcher(o.mount());
+            if (m.find()) {
+                String mntType = m.group(1);
+                WnMounter wm = __check_mounter(mntType);
+                return wm.getChildren(mimes, o, name);
+            } else {
+                throw Er.create("e.io.mnt.invalid", o.mount());
+            }
+        }
+        // 否则，直接查询子
+        WnQuery q = Wn.Q.pid(o);
+        if (null != name)
+            q.setv("nm", name);
+        return query(q);
     }
 
     @Override

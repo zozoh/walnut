@@ -5,14 +5,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.ioc.Ioc;
-import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -43,13 +41,13 @@ public abstract class JvmExecutor {
     }
 
     protected WnObj getCurrentObj(WnSystem sys) {
-        String pwd = sys.se.envs().getString("PWD");
+        String pwd = sys.se.vars().getString("PWD");
         String path = Wn.normalizePath(pwd, sys);
         return sys.io.check(null, path);
     }
 
     protected WnObj getHome(WnSystem sys) {
-        String pwd = sys.se.envs().getString("HOME");
+        String pwd = sys.se.vars().getString("HOME");
         String path = Wn.normalizePath(pwd, sys);
         return sys.io.check(null, path);
     }
@@ -118,12 +116,16 @@ public abstract class JvmExecutor {
         }
         // 继续查找
         else {
-            WnQuery q = Wn.Q.pid(p.id()).setv("nm", nm);
-            io.each(q, new Each<WnObj>() {
-                public void invoke(int index, WnObj o, int length) {
-                    __find_last_level_objs_handle(io, ss, off + 1, list, o);
-                }
-            });
+            // WnQuery q = Wn.Q.pid(p.id()).setv("nm", nm);
+            // io.each(q, new Each<WnObj>() {
+            // public void invoke(int index, WnObj o, int length) {
+            // __find_last_level_objs_handle(io, ss, off + 1, list, o);
+            // }
+            // });
+            List<WnObj> children = io.getChildren(p, nm);
+            for (WnObj child : children) {
+                __find_last_level_objs_handle(io, ss, off + 1, list, child);
+            }
         }
     }
 

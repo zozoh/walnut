@@ -22,8 +22,7 @@
         // appName : 应用名称
         // me      : 用户标识
         // key     : 保存的键
-        // val     : 值
-        // 如果没有 val 表示获取
+        // val     : 值, undefined 表示获取，null 表示删除
         // 如果不支持 localStorage，则抛错
         local : function(appName, me,  key, val){
             if(!localStorage)
@@ -34,6 +33,13 @@
             // 设置
             if(!_.isUndefined(val)){
                 myConf[key] = val;
+                appConf[me] = myConf;
+                localStorage.setItem(appName, $z.toJson(appConf));
+                return myConf;
+            }
+            // 删除
+            else if(_.isNull(val)){
+                delete myConf[key];
                 appConf[me] = myConf;
                 localStorage.setItem(appName, $z.toJson(appConf));
                 return myConf;

@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.util.Disks;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -22,6 +23,8 @@ public class cmd_cd extends JvmExecutor {
         // 得到要进入的目录
         String ph = Wn.normalizeFullPath(vals[0], sys.se);
 
+        ph = Disks.getCanonicalPath(ph);
+
         // 检查这个目录是否存在
         WnObj o = sys.io.check(null, ph);
 
@@ -30,7 +33,7 @@ public class cmd_cd extends JvmExecutor {
         }
 
         // 修改会话中的设定
-        sys.se = sys.sessionService.setEnv(sys.se.id(), "PWD", o.path());
+        sys.se.var("PWD", o.path());
 
     }
 

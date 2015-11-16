@@ -114,6 +114,11 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public List<WnObj> getChildren(WnObj o, String name) {
+        return tree.getChildren(o, name);
+    }
+
+    @Override
     public long count(WnQuery q) {
         return tree.count(q);
     }
@@ -302,13 +307,7 @@ public class WnIoImpl implements WnIo {
         o.setv("_old_mnt", o.mount());
 
         // 如果是 unmount，则恢复到父节点的 mount
-        if (null == mnt) {
-            o.mount(o.parent().mount());
-        }
-        // 否则..
-        else {
-            o.setv("mnt", mnt);
-        }
+        o.setv("mnt", mnt);
         set(o, "^mnt$");
 
         // 调用钩子

@@ -43,7 +43,7 @@ public abstract class WxUtil {
         String pnb = params.get("pnb");
         if (Strings.isBlank(pnb)) {
             // 获取当前目录
-            String pwd = sys.se.envs().getString("PWD");
+            String pwd = sys.se.vars().getString("PWD");
             String path = Wn.normalizePath(pwd, sys);
             WnObj oCurrent = sys.io.check(null, path);
             oConf = sys.io.fetch(oCurrent, "wxconf");

@@ -1,5 +1,6 @@
 package org.nutz.walnut.api.usr;
 
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
 
 public interface WnSession {
@@ -18,11 +19,15 @@ public interface WnSession {
      */
     WnSession id(String id);
 
-    NutMap envs();
+    WnSession setEnvs(NutMap envs);
 
-    WnSession envs(NutMap envs);
+    NutMap vars();
 
-    WnSession env(String nm, Object val);
+    WnSession var(String nm, Object val);
+
+    Object var(String nm);
+
+    void persist(String... nms);
 
     String me();
 
@@ -32,4 +37,5 @@ public interface WnSession {
 
     WnSession clone();
 
+    NutMap toMapForClient(JsonFormat fmt);
 }

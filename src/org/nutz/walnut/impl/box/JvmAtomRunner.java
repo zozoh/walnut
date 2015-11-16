@@ -77,7 +77,7 @@ public class JvmAtomRunner {
     public void __run(String cmdLine) {
         // 准备标准输出输出
         JvmBoxOutput boxErr = new JvmBoxOutput(err);
-        WnSession se = bc.session.clone();
+        WnSession se = bc.session;
         WnUsr me = bc.me.clone();
 
         // 标记状态

@@ -1,13 +1,13 @@
 package org.nutz.walnut.web.bean;
 
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnSession;
 
 public class WnApp {
 
     private String name;
 
-    private WnSession session;
+    private NutMap session;
 
     private WnObj obj;
 
@@ -19,11 +19,11 @@ public class WnApp {
         this.name = name;
     }
 
-    public WnSession getSession() {
+    public NutMap getSession() {
         return session;
     }
 
-    public void setSession(WnSession session) {
+    public void setSession(NutMap session) {
         this.session = session;
     }
 

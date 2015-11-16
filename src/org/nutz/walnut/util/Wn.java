@@ -166,12 +166,16 @@ public abstract class Wn {
     public static String normalizePath(String ph, WnSession se) {
         if (Strings.isBlank(ph))
             return ph;
+        // 主目录开头
         if (ph.startsWith("~")) {
-            ph = se.envs().getString("HOME") + ph.substring(1);
-        } else if (ph.startsWith("./")) {
-            ph = se.envs().getString("PWD", "") + ph.substring(1);
+            ph = se.vars().getString("HOME") + ph.substring(1);
         }
-        return normalizeStr(ph, se.envs());
+        // 当前目录开头
+        else if (ph.startsWith("./")) {
+            ph = se.vars().getString("PWD", "") + ph.substring(1);
+        }
+
+        return normalizeStr(ph, se.vars());
     }
 
     public static String normalizeFullPath(String ph, WnSystem sys) {
@@ -182,10 +186,29 @@ public abstract class Wn {
         if (Strings.isBlank(ph))
             return ph;
         String path = normalizePath(ph, se);
-        if (!path.startsWith("/")) {
-            return se.envs().getString("PWD", "") + "/" + path;
+        String pwd = se.vars().getString("PWD", "");
+
+        String re;
+
+        // 如果指明就是当前路径
+        if (".".equals(path)) {
+            re = pwd;
         }
-        return path;
+        // 稍微复杂点的路径
+        else {
+            if (path.endsWith("/.")) {
+                re = path.substring(0, path.length() - 2);
+            } else {
+                re = path;
+            }
+
+            // 组合上当前目录
+            if (!path.startsWith("/")) {
+                re = Wn.appendPath(pwd, path);
+            }
+        }
+
+        return re;
     }
 
     public static String normalizeStr(String str, NutMap env) {

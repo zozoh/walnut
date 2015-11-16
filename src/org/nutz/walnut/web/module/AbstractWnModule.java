@@ -142,7 +142,7 @@ public abstract class AbstractWnModule {
 
     protected WnObj _find_app_home(String appName) {
         String rpath = appName.replace('.', '/');
-        String appPaths = Wn.WC().checkSE().envs().getString("APP_PATH");
+        String appPaths = Wn.WC().checkSE().vars().getString("APP_PATH");
         String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
         for (String base : bases) {
             String ph = Wn.appendPath(base, rpath);

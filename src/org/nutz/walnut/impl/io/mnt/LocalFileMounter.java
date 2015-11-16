@@ -1,6 +1,8 @@
 package org.nutz.walnut.impl.io.mnt;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,14 +30,15 @@ public class LocalFileMounter implements WnMounter {
             throw Er.create("e.io.mnt.local.invalid", mnt);
         }
         String mntPath = m.group(2);
-        File d = new File(Disks.normalize(mntPath));
-        if (!d.exists()) {
+        File base = new File(Disks.normalize(mntPath));
+        if (!base.exists()) {
             throw Er.create("e.io.mnt.local.noexists", mnt);
         }
 
         // 从父对象开始循环
         WnObj p = mo;
         WnObj o = p;
+        File d = base;
         for (int i = fromIndex; i < toIndex; i++) {
             // 获得文件对象
             String nm = paths[i];
@@ -44,31 +47,7 @@ public class LocalFileMounter implements WnMounter {
             if (!f.exists())
                 return null;
 
-            // 生成虚拟对象
-            String rph = Disks.getRelativePath(d, f);
-            o = new WnBean();
-            o.id(String.format("%s:file://%s", mo.id(), rph));
-
-            o.name(f.getName());
-            if (f.isFile())
-                o.race(WnRace.FILE);
-            else
-                o.race(WnRace.DIR);
-            
-            Wn.set_type(mimes, o, null);
-            o.setParent(p);
-
-            o.sha1("-no-sha1-");
-            o.data("file://" + f.getAbsolutePath());
-            o.len(f.length());
-
-            o.createTime(f.lastModified());
-            o.lastModified(f.lastModified());
-
-            o.mode(0750);
-            o.creator(mo.creator()).group(mo.creator()).mender(mo.creator());
-
-            o.mount(p.mount() + "/" + o.name());
+            o = __gen_obj(mimes, p, f);
 
             // 作为下一圈的父
             p = o;
@@ -76,6 +55,91 @@ public class LocalFileMounter implements WnMounter {
         }
         // 返回
         return o;
+    }
+
+    private WnObj __gen_obj(MimeMap mimes, WnObj p, File f) {
+        WnObj o;
+        // 计算虚拟 ID
+        String id = p.id();
+        // 后面叠加自己的路径
+        if (id.indexOf(":file:") > 0) {
+            id = id + "%" + f.getName();
+        }
+        // 第一个虚 ID，添加前缀
+        else {
+            id = id + ":file:%%" + f.getName();
+        }
+
+        // 生成虚拟对象
+
+        o = new WnBean();
+        o.id(id);
+
+        o.name(f.getName());
+        if (f.isFile())
+            o.race(WnRace.FILE);
+        else
+            o.race(WnRace.DIR);
+
+        Wn.set_type(mimes, o, null);
+        o.setParent(p);
+
+        o.sha1("-no-sha1-");
+        o.data("file://" + f.getAbsolutePath());
+        o.len(f.length());
+
+        o.createTime(f.lastModified());
+        o.lastModified(f.lastModified());
+
+        o.mode(0750);
+        o.creator(p.creator()).group(p.creator()).mender(p.creator());
+
+        o.mount(p.mount() + "/" + o.name());
+        o.mountRootId(p.mountRootId());
+        return o;
+    }
+
+    @Override
+    public List<WnObj> getChildren(MimeMap mimes, WnObj mo, String name) {
+        String mnt = mo.mount();
+        Matcher m = regex_id_mnt2.matcher(mnt);
+        if (!m.find()) {
+            throw Er.create("e.io.mnt.local.invalid", mnt);
+        }
+        String mntPath = m.group(2);
+        File d = new File(Disks.normalize(mntPath));
+        if (!d.exists()) {
+            throw Er.create("e.io.mnt.local.noexists", mnt);
+        }
+
+        if (!d.isDirectory()) {
+            throw Er.create("e.io.mnt.local.onlyDirHasChildren", mnt);
+        }
+
+        Pattern ptn = null;
+
+        if (null != name) {
+            // 正则
+            if (name.startsWith("^")) {
+                ptn = Pattern.compile(name);
+            }
+            // 通配符
+            else if (name.contains("*")) {
+                ptn = Pattern.compile("^" + name.replace("*", ".*"));
+            }
+        }
+
+        // 读取
+        File[] fs = d.listFiles();
+        List<WnObj> reList = new ArrayList<WnObj>(fs.length);
+        for (File f : fs) {
+            String nm = f.getName();
+            if (null == name || nm.equals(name) || (null != ptn && ptn.matcher(nm).find())) {
+                reList.add(__gen_obj(mimes, mo, f));
+            }
+        }
+
+        return reList;
     }
 
 }

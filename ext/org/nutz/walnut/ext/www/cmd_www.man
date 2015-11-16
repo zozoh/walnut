@@ -1,0 +1,19 @@
+# 命令简介 
+
+    `www` 用来将一个对象转换成可访问的网页形式，并将网页代码输出到标准输出
+    
+
+# 用法
+
+    www [-in 文件对象] [-type 文件类型] [-fnm 指定的文件名]
+    
+# 示例
+
+    # 转换一个对象 
+    $:> www -in ~/mysite/abc.wnml
+    
+    # 从一个管线转换对象
+    $> cat ~/mysite/abc.wnml | www -type wnml
+        
+
+    

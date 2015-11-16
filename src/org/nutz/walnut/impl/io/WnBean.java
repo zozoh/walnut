@@ -472,6 +472,18 @@ public class WnBean extends NutMap implements WnObj {
         return this;
     }
 
+    public String mountRootId() {
+        String mrid = getString("mrid");
+        if (null == mrid)
+            return this.isMount() ? id() : null;
+        return mrid;
+    }
+
+    public WnObj mountRootId(String mrid) {
+        setv("mrid", mrid);
+        return this;
+    }
+
     @Override
     public boolean isMount() {
         String mnt = mount();

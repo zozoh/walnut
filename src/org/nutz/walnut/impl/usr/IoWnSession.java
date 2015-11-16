@@ -1,5 +1,7 @@
 package org.nutz.walnut.impl.usr;
 
+import org.nutz.json.JsonField;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
@@ -13,7 +15,16 @@ public class IoWnSession implements WnSession {
 
     private String id;
 
+    /**
+     * 存放需要持久化的变量
+     */
     private NutMap envs;
+
+    /**
+     * 存放临时的变量
+     */
+    @JsonField(ignore = true)
+    private NutMap tmp_vars;
 
     private String me;
 
@@ -41,30 +52,55 @@ public class IoWnSession implements WnSession {
     }
 
     @Override
-    public NutMap envs() {
-        if (null == envs) {
+    public NutMap vars() {
+        if (null == tmp_vars) {
             synchronized (this) {
-                if (null == envs) {
-                    envs = new NutMap();
+                if (null == tmp_vars) {
+                    tmp_vars = new NutMap().attach(envs);
                 }
             }
         }
-        return envs;
+        return tmp_vars;
     }
 
     @Override
-    public WnSession envs(NutMap envs) {
+    public WnSession setEnvs(NutMap envs) {
         this.envs = envs;
+
+        if (null == this.tmp_vars)
+            this.tmp_vars = new NutMap();
+
+        this.tmp_vars.attach(this.envs);
+
+        return this;
+    }
+
+    public void setTmp_vars(NutMap tmp_vars) {
+        if (null == this.tmp_vars) {
+            this.tmp_vars = new NutMap();
+        }
+        if (null != this.envs) {
+            this.tmp_vars.attach(this.envs);
+        }
+    }
+
+    @Override
+    public WnSession var(String nm, Object val) {
+        vars().setv(nm, val);
         return this;
     }
 
     @Override
-    public WnSession env(String nm, Object val) {
-        if (null == envs) {
-            envs = new NutMap();
+    public Object var(String nm) {
+        return vars().get(nm);
+    }
+
+    @Override
+    public void persist(String... nms) {
+        for (String nm : nms) {
+            Object val = this.tmp_vars.remove(nm);
+            this.envs.setOrRemove(nm, val);
         }
-        envs.setv(nm, val);
-        return this;
     }
 
     @Override
@@ -92,7 +128,22 @@ public class IoWnSession implements WnSession {
         se.grp = grp;
         se.envs = new NutMap();
         se.envs.putAll(envs);
+        se.tmp_vars = new NutMap().attach(se.envs);
+        if (null != tmp_vars)
+            se.tmp_vars.putAll(tmp_vars);
         return se;
     }
 
+    public NutMap toMapForClient(JsonFormat fmt) {
+        NutMap map = new NutMap();
+        map.put("id", this.id);
+        map.put("me", this.me);
+        map.put("grp", this.grp);
+
+        NutMap myEnvs = new NutMap();
+        myEnvs.putAll(this.envs);
+        myEnvs.putAll(this.tmp_vars);
+        map.put("envs", myEnvs);
+        return map;
+    }
 }

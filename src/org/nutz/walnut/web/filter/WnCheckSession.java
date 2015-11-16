@@ -23,7 +23,7 @@ import org.nutz.walnut.util.WnContext;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class WnCheckSession implements ActionFilter {
-    
+
     protected boolean needSession;
 
     @Override
@@ -46,12 +46,16 @@ public class WnCheckSession implements ActionFilter {
             wc.SE(se);
             wc.me(se.me(), se.group());
 
-            // 设置钩子
+            // 读取服务类之类的
             WnIo io = ioc.get(WnIo.class, "io");
             WnBoxService boxes = ioc.get(WnBoxService.class, "boxService");
             WnUsrService usrs = sess.usrs();
             WnUsr me = usrs.check(se.me());
 
+            // 给当前 Session 设置默认的当前路径
+            se.var("PWD", me.home());
+
+            // 生成沙盒上下文
             WnBoxContext bc = new WnBoxContext();
             bc.io = io;
             bc.me = me;
@@ -59,6 +63,7 @@ public class WnCheckSession implements ActionFilter {
             bc.usrService = usrs;
             bc.sessionService = sess;
 
+            // 设置钩子上下文
             WnHookContext hc = new WnHookContext(boxes, bc);
             hc.io = io;
             hc.me = me;
