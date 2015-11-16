@@ -8,9 +8,12 @@
 <script class="wn-datasource" name="list">
 	echo "[{name:'AA', val:100},{name:'BB', val:80}]"
 </script>
+<script class="wn-datasource" name="zzh" type="string">
+    echo "zzh is great!!!"
+</script>
 </head>
 <body>
-	<h1>${pos.x} - ${pos.y}</h1>
+	<h1>${pos.x} - ${pos.y} : ${zzh}</h1>
 	<include path="lib/tt.txt"/>
 	<ul>
 		<each var="o" items="list">

@@ -1,4 +1,8 @@
 define(function (require, exports, module) {
+seajs.on("error", function(data){
+    console.log("seajs error", data)
+});
+
 var Wn = {
 //=======================================================================
 // 获取当前的 app 的通用方法，不建议 UI 们直接获取 window._app
@@ -65,6 +69,8 @@ logpanel : function(cmdText, maskConf, callback){
 /*................................................................
 # 执行命令的 options 是一组回调
 {
+    processData : false  // 调用结束回调的时候，是否先解析数据
+    dataType : "json"    // 如果 processData 为 true 时的数据类型，默认JSON
     async    : true      // 指明同步异步，默认 true
     // 当得到返回的回调
     msgShow  : {c}F(line){..}      // 显示一行输出
@@ -203,10 +209,21 @@ exec : function (str, options) {
             // 最后确保通知了显示流结束
             $z.invoke(options, "msgEnd", [str], context);
             
+            var re = oReq._content;
+
+            // 执行回调前数据处理
+            if(options.processData){
+                if("json" == options.dataType){
+                    re = $z.fromJson(re);
+                    // 检查是不是 session 过期了，如果过期了，直接换地址
+                    $z.checkSessionNoExists(re);
+                }
+            }
+
             // 调用完成后的回调
             var funcName = oReq.status == 200 ? "done" : "fail";
-            $z.invoke(options, funcName,   [oReq._content], context);
-            $z.invoke(options, "complete", [oReq._content], context);
+            $z.invoke(options, funcName,   [re], context);
+            $z.invoke(options, "complete", [re], context);
         }
     };
     oReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");

@@ -65,6 +65,7 @@ module.exports = ZUI.def("ui.layout", {
 
                 (function(index, uiType){
                     new SubUI(uiConf).render(function(){
+                        //console.log("layout defer:", index, uiType);
                         UI.defer_report(index, uiType);
                     });
                 })(index, uiTypes[index]);

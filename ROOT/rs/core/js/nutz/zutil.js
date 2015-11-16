@@ -275,6 +275,12 @@
             // 执行上传
             xhr.send(opt.file);
         },
+        // 对于 AJAX 请求的返回对象，进行检查，如果发现是过期 session 报的错，直接踢回登录页面
+        checkSessionNoExists : function(re, loginUrl){
+            if(re && !re.ok && "e.se.noexists" == re.errCode){
+                window.location = loginUrl || "/";
+            }
+        },
         // 深层遍历一个给定的 Object，如果对象的字段有类似 "function(...}" 的字符串，将其变成函数对象 
         evalFunctionField : function(obj, memo){
             if(!memo)
@@ -382,9 +388,10 @@
                 if(_.isFunction(execFunc)){
                     execFunc.call(context, str, {
                         async    : async,
+                        dataType    : "json",
+                        processData : true,
                         complete : function(re){
-                            var objs = $z.fromJson(re);
-                            callback.apply(context, [objs]);
+                            callback.apply(context, [re]);
                         }
                     });
                 }else{

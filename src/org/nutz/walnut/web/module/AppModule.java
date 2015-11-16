@@ -45,12 +45,13 @@ import org.nutz.walnut.web.view.WnObjDownloadView;
 
 @IocBean
 @At("/a")
-@Filters(@By(type = WnCheckSession.class))
+@Filters(@By(type = WnCheckSession.class, args = {"true"}))
 public class AppModule extends AbstractWnModule {
 
     @Inject("java:$conf.get('page-app', 'app')")
     private String page_app;
 
+    @Filters(@By(type = WnCheckSession.class))
     @At("/open/**")
     @Fail("jsp:jsp.show_text")
     public View open(String str, @Param("m") boolean meta) throws UnsupportedEncodingException {
@@ -188,6 +189,7 @@ public class AppModule extends AbstractWnModule {
         WnObj o = io.check(oAppHome, rsName);
         String text = null;
 
+        // TODO 这个木用，应该删掉，先去掉界面上那坨 var xxx = 就好
         if (auto_unwrap) {
             text = io.readText(o);
             Matcher m = Pattern.compile("^var +\\w+ += *([\\[{].+[\\]}]);$", Pattern.DOTALL)

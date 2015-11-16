@@ -218,6 +218,7 @@ return ZUI.def("ui.osearch", {
                 var jq = UI.setup.jqs[index];
                 var key = UI.setup.keys[index];
                 (function(index, uiType){
+                    //console.log("osearch defer:", index, uiType);
                     var _ui = (new SubUI(conf));
                     UI["_"+key] = _ui;
                     _ui.render(function(){
@@ -273,6 +274,7 @@ return ZUI.def("ui.osearch", {
             // 显示按钮 
             seajs.use("ui/menu/menu", function(UIMenu){
                 new UIMenu(menuC).render(function(){
+                    //console.log("osearch defer: ui/menu/menu");
                     UI.defer_report(UI.setup.uiTypes.length, "ui/menu/menu");
                 });
             });
@@ -329,6 +331,9 @@ return ZUI.def("ui.osearch", {
                     width : w_sky - w_action + (pad/2)
                 }); 
             }
+            // 确保被 resize
+            if(UI._filter)
+                UI._filter.resize();
         }
         
 
@@ -337,7 +342,6 @@ return ZUI.def("ui.osearch", {
         var jList = UI.arena.children(".osearch-list");
         var lH = UI.arena.height() - jSky.outerHeight() - jPager.outerHeight();
         jList.css("height", lH);
-
     },
     //...............................................................
     getData : function(){

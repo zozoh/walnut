@@ -71,6 +71,7 @@ var on_click_arena = function () {
 return ZUI.def("ui.console", {
     dom: "ui/console/console.html",
     css: "ui/console/console.css",
+    i18n : "ui/console/i18n/{{lang}}.js",
     init: function (options) {
         var UI  = this;
         var app = Wn.app();
@@ -79,11 +80,12 @@ return ZUI.def("ui.console", {
         // 消费原本的 PWD
         var oldPWD = UI.local("PWD");
         if(oldPWD){
-            console.log("oldPWD", oldPWD)
+            //console.log("oldPWD", oldPWD)
             UI.local("PWD", null);
             app.session.envs.PWD = oldPWD;
-        }else{
-            console.log("oldPWD nil")
+        }
+        else{
+            //console.log("oldPWD nil")
         }
 
         UI.listenModel("screen:clear", UI.clearScreen);
@@ -96,7 +98,7 @@ return ZUI.def("ui.console", {
         // 如果页面重新加载
         window.addEventListener("beforeunload", function (event) {
             var PWD = UI.app.session.envs.PWD;
-            event.returnValue = UI.msg("console.unload") + " : " + PWD;
+            event.returnValue = UI.msg("console.unload") + " : \n" + PWD;
             UI.local("PWD", PWD);
             return event.returnValue;
         });

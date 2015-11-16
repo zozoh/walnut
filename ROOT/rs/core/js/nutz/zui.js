@@ -227,13 +227,13 @@ define(function (require, exports, module) {
                         // 触发事件
                         $z.invoke(UI.options, "on_redraw", [], UI);
                         UI.trigger("ui:redraw", UI);
-                    }, 10);
 
-                    // 因为重绘了，看看有木有必要重新计算尺寸，这里用 setTimeout 确保 resize 是最后执行的指令
-                    // TODO 这里可以想办法把 resize 的重复程度降低
-                    window.setTimeout(function(){
-                        UI.resize(true);
-                    }, 100);
+                        // 因为重绘了，看看有木有必要重新计算尺寸，这里用 setTimeout 确保 resize 是最后执行的指令
+                        // TODO 这里可以想办法把 resize 的重复程度降低
+                        window.setTimeout(function(){
+                            UI.resize(true);
+                        }, 0);
+                    }, 0);
                 };
                 // 定义后续处理
                 var do_render = function () {
@@ -336,7 +336,6 @@ define(function (require, exports, module) {
         // 修改 UI 的大小
         resize: function (deep) {
             var UI = this;
-
             // 如果是选择自适应
             if (UI.options.fitself) {
                 return;
@@ -783,6 +782,9 @@ define(function (require, exports, module) {
                         else{
                             reObj = re;
                         }
+
+                        // 判断是否是过期
+                        $z.checkSessionNoExists(reObj);
                         
                         // 计入缓存
                         ZUI._app_rs[rs] = reObj;
