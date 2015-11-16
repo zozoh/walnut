@@ -45,15 +45,15 @@ public class WnObjMetaOutputStream extends OutputStream {
                 // 追加模式
                 if (append) {
                     for (String key : newObj.keySet()) {
-                        // ID 不能改
-                        if ("id".equals(key)) {
+                        // id 等是绝对不可以改的
+                        if (key.matches("^(ph|id|pid|race|d[0-9])$")) {
                             continue;
                         }
                         // 获取值
                         Object v = newObj.get(key);
                         // 不能为空
                         if (null == v
-                            && key.matches("^(nm|tp|ph|race|pid|len|sha1|data|nano|ct|lm|c|m|g|md|d[0-9])$")) {
+                            && key.matches("^(nm|tp|pid|len|sha1|data|ct|lm|c|m|g|md)$")) {
                             continue;
                         }
                         // 计入对象
@@ -65,15 +65,15 @@ public class WnObjMetaOutputStream extends OutputStream {
                 else {
                     // 循环对象
                     for (String key : o.keySet()) {
-                        // ID 不能改
-                        if ("id".equals(key)) {
+                        // id 等是绝对不可以改的
+                        if (key.matches("^(ph|id|pid|race|d[0-9])$")) {
                             continue;
                         }
                         // 获取值
                         Object v = newObj.get(key);
                         // 不能为空
                         if (null == v
-                            && key.matches("^(nm|tp|ph|race|pid|len|sha1|data|nano|ct|lm|c|m|g|md|d[0-9])$")) {
+                            && key.matches("^(nm|tp|pid|len|sha1|data|ct|lm|c|m|g|md)$")) {
                             continue;
                         }
                         // 计入对象
@@ -88,6 +88,7 @@ public class WnObjMetaOutputStream extends OutputStream {
                             o.setv(key, v);
                         }
                     }
+
                 }
             }
 

@@ -1,8 +1,4 @@
 define(function (require, exports, module) {
-seajs.on("error", function(data){
-    console.log("seajs error", data)
-});
-
 var Wn = {
 //=======================================================================
 // 获取当前的 app 的通用方法，不建议 UI 们直接获取 window._app

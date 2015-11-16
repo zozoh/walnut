@@ -32,8 +32,8 @@ public class WnBean extends NutMap implements WnObj {
         NutMap map = new NutMap();
         for (Map.Entry<String, Object> en : this.entrySet()) {
             String key = en.getKey();
-            // id 是绝对不可以的
-            if ("id".equals(key)) {
+            // id 等是绝对不可以改的
+            if (key.matches("^(ph|id|race|d[0-9])$")) {
                 continue;
             }
             // 如果 regex 为空，不是 "__" 开头（表隐藏），则全要

@@ -57,3 +57,7 @@
 	$:> echo '[{pos : {x:100,y:80}},{}]' | json -get "0.pos.x"
 	100
 	
+	# 从复杂列表里取值
+    $:> echo '{obj: [{pos : {x:100,y:80}},{}]}' | json -get "obj[0].pos.x"
+    100
+	
