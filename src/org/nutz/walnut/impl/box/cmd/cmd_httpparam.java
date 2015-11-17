@@ -3,10 +3,9 @@ package org.nutz.walnut.impl.box.cmd;
 import java.net.URLDecoder;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.lang.segment.Segments;
-import org.nutz.lang.util.Context;
+import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -38,7 +37,7 @@ public class cmd_httpparam extends JvmExecutor {
 
         // 解析
         String[] ss = Strings.splitIgnoreBlank(str, "&");
-        Context c = Lang.context();
+        NutMap c = new NutMap();
 
         for (String s : ss) {
             String des = URLDecoder.decode(s, "UTF-8");
@@ -46,20 +45,20 @@ public class cmd_httpparam extends JvmExecutor {
             if (pos > 0) {
                 String key = des.substring(0, pos);
                 String val = des.substring(pos + 1);
-                c.set(key, val);
+                c.setv(key, val);
             } else {
-                c.set(des, "");
+                c.setv(des, "");
             }
         }
 
         // 输出
         String out = params.get("out");
         if (!Strings.isBlank(out)) {
-            sys.out.println(Segments.replace(out, c));
+            sys.out.println(Tmpl.exec(out, c));
         }
         // 否则就全部输出一个 JSON
         else {
-            sys.out.println(Json.toJson(c.getInnerMap()));
+            sys.out.println(Json.toJson(c));
         }
 
     }

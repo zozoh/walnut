@@ -17,8 +17,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.meta.Pair;
-import org.nutz.lang.segment.Segments;
-import org.nutz.lang.util.Context;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -193,8 +192,7 @@ public class HttpApiModule extends AbstractWnModule {
 
         // 解析命令
         String cmdPattern = io.readText(oApi);
-        Context c = Lang.context(oReq.toMap(null));
-        String cmdText = Segments.replace(cmdPattern, c);
+        String cmdText = Tmpl.exec(cmdPattern, oReq);
 
         // 执行命令
         WnBox box = boxes.alloc(0);
@@ -274,7 +272,7 @@ public class HttpApiModule extends AbstractWnModule {
             if (key.startsWith("http-header-")) {
                 String nm = key.substring("http-header-".length()).toUpperCase();
                 String val = Strings.trim(oApi.getString(key));
-                val = Segments.replace(val, oReq);
+                val = Tmpl.exec(val, oReq);
                 // 指定了响应内容
                 if (nm.equals("CONTENT-TYPE")) {
                     mimeType = val;
