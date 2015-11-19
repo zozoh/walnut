@@ -117,11 +117,23 @@ public class MongoWnTree extends AbstractWnTree {
             // 提炼字段
             for (Map.Entry<String, Object> en : map.entrySet()) {
                 String key = en.getKey();
+                Object val = en.getValue();
+                boolean unset = key.startsWith("!");
+                if (unset)
+                    key = key.substring(1);
+
                 // ID 字段不能被修改
-                if ("id".equals(key))
+                if ("id".equals(key)) {
                     continue;
+                }
+                // 如果为空，则表示 unset
+                if (unset) {
+                    doc.unset(key);
+                }
                 // 其他的字段
-                doc.set(key, en.getValue());
+                else {
+                    doc.set(key, val);
+                }
             }
 
             // 执行更新

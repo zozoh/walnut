@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>500 : ${url}</title>
+</head>
+<body>
+    <h1>500 Server Error: ${url}</h1>
+    <pre>${msg?Server Error}</pre>
+</body>
+</html>

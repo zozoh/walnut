@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>404 : ${url}</title>
+</head>
+<body>
+    <h1>404 NotFound : ${url}</h1>
+    <pre>${msg}</pre>
+</body>
+</html>

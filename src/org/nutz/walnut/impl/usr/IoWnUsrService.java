@@ -152,7 +152,7 @@ public class IoWnUsrService implements WnUsrService {
         io.appendMeta(oMe, "^role$");
 
         // 创建组的主目录
-        final String phHome = "root".equals(u.name()) ? "/root" : "/home/" + u.name();
+        final String phHome = Wn.getUsrHome(u.name());
         Wn.WC().su(u, new Atom() {
             public void run() {
                 Wn.WC().me(u.name(), u.group());
@@ -225,7 +225,7 @@ public class IoWnUsrService implements WnUsrService {
 
         return u;
     }
-    
+
     @Override
     public boolean checkPassword(String nm, String pwd) {
         __assert(null, nm, "passwd");
@@ -237,7 +237,7 @@ public class IoWnUsrService implements WnUsrService {
         if (u.salt() == null) { // 没有加盐? 加盐之
             u = setPassword(nm, u.password());
         }
-        return Lang.sha1(pwd+u.salt()).equals(u.password());
+        return Lang.sha1(pwd + u.salt()).equals(u.password());
     }
 
     @Override

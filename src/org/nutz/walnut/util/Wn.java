@@ -159,6 +159,10 @@ public abstract class Wn {
         return p.matcher(s).matches();
     }
 
+    public static String getUsrHome(String usr) {
+        return "root".equals(usr) ? "/root" : "/home/" + usr;
+    }
+
     public static String normalizePath(String ph, WnSystem sys) {
         return normalizePath(ph, sys.se);
     }

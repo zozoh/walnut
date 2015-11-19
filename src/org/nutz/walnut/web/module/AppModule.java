@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,11 +17,9 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.lang.segment.Segment;
-import org.nutz.lang.segment.Segments;
 import org.nutz.lang.stream.StringInputStream;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.Callback;
-import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
@@ -32,7 +29,6 @@ import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.view.JspView;
-import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
@@ -54,20 +50,8 @@ public class AppModule extends AbstractWnModule {
     @Filters(@By(type = WnCheckSession.class))
     @At("/open/**")
     @Fail("jsp:jsp.show_text")
-    public View open(String str, @Param("m") boolean meta) throws UnsupportedEncodingException {
-        str = Strings.trim(str);
-        str = URLDecoder.decode(str, "UTF-8");
-
-        // 分析
-        int pos = str.indexOf(':');
-        String appName;
-        if (pos > 0) {
-            appName = str.substring(0, pos);
-            str = Strings.trim(str.substring(pos + 1));
-        } else {
-            appName = str;
-            str = null;
-        }
+    public View open(String appName, @Param("ph") String path, @Param("m") boolean meta)
+            throws UnsupportedEncodingException {
 
         // 如果 appName 没有名称空间，补上 "wn"
         if (appName.indexOf('.') < 0) {
@@ -82,19 +66,11 @@ public class AppModule extends AbstractWnModule {
 
         // 得到要处理的对象
         WnObj o = null;
-        if (!Strings.isEmpty(str)) {
-            str = URLDecoder.decode(str, "UTF-8");
-            o = Wn.checkObj(io, se, str);
+        if (!Strings.isBlank(path)) {
+            String a_path = Wn.normalizePath(path, se);
+            o = io.check(null, a_path);
             if (meta)
                 o.setRWMeta(true);
-            // 看看是否需要重定向一下
-            if (!str.startsWith("~") && !str.startsWith("/") && !str.startsWith("id:")) {
-                String url = "/a/open/" + appName + ":id:" + o.id();
-                if (meta || o.isRWMeta()) {
-                    url += "?m=true";
-                }
-                return new ServerRedirectView(url);
-            }
         }
 
         // 生成 app 的对象
@@ -105,9 +81,6 @@ public class AppModule extends AbstractWnModule {
 
         // 这个是 app 的 JSON 描述
         String appJson = Json.toJson(app, JsonFormat.forLook().setQuoteName(true));
-
-        // 临时设置一下当前目录
-        se.var("PWD", oAppHome.path());
 
         // 这个是要输出的模板
         String tmpl;
@@ -124,7 +97,6 @@ public class AppModule extends AbstractWnModule {
         }
 
         // 分析模板
-        Segment seg = Segments.create(tmpl);
 
         // 如果存在 `init_context` 文件，则执行，将其结果合并到渲染上下文中
         NutMap map = null;
@@ -141,17 +113,17 @@ public class AppModule extends AbstractWnModule {
             title = o.name() + " : " + title;
 
         // 填充模板占位符
-        Context c = Lang.context();
-        c.set("title", title);
-        c.set("rs", conf.get("app-rs"));
-        c.set("appName", appName);
-        c.set("app", appJson);
-        c.set("appClass", appName.replace('.', '_').toLowerCase());
+        NutMap c = new NutMap();
+        c.put("title", title);
+        c.put("rs", conf.get("app-rs"));
+        c.put("appName", appName);
+        c.put("app", appJson);
+        c.put("appClass", appName.replace('.', '_').toLowerCase());
         if (null != map)
             c.putAll(map);
 
         // 渲染输出
-        return new ViewWrapper(new JspView("jsp." + page_app), seg.render(c));
+        return new ViewWrapper(new JspView("jsp." + page_app), Tmpl.exec(tmpl, c));
     }
 
     private String __find_tmpl(String appName, WnObj oAppHome) {

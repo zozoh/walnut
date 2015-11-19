@@ -31,8 +31,8 @@ tags:
 ```
 # 下述元数据将可以作用于目录或网页上
 
-www       : "ROOT"       # 指明 www 访问的路径名。 通常只有顶级目录才有这个属性
-www_main  : [..]         # 指明目录下默认的主页，默认为 ["index.wnml", "index.html"]
+www        : "ROOT"       # 指明 www 访问的路径名。 通常只有顶级目录才有这个属性
+www_entry  : [..]         # 指明目录下默认的主页，默认为 ["index.wnml", "index.html"]
 
 ```
 

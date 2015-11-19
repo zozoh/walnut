@@ -1,12 +1,13 @@
 define(function(require, exports, module) {
 
 	var UI  = require("ui/wedit/wedit");
-	var Mod = require("wn/walnut.obj"); 
+	var Wn  = require("wn/util"); 
 	
 	function init(){
         new UI({
             $pel  : $(document.body),
-            model : new Mod(window._app)
+            exec  : Wn.exec,
+            app   : Wn.app()
         }).render();
     }
 

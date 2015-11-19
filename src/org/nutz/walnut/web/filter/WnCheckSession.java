@@ -37,22 +37,37 @@ public class WnCheckSession implements ActionFilter {
         this.ajax = ajax;
     }
 
+    public static WnSession testSession(WnContext wc, Ioc ioc) {
+        // 如果上下文已经有了 Session，就直接返回
+        WnSession se = wc.SE();
+        if (null != se)
+            return se;
+
+        // 获取 SessionID
+        String seid = wc.SEID();
+        if (null == seid)
+            return null;
+
+        // 看看有没有合法的 Session 对象
+        return _sess(ioc).fetch(seid);
+
+    }
+
+    private static WnSessionService _sess(Ioc ioc) {
+        return ioc.get(WnSessionService.class, "sessionService");
+    }
+
     @Override
     public View match(ActionContext ac) {
 
         WnContext wc = Wn.WC();
-        String seid = wc.SEID();
         Ioc ioc = ac.getIoc();
 
-        // 如果有会话 ID，则检查一下有效性
-        WnSessionService sess = ioc.get(WnSessionService.class, "sessionService");
-        WnSession se = null;
-        if (seid != null) {
-            se = sess.fetch(seid);
-        }
+        // 如果有会话合法，那么就继续下一个操作
+        WnSession se = testSession(wc, ioc);
 
-        // 如果有 SessionID 那么进行整个线程上下文的设置
-        if (se != null) {
+        if (null != se) {
+            WnSessionService sess = _sess(ioc);
 
             // 更行 Sessoion 对象的最后访问时间
             sess.touch(se.id());
@@ -87,18 +102,20 @@ public class WnCheckSession implements ActionFilter {
 
             wc.setHookContext(hc);
 
-            // 返回空，继续下面的逻辑
+            // 继续下一个操作
             return null;
         }
+
         // 没有有效 Session 的话，那么看看咋处理
         if (ajax) {
             AjaxReturn re = new AjaxReturn();
             re.setOk(false);
             re.setErrCode("e.se.noexists");
-            re.setData(seid);
+            re.setData(wc.SEID());
             return new ViewWrapper(new AjaxView(true), re);
         }
 
+        // 重定向到根
         return new ServerRedirectView("/");
     }
 

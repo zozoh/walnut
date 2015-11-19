@@ -90,13 +90,17 @@ public abstract class AbstractWnModule {
                             OutputStream err,
                             InputStream in,
                             Callback<WnBoxContext> on_before_free) {
-        Stopwatch sw = null;
         // 得到一个沙箱
         WnBox box = boxes.alloc(allocTimeout);
 
+        // 开始计时
+        Stopwatch sw = null;
         if (log.isDebugEnabled()) {
             sw = Stopwatch.begin();
-            log.debugf("%sbox:alloc: %s", logPrefix, box.id());
+            
+            if (log.isTraceEnabled()) {
+                log.tracef("%sbox:alloc: %s", logPrefix, box.id());
+            }
         }
 
         // 保存到请求属性中，box.onClose 的时候会删除这个属性
@@ -110,13 +114,13 @@ public abstract class AbstractWnModule {
         bc.usrService = usrs;
         bc.sessionService = sess;
 
-        if (log.isDebugEnabled())
-            log.debugf("%sbox:setup: %s", logPrefix, bc);
+        if (log.isTraceEnabled())
+            log.tracef("%sbox:setup: %s", logPrefix, bc);
         box.setup(bc);
 
         // 准备回调
-        if (log.isDebugEnabled())
-            log.debugf("%sbox:set stdin/out/err", logPrefix);
+        if (log.isTraceEnabled())
+            log.tracef("%sbox:set stdin/out/err", logPrefix);
 
         box.setStdin(in);
         box.setStdout(out);
@@ -124,14 +128,14 @@ public abstract class AbstractWnModule {
         box.onBeforeFree(on_before_free);
 
         // 运行
-        if (log.isDebugEnabled())
-            log.debugf("%sbox:run: %s", logPrefix, cmdText);
+        if (log.isInfoEnabled())
+            log.infof("%sbox:run: %s", logPrefix, cmdText);
 
         box.run(cmdText);
 
         // 释放沙箱
-        if (log.isDebugEnabled())
-            log.debugf("%sbox:free: %s", logPrefix, box.id());
+        if (log.isTraceEnabled())
+            log.tracef("%sbox:free: %s", logPrefix, box.id());
         boxes.free(box);
 
         if (log.isDebugEnabled()) {

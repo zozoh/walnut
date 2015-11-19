@@ -2,6 +2,7 @@
 <html>
 <head>
 <title>${fnm}</title>
+<script src="${rs}/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js"></script>
 <script class="wn-datasource" name="pos">
 	echo "{x:100,y:99}"
 </script>
@@ -11,10 +12,14 @@
 <script class="wn-datasource" name="zzh" type="string">
     echo "zzh is great!!!"
 </script>
+<script src="abc.js"></script>
 </head>
 <body>
 	<h1>${pos.x} - ${pos.y} : ${zzh}</h1>
-	<include path="lib/tt.txt"/>
+	<img src="辛普森一家_A.jpg" width=100>
+	<a href="admin">点击登录后台管理</a>
+	<pre></pre>
+	哈哈哈哈，我还是可以随便输出中文的
 	<ul>
 		<each var="o" items="list">
 		<li><b>${o.name} <if test="pos.x>50">比50大</if></b>

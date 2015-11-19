@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>登录到后台管理界面</title>
+<script src="abc.js"></script>
+</head>
+<body>
+    <h1>登录到后台管理界面</h1>
+    <form method="POST" action="/u/do/login">
+        <div><input name="nm" type="text" placeholder="用户名" ></div>
+        <div><input name="passwd" type="password" placeholder="密码"></div>
+	    <br><button>登入</button>
+	</form>
+</body>
+</html>

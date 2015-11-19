@@ -322,10 +322,14 @@ return ZUI.def("ui.console", {
             // 打开
             var m = str.match(/(open)([ \t]+)([0-9a-zA-Z_.-]{1,})(([ \t]+)(.+))?/);
             if (m) {
-                if (m[6])
-                    $z.openUrl("/a/open/" + m[3] + ":" + m[6]);
-                else
-                    $z.openUrl("/a/open/" + m[3]);
+                var path = m[6];
+                // 非绝对路径，补上
+                if(!/^[~\/].+$/.test(path)){
+                    path = UI.app.session.envs.PWD + "/" + path;
+                }
+                $z.openUrl("/a/open/" + m[3], "_blank", "GET", {
+                    ph : path
+                });
                 UI.on_cmd_wait();
                 return;
             }

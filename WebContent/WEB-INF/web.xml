@@ -27,6 +27,29 @@
 		<filter-name>jettyGzipFilter</filter-name>
 		<url-pattern>/o/*</url-pattern>
 	</filter-mapping>
+	
+	<!-- walnut domain 转换 -->
+    <filter>
+        <filter-name>walnutFilter</filter-name>
+        <filter-class>org.nutz.walnut.jetty.WalnutFilter</filter-class>
+        <init-param>
+            <param-name>nutzFilterName</param-name>
+            <param-value>nutz</param-value>
+        </init-param>
+        <init-param>
+            <param-name>errorPage</param-name>
+            <param-value>/WEB-INF/jsp/invalid_domain.jsp</param-value>
+        </init-param>
+        <init-param>
+            <param-name>hostMap</param-name>
+            <param-value>hostmap</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>walnutFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>	
 
 	<!-- nutz-mvc -->
 	<filter>

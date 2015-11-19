@@ -53,8 +53,8 @@ public interface WnSessionService {
      * @return 会话对象
      * @throws
      *             <ul>
-     *             <li>"e.session.noexists"
-     *             <li>"e.session.expired"
+     *             <li>"e.se.noexists"
+     *             <li>"e.se.expired"
      *             </ul>
      */
     WnSession check(String seid);

@@ -22,20 +22,20 @@ public class cmd_www extends JvmExecutor {
         WWWContext wwc = new WWWContext();
         wwc.params = ZParams.parse(args, null);
 
-        // 读取输入
-        if (sys.pipeId > 0) {
-            wwc.input = sys.in.readAll();
-            wwc.type = "wnml";
-            wwc.fnm = "anonymous";
-            wwc.oCurrent = this.getCurrentObj(sys);
-        }
-        // 那么输入一定来自文件对象
-        else {
+        // 输入一定来自文件对象
+        if (wwc.params.has("in")) {
             WnObj o = Wn.checkObj(sys, wwc.params.check("in"));
             wwc.input = sys.io.readText(o);
             wwc.type = o.type();
             wwc.fnm = o.name();
             wwc.oCurrent = o.parent();
+        }
+        // 读取输入
+        else {
+            wwc.input = sys.in.readAll();
+            wwc.type = "wnml";
+            wwc.fnm = "anonymous";
+            wwc.oCurrent = this.getCurrentObj(sys);
         }
 
         // 读取 type 和 name
