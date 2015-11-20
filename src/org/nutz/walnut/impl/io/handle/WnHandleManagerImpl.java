@@ -21,12 +21,12 @@ public class WnHandleManagerImpl implements WnHandleManager {
     }
 
     @Override
-    public WnHandle get(String hid) {
+    public synchronized WnHandle get(String hid) {
         return map.get(hid);
     }
 
     @Override
-    public WnHandle check(String hid) {
+    public synchronized WnHandle check(String hid) {
         WnHandle hdl = get(hid);
         if (null == hdl) {
             throw Er.create("e.io.hdl.noexists", hid);
@@ -35,17 +35,17 @@ public class WnHandleManagerImpl implements WnHandleManager {
     }
 
     @Override
-    public void save(WnHandle hdl) {
+    public synchronized void save(WnHandle hdl) {
         map.put(hdl.id, hdl);
     }
 
     @Override
-    public void remove(String hid) {
+    public synchronized void remove(String hid) {
         map.remove(hid);
     }
 
     @Override
-    public void dropAll() {
+    public synchronized void dropAll() {
         map.clear();
     }
 

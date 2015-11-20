@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.nutz.lang.Streams;
+import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.Callback;
 import org.nutz.log.Log;
@@ -62,7 +63,7 @@ public class JvmBox implements WnBox {
 
     @Override
     public void run(String cmdText) {
-        String[] cmdLines = Jvms.split(cmdText, true, '\n', ';');
+        String[] cmdLines = Strings.split(cmdText, true, '\n', ';');
 
         for (String cmdLine : cmdLines) {
             runner.__run(cmdLine);

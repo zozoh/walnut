@@ -7,7 +7,6 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnBucket;
@@ -70,9 +69,7 @@ public class WnStoreImpl implements WnStore {
 
         // 创建句柄
         WnHandle hdl = handles.create();
-        hdl.id = R.UU64();
-        hdl.ct = System.currentTimeMillis();
-        hdl.lm = hdl.ct;
+        handles.save(hdl);
         hdl.mode = mode;
         hdl.obj = o;
         hdl.pos = Wn.S.isAppend(mode) ? o.len() : 0;
@@ -141,7 +138,6 @@ public class WnStoreImpl implements WnStore {
         }
 
         // 返回
-        handles.save(hdl);
         return hdl.id;
     }
 

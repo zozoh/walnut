@@ -5,6 +5,7 @@ import java.io.OutputStream;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
+import org.nutz.lang.Strings;
 import org.nutz.lang.stream.NullInputStream;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -84,7 +85,7 @@ public class JvmAtomRunner {
         status = WnBoxStatus.RUNNING;
 
         // 分析命令，看看有多少管道连接
-        String[] cmds = Jvms.split(cmdLine, true, '|');
+        String[] cmds = Strings.split(cmdLine, true, '|');
 
         // 准备运行的线程原子
         final WnContext wc = Wn.WC();

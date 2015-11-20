@@ -1,5 +1,7 @@
 package org.nutz.walnut.api.io;
 
+import org.nutz.lang.random.R;
+
 /**
  * 句柄的结构体
  * 
@@ -24,5 +26,11 @@ public class WnHandle {
     public int swap_size;
 
     public WnBucket bucket;
+
+    public WnHandle() {
+        this.id = R.UU64();
+        this.ct = System.currentTimeMillis();
+        this.lm = this.ct;
+    }
 
 }

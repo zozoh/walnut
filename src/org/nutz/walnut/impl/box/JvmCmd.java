@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.box;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 
 class JvmCmd {
 
@@ -14,7 +15,7 @@ class JvmCmd {
 
     public JvmCmd(String src) {
         // 拆分
-        String[] ss = Jvms.split(src, false, ' ', '\t');
+        String[] ss = Strings.split(src, false, ' ', '\t');
 
         // 不可能
         if (null == ss || ss.length == 0) {
