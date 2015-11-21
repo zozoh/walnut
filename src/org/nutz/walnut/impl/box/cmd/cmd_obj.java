@@ -207,7 +207,8 @@ public class cmd_obj extends JvmExecutor {
         }
 
         // 添加更多条件
-        q.setv("d1", sys.se.group());
+        if(!"root".equals(sys.se.group()))
+        	q.setv("d1", sys.se.group());
 
         // 看看是否需要查询分页信息
         if (wp.countPage && wp.limit > 0) {
