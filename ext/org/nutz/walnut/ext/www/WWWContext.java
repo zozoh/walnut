@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.www;
 
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.ZParams;
 
@@ -15,5 +16,7 @@ public class WWWContext {
     public String type;
     
     public String fnm;
+    
+    public NutMap context;
 
 }

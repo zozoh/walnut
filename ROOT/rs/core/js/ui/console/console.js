@@ -324,9 +324,11 @@ return ZUI.def("ui.console", {
             if (m) {
                 var path = m[6];
 				var params = undefined;
-                // 非绝对路径，补上
-                if(path && !/^[~\/].+$/.test(path)){
-                    path = UI.app.session.envs.PWD + "/" + path;
+                // 有打开路径 ...
+                if(path){
+                    // 非绝对路径，补上前缀
+                    if(!/^[~\/].*$/.test(path))
+                        path = UI.app.session.envs.PWD + "/" + path;
 					params = {ph : path};
                 }
                 $z.openUrl("/a/open/" + m[3], "_blank", "GET", params);

@@ -119,6 +119,26 @@ obj ~/abc/*
 </choose>
 ```
 
+## 重定向 `<redirect>`
+
+```
+<if test="$EL">
+    <redirect code="302" text="Found">/path/to/new</redirect>
+</if>
+```
+
+重定向支持下面几个状态码，如果你写了其他的状态码，可能会出现不可预知的错误。
+如果你不写 *text* 属性，那么输出的响应头就是下面这些默认值。
+如果你甚至都不写 *code* 属性，那么默认就是 *302*
+
+* 301 Moved Permanently
+* 302 Found
+* 303 See Other (since HTTP/1.1)
+* 304 Not Modified 
+* 305 Use Proxy (since HTTP/1.1)
+* 306 Switch Proxy
+* 307 Temporary Redirect (since HTTP/1.1)
+* 308 Permanent Redirect
 
 
 

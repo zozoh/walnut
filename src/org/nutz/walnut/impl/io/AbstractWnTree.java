@@ -266,6 +266,11 @@ public abstract class AbstractWnTree implements WnTree {
         // 最后再检查一下目标节点
         nm = paths[rightIndex];
 
+        // 就是返回自己
+        if (nm.equals(".")) {
+            return p;
+        }
+
         // 纯粹返回上一级
         if (nm.equals("..")) {
             return p.parent();

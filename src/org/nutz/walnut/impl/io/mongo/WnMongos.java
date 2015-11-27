@@ -2,6 +2,7 @@ package org.nutz.walnut.impl.io.mongo;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -126,9 +127,27 @@ public abstract class WnMongos {
                     __set_region_to_doc(q, key, rg);
                 }
                 // 日期范围
-                else if (s.matches(WnRg.dateRegion())) {
+                else if (s.matches(WnRg.dateRegion("^"))) {
                     DateRegion rg = Region.Date(s);
                     __set_region_to_doc(q, key, rg);
+                }
+                // 日期范围当做毫秒数
+                else if (s.matches(WnRg.dateRegion("^MS"))) {
+                    String str = s.substring(2);
+                    DateRegion rg = Region.Date(str);
+
+                    LongRegion rg2 = new LongRegion();
+                    rg2.leftOpen(rg.isLeftOpen()).rightOpen(rg.isRightOpen());
+
+                    Date l = rg.left();
+                    if (null != l)
+                        rg2.left(l.getTime());
+
+                    Date r = rg.right();
+                    if (null != r)
+                        rg2.right(r.getTime());
+
+                    __set_region_to_doc(q, key, rg2);
                 }
                 // 普通字符串
                 else {

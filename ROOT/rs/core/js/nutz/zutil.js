@@ -446,7 +446,7 @@
             }
             // 否则当做字符串
             var REG = _.isRegExp(regex) ? new RegExp(regex)
-                      : new RegExp(regex || "^(\d{4})-(\d{2})-(\d{2})$");
+                      : new RegExp(regex || "^(\\d{4})-(\\d{2})-(\\d{2}).*$");
             var m = REG.exec(str);
             // 格式正确
             if(m && m.length>=4){
@@ -686,7 +686,7 @@
             for(var i=1;i<arguments.length;i++){
                 var b = arguments[i];
                 for (var key in b) {
-                    a[key] = this.clone(b[key], memo);
+                    a[key] = this.cloneTo(a[key], b[key]);
                 }
             }
             return a;
@@ -695,23 +695,19 @@
         },
         //.............................................
         // 对一个对象深层的clone，如果不是数组或者Object，则直接返回
-        clone: function(obj, memo){
-            memo  = memo || [];
-            for(var i=0;i<memo.length;i++){
-                if(obj === memo[i])
-                    return obj;
+        // ta 为参考目标对象， 如果是一个普通 Object 则会合并
+        // 否则会用 obj 来代替
+        cloneTo: function(ta, obj){
+            // 未定义
+            if(_.isNull(ta) || _.isUndefined(ta)){
+                return obj;
             }
             // 数组
             if(_.isArray(obj)){
-                var re = [];
-                memo.push(obj);
-                for(var i=0;i<obj.length;i++){
-                    re.push(this.clone(obj[i], memo));
-                }
-                return re;
+                return obj;
             }
             // jQuery 或者 Elemet
-            if(obj instanceof jQuery || _.isElement(obj)){
+            if(this.isjQuery(obj) || _.isElement(obj)){
                 return obj;
             }
             // 函数
@@ -728,16 +724,15 @@
             }
             // 普通对象
             if(_.isObject(obj)){
-                var re = {};
-                memo.push(obj);
                 for(var key in obj){
-                    if(key == "__clone_index")
-                        continue;
-                    re[key] = this.clone(obj[key], memo);
+                    ta[key] = this.cloneTo(ta[key], obj[key]);
                 }
-                return re;
+                return ta;
             }
             return obj;
+        },
+        isjQuery : function(obj){
+            return obj instanceof jQuery;
         },
         //.............................................
         // 判断一个对象是否是简单的 POJO
@@ -754,7 +749,7 @@
                 return false;
             if(_.isElement(obj))
                 return false;
-            if(obj instanceof jQuery)
+            if(this.isjQuery(obj))
                 return false;
             return _.isObject(obj);
         },

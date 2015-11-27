@@ -28,6 +28,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.ext.www.WWW;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.web.WnConfig;
@@ -127,6 +128,9 @@ public class WalnutFilter implements Filter {
 
             // 如果改变了 URL
             if (null != newPath) {
+                // 记录一下
+                Wn.WC().setv(WWW.AT_BASE, "/");
+                
                 req.setServletPath(newPath);
                 if (log.isDebugEnabled()) {
                     log.debug(" - router to: " + newPath);

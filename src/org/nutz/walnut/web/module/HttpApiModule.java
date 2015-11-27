@@ -26,6 +26,7 @@ import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
+import org.nutz.mvc.view.HttpServerResponse;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
@@ -49,7 +50,7 @@ public class HttpApiModule extends AbstractWnModule {
     @At("/?/**")
     @Ok("void")
     @Fail("void")
-    public void handle(String usr,
+    public void do_api(String usr,
                        String api,
                        final HttpServletRequest req,
                        final HttpServletResponse resp) throws IOException {
@@ -95,7 +96,7 @@ public class HttpApiModule extends AbstractWnModule {
             WnSession se = sess.create(u);
             wc.SE(se);
             try {
-                _do_api(req, resp, oHome, u, oApi);
+                _do_api(req, resp, oHome, se, u, oApi);
             }
             // 确保退出登录
             finally {
@@ -118,6 +119,7 @@ public class HttpApiModule extends AbstractWnModule {
     private void _do_api(HttpServletRequest req,
                          HttpServletResponse resp,
                          final WnObj oHome,
+                         WnSession se,
                          WnUsr u,
                          WnObj oApi) throws IOException {
 
@@ -169,7 +171,7 @@ public class HttpApiModule extends AbstractWnModule {
                 }
 
                 // 如果客户端声明的是 mimeType
-                if ("resp-mime".equals(pair.getName())) {
+                if ("mime".equals(pair.getName())) {
                     mimeType = pair.getValue();
                 }
             }
@@ -194,69 +196,54 @@ public class HttpApiModule extends AbstractWnModule {
         String cmdPattern = io.readText(oApi);
         String cmdText = Tmpl.exec(cmdPattern, oReq);
 
-        // 执行命令
-        WnBox box = boxes.alloc(0);
+        // 如果是 API 的执行是自动决定的文本
+        if (oApi.getBoolean("http-dynamic-header")) {
+            this.__setup_resp_header(oApi, oReq, mimeType, resp);
 
-        if (log.isDebugEnabled())
-            log.debugf("box:alloc: %s", box.id());
+            String html = this._run_cmd("box", se, null, cmdText);
 
-        // 设置沙箱
-        WnContext wc = Wn.WC();
-        WnBoxContext bc = new WnBoxContext();
-        bc.io = io;
-        bc.me = usrs.check(wc.checkMe());
-        bc.session = wc.checkSE();
-        bc.usrService = usrs;
-        bc.sessionService = sess;
+            HttpServerResponse hsr = new HttpServerResponse();
+            hsr.updateBy(html);
 
-        if (log.isDebugEnabled())
-            log.debugf("box:setup: %s", bc);
-        box.setup(bc);
+            hsr.render(resp);
+            return;
+        }
 
         // 根据返回码决定怎么处理
         int respCode = oApi.getInt("http-resp-code", 200);
+
         // 重定向
         if (respCode == 301 || respCode == 302) {
-            StringBuilder sbOut = new StringBuilder();
-            StringBuilder sbErr = new StringBuilder();
-            OutputStream out = Lang.ops(sbOut);
-            OutputStream err = Lang.ops(sbErr);
-
-            box.setStdin(null); // HTTP GET 方式，不支持沙箱的 stdin
-            box.setStdout(out);
-            box.setStderr(err);
-
-            // 运行
-            if (log.isDebugEnabled())
-                log.debugf("box:run: %s", cmdText);
-            box.run(cmdText);
-
-            // 处理出错了
-            if (sbErr.length() > 0) {
-                resp.sendError(500, sbErr.toString());
-            }
-            // 正常的重定向
-            else {
-                resp.sendRedirect(sbOut.toString());
-            }
+            _do_redirect(resp, cmdText, se, u);
         }
         // 肯定要写入返回流
         else {
-            _do_run_box(oApi, oReq, mimeType, resp, cmdText, box);
+            _do_run_box(oApi, oReq, mimeType, resp, cmdText, se, u);
         }
-
-        // 释放沙箱
-        if (log.isDebugEnabled())
-            log.debugf("box:free: %s", box.id());
-        boxes.free(box);
-
-        if (log.isDebugEnabled())
-            log.debug("box:done");
 
         // 最后将请求的对象设置一下清除标志
         oReq.expireTime(System.currentTimeMillis() + 100L * 1000);
         io.appendMeta(oReq, "^expi$");
 
+    }
+
+    private void _do_redirect(HttpServletResponse resp, String cmdText, WnSession se, WnUsr u)
+            throws IOException {
+        StringBuilder sbOut = new StringBuilder();
+        StringBuilder sbErr = new StringBuilder();
+        OutputStream out = Lang.ops(sbOut);
+        OutputStream err = Lang.ops(sbErr);
+
+        this._run_cmd("apiR", se, cmdText, out, err, null, null);
+
+        // 处理出错了
+        if (sbErr.length() > 0) {
+            resp.sendError(500, sbErr.toString());
+        }
+        // 正常的重定向
+        else {
+            resp.sendRedirect(sbOut.toString());
+        }
     }
 
     private static final Pattern P = Pattern.compile("^(attachment; *filename=\")(.+)(\")$");
@@ -266,7 +253,59 @@ public class HttpApiModule extends AbstractWnModule {
                              String mimeType,
                              HttpServletResponse resp,
                              String cmdText,
-                             WnBox box) throws UnsupportedEncodingException {
+                             WnSession se,
+                             WnUsr u) throws UnsupportedEncodingException {
+        // 执行命令
+        WnBox box = boxes.alloc(0);
+
+        if (log.isDebugEnabled())
+            log.debugf("box:alloc: %s", box.id());
+
+        // 设置沙箱
+        WnBoxContext bc = new WnBoxContext();
+        bc.io = io;
+        bc.me = u;
+        bc.session = se;
+        bc.usrService = usrs;
+        bc.sessionService = sess;
+
+        if (log.isDebugEnabled())
+            log.debugf("box:setup: %s", bc);
+        box.setup(bc);
+
+        // 根据请求，设置响应的头
+        __setup_resp_header(oApi, oReq, mimeType, resp);
+
+        // 准备回调
+        if (log.isDebugEnabled())
+            log.debug("box:set stdin/out/err");
+
+        HttpRespStatusSetter _resp = new HttpRespStatusSetter(resp);
+        OutputStream out = new AppRespOutputStreamWrapper(_resp, 200);
+        OutputStream err = new AppRespOutputStreamWrapper(_resp, 500);
+
+        box.setStdin(null); // HTTP GET 方式，不支持沙箱的 stdin
+        box.setStdout(out);
+        box.setStderr(err);
+
+        // 运行
+        if (log.isDebugEnabled())
+            log.debugf("box:run: %s", cmdText);
+        box.run(cmdText);
+
+        // 释放沙箱
+        if (log.isDebugEnabled())
+            log.debugf("box:free: %s", box.id());
+        boxes.free(box);
+
+        if (log.isDebugEnabled())
+            log.debug("box:done");
+    }
+
+    private String __setup_resp_header(WnObj oApi,
+                                       WnObj oReq,
+                                       String mimeType,
+                                       HttpServletResponse resp) {
         // 设置响应头，并看看是否指定了 content-type
         for (String key : oApi.keySet()) {
             if (key.startsWith("http-header-")) {
@@ -295,25 +334,13 @@ public class HttpApiModule extends AbstractWnModule {
                 }
             }
         }
+
         // 最后设定响应内容
-        resp.setContentType(Strings.sBlank(mimeType, "text/plain"));
+        mimeType = Strings.sBlank(mimeType, "text/html");
+        resp.setContentType(mimeType);
 
-        // 准备回调
-        if (log.isDebugEnabled())
-            log.debug("box:set stdin/out/err");
-
-        HttpRespStatusSetter _resp = new HttpRespStatusSetter(resp);
-        OutputStream out = new AppRespOutputStreamWrapper(_resp, 200);
-        OutputStream err = new AppRespOutputStreamWrapper(_resp, 500);
-
-        box.setStdin(null); // HTTP GET 方式，不支持沙箱的 stdin
-        box.setStdout(out);
-        box.setStderr(err);
-
-        // 运行
-        if (log.isDebugEnabled())
-            log.debugf("box:run: %s", cmdText);
-        box.run(cmdText);
+        // 返回最后更新的 mimeType
+        return mimeType;
     }
 
 }

@@ -3,26 +3,42 @@ package org.nutz.walnut.web.view;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
+import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.walnut.util.Wn;
 
 public class WnAddCookieViewWrapper implements View {
 
+    private Tmpl cookie;
+
     private View view;
 
-    public WnAddCookieViewWrapper(View view) {
-        this.view = view;
+    public WnAddCookieViewWrapper(String value) {
+        String[] ss = Strings.splitIgnoreBlank(value);
+        // 只有一个: @Ok("++cookie>>:/")
+        if (ss.length == 1) {
+            this.cookie = Tmpl.parsef("%s=${id}", Wn.AT_SEID);
+            this.view = new ServerRedirectView(ss[0]);
+        }
+        // 两个: @Ok("++cookie>>:DSEID=${dseid},${obj.url}")
+        else {
+            this.cookie = Tmpl.parse(ss[0]);
+            this.view = new ServerRedirectView(ss[1]);
+        }
     }
 
     @Override
-    public void render(HttpServletRequest req,
-                       HttpServletResponse resp,
-                       Object obj) throws Throwable {
+    public void render(HttpServletRequest req, HttpServletResponse resp, Object obj)
+            throws Throwable {
 
-        String seid = Wn.WC().SEID();
-        if (!Strings.isBlank(seid)) {
-            resp.addHeader("SET-COOKIE", Wn.AT_SEID + "=" + seid + "; Path=/;");
+        if (null != obj) {
+            NutMap context = Lang.obj2map(obj, NutMap.class);
+            String cookieStr = cookie.render(context, false);
+            resp.addHeader("SET-COOKIE", cookieStr + "; Path=/;");
         }
 
         // 输出对象

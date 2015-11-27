@@ -32,7 +32,7 @@ public class WnRgTest {
 
     @Test
     public void test_date_region() {
-        String regex = WnRg.dateRegion();
+        String regex = WnRg.dateRegion("^");
 
         assertTrue("[1977-09-21,]".matches(regex));
         assertTrue("[,1977-09-21 08:23:11]".matches(regex));

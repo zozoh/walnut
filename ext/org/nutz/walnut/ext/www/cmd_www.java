@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
+import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.resource.Scans;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -22,20 +25,34 @@ public class cmd_www extends JvmExecutor {
         WWWContext wwc = new WWWContext();
         wwc.params = ZParams.parse(args, null);
 
-        // 输入一定来自文件对象
-        if (wwc.params.has("in")) {
-            WnObj o = Wn.checkObj(sys, wwc.params.check("in"));
-            wwc.input = sys.io.readText(o);
-            wwc.type = o.type();
-            wwc.fnm = o.name();
-            wwc.oCurrent = o.parent();
-        }
-        // 读取输入
-        else {
-            wwc.input = sys.in.readAll();
-            wwc.type = "wnml";
-            wwc.fnm = "anonymous";
-            wwc.oCurrent = this.getCurrentObj(sys);
+        // 得到输入的模板文件
+        String str = wwc.params.check("in");
+        WnObj o = Wn.checkObj(sys, str);
+        wwc.input = sys.io.readText(o);
+        wwc.type = o.type();
+        wwc.fnm = o.name();
+        wwc.oCurrent = o.parent();
+
+        // 初始化上下文
+        wwc.context = new NutMap();
+        wwc.context.put("grp", sys.se.group());
+        wwc.context.put("fnm", wwc.fnm);
+        wwc.context.put("rs", "/gu/rs");
+
+        // 指定了一个上下文的 JSON 字符串，合并
+        if (wwc.params.has("c")) {
+            String json = wwc.params.check("c");
+            // 仅仅是声明，那么就从标准输入读一下
+            if ("true".equals(json)) {
+                json = sys.in.readAll();
+            }
+            // 不是 JSON 的格式，那么试图读读文件对象
+            else if (!Strings.isQuoteBy(json, '{', '}')) {
+                WnObj oJson = Wn.checkObj(sys.io, json);
+                json = sys.io.readText(oJson);
+            }
+            // 解析并放入上下文
+            wwc.context.putAll(Lang.map(json));
         }
 
         // 读取 type 和 name

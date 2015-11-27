@@ -30,6 +30,30 @@ import org.w3c.dom.Document;
 public class WnIoImplTest extends BaseIoTest {
 
     @Test
+    public void test_write_json_obj() {
+        WnObj o = io.create(null, "/a", WnRace.FILE);
+        NutMap map = Lang.map("x:100,y:10");
+        io.writeJson(o, map, null);
+
+        NutMap map2 = io.readJson(o, NutMap.class);
+        assertTrue(Lang.equals(map, map2));
+    }
+
+    @Test
+    public void test_fetch_by_special_path() {
+        WnObj o = io.create(null, "/a/b/c/d", WnRace.FILE);
+
+        WnObj f = io.fetch(null, "/a/b/c/d/.");
+        assertEquals(o.id(), f.id());
+
+        f = io.fetch(null, "/a/b/./c/./d");
+        assertEquals(o.id(), f.id());
+
+        f = io.fetch(null, "/a/b/../b/c/d");
+        assertEquals(o.id(), f.id());
+    }
+
+    @Test
     public void test_quey_not() {
         WnObj a = io.create(null, "/a", WnRace.FILE);
         io.appendMeta(a, "x:100");

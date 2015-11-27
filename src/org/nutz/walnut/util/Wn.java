@@ -118,7 +118,7 @@ public abstract class Wn {
     private static final Pattern p = Pattern.compile(regex);
 
     public static String appendPath(String base, String rpath) {
-        if (null != rpath) {
+        if (!Strings.isBlank(rpath)) {
             // null
             if (null == base) {
                 if (rpath.startsWith("/"))

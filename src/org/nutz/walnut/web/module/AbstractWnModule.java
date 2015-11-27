@@ -50,7 +50,11 @@ public abstract class AbstractWnModule {
     @Inject("refer:mimes")
     protected MimeMap mimes;
 
-    protected String _run_cmd(final String logPrefix, String unm, final String cmdText) {
+    protected String _run_cmd(String logPrefix, String unm, final String cmdText) {
+        return _run_cmd(logPrefix, unm, null, cmdText);
+    }
+
+    protected String _run_cmd(String logPrefix, String unm, String input, String cmdText) {
         // 检查用户和会话
         final WnUsr u = usrs.check(unm);
         final WnSession se = Wn.WC().su(u, new Proton<WnSession>() {
@@ -60,7 +64,33 @@ public abstract class AbstractWnModule {
         });
         // 执行命令
         try {
-            return _run_cmd(logPrefix, se, null, cmdText);
+            return _run_cmd(logPrefix, se, input, cmdText);
+        }
+        // 退出会话
+        finally {
+            sess.logout(se.id());
+        }
+    }
+
+    protected void _run_cmd(String logPrefix,
+                            String unm,
+                            String input,
+                            String cmdText,
+                            StringBuilder sbOut,
+                            StringBuilder sbErr) {
+        // 检查用户和会话
+        final WnUsr u = usrs.check(unm);
+        final WnSession se = Wn.WC().su(u, new Proton<WnSession>() {
+            protected WnSession exec() {
+                return sess.create(u);
+            }
+        });
+        InputStream in = null == input ? null : Lang.ins(input);
+        OutputStream out = Lang.ops(sbOut);
+        OutputStream err = Lang.ops(sbErr);
+        // 执行命令
+        try {
+            this._run_cmd(logPrefix, se, cmdText, out, err, in, null);
         }
         // 退出会话
         finally {
@@ -97,7 +127,7 @@ public abstract class AbstractWnModule {
         Stopwatch sw = null;
         if (log.isDebugEnabled()) {
             sw = Stopwatch.begin();
-            
+
             if (log.isTraceEnabled()) {
                 log.tracef("%sbox:alloc: %s", logPrefix, box.id());
             }

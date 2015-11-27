@@ -1,29 +1,21 @@
+<include path="/lib/check_session.html"/>
 <!DOCTYPE html>
 <html>
 <head>
 <title>${fnm}</title>
 <script src="${rs}/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js"></script>
-<script class="wn-datasource" name="pos">
-	echo "{x:100,y:99}"
-</script>
-<script class="wn-datasource" name="list">
-	echo "[{name:'AA', val:100},{name:'BB', val:80}]"
-</script>
-<script class="wn-datasource" name="zzh" type="string">
-    echo "zzh is great!!!"
-</script>
-<script src="abc.js"></script>
+<link rel="stylesheet" type="text/css" href="css/index.css"/>
 </head>
 <body>
-	<h1>${pos.x} - ${pos.y} : ${zzh}</h1>
-	<img src="辛普森一家_A.jpg" width=100>
-	<a href="admin">点击登录后台管理</a>
+	<h1>我的测试站点</h1>
+	<include path="/lib/tt.txt"/>
+	<img src="/辛普森一家_A.jpg" width=300>
 	<pre></pre>
-	哈哈哈哈，我还是可以随便输出中文的
-	<ul>
-		<each var="o" items="list">
-		<li><b>${o.name} <if test="pos.x>50">比50大</if></b>
-		</each>
-	</ul>
+		Walcome back <b>${se.usr.name?se.usr.id}</b>
+		| <a href="${base}/_usr/do/logout">登出</a>
+		<hr>
+		${se.usr.mobile}
+		<hr>
+		
 </body>
 </html>

@@ -13,6 +13,7 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.nutz.castor.Castors;
 import org.nutz.el.El;
+import org.nutz.http.Http;
 import org.nutz.json.Json;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
@@ -24,40 +25,47 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.www.WWWContext;
 import org.nutz.walnut.ext.www.WWWHdl;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 
 public class www_wnml implements WWWHdl {
 
     @Override
     public void invoke(WnSystem sys, WWWContext wwc) {
-        // 创建全局上下文
-        NutMap c = new NutMap();
-
         // 解析输入的文件
         Document doc = Jsoup.parse(wwc.input);
 
-        // 首先处理数据源和静态引入
-        Elements eles = doc.select(".wn-datasource, include");
+        // 首先处理静态引入
+        Elements eles = doc.select("include");
         for (Element ele : eles) {
-            // // 处理静态引入
-            if ("include".equals(ele.tagName())) {
-                __do_include(sys, wwc, ele, c);
-            }
-            // 数据源
-            else {
-                __do_datasource(sys, ele, c);
-            }
+            __do_include(sys, wwc, ele, wwc.context);
         }
 
-        // 填充上默认全局上下文变量
-        c.put("grp", sys.se.group());
-        c.put("fnm", wwc.fnm);
-        c.put("rs", "/gu/rs");
+        // 然后处理数据源
+        eles = doc.select("script.wn-datasource");
+        for (Element ele : eles) {
+            __do_datasource(sys, ele, wwc.context);
+        }
 
         // 处理所有的节点的属性和文本的占位符
-        __do_node(doc, c);
+        __do_node(doc, wwc.context);
 
-        // 最后输出
-        sys.out.println(doc.toString());
+        // 如果存在 redirect 的节点，输出 HTTP 头
+        Elements eRes = doc.getElementsByTag("redirect");
+        if (null != eRes && eRes.size() > 0) {
+            Element eRe = eRes.first();
+            int code = Integer.parseInt(Strings.sBlank(eRe.attr("code"), "302"));
+            String text = Strings.sBlank(eRe.attr("text"), Http.getStatusText(code));
+            String url = Strings.sBlank(eRe.text(), "/");
+            sys.out.printlnf("HTTP/1.1 %d %s", code, text);
+            sys.out.printlnf("Location: %s", url);
+            sys.out.println();
+
+            eRes.remove();
+        }
+        // 否则输出正常的响应内容
+        else {
+            sys.out.println(doc.toString());
+        }
 
     }
 
@@ -168,9 +176,10 @@ public class www_wnml implements WWWHdl {
             // 已经匹配上了，就删除
             if (matched) {
                 child.remove();
+                continue;
             }
 
-            String tagName = ele.tagName();
+            String tagName = child.tagName();
 
             // 到了默认值
             if ("otherwise".equals(tagName)) {
@@ -205,13 +214,25 @@ public class www_wnml implements WWWHdl {
     private void __do_include(WnSystem sys, WWWContext wwc, Element ele, NutMap c) {
         String path = Tmpl.exec(ele.attr("path"), c);
 
+        // 如果是绝对路径
+        if (path.startsWith("/")) {
+            path = Wn.appendPath(c.getString("SITE_HOME"), path);
+        }
+
         // 读取目标
         WnObj o = sys.io.check(wwc.oCurrent, path);
         String str = sys.io.readText(o);
         Document doc = Jsoup.parse(str);
 
-        // 复制到自己之后
-        Node[] children = __get_children_array(doc.body());
+        // 复制Head所有的内容到自己的 head
+        Node[] children = __get_children_array(doc.head());
+        Element eHead = ele.ownerDocument().head();
+        for (Node nd : children) {
+            eHead.appendChild(nd);
+        }
+
+        // 复制Body所有的内容到自己之后
+        children = __get_children_array(doc.body());
         for (Node nd : children) {
             ele.after(nd);
         }
@@ -237,7 +258,8 @@ public class www_wnml implements WWWHdl {
             return;
         }
 
-        String cmdText = Strings.trim(ele.data());
+        String cmdTmpl = Strings.trim(ele.data());
+        String cmdText = Tmpl.exec(cmdTmpl, c, false);
 
         String str = sys.exec2(cmdText);
 
