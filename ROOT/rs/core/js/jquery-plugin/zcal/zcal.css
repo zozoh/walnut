@@ -1,0 +1,124 @@
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.zcal {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.zcal-wrapper:after,
+.zcal-info:after,
+.zcal-switcher:after {
+  clear: both;
+  height: 1px;
+  overflow: hidden;
+  display: block;
+  content: "";
+}
+.zcal-table {
+  table-layout: fixed;
+  width: 200px;
+  border-collapse: collapse;
+}
+.zcal-fit-parent table.zcal-table {
+  width: 100%;
+  height: 100%;
+}
+.zcal-info > div {
+  float: left;
+}
+.zcal-switcher > div {
+  display: inline-block;
+  vertical-align: middle;
+}
+.zcal-info > .zcal-switcher-right {
+  float: right;
+  text-align: right;
+}
+.zcal-show-border .zcal-cell {
+  border: 1px solid;
+}
+.zcal-hide-border .zcal-th {
+  border-bottom: 1px solid;
+}
+.skin-light .zcal-th {
+  border-color: #DDD;
+  font-weight: normal;
+  opacity: 0.4;
+  padding: 4px 0 2px 0;
+}
+.skin-light .zcal-block {
+  padding: 0;
+  float: left;
+}
+.skin-light .zcal-cell {
+  position: relative;
+  padding: 0;
+  text-align: center;
+  cursor: pointer;
+  overflow: hidden;
+  border-color: #DDD;
+}
+.skin-light .zcal-fixed .zcal-cell .zcal-text,
+.skin-light .zcal-fixed .zcal-cell-hide {
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+}
+.skin-light .zcal-hide-border .zcal-text {
+  border-radius: 100px;
+}
+.skin-light .zcal-cell-out {
+  opacity: 0.4;
+}
+.skin-light .zcal-cell-in {
+  font-weight: bold;
+}
+.skin-light .zcal-cell-today {
+  color: #08F;
+}
+.skin-light .zcal-cell-odd {
+  background: rgba(0, 0, 0, 0.08);
+}
+.skin-light .zcal-d1mark {
+  font-size: 10px;
+  -webkit-transform: scale(0.72);
+}
+.skin-light .zcal-cell-checked {
+  background: #08F;
+  color: #FFF;
+}
+.skin-light .zcal-cell-actived .zcal-text,
+.skin-light .zcal-fit-parent .zcal-cell-actived,
+.skin-light .zcal-show-border .zcal-cell-actived {
+  background: #08F;
+  color: #FFF;
+}
+.skin-light .zcal-multi-block .zcal-block {
+  padding-right: 1px;
+}
+.skin-light .zcal-info {
+  line-height: 24px;
+}
+.skin-light .zcal-switcher > div {
+  padding: 0 4px;
+  cursor: pointer;
+}
+.skin-light .zcal-switcher > div:hover {
+  font-weight: bolder;
+  color: #FFF;
+  background: #888;
+}
+.skin-light .zcal-switcher > .zcal-today {
+  margin: 0 4px;
+}
+.skin-light .zcal-title {
+  padding: 0 6px;
+}
+.skin-light .zcal-menu {
+  background: red;
+}

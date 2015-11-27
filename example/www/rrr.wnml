@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>${fnm}</title>
+<script class="wn-datasource" name="pos">
+    echo "{x:${params.x},y:${params.y}}"
+</script>
+
+<script class="wn-datasource" name="bbb" type="string">
+    echo '${params}' | json -prefix pos_
+</script>
+</head>
+<body>
+    <h1>让我们测测重定向吧</h1>
+    x:${pos.x}  y:${pos.y}
+    <hr>
+    <pre>${bbb}</pre>
+</body>
+</html>
