@@ -96,7 +96,7 @@
 
             // 没指定类型，那么自动判断
             // 数字
-            if(/-?[\d.]+/.test(v)){
+            if(/^-?[\d.]+$/.test(v)){
                 return v*1;
             }
             // 日期
@@ -281,6 +281,106 @@
                 window.location = loginUrl || "/";
             }
         },
+        // 应用加载的静态资源
+        _app_rs : {},
+        // 读取静态资源并且缓存
+        // 资源描述符如果不可识别将原样返回，现在支持下列资源种类
+        //  - json:///path/to/json
+        //  - text:///path/to/text
+        //  - js:///path/to/jpeg_or_jpg
+        loadResource : function(rs, callback, context){
+            var ME = this;
+            if(_.isString(rs)){
+                // 看看缓冲里有木有
+                context  = context || this;
+                var reObj = ME._app_rs[rs];
+                // 缓冲里有，那么就不用请求
+                if(reObj){
+                    return ME.doCallback(callback, [ME.extend({},reObj)], context);
+                }
+
+                // 看来要发起个请求喔
+                var m = /^(jso|json|text):\/\/(.+)$/.exec(rs);
+                if(m){
+                    var type = m[1];
+                    var url  = m[2];
+                    var async = _.isFunction(callback);
+                    // console.log("async:", async)
+                    var ajaxConf = {
+                        method  : "GET",
+                        async   : async,
+                        data    : {
+                            auto_unwrap : /^json?$/.test(type)
+                        },
+                        dataType : "text",
+                        success  : function(re){
+                            //console.log("success:", re);
+                            // 根据特定的类型处理数据
+                            if("json" == type){
+                                reObj = $z.fromJson(re);
+                            }
+                            else if("jso" == type){
+                                reObj = eval('(' + re + ')');
+                            }
+                            else{
+                                reObj = re;
+                            }
+
+                            // 判断是否是过期
+                            ME.checkSessionNoExists(reObj);
+
+                            // 解开所有嵌套资源
+                            reObj = ME.unwrapObjResource(reObj);
+                            
+                            // 计入缓存
+                            ME._app_rs[rs] = reObj;
+                            // 调用回调
+                            if(_.isFunction(callback)){
+                                callback.call(context, ME.extend({},reObj));
+                            }
+                        },
+                        error : function(re, reason){
+                            alert("fail to load resource: " + rs + " : because " + reason);
+                        }
+                    };
+                    // 发送请求
+                    $.ajax(url, ajaxConf);
+
+                    // 返回
+                    return reObj;
+                }
+            }
+            return ME.doCallback(callback, [rs], context);
+        },
+        // 深层检查一个对象，如果有字段引用了资源，则解析它
+        unwrapObjResource : function(obj){
+            var ME = this;
+            // 数组
+            if(_.isArray(obj)){
+                for(var i =0; i<obj.length; i++){
+                    obj[i] = ME.unwrapObjResource(obj[i]);
+                }
+            }
+            // 对象
+            else if(ME.isPlainObj(obj)){
+                for(var key in obj){
+                    var v = obj[key];
+                    // 字符串
+                    if(_.isString(v)){
+                        if(/^(jso|json|text):\/\/(.+)$/.test(v)){
+                            var rs = ME.loadResource(v, null);
+                            obj[key] = rs;
+                        }
+                    }
+                    // 其他统统来一下
+                    else{
+                        obj[key] = ME.unwrapObjResource(v);
+                    }
+                }
+            }
+            // 返回自身
+            return obj;
+        },
         // 深层遍历一个给定的 Object，如果对象的字段有类似 "function(...}" 的字符串，将其变成函数对象 
         evalFunctionField : function(obj, memo){
             if(!memo)
@@ -289,6 +389,7 @@
                 var v = obj[key];
                 // 字符串
                 if(_.isString(v)){
+                    // 函数
                     if(/^[ \t]*function[ \t]*\(.+\}[ \t]*/.test(v)){
                         obj[key] = eval('(' + v + ')');
                     }
@@ -353,6 +454,8 @@
             if(!data){
                 return;
             }
+
+            params = params || {};
 
             // 异步的时候，返回值一定是 undefined
             var eval_re = undefined;
@@ -445,23 +548,46 @@
                 return d;
             }
             // 否则当做字符串
-            var REG = _.isRegExp(regex) ? new RegExp(regex)
-                      : new RegExp(regex || "^(\\d{4})-(\\d{2})-(\\d{2}).*$");
-            var m = REG.exec(str);
+            var REG;
+            // 自动根据长度判断应该选取的表达式
+            if(!regex){
+                REG = /^(\d{4})-(\d{1,2})-(\d{1,2})([T ](\d{1,2})(:(\d{1,2}))?(:(\d{1,2}))?)?$/;
+            }
+            // 构建个新正则
+            else{
+                REG = new RegExp(regex);
+            }
+
+            // 执行匹配 
+            var re = REG.exec(str);
+            
+            // 分析结果，将会成为一个数组比如 [2015,9,24,12,23,11]
+            // 数组元素至少要到 3 个才有效
+            var m = null;
+            if(re){
+                m = [];
+                for(var i=0;i<re.length;i++){
+                    var s = re[i];
+                    if(/^\d{1,4}$/.test(s)){
+                        m.push(parseInt(s));
+                    }
+                }
+            }
+
             // 格式正确
-            if(m && m.length>=4){
+            if(m && m.length>=3){
                 var d;
                 // 仅仅是日期
-                if(m.length == 4){
-                    d = new Date(m[1]*1, m[2]*1-1, m[3]*1);
+                if(m.length == 3){
+                    d = new Date(m[0], m[1]-1, m[2]);
                 }
                 // 精确到分
-                else if(m.length == 6){
-                    d = new Date(m[1]*1, m[2]*1-1, m[3]*1, m[4]*1, m[5]*1, 0);
+                else if(m.length == 5){
+                    d = new Date(m[0], m[1]-1, m[2], m[3], m[4]);
                 }
                 // 精确到秒
-                else if(m.length > 6){
-                    d = new Date(m[1]*1, m[2]*1-1, m[3]*1, m[4]*1, m[5]*1, m[6]*1);
+                else if(m.length > 5){
+                    d = new Date(m[0], m[1]-1, m[2], m[3], m[4], m[5]);
                 }
                 return d;
             }
@@ -480,42 +606,70 @@
             ss : 45
         }
         */
-        parseTime : function(v,  regex){
+        parseTime : function(str,  regex){
+            // 本身就是时间对象
+            if(str.key_min && str.key && str.HH && str.mm && str.ss){
+                return str;
+            }
+
             // 会解析成这个时间对象
             var _t = {};
             // 日期对象
-            if(_.isDate(v)){
-                _t.HH = v.getHours();
-                _t.MM = v.getMinutes();
-                _t.ss = v.getSeconds();
+            if(_.isDate(str)){
+                _t.H = str.getHours();
+                _t.m = str.getMinutes();
+                _t.s = str.getSeconds();
             }
             // 数字则表示绝对秒数
-            if(_.isNumber(v)){
-                var n = parseInt(v);
-                _t.HH = parseInt(n / 3600);
-                n -= _t.HH * 3600;
-                _t.MM = parseInt((n - _t.HH) / 60);
-                _t.ss = n - _t.MM * 60;
+            if(_.isNumber(str)){
+                var n = parseInt(str);
+                _t.H = parseInt(n / 3600);
+                n -= _t.H * 3600;
+                _t.m = parseInt(n / 60);
+                _t.s = n - _t.m * 60;
             }
             // 否则当做字符串
             else{
-                var regex = _.isRegExp(regex) ? new RegExp(regex)
-                            : new RegExp(regex || "^(\d{1,2}):(\d{1,2}):(\d{1,2})$");
-                var m = regex.exec(v);
+                var REG;
+                // 自动根据长度判断应该选取的表达式
+                if(!regex){
+                    REG = /^(\d{1,2})(:(\d{1,2}))?(:(\d{1,2}))?$/;
+                }
+                // 构建个新正则
+                else{
+                    REG = new RegExp(regex);
+                }
+
+                // 执行匹配 
+                var re = REG.exec(str);
+                
+                // 分析结果，将会成为一个数组比如 [2015,9,24,12,23,11]
+                // 数组元素至少要到 3 个才有效
+                var m = null;
+                if(re){
+                    m = [];
+                    for(var i=0;i<re.length;i++){
+                        var s = re[i];
+                        if(/^\d{1,2}$/.test(s)){
+                            m.push(parseInt(s));
+                        }
+                    }
+                }
+
                 // 格式正确
                 if(m){
                     var d;
                     // 仅仅是到分
-                    if(m.length == 3){
-                        _t.HH = m[1] * 1;
-                        _t.MM = m[2] * 1;
-                        _t.ss = 0;
+                    if(m.length == 2){
+                        _t.H = m[0];
+                        _t.m = m[1];
+                        _t.s = 0;
                     }
                     // 精确到秒
-                    else if(m.length == 4){
-                        _t.HH = m[1] * 1;
-                        _t.MM = m[2] * 1;
-                        _t.ss = m[3] * 1;
+                    else if(m.length > 2){
+                        _t.H = m[0];
+                        _t.m = m[1];
+                        _t.s = m[2];
                     }
                 }
                 // 未通过校验，抛错
@@ -523,7 +677,12 @@
                     throw "invalid time '" + v + "' can not match : " + regex;
                 }
             }
-            _t.sec = _t.HH * 3600 + _t.MM*60 + _t.ss;
+            _t.sec = _t.H * 3600 + _t.m*60 + _t.s;
+            _t.HH  = (_t.H>9 ? "" : "0") + _t.H;
+            _t.mm  = (_t.m>9 ? "" : "0") + _t.m;
+            _t.ss  = (_t.s>9 ? "" : "0") + _t.s;
+            _t.key_min = _t.HH+":"+_t.mm;
+            _t.key     = _t.key_min+":"+_t.ss;
             // 返回
             return _t;
         },

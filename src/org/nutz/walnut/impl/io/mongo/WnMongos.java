@@ -132,7 +132,7 @@ public abstract class WnMongos {
                     __set_region_to_doc(q, key, rg);
                 }
                 // 日期范围当做毫秒数
-                else if (s.matches(WnRg.dateRegion("^MS"))) {
+                else if (s.matches(WnRg.dateRegion("^[Mm][Ss]"))) {
                     String str = s.substring(2);
                     DateRegion rg = Region.Date(str);
 

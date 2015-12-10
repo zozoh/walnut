@@ -11,18 +11,27 @@ jQuery.zcal({
     //------------------------ 整体配置
     // 默认的，在顶级元素，会添加 "zcal" 的样式选择器
     // 如果声明了这个属性，则会在之后添加更多的样式选择器
-    className : null,
+    // 这个用来定制控件的显示样式，默认为 "skin-light"
+    // 如果你想指定自己独有的日历控件显示样式，改变这个属性
+    // 再配合上自己的 css 文件即可。 
+    // 当然你需要预先研究一下控件输出的 DOM 结构
+    className : "skin-light",
     
     // 指定了日历的模式，是日期范围选择模式，还是单选模式
     // 默认是单选模式 "default"
     mode : "range",
+    
+    // 如果开启了范围选择模式，是否 shift 键表示选择
+    // 默认 false 表示只有按下 shift 键才是选择，
+    // true 表示单击就是选择
+    autoSelect : false,
     
     // 要绘制几个日历块
     blockNumber : 3,
     
     // 如果 blockNumber==1，可以自动适应父元素的宽度
     // 默认 false
-    fitParent : false,
+    fitparent : false,
     
     // 是否显示单元格的边框
     showBorder : false,
@@ -89,6 +98,10 @@ jQuery.zcal({
     // 指明，月份切换按钮应该在右边
     swticherAtRight : false,
     
+    // 创建控件就开始绘制，否则，则当 "current" 被调用才会绘制
+    // 默认 true
+    drawWhenCreate : true,
+    
     // 右侧的扩展动作按钮区域的回调
     menuDraw : {$menu}F(),
 
@@ -102,27 +115,22 @@ jQuery.zcal({
     // 当然你可以在自己的实现函数里自行处理
     markMonthFirstDay : true,
     
+    //------------------------- 事件
     // 当单元格的尺寸改变的时候，即 resize 被触发后的回调
-    cellResize : {$cell}F(d),
+    on_cell_resize : {<cell>}F(e),
     
     // 当单元格被单击的时候的额外操作。
-    // 默认的，单元格本单击将触发激活事件，相当于高亮当前单元格
-    // 如果设置成 false 则表示强制让默认行为失效
-    // 如果设置成 "in"  则表示，每个块，当月内的单元格才能被点击
-    // 如果设置成 "out" 则表示，每个块，当月外的单元格才能被点击
-    cellClick : {$cell}F(d),
+    on_cell_click : {<cell>}F(e, e),
     
-    //------------------------- 事件
-    onActived : {$cell}F(d),    // 当一个日期格子被激活
-    onBlur    : {$cell}F(d),    // 当一个日期格子取消激活
+    on_actived : {$cell}F(d),    // 当一个日期格子被激活
+    on_blur    : {$cell}F(d),    // 当一个日期格子取消激活
     
     // 当前的日历日期(current)被切换到哪一日
-    onSwitch  : {$ele}F(d, dFrom, dTo)
+    on_switch  : {$ele}F(d, dFrom, dTo)
     
     // 如果是日期选择模式，当范围改变时候会调用
-    onRangeChange : {$ele}F(dFrom, dTo)
+    on_range_change : {$ele}F(dFrom, dTo)
     
-    //------------------------- 行为配置
 });
 ```
 
@@ -178,11 +186,18 @@ console.log(re);   // logs true
 
 * 注意，如果这个日期不在显示范围内，则无效，返回的是 「false」
 
-## range : 获取选择的日期范围
+## range : 获取/设置日期范围
 
 ```
 var dateRange = jQuery.zcal("range");
 console.log(dateRange);  // logs [Mon Sep 28 1998..., Mon Oct 16 1998..] 
+
+// 仅仅获取绝对毫秒
+var msRange = jQuery.zcal("range", "ms");
+console.log(msRange);  // logs [1447287120000, 1447538190000] 
+
+// 传入数组，表示设置一个日期范围, 比如设置从今天起四天的范围
+jQuery.zcal("range", [new Date(), (new Date()).getTime() + 3 * 86400000]);
 ```
 
 * 如果当前是单选模式，数组的两个元素是相同的，都是当前被激活的日期

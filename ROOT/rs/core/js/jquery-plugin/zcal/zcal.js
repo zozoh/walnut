@@ -75,7 +75,7 @@ function dkey(d){
            + "-" + $z.alignRight(d.getMonth()+1,2,'0')
            + "-" + $z.alignRight(d.getDate(),2,'0');
 }
-function genDataContext(d, opt){
+function genDateContext(d, opt){
     var c = {
         d   : d.getDate(),
         M   : d.getMonth() + 1,
@@ -85,7 +85,6 @@ function genDataContext(d, opt){
     c.MM = $z.alignRight(c.M, 2, '0');
     c.dd = $z.alignRight(c.d, 2, '0');
     c.Month = opt.i18n.month[c.M-1];
-    c.pos = [{x:100,y:99},{x:44,y:88}];
     return c;
 }
 //...........................................................
@@ -109,6 +108,7 @@ function get_range(ele, selector) {
 var commands = {
     current : function(d){
         update(this, options(this), d);
+        return this;
     },
     viewport : function(){
         return get_range(this);
@@ -121,16 +121,57 @@ var commands = {
         return null;
     },
     active : function(d){
-        do_active($root(this), d);
+        var d2 = new Date(d);
+        d2.setHours(0,0,0,0);
+        do_active($root(this), d2);
+        return this;
     },
-    range : function(){
+    range : function(mode){
+        // 设置
+        if(_.isArray(mode)){
+            do_set_range(this, mode);
+            return this;
+        }
+
+        // 获取
         var msChecked = $root(this).data(NM_CHECKED);
-        if(msChecked)
-            return [$z.parseDate(msChecked[0]), $z.parseDate(msChecked[1])];
-        return null;
+        var re = null;
+        if(msChecked){
+            re = [$z.parseDate(msChecked[0]), $z.parseDate(msChecked[1])];
+        }
+        // 没有范围，那么用激活的日期
+        else{
+            var ms = $root(this).data(NM_ACTIVED);
+            if(ms){
+                var dFrom = $z.parseDate(ms);
+                dFrom.setHours(0,0,0,0);
+                var dTo   = $z.parseDate(ms);
+                dTo.setHours(23,59,59,999);
+                re = [dFrom, dTo];
+            }
+        }
+
+        if(!re)
+            return null;
+
+        // 仅输出毫秒
+        if("ms" == mode){
+            return [re[0].getTime(), re[1].getTime()];
+        }
+        // 输出日期
+        else if("date" == mode){
+            return [re[0].format("yyyy-mm-dd"), re[1].format("yyyy-mm-dd")];
+        }
+        // 自定义输出格式
+        else if(_.isString(mode)){
+            return [re[0].format(mode), re[1].format(mode)];
+        }
+        // 输出日期对象
+        return re;
     },
     resize : function(){
         do_resize($root(this));
+        return this;
     }
 };
 //...........................................................
@@ -177,9 +218,11 @@ function on_click_swithcer(){
     update(jRoot, options(jRoot), d);
 }
 //...........................................................
-function on_click_cell(){
+function on_click_cell(e){
     var jRoot = $root(this);
-    do_active(jRoot, this);
+    var opt   = options(jRoot);
+    var d = do_active(jRoot, this, e.shiftKey);
+    $z.invoke(opt, "on_cell_click", [e, d], this);
 }
 //...........................................................
 function bindEvents(jRoot, opt){
@@ -196,7 +239,7 @@ function redraw($ele, opt){
 
     var jRoot = $(html).appendTo($ele);
     jRoot.children(".zcal-viewport")
-        .addClass(opt.fitParent && opt.blockNumber==1
+        .addClass(opt.fitparent && opt.blockNumber==1
                     ? "zcal-fit-parent"
                     : "zcal-fixed")
         .addClass(opt.showBorder 
@@ -259,7 +302,7 @@ function update(jRoot, opt, d){
 
     // 调用回调
     var dr = get_range(jRoot);
-    $z.invoke(opt, "onSwitch", [d, dr[0], dr[1]], jRoot)
+    $z.invoke(opt, "on_switch", [d, dr[0], dr[1]], jRoot)
 }
 //...........................................................
 function update_head(jHead, opt, d){
@@ -269,11 +312,11 @@ function update_head(jHead, opt, d){
     var c;
     if("range"==opt.mode || opt.week>0){
         c = {
-            from : genDataContext(dr[0],opt),
-            to   : genDataContext(dr[1],opt)
+            from : genDateContext(dr[0],opt),
+            to   : genDateContext(dr[1],opt)
         };
     }else{
-        c = genDataContext(d,opt);
+        c = genDateContext(d,opt);
     }
     var titleHtml = opt.title(c, dr[0], dr[1]);
     jTitle.html(titleHtml);
@@ -340,7 +383,7 @@ function draw_block(jWrapper, opt, d){
         while(from.getMonth()==MM && from.getDate()>1){
             from.setTime(from.getTime() - 86400000*7);
         }
-        from.setHours(0,0,0);
+        from.setHours(0,0,0,0);
 
 
         // if("range" == opt.mode){
@@ -351,7 +394,7 @@ function draw_block(jWrapper, opt, d){
         //     }
         //     // 减去一天
         //     to.setDate(to.getDate()-1);
-        //     to.setHours(23,59,59);
+        //     to.setHours(23,59,59,999);
 
         //     row_n = Math.ceil((to.getTime() - from.getTime())/(7*86400000));
         // }
@@ -437,11 +480,11 @@ function draw_block(jWrapper, opt, d){
 
     // 返回最终绘制的日期范围
     to = _d_cell;
-    to.setHours(23,59,59);
+    to.setHours(23,59,59,999);
     return [from, to];
 }
 //...........................................................
-function do_active(jRoot, obj){
+function do_active(jRoot, obj, autoSelect){
     var opt = options(jRoot);
     // 从传入的对象，获取日期
     var d;
@@ -452,59 +495,98 @@ function do_active(jRoot, obj){
     else{
         d = $z.parseDate(obj);
     }
-    d.setHours(0,0,0);
+    d.setHours(0,0,0,0);
 
     // 找到上一个被激活的日期，并取消激活
     var jLast = jRoot.find(".zcal-cell-actived");
     var dLast = commands.actived.call(jRoot);
     if(dLast){
         jLast.removeClass("zcal-cell-actived");
-        $z.invoke(opt, "onBlur", [dLast], jLast);
+        $z.invoke(opt, "on_blur", [dLast], jLast);
     }
 
     // 根据 key 找到现在应该被激活的日期，并激活
     var key = dkey(d);
     var jCell = jRoot.find(".zcal-cell-show[key="+key+"]");
     jCell.addClass("zcal-cell-actived");
-    $z.invoke(opt, "onActived", [d], jCell);
 
     // 存储这个激活的日期
     jRoot.data(NM_ACTIVED, d.getTime());
 
+    // 先取消所有的选择
+    jRoot.find(".zcal-cell-checked").removeClass("zcal-cell-checked");
+    jRoot.data(NM_CHECKED, null);
     // 如果是范围模式
-    if("range" == opt.mode){
-        jRoot.find(".zcal-cell-checked").removeClass("zcal-cell-checked");
-        // 选择上次激活和当前激活的日期之间所有日期
-        if(dLast){
-            var ms_begin = Math.min(d.getTime(), dLast.getTime());
-            var ms_end   = Math.max(d.getTime(), dLast.getTime())+86400000-1;
-            jRoot.find(".zcal-cell-show").each(function(){
-                var jq   = $(this);
-                var theD = $z.parseDate(jq.attr("key")+"T00:00:00");
-                var ms   = theD.getTime();
-                if(ms>=ms_begin && ms<=ms_end){
-                    jq.addClass("zcal-cell-checked");
-                }
-            });
-        }
-        // 仅仅让当前日期被选择
-        else{
-            dLast = $z.parseDate(d);
-            jCell.addClass("zcal-cell-checked");
-        }
-        // 调用回调
-        dLast.setHours(23,59,59);
-        $z.invoke(opt, "onRangeChange", [d, dLast], jRoot);
-
-        // 存储这个日期范围
-        jRoot.data(NM_CHECKED, [ms_begin, ms_end]);
+    if("range" == opt.mode && (opt.autoSelect || autoSelect)){
+        do_set_range(jRoot, d, dLast, opt);
     }
+    // 否则就主动调用一下回调
+    else{
+        var ds = [d, new Date(d)];
+        ds[1].setHours(23,59,59,999);
+        $z.invoke(opt, "on_range_change", ds, jRoot);
+    }
+
+    // 调用回调 
+    $z.invoke(opt, "on_actived", [d], jCell);
+
+    // 返回激活的日期
+    return d;
+}
+//...........................................................
+function do_set_range(jRoot, dFrom, dTo, opt){
+    opt = opt || options(jRoot);
+    var ds = [];
+    if(_.isArray(dFrom)){
+        if(dFrom.length==1){
+            ds[0] = $z.parseDate(dFrom[0]);
+            ds[1] = new Date(ds[0]);
+        }else{
+            ds[0] = $z.parseDate(dFrom[0]);
+            ds[1] = $z.parseDate(dFrom[1]);
+        }
+    }else if(!dTo){
+        ds[0] = $z.parseDate(dFrom);
+        ds[1] = new Date(ds[0]);
+    }else{
+        ds[0] = $z.parseDate(dFrom);
+        ds[1] = $z.parseDate(dTo);
+    }
+    // 确保 ds[0] 是小的那个
+    if(ds[0].getTime() > ds[1].getTime()){
+        var d = ds[0];
+        ds[0] = ds[1];
+        ds[1] = d;
+    }
+    // 确保时间正确
+    ds[0].setHours(0,0,0,0);
+    ds[1].setHours(23,59,59,999);
+
+    // 获取毫秒数
+    var ms_begin = ds[0].getTime();
+    var ms_end   = ds[1].getTime();
+
+    jRoot.find(".zcal-cell-show").each(function(){
+        var jq   = $(this);
+        var theD = $z.parseDate(jq.attr("key")+"T00:00:00");
+        var ms   = theD.getTime();
+        if(ms>=ms_begin && ms<=ms_end){
+            jq.addClass("zcal-cell-checked");
+        }
+    });
+
+    // 存储这个日期范围
+    jRoot.data(NM_CHECKED, [ms_begin, ms_end]);
+
+    // 调用回调
+    $z.invoke(opt, "on_range_change", ds, jRoot);
 
 }
 //...........................................................
 function do_resize(jRoot, opt){
     opt = opt || options(jRoot);
-    if(opt.blockNumber==1 && opt.fitParent){
+    if(opt.blockNumber==1 && opt.fitparent){
+        console.log("do_resize")
         var jSelection = jRoot.parent();
         var W = jSelection.width();
         var H = jSelection.height();
@@ -514,6 +596,11 @@ function do_resize(jRoot, opt){
             "width"  : W,
             "height" : H - jHead.outerHeight(true)
         });
+
+        // 如果声明了resize
+        if(_.isFunction(opt.on_cell_resize)){
+            jRoot.find(".zcal-cell-show").each(opt.on_cell_resize);
+        }
     }
 }
 //...........................................................
@@ -527,6 +614,8 @@ $.fn.extend({ "zcal" : function(opt, arg){
         width  : "auto",          
         height : "auto",
         weeks : 0,
+        range       : "default",
+        autoSelect  : false,
         className : "skin-light",
         blockNumber : 1,
         i18n: {
@@ -538,6 +627,7 @@ $.fn.extend({ "zcal" : function(opt, arg){
             prev  : '&lt;',
             next  : '&gt;',
         },
+        drawWhenCreate : true,
         cellDraw  : function(d, opt){
             var theDate  = d.getDate();
             var theMonth = d.getMonth();
@@ -556,11 +646,11 @@ $.fn.extend({ "zcal" : function(opt, arg){
     bindEvents(jRoot, opt);
 
     // 更新
-    update(jRoot, opt);
-    
-    // 重新设置布局
-    do_resize(jRoot, [opt]);
+    if(opt.drawWhenCreate)
+        update(jRoot, opt);
 
+    // 返回自身以便链式赋值
+    return this;
 }});
 //...........................................................
 })(window.jQuery, window.NutzUtil);

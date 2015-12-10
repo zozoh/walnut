@@ -5,10 +5,14 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -23,7 +27,7 @@ public class cmd_obj extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        ZParams params = ZParams.parse(args, "iocnqhbslVNPH");
+        ZParams params = ZParams.parse(args, "iocnqhbslAVNPHQ");
 
         WnPager wp = new WnPager(params);
 
@@ -90,11 +94,26 @@ public class cmd_obj extends JvmExecutor {
         }
         // 给定的路径
         else if (params.vals.length > 0) {
-            list = __query_by_path(sys, args, params, wp, sort);
+            List<WnObj> parents = __query_by_path(sys, args, params, sort);
+            // 指定了匹配条件，就用这个再依次查一遍
+            if (params.has("match")) {
+                for (WnObj oP : parents) {
+                    list.addAll(__query_by_match(sys, params, oP, wp, sort));
+                }
+            }
+            // 否则就算是最终结果了
+            else {
+                list.addAll(parents);
+            }
+
+            // 指定了限制数量
+            if (wp.limit > 0 && wp.limit < list.size()) {
+                list = list.subList(0, wp.limit);
+            }
         }
         // 指定查询
         else if (params.has("match")) {
-            list = __query_by_match(sys, params, wp, sort);
+            list = __query_by_match(sys, params, null, wp, sort);
         }
         // 全都没有，那么看看 u_map 里是不是有 id
         else if (null != u_map && u_map.has("id")) {
@@ -106,11 +125,35 @@ public class cmd_obj extends JvmExecutor {
             list.add(this.getCurrentObj(sys));
         }
 
+        // 如果是按组查询
+        String groupCount = params.get("GroupCount");
+        if (!Strings.isBlank(groupCount)) {
+            Tmpl tmpl = Tmpl.parse(groupCount);
+
+            Map<String, Integer> re = new TreeMap<String, Integer>();
+
+            // 开始归纳
+            for (WnObj o : list) {
+                String key = tmpl.render(o);
+                Integer n = re.get(key);
+                if (null == n) {
+                    re.put(key, 1);
+                } else {
+                    re.put(key, n + 1);
+                }
+            }
+
+            // 输出结果，到此为止
+            JsonFormat fmt = this.gen_json_format(params);
+            sys.out.println(Json.toJson(re, fmt));
+            return;
+        }
+
         // 执行更新
         __do_update(sys, u_map, list);
 
         // 最后执行输出
-        if (null == u_map || params.is("o")) {
+        if ((null == u_map || params.is("o")) && !params.is("Q")) {
             output_objs(sys, params, wp, list);
         }
 
@@ -148,13 +191,8 @@ public class cmd_obj extends JvmExecutor {
         return o;
     }
 
-    private List<WnObj> __query_by_path(WnSystem sys,
-                                        String[] args,
-                                        ZParams params,
-                                        WnPager wp,
-                                        NutMap sort) {
-        List<WnObj> list;
-        list = new LinkedList<WnObj>();
+    private List<WnObj> __query_by_path(WnSystem sys, String[] args, ZParams params, NutMap sort) {
+        List<WnObj> list = new LinkedList<WnObj>();
         evalCandidateObjs(sys, params.vals, list, false);
 
         // 不是强制列表模式的时候，检查是否候选对象列表为空
@@ -167,33 +205,14 @@ public class cmd_obj extends JvmExecutor {
             __do_sort(sort, list);
         }
 
-        // 看看是否需要查询分页信息
-        if (wp.countPage && wp.limit > 0) {
-            wp.sum_count = list.size();
-            wp.sum_page = (int) Math.ceil(((double) wp.sum_count) / ((double) wp.limit));
-        }
-
-        // skip 大于 0
-        if (wp.skip > 0) {
-            // 截取一部分
-            int toIndex = wp.skip + wp.limit;
-            if (toIndex > wp.skip && toIndex < list.size()) {
-                list = list.subList(wp.skip, wp.skip + wp.limit);
-            }
-            // 从 skip 开始全部的
-            else {
-                list = list.subList(wp.skip, list.size() - wp.skip);
-            }
-        }
-        // limit 大于 0
-        else if (wp.limit > 0 && wp.limit < list.size()) {
-            list = list.subList(0, wp.limit);
-        }
         return list;
     }
 
-    private List<WnObj> __query_by_match(WnSystem sys, ZParams params, WnPager wp, NutMap sort) {
-        List<WnObj> list;
+    private List<WnObj> __query_by_match(WnSystem sys,
+                                         ZParams params,
+                                         WnObj oP,
+                                         WnPager wp,
+                                         NutMap sort) {
         String json = params.get("match", "{}");
         WnQuery q = new WnQuery();
         // 条件是"或"
@@ -206,27 +225,33 @@ public class cmd_obj extends JvmExecutor {
             q.add(Lang.map(json));
         }
 
+        // 如果指定了父对象 ...
+        if (null != oP)
+            q.setv("pid", oP.id());
+
         // 添加更多条件
-        if(!"root".equals(sys.se.group()))
-        	q.setv("d1", sys.se.group());
+        if (!"root".equals(sys.se.group()))
+            q.setv("d1", sys.se.group());
 
-        // 看看是否需要查询分页信息
-        if (wp.countPage && wp.limit > 0) {
-            wp.sum_count = (int) sys.io.count(q);
-            wp.sum_page = (int) Math.ceil(((double) wp.sum_count) / ((double) wp.limit));
+        // 如果给定了分页信息
+        if (null != wp) {
+            // 看看是否需要查询分页信息
+            if (wp.countPage && wp.limit > 0) {
+                wp.sum_count = (int) sys.io.count(q);
+                wp.sum_page = (int) Math.ceil(((double) wp.sum_count) / ((double) wp.limit));
+            }
+
+            if (wp.skip > 0)
+                q.skip(wp.skip);
+
+            if (wp.limit > 0)
+                q.limit(wp.limit);
         }
-
-        if (wp.skip > 0)
-            q.skip(wp.skip);
-
-        if (wp.limit > 0)
-            q.limit(wp.limit);
 
         if (null != sort)
             q.sort(sort);
 
-        list = sys.io.query(q);
-        return list;
+        return sys.io.query(q);
     }
 
     private void __do_update(WnSystem sys, NutMap u_map, List<WnObj> list) {

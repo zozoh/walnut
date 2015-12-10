@@ -1,0 +1,62 @@
+@import "../plugin.less";
+
+.timelist{@noselect();}
+.timelist-wrapper:after, .timelist-scope:after, .timelist-group:after{@clr();}
+
+.timelist-fit-parent table.timelist-table{
+    width:100%; height:100%;
+}
+
+.timelist-horizontal {
+    .timelist-group {
+        float: left;
+    }
+    .timelist-scope {
+        float: left; padding:0 10px; border-right: 1px dashed #AAA;
+    }
+    .timelist-scope:first-child {
+        padding-left:0;
+    }
+    .timelist-scope:last-child {
+        border:0; padding-right:0;
+    }
+}
+
+.timelist-vertical {
+    .timelist-item {
+        float: left;
+    }
+    .timelist-scope-inner {
+        display:inline-block; padding:10px 0; border-bottom: 1px dashed #AAA;
+    }
+    .timelist-scope:first-child .timelist-scope-inner{
+        padding-top:0;
+    }
+    .timelist-scope:last-child .timelist-scope-inner{
+        border:0; padding-bottom:0;
+    }
+}
+
+.skin-light {
+    font-size: 12px;
+
+    .timelist-item {
+        padding:4px; margin:1px; cursor: pointer;
+        border:1px solid #DDD; opacity:0.6;
+        border-radius: 2px;
+    }
+
+    .timelist-item-actived {
+        border-color:#08F;
+    }
+
+    .timelist-item-checked {
+        opacity:1.0; background: #08F; color:#FFF;
+    }
+
+    .timelist-item-disabled {
+        background: #DDD; color:#AAA;
+    }
+}
+
+

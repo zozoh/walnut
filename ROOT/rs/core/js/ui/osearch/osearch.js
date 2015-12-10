@@ -99,7 +99,7 @@ return ZUI.def("ui.osearch", {
         var D = UI.$el.data("@DATA");
         //console.log("osearch.__check_obj_fld:", D.uiForm);
         // 找到 form 的配置 
-        var conf = ZUI.loadResource(D[key]);
+        var conf = $z.loadResource(D[key]);
         if(!conf) {
             var eKey = "osearch.e.o_no_" + key;
             alert(UI.msg(eKey));
@@ -122,7 +122,8 @@ return ZUI.def("ui.osearch", {
                     },{
                         text : "i18n:cancel",
                         handler : function(){
-                            this.parent.close();
+                            console.log(this)
+                            this.UI.parent.close();
                         }
                     }]
                 }, UI.options.formConf)
@@ -140,7 +141,11 @@ return ZUI.def("ui.osearch", {
                 var obj = $z.fromJson(re);
                 UI._list.addLast(obj);
                 UI._list.resize();
-                this.parent.close();
+
+                UI.trigger("menu:new", obj);
+                $z.invoke(UI.options, "on_menu_new", [obj], UI);
+
+                this.UI.parent.close();
             }
         })).render(function(){
             this.body.setData({});
@@ -166,6 +171,9 @@ return ZUI.def("ui.osearch", {
             // 执行命令
             if(confirm(UI.msg("delwarn"))){
                 UI.exec(str, function(){
+                    UI.trigger("menu:del", objs);
+                    $z.invoke(UI.options, "on_menu_del", [objs], UI);
+
                     UI.do_search();
                 });
             }
@@ -187,7 +195,7 @@ return ZUI.def("ui.osearch", {
             complete : function(re){
                 UI.do_search();
                 UI._list.resize();
-                this.parent.close();
+                this.UI.parent.close();
             }
         })).render(function(){
             this.body.setData(obj);
@@ -352,6 +360,11 @@ return ZUI.def("ui.osearch", {
     //...............................................................
     setData : function(D, callback){
         var UI = this;
+
+        // 如果数据应该被忽略
+        if($z.invoke(UI.options, "ignoreData", [D], UI)){
+            return;
+        }
         
         // 保存数据
         UI.$el.data("@DATA", D);
@@ -359,13 +372,15 @@ return ZUI.def("ui.osearch", {
         //console.log("A osearch.setData:", D.uiForm)
 
         // 将数据丢掉过滤器里，并取出查询信息
-        UI._filter.setData(D);
+        if(UI._filter){
+            UI._filter.setData(D);
 
-        //console.log("B osearch.setData:", D.uiForm)
-        
-        return UI.do_search(null, {
-            skip : 0
-        }, callback);
+            //console.log("B osearch.setData:", D.uiForm)
+            
+            return UI.do_search(null, {
+                skip : 0
+            }, callback);
+        }
     },
     //...............................................................
     refresh : function(){
@@ -396,9 +411,18 @@ return ZUI.def("ui.osearch", {
             // 组合成查询条件，执行查询
             $z.evalData(UI.options.data, q, function(re){
                 // 将查询的结果分别设置到列表以及分页器里
-                UI._list.setData(re ? re.list : [], true, callback);
+                UI._list.setData(re ? re.list : []);
                 UI._pager.setData(re? re.pager: {pn:0, pgnb:0, pgsz:0, nb:0, sum:0});
                 UI.resize();
+
+                // 触发事件回调
+                UI.trigger("do:search", re);
+                $z.invoke(UI.options, "on_do_search", [re], UI);
+
+                // 回调
+                if(_.isFunction(callback)){
+                    callback.call(UI, re.list);
+                }
             }, UI);
         }, 0);
 

@@ -76,9 +76,11 @@ new UIOSearch({
         list  : [..]                 // 一组数据对象，用来列表显示
     }
     */
-    data : F(q,callback(re))         // 根据给定的函数
+    data : F(q,callback(re))     // 根据给定的函数
            |'obj * {{pn}}'       // 指定命令模板，需要 exec
            | {url:..}            // 发送 Ajax 请求
+    ignoreData : {UI}F(dc)       // 【选】指明 setData 的参数，哪些应该被忽略
+                                 // 如果忽略，那么 setData 函数将不做任何反应
     exec : Wn.exec               // 指明执行器，给 search 用的
 
     // 列表展示的 UI，它必须: 

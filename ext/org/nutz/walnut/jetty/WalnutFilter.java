@@ -72,9 +72,17 @@ public class WalnutFilter implements Filter {
         String usrip = req.getRemoteAddr();
         String host = req.getHeader("Host");
         int port = req.getLocalPort();
-        int pos = host.lastIndexOf(':');
-        if (pos > 0)
-            host = host.substring(0, pos);
+        
+        // 容忍 HEADER 里没有 Host 字段的情况
+        if (null == host) {
+            host = req.getLocalName();
+        }
+        // 如果有 Host 字段则提取
+        else {
+            int pos = host.lastIndexOf(':');
+            if (pos > 0)
+                host = host.substring(0, pos);
+        }
 
         if (log.isInfoEnabled()) {
             log.infof("HTTP(%s)%s>%s:%d", path, usrip, host, port);
@@ -130,7 +138,7 @@ public class WalnutFilter implements Filter {
             if (null != newPath) {
                 // 记录一下
                 Wn.WC().setv(WWW.AT_BASE, "/");
-                
+
                 req.setServletPath(newPath);
                 if (log.isDebugEnabled()) {
                     log.debug(" - router to: " + newPath);

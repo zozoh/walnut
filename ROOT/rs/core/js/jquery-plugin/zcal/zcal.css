@@ -44,6 +44,9 @@
 .zcal-hide-border .zcal-th {
   border-bottom: 1px solid;
 }
+.skin-light {
+  font-size: 12px;
+}
 .skin-light .zcal-th {
   border-color: #DDD;
   font-weight: normal;

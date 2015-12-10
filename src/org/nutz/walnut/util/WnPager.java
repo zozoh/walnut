@@ -24,4 +24,16 @@ public class WnPager {
         this.pn = skip > 0 ? skip / pgsz + 1 : 1;
     }
 
+    public WnPager clone() {
+        WnPager wp = new WnPager();
+        wp.skip = this.skip;
+        wp.limit = this.limit;
+        wp.countPage = this.countPage;
+        wp.pgsz = this.pgsz;
+        wp.pn = this.pn;
+        wp.sum_count = this.sum_count;
+        wp.sum_page = this.sum_page;
+        return wp;
+    }
+
 }

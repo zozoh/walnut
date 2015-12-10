@@ -295,15 +295,15 @@ public class WnBean extends NutMap implements WnObj {
         // 更新自己的私有属性
         if (o instanceof WnBean) {
             this.tree = ((WnBean) o).tree;
-            this.parent = ((WnBean) o).parent;
+            this._parent = ((WnBean) o)._parent;
         } else {
             this.tree = o.tree();
-            this.parent = o.parent();
+            this._parent = o.parent();
         }
 
         // 确保自己和对方的 parent 不会重复
-        if (null != this.parent)
-            this.parent = this.parent.clone();
+        if (null != this._parent)
+            this._parent = this._parent.clone();
 
         // 返回自身以便链式赋值
         return this;
@@ -500,17 +500,17 @@ public class WnBean extends NutMap implements WnObj {
         return !this.hasParent();
     }
 
-    private WnObj parent;
+    private WnObj _parent;
 
     public WnObj parent() {
-        if (null == parent && hasParent()) {
+        if (null == _parent && hasParent()) {
             this.setParent(tree.getOne(Wn.Q.id(parentId())));
         }
-        return parent;
+        return _parent;
     }
 
     public void setParent(WnObj parent) {
-        this.parent = parent;
+        this._parent = parent;
         String pid = (null == parent ? null : parent.id());
         this.setv("pid", pid);
         this.path(parent.path()).appendPath(name());
@@ -520,15 +520,15 @@ public class WnBean extends NutMap implements WnObj {
     @Override
     public WnObj loadParents(List<WnObj> list, boolean force) {
         // 已经加载过了，且不是强制加载，就啥也不干
-        if (null != parent && !force) {
+        if (null != _parent && !force) {
             if (Strings.isBlank(path())) {
-                path(parent.path()).appendPath(name());
+                path(_parent.path()).appendPath(name());
             }
-            if (null != list && !parent.path().equals("/")) {
-                parent.loadParents(list, force);
-                list.add(parent);
+            if (null != list && !_parent.path().equals("/")) {
+                _parent.loadParents(list, force);
+                list.add(_parent);
             }
-            return parent;
+            return _parent;
         }
 
         // 如果自己就是树的根节点则表示到头了
@@ -554,17 +554,17 @@ public class WnBean extends NutMap implements WnObj {
         p = Wn.WC().whenEnter(p);
 
         // 设置成自己的父
-        parent = p;
+        _parent = p;
 
         // 记录到输出列表
         if (null != list)
-            list.add(parent);
+            list.add(_parent);
 
         // 更新路径
-        path(parent.path()).appendPath(name());
+        path(_parent.path()).appendPath(name());
 
         // 返回父节点
-        return parent;
+        return _parent;
     }
 
     public boolean isMyParent(WnObj p) {

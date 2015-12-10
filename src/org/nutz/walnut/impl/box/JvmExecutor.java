@@ -229,6 +229,11 @@ public abstract class JvmExecutor {
         for (WnObj o : list) {
             if (list.size() == 1 || params.is("P")) {
                 o.path();
+                if (params.is("A")) {
+                    List<WnObj> ancestors = new LinkedList<WnObj>();
+                    o.loadParents(ancestors, false);
+                    o.setv("ancestors", ancestors);
+                }
             }
             outs.add(_obj_to_outmap(o, params));
         }
@@ -366,8 +371,8 @@ public abstract class JvmExecutor {
                                        ZParams params,
                                        WnPager wp,
                                        List<NutMap> outs) {
-        JsonFormat fmt = params.is("c") ? JsonFormat.compact() : JsonFormat.forLook();
-        fmt.setIgnoreNull(!params.is("n")).setQuoteName(params.is("q"));
+        JsonFormat fmt = gen_json_format(params);
+
         String json;
 
         // 打印分页信息的 JSON 对象
@@ -395,5 +400,11 @@ public abstract class JvmExecutor {
 
         // 输出
         sys.out.println(json);
+    }
+
+    protected JsonFormat gen_json_format(ZParams params) {
+        JsonFormat fmt = params.is("c") ? JsonFormat.compact() : JsonFormat.forLook();
+        fmt.setIgnoreNull(!params.is("n")).setQuoteName(params.is("q"));
+        return fmt;
     }
 }

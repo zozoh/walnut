@@ -55,16 +55,17 @@ return ZUI.def("ui.ofilter", {
         // 处理关键字
         var kwd = UI.arena.find("input").val();
 
-        var regex = /((\w+)=([^'" ]+))|((\w+)="([^" ]+)")|((\w+)='([^' ]+)')|('([^']+)')|("([^"]+)")|([^ \t'"]+)/g;
+        var regex = /((\w+)=([^'" ]+))|((\w+)="([^"]+)")|((\w+)='([^']+)')|('([^']+)')|("([^"]+)")|([^ \t'"]+)/g;
         var i = 0;
         var m = regex.exec(kwd);
         var ss = [];
         while(m){
-            if(i++>100)
+            // 控制无限循环
+            if((i++) > 100)
                 break;
-            m.forEach(function(v, index){
-                console.log(i+"."+index+")", v);
-            });
+            // m.forEach(function(v, index){
+            //     console.log(i+"."+index+")", v);
+            // });
             // 找到纯字符串 
             if(m[14]){
                 ss.push(m[14]);
@@ -107,6 +108,10 @@ return ZUI.def("ui.ofilter", {
                 q["$or"] = kwdList;
             }
         }
+
+        // 最后如果有扩展的定制函数，调用一下
+        q = $z.invoke(UI.options, "format", [q], UI) || q;
+
         // 返回
         var json = $z.toJson(q);
         return {

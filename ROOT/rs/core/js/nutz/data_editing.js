@@ -15,6 +15,32 @@ function $html(fld, tagName, className){
 }
 
 module.exports = {
+    "_init" : {},
+    //.............................................................
+    "text"  : {
+        set : function(fld, obj){
+            var v = this.val_edit(fld, obj);
+
+            var jq = $html(fld, "textarea");
+            if(!_.isUndefined(fld.dft))
+                jq.attr("placeholder", fld.dft);
+            else if(fld.tip && fld.hideTip)
+                jq.attr("placeholder", fld.tip);
+
+            if(_.isString(v)){
+                jq.val(v);
+            }
+            else if(!_.isUndefined(v) && !_.isNull(v)) {
+                 jq.val($z.toJson(v, null, 4));
+            }
+        },
+        get : function(fld){
+            var jq = fld.$val.find("textarea");
+            var v =  jq.val() || fld.dft;
+            //console.log(fld.key, ":", jq.size(), ":", v)
+            return this.val_check(fld, v);
+        }
+    },
     //.............................................................
     "input" : {
         events : {
@@ -58,6 +84,27 @@ module.exports = {
         },
         get : function(fld){
             return undefined;
+        }
+    },
+    //.............................................................
+    "daterange" : {
+        set : function(fld, obj){
+            seajs.use("jquery-plugin/zcal/zcal.css");
+            seajs.use("jquery-plugin/zcal/zcal", function() {
+                var dr = obj[fld.key];
+                fld.$val.zcal(_.extend({}, fld.setup,{
+                    mode  : "range"
+                }));
+                if(dr){
+                    fld.$val.zcal("range", dr);
+                }
+                if(_.isFunction(fld.on_set)){
+                    fld.on_set(fld, dr, obj);
+                }
+            });
+        },
+        get : function(fld){
+            return fld.$val.zcal("range", fld.dateType);
         }
     },
     //.............................................................
@@ -179,20 +226,21 @@ module.exports = {
     }
 };
 // 附加事件
-var jBody = $(document.body);
-for(var key in module.exports){
-    var edit = module.exports[key];
-    if(edit.events){
-        for(var eKey in edit.events){
-            var handler = edit.events[eKey];
-            var pos = eKey.indexOf(' ');
-            if(pos>0){
-                var eventType = eKey.substring(0, pos);
-                var selector  = eKey.substring(pos+1);
-                jBody.on(eventType, selector, handler);
-            }
-        }
-    }
-}
+// var jBody = $(document.body);
+// for(var key in module.exports){
+//     var edit = module.exports[key];
+//     if(edit.events){
+//         for(var eKey in edit.events){
+//             var handler = edit.events[eKey];
+//             var pos = eKey.indexOf(' ');
+//             if(pos>0){
+//                 var eventType = eKey.substring(0, pos);
+//                 var selector  = eKey.substring(pos+1);
+//                 console.log("jBody.on", eventType, selector)
+//                 jBody.on(eventType, selector, handler);
+//             }
+//         }
+//     }
+// }
 
 });

@@ -206,15 +206,24 @@ return ZUI.def("ui.olist", {
         return objs;
     },
     //...............................................................
-    setData : function(d, permanent, callback){
+    setData : function(dc, callback){
         var UI = this;
-        if(_.isFunction(permanent)){
-            callback = permanent;
-            permanent = false;
+
+        // 如果数据应该被忽略
+        if($z.invoke(UI.options, "ignoreData", [dc], UI)){
+            return;
         }
-        if(permanent)
-            UI.options.data = d;
-        UI.refresh.call(UI, d, callback);
+        
+        // 如果是个数组，那么就认为这是一个被解析好的数据
+        if(_.isArray(dc)){
+            UI.options.data = dc;
+        }
+        // 否则认为这个对象是个上下文，需要被转换一下（异步）
+        else{
+            UI.options.dataContext = dc;
+        }
+
+        UI.refresh(callback);
     },
     //...............................................................
     addLast : function(obj) {
@@ -242,16 +251,17 @@ return ZUI.def("ui.olist", {
     //...............................................................
     redraw : function(){
         var UI = this;
-        UI.refresh(null, function(){
+        UI.refresh(function(){
             UI.defer_report(0, "@DATA");
         });
         return UI.options.data ? ["@DATA"] : undefined;
     },
     //..............................................
-    refresh : function(d, callback){
-        var UI = this;
+    refresh : function(callback){
+        var UI  = this;
+        var opt = UI.options;
         UI.showLoading();
-        UI.options.evalData.call(UI, d || UI.options.data, null, function(objs){
+        UI.options.evalData.call(UI, opt.data, opt.dataContext, function(objs){
             if(_.isFunction(UI.options.filter)){
                 var list = [];
                 objs.forEach(function(o){

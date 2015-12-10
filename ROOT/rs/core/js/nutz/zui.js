@@ -19,10 +19,43 @@ define(function (require, exports, module) {
     // 提供基本的数据显示控件
     var EDITS = require("./data_editing");
     var _edit = function(fld){
-        var edit = EDITS[fld.editAs];
+        var edit;
+        // 完全自定义的编辑控件
+        if($z.isPlainObj(fld.editAs)){
+            edit = fld.editAs;
+        }
+        // 采用内置的编辑控件
+        else{
+            edit = EDITS[fld.editAs];
+            if(edit && !edit.name)
+                edit.name = fld.editAs;
+        }
+
+        // 检查定义
         if(!edit){
             throw "!! Field without editAs : " + $z.toJson(fld);
         }
+
+        // 如果具备了名字，如果没有初始化过，需要初始化
+        if(edit.name && !EDITS._init[edit.name]){
+            // 执行初始化
+            if(edit.events){
+                var jBody = $(document.body);
+                for(var eKey in edit.events){
+                    var handler = edit.events[eKey];
+                    var pos = eKey.indexOf(' ');
+                    if(pos>0){
+                        var eventType = eKey.substring(0, pos);
+                        var selector  = eKey.substring(pos+1);
+                        jBody.on(eventType, selector, handler);
+                    }
+                }
+            }
+            // 标记
+            EDITS._init[edit.name] = true;
+        }
+
+        // 返回
         return edit;
     };
 
@@ -640,7 +673,7 @@ define(function (require, exports, module) {
 
             // 预先加载字段的配置
             if(fld.setup){
-                fld.setup = ZUI.loadResource(fld.setup);
+                fld.setup = $z.loadResource(fld.setup);
             }
 
             // 根据类型处理各个字段的配置信息 
@@ -738,74 +771,6 @@ define(function (require, exports, module) {
     ZUI.definitions = {};
     ZUI.instances = {};  // 根据cid索引的 UI 实例
     ZUI._uis = {};       // 根据键值索引的 UI 实例，没声明 key 的 UI 会被忽略
-
-    ZUI._app_rs = {};    // 应用加载的静态资源
-
-    // 读取静态资源并且缓存
-    // 资源描述符如果不可识别将原样返回，现在支持下列资源种类
-    //  - json:///path/to/json
-    //  - text:///path/to/text
-    //  - js:///path/to/jpeg_or_jpg
-    ZUI.loadResource = function(rs, callback, context){
-        if(_.isString(rs)){
-            // 看看缓冲里有木有
-            context  = context || this;
-            var reObj = ZUI._app_rs[rs];
-            // 缓冲里有，那么就不用请求
-            if(reObj){
-                return $z.doCallback(callback, [$z.extend({},reObj)], context);
-            }
-
-            // 看来要发起个请求喔
-            var m = /^(jso|json|text):\/\/(.+)$/.exec(rs);
-            if(m){
-                var type = m[1];
-                var url  = m[2];
-                var async = _.isFunction(callback);
-                // console.log("async:", async)
-                var ajaxConf = {
-                    method  : "GET",
-                    async   : async,
-                    data    : {
-                        auto_unwrap : /^json?$/.test(type)
-                    },
-                    dataType : "text",
-                    success  : function(re){
-                        //console.log("success:", re);
-                        // 根据特定的类型处理数据
-                        if("json" == type){
-                            reObj = $z.fromJson(re);
-                        }
-                        else if("jso" == type){
-                            reObj = eval('(' + re + ')');
-                        }
-                        else{
-                            reObj = re;
-                        }
-
-                        // 判断是否是过期
-                        $z.checkSessionNoExists(reObj);
-                        
-                        // 计入缓存
-                        ZUI._app_rs[rs] = reObj;
-                        // 调用回调
-                        if(_.isFunction(callback)){
-                            callback.call(context, $z.extend({},reObj));
-                        }
-                    },
-                    error : function(re, reason){
-                        alert("fail to load resource: " + rs + " : because " + reason);
-                    }
-                };
-                // 发送请求
-                $.ajax(url, ajaxConf);
-
-                // 返回
-                return reObj;
-            }
-        }
-        return $z.doCallback(callback, [rs], context);
-    };
 
     // 调试方法，打印当前 UI 的级联 tree
     ZUI.dump_tree = function(UI, depth){

@@ -16,6 +16,7 @@ new UIOList({
     //............................................................
     // 下面是和 olist 控件意义完全相同的属性
     data  : ..                      // @see olist.data
+    ignoreData  : ..                // @see olist.ignoreData
     idKey : "id"                    // @see olist.idKey
     checkable : {..} || Boolean     // @see olist.checkable
     activable : Boolean             // @see olist.activable

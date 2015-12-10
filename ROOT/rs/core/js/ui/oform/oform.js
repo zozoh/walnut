@@ -175,6 +175,12 @@ return ZUI.def("ui.oform", {
         "click .oform-abtn" : function(e){
             var UI = this;
             var jBtn = $(e.currentTarget);
+
+            // 确定标记正在执行，则忽略
+            if(jBtn.attr("ing")){
+                return;
+            }
+
             var aa = jBtn.data("@ACTION");
             var o;
             try {
@@ -190,24 +196,59 @@ return ZUI.def("ui.oform", {
                 return;
             } 
             //console.log(o)
-            var context = aa.context || UI;
+            var context = {
+                UI   : UI,
+                $btn : jBtn,
+                conf : aa
+            };
             // 回调函数
             if(aa.handler){
                 aa.handler.call(context, o);
             }
             // URL
             else if(aa.url){
+                var ajaxConf = _.extend({}, aa.ajax);
+                // 嵌入逻辑: 请求完成时，将按钮的状态改成原始状态
+                if(_.isFunction(ajaxConf.complete)){
+                    ajaxConf.__complete = ajaxConf.complete;
+                }
+                ajaxConf.complete = function(xhr, status){
+                    // 回复按钮的状态
+                    this.$btn.removeAttr("ing");
+                    UI.__draw_action_btn_html(this.$btn, this.conf);
+                    // 调用用户设定的回调
+                    $z.invoke(ajaxConf, "__complete", [xhr, status], this);
+                };
+                // 标记正在执行中
+                jBtn.attr("ing",true);
+                UI.__draw_action_btn_loading(jBtn);
+                // 发送请求
                 $.ajax(_.extend({
                     url    : aa.url,
                     method : "POST",
                     contentType : "application/json",
                     dataType : "json",
                     data : $z.toJson(o),
-                    context : UI
+                    context : context
                 }, aa.ajax));
             }
             // 执行命令
             else if(aa.cmd && UI.exec){
+                var cmdConf = _.extend({}, aa.cmd);
+                // 嵌入逻辑: 请求完成时，将按钮的状态改成原始状态
+                if(_.isFunction(cmdConf.complete)){
+                    cmdConf.__complete = cmdConf.complete;
+                }
+                cmdConf.complete = function(re){
+                    // 回复按钮的状态
+                    this.$btn.removeAttr("ing");
+                    UI.__draw_action_btn_html(this.$btn, this.conf);
+                    // 调用用户设定的回调
+                    $z.invoke(cmdConf, "__complete", [re], this);
+                };
+                // 标记正在执行中
+                jBtn.attr("ing",true);
+                UI.__draw_action_btn_loading(jBtn);
                 // 计算命令模板的上下文 
                 var oJson = _.extend({}, o);
                 if(oJson[UI.options.idKey])
@@ -217,19 +258,16 @@ return ZUI.def("ui.oform", {
                     json : $z.toJson(oJson).replace("'", "\\'")
                 };
                 // 用户要求自定义这个上下文
-                if(_.isFunction(aa.cmd.data)){
-                    d = aa.cmd.data(d);
+                if(_.isFunction(cmdConf.data)){
+                    d = cmdConf.data(d);
                 }
                 // 生成命令字符串
-                var str = (_.template(aa.cmd.command))(d);
+                var str = (_.template(cmdConf.command))(d);
                 //console.log(str)
                 // 执行命令
-                UI.exec(str, {
-                    context  : context,
-                    done     : aa.cmd.done,
-                    fail     : aa.cmd.fail,
-                    complete : aa.cmd.complete
-                });
+                UI.exec(str, _.extend(cmdConf,{
+                    context : context
+                }));
             }
             // 不知道
             else{
@@ -276,13 +314,23 @@ return ZUI.def("ui.oform", {
         var jActions = UI.arena.find(".oform-actions");
         UI.options.actions.forEach(function(a){
             var jBtn = $('<div class="oform-abtn">');
-            if(a.icon)
-                jBtn.html(a.icon);
-            if(a.text)
-                $('<span>').text(UI.text(a.text)).appendTo(jBtn);
+            UI.__draw_action_btn_html(jBtn, a);
             jBtn.data("@ACTION", a);
             jBtn.appendTo(jActions);
         });
+    },
+    //...............................................................
+    __draw_action_btn_html : function(jBtn, a){
+        var UI = this;
+        if(a.icon)
+            jBtn.html(a.icon);
+        if(a.text)
+            $('<span>').text(UI.text(a.text)).appendTo(jBtn);
+    },
+    //...............................................................
+    __draw_action_btn_loading : function(jBtn){
+        var UI = this;
+        jBtn.html('<i class="fa fa-spinner fa-pulse"></i> <span>'+UI.msg("doing")+'</span>');
     },
     //...............................................................
     __draw_group_fields : function(grp, jq){

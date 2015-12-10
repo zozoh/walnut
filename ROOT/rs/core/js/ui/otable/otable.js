@@ -303,11 +303,24 @@ return ZUI.def("ui.otable", {
         return objs;
     },
     //...............................................................
-    setData : function(d, permanent, callback){
+    setData : function(dc, callback){
         var UI = this;
-        if(permanent)
-            UI.options.data = d;
-        UI.refresh.call(UI, d, callback);
+
+        // 如果数据应该被忽略
+        if($z.invoke(UI.options, "ignoreData", [dc], UI)){
+            return;
+        }
+
+        // 如果是个数组，那么就认为这是一个被解析好的数据
+        if(_.isArray(dc)){
+            UI.options.data = dc;
+        }
+        // 否则认为这个对象是个上下文，需要被转换一下（异步）
+        else{
+            UI.options.dataContext = dc;
+        }
+
+        UI.refresh(callback);
     },
     //...............................................................
     addLast : function(obj) {
@@ -334,12 +347,16 @@ return ZUI.def("ui.otable", {
     },
     //...............................................................
     redraw : function(){
+        var UI  = this;
+        var opt = UI.options;
         this.refresh();
     },
     //...............................................................
-    refresh : function(d, callback){
+    refresh : function(callback){
+        var UI  = this;
+        var opt = UI.options;
         var UI = this;
-        UI.options.evalData.call(UI, d || UI.options.data, null, function(objs){
+        UI.options.evalData.call(UI, opt.data, opt.dataContext, function(objs){
             UI._draw_data(objs);
             if(_.isFunction(callback)){
                 callback.call(UI, objs);

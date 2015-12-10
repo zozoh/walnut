@@ -43,6 +43,10 @@ new UIOList({
         {cmd : "obj * -json"}
     */
     data : ..
+    
+    // 【选】指明 setData 的参数，哪些应该被忽略
+    // 如果忽略，那么 setData 函数将不做任何反应
+    ignoreData : {UI}F(dc)
 
     // 指定了数据对象，哪个键是表示 id，默认为 id
     idKey : "id"

@@ -3,6 +3,14 @@
   padding: 14px;
   width: 100%;
 }
+[theme="w0"] .ui-fld-edit-textarea {
+  font-size: 14px;
+  padding: 14px;
+  width: 100%;
+  height: 300px;
+  resize: none;
+  border: 1px solid #DDD;
+}
 [theme="w0"] .ui-fld-edit-label {
   font: 12px 'Lucida Console', Monaco, monospace;
   padding: 16px 16px;

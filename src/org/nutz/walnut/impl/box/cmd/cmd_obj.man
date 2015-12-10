@@ -12,6 +12,7 @@
         [-ibase 1 or 0]
         [-pager]
         [-match {..}]
+        [-GrpupCount $Tmpl]
     
     -new    创建一个新的对象，内容是一个 JSON 字段，可以不用 "{}" 包裹，其中:
              - 即使里面包括 "id,ct,lm" 等标准字段也是无效的
@@ -25,14 +26,21 @@
     -u      用一个 JSON 表示要更新对象的哪些字段，JSON 字符串可以不用 "{}" 包裹
     -e      输出对象字段的时候，符合正则表达式的字段才会被输出，如果以 ! 开头，表示取反
     
-    -o      是否强制输出，默认 -u 和 -new 的时候不输出，默认的输出方式为 json，除非指定了 -t
+    -o      强制输出，默认 -u 和 -new 的时候不输出，默认的输出方式为 json，除非指定了 -t
+    -Q      强制不输出，比如 -check 的时候，可以不输出
     -P      每个对象都强制获得全路径，默认只有一个对象时才会这样
+    -A      强制输出对象所有的祖先，这个只有当一个对象，或者 -P 的时候才会生效
     
     -pager  显示分页信息，如果是 JSON 输出，则将对象显示成 {list:[..],pager:{..}} 格式
             在指定路径模式下，本参数无效
             在 limit 小于等于 0 时，本参数依然无效
             
     -match  对输出的对象过滤, 在指定路径模式下，本参数无效
+    
+    -GroupCount 参数是一个字符串模板，根据这个模板生成的键，并计入结果 Map，值就是计数
+                GroupCount是一个实验性参数，它就是在查询的基础上做的进一步归纳，所以会比较慢
+                一旦声明了这个参数，所有对输出的过滤都不生效了，会直接打印出 JSON 
+                当然，对于 JSON 的格式控制还是生效的
     
     -c      按json输出时，紧凑显示
     -n      按json输出时，如果有 null 值的键也不忽略
@@ -57,35 +65,44 @@
 # 示例
 
     显示当前对象 (PWD对应的)
-    obj .
+    demo@~$ obj .
     
     根据ID显示对象信息
-    obj id:9rCTtaKaGX9eLinKeLD5k0
+    demo@~$ obj id:9rCTtaKaGX9eLinKeLD5k0
     
     根据路径显示对象信息
-    obj tmp/my.txt
+    demo@~$ obj tmp/my.txt
     
     更新某个对象的某几个值
-    obj tmp/my.txt  -u "width:100, height:99"
+    demo@~$ obj tmp/my.txt  -u "width:100, height:99"
     
     根据ID更新某个对象的某几个值
-    obj -id 9rCTtaKaGX9eLinKeLD5k0 -u "{width:100, height:99}"
+    demo@~$ obj -id 9rCTtaKaGX9eLinKeLD5k0 -u "{width:100, height:99}"
     
     删除一个对象的属性
-    obj tmp/my.txt -u "width:null"
+    demo@~$ obj tmp/my.txt -u "width:null"
     
     显示对象的某几个属性。 如果只有一个对象的一个属性被显示，则仅输出属性值
-    obj tmp/my.txt -e "^http-.*$"
+    demo@~$ obj tmp/my.txt -e "^http-.*$"
     
     设置日期属性
-    obj abc.txt -u "someday:'$date:2015-09-21 12:34:24.444'"
+    demo@~$ obj abc.txt -u "someday:'$date:2015-09-21 12:34:24.444'"
     
     设置日期属性到当前时间
-    obj abc.txt -u "someday:'$date:now'"
+    demo@~$ obj abc.txt -u "someday:'$date:now'"
     
     设置绝对毫秒值
-    obj abc.txt -u "lm:'$ms:1436888941391'"
+    demo@~$ obj abc.txt -u "lm:'$ms:1436888941391'"
     
     设置绝对毫秒值到当前时间
-    obj abc.txt -u "lm:'$ms:now'"
+    demo@~$ obj abc.txt -u "lm:'$ms:now'"
+    
+    根据创建者和所属组归纳
+    demo@~$ obj * -GroupCount "${c}_${g}"
+    {
+        demo_demo : 89,
+        usr1_demo : 33,
+        usr2_demo : 4
+    }
+    
     

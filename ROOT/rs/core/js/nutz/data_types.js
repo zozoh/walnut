@@ -17,10 +17,6 @@ function _E(code, fld, val) {
     };
 }
 
-function tPad(n){
-    return n>9 ? n : "0"+n;
-}
-
 function enum_test(fld, v){
     var re = null;
     for(var i=0; i<fld.setup.value.length; i++) {
@@ -44,6 +40,29 @@ function enum_test(fld, v){
 }
 //==================================================
 module.exports = {
+    //......................................
+    "object" : {
+        defaultEditAs : "text",
+        normalize : function(fld){},
+        asEdit : function(fld, obj){
+            return obj;
+        },
+        asValue : function(fld, obj){
+            return obj;
+        },
+        test : function(fld, v){
+            // DOM
+            if(_.isElement(v) || $z.isjQuery(v)){
+                return $(v)[0].outerHTML;
+            }
+            // 字符串要变 JSON
+            else if(_.isString(v)){
+                return $z.fromJson(v);
+            }
+            // 其他的直接返回就好
+            return v;
+        }
+    },
     //......................................
     "string" : {
         defaultEditAs : "input",
@@ -71,6 +90,52 @@ module.exports = {
         }
     },
     //......................................
+    "daterange" : {
+        defaultEditAs : "daterange",
+        normalize : function(fld){
+            $z.setUndefined(fld, "setup", {});
+            if(_.isString(fld.setup)){
+                fld.setup = {format : fld.setup};
+            }
+            else{
+                $z.setUndefined(fld.setup, "format", "yyyy-mm-dd");
+            }
+        },
+        asEdit : function(fld, dr){
+            var re = [];
+            for(var i=0;i<dr.length;i++){
+                re.push(dr[i].format(fld.setup.format));
+            }
+            return re;
+        },
+        asValue : function(fld, dr){
+            var re = [];
+            for(var i=0;i<dr.length;i++){
+                re.push(dr[i].format(fld.setup.format));
+            }
+            return re;
+        },
+        test : function(fld, v){
+            if(_.isString(v)){
+                v = $.trim(v).split(",");
+            }
+            if(!v)
+                v = fld.dft;
+            if(!v)
+                return null;
+            //console.log("fld test : ", fld.key, ":["+v+"]", "test:", (v?true:false));
+            for(var i=0;i<v.length;i++){
+                var item = v[i];
+                if(_.isString(item)){
+                    v[i] = $z.parseDate($.trim(item), fld.setup.validate);
+                } else {
+                    v[i] = $z.parseDate(v[i]);
+                }
+            }
+            return v;
+        }
+    },
+    //......................................
     "datetime" : {
         defaultEditAs : "input",
         normalize : function(fld){
@@ -81,12 +146,12 @@ module.exports = {
             else{
                 $z.setUndefined(fld.setup, "format", "yyyy-mm-dd");
             }
-            if(_.isString(fld.setup.validate)){
-                fld.setup.validate = new RegExp(fld.setup.validate);
-            }
-            else if(_.isUndefined(fld.setup.validate)){
-                fld.setup.validate = /^(\d{4})-(\d{2})-(\d{2})$/;
-            }
+            // if(_.isString(fld.setup.validate)){
+            //     fld.setup.validate = new RegExp(fld.setup.validate);
+            // }
+            // else if(_.isUndefined(fld.setup.validate)){
+            //     fld.setup.validate = /^(\d{4})-(\d{2})-(\d{2})$/;
+            // }
         },
         asEdit : function(fld, d){
             return d ? d.format(fld.setup.format) : "";
@@ -126,8 +191,8 @@ module.exports = {
         },
         asEdit : function(fld, _t){
             if("@min" == fld.setup.format)
-                return tPad(_t.HH)+":"+tPad(_t.MM);
-            return tPad(_t.HH)+":"+tPad(_t.MM)+":"+tPad(_t.ss);
+                return _t.key_min;
+            return _t.key;
         },
         asValue : function(fld, _t){
             return _t.sec;

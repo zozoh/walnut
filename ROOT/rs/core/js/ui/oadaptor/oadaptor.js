@@ -23,7 +23,7 @@ return ZUI.def("ui.oadaptor", {
         //console.log("oadasptor:", o)
         if(o) {
             //UI.$el.data("@DATA", D);
-            ZUI.loadResource(o.uiAdaptor, function(uiDef){
+            $z.loadResource(o.uiAdaptor, function(uiDef){
                 // console.log("ahhahah", _.extend({},uiDef))
                 // 普通设置数据
                 if(!uiDef) {

@@ -18,6 +18,7 @@ define({
     "title"   : "标题",
     "download": "下载",
     "loading" : "正在加载...",
+    "doing"   : "执行中...",
     "e_ajax"  : "靠，有问题啦， 错误码:{{errCode}}  细节:{{msg}} : {{data}}",
     "editing" : {
         "multiselectbox" : {

@@ -114,13 +114,13 @@ a:hover {
 }
 .doc-main {
     position: relative;
-    padding:0 200px 0 0;
+    padding:0 300px 0 0;
     font-size: 12px;
 }
 
 .doc-outline {
     position: absolute; right: 0;
-    width: 200px; background: rgba(255,255,255,0.8);
+    width: 300px; background: rgba(255,255,255,0.8);
 }
 
 .doc-outline-hide .doc-outline-item{display: none;}

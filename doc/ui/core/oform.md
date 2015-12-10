@@ -30,13 +30,21 @@ new OFormUI({
     hideGroupTitleWhenSingle : true,
 
     // 声明控件底部支持什么操作
+    // 所有的回调函数的 this 都会被传入一个下列格式的对象:
+    /*
+    {
+        UI   : UI,       // 对应的 oform UI
+        $btn : jQuery    // 被点击的按钮的 jQuery 对象
+        conf : {..}      // 本按钮的配置信息
+    }
+    */
     actions : [{
         icon    : '<i class=..>'  // 【选】是否显示图标，以及图标的 HTML 片段
         text    : "i18n:xxx"      // 按钮文字，支持 i18n
 
-        context : {..}            // 【选】回调上下文，默认 UIForm
-
         // 按钮的动作是调用一个回调函数
+        // 如果想禁止按钮重复被点击，需要手动设置 $btn 的状态，自己在函数里加防守
+        // 给 $btn 添加属性 ing=true 则控件根本不会再次调用函数，除非你主动去掉这个属性
         handler : {context}F(o)
 
         // 按钮的动作是发送一个请求

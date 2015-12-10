@@ -55,6 +55,8 @@ module.exports = ZUI.def("ui.layout", {
                 var conf = setups[index];
                 var jq = jqs[index];
                 var uiConf = _.extend({}, conf.uiConf);
+                if(conf.className)
+                    jq.addClass(conf.className);
                 uiConf.gasketName = jq.attr("ui-gasket");
                 uiConf.parent = UI;
                 UI.gasket[uiConf.gasketName] = {
