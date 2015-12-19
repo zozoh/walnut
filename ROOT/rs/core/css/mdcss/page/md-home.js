@@ -26,6 +26,8 @@ $(document).ready(function () {
                 }, 1500);
             }
         },
+        onready: function () {
+        },
         closeQuick: false
     }, window._md_page_home_ || {});
 
@@ -499,34 +501,6 @@ $(document).ready(function () {
             // 设置新的href
             window.location.href = (lhi > 0 ? lochref.substr(0, lhi) : lochref) + "#" + url;
 
-
-            // header恢复默认样式
-            //mphome.components.main.empty();
-            //mphome.header.asHeader();
-            //
-            //var html = "";
-            //// 独立页面
-            //if (navItem.page == "true") {
-            //    html += '<iframe src="' + page + '"></iframe>';
-            //    mphome.components.main.html(html);
-            //}
-            //// 代码片段
-            //else {
-            //    $http.getText(page, function (pg) {
-            //        // 内嵌的部分
-            //        html += pg;
-            //        html += '<script>';
-            //        html += '$(document).ready(function(){'
-            //        html += '    myInit(' + (args == null ? '' : JSON.stringify(args)) + ');';
-            //        html += '});'
-            //        html += '<' + '/script>';
-            //        // 添加页面到mview中
-            //        // FIXME innerHtml 不会触发事件!
-            //        // mphome.components.main[0].innerHTML = html;
-            //        mphome.components.main.html(html);
-            //    });
-            //}
-
             mphome.nav.loadMainContainer(navItem.page, page, args);
 
             // 关闭nav
@@ -535,8 +509,30 @@ $(document).ready(function () {
             }, 400);
         },
         loadMainContainer: function (sp, page, args) {
+
+            if (window.myDestroy != undefined) {
+                try {
+                    // 先释放
+                    myDestroy();
+                    myDestroy = null;
+                } catch (e) {
+                    console.error("err: " + e);
+                }
+            } else {
+                if (window.dftDestroy) {
+                    try {
+                        // 先释放
+                        dftDestroy();
+                    } catch (e) {
+                        console.error("err: " + e);
+                    }
+                }
+            }
+
             mphome.components.main.empty();
             mphome.header.asHeader();
+
+            // 再加载与初始化
 
             var html = "";
             // 独立页面
@@ -849,6 +845,13 @@ $(document).ready(function () {
             });
         });
     });
+
+    // onready
+
+    if (hconf.onready) {
+        hconf.onready();
+    }
+
 
     window.$mp = window.$mp || {};
     window.$mp.home = mphome;

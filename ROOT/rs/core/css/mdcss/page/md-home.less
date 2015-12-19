@@ -8,6 +8,29 @@ body {
 
 body.md-home {
   overflow: hidden;
+
+  &.show-nav {
+
+    #md-page-header {
+      // left: @side-w;
+      .mp-header-left li:first-child {
+        display: none;
+      }
+    }
+
+    #md-page-nav {
+      .user-transform(translate3d(0, 0, 0));
+      opacity: 1;
+      top: @header-h;
+      box-shadow: none;
+      border-right: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    #md-page-main {
+      left: @side-w;
+    }
+  }
+
 }
 
 // ---------------------------------------------- header
@@ -329,15 +352,29 @@ body.md-home {
       position: relative;
       line-height: @up-size;
 
-      .user-avater {
+      .user-avatar {
         border: none;
         float: left;
         width: @up-size;
         height: @up-size;
         border-radius: 50%;
         margin-right: 16px;
-        background-image: url("img/home_avater.png");
-        background-size: cover;
+        overflow: hidden;
+
+        :hover {
+          cursor: pointer;
+        }
+
+        &.default {
+          background-image: url("img/home_avater.png");
+          background-size: cover;
+        }
+
+        img {
+          width: @up-size;
+          height: @up-size;
+          display: block;
+        }
       }
 
       .user-name {

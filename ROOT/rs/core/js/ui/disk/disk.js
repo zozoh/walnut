@@ -40,7 +40,11 @@ define(function (require, exports, module) {
                 if (new_nm == obj.nm) {
                     return;
                 }
-                UI.model.trigger("cmd:exec", "mv " + obj.nm + " " + new_nm, function () {
+                //UI.model.trigger("mv " + obj.nm + " " + new_nm, function () {
+                //    UI.open_file();
+                //});
+                Wn.exec("mv " + obj.nm + " " + new_nm, function (re) {
+                    console.debug("exec-re: " + re);
                     UI.open_file();
                 });
             }
@@ -50,7 +54,11 @@ define(function (require, exports, module) {
     $mp.disk.uis.addAction('delete', function (UI, obj) {
         $mp.confirm('确定要删除"' + obj.nm + '"', '删除文件', function (re) {
             if (re) {
-                UI.model.trigger("cmd:exec", "rm " + obj.ph, function () {
+                //UI.model.trigger("rm " + obj.ph, function () {
+                //    UI.open_file();
+                //});
+                Wn.exec("rm " + obj.ph, function (re) {
+                    console.debug("exec-re: " + re);
                     UI.open_file();
                 });
             }
@@ -286,7 +294,11 @@ define(function (require, exports, module) {
                         if (new_nm == cobj.nm) {
                             return;
                         }
-                        UI.model.trigger("cmd:exec", "mv " + cobj.nm + " " + new_nm, function () {
+                        //UI.model.trigger("mv " + cobj.nm + " " + new_nm, function () {
+                        //    UI.open_file();
+                        //});
+                        Wn.exec("mv " + cobj.nm + " " + new_nm, function (re) {
+                            console.debug("exec-re: " + re);
                             UI.open_file();
                         });
                     }
@@ -301,7 +313,7 @@ define(function (require, exports, module) {
                 $mp.message('还有bug,暂停使用!')
             }
             else if (act == "dup") {
-                //UI.model.trigger("cmd:exec", "cp " + cobj.ph + " " + cobj.ph, function () {
+                //UI.model.trigger("cp " + cobj.ph + " " + cobj.ph, function () {
                 //    UI.open_file();
                 //});
                 $mp.message('还有bug,暂停使用!')
@@ -309,7 +321,11 @@ define(function (require, exports, module) {
             else if (act == "delete") {
                 $mp.confirm('确定要删除"' + cobj.nm + '"', '删除文件', function (re) {
                     if (re) {
-                        UI.model.trigger("cmd:exec", "rm " + cobj.ph, function () {
+                        //UI.model.trigger("rm " + cobj.ph, function () {
+                        //    UI.open_file();
+                        //});
+                        Wn.exec("rm " + cobj.ph, function (re) {
+                            console.debug("exec-re: " + re);
                             UI.open_file();
                         });
                     }
@@ -328,7 +344,11 @@ define(function (require, exports, module) {
                 $mp.prompt("新建文件夹", "无标题文件夹", function (re) {
                     if (re) {
                         var cpath = $po.attr('path');
-                        UI.model.trigger("cmd:exec", "mkdir " + cpath + "/" + re, function () {
+                        //UI.model.trigger("mkdir " + cpath + "/" + re, function () {
+                        //    UI.open_file();
+                        //});
+                        Wn.exec("mkdir " + cpath + "/" + re, function (re) {
+                            console.debug("exec-re: " + re);
                             UI.open_file();
                         });
                     }
@@ -338,14 +358,22 @@ define(function (require, exports, module) {
                 $mp.prompt("新建文件", "无标题文件", function (re) {
                     if (re) {
                         var cpath = $po.attr('path');
-                        UI.model.trigger("cmd:exec", "touch " + cpath + "/" + re, function () {
+                        //UI.model.trigger("touch " + cpath + "/" + re, function () {
+                        //    UI.open_file();
+                        //});
+                        Wn.exec("touch " + cpath + "/" + re, function (re) {
+                            console.debug("exec-re: " + re);
                             UI.open_file();
                         });
                     }
                 });
             }
             else if (act == "upload") {
-                UI.model.trigger("cmd:exec", "open upload " + $po.attr('path'), function () {
+                //UI.model.trigger("open upload " + $po.attr('path'), function () {
+                //});
+                Wn.exec("open upload " + $po.attr('path'), function (re) {
+                    console.debug("exec-re: " + re);
+                    UI.open_file();
                 });
             }
         },
@@ -376,7 +404,12 @@ define(function (require, exports, module) {
             var UI = this;
             var Mod = UI.model;
             UI.beforeLoading();
-            Mod.trigger("cmd:exec", "disk id:" + obj.id, function () {
+            //Mod.trigger("disk id:" + obj.id, function () {
+            //    UI.afterLoading(true);
+            //});
+            Wn.exec("disk id:" + obj.id, function (re) {
+                console.debug("exec-re: " + re);
+                Mod.set(WOList, $z.fromJson(re));
                 UI.afterLoading(true);
             });
         },
