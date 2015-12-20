@@ -102,6 +102,9 @@ public abstract class HdlCmd extends JvmExecutor {
         ctx.oCurrent = this.getCurrentObj(sys);
         ctx.oHome = this.getHome(sys);
 
+        // ioc
+        ctx.ioc = ioc;
+
         // 手动设置ctx
         setCtx(sys, ctx);
 
