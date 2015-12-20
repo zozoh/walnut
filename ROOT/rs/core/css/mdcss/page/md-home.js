@@ -279,6 +279,7 @@ $(document).ready(function () {
             for (var i = 0, ml = tabs.length; i < ml; i++) {
                 var tab = tabs[i];
                 mphome.ext._tabContainerHtml(tab, i, function (html) {
+                    // $container[0].innerHtml = html;
                     $container.append(html);
                 });
             }
@@ -551,7 +552,7 @@ $(document).ready(function () {
                     html += '});'
                     html += '<' + '/script>';
                     // 添加页面到mview中
-                    // FIXME innerHtml 不会触发事件!
+                    // FIXME innerHtml 不会触发事件! 不会加载js文件
                     // mphome.components.main[0].innerHTML = html;
                     mphome.components.main.html(html);
                 });

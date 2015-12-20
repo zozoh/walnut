@@ -39,12 +39,14 @@
                     $tf.addClass(_clz_hasValue);
                 } else {
                     $tf.removeClass(_clz_hasValue);
-                    $tf.removeClass(_clz_highlight);
                 }
+                $tf.removeClass(_clz_highlight);
+                $tf.removeClass(_clz_hasErr);
             }
         },
         startListen: function () {
             var $doc = docBody();
+            // text
             // 选中
             $doc.delegate('.md-text-field', 'focusin', function () {
                 var $tf = $(this);
@@ -64,13 +66,66 @@
                 textField.events.check_input_value($(this).parent());
             });
 
-
             // 遍历所有当前页面中的input
             $doc.find('.md-text-field').each(function (i, ele) {
                 textField.events.check_input_value($(ele));
             });
         }
     };
+
+    // text-field
+    var selectField = {
+        functions: {
+            'hasValue': function ($input) {
+                var cval = $input.val();
+                if (cval == undefined || cval == null || cval.trim().length == 0) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        },
+        events: {
+            'check_input_value': function ($tf) {
+                var $input = $tf.find('select');
+                if (selectField.functions.hasValue($input)) {
+                    $tf.addClass(_clz_hasValue);
+                } else {
+                    $tf.removeClass(_clz_hasValue);
+                }
+                $tf.removeClass(_clz_highlight);
+                $tf.removeClass(_clz_hasErr);
+            }
+        },
+        startListen: function () {
+            var $doc = docBody();
+            // text
+            // 选中
+            $doc.delegate('.md-select-field', 'focusin', function () {
+                var $tf = $(this);
+                $tf.siblings().removeClass(_clz_isFocus);
+                $tf.addClass(_clz_isFocus);
+            });
+            // 选出
+            $doc.delegate('.md-select-field', 'focusout', function () {
+                var $tf = $(this);
+                $tf.removeClass(_clz_isFocus);
+                // 检查内容
+                selectField.events.check_input_value($tf);
+
+            });
+            // 修改过内容
+            $doc.delegate('.md-select-field > select', 'change', function () {
+                selectField.events.check_input_value($(this).parent());
+            });
+
+            // 遍历所有当前页面中的input
+            $doc.find('.md-select-field').each(function (i, ele) {
+                selectField.events.check_input_value($(ele));
+            });
+        }
+    };
+
 
     // checkbox-field
     var checkboxField = {
@@ -318,6 +373,7 @@
 
     // 注册所有的控件
     component.textField = textField;
+    component.selectField = selectField;
     component.button = button;
     component.tab = tab;
     component.checkboxField = checkboxField;
