@@ -85,13 +85,11 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
     },
     //..............................................
     active : function(ele, shiftIsOn, ctrlIsOn) {
-        console.log(ele, shiftIsOn, ctrlIsOn)
         var UI   = this;
         var jObj = $(ele).closest(".wnobj");
 
         // 得到原来的激活项
         var jA   = UI.arena.find(".wnobj-actived").not(jObj);
-        console.log(jA.size()) 
 
         // 单个多选
         if(ctrlIsOn && UI.browser.options.checkable){
