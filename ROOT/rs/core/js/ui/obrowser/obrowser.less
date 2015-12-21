@@ -107,14 +107,18 @@
             }
             .wnobj-nm{
                 display: inline-block; padding:0 @d1; border-radius: @d0;
+                border:1px dotted rgba(0,0,0,0);
             }
         }
-        .wnobj-checked, .wnobj-actived {
+        .wnobj-checked {
             .wnobj-thumbnail{background: @cb2;}
             .wnobj-thumbnail[thumb]{
                 .img {border:1px solid @cborder1;}
             }
             .wnobj-nm {background: @ch0_b; color:@ch0_f;}
+        }
+        .wnobj-actived {
+            .wnobj-nm {border-color:@cborder1;}
         }
     }
     //---------------------------------------------- END Thunbmail

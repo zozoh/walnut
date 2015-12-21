@@ -186,19 +186,20 @@
   display: inline-block;
   padding: 0 4px;
   border-radius: 2px;
+  border: 1px dotted rgba(0, 0, 0, 0);
 }
-.obrowser .obrowser-vmd-thumbnail .wnobj-checked .wnobj-thumbnail,
-.obrowser .obrowser-vmd-thumbnail .wnobj-actived .wnobj-thumbnail {
+.obrowser .obrowser-vmd-thumbnail .wnobj-checked .wnobj-thumbnail {
   background: #e0e0e0;
 }
-.obrowser .obrowser-vmd-thumbnail .wnobj-checked .wnobj-thumbnail[thumb] .img,
-.obrowser .obrowser-vmd-thumbnail .wnobj-actived .wnobj-thumbnail[thumb] .img {
+.obrowser .obrowser-vmd-thumbnail .wnobj-checked .wnobj-thumbnail[thumb] .img {
   border: 1px solid #eeeeee;
 }
-.obrowser .obrowser-vmd-thumbnail .wnobj-checked .wnobj-nm,
-.obrowser .obrowser-vmd-thumbnail .wnobj-actived .wnobj-nm {
+.obrowser .obrowser-vmd-thumbnail .wnobj-checked .wnobj-nm {
   background: #0044bb;
   color: #ffffff;
+}
+.obrowser .obrowser-vmd-thumbnail .wnobj-actived .wnobj-nm {
+  border-color: #eeeeee;
 }
 .obrowser .obrowser-sky {
   position: relative;

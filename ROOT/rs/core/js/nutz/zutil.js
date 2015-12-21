@@ -50,6 +50,11 @@
             }
         },
         //.............................................
+        // 让一段代码最后执行
+        defer : function(func){
+            window.setTimeout(func,0);
+        },
+        //.............................................
         // 获取当前文档所有被选择的文字内容
         //  - forceReturnArray true 表示强制返回数组
         // 返回一个字符串数组，表示各个 Range 所选择的内容
@@ -1515,6 +1520,12 @@
             }
             return '{' + results.join(',') + '}';
         }
+    };
+
+    // 感知平台
+    var platform = navigator.platform.toLowerCase();
+    zUtil.os = {
+        mac : /^mac/.test(platform)
     };
 
     // log

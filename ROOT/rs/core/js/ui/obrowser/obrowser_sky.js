@@ -228,7 +228,11 @@ return ZUI.def("ui.obrowser_sky", {
             gasketName   : "menu",
             setup        : menu_setup,
             context      : UIBrowser
-        }).render();
+        }).render(function(){
+            $z.defer(function(){
+                UI.resize();
+            });
+        });
     },
     //..............................................
     _draw_crumb : function(UIBrowser, o){

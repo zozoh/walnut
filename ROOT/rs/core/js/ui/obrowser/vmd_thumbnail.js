@@ -45,6 +45,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
             if(UI.browser.canOpen(o)){
                 UI.browser.setData("id:"+o.id);
             }
+
         },
         "click .wnobj-thumbnail" : function(e){
             var UI = this;
@@ -58,18 +59,19 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
                 }
             }
             // 否则表示选中
-            UI.active(jq, e.shiftKey);
+            UI.active(jq, e.shiftKey, $z.os.mac?e.metaKey:$z.os.ctrlKey);
         },
         "click .wnobj-nm" : function(e){
             var UI = this;
             var jq = $(e.currentTarget);
+            var ctrlIsOn = $z.os.mac?e.metaKey:$z.os.ctrlKey;
             // 如果是选中的，那么就改名
-            if(UI.isActived(jq)){
+            if(UI.isActived(jq) && !ctrlIsOn){
                 console.log("will rename...");
             }
             // 否则表示选中
             else{
-                UI.active(jq, e.shiftKey);
+                UI.active(jq, e.shiftKey, ctrlIsOn);
             }
         },
         // 取消全部选择
@@ -82,20 +84,28 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
         }
     },
     //..............................................
-    active : function(ele, shiftIsOn) {
+    active : function(ele, shiftIsOn, ctrlIsOn) {
+        console.log(ele, shiftIsOn, ctrlIsOn)
         var UI   = this;
         var jObj = $(ele).closest(".wnobj");
-        // 已经激活就没必要再激活了
-        if(UI.isActived(jObj))
-            return;
+
         // 得到原来的激活项
-        var jA   = UI.arena.find(".wnobj-actived"); 
+        var jA   = UI.arena.find(".wnobj-actived").not(jObj);
+        console.log(jA.size()) 
+
+        // 单个多选
+        if(ctrlIsOn && UI.browser.options.checkable){
+            console.log("haha",jObj.size())
+            jA.removeClass("wnobj-actived");
+            jObj.toggleClass("wnobj-actived")
+                .toggleClass("wnobj-checked");
+        }
         // 如果是多选
-        if(shiftIsOn && UI.browser.options.checkable){
+        else if(shiftIsOn && UI.browser.options.checkable){
             // 没的激活，激活自己
             if(jA.size() == 0){
                 jA = UI.arena.find(".wnobj:first-child");
-                jObj.addClass("wnobj-actived");
+                jObj.addClass("wnobj-actived wnobj-checked");
             }
 
             // 寻找开始结束
@@ -109,11 +119,11 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
             }
             // jObj 在前面
             else if(pos_a > pos_o){
-                jq = jObj.nextUntil(jA).andSelf();
+                jq = jObj.nextUntil(jA).andSelf().add(jA);
             }
             // jObj 在后面
             else {
-                jq = jObj.prevUntil(jA).andSelf();
+                jq = jObj.prevUntil(jA).andSelf().add(jA);
             }
             jq.addClass("wnobj-checked");
         }
@@ -121,7 +131,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
         else{
             jA.removeClass("wnobj-actived");
             UI.arena.find(".wnobj-checked").removeClass("wnobj-checked");
-            jObj.addClass("wnobj-actived");
+            jObj.addClass("wnobj-actived wnobj-checked");
         }
     },
     //..............................................
