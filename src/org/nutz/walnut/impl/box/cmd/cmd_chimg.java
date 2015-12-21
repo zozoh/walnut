@@ -2,12 +2,8 @@ package org.nutz.walnut.impl.box.cmd;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.OutputStream;
 
 import org.nutz.img.Images;
-import org.nutz.lang.Files;
-import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -22,8 +18,6 @@ import org.nutz.walnut.util.ZParams;
  * 
  */
 public class cmd_chimg extends cmd_image {
-
-    private String tmpDir = System.getProperty("java.io.tmpdir");
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
@@ -91,18 +85,8 @@ public class cmd_chimg extends cmd_image {
             } else {
                 outImg = Images.clipScale(inImg, sw, sh);
             }
-
-            // 写入临时文件
-            File tmp = Files.createFileIfNoExists(new File(tmpDir,
-                                                           System.nanoTime()
-                                                                   + "."
-                                                                   + outObj.type()));
-            Images.write(outImg, tmp);
             // 写入outObj中
-            OutputStream ops = sys.io.getOutputStream(outObj, 0);
-            Streams.writeAndClose(ops, Streams.fileIn(tmp));
-            // 清除临时文件
-            tmp.delete();
+            Images.write(outImg, outObj.type(), sys.io.getOutputStream(outObj, 0));
         }
     }
 

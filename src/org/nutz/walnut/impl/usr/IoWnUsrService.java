@@ -14,6 +14,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
@@ -160,10 +161,13 @@ public class IoWnUsrService implements WnUsrService {
         Wn.WC().su(u, new Atom() {
             public void run() {
                 Wn.WC().me(u.name(), u.group());
+                WnSecurity se = Wn.WC().getSecurity();
+                Wn.WC().setSecurity(null); // FIXME 一定情况下会出问题, 还在查 @pw
                 WnObj oHome = io.create(null, phHome, WnRace.DIR);
                 // 保护主目录
                 oHome.mode(0750);
                 io.appendMeta(oHome, "^md$");
+                Wn.WC().setSecurity(se);
             }
         });
 

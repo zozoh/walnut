@@ -1,5 +1,6 @@
 package org.nutz.walnut.util.hdlcmd;
 
+import org.nutz.ioc.Ioc;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.WnSystem;
 
@@ -14,4 +15,6 @@ public class HdlCtx {
     public WnObj oCurrent;
 
     public WnObj oHome;
+
+    public Ioc ioc;
 }

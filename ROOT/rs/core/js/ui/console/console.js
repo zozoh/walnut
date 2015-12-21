@@ -322,13 +322,13 @@ return ZUI.def("ui.console", {
             var m = str.match(/(open)([ \t]+)([0-9a-zA-Z_.-]{1,})(([ \t]+)(.+))?/);
             if (m) {
                 var path = m[6];
-				var params = undefined;
+                var params = undefined;
                 // 有打开路径 ...
                 if(path){
                     // 非绝对路径，补上前缀
                     if(!/^[~\/].*$/.test(path))
                         path = UI.app.session.envs.PWD + "/" + path;
-					params = {ph : path};
+                    params = {ph : path};
                 }
                 $z.openUrl("/a/open/" + m[3], "_blank", "GET", params);
                 UI.on_cmd_wait();

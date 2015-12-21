@@ -17,6 +17,7 @@ import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
@@ -156,7 +157,7 @@ public class UsrModule extends AbstractWnModule {
     public boolean do_check_login(@Param("nm") String nm, @Param("passwd") String pwd) {
         if (Strings.isBlank(pwd))
             throw Er.create("e.usr.blank.pwd");
-        
+
         if (!usrs.checkPassword(nm, pwd)) {
             throw Er.create("e.usr.invalid.login");
         }
@@ -168,8 +169,8 @@ public class UsrModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     @Filters(@By(type = WnCheckSession.class))
-    public Object do_change_password(@Param("passwd") String passwd) {
-        //WnUsr u = usrs.check(nm); // 为啥要check呢? 应该从当前登陆用户去吧? 有点问题
+    public Object do_change_password(@Param("oldpasswd") String oldpasswd,
+                                     @Param("passwd") String passwd) {
         String seid = Wn.WC().SEID();
         String me = sess.check(seid).me();
         if (Strings.isBlank(passwd)) {
@@ -178,12 +179,12 @@ public class UsrModule extends AbstractWnModule {
         if (!regexPasswd.matcher(passwd).find()) {
             throw Er.create("e.usr.pwd.invalid");
         }
-        // 不要去检查是否跟旧密码一样,这没有意义,反正Ta要改,那就改呗
-        //if (!u.password().equals(passwd)) {
-        //    throw Er.create("e.usr.pwd.old.same");
-        //} else {
+        // 检查旧密码是否正确
+        if (!usrs.checkPassword(me, oldpasswd)) {
+            throw Er.create("e.usr.pwd.old.invalid");
+        }
+        // 设置新密码
         usrs.setPassword(me, passwd);
-        //}
         return Ajax.ok();
     }
 
@@ -217,6 +218,47 @@ public class UsrModule extends AbstractWnModule {
             return true;
         }
         return false;
+    }
+
+    // --------- 用户头像
+
+    // 用户头像默认存放在 $HOME/.avatar
+
+    @At("/avatar/me")
+    @Ok("raw")
+    public Object usrAvatar() {
+        WnSession se = sess.check(Wn.WC().SEID());
+        String avatarPath = Wn.normalizeFullPath("~/.avatar", se);
+        WnObj avatarObj = io.fetch(null, avatarPath);
+        if (avatarObj != null) {
+            return io.getInputStream(avatarObj, 0);
+        } else {
+            return this.getClass().getResourceAsStream("/avatar.png");
+        }
+    }
+
+    @At("/avatar/usr")
+    @Ok("raw")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public Object usrAvatar(@Param("nm") String nm) {
+        String avatarPath = null;
+        if ("root".equals(nm)) {
+            avatarPath = "/root/.avatar";
+        } else {
+            avatarPath = "/home/" + nm + "/.avatar";
+        }
+        WnObj avatarObj = io.fetch(null, avatarPath);
+        if (avatarObj != null) {
+            return io.getInputStream(avatarObj, 0);
+        } else {
+            return this.getClass().getResourceAsStream("/avatar.png");
+        }
+    }
+
+    @At("/avatar/upload")
+    public Object usrAvatarUpload() {
+        // TODO 暂时直接使用objModule中的upload上传头像文件
+        return null;
     }
 
 }
