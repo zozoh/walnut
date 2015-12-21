@@ -96,6 +96,10 @@ public class WnSecurityImpl extends WnEvalLink {
 
     private WnObj __do_check(WnObj o, int mask, boolean asNull) {
 
+        // 防止空指针
+        if (null == o)
+            return null;
+
         // 我是谁？
         String me = Wn.WC().checkMe();
         WnUsr u = usrs.check(me);
@@ -145,4 +149,18 @@ public class WnSecurityImpl extends WnEvalLink {
         // 抛错，没有权限
         throw Er.create("e.io.forbidden", o.path());
     }
+
+    @Override
+    public boolean test(WnObj nd, int mode) {
+        WnContext wc = Wn.WC();
+        wc.setSecurity(null);
+        try {
+            WnObj o = __eval_obj(nd);
+            return null != __do_check(o, mode, true);
+        }
+        finally {
+            wc.setSecurity(this);
+        }
+    }
+
 }

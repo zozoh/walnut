@@ -136,6 +136,193 @@
             throw  "fail to dimension : " + v;
         },
         //.............................................
+        // 获取一个元素的矩形信息，包括 top,left,right,bottom,width,height,x,y
+        // 其中 x,y 表示中央点
+        rect : function(ele){
+            var jq = $(ele);
+            var rect    = jq.offset();
+            rect.width  = jq.outerWidth();
+            rect.height = jq.outerHeight();
+            rect.right  = rect.left + rect.width;
+            rect.bottom = rect.top  + rect.height;
+            rect.x      = rect.left + rect.width/2;
+            rect.y      = rect.top  + rect.height/2;
+            return rect;
+        },
+        //.............................................
+        // 将一个元素停靠再另外一个元素上，根据目标元素在文档的位置来自动决定最佳的停靠方案
+        // @ele  - 被停靠元素
+        // @ta   - 浮动元素
+        // @mode - H | V 表示是停靠在水平边还是垂直边，默认 H
+        dock : function(ele, ta, mode){
+            var jq  = $(ele);
+            var jTa = $(ta).css("position","fixed");
+            // 得到浮动元素大小
+            var sub = {
+                width  : jTa.outerWidth(true),
+                height : jTa.outerHeight(true)
+            };
+            // 得到菜单项目的矩形信息
+            var rect = $z.rect(jq);
+            //console.log(" rect  :", rect);
+            // 计算页面的中点
+            var viewport = $z.winsz();
+            //console.log("viewport:", viewport);
+            /*
+            看看这个位置在页面的那个区域
+            +---+---+
+            | A | B |
+            +---+---+
+            | C | D |
+            +---+---+
+            */
+            var off;
+            // 停靠在左右边
+            if("V" == mode){
+                // A : 右上角对齐
+                if(viewport.x>=rect.x && viewport.y>=rect.y){
+                    off = {
+                        "left" : rect.right,
+                        "top"  : rect.top
+                    };
+                }
+                // B : 左上角对齐
+                else if(viewport.x<=rect.x && viewport.y>=rect.y){
+                    off = {
+                        "left" : rect.left   - sub.width,
+                        "top"  : rect.top
+                    };
+                }
+                // C : 右下角对齐
+                else if(viewport.x>=rect.x && viewport.y<=rect.y){
+                    off = {
+                        "left" : rect.right,
+                        "top"  : rect.bottom - sub.height
+                    };
+                }
+                // D : 左下角对齐
+                else {
+                    off = {
+                        "left" : rect.left   - sub.width,
+                        "top"  : rect.bottom - sub.height
+                    };
+                }
+            }
+            // 停靠在上下边
+            /*
+            +---+---+
+            | A | B |
+            +---+---+
+            | C | D |
+            +---+---+
+            */
+            else{
+                // A : 左下角对齐
+                if(viewport.x>=rect.x && viewport.y>=rect.y){
+                    off = {
+                        "left" : rect.left,
+                        "top"  : rect.bottom
+                    };
+                }
+                // B : 右下角对齐
+                else if(viewport.x<=rect.x && viewport.y>=rect.y){
+                    off = {
+                        "left" : rect.right - sub.width,
+                        "top"  : rect.bottom
+                    };
+                }
+                // C : 左上角对齐
+                else if(viewport.x>=rect.x && viewport.y<=rect.y){
+                    off = {
+                        "left" : rect.left,
+                        "top"  : rect.top - sub.height
+                    };
+                }
+                // D : 右上角对齐
+                else {
+                    off = {
+                        "left" : rect.right   - sub.width,
+                        "top"  : rect.top - sub.height
+                    };
+                }
+            }
+            // 调整上下边缘
+            if(off.top < viewport.top){
+                off.top = viewport.top;
+            }else if(off.bottom > viewport.bottom){
+                off.top = viewport.bottom - sub.height;
+            }
+            // 设置属性
+            jTa.css(off);
+        },
+        //.............................................
+        // 获得视口的矩形信息
+        winsz: function () {
+            var rect;
+            if (window.innerWidth) {
+                rect = {
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                };
+            }
+            else if (document.documentElement) {
+                rect = {
+                    width: document.documentElement.clientWidth,
+                    height: document.documentElement.clientHeight
+                };
+            }
+            else {
+                rect = {
+                    width: document.body.clientWidth,
+                    height: document.body.clientHeight
+                };
+            };
+            // 继续计算相对于文档的位置
+            var jBody = $(document.body);
+            rect.top  = jBody.scrollTop();
+            rect.left = jBody.scrollLeft();
+            rect.right  = rect.left + rect.width;
+            rect.bottom = rect.top  + rect.height;
+            rect.x      = rect.left + rect.width/2;
+            rect.y      = rect.top  + rect.height/2;
+            return rect;
+        },
+        //.............................................
+        // 得到一个元素的外边距
+        margin: function($ele){
+            return {
+                x : $ele.outerWidth(true) - $ele.outerWidth(),
+                y : $ele.outerHeight(true) - $ele.outerHeight()
+            };
+        },
+        //.............................................
+        // 得到一个元素的内边距(包括 border)
+        padding: function($ele){
+            return {
+                x : $ele.outerWidth() - $ele.width(),
+                y : $ele.outerHeight() - $ele.height()
+            };
+        },
+        //.............................................
+        // 获得当前系统当前浏览器中滚动条的宽度
+        // TODO 代码实现的太恶心，要重构!
+        scrollBarWidth: function () {
+            if (!window.SCROLL_BAR_WIDTH) {
+                var newDivOut = "<div id='div_out' style='position:relative;width:100px;height:100px;overflow-y:scroll;overflow-x:scroll'></div>";
+                var newDivIn = "<div id='div_in' style='position:absolute;width:100%;height:100%;'></div>";
+                var scrollWidth = 0;
+                $('body').append(newDivOut);
+                $('#div_out').append(newDivIn);
+                var divOutS = $('#div_out');
+                var divInS = $('#div_in');
+                scrollWidth = divOutS.width() - divInS.width();
+                $('#div_out').remove();
+                $('#div_in').remove();
+                window.SCROLL_BAR_WIDTH = scrollWidth;
+            }
+            return window.SCROLL_BAR_WIDTH;
+        },
+        //.............................................
         // 从数组里获取值
         //   arr   : 数组
         //   index : 下标
@@ -156,21 +343,20 @@
         //   key : 键值，支持 "."
         //   dft : 如果木找到，返回的东东
         getValue : function(obj, key, dft){
-            var re = obj[key];
-            if(!_.isUndefined(re))
-                return re;
-            
-            var ks = key.split(".");
+            var ks = _.isArray(key)? key : key.split(".");
+            var o = obj;
             if(ks.length>1){
-                re = obj[ks[0]];
-                if(_.isUndefined(re))
-                    return dft;
-                for (var i = 1; i < ks.length; i++) {
-                    re = re[ks[i]];
-                    if(_.isUndefined(re))
+                var lastIndex = ks.length - 1;
+                for (var i = 0; i < lastIndex; i++) {
+                    key = ks[i];
+                    o = o[key];
+                    if(!o){
                         return dft;
+                    }
                 }
+                key = ks[lastIndex];;
             }
+            var re = o[key];
             return _.isUndefined(re) ? dft : re;
         },
         //.............................................
@@ -180,23 +366,54 @@
         //   key : 键值，支持 "."
         //   val : 值
         setValue : function(obj, key, val){         
-            var ks = key.split(".");
+            var ks = _.isArray(key)? key : key.split(".");
+            var o = obj;
             if(ks.length>1){
-                o = obj;
                 var lastIndex = ks.length - 1;
                 for (var i = 0; i < lastIndex; i++) {
-                    var key = ks[i];
+                    key = ks[i];
                     o = o[key];
                     if(!o){
                         o = {};
                         obj[key] = o;
                     }
                 }
-                o[ks[lastIndex]] = val;
+                key = ks[lastIndex];;
             }
-            else{
-                obj[key] = val;
+            o[key] = val;
+        },
+        //.............................................
+        // 向普通对象里添加值
+        // 如果已经有值了，则变成 array，就是处理后，值一定是一个数组
+        //   obj : 对象
+        //   key : 键值，支持 "."
+        //   val : 值
+        pushValue : function(obj, key, val){
+            var ks = _.isArray(key)? key : key.split(".");
+            var o = obj;
+            if(ks.length>1){
+                var lastIndex = ks.length - 1;
+                for (var i = 0; i < lastIndex; i++) {
+                    key = ks[i];
+                    o = o[key];
+                    if(!o){
+                        o = {};
+                        obj[key] = o;
+                    }
+                }
+                key = ks[lastIndex];;
             }
+
+            var arr = o[key];
+            if(_.isUndefined(arr)){
+                arr = [];
+                o[key] = arr;
+            }
+            else if(!_.isArray(arr)){
+                o[key] = [arr];
+                arr = o[key];
+            }
+            arr.push(val);
         },
         //.............................................
         // 执行一个 HTML5 的文件上传操作，函数接受一个配置对象：
@@ -837,6 +1054,15 @@
             return str;
         },
         //.............................................
+        // 将一个对象的原型，链接到指定的父对象上
+        // 这个函数很暴力的，直接修改对象的 __proto__，对于只读的对象
+        // 用这个函数应该别 extend 要快点
+        // 函数返回 obj 本身
+        inherit: function(obj, parent){
+            obj.__proto__ = parent;
+            return obj;
+        },
+        //.............................................
         // 扩展第一个对象，深层的，如果遇到重名的对象，则递归
         // 调用方法 $z.extend(a,b,c..)
         extend: function () {
@@ -911,44 +1137,6 @@
             if(this.isjQuery(obj))
                 return false;
             return _.isObject(obj);
-        },
-        //.............................................
-        winsz: function () {
-            if (window.innerWidth) {
-                return {
-                    width: window.innerWidth,
-                    height: window.innerHeight
-                };
-            }
-            if (document.documentElement) {
-                return {
-                    width: document.documentElement.clientWidth,
-                    height: document.documentElement.clientHeight
-                };
-            }
-            return {
-                width: document.body.clientWidth,
-                height: document.body.clientHeight
-            };
-        },
-        //.............................................
-        // 获得当前系统当前浏览器中滚动条的宽度
-        // TODO 代码实现的太恶心，要重构!
-        scrollBarWidth: function () {
-            if (!window.SCROLL_BAR_WIDTH) {
-                var newDivOut = "<div id='div_out' style='position:relative;width:100px;height:100px;overflow-y:scroll;overflow-x:scroll'></div>";
-                var newDivIn = "<div id='div_in' style='position:absolute;width:100%;height:100%;'></div>";
-                var scrollWidth = 0;
-                $('body').append(newDivOut);
-                $('#div_out').append(newDivIn);
-                var divOutS = $('#div_out');
-                var divInS = $('#div_in');
-                scrollWidth = divOutS.width() - divInS.width();
-                $('#div_out').remove();
-                $('#div_in').remove();
-                window.SCROLL_BAR_WIDTH = scrollWidth;
-            }
-            return window.SCROLL_BAR_WIDTH;
         },
         //---------------------------------------------------------------------------------------
         /**
@@ -1090,23 +1278,37 @@
                 var me = $(this);
                 var opt = me.data("z-editit-opt");
                 opt.after.apply(me.parent(), [me.val(), me.attr("old-val")]);
-                me.unbind("keydown", onKeydown).remove();
+                me.remove();
             };
             // 准备显示输入框
             var val = opt.text || me.text();
             var html = opt.multi ? '<textarea></textarea>' : '<input>';
+
+            // 计算宿主的内边距
+            var padding = $z.padding(me);
+
             // 计算宽高
             var css = {
                 "width": opt.width || me.outerWidth(),
                 "height": opt.height || me.outerHeight(),
                 "position": "absolute",
-                "z-index": 999999
+                "z-index": 999999,
+                "margin-left" : padding.x/-2,
+                "margin-top"  : padding.y/-2,
             };
 
             // 显示输入框
-            var jq = $(html).prependTo(me).val(val).attr("old-val", val).addClass("z_editit").css(css);
+            var jq = $(html).prependTo(me)
+                       .val(val)
+                       .attr("old-val", val)
+                       .addClass("z_editit").css(css);
             jq.data("z-editit-opt", opt);
-            return jq.one("blur", func).one("change", func).keydown(onKeydown).select();
+
+            return jq.one("blur", func)
+                     .one("change", func)
+                     .on("keydown", onKeydown)
+                     .on("click", function(e){e.stopPropagation();})
+                     .focus();
         },
         //.............................................
         // json : function(obj, fltFunc, tab){
@@ -1229,7 +1431,7 @@
         },
         //============== 计算文件大小
         sizeText: function (sz) {
-            sz = parseInt(sz);
+            sz = parseInt(sz)||0;
             // KB
             var ckb = sz / 1024;
             if (ckb > 1024) {
@@ -1238,13 +1440,12 @@
                 if (cmb > 1024) {
                     // GB
                     var cgb = cmb / 1024;
-                    return cgb.toFixed(2) + " GB";
-                } else {
-                    return cmb.toFixed(2) + " MB";
+                    return (cgb==parseInt(cgb)?cgb:cgb.toFixed(2)) + " GB";
                 }
-            } else {
-                return ckb.toFixed(2) + " KB";
+                return (cmb==parseInt(cmb)?cmb:cmb.toFixed(2)) + " MB";
             }
+
+            return (ckb==parseInt(ckb)?ckb:ckb.toFixed(2)) + " KB";
         },
         formatJson: function (obj, depth) {
             var type = typeof obj;

@@ -66,8 +66,8 @@ public class JvmBox implements WnBox {
         String[] cmdLines = Strings.split(cmdText, true, '\n', ';');
 
         for (String cmdLine : cmdLines) {
-            runner.__run(cmdLine);
-            runner.__wait_for_idle();
+            runner.run(cmdLine);
+            runner.wait_for_idle();
         }
     }
 

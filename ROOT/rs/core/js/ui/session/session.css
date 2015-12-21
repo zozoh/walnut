@@ -1,5 +1,4 @@
-/*theme:w0 .................................................*/
-[theme="w0"] .ui-session > .ui-arena {
+.ui-session > .ui-arena {
   text-align: right;
   padding: 10px;
 }

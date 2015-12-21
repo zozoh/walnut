@@ -1,36 +1,30 @@
-/*theme:w0 .................................................*/
-[theme="w0"] {
-  /*.............................................. check*/
-  /*.............................................. actions*/
-  /*.............................................. filter*/
-  /*.............................................. pager*/
-}
-[theme="w0"] .osearch-sky {
+.osearch-sky {
   position: relative;
   min-height: 30px;
 }
-[theme="w0"] .osearch-sky:after {
+.osearch-sky:after {
   clear: both;
   height: 1px;
   overflow: hidden;
   display: block;
   content: "";
 }
-[theme="w0"] .osearch-list {
+.osearch-list {
   min-height: 300px;
   padding-right: 1px;
 }
-[theme="w0"] .osearch-checkbox,
-[theme="w0"] .osearch-actions {
+.osearch-checkbox,
+.osearch-actions {
   display: inline-block;
   vertical-align: middle;
 }
-[theme="w0"] .osearch-check-opts {
+/*.............................................. check*/
+.osearch-check-opts {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-[theme="w0"] .osearch-check-opts > li {
+.osearch-check-opts > li {
   float: left;
   padding: 0 4px;
   border-right: 1px solid #AAA;
@@ -38,37 +32,40 @@
   color: #08F;
   cursor: pointer;
 }
-[theme="w0"] .osearch-check-opts > li:hover {
+.osearch-check-opts > li:hover {
   color: #F80;
 }
-[theme="w0"] .osearch-check-opts > li:last-child {
+.osearch-check-opts > li:last-child {
   border-right: 0;
 }
-[theme="w0"] .osearch-actions {
-  padding: 10px;
+/*.............................................. actions*/
+.osearch-actions {
+  padding: 6px;
   position: absolute;
   top: 0;
   right: 0;
 }
-[theme="w0"] [narrow] .osearch-actions {
+.osearch-actions .menu {
+  display: inline-block;
+}
+[narrow] .osearch-actions {
   top: 0;
   left: 0;
   right: 0;
+  text-align: center;
 }
-[theme="w0"] [narrow] .osearch-actions table.menu-top-table {
-  margin: 0 auto;
-}
-[theme="w0"] .osearch-filter {
+/*.............................................. filter*/
+.osearch-filter {
   padding: 9px;
   position: absolute;
   top: 0;
   left: 0;
 }
-[theme="w0"] .ofilter-keyword {
+.ofilter-keyword {
   padding: 0px;
   position: relative;
 }
-[theme="w0"] .ofilter-keyword input {
+.ofilter-keyword input {
   font-size: 14px;
   padding: 8px 16px 8px 32px;
   width: 100%;
@@ -77,18 +74,19 @@
   border-radius: 128px;
   outline: none;
 }
-[theme="w0"] .ofilter-icon {
+.ofilter-icon {
   position: absolute;
   top: 0;
   left: 0;
   padding: 8px;
   color: #dddddd;
 }
-[theme="w0"] .osearch-pager {
+/*.............................................. pager*/
+.osearch-pager {
   padding: 10px;
   text-align: center;
 }
-[theme="w0"] .opager-tip {
+.opager-tip {
   color: #888;
   font-style: normal;
   margin-right: 10px;
@@ -97,7 +95,7 @@
   padding: 5px 8px;
   font-size: 12px;
 }
-[theme="w0"] .opager-btn {
+.opager-btn {
   display: inline-block;
   vertical-align: middle;
   border: 1px solid #CCC;
@@ -108,11 +106,11 @@
   cursor: pointer;
   font-size: 12px;
 }
-[theme="w0"] .opager-btn:hover {
+.opager-btn:hover {
   background: #CEF;
 }
-[theme="w0"] .opager-disable,
-[theme="w0"] .opager-disable:hover {
+.opager-disable,
+.opager-disable:hover {
   background: #CCC;
   color: #888;
   opacity: 0.6;

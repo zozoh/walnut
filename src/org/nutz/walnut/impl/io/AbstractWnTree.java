@@ -179,17 +179,17 @@ public abstract class AbstractWnTree implements WnTree {
         // 确保读取所有的父
         p.loadParents(null, false);
 
-        // 确保是目录
-        if (!p.isDIR()) {
-            p = p.parent();
-        }
-
         // 得到节点检查的回调接口
         WnContext wc = Wn.WC();
         WnSecurity secu = wc.getSecurity();
 
         if (null != secu) {
             p = __enter_dir(p, secu);
+        }
+
+        // 确保是目录
+        if (!p.isDIR()) {
+            p = p.parent();
         }
 
         // 处理挂载节点
@@ -364,12 +364,16 @@ public abstract class AbstractWnTree implements WnTree {
         // 创建所有的父
         final int rightIndex = toIndex - 1;
         final WnObj p0 = p;
-        WnObj o = Wn.WC().synctimeOff(new Proton<WnObj>() {
+        final WnContext wc = Wn.WC();
+        WnObj o = wc.synctimeOff(new Proton<WnObj>() {
             protected WnObj exec() {
                 WnObj p1 = p0;
                 WnObj nd = null;
                 for (int i = fromIndex; i < rightIndex; i++) {
                     nd = fetch(p1, paths, i, i + 1);
+                    // 确保节点可以进入
+                    nd = wc.whenEnter(nd);
+                    
                     // 有节点的话继续下一个路径
                     if (null != nd) {
                         p1 = nd;
@@ -805,13 +809,21 @@ public abstract class AbstractWnTree implements WnTree {
 
     @Override
     public List<WnObj> getChildren(WnObj o, String name) {
+        // 确保解开了链接
+        o = Wn.WC().whenEnter(o);
+
         // 挂载点，用挂载点执行器来获取子
         if (o.isMount()) {
             Matcher m = regex_id_mnt2.matcher(o.mount());
             if (m.find()) {
                 String mntType = m.group(1);
                 WnMounter wm = __check_mounter(mntType);
-                return wm.getChildren(mimes, o, name);
+                List<WnObj> re = wm.getChildren(mimes, o, name);
+                // 确保每个对象的路径是正确的
+                for (WnObj child : re) {
+                    child.setParent(o);
+                }
+                return re;
             } else {
                 throw Er.create("e.io.mnt.invalid", o.mount());
             }

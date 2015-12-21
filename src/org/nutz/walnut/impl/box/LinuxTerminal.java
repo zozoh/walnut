@@ -1,5 +1,7 @@
 package org.nutz.walnut.impl.box;
 
+import org.nutz.lang.Lang;
+
 /**
  * 对 Unix/Linux 终端字符颜色的一些操作
  * <p>
@@ -154,7 +156,12 @@ public abstract class LinuxTerminal {
         }
         // 最后输出剩余的
         if (r > l) {
-            sb.append(new String(cs, l, r));
+            try {
+                sb.append(new String(cs, l, r - l));
+            }
+            catch (Exception e) {
+                throw Lang.makeThrow("fail to str:'%s' l=%d, r=%d", str, l, r);
+            }
         }
         // 返回
         return sb.toString();

@@ -26,6 +26,8 @@ public abstract class BaseUsrTest extends BaseIoTest {
         Mirror.me(usrs).setValue(usrs, "regexName", pp.get("usr-name"));
         Mirror.me(usrs).setValue(usrs, "regexPhone", pp.get("usr-phone"));
         Mirror.me(usrs).setValue(usrs, "regexEmail", pp.get("usr-email"));
+        Mirror.me(usrs).setValue(usrs, "usrHome", pp.get("usr-home", "/sys/usr"));
+        Mirror.me(usrs).setValue(usrs, "grpHome", pp.get("grp-home", "/sys/grp"));
         usrs.on_create();
         return usrs;
     }
@@ -35,6 +37,7 @@ public abstract class BaseUsrTest extends BaseIoTest {
         Mirror.me(ses).setValue(ses, "io", io);
         Mirror.me(ses).setValue(ses, "usrs", usrs);
         Mirror.me(ses).setValue(ses, "duration", pp.getInt("se-duration"));
+        Mirror.me(ses).setValue(ses, "sessionHome", pp.get("se-home", "/sys/session"));
         ses.on_create();
         return ses;
     }

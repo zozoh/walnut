@@ -24,6 +24,12 @@ var ioc = {
 			},
 			regexEmail : {
 				java : '$conf.get("usr-email")'
+			},
+			usrHome : {
+				java : '$conf.get("usr-home", "/sys/usr")'
+			},
+			grpHome : {
+				java : '$conf.get("grp-home", "/sys/grp")'
 			}
 		}
 	},
@@ -36,6 +42,9 @@ var ioc = {
 			},
 			duration : {
 				java : '$conf.getInt("se-duration", 3600000)'
+			},
+			sessionHome : {
+				java : '$conf.get("se-home", "/sys/session")'
 			}
 		}
 	},

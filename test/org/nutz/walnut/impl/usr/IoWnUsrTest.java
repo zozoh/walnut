@@ -223,7 +223,7 @@ public class IoWnUsrTest extends BaseUsrTest {
         assertEquals(se.me(), xiaobai.name());
 
         // 检查对象
-        WnObj oSe = io.check(null, "/session/" + se.id());
+        WnObj oSe = io.check(null, "/sys/session/" + se.id());
         assertEquals("application/json", oSe.mime());
         assertTrue(oSe.expireTime() > (System.currentTimeMillis() + 5000));
 
@@ -267,7 +267,7 @@ public class IoWnUsrTest extends BaseUsrTest {
             se = ses.check(se.id());
             System.out.println(Json.toJson(se));
             System.out.println("--------------------Obj:");
-            WnObj oSe2 = io.check(null, "/session/" + se.id());
+            WnObj oSe2 = io.check(null, "/sys/session/" + se.id());
             System.out.println(Json.toJson(oSe2));
             throw e;
         }
@@ -405,7 +405,7 @@ public class IoWnUsrTest extends BaseUsrTest {
         WnObj oHome = io.check(null, u.home());
 
         // 检查权限设定
-        WnObj oMe = io.check(oHome, "/grp/" + u.group() + "/people/" + u.id());
+        WnObj oMe = io.check(oHome, "/sys/grp/" + u.group() + "/people/" + u.id());
         assertEquals(Wn.ROLE.ADMIN, oMe.getInt("role"));
         assertEquals(Wn.ROLE.ADMIN, usrs.getRoleInGroup(u, u.group()));
 
@@ -414,7 +414,7 @@ public class IoWnUsrTest extends BaseUsrTest {
         assertNull(usrs.fetch("xiaobai"));
 
         // 但是组目录还在
-        io.check(oHome, "/grp/" + u.group() + "/people/" + u.id());
+        io.check(oHome, "/sys/grp/" + u.group() + "/people/" + u.id());
 
     }
 

@@ -17,8 +17,6 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 import org.nutz.walnut.util.ZType;
@@ -73,14 +71,6 @@ public class WnSetup implements Setup {
             else {
                 log.infof("== mount : %s > %s", wim.path, wim.mount);
             }
-        }
-
-        // 确保有 ROOT 用户
-        WnUsrService usrs = ioc.get(WnUsrService.class, "usrService");
-        WnUsr root = usrs.fetch("root");
-        if (root == null) {
-            root = usrs.create("root", conf.get("root-init-passwd"));
-            log.infof("init root usr: %s", root.id());
         }
 
         // 获得session服务

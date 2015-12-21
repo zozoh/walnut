@@ -14,4 +14,6 @@ public interface WnSecurity {
 
     // WnObj remove(WnObj nd);
 
+    boolean test(WnObj nd, int mode);
+
 }

@@ -5,8 +5,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,98 @@ import org.nutz.web.WebException;
 import org.w3c.dom.Document;
 
 public class WnIoImplTest extends BaseIoTest {
+
+    @Test
+    public void test_write_empty_file_by_ins() {
+        WnObj o = io.create(null, "/a.txt", WnRace.FILE);
+
+        io.writeText(o, "haha");
+        assertEquals("haha", io.readText(o));
+        assertEquals(4, o.len());
+        assertEquals(4, io.get(o.id()).len());
+
+        OutputStream ops = io.getOutputStream(o, 0);
+        Streams.writeAndClose(ops, Lang.ins(""));
+        assertEquals("", io.readText(o));
+        assertEquals(0, o.len());
+        assertEquals(0, io.get(o.id()).len());
+    }
+
+    @Test
+    public void test_write_empty_file_by_text() {
+        WnObj o = io.create(null, "/a.txt", WnRace.FILE);
+
+        io.writeText(o, "haha");
+        assertEquals("haha", io.readText(o));
+        assertEquals(4, o.len());
+        assertEquals(4, io.get(o.id()).len());
+
+        io.writeText(o, "");
+        assertEquals("", io.readText(o));
+        assertEquals(0, o.len());
+        assertEquals(0, io.get(o.id()).len());
+    }
+
+    @Test
+    public void test_fetch_link_mnt_obj() {
+        // 创建临时文件夹，并写入两个文件
+        File d = Files.createDirIfNoExists("~/tmp/walnut/ua");
+        Files.write(d.getAbsolutePath() + "/aa", "AAA");
+        Files.write(d.getAbsolutePath() + "/bb", "BBB");
+
+        Wn.WC().setSecurity(new WnEvalLink(io));
+        try {
+
+            // 创建一个映射文件一个链接文件
+            WnObj oM = io.create(null, "/test/m", WnRace.DIR);
+            WnObj o = io.create(null, "/mydir/a", WnRace.DIR);
+
+            io.setMount(oM, "file://~/tmp/walnut/ua");
+
+            o.link("/test/m");
+            io.set(o, "^ln$");
+
+            // 试着读取一下
+            WnObj o_a = io.check(null, "/mydir/a/aa");
+            assertEquals("/mydir/a/aa", o_a.path());
+            assertEquals("AAA", io.readText(o_a));
+
+            WnObj o_b = io.check(null, "/mydir/a/bb");
+            assertEquals("/mydir/a/bb", o_b.path());
+            assertEquals("BBB", io.readText(o_b));
+
+        }
+        finally {
+            Wn.WC().setSecurity(null);
+            Files.deleteDir(d);
+        }
+    }
+
+    @Test
+    public void test_create_delete_ln_obj() {
+        Wn.WC().setSecurity(new WnEvalLink(io));
+        try {
+            WnObj c = io.create(null, "/a/b/c", WnRace.DIR);
+            WnObj o = io.create(null, "/m", WnRace.FILE);
+            o.link("/a");
+            io.set(o, "^ln$");
+
+            o = io.fetch(null, "/m");
+
+            assertTrue(o.isLink());
+
+            WnObj c2 = io.fetch(o, "b/c");
+            assertEquals(c.id(), c2.id());
+
+            io.delete(o);
+            assertNull(io.fetch(null, "/m"));
+
+        }
+        finally {
+            Wn.WC().setSecurity(null);
+        }
+
+    }
 
     @Test
     public void test_write_json_obj() {
@@ -235,6 +329,24 @@ public class WnIoImplTest extends BaseIoTest {
     }
 
     @Test
+    public void test_update_dn() {
+        WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
+        assertEquals("a", o.d0());
+        assertEquals("b", o.d1());
+
+        io.move(o, "/a");
+        assertEquals("a", o.d0());
+        assertEquals("c", o.d1());
+
+        o.d0("H").d1("Y");
+        io.set(o, "^(d0|d1)$");
+
+        WnObj o2 = io.get(o.id());
+        assertEquals("a", o2.d0());
+        assertEquals("c", o2.d1());
+    }
+
+    @Test
     public void test_create_by_id() {
         WnObj a = io.createById(null, "id0", "a", WnRace.DIR);
         WnObj b = io.createById(a, "id1", "b", WnRace.DIR);
@@ -280,6 +392,49 @@ public class WnIoImplTest extends BaseIoTest {
         assertEquals("/m/n/xyz.js", o.path());
         assertEquals("js", o.type());
         assertEquals(mimes.getMime("js"), o.mime());
+    }
+
+    @Test
+    public void test_move_2() {
+        io.create(null, "/abc", WnRace.DIR);
+
+        WnObj x = io.create(null, "/x", WnRace.DIR);
+        WnObj y = io.create(null, "/y", WnRace.DIR);
+        WnObj z = io.create(null, "/z", WnRace.DIR);
+
+        assertEquals("x", x.d0());
+        assertEquals("y", y.d0());
+        assertEquals("z", z.d0());
+        assertNull(x.d1());
+        assertNull(y.d1());
+        assertNull(z.d1());
+
+        io.move(z, "/abc/z");
+        io.move(y, "/abc/y");
+        io.move(x, "/abc/x");
+
+        WnObj x2 = io.fetch(null, "/abc/x");
+        WnObj y2 = io.fetch(null, "/abc/y");
+        WnObj z2 = io.fetch(null, "/abc/z");
+
+        assertEquals(x.id(), x2.id());
+        assertEquals(y.id(), y2.id());
+        assertEquals(z.id(), z2.id());
+        assertEquals("abc", x2.d0());
+        assertEquals("abc", y2.d0());
+        assertEquals("abc", z2.d0());
+        assertEquals("x", x2.d1());
+        assertEquals("y", y2.d1());
+        assertEquals("z", z2.d1());
+
+        WnObj abc = io.check(null, "/abc");
+        List<WnObj> list = io.query(Wn.Q.pid(abc).sortBy("nm", 1));
+
+        assertEquals(3, list.size());
+        assertEquals(x.id(), list.get(0).id());
+        assertEquals(y.id(), list.get(1).id());
+        assertEquals(z.id(), list.get(2).id());
+
     }
 
     @Test

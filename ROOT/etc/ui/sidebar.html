@@ -1,0 +1,25 @@
+<!-- 
+侧边栏可以由一些列 <section> 构成， text 属性标识了这个段落的标题
+为了安全起见，你不要妄想在里面写 <Script>，因为会被客户端直接过滤掉
+如果你打算写 onxxx 之类的属性，抱歉，只要是 onxxx 格式的属性也都会过滤掉
+ -->
+<script>console.log("I am evil, very evil >o<")</script>
+<section>
+    <!-- 段落的标题 -->
+    <h1>i18n:favorites</h1>
+    <!--
+    内部每个 <item> 标签都将出现在侧边栏上
+      - 属性 @ph 指明这个项目对应的路径 
+      - 属性 @noicon 指明了这个项目没有图标
+      - <i> 被认为是 icon，你可以随意写 icon 的 CSS
+            如果没有声明 <i> 就用对象的图标，当然如果声明了@noicon就不显示图标
+      - <b> 被认为是文字，支持 i18n 形式的表述
+    -->
+    <item ph="~">
+        <i class="fa fa-home"></i>
+        <b>i18n:home</b>
+    </item>
+    <item ph="~/www"><i class="fa fa-folder-o"></i></item>
+    <item ph="~/a/b"><i class="fa fa-folder-o"></i></item>
+</section> 
+

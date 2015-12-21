@@ -7,6 +7,7 @@ import org.nutz.lang.Strings;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmBoxService;
@@ -47,6 +48,16 @@ public abstract class BaseBoxTest extends BaseUsrTest {
 
     private String __old_me;
     private String __old_grp;
+
+    protected WnObj check(String ph) {
+        String path = Wn.normalizeFullPath(ph, se);
+        return io.check(null, path);
+    }
+
+    protected void cleanOutputAndErr() {
+        out.delete(0, out.length());
+        err.delete(0, err.length());
+    }
 
     @Override
     protected void on_before(PropertiesProxy pp) {

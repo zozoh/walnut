@@ -27,6 +27,8 @@ public class IoWnSessionService implements WnSessionService {
 
     private WnIo io;
 
+    private String sessionHome;
+
     private int duration;
 
     private WnUsrService usrs;
@@ -35,7 +37,7 @@ public class IoWnSessionService implements WnSessionService {
 
     public void on_create() {
         Wn.WC().me("root", "root");
-        oSessions = io.createIfNoExists(null, "/session", WnRace.DIR);
+        oSessions = io.createIfNoExists(null, sessionHome, WnRace.DIR);
     }
 
     @Override
@@ -65,7 +67,7 @@ public class IoWnSessionService implements WnSessionService {
     @Override
     public WnSession create(WnUsr u) {
         // 创建一个 Session 对象
-        WnObj o = io.create(null, "/session/${id}", WnRace.FILE);
+        WnObj o = io.create(oSessions, "${id}", WnRace.FILE);
         // io.changeType(o, SESSTP);
         io.appendMeta(o, Lang.mapf("tp:'%s',mime:'%s'", SESSTP, "application/json"));
 

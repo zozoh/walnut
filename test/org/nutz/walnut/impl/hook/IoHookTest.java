@@ -45,7 +45,7 @@ public class IoHookTest extends BaseHookTest {
     public void test_meta() {
         // 准备钩子
         WnObj oHook = io.createIfNoExists(oHookHome, "meta/do_log", WnRace.FILE);
-        io.writeText(oHook, "obj -V id:${id} -c -e '^x|y|z$' >> ~/testlog");
+        io.writeText(oHook, "obj -VN id:${id} -c -e '^x|y|z$' >> ~/testlog");
 
         // 执行
         Wn.WC().hooking(hc, new Atom() {

@@ -14,14 +14,13 @@
   width: 100%;
   height: 100%;
 }
-/*theme:w0 .................................................*/
-[theme="w0"] .ui-mask-bg {
+.ui-mask-bg {
   width: 100%;
   height: 100%;
   background: #000;
   opacity: 0.2;
 }
-[theme="w0"] .ui-mask-closer {
+.ui-mask-closer {
   position: absolute;
   font-size: 16px;
   color: #CCC;
@@ -35,15 +34,15 @@
   border: 3px solid #888;
   text-align: center;
 }
-[theme="w0"] .ui-body .ui-mask-closer {
+.ui-body .ui-mask-closer {
   cursor: pointer;
 }
-[theme="w0"] .ui-mask-closer:hover {
+.ui-mask-closer:hover {
   color: #FFF;
   border-color: #FFF;
   text-shadow: 0 0 4px #FFF;
 }
-[theme="w0"] .ui-mask-main {
+.ui-mask-main {
   position: absolute;
   background: rgba(255, 255, 255, 0.9);
   border-radius: 6px;

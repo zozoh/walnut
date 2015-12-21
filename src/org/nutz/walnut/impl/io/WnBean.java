@@ -33,7 +33,7 @@ public class WnBean extends NutMap implements WnObj {
         for (Map.Entry<String, Object> en : this.entrySet()) {
             String key = en.getKey();
             // id 等是绝对不可以改的
-            if (key.matches("^(ph|id|race|d[0-9])$")) {
+            if (key.matches("^(ph|parent|id|race)$")) {
                 continue;
             }
             // 如果 regex 为空，不是 "__" 开头（表隐藏），则全要
@@ -46,6 +46,13 @@ public class WnBean extends NutMap implements WnObj {
                 map.put(key, en.getValue());
             }
         }
+        // 如果有 d0 和 d1，那么要重新设置一下确保正确
+        if (map.has("d0") || map.has("d1")) {
+            this.loadParents(null, false);
+            map.put("d0", this.d0());
+            map.put("d1", this.d1());
+        }
+        // 返回
         return map;
     }
 
@@ -175,6 +182,22 @@ public class WnBean extends NutMap implements WnObj {
         if (null == mySha1)
             return false;
         return mySha1.equals(sha1);
+    }
+
+    @Override
+    public boolean hasThumbnail() {
+        return !Strings.isBlank(thumbnail());
+    }
+
+    @Override
+    public String thumbnail() {
+        return this.getString("thumb");
+    }
+
+    @Override
+    public WnObj thumbnail(String thumbnail) {
+        this.setv("thumb", thumbnail);
+        return this;
     }
 
     public boolean hasData() {
@@ -562,6 +585,9 @@ public class WnBean extends NutMap implements WnObj {
 
         // 更新路径
         path(_parent.path()).appendPath(name());
+
+        // 确保自己的 d0,d1 正确
+        Wn.Io.eval_dn(this);
 
         // 返回父节点
         return _parent;

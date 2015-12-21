@@ -1,22 +1,21 @@
 .ui-otable > .ui-arena {
   overflow: hidden;
 }
-/*theme:w0 .................................................*/
-[theme="w0"] .ui-otable .ui-loading {
+.ui-otable .ui-loading {
   padding: 24px;
 }
-[theme="w0"] .otable {
+.otable {
   width: 100%;
   height: 100%;
   position: relative;
 }
-[theme="w0"] .otable table {
+.otable table {
   border-spacing: 0;
 }
-[theme="w0"] .otable td {
+.otable td {
   overflow: hidden;
 }
-[theme="w0"] .otable-head {
+.otable-head {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
@@ -25,74 +24,75 @@
   top: 0px;
   left: 0;
   right: 0;
-  height: 36px;
-  line-height: 36px;
+  height: 32px;
+  line-height: 32px;
   overflow: hidden;
 }
-[theme="w0"] .otable-head-t td {
+.otable-head-t td {
   padding: 0 8px;
   margin: 0;
   white-space: nowrap;
-  border-left: 1px solid #ffffff;
+  border-left: 1px solid #eeeeee;
   color: #444444;
   text-align: center;
   font-size: 12px;
   cursor: pointer;
 }
-[theme="w0"] .otable-head td:first-child {
+.otable-head td:first-child {
   border: 0;
 }
-[theme="w0"] .otable-checker {
+.otable-checker {
   position: absolute;
   top: 0;
   left: 0;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   text-align: center;
-  border-right: 1px solid #ffffff;
-  background: #dddddd;
+  border-right: 1px solid #eeeeee;
 }
-[theme="w0"] .otable-checker > * {
+.otable-checker > * {
   display: none;
 }
-[theme="w0"] .otable-checker > [tp="part"] {
+.otable-checker > [tp="part"] {
   opacity: 0.3;
 }
-[theme="w0"] .otable-checker .current {
+.otable-checker .current {
   display: inline;
 }
-[theme="w0"] .otable-body {
+.otable-body {
   width: 100%;
   height: 100%;
   overflow: auto;
-  border: 1px solid #dddddd;
-  border-top: 36px solid #dddddd;
+  border: 1px solid #eeeeee;
+  border-top: 32px solid #eeeeee;
 }
-[theme="w0"] .otable-row td {
-  padding: 16px;
-  border-bottom: 1px dashed #dddddd;
+.otable-row td {
+  padding: 8px;
+  border-bottom: 1px dashed #eeeeee;
   white-space: nowrap;
   font-size: 12px;
 }
-[theme="w0"] .otable-row-nm [tp="checkbox"] {
+.otable-row-nm {
+  text-overflow: ellipsis;
+}
+.otable-row-nm [tp="checkbox"] {
   width: 12px;
 }
-[theme="w0"] .otable-row-nm > [tp="icon"] {
+.otable-row-nm > [tp="icon"] {
   margin-left: 8px;
 }
-[theme="w0"] .otable-row-nm > [tp="text"] {
+.otable-row-nm > [tp="text"] {
   margin-left: 8px;
   font-weight: normal;
 }
-[theme="w0"] .otable-row-checked {
-  background: #EEE;
+.otable-row-checked {
+  background: #0044bb;
+  color: #ffffff;
 }
-[theme="w0"] .otable-row-checked .otable-row-nm i[tp] {
-  color: #ff8800;
+.otable-row-checked td {
+  border-color: #338;
 }
-[theme="w0"] .otable-row-checked td {
-  border-color: #ff8800;
-}
-[theme="w0"] .otable-row-actived {
-  background: #FDA;
+.otable-row-actived {
+  background: #0044bb;
+  color: #ffffff;
 }

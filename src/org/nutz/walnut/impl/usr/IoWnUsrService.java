@@ -40,14 +40,18 @@ public class IoWnUsrService implements WnUsrService {
 
     private NutMap initEnvs;
 
+    private String usrHome;
+
+    private String grpHome;
+
     private WnObj oUsrs;
 
     private WnObj oGrps;
 
     public void on_create() {
         Wn.WC().me("root", "root");
-        oUsrs = io.createIfNoExists(null, "/usr", WnRace.DIR);
-        oGrps = io.createIfNoExists(null, "/grp", WnRace.DIR);
+        oUsrs = io.createIfNoExists(null, usrHome, WnRace.DIR);
+        oGrps = io.createIfNoExists(null, grpHome, WnRace.DIR);
     }
 
     private WnQuery _eval_query(String str) {

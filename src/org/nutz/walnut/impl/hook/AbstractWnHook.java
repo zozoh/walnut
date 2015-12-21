@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.hook;
 
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.hook.WnHook;
 import org.nutz.walnut.api.io.WnIo;
@@ -8,7 +9,15 @@ import org.nutz.walnut.util.WnObjMatcher;
 
 public abstract class AbstractWnHook implements WnHook {
 
+    private String name;
+
     private WnObjMatcher[] ms;
+
+    private String brief;
+
+    public String toString() {
+        return String.format("%s(%s) : %s", name, ms == null ? "*" : ms.length, brief);
+    }
 
     public AbstractWnHook init(WnIo io, WnObj oHook) {
         NutMap[] maps = oHook.getArray("hook_by", NutMap.class);
@@ -27,6 +36,10 @@ public abstract class AbstractWnHook implements WnHook {
         // 读取文件内容获得处理方式
         String text = io.readText(oHook);
         _init(text);
+
+        // 保存名称
+        name = oHook.name();
+        brief = Strings.trim(text.length() > 80 ? text.substring(0, 80) + " ..." : text);
 
         // 返回自身以便链式赋值
         return this;

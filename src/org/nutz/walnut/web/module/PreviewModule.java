@@ -110,9 +110,9 @@ public class PreviewModule extends AbstractWnModule {
         if (pdir != null) {
             re = getThumbnailObj(pdir, size);
         }
-        // 返回unknow類型
+        // 返回unknown類型
         if (re == null) {
-            re = getThumbnailObj(io.fetch(etpdir, "unknow"), size);
+            re = getThumbnailObj(io.fetch(etpdir, "unknown"), size);
         }
         if (re == null) {
             throw Lang.impossible();

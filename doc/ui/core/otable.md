@@ -71,7 +71,7 @@ new UIOList({
         dft      : ..             // 本列默认显示，默认是空字符串 
 
         // 定制值的显示，默认直接输出值
-        display  : Template | F(o, key),
+        display  : Template | F(o, col, UI),
         escapeHtml : true,        // 是否将输出逃逸 HTML，默认 true
 
         // 下面的可以用来编辑

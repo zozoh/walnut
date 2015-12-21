@@ -20,7 +20,9 @@ var html = function(){/*
         <b class="otable-col-tt"></b>
     </div>
 </div>
-<div class="ui-arena"></div>
+<div class="ui-arena">
+    I am table haha
+</div>
 */};
 //==============================================
 return ZUI.def("ui.otable", {
@@ -279,6 +281,11 @@ return ZUI.def("ui.otable", {
     getData : function(arg){
         var UI = this;
         var jTBody = UI.arena.find(".otable-body-t>tbody");
+        // 本身就是元素
+        if($z.isjQuery(arg) || _.isElement(arg)){
+            var jq = $(arg).closest(".otable-row");
+            return jq.data("OBJ");
+        }
         // 数字下标
         if(_.isNumber(arg)){
             var jq = $z.jq(jTBody, arg);
@@ -347,8 +354,7 @@ return ZUI.def("ui.otable", {
     },
     //...............................................................
     redraw : function(){
-        var UI  = this;
-        var opt = UI.options;
+        this.arena.empty();
         this.refresh();
     },
     //...............................................................
@@ -403,20 +409,6 @@ return ZUI.def("ui.otable", {
         objs.forEach(function(o, index){
             UI._append_row(o, index, iconFunc, textFunc, jBodyT);
         });
-
-        // 记录一下各个列原始的宽度
-        UI._cols_org_size = [];
-        jBodyT.find("tr:first-child td").each(function(index){
-            UI._cols_org_size[index] = $(this).outerWidth();
-        });
-        // 连同 Header 的原始宽度也一并计算 
-        if(UI.options.layout.withHeader)
-            jHeadT.find("tr:first-child td").each(function(index){
-                var jTd = $(this);
-                var w = Math.max(jTd.outerWidth(), UI._cols_org_size[index]);
-                UI._cols_org_size[index] = w;
-                jTd.attr("org-width", w);
-            });
 
         // 设置固定属性，以便 resize 函数时时计算宽度
         jHeadT.css("table-layout", "fixed");
@@ -517,13 +509,42 @@ return ZUI.def("ui.otable", {
         jTd.html(txt);
     },
     //...............................................................
+    __check_cols_org_size : function(jHeadT, jBodyT){
+        var UI = this;
+        if(!UI._cols_org_size){
+            // 记录一下各个列原始的宽度
+            UI._cols_org_size = [];
+            jBodyT.find("tr:first-child td").each(function(index){
+                UI._cols_org_size[index] = $(this).outerWidth(true);
+            });
+            // 连同 Header 的原始宽度也一并计算 
+            if(UI.options.layout.withHeader)
+                jHeadT.find("tr:first-child td").each(function(index){
+                    var jTd = $(this);
+                    var w = Math.max(jTd.outerWidth(true), UI._cols_org_size[index]);
+                    UI._cols_org_size[index] = w;
+                    jTd.attr("org-width", w);
+                });
+        }
+    },
+    //...............................................................
     resize : function(){
         var UI = this;
         var jHead  = UI.arena.find(".otable-head");
+
+        // 还木有装载表格数据呢，不搞
+        if(jHead.size()==0)
+            return;
+
         var jHeadT = jHead.children(".otable-head-t");
         var jBody  = UI.arena.find(".otable-body");
         var jBodyT = jBody.children(".otable-body-t");
         var jRuler = UI.arena.find(".otable-ruler");
+
+        // 确保记录了原始的列daxiao
+        UI.__check_cols_org_size(jHeadT, jBodyT);
+        
+        // 开始计算吧，少年
         var W = jRuler.outerWidth();   // 视口的宽度 
         // console.log(jBody.width()
         //             ,jBody.outerWidth()
@@ -623,7 +644,6 @@ return ZUI.def("ui.otable", {
         });
 
         // 嗯，搞定收工
-
     }
     //...............................................................
 });

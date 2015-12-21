@@ -66,8 +66,8 @@ public class WnSystem {
             log.info(" > sys.exec: " + cmdText);
 
         for (String cmdLine : cmdLines) {
-            _runner.__run(cmdLine);
-            _runner.__wait_for_idle();
+            _runner.run(cmdLine);
+            _runner.wait_for_idle();
         }
         _runner.__free();
     }

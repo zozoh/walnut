@@ -1,12 +1,22 @@
 package org.nutz.walnut.web.module;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.nutz.img.Colors;
+import org.nutz.img.Images;
+import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Nums;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.segment.Segment;
@@ -24,12 +34,15 @@ import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.POST;
 import org.nutz.mvc.annotation.Param;
+import org.nutz.mvc.view.HttpStatusView;
+import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnCheckSession;
+import org.nutz.walnut.web.view.WnImageView;
 import org.nutz.walnut.web.view.WnObjDownloadView;
 
 /**
@@ -43,6 +56,12 @@ import org.nutz.walnut.web.view.WnObjDownloadView;
 @Ok("ajax")
 @Fail("ajax")
 public class ObjModule extends AbstractWnModule {
+
+    private Map<String, BufferedImage> thumbCache;
+
+    public ObjModule() {
+        thumbCache = new Hashtable<String, BufferedImage>();
+    }
 
     @At("/get/**")
     public WnObj get(String str) {
@@ -85,20 +104,197 @@ public class ObjModule extends AbstractWnModule {
         return io.query(q);
     }
 
+    @Inject("java:$conf.get('obj-thumbnail-dft-szhint', 64)")
+    private int dftSizeHint;
+
+    /**
+     * 返回对象的缩略图
+     * 
+     * @param str
+     *            对象字符串。
+     * @param sh
+     *            缩略图尺寸提示，可以是 16|24|32|64|128|256，默认来自配置项
+     *            "obj-thumbnail-dft-szhint"
+     * @param scale
+     *            【选】指明缩略图的尺寸，要进行转换，格式必须是 128x128，否则无效
+     * 
+     * @param f
+     *            强制缩放，false 会自动判断，只有尺寸比较大的时候才会缩放，否则变大往往会增加带宽，没啥用
+     * 
+     * @param bg
+     *            【选】缩放的时候,指明缩略图的背景色，如果指定了背景色，那么输出一定是 image/jpeg 格式的 支持的格式
+     *            <ul>
+     *            <li>RGB: FFF
+     *            <li>RRGGBB: F0F0F0
+     *            <li>RGB值: rgb(255,33,89)
+     *            </ul>
+     *            只有在声明强制缩放，或者系统认为有必要缩放的时候，这个参数才会生效
+     * 
+     * 
+     * @return 缩略图的输出流视图
+     */
+    @At("/thumbnail/**")
+    @Ok("void")
+    @Fail("http:404")
+    public View readThumbnail(String str,
+                              @Param("sh") int sizeHint,
+                              @Param("scale") String scale,
+                              @Param("f") boolean force,
+                              @Param("bg") String bg) {
+        // 首先读取对象
+        WnObj o = Wn.checkObj(io, str);
+
+        BufferedImage im = null;
+        String mime, imtp;
+
+        // 如果缩略图，使用
+        if (o.hasThumbnail()) {
+            WnObj oThumb = Wn.getObj(io, o.thumbnail());
+            im = io.readImage(oThumb);
+            mime = oThumb.mime();
+            imtp = oThumb.type();
+        }
+        // 否则找默认的，默认的一定是 image/png
+        else {
+            // 先确定一下类型
+            String tp = o.type();
+            if (Strings.isBlank(tp)) {
+                tp = o.isDIR() ? "folder" : "unknown";
+            }
+
+            // 读取指定尺寸图片
+            sizeHint = sizeHint > 0 ? sizeHint : dftSizeHint;
+            // 确保是标准给定尺寸
+            int s_h = -1;
+            for (int i = 0; i < SIZE_HINTS.length; i++) {
+                if (SIZE_HINTS[i] >= sizeHint) {
+                    s_h = SIZE_HINTS[i];
+                }
+            }
+            sizeHint = s_h < 0 ? SIZE_HINTS[SIZE_HINTS.length - 1] : s_h;
+            String sz_key = String.format("%1$dx%1$d", sizeHint);
+
+            // 尝试从本域读取默认缩略图
+            String ph = Wn.normalizeFullPath("~/.thumbnail/dft/"
+                                             + tp
+                                             + "/"
+                                             + sz_key
+                                             + ".png",
+                                             Wn.WC().checkSE());
+            WnObj oThumb = io.fetch(null, ph);
+
+            // 如果找到了 ...
+            if (null != oThumb) {
+                im = io.readImage(oThumb);
+            }
+            // 没找到就用系统的缩略图，这样可以利用上缓存
+            else {
+                im = __read_dft_thumbnail(tp, sz_key);
+            }
+
+            // 统一设定默认缩略图的格式
+            mime = "image/png";
+            imtp = "png";
+        }
+
+        // 是否要缩放
+        if (null != im && null != scale) {
+            Matcher m = Pattern.compile("^(\\d+)[xX](\\d+)$").matcher(scale);
+            if (m.find()) {
+                int w = Integer.parseInt(m.group(1));
+                int h = Integer.parseInt(m.group(2));
+
+                // 看看有没有必要缩放，如果没声明 force，则比较一下，只要宽高有一个要变小，就值得缩放
+                if (force || im.getWidth() > w || im.getHeight() > h) {
+                    if (Strings.isBlank(bg)) {
+                        im = Images.zoomScale(im, w, h);
+                    } else {
+                        Color bgcolor = Colors.fromString(bg);
+                        im = Images.zoomScale(im, w, h, bgcolor);
+                    }
+                }
+            }
+        }
+
+        // 最后返回 Image 视图
+        return new ViewWrapper(new WnImageView(imtp, mime), im);
+        // return new ViewWrapper(new RawView(oThumb.mime()), im);
+    }
+
+    private static final int[] SIZE_HINTS = Nums.array(16, 24, 32, 64, 128, 256);
+
+    private BufferedImage __read_dft_thumbnail(String tp, String sz_key) {
+        BufferedImage im;
+
+        // 先看看缓存里有木有
+        String thumb_key = tp + "_" + sz_key;
+        im = thumbCache.get(thumb_key);
+        if (null != im)
+            return im;
+
+        // 从系统的缩略图目录里找
+        WnObj oThumbHome = io.fetch(null, "/etc/thumbnail/" + tp);
+
+        // 没找到了对应文件的缩略图，直接用默认的
+        if (null == oThumbHome) {
+            return __read_unknown_thumbnail(sz_key);
+        }
+
+        // 如果就找的其实是个文件夹，那么根据尺寸来找，没给尺寸的话
+        WnObj oThumb = io.fetch(oThumbHome, sz_key + ".png");
+
+        // 还是没有，用默认图片
+        if (null == oThumb) {
+            return __read_unknown_thumbnail(sz_key);
+        }
+
+        // 那么读取一下图片，并存入缓存
+        im = io.readImage(oThumb);
+        thumbCache.put(thumb_key, im);
+
+        // 返回
+        return im;
+    }
+
+    private BufferedImage __read_unknown_thumbnail(String sz_key) {
+        BufferedImage im;
+        String thumb_key = "unknown_" + sz_key;
+        im = thumbCache.get(thumb_key);
+        if (null == im) {
+            WnObj oThumb = io.check(null, "/etc/thumbnail/unknown/" + sz_key + ".png");
+            im = io.readImage(oThumb);
+            thumbCache.put("unknown_" + sz_key, im);
+        }
+        return im;
+    }
+
     /**
      * 得到对象内容
      * 
      * @param str
-     *            对象字符串。@see
-     *            {@link #checkObj(String, org.nutz.lang.util.NutMap, String)}
+     *            对象字符串。
+     * 
+     * @param sha1
+     *            SHA1 校验，可选。如果给定了值，如果对象的内容不符合这个指纹，则抛错
      * 
      * @return 对象当前的内容输入流
+     * 
+     * @see org.nutz.walnut.util.Wn#checkObj(org.nutz.walnut.api.io.WnIo,
+     *      String)
      */
     @At("/read/**")
     @Ok("void")
-    public View read(String str) {
+    public View read(String str, @Param("sha1") String sha1) {
         // 首先得到目标对象
         WnObj o = Wn.checkObj(io, str);
+
+        // 校验 sha1
+        if (!Strings.isBlank(sha1)) {
+            if (!o.isSameSha1(sha1))
+                return new HttpStatusView(400);
+        }
+
+        // 读取对象的值
         return new WnObjDownloadView(io, o);
     }
 

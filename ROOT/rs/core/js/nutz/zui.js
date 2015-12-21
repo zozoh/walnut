@@ -124,6 +124,9 @@ define(function (require, exports, module) {
         // 加入 DOM 树
         UI.$pel.append(UI.$el);
 
+        // 隐藏自身，等加载完必要的组件再显示出来
+        UI.$el.hide();
+
         // 记录自身实例
         UI.$el.attr("ui-id", UI.cid);
         ZUI.instances[UI.cid] = UI;
@@ -131,22 +134,6 @@ define(function (require, exports, module) {
             window.ZUI.tops.push(UI);
         }
 
-        // 确定 uiKey，并用其索引自身实例
-        if(UI.uiKey){
-            if(ZUI.getByKey(UI.uiKey)){
-                throw 'UI : uiKey="'+UI.uiKey+'" exists!!!';
-            }
-            ZUI._uis[UI.uiKey] = UI;
-            // 看看有没有要延迟监听的
-            var dl = ZUI._defer_listen[UI.uiKey];
-            if(dl){
-                for(var i in dl){
-                    var dlo = dl[0];
-                    dlo.context.listenUI(UI, dlo.event, dlo.handler);
-                }
-                delete ZUI._defer_listen[UI.uiKey];
-            }
-        }
     };
 
     // 定义一个 UI 的原型
@@ -167,26 +154,17 @@ define(function (require, exports, module) {
             UI.exec = options.exec || (UI.parent||{}).exec;
             // 继承应用信息
             UI.app = options.app || (UI.parent||{}).app;
+            // 默认先用父类的多国语言字符串顶个先
+            UI._msg_map = UI.parent ? UI.parent._msg_map : ZUI.g_msg_map;
 
             // 调用子类自定义的 init，以及触发事件
             $z.invoke(UI.$ui, "init", [options], UI);
             $z.invoke(UI.options, "on_init", [], UI);
             UI.trigger("ui:init", UI);
 
-            // 最后调用自定义的 UI 监听
-            if(UI.options.do_ui_listen){
-                for(var key in UI.options.do_ui_listen){
-                    var m = /^([^ ]+)[ ]+(.+)$/.exec(key);
-                    if(null==m){
-                        throw "wrong do_ui_listen key: " + key;
-                    }
-                    var handle = UI.options.do_ui_listen[key];
-                    if(!_.isFunction(handle)){
-                        handle = UI[handle];
-                    }
-                    UI.listenUI(m[1], m[2], handle);
-                }
-            }
+            // 注册 UI 实例
+            register(UI);
+
         },
         destroy: function () {
             var UI = this;
@@ -203,10 +181,11 @@ define(function (require, exports, module) {
                 }); 
             }
             UI.gasket = {};
+
             // 移除自己的监听事件
-            for (var key in UI._watch_keys) {
-                delete ZUI.keymap[key];
-            }
+            UI.unwatchKey();
+            UI.unwatchMouse();
+
             // 释放掉自己
             $z.invoke(UI.$ui, "depose", [], UI);
 
@@ -236,17 +215,13 @@ define(function (require, exports, module) {
             // 确定语言
             UI.lang = (UI.parent||{}).lang || window.$zui_i18n || "zh-cn";
 
-            register(UI);
-
-            // 加载 CSS
-            var uiCSS = UI.options.css || UI.$ui.css;
-            if (uiCSS) {
-                seajs.use(uiCSS);
-            }
+            //============================================== i18n读完后的回调
             // 看看是否需要异步加载多国语言字符串
             var callback = function (mm) {
                 // 存储多国语言字符串
-                UI._msg_map = _.extend({}, UI.parent?UI.parent._msg_map:ZUI.g_msg_map, mm||{});
+                // 需要将自己的多国语言字符串与父 UI 的连接 
+                UI._msg_map = $z.inherit(mm, UI.parent ? UI.parent._msg_map : ZUI.g_msg_map);
+                //UI._msg_map = _.extend({}, UI.parent?UI.parent._msg_map:ZUI.g_msg_map, mm||{});
                 // 用户自定义 redraw 执行完毕的处理
                 var do_after_redraw = function(){
                     // if("ui.mask" == UI.uiName)
@@ -260,6 +235,30 @@ define(function (require, exports, module) {
                         // 触发事件
                         $z.invoke(UI.options, "on_redraw", [], UI);
                         UI.trigger("ui:redraw", UI);
+
+                        // 确定 uiKey，并用其索引自身实例
+                        if(UI.uiKey){
+                            if(ZUI.getByKey(UI.uiKey)){
+                                throw 'UI : uiKey="'+UI.uiKey+'" exists!!!';
+                            }
+                            ZUI._uis[UI.uiKey] = UI;
+                            // 看看有没有要延迟监听的
+                            var dl = ZUI._defer_listen[UI.uiKey];
+                            if(dl){
+                                for(var i in dl){
+                                    var dlo = dl[0];
+                                    dlo.context.listenUI(UI, dlo.event, dlo.handler);
+                                }
+                                delete ZUI._defer_listen[UI.uiKey];
+                            }
+                        }
+
+                        // 让 UI 的内容显示出来
+                        UI.$el.show();
+
+                        // 触发显示事件
+                        $z.invoke(UI.options, "on_display", [], UI);
+                        UI.trigger("ui:display", UI);
 
                         // 因为重绘了，看看有木有必要重新计算尺寸，这里用 setTimeout 确保 resize 是最后执行的指令
                         // TODO 这里可以想办法把 resize 的重复程度降低
@@ -290,6 +289,21 @@ define(function (require, exports, module) {
                         UI._defer_uiTypes = uiTypes;
                         UI._check_defer_done("redraw");
                     }
+
+                    // 最后调用自定义的 UI 监听
+                    if(UI.options.do_ui_listen){
+                        for(var key in UI.options.do_ui_listen){
+                            var m = /^([^ ]+)[ ]+(.+)$/.exec(key);
+                            if(null==m){
+                                throw "wrong do_ui_listen key: " + key;
+                            }
+                            var handle = UI.options.do_ui_listen[key];
+                            if(!_.isFunction(handle)){
+                                handle = UI[handle];
+                            }
+                            UI.listenUI(m[1], m[2], handle);
+                        }
+                    }
                     //console.log("do_render:", UI.uiName, UI._defer_uiTypes)
                 };
                 // 看看是否需要解析 DOM
@@ -318,23 +332,34 @@ define(function (require, exports, module) {
                     do_render();
                 }
             };
-            // 采用父 UI 的字符串
-            var uiI18N = UI.options.i18n || UI.$ui.i18n;
-            if (".." == uiI18N) {
-                callback({});
+            //============================================== i18n
+            var do_i18n = function(){
+                // 采用父 UI 的字符串
+                var uiI18N = UI.options.i18n || UI.$ui.i18n;
+                if (".." == uiI18N) {
+                    callback({});
+                }
+                // 采用自己的字符串
+                else if (_.isString(uiI18N)) {
+                    uiI18N = _.template(uiI18N)({lang: UI.lang});
+                    require.async(uiI18N, callback);
+                }
+                // 直接传入了一个集合
+                else if(_.isObject(uiI18N)){
+                    callback(uiI18N);
+                }
+                // 空的
+                else {
+                    callback({});
+                }
             }
-            // 采用自己的字符串
-            else if (_.isString(uiI18N)) {
-                uiI18N = _.template(uiI18N)({lang: UI.lang});
-                require.async(uiI18N, callback);
-            }
-            // 直接传入了一个集合
-            else if(_.isObject(uiI18N)){
-                callback(uiI18N);
-            }
-            // 空的
-            else {
-                callback({});
+            //============================================== 从处理CSS开始
+            // 加载 CSS
+            var uiCSS = UI.options.css || UI.$ui.css;
+            if (uiCSS) {
+                seajs.use(uiCSS, do_i18n);
+            }else{
+                do_i18n();
             }
             // 返回自身
             return UI;
@@ -392,13 +417,16 @@ define(function (require, exports, module) {
                         w = UI.$pel.width();
                         h = UI.$pel.height();
                     }
+                    // 得到自身顶级元素的左右边距
+                    var margin = $z.margin(UI.$el);
                     UI.$el.css({
-                        "width": w, 
-                        "height": h
+                        "width" : w - margin.x, 
+                        "height": h - margin.y
                     });
+                    margin = $z.margin(UI.arena);
                     UI.arena.css({
-                        "width": UI.$el.width(), 
-                        "height": UI.$el.height()
+                        "width" : UI.$el.width()  - margin.x, 
+                        "height": UI.$el.height() - margin.y
                     });
                 }
 
@@ -424,61 +452,90 @@ define(function (require, exports, module) {
         // ui.watchKey(27, "ctrl", F(..))
         // ui.watchKey(27, ["ctrl","meta"], F(..))
         // ui.watchKey(27, F(..))
+        /*
+        对象格式
+        ZUI.keymap = {
+            "alt+shift+28" : {
+                "c2" : [F(e), F(e)]
+            }
+        }
+        */
         watchKey: function (which, keys, handler) {
-            var key;
             // 没有特殊 key
             if (typeof keys == "function") {
                 handler = keys;
-                key = "" + which;
+                keys = undefined;
             }
-            // 组合的特殊键
-            else if (_.isArray(key)) {
-                key = keys.sort().join("+") + "+" + which;
-            }
-            // 字符串特殊键
-            else {
-                key = keys + "+" + which;
-            }
+            
+            var key = this.__keyboard_watch_key(which, keys);
             //console.log("watchKey : '" + key + "' : " + this.cid);
-            var wk = ZUI.keymap[key];
-            // 为当前插件创建映射
-            if (wk) {
-                throw "conflict watchKey : " + which + '(' + key + ') : ' + wk.cid + " <-> " + this.cid;
-            }
-            // 加入UI全局记录
-            ZUI.keymap[key] = {
-                cid: this.cid,
-                handler: handler
-            }
-            // 记录到自身
+            $z.pushValue(ZUI.keymap, [key, this.cid], handler);
+
+            // 记录到自身以便可以快速索引
             this._watch_keys[key] = true;
+        },
+        __keyboard_watch_key : function(which, keys){
+            // 直接就是字符串
+            if(_.isString(which)){
+                return which;
+            }
+            // 组合的key
+            if (_.isArray(keys)) {
+                return keys.sort().join("+") + "+" + which;
+            }
+            // 字符串
+            if (_.isString(keys)) {
+                return  keys + "+" + which;
+            }
+            // 没有特殊键
+            return "" + which;
         },
         // 取消监听一个事件
         // ui.unwatchKey(27, "ctrl"})
         // ui.unwatchKey(27, ["ctrl","meta"])
         // ui.unwatchKey(27)
         unwatchKey: function (which, keys) {
-            var key;
-            // 组合的key
-            if (_.isArray(key)) {
-                key = keys.sort().join("+") + "+" + which;
+            // 注销全部监听
+            if(_.isUndefined(which)){
+                for(var key in this._watch_keys){
+                    var wkm = ZUI.keymap[key];
+                    if(wkm && wkm[this.cid]){
+                        delete wkm[this.cid];
+                    }
+                }
+                this._watch_keys=[];
+                return;
             }
-            // 字符串
-            else if (keys) {
-                key = keys + "+" + which;
-            }
-            // 没有特殊键
-            else {
-                key = "" + which;
-            }
+            // 注销指定事件监听
+            var key = this.__keyboard_watch_key(which, key);
             // console.log("unwatchKey : '" + key + "' : " + this.cid);
             // 删除全局索引
-            if (ZUI.keymap[key])
-                delete ZUI.keymap[key][which];
-
+            var wkm = ZUI.keymap[key];
+            if (wkm && wkm[this.cid]) {
+                delete wkm[this.cid];
+            }
             // 删除自身的快速索引
             if (this._watch_keys[key])
                 delete this._watch_keys[key];
+        },
+        // 监听全局鼠标事件
+        watchMouse : function(eventType, handler){
+            $z.pushValue(ZUI.mousemap, [eventType, this.cid], handler);
+        },
+        // 取消全局鼠标事件监听
+        unwatchMouse : function(eventType){
+            // 去掉所有的事件监听
+            if(!eventType){
+                for(var key in ZUI.mousemap){
+                    this.unwatchMouse(key);
+                }
+            }
+            // 去掉指定事件
+            else{
+                var wmm = ZUI.mousemap[eventType];
+                if(wmm && wmm[this.cid])
+                    delete wmm[this.cid];
+            }
         },
         // 得到多国语言字符串
         msg: function (key, ctx, msgMap) {
@@ -492,6 +549,11 @@ define(function (require, exports, module) {
             }
             return re;
         },
+        // 得到多国语言字符串，如果没有返回默认值，如果没指定默认值，返回空串 ("")
+        str : function(key, dft){
+            var re = $z.getValue(this._msg_map, key);
+            return re || dft || "";
+        },
         // 对一个字符串进行文本转移，如果是 i18n: 开头采用 i18n
         text: function(str, ctx, msgMap){
             // 多国语言
@@ -504,6 +566,19 @@ define(function (require, exports, module) {
             }
             // 普通字符串
             return str;
+        },
+        // 根据路径获取一个子 UI
+        subUI : function(uiPath){
+            var ss = uiPath.split(/[\/\\.]/);
+            var UI = this;
+            for(var i=0;i<ss.length;i++){
+                var s = ss[i];
+                var g = UI.gasket[s];
+                if(!g || g.ui.length == 0)
+                    return null;
+                UI = g.ui[0];
+            }
+            return UI;
         },
         // 处理一个对象的字段，将其记录成特殊显示的值
         eval_obj_display : function(obj, displayMap){
@@ -725,6 +800,7 @@ define(function (require, exports, module) {
         // 提供一个通用的文件上传界面，任何 UI 可以通过
         //   this.listenModel("do:upload", this.on_do_upload); 
         // 来启用这个方法
+        // !!! 这个方法将被删除
         on_do_upload: function (options) {
             //var Mask     = require("ui/mask/mask");
             //var Uploader = require("ui/uploader/uploader");
@@ -758,15 +834,24 @@ define(function (require, exports, module) {
         }
         // 根据 uiKey
         else if(_.isString(arg0)){
-            return arg1 ? ZUI.checkByKey(arg0)
-                        : ZUI.getByKey(arg0);
+            return arg1 ? ZUI.checkByKey(arg0) || ZUI.checkByCid(arg0)
+                        : ZUI.getByKey(arg0) || ZUI.getByCid(arg0); 
         }
         // 未知处理
         throw "Unknown arg0 : " + arg0 + ", arg1" + arg1;
     };
     // 初始化 ZUI 工厂类对象
     /*这些字段用来存放 UI 相关的运行时数据*/
-    ZUI.keymap = {};
+    ZUI.keymap = {/*
+        "alt+shift+28" : {
+            "c2" : [F(e), F(e)..]
+        }
+    */};
+    ZUI.mousemap = {/*
+        click: {
+           "c2" : [F(e), F(e)..]
+        }
+    */};
     ZUI.tops = [];
     ZUI.definitions = {};
     ZUI.instances = {};  // 根据cid索引的 UI 实例
@@ -915,10 +1000,6 @@ define(function (require, exports, module) {
     // 注册 window 的 resize 和键盘事件
     // 以便统一处理所有 UI 的 resize 行为和快捷键行为 
     if (!window._zui_events_binding) {
-        // 设定主题
-        if(!$(document.body).attr("theme"))
-            $(document.body).attr("theme", "w0");
-
         // 改变窗口大小
         $(window).resize(function () {
             for (var i = 0; i < window.ZUI.tops.length; i++) {
@@ -926,10 +1007,11 @@ define(function (require, exports, module) {
                 topUI.resize(true);
             }
         });
-        // 快捷键
+        // 键盘快捷键
         $(document.body).keydown(function (e) {
-            //console.log(e);
+            //console.log(e.which);
             var keys = [];
+            // 顺序添加，所以不用再次排序了
             if (e.altKey)   keys.push("alt");
             if (e.ctrlKey)  keys.push("ctrl");
             if (e.metaKey)  keys.push("meta");
@@ -940,13 +1022,42 @@ define(function (require, exports, module) {
             } else {
                 key = "" + e.which;
             }
-            var wk = ZUI.keymap[key];
-            if (wk) {
-                var ui = ZUI.instances[wk.cid];
-                var func = wk.handler;
-                func.call(ui, e);
+            var wkm = ZUI.keymap[key];
+            if (wkm) {
+                for(var cid in wkm){
+                    var ui = ZUI(cid);
+                    if(!ui) continue;
+                    var funcs = wkm[cid];
+                    if(funcs){
+                        for(var i=0;i<funcs.length;i++)
+                            funcs[i].call(ui, e);
+                    }
+                }
             }
         });
+        // 全局鼠标事件
+        var on_g_mouse_event = function(e){
+            var wmm = ZUI.mousemap[e.type];
+            if(wmm)
+                for(var cid in wmm){
+                    var ui = ZUI(cid);
+                    if(!ui) continue;
+                    var funcs = wmm[cid];
+                    for(var i=0;i<funcs.length;i++)
+                            funcs[i].call(ui, e);
+                }
+        };
+        $(document).mousedown(on_g_mouse_event);
+        $(document).mouseup(on_g_mouse_event);
+        $(document).mousemove(on_g_mouse_event);
+        $(document).click(on_g_mouse_event);
+        $(document).dblclick(on_g_mouse_event);
+        $(document).mouseover(on_g_mouse_event);
+        $(document).mouseout(on_g_mouse_event);
+        $(document).mouseenter(on_g_mouse_event);
+        $(document).mouseleave(on_g_mouse_event);
+        $(document).contextmenu(on_g_mouse_event);
+
         // TODO 捕获 ondrop，整个界面不能被拖拽改变
         // 标记以便能不要再次绑定了
         window._zui_events_binding = true;

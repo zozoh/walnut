@@ -1,5 +1,6 @@
 package org.nutz.walnut.util;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Stopwatch;
@@ -72,6 +73,13 @@ public class WnContext extends NutMap {
         finally {
             this.autoPath = oldAutoPath;
         }
+    }
+    
+    public List<WnHook> getHooks(String action, WnObj o){
+        if(null!=hookContext){
+            return hookContext.service.get(action, o);
+        }
+        return new LinkedList<WnHook>();
     }
 
     public WnObj doHook(String action, WnObj o) {
@@ -244,6 +252,12 @@ public class WnContext extends NutMap {
         if (null != security)
             return security.write(nd);
         return nd;
+    }
+
+    public boolean testSecurity(WnObj nd, int mode) {
+        if (null != security)
+            return security.test(nd, mode);
+        return true;
     }
 
     // public WnObj whenView(WnObj nd) {

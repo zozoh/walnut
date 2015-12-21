@@ -45,7 +45,8 @@ public class WnEvalLink implements WnSecurity {
 
     protected WnObj __eval_obj(WnObj o) {
         // 处理链接文件
-        if (o.isLink()) {
+        if (null!=o && o.isLink()) {
+            String oldPath = o.path();
             String ln = o.link();
             // 用 ID
             if (ln.startsWith("id:")) {
@@ -64,7 +65,15 @@ public class WnEvalLink implements WnSecurity {
             // 如果节点不存在
             if (null == o)
                 throw Er.create("e.io.obj.noexists", ln);
+            // 恢复节点的 path
+            o.path(oldPath);
         }
         return o;
     }
+
+    @Override
+    public boolean test(WnObj nd, int mode) {
+        return true;
+    }
+
 }

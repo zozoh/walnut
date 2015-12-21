@@ -49,7 +49,8 @@ public abstract class JvmExecutor {
     protected WnObj getCurrentObj(WnSystem sys) {
         String pwd = sys.se.vars().getString("PWD");
         String path = Wn.normalizePath(pwd, sys);
-        return sys.io.check(null, path);
+        WnObj re = sys.io.check(null, path);
+        return Wn.WC().whenEnter(re);
     }
 
     protected WnObj getHome(WnSystem sys) {
@@ -303,7 +304,7 @@ public abstract class JvmExecutor {
                 sys.out.println();
             }
         }
-        if (!params.is("N"))
+        if (params.is("N"))
             sys.out.println();
     }
 

@@ -1,64 +1,59 @@
 @import "../ui/ui.less";
+  
+.ui-fld-edit-input {
+    font-size: @f_normal; padding: @f_normal; width:100%;
+}
 
+.ui-fld-edit-textarea {
+    font-size: @f_normal; padding: @f_normal; 
+    width:100%; height:300px; resize: none;
+    border:1px solid #DDD;
+}
 
-[theme="w0"] {
-    .theme_w0();
-    
-    .ui-fld-edit-input {
-        font-size: @f_normal; padding: @f_normal; width:100%;
+.ui-fld-edit-label {
+    font:@f_small @ff_code; padding:@big @big;
+}
+
+.ui-fld-edit-switchs {@noselect();
+    display: inline-block; cursor:pointer;
+    list-style: none; padding:1px 0 1px 1px; margin:3px;
+    border:1px solid @c_gray_b; background: @c_white;
+    color:@c_gray_f; font-size: @f_tiny;
+
+    li {
+        float: left; padding:@normal @big; margin-right:1px;
+        background: @c_gray_b;
     }
 
-    .ui-fld-edit-textarea {
-        font-size: @f_normal; padding: @f_normal; 
-        width:100%; height:300px; resize: none;
-        border:1px solid #DDD;
+    li.checked {
+        color:@c_white; background: @c_green_f;
     }
+}
+.ui-fld-edit-switchs:after{@clr();}
 
-    .ui-fld-edit-label {
-        font:@f_small @ff_code; padding:@big @big;
+.ui-fld-edit-multiselectbox {
+    position: relative;
+    font-size:@f_small;
+    .msb-item {
+        padding:@small @normal; cursor: pointer; margin:@tiny;
+        border:1px solid @c_gray_f;  background:@c_gray_b; display: inline-block;
     }
-
-    .ui-fld-edit-switchs {@noselect();
-        display: inline-block; cursor:pointer;
-        list-style: none; padding:1px 0 1px 1px; margin:3px;
-        border:1px solid @c_gray_b; background: @c_white;
-        color:@c_gray_f; font-size: @f_tiny;
-
-        li {
-            float: left; padding:@normal @big; margin-right:1px;
-            background: @c_gray_b;
-        }
-
-        li.checked {
-            color:@c_white; background: @c_green_f;
-        }
+    .msb-box {
+        padding: @normal;
     }
-    .ui-fld-edit-switchs:after{@clr();}
-
-    .ui-fld-edit-multiselectbox {
-        position: relative;
-        font-size:@f_small;
-        .msb-item {
-            padding:@small @normal; cursor: pointer; margin:@tiny;
-            border:1px solid @c_gray_f;  background:@c_gray_b; display: inline-block;
-        }
-        .msb-box {
-            padding: @normal;
-        }
-        .msb-box[empty]>div {
-            font-size: @f_normal; padding: @small; color:@c_gray_f; cursor: pointer;
-        }
-        .msb-box:hover {
-            background: @c_text_hover_bg;
-        }
-        .msb-box:after{@clr();}
-        .msb-pad {@noselect();
-            position: absolute; left:0; right:0; display: none;
-            padding:@small; border:@tiny solid #CCC; background: #FFF;
-            min-height: @large;
-        }
-        .msb-pad:after{@clr();}
-
+    .msb-box[empty]>div {
+        font-size: @f_normal; padding: @small; color:@c_gray_f; cursor: pointer;
     }
+    .msb-box:hover {
+        background: @c_text_hover_bg;
+    }
+    .msb-box:after{@clr();}
+    .msb-pad {@noselect();
+        position: absolute; left:0; right:0; display: none;
+        padding:@small; border:@tiny solid #CCC; background: #FFF;
+        min-height: @large;
+    }
+    .msb-pad:after{@clr();}
 
 }
+

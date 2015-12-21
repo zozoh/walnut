@@ -1,35 +1,105 @@
 .menu-item {
-  white-space: nowrap;
-  cursor: pointer;
-}
-/*theme:w0 .................................................*/
-[theme="w0"] .menu-top-table {
-  border-spacing: 0;
-}
-[theme="w0"] .menu-item {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
+  cursor: pointer;
+  white-space: nowrap;
 }
-[theme="w0"] .mi-wrapper {
+.menu-item .menu-item-wrapper {
+  padding: 0 8px;
   font-size: 12px;
+  height: 24px;
+  line-height: 24px;
+  vertical-align: middle;
 }
-[theme="w0"] .menu-item[md="top"] {
-  padding: 0;
+.menu-item .menu-item-wrapper .menu-item-icon {
+  display: inline-block;
+  width: 12px;
+  text-align: center;
+  font-size: 14px;
+  vertical-align: middle;
 }
-[theme="w0"] .menu-item[md="top"] .menu-item-icon {
-  margin-right: 4px;
+.menu-item .menu-item-wrapper .menu-item-text {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 6px;
 }
-[theme="w0"] .menu-item[md="top"] .mi-wrapper {
-  padding: 8px 16px;
-  border: 1px solid #aaaaaa;
-  border-radius: 3px;
-  color: #0088ff;
-  margin-left: 1px;
+.menu-item .menu-item-wrapper .menu-item-status {
+  display: inline-block;
+  vertical-align: middle;
+  border: 1px solid #eeeeee;
+  border-radius: 4px;
 }
-[theme="w0"] .menu-item[md="top"] .mi-wrapper:hover {
-  border-color: #0088ff;
-  background: #0088ff;
+.menu-item .menu-item-wrapper .menu-item-status .menu-item-si {
+  width: 24px;
+  display: inline-block;
+  text-align: center;
+  border-right: 1px solid #eeeeee;
+  cursor: pointer;
+  color: #666666;
+}
+.menu-item .menu-item-wrapper .menu-item-status .menu-item-si i {
+  cursor: pointer;
+}
+.menu-item .menu-item-wrapper .menu-item-status .menu-item-si:last-child {
+  border-right: 0;
+}
+.menu-item .menu-item-wrapper .menu-item-status .menu-item-si-on {
+  background: #cccccc;
+  color: #444444;
+}
+.menu-item[tp="button"] > .menu-item-wrapper:hover,
+.menu-item[tp="group"] > .menu-item-wrapper:hover,
+.menu-item[tp="group"][open] > .menu-item-wrapper {
   color: #ffffff;
+  background: #0044bb;
+}
+.menu {
+  white-space: nowrap;
+  padding: 8px 4px;
+}
+.menu .menu-item[md="top"] {
+  display: inline-block;
+  vertical-align: middle;
+}
+.menu .menu-item[md="top"] .menu-item-wrapper {
+  border-radius: 2px;
+  padding: 0 4px;
+}
+.menu .menu-item[md="top"] .menu-item[tp="separator"] {
+  padding: 0;
+  border-right: 1px dotted #dddddd;
+}
+.menu .menu-sub {
+  padding: 6px;
+  background: #FFF;
+  border: 1px solid #DDD;
+  border-radius: 2px;
+  box-shadow: 2px 2px 6px #888888;
+  min-width: 128px;
+}
+.menu .menu-sub .menu-item {
+  line-height: 24px;
+  height: 24px;
+}
+.menu .menu-sub .menu-item .menu-item-wrapper {
+  position: relative;
+}
+.menu .menu-sub .menu-item .menu-item-wrapper .menu-item-more {
+  position: absolute;
+  right: 6px;
+}
+.menu .menu-sub .menu-item .menu-item-status {
+  margin-left: 10px;
+}
+.menu .menu-sub .menu-item[tp="status"] .menu-item-wrapper {
+  padding-right: 0;
+}
+.menu .menu-sub .menu-item[tp="separator"] {
+  padding: 0;
+  line-height: 0;
+  height: 0;
+  margin: 6px 0;
+  border-top: 1px dotted #dddddd;
 }

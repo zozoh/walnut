@@ -10,6 +10,18 @@ import org.nutz.walnut.api.io.WnObj;
 public class JvmBoxTest extends BaseBoxTest {
 
     @Test
+    public void test_subsitution_simple() {
+        box.run("echo -n `echo -n abc`");
+        assertEquals("abc", outs());
+        
+        this.cleanOutputAndErr();
+
+        box.run("echo 'haha' > ~/abc.txt; echo -n `obj -V ~/abc.txt -e ^(id)$`");
+        WnObj o = this.check("~/abc.txt");
+        assertEquals(o.id(), outs());
+    }
+
+    @Test
     public void test_append_redirect() {
         box.run("echo 'hello' >> ~/abc.txt");
         WnObj o = io.check(null, me.home() + "/abc.txt");

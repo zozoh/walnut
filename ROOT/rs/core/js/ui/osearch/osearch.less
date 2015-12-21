@@ -1,77 +1,69 @@
 @import "../ui";
 
-/*theme:w0 .................................................*/
-[theme="w0"] {
-    .theme_w0();
+.osearch-sky {position: relative; min-height: 30px;}
+.osearch-sky:after{@clr();}
 
-    .osearch-sky {position: relative; min-height: 30px;}
-    .osearch-sky:after{@clr();}
-
-    .osearch-list {
-        min-height: 300px; padding-right:1px;
-    }
-    .osearch-checkbox, .osearch-actions {
-        display: inline-block; vertical-align: middle;
-    }
-    /*.............................................. check*/
-    .osearch-check-opts {list-style: none;padding:0;margin: 0;}
-    .osearch-check-opts>li{
-        float:left;
-        padding:0 4px; border-right:1px solid #AAA;
-        font-size:12px; color:#08F; cursor: pointer;
-    }
-    .osearch-check-opts>li:hover{color:#F80;}
-    .osearch-check-opts>li:last-child{border-right:0;}
-    /*.............................................. actions*/
-    .osearch-actions {
-        padding:10px; 
-        position: absolute; top:0; right:0;
-    }
-    [narrow] .osearch-actions {
-        top:0; left:0; right:0;
-
-        table.menu-top-table {
-            margin:0 auto;
-        }
-    }
-    /*.............................................. filter*/
-    .osearch-filter {
-        padding:9px; 
-        position: absolute; top:0; left:0;
-    }
+.osearch-list {
+    min-height: 300px; padding-right:1px;
+}
+.osearch-checkbox, .osearch-actions {
+    display: inline-block; vertical-align: middle;
+}
+/*.............................................. check*/
+.osearch-check-opts {list-style: none;padding:0;margin: 0;}
+.osearch-check-opts>li{
+    float:left;
+    padding:0 4px; border-right:1px solid #AAA;
+    font-size:12px; color:#08F; cursor: pointer;
+}
+.osearch-check-opts>li:hover{color:#F80;}
+.osearch-check-opts>li:last-child{border-right:0;}
+/*.............................................. actions*/
+.osearch-actions {
+    padding:@d2; 
+    position: absolute; top:0; right:0;
+    .menu {display: inline-block;}
+}
+[narrow] .osearch-actions {
+    top:0; left:0; right:0; text-align: center;
+}
+/*.............................................. filter*/
+.osearch-filter {
+    padding:9px; 
+    position: absolute; top:0; left:0;
+}
 
 
-    .ofilter-keyword {
-        padding:0px; position: relative;
-    }
-    .ofilter-keyword input{
-        font-size:@f_normal; padding:@normal @big @normal @bigger; width:100%; color:@c_gray_f;
-        border:1px solid @c_gray_shallow;
-        border-radius: @hug; outline: none;
-    }
-    .ofilter-icon {
-        position: absolute; top:0;left:0; padding:@normal; color:@c_gray_b;
-    }
+.ofilter-keyword {
+    padding:0px; position: relative;
+}
+.ofilter-keyword input{
+    font-size:@f_normal; padding:@normal @big @normal @bigger; width:100%; color:@c_gray_f;
+    border:1px solid @c_gray_shallow;
+    border-radius: @hug; outline: none;
+}
+.ofilter-icon {
+    position: absolute; top:0;left:0; padding:@normal; color:@c_gray_b;
+}
 
-    /*.............................................. pager*/
-    .osearch-pager {padding:10px; text-align: center;}
-    .opager-tip {
-        color:#888; font-style: normal; margin-right:10px;
-        display: inline-block; vertical-align: middle;
-        padding:5px 8px; font-size: @f_small;
-    }
-    .opager-btn {
-        display: inline-block; vertical-align: middle;
-        border:1px solid #CCC; color:#08F; padding:4px 8px;
-        border-radius: 2px; margin: 1px; cursor: pointer;
-        font-size:12px;
-    }
+/*.............................................. pager*/
+.osearch-pager {padding:10px; text-align: center;}
+.opager-tip {
+    color:#888; font-style: normal; margin-right:10px;
+    display: inline-block; vertical-align: middle;
+    padding:5px 8px; font-size: @f_small;
+}
+.opager-btn {
+    display: inline-block; vertical-align: middle;
+    border:1px solid #CCC; color:#08F; padding:4px 8px;
+    border-radius: 2px; margin: 1px; cursor: pointer;
+    font-size:12px;
+}
 
-    .opager-btn:hover {
-        background: #CEF;
-    }
+.opager-btn:hover {
+    background: #CEF;
+}
 
-    .opager-disable, .opager-disable:hover {
-        background: #CCC; color:#888; opacity: 0.6;
-    }
+.opager-disable, .opager-disable:hover {
+    background: #CCC; color:#888; opacity: 0.6;
 }

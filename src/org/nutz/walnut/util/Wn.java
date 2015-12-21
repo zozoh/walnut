@@ -117,31 +117,46 @@ public abstract class Wn {
     private static final String regex = "([$])([a-zA-Z0-9_]+)";
     private static final Pattern p = Pattern.compile(regex);
 
-    public static String appendPath(String base, String rpath) {
-        if (!Strings.isBlank(rpath)) {
-            // null
-            if (null == base) {
-                if (rpath.startsWith("/"))
-                    return rpath;
-                else
-                    return "/" + rpath;
+    // public static String appendPath(String base, String rpath) {
+    // if (!Strings.isBlank(rpath)) {
+    // // null
+    // if (null == base) {
+    // if (rpath.startsWith("/"))
+    // return rpath;
+    // else
+    // return "/" + rpath;
+    // }
+    // // root
+    // else if (base.endsWith("/")) {
+    // if (rpath.startsWith("/"))
+    // return base + rpath.substring(1);
+    // else
+    // return base + rpath;
+    // }
+    // // 正常
+    // else {
+    // if (rpath.startsWith("/"))
+    // return base + rpath;
+    // else
+    // return base + "/" + rpath;
+    // }
+    // }
+    // return base == null ? "/" : base;
+    // }
+
+    public static String appendPath(String... paths) {
+        if (null != paths && paths.length > 0) {
+            if (null == paths[0])
+                paths[0] = "/";
+            String str = Lang.concat("/", paths).toString();
+            String[] ss = Strings.splitIgnoreBlank(str, "/");
+            str = Lang.concat("/", ss).toString();
+            if (paths[0].startsWith("/")) {
+                return "/" + str;
             }
-            // root
-            else if (base.endsWith("/")) {
-                if (rpath.startsWith("/"))
-                    return base + rpath.substring(1);
-                else
-                    return base + rpath;
-            }
-            // 正常
-            else {
-                if (rpath.startsWith("/"))
-                    return base + rpath;
-                else
-                    return base + "/" + rpath;
-            }
+            return str;
         }
-        return base == null ? "/" : base;
+        return null;
     }
 
     public static Pattern wildcardToRegex(String wildcard) {

@@ -1,9 +1,9 @@
-[theme="w0"] .ui-fld-edit-input {
+.ui-fld-edit-input {
   font-size: 14px;
   padding: 14px;
   width: 100%;
 }
-[theme="w0"] .ui-fld-edit-textarea {
+.ui-fld-edit-textarea {
   font-size: 14px;
   padding: 14px;
   width: 100%;
@@ -11,11 +11,11 @@
   resize: none;
   border: 1px solid #DDD;
 }
-[theme="w0"] .ui-fld-edit-label {
+.ui-fld-edit-label {
   font: 12px 'Lucida Console', Monaco, monospace;
   padding: 16px 16px;
 }
-[theme="w0"] .ui-fld-edit-switchs {
+.ui-fld-edit-switchs {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
@@ -30,28 +30,28 @@
   color: #888888;
   font-size: 10px;
 }
-[theme="w0"] .ui-fld-edit-switchs li {
+.ui-fld-edit-switchs li {
   float: left;
   padding: 8px 16px;
   margin-right: 1px;
   background: #dddddd;
 }
-[theme="w0"] .ui-fld-edit-switchs li.checked {
+.ui-fld-edit-switchs li.checked {
   color: #ffffff;
   background: #008800;
 }
-[theme="w0"] .ui-fld-edit-switchs:after {
+.ui-fld-edit-switchs:after {
   clear: both;
   height: 1px;
   overflow: hidden;
   display: block;
   content: "";
 }
-[theme="w0"] .ui-fld-edit-multiselectbox {
+.ui-fld-edit-multiselectbox {
   position: relative;
   font-size: 12px;
 }
-[theme="w0"] .ui-fld-edit-multiselectbox .msb-item {
+.ui-fld-edit-multiselectbox .msb-item {
   padding: 4px 8px;
   cursor: pointer;
   margin: 2px;
@@ -59,26 +59,26 @@
   background: #dddddd;
   display: inline-block;
 }
-[theme="w0"] .ui-fld-edit-multiselectbox .msb-box {
+.ui-fld-edit-multiselectbox .msb-box {
   padding: 8px;
 }
-[theme="w0"] .ui-fld-edit-multiselectbox .msb-box[empty] > div {
+.ui-fld-edit-multiselectbox .msb-box[empty] > div {
   font-size: 14px;
   padding: 4px;
   color: #888888;
   cursor: pointer;
 }
-[theme="w0"] .ui-fld-edit-multiselectbox .msb-box:hover {
+.ui-fld-edit-multiselectbox .msb-box:hover {
   background: #ffffaa;
 }
-[theme="w0"] .ui-fld-edit-multiselectbox .msb-box:after {
+.ui-fld-edit-multiselectbox .msb-box:after {
   clear: both;
   height: 1px;
   overflow: hidden;
   display: block;
   content: "";
 }
-[theme="w0"] .ui-fld-edit-multiselectbox .msb-pad {
+.ui-fld-edit-multiselectbox .msb-pad {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
@@ -92,7 +92,7 @@
   background: #FFF;
   min-height: 64px;
 }
-[theme="w0"] .ui-fld-edit-multiselectbox .msb-pad:after {
+.ui-fld-edit-multiselectbox .msb-pad:after {
   clear: both;
   height: 1px;
   overflow: hidden;

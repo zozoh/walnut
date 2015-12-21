@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.io;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,6 +8,8 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -279,9 +282,14 @@ public class WnIoImpl implements WnIo {
         // 调用回调
         o = Wn.WC().doHook("delete", o);
 
-        // 链接的话，就删了吧
+        // 钩子可以让这东西变 null, 表示不能删
         if (null != o) {
-            if (!o.isLink()) {
+            // 链接或者映射的话，就删了吧
+            if (o.isLink() || o.isMount()) {
+                tree.delete(o);
+            }
+            // 其他需要考虑子和递归的问题
+            else {
                 // 目录的话，删除不能为空
                 if (hasChild(o)) {
                     throw Er.create("e.io.rm.noemptynode", o);
@@ -417,6 +425,20 @@ public class WnIoImpl implements WnIo {
         InputStream ins = this.getInputStream(o, 0);
         Reader r = Streams.buffr(Streams.utf8r(ins));
         return Streams.readAndClose(r);
+    }
+
+    @Override
+    public BufferedImage readImage(WnObj o) {
+        InputStream ins = this.getInputStream(o, 0);
+        try {
+            return ImageIO.read(ins);
+        }
+        catch (IOException e) {
+            throw Er.create("e.io.read.img", o);
+        }
+        finally {
+            Streams.safeClose(ins);
+        }
     }
 
     @Override

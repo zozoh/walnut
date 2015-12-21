@@ -25,7 +25,7 @@ public class cmd_ln extends JvmExecutor {
         // 确保源存才
         WnObj oSrc = sys.io.check(null, src);
 
-        WnObj p = oSrc.parent();
+        WnObj p = this.getCurrentObj(sys);
 
         // 查看目标
         WnObj oDst = sys.io.fetch(p, dst);
@@ -59,7 +59,8 @@ public class cmd_ln extends JvmExecutor {
         }
 
         // 设置链接
-        sys.io.appendMeta(oDst, "ln:'" + ln + "'");
+        oDst.link(ln);
+        sys.io.set(oDst, "^ln$");
     }
 
 }

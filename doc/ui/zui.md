@@ -56,6 +56,8 @@ initialize  : F(options)   // Backbone.View 的初始化函数
 destroy     : F(..)        // UI 的释放资源函数
 watchKey    : F(..)        // 监听快捷键
 unwatchKey  : F(..)        // 取消监听快捷键
+watchMouse  : F(..)        // 监听全局鼠标事件，防冒泡的听不到
+unwatchMouse: F(..)        // 取消鼠标事件监听    
 listenModel : F(..)        // 监听模块消息
 listenParent: F(..)        // 监听父UI的消息
 listenUI    : F(..)        // 监听指定UI的消息
@@ -170,4 +172,90 @@ var ui = new UI({
     ... UI 的特殊配置 ...
 });
 ```
+
+
+# 全局事件监听
+
+一个 UI 控件可以向父类注册全局事件监听，ZUI 负责控制这个监听的生命周期，如果UI被销毁，相应的监听函数也会被注销掉。现在支持两种事件监听，*键盘事件* 和 *全局点击*
+
+> ! 注意，如果事件在触发的地方防止了冒泡，是不会被全局监听到的。全局监听就意味着，只监听那些冒泡到 document 级别的事件。
+
+## 键盘事件
+
+框架会捕捉整个文档范围的键盘事件，你可以通过下述方法注册
+
+```
+// 建立键盘事件监听
+UI.watchKey(41, ["alt","shift"], function(e){..});
+UI.watchKey(41, "ctrl", function(e){..});
+UI.watchKey(41, function(e){..});
+
+// 取消监听
+UI.unwatchKey(41, ["alt", "shift"]);
+
+// 取消所有的键盘监听
+UI.unwatchKey();
+```
+
+框架会在下述结构下保存你的监听
+
+```
+ZUI.键盘监听映射 = {
+    "监听的键" : {
+        "UI的cid" : [函数1, 函数2]
+    }
+}
+比如:
+ZUI.keymap = {
+   "alt+shift+28" : {
+       "c2" : [F(e), F(e)..]
+   }
+};
+```
+* 组合键的名称必须是 *"alt"*, *"ctrl"*, *"shift"*, *"meta"* 这四种
+* 你用一个数组传入多个组合键，比如 `UI.watchKey(41, ["ctrl","alt"], ..` 表示键 `alt+ctrl+41`， 生成键的时候会做排序，因此你给数组的内容不重要
+* 第一个参数 `41` 表示键的码值
+* 监听函数的上下文(*this*)就是 UI 实例本身，控件会根据 *cid* 得到 UI 的实例
+
+## 全局鼠标事件
+
+有些时候控件需要在点击到 document 的时候，做点事情，比如隐藏弹出的菜单等
+
+```
+// 建立鼠标事件监听
+UI.watchMouse("click", F(e){..});
+
+// 取消鼠标事件监听
+UI.unwatchMouse("click");
+
+// 取消全部鼠标事件监听
+UI.unwatchMouse();
+```
+框架会在下述结构下保存你的监听
+
+```
+ZUI.鼠标监听映射 = {
+    "click" : {
+        "UI的cid" : [函数1, 函数2]
+    }
+}
+比如:
+ZUI.mousemap = {
+   "click: {
+       "c2" : [F(e), F(e)..]
+   }
+};
+```
+
+* 监听函数的上下文(*this*)就是 UI 实例本身，控件会根据 *cid* 得到 UI 的实例
+* 目前，监听类型仅仅支持下面几种
+    * mousedown
+    * mouseup
+    * mousemove
+    * click
+    * dblclick
+    * mouseenter
+    * mouseleave
+    * contextmenu
+
 

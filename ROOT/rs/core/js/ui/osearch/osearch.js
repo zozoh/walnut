@@ -308,7 +308,7 @@ return ZUI.def("ui.osearch", {
         else {
             var w_action = jActions.outerWidth(true);
             var h_action = jActions.outerHeight();
-            var w_action_inner = jActions.find(".menu-top-table").outerWidth();
+            var w_action_inner = jActions.find(".menu").outerWidth();
             // if(!w_action){
             //     w_action = jActions.outerWidth(true);
             //     jActions.attr("org-width", w_action);
@@ -318,7 +318,7 @@ return ZUI.def("ui.osearch", {
             jFilter.css("height", h_action);
             
             // 太窄
-            if(w_sky/1.5 < w_action_inner){
+            if(w_sky/2 < w_action_inner){
                 var hh = jActions.outerHeight(true);
                 var pad = jFilter.outerHeight(true) - jFilter.height();
                 jSky.css("height", hh * 2 - (pad/2)).attr("narrow","true");
@@ -401,7 +401,7 @@ return ZUI.def("ui.osearch", {
         // zozoh@20151026:
         // 推迟运行，以便确保界面都加载完毕了
         // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题
-        window.setTimeout(function(){
+        //window.setTimeout(function(){
             var q = UI.getQuery(cnd, pg);
             
             // 显示正在加载数据
@@ -424,7 +424,7 @@ return ZUI.def("ui.osearch", {
                     callback.call(UI, re.list);
                 }
             }, UI);
-        }, 0);
+        //}, 0);
 
         // 返回自身
         return UI;

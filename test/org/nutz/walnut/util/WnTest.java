@@ -10,6 +10,16 @@ import org.nutz.walnut.impl.usr.IoWnUsr;
 public class WnTest {
 
     @Test
+    public void test_appendPath() {
+        assertEquals("/", Wn.appendPath("/", ""));
+        assertEquals("/", Wn.appendPath(null, ""));
+
+        assertEquals("/a/b/c", Wn.appendPath(null, "a", "b", "c"));
+        assertEquals("/a/b/c", Wn.appendPath("/a/", "/b", "c"));
+        assertEquals("/a/b/c", Wn.appendPath("/a//b", "c"));
+    }
+
+    @Test
     public void test_parse_mode() {
         assertEquals("rwxrwxrwx", Wn.Io.modeToStr(0777));
         assertEquals("rwxr-xr--", Wn.Io.modeToStr(0754));

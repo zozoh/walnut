@@ -125,6 +125,12 @@ public interface WnObj extends NutBean {
     WnObj sha1(String sha1);
 
     boolean isSameSha1(String sha1);
+    
+    boolean hasThumbnail();
+    
+    String thumbnail();
+    
+    WnObj thumbnail(String thumbnail);
 
     boolean hasData();
 

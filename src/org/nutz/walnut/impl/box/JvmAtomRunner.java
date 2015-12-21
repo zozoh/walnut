@@ -1,7 +1,10 @@
 package org.nutz.walnut.impl.box;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
@@ -74,8 +77,95 @@ public class JvmAtomRunner {
         return re;
     }
 
+    private static final Pattern SSTT = Pattern.compile("`(.*)`");
+
+    private String __extend_substitution(String cmdLine) {
+        StringBuilder sb = new StringBuilder();
+
+        // 首先先记录一下原始的输出流
+        OutputStream oldOut = this.out;
+        OutputStream oldErr = this.err;
+
+        // 然后用一个新的来代替
+        StringBuilder sbOut = new StringBuilder();
+        StringBuilder sbErr = new StringBuilder();
+        this.out = Lang.ops(sbOut);
+        this.err = Lang.ops(sbErr);
+
+        // 开始逐次寻找预处理段
+        try {
+            int pos = 0;
+            Matcher m = SSTT.matcher(cmdLine);
+            while (m.find()) {
+                int iS = m.start();
+                int iE = m.end();
+                String sustitution = m.group(1);
+
+                // 记录之前的字符串
+                if (iS > pos) {
+                    sb.append(cmdLine.substring(pos, iS));
+                }
+
+                // 移动位置指针到匹配的末尾以便下次使用
+                pos = iE;
+
+                // 空串就不执行了
+                if (Strings.isBlank(sustitution)) {
+                    continue;
+                }
+                // 执行这个子命令
+                else {
+                    this.__run(sustitution);
+                    this.wait_for_idle();
+
+                    // 如果出现错误，那么啥也别说了，写到错误输出里
+                    // 然后返回 null，表示不要往下执行了
+                    if (null != oldErr && sbErr.length() > 0) {
+                        Streams.write(oldOut, Lang.ins(sbErr));
+                    }
+                    // 成功的话，将输出的内容替换到命令行里
+                    // 去掉双引号，换行等一切邪恶的东东 >_<
+                    else {
+                        String subst = sbOut.toString().replaceAll("([\"' ])", "\\\\$1");
+                        sb.append(subst);
+                    }
+
+                    // 清理输出，准备迎接下一个子命令
+                    sbOut.delete(0, sbOut.length());
+                    sbErr.delete(0, sbErr.length());
+                }
+            }
+        }
+        // 出点错误，就打个 Log 咯
+        catch (IOException e) {
+            if (log.isWarnEnabled())
+                log.warn("fail to sustitution", e);
+        }
+        // 一定要记得还原啊还原到老的输出流
+        finally {
+            this.out = oldOut;
+            this.err = oldErr;
+        }
+
+        // 返回处理后的字符串
+        return sb.toString();
+    }
+
+    public void run(String cmdLine) {
+        // 首先对命令行进行预处理
+        if (cmdLine.indexOf('`') >= 0)
+            cmdLine = __extend_substitution(cmdLine);
+
+        // 预处理失败，就不向下执行了
+        if (Strings.isBlank(cmdLine))
+            return;
+
+        // 执行处理后的命令行（不再处理预处理指令了）
+        __run(cmdLine);
+    }
+
     @SuppressWarnings("resource")
-    public void __run(String cmdLine) {
+    private void __run(String cmdLine) {
         // 准备标准输出输出
         JvmBoxOutput boxErr = new JvmBoxOutput(err);
         WnSession se = bc.session;
@@ -234,7 +324,7 @@ public class JvmAtomRunner {
         Lang.notifyAll(idleLock);
     }
 
-    public void __wait_for_idle() {
+    public void wait_for_idle() {
         // 如果只有一个原子，根本不用等，否则等通知，等原子运行结束
         if (null != atoms && atoms.length > 1) {
             if (!__is_all_stopped()) {

@@ -22,6 +22,18 @@ return ZUI.def("ui.mask", {
     redraw : function() {
         var UI = this;
         var options = this.options;
+
+        // 禁止拖拽
+        UI.$el.on("dragover", ".ui-mask-bg", function(e){
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        UI.$el.on("drop", ".ui-mask-bg", function(e){
+            e.stopPropagation();
+            e.preventDefault();
+        });
+
+        // 标记界面其他元素，以便通过 CSS 将其设成半透明
         UI.$el.prevAll().addClass("ui-mask-others");
         UI.$main = UI.arena.children(".ui-mask-main");
         if(options.closer === false) {

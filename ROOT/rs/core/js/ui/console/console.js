@@ -93,15 +93,14 @@ return ZUI.def("ui.console", {
         UI.listenModel("show:err", UI.on_show_err);
         UI.listenModel("show:txt", UI.on_show_txt);
         UI.listenModel("show:end", UI.on_show_end);
-        UI.listenModel("do:upload", UI.on_do_upload);
 
         // 如果页面重新加载
-        window.addEventListener("beforeunload", function (event) {
-            var PWD = UI.app.session.envs.PWD;
-            event.returnValue = UI.msg("console.unload") + " : \n" + PWD;
-            UI.local("PWD", PWD);
-            return event.returnValue;
-        });
+        // window.addEventListener("beforeunload", function (event) {
+        //     var PWD = UI.app.session.envs.PWD;
+        //     event.returnValue = UI.msg("console.unload") + " : \n" + PWD;
+        //     UI.local("PWD", PWD);
+        //     return event.returnValue;
+        // });
     },
     //..............................................................
     // 模块启动的主函数
@@ -343,6 +342,9 @@ return ZUI.def("ui.console", {
                 msgError : UI.on_show_err,
                 msgEnd   : UI.on_show_end,
                 complete : function () {
+                    // 本地保存一下当前路径
+                    UI.local("PWD", UI.app.session.envs.PWD);
+                    // 继续准备接受用户下一个指令
                     UI.on_cmd_wait();
                 }
             });

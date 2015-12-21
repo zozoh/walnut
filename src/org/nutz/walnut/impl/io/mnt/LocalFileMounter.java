@@ -84,7 +84,7 @@ public class LocalFileMounter implements WnMounter {
         Wn.set_type(mimes, o, null);
         o.setParent(p);
 
-        o.sha1("-no-sha1-");
+        o.sha1("");
         o.data("file://" + f.getAbsolutePath());
         o.len(f.length());
 
