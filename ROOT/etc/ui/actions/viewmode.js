@@ -1,6 +1,5 @@
 ({
 	key  : 'viewmode',
-	icon : '<i class="fa fa-th"></i>',
 	text : "i18n:obrowser.viewmode",
 	type : "status",
 	status : [{

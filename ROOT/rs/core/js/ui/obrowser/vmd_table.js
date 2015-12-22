@@ -41,6 +41,9 @@ return ZUI.def("ui.obrowser_vmd_table", {
                 // 绘制默认图标
                 return iconHtml || '<i class="oicon" otp="'+(o.tp||'folder')+'"></i>';
             },
+            layout : {
+                sizeHint : '*'
+            },
             columns : [ {
                 key : "lm",
                 title : "i18n:obrowser.title.lm",

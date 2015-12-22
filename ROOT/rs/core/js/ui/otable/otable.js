@@ -39,7 +39,7 @@ return ZUI.def("ui.otable", {
         $z.setUndefined(options, "nameTitle", "i18n:title");
         $z.setUndefined(options, "columns",   []);
         $z.setUndefined(options, "layout",   {});
-        $z.setUndefined(options.layout, "sizeHint"  , -200);
+        $z.setUndefined(options.layout, "sizeHint"  , -1);
         $z.setUndefined(options.layout, "cellWrap"  , "nowrap");
         $z.setUndefined(options.layout, "withHeader", true);
         $z.setUndefined(options, "evalData", $z.evalData);
@@ -567,16 +567,21 @@ return ZUI.def("ui.otable", {
         if(_.isArray(szht)){
             var len = Math.min(szht.length, _ws.length);
             for(var i=0;i<len;i++){
-                _ws[i] = szht[i];
+                if(_.isNumber(szht[i]) && szht[i]!=0 )
+                    _ws[i] = szht[i];
             }
         }
         // 数字表示第一列
-        else if(_.isNumber(szht)){
+        else if(_.isNumber(szht) && szht!=0){
             _ws[0] = szht;
         }
-        // 错误
+        // 把 * 当做 -1 吧
+        else if('*' == szht){
+            _ws[0] = -1;
+        }
+        // 其他的无视
         else{
-            throw "Unsuport sizeHint : " + szht;
+            // *_* 这里就是『无视』
         }
 
         // 计算一下和，以及需要分配的剩余宽度的列
@@ -584,12 +589,8 @@ return ZUI.def("ui.otable", {
         var d_cols_index = [];
         for(var i=0;i<_ws.length;i++){
             var v = _ws[i];
-            // 零：完全参与自动分配
-            if(v == 0){
-                d_cols_index.push(i);
-            }
             // 负数：参与自动分配，但是不会低于最小值
-            else if(v < 0){
+            if(v < 0){
                 v = Math.abs(v);
                 w_sum += v;
                 _ws[i] = v;

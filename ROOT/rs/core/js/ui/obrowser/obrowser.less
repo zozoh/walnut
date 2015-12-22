@@ -11,6 +11,7 @@
             @noselect();
             * {cursor: default;}
         }
+        .wnobj-hide *{opacity: 0.5;}
     }
 
     //---------------------------------------------- BEGIN Footer
@@ -22,15 +23,15 @@
     //---------------------------------------------- BEGIN Chute
     .obrowser-chute { @noselect();
         overflow-y: auto; overflow-x: hidden; 
-        color:@cf2; background: @cb1;
+        color:@cf2; background: @cb2; border-right:1px solid @cborder0;
         .chute-wrapper {
-            padding: @d4; font-size:@f1; 
+            padding: @d4; font-size:@f2; 
             section{
                 border:1px solid rgba(0,0,0,0); border-radius: @d1;
                 overflow: hidden; margin-bottom: @d2; position: relative;
                 transition: 0.3s; 
                 h1 {
-                    font-size:@f0; cursor: pointer;
+                    font-size:@f1; cursor: pointer;
                     font-weight: bold; line-height: @d5; padding:@d2;
                 }
                 item {
@@ -67,6 +68,7 @@
     .obrowser-vmd-thumbnail {
         padding:@d4 @d2;
         .wnobj-hide {
+            * {opacity: 1.0;}
             .wnobj-thumbnail {opacity: 0.382;}
             .wnobj-nm {opacity: 0.6;}
         }
@@ -194,3 +196,8 @@
     //---------------------------------------------- END Sky
     
 }
+
+.obrowser[hidden-obj-visibility=hidden] {
+    .wnobj-hide {display: none;}
+}
+

@@ -266,7 +266,13 @@ var Wn = {
     },
     _storeAPI : sessionStorage,
     //..............................................
-    getChildren : function(o){
+    // filter 表示对子节点的一些过滤
+    //  - undefined    : 全部显示
+    //  - "DIR"        : 仅目录
+    //  - "FILE"       : 仅文件
+    //  - {..}         : 一个搜索条件，比如 {tp:'jpeg', len:0}
+    //  - F(o):boolean : 高级过滤方法 
+    getChildren : function(o, filter){
         var Wn = this;
 
         // 确保有路径
@@ -296,11 +302,25 @@ var Wn = {
             return list;
         }
 
+        if($z.isPlainObj(filter)){
+            filter = _.matcher(filter);
+        }
+
         // 依次从本地读取
         var list  = [];
         for(var i=0;i<o.children.length;i++){
             var childId = o.children[i];
             var child = Wn.getById(childId);
+
+            // 按照 race 过滤
+            if(_.isString(filter) && filter != child.race){
+                continue;
+            }
+            // 自定义过滤
+            else if(_.isFunction(filter) && !filter(child)){
+                continue;
+            }
+
             list.push(child);
         }
 

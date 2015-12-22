@@ -124,9 +124,6 @@ define(function (require, exports, module) {
         // 加入 DOM 树
         UI.$pel.append(UI.$el);
 
-        // 隐藏自身，等加载完必要的组件再显示出来
-        UI.$el.hide();
-
         // 记录自身实例
         UI.$el.attr("ui-id", UI.cid);
         ZUI.instances[UI.cid] = UI;
@@ -156,6 +153,9 @@ define(function (require, exports, module) {
             UI.app = options.app || (UI.parent||{}).app;
             // 默认先用父类的多国语言字符串顶个先
             UI._msg_map = UI.parent ? UI.parent._msg_map : ZUI.g_msg_map;
+
+            // 加载时保持隐藏
+            UI.$el.attr("ui-loadding","yes").hide();
 
             // 调用子类自定义的 init，以及触发事件
             $z.invoke(UI.$ui, "init", [options], UI);
@@ -253,12 +253,12 @@ define(function (require, exports, module) {
                             }
                         }
 
-                        // 让 UI 的内容显示出来
-                        UI.$el.show();
-
                         // 触发显示事件
                         $z.invoke(UI.options, "on_display", [], UI);
                         UI.trigger("ui:display", UI);
+
+                        // 让 UI 的内容显示出来
+                        UI.$el.removeAttr("ui-loadding").show();
 
                         // 因为重绘了，看看有木有必要重新计算尺寸，这里用 setTimeout 确保 resize 是最后执行的指令
                         // TODO 这里可以想办法把 resize 的重复程度降低
@@ -396,6 +396,11 @@ define(function (require, exports, module) {
             var UI = this;
             // 如果是选择自适应
             if (UI.options.fitself) {
+                return;
+            }
+
+            // 如果还在加载中，也什么都不做
+            if(UI.$el.attr("ui-loadding")){
                 return;
             }
 

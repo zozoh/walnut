@@ -50,6 +50,8 @@
   color: #444444;
 }
 .menu-item[tp="button"] > .menu-item-wrapper:hover,
+.menu-item[tp="boolean"] > .menu-item-wrapper:hover,
+.menu-item[tp="status"] .menu-item-si-off:hover,
 .menu-item[tp="group"] > .menu-item-wrapper:hover,
 .menu-item[tp="group"][open] > .menu-item-wrapper {
   color: #ffffff;

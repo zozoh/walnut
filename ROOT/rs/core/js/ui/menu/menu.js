@@ -70,6 +70,18 @@ return ZUI.def("ui.menu", {
                     context.trigger("menu:"+(mi.key||"status"), val);
                 }
             }
+        },
+        "click .menu-item[tp=boolean]" : function(e){
+            var context = this.options.context || this.parent || this;
+            var jItem = $(e.currentTarget);
+            var mi    =  jItem.data("@DATA");
+            mi.on = mi.on ? false : true;
+            if(_.isFunction(context.trigger)){
+                context.trigger("menu:"+(mi.key||"boolean"), mi.on);
+            }
+            // 重绘自身
+            var jq = jItem.children(".menu-item-wrapper").empty();
+            this.__draw_boolean(mi, jq, jItem);
         }
     },
     //..............................................
@@ -163,32 +175,53 @@ return ZUI.def("ui.menu", {
             // 保存一下这个项目的配置信息
             jItem.data("@DATA", mi);
 
-            // 按类型绘制
             // 按钮
             if(mi.type == "button" || _.isFunction(mi.handler)){
-                last_is_separator = false;
                 UI.__draw_button(mi, jq, jItem);
             }
             // 子菜单 
             else if(mi.type == "group" || _.isArray(mi.items) || _.isFunction(mi.items)){
-                last_is_separator = false;
                 UI.__draw_group(mi, jq, jItem);
             }
             // 状态按钮
             else if(mi.type == "status" || _.isArray(mi.status)){
-                last_is_separator = false;
                 UI.__draw_status(mi, jq, jItem);
             }
-            // 禁止绘制重复的分隔符
-            else if(!last_is_separator){
-                UI.__draw_separator(mi, jq, jItem);
-                last_is_separator = true;
+            // 布尔项目
+            else if(mi.type == "boolean") {
+                UI.__draw_boolean(mi, jq, jItem);
             }
-            // 靠，不认识删除吧
+            // 分隔符
+            else if(mi.type == "separator"){
+                // 禁止绘制重复
+                if(last_is_separator){
+                    jItem.remove();
+                }
+                // 绘制
+                else{
+                    UI.__draw_separator(mi, jq, jItem);
+                }
+            }
+            // 靠，不认识，打印个错误
             else{
+                console.warn("unknown menu type: ", mi.type);
                 jItem.remove();
             }
+            // 最后标记一下本次循环是不是一个分隔符
+            last_is_separator = (mi.type == "separator");
         }
+    },
+    //..............................................
+    __draw_boolean : function(mi, jq, jItem){
+        var UI = this;
+        jItem.attr("tp", "boolean");
+
+        // 初始化 icon
+        mi.icon = mi.on ? mi.icon_on : mi.icon_off;
+
+        // 绘制主体
+        UI.__draw_fireable(mi, jq, jItem);
+
     },
     //..............................................
     __draw_status : function(mi, jq, jItem){
@@ -213,11 +246,12 @@ return ZUI.def("ui.menu", {
             }
         });
 
-        // 找到第一个标记 on 的状态钮进行高亮
+        // 找到第一个标记 on 的状态钮进行高亮，其他的标记off
         for(var i=0;i<mi.status.length;i++){
             if(mi.status[i].on){
                 jStatus.children(":eq("+i+")").addClass("menu-item-si-on");
-                break;
+            }else{
+                jStatus.children(":eq("+i+")").addClass("menu-item-si-off");
             }
         }
     },

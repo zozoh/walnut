@@ -35,7 +35,14 @@ return ZUI.def("ui.obrowser", {
             UI.subUI("shelf/main").update(UI, o);
         });
         UI.on("menu:viewmode", function(vm){
-            this.setViewMode(vm);            
+            this.setViewMode(vm);
+        });
+        UI.on("change:hidden-obj-visibility", function(){
+            var o = UI.getCurrentObj();
+            UI.subUI("shelf/main").update(UI, o);
+        });
+        UI.on("menu:showhide", function(isShow){
+            this.setHiddenObjVisibility(isShow ? "show" : "hidden");
         });
     },
     //..............................................
@@ -49,6 +56,9 @@ return ZUI.def("ui.obrowser", {
     //..............................................
     redraw : function(){
         var UI = this;
+
+        // 初始化显示隐藏开关 
+        UI.arena.attr("hidden-obj-visibility", UI.getHiddenObjVisibility());
 
         // 初始化界面
         (new ShelfUI({
@@ -247,12 +257,23 @@ return ZUI.def("ui.obrowser", {
         return this.local("viewmode") || "thumbnail";
     },
     setViewMode : function(mode){
-        // 检查 mode 是否合法
         if(_.isString(mode)
-           && /^table|thumbnail|slider|scroller|icons|columns$/.test(mode)
+           && /^(table|thumbnail|slider|scroller|icons|columns)$/.test(mode)
            && mode != this.getViewMode()){
             this.local("viewmode", mode);
             this.trigger("change:viewmode", mode);
+        }
+    },
+    //..............................................
+    getHiddenObjVisibility : function(){
+        return this.local("hidden-obj-visibility") || "hidden";
+    },
+    setHiddenObjVisibility : function(vho){
+        if(_.isString(vho)
+           && /^(show|hidden)$/.test(vho)){
+            this.local("hidden-obj-visibility", vho);
+            this.trigger("change:hidden-obj-visibility", vho);
+            this.arena.attr("hidden-obj-visibility", vho);
         }
     },
     //..............................................
@@ -282,9 +303,9 @@ return ZUI.def("ui.obrowser", {
     getChecked : function(){
         return this.subUI("shelf.main").getChecked();
     },
-    //..............................................
-    getChildren : function(o){
-        return Wn.getChildren(o);
+    //.............................................. 
+    getChildren : function(o, filter){
+        return Wn.getChildren(o, filter);
     },
     //..............................................
     getAncestors : function(o, includeSelf){

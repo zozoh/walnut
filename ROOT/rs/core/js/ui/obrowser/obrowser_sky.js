@@ -60,7 +60,7 @@ return ZUI.def("ui.obrowser_sky", {
             else if(jq.closest(".ochild").size()>0){
                 var oid = jItem.attr("oid");
                 var o   = UIBrowser.getById(oid);
-                var children = UIBrowser.getChildren(o);
+                var children = UIBrowser.getChildren(o, "DIR");
                 var jDrop = jItem.find(".citem-drop");
                 // 已经展开了，就啥也不做了
                 if(jDrop.size()>0)

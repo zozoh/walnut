@@ -1,6 +1,7 @@
 define({
     "obrowser" : {
-        "viewmode"      : "显示模式",
+        "viewmode"  : "排列",
+        "showhide"  : "显示隐藏文件",
         "title" : {
             "nm"   : "名称",
             "lm"   : "最后修改时间",

@@ -1129,6 +1129,8 @@
         isPlainObj : function(obj){
             if(_.isUndefined(obj))
                 return false;
+            if(_.isFunction(obj))
+                return false;
             if(_.isNull(obj))
                 return false;
             if(_.isDate(obj))

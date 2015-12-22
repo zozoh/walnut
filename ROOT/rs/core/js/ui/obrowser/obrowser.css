@@ -11,6 +11,9 @@
 .obrowser .obrowser-main .wnobj * {
   cursor: default;
 }
+.obrowser .obrowser-main .wnobj-hide * {
+  opacity: 0.5;
+}
 .obrowser .obrowser-footer {
   background: #eeeeee;
   border-top: 1px solid #cccccc;
@@ -23,11 +26,12 @@
   overflow-y: auto;
   overflow-x: hidden;
   color: #999999;
-  background: #eeeeee;
+  background: #e0e0e0;
+  border-right: 1px solid #cccccc;
 }
 .obrowser .obrowser-chute .chute-wrapper {
   padding: 12px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .obrowser .obrowser-chute .chute-wrapper section {
   border: 1px solid rgba(0, 0, 0, 0);
@@ -38,7 +42,7 @@
   transition: 0.3s;
 }
 .obrowser .obrowser-chute .chute-wrapper section h1 {
-  font-size: 8px;
+  font-size: 10px;
   cursor: pointer;
   font-weight: bold;
   line-height: 16px;
@@ -93,6 +97,9 @@
 }
 .obrowser .obrowser-vmd-thumbnail {
   padding: 12px 6px;
+}
+.obrowser .obrowser-vmd-thumbnail .wnobj-hide * {
+  opacity: 1.0;
 }
 .obrowser .obrowser-vmd-thumbnail .wnobj-hide .wnobj-thumbnail {
   opacity: 0.382;
@@ -312,4 +319,7 @@
   right: 0;
   background: #e0e0e0;
   padding-left: 6px;
+}
+.obrowser[hidden-obj-visibility=hidden] .wnobj-hide {
+  display: none;
 }
