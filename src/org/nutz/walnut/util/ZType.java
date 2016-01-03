@@ -84,4 +84,8 @@ public class ZType {
         return _isXXX("sourceCode", tp);
     }
 
+    public static boolean isExcel(String tp) {
+        return _isXXX("excel", tp);
+    }
+
 }
