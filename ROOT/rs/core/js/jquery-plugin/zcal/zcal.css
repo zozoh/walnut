@@ -73,7 +73,7 @@
   text-align: center;
 }
 .skin-light .zcal-hide-border .zcal-text {
-  border-radius: 100px;
+  border-radius: 0px;
 }
 .skin-light .zcal-cell-out {
   opacity: 0.4;

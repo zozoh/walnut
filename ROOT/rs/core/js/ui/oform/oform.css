@@ -5,6 +5,17 @@
   background: #DDD;
   font-size: 14px;
 }
+.oform-fld>.oform-fldnm{
+	border:0px;
+	text-align:right;
+	font-weight:bold;
+	vertical-align:top;
+	padding-top:10px;
+}
+.oform-fld>.oform-fldval{
+	border:0px;
+	padding-top:0px;
+}
 .oform-fldnm {
   width: 30%;
   text-align: right;
@@ -32,7 +43,6 @@
 }
 .oform-grp td {
   border: 1px solid #dddddd;
-  vertical-align: top;
 }
 .oform-flow {
   width: 100%;

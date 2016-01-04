@@ -64,14 +64,14 @@
   border-radius: 2px;
 }
 .skin-light .timelist-item-actived {
-  border-color: #08F;
+  border-color: #424242;
 }
 .skin-light .timelist-item-checked {
   opacity: 1.0;
-  background: #08F;
+  background: #424242;
   color: #FFF;
 }
 .skin-light .timelist-item-disabled {
   background: #DDD;
-  color: #AAA;
+  color: #525252;
 }
