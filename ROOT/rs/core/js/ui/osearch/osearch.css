@@ -1,6 +1,6 @@
 .osearch-sky {
   position: relative;
-  min-height: 30px;
+  min-height: 50px;
 }
 .osearch-sky:after {
   clear: both;

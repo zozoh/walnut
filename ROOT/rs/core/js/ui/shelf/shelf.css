@@ -1,6 +1,12 @@
 .ui-shelf > .ui-arena {
   position: relative;
 }
+.shelf-main{
+	
+}
+.shelf-chute{
+	border-right:1px solid #ccc;
+}
 .ui-shelf > .ui-arena > div {
   position: absolute;
 }
