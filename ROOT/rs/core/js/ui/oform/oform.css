@@ -5,6 +5,17 @@
   background: #DDD;
   font-size: 14px;
 }
+.oform-fld>.oform-fldnm{
+	border:0px;
+	text-align:right;
+	font-weight:bold;
+	vertical-align:top;
+	padding-top:10px;
+}
+.oform-fld>.oform-fldval{
+	border:0px;
+	padding-top:0px;
+}
 .oform-fldnm {
   width: 30%;
   text-align: right;
@@ -32,7 +43,6 @@
 }
 .oform-grp td {
   border: 1px solid #dddddd;
-  vertical-align: top;
 }
 .oform-flow {
   width: 100%;
@@ -100,7 +110,7 @@
   text-align: center;
   margin: 0;
   padding: 16px 0 0 0;
-  border-bottom: 1px solid #ff8800;
+  border-bottom: 1px solid #424242;
 }
 .oform-tabs .oform-tabs-bar:after {
   clear: both;
@@ -123,8 +133,9 @@
 }
 .oform-tabs .oform-tabs-li[highlight] {
   color: #ffffff;
-  background: #ff8800;
-  border-color: #ff8800;
+  background: #424242;
+  border-color: #424242;
+  margin-bottom: -2px;
 }
 .oform-tabs .oform-actions {
   -moz-user-select: none;
@@ -134,7 +145,7 @@
   list-style: none;
   text-align: center;
   margin: 0;
-  border-top: 1px solid #ff8800;
+  border-top: 1px solid #424242;
   padding: 16px;
 }
 .oform-tabs .oform-actions:after {
@@ -152,12 +163,14 @@
   padding: 8px 32px;
   border: 1px solid #cccccc;
   background: #eeeeee;
-  color: #0088ff;
+  color: #424242;
   border-radius: 4px;
+  font-weight:bold;
 }
 .oform-tabs .oform-abtn:hover {
-  color: #44aaff;
-  background: #ddddff;
+  color: #fff;
+  background: #424242;
+  font-weight:bold;
 }
 .oform-tabs .oform-grp {
   display: none;

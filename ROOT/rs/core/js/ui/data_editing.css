@@ -1,6 +1,6 @@
 .ui-fld-edit-input {
   font-size: 14px;
-  padding: 14px;
+  padding: 7px;
   width: 100%;
 }
 .ui-fld-edit-textarea {
@@ -13,7 +13,7 @@
 }
 .ui-fld-edit-label {
   font: 12px 'Lucida Console', Monaco, monospace;
-  padding: 16px 16px;
+  padding: 0px 0px;
 }
 .ui-fld-edit-switchs {
   -moz-user-select: none;
@@ -24,8 +24,8 @@
   cursor: pointer;
   list-style: none;
   padding: 1px 0 1px 1px;
-  margin: 3px;
-  border: 1px solid #dddddd;
+  margin: 0px;
+  border: 0px solid #dddddd;
   background: #ffffff;
   color: #888888;
   font-size: 10px;
@@ -38,7 +38,7 @@
 }
 .ui-fld-edit-switchs li.checked {
   color: #ffffff;
-  background: #008800;
+  background: #424242;
 }
 .ui-fld-edit-switchs:after {
   clear: both;
