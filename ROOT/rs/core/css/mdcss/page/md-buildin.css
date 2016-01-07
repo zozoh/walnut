@@ -64,8 +64,8 @@ body {
   background: rgba(0, 0, 0, 0);
 }
 .md-buildin-content {
-  height: 32px;
-  line-height: 32px;
+  height: 40px;
+  line-height: 40px;
   font-size: 13px;
   color: #000000;
   white-space: nowrap;
@@ -73,21 +73,23 @@ body {
   text-overflow: ellipsis;
 }
 .md-buildin-input {
-  height: 32px;
-  line-height: 32px;
+  height: 40px;
+  line-height: 40px;
   font-size: 13px;
   width: 100%;
   padding: 0 8px;
 }
 .md-message {
-  background: #ffffff;
-  height: 32px;
-  line-height: 32px;
+  background: #000000;
+  height: 40px;
+  line-height: 40px;
   padding: 0 32px;
   margin: 0 auto;
 }
 .md-message .md-buildin-content {
   text-align: center;
+  color: #ffffff;
+  font-weight: bold;
 }
 .md-confirm,
 .md-prompt,
@@ -110,8 +112,8 @@ body {
   overflow-y: auto;
 }
 .md-buildin-title {
-  height: 38.4px;
-  line-height: 38.4px;
+  height: 48px;
+  line-height: 48px;
   font-size: 22.75px;
 }
 .md-buildin-btns {

@@ -1360,7 +1360,7 @@
             var year = date.getFullYear();
             var month = date.getMonth() + 1;
             var day = date.getDate();
-            return year + split + zUtil.alignLeft(month, 2, '0') + split + zUtil.alignLeft(day, 2, '0');
+            return year + split + zUtil.alignRight(month, 2, '0') + split + zUtil.alignRight(day, 2, '0');
         },
         // 返回当前年月日
         dateToHHMMSS: function (date, split) {
@@ -1369,7 +1369,7 @@
             var hours = date.getHours()
             var minutes = date.getMinutes();
             var seconds = date.getSeconds();
-            return zUtil.alignLeft(hours, 2, '0') + split + zUtil.alignLeft(minutes, 2, '0') + split + zUtil.alignLeft(seconds, 2, '0');
+            return zUtil.alignRight(hours, 2, '0') + split + zUtil.alignRight(minutes, 2, '0') + split + zUtil.alignRight(seconds, 2, '0');
         },
         // 任何东西转换为字符串
         anyToString: function (obj) {

@@ -337,7 +337,7 @@
             var tleft = 24;
             $tabs.find('li').each(function (i, ele) {
                 var $li = $(ele);
-                var tw = ele.offsetWidth;
+                var tw = $li.outerWidth();
                 $li.attr('tleft', tleft);
                 $li.attr('twidth', tw);
                 tleft += tw;
