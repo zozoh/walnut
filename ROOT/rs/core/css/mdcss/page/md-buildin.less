@@ -1,7 +1,7 @@
 @import "_page_vars";
 @import "../component/paper";
 
-@buildin-height: 32px;
+@buildin-height: 40px;
 @buildin-padding: 32px;
 
 .md-buildin {
@@ -43,13 +43,15 @@
 }
 
 .md-message {
-  background: @white;
+  background: @black;
   height: @buildin-height;
   line-height: @buildin-height;
   padding: 0 @buildin-padding;
   margin: 0 auto;
   .md-buildin-content {
     text-align: center;
+    color: @white;
+    font-weight: bold;
   }
 }
 

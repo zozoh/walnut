@@ -55,11 +55,11 @@
 .menu-item[tp="group"] > .menu-item-wrapper:hover,
 .menu-item[tp="group"][open] > .menu-item-wrapper {
   color: #ffffff;
-  background: #0044bb;
+  background: #424242;
 }
 .menu {
   white-space: nowrap;
-  padding: 8px 4px;
+  padding: 0px 0px;
 }
 .menu .menu-item[md="top"] {
   display: inline-block;
@@ -68,6 +68,12 @@
 .menu .menu-item[md="top"] .menu-item-wrapper {
   border-radius: 2px;
   padding: 0 4px;
+  height:40px;
+  line-height:38px;
+  font-size:14px;
+  border:1px solid #ccc;
+  margin-left:10px;
+  font-weight:bold;
 }
 .menu .menu-item[md="top"] .menu-item[tp="separator"] {
   padding: 0;

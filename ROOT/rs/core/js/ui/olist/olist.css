@@ -1,11 +1,12 @@
 .ui-olist > .ui-arena {
-  padding: 20px;
+  padding: 0px;
   overflow: auto;
+  border-right:0px solid #ccc;
 }
 .olist-item {
-  padding: 8px;
+  padding: 12px 5px 12px 15px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
 }
 .olist-item [tp] {
   margin: 0 2px;
@@ -15,6 +16,6 @@
   margin-right: 6px;
 }
 .olist-item-actived {
-  background: #08F;
+  background: #424242;
   color: #FFF;
 }

@@ -1,4 +1,8 @@
 [layout-mode=horizontal] .ui-layout-wrapper {
     display: inline-block; vertical-align: middle;
     height:100%;
+    border-right:1px solid #ccc;
+}
+.shelf-sky .ui-layout-wrapper {
+	border:0px;
 }

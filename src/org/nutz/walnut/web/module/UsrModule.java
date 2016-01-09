@@ -255,10 +255,11 @@ public class UsrModule extends AbstractWnModule {
         }
     }
 
-    @At("/avatar/upload")
-    public Object usrAvatarUpload() {
-        // TODO 暂时直接使用objModule中的upload上传头像文件
-        return null;
-    }
+    // @At("/avatar/upload")
+    // @AdaptBy(type = UploadAdaptor.class, args = {"${app.root}/WEB-INF/tmp"})
+    // public Object usrAvatarUpload() {
+    // // TODO 暂时直接使用objModule中的upload上传头像文件
+    // return null;
+    // }
 
 }
