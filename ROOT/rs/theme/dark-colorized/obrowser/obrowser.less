@@ -1,0 +1,207 @@
+@import (reference) "../ui";
+
+.obrowser{
+    color:@cf0; background: url(main_bg.jpg);
+    .obrowser-block {
+        margin:0px;
+    }
+
+    .obrowser-main {
+        .wnobj {
+            @noselect();
+            * {cursor: default;}
+        }
+        .wnobj-hide *{opacity: 0.5;}
+    }
+
+    //---------------------------------------------- BEGIN Footer
+    .obrowser-footer {
+        background: @cb1; border-top:1px solid @cborder0;
+    }
+    //---------------------------------------------- END Footer
+
+    //---------------------------------------------- BEGIN Chute
+    .obrowser-chute { @noselect();
+        overflow-y: auto; overflow-x: hidden; 
+        color:@cf2; background: @cb2; border-right:1px solid @cborder0;
+        .chute-wrapper {
+            padding: @d4; font-size:@f2; 
+            section{
+                border:1px solid rgba(0,0,0,0); border-radius: @d1;
+                overflow: hidden; margin-bottom: @d2; position: relative;
+                transition: 0.3s; 
+                h1 {
+                    font-size:@f1; cursor: pointer;
+                    font-weight: bold; line-height: @d5; padding:@d2;
+                }
+                item {
+                    display: block; padding:@d2 @d0 @d2 @d4; cursor: pointer;
+                    line-height: @d5; color: @cf1;
+                    i {
+                        width:@d5; height: @d5; text-align: center;
+                        font-size: @d5;
+                        display: inline-block; float:left;vertical-align: middle;
+                    }
+                    b {
+                        display: inline-block; float:left; vertical-align: middle;
+                        margin-left: @d2;
+                    }
+                }
+                item:after{@clr();}
+                item.chute-actived {
+                    color:@ch1_f; background: @ch1_b;
+                }
+            }
+            section.chute-sec-hide {
+                border-color:@cborder0; background: @cb1;
+                h1:after{
+                    content: "..."; display: block; position: absolute;
+                    top:@d1;right:@d3;
+                }
+                item{opacity: 0;}
+            }
+        }
+    }
+    //---------------------------------------------- END Chute
+
+    //---------------------------------------------- BEGIN Thumnbnail
+    .obrowser-vmd-thumbnail {
+        padding:@d4 @d2;
+        .wnobj-hide {
+            * {opacity: 1.0;}
+            .wnobj-thumbnail {opacity: 0.382;}
+            .wnobj-nm {opacity: 0.6;}
+        }
+
+        @wnobj_w       : 102px;
+        @thumb_w       : 64px;
+        @thumb_h       : 64px;
+        @thumb_icon    : 16px;
+        @thumb_padding : 6px;
+        .wnobj {
+            display: inline-block;;
+            .wnobj-wrapper {padding:@d1;}
+            .wnobj-wrapper:after{@clr();}
+            .wnobj-thumbnail {
+                width: @thumb_w + @thumb_padding*2; 
+                height: @thumb_h + @thumb_padding*2; 
+                padding: @thumb_padding;
+                margin:0 auto; border-radius: @d2;
+                .img {
+                    display: block; 
+                    width:@thumb_w; height:@thumb_h; position: relative;
+                    background-size: contain; background-repeat: no-repeat;
+                    background-position: center;
+                    border:1px solid rgba(0,0,0,0); border-radius: @d1;
+                    >div {position: absolute; width:@thumb_icon; height:@thumb_icon; background: red;}
+                    .wnobj-NW {top:0;    left:0;}
+                    .wnobj-NE {top:0;    right:0;}
+                    .wnobj-SW {bottom:0; left:0;}
+                    .wnobj-SE {bottom:0; right:0;}
+                    .wnobj-icon-hide {display: none;}
+                }
+            }
+            .wnobj-thumbnail[thumb]{
+                .img {background-color: #000;}
+            }
+            .wnobj-nm-con {
+                text-align: center; margin-top:@d1;
+                width: @wnobj_w; height: @d5*3 + 2; line-height: @d5;
+                overflow: hidden; word-break:break-all; 
+                position: relative;
+            }
+            .wnobj-nm{
+                display: inline-block; padding:0 @d1; border-radius: @d0;
+                border:1px dotted rgba(0,0,0,0); font-family: @f_fixed;
+            }
+        }
+        .wnobj-checked {
+            .wnobj-thumbnail{background: @cb2;}
+            .wnobj-thumbnail[thumb]{
+                .img {border:1px solid @cborder1;}
+            }
+            .wnobj-nm {background: @ch0_b; color:@ch0_f;}
+        }
+        .wnobj-actived {
+            .wnobj-nm {border-color:@cborder1;}
+        }
+    }
+    //---------------------------------------------- END Thunbmail
+
+    //---------------------------------------------- BEGIN Sky
+    .obrowser-sky {
+        position: relative; border-bottom:1px solid @cborder0;
+        .obrowser-crumb { @noselect(); cursor: default;
+            background: @cb1;
+            padding:@d2; white-space: nowrap;
+            position: absolute; top:0;left:0;
+            .z_editit {
+                background: @cb0; color:@cf0;
+                padding-left:@d4; outline: none;
+                font-size:@d5; font-family: @f_fixed; border:0; 
+            }
+            >div {
+                display: inline-block; 
+                vertical-align: middle;
+            }
+            .citem {
+                border:1px solid rgba(0,0,0,0);
+                padding: 0 0 0 @d0; 
+                b {
+                    font-weight: normal;
+                    display: inline-block; vertical-align: middle;
+                    line-height:@d6; margin:0 @d0 0 @d0;
+                }
+                .ochild {
+                    display: inline-block; vertical-align: middle;
+                    padding:@d1 @d0 @d1 @d0; cursor:pointer; 
+                }
+                .ochild:hover{
+                    background: @ch1_b; color: @ch1_f;
+                }
+                .citem-drop {
+                    position: fixed; z-index: 1000; min-width: @db;
+                    border:1px solid @cmenu_l;
+                    min-width: @da; padding: @d2; background: @cmenu_b;
+                    box-shadow: @d0 @d0 @d2 @cshadow;
+                    .citem .ochild{display: none;}
+                    .citem:hover{color:@ch0_f; background: @ch0_b;}
+                }
+            }
+            .citem:hover {
+                border-color:@cborder1;
+            }
+            .citem-tail{
+                padding-right:@d0;
+                b {font-weight: bold;}
+                .ochild{display: none;}
+            }
+            .citem-tail:hover{border-color:rgba(0,0,0,0);}
+            .folder-btn {
+                cursor:pointer; border-radius: @d1;
+                line-height:@d6; padding:0 @d1;
+            }
+            .folder-btn:hover{
+                background: @ch0_b; color: @ch0_f;
+            }
+            .folder-drop {
+                z-index: 2000; border:1px solid @cmenu_l;
+                min-width: @db; padding: @d2; background: @cmenu_b;
+                box-shadow: @d0 @d0 @d2 @cshadow;
+                .citem .ochild{display: none;}
+                .citem:hover{color:@ch0_f; background: @ch0_b;}
+            }
+        }
+        .obrowser-menu {
+            position: absolute; top:0; right:0; background: @cb2;
+            padding-left:@d2;
+        }
+    }
+    //---------------------------------------------- END Sky
+    
+}
+
+.obrowser[hidden-obj-visibility=hidden] {
+    .wnobj-hide {display: none;}
+}
+

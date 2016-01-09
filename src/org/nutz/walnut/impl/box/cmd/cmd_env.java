@@ -20,6 +20,12 @@ public class cmd_env extends JvmExecutor {
             sys.se.persist(ss);
             sys.sessionService.save(sys.se);
         }
+        // 持久化给定变量
+        else if (params.has("export")) {
+            String[] ss = Strings.splitIgnoreBlank(params.get("export"));
+            sys.se.persist(ss);
+            sys.sessionService.save(sys.se);
+        }
         // 没有参数，列出所有环境变量
         else if (params.vals.length == 0) {
             for (String key : sys.se.vars().keySet()) {
@@ -28,10 +34,22 @@ public class cmd_env extends JvmExecutor {
         }
         // 一个值，仅仅列出值
         else if (params.vals.length == 1) {
-            String key = params.vals[0];
-            String val = sys.se.vars().getString(key);
-            if (null != val)
-                sys.out.println(val);
+            String str = params.vals[0];
+            int pos = str.indexOf('=');
+
+            // 设置变量
+            if (pos > 0) {
+                String key = str.substring(0, pos);
+                String val = str.substring(pos + 1);
+                sys.se.var(key, val);
+            }
+            // 列出变量的值
+            else {
+                String key = str;
+                String val = sys.se.vars().getString(key);
+                if (null != val)
+                    sys.out.println(val);
+            }
         }
         // 一个个的列出环境变量
         else {

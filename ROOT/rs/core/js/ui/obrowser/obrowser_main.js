@@ -10,7 +10,7 @@ $z.declare([
 ], function(ZUI, MenuUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena obrowser-main" ui-gasket="view">main again</div>
+<div class="ui-arena obrowser-main" ui-gasket="view"></div>
 */};
 //==============================================
 return ZUI.def("ui.obrowser_main", {
@@ -22,33 +22,71 @@ return ZUI.def("ui.obrowser_main", {
         }
     },
     //..............................................
-    update : function(UIBrowser, o){
+    update : function(UIBrowser, o, asetup){
         var UI = this;
-        UI.arena.empty();
+        var subView = UI.subUI("view");
 
-        // 得到显示模式
-        var vmd = UIBrowser.getViewMode();
+        // 准备加载子 UI
+        var uiType, uiConf;
 
-        // 加载对应的控件
-        if(UI.$el.attr("current-viewmode") != vmd){
-            seajs.use("ui/obrowser/vmd_"+vmd, function(TheUI){
-                (new TheUI({
-                    parent : UI,
-                    gasketName : "view"
-                })).render(function(){
-                    this.browser = UIBrowser;
-                    this.update(UIBrowser, o);
-                });
-            });        
+        // 如果有编辑器，就用编辑器处理
+        if(asetup && asetup.currentEditor){
+            var ed = asetup.currentEditor;
+            uiType = ed.uiType;
+            uiConf = $z.extend({},ed.uiConf, {
+                editor : ed
+            });
+            // 支持外部 outline
+            if(ed.outline)
+                uiConf.outline = UIBrowser.subUI("shelf/chute").arena;
+            // 支持外部脚注
+            if(ed.footer)
+                uiConf.footer = UIBrowser.subUI("shelf/footer").arena;
+
+            // 编辑器附着在在哪里呢？
+            if(subView && subView.editorGasketName){
+                uiConf.parent = subView;
+                uiConf.gasketName = subView.editorGasketName;
+            }
+            // 直接附着在父上
+            else{
+                uiConf.parent = UI;
+                uiConf.gasketName = "view";    
+            }
         }
-        // 没必要切换控件，更新控件的内容就好
+        // 没有编辑器，那么 DIR 还能处理
+        else if('DIR' == o.race){
+            // 得到显示模式
+            var vmd = UIBrowser.getViewMode();
+            uiType = "ui/obrowser/vmd_" + vmd;
+            uiConf = {
+                parent : UI,
+                gasketName : "view"
+            };
+        }
+        // 实在不知道怎么处理了
         else{
-            UI.subUI("view").update(UIBrowser, o);
+            throw "obrowser.warn.fail_open";
         }
-        
 
-        // 最后重新计算一下尺寸
-        UI.resize();
+        // 没必要改变视图类型，直接更新就好，如果是这种情况，那么肯定不是打开编辑器喔
+        if(subView && UI.$el.attr("ui-type") == uiType){
+            subView.update(o, UIBrowser);
+            subView.trigger("browser:show", o);
+            UI.resize();
+        }
+        // 渲染新的 UI
+        else {
+            UI.$el.attr("ui-type", uiType);
+            seajs.use(uiType, function(TheUI){
+                (new TheUI(uiConf)).render(function(){
+                    this.browser = UIBrowser;
+                    this.update(o, UIBrowser);
+                    this.parent.trigger("browser:show", o);
+                    UI.resize();
+                });
+            });
+        }
     },
     //..............................................
     getData : function(arg){

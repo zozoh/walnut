@@ -1,0 +1,16 @@
+@import "../ui.less";
+
+.opreview-wrapper {
+    width:100%;  height:100%; overflow: hidden; background: #222;
+}
+
+.opreview-wrapper[mode="pic"]{
+    text-align: center; 
+    img.autofit {
+        object-fit: contain; width:100%; height:100%;
+    }
+}
+
+.opreview-wrapper[mode="others"] {
+    font-size: @f6; color:@cf3; padding:@da; text-align: center;
+}

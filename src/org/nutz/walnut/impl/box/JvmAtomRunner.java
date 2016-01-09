@@ -152,6 +152,14 @@ public class JvmAtomRunner {
     }
 
     public void run(String cmdLine) {
+        // 执行预处理
+        cmdLine = Wn.normalizeStr(cmdLine, bc.session.vars());
+        
+        // 忽略空行和注释行
+        if (Strings.isBlank(cmdLine) || cmdLine.matches("^[ \t]*(#|//).*$")) {
+            return;
+        }
+
         // 首先对命令行进行预处理
         if (cmdLine.indexOf('`') >= 0)
             cmdLine = __extend_substitution(cmdLine);

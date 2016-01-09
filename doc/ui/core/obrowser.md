@@ -26,11 +26,17 @@ author:zozoh
     // 则会将最后一次路径的 oid 存在 localStorage 里
     // 实际上，如果两个 browser 实例的这个字段相同，那么则会共享
     lastObjId : "last-oid",
-       
-    // 定制菜单策略
-    menu : ???
     
-    // 判断一个对象是否可以被打开，默认，只有 DIR 才能打开
+    // 当加载一个对象的时候，如何获得其编辑器配置信息，可以支持:
+    // - {..}    : 默认采用  {actions : ["@::viewmode"]}
+    // - "auto"  : 则会每次都询问服务器
+    // - {UIBrowser}F(o) : 返回 {..} 必须是同步函数
+    appSetup : {
+        actions : ["@::viewmode"]
+    }
+    
+    // 判断一个对象是否可以被打开，默认，只有普通文件夹才能打开
+    // 如果不能打开，则试图打开这个对象父目录
     canOpen : {UIBrowser}F(o):Boolean,
     
     // 是否允许多选，默认 true
@@ -120,9 +126,13 @@ UI.setViewMode("table");
 
 ```
 {
+    // 这个视图是否可以附加一个编辑器，如果可以需要输入一个编辑器
+    // 的 gasketName，以便编辑器 UI 组合
+    editorGasketName : "xxx",
+
     // 这个函数用来更新内部信息的显示，当 Browser 切换到一个新的路径
     // 就会调用这个函数
-    update : F(UIBrowser, o)
+    update : F(o, UIBrowser)
     
     // 给定一个 jQuery 对象或一个 Element 对象，需要返回这个对象对应
     // 的 WnObj 对象本身
@@ -275,68 +285,6 @@ UI.saveToCache(o);
 UI.saveToCache(o, true{;
 ```
 
-# 动态菜单
-
-```
-$HOME/.ui/actions   # 这个目录存放 browser 控件支持的所有动作类型
-    new.js          # 文件名是这个动作的唯一标识
-    delete.js       # 每个对象的内容是一个 JS 文件描述了这个动作的详情
-    edit.js         # 动作可以自动归组，详情参见动作文件描述
-```
-
-一个动作的 JS 描述和 menu 控件输入是一致的，为了方便起见，我摘抄如下:
-
-```
-({
-    key     : "xxx",        // 无论你写什么，都会被文件名替换
-    text    : "i18n:xxx",   // 动作的显示名称
-    icon    : HTML,         // ICON 可选，为一段 HTML
-    type    : "xxx"         // 动作的类型 "button|status|group"
-    // 动作显示的时候，可以执行初始化函数，修改它的一些显示效果
-    init    : {UIBrowser}F($ele, a);
-    
-    // 如果 type=="status"，那么下面就是这个枚举的详细信息
-    // 当枚举类型值被改变后，会触发事件(前提是 context 支持 trigger 函数)
-    // context.trigger("status:xxx")    
-    status : [{               // 如果是枚举
-        text : "i18n:xxx",  // 每个枚举项目的显示文字
-        icon : HTML,        // 显示的图标
-        val  : "xxx"        // 对应的值
-    },{..}..],
-
-
-    // 如果 type="button"，那么这个按钮的执行操作就是一个函数
-    handler : {UIBrowser}F($ele, a);
-    
-    // 如果 type="group"，那么会展现出一个二级菜单
-    items : ["::find","::edit"]
-})
-```
-
-实际上，它会用 *menu* 控件赖负责具体的显示。
-那么对于一个具体的对象，怎么获取对应的命令菜单呢？
-
-```
-$HOME/.ui/menu
-    mime_application_octet-stream.js     # 如果是文件，可以根据 mime 类型获取
-    folder.js                            # 但是首先会尝试用文件类型获取
-    _unknown.js                          # 所有找不到的，用这个
-```
-
-每个对象的内容都是一个 JSON:
-
-```
-{
-    actions : [            # 本类型对象支持的指令
-        "@:r:new",         # 永远显示:需要读权限:new操作
-        ":w:delete",       # 在菜单里显示:需要写权限:new操作
-        "~",               # 分隔符
-        "::properties"     # 在菜单里显示:不校验权限:属性操作
-    ]
-}
-```
-
-* 界面则需要根据这段 JSON 显示成一个菜单
 
 
 

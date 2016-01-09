@@ -1,5 +1,7 @@
+.obrowser {
+  color: #000000;
+}
 .obrowser .obrowser-block {
-  background: #FFF;
   margin: 0px;
 }
 .obrowser .obrowser-main .wnobj {
@@ -121,95 +123,84 @@
   content: "";
 }
 .obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail {
-  width: 72px;
-  height: 72px;
-  position: relative;
+  width: 76px;
+  height: 76px;
+  padding: 6px;
   margin: 0 auto;
   border-radius: 6px;
 }
 .obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img {
   display: block;
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
+  width: 64px;
+  height: 64px;
+  position: relative;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
   border: 1px solid rgba(0, 0, 0, 0);
   border-radius: 4px;
 }
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail div {
+.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img > div {
   position: absolute;
   width: 16px;
   height: 16px;
   background: red;
 }
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .wnobj-NW {
-  top: 8px;
-  left: 8px;
+.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-NW {
+  top: 0;
+  left: 0;
 }
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .wnobj-NE {
-  top: 8px;
-  right: 8px;
+.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-NE {
+  top: 0;
+  right: 0;
 }
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .wnobj-SW {
-  bottom: 8px;
-  left: 8px;
+.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-SW {
+  bottom: 0;
+  left: 0;
 }
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .wnobj-SE {
-  bottom: 8px;
-  right: 8px;
+.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-SE {
+  bottom: 0;
+  right: 0;
 }
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .wnobj-icon-hide {
+.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-icon-hide {
   display: none;
 }
 .obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail[thumb] .img {
   background-color: #000;
 }
 .obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-nm-con {
-  background: #ffffff;
   text-align: center;
   margin-top: 4px;
-  width: 96px;
-  height: 48px;
+  width: 102px;
+  height: 50px;
   line-height: 16px;
   overflow: hidden;
   word-break: break-all;
   position: relative;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-nm-overflow:after {
-  display: block;
-  content: "...";
-  line-height: 16px;
-  padding: 0 4px;
-  background: #ffffff;
-  position: absolute;
-  right: 0;
-  bottom: 0;
 }
 .obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-nm {
   display: inline-block;
   padding: 0 4px;
   border-radius: 2px;
   border: 1px dotted rgba(0, 0, 0, 0);
+  font-family: Monaco, Consolas, Courier New;
 }
 .obrowser .obrowser-vmd-thumbnail .wnobj-checked .wnobj-thumbnail {
   background: #e0e0e0;
 }
 .obrowser .obrowser-vmd-thumbnail .wnobj-checked .wnobj-thumbnail[thumb] .img {
-  border: 1px solid #eeeeee;
+  border: 1px solid #dddddd;
 }
 .obrowser .obrowser-vmd-thumbnail .wnobj-checked .wnobj-nm {
   background: #0044bb;
   color: #ffffff;
 }
 .obrowser .obrowser-vmd-thumbnail .wnobj-actived .wnobj-nm {
-  border-color: #eeeeee;
+  border-color: #dddddd;
 }
 .obrowser .obrowser-sky {
   position: relative;
+  border-bottom: 1px solid #cccccc;
 }
 .obrowser .obrowser-sky .obrowser-crumb {
   -moz-user-select: none;
@@ -217,7 +208,6 @@
   -webkit-user-select: none;
   user-select: none;
   cursor: default;
-  border-bottom: 1px solid #cccccc;
   background: #eeeeee;
   padding: 6px;
   white-space: nowrap;
@@ -226,10 +216,13 @@
   left: 0;
 }
 .obrowser .obrowser-sky .obrowser-crumb .z_editit {
+  background: #ffffff;
+  color: #000000;
   padding-left: 12px;
   outline: none;
   font-size: 16px;
   font-family: Monaco, Consolas, Courier New;
+  border: 0;
 }
 .obrowser .obrowser-sky .obrowser-crumb > div {
   display: inline-block;
@@ -260,7 +253,7 @@
   position: fixed;
   z-index: 1000;
   min-width: 128px;
-  border: 1px solid #eeeeee;
+  border: 1px solid #ffffff;
   min-width: 96px;
   padding: 6px;
   background: #ffffff;
@@ -274,7 +267,7 @@
   background: #0044bb;
 }
 .obrowser .obrowser-sky .obrowser-crumb .citem:hover {
-  border-color: #eeeeee;
+  border-color: #dddddd;
 }
 .obrowser .obrowser-sky .obrowser-crumb .citem-tail {
   padding-right: 2px;
@@ -300,7 +293,7 @@
 }
 .obrowser .obrowser-sky .obrowser-crumb .folder-drop {
   z-index: 2000;
-  border: 1px solid #eeeeee;
+  border: 1px solid #ffffff;
   min-width: 128px;
   padding: 6px;
   background: #ffffff;

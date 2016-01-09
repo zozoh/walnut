@@ -15,7 +15,7 @@ return ZUI.def("ui.obrowser_vmd_slider", {
     events : {
     },
     //..............................................
-    update : function(UIBrowser, o){
+    update : function(o, UIBrowser){
         var UI = this;
 
 

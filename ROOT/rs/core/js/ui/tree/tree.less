@@ -1,0 +1,49 @@
+@import "../ui.less";
+
+.tree{overflow: auto;}
+
+.tree-wrapper {
+    padding:@d2;
+}
+
+.tree-node{ @noselect();
+    .tnd-self{
+        padding:@d0 0; line-height: @d5;
+        >div {display: inline-block; vertical-align: middle;}
+        .tnd-handle{
+            width:@d5; height:@d5; overflow: hidden; text-align: center;
+        }
+        .tnd-icon{
+            padding:0 @d2 0 @d0; min-width: @d5; text-align: center;
+        }
+        .tnd-text{
+            cursor: pointer; 
+        }
+    }
+    .tnd-children {
+        padding-left:@d5;
+    }
+}
+
+.tree-node-actived {
+    > .tnd-self {
+        background: @cb0; color:@cf0;
+    }
+}
+
+.tree-node[ndtp=node]{
+
+}
+
+.tree-node[ndtp=leaf]{
+    .tnd-handle {visibility: hidden;}
+}
+
+.tree-node[collapse="yes"] {
+    .tnd-handle i:last-child{display: none;}
+    .tnd-children {display: none;}
+}
+
+.tree-node[collapse="no"] {
+    .tnd-handle i:first-child{display: none;}
+}

@@ -7,7 +7,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.menu", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "ui/menu/menu.css",
+    css  : "theme/ui/menu/menu.css",
     //..............................................
     init : function(){
         // 注册全局事件，控制子菜单的关闭

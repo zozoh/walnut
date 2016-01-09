@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import java.net.URLDecoder;
+import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
@@ -51,10 +52,10 @@ public class cmd_httpparam extends JvmExecutor {
             }
         }
 
-        // 输出
+        // 输出 @{xxx} 作为参数模板
         String out = params.get("out");
         if (!Strings.isBlank(out)) {
-            sys.out.println(Tmpl.exec(out, c));
+            sys.out.println(Tmpl.exec(out, _P, 2, 4, c, false));
         }
         // 否则就全部输出一个 JSON
         else {
@@ -63,4 +64,5 @@ public class cmd_httpparam extends JvmExecutor {
 
     }
 
+    private static final Pattern _P = Pattern.compile("((?<![@])[@][{]([^}]+)[}])|([@]([@][{][^}]+[}]))");
 }

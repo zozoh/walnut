@@ -16,19 +16,24 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.obrowser", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : ["theme/obrowser.css","ui/oicons.css"],
+    css  : ["theme/ui/obrowser/obrowser.css","theme/ui/support/oicons.css"],
     i18n : "ui/obrowser/i18n/{{lang}}.js",
     //..............................................
     init : function(options){
         var UI = this;
 
         $z.setUndefined(options, "checkable", true);
+        $z.setUndefined(options, "editable", false);
+        $z.setUndefined(options, "canOpen", function(o){
+            return ('DIR' == o) && (!o.tp || 'folder' == o.tp);
+        });
+        $z.setUndefined(options, "appSetup", {
+            actions : ["@::viewmode"]
+        });
         
         // 绑定 UI 间的监听关系
         UI.on("browser:change", function(o){
-            UI.subUI("shelf/chute").update(UI, o);
-            UI.subUI("shelf/sky").update(UI, o);
-            UI.subUI("shelf/main").update(UI, o);
+            UI.changeCurrentObj(o);
         });
         UI.on("change:viewmode", function(){
             var o = UI.getCurrentObj();
@@ -46,12 +51,60 @@ return ZUI.def("ui.obrowser", {
         });
     },
     //..............................................
-    canOpen : function(o){
+    changeCurrentObj : function(o){
         var UI = this;
-        if(_.isFunction(UI.options.canOpen)){
-            return UI.options.canOpen.call(UI, o);
+
+        // 是否可以打开，不能打开的话，打开父目录即可
+        if(!UI.options.canOpen(o)){
+            var oP = UI.getById(o.pid);
+            UI.changeCurrentObj(oP);
+            return;
         }
-        return "DIR" == o.race;
+
+        // 动态读取对象对应
+        if("auto" == UI.options.appSetup){
+            Wn.loadAppSetup(o, {context:UI}, function(o, asetup){
+                UI.__call_subUI_update(o, asetup);
+            });    
+        }
+        // 采用默认的策略，只有普通文件夹才能打开
+        // 否则相当于打开对象的父目录，同时菜单项只有有限的几个
+        else{
+            var asetup;
+            if(_.isFunction(UI.options.appSetup)){
+                asetup = UI.options.appSetup.call(UI, o);
+            }
+            else if(_.isObject(UI.options.appSetup)){
+                asetup = $z.clone(UI.options.appSetup);
+            }
+            else{
+                throw "Unsupport appSetup: " + UI.options.appSetup;
+            }
+            Wn.extendAppSetup(asetup);
+            // 调用个个子 UI 的更新
+            UI.__call_subUI_update(o, asetup);
+        }
+        
+    },
+    //..............................................
+    __call_subUI_update : function(o, asetup){
+        var UI = this;
+        try{
+            UI.subUI("shelf/chute").update(UI, o, asetup);
+            UI.subUI("shelf/main").update(UI, o, asetup);
+            UI.subUI("shelf/sky").update(UI, o, asetup);
+            // 持久记录最后一次位置
+            if(UI.options.lastObjId){
+                UI.local(UI.options.lastObjId, o.id);
+            }
+        }
+        catch(eKey){
+            alert(UI.msg(eKey));
+        }
+    },
+    //..............................................
+    extend_actions : function(actions, forceTop, isInEditor){
+        return Wn.extendActions(actions, forceTop, isInEditor);
     },
     //..............................................
     redraw : function(){
@@ -66,6 +119,7 @@ return ZUI.def("ui.obrowser", {
             gasketName : "shelf",
             display : {
                 sky : 40,
+                chute: 180,
                 footer : 32
             },
             sky : {
@@ -90,11 +144,11 @@ return ZUI.def("ui.obrowser", {
                 }
             },
             footer : {
-                uiType : "ui/dom",
+                uiType : "ui/support/dom",
                 uiConf : {
                     className : "obrowser-block obrowser-footer",
                     fitparent : true,
-                    dom : "<b>I am footer</b>"
+                    dom : "<b>...</b>"
                 }
             },
 
@@ -105,82 +159,6 @@ return ZUI.def("ui.obrowser", {
 
         // 返回延迟加载
         return ["browser-shelf"];
-    },
-    //..............................................
-    // 将一个 actions 的字符串数组展开成为真的动作命令
-    // actions  - 的格式类似 ["@:r:new", ":w:tree", "::search", "~", "::properties"]
-    // forceTop - true 相当于所有项目都有 @
-    // 返回一个新的展开过的数组
-    extend_actions : function(actions, forceTop){
-        var UI = this;
-        // 分析菜单项，生成各个命令的读取路径
-        // actions 的格式类似 ["@:r:new", ":w:tree", "::search", "~", "::properties"]
-        // @ 开头的项表示固定显示
-        var ac_phs     = [];
-        var menu_setup = [];
-        var menu_items = [];
-        actions.forEach(function(str, index){
-            // 分隔符，特殊处理
-            if(str == "~"){
-                menu_items.push({type:'separator'});
-                if(forceTop){
-                    menu_setup.push(index);
-                }
-                return;
-            }
-            var ss = str.split(":");
-            // 生成命令的读取路径
-            menu_items.push(ac_phs.length);
-            ac_phs.push("~/.ui/actions/"+ss[2]+".js");
-            // 记录固定显示的项目下标
-            if(forceTop || ss[0]=="@")
-                menu_setup.push(index);
-        });
-        // 逐次得到菜单的动作命令
-        var alist = UI.batchRead(ac_phs);
-        for(var i=0; i<menu_items.length; i++){
-            var index = menu_items[i];
-            if(_.isNumber(index)){
-                var mi = eval('(' + alist[index] + ')');
-                if(mi.type=="group" || _.isArray(mi.items)){
-                    mi._items_array = mi.items;
-                    mi.items = function(jq, mi, callback){
-                        var items = this.extend_actions(mi._items_array, true);
-                        callback(items);
-                    };
-                }
-                mi.context = UI;
-                menu_items[i] = mi;
-            }
-        }
-        // 将有固定显示的项目移动到顶级
-        for(var i=0; i<menu_setup.length; i++){
-            var index = menu_setup[i];
-            menu_setup[i] = menu_items[index];
-            menu_items[index] = null;
-        }
-
-        // 消除被移除的项目
-        menu_items = _.without(menu_items, null);
-
-        if(menu_items.length>0){
-            // 和折叠按钮有分隔符
-            if(menu_setup.length>0){
-                menu_setup.push({type:"separator"});
-            }
-
-            // 最后创建一个固定扳手按钮，以便展示菜单
-            // ? 折叠按钮用 <i class="fa fa-ellipsis-v"></i> 如何 ?
-            // ? 折叠按钮用 <i class="fa fa-bars"></i> 如何 ?
-            menu_setup.push({
-                type  : 'group',
-                icon  : '<i class="fa fa-ellipsis-v"></i>',
-                items : menu_items
-            });
-        }
-
-        // 返回配置好的菜单命令
-        return menu_setup;
     },
     //..............................................
     setData : function(obj){
@@ -223,16 +201,11 @@ return ZUI.def("ui.obrowser", {
         // 保存到缓冲
         UI.saveToCache(obj);
 
-        // 持久记录最后一次位置
-        if(UI.options.lastObjId){
-            UI.local(UI.options.lastObjId, obj.id);
-        }
-
         // 临时记录当前的对象
         UI.setCurrentObjId(obj.id);
 
         // 调整尺寸
-        UI.resize();
+        //UI.resize();
 
         // 触发事件
         UI.trigger("browser:change", obj);
@@ -275,6 +248,13 @@ return ZUI.def("ui.obrowser", {
             this.trigger("change:hidden-obj-visibility", vho);
             this.arena.attr("hidden-obj-visibility", vho);
         }
+    },
+    //..............................................
+    getCurrentTextContent : function(){
+        var theUI = this.subUI("shelf/main/view")
+        if(!theUI)
+            return undefined;
+        return $z.invoke(theUI, "getCurrentTextContent");
     },
     //..............................................
     getCurrentObjId : function(){
@@ -322,6 +302,10 @@ return ZUI.def("ui.obrowser", {
     //..............................................
     read : function(o, callback){
         return Wn.read(o, callback, this);
+    },
+    //..............................................
+    write : function(o, content, callback, context){
+        return Wn.write(o, content, callback, context);
     },
     //..............................................
     get : function(o, quiet){

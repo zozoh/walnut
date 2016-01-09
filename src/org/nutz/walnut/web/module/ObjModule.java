@@ -169,6 +169,7 @@ public class ObjModule extends AbstractWnModule {
             for (int i = 0; i < SIZE_HINTS.length; i++) {
                 if (SIZE_HINTS[i] >= sizeHint) {
                     s_h = SIZE_HINTS[i];
+                    break;
                 }
             }
             sizeHint = s_h < 0 ? SIZE_HINTS[SIZE_HINTS.length - 1] : s_h;
@@ -221,7 +222,7 @@ public class ObjModule extends AbstractWnModule {
         // return new ViewWrapper(new RawView(oThumb.mime()), im);
     }
 
-    private static final int[] SIZE_HINTS = Nums.array(16, 24, 32, 64, 128, 256);
+    private static final int[] SIZE_HINTS = Nums.array(16, 24, 32, 64, 128);
 
     private BufferedImage __read_dft_thumbnail(String tp, String sz_key) {
         BufferedImage im;

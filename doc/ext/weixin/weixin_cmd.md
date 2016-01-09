@@ -133,10 +133,56 @@ tags:
     token      : 'YOUR-TOKEN',
     handlers   : [{
         match   : ['XXX', {'EventKey' : 'LUCK'}],
-        command : 'weixin -out "article:赢大奖，送豪礼;;点击进入抽奖界面;;http://host/path/to/url?openId=${weixin_fromUserName}" -inmsg id:${id}'
+        command : 'weixin -out "article:赢大奖，送豪礼;;点击进入抽奖界面;;http://host/path/to/url?openId=${weixin_FromUserName}" -inmsg id:${id}'
     }]
 }
 ```
+
+## 注册 httpapi
+
+首先需要在 `~/.regapi/api/` 目录下建立一个注册的 api，
+比如 `~/.regapi/api/demo/myweixin`。内容是:
+
+        weixin -in id:${id}
+
+## 配置转发 URL
+
+之后在微信公众号后台，将 api 的地址配置入 `开发者中心>服务器配置>URL`，
+
+    http://$youhost/api/$usr/demo/myweixin
+
+# 自定义菜单
+
+## 创建
+    weixin -pnb 微信号 -menu ~/path/to/menu
+
+## 删除
+    weixin -pnb 微信号 -menu delete
+
+# 主动发送消息
+
+    weixin -pnb 微信号 -to $OpenId -out ~/path/to/send
+
+当然，如果没有 `-out`，命令会试图从管道里读取输入。
+
+# 输出响应消息
+
+    weixin -out "{...一个json 数据..}" [-inmsg id:$id]
+
+当不指明 *-pnb* 和 *-to* 的时候，*-out* 表示向标准输出写入一个微信的 XML 响应数据。
+同时你可选一个选项 *-inmsg*，表明发来的消息。 本逻辑会根据这个微信消息设置 *FromUserName* 和 *ToUserName*， 即使你在 *-out* 里指定了，也会被覆盖
+
+当然用一个 JSON 描述微信的消息输出，太复杂了，如果内容较多，你可以把内容写到一个文档
+
+    weixin -out "id:文档ID" [-inmsg id:$id]
+
+同时也支持简明输出
+
+    # 简单文本消息
+    weixin -out "text:消息内容" [-inmsg id:$id]
+    #
+    # 一篇文章
+    weixin -out "article:标题;;可选的描述;;可选的超链接" [-inmsg id:$id]
 
 # 微信请求对象的例子
 
@@ -191,68 +237,4 @@ tags:
    weixin_Event :"subscribe"
 }
 ```
-
-## 注册 httpapi
-
-首先需要在 `~/.regapi/api/` 目录下建立一个注册的 api，
-比如 `~/.regapi/api/demo/myweixin`。内容是:
-
-        weixin -in id:${id}
-
-## 配置转发 URL
-
-之后在微信公众号后台，将 api 的地址配置入 `开发者中心>服务器配置>URL`，
-
-    http://$youhost/api/$usr/demo/myweixin
-
-# 自定义菜单
-
-## 创建
-    weixin -pnb 微信号 -menu ~/path/to/menu
-
-## 删除
-    weixin -pnb 微信号 -menu delete
-
-# 主动发送消息
-
-    weixin -pnb 微信号 -to $OpenId -out ~/path/to/send
-
-当然，如果没有 `-out`，命令会试图从管道里读取输入。
-
-# 输出响应消息
-
-    weixin -out "{...一个json 数据..}" [-inmsg id:$id]
-
-当不指明 *-pnb* 和 *-to* 的时候，*-out* 表示向标准输出写入一个微信的 XML 响应数据。
-同时你可选一个选项 *-inmsg*，表明发来的消息。 本逻辑会根据这个微信消息设置 *fromUserName* 和 *toUserName*， 即使你在 *-out* 里指定了，也会被覆盖
-
-当然用一个 JSON 描述微信的消息输出，太复杂了，如果内容较多，你可以把内容写到一个文档
-
-    weixin -out "id:文档ID" [-inmsg id:$id]
-
-同时也支持简明输出
-
-    # 简单文本消息
-    weixin -out "text:消息内容" [-inmsg id:$id]
-    #
-    # 一篇文章
-    weixin -out "article:标题;;可选的描述;;可选的超链接" [-inmsg id:$id]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

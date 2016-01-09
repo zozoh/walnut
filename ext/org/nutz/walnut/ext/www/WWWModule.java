@@ -303,6 +303,8 @@ public class WWWModule extends AbstractWnModule {
                 return new ViewWrapper(new RawView("text/html"), html);
             }
             // 其他的，就直接下载了
+            if (log.isDebugEnabled())
+                log.debugf(" - download (%s)@%s : %s", o.id(), usr, a_path);
             return new WnObjDownloadView(io, o);
 
         }

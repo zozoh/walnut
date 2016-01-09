@@ -4,7 +4,6 @@ import org.nutz.lang.Times;
 import org.nutz.walnut.impl.box.JvmBoxOutput;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_output extends JvmExecutor {
@@ -34,7 +33,8 @@ public class cmd_output extends JvmExecutor {
         if (params.vals.length > 0) {
             StringBuilder sb = new StringBuilder();
             for (String v : params.vals) {
-                sb.append(Wn.normalizeStr(v, sys.se.vars())).append(' ');
+                // sb.append(Wn.normalizeStr(v, sys.se.vars())).append(' ');
+                sb.append(v).append(' ');
             }
             if (sb.length() > 0)
                 sb.deleteCharAt(sb.length() - 1);

@@ -30,10 +30,20 @@ define({
             "empty" : "点击选择项目"
         }
     },
+    "editor" : {
+        "o_edit_text" : "文本编辑器",
+        "o_view_obj"  : "对象查看器"
+    },
     "e" : {
         "fld" : {
             "invalid" : {
                 "datetime" : "错误的日期时间格式"
+            }
+        },
+        "act" : {
+            "noapi" : {
+                "obj"     : "找不到需要的对象数据接口",
+                "content" : "找不到需要的内容数据接口"
             }
         }
     },

@@ -53,7 +53,7 @@ public class AppInfo {
         // 解析基本属性
         id = mp.get("appid");
         name = mp.get("appnm");
-        if (Strings.isBlank(name)) {
+        if (Strings.isBlank(name) && !Strings.isBlank(id)) {
             int pos = id.lastIndexOf('.');
             if (pos >= 0) {
                 name = id.substring(pos + 1);

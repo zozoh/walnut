@@ -44,7 +44,7 @@ public class WxMsgHandler {
             }
             // 其他的，当做文本处理
             else {
-                return match.toString().equals(im.getContent());
+                return this._do_match(match, im.getContent());
             }
         }
         return true;
@@ -142,13 +142,22 @@ public class WxMsgHandler {
 
     @SuppressWarnings("unchecked")
     private boolean _do_match(Object pattern, String str) {
-        // 正则表达式
+        // 用 {regex:"xxx"} 表示的正则表达式
         if (pattern instanceof Map) {
             String regex = ((Map<String, String>) pattern).get("regex");
-            return str.matches(regex);
+            if (null != regex) {
+                return str.matches(regex);
+            }
         }
-        // 普通字符串
+        // 得到字符串
         String exp = Strings.trim(pattern.toString());
+
+        // ^开头表示正则表达式
+        if (exp.startsWith("^") && exp.length() > 1) {
+            return str.matches(exp);
+        }
+
+        // 字符串精确匹配，但是忽略大小写
         return exp.equalsIgnoreCase(Strings.trim(str));
     }
 

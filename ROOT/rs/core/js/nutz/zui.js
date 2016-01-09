@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     //console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
     // 采用统一的 ZUI.css
     var dt = require("ui/dateformat.js");
-    seajs.use(["ui/zui.css", "ui/data_editing.css"]);
+    seajs.use(["ui/zui.css", "ui/support/data_editing.css"]);
 
     // 提供数据类型的支持
     var DTYPES = require('./data_types');
@@ -99,9 +99,11 @@ define(function (require, exports, module) {
 
     var register = function(UI) {
         var options = UI.options;
+        var gas;
+        //....................................
         // 考虑将自己组合到自己的父插件
         if (UI.parent && UI.gasketName) {
-            var gas = UI.parent.gasket[UI.gasketName];
+            gas = UI.parent.gasket[UI.gasketName];
             if (!gas)
                 throw "Fail to found gasket '" + UI.gasketName + "'";
             // 如果已经存在了插件，是否需要释放
@@ -113,24 +115,39 @@ define(function (require, exports, module) {
             }
             // 将自己添加到父插件
             gas.ui.push(UI);
+        }
+        //..................................... 确定选区
+        // 采用给定的父选区: jQuery
+        if($z.isjQuery(options.$pel)){
+            UI.$pel = options.$pel;
+            UI.pel  = UI.$pel[0]; 
+        }
+        // 采用给定的父选区: Element
+        else if(_.isElement(options.pel)){
+            UI.pel  = options.pel;
+            UI.$pel = $(UI.pel);
+        }
+        // 将插入点作为父选区
+        else if(gas){
             UI.$pel = gas.jq;
             UI.pel = gas.jq[0];
         }
-        // 采用给定的父，如果没指定父，则直接添加到 document.body 上
+        // 没办法了，只好附加到 body 上了
         else {
-            UI.$pel = options.$pel || $(document.body);
-            UI.pel = UI.$pel[0];
+            UI.pel  = document.body;
+            UI.$pel = $(UI.pel);
         }
+        //.....................................
         // 加入 DOM 树
         UI.$pel.append(UI.$el);
-
+        //.....................................
         // 记录自身实例
         UI.$el.attr("ui-id", UI.cid);
         ZUI.instances[UI.cid] = UI;
         if (document.body == UI.pel || !UI.parent) {
             window.ZUI.tops.push(UI);
         }
-
+        //.....................................
     };
 
     // 定义一个 UI 的原型
@@ -632,6 +649,10 @@ define(function (require, exports, module) {
             // 给的就是一个 UI 实例，那么直接监听了
             if(uiKey._nutz_ui){
                 this._listen_to(uiKey, event, handler);
+            }
+            // 监听自己的父
+            else if("$parent" == uiKey){
+                this._listen_to(this.parent, event, handler);
             }
             // 否则看看是不是需要推迟建立
             else{

@@ -388,6 +388,12 @@ public class cmd_weixin extends JvmExecutor {
 
     private void __do_msg_out(final WnSystem sys, ZParams params) {
         String out = params.get("out");
+        
+        // 从管线里读取纯文本内容
+        if (sys.pipeId > 0 && out.equals("true")) {
+            out = Strings.trim(sys.in.readAll());
+        }
+        
         WxOutMsg om = null;
 
         String openid = params.get("openid");
@@ -412,15 +418,9 @@ public class cmd_weixin extends JvmExecutor {
                 arti.setUrl(ss[2]);
             om = Wxs.respNews(null, arti);
         }
-        // 从管线里读取纯文本内容
-        else if (sys.pipeId > 0 && out.equals("true")) {
-            String content = Strings.trim(sys.in.readAll());
-            om = Wxs.respText(openid, content);
-        }
-        // 试图从一个对象里读取文本内容
+        // 就是一段简单的文本
         else {
-            WnObj oMsg = Wn.checkObj(sys, out);
-            om = sys.io.readJson(oMsg, WxOutMsg.class);
+            om = Wxs.respText(openid, out);
         }
 
         // 设置创建时间

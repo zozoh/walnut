@@ -36,10 +36,13 @@
             "zui_css"       : "core/js/nutz/zui.css"
         },
         paths: {
+            "theme"         : "/theme/r",
             "ui"            : "core/js/ui",
-            "theme"         : "/theme/ui",
+            "uix"           : "${session.envs.MY_UIX?ext/js/ui}",
             "wn"            : "core/js/walnut",
-            "jquery-plugin" : "core/js/jquery-plugin"
+            "app"           : "/a/load",
+            "jquery-plugin" : "core/js/jquery-plugin",
+            "jquery-ui"     : "core/js/jquery-ui"
         },
         charset: 'utf-8'
     });
@@ -51,7 +54,7 @@
 
     seajs.use("zui", function (ZUI) {
         ZUI.loadi18n("ui/i18n/{{lang}}.js", function () {
-            seajs.use("/a/load/" + _app.name + "/main.js", function (main) {
+            seajs.use("app/main.js?nm=" + _app.name, function (main) {
                 main.init();
             });
         });

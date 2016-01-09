@@ -15,17 +15,20 @@ import org.nutz.castor.Castors;
 import org.nutz.el.El;
 import org.nutz.http.Http;
 import org.nutz.json.Json;
+import org.nutz.json.JsonException;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.www.WWWContext;
 import org.nutz.walnut.ext.www.WWWHdl;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.web.WebException;
 
 public class www_wnml implements WWWHdl {
 
@@ -41,35 +44,41 @@ public class www_wnml implements WWWHdl {
         }
 
         // 然后处理数据源
-        eles = doc.select("script.wn-datasource");
-        for (Element ele : eles) {
-            __do_datasource(sys, ele, wwc.context);
-        }
+        // eles = doc.select("script.wn-datasource");
+        // for (Element ele : eles) {
+        // __do_datasource(sys, ele, wwc.context);
+        // }
 
         // 处理所有的节点的属性和文本的占位符
-        __do_node(doc, wwc.context);
-
-        // 如果存在 redirect 的节点，输出 HTTP 头
-        Elements eRes = doc.getElementsByTag("redirect");
-        if (null != eRes && eRes.size() > 0) {
-            Element eRe = eRes.first();
-            int code = Integer.parseInt(Strings.sBlank(eRe.attr("code"), "302"));
-            String text = Strings.sBlank(eRe.attr("text"), Http.getStatusText(code));
-            String url = Strings.sBlank(eRe.text(), "/");
-            sys.out.printlnf("HTTP/1.1 %d %s", code, text);
-            sys.out.printlnf("Location: %s", url);
-            sys.out.println();
-
-            eRes.remove();
-        }
-        // 否则输出正常的响应内容
-        else {
+        try {
+            __do_node(sys, doc, wwc.context);
             sys.out.println(doc.toString());
+        }
+        // 看看是否会有 redirect 的错误
+        catch (WebException e) {
+            if (e.isKey("redirect.www.wnml")) {
+                Element eRe = (Element) e.getReason();
+                int code = Integer.parseInt(Strings.sBlank(eRe.attr("code"), "302"));
+                String text = Strings.sBlank(eRe.attr("text"), Http.getStatusText(code));
+                String url = Strings.sBlank(eRe.text(), "/");
+                sys.out.printlnf("HTTP/1.1 %d %s", code, text);
+                sys.out.printlnf("Location: %s", url);
+                sys.out.println();
+            }
+            // 其他的错误，抛出去吧
+            else {
+                throw e;
+            }
         }
 
     }
 
-    private void __do_node(Node nd, NutMap c) {
+    private void __do_redirect(WnSystem sys, Element ele, NutMap c) {
+        __do_element_text(ele, c);
+        throw Er.create("redirect.www.wnml", ele);
+    }
+
+    private void __do_node(WnSystem sys, Node nd, NutMap c) {
         // 文本
         if (nd instanceof TextNode) {
             TextNode tnd = (TextNode) nd;
@@ -80,18 +89,27 @@ public class www_wnml implements WWWHdl {
         // 元素
         else if (nd instanceof Element) {
             Element ele = (Element) nd;
+            String tagName = ele.tagName();
 
+            // 处理重定向，仅仅抛出错误，中断后续处理例程
+            if ("redirect".equals(tagName)) {
+                __do_redirect(sys, ele, c);
+            }
+            // 处理数据源
+            else if ("script".equals(tagName) && ele.hasClass("wn-datasource")) {
+                __do_datasource(sys, ele, c);
+            }
             // <if>
-            if ("if".equals(ele.tagName())) {
-                __do_if(ele, c);
+            else if ("if".equals(tagName)) {
+                __do_if(sys, ele, c);
             }
             // <each>
-            else if ("each".equals(ele.tagName())) {
-                __do_each(ele, c);
+            else if ("each".equals(tagName)) {
+                __do_each(sys, ele, c);
             }
             // <choose>
-            else if ("choose".equals(ele.tagName())) {
-                __do_choose(ele, c);
+            else if ("choose".equals(tagName)) {
+                __do_choose(sys, ele, c);
             }
             // 普通的元素
             else {
@@ -101,25 +119,31 @@ public class www_wnml implements WWWHdl {
                 // 子
                 Node[] children = this.__get_children_array(ele);
                 for (Node child : children) {
-                    __do_node(child, c);
+                    __do_node(sys, child, c);
                 }
             }
         }
-        // 数据
+        // 不显示出来的元素
         else if (nd instanceof DataNode) {
-            // 属性
             __do_node_attr(nd, c);
-
-            // 内容
-            DataNode dnd = (DataNode) nd;
-            String txt = dnd.getWholeData();
-            String str = Tmpl.exec(txt, c);
-            dnd.setWholeData(str);
+            __do_data_node_text((DataNode) nd, c);
         }
 
     }
 
-    private void __do_each(final Element ele, NutMap c) {
+    private void __do_data_node_text(DataNode dnd, NutMap c) {
+        String txt = dnd.getWholeData();
+        String str = Tmpl.exec(txt, c);
+        dnd.setWholeData(str);
+    }
+
+    private void __do_element_text(Element ele, NutMap c) {
+        String txt = ele.text();
+        String str = Tmpl.exec(txt, c);
+        ele.text(str);
+    }
+
+    private void __do_each(final WnSystem sys, final Element ele, NutMap c) {
         final String varName = Strings.sBlank(ele.attr("var"), "_obj");
         String itemsKey = ele.attr("items");
 
@@ -137,7 +161,7 @@ public class www_wnml implements WWWHdl {
                     for (Node child : children) {
                         Node newNode = child.clone();
                         ele.after(newNode);
-                        __do_node(newNode, loopC);
+                        __do_node(sys, newNode, loopC);
                     }
                 }
             });
@@ -147,7 +171,7 @@ public class www_wnml implements WWWHdl {
         ele.remove();
     }
 
-    private boolean __do_if(Element ele, NutMap c) {
+    private boolean __do_if(WnSystem sys, Element ele, NutMap c) {
         String test = ele.attr("test");
         Object re = El.eval(Lang.context(c), test);
         boolean b = null == re ? false : Castors.me().castTo(re, Boolean.class);
@@ -155,7 +179,7 @@ public class www_wnml implements WWWHdl {
         if (b) {
             // 处理自己所有的子
             for (Node nd : ele.childNodes()) {
-                __do_node(nd, c);
+                __do_node(sys, nd, c);
             }
 
             // 删除自身
@@ -169,7 +193,7 @@ public class www_wnml implements WWWHdl {
         return b;
     }
 
-    private void __do_choose(Element ele, NutMap c) {
+    private void __do_choose(WnSystem sys, Element ele, NutMap c) {
         boolean matched = false;
         // 依次判断
         for (Element child : ele.children()) {
@@ -184,13 +208,13 @@ public class www_wnml implements WWWHdl {
             // 到了默认值
             if ("otherwise".equals(tagName)) {
                 for (Node nd : child.childNodes())
-                    __do_node(nd, c);
+                    __do_node(sys, nd, c);
                 child.unwrap();
                 matched = true;
             }
             // 如果是 when
             else if ("when".equals(tagName)) {
-                matched = __do_if(child, c);
+                matched = __do_if(sys, child, c);
             }
             // 其他的移除
             else {
@@ -265,7 +289,20 @@ public class www_wnml implements WWWHdl {
 
         // JSON
         if ("json".equalsIgnoreCase(type)) {
-            Object oJson = Json.fromJson(str);
+            Object oJson;
+            try {
+                oJson = Json.fromJson(str);
+            }
+            // 如果失败了，那么这个命令返回的不是合法的 JSON
+            // 那么会看看 "dftobj" 属性有木有声明，如果没有，则相当于 null
+            catch (JsonException e) {
+                String dftobj = ele.attr("dftobj");
+                if (!Strings.isBlank(dftobj)) {
+                    oJson = Json.fromJson(dftobj);
+                } else {
+                    oJson = null;
+                }
+            }
             // 没有 name，并且是 Map
             if (Strings.isBlank(name) && oJson instanceof Map<?, ?>) {
                 c.putAll((Map<String, Object>) oJson);

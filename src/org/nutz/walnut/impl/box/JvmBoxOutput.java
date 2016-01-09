@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
+import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
@@ -75,8 +76,18 @@ public class JvmBoxOutput implements Flushable, Closeable {
         print("\n");
     }
 
-    public void println(CharSequence msg) {
-        print(msg + "\n");
+    public void println(Object obj) {
+        if (null == obj) {
+            print("null\n");
+        }
+        // 字符串
+        else if (obj instanceof CharSequence) {
+            print(obj + "\n");
+        }
+        // 其他对象
+        else {
+            print(Castors.me().castToString(obj) + "\n");
+        }
     }
 
     public void printlnf(String fmt, Object... args) {

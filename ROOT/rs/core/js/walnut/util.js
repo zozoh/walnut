@@ -7,6 +7,32 @@ var Wn = {
         return window._app;
     },
     //...................................................................
+    // 根据对象，填充给定的一段 DOM 中的缩略图和名称
+    update_wnobj_thumbnail : function(o, jThumb, jNm, evalThumb, UI){
+         // 得到缩略图角标
+        if(_.isFunction(evalThumb)){
+            var thumbnails = evalThumb(child);
+            if(thumbnail){
+                for(var thumbkey in thumbnails){
+                    var jThumbIcon = jThumb.find(".wnobj-"+key);
+                    jThumbIcon.html(thumbnails[thumbkey]).removeClass("wnobj-icon-hide");
+                }
+            }
+        }
+        // 设置缩略图地址
+        var url = "url(/o/thumbnail/id:"+encodeURIComponent(o.id)+"?sh=64)";
+        jThumb.find(".img").css("background-image", url);
+        jThumb.attr("thumb", o.thumb);
+
+        // 填充对象名称
+        jNm.text(this.objDisplayName(o.nm, UI));
+    },
+    //...................................................................
+    objDisplayName : function(nm, UI){
+        var text = nm;   // TODO 以后考虑 _key_ 开头的名称
+        return $z.ellipsisCenter(text, 20);
+    },
+    //...................................................................
     // 提供一个通用的文件上传界面，任何 UI 可以通过
     //   this.listenModel("do:upload", this.on_do_upload); 
     // 来启用这个方法
@@ -261,6 +287,154 @@ var Wn = {
         return o.nm;
     },
     //..............................................
+    /* 根据一个对象获取其应用配置信息
+     options - {
+        forceTop: true,   // 是否为每个菜单项强制加上 "@"
+        editor  : "xxx",  // 采用指定的编辑器 
+        context : this    // 回调的上下文
+     }
+    */
+    loadAppSetup : function(o, options, callback){
+        // 格式化选项
+        if(_.isFunction(options)){
+            callback = options;
+            options = {forceTop : false};
+        }
+        else if(_.isBoolean(options)){
+            options = {forceTop : options};
+        }
+        else if(!options){
+            options = {forceTop : false};
+        }
+        // 开始从服务器获取数据
+        var Wn = this;
+        Wn.exec("appsetup id:"+o.id, function(json){
+            var asetup = $z.fromJson(json);
+            
+            // 强制使用指定的编辑器
+            if(options.editor){
+                asetup.editors = [options.editor];
+            }
+
+            // 展开
+            Wn.extendAppSetup(asetup, options.forceTop);
+
+            // 调用回调
+            if(_.isFunction(callback)){
+                callback.call(options.context||Wn, o, asetup);
+            }
+        });
+    },
+    extendAppSetup : function(asetup, forceTop){
+        var Wn = this;
+        asetup.editors = asetup.editors || [];
+        asetup.actions = asetup.actions || [];
+        var isInEditor = asetup.editors.length > 0;
+
+        // 首先读取编辑器
+        if(isInEditor){
+            // 得到默认编辑器
+            var edtnm = asetup.editors[0];
+            var oedt = Wn.fetch("~/.ui/editors/"+edtnm+".js");
+            var json = Wn.read(oedt);
+            var ace  = $z.fromJson(json);
+            asetup.currentEditor = ace;
+                
+            // 将编辑器的菜单项统统加入动作组
+            if(_.isArray(ace.actions)){
+                ace.actions.forEach(function(val, index, arr){
+                    arr[index] = "e" + val;
+                });
+                asetup.actions = asetup.actions.concat(ace.actions);
+            }
+        }
+
+        // 展开动作组
+        asetup.menu = Wn.extendActions(asetup.actions, forceTop, isInEditor);
+    },
+    extendActions : function(actions, forceTop, isInEditor){
+        var UI = this;
+        // 分析菜单项，生成各个命令的读取路径
+        // actions 的格式类似 ["@:r:new", ":w:tree", "::search", "~", "::properties"]
+        // @ 开头的项表示固定显示
+        var ac_phs     = [];
+        var menu_setup = [];
+        var menu_items = [];
+        actions.forEach(function(str, index){
+            // 分隔符，特殊处理
+            if(str == "~"){
+                menu_items.push({type:'separator'});
+                if(forceTop){
+                    menu_setup.push(index);
+                }
+                return;
+            }
+            var ss = str.split(":");
+            // 在编辑器中，忽略 E
+            if(isInEditor){
+                if(ss[0].indexOf("E")>=0)
+                    return;
+            }
+            // 不在编辑器中，忽略 e
+            else{
+                if(ss[0].indexOf("e")>=0)
+                    return;
+            }
+
+            // 生成命令的读取路径
+            menu_items.push(ac_phs.length);
+            ac_phs.push("~/.ui/actions/"+ss[2]+".js");
+            // 记录固定显示的项目下标
+            if(forceTop || ss[0].indexOf("@")>=0)
+                menu_setup.push(index);
+        });
+        // 逐次得到菜单的动作命令
+        var alist = UI.batchRead(ac_phs);
+        for(var i=0; i<menu_items.length; i++){
+            var index = menu_items[i];
+            if(_.isNumber(index)){
+                var mi = eval('(' + alist[index] + ')');
+                if(mi.type=="group" || _.isArray(mi.items)){
+                    mi._items_array = mi.items;
+                    mi.items = function(jq, mi, callback){
+                        var items = this.extend_actions(mi._items_array, true);
+                        callback(items);
+                    };
+                }
+                mi.context = UI;
+                menu_items[i] = mi;
+            }
+        }
+        // 将有固定显示的项目移动到顶级
+        for(var i=0; i<menu_setup.length; i++){
+            var index = menu_setup[i];
+            menu_setup[i] = menu_items[index];
+            menu_items[index] = null;
+        }
+
+        // 消除被移除的项目
+        menu_items = _.without(menu_items, null);
+
+        if(menu_items.length>0){
+            // 和折叠按钮有分隔符
+            if(menu_setup.length>0){
+                menu_setup.push({type:"separator"});
+            }
+
+            // 最后创建一个固定扳手按钮，以便展示菜单
+            // ? 折叠按钮用 <i class="fa fa-ellipsis-v"></i> 如何 ?
+            // ? 折叠按钮用 <i class="fa fa-bars"></i> 如何 ?
+            menu_setup.push({
+                type  : 'group',
+                icon  : '<i class="fa fa-ellipsis-v"></i>',
+                items : menu_items
+            });
+        }
+
+        // 返回配置好的菜单命令
+        return menu_setup;
+    },
+    //..............................................
     _index : {
         ph : {}
     },
@@ -298,8 +472,6 @@ var Wn = {
             }
             // 更新自身
             Wn.saveToCache(o);
-
-            return list;
         }
 
         if($z.isPlainObj(filter)){
@@ -423,13 +595,13 @@ var Wn = {
         if(_.isFunction(callback)){
             // 没值，就直接返回空串吧
             if(o.len == 0){
-                callback.call(Wn || context, "");
+                callback.call(context || Wn, "");
                 return;
             }
             // 从本地存储里读取 sha1
             var reText = store.getItem(sha1Key);
             if(reText){
-                callback.call(Wn || context, reText);
+                callback.call(context || Wn, reText);
                 return;
             }
 
@@ -438,7 +610,7 @@ var Wn = {
                 async : false,
                 success : function(re){
                     store.setItem(sha1Key, re);
-                    callback.call(Wn || context, re);
+                    callback.call(context || Wn, re);
                 }
             }, ajaxConf));
 
@@ -467,6 +639,76 @@ var Wn = {
         
         // 返回结果
         return reText;
+    },
+    //..............................................
+    write : function(o, content, callback, context) {
+        var Wn = this;
+        var store = Wn._storeAPI;
+
+        // 如果是字符串，变对象
+        if(_.isString(o)){
+            o = Wn.get(o);
+        }
+
+        // 对于挂载对象，不能保存
+        if(o.mnt) {
+            alert("save mount obj is forbidden");
+            return;
+        }
+
+        // 首选准备一个 ajax读取对象
+        var ajaxConf = {
+            type: "POST",
+            url: "/o/write/id:" + o.id,
+            data: content || ""
+        };
+
+        var _save_to_cache = function(re){
+            var reo = $z.fromJson(re);
+            if(reo.ok){
+                var newObj = reo.data;
+                Wn.saveToCache(newObj);
+                if(newObj.sha1){
+                    var sha1Key = "SHA1:" + newObj.sha1;
+                    store.setItem(sha1Key, content);
+                }
+                return newObj;
+            }
+            alert(re.errCode + " : " + re.msg);
+            return null;
+        };
+
+        // 异步的方式 ...........................................
+        if(_.isFunction(callback)){
+            // 发送请求
+            $.ajax(_.extend({
+                async : false,
+                success : function(re){
+                    var newObj = _save_to_cache(re);
+                    callback.call(context || Wn, newObj);
+                }
+            }, ajaxConf));
+
+            // 结束吧
+            return;
+        }
+
+        // 同步的方式 ...........................................
+        // 没值，就直接返回空串吧
+        if(o.len == 0)
+            return "";
+
+        // 从服务器读取
+        var reObj;
+        $.ajax(_.extend({
+            async : false,
+            success : function(re){
+                reObj = _save_to_cache(re);;
+            }
+        }, ajaxConf));
+        
+        // 返回结果
+        return reObj;
     },
     //..............................................
     get : function(o, quiet){
@@ -545,6 +787,66 @@ var Wn = {
         var o2  = $z.fromJson(re);
         Wn.saveToCache(o2);
         return o2;
+    },
+    //..............................................
+    // 根据 ID 列表批量获取对象的元数据
+    batchGetById : function(ids, callback){
+        var Wn = this;
+        var store = Wn._storeAPI;
+
+        // 收集所有未加入缓存的项目
+        var objs = [];
+        var loadIds = [];
+        for(var i=0; i<ids.length; i++){
+            var oid  = ids[i];
+            var key  = "oid:" + oid;
+            var json = store.getItem(key);
+            if(json){
+                objs.push($z.fromJson(json));
+            }else{
+                objs.push(oid);
+                loadIds.push(oid);
+            }
+        }
+
+        // 声明处理函数
+        var fill_unload_objs_and_invoke_callback = function(re){
+            // 存入缓存
+            var list = $z.fromJson(re);
+            for(var i=0;i<list.length;i++){
+                Wn.saveToCache(list[i]);
+            }
+
+            // 更新未加载对象
+            for(var i=0;i<objs.length;i++){
+                var o = objs[i];
+                if(_.isString(o)){
+                    objs[i] = Wn.getById(o);
+                }
+            }
+
+            // 调用回调
+            if(_.isFunction(callback)){
+                callback(objs);
+            }
+        };
+
+        // 如果有需要读取的 ID，则发送请求
+        if(loadIds.length>0){
+            var cmdText = "obj id:" + loadIds.join(" id:") + " -lP -json";
+            // 异步调用
+            if(_.isFunction(callback)){
+                Wn.exec(cmdText, fill_unload_objs_and_invoke_callback);
+            }
+            // 同步调用
+            else {
+                var re = Wn.exec(cmdText);
+                fill_unload_objs_and_invoke_callback(re);
+            }
+        }
+
+        // 最后返回
+        return objs;
     },
     //..............................................
     saveToCache : function(o){

@@ -1,16 +1,17 @@
 (function($z){
-$z.declare(['zui'], function(ZUI, TableUI){
+$z.declare(['zui', 'wn/util'], function(ZUI, Wn){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
     <div code-id="obj" class="wnobj">
         <div class="wnobj-wrapper">
             <div class="wnobj-thumbnail">
-                <span class="img"></span>
-                <div class="wnobj-NW wnobj-icon-hide"></div>
-                <div class="wnobj-NE wnobj-icon-hide"></div>
-                <div class="wnobj-SW wnobj-icon-hide"></div>
-                <div class="wnobj-SE wnobj-icon-hide"></div>
+                <div class="img">
+                    <div class="wnobj-NW wnobj-icon-hide"></div>
+                    <div class="wnobj-NE wnobj-icon-hide"></div>
+                    <div class="wnobj-SW wnobj-icon-hide"></div>
+                    <div class="wnobj-SE wnobj-icon-hide"></div>
+                </div>
             </div>
             <div class="wnobj-nm-con"><span class="wnobj-nm"></span></div>
         </div>
@@ -42,10 +43,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
                 return;
             }
             var o = this.getData(e.currentTarget);
-            if(UI.browser.canOpen(o)){
-                UI.browser.setData("id:"+o.id);
-            }
-
+            UI.browser.setData("id:"+o.id);
         },
         "click .wnobj-thumbnail" : function(e){
             var UI = this;
@@ -133,41 +131,31 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
         }
     },
     //..............................................
-    update : function(UIBrowser, o){
+    update : function(o, UIBrowser){
         var UI = this;
-        UI.arena.empty();
 
-        // 得到当前所有的子节点
-        var list = UIBrowser.getChildren(o);
+        // 显示正在加载
+        UI.arena.empty().text(UI.msg("loading"));
 
-        // 循环在选区内绘制图标 
-        list.forEach(function(child){
-            var jq = UI.ccode("obj").appendTo(UI.arena);;
-            jq.attr("oid",child.id).attr("onm", child.nm);
-            var jThumb = jq.find(".wnobj-thumbnail");
-            // 标记隐藏文件
-            if(/^[.].+/.test(child.nm)){
-                jq.addClass("wnobj-hide");
-            }
-            // 得到缩略图角标
-            if(_.isFunction(UIBrowser.options.thumbnail)){
-                var thumbnails = UIBrowser.options.thumbnail.call(UIBrowser, child);
-                if(thumbnail){
-                    for(var thumbkey in thumbnails){
-                        var jThumbIcon = jThumb.find(".wnobj-"+key);
-                        jThumbIcon.html(thumbnails[thumbkey]).removeClass("wnobj-icon-hide");
-                    }
+        window.setTimeout(function(){
+            // 得到当前所有的子节点
+            var list = UIBrowser.getChildren(o);
+
+            // 循环在选区内绘制图标
+            UI.arena.empty();
+            list.forEach(function(child){
+                var jq = UI.ccode("obj").appendTo(UI.arena);;
+                jq.attr("oid",child.id).attr("onm", child.nm);
+                var jThumb = jq.find(".wnobj-thumbnail");
+                // 标记隐藏文件
+                if(/^[.].+/.test(child.nm)){
+                    jq.addClass("wnobj-hide");
                 }
-            }
-            // 设置缩略图地址
-            var url = "url(/o/thumbnail/id:"+encodeURIComponent(child.id)+"?sh=64)";
-            jThumb.find(".img").css("background-image", url);
-            jThumb.attr("thumb", o.thumb);
-
-            // 填充对象名称
-            jq.find(".wnobj-nm").text(child.nm);
-        });
-
+                // 填充对象名称
+                Wn.update_wnobj_thumbnail(child, jThumb, jq.find(".wnobj-nm"), 
+                                        UIBrowser.options.thumbnail, UI);
+            });
+        }, 10);
     },
     //..............................................
     getData : function(arg){

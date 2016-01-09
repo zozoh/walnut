@@ -3,13 +3,13 @@ package org.nutz.walnut.web.view;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.mvc.View;
@@ -20,7 +20,13 @@ public class WnImageView implements View {
 
     {
         try {
-            dft_img = ImageIO.read(Files.findFile("org/nutz/walnut/web/view/unknown_image_type.jpg"));
+            InputStream ins = Streams.fileIn("org/nutz/walnut/web/view/unknown_image_type.jpg");
+            try {
+                dft_img = ImageIO.read(ins);
+            }
+            finally {
+                Streams.safeClose(ins);
+            }
         }
         catch (IOException e) {
             throw Lang.wrapThrow(e);

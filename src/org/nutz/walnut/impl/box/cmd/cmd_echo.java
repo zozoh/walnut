@@ -3,7 +3,6 @@ package org.nutz.walnut.impl.box.cmd;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_echo extends JvmExecutor {
@@ -21,7 +20,8 @@ public class cmd_echo extends JvmExecutor {
             for (String s : params.vals) {
                 if (escape)
                     s = Strings.evalEscape(s);
-                sb.append(Wn.normalizeStr(s, sys.se.vars())).append(' ');
+                // sb.append(Wn.normalizeStr(s, sys.se.vars())).append(' ');
+                sb.append(s).append(' ');
             }
             if (sb.length() > 0)
                 sb.deleteCharAt(sb.length() - 1);

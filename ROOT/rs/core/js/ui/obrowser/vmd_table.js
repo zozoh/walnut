@@ -12,13 +12,11 @@ return ZUI.def("ui.obrowser_vmd_table", {
         "dblclick .wnobj" : function(e){
             var UI = this;
             var o  = UI.getData(e.currentTarget);
-            if(UI.browser.canOpen(o)){
-                UI.browser.setData("id:"+o.id);
-            }
+            UI.browser.setData("id:"+o.id);
         }
     },
     //..............................................
-    update : function(UIBrowser, o){
+    update : function(o, UIBrowser){
         var UI = this;
 
         // 得到当前所有的子节点

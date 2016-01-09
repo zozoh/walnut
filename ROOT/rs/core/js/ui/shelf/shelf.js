@@ -70,10 +70,6 @@ return ZUI.def("ui.shelf", {
         _check_display_item(options, "footer", 32);
     },
     //...............................................................
-    events : {
-        
-    },
-    //...............................................................
     redraw : function(){
         var UI = this;
         var uiTypes = [];

@@ -242,9 +242,17 @@ public class IoWnUsrService implements WnUsrService {
         if (o == null)
             return false;
         WnUsr u = io.readJson(o, IoWnUsr.class);
+
+        if (log.isDebugEnabled())
+            log.debugf("read u: %s :: %s :: %s ", u.name(), u.password(), u.salt());
+
         if (u.salt() == null) { // 没有加盐? 加盐之
             u = setPassword(nm, u.password());
         }
+
+        if (log.isDebugEnabled())
+            log.debugf(" -- Lang.sha1('%s', '%s') == %s", pwd, u.salt(), u.password());
+
         return Lang.sha1(pwd + u.salt()).equals(u.password());
     }
 

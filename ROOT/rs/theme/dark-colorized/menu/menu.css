@@ -1,0 +1,107 @@
+.menu-item {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.menu-item .menu-item-wrapper {
+  padding: 0 8px;
+  font-size: 12px;
+  height: 24px;
+  line-height: 24px;
+  vertical-align: middle;
+}
+.menu-item .menu-item-wrapper .menu-item-icon {
+  display: inline-block;
+  width: 12px;
+  text-align: center;
+  font-size: 14px;
+  vertical-align: middle;
+}
+.menu-item .menu-item-wrapper .menu-item-text {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 6px;
+}
+.menu-item .menu-item-wrapper .menu-item-status {
+  display: inline-block;
+  vertical-align: middle;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+.menu-item .menu-item-wrapper .menu-item-status .menu-item-si {
+  width: 24px;
+  display: inline-block;
+  text-align: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  color: #aaaaaa;
+}
+.menu-item .menu-item-wrapper .menu-item-status .menu-item-si i {
+  cursor: pointer;
+}
+.menu-item .menu-item-wrapper .menu-item-status .menu-item-si:last-child {
+  border-right: 0;
+}
+.menu-item .menu-item-wrapper .menu-item-status .menu-item-si-on {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+.menu-item[tp="button"] > .menu-item-wrapper:hover,
+.menu-item[tp="boolean"] > .menu-item-wrapper:hover,
+.menu-item[tp="status"] .menu-item-si-off:hover,
+.menu-item[tp="group"] > .menu-item-wrapper:hover,
+.menu-item[tp="group"][open] > .menu-item-wrapper {
+  color: #ffffff;
+  background: rgba(0, 64, 255, 0.6);
+}
+.menu {
+  white-space: nowrap;
+  padding: 8px 4px;
+}
+.menu .menu-item[md="top"] {
+  display: inline-block;
+  vertical-align: middle;
+}
+.menu .menu-item[md="top"] .menu-item-wrapper {
+  border-radius: 2px;
+  padding: 0 4px;
+}
+.menu .menu-item[md="top"] .menu-item[tp="separator"] {
+  padding: 0;
+  border-right: 1px dotted rgba(255, 255, 255, 0.3);
+}
+.menu .menu-sub {
+  padding: 6px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #ff8800;
+  border-radius: 2px;
+  box-shadow: 2px 2px 6px #000000;
+  min-width: 128px;
+}
+.menu .menu-sub .menu-item {
+  line-height: 24px;
+  height: 24px;
+}
+.menu .menu-sub .menu-item .menu-item-wrapper {
+  position: relative;
+}
+.menu .menu-sub .menu-item .menu-item-wrapper .menu-item-more {
+  position: absolute;
+  right: 6px;
+}
+.menu .menu-sub .menu-item .menu-item-status {
+  margin-left: 10px;
+}
+.menu .menu-sub .menu-item[tp="status"] .menu-item-wrapper {
+  padding-right: 0;
+}
+.menu .menu-sub .menu-item[tp="separator"] {
+  padding: 0;
+  line-height: 0;
+  height: 0;
+  margin: 6px 0;
+  border-top: 1px dotted rgba(255, 255, 255, 0.3);
+}

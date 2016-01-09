@@ -4,7 +4,7 @@
 
 # 用法
 
-	jsc [-debug] [-engine 引擎名称] [-vars json字符串] [-f 文件路径] [js代码]
+	jsc [-debug|lsengine] [-engine 引擎名称] [-vars json字符串] [-f 文件路径] [js代码]
 	
 # 可用对象及方法
 
@@ -22,6 +22,9 @@
 	
 	执行脚本文件
 	jsc -f /root/.js/clear_caches.js
+	
+	列出当前系统支持的 engine
+	jsc -lsengine
 	
 	
 	

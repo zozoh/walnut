@@ -77,6 +77,24 @@ public abstract class Wn {
 
     }
 
+    public static WnObj getObj(WnSystem sys, String str) {
+        return getObj(sys.io, sys.se, str);
+
+    }
+
+    public static WnObj getObj(WnIo io, WnSession se, String str) {
+        // 用 ID
+        if (str.startsWith("id:")) {
+            String id = str.substring("id:".length());
+            return io.get(id);
+        }
+
+        // 用路径
+        String path = normalizeFullPath(str, se);
+        return io.fetch(null, path);
+
+    }
+
     public static WnObj getObj(WnIo io, String str) {
         if (Strings.isBlank(str))
             return null;
@@ -102,16 +120,10 @@ public abstract class Wn {
     }
 
     public static WnObj checkObj(WnIo io, WnSession se, String str) {
-        // 用 ID
-        if (str.startsWith("id:")) {
-            String id = str.substring("id:".length());
-            return io.checkById(id);
-        }
-
-        // 用路径
-        String path = normalizeFullPath(str, se);
-        return io.check(null, path);
-
+        WnObj o = getObj(io, se, str);
+        if (null == o)
+            throw Er.create("e.io.obj.noexists", str);
+        return o;
     }
 
     private static final String regex = "([$])([a-zA-Z0-9_]+)";
@@ -144,7 +156,8 @@ public abstract class Wn {
     // return base == null ? "/" : base;
     // }
 
-    public static String appendPath(String... paths) {
+    public static String appendPath(String... phs) {
+        String[] paths = Lang.without(phs, null);
         if (null != paths && paths.length > 0) {
             if (null == paths[0])
                 paths[0] = "/";

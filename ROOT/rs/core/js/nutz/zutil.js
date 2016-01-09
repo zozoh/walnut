@@ -1075,8 +1075,10 @@
             var memo = [];
             for(var i=1;i<arguments.length;i++){
                 var b = arguments[i];
-                for (var key in b) {
-                    a[key] = this.cloneTo(a[key], b[key]);
+                if(this.isPlainObj(b)){
+                    for (var key in b) {
+                        a[key] = this.clone(b[key]);
+                    }
                 }
             }
             return a;
@@ -1084,17 +1086,19 @@
             //throw "can not extend a:" + a + " by b:" + b;
         },
         //.............................................
-        // 对一个对象深层的clone，如果不是数组或者Object，则直接返回
-        // ta 为参考目标对象， 如果是一个普通 Object 则会合并
-        // 否则会用 obj 来代替
-        cloneTo: function(ta, obj){
-            // 未定义
-            if(_.isNull(ta) || _.isUndefined(ta)){
+        // 为一个对象制作一个深层的副本
+        clone: function(obj){
+            // 常规的对象，直接返回
+            if(_.isNull(obj) || _.isUndefined(obj) || _.isNumber(obj) || _.isString(obj)){
                 return obj;
             }
             // 数组
             if(_.isArray(obj)){
-                return obj;
+                var re = [];
+                for(var i=0;i<obj.length;i++){
+                    re.push(this.clone(obj[i]));
+                }
+                return re;
             }
             // jQuery 或者 Elemet
             if(this.isjQuery(obj) || _.isElement(obj)){
@@ -1113,13 +1117,7 @@
                 return new RegExp(obj);
             }
             // 普通对象
-            if(_.isObject(obj)){
-                for(var key in obj){
-                    ta[key] = this.cloneTo(ta[key], obj[key]);
-                }
-                return ta;
-            }
-            return obj;
+            return this.extend({}, obj);
         },
         isjQuery : function(obj){
             return obj instanceof jQuery;
@@ -1212,19 +1210,26 @@
                 };
             }
             // 计算尺寸
-            var w = jq.outerWidth();
-            var h = jq.outerHeight();
+            var w = jq.outerWidth(true);
+            var h = jq.outerHeight(true);
             // 增加占位对象，以及移动 me
             var html = opt.holder || '<div class="z_remove_holder">&nbsp;</div>';
             var holder = $(html).css({
+                "display": "inline-block",
+                "vertical-align": "middle",
+                "padding": 0,
+                "margin": 0,
                 "width": w,
                 "height": h,
                 "display": "inline-block"
             }).insertAfter(jq);
             // 删除元素
-            if (opt.appendTo) jq.appendTo(opt.appendTo);
-            else if (opt.prependTo) jq.prependTo(opt.prependTo);
-            else jq.remove();
+            if (opt.appendTo)
+                jq.appendTo(opt.appendTo);
+            else if(opt.prependTo)
+                jq.prependTo(opt.prependTo);
+            else
+                jq.remove();
             // 显示动画
             holder.animate({
                 width: 0,
@@ -1453,6 +1458,16 @@
             }
 
             return (ckb==parseInt(ckb)?ckb:ckb.toFixed(2)) + " KB";
+        },
+        //.............................................
+        // 如果字符串溢出，把中间的内容表示为省略号，以便显示头尾
+        ellipsisCenter : function(str, len){
+            if(str && str.length > len){
+                var n0 = parseInt(len/2);
+                var n1 = str.length - (len - n0);
+                return str.substring(0,n0) + "..." + str.substring(n1);
+            }
+            return str;
         },
         formatJson: function (obj, depth) {
             var type = typeof obj;

@@ -75,8 +75,9 @@ public class AppModule extends AbstractWnModule {
 
         // 生成 app 的对象
         WnApp app = new WnApp();
+        NutMap seMap = se.toMapForClient(null);
         app.setObj(o);
-        app.setSession(se.toMapForClient(null));
+        app.setSession(seMap);
         app.setName(appName);
 
         // 这个是 app 的 JSON 描述
@@ -115,12 +116,17 @@ public class AppModule extends AbstractWnModule {
         // 填充模板占位符
         NutMap c = new NutMap();
         c.put("title", title);
+
+        // 添加自定义的上下文
+        if (null != map)
+            c.putAll(map);
+
+        // 这些优先级最高
+        c.put("session", seMap);
         c.put("rs", conf.get("app-rs"));
         c.put("appName", appName);
         c.put("app", appJson);
         c.put("appClass", appName.replace('.', '_').toLowerCase());
-        if (null != map)
-            c.putAll(map);
 
         // 渲染输出
         return new ViewWrapper(new JspView("jsp." + page_app), Tmpl.exec(tmpl, c));
@@ -150,11 +156,11 @@ public class AppModule extends AbstractWnModule {
         return tmpl;
     }
 
-    @At("/load/?/**")
+    @At("/load/**")
     @Ok("void")
     @Fail("http:404")
-    public View load(String appName,
-                     String rsName,
+    public View load(String rsName,
+                     @Param("nm") String appName,
                      @Param("mime") String mimeType,
                      @Param("auto_unwrap") boolean auto_unwrap) {
         WnObj oAppHome = this._check_app_home(appName);

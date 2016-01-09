@@ -10,7 +10,7 @@ var html = function(){/*
     </div>
 </div>
 <div class="ui-arena obrowser-chute ui-clr" ui-fitparent="yes">
-    I am chute
+    {{loading}}
 </div>
 */};
 //==============================================

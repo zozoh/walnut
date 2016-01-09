@@ -9,11 +9,11 @@ import org.nutz.lang.Files;
 
 public class GenFileTypeCssSprite {
 
-    private static int css_y_offset = 32;
+    private static int css_y_offset = 0;
 
     private static int css_size = 16;
 
-    private static int base_size = 32;
+    private static int base_size = 16;
 
     private static int[] row_x = new int[26];
 
@@ -42,7 +42,7 @@ public class GenFileTypeCssSprite {
                     // System.out.printf("%-12s:%c:%-8d: %dx%d\n", nm, c, (int)
                     // c, row, col);
                     System.out.printf("%-24s{background-position: %dpx %dpx;}\n",
-                                      ".oicon[tp=\"" + nm + "\"]",
+                                      ".oicon[otp=\"" + nm + "\"]",
                                       col * -1 * css_size,
                                       (row * -1 * css_size) - css_y_offset);
                     overlay(gc, png, row, col);

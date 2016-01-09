@@ -187,7 +187,7 @@ return ZUI.def("ui.obrowser_sky", {
         this.arena.find(".obrowser-crumb .citem-drop").remove();
     },
     //..............................................
-    update : function(UIBrowser, o){
+    update : function(UIBrowser, o, asetup){
         var UI = this;
 
         // 记录对象的路径
@@ -197,36 +197,30 @@ return ZUI.def("ui.obrowser_sky", {
         UI._draw_crumb(UIBrowser, o);
 
         // 绘制右侧动作菜单
-        UI._draw_menu(UIBrowser, o);
+        UI._draw_menu(UIBrowser, o, asetup);
 
         // 最后重新计算一下尺寸
         UI.resize();
     },
     //..............................................
-    _draw_menu : function(UIBrowser, o){
+    _draw_menu : function(UIBrowser, o, asetup){
         var UI = this;
         var jMenu = UI.arena.find(".obrowser-menu");
-        // 得到对象的菜单
-        var menu = $z.fromJson(UI.exec("appmenu id:"+o.id));
-
 
         // 没有菜单
-        if(!menu || menu.nomenu || !menu.actions || !menu.actions.length){
+        if(!asetup || !asetup.actions || !asetup.actions.length){
             jMenu.hide();
             return;
         }
 
         // 显示菜单
         jMenu.show();
-        var menu_setup = UIBrowser.extend_actions(menu.actions);
-
-        //console.log(menu_setup);
 
         // 调用菜单控件显示
         new MenuUI({
             parent       : UI,
             gasketName   : "menu",
-            setup        : menu_setup,
+            setup        : asetup.menu,
             context      : UIBrowser
         }).render(function(){
             $z.defer(function(){
