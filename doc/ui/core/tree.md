@@ -26,14 +26,14 @@ author:zozoh
     idKey : "xxx" | {c}F(obj, index)
     
     // 返回树节点的图标 HTML，可以是多个 icon，总之一段 HTML 拉
-    icon : {c}F(obj, index) : HTML
+    icon : {c}F(obj) : HTML
     
     // 返回树节点的文本内容，会被当做一个字符串 
-    text : {c}F(obj, index} : String
+    text : {c}F(obj} : String
     
     // 判断当前节点是不是叶子节点，标识属性 "ndtp=leaf|node"
     // 如果没有这个属性，那么默认会认为当前节点是 "leaf"
-    isLeaf : {c}F(obj, index) : Boolan
+    isLeaf : {c}F(obj) : Boolan
 
     // 手柄的样子，如果不声明，会有默认的样子
     // 必须是一段 HTML 给出两个inline-block节点，而且必须是 <i>
@@ -120,5 +120,19 @@ tree.uncheck(Element | jQuery | ID | {..})
 tree.toggle(Element | jQuery | ID | {..})
 ```
 
+## addNode
 
+```
+// 有活动节点插前面，否则插第一个
+tree.addNode({..}, "before");
+
+// 有活动节点插后面，否则插最后一个
+tree.addNode({..}, "after");
+
+// 插第一个
+tree.addNode({..}, "first");
+
+// 插最后一个
+tree.addNode({..}, "last");
+```
 

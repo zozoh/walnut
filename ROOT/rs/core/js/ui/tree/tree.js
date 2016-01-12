@@ -74,7 +74,10 @@ return ZUI.def("ui.tree", {
     },
     //...............................................................
     $node : function(nd){
-        if(_.isElement(nd)){
+        if(_.isUndefined(nd)){
+            return this.arena.find(".tree-node-actived");
+        }
+        else if(_.isElement(nd)){
             return $(nd).closest(".tree-node");
         }
         else if($z.isjQuery(nd)){
@@ -123,7 +126,7 @@ return ZUI.def("ui.tree", {
         }
     },
     //...............................................................
-    active : function(nd){
+    active : function(nd, quiet){
         var UI = this;
         var opt = UI.options;
         var jNode = UI.$node(nd);
@@ -142,14 +145,17 @@ return ZUI.def("ui.tree", {
         jNode.addClass("tree-node-actived");
 
         // 调用回调
-        var ly = jNode.data("@DATA");
-        $z.invoke(opt, "on_actived", [ly, jNode], context);
+        if(!quiet){
+            var ly = jNode.data("@DATA");
+            $z.invoke(opt, "on_actived", [ly, jNode], context);
+        }
     },
     //...............................................................
     openNode : function(nd) {
         var UI = this;
         var opt = UI.options;
         var jNode = UI.$node(nd);
+        var context = opt.context || UI;
         // 已经展开了，就不用展开了
         if(jNode.attr("collapse") == "no"){
             return;
@@ -165,7 +171,7 @@ return ZUI.def("ui.tree", {
         // 读取子节点
         jSub.text(UI.msg("loadding"));
         var obj = jNode.data("@DATA");
-        opt.children.call(opt.context, obj, function(list){
+        opt.children.call(context, obj, function(list){
             UI._draw_nodes(list, jSub);
         });
     },
@@ -179,53 +185,143 @@ return ZUI.def("ui.tree", {
         }
         // 标记
         jNode.attr("collapse", "yes");
+
+        // 如果子节点是有高亮的，则改成高亮自己
+        if(UI.hasActivedSubNode(jNode)){
+            UI.active(jNode);
+        }
+    },
+    //...............................................................
+    hasActivedSubNode : function(nd){
+        var UI = this;
+        var jNode = UI.$node(nd);
+        return jNode.find(".tree-node-actived").size()>0;
+    },
+    //...............................................................
+    getActivedSubNode : function(nd){
+        var UI = this;
+        var jNode = UI.$node(nd);
+        return jNode.find(".tree-node-actived");
+    },
+    //...............................................................
+    addNode : function(obj, direction){
+        var UI = this;
+        var jA = UI.arena.find(".tree-node-actived");
+        // 没有活动节点，转义 direction
+        if(jA.size() == 0){
+            direction = "before" == direction
+                            ? "first"
+                            : ("after" == direction ? "last" : direction);
+        }
+        // 生成节点
+        var jq = UI.__gen_node(obj);
+        var jW = UI.arena.find(".tree-wrapper");
+        // 头
+        if("first" == direction){
+            jW.prepend(jq);
+        }
+        // 尾
+        else if("last" == direction){
+            jW.append(jq);
+        }
+        // 之前
+        else if("before" == direction){
+            jq.insertBefore(jA);
+        }
+        // 默认之后
+        else {
+            jq.insertAfter(jA); 
+        }
+
     },
     //...............................................................
     _draw_nodes : function(list, jP){
         var UI  = this;
         var opt = UI.options;
-        var C   = opt.context;
         // 确保是数组
         if(!_.isArray(list)){
             list = [list];
         }
         // 遍历数组进行绘制
         jP.empty();
-        list.forEach(function(obj, index){
-            var jq   = UI.ccode("tree.node");
-            var id   = UI.getIdKey.call(C, obj, index);
-            var leaf = _.isFunction(opt.isLeaf) ? opt.isLeaf.call(C, obj) : true;
-            jq.attr("oid", id)
-              .attr("ndtp", leaf ? "leaf" : "node")
-              .attr("collapse", "yes");
-            // 节点添加手柄
-            if(!leaf)
-                jq.find(".tnd-handle").html(opt.handle);
-            // 没有多选框
-            if(!opt.checkable){
-                jq.find(".tnd-check").remove();
-            }else{
-                jq.find(".tnd-check").html(opt.checkbox);
-            }
-            // 绘制图标
-            if(_.isFunction(opt.icon))
-                jq.find(".tnd-icon").html(opt.icon.call(C, obj, index));
-            else
-                jq.find(".tnd-icon").remove();
-            // 显示文字
-            if(_.isFunction(opt.text))
-                jq.find(".tnd-text").text(opt.text.call(C, obj, index));
-            else
-                jq.find(".tnd-text").text(id);
-
-            // 加入DOM
-            jq.appendTo(jP).data("@DATA", obj);
+        list.forEach(function(obj){
+            UI.__gen_node(obj).appendTo(jP);
         });
     },
     //...............................................................
-    getActived : function(){
+    __gen_node : function(obj) {
+        var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
 
+        var jq   = UI.ccode("tree.node");
+        var id   = UI.getIdKey.call(context, obj);
+        var leaf = _.isFunction(opt.isLeaf) ? opt.isLeaf.call(context, obj) : true;
+        jq.attr("oid", id)
+          .attr("ndtp", leaf ? "leaf" : "node")
+          .attr("collapse", "yes");
+        // 节点添加手柄
+        if(!leaf)
+            jq.find(".tnd-handle").html(opt.handle);
+        // 没有多选框
+        if(!opt.checkable){
+            jq.find(".tnd-check").remove();
+        }else{
+            jq.find(".tnd-check").html(opt.checkbox);
+        }
+        // 绘制图标
+        if(_.isFunction(opt.icon))
+            jq.find(".tnd-icon").html(opt.icon.call(context, obj));
+        else
+            jq.find(".tnd-icon").remove();
+        // 显示文字
+        if(_.isFunction(opt.text))
+            jq.find(".tnd-text").text(opt.text.call(context, obj));
+        else
+            jq.find(".tnd-text").text(id);
+
+        // 记录数据
+        jq.data("@DATA", obj);
+
+        // 调用配置项，自定义更多节点外观
+        $z.invoke(opt, "on_draw_node", [jq], context);
+
+        // 返回
+        return jq;
     },
+    //...............................................................
+    isActived : function(nd){
+        var UI = this;
+        var jNode = UI.$node(nd);
+        return jNode.hasClass("tree-node-actived");
+    },
+    //...............................................................
+    getActived : function(){
+        return this.arena.find(".tree-node-actived").data("@DATA");
+    },
+    //...............................................................
+    removeNode : function(nd){
+        var UI = this;
+        var jNode = UI.$node(nd);
+        jNode.remove();
+    },
+    //...............................................................
+    moveNode : function(direction, nd){
+        var UI = this;
+        var jNode = UI.$node(nd);
+        if("up" == direction){
+            jNode.insertBefore(jNode.prev());
+        }
+        else if("down" == direction){
+            jNode.insertAfter(jNode.next());
+        }
+    },
+    //...............................................................
+    getNodeData : function(nd){
+        var UI = this;
+        var jNode = UI.$node(nd);
+        return jNode.data("@DATA");
+    }
     //...............................................................
 });
 //===================================================================

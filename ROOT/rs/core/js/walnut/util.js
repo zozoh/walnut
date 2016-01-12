@@ -32,10 +32,11 @@ var Wn = {
         var text = nm;   // TODO 以后考虑 _key_ 开头的名称
         return $z.ellipsisCenter(text, 20);
     },
-    //...................................................................
-    // 提供一个通用的文件上传界面，任何 UI 可以通过
-    //   this.listenModel("do:upload", this.on_do_upload); 
-    // 来启用这个方法
+    /*...................................................................
+    提供一个通用的文件上传界面，任何 UI 可以通过
+       this.listenModel("do:upload", this.on_do_upload); 
+    来启用这个方法
+    */
     uploadPanel: function (options) {
         var MaskUI    = require("ui/mask/mask");
         var UploadUI  = require("ui/upload/upload");
@@ -843,6 +844,10 @@ var Wn = {
                 var re = Wn.exec(cmdText);
                 fill_unload_objs_and_invoke_callback(re);
             }
+        }
+        // 否则如果有回调就调用
+        else if(_.isFunction(callback)){
+            callback(objs);
         }
 
         // 最后返回

@@ -64,7 +64,7 @@ module.exports = ZUI.def("ui.layout", {
                     jq : jq,
                     multi : false
                 };
-
+                // 用闭包，否则 index 会被搞乱
                 (function(index, uiType){
                     new SubUI(uiConf).render(function(){
                         //console.log("layout defer:", index, uiType);

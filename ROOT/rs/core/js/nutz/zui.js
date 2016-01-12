@@ -105,7 +105,7 @@ define(function (require, exports, module) {
         if (UI.parent && UI.gasketName) {
             gas = UI.parent.gasket[UI.gasketName];
             if (!gas)
-                throw "Fail to found gasket '" + UI.gasketName + "'";
+                throw "Fail to found gasket '" + UI.gasketName + "' in " + UI.uiName;
             // 如果已经存在了插件，是否需要释放
             if(!gas.multi && gas.ui.length>0) {
                 gas.ui.forEach(function(ui){
@@ -136,6 +136,33 @@ define(function (require, exports, module) {
         else {
             UI.pel  = document.body;
             UI.$pel = $(UI.pel);
+        }
+        //.....................................
+        // 如果指定了 $pel ， 但是没有声明 parent，则会自动判断
+        // 是不是自己被组合到了某个 UI 里面， 即使没有声明 ui-gakset 属性
+        // 只要自己有 gasketName，就试图为父 UI 创建这个 gasket
+        if(!UI.parent && UI.gasketName){
+            var PUI = ZUI.getInstance(UI.pel);
+            if(PUI) {
+                gas = PUI.gasket[UI.gasketName];
+                // 没有就创建这个扩展点
+                if(!gas) {
+                    PUI.gasket[UI.gasketName] = {
+                        jq : UI.$pel,
+                        ui : []
+                    }
+                }
+                // 有的话,看看需不需要释放
+                else if(!gas.multi && gas.ui.length>0) {
+                    gas.ui.forEach(function(ui){
+                        ui.destroy();
+                    });
+                    gas.ui = [];
+                }
+                // 将自己添加到父插件
+                gas.ui.push(UI);
+                UI.parent = PUI;
+            }
         }
         //.....................................
         // 加入 DOM 树
@@ -176,7 +203,7 @@ define(function (require, exports, module) {
 
             // 调用子类自定义的 init，以及触发事件
             $z.invoke(UI.$ui, "init", [options], UI);
-            $z.invoke(UI.options, "on_init", [], UI);
+            $z.invoke(UI.options, "on_init", [options], UI);
             UI.trigger("ui:init", UI);
 
             // 注册 UI 实例

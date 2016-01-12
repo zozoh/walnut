@@ -1,0 +1,21 @@
+@import (reference) "../ui";
+
+.pop {
+    .pop-title {@noselect();
+        padding:@d4; text-align: center; font-size: @f4;
+        border-bottom: 1px solid @cborder1;
+    }
+    .pop-actions {@noselect();
+        border-top: 1px solid @cborder1;
+        text-align: right; padding:@d3;
+        .pop-btn {
+            display: inline-block; vertical-align: middle;
+            padding:@d3 @d6; font-size:@f2; cursor: pointer;
+            border:1px solid @cbtn_l; background: @cbtn_b; color:@cbtn_f;
+            border-radius: @d0;
+        }
+        .pop-btn:hover{
+            background: @ch0_b; color:@ch0_f;
+        }
+    }
+}

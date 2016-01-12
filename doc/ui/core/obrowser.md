@@ -18,12 +18,20 @@ author:zozoh
     */
     thumbnail : {UIBrowser}F(o)
     
-    // 定制图标，通过这个，你可以输出图标的 HTML
-    // 如果你的函数返回的是 null 或者空，那么就用默认的方式绘制图标
-    icon : {UIBrowser}F(o)
+    // 是否显示侧边栏，默认 true
+    sidebar : true
+    
+    // filter 表示对子节点的一些过滤
+    //  - undefined    : 全部显示
+    //  - "DIR"        : 仅目录
+    //  - "FILE"       : 仅文件
+    //  - {..}         : 一个搜索条件，比如 {tp:'jpeg', len:0}
+    //  - F(o):boolean : 高级过滤方法 
+    // 默认不过滤 
+    filter : null
 
-    // 控件是否保存最后一次切换的当前路径，如果这个字段有值，则将其作为 key
-    // 则会将最后一次路径的 oid 存在 localStorage 里
+    // 控件是否保存最后一次切换的当前路径，如果这个字段有值，
+    // 则将其作为 key 则会将最后一次路径的 oid 存在 localStorage 里
     // 实际上，如果两个 browser 实例的这个字段相同，那么则会共享
     lastObjId : "last-oid",
     

@@ -22,10 +22,11 @@ return ZUI.def("ui.obrowser", {
     init : function(options){
         var UI = this;
 
+        $z.setUndefined(options, "sidebar", true);
         $z.setUndefined(options, "checkable", true);
         $z.setUndefined(options, "editable", false);
         $z.setUndefined(options, "canOpen", function(o){
-            return ('DIR' == o) && (!o.tp || 'folder' == o.tp);
+            return 'DIR' == o.race;
         });
         $z.setUndefined(options, "appSetup", {
             actions : ["@::viewmode"]
@@ -57,9 +58,17 @@ return ZUI.def("ui.obrowser", {
         // 是否可以打开，不能打开的话，打开父目录即可
         if(!UI.options.canOpen(o)){
             var oP = UI.getById(o.pid);
-            UI.changeCurrentObj(oP);
+            var oC = UI.getCurrentObj();
+            // 只有不同才必要切换
+            if(oP.id != oC.id){
+                UI.changeCurrentObj(oP);
+                console.log("do change", oP.nm, oC.nm)
+            }
             return;
         }
+
+        // 临时记录当前的对象
+        UI.setCurrentObjId(o.id);
 
         // 动态读取对象对应
         if("auto" == UI.options.appSetup){
@@ -90,7 +99,9 @@ return ZUI.def("ui.obrowser", {
     __call_subUI_update : function(o, asetup){
         var UI = this;
         try{
-            UI.subUI("shelf/chute").update(UI, o, asetup);
+            var uiChute = UI.subUI("shelf/chute");
+            if(uiChute)
+                uiChute.update(UI, o, asetup);
             UI.subUI("shelf/main").update(UI, o, asetup);
             UI.subUI("shelf/sky").update(UI, o, asetup);
             // 持久记录最后一次位置
@@ -113,24 +124,16 @@ return ZUI.def("ui.obrowser", {
         // 初始化显示隐藏开关 
         UI.arena.attr("hidden-obj-visibility", UI.getHiddenObjVisibility());
 
-        // 初始化界面
-        (new ShelfUI({
+        // 准备配置
+        var conf = {
             parent : this,
             gasketName : "shelf",
             display : {
                 sky : 40,
-                chute: 180,
                 footer : 32
             },
             sky : {
                 uiType : "ui/obrowser/obrowser_sky",
-                uiConf : {
-                    className : "obrowser-block",
-                    fitparent : true
-                }
-            },
-            chute : {
-                uiType : "ui/obrowser/obrowser_chute",
                 uiConf : {
                     className : "obrowser-block",
                     fitparent : true
@@ -152,7 +155,22 @@ return ZUI.def("ui.obrowser", {
                 }
             },
 
-        })).render(function(){
+        };
+
+        // 是否显示侧边栏
+        if(UI.options.sidebar){
+            conf.display.chute = 180;
+            conf.chute = {
+                uiType : "ui/obrowser/obrowser_chute",
+                uiConf : {
+                    className : "obrowser-block",
+                    fitparent : true
+                }
+            };
+        }
+
+        // 初始化界面
+        (new ShelfUI(conf)).render(function(){
             // 回报延迟加载
             UI.defer_report(0, "browser-shelf");
         });
@@ -202,7 +220,7 @@ return ZUI.def("ui.obrowser", {
         UI.saveToCache(obj);
 
         // 临时记录当前的对象
-        UI.setCurrentObjId(obj.id);
+        //UI.setCurrentObjId(obj.id);
 
         // 调整尺寸
         //UI.resize();
@@ -285,7 +303,7 @@ return ZUI.def("ui.obrowser", {
     },
     //.............................................. 
     getChildren : function(o, filter){
-        return Wn.getChildren(o, filter);
+        return Wn.getChildren(o, filter||this.options.filter);
     },
     //..............................................
     getAncestors : function(o, includeSelf){

@@ -9,7 +9,8 @@ define(function (require, exports, module) {
         	exec  : Wn.exec,
             app   : Wn.app(),
             editable : true,
-            canOpen : function(o){
+            sidebar  : true,
+            canOpen  : function(o){
             	return true;
             },
             appSetup : "auto",
