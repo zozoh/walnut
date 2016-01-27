@@ -1,6 +1,6 @@
 .ui-fld-edit-input {
   font-size: 14px;
-  padding: 7px;
+  padding: 14px;
   width: 100%;
 }
 .ui-fld-edit-textarea {
@@ -13,7 +13,7 @@
 }
 .ui-fld-edit-label {
   font: 12px 'Lucida Console', Monaco, monospace;
-  padding: 0px 0px;
+  padding: 16px 16px;
 }
 .ui-fld-edit-switchs {
   -moz-user-select: none;
@@ -24,9 +24,8 @@
   cursor: pointer;
   list-style: none;
   padding: 1px 0 1px 1px;
-  margin: 0px;
-  border: 0px solid #dddddd;
-  background: #ffffff;
+  margin: 3px;
+  background: #e0e0e0;
   color: #888888;
   font-size: 10px;
 }
@@ -38,14 +37,13 @@
 }
 .ui-fld-edit-switchs li.checked {
   color: #ffffff;
-  background: #424242;
+  background: #008800;
 }
 .ui-fld-edit-switchs:after {
-  clear: both;
-  height: 1px;
-  overflow: hidden;
-  display: block;
   content: "";
+  display: block;
+  height: 0;
+  clear: both;
 }
 .ui-fld-edit-multiselectbox {
   position: relative;
@@ -72,11 +70,10 @@
   background: #ffffaa;
 }
 .ui-fld-edit-multiselectbox .msb-box:after {
-  clear: both;
-  height: 1px;
-  overflow: hidden;
-  display: block;
   content: "";
+  display: block;
+  height: 0;
+  clear: both;
 }
 .ui-fld-edit-multiselectbox .msb-pad {
   -moz-user-select: none;
@@ -93,9 +90,8 @@
   min-height: 64px;
 }
 .ui-fld-edit-multiselectbox .msb-pad:after {
-  clear: both;
-  height: 1px;
-  overflow: hidden;
-  display: block;
   content: "";
+  display: block;
+  height: 0;
+  clear: both;
 }

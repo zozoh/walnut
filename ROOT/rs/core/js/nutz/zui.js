@@ -147,10 +147,11 @@ define(function (require, exports, module) {
                 gas = PUI.gasket[UI.gasketName];
                 // 没有就创建这个扩展点
                 if(!gas) {
-                    PUI.gasket[UI.gasketName] = {
+                    gas = {
                         jq : UI.$pel,
                         ui : []
-                    }
+                    };
+                    PUI.gasket[UI.gasketName] = gas;
                 }
                 // 有的话,看看需不需要释放
                 else if(!gas.multi && gas.ui.length>0) {
@@ -630,6 +631,7 @@ define(function (require, exports, module) {
             return UI;
         },
         // 处理一个对象的字段，将其记录成特殊显示的值
+        // !!! 这个方法要作废 >o< !!!
         eval_obj_display : function(obj, displayMap){
             if(!_.isObject(obj))
                 return;
@@ -644,6 +646,10 @@ define(function (require, exports, module) {
                 }
                 obj._display[key] = str || val;
             }
+        },
+        get_obj_val_by : function(obj, ref){
+            var val = obj[ref.key];
+            return ref.map[val] || ref.dft;
         },
         // 快捷方法，帮助 UI 存储本地状态
         // 需要设置 "app" 段
@@ -996,7 +1002,7 @@ define(function (require, exports, module) {
     // 根据任何一个 DOM 元素，获取其所在的 UI 对象
     ZUI.getInstance = function (el) {
         var jq = $(el);
-        var jui = jq.parents("[ui-id]");
+        var jui = jq.closest("[ui-id]");
         if (jui.size() == 0) {
             console.warn(el);
             throw "Current DOMElement no belone to any UI!";

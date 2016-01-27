@@ -4,7 +4,8 @@ $z.declare([
     'wn/util',
     'ui/shelf/shelf',
     'ui/obrowser/obrowser_sky',
-    'ui/obrowser/obrowser_main'
+    'ui/obrowser/obrowser_main',
+    'ui/obrowser/obrowser_footer'
 ], function(ZUI, Wn, ShelfUI){
 //==============================================
 var html = function(){/*
@@ -33,8 +34,8 @@ return ZUI.def("ui.obrowser", {
         });
         
         // 绑定 UI 间的监听关系
-        UI.on("browser:change", function(o){
-            UI.changeCurrentObj(o);
+        UI.on("browser:change", function(o, theEditor){
+            UI.changeCurrentObj(o, theEditor);
         });
         UI.on("change:viewmode", function(){
             var o = UI.getCurrentObj();
@@ -50,9 +51,60 @@ return ZUI.def("ui.obrowser", {
         UI.on("menu:showhide", function(isShow){
             this.setHiddenObjVisibility(isShow ? "show" : "hidden");
         });
+
+        // 绑定历史记录
+        if(options.history){
+            window.onpopstate =  function(e){
+                if(e.state)
+                    UI.setData(e.state);
+            };
+        }
     },
     //..............................................
-    changeCurrentObj : function(o){
+    _update_history : function(o, theEditor){
+        // 当前的路径
+        var nwSt = {
+            opath : "?ph=id:" + encodeURIComponent(o.id),
+            hash  : theEditor ? "#" + theEditor : ""
+        };
+
+        // 当前的路径
+        var cuSt = {
+            opath : location.search,
+            hash  : location.hash
+        };
+
+        //console.log($z.toJson(nwSt), $z.toJson(cuSt))
+
+        // 那么 URL 应该是
+        var url = nwSt.opath + nwSt.hash
+        //console.log("url", url)
+
+        // 如果编辑的是同一个对象，则可以复用之前的编辑器
+        if(nwSt.opath == cuSt.opath){
+            if(!nwSt.hash && cuSt.hash){
+                theEditor = cuSt.hash.substring(1);
+                url += cuSt.hash;
+            }
+        }
+        
+        // 路径不相等，推入历史
+        if(nwSt.opath != cuSt.opath){
+            //console.log("push!!!")
+            history.pushState(o, o.nm + " : wn.browser", url);
+        }
+        // 编辑器不相等，更换当前
+        else if(nwSt.hash != cuSt.hash){
+            //console.log("replace!!!")
+            history.replaceState(o, o.nm + " : wn.browser", url);
+        }
+
+        // 返回编辑器
+        return theEditor;
+
+    },
+    //..............................................
+    changeCurrentObj : function(o, theEditor){
         var UI = this;
 
         // 是否可以打开，不能打开的话，打开父目录即可
@@ -67,12 +119,22 @@ return ZUI.def("ui.obrowser", {
             return;
         }
 
+        // 更新历史记录，从历史记录可以恢复编辑器
+        if(UI.options.history){
+            var oldEditor = UI._update_history(o, theEditor);
+            theEditor = theEditor || oldEditor;
+        }
+        //console.log("the editor", theEditor, location);
+
         // 临时记录当前的对象
         UI.setCurrentObjId(o.id);
 
         // 动态读取对象对应
         if("auto" == UI.options.appSetup){
-            Wn.loadAppSetup(o, {context:UI}, function(o, asetup){
+            Wn.loadAppSetup(o, {
+                context : UI,
+                editor  : theEditor
+            }, function(o, asetup){
                 UI.__call_subUI_update(o, asetup);
             });    
         }
@@ -147,11 +209,10 @@ return ZUI.def("ui.obrowser", {
                 }
             },
             footer : {
-                uiType : "ui/support/dom",
+                uiType : "ui/obrowser/obrowser_footer",
                 uiConf : {
-                    className : "obrowser-block obrowser-footer",
-                    fitparent : true,
-                    dom : "<b>...</b>"
+                    className : "obrowser-block",
+                    fitparent : true
                 }
             },
 
@@ -179,7 +240,7 @@ return ZUI.def("ui.obrowser", {
         return ["browser-shelf"];
     },
     //..............................................
-    setData : function(obj){
+    setData : function(obj, theEditor){
         var UI = this;
         // 没值
         if(!obj){
@@ -187,18 +248,18 @@ return ZUI.def("ui.obrowser", {
             if(UI.options.lastObjId){
                 var lastId = UI.local(UI.options.lastObjId);
                 if(lastId){
-                    UI.setData("id:"+lastId);
+                    UI.setData("id:"+lastId, theEditor);
                     return;
                 }
             }
             // 看看有没有当前对象
             var c_oid = UI.getCurrentObjId();
             if(c_oid){
-                UI.setData("id:"+c_oid);
+                UI.setData("id:"+c_oid, theEditor);
             }
             // 默认采用主目录
             else{
-                UI.setData("~");
+                UI.setData("~", theEditor);
             }
             return;
         }
@@ -212,7 +273,7 @@ return ZUI.def("ui.obrowser", {
             }else{
                 o = UI.fetch(obj);
             }
-            UI.setData(o ? o : "~");
+            UI.setData(o ? o : "~", theEditor);
             return;
         }
 
@@ -226,8 +287,8 @@ return ZUI.def("ui.obrowser", {
         //UI.resize();
 
         // 触发事件
-        UI.trigger("browser:change", obj);
-        $z.invoke(UI.options, "on_change", [obj], UI);
+        UI.trigger("browser:change", obj, theEditor);
+        $z.invoke(UI.options, "on_change", [obj, theEditor], UI);
         
     },
     //..............................................

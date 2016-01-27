@@ -47,11 +47,14 @@ return ZUI.def("ui.ofilter", {
     },
     //..............................................
     getData : function(){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         // 查询总是带着父 ID
-        var q = {
-            pid : UI.$el.attr("pid")
-        };
+        var q = {};
+        var pid = UI.$el.attr("pid");
+        if(pid)
+            q.pid = pid;
+        
         // 处理关键字
         var kwd = UI.arena.find("input").val();
 
@@ -91,9 +94,9 @@ return ZUI.def("ui.ofilter", {
         }
 
         kwd = ss.join(" ");
-        if(kwd && UI.options.keyField.length>0) {
+        if(kwd && opt.keyField.length>0) {
             var kwdList = [];
-            UI.options.keyField.forEach(function(key){
+            opt.keyField.forEach(function(key){
                 var map = {};
                 map[key] = "*" + kwd + "*";
                 kwdList.push(map);
@@ -110,7 +113,7 @@ return ZUI.def("ui.ofilter", {
         }
 
         // 最后如果有扩展的定制函数，调用一下
-        q = $z.invoke(UI.options, "format", [q], UI) || q;
+        q = $z.invoke(opt, "format", [q], UI) || q;
 
         // 返回
         var json = $z.toJson(q);

@@ -38,7 +38,10 @@ return ZUI.def("ui.obrowser_main", {
             });
             // 支持外部 outline
             if(ed.outline)
-                uiConf.outline = UIBrowser.subUI("shelf/chute").arena;
+                uiConf.outline = UIBrowser.subUI("shelf/chute").showOutline();
+            else
+                UIBrowser.subUI("shelf/chute").removeOutline();
+
             // 支持外部脚注
             if(ed.footer)
                 uiConf.footer = UIBrowser.subUI("shelf/footer").arena;
@@ -56,6 +59,8 @@ return ZUI.def("ui.obrowser_main", {
         }
         // 没有编辑器，那么 DIR 还能处理
         else if('DIR' == o.race){
+            // 去掉 outline
+            UIBrowser.subUI("shelf/chute").removeOutline();
             // 得到显示模式
             var vmd = UIBrowser.getViewMode();
             uiType = "ui/obrowser/vmd_" + vmd;

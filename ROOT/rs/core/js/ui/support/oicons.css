@@ -17,137 +17,146 @@
   visibility: hidden;
 }
 .ui-oicon-16 .oicon[otp="avi"] {
-  background-position: 0px 0px;
-}
-.ui-oicon-16 .oicon[otp="bin"] {
   background-position: 0px -16px;
 }
-.ui-oicon-16 .oicon[otp="bmp"] {
-  background-position: -16px -16px;
-}
-.ui-oicon-16 .oicon[otp="css"] {
+.ui-oicon-16 .oicon[otp="bin"] {
   background-position: 0px -32px;
 }
-.ui-oicon-16 .oicon[otp="d-box"] {
+.ui-oicon-16 .oicon[otp="bmp"] {
+  background-position: -16px -32px;
+}
+.ui-oicon-16 .oicon[otp="box"] {
+  background-position: -32px -32px;
+}
+.ui-oicon-16 .oicon[otp="cal"] {
   background-position: 0px -48px;
 }
-.ui-oicon-16 .oicon[otp="d-cal"] {
+.ui-oicon-16 .oicon[otp="css"] {
   background-position: -16px -48px;
 }
-.ui-oicon-16 .oicon[otp="d-cmd"] {
-  background-position: -32px -48px;
-}
-.ui-oicon-16 .oicon[otp="d-material"] {
-  background-position: -48px -48px;
-}
-.ui-oicon-16 .oicon[otp="d-pobj"] {
-  background-position: -64px -48px;
-}
-.ui-oicon-16 .oicon[otp="d-pro"] {
-  background-position: -80px -48px;
-}
-.ui-oicon-16 .oicon[otp="d-screen"] {
-  background-position: -96px -48px;
-}
-.ui-oicon-16 .oicon[otp="doc"] {
-  background-position: -112px -48px;
-}
-.ui-oicon-16 .oicon[otp="eml"] {
+.ui-oicon-16 .oicon[otp="d-box"] {
   background-position: 0px -64px;
 }
-.ui-oicon-16 .oicon[otp="eps"] {
+.ui-oicon-16 .oicon[otp="d-cal"] {
   background-position: -16px -64px;
 }
-.ui-oicon-16 .oicon[otp="fla"] {
+.ui-oicon-16 .oicon[otp="d-cmd"] {
+  background-position: -32px -64px;
+}
+.ui-oicon-16 .oicon[otp="d-material"] {
+  background-position: -48px -64px;
+}
+.ui-oicon-16 .oicon[otp="d-pobj"] {
+  background-position: -64px -64px;
+}
+.ui-oicon-16 .oicon[otp="d-pro"] {
+  background-position: -80px -64px;
+}
+.ui-oicon-16 .oicon[otp="d-screen"] {
+  background-position: -96px -64px;
+}
+.ui-oicon-16 .oicon[otp="doc"] {
+  background-position: -112px -64px;
+}
+.ui-oicon-16 .oicon[otp="eml"] {
   background-position: 0px -80px;
 }
-.ui-oicon-16 .oicon[otp="folder"] {
+.ui-oicon-16 .oicon[otp="eps"] {
   background-position: -16px -80px;
 }
-.ui-oicon-16 .oicon[otp="gif"] {
+.ui-oicon-16 .oicon[otp="fla"] {
   background-position: 0px -96px;
 }
-.ui-oicon-16 .oicon[otp="gz"] {
+.ui-oicon-16 .oicon[otp="folder"] {
   background-position: -16px -96px;
 }
-.ui-oicon-16 .oicon[otp="home"] {
+.ui-oicon-16 .oicon[otp="gif"] {
   background-position: 0px -112px;
 }
-.ui-oicon-16 .oicon[otp="html"] {
+.ui-oicon-16 .oicon[otp="gz"] {
   background-position: -16px -112px;
 }
+.ui-oicon-16 .oicon[otp="home"] {
+  background-position: 0px -128px;
+}
+.ui-oicon-16 .oicon[otp="html"] {
+  background-position: -16px -128px;
+}
 .ui-oicon-16 .oicon[otp="jpeg"] {
-  background-position: 0px -144px;
+  background-position: 0px -160px;
 }
 .ui-oicon-16 .oicon[otp="jpg"] {
-  background-position: -16px -144px;
+  background-position: -16px -160px;
 }
 .ui-oicon-16 .oicon[otp="js"] {
-  background-position: -32px -144px;
+  background-position: -32px -160px;
 }
 .ui-oicon-16 .oicon[otp="midi"] {
-  background-position: 0px -192px;
+  background-position: 0px -208px;
 }
 .ui-oicon-16 .oicon[otp="mov"] {
-  background-position: -16px -192px;
+  background-position: -16px -208px;
 }
 .ui-oicon-16 .oicon[otp="mp3"] {
-  background-position: -32px -192px;
+  background-position: -32px -208px;
 }
 .ui-oicon-16 .oicon[otp="mp4"] {
-  background-position: -48px -192px;
+  background-position: -48px -208px;
 }
 .ui-oicon-16 .oicon[otp="mpeg"] {
-  background-position: -64px -192px;
+  background-position: -64px -208px;
 }
 .ui-oicon-16 .oicon[otp="mpg"] {
-  background-position: -80px -192px;
+  background-position: -80px -208px;
 }
 .ui-oicon-16 .oicon[otp="pdf"] {
-  background-position: 0px -240px;
+  background-position: 0px -256px;
 }
 .ui-oicon-16 .oicon[otp="png"] {
-  background-position: -16px -240px;
+  background-position: -16px -256px;
+}
+.ui-oicon-16 .oicon[otp="pobj"] {
+  background-position: -32px -256px;
 }
 .ui-oicon-16 .oicon[otp="ppt"] {
-  background-position: -32px -240px;
+  background-position: -48px -256px;
 }
 .ui-oicon-16 .oicon[otp="psd"] {
-  background-position: -48px -240px;
+  background-position: -64px -256px;
 }
 .ui-oicon-16 .oicon[otp="pub"] {
-  background-position: -64px -240px;
+  background-position: -80px -256px;
 }
 .ui-oicon-16 .oicon[otp="rar"] {
-  background-position: 0px -272px;
-}
-.ui-oicon-16 .oicon[otp="screen"] {
   background-position: 0px -288px;
 }
-.ui-oicon-16 .oicon[otp="sh"] {
-  background-position: -16px -288px;
-}
-.ui-oicon-16 .oicon[otp="swf"] {
-  background-position: -32px -288px;
-}
-.ui-oicon-16 .oicon[otp="tar"] {
+.ui-oicon-16 .oicon[otp="screen"] {
   background-position: 0px -304px;
 }
-.ui-oicon-16 .oicon[otp="tiff"] {
+.ui-oicon-16 .oicon[otp="sh"] {
   background-position: -16px -304px;
 }
-.ui-oicon-16 .oicon[otp="txt"] {
+.ui-oicon-16 .oicon[otp="swf"] {
   background-position: -32px -304px;
 }
-.ui-oicon-16 .oicon[otp="unknown"] {
+.ui-oicon-16 .oicon[otp="tar"] {
   background-position: 0px -320px;
 }
-.ui-oicon-16 .oicon[otp="wav"] {
-  background-position: 0px -352px;
+.ui-oicon-16 .oicon[otp="tiff"] {
+  background-position: -16px -320px;
 }
-.ui-oicon-16 .oicon[otp="xml"] {
+.ui-oicon-16 .oicon[otp="txt"] {
+  background-position: -32px -320px;
+}
+.ui-oicon-16 .oicon[otp="unknown"] {
+  background-position: 0px -336px;
+}
+.ui-oicon-16 .oicon[otp="wav"] {
   background-position: 0px -368px;
 }
+.ui-oicon-16 .oicon[otp="xml"] {
+  background-position: 0px -384px;
+}
 .ui-oicon-16 .oicon[otp="zip"] {
-  background-position: 0px -400px;
+  background-position: 0px -416px;
 }

@@ -21,6 +21,11 @@ author:zozoh
     // 是否显示侧边栏，默认 true
     sidebar : true
     
+    // 是否接管浏览器的浏览历史堆栈，默认为 false
+    // 注意，一个 window 对象下面，如果你有多个 browser 控件
+    // 都把这个属性设置成 true，可能会造成一定的混乱
+    history : false,
+    
     // filter 表示对子节点的一些过滤
     //  - undefined    : 全部显示
     //  - "DIR"        : 仅目录

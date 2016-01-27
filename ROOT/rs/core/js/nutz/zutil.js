@@ -133,7 +133,7 @@
                 return v * base;
             }
             // 百分比
-            var m = /^([0-9]{1,2})%$/g.exec(v);
+            var m = /^([0-9]{1,3})%$/g.exec(v);
             if(m){
                 return (m[1] / 100) * base;
             }
@@ -509,7 +509,7 @@
         // 资源描述符如果不可识别将原样返回，现在支持下列资源种类
         //  - json:///path/to/json
         //  - text:///path/to/text
-        //  - js:///path/to/jpeg_or_jpg
+        //  - jso:///path/to/jpeg_or_jpg
         loadResource : function(rs, callback, context){
             var ME = this;
             if(_.isString(rs)){
@@ -824,7 +824,7 @@
                     你可以匹配到 3，也可以匹配到 5 还可以说匹配到 6
         @return {
             HH : 23,
-            MM : 09,
+            mm : 09,
             ss : 45
         }
         */
@@ -1102,7 +1102,7 @@
             }
             // jQuery 或者 Elemet
             if(this.isjQuery(obj) || _.isElement(obj)){
-                return obj;
+                return $(obj).clone();
             }
             // 函数
             if(_.isFunction(obj)){

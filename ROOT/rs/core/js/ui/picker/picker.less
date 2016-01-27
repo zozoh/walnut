@@ -1,0 +1,25 @@
+@import (reference) "../ui";
+
+.picker {
+    
+    border:1px solid @cborder0;
+    border-radius: @d1; background: @cb1; color: @cf1;
+    white-space: nowrap;
+}
+.picker:after{
+    @clr();
+}
+
+.picker-box {
+    float: left; padding:0 @d3;
+    b {vertical-align: middle;}
+}
+
+.picker-btn {
+    float: right;
+}
+
+.picker-choose {
+    @btn();
+    margin: 0;
+}

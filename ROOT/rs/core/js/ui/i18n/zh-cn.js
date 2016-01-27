@@ -19,11 +19,14 @@ define({
     "download"   : "下载",
     "properties" : "属性",
     "search"     : "搜索",
+    "choose"     : "选择",
     "empty"      : "没有内容",
     "loading"    : "正在加载...",
     "doing"      : "执行中...",
     "favorites"  : "收藏",
     "home"       : "主目录",
+    "show"       : "显示",
+    "hide"       : "隐藏",
     "e_ajax"     : "靠，有问题啦， 错误码:{{errCode}}  细节:{{msg}} : {{data}}",
     "editing"    : {
         "multiselectbox" : {

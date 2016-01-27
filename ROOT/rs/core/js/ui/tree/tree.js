@@ -1,5 +1,5 @@
 (function($z){
-$z.declare('zui', function(ZUI, Wn){
+$z.declare(['zui', 'ui/menu/menu'], function(ZUI, MenuUI){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
@@ -26,17 +26,28 @@ return ZUI.def("ui.tree", {
         $z.setUndefined(options, "idKey", "id");
         $z.setUndefined(options, "context", UI);
         if(_.isString(options.idKey)){
-            UI.getIdKey = function(obj){
-                return obj[idKey];
+            UI.getId = function(obj){
+                return obj[options.idKey];
             };
         }
         // 就是函数
         else if(_.isFunction(options.idKey)){
-            UI.getIdKey = options.idKey;
+            UI.getId = options.idKey;
         }
         // 必须得有 idKey 的获取方式
         else{
             throw "e.tree.noIdKeyFinder";
+        }
+
+        // 声明名称
+        if(_.isString(options.nmKey)){
+            UI.getName = function(obj){
+                return obj[options.nmKey]
+            }
+        }
+        // 函数 
+        else if(_.isFunction(options.nmKey)){
+            UI.getName = options.nmKey;
         }
 
         // 默认的手柄
@@ -104,24 +115,73 @@ return ZUI.def("ui.tree", {
         throw "what the fuck you give me: " + nd;
     },
     //...............................................................
+    $top : function(nd){
+        var UI = this;
+        var jNode = UI.$node(nd);
+        while(jNode.size()>0 && !jNode.parent().hasClass("tree-wrapper")){
+            jNode = jNode.parent().closest(".tree-node");
+        }
+        return jNode;
+    },
+    //...............................................................
+    $topByName : function(nm){
+        var UI = this;
+        var jW = UI.arena.find(".tree-wrapper");
+        return jW.children(".tree-node[onm="+nm+"]");
+    },
+    //...............................................................
+    isTop : function(nd){
+        var UI = this;
+        var jNode = UI.$node(nd);
+        return jNode.parent().hasClass("tree-wrapper");
+    },
+    //...............................................................
     events : {
         "click .tnd-handle" : function(e){
+            e.stopPropagation();
             var jNode = $(e.currentTarget).closest(".tree-node");
             if(jNode.attr("collapse") == "yes")
                 this.openNode(jNode);
             else
                 this.closeNode(jNode);
         },
-        "click .tnd-text" : function(e){
+        "click .tnd-self" : function(e){
+            this.active(e.currentTarget);
+        },
+        "click .tree-node-actived .tnd-text" : function(e){
+            var UI    = this;
+            var opt   = UI.options;
             var jText = $(e.currentTarget);
-            var jNode = jText.closest(".tree-node");
-            // 高亮节点文本被点击
-            if(jNode.hasClass("tree-node-actived")){
+            var jNode = UI.$node(jText);
+            var obj   = UI.getNodeData(jNode);
+            var context = opt.context || UI;
+            $z.invoke(opt, "on_click_actived_text", [obj, jText, jNode], context);
 
-            }
-            // 高亮文本节点
-            else{
-                this.active(jNode);
+        },
+        "contextmenu .tnd-self" : function(e){
+            var jSelf = $(e.currentTarget);
+            var jNode = jSelf.closest(".tree-node");
+            this.active(jNode);
+
+            // 如果声明了 on_contextmenu， 则接管右键菜单 
+            var UI = this;
+            var opt = UI.options;
+            if(_.isFunction(opt.on_contextmenu)){
+                // 禁掉右键菜单
+                e.preventDefault();
+                // 得到菜单项的信息
+                var context = opt.context || UI;
+                var obj   = jNode.data("@DATA");
+                var setup = opt.on_contextmenu.call(context, obj, jNode);
+                // 显示菜单
+                new MenuUI({
+                    context  : UI,
+                    setup    : setup,
+                    position : {
+                        x : e.pageX,
+                        y : e.pageY
+                    }
+                }).render();
             }
         }
     },
@@ -130,6 +190,8 @@ return ZUI.def("ui.tree", {
         var UI = this;
         var opt = UI.options;
         var jNode = UI.$node(nd);
+        if(jNode.size()==0)
+            return;
         var context = opt.context || UI;
         // 已经高亮了就啥也不做
         if(jNode.hasClass("tree-node-actived")){
@@ -138,26 +200,49 @@ return ZUI.def("ui.tree", {
         // 去掉其他的高亮
         UI.arena.find(".tree-node-actived").removeClass("tree-node-actived").each(function(){
             var jq = $(this);
-            var ly = jq.data("@DATA");
-            $z.invoke(opt, "on_blur", [ly, jq], context);
+            var obj = jq.data("@DATA");
+            $z.invoke(opt, "on_blur", [obj, jq], context);
         });
         // 高亮自己
         jNode.addClass("tree-node-actived");
 
+        // 是否确保自己被展开
+        if(opt.openWhenActived){
+            UI.openNode(jNode);
+        }
+
         // 调用回调
         if(!quiet){
-            var ly = jNode.data("@DATA");
-            $z.invoke(opt, "on_actived", [ly, jNode], context);
+            var obj = jNode.data("@DATA");
+            $z.invoke(opt, "on_actived", [obj, jNode], context);
         }
     },
     //...............................................................
-    openNode : function(nd) {
+    // 叶子节点永远返回 true
+    isClosed : function(nd) {
+        return this.$node(nd).attr("collapse") == "yes";
+    },
+    isOpened : function(nd) {
+        return this.$node(nd).attr("collapse") == "no";
+    },
+    isLeaf : function(nd) {
+        return this.$node(nd).attr("ndtp") == "leaf";
+    },
+    isNode : function(nd) {
+        return this.$node(nd).attr("ndtp") == "node";
+    },
+    //...............................................................
+    openNode : function(nd, callback) {
         var UI = this;
         var opt = UI.options;
         var jNode = UI.$node(nd);
         var context = opt.context || UI;
+        // 叶子节点不能展开
+        if(UI.isLeaf(jNode)){
+            return;
+        }
         // 已经展开了，就不用展开了
-        if(jNode.attr("collapse") == "no"){
+        if(UI.isOpened(jNode)){
             return;
         }
         // 标记
@@ -169,10 +254,22 @@ return ZUI.def("ui.tree", {
             return;
 
         // 读取子节点
+        UI.reload(jNode, callback);
+    },
+    //...............................................................
+    reload : function(nd, callback) {
+        var UI = this;
+        var opt = UI.options;
+        var jNode = UI.$node(nd);
+        var context = opt.context || UI;
+        var jSub = jNode.children(".tnd-children");
         jSub.text(UI.msg("loadding"));
         var obj = jNode.data("@DATA");
         opt.children.call(context, obj, function(list){
             UI._draw_nodes(list, jSub);
+            if(_.isFunction(callback)){
+                callback.call(context, list, jNode);
+            }
         });
     },
     //...............................................................
@@ -180,7 +277,7 @@ return ZUI.def("ui.tree", {
         var UI = this;
         var jNode = UI.$node(nd);
         // 已经关闭了，就不用关闭了
-        if(jNode.attr("collapse") == "yes"){
+        if(UI.isClosed(jNode)){
             return;
         }
         // 标记
@@ -255,11 +352,17 @@ return ZUI.def("ui.tree", {
         var context = opt.context || UI;
 
         var jq   = UI.ccode("tree.node");
-        var id   = UI.getIdKey.call(context, obj);
+        var id   = UI.getId.call(context, obj);
         var leaf = _.isFunction(opt.isLeaf) ? opt.isLeaf.call(context, obj) : true;
         jq.attr("oid", id)
           .attr("ndtp", leaf ? "leaf" : "node")
           .attr("collapse", "yes");
+
+        // 补充上名称
+        if(UI.getName){
+            jq.attr("onm", UI.getName.call(context, obj));
+        }
+
         // 节点添加手柄
         if(!leaf)
             jq.find(".tnd-handle").html(opt.handle);
@@ -298,6 +401,17 @@ return ZUI.def("ui.tree", {
     //...............................................................
     getActived : function(){
         return this.arena.find(".tree-node-actived").data("@DATA");
+    },
+    //...............................................................
+    getActivedNode : function(){
+        return this.arena.find(".tree-node-actived");
+    },
+    getActivedId : function(){
+        return this.arena.find(".tree-node-actived").attr("oid");
+    },
+    //...............................................................
+    getNodeId : function(nd){
+        return this.$node(nd).attr("oid");
     },
     //...............................................................
     removeNode : function(nd){

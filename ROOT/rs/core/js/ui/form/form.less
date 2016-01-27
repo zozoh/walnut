@@ -1,0 +1,73 @@
+@import "../ui.less";
+
+.form-title {
+    padding:@d4; text-align: center; color:@cf0;
+    background: @cb2; font-size: @f4;
+}
+
+.form-body {
+    overflow-x: hidden; overflow-y: scroll;
+    position: relative;
+}
+
+.form-group, .form-fld{
+    display: inline-block; vertical-align: top;
+}
+
+.form-group {
+    padding-right:1px;
+}
+
+.form-group-hide {
+    .fg-title {
+        border-color:@c0; color:@c0;
+    }
+    .fg-title:after {
+        content: "..."; font-weight: bolder; 
+        position: absolute; right:@d3;
+    }
+    .fg-fields {
+        display: none;
+    }
+}
+
+.fg-title {
+    padding:@d2; margin: @d2 0 0 0; font-size:@f4;
+    color:@cf1; background: @cb1;  border:1px solid rgba(0,0,0,0);
+    position: relative;
+    .fg-tt-icon {
+        margin:0 @d2;
+    }
+    .fg-tt-text {
+        margin:0 @d2;
+    }
+}
+
+.form-fld {
+    border-top: 1px dashed @cborder1; padding:@d1;
+}
+.form-fld[first-row]{border:0;}
+
+.ff-txt, .ff-val {
+    display: inline-block; vertical-align: top;
+}
+
+.ff-txt {
+    text-align: right; padding:@d4 @d4 @d4 @d4; color:@cf4;
+    .fft-icon {margin-right:@d2;}
+    .fft-text {}
+}
+.ff-txt[required] {color:@cf0; font-weight: bolder;}
+.ff-txt[required]:before {
+    display: inline; content: "*"; font-weight: bolder;
+    position: absolute; margin-left:-@d3; color:#F00;
+}
+
+.ff-val {padding:@d2;}
+
+.ffv-ui {display: inline-block; vertical-align: middle; padding-right:@d2;}
+.ffv-ui[fill="all"]{width:100%;}
+.ffv-tip {display: inline-block; color:@c3; padding: @d1; font-size:@f0;}
+
+
+

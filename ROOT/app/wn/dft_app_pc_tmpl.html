@@ -54,7 +54,7 @@
 
     seajs.use("zui", function (ZUI) {
         ZUI.loadi18n("ui/i18n/{{lang}}.js", function () {
-            seajs.use("app/main.js?nm=" + _app.name, function (main) {
+            seajs.use("app/" + _app.name + "/main.js", function (main) {
                 main.init();
             });
         });

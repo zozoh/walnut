@@ -6,11 +6,10 @@
 };
 
 @clr : {
-    clear: both;
-    height: 1px;
-    overflow: hidden;
-    display: block;
-    content: "";
+    content:"";
+    display:block;
+    height:0;
+    clear:both;
 };
 
 @fit : {width:100%; height:100%;};
@@ -56,19 +55,19 @@
 @cb2           : #E0E0E0;  // 背景2
 @cb3           : #DDD;     // 背景3
 @cb4           : #CCC;     // 背景4
-@cf0           : #000;     // 主要文字颜色
+@cf0           : #333;     // 主要文字颜色
 @cf1           : #666;     // cb1 的前景
 @cf2           : #999;     // cb2 的前景
 @cf3           : #AAA;     // cb3 的前景
 @cf4           : #666;     // cb4 的前景
 @cpop_f        : #000;     // 弹出体前景色
-@cpop_b        : #FFF;     // 弹出体背景色
+@cpop_b        : #DDD;     // 弹出体背景色
 @cmenu_f       : #000;     // 弹出菜单前景色
 @cmenu_b       : #FFF;     // 弹出菜单背景色
 @cmenu_l       : #FFF;     // 弹出菜单边框颜色
 @cbtn_f        : #000;     // 按钮前景色
-@cbtn_b        : #FFF;     // 按钮背景色
-@cbtn_l        : #FFF;     // 按钮边框颜色
+@cbtn_b        : #D0D0D0;  // 按钮背景色
+@cbtn_l        : #BBB;     // 按钮边框颜色
 @ctext_f       : #000;     // 大段文字前景色
 @ctext_b       : #FFF;     // 大段文字背景色
 @cinput_f      : #000;     // 输入控件前景色
@@ -84,11 +83,11 @@
 @ch1_b         : #CCC;     // 次要高亮元素背景色
 @cshadow       : #888;     // 阴影颜色
 @c0            : #F80;     // 主要颜色
-@c1            : #08F;     // 颜色1
-@c2            : #6AF;     // 颜色2
-@c3            : #080;     // 颜色3
-@c4            : #8C8;     // 颜色4
-@c5            : #F0F;     // 颜色5
+@c1            : #F00;     // 重点文字颜色
+@c2            : #888;     // 补充文字颜色
+@c3            : #080;     // 注释文字颜色
+@c4            : #08F;     // 功能文字颜色
+@c5            : #000;     // 突出文字颜色
 @c6            : #FAF;     // 颜色6
 @c7            : #0FF;     // 颜色7
 @c8            : #8FF;     // 颜色8
@@ -129,14 +128,15 @@
 @ff_code : 'Lucida Console', Monaco, monospace;
 
 @btn : {
+    @noselect();
     display:inline-block; vertical-align: middle; cursor: pointer;
-    margin: 0 @tiny; 
-    padding: @normal @bigger; 
-    border:1px solid @c_btn_border; 
-    background: @c_btn_bg;  color:@c_btn_color;
-    border-radius: @small; 
+    margin: 0 @d0; 
+    padding: @d3 @d7; 
+    border:1px solid @cbtn_l; 
+    background: @cbtn_b;  color:@cbtn_f;
+    border-radius: @d1; 
 };
-@btn_hover : {color:@c_btn_hover_color; background: @c_btn_hover_bg;};
+@btn_hover : {color:@ch0_f; background: @ch0_b;};
 
 @tab : {
     display:inline-block; vertical-align: middle; cursor: pointer;

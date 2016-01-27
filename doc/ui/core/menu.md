@@ -20,7 +20,7 @@ new UIMenu({
     // 并且，控件会自动检测 body 的点击事件，和 escape 键盘事件
     // 随时释放自己的显示
     position : {
-        x : $pageX,  y: $pageY
+        x : $pageX,  y : $pageY
     }
     
     // 指明每个菜单项被调用的时候，函数的上下文是什么，默认为菜单控件的父视图

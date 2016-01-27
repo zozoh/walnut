@@ -1,6 +1,29 @@
 (function($z){
 $z.declare('zui', function(ZUI){
 //==============================================
+var do_close_allmenu = function(ignore_cids){
+    if(!ignore_cids){
+        ignore_cids = [];
+    }
+    if(!_.isArray(ignore_cids)){
+        ignore_cids = [ignore_cids];
+    }
+    $('.ui-menu').each(function(){
+        var UI = ZUI(this);
+        if(ignore_cids.indexOf(UI.cid)>=0){
+            return;
+        }
+        // 上下文菜单，销毁
+        if(UI.isContextmenu()){
+            UI.destroy();
+        }
+        // 普通菜单，关闭组
+        else{
+            UI.closeGroup();
+        }
+    });
+};
+//==============================================
 var html = function(){/*
 <div class="ui-arena menu"></div>
 */};
@@ -9,13 +32,22 @@ return ZUI.def("ui.menu", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "theme/ui/menu/menu.css",
     //..............................................
-    init : function(){
+    init : function(options){
         // 注册全局事件，控制子菜单的关闭
         var on_close_group = function(e){
             this.closeGroup(this.arena.find(".menu-item[open]"));
         };
         this.watchMouse("click", on_close_group);
         this.watchKey(27, on_close_group);
+
+        // 注册全局关闭
+        if(options.position){
+            this.watchMouse("click", do_close_allmenu);
+            this.watchKey(27, do_close_allmenu);            
+        }
+
+        // 全局其他的菜单统统关闭
+        do_close_allmenu();
     },
     //..............................................
     events : {
@@ -97,19 +129,31 @@ return ZUI.def("ui.menu", {
     //..............................................
     // 假想给定的 ele 是 .ment-item
     closeGroup : function(ele){
-        var jq = $(ele);
-        if(jq.hasClass("menu-item")){
-            jq.removeAttr("open");
-            jq.children(".menu-sub").remove();   
-            return;
+        var UI = this;
+        // 指定一个组
+        if(ele){
+            var jq = $(ele);
+            if(jq.hasClass("menu-item")){
+                jq.removeAttr("open");
+                jq.children(".menu-sub").remove();   
+                return;
+            }
+        }
+        // 所有组
+        else{
+            UI.closeGroup(UI.arena.find(".menu-item[open]"));
         }
     },
     //..............................................
     openGroup : function(ele){
-        var UI = this;
-        var jq = $(ele);
-        var mi = jq.data("@DATA");
+        var UI  = this;
+        var opt = UI.options;
+        var jq  = $(ele);
+        var mi  = jq.data("@DATA");
         var context = UI.options.context || UI.parent || UI;
+        // 关闭其他菜单的组
+        do_close_allmenu(UI.cid);
+
         // 如果菜单组已经被打开了，忽略
         if(jq.attr("open"))
             return;
@@ -130,7 +174,11 @@ return ZUI.def("ui.menu", {
 
             // 准备停靠，根据菜单的深度增加 z-index，以便能够遮盖
             var depth = jq.parents(".menu-sub").size();
-            $z.dock(jq, jTa.css("z-index", 1000+depth), depth>0?"V":"H");
+            var dockMode = "H";
+            if(opt.position || jq.closest(".menu-sub").size()>0){
+                dockMode = "V";
+            }
+            $z.dock(jq, jTa.css("z-index", 1000+depth), dockMode);
         };
 
         // 动态创建
@@ -145,15 +193,37 @@ return ZUI.def("ui.menu", {
     },
     //..............................................
     redraw : function(){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         var items = UI.options.setup;
         // 清空内容，依次重绘
         UI.arena.empty();
-        UI._draw_items(items, UI.arena);
+
+        // 如果是绝对位置打开的菜单，则确保将其移动到 body 下面，是一个绝对定位
+        if(opt.position){
+            if(UI.pel != document.body){
+                UI.$el.appendTo(document.body);
+            }
+            // 做点标记
+            UI.$el.attr("contextmenu", "yes").css({
+                top  : opt.position.y,
+                left : opt.position.x
+            });
+            UI._draw_items(items, UI.arena);
+        }
+        // 否则在给定选区绘制菜单项
+        else{
+            UI._draw_items(items, UI.arena);
+        }
+    },
+    //..............................................
+    isContextmenu : function(){
+        return "yes" == this.$el.attr("contextmenu");
     },
     //..............................................
     _draw_items : function(items, jP){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         var context = UI.options.context || UI.parent || UI;
 
         // 弄个开关，防止重绘分隔符
@@ -167,7 +237,7 @@ return ZUI.def("ui.menu", {
             $z.invoke(mi, "init", [mi], context);
 
             // 绘制主体
-            mi.is_top_item = jP.hasClass("menu");
+            mi.is_top_item = !UI.$el.attr("contextmenu") && jP.hasClass("menu");
             var jItem  = $('<div class="menu-item">').appendTo(jP)
                         .attr("md", mi.is_top_item ? "top" : "sub");
             var jq = $('<div class="menu-item-wrapper"></div>').appendTo(jItem);
@@ -194,7 +264,7 @@ return ZUI.def("ui.menu", {
             // 分隔符
             else if(mi.type == "separator"){
                 // 禁止绘制重复
-                if(last_is_separator){
+                if(0==i || last_is_separator){
                     jItem.remove();
                 }
                 // 绘制
@@ -292,7 +362,12 @@ return ZUI.def("ui.menu", {
 
         // 文字
         if(mi.text){
-            var jT = $('<span class="menu-item-text">').appendTo(jq);
+            var jT = $('<span class="menu-item-text">');
+            if(mi.iconAtRight){
+                jT.prependTo(jq);
+            }else{
+                jT.appendTo(jq);
+            }
             jT.text(UI.text(mi.text));
         }
     }

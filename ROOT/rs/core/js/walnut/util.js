@@ -28,9 +28,18 @@ var Wn = {
         jNm.text(this.objDisplayName(o.nm, UI));
     },
     //...................................................................
-    objDisplayName : function(nm, UI){
-        var text = nm;   // TODO 以后考虑 _key_ 开头的名称
-        return $z.ellipsisCenter(text, 20);
+    objTypeName : function(o){
+        return o.tp || ('DIR'==o.race ? 'folder' : 'unknown');
+    },
+    //...................................................................
+    objDisplayName : function(nm, maxLen){
+        var text = _.isString(nm) ? nm : nm.nm;   // TODO 以后考虑 _key_ 开头的名称
+        if(_.isUndefined(maxLen)){
+            maxLen = 20;
+        }
+        if(_.isNumber(maxLen))
+            return $z.ellipsisCenter(text, 20);
+        return text;
     },
     /*...................................................................
     提供一个通用的文件上传界面，任何 UI 可以通过
@@ -346,7 +355,7 @@ var Wn = {
                 ace.actions.forEach(function(val, index, arr){
                     arr[index] = "e" + val;
                 });
-                asetup.actions = asetup.actions.concat(ace.actions);
+                asetup.actions = ace.actions.concat(asetup.actions);
             }
         }
 
@@ -447,7 +456,8 @@ var Wn = {
     //  - "FILE"       : 仅文件
     //  - {..}         : 一个搜索条件，比如 {tp:'jpeg', len:0}
     //  - F(o):boolean : 高级过滤方法 
-    getChildren : function(o, filter){
+    // callback 可以有，也可以木有，木有的话就同步读，否则异步读
+    getChildren : function(o, filter, callback){
         var Wn = this;
 
         // 确保有路径
@@ -455,50 +465,78 @@ var Wn = {
             o = Wn.getById(o.id);
         }
 
+        // 过滤方法
+        var do_filter = function(o, filter){
+            var reList  = [];
+            // 组合的过滤条件，预先编译
+            if($z.isPlainObj(filter)){
+                filter = _.matcher(filter);
+            }
+            // 循环找一下
+            for(var i=0;i<o.children.length;i++){
+                var childId = o.children[i];
+                var child = Wn.getById(childId);
+
+                // 按照 race 过滤
+                if(_.isString(filter) && filter != child.race){
+                    continue;
+                }
+                // 自定义过滤
+                else if(_.isFunction(filter) && !filter(child)){
+                    continue;
+                }
+
+                reList.push(child);
+            }
+            // 返回
+            return reList;
+        };
+
+        // 定制回调
+        var do_after_load = function(o, re){
+            o.children = [];
+            if(re){
+                var list  = $z.fromJson(re);
+                for(var i=0;i<list.length;i++){
+                    var child = list[i];
+                    // 手工补充子的全路径
+                    if(!child.ph){
+                        child.ph = o.ph + "/" + child.nm;
+                    }
+                    Wn.saveToCache(child);
+                    o.children.push(child.id);
+                }
+            }
+            // 更新到缓存
+            Wn.saveToCache(o);
+        };
+
         // 重新从服务器读取
         if(!o.children || o.children.length==0 ){
-            var re = Wn.exec("obj id:"+o.id+"/* -l -sort 'nm:1'");
-            if(!re)
-                return [];
-            var list  = $z.fromJson(re);
-            o.children = [];
-            for(var i=0;i<list.length;i++){
-                var child = list[i];
-                // 手工补充子的全路径
-                if(!child.ph){
-                    child.ph = o.ph + "/" + child.nm;
-                }
-                Wn.saveToCache(child);
-                o.children.push(child.id);
+            // 有回调，异步
+            if(_.isFunction(callback)){
+                Wn.exec("obj id:"+o.id+"/* -l -sort 'nm:1'", function(re){
+                    do_after_load(o, re);
+                    var reList = do_filter(o, filter);
+                    callback(reList);
+                });
+                return;
             }
-            // 更新自身
-            Wn.saveToCache(o);
-        }
-
-        if($z.isPlainObj(filter)){
-            filter = _.matcher(filter);
-        }
-
-        // 依次从本地读取
-        var list  = [];
-        for(var i=0;i<o.children.length;i++){
-            var childId = o.children[i];
-            var child = Wn.getById(childId);
-
-            // 按照 race 过滤
-            if(_.isString(filter) && filter != child.race){
-                continue;
+            // 否则同步
+            else{
+                 var re = Wn.exec("obj id:"+o.id+"/* -l -sort 'nm:1'");
+                 do_after_load(o, re);
+                 var reList = do_filter(o, filter);
+                 return reList;
             }
-            // 自定义过滤
-            else if(_.isFunction(filter) && !filter(child)){
-                continue;
-            }
-
-            list.push(child);
         }
-
-        // 返回结果
-        return list;
+        // 从缓存里读
+        var reList = do_filter(o, filter);
+        // 回调
+        if(_.isFunction(callback)){
+            callback(reList);
+        }
+        return reList;
     },
     //..............................................
     getAncestors : function(o, includeSelf){
@@ -854,7 +892,7 @@ var Wn = {
         return objs;
     },
     //..............................................
-    saveToCache : function(o){
+    saveToCache : function(o, cleanSubs){
         var Wn = this;
         var store = Wn._storeAPI;
 
@@ -876,7 +914,18 @@ var Wn = {
         var oldJson = store.getItem(key);
         if(oldJson){
             var old = $z.fromJson(oldJson);
-            if(!_.isArray(o.children) && _.isArray(old.children)){
+            // 清除子孙
+            if(cleanSubs){
+                o.children = undefined;
+                if(_.isArray(old.children)){
+                    for(var i=0;i<old.children.length;i++){
+                        var childId = old.children[i];
+                        Wn.cleanCache("oid:"+childId);
+                    }
+                }
+            }
+            // 否则尽量复用
+            else if(!_.isArray(o.children) && _.isArray(old.children)){
                 o.children = old.children;
             }
         }

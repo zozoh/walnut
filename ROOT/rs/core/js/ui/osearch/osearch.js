@@ -395,7 +395,6 @@ return ZUI.def("ui.osearch", {
     },
     //...............................................................
     do_search : function(cnd, pg, callback){
-        //console.log("do_search",q, pg)
         var UI = this;
 
         // zozoh@20151026:
@@ -403,6 +402,7 @@ return ZUI.def("ui.osearch", {
         // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题
         //window.setTimeout(function(){
             var q = UI.getQuery(cnd, pg);
+            console.log("do_search",q, pg)
             
             // 显示正在加载数据
             if(UI._list)

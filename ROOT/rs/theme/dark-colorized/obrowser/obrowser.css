@@ -1,6 +1,8 @@
+body > .ui-obrowser {
+  background: url(main_bg.jpg);
+}
 .obrowser {
   color: #cccccc;
-  background: url(main_bg.jpg);
 }
 .obrowser .obrowser-block {
   margin: 0px;
@@ -26,11 +28,61 @@
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   color: #888888;
   background: rgba(0, 0, 0, 0.3);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+.obrowser .obrowser-chute .chute-scroller {
+  transition: 0.3s;
+  width: 200%;
+  height: 100%;
+  position: relative;
+}
+.obrowser .obrowser-chute .chute-scroller .chute-nav {
+  position: absolute;
+  top: 0;
+  right: 50%;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.obrowser .obrowser-chute .chute-scroller .chute-outline {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 50%;
+  bottom: 0;
+}
+.obrowser .obrowser-chute .chute-scroller .chute-scroller-btn {
+  position: absolute;
+  top: 0;
+  width: 16px;
+  height: 24px;
+  border-radius: 2px;
+  font-size: 10px;
+  line-height: 22px;
+  text-align: center;
+  border: 1px solid #000000;
+  background: #000000;
+  color: #cccccc;
+  display: none;
+  margin: 2px;
+  cursor: pointer;
+}
+.obrowser .obrowser-chute .chute-scroller .chute-scroller-btn * {
+  cursor: pointer;
+}
+.obrowser .obrowser-chute .chute-scroller .chute-scroller-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+.obrowser .obrowser-chute .chute-scroller[outline="yes"] {
+  margin-left: -100%;
+}
+.obrowser .obrowser-chute .chute-scroller[outline] .chute-scroller-btn {
+  display: block;
 }
 .obrowser .obrowser-chute .chute-wrapper {
   padding: 12px;
@@ -74,11 +126,10 @@
   margin-left: 6px;
 }
 .obrowser .obrowser-chute .chute-wrapper section item:after {
-  clear: both;
-  height: 1px;
-  overflow: hidden;
-  display: block;
   content: "";
+  display: block;
+  height: 0;
+  clear: both;
 }
 .obrowser .obrowser-chute .chute-wrapper section item.chute-actived {
   color: #ffffff;
@@ -117,11 +168,10 @@
   padding: 4px;
 }
 .obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-wrapper:after {
-  clear: both;
-  height: 1px;
-  overflow: hidden;
-  display: block;
   content: "";
+  display: block;
+  height: 0;
+  clear: both;
 }
 .obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail {
   width: 76px;

@@ -1,5 +1,9 @@
 @import (reference) "../ui";
 
+body > .ui-obrowser {
+    background: @cb0;
+}
+
 .obrowser{
     color:@cf0; 
     .obrowser-block {
@@ -22,8 +26,40 @@
 
     //---------------------------------------------- BEGIN Chute
     .obrowser-chute { @noselect();
-        overflow-y: auto; overflow-x: hidden; 
+        overflow: hidden;
         color:@cf2; background: @cb2; border-right:1px solid @cborder0;
+
+        .chute-scroller {transition: 0.3s; 
+            width:200%; height:100%; position: relative; 
+            .chute-nav {
+                position: absolute; top:0; right:50%; left:0; bottom:0;
+                overflow-y: auto; overflow-x: hidden; 
+            }
+            .chute-outline {
+                position: absolute; top:0; right:0; left:50%; bottom:0;
+            }
+            .chute-scroller-btn {
+                position: absolute; top:0; 
+                width:@d5; height:@d6; border-radius: @d0;
+                font-size:@f1; line-height: @d6 - 2; text-align: center;
+                border:1px solid @cbtn_l;
+                background: @cbtn_b; color:@cshadow; 
+                display: none;
+                margin:@d0; 
+                cursor: pointer;
+                * {cursor: pointer;}
+            }
+            .chute-scroller-btn:hover {
+                background: @ch1_b; color:@ch1_f;
+            }
+        }
+        .chute-scroller[outline="yes"] {
+            margin-left:-100%;
+        }
+        .chute-scroller[outline]{
+            .chute-scroller-btn {display: block;}
+        }
+
         .chute-wrapper {
             padding: @d4; font-size:@f2; 
             section{

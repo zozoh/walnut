@@ -1,13 +1,12 @@
 .osearch-sky {
   position: relative;
-  min-height: 50px;
+  min-height: 30px;
 }
 .osearch-sky:after {
-  clear: both;
-  height: 1px;
-  overflow: hidden;
-  display: block;
   content: "";
+  display: block;
+  height: 0;
+  clear: both;
 }
 .osearch-list {
   min-height: 300px;

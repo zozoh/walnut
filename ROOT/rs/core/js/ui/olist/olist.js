@@ -14,6 +14,8 @@ return ZUI.def("ui.olist", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/olist/olist.css",
     init : function(options){
+        var UI = this;
+
         $z.setUndefined(options, "fitparent", true);
         $z.setUndefined(options, "activable", true);
         $z.setUndefined(options, "blurable",  true);
@@ -33,19 +35,32 @@ return ZUI.def("ui.olist", {
                              ? '<b>{{_display.nm}}</b>'
                              : '<b>{{nm}}</b>');
         // 准备 iconClass 的解析函数
-        if(options.icon){
-            if(_.isFunction(options.iconClass)){
-                this._eval_icon_class = options.iconClass;
-            }else if(_.isObject(options.iconClass)){
-                this._eval_icon_class = function(o){
-                    var key = this.options.iconClass.key;
-                    var map = this.options.iconClass.map;
-                    var dft = this.options.iconClass.dft;
-                    var val = o[key];
-                    return map[val] || dft;
-                }
-            }
+        if(_.isFunction(options.iconClass)){
+            UI._eval_icon_class = options.iconClass;
         }
+        // 用对象来整理（相当于 ZUI 基类 get_obj_val_by 方法的别名）
+        else if(_.isObject(options.iconClass)){
+            UI._eval_icon_class = function(o){
+                return UI.get_obj_val_by(o, options.iconClass);
+            };
+        }
+
+        // 图标自定义函数
+        UI._iconFunc = UI.eval_tmpl_func(UI.options, "icon");
+
+        // 准备文本显示的函数
+        if(_.isFunction(options.display)){
+            UI._eval_obj_display = options.display;
+        }
+        // 用对象来整理（相当于 ZUI 基类 get_obj_val_by 方法的别名）
+        else if(_.isObject(options.display)){
+            UI._eval_obj_display = function(o){
+                return UI.get_obj_val_by(o, options.display);
+            };
+        }
+
+        // 文本自定义函数
+        UI._textFunc = UI.eval_tmpl_func(UI.options, "text");
     },
     //...............................................................
     events : {
@@ -68,7 +83,7 @@ return ZUI.def("ui.olist", {
         return this.arena.find(".olist-item-actived").data("OBJ");
     },
     //...............................................................
-    setActived : function(arg){
+    active : function(arg){
         var UI = this;
         if(!UI.options.activable)
             return;
@@ -87,6 +102,10 @@ return ZUI.def("ui.olist", {
             UI.trigger("olist:actived", o, index);
             $z.invoke(UI.options, "on_actived", [o, index], UI);
         }
+    },
+    // 一个保留的兼容函数，稍后会删掉
+    setActived : function(arg){
+        this.active(arg);
     },
     //...............................................................
     blur : function(){
@@ -299,17 +318,18 @@ return ZUI.def("ui.olist", {
     },
     //..............................................
     _append_item : function(o, index){
-        var UI = this;
-        var idKey = UI.options.idKey;
-        var nmKey = UI.options.nmKey;
-        var iconFunc = UI.eval_tmpl_func(UI.options, "icon");
-        var textFunc = UI.eval_tmpl_func(UI.options, "text");
+        var UI    = this;
+        var opt   = UI.options;
+        var idKey = opt.idKey;
+        var nmKey = opt.nmKey;
+        var iconFunc = UI._iconFunc;
+        var textFunc = UI._textFunc;
 
         if(_.isUndefined(index)){
             index = UI.arena.children().size();
         }
         
-        var checkable = UI.options.checkable;
+        var checkable = opt.checkable;
         var jq = $('<div class="olist-item">').appendTo(UI.arena);
         jq.attr("index", index);
         if(o[idKey])
@@ -323,17 +343,39 @@ return ZUI.def("ui.olist", {
         }
 
         // 分析 icon
-        if(UI._eval_icon_class){
-            o['_icon_class'] = UI._eval_icon_class(o) || "";
-        }
         var iconHtml = iconFunc ? $(iconFunc(o)) : null;
-        if(iconHtml)
-            $(iconHtml).attr("tp","icon").appendTo(jq);
+        var jIcon;
+        // 图标
+        if(iconHtml){
+            jIcon = $(iconHtml).attr("tp","icon").appendTo(jq);
+        }
+        // 补充类
+        if(UI._eval_icon_class) {
+            jIcon = jIcon || $('<i>').attr("tp","icon").appendTo(jq);
+            iconClass = UI._eval_icon_class(o) || "";
+            jIcon.addClass(iconClass);
+        }
         
         // 解析列表项内容
-        UI.eval_obj_display(o, UI.options.display);
-        if(textFunc)
-            jq.append($(textFunc(o)));
+        var jText = $(textFunc(o)).appendTo(jq);
+        
+        // 补充修改对象的文本
+        if(UI._eval_obj_display) {
+            var txt = UI._eval_obj_display(o);
+            // 嗯，有滴，要修改
+            if(txt) {
+                txt = UI.text(txt);   // 支持 i18n:xxxx 的格式
+                // 指定一个选择器
+                if(opt.display.selector){
+                    jText.find(opt.display.selector).text(txt);
+                }
+                // 修改顶级 
+                else{
+                    jText.text(txt);
+                }
+            }
+        }
+
         // 记录数据
         jq.data("OBJ", o);
     },

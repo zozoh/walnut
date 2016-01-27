@@ -10,7 +10,12 @@ var html = function(){/*
     </div>
 </div>
 <div class="ui-arena obrowser-chute ui-clr" ui-fitparent="yes">
-    {{loading}}
+    <div class="chute-scroller" doutline>
+        <div class="chute-nav">{{loading}}</div>
+        <div class="chute-outline outline-con">I am outline</div>
+        <div class="chute-scroller-btn chute-show-outline"><i class="fa fa-caret-right"></i></div>
+        <div class="chute-scroller-btn chute-show-nav"><i class="fa fa-caret-left"></i></div>
+    </div>
 </div>
 */};
 //==============================================
@@ -39,11 +44,31 @@ return ZUI.def("ui.obrowser_chute", {
         "click item" : function(e){
             var UI = this;
             var jq = $(e.currentTarget);
-            UI.browser.setData(jq.attr("ph"));
+            UI.browser.setData(jq.attr("ph"), jq.attr("editor"));
             // 修改显示
             UI.arena.find("item").removeClass("chute-actived");
             jq.addClass("chute-actived");
+        },
+        "click .chute-show-nav" : function(e){
+            this.hideOutline();
+        },
+        "click .chute-show-outline" : function(e){
+            this.showOutline();
         }
+    },
+    //..............................................
+    showOutline : function(){
+        var jS = this.arena.find(".chute-scroller").attr("outline", "yes");
+        return jS.children(".chute-outline");
+    },
+    hideOutline : function(){
+        this.arena.find(".chute-scroller").attr("outline", "no");
+    },
+    removeOutline : function(){
+        this.arena.find(".chute-scroller").removeAttr("outline");
+    },
+    isShowOutline : function(){
+        return this.arena.find(".chute-scroller").attr("outline") == "yes";
     },
     //..............................................
     update : function(UIBrowser, o){
@@ -136,11 +161,27 @@ return ZUI.def("ui.obrowser_chute", {
         jq.find(".chute-item-delete").remove();
 
         // 加入 DOM
-        UI.arena.empty().append(jq);
+        var jNav = UI.arena.find(".chute-nav");
+        jNav.empty().append(jq);
         
+    },
+    //..............................................
+    resize : function(){
+        var UI = this;
+        var jS = UI.arena.children(".chute-scroller");
+        var jbN = jS.children(".chute-show-nav");
+        var jbO = jS.children(".chute-show-outline");
+        var W = UI.arena.width();
+
+        jbN.css("left", W);
+        jbO.css("right", W);
+
     }
     //..............................................
 });
 //==================================================
 });
 })(window.NutzUtil);
+
+
+

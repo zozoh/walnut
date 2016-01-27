@@ -25,7 +25,7 @@ var html = function(){/*
 return ZUI.def("ui.oform", {
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "ui/oform/oform.css",
+    css  : "theme/ui/oform/oform.css",
     //...............................................................
     init : function(options){
         var UI = this;
@@ -344,14 +344,15 @@ return ZUI.def("ui.oform", {
         }
     },
     __append_field : function(grp, fld){
+        var UI  = this;
         fld.$el  = $('<tr class="oform-fld">').appendTo(grp.$el);
         if(fld.hide)
             fld.$el.hide();
         fld.$nm  = $('<td class="oform-fldnm">').appendTo(fld.$el);
         var jTd = $('<td class="oform-fldval">').appendTo(fld.$el);
         fld.$val = $('<div class="oform-fldedit">').appendTo(jTd);
-        if(fld.tip && !fld.hideType)
-            $('<div class="oform-fldcmt">').appendTo(jTd).text(fld.tip);
+        if(fld.tip && !fld.hideTip)
+            $('<div class="oform-fldcmt">').appendTo(jTd).text(UI.text(fld.tip));
 
         if(fld.required){
             $('<span class="oform-fld-required">*</span>').appendTo(fld.$nm);

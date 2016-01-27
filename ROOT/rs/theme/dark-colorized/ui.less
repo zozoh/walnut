@@ -6,11 +6,10 @@
 };
 
 @clr : {
-    clear: both;
-    height: 1px;
-    overflow: hidden;
-    display: block;
-    content: "";
+    content:"";
+    display:block;
+    height:0;
+    clear:both;
 };
 
 @cb0           : #000;     // 主体背景色
@@ -28,7 +27,7 @@
 @cmenu_f       : #FFF;     // 弹出菜单前景色
 @cmenu_b       : rgba(0,0,0,0.8);     // 弹出菜单背景色
 @cmenu_l       : #F80;     // 弹出菜单边框颜色
-@cbtn_f        : #FFF;     // 按钮前景色
+@cbtn_f        : #CCC;     // 按钮前景色
 @cbtn_b        : #000;     // 按钮背景色
 @cbtn_l        : #000;     // 按钮边框颜色
 @cinput_f      : #CCC;     // 输入控件前景色
@@ -44,11 +43,11 @@
 @ch1_b         : rgba(255,255,255,0.2);     // 次要高亮元素背景色
 @cshadow       : #000;     // 阴影颜色
 @c0            : #F80;     // 主要颜色
-@c1            : #08F;     // 颜色1
-@c2            : #6AF;     // 颜色2
-@c3            : #080;     // 颜色3
-@c4            : #8C8;     // 颜色4
-@c5            : #F0F;     // 颜色5
+@c1            : #FF0;     // 重点文字颜色
+@c2            : #AAA;     // 补充文字颜色
+@c3            : #0A0;     // 注释文字颜色
+@c4            : #08F;     // 功能文字颜色
+@c5            : #FFF;     // 突出文字颜色
 @c6            : #FAF;     // 颜色6
 @c7            : #0FF;     // 颜色7
 @c8            : #8FF;     // 颜色8
@@ -77,4 +76,14 @@
 @f8 : 64px;
 
 @f_fixed : Monaco, Consolas, Courier New;
+
+@btn : {
+    display:inline-block; vertical-align: middle; cursor: pointer;
+    margin: 0 @d0; 
+    padding: @d3 @d7; 
+    border:1px solid @cbtn_l; 
+    background: @cbtn_b;  color:@cbtn_f;
+    border-radius: @d1; 
+};
+@btn_hover : {color:@ch0_f; background: @ch0_b;};
 

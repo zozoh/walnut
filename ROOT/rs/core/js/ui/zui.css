@@ -85,6 +85,14 @@ body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-b
 .ui-log-info {color:#CCC;}
 .ui-log-err {color:#F00;}
 
+.fa-combo-icon2 {
+    position: relative;
+}
+.fa-combo-icon2 > *:last-child {
+    position: absolute; top: 0; right: 0;
+    font-size:0.9em; margin:-2px -2px 0 0; 
+}
+
 
 
 

@@ -1,3 +1,17 @@
+.ui-menu[contextmenu="yes"] {
+  position: absolute;
+  color: #000000;
+  background: #ffffff;
+  border: 1px solid #ffffff;
+  border-radius: 2px;
+  box-shadow: 2px 2px 6px #888888;
+  min-width: 128px;
+  text-align: left;
+}
+.ui-menu[contextmenu="yes"] .menu-item-more {
+  position: absolute;
+  right: 6px;
+}
 .menu-item {
   -moz-user-select: none;
   -khtml-user-select: none;
@@ -55,11 +69,11 @@
 .menu-item[tp="group"] > .menu-item-wrapper:hover,
 .menu-item[tp="group"][open] > .menu-item-wrapper {
   color: #ffffff;
-  background: #424242;
+  background: #0044bb;
 }
 .menu {
   white-space: nowrap;
-  padding: 0px 0px;
+  padding: 8px 4px;
 }
 .menu .menu-item[md="top"] {
   display: inline-block;
@@ -68,24 +82,20 @@
 .menu .menu-item[md="top"] .menu-item-wrapper {
   border-radius: 2px;
   padding: 0 4px;
-  height:40px;
-  line-height:38px;
-  font-size:14px;
-  border:1px solid #ccc;
-  margin-left:10px;
-  font-weight:bold;
 }
 .menu .menu-item[md="top"] .menu-item[tp="separator"] {
   padding: 0;
   border-right: 1px dotted #dddddd;
 }
 .menu .menu-sub {
-  padding: 6px;
+  color: #000000;
   background: #ffffff;
   border: 1px solid #ffffff;
+  padding: 6px;
   border-radius: 2px;
   box-shadow: 2px 2px 6px #888888;
   min-width: 128px;
+  text-align: left;
 }
 .menu .menu-sub .menu-item {
   line-height: 24px;

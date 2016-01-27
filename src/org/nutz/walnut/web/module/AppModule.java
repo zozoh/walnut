@@ -50,7 +50,7 @@ public class AppModule extends AbstractWnModule {
     @Filters(@By(type = WnCheckSession.class))
     @At("/open/**")
     @Fail("jsp:jsp.show_text")
-    public View open(String appName, @Param("ph") String path, @Param("m") boolean meta)
+    public View open(String appName, @Param("ph") String str, @Param("m") boolean meta)
             throws UnsupportedEncodingException {
 
         // 如果 appName 没有名称空间，补上 "wn"
@@ -66,9 +66,8 @@ public class AppModule extends AbstractWnModule {
 
         // 得到要处理的对象
         WnObj o = null;
-        if (!Strings.isBlank(path)) {
-            String a_path = Wn.normalizePath(path, se);
-            o = io.check(null, a_path);
+        if (!Strings.isBlank(str)) {
+            o = Wn.checkObj(io, se, str);
             if (meta)
                 o.setRWMeta(true);
         }
@@ -156,11 +155,11 @@ public class AppModule extends AbstractWnModule {
         return tmpl;
     }
 
-    @At("/load/**")
+    @At("/load/?/**")
     @Ok("void")
     @Fail("http:404")
-    public View load(String rsName,
-                     @Param("nm") String appName,
+    public View load(String appName,
+                     String rsName,
                      @Param("mime") String mimeType,
                      @Param("auto_unwrap") boolean auto_unwrap) {
         WnObj oAppHome = this._check_app_home(appName);

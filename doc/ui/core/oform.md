@@ -44,7 +44,8 @@ new OFormUI({
 
         // 按钮的动作是调用一个回调函数
         // 如果想禁止按钮重复被点击，需要手动设置 $btn 的状态，自己在函数里加防守
-        // 给 $btn 添加属性 ing=true 则控件根本不会再次调用函数，除非你主动去掉这个属性
+        // 给 $btn 添加属性 ing=true 则控件根本不会再次调用函数，
+        // 除非你主动去掉这个属性
         handler : {context}F(o)
 
         // 按钮的动作是发送一个请求
@@ -69,13 +70,15 @@ new OFormUI({
         // 有 key 就是普通字段
         key      : "nm"          // 字段对应的对象键
         icon     : HTML          // 字段的图标
-        title    : "i18n:xxx"    // 字段的标题
+        text     : "i18n:xxx"    // 字段的标题
+        tip      : "i18n:xxx",   // 字段的提示说明
+        
         type     : "string"      // 【String】值的类型,下面有详细介绍
         editAs   : "input"       // 【input】 编辑控件,下面有详细介绍
     }, {
         // 如果 items 就是普通组
         icon     : HTML          // 组的图标
-        title    : "i18n:xxx"    // 组不能再有子组了，如果写了，会被忽略
+        text     : "i18n:xxx"    // 组不能再有子组了，如果写了，会被忽略
                                  // 组如果没有标题，就不显示
         type     : "string"      // 组默认的值类型,下面有详细介绍
         editAs   : "input"       // 组默认的编辑控件,下面有详细介绍
@@ -86,7 +89,7 @@ new OFormUI({
         // 可以用 filter 来指明哪些字段可以被包括在组内
         // 默认的，对象所有没有被指明的字段都会被 others 组包括
         // 同时，others 组可以有多个
-        title    : "i18n:others"  // 【i18n:others】
+        text     : "i18n:others"  // 【i18n:others】
         filter   : "!^__.+$"
         // 依然支持下面的属性
         icon   : HTML
@@ -132,6 +135,25 @@ groups : [{
        $el     : jQuery
     }]
 ```
+
+# 自定义控件
+
+如果需要自定义控件，则在 `fld.editAs` 段提供 :
+
+```
+{
+    get : F(fld)          // 从 fld.$val 元素获取编辑后的值
+    set : F(fld, obj)     // 在 fld.$val 元素创建显示的 DOM
+    // 创建了 DOM 后，在 fld.$val 下有哪些事件
+    events : {
+        "click .selector" : F(e){
+            // jQuery 的事件处理函数
+        }
+    }
+}
+```
+
+通常，这样的字段，类型都是 "object"
 
 # 控件方法
 

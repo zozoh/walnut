@@ -7,7 +7,6 @@
 		var jIcon = $ele.find("i.fa");
 		jIcon.removeClass("fa-save")
 			 .addClass("fa-spinner fa-pulse");
-		console.log(jIcon.size())
 		
 		// 获取当前的对象
 		var o = $z.invoke(this, "getCurrentObj");

@@ -1,5 +1,14 @@
 @import (reference) "../ui";
 
+.ui-menu[contextmenu="yes"] {
+    position: absolute; color:@cmenu_f; background: @cmenu_b; border:1px solid @cmenu_l;
+    border-radius: @d0; box-shadow: @d0 @d0 @d2 @cshadow;
+    min-width: @db; text-align: left;
+    .menu-item-more {
+        position: absolute; right: @d2;
+    }
+}
+
 // 默认菜单项
 .menu-item {
      @noselect();
@@ -57,9 +66,9 @@
     
     // 分组菜单项
     .menu-sub{
-        padding:@d2; background: @cmenu_b; border:1px solid @cmenu_l;
-        border-radius: @d0; box-shadow: @d0 @d0 @d2 @cshadow;
-        min-width: @db;
+        color:@cmenu_f; background: @cmenu_b; border:1px solid @cmenu_l;
+        padding:@d2; border-radius: @d0; box-shadow: @d0 @d0 @d2 @cshadow;
+        min-width: @db; text-align: left;
         .menu-item{
             line-height: @d6; height:@d6;
             .menu-item-wrapper{

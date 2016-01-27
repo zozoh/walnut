@@ -1,5 +1,10 @@
 (function($z){
-$z.declare(['zui','ui/menu/menu', 'jquery-plugin/folder/folder'], function(ZUI, MenuUI){
+$z.declare([
+    'zui',
+    'wn/util',
+    'ui/menu/menu', 
+    'jquery-plugin/folder/folder'
+], function(ZUI, Wn, MenuUI){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
@@ -267,7 +272,7 @@ return ZUI.def("ui.obrowser_sky", {
         // 其他项目
         else{
             jq.attr("onm", o.nm);
-            jq.find(".oicon").attr("otp",o.tp||"folder").attr("mime",o.mime);
+            jq.find(".oicon").attr("otp",Wn.objTypeName(o)).attr("mime",o.mime);
             jq.find("b").text(o.nm);
         }
         // 移除最后的展开符

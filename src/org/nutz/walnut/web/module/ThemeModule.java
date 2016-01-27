@@ -9,7 +9,6 @@ import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
-import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
@@ -56,30 +55,42 @@ public class ThemeModule extends AbstractWnModule {
 
         // 如果主题没有，则试图从默认位置查找
         if (null == oCss) {
-            String base = uiHome;
-            // 如果主题类型不是 "ui" 通常会是 "uix"，那么从环境变量里读取
-            if (!"ui".equals(themeCate)) {
-                base = se.vars().getString("MY_" + themeCate.toUpperCase());
+            WnObj oBase;
+            String ph;
+
+            // 内置 UI 直接读取内部的 UI Home
+            if ("ui".equals(themeCate)) {
+                oBase = io.check(null, uiHome);
+                ph = Wn.appendPath(uiName, rsName);
+            }
+            // UIX 从环境变量里读取
+            else if ("uix".equals(themeCate)) {
+                String base = se.vars().getString("MY_UIX_BASE");
                 if (null == base) {
-                    throw Er.create("e.theme.nocate", themeCate);
+                    String uix = se.vars().getString("MY_UIX");
+                    if (null == uix || !uix.startsWith("/gu/"))
+                        throw Er.create("e.theme.uix.nobase", themeCate);
+                    base = uix.substring(3);
                 }
-                // 通常这个路径是个网络访问路径，如果不是绝对路径，则需要拼装上 $rs 的声明
-                if (!base.startsWith("/")) {
-                    base = app_rs + "/" + base;
-                }
-                // 分析一下，如果是 /gu 开头的路径，则从根目录访问
-                if (base.startsWith("/gu")) {
-                    base = base.substring(3);
-                }
-                // 其他开头的路径暂不支持
-                else {
-                    throw HttpStatusView.makeThrow(500, "unsupport path: " + base);
-                }
+                // 解析路径
+                String aph = Wn.normalizeFullPath(base, se);
+                // 取得主目录
+                oBase = io.check(null, aph);
+                ph = Wn.appendPath(uiName, rsName);
+            }
+            // 如果是 app 则试图先找到这个应用
+            else if ("app".equals(themeCate)) {
+                oBase = this._check_app_home(uiName);
+                ph = rsName;
+            }
+            //
+            // 错误的主题种类
+            else {
+                throw Er.create("e.theme.cate", themeCate);
             }
 
             // 读取吧少年
-            String ph = Wn.appendPath(base, uiName, rsName);
-            oCss = io.fetch(null, ph);
+            oCss = io.fetch(oBase, ph);
         }
 
         // 还没有，就抛 404 吧

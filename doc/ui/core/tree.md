@@ -23,7 +23,11 @@ author:zozoh
     // 获取一个对象的唯一标识，这个标识会记录到 DOM 元素的 `oid` 属性
     // 快速索引到这个 DOM 元素，每个 DOM 元素都会记录对应的对象
     // 默认的，会取这个对象的 "id" 字段的值作为 ID
-    idKey : "xxx" | {c}F(obj, index)
+    idKey : "xxx" | {c}F(obj)
+    
+    // 与 idKey 相仿，会记录 DOM 元素的 `onm` 属性。
+    // 不是必须的，没声明就没这个属性
+    nmKey : "xxx" | {c}F(obj)
     
     // 返回树节点的图标 HTML，可以是多个 icon，总之一段 HTML 拉
     icon : {c}F(obj) : HTML
@@ -49,6 +53,15 @@ author:zozoh
     // 第一个<i>是没选中的状态，第二个<i>是选中的状态
     checkbox : '<i class="fa fa-square-o"></i>
                 <i class="fa fa-check-square-o"></i>'
+    
+    // 如果节点被激活，是否主动展开子节点，默认 false
+    openWhenActived : false,
+    
+    // 如果激活的节点文本被点击
+    on_click_actived_text : {c}F(obj, jText, jNode);
+    
+    // 树节点自定义的 contextmenu，函数需要返回 menu 控件 setup 段的内容
+    on_contextmenu : {c}F(obj);
     
     // 所有回调的上下文，默认是树控件本身
     context : null

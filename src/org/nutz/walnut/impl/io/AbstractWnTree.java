@@ -832,6 +832,7 @@ public abstract class AbstractWnTree implements WnTree {
         WnQuery q = Wn.Q.pid(o);
         if (null != name)
             q.setv("nm", name);
+        q.asc("nm");
         return query(q);
     }
 

@@ -2,7 +2,10 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #222;
+  background: #ffffff;
+}
+.opreview-wrapper[mode="text"] pre {
+  padding: 20px;
 }
 .opreview-wrapper[mode="pic"] {
   text-align: center;
@@ -14,7 +17,7 @@
 }
 .opreview-wrapper[mode="others"] {
   font-size: 32px;
-  color: #aaaaaa;
+  color: #333333;
   padding: 96px;
   text-align: center;
 }

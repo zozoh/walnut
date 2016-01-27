@@ -22,6 +22,7 @@ return ZUI.def("ui.pop.browser", {
     css  : "theme/ui/pop/pop.css",
     //...............................................................
     init : function(options){
+        var UIPOP = this;
         var mask_options = _.extend({
             closer: true,
             escape: true,
@@ -86,6 +87,7 @@ return ZUI.def("ui.pop.browser", {
         // 渲染
         new MaskUI(mask_options).render(function(){
             this.subUI("main/body").setData(options.base);
+            UIPOP.destroy();
         });
     }
     //...............................................................
