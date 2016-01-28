@@ -37,17 +37,27 @@ public class ThemeModule extends AbstractWnModule {
     @Inject("java:$conf.get('app-rs','/gu/rs')")
     private String app_rs;
 
-    @At("/r/?/?/**")
+    @At("/r/?/**")
     @Ok("void")
     @Fail("http:404")
-    public View getUiTheme(String themeCate, String uiName, String rsName) {
+    public View getUiTheme(String themeCate, String rsName) {
         WnObj oCss = null;
+
+        // 分析
+        String uiName = null;
+        int pos = rsName.indexOf('/');
+        if (pos > 0) {
+            uiName = rsName.substring(0, pos);
+            rsName = rsName.substring(pos + 1);
+        }
 
         // 看看会话中当前的 Theme 是啥
         WnSession se = Wn.WC().checkSE();
 
         // 如果声明了主题，则试图从主题目录里查找
         String theme = se.vars().getString("MY_THEME");
+
+        // 寻找各个 UI 的主题
         if (!Strings.isBlank(theme)) {
             String aph = Wn.appendPath(themeHome, theme, uiName, rsName);
             oCss = io.fetch(null, aph);

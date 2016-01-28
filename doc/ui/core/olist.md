@@ -20,7 +20,7 @@ new UIOList({
         [..]
     - 异步获取数据: 函数
       那么你的函数必须接收一个回调，当你处理完数据，调用这个回调，把你获得数组传回来
-        function(callback){
+        function(params, callback){
             // TODO 不管怎样，获得一个对象数组
             // 假设你的对象数组是 objList，那么你必须这样调用回调
             callback(objList);

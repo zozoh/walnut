@@ -112,7 +112,21 @@ $HOME/.ui/
 
 ```
 {
-    update : F(o)     // 更新要编辑的数据对象
+    // 更新要编辑的数据对象
+    update : F(o) 
+    
+    // ................................. 
+    // 如果支持 save_text 的话，需要支持下面的操作
+
+    // 获取正在编辑的对象
+    // 通常，这个对象是你的 update 函数记录下来的
+    getCurrentEditObj : F():WnObj
+    
+    // 获取正在编辑的文本信息
+    getCurrentTextContent : F():string
+    
+    // 如果想支持 save_json 的话，还需要提供:  
+    getCurrentJsonContent : F():{..}
 }
 ```
 

@@ -41,7 +41,8 @@ return ZUI.def("ui.form_main", {
             x:100, y:80, 
             name:'I am zozoh', 
             sex:"m",
-            live:true
+            live:true,
+            myphoto : {fid:'4thoboi83khmdqmqqvf5arogki'}
         };
     },
     //...............................................................
@@ -148,6 +149,47 @@ return ZUI.def("ui.form_main", {
                 }]
             }
         },{
+            key   : "myphoto",
+            text  : "我的图片",
+            tip   : "随便选个图片",
+            type  : "object",
+            uiType : "ui/picker/opicker",
+            uiConf : {
+                clearable : false,
+                parseData : function(obj){
+                    return Wn.getById(obj.fid);
+                },
+                formatData : function(o){
+                    return o ? {fid:o.id} : null;
+                }
+            }
+        },{
+            key   : "myfiles",
+            text  : "我的多个文件",
+            tip   : "随便选个一些文件和文件夹咯",
+            type  : "object",
+            dft   : [{fid:'t6c2m2r5a0htep2rto785n588f'},{fid:'3d7gf4mdtghbqqrknp2snkpo3a'}],
+            uiType : "ui/picker/opicker",
+            uiConf : {
+                setup : {
+                    checkable : true
+                },
+                parseData : function(objs){
+                    var re = [];
+                    objs.forEach(function(o, index){
+                        re.push(Wn.getById(o.fid));
+                    });
+                    return re;
+                },
+                formatData : function(os){
+                    var re = [];
+                    os.forEach(function(o, index){
+                        re.push({fid:o.id});
+                    });
+                    return re;
+                }
+            }
+        },{            
             key   : "comment",
             text  : "补充说明",
             tip   : "随便写点什么咯",

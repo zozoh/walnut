@@ -20,15 +20,48 @@ return ZUI.def("ui.obrowser", {
     css  : ["theme/ui/obrowser/obrowser.css","theme/ui/support/oicons.css"],
     i18n : "ui/obrowser/i18n/{{lang}}.js",
     //..............................................
+    __eval_canOpen : function(options){
+        var co = options.canOpen;
+        // 默认只要是目录就能打开
+        if(!co) {
+            options.canOpen = function(o){
+                return 'DIR' == o.race;
+            }
+        }
+        // 字符串
+        else if(_.isString(co)){
+            var regex = new RegExp(co);
+            options.canOpen = function(o){
+                return 'DIR' == o.race && regex.test(Wn.objTypeName(o));
+            };
+        }
+        // 正则表达式
+        else if(_.isRegExp(co)){
+            options.canOpen = function(o){
+                return 'DIR' == o.race && co.test(Wn.objTypeName(o));
+            };
+        }
+        // 本身就是函数
+        else if(_.isFunction(co)){
+            // 嗯，那就啥也不做了
+        }
+        // 错误的定义
+        else{
+            alert("invalid 'canOpen' defination: " + co);
+            throw "invalid 'canOpen' defination: " + co;
+        }
+    },
+    //..............................................
     init : function(options){
         var UI = this;
 
         $z.setUndefined(options, "sidebar", true);
         $z.setUndefined(options, "checkable", true);
         $z.setUndefined(options, "editable", false);
-        $z.setUndefined(options, "canOpen", function(o){
-            return 'DIR' == o.race;
-        });
+        // 控制打开 
+        UI.__eval_canOpen(options);
+        
+        // 默认菜单条
         $z.setUndefined(options, "appSetup", {
             actions : ["@::viewmode"]
         });
@@ -105,22 +138,24 @@ return ZUI.def("ui.obrowser", {
     },
     //..............................................
     changeCurrentObj : function(o, theEditor){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
 
         // 是否可以打开，不能打开的话，打开父目录即可
-        if(!UI.options.canOpen(o)){
+        // 如果是需要打开主目录，则一定可以
+        if(!Wn.isHome(o) && !opt.canOpen(o)){
             var oP = UI.getById(o.pid);
             var oC = UI.getCurrentObj();
             // 只有不同才必要切换
-            if(oP.id != oC.id){
+            if(!oC || oP.id != oC.id){
                 UI.changeCurrentObj(oP);
-                console.log("do change", oP.nm, oC.nm)
+                // console.log("do change", oP.nm, oC.nm)
             }
             return;
         }
 
         // 更新历史记录，从历史记录可以恢复编辑器
-        if(UI.options.history){
+        if(opt.history){
             var oldEditor = UI._update_history(o, theEditor);
             theEditor = theEditor || oldEditor;
         }
@@ -130,26 +165,27 @@ return ZUI.def("ui.obrowser", {
         UI.setCurrentObjId(o.id);
 
         // 动态读取对象对应
-        if("auto" == UI.options.appSetup){
+        if("auto" == opt.appSetup){
+            var UI = this;
             Wn.loadAppSetup(o, {
                 context : UI,
                 editor  : theEditor
             }, function(o, asetup){
                 UI.__call_subUI_update(o, asetup);
-            });    
+            });  
         }
         // 采用默认的策略，只有普通文件夹才能打开
         // 否则相当于打开对象的父目录，同时菜单项只有有限的几个
         else{
             var asetup;
-            if(_.isFunction(UI.options.appSetup)){
-                asetup = UI.options.appSetup.call(UI, o);
+            if(_.isFunction(opt.appSetup)){
+                asetup = opt.appSetup.call(UI, o);
             }
-            else if(_.isObject(UI.options.appSetup)){
-                asetup = $z.clone(UI.options.appSetup);
+            else if(_.isObject(opt.appSetup)){
+                asetup = $z.clone(opt.appSetup);
             }
             else{
-                throw "Unsupport appSetup: " + UI.options.appSetup;
+                throw "Unsupport appSetup: " + opt.appSetup;
             }
             Wn.extendAppSetup(asetup);
             // 调用个个子 UI 的更新
@@ -158,22 +194,33 @@ return ZUI.def("ui.obrowser", {
         
     },
     //..............................................
+    updateMenuByObj : function(o, theEditor){
+        var UI = this;
+        Wn.loadAppSetup(o, {
+            context : UI,
+            editor  : theEditor
+        }, function(o, asetup){
+            UI.subUI("shelf/sky").updateMenu(UI, o, asetup);
+        });  
+    },
+    //..............................................
     __call_subUI_update : function(o, asetup){
         var UI = this;
-        try{
-            var uiChute = UI.subUI("shelf/chute");
-            if(uiChute)
-                uiChute.update(UI, o, asetup);
-            UI.subUI("shelf/main").update(UI, o, asetup);
-            UI.subUI("shelf/sky").update(UI, o, asetup);
-            // 持久记录最后一次位置
-            if(UI.options.lastObjId){
-                UI.local(UI.options.lastObjId, o.id);
-            }
+        //try{
+        var uiChute = UI.subUI("shelf/chute");
+        if(uiChute)
+            uiChute.update(UI, o, asetup);
+        UI.subUI("shelf/main").update(UI, o, asetup);
+        UI.subUI("shelf/sky").update(UI, o, asetup);
+        // 持久记录最后一次位置
+        if(UI.options.lastObjId){
+            UI.local(UI.options.lastObjId, o.id);
         }
-        catch(eKey){
-            alert(UI.msg(eKey));
-        }
+        // }
+        // catch(eKey){
+        //     alert(UI.msg(eKey));
+        //     throw eKey;
+        // }
     },
     //..............................................
     extend_actions : function(actions, forceTop, isInEditor){
@@ -329,11 +376,23 @@ return ZUI.def("ui.obrowser", {
         }
     },
     //..............................................
+    getCurrentEditObj : function(){
+        var theUI = this.subUI("shelf/main/view")
+        if(!theUI)
+            return undefined;
+        return $z.invoke(theUI, "getCurrentEditObj");
+    },
     getCurrentTextContent : function(){
         var theUI = this.subUI("shelf/main/view")
         if(!theUI)
             return undefined;
         return $z.invoke(theUI, "getCurrentTextContent");
+    },
+    getCurrentJsonContent : function(){
+        var theUI = this.subUI("shelf/main/view")
+        if(!theUI)
+            return undefined;
+        return $z.invoke(theUI, "getCurrentJsonContent");
     },
     //..............................................
     getCurrentObjId : function(){

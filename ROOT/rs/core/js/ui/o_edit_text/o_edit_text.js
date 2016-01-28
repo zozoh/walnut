@@ -16,9 +16,14 @@ return ZUI.def("ui.o_edit_text", {
     //...............................................................
     update : function(o) {
         var UI = this;
+        UI.$el.data("@OBJ", o);
         Wn.read(o, function(content){
             UI.arena.find("textarea").val(content);
         });
+    },
+    //...............................................................
+    getCurrentEditObj : function(){
+        return this.$el.data("@OBJ");
     },
     //...............................................................
     getCurrentTextContent : function(){

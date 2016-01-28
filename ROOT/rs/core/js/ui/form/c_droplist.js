@@ -21,6 +21,7 @@ var html = function(){/*
         <div class="com-box-show">&nbsp;</div>
         <div class="com-box-drop"><i class="fa fa-caret-down"></i></div>
     </div>
+    <div class="com-mask"></div>
     <div class="com-drop">
         <ul></ul>
         <div class="com-multi-apply">{{ok}}</div>

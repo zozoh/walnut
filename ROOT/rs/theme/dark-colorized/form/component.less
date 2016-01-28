@@ -7,7 +7,7 @@
 .com-input input {
     padding:@d2; width:100%; 
     border:1px solid @cborder0;
-    border-radius: @d1;
+    border-radius: @d1; color:#444; background: #EEE;
 }
 //----------------------------------------------------------------
 @cdlH  : @f5;
@@ -144,13 +144,13 @@
     padding:@d0;
     ul {
         list-style: none; padding:1px 1px 1px 0; margin:0;
-        background: @cborder1; display: inline-block;
+        background: #DDD; display: inline-block;
     }
     ul:after{@clr();}
     li {
-        float:left; padding:@d1; background: #CCC; color:#888;
+        float:left; padding:@d2; background: #CCC; color:#888;
         margin-left:1px; min-width: @d7; text-align: center;
-        cursor: pointer;
+        cursor: pointer; font-size: @f0;
     }
     li.checked {
         color:#FFF; background: #080;

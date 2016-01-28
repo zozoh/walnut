@@ -18,17 +18,17 @@
 .ui-mask-closer {
     position: absolute;
     font-size:@d5; 
-    color:#CCC; text-shadow:0 0 10px #FFF;
-    border-radius: @d7; background: @cb0;
+    color:#CCC; background: #000; border:3px solid #888;
+    border-radius: @d7; 
     display: block;
-    width:@d7; height:@d7; line-height: @d7 - @d1;
-    border:@d0 solid #888;
+    width:@d7; height:@d7; line-height: @d7 - 3px * 2;
     text-align: center;
+    cursor:pointer; 
 }
-.ui-body .ui-mask-closer {cursor:pointer; }
 
 .ui-mask-closer:hover {
-    color:#FFF; border-color:#FFF; text-shadow:0 0 4px #FFF;
+    color:#FFF; border-color:#FFF;
+    box-shadow:0 0 4px #FFF;
 }
 
 .ui-mask-main {

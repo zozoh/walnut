@@ -348,7 +348,11 @@
         //   key : 键值，支持 "."
         //   dft : 如果木找到，返回的东东
         getValue : function(obj, key, dft){
-            var ks = _.isArray(key)? key : key.split(".");
+            var ks = _.isArray(key)
+                        ? key
+                        : _.isString(key) 
+                            ? key.split(".")
+                            : [""+key];
             var o = obj;
             if(ks.length>1){
                 var lastIndex = ks.length - 1;
@@ -371,7 +375,11 @@
         //   key : 键值，支持 "."
         //   val : 值
         setValue : function(obj, key, val){         
-            var ks = _.isArray(key)? key : key.split(".");
+            var ks = _.isArray(key)
+                        ? key
+                        : _.isString(key) 
+                            ? key.split(".")
+                            : [""+key];
             var o = obj;
             if(ks.length>1){
                 var lastIndex = ks.length - 1;

@@ -298,23 +298,25 @@ var Wn = {
     },
     //..............................................
     /* 根据一个对象获取其应用配置信息
-     options - {
+     opt - {
         forceTop: true,   // 是否为每个菜单项强制加上 "@"
-        editor  : "xxx",  // 采用指定的编辑器 
+        editor  : "xxx",  // 【选】采用指定的编辑器 
         context : this    // 回调的上下文
+        inEditor: false   // 是否指定在编辑器，如果是未定义
+                          // 则 asetup.editors 数组有内容就表示在编辑器内
      }
     */
-    loadAppSetup : function(o, options, callback){
+    loadAppSetup : function(o, opt, callback){
         // 格式化选项
-        if(_.isFunction(options)){
-            callback = options;
-            options = {forceTop : false};
+        if(_.isFunction(opt)){
+            callback = opt;
+            opt = {forceTop : false};
         }
-        else if(_.isBoolean(options)){
-            options = {forceTop : options};
+        else if(_.isBoolean(opt)){
+            opt = {forceTop : opt};
         }
-        else if(!options){
-            options = {forceTop : false};
+        else if(!opt){
+            opt = {forceTop : false};
         }
         // 开始从服务器获取数据
         var Wn = this;
@@ -322,25 +324,26 @@ var Wn = {
             var asetup = $z.fromJson(json);
             
             // 强制使用指定的编辑器
-            if(options.editor){
-                asetup.editors = [options.editor];
+            if(opt.editor){
+                asetup.editors = [opt.editor];
             }
 
             // 展开
-            Wn.extendAppSetup(asetup, options.forceTop);
+            Wn.extendAppSetup(asetup, opt.forceTop, opt.inEditor);
 
             // 调用回调
             if(_.isFunction(callback)){
-                callback.call(options.context||Wn, o, asetup);
+                callback.call(opt.context || Wn, o, asetup);
             }
         });
     },
-    extendAppSetup : function(asetup, forceTop){
+    extendAppSetup : function(asetup, forceTop, isInEditor){
         var Wn = this;
         asetup.editors = asetup.editors || [];
         asetup.actions = asetup.actions || [];
-        var isInEditor = asetup.editors.length > 0;
-
+        isInEditor = _.isUndefined(isInEditor)
+                            ? asetup.editors.length > 0
+                            : isInEditor;
         // 首先读取编辑器
         if(isInEditor){
             // 得到默认编辑器
@@ -456,7 +459,7 @@ var Wn = {
     //  - "FILE"       : 仅文件
     //  - {..}         : 一个搜索条件，比如 {tp:'jpeg', len:0}
     //  - F(o):boolean : 高级过滤方法 
-    // callback 可以有，也可以木有，木有的话就同步读，否则异步读
+    // callback : F(os) 可以有，也可以木有，木有的话就同步读，否则异步读
     getChildren : function(o, filter, callback){
         var Wn = this;
 
@@ -472,6 +475,11 @@ var Wn = {
             if($z.isPlainObj(filter)){
                 filter = _.matcher(filter);
             }
+            // 字符串的话，不是 DIR|FILE 统统认为是正则表达式
+            else if(_.isString(filter) && !/^(DIR|FILE)$/.test(filter)){
+                filter = new RegExp(filter);
+            }
+
             // 循环找一下
             for(var i=0;i<o.children.length;i++){
                 var childId = o.children[i];
@@ -479,6 +487,10 @@ var Wn = {
 
                 // 按照 race 过滤
                 if(_.isString(filter) && filter != child.race){
+                    continue;
+                }
+                // 正则表达式表示类型过滤类型
+                else if(_.isRegExp(filter) && !filter.test(Wn.objTypeName(child))){
                     continue;
                 }
                 // 自定义过滤
@@ -826,6 +838,14 @@ var Wn = {
         var o2  = $z.fromJson(re);
         Wn.saveToCache(o2);
         return o2;
+    },
+    //..............................................
+    getHome : function(){
+        return this.fetch("~");
+    },
+    //..............................................
+    isHome : function(o){
+        return o.id == this.getHome().id;
     },
     //..............................................
     // 根据 ID 列表批量获取对象的元数据

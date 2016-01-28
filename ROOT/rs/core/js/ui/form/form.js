@@ -53,7 +53,9 @@ return ZUI.def("ui.form", {
             var theUI = new TheUI(_.extend({}, fld.uiConf, {
                 gasketName : fld.key,
                 $pel       : jFui
-            })).render();
+            })).render(function(){
+                UI.defer_report(fld.uiType);
+            });
             // 检查 UI 控件的合法性
             if(!_.isFunction(theUI.setData) || !_.isFunction(theUI.getData)){
                 alert("field '" + fld.key + "' has invalid UIComponent : " + fld.uiType + " : without get/setData()");
@@ -200,7 +202,7 @@ return ZUI.def("ui.form", {
                 }
                 // 采用默认的
                 else{
-                    fld.uiType = "ui/form/c_label";
+                    fld.uiType = "ui/form/c_input";
                 }
                 // 确保 uiConf
                 fld.uiConf = fld.uiConf || {};
@@ -231,16 +233,13 @@ return ZUI.def("ui.form", {
 
         // 首先加载所有的子控件
         seajs.use(UI.uiTypes, function(){
-            // 循环绘制组
+            // 循环绘制组，在字段的绘制里会 defer_report
             for(var i=0;i<UI.groups.length;i++){
                 UI._draw_group(UI.groups[i]);
             }
-
-            // 汇报完成
-            UI.defer_report(0, "components");
         });
 
-        return ["components"];
+        return UI.uiTypes;
     },
     //...............................................................
     resize : function(){
@@ -343,7 +342,8 @@ return ZUI.def("ui.form", {
                 alert("Unsupport fld.type " + fld.type);
                 throw "Unsupport fld.type " + fld.type;
             }
-            var v = ftype.parse(fld, o[fld.key])
+            var v = $z.getValue(o, fld.key);
+            v = ftype.parse(fld, v);
             fui.setData(v);
         });
     },

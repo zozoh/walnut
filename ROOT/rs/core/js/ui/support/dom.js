@@ -18,7 +18,7 @@ return ZUI.def("ui.dom", {
             }
             // 加载子 UI
             seajs.use(uiTypes, function(){
-                for(var index in uiTypes){
+                for(var index=0; index<uiTypes.length; index++){
                     var SubUI = arguments[index];
                     var conf = opt.setup[index];
                     var uiConf = _.extend({}, conf.uiConf, {

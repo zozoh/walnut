@@ -220,7 +220,7 @@ return ZUI.def("ui.osearch", {
 
         // 加载控件
         seajs.use(UI.setup.uiTypes, function(){
-            for(var index in arguments){
+            for(var index=0; index<arguments.length; index++){
                 var SubUI = arguments[index];
                 var conf = UI.setup.uiConfs[index];
                 var jq = UI.setup.jqs[index];

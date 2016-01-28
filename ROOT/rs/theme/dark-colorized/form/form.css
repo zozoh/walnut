@@ -1,0 +1,99 @@
+.form-title {
+  padding: 12px;
+  text-align: center;
+  color: #cccccc;
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+.form-body {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  position: relative;
+}
+.form-group,
+.form-fld {
+  display: inline-block;
+  vertical-align: top;
+}
+.form-group {
+  padding-right: 1px;
+}
+.form-group-hide .fg-title {
+  border-color: #ff8800;
+  color: #ff8800;
+  background: rgba(255, 255, 255, 0.2);
+}
+.form-group-hide .fg-title:after {
+  content: "...";
+  font-weight: bolder;
+  position: absolute;
+  right: 8px;
+}
+.form-group-hide .fg-fields {
+  display: none;
+}
+.fg-title {
+  padding: 6px;
+  margin: 6px 0 0 0;
+  font-size: 16px;
+  color: #aaaaaa;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0);
+  position: relative;
+}
+.fg-title .fg-tt-icon {
+  margin: 0 6px;
+}
+.fg-title .fg-tt-text {
+  margin: 0 6px;
+}
+.form-fld {
+  border-top: 1px dashed rgba(255, 255, 255, 0.15);
+  padding: 4px;
+}
+.form-fld[first-row] {
+  border: 0;
+}
+.ff-txt,
+.ff-val {
+  display: inline-block;
+  vertical-align: top;
+}
+.ff-txt {
+  text-align: right;
+  padding: 12px 12px 12px 48px;
+  color: #aaaaaa;
+}
+.ff-txt .fft-icon {
+  margin-right: 6px;
+}
+.ff-txt[required] {
+  color: #cccccc;
+  font-weight: bolder;
+}
+.ff-txt[required]:before {
+  display: inline;
+  content: "*";
+  font-weight: bolder;
+  position: absolute;
+  margin-left: -8px;
+  color: #F00;
+}
+.ff-val {
+  padding: 6px;
+}
+.ffv-ui {
+  display: inline-block;
+  vertical-align: middle;
+  padding-right: 6px;
+}
+.ffv-ui[fill="all"] {
+  width: 100%;
+}
+.ffv-tip {
+  display: inline-block;
+  color: #00aa00;
+  padding: 4px;
+  font-size: 8px;
+}

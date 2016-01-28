@@ -208,6 +208,11 @@ return ZUI.def("ui.obrowser_sky", {
         UI.resize();
     },
     //..............................................
+    updateMenu : function(UIBrowser, o, asetup){
+        this._draw_menu(UIBrowser, o, asetup);
+        this.resize();
+    },
+    //..............................................
     _draw_menu : function(UIBrowser, o, asetup){
         var UI = this;
         var jMenu = UI.arena.find(".obrowser-menu");

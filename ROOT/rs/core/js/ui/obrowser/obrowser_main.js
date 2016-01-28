@@ -60,7 +60,9 @@ return ZUI.def("ui.obrowser_main", {
         // 没有编辑器，那么 DIR 还能处理
         else if('DIR' == o.race){
             // 去掉 outline
-            UIBrowser.subUI("shelf/chute").removeOutline();
+            var uiChute = UIBrowser.subUI("shelf/chute");
+            if(uiChute)
+                uiChute.removeOutline();
             // 得到显示模式
             var vmd = UIBrowser.getViewMode();
             uiType = "ui/obrowser/vmd_" + vmd;
@@ -92,6 +94,10 @@ return ZUI.def("ui.obrowser_main", {
                 });
             });
         }
+    },
+    //..............................................
+    updateMenuByObj : function(o, theEditor){
+        this.parent.parent.updateMenuByObj(o, theEditor);
     },
     //..............................................
     getData : function(arg){

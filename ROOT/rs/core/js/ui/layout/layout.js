@@ -50,7 +50,7 @@ module.exports = ZUI.def("ui.layout", {
         seajs.use(uiTypes, function(){
             // 清空扩展点
             UI.gasket = {};
-            for(var index in uiTypes){
+            for(var index=0; index<uiTypes.length; index++){
                 var SubUI = arguments[index];
                 var conf = setups[index];
                 var jq = jqs[index];

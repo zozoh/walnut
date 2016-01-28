@@ -30,6 +30,8 @@ author:zozoh
     //  - undefined    : 全部显示
     //  - "DIR"        : 仅目录
     //  - "FILE"       : 仅文件
+    //  - /^(folder|..)$/ : 正则表达式表示特殊的文件类型
+    //  - "folder|gif" : 其他字符串与正则表达式等效
     //  - {..}         : 一个搜索条件，比如 {tp:'jpeg', len:0}
     //  - F(o):boolean : 高级过滤方法 
     // 默认不过滤 
@@ -50,7 +52,13 @@ author:zozoh
     
     // 判断一个对象是否可以被打开，默认，只有普通文件夹才能打开
     // 如果不能打开，则试图打开这个对象父目录
-    canOpen : {UIBrowser}F(o):Boolean,
+    // 首先，非 'DIR' 是一定不会被打开的。 所有的 'DIR' 默认是可以打开的
+    // 除非你声明了这个配置项:
+    //  - undefined    : 默认全部允许 
+    //  - /^(folder|..)$/ : 正则表达式表示特殊的文件类型
+    //  - "folder"     : 其他字符串与正则表达式等效
+    //  - F(o):boolean : 高级过滤方法 
+    canOpen : null,
     
     // 是否允许多选，默认 true
     checkable : Boolean
@@ -105,6 +113,14 @@ UI.setData("~/abc.txt");
 
 * 注意，因为安全的因素，浏览器控件将拒绝显示自己主目录以外的路径
 * 即，给它的路径必须是 "~" 开头的，如果是以 "/" 开头的路径如果不能匹配 "/home/xxx" 将拒绝显示
+
+## updateMenuByObj : 根据对象更新菜单
+
+```
+UI.updateMenuByObj(o);
+```
+
+* 自动根据对象的类型更新菜单
 
 ## getViewMode : 获取当前浏览器的显示模式
 
@@ -197,10 +213,16 @@ var o = UI.getActived();
 var olist = UI.getChecked();
 ```
 
-## getCurrentObj : 获取当前的对象
+## getCurrentObj : 获取当前正在显示的对象
 
 ```
 var o = UI.getCurrentObj();
+```
+
+## getCurrentEditObj : 获取正在编辑的对象
+
+```
+var o = UI.getCurrentEditObj();
 ```
 
 ## getPath : 获取当前路径

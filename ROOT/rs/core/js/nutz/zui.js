@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     //console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
     // 采用统一的 ZUI.css
     var dt = require("ui/dateformat.js");
-    seajs.use(["ui/zui.css", "ui/support/data_editing.css"]);
+    seajs.use(["theme/ui/zui.css", "ui/support/data_editing.css"]);
 
     // 提供数据类型的支持
     var DTYPES = require('./data_types');
@@ -414,10 +414,21 @@ define(function (require, exports, module) {
             var UI = this;
             if(!UI._loaded_uiTypes)
                 UI._loaded_uiTypes = [];
+
+            // 如果仅仅给了个 uiType，那么自动寻找 i
+            if(_.isString(i)){
+                uiType = i;
+                i = UI._defer_uiTypes.indexOf(uiType);
+                if(i<0){
+                    alert("defer uiType '" + uiType + "' without define!");
+                    throw "defer uiType '" + uiType + "' without define!";
+                }
+            }
+
             UI._loaded_uiTypes[i] = uiType;
-            UI._check_defer_done("" + i + uiType);
+            UI._check_defer_done();
         },
-        _check_defer_done : function(msg){
+        _check_defer_done : function(){
             var UI = this;
             if(UI._loaded_uiTypes && UI._defer_uiTypes && UI._defer_do_after_redraw){
                 if(UI._loaded_uiTypes.length == UI._defer_uiTypes.length){
@@ -428,10 +439,12 @@ define(function (require, exports, module) {
                     }
                     // 延迟调用
                     window.setTimeout(function(){
-                        UI._defer_do_after_redraw.call(UI);
-                        delete UI._defer_uiTypes;
-                        delete UI._loaded_uiTypes;
-                        delete UI._defer_do_after_redraw;
+                        if(UI._loaded_uiTypes && UI._defer_uiTypes && UI._defer_do_after_redraw){
+                             UI._defer_do_after_redraw.call(UI);
+                             delete UI._defer_uiTypes;
+                            delete UI._loaded_uiTypes;
+                            delete UI._defer_do_after_redraw;
+                        }
                     }, 0);
                 }
             }

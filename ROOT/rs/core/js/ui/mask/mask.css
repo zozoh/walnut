@@ -24,23 +24,20 @@
   position: absolute;
   font-size: 16px;
   color: #CCC;
-  text-shadow: 0 0 10px #FFF;
+  background: #000;
+  border: 3px solid #888;
   border-radius: 32px;
-  background: #ffffff;
   display: block;
   width: 32px;
   height: 32px;
-  line-height: 28px;
-  border: 2px solid #888888;
+  line-height: 26px;
   text-align: center;
-}
-.ui-body .ui-mask-closer {
   cursor: pointer;
 }
 .ui-mask-closer:hover {
   color: #FFF;
   border-color: #FFF;
-  text-shadow: 0 0 4px #FFF;
+  box-shadow: 0 0 4px #FFF;
 }
 .ui-mask-main {
   position: absolute;

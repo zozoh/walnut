@@ -86,7 +86,7 @@ return ZUI.def("ui.shelf", {
         });
         // 记录回调，准备延迟加载
         seajs.use(uiTypes, function(){
-            for(var i in uiTypes){
+            for(var i=0; i<uiTypes.length; i++){
                 var SubUI = arguments[i];
                 var conf = confs[i];
                 try{
