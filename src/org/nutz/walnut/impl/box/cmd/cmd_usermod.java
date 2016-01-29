@@ -26,8 +26,8 @@ public class cmd_usermod extends JvmExecutor {
 			WnObj grpDir = sys.io.check(null, "/sys/grp");
 			List<String> prevGrps = new ArrayList<>();
 			sys.io.each(Wn.Q.pid(grpDir.id()), (index, child, length) -> {
-				System.out.println(child);
-				if (sys.io.exists(child, "people/" + usr.id()))
+				WnObj p = sys.io.fetch(child, "people/"+usr.id());
+				if (p != null && p.getInt("role", 0) == 1)
 					prevGrps.add(child.name());
 			});
 			// 确保用户不会不会被踢出自己的组
@@ -43,6 +43,7 @@ public class cmd_usermod extends JvmExecutor {
 					continue;
 				}
 				sys.exec("touch /sys/grp/" + group + "/people/" + usr.id());
+				sys.exec("obj -u 'role:1' /sys/grp/" + group + "/people/" + usr.id());
 				sys.out.println("add to group      : " + group);
 			}
 			// 再看看删除啥
