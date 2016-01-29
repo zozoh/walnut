@@ -14,7 +14,7 @@ public class cmd_find extends JvmExecutor {
     public void exec(final WnSystem sys, String[] args) {
         WnObj p = this.getCurrentObj(sys);
 
-        String ph = args[0];
+        String ph = args.length > 0 ? args[0] : ".";
 
         WnObj o;
         if (".".equals(ph)) {
