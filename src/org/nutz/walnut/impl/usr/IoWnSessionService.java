@@ -78,8 +78,8 @@ public class IoWnSessionService implements WnSessionService {
         NutMap envs = new NutMap();
         for (Map.Entry<String, Object> en : u.entrySet()) {
             String key = en.getKey();
-            // 不显示密码
-            if ("passwd".equals(key)) {
+            // 不显示密码和盐
+            if ("passwd".equals(key) || "salt".equals(key)) {
                 continue;
             }
             // HOME 特殊处理
