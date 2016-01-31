@@ -335,18 +335,33 @@ define(function (require, exports, module) {
                         UI._check_defer_done("redraw");
                     }
 
-                    // 最后调用自定义的 UI 监听
+                    // 调用自定义的 dom 监听
+                    if(UI.options.dom_events) {
+                        for(var key in UI.options.dom_events){
+                            var m = /^([^ ]+)[ ]+(.+)$/.exec(key);
+                            if(null==m){
+                                throw "wrong dom_events key: " + key;
+                            }
+                            var handler = UI.options.dom_events[key];
+                            if(!_.isFunction(handler)){
+                                handler = UI[handler];
+                            }
+                            UI.$el.on(m[1], m[2], handler);
+                        }
+                    }
+
+                    // 调用自定义的 UI 监听
                     if(UI.options.do_ui_listen){
                         for(var key in UI.options.do_ui_listen){
                             var m = /^([^ ]+)[ ]+(.+)$/.exec(key);
                             if(null==m){
                                 throw "wrong do_ui_listen key: " + key;
                             }
-                            var handle = UI.options.do_ui_listen[key];
-                            if(!_.isFunction(handle)){
-                                handle = UI[handle];
+                            var handler = UI.options.do_ui_listen[key];
+                            if(!_.isFunction(handler)){
+                                handler = UI[handler];
                             }
-                            UI.listenUI(m[1], m[2], handle);
+                            UI.listenUI(m[1], m[2], handler);
                         }
                     }
                     //console.log("do_render:", UI.uiName, UI._defer_uiTypes)
@@ -682,6 +697,39 @@ define(function (require, exports, module) {
                 return null;
             return _.isFunction(F) ? F : _.template(F);
         },
+        //............................................
+        ui_parse_data : function(obj, callback) {
+            var UI   = this;
+            var opt  = UI.options;
+            var context = opt.context || UI;
+            // 同步
+            if(_.isFunction(opt.parseData)){
+                var o = opt.parseData.call(context, obj);
+                callback.call(UI, o);
+            }
+            // 异步 
+            else if(_.isFunction(opt.asyncParseData)){
+                opt.asyncParseData.call(context, obj, function(o){
+                    callback.call(UI, o);
+                });
+            }
+            // 直接使用
+            else{
+                callback.call(UI, obj);
+            }
+        },
+        //............................................
+        ui_format_data : function(callback){
+            var UI  = this;
+            var opt = UI.options;
+            var obj = callback.call(UI, opt);
+            if(_.isFunction(opt.formatData)){
+                var context = opt.context || UI;
+                return opt.formatData.call(context, obj);
+            }
+            return obj;
+        },
+        //............................................
         // 监听本 UI 的模块事件
         listenModel: function (event, handler) {
             this._listen_to(this.model, event, handler);

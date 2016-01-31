@@ -1,0 +1,186 @@
+.srh-sky {
+  position: relative;
+  min-height: 30px;
+}
+.srh-sky:after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+}
+.srh-list {
+  min-height: 300px;
+  padding-right: 1px;
+}
+.srh-checkbox,
+.srh-actions {
+  display: inline-block;
+  vertical-align: middle;
+}
+/*.............................................. check*/
+.srh-check-opts {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.srh-check-opts > li {
+  float: left;
+  padding: 0 4px;
+  border-right: 1px solid #AAA;
+  font-size: 12px;
+  color: #08F;
+  cursor: pointer;
+}
+.srh-check-opts > li:hover {
+  color: #F80;
+}
+.srh-check-opts > li:last-child {
+  border-right: 0;
+}
+/*.............................................. mask*/
+.srh-mask {
+  width: 100%;
+  height: 100%;
+  padding-bottom: 48px;
+  position: relative;
+  background: #ffffff;
+}
+.srh-mask .srh-qform {
+  width: 100%;
+  height: 100%;
+}
+.srh-mask .srh-qbtns {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  background: #eeeeee;
+  border-top: 1px solid #cccccc;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 48px;
+  text-align: center;
+  padding-top: 6px;
+}
+.srh-mask .srh-qbtns b {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  margin: 0 2px;
+  padding: 8px 32px;
+  border: 1px solid #bbbbbb;
+  background: #d0d0d0;
+  color: #000000;
+  border-radius: 4px;
+  padding: 8px 6px;
+}
+.srh-mask .srh-qbtns b:hover {
+  color: #ffffff;
+  background: #0044bb;
+}
+.srh-mask .srh-qbtns .ing {
+  margin-right: 4px;
+  visibility: hidden;
+  display: inline-block;
+  width: 12px;
+  margin-left: -12px;
+}
+.srh-mask .srh-qbtns b[ui-ing] .ing {
+  visibility: visible;
+}
+.srh-mask .srh-qbtns .srh-qform-ok {
+  min-width: 128px;
+}
+.srh-mask .srh-qbtns .srh-qform-cancel {
+  min-width: 96px;
+}
+/*.............................................. menu*/
+.srh-actions {
+  padding: 6px 6px 6px 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.srh-actions .menu {
+  display: inline-block;
+}
+[narrow] .srh-actions {
+  padding: 6px 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+/*.............................................. filter*/
+.srh-flt {
+  padding: 9px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.srh-flt .flt-keyword {
+  padding: 0px;
+  position: relative;
+}
+.srh-flt .flt-keyword input {
+  font-size: 14px;
+  padding: 8px 16px 8px 32px;
+  width: 100%;
+  color: #888888;
+  border: 1px solid #aaaaaa;
+  border-radius: 128px;
+  outline: none;
+}
+.srh-flt .flt-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 8px;
+  color: #dddddd;
+}
+/*.............................................. pager*/
+.srh-pgr {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 10px;
+  text-align: center;
+}
+.srh-pgr .pgr-tip {
+  color: #888;
+  font-style: normal;
+  margin-right: 10px;
+  display: inline-block;
+  vertical-align: middle;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+.srh-pgr .pgr-btn {
+  display: inline-block;
+  vertical-align: middle;
+  border: 1px solid #CCC;
+  color: #08F;
+  padding: 4px 8px;
+  border-radius: 2px;
+  margin: 1px;
+  cursor: default;
+  font-size: 12px;
+}
+.srh-pgr .pgr-enable:hover {
+  background: #cccccc;
+  color: #444444;
+  cursor: pointer;
+}
+.srh-pgr .pgr-disable,
+.srh-pgr .pgrr-disable:hover {
+  background: #CCC;
+  color: #888;
+  opacity: 0.6;
+}

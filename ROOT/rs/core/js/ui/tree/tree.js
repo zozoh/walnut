@@ -351,46 +351,46 @@ return ZUI.def("ui.tree", {
         var opt = UI.options;
         var context = opt.context || UI;
 
-        var jq   = UI.ccode("tree.node");
-        var id   = UI.getId.call(context, obj);
-        var leaf = _.isFunction(opt.isLeaf) ? opt.isLeaf.call(context, obj) : true;
-        jq.attr("oid", id)
+        var jNode = UI.ccode("tree.node");
+        var id    = UI.getId.call(context, obj);
+        var leaf  = _.isFunction(opt.isLeaf) ? opt.isLeaf.call(context, obj) : true;
+        jNode.attr("oid", id)
           .attr("ndtp", leaf ? "leaf" : "node")
           .attr("collapse", "yes");
 
         // 补充上名称
         if(UI.getName){
-            jq.attr("onm", UI.getName.call(context, obj));
+            jNode.attr("onm", UI.getName.call(context, obj));
         }
 
         // 节点添加手柄
         if(!leaf)
-            jq.find(".tnd-handle").html(opt.handle);
+            jNode.find(".tnd-handle").html(opt.handle);
         // 没有多选框
         if(!opt.checkable){
-            jq.find(".tnd-check").remove();
+            jNode.find(".tnd-check").remove();
         }else{
-            jq.find(".tnd-check").html(opt.checkbox);
+            jNode.find(".tnd-check").html(opt.checkbox);
         }
         // 绘制图标
         if(_.isFunction(opt.icon))
-            jq.find(".tnd-icon").html(opt.icon.call(context, obj));
+            jNode.find(".tnd-icon").html(opt.icon.call(context, obj));
         else
-            jq.find(".tnd-icon").remove();
+            jNode.find(".tnd-icon").remove();
         // 显示文字
         if(_.isFunction(opt.text))
-            jq.find(".tnd-text").text(opt.text.call(context, obj));
+            jNode.find(".tnd-text").text(opt.text.call(context, obj));
         else
-            jq.find(".tnd-text").text(id);
+            jNode.find(".tnd-text").text(id);
 
         // 记录数据
-        jq.data("@DATA", obj);
+        jNode.data("@DATA", obj);
 
         // 调用配置项，自定义更多节点外观
-        $z.invoke(opt, "on_draw_node", [jq], context);
+        $z.invoke(opt, "on_draw_node", [jNode, obj], context);
 
         // 返回
-        return jq;
+        return jNode;
     },
     //...............................................................
     isActived : function(nd){

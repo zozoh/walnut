@@ -12,11 +12,12 @@ return ZUI.def("ui.form_com_label", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     getData : function(){
-        return this.arena.text();
+        return this.$el.data("@VAL");
     },
     //...............................................................
-    setData : function(val){
-        this.arena.text(val);
+    setData : function(val, fld, ftype){
+        this.$el.data("@VAL", val);
+        this.arena.text(ftype.toText(fld, val));
     }
     //...............................................................
 });

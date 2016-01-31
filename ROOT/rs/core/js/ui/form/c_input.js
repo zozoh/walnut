@@ -15,8 +15,8 @@ return ZUI.def("ui.form_com_input", {
         return this.arena.find("input").val();
     },
     //...............................................................
-    setData : function(val){
-        this.arena.find("input").val(val);
+    setData : function(val, fld, ftype){
+        this.arena.find("input").val(ftype.toStr(fld, val));
     }
     //...............................................................
 });

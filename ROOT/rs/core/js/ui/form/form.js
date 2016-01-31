@@ -249,6 +249,13 @@ return ZUI.def("ui.form", {
         // 得到整体的宽度
         var jTitle = UI.arena.children(".form-title");
         var jBody  = UI.arena.children(".form-body");
+
+        // 还没准备好，拒绝重绘
+        if(jBody.width() == 0 && jBody.height() == 0){
+            return;
+        }
+
+
         jBody.css("height", UI.arena.height() - jTitle.outerHeight(true));
 
         var W = jBody.children(".form-body-wrapper").width();
@@ -344,7 +351,7 @@ return ZUI.def("ui.form", {
             }
             var v = $z.getValue(o, fld.key);
             v = ftype.parse(fld, v);
-            fui.setData(v);
+            fui.setData(v, fld, ftype);
         });
     },
     //...............................................................
@@ -369,6 +376,11 @@ return ZUI.def("ui.form", {
         // 返回值
         return re;
     },
+    //...............................................................
+    getObjId : function(obj){
+        return obj[this.options.idKey];
+    }
+    //...............................................................
 });
 //===================================================================
 });

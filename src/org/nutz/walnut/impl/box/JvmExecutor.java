@@ -254,6 +254,10 @@ public abstract class JvmExecutor {
                 output_objs_as_json(sys, params, wp, outs);
             }
         }
+        // 如果值为空
+        else if (params.is("l") && params.is("json")) {
+            sys.out.println("[]");
+        }
     }
 
     protected NutMap _obj_to_outmap(WnObj o, ZParams params) {

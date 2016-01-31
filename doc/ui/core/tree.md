@@ -63,6 +63,9 @@ author:zozoh
     // 树节点自定义的 contextmenu，函数需要返回 menu 控件 setup 段的内容
     on_contextmenu : {c}F(obj);
     
+    // 绘制完一个树节点后，你可以补充对这个节点的后续处理
+    on_draw_node : {c}F(jNode, obj)
+    
     // 所有回调的上下文，默认是树控件本身
     context : null
     

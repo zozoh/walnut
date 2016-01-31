@@ -20,6 +20,39 @@ clone      方法则将标准对象复制一份
 */
 define(function (require, exports, module) {
 //==================================================
+function _eval_enum_text (fld, v){
+    if(fld.uiConf && _.isArray(fld.uiConf.items)){
+        // 默认值
+        if(_.isUndefined(v))
+            v = fld.dft;
+        // 解析值
+        var _val = _.isFunction(fld.uiConf.value)
+                      ? fld.uiConf.value
+                      : function(o, index){
+                            if(_.isString(o))
+                                return index;
+                            return _.isUndefined(o.val) ? index : o.val;
+                        };
+
+        // 解析文字
+        var _txt = function(o, index){
+            if(_.isString(o))
+                return o;
+            if(_.isObject(o))
+                return o.text || o.val+"" || (_.isUndefined(o)?index:o) + "";
+            return o+"";
+        };
+
+        // 寻找值 
+        for(var i=0; i<fld.uiConf.items.length; i++){
+            var it = fld.uiConf.items[i];
+            var iv = _val(it, i);
+            if(iv == v)
+                return _txt(it, i);
+        }
+    }
+}
+//==================================================
 module.exports = {
     //......................................
     "object" : {
@@ -37,6 +70,9 @@ module.exports = {
                 return undefined;
             // 其他的直接返回就好
             return v ? v : fld.dft;
+        },
+        toText : function(fld, v){
+            return $z.toJson(v);
         },
         toStr : function(fld, v){
             return $z.toJson(v);
@@ -59,7 +95,7 @@ module.exports = {
     "string" : {
         parse : function(fld, v){
             if(_.isUndefined(v) || _.isNull(v)){
-                return fld.dft;
+                return fld.dft || '';
             }
             v = "" + v;
             if(_.isRegExp(fld.validate)){
@@ -69,6 +105,9 @@ module.exports = {
                 }
             }
             return v || fld.dft;
+        },
+        toText : function(fld, v){
+            return _eval_enum_text(fld, v) || v;
         },
         toStr : function(fld, v){
             return v;
@@ -112,6 +151,9 @@ module.exports = {
                 }
             }
             return v;
+        },
+        toText : function(fld, v){
+            return this.toStr(fld, v);
         },
         toStr : function(fld, v){
             var ss = [];
@@ -163,22 +205,29 @@ module.exports = {
             //console.log("fld test : ", fld.key, ":["+v+"]", "test:", (v?true:false));
             return $z.parseDate(v, fld.validate);
         },
+        toText : function(fld, v){
+            return this.toStr(fld, v);
+        },
         toStr : function(fld, v){
-            return v.format(fld.format || "yyyy-mm-dd");
+            if(!v)
+                return null;
+            return v.format(fld.format || "yyyy-mm-dd HH:MM:ss");
         },
         toInt : function(fld, v){
-            return v.getTime();
+            return v ? v.getTime() : 0;
         },
         toBool : function(fld, v){
             return true;
         },
         toNative : function(fld, v){
+            if(!v)
+                return undefined;
             if("string" == fld.nativeAs)
                 return this.toStr(fld, v);
             return v.getTime();
         },
         clone  : function(fld, v){
-            return new Date(v);
+            return v ? new Date(v) : undefined;
         }
     },
     /*......................................
@@ -199,6 +248,9 @@ module.exports = {
             if("@min" == vali)
                 vali = /^(\d{1,2}):(\d{1,2})$/;
             return $z.parseTime(v, vali);
+        },
+        toText : function(fld, v){
+            return v.key;
         },
         toStr : function(fld, v){
             return v.key;
@@ -229,20 +281,23 @@ module.exports = {
             var re = parseInt(v);
             return isNaN(re) ? fld.dft : re;
         },
+        toText : function(fld, v){
+            return _eval_enum_text(fld, v) || this.toStr(fld, v);
+        },
         toStr : function(fld, v){
-            return "" + v;
+            return _.isNumber(v) ? "" + v : '';
         },
         toInt : function(fld, v){
-            return v;
+            return _.isNumber(v) ? v : -1;
         },
         toBool : function(fld, v){
             return v ? true : false;
         },
         toNative : function(fld, v){
-            return v;
+            return _.isNumber(v) ? v : -1;
         },
         clone  : function(fld, v){
-            return v;
+            return _.isNumber(v) ? v : -1;
         }
     },
     /*......................................
@@ -257,6 +312,9 @@ module.exports = {
                 return /^yes|on|true$/i.test(v);
             }
             return v ? true : false;
+        },
+        toText : function(fld, v){
+            return _eval_enum_text(fld, v) || this.toStr(fld, v);
         },
         toStr : function(fld, v){
             return v ? "true" : "false";

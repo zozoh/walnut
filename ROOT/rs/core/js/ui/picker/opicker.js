@@ -67,24 +67,9 @@ return ZUI.def("ui.picker.opicker", {
     },
     //...............................................................
     setData : function(obj){
-        var UI   = this;
-        var opt  = UI.options;
-        var context = opt.context || UI;
-        // 同步
-        if(_.isFunction(opt.parseData)){
-            var o = opt.parseData.call(context, obj);
-            UI._update(o);
-        }
-        // 异步 
-        else if(_.isFunction(opt.asyncParseData)){
-            opt.asyncParseData.call(context, obj, function(o){
-                UI._update(o);
-            });
-        }
-        // 直接使用
-        else{
-            UI._update(obj);
-        }
+        this.ui_parse_data(obj, function(o){
+            this._update(o);
+        });
     },
     //...............................................................
     // 接受标准的 WnObj
@@ -133,20 +118,16 @@ return ZUI.def("ui.picker.opicker", {
     },
     //...............................................................
     getData : function(){
-        var UI  = this;
-        var opt = UI.options;
-        var context = opt.context || UI;
-        var re = [];
-        UI.arena.find(".picker-obj").each(function(){
-            re.push($(this).data("@OBJ"));
+        return this.ui_format_data(function(opt){
+            var re = [];
+            this.arena.find(".picker-obj").each(function(){
+                re.push($(this).data("@OBJ"));
+            });
+            if(!opt.setup.checkable){
+                re = re.length > 0 ? re[0] : null;
+            }
+            return re;
         });
-        if(!opt.setup.checkable){
-            re = re.length > 0 ? re[0] : null;
-        }
-        if(_.isFunction(opt.formatData)){
-            return opt.formatData.call(context, re);
-        }
-        return re;
     },
     //...............................................................
     resize : function(){

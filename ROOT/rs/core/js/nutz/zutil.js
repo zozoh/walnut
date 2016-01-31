@@ -715,6 +715,7 @@
             }
             // 字符串，试图看看 context 里有没有 exec 方法
             else if(_.isString(data)){
+                //console.log(data, params);
                 var str  = (_.template(data))(params);
                 //console.log(">> exec: ", str)
                 var execFunc = context.exec || (context.options||{}).exec;

@@ -1,0 +1,106 @@
+.ui.tbl > .ui-arena {
+  overflow: hidden;
+}
+.ui.tbl .ui-loading {
+  padding: 24px;
+}
+.tbl {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.tbl table {
+  border-spacing: 0;
+}
+.tbl td {
+  overflow: hidden;
+}
+.tbl-head {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  position: absolute;
+  top: 0px;
+  left: 0;
+  right: 0;
+  height: 32px;
+  line-height: 32px;
+  overflow: hidden;
+}
+.tbl-head-t td {
+  padding: 0 8px;
+  margin: 0;
+  white-space: nowrap;
+  border-left: 1px solid #cccccc;
+  color: #444444;
+  text-align: center;
+  font-size: 12px;
+  cursor: pointer;
+}
+.tbl-head td:first-child {
+  border: 0;
+}
+.tbl-checker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  text-align: center;
+  border-right: 1px solid #dddddd;
+}
+.tbl-checker > * {
+  display: none;
+}
+.tbl-checker > [tp="part"] {
+  opacity: 0.3;
+}
+.tbl-checker .current {
+  display: inline;
+}
+.tbl-body {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  border: 1px solid #dddddd;
+  border-top: 32px solid #eeeeee;
+}
+.tbl-row td {
+  padding: 8px;
+  border-bottom: 1px dashed #dddddd;
+  white-space: nowrap;
+  font-size: 12px;
+  position: relative;
+}
+.tbl-show-checkbox .tbl-row td:first-child {
+  padding-left: 40px;
+}
+.tbl-show-checkbox .tbl-row-checker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 32px;
+  width: 32px;
+  text-align: center;
+  line-height: 32px;
+}
+.tbl-show-checkbox .tbl-row-checker > *:first-child {
+  display: inline;
+}
+.tbl-show-checkbox .tbl-row-checker > *:last-child {
+  display: none;
+}
+.tbl-row-checked {
+  background: #0044bb;
+  color: #ffffff;
+}
+.tbl-row-checked .tbl-row-checker > *:first-child {
+  display: none;
+}
+.tbl-row-checked .tbl-row-checker > *:last-child {
+  display: inline;
+}
+.tbl-row-checked td {
+  border-color: #338;
+}

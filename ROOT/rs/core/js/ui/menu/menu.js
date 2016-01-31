@@ -274,7 +274,7 @@ return ZUI.def("ui.menu", {
             }
             // 靠，不认识，打印个错误
             else{
-                console.warn("unknown menu type: ", mi.type);
+                console.warn("unknown menu item: ", mi);
                 jItem.remove();
             }
             // 最后标记一下本次循环是不是一个分隔符
