@@ -37,12 +37,12 @@ body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-b
 }
 
 .ui-body a {
-    color: #0457ad;
+    color: #FFF;
     text-decoration: none;
 }
 
 .ui-body a:hover {
-    color: #ff3300;
+    color: #FF0;
     text-decoration: underline;
 }
 

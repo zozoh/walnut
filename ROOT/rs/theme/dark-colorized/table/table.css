@@ -32,8 +32,8 @@
   padding: 0 8px;
   margin: 0;
   white-space: nowrap;
-  border-left: 1px solid #cccccc;
-  color: #333333;
+  border-left: 1px solid rgba(0, 0, 0, 0.2);
+  color: #aaaaaa;
   text-align: center;
   cursor: pointer;
 }
@@ -47,8 +47,8 @@
   width: 32px;
   height: 32px;
   text-align: center;
-  border-right: 1px solid #dddddd;
-  color: #333333;
+  border-right: 1px solid rgba(0, 0, 0, 0.2);
+  color: #cccccc;
 }
 .tbl-checker > * {
   display: none;
@@ -69,12 +69,12 @@
   width: 100%;
   height: 100%;
   overflow: auto;
-  border-top: 32px solid #eeeeee;
-  border-bottom: 1px solid #dddddd;
+  border-top: 32px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .tbl-row td {
   padding: 8px;
-  border-bottom: 1px dashed #dddddd;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
   white-space: nowrap;
   position: relative;
   vertical-align: middle;
@@ -104,7 +104,7 @@
   display: none;
 }
 .tbl-row-checked {
-  background: #0044bb;
+  background: rgba(0, 64, 255, 0.6);
   color: #ffffff;
 }
 .tbl-row-checked .tbl-row-checker > *:first-child {

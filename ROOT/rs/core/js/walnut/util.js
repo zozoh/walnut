@@ -7,9 +7,45 @@ var Wn = {
         return window._app;
     },
     //...................................................................
+    // 生成标准缩略图的 DOM 结构
+    gen_wnobj_thumbnail_html : function(nmTagName){
+        nmTagName = nmTagName || 'a';
+        var html = '<div class="wnobj"><div class="wnobj-wrapper">';
+        html += '<div class="wnobj-seq"><span>0</span></div>'
+        html += '<div class="wnobj-del"><i class="fa fa-close"></i></div>'
+        html += '<div class="wnobj-thumbnail">';
+        html += '<div class="img">';
+        html += '<div class="wnobj-NW wnobj-icon-hide"></div>';
+        html += '<div class="wnobj-NE wnobj-icon-hide"></div>';
+        html += '<div class="wnobj-SW wnobj-icon-hide"></div>';
+        html += '<div class="wnobj-SE wnobj-icon-hide"></div>';
+        html += ' </div>';
+        html += '</div>';
+        html += '<div class="wnobj-nm-con"><'+nmTagName+' class="wnobj-nm"></'+nmTagName+'></div>';
+        html += '</div></div>';
+        return html;
+    },
+    //...................................................................
+    // 生成一个缩略图的 jQuery 对象，但是没加入 DOM 树
+    gen_wnobj_thumbnail : function(o, nmTagName, evalThumb, UI, nmMaxLen){
+        var jq = $(this.gen_wnobj_thumbnail_html(nmTagName));
+        this.update_wnobj_thumbnail(o, jq, evalThumb, UI, nmMaxLen);
+        return jq;
+    },
+    //...................................................................
     // 根据对象，填充给定的一段 DOM 中的缩略图和名称
-    update_wnobj_thumbnail : function(o, jThumb, jNm, evalThumb, UI){
-         // 得到缩略图角标
+    update_wnobj_thumbnail : function(o, jq, evalThumb, UI, nmMaxLen){
+        
+        // 标记关键属性
+        jq.attr("oid",o.id).attr("onm", o.nm);
+
+        // 标记隐藏文件
+        if(/^[.].+/.test(o.nm)){
+            jq.addClass("wnobj-hide");
+        }
+        
+        // 得到缩略图角标
+        var jThumb = jq.find(".wnobj-thumbnail");
         if(_.isFunction(evalThumb)){
             var thumbnails = evalThumb(child);
             if(thumbnail){
@@ -25,7 +61,12 @@ var Wn = {
         jThumb.attr("thumb", o.thumb);
 
         // 填充对象名称
-        jNm.text(this.objDisplayName(o.nm, UI));
+        var jNm = jq.find(".wnobj-nm");
+        var nmText = o.nm; 
+        if(UI && _.isFunction(UI.text))
+            nmText = UI.text(nmText);
+        nmText = this.objDisplayName(nmText, nmMaxLen);
+        jNm.prop("href","/a/open/wn.browser?ph=id:"+o.id).text(nmText);
     },
     //...................................................................
     objTypeName : function(o){

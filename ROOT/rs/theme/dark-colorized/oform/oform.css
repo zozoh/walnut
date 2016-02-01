@@ -31,7 +31,7 @@
   border-collapse: collapse;
 }
 .oform-grp td {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   vertical-align: top;
 }
 .oform-flow {
@@ -49,7 +49,7 @@
   list-style: none;
   text-align: center;
   margin: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 12px;
 }
 .oform-flow .oform-actions:after {
@@ -99,7 +99,7 @@
   text-align: center;
   margin: 0;
   padding: 16px 0 0 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .oform-tabs .oform-tabs-bar:after {
   content: "";
@@ -133,7 +133,7 @@
   text-align: center;
   margin: 0;
   padding: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 .oform-tabs .oform-actions:after {
   content: "";

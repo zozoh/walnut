@@ -356,7 +356,6 @@ return ZUI.def("ui.srh", {
 
             // 组合成查询条件，执行查询
             $z.evalData(UI.options.data, qc, function(re){
-                //console.log(re)
                 // 将查询的结果分别设置到列表以及分页器里
                 UI.uiList.setData(re ? re.list : []);
                 UI.uiPager.setData(re.pager);

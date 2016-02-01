@@ -21,7 +21,7 @@ body > .ui-obrowser {
 }
 .obrowser .obrowser-footer {
   background: rgba(0, 0, 0, 0.5);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 .obrowser .obrowser-chute {
   -moz-user-select: none;
@@ -31,7 +31,7 @@ body > .ui-obrowser {
   overflow: hidden;
   color: #888888;
   background: rgba(0, 0, 0, 0.3);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 .obrowser .obrowser-chute .chute-scroller {
   transition: 0.3s;
@@ -66,7 +66,7 @@ body > .ui-obrowser {
   text-align: center;
   border: 1px solid #000000;
   background: #000000;
-  color: #cccccc;
+  color: #000000;
   display: none;
   margin: 2px;
   cursor: pointer;
@@ -136,7 +136,7 @@ body > .ui-obrowser {
   background: rgba(255, 255, 255, 0.2);
 }
 .obrowser .obrowser-chute .chute-wrapper section.chute-sec-hide {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
   background: rgba(0, 0, 0, 0.5);
 }
 .obrowser .obrowser-chute .chute-wrapper section.chute-sec-hide h1:after {
@@ -149,109 +149,9 @@ body > .ui-obrowser {
 .obrowser .obrowser-chute .chute-wrapper section.chute-sec-hide item {
   opacity: 0;
 }
-.obrowser .obrowser-vmd-thumbnail {
-  padding: 12px 6px;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj-hide * {
-  opacity: 1.0;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj-hide .wnobj-thumbnail {
-  opacity: 0.382;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj-hide .wnobj-nm {
-  opacity: 0.6;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj {
-  display: inline-block;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-wrapper {
-  padding: 4px;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-wrapper:after {
-  content: "";
-  display: block;
-  height: 0;
-  clear: both;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail {
-  width: 76px;
-  height: 76px;
-  padding: 6px;
-  margin: 0 auto;
-  border-radius: 6px;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img {
-  display: block;
-  width: 64px;
-  height: 64px;
-  position: relative;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  border: 1px solid rgba(0, 0, 0, 0);
-  border-radius: 4px;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img > div {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  background: red;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-NW {
-  top: 0;
-  left: 0;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-NE {
-  top: 0;
-  right: 0;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-SW {
-  bottom: 0;
-  left: 0;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-SE {
-  bottom: 0;
-  right: 0;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-icon-hide {
-  display: none;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-thumbnail[thumb] .img {
-  background-color: #000;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-nm-con {
-  text-align: center;
-  margin-top: 4px;
-  width: 102px;
-  height: 50px;
-  line-height: 16px;
-  overflow: hidden;
-  word-break: break-all;
-  position: relative;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj .wnobj-nm {
-  display: inline-block;
-  padding: 0 4px;
-  border-radius: 2px;
-  border: 1px dotted rgba(0, 0, 0, 0);
-  font-family: Monaco, Consolas, Courier New;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj-checked .wnobj-thumbnail {
-  background: rgba(0, 0, 0, 0.3);
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj-checked .wnobj-thumbnail[thumb] .img {
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj-checked .wnobj-nm {
-  background: rgba(0, 64, 255, 0.6);
-  color: #ffffff;
-}
-.obrowser .obrowser-vmd-thumbnail .wnobj-actived .wnobj-nm {
-  border-color: rgba(255, 255, 255, 0.3);
-}
 .obrowser .obrowser-sky {
   position: relative;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 .obrowser .obrowser-sky .obrowser-crumb {
   -moz-user-select: none;
@@ -318,7 +218,7 @@ body > .ui-obrowser {
   background: rgba(0, 64, 255, 0.6);
 }
 .obrowser .obrowser-sky .obrowser-crumb .citem:hover {
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 .obrowser .obrowser-sky .obrowser-crumb .citem-tail {
   padding-right: 2px;

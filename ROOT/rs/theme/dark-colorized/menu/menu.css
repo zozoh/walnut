@@ -28,14 +28,14 @@
 .menu-item .menu-item-wrapper .menu-item-status {
   display: inline-block;
   vertical-align: middle;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
 }
 .menu-item .menu-item-wrapper .menu-item-status .menu-item-si {
   width: 24px;
   display: inline-block;
   text-align: center;
-  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
   color: #aaaaaa;
 }
@@ -71,7 +71,7 @@
 }
 .menu .menu-item[md="top"] .menu-item[tp="separator"] {
   padding: 0;
-  border-right: 1px dotted rgba(255, 255, 255, 0.3);
+  border-right: 1px dotted rgba(255, 255, 255, 0.1);
 }
 .menu .menu-sub {
   padding: 6px;
@@ -103,5 +103,5 @@
   line-height: 0;
   height: 0;
   margin: 6px 0;
-  border-top: 1px dotted rgba(255, 255, 255, 0.3);
+  border-top: 1px dotted rgba(255, 255, 255, 0.1);
 }

@@ -9,7 +9,7 @@ var html = function(){/*
     <div code-id="data.table" class="tbl">
         <div class="tbl-head">
             <table class="tbl-head-t"><tr></tr></table>
-            <div class="tbl-checker">
+            <div class="tbl-checker" tp="none">
                 <i tp="all" class="fa fa-check-square"></i>
                 <i tp="none" class="fa fa-square-o current"></i>
                 <i tp="part" class="fa fa-check-square"></i>
@@ -38,7 +38,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.table", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "ui/table/table.css",
+    css  : "theme/ui/table/table.css",
     //...............................................................
     init : function(options){
         var UI  = this;
@@ -78,7 +78,7 @@ return ZUI.def("ui.table", {
         "click .tbl-row" : function(e){
             this.setActived(e.currentTarget);
         },
-        "click .tbl-row [tp=checkbox]" : function(e){
+        "click .tbl-row-checker" : function(e){
             e.stopPropagation();
             this.toggle(e.currentTarget);
         },
@@ -88,12 +88,11 @@ return ZUI.def("ui.table", {
             if(this.options.blurable && !jRow.hasClass("tbl-row-actived"))
                 this.blur();
         },
-        "click .tbl-checker>*" : function(e){
+        "click .tbl-checker" : function(e){
             e.stopPropagation();
             var UI = this;
-            var jChecker = UI.arena.find(".tbl-checker");
-            var tp = $(e.currentTarget).attr("tp");
-            //console.log("tp", tp)
+            var jChecker = $(e.currentTarget);
+            var tp = jChecker.attr("tp");
             // 全选
             if("none" == tp){
                 UI.check();
@@ -149,6 +148,10 @@ return ZUI.def("ui.table", {
 
         if(jq.size() > 0){
             var o = jq.removeClass("tbl-row-actived tbl-row-checked").data("OBJ");
+
+            // 同步
+            UI.__sync_checker();
+
             // 触发消息 
             UI.trigger("tbl:blur", o);
             $z.invoke(UI.options, "on_blur", [o], UI);
@@ -214,15 +217,15 @@ return ZUI.def("ui.table", {
 
         // 全都选中了
         if(row_nb > 0 && row_unchecked==0){
-            jChecker.children().removeClass("current").filter('[tp="all"]').addClass("current");   
+            jChecker.attr("tp", "all");
         }
         // 全木选中
         else if(row_nb == row_unchecked){
-            jChecker.children().removeClass("current").filter('[tp="none"]').addClass("current");   
+            jChecker.attr("tp", "none");
         }
         // 部分选中
         else{
-            jChecker.children().removeClass("current").filter('[tp="part"]').addClass("current");   
+            jChecker.attr("tp", "part");
         }
     },
     //...............................................................
@@ -234,21 +237,16 @@ return ZUI.def("ui.table", {
             var checkeds = [];
             var unchecks = [];
             jq.each(function(){
-                var jRow = $(this);
-                if(!jRow.hasClass("tbl-row")){
-                    jRow = jRow.parents(".tbl-row");
-                }
+                var jRow = $(this).closest(".tbl-row");
                 if(jRow.size()==0){
                     throw "tbl: not row or row item : " + this;
                 }
 
                 var o = jRow.data("OBJ");
                 if(jRow.hasClass("tbl-row-checked")){
-                    console.log("AAAA")
                     jRow.removeClass("tbl-row-actived tbl-row-checked");
                     unchecks.push(o);
                 }else{
-                    console.log("BBBB")
                     jRow.addClass("tbl-row-checked");
                     checkeds.push(o);
                 }

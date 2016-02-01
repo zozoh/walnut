@@ -101,7 +101,6 @@ return ZUI.def("ui.form_main", {
             this.refresh();
         });
     },
-    
     //...............................................................
     update : function(o){
         this.$el.attr("obj-id", o.id);

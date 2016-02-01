@@ -43,7 +43,7 @@ body > .ui-obrowser {
                 width:@d5; height:@d6; border-radius: @d0;
                 font-size:@f1; line-height: @d6 - 2; text-align: center;
                 border:1px solid @cbtn_l;
-                background: @cbtn_b; color:@cbtn_f; 
+                background: @cbtn_b; color:@cshadow; 
                 display: none;
                 margin:@d0; 
                 cursor: pointer;
@@ -99,70 +99,6 @@ body > .ui-obrowser {
         }
     }
     //---------------------------------------------- END Chute
-
-    //---------------------------------------------- BEGIN Thumnbnail
-    .obrowser-vmd-thumbnail {
-        padding:@d4 @d2;
-        .wnobj-hide {
-            * {opacity: 1.0;}
-            .wnobj-thumbnail {opacity: 0.382;}
-            .wnobj-nm {opacity: 0.6;}
-        }
-
-        @wnobj_w       : 102px;
-        @thumb_w       : 64px;
-        @thumb_h       : 64px;
-        @thumb_icon    : 16px;
-        @thumb_padding : 6px;
-        .wnobj {
-            display: inline-block;;
-            .wnobj-wrapper {padding:@d1;}
-            .wnobj-wrapper:after{@clr();}
-            .wnobj-thumbnail {
-                width: @thumb_w + @thumb_padding*2; 
-                height: @thumb_h + @thumb_padding*2; 
-                padding: @thumb_padding;
-                margin:0 auto; border-radius: @d2;
-                .img {
-                    display: block; 
-                    width:@thumb_w; height:@thumb_h; position: relative;
-                    background-size: contain; background-repeat: no-repeat;
-                    background-position: center;
-                    border:1px solid rgba(0,0,0,0); border-radius: @d1;
-                    >div {position: absolute; width:@thumb_icon; height:@thumb_icon; background: red;}
-                    .wnobj-NW {top:0;    left:0;}
-                    .wnobj-NE {top:0;    right:0;}
-                    .wnobj-SW {bottom:0; left:0;}
-                    .wnobj-SE {bottom:0; right:0;}
-                    .wnobj-icon-hide {display: none;}
-                }
-            }
-            .wnobj-thumbnail[thumb]{
-                .img {background-color: #000;}
-            }
-            .wnobj-nm-con {
-                text-align: center; margin-top:@d1;
-                width: @wnobj_w; height: @d5*3 + 2; line-height: @d5;
-                overflow: hidden; word-break:break-all; 
-                position: relative;
-            }
-            .wnobj-nm{
-                display: inline-block; padding:0 @d1; border-radius: @d0;
-                border:1px dotted rgba(0,0,0,0); font-family: @f_fixed;
-            }
-        }
-        .wnobj-checked {
-            .wnobj-thumbnail{background: @cb2;}
-            .wnobj-thumbnail[thumb]{
-                .img {border:1px solid @cborder1;}
-            }
-            .wnobj-nm {background: @ch0_b; color:@ch0_f;}
-        }
-        .wnobj-actived {
-            .wnobj-nm {border-color:@cborder1;}
-        }
-    }
-    //---------------------------------------------- END Thunbmail
 
     //---------------------------------------------- BEGIN Sky
     .obrowser-sky {

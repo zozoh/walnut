@@ -8,6 +8,10 @@
   min-width: 200px;
 }
 .picker-box {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
   width: 100%;
   height: 100%;
   padding: 0 8px;
@@ -17,8 +21,17 @@
   display: inline-block;
   vertical-align: middle;
 }
-.picker-box .picker-obj b {
+.picker-box .picker-obj .icon {
   vertical-align: middle;
+}
+.picker-box .picker-obj a {
+  display: inline-block;
+  color: #08F;
+  vertical-align: middle;
+  font-size: 10px;
+}
+.picker-box .picker-obj a:hover {
+  color: #F80;
 }
 .picker-btns {
   background: #e0e0e0;

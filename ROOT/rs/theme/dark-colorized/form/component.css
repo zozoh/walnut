@@ -5,7 +5,7 @@
 .com-input input {
   padding: 6px;
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   color: #444;
   background: #EEE;
@@ -23,7 +23,7 @@
 .com-droplist .com-box {
   min-width: 100px;
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   position: relative;
   padding: 0 24px 0 8px;
@@ -75,7 +75,7 @@
   padding: 6px 12px;
 }
 .com-droplist .com-drop .com-multi-apply {
-  border-top: 1px dotted rgba(255, 255, 255, 0.1);
+  border-top: 1px dotted rgba(255, 255, 255, 0.2);
   padding: 8px;
   text-align: center;
 }
@@ -254,7 +254,7 @@
   width: 100%;
   height: 100%;
   padding: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   resize: none;
 }

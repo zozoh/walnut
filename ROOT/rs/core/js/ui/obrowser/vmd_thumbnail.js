@@ -2,22 +2,7 @@
 $z.declare(['zui', 'wn/util'], function(ZUI, Wn){
 //==============================================
 var html = function(){/*
-<div class="ui-code-template">
-    <div code-id="obj" class="wnobj">
-        <div class="wnobj-wrapper">
-            <div class="wnobj-thumbnail">
-                <div class="img">
-                    <div class="wnobj-NW wnobj-icon-hide"></div>
-                    <div class="wnobj-NE wnobj-icon-hide"></div>
-                    <div class="wnobj-SW wnobj-icon-hide"></div>
-                    <div class="wnobj-SE wnobj-icon-hide"></div>
-                </div>
-            </div>
-            <div class="wnobj-nm-con"><span class="wnobj-nm"></span></div>
-        </div>
-    </div>
-</div>
-<div class="ui-arena obrowser-vmd-thumbnail" ui-fitparent="yes">I am thumbnail</div>
+<div class="ui-arena obrowser-vmd-thumbnail wn-thumbnail" ui-fitparent="yes">I am thumbnail</div>
 */};
 //==============================================
 return ZUI.def("ui.obrowser_vmd_thumbnail", {
@@ -144,16 +129,11 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
             // 循环在选区内绘制图标
             UI.arena.empty();
             list.forEach(function(child){
-                var jq = UI.ccode("obj").appendTo(UI.arena);;
-                jq.attr("oid",child.id).attr("onm", child.nm);
-                var jThumb = jq.find(".wnobj-thumbnail");
-                // 标记隐藏文件
-                if(/^[.].+/.test(child.nm)){
-                    jq.addClass("wnobj-hide");
-                }
-                // 填充对象名称
-                Wn.update_wnobj_thumbnail(child, jThumb, jq.find(".wnobj-nm"), 
-                                        UIBrowser.options.thumbnail, UI);
+                Wn.gen_wnobj_thumbnail(child, 
+                    'span',
+                    UIBrowser.options.thumbnail,
+                    UI
+                ).appendTo(UI.arena);
             });
         }, 10);
     },

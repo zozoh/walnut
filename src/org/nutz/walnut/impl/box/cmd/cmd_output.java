@@ -53,7 +53,7 @@ public class cmd_output extends JvmExecutor {
         int n = params.getInt("n", -1);
 
         // 输出的休息间隔（默认1s一个），最快不能超过1ms
-        long inteval = Math.max(1L, params.getLong("interval", 1000L));
+        long interval = Math.max(1L, params.getLong("interval", 1000L));
 
         try {
             // 计数
@@ -62,14 +62,18 @@ public class cmd_output extends JvmExecutor {
             if (0 == n) {
                 while (true) {
                     __print(jbo, i++, msg, t, showIndex);
-                    Thread.sleep(inteval);
+                    if (interval > 0)
+                        Thread.sleep(interval);
                 }
             }
             // 有限次数输出
             else {
-                for (; i < n - 1; i++) {
-                    __print(jbo, i, msg, t, showIndex);
-                    Thread.sleep(inteval);
+                while (true) {
+                    __print(jbo, i++, msg, t, showIndex);
+                    if (i >= n)
+                        break;
+                    if (interval > 0)
+                        Thread.sleep(interval);
                 }
                 // 输出最后一条
                 __print(jbo, i, msg, t, showIndex);
@@ -78,7 +82,10 @@ public class cmd_output extends JvmExecutor {
         catch (InterruptedException e) {}
     }
 
+    // private static final Log log = Logs.get();
+
     protected void __print(JvmBoxOutput jbo, int i, String msg, boolean t, boolean showIndex) {
+        // log.infof("%d) %s", i, msg);
         String prefix = showIndex ? "" + i + ") " : "";
         if (!t) {
             jbo.printlnf("%s%s", prefix, msg);
