@@ -645,6 +645,15 @@ define(function (require, exports, module) {
             // 普通字符串
             return str;
         },
+        // 在某区域显示读取中，如果没有指定区域，则为整个 arena
+        showLoading : function(selector){
+            var html = '<div class="ui-loading">';
+            html += '<i class="fa fa-spinner fa-pulse"></i> <span>'+this.msg("loading")+'</span>';
+            html += '</div>';
+
+            var jq = selector ? $(selector) : this.arena;
+            jq.empty().html(html);
+        },
         // 根据路径获取一个子 UI
         subUI : function(uiPath){
             var ss = uiPath.split(/[\/\\.]/);

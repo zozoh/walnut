@@ -1,5 +1,9 @@
 (function($z){
-$z.declare(['zui','ui/otable/otable'], function(ZUI, TableUI){
+$z.declare([
+    'zui',
+    'wn/util',
+    'ui/table/table'
+], function(ZUI, Wn, TableUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena obrowser-vmd-table" ui-gasket="table" ui-fitparent="yes"></div>
@@ -16,51 +20,53 @@ return ZUI.def("ui.obrowser_vmd_table", {
         }
     },
     //..............................................
-    update : function(o, UIBrowser){
+    redraw : function(){
         var UI = this;
-
-        // 得到当前所有的子节点
-        var list = UIBrowser.getChildren(o);
-
-        // 渲染表格
-        (new TableUI({
+        UI.uiTable = (new TableUI({
             parent : UI,
             fitParent : true,
             gasketName : "table",
-            data : list,
             checkable : true,
-            nameTitle : "i18n:obrowser.title.nm",
-            icon : function(o){
-                var iconHtml;
-                // 自定义方法
-                if(_.isFunction(UIBrowser.options.icon)){
-                    iconHtml = UIBrowser.options.icon.call(UIBrowser, o);
-                }
-                // 绘制默认图标
-                return iconHtml || '<i class="oicon" otp="'+(o.tp||'folder')+'"></i>';
-            },
             layout : {
                 sizeHint : '*'
             },
-            columns : [ {
-                key : "lm",
+            // 标记一下标准属性
+            on_draw_row : function(jRow, o){
+                jRow.addClass("wnobj");
+                if(/^[.].+/.test(o.nm)){
+                    jRow.addClass("wnobj-hide");
+                }
+            },
+            fields : [ {
+                key   : "nm",
+                title : "i18n:obrowser.title.nm",
+                type  : "string",
+                escapeHtml : false,
+                display : function(o){
+                    var html = '<i class="oicon" otp="'+Wn.objTypeName(o)+'"></i>';
+                    html += '<span class="wnobj-nm">'+Wn.objDisplayName(o)+'</span>';
+                    return html;
+                }
+            }, {
+                key   : "lm",
                 title : "i18n:obrowser.title.lm",
-                type : "datetime",
-                display : function(o, fld){
+                type  : "datetime",
+                display : function(o){
                     return $z.parseDate(o.lm).toLocaleString();
                 }
             }, {
-                key : "len",
+                key   : "len",
                 title : "i18n:obrowser.title.len",
-                display : function(o, fld){
+                type  : "int",
+                display : function(o){
                     if(o.race == 'DIR')
                         return  "--";
                     return $z.sizeText(o.len);
                 }
             }, {
-                key : "tp",
+                key   : "tp",
                 title : "i18n:obrowser.title.tp",
-                display : function(o, fld){
+                display : function(o){
                     //console.log(o.id,o.nm,o.tp, o.mime, o.race)
                     var re;
                     // 有没有指定的类型
@@ -81,18 +87,24 @@ return ZUI.def("ui.obrowser_vmd_table", {
                 }
             } ]
         })).render(function(){
-            // 标记一下标准的属性
-            this.arena.find(".otable-row").each(function(){
-                var jRow = $(this).addClass("wnobj");
-                jRow.find(".otable-row-nm [tp=text]").addClass("wnobj-nm");
-                if(/^[.].+/.test(jRow.attr("onm"))){
-                    jRow.addClass("wnobj-hide");
-                }
-            });
+            UI.defer_report("table");
         });
+        return ["table"];
+    },
+    //..............................................
+    update : function(o, UIBrowser){
+        var UI = this;
 
-        // 最后重新计算一下尺寸
-        UI.resize();
+        UI.uiTable.showLoading();
+
+        // 得到当前所有的子节点
+        UIBrowser.getChildren(o, null, function(objs){
+            // 更新数据
+            UI.uiTable.setData(objs);
+
+            // 最后重新计算一下尺寸
+            UI.resize();
+        });
     },
     //..............................................
     getData : function(arg){

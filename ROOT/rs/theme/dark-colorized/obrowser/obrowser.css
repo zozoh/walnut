@@ -64,9 +64,9 @@ body > .ui-obrowser {
   font-size: 10px;
   line-height: 22px;
   text-align: center;
-  border: 1px solid #000000;
-  background: #000000;
-  color: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.3);
   display: none;
   margin: 2px;
   cursor: pointer;
@@ -76,7 +76,7 @@ body > .ui-obrowser {
 }
 .obrowser .obrowser-chute .chute-scroller .chute-scroller-btn:hover {
   background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.7);
 }
 .obrowser .obrowser-chute .chute-scroller[outline="yes"] {
   margin-left: -100%;

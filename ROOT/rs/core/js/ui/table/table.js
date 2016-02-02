@@ -16,16 +16,13 @@ var html = function(){/*
             </div>
         </div>
         <div class="tbl-body">
-            <table class="tbl-body-t"><tbody></tbody></table>
+            <table class="tbl-body-t"><colgroup></colgroup><tbody></tbody></table>
             <div class="tbl-ruler"></div>
         </div>
     </div>
     <div code-id="checker" class="tbl-row-checker">
         <i tp="checkbox" class="fa fa-square-o current"></i>
         <i tp="checkbox" class="fa fa-check-square"></i>
-    </div>
-    <div code-id="data.loading" class="ui-loading">
-        <i class="fa fa-spinner fa-pulse"></i> <span>{{loading}}</span>
     </div>
     <div code-id="thead.cell">
         <b class="tbl-col-tt"></b>
@@ -49,6 +46,7 @@ return ZUI.def("ui.table", {
         $z.setUndefined(opt, "checkable", true);
         $z.setUndefined(opt, "multi",  opt.checkable?true:false);
         $z.setUndefined(opt, "idKey",     "id");
+        $z.setUndefined(opt, "escapeHtml", true);
         $z.setUndefined(opt, "fields",   []);
         $z.setUndefined(opt, "layout",   {});
         //layout 的默认
@@ -56,15 +54,18 @@ return ZUI.def("ui.table", {
         $z.setUndefined(opt.layout, "cellWrap"  , "nowrap");
         $z.setUndefined(opt.layout, "withHeader", true);
 
+        // 预先编译每个字段的显示
+        opt.fields.forEach(function(fld){
+            $z.evalFldDisplay(JsType, fld);
+        });
 
         // 最后等重绘完毕模拟点击
         UI.on("tbl:change", function(){
-            var jHead = UI.arena.find(".tbl-head");
             UI.arena.find(".tbl-body").scroll(function(e){
                 var jq = $(this);
                 var left = jq.scrollLeft();
                 //console.log(left, jq.scrollTop(),jHead.size());
-                jHead.css("left", left * -1);
+                UI.arena.find(".tbl-head").css("left", left * -1);
             });
         });
     },
@@ -76,7 +77,56 @@ return ZUI.def("ui.table", {
     //...............................................................
     events : {
         "click .tbl-row" : function(e){
-            this.setActived(e.currentTarget);
+            var UI = this;
+            // 如果支持多选 ...
+            if(UI.options.multi){
+                // 仅仅表示单击选中
+                if(($z.os.mac && e.metaKey) || (!$z.os.mac && e.ctrlKey)){
+                    UI.check(e.currentTarget);
+                    return;
+                }
+                // shift 键表示多选
+                else if(e.shiftKey){
+                    // 准备计算需要选中的项目
+                    var jRows;
+
+                    // 得到自己
+                    var jq = $(e.currentTarget);
+
+                    // 找到激活项目的 ID
+                    var jA = UI.arena.find(".tbl-row-actived");
+
+                    // 没有项目被激活，那么从头选
+                    if(jA.size() == 0){
+                        jA = UI.arena.find(".tbl-row:eq(0)");
+                    }
+                    
+                    // 激活项目在自己以前
+                    var selector = "[oid=" + jA.attr("oid") + "]";
+                    if(jq.prevAll(selector).size() > 0){
+                        jRows = jq.prevUntil(jA).addBack().add(jA);
+                    }
+                    // 激活项目在自己以后
+                    else if(jq.nextAll(selector).size() > 0){
+                        jRows = jq.nextUntil(jA).addBack().add(jA);
+                    }
+                    // 那就是自己咯
+                    else{
+                        jRows = jq;
+                    }
+
+                    // 选中这些项目
+                    UI.check(jRows);
+
+                    // 防止冒泡
+                    e.stopPropagation();
+                    
+                    // 不用继续了
+                    return;
+                }
+            }
+            // 否则就是激活
+            UI.setActived(e.currentTarget);
         },
         "click .tbl-row-checker" : function(e){
             e.stopPropagation();
@@ -118,25 +168,34 @@ return ZUI.def("ui.table", {
         var obj = this.getActived();
         return obj ? this.getObjId(obj) : null;
     },
+    isActived : function(arg){
+        var jRow = this.$item(arg);
+        return jRow.hasClass("tbl-row-actived");
+    },
     //...............................................................
     setActived : function(arg){
-        var UI = this;
-        if(!UI.options.activable)
+        var UI  = this;
+        var opt = UI.options;
+
+        // 不许激活项目 ...
+        if(!opt.activable)
             return;
-        // 字符串表示对象 ID
-        if(_.isString(arg)){
-            arg = '[oid="' + arg + '"]';
-        }
-        // 执行查找
-        var jq = $z.jq(UI.arena, arg, ".tbl-row").first();
-        if(jq.hasClass("tbl-row") && !jq.hasClass("tbl-row-actived")){
+
+        // 未给入参数，相当于 blur
+        if(_.isUndefined(arg) || _.isNull(arg)){
             UI.blur();
-            jq.addClass("tbl-row-actived tbl-row-checked");
-            var o = jq.data("OBJ");
-            var index = jq.attr("index") * 1;
+            return;
+        }
+
+        // 执行查找
+        var jRow = UI.$item(arg);
+        if(!UI.isActived(jRow)){
+            UI.blur();
+            jRow.addClass("tbl-row-actived tbl-row-checked");
+            var o = jRow.data("OBJ");
             // 触发消息 
-            UI.trigger("tbl:actived", o, index);
-            $z.invoke(UI.options, "on_actived", [o, index], UI);
+            UI.trigger("table:actived", o, jRow);
+            $z.invoke(UI.options, "on_actived", [o, jRow], UI);
         }
         // 同步选择器 
         UI.__sync_checker();
@@ -144,17 +203,24 @@ return ZUI.def("ui.table", {
     //...............................................................
     blur : function(){
         var UI = this;
-        var jq = UI.arena.find(".tbl-row-checked");
+        var jRows = UI.arena.find(".tbl-row-checked");
 
-        if(jq.size() > 0){
-            var o = jq.removeClass("tbl-row-actived tbl-row-checked").data("OBJ");
+        if(jRows.size() > 0){
+            // 移除标记
+            jRows.removeClass("tbl-row-actived tbl-row-checked");
 
-            // 同步
+            // 获取数据
+            var objs = [];
+            jRows.each(function(){
+                objs.push($(this).data("OBJ"));
+            });
+
+            // 同步选择器 
             UI.__sync_checker();
 
             // 触发消息 
-            UI.trigger("tbl:blur", o);
-            $z.invoke(UI.options, "on_blur", [o], UI);
+            UI.trigger("table:blur", objs);
+            $z.invoke(UI.options, "on_blur", [objs, jRows], UI);
         }
     },
     //...............................................................
@@ -168,16 +234,17 @@ return ZUI.def("ui.table", {
     },
     //...............................................................
     check : function(arg){
-        var UI = this;
+        var UI     = this;
         var jTbody = UI.arena.find(".tbl-body-t>tbody");
-        var jq = $z.jq(jTbody, arg, ".tbl-row").not(".tbl-row-checked");
-        if(jq.size()>0){
+        var jRows  = _.isUndefined(arg)?jTbody.find(".tbl-row"):UI.$item(arg);
+        jRows.not(".tbl-row-checked");
+        if(jRows.size()>0){
             var objs = [];
-            jq.addClass("tbl-row-checked").each(function(){
+            jRows.addClass("tbl-row-checked").each(function(){
                 objs.push($(this).data("OBJ"));
             });
             // 触发消息 
-            UI.trigger("tbl:checked", objs);
+            UI.trigger("table:checked", objs);
             $z.invoke(UI.options, "on_checked", [objs], UI);
 
             // 同步选择器 
@@ -186,16 +253,17 @@ return ZUI.def("ui.table", {
     },
     //...............................................................
     uncheck : function(arg){
-        var UI = this;
+        var UI     = this;
         var jTbody = UI.arena.find(".tbl-body-t>tbody");
-        var jq = $z.jq(jTbody, arg, ".tbl-row-checked");
-        if(jq.size()>0){
+        var jRows  = _.isUndefined(arg)?jTbody.find(".tbl-row-checked"):UI.$item(arg);
+        jRows.not(":not(.tbl-row-checked)");
+        if(jRows.size()>0){
             var objs = [];
-            jq.removeClass("tbl-row-checked tbl-row-actived").each(function(){
+            jRows.removeClass("tbl-row-checked tbl-row-actived").each(function(){
                 objs.push($(this).data("OBJ"));
             });
             // 触发消息 
-            UI.trigger("tbl:uncheck", objs);
+            UI.trigger("table:uncheck", objs);
             $z.invoke(UI.options, "on_uncheck", [objs], UI);
 
             // 同步选择器 
@@ -232,11 +300,11 @@ return ZUI.def("ui.table", {
     toggle : function(arg){
         var UI = this;
         var jTbody = UI.arena.find(".tbl-body-t>tbody");
-        var jq = $z.jq(jTbody, arg, ".tbl-row");
-        if(jq.size()>0){
+        var jRows = $z.jq(jTbody, arg, ".tbl-row");
+        if(jRows.size()>0){
             var checkeds = [];
             var unchecks = [];
-            jq.each(function(){
+            jRows.each(function(){
                 var jRow = $(this).closest(".tbl-row");
                 if(jRow.size()==0){
                     throw "tbl: not row or row item : " + this;
@@ -257,12 +325,12 @@ return ZUI.def("ui.table", {
 
             // 触发消息 : checked
             if(checkeds.length > 0) {
-                UI.trigger("tbl:checked", checkeds);
+                UI.trigger("table:checked", checkeds);
                 $z.invoke(UI.options, "on_checked", [checkeds], UI);    
             }
             // 触发消息 : uncheck
             if(unchecks.length > 0) {
-                UI.trigger("tbl:uncheck", unchecks);
+                UI.trigger("table:uncheck", unchecks);
                 $z.invoke(UI.options, "on_uncheck", [unchecks], UI);    
             }
         }
@@ -270,27 +338,9 @@ return ZUI.def("ui.table", {
     //...............................................................
     getData : function(arg){
         var UI = this;
-        var jTBody = UI.arena.find(".tbl-body-t>tbody");
-        // 本身就是元素
-        if($z.isjQuery(arg) || _.isElement(arg)){
-            var jq = $(arg).closest(".tbl-row");
-            return jq.data("OBJ");
-        }
-        // 数字下标
-        if(_.isNumber(arg)){
-            var jq = $z.jq(jTBody, arg);
-            return jq.data("OBJ");
-        }
-        // ID
-        var m = /^id:(.+)$/g.exec(arg);
-        if(m){
-            var jq = jTBody.children('[oid="' + m[1] + '"]');
-            return jq.data("OBJ");
-        }
-        // Name
-        if(_.isString(arg)){
-            var jq = jTBody.children('[onm="' + arg + '"]');
-            return jq.data("OBJ");   
+        // 特指某个项目
+        if(!_.isUndefined(arg)){
+            return UI.$item(arg).data("OBJ");
         }
         // 获取完整的列表
         return UI.ui_format_data(function(opt){
@@ -299,7 +349,7 @@ return ZUI.def("ui.table", {
                 objs.push($(this).data("OBJ"));
             });
             return objs;
-        });;
+        });
     },
     //...............................................................
     setData : function(objs){
@@ -334,10 +384,10 @@ return ZUI.def("ui.table", {
     //...............................................................
     add : function(obj, it, direction) {
         var UI = this;
-        var objs = _.isArray(obj) ? obj : [obj];
+        objs = _.isArray(objs) ? objs : [objs];
 
         objs.forEach(function(o, index){
-            UI._upset_row(o, null, UI.$item(it), direction);
+            UI._upsert_row(o, null, UI.$item(it), direction);
         });
 
         // 最后触发消息
@@ -351,13 +401,7 @@ return ZUI.def("ui.table", {
     },
     //...............................................................
     update : function(obj, it) {
-        this._upset_row(obj, null, this.$item(it), 0);
-    },
-    //...............................................................
-    showLoading : function(){
-        var UI = this;
-        var jq = UI.ccode("data.loading");
-        UI.arena.empty().append(jq);
+        this._upsert_row(obj, null, this.$item(it || this.getObjId(obj)), 0);
     },
     //...............................................................
     _draw_data : function(objs){
@@ -369,56 +413,56 @@ return ZUI.def("ui.table", {
         UI.arena.find(".tbl-body").unbind();
         UI.arena.empty().append(jq);
         
-        var jBodyT = jq.find(".tbl-body-t");
+        var jTBody = jq.find(".tbl-body-t");
 
         // 输出表头
-        var jHeadT = UI._redraw_header();
-        var jHead = jHeadT.parent();
+        var jTHead = UI._draw_header();
+        var jHead = jTHead.parent();
 
         // 检查要输出的数据
-        if(!objs)
+        if(!_.isArray(objs))
             return;
-
-        objs = _.isArray(objs) ? objs : [objs];
 
         // 输出表格内容 
         objs.forEach(function(o, index){
-            UI._upset_row(o, jBodyT);
+            UI._upsert_row(o, jTBody);
         });
 
-        // 如果需要显示选择框
+        // 如果需要显示选择框 ...
         if(opt.checkable){
             jq.addClass("tbl-show-checkbox");
             jHead.children('.tbl-checker').show();
-        }else{
+        }
+        // 否则，顶层没必要显示全局选择器
+        else{
             jHead.children('.tbl-checker').hide();
         }
 
         // 设置固定属性，以便 resize 函数时时计算宽度
-        jHeadT.css("table-layout", "fixed");
-        jBodyT.css("table-layout", "fixed");
+        jTHead.css("table-layout", "fixed");
+        jTBody.css("table-layout", "fixed");
 
         // 重新计算尺寸
         UI.resize();
 
         // 最后触发消息
-        UI.trigger("tbl:change", objs);
+        UI.trigger("table:change", objs);
         $z.invoke(opt, "on_change", [objs], UI);
     },
     //...............................................................
-    _upset_row : function(o, jBodyT, jReferRow, direction){
+    _upsert_row : function(o, jTBody, jReferRow, direction){
         var UI  = this;
         var opt = UI.options;
         var context = opt.context || UI;
         
-        jBodyT = jBodyT || UI.arena.find(".tbl-body-t");
+        jTBody = jTBody || UI.arena.find(".tbl-body-t");
 
         // 创建行
         var jRow;
         // 没有参考 row，插入到表格后头
         if(!jReferRow || jReferRow.size() == 0){
-            jBodyT = jBodyT || UI.arena.find(".tbl-body-t");
-            jRow = $('<tr class="tbl-row">').appendTo(jBodyT);
+            jTBody = jTBody || UI.arena.find(".tbl-body-t");
+            jRow = $('<tr class="tbl-row">').appendTo(jTBody);
         }
         // 有的话，看方向 0 表示替换
         else if(0 === direction){
@@ -442,11 +486,15 @@ return ZUI.def("ui.table", {
             jRow.attr("onm", o[opt.nmKey]);
 
         // 循环输出每一列
-        UI.options.fields.forEach(function(fld){
+        UI.options.fields.forEach(function(fld, index){
             if(fld.hide)
                 return;
             var jTd = $('<td>');
             UI._draw_cell(jTd, fld, o);
+            // 标记第一列
+            if(index == 0){
+                jTd.addClass("tbl-row-td0");
+            }
             jTd.appendTo(jRow);
         });
 
@@ -464,70 +512,83 @@ return ZUI.def("ui.table", {
     //...............................................................
     _draw_cell : function(jTd, fld, o){
         var UI = this;
+        var context = UI.options.context || UI;
         jTd.attr("key", fld.key);
-        // 取得标准值
-        var ftype = JsType[fld.type];
-        if(!ftype){
-            alert("Unsupport fld.type " + fld.type);
-            throw "Unsupport fld.type " + fld.type;
-        }
-        var val = $z.getValue(o, fld.key);
-        var v = ftype.parse(fld, val);
 
-        // 是不是自定义
-        if(_.isFunction(fld.display)){
-            s = fld.display.call(UI.options.context||UI, o, fld, v);
-        }
-        // 否则变成字符串
-        else{
-            s = ftype.toText(fld, v);
-        }
+        // 获取字段显示值
+        var s  = fld.__dis_obj.call(context, o, fld);
 
         // 国际化
         s = UI.text(s);
 
         // 逃逸 HTML
-        if(_.isUndefined(fld.escapeHtml) || fld.escapeHtml)
+        if(fld.escapeHtml === true)
             jTd.text(s || '');
         else
             jTd.html(s || '');
+
     },
     //...............................................................
-    _redraw_header : function(){
+    _draw_header : function(){
         var UI  = this;
         var opt = UI.options;
-        var jHeadT = UI.arena.find(".tbl-head-t");
-        var jRow = jHeadT.find("tr").first();
+        var jTHead   = UI.arena.find(".tbl-head-t");
+        var jColGrp  = UI.arena.find("colgroup");
+        var jHeadRow = jTHead.find("tr").first();
 
         // 循环输出每一列
         opt.fields.forEach(function(fld){
             if(fld.hide)
                 return;
-            var jTd = $('<td class="tbl-col-o">').appendTo(jRow);
+            // 表头
+            var jTd = $('<td class="tbl-col-o">').appendTo(jHeadRow);
             jTd.append(UI.ccode("thead.cell"));
-            jTd.find(".tbl-col-tt").text(UI.text(fld.text || col.key));
+            jTd.find(".tbl-col-tt").text(UI.text(fld.title || fld.key));
+            // 表体，添加每一列的控制
+            jColGrp.append($('<col>'));
         });
 
-        return jHeadT;
+        return jTHead;
     },
     //...............................................................
-    __check_cols_org_size : function(jHeadT, jBodyT){
+    __check_cols_org_size : function(jTHead, jTBody){
         var UI = this;
         if(!UI._cols_org_size){
             // 记录一下各个列原始的宽度
-            UI._cols_org_size = [];
-            jBodyT.find("tr:first-child td").each(function(index){
-                UI._cols_org_size[index] = $(this).outerWidth(true);
+            var colszs = [];
+            jTBody.find("tr:visible").first().children("td").each(function(index){
+                var w = $(this).outerWidth(true);
+                colszs[index] = w;
             });
-            // 连同 Header 的原始宽度也一并计算 
-            if(UI.options.layout.withHeader)
-                jHeadT.find("tr:first-child td").each(function(index){
+            // 计算总宽度
+            var colsum = 0;
+            for(var i=0;i<colszs.length;i++)
+                colsum += colszs[i];
+
+            if(colsum == 0)
+                return false;
+
+            // 连同 Header 的原始宽度也一并计算
+            var jTHeadds = jTHead.find("tr:first-child td");
+            if(UI.options.layout.withHeader){
+                jTHeadds.each(function(index){
                     var jTd = $(this);
-                    var w = Math.max(jTd.outerWidth(true), UI._cols_org_size[index]);
-                    UI._cols_org_size[index] = w;
+                    var w = Math.max(jTd.outerWidth(true), colszs[index]);
+                    colszs[index] = w;
                     jTd.attr("org-width", w);
                 });
+            }
+
+            // 记录每列的原始宽度
+            jTHeadds.each(function(index){
+                $(this).attr("org-width", colszs[index]);
+            });
+
+            // 记录到 UI 对象里，以便随时取用
+            UI._cols_org_size = colszs;
         }
+        // 返回 true 表示，这是个有效的原始宽度记录
+        return true;
     },
     //...............................................................
     resize : function(){
@@ -538,24 +599,19 @@ return ZUI.def("ui.table", {
         if(jHead.size()==0)
             return;
 
-        var jHeadT = jHead.children(".tbl-head-t");
+        var jTHead = jHead.children(".tbl-head-t");
         var jBody  = UI.arena.find(".tbl-body");
-        var jBodyT = jBody.children(".tbl-body-t");
+        var jTBody = jBody.children(".tbl-body-t");
         var jRuler = UI.arena.find(".tbl-ruler");
 
-        // 确保记录了原始的列daxiao
-        UI.__check_cols_org_size(jHeadT, jBodyT);
+        // 确保记录了原始的列宽度。如果计算不成功，不搞
+        if(!UI.__check_cols_org_size(jTHead, jTBody)){
+            return;
+        }
         
         // 开始计算吧，少年
-        var W = jRuler.outerWidth();   // 视口的宽度 
-        // console.log(jBody.width()
-        //             ,jBody.outerWidth()
-        //             ,jBody.outerWidth(true)
-        //             ,jBody.innerWidth()
-        //             , "ruler:"
-        //             ,jRuler.outerWidth()
-        //             ,jRuler.innerWidth()
-        //             ,jRuler.width())
+        var W = jRuler.width() - 1;   // 视口的宽度 
+
         // 计算 body 区域，是否有滚动条，如果有滚动条，将标题区域也加一个边距
         var jSBWidth = jBody.width() - W;
         if(jSBWidth>0){
@@ -632,17 +688,17 @@ return ZUI.def("ui.table", {
         for(var x = 0; x<_ws.length; x++){
             w_table += _ws[x];
         }
-        jHeadT.css("width", w_table);
-        jBodyT.css("width", w_table);
+        jTHead.css("width", w_table);
+        jTBody.css("width", w_table);
 
 
         // 好，那么开始调整表头的第一列
-        jHeadT.find("tr:first-child td").each(function(index){
+        jTHead.find("tr:first-child td").each(function(index){
             $(this).css("width", _ws[index]);
         });
 
         // 继续调整表体的第一列
-        jBodyT.find("tr:first-child td").each(function(index){
+        jTBody.find("colgroup col").each(function(index){
             $(this).css("width", _ws[index]);
         });
 

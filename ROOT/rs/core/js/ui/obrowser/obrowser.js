@@ -424,8 +424,8 @@ return ZUI.def("ui.obrowser", {
         return this.subUI("shelf.main").getChecked();
     },
     //.............................................. 
-    getChildren : function(o, filter){
-        return Wn.getChildren(o, filter||this.options.filter);
+    getChildren : function(o, filter, callback){
+        return Wn.getChildren(o, filter||this.options.filter, callback);
     },
     //..............................................
     getAncestors : function(o, includeSelf){

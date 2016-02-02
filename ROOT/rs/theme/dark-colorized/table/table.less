@@ -35,16 +35,26 @@
 .tbl-body{
     width:100%; height:100%; overflow: auto;
     border-top:@d7 solid rgba(255,255,255,0.1);
-    border-bottom:1px solid @cborder1;
 }
 
+@tddc : rgba(255,255,255,0.06);
+@tddh : rgba(255,255,255,0.6);
 .tbl-row td {
-    padding:@d3; border-bottom: 1px dashed rgba(255,255,255,0.06); white-space: nowrap;
+    padding:@d3; white-space: nowrap;
     position: relative; vertical-align: middle;
+    border: 1px dashed rgba(0,0,0,0);
+    border-bottom-color: @tddc; 
     .oicon {margin: 0 @d2;}
 }
 
-.tbl-row:last-child td{border:0;}
+.tbl-row-actived {
+    .tbl-row-td0:before {
+        display: block; content: "";
+        position: absolute; top:@d3; left:1px; bottom:@d3; width: 1px;
+        border-left:1px dotted @tddh;
+        border-right:1px dotted @tddh;
+    }
+}
 
 // 显示选择框
 .tbl-show-checkbox {

@@ -1,0 +1,37 @@
+@import (reference) "../ui";
+
+.lst {padding:20px; overflow: auto;}
+
+.lst-item {
+    cursor:pointer; position: relative; line-height: @d7; padding:0 @d2;
+    border:1px dotted rgba(0,0,0,0);
+}
+.lst-item [tp] {margin:0 2px; width:1.1em;}
+.lst-item [tp=icon] {margin-right:6px;}
+
+.lst-item-actived {
+    border-color:#CCC;
+}
+
+.lst-item-checker {display:none;}
+.lst-show-checkbox {
+    .lst-item {
+        padding-left: @d6 + @d0;
+    }
+    .lst-item-checker {
+        display:block;
+        position: absolute; top:0; left: 0; 
+        height:@d7; width: @d6; text-align: center;
+        line-height: @d7 + @d0;
+        >*:first-child {display: inline;}
+        >*:last-child  {display: none;}
+    }
+}
+
+.lst-item-checked {
+    background: @ch0_b; color:@ch0_f;
+    .lst-item-checker{
+        >*:first-child {display: none;}
+        >*:last-child  {display: inline;}
+    }
+}

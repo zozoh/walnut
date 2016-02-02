@@ -87,7 +87,7 @@ author:zozoh
 var o = tree.getActived();
 ```
 
-## active
+## setActived
 
 ```
 // 将某个对象变成激活状态，会触发对应的回调和消息

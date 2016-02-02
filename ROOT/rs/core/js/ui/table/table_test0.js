@@ -12,11 +12,11 @@ var html = function(){/*
       <button class="t1">T1</button>
       <button class="t2">T2</button>
     <div ui-gasket="testmain"
-    style="width:600px; height:600px; background: #FFF; padding:10px; margin:10px;"></div>
+    style="width:600px; height:600px; padding:10px; margin:10px; border:10px solid #CCC;"></div>
 </div>
 */};
 //===================================================================
-return ZUI.def("ui.form_main", {
+return ZUI.def("ui.table_test0", {
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
@@ -49,16 +49,16 @@ return ZUI.def("ui.form_main", {
     getFields : function(){
         return [{
                 key   : "nm",
-                text  : "名称",
+                title : "名称",
                 type  : "string"
             },{
                 key   : "id",
                 icon  : '<i class="fa fa-random"></i>',
-                text  : "ID",
+                title : "ID",
                 type  : "string"
             },{
                 key   : "live",
-                text  : "有效性",
+                title : "有效性",
                 type  : "string",
                 dft   : "no",
                 uiConf: {
@@ -70,7 +70,7 @@ return ZUI.def("ui.form_main", {
                 }
             },{
                 key   : "lm",
-                text  : "最后修改时间",
+                title : "最后修改时间",
                 type  : "datetime",
                 format : "yy-mm-dd HH:MM:ss"
             }];
@@ -80,6 +80,7 @@ return ZUI.def("ui.form_main", {
         var UI = this;
         new TableUI({
             parent : UI,
+            arenaClass : "ui-noselect",
             gasketName : "testmain",
             fields : UI.getFields(),
             checkable:true

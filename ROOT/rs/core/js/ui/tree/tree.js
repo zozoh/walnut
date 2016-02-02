@@ -186,7 +186,7 @@ return ZUI.def("ui.tree", {
         }
     },
     //...............................................................
-    active : function(nd, quiet){
+    setActived : function(nd, quiet){
         var UI = this;
         var opt = UI.options;
         var jNode = UI.$node(nd);

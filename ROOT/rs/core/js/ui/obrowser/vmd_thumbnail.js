@@ -100,11 +100,11 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
             }
             // jObj 在前面
             else if(pos_a > pos_o){
-                jq = jObj.nextUntil(jA).andSelf().add(jA);
+                jq = jObj.nextUntil(jA).addBack().add(jA);
             }
             // jObj 在后面
             else {
-                jq = jObj.prevUntil(jA).andSelf().add(jA);
+                jq = jObj.prevUntil(jA).addBack().add(jA);
             }
             jq.addClass("wnobj-checked");
         }
@@ -120,22 +120,22 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
         var UI = this;
 
         // 显示正在加载
-        UI.arena.empty().text(UI.msg("loading"));
+        UI.showLoading();
 
-        window.setTimeout(function(){
-            // 得到当前所有的子节点
-            var list = UIBrowser.getChildren(o);
+        // 得到当前所有的子节点
+        UIBrowser.getChildren(o, null, function(objs){
+            // 清空
+            UI.arena.empty();
 
             // 循环在选区内绘制图标
-            UI.arena.empty();
-            list.forEach(function(child){
-                Wn.gen_wnobj_thumbnail(child, 
+            objs.forEach(function(obj){
+                Wn.gen_wnobj_thumbnail(obj, 
                     'span',
                     UIBrowser.options.thumbnail,
                     UI
                 ).appendTo(UI.arena);
             });
-        }, 10);
+        });
     },
     //..............................................
     getData : function(arg){

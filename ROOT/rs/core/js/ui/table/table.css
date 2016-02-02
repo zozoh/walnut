@@ -70,20 +70,28 @@
   height: 100%;
   overflow: auto;
   border-top: 32px solid #eeeeee;
-  border-bottom: 1px solid #dddddd;
 }
 .tbl-row td {
   padding: 8px;
-  border-bottom: 1px dashed #dddddd;
   white-space: nowrap;
   position: relative;
   vertical-align: middle;
+  border: 1px dashed rgba(0, 0, 0, 0);
+  border-bottom-color: rgba(0, 0, 0, 0.05);
 }
 .tbl-row td .oicon {
   margin: 0 6px;
 }
-.tbl-row:last-child td {
-  border: 0;
+.tbl-row-actived .tbl-row-td0:before {
+  display: block;
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 1px;
+  bottom: 8px;
+  width: 1px;
+  border-left: 1px dotted rgba(255, 255, 255, 0.6);
+  border-right: 1px dotted rgba(255, 255, 255, 0.6);
 }
 .tbl-show-checkbox .tbl-row td:first-child {
   padding-left: 40px;
@@ -114,5 +122,5 @@
   display: inline;
 }
 .tbl-row-checked td {
-  border-color: #338;
+  border-color: #0044bb;
 }

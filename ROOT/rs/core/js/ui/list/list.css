@@ -1,0 +1,53 @@
+.lst {
+  padding: 20px;
+  overflow: auto;
+}
+.lst-item {
+  cursor: pointer;
+  position: relative;
+  line-height: 32px;
+  padding: 0 6px;
+  border: 1px dotted rgba(0, 0, 0, 0);
+}
+.lst-item [tp] {
+  margin: 0 2px;
+  width: 1.1em;
+}
+.lst-item [tp=icon] {
+  margin-right: 6px;
+}
+.lst-item-actived {
+  border-color: #CCC;
+}
+.lst-item-checker {
+  display: none;
+}
+.lst-show-checkbox .lst-item {
+  padding-left: 26px;
+}
+.lst-show-checkbox .lst-item-checker {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 32px;
+  width: 24px;
+  text-align: center;
+  line-height: 34px;
+}
+.lst-show-checkbox .lst-item-checker > *:first-child {
+  display: inline;
+}
+.lst-show-checkbox .lst-item-checker > *:last-child {
+  display: none;
+}
+.lst-item-checked {
+  background: #0044bb;
+  color: #ffffff;
+}
+.lst-item-checked .lst-item-checker > *:first-child {
+  display: none;
+}
+.lst-item-checked .lst-item-checker > *:last-child {
+  display: inline;
+}

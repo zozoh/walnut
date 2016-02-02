@@ -611,6 +611,57 @@
             // 返回自身
             return obj;
         },
+        // 评估一个字段配置项里面的 icon|text|display 函数，为这个配置项生成 
+        // __dis_obj 方法
+        evalFldDisplay : function(JsType, fld){
+            var func;
+            // 自定义的 display 方法
+            if(fld.display){
+                func = _.isFunction(fld.display) ? fld.display : _.template(fld.display);
+            }
+            // 同时有 text && icon
+            else{
+                // 预编译 icon
+                if(fld.icon)
+                    fld.__dis_icon = _.isFunction(fld.icon) ? fld.icon : _.template(fld.icon);
+                
+                // 预编译 text
+                if(fld.text)
+                    fld.__dis_text = _.isFunction(fld.text) ? fld.text : _.template(fld.text);
+
+                // 同时有 icon 和 text
+                if(fld.__dis_icon && fld.__dis_text){
+                    func = function(o, fld){
+                        return fld.__dis_icon.call(this, o, fld)
+                             + fld.__dis_text.call(this, o, fld);
+                    };
+                }
+                // 只有 icon
+                else if(fld.__dis_icon){
+                    func = fld.__dis_icon;
+                }
+                // 只有 text
+                else if(fld.__dis_text){
+                    func = fld.__dis_text;
+                }
+                // 啥都木有，直接显示吧
+                else{
+                    func = function(o, fld){
+                        // 取得标准值
+                        var ftype = JsType[fld.type || "string"];
+                        if(!ftype){
+                            alert("Unsupport fld.type " + fld.type);
+                            throw "Unsupport fld.type " + fld.type;
+                        }
+                        var val = $z.getValue(o, fld.key);
+                        var v = ftype.parse(fld, val);
+                        return ftype.toText(fld, v);
+                    }
+                }
+            }
+            // 添加到配置信息里
+            fld.__dis_obj = func;
+        },
         // 深层遍历一个给定的 Object，如果对象的字段有类似 "function(...}" 的字符串，将其变成函数对象 
         evalFunctionField : function(obj, memo){
             if(!memo)

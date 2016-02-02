@@ -138,15 +138,15 @@ return ZUI.def("ui.obrowser_sky", {
             // 在折叠中，标记有效的 foldered_oid
             if(jFolder.size()>0){
                 foldered_oid = jItem.attr("oid");
-                jq = jFolder.prevAll().andSelf();
+                jq = jFolder.prevAll().addBack();
             }
             // 在下拉子节点菜单中
             else if(jDrop.size()>0){
-                jq = jDrop.closest(".citem").prevAll().andSelf().add(jItem);
+                jq = jDrop.closest(".citem").prevAll().addBack().add(jItem);
             }
             // 好吧就是普通路径咯
             else{
-                jq = jItem.prevAll().andSelf();
+                jq = jItem.prevAll().addBack();
             }
         }
         // 默认的，就用全部面包屑项目
