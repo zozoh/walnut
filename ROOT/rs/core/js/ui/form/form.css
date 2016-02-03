@@ -1,8 +1,8 @@
 .form-title {
   padding: 12px;
   text-align: center;
-  color: #333333;
-  background: #e0e0e0;
+  color: #333;
+  background: #E0E0E0;
   font-size: 16px;
 }
 .form-body {
@@ -19,8 +19,8 @@
   padding-right: 1px;
 }
 .form-group-hide .fg-title {
-  border-color: #ff8800;
-  color: #ff8800;
+  border-color: #F80;
+  color: #F80;
 }
 .form-group-hide .fg-title:after {
   content: "...";
@@ -35,8 +35,8 @@
   padding: 6px;
   margin: 6px 0 0 0;
   font-size: 16px;
-  color: #666666;
-  background: #eeeeee;
+  color: #666;
+  background: #EEE;
   border: 1px solid rgba(0, 0, 0, 0);
   position: relative;
 }
@@ -47,7 +47,7 @@
   margin: 0 6px;
 }
 .form-fld {
-  border-top: 1px dashed #dddddd;
+  border-top: 1px dashed #DDD;
   padding: 4px;
 }
 .form-fld[first-row] {
@@ -62,13 +62,13 @@
 .ff-txt {
   text-align: right;
   padding: 12px 12px 12px 12px;
-  color: #666666;
+  color: #666;
 }
 .ff-txt .fft-icon {
   margin-right: 6px;
 }
 .ff-txt[required] {
-  color: #333333;
+  color: #333;
   font-weight: bolder;
 }
 .ff-txt[required]:before {
@@ -92,7 +92,7 @@
 }
 .ffv-tip {
   display: inline-block;
-  color: #008800;
+  color: #080;
   padding: 4px;
   font-size: 8px;
 }

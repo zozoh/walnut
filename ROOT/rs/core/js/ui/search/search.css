@@ -43,7 +43,7 @@
   height: 100%;
   padding-bottom: 48px;
   position: relative;
-  background: #ffffff;
+  background: #FFF;
 }
 .srh-mask .srh-qform {
   width: 100%;
@@ -54,8 +54,8 @@
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  background: #eeeeee;
-  border-top: 1px solid #cccccc;
+  background: #EEE;
+  border-top: 1px solid #CCC;
   position: absolute;
   left: 0;
   right: 0;
@@ -74,15 +74,15 @@
   cursor: pointer;
   margin: 0 2px;
   padding: 8px 32px;
-  border: 1px solid #bbbbbb;
-  background: #d0d0d0;
-  color: #000000;
+  border: 1px solid #BBB;
+  background: #D0D0D0;
+  color: #000;
   border-radius: 4px;
   padding: 8px 6px;
 }
 .srh-mask .srh-qbtns b:hover {
-  color: #ffffff;
-  background: #0044bb;
+  color: #FFF;
+  background: #04B;
 }
 .srh-mask .srh-qbtns .ing {
   margin-right: 4px;
@@ -132,8 +132,8 @@
   font-size: 14px;
   padding: 8px 16px 8px 32px;
   width: 100%;
-  color: #888888;
-  border: 1px solid #aaaaaa;
+  color: #888;
+  border: 1px solid #AAA;
   border-radius: 128px;
   outline: none;
 }
@@ -142,7 +142,7 @@
   top: 0;
   left: 0;
   padding: 8px;
-  color: #dddddd;
+  color: #DDD;
 }
 /*.............................................. pager*/
 .srh-pgr {
@@ -174,8 +174,8 @@
   font-size: 12px;
 }
 .srh-pgr .pgr-enable:hover {
-  background: #cccccc;
-  color: #444444;
+  background: #CCC;
+  color: #444;
   cursor: pointer;
 }
 .srh-pgr .pgr-disable,

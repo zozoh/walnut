@@ -5,7 +5,7 @@
 .com-input input {
   padding: 6px;
   width: 100%;
-  border: 1px solid #cccccc;
+  border: 1px solid #CCC;
   border-radius: 4px;
 }
 .com-droplist {
@@ -21,13 +21,13 @@
 .com-droplist .com-box {
   min-width: 100px;
   width: 100%;
-  border: 1px solid #dddddd;
+  border: 1px solid #DDD;
   border-radius: 4px;
   position: relative;
   padding: 0 24px 0 8px;
   white-space: nowrap;
-  background: #ffffff;
-  color: #333333;
+  background: #FFF;
+  color: #333;
   overflow: hidden;
 }
 .com-droplist .com-box .com-box-drop {
@@ -59,10 +59,10 @@
   right: 0;
   overflow: hidden;
   white-space: nowrap;
-  background: #dddddd;
-  color: #000000;
+  background: #DDD;
+  color: #000;
   border-radius: 6px;
-  box-shadow: 2px 2px 8px #888888;
+  box-shadow: 2px 2px 8px #888;
 }
 .com-droplist .com-drop ul {
   list-style: none;
@@ -73,13 +73,13 @@
   padding: 6px 12px;
 }
 .com-droplist .com-drop .com-multi-apply {
-  border-top: 1px dotted #cccccc;
+  border-top: 1px dotted #CCC;
   padding: 8px;
   text-align: center;
 }
 .com-droplist .com-drop .com-multi-apply:hover {
-  background: #cccccc;
-  color: #444444;
+  background: #CCC;
+  color: #444;
 }
 .com-droplist span[it="check"] {
   display: inline-block;
@@ -127,8 +127,8 @@
   display: none;
 }
 .com-droplist[multi="no"] ul li:hover {
-  color: #ffffff;
-  background: #0044bb;
+  color: #FFF;
+  background: #04B;
 }
 .com-droplist[multi="no"] ul li.checked span[it="check"] * {
   display: inline;
@@ -141,8 +141,8 @@
   line-height: 32px;
 }
 .com-droplist[multi="yes"] li.checked {
-  color: #ffffff;
-  background: #0044bb;
+  color: #FFF;
+  background: #04B;
 }
 .com-droplist[multi="yes"] li.checked span[it="check"] i:first-child {
   display: none;
@@ -178,7 +178,7 @@
 }
 .com-butlist li.checked {
   opacity: 1.0;
-  color: #000000;
+  color: #000;
 }
 .com-butlist li.checked span[it="but"] i:first-child {
   display: none;
@@ -220,7 +220,7 @@
   list-style: none;
   padding: 1px 1px 1px 0;
   margin: 0;
-  background: #dddddd;
+  background: #DDD;
   display: inline-block;
 }
 .com-switch ul:after {
@@ -251,7 +251,7 @@
   width: 100%;
   height: 100%;
   padding: 8px;
-  border: 1px solid #cccccc;
+  border: 1px solid #CCC;
   border-radius: 4px;
   resize: none;
 }

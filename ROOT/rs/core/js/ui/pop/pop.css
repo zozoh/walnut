@@ -6,14 +6,14 @@
   padding: 12px;
   text-align: center;
   font-size: 16px;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid #DDD;
 }
 .pop .pop-actions {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  border-top: 1px solid #dddddd;
+  border-top: 1px solid #DDD;
   text-align: right;
   padding: 8px;
 }
@@ -23,12 +23,12 @@
   padding: 8px 24px;
   font-size: 12px;
   cursor: pointer;
-  border: 1px solid #bbbbbb;
-  background: #d0d0d0;
-  color: #000000;
+  border: 1px solid #BBB;
+  background: #D0D0D0;
+  color: #000;
   border-radius: 2px;
 }
 .pop .pop-actions .pop-btn:hover {
-  background: #0044bb;
-  color: #ffffff;
+  background: #04B;
+  color: #FFF;
 }

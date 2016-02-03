@@ -256,14 +256,14 @@ $(document).ready(function () {
                     html += '           </button>';
                 }
             }
-            if (opt.cancel) {
-                html += '           <button class="md-button raised-button is-primary md-btn-cancel">';
-                html += '               <span class="md-button-label">取消</span>';
-                html += '           </button>';
-            }
             if (opt.ok) {
                 html += '           <button class="md-button raised-button is-secondary md-btn-ok">';
                 html += '               <span class="md-button-label">确认</span>';
+                html += '           </button>';
+            }
+            if (opt.cancel) {
+                html += '           <button class="md-button raised-button is-primary md-btn-cancel">';
+                html += '               <span class="md-button-label">取消</span>';
                 html += '           </button>';
             }
             html += '       </div>';
@@ -281,7 +281,6 @@ $(document).ready(function () {
             var mw = $win.outerWidth();
             var mh = $win.outerHeight();
             $win.css({'left': (wsize.width - mw) / 2, 'top': (wsize.height - mh) / 2});
-
             // 计算content的宽高
             var miw = $win.width();
             var mih = $win.height();
@@ -289,7 +288,7 @@ $(document).ready(function () {
             var $content = $win.find('.md-buildin-content');
             var $btns = $win.find('.md-buildin-btns');
 
-            $content.css("height", mih - $title.outerHeight() - $btns.outerHeight() - 32);
+            $content.css("height", mih - $title.outerHeight() - $btns.outerHeight());
 
             $win.animate({
                 opacity: 1

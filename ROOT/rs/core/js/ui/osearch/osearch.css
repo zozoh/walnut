@@ -68,8 +68,8 @@
   font-size: 14px;
   padding: 8px 16px 8px 32px;
   width: 100%;
-  color: #888888;
-  border: 1px solid #aaaaaa;
+  color: #888;
+  border: 1px solid #AAA;
   border-radius: 128px;
   outline: none;
 }
@@ -78,7 +78,7 @@
   top: 0;
   left: 0;
   padding: 8px;
-  color: #dddddd;
+  color: #DDD;
 }
 /*.............................................. pager*/
 .osearch-pager {

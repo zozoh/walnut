@@ -36,8 +36,8 @@
   padding-left: 16px;
 }
 .tree-node-actived > .tnd-self {
-  background: #0044bb;
-  color: #ffffff;
+  background: #04B;
+  color: #FFF;
 }
 .tree-node[ndtp=leaf] .tnd-handle {
   visibility: hidden;

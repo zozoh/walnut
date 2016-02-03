@@ -7,6 +7,8 @@
 .md-buildin {
   position: fixed;
   z-index: @zi-masker + 1000;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .md-buildin-bg {
@@ -46,23 +48,31 @@
   background: @black;
   height: @buildin-height;
   line-height: @buildin-height;
-  padding: 0 @buildin-padding;
   margin: 0 auto;
   .md-buildin-content {
     text-align: center;
     color: @white;
     font-weight: bold;
+    padding: 0 64px;
   }
 }
 
 .md-confirm, .md-prompt, .md-win {
   background: @white;
-  padding: @buildin-padding /2 @buildin-padding;
+  //padding: @buildin-padding /2 @buildin-padding;
   .md-buildin-content {
-    margin: 16px 0;
+    padding: 16px 0;
+    min-height: 60px;
   }
   .md-buildin-input {
     margin: 16px 0;
+  }
+}
+
+.md-prompt {
+  .md-buildin-content {
+    padding: 16px 0;
+    min-height: 60px;
   }
 }
 
@@ -72,20 +82,33 @@
     //border-bottom: 1px solid @hint-on-light;
     overflow-x: hidden;
     overflow-y: auto;
+    padding: 0 24px;
   }
 }
 
-
 .md-buildin-title {
-  height: @buildin-height * 1.2;
-  line-height: @buildin-height * 1.2;
+  height: @buildin-height * 1.5;
+  line-height: @buildin-height * 1.5;
   font-size: @font-size-h3;
+  background-color: @primary-1-color;
+  color: @white;
+  padding: 0 32px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
 }
 
 .md-buildin-btns {
-  text-align: right;
+  //box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.26);
+  height: @buildin-height * 1.5;
+  padding: 0 32px;
+  padding-top: @buildin-height * 1.5 / 2 - 15px;
+  border-top: 1px solid @divider-on-light;
   button {
+    float: right;
     margin-left: 4px;
+
+    &.left {
+      float: left;
+    }
   }
 }
 

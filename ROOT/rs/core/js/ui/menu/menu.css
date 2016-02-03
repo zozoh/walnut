@@ -1,10 +1,10 @@
 .ui-menu[contextmenu="yes"] {
   position: absolute;
-  color: #000000;
-  background: #ffffff;
-  border: 1px solid #ffffff;
+  color: #000;
+  background: #FFF;
+  border: 1px solid #FFF;
   border-radius: 2px;
-  box-shadow: 2px 2px 6px #888888;
+  box-shadow: 2px 2px 6px #888;
   min-width: 128px;
   text-align: left;
 }
@@ -42,16 +42,16 @@
 .menu-item .menu-item-wrapper .menu-item-status {
   display: inline-block;
   vertical-align: middle;
-  border: 1px solid #dddddd;
+  border: 1px solid #DDD;
   border-radius: 4px;
 }
 .menu-item .menu-item-wrapper .menu-item-status .menu-item-si {
   width: 24px;
   display: inline-block;
   text-align: center;
-  border-right: 1px solid #dddddd;
+  border-right: 1px solid #DDD;
   cursor: pointer;
-  color: #666666;
+  color: #666;
 }
 .menu-item .menu-item-wrapper .menu-item-status .menu-item-si i {
   cursor: pointer;
@@ -60,16 +60,16 @@
   border-right: 0;
 }
 .menu-item .menu-item-wrapper .menu-item-status .menu-item-si-on {
-  background: #cccccc;
-  color: #444444;
+  background: #CCC;
+  color: #444;
 }
 .menu-item[tp="button"] > .menu-item-wrapper:hover,
 .menu-item[tp="boolean"] > .menu-item-wrapper:hover,
 .menu-item[tp="status"] .menu-item-si-off:hover,
 .menu-item[tp="group"] > .menu-item-wrapper:hover,
 .menu-item[tp="group"][open] > .menu-item-wrapper {
-  color: #ffffff;
-  background: #0044bb;
+  color: #FFF;
+  background: #04B;
 }
 .menu {
   white-space: nowrap;
@@ -85,15 +85,15 @@
 }
 .menu .menu-item[md="top"] .menu-item[tp="separator"] {
   padding: 0;
-  border-right: 1px dotted #dddddd;
+  border-right: 1px dotted #DDD;
 }
 .menu .menu-sub {
-  color: #000000;
-  background: #ffffff;
-  border: 1px solid #ffffff;
+  color: #000;
+  background: #FFF;
+  border: 1px solid #FFF;
   padding: 6px;
   border-radius: 2px;
-  box-shadow: 2px 2px 6px #888888;
+  box-shadow: 2px 2px 6px #888;
   min-width: 128px;
   text-align: left;
 }
@@ -119,5 +119,5 @@
   line-height: 0;
   height: 0;
   margin: 6px 0;
-  border-top: 1px dotted #dddddd;
+  border-top: 1px dotted #DDD;
 }
