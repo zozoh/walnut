@@ -299,6 +299,17 @@ return ZUI.def("ui.console", {
         var ps = this._render_ps1(se);
         UI._prompt(ps, function (str, jBlock) {
             str = $.trim(str);
+            // 分析字符串，如果 %xxxx: 开头，表示模拟一个 APP
+            // 那么后面的才是命令内容
+            var m = /^%([^ :]+):(.+)$/.exec(str);
+            var appName, cmdText;
+            if(m){
+                appName = m[1];
+                cmdText = $.trim(m[2]);
+            }else{
+                cmdText = str;
+            }
+
             // 显示旧的输入行
             var jq = UI.ccode("prompt.read");
             jq.find('.ui-console-ps').text(ps);
@@ -307,19 +318,19 @@ return ZUI.def("ui.console", {
             jBlock.remove();
 
             // 退出登录
-            if ("exit" == str) {
+            if ("exit" == cmdText) {
                 $.get("/u/do/logout", function (re) {
                     window.location = "/";
                 });
                 return;
             }
             // 清屏幕
-            if ("clear" == str) {
+            if ("clear" == cmdText) {
                 UI.clearScreen();
                 return;
             }
             // 打开
-            var m = str.match(/(open)([ \t]+)([0-9a-zA-Z_.-]{1,})(([ \t]+)(.+))?/);
+            var m = cmdText.match(/(open)([ \t]+)([0-9a-zA-Z_.-]{1,})(([ \t]+)(.+))?/);
             if (m) {
                 var path = m[6];
                 var params = undefined;
@@ -336,7 +347,8 @@ return ZUI.def("ui.console", {
             }
 
             // 处理命令
-            Wn.exec(str, {
+            Wn.exec(cmdText, {
+                appName  : appName,
                 context  : UI,
                 msgShow  : UI.on_show_txt,
                 msgError : UI.on_show_err,

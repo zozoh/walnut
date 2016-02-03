@@ -195,10 +195,10 @@ public class AppModule extends AbstractWnModule {
         return new WnObjDownloadView(io, o);
     }
 
-    @At("/run/?/**")
+    @At("/run/**")
     @Ok("void")
     public void run(String appName,
-                    String mimeType,
+                    @Param("mime") String mimeType,
                     @Param("mos") final String metaOutputSeparator,
                     @Param("PWD") String PWD,
                     @Param("cmd") String cmdText,
@@ -206,6 +206,9 @@ public class AppModule extends AbstractWnModule {
                     final HttpServletResponse resp) throws IOException {
         // String cmdText = Streams.readAndClose(req.getReader());
         // cmdText = URLDecoder.decode(cmdText, "UTF-8");
+
+        // 找到 app 所在目录
+        WnObj oAppHome = this._check_app_home(appName);
 
         // 默认返回的 mime-type 是文本
         if (Strings.isBlank(mimeType))
@@ -221,6 +224,7 @@ public class AppModule extends AbstractWnModule {
         // 运行
         WnSession se = Wn.WC().checkSE();
         se.var("PWD", PWD);
+        se.var("APP_HOME", oAppHome.path());
 
         _run_cmd("", se, cmdText, out, err, null, new Callback<WnBoxContext>() {
             public void invoke(WnBoxContext bc) {

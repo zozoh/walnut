@@ -69,6 +69,10 @@ var Wn = {
         jNm.prop("href","/a/open/wn.browser?ph=id:"+o.id).text(nmText);
     },
     //...................................................................
+    objIconHtml : function(o){
+        return o.icon || '<i class="oicon" otp="'+this.objTypeName(o)+'"></i>';;
+    },
+    //...................................................................
     objTypeName : function(o){
         return o.tp || ('DIR'==o.race ? 'folder' : 'unknown');
     },
@@ -164,8 +168,12 @@ var Wn = {
         });
     },
     /*................................................................
-    # 执行命令的 options 是一组回调
+    # 执行命令的 opt 配置对象的内容
     {
+        // 应用的名称命令执行时会自动添加环境变量 $WN_APP_HOME
+        // 默认采用当前的 app 名称，如果设定的 app 找不到命令将拒绝执行
+        appName     : "xxx"  
+        //..................................... 回调设定
         processData : false  // 调用结束回调的时候，是否先解析数据
         dataType : "json"    // 如果 processData 为 true 时的数据类型，默认JSON
         async    : true      // 指明同步异步，默认 true
@@ -185,14 +193,14 @@ var Wn = {
         complate : function(content){..}
     }
     */
-    exec : function (str, options) {
+    exec : function (str, opt) {
         var app = window._app;
         var se = app.session;
         var re = undefined;
 
         // 没设置回调，则默认认为是同步调用
-        if(_.isUndefined(options)){
-            options = {
+        if(_.isUndefined(opt)){
+            opt = {
                 async : false,
                 complete : function(content){
                     re = content;
@@ -200,20 +208,20 @@ var Wn = {
             };
         }
         // 一个回调处理所有的情况
-        else if (_.isFunction(options)) {
-            options = {async:true, complete: options};
+        else if (_.isFunction(opt)) {
+            opt = {async:true, complete: opt};
         }
 
-        // 有 options 的情况，默认是异步
-        $z.setUndefined(options, "async", true);
+        // 有 opt 的情况，默认是异步
+        $z.setUndefined(opt, "async", true);
         
         // 固定上下文
-        var context = options.context || this;
+        var context = opt.context || this;
 
         // 没内容，那么就表执行了，直接回调吧
         str = (str || "").trim();
         if (!str) {
-            $z.invoke(options, "complete", [], context);
+            $z.invoke(opt, "complete", [], context);
             return;
         }
 
@@ -224,7 +232,7 @@ var Wn = {
         var mosTail = "\n" + mos + ":END\n";
 
         // 执行命令的地址
-        var url = '/a/run/' + app.name;
+        var url = '/a/run/' + (opt.appName || app.name);
 
         // 准备发送的数据
         var sendData = "mos=" + encodeURIComponent(mos);
@@ -278,16 +286,16 @@ var Wn = {
             if (str) {
                 // 正常显示
                 if (oReq.status == 200) {
-                    $z.invoke(options, "msgShow", [str], context);
+                    $z.invoke(opt, "msgShow", [str], context);
                 }
                 // 错误显示
                 else {
-                    $z.invoke(options, "msgError", [str], context);
+                    $z.invoke(opt, "msgError", [str], context);
                 }
             }
         };
         
-        oReq.open("POST", url, options.async);
+        oReq.open("POST", url, opt.async);
         oReq.onreadystatechange = function () {
             //console.log("rs:" + oReq.readyState + " status:" + oReq.status + " :: \n" + oReq.responseText);
             // LOADING | DONE 只要有数据输入，显示一下信息
@@ -304,13 +312,13 @@ var Wn = {
                     }
                 }
                 // 最后确保通知了显示流结束
-                $z.invoke(options, "msgEnd", [str], context);
+                $z.invoke(opt, "msgEnd", [str], context);
                 
                 var re = oReq._content;
 
                 // 执行回调前数据处理
-                if(options.processData){
-                    if("json" == options.dataType){
+                if(opt.processData){
+                    if("json" == opt.dataType){
                         re = $z.fromJson(re);
                         // 检查是不是 session 过期了，如果过期了，直接换地址
                         $z.checkSessionNoExists(re);
@@ -319,8 +327,8 @@ var Wn = {
 
                 // 调用完成后的回调
                 var funcName = oReq.status == 200 ? "done" : "fail";
-                $z.invoke(options, funcName,   [re], context);
-                $z.invoke(options, "complete", [re], context);
+                $z.invoke(opt, funcName,   [re], context);
+                $z.invoke(opt, "complete", [re], context);
             }
         };
         oReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");

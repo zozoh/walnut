@@ -170,12 +170,12 @@ $HOME/.ui/
     
 ```
 # 获取当前目录的编辑器信息
-appmenu
+appsetup
 
 # 获取某个指定 ID 对象的编辑器信息
-appmenu id:45cfae
+appsetup id:45cfae
 
 # 获取某个指定路径的对象编辑器信息
-appmenu ~/path/to/obj
+appsetup ~/path/to/obj
 ```
 

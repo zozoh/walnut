@@ -43,7 +43,7 @@ return ZUI.def("ui.obrowser_vmd_table", {
                 type  : "string",
                 escapeHtml : false,
                 display : function(o){
-                    var html = '<i class="oicon" otp="'+Wn.objTypeName(o)+'"></i>';
+                    var html = Wn.objIconHtml(o);
                     html += '<span class="wnobj-nm">'+Wn.objDisplayName(o)+'</span>';
                     return html;
                 }
