@@ -120,7 +120,12 @@ return ZUI.def("ui.obrowser_sky", {
         UI.getData(ele).forEach(function(o){
             nms.push(o.nm);
         });
-        return nms.join("/");
+        // 在主目录内
+        if("~" == nms[0])
+            return nms.join("/");
+        // 否则拼上绝对路径
+        else
+            return "/" + nms.join("/");
     },
     //..............................................
     // 返回显示中的（包括折叠）的每个对象的 id 和 nm
@@ -251,17 +256,26 @@ return ZUI.def("ui.obrowser_sky", {
         //console.log("home:", homePath);
 
         for(;i<list.length;i++){
-            //console.log(i, list[i].ph)
+            // console.log(i, list[i].ph);
             if(list[i].ph == homePath){
                 UI._append_crumb_item(jCrumb, list[i], "home");
                 break;
             }
         }
 
-        // 剩下的路径
-        var lastIndex = list.length-1;
-        for(++i;i<list.length;i++){
-            UI._append_crumb_item(jCrumb, list[i], i==lastIndex?"tail":"");
+        // 不在主目录之中
+        if(i == list.length){
+            var lastIndex = list.length-1;
+            for(i=0;i<list.length;i++){
+                UI._append_crumb_item(jCrumb, list[i], i==lastIndex?"tail":"");
+            }
+        }
+        // 在主目录中，绘制剩下的路径
+        else{
+            var lastIndex = list.length-1;
+            for(++i;i<list.length;i++){
+                UI._append_crumb_item(jCrumb, list[i], i==lastIndex?"tail":"");
+            }
         }
     },
     _append_crumb_item : function(jCrumb, o, itype){
