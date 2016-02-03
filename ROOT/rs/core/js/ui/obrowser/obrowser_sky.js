@@ -277,7 +277,8 @@ return ZUI.def("ui.obrowser_sky", {
         // 其他项目
         else{
             jq.attr("onm", o.nm);
-            jq.find(".oicon").attr("otp",Wn.objTypeName(o)).attr("mime",o.mime);
+            var jIcon = $(Wn.objIconHtml(o)).attr("mime",o.mime);
+            jq.find(".oicon").replaceWith(jIcon);
             jq.find("b").text(o.nm);
         }
         // 移除最后的展开符

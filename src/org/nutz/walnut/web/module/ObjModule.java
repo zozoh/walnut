@@ -190,7 +190,7 @@ public class ObjModule extends AbstractWnModule {
             }
             // 没找到就用系统的缩略图，这样可以利用上缓存
             else {
-                im = __read_dft_thumbnail(tp, sz_key);
+                im = __read_dft_thumbnail(tp, o.race(), sz_key);
             }
 
             // 统一设定默认缩略图的格式
@@ -224,7 +224,7 @@ public class ObjModule extends AbstractWnModule {
 
     private static final int[] SIZE_HINTS = Nums.array(16, 24, 32, 64, 128);
 
-    private BufferedImage __read_dft_thumbnail(String tp, String sz_key) {
+    private BufferedImage __read_dft_thumbnail(String tp, WnRace race, String sz_key) {
         BufferedImage im;
 
         // 先看看缓存里有木有
@@ -235,6 +235,11 @@ public class ObjModule extends AbstractWnModule {
 
         // 从系统的缩略图目录里找
         WnObj oThumbHome = io.fetch(null, "/etc/thumbnail/" + tp);
+
+        // 如果是目录，没找到的话，试图读取 "folder" 作为缩略图
+        if (null == oThumbHome && race == WnRace.DIR) {
+            oThumbHome = io.fetch(null, "/etc/thumbnail/folder");
+        }
 
         // 没找到了对应文件的缩略图，直接用默认的
         if (null == oThumbHome) {

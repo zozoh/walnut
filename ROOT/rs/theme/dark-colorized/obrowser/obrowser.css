@@ -19,6 +19,11 @@ body > .ui-obrowser {
 .obrowser .obrowser-main .wnobj-hide * {
   opacity: 0.5;
 }
+.obrowser .obrowser-main .obrowser-vmd-table .tbl-row-td0 i {
+  margin: 0 6px;
+  width: 16px;
+  text-align: center;
+}
 .obrowser .obrowser-footer {
   background: rgba(0, 0, 0, 0.5);
   border-top: 1px solid rgba(255, 255, 255, 0.2);
@@ -182,6 +187,10 @@ body > .ui-obrowser {
 .obrowser .obrowser-sky .obrowser-crumb .citem {
   border: 1px solid rgba(0, 0, 0, 0);
   padding: 0 0 0 2px;
+}
+.obrowser .obrowser-sky .obrowser-crumb .citem i {
+  display: inline-block;
+  vertical-align: middle;
 }
 .obrowser .obrowser-sky .obrowser-crumb .citem b {
   font-weight: normal;

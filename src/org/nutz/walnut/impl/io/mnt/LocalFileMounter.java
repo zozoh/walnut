@@ -91,7 +91,7 @@ public class LocalFileMounter implements WnMounter {
         o.createTime(f.lastModified());
         o.lastModified(f.lastModified());
 
-        o.mode(0750);
+        o.mode(p.mode());
         o.creator(p.creator()).group(p.creator()).mender(p.creator());
 
         o.mount(p.mount() + "/" + o.name());

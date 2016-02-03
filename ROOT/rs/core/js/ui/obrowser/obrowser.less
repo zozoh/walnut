@@ -16,6 +16,14 @@ body > .ui-obrowser {
             * {cursor: default;}
         }
         .wnobj-hide *{opacity: 0.5;}
+
+        .obrowser-vmd-table {
+            .tbl-row-td0 {
+                i {
+                    margin: 0 @d2; width:16px; text-align: center;
+                }
+            }
+        }
     }
 
     //---------------------------------------------- BEGIN Footer
@@ -118,11 +126,14 @@ body > .ui-obrowser {
             }
             .citem {
                 border:1px solid rgba(0,0,0,0);
-                padding: 0 0 0 @d0; 
+                padding: 0 0 0 @d1; 
+                i {
+                    display: inline-block; vertical-align: middle;
+                }
                 b {
                     font-weight: normal;
                     display: inline-block; vertical-align: middle;
-                    line-height:@d6; margin:0 @d0 0 @d0;
+                    line-height:@d6; margin:0 @d0 0 @d1;
                 }
                 .ochild {
                     display: inline-block; vertical-align: middle;
