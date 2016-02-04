@@ -45,7 +45,7 @@ public class WnMainModule extends AbstractWnModule {
         return "1.0" + io.toString();
     }
 
-    @At("/home")
+    @At(value = {"/home", "/index", "/index.html"})
     public View homePage() {
         return new ViewWrapper(new JspView("jsp." + page_home), null);
     }
@@ -56,7 +56,7 @@ public class WnMainModule extends AbstractWnModule {
         String seid = Wn.WC().SEID();
         if (null == seid) {
             if (useHomePage) {
-                return "/home";
+                return "/index.html";
             }
             return "/u/login";
         }
@@ -77,7 +77,7 @@ public class WnMainModule extends AbstractWnModule {
         catch (WebException e) {
             e.printStackTrace();
             if (useHomePage) {
-                return "/home";
+                return "/index.html";
             }
             return "/u/login";
         }
