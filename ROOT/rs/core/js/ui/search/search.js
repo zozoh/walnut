@@ -49,6 +49,7 @@ var quick_menus = {
             var opt  = UI.options;
             _pop_form_mask(UI, "i18n:new",{},opt.edtCmdTmpl["create"],function(newObj){
                 UI.uiList.add(newObj).setActived(UI.uiList.getObjId(newObj));
+                UI.uiList.resize();
             });
         }
     },
@@ -213,6 +214,32 @@ return ZUI.def("ui.srh", {
         });
     },
     //...............................................................
+    _draw_actions : function(isNarrow, callback) {
+        var UI  = this;
+        var opt = UI.options;
+        // 绘制菜单
+        var jActions = UI.arena.find(".srh-actions");
+        if(jActions.size() > 0){
+            if(opt.menu){
+                var menu_setup = isNarrow ? [{
+                    icon  : '<i class="fa fa-ellipsis-v"></i>',
+                    items : opt.menu 
+                }] : opt.menu;
+                UI.uiMenu = new MenuUI({
+                    parent     : UI,
+                    gasketName : "menu",
+                    setup : menu_setup
+                }).render(callback);
+                // 返回 true 表示有菜单
+                return true;
+            }
+            // 删除菜单 
+            else{
+                jActions.remove();
+            }
+        }
+    },
+    //...............................................................
     redraw : function(){
         var UI  = this;
         var opt = UI.options;
@@ -221,19 +248,10 @@ return ZUI.def("ui.srh", {
         var uiTypes = ["flt","lst","pgr"]
 
         // 绘制菜单
-        if(opt.menu){
+        if(UI._draw_actions(false, function(){
+            UI.defer_report("menu");
+        })){
             uiTypes.push("menu");
-            UI.uiMenu = new MenuUI({
-                parent     : UI,
-                gasketName : "menu",
-                setup : opt.menu
-            }).render(function(){
-                UI.defer_report("menu");
-            });
-        }
-        // 删除菜单 
-        else{
-            UI.arena.find(".srh-actions").remove();
         }
 
         // 加载 filter 控件
@@ -283,10 +301,20 @@ return ZUI.def("ui.srh", {
             jFilter.css("width", "100%");
             jSky.css("height", jFilter.outerHeight(true));
         }
+        // 有 action 的话，就需要仔细判断一下了
         else {
-            var w_action = jActions.outerWidth(true);
+            if(jActions.width() == 0 || jActions.height() == 0){
+                return;
+            }
+            var w_action = jActions.attr("org-width") * 1;
+            // 记录原始宽度
+            if(!w_action){
+                w_action = jActions.outerWidth(true);
+                jActions.attr("org-width", w_action);
+            }
+
+            // 开始计算
             var h_action = jActions.outerHeight();
-            var w_action_inner = jActions.find(".menu").outerWidth();
             // if(!w_action){
             //     w_action = jActions.outerWidth(true);
             //     jActions.attr("org-width", w_action);
@@ -296,30 +324,24 @@ return ZUI.def("ui.srh", {
             jFilter.css("height", h_action);
             
             // 太窄
-            if(w_sky/2 < w_action_inner){
-                var hh = jActions.outerHeight(true);
-                var pad = jFilter.outerHeight(true) - jFilter.height();
-                jSky.css("height", hh * 2 - (pad/2)).attr("narrow","true");
-                jActions.css({
-                    top:0
-                });
-                jFilter.css({
-                    top: hh - (pad/2), width:w_sky
-                });
+            if(w_sky/2 < w_action){
+                // 原来不是窄的，那么现在要绘制成窄的
+                if(!jSky.attr("narrow")){
+                    jSky.attr("narrow","true");
+                    UI._draw_actions(true);
+                }
             }
             // 并排
             else{
-                var hh = jActions.outerHeight(true);
-                var pad = jFilter.outerWidth(true) - jFilter.width();
-                jSky.css("height", hh).removeAttr("narrow");
-                jFilter.css({
-                    top   : 0,
-                    width : w_sky - w_action + (pad/2)
-                }); 
+                // 原来是窄的，那么恢复回来
+                if(jSky.attr("narrow")){
+                    jSky.removeAttr("narrow");
+                    UI._draw_actions(false);
+                }
             }
-            // 确保被 resize
-            if(UI._filter)
-                UI._filter.resize();
+            // 更新宽度
+            jFilter.css("width", jSky.width() - jActions.outerWidth(true));
+            jSky.css("height", jFilter.outerHeight(true));
         }
         
 

@@ -26,7 +26,7 @@ return ZUI.def("ui.obrowser_vmd_table", {
             parent : UI,
             fitParent : true,
             gasketName : "table",
-            checkable : true,
+            checkable : UI.browser.options.checkable,
             layout : {
                 sizeHint : '*'
             },
@@ -108,28 +108,19 @@ return ZUI.def("ui.obrowser_vmd_table", {
     },
     //..............................................
     getData : function(arg){
-        return this.subUI("table").getData(arg);
+        return this.uiTable.getData(arg);
     },
     //..............................................
     isActived : function(ele){
-        return $(ele).closest(".otable-row").hasClass("otable-row-actived");
+        return this.uiTable.isActived(ele);
     },
     //..............................................
     getActived : function(){
-        var UI = this;
-        var jq = UI.arena.find(".otable-row-actived");
-        if(jq.size()==0)
-            return null;
-        return UI.browser.getById(jq.attr("oid"));
+        return this.uiTable.getActived();
     },
     //..............................................
     getChecked : function(){
-        var UI = this;
-        var re = [];
-        this.arena.find(".otable-row-checked").each(function(){
-            re.push(UI.browser.getById($(this).attr("oid")));
-        });
-        return re;
+        return this.uiTable.getChecked();
     }
     //..............................................
 });

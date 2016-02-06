@@ -8,6 +8,9 @@
   font-size: 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+.pop .pop-body {
+  background: #000000;
+}
 .pop .pop-actions {
   -moz-user-select: none;
   -khtml-user-select: none;

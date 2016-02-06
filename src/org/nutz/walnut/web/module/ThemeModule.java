@@ -31,6 +31,9 @@ public class ThemeModule extends AbstractWnModule {
     @Inject("java:$conf.get('theme-home','/rs/theme')")
     private String themeHome;
 
+    @Inject("java:$conf.get('jquery-plugin-home','/rs/core/js/jquery-plugin')")
+    private String jqueryPluginHome;
+
     @Inject("java:$conf.get('ui-home','/rs/core/js/ui')")
     private String uiHome;
 
@@ -71,6 +74,11 @@ public class ThemeModule extends AbstractWnModule {
             // 内置 UI 直接读取内部的 UI Home
             if ("ui".equals(themeCate)) {
                 oBase = io.check(null, uiHome);
+                ph = Wn.appendPath(uiName, rsName);
+            }
+            // 内置 jQueryPlugin 直接读取内部的 jQueryPlugin Home
+            else if ("jqp".equals(themeCate)) {
+                oBase = io.check(null, jqueryPluginHome);
                 ph = Wn.appendPath(uiName, rsName);
             }
             // UIX 从环境变量里读取

@@ -47,17 +47,16 @@
   margin: 0 6px;
 }
 .form-fld {
-  border-top: 1px dashed #dddddd;
+  border-bottom: 1px dashed #dddddd;
   padding: 4px;
 }
-.form-fld[first-row] {
+[multi-cols] .form-fld {
   border: 0;
 }
 .ff-txt,
 .ff-val {
   display: inline-block;
   vertical-align: top;
-  white-space: nowrap;
 }
 .ff-txt {
   text-align: right;
@@ -83,14 +82,22 @@
   padding: 6px;
 }
 .ffv-ui {
+  padding-right: 6px;
+}
+.ffv-tip {
+  display: inline-block;
+  color: #008800;
+  padding: 4px;
+  font-size: 8px;
+}
+.form-group [ui-width="auto"] .ffv-ui,
+.form-group [ui-fixed-width] .ffv-ui {
   display: inline-block;
   vertical-align: middle;
   padding-right: 6px;
 }
-.ffv-ui[fill="all"] {
-  width: 100%;
-}
-.ffv-tip {
+.form-group [ui-width="auto"] .ffv-tip,
+.form-group [ui-fixed-width] .ffv-tip {
   display: inline-block;
   color: #008800;
   padding: 4px;

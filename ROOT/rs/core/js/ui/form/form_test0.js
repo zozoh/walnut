@@ -7,12 +7,14 @@ $z.declare([
 //==============================================
 var html = function(){/*
 <div class="ui-arena" ui-fitparent="yes">
+    <div style="position:absolute; padding:6px;">
     <button class="get_data">GET DATA</button>
     | <button class="t0">T0</button>
       <button class="t1">T1</button>
       <button class="t2">T2</button>
+    </div>
     <div class="myform" ui-gasket="myform"
-    style="width:600px; height:800px; background: #FFF; padding:10px; margin:10px;"></div>
+    style="width:100%; height:100%; padding-top:50px; background: #FFF; margin:10px;"></div>
 </div>
 */};
 //===================================================================
@@ -39,6 +41,7 @@ return ZUI.def("ui.form_test0", {
         return {
             id: this.$el.attr("obj-id"),
             x:100, y:80, 
+            birthday : "1977-09-21",
             name:'I am zozoh', 
             sex:"m",
             live:true,
@@ -50,32 +53,47 @@ return ZUI.def("ui.form_test0", {
         return [{
                 key   : "id",
                 icon  : '<i class="fa fa-random"></i>',
-                text  : "ID",
+                title : "i18n:ID",
                 type  : "string"
             },{
+                key   : "birthday",
+                title : "生日",
+                type  : "datetime",
+                dft   : "1977-09-21",
+                editAs: "datepicker"
+            },{
+                key   : "drange",
+                title : "选一个日期范围",
+                type  : "daterange",
+                dft   : ["2016-02-02", new Date()],
+                nativeAs : "string",
+                format : "yyyy-mm-dd",
+                editAs: "datepicker",
+                uiConf: {setup : {mode : "range"}} 
+            },{
                 key   : "x",
-                text  : "X轴",
+                title : "i18n:X轴",
                 tip   : "x 轴坐标",
                 type  : "int",
                 editAs : "input",
                 required : true
             },{
                 key   : "y",
-                text  : "Y轴",
+                title : "i18n:Y轴",
                 tip   : "y 轴坐标",
                 type  : "int",
                 editAs : "input",
                 required : true
             },{
                 key   : "name",
-                text  : "名称",
+                title : "i18n:名称",
                 tip   : "请输入正确的名称",
                 type  : "string",
                 editAs : "input"
             },{
                 key   : "sex",
                 icon  : '<i class="fa fa-ship"></i>',
-                text  : "性别",
+                title : "i18n:性别",
                 tip   : "请输入你的性别",
                 required : true,
                 type  : "string",
@@ -83,7 +101,7 @@ return ZUI.def("ui.form_test0", {
                 uiConf : {items : [{text : "男", val:"m"},{text : "女", val:"f"}]}
             },{
                 key   : "live",
-                text  : "仍旧存活",
+                title : "i18n:仍旧存活",
                 tip   : "量子态不算存活，算死翘翘",
                 type  : "boolean",
                 editAs : "switch"
@@ -93,23 +111,23 @@ return ZUI.def("ui.form_test0", {
     fields_B : function(){
         return [{
                 key   : "age",
-                text  : "年龄",
+                title : "i18n:年龄",
                 type  : "int",
                 editAs : "input"
             },{
                 key   : "race",
-                text  : "种族",
+                title : "i18n:种族",
                 type  : "string",
                 editAs : "input"
             },{
                 key   : "usenm",
-                text  : "曾用名",
+                title : "i18n:曾用名",
                 type  : "string",
                 span  : 2,
                 editAs : "input"
             },{
                 key   : "skill",
-                text  : "技能",
+                title : "i18n:技能",
                 type  : "string",
                 editAs : "input" 
             }];
@@ -118,7 +136,7 @@ return ZUI.def("ui.form_test0", {
     fields_C : function(){
         return [{
             key   : "poli",
-            text  : "政治面貌",
+            title : "i18n:政治面貌",
             tip   : "你就看着填吧",
             type  : "object",
             editAs : "droplist",
@@ -130,7 +148,7 @@ return ZUI.def("ui.form_test0", {
             }
         },{
             key   : "FTF",
-            text  : "饮食口味",
+            title : "i18n:饮食口味",
             tip   : "你就看着填吧",
             type  : "object",
             editAs : "checklist",
@@ -138,7 +156,7 @@ return ZUI.def("ui.form_test0", {
             uiConf : {
                 multi : 0,
                 items : [{
-                    dicon:'<i class="fa fa-fire"></i>',
+                    icon:'<i class="fa fa-fire"></i>',
                     text:"辣"
                 },{
                     text:"酸"
@@ -150,7 +168,7 @@ return ZUI.def("ui.form_test0", {
             }
         },{
             key   : "myphoto",
-            text  : "我的图片",
+            title : "i18n:我的图片",
             tip   : "随便选个图片",
             type  : "object",
             uiType : "ui/picker/opicker",
@@ -165,7 +183,7 @@ return ZUI.def("ui.form_test0", {
             }
         },{
             key   : "myfiles",
-            text  : "我的多个文件",
+            title : "i18n:我的多个文件",
             tip   : "随便选个一些文件和文件夹咯",
             type  : "object",
             dft   : [{fid:'t6c2m2r5a0htep2rto785n588f'},{fid:'3d7gf4mdtghbqqrknp2snkpo3a'}],
@@ -191,7 +209,7 @@ return ZUI.def("ui.form_test0", {
             }
         },{            
             key   : "comment",
-            text  : "补充说明",
+            title : "i18n:补充说明",
             tip   : "随便写点什么咯",
             type  : "string",
             editAs : "text",
@@ -222,16 +240,17 @@ return ZUI.def("ui.form_test0", {
             title : "分组表单",
             fields : [{
                 icon : '<i class="fa fa-tachometer"></i>',
-                text : '更多的控件',
+                title: '更多的控件',
                 uiWidth : "all",
                 fields : UI.fields_C()
             },{
                 icon : '<i class="fa fa-rss"></i>',
-                text : '各种属性',
+                title: '各种属性',
+                uiWidth : 300,
                 fields : UI.fields_A()
             },{
                 icon : '<i class="fa fa-rss"></i>',
-                text : '四个输入框',
+                title: '四个输入框',
                 fields : UI.fields_B()
             }]
         }).render(function(){
@@ -264,7 +283,7 @@ return ZUI.def("ui.form_test0", {
     //...............................................................
     update : function(o){
         this.$el.attr("obj-id", o.id);
-        this.do_t1();
+        this.do_t2();
     }
     //...............................................................
 });

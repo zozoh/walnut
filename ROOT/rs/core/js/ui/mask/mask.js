@@ -93,7 +93,7 @@ return ZUI.def("ui.mask", {
 
         var mL = (W-mW)/2
         var mT = (H-mH)*0.382;
-        UI.$main = UI.arena.find(".ui-mask-main").css({
+        UI.$main.css({
             "width" : mW,
             "height": mH,
             "left"  : mL,

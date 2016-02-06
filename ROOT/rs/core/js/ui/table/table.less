@@ -3,7 +3,7 @@
 
 .ui.tbl .ui-loading {padding:@d6;}
 .tbl {
-    width:100%; height:100%;  position: relative;
+    width:100%; height:100%;  position: relative; overflow: hidden;
     table {border-spacing: 0; }
     td {overflow: hidden;}
 }
@@ -11,6 +11,11 @@
 .tbl-head {@noselect();
     position: absolute; top:0px; left:0; right:0; 
     height:@d7; line-height: @d7; overflow: hidden; 
+}
+.tbl-show-checkbox {
+    .tbl-head .tbl-col-0 {
+        padding-left:@d7 + @d3;
+    }
 }
 
 .tbl-head-t td {

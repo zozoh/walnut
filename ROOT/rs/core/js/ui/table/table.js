@@ -2,7 +2,7 @@
 $z.declare([
     'zui',
     'ui/jtypes'
-], function(ZUI, JsType){
+], function(ZUI, jType){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
@@ -54,17 +54,30 @@ return ZUI.def("ui.table", {
         $z.setUndefined(opt.layout, "cellWrap"  , "nowrap");
         $z.setUndefined(opt.layout, "withHeader", true);
 
-        // 预先编译每个字段的显示
+        // 展开所有的 fields 
+        opt.__fields = [];
         opt.fields.forEach(function(fld){
-            $z.evalFldDisplay(JsType, fld);
+            // 字段添加
+            if(fld.key){
+                opt.__fields.push(fld);
+            }
+            // 字段组，添加子
+            else if(_.isArray(fld.fields)){
+                opt.__fields = opt.__fields.concat(fld.fields);
+            }
+        });
+
+        // 预先编译每个字段的显示
+        opt.__jsos = [];
+        opt.__fields.forEach(function(fld){
+            $z.evalFldDisplay(fld);
+            opt.__jsos.push(jType(fld));
         });
 
         // 最后等重绘完毕模拟点击
-        UI.on("tbl:change", function(){
+        UI.on("table:change", function(){
             UI.arena.find(".tbl-body").scroll(function(e){
-                var jq = $(this);
-                var left = jq.scrollLeft();
-                //console.log(left, jq.scrollTop(),jHead.size());
+                var left = $(this).scrollLeft();
                 UI.arena.find(".tbl-head").css("left", left * -1);
             });
         });
@@ -195,7 +208,7 @@ return ZUI.def("ui.table", {
             var o = jRow.data("OBJ");
             // 触发消息 
             UI.trigger("table:actived", o, jRow);
-            $z.invoke(UI.options, "on_actived", [o, jRow], UI);
+            $z.invoke(opt, "on_actived", [o, jRow], UI);
         }
         // 同步选择器 
         UI.__sync_checker();
@@ -298,7 +311,8 @@ return ZUI.def("ui.table", {
     },
     //...............................................................
     toggle : function(arg){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         var jTbody = UI.arena.find(".tbl-body-t>tbody");
         var jRows = $z.jq(jTbody, arg, ".tbl-row");
         if(jRows.size()>0){
@@ -326,12 +340,12 @@ return ZUI.def("ui.table", {
             // 触发消息 : checked
             if(checkeds.length > 0) {
                 UI.trigger("table:checked", checkeds);
-                $z.invoke(UI.options, "on_checked", [checkeds], UI);    
+                $z.invoke(opt, "on_checked", [checkeds], UI);    
             }
             // 触发消息 : uncheck
             if(unchecks.length > 0) {
                 UI.trigger("table:uncheck", unchecks);
-                $z.invoke(UI.options, "on_uncheck", [unchecks], UI);    
+                $z.invoke(opt, "on_uncheck", [unchecks], UI);    
             }
         }
     },
@@ -382,7 +396,7 @@ return ZUI.def("ui.table", {
         }
     },
     //...............................................................
-    add : function(obj, it, direction) {
+    add : function(objs, it, direction) {
         var UI = this;
         objs = _.isArray(objs) ? objs : [objs];
 
@@ -486,13 +500,14 @@ return ZUI.def("ui.table", {
             jRow.attr("onm", o[opt.nmKey]);
 
         // 循环输出每一列
-        UI.options.fields.forEach(function(fld, index){
-            if(fld.hide)
+        var colIndex = 0;
+        opt.__jsos.forEach(function(jso){
+            if(jso.type().hide)
                 return;
             var jTd = $('<td>');
-            UI._draw_cell(jTd, fld, o);
+            UI._draw_cell(jTd, jso, o);
             // 标记第一列
-            if(index == 0){
+            if((colIndex++) == 0){
                 jTd.addClass("tbl-row-td0");
             }
             jTd.appendTo(jRow);
@@ -510,13 +525,14 @@ return ZUI.def("ui.table", {
         return jRow;
     },
     //...............................................................
-    _draw_cell : function(jTd, fld, o){
-        var UI = this;
+    _draw_cell : function(jTd, jso, o){
+        var UI   = this;
+        var fld  = jso.type();
         var context = UI.options.context || UI;
         jTd.attr("key", fld.key);
 
         // 获取字段显示值
-        var s  = fld.__dis_obj.call(context, o, fld);
+        var s  = fld.__dis_obj.call(context, o, jso);
 
         // 国际化
         s = UI.text(s);
@@ -537,13 +553,20 @@ return ZUI.def("ui.table", {
         var jHeadRow = jTHead.find("tr").first();
 
         // 循环输出每一列
-        opt.fields.forEach(function(fld){
+        var colIndex = 0;
+        opt.__fields.forEach(function(fld){
             if(fld.hide)
                 return;
             // 表头
-            var jTd = $('<td class="tbl-col-o">').appendTo(jHeadRow);
+            var jTd = $('<td class="tbl-col">').appendTo(jHeadRow);
             jTd.append(UI.ccode("thead.cell"));
             jTd.find(".tbl-col-tt").text(UI.text(fld.title || fld.key));
+
+            // 标记第一列
+            if((colIndex++) == 0){
+                jTd.addClass("tbl-col-0");
+            }
+
             // 表体，添加每一列的控制
             jColGrp.append($('<col>'));
         });
@@ -569,9 +592,9 @@ return ZUI.def("ui.table", {
                 return false;
 
             // 连同 Header 的原始宽度也一并计算
-            var jTHeadds = jTHead.find("tr:first-child td");
+            var jTHeadTds = jTHead.find("tr:first-child td");
             if(UI.options.layout.withHeader){
-                jTHeadds.each(function(index){
+                jTHeadTds.each(function(index){
                     var jTd = $(this);
                     var w = Math.max(jTd.outerWidth(true), colszs[index]);
                     colszs[index] = w;
@@ -580,7 +603,7 @@ return ZUI.def("ui.table", {
             }
 
             // 记录每列的原始宽度
-            jTHeadds.each(function(index){
+            jTHeadTds.each(function(index){
                 $(this).attr("org-width", colszs[index]);
             });
 

@@ -3,6 +3,6 @@
 	text : "TestEditor",
 	//actions : [ "@::new", "::properties" ],
 	outline : false,
-	uiType : "ui/search/search_test0",
+	uiType : "ui/form/form_test0",
 	uiConf : {}
 })

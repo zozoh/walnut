@@ -19,8 +19,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.calendar", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "jquery-plugin/zcal/zcal.css",
-    i18n : "ui/calendar/i18n/{{lang}}.js",
+    css  : "theme/jqp/zcal/zcal.css",
     init : function(options){
         var UI = this;
         wrap_func(UI, options, "on_actived"      ,"cal:actived");
@@ -33,7 +32,7 @@ return ZUI.def("ui.calendar", {
     //..............................................
     redraw : function(){
         var UI = this;
-        UI.options.i18n = UI.msg("calendar");
+        UI.options.i18n = UI.msg("dt");
         UI.arena.zcal(UI.options);
     },
     //..............................................
@@ -46,6 +45,7 @@ return ZUI.def("ui.calendar", {
     },
     setCurrent : function(d){
         this.arena.zcal("current", d);
+        return this;
     },
     viewport : function(){
         return this.arena.zcal("viewport");
@@ -53,11 +53,16 @@ return ZUI.def("ui.calendar", {
     getActived : function(){
         return this.arena.zcal("actived");
     },
-    active : function(d){
-        return this.arena.zcal("active", d);
+    setActived : function(d){
+        this.arena.zcal("active", d);
+        return this;
     },
-    range : function(mode){
+    getRange : function(mode){
         return this.arena.zcal("range", mode);
+    }
+    setRange : function(rg){
+        this.arena.zcal("range", rg);
+        return this;
     }
     //..............................................
 });
