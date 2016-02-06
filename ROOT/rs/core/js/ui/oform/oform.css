@@ -1,19 +1,19 @@
 .oform-title {
   padding: 16px;
   text-align: center;
-  color: #333333;
-  background: #e0e0e0;
+  color: #333;
+  background: #E0E0E0;
   font-size: 14px;
 }
 .oform-fldnm {
   width: 30%;
   text-align: right;
   padding: 16px 14px;
-  color: #888888;
+  color: #888;
   font-size: 12px;
 }
 .oform-fld-required {
-  color: #ff0000;
+  color: #F00;
   font-weight: bolder;
   margin-right: 4px;
 }
@@ -23,7 +23,7 @@
 }
 .oform-fldcmt {
   padding: 4px;
-  color: #008800;
+  color: #080;
   font-size: 12px;
 }
 .oform-grp {
@@ -31,7 +31,7 @@
   border-collapse: collapse;
 }
 .oform-grp td {
-  border: 1px solid #dddddd;
+  border: 1px solid #DDD;
   vertical-align: top;
 }
 .oform-flow {
@@ -49,7 +49,7 @@
   list-style: none;
   text-align: center;
   margin: 0;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid #DDD;
   padding: 12px;
 }
 .oform-flow .oform-actions:after {
@@ -68,14 +68,14 @@
   cursor: pointer;
   margin: 0 2px;
   padding: 8px 32px;
-  border: 1px solid #bbbbbb;
-  background: #d0d0d0;
-  color: #000000;
+  border: 1px solid #BBB;
+  background: #D0D0D0;
+  color: #000;
   border-radius: 4px;
 }
 .oform-flow .oform-abtn:hover {
-  color: #ffffff;
-  background: #0044bb;
+  color: #FFF;
+  background: #04B;
 }
 .oform-flow .oform-flow-ghead {
   padding: 16px;
@@ -103,7 +103,7 @@
   text-align: center;
   margin: 0;
   padding: 16px 0 0 0;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid #DDD;
 }
 .oform-tabs .oform-tabs-bar:after {
   content: "";
@@ -117,16 +117,16 @@
   cursor: pointer;
   margin: 0 2px;
   padding: 12px 32px;
-  border: 1px solid #bbbbbb;
+  border: 1px solid #BBB;
   border-bottom: 0;
-  background: #000000;
-  color: #d0d0d0;
+  background: #000;
+  color: #D0D0D0;
   border-radius: 4px 4px 0 0;
 }
 .oform-tabs .oform-tabs-li[highlight] {
-  color: #ffffff;
-  background: #0044bb;
-  border-color: #ff8800;
+  color: #FFF;
+  background: #04B;
+  border-color: #F80;
 }
 .oform-tabs .oform-actions {
   -moz-user-select: none;
@@ -137,7 +137,7 @@
   text-align: center;
   margin: 0;
   padding: 16px;
-  border-top: 1px solid #dddddd;
+  border-top: 1px solid #DDD;
 }
 .oform-tabs .oform-actions:after {
   content: "";
@@ -155,14 +155,14 @@
   cursor: pointer;
   margin: 0 2px;
   padding: 8px 32px;
-  border: 1px solid #bbbbbb;
-  background: #d0d0d0;
-  color: #000000;
+  border: 1px solid #BBB;
+  background: #D0D0D0;
+  color: #000;
   border-radius: 4px;
 }
 .oform-tabs .oform-abtn:hover {
-  color: #ffffff;
-  background: #0044bb;
+  color: #FFF;
+  background: #04B;
 }
 .oform-tabs .oform-grp {
   display: none;

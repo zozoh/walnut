@@ -21,6 +21,7 @@ import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.web.WnConfig;
+import org.nutz.web.WebException;
 
 @IocBean
 public class WnRun {
@@ -59,6 +60,12 @@ public class WnRun {
         // 执行命令
         try {
             return exec(logPrefix, se, null, cmdText);
+        }
+        catch (WebException we) {
+            throw we;
+        }
+        catch (Exception e) {
+            throw Lang.wrapThrow(e);
         }
         // 退出会话
         finally {

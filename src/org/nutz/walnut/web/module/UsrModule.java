@@ -142,6 +142,20 @@ public class UsrModule extends AbstractWnModule {
         return se;
     }
 
+    @POST
+    @At("/do/logout/ajax")
+    @Ok("ajax")
+    @Fail("ajax")
+    @Filters(@By(type = WnCheckSession.class))
+    public boolean do_logout_ajax() {
+        String seid = Wn.WC().SEID();
+        if (null != seid) {
+            sess.logout(seid);
+            return true;
+        }
+        return false;
+    }
+
     /**
      * 检查登陆信息, 看看是不是用户名密码都对了
      *

@@ -32,8 +32,8 @@
   padding: 0 8px;
   margin: 0;
   white-space: nowrap;
-  border-left: 1px solid #cccccc;
-  color: #444444;
+  border-left: 1px solid #CCC;
+  color: #444;
   text-align: center;
   font-size: 12px;
   cursor: pointer;
@@ -48,7 +48,7 @@
   width: 32px;
   height: 32px;
   text-align: center;
-  border-right: 1px solid #dddddd;
+  border-right: 1px solid #DDD;
 }
 .otable-checker > * {
   display: none;
@@ -63,12 +63,12 @@
   width: 100%;
   height: 100%;
   overflow: auto;
-  border: 1px solid #dddddd;
-  border-top: 32px solid #eeeeee;
+  border: 1px solid #DDD;
+  border-top: 32px solid #EEE;
 }
 .otable-row td {
   padding: 8px;
-  border-bottom: 1px dashed #dddddd;
+  border-bottom: 1px dashed #DDD;
   white-space: nowrap;
   font-size: 12px;
 }
@@ -86,13 +86,13 @@
   font-weight: normal;
 }
 .otable-row-checked {
-  background: #0044bb;
-  color: #ffffff;
+  background: #04B;
+  color: #FFF;
 }
 .otable-row-checked td {
   border-color: #338;
 }
 .otable-row-actived {
-  background: #0044bb;
-  color: #ffffff;
+  background: #04B;
+  color: #FFF;
 }

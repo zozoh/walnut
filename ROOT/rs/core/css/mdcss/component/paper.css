@@ -2,7 +2,7 @@
   overflow: hidden;
 }
 .paper.rounded {
-  border-radius: 2px;
+  border-radius: 4px;
 }
 .paper.circle {
   border-radius: 50%;
