@@ -2,7 +2,7 @@
 $z.declare([
     'zui',
     'ui/jtypes'
-], function(ZUI, JsType){
+], function(ZUI, jType){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
@@ -26,127 +26,12 @@ return ZUI.def("ui.form", {
     css  : ["theme/ui/form/form.css", "theme/ui/form/component.css"],
     i18n : "ui/form/i18n/{{lang}}.js",
     //...............................................................
-    events : {
-        "click .fg-title" : function(e){
-            var jG = $(e.currentTarget).closest(".form-group");
-            console.log(jG.size())
-            jG.toggleClass("form-group-hide");
-        }
-    },
-    //...............................................................
-    _draw_field : function(jG, fld){
-        var UI   = this;
-        var jF   = UI.ccode("field").data("@FLD", fld).appendTo(jG);
-        var jTxt = jF.children(".ff-txt");
-        var jFui = jF.find(".ffv-ui");
-        var jTip = jF.find(".ffv-tip");
-        // 绘制标题
-        if(fld.required)
-            jTxt.attr("required","yes");
-        if(fld.icon)
-            $('<span class="fft-icon">').html(fld.icon).appendTo(jTxt);
-        if(fld.text)
-            $('<span class="fft-text">').text(UI.text(fld.text)).appendTo(jTxt);
-
-        // 绘制值
-        seajs.use(fld.uiType, function(TheUI){
-            var theUI = new TheUI(_.extend({}, fld.uiConf, {
-                gasketName : fld.key,
-                $pel       : jFui
-            })).render(function(){
-                UI.defer_report(fld.uiType);
-            });
-            // 检查 UI 控件的合法性
-            if(!_.isFunction(theUI.setData) || !_.isFunction(theUI.getData)){
-                alert("field '" + fld.key + "' has invalid UIComponent : " + fld.uiType + " : without get/setData()");
-                throw "field '" + fld.key + "' has invalid UIComponent : " + fld.uiType + " : without get/setData()";
-            }
-            // 记录实例的引用
-            jF.data("@UI", theUI);
-        });
-
-        // 绘制补充说明
-        if(fld.tip){
-            jTip.html(UI.text(fld.tip));
-        }else{
-            jTip.remove();
-        }
-    },
-    //...............................................................
-    _draw_group : function(grp){
-        var UI = this;
-        var jG = UI.ccode("group").data("@GRP",grp).appendTo(UI.arena.find(".form-body-wrapper"));
-        var jGtt  = jG.children(".fg-title");
-        var jGff  = jG.children(".fg-fields");
-        
-        // 绘制字段标题
-        if(grp.icon || grp.text){
-            if(grp.icon)
-                $('<span class="fg-tt-icon">').html(grp.icon).appendTo(jGtt);
-            if(grp.text)
-                $('<span class="fg-tt-text">').html(UI.text(grp.text)).appendTo(jGtt);
-        }
-        // 移除标题
-        else{
-            jGtt.remove();
-        }
-
-        // 绘制每个字段 
-        for(var i=0;i<grp.fields.length;i++){
-            UI._draw_field(jGff, grp.fields[i]);
-        }
-    },
-    //...............................................................
-    // 调试用 dump 函数
-    _dump_groups : function(noShowFieldDetail, grps){
-        var UI = this;
-        var str = "";
-        if(grps) {
-            if(!_.isArray(grps)){
-                grps = [grps];
-            }
-        }else{
-            grps = UI.groups;
-        }
-        grps.forEach(function(grp){
-            str += (_.template("{{_gmode}}[{{text}}] type:'{{type}}'"
-                              + " editAs:'{{editAs}}'"
-                              + " {{items.length}} fields"))(_.extend({
-                text : "NoTitle", type:"?", editAs:"?", 
-                items : [], _gmode : grp.group ? "G" : "?"
-            }, grp));
-            // 简单显示字段名
-            if(noShowFieldDetail) {
-                str += " {";
-                grp.items.forEach(function(fld){
-                    str += '[' + fld.key + "]";
-                });
-                str += "}";
-            }
-            // 显示所有组的字段的细节
-            else {
-                if(grp.items && grp.items.length>0)
-                    grp.items.forEach(function(fld){
-                        str += '\n  @' + UI._dump_field(fld);
-                    });
-                else
-                    str += "\n    ...";
-            }
-            str += "\n";
-        });
-        return str;
-    },
-    _dump_field : function(fld){
-        return (_.template('"{{key}}" : {{type}} >>> {{editAs}} #{{text}}'))(_.extend({
-            type : "?", editAs : "?"
-        }, fld));
-    },
-    //...............................................................
     init : function(options){
         var UI = this;
         $z.evalFunctionField(options);
         $z.setUndefined(options, "mergeData", true);
         $z.setUndefined(options, "idKey", "id");
+        $z.setUndefined(options, "uiWidth", "auto");
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 整理 fields 字段
         var grpList = [];
@@ -191,11 +76,18 @@ return ZUI.def("ui.form", {
                 if(fld.uiType){
                     // 那就啥也不做了
                 }
-                // 有快捷定义
+                // 有快捷定义 ..
                 else if(fld.editAs){
+                    // 内置
                     if(/^(input|label|switch|text|(drop|check|radio)list)$/.test(fld.editAs)){
                         fld.uiType = "ui/form/c_" + fld.editAs;
-                    }else{
+                    }
+                    // 各种 picker
+                    else if(/^(o|date|time)picker$/.test(fld.editAs)){
+                        fld.uiType = "ui/picker/" + fld.editAs;
+                    }
+                    // 靠，不支持
+                    else{
                         alert("Unknown form component: " + fld.editAs);
                         throw "Unknown form component: " + fld.editAs;
                     }
@@ -216,16 +108,115 @@ return ZUI.def("ui.form", {
             UI.uiTypes.push(key);
     },
     //...............................................................
+    events : {
+        "click .fg-title" : function(e){
+            var jG = $(e.currentTarget).closest(".form-group");
+            console.log(jG.size())
+            jG.toggleClass("form-group-hide");
+        }
+    },
+    //...............................................................
+    _draw_field : function(jG, fld, grp){
+        var UI  = this;
+        var opt = UI.options;
+        var uiw = fld.uiWidth || grp.uiWidth || opt.uiWidth;
+        var jF  = UI.ccode("field")
+                    .attr("ui-width", uiw)
+                    .data("@FLD", fld)
+                    .data("@jOBJ", jType(fld))
+                    .appendTo(jG);
+        // 指定的宽度，需要特殊标记
+        if(!isNaN(uiw * 1)){
+            jF.attr("ui-fixed-width", uiw);
+        }
+
+        var jTxt = jF.children(".ff-txt");
+        var jFui = jF.find(".ffv-ui");
+        var jTip = jF.find(".ffv-tip");
+        // 绘制标题
+        if(fld.required)
+            jTxt.attr("required","yes");
+        if(fld.title)
+            $('<span class="fft-text">').html(UI.text(fld.title)).appendTo(jTxt);
+
+        // 绘制值
+        seajs.use(fld.uiType, function(TheUI){
+            var theConf = {};
+            // 如果用户定义了 display 函数，则自动应用到控件 UI 里
+            if(!fld.uiConf.display && _.isFunction(fld.display)){
+                theConf.display = fld.display;
+            }
+            // 如果用户没有定义控件的 title 属性，将字段的弄过去
+            if(!fld.uiConf.title && fld.title){
+                theConf.title = fld.title;
+            }
+            // 渲染 UI 控件 
+            var theUI = new TheUI(_.extend(theConf, fld.uiConf, {
+                gasketName : fld.key,
+                $pel       : jFui
+            })).render(function(){
+                UI.defer_report(fld.uiType);
+            });
+            // 检查 UI 控件的合法性
+            if(!_.isFunction(theUI.setData) || !_.isFunction(theUI.getData)){
+                alert("field '" + fld.key + "' has invalid UIComponent : " + fld.uiType + " : without get/setData()");
+                throw "field '" + fld.key + "' has invalid UIComponent : " + fld.uiType + " : without get/setData()";
+            }
+            // 记录实例的引用
+            jF.data("@UI", theUI);
+        });
+
+        // 绘制补充说明
+        if(fld.tip){
+            jTip.html(UI.text(fld.tip));
+        }else{
+            jTip.remove();
+        }
+    },
+    //...............................................................
+    _draw_group : function(grp){
+        var UI  = this;
+        var opt = UI.options;
+        var jG  = UI.ccode("group")
+                    .data("@GRP",grp)
+                    .attr("ui-width", grp.uiWidth || opt.uiWidth)
+                    .appendTo(UI.arena.find(".form-body-wrapper"));
+        var jGtt  = jG.children(".fg-title");
+        var jGff  = jG.children(".fg-fields");
+
+        if(grp.cols > 1){
+            jG.attr("multi-cols", "yes");
+        }
+        
+        // 绘制字段标题
+        if(grp.icon || grp.title){
+            if(grp.icon)
+                $('<span class="fg-tt-icon">').html(grp.icon).appendTo(jGtt);
+            if(grp.title)
+                $('<span class="fg-tt-text">').html(UI.text(grp.title)).appendTo(jGtt);
+        }
+        // 移除标题
+        else{
+            jGtt.remove();
+        }
+
+        // 绘制每个字段 
+        for(var i=0;i<grp.fields.length;i++){
+            UI._draw_field(jGff, grp.fields[i], grp);
+        }
+    },
+    //...............................................................
     redraw : function() {
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         var jTitle = UI.arena.children(".form-title");
         var jBody  = UI.arena.children(".form-body");
         var jBodyW = jBody.children(".form-body-wrapper");
         jBodyW.empty();
 
         // 设置标题区域
-        if(UI.options.title){
-            jTitle.html(UI.options.title);
+        if(opt.title){
+            jTitle.html(UI.text(opt.title));
         }
         else{
             jTitle.hide();
@@ -269,7 +260,7 @@ return ZUI.def("ui.form", {
             var jG    = $(this);
             var grp   = jG.data("@GRP");
             var colnb = Math.max(grp.cols || 1, 1);
-            var fldW = parseInt(grpW / Math.max(colnb, 1));
+            var fldW = parseInt(grpW / Math.max(colnb, 1)) - (colnb>1?1:0);
 
             // 同时归纳最大的字段标题宽度
             var maxFFW = 0;
@@ -279,14 +270,6 @@ return ZUI.def("ui.form", {
                 var span = Math.max(fld.span || 1, 1);
                 var theW = Math.min(fldW * span, grpW);
                 jF.css("width", theW);
-
-                // 标记 UI 的应有宽度
-                jF.attr("ui-width", fld.uiWidth || grp.uiWidth || opt.uiWidth || "auto");
-
-                // 标记第一行
-                if(index<colnb){
-                    jF.attr("first-row", "true");
-                }
 
                 // 看看当前字段的标题
                 var jTxt = jF.children(".ff-txt");
@@ -313,25 +296,17 @@ return ZUI.def("ui.form", {
                 var vW   = jF.width() - jTxt.outerWidth(true) - 1;
                 jVal.css("width", vW);
 
-                var uiw = jF.attr("ui-width");
-                // 自适应
-                if("all" == uiw) {
-                    jUi.attr("fill","all");
-                }
+                var uiw = jF.attr("ui-fixed-width");
+                
                 // 指定宽度
-                else if(!isNaN(uiw * 1)){
-                    jUi.removeAttr("fill");
+                if(uiw){
                     var uiWidth = $z.dimension(uiw * 1, vW);
                     jUi.css("width", uiWidth);
                 }
-                // 占满整行
-                else{
-                    jUi.attr("fill","auto");
-                }
+                
             });
 
         });
-
     },
     //...............................................................
     setData : function(o){
@@ -342,16 +317,10 @@ return ZUI.def("ui.form", {
         // 设置每个字段
         UI.arena.find(".form-fld").each(function(){
             var jF  = $(this);
-            var fld = jF.data("@FLD");
+            var jso = jF.data("@jOBJ");
             var fui = jF.data("@UI"); 
-            var ftype = JsType[fld.type];
-            if(!ftype){
-                alert("Unsupport fld.type " + fld.type);
-                throw "Unsupport fld.type " + fld.type;
-            }
-            var v = $z.getValue(o, fld.key);
-            v = ftype.parse(fld, v);
-            fui.setData(v, fld, ftype);
+            var val = jso.parseByObj(o).value();
+            fui.setData(val, jso);
         });
     },
     //...............................................................
@@ -364,13 +333,10 @@ return ZUI.def("ui.form", {
         // 读取每个字段的返回值
         UI.arena.find(".form-fld").each(function(){
             var jF  = $(this);
-            var fld = jF.data("@FLD");
+            var jso = jF.data("@jOBJ");
             var fui = jF.data("@UI"); 
-            var ftype = JsType[fld.type];
             var v  = fui.getData();
-            var vv = ftype.parse(fld, v);
-            var nv = ftype.toNative(fld, vv);
-            $z.setValue(re, fld.key, nv);
+            jso.parse(v).setToObj(re);
         });
 
         // 返回值

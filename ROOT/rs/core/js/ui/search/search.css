@@ -43,19 +43,25 @@
   height: 100%;
   padding-bottom: 48px;
   position: relative;
-  background: #FFF;
+  background: #ffffff;
 }
 .srh-mask .srh-qform {
   width: 100%;
   height: 100%;
+}
+.srh-mask .srh-qform .form-body-wrapper {
+  padding: 0 12px 0 6px;
+}
+.srh-mask .srh-qform .ff-txt {
+  padding-left: 48px;
 }
 .srh-mask .srh-qbtns {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  background: #EEE;
-  border-top: 1px solid #CCC;
+  background: #eeeeee;
+  border-top: 1px solid #cccccc;
   position: absolute;
   left: 0;
   right: 0;
@@ -74,15 +80,15 @@
   cursor: pointer;
   margin: 0 2px;
   padding: 8px 32px;
-  border: 1px solid #BBB;
-  background: #D0D0D0;
-  color: #000;
+  border: 1px solid #bbbbbb;
+  background: #d0d0d0;
+  color: #000000;
   border-radius: 4px;
   padding: 8px 6px;
 }
 .srh-mask .srh-qbtns b:hover {
-  color: #FFF;
-  background: #04B;
+  color: #ffffff;
+  background: #0044bb;
 }
 .srh-mask .srh-qbtns .ing {
   margin-right: 4px;
@@ -103,6 +109,7 @@
 /*.............................................. menu*/
 .srh-actions {
   padding: 6px 6px 6px 0;
+  min-width: 24px;
   position: absolute;
   top: 0;
   right: 0;
@@ -110,39 +117,32 @@
 .srh-actions .menu {
   display: inline-block;
 }
-[narrow] .srh-actions {
-  padding: 6px 0;
-  top: 0;
-  left: 0;
-  right: 0;
-  text-align: center;
-}
 /*.............................................. filter*/
-.srh-flt {
+.srh-filter {
   padding: 9px;
   position: absolute;
   top: 0;
   left: 0;
 }
-.srh-flt .flt-keyword {
+.srh-filter .flt-keyword {
   padding: 0px;
   position: relative;
 }
-.srh-flt .flt-keyword input {
+.srh-filter .flt-keyword input {
   font-size: 14px;
   padding: 8px 16px 8px 32px;
   width: 100%;
-  color: #888;
-  border: 1px solid #AAA;
+  color: #888888;
+  border: 1px solid #aaaaaa;
   border-radius: 128px;
   outline: none;
 }
-.srh-flt .flt-icon {
+.srh-filter .flt-icon {
   position: absolute;
   top: 0;
   left: 0;
   padding: 8px;
-  color: #DDD;
+  color: #dddddd;
 }
 /*.............................................. pager*/
 .srh-pgr {
@@ -150,7 +150,7 @@
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  padding: 10px;
+  padding: 12px 6px;
   text-align: center;
 }
 .srh-pgr .pgr-tip {
@@ -174,8 +174,8 @@
   font-size: 12px;
 }
 .srh-pgr .pgr-enable:hover {
-  background: #CCC;
-  color: #444;
+  background: #cccccc;
+  color: #444444;
   cursor: pointer;
 }
 .srh-pgr .pgr-disable,

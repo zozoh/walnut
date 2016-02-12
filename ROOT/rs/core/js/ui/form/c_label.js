@@ -15,9 +15,9 @@ return ZUI.def("ui.form_com_label", {
         return this.$el.data("@VAL");
     },
     //...............................................................
-    setData : function(val, fld, ftype){
+    setData : function(val, jso){
         this.$el.data("@VAL", val);
-        this.arena.text(ftype.toText(fld, val));
+        this.arena.text(jso.toStr());
     }
     //...............................................................
 });

@@ -1,8 +1,8 @@
 .form-title {
   padding: 12px;
   text-align: center;
-  color: #333;
-  background: #E0E0E0;
+  color: #333333;
+  background: #e0e0e0;
   font-size: 16px;
 }
 .form-body {
@@ -19,8 +19,8 @@
   padding-right: 1px;
 }
 .form-group-hide .fg-title {
-  border-color: #F80;
-  color: #F80;
+  border-color: #ff8800;
+  color: #ff8800;
 }
 .form-group-hide .fg-title:after {
   content: "...";
@@ -35,8 +35,8 @@
   padding: 6px;
   margin: 6px 0 0 0;
   font-size: 16px;
-  color: #666;
-  background: #EEE;
+  color: #666666;
+  background: #eeeeee;
   border: 1px solid rgba(0, 0, 0, 0);
   position: relative;
 }
@@ -47,28 +47,27 @@
   margin: 0 6px;
 }
 .form-fld {
-  border-top: 1px dashed #DDD;
+  border-bottom: 1px dashed #dddddd;
   padding: 4px;
 }
-.form-fld[first-row] {
+[multi-cols] .form-fld {
   border: 0;
 }
 .ff-txt,
 .ff-val {
   display: inline-block;
   vertical-align: top;
-  white-space: nowrap;
 }
 .ff-txt {
   text-align: right;
   padding: 12px 12px 12px 12px;
-  color: #666;
+  color: #666666;
 }
 .ff-txt .fft-icon {
   margin-right: 6px;
 }
 .ff-txt[required] {
-  color: #333;
+  color: #333333;
   font-weight: bolder;
 }
 .ff-txt[required]:before {
@@ -83,16 +82,24 @@
   padding: 6px;
 }
 .ffv-ui {
+  padding-right: 6px;
+}
+.ffv-tip {
+  display: inline-block;
+  color: #008800;
+  padding: 4px;
+  font-size: 8px;
+}
+.form-group [ui-width="auto"] .ffv-ui,
+.form-group [ui-fixed-width] .ffv-ui {
   display: inline-block;
   vertical-align: middle;
   padding-right: 6px;
 }
-.ffv-ui[fill="all"] {
-  width: 100%;
-}
-.ffv-tip {
+.form-group [ui-width="auto"] .ffv-tip,
+.form-group [ui-fixed-width] .ffv-tip {
   display: inline-block;
-  color: #080;
+  color: #008800;
   padding: 4px;
   font-size: 8px;
 }

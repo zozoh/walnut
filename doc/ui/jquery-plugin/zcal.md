@@ -29,9 +29,17 @@ jQuery.zcal({
     // 要绘制几个日历块
     blockNumber : 3,
     
-    // 如果 blockNumber==1，可以自动适应父元素的宽度
-    // 默认 false
-    fitparent : false,
+    // 指定日历块的宽度, 其中 * 代表均分
+    blockWidth  : "100%"|.6|300|"*",
+    
+    // 指定日历块的高度, 其中 * 代表均分
+    blockHeight : "100%"|.6|300|"*",
+    
+    // 表示单元格里只是一个简单的日期文本
+    // 默认为 true，如果你希望复杂定制自己的日期格子(通过 cellDraw 函数)
+    // 将此项设置成 false，那么控件的内置的一些 css（比如原型的日期选择）
+    // 将不会起作用，以便你定制自己的单元格的时候少一些干扰
+    simpleCell : true,
     
     // 是否显示单元格的边框
     showBorder : false,
@@ -42,7 +50,7 @@ jQuery.zcal({
     
     // 周数，如果 >=1 表示从current所在周绘制一个固定周数
     // 否则自动判断，生成日期所在月份的视图
-    weeks : 0,
+    byWeek : 0,
     
     // 如果是 weeks 为 0， 那么绘制的时候是否补全上下个月的日子
     // 不声明表示 false，即补全。在 weeks>0 的时候，这个参数会被无视
@@ -120,7 +128,7 @@ jQuery.zcal({
     on_cell_resize : {<cell>}F(e),
     
     // 当单元格被单击的时候的额外操作。
-    on_cell_click : {<cell>}F(e, e),
+    on_cell_click : {<cell>}F(e, d),
     
     on_actived : {$cell}F(d),    // 当一个日期格子被激活
     on_blur    : {$cell}F(d),    // 当一个日期格子取消激活

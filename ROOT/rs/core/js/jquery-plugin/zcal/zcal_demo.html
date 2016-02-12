@@ -21,16 +21,18 @@
 <div id="demo0_tip">ddd</div>
 <script>
 $("#demo0").zcal({
-    current : new Date("2015-09-21"),
-    markMonthFirstDay : false,
+    current : new Date("1978-09-21"),
+    dmarkMonthFirstDay : false,
     blockNumber : 3,
     swticher : {today:null},
     on_actived : function(){
         var d = this.zcal("actived");
-        $("#demo0_tip").text("选择日期：" + d.format("yyyy-mm-dd"));
+        $("#demo0_tip").html("选择日期：" + d.format("yyyy-mm-dd HH:MM:ss")
+            + "<br>" + d.getTime() + "L"
+            + "<br>" + d);
     }
 });
-$("#demo0").zcal("active",  new Date("2015-09-22T12:33:44"));
+$("#demo0").zcal("active",  new Date("1980-01-01T12:33:44"));
 </script>
 <!--.........................................................-->
 <h1>显示普通月历,周一开始,自适应宽度</h1>
@@ -40,7 +42,9 @@ width:460px; height:340px; border:1px solid #DDD; box-shadow:3px 3px 10px #888;
 <script>
 $("#demo00").zcal({
     current : new Date("2015-09-21"),
-    fitparent : true,
+    blockWidth  : "100%",
+    blockHeight : "100%",
+    simpleCell : false,
     showBorder: false,
     firstDayIsMonday:true,
     swticherAtRight:true
@@ -51,7 +55,7 @@ $("#demo00").zcal({
 <div id="demo1"></div>
 <script>
 $("#demo1").zcal({
-    week : 3,
+    byWeek : 3,
     head : false,
     current : new Date("2015-08-02"),
     i18n: {
@@ -84,7 +88,7 @@ $("#demo2").zcal({
     mode  : "range",
     current : new Date("2015-09-21"),
     blockNumber : 2,
-    week  : 3,
+    byWeek  : 3,
     on_range_change : function(){
         var dr = this.zcal("range","date");
         $("#demo3_tip").text("日期范围：" + $z.toJson(dr));

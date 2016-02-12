@@ -14,8 +14,11 @@
   user-select: none;
   width: 100%;
   height: 100%;
-  padding: 0 8px;
+  padding: 0;
   line-height: 30px;
+}
+.picker-box .pick-box-con {
+  padding: 0 6px;
 }
 .picker-box .picker-obj {
   display: inline-block;
@@ -63,6 +66,64 @@
 .picker-btns .picker-choose {
   min-width: 64px;
 }
+.picker-mask .picker-mask-main {
+  background: #FFF;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.picker-mask .picker-mask-main .pm-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 32px;
+  font-size: 14px;
+  text-align: center;
+  line-height: 32px;
+  white-space: nowrap;
+  border-bottom: 1px solid #dddddd;
+  background: #eeeeee;
+  color: #666666;
+}
+.picker-mask .picker-mask-main .pm-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 32px;
+  bottom: 48px;
+}
+.picker-mask .picker-mask-main .pm-btns {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 48px;
+  padding-top: 6px;
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+  border-top: 1px solid #dddddd;
+  background: #eeeeee;
+  color: #666666;
+}
+.picker-mask .picker-mask-main .pm-btns b {
+  display: inline-block;
+  padding: 6px 16px;
+  border: 1px solid #bbbbbb;
+  background: #d0d0d0;
+  color: #000000;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.picker-mask .picker-mask-main .pm-btns b:hover {
+  background: #0044bb;
+  color: #ffffff;
+}
 .picker-multi .picker-obj {
   border: 1px solid #DDD;
   padding: 0 6px;
@@ -70,4 +131,24 @@
   line-height: 20px;
   border-radius: 2px;
   margin-right: 4px;
+}
+.opicker .picker-box {
+  padding-left: 6px;
+}
+.picker-mask .zcal {
+  font-size: 10px;
+  font-family: Monaco, Consolas, Courier New;
+}
+.datepicker .picker-box {
+  padding-left: 24px;
+  position: relative;
+}
+.datepicker .picker-box > i {
+  position: absolute;
+  left: 6px;
+  top: 7px;
+  opacity: 0.5;
+}
+.datepicker .picker-box .pick-box-con {
+  padding-right: 12px;
 }

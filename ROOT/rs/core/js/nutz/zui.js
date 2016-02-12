@@ -262,11 +262,11 @@ define(function (require, exports, module) {
 
             //============================================== i18n读完后的回调
             // 看看是否需要异步加载多国语言字符串
-            var callback = function (mm) {
-                // 存储多国语言字符串
-                // 需要将自己的多国语言字符串与父 UI 的连接 
-                UI._msg_map = $z.inherit(mm, UI.parent ? UI.parent._msg_map : ZUI.g_msg_map);
-                //UI._msg_map = _.extend({}, UI.parent?UI.parent._msg_map:ZUI.g_msg_map, mm||{});
+            var callback = function () {
+                // 合并成一个语言集合
+                for(var i=0; i<arguments.length; i++){
+                    _.extend(UI._msg_map, arguments[i]);
+                }
                 // 用户自定义 redraw 执行完毕的处理
                 var do_after_redraw = function(){
                     // if("ui.mask" == UI.uiName)
@@ -395,28 +395,43 @@ define(function (require, exports, module) {
             //============================================== i18n
             var do_i18n = function(){
                 // 采用父 UI 的字符串
-                var uiI18N = UI.options.i18n || UI.$ui.i18n;
-                if (".." == uiI18N) {
-                    callback({});
+                var uiI18N = $z.concat(UI.$ui.i18n, UI.options.i18n);
+                // console.log(UI.uiName, "UI.$ui.i18n", UI.$ui.i18n);
+                // console.log(UI.uiName, "UI.options.i18n", UI.$ui.i18n);
+
+                // 存储多国语言字符串
+                // 需要将自己的多国语言字符串与父 UI 的连接 
+                UI._msg_map = $z.inherit({}, UI.parent ? UI.parent._msg_map : ZUI.g_msg_map);
+
+                // 找到需要加载的消息字符串
+                var i18nLoading = [];
+                for(var i=0; i<uiI18N.length; i++){
+                    var it = uiI18N[i];
+                    // 字符串的话，转换后加入待加载列表
+                    if(_.isString(it)){
+                        i18nLoading.push(_.template(it)({lang: UI.lang}));
+                    }
+                    // 对象的话，直接融合进来
+                    else if(_.isObject(it)){
+                        _.extend(UI._msg_map, it);
+                    }
+                    // 其他的无视就好
                 }
-                // 采用自己的字符串
-                else if (_.isString(uiI18N)) {
-                    uiI18N = _.template(uiI18N)({lang: UI.lang});
-                    require.async(uiI18N, callback);
+
+                // 不需要读取了
+                if (i18nLoading.length == 0) {
+                    callback();
                 }
-                // 直接传入了一个集合
-                else if(_.isObject(uiI18N)){
-                    callback(uiI18N);
-                }
-                // 空的
+                // 异步加载 ...
                 else {
-                    callback({});
+                    //console.log(UI.uiName, "i18n", uiI18N);
+                    require.async(i18nLoading, callback);
                 }
             }
             //============================================== 从处理CSS开始
             // 加载 CSS
-            var uiCSS = UI.options.css || UI.$ui.css;
-            if (uiCSS) {
+            var uiCSS = $z.concat(UI.$ui.css, UI.options.css);
+            if (uiCSS.length > 0) {
                 seajs.use(uiCSS, do_i18n);
             }else{
                 do_i18n();

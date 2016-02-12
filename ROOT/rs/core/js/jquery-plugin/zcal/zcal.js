@@ -15,7 +15,7 @@ function options(ele, opt) {
         // 根据显示模式切换不同的模板
         if(_.isUndefined(opt.title)){
             // 多周或者范围模式
-            if("range" == opt.mode || opt.week>0){
+            if("range" == opt.mode || opt.byWeek>0){
                 opt.title = function(c, dFrom, dTo){
                     var str;
                     // 跨年
@@ -121,9 +121,11 @@ var commands = {
         return null;
     },
     active : function(d){
-        var d2 = new Date(d);
-        d2.setHours(0,0,0,0);
-        do_active($root(this), d2);
+        if(d){
+            var d2 = new Date(d);
+            d2.setHours(0,0,0,0);
+            do_active($root(this), d2);
+        }
         return this;
     },
     range : function(mode){
@@ -186,7 +188,6 @@ var _DOM = function(){/*
             </div>
             <div class="zcal-title"></div>
         </div>
-        <div class="zcal-menu"></div>
     </div>
     <div class="zcal-viewport">
         <div class="zcal-wrapper"></div>
@@ -201,9 +202,9 @@ function on_click_swithcer(){
     var d;
     if(val != 0){
         // 如果是按周
-        if(opt.week > 0){
+        if(opt.byWeek > 0){
             d = cellD(jRoot.find(".zcal-cell-show").first());
-            d.setDate(d.getDate() + (opt.week*7*val));
+            d.setDate(d.getDate() + (opt.byWeek*7*val));
         }
         // 那么是按月
         else{
@@ -238,17 +239,21 @@ function redraw($ele, opt){
     html = html.substring(2, html.length - 2)
 
     var jRoot = $(html).appendTo($ele);
-    jRoot.children(".zcal-viewport")
-        .addClass(opt.fitparent && opt.blockNumber==1
-                    ? "zcal-fit-parent"
-                    : "zcal-fixed")
-        .addClass(opt.showBorder 
-                    ? "zcal-show-border" 
-                    : "zcal-hide-border")
-            .children(".zcal-wrapper")
-                .addClass(opt.blockNumber>1 
-                            ? "zcal-multi-block" 
-                            : "zcal-single-block");
+    // jRoot.addClass(opt.fitparent && opt.blockNumber==1
+    //                 ? "zcal-fit-parent"
+    //                 : "zcal-fixed");
+    jRoot
+        .addClass(opt.simpleCell 
+                    ? "zcal-simple" 
+                    : "zcal-customized")
+            .children(".zcal-viewport")
+                .addClass(opt.showBorder 
+                            ? "zcal-show-border" 
+                            : "zcal-hide-border")
+                    .children(".zcal-wrapper")
+                        .addClass(opt.blockNumber>1 
+                                    ? "zcal-multi-block" 
+                                    : "zcal-single-block");
 
     // 保存配置
     options(jRoot, opt);
@@ -293,6 +298,14 @@ function update(jRoot, opt, d){
         jHead.hide();
     }
 
+    // 固定计算单元格的比率
+    var wCell = 100 / 7 + "%";
+    var hCell = 100 / (opt.byWeek||6);
+    jWrapper.find(".zcal-cell").css({
+        "width"  : wCell,
+        "height" : hCell
+    });
+
     // 标记今天
     var todayKey = dkey(new Date());
     jWrapper.find('.zcal-cell[key='+todayKey+']').addClass("zcal-cell-today");
@@ -310,7 +323,7 @@ function update_head(jHead, opt, d){
     var jTitle = jHead.find(".zcal-title");
     var dr = get_range(jHead);
     var c;
-    if("range"==opt.mode || opt.week>0){
+    if("range"==opt.mode || opt.byWeek>0){
         c = {
             from : genDateContext(dr[0],opt),
             to   : genDateContext(dr[1],opt)
@@ -372,8 +385,8 @@ function draw_block(jWrapper, opt, d){
     var to;         // 结束的日期，时间一定是 23:59:59
 
     // 根据模式的不同，来决定是绘制整月的表格，还是绘制一个固定的周数
-    if(opt.week > 0){
-        row_n = opt.week;
+    if(opt.byWeek > 0){
+        row_n = opt.byWeek;
         from  = $z.parseDate(weekBeginMs);
     }
     // 绘制整月
@@ -439,7 +452,7 @@ function draw_block(jWrapper, opt, d){
                .attr("date",  theDate)
                .attr("day",   _d_cell.getDay());
             // 如果是按周显示，标记一下格子所在月份的奇偶
-            if(opt.week) {
+            if(opt.byWeek) {
                 jTd.addClass(parseInt((theMonth - currentMonth)%2)==0
                              ?"zcal-cell-even"
                              :"zcal-cell-odd");
@@ -454,7 +467,7 @@ function draw_block(jWrapper, opt, d){
             }
 
             // 如果是范围选择，那么就不显示非本月日期了
-            if(opt.blockNumber>1 && !opt.week && MM != theMonth){
+            if(opt.blockNumber>1 && !opt.byWeek && MM != theMonth){
                 jTd.addClass("zcal-cell-hide").html("&nbsp;");
             }
             // 绘制日期单元格的内容
@@ -508,6 +521,15 @@ function do_active(jRoot, obj, autoSelect){
     // 根据 key 找到现在应该被激活的日期，并激活
     var key = dkey(d);
     var jCell = jRoot.find(".zcal-cell-show[key="+key+"]");
+
+    // 如果没找到，证明日历没有调整到这个日期，那么就跳转一下
+    // 然后再激活
+    if(jCell.size() == 0) {
+        update(jRoot, opt, d);
+        do_active(jRoot, d, autoSelect);
+        return;
+    }
+
     jCell.addClass("zcal-cell-actived");
 
     // 存储这个激活的日期
@@ -583,24 +605,37 @@ function do_set_range(jRoot, dFrom, dTo, opt){
 
 }
 //...........................................................
+function _count_size(sz, base, n){
+    // 均分
+    if("*" == sz){
+        return parseInt(base/n);
+    }
+    // 否则根据基数计算 
+    return $z.dimension(sz, base);
+}
+//...........................................................
 function do_resize(jRoot, opt){
     opt = opt || options(jRoot);
-    if(opt.blockNumber==1 && opt.fitparent){
-        console.log("do_resize")
-        var jSelection = jRoot.parent();
-        var W = jSelection.width();
-        var H = jSelection.height();
-        var jHead  = jRoot.children(".zcal-head");
-        var jBlock = jRoot.find(".zcal-block");
-        jBlock.css({
-            "width"  : W,
-            "height" : H - jHead.outerHeight(true)
-        });
 
-        // 如果声明了resize
-        if(_.isFunction(opt.on_cell_resize)){
-            jRoot.find(".zcal-cell-show").each(opt.on_cell_resize);
-        }
+    // 计算选区的宽高
+    var jHead      = jRoot.children(".zcal-head");
+    var jSelection = jRoot.parent();
+    var W = jSelection.width();
+    var H = jSelection.height() - jHead.outerHeight(true);
+
+    // 计算每个块的高度
+    var bW = _count_size(opt.blockWidth,  W, opt.blockNumber);
+    var bH = _count_size(opt.blockHeight, H, opt.blockNumber);
+
+    // 设置
+    jRoot.find(".zcal-block").css({
+        "width"  : bW,
+        "height" : bH
+    });
+
+    // 如果声明了resize的回调
+    if(_.isFunction(opt.on_cell_resize)){
+        jRoot.find(".zcal-cell-show").each(opt.on_cell_resize);
     }
 }
 //...........................................................
@@ -611,13 +646,12 @@ $.fn.extend({ "zcal" : function(opt, arg){
     }
     // 默认配置必须为对象
     opt = $z.extend({}, {
-        width  : "auto",          
-        height : "auto",
         weeks : 0,
         range       : "default",
         autoSelect  : false,
-        className : "skin-light",
+        simpleCell : true,
         blockNumber : 1,
+        blockWidth  : "*",
         i18n: {
             month : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
             week  : ["S","M","T","W","T","F","S"]
@@ -638,6 +672,11 @@ $.fn.extend({ "zcal" : function(opt, arg){
         },
         markMonthFirstDay : true
     }, opt);
+
+    // 默认，根据每块的行，觉得块的高度
+    if(!opt.blockHeight) {
+        opt.blockHeight = 36 * (opt.byWeek || 6);
+    }
 
     // 重绘基础 dom 结构，同时这会保存配置信息
     var jRoot = redraw(this, opt);

@@ -8,6 +8,7 @@
   width: 100%;
   height: 100%;
   position: relative;
+  overflow: hidden;
 }
 .tbl table {
   border-spacing: 0;
@@ -27,6 +28,9 @@
   height: 32px;
   line-height: 32px;
   overflow: hidden;
+}
+.tbl-show-checkbox .tbl-head .tbl-col-0 {
+  padding-left: 40px;
 }
 .tbl-head-t td {
   padding: 0 8px;
