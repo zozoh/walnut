@@ -2,7 +2,6 @@ package org.nutz.walnut.web;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.ChainBy;
 import org.nutz.mvc.annotation.Encoding;
@@ -13,8 +12,6 @@ import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.SetupBy;
 import org.nutz.mvc.annotation.Views;
 import org.nutz.mvc.ioc.provider.JsonIocProvider;
-import org.nutz.mvc.view.JspView;
-import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.module.AbstractWnModule;
@@ -45,18 +42,13 @@ public class WnMainModule extends AbstractWnModule {
         return "1.0" + io.toString();
     }
 
-    @At(value = {"/home", "/index", "/index.html"})
-    public View homePage() {
-        return new ViewWrapper(new JspView("jsp." + page_home), null);
-    }
-
     @At("/")
     @Ok(">>:${obj}")
     public String doCheck() {
         String seid = Wn.WC().SEID();
         if (null == seid) {
             if (useHomePage) {
-                return "/index.html";
+                return page_home;
             }
             return "/u/login";
         }
@@ -77,7 +69,7 @@ public class WnMainModule extends AbstractWnModule {
         catch (WebException e) {
             e.printStackTrace();
             if (useHomePage) {
-                return "/index.html";
+                return page_home;
             }
             return "/u/login";
         }

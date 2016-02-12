@@ -1,8 +1,8 @@
 body > .ui-obrowser {
-  background: #ffffff;
+  background: #FFF;
 }
 .obrowser {
-  color: #333333;
+  color: #333;
 }
 .obrowser .obrowser-block {
   margin: 0px;
@@ -25,8 +25,8 @@ body > .ui-obrowser {
   text-align: center;
 }
 .obrowser .obrowser-footer {
-  background: #eeeeee;
-  border-top: 1px solid #cccccc;
+  background: #EEE;
+  border-top: 1px solid #CCC;
 }
 .obrowser .obrowser-chute {
   -moz-user-select: none;
@@ -34,9 +34,9 @@ body > .ui-obrowser {
   -webkit-user-select: none;
   user-select: none;
   overflow: hidden;
-  color: #999999;
-  background: #e0e0e0;
-  border-right: 1px solid #cccccc;
+  color: #999;
+  background: #E0E0E0;
+  border-right: 1px solid #CCC;
 }
 .obrowser .obrowser-chute .chute-scroller {
   transition: 0.3s;
@@ -69,9 +69,9 @@ body > .ui-obrowser {
   font-size: 10px;
   line-height: 22px;
   text-align: center;
-  border: 1px solid #bbbbbb;
-  background: #d0d0d0;
-  color: #888888;
+  border: 1px solid #BBB;
+  background: #D0D0D0;
+  color: #888;
   display: none;
   margin: 2px;
   cursor: pointer;
@@ -80,8 +80,8 @@ body > .ui-obrowser {
   cursor: pointer;
 }
 .obrowser .obrowser-chute .chute-scroller .chute-scroller-btn:hover {
-  background: #cccccc;
-  color: #444444;
+  background: #CCC;
+  color: #444;
 }
 .obrowser .obrowser-chute .chute-scroller[outline="yes"] {
   margin-left: -100%;
@@ -113,7 +113,7 @@ body > .ui-obrowser {
   padding: 6px 2px 6px 12px;
   cursor: pointer;
   line-height: 16px;
-  color: #666666;
+  color: #666;
 }
 .obrowser .obrowser-chute .chute-wrapper section item i {
   width: 16px;
@@ -137,12 +137,12 @@ body > .ui-obrowser {
   clear: both;
 }
 .obrowser .obrowser-chute .chute-wrapper section item.chute-actived {
-  color: #444444;
-  background: #cccccc;
+  color: #444;
+  background: #CCC;
 }
 .obrowser .obrowser-chute .chute-wrapper section.chute-sec-hide {
-  border-color: #cccccc;
-  background: #eeeeee;
+  border-color: #CCC;
+  background: #EEE;
 }
 .obrowser .obrowser-chute .chute-wrapper section.chute-sec-hide h1:after {
   content: "...";
@@ -156,7 +156,7 @@ body > .ui-obrowser {
 }
 .obrowser .obrowser-sky {
   position: relative;
-  border-bottom: 1px solid #cccccc;
+  border-bottom: 1px solid #CCC;
 }
 .obrowser .obrowser-sky .obrowser-crumb {
   -moz-user-select: none;
@@ -164,7 +164,7 @@ body > .ui-obrowser {
   -webkit-user-select: none;
   user-select: none;
   cursor: default;
-  background: #eeeeee;
+  background: #EEE;
   padding: 6px;
   white-space: nowrap;
   position: absolute;
@@ -172,8 +172,8 @@ body > .ui-obrowser {
   left: 0;
 }
 .obrowser .obrowser-sky .obrowser-crumb .z_editit {
-  background: #ffffff;
-  color: #333333;
+  background: #FFF;
+  color: #333;
   padding-left: 12px;
   outline: none;
   font-size: 16px;
@@ -206,28 +206,28 @@ body > .ui-obrowser {
   cursor: pointer;
 }
 .obrowser .obrowser-sky .obrowser-crumb .citem .ochild:hover {
-  background: #cccccc;
-  color: #444444;
+  background: #CCC;
+  color: #444;
 }
 .obrowser .obrowser-sky .obrowser-crumb .citem .citem-drop {
   position: fixed;
   z-index: 1000;
   min-width: 128px;
-  border: 1px solid #ffffff;
+  border: 1px solid #FFF;
   min-width: 96px;
   padding: 6px;
-  background: #ffffff;
-  box-shadow: 2px 2px 6px #888888;
+  background: #FFF;
+  box-shadow: 2px 2px 6px #888;
 }
 .obrowser .obrowser-sky .obrowser-crumb .citem .citem-drop .citem .ochild {
   display: none;
 }
 .obrowser .obrowser-sky .obrowser-crumb .citem .citem-drop .citem:hover {
-  color: #ffffff;
-  background: #0044bb;
+  color: #FFF;
+  background: #04B;
 }
 .obrowser .obrowser-sky .obrowser-crumb .citem:hover {
-  border-color: #dddddd;
+  border-color: #DDD;
 }
 .obrowser .obrowser-sky .obrowser-crumb .citem-tail {
   padding-right: 2px;
@@ -248,29 +248,29 @@ body > .ui-obrowser {
   padding: 0 4px;
 }
 .obrowser .obrowser-sky .obrowser-crumb .folder-btn:hover {
-  background: #0044bb;
-  color: #ffffff;
+  background: #04B;
+  color: #FFF;
 }
 .obrowser .obrowser-sky .obrowser-crumb .folder-drop {
   z-index: 2000;
-  border: 1px solid #ffffff;
+  border: 1px solid #FFF;
   min-width: 128px;
   padding: 6px;
-  background: #ffffff;
-  box-shadow: 2px 2px 6px #888888;
+  background: #FFF;
+  box-shadow: 2px 2px 6px #888;
 }
 .obrowser .obrowser-sky .obrowser-crumb .folder-drop .citem .ochild {
   display: none;
 }
 .obrowser .obrowser-sky .obrowser-crumb .folder-drop .citem:hover {
-  color: #ffffff;
-  background: #0044bb;
+  color: #FFF;
+  background: #04B;
 }
 .obrowser .obrowser-sky .obrowser-menu {
   position: absolute;
   top: 0;
   right: 0;
-  background: #e0e0e0;
+  background: #E0E0E0;
   padding-left: 6px;
 }
 .obrowser[hidden-obj-visibility=hidden] .wnobj-hide {
