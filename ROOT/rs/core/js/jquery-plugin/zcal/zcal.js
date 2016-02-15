@@ -473,7 +473,7 @@ function draw_block(jWrapper, opt, d){
             // 绘制日期单元格的内容
             else{
                 jTd.addClass("zcal-cell-show")
-                var cellHtml = opt.cellDraw(_d_cell, opt);
+                var cellHtml = opt.cellHtml(_d_cell, opt);
                 jTd.html(cellHtml);
 
                 // 恢复之前的选择
@@ -499,6 +499,10 @@ function draw_block(jWrapper, opt, d){
 //...........................................................
 function do_active(jRoot, obj, autoSelect){
     var opt = options(jRoot);
+    // 不响应点击等默认事件
+    if("none" == opt.mode)
+        return;
+
     // 从传入的对象，获取日期
     var d;
     if(_.isElement(obj) || $z.isjQuery(obj)){
@@ -645,7 +649,7 @@ $.fn.extend({ "zcal" : function(opt, arg){
         return commands[opt].call($root(this), arg);
     }
     // 默认配置必须为对象
-    opt = $z.extend({}, {
+    opt = _.extend({}, {
         weeks : 0,
         range       : "default",
         autoSelect  : false,
@@ -662,7 +666,7 @@ $.fn.extend({ "zcal" : function(opt, arg){
             next  : '&gt;',
         },
         drawWhenCreate : true,
-        cellDraw  : function(d, opt){
+        cellHtml  : function(d, opt){
             var theDate  = d.getDate();
             var theMonth = d.getMonth();
             if(opt.markMonthFirstDay && theDate==1 && theMonth!=opt.current.getMonth()){

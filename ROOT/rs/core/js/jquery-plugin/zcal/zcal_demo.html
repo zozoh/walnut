@@ -24,7 +24,7 @@ $("#demo0").zcal({
     current : new Date("1978-09-21"),
     dmarkMonthFirstDay : false,
     blockNumber : 3,
-    swticher : {today:null},
+    swticher : {today:null, next:"NextMonth", prev:"PrevMonth"},
     on_actived : function(){
         var d = this.zcal("actived");
         $("#demo0_tip").html("选择日期：" + d.format("yyyy-mm-dd HH:MM:ss")

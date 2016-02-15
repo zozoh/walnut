@@ -1,8 +1,8 @@
 .picker {
-  border: 1px solid #CCC;
+  border: 1px solid #cccccc;
   border-radius: 4px;
-  background: #EEE;
-  color: #666;
+  background: #eeeeee;
+  color: #666666;
   min-height: 32px;
   position: relative;
   min-width: 200px;
@@ -37,12 +37,12 @@
   color: #F80;
 }
 .picker-btns {
-  background: #E0E0E0;
+  background: #e0e0e0;
   position: absolute;
   top: -1px;
   right: -1px;
   bottom: -1px;
-  border: 1px solid #CCC;
+  border: 1px solid #cccccc;
   border-left: 0;
   padding: 0;
   border-radius: 0 4px 4px 0;
@@ -53,15 +53,15 @@
   vertical-align: middle;
   cursor: pointer;
   padding: 0 8px;
-  border-left: 1px solid #CCC;
+  border-left: 1px solid #cccccc;
   height: 32px;
   line-height: 30px;
   text-align: center;
   font-size: 8px;
 }
 .picker-btns b:hover {
-  color: #444;
-  background: #CCC;
+  color: #444444;
+  background: #cccccc;
 }
 .picker-btns .picker-choose {
   min-width: 64px;
@@ -125,7 +125,7 @@
   color: #ffffff;
 }
 .picker-multi .picker-obj {
-  border: 1px solid #DDD;
+  border: 1px solid #dddddd;
   padding: 0 6px;
   height: 22px;
   line-height: 20px;

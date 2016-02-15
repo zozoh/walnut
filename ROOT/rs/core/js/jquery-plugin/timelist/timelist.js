@@ -119,6 +119,10 @@ var commands = {
             else if("sec" == mode){
                 re.push(_t.sec);
             }
+            // 小时
+            else if("H" == mode){
+                re.push(_t.H);
+            }
             // 字符串
             else{
                 re.push(_t.key_min);
@@ -134,9 +138,9 @@ var commands = {
         return this;
     },
     clear : function(){
-        this.find(".timelist-item")
-            .removeClass("timelist-item-checked")
-            .removeClass("timelist-item-actived");
+        var jRoot = $root(this);
+        var opt   = options(jRoot);
+        update(jRoot, opt, [], true);
         return this;
     },
     add : function(tps){
@@ -163,6 +167,10 @@ var _DOM = function(){/*
 //...........................................................
 function bindEvents(jRoot, opt){
     jRoot.on("click", ".timelist-item", on_click_item);
+    jRoot.on("dblclick", function(e){
+        e.stopPropagation();
+        $root(this).timelist("clear");
+    });
 }
 //...........................................................
 function on_click_item(e){
@@ -280,8 +288,6 @@ function redraw($ele, opt){
 
     // 创建基础 DOM 结构
     var jRoot = $(html).appendTo($ele);
-    if(opt.className)
-        jRoot.addClass(opt.className);
     if(opt.display)
         jRoot.addClass("timelist-" + opt.display);
     
@@ -321,9 +327,6 @@ function redraw($ele, opt){
     // 保存配置
     options(jRoot, opt);
 
-    if(opt.className)
-        jRoot.addClass(opt.className);
-
     return jRoot;
 }
 //...........................................................
@@ -333,17 +336,15 @@ $.fn.extend({ "timelist" : function(opt, arg0, arg1){
         return commands[opt].call($root(this), arg0, arg1);
     }
     // 默认配置必须为对象
-    opt = $z.extend({}, {
-        width     : "auto",          
-        height    : "auto",
-        className : "skin-light",
-        mode      : "default",
-        multi     : true,
-        display   :  "horizontal",
-        timeUnit  : 60,
-        groupUnit : 1,
-        scopes    : [["00:00", "24:00"]],
-    }, opt);
+    opt = opt || {};
+    $z.setUndefined(opt, "width",     "auto");
+    $z.setUndefined(opt, "height",    "auto");
+    $z.setUndefined(opt, "mode",      "default");
+    $z.setUndefined(opt, "multi",     true);
+    $z.setUndefined(opt, "display",   "horizontal");
+    $z.setUndefined(opt, "timeUnit",  60);
+    $z.setUndefined(opt, "groupUnit", 1);
+    $z.setUndefined(opt, "scopes",    [["00:00", "24:00"]]);
 
     // 重绘基础 dom 结构，同时这会保存配置信息
     var jRoot = redraw(this, opt);

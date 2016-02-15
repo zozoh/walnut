@@ -14,7 +14,7 @@ function wrap_func(UI, options, funcName, evenName){
 }    
 //==============================================
 var html = function(){/*
-<div class="ui-arena"></div>
+<div class="ui-arena" ui-fitparent="yes"></div>
 */};
 //==============================================
 return ZUI.def("ui.calendar", {
@@ -59,7 +59,7 @@ return ZUI.def("ui.calendar", {
     },
     getRange : function(mode){
         return this.arena.zcal("range", mode);
-    }
+    },
     setRange : function(rg){
         this.arena.zcal("range", rg);
         return this;

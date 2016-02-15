@@ -182,20 +182,21 @@ define(function (require, exports, module) {
     var ZUIPrototype = {
         // Backbone.View 的初始化函数
         initialize: function (options) {
-            var UI = this;
+            var UI  = this;
+            var opt = options || {};
             // 初始化必要的内部字段
             UI._nutz_ui = "1.a.0";
-            UI.uiKey = options.uiKey;
+            UI.uiKey = opt.uiKey;
             UI._code_templates = {};  // 代码模板
             UI._watch_keys = {};
-            UI.options = options;
-            UI.parent = options.parent;
-            UI.gasketName = options.gasketName;
+            UI.options = opt;
+            UI.parent = opt.parent;
+            UI.gasketName = opt.gasketName;
             UI.depth = UI.parent ? UI.parent.depth + 1 : 0;
             // 继承执行器
-            UI.exec = options.exec || (UI.parent||{}).exec;
+            UI.exec = opt.exec || (UI.parent||{}).exec;
             // 继承应用信息
-            UI.app = options.app || (UI.parent||{}).app;
+            UI.app = opt.app || (UI.parent||{}).app;
             // 默认先用父类的多国语言字符串顶个先
             UI._msg_map = UI.parent ? UI.parent._msg_map : ZUI.g_msg_map;
 
@@ -203,8 +204,8 @@ define(function (require, exports, module) {
             UI.$el.attr("ui-loadding","yes").hide();
 
             // 调用子类自定义的 init，以及触发事件
-            $z.invoke(UI.$ui, "init", [options], UI);
-            $z.invoke(UI.options, "on_init", [options], UI);
+            $z.invoke(UI.$ui, "init", [opt], UI);
+            $z.invoke(UI.opt, "on_init", [opt], UI);
             UI.trigger("ui:init", UI);
 
             // 注册 UI 实例
@@ -215,7 +216,7 @@ define(function (require, exports, module) {
             var UI = this;
             //console.log("destroy: " + UI.uiName)
             // 触发事件
-            $z.invoke(UI.options, "on_depose", [], UI);
+            $z.invoke(UI.optoptions, "on_depose", [], UI);
             UI.trigger("ui:depose", UI);
 
             // 释放掉自己所有的子

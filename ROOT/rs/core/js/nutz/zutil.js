@@ -1178,6 +1178,9 @@ var zUtil = {
                     if(this.isPlainObj(vA) && this.isPlainObj(vB)){
                         this.extend(vA, vB);
                     }
+                    else if(this.isjQuery(vB) || _.isElement(vB)){
+                        a[key] = vB;
+                    }
                     // 否则仅仅是对 B 克隆
                     else{
                         a[key] = this.clone(vB);
@@ -1211,7 +1214,7 @@ var zUtil = {
         }
         // jQuery 或者 Elemet
         if(this.isjQuery(obj) || _.isElement(obj)){
-            return $(obj).clone();
+            return obj;
         }
         // 日期对象
         if(_.isDate(obj)){
