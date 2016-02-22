@@ -87,7 +87,8 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
                 // 获取 Key
                 String nm = klass.getSimpleName().toLowerCase();
                 if (!nm.startsWith(myName + "_")) {
-                    throw Er.create("e.cmd." + myName + ".wrongHdlName", klass.getName());
+                    //throw Er.create("e.cmd." + myName + ".wrongHdlName", klass.getName());
+                    continue;
                 }
                 String key = nm.substring(myName.length() + 1).toLowerCase();
                 JvmHdl hdl = (JvmHdl) mi.born();

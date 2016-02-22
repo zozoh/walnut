@@ -24,7 +24,7 @@ public class cmd_hook extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, null);
+        ZParams params = ZParams.parse(args, "v");
 
         // 列 hook
         if (params.has("get")) {
@@ -44,9 +44,14 @@ public class cmd_hook extends JvmExecutor {
         }
         // 重新执行 hook
         else if (params.has("do") && params.vals.length > 0) {
-            WnObj o = Wn.checkObj(sys, params.get("do"));
             String action = _check_action_name(params);
-            Wn.WC().doHook(action, o);
+            String str = params.get("do");
+            List<WnObj> objs = this.evalCandidateObjs(sys, Lang.array(str), false);
+            for (WnObj o : objs) {
+                if (params.is("v"))
+                    sys.out.printlnf("redo hook -> %s", o.path());
+                Wn.WC().doHook(action, o);
+            }
         }
         // 其他的就抛错
         else {

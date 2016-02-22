@@ -1,10 +1,14 @@
 define({
     "quartz" : {
+        "title" : "编辑循环表达式",
         "tab" : {
             "by_week"  : "周",
             "by_month" : "月",
             "by_adv"   : "高级"
         },
+        "pick_month_mo"  : "请选择月份",
+        "pick_month_da"  : "请选择月中的日期",
+        "pick_month_W"   : "最近的工作日",
         "pick_week"  : "请选择周中日期",
         "pick_time"  : "请选择每天的时间点",
         "pick_month" : "选择月份",

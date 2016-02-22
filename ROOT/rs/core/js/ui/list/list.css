@@ -41,8 +41,8 @@
   display: none;
 }
 .lst-item-checked {
-  background: #04B;
-  color: #FFF;
+  background: #0044bb;
+  color: #ffffff;
 }
 .lst-item-checked .lst-item-checker > *:first-child {
   display: none;

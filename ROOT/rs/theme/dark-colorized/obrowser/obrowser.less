@@ -29,6 +29,8 @@ body > .ui-obrowser {
     //---------------------------------------------- BEGIN Footer
     .obrowser-footer {
         background: @cb1; border-top:1px solid @cborder0;
+        line-height: 32px; padding:0 @d2; font-size:@f1; color:@cf1;
+        font-family: @f_fixed;
     }
     //---------------------------------------------- END Footer
 
@@ -50,15 +52,15 @@ body > .ui-obrowser {
                 position: absolute; top:0; 
                 width:@d5; height:@d6; border-radius: @d0;
                 font-size:@f1; line-height: @d6 - 2; text-align: center;
-                border:1px solid rgba(255,255,255,0.2);
-                background: rgba(255,255,255,0.1); color:rgba(255,255,255,0.3);
+                border:1px solid @cbtn_l;
+                background: @cbtn_b; color:@cshadow; 
                 display: none;
                 margin:@d0; 
                 cursor: pointer;
                 * {cursor: pointer;}
             }
             .chute-scroller-btn:hover {
-                background: rgba(255,255,255,0.2); color:rgba(255,255,255,0.7);
+                background: @ch1_b; color:@ch1_f;
             }
         }
         .chute-scroller[outline="yes"] {
@@ -126,14 +128,14 @@ body > .ui-obrowser {
             }
             .citem {
                 border:1px solid rgba(0,0,0,0);
-                padding: 0 0 0 @d0; 
+                padding: 0 0 0 @d1; 
                 i {
                     display: inline-block; vertical-align: middle;
                 }
                 b {
                     font-weight: normal;
                     display: inline-block; vertical-align: middle;
-                    line-height:@d6; margin:0 @d0 0 @d0;
+                    line-height:@d6; margin:0 @d0 0 @d1;
                 }
                 .ochild {
                     display: inline-block; vertical-align: middle;

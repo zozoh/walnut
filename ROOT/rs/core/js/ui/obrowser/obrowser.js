@@ -55,16 +55,18 @@ return ZUI.def("ui.obrowser", {
     },
     //..............................................
     init : function(options){
-        var UI = this;
+        var UI  = this;
+        var opt = options;
 
-        $z.setUndefined(options, "sidebar", true);
-        $z.setUndefined(options, "checkable", true);
-        $z.setUndefined(options, "editable", false);
+        $z.setUndefined(opt, "sidebar", true);
+        $z.setUndefined(opt, "checkable", false);
+        $z.setUndefined(opt, "multi", true);
+        $z.setUndefined(opt, "editable", false);
         // 控制打开 
-        UI.__eval_canOpen(options);
+        UI.__eval_canOpen(opt);
         
         // 默认菜单条
-        $z.setUndefined(options, "appSetup", {
+        $z.setUndefined(opt, "appSetup", {
             actions : ["@::viewmode"]
         });
         
@@ -88,7 +90,7 @@ return ZUI.def("ui.obrowser", {
         });
 
         // 绑定历史记录
-        if(options.history){
+        if(opt.history){
             window.onpopstate =  function(e){
                 if(e.state)
                     UI.setData(e.state);
@@ -296,7 +298,7 @@ return ZUI.def("ui.obrowser", {
             // 如果是记录最后一次
             if(UI.options.lastObjId){
                 var lastId = UI.local(UI.options.lastObjId);
-                if(lastId){
+                if(lastId && Wn.getById(lastId, true)){
                     UI.setData("id:"+lastId, theEditor);
                     return;
                 }

@@ -594,7 +594,7 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public boolean isMyParent(WnObj p) {
-        return Lang.equals(parentId(), p.id());
+        return Lang.equals(this.parentId(), p.id());
     }
 
     @Override

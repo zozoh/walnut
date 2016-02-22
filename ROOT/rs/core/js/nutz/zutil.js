@@ -1395,34 +1395,47 @@ var zUtil = {
             }
         };
         var func = function() {
-            var me = $(this);
-            var opt = me.data("z-editit-opt");
-            opt.after.apply(me.parent(), [me.val(), me.attr("old-val")]);
-            me.remove();
+            var jInput = $(this);
+            var opt = jInput.data("z-editit-opt");
+            opt.after.apply(jInput.parent(), [jInput.val(), jInput.attr("old-val")]);
+            jInput.prev().remove();  // 移除遮罩
+            jInput.remove();  // 移除输入框
         };
         // 准备显示输入框
         var val = opt.text || me.text();
         var html = opt.multi ? '<textarea></textarea>' : '<input>';
 
-        // 计算宿主的内边距
-        var padding = $z.padding(me);
-
-        // 计算宽高
-        var css = {
-            "width": opt.width || me.outerWidth(),
-            "height": opt.height || me.outerHeight(),
-            "position": "absolute",
-            "z-index": 999999,
-            "margin-left" : padding.x/-2,
-            "margin-top"  : padding.y/-2,
-        };
+        // 计算宿主尺寸
+        var rect = $z.rect(me);
 
         // 显示输入框
         var jq = $(html).prependTo(me)
                    .val(val)
                    .attr("old-val", val)
-                   .addClass("z_editit").css(css);
-        jq.data("z-editit-opt", opt);
+                   .addClass("z_editit")
+                   .data("z-editit-opt", opt)
+                   .css({
+                        "width": opt.width || rect.width,
+                        "height": opt.height || rect.height,
+                        "line-height" : opt.height || rect.height,
+                        "position": "fixed",
+                        "top"  : rect.top,
+                        "left" : rect.left,
+                        "z-index": 999999,
+                    });
+
+        // 显示遮罩
+        $('<div>').insertBefore(jq)
+            .css({
+                "background" : "#000",
+                "opacity" : 0,
+                "position" : "fixed",
+                "top"    : 0,
+                "left"   : 0,
+                "bottom" : 0,
+                "right"  : 0,
+                "z-index": 999998,
+            });
 
         return jq.one("blur", func)
                  .one("change", func)

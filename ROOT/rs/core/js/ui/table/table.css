@@ -36,8 +36,8 @@
   padding: 0 8px;
   margin: 0;
   white-space: nowrap;
-  border-left: 1px solid #CCC;
-  color: #333;
+  border-left: 1px solid #cccccc;
+  color: #333333;
   text-align: center;
   cursor: pointer;
 }
@@ -51,8 +51,8 @@
   width: 32px;
   height: 32px;
   text-align: center;
-  border-right: 1px solid #DDD;
-  color: #333;
+  border-right: 1px solid #dddddd;
+  color: #333333;
 }
 .tbl-checker > * {
   display: none;
@@ -73,7 +73,7 @@
   width: 100%;
   height: 100%;
   overflow: auto;
-  border-top: 32px solid #EEE;
+  border-top: 32px solid #eeeeee;
 }
 .tbl-row td {
   padding: 8px;
@@ -116,8 +116,8 @@
   display: none;
 }
 .tbl-row-checked {
-  background: #04B;
-  color: #FFF;
+  background: #0044bb;
+  color: #ffffff;
 }
 .tbl-row-checked .tbl-row-checker > *:first-child {
   display: none;
@@ -126,5 +126,5 @@
   display: inline;
 }
 .tbl-row-checked td {
-  border-color: #04B;
+  border-color: #0044bb;
 }

@@ -146,7 +146,7 @@ return ZUI.def("ui.tree", {
                 this.closeNode(jNode);
         },
         "click .tnd-self" : function(e){
-            this.active(e.currentTarget);
+            this.setActived(e.currentTarget);
         },
         "click .tree-node-actived .tnd-text" : function(e){
             var UI    = this;

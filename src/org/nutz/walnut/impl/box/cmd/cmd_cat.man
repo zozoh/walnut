@@ -4,7 +4,7 @@
 
 # 用法
 
-	cat [-id] ($id0|/path/to/f0) [($id1|/path/to/f1)]..
+	cat (id:{$id}||/path/to/f0) ..
 	
 # 示例
 
@@ -15,8 +15,8 @@
 	cat a.txt b.txt
 	
 	// 根据 ID 显示某一个文件的内容
-	cat -id fqmnqpKVIvu91vYZgePoQ0
+	cat id:fqmnqpKVIvu91vYZgePoQ0
 	
 	// 根据 ID 显示某几个文件的内容
-	cat -id fqmnqpKVIvu91vYZgePoQ0 6C_B-p_1IjaFWlJk_br_c1
+	cat id:fqmnqpKVIvu91vYZgePoQ0 6C_B-p_1IjaFWlJk_br_c1
 	

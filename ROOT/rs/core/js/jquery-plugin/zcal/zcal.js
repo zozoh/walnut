@@ -107,6 +107,11 @@ function get_range(ele, selector) {
 //...........................................................
 var commands = {
     current : function(d){
+        // 获取
+        if(!d){
+            return options(this).current;
+        }
+        // 设置
         update(this, options(this), d);
         return this;
     },

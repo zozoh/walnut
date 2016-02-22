@@ -2,28 +2,18 @@
 $z.declare(['zui', 
     'wn/util', 
     'ui/mask/mask', 
-    'ui/support/dom',
     'ui/obrowser/obrowser'
 ], 
-function(ZUI, Wn, MaskUI, DomUI, BrowserUI){
-//==============================================
-var html = function(){/*
-<div class="ui-arena pop" ui-fitparent="yes">
-    <div class="pop-title"></div>
-    <div class="pop-body" ui-gasket="body"></div>
-    <div class="pop-actions">
-        <div class="pop-btn" key="ok">{{ok}}</div>
-        <div class="pop-btn" key="cancel">{{cancel}}</div>
-    </div>
-</div>
-*/};
+function(ZUI, Wn, MaskUI, BrowserUI){
 //==============================================
 return ZUI.def("ui.pop.browser", {
     css  : "theme/ui/pop/pop.css",
     //...............................................................
-    init : function(options){
+    redraw : function(){
         var UIPOP = this;
+        var opt   = this.options;
         var mask_options = _.extend({
+            dom  : "ui/pop/pop.html",
             closer: true,
             escape: true,
             width : 800,
@@ -31,62 +21,36 @@ return ZUI.def("ui.pop.browser", {
             exec  : Wn.exec,
             app   : Wn.app(),
             setup : {
-                uiType : "ui/support/dom",
-                uiConf : {
-                    dom  : $z.getFuncBodyAsStr(html.toString()),
-                    on_redraw : function(){
-                        var UI = this;
-                        var jTitle = UI.arena.find(".pop-title");
-                        if(!options.title){
-                            jTitle.remove();
-                        }else{
-                            jTitle.text(UI.text(options.title));
-                        }
-                    },
-                    events : {
-                        "click .pop-btn" :function(e){
-                            var UI   = this;
-                            var jBtn = $(e.currentTarget);
-                            var key  = jBtn.attr("key");
-                            var uiBrowser = UI.subUI("body");
-                            // 取消
-                            if("cancel" == key){
-                                UI.parent.close();
-                                $z.invoke(options, "on_cancel", [], options.context || uiBrowser);
-                            }
-                            // 确认
-                            else if("ok" == key){
-                                // 获得所有选中的对象
-                                var objs = uiBrowser.getChecked();
-                                $z.invoke(options, "on_ok", [objs], options.context || uiBrowser);
-                                // 关闭
-                                UI.parent.close();
-                            }
-                        }
-                    },
-                    setup : [{
-                        uiType : "ui/obrowser/obrowser",
-                        uiConf : _.extend({
-                            gasketName: "body",
-                            sidebar : true
-                        }, options)
-                    }],
-                    on_resize : function(){
-                        var UI = this;
-                        var H  = UI.arena.height();
-                        var hT = UI.arena.find(".pop-title").outerHeight(true);
-                        var hA = UI.arena.find(".pop-actions").outerHeight(true);
-                        UI.arena.find(".pop-body").css({
-                            "height" : H - hT - hA
-                        });
-                    }
+                uiType : "ui/obrowser/obrowser",
+                uiConf : _.extend({
+                    gasketName: "body",
+                    sidebar : false
+                }, opt)
+            },
+            dom_events : {
+                "click .pm-btn-ok" : function(){
+                    var UI   = ZUI(this);
+                    var objs = UI.body.getChecked();
+                    var context = UI.options.context || UI.body;
+                    $z.invoke(UI.options, "on_ok", [objs], context);
+                    UI.close();
+                },
+                "click .pm-btn-cancel" : function(){
+                    var UI = ZUI(this);
+                    var context = UI.options.context || UI.body;
+                    $z.invoke(UI.options, "on_cancel", [], context);
+                    UI.close();
                 }
             }
-        }, options);
+        }, opt);
 
         // 渲染
         new MaskUI(mask_options).render(function(){
-            this.subUI("main/body").setData(options.base);
+            if(opt.title)
+                this.arena.find(".pm-title").html(this.text(opt.title));
+            else
+                this.arena.find(".pm-title").remove();
+            this.body.setData(opt.base);
             UIPOP.destroy();
         });
     }

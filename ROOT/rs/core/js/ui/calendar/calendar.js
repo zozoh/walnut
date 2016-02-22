@@ -36,6 +36,12 @@ return ZUI.def("ui.calendar", {
         UI.arena.zcal(UI.options);
     },
     //..............................................
+    refresh : function(){
+        var UI = this;
+        var d = UI.arena.zcal("current");
+        UI.arena.zcal("current", d);
+    },
+    //..............................................
     resize : function(){
         this.arena.zcal("resize");
     },

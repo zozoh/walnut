@@ -74,9 +74,9 @@ public class WnContext extends NutMap {
             this.autoPath = oldAutoPath;
         }
     }
-    
-    public List<WnHook> getHooks(String action, WnObj o){
-        if(null!=hookContext){
+
+    public List<WnHook> getHooks(String action, WnObj o) {
+        if (null != hookContext) {
             return hookContext.service.get(action, o);
         }
         return new LinkedList<WnHook>();
@@ -84,17 +84,12 @@ public class WnContext extends NutMap {
 
     public WnObj doHook(String action, WnObj o) {
         if (null != hookContext) {
-            Stopwatch sw = null;
-            if (log.isInfoEnabled()) {
-                if (log.isDebugEnabled())
-                    sw = Stopwatch.begin();
-                log.infof("HOOK@%s:BEGIN:%s", action, o.path());
-            }
+            Stopwatch sw = Stopwatch.begin();
 
             List<WnHook> hooks = hookContext.service.get(action, o);
             if (null != hooks && hooks.size() > 0) {
-                if (log.isDebugEnabled())
-                    log.debugf(" - found %d hooks", hooks.size());
+                if (log.isInfoEnabled())
+                    log.infof("HOOK(%d)%s:BEGIN:%s", hooks.size(), action, o.path());
 
                 // 为了防止无穷递归，钩子里不再触发钩子
                 WnHookContext hc = hookContext;
@@ -102,8 +97,8 @@ public class WnContext extends NutMap {
                 try {
                     int i = 0;
                     for (WnHook hook : hooks) {
-                        if (log.isDebugEnabled())
-                            log.debugf(" @[%d]: %s", i++, hook.getClass().getSimpleName());
+                        if (log.isInfoEnabled())
+                            log.infof(" @[%d]: %s", i++, hook.getClass().getSimpleName());
 
                         try {
                             hook.invoke(hc, o);
@@ -125,18 +120,13 @@ public class WnContext extends NutMap {
                 }
 
                 sw.stop();
-                if (log.isDebugEnabled())
-                    log.debugf("HOOK@%s: DONE %dms", action, sw.getDuration());
+                if (log.isInfoEnabled())
+                    log.infof("HOOK(%d)%s: DONE:%dms", hooks.size(), action, sw.getDuration());
 
                 // 调用了钩子，则重新获取
                 return hookContext.io.checkById(o.id());
             }
 
-            // 没有调用钩子，也记录一下时间
-            if (log.isDebugEnabled()) {
-                sw.stop();
-                log.debugf("HOOK@%s: DONE:%dms:%s", action, sw.getDuration(), o.path());
-            }
         }
         // 没有调用钩子，返回自身
         return o;

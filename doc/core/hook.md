@@ -54,7 +54,7 @@ $HOME/.hook                   # .hook 文件夹存放所有的钩子
 其中每一行的命令格式类似:
 
 ```
-cat ${id} | grep ${ph}
+cat id:${id} | grep ${ph}
 ```
 
 * 模板的占位符就是对象的元数据字段

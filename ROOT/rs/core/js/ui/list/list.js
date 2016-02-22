@@ -33,7 +33,7 @@ return ZUI.def("ui.list", {
         opt.key = opt.nmKey || opt.idKey;
 
         // 预先编译每个项目的显示方式
-        $z.evalFldDisplay(JsType, options);
+        $z.evalFldDisplay(options);
     },
     //..............................................
     events : {

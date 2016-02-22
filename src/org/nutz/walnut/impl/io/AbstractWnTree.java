@@ -107,9 +107,10 @@ public abstract class AbstractWnTree implements WnTree {
 
         // 如果是完整的 ID
         WnObj o = _get_my_node(id);
-        o.remove("ph");
-        if (null != o)
+        if (null != o) {
+            o.remove("ph");
             o.setTree(this);
+        }
 
         // 最后校验一下权限
         return Wn.WC().whenAccess(o);
@@ -373,7 +374,7 @@ public abstract class AbstractWnTree implements WnTree {
                     nd = fetch(p1, paths, i, i + 1);
                     // 确保节点可以进入
                     nd = wc.whenEnter(nd);
-                    
+
                     // 有节点的话继续下一个路径
                     if (null != nd) {
                         p1 = nd;

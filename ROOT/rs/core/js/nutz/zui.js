@@ -205,7 +205,7 @@ define(function (require, exports, module) {
 
             // 调用子类自定义的 init，以及触发事件
             $z.invoke(UI.$ui, "init", [opt], UI);
-            $z.invoke(UI.opt, "on_init", [opt], UI);
+            $z.invoke(opt, "on_init", [opt], UI);
             UI.trigger("ui:init", UI);
 
             // 注册 UI 实例

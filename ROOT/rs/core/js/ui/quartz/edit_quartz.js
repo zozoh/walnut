@@ -5,6 +5,7 @@ $z.declare([
     "ui/quartz/eqz_by_week",
     "ui/quartz/eqz_by_month",
     "ui/quartz/eqz_by_adv",
+    'jquery-plugin/timelist/timelist'
 ], function(ZUI, Quartz){
 //==============================================
 var html = function(){/*
@@ -22,7 +23,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.quartz", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/ui/quartz/quartz.css",
+    css  : ["theme/ui/quartz/quartz.css", "theme/jqp/timelist/timelist.css"],
     i18n : "ui/quartz/i18n/{{lang}}.js",
     //...............................................................
     events : {
@@ -69,7 +70,6 @@ return ZUI.def("ui.quartz", {
         else {
             mode = "week";
         }
-        mode = "adv"
         // 显示编辑视图
         UI.showView(mode, str);
     },
@@ -88,7 +88,7 @@ return ZUI.def("ui.quartz", {
         return Quartz.compact(ary);
     },
     //...............................................................
-    _compact_vals : function(ary, dft){
+    _compact_vals : function(ary, dft, any){
         if(ary.length == 0)
             return dft;
         // 两个以内没必要压缩
@@ -114,7 +114,8 @@ return ZUI.def("ui.quartz", {
             }
         }
         re.push(scope.join("-"));
-        return re.join(",");
+        var res = re.join(",");
+        return res == any ? dft : res;
     }
     //...............................................................
 });

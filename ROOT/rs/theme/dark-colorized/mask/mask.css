@@ -44,7 +44,7 @@
 }
 .ui-mask-main {
   position: absolute;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.4);
   color: #ffffff;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);

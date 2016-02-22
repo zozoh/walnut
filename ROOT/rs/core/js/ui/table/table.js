@@ -209,6 +209,11 @@ return ZUI.def("ui.table", {
             // 触发消息 
             UI.trigger("table:actived", o, jRow);
             $z.invoke(opt, "on_actived", [o, jRow], UI);
+
+            // 触发消息 
+            var objs = UI.getChecked();
+            UI.trigger("table:checked", objs);
+            $z.invoke(UI.options, "on_checked", [objs], UI);
         }
         // 同步选择器 
         UI.__sync_checker();
@@ -252,10 +257,8 @@ return ZUI.def("ui.table", {
         var jRows  = _.isUndefined(arg)?jTbody.find(".tbl-row"):UI.$item(arg);
         jRows.not(".tbl-row-checked");
         if(jRows.size()>0){
-            var objs = [];
-            jRows.addClass("tbl-row-checked").each(function(){
-                objs.push($(this).data("OBJ"));
-            });
+            jRows.addClass("tbl-row-checked");
+            var objs = UI.getChecked();
             // 触发消息 
             UI.trigger("table:checked", objs);
             $z.invoke(UI.options, "on_checked", [objs], UI);

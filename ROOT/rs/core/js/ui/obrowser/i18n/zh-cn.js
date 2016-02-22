@@ -2,6 +2,7 @@ define({
     "obrowser" : {
         "viewmode"  : "排列",
         "showhide"  : "显示隐藏文件",
+        "selectNobj": "选择了 {{n}} 个对象",
         "title" : {
             "nm"   : "名称",
             "lm"   : "最后修改时间",

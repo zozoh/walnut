@@ -1,8 +1,7 @@
 (function($z){
 $z.declare([
     'zui',
-    "ui/quartz/quartz",
-    'jquery-plugin/timelist/timelist'
+    "ui/quartz/quartz"
 ], function(ZUI, Quartz){
 //==============================================
 var html = function(){/*
@@ -27,7 +26,6 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.quartz_by_week", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/jqp/timelist/timelist.css",
     //...............................................................
     events : {
         "click h3 u[do=clear]" : function(e){
@@ -101,7 +99,7 @@ return ZUI.def("ui.quartz_by_week", {
         UI.arena.find(".qz-week-day li.checked").each(function(){
             weekDays.push($(this).attr("val") * 1);
         });
-        var weekStr = UI.parent._compact_vals(weekDays, "?");
+        var weekStr = UI.parent._compact_vals(weekDays, "?", "1-7");
 
         // 得到表达式
         return "0 0 " + hrStr + " * * " + weekStr;

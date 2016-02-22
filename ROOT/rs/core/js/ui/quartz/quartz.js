@@ -547,6 +547,13 @@ QuartzObj.prototype = {
         this.imm.joinText(ary, i18n, "minute");
         this.iss.joinText(ary, i18n, "second");
         return ary.join("");
+    },
+    toTimeText : function(i18n){
+        var ary = [];
+        this.iHH.joinText(ary, i18n, "hour");
+        this.imm.joinText(ary, i18n, "minute");
+        this.iss.joinText(ary, i18n, "second");
+        return ary.join("");
     }
 };
 //............................................................
