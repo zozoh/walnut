@@ -56,7 +56,8 @@ return ZUI.def("ui.quartz", {
     //...............................................................
     setData : function(str){
         var UI = this;
-        var qz = new Quartz(str);
+        var qz = Quartz(str);
+        console.log(qz)
         var mode;
         // 精确到分秒，必须高级
         if(qz.isTiny()){

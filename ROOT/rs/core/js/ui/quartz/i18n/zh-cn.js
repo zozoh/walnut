@@ -8,7 +8,7 @@ define({
         },
         "pick_month_mo"  : "请选择月份",
         "pick_month_da"  : "请选择月中的日期",
-        "pick_month_W"   : "最近的工作日",
+        "pick_month_W"   : "所有的工作日",
         "pick_week"  : "请选择周中日期",
         "pick_time"  : "请选择每天的时间点",
         "pick_month" : "选择月份",

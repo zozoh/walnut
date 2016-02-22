@@ -158,7 +158,7 @@
   text-align: right;
   padding: 6px 2px;
   cursor: pointer;
-  color: rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.6);
 }
 .quartz .qz-month-mo .qz-month-W span {
   display: inline-block;
@@ -175,7 +175,7 @@
   vertical-align: middle;
 }
 .quartz .qz-month-mo .qz-month-W[checked] {
-  color: #000000;
+  color: #ffffff;
 }
 .quartz .qz-month-mo .qz-month-W[checked] i:first-child {
   display: none;

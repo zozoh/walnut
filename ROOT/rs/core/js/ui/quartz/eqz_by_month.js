@@ -53,14 +53,36 @@ return ZUI.def("ui.quartz_by_month", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     events : {
-        "click .qz-month-W, .qz-month section li" : function(e){
+        "click .qz-month section li" : function(e){
             var UI = this;
             var jq = $(e.currentTarget);
+            // 不标记日期
             if(jq.attr("checked")){
                 jq.removeAttr("checked");
-            }else{
-                jq.attr("checked", "yes");
             }
+            // 如果选上了日期 ...
+            else{
+                jq.attr("checked", "yes");
+                // 那么就自动去掉工作日
+                UI.arena.find(".qz-month-W").removeAttr("checked");
+            }
+            // 更新解释说明
+            UI._update_explain();
+        },
+        "click .qz-month-W" : function(e){
+            var UI = this;
+            var jq = $(e.currentTarget);
+            // 不标记工作日
+            if(jq.attr("checked")){
+                jq.removeAttr("checked");
+            }
+            // 如果选上了工作日 ...
+            else{
+                jq.attr("checked", "yes");
+                // 那么久全部清空日期
+                UI.arena.find(".qz-month-da li[checked]").removeAttr("checked");
+            }
+            // 更新解释说明
             UI._update_explain();
         },
         "click h3 u[do=clear]" : function(e){
@@ -113,6 +135,11 @@ return ZUI.def("ui.quartz_by_month", {
                 jLi.attr("checked", "yes");
             }
         });
+
+        // 工作日
+        if(qz.isWorkingDay()){
+            UI.arena.find(".qz-month-W").attr("checked","yes");
+        }
 
         // 绘制日
         UI.arena.find(".qz-month-da li").removeClass("checked")
