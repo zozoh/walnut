@@ -126,7 +126,7 @@
 	</dependencies>
 
 	<build>
-		<sourceDirectory>${project.basedir}/src</sourceDirectory>
+		<sourceDirectory>${project.basedir}/src, ${project.basedir}/ext</sourceDirectory>
 		<testSourceDirectory>${project.basedir}/test</testSourceDirectory>
 
 		<resources>
