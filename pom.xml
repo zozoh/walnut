@@ -71,7 +71,7 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz</artifactId>
-			<version>1.r.55-SNAPSHOT</version>
+			<version>1.r.56-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
@@ -126,7 +126,7 @@
 	</dependencies>
 
 	<build>
-		<sourceDirectory>${project.basedir}/src</sourceDirectory>
+		<sourceDirectory>${project.basedir}/src, ${project.basedir}/ext</sourceDirectory>
 		<testSourceDirectory>${project.basedir}/test</testSourceDirectory>
 
 		<resources>
