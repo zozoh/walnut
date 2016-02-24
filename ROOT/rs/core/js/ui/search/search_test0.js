@@ -36,6 +36,7 @@ return ZUI.def("ui.form_main", {
     },
     //...............................................................
     getFields : function(){
+        var UI = this;
         return [{
                 key   : "nm",
                 text  : "名称",
@@ -43,7 +44,7 @@ return ZUI.def("ui.form_main", {
                 escapeHtml : false,
                 display : function(o){
                     var html = '<i class="oicon" otp="'+Wn.objTypeName(o)+'"></i>';
-                    html += '<b>'+Wn.objDisplayName(o)+'</b>';
+                    html += '<b>'+Wn.objDisplayName(UI, o)+'</b>';
                     return html;
                 }
             },{

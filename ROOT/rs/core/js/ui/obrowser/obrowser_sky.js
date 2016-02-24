@@ -293,7 +293,7 @@ return ZUI.def("ui.obrowser_sky", {
             jq.attr("onm", o.nm);
             var jIcon = $(Wn.objIconHtml(o)).attr("mime",o.mime);
             jq.find(".oicon").replaceWith(jIcon);
-            jq.find("b").text(Wn.objDisplayName(o.nm,0,UI));
+            jq.find("b").text(Wn.objDisplayName(UI, o.nm));
         }
         // 移除最后的展开符
         if(o.race!='DIR' || "tail"==itype){

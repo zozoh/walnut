@@ -43,6 +43,8 @@
 @ch0_b         : #04B;     // 高亮元素背景色
 @ch1_f         : #444;     // 次要高亮元素前景色
 @ch1_b         : #CCC;     // 次要高亮元素背景色
+@chx_b         : #080;     // 补充高亮元素背景色
+@chx_f         : #FFF;     // 补充高亮元素前景色
 @cshadow       : #888;     // 阴影颜色
 @c0            : #F80;     // 主要颜色
 @c1            : #F00;     // 重点文字颜色
@@ -79,6 +81,11 @@
 
 @f_fixed : Monaco, Consolas, Courier New;
 
+@flex : {
+    display: -webkit-flex;
+    display: flex;
+};
+
 @btn : {
     display:inline-block; vertical-align: middle; cursor: pointer;
     margin: 0 @d0; 
@@ -88,4 +95,6 @@
     border-radius: @d1; 
 };
 @btn_hover : {color:@ch0_f; background: @ch0_b;};
+
+
 
