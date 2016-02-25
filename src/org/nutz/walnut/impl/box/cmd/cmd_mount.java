@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import org.nutz.json.Json;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -16,7 +17,7 @@ public class cmd_mount extends JvmExecutor {
         ZParams params = ZParams.parse(args, null);
 
         if (params.vals.length != 2) {
-            throw Er.create("e.cmd.invalidargs", args);
+            throw Er.create("e.cmd.invalidargs", Json.toJson(args));
         }
 
         String mnt = params.vals[0];
