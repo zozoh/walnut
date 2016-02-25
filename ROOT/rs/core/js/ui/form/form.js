@@ -28,7 +28,7 @@ return ZUI.def("ui.form", {
     //...............................................................
     init : function(options){
         var UI = this;
-        $z.evalFunctionField(options);
+        //$z.evalFunctionField(options);
         $z.setUndefined(options, "mergeData", true);
         $z.setUndefined(options, "idKey", "id");
         $z.setUndefined(options, "uiWidth", "auto");
