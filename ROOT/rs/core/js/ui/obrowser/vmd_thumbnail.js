@@ -114,6 +114,8 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
             UI.arena.find(".wnobj-checked").removeClass("wnobj-checked");
             jObj.addClass("wnobj-actived wnobj-checked");
         }
+
+        UI.browser.trigger("browser:info", UI.msg("obrowser.selectNobj", {n:UI.getChecked().length}));
     },
     //..............................................
     update : function(o, UIBrowser){
