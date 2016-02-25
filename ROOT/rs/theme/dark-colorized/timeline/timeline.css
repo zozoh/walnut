@@ -1,0 +1,39 @@
+.tmln {
+  position: relative;
+  overflow: auto;
+}
+.tmln .tmlnW {
+  width: 100%;
+  height: 100%;
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: column nowrap;
+}
+.tmln .tmlnW .tmln-hour {
+  flex: 1 1 auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+.tmln .tmlnW .tmln-hour:first-child {
+  border: 0;
+}
+.tmln .tmln-ruler {
+  background: rgba(0, 0, 0, 0.4);
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 60px;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: column nowrap;
+}
+.tmln .tmln-ruler .tmln-rui {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-align: right;
+  padding: 6px;
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 10px;
+  font-family: Monaco, Consolas, Courier New;
+}

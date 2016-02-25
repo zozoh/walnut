@@ -152,7 +152,7 @@ return ZUI.def("ui.obrowser_chute", {
 
             // 如果没有文字内容，默认用对象的名称，否则用路径
             if(!$.trim(jText.text())){
-                jText.text(o ? Wn.objDisplayName(o.nm,0,UI) : ph);
+                jText.text(o ? Wn.objDisplayName(UI, o.nm) : ph);
             }
 
         });

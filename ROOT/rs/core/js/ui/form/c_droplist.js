@@ -123,12 +123,16 @@ return ZUI.def("ui.form_com_droplist", {
             else {
                 UI.arena.find(".com-box-show").empty();
                 UI._append_val(jq);
+                // 触发事件
+                UI.__on_change();
             }
         },
         "click .com-multi-apply" : function(){
             var UI = this;
             UI.arena.find(".com-box-show").empty();
             UI._append_val(UI.arena.find(".com-drop li.checked"));
+            // 触发事件
+            UI.__on_change();
         }
     },
     //...............................................................
@@ -269,6 +273,17 @@ return ZUI.def("ui.form_com_droplist", {
                 }
             }
         }
+        // 触发事件
+        UI.__on_change();
+    },
+    //...............................................................
+    __on_change : function(){
+        var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+        var v = UI.getData();
+        $z.invoke(opt, "on_change", [v], context);
+        UI.trigger("change", v);
     }
     //...............................................................
 });

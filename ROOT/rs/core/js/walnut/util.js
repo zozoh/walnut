@@ -65,7 +65,7 @@ var Wn = {
         var nmText = o.nm; 
         if(UI && _.isFunction(UI.text))
             nmText = UI.text(nmText);
-        nmText = this.objDisplayName(nmText, nmMaxLen, UI);
+        nmText = this.objDisplayName(UI, nmText, nmMaxLen);
         jNm.prop("href","/a/open/wn.browser?ph=id:"+o.id).text(nmText);
     },
     //...................................................................
@@ -77,7 +77,7 @@ var Wn = {
         return o.tp || ('DIR'==o.race ? 'folder' : 'unknown');
     },
     //...................................................................
-    objDisplayName : function(nm, maxLen, UI){
+    objDisplayName : function(UI, nm, maxLen){
         var text = _.isString(nm) ? nm : nm.nm;   // TODO 以后考虑 _key_ 开头的名称
         // 默认大小
         if(!_.isNumber(maxLen)){
@@ -345,11 +345,6 @@ var Wn = {
 
         // 返回返回值，如同是同步的时候，会被设置的
         return re;
-    },
-    //..............................................
-    // 获取对象的显示名称
-    getObjDisplayName : function(o){
-        return o.nm;
     },
     //..............................................
     /* 根据一个对象获取其应用配置信息

@@ -1461,6 +1461,7 @@ var zUtil = {
     },
     //.............................................
     fromJson: function (str, fltFunc) {
+        str = $.trim(str);
         if (!str)
             return null;
         try {
