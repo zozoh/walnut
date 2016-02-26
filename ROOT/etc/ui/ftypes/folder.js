@@ -10,7 +10,7 @@
         "~",
         "E::showhide",
         "~",
-        "::test_group",
+        "E::test_group",
         "~",
         ":r:properties"            
     ]

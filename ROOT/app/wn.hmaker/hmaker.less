@@ -1,1 +1,93 @@
 @import (reference) "../ui";
+
+.hmaker {
+    @flex(); flex-flow: row nowrap; position: relative;
+}
+//......................................... 定义变量
+@clW  : 180px;
+@barH : 32px;
+@bar : {
+    @noselect(); z-index:10;
+    color:@cf1; border-bottom:1px solid @cborder0; background: @cb1;
+};
+//......................................... 左侧资源导航
+.hmaker-nav-con[mode=inside] {flex:0 0 auto; width:200px;}
+.hmaker-nav-con[mode=outside]{width:100%; height:100%;}
+.hmaker-nav{
+    @flex(); flex-flow: column nowrap;
+    > div {flex:1 1 auto;}
+    .ue-bar0 { background: blue;
+        height: @barH; flex:0 0 auto;
+    }
+    .ue-list {
+        background: red;
+    }
+}
+//......................................... 主区域
+.hmaker-main { background: #99A;
+    flex:1 1 auto;  position: relative;
+    > div {position: absolute; }
+    .ue-bar1 { @bar(); 
+        top:0; left:0; width:@clW; height:@barH; 
+        line-height: @barH; text-align: center; cursor: pointer;
+        background: @cb2;
+    }
+    .ue-bar2 { @bar();
+        top:0; left:@clW; height:@barH; right:0;
+        @flex(); flex-flow: row nowrap;
+        //...........................................
+        .ue-ssize { flex: 0 0 auto;
+            padding:@d1 + 1; 
+            input {
+                color:@cf1;
+                padding:1px; outline:none; width:40px; font-size:@f1; font-family: @f_fixed;
+            }
+            em {font-style: normal; color:@cf2; margin: 0 4px;}
+            span {
+                display: inline-block; vertical-align: middle; margin-left: @d2;
+                color:#AAA;
+                i {
+                    float: left; width:20px; height:20px; cursor: pointer;
+                    @flex(); justify-content:center; align-items:center;
+                }
+                i.highlight {background: #FFF; color:#000;}
+            }
+            span:after{@clr();}
+        }
+        //...........................................
+        .ue-com-menu { flex: 1 1 auto; 
+        }
+        //...........................................
+    }
+    .ue-shelf { background: @cb0; background: @cb2;
+        top:@barH; left:0; width:@clW; bottom:0; border-right: 1px solid #CCC;
+        transition : 0.3s;
+    }
+    .ue-stage { 
+        top:@barH; left:@clW; bottom:0; right:0;
+        transition : 0.3s; z-index:5;
+    }
+    .ue-screen {
+        background: #FFF; transition : 0.1s;
+    }
+    .ue-stage[mode="pc"] .ue-screen {
+        width:100%; height:100%; overflow: auto;
+    }
+    .ue-stage[mode="mobile"]{
+        padding:@d2; overflow: auto;
+        .ue-screen {
+            width:400px; height:300px; margin: 0 auto;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+        }
+    }
+}
+//......................................... 隐藏的插入项
+.hmaker .shelf-hide {
+    .ue-shelf {left:@clW * -1;}
+    .ue-stage {left:0;}
+}
+//......................................... 右侧属性
+.hmaker-deta { background: #CCC;
+    flex:0 0 auto; width:240px; 
+
+}

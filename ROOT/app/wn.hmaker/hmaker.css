@@ -1,0 +1,167 @@
+.hmaker {
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: row nowrap;
+  position: relative;
+}
+.hmaker-nav-con[mode=inside] {
+  flex: 0 0 auto;
+  width: 200px;
+}
+.hmaker-nav-con[mode=outside] {
+  width: 100%;
+  height: 100%;
+}
+.hmaker-nav {
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: column nowrap;
+}
+.hmaker-nav > div {
+  flex: 1 1 auto;
+}
+.hmaker-nav .ue-bar0 {
+  background: blue;
+  height: 32px;
+  flex: 0 0 auto;
+}
+.hmaker-nav .ue-list {
+  background: red;
+}
+.hmaker-main {
+  background: #99A;
+  flex: 1 1 auto;
+  position: relative;
+}
+.hmaker-main > div {
+  position: absolute;
+}
+.hmaker-main .ue-bar1 {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  z-index: 10;
+  color: #666666;
+  border-bottom: 1px solid #cccccc;
+  background: #eeeeee;
+  top: 0;
+  left: 0;
+  width: 180px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  cursor: pointer;
+  background: #e0e0e0;
+}
+.hmaker-main .ue-bar2 {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  z-index: 10;
+  color: #666666;
+  border-bottom: 1px solid #cccccc;
+  background: #eeeeee;
+  top: 0;
+  left: 180px;
+  height: 32px;
+  right: 0;
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: row nowrap;
+}
+.hmaker-main .ue-bar2 .ue-ssize {
+  flex: 0 0 auto;
+  padding: 5px;
+}
+.hmaker-main .ue-bar2 .ue-ssize input {
+  color: #666666;
+  padding: 1px;
+  outline: none;
+  width: 40px;
+  font-size: 10px;
+  font-family: Monaco, Consolas, Courier New;
+}
+.hmaker-main .ue-bar2 .ue-ssize em {
+  font-style: normal;
+  color: #999999;
+  margin: 0 4px;
+}
+.hmaker-main .ue-bar2 .ue-ssize span {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 6px;
+  color: #AAA;
+}
+.hmaker-main .ue-bar2 .ue-ssize span i {
+  float: left;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  display: -webkit-flex;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.hmaker-main .ue-bar2 .ue-ssize span i.highlight {
+  background: #FFF;
+  color: #000;
+}
+.hmaker-main .ue-bar2 .ue-ssize span:after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+}
+.hmaker-main .ue-bar2 .ue-com-menu {
+  flex: 1 1 auto;
+}
+.hmaker-main .ue-shelf {
+  background: #ffffff;
+  background: #e0e0e0;
+  top: 32px;
+  left: 0;
+  width: 180px;
+  bottom: 0;
+  border-right: 1px solid #CCC;
+  transition: 0.3s;
+}
+.hmaker-main .ue-stage {
+  top: 32px;
+  left: 180px;
+  bottom: 0;
+  right: 0;
+  transition: 0.3s;
+  z-index: 5;
+}
+.hmaker-main .ue-screen {
+  background: #FFF;
+  transition: 0.1s;
+}
+.hmaker-main .ue-stage[mode="pc"] .ue-screen {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+.hmaker-main .ue-stage[mode="mobile"] {
+  padding: 6px;
+  overflow: auto;
+}
+.hmaker-main .ue-stage[mode="mobile"] .ue-screen {
+  width: 400px;
+  height: 300px;
+  margin: 0 auto;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+}
+.hmaker .shelf-hide .ue-shelf {
+  left: -180px;
+}
+.hmaker .shelf-hide .ue-stage {
+  left: 0;
+}
+.hmaker-deta {
+  background: #CCC;
+  flex: 0 0 auto;
+  width: 240px;
+}

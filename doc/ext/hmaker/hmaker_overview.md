@@ -18,8 +18,8 @@ tags:
 
 ```
 %随便一个目录都可以是工程目录%
-icons            # 图标目录
-images           # 图片素材目录
+icon            # 图标目录
+image           # 图片素材目录
 index.html
 abc.html
 xyz.html
@@ -43,67 +43,38 @@ xyz.html
 
 ![](hmaker_overview.png)
 
-# 所有的控件的属性都用 CSS 来界定
+# 编辑器组件列表
 
-所有的控件的顶级元素都支持 CSS 属性:
-
-```
-position: absolute      // 绝对位置
-top,left,right,bottom,
-width,height            // 指定宽高，没值表示自动
-padding                 // 内边距
-margin                  // 外边距
-```
-
-# 导航按钮
-
-![](hmaker_navbtns.png)
+编辑器可以根据配置支持多种组件，支持的组件定义在 `~/.hmaker/components.html` 里面
 
 ```
-................................ DOM
-<div class="hmc-navbtns">
-    <div class="hmc-nbi">
-        <div class="hmc-nbi-pic">
-            <img src="a.png">
-        </div>
-        <div class="hmc-nbi-txt">xxx</div>
-    </div>
-</div>
-................................ 支持样式
-- color   # 按钮文字颜色
+<section class="hmaker-components">
+    <!-- 没有 text 属性，则不显示分组名称 -->
+    <ul text="">
+        <li ctype="navbtns">
+            <i class="fa fa-th"></i>
+            <span>i18n:hmaker.com.navbtns.nm</span>
+        </li>
+        <li ctype="text">
+            <i class="fa fa-text-width"></i>
+            <span>i18n:hmaker.com.text.nm</span>
+        </li>
+        <li ctype="image">
+            <i class="fa fa-image"></i>
+            <span>i18n:hmaker.com.image.nm</span>
+        </li>
+    </ul>
+    <!-- 下一坨组件 -->
+    <ul> .. </ul>
+</section>
 ```
 
-# 简单图片
 
-![](hmaker_image.png)
+# 更多内容
 
-```
-................................ DOM
-<div class="hmc-image">
-    <img>
-</div>
-................................
-支持 CSS
-- img.border-radius    # 图片圆角
-- img.border-width     # 边框宽度
-- img.border-style     # 边框样式
-- img.border-color     # 边框颜色
-```
-
-# 简单文本框
-
-![](hmaker_text.png)
-
-```
-................................ 编辑 DOM
-<textarea class="hmc-text"></textarea>
-................................ 支持样式
- - color        # 文字颜色
- - font-size    # 文字大小
- - line-height  # 行高
- - text-align   # 水平对齐
- ................................ 输出 DOM
- <div class="hmc-text"></div>
-```
+* [组件概述](hmaker_component.md)
+* [组件:导航按钮](hmaker_com_navbtns.md)
+* [组件:简单文本](hmaker_com_text.md)
+* [组件:单张图片](hmaker_com_image.md)
 
 
