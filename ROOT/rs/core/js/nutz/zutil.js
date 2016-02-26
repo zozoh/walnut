@@ -660,49 +660,49 @@ var zUtil = {
         // 添加到配置信息里
         fld.__dis_obj = func;
     },
-    // 深层遍历一个给定的 Object，如果对象的字段有类似 "function(...}" 的字符串，将其变成函数对象 
-    evalFunctionField : function(obj, memo){
-        if(!memo)
-            memo = [];
-        for(var key in obj){
-            var v = obj[key];
-            // 字符串
-            if(_.isString(v)){
-                // 函数
-                if(/^[ \t]*function[ \t]*\(.+\}[ \t]*/.test(v)){
-                    obj[key] = eval('(' + v + ')');
-                }
-            }
-            // 数组针对每个对象都来一下
-            else if(_.isArray(v)){
-                v.forEach(function(ele){
-                    $z.evalFunctionField(ele, memo);
-                });
-            }
-            // 如果是对象，但是应该无视
-            else if(v instanceof jQuery || _.isElement(v)){
-            }
-            // 如果是普通对象，那么递归
-            else if(_.isObject(v)){
-                // 如果是特别指明 UI 调用的，变函数
-                if(window.ZUI && v.callUI && v.method){
-                    var UI = window.ZUI(v.callUI);
-                    var func = UI[v.method] || UI.options[v.method];
-                    if(_.isFunction(func)){
-                        obj[key] = func;
-                    }else{
-                        throw "ZUI: " + v.callUI + "." + v.method + " not a function!!!";
-                    }
-                }
-                // 否则递归
-                else if(memo.indexOf(v)==-1){
-                    memo.push(v);
-                    $z.evalFunctionField(v, memo);
-                }
-            }
-        }
-        return obj;
-    },
+    // // 深层遍历一个给定的 Object，如果对象的字段有类似 "function(...}" 的字符串，将其变成函数对象 
+    // evalFunctionField : function(obj, memo){
+    //     if(!memo)
+    //         memo = [];
+    //     for(var key in obj){
+    //         var v = obj[key];
+    //         // 字符串
+    //         if(_.isString(v)){
+    //             // 函数
+    //             if(/^[ \t]*function[ \t]*\(.+\}[ \t]*/.test(v)){
+    //                 obj[key] = eval('(' + v + ')');
+    //             }
+    //         }
+    //         // 数组针对每个对象都来一下
+    //         else if(_.isArray(v)){
+    //             v.forEach(function(ele){
+    //                 $z.evalFunctionField(ele, memo);
+    //             });
+    //         }
+    //         // 如果是对象，但是应该无视
+    //         else if(v instanceof jQuery || _.isElement(v)){
+    //         }
+    //         // 如果是普通对象，那么递归
+    //         else if(_.isObject(v)){
+    //             // 如果是特别指明 UI 调用的，变函数
+    //             if(window.ZUI && v.callUI && v.method){
+    //                 var UI = window.ZUI(v.callUI);
+    //                 var func = UI[v.method] || UI.options[v.method];
+    //                 if(_.isFunction(func)){
+    //                     obj[key] = func;
+    //                 }else{
+    //                     throw "ZUI: " + v.callUI + "." + v.method + " not a function!!!";
+    //                 }
+    //             }
+    //             // 否则递归
+    //             else if(memo.indexOf(v)==-1){
+    //                 memo.push(v);
+    //                 $z.evalFunctionField(v, memo);
+    //             }
+    //         }
+    //     }
+    //     return obj;
+    // },
     /*
     获取数据的方法，它的值可能性比较多:
     - 数组为静态数据，每个数据都必须是你希望的对象，那么这个数据会被直接使用
