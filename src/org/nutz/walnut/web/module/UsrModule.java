@@ -11,9 +11,11 @@ import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
+import org.nutz.mvc.annotation.GET;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.POST;
 import org.nutz.mvc.annotation.Param;
+import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.err.Er;
@@ -276,4 +278,37 @@ public class UsrModule extends AbstractWnModule {
     // return null;
     // }
 
+    @GET
+    @At("/do/login/auto")
+    @Ok(">>:${obj}")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public Object do_login_auto(@Param("user") String nm, 
+                                @Param("sign") String sign, 
+                                @Param("time") long time,
+                                @Param("once") String once,
+                                @Param("target")String target) {
+        if (Strings.isBlank(nm)) {
+            return new HttpStatusView(403);
+        }
+        WnUsr usr = sess.usrs().fetch(nm);
+        if (usr == null) {
+            return new HttpStatusView(403);
+        }
+        String ackey = usr.getString("ackey");
+        if (ackey == null) {
+            return new HttpStatusView(403);
+        }
+        if (System.currentTimeMillis() - time > 30*60*1000) {
+            return new HttpStatusView(403);
+        }
+        String str = ackey + "," + nm + "," + time + "," + once;
+        String _sign = Lang.sha1(str);
+        if (!_sign.equals(sign)) {
+            return new HttpStatusView(403);
+        }
+        sess.create(usr);
+        if (Strings.isBlank(target))
+            return "/";
+        return target;
+    }
 }

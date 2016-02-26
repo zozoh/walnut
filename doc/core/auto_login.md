@@ -43,13 +43,13 @@ tags:
 	
 # 登陆URL
 
-1. 路径 $server/u/login/auto
+1. 路径 $server/u/do/login/auto
 2. 必选参数, user,time,once,sign, 均为小写
 3. 可选参数, target, 需要跳转的路径URI
 
 # 登陆URL示例
 
-	http://192.168.2.205:8080/u/login/auto?sign=037b38e82a207f24e45b812f6e8115ad81c4b10b&user=wendal&time=1456453615904&once=s3ppai29qkjucodatvdcptn4do
+	http://192.168.2.205:8080/u/do/login/auto?sign=037b38e82a207f24e45b812f6e8115ad81c4b10b&user=wendal&time=1456453615904&once=s3ppai29qkjucodatvdcptn4do
 	
 # 响应
 
