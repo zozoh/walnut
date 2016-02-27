@@ -298,7 +298,11 @@ public class UsrModule extends AbstractWnModule {
         if (ackey == null) {
             return new HttpStatusView(403);
         }
-        if (System.currentTimeMillis() - time > 30*60*1000) {
+        int timeout = usr.getInt("ackey-time", 1800) * 1000;
+        if (timeout == 0) {
+        	return new HttpStatusView(403);
+        }
+        if (timeout > 0 && System.currentTimeMillis() - time > timeout) {
             return new HttpStatusView(403);
         }
         String str = ackey + "," + nm + "," + time + "," + once;
