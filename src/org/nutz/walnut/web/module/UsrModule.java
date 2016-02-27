@@ -2,6 +2,8 @@ package org.nutz.walnut.web.module;
 
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
@@ -280,13 +282,14 @@ public class UsrModule extends AbstractWnModule {
 
     @GET
     @At("/do/login/auto")
-    @Ok("++cookie>>:${obj}")
+    @Ok("++cookie>>:${a.target}")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
     public Object do_login_auto(@Param("user") String nm, 
                                 @Param("sign") String sign, 
                                 @Param("time") long time,
                                 @Param("once") String once,
-                                @Param("target")String target) {
+                                @Param("target")String target,
+                                HttpServletRequest req) {
         if (Strings.isBlank(nm)) {
             return new HttpStatusView(403);
         }
@@ -310,10 +313,12 @@ public class UsrModule extends AbstractWnModule {
         if (!_sign.equals(sign)) {
             return new HttpStatusView(403);
         }
-        WnSession se = sess.create(usr);
+        WnSession se = sess.create(sess.usrs().check(usr.name()));
         Wn.WC().SE(se);
-        if (Strings.isBlank(target))
-            return "/";
-        return target;
+        if (!Strings.isBlank(target))
+            req.setAttribute("target", target);
+        else
+        	req.setAttribute("target", "/");
+        return se;
     }
 }
