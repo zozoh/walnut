@@ -61,8 +61,9 @@ tags:
 	// 密钥签名错误,检查签名算法
 	// 时间戳已过期,一般原因是两端的服务器时间未同步
 	
+# 设置用户的ackey和ackey-timeout
 
-
+	usermod -E '{"ackey":"`uuid`", "ackey-timeout":1800}' wendal
 
 
 

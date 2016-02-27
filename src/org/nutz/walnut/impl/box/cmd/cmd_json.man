@@ -4,7 +4,7 @@
 
 # 用法
 
-	cat xxx | json [-cqnr] [-e $REGEX+] [-d yyyyMMdd]
+	cat xxx | json [-cqnr] [-e $REGEX+] [-d yyyyMMdd] [-u '{xx:xxx}']
 	
 	-c            # 紧凑格式输出
 	-q            # 不用双引号包裹键值
@@ -17,7 +17,7 @@
 	
 	-get          # 从一个 JSON 文本中取值，键值支持 . 的路径操作
 	              # 如果是列表，则参数是下标
-	
+	-u            # 更新map
 	
 	
 # 示例

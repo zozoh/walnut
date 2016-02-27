@@ -1,11 +1,14 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import java.util.Map;
+
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.MapKeyConvertor;
 import org.nutz.lang.Streams;
+import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -20,7 +23,8 @@ public class cmd_json extends JvmExecutor {
         boolean recur;
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public void exec(WnSystem sys, String[] args) throws Exception {
 
         ZParams params = ZParams.parse(args, "cqnr");
@@ -91,6 +95,13 @@ public class cmd_json extends JvmExecutor {
                     return C.not ? C.prefix + key : key;
                 }
             }, C.recur);
+        }
+        
+        if (params.has("u")) {
+        	NutMap map = Json.fromJson(NutMap.class, params.get("u"));
+        	if (map != null && map.size() > 0) {
+        		((Map<String, Object>)obj).putAll(map);
+        	}
         }
 
         // 最后输出
