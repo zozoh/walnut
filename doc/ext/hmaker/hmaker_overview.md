@@ -49,8 +49,9 @@ xyz.html
 
 ```
 <section class="hmaker-components">
-    <!-- 没有 text 属性，则不显示分组名称 -->
-    <ul text="">
+    <!-- H4 是可以没有的，如果有，就是分组的名称 -->
+    <h4>i18n:group.name</h4>
+    <ul>
         <li ctype="navbtns">
             <i class="fa fa-th"></i>
             <span>i18n:hmaker.com.navbtns.nm</span>
@@ -64,7 +65,9 @@ xyz.html
             <span>i18n:hmaker.com.image.nm</span>
         </li>
     </ul>
-    <!-- 下一坨组件 -->
+    <!--
+    下一坨组件
+    -->
     <ul> .. </ul>
 </section>
 ```

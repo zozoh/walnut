@@ -105,7 +105,7 @@ body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-b
 .ui-loading {padding:14px; font-size:14px; color:rgba(255,255,255,0.6);line-height: 24px;}
 .ui-loading i {display: inline-block; vertical-align: middle;font-size: 18px;}
 
-
+.z-edit-it input {padding:0 6px;}
 
 
 

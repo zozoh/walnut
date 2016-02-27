@@ -9,7 +9,6 @@ import java.util.Map;
 import org.nutz.lang.Mirror;
 import org.nutz.resource.Scans;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.util.ZParams;
 
 public abstract class JvmHdlExecutor extends JvmExecutor {
 
@@ -21,31 +20,36 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
 
         // 初始化上下文（子类可以重载）
         hc.args = args;
-        setupContext(sys, hc);
+        this._find_hdl_name(sys, hc);
 
         // 首先看第一个参数是不是能找到一个控制器
-        JvmHdl hdl = hdls.get(hc.hdlName);
+        hc.hdl = hdls.get(hc.hdlName);
+
+        // 最后统一解析参数
+        this._parse_params(sys, hc);
 
         // 如果找不到
-        if (null == hdl) {
+        if (null == hc.hdl) {
             throw Er.create("e.cmd." + myName + ".unknown.hdl", hc.hdlName);
         }
 
         // 调用执行器
-        hdl.invoke(sys, hc);
+        hc.hdl.invoke(sys, hc);
 
     }
 
-    protected void setupContext(WnSystem sys, JvmHdlContext hc) {
+    protected void _find_hdl_name(WnSystem sys, JvmHdlContext hc) {
         if (hc.args.length == 0)
             return;
         // 默认第一个参数为处理器名称
         hc.hdlName = hc.args[0];
 
         // 后面的参数作为处理器参数
-        String[] args = Arrays.copyOfRange(hc.args, 1, hc.args.length);
-        hc.params = ZParams.parse(args, null);
-        
+        hc.args = Arrays.copyOfRange(hc.args, 1, hc.args.length);
+    }
+
+    protected void _parse_params(WnSystem sys, JvmHdlContext hc) {
+        hc.parseParams(hc.args);
         hc.jfmt = this.gen_json_format(hc.params);
     }
 
@@ -87,7 +91,8 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
                 // 获取 Key
                 String nm = klass.getSimpleName().toLowerCase();
                 if (!nm.startsWith(myName + "_")) {
-                    //throw Er.create("e.cmd." + myName + ".wrongHdlName", klass.getName());
+                    // throw Er.create("e.cmd." + myName + ".wrongHdlName",
+                    // klass.getName());
                     continue;
                 }
                 String key = nm.substring(myName.length() + 1).toLowerCase();

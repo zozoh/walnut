@@ -7,12 +7,11 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.ZParams;
 
 public class cmd_hmaker extends JvmHdlExecutor {
 
     @Override
-    protected void setupContext(WnSystem sys, JvmHdlContext hc) {
+    protected void _find_hdl_name(WnSystem sys, JvmHdlContext hc) {
         // 如果第一个参数就是处理器，那么，HOME 则自动寻找
         if (hc.args.length < 1) {
             throw Er.create("e.cmd.hmaker.lackArgs", hc.args);
@@ -41,10 +40,7 @@ public class cmd_hmaker extends JvmHdlExecutor {
         }
 
         // 解析参数
-        String[] args = Arrays.copyOfRange(hc.args, pos, hc.args.length);
-        hc.params = ZParams.parse(args, null);
-        hc.jfmt = this.gen_json_format(hc.params);
-
+        hc.args = Arrays.copyOfRange(hc.args, pos, hc.args.length);
     }
 
 }

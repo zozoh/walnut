@@ -176,7 +176,7 @@ body > .ui-obrowser {
   top: 0;
   left: 0;
 }
-.obrowser .obrowser-sky .obrowser-crumb .z_editit {
+.obrowser .obrowser-sky .obrowser-crumb .z-edit-it input {
   background: #ffffff;
   color: #333333;
   padding-left: 12px;

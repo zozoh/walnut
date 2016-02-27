@@ -499,6 +499,11 @@ public abstract class AbstractWnTree implements WnTree {
 
     @Override
     public WnObj move(WnObj src, String destPath) {
+        return move(src, destPath, Wn.MV.TP | Wn.MV.SYNC);
+    }
+
+    @Override
+    public WnObj move(WnObj src, String destPath, int mode) {
         // 不用移动
         String srcPath = this.checkById(src.id()).path();
         if (srcPath.equals(destPath)) {
@@ -530,6 +535,9 @@ public abstract class AbstractWnTree implements WnTree {
         String taPath = destPath;
         WnObj ta = fetch(null, taPath);
 
+        // 准备最后更新的正则表达式
+        String regex = "d0|d1|pid";
+
         // 如果不存在，看看目标的父是否存在，并且可能也同时要改名
         if (null == ta) {
             taPath = Files.getParent(taPath);
@@ -552,14 +560,20 @@ public abstract class AbstractWnTree implements WnTree {
         // 改变名称和类型
         if (null != newName) {
             src.name(newName);
-            Wn.set_type(mimes, src, null);
+            regex += "|nm";
+
+            // 还要同时更新类型，好吧
+            if (Wn.MV.isTP(mode)) {
+                Wn.set_type(mimes, src, null);
+                regex += "|tp|mime";
+            }
         }
 
         // 改变父
         src.setParent(ta);
 
         // 更新一下索引的记录
-        _set_quiet(src, "^(d0|d1|nm|pid|tp|mime)$");
+        _set_quiet(src, "^(" + regex + ")$");
 
         // 如果是目录，且d0,d1 改变了，需要递归
         if (src.isDIR()) {
@@ -575,12 +589,15 @@ public abstract class AbstractWnTree implements WnTree {
             }
         }
 
-        // 触发同步时间修改
-        Wn.Io.update_ancestor_synctime(this, src, false);
+        // 触发同步
+        if (Wn.MV.isSYNC(mode)) {
+            // 触发同步时间修改
+            Wn.Io.update_ancestor_synctime(this, src, false);
 
-        // 如果对象换了父节点，之前的父节点也要被触发修改时间
-        if (!oldSrcParent.isSameId(src.parentId())) {
-            Wn.Io.update_ancestor_synctime(this, oldSrcParent, true);
+            // 如果对象换了父节点，之前的父节点也要被触发修改时间
+            if (!oldSrcParent.isSameId(src.parentId())) {
+                Wn.Io.update_ancestor_synctime(this, oldSrcParent, true);
+            }
         }
 
         // 返回

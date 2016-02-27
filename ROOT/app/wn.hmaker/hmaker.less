@@ -1,18 +1,36 @@
 @import (reference) "../ui";
 
-.hmaker {
-    @flex(); flex-flow: row nowrap; position: relative;
-}
 //......................................... 定义变量
-@clW  : 180px;
-@barH : 32px;
-@bar : {
-    @noselect(); z-index:10;
+@navW  : 200px;
+@detaW : 240px;
+@clW   : 140px;
+@clWc  : 32px;
+@barH  : 32px;
+@bar   : {
+    @noselect(); z-index:10; overflow: hidden;
     color:@cf1; border-bottom:1px solid @cborder0; background: @cb1;
 };
+//......................................... 两种布局模式
+.hmaker {
+    position: relative;
+    > div {
+        position: absolute; top:0; bottom:0;
+    }
+}
+// 文件列表在内部的布局
+.hmaker[mode=inside] {
+    .hmaker-nav  {left:0; width:@navW;}
+    .hmaker-main {left:@navW; right:@detaW;}
+    .hmaker-deta {right:0; width:@detaW;}
+}
+// 文件列表在外部的布局
+.hmaker[mode=outside] {
+    .hmaker-main {left:0; right:@detaW;}
+    .hmaker-deta {right:0; width:@detaW;}
+}
+.outline-con .hmaker-nav{width:100%; height:100%;}
+
 //......................................... 左侧资源导航
-.hmaker-nav[mode=inside] {flex:0 0 auto; width:200px;}
-.hmaker-nav[mode=outside]{width:100%; height:100%;}
 .hmaker-nav{
     @flex(); flex-flow: column nowrap;
     > div {flex:1 1 auto;}
@@ -22,18 +40,64 @@
         .menu {padding:@d1 @d0;}
     }
     .ue-list {
-        
+        .z-edit-it input {outline:none;}
     }
 }
 //......................................... 主区域
-.hmaker-main { background: #99A;
-    flex:1 1 auto;  position: relative;
-    > div {position: absolute; }
+.hmaker-main {
+    background: @cb0;
+}
+//......................................... 右侧属性
+.hmaker-deta {
+    background: #CCC;
+}
+//......................................... 隐藏的插入项
+.hmaker .shelf-hide {
+    .ue-bar1  {
+        width:@clWc;
+        span:first-child {display: none;}
+        span:last-child  {display: inline;}
+    }
+    .ue-shelf {
+        width:@clWc;
+        ul{
+            padding:@d2 0;
+            li {
+                padding:0; text-align: center;
+                span{display: none;}
+            }
+        }
+    }
+    .ue-stage {left:@clWc;}
+    .ue-bar2  {left:@clWc;}
+}
+//......................................... 页面编辑器
+.hmaker-page {
+    > div {position: absolute; transition : 0.3s;}
+    //................................ 插入项
     .ue-bar1 { @bar(); 
         top:0; left:0; width:@clW; height:@barH; 
         line-height: @barH; text-align: center; cursor: pointer;
         background: @cb2;
+        span:first-child {display: inline;}
+        span:last-child  {display: none;}
     }
+    //................................ 插入项目
+    .ue-shelf { @noselect(); background: @cb2; 
+        top:@barH; left:0; width:@clW; bottom:0; border-right: 1px solid #CCC;
+        ul {
+            padding:@d2; 
+            li {
+                padding:0 @d0; line-height: @f4 * 2;
+                cursor: pointer;
+                i {width:@f5; text-align: center;}
+            }
+            li:hover {
+                background: rgba(255,255,255,0.2); color:@c0;
+            }
+        }
+    }
+    //................................ 组合工具条
     .ue-bar2 { @bar();
         top:0; left:@clW; height:@barH; right:0;
         @flex(); flex-flow: row nowrap;
@@ -61,35 +125,26 @@
         }
         //...........................................
     }
-    .ue-shelf { background: @cb0; background: @cb2;
-        top:@barH; left:0; width:@clW; bottom:0; border-right: 1px solid #CCC;
-        transition : 0.3s;
-    }
-    .ue-stage { 
+    //................................ 编辑区
+    .ue-stage {
+        background: #AAB;
         top:@barH; left:@clW; bottom:0; right:0;
-        transition : 0.3s; z-index:5;
-    }
-    .ue-screen {
-        background: #FFF; transition : 0.1s;
+        z-index:5; overflow: hidden;
     }
     .ue-stage[mode="pc"] .ue-screen {
-        width:100%; height:100%; overflow: auto;
+        width:100%; height:100%;
     }
     .ue-stage[mode="mobile"]{
-        padding:@d2; overflow: auto;
+        padding:@d6 @d2 @d2 @d2;
         .ue-screen {
             width:400px; height:300px; margin: 0 auto;
             box-shadow: 2px 2px 8px rgba(0,0,0,0.6);
         }
     }
-}
-//......................................... 隐藏的插入项
-.hmaker .shelf-hide {
-    .ue-shelf {left:@clW * -1;}
-    .ue-stage {left:0;}
-}
-//......................................... 右侧属性
-.hmaker-deta { background: #CCC;
-    flex:0 0 auto; width:240px; 
+    .ue-screen {
+        background: #FFF; transition : 0.1s;
 
+        iframe {width:100%; height:100%; border:0;}
+    }
 }
+

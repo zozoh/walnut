@@ -136,6 +136,9 @@ return ZUI.def("app.wn.hmaker_nav", {
             idKey : "id",
             nmKey : "nm",
             icon : function(o){
+                if('DIR' == o.race){
+                    return  '<i class="fa fa-folder-o"></i>';
+                }
                 return  '<i class="fa fa-file-code-o"></i>';
             },
             text : function(o){
@@ -145,10 +148,45 @@ return ZUI.def("app.wn.hmaker_nav", {
                 return 'DIR' != o.race;
             },
             openWhenActived : false,
+            data : function(jNode, o){
+                if(!o)
+                    return Wn.getById(jNode.attr("oid"));
+            },
             on_actived : function(o, jNode){
-                console.log("nav actived", o, this);
+                //console.log("nav actived", o, this);
+                UI.parent.change_mainUI(o);
+            },
+            on_click_actived_text : function(o, jText, jNode){
+                var UI = this;
+                $z.editIt(jText.parent(), {
+                    text : o.nm,
+                    after : function(newval, oldval) {
+                        // 去掉空白
+                        newval = $.trim(newval);
+                        // 如果有效就执行改名看看
+                        if(newval && newval!=oldval){
+                            // 去掉非法字符
+                            newval = newval.replace()
+                            // 改名咯
+                            Wn.exec("mv -oqT id:"+o.id + " 'id:"+o.pid+"/"+newval+"';", function(re){
+                                // 错误
+                                if(/^e[.]/.test(re)){
+                                    alert(UI.msg(re));
+                                }
+                                // 真的改名
+                                else{
+                                    var obj = $z.fromJson(re);
+                                    Wn.saveToCache(obj);
+                                    jText.text(obj.nm);
+                                }
+                            });
+                        }
+                    }
+                });
             }
-        }).render();
+        }).render(function(){
+            this.setActived(2);
+        });
         
     },
     //...............................................................

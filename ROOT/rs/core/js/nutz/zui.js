@@ -465,18 +465,22 @@ ZUIObj.prototype = {
         if(!UI._loaded_uiTypes)
             UI._loaded_uiTypes = [];
 
-        // 如果仅仅给了个 uiType，那么自动寻找 i
-        if(_.isString(i)){
-            uiType = i;
-            i = UI._defer_uiTypes.indexOf(uiType);
-            if(i<0){
-                alert("defer uiType '" + uiType + "' without define!");
-                throw "defer uiType '" + uiType + "' without define!";
+        // 因为是延迟，所以放到执行队列最后执行
+        window.setTimeout(function(){
+            // 如果仅仅给了个 uiType，那么自动寻找 i
+            if(_.isString(i)){
+                uiType = i;
+                i = UI._defer_uiTypes.indexOf(uiType);
+                if(i<0){
+                    alert("defer uiType '" + uiType + "' without define!");
+                    throw "defer uiType '" + uiType + "' without define!";
+                }
             }
-        }
+            // 记录加载完的项目
+            UI._loaded_uiTypes[i] = uiType;
+            UI._check_defer_done();
 
-        UI._loaded_uiTypes[i] = uiType;
-        UI._check_defer_done();
+        }, 0);
     },
     _check_defer_done : function(){
         var UI = this;

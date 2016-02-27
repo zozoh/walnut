@@ -1396,33 +1396,40 @@ var zUtil = {
         };
         var func = function() {
             var jInput = $(this);
-            var opt = jInput.data("z-editit-opt");
-            opt.after.apply(jInput.parent(), [jInput.val(), jInput.attr("old-val")]);
-            jInput.prev().remove();  // 移除遮罩
-            jInput.remove();  // 移除输入框
+            var jDiv   = jInput.parent();
+            var opt = jDiv.data("z-editit-opt");
+            opt.after.apply(jDiv.parent(), [jInput.val(), jInput.attr("old-val")]);
+            jDiv.prev().remove();  // 移除遮罩
+            jDiv.remove();  // 移除输入框
         };
         // 准备显示输入框
         var val = opt.text || me.text();
-        var html = opt.multi ? '<textarea></textarea>' : '<input>';
+        var html = '<div class="z-edit-it">' + (opt.multi ? '<textarea></textarea>' : '<input>') +'</div>';
 
         // 计算宿主尺寸
         var rect = $z.rect(me);
 
         // 显示输入框
+        var boxW = opt.width || rect.width;
+        var boxH = opt.height || rect.height;
         var jq = $(html).prependTo(me)
-                   .val(val)
-                   .attr("old-val", val)
-                   .addClass("z_editit")
+                   .addClass("z-edit-it")
                    .data("z-editit-opt", opt)
                    .css({
-                        "width": opt.width || rect.width,
-                        "height": opt.height || rect.height,
-                        "line-height" : opt.height || rect.height,
-                        "position": "fixed",
-                        "top"  : rect.top,
-                        "left" : rect.left,
-                        "z-index": 999999,
+                        "width"    : boxW,
+                        "height"   : boxH,
+                        "position" : "fixed",
+                        "top"      : rect.top,
+                        "left"     : rect.left,
+                        "z-index"  : 999999,
                     });
+        // 给输入框设值
+        var jInput = jq.children();
+        jInput.val(val).attr("old-val", val).css({
+            "width"       : boxW,
+            "height"      : boxH,
+            "line-height" : boxH
+        });
 
         // 显示遮罩
         $('<div>').insertBefore(jq)
@@ -1437,11 +1444,14 @@ var zUtil = {
                 "z-index": 999998,
             });
 
-        return jq.one("blur", func)
-                 .one("change", func)
-                 .on("keydown", onKeydown)
-                 .on("click", function(e){e.stopPropagation();})
-                 .focus();
+        // 绑定事件
+        jInput.one("blur", func);
+        jInput.one("change", func);
+        jInput.on("keydown", onKeydown);
+        jInput.on("click", function(e){e.stopPropagation();})
+        jInput.focus();
+
+        return jq;
     },
     //.............................................
     // json : function(obj, fltFunc, tab){

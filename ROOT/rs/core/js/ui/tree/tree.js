@@ -50,6 +50,15 @@ return ZUI.def("ui.tree", {
             UI.getName = options.nmKey;
         }
 
+        // 默认获取数据的方法
+        $z.setUndefined(options, "data", function(jNode, obj){
+            if(obj){
+                jNode.data("@DATA", obj);
+                return this;
+            }
+            return jNode.data("@DATA");
+        });
+
         // 默认的手柄
         $z.setUndefined(options, "handle", 
             '<i class="fa fa-caret-right"></i><i class="fa fa-caret-down"></i>');
@@ -123,7 +132,7 @@ return ZUI.def("ui.tree", {
             var jqs = this.arena.find(".tree-node");
             for(var i=0;i<jqs.length;i++){
                 var jq = jqs.eq(i);
-                var obj = jq.data("@DATA");
+                var obj = this.options.data((this.options.context||this), jq);
                 if(_.isMatch(obj, nd)){
                     return jq;
                 }
@@ -190,7 +199,7 @@ return ZUI.def("ui.tree", {
                 e.preventDefault();
                 // 得到菜单项的信息
                 var context = opt.context || UI;
-                var obj   = jNode.data("@DATA");
+                var obj   = opt.data.call(context, jNode);
                 var setup = opt.on_contextmenu.call(context, obj, jNode);
                 // 显示菜单
                 new MenuUI({
@@ -219,7 +228,7 @@ return ZUI.def("ui.tree", {
         // 去掉其他的高亮
         UI.arena.find(".tree-node-actived").removeClass("tree-node-actived").each(function(){
             var jq = $(this);
-            var obj = jq.data("@DATA");
+            var obj = opt.data.call(context, jq);
             $z.invoke(opt, "on_blur", [obj, jq], context);
         });
         // 高亮自己
@@ -232,7 +241,7 @@ return ZUI.def("ui.tree", {
 
         // 调用回调
         if(!quiet){
-            var obj = jNode.data("@DATA");
+            var obj = opt.data.call(context, jNode);
             $z.invoke(opt, "on_actived", [obj, jNode], context);
         }
     },
@@ -296,7 +305,7 @@ return ZUI.def("ui.tree", {
             var jNode = UI.$node(nd);
             var jSub = jNode.children(".tnd-children");
             jSub.text(UI.msg("loadding"));
-            var obj = jNode.data("@DATA");
+            var obj = opt.data.call(context, jNode);
             opt.children.call(context, obj, function(list){
                 UI._draw_nodes(list, jSub);
                 if(_.isFunction(callback)){
@@ -417,7 +426,8 @@ return ZUI.def("ui.tree", {
             jNode.find(".tnd-text").text(id);
 
         // 记录数据
-        jNode.data("@DATA", obj);
+        //jNode.data("@DATA", obj);
+        opt.data.call(context, jNode, obj);
 
         // 调用配置项，自定义更多节点外观
         $z.invoke(opt, "on_draw_node", [jNode, obj], context);
@@ -433,7 +443,7 @@ return ZUI.def("ui.tree", {
     },
     //...............................................................
     getActived : function(){
-        return this.arena.find(".tree-node-actived").data("@DATA");
+        return this.options.data((this.options.context||this), this.arena.find(".tree-node-actived"));
     },
     //...............................................................
     getActivedNode : function(){
@@ -465,9 +475,7 @@ return ZUI.def("ui.tree", {
     },
     //...............................................................
     getNodeData : function(nd){
-        var UI = this;
-        var jNode = UI.$node(nd);
-        return jNode.data("@DATA");
+        return this.options.data.call((this.options.context||this), this.$node(nd));
     }
     //...............................................................
 });

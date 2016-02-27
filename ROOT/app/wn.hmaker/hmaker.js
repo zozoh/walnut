@@ -2,37 +2,21 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker/hmaker_nav'
-], function(ZUI, Wn, NavUI){
+    'app/wn.hmaker/hmaker_nav',
+    'app/wn.hmaker/hmaker_page'
+], function(ZUI, Wn, NavUI, PageUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena hmaker" ui-fitparent="yes">
-    <div class="hmaker-nav" mode="inside">
+<div class="ui-arena hmaker" ui-fitparent="yes" mode="inside">
+    <div class="hmaker-nav">
         <div class="ue-bar0" ui-gasket="menu"></div>
         <div class="ue-list" ui-gasket="tree"></div>
     </div>
-    <div class="hmaker-main">
-        <div class="ue-bar1">{{hmaker.comlib_add}}</div>
-        <div class="ue-shelf"></div>
-        <div class="ue-bar2">
-            <div class="ue-ssize">
-                <input name="x"><em>x</em><input name="y">
-                <span>
-                    <i class="fa fa-laptop highlight" val=""></i>
-                    <i class="fa fa-tablet" val="800x600"></i>
-                    <i class="fa fa-mobile" val="400x600"></i>
-                </span>
-            </div>
-            <div class="ue-com-menu"></div>
-        </div>
-        <div class="ue-stage" mode="pc">
-            <div class="ue-screen">abcdeadsfaafadsfafda</div>
-        </div>
-    </div>
-    <div class="hmaker-deta">
+    <div class="hmaker-main" ui-gasket="main"></div>
+    <div class="hmaker-deta"><div class="hmaker-deta-wrapper">
         <div class="ue-com-title"></div>
         <div class="ue-com-prop"></div>
-    </div>
+    </div></div>
 </div>
 */};
 //==============================================
@@ -43,7 +27,10 @@ return ZUI.def("app.wn.hmaker", {
     //...............................................................
     events : {
         "click .ue-bar1" : function(e){
-            this.arena.find(".hmaker-main").toggleClass("shelf-hide");
+            var UI  = this;
+            var jMa = UI.arena.find(".hmaker-main");
+            jMa.toggleClass("shelf-hide");
+            UI.local("shelfHide", jMa.hasClass("shelf-hide"));
         },
         "click .ue-ssize i" : function(e){
             var jq = $(e.currentTarget);
@@ -113,8 +100,14 @@ return ZUI.def("app.wn.hmaker", {
         var jMain = UI.arena.children(".hmaker-main");
         var jDeta = UI.arena.children(".hmaker-deta");
 
+        // 恢复持久的插入项隐藏设定
+        if(UI.local("shelfHide")){
+            jMain.addClass("shelf-hide");
+        }
+
         // 指定了外部的大纲视图，自己内部的大纲视图就删掉吧
         if(opt.outline && opt.outline.size()>0) {
+            UI.arena.attr("mode", "outside");
             jNav.attr("mode", "outside").appendTo(opt.outline.empty());
             UI.addElement(opt.outline);
             //console.log("outside outline:" + UI.$outline.html());
@@ -127,10 +120,33 @@ return ZUI.def("app.wn.hmaker", {
         }).render();
     },
     //...............................................................
+    change_mainUI : function(o) {
+        var UI  = this;
+
+        // html 就打开页面编辑器
+        if('html' == o.tp) {
+            // 已经打开页面编辑器了，那么就更新就好了
+            if(UI.gasket.main && PageUI.uiName == UI.gasket.main.uiName ){
+                UI.gasket.main.update(o);
+            }
+            // 重新建立页面编辑器
+            else{
+                new PageUI({parent:UI, gasketName:"main"}).render(function(){
+                    this.update(o);
+                });
+            }
+        }
+        // 不支持
+        else {
+            throw "change_mainUI fail : " + o.ph;
+        }
+    },
+    //...............................................................
     update : function(o) {
         var UI = this;
-        console.log(UI.uiNav);
+        //console.log(UI.uiNav);
 
+        // 显示道航栏
         UI.uiNav.update(o);
     }
     //...............................................................

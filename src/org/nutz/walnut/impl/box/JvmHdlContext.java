@@ -10,6 +10,8 @@ public class JvmHdlContext {
 
     public String hdlName;
 
+    public JvmHdl hdl;
+
     public String[] args;
 
     public ZParams params;
@@ -17,5 +19,13 @@ public class JvmHdlContext {
     public WnObj oHome;
 
     public JsonFormat jfmt;
+
+    public void parseParams(String[] args) {
+        // 得到注解
+        JvmHdlParamArgs jhpa = this.hdl.getClass().getAnnotation(JvmHdlParamArgs.class);
+
+        // 解析
+        this.params = ZParams.parse(args, null == jhpa ? null : jhpa.value());
+    }
 
 }

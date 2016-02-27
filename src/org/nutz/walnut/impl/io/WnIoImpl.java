@@ -59,6 +59,11 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public WnObj move(WnObj src, String destPath, int mode) {
+        return tree.move(src, destPath, mode);
+    }
+
+    @Override
     public void set(final WnObj o, String regex) {
         tree.set(o, regex);
 

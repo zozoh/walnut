@@ -23,6 +23,8 @@ public interface WnTree extends UnitTestable {
     void walk(WnObj p, Callback<WnObj> callback, WalkMode mode);
 
     WnObj move(WnObj src, String destPath);
+    
+    WnObj move(WnObj src, String destPath, int mode);
 
     WnObj rename(WnObj o, String nm);
 
