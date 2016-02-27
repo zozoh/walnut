@@ -3,8 +3,7 @@ package org.nutz.walnut.impl.box;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.StringReader;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
@@ -77,8 +76,6 @@ public class JvmAtomRunner {
         return re;
     }
 
-    private static final Pattern SSTT = Pattern.compile("`(.*)`");
-
     private String __extend_substitution(String cmdLine) {
         StringBuilder sb = new StringBuilder();
 
@@ -94,21 +91,32 @@ public class JvmAtomRunner {
 
         // 开始逐次寻找预处理段
         try {
-            int pos = 0;
-            Matcher m = SSTT.matcher(cmdLine);
-            while (m.find()) {
-                int iS = m.start();
-                int iE = m.end();
-                String sustitution = m.group(1);
-
-                // 记录之前的字符串
-                if (iS > pos) {
-                    sb.append(cmdLine.substring(pos, iS));
+            StringBuilder tmp = new StringBuilder();
+            StringReader sr = new StringReader(cmdLine);
+            char c;
+            boolean flag = false;
+            while (true) {
+            	int t = sr.read();
+            	if (t == -1) {
+            		break;
+            	}
+            	c = (char)t;
+                if (c == '`') {
+                	if (flag) {
+                		flag = false;
+                	} else {
+                		flag = true;
+                		continue;
+                	}
+                } else {
+                	if (flag)
+                		tmp.append(c);
+                	else
+                		sb.append(c);
+                	continue;
                 }
-
-                // 移动位置指针到匹配的末尾以便下次使用
-                pos = iE;
-
+                String sustitution = tmp.toString();
+                tmp.setLength(0);
                 // 空串就不执行了
                 if (Strings.isBlank(sustitution)) {
                     continue;
@@ -126,13 +134,13 @@ public class JvmAtomRunner {
                     // 成功的话，将输出的内容替换到命令行里
                     // 去掉双引号，换行等一切邪恶的东东 >_<
                     else {
-                        String subst = sbOut.toString().replaceAll("([\"' ])", "\\\\$1");
+                        String subst = sbOut.toString().replaceAll("([\r\n\"' ])", "");
                         sb.append(subst);
                     }
 
                     // 清理输出，准备迎接下一个子命令
-                    sbOut.delete(0, sbOut.length());
-                    sbErr.delete(0, sbErr.length());
+                    sbOut.setLength(0);
+                    sbErr.setLength(0);
                 }
             }
         }
