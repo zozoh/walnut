@@ -280,7 +280,7 @@ public class UsrModule extends AbstractWnModule {
 
     @GET
     @At("/do/login/auto")
-    @Ok(">>:${obj}")
+    @Ok("++cookie>>:${obj}")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
     public Object do_login_auto(@Param("user") String nm, 
                                 @Param("sign") String sign, 
@@ -298,7 +298,7 @@ public class UsrModule extends AbstractWnModule {
         if (ackey == null) {
             return new HttpStatusView(403);
         }
-        int timeout = usr.getInt("ackey-time", 1800) * 1000;
+        int timeout = usr.getInt("ackey-timeout", 1800) * 1000;
         if (timeout == 0) {
         	return new HttpStatusView(403);
         }
@@ -310,7 +310,8 @@ public class UsrModule extends AbstractWnModule {
         if (!_sign.equals(sign)) {
             return new HttpStatusView(403);
         }
-        sess.create(usr);
+        WnSession se = sess.create(usr);
+        Wn.WC().SE(se);
         if (Strings.isBlank(target))
             return "/";
         return target;
