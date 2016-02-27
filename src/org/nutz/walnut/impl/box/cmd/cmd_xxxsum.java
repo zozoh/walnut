@@ -1,12 +1,16 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.ZParams;
 
 public abstract class cmd_xxxsum extends JvmExecutor {
 
@@ -17,17 +21,18 @@ public abstract class cmd_xxxsum extends JvmExecutor {
     }
 
     public void exec(WnSystem sys, String[] args) {
+    	ZParams params = ZParams.parse(args, "t");
         // 文件输入
-        if (args.length == 1) {
-            String ph = Wn.normalizeFullPath(args[0], sys);
+        if (params.vals.length == 1) {
+            String ph = Wn.normalizeFullPath(params.vals[0], sys);
             WnObj o = sys.io.check(null, ph);
             InputStream ins = sys.io.getInputStream(o, 0);
             String _sum = sum(ins);
             sys.out.println(_sum);
         }
         // 多个文件输入
-        else if (args.length > 1) {
-            for (String val : args) {
+        else if (params.vals.length > 1) {
+            for (String val : params.vals) {
                 String ph = Wn.normalizeFullPath(val, sys);
                 WnObj o = sys.io.check(null, ph);
                 InputStream ins = sys.io.getInputStream(o, 0);
@@ -38,6 +43,11 @@ public abstract class cmd_xxxsum extends JvmExecutor {
         // 如果有管道输入
         else {
             InputStream ins = sys.in.getInputStream();
+        	if (params.is("t")) {
+        		String tmp = Streams.readAndClose(new InputStreamReader(ins));
+        		tmp = tmp.trim();
+        		ins = new ByteArrayInputStream(tmp.getBytes());
+        	}
             String _sum = sum(ins);
             sys.out.println(_sum);
         }
