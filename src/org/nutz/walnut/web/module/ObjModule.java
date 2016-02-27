@@ -210,7 +210,7 @@ public class ObjModule extends AbstractWnModule {
                     if (Strings.isBlank(bg)) {
                         im = Images.zoomScale(im, w, h);
                     } else {
-                        Color bgcolor = Colors.fromString(bg);
+                        Color bgcolor = Colors.as(bg);
                         im = Images.zoomScale(im, w, h, bgcolor);
                     }
                 }

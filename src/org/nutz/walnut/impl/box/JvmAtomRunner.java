@@ -3,7 +3,8 @@ package org.nutz.walnut.impl.box;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
@@ -76,6 +77,8 @@ public class JvmAtomRunner {
         return re;
     }
 
+    private static final Pattern SSTT = Pattern.compile("`([^`]*)`");
+
     private String __extend_substitution(String cmdLine) {
         StringBuilder sb = new StringBuilder();
 
@@ -91,32 +94,21 @@ public class JvmAtomRunner {
 
         // 开始逐次寻找预处理段
         try {
-            StringBuilder tmp = new StringBuilder();
-            StringReader sr = new StringReader(cmdLine);
-            char c;
-            boolean flag = false;
-            while (true) {
-            	int t = sr.read();
-            	if (t == -1) {
-            		break;
-            	}
-            	c = (char)t;
-                if (c == '`') {
-                	if (flag) {
-                		flag = false;
-                	} else {
-                		flag = true;
-                		continue;
-                	}
-                } else {
-                	if (flag)
-                		tmp.append(c);
-                	else
-                		sb.append(c);
-                	continue;
+            int pos = 0;
+            Matcher m = SSTT.matcher(cmdLine);
+            while (m.find()) {
+                int iS = m.start();
+                int iE = m.end();
+                String sustitution = m.group(1);
+
+                // 记录之前的字符串
+                if (iS > pos) {
+                    sb.append(cmdLine.substring(pos, iS));
+
+                    // 移动位置指针到匹配的末尾以便下次使用
+                    pos = iE;
                 }
-                String sustitution = tmp.toString();
-                tmp.setLength(0);
+
                 // 空串就不执行了
                 if (Strings.isBlank(sustitution)) {
                     continue;
@@ -162,7 +154,7 @@ public class JvmAtomRunner {
     public void run(String cmdLine) {
         // 执行预处理
         cmdLine = Wn.normalizeStr(cmdLine, bc.session.vars());
-        
+
         // 忽略空行和注释行
         if (Strings.isBlank(cmdLine) || cmdLine.matches("^[ \t]*(#|//).*$")) {
             return;

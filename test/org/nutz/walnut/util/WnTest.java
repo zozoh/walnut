@@ -12,9 +12,10 @@ public class WnTest {
     @Test
     public void test_appendPath() {
         assertEquals("/", Wn.appendPath("/", ""));
-        assertEquals("/", Wn.appendPath(null, ""));
+        assertEquals("", Wn.appendPath(null, ""));
+        assertEquals("", Wn.appendPath("", ""));
 
-        assertEquals("/a/b/c", Wn.appendPath(null, "a", "b", "c"));
+        assertEquals("a/b/c", Wn.appendPath(null, "a", "b", "c"));
         assertEquals("/a/b/c", Wn.appendPath("/a/", "/b", "c"));
         assertEquals("/a/b/c", Wn.appendPath("/a//b", "c"));
     }

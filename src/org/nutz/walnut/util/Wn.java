@@ -159,8 +159,9 @@ public abstract class Wn {
     public static String appendPath(String... phs) {
         String[] paths = Lang.without(phs, null);
         if (null != paths && paths.length > 0) {
-            if (null == paths[0])
-                paths[0] = "/";
+            // zozoh: 嗯下面的逻辑木有必要了吧
+            // if (null == paths[0])
+            // paths[0] = "/";
             String str = Lang.concat("/", paths).toString();
             String[] ss = Strings.splitIgnoreBlank(str, "/");
             str = Lang.concat("/", ss).toString();
