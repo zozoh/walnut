@@ -24,26 +24,29 @@ var parse_dom = function (html) {
     });
     UI.arena = UI.$el.children('.ui-arena');
 
+    // 标识所有的扩展点
+    sign_gaskets(UI);
+
+    // DOM 解析完成
+};
+var sign_gaskets = function(UI){
     // 搜索所有的 DOM 扩展点, 为其增加前缀
     UI.$el.find("[ui-gasket]").each(function(){
         var jq = $(this);
         var ga = jq.attr("ui-gasket");
-        jq.attr("ui-gasket", UI.cid + "@" + ga);
+        // 已经被标识过了的话
+        var m = /^([\w\d]+)@(.+)$/.exec(ga);
+        if(m) {
+            // 不是自己标识的，改成自己
+            if(m[1] != UI.cid){
+                jq.attr("ui-gasket", UI.cid + "@" + m[2]);
+            }
+        }
+        // 没被标识过，标识一下
+        else{
+            jq.attr("ui-gasket", UI.cid + "@" + ga);
+        }
     });
-
-
-    // UI.gasket = {};
-    // UI.$el.find("[ui-gasket]").each(function () {
-    //     var me = $(this);
-    //     var nm = $.trim(me.attr("ui-gasket"));
-    //     UI.gasket[nm] = {
-    //         ui    : [],
-    //         jq    : $(this),
-    //         multi : me.attr("ui-multi") || false
-    //     };
-    // });
-
-    // DOM 解析完成
 };
 //====================================================
 var register = function(UI) {
@@ -55,6 +58,11 @@ var register = function(UI) {
         UI.$pel   = UI.$el.parent();
         UI.pel    = UI.$pel[0];
         UI.parent = UI.parent || ZUI.getInstance(UI.pel);
+        // 这种模式下，默认是要 keepDom 的
+        $z.setUndefined(opt,"keepDom", true);
+
+        // 指明了 $el 那么 arena 与 $el 指向同样的 DOM
+        UI.arena = UI.$el;
 
         // 看看这个 $el 是不是已经是个 UI 了
         var cid = UI.$el.attr("ui-id");
@@ -122,12 +130,12 @@ var register = function(UI) {
         UI.el  = UI.$el[0];
         if(opt.className)
             UI.$el.addClass(opt.className);
+        //.....................................
+        // 加载时保持隐藏
+        UI.$el.attr("ui-loadding","yes").hide();
+        // 加入 DOM 树
+        UI.$pel.append(UI.$el);
     }
-    //.....................................
-    // 加载时保持隐藏
-    UI.$el.attr("ui-loadding","yes").hide();
-    // 加入 DOM 树
-    UI.$pel.append(UI.$el);
     //.....................................
     // 记录自身实例
     UI.$el.attr("ui-id", UI.cid);
@@ -399,6 +407,7 @@ ZUIObj.prototype = {
             }
             // 否则直接渲染
             else {
+                sign_gaskets(UI);
                 do_render();
             }
         };

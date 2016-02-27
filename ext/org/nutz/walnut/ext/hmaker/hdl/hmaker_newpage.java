@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.bp.hdl;
+package org.nutz.walnut.ext.hmaker.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.walnut.api.io.WnObj;
@@ -8,14 +8,12 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.web.WebException;
 
-public class bp_newpage implements JvmHdl {
+public class hmaker_newpage implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
 
         String pgName = hc.params.vals.length > 0 ? hc.params.vals[0] : "NewPage";
-
-        WnObj oPageHome = sys.io.createIfNoExists(hc.oHome, "page", WnRace.DIR);
 
         // 创建一个不同名的
         int retry = 0;
@@ -23,7 +21,7 @@ public class bp_newpage implements JvmHdl {
         while (true) {
             String nm = retry > 0 ? String.format("%s(%d)", pgName, retry) : pgName;
             try {
-                oPage = sys.io.create(oPageHome, nm, WnRace.FILE);
+                oPage = sys.io.create(hc.oHome, nm, WnRace.FILE);
                 break;
             }
             catch (WebException e) {
@@ -38,7 +36,7 @@ public class bp_newpage implements JvmHdl {
         }
 
         // 修改类型
-        oPage.type("bpml");
+        oPage.type("html");
         sys.io.set(oPage, "^(tp|mime)$");
 
         // 输出新的对象信息

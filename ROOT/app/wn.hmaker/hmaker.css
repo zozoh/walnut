@@ -4,11 +4,11 @@
   flex-flow: row nowrap;
   position: relative;
 }
-.hmaker-nav-con[mode=inside] {
+.hmaker-nav[mode=inside] {
   flex: 0 0 auto;
   width: 200px;
 }
-.hmaker-nav-con[mode=outside] {
+.hmaker-nav[mode=outside] {
   width: 100%;
   height: 100%;
 }
@@ -21,12 +21,14 @@
   flex: 1 1 auto;
 }
 .hmaker-nav .ue-bar0 {
-  background: blue;
   height: 32px;
   flex: 0 0 auto;
 }
-.hmaker-nav .ue-list {
-  background: red;
+.hmaker-nav .ue-bar0 > div {
+  float: right;
+}
+.hmaker-nav .ue-bar0 .menu {
+  padding: 4px 2px;
 }
 .hmaker-main {
   background: #99A;

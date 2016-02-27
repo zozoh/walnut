@@ -46,5 +46,6 @@ new MyUI({
 * 自动找到 `$pel`，且其所在的 UI 自动成为父 UI
 * `$el->document.body` 的情况呢？ 呵呵，自然是顶级 UI 咯
 * 默认 *keepDom*，如果指明 false，则清空其内所有子元素
+* 这种模式下 *$el* 和 *arena* 指向的都是同一个 DOM 节点
 
 

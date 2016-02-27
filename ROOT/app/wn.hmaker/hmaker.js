@@ -7,7 +7,10 @@ $z.declare([
 //==============================================
 var html = function(){/*
 <div class="ui-arena hmaker" ui-fitparent="yes">
-    <div class="hmaker-nav-con" mode="inside" ui-gasket="nav"></div>
+    <div class="hmaker-nav" mode="inside">
+        <div class="ue-bar0" ui-gasket="menu"></div>
+        <div class="ue-list" ui-gasket="tree"></div>
+    </div>
     <div class="hmaker-main">
         <div class="ue-bar1">{{hmaker.comlib_add}}</div>
         <div class="ue-shelf"></div>
@@ -33,7 +36,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.bp_ide", {
+return ZUI.def("app.wn.hmaker", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "theme/app/wn.hmaker/hmaker.css",
     i18n : "app/wn.hmaker/i18n/{{lang}}.js",
@@ -106,29 +109,29 @@ return ZUI.def("app.wn.bp_ide", {
         var UI  = this;
         var opt = UI.options;
 
-        var jNavC = UI.arena.children(".hmaker-nav-con");
+        var jNav  = UI.arena.children(".hmaker-nav");
         var jMain = UI.arena.children(".hmaker-main");
         var jDeta = UI.arena.children(".hmaker-deta");
 
         // 指定了外部的大纲视图，自己内部的大纲视图就删掉吧
         if(opt.outline && opt.outline.size()>0) {
-            jNavC.attr("mode", "outside").appendTo(opt.outline.empty());
+            jNav.attr("mode", "outside").appendTo(opt.outline.empty());
             UI.addElement(opt.outline);
             //console.log("outside outline:" + UI.$outline.html());
         }
         
         // 创建侧边栏 UI
-        new NavUI({
+        UI.uiNav = new NavUI({
             parent : UI,
-            gasketName : "nav"
+            $el    : jNav
         }).render();
     },
     //...............................................................
     update : function(o) {
         var UI = this;
-        //console.log("I am screen update:", o);
+        console.log(UI.uiNav);
 
-        
+        UI.uiNav.update(o);
     }
     //...............................................................
 });
