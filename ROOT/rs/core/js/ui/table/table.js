@@ -653,6 +653,8 @@ return ZUI.def("ui.table", {
             for(var i=0;i<len;i++){
                 if(_.isNumber(szht[i]) && szht[i]!=0 )
                     _ws[i] = szht[i];
+                else if('*' == szht[i])
+                    _ws[i] = -1;
             }
         }
         // 数字表示第一列

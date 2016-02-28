@@ -43,7 +43,7 @@
   height: 100%;
   padding-bottom: 48px;
   position: relative;
-  background: #ffffff;
+  background: #000000;
 }
 .srh-mask .srh-qform {
   width: 100%;
@@ -60,8 +60,8 @@
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  background: #eeeeee;
-  border-top: 1px solid #cccccc;
+  background: rgba(0, 0, 0, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
   position: absolute;
   left: 0;
   right: 0;
@@ -71,24 +71,20 @@
   padding-top: 6px;
 }
 .srh-mask .srh-qbtns b {
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
   display: inline-block;
   vertical-align: middle;
   cursor: pointer;
   margin: 0 2px;
   padding: 8px 32px;
-  border: 1px solid #bbbbbb;
-  background: #d0d0d0;
-  color: #000000;
+  border: 1px solid #000000;
+  background: #000000;
+  color: #cccccc;
   border-radius: 4px;
   padding: 8px 6px;
 }
 .srh-mask .srh-qbtns b:hover {
   color: #ffffff;
-  background: #0044bb;
+  background: rgba(0, 64, 255, 0.6);
 }
 .srh-mask .srh-qbtns .ing {
   margin-right: 4px;
@@ -132,9 +128,9 @@
   font-size: 14px;
   padding: 8px 16px 8px 32px;
   width: 100%;
-  color: #aaaaaa;
-  border: 1px solid #cccccc;
-  background: #dddddd;
+  color: #222222;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #666666;
   border-radius: 100px;
   outline: none;
 }
@@ -143,7 +139,7 @@
   top: 1px;
   left: 4px;
   padding: 8px;
-  color: #aaaaaa;
+  color: #222222;
 }
 /*.............................................. pager*/
 .srh-pgr {
@@ -175,8 +171,8 @@
   font-size: 12px;
 }
 .srh-pgr .pgr-enable:hover {
-  background: #cccccc;
-  color: #444444;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   cursor: pointer;
 }
 .srh-pgr .pgr-disable,

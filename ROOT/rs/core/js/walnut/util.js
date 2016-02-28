@@ -92,6 +92,18 @@ var Wn = {
             return $z.ellipsisCenter(text, 20);
         return text;
     },
+    //...................................................................
+    objDisplayPath : function(UI, ph, offset){
+        var nms = ph
+        if(!_.isArray(ph)){
+            nms = _.without(ph.split("/"), "");
+        }
+        var ary = [];
+        for(var i=(offset||0); i<nms.length; i++){
+            ary.push(this.objDisplayName(UI, nms[i], 0));
+        }
+        return ary.join("/");
+    },
     /*...................................................................
     提供一个通用的文件上传界面，任何 UI 可以通过
        this.listenModel("do:upload", this.on_do_upload); 
@@ -403,12 +415,9 @@ var Wn = {
             var ace  = $z.fromJson(json);
             asetup.currentEditor = ace;
                 
-            // 将编辑器的菜单项统统加入动作组
+            // 如果编辑器声明了菜单，将其替换
             if(_.isArray(ace.actions)){
-                ace.actions.forEach(function(val, index, arr){
-                    arr[index] = "e" + val;
-                });
-                asetup.actions = ace.actions.concat(asetup.actions);
+                asetup.actions = ace.actions;
             }
         }
 

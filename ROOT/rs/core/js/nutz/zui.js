@@ -739,17 +739,17 @@ ZUIObj.prototype = {
         // 同步
         if(_.isFunction(opt.parseData)){
             var o = opt.parseData.call(context, obj);
-            callback.call(UI, o);
+            callback.call(UI, o, opt);
         }
         // 异步 
         else if(_.isFunction(opt.asyncParseData)){
             opt.asyncParseData.call(context, obj, function(o){
-                callback.call(UI, o);
+                callback.call(UI, o, opt);
             });
         }
         // 直接使用
         else{
-            callback.call(UI, obj);
+            callback.call(UI, obj, opt);
         }
     },
     //............................................

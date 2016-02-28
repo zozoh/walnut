@@ -9,7 +9,7 @@ $z.declare([
 var html = function(){/*
 <div class="ui-code-template">
     <div code-id="crumb.item" class="citem ui-clr">
-        <i class="oicon"></i><b></b><span class="ochild"><i class="fa fa-caret-down"></i></span>
+        <b></b><span class="ochild"><i class="fa fa-caret-down"></i></span>
     </div>
 </div>
 <div class="ui-arena obrowser-sky ui-clr">
@@ -282,17 +282,17 @@ return ZUI.def("ui.obrowser_sky", {
         var UI = this;
         var jq = UI.ccode("crumb.item");
         jq.attr("oid", o.id);
+
         // 主目录特殊显示
         if("home" == itype){
             jq.attr("onm", "~");
-            jq.find(".oicon").attr("otp","home");
+            $('<i class="fa fa-home" style="font-size:1.2em;">').prependTo(jq);
             jq.find("b").text(UI.msg("home"));
         }
         // 其他项目
         else{
             jq.attr("onm", o.nm);
-            var jIcon = $(Wn.objIconHtml(o)).attr("mime",o.mime);
-            jq.find(".oicon").replaceWith(jIcon);
+            $(Wn.objIconHtml(o)).attr("mime",o.mime).prependTo(jq);
             jq.find("b").text(Wn.objDisplayName(UI, o.nm));
         }
         // 移除最后的展开符

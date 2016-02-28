@@ -137,12 +137,16 @@ return ZUI.def("ui.obrowser_chute", {
             // 如果没有 icon
             if(jIcon.size() == 0){
                 jIcon = $('<i class="oicon">');
+                var iconHtml;
+                // 没有对象，显示一个 icon 的占位
                 if(!o){
-                    jIcon.addClass("oicon_hide");
-                }else{
-                    jIcon.attr("otp", o.tp || ("DIR"==o.race?"folder":"unknown"));
+                    iconHtml = '<i class="oicon oicon_hide></i>';
                 }
-                jItem.prepend(jIcon);
+                // 根据对象生成 icon
+                else{
+                    iconHtml = Wn.objIconHtml(o);
+                }
+                jItem.prepend($(iconHtml));
             }
 
             // 如果没有文字

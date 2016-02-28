@@ -653,7 +653,7 @@ var zUtil = {
             // 啥都木有，直接显示吧
             else{
                 func = function(o, jso){
-                    return jso.toText();
+                    return jso.parseByObj(o).toText();
                 }
             }
         }

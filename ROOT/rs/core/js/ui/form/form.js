@@ -309,38 +309,41 @@ return ZUI.def("ui.form", {
         });
     },
     //...............................................................
-    setData : function(o){
+    setData : function(obj){
         var UI = this;
-        // 记录当前数据
-        UI.$el.data("@DATA", o);
+        UI.ui_parse_data(obj, function(o){
+            // 记录当前数据
+            UI.$el.data("@DATA", o);
 
-        // 设置每个字段
-        UI.arena.find(".form-fld").each(function(){
-            var jF  = $(this);
-            var jso = jF.data("@jOBJ");
-            var fui = jF.data("@UI"); 
-            var val = jso.parseByObj(o).value();
-            fui.setData(val, jso);
+            // 设置每个字段
+            UI.arena.find(".form-fld").each(function(){
+                var jF  = $(this);
+                var jso = jF.data("@jOBJ");
+                var fui = jF.data("@UI"); 
+                var val = jso.parseByObj(o).value();
+                fui.setData(val, jso);
+            });
         });
     },
     //...............................................................
     getData : function(){
         var UI = this;
+        return this.ui_format_data(function(opt){
+            // 准备返回值
+            var re = opt.mergeData ? _.extend({}, UI.$el.data("@DATA")) : {};
 
-        // 准备返回值
-        var re = UI.options.mergeData ? _.extend({}, UI.$el.data("@DATA")) : {};
+            // 读取每个字段的返回值
+            UI.arena.find(".form-fld").each(function(){
+                var jF  = $(this);
+                var jso = jF.data("@jOBJ");
+                var fui = jF.data("@UI"); 
+                var v  = fui.getData();
+                jso.parse(v).setToObj(re);
+            });
 
-        // 读取每个字段的返回值
-        UI.arena.find(".form-fld").each(function(){
-            var jF  = $(this);
-            var jso = jF.data("@jOBJ");
-            var fui = jF.data("@UI"); 
-            var v  = fui.getData();
-            jso.parse(v).setToObj(re);
+            // 返回值
+            return re;
         });
-
-        // 返回值
-        return re;
     },
     //...............................................................
     getObjId : function(obj){
