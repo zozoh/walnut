@@ -35,7 +35,7 @@ return ZUI.def("ui.menu", {
     init : function(options){
         // 注册全局事件，控制子菜单的关闭
         var on_close_group = function(e){
-            this.closeGroup(this.arena.find(".menu-item[open]"));
+            this.closeGroup(this.$el.find(".menu-item[open]"));
         };
         this.watchMouse("click", on_close_group);
         this.watchKey(27, on_close_group);

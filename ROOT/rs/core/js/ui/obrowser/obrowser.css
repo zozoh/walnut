@@ -7,6 +7,9 @@ body > .ui-obrowser {
 .obrowser .obrowser-block {
   margin: 0px;
 }
+.obrowser .wnobj-hide {
+  opacity: 0.6;
+}
 .obrowser .obrowser-main .wnobj {
   -moz-user-select: none;
   -khtml-user-select: none;
@@ -15,9 +18,6 @@ body > .ui-obrowser {
 }
 .obrowser .obrowser-main .wnobj * {
   cursor: default;
-}
-.obrowser .obrowser-main .wnobj-hide * {
-  opacity: 0.5;
 }
 .obrowser .obrowser-main .obrowser-vmd-table .tbl-row-td0 i {
   margin: 0 6px;
@@ -164,6 +164,10 @@ body > .ui-obrowser {
   border-bottom: 1px solid #cccccc;
 }
 .obrowser .obrowser-sky .obrowser-crumb {
+  background: red;
+  color: inherit;
+}
+.obrowser .obrowser-crumb {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
@@ -176,7 +180,7 @@ body > .ui-obrowser {
   top: 0;
   left: 0;
 }
-.obrowser .obrowser-sky .obrowser-crumb .z-edit-it input {
+.obrowser .obrowser-crumb .z-edit-it input {
   background: #ffffff;
   color: #333333;
   padding-left: 12px;
@@ -185,36 +189,36 @@ body > .ui-obrowser {
   font-family: Monaco, Consolas, Courier New;
   border: 0;
 }
-.obrowser .obrowser-sky .obrowser-crumb > div {
+.obrowser .obrowser-crumb > div {
   display: inline-block;
   vertical-align: middle;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem {
+.obrowser .obrowser-crumb .citem {
   border: 1px solid rgba(0, 0, 0, 0);
   padding: 0 0 0 4px;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem i {
+.obrowser .obrowser-crumb .citem i {
   display: inline-block;
   vertical-align: middle;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem b {
+.obrowser .obrowser-crumb .citem b {
   font-weight: normal;
   display: inline-block;
   vertical-align: middle;
   line-height: 24px;
   margin: 0 2px 0 4px;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem .ochild {
+.obrowser .obrowser-crumb .citem .ochild {
   display: inline-block;
   vertical-align: middle;
   padding: 4px 2px 4px 2px;
   cursor: pointer;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem .ochild:hover {
+.obrowser .obrowser-crumb .citem .ochild:hover {
   background: #cccccc;
   color: #444444;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem .citem-drop {
+.obrowser .obrowser-crumb .citem .citem-drop {
   position: fixed;
   z-index: 1000;
   min-width: 128px;
@@ -224,39 +228,39 @@ body > .ui-obrowser {
   background: #ffffff;
   box-shadow: 2px 2px 6px #888888;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem .citem-drop .citem .ochild {
+.obrowser .obrowser-crumb .citem .citem-drop .citem .ochild {
   display: none;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem .citem-drop .citem:hover {
+.obrowser .obrowser-crumb .citem .citem-drop .citem:hover {
   color: #ffffff;
   background: #0044bb;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem:hover {
+.obrowser .obrowser-crumb .citem:hover {
   border-color: #dddddd;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem-tail {
+.obrowser .obrowser-crumb .citem-tail {
   padding-right: 2px;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem-tail b {
+.obrowser .obrowser-crumb .citem-tail b {
   font-weight: bold;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem-tail .ochild {
+.obrowser .obrowser-crumb .citem-tail .ochild {
   display: none;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem-tail:hover {
+.obrowser .obrowser-crumb .citem-tail:hover {
   border-color: rgba(0, 0, 0, 0);
 }
-.obrowser .obrowser-sky .obrowser-crumb .folder-btn {
+.obrowser .obrowser-crumb .folder-btn {
   cursor: pointer;
   border-radius: 4px;
   line-height: 24px;
   padding: 0 4px;
 }
-.obrowser .obrowser-sky .obrowser-crumb .folder-btn:hover {
+.obrowser .obrowser-crumb .folder-btn:hover {
   background: #0044bb;
   color: #ffffff;
 }
-.obrowser .obrowser-sky .obrowser-crumb .folder-drop {
+.obrowser .obrowser-crumb .folder-drop {
   z-index: 2000;
   border: 1px solid #ffffff;
   min-width: 128px;
@@ -264,14 +268,14 @@ body > .ui-obrowser {
   background: #ffffff;
   box-shadow: 2px 2px 6px #888888;
 }
-.obrowser .obrowser-sky .obrowser-crumb .folder-drop .citem .ochild {
+.obrowser .obrowser-crumb .folder-drop .citem .ochild {
   display: none;
 }
-.obrowser .obrowser-sky .obrowser-crumb .folder-drop .citem:hover {
+.obrowser .obrowser-crumb .folder-drop .citem:hover {
   color: #ffffff;
   background: #0044bb;
 }
-.obrowser .obrowser-sky .obrowser-menu {
+.obrowser .obrowser-menu {
   position: absolute;
   top: 0;
   right: 0;

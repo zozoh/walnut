@@ -108,7 +108,7 @@ return ZUI.def("ui.tree", {
         // 绘制
         UI._draw_nodes(opt.tops, jW);
         if(_.isFunction(callback)){
-            callback.call(context, re);
+            callback.call(context, opt.tops);
         }
     },
     //...............................................................

@@ -7,15 +7,6 @@
 .wn-thumbnail {
   padding: 12px 6px;
 }
-.wn-thumbnail .wnobj-hide * {
-  opacity: 1.0;
-}
-.wn-thumbnail .wnobj-hide .wnobj-thumbnail {
-  opacity: 0.382;
-}
-.wn-thumbnail .wnobj-hide .wnobj-nm {
-  opacity: 0.6;
-}
 .wn-thumbnail .wnobj {
   display: inline-block;
 }

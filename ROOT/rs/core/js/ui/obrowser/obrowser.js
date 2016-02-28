@@ -195,7 +195,6 @@ return ZUI.def("ui.obrowser", {
             // 调用个个子 UI 的更新
             UI.__call_subUI_update(o, asetup);
         }
-        
     },
     //..............................................
     updateMenuByObj : function(o, theEditor){

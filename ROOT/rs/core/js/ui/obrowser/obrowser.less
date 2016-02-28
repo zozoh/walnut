@@ -9,13 +9,13 @@ body > .ui-obrowser {
     .obrowser-block {
         margin:0px;
     }
+    .wnobj-hide {opacity: 0.6;}
 
     .obrowser-main {
         .wnobj {
             @noselect();
             * {cursor: default;}
         }
-        .wnobj-hide *{opacity: 0.5;}
 
         .obrowser-vmd-table {
             .tbl-row-td0 {
@@ -113,79 +113,85 @@ body > .ui-obrowser {
     //---------------------------------------------- BEGIN Sky
     .obrowser-sky {
         position: relative; border-bottom:1px solid @cborder0;
-        .obrowser-crumb { @noselect(); cursor: default;
-            background: @cb1;
-            padding:@d2; white-space: nowrap;
-            position: absolute; top:0;left:0;
-            .z-edit-it input {
-                background: @cb0; color:@cf0;
-                padding-left:@d4; outline: none;
-                font-size:@d5; font-family: @f_fixed; border:0; 
+        // 禁止主目录点击
+        .obrowser-crumb {
+            background: red; color: inherit;
+        }
+    }
+
+    .obrowser-crumb { @noselect(); cursor: default;
+        background: @cb1;
+        padding:@d2; white-space: nowrap;
+        position: absolute; top:0;left:0;
+        .z-edit-it input {
+            background: @cb0; color:@cf0;
+            padding-left:@d4; outline: none;
+            font-size:@d5; font-family: @f_fixed; border:0; 
+        }
+        >div {
+            display: inline-block; 
+            vertical-align: middle;
+        }
+        .citem {
+            border:1px solid rgba(0,0,0,0);
+            padding: 0 0 0 @d1; 
+            i {
+                display: inline-block; vertical-align: middle;
             }
-            >div {
-                display: inline-block; 
-                vertical-align: middle;
+            b {
+                font-weight: normal;
+                display: inline-block; vertical-align: middle;
+                line-height:@d6; margin:0 @d0 0 @d1;
             }
-            .citem {
-                border:1px solid rgba(0,0,0,0);
-                padding: 0 0 0 @d1; 
-                i {
-                    display: inline-block; vertical-align: middle;
-                }
-                b {
-                    font-weight: normal;
-                    display: inline-block; vertical-align: middle;
-                    line-height:@d6; margin:0 @d0 0 @d1;
-                }
-                .ochild {
-                    display: inline-block; vertical-align: middle;
-                    padding:@d1 @d0 @d1 @d0; cursor:pointer; 
-                }
-                .ochild:hover{
-                    background: @ch1_b; color: @ch1_f;
-                }
-                .citem-drop {
-                    position: fixed; z-index: 1000; min-width: @db;
-                    border:1px solid @cmenu_l;
-                    min-width: @da; padding: @d2; background: @cmenu_b;
-                    box-shadow: @d0 @d0 @d2 @cshadow;
-                    .citem .ochild{display: none;}
-                    .citem:hover{color:@ch0_f; background: @ch0_b;}
-                }
+            .ochild {
+                display: inline-block; vertical-align: middle;
+                padding:@d1 @d0 @d1 @d0; cursor:pointer; 
             }
-            .citem:hover {
-                border-color:@cborder1;
+            .ochild:hover{
+                background: @ch1_b; color: @ch1_f;
             }
-            .citem-tail{
-                padding-right:@d0;
-                b {font-weight: bold;}
-                .ochild{display: none;}
-            }
-            .citem-tail:hover{border-color:rgba(0,0,0,0);}
-            .folder-btn {
-                cursor:pointer; border-radius: @d1;
-                line-height:@d6; padding:0 @d1;
-            }
-            .folder-btn:hover{
-                background: @ch0_b; color: @ch0_f;
-            }
-            .folder-drop {
-                z-index: 2000; border:1px solid @cmenu_l;
-                min-width: @db; padding: @d2; background: @cmenu_b;
+            .citem-drop {
+                position: fixed; z-index: 1000; min-width: @db;
+                border:1px solid @cmenu_l;
+                min-width: @da; padding: @d2; background: @cmenu_b;
                 box-shadow: @d0 @d0 @d2 @cshadow;
                 .citem .ochild{display: none;}
                 .citem:hover{color:@ch0_f; background: @ch0_b;}
             }
         }
-        .obrowser-menu {
-            position: absolute; top:0; right:0; background: @cb2;
-            padding-left:@d2;
+        .citem:hover {
+            border-color:@cborder1;
+        }
+        .citem-tail{
+            padding-right:@d0;
+            b {font-weight: bold;}
+            .ochild{display: none;}
+        }
+        .citem-tail:hover{border-color:rgba(0,0,0,0);}
+        .folder-btn {
+            cursor:pointer; border-radius: @d1;
+            line-height:@d6; padding:0 @d1;
+        }
+        .folder-btn:hover{
+            background: @ch0_b; color: @ch0_f;
+        }
+        .folder-drop {
+            z-index: 2000; border:1px solid @cmenu_l;
+            min-width: @db; padding: @d2; background: @cmenu_b;
+            box-shadow: @d0 @d0 @d2 @cshadow;
+            .citem .ochild{display: none;}
+            .citem:hover{color:@ch0_f; background: @ch0_b;}
         }
     }
+    .obrowser-menu {
+        position: absolute; top:0; right:0; background: @cb2;
+        padding-left:@d2;
+    }
     //---------------------------------------------- END Sky
-    
-}
 
+} // END .obrowser
+
+// 隐藏对象
 .obrowser[hidden-obj-visibility=hidden] {
     .wnobj-hide {display: none;}
 }
