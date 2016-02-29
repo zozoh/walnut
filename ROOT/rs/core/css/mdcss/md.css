@@ -2076,6 +2076,7 @@ body {
   text-align: right;
 }
 .md-grid-con {
+  position: relative;
   padding: 16px 16px;
   background: #ffffff;
   overflow-x: auto;
@@ -2093,11 +2094,23 @@ body {
   clear: both;
   visibility: hidden;
 }
-.md-grid-con .md-grid-title {
-  height: 48px;
-  line-height: 48px;
-  font-size: 16.25px;
+.md-grid-con .md-grid-label {
+  margin: 0 8px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 22.75px;
   color: rgba(0, 0, 0, 0.87);
+  float: left;
+}
+.md-grid-con .md-grid-label.right {
+  float: right;
+}
+.md-grid-con .md-grid-title {
+  margin: 0 8px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 22.75px;
+  color: #1976d2;
   float: left;
 }
 .md-grid-con .md-grid-title.right {

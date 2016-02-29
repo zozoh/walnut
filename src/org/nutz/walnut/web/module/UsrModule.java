@@ -260,6 +260,7 @@ public class UsrModule extends AbstractWnModule {
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
     public Object usrAvatar(@Param("nm") String nm) {
         String avatarPath = null;
+        // 按照名称
         if ("root".equals(nm)) {
             avatarPath = "/root/.avatar";
         } else {
