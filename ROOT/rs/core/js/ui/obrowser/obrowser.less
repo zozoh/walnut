@@ -114,8 +114,11 @@ body > .ui-obrowser {
     .obrowser-sky {
         position: relative; border-bottom:1px solid @cborder0;
         // 禁止主目录点击
-        .obrowser-crumb {
-            background: inherit; color: inherit;
+        .obrowser-crumb[forbid-click-home="yes"] .citem[home="yes"] {
+            border-color: rgba(0,0,0,0);
+            .ochild{
+                background: inherit; color: inherit;
+            }
         }
     }
 

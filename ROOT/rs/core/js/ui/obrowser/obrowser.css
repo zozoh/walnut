@@ -163,7 +163,10 @@ body > .ui-obrowser {
   position: relative;
   border-bottom: 1px solid #cccccc;
 }
-.obrowser .obrowser-sky .obrowser-crumb {
+.obrowser .obrowser-sky .obrowser-crumb[forbid-click-home="yes"] .citem[home="yes"] {
+  border-color: rgba(0, 0, 0, 0);
+}
+.obrowser .obrowser-sky .obrowser-crumb[forbid-click-home="yes"] .citem[home="yes"] .ochild {
   background: inherit;
   color: inherit;
 }
