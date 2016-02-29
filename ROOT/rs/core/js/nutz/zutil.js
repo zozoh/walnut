@@ -140,13 +140,31 @@ var zUtil = {
         throw  "fail to dimension : " + v;
     },
     //.............................................
+    toPixel : function(str, dft){
+        var m = /^(\d+)(px)?/.exec(str);
+        if(m)
+            return m[1] * 1;
+        return dft || 0;
+    },
+    //.............................................
     // 获取一个元素的矩形信息，包括 top,left,right,bottom,width,height,x,y
     // 其中 x,y 表示中央点
-    rect : function(ele){
+    rect : function(ele, includeMargin){
         var jq = $(ele);
         var rect    = jq.offset();
-        rect.width  = jq.outerWidth();
-        rect.height = jq.outerHeight();
+        // 包括外边距，有点麻烦
+        if(includeMargin && jq.size()>0){
+            rect.width  = jq.outerWidth(true);
+            rect.height = jq.outerHeight(true);
+            var style   = window.getComputedStyle(jq[0]);
+            rect.top   -= this.toPixel(style.marginTop);
+            rect.left  -= this.toPixel(style.marginLeft);
+        }
+        // 否则就简单了
+        else{
+            rect.width  = jq.outerWidth();
+            rect.height = jq.outerHeight();
+        }
         rect.right  = rect.left + rect.width;
         rect.bottom = rect.top  + rect.height;
         rect.x      = rect.left + rect.width/2;

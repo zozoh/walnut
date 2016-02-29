@@ -164,7 +164,7 @@ body > .ui-obrowser {
   border-bottom: 1px solid #cccccc;
 }
 .obrowser .obrowser-sky .obrowser-crumb {
-  background: red;
+  background: inherit;
   color: inherit;
 }
 .obrowser .obrowser-crumb {
