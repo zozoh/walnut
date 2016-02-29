@@ -117,14 +117,17 @@ id 属性是必要的，每次控件新建实例，会自动分配。 无论渲�
 属性:
 
 ```
-position: "static | absolute"
+position: "relative | absolute"
 ```
+
+* *relative* 表示不是绝对位置(默认)
+* *absolute* 表示是绝对位置
 
 编辑 & 渲染时生成 *CSS* :
 
 ```
 #(控件ID) {
-    position : static;
+    position : relative;
 }
 ```
 
