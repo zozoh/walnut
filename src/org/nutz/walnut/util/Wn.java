@@ -159,8 +159,9 @@ public abstract class Wn {
     public static String appendPath(String... phs) {
         String[] paths = Lang.without(phs, null);
         if (null != paths && paths.length > 0) {
-            if (null == paths[0])
-                paths[0] = "/";
+            // zozoh: 嗯下面的逻辑木有必要了吧
+            // if (null == paths[0])
+            // paths[0] = "/";
             String str = Lang.concat("/", paths).toString();
             String[] ss = Strings.splitIgnoreBlank(str, "/");
             str = Lang.concat("/", ss).toString();
@@ -389,6 +390,30 @@ public abstract class Wn {
             });
         }
 
+    }
+
+    /**
+     * 移动操作需要的配置信息
+     */
+    public static class MV {
+
+        /**
+         * 自动修改类型
+         */
+        public static final int TP = 1;
+
+        /**
+         * 自动同步树的 syncTime
+         */
+        public static final int SYNC = 1 << 1;
+
+        public static boolean isTP(int mode) {
+            return Maths.isMask(mode, TP);
+        }
+
+        public static boolean isSYNC(int mode) {
+            return Maths.isMask(mode, SYNC);
+        }
     }
 
     public static class ROLE {

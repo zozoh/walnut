@@ -4,11 +4,6 @@
 .wn-thumbnail-showseq {.wnobj .wnobj-wrapper .wnobj-seq{display: block;}}
 .wn-thumbnail {
     padding:@d4 @d2;
-    .wnobj-hide {
-        * {opacity: 1.0;}
-        .wnobj-thumbnail {opacity: 0.382;}
-        .wnobj-nm {opacity: 0.6;}
-    }
 
     @wnobj_w       : 102px;
     @thumb_w       : 64px;
@@ -17,10 +12,10 @@
     @thumb_padding : 6px;
     .wnobj {
         display: inline-block;;
-        .wnobj-wrapper {padding:@d1;  position:relative;}
+        .wnobj-wrapper {padding:@d1; position:relative;}
         .wnobj-wrapper:after{@clr();}
         .wnobj-del {
-            position: absolute; top:0; right: 0; color:#FFF;
+            position: absolute; top:0; right: 0; color:#000;
             width:16px; height:16px; line-height: 16px; text-align: center;
             opacity: 0.2; cursor: pointer; display: none;
             * {cursor: pointer;}
@@ -28,8 +23,8 @@
         .wnobj-del:hover {color:#F00; opacity: 1.0;}
         .wnobj-seq {
             position: absolute; top:0; left: 0;
-            color:rgba(255,255,255,0.4);
-            background: rgba(255,255,255,0.1);
+            color:rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.1);
             padding:@d1 @d2 @d1 @d1; border-radius: 0 0 @d3 0;
             font-size:@f0; display: none;
         }
@@ -64,9 +59,6 @@
         .wnobj-nm{
             display: inline-block; padding:0 @d1; border-radius: @d0;
             border:1px dotted rgba(0,0,0,0); font-family: @f_fixed;
-        }
-        a.wnobj-nm{
-            cursor: pointer;
         }
     }
     .wnobj-checked {

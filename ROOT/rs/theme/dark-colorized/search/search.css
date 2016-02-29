@@ -1,0 +1,183 @@
+.srh-sky {
+  position: relative;
+  min-height: 30px;
+}
+.srh-sky:after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+}
+.srh-list {
+  min-height: 300px;
+  padding-right: 1px;
+}
+.srh-checkbox,
+.srh-actions {
+  display: inline-block;
+  vertical-align: middle;
+}
+/*.............................................. check*/
+.srh-check-opts {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.srh-check-opts > li {
+  float: left;
+  padding: 0 4px;
+  border-right: 1px solid #AAA;
+  font-size: 12px;
+  color: #08F;
+  cursor: pointer;
+}
+.srh-check-opts > li:hover {
+  color: #F80;
+}
+.srh-check-opts > li:last-child {
+  border-right: 0;
+}
+/*.............................................. mask*/
+.srh-mask {
+  width: 100%;
+  height: 100%;
+  padding-bottom: 48px;
+  position: relative;
+  background: #000000;
+}
+.srh-mask .srh-qform {
+  width: 100%;
+  height: 100%;
+}
+.srh-mask .srh-qform .form-body-wrapper {
+  padding: 0 12px 0 6px;
+}
+.srh-mask .srh-qform .ff-txt {
+  padding-left: 48px;
+}
+.srh-mask .srh-qbtns {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  background: rgba(0, 0, 0, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 48px;
+  text-align: center;
+  padding-top: 6px;
+}
+.srh-mask .srh-qbtns b {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  margin: 0 2px;
+  padding: 8px 32px;
+  border: 1px solid #000000;
+  background: #000000;
+  color: #cccccc;
+  border-radius: 4px;
+  padding: 8px 6px;
+}
+.srh-mask .srh-qbtns b:hover {
+  color: #ffffff;
+  background: rgba(0, 64, 255, 0.6);
+}
+.srh-mask .srh-qbtns .ing {
+  margin-right: 4px;
+  visibility: hidden;
+  display: inline-block;
+  width: 12px;
+  margin-left: -12px;
+}
+.srh-mask .srh-qbtns b[ui-ing] .ing {
+  visibility: visible;
+}
+.srh-mask .srh-qbtns .srh-qform-ok {
+  min-width: 128px;
+}
+.srh-mask .srh-qbtns .srh-qform-cancel {
+  min-width: 96px;
+}
+/*.............................................. menu*/
+.srh-actions {
+  padding: 6px 6px 6px 0;
+  min-width: 24px;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.srh-actions .menu {
+  display: inline-block;
+}
+/*.............................................. filter*/
+.srh-filter {
+  padding: 9px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.srh-filter .flt-keyword {
+  padding: 0px;
+  position: relative;
+}
+.srh-filter .flt-keyword input {
+  font-size: 14px;
+  padding: 8px 16px 8px 32px;
+  width: 100%;
+  color: #222222;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #666666;
+  border-radius: 100px;
+  outline: none;
+}
+.srh-filter .flt-icon {
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  padding: 8px;
+  color: #222222;
+}
+/*.............................................. pager*/
+.srh-pgr {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 12px 6px;
+  text-align: center;
+}
+.srh-pgr .pgr-tip {
+  color: #888;
+  font-style: normal;
+  margin-right: 10px;
+  display: inline-block;
+  vertical-align: middle;
+  padding: 5px 8px;
+  font-size: 10px;
+}
+.srh-pgr .pgr-btn {
+  display: inline-block;
+  vertical-align: middle;
+  border: 1px solid #CCC;
+  color: #08F;
+  padding: 4px 8px;
+  border-radius: 2px;
+  margin: 1px;
+  cursor: default;
+  font-size: 12px;
+}
+.srh-pgr .pgr-enable:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  cursor: pointer;
+}
+.srh-pgr .pgr-disable,
+.srh-pgr .pgrr-disable:hover {
+  background: #CCC;
+  color: #888;
+  opacity: 0.6;
+}

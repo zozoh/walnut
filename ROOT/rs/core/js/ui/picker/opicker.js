@@ -110,13 +110,14 @@ return ZUI.def("ui.picker.opicker", {
     },
     //...............................................................
     __append_item : function(o, jBox){
-        jBox = jBox || this.arena.find(".picker-box")
-        var jq = this.ccode("obj").data("@OBJ", o);
+        var UI = this;
+        jBox = jBox || UI.arena.find(".picker-box")
+        var jq = UI.ccode("obj").data("@OBJ", o);
         jq.find("i")
             .attr("otp", Wn.objTypeName(o));
         jq.find("a")
             .prop("href", "/a/open/wn.browser?ph=id:"+o.id)
-            .text(Wn.objDisplayName(o));
+            .text(Wn.objDisplayName(UI, o));
         jBox.append(jq);
     },
     //...............................................................

@@ -37,23 +37,24 @@
     }
 }
 
-.skin-light {
+.timelist {
     font-size: 12px;
 
     .timelist-item {
         padding:4px; margin:1px; cursor: pointer;
-        border:1px solid #DDD; opacity:0.6;
+        border:1px dotted #DDD; opacity:0.6;
         border-radius: 2px;
     }
 
-    .timelist-item-actived {
-        border-color:#08F;
-    }
-
     .timelist-item-checked {
+        border-color:#08F;
         opacity:1.0; background: #08F; color:#FFF;
     }
 
+    .timelist-item-actived {
+        border-color:#FFF;
+    }
+    
     .timelist-item-disabled {
         background: #DDD; color:#AAA;
     }

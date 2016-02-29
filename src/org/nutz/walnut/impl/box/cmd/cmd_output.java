@@ -68,7 +68,7 @@ public class cmd_output extends JvmExecutor {
             }
             // 有限次数输出
             else {
-                while (true) {
+                while (i < n) {
                     __print(jbo, i++, msg, t, showIndex);
                     if (i >= n)
                         break;

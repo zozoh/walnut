@@ -2,6 +2,8 @@ package org.nutz.walnut.web.module;
 
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
@@ -11,9 +13,11 @@ import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
+import org.nutz.mvc.annotation.GET;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.POST;
 import org.nutz.mvc.annotation.Param;
+import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.err.Er;
@@ -277,4 +281,45 @@ public class UsrModule extends AbstractWnModule {
     // return null;
     // }
 
+    @GET
+    @At("/do/login/auto")
+    @Ok("++cookie>>:${a.target}")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public Object do_login_auto(@Param("user") String nm, 
+                                @Param("sign") String sign, 
+                                @Param("time") long time,
+                                @Param("once") String once,
+                                @Param("target")String target,
+                                HttpServletRequest req) {
+        if (Strings.isBlank(nm)) {
+            return new HttpStatusView(403);
+        }
+        WnUsr usr = sess.usrs().fetch(nm);
+        if (usr == null) {
+            return new HttpStatusView(403);
+        }
+        String ackey = usr.getString("ackey");
+        if (ackey == null) {
+            return new HttpStatusView(403);
+        }
+        int timeout = usr.getInt("ackey-timeout", 1800) * 1000;
+        if (timeout == 0) {
+        	return new HttpStatusView(403);
+        }
+        if (timeout > 0 && System.currentTimeMillis() - time > timeout) {
+            return new HttpStatusView(403);
+        }
+        String str = ackey + "," + nm + "," + time + "," + once;
+        String _sign = Lang.sha1(str);
+        if (!_sign.equals(sign)) {
+            return new HttpStatusView(403);
+        }
+        WnSession se = sess.create(sess.usrs().check(usr.name()));
+        Wn.WC().SE(se);
+        if (!Strings.isBlank(target))
+            req.setAttribute("target", target);
+        else
+        	req.setAttribute("target", "/");
+        return se;
+    }
 }

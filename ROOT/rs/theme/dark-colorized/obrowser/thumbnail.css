@@ -7,15 +7,6 @@
 .wn-thumbnail {
   padding: 12px 6px;
 }
-.wn-thumbnail .wnobj-hide * {
-  opacity: 1.0;
-}
-.wn-thumbnail .wnobj-hide .wnobj-thumbnail {
-  opacity: 0.382;
-}
-.wn-thumbnail .wnobj-hide .wnobj-nm {
-  opacity: 0.6;
-}
 .wn-thumbnail .wnobj {
   display: inline-block;
 }
@@ -33,7 +24,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  color: #FFF;
+  color: #000;
   width: 16px;
   height: 16px;
   line-height: 16px;
@@ -53,8 +44,8 @@
   position: absolute;
   top: 0;
   left: 0;
-  color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.1);
+  color: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.1);
   padding: 4px 6px 4px 4px;
   border-radius: 0 0 8px 0;
   font-size: 8px;
@@ -122,9 +113,6 @@
   border-radius: 2px;
   border: 1px dotted rgba(0, 0, 0, 0);
   font-family: Monaco, Consolas, Courier New;
-}
-.wn-thumbnail .wnobj a.wnobj-nm {
-  cursor: pointer;
 }
 .wn-thumbnail .wnobj-checked .wnobj-thumbnail {
   background: rgba(0, 0, 0, 0.3);

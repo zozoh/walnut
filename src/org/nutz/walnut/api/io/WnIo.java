@@ -1,6 +1,7 @@
 package org.nutz.walnut.api.io;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -22,6 +23,8 @@ public interface WnIo extends WnStore, WnTree {
     long readAndClose(WnObj o, OutputStream ops);
 
     <T> T readJson(WnObj o, Class<T> classOfT);
+
+    long writeImage(WnObj o, RenderedImage im);
 
     long writeText(WnObj o, CharSequence cs);
 

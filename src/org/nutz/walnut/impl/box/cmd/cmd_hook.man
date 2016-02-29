@@ -4,7 +4,10 @@
 
 # 用法
 
-    hook [-get o] [-do o]
+    hook [-get o]        # 获取某个对象的钩子信息 
+         [action -do o]  # 重新执行对象的的某一钩子
+                         # action 可以是 wite|create|delete|meta|mount|move
+         [-v]            # 显示对每个对象的执行
     
 # 示例
 
@@ -14,6 +17,6 @@
     // 对象重新执行一遍钩子程序
     hook write -do ~/abc.txt
     
-	// 列出一个对象所有操作的钩子
-	hook -get ~/abc.txt
+    // 列出一个对象所有操作的钩子
+    hook -get ~/abc.txt
 	

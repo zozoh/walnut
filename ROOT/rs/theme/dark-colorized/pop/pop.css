@@ -1,17 +1,28 @@
-.pop .pop-title {
+.pop {
+  width: 100%;
+  height: 100%;
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: column nowrap;
+}
+.pop .pm-title {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  padding: 12px;
+  padding: 8px;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-.pop .pop-body {
-  background: #000000;
+.pop .pm-body {
+  flex: 1 0 auto;
+  background: rgba(0, 0, 0, 0.3);
 }
-.pop .pop-actions {
+.pop .pm-body .ui-quartz {
+  padding: 8px;
+}
+.pop .pm-btns {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
@@ -20,7 +31,7 @@
   text-align: right;
   padding: 8px;
 }
-.pop .pop-actions .pop-btn {
+.pop .pm-btns .pm-btn {
   display: inline-block;
   vertical-align: middle;
   padding: 8px 24px;
@@ -31,7 +42,7 @@
   color: #cccccc;
   border-radius: 2px;
 }
-.pop .pop-actions .pop-btn:hover {
+.pop .pm-btns .pm-btn:hover {
   background: rgba(0, 64, 255, 0.6);
   color: #ffffff;
 }

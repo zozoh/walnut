@@ -32,6 +32,13 @@ return ZUI.def("ui.obrowser_main", {
         // 如果有编辑器，就用编辑器处理
         if(asetup && asetup.currentEditor){
             var ed = asetup.currentEditor;
+            // 准备通知消息
+            var msg = ed.icon || "";
+            msg += " " + UI.text(ed.text) || ed.key;
+            msg += ": " + o.nm;
+            UIBrowser.trigger("browser:info", msg);
+
+            // 创建编辑器
             uiType = ed.uiType;
             uiConf = $z.extend({},ed.uiConf, {
                 editor : ed
@@ -70,6 +77,8 @@ return ZUI.def("ui.obrowser_main", {
                 parent : UI,
                 gasketName : "view"
             };
+            // 发出通知
+            UIBrowser.trigger("browser:info", o.ph);
         }
         // 实在不知道怎么处理了
         else{

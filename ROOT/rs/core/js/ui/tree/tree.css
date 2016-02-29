@@ -2,7 +2,7 @@
   overflow: auto;
 }
 .tree-wrapper {
-  padding: 6px;
+  padding: 0;
 }
 .tree-node {
   -moz-user-select: none;
@@ -12,7 +12,8 @@
 }
 .tree-node .tnd-self {
   padding: 2px 0;
-  line-height: 16px;
+  line-height: 22px;
+  white-space: nowrap;
 }
 .tree-node .tnd-self > div {
   display: inline-block;
@@ -20,7 +21,6 @@
 }
 .tree-node .tnd-self .tnd-handle {
   width: 16px;
-  height: 16px;
   overflow: hidden;
   text-align: center;
 }
@@ -36,8 +36,8 @@
   padding-left: 16px;
 }
 .tree-node-actived > .tnd-self {
-  background: #04B;
-  color: #FFF;
+  background: #0044bb;
+  color: #ffffff;
 }
 .tree-node[ndtp=leaf] .tnd-handle {
   visibility: hidden;

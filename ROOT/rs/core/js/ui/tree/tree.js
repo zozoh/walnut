@@ -50,6 +50,15 @@ return ZUI.def("ui.tree", {
             UI.getName = options.nmKey;
         }
 
+        // 默认获取数据的方法
+        $z.setUndefined(options, "data", function(jNode, obj){
+            if(obj){
+                jNode.data("@DATA", obj);
+                return this;
+            }
+            return jNode.data("@DATA");
+        });
+
         // 默认的手柄
         $z.setUndefined(options, "handle", 
             '<i class="fa fa-caret-right"></i><i class="fa fa-caret-down"></i>');
@@ -63,17 +72,33 @@ return ZUI.def("ui.tree", {
     //...............................................................
     redraw : function(){
         var UI = this;
+        UI.__reload_tops(function(){
+            UI.defer_report("load_tops");
+        })
+        // 返回延迟加载
+        return  ["load_tops"];
+    },
+    //...............................................................
+    __reload_tops : function(callback){
+        var UI  = this;
         var opt = UI.options;
-        var jWrapper = UI.arena.children(".tree-wrapper");
+        var jW  = UI.arena.children(".tree-wrapper");
+        var context = opt.context || UI;
+        
+        // 确保有 jW
+        if(jW.size() == 0 ) {
+            jW = $('<div class="tree-wrapper">').appendTo(UI.arena.empty());
+        }
 
         // 根节点需要动态加载
         if(_.isFunction(opt.tops)){
             opt.tops(function(re){
-                UI._draw_nodes(re, jWrapper);
-                UI.defer_report(0, "load_tops");
+                UI._draw_nodes(re, jW);
+                if(_.isFunction(callback)){
+                    callback.call(context, re);
+                }
             });
-            // 返回延迟加载
-            return  ["load_tops"];
+            return
         }
 
         // 总得有顶级节点吧
@@ -81,7 +106,10 @@ return ZUI.def("ui.tree", {
             throw "e.tree.without.tops";
 
         // 绘制
-        UI._draw_nodes(opt.tops, jWrapper);
+        UI._draw_nodes(opt.tops, jW);
+        if(_.isFunction(callback)){
+            callback.call(context, opt.tops);
+        }
     },
     //...............................................................
     $node : function(nd){
@@ -104,7 +132,7 @@ return ZUI.def("ui.tree", {
             var jqs = this.arena.find(".tree-node");
             for(var i=0;i<jqs.length;i++){
                 var jq = jqs.eq(i);
-                var obj = jq.data("@DATA");
+                var obj = this.options.data((this.options.context||this), jq);
                 if(_.isMatch(obj, nd)){
                     return jq;
                 }
@@ -146,7 +174,7 @@ return ZUI.def("ui.tree", {
                 this.closeNode(jNode);
         },
         "click .tnd-self" : function(e){
-            this.active(e.currentTarget);
+            this.setActived(e.currentTarget);
         },
         "click .tree-node-actived .tnd-text" : function(e){
             var UI    = this;
@@ -161,7 +189,7 @@ return ZUI.def("ui.tree", {
         "contextmenu .tnd-self" : function(e){
             var jSelf = $(e.currentTarget);
             var jNode = jSelf.closest(".tree-node");
-            this.active(jNode);
+            this.setActived(jNode);
 
             // 如果声明了 on_contextmenu， 则接管右键菜单 
             var UI = this;
@@ -171,7 +199,7 @@ return ZUI.def("ui.tree", {
                 e.preventDefault();
                 // 得到菜单项的信息
                 var context = opt.context || UI;
-                var obj   = jNode.data("@DATA");
+                var obj   = opt.data.call(context, jNode);
                 var setup = opt.on_contextmenu.call(context, obj, jNode);
                 // 显示菜单
                 new MenuUI({
@@ -200,7 +228,7 @@ return ZUI.def("ui.tree", {
         // 去掉其他的高亮
         UI.arena.find(".tree-node-actived").removeClass("tree-node-actived").each(function(){
             var jq = $(this);
-            var obj = jq.data("@DATA");
+            var obj = opt.data.call(context, jq);
             $z.invoke(opt, "on_blur", [obj, jq], context);
         });
         // 高亮自己
@@ -213,7 +241,7 @@ return ZUI.def("ui.tree", {
 
         // 调用回调
         if(!quiet){
-            var obj = jNode.data("@DATA");
+            var obj = opt.data.call(context, jNode);
             $z.invoke(opt, "on_actived", [obj, jNode], context);
         }
     },
@@ -260,17 +288,31 @@ return ZUI.def("ui.tree", {
     reload : function(nd, callback) {
         var UI = this;
         var opt = UI.options;
-        var jNode = UI.$node(nd);
         var context = opt.context || UI;
-        var jSub = jNode.children(".tnd-children");
-        jSub.text(UI.msg("loadding"));
-        var obj = jNode.data("@DATA");
-        opt.children.call(context, obj, function(list){
-            UI._draw_nodes(list, jSub);
-            if(_.isFunction(callback)){
-                callback.call(context, list, jNode);
-            }
-        });
+
+        // 没有指定节点的模式
+        if(_.isFunction(nd)){
+            callback = nd;
+            nd = undefined;
+        }
+
+        // 没有指定节点，那么就加载 tops
+        if(!nd){
+            UI.__reload_tops(callback);
+        }
+        // 否则加载指定节点
+        else{
+            var jNode = UI.$node(nd);
+            var jSub = jNode.children(".tnd-children");
+            jSub.text(UI.msg("loadding"));
+            var obj = opt.data.call(context, jNode);
+            opt.children.call(context, obj, function(list){
+                UI._draw_nodes(list, jSub);
+                if(_.isFunction(callback)){
+                    callback.call(context, list, jNode);
+                }
+            });
+        }
     },
     //...............................................................
     closeNode : function(nd){
@@ -285,7 +327,7 @@ return ZUI.def("ui.tree", {
 
         // 如果子节点是有高亮的，则改成高亮自己
         if(UI.hasActivedSubNode(jNode)){
-            UI.active(jNode);
+            UI.setActived(jNode);
         }
     },
     //...............................................................
@@ -306,9 +348,7 @@ return ZUI.def("ui.tree", {
         var jA = UI.arena.find(".tree-node-actived");
         // 没有活动节点，转义 direction
         if(jA.size() == 0){
-            direction = "before" == direction
-                            ? "first"
-                            : ("after" == direction ? "last" : direction);
+            direction = "before" == direction ? "first" : "last";
         }
         // 生成节点
         var jq = UI.__gen_node(obj);
@@ -330,6 +370,8 @@ return ZUI.def("ui.tree", {
             jq.insertAfter(jA); 
         }
 
+        // 返回自身以便链式赋值
+        return this;
     },
     //...............................................................
     _draw_nodes : function(list, jP){
@@ -384,7 +426,8 @@ return ZUI.def("ui.tree", {
             jNode.find(".tnd-text").text(id);
 
         // 记录数据
-        jNode.data("@DATA", obj);
+        //jNode.data("@DATA", obj);
+        opt.data.call(context, jNode, obj);
 
         // 调用配置项，自定义更多节点外观
         $z.invoke(opt, "on_draw_node", [jNode, obj], context);
@@ -400,7 +443,7 @@ return ZUI.def("ui.tree", {
     },
     //...............................................................
     getActived : function(){
-        return this.arena.find(".tree-node-actived").data("@DATA");
+        return this.options.data((this.options.context||this), this.arena.find(".tree-node-actived"));
     },
     //...............................................................
     getActivedNode : function(){
@@ -432,9 +475,7 @@ return ZUI.def("ui.tree", {
     },
     //...............................................................
     getNodeData : function(nd){
-        var UI = this;
-        var jNode = UI.$node(nd);
-        return jNode.data("@DATA");
+        return this.options.data.call((this.options.context||this), this.$node(nd));
     }
     //...............................................................
 });

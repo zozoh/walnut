@@ -1,5 +1,5 @@
 .bp {
-  background: #FFF;
+  background: #ffffff;
   position: relative;
 }
 .bp > div {
@@ -11,7 +11,7 @@
   bottom: 32px;
   left: 0;
   width: 200px;
-  background: #EEE;
+  background: #eeeeee;
 }
 .bp .bp-con-main {
   background: #CCC;
@@ -37,7 +37,7 @@
 .bp-nav .bp-nav-abar .menu {
   text-align: right;
   padding: 2px;
-  color: #333;
+  color: #333333;
 }
 .bp-nav .bp-nav-tree {
   position: absolute;

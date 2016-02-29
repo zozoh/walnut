@@ -8,6 +8,12 @@ import org.nutz.walnut.BaseBoxTest;
 import org.nutz.walnut.api.io.WnObj;
 
 public class JvmBoxTest extends BaseBoxTest {
+    
+    @Test
+    public void test_subsitution2() {
+        box.run("echo -n `echo abc` `echo xyz`");
+        assertEquals("abc xyz", outs());
+    }
 
     @Test
     public void test_subsitution_simple() {

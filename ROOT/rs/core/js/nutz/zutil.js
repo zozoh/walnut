@@ -653,56 +653,56 @@ var zUtil = {
             // 啥都木有，直接显示吧
             else{
                 func = function(o, jso){
-                    return jso.toText();
+                    return jso.parseByObj(o).toText();
                 }
             }
         }
         // 添加到配置信息里
         fld.__dis_obj = func;
     },
-    // 深层遍历一个给定的 Object，如果对象的字段有类似 "function(...}" 的字符串，将其变成函数对象 
-    evalFunctionField : function(obj, memo){
-        if(!memo)
-            memo = [];
-        for(var key in obj){
-            var v = obj[key];
-            // 字符串
-            if(_.isString(v)){
-                // 函数
-                if(/^[ \t]*function[ \t]*\(.+\}[ \t]*/.test(v)){
-                    obj[key] = eval('(' + v + ')');
-                }
-            }
-            // 数组针对每个对象都来一下
-            else if(_.isArray(v)){
-                v.forEach(function(ele){
-                    $z.evalFunctionField(ele, memo);
-                });
-            }
-            // 如果是对象，但是应该无视
-            else if(v instanceof jQuery || _.isElement(v)){
-            }
-            // 如果是普通对象，那么递归
-            else if(_.isObject(v)){
-                // 如果是特别指明 UI 调用的，变函数
-                if(window.ZUI && v.callUI && v.method){
-                    var UI = window.ZUI(v.callUI);
-                    var func = UI[v.method] || UI.options[v.method];
-                    if(_.isFunction(func)){
-                        obj[key] = func;
-                    }else{
-                        throw "ZUI: " + v.callUI + "." + v.method + " not a function!!!";
-                    }
-                }
-                // 否则递归
-                else if(memo.indexOf(v)==-1){
-                    memo.push(v);
-                    $z.evalFunctionField(v, memo);
-                }
-            }
-        }
-        return obj;
-    },
+    // // 深层遍历一个给定的 Object，如果对象的字段有类似 "function(...}" 的字符串，将其变成函数对象 
+    // evalFunctionField : function(obj, memo){
+    //     if(!memo)
+    //         memo = [];
+    //     for(var key in obj){
+    //         var v = obj[key];
+    //         // 字符串
+    //         if(_.isString(v)){
+    //             // 函数
+    //             if(/^[ \t]*function[ \t]*\(.+\}[ \t]*/.test(v)){
+    //                 obj[key] = eval('(' + v + ')');
+    //             }
+    //         }
+    //         // 数组针对每个对象都来一下
+    //         else if(_.isArray(v)){
+    //             v.forEach(function(ele){
+    //                 $z.evalFunctionField(ele, memo);
+    //             });
+    //         }
+    //         // 如果是对象，但是应该无视
+    //         else if(v instanceof jQuery || _.isElement(v)){
+    //         }
+    //         // 如果是普通对象，那么递归
+    //         else if(_.isObject(v)){
+    //             // 如果是特别指明 UI 调用的，变函数
+    //             if(window.ZUI && v.callUI && v.method){
+    //                 var UI = window.ZUI(v.callUI);
+    //                 var func = UI[v.method] || UI.options[v.method];
+    //                 if(_.isFunction(func)){
+    //                     obj[key] = func;
+    //                 }else{
+    //                     throw "ZUI: " + v.callUI + "." + v.method + " not a function!!!";
+    //                 }
+    //             }
+    //             // 否则递归
+    //             else if(memo.indexOf(v)==-1){
+    //                 memo.push(v);
+    //                 $z.evalFunctionField(v, memo);
+    //             }
+    //         }
+    //     }
+    //     return obj;
+    // },
     /*
     获取数据的方法，它的值可能性比较多:
     - 数组为静态数据，每个数据都必须是你希望的对象，那么这个数据会被直接使用
@@ -1178,6 +1178,9 @@ var zUtil = {
                     if(this.isPlainObj(vA) && this.isPlainObj(vB)){
                         this.extend(vA, vB);
                     }
+                    else if(this.isjQuery(vB) || _.isElement(vB)){
+                        a[key] = vB;
+                    }
                     // 否则仅仅是对 B 克隆
                     else{
                         a[key] = this.clone(vB);
@@ -1211,7 +1214,7 @@ var zUtil = {
         }
         // jQuery 或者 Elemet
         if(this.isjQuery(obj) || _.isElement(obj)){
-            return $(obj).clone();
+            return obj;
         }
         // 日期对象
         if(_.isDate(obj)){
@@ -1392,40 +1395,63 @@ var zUtil = {
             }
         };
         var func = function() {
-            var me = $(this);
-            var opt = me.data("z-editit-opt");
-            opt.after.apply(me.parent(), [me.val(), me.attr("old-val")]);
-            me.remove();
+            var jInput = $(this);
+            var jDiv   = jInput.parent();
+            var opt = jDiv.data("z-editit-opt");
+            opt.after.apply(jDiv.parent(), [jInput.val(), jInput.attr("old-val")]);
+            jDiv.prev().remove();  // 移除遮罩
+            jDiv.remove();  // 移除输入框
         };
         // 准备显示输入框
         var val = opt.text || me.text();
-        var html = opt.multi ? '<textarea></textarea>' : '<input>';
+        var html = '<div class="z-edit-it">' + (opt.multi ? '<textarea></textarea>' : '<input>') +'</div>';
 
-        // 计算宿主的内边距
-        var padding = $z.padding(me);
-
-        // 计算宽高
-        var css = {
-            "width": opt.width || me.outerWidth(),
-            "height": opt.height || me.outerHeight(),
-            "position": "absolute",
-            "z-index": 999999,
-            "margin-left" : padding.x/-2,
-            "margin-top"  : padding.y/-2,
-        };
+        // 计算宿主尺寸
+        var rect = $z.rect(me);
 
         // 显示输入框
+        var boxW = opt.width || rect.width;
+        var boxH = opt.height || rect.height;
         var jq = $(html).prependTo(me)
-                   .val(val)
-                   .attr("old-val", val)
-                   .addClass("z_editit").css(css);
-        jq.data("z-editit-opt", opt);
+                   .addClass("z-edit-it")
+                   .data("z-editit-opt", opt)
+                   .css({
+                        "width"    : boxW,
+                        "height"   : boxH,
+                        "position" : "fixed",
+                        "top"      : rect.top,
+                        "left"     : rect.left,
+                        "z-index"  : 999999,
+                    });
+        // 给输入框设值
+        var jInput = jq.children();
+        jInput.val(val).attr("old-val", val).css({
+            "width"       : boxW,
+            "height"      : boxH,
+            "line-height" : boxH
+        });
 
-        return jq.one("blur", func)
-                 .one("change", func)
-                 .on("keydown", onKeydown)
-                 .on("click", function(e){e.stopPropagation();})
-                 .focus();
+        // 显示遮罩
+        $('<div>').insertBefore(jq)
+            .css({
+                "background" : "#000",
+                "opacity" : 0,
+                "position" : "fixed",
+                "top"    : 0,
+                "left"   : 0,
+                "bottom" : 0,
+                "right"  : 0,
+                "z-index": 999998,
+            });
+
+        // 绑定事件
+        jInput.one("blur", func);
+        jInput.one("change", func);
+        jInput.on("keydown", onKeydown);
+        jInput.on("click", function(e){e.stopPropagation();})
+        jInput.focus();
+
+        return jq;
     },
     //.............................................
     // json : function(obj, fltFunc, tab){
@@ -1445,6 +1471,7 @@ var zUtil = {
     },
     //.............................................
     fromJson: function (str, fltFunc) {
+        str = $.trim(str);
         if (!str)
             return null;
         try {

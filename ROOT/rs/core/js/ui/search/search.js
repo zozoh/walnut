@@ -146,7 +146,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.srh", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "ui/search/search.css",
+    css  : "theme/ui/search/search.css",
     i18n : "ui/search/i18n/{{lang}}.js",
     init : function(options){
         var UI  = this;

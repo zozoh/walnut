@@ -2,7 +2,7 @@
 $z.declare('zui', function(ZUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena srh-flt" ui-fitparent="yes">
+<div class="ui-arena srh-flt">
     <div class="flt-keyword">
         <input placeholder="{{srh.filter.tip}}">
         <div class="flt-icon"><i class="fa fa-search"></i></div>
@@ -29,15 +29,6 @@ return ZUI.def("ui.srh_flt", {
     redraw : function(){
         var UI = this;
         UI.arena.find(".flt-keyword input").val(UI.options.query);
-    },
-    //..............................................
-    resize : function(){
-        var UI = this;
-        // var jKeyword = UI.arena.children(".flt-keyword");
-        // var H = UI.arena.height();
-        // var h_keyword = jKeyword.outerHeight(true);
-        // var padding = Math.max(0, parseInt((H - h_keyword)/2));
-        // jKeyword.css("padding", padding);
     },
     //..............................................
     setData : function(qbase){

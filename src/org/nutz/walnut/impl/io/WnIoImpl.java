@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.io;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,6 +12,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
@@ -54,6 +56,11 @@ public class WnIoImpl implements WnIo {
     @Override
     public WnObj move(WnObj src, String destPath) {
         return tree.move(src, destPath);
+    }
+
+    @Override
+    public WnObj move(WnObj src, String destPath, int mode) {
+        return tree.move(src, destPath, mode);
     }
 
     @Override
@@ -520,6 +527,19 @@ public class WnIoImpl implements WnIo {
             Streams.safeClose(w);
         }
         return o.len();
+    }
+
+    @Override
+    public long writeImage(WnObj o, RenderedImage im) {
+        OutputStream ops = null;
+        try {
+            ops = this.getOutputStream(o, 0);
+            Images.write(im, o.type(), ops);
+            return o.len();
+        }
+        finally {
+            Streams.safeClose(ops);
+        }
     }
 
     @Override

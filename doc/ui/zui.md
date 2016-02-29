@@ -114,8 +114,6 @@ options : {
     dom
     css
     redraw
-    // 主题，默认为 w0
-    theme      : "w0" 
     // 下面四个事件是 UI 四种行为时的标准回调，你可以在生成实例的参数里做自定义 
     // 每个回调的 context 都是 UI 实例本身
     on_init   : F(..),   // 也会触发 "ui:init" 事件

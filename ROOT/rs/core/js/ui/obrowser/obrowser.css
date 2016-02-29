@@ -1,11 +1,14 @@
 body > .ui-obrowser {
-  background: #FFF;
+  background: #ffffff;
 }
 .obrowser {
-  color: #333;
+  color: #333333;
 }
 .obrowser .obrowser-block {
   margin: 0px;
+}
+.obrowser .wnobj-hide {
+  opacity: 0.6;
 }
 .obrowser .obrowser-main .wnobj {
   -moz-user-select: none;
@@ -16,17 +19,19 @@ body > .ui-obrowser {
 .obrowser .obrowser-main .wnobj * {
   cursor: default;
 }
-.obrowser .obrowser-main .wnobj-hide * {
-  opacity: 0.5;
-}
 .obrowser .obrowser-main .obrowser-vmd-table .tbl-row-td0 i {
   margin: 0 6px;
   width: 16px;
   text-align: center;
 }
 .obrowser .obrowser-footer {
-  background: #EEE;
-  border-top: 1px solid #CCC;
+  background: #eeeeee;
+  border-top: 1px solid #cccccc;
+  line-height: 32px;
+  padding: 0 6px;
+  font-size: 10px;
+  color: #666666;
+  font-family: Monaco, Consolas, Courier New;
 }
 .obrowser .obrowser-chute {
   -moz-user-select: none;
@@ -34,9 +39,9 @@ body > .ui-obrowser {
   -webkit-user-select: none;
   user-select: none;
   overflow: hidden;
-  color: #999;
-  background: #E0E0E0;
-  border-right: 1px solid #CCC;
+  color: #999999;
+  background: #e0e0e0;
+  border-right: 1px solid #cccccc;
 }
 .obrowser .obrowser-chute .chute-scroller {
   transition: 0.3s;
@@ -69,9 +74,9 @@ body > .ui-obrowser {
   font-size: 10px;
   line-height: 22px;
   text-align: center;
-  border: 1px solid #BBB;
-  background: #D0D0D0;
-  color: #888;
+  border: 1px solid #bbbbbb;
+  background: #d0d0d0;
+  color: #888888;
   display: none;
   margin: 2px;
   cursor: pointer;
@@ -80,8 +85,8 @@ body > .ui-obrowser {
   cursor: pointer;
 }
 .obrowser .obrowser-chute .chute-scroller .chute-scroller-btn:hover {
-  background: #CCC;
-  color: #444;
+  background: #cccccc;
+  color: #444444;
 }
 .obrowser .obrowser-chute .chute-scroller[outline="yes"] {
   margin-left: -100%;
@@ -113,7 +118,7 @@ body > .ui-obrowser {
   padding: 6px 2px 6px 12px;
   cursor: pointer;
   line-height: 16px;
-  color: #666;
+  color: #666666;
 }
 .obrowser .obrowser-chute .chute-wrapper section item i {
   width: 16px;
@@ -137,12 +142,12 @@ body > .ui-obrowser {
   clear: both;
 }
 .obrowser .obrowser-chute .chute-wrapper section item.chute-actived {
-  color: #444;
-  background: #CCC;
+  color: #444444;
+  background: #cccccc;
 }
 .obrowser .obrowser-chute .chute-wrapper section.chute-sec-hide {
-  border-color: #CCC;
-  background: #EEE;
+  border-color: #cccccc;
+  background: #eeeeee;
 }
 .obrowser .obrowser-chute .chute-wrapper section.chute-sec-hide h1:after {
   content: "...";
@@ -156,121 +161,125 @@ body > .ui-obrowser {
 }
 .obrowser .obrowser-sky {
   position: relative;
-  border-bottom: 1px solid #CCC;
+  border-bottom: 1px solid #cccccc;
 }
 .obrowser .obrowser-sky .obrowser-crumb {
+  background: red;
+  color: inherit;
+}
+.obrowser .obrowser-crumb {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
   cursor: default;
-  background: #EEE;
+  background: #eeeeee;
   padding: 6px;
   white-space: nowrap;
   position: absolute;
   top: 0;
   left: 0;
 }
-.obrowser .obrowser-sky .obrowser-crumb .z_editit {
-  background: #FFF;
-  color: #333;
+.obrowser .obrowser-crumb .z-edit-it input {
+  background: #ffffff;
+  color: #333333;
   padding-left: 12px;
   outline: none;
   font-size: 16px;
   font-family: Monaco, Consolas, Courier New;
   border: 0;
 }
-.obrowser .obrowser-sky .obrowser-crumb > div {
+.obrowser .obrowser-crumb > div {
   display: inline-block;
   vertical-align: middle;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem {
+.obrowser .obrowser-crumb .citem {
   border: 1px solid rgba(0, 0, 0, 0);
   padding: 0 0 0 4px;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem i {
+.obrowser .obrowser-crumb .citem i {
   display: inline-block;
   vertical-align: middle;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem b {
+.obrowser .obrowser-crumb .citem b {
   font-weight: normal;
   display: inline-block;
   vertical-align: middle;
   line-height: 24px;
   margin: 0 2px 0 4px;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem .ochild {
+.obrowser .obrowser-crumb .citem .ochild {
   display: inline-block;
   vertical-align: middle;
   padding: 4px 2px 4px 2px;
   cursor: pointer;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem .ochild:hover {
-  background: #CCC;
-  color: #444;
+.obrowser .obrowser-crumb .citem .ochild:hover {
+  background: #cccccc;
+  color: #444444;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem .citem-drop {
+.obrowser .obrowser-crumb .citem .citem-drop {
   position: fixed;
   z-index: 1000;
   min-width: 128px;
-  border: 1px solid #FFF;
+  border: 1px solid #ffffff;
   min-width: 96px;
   padding: 6px;
-  background: #FFF;
-  box-shadow: 2px 2px 6px #888;
+  background: #ffffff;
+  box-shadow: 2px 2px 6px #888888;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem .citem-drop .citem .ochild {
+.obrowser .obrowser-crumb .citem .citem-drop .citem .ochild {
   display: none;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem .citem-drop .citem:hover {
-  color: #FFF;
-  background: #04B;
+.obrowser .obrowser-crumb .citem .citem-drop .citem:hover {
+  color: #ffffff;
+  background: #0044bb;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem:hover {
-  border-color: #DDD;
+.obrowser .obrowser-crumb .citem:hover {
+  border-color: #dddddd;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem-tail {
+.obrowser .obrowser-crumb .citem-tail {
   padding-right: 2px;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem-tail b {
+.obrowser .obrowser-crumb .citem-tail b {
   font-weight: bold;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem-tail .ochild {
+.obrowser .obrowser-crumb .citem-tail .ochild {
   display: none;
 }
-.obrowser .obrowser-sky .obrowser-crumb .citem-tail:hover {
+.obrowser .obrowser-crumb .citem-tail:hover {
   border-color: rgba(0, 0, 0, 0);
 }
-.obrowser .obrowser-sky .obrowser-crumb .folder-btn {
+.obrowser .obrowser-crumb .folder-btn {
   cursor: pointer;
   border-radius: 4px;
   line-height: 24px;
   padding: 0 4px;
 }
-.obrowser .obrowser-sky .obrowser-crumb .folder-btn:hover {
-  background: #04B;
-  color: #FFF;
+.obrowser .obrowser-crumb .folder-btn:hover {
+  background: #0044bb;
+  color: #ffffff;
 }
-.obrowser .obrowser-sky .obrowser-crumb .folder-drop {
+.obrowser .obrowser-crumb .folder-drop {
   z-index: 2000;
-  border: 1px solid #FFF;
+  border: 1px solid #ffffff;
   min-width: 128px;
   padding: 6px;
-  background: #FFF;
-  box-shadow: 2px 2px 6px #888;
+  background: #ffffff;
+  box-shadow: 2px 2px 6px #888888;
 }
-.obrowser .obrowser-sky .obrowser-crumb .folder-drop .citem .ochild {
+.obrowser .obrowser-crumb .folder-drop .citem .ochild {
   display: none;
 }
-.obrowser .obrowser-sky .obrowser-crumb .folder-drop .citem:hover {
-  color: #FFF;
-  background: #04B;
+.obrowser .obrowser-crumb .folder-drop .citem:hover {
+  color: #ffffff;
+  background: #0044bb;
 }
-.obrowser .obrowser-sky .obrowser-menu {
+.obrowser .obrowser-menu {
   position: absolute;
   top: 0;
   right: 0;
-  background: #E0E0E0;
+  background: #e0e0e0;
   padding-left: 6px;
 }
 .obrowser[hidden-obj-visibility=hidden] .wnobj-hide {

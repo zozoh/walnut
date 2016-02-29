@@ -9,7 +9,7 @@ $z.declare([
 var html = function(){/*
 <div class="ui-code-template">
     <div code-id="crumb.item" class="citem ui-clr">
-        <i class="oicon"></i><b></b><span class="ochild"><i class="fa fa-caret-down"></i></span>
+        <b></b><span class="ochild"><i class="fa fa-caret-down"></i></span>
     </div>
 </div>
 <div class="ui-arena obrowser-sky ui-clr">
@@ -63,6 +63,13 @@ return ZUI.def("ui.obrowser_sky", {
             }
             // 显示自己的子对象列表
             else if(jq.closest(".ochild").size()>0){
+                // 禁止主目录点击
+                var ph = UI.getPath(jItem);
+                if(UIBrowser.options.forbidClickHomeInCrumb && "~" == ph){
+                    return;
+                }
+
+                // 嗯准备展开项目吧
                 var oid = jItem.attr("oid");
                 var o   = UIBrowser.getById(oid);
                 var children = UIBrowser.getChildren(o, "DIR");
@@ -92,6 +99,11 @@ return ZUI.def("ui.obrowser_sky", {
             // 切换到自己所在的路径
             else if(jq.closest(".folder-btn").size()==0){
                 var ph = UI.getPath(jItem);
+                // 禁止主目录点击
+                if(UIBrowser.options.forbidClickHomeInCrumb && "~" == ph){
+                    return;
+                }
+
                 //console.log("::", ph);
                 UIBrowser.setData(ph);
             }
@@ -200,6 +212,11 @@ return ZUI.def("ui.obrowser_sky", {
     update : function(UIBrowser, o, asetup){
         var UI = this;
 
+        // 标识禁止主目录点击
+        if(UIBrowser.options.forbidClickHomeInCrumb){
+            UI.arena.find(".obrowser-crumb").attr("forbid-click-home","yes");
+        }
+
         // 记录对象的路径
         UI.arena.attr("PWD", o.ph);
         
@@ -211,6 +228,10 @@ return ZUI.def("ui.obrowser_sky", {
 
         // 最后重新计算一下尺寸
         UI.resize();
+
+        // 触发事件
+        UIBrowser.trigger("browser:current", o);
+        $z.invoke(UIBrowser.options, "on_current", [o], UI);
     },
     //..............................................
     updateMenu : function(UIBrowser, o, asetup){
@@ -280,25 +301,38 @@ return ZUI.def("ui.obrowser_sky", {
     },
     _append_crumb_item : function(jCrumb, o, itype){
         var UI = this;
+        var UIBrowser = UI.parent.parent;
         var jq = UI.ccode("crumb.item");
         jq.attr("oid", o.id);
+
         // 主目录特殊显示
         if("home" == itype){
-            jq.attr("onm", "~");
-            jq.find(".oicon").attr("otp","home");
+            jq.attr("onm", "~").attr("home", "yes");
+            // 如果禁止主目录点击，那么就不是下拉箭头了
+            if(UIBrowser.options.forbidClickHomeInCrumb) {
+                jq.find(".ochild").html('<i class="fa fa-angle-right"></i>')
+            }
+            // 显示图标
+            $('<i class="fa fa-home" style="font-size:1.2em;">').prependTo(jq);
+            // 显示文字
             jq.find("b").text(UI.msg("home"));
         }
         // 其他项目
         else{
             jq.attr("onm", o.nm);
-            var jIcon = $(Wn.objIconHtml(o)).attr("mime",o.mime);
-            jq.find(".oicon").replaceWith(jIcon);
-            jq.find("b").text(o.nm);
+            $(Wn.objIconHtml(o)).attr("mime",o.mime).prependTo(jq);
+            jq.find("b").text(Wn.objDisplayName(UI, o.nm));
         }
         // 移除最后的展开符
         if(o.race!='DIR' || "tail"==itype){
             jq.addClass("citem-tail");
         }
+
+        // 标记隐藏对象
+        if(/^[.]/.test(o.nm)){
+            jq.addClass("wnobj-hide");
+        }
+
         return jq.appendTo(jCrumb);
     },
     //..............................................

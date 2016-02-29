@@ -77,7 +77,7 @@ public class JvmAtomRunner {
         return re;
     }
 
-    private static final Pattern SSTT = Pattern.compile("`(.*)`");
+    private static final Pattern SSTT = Pattern.compile("`([^`]*)`");
 
     private String __extend_substitution(String cmdLine) {
         StringBuilder sb = new StringBuilder();
@@ -104,10 +104,10 @@ public class JvmAtomRunner {
                 // 记录之前的字符串
                 if (iS > pos) {
                     sb.append(cmdLine.substring(pos, iS));
-                }
 
-                // 移动位置指针到匹配的末尾以便下次使用
-                pos = iE;
+                    // 移动位置指针到匹配的末尾以便下次使用
+                    pos = iE;
+                }
 
                 // 空串就不执行了
                 if (Strings.isBlank(sustitution)) {
@@ -126,13 +126,13 @@ public class JvmAtomRunner {
                     // 成功的话，将输出的内容替换到命令行里
                     // 去掉双引号，换行等一切邪恶的东东 >_<
                     else {
-                        String subst = sbOut.toString().replaceAll("([\"' ])", "\\\\$1");
+                        String subst = sbOut.toString().replaceAll("([\r\n\"' ])", "");
                         sb.append(subst);
                     }
 
                     // 清理输出，准备迎接下一个子命令
-                    sbOut.delete(0, sbOut.length());
-                    sbErr.delete(0, sbErr.length());
+                    sbOut.setLength(0);
+                    sbErr.setLength(0);
                 }
             }
         }
@@ -154,7 +154,7 @@ public class JvmAtomRunner {
     public void run(String cmdLine) {
         // 执行预处理
         cmdLine = Wn.normalizeStr(cmdLine, bc.session.vars());
-        
+
         // 忽略空行和注释行
         if (Strings.isBlank(cmdLine) || cmdLine.matches("^[ \t]*(#|//).*$")) {
             return;

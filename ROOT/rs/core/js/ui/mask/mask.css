@@ -17,7 +17,7 @@
 .ui-mask-bg {
   width: 100%;
   height: 100%;
-  background: #FFF;
+  background: #ffffff;
   opacity: 0.2;
 }
 .ui-mask-closer {
@@ -41,10 +41,10 @@
 }
 .ui-mask-main {
   position: absolute;
-  background: #DDD;
-  color: #000;
+  background: #dddddd;
+  color: #000000;
   border-radius: 8px;
-  border: 1px solid #CCC;
+  border: 1px solid #cccccc;
   overflow: hidden;
-  box-shadow: 0 0 32px #888;
+  box-shadow: 0 0 32px #888888;
 }

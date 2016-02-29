@@ -16,6 +16,12 @@ new FormUI({
     // 如果希望 getData 返回一个新对象，那么将这个属性设置为 false
     mergeData  : true
     
+    // setData 前的预处理
+    parseData  : {c}F(o):obj
+    
+    // getData 后的后续处理
+    formatData : {c}F(o):obj
+    
     // 指明对象哪个字段是 ID，默认为 "id"
     //  - ID 字段如果在 fields 里，则它不可编辑
     //  - 如果 mergeData==true，那么至少会保留源对象的 ID 字段，如果它有的话

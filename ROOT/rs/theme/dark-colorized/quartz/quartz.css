@@ -1,0 +1,243 @@
+.quartz {
+  position: relative;
+  padding: 12px 0 0 0;
+}
+.quartz .qz-tabs {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.quartz .qz-tabs ul {
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  height: 24px;
+}
+.quartz .qz-tabs ul li {
+  background: rgba(0, 0, 0, 0.5);
+  color: #aaaaaa;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0 12px;
+  line-height: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 80px;
+  text-align: center;
+}
+.quartz .qz-tabs ul li:first-child {
+  border-radius: 6px 0 0 6px;
+}
+.quartz .qz-tabs ul li:last-child {
+  border-radius: 0 6px 6px 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+.quartz .qz-tabs ul li:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+}
+.quartz .qz-tabs ul li.current,
+.quartz .qz-tabs ul li.current:hover {
+  color: #ffffff;
+  background: rgba(0, 64, 255, 0.6);
+}
+.quartz .qz-main {
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 12px;
+  overflow-y: auto;
+}
+.quartz .qz-main-con {
+  width: 100%;
+  height: 100%;
+}
+.quartz .qz-main-con .qz-explain {
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+.quartz .qz-main-con h3 {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  clear: both;
+  padding: 12px 0;
+  font-size: 14px;
+}
+.quartz .qz-main-con h3 b {
+  vertical-align: middle;
+  margin-right: 12px;
+}
+.quartz .qz-main-con h3 u {
+  font-size: 10px;
+  color: #cccc00;
+  cursor: pointer;
+  text-decoration: none;
+}
+.quartz .qz-main-con h3 u:hover {
+  color: #ffff00;
+  text-decoration: underline;
+}
+.quartz .qz-main-con section {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  color: #aaaaaa;
+}
+.quartz .qz-week-day ul {
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+}
+.quartz .qz-week-day li {
+  white-space: nowrap;
+  padding: 0 12px;
+  line-height: 22px;
+  cursor: pointer;
+  border: 1px dotted #CCC;
+  margin: 1px;
+  color: #aaaaaa;
+  border-radius: 4px;
+}
+.quartz .qz-week-day li.checked {
+  color: #ffffff;
+  background: #008800;
+  border-color: #008800;
+  font-weight: bold;
+}
+.quartz .qz-month .qz-month-mo,
+.quartz .qz-month .qz-month-da {
+  float: left;
+  padding: 8px;
+}
+.quartz .qz-month section ul {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+}
+.quartz .qz-month section ul li {
+  white-space: nowrap;
+  padding: 0 12px;
+  line-height: 22px;
+  cursor: pointer;
+  border: 1px dotted #CCC;
+  margin: 1px;
+  color: #aaaaaa;
+  border-radius: 4px;
+  text-align: center;
+}
+.quartz .qz-month section ul li[checked] {
+  color: #ffffff;
+  background: #008800;
+  border-color: #008800;
+}
+.quartz .qz-month-mo {
+  width: 170px;
+}
+.quartz .qz-month-mo section ul li {
+  padding: 0;
+  width: 48px;
+}
+.quartz .qz-month-mo .qz-month-W {
+  text-align: right;
+  padding: 6px 2px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.6);
+}
+.quartz .qz-month-mo .qz-month-W span {
+  display: inline-block;
+  vertical-align: middle;
+  width: 14px;
+}
+.quartz .qz-month-mo .qz-month-W span i:first-child {
+  display: inline;
+}
+.quartz .qz-month-mo .qz-month-W span i:last-child {
+  display: none;
+}
+.quartz .qz-month-mo .qz-month-W b {
+  vertical-align: middle;
+}
+.quartz .qz-month-mo .qz-month-W[checked] {
+  color: #ffffff;
+}
+.quartz .qz-month-mo .qz-month-W[checked] i:first-child {
+  display: none;
+}
+.quartz .qz-month-mo .qz-month-W[checked] i:last-child {
+  display: inline;
+}
+.quartz .qz-month-da {
+  width: 200px;
+}
+.quartz .qz-month-da section ul li {
+  padding: 0;
+  width: 24px;
+}
+.quartz .qz-adv section {
+  padding: 8px 0;
+  position: relative;
+}
+.quartz .qz-adv section input {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 12px 12px 12px 48px;
+  outline: none;
+  font-family: Monaco, Consolas, Courier New;
+  font-size: 14px;
+  width: 100%;
+}
+.quartz .qz-adv section .qz-adv-st {
+  display: -webkit-flex;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  dbackground: #CCC;
+  position: absolute;
+  top: 8px;
+  left: 0;
+  bottom: 8px;
+  width: 32px;
+}
+.quartz .qz-adv section .qz-adv-st > * {
+  font-size: 16px;
+}
+.quartz .qz-adv section .qz-adv-st > *:first-child {
+  color: #F00;
+  display: none;
+}
+.quartz .qz-adv section .qz-adv-st > *:last-child {
+  color: #080;
+  display: inline;
+}
+.quartz .qz-adv section.invalid input {
+  border-color: #F00;
+  background: rgba(255, 0, 0, 0.2);
+  color: #F00;
+}
+.quartz .qz-adv section.invalid .qz-adv-st > *:first-child {
+  display: inline;
+}
+.quartz .qz-adv section.invalid .qz-adv-st > *:last-child {
+  display: none;
+}
+.quartz .qz-adv .qz-adv-tip {
+  color: #00aa00;
+  padding: 6px;
+  font-size: 10px;
+}

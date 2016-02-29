@@ -25,19 +25,19 @@
   list-style: none;
   padding: 1px 0 1px 1px;
   margin: 3px;
-  background: #E0E0E0;
-  color: #888;
+  background: #e0e0e0;
+  color: #888888;
   font-size: 10px;
 }
 .ui-fld-edit-switchs li {
   float: left;
   padding: 8px 16px;
   margin-right: 1px;
-  background: #DDD;
+  background: #dddddd;
 }
 .ui-fld-edit-switchs li.checked {
-  color: #FFF;
-  background: #080;
+  color: #ffffff;
+  background: #008800;
 }
 .ui-fld-edit-switchs:after {
   content: "";
@@ -53,8 +53,8 @@
   padding: 4px 8px;
   cursor: pointer;
   margin: 2px;
-  border: 1px solid #888;
-  background: #DDD;
+  border: 1px solid #888888;
+  background: #dddddd;
   display: inline-block;
 }
 .ui-fld-edit-multiselectbox .msb-box {
@@ -63,11 +63,11 @@
 .ui-fld-edit-multiselectbox .msb-box[empty] > div {
   font-size: 14px;
   padding: 4px;
-  color: #888;
+  color: #888888;
   cursor: pointer;
 }
 .ui-fld-edit-multiselectbox .msb-box:hover {
-  background: #FFA;
+  background: #ffffaa;
 }
 .ui-fld-edit-multiselectbox .msb-box:after {
   content: "";
@@ -85,7 +85,7 @@
   right: 0;
   display: none;
   padding: 4px;
-  border: 2px solid #CCC;
+  border: 2px solid #cccccc;
   background: #FFF;
   min-height: 64px;
 }

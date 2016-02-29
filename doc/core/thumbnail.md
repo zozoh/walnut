@@ -16,7 +16,7 @@ tags:
 
 // 对应的缩略图文件，它有对应文件的属性
 {
-    thumb-src : "id:df23.."  // 或者 "/path/to/thumb-src"
+    thumb_src : "id:df23.."  // 或者 "/path/to/thumb-src"
 }
 ```
 

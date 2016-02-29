@@ -12,11 +12,17 @@ return ZUI.def("ui.form_com_input", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     getData : function(){
-        return this.arena.find("input").val();
+        var UI = this;
+        return this.ui_format_data(function(opt){
+            return UI.arena.find("input").val();
+        });
     },
     //...............................................................
     setData : function(val, jso){
-        this.arena.find("input").val(jso.toStr());
+        var UI = this;
+        this.ui_parse_data(jso.toStr(), function(s){
+            UI.arena.find("input").val(s);
+        });
     }
     //...............................................................
 });

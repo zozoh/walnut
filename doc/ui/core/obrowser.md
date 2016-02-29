@@ -26,6 +26,10 @@ author:zozoh
     // 都把这个属性设置成 true，可能会造成一定的混乱
     history : false,
     
+    // 禁止点击地址条上的主目录
+    // 默认 false
+    forbidClickHomeInCrumb : false,
+    
     // filter 表示对子节点的一些过滤
     //  - undefined    : 全部显示
     //  - "DIR"        : 仅目录
@@ -60,11 +64,16 @@ author:zozoh
     //  - F(o):boolean : 高级过滤方法 
     canOpen : null,
     
-    // 是否允许多选，默认 true
+    // 当列表模式的时候，是否显示复选框, 默认 false
     checkable : Boolean
     
+    // 是否允许多选，默认是 true
+    multi : Boolean
+    
     // 事件
-    on_change  : F(o)       // "browser:change"  改变当前目录触发
+    on_change  : F(o)    // "browser:change"  由 setData 触发
+    on_info    : F(html) // "browser:info" 任何组件都可以发送消息，footer来显示
+    on_current : F(o)    // "browser:current" 由 sky 控件绘制完成后触发
 }
 ```
 

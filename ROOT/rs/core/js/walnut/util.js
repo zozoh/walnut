@@ -27,14 +27,14 @@ var Wn = {
     },
     //...................................................................
     // 生成一个缩略图的 jQuery 对象，但是没加入 DOM 树
-    gen_wnobj_thumbnail : function(o, nmTagName, evalThumb, UI, nmMaxLen){
+    gen_wnobj_thumbnail : function(UI, o, nmTagName, evalThumb, nmMaxLen){
         var jq = $(this.gen_wnobj_thumbnail_html(nmTagName));
-        this.update_wnobj_thumbnail(o, jq, evalThumb, UI, nmMaxLen);
+        this.update_wnobj_thumbnail(UI, o, jq, evalThumb, nmMaxLen);
         return jq;
     },
     //...................................................................
     // 根据对象，填充给定的一段 DOM 中的缩略图和名称
-    update_wnobj_thumbnail : function(o, jq, evalThumb, UI, nmMaxLen){
+    update_wnobj_thumbnail : function(UI, o, jq, evalThumb, nmMaxLen){
         
         // 标记关键属性
         jq.attr("oid",o.id).attr("onm", o.nm);
@@ -65,7 +65,7 @@ var Wn = {
         var nmText = o.nm; 
         if(UI && _.isFunction(UI.text))
             nmText = UI.text(nmText);
-        nmText = this.objDisplayName(nmText, nmMaxLen);
+        nmText = this.objDisplayName(UI, nmText, nmMaxLen);
         jNm.prop("href","/a/open/wn.browser?ph=id:"+o.id).text(nmText);
     },
     //...................................................................
@@ -77,14 +77,32 @@ var Wn = {
         return o.tp || ('DIR'==o.race ? 'folder' : 'unknown');
     },
     //...................................................................
-    objDisplayName : function(nm, maxLen){
+    objDisplayName : function(UI, nm, maxLen){
         var text = _.isString(nm) ? nm : nm.nm;   // TODO 以后考虑 _key_ 开头的名称
-        if(_.isUndefined(maxLen)){
+        // 默认大小
+        if(!_.isNumber(maxLen)){
             maxLen = 20;
         }
-        if(_.isNumber(maxLen))
+        // TODO 翻译多国语言
+        var nms = UI.msg("fnm") || {};
+        text = nms[text] || text;
+
+        // 加入省略号
+        if(maxLen > 0)
             return $z.ellipsisCenter(text, 20);
         return text;
+    },
+    //...................................................................
+    objDisplayPath : function(UI, ph, offset){
+        var nms = ph
+        if(!_.isArray(ph)){
+            nms = _.without(ph.split("/"), "");
+        }
+        var ary = [];
+        for(var i=(offset||0); i<nms.length; i++){
+            ary.push(this.objDisplayName(UI, nms[i], 0));
+        }
+        return ary.join("/");
     },
     /*...................................................................
     提供一个通用的文件上传界面，任何 UI 可以通过
@@ -341,11 +359,6 @@ var Wn = {
         return re;
     },
     //..............................................
-    // 获取对象的显示名称
-    getObjDisplayName : function(o){
-        return o.nm;
-    },
-    //..............................................
     /* 根据一个对象获取其应用配置信息
      opt - {
         forceTop: true,   // 是否为每个菜单项强制加上 "@"
@@ -402,12 +415,9 @@ var Wn = {
             var ace  = $z.fromJson(json);
             asetup.currentEditor = ace;
                 
-            // 将编辑器的菜单项统统加入动作组
+            // 如果编辑器声明了菜单，将其替换
             if(_.isArray(ace.actions)){
-                ace.actions.forEach(function(val, index, arr){
-                    arr[index] = "e" + val;
-                });
-                asetup.actions = ace.actions.concat(asetup.actions);
+                asetup.actions = ace.actions;
             }
         }
 
@@ -841,12 +851,12 @@ var Wn = {
         var re = Wn.exec("obj id:"+oid+" -P");
 
         // 对于不存在的处理
-        if(/^e.io.obj.noexists :/.test(re)){
+        if(/^e.io/.test(re)){
             if(quiet){
                 return null;
             }
-            alert("fail to found obj: " + ph);
-            throw "fail to found obj: " + ph;
+            alert("fail to found obj: " + oid);
+            throw "fail to found obj: " + oid;
         }
 
         var o2 = $z.fromJson(re);
@@ -875,7 +885,7 @@ var Wn = {
         var re  = Wn.exec("obj '"+ph+"' -PA");
 
         // 对于不存在的处理
-        if(/^e.io.obj.noexists :/.test(re)){
+        if(/^e.io/.test(re)){
             if(quiet){
                 return null;
             }

@@ -69,6 +69,12 @@ author:zozoh
     // 所有回调的上下文，默认是树控件本身
     context : null
     
+    // 对于数据的处理，即怎么通过一个 jNode 读取和保存数据
+    // 默认的，控件会用 jQuery.data 来保存
+    // 函数如果不传入 obj 表示获取
+    // !!! 注意，一旦你实现了这个方法，必须同时实现保存和获取逻辑
+    data : {c}F(jNode, obj);
+    
     //................................. 事件
     on_checked : {c}F([o..])    // "tree:checked" 参数为本次被选的对象
     on_uncheck : {c}F([o..])    // "tree:uncheck" 参数为本次被选的对象

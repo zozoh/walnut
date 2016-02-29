@@ -7,6 +7,21 @@ import org.junit.Test;
 public class JvmCmdTest {
 
     @Test
+    public void test_parse_with_escape() {
+        JvmCmd jc = new JvmCmd("abc '\\\"A\\\"'");
+        assertEquals("abc", jc.cmdName);
+        assertEquals(1, jc.args.length);
+        assertEquals("\"A\"", jc.args[0]);
+
+        jc = new JvmCmd("obj xyz -u 'icon:\"<i class=\\\"fa fa-tags></i>\"'");
+        assertEquals("obj", jc.cmdName);
+        assertEquals(3, jc.args.length);
+        assertEquals("xyz", jc.args[0]);
+        assertEquals("-u", jc.args[1]);
+        assertEquals("icon:\"<i class=\"fa fa-tags></i>\"", jc.args[2]);
+    }
+
+    @Test
     public void test_parse_simple() {
         JvmCmd jc = new JvmCmd("    ls ");
         assertEquals("ls", jc.cmdName);

@@ -63,6 +63,10 @@ console.log(tr);   // log: ["12:00", "14:00","15:30"]
 var tr = jQuery.timelist("get", "sec");
 console.log(tr);   // log: [3600, 7200]
 
+// 得到小时数
+var tr = jQuery.timelist("get", "H");
+console.log(tr);   // log: [0, 3,  8]
+
 // 得到一组时间结构对象
 var tr = jQuery.timelist("get", "obj");
 console.log(tr);   // log: [{..}, {..}]

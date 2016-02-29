@@ -27,6 +27,7 @@ return ZUI.def("ui.obrowser_vmd_table", {
             fitParent : true,
             gasketName : "table",
             checkable : UI.browser.options.checkable,
+            multi : UI.browser.options.multi,
             layout : {
                 sizeHint : '*'
             },
@@ -37,6 +38,13 @@ return ZUI.def("ui.obrowser_vmd_table", {
                     jRow.addClass("wnobj-hide");
                 }
             },
+            // 捕捉事件
+            on_checked : function(objs){
+                UI.browser.trigger("browser:info", UI.msg("obrowser.selectNobj", {n:objs.length}))
+            },
+            on_blur : function(){
+                UI.browser.trigger("browser:info", "");
+            },
             fields : [ {
                 key   : "nm",
                 title : "i18n:obrowser.title.nm",
@@ -44,7 +52,7 @@ return ZUI.def("ui.obrowser_vmd_table", {
                 escapeHtml : false,
                 display : function(o){
                     var html = Wn.objIconHtml(o);
-                    html += '<span class="wnobj-nm">'+Wn.objDisplayName(o)+'</span>';
+                    html += '<span class="wnobj-nm">'+Wn.objDisplayName(UI, o)+'</span>';
                     return html;
                 }
             }, {
@@ -92,13 +100,13 @@ return ZUI.def("ui.obrowser_vmd_table", {
         return ["table"];
     },
     //..............................................
-    update : function(o, UIBrowser){
+    update : function(o){
         var UI = this;
 
         UI.uiTable.showLoading();
 
         // 得到当前所有的子节点
-        UIBrowser.getChildren(o, null, function(objs){
+        Wn.getChildren(o, null, function(objs){
             // 更新数据
             UI.uiTable.setData(objs);
 

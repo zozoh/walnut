@@ -75,14 +75,14 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
         var jA   = UI.arena.find(".wnobj-actived").not(jObj);
 
         // 单个多选
-        if(ctrlIsOn && UI.browser.options.checkable){
+        if(ctrlIsOn && UI.browser.options.multi){
             console.log("haha",jObj.size())
             jA.removeClass("wnobj-actived");
             jObj.toggleClass("wnobj-actived")
                 .toggleClass("wnobj-checked");
         }
         // 如果是多选
-        else if(shiftIsOn && UI.browser.options.checkable){
+        else if(shiftIsOn && UI.browser.options.multi){
             // 没的激活，激活自己
             if(jA.size() == 0){
                 jA = UI.arena.find(".wnobj:first-child");
@@ -114,6 +114,8 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
             UI.arena.find(".wnobj-checked").removeClass("wnobj-checked");
             jObj.addClass("wnobj-actived wnobj-checked");
         }
+
+        UI.browser.trigger("browser:info", UI.msg("obrowser.selectNobj", {n:UI.getChecked().length}));
     },
     //..............................................
     update : function(o, UIBrowser){
@@ -129,10 +131,9 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
 
             // 循环在选区内绘制图标
             objs.forEach(function(obj){
-                Wn.gen_wnobj_thumbnail(obj, 
+                Wn.gen_wnobj_thumbnail(UI, obj, 
                     'span',
-                    UIBrowser.options.thumbnail,
-                    UI
+                    UIBrowser.options.thumbnail
                 ).appendTo(UI.arena);
             });
         });
