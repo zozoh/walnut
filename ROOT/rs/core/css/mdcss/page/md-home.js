@@ -249,7 +249,10 @@ $(document).ready(function () {
             var ebhtml = '';
             for (var i = 0, ml = tabs.length; i < ml; i++) {
                 var tab = tabs[i];
-                ebhtml += '<li class="md-icon-wrap ext-btn-icon" ext="' + tab.ext + '">';
+                if (!tab.action) {
+                    continue;
+                }
+                ebhtml += '<li class="md-icon-wrap ext-btn-icon"  action="' + tab.action + '">';
                 if (tab.icon) {
                     if (tab.iconType == 'fa') {
                         ebhtml += '<i class="fa-icon ' + tab.icon + '"></i>';
@@ -267,6 +270,9 @@ $(document).ready(function () {
             var ebhtml = '';
             for (var i = 0, ml = tabs.length; i < ml; i++) {
                 var tab = tabs[i];
+                if (tab.action) {
+                    continue;
+                }
                 ebhtml += '<li class="ext-tab-label" ext="' + tab.ext + '">';
                 ebhtml += '<div class="ripple-button">';
                 ebhtml += tab.label;
@@ -276,12 +282,16 @@ $(document).ready(function () {
             return ebhtml;
         },
         'makeTabContainerHtml': function ($container, tabs) {
-            for (var i = 0, ml = tabs.length; i < ml; i++) {
+            for (var i = 0, j = 0, ml = tabs.length; i < ml; i++) {
                 var tab = tabs[i];
-                mphome.ext._tabContainerHtml(tab, i, function (html) {
+                if (tab.action != undefined && tab.action != null) {
+                    continue;
+                }
+                mphome.ext._tabContainerHtml(tab, j, function (html) {
                     // $container[0].innerHtml = html;
                     $container.append(html);
                 });
+                j++;
             }
         },
         '_tabContainerHtml': function (navItem, index, call) {
@@ -366,7 +376,7 @@ $(document).ready(function () {
                 callback();
             }
         }
-    }
+    };
 
     mphome.nav = {
         'open': function () {
@@ -612,6 +622,17 @@ $(document).ready(function () {
                 mphome.nav.close();
             } else {
                 mphome.nav.open();
+            }
+        });
+
+        mphome.components.extBtnGroup.delegate('li', 'click', function () {
+            var $li = $(this);
+            var acNm = $li.attr('action');
+            var acFun = mphome.action[acNm];
+            if (acFun) {
+                acFun();
+            } else {
+                alert("未注册事件: " + acNm);
             }
         });
 

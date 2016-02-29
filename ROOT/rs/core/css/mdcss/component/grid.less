@@ -4,7 +4,7 @@
 @import "../app";
 
 .md-grid-con {
-
+  position: relative;
   padding: 16px 16px;
   background: @white;
   overflow-x: auto;
@@ -17,11 +17,24 @@
   @grid-row-item-padding: 24px;
   @grid-row-form-width: 200px;
 
-  .md-grid-title {
-    height: 48px;
-    line-height: 48px;
-    font-size: @font-size-h4;
+  .md-grid-label {
+    margin: 0 8px;
+    height: 30px;
+    line-height: 30px;
+    font-size: @font-size-h3;
     color: @dark-black;
+    float: left;
+    &.right {
+      float: right;
+    }
+  }
+
+  .md-grid-title {
+    margin: 0 8px;
+    height: 30px;
+    line-height: 30px;
+    font-size: @font-size-h3;
+    color: @primary-2-color;
     float: left;
     &.right {
       float: right;

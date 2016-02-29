@@ -245,6 +245,9 @@ body.md-home.show-nav #md-page-main {
   float: left;
   height: 48px;
 }
+#md-page-header .mp-header-right li:hover {
+  cursor: pointer;
+}
 #md-page-header .mp-header-right li.ext-btn-icon {
   position: relative;
   margin-right: 1px;
