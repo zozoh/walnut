@@ -195,6 +195,10 @@ public class FuseModule extends AbstractWnModule {
     @At
     public void rename(@Param("source") String source, @Param("target") String _target)
             throws Exception {
+    	WnObj t = io.fetch(null, _target);
+    	if (t != null) {
+    		io.delete(t);
+    	}
         io.move(_obj(), _target);
     }
     
