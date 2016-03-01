@@ -48,6 +48,16 @@ public class hmaker_init implements JvmHdl {
             }
         }
 
+        // 在当前目录创建关键的路径
+        sys.io.createIfNoExists(hc.oHome, "icon", WnRace.DIR);
+        if (show_log) {
+            sys.out.println(" = [icon]");
+        }
+        sys.io.createIfNoExists(hc.oHome, "image", WnRace.DIR);
+        if (show_log) {
+            sys.out.println(" = [image]");
+        }
+
         // 打印结束
         if (show_log) {
             sys.out.println("All Done");

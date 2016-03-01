@@ -3,8 +3,9 @@ $z.declare([
     'zui',
     'wn/util',
     'app/wn.hmaker/hmaker_nav',
-    'app/wn.hmaker/hmaker_page'
-], function(ZUI, Wn, NavUI, PageUI){
+    'app/wn.hmaker/hmaker_page',
+    'ui/obrowser/vmd_thumbnail'
+], function(ZUI, Wn, NavUI, PageUI, ThumbnailUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena hmaker" ui-fitparent="yes" mode="inside">
@@ -126,15 +127,23 @@ return ZUI.def("app.wn.hmaker", {
         // html 就打开页面编辑器
         if('html' == o.tp) {
             // 已经打开页面编辑器了，那么就更新就好了
-            if(UI.gasket.main && PageUI.uiName == UI.gasket.main.uiName ){
-                UI.gasket.main.update(o);
-            }
-            // 重新建立页面编辑器
-            else{
+            // if(UI.gasket.main && PageUI.uiName == UI.gasket.main.uiName ){
+            //     UI.gasket.main.update(o);
+            // }
+            // // 重新建立页面编辑器
+            // else{
                 new PageUI({parent:UI, gasketName:"main"}).render(function(){
                     this.update(o);
+                    UI.parent.updateMenuByObj(o, "hmaker");
                 });
-            }
+            //}
+        }
+        // 如果是目录，就显示缩略图界面
+        else if('DIR' == o.race) {
+            new ThumbnailUI({parent:UI, gasketName:"main"}).render(function(){
+                this.update(o, UI);
+                UI.parent.updateMenuByObj(o);
+            });
         }
         // 不支持
         else {

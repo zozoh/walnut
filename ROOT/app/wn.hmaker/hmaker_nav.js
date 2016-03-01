@@ -104,9 +104,6 @@ return ZUI.def("app.wn.hmaker_nav", {
         // 解析
         var oNP = $z.fromJson(re);
 
-        // 写入空内容
-        Wn.exec('echo "<html><head></head><body></body></html>" > id:'+oNP.id);
-
         // 添加节点并高亮它
         UI.uiTree.addNode(oNP).setActived(oNP.id);
     },

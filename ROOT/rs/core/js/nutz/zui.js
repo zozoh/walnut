@@ -7,7 +7,7 @@ require("theme/ui/zui.css");
 var parse_dom = function (html) {
     var UI = this;
     // 解析代码模板
-    var tmpl = _.template(html);
+    var tmpl = $z.tmpl(html);
     html = tmpl(UI._msg_map);
     UI.$el[0].innerHTML = html;  // FIXME 这里有严重的bug, tr不能被加入到页面中
 
@@ -59,7 +59,10 @@ var register = function(UI) {
         UI.pel    = UI.$pel[0];
         UI.parent = UI.parent || ZUI.getInstance(UI.pel);
         // 这种模式下，默认是要 keepDom 的
-        $z.setUndefined(opt,"keepDom", true);
+        $z.setUndefined(UI, "keepDom", (_.isUndefined(opt.keepDom) || opt.keepDom));
+        UI.keepDom = _.isUndefined(opt.keepDom)
+                        ? (UI.keepDom===false? false:true)
+                        : opt.keepDom
 
         // 指明了 $el 那么 arena 与 $el 指向同样的 DOM
         UI.arena = UI.$el;
@@ -74,7 +77,7 @@ var register = function(UI) {
             UI.el  = null;
         }
         // 否则清空它
-        else if(!opt.keepDom){
+        else if(!UI.keepDom){
             UI.$el.empty();
         }
     }
@@ -101,7 +104,7 @@ var register = function(UI) {
 
         // 没找到是不能忍受的哦
         if(UI.$pel.size() == 0){
-            throw _.template("fail to match gasket[{{gas}}] in {{pnm}}({{pid}})")({
+            throw $z.tmpl("fail to match gasket[{{gas}}] in {{pnm}}({{pid}})")({
                 gas : opt.gasketName,
                 pnm : UI.parent.uiName,
                 pid : UI.parent.cid
@@ -428,7 +431,7 @@ ZUIObj.prototype = {
                 var it = uiI18N[i];
                 // 字符串的话，转换后加入待加载列表
                 if(_.isString(it)){
-                    i18nLoading.push(_.template(it)({lang: UI.lang}));
+                    i18nLoading.push($z.tmpl(it)({lang: UI.lang}));
                 }
                 // 对象的话，直接融合进来
                 else if(_.isObject(it)){
@@ -670,7 +673,7 @@ ZUIObj.prototype = {
         }
         // 需要解析
         if (re && ctx && _.isObject(ctx)) {
-            re = (_.template(re))(ctx);
+            re = ($z.tmpl(re))(ctx);
         }
         return re;
     },
@@ -687,7 +690,7 @@ ZUIObj.prototype = {
         }
         // 字符串模板
         if(str && ctx && _.isObject(ctx)){
-            return (_.template(str))(ctx);
+            return ($z.tmpl(str))(ctx);
         }
         // 普通字符串
         return str;
@@ -729,7 +732,7 @@ ZUIObj.prototype = {
         var F = obj ? obj[nm] : null;
         if(!F)
             return null;
-        return _.isFunction(F) ? F : _.template(F);
+        return _.isFunction(F) ? F : $z.tmpl(F);
     },
     //............................................
     ui_parse_data : function(obj, callback) {
@@ -930,7 +933,7 @@ ZUI.def = function (uiName, conf) {
                 opt.className += " " + conf.className;
             }
             else {
-                opt[key] = conf[key] || opt[key];
+                opt[key] = opt[key] || conf[key];
             }
         }
 
@@ -999,7 +1002,7 @@ ZUI.checkByKey = function(uiKey){
 
 // 异步读取全局的消息字符串
 ZUI.loadi18n = function (path, callback) {
-    path = _.template(path)({lang: window.$zui_i18n || "zh-cn"});
+    path = $z.tmpl(path)({lang: window.$zui_i18n || "zh-cn"});
     require.async(path, function (mm) {
         ZUI.g_msg_map = mm || {};
         callback();
@@ -1012,7 +1015,7 @@ ZUI.dump_tree = function(UI, depth){
     if(UI){
         var depth = _.isUndefined(depth) ? 0 : depth
         var prefix = $z.dupString("    ", depth);
-        var str = (_.template("{{nm}}({{cid}}){{uiKey}}"))({
+        var str = ($z.tmpl("{{nm}}({{cid}}){{uiKey}}"))({
             nm     : UI.uiName,
             cid    : UI.cid,
             uiKey  : UI.uiKey ? "["+UI.uiKey+"]" : ""

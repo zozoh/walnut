@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.hmaker.hdl;
 
 import org.nutz.json.Json;
+import org.nutz.lang.Files;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -9,6 +10,10 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.web.WebException;
 
 public class hmaker_newpage implements JvmHdl {
+    
+    private String __get_newpage_content(){
+        return Files.read("org/nutz/walnut/ext/hmaker/hdl/newpage.html");
+    }
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
@@ -36,8 +41,12 @@ public class hmaker_newpage implements JvmHdl {
         }
 
         // 修改类型
-        oPage.type("html");
+        oPage.type("html").mime("text/html");
         sys.io.set(oPage, "^(tp|mime)$");
+        
+        // 写入初始内容
+        String html = this.__get_newpage_content();
+        sys.io.writeText(oPage, html);
 
         // 输出新的对象信息
         sys.out.println(Json.toJson(oPage, hc.jfmt));

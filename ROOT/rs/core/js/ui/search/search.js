@@ -30,7 +30,7 @@ var quick_menus = {
             }
             // 开始执行 ...
             var opt  = UI.options;
-            var tmpl = _.template(opt.edtCmdTmpl["delete"]);
+            var tmpl = $z.tmpl(opt.edtCmdTmpl["delete"]);
             var str = "";
             objs.forEach(function(obj){
                 str += tmpl(obj) + ";\n";
@@ -90,7 +90,7 @@ function _pop_form_mask(UI, title, obj, cmdTmpl, callback){
                 // 如果数据不符合规范，form 控件会返回空的
                 if(formData){
                     var json   = $z.toJson(formData).replace("'","\\'");
-                    var cmdText = _.template(cmdTmpl)(_.extend({}, obj, {json:json}));
+                    var cmdText = $z.tmpl(cmdTmpl)(_.extend({}, obj, {json:json}));
                     console.log(cmdText);
                     UI.exec(cmdText, function(re){
                         var newObj = $z.fromJson(re);

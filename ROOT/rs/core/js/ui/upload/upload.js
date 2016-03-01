@@ -91,7 +91,7 @@ module.exports = ZUI.def("ui.upload", {
         }
         // 更新标题 
         if (title) {
-            title = (_.template(title))(ta);
+            title = ($z.tmpl(title))(ta);
             UI.$el.find(".ui-upload-sky").html(title);
         } else {
             UI.$el.find(".ui-upload-sky").remove();

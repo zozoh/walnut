@@ -17,6 +17,13 @@ var zUtil = {
         return args.length == 1 ? args[0] : args;
     },
     //.............................................
+    // 处理 underscore 的模板
+    tmpl : function(str){
+        return _.template(str, {
+            escape : /\{\{([\s\S]+?)\}\}/g
+        });
+    },
+    //.............................................
     // 本地存储保存某用户的某个界面的设置
     // appName : 应用名称
     // me      : 用户标识
@@ -513,7 +520,7 @@ var zUtil = {
             }
         };
         // 准备请求对象头部信息
-        var url = (_.template(opt.url))(opt);
+        var url = ($z.tmpl(opt.url))(opt);
         //console.log("upload to:", url);
         xhr.open("POST", url, true);
         xhr.setRequestHeader('Content-type', "application/x-www-form-urlencoded; charset=utf-8");
@@ -640,17 +647,17 @@ var zUtil = {
         var func;
         // 自定义的 display 方法
         if(fld.display){
-            func = _.isFunction(fld.display) ? fld.display : _.template(fld.display);
+            func = _.isFunction(fld.display) ? fld.display : $z.tmpl(fld.display);
         }
         // 同时有 text && icon
         else{
             // 预编译 icon
             if(fld.icon)
-                fld.__dis_icon = _.isFunction(fld.icon) ? fld.icon : _.template(fld.icon);
+                fld.__dis_icon = _.isFunction(fld.icon) ? fld.icon : $z.tmpl(fld.icon);
             
             // 预编译 text
             if(fld.text)
-                fld.__dis_text = _.isFunction(fld.text) ? fld.text : _.template(fld.text);
+                fld.__dis_text = _.isFunction(fld.text) ? fld.text : $z.tmpl(fld.text);
 
             // 同时有 icon 和 text
             if(fld.__dis_icon && fld.__dis_text){
@@ -783,7 +790,7 @@ var zUtil = {
         // 字符串，试图看看 context 里有没有 exec 方法
         else if(_.isString(data)){
             //console.log(data, params);
-            var str  = (_.template(data))(params);
+            var str  = ($z.tmpl(data))(params);
             //console.log(">> exec: ", str)
             var execFunc = context.exec || (context.options||{}).exec;
             if(_.isFunction(execFunc)){
@@ -1018,13 +1025,21 @@ var zUtil = {
     },
     //.............................................
     // 得到函数体的代码
-    getFuncBodyAsStr: function (func) {
-        var str = func.toString();
+    // 因为这种方法通常用来获得内嵌 HTML 文本， 
+    // 参数 removeComment 如果声明了，将会移除文本前后的 '/*' 和 '*/'
+    getFuncBodyAsStr: function (func, removeComment) {
+        var str  = func.toString();
         var posL = str.indexOf("{");
-        var re = $.trim(str.substring(posL + 1, str.length - 1));
+        var re   = $.trim(str.substring(posL + 1, str.length - 1));
         // Safari 会自己加一个语句结尾，靠
         if (re[re.length - 1] == ";")
-            return re.substring(0, re.length - 1);
+            re = re.substring(0, re.length - 1);
+
+        // 移除前后的注释
+        if(removeComment)
+            re = re.substring(2, re.length - 2);
+
+        // 嗯，搞好了
         return re;
     },
     //.............................................
@@ -1157,7 +1172,7 @@ var zUtil = {
     //.............................................
     // 返回一个时间戳，其它应用可以用来阻止浏览器缓存
     timestamp: function () {
-        return new Date().getTime();
+        return Date.now();;
     },
     //.............................................
     // 生成一个随机字符串

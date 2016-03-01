@@ -45,7 +45,7 @@ return ZUI.def("ui.form_test0", {
             name:'I am zozoh', 
             sex:"m",
             live:true,
-            myphoto : {fid:'4thoboi83khmdqmqqvf5arogki'}
+            //myphoto : {fid:'4thoboi83khmdqmqqvf5arogki'}
         };
     },
     //...............................................................
@@ -175,7 +175,8 @@ return ZUI.def("ui.form_test0", {
             uiConf : {
                 clearable : false,
                 parseData : function(obj){
-                    return Wn.getById(obj.fid);
+                    if(obj)
+                        return Wn.getById(obj.fid);
                 },
                 formatData : function(o){
                     return o ? {fid:o.id} : null;
@@ -186,7 +187,7 @@ return ZUI.def("ui.form_test0", {
             title : "i18n:我的多个文件",
             tip   : "随便选个一些文件和文件夹咯",
             type  : "object",
-            dft   : [{fid:'t6c2m2r5a0htep2rto785n588f'},{fid:'3d7gf4mdtghbqqrknp2snkpo3a'}],
+            //dft   : [{fid:'t6c2m2r5a0htep2rto785n588f'},{fid:'3d7gf4mdtghbqqrknp2snkpo3a'}],
             uiType : "ui/picker/opicker",
             uiConf : {
                 setup : {
@@ -194,9 +195,11 @@ return ZUI.def("ui.form_test0", {
                 },
                 parseData : function(objs){
                     var re = [];
-                    objs.forEach(function(o, index){
-                        re.push(Wn.getById(o.fid));
-                    });
+                    if(objs){
+                        objs.forEach(function(o, index){
+                            re.push(Wn.getById(o.fid));
+                        });
+                    }
                     return re;
                 },
                 formatData : function(os){

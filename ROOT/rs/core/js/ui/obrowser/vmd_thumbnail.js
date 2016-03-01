@@ -125,7 +125,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
         UI.showLoading();
 
         // 得到当前所有的子节点
-        UIBrowser.getChildren(o, null, function(objs){
+        Wn.getChildren(o, null, function(objs){
             // 清空
             UI.arena.empty();
 

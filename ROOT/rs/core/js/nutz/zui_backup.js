@@ -9,7 +9,7 @@ define(function (require, exports, module) {
     var parse_dom = function (html) {
         var UI = this;
         // 解析代码模板
-        var tmpl = _.template(html);
+        var tmpl = $z.tmpl(html);
         html = tmpl(UI._msg_map);
         UI.$el[0].innerHTML = html;  // FIXME 这里有严重的bug, tr不能被加入到页面中
 
@@ -354,7 +354,7 @@ define(function (require, exports, module) {
                     var it = uiI18N[i];
                     // 字符串的话，转换后加入待加载列表
                     if(_.isString(it)){
-                        i18nLoading.push(_.template(it)({lang: UI.lang}));
+                        i18nLoading.push($z.tmpl(it)({lang: UI.lang}));
                     }
                     // 对象的话，直接融合进来
                     else if(_.isObject(it)){
@@ -583,7 +583,7 @@ define(function (require, exports, module) {
             }
             // 需要解析
             if (re && ctx && _.isObject(ctx)) {
-                re = (_.template(re))(ctx);
+                re = ($z.tmpl(re))(ctx);
             }
             return re;
         },
@@ -600,7 +600,7 @@ define(function (require, exports, module) {
             }
             // 字符串模板
             if(str && ctx && _.isObject(ctx)){
-                return (_.template(str))(ctx);
+                return ($z.tmpl(str))(ctx);
             }
             // 普通字符串
             return str;
@@ -664,7 +664,7 @@ define(function (require, exports, module) {
             var F = obj ? obj[nm] : null;
             if(!F)
                 return null;
-            return _.isFunction(F) ? F : _.template(F);
+            return _.isFunction(F) ? F : $z.tmpl(F);
         },
         //............................................
         ui_parse_data : function(obj, callback) {
@@ -846,7 +846,7 @@ define(function (require, exports, module) {
         if(UI){
             var depth = _.isUndefined(depth) ? 0 : depth
             var prefix = $z.dupString("    ", depth);
-            var str = (_.template("{{nm}}({{cid}}){{uiKey}}"))({
+            var str = ($z.tmpl("{{nm}}({{cid}}){{uiKey}}"))({
                 nm     : UI.uiName,
                 cid    : UI.cid,
                 uiKey  : UI.uiKey ? "["+UI.uiKey+"]" : ""
@@ -969,7 +969,7 @@ define(function (require, exports, module) {
 
     // 异步读取全局的消息字符串
     ZUI.loadi18n = function (path, callback) {
-        path = _.template(path)({lang: window.$zui_i18n || "zh-cn"});
+        path = $z.tmpl(path)({lang: window.$zui_i18n || "zh-cn"});
         require.async(path, function (mm) {
             ZUI.g_msg_map = mm || {};
             callback();
