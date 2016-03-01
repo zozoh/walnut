@@ -78,7 +78,7 @@ public class FuseActionFilter implements ActionFilter {
                         return HttpStatusView.HTTP_404;
                     req.setAttribute("fuse_obj", obj);
                 }
-                if (req.getParameter("source") != null) {
+                if (req.getParameter("source") != null && !req.getRequestURI().endsWith("symlink")) {
                     WnObj obj = io.fetch(null, req.getParameter("source"));
                     if (obj == null)
                         return HttpStatusView.HTTP_404;

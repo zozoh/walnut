@@ -9,6 +9,8 @@ from time import time
 from stat import *
 from contextlib import closing
 
+MOUNT_POINT = ""
+
 class ESS(LoggingMixIn, Operations):
     '''
     
@@ -72,25 +74,28 @@ class ESS(LoggingMixIn, Operations):
         return resp.content
 
     def readdir(self, path, fh):
-        if path == "/" :
-            return ["root", "home"]
+        #if path == "/" :
+        #    return ["root", "home"]
         with closing(self._get("readdir", dict(path=path))) as resp :
             return resp.json()
 
     def readlink(self, path):
-        return self.sftp.readlink(path)
+        with closing(self._get("readlink", dict(path=path))) as resp :
+            re = resp.content
+            if re :
+                return MOUNT_POINT + re
 
-    def rename(self, source, target):
-        with closing(self._get("rename", dict(source=source, target=target))) as resp :
+    def rename(self, target, source):
+        with closing(self._get("rename", dict(source=target, target=source))) as resp :
             return 0
 
     def rmdir(self, path):
         with closing(self._get("rmdir", dict(path=path))) as resp :
             return 0
 
-    #def symlink(self, source, target):
-    #    with closing(self._get("symlink", dict(target=target, source=source))) as resp :
-    #        return 0
+    def symlink(self, target, source):
+        with closing(self._get("symlink", dict(target=target, source=source))) as resp :
+            return 0
 
     def truncate(self, path, length, fh=None):
         with closing(self._get("truncate", dict(path=path, length=length))) as resp :
@@ -121,6 +126,7 @@ if __name__ == '__main__':
     if len(argv) != 5:
         print('usage: %s <seid> <host> <port> <mountpoint>' % argv[0])
         exit(1)
+    MOUNT_POINT = argv[4]
     import  logging
     logging.basicConfig(filename='ess.log',level=logging.INFO)
     fuse = FUSE(ESS(argv[1], argv[2], int(argv[3])), argv[4], foreground=1, debug=0, 

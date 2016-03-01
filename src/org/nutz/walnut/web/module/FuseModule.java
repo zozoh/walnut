@@ -100,15 +100,19 @@ public class FuseModule extends AbstractWnModule {
         map.put("st_mtime", obj.lastModified() / 1000);
         map.put("st_nlink", 1);
 
-        if (obj.isDIR()) {
-            map.put("st_size", 0);
-            map.put("st_mode", 0777 | 0x4000);
+        if (obj.isLink()) {
+            map.put("st_nlink", 2);
+        	map.put("st_size", 4);
+            map.put("st_mode", obj.mode() | 0xA000);
+        }else if (obj.isDIR()) {
+            map.put("st_size", 4);
+            map.put("st_mode", obj.mode() | 0x4000);
         } else if (obj.isFILE()) {
             map.put("st_size", obj.len() > 0 ? obj.len() : 0);
-            map.put("st_mode", 0777 | 0x8000);
+            map.put("st_mode", obj.mode() | 0x8000);
         } else {
             map.put("st_size", 0);
-            map.put("st_mode", 0777 | 0xA000);
+            map.put("st_mode", obj.mode() | 0xA000);
         }
         map.put("name", obj.name());
 
@@ -135,10 +139,11 @@ public class FuseModule extends AbstractWnModule {
 
     @At
     public void symlink(@Param("source") String source, @Param("target") String target) {
+    	String dir = target.substring(0, target.lastIndexOf('/')+1);
         _run_cmd("fuse_ln",
-                 null,
+                 Wn.WC().checkMe(),
                  "ln -s "
-                       + Wn.normalizeFullPath(source, Wn.WC().SE())
+                       + Wn.normalizeFullPath(dir + source, Wn.WC().SE())
                        + " "
                        + Wn.normalizeFullPath(target, Wn.WC().SE()));
     }
@@ -190,7 +195,20 @@ public class FuseModule extends AbstractWnModule {
     @At
     public void rename(@Param("source") String source, @Param("target") String _target)
             throws Exception {
+    	WnObj t = io.fetch(null, _target);
+    	if (t != null) {
+    		io.delete(t);
+    	}
         io.move(_obj(), _target);
+    }
+    
+    @At
+    @Ok("raw")
+    public String readlink(@Param("path") String path) {
+    	WnObj obj = _obj();
+    	if (obj == null)
+    		return null;
+    	return obj.link();
     }
 
     public WnObj _obj() {
