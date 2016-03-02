@@ -197,13 +197,13 @@ return ZUI.def("ui.obrowser", {
         }
     },
     //..............................................
-    updateMenuByObj : function(o, theEditor){
+    updateMenuByObj : function(o, theEditor, menuContext){
         var UI = this;
         Wn.loadAppSetup(o, {
             context : UI,
             editor  : theEditor
         }, function(o, asetup){
-            UI.subUI("shelf/sky").updateMenu(UI, o, asetup);
+            UI.subUI("shelf/sky").updateMenu(UI, o, asetup, menuContext);
         });  
     },
     //..............................................

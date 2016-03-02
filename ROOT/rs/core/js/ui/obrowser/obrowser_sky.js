@@ -234,12 +234,12 @@ return ZUI.def("ui.obrowser_sky", {
         $z.invoke(UIBrowser.options, "on_current", [o], UI);
     },
     //..............................................
-    updateMenu : function(UIBrowser, o, asetup){
-        this._draw_menu(UIBrowser, o, asetup);
+    updateMenu : function(UIBrowser, o, asetup, menuContext){
+        this._draw_menu(UIBrowser, o, asetup, menuContext);
         this.resize();
     },
     //..............................................
-    _draw_menu : function(UIBrowser, o, asetup){
+    _draw_menu : function(UIBrowser, o, asetup, menuContext){
         var UI = this;
         var jMenu = UI.arena.find(".obrowser-menu");
 
@@ -257,7 +257,7 @@ return ZUI.def("ui.obrowser_sky", {
             parent       : UI,
             gasketName   : "menu",
             setup        : asetup.menu,
-            context      : UIBrowser
+            context      : menuContext || UIBrowser
         }).render(function(){
             $z.defer(function(){
                 UI.resize();

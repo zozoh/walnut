@@ -71,8 +71,24 @@ AC.gasket.prop  -> FormUI : "ui/form/form"
 id 属性是必要的，每次控件新建实例，会自动分配。 无论渲染还是编辑时，
 会生成 <style> 节点， 每个控件的实例都对应一个 <style> 节点。
 用 <style c-id="控件ID"> 来形成对应关系
+
+下面是控件顶级元素支持的属性:
+
+// 自动分配的控件 ID
+id    : xxx
+
+// 控件的类型
+ctype : text|image|navbtns ...
+
+// 用来标识控件在不同位置体系下的样式
+// 具体参看本文后面 position 属性的概述
+// 这个属性由编辑器根据 prop， 每次初始化的时候生成
+pos : "relative|absolute"
+
+// 标识控件是否正在被编辑
+actived : "yes"
 -->
-<div class="hmc-com" ctype="控件类型" id="控件ID">
+<div class="hmc-com" ctype="控件类型" id="控件ID" pos="relative">
     <!--
     这个节点存放 DOM 所有的属性，就是一段 JSON 文本
     ! 渲染时会被移除

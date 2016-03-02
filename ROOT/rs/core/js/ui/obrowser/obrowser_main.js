@@ -109,8 +109,8 @@ return ZUI.def("ui.obrowser_main", {
         }
     },
     //..............................................
-    updateMenuByObj : function(o, theEditor){
-        this.parent.parent.updateMenuByObj(o, theEditor);
+    updateMenuByObj : function(o, theEditor, menuContext){
+        this.parent.parent.updateMenuByObj(o, theEditor, menuContext);
     },
     //..............................................
     getData : function(arg){

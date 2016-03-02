@@ -66,7 +66,11 @@ var Wn = {
         if(UI && _.isFunction(UI.text))
             nmText = UI.text(nmText);
         nmText = this.objDisplayName(UI, nmText, nmMaxLen);
-        jNm.prop("href","/a/open/wn.browser?ph=id:"+o.id).text(nmText);
+        
+        jNm.text(nmText)
+        // 标记链接
+        if(jNm[0].tagName == 'A')
+            jNm.prop("href","/a/open/"+(window.wn_browser_appName||"wn.browser")+"?ph=id:"+o.id);
     },
     //...................................................................
     objIconHtml : function(o){

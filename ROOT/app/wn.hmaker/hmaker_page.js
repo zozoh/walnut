@@ -5,10 +5,15 @@ $z.declare([
     'ui/menu/menu'
 ], function(ZUI, Wn, MenuUI){
 //==============================================
+// .........................  控件 ID 计数器
+var COM_SEQ = 0;
+// ......................... 帮助函数
 var _H = function(jHead, selector, html) {
-    if(jHead.children(selector).size() == 0);
+    if(jHead.children(selector).size() == 0){
         jHead.prepend($(html));
+    }
 };
+// ......................... DOM
 var html = function(){/*
 <div class="ui-code-template" common-class="ui-console-block">
     <div code-id="hcm.assist" class="hcm-assist">
@@ -23,22 +28,28 @@ var html = function(){/*
     </div>
 </div>
 <div class="ui-arena hmaker-page" ui-fitparent="yes">
-    <div class="ue-bar1"><span>{{hmaker.comlib_add}}</span><span>{{hmaker.comlib_add_c}}</span></div>
-    <div class="ue-shelf"></div>
-    <div class="ue-bar2">
-        <div class="ue-ssize">
-            <input name="x"><em>x</em><input name="y">
-            <span>
-                <i class="fa fa-desktop highlight" val=""></i>
-                <i class="fa fa-tablet" val="800x600"></i>
-                <i class="fa fa-mobile" val="400x600"></i>
-            </span>
+    <div class="hmaker-view"><div class="hmaker-view-warpper">
+        <div class="ue-bar1"><span>{{hmaker.comlib_add}}</span><span>{{hmaker.comlib_add_c}}</span></div>
+        <div class="ue-shelf"></div>
+        <div class="ue-bar2">
+            <div class="ue-ssize">
+                <input name="x"><em>x</em><input name="y">
+                <span>
+                    <i class="fa fa-desktop highlight" val=""></i>
+                    <i class="fa fa-tablet" val="800x600"></i>
+                    <i class="fa fa-mobile" val="400x600"></i>
+                </span>
+            </div>
+            <div class="ue-com-menu"></div>
         </div>
-        <div class="ue-com-menu"></div>
-    </div>
-    <div class="ue-stage" mode="pc">
-        <div class="ue-screen"><iframe></iframe></div>
-    </div>
+        <div class="ue-stage" mode="pc">
+            <div class="ue-screen"><iframe></iframe></div>
+        </div>
+    </div></div>
+    <div class="hmaker-deta"><div class="hmaker-deta-wrapper">
+        <div class="ue-com-title"></div>
+        <div class="ue-com-prop"></div>
+    </div></div>
 </div>
 */};
 //==============================================
@@ -121,6 +132,38 @@ return ZUI.def("app.wn.hmaker_page", {
     getPageId : function(){
         return this.$el.attr("oid");
     },
+    getCurrentObj : function(){
+        return Wn.getById(this.getPageId());
+    },
+    getCurrentTextContent : function(){
+        var UI   = this;
+        var ifrm = UI.arena.find(".ue-screen iframe")[0];
+        // 移除所有的 UI ID
+        var jHtm = $(ifrm.contentDocument.documentElement);
+        jHtm.find("[ui-id]").removeAttr("ui-id");
+
+        // 移除所有的代码帮助节点
+        jHtm.find(".hcm-assist, .hmc-rm-when-save").remove();
+
+        // 移除页面最开始的文本节点空白
+        var jBody   = jHtm.find("body");
+        var eBody   = jBody[0];
+        var ndFirst = eBody.firstChild;
+        if(ndFirst && ndFirst.nodeType == 3){
+            console.log(ndFirst)
+            ndFirst.textContent = "\n";
+        }
+
+        // 移除页面最后面的文本节点空白
+        var ndLast = eBody.lastChild;
+        if(ndLast && ndLast.nodeType == 3){
+            console.log(ndLast)
+            ndLast.textContent = "\n";
+        }
+
+        // 返回 HTML
+        return '<!DOCTYPE html>\n<html>\n' + jHtm.html() + '\n</html>\n';
+    },
     //...............................................................
     // 因为组件已经是提前加载过的 (在 __reload_components 里)
     // 这里肯定不会发起请求了，个个控件就检查 .hmc-wrapper 里面的东东合不合心意吧
@@ -129,69 +172,120 @@ return ZUI.def("app.wn.hmaker_page", {
         var UI    = this;
         var ctype = jDiv.attr("ctype");
 
+        // 如果已经声明了组件，看看是不是直接就有实例可用
         var uiCom;
-        seajs.use("app/wn.hmaker/component/hmc_"+ctype, function(ComUI){
-            uiCom = new ComUI({
-                parent : UI,
-                $el    : jDiv
-            });
-        });
+        var uiid = jDiv.attr("ui-id");
+        if(uiid){
+            uiCom = ZUI(uiid);
+        }
 
+        // 没有的话，创建一个 UI 的实例
+        if(!uiCom){
+            // 准备一个默认的标题 HTML
+            var titleHtml = UI.arena.find('.ue-shelf li[ctype="'+ctype+'"]').html();
+
+            // 创建组件
+            seajs.use("app/wn.hmaker/component/hmc_"+ctype, function(ComUI){
+                uiCom = new ComUI({
+                    parent : UI,
+                    $el    : jDiv,
+                    $menu  : UI.arena.find(".ue-com-menu"),
+                    $title : UI.arena.find(".ue-com-title"),
+                    $prop  : UI.arena.find(".ue-com-prop"),
+                    titleHtml : titleHtml
+                });
+            });
+        }
+
+        // 返回实例
         return uiCom;
     },
     //...............................................................
     _insert_com : function(ctype){
         var UI   = this;
         var ifrm = UI.arena.find(".ue-screen iframe")[0];
-        var jDiv = $('<div class="hm-com hmc-text">').attr("ctype", ctype);
+        var jCom = $('<div class="hm-com">').addClass("hmc-"+ctype).attr("ctype", ctype);
         
         // 分配 ID
-        if(!window.__hmaker_com_seq)
-            window.__hmaker_com_seq = 0;
-        jDiv.prop("id", ctype + (window.__hmaker_com_seq++));
-
-        // 检查总体结构
-        UI._check_com_dom(jDiv);
+        jCom.prop("id", ctype + (++COM_SEQ));
 
         // 加入到编辑文档中
-        $(ifrm.contentDocument.body).append(jDiv);
+        $(ifrm.contentDocument.body).append(jCom);
 
-        // 启用控件绘制
-        UI._apply_com(jDiv).render();
+        // 检查总体结构
+        UI._check_com_dom(jCom);
+
+        // 激活控件，启用控件绘制
+        UI.setActived(jCom);
     },
     //...............................................................
-    _check_com_dom : function(jDiv){
+    _check_com_dom : function(jCom){
         var UI    = this;
-        var ctype = jDiv.attr("ctype");
+        var ctype = jCom.attr("ctype");
+
+        // 更新控件最后的序号
+        var cid = jCom.prop("id");
+        var m = new RegExp("^("+ctype+")(\\d+)$").exec(cid);
+        if(m)
+            COM_SEQ = Math.max(COM_SEQ, m[2]*1);
 
         // 确保有 script
-        var jProp = jDiv.children("script.hmc-prop");
+        var jProp = jCom.children("script.hmc-prop");
         if(jProp.size() == 0) {
-            jProp = $('<script type="text/x-template" class="hmc-prop">').prependTo(jDiv);
+            jProp = $('<script type="text/x-template" class="hmc-prop">').prependTo(jCom);
         }
+
+        // 如果是绝对位置，增加标识
 
         // 确保有 hcm-assist，如果已经存在了，替换掉
         // 这样，以后可以随时添点嘛儿
-        jDiv.children(".hcm-assist").remove();
+        jCom.children(".hcm-assist").remove();
         var jAss = UI.ccode("hcm.assist").insertAfter(jProp);
 
         // 确保有 .hmc-wrapper
-        var jW = jDiv.children(".hmc-wrapper");
+        var jW = jCom.children(".hmc-wrapper");
         if(jW.size() == 0){
             jW = $('<div class="hmc-wrapper">').insertAfter(jAss);
         }
     },
     //...............................................................
+    setActived : function(ele) {
+        var UI   = this;
+        var jCom = $(ele).closest(".hm-com");
+
+        // 本身就是激活对象，那就啥也不做
+        if(jCom.attr("actived") || jCom.size() == 0)
+            return;
+
+        // 移除其他的激活对象
+        var jBody = jCom.closest("body");
+        jBody.find("div.hm-com[actived]").removeAttr("actived");
+
+        // 激活自身
+        jCom.attr("actived", "yes");
+
+        // 应用组件
+        UI._apply_com(jCom).render();
+    },
+    //...............................................................
     setup_page_editing : function(){
         var UI  = this;
         // 首先看看子页
-        var ifrm = UI.arena.find(".ue-screen iframe")[0];
-        var jDoc = $(ifrm.contentDocument);
-        var jTop = $(ifrm.contentDocument.documentElement);
+        var ifrm  = UI.arena.find(".ue-screen iframe")[0];
+        var jDoc  = $(ifrm.contentDocument);
+        var jHtm  = $(ifrm.contentDocument.documentElement);
+        var jHead = jHtm.children("head");
+        var jBody = jHtm.children("body");
 
+        // 绑定通用事件
+        jBody.on("click", "div.hm-com", function(e){
+            UI.setActived(this);
+        });
+
+        // 控件计数归零
+        COM_SEQ = 0;
 
         // 初始化页面的头
-        var jHead = jTop.children("head");
         _H(jHead, 'link[href*="hmpg_editing.css"]', '<link for-edit="yes" rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/hmpg_editing.css">');
         _H(jHead, 'link[href*="hmc.css"]', '<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/component/hmc.css">');
         _H(jHead, 'link[href*="page.css"]', '<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/page/page.css">');
@@ -202,7 +296,7 @@ return ZUI.def("app.wn.hmaker_page", {
         _H(jHead, 'meta[charset="utf-8"]', '<meta charset="utf-8">');
 
         // 依次用各个组件检查一下 DOM 是否有问题
-        jTop.find("body>div").each(function(){
+        jBody.children("div").each(function(){
             var jDiv  = $(this); 
             
             // 检查总体结构
@@ -211,6 +305,11 @@ return ZUI.def("app.wn.hmaker_page", {
             // 检查每个控件的 DOM 结构是否合意
             UI._apply_com(jDiv).checkDom();
         });
+
+        // 如果有激活的组件，激活它
+        var jActivedCom = jBody.children('div.hm-com[actived]');
+        if(jActivedCom.size()>0)
+            UI._apply_com(jActivedCom).render();
 
     }
     //...............................................................

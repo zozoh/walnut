@@ -1,4 +1,9 @@
 .hmc-text {
-  padding: 100px;
-  background: yellow;
+  margin: 1px;
+}
+.hmc-text .hmc-wrapper {
+  padding: 10px;
+  letter-spacing: 2px;
+  font-size: 14px;
+  line-height: 24px;
 }

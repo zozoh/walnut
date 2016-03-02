@@ -72,7 +72,9 @@ var register = function(UI) {
 
         // 如果本身就是一个 UI，则试图注销它
         if(cid){
-            ZUI(cid).destroy();
+            var oldUI = ZUI(cid);
+            if(oldUI)
+                oldUI.destroy();
             UI.$el = null;
             UI.el  = null;
         }

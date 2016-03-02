@@ -157,20 +157,20 @@ var zUtil = {
     // 获取一个元素的矩形信息，包括 top,left,right,bottom,width,height,x,y
     // 其中 x,y 表示中央点
     rect : function(ele, includeMargin){
-        var jq = $(ele);
-        var rect    = jq.offset();
+        var jEle = $(ele);
+        var rect = jEle.offset();
         // 包括外边距，有点麻烦
-        if(includeMargin && jq.size()>0){
-            rect.width  = jq.outerWidth(true);
-            rect.height = jq.outerHeight(true);
-            var style   = window.getComputedStyle(jq[0]);
+        if(includeMargin && jEle.size()>0){
+            rect.width  = jEle.outerWidth(true);
+            rect.height = jEle.outerHeight(true);
+            var style   = window.getComputedStyle(jEle[0]);
             rect.top   -= this.toPixel(style.marginTop);
             rect.left  -= this.toPixel(style.marginLeft);
         }
         // 否则就简单了
         else{
-            rect.width  = jq.outerWidth();
-            rect.height = jq.outerHeight();
+            rect.width  = jEle.outerWidth();
+            rect.height = jEle.outerHeight();
         }
         rect.right  = rect.left + rect.width;
         rect.bottom = rect.top  + rect.height;
@@ -1382,109 +1382,233 @@ var zUtil = {
     },
     //---------------------------------------------------------------------------------------
     /**
-     * ele - 为任何可以有子元素的 DOM 或者 jq，本函数在该元素的位置绘制一个 input 框，让用户输入新值
-     * opt - object | function
-     * opt.multi - 是否是多行文本
-     * opt.text - 初始文字，如果没有给定，采用 ele 的文本
-     * opt.width - 指定宽度
-     * opt.height - 指定高度
-     * opt.after - function(newval, oldval){...} 修改之后，
-     *   - this 为被 edit 的 DOM 元素 (jq 包裹)
-     *   - 传入 newval 和 oldval
-     *   - 如果不给定这个参数，则本函数会给一个默认的实现
+     编辑任何元素的内容
+     ele - 为任何可以有子元素的 DOM 或者 jq，本函数在该元素的位置绘制一个 input 框，让用户输入新值
+     opt - 配置项目
+     {
+        multi : false  // 是否是多行文本
+        text  : null   // 初始文字，如果没有给定，采用 ele 的文本
+        width : 0      // 指定宽度，没有指定则默认采用宿主元素的宽度
+        height: 0      // 指定高度，没有指定则默认采用宿主元素的高度
+        extendWidth  : false   // 自动延伸宽度
+        extendHeight : false   // 自动延伸高度
+        takePlace    : false   // 是否代替宿主的位置，如果代替那么将不用绝对位置和遮罩
+
+        // 修改之后的回调
+        // 如果不指定这个项，默认实现是修改元素的 innertText
+        after : {c}F(newval, oldval, jEle){}
+        
+        // 回调的上下文，默认为 ele 的 jQuery 包裹对象
+        context : jEle
+     }
+     * 如果 opt 为函数，相当于 {after:F()}
      */
     editIt: function(ele, opt) {
         // 处理参数
-        var me = $(ele);
+        var jEle = $(ele);
+        if(jEle.size() == 0 || jEle.attr("z-edit-it-on"))
+            return;
+
+        // 标记已经被编辑
+        jEle.attr("z-edit-it-on", "yes");
+
         var opt = opt || {};
+        // 直接给了回调
         if (typeof opt == "function") {
             opt = {
                 after: opt
             };
-        } else if (typeof opt == "boolean") {
+        }
+        // 多行
+        else if (typeof opt == "boolean") {
             opt = {
                 multi: true
             };
         }
-        if (typeof opt.after != "function") opt.after = function(newval, oldval) {
-            if (newval != oldval) this.text(newval);
-        };
-        // 定义处理函数
-        var onKeydown = function(e) {
+        // 定义默认的回调
+        if(!_.isFunction(opt.after))
+            opt.after = function(newval, oldval, jEle, opt) {
+                // 多行用 HTML
+                if(opt.multi){
+                    jEle.html(newval);
+                }
+                // 单行用文本
+                else{
+                    jEle.text(newval);
+                }
+            };
+        //...............................................
+        // 定义键盘处理函数
+        var __on_keydown = function(e) {
+            var jInput = $(this);
+            var jDiv   = jInput.parent();
+            var opt    = jDiv.data("@OPT");
             // Esc
             if (27 == e.which) {
-                $(this).val($(this).attr("old-val")).blur();
+                var old = jDiv.data("@OLD");
+                jInput.val(old).blur();
+                return;
             }
             // Ctrl + Enter
             else if (e.which == 13) {
-                if(window.keyboard){
-                    if(window.keyboard.ctrl){
-                        $(this).blur();    
+                // 多行的话，必须加 ctrl 才算确认
+                if(opt.multi){
+                    if(($z.os.mac && e.metaKey) || e.ctrlKey){
+                        jInput.blur();
+                        return;
                     }
                 }
+                // 单行的话，就确认
                 else {
-                    $(this).blur();
+                    jInput.blur();
+                    return;
                 }
             }
+            // 如果是自动延伸 ...
+            if(opt.extendWidth){
+                jDiv.css("width",  jInput[0].scrollWidth + jInput[0].scrollLeft);
+            }
+            if(opt.extendHeight){
+                jDiv.css("height", jInput[0].scrollHeight + jInput[0].scrollTop);
+            }
+
         };
-        var func = function() {
+        //...............................................
+        // 定义确认后的处理
+        var __on_ok = function() {
             var jInput = $(this);
             var jDiv   = jInput.parent();
-            var opt = jDiv.data("z-editit-opt");
-            opt.after.apply(jDiv.parent(), [jInput.val(), jInput.attr("old-val")]);
-            jDiv.prev().remove();  // 移除遮罩
-            jDiv.remove();  // 移除输入框
+            var jEle   = jDiv.data("@ELE");
+            var opt    = jDiv.data("@OPT");
+            var context= opt.context || jEle;
+
+            // 处理值
+            var old = jDiv.data("@OLD");
+            var val = jInput.val();
+
+            // 如果是多行的话，用 HTML 替换一下
+            if(opt.multi){
+                val = val.replace("<", "&lt;")
+                         .replace(">", "&gt;")
+                         .replace(/\r?\n/g, "\n<br>");
+            }
+
+            // 调用回调
+            opt.after.apply(jEle, [val, old, jEle, opt]);
+
+            // 回来吧宿主
+            if(opt.takePlace){
+                jEle.insertBefore(jDiv).show();
+            }
+            // 移除遮罩
+            else{
+                jDiv.prev().remove();
+            }
+
+            // 移除编辑控件
+            jDiv.remove(); 
+
+            // 移除宿主标识
+            jEle.removeAttr("z-edit-it-on");
         };
+        //...............................................
         // 准备显示输入框
-        var val = opt.text || me.text();
+        var val = opt.text || jEle.text();
         var html = '<div class="z-edit-it">' + (opt.multi ? '<textarea></textarea>' : '<input>') +'</div>';
-
+        //...............................................
         // 计算宿主尺寸
-        var rect = $z.rect(me);
-
+        var rect = $z.rect(jEle);
+        //...............................................
         // 显示输入框
         var boxW = opt.width || rect.width;
         var boxH = opt.height || rect.height;
-        var jq = $(html).prependTo(me)
-                   .addClass("z-edit-it")
-                   .data("z-editit-opt", opt)
-                   .css({
-                        "width"    : boxW,
-                        "height"   : boxH,
-                        "position" : "fixed",
-                        "top"      : rect.top,
-                        "left"     : rect.left,
-                        "z-index"  : 999999,
-                    });
-        // 给输入框设值
-        var jInput = jq.children();
-        jInput.val(val).attr("old-val", val).css({
-            "width"       : boxW,
-            "height"      : boxH,
-            "line-height" : boxH
-        });
-
-        // 显示遮罩
-        $('<div>').insertBefore(jq)
+        var jDiv = $(html)
+            .data("@OPT", opt)
+            .data("@ELE", jEle)
+            .data("@OLD", val)
             .css({
-                "background" : "#000",
-                "opacity" : 0,
-                "position" : "fixed",
-                "top"    : 0,
-                "left"   : 0,
-                "bottom" : 0,
-                "right"  : 0,
-                "z-index": 999998,
+                "width"   : boxW,
+                "height"  : boxH,
+                "padding" : 0,
+                "margin"  : 0
             });
+        // 给输入框设值
+        var jInput = jDiv.children();
+        jInput.val(val).attr("spellcheck", "false").css({"width":"100%","height":"100%"});
+        // 单行输入框，设一下行高
+        if(!opt.multi)
+            jInput.css("line-height", boxH);
+        //...............................................
+        // 替代宿主的位置
+        if(opt.takePlace){
+            // 取得宿主的显示模式
+            var eleStyle = window.getComputedStyle(jEle[0]);
 
+            var rKeys = ["display","letter-spacing","margin","padding"
+                        ,"font-size", "font-family", "color", "background","border"
+                        ,"line-height"];
+            var css  = {};
+            for(var i=0;i<rKeys.length;i++){
+                var rKey = rKeys[i];
+                var pKey = $z.upperWord(rKey);
+                css[rKey] = eleStyle[pKey];
+                //console.log(rKey, " : ", eleStyle[pKey]);
+            }
+            //console.log(css);
+            
+            // 将自身设置成和宿主一样的显示模式
+            jInput.css(_.extend(css, {
+                "overflow" : "hidden",
+                "outline"  : "none",
+                "resize"   : "none"
+            }));
+
+            // 占宿主的位置
+            jDiv.insertBefore(jEle);
+
+            // 然后，嗯，宿主死开
+            jEle.appendTo(jEle[0].ownerDocument.body).hide();
+
+            // 模拟宿主点击
+            jDiv.click();
+        }
+        //...............................................
+        // 绝对定位
+        else {
+            // 绝对定位，将自身插入到宿主里面
+            jDiv.appendTo(jEle);
+            // 显示绝对定位
+            jDiv.css({
+                "position" : "fixed",
+                "top"      : rect.top,
+                "left"     : rect.left,
+                "z-index"  : 999999
+            });
+            // 显示遮罩
+            $('<div>').insertBefore(jDiv)
+                .css({
+                    "background" : "#000",
+                    "opacity" : 0,
+                    "position" : "fixed",
+                    "top"    : 0,
+                    "left"   : 0,
+                    "bottom" : 0,
+                    "right"  : 0,
+                    "z-index": 999998,
+                });
+        }
+        //...............................................
         // 绑定事件
-        jInput.one("blur", func);
-        jInput.one("change", func);
-        jInput.on("keydown", onKeydown);
-        jInput.on("click", function(e){e.stopPropagation();})
+        jInput.one("blur"  , __on_ok);
+        jInput.one("change", __on_ok);
+        jInput.on("keydown", __on_keydown);
+        // jInput.on("click", function(e){
+        //     console.log(e.isPropagationStopped());
+        // })
         jInput.focus();
 
-        return jq;
+        // 返回最新的 DIV
+        return jDiv;
     },
     //.............................................
     // json : function(obj, fltFunc, tab){
@@ -1584,6 +1708,68 @@ var zUtil = {
             str += char;
         }
         return str;
+    },
+    /**
+     * 将一个字符串由驼峰式命名变成分割符分隔单词
+     * 
+     * <pre>
+     *  lowerWord("helloWorld", '-') => "hello-world"
+     * </pre>
+     * 
+     * @param cs
+     *            字符串
+     * @param c
+     *            分隔符
+     * 
+     * @return 转换后字符串
+     */
+    lowerWord : function(cs, c) {
+        var sb = "";
+        for (var i = 0; i < cs.length; i++) {
+            var ch = cs.charAt(i);
+            if (/^[A-Z]$/.test(ch)) {
+                if (i > 0)
+                    sb += c;
+                sb += ch.toLowerCase();
+            }
+            else {
+                sb += ch;
+            }
+        }
+        return sb;
+    },
+    /**
+     * 将一个字符串某一个字符后面的字母变成大写，比如
+     * 
+     * <pre>
+     *  upperWord("hello-world", '-') => "helloWorld"
+     * </pre>
+     * 
+     * @param cs
+     *            字符串
+     * @param c
+     *            分隔符
+     * 
+     * @return 转换后字符串
+     */
+    upperWord : function(cs, c) {
+        var sb = "";
+        for (var i = 0; i < cs.length; i++) {
+            var ch = cs.charAt(i);
+            if (ch == c) {
+                do {
+                    i++;
+                    if (i >= len)
+                        return sb;
+                    ch = cs.charAt(i);
+                } while (ch == c);
+                sb += ch.toUpperCase();
+            }
+            else {
+                sb += ch;
+            }
+        }
+        return sb;
     },
     // 显示一个元素的尺寸，调试用
     _dumpSize : function(ele){

@@ -1,0 +1,14 @@
+.hm-com[actived] {
+  background: rgba(255, 255, 0, 0.2);
+}
+.hmc-text {
+  border: 1px dashed #CCC;
+}
+.hmc-image {
+  padding: 20px;
+  background: blue;
+}
+.hmc-navbtns {
+  padding: 20px;
+  background: pink;
+}

@@ -14,10 +14,6 @@ var html = function(){/*
         <div class="ue-list" ui-gasket="tree"></div>
     </div>
     <div class="hmaker-main" ui-gasket="main"></div>
-    <div class="hmaker-deta"><div class="hmaker-deta-wrapper">
-        <div class="ue-com-title"></div>
-        <div class="ue-com-prop"></div>
-    </div></div>
 </div>
 */};
 //==============================================
@@ -134,7 +130,7 @@ return ZUI.def("app.wn.hmaker", {
             // else{
                 new PageUI({parent:UI, gasketName:"main"}).render(function(){
                     this.update(o);
-                    UI.parent.updateMenuByObj(o, "hmaker");
+                    UI.parent.updateMenuByObj(o, "hmaker", this);
                 });
             //}
         }
@@ -142,7 +138,7 @@ return ZUI.def("app.wn.hmaker", {
         else if('DIR' == o.race) {
             new ThumbnailUI({parent:UI, gasketName:"main"}).render(function(){
                 this.update(o, UI);
-                UI.parent.updateMenuByObj(o);
+                UI.parent.updateMenuByObj(o, null, this);
             });
         }
         // 不支持

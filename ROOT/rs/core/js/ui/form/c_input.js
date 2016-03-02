@@ -20,8 +20,9 @@ return ZUI.def("ui.form_com_input", {
     //...............................................................
     setData : function(val, jso){
         var UI = this;
-        this.ui_parse_data(jso.toStr(), function(s){
-            UI.arena.find("input").val(s);
+        this.ui_parse_data(val, function(s){
+            var str = jso.parse(s).toStr();
+            UI.arena.find("input").val(str);
         });
     }
     //...............................................................
