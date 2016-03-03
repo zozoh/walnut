@@ -2,8 +2,9 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/menu/menu'
-], function(ZUI, Wn, MenuUI){
+    'ui/menu/menu',
+    'ui/form/form'
+], function(ZUI, Wn, MenuUI, FormUI){
 //==============================================
 // .........................  控件们的通用属性
 // 这是一个 form UI 的配置项
@@ -65,6 +66,60 @@ var comGeneralProp = {
         uiConf : {unit : "px"}
     }]
 };
+// .........................  控件们的通用菜单
+// 这是一个 menu UI 的配置项
+var comGeneralActions = [{
+    //.......................................... 删除
+    icon    : '<i class="fa fa-trash"></i>',
+    text    : "i18n:hmaker.act_remove",
+    handler : function(){
+        this.removeCom();
+    }
+}, {
+    type : "separator"
+}, {
+    //...................................... 顺序
+    icon    : '<i class="fa fa-sort-amount-asc"></i>',
+    tip     : "i18n:hmaker.act_mv",
+    items   : [{
+            //..................................... 置顶
+            icon    : '<i class="fa fa-angle-double-up"></i>',
+            text    : 'i18n:hmaker.act_mv_top',
+            handler : function(){
+                this.orderCom("top");
+            }
+        }, {
+            //..................................... 向上
+            icon    : '<i class="fa fa-angle-up"></i>',
+            text    : 'i18n:hmaker.act_mv_up',
+            handler : function(){
+                this.orderCom("up");
+            }
+        }, {
+            //..................................... 向下
+            icon    : '<i class="fa fa-angle-down"></i>',
+            text    : 'i18n:hmaker.act_mv_down',
+            handler : function(){
+                this.orderCom("down");
+            }
+        }, {
+            //..................................... 置底
+            icon    : '<i class="fa fa-angle-double-down"></i>',
+            text    : 'i18n:hmaker.act_mv_bottom',
+            handler : function(){
+                this.orderCom("bottom");
+            }
+    }]
+}, {
+    type : "separator"
+}, {
+    //.......................................... 显示页面配置
+    icon    : '<i class="fa fa-gear"></i>',
+    tip     : 'i18n:hmaker.act_pg_prop',
+    handler : function(){
+        this.showPageProperty();
+    }
+}];
 // .........................  控件 ID 计数器
 var COM_SEQ = 0;
 // ......................... 帮助函数
@@ -76,21 +131,29 @@ var _H = function(jHead, selector, html) {
 // ......................... DOM
 var html = function(){/*
 <div class="ui-code-template">
-    <div code-id="hmc.assist" class="hmc-assist">
-        <div class="hmca-grp" md="L">
-            <div class="hmca-hdl" hd="NW"></div>
-            <div class="hmca-hdl" hd="W"></div>
-            <div class="hmca-hdl" hd="SW"></div>
+    <div code-id="hmc.assist" class="hmc-assist"><div class="hmc-assist-wrapper">
+        <div class="hmc-assist-icon">
+            <i class="fa fa-info-circle as-actived"></i>
         </div>
-        <div class="hmca-grp" md="C">
-            <div class="hmca-hdl" hd="N"></div>
-            <div class="hmca-hdl" hd="S"></div>
+        <div class="hmc-assist-hdls">
+            <div class="hmca-grp" md="L">
+                <div class="hmca-hdl" hd="NW"></div>
+                <div class="hmca-hdl" hd="W"></div>
+                <div class="hmca-hdl" hd="SW"></div>
+            </div>
+            <div class="hmca-grp" md="C">
+                <div class="hmca-hdl" hd="N"></div>
+                <div class="hmca-hdl" hd="S"></div>
+            </div>
+            <div class="hmca-grp" md="R">
+                <div class="hmca-hdl" hd="NE"></div>
+                <div class="hmca-hdl" hd="E"></div>
+                <div class="hmca-hdl" hd="SE"></div>
+            </div>
         </div>
-        <div class="hmca-grp" md="R">
-            <div class="hmca-hdl" hd="NE"></div>
-            <div class="hmca-hdl" hd="E"></div>
-            <div class="hmca-hdl" hd="SE"></div>
-        </div>
+    </div></div>
+    <div code-id="pageTitle">
+        <i class="fa fa-gear"></i><span>{{hmaker.page.proptt}}</span>
     </div>
 </div>
 <div class="ui-arena hmaker-page" ui-fitparent="yes">
@@ -107,6 +170,7 @@ var html = function(){/*
                 </span>
             </div>
             <div class="ue-com-menu" ui-gasket="menu"></div>
+            <div class="ue-general-actions" ui-gasket="comGeneralActions"></div>
         </div>
         <div class="ue-stage" mode="pc">
             <div class="ue-screen"><iframe></iframe></div>
@@ -141,6 +205,13 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.__reload_components(function(){
             UI.defer_report("coms");
         });
+
+        // 加载组件通用命令
+        new MenuUI({
+            parent : UI,
+            gasketName : "comGeneralActions",
+            setup : comGeneralActions
+        }).render();
 
         // 标记延迟
         return ["coms"];
@@ -195,23 +266,224 @@ return ZUI.def("app.wn.hmaker_page", {
         ifrm.src = "/o/read/id:"+encodeURIComponent(oPg.id)+"?t="+Date.now();
     },
     //...............................................................
-    $com : function(ele){
+    // 显示全局页面的编辑信息
+    showPageProperty : function(){
+        var UI = this;
+
+        // 清除激活的组件
+        var jCom = UI.$com(true);
+        if(jCom)
+            jCom.removeAttr("actived");
+
+        // 清除菜单
+        if(UI.gasket.menu)
+            UI.gasket.menu.destroy();
+        if(UI.gasket.ctitle)
+            UI.gasket.ctitle.destroy();
+
+        // 显示标题
+        UI.arena.find(".ue-com-title").empty().append(UI.ccode("pageTitle"));
+
+        // 显示表单
+        new FormUI({
+            parent : UI,
+            gasketName : "prop",
+            uiWidth : "all",
+            fields : [{
+                key    : "backgroundColor",
+                title  : "i18n:hmaker.cprop.backgroundColor",
+                type   : "string",
+                nullAsUndefined : true
+            }, {
+                key    : "backgroundImage",
+                title  : "i18n:hmaker.cprop.backgroundImage",
+                type  : "object",
+                uiType : "ui/picker/opicker",
+                uiConf : {
+                    wrapButton : true,
+                    setup : {
+                        lastObjId : "hmaker_pick_image",
+                        filter    : /^(jpeg|png|jpg)$/
+                    },
+                    parseData : function(obj){
+                        return obj ? Wn.getById(obj.fid) : null;
+                    },
+                    formatData : function(o){
+                        return o ? {fid:o.id} : null;
+                    }
+                }
+            }, {
+                key    : "pageMargin",
+                title  : "i18n:hmaker.cprop.pageMargin",
+                type   : "int",
+                uiWidth: 80, 
+                uiConf : {unit : "px"}
+            }],
+            on_change : function(key, val) {
+                // console.log("detect form change: ", key, val);
+                UI.setPageProperty(key, val);
+            }
+        }).render(function(){
+            //console.log(this.parent.uiName);
+            this.setData(UI.getPageProperty());
+        });
+    },
+    //...............................................................
+    // 修改页面的属性
+    setPageProperty : function(key, val){
+        console.log("page prop set: ", key, val)
+        var UI    = this;
+        var ifrm  = UI.arena.find(".ue-screen iframe")[0];
+        var jBody = $(ifrm.contentDocument.documentElement).children("body");
+        // 背景色
+        if("backgroundColor" == key){
+            if(val)
+                jBody.css("background-color", val);
+            else
+                jBody.css("background-color", "");
+        }
+        // 背景图
+        else if("backgroundImage" == key){
+            if(val)
+                jBody.css("background-image", "url(/o/read/id:"+encodeURIComponent(val.fid)+")");
+            else
+                jBody.css("background-image", "");
+        }
+        // 页边距
+        else if("pageMargin" == key){
+            if(!_.isUndefined(val))
+                jBody.css("padding", val);
+            else
+                jBody.css("padding", "");
+        }
+        // 嗯 !不支持 
+
+    },
+    //...............................................................
+    // 获取页面的属性
+    getPageProperty : function(){
+        var UI    = this;
+        var ifrm  = UI.arena.find(".ue-screen iframe")[0];
+        var eBody = ifrm.contentDocument.body;
+        var re = {};
+        // 背景色
+        if(eBody.style.backgroundColor)
+            re.backgroundColor = eBody.style.backgroundColor;
+        
+        // 背景图
+        if(eBody.style.backgroundImage){
+            var url = eBody.style.backgroundImage;
+            var m = /^url\(\"\/o\/read\/id:(\w+)\"\)$/.exec(url);
+            if(m){
+                re.backgroundImage = {fid:m[1]};
+            }
+        }
+        // 页边距
+        if(eBody.style.padding) {
+            re.pageMargin = $z.toPixel(eBody.style.padding);
+        }
+
+
+
+        return re;
+    },
+    //...............................................................
+    removeCom : function(ele){
+        var UI   = this;
+
+        // 支持 orderCom("top") 这种写法
+        if(/^(top|bottom|up|down)$/.test(ele)){
+            direction = ele;
+            ele = null;
+        }
+
+        // 得到组件
+        var jCom = UI.$com(ele, true);
+        if(!jCom){
+            alert(this.msg("hmaker.no_actived_com"));
+            return;
+        }
+
+        var uiCom = this.getComponent(jCom);
+        
+        // 移除
+        uiCom.destroy(true);
+        
+        // 显示页面配置
+        this.showPageProperty();
+    },
+    //...............................................................
+    orderCom : function(ele, direction){
+        var UI   = this;
+
+        // 支持 orderCom("top") 这种写法
+        if(/^(top|bottom|up|down)$/.test(ele)){
+            direction = ele;
+            ele = null;
+        }
+
+        // 得到组件
+        var jCom = UI.$com(ele, true);
+        if(!jCom){
+            alert(this.msg("hmaker.no_actived_com"));
+            return;
+        }
+
+        // 进行移动
+        var jBody = jCom.closest("body");
+        switch(direction){
+        case "top":
+            jBody.append(jCom);
+            break;
+        case "bottom":
+            jBody.prepend(jCom);
+            break;
+        case "up":
+            var jDiv = jCom.next();
+            if(jDiv.size() > 0)
+                jCom.insertAfter(jDiv);
+            break;
+        case "down":
+            var jDiv = jCom.prev();
+            if(jDiv.size() > 0)
+                jCom.insertBefore(jDiv);
+            break;
+        }
+
+    },
+    //...............................................................
+    $com : function(ele, quit){
         var jCom;
+
+        // 支持 $com(true) 的写法
+        if(_.isBoolean(ele)){
+            quit = ele;
+            ele  = null;
+        }
 
         if(ele){
             jCom = $(ele).closest(".hm-com");
         }
 
         // 获取激活控件
-        if(jCom && jCom.size() == 0){
-            jCom = this.arena.find(".hm-com[actived]");
+        if(!jCom || jCom.size() == 0){
+            var ifrm  = this.arena.find(".ue-screen iframe")[0];
+            jCom = $(ifrm.contentDocument.documentElement).find(".hm-com[actived]");
         }
 
         // 靠，指定是有啥问题
-        if(!jCom || jCom.size() == 0)
+        if(!jCom || jCom.size() == 0){
+            if(quit)
+                return null;
             throw "Can not found jCom by : " + ele;
-
+        }
+            
+        // 返回可用的 com 顶级元素
         return jCom;
+    },
+    //...............................................................
+    getComponent : function(ele){
+        return this._apply_com(ele, true);
     },
     //...............................................................
     // 重新持久化以便给定组件的样式
@@ -275,8 +547,6 @@ return ZUI.def("app.wn.hmaker_page", {
             jCom.attr("pos", "relative");
             delete info.top;
             delete info.left;
-            delete info.width;
-            delete info.height;
         }
 
         // 保存前，去掉 ID
@@ -373,7 +643,8 @@ return ZUI.def("app.wn.hmaker_page", {
         var jCom  = $(ele);
         var jHtm  = $(jCom[0].ownerDocument.documentElement);
         var jHead = jHtm.children("head");
-        var ID   = jCom.prop("id");
+        var jBody = jHtm.children("body");
+        var ID    = jCom[0] === jBody[0] ? "body" : "com_" + jCom.prop("id");
         var cssText;
 
         // 变成 css 文本
@@ -383,7 +654,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 if(rule.items.length>0){
                     var str  = rule.selector + "{\n";
                     str += "  " + rule.items.join("\n  ");
-                    str += '\n}\n';
+                    str += '\n}';
                     styleRules[i] = str;
                 }else{
                     styleRules[i] = "";
@@ -471,13 +742,16 @@ return ZUI.def("app.wn.hmaker_page", {
     // 因为组件已经是提前加载过的 (在 __reload_components 里)
     // 这里肯定不会发起请求了，个个控件就检查 .hmc-wrapper 里面的东东合不合心意吧
     // 同时各个控件的 checkDom 也会根据属性生成一个 <style> 查到文档的 <head> 里
-    _apply_com : function(jDiv){
+    _apply_com : function(ele, quit){
         var UI    = this;
-        var ctype = jDiv.attr("ctype");
+        var jCom  = UI.$com(ele, quit);
+        if(!jCom)
+            return null;
+        var ctype = jCom.attr("ctype");
 
         // 如果已经声明了组件，看看是不是直接就有实例可用
         var uiCom;
-        var uiid = jDiv.attr("ui-id");
+        var uiid = jCom.attr("ui-id");
         if(uiid){
             uiCom = ZUI(uiid);
         }
@@ -491,12 +765,12 @@ return ZUI.def("app.wn.hmaker_page", {
             seajs.use("app/wn.hmaker/component/hmc_"+ctype, function(ComUI){
                 uiCom = new ComUI({
                     parent    : UI,
-                    $el       : jDiv,
+                    $el       : jCom,
                     $menu     : UI.arena.find(".ue-com-menu"),
                     $title    : UI.arena.find(".ue-com-title"),
                     $prop     : UI.arena.find(".ue-com-prop"),
                     titleHtml : titleHtml,
-                    propConf  : comGeneralProp
+                    propSetup : comGeneralProp
                 });
             });
         }
@@ -736,8 +1010,14 @@ return ZUI.def("app.wn.hmaker_page", {
         var jBody = jHtm.children("body");
 
         // 绑定通用事件
-        jBody.on("click", "div.hm-com", function(e){
+        jHtm.on("click", "div.hm-com", function(e){
             UI.setActived(this);
+        });
+
+        // 点击空白区域，显示页面属性
+        jHtm.on("click", "body", function(e){
+            if(e.target === jBody[0])
+                UI.showPageProperty();
         });
 
         // 通用的移动
@@ -778,14 +1058,25 @@ return ZUI.def("app.wn.hmaker_page", {
         COM_SEQ = 0;
 
         // 初始化页面的头
-        _H(jHead, 'link[href*="hmpg_editing.css"]', '<link for-edit="yes" rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/hmpg_editing.css">');
-        _H(jHead, 'link[href*="hmc.css"]', '<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/component/hmc.css">');
-        _H(jHead, 'link[href*="page.css"]', '<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/page/page.css">');
-        _H(jHead, 'script[src*="underscore.js"]', '<script src="/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js">');
-        _H(jHead, 'script[src*="jquery"]', '<script src="/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js">');
-        _H(jHead, 'meta[name="viewport"]', '<meta name="viewport" content="width=device-width, initial-scale=1.0">');
-        _H(jHead, 'meta[http-equiv="X-UA-Compatible"]', '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">');
-        _H(jHead, 'meta[charset="utf-8"]', '<meta charset="utf-8">');
+        //<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">
+        _H(jHead, 'link[href*="font-awesome.css"]',
+            '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">');
+        _H(jHead, 'link[href*="hmpg_editing.css"]',
+            '<link for-edit="yes" rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/hmpg_editing.css">');
+        _H(jHead, 'link[href*="hmc.css"]',
+            '<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/component/hmc.css">');
+        _H(jHead, 'link[href*="page.css"]',
+            '<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/page/page.css">');
+        _H(jHead, 'script[src*="underscore.js"]',
+            '<script src="/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js">');
+        _H(jHead, 'script[src*="jquery"]',
+            '<script src="/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js">');
+        _H(jHead, 'meta[name="viewport"]',
+            '<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+        _H(jHead, 'meta[http-equiv="X-UA-Compatible"]',
+            '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">');
+        _H(jHead, 'meta[charset="utf-8"]',
+            '<meta charset="utf-8">');
 
         // 依次用各个组件检查一下 DOM 是否有问题
         jBody.children("div").each(function(){
@@ -802,6 +1093,8 @@ return ZUI.def("app.wn.hmaker_page", {
         var jActivedCom = jBody.children('div.hm-com[actived]');
         if(jActivedCom.size()>0)
             UI.setActived(jActivedCom, true);
+        else
+            UI.showPageProperty();
 
     }
     //...............................................................

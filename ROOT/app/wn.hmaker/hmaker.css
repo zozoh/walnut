@@ -213,8 +213,10 @@
 .hmaker-page .hmaker-view-warpper .ue-bar2 .ue-com-menu {
   flex: 1 1 auto;
 }
-.hmaker-page .hmaker-view-warpper .ue-bar2 .ue-com-menu .menu {
-  text-align: right;
+.hmaker-page .hmaker-view-warpper .ue-bar2 .ue-general-actions {
+  flex: 0 0 auto;
+}
+.hmaker-page .hmaker-view-warpper .ue-bar2 .menu {
   padding: 4px;
 }
 .hmaker-page .hmaker-view-warpper .ue-stage {

@@ -69,8 +69,10 @@ var Wn = {
         
         jNm.text(nmText)
         // 标记链接
-        if(jNm[0].tagName == 'A')
+        if(jNm[0].tagName == 'A'){
+            jNm.prop("target", "_blank");
             jNm.prop("href","/a/open/"+(window.wn_browser_appName||"wn.browser")+"?ph=id:"+o.id);
+        }
     },
     //...................................................................
     objIconHtml : function(o){

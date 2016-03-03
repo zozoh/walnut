@@ -10,14 +10,13 @@ var html = function(){/*
 <div class="ui-code-template">
     <span code-id="obj" class="picker-obj">
         <i class="oicon"></i>
-        <a></a>
+        <a target="_blank"></a>
     </span>
 </div>
 <div class="ui-arena picker opicker">
     <div class="picker-box"></div>
-    <div class="picker-btns"><b
-        class="picker-choose">{{choose}}</b><b
-        class="picker-clear">{{clear}}</b></div>
+    <div class="picker-btn picker-choose">{{choose}}</div>
+    <div class="picker-btn picker-clear">{{clear}}</div>
 </div>
 */};
 //==============================================
@@ -64,16 +63,19 @@ return ZUI.def("ui.picker.opicker", {
         if(opt.setup.checkable){
             UI.arena.addClass("picker-multi");
         }
+        // 标记折行
+        if(opt.wrapButton)
+            UI.arena.attr("wrap-button", "yes");
     },
     //...............................................................
     setData : function(obj){
         this.ui_parse_data(obj, function(o){
-            this._update(o);
+            this._update(o, true);
         });
     },
     //...............................................................
     // 接受标准的 WnObj
-    _update : function(o){
+    _update : function(o, quit){
         var UI  = this;
         var opt = UI.options;
         var jBox = UI.arena.find(".picker-box");
@@ -107,6 +109,18 @@ return ZUI.def("ui.picker.opicker", {
             // 添加
             UI.__append_item(o, jBox);
         }
+        // 回调事件
+        if(!quit)
+            UI.__on_change();
+    },
+    //...............................................................
+    __on_change : function(){
+        var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+        var v = UI.getData();
+        $z.invoke(opt, "on_change", [v], context);
+        UI.trigger("change", v);
     },
     //...............................................................
     __append_item : function(o, jBox){
@@ -132,13 +146,6 @@ return ZUI.def("ui.picker.opicker", {
             }
             return re;
         });
-    },
-    //...............................................................
-    resize : function(){
-        var UI = this;
-        var jBtn = UI.arena.find(".picker-btns");
-        var jBox = UI.arena.find(".picker-box");
-        jBox.css("padding-right", jBtn.outerWidth(true)+"px");
     }
     //...............................................................
 });

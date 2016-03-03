@@ -1550,7 +1550,7 @@ var zUtil = {
             var eleStyle = window.getComputedStyle(jEle[0]);
 
             var rKeys = ["display","letter-spacing","margin","padding"
-                        ,"font-size", "font-family", "color", "border"
+                        ,"font-size", "font-family", "border"
                         ,"line-height"];
             // 如果占位模式，才 copy 北京色
             if(opt.takePlace)

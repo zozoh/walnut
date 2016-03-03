@@ -83,9 +83,12 @@
   border-radius: 2px;
   padding: 0 4px;
 }
-.menu .menu-item[md="top"] .menu-item[tp="separator"] {
+.menu .menu-item[md="top"][tp="separator"] {
   padding: 0;
-  border-right: 1px dotted #dddddd;
+  height: 16px;
+  margin: 2px;
+  border-left: 1px solid rgba(0, 0, 0, 0.2);
+  border-right: 1px solid #FFF;
 }
 .menu .menu-sub {
   color: #000000;

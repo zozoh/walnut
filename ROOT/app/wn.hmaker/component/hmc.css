@@ -8,19 +8,8 @@
   height: 100%;
   overflow: hidden;
 }
-.hmc-text {
-  border: 1px solid rgba(0, 0, 0, 0);
-}
 .hmc-text .hmc-main {
-  padding: 10px;
-  letter-spacing: 2px;
-  font-size: 14px;
-  line-height: 24px;
-}
-.hmc-text {
   border: 1px solid rgba(0, 0, 0, 0);
-}
-.hmc-text .hmc-main {
   padding: 10px;
   letter-spacing: 2px;
   font-size: 14px;

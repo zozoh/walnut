@@ -226,9 +226,6 @@ return ZUI.def("ui.menu", {
         var opt = UI.options;
         var context = UI.options.context || UI.parent || UI;
 
-        // 弄个开关，防止重绘分隔符
-        var last_is_separator;
-
         // 循环绘制每个项目
         for(var i=0; i<items.length; i++){
             var mi = items[i];
@@ -263,8 +260,12 @@ return ZUI.def("ui.menu", {
             }
             // 分隔符
             else if(mi.type == "separator"){
-                // 禁止绘制重复
-                if(0==i || last_is_separator){
+                // 后面没有项目或者后面还有分隔符，那么本分隔符就没必要绘制
+                var will_rm_sep = (0 == i) || (i == items.length-1);
+                if(!will_rm_sep)
+                    will_rm_sep = ("separator" == items[i+1].type);
+
+                if(will_rm_sep){
                     jItem.remove();
                 }
                 // 绘制
@@ -277,8 +278,6 @@ return ZUI.def("ui.menu", {
                 console.warn("unknown menu item: ", mi);
                 jItem.remove();
             }
-            // 最后标记一下本次循环是不是一个分隔符
-            last_is_separator = (mi.type == "separator");
         }
     },
     //..............................................
@@ -369,6 +368,11 @@ return ZUI.def("ui.menu", {
                 jT.appendTo(jq);
             }
             jT.text(UI.text(mi.text));
+        }
+
+        // 添加提示文字
+        if(mi.tip){
+            jq.attr("title", UI.text(mi.tip));
         }
     }
     //..............................................

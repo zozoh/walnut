@@ -3,27 +3,58 @@
 html {height:100%;}
 body {height:100%;}
 
-//........................................
-// 通用的绝对定位属性
-@HDL : 8px;
-.hm-com[actived][pos="absolute"] .hmc-assist {
-    position: absolute; top:0; left: 0; right: 0; bottom: 0;
-    @flex(); flex-flow:row nowrap; justify-content:space-between;
+@HDL : 8px;    // 控制柄的大小
+@cHb : #0DD;   // 激活项目边框颜色
+@actived_item_border: {
+    border:1px dashed @cHb;
+};
 
-    .hmca-grp {
-        flex:0 0 @HDL;  
-        @flex(); flex-flow:column nowrap; justify-content:space-between;
-        .hmca-hdl {flex:0 0 @HDL; border:1px solid #CCC; background: rgba(255,255,255,0.6);z-index: 999;}
-        .hmca-hdl:hover {background: #000; border-color:#FFF;}
-        .hmca-hdl[hd="NW"], .hmca-hdl[hd="SE"]{cursor: nwse-resize;}
-        .hmca-hdl[hd="NE"], .hmca-hdl[hd="SW"]{cursor: nesw-resize;}
-        .hmca-hdl[hd="N"],  .hmca-hdl[hd="S"] {cursor: ns-resize;}
-        .hmca-hdl[hd="W"],  .hmca-hdl[hd="E"] {cursor: ew-resize;}
+//........................................
+// 通用的控件样式
+.hm-com {
+    .hmc-assist-wrapper {
+        position: relative;
+        > * {position: absolute;}
     }
 }
-// 活动控件样式
-.hm-com[actived]{
-    border:1px solid #0FF;
+
+// 激活
+.hm-com[actived] {
+    .hmc-assist {
+        box-shadow: 0 0 10px #FF0;
+    }
+    .hmc-assist-icon {
+        position:absolute; display: block; font-size:@f3;
+        //top: (@HDL + @f5) * -1; left: (@HDL + @f5) * -1;
+        text-shadow:0 0 3px #FF0; color:#080;
+    }
+}
+
+// 绝对定位
+.hm-com[actived][pos="absolute"] .hmc-assist {
+    position: absolute; top:0; left: 0; right: 0; bottom: 0;
+    .hmc-assist-wrapper {
+        width:100%; height:100%;
+    }
+
+    .hmc-assist-hdls {
+        top:0; left: 0; right: 0; bottom: 0;
+        @flex(); flex-flow:row nowrap; justify-content:space-between;
+        .hmca-grp {
+            flex:0 0 @HDL;  
+            @flex(); flex-flow:column nowrap; justify-content:space-between;
+            .hmca-hdl {flex:0 0 @HDL; border:1px solid #CCC; background: rgba(255,255,255,0.6);z-index: 999;}
+            .hmca-hdl:hover {background: #000; border-color:#FFF;}
+            .hmca-hdl[hd="NW"], .hmca-hdl[hd="SE"]{cursor: nwse-resize;}
+            .hmca-hdl[hd="NE"], .hmca-hdl[hd="SW"]{cursor: nesw-resize;}
+            .hmca-hdl[hd="N"],  .hmca-hdl[hd="S"] {cursor: ns-resize;}
+            .hmca-hdl[hd="W"],  .hmca-hdl[hd="E"] {cursor: ew-resize;}
+        }
+    }
+}
+// 默认隐藏助手的图标
+.hm-com .hmc-assist-icon {
+    display: none;
 }
 
 // 拖动遮罩
@@ -36,18 +67,23 @@ body[noselect] {@noselect();}
     cursor: move;
 }
 //............................. 简单文本控件
-.hmc-text {
-    .hmc-main {
-        border:1px dashed #CCC;
-    }
+.hmc-text[actived]{
+    .hmc-main{@actived_item_border();}
 }
 
 //............................. 图片控件
-.hmc-image {
+.hmc-image { @noselect();
     display:inline-block; width: 100px; height: 100px;
     .hmc-wrapper, .hmc-main, img {
         width:100%; height:100%;
     }
+    .hmc-wrapper {position: relative;}
+    .hmc-assist {
+        position: absolute; top:0; left:0; right:0; bottom:0;
+    }
+}
+.hmc-image[actived]{
+    .hmc-assist {@actived_item_border();}
 }
 
 //............................. 导航按钮

@@ -15,7 +15,6 @@ return ZUI.def("app.wn.hmaker_com_text", {
     //...............................................................
     events : {
         "click .hmc-main,.hmc-assist" : function(e){
-            console.log("haha", e.currentTarget);
             var jCom  = $(e.currentTarget).closest(".hm-com");
             var jMain = jCom.find(".hmc-main");
 
@@ -27,8 +26,8 @@ return ZUI.def("app.wn.hmaker_com_text", {
             if(jCom.attr("pos") == "absolute"){
                 $z.editIt(jMain, {
                     multi  : true,
-                    width  : jCom.width(),
-                    height : jCom.height()
+                    // width  : jCom.width(),
+                    // height : jCom.height()
                 });
             }
             // 相对位置的编辑
@@ -116,11 +115,16 @@ return ZUI.def("app.wn.hmaker_com_text", {
 
         new FormUI({
             $pel   : opt.$prop,
-            fields : [opt.propConf, {
+            fields : [opt.propSetup, {
                 title  : 'i18n:hmaker.cprop_special',
                 fields : [{
                     key    : "color",
                     title  : "i18n:hmaker.cprop.color",
+                    type   : "string",
+                    nullAsUndefined : true
+                }, {
+                    key    : "backgroundColor",
+                    title  : "i18n:hmaker.cprop.backgroundColor",
                     type   : "string",
                     nullAsUndefined : true
                 }, {
@@ -152,12 +156,7 @@ return ZUI.def("app.wn.hmaker_com_text", {
         // 菜单
         new MenuUI({
             $pel   : opt.$menu,
-            setup  : [{
-                text    : "test",
-                handler : function(){
-                    console.log(this.gasket.prop.getData())
-                }
-            }] 
+            setup  : []
         }).render(function(){
             //console.log(this.parent.uiName);
         });

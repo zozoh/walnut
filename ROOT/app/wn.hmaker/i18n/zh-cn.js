@@ -6,10 +6,19 @@ define({
             "e_del_top"   : "抱歉，这个是不能删滴 -_-!"
         },
         "page" : {
+            "proptt"   : "页面属性",
             "e_nocoms" : "加载组件定义文件失败，你无法继续编辑了"
         },
         "comlib_add"   : "插入项",
         "comlib_add_c" : "插",
+        "act_remove"   : "移除",
+        "act_mv"       : "调整控件的叠层顺序",
+        "act_mv_top"   : "移动当前控件到顶层",
+        "act_mv_up"    : "向上一层",
+        "act_mv_down"  : "向下一层",
+        "act_mv_bottom": "移动当前控件到底层",
+        "act_pg_prop"  : "显示页面配置信息",
+        "no_actived_com" : "您啥都没选 -_-!",
         "com" : {
             "navbtns" : {
                 "nm"          : "导航按钮",
@@ -30,6 +39,9 @@ define({
         "cprop_special"  : "控件专有",
         "cprop" : {
             "ID"              : "控件ID",
+            "pageMargin"      : "页边距",
+            "backgroundColor" : "背景色",
+            "backgroundImage" : "背景图",
             "position"        : "定位",
             "pos_absolute"    : "绝对",
             "pos_relative"    : "相对",

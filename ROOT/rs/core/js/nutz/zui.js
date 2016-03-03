@@ -237,7 +237,7 @@ ZUIObj.prototype = {
         UI.trigger("ui:init", UI);
     },
     //............................................
-    destroy: function () {
+    destroy: function (forceRemoveDom) {
         var UI  = this;
         var opt = UI.options;
 
@@ -248,7 +248,7 @@ ZUIObj.prototype = {
 
         // 释放掉自己所有的子
         for (var i=0; i<UI.children.length; i++) {
-            UI.children[i].destroy();
+            UI.children[i].destroy(forceRemoveDom);
         }
 
         // 移除自己在父节点的记录
@@ -265,9 +265,14 @@ ZUIObj.prototype = {
         UI.unwatchKey();
         UI.unwatchMouse();
 
-        // 删除自己的 DOM 节点
+        // 移除 DOM 的事件监听
         $z.invoke(UI.$el, "undelegate", []);
-        UI.$el.off().remove();
+        UI.$el.off();
+
+        // 删除自己的 DOM 节点
+        if(forceRemoveDom || !UI.keepDom){
+            UI.$el.remove();
+        }
 
         // 移除注册
         delete ZUI.instances[UI.cid];

@@ -103,25 +103,30 @@ actived : "yes"
     </script>
     
     <!--
-    这个节点存放 DOM 的辅助节点，比如缩放控制手柄等
-    ! 渲染时会被移除
-    -->
-    <div class="hcm-assist">
-        <div class="hcm-pos-hdl" h-type="NW"></div>
-        <div class="hcm-pos-hdl" h-type="NE"></div>
-        <div class="hcm-pos-hdl" h-type="SW"></div>
-        <div class="hcm-pos-hdl" h-type="SE"></div>
-        <div class="hcm-pos-hdl" h-type="N"></div>
-        <div class="hcm-pos-hdl" h-type="S"></div>
-        <div class="hcm-pos-hdl" h-type="E"></div>
-        <div class="hcm-pos-hdl" h-type="W"></div>
-    </div>
-    
-    <!--
-    剩下的就是控件的主要 DOM 结构。   
+    这个节点包裹了显示层面的元素
     -->
     <div class="hmc-wrapper">
-        <!-- 这里面的内容，会在控件的 redraw 函数进行绘制 -->
+        <!--
+        这个节点存放 DOM 的辅助节点，比如缩放控制手柄等
+        ! 渲染时会被移除
+        -->
+        <div class="hcm-assist">
+            <div class="hcm-pos-hdl" h-type="NW"></div>
+            <div class="hcm-pos-hdl" h-type="NE"></div>
+            <div class="hcm-pos-hdl" h-type="SW"></div>
+            <div class="hcm-pos-hdl" h-type="SE"></div>
+            <div class="hcm-pos-hdl" h-type="N"></div>
+            <div class="hcm-pos-hdl" h-type="S"></div>
+            <div class="hcm-pos-hdl" h-type="E"></div>
+            <div class="hcm-pos-hdl" h-type="W"></div>
+        </div>
+        
+        <!--
+        剩下的就是控件的主要 DOM 结构。   
+        -->
+        <div class="hmc-main">
+            <!-- 这里面的内容，会在控件的 redraw 函数进行绘制 -->
+        </div>
     </div>
 </div>
 ```
@@ -241,6 +246,38 @@ margin: 10
 #(控件ID) {
     padding : 10px;
 }
+```
+
+# 控件的属性更新流程
+
+```
+COM  : 控件
+PG   : 页面全局 UI
+PROP : 控件属性表单 
+.........................................
+# 属性变动 (on_change) 会交给控件处理
+PROP -> COM.setProperty(key,val)
+
+# 全局UI的帮助函数将获取组件的信息
+COM -> PG.getComponentInfo(jCom);
+: info
+
+# val 为 undefined 表示删除
+# 否则当做修改
+COM -> COM
+
+# 保存到 DOM 节点
+COM -> PG.setComponentInfo(jCom, info);
+: info
+
+# 将更新过的属性，重新设回到属性面板里
+COM -> PROP.setData(info);
+
+# 更新自己的样式
+COM -> COM.updateStyle(info);
+
+# 全部完成
+:
 ```
 
 

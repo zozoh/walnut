@@ -3,8 +3,9 @@ $z.declare([
     'zui',
     'wn/util',
     'app/wn.hmaker/component/hmc',
-    'ui/menu/menu'
-], function(ZUI, Wn, HMC, MenuUI){
+    'ui/menu/menu',
+    'ui/form/form'
+], function(ZUI, Wn, HMC, MenuUI, FormUI){
 //==============================================
 var html = function(){/*
 <div class="navbtns"></div>
