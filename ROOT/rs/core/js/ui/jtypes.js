@@ -32,6 +32,23 @@ function _eval_enum_text (fld, v){
         }
     }
 }
+//..................................................
+function _to_native() {
+    if(!_.isUndefined(this.__val)){
+        switch(this.__fld.nativeAs){
+            case "string" : 
+                return this.toStr();
+            case "int" :
+                return this.toInt();
+            case "float" :
+                return this.toNumber();
+            case "boolean" : 
+                return this.toBoolean();
+        }
+    }
+    // 默认直接返回
+    return this.__val;
+}
 //==================================================
 // 基础类型
 var JsObj = function(fld){
@@ -63,7 +80,10 @@ JsObj.prototype = {
     setToObj : function(obj) {
         try{
             var val = this.toNative();
-            $z.setValue(obj, this.__fld.key, val);
+            // 如果是 undefined 就无视
+            // 因此各个类型的实现类可以返回 undefined 来跳过自己的设置
+            if(!_.isUndefined(val))
+                $z.setValue(obj, this.__fld.key, val);
         }
         // 错误对象的定义参见 invalid 函数
         catch(E){
@@ -108,18 +128,9 @@ JsObj.prototype = {
     },
     // 返回可以便于传输的值表达形式
     toNative : function(){
-        switch(this.__fld.nativeAs){
-            case "string" : 
-                return this.toStr();
-            case "int" :
-                return this.toInt();
-            case "float" :
-                return this.toNumber();
-            case "boolean" : 
-                return this.toBoolean();
-        }
-        // 默认直接返回
-        return this.__val;
+        if(null === this.__val && this.__fld.nullAsUndefined)
+            return undefined;
+        return _to_native.call(this);
     },
     clone  : function(){
         return new JsObj(this.__fld).parse(this.__val);
@@ -134,7 +145,10 @@ JsObj.prototype = {
 };
 //..................................................
 // 支持正则表达式验证: fld.validate
-var JsString = function(fld){this.__init__(fld);};
+var JsString = function(fld){
+    $z.setUndefined(fld, "emptyAsNull", true);
+    this.__init__(fld);
+};
 JsString.prototype = new JsObj();
 JsString.prototype._parse_and_return = function(v){
     // 采用默认
@@ -148,6 +162,10 @@ JsString.prototype._parse_and_return = function(v){
         if(!regex.test(this.__v)){
             throw this.invalid(v);
         }
+    }
+    // 空串就当做 null
+    if(this.__fld.emptyAsNull && v.length == 0){
+        return null;
     }
     return v;
 };
@@ -328,8 +346,6 @@ JsTime.prototype.clone = function(){
 */
 var JsInt = function(fld){
     this.__init__(fld);
-    if(!_.isNumber(this.__fld.dft))
-        this.__fld.dft = -1;
 };
 JsInt.prototype = new JsObj();
 JsInt.prototype._parse_and_return = function(v){
@@ -339,7 +355,7 @@ JsInt.prototype.toText = function(){
      return _eval_enum_text(this.__fld, this.__val) || this.toStr();
 };
 JsInt.prototype.toStr = function(){
-    return this.__val + "";
+    return isNaN(this.__val) ? "" : this.__val + "";
 };
 JsInt.prototype.toInt = function(){
     return this.__val;
@@ -348,7 +364,13 @@ JsInt.prototype.toNumber = function(){
     return this.__val;
 };
 JsInt.prototype.toBoolean = function(){
-    return this.__val == 0 ? false : true;
+    return isNaN(this.__val) || this.__val == 0 ? false : true;
+};
+JsInt.prototype.toNative = function(){
+    if(isNaN(this.__val)){
+        return undefined;
+    }
+    return _to_native.call(this);
 };
 JsInt.prototype.clone = function(){
     return new JsInt(this.__fld).parse(this.__val);
@@ -358,8 +380,6 @@ JsInt.prototype.clone = function(){
 */
 var JsFloat = function(fld){
     this.__init__(fld);
-    if(!_.isNumber(this.__fld.dft))
-        this.__fld.dft = 0;
 };
 JsFloat.prototype = new JsObj();
 JsFloat.prototype._parse_and_return = function(v){
@@ -369,7 +389,7 @@ JsFloat.prototype.toText = function(){
      return _eval_enum_text(this.__fld, this.__val) || this.toStr();
 };
 JsFloat.prototype.toStr = function(){
-    return this.__val + "";
+    return isNaN(this.__val) ? "" : this.__val + "";
 };
 JsFloat.prototype.toInt = function(){
     return this.__val;
@@ -378,7 +398,13 @@ JsFloat.prototype.toNumber = function(){
     return this.__val;
 };
 JsFloat.prototype.toBoolean = function(){
-    return this.__val == 0 ? false : true;
+    return isNaN(this.__val) || this.__val == 0 ? false : true;
+};
+JsFloat.prototype.toNative = function(){
+    if(isNaN(this.__val)){
+        return undefined;
+    }
+    return _to_native.call(this);
 };
 JsFloat.prototype.clone = function(){
     return new JsFloat(this.__fld).parse(this.__val);
@@ -388,8 +414,6 @@ JsFloat.prototype.clone = function(){
 */
 var JsBoolean = function(fld){
     this.__init__(fld);
-    if(!_.isBoolean(this.__fld.dft))
-        this.__fld.dft = false;
 };
 JsBoolean.prototype = new JsObj();
 JsBoolean.prototype._parse_and_return = function(v){

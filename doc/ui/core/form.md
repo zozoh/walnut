@@ -45,6 +45,10 @@ new FormUI({
     // 如果为 "all" 则表示撑满行
     // 默认为 "auto"，相当于撑满行
     uiWidth : 0.3
+    
+    //............................................................
+    // 事件
+    on_change  : {c}F(key, val)      // "form:change" 字段有修改
 
 }).render();
 ```
@@ -63,6 +67,10 @@ new FormUI({
    text     : "i18n:xxx"    // 字段的标题
    tip      : "i18n:xxx"    // 字段的提示说明
    required : Boolean       // 字段是否必须
+   className : "XXXX"       // 指定特殊的类选择器
+   
+   // 如果为 true 则会自动将文字区设置行高，并将 padding-top/bottom 归零
+   autoLineHeight : false
    
    // 控件跨越的编辑区，如果一行只有1列，那么写多大都相当于1
    span     : 1
@@ -84,6 +92,11 @@ new FormUI({
    icon     : HTML          // 字段的图标
    text     : "i18n:xxx"    // 字段的标题
    tip      : "i18n:xxx"    // 字段的提示说明
+   className : "XXXX"       // 指定特殊的类选择器
+   
+   // 如果为 true 则会自动将文字区设置行高，并将 padding-top/bottom 归零
+   // 组内字段默认采用这个设置
+   autoLineHeight : false
    
    // 本组内，一行有多少列字段，默认1
    cols     : 1

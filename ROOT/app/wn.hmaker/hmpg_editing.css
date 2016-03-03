@@ -1,5 +1,83 @@
+html {
+  height: 100%;
+}
+body {
+  height: 100%;
+}
+.hm-com[actived][pos="absolute"] .hmc-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.hm-com[actived][pos="absolute"] .hmc-wrapper > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.hm-com[actived][pos="absolute"] .hmc-wrapper .hmc-assist {
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+.hm-com[actived][pos="absolute"] .hmc-wrapper .hmc-assist .hmca-grp {
+  flex: 0 0 8px;
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+}
+.hm-com[actived][pos="absolute"] .hmc-wrapper .hmc-assist .hmca-grp .hmca-hdl {
+  flex: 0 0 8px;
+  border: 1px solid #CCC;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 999;
+}
+.hm-com[actived][pos="absolute"] .hmc-wrapper .hmc-assist .hmca-grp .hmca-hdl:hover {
+  background: #000;
+  border-color: #FFF;
+}
+.hm-com[actived][pos="absolute"] .hmc-wrapper .hmc-assist .hmca-grp .hmca-hdl[hd="NW"],
+.hm-com[actived][pos="absolute"] .hmc-wrapper .hmc-assist .hmca-grp .hmca-hdl[hd="SE"] {
+  cursor: nwse-resize;
+}
+.hm-com[actived][pos="absolute"] .hmc-wrapper .hmc-assist .hmca-grp .hmca-hdl[hd="NE"],
+.hm-com[actived][pos="absolute"] .hmc-wrapper .hmc-assist .hmca-grp .hmca-hdl[hd="SW"] {
+  cursor: nesw-resize;
+}
+.hm-com[actived][pos="absolute"] .hmc-wrapper .hmc-assist .hmca-grp .hmca-hdl[hd="N"],
+.hm-com[actived][pos="absolute"] .hmc-wrapper .hmc-assist .hmca-grp .hmca-hdl[hd="S"] {
+  cursor: ns-resize;
+}
+.hm-com[actived][pos="absolute"] .hmc-wrapper .hmc-assist .hmca-grp .hmca-hdl[hd="W"],
+.hm-com[actived][pos="absolute"] .hmc-wrapper .hmc-assist .hmca-grp .hmca-hdl[hd="E"] {
+  cursor: ew-resize;
+}
+.hm-com[actived][pos="absolute"] .hmc-wrapper .hmc-main {
+  overflow: hidden;
+}
 .hm-com[actived] {
   background: rgba(255, 255, 0, 0.2);
+}
+body[noselect] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.hmaker-mouse-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #000;
+  opacity: 0;
+}
+.hm-com[mouse-moving] * {
+  cursor: move;
 }
 .hmc-text {
   border: 1px dashed #CCC;

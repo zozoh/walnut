@@ -2,13 +2,31 @@
   font-family: Monaco, Consolas, Courier New;
   padding: 4px;
 }
+.com-input {
+  white-space: nowrap;
+  position: relative;
+}
 .com-input input {
   padding: 6px;
   width: 100%;
+  outline: none;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   color: #444;
-  background: #EEE;
+  background: rgba(255, 255, 255, 0.4);
+}
+.com-input input:focus {
+  background: rgba(255, 255, 255, 0.8);
+  color: #000;
+}
+.com-input .unit {
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  padding: 0 4px 0 2px;
+  color: rgba(0, 0, 0, 0.2);
 }
 .com-droplist {
   -moz-user-select: none;
@@ -216,6 +234,10 @@
   padding-left: 4px;
 }
 .com-switch {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
   padding: 2px;
 }
 .com-switch ul {

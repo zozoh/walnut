@@ -17,9 +17,11 @@ tags:
 ```
 <div class="hm-com hmc-image" ctype="image" id="text1">
     <script type="text/x-template" class="hmc-prop">...</script>
-    <div class="hmc-assist">...</div>
     <div class="hmc-wrapper">
-        <img src="/o/read/id:xxxx" path="image/x.jpg">
+        <div class="hmc-assist">...</div>
+        <div class="hmc-main">
+            <img src="/o/read/id:xxxx">
+        </div>
     </div>
 </div>
 ```

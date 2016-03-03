@@ -4,10 +4,20 @@
     font-family: @f_fixed; padding:@d1;
 }
 //----------------------------------------------------------------
-.com-input input {
-    padding:@d2; width:100%; 
-    border:1px solid @cborder0;
-    border-radius: @d1;
+.com-input {
+    white-space: nowrap; position: relative;
+    input {
+        padding:@d2; width:100%;  outline:none;
+        border:1px solid @cborder0;
+        border-radius: @d1; color:#888; background: #FFF;
+    }
+    input:focus {
+        background: #FFC; color:#000;
+    }
+    .unit {
+        display: block; position: absolute; top:0; bottom:0; right:0;
+        padding:0 @d1 0 @d0; color:rgba(0,0,0,0.2);
+    }
 }
 //----------------------------------------------------------------
 @cdlH  : @f5;
@@ -140,7 +150,7 @@
     b[it="text"] {display: inline-block; vertical-align: middle; padding-left: @d1;}
 }
 //----------------------------------------------------------------
-.com-switch {
+.com-switch {@noselect();
     padding:@d0;
     ul {
         list-style: none; padding:1px 1px 1px 0; margin:0;

@@ -1,20 +1,61 @@
 @import (reference) "../ui";
 
+html {height:100%;}
+body {height:100%;}
+
+//........................................
+// 通用的绝对定位属性
+.hm-com[actived][pos="absolute"] .hmc-wrapper{
+    width:100%; height:100%; position: relative;
+    // 重叠两层
+    > div {position: absolute; top:0; left: 0; right: 0; bottom: 0;}
+
+    @HDL : 8px;
+    .hmc-assist {
+        @flex(); flex-flow:row nowrap; justify-content:space-between;
+
+        .hmca-grp {
+            flex:0 0 @HDL;  
+            @flex(); flex-flow:column nowrap; justify-content:space-between;
+            .hmca-hdl {flex:0 0 @HDL; border:1px solid #CCC; background: rgba(255,255,255,0.6);z-index: 999;}
+            .hmca-hdl:hover {background: #000; border-color:#FFF;}
+            .hmca-hdl[hd="NW"], .hmca-hdl[hd="SE"]{cursor: nwse-resize;}
+            .hmca-hdl[hd="NE"], .hmca-hdl[hd="SW"]{cursor: nesw-resize;}
+            .hmca-hdl[hd="N"],  .hmca-hdl[hd="S"] {cursor: ns-resize;}
+            .hmca-hdl[hd="W"],  .hmca-hdl[hd="E"] {cursor: ew-resize;}
+        }
+    }
+
+    .hmc-main {
+        overflow: hidden;
+    }
+
+}
+// 活动控件样式
 .hm-com[actived]{
     background: rgba(255,255,0, 0.2);
 }
 
+// 拖动遮罩
+body[noselect] {@noselect();}
+.hmaker-mouse-mask {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: #000; opacity: 0;
+}
+.hm-com[mouse-moving] * {
+    cursor: move;
+}
+//............................. 简单文本控件
 .hmc-text {
-    border:1px dashed #CCC;
-    .hmc-wrapper {
-        
-    }
+    border:1px dashed #CCC;    
 }
 
+//............................. 图片控件
 .hmc-image {
     padding:20px; background: blue;
 }
 
+//............................. 导航按钮
 .hmc-navbtns {
     padding:20px; background: pink;
 }

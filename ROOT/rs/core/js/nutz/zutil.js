@@ -1486,6 +1486,11 @@ var zUtil = {
             var old = jDiv.data("@OLD");
             var val = jInput.val();
 
+            // 单行的默认要 trim 一下
+            if(opt.trim || (!opt.trim && !opt.multi)){
+                val = $.trim(val);
+            }
+
             // 如果是多行的话，用 HTML 替换一下
             if(opt.multi){
                 val = val.replace("<", "&lt;")
@@ -1538,15 +1543,19 @@ var zUtil = {
         // 单行输入框，设一下行高
         if(!opt.multi)
             jInput.css("line-height", boxH);
+
         //...............................................
-        // 替代宿主的位置
-        if(opt.takePlace){
-            // 取得宿主的显示模式
+        // 多行的话取得宿主的显示模式
+        if(opt.multi){
             var eleStyle = window.getComputedStyle(jEle[0]);
 
             var rKeys = ["display","letter-spacing","margin","padding"
-                        ,"font-size", "font-family", "color", "background","border"
+                        ,"font-size", "font-family", "color", "border"
                         ,"line-height"];
+            // 如果占位模式，才 copy 北京色
+            if(opt.takePlace)
+                rKeys.push("background");
+
             var css  = {};
             for(var i=0;i<rKeys.length;i++){
                 var rKey = rKeys[i];
@@ -1562,7 +1571,10 @@ var zUtil = {
                 "outline"  : "none",
                 "resize"   : "none"
             }));
-
+        }
+        //...............................................
+        // 替代宿主的位置
+        if(opt.takePlace){
             // 占宿主的位置
             jDiv.insertBefore(jEle);
 

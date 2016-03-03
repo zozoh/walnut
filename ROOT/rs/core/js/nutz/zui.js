@@ -88,6 +88,15 @@ var register = function(UI) {
     else if(UI.$pel){
         // 如果有 gasketName 那么就试图看看其所在 UI
         UI.parent = ZUI.getInstance(UI.$pel);
+        // 如果这个元素带了 gasketName，则采用它
+        var gnm = UI.$pel.attr("ui-gasket");
+        var m   = /^(\w+)@(\w+)$/.exec(gnm);
+        opt.gasketName = m ? m[2] : gnm;
+        // 如果配置里没指定父，那么就得手动来一下
+        if(!opt.parent && UI.parent){
+            UI.parent.children.push(UI);
+            UI.depth = UI.parent.depth + 1;
+        }        
     }
     //....................................
     // 没有 $pel 则需要寻找选区

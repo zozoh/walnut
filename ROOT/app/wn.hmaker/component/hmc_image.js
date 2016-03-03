@@ -6,30 +6,12 @@ $z.declare([
     'ui/menu/menu'
 ], function(ZUI, Wn, HMC, MenuUI){
 //==============================================
-var html = function(){/*
-<div class="hm-com hmc-image" ctype="image" id="">
-    <script type="text/x-template" class="hmc-prop">{}</script>
-    <div class="hcm-assist">
-        <div class="hcm-pos-hdl" h-type="NW"></div>
-        <div class="hcm-pos-hdl" h-type="NE"></div>
-        <div class="hcm-pos-hdl" h-type="SW"></div>
-        <div class="hcm-pos-hdl" h-type="SE"></div>
-        <div class="hcm-pos-hdl" h-type="N"></div>
-        <div class="hcm-pos-hdl" h-type="S"></div>
-        <div class="hcm-pos-hdl" h-type="E"></div>
-        <div class="hcm-pos-hdl" h-type="W"></div>
-    </div>
-    <div class="hmc-wrapper">
-        <textarea></textarea>
-    </div>
-</div>
-*/};
-//==============================================
 return ZUI.def("app.wn.hmaker_com_image", {
     //...............................................................
     checkDom : function(){
         var UI = this;
         var jW = UI.arena.find(".hmc-wrapper");
+
         
     },
     //...............................................................
