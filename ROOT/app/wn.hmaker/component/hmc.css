@@ -1,5 +1,24 @@
+.hm-com[pos="absolute"] .hmc-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.hm-com[pos="absolute"] .hmc-wrapper .hmc-main {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
 .hmc-text {
-  margin: 1px;
+  border: 1px solid rgba(0, 0, 0, 0);
+}
+.hmc-text .hmc-main {
+  padding: 10px;
+  letter-spacing: 2px;
+  font-size: 14px;
+  line-height: 24px;
+}
+.hmc-text {
+  border: 1px solid rgba(0, 0, 0, 0);
 }
 .hmc-text .hmc-main {
   padding: 10px;

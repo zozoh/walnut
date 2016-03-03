@@ -197,6 +197,7 @@ public class AppModule extends AbstractWnModule {
 
     @At("/run/**")
     @Ok("void")
+    @Fail("ajax")
     public void run(String appName,
                     @Param("mime") String mimeType,
                     @Param("mos") final String metaOutputSeparator,

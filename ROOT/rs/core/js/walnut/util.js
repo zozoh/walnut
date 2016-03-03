@@ -247,6 +247,17 @@ var Wn = {
             return;
         }
 
+        // 分析字符串，如果 %xxxx: 开头，表示模拟一个 APP
+        // 那么后面的才是命令内容
+        var m = /^%([^ :]+):(.+)$/.exec(str);
+        var appName, cmdText;
+        if(m){
+            appName = m[1];
+            cmdText = $.trim(m[2]);
+        }else{
+            cmdText = str;
+        }
+
         // 处理命令
         var mos = "%%wn.meta." + $z.randomString(10) + "%%";
         //var regex = new RegExp("^(\n"+mos+":BEGIN:)(\\w+)(.+)(\n"+mos+":END\n)$","m");
@@ -254,12 +265,12 @@ var Wn = {
         var mosTail = "\n" + mos + ":END\n";
 
         // 执行命令的地址
-        var url = '/a/run/' + (opt.appName || app.name);
+        var url = '/a/run/' + (appName || opt.appName || app.name);
 
         // 准备发送的数据
         var sendData = "mos=" + encodeURIComponent(mos);
         sendData += "&PWD=" + encodeURIComponent(se.envs.PWD);
-        sendData += "&cmd=" + encodeURIComponent(str);
+        sendData += "&cmd=" + encodeURIComponent(cmdText);
 
         var oReq = new XMLHttpRequest();
         oReq._last = 0;
@@ -866,6 +877,66 @@ var Wn = {
         var o2 = $z.fromJson(re);
         Wn.saveToCache(o2);
         return o2; 
+    },
+    //..............................................
+    // 根据一条命令的输出，获取 WnObj 对象
+    fetchBy : function(cmdText, callback, quiet){
+        var objs;
+        // 处理参数 
+        if(_.isBoolean(callback)){
+            quiet = callback;  callback = null;
+        }
+
+        // 定义对象的处理，只有符号标准的对象，才会存到缓存里
+        var _cache_obj = function(obj){
+            if(obj.id && obj.nm && obj.race && obj.ct && obj.lm && obj.c && obj.g){
+                Wn.saveToCache(obj);
+            }
+        };
+
+        // 定义处理函数
+        var handler = function(json){
+            try{
+                objs = $z.fromJson(json);
+                // 数组的话，循环处理对象
+                if(_.isArray(objs)){
+                    obj.forEach(function(obj){
+                        _cache_obj(obj);
+                    });
+                }
+                // 单个对象
+                else{
+                    _cache_obj(objs);
+                }
+            }
+            // 处理错误 
+            catch(E){
+                var eMsg = "cmd: " + cmdText + "\nreturn no json:\n" + json;
+                // 明确的抛错错误
+                if(!quiet) {
+                    throw eMsg;
+                    alert(eMsg);
+                }
+                // 就是警告一下
+                else if(console && _.isFunction(console.warn)){
+                    console.warn(eMsg);
+                }
+            }
+        };
+
+        // 异步
+        if(_.isFunction(callback)){
+            Wn.exec(cmdText, function(re){
+                handler(re);
+            });
+        }
+        // 同步
+        else {
+            handler(Wn.exec(cmdText));
+        }
+
+        // 最后怎么都返回一下
+        return objs;
     },
     //..............................................
     fetch : function(ph, quiet){

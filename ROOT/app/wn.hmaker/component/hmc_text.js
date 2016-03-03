@@ -14,9 +14,10 @@ var html = function(){/*
 return ZUI.def("app.wn.hmaker_com_text", {
     //...............................................................
     events : {
-        "click .hmc-main" : function(e){
-            var jq   = $(e.currentTarget);
-            var jCom = jq.closest(".hm-com");
+        "click .hmc-main,.hmc-assist" : function(e){
+            console.log("haha", e.currentTarget);
+            var jCom  = $(e.currentTarget).closest(".hm-com");
+            var jMain = jCom.find(".hmc-main");
 
             // 只有激活的控件才能编辑
             if(!jCom.attr("actived"))
@@ -24,7 +25,7 @@ return ZUI.def("app.wn.hmaker_com_text", {
 
             // 绝对位置
             if(jCom.attr("pos") == "absolute"){
-                $z.editIt(jq, {
+                $z.editIt(jMain, {
                     multi  : true,
                     width  : jCom.width(),
                     height : jCom.height()
@@ -32,7 +33,7 @@ return ZUI.def("app.wn.hmaker_com_text", {
             }
             // 相对位置的编辑
             else {
-                $z.editIt(jq, {
+                $z.editIt(jMain, {
                     multi : true,
                     extendHeight : true,
                     takePlace : true,

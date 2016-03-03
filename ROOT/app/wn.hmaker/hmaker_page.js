@@ -59,7 +59,7 @@ var comGeneralProp = {
         type   : "int",
         uiConf : {unit : "px"}
     }, {
-        key    : "magin",
+        key    : "margin",
         title  : "i18n:hmaker.cprop.margin",
         type   : "int",
         uiConf : {unit : "px"}
@@ -310,8 +310,9 @@ return ZUI.def("app.wn.hmaker_page", {
         // 不处理的规则放这里返回
         var reInfo = {};
 
-        var outer = [];
-        var inner = [];
+        var ruCom  = [];
+        var ruWrap = [];
+        var ruMain = [];
 
         // 依次处理
         for(var key in info){
@@ -320,21 +321,21 @@ return ZUI.def("app.wn.hmaker_page", {
             if(UI.REG_ge.test(key)){
                 // 处理内边距: .hmc-wrapper 的内边距
                 if("padding" == key){
-                    inner.push("padding:"+val+"px;");
+                    ruMain.push("padding:"+val+"px;");
                 }
                 // 处理外边距: .hm-com 的内边距
                 else if("margin" == key){
-                    outer.push("padding:"+val+"px;");
+                    ruWrap.push("padding:"+val+"px;");
                 }
                 // 只有绝对定位才处理
                 else if("position" == key){
                     if("absolute" == val){
-                        outer.push("position:absolute;");
+                        ruCom.push("position:absolute;");
                     }
                 }
                 // 其他的都放到外面去
                 else{
-                    outer.push(UI.gen_rule_item(key, val));
+                    ruCom.push(UI.gen_rule_item(key, val));
                 }
             }
             // 我不处理的
@@ -342,18 +343,24 @@ return ZUI.def("app.wn.hmaker_page", {
                 reInfo[key] = val;
             }
         }
-
         // 记录到规则列表里
-        if(outer.length > 0) {
+        if(ruCom.length > 0) {
             styleRules.push({
                 selector : "#"+ID,
-                items    : outer
+                items    : ruCom
             })
         }
-        if(inner.length > 0) {
+        // 记录到规则列表里
+        if(ruWrap.length > 0) {
+            styleRules.push({
+                selector : "#"+ID+" .hmc-wrapper",
+                items    : ruWrap
+            })
+        }
+        if(ruMain.length > 0) {
             styleRules.push({
                 selector : "#"+ID+" .hmc-main",
-                items    : innter
+                items    : ruMain
             })
         }
 
@@ -749,7 +756,7 @@ return ZUI.def("app.wn.hmaker_page", {
             if(e.which != 1){
                 return;
             }
-            console.log("mouse up")
+            //console.log("mouse up")
             $(this).find("[mouse-noup]").removeAttr("mouse-noup");
         });
 

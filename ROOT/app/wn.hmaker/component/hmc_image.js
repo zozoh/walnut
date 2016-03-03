@@ -10,9 +10,16 @@ return ZUI.def("app.wn.hmaker_com_image", {
     //...............................................................
     checkDom : function(){
         var UI = this;
-        var jW = UI.arena.find(".hmc-wrapper");
-
-        
+        var jM = UI.arena.find(".hmc-main");
+        var jImg = jM.children("img");
+        if(jImg.size() == 0){
+            jImg = $('<img>').appendTo(jM);
+        }
+        if(!jImg.prop("src")){
+            var oBlank = Wn.fetchBy("%wn.hmaker: obj $APP_HOME/component/hmc_image_blank.jpg");
+            console.log(oBlank)
+            jImg.prop("src", "/o/read/id:" + encodeURIComponent(oBlank.id));
+        }
     },
     //...............................................................
     redraw : function(){

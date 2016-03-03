@@ -154,9 +154,13 @@ return ZUI.def("ui.list", {
             UI.blur();
             jRow.addClass("lst-item-actived lst-item-checked");
             var o = jRow.data("OBJ");
+            
+            // 得到下标
+            var index = jRow.prevAll().size();
+
             // 触发消息 
             UI.trigger("list:actived", o, jRow);
-            $z.invoke(UI.options, "on_actived", [o, jRow], UI);
+            $z.invoke(UI.options, "on_actived", [o, index, jRow], UI);
         }
     },
     //...............................................................

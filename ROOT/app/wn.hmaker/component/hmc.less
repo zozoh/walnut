@@ -1,10 +1,26 @@
 @import (reference) "../../ui";
 
+//........................................
+// 通用的绝对定位属性
+.hm-com[pos="absolute"] .hmc-wrapper{
+    width:100%; height:100%; position: relative;
+    .hmc-main {
+        width:100%; height:100%; overflow: hidden;
+    }
+}
 
-
-//............................. 简单文本控件
+//............................. 简单文本
 .hmc-text {
-    margin:1px;
+    border:1px solid rgba(0,0,0,0);
+    .hmc-main {
+        padding: 10px; letter-spacing: 2px; 
+        font-size: 14px; line-height: 24px;
+    }
+}
+
+//............................. 单张图片
+.hmc-text {
+    border:1px solid rgba(0,0,0,0);
     .hmc-main {
         padding: 10px; letter-spacing: 2px; 
         font-size: 14px; line-height: 24px;
