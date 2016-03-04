@@ -2,9 +2,10 @@
 $z.declare([
     'zui',
     'wn/util',
+    'app/wn.hmaker/component/hmc',
     'ui/menu/menu',
     'ui/form/form'
-], function(ZUI, Wn, MenuUI, FormUI){
+], function(ZUI, Wn, HMC, MenuUI, FormUI){
 //==============================================
 // .........................  控件们的通用属性
 // 这是一个 form UI 的配置项
@@ -186,6 +187,16 @@ var html = function(){/*
 return ZUI.def("app.wn.hmaker_page", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
+    init : function(opt) {
+        var UI = this;
+        UI.watchKey(8, function(e){
+            if(!/^(input|textarea)$/i.test(e.target.tagName)){
+                e.preventDefault();
+                UI.removeCom();
+            }
+        });
+    },
+    //...............................................................
     events : {
         "click .hmaker-components [ctype]" : function(e){
             this._insert_com($(e.currentTarget).attr("ctype"));
@@ -266,14 +277,28 @@ return ZUI.def("app.wn.hmaker_page", {
         ifrm.src = "/o/read/id:"+encodeURIComponent(oPg.id)+"?t="+Date.now();
     },
     //...............................................................
+    getImagePickerConf : function(wrapButton){
+        return {
+            wrapButton : wrapButton === false ? false : true,
+            setup : {
+                lastObjId : "hmaker_pick_image",
+                filter    : /^(jpeg|png|jpg)$/
+            },
+            parseData : function(obj){
+                return obj ? Wn.getById(obj.fid) : null;
+            },
+            formatData : function(o){
+                return o ? {fid:o.id} : null;
+            }
+        };
+    },
+    //...............................................................
     // 显示全局页面的编辑信息
     showPageProperty : function(){
         var UI = this;
 
         // 清除激活的组件
-        var jCom = UI.$com(true);
-        if(jCom)
-            jCom.removeAttr("actived");
+        UI.__blur_all_coms();
 
         // 清除菜单
         if(UI.gasket.menu)
@@ -299,24 +324,22 @@ return ZUI.def("app.wn.hmaker_page", {
                 title  : "i18n:hmaker.cprop.backgroundImage",
                 type  : "object",
                 uiType : "ui/picker/opicker",
-                uiConf : {
-                    wrapButton : true,
-                    setup : {
-                        lastObjId : "hmaker_pick_image",
-                        filter    : /^(jpeg|png|jpg)$/
-                    },
-                    parseData : function(obj){
-                        return obj ? Wn.getById(obj.fid) : null;
-                    },
-                    formatData : function(o){
-                        return o ? {fid:o.id} : null;
-                    }
-                }
+                uiConf : UI.getImagePickerConf()
             }, {
                 key    : "pageMargin",
                 title  : "i18n:hmaker.cprop.pageMargin",
                 type   : "int",
                 uiWidth: 80, 
+                uiConf : {unit : "px"}
+            }, {
+                key    : "color",
+                title  : "i18n:hmaker.cprop.color",
+                type   : "string",
+                nullAsUndefined : true
+            }, {
+                key    : "fontSize",
+                title  : "i18n:hmaker.cprop.fontSize",
+                type   : "int",
                 uiConf : {unit : "px"}
             }],
             on_change : function(key, val) {
@@ -335,26 +358,26 @@ return ZUI.def("app.wn.hmaker_page", {
         var UI    = this;
         var ifrm  = UI.arena.find(".ue-screen iframe")[0];
         var jBody = $(ifrm.contentDocument.documentElement).children("body");
+
+        // 文字大小
+        if("fontSize" == key){
+            jBody.css("font-size", val || "");
+        }
+        // 前景色
+        else if("color" == key){
+            jBody.css("color", val || "");
+        }
         // 背景色
-        if("backgroundColor" == key){
-            if(val)
-                jBody.css("background-color", val);
-            else
-                jBody.css("background-color", "");
+        else if("backgroundColor" == key){
+            jBody.css("background-color", val || "");
         }
         // 背景图
         else if("backgroundImage" == key){
-            if(val)
-                jBody.css("background-image", "url(/o/read/id:"+encodeURIComponent(val.fid)+")");
-            else
-                jBody.css("background-image", "");
+            jBody.css("background-image",  HMC.imgSrc(val || ""));
         }
         // 页边距
         else if("pageMargin" == key){
-            if(!_.isUndefined(val))
-                jBody.css("padding", val);
-            else
-                jBody.css("padding", "");
+            jBody.css("padding", _.isUndefined(val)?"":val);
         }
         // 嗯 !不支持 
 
@@ -366,6 +389,15 @@ return ZUI.def("app.wn.hmaker_page", {
         var ifrm  = UI.arena.find(".ue-screen iframe")[0];
         var eBody = ifrm.contentDocument.body;
         var re = {};
+
+        // 文字大小
+        if(eBody.style.fontSize)
+            re.fontSize = $z.toPixel(eBody.style.fontSize);
+
+        // 前景色
+        if(eBody.style.color)
+            re.color = eBody.style.color;
+
         // 背景色
         if(eBody.style.backgroundColor)
             re.backgroundColor = eBody.style.backgroundColor;
@@ -390,12 +422,6 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     removeCom : function(ele){
         var UI   = this;
-
-        // 支持 orderCom("top") 这种写法
-        if(/^(top|bottom|up|down)$/.test(ele)){
-            direction = ele;
-            ele = null;
-        }
 
         // 得到组件
         var jCom = UI.$com(ele, true);
@@ -492,6 +518,7 @@ return ZUI.def("app.wn.hmaker_page", {
         if(UI.gasket.prop){
             var jCom = UI.$com(ele);
             var info = UI.gasket.prop.getData();
+            info     = UI._apply_com(jCom).formatComponentInfo(info);
             info     = UI.setComponentInfo(jCom, info);
             UI._apply_com(jCom).updateStyle(info);
         }
@@ -560,7 +587,7 @@ return ZUI.def("app.wn.hmaker_page", {
         return info;
     },
     //...............................................................
-    REG_px : /^(top|left|width|height|padding|margin|lineHeight|fontSize|letterSpacing)/,
+    REG_px : /^(top|left|width|height|padding|margin|lineHeight|fontSize|letterSpacing|borderRadius)/,
     //...............................................................
     // 看看规则是不是需要用 px 作为后缀, 返回 undefined 表示『我不管』
     gen_rule_item : function(key, val){
@@ -700,12 +727,22 @@ return ZUI.def("app.wn.hmaker_page", {
     getCurrentTextContent : function(){
         var UI   = this;
         var ifrm = UI.arena.find(".ue-screen iframe")[0];
-        // 移除所有的 UI ID
-        var jHtm = $(ifrm.contentDocument.documentElement);
-        jHtm.find("[ui-id]").removeAttr("ui-id");
 
-        // 移除所有的代码帮助节点
-        jHtm.find(".hmc-assist").remove();
+        // 预先处理所有的控件，让其状态适合保存
+        if(UI.children){
+            for(var i=0; i<UI.children.length; i++){
+                var uiCom = UI.children[i];
+                // 移除所有的 UI ID
+                var jHtm = $(ifrm.contentDocument.documentElement);
+                uiCom.$el.removeAttr("ui-id");
+
+                // 移除所有的代码帮助节点
+                uiCom.$el.find(".hmc-assist").remove();
+
+                // 控件失去焦点
+                uiCom.blur();
+            }
+        }
 
         // 移除页面最开始的文本节点空白
         var jBody   = jHtm.find("body");
@@ -772,6 +809,12 @@ return ZUI.def("app.wn.hmaker_page", {
                     titleHtml : titleHtml,
                     propSetup : comGeneralProp
                 });
+                // 为组件添加方法
+                $z.setUndefined(uiCom, "setProperty", HMC.setProperty);
+                $z.setUndefined(uiCom, "_blank_img",  HMC._blank_img);
+                $z.setUndefined(uiCom, "objIdBySrc",  HMC.objIdBySrc);
+                $z.setUndefined(uiCom, "imgSrc",      HMC.imgSrc);
+                $z.setUndefined(uiCom, "formatComponentInfo", HMC.formatComponentInfo);
             });
         }
 
@@ -835,6 +878,15 @@ return ZUI.def("app.wn.hmaker_page", {
         
     },
     //...............................................................
+    __blur_all_coms : function(){
+        var UI    = this;
+        var ifrm  = UI.arena.find(".ue-screen iframe")[0];
+        var jHtm  = $(ifrm.contentDocument.documentElement);
+        jHtm.find("div.hm-com[actived]").removeAttr("actived").each(function(){
+            UI.getComponent(this).blur();
+        });
+    },
+    //...............................................................
     setActived : function(ele, force) {
         var UI   = this;
         var jCom = UI.$com(ele);
@@ -845,8 +897,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 return;
 
         // 移除其他的激活对象
-        var jBody = jCom.closest("body");
-        jBody.find("div.hm-com[actived]").removeAttr("actived");
+        UI.__blur_all_coms();
 
         // 激活自身
         jCom.attr("actived", "yes");
@@ -863,6 +914,7 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 已经无效了 ...
         if(!jCom.attr("actived") || !jCom.attr("mouse-noup")){
+            //console.log("I am _move_com, but I need quit!")
             jBody.removeAttr("noselect");
             return;
         }
@@ -1021,17 +1073,21 @@ return ZUI.def("app.wn.hmaker_page", {
         });
 
         // 通用的移动
-        jBody.on("mousedown", "div.hm-com[actived]", function(e){
+        jHtm.on("mousedown", "div.hm-com[actived]", function(e){
             // 只监视左键
             if(e.which != 1){
                 return;
             }
             var jCom = $(this).attr("mouse-noup", "yes");
+            //console.log("I am mousedown")
+            // 控件指明了要禁止默认行为，说明其内有些复杂的可默认被拖动的对象
+            if(jCom.attr("mouse-prevent-default"))
+                e.preventDefault();
             jBody.attr("noselect", "yes");
             //console.log(jCom.attr("mouse-noup"))
-            window.setTimeout(UI._move_com, 100, UI, jCom, e);
+            window.setTimeout(UI._move_com, 300, UI, jCom, e);
         });
-        jBody.on("mouseup", function(e){
+        jHtm.on("mouseup", function(e){
             // 只监视左键
             if(e.which != 1){
                 return;
@@ -1041,7 +1097,7 @@ return ZUI.def("app.wn.hmaker_page", {
         });
 
         // 通用的 resize
-        jBody.on("mousedown", "div.hm-com[actived] .hmca-hdl", function(e){
+        jHtm.on("mousedown", "div.hm-com[actived] .hmca-hdl", function(e){
             // 只监视左键
             if(e.which != 1){
                 return;
@@ -1051,6 +1107,16 @@ return ZUI.def("app.wn.hmaker_page", {
             var jHdl = $(this);
             var jCom = jHdl.closest(".hm-com").attr("mouse-noup", "yes");
             window.setTimeout(UI._resize_com, 100, UI, jCom, jHdl.attr("hd"));
+        });
+
+        // 删除控件
+        jHtm.on("keydown", function(e){
+            if(8 == e.which){
+                if(!/^(input|textarea)$/i.test(e.target.tagName)){
+                    e.preventDefault();
+                    UI.removeCom();
+                }
+            }
         });
 
 
@@ -1063,10 +1129,10 @@ return ZUI.def("app.wn.hmaker_page", {
             '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">');
         _H(jHead, 'link[href*="hmpg_editing.css"]',
             '<link for-edit="yes" rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/hmpg_editing.css">');
-        _H(jHead, 'link[href*="hmc.css"]',
-            '<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/component/hmc.css">');
-        _H(jHead, 'link[href*="page.css"]',
-            '<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/page/page.css">');
+        // _H(jHead, 'link[href*="hmc.css"]',
+        //     '<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/component/hmc.css">');
+        // _H(jHead, 'link[href*="page.css"]',
+        //     '<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker/page/page.css">');
         _H(jHead, 'script[src*="underscore.js"]',
             '<script src="/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js">');
         _H(jHead, 'script[src*="jquery"]',

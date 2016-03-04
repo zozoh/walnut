@@ -4,6 +4,17 @@ html {
 body {
   height: 100%;
 }
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+}
 .hm-com .hmc-assist-wrapper {
   position: relative;
 }
@@ -19,6 +30,16 @@ body {
   font-size: 14px;
   text-shadow: 0 0 3px #FF0;
   color: #080;
+}
+.hm-com[pos="absolute"] .hmc-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.hm-com[pos="absolute"] .hmc-wrapper .hmc-main {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 .hm-com[actived][pos="absolute"] .hmc-assist {
   position: absolute;
@@ -95,8 +116,86 @@ body[noselect] {
 .hm-com[mouse-moving] * {
   cursor: move;
 }
+.hmc-navbtns {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.hmc-navbtns .hmc-main {
+  border: 1px solid rgba(0, 0, 0, 0);
+  padding: 16px;
+}
+.hmc-navbtns .hmc-main > div {
+  float: left;
+}
+.hmc-navbtns .hmc-main .navbtn-add:hover {
+  border-color: #FFF;
+  color: #FFF;
+  background: rgba(0, 0, 0, 0.2);
+}
+.hmc-navbtns .hmc-main .navbtn {
+  padding: 10px;
+  border: 1px dotted rgba(0, 0, 0, 0);
+}
+.hmc-navbtns .hmc-main .navbtn .navbtn-img {
+  width: 48px;
+  height: 48px;
+  position: relative;
+  margin: 0 auto;
+  overflow: hidden;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-color: #000;
+}
+.hmc-navbtns .hmc-main .navbtn .navbtn-img i {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  color: rgba(0, 0, 0, 0.6);
+  text-shadow: 0 0 4px #FFF;
+}
+.hmc-navbtns .hmc-main .navbtn .navbtn-txt {
+  width: 48px;
+  padding: 8px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: center;
+}
+.hmc-navbtns .hmc-main .navbtn[actived] {
+  background: rgba(255, 255, 0, 0.3);
+  border-color: rgba(0, 0, 0, 0.5);
+}
+.hmc-navbtns .hmc-main:after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+}
+.hmc-navbtns[actived] .hmc-main {
+  border: 1px dashed #00dddd;
+}
+.hmc-navbtns[pos="absolute"] .hmc-main {
+  position: absolute;
+}
+.hmc-navbtns[hide-btn-text] .navbtn-txt {
+  display: none;
+}
+.hmc-navbtns .navbtn .navbtn-img i {
+  display: none;
+}
+.hmc-navbtns .navbtn[href] .navbtn-img i {
+  display: inline;
+}
 .hmc-text[actived] .hmc-main {
   border: 1px dashed #00dddd;
+}
+.hmc-text .hmc-main {
+  border: 1px solid rgba(0, 0, 0, 0);
+  padding: 10px;
+  letter-spacing: 2px;
+  font-size: 14px;
+  line-height: 24px;
 }
 .hmc-image {
   -moz-user-select: none;
@@ -125,8 +224,4 @@ body[noselect] {
 }
 .hmc-image[actived] .hmc-assist {
   border: 1px dashed #00dddd;
-}
-.hmc-navbtns {
-  padding: 20px;
-  background: pink;
 }

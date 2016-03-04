@@ -210,6 +210,16 @@ ZUIObj.prototype = {
         UI.exec = opt.exec || (UI.parent||{}).exec;
         UI.app = opt.app || (UI.parent||{}).app;
 
+        //............................... 控件的通用方法
+        $z.setUndefined(UI, "blur", function(){
+            this.$el.removeAttr("actived");
+            $z.invoke(this.$ui, "blur", [], this);
+        });
+        $z.setUndefined(UI, "active", function(){
+            this.$el.attr("actived", "yes");
+            $z.invoke(this.$ui, "active", [], this);
+        });
+
         // 默认先用父类的多国语言字符串顶个先
         UI._msg_map = UI.parent ? UI.parent._msg_map : ZUI.g_msg_map;
 
@@ -942,7 +952,7 @@ ZUI.def = function (uiName, conf) {
         };
         // 将 UI 的保留方法放入 $ui 中，其余 copy
         for (var key in conf) {
-            if (/^(css|dom|i18n|init|redraw|depose|resize)$/g.test(key)) {
+            if (/^(css|dom|i18n|init|redraw|depose|resize|active|blur)$/g.test(key)) {
                 opt.$ui[key] = conf[key];
             }
             else if("className" == key){

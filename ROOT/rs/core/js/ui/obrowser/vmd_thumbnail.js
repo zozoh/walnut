@@ -42,7 +42,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
                 }
             }
             // 否则表示选中
-            UI.active(jq, e.shiftKey, $z.os.mac?e.metaKey:$z.os.ctrlKey);
+            UI.setActived(jq, e.shiftKey, $z.os.mac?e.metaKey:$z.os.ctrlKey);
         },
         "click .wnobj-nm" : function(e){
             var UI = this;
@@ -54,7 +54,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
             }
             // 否则表示选中
             else{
-                UI.active(jq, e.shiftKey, ctrlIsOn);
+                UI.setActived(jq, e.shiftKey, ctrlIsOn);
             }
         },
         // 取消全部选择
@@ -67,7 +67,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
         }
     },
     //..............................................
-    active : function(ele, shiftIsOn, ctrlIsOn) {
+    setActived : function(ele, shiftIsOn, ctrlIsOn) {
         var UI   = this;
         var jObj = $(ele).closest(".wnobj");
 

@@ -21,10 +21,17 @@ define({
         "no_actived_com" : "您啥都没选 -_-!",
         "com" : {
             "navbtns" : {
-                "nm"          : "导航按钮",
-                "showBtnText" : "显示图标文字",
-                "btnWidth"    : "按钮宽度",
-                "btnHeight"   : "按钮高度"
+                "nm"              : "导航按钮",
+                "add_btn"         : "添加按钮",
+                "showBtnText"     : "显示文字",
+                "btnBorderRadius" : "按钮圆角",
+                "btnWidth"        : "按钮宽度",
+                "btnHeight"       : "按钮高度",
+                "btnPadding"      : "按钮边距",
+                "btnSrc"          : "按钮图片",
+                "btnHref"         : "按钮链接",
+                "btnText"         : "按钮文字",
+                "forTheBtn"       : "当前选中按钮属性"
             },
             "text" : {
                 "nm"    : "简单文本",
@@ -32,11 +39,12 @@ define({
             },
             "image" : {
                 "nm"           : "单张图片",
+                "src"          : "选择图片",
                 "borderRadius" : "图片圆角"
             }
         },
         "cprop_general"  : "通用",
-        "cprop_special"  : "控件专有",
+        "cprop_special"  : "控件属性",
         "cprop" : {
             "ID"              : "控件ID",
             "pageMargin"      : "页边距",
@@ -59,7 +67,8 @@ define({
             "ta_center"       : "居中",
             "ta_right"        : "居右",
             "fontSize"        : "文字大小",
-            "fontFamily"      : "字体"
+            "fontFamily"      : "字体",
+            "borderRadius"    : "圆角"
         },
         "e_nonb" : "大哥，屏幕尺寸您输入的得是数字吧 -_-!"
     }

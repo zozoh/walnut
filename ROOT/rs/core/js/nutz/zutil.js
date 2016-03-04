@@ -1552,9 +1552,11 @@ var zUtil = {
             var rKeys = ["display","letter-spacing","margin","padding"
                         ,"font-size", "font-family", "border"
                         ,"line-height"];
-            // 如果占位模式，才 copy 北京色
-            if(opt.takePlace)
+            // 如果占位模式，才 copy 背景色和前景色
+            if(opt.takePlace) {
                 rKeys.push("background");
+                rKeys.push("color");
+            }
 
             var css  = {};
             for(var i=0;i<rKeys.length;i++){
@@ -1782,6 +1784,36 @@ var zUtil = {
             }
         }
         return sb;
+    },
+    /**
+     * 将字符串首字母大写
+     * 
+     * @param s
+     *            字符串
+     * @return 首字母大写后的新字符串
+     */
+    upperFirst : function(s) {
+        if (!s)
+            return s;
+        var c = s.charAt(0);
+        if (/[a-z]/.test(c))
+            return c.toUpperCase() + s.substring(1);
+        return s;
+    },
+    /**
+     * 将字符串首字母小写
+     * 
+     * @param s
+     *            字符串
+     * @return 首字母小写后的新字符串
+     */
+    lowerFirst : function(s) {
+        if (!s)
+            return s;
+        var c = s.charAt(0);
+        if (/[A-Z]/.test(c))
+            return c.toLowerCase() + s.substring(1);
+        return s;
     },
     // 显示一个元素的尺寸，调试用
     _dumpSize : function(ele){

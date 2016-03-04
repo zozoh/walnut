@@ -9,34 +9,31 @@ $z.declare([
 //==============================================
 return ZUI.def("app.wn.hmaker_com_image", {
     //...............................................................
-    setProperty : function(key, val){
-        var UI = this;
-
-        // 得到属性信息
-        var info = UI.parent.getComponentInfo(UI.$el);
-
-        // undefined 自然表示删除
-        if(_.isUndefined(val)){
-            delete info[key];
+    events : {
+        "dblclick .hmc-wrapper" : function(e){
+            var UI  = this;
+            var src = UI.arena.find("img").prop("src");
+            var id = HMC.objIdBySrc(src);
+            if(!id)
+                return;
+            var o  = Wn.getById(id);
+            if(o.width && o.height){
+                UI.setProperty({
+                    "width"  : o.width,
+                    "height" : o.height
+                });
+            }
         }
-        // 否则当做修改
-        else {
-            info[key] = val;
-        }
-
-        // 保存到 DOM 节点
-        info = UI.parent.setComponentInfo(UI.$el, info);
-
-        // 将更新过的属性，重新设回到属性面板里
-        UI.parent.gasket.prop.setData(info);
-
-        // 更新自己的样式
-        UI.updateStyle(info);
     },
     //...............................................................
     updateStyle : function(info){
         var UI = this;
-        var ID = UI.$el.prop("id");
+        var ID = info.ID;
+
+        // 确保是有 src 属性的
+        if(!info.src){
+            info.src = null
+        }
 
         // 先过滤一遍通用规则
         var styleRules = [];
@@ -44,15 +41,23 @@ return ZUI.def("app.wn.hmaker_com_image", {
 
         // 再弄一下自己的规则
         var rule = {
-            selector : "#"+ID+" .hmc-main",
+            selector : "#"+ID+" .hmc-main img",
             items    : []
         };
         for(var key in info){
             if("ID" == key)
                 continue;
+            // 取得值
             var val = info[key];
-            var ru  = UI.parent.gen_rule_item(key, val);
-            rule.items.push(ru);
+            // src 的话，给 image 显示上
+            if("src" == key ){
+                UI.arena.find("img").prop("src", UI.imgSrc(val));
+            }
+            // 其他的设置到 style 里
+            else{
+                var ru  = UI.parent.gen_rule_item(key, val);
+                rule.items.push(ru);
+            }
         }
         styleRules.push(rule);
 
@@ -68,9 +73,7 @@ return ZUI.def("app.wn.hmaker_com_image", {
             jImg = $('<img>').appendTo(jM);
         }
         if(!jImg.prop("src")){
-            var oBlank = Wn.fetchBy("%wn.hmaker: obj $APP_HOME/component/hmc_image_blank.jpg");
-            console.log(oBlank)
-            jImg.prop("src", "/o/read/id:" + encodeURIComponent(oBlank.id));
+            jImg.prop("src", UI.imgSrc());
         }
     },
     //...............................................................
@@ -91,24 +94,16 @@ return ZUI.def("app.wn.hmaker_com_image", {
             $pel   : opt.$prop,
             fields : [opt.propSetup, {
                 title  : 'i18n:hmaker.cprop_special',
+                uiWidth : "all",
                 fields : [{
-                    key    : "color",
-                    title  : "i18n:hmaker.cprop.color",
-                    type   : "string",
-                    nullAsUndefined : true
+                    key    : "src",
+                    title  : "i18n:hmaker.com.image.src",
+                    type  : "object",
+                    uiType : "ui/picker/opicker",
+                    uiConf : UI.parent.getImagePickerConf()
                 }, {
-                    key    : "fontSize",
-                    title  : "i18n:hmaker.cprop.fontSize",
-                    type   : "int",
-                    uiConf : {unit : "px"}
-                }, {
-                    key    : "lineHeight",
-                    title  : "i18n:hmaker.cprop.lineHeight",
-                    type   : "int",
-                    uiConf : {unit : "px"}
-                }, {
-                    key    : "letterSpacing",
-                    title  : "i18n:hmaker.cprop.letterSpacing",
+                    key    : "borderRadius",
+                    title  : "i18n:hmaker.com.image.borderRadius",
                     type   : "int",
                     uiConf : {unit : "px"}
                 }]
@@ -125,14 +120,7 @@ return ZUI.def("app.wn.hmaker_com_image", {
         // 菜单
         new MenuUI({
             $pel   : opt.$menu,
-            setup  : [{
-    //.......................................... 置底
-    icon    : '<i class="fa fa-angle-double-down"></i>',
-    tip     : 'i18n:hmaker.com_mv_bottom',
-    handler : function(){
-        console.log(this.gasket.prop.getData())
-    }
-}]
+            setup  : []
         }).render(function(){
             //console.log(this.parent.uiName);
         });

@@ -41,31 +41,6 @@ return ZUI.def("app.wn.hmaker_com_text", {
         }
     },
     //...............................................................
-    setProperty : function(key, val){
-        var UI = this;
-
-        // 得到属性信息
-        var info = UI.parent.getComponentInfo(UI.$el);
-
-        // undefined 自然表示删除
-        if(_.isUndefined(val)){
-            delete info[key];
-        }
-        // 否则当做修改
-        else {
-            info[key] = val;
-        }
-
-        // 保存到 DOM 节点
-        info = UI.parent.setComponentInfo(UI.$el, info);
-
-        // 将更新过的属性，重新设回到属性面板里
-        UI.parent.gasket.prop.setData(info);
-
-        // 更新自己的样式
-        UI.updateStyle(info);
-    },
-    //...............................................................
     updateStyle : function(info){
         var UI = this;
         var ID = UI.$el.prop("id");
