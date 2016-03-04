@@ -373,7 +373,11 @@ return ZUI.def("app.wn.hmaker_page", {
         }
         // 背景图
         else if("backgroundImage" == key){
-            jBody.css("background-image",  HMC.imgSrc(val || ""));
+            if(val){
+                jBody.css("background-image",  HMC.imgSrc(val));
+            }else{
+                jBody.css("background-image",  "");
+            }
         }
         // 页边距
         else if("pageMargin" == key){
