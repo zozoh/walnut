@@ -183,6 +183,7 @@ var zUtil = {
     // @ele  - 被停靠元素
     // @ta   - 浮动元素
     // @mode - H | V 表示是停靠在水平边还是垂直边，默认 H
+    //         或者可以通过 "VA|VB|VC|VD|HA|HB|HC|HD" 来直接指定停靠的区域
     dock : function(ele, ta, mode){
         var jq  = $(ele);
         var jTa = $(ta).css("position","fixed");
@@ -191,7 +192,7 @@ var zUtil = {
             width  : jTa.outerWidth(true),
             height : jTa.outerHeight(true)
         };
-        // 得到菜单项目的矩形信息
+        // 得到被停靠元素的矩形信息
         var rect = $z.rect(jq);
         //console.log(" rect  :", rect);
         // 计算页面的中点
@@ -206,38 +207,52 @@ var zUtil = {
         +---+---+
         */
         var off;
-        // 停靠在左右边
+
+        // 分析模式
+        var m = /^([VH])([ABCD])?$/.exec((mode||"H").toUpperCase());
+        var mode = m ? m[1] : "H";
+        // 分析一下视口所在网页的区域
+        var area = (m ? m[2] : null) || (
+                    viewport.x>=rect.x && viewport.y>=rect.y ? "A" : (
+                        viewport.x<=rect.x && viewport.y>=rect.y ? "B" : (
+                            viewport.x>=rect.x && viewport.y<=rect.y ? "C"
+                                : "D"
+                            )
+                        )
+                    );
+
+        // 停靠在垂直边
         if("V" == mode){
             // A : 右上角对齐
-            if(viewport.x>=rect.x && viewport.y>=rect.y){
+            if("A" == area){
                 off = {
                     "left" : rect.right,
                     "top"  : rect.top
                 };
             }
             // B : 左上角对齐
-            else if(viewport.x<=rect.x && viewport.y>=rect.y){
+            else if("B" == area){
                 off = {
                     "left" : rect.left   - sub.width,
                     "top"  : rect.top
                 };
             }
             // C : 右下角对齐
-            else if(viewport.x>=rect.x && viewport.y<=rect.y){
+            else if("C" == area){
                 off = {
-                    "left" : rect.right,
-                    "top"  : rect.bottom - sub.height
+                    "left"   : rect.right,
+                    "bottom" : viewport.height - rect.bottom
                 };
             }
             // D : 左下角对齐
             else {
                 off = {
-                    "left" : rect.left   - sub.width,
-                    "top"  : rect.bottom - sub.height
+                    "left"   : rect.left   - sub.width,
+                    "bottom" : viewport.height - rect.bottom
                 };
             }
         }
-        // 停靠在上下边
+        // 停靠在上水平边
         /*
         +---+---+
         | A | B |
@@ -247,21 +262,21 @@ var zUtil = {
         */
         else{
             // A : 左下角对齐
-            if(viewport.x>=rect.x && viewport.y>=rect.y){
+            if("A" == area){
                 off = {
                     "left" : rect.left,
                     "top"  : rect.bottom
                 };
             }
             // B : 右下角对齐
-            else if(viewport.x<=rect.x && viewport.y>=rect.y){
+            else if("B" == area){
                 off = {
                     "left" : rect.right - sub.width,
                     "top"  : rect.bottom
                 };
             }
             // C : 左上角对齐
-            else if(viewport.x>=rect.x && viewport.y<=rect.y){
+            else if("C" == area){
                 off = {
                     "left" : rect.left,
                     "top"  : rect.top - sub.height
@@ -1004,6 +1019,85 @@ var zUtil = {
         _t.key     = _t.key_min+":"+_t.ss;
         // 返回
         return _t;
+    },
+    //.............................................
+    // 根据颜色对象的 red,green,blue,alpha ，更新其他字段的值
+    updateColor : function(color){
+        color.RR   = color.red.toString(16).toUpperCase();
+        color.GG   = color.green.toString(16).toUpperCase();
+        color.BB   = color.blue.toString(16).toUpperCase();
+        color.RR   = color.RR.length == 1 ? color.RR+color.RR : color.RR;
+        color.GG   = color.GG.length == 1 ? color.GG+color.GG : color.GG;
+        color.BB   = color.BB.length == 1 ? color.BB+color.BB : color.BB;
+        color.HEX  = "#"+color.RR+color.GG+color.BB;
+        color.RGB  = "rgb("+color.red+","+color.green+","+color.blue+")";
+        color.RGBA = "rgba("+color.red+","+color.green+","+color.blue+","+color.alpha+")";
+        return color;
+    },
+    /*.............................................
+    将任何颜色字符串，解析成标准颜色对象
+    {
+        red   : 255,
+        green : 255,
+        blue  : 255,
+        RR    : "FF",
+        GG    : "FF",
+        BB    : "FF",
+        alpha : 1.0
+        HEX   : "#FFFFFF",
+        RGB   : rgb(255,255,255),
+        RGBA  : rgb(255,255,255, 1)
+    }
+    */
+    parseColor : function(str, alpha) {
+        // 初始颜色是黑色
+        var color = {
+            red   : 0,
+            green : 0,
+            blue  : 0,
+            alpha : _.isNumber(alpha) ? alpha : 1.0
+        };
+        // 空的话用黑色
+        if(!str)
+            return this.updateColor(color);
+
+        // 本来就是一个颜色对象，创建个新的
+        if(_.isNumber(str.red) && _.isNumber(str.green) && _.isNumber(str.blue) && _.isNumber(str.alpha)){
+            return this.updateColor(_.extend({}, str));
+        }
+
+        // 初始化处理字符串
+        str = str.replace(/[ \t\r\n]+/g, "").toUpperCase();
+
+        // 解析吧
+        // RGB: #FFF
+        if (m = /^#?([0-9A-F])([0-9A-F])([0-9A-F]);?$/.exec(str)) {
+            color.red   = parseInt(m[1]+m[1], 16);
+            color.green = parseInt(m[2]+m[2], 16);
+            color.blue  = parseInt(m[3]+m[3], 16);
+        }
+        // RRGGBB: #F0F0F0
+        else if (m = /^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2});?$/.exec(str)) {
+            color.red   = parseInt(m[1], 16);
+            color.green = parseInt(m[2], 16);
+            color.blue  = parseInt(m[3], 16);
+        }
+        // RGB值: rgb(255,33,89)
+        else if (m = /^RGB\((\d+),(\d+),(\d+)\)$/.exec(str)) {
+            color.red   = parseInt(m[1], 10);
+            color.green = parseInt(m[2], 10);
+            color.blue  = parseInt(m[3], 10);
+        }
+        // RGBA值: rgba(6,6,6,0.9)
+        else if (m = /^RGBA\((\d+),(\d+),(\d+),([\d.]+)\)$/.exec(str)) {
+            color.red   = parseInt(m[1], 10);
+            color.green = parseInt(m[2], 10);
+            color.blue  = parseInt(m[3], 10);
+            color.alpha = m[4] * 1;
+        }
+
+        // 最后返回颜色
+        return this.updateColor(color);
     },
     //.............................................
     // 设置一个 input 的值，如果值与 placeholder 相同，则清除值

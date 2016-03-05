@@ -28,6 +28,44 @@
   padding: 0 4px 0 2px;
   color: rgba(0, 0, 0, 0.2);
 }
+.com-color input,
+.com-color div.preview {
+  vertical-align: middle;
+  display: inline-block;
+  padding: 0 6px;
+  outline: none;
+  height: 30px;
+  line-height: 30px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  color: #888;
+  background: #FFF;
+  font-size: 12px;
+  font-family: Monaco, Consolas, Courier New;
+}
+.com-color div.preview {
+  width: 30px;
+  height: 30px;
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  background: url(/gu/rs/core/js/ui/form/bgcanvas.png);
+}
+.com-color div.preview > div {
+  width: 100%;
+  height: 100%;
+}
+.com-color input.color {
+  position: fixed;
+  top: -999999999998.9999px;
+  left: -999999999998.9999px;
+}
+.com-color input.hex {
+  width: 72px;
+}
+.com-color input.alpha {
+  width: 40px;
+}
 .com-droplist {
   -moz-user-select: none;
   -khtml-user-select: none;

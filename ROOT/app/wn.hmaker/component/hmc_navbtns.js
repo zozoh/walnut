@@ -195,7 +195,7 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
     _check_btn_com : function(ele){
         var UI   = this;
         var jBtn = $(ele).closest(".navbtn");
-        
+
         // 检查图片
         var jImg = jBtn.find(".navbtn-img");
         if(!jImg[0].style.backgroundImage){
@@ -242,12 +242,16 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                     key    : "color",
                     title  : "i18n:hmaker.cprop.color",
                     type   : "string",
-                    nullAsUndefined : true
+                    nullAsUndefined : true,
+                    editAs : "color",
+                    uiConf : UI.parent.getColorConf()
                 }, {
                     key    : "backgroundColor",
                     title  : "i18n:hmaker.cprop.backgroundColor",
                     type   : "string",
-                    nullAsUndefined : true
+                    nullAsUndefined : true,
+                    editAs : "color",
+                    uiConf : UI.parent.getColorConf()
                 }, {
                     key    : "btnBorderRadius",
                     title  : "i18n:hmaker.com.navbtns.btnBorderRadius",
@@ -308,7 +312,7 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                     var UI   = this;
                     var jM   = UI.arena.find(".hmc-main");
                     var jBtn = $($z.getFuncBodyAsStr(html,true));
-                    UI._check_btn_com(jBtn).appendTo(jM);
+                    UI._check_btn_com(jBtn).appendTo(jM).click();
                 }
             }]
         }).render(function(){

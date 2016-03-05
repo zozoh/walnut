@@ -96,12 +96,16 @@ return ZUI.def("app.wn.hmaker_com_text", {
                     key    : "color",
                     title  : "i18n:hmaker.cprop.color",
                     type   : "string",
-                    nullAsUndefined : true
+                    nullAsUndefined : true,
+                    editAs : "color",
+                    uiConf : UI.parent.getColorConf()
                 }, {
                     key    : "backgroundColor",
                     title  : "i18n:hmaker.cprop.backgroundColor",
                     type   : "string",
-                    nullAsUndefined : true
+                    nullAsUndefined : true,
+                    editAs : "color",
+                    uiConf : UI.parent.getColorConf()
                 }, {
                     key    : "fontSize",
                     title  : "i18n:hmaker.cprop.fontSize",

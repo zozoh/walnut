@@ -165,9 +165,9 @@ var html = function(){/*
             <div class="ue-ssize">
                 <input name="x"><em>x</em><input name="y">
                 <span>
-                    <i class="fa fa-desktop highlight" val=""></i>
-                    <i class="fa fa-tablet" val="800x600"></i>
-                    <i class="fa fa-mobile" val="400x600"></i>
+                    <i class="fa fa-desktop" mode="pc"     val=""></i>
+                    <i class="fa fa-tablet"  mode="pad"    val="800x600"></i>
+                    <i class="fa fa-mobile"  mode="phone"  val="400x600"></i>
                 </span>
             </div>
             <div class="ue-com-menu" ui-gasket="menu"></div>
@@ -200,6 +200,38 @@ return ZUI.def("app.wn.hmaker_page", {
     events : {
         "click .hmaker-components [ctype]" : function(e){
             this._insert_com($(e.currentTarget).attr("ctype"));
+        },
+        "click .ue-ssize i" : function(e){
+            var jSsm = $(e.currentTarget);
+            // 高亮
+            jSsm.parent().children().removeClass("highlight");
+            jSsm.addClass("highlight");
+            // 设置
+            this.updateScreenSize(jSsm.attr("val"), jSsm.attr("mode"));
+        },
+        "change .ue-ssize input" : function(e){
+            var UI     = this;
+            var jSsm   = UI.arena.find(".ue-ssize .highlight");
+            var jInput = $(e.currentTarget);
+            var val    = $.trim(jInput.val());
+            
+            // 确保是数字 
+            if(val && !/^\d+$/.test(jInput.val())){
+                alert(UI.msg("hmaker.e_nonb"));
+                //jInput.val(jInput.attr("oldv") || "");
+                return;
+            }
+
+            // 设置吧
+            var jIx = UI.arena.find(".ue-ssize input[name=x]");
+            var jIy = UI.arena.find(".ue-ssize input[name=y]");
+            var val = (jIx.val()*1) + "x" + (jIy.val()*1);
+
+            // 将 val 保存在按钮上，以便记录状态
+            jSsm.attr("val", val);
+
+            // 更新屏幕
+            this.updateScreenSize(val, jSsm.attr("mode") || "pc");
         }
     },
     //...............................................................
@@ -231,6 +263,40 @@ return ZUI.def("app.wn.hmaker_page", {
     depose : function(){
         //console.log("hmaker_page: depose iframe onload")
         this.arena.find(".ue-screen iframe").unbind();
+    },
+    //...............................................................
+    updateScreenSize : function(val, scrn_mode){
+        var UI  = this;
+        var jIx = UI.arena.find(".ue-ssize input[name=x]");
+        var jIy = UI.arena.find(".ue-ssize input[name=y]");
+        var jSt = UI.arena.find(".ue-stage");
+        var jSc = jSt.children(".ue-screen");
+
+        // 更新模式
+        jSt.attr("mode", scrn_mode || "pc");
+
+        // 默认宽高为 0 表示移除限制，全屏模式
+        var sz = {
+            w : 0,
+            h : 0
+        };
+
+        // 限制宽高
+        if(val) {
+            var m = /^(\d+)?x(\d+)?$/.exec(val);
+            sz.w = m[1] ? m[1] * 1 : 0;
+            sz.h = m[2] ? m[2] * 1 : 0;
+        }
+
+        // 更新主区域尺寸
+        jSc.css({
+            "width"  : sz.w || "",
+            "height" : sz.h || ""
+        });
+
+        // 更新输入框
+        jIx.val(sz.w || "");
+        jIy.val(sz.h || "");
     },
     //...............................................................
     __reload_components : function(callback){
@@ -293,6 +359,14 @@ return ZUI.def("app.wn.hmaker_page", {
         };
     },
     //...............................................................
+    getColorConf : function(){
+        return {
+            formatData : function(color){
+                return color ? color.RGBA : null;
+            }
+        };
+    },
+    //...............................................................
     // 显示全局页面的编辑信息
     showPageProperty : function(){
         var UI = this;
@@ -318,7 +392,9 @@ return ZUI.def("app.wn.hmaker_page", {
                 key    : "backgroundColor",
                 title  : "i18n:hmaker.cprop.backgroundColor",
                 type   : "string",
-                nullAsUndefined : true
+                nullAsUndefined : true,
+                editAs : "color",
+                uiConf : UI.getColorConf()
             }, {
                 key    : "backgroundImage",
                 title  : "i18n:hmaker.cprop.backgroundImage",
@@ -335,7 +411,9 @@ return ZUI.def("app.wn.hmaker_page", {
                 key    : "color",
                 title  : "i18n:hmaker.cprop.color",
                 type   : "string",
-                nullAsUndefined : true
+                nullAsUndefined : true,
+                editAs : "color",
+                uiConf : UI.getColorConf()
             }, {
                 key    : "fontSize",
                 title  : "i18n:hmaker.cprop.fontSize",
@@ -354,7 +432,7 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     // 修改页面的属性
     setPageProperty : function(key, val){
-        console.log("page prop set: ", key, val)
+        //console.log("page prop set: ", key, val)
         var UI    = this;
         var ifrm  = UI.arena.find(".ue-screen iframe")[0];
         var jBody = $(ifrm.contentDocument.documentElement).children("body");
@@ -374,7 +452,7 @@ return ZUI.def("app.wn.hmaker_page", {
         // 背景图
         else if("backgroundImage" == key){
             if(val){
-                jBody.css("background-image",  HMC.imgSrc(val));
+                jBody.css("background-image",  "url(" + HMC.imgSrc(val) + ")");
             }else{
                 jBody.css("background-image",  "");
             }
@@ -764,6 +842,25 @@ return ZUI.def("app.wn.hmaker_page", {
             ndLast.textContent = "\n";
         }
 
+        // 记录当前的页面显示模式，保存全部的模式设定
+        var szModes = {};
+        UI.arena.find(".ue-ssize i[mode]").each(function(){
+            var jSsm = $(this);
+            var mode = jSsm.attr("mode");
+            var val  = jSsm.attr("val");
+            szModes[mode] = val;
+            // 高亮项目记到 body 里
+            if(jSsm.hasClass("highlight")){
+                jBody.attr({
+                    "screen-mode" : mode,
+                    "screen-size" : val
+                });
+            }
+        });
+        // 记录到 body 里面
+        jBody.attr("screen-mode-conf", $z.toJson(szModes));
+
+
         // 得到要返回 HTML
         var re = '<!DOCTYPE html>\n<html>\n' + jHtm.html() + '\n</html>\n';
 
@@ -1064,6 +1161,20 @@ return ZUI.def("app.wn.hmaker_page", {
         var jHtm  = $(ifrm.contentDocument.documentElement);
         var jHead = jHtm.children("head");
         var jBody = jHtm.children("body");
+
+        // 恢复三种模式用户之前设置的尺寸
+        var szModes = $z.fromJson(jBody.attr("screen-mode-conf")||"{}");
+        for(var mode in szModes){
+            UI.arena.find('.ue-ssize i[mode="'+mode+'"]').attr("val",szModes[mode]);
+        }
+
+        // 根据 body 上的属性，修改 .ue-ssize 上面的状态
+        var scrn_mode  = jBody.attr("screen-mode") || "pc";
+        var scrn_size  = jBody.attr("screen-size") || "";
+        //console.log(scrn_mode, "["+scrn_size+"]");
+        // 更新对应的尺寸按钮
+        UI.arena.find('.ue-ssize i[mode="'+scrn_mode+'"]').attr("val",scrn_size).click();
+
 
         // 绑定通用事件
         jHtm.on("click", "div.hm-com", function(e){

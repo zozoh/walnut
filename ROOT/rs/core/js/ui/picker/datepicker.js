@@ -25,9 +25,8 @@ var html = function(){/*
 </div>
 <div class="ui-arena picker datepicker">
     <div class="picker-box"><i class="fa fa-calendar"></i><div class="pick-box-con"></div></div>
-    <div class="picker-btns"><b
-        class="picker-choose">{{choose}}</b><b
-        class="picker-clear">{{clear}}</b></div>
+    <div class="picker-btn picker-choose">{{choose}}</div>
+    <div class="picker-btn picker-clear">{{clear}}</div>
 </div>
 */};
 //==============================================

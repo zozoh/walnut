@@ -28,64 +28,6 @@ return ZUI.def("app.wn.hmaker", {
             var jMa = UI.arena.find(".hmaker-main");
             jMa.toggleClass("shelf-hide");
             UI.local("shelfHide", jMa.hasClass("shelf-hide"));
-        },
-        "click .ue-ssize i" : function(e){
-            var jq = $(e.currentTarget);
-            // 高亮
-            jq.parent().children().removeClass("highlight");
-            jq.addClass("highlight");
-            // 设置
-            this.updateScreenSize(jq.attr("val"));
-        },
-        "change .ue-ssize input" : function(e){
-            var UI  = this;
-            var jq  = $(e.currentTarget);
-            var val = jq.val();
-            // 没值，用默认的
-            if(!val){
-                jq.val(jq.attr("oldv") || "");
-                return;
-            }
-            // 确保是数字 
-            if(!/^\d+$/.test(jq.val())){
-                alert(UI.msg("hmaker.e_nonb"));
-                jq.val(jq.attr("oldv") || "");
-                return;
-            }
-            // 设置吧
-            var jIx = UI.arena.find(".ue-ssize input[name=x]");
-            var jIy = UI.arena.find(".ue-ssize input[name=y]");
-            var val = (jIx.val()*1) + "x" + (jIy.val()*1);
-            this.updateScreenSize(val);
-        }
-    },
-    //...............................................................
-    updateScreenSize : function(val){
-        var UI  = this;
-        var jIx = UI.arena.find(".ue-ssize input[name=x]");
-        var jIy = UI.arena.find(".ue-ssize input[name=y]");
-        var jSt = UI.arena.find(".ue-stage");
-        var jSc = jSt.children(".ue-screen");
-        // 限制宽高
-        if(val) {
-            jSt.attr("mode", "mobile");
-            var m = /^(\d+)x(\d+)$/.exec(val);
-            var w = m[1] * 1;
-            var h = m[2] * 1;
-            jSc.css({
-                width  : w,
-                height : h
-            });
-            jIx.val(w).attr("oldv",w); jIy.val(h).attr("oldv",h);
-        }
-        // 全屏模式
-        else {
-            jSt.attr("mode", "pc");
-            jSc.css({
-                width  : "",
-                height : ""
-            });
-            jIx.val("").removeAttr("oldv"); jIy.val("").removeAttr("oldv");
         }
     },
     //...............................................................

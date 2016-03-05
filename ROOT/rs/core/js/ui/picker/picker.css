@@ -14,12 +14,9 @@
 .picker-box {
   flex: 1 1 auto;
   overflow: hidden;
-  width: 40px;
   height: 32px;
   line-height: 30px;
   background: #eeeeee;
-}
-.picker-box .pick-box-con {
   padding: 0 6px;
 }
 .picker-box .picker-obj {
@@ -126,9 +123,6 @@
   line-height: 20px;
   border-radius: 2px;
   margin-right: 4px;
-}
-.opicker .picker-box {
-  padding-left: 6px;
 }
 .picker-mask .zcal {
   font-size: 10px;

@@ -257,8 +257,9 @@ ZUIObj.prototype = {
         UI.trigger("ui:depose", UI);
 
         // 释放掉自己所有的子
-        for (var i=0; i<UI.children.length; i++) {
-            UI.children[i].destroy(forceRemoveDom);
+        var __children = UI.children ? [].concat(UI.children) : [];
+        for (var i=0; i<__children.length; i++) {
+            __children[i].destroy(forceRemoveDom);
         }
 
         // 移除自己在父节点的记录
