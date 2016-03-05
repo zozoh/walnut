@@ -1,0 +1,50 @@
+命令简介
+======= 
+
+`videoc` 视频转换命令
+    
+
+用法
+=======
+
+    videoc [-v] [-k] [-bv 3000] [-ba 64] [-vcodec libx264] [-preset ultrafast] [-fps 24] [视频文件路径]
+    
+输出的文件
+=======
+
+    ```
+    .hi.avi.videoc
+        -- 1_1.mp4
+        -- preview.jpg
+        -- preview.mp4
+    ```
+    
+    元数据更新
+    
+    ```
+    {
+     ...
+     videoc_dir : ".hi.avi.videoc目录的id"
+    }
+    ```
+    
+示例
+=======
+
+   默认转换
+    videoc hi.avi
+    
+    带调试信息
+    videoc -v hi.avi
+    
+    带调试信息且保留临时文件
+    videoc -v -k hi.avi
+    
+    定制目标格式为libx265, 即h265格式
+    videoc -v -vcodec libx265 hi.avi
+    
+    定制视频码流为600k,音频码流为128k
+    video -v -bc 600 -ba 128 hi.avi
+    
+    定制视频转换的预设配置(可选: ultrafast,superfast, veryfast, faster, fast, medium, slow, slower, veryslow)
+    video -preset medium
