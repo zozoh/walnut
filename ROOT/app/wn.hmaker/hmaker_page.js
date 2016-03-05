@@ -1196,11 +1196,14 @@ return ZUI.def("app.wn.hmaker_page", {
             var jCom = $(this).attr("mouse-noup", "yes");
             //console.log("I am mousedown")
             // 控件指明了要禁止默认行为，说明其内有些复杂的可默认被拖动的对象
-            if(jCom.attr("mouse-prevent-default"))
+            var delay = 100;
+            if(jCom.attr("mouse-prevent-default")){
                 e.preventDefault();
+                delay = 300;
+            }
             jBody.attr("noselect", "yes");
             //console.log(jCom.attr("mouse-noup"))
-            window.setTimeout(UI._move_com, 300, UI, jCom, e);
+            window.setTimeout(UI._move_com, delay, UI, jCom, e);
         });
         jHtm.on("mouseup", function(e){
             // 只监视左键

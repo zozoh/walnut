@@ -112,6 +112,8 @@ body[noselect] {
   bottom: 0;
   background: #000;
   opacity: 0;
+  z-index: 999999;
+  cursor: move;
 }
 .hm-com[mouse-moving] * {
   cursor: move;

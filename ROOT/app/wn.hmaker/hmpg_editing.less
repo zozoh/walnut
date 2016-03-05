@@ -84,7 +84,8 @@ body{
 body[noselect] {@noselect();}
 .hmaker-mouse-mask {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: #000; opacity: 0;
+    background: #000; opacity: 0; z-index:  999999; 
+    cursor: move;
 }
 .hm-com[mouse-moving] * {
     cursor: move;

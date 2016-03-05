@@ -117,7 +117,6 @@ return ZUI.def("ui.form", {
     events : {
         "click .fg-title" : function(e){
             var jG = $(e.currentTarget).closest(".form-group");
-            console.log(jG.size())
             jG.toggleClass("form-group-hide");
         }
     },

@@ -25,7 +25,7 @@ var html = function(){/*
 return ZUI.def("app.wn.hmaker_com_navbtns", {
     //...............................................................
     events : {
-        "click .hmc-main" : function(e){
+        "click .hmc-wrapper" : function(e){
             var UI   = this;
             var jBtn = $(e.target).closest(".navbtn");
 
