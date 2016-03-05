@@ -51,17 +51,19 @@ return ZUI.def("ui.form_com_color", {
         "click input.alpha" : function(e){
             var UI     = this;
             var jAlpha = $(e.currentTarget);
-            jAlpha.slidebar({
-                ruler : 4,
-                valueBy : function(v){
-                    return Math.round(v*100)/100;
-                },
-                change : function(v, pos){
-                    jAlpha.val(v/100);
-                    UI.__update(true);
-                }
-            });
-            jAlpha.slidebar("val", jAlpha.val()*100);
+            if(jAlpha.val()){
+                jAlpha.slidebar({
+                    ruler : 4,
+                    valueBy : function(v){
+                        return Math.round(v*100)/100;
+                    },
+                    change : function(v, pos){
+                        jAlpha.val(v/100);
+                        UI.__update(true);
+                    }
+                });
+                jAlpha.slidebar("val", jAlpha.val()*100);
+            }
         }
     },
     //...............................................................
