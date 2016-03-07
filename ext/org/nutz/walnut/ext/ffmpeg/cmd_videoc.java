@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.ffmpeg;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
@@ -23,14 +24,16 @@ import org.nutz.walnut.util.ZParams;
 public class cmd_videoc extends JvmExecutor {
 
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, "vk");
+        ZParams params = ZParams.parse(args, "vkF");
         WnObj obj = Wn.checkObj(sys, params.vals[0]);
+        if (obj.name().startsWith("_") && !params.is("F"))
+            return;
         WnObj pdir = sys.io.checkById(obj.parentId());
         WnObj tdir = sys.io.createIfNoExists(pdir, "." + obj.name() + ".videoc", WnRace.DIR);
 
         File tmpDir = new File("/tmp/walnut_video/" + R.UU32());
         File source = new File(tmpDir, "source.mp4");
-        File mainTarget = new File(tmpDir, "1_1.mp4");
+        File mainTarget = new File(tmpDir, "main.mp4");
         File thumb = new File(tmpDir, "preview.jpg");
         File preview = new File(tmpDir, "preview.mp4");
         Files.createDirIfNoExists(tmpDir);
@@ -38,7 +41,7 @@ public class cmd_videoc extends JvmExecutor {
         vc_params.setnx("vcodec", "libx264")
                  .setnx("bv", "3000")
                  .setnx("ba", "64")
-                 .setnx("preset", "ultrafast");
+                 .setnx("preset", "veryfast");
         vc_params.setnx("fps", "24");
 
         vc_params.setv("source", source.getAbsolutePath());
@@ -49,10 +52,10 @@ public class cmd_videoc extends JvmExecutor {
         String cmd = "";
         Segment seg = null;
         WnObj t;
+        NutMap tMap = new NutMap().setv("videoc_source", obj.id());
 
-        // Log log = new WalnutLog(sys, params.is("v") ? 10 : 40);
         Log log = sys.getLog(params);
-
+        Pattern mode = params.has("mode") ? Pattern.compile(params.get("mode")) : null;
         try {
             Files.write(source, sys.io.getInputStream(obj, 0));
             VideoInfo vi = cmd_videoi.readVideoInfo(source.getPath());
@@ -65,31 +68,39 @@ public class cmd_videoc extends JvmExecutor {
             log.debug("ffmpeg params :\n" + Json.toJson(vc_params));
 
             // 先生成预览图
-            seg = Segments.create("ffmpeg -y -v quiet -i ${source} -f image2 -ss 1 -vframes 1  ${thumbPath}");
-            cmd = seg.render(new SimpleContext(vc_params)).toString();
-            log.debug("cmd: " + cmd);
-            Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
-            t = sys.io.createIfNoExists(tdir, "_preview.jpg", WnRace.FILE);
-            sys.io.writeAndClose(t, new FileInputStream(thumb));
-
+            if (mode == null || mode.matcher("preview_image").find()) {
+                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -f image2 -ss 1 -vframes 1  ${thumbPath}");
+                cmd = seg.render(new SimpleContext(vc_params)).toString();
+                log.debug("cmd: " + cmd);
+                Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
+                t = sys.io.createIfNoExists(tdir, "_preview.jpg", WnRace.FILE);
+                sys.io.writeAndClose(t, new FileInputStream(thumb));
+                sys.io.appendMeta(obj, "thumbnail:'" + t.id() + "'");
+                sys.io.appendMeta(t, tMap);
+            }
             // 再生成预览视频
-            vc_params.setv("preview_bv", vc_params.getInt("bv") / 3);
-            seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ultrafast -vcodec libx264 -b:v ${preview_bv}k -b:a 64k -r ${fps} -s ${previewSize} ${previewPath}");
-            cmd = seg.render(new SimpleContext(vc_params)).toString();
-            log.debug("cmd: " + cmd);
-            Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
-            t = sys.io.createIfNoExists(tdir, "_preview.mp4", WnRace.FILE);
-            sys.io.writeAndClose(t, new FileInputStream(preview));
-
+            if (mode == null || mode.matcher("preview_video").find()) {
+                vc_params.setv("preview_bv", vc_params.getInt("bv") / 3);
+                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ultrafast -vcodec libx264 -b:v ${preview_bv}k -b:a 64k -r ${fps} -s ${previewSize} ${previewPath}");
+                cmd = seg.render(new SimpleContext(vc_params)).toString();
+                log.debug("cmd: " + cmd);
+                Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
+                t = sys.io.createIfNoExists(tdir, "_preview.mp4", WnRace.FILE);
+                sys.io.writeAndClose(t, new FileInputStream(preview));
+                sys.io.appendMeta(obj, "video_preview:'" + t.id() + "'");
+                sys.io.appendMeta(t, tMap);
+            }
             // 生成主文件
-            seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ${preset} -vcodec ${vcodec} -b:v ${bv}k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
-            cmd = seg.render(new SimpleContext(vc_params)).toString();
-            log.debug("cmd: " + cmd);
-            Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
-            t = sys.io.createIfNoExists(tdir, "1_1.mp4", WnRace.FILE);
-            sys.io.writeAndClose(t, new FileInputStream(mainTarget));
-
-            sys.io.appendMeta(obj, "videoc_dir:'" + tdir.id() + "'");
+            if (mode == null || mode.matcher("preview_video").find()) {
+                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ${preset} -vcodec ${vcodec} -b:v ${bv}k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
+                cmd = seg.render(new SimpleContext(vc_params)).toString();
+                log.debug("cmd: " + cmd);
+                Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
+                t = sys.io.createIfNoExists(tdir, "_1_1.mp4", WnRace.FILE);
+                sys.io.writeAndClose(t, new FileInputStream(mainTarget));
+                sys.io.appendMeta(obj, "videoc_dir:'" + tdir.id() + "'");
+                sys.io.appendMeta(t, tMap);
+            }
             sys.out.print(tdir.id());
         }
         finally {
