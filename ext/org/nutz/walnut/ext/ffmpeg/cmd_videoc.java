@@ -39,7 +39,7 @@ public class cmd_videoc extends JvmExecutor {
 		File preview = new File(tmpDir, "preview.mp4");
 		Files.createDirIfNoExists(tmpDir);
 		NutMap vc_params = params.map();
-		vc_params.setnx("vcodec", "libx264").setnx("bv", "3000").setnx("ba", "64").setnx("preset", "ultrafast");
+		vc_params.setnx("vcodec", "libx264").setnx("bv", "3000").setnx("ba", "64").setnx("preset", "veryfast");
 		vc_params.setnx("fps", "24");
 		
 		vc_params.setv("source", source.getAbsolutePath());
