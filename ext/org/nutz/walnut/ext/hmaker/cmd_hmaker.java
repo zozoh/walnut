@@ -18,6 +18,7 @@ public class cmd_hmaker extends JvmHdlExecutor {
         }
 
         int pos;
+        
         // 第一个参数就是 hdl，那么主目录被认为是当前目录
         if (null != this.getHdl(hc.args[0])) {
             hc.hdlName = hc.args[0];
