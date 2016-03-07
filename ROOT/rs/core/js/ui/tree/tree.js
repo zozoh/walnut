@@ -132,7 +132,7 @@ return ZUI.def("ui.tree", {
             var jqs = this.arena.find(".tree-node");
             for(var i=0;i<jqs.length;i++){
                 var jq = jqs.eq(i);
-                var obj = this.options.data((this.options.context||this), jq);
+                var obj = this.options.data.call((this.options.context||this), jq);
                 if(_.isMatch(obj, nd)){
                     return jq;
                 }
@@ -443,7 +443,7 @@ return ZUI.def("ui.tree", {
     },
     //...............................................................
     getActived : function(){
-        return this.options.data((this.options.context||this), this.arena.find(".tree-node-actived"));
+        return this.options.data.call((this.options.context||this), this.arena.find(".tree-node-actived"));
     },
     //...............................................................
     getActivedNode : function(){
