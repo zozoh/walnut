@@ -224,4 +224,7 @@ public class ZParams {
         return Double.valueOf(key);
     }
 
+    public NutMap map() {
+    	return map;
+    }
 }
