@@ -12,6 +12,8 @@ import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
+import org.nutz.walnut.util.ZParams;
+import org.nutz.walnut.web.util.WalnutLog;
 
 public class WnSystem {
 
@@ -98,4 +100,7 @@ public class WnSystem {
         return sb.toString();
     }
 
+    public Log getLog(ZParams params) {
+        return new WalnutLog(this, params.is("v") ? 10 : 40);
+    }
 }

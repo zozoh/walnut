@@ -410,11 +410,15 @@ public class MongoLocalBucket extends AbstractBucket {
                                        true,
                                        false);
         long refer = doc.getLong("refer");
+        this._remove(refer);
+        return refer;
+    }
+
+    protected void _remove(long refer) {
         if (refer <= 0) {
             Files.deleteDir(dir);
             _co.remove(WnMongos.qID(id));
         }
-        return refer;
     }
 
     @MoField("id")

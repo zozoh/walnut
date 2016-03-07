@@ -513,6 +513,9 @@ return ZUI.def("app.wn.hmaker_page", {
         }
 
         var uiCom = this.getComponent(jCom);
+
+        // 移除页面标题区
+        $(uiCom.el.ownerDocument.head).find('[for-com="com_'+uiCom.el.id+'"]');
         
         // 移除
         uiCom.destroy(true);

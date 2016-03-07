@@ -39,6 +39,54 @@ public class WnStoreImpl implements WnStore {
     }
 
     @Override
+    public long copyData(WnObj a, WnObj b) {
+        // 两个对象不能相等
+        if (a.equals(b))
+            throw Er.create("e.io.duplicate.toSelf", a);
+
+        // 俩文件都是空的
+        if (!a.hasData() && !b.hasData()) {
+            return 0;
+        }
+
+        // 俩文件本来内容就一样
+        if (a.isSameData(b.data())) {
+            return 0;
+        }
+
+        // 两个对象必须都是文件
+        if (!a.isFILE())
+            throw Er.create("e.io.duplicate.DIR", a);
+        if (!b.isFILE())
+            throw Er.create("e.io.duplicate.DIR", b);
+
+        // 试图释放一下目标对象的内容
+        if (b.hasData()) {
+            String bData = b.data();
+            buckets.incReferById(bData, -1);
+        }
+
+        // 返回 1 表示成功
+        long re = 1;
+
+        // 源对象为空
+        if (!a.hasData()) {
+            b.data(null).len(0).sha1(null);
+        }
+        // 将源对象直接复制过来
+        else {
+            b.data(a.data()).len(a.len()).sha1(a.sha1());
+            // 直接增加引用计数咯
+            re = buckets.incReferById(a.data(), 1);
+        }
+
+        // 标记最后修改时间
+        b.lastModified(a.lastModified());
+
+        return re;
+    }
+
+    @Override
     public String open(WnObj o, int mode) {
         // 只能针对 FILE 进行操作
         if (o.isDIR()) {

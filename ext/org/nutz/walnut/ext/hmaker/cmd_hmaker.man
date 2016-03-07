@@ -34,8 +34,13 @@ hmaker publish : 发布
 =========================
 
 
-    hmaker publish /path/to/page  /path/to/dest
+```
+hmaker publish
+   [-v]              # 是否显示日志 
+   [-home xxx]       # 站点目录
+   [-dest xxx]       # 输出的目录 
+   [-src  xxx]       # 【选】指定了某个目录或者文件
     
- * dest 可以是目录，如果是网页，那么 page 也必须是文件
- * page 如果是目录则会深层递归
+```
+
 
