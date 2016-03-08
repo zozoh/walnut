@@ -62,7 +62,7 @@ public class cmd_videoc extends JvmExecutor {
 
             log.debug("video info=\n" + Json.toJson(vi));
 
-            vc_params.setnx("previewSize",
+            vc_params.setnx("preview_size",
                             String.format("%dx%d", vi.getWidth() / 4 * 2, vi.getHeight() / 4 * 2));
 
             log.debug("ffmpeg params :\n" + Json.toJson(vc_params));
@@ -81,7 +81,7 @@ public class cmd_videoc extends JvmExecutor {
             // 再生成预览视频
             if (mode == null || mode.matcher("preview_video").find()) {
                 vc_params.setv("preview_bv", vc_params.getInt("bv") / 3);
-                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ultrafast -vcodec libx264 -b:v ${preview_bv}k -b:a 64k -r ${fps} -s ${previewSize} ${previewPath}");
+                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ultrafast -vcodec libx264 -maxrate ${preview_bv}k -bufsize 2048k -b:a 64k -r ${fps} -s ${preview_size} ${previewPath}");
                 cmd = seg.render(new SimpleContext(vc_params)).toString();
                 log.debug("cmd: " + cmd);
                 Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
@@ -92,7 +92,7 @@ public class cmd_videoc extends JvmExecutor {
             }
             // 生成主文件
             if (mode == null || mode.matcher("preview_video").find()) {
-                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ${preset} -vcodec ${vcodec} -b:v ${bv}k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
+                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ${preset} -vcodec ${vcodec} -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
                 cmd = seg.render(new SimpleContext(vc_params)).toString();
                 log.debug("cmd: " + cmd);
                 Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
