@@ -468,17 +468,20 @@ return ZUI.def("ui.tree", {
 
         // 得到节点
         var jNode = UI.$node(nd);
+        var jN2   = null;
 
-        // 试图得到下一个高亮的节点
-        var jN2 = jNode.next();
-        if(jN2.size() == 0){
-            jN2 = jNode.prev();
+        // 如果当前是高亮节点，则试图得到下一个高亮的节点，给调用者备选
+        if(UI.isActived(jNode)){
+            jN2 = jNode.next();
             if(jN2.size() == 0){
-                jN2 = jNode.parents(".tree-node");
+                jN2 = jNode.prev();
+                if(jN2.size() == 0){
+                    jN2 = jNode.parents(".tree-node");
 
-                // 返回 false 表示只剩下最后一个节点额
-                if(jN2.size() == 0 && keepAtLeastOne){
-                    return false;
+                    // 返回 false 表示只剩下最后一个节点额
+                    if(jN2.size() == 0 && keepAtLeastOne){
+                        return false;
+                    }
                 }
             }
         }
@@ -487,7 +490,7 @@ return ZUI.def("ui.tree", {
         jNode.remove();
 
         // 返回下一个要激活的节点，由调用者来决定是否激活它
-        return jN2.size() > 0 ? jN2 : null;
+        return jN2 && jN2.size() > 0 ? jN2 : null;
     },
     //...............................................................
     moveNode : function(direction, nd){
