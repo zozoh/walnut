@@ -113,7 +113,7 @@ return ZUI.def("ui.tree", {
     },
     //...............................................................
     $node : function(nd){
-        if(_.isUndefined(nd)){
+        if(_.isUndefined(nd) || _.isNull(nd)){
             return this.arena.find(".tree-node-actived");
         }
         else if(_.isElement(nd)){
@@ -457,10 +457,37 @@ return ZUI.def("ui.tree", {
         return this.$node(nd).attr("oid");
     },
     //...............................................................
-    removeNode : function(nd){
+    removeNode : function(nd, keepAtLeastOne){
         var UI = this;
+
+        // 支持 removeNode(true) 这种形式
+        if(_.isBoolean(nd)){
+            keepAtLeastOne = nd;
+            nd = null;
+        }
+
+        // 得到节点
         var jNode = UI.$node(nd);
+
+        // 试图得到下一个高亮的节点
+        var jN2 = jNode.next();
+        if(jN2.size() == 0){
+            jN2 = jNode.prev();
+            if(jN2.size() == 0){
+                jN2 = jNode.parents(".tree-node");
+
+                // 返回 false 表示只剩下最后一个节点额
+                if(jN2.size() == 0 && keepAtLeastOne){
+                    return false;
+                }
+            }
+        }
+
+        // 执行移除
         jNode.remove();
+
+        // 返回下一个要激活的节点，由调用者来决定是否激活它
+        return jN2.size() > 0 ? jN2 : null;
     },
     //...............................................................
     moveNode : function(direction, nd){
