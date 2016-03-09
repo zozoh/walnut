@@ -302,7 +302,7 @@ public class UsrModule extends AbstractWnModule {
         if (ackey == null) {
             return new HttpStatusView(403);
         }
-        int timeout = usr.getInt("ackey-timeout", 1800) * 1000;
+        int timeout = usr.getInt("ackey_timeout", 1800) * 1000;
         if (timeout == 0) {
         	return new HttpStatusView(403);
         }
