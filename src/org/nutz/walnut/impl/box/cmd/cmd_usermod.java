@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
@@ -68,7 +69,8 @@ public class cmd_usermod extends JvmExecutor {
 		}
 		
 		if (!Strings.isBlank(params.get("E"))) {
-			Json.fromJson(NutMap.class, params.get("E"));
+			//Json.fromJson(NutMap.class, params.get("E"));
+		    Lang.map(params.get("E"));  // 检查语法
 			final String path = "/sys/usr/" + usr.name();
 			Wn.Ctx.get().su(sys.usrService.fetch("root"), new Atom(){
 			     public void run(){
