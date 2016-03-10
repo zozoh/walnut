@@ -10,7 +10,7 @@ $z.declare([
 ], function(ZUI, MenuUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena obrowser-main" ui-gasket="view"></div>
+<div class="ui-arena obrowser-main" ui-gasket="view" ui-fitparent="true"></div>
 */};
 //==============================================
 return ZUI.def("ui.obrowser_main", {
@@ -44,14 +44,16 @@ return ZUI.def("ui.obrowser_main", {
                 editor : ed
             });
             // 支持外部 outline
-            if(ed.outline)
-                uiConf.outline = UIBrowser.subUI("shelf/chute").showOutline();
-            else
-                UIBrowser.subUI("shelf/chute").removeOutline();
+            if(UIBrowser.subUI("chute")){
+                if(ed.outline)
+                    uiConf.outline = UIBrowser.subUI("chute").showOutline();
+                else
+                    UIBrowser.subUI("chute").removeOutline();
+            }
 
             // 支持外部脚注
-            if(ed.footer)
-                uiConf.footer = UIBrowser.subUI("shelf/footer").arena;
+            if(ed.footer && UIBrowser.subUI("footer"))
+                uiConf.footer = UIBrowser.subUI("footer").arena;
 
             // 编辑器附着在在哪里呢？
             if(subView && subView.editorGasketName){
@@ -67,7 +69,7 @@ return ZUI.def("ui.obrowser_main", {
         // 没有编辑器，那么 DIR 还能处理
         else if('DIR' == o.race){
             // 去掉 outline
-            var uiChute = UIBrowser.subUI("shelf/chute");
+            var uiChute = UIBrowser.subUI("chute");
             if(uiChute)
                 uiChute.removeOutline();
             // 得到显示模式
@@ -110,7 +112,7 @@ return ZUI.def("ui.obrowser_main", {
     },
     //..............................................
     updateMenuByObj : function(o, theEditor, menuContext){
-        this.parent.parent.updateMenuByObj(o, theEditor, menuContext);
+        this.parent.updateMenuByObj(o, theEditor, menuContext);
     },
     //..............................................
     getData : function(arg){

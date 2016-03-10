@@ -108,7 +108,8 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
     //...............................................................
     blur : function(){
         this.arena.find(".navbtn[actived]").removeAttr("actived");
-        this.parent.gasket.prop.update(dft_btn_info());
+        if(this.parent.gasket.prop)
+            this.parent.gasket.prop.update(dft_btn_info());
     },
     //...............................................................
     updateStyle : function(info){
@@ -231,17 +232,22 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
             $pel   : opt.$prop,
             fields : [opt.propSetup, {
                 title  : 'i18n:hmaker.cprop_special',
+                className : "hmaker-prop-compactly",
                 uiWidth : "all",
+                autoLineHeight : true,
+                cols:2,
                 fields : [{
                     key    : "showBtnText",
                     title  : "i18n:hmaker.com.navbtns.showBtnText",
                     type   : "boolean",
                     dft    : true,
+                    span   : 2,
                     editAs : "switch"
                 }, {
                     key    : "color",
                     title  : "i18n:hmaker.cprop.color",
                     type   : "string",
+                    span   : 2,
                     nullAsUndefined : true,
                     editAs : "color",
                     uiConf : UI.parent.getColorConf()
@@ -249,14 +255,10 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                     key    : "backgroundColor",
                     title  : "i18n:hmaker.cprop.backgroundColor",
                     type   : "string",
+                    span   : 2,
                     nullAsUndefined : true,
                     editAs : "color",
                     uiConf : UI.parent.getColorConf()
-                }, {
-                    key    : "btnBorderRadius",
-                    title  : "i18n:hmaker.com.navbtns.btnBorderRadius",
-                    type   : "int",
-                    uiConf : {unit : "px"}
                 }, {
                     key    : "btnWidth",
                     title  : "i18n:hmaker.com.navbtns.btnWidth",
@@ -265,6 +267,11 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                 }, {
                     key    : "btnHeight",
                     title  : "i18n:hmaker.com.navbtns.btnHeight",
+                    type   : "int",
+                    uiConf : {unit : "px"}
+                }, {
+                    key    : "btnBorderRadius",
+                    title  : "i18n:hmaker.com.navbtns.btnBorderRadius",
                     type   : "int",
                     uiConf : {unit : "px"}
                 }, {
@@ -285,7 +292,8 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                 }, {
                     key    : "btnHref",
                     title  : "i18n:hmaker.com.navbtns.btnHref",
-                    type   : "string"
+                    type   : "string",
+                    editAs : "link"
                 }, {
                     key    : "btnText",
                     title  : "i18n:hmaker.com.navbtns.btnText",

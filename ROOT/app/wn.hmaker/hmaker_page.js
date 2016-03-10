@@ -11,7 +11,7 @@ $z.declare([
 // 这是一个 form UI 的配置项
 var comGeneralProp = {
     title     : 'i18n:hmaker.cprop_general',
-    className : "hmaker-prop-general",
+    className : "hmaker-prop-compactly",
     cols   : 2,
     autoLineHeight : true,
     fields : [{
@@ -70,6 +70,11 @@ var comGeneralProp = {
 // .........................  控件们的通用菜单
 // 这是一个 menu UI 的配置项
 var comGeneralActions = [{
+    text    : "Tree",
+    handler : function(){
+        console.log(ZUI.dump_tree(this, 0, /^ui.form/));
+    }
+}, {
     //.......................................... 删除
     icon    : '<i class="fa fa-trash"></i>',
     text    : "i18n:hmaker.act_remove",
@@ -237,12 +242,16 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     redraw : function(){
         var UI  = this;
-
+        //console.log("I am redraw", UI)
         // 绑定 iframe onload
-        UI.arena.find(".ue-screen iframe").bind("load", function(){
-            //console.log("hmaker_page: iframe onload");
-            UI.setup_page_editing();
-        });
+        var jIfm = UI.arena.find(".ue-screen iframe");
+        if(!jIfm.attr("onload-bind")){
+            jIfm.bind("load", function(e){
+                //console.log("hmaker_page: iframe onload", Date.now(), e);
+                UI.setup_page_editing();
+            });
+            jIfm.attr("onload-bind", "yes");
+        }
 
         // 读取加载项的内容
         UI.__reload_components(function(){
@@ -825,7 +834,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 uiCom.$el.find(".hmc-assist").remove();
 
                 // 控件失去焦点
-                uiCom.blur();
+                //uiCom.blur();
             }
         }
 

@@ -2,16 +2,20 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/shelf/shelf',
     'ui/obrowser/obrowser_sky',
+    'ui/obrowser/obrowser_chute',
     'ui/obrowser/obrowser_main',
     'ui/obrowser/obrowser_footer'
-], function(ZUI, Wn, ShelfUI){
+], function(ZUI, Wn, SkyUI, ChuteUI, MainUI, FooterUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena obrowser ui-oicon-16" 
-     ui-fitparent="true"
-     ui-gasket="shelf">
+<div class="ui-arena obrowser ui-oicon-16" ui-fitparent="true">
+    <div class="obw-sky" ui-gasket="sky"></div>
+    <div class="obw-con"><div class="obw-con-wrapper">
+        <div class="obw-chute" ui-gasket="chute"></div>
+        <div class="obw-main"  ui-gasket="main"></div>
+    </div></div>
+    <div class="obw-footer" ui-gasket="footer"></div>
 </div>
 */};
 //==============================================
@@ -62,6 +66,9 @@ return ZUI.def("ui.obrowser", {
         $z.setUndefined(opt, "checkable", false);
         $z.setUndefined(opt, "multi", true);
         $z.setUndefined(opt, "editable", false);
+        $z.setUndefined(opt, "skybar", true);
+        $z.setUndefined(opt, "footbar", true);
+
         // 控制打开 
         UI.__eval_canOpen(opt);
         
@@ -76,14 +83,14 @@ return ZUI.def("ui.obrowser", {
         });
         UI.on("change:viewmode", function(){
             var o = UI.getCurrentObj();
-            UI.subUI("shelf/main").update(UI, o);
+            UI.subUI("main").update(UI, o);
         });
         UI.on("menu:viewmode", function(vm){
             this.setViewMode(vm);
         });
         UI.on("change:hidden-obj-visibility", function(){
             var o = UI.getCurrentObj();
-            UI.subUI("shelf/main").update(UI, o);
+            UI.subUI("main").update(UI, o);
         });
         UI.on("menu:showhide", function(isShow){
             this.setHiddenObjVisibility(isShow ? "show" : "hidden");
@@ -203,27 +210,26 @@ return ZUI.def("ui.obrowser", {
             context : UI,
             editor  : theEditor
         }, function(o, asetup){
-            UI.subUI("shelf/sky").updateMenu(UI, o, asetup, menuContext);
+            UI.subUI("sky").updateMenu(UI, o, asetup, menuContext);
         });  
     },
     //..............................................
     __call_subUI_update : function(o, asetup){
-        var UI = this;
-        //try{
-        var uiChute = UI.subUI("shelf/chute");
-        if(uiChute)
-            uiChute.update(UI, o, asetup);
-        UI.subUI("shelf/main").update(UI, o, asetup);
-        UI.subUI("shelf/sky").update(UI, o, asetup);
+        var UI  = this;
+        var opt = UI.options;
+
+        if(UI.subUI("sky"))
+            UI.subUI("sky").update(UI, o, asetup);
+
+        if(UI.subUI("chute"))
+            UI.subUI("chute").update(UI, o, asetup);
+
+        UI.subUI("main").update(UI, o, asetup);
+        
         // 持久记录最后一次位置
-        if(UI.options.lastObjId){
+        if(opt.lastObjId){
             UI.local(UI.options.lastObjId, o.id);
         }
-        // }
-        // catch(eKey){
-        //     alert(UI.msg(eKey));
-        //     throw eKey;
-        // }
     },
     //..............................................
     extend_actions : function(actions, forceTop, isInEditor){
@@ -231,63 +237,75 @@ return ZUI.def("ui.obrowser", {
     },
     //..............................................
     redraw : function(){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
 
         // 初始化显示隐藏开关 
         UI.arena.attr("hidden-obj-visibility", UI.getHiddenObjVisibility());
 
-        // 准备配置
-        var conf = {
-            parent : this,
-            gasketName : "shelf",
-            display : {
-                sky : 40,
-                footer : 32
-            },
-            sky : {
-                uiType : "ui/obrowser/obrowser_sky",
-                uiConf : {
-                    className : "obrowser-block",
-                    fitparent : true
-                }
-            },
-            main : {
-                uiType : "ui/obrowser/obrowser_main",
-                uiConf : {
-                    className : "obrowser-block",
-                    fitparent : true
-                }
-            },
-            footer : {
-                uiType : "ui/obrowser/obrowser_footer",
-                uiConf : {
-                    className : "obrowser-block",
-                    fitparent : true
-                }
-            },
+        // 显示各个 UI
+        var uiTypes = [];
 
-        };
-
-        // 是否显示侧边栏
-        if(UI.options.sidebar){
-            conf.display.chute = 180;
-            conf.chute = {
-                uiType : "ui/obrowser/obrowser_chute",
-                uiConf : {
-                    className : "obrowser-block",
-                    fitparent : true
-                }
-            };
+        //......................................
+        // Sky
+        if(opt.skybar) {
+            uiTypes.push("sky");
+            new SkyUI({
+                parent : UI,
+                gasketName : "sky"
+            }).render(function(){
+                UI.defer_report("sky");
+            });
+        }
+        // 否则移除
+        else {
+            UI.arena.find(".obw-sky").remove();
+            UI.arena.find(".obw-con").css("top",0);
+        }
+        //......................................
+        // Footer
+        if(opt.sidebar){
+            uiTypes.push("chute");
+            new ChuteUI({
+                parent : UI,
+                gasketName : "chute"
+            }).render(function(){
+                UI.defer_report("chute");
+            });
+        }
+        // 否则移除
+        else {
+            UI.arena.find(".obw-chute").remove();
+            UI.arena.find(".obw-main").css("left",0);
+        }
+        //......................................
+        // Main
+        uiTypes.push("main");
+        new MainUI({
+            parent : UI,
+            gasketName : "main"
+        }).render(function(){
+            UI.defer_report("main");
+        });
+        //......................................
+        // Footer
+        if(opt.footbar){
+            uiTypes.push("footer");
+            new FooterUI({
+                parent : UI,
+                gasketName : "footer"
+            }).render(function(){
+                UI.defer_report("footer");
+            });
+        }
+        // 否则移除
+        else {
+            UI.arena.find(".obw-footer").remove();
+            UI.arena.find(".obw-con").css("bottom",0);
         }
 
-        // 初始化界面
-        (new ShelfUI(conf)).render(function(){
-            // 回报延迟加载
-            UI.defer_report(0, "browser-shelf");
-        });
-
-        // 返回延迟加载
-        return ["browser-shelf"];
+        // 返回以便延迟加载
+        return uiTypes;
     },
     //..............................................
     setData : function(obj, theEditor){
@@ -380,19 +398,19 @@ return ZUI.def("ui.obrowser", {
     },
     //..............................................
     getCurrentEditObj : function(){
-        var theUI = this.subUI("shelf/main/view")
+        var theUI = this.subUI("main/view")
         if(!theUI)
             return undefined;
         return $z.invoke(theUI, "getCurrentEditObj");
     },
     getCurrentTextContent : function(){
-        var theUI = this.subUI("shelf/main/view")
+        var theUI = this.subUI("main/view")
         if(!theUI)
             return undefined;
         return $z.invoke(theUI, "getCurrentTextContent");
     },
     getCurrentJsonContent : function(){
-        var theUI = this.subUI("shelf/main/view")
+        var theUI = this.subUI("main/view")
         if(!theUI)
             return undefined;
         return $z.invoke(theUI, "getCurrentJsonContent");
@@ -412,17 +430,17 @@ return ZUI.def("ui.obrowser", {
         return this.getById(oid);
     },
     getPath : function(){
-        return this.subUI("shelf.sky").getPath();
+        return this.subUI("sky").getPath();
     },
     getPathObj : function(){
-        return this.subUI("shelf.sky").getData();
+        return this.subUI("sky").getData();
     },
     //..............................................
     getActived : function(){
-        return this.subUI("shelf.main").getActived();
+        return this.subUI("main").getActived();
     },
     getChecked : function(){
-        return this.subUI("shelf.main").getChecked();
+        return this.subUI("main").getChecked();
     },
     //.............................................. 
     getChildren : function(o, filter, callback){
@@ -451,7 +469,7 @@ return ZUI.def("ui.obrowser", {
     //..............................................
     get : function(o, quiet){
         if(_.isUndefined(o) || $z.isjQuery(o) || _.isElement(o)){
-            return this.subUI("shelf.main").getData(o);
+            return this.subUI("main").getData(o);
         }
         return Wn.get(o, quiet);
     },
