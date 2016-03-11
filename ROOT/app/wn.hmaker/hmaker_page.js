@@ -260,6 +260,7 @@ return ZUI.def("app.wn.hmaker_page", {
         new MenuUI({
             parent : UI,
             gasketName : "comGeneralActions",
+            tipDirection : "up",
             setup : comGeneralActions
         }).render();
 

@@ -350,7 +350,8 @@ return ZUI.def("ui.menu", {
     },
     //..............................................
     __draw_fireable : function(mi, jq, jItem){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         // 图标：不是顶层项目，一律添加图标以便下拉时对其
         var jIcon;
         if(!mi.is_top_item || mi.icon){
@@ -374,13 +375,12 @@ return ZUI.def("ui.menu", {
 
         // 添加提示文字
         if(mi.tip){
-            jq.attr("title", UI.text(mi.tip));
-            // 这个 balloon.css 有点 bug，稍后再说吧
-            // if(jT || jIcon)
-            //     (jT || jIcon).attr({
-            //         "data-balloon" : UI.text(mi.tip),
-            //         "data-balloon-pos" : "left"
-            //     });
+            if(jT || jIcon) {
+                (jT || jIcon).attr({
+                    "data-balloon" : UI.text(mi.tip),
+                    "data-balloon-pos" : opt.tipDirection || "down"
+                });
+            }
         }
     }
     //..............................................
