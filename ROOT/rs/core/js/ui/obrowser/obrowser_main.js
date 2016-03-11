@@ -22,7 +22,7 @@ return ZUI.def("ui.obrowser_main", {
         }
     },
     //..............................................
-    update : function(UIBrowser, o, asetup){
+    update : function(UIBrowser, o, asetup, callback){
         var UI = this;
         var subView = UI.subUI("view");
 
@@ -94,7 +94,7 @@ return ZUI.def("ui.obrowser_main", {
 
         // 没必要改变视图类型，直接更新就好，如果是这种情况，那么肯定不是打开编辑器喔
         if(subView && UI.$el.attr("ui-type") == uiType){
-            subView.update(o, UIBrowser);
+            subView.update(o, callback);
             subView.trigger("browser:show", o);
             UI.resize();
         }
@@ -103,7 +103,7 @@ return ZUI.def("ui.obrowser_main", {
             UI.$el.attr("ui-type", uiType);
             seajs.use(uiType, function(TheUI){
                 new TheUI(uiConf).render(function(){
-                    this.update(o, UIBrowser);
+                    this.update(o, callback);
                     this.parent.trigger("browser:show", o);
                     UI.resize();
                 });
@@ -125,6 +125,10 @@ return ZUI.def("ui.obrowser_main", {
     //..............................................
     getActived : function(){
         return this.subUI("view").getActived();
+    },
+    //..............................................
+    setActived : function(arg){
+        this.subUI("view").setActived(arg);
     },
     //..............................................
     getChecked : function(){

@@ -78,9 +78,9 @@ return ZUI.def("ui.obrowser", {
         });
         
         // 绑定 UI 间的监听关系
-        UI.on("browser:change", function(o, theEditor){
-            UI.changeCurrentObj(o, theEditor);
-        });
+        // UI.on("browser:change", function(o, theEditor){
+        //     UI.changeCurrentObj(o, theEditor);
+        // });
         UI.on("change:viewmode", function(){
             var o = UI.getCurrentObj();
             UI.subUI("main").update(UI, o);
@@ -148,9 +148,15 @@ return ZUI.def("ui.obrowser", {
 
     },
     //..............................................
-    changeCurrentObj : function(o, theEditor){
+    changeCurrentObj : function(o, theEditor, callback){
         var UI  = this;
         var opt = UI.options;
+
+        // 支持没有 theEditor 的写法
+        if(_.isFunction(theEditor)){
+            callback  = theEditor;
+            theEditor = undefined;
+        }
 
         // 是否可以打开，不能打开的话，打开父目录即可
         // 如果是需要打开主目录，则一定可以
@@ -182,7 +188,7 @@ return ZUI.def("ui.obrowser", {
                 context : UI,
                 editor  : theEditor
             }, function(o, asetup){
-                UI.__call_subUI_update(o, asetup);
+                UI.__call_subUI_update(o, asetup, callback);
             });  
         }
         // 采用默认的策略，只有普通文件夹才能打开
@@ -200,7 +206,7 @@ return ZUI.def("ui.obrowser", {
             }
             Wn.extendAppSetup(asetup);
             // 调用个个子 UI 的更新
-            UI.__call_subUI_update(o, asetup);
+            UI.__call_subUI_update(o, asetup, callback);
         }
     },
     //..............................................
@@ -214,7 +220,7 @@ return ZUI.def("ui.obrowser", {
         });  
     },
     //..............................................
-    __call_subUI_update : function(o, asetup){
+    __call_subUI_update : function(o, asetup, callback){
         var UI  = this;
         var opt = UI.options;
 
@@ -224,7 +230,8 @@ return ZUI.def("ui.obrowser", {
         if(UI.subUI("chute"))
             UI.subUI("chute").update(UI, o, asetup);
 
-        UI.subUI("main").update(UI, o, asetup);
+        // 当前主区域绘制完成后，需要调用回调
+        UI.subUI("main").update(UI, o, asetup, callback);
         
         // 持久记录最后一次位置
         if(opt.lastObjId){
@@ -308,26 +315,33 @@ return ZUI.def("ui.obrowser", {
         return uiTypes;
     },
     //..............................................
-    setData : function(obj, theEditor){
+    setData : function(obj, theEditor, callback){
         var UI = this;
+
+        // 支持没有 theEditor 的写法
+        if(_.isFunction(theEditor)){
+            callback  = theEditor;
+            theEditor = undefined;
+        }
+
         // 没值
         if(!obj){
             // 如果是记录最后一次
             if(UI.options.lastObjId){
                 var lastId = UI.local(UI.options.lastObjId);
                 if(lastId && Wn.getById(lastId, true)){
-                    UI.setData("id:"+lastId, theEditor);
+                    UI.setData("id:"+lastId, theEditor, callback);
                     return;
                 }
             }
             // 看看有没有当前对象
             var c_oid = UI.getCurrentObjId();
             if(c_oid){
-                UI.setData("id:"+c_oid, theEditor);
+                UI.setData("id:"+c_oid, theEditor, callback);
             }
             // 默认采用主目录
             else{
-                UI.setData("~", theEditor);
+                UI.setData("~", theEditor, callback);
             }
             return;
         }
@@ -341,7 +355,7 @@ return ZUI.def("ui.obrowser", {
             }else{
                 o = UI.fetch(obj);
             }
-            UI.setData(o ? o : "~", theEditor);
+            UI.setData(o ? o : "~", theEditor, callback);
             return;
         }
 
@@ -353,6 +367,9 @@ return ZUI.def("ui.obrowser", {
 
         // 调整尺寸
         //UI.resize();
+
+        // 改变当前对象
+        UI.changeCurrentObj(obj, theEditor, callback);
 
         // 触发事件
         UI.trigger("browser:change", obj, theEditor);
@@ -438,6 +455,10 @@ return ZUI.def("ui.obrowser", {
     //..............................................
     getActived : function(){
         return this.subUI("main").getActived();
+    },
+    setActived : function(arg){
+        this.subUI("main").setActived(arg);
+        return this;
     },
     getChecked : function(){
         return this.subUI("main").getChecked();

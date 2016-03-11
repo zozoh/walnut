@@ -1,9 +1,10 @@
 (function($z){
 $z.declare([
     'zui',
+    'wn/util',
     'ui/mask/mask'
 ], 
-function(ZUI, MaskUI){
+function(ZUI, Wn, MaskUI){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
@@ -41,6 +42,7 @@ return ZUI.def("ui.form_com_link", {
         "click u" : function(){
             var UI    = this;
             var opt   = UI.options;
+            console.log(opt)
             var setup = opt.setup || {};
             var str   = UI.getData();
             // 准备遮罩的宽高
@@ -63,7 +65,7 @@ return ZUI.def("ui.form_com_link", {
                 }, 
                 setup : {
                     uiType : 'ui/support/edit_link',
-                    uiConf : {}
+                    uiConf : opt.setup
                 }
             }, setup)).render(function(){
                 this.body.setData(str);
@@ -81,16 +83,26 @@ return ZUI.def("ui.form_com_link", {
     _update : function(str, showBlink){
         var UI = this;
         var jU = UI.arena.find("u");
+
+        // 记录值
         str = $.trim(str);
+        UI.arena.attr("link-val", str || "");
+
+        // 修正显示
         if(str){
-            jU.removeAttr("blank").text(str);
             // 修改链接类型: 外部链接
             if(/^https?:\/\/.+/i.test(str)){
                 UI.arena.attr("link-type", "ext");
+                jU.text(str);
             }
             // 内部文件
             else if(/^id:.+/.test(str)){
                 UI.arena.attr("link-type", "obj");
+                var o = Wn.getById(str.substring(3));
+                if(o)
+                    jU.text(Wn.objDisplayName(UI, o, 0));
+                else
+                    jU.text(UI.msg("com.link.noexists"));
             }
             // 其他
             else {
@@ -98,19 +110,31 @@ return ZUI.def("ui.form_com_link", {
             }
         }
         else{
-            jU.attr("blank", "yes").text(UI.msg("edit"));
             UI.arena.attr("link-type", "unknown");
+            jU.text(UI.msg("edit"));
         }
+        // 效果
         if(showBlink){
             $z.blinkIt(UI.arena);
+
+            // 要闪光，表示要更新，触发一下事件
+            UI.__on_change();
         }
+    },
+    //...............................................................
+    __on_change : function(){
+        var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+        var v = UI.getData();
+        $z.invoke(opt, "on_change", [v], context);
+        UI.trigger("change", v);
     },
     //...............................................................
     getData : function(){
         var UI = this;
-        var jU = UI.arena.find("u");
         return this.ui_format_data(function(opt){
-            return jU.attr("blank") ? "" : jU.text();
+            return UI.arena.attr("link-val");
         });
     }
     //...............................................................

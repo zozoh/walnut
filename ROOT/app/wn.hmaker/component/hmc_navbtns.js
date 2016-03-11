@@ -17,7 +17,7 @@ var dft_btn_info = function(){
 //..............................................
 var html = function(){/*
 <div class="navbtn">
-    <div class="navbtn-img"><i class="fa fa-link"></i></div>
+    <div class="navbtn-img"></div>
     <div class="navbtn-txt"></div>
 </div>
 */};
@@ -27,10 +27,11 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
     events : {
         "click .hmc-wrapper" : function(e){
             var UI   = this;
+            var jCom = $(e.target).closest(".hm-com");
             var jBtn = $(e.target).closest(".navbtn");
 
             // 第一次点击，控件未激活，那就啥也不做
-            if(!jBtn.closest(".hm-com").attr("actived"))
+            if(!jCom.attr("actived"))
                 return;
 
             // 已经激活了，就啥也不做了
@@ -79,10 +80,9 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
 
         // 处理当前按钮的
         if(/^btn(Src|Href|Text)$/.test(key)){
-            console.log("update current button:", key, val);
+            //console.log("update current button:", key, val);
             // 获得高亮按钮
             var jBtn = UI.arena.find(".navbtn[actived]");
-            console.log(jBtn.size())
             // 设置按钮图片
             if("btnSrc" == key){
                 jBtn.find(".navbtn-img").css("background-image", "url("+UI.imgSrc(val)+")");
@@ -199,13 +199,8 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
 
         // 检查图片
         var jImg = jBtn.find(".navbtn-img");
-        if(!jImg[0].style.backgroundImage){
+        if(!jImg[0].style.backgroundImage)
             jImg[0].style.backgroundImage = "url(" + UI.imgSrc() + ")";
-        }
-        // 确保有链接图标
-        if(jImg.find("i").size() == 0){
-            $('<i class="fa fa-link"></i>').appendTo(jImg);
-        }
 
         // 检查文字
         var jTxt = jBtn.find(".navbtn-txt");
@@ -293,7 +288,8 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                     key    : "btnHref",
                     title  : "i18n:hmaker.com.navbtns.btnHref",
                     type   : "string",
-                    editAs : "link"
+                    editAs : "link",
+                    uiConf : UI.parent.getLinkHrefConf()
                 }, {
                     key    : "btnText",
                     title  : "i18n:hmaker.com.navbtns.btnText",
@@ -321,6 +317,44 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                     var jM   = UI.arena.find(".hmc-main");
                     var jBtn = $($z.getFuncBodyAsStr(html,true));
                     UI._check_btn_com(jBtn).appendTo(jM).click();
+                }
+            }, {
+                icon : '<i class="fa fa-close"></i>',
+                text : "i18n:hmaker.com.navbtns.del_btn",
+                handler : function(){
+                    var UI   = this;
+                    var jBtn = UI.arena.find(".navbtn[actived]");
+                    if(jBtn.size() == 0){
+                        alert(UI.msg("hmaker.com.navbtns.e_nobtn"));
+                        return;
+                    }
+                    jBtn.remove();
+                }
+            }, {
+                icon : '<i class="fa fa-long-arrow-left"></i>',
+                handler : function(){
+                    var UI   = this;
+                    var jBtn = UI.arena.find(".navbtn[actived]");
+                    if(jBtn.size() == 0){
+                        alert(UI.msg("hmaker.com.navbtns.e_nobtn"));
+                        return;
+                    }
+                    if(jBtn.prev().size()>0){
+                        jBtn.insertBefore(jBtn.prev());
+                    }
+                }
+            }, {
+                icon : '<i class="fa fa-long-arrow-right"></i>',
+                handler : function(){
+                    var UI   = this;
+                    var jBtn = UI.arena.find(".navbtn[actived]");
+                    if(jBtn.size() == 0){
+                        alert(UI.msg("hmaker.com.navbtns.e_nobtn"));
+                        return;
+                    }
+                    if(jBtn.next().size()>0){
+                        jBtn.insertAfter(jBtn.next());
+                    }
                 }
             }]
         }).render(function(){

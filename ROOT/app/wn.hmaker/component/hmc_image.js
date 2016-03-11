@@ -53,6 +53,10 @@ return ZUI.def("app.wn.hmaker_com_image", {
             if("src" == key ){
                 UI.arena.find("img").prop("src", UI.imgSrc(val));
             }
+            // href 的话，给 image 加上
+            else if("href" == key){
+                UI.arena.attr("href", val);
+            }
             // 其他的设置到 style 里
             else{
                 var ru  = UI.parent.gen_rule_item(key, val);
@@ -101,6 +105,12 @@ return ZUI.def("app.wn.hmaker_com_image", {
                     type  : "object",
                     uiType : "ui/picker/opicker",
                     uiConf : UI.parent.getImagePickerConf()
+                }, {
+                    key    : "href",
+                    title  : "i18n:hmaker.com.navbtns.btnHref",
+                    type   : "string",
+                    editAs : "link",
+                    uiConf : UI.parent.getLinkHrefConf()
                 }, {
                     key    : "borderRadius",
                     title  : "i18n:hmaker.com.image.borderRadius",

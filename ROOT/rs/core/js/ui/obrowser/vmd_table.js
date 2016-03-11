@@ -100,7 +100,7 @@ return ZUI.def("ui.obrowser_vmd_table", {
         return ["table"];
     },
     //..............................................
-    update : function(o){
+    update : function(o, callback){
         var UI = this;
 
         UI.uiTable.showLoading();
@@ -112,6 +112,9 @@ return ZUI.def("ui.obrowser_vmd_table", {
 
             // 最后重新计算一下尺寸
             UI.resize();
+
+            // 调用回调
+            $z.doCallback(callback, [objs]);
         });
     },
     //..............................................
@@ -125,6 +128,9 @@ return ZUI.def("ui.obrowser_vmd_table", {
     //..............................................
     getActived : function(){
         return this.uiTable.getActived();
+    },
+    setActived : function(arg){
+        this.uiTable.setActived(arg);
     },
     //..............................................
     getChecked : function(){

@@ -37,11 +37,6 @@ body{
     .hmc-assist {
         box-shadow: 0 0 10px #FF0;
     }
-    .hmc-assist-icon {
-        position:absolute; display: block; font-size:@f3;
-        //top: (@HDL + @f5) * -1; left: (@HDL + @f5) * -1;
-        text-shadow:0 0 3px #FF0; color:#080;
-    }
 }
 
 // 绝对定位
@@ -75,9 +70,15 @@ body{
     }
 }
 
-// 默认隐藏助手的图标
+._icon(@fsz:8px; @top:2px; @left:2px;) {
+    font:normal normal normal @fsz/1 FontAwesome;
+    color:rgba(200,200,200,0.4); 
+    position: absolute; top:@top; left:@left;
+}
+
+// 助手的图标的样式
 .hm-com .hmc-assist-icon {
-    display: none;
+    ._icon(16px; 8px; 8px;)
 }
 
 // 拖动遮罩
@@ -116,10 +117,6 @@ body[noselect] {@noselect();}
                 width: @navbtn_dft_img_size; height:@navbtn_dft_img_size; position: relative;
                 margin:0 auto; overflow: hidden;
                 background-repeat: no-repeat; background-size:cover; background-color:#000;
-                i {
-                    position: absolute; top:2px; left:2px;
-                    color:rgba(0,0,0,0.6); text-shadow:0 0 4px #FFF;
-                }
             }
             .navbtn-txt {
                 width: @navbtn_dft_img_size; text-align: center; 
@@ -129,6 +126,15 @@ body[noselect] {@noselect();}
         }
         .navbtn[actived] {
             background: rgba(255,255,0, 0.3); border-color:rgba(0,0,0,0.5);
+        }
+        .navbtn[href^="id:"] .navbtn-img:before{
+            ._icon();
+            content: "\f0c1";
+        }
+        .navbtn[href^="http://"] .navbtn-img:before ,
+        .navbtn[href^="https://"] .navbtn-img:before{
+            ._icon();
+            content: "\f08e";
         }
     }
     .hmc-main:after{@clr();}
@@ -168,5 +174,12 @@ body[noselect] {@noselect();}
 }
 .hmc-image[actived]{
     .hmc-assist {@actived_item_border();}
+}
+.hmc-image[href^="id:"] .hmc-assist-icon:before {
+    content: "\f0c1";
+}
+.hmc-image[href^="http://"] .hmc-assist-icon:before ,
+.hmc-image[href^="https://"] .hmc-assist-icon:before{
+    content: "\f08e";
 }
 

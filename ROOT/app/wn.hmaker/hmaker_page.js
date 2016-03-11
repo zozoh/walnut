@@ -138,9 +138,7 @@ var _H = function(jHead, selector, html) {
 var html = function(){/*
 <div class="ui-code-template">
     <div code-id="hmc.assist" class="hmc-assist"><div class="hmc-assist-wrapper">
-        <div class="hmc-assist-icon">
-            <i class="fa fa-info-circle as-actived"></i>
-        </div>
+        <div class="hmc-assist-icon"></div>
         <div class="hmc-assist-hdls">
             <div class="hmca-grp" md="L">
                 <div class="hmca-hdl" hd="NW"></div>
@@ -364,6 +362,14 @@ return ZUI.def("app.wn.hmaker_page", {
             },
             formatData : function(o){
                 return o ? {fid:o.id} : null;
+            }
+        };
+    },
+    //...............................................................
+    getLinkHrefConf : function(){
+        return {
+            setup : {
+                baseObj : this.getCurrentObj()
             }
         };
     },
@@ -821,13 +827,14 @@ return ZUI.def("app.wn.hmaker_page", {
     getCurrentTextContent : function(){
         var UI   = this;
         var ifrm = UI.arena.find(".ue-screen iframe")[0];
+        var iDoc = ifrm.contentDocument;
+        var jHtm = $(iDoc.documentElement);
 
         // 预先处理所有的控件，让其状态适合保存
         if(UI.children){
             for(var i=0; i<UI.children.length; i++){
                 var uiCom = UI.children[i];
                 // 移除所有的 UI ID
-                var jHtm = $(ifrm.contentDocument.documentElement);
                 uiCom.$el.removeAttr("ui-id");
 
                 // 移除所有的代码帮助节点
@@ -837,6 +844,16 @@ return ZUI.def("app.wn.hmaker_page", {
                 //uiCom.blur();
             }
         }
+
+        // 移除所有没必要的 style
+        var jHead = jHtm.find("head");
+        jHead.find('style[for-com^="com_"]').each(function(){
+            var id = $(this).attr("for-com").substring(4);
+            if(!iDoc.getElementById(id)){
+                console.log("hmakr page remove style before save : ", "com_" + id);
+                $(this).remove();
+            }
+        });
 
         // 移除页面最开始的文本节点空白
         var jBody   = jHtm.find("body");

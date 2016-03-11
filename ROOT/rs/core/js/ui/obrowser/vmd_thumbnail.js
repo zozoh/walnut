@@ -42,7 +42,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
                 }
             }
             // 否则表示选中
-            UI.setActived(jq, e.shiftKey, $z.os.mac?e.metaKey:$z.os.ctrlKey);
+            UI.__set_actived(jq, e.shiftKey, $z.os.mac?e.metaKey:$z.os.ctrlKey);
         },
         "click .wnobj-nm" : function(e){
             var UI = this;
@@ -54,7 +54,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
             }
             // 否则表示选中
             else{
-                UI.setActived(jq, e.shiftKey, ctrlIsOn);
+                UI.__set_actived(jq, e.shiftKey, ctrlIsOn);
             }
         },
         // 取消全部选择
@@ -67,7 +67,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
         }
     },
     //..............................................
-    setActived : function(ele, shiftIsOn, ctrlIsOn) {
+    __set_actived : function(ele, shiftIsOn, ctrlIsOn) {
         var UI   = this;
         var jObj = $(ele).closest(".wnobj");
 
@@ -118,7 +118,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
         UI.browser.trigger("browser:info", UI.msg("obrowser.selectNobj", {n:UI.getChecked().length}));
     },
     //..............................................
-    update : function(o, UIBrowser){
+    update : function(o, callback){
         var UI = this;
 
         // 显示正在加载
@@ -133,10 +133,37 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
             objs.forEach(function(obj){
                 Wn.gen_wnobj_thumbnail(UI, obj, 
                     'span',
-                    UIBrowser.options.thumbnail
+                    UI.browser.options.thumbnail
                 ).appendTo(UI.arena);
             });
+
+            // 调用回调
+            $z.doCallback(callback, [objs]);
         });
+    },
+    //..............................................
+    $item : function(it){
+        var UI = this;
+        // 默认用更新
+        if(_.isUndefined(it)){
+            return UI.arena.find(".wnobj-actived");
+        }
+        // 如果是字符串表示 ID
+        else if(_.isString(it)){
+            return UI.arena.find(".wnobj[oid="+it+"]");
+        }
+        // 本身就是 dom
+        else if(_.isElement(it) || $z.isjQuery(it)){
+            return $(it).closest(".wnobj");
+        }
+        // 数字
+        else if(_.isNumber(it)){
+            return $z.jq(UI.arena, it, ".wnobj");
+        }
+        // 靠不晓得了
+        else {
+            throw "unknowns row selector: " + row;
+        }
     },
     //..............................................
     getData : function(arg){
@@ -153,6 +180,13 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
         if(jq.size()==0)
             return null;
         return UI.browser.getById(jq.attr("oid"));
+    },
+    setActived : function(arg){
+        var UI = this;
+        var jq = UI.$item(arg);
+        if(jq.size() > 0) {
+            UI.__set_actived(jq);
+        }
     },
     //..............................................
     getChecked : function(){

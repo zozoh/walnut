@@ -94,13 +94,21 @@ return ZUI.def("ui.support.edit_link", {
             }
         //lastObjId : "app-browser"
         }, opt.setup)).render(function(){
+            var uiBW = this;
             // 指定了对象
             if(o){
-                this.setData("id:" + o.pid);
+                uiBW.setData("id:" + o.pid, function(){
+                    console.log("I am browser setData callback!!");
+                    uiBW.setActived(o.id);
+                });                
             }
-            // 打开默认目录
-            else {
-                this.setData(opt.baseDir || "~");
+            // 默认目录是个对象 
+            else if(_.isObject(opt.baseObj)) {
+                uiBW.setData(opt.baseObj.race=='DIR'?opt.baseObj:"id:"+opt.baseObj.pid);
+            }
+            // 打开默认目录，或者主目录
+            else{
+                uiBW.setData(opt.baseObj || "~");
             }
         });
     },
@@ -115,7 +123,7 @@ return ZUI.def("ui.support.edit_link", {
     _update : function(str){
         var UI   = this;
         var opt  = UI.options;
-        console.log("update:", str)
+        //console.log("update:", str)
         // 用内部文件 [默认]
         if(!str || /^id:.+$/.test(str)) {
             //UI._show_ext(str);
