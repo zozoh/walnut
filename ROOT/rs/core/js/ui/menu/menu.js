@@ -352,16 +352,18 @@ return ZUI.def("ui.menu", {
     __draw_fireable : function(mi, jq, jItem){
         var UI = this;
         // 图标：不是顶层项目，一律添加图标以便下拉时对其
+        var jIcon;
         if(!mi.is_top_item || mi.icon){
-            var jIcon = $('<span class="menu-item-icon">').appendTo(jq);
+            jIcon = $('<span class="menu-item-icon">').appendTo(jq)
             if(mi.icon){
                 jIcon.html(mi.icon);
             }
         }
 
         // 文字
+        var jT;
         if(mi.text){
-            var jT = $('<span class="menu-item-text">');
+            jT = $('<span class="menu-item-text">');
             if(mi.iconAtRight){
                 jT.prependTo(jq);
             }else{
@@ -373,6 +375,12 @@ return ZUI.def("ui.menu", {
         // 添加提示文字
         if(mi.tip){
             jq.attr("title", UI.text(mi.tip));
+            // 这个 balloon.css 有点 bug，稍后再说吧
+            // if(jT || jIcon)
+            //     (jT || jIcon).attr({
+            //         "data-balloon" : UI.text(mi.tip),
+            //         "data-balloon-pos" : "left"
+            //     });
         }
     }
     //..............................................

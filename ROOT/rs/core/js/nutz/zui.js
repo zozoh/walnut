@@ -87,7 +87,7 @@ var register = function(UI) {
     // 指定了 $pel 的话 ...
     else if(UI.$pel){
         // 如果有 gasketName 那么就试图看看其所在 UI
-        UI.parent = ZUI.getInstance(UI.$pel);
+        UI.parent = UI.parent || ZUI.getInstance(UI.$pel);
         // 如果这个元素带了 gasketName，则采用它
         var gnm = UI.$pel.attr("ui-gasket");
         var m   = /^(\w+)@(\w+)$/.exec(gnm);
@@ -206,9 +206,6 @@ ZUIObj.prototype = {
             UI.pel  = opt.pel;
             UI.$pel = $(opt.pel);
         }
-        //............................... 继承父UI的属性执行器
-        UI.exec = opt.exec || (UI.parent||{}).exec;
-        UI.app = opt.app || (UI.parent||{}).app;
 
         //............................... 控件的通用方法
         $z.setUndefined(UI, "blur", function(){
@@ -229,14 +226,21 @@ ZUIObj.prototype = {
         // 注册 UI 实例
         register(UI);
 
+        //............................... 继承父UI的属性执行器
+        UI.exec = opt.exec || (UI.parent||{}).exec;
+        UI.app = opt.app || (UI.parent||{}).app;
+
+        // 得到 UI 的事件
+        var events = _.extend({}, UI.events, opt.events);
+
         // 监听事件
-        if(UI.$el && UI.events){
-            for(var key in UI.events){
+        if(UI.$el){
+            for(var key in events){
                 var m = /^([^ ]+)[ ]+(.+)$/.exec(key);
                 if(null==m){
                     throw "wrong events key: " + key;
                 }
-                UI.$el.on(m[1], m[2], UI.events[key], function(e){
+                UI.$el.on(m[1], m[2], events[key], function(e){
                     e.data.apply(UI, [e]);
                 });
             }
@@ -733,8 +737,8 @@ ZUIObj.prototype = {
     },
     // 根据路径获取一个子 UI
     subUI : function(uiPath){
-        var ss = uiPath.split(/[\/\\.]/);
         var UI = this;
+        var ss = uiPath.split(/[\/\\.]/);
         for(var i=0;i<ss.length;i++){
             var s = ss[i];
             UI = UI.gasket[s];
@@ -742,6 +746,12 @@ ZUIObj.prototype = {
                 return null;
         }
         return UI;
+    },
+    // 释放某个子 UI
+    releaseSubUI : function(uiPath){
+        var sub = this.subUI(uiPath);
+        if(sub)
+            sub.destroy();
     },
     // 快捷方法，帮助 UI 存储本地状态
     // 需要设置 "app" 段
@@ -1037,24 +1047,41 @@ ZUI.loadi18n = function (path, callback) {
 };
 
 // 调试方法，打印当前 UI 的级联 tree
-ZUI.dump_tree = function(UI, depth){
+ZUI.dump_tree = function(UI, depth, stopBy, No){
     // 显示一个 UI 的树
     if(UI){
-        var depth = _.isUndefined(depth) ? 0 : depth
-        var prefix = $z.dupString("    ", depth);
-        var str = ($z.tmpl("{{nm}}({{cid}}){{uiKey}}"))({
+        No = No || "";
+        var depth  = _.isUndefined(depth) ? 0 : depth
+        var indent = "    ";
+        var prefix = $z.dupString(indent, depth);
+        var ctx    = {
             nm     : UI.uiName,
             cid    : UI.cid,
-            uiKey  : UI.uiKey ? "["+UI.uiKey+"]" : ""
-        });
+            uiKey  : UI.uiKey ? "["+UI.uiKey+"]" : "",
+            klass  : UI.$pel.prop("className"),
+            childN : UI.children.length
+        }
+        var str = ($z.tmpl("{{nm}}({{cid}}){{uiKey}}<{{klass}}>:{{childN}}children"))(ctx);
+        // 显示扩展点
         for(var key in UI.gasket) {
             var sui = UI.gasket[key];
             if(sui){
                 str += "\n" + prefix 
                        + "  @" + $z.alignLeft('"' + key + '"', 8, " ")
-                       + "-> " + ZUI.dump_tree(sui, depth+1);
+                       + "-> " + ZUI.dump_tree(sui, depth+1, stopBy);
             }
         }
+        // 显示子
+        if(!stopBy || !stopBy.test(UI.uiName))
+            if(UI.children.length > 0){
+                str += "\n" + prefix + "   >>>>>>>>>>>>>>";
+                for(var i=0; i<UI.children.length; i++){
+                    str += "\n" + prefix + indent
+                           + "[" + No + i + "]" 
+                           + ZUI.dump_tree(UI.children[i], depth+1, stopBy, No+i+".");
+                }
+            }
+        // 返回
         return str;
     }
     // 显示全部顶层 UI

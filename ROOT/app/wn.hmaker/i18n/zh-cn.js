@@ -21,8 +21,10 @@ define({
         "no_actived_com" : "您啥都没选 -_-!",
         "com" : {
             "navbtns" : {
+                "e_nobtn"         : "您需要选择一个按钮再进行操作",
                 "nm"              : "导航按钮",
                 "add_btn"         : "添加按钮",
+                "del_btn"         : "删除按钮",
                 "showBtnText"     : "显示文字",
                 "btnBorderRadius" : "按钮圆角",
                 "btnWidth"        : "按钮宽度",

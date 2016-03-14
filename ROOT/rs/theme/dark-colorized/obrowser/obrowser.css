@@ -24,6 +24,9 @@ body > .ui-obrowser {
   width: 16px;
   text-align: center;
 }
+.obrowser .obrowser-main .obrowser-vmd-thumbnail {
+  overflow: auto;
+}
 .obrowser .obrowser-footer {
   background: rgba(0, 0, 0, 0.5);
   border-top: 1px solid rgba(255, 255, 255, 0.2);

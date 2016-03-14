@@ -1539,6 +1539,7 @@ var zUtil = {
             var opt    = jDiv.data("@OPT");
             // Esc
             if (27 == e.which) {
+                e.stopPropagation();
                 var old = jDiv.data("@OLD");
                 jInput.val(old).blur();
                 return;

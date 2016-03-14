@@ -4,6 +4,25 @@
     font-family: @f_fixed; padding:@d1;
 }
 //----------------------------------------------------------------
+.com-link {
+    padding:@d2; white-space: nowrap;
+    u {cursor: pointer; color:@clink; text-decoration: none;}
+    u:hover {color:@clink_hover; text-decoration: underline;}
+    span {
+        color: @cf2; width: 16px; display: inline-block; vertical-align: middle;
+        text-align: center;
+        i[tp="cl-obj"]     {display: none;}
+        i[tp="cl-ext"]     {display: none;}
+        i[tp="cl-unknown"] {display: none;}
+    }
+    u {
+        display: inline-block; vertical-align: middle;
+    }
+}
+.com-link[link-type="obj"] span i[tp="cl-obj"]{display: inline;}
+.com-link[link-type="ext"] span i[tp="cl-ext"]{display: inline;}
+.com-link[link-type="unknown"] span i[tp="cl-unknown"]{display: inline;}
+//----------------------------------------------------------------
 .com-input {
     white-space: nowrap; position: relative;
     input {

@@ -34,7 +34,25 @@ return ZUI.def("ui.mask", {
         });
 
         // 标记界面其他元素，以便通过 CSS 将其设成半透明
-        UI.$el.prevAll().addClass("ui-mask-others");
+        // TODO zozoh: 靠 webkit 这里有 bug，一旦页面有了 input type=color，
+        // 设置了 opactiy，整个页面元素就全不显示了，
+        // 那么这种情下就先不加了，之后再找找为啥，应该是浏览器的 bug
+        // 记录一下三个浏览器的 UserAgent
+        /*
+        Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:43.0) Gecko/20100101 Firefox/43.0
+        Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/601.4.4 (KHTML, like Gecko) Version/9.0.3 Safari/601.4.4
+        Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36
+        */
+        if(/AppleWebKit/i.test(window.navigator.userAgent)
+            && $(document.body).find('input[type="color"]').size()>0){
+            // webkit 在 input type=color 的时候，设置 opactiy，只要小于 1 就全隐藏，靠
+            // 不知道为毛
+        }
+        else{
+            UI.$el.prevAll().addClass("ui-mask-others");
+        }
+
+        // 记录主区域
         UI.$main = UI.arena.children(".ui-mask-main");
         if(options.closer === false) {
             this.arena.find(".ui-mask-closer").hide();

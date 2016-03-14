@@ -285,31 +285,31 @@
 .hmaker-page .hmaker-deta .form .form-body {
   padding: 4px;
 }
-.hmaker-page .hmaker-deta .form .hmaker-prop-general .fg-fields {
-  padding-top: 6px;
+.hmaker-page .hmaker-deta .form .hmaker-prop-compactly .fg-fields {
+  padding: 4px 4px 4px 12px;
 }
-.hmaker-page .hmaker-deta .form .hmaker-prop-general .fg-title {
-  margin: 0;
+.hmaker-page .hmaker-deta .form .hmaker-prop-compactly .fg-title {
+  margin: 6px 0 4px 0;
 }
-.hmaker-page .hmaker-deta .form .hmaker-prop-general .form-fld {
+.hmaker-page .hmaker-deta .form .hmaker-prop-compactly .form-fld {
   padding: 4px 0;
   border: 0;
 }
-.hmaker-page .hmaker-deta .form .hmaker-prop-general .form-fld .ff-txt {
+.hmaker-page .hmaker-deta .form .hmaker-prop-compactly .form-fld .ff-txt {
   padding: 4px 4px;
   font-size: 10px;
 }
-.hmaker-page .hmaker-deta .form .hmaker-prop-general .form-fld .ff-val {
+.hmaker-page .hmaker-deta .form .hmaker-prop-compactly .form-fld .ff-val {
   padding: 0;
 }
-.hmaker-page .hmaker-deta .form .hmaker-prop-general .form-fld .com-input input {
+.hmaker-page .hmaker-deta .form .hmaker-prop-compactly .form-fld .com-input input {
   padding: 2px;
 }
-.hmaker-page .hmaker-deta .form .hmaker-prop-general .form-fld .com-switch li {
+.hmaker-page .hmaker-deta .form .hmaker-prop-compactly .form-fld .com-switch li {
   font-size: 10px;
   padding: 8px;
 }
-.hmaker-page .hmaker-deta .form .hmaker-prop-general .form-fld[fld-key="ID"] input {
+.hmaker-page .hmaker-deta .form .hmaker-prop-compactly .form-fld[fld-key="ID"] input {
   font-family: Monaco, Consolas, Courier New;
   padding: 6px;
 }

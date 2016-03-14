@@ -2,6 +2,48 @@
   font-family: Monaco, Consolas, Courier New;
   padding: 4px;
 }
+.com-link {
+  padding: 6px;
+  white-space: nowrap;
+}
+.com-link u {
+  cursor: pointer;
+  color: #0088ff;
+  text-decoration: none;
+}
+.com-link u:hover {
+  color: #ff0000;
+  text-decoration: underline;
+}
+.com-link span {
+  color: #999999;
+  width: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+}
+.com-link span i[tp="cl-obj"] {
+  display: none;
+}
+.com-link span i[tp="cl-ext"] {
+  display: none;
+}
+.com-link span i[tp="cl-unknown"] {
+  display: none;
+}
+.com-link u {
+  display: inline-block;
+  vertical-align: middle;
+}
+.com-link[link-type="obj"] span i[tp="cl-obj"] {
+  display: inline;
+}
+.com-link[link-type="ext"] span i[tp="cl-ext"] {
+  display: inline;
+}
+.com-link[link-type="unknown"] span i[tp="cl-unknown"] {
+  display: inline;
+}
 .com-input {
   white-space: nowrap;
   position: relative;
@@ -120,7 +162,7 @@
   background: #ffffff;
   color: #000000;
   border-radius: 6px;
-  box-shadow: 2px 2px 8px #888888;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
 }
 .com-droplist .com-drop ul {
   list-style: none;

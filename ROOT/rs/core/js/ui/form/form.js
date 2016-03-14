@@ -79,7 +79,7 @@ return ZUI.def("ui.form", {
                 // 有快捷定义 ..
                 else if(fld.editAs){
                     // 内置
-                    if(/^(input|color|label|switch|text|(drop|check|radio)list)$/.test(fld.editAs)){
+                    if(/^(input|color|label|switch|text|link|(drop|check|radio)list)$/.test(fld.editAs)){
                         fld.uiType = "ui/form/c_" + fld.editAs;
                     }
                     // 各种 picker
@@ -285,7 +285,8 @@ return ZUI.def("ui.form", {
             var jG    = $(this);
             var grp   = jG.data("@GRP");
             var colnb = Math.max(grp.cols || 1, 1);
-            var fldW = parseInt(grpW / Math.max(colnb, 1)) - (colnb>1?1:0);
+            var fbW   = $(this).find(".fg-fields").width(); 
+            var fldW = parseInt(fbW / Math.max(colnb, 1)) - (colnb>1?1:0);
 
             // 同时归纳最大的字段标题宽度
             var maxFFW = 0;

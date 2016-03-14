@@ -17,7 +17,7 @@ var dft_btn_info = function(){
 //..............................................
 var html = function(){/*
 <div class="navbtn">
-    <div class="navbtn-img"><i class="fa fa-link"></i></div>
+    <div class="navbtn-img"></div>
     <div class="navbtn-txt"></div>
 </div>
 */};
@@ -27,10 +27,11 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
     events : {
         "click .hmc-wrapper" : function(e){
             var UI   = this;
+            var jCom = $(e.target).closest(".hm-com");
             var jBtn = $(e.target).closest(".navbtn");
 
             // 第一次点击，控件未激活，那就啥也不做
-            if(!jBtn.closest(".hm-com").attr("actived"))
+            if(!jCom.attr("actived"))
                 return;
 
             // 已经激活了，就啥也不做了
@@ -79,10 +80,9 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
 
         // 处理当前按钮的
         if(/^btn(Src|Href|Text)$/.test(key)){
-            console.log("update current button:", key, val);
+            //console.log("update current button:", key, val);
             // 获得高亮按钮
             var jBtn = UI.arena.find(".navbtn[actived]");
-            console.log(jBtn.size())
             // 设置按钮图片
             if("btnSrc" == key){
                 jBtn.find(".navbtn-img").css("background-image", "url("+UI.imgSrc(val)+")");
@@ -108,7 +108,8 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
     //...............................................................
     blur : function(){
         this.arena.find(".navbtn[actived]").removeAttr("actived");
-        this.parent.gasket.prop.update(dft_btn_info());
+        if(this.parent.gasket.prop)
+            this.parent.gasket.prop.update(dft_btn_info());
     },
     //...............................................................
     updateStyle : function(info){
@@ -198,13 +199,8 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
 
         // 检查图片
         var jImg = jBtn.find(".navbtn-img");
-        if(!jImg[0].style.backgroundImage){
+        if(!jImg[0].style.backgroundImage)
             jImg[0].style.backgroundImage = "url(" + UI.imgSrc() + ")";
-        }
-        // 确保有链接图标
-        if(jImg.find("i").size() == 0){
-            $('<i class="fa fa-link"></i>').appendTo(jImg);
-        }
 
         // 检查文字
         var jTxt = jBtn.find(".navbtn-txt");
@@ -231,17 +227,22 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
             $pel   : opt.$prop,
             fields : [opt.propSetup, {
                 title  : 'i18n:hmaker.cprop_special',
+                className : "hmaker-prop-compactly",
                 uiWidth : "all",
+                autoLineHeight : true,
+                cols:2,
                 fields : [{
                     key    : "showBtnText",
                     title  : "i18n:hmaker.com.navbtns.showBtnText",
                     type   : "boolean",
                     dft    : true,
+                    span   : 2,
                     editAs : "switch"
                 }, {
                     key    : "color",
                     title  : "i18n:hmaker.cprop.color",
                     type   : "string",
+                    span   : 2,
                     nullAsUndefined : true,
                     editAs : "color",
                     uiConf : UI.parent.getColorConf()
@@ -249,14 +250,10 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                     key    : "backgroundColor",
                     title  : "i18n:hmaker.cprop.backgroundColor",
                     type   : "string",
+                    span   : 2,
                     nullAsUndefined : true,
                     editAs : "color",
                     uiConf : UI.parent.getColorConf()
-                }, {
-                    key    : "btnBorderRadius",
-                    title  : "i18n:hmaker.com.navbtns.btnBorderRadius",
-                    type   : "int",
-                    uiConf : {unit : "px"}
                 }, {
                     key    : "btnWidth",
                     title  : "i18n:hmaker.com.navbtns.btnWidth",
@@ -265,6 +262,11 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                 }, {
                     key    : "btnHeight",
                     title  : "i18n:hmaker.com.navbtns.btnHeight",
+                    type   : "int",
+                    uiConf : {unit : "px"}
+                }, {
+                    key    : "btnBorderRadius",
+                    title  : "i18n:hmaker.com.navbtns.btnBorderRadius",
                     type   : "int",
                     uiConf : {unit : "px"}
                 }, {
@@ -285,7 +287,9 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                 }, {
                     key    : "btnHref",
                     title  : "i18n:hmaker.com.navbtns.btnHref",
-                    type   : "string"
+                    type   : "string",
+                    editAs : "link",
+                    uiConf : UI.parent.getLinkHrefConf()
                 }, {
                     key    : "btnText",
                     title  : "i18n:hmaker.com.navbtns.btnText",
@@ -313,6 +317,44 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                     var jM   = UI.arena.find(".hmc-main");
                     var jBtn = $($z.getFuncBodyAsStr(html,true));
                     UI._check_btn_com(jBtn).appendTo(jM).click();
+                }
+            }, {
+                icon : '<i class="fa fa-close"></i>',
+                text : "i18n:hmaker.com.navbtns.del_btn",
+                handler : function(){
+                    var UI   = this;
+                    var jBtn = UI.arena.find(".navbtn[actived]");
+                    if(jBtn.size() == 0){
+                        alert(UI.msg("hmaker.com.navbtns.e_nobtn"));
+                        return;
+                    }
+                    jBtn.remove();
+                }
+            }, {
+                icon : '<i class="fa fa-long-arrow-left"></i>',
+                handler : function(){
+                    var UI   = this;
+                    var jBtn = UI.arena.find(".navbtn[actived]");
+                    if(jBtn.size() == 0){
+                        alert(UI.msg("hmaker.com.navbtns.e_nobtn"));
+                        return;
+                    }
+                    if(jBtn.prev().size()>0){
+                        jBtn.insertBefore(jBtn.prev());
+                    }
+                }
+            }, {
+                icon : '<i class="fa fa-long-arrow-right"></i>',
+                handler : function(){
+                    var UI   = this;
+                    var jBtn = UI.arena.find(".navbtn[actived]");
+                    if(jBtn.size() == 0){
+                        alert(UI.msg("hmaker.com.navbtns.e_nobtn"));
+                        return;
+                    }
+                    if(jBtn.next().size()>0){
+                        jBtn.insertAfter(jBtn.next());
+                    }
                 }
             }]
         }).render(function(){

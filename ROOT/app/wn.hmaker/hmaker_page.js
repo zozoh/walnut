@@ -11,7 +11,7 @@ $z.declare([
 // 这是一个 form UI 的配置项
 var comGeneralProp = {
     title     : 'i18n:hmaker.cprop_general',
-    className : "hmaker-prop-general",
+    className : "hmaker-prop-compactly",
     cols   : 2,
     autoLineHeight : true,
     fields : [{
@@ -70,6 +70,11 @@ var comGeneralProp = {
 // .........................  控件们的通用菜单
 // 这是一个 menu UI 的配置项
 var comGeneralActions = [{
+    text    : "Tree",
+    handler : function(){
+        console.log(ZUI.dump_tree(this, 0, /^ui.form/));
+    }
+}, {
     //.......................................... 删除
     icon    : '<i class="fa fa-trash"></i>',
     text    : "i18n:hmaker.act_remove",
@@ -133,9 +138,7 @@ var _H = function(jHead, selector, html) {
 var html = function(){/*
 <div class="ui-code-template">
     <div code-id="hmc.assist" class="hmc-assist"><div class="hmc-assist-wrapper">
-        <div class="hmc-assist-icon">
-            <i class="fa fa-info-circle as-actived"></i>
-        </div>
+        <div class="hmc-assist-icon"></div>
         <div class="hmc-assist-hdls">
             <div class="hmca-grp" md="L">
                 <div class="hmca-hdl" hd="NW"></div>
@@ -237,12 +240,16 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     redraw : function(){
         var UI  = this;
-
+        //console.log("I am redraw", UI)
         // 绑定 iframe onload
-        UI.arena.find(".ue-screen iframe").bind("load", function(){
-            //console.log("hmaker_page: iframe onload");
-            UI.setup_page_editing();
-        });
+        var jIfm = UI.arena.find(".ue-screen iframe");
+        if(!jIfm.attr("onload-bind")){
+            jIfm.bind("load", function(e){
+                //console.log("hmaker_page: iframe onload", Date.now(), e);
+                UI.setup_page_editing();
+            });
+            jIfm.attr("onload-bind", "yes");
+        }
 
         // 读取加载项的内容
         UI.__reload_components(function(){
@@ -355,6 +362,14 @@ return ZUI.def("app.wn.hmaker_page", {
             },
             formatData : function(o){
                 return o ? {fid:o.id} : null;
+            }
+        };
+    },
+    //...............................................................
+    getLinkHrefConf : function(){
+        return {
+            setup : {
+                baseObj : this.getCurrentObj()
             }
         };
     },
@@ -812,22 +827,33 @@ return ZUI.def("app.wn.hmaker_page", {
     getCurrentTextContent : function(){
         var UI   = this;
         var ifrm = UI.arena.find(".ue-screen iframe")[0];
+        var iDoc = ifrm.contentDocument;
+        var jHtm = $(iDoc.documentElement);
 
         // 预先处理所有的控件，让其状态适合保存
         if(UI.children){
             for(var i=0; i<UI.children.length; i++){
                 var uiCom = UI.children[i];
                 // 移除所有的 UI ID
-                var jHtm = $(ifrm.contentDocument.documentElement);
                 uiCom.$el.removeAttr("ui-id");
 
                 // 移除所有的代码帮助节点
                 uiCom.$el.find(".hmc-assist").remove();
 
                 // 控件失去焦点
-                uiCom.blur();
+                //uiCom.blur();
             }
         }
+
+        // 移除所有没必要的 style
+        var jHead = jHtm.find("head");
+        jHead.find('style[for-com^="com_"]').each(function(){
+            var id = $(this).attr("for-com").substring(4);
+            if(!iDoc.getElementById(id)){
+                console.log("hmakr page remove style before save : ", "com_" + id);
+                $(this).remove();
+            }
+        });
 
         // 移除页面最开始的文本节点空白
         var jBody   = jHtm.find("body");

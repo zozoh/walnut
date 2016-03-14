@@ -1,0 +1,58 @@
+.edit-link {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: column nowrap;
+}
+.edit-link header {
+  flex: 0 0 auto;
+  padding: 12px 6px 0 6px;
+  border-bottom: 1px solid #ff8800;
+}
+.edit-link header ul {
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: row nowrap;
+}
+.edit-link header ul li {
+  padding: 6px 12px;
+  margin: 0 6px;
+  color: #888888;
+  background: rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-bottom: 0;
+  border-radius: 4px 4px 0 0;
+  font-weight: bold;
+}
+.edit-link header ul li:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+.edit-link header ul li.highlight,
+.edit-link header ul li.highlight:hover {
+  border-color: #ff8800;
+  color: #ffffff;
+  background: #ff8800;
+}
+.edit-link section {
+  flex: 1 1 auto;
+  position: relative;
+}
+.edit-link section > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.edit-link section .el-ext {
+  padding: 24px;
+}
+.edit-link section .el-ext input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+}

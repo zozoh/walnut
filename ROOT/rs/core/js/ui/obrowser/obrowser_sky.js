@@ -12,7 +12,7 @@ var html = function(){/*
         <b></b><span class="ochild"><i class="fa fa-caret-down"></i></span>
     </div>
 </div>
-<div class="ui-arena obrowser-sky ui-clr">
+<div class="ui-arena obrowser-sky ui-clr" ui-fitparent="true">
     <div class="obrowser-crumb"></div>
     <div class="obrowser-menu" ui-gasket="menu"></div>
 </div>
@@ -53,7 +53,7 @@ return ZUI.def("ui.obrowser_sky", {
         },
         "click .obrowser-crumb" : function(e){
             var UI = this;
-            var UIBrowser = UI.parent.parent;
+            var UIBrowser = UI.parent;
             var jq = $(e.target);
             var jItem = jq.closest(".citem");
             // 点击空白处，编辑路径
@@ -112,7 +112,7 @@ return ZUI.def("ui.obrowser_sky", {
     //..............................................
     editPath : function(){
         var UI = this;
-        var UIBrowser = UI.parent.parent;
+        var UIBrowser = UI.parent;
         var jCrumb = UI.arena.find(".obrowser-crumb");
 
         $z.editIt(jCrumb, {
@@ -301,7 +301,7 @@ return ZUI.def("ui.obrowser_sky", {
     },
     _append_crumb_item : function(jCrumb, o, itype){
         var UI = this;
-        var UIBrowser = UI.parent.parent;
+        var UIBrowser = UI.parent;
         var jq = UI.ccode("crumb.item");
         jq.attr("oid", o.id);
 
@@ -338,13 +338,13 @@ return ZUI.def("ui.obrowser_sky", {
     //..............................................
     resize : function(){
         var UI = this;
-        //console.log("I am resize")
         var jCrumb = UI.arena.find(".obrowser-crumb");
         var jMenu  = UI.arena.find(".obrowser-menu:visible");
         jCrumb.css({
             "width"  : UI.arena.width() - jMenu.outerWidth(true),
             "height" : UI.arena.height()
-        }).folder({
+        });
+        jCrumb.folder({
             dmode : "tail",
             keep : 1
         });
