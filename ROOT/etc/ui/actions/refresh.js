@@ -3,6 +3,6 @@
 	text : "i18n:refresh",
 	type : "button",
 	handler : function($ele, a) {
-		this.refresh();
+		this.browser.refresh();
 	}
 })

@@ -5,6 +5,11 @@ $z.declare([
 //==============================================
 var html = function(){/*
 <div class="ui-arena com-checklist com-butlist">
+    <div class="cc-quick">
+        <span mode="all">{{com.checklist.all}}</span>
+        <span mode="reverse">{{com.checklist.reverse}}</span>
+        <span mode="none">{{com.checklist.none}}</span>
+    </div>
     <ul></ul>
 </div>
 */};
@@ -32,25 +37,55 @@ return ZUI.def("ui.form_com_checklist", {
     //...............................................................
     events : {
         "click li" : function(e){
-            var UI = this;
-            var jq = $(e.currentTarget);
+            var UI  = this;
+            var opt = UI.options;
+            var jq  = $(e.currentTarget);
             // 有限多选的话 ...
-            if(UI.options.multi > 1){
+            if(opt.multi > 1){
                 if(jq.hasClass("checked")){
                     jq.removeClass("checked");
                 }
                 // 没超过了限制，才能再选
-                else if(UI.arena.find("li.checked").size() < UI.options.multi){
+                else if(UI.arena.find("li.checked").size() < opt.multi){
                     jq.addClass("checked");
                 }
                 // 否则警告
                 else{
-                    alert(UI.msg("com.multilimit", {n:UI.options.multi}));
+                    alert(UI.msg("com.multilimit", {n:opt.multi}));
                 }
             }
             // 随便多选的话 ...
             else{
                 jq.toggleClass("checked");
+            }
+        },
+        "click .cc-quick span" : function(e) {
+            var UI  = this;
+            var opt = UI.options;
+            var md  = $(e.currentTarget).attr("mode");
+            var jLi = UI.arena.find("ul li");
+            // 全
+            if("all" == md){
+                // 有限多选的话 ...
+                if(opt.multi > 1 && jLi.size()>opt.multi){
+                    alert(UI.msg("com.multilimit", {n:opt.multi}));
+                    return;
+                }
+                // 全部标记
+                jLi.addClass("checked");
+            }
+            // 反
+            else if("reverse" == md){
+                // 有限多选的话 ...
+                if(opt.multi > 1 && jLi.not(".checked").size()>opt.multi){
+                    alert(UI.msg("com.multilimit", {n:opt.multi}));
+                    return;
+                }
+                jLi.toggleClass("checked");
+            }
+            // 无
+            else {
+                jLi.removeClass("checked");
             }
         }
     },

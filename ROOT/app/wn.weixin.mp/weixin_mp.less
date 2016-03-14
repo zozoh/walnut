@@ -1,0 +1,150 @@
+@import (reference) "../ui";
+
+@h2H     : 32px;
+@h2BG    : rgba(100,200,0,0.2);
+@listW   : 180px;
+@listBG  : rgba(0,0,0,0.2);
+@liLineColor : #FFF;
+@hdlNewBorderColor : rgba(255,255,255,0.2);
+@hdlNewHighlighB   : rgba(255,255,255,0.1);
+@hdlBorderColor    : rgba(255,255,255,0.3);
+@hdlH4Color        : #FA0;
+@hdlH4BgColor      : rgba(0,0,0,0.4);
+@inputBgColor      : rgba(255,255,255,0.4);    
+@inputColor        : #444;
+@inputHltBgColor   : rgba(255,255,255,0.8);    
+@inputHltColor     : #000;
+
+.weixin-mp {
+    position: relative;
+    > div {position: absolute;bottom: 0;}
+    .wxmp-list {left:0; width:@listW; top:@h2H;}
+    .wxmp-main {left:@listW; right:0; top:0;}
+    > h2 {
+        position: absolute;top: 0; left:0; width:@listW; height:@h2H;
+        line-height: @h2H; padding:0 @d4; background: @h2BG;
+    }
+    //........................................ 公众号列表
+    .wxmp-list {
+        padding:@d2 @d2; background: @listBG;
+        .lst-item {
+            font-family: @f_fixed; white-space: nowrap;
+            line-height: @f2 *2 ; padding:@d2 @d2 @d2 @d3;
+            i {margin-right:@d1;}
+            .lbls {text-align: right;}
+        }
+    }
+
+    //........................................ 处理编辑编辑控件
+    .weixin-mp-handler {
+        overflow: auto;
+
+        .wxmh-hdl {
+            padding : 1px; border:1px solid @hdlBorderColor;
+            margin-bottom:1px;
+            h4 {
+                padding:@d2; position: relative;
+                color:@hdlH4Color; background: @hdlH4BgColor;
+                b {margin: 0 @d1;}
+                .hdl-del {
+                    position: absolute; right:@d2; top:@d2; color:#F00; opacity: 0.4; cursor: pointer;
+                    display: block; width:16px; height:16px; text-align: center;
+                }
+                .hdl-del:hover {opacity: 1.0;}
+            }
+            .hdl-matchs {
+                padding:@d3; border-bottom:1px solid @hdlBorderColor; cursor: pointer;
+                .hdl-match-add {
+                    padding:@d3; width:80%; margin: @d1 auto;
+                    border:1px dashed @hdlNewBorderColor;
+                    b {margin: 0 @d2;}
+                    em {color:rgba(255,255,255,0.6);}
+                }
+                .hdl-match-add:hover {
+                    background: @hdlNewHighlighB;
+                }
+                // 匹配项目
+                .hdl-mat {
+                    padding:@d2;
+                    > div {float: left; }
+                    select, input {outline: none; color:@inputColor; background: @inputBgColor;}
+                    input:focus {background: @inputHltBgColor; color:@inputHltColor;}
+                    .key {padding:@d1;}
+                    .val input {
+                        padding:@d2; border:1px solid @hdlNewBorderColor; border-radius: @d2;
+                        font-family: @f_fixed;
+                    }
+                    .regex {
+                        padding:@d2;
+                        i:nth-child(1n) {display: inline;}
+                        i:nth-child(2n) {display: none;}
+                    }
+                    .regex[checked] {
+                        i:nth-child(1n) {display: none;}
+                        i:nth-child(2n) {display: inline;}
+                    }
+                    .mat-del {
+                        float: right;
+                    }
+                    .mat-del:hover {
+                        color:#FF0; text-decoration: underline;
+                    }
+                }
+                .hdl-mat:after {@clr();}
+                .hdl-mat:hover {background: @hdlNewHighlighB;}
+            }
+            .hdl-context { @noselect();
+                padding: @d4;
+                span {
+                    cursor: pointer;
+                    i {width:14px; vertical-align: middle;}
+                    i:nth-child(1n) {display: inline-block;}
+                    i:nth-child(2n) {display: none;}
+                    b {margin: 0 @d2; display: inline-block; vertical-align: middle;}
+                }
+                span[checked] {
+                    i:nth-child(1n) {display: none;}
+                    i:nth-child(2n) {display: inline-block;}
+                }
+            }
+            .hdl-command {
+                padding:@d2;
+                textarea {
+                    width:100%;  resize:none; padding:@d3; outline:none;
+                    font-family: @f_fixed; 
+                    color:@inputColor; background: @inputBgColor;
+                    border:1px solid @hdlNewBorderColor;
+                }
+                textarea:focus {
+                    background: @inputHltBgColor; color:@inputHltColor;
+                }
+            }
+        }
+
+        .wxmh-hdl-add { @noselect();
+            padding:@d3; text-align: center; border-radius: @d1;
+            border:1px solid @hdlNewBorderColor; cursor: pointer;
+        }
+        .wxmh-hdl-add:hover {
+            background: @hdlNewHighlighB;
+        }
+    }
+
+    //........................................ 公众号编辑表单
+    .form {
+        .form-body-wrapper, .form-group {height:100%;}
+        .fg-title {margin: 0;}
+        .ff-txt {padding:@d4 @d2 @d2 @d2;}
+        .wx-mp-handlers {
+            position: relative;
+            .fg-fields {position: absolute; top: 32px; left:0; right: 0; bottom: 0;}
+            .form-fld, .ff-val, .ffv-ui {height: 100%;}
+        }
+        .com-checklist ul{
+            height: 200px; overflow: auto; border:1px solid rgba(255,255,255,0.2);
+            li { white-space:  nowrap;}
+        }
+    }
+
+
+}

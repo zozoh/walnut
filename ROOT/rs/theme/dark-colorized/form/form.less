@@ -70,5 +70,14 @@
 .ffv-ui[fill="all"]{width:100%;}
 .ffv-tip {display: inline-block; color:@c3; padding: @d1; font-size:@f0;}
 
-
+.form-group{
+    [ui-width="auto"], [ui-fixed-width] {
+        .ffv-ui {display: inline-block; vertical-align: middle; padding-right:@d2;}
+        .ffv-tip {display: inline-block; color:@c3; padding: @d1; font-size:@f0;}
+    }
+    [ui-width="all"] {
+        .ffv-ui {width:100%;}
+        .ffv-tip {}
+    }
+}
 

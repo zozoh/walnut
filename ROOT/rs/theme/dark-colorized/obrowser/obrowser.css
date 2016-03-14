@@ -3,12 +3,45 @@ body > .ui-obrowser {
 }
 .obrowser {
   color: #cccccc;
+  position: relative;
 }
-.obrowser .obrowser-block {
-  margin: 0px;
+.obrowser > div {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.obrowser .obw-sky {
+  top: 0;
+  height: 40px;
+}
+.obrowser .obw-con {
+  top: 40px;
+  bottom: 32px;
+}
+.obrowser .obw-con .obw-con-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.obrowser .obw-con .obw-con-wrapper > div {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+.obrowser .obw-con .obw-con-wrapper .obw-chute {
+  left: 0;
+  width: 180px;
+}
+.obrowser .obw-con .obw-con-wrapper .obw-main {
+  left: 180px;
+  right: 0;
+}
+.obrowser .obw-footer {
+  bottom: 0;
+  height: 32px;
 }
 .obrowser .wnobj-hide {
-  opacity: 0.5;
+  opacity: 0.6;
 }
 .obrowser .obrowser-main .wnobj {
   -moz-user-select: none;

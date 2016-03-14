@@ -224,7 +224,7 @@ return ZUI.def("ui.obrowser_sky", {
         UI._draw_crumb(UIBrowser, o);
 
         // 绘制右侧动作菜单
-        UI._draw_menu(UIBrowser, o, asetup);
+        // UI._draw_menu(UIBrowser, o, asetup);
 
         // 最后重新计算一下尺寸
         UI.resize();
@@ -234,17 +234,18 @@ return ZUI.def("ui.obrowser_sky", {
         $z.invoke(UIBrowser.options, "on_current", [o], UI);
     },
     //..............................................
-    updateMenu : function(UIBrowser, o, asetup, menuContext){
-        this._draw_menu(UIBrowser, o, asetup, menuContext);
+    updateMenu : function(menuSetup, menuContext){
+        this._draw_menu(menuSetup, menuContext);
         this.resize();
     },
     //..............................................
-    _draw_menu : function(UIBrowser, o, asetup, menuContext){
+    _draw_menu : function(menuSetup, menuContext){
         var UI = this;
+        var UIBrowser = UI.parent;
         var jMenu = UI.arena.find(".obrowser-menu");
 
         // 没有菜单
-        if(!asetup || !asetup.actions || !asetup.actions.length){
+        if(!_.isArray(menuSetup) || menuSetup.length == 0){
             jMenu.hide();
             return;
         }
@@ -256,7 +257,7 @@ return ZUI.def("ui.obrowser_sky", {
         new MenuUI({
             parent       : UI,
             gasketName   : "menu",
-            setup        : asetup.menu,
+            setup        : menuSetup,
             context      : menuContext || UIBrowser
         }).render(function(){
             $z.defer(function(){

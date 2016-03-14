@@ -106,3 +106,6 @@
   padding: 4px;
   font-size: 8px;
 }
+.form-group [ui-width="all"] .ffv-ui {
+  width: 100%;
+}

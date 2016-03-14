@@ -39,16 +39,15 @@ return ZUI.def("ui.srh_flt", {
     },
     //..............................................
     getData : function(){
+        var UI  = this;
+        var opt = UI.options;
         return this.ui_format_data(function(){
-            var UI  = this;
-            var opt = UI.options;
-            
             // 查询的基础
             var mch = $z.extend({}, UI.$el.data("@M"));
             var srt = $z.extend({}, UI.$el.data("@S"));
             
             // 处理关键字
-            var kwd = UI.arena.find("input").val();
+            var kwd = $.trim(UI.arena.find("input").val());
 
             var regex = /((\w+)=([^'" ]+))|((\w+)="([^"]+)")|((\w+)='([^']+)')|('([^']+)')|("([^"]+)")|([^ \t'"]+)/g;
             var i = 0;
@@ -61,6 +60,7 @@ return ZUI.def("ui.srh_flt", {
                 // m.forEach(function(v, index){
                 //     console.log(i+"."+index+")", v);
                 // });
+                //.............................
                 // 找到纯字符串 
                 if(m[14]){
                     ss.push(m[14]);
@@ -71,6 +71,7 @@ return ZUI.def("ui.srh_flt", {
                 else if(m[11]){
                     ss.push(m[11]);
                 }
+                //.............................
                 // 找到等式
                 else if(m[7]){
                     mch[m[8]] = m[9];
@@ -79,29 +80,16 @@ return ZUI.def("ui.srh_flt", {
                     mch[m[5]] = m[6];
                 }
                 else if(m[1]){
-                    mch[m[2]] = $z.strToJsObj(m[3]);
+                    mch[m[2]] = $z.strToJsObj(m[3], UI.parent.getFieldType(m[2]));
                 }
+                //.............................
                 // 继续执行
                 m = regex.exec(kwd);
             }
 
-            kwd = ss.join(" ");
-            if(kwd && opt.keyField.length>0) {
-                var kwdList = [];
-                opt.keyField.forEach(function(key){
-                    var map = {};
-                    map[key] = "*" + kwd + "*";
-                    kwdList.push(map);
-                });
-                // console.log(kwdList)
-                // 只有一个，那么不用『或』了
-                if(kwdList.length == 1){
-                    _.extend(mch, kwdList[0]);
-                }
-                // 多个条件『或』
-                else{
-                    mch["$or"] = kwdList;
-                }
+            // 根据 keyField 的设定，添加字段
+            for(var i=0; i<ss.length; i++){
+                UI._fill_key_field(mch, ss[i]);
             }
 
             // 返回最后结果
@@ -110,6 +98,41 @@ return ZUI.def("ui.srh_flt", {
                 sort  : srt
             };
         });
+    },
+    _fill_key_field : function(mch, str){
+        var UI  = this;
+        var opt = UI.options;
+        // 根据 keyField 的设定，添加字段
+        for(var i=0; i<opt.keyField.length; i++){
+            var kf  = opt.keyField[i];
+            var key = null;
+            // F(str):key
+            if(_.isFunction(kf)){
+                key = kf(str);
+            }
+            // {regex:/../, key:"xxx"}
+            else if(kf.regex && _.isString(kf.key)){
+                if(new RegExp(kf.regex).test(str))
+                    key = kf.key;
+            }
+            else if(kf && _.isString(kf)){
+                var pos = kf.indexOf(":^");
+                // "mobile:^[0-9]+$"
+                if(pos>0){
+                    if(new RegExp(kf.substring(pos+1)).test(str))
+                        key = kf.substring(0, pos);
+                }
+                // "nm"
+                else {
+                    key = kf;
+                }
+            }
+            // 那么最后判断一下是否取到 key 了
+            if(key){
+                mch[key] = str;
+                break;
+            }
+        }
     }
     //..............................................
 });

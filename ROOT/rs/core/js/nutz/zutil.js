@@ -11,8 +11,7 @@ var INDENT_BY = "    ";
 var zUtil = {
     doCallback : function(callback, args, context){
         if(_.isFunction(callback)){
-            callback.apply(context||this, args);
-            return;
+            return callback.apply(context||this, args);
         }
         return args.length == 1 ? args[0] : args;
     },
@@ -86,7 +85,7 @@ var zUtil = {
                     if(_.isString(v))
                         return v;
                     return v || null;
-                case 'number':
+                case 'float':
                     var re = v * 1; 
                     return v == re ? re : -1;
                 case 'int':
@@ -955,7 +954,7 @@ var zUtil = {
             _t.s = str.getSeconds();
         }
         // 数字则表示绝对秒数
-        if(_.isNumber(str)){
+        else if(_.isNumber(str)){
             var n = parseInt(str);
             _t.H = parseInt(n / 3600);
             n -= _t.H * 3600;
@@ -1008,7 +1007,7 @@ var zUtil = {
             }
             // 未通过校验，抛错
             else{
-                throw "invalid time '" + v + "' can not match : " + regex;
+                throw "invalid time '" + str + "' can not match : " + regex;
             }
         }
         _t.sec = _t.H * 3600 + _t.m*60 + _t.s;

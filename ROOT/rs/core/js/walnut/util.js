@@ -486,7 +486,7 @@ var Wn = {
                 if(mi.type=="group" || _.isArray(mi.items)){
                     mi._items_array = mi.items;
                     mi.items = function(jq, mi, callback){
-                        var items = this.extend_actions(mi._items_array, true);
+                        var items = this.browser.extend_actions(mi._items_array, true);
                         callback(items);
                     };
                 }
@@ -898,32 +898,36 @@ var Wn = {
 
         // 定义处理函数
         var handler = function(json){
-            try{
-                objs = $z.fromJson(json);
-                // 数组的话，循环处理对象
-                if(_.isArray(objs)){
-                    obj.forEach(function(obj){
-                        _cache_obj(obj);
-                    });
+            if(json){
+                try{
+                    objs = $z.fromJson(json);
+                    // 数组的话，循环处理对象
+                    if(_.isArray(objs)){
+                        obj.forEach(function(obj){
+                            _cache_obj(obj);
+                        });
+                    }
+                    // 单个对象
+                    else{
+                        _cache_obj(objs);
+                    }
                 }
-                // 单个对象
-                else{
-                    _cache_obj(objs);
+                // 处理错误 
+                catch(E){
+                    var eMsg = "cmd: " + cmdText + "\nreturn no json:\n" + json;
+                    // 明确的抛错错误
+                    if(!quiet) {
+                        throw eMsg;
+                        alert(eMsg);
+                    }
+                    // 就是警告一下
+                    else if(console && _.isFunction(console.warn)){
+                        console.warn(eMsg);
+                    }
                 }
             }
-            // 处理错误 
-            catch(E){
-                var eMsg = "cmd: " + cmdText + "\nreturn no json:\n" + json;
-                // 明确的抛错错误
-                if(!quiet) {
-                    throw eMsg;
-                    alert(eMsg);
-                }
-                // 就是警告一下
-                else if(console && _.isFunction(console.warn)){
-                    console.warn(eMsg);
-                }
-            }
+            // 最后调用回调
+            $z.doCallback(callback, [objs]);
         };
 
         // 异步

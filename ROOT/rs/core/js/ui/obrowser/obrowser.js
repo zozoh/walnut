@@ -81,13 +81,9 @@ return ZUI.def("ui.obrowser", {
         // UI.on("browser:change", function(o, theEditor){
         //     UI.changeCurrentObj(o, theEditor);
         // });
-        UI.on("change:viewmode", function(){
-            var o = UI.getCurrentObj();
-            UI.subUI("main").update(UI, o);
-        });
-        UI.on("menu:viewmode", function(vm){
-            this.setViewMode(vm);
-        });
+        // UI.on("menu:viewmode", function(vm){
+        //     this.setViewMode(vm);
+        // });
         UI.on("change:hidden-obj-visibility", function(){
             var o = UI.getCurrentObj();
             UI.subUI("main").update(UI, o);
@@ -218,6 +214,13 @@ return ZUI.def("ui.obrowser", {
         }, function(o, asetup){
             UI.subUI("sky").updateMenu(UI, o, asetup, menuContext);
         });  
+    },
+    //..............................................
+    updateMenu : function(menuSetup, menuContext){
+        var UI = this;
+        if(UI.gasket.sky){
+            UI.gasket.sky.updateMenu(menuSetup, menuContext);
+        }
     },
     //..............................................
     __call_subUI_update : function(o, asetup, callback){
@@ -394,11 +397,16 @@ return ZUI.def("ui.obrowser", {
         return this.local("viewmode") || "thumbnail";
     },
     setViewMode : function(mode){
+        var UI = this;
         if(_.isString(mode)
            && /^(table|thumbnail|slider|scroller|icons|columns)$/.test(mode)
            && mode != this.getViewMode()){
+            // 本地存储
             this.local("viewmode", mode);
-            this.trigger("change:viewmode", mode);
+            
+            // 更新显示
+            var o = UI.getCurrentObj();
+            UI.subUI("main").update(UI, o);
         }
     },
     //..............................................

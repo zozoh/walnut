@@ -3,7 +3,7 @@
 	text : "i18n:delete",
 	type : "button",
 	handler : function($ele, a) {
-		var UIBrowser = this;
+		var UIBrowser = this.browser;
 		var list = UIBrowser.getChecked();
 		// 没内容
 		if (list.length == 0) {
@@ -16,7 +16,7 @@
 			hasFolder |= "DIR" == o.race;
 		});
 		if (hasFolder) {
-			if (!window.confirm(UI.msg("obrowser.warn.rmdir"))) {
+			if (!window.confirm(UIBrowser.msg("obrowser.warn.rmdir"))) {
 				return;
 			}
 		}
@@ -27,7 +27,7 @@
 			cmdText += " id:" + o.id;
 		});
 
-		UIBrowser.exec(cmdText);
+		Wn.exec(cmdText);
 
 		UIBrowser.refresh();
 	}
