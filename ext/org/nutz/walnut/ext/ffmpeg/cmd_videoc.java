@@ -75,7 +75,7 @@ public class cmd_videoc extends JvmExecutor {
                 Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
                 t = sys.io.createIfNoExists(tdir, "_preview.jpg", WnRace.FILE);
                 sys.io.writeAndClose(t, new FileInputStream(thumb));
-                sys.io.appendMeta(obj, "thumbnail:'" + t.id() + "'");
+                sys.io.appendMeta(obj, "thumb:'" + t.thumbnail() + "'");
                 sys.io.appendMeta(t, tMap);
             }
             // 再生成预览视频
