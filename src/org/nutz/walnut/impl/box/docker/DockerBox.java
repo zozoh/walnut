@@ -3,15 +3,16 @@ package org.nutz.walnut.impl.box.docker;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+import org.nutz.http.Request;
+import org.nutz.http.Request.METHOD;
+import org.nutz.http.Response;
+import org.nutz.http.Sender;
+import org.nutz.json.Json;
 import org.nutz.lang.Streams;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.box.WnBox;
@@ -29,20 +30,22 @@ public class DockerBox implements WnBox {
     protected String id;
     protected WnBoxStatus stat;
     protected WnBoxContext bc;
-    protected String fuseRoot;
-
-    protected InputStream in;
-    protected OutputStream out;
-    protected OutputStream err;
     
     protected Callback<WnBoxContext> on_before_free;
     
+    protected OutputStream out;
+    protected OutputStream err;
+    protected InputStream ins;
+    protected WnBoxService boxes;
+    
+    protected String dockerImageName = "nutzam/wanlut-docker";
+    
     private static final Log log = Logs.get();
     
-    public DockerBox(WnBoxService boxes, String fuseRoot) {
+    public DockerBox(WnBoxService boxes) {
         id = R.UU32();
+        this.boxes = boxes;
         stat = WnBoxStatus.FREE;
-        this.fuseRoot = fuseRoot;
     }
 
     public String id() {
@@ -58,30 +61,42 @@ public class DockerBox implements WnBox {
     }
 
     public void run(String cmdText) {
-        // 准备启动参数
-        List<String> cmds = new ArrayList<>();
-        cmds.addAll(Arrays.asList("docker", "run", "-it", "--rm")); //基本参数
-        // 将walnut的根目录映射的到一个固定路径, 外部路径带上id和用户名,就能在fuse中分辨Box和用户了
-        cmds.addAll(Arrays.asList("-v", String.format("/%s/.dockerbox/%s/%s:/walnut_root", fuseRoot, bc.me.name(), id)));
-        cmds.add("walnut/dockerbox"); // 定制好的镜像
-        // walnut_docker_box_run的工作: 在执行环境中,构建一个新的根文件夹系统(/bin,$HOME),然后chroot过去,最后用bash执行cmdText
-        cmds.addAll(Arrays.asList("/walnut_docker_box_run", "-HOME="+bc.session.vars().getString("HOME"), "-CMD="+cmdText));
-        // 启动一个docker容器
-        ProcessBuilder pb = new ProcessBuilder(cmds);
-        ExecutorService es = Executors.newFixedThreadPool(3);
+        // TODO 改成socket,这样就能双向了
+    	Process p = null;
         try {
-            stat = WnBoxStatus.RUNNING;
-            Process p = pb.start();
-            es.submit(new PipeIoThread(cmdText, in, p.getOutputStream()));
-            es.submit(new PipeIoThread(cmdText, p.getInputStream(), out));
-            es.submit(new PipeIoThread(cmdText, p.getErrorStream(), err));
-            p.waitFor();
-        }
-        catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            es.shutdownNow();
-            stat = WnBoxStatus.IDLE;
+            try {
+            	// TODO 怎样拿到ip呢?
+    			p = Runtime.getRuntime().exec(("docker run -it --rm --privileged --name walnut_"+id+" "+dockerImageName).split(" "));
+    		} catch (IOException e) {
+    			//throw Lang.wrapThrow(e);
+    		}
+        	NutMap params = new NutMap();
+        	params.put("cmd", cmdText);
+        	if (bc != null) {
+        		params.put("seid", bc.session.id());
+        		params.put("me", bc.me.name());
+        		params.put("env", bc.session.vars());
+        	}
+        	Request req = Request.create("http://127.0.0.1:12099/walnut/call", METHOD.POST);
+        	req.setData(Json.toJson(params));
+        	Response resp = Sender.create(req).setTimeout(60*1000).send();
+			if (resp.isOK()) {
+				if (out != null)
+					Streams.writeAndClose(out, resp.getStream());
+			} else {
+				if (err != null)
+					Streams.writeAndClose(err, resp.getStream());
+			}
+		} catch (Exception e) {
+			try {
+				if (err != null)
+					Streams.write(err, e.getMessage().getBytes());
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+        if (p != null) {
+        	
         }
     }
 
@@ -94,7 +109,7 @@ public class DockerBox implements WnBox {
     }
 
     public void setStdin(InputStream ins) {
-        this.in = ins;
+        this.ins = ins;
     }
 
     public void onBeforeFree(Callback<WnBoxContext> handler) {
@@ -115,40 +130,8 @@ public class DockerBox implements WnBox {
         if (log.isDebugEnabled())
             log.debug("box: release resources");
         Streams.safeClose(out);
-        Streams.safeClose(in);
+        Streams.safeClose(ins);
         Streams.safeClose(err);
         stat = WnBoxStatus.FREE;
-    }
-}
-
-class PipeIoThread implements Runnable {
-    protected String cmdText;
-    protected InputStream in;
-    protected OutputStream out;
-    public PipeIoThread(String cmdText, InputStream in, OutputStream out) {
-        super();
-        this.cmdText = cmdText;
-        this.in = in;
-        this.out = out;
-    }
-    
-    public void run() {
-        if (in == null)
-            return;
-        while (true) {
-            try {
-                int b = in.read();
-                if (b == -1)
-                    break;
-                if (out != null)
-                    out.write(b);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-                break;
-            }
-        }
-        Streams.safeClose(in);
-        Streams.safeClose(out);
     }
 }
