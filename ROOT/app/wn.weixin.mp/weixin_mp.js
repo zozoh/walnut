@@ -23,6 +23,21 @@ return ZUI.def("app.wn.weixin.mp", {
         this.my_fields = $z.loadResource("jso:///a/load/wn.weixin.mp/form_weixin_mp.js");
     },
     //...............................................................
+    do_del : function(){
+        var UI  = this;
+        var oGh = UI.gasket.list.getActived();
+        console.log(oGh)
+        // 提示用户
+        if(!window.confirm(UI.msg("weixin.mp_del_confirm")))
+            return;
+        // 执行删除
+        var cmdText = 'rm -rf id:'+oGh.id;
+        Wn.exec(cmdText, function(){
+            var jN2 = UI.gasket.list.remove(oGh.id);
+            UI.gasket.list.setActived(jN2);
+        });
+    },
+    //...............................................................
     do_add : function(){
         var UI  = this;
         var oid = UI.$el.attr("oid");
@@ -31,7 +46,6 @@ return ZUI.def("app.wn.weixin.mp", {
         // 要求用户输入微信号
         var pnb = $.trim(window.prompt(UI.msg("weixin.mp_add_pnb")));
         if(!pnb) {
-            alert(UI.msg("weixin.mp_add_empty"));
             return;
         }
 
@@ -50,6 +64,23 @@ return ZUI.def("app.wn.weixin.mp", {
                 UI.gasket.list.setActived(oGh.id);
             });
         });
+    },
+    //...............................................................
+    do_save : function(callback){
+        var UI     = this;
+        var wxconf = UI.gasket.main.getData();
+
+        // 得到内容
+        var content = $z.toJson(wxconf, null, '    ');
+        //console.log(content);
+        
+        // 得到公众号对象
+        var oGh = UI.gasket.list.getActived();
+        var oConf = Wn.fetch(oGh.ph + "/wxconf");
+
+        // 执行保存
+        Wn.write(oConf, content, callback);
+
     },
     //...............................................................
     // o 表示公众号的索引对象
@@ -73,6 +104,7 @@ return ZUI.def("app.wn.weixin.mp", {
             colSizeHint : [0.4],
             fields : UI.my_fields
         }).render(function(){
+            //console.log("setdata")
             this.setData(wxconf);
         });
     },
@@ -109,20 +141,20 @@ return ZUI.def("app.wn.weixin.mp", {
         return ["list"];
     },
     //...............................................................
-    refresh : function(callback, clearCache){
+    refresh : function(callback, autoActiveOne){
         var UI = this;
         var oid = UI.$el.attr("oid");
 
         // 支持 refresh(true) 这种格式
         if(_.isBoolean(callback)){
-            keepCache = callback;
+            autoActiveOne = callback;
             callback  = undefined;
         }
 
         // 清理缓存
-        if(clearCache){
-            Wn.clearCache("oid:" + oid);
-        }
+        // if(clearCache){
+        //     Wn.clearCache("oid:" + oid);
+        // }
 
         // 得到主目录
         var o = Wn.getById(oid);
@@ -134,15 +166,18 @@ return ZUI.def("app.wn.weixin.mp", {
 
         // 更新列表
         Wn.getChildren(o, null, function(objs){
-            console.log(objs)
+            //console.log(objs)
             UI.gasket.list.setData(objs);
 
-            var ghaid = UI.local("gh_actived");
-            if(ghaid) {
-                UI.gasket.list.setActived(ghaid);
-            }
-            if(!UI.gasket.list.isActived(ghaid)){
-                UI.gasket.list.setActived(0);
+            // 刷新后，是否自动高亮一个
+            if(autoActiveOne){
+                var ghaid = UI.local("gh_actived");
+                if(ghaid) {
+                    UI.gasket.list.setActived(ghaid);
+                }
+                if(!UI.gasket.list.isActived(ghaid)){
+                    UI.gasket.list.setActived(0);
+                }
             }
 
             // 调用回调
@@ -157,7 +192,7 @@ return ZUI.def("app.wn.weixin.mp", {
         UI.$el.attr("oid", o.id);
         
         // 更新列表
-        UI.refresh(callback);
+        UI.refresh(callback, true);
     }
     //...............................................................
 });

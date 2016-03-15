@@ -212,7 +212,7 @@ return ZUI.def("ui.obrowser", {
             context : UI,
             editor  : theEditor
         }, function(o, asetup){
-            UI.subUI("sky").updateMenu(UI, o, asetup, menuContext);
+            UI.subUI("sky").updateMenu(asetup.menu, menuContext);
         });  
     },
     //..............................................

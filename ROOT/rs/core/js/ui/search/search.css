@@ -132,18 +132,23 @@
   font-size: 14px;
   padding: 8px 16px 8px 32px;
   width: 100%;
-  color: #aaaaaa;
+  color: #000000;
   border: 1px solid #cccccc;
-  background: #dddddd;
+  background: #ffffff;
   border-radius: 100px;
   outline: none;
+}
+.srh-filter .flt-keyword input:focus {
+  color: #000000;
+  background: #ffffcc;
+  border-color: #ff8800;
 }
 .srh-filter .flt-icon {
   position: absolute;
   top: 1px;
   left: 4px;
   padding: 8px;
-  color: #aaaaaa;
+  color: #888888;
 }
 /*.............................................. pager*/
 .srh-pgr {

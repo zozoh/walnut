@@ -54,12 +54,13 @@
   outline: none;
   border: 1px solid #cccccc;
   border-radius: 4px;
-  color: #888;
-  background: #FFF;
+  color: #000000;
+  background: #ffffff;
 }
 .com-input input:focus {
-  background: #FFC;
-  color: #000;
+  color: #000000;
+  background: #ffffcc;
+  border-color: #ff8800;
 }
 .com-input .unit {
   display: block;
@@ -365,6 +366,13 @@
   height: 100%;
   padding: 8px;
   border: 1px solid #cccccc;
+  color: #000000;
+  background: #ffffff;
   border-radius: 4px;
   resize: none;
+}
+.com-text textarea:focus {
+  color: #000000;
+  background: #ffffcc;
+  border-color: #ff8800;
 }

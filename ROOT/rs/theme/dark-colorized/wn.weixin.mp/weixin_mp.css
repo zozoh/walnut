@@ -27,7 +27,7 @@
 }
 .weixin-mp .wxmp-list {
   padding: 6px 6px;
-  background: #eeeeee;
+  background: rgba(0, 0, 0, 0.5);
 }
 .weixin-mp .wxmp-list .lst-item {
   font-family: Monaco, Consolas, Courier New;
@@ -52,8 +52,8 @@
 .weixin-mp .weixin-mp-handler .wxmh-hdl h4 {
   padding: 6px;
   position: relative;
-  color: #999999;
-  background: #e0e0e0;
+  color: #888888;
+  background: rgba(0, 0, 0, 0.3);
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl h4 b {
   margin: 0 4px;
@@ -82,7 +82,7 @@
   padding: 8px;
   width: 80%;
   margin: 4px auto;
-  border: 1px dashed #dddddd;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-match-add b {
   margin: 0 6px;
@@ -91,7 +91,7 @@
   color: rgba(255, 255, 255, 0.6);
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-match-add:hover {
-  background: #cccccc;
+  background: rgba(255, 255, 255, 0.2);
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat {
   padding: 6px;
@@ -102,23 +102,23 @@
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat select,
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat input {
   outline: none;
-  color: #000000;
-  background: #ffffff;
+  color: #cccccc;
+  background: #888888;
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat input {
-  border: 1px solid #cccccc;
+  border: 1px solid #444444;
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat input:focus {
-  background: #ffffcc;
+  background: #ffffff;
   color: #000000;
-  border-color: #ff8800;
+  border-color: #aaaaaa;
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat .key {
   padding: 4px;
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat .val input {
   padding: 6px;
-  border: 1px solid #dddddd;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   font-family: Monaco, Consolas, Courier New;
 }
@@ -151,7 +151,7 @@
   clear: both;
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat:hover {
-  background: #cccccc;
+  background: rgba(255, 255, 255, 0.2);
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-context {
   -moz-user-select: none;
@@ -193,14 +193,14 @@
   padding: 8px;
   outline: none;
   font-family: Monaco, Consolas, Courier New;
-  color: #000000;
-  background: #ffffff;
-  border: 1px solid #cccccc;
+  color: #cccccc;
+  background: #888888;
+  border: 1px solid #444444;
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-command textarea:focus {
-  background: #ffffcc;
+  background: #ffffff;
   color: #000000;
-  border-color: #ff8800;
+  border-color: #aaaaaa;
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl-add {
   -moz-user-select: none;
@@ -210,11 +210,11 @@
   padding: 8px;
   text-align: center;
   border-radius: 4px;
-  border: 1px solid #dddddd;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl-add:hover {
-  background: #cccccc;
+  background: rgba(255, 255, 255, 0.2);
 }
 .weixin-mp .form .form-body-wrapper,
 .weixin-mp .form .form-group {

@@ -1,5 +1,6 @@
 define({
     "save"       : "保存",
+    "saving"     : "正在保存..",
     "refresh"    : "刷新",
     "new"        : "新建",
     "delete"     : "删除",

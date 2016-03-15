@@ -63,6 +63,10 @@ return ZUI.def("ui.form", {
         // 嗯，那么现在所有的顶层对象都是组了
         UI.groups = grpList;
 
+        // 给每个字段做个编号
+        UI._fld_form_keys = [];
+        var _fld_form_keys_seq = 0;
+
         // 重新分析所有的字段，确保都有 uiType/uiConf
         // 同时归纳需要加载的 UI 类型
         var uiTypeMap = {};
@@ -70,6 +74,11 @@ return ZUI.def("ui.form", {
             var grp = UI.groups[i];
             for(var m=0;m<grp.fields.length;m++){
                 var fld = grp.fields[m];
+
+                // 给自己分配一个唯一的键值，这个键值基本是用来做 defer_report 的
+                fld._form_key = "_form_fld_" + (_fld_form_keys_seq++);
+                UI._fld_form_keys.push(fld._form_key);
+
                 // 字段的类型默认为 string
                 fld.type = fld.type || "string";
                 // 做了自定义显示
@@ -178,7 +187,8 @@ return ZUI.def("ui.form", {
                     UI.__on_change(this, v);
                 }
             })).render(function(){
-                UI.defer_report(fld.uiType);
+                // console.log("UI.defer_report:", fld.uiType, fld._form_key);
+                UI.defer_report(fld._form_key);
             });
             // 检查 UI 控件的合法性
             if(!_.isFunction(theUI.setData) || !_.isFunction(theUI.getData)){
@@ -267,7 +277,8 @@ return ZUI.def("ui.form", {
             }
         });
 
-        return UI.uiTypes;
+        //console.log("form redraw defer:", UI._fld_form_keys);
+        return UI._fld_form_keys;
     },
     //...............................................................
     resize : function(){

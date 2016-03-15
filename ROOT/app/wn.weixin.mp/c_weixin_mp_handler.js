@@ -50,10 +50,7 @@ return ZUI.def("app.wn.weixin.c_mp_handler", {
     events : {
         "click .wxmh-hdl-add" : function() {
             var UI = this;
-            UI._append_handler({
-                id:"ddddd",
-                match : ["haha",{Event:"^AAA"},{MsgType:"text"}]
-            });
+            UI._append_handler({});
         },
         "click .hdl-context span, .hdl-mat .regex" : function(e){
             var jq = $(e.currentTarget);
@@ -127,7 +124,11 @@ return ZUI.def("app.wn.weixin.c_mp_handler", {
         var jAdd = UI.arena.find(".wxmh-hdl-add");
         var jHdl = UI.ccode("handler.item");
 
-        // 标题
+        // 加入 DOM
+        jHdl.insertBefore(jAdd);
+
+        // ID
+        jHdl.attr("hdl-id", hdl.id);
         jHdl.find("h4 b").text(hdl.id || 'anonymous');
 
         // 匹配
@@ -143,15 +144,49 @@ return ZUI.def("app.wn.weixin.c_mp_handler", {
         if(hdl.command)
             jHdl.find(".hdl-command textarea").val(hdl.command);
 
-        // 加入 DOM
-        jHdl.insertBefore(jAdd);
-
         // 模拟点击
         //jHdl.find(".hdl-match-add").click();
     },
     //...............................................................
     _get_hdl_from_dom : function(jHdl){
+        var hdl = {};
 
+        // ID
+        if(jHdl.attr("hdl-id"))
+            hdl.id = jHdl.attr("hdl-id");
+
+        // 匹配
+        hdl.match = [];
+        jHdl.find(".hdl-mat").each(function(){
+            var jMat  = $(this);
+            var mat   = {};
+            
+            var key   = jMat.find(".key select").val();
+            var val   = $.trim(jMat.find(".val input").val());
+            var regex = jMat.find(".regex").attr("checked") ? true : false;
+            val = regex && !/^\^.+/.test(val) ? {regex : val} : val;
+            
+            if("Content" == key)
+                mat = val
+            else 
+                mat[key] = val;
+
+            hdl.match.push(mat);
+
+        });
+        // 空的话，用 null 表示匹配任何消息
+        if(hdl.match.length == 0)
+            hdl.match = null;
+        else if(hdl.match.length == 1)
+            hdl.match = hdl.match[0];
+
+        // 上下文
+        hdl.context = jHdl.find(".hdl-context span").attr("checked")?true:false;
+
+        // 命令
+        hdl.command = $.trim(jHdl.find(".hdl-command textarea").val());
+
+        return hdl;
     },
     //...............................................................
     setData : function(hdls) {
@@ -161,15 +196,15 @@ return ZUI.def("app.wn.weixin.c_mp_handler", {
         UI.releaseAllChildren();
         UI.arena.empty();
 
+        // 添加新建按钮
+        var jAdd = UI.ccode("handler.add").appendTo(UI.arena);
+
         // 依次加入 handler
         if(_.isArray(hdls) && hdls.length > 0) {
             for(var i=0; i<hdls.length; i++) {
                 UI._append_handler(hdls[i]);
             }
         }
-
-        // 最后添加新建按钮
-        UI.ccode("handler.add").appendTo(UI.arena).click();
     },
     //...............................................................
     getData : function(){
@@ -177,7 +212,9 @@ return ZUI.def("app.wn.weixin.c_mp_handler", {
         var hdls = [];
 
         UI.arena.find(".wxmh-hdl").each(function(){
-            hdls.push(UI._get_hdl_from_dom($(this)));
+            var hdl = UI._get_hdl_from_dom($(this));
+            if(hdl.command)
+                hdls.push(hdl);
         });
 
         return hdls;

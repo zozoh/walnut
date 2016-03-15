@@ -128,11 +128,16 @@
   font-size: 14px;
   padding: 8px 16px 8px 32px;
   width: 100%;
-  color: #222222;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: #666666;
+  color: #cccccc;
+  border: 1px solid #444444;
+  background: #888888;
   border-radius: 100px;
   outline: none;
+}
+.srh-filter .flt-keyword input:focus {
+  color: #000000;
+  background: #ffffff;
+  border-color: #aaaaaa;
 }
 .srh-filter .flt-icon {
   position: absolute;
