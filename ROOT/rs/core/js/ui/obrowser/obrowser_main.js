@@ -16,6 +16,18 @@ var html = function(){/*
 return ZUI.def("ui.obrowser_main", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //..............................................
+    init : function(){
+        var UI = this;
+
+        // 记录通用变量
+        UI.browser = UI.parent;
+
+        // 监听事件
+        UI.on("menu:viewmode", function(vm){
+            UI.browser.setViewMode(vm);
+        });
+    },
+    //..............................................
     events : {
         "contextmenu .wnobj" : function(e){
             console.log(e.target)
@@ -28,6 +40,10 @@ return ZUI.def("ui.obrowser_main", {
 
         // 准备加载子 UI
         var uiType, uiConf;
+
+        //console.log(asetup)
+        // 准备记录 menuContext
+        var menuContext;
 
         // 如果有编辑器，就用编辑器处理
         if(asetup && asetup.currentEditor){
@@ -79,6 +95,10 @@ return ZUI.def("ui.obrowser_main", {
                 parent : UI,
                 gasketName : "view"
             };
+
+            // 菜单的上下文一定是 obrowser_main
+            menuContext = UI;
+
             // 发出通知
             UIBrowser.trigger("browser:info", o.ph);
         }
@@ -103,6 +123,11 @@ return ZUI.def("ui.obrowser_main", {
             UI.$el.attr("ui-type", uiType);
             seajs.use(uiType, function(TheUI){
                 new TheUI(uiConf).render(function(){
+                    // 绘制菜单
+                    if(asetup)
+                        UIBrowser.updateMenu(asetup.menu, menuContext || this);
+
+                    // 更新编辑器内容
                     this.update(o, callback);
                     this.parent.trigger("browser:show", o);
                     UI.resize();

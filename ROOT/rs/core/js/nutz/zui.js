@@ -220,9 +220,6 @@ ZUIObj.prototype = {
         // 默认先用父类的多国语言字符串顶个先
         UI._msg_map = UI.parent ? UI.parent._msg_map : ZUI.g_msg_map;
 
-        // 调用子类自定义的 init
-        $z.invoke(UI.$ui, "init", [opt], UI);
-
         // 注册 UI 实例
         register(UI);
 
@@ -246,9 +243,22 @@ ZUIObj.prototype = {
             }
         }
 
+        // 调用子类自定义的 init
+        $z.invoke(UI.$ui, "init", [opt], UI);
+
         // 触发初始化事件
         $z.invoke(opt, "on_init", [opt], UI);
         UI.trigger("ui:init", UI);
+    },
+    //............................................
+    // 释放全部自己的子
+    releaseAllChildren : function(forceRemoveDom){
+        var UI = this;
+        // 释放掉自己所有的子
+        var __children = UI.children ? [].concat(UI.children) : [];
+        for (var i=0; i<__children.length; i++) {
+            __children[i].destroy(forceRemoveDom);
+        }
     },
     //............................................
     destroy: function (forceRemoveDom) {
@@ -261,10 +271,7 @@ ZUIObj.prototype = {
         UI.trigger("ui:depose", UI);
 
         // 释放掉自己所有的子
-        var __children = UI.children ? [].concat(UI.children) : [];
-        for (var i=0; i<__children.length; i++) {
-            __children[i].destroy(forceRemoveDom);
-        }
+        UI.releaseAllChildren(forceRemoveDom);
 
         // 移除自己在父节点的记录
         if(UI.parent){

@@ -233,6 +233,15 @@
   vertical-align: middle;
   padding-left: 4px;
 }
+.com-checklist .cc-quick span {
+  display: inline-block;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+.com-checklist .cc-quick span:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+}
 .com-switch {
   -moz-user-select: none;
   -khtml-user-select: none;

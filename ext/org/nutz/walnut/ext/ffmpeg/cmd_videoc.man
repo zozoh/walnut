@@ -47,7 +47,7 @@ videoc [-vk] [-bv 3000] [-ba 64] [-vcodec libx264]
         ...
         videoc_dir    : "id:xxx"     // .hi.avi.videoc目录的id
         video_preview : "id:xxx"     // 指出预览视频的 ID
-        thumb         : "id:xxx"     // 缩略图的 ID
+        thumb         : "id:xxx"     // 缩略图的 ID，是 preview.mp4 的 thumb
         ...
     }
     

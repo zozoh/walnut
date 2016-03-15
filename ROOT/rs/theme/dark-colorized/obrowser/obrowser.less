@@ -4,12 +4,35 @@ body > .ui-obrowser {
     background: url(main_bg.jpg);
 }
 
+@skyH    : 40px;
+@footerH : 32px;
+@chuteW  : 180px;
 .obrowser{
-    color:@cf0; 
-    .obrowser-block {
-        margin:0px;
+    color:@cf0;  position: relative;
+    > div {position: absolute; left: 0; right: 0;}
+    .obw-sky { 
+        top:0; height:@skyH;
     }
-    .wnobj-hide {opacity: 0.5;}
+    .obw-con {
+        top:@skyH; bottom:@footerH;
+        .obw-con-wrapper {
+            width: 100%; height:100%; position: relative;
+            > div {position: absolute; top: 0; bottom: 0;}
+            .obw-chute { 
+                left:0; width:@chuteW;
+            }
+            .obw-main {
+                left:@chuteW; right:0;
+            }
+        }
+    }
+    .obw-footer { 
+        bottom:0; height:@footerH;
+    }
+
+
+
+    .wnobj-hide {opacity: 0.6;}
 
     .obrowser-main {
         .wnobj {

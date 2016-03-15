@@ -136,16 +136,27 @@ return ZUI.def("ui.form", {
             jF.attr("ui-fixed-width", uiw);
         }
 
+        // 自定义的类
+        if(fld.className)
+            jF.addClass(grp.className);
+
         var jTxt = jF.children(".ff-txt");
         var jFui = jF.find(".ffv-ui");
         var jTip = jF.find(".ffv-tip");
         // 绘制标题
-        if(fld.required)
-            jTxt.attr("required","yes");
-        if(fld.icon)
-            $(fld.icon).appendTo(jTxt);
-        if(fld.title)
-            $('<span class="fft-text">').html(UI.text(fld.title)).appendTo(jTxt);
+        if(fld.required || fld.icon || fld.title){
+            if(fld.required)
+                jTxt.attr("required","yes");
+            if(fld.icon)
+                $(fld.icon).appendTo(jTxt);
+            if(fld.title)
+                $('<span class="fft-text">').html(UI.text(fld.title)).appendTo(jTxt);
+        }
+        // 靠，啥都木有，搞掉标题区
+        else {
+            jTxt.remove();
+        }
+
 
         // 绘制值
         seajs.use(fld.uiType, function(TheUI){
@@ -276,13 +287,56 @@ return ZUI.def("ui.form", {
 
         var W = jBody.children(".form-body-wrapper").width();
         
-        // 首先计算组，看看一个组有多宽
-        var grpW = W / Math.max(opt.cols || 1, 1);
-        var jGrps = UI.arena.find(".form-group").css("width", grpW);
+        // 首先计算列，看看一个列有多宽
+        var colNb       = opt.cols || 1;
+        var colSizeHint = opt.colSizeHint || [0];
+        var col_widths  = [];
+        var col_wsum    = W;
+        var col_autoN   = 0;
+        for(var i=0;i<colNb;i++){
+            var c_W = colSizeHint.length >i ? colSizeHint[i] : 0;  // 0 表示自动分配
+            // 浮点数表示比例
+            if(c_W > 0 && c_W < 1){
+                c_W = Math.round(W * c_W);
+                col_wsum -= c_W;
+            }
+            // 大于1 取整后表示绝对数
+            else if(c_W > 1) {
+                c_W = Math.round(c_W);
+            }
+            // 其他的作为自动分配
+            else{
+                c_W = 0; 
+                col_autoN ++;
+            }
+            // 计入
+            col_widths[i] = c_W;
+        }
+        // 最后搞下自动分配
+        if(col_autoN > 0) {
+            var grp_autoW = parseInt(col_wsum / col_autoN);
+            var grp_auto_indexes = [];
+            for(var i=0;i<col_widths.length;i++){
+                if(col_widths[i] == 0) {
+                    col_widths[i] = grp_autoW;
+                    col_wsum -= grp_autoW;
+                    grp_auto_indexes.push(i);
+                }
+            }
+            // 处理自动分配剩下的余数
+            if(col_wsum>0) {
+                for(var i=0;i<col_wsum;i++){
+                    col_widths[grp_auto_indexes[i]]++;
+                }
+            }
+        }
 
-        // 然后依次计算每个组的字段
-        jGrps.each(function(){
-            var jG    = $(this);
+        // 拿到组集合
+        var jGrps = UI.arena.find(".form-group");
+
+        // 然后依次计算每个组宽度，和其内的字段的宽度
+        jGrps.each(function(index){
+            var jG    = $(this).css("width", col_widths[index % colNb]);
             var grp   = jG.data("@GRP");
             var colnb = Math.max(grp.cols || 1, 1);
             var fbW   = $(this).find(".fg-fields").width(); 
@@ -294,19 +348,21 @@ return ZUI.def("ui.form", {
                 var jF   = $(this);
                 var fld  = jF.data("@FLD");
                 var span = Math.max(fld.span || 1, 1);
-                var theW = Math.min(fldW * span, grpW);
+                var theW = Math.min(fldW * span, fbW);
                 jF.css("width", theW);
 
                 // 看看当前字段的标题
                 var jTxt = jF.children(".ff-txt");
-                if(jTxt.attr("org-width")){
-                    maxFFW = Math.max(maxFFW, jTxt.attr("org-width")*1);
-                }
-                // 从来没记录过原始宽度，嗯 ...
-                else{
-                    var w = jTxt.innerWidth();
-                    maxFFW = Math.max(maxFFW, w);
-                    jTxt.attr("org-width", w);
+                if(jTxt.size()>0){
+                    if(jTxt.attr("org-width")){
+                        maxFFW = Math.max(maxFFW, jTxt.attr("org-width")*1);
+                    }
+                    // 从来没记录过原始宽度，嗯 ...
+                    else{
+                        var w = jTxt.innerWidth();
+                        maxFFW = Math.max(maxFFW, w);
+                        jTxt.attr("org-width", w);
+                    }
                 }
             });
 
@@ -320,11 +376,16 @@ return ZUI.def("ui.form", {
                 var jTxt = jF.children(".ff-txt");
                 var jVal = jF.children(".ff-val");
                 var jUi  = jVal.children(".ffv-ui");
-                var vW   = jF.width() - jTxt.outerWidth(true) - 1;
+
+                // 计算值区域的宽度
+                var vW = jF.width();
+                if(jTxt.size()>0){
+                    vW  = vW - jTxt.outerWidth(true) - 1;
+                }
                 jVal.css("width", vW);
 
                 // 指定标题行的高度
-                if(fld.autoLineHeight || grp.autoLineHeight){
+                if(jTxt.size()>0 && (fld.autoLineHeight || grp.autoLineHeight)){
                     jTxt.css({
                         "line-height" : jVal.outerHeight()+"px",
                         "height"      : jVal.outerHeight(),

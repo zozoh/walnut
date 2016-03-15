@@ -97,3 +97,19 @@
   padding: 4px;
   font-size: 8px;
 }
+.form-group [ui-width="auto"] .ffv-ui,
+.form-group [ui-fixed-width] .ffv-ui {
+  display: inline-block;
+  vertical-align: middle;
+  padding-right: 6px;
+}
+.form-group [ui-width="auto"] .ffv-tip,
+.form-group [ui-fixed-width] .ffv-tip {
+  display: inline-block;
+  color: #00aa00;
+  padding: 4px;
+  font-size: 8px;
+}
+.form-group [ui-width="all"] .ffv-ui {
+  width: 100%;
+}

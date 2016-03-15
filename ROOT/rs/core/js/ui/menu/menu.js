@@ -33,21 +33,23 @@ return ZUI.def("ui.menu", {
     css  : "theme/ui/menu/menu.css",
     //..............................................
     init : function(options){
+        var UI  = this;
+        var opt = options;
         // 注册全局事件，控制子菜单的关闭
         var on_close_group = function(e){
-            this.closeGroup(this.$el.find(".menu-item[open]"));
+            UI.closeGroup(UI.$el.find(".menu-item[open]"));
         };
-        this.watchMouse("click", on_close_group);
-        this.watchKey(27, on_close_group);
+        UI.watchMouse("click", on_close_group);
+        UI.watchKey(27, on_close_group);
 
         // 注册全局关闭
-        if(options.position){
-            this.watchMouse("click", do_close_allmenu);
-            this.watchKey(27, do_close_allmenu);            
+        if(opt.position){
+            UI.watchMouse("click", do_close_allmenu);
+            UI.watchKey(27, do_close_allmenu);            
         }
 
         // 全局其他的菜单统统关闭
-        do_close_allmenu();
+        do_close_allmenu(UI.cid);
     },
     //..............................................
     events : {
@@ -130,6 +132,10 @@ return ZUI.def("ui.menu", {
     // 假想给定的 ele 是 .ment-item
     closeGroup : function(ele){
         var UI = this;
+        // 还没初始化完的，无视 
+        if(!UI.arena)
+            return;
+
         // 指定一个组
         if(ele){
             var jq = $(ele);
@@ -350,7 +356,14 @@ return ZUI.def("ui.menu", {
     },
     //..............................................
     __draw_fireable : function(mi, jq, jItem){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
+
+        // 增加自定义的类选择器
+        if(mi.className){
+            jq.addClass(mi.className);
+        }
+
         // 图标：不是顶层项目，一律添加图标以便下拉时对其
         var jIcon;
         if(!mi.is_top_item || mi.icon){
@@ -374,13 +387,12 @@ return ZUI.def("ui.menu", {
 
         // 添加提示文字
         if(mi.tip){
-            jq.attr("title", UI.text(mi.tip));
-            // 这个 balloon.css 有点 bug，稍后再说吧
-            // if(jT || jIcon)
-            //     (jT || jIcon).attr({
-            //         "data-balloon" : UI.text(mi.tip),
-            //         "data-balloon-pos" : "left"
-            //     });
+            if(jT || jIcon) {
+                (jT || jIcon).attr({
+                    "data-balloon" : UI.text(mi.tip),
+                    "data-balloon-pos" : opt.tipDirection || "down"
+                });
+            }
         }
     }
     //..............................................

@@ -102,7 +102,6 @@
   -webkit-user-select: none;
   user-select: none;
   z-index: 10;
-  overflow: hidden;
   color: #666666;
   border-bottom: 1px solid #cccccc;
   background: #eeeeee;
@@ -155,7 +154,6 @@
   -webkit-user-select: none;
   user-select: none;
   z-index: 10;
-  overflow: hidden;
   color: #666666;
   border-bottom: 1px solid #cccccc;
   background: #eeeeee;

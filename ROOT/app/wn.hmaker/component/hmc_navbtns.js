@@ -309,9 +309,10 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
         new MenuUI({
             $pel    : opt.$menu,
             context : UI,
+            tipDirection : "up",
             setup   : [{
                 icon : '<i class="fa fa-plus"></i>',
-                text : "i18n:hmaker.com.navbtns.add_btn",
+                tip  : "i18n:hmaker.com.navbtns.add_btn",
                 handler : function(){
                     var UI   = this;
                     var jM   = UI.arena.find(".hmc-main");
@@ -320,7 +321,7 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                 }
             }, {
                 icon : '<i class="fa fa-close"></i>',
-                text : "i18n:hmaker.com.navbtns.del_btn",
+                tip  : "i18n:hmaker.com.navbtns.del_btn",
                 handler : function(){
                     var UI   = this;
                     var jBtn = UI.arena.find(".navbtn[actived]");
@@ -332,6 +333,7 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                 }
             }, {
                 icon : '<i class="fa fa-long-arrow-left"></i>',
+                tip  : "i18n:hmaker.com.navbtns.mv_btn_prev",
                 handler : function(){
                     var UI   = this;
                     var jBtn = UI.arena.find(".navbtn[actived]");
@@ -345,6 +347,7 @@ return ZUI.def("app.wn.hmaker_com_navbtns", {
                 }
             }, {
                 icon : '<i class="fa fa-long-arrow-right"></i>',
+                tip  : "i18n:hmaker.com.navbtns.mv_btn_next",
                 handler : function(){
                     var UI   = this;
                     var jBtn = UI.arena.find(".navbtn[actived]");

@@ -478,7 +478,7 @@ function draw_block(jWrapper, opt, d){
             // 绘制日期单元格的内容
             else{
                 jTd.addClass("zcal-cell-show")
-                var cellHtml = opt.cellHtml(_d_cell, opt);
+                var cellHtml = opt.cellHtml(_d_cell, jTd);
                 jTd.html(cellHtml);
 
                 // 恢复之前的选择
@@ -671,7 +671,8 @@ $.fn.extend({ "zcal" : function(opt, arg){
             next  : '&gt;',
         },
         drawWhenCreate : true,
-        cellHtml  : function(d, opt){
+        cellHtml  : function(d){
+            var opt      = this;
             var theDate  = d.getDate();
             var theMonth = d.getMonth();
             if(opt.markMonthFirstDay && theDate==1 && theMonth!=opt.current.getMonth()){

@@ -25,6 +25,8 @@ define({
                 "nm"              : "导航按钮",
                 "add_btn"         : "添加按钮",
                 "del_btn"         : "删除按钮",
+                "mv_btn_prev"     : "向前移动按钮",
+                "mv_btn_next"     : "向后移动按钮",
                 "showBtnText"     : "显示文字",
                 "btnBorderRadius" : "按钮圆角",
                 "btnWidth"        : "按钮宽度",

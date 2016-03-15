@@ -36,7 +36,13 @@ var quick_menus = {
                 str += tmpl(obj) + ";\n";
             });
             UI.exec(str, function(){
-                UI.refresh();
+                var jN2 = null;
+                for(var i=0; i<objs.length; i++){
+                    jN2 = UI.uiList.remove(objs[i].id);
+                }
+                if(jN2){
+                    UI.uiList.setActived(jN2);
+                }
             });
         }
     },
@@ -91,7 +97,7 @@ function _pop_form_mask(UI, title, obj, cmdTmpl, callback){
                 if(formData){
                     var json   = $z.toJson(formData).replace("'","\\'");
                     var cmdText = $z.tmpl(cmdTmpl)(_.extend({}, obj, {json:json}));
-                    console.log(cmdText);
+                    //console.log(cmdText);
                     UI.exec(cmdText, function(re){
                         var newObj = $z.fromJson(re);
                         callback(newObj);
@@ -286,6 +292,11 @@ return ZUI.def("ui.srh", {
         
         // 返回延迟加载列表
         return uiTypes;
+    },
+    //...............................................................
+    // 根据 list.uiConf 里面的配置信息，查找某个字段的类型
+    getFieldType : function(key) {
+        return this.uiList.getFieldType(key);
     },
     //...............................................................
     resize : function(deep){
