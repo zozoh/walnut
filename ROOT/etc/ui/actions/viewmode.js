@@ -10,7 +10,7 @@
 		val  : 'table'
 	}],
 	init : function(mi){
-		var viewmode = this.getViewMode();
+		var viewmode = this.browser.getViewMode();
 		//console.log("viewmode init", mi, viewmode);
 		mi.status.forEach(function(si){
 			si.on = (si.val == viewmode);

@@ -43,9 +43,10 @@ return ZUI.def("ui.form_test0", {
             x:100, y:80, 
             birthday : "1977-09-21",
             name:'I am zozoh', 
+            favColor : "rgba(255,128,32,0.4)",
             sex:"m",
             live:true,
-            myphoto : {fid:'4thoboi83khmdqmqqvf5arogki'}
+            //myphoto : {fid:'4thoboi83khmdqmqqvf5arogki'}
         };
     },
     //...............................................................
@@ -53,7 +54,7 @@ return ZUI.def("ui.form_test0", {
         return [{
                 key   : "id",
                 icon  : '<i class="fa fa-random"></i>',
-                title : "i18n:ID",
+                title : "ID",
                 type  : "string"
             },{
                 key   : "birthday",
@@ -72,28 +73,34 @@ return ZUI.def("ui.form_test0", {
                 uiConf: {setup : {mode : "range"}} 
             },{
                 key   : "x",
-                title : "i18n:X轴",
+                title : "X轴",
                 tip   : "x 轴坐标",
                 type  : "int",
                 editAs : "input",
                 required : true
             },{
                 key   : "y",
-                title : "i18n:Y轴",
+                title : "Y轴",
                 tip   : "y 轴坐标",
                 type  : "int",
                 editAs : "input",
                 required : true
             },{
+                key   : "favColor",
+                title : "最喜爱的颜色",
+                tip   : "代表了你的性格哟",
+                type  : "object",
+                editAs : "color"
+            },{
                 key   : "name",
-                title : "i18n:名称",
+                title : "名称",
                 tip   : "请输入正确的名称",
                 type  : "string",
                 editAs : "input"
             },{
                 key   : "sex",
                 icon  : '<i class="fa fa-ship"></i>',
-                title : "i18n:性别",
+                title : "性别",
                 tip   : "请输入你的性别",
                 required : true,
                 type  : "string",
@@ -101,7 +108,7 @@ return ZUI.def("ui.form_test0", {
                 uiConf : {items : [{text : "男", val:"m"},{text : "女", val:"f"}]}
             },{
                 key   : "live",
-                title : "i18n:仍旧存活",
+                title : "仍旧存活",
                 tip   : "量子态不算存活，算死翘翘",
                 type  : "boolean",
                 editAs : "switch"
@@ -111,23 +118,23 @@ return ZUI.def("ui.form_test0", {
     fields_B : function(){
         return [{
                 key   : "age",
-                title : "i18n:年龄",
+                title : "年龄",
                 type  : "int",
                 editAs : "input"
             },{
                 key   : "race",
-                title : "i18n:种族",
+                title : "种族",
                 type  : "string",
                 editAs : "input"
             },{
                 key   : "usenm",
-                title : "i18n:曾用名",
+                title : "曾用名",
                 type  : "string",
                 span  : 2,
                 editAs : "input"
             },{
                 key   : "skill",
-                title : "i18n:技能",
+                title : "技能",
                 type  : "string",
                 editAs : "input" 
             }];
@@ -136,19 +143,30 @@ return ZUI.def("ui.form_test0", {
     fields_C : function(){
         return [{
             key   : "poli",
-            title : "i18n:政治面貌",
+            title : "政治面貌",
+            tip   : "你就看着填吧",
+            type  : "int",
+            editAs : "droplist",
+            emptyArrayAsUndefined : true,
+            dft : 1,
+            uiConf : {
+                items : ["党员","团员","群众","敌特"]
+            }
+        },{
+            key   : "nationality",
+            title : "国籍",
             tip   : "你就看着填吧",
             type  : "object",
             editAs : "droplist",
             emptyArrayAsUndefined : true,
             dft : 1,
             uiConf : {
-                multi : 0,
-                items : ["党员","团员","群众","敌特"]
+                multi : 1,
+                items : ["中国","美国","日本","天堂","地狱"]
             }
         },{
             key   : "FTF",
-            title : "i18n:饮食口味",
+            title : "饮食口味",
             tip   : "你就看着填吧",
             type  : "object",
             editAs : "checklist",
@@ -168,14 +186,16 @@ return ZUI.def("ui.form_test0", {
             }
         },{
             key   : "myphoto",
-            title : "i18n:我的图片",
+            title : "我的图片",
             tip   : "随便选个图片",
             type  : "object",
+            uiWidth : "auto",
             uiType : "ui/picker/opicker",
             uiConf : {
                 clearable : false,
                 parseData : function(obj){
-                    return Wn.getById(obj.fid);
+                    if(obj)
+                        return Wn.getById(obj.fid);
                 },
                 formatData : function(o){
                     return o ? {fid:o.id} : null;
@@ -183,10 +203,10 @@ return ZUI.def("ui.form_test0", {
             }
         },{
             key   : "myfiles",
-            title : "i18n:我的多个文件",
+            title : "我的多个文件",
             tip   : "随便选个一些文件和文件夹咯",
             type  : "object",
-            dft   : [{fid:'t6c2m2r5a0htep2rto785n588f'},{fid:'3d7gf4mdtghbqqrknp2snkpo3a'}],
+            //dft   : [{fid:'t6c2m2r5a0htep2rto785n588f'},{fid:'3d7gf4mdtghbqqrknp2snkpo3a'}],
             uiType : "ui/picker/opicker",
             uiConf : {
                 setup : {
@@ -194,9 +214,11 @@ return ZUI.def("ui.form_test0", {
                 },
                 parseData : function(objs){
                     var re = [];
-                    objs.forEach(function(o, index){
-                        re.push(Wn.getById(o.fid));
-                    });
+                    if(objs){
+                        objs.forEach(function(o, index){
+                            re.push(Wn.getById(o.fid));
+                        });
+                    }
                     return re;
                 },
                 formatData : function(os){
@@ -209,7 +231,7 @@ return ZUI.def("ui.form_test0", {
             }
         },{            
             key   : "comment",
-            title : "i18n:补充说明",
+            title : "补充说明",
             tip   : "随便写点什么咯",
             type  : "string",
             editAs : "text",
@@ -219,24 +241,20 @@ return ZUI.def("ui.form_test0", {
         }];
     },
     //...............................................................
-    do_t0 : function(){
+    do_t0 : function(formConf){
         var UI = this;
-        new FormUI({
-            parent : UI,
-            gasketName : "myform",
+        new FormUI(_.extend(formConf, {
             title : "普通测试表单",
             uiWidth : "auto",
             fields : UI.fields_A()
-        }).render(function(){
+        })).render(function(){
             this.setData(UI.getObj());
         });
     },
     //...............................................................
-    do_t1 : function(){
+    do_t1 : function(formConf){
         var UI = this;
-        new FormUI({
-            parent : UI,
-            gasketName : "myform",
+        new FormUI(_.extend(formConf, {
             title : "分组表单",
             fields : [{
                 icon : '<i class="fa fa-tachometer"></i>',
@@ -253,16 +271,14 @@ return ZUI.def("ui.form_test0", {
                 title: '四个输入框',
                 fields : UI.fields_B()
             }]
-        }).render(function(){
+        })).render(function(){
             this.setData(UI.getObj());
         });
     },
     //...............................................................
-    do_t2 : function(){
+    do_t2 : function(formConf){
         var UI = this;
-        new FormUI({
-            parent : UI,
-            gasketName : "myform",
+        new FormUI(_.extend(formConf, {
             title : "组为多列的表单",
             uiWidth : "all",
             fields : [{
@@ -276,14 +292,21 @@ return ZUI.def("ui.form_test0", {
                 cols : 2,
                 fields : UI.fields_A()
             }]
-        }).render(function(){
+        })).render(function(){
             this.setData(UI.getObj());
         });
     },
     //...............................................................
     update : function(o){
-        this.$el.attr("obj-id", o.id);
-        this.do_t2();
+        var UI = this;
+        UI.$el.attr("obj-id", o.id);
+        UI.do_t0({
+            parent : UI,
+            gasketName : "myform",
+            on_change : function(key, val){
+                console.log("form change:", key, val);
+            }
+        });
     }
     //...............................................................
 });

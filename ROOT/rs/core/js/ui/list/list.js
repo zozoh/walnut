@@ -150,13 +150,17 @@ return ZUI.def("ui.list", {
 
         // 执行查找
         var jRow = UI.$item(arg);
-        if(!UI.isActived(jRow)){
+        if(jRow.size() > 0 && !UI.isActived(jRow)){
             UI.blur();
             jRow.addClass("lst-item-actived lst-item-checked");
             var o = jRow.data("OBJ");
+            
+            // 得到下标
+            var index = jRow.prevAll().size();
+
             // 触发消息 
             UI.trigger("list:actived", o, jRow);
-            $z.invoke(UI.options, "on_actived", [o, jRow], UI);
+            $z.invoke(UI.options, "on_actived", [o, index, jRow], UI);
         }
     },
     //...............................................................
@@ -315,6 +319,34 @@ return ZUI.def("ui.list", {
 
         // 返回自身
         return this;
+    },
+    //...............................................................
+    remove : function(it, keepAtLeastOne) {
+        var UI   = this;
+        var jRow = UI.$item(it);
+
+        // 如果没有匹配的行，啥也不做
+        if(jRow.size() == 0)
+            return;
+
+        // 如果当前是高亮节点，则试图得到下一个高亮的节点，给调用者备选
+        var jN2   = null;
+        if(UI.isActived(jRow)){
+            jN2 = jRow.next();
+            if(jN2.size() == 0){
+                jN2 = jRow.prev();
+                // 返回 false 表示只剩下最后一个节点额
+                if(jN2.size() == 0 && keepAtLeastOne){
+                    return false;
+                }
+            }
+        }
+
+        // 删除当前节点
+        jRow.remove();
+
+        // 返回下一个要激活的节点，由调用者来决定是否激活它
+        return jN2 && jN2.size() > 0 ? jN2 : null;
     },
     //...............................................................
     update : function(obj, it) {

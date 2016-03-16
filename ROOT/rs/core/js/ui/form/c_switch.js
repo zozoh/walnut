@@ -45,10 +45,12 @@ return ZUI.def("ui.form_com_switch", {
             if(UI.isMulti(true)){
                 if(jq.hasClass("checked")){
                     jq.removeClass("checked");
+                    UI.__on_change();
                 }
                 // 没超过了限制，才能再选
                 else if(UI.arena.find("li.checked").size() < UI.options.multi){
                     jq.addClass("checked");
+                    UI.__on_change();
                 }
                 // 否则警告
                 else{
@@ -58,13 +60,26 @@ return ZUI.def("ui.form_com_switch", {
             // 随便多选的话 ...
             else if(UI.isMulti()){
                 jq.toggleClass("checked");
+                UI.__on_change();
             }
             // 单选，就简单了
             else {
-                UI.arena.find(".checked").removeClass("checked");
-                jq.addClass("checked");
+                if(!jq.hasClass("checked")){
+                    UI.arena.find(".checked").removeClass("checked");
+                    jq.addClass("checked");
+                    UI.__on_change();
+                }
             }
         }
+    },
+    //...............................................................
+    __on_change : function(){
+        var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+        var v = UI.getData();
+        $z.invoke(opt, "on_change", [v], context);
+        UI.trigger("change", v);
     },
     //...............................................................
     redraw : function(){
@@ -133,7 +148,7 @@ return ZUI.def("ui.form_com_switch", {
         var UI = this;
 
         // 所有的备选项
-        var jLis = UI.arena.find("li");
+        var jLis = UI.arena.find("li").removeClass("checked");
 
         // 多选就加多个
         if(UI.isMulti()){

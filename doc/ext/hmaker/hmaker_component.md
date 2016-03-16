@@ -71,8 +71,24 @@ AC.gasket.prop  -> FormUI : "ui/form/form"
 id 属性是必要的，每次控件新建实例，会自动分配。 无论渲染还是编辑时，
 会生成 <style> 节点， 每个控件的实例都对应一个 <style> 节点。
 用 <style c-id="控件ID"> 来形成对应关系
+
+下面是控件顶级元素支持的属性:
+
+// 自动分配的控件 ID
+id    : xxx
+
+// 控件的类型
+ctype : text|image|navbtns ...
+
+// 用来标识控件在不同位置体系下的样式
+// 具体参看本文后面 position 属性的概述
+// 这个属性由编辑器根据 prop， 每次初始化的时候生成
+pos : "relative|absolute"
+
+// 标识控件是否正在被编辑
+actived : "yes"
 -->
-<div class="hmc-com" ctype="控件类型" id="控件ID">
+<div class="hmc-com" ctype="控件类型" id="控件ID" pos="relative">
     <!--
     这个节点存放 DOM 所有的属性，就是一段 JSON 文本
     ! 渲染时会被移除
@@ -87,25 +103,30 @@ id 属性是必要的，每次控件新建实例，会自动分配。 无论渲�
     </script>
     
     <!--
-    这个节点存放 DOM 的辅助节点，比如缩放控制手柄等
-    ! 渲染时会被移除
-    -->
-    <div class="hcm-assist">
-        <div class="hcm-pos-hdl" h-type="NW"></div>
-        <div class="hcm-pos-hdl" h-type="NE"></div>
-        <div class="hcm-pos-hdl" h-type="SW"></div>
-        <div class="hcm-pos-hdl" h-type="SE"></div>
-        <div class="hcm-pos-hdl" h-type="N"></div>
-        <div class="hcm-pos-hdl" h-type="S"></div>
-        <div class="hcm-pos-hdl" h-type="E"></div>
-        <div class="hcm-pos-hdl" h-type="W"></div>
-    </div>
-    
-    <!--
-    剩下的就是控件的主要 DOM 结构。   
+    这个节点包裹了显示层面的元素
     -->
     <div class="hmc-wrapper">
-        <!-- 这里面的内容，会在控件的 redraw 函数进行绘制 -->
+        <!--
+        这个节点存放 DOM 的辅助节点，比如缩放控制手柄等
+        ! 渲染时会被移除
+        -->
+        <div class="hcm-assist">
+            <div class="hcm-pos-hdl" h-type="NW"></div>
+            <div class="hcm-pos-hdl" h-type="NE"></div>
+            <div class="hcm-pos-hdl" h-type="SW"></div>
+            <div class="hcm-pos-hdl" h-type="SE"></div>
+            <div class="hcm-pos-hdl" h-type="N"></div>
+            <div class="hcm-pos-hdl" h-type="S"></div>
+            <div class="hcm-pos-hdl" h-type="E"></div>
+            <div class="hcm-pos-hdl" h-type="W"></div>
+        </div>
+        
+        <!--
+        剩下的就是控件的主要 DOM 结构。   
+        -->
+        <div class="hmc-main">
+            <!-- 这里面的内容，会在控件的 redraw 函数进行绘制 -->
+        </div>
     </div>
 </div>
 ```
@@ -225,6 +246,38 @@ margin: 10
 #(控件ID) {
     padding : 10px;
 }
+```
+
+# 控件的属性更新流程
+
+```
+COM  : 控件
+PG   : 页面全局 UI
+PROP : 控件属性表单 
+.........................................
+# 属性变动 (on_change) 会交给控件处理
+PROP -> COM.setProperty(key,val)
+
+# 全局UI的帮助函数将获取组件的信息
+COM -> PG.getComponentInfo(jCom);
+: info
+
+# val 为 undefined 表示删除
+# 否则当做修改
+COM -> COM
+
+# 保存到 DOM 节点
+COM -> PG.setComponentInfo(jCom, info);
+: info
+
+# 将更新过的属性，重新设回到属性面板里
+COM -> PROP.setData(info);
+
+# 更新自己的样式
+COM -> COM.updateStyle(info);
+
+# 全部完成
+:
 ```
 
 

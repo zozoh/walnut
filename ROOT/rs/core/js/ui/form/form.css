@@ -66,6 +66,9 @@
 .ff-txt .fft-icon {
   margin-right: 6px;
 }
+.ff-txt .fft-text {
+  margin-left: 4px;
+}
 .ff-txt[required] {
   color: #333333;
   font-weight: bolder;
@@ -102,4 +105,7 @@
   color: #008800;
   padding: 4px;
   font-size: 8px;
+}
+.form-group [ui-width="all"] .ffv-ui {
+  width: 100%;
 }

@@ -11,10 +11,16 @@ var INDENT_BY = "    ";
 var zUtil = {
     doCallback : function(callback, args, context){
         if(_.isFunction(callback)){
-            callback.apply(context||this, args);
-            return;
+            return callback.apply(context||this, args);
         }
         return args.length == 1 ? args[0] : args;
+    },
+    //.............................................
+    // 处理 underscore 的模板
+    tmpl : function(str){
+        return _.template(str, {
+            escape : /\{\{([\s\S]+?)\}\}/g
+        });
     },
     //.............................................
     // 本地存储保存某用户的某个界面的设置
@@ -79,7 +85,7 @@ var zUtil = {
                     if(_.isString(v))
                         return v;
                     return v || null;
-                case 'number':
+                case 'float':
                     var re = v * 1; 
                     return v == re ? re : -1;
                 case 'int':
@@ -150,20 +156,20 @@ var zUtil = {
     // 获取一个元素的矩形信息，包括 top,left,right,bottom,width,height,x,y
     // 其中 x,y 表示中央点
     rect : function(ele, includeMargin){
-        var jq = $(ele);
-        var rect    = jq.offset();
+        var jEle = $(ele);
+        var rect = jEle.offset();
         // 包括外边距，有点麻烦
-        if(includeMargin && jq.size()>0){
-            rect.width  = jq.outerWidth(true);
-            rect.height = jq.outerHeight(true);
-            var style   = window.getComputedStyle(jq[0]);
+        if(includeMargin && jEle.size()>0){
+            rect.width  = jEle.outerWidth(true);
+            rect.height = jEle.outerHeight(true);
+            var style   = window.getComputedStyle(jEle[0]);
             rect.top   -= this.toPixel(style.marginTop);
             rect.left  -= this.toPixel(style.marginLeft);
         }
         // 否则就简单了
         else{
-            rect.width  = jq.outerWidth();
-            rect.height = jq.outerHeight();
+            rect.width  = jEle.outerWidth();
+            rect.height = jEle.outerHeight();
         }
         rect.right  = rect.left + rect.width;
         rect.bottom = rect.top  + rect.height;
@@ -176,6 +182,7 @@ var zUtil = {
     // @ele  - 被停靠元素
     // @ta   - 浮动元素
     // @mode - H | V 表示是停靠在水平边还是垂直边，默认 H
+    //         或者可以通过 "VA|VB|VC|VD|HA|HB|HC|HD" 来直接指定停靠的区域
     dock : function(ele, ta, mode){
         var jq  = $(ele);
         var jTa = $(ta).css("position","fixed");
@@ -184,7 +191,7 @@ var zUtil = {
             width  : jTa.outerWidth(true),
             height : jTa.outerHeight(true)
         };
-        // 得到菜单项目的矩形信息
+        // 得到被停靠元素的矩形信息
         var rect = $z.rect(jq);
         //console.log(" rect  :", rect);
         // 计算页面的中点
@@ -199,38 +206,52 @@ var zUtil = {
         +---+---+
         */
         var off;
-        // 停靠在左右边
+
+        // 分析模式
+        var m = /^([VH])([ABCD])?$/.exec((mode||"H").toUpperCase());
+        var mode = m ? m[1] : "H";
+        // 分析一下视口所在网页的区域
+        var area = (m ? m[2] : null) || (
+                    viewport.x>=rect.x && viewport.y>=rect.y ? "A" : (
+                        viewport.x<=rect.x && viewport.y>=rect.y ? "B" : (
+                            viewport.x>=rect.x && viewport.y<=rect.y ? "C"
+                                : "D"
+                            )
+                        )
+                    );
+
+        // 停靠在垂直边
         if("V" == mode){
             // A : 右上角对齐
-            if(viewport.x>=rect.x && viewport.y>=rect.y){
+            if("A" == area){
                 off = {
                     "left" : rect.right,
                     "top"  : rect.top
                 };
             }
             // B : 左上角对齐
-            else if(viewport.x<=rect.x && viewport.y>=rect.y){
+            else if("B" == area){
                 off = {
                     "left" : rect.left   - sub.width,
                     "top"  : rect.top
                 };
             }
             // C : 右下角对齐
-            else if(viewport.x>=rect.x && viewport.y<=rect.y){
+            else if("C" == area){
                 off = {
-                    "left" : rect.right,
-                    "top"  : rect.bottom - sub.height
+                    "left"   : rect.right,
+                    "bottom" : viewport.height - rect.bottom
                 };
             }
             // D : 左下角对齐
             else {
                 off = {
-                    "left" : rect.left   - sub.width,
-                    "top"  : rect.bottom - sub.height
+                    "left"   : rect.left   - sub.width,
+                    "bottom" : viewport.height - rect.bottom
                 };
             }
         }
-        // 停靠在上下边
+        // 停靠在上水平边
         /*
         +---+---+
         | A | B |
@@ -240,21 +261,21 @@ var zUtil = {
         */
         else{
             // A : 左下角对齐
-            if(viewport.x>=rect.x && viewport.y>=rect.y){
+            if("A" == area){
                 off = {
                     "left" : rect.left,
                     "top"  : rect.bottom
                 };
             }
             // B : 右下角对齐
-            else if(viewport.x<=rect.x && viewport.y>=rect.y){
+            else if("B" == area){
                 off = {
                     "left" : rect.right - sub.width,
                     "top"  : rect.bottom
                 };
             }
             // C : 左上角对齐
-            else if(viewport.x>=rect.x && viewport.y<=rect.y){
+            else if("C" == area){
                 off = {
                     "left" : rect.left,
                     "top"  : rect.top - sub.height
@@ -513,7 +534,7 @@ var zUtil = {
             }
         };
         // 准备请求对象头部信息
-        var url = (_.template(opt.url))(opt);
+        var url = ($z.tmpl(opt.url))(opt);
         //console.log("upload to:", url);
         xhr.open("POST", url, true);
         xhr.setRequestHeader('Content-type', "application/x-www-form-urlencoded; charset=utf-8");
@@ -640,17 +661,17 @@ var zUtil = {
         var func;
         // 自定义的 display 方法
         if(fld.display){
-            func = _.isFunction(fld.display) ? fld.display : _.template(fld.display);
+            func = _.isFunction(fld.display) ? fld.display : $z.tmpl(fld.display);
         }
         // 同时有 text && icon
         else{
             // 预编译 icon
             if(fld.icon)
-                fld.__dis_icon = _.isFunction(fld.icon) ? fld.icon : _.template(fld.icon);
+                fld.__dis_icon = _.isFunction(fld.icon) ? fld.icon : $z.tmpl(fld.icon);
             
             // 预编译 text
             if(fld.text)
-                fld.__dis_text = _.isFunction(fld.text) ? fld.text : _.template(fld.text);
+                fld.__dis_text = _.isFunction(fld.text) ? fld.text : $z.tmpl(fld.text);
 
             // 同时有 icon 和 text
             if(fld.__dis_icon && fld.__dis_text){
@@ -783,7 +804,7 @@ var zUtil = {
         // 字符串，试图看看 context 里有没有 exec 方法
         else if(_.isString(data)){
             //console.log(data, params);
-            var str  = (_.template(data))(params);
+            var str  = ($z.tmpl(data))(params);
             //console.log(">> exec: ", str)
             var execFunc = context.exec || (context.options||{}).exec;
             if(_.isFunction(execFunc)){
@@ -933,7 +954,7 @@ var zUtil = {
             _t.s = str.getSeconds();
         }
         // 数字则表示绝对秒数
-        if(_.isNumber(str)){
+        else if(_.isNumber(str)){
             var n = parseInt(str);
             _t.H = parseInt(n / 3600);
             n -= _t.H * 3600;
@@ -986,7 +1007,7 @@ var zUtil = {
             }
             // 未通过校验，抛错
             else{
-                throw "invalid time '" + v + "' can not match : " + regex;
+                throw "invalid time '" + str + "' can not match : " + regex;
             }
         }
         _t.sec = _t.H * 3600 + _t.m*60 + _t.s;
@@ -997,6 +1018,85 @@ var zUtil = {
         _t.key     = _t.key_min+":"+_t.ss;
         // 返回
         return _t;
+    },
+    //.............................................
+    // 根据颜色对象的 red,green,blue,alpha ，更新其他字段的值
+    updateColor : function(color){
+        color.RR   = color.red.toString(16).toUpperCase();
+        color.GG   = color.green.toString(16).toUpperCase();
+        color.BB   = color.blue.toString(16).toUpperCase();
+        color.RR   = color.RR.length == 1 ? color.RR+color.RR : color.RR;
+        color.GG   = color.GG.length == 1 ? color.GG+color.GG : color.GG;
+        color.BB   = color.BB.length == 1 ? color.BB+color.BB : color.BB;
+        color.HEX  = "#"+color.RR+color.GG+color.BB;
+        color.RGB  = "rgb("+color.red+","+color.green+","+color.blue+")";
+        color.RGBA = "rgba("+color.red+","+color.green+","+color.blue+","+color.alpha+")";
+        return color;
+    },
+    /*.............................................
+    将任何颜色字符串，解析成标准颜色对象
+    {
+        red   : 255,
+        green : 255,
+        blue  : 255,
+        RR    : "FF",
+        GG    : "FF",
+        BB    : "FF",
+        alpha : 1.0
+        HEX   : "#FFFFFF",
+        RGB   : rgb(255,255,255),
+        RGBA  : rgb(255,255,255, 1)
+    }
+    */
+    parseColor : function(str, alpha) {
+        // 初始颜色是黑色
+        var color = {
+            red   : 0,
+            green : 0,
+            blue  : 0,
+            alpha : _.isNumber(alpha) ? alpha : 1.0
+        };
+        // 空的话用黑色
+        if(!str)
+            return this.updateColor(color);
+
+        // 本来就是一个颜色对象，创建个新的
+        if(_.isNumber(str.red) && _.isNumber(str.green) && _.isNumber(str.blue) && _.isNumber(str.alpha)){
+            return this.updateColor(_.extend({}, str));
+        }
+
+        // 初始化处理字符串
+        str = str.replace(/[ \t\r\n]+/g, "").toUpperCase();
+
+        // 解析吧
+        // RGB: #FFF
+        if (m = /^#?([0-9A-F])([0-9A-F])([0-9A-F]);?$/.exec(str)) {
+            color.red   = parseInt(m[1]+m[1], 16);
+            color.green = parseInt(m[2]+m[2], 16);
+            color.blue  = parseInt(m[3]+m[3], 16);
+        }
+        // RRGGBB: #F0F0F0
+        else if (m = /^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2});?$/.exec(str)) {
+            color.red   = parseInt(m[1], 16);
+            color.green = parseInt(m[2], 16);
+            color.blue  = parseInt(m[3], 16);
+        }
+        // RGB值: rgb(255,33,89)
+        else if (m = /^RGB\((\d+),(\d+),(\d+)\)$/.exec(str)) {
+            color.red   = parseInt(m[1], 10);
+            color.green = parseInt(m[2], 10);
+            color.blue  = parseInt(m[3], 10);
+        }
+        // RGBA值: rgba(6,6,6,0.9)
+        else if (m = /^RGBA\((\d+),(\d+),(\d+),([\d.]+)\)$/.exec(str)) {
+            color.red   = parseInt(m[1], 10);
+            color.green = parseInt(m[2], 10);
+            color.blue  = parseInt(m[3], 10);
+            color.alpha = m[4] * 1;
+        }
+
+        // 最后返回颜色
+        return this.updateColor(color);
     },
     //.............................................
     // 设置一个 input 的值，如果值与 placeholder 相同，则清除值
@@ -1018,13 +1118,21 @@ var zUtil = {
     },
     //.............................................
     // 得到函数体的代码
-    getFuncBodyAsStr: function (func) {
-        var str = func.toString();
+    // 因为这种方法通常用来获得内嵌 HTML 文本， 
+    // 参数 removeComment 如果声明了，将会移除文本前后的 '/*' 和 '*/'
+    getFuncBodyAsStr: function (func, removeComment) {
+        var str  = func.toString();
         var posL = str.indexOf("{");
-        var re = $.trim(str.substring(posL + 1, str.length - 1));
+        var re   = $.trim(str.substring(posL + 1, str.length - 1));
         // Safari 会自己加一个语句结尾，靠
         if (re[re.length - 1] == ";")
-            return re.substring(0, re.length - 1);
+            re = re.substring(0, re.length - 1);
+
+        // 移除前后的注释
+        if(removeComment)
+            re = re.substring(2, re.length - 2);
+
+        // 嗯，搞好了
         return re;
     },
     //.............................................
@@ -1157,7 +1265,7 @@ var zUtil = {
     //.............................................
     // 返回一个时间戳，其它应用可以用来阻止浏览器缓存
     timestamp: function () {
-        return new Date().getTime();
+        return Date.now();;
     },
     //.............................................
     // 生成一个随机字符串
@@ -1367,109 +1475,248 @@ var zUtil = {
     },
     //---------------------------------------------------------------------------------------
     /**
-     * ele - 为任何可以有子元素的 DOM 或者 jq，本函数在该元素的位置绘制一个 input 框，让用户输入新值
-     * opt - object | function
-     * opt.multi - 是否是多行文本
-     * opt.text - 初始文字，如果没有给定，采用 ele 的文本
-     * opt.width - 指定宽度
-     * opt.height - 指定高度
-     * opt.after - function(newval, oldval){...} 修改之后，
-     *   - this 为被 edit 的 DOM 元素 (jq 包裹)
-     *   - 传入 newval 和 oldval
-     *   - 如果不给定这个参数，则本函数会给一个默认的实现
+     编辑任何元素的内容
+     ele - 为任何可以有子元素的 DOM 或者 jq，本函数在该元素的位置绘制一个 input 框，让用户输入新值
+     opt - 配置项目
+     {
+        multi : false  // 是否是多行文本
+        text  : null   // 初始文字，如果没有给定，采用 ele 的文本
+        width : 0      // 指定宽度，没有指定则默认采用宿主元素的宽度
+        height: 0      // 指定高度，没有指定则默认采用宿主元素的高度
+        extendWidth  : false   // 自动延伸宽度
+        extendHeight : false   // 自动延伸高度
+        takePlace    : false   // 是否代替宿主的位置，如果代替那么将不用绝对位置和遮罩
+
+        // 修改之后的回调
+        // 如果不指定这个项，默认实现是修改元素的 innertText
+        after : {c}F(newval, oldval, jEle){}
+        
+        // 回调的上下文，默认为 ele 的 jQuery 包裹对象
+        context : jEle
+     }
+     * 如果 opt 为函数，相当于 {after:F()}
      */
     editIt: function(ele, opt) {
         // 处理参数
-        var me = $(ele);
+        var jEle = $(ele);
+        if(jEle.size() == 0 || jEle.attr("z-edit-it-on"))
+            return;
+
+        // 标记已经被编辑
+        jEle.attr("z-edit-it-on", "yes");
+
         var opt = opt || {};
+        // 直接给了回调
         if (typeof opt == "function") {
             opt = {
                 after: opt
             };
-        } else if (typeof opt == "boolean") {
+        }
+        // 多行
+        else if (typeof opt == "boolean") {
             opt = {
                 multi: true
             };
         }
-        if (typeof opt.after != "function") opt.after = function(newval, oldval) {
-            if (newval != oldval) this.text(newval);
-        };
-        // 定义处理函数
-        var onKeydown = function(e) {
+        // 定义默认的回调
+        if(!_.isFunction(opt.after))
+            opt.after = function(newval, oldval, jEle, opt) {
+                // 多行用 HTML
+                if(opt.multi){
+                    jEle.html(newval);
+                }
+                // 单行用文本
+                else{
+                    jEle.text(newval);
+                }
+            };
+        //...............................................
+        // 定义键盘处理函数
+        var __on_keydown = function(e) {
+            var jInput = $(this);
+            var jDiv   = jInput.parent();
+            var opt    = jDiv.data("@OPT");
             // Esc
             if (27 == e.which) {
-                $(this).val($(this).attr("old-val")).blur();
+                e.stopPropagation();
+                var old = jDiv.data("@OLD");
+                jInput.val(old).blur();
+                return;
             }
             // Ctrl + Enter
             else if (e.which == 13) {
-                if(window.keyboard){
-                    if(window.keyboard.ctrl){
-                        $(this).blur();    
+                // 多行的话，必须加 ctrl 才算确认
+                if(opt.multi){
+                    if(($z.os.mac && e.metaKey) || e.ctrlKey){
+                        jInput.blur();
+                        return;
                     }
                 }
+                // 单行的话，就确认
                 else {
-                    $(this).blur();
+                    jInput.blur();
+                    return;
                 }
             }
+            // 如果是自动延伸 ...
+            if(opt.extendWidth){
+                jDiv.css("width",  jInput[0].scrollWidth + jInput[0].scrollLeft);
+            }
+            if(opt.extendHeight){
+                jDiv.css("height", jInput[0].scrollHeight + jInput[0].scrollTop);
+            }
+
         };
-        var func = function() {
+        //...............................................
+        // 定义确认后的处理
+        var __on_ok = function() {
             var jInput = $(this);
             var jDiv   = jInput.parent();
-            var opt = jDiv.data("z-editit-opt");
-            opt.after.apply(jDiv.parent(), [jInput.val(), jInput.attr("old-val")]);
-            jDiv.prev().remove();  // 移除遮罩
-            jDiv.remove();  // 移除输入框
+            var jEle   = jDiv.data("@ELE");
+            var opt    = jDiv.data("@OPT");
+            var context= opt.context || jEle;
+
+            // 处理值
+            var old = jDiv.data("@OLD");
+            var val = jInput.val();
+
+            // 单行的默认要 trim 一下
+            if(opt.trim || (!opt.trim && !opt.multi)){
+                val = $.trim(val);
+            }
+
+            // 如果是多行的话，用 HTML 替换一下
+            if(opt.multi){
+                val = val.replace("<", "&lt;")
+                         .replace(">", "&gt;")
+                         .replace(/\r?\n/g, "\n<br>");
+            }
+
+            // 调用回调
+            opt.after.apply(jEle, [val, old, jEle, opt]);
+
+            // 回来吧宿主
+            if(opt.takePlace){
+                jEle.insertBefore(jDiv).show();
+            }
+            // 移除遮罩
+            else{
+                jDiv.prev().remove();
+            }
+
+            // 移除编辑控件
+            jDiv.remove(); 
+
+            // 移除宿主标识
+            jEle.removeAttr("z-edit-it-on");
         };
+        //...............................................
         // 准备显示输入框
-        var val = opt.text || me.text();
+        var val = opt.text || jEle.text();
         var html = '<div class="z-edit-it">' + (opt.multi ? '<textarea></textarea>' : '<input>') +'</div>';
-
+        //...............................................
         // 计算宿主尺寸
-        var rect = $z.rect(me);
-
+        var rect = $z.rect(jEle);
+        //...............................................
         // 显示输入框
         var boxW = opt.width || rect.width;
         var boxH = opt.height || rect.height;
-        var jq = $(html).prependTo(me)
-                   .addClass("z-edit-it")
-                   .data("z-editit-opt", opt)
-                   .css({
-                        "width"    : boxW,
-                        "height"   : boxH,
-                        "position" : "fixed",
-                        "top"      : rect.top,
-                        "left"     : rect.left,
-                        "z-index"  : 999999,
-                    });
-        // 给输入框设值
-        var jInput = jq.children();
-        jInput.val(val).attr("old-val", val).css({
-            "width"       : boxW,
-            "height"      : boxH,
-            "line-height" : boxH
-        });
-
-        // 显示遮罩
-        $('<div>').insertBefore(jq)
+        var jDiv = $(html)
+            .data("@OPT", opt)
+            .data("@ELE", jEle)
+            .data("@OLD", val)
             .css({
-                "background" : "#000",
-                "opacity" : 0,
-                "position" : "fixed",
-                "top"    : 0,
-                "left"   : 0,
-                "bottom" : 0,
-                "right"  : 0,
-                "z-index": 999998,
+                "width"   : boxW,
+                "height"  : boxH,
+                "padding" : 0,
+                "margin"  : 0
             });
+        // 给输入框设值
+        var jInput = jDiv.children();
+        jInput.val(val).attr("spellcheck", "false").css({"width":"100%","height":"100%"});
+        // 单行输入框，设一下行高
+        if(!opt.multi)
+            jInput.css("line-height", boxH);
 
+        //...............................................
+        // 多行的话取得宿主的显示模式
+        if(opt.multi){
+            var eleStyle = window.getComputedStyle(jEle[0]);
+
+            var rKeys = ["display","letter-spacing","margin","padding"
+                        ,"font-size", "font-family", "border"
+                        ,"line-height"];
+            // 如果占位模式，才 copy 背景色和前景色
+            if(opt.takePlace) {
+                rKeys.push("background");
+                rKeys.push("color");
+            }
+
+            var css  = {};
+            for(var i=0;i<rKeys.length;i++){
+                var rKey = rKeys[i];
+                var pKey = $z.upperWord(rKey);
+                css[rKey] = eleStyle[pKey];
+                //console.log(rKey, " : ", eleStyle[pKey]);
+            }
+            //console.log(css);
+            
+            // 将自身设置成和宿主一样的显示模式
+            jInput.css(_.extend(css, {
+                "overflow" : "hidden",
+                "outline"  : "none",
+                "resize"   : "none"
+            }));
+        }
+        //...............................................
+        // 替代宿主的位置
+        if(opt.takePlace){
+            // 占宿主的位置
+            jDiv.insertBefore(jEle);
+
+            // 然后，嗯，宿主死开
+            jEle.appendTo(jEle[0].ownerDocument.body).hide();
+
+            // 模拟宿主点击
+            jDiv.click();
+        }
+        //...............................................
+        // 绝对定位
+        else {
+            // 绝对定位，将自身插入到宿主里面
+            jDiv.appendTo(jEle);
+            // 显示绝对定位
+            jDiv.css({
+                "position" : "fixed",
+                "top"      : rect.top,
+                "left"     : rect.left,
+                "z-index"  : 999999
+            });
+            // 显示遮罩
+            $('<div>').insertBefore(jDiv)
+                .css({
+                    "background" : "#000",
+                    "opacity" : 0,
+                    "position" : "fixed",
+                    "top"    : 0,
+                    "left"   : 0,
+                    "bottom" : 0,
+                    "right"  : 0,
+                    "z-index": 999998,
+                });
+        }
+        //...............................................
         // 绑定事件
-        jInput.one("blur", func);
-        jInput.one("change", func);
-        jInput.on("keydown", onKeydown);
-        jInput.on("click", function(e){e.stopPropagation();})
+        jInput.one("blur"  , __on_ok);
+        jInput.one("change", __on_ok);
+        jInput.on("keydown", __on_keydown);
+        // jInput.on("click", function(e){
+        //     console.log(e.isPropagationStopped());
+        // })
         jInput.focus();
 
-        return jq;
+        // 返回最新的 DIV
+        return jDiv;
     },
     //.............................................
     // json : function(obj, fltFunc, tab){
@@ -1569,6 +1816,98 @@ var zUtil = {
             str += char;
         }
         return str;
+    },
+    /**
+     * 将一个字符串由驼峰式命名变成分割符分隔单词
+     * 
+     * <pre>
+     *  lowerWord("helloWorld", '-') => "hello-world"
+     * </pre>
+     * 
+     * @param cs
+     *            字符串
+     * @param c
+     *            分隔符
+     * 
+     * @return 转换后字符串
+     */
+    lowerWord : function(cs, c) {
+        var sb = "";
+        for (var i = 0; i < cs.length; i++) {
+            var ch = cs.charAt(i);
+            if (/^[A-Z]$/.test(ch)) {
+                if (i > 0)
+                    sb += c;
+                sb += ch.toLowerCase();
+            }
+            else {
+                sb += ch;
+            }
+        }
+        return sb;
+    },
+    /**
+     * 将一个字符串某一个字符后面的字母变成大写，比如
+     * 
+     * <pre>
+     *  upperWord("hello-world", '-') => "helloWorld"
+     * </pre>
+     * 
+     * @param cs
+     *            字符串
+     * @param c
+     *            分隔符
+     * 
+     * @return 转换后字符串
+     */
+    upperWord : function(cs, c) {
+        var sb = "";
+        for (var i = 0; i < cs.length; i++) {
+            var ch = cs.charAt(i);
+            if (ch == c) {
+                do {
+                    i++;
+                    if (i >= len)
+                        return sb;
+                    ch = cs.charAt(i);
+                } while (ch == c);
+                sb += ch.toUpperCase();
+            }
+            else {
+                sb += ch;
+            }
+        }
+        return sb;
+    },
+    /**
+     * 将字符串首字母大写
+     * 
+     * @param s
+     *            字符串
+     * @return 首字母大写后的新字符串
+     */
+    upperFirst : function(s) {
+        if (!s)
+            return s;
+        var c = s.charAt(0);
+        if (/[a-z]/.test(c))
+            return c.toUpperCase() + s.substring(1);
+        return s;
+    },
+    /**
+     * 将字符串首字母小写
+     * 
+     * @param s
+     *            字符串
+     * @return 首字母小写后的新字符串
+     */
+    lowerFirst : function(s) {
+        if (!s)
+            return s;
+        var c = s.charAt(0);
+        if (/[A-Z]/.test(c))
+            return c.toLowerCase() + s.substring(1);
+        return s;
     },
     // 显示一个元素的尺寸，调试用
     _dumpSize : function(ele){

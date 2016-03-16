@@ -5,6 +5,6 @@
 	icon_on  : '<i class="fa fa-check"></i>',
     icon_off : '<i class="fa fa"></i>',
 	init : function(mi){
-		mi.on = this.getHiddenObjVisibility() == "show";
+		mi.on = this.browser.getHiddenObjVisibility() == "show";
 	}
 })

@@ -49,6 +49,15 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public long copyData(WnObj a, WnObj b) {
+        long re = store.copyData(a, b);
+        if (re != 0) {
+            tree.set(b, "^(data|sha1|len|lm)$");
+        }
+        return re;
+    }
+
+    @Override
     public WnObj rename(WnObj o, String nm) {
         return tree.rename(o, nm);
     }

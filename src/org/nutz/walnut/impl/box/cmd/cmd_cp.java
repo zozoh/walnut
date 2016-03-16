@@ -1,9 +1,5 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import org.nutz.lang.Streams;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -49,9 +45,8 @@ public class cmd_cp extends JvmExecutor {
         if (!src.isFILE())
             throw Err.create("e.cmds.cp.only_file");
 
-        InputStream ins = sys.io.getInputStream(src, 0);
-        OutputStream ops = sys.io.getOutputStream(dst_o, 0);
-        Streams.writeAndClose(ops, ins);
+        // 执行快速 copy
+        sys.io.copyData(src, dst_o);
     }
 
 }

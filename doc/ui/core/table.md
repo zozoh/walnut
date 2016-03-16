@@ -94,6 +94,11 @@ new TableUI({
     on_draw_row : {c}F(jRow, obj)
 
     //............................................................
+    // 在激活某个对象前的回调，如果函数返回的是 false
+    // 那么会禁止这个对象的激活
+    on_before_actived : {c}F(o,jq):Boolean
+
+    //............................................................
     // 事件
     on_change  : {c}F()          // "table:change"!首次加载一定会被触发
     on_add     : {c}F(objs)      // "table:add"   !setData 时不会触发
@@ -278,6 +283,20 @@ uiTable.add(objs, null, true);
 ```
 
 * 参数 *objs* 可以是单个对象，函数判断不是数组，会用数组包裹
+
+## remove
+
+```
+// 删掉对象，但是保持至少有一个
+var jN2 = uiTable.remove("45cfad78a3ec99ade12", true);
+
+// 删掉最后一个
+var jN2 = uiTable.remove(-1);
+```
+
+* 删除操作会返回高亮被删除对象的下一个节点
+* 调用者可以根据心情，决定是否高亮这个节点 `setActived(jN2)`
+* 如果没有可被高亮的下一个节点，函数返回的是 null
 
 ## update 
 

@@ -299,16 +299,7 @@ return ZUI.def("ui.console", {
         var ps = this._render_ps1(se);
         UI._prompt(ps, function (str, jBlock) {
             str = $.trim(str);
-            // 分析字符串，如果 %xxxx: 开头，表示模拟一个 APP
-            // 那么后面的才是命令内容
-            var m = /^%([^ :]+):(.+)$/.exec(str);
-            var appName, cmdText;
-            if(m){
-                appName = m[1];
-                cmdText = $.trim(m[2]);
-            }else{
-                cmdText = str;
-            }
+            var cmdText = str;
 
             // 显示旧的输入行
             var jq = UI.ccode("prompt.read");
@@ -348,7 +339,6 @@ return ZUI.def("ui.console", {
 
             // 处理命令
             Wn.exec(cmdText, {
-                appName  : appName,
                 context  : UI,
                 msgShow  : UI.on_show_txt,
                 msgError : UI.on_show_err,

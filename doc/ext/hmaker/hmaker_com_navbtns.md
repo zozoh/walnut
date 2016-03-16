@@ -17,17 +17,19 @@ tags:
 ```
 <div class="hm-com hmc-navbtns" ctype="navbtns" id="navbtns0">
     <script type="text/x-template" class="hmc-prop">...</script>
-    <div class="hmc-assist">...</div>
     <div class="hmc-wrapper">
-        <div class="hmc-nbi hmc-nbi-actived">
-            <div class="hmc-nbi-pic">
-                <img src="/o/read/id:xxxx" path="icon/a.png">
+        <div class="hmc-assist">...</div>
+        <div class="hmc-main">
+            <div class="hmc-nbi hmc-nbi-actived">
+                <div class="hmc-nbi-pic">
+                    <img src="/o/read/id:xxxx" path="icon/a.png">
+                </div>
+                <div class="hmc-nbi-txt">xxx</div>
             </div>
-            <div class="hmc-nbi-txt">xxx</div>
-        </div>
-        <div class="hmc-nbi">...</div>
-        <div class="hmc-add-nbi">
-            <i class="fa fa-plus"></i>
+            <div class="hmc-nbi">...</div>
+            <div class="hmc-add-nbi">
+                <i class="fa fa-plus"></i>
+            </div>
         </div>
     </div>
 </div>

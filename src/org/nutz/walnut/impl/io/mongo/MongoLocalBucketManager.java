@@ -86,6 +86,19 @@ public class MongoLocalBucketManager implements WnBucketManager {
     }
 
     @Override
+    public long incReferById(String buid, int n) {
+        ZMoDoc q = WnMongos.qID(buid);
+        ZMoDoc doc = co.findAndModify(q, ZMoDoc.M("$inc", "refer", n));
+        long refer = doc.getLong("refer");
+        if (refer <= 0) {
+            MongoLocalBucket bu = ZMo.me().fromDocToObj(doc, MongoLocalBucket.class);
+            __setup_bucket(bu);
+            bu._remove(refer);
+        }
+        return refer;
+    }
+
+    @Override
     public WnBucket getBySha1(String sha1) {
         ZMoDoc doc = co.findOne(ZMoDoc.NEW("sha1", sha1));
         if (null != doc) {

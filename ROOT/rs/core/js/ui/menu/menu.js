@@ -33,21 +33,23 @@ return ZUI.def("ui.menu", {
     css  : "theme/ui/menu/menu.css",
     //..............................................
     init : function(options){
+        var UI  = this;
+        var opt = options;
         // 注册全局事件，控制子菜单的关闭
         var on_close_group = function(e){
-            this.closeGroup(this.$el.find(".menu-item[open]"));
+            UI.closeGroup(UI.$el.find(".menu-item[open]"));
         };
-        this.watchMouse("click", on_close_group);
-        this.watchKey(27, on_close_group);
+        UI.watchMouse("click", on_close_group);
+        UI.watchKey(27, on_close_group);
 
         // 注册全局关闭
-        if(options.position){
-            this.watchMouse("click", do_close_allmenu);
-            this.watchKey(27, do_close_allmenu);            
+        if(opt.position){
+            UI.watchMouse("click", do_close_allmenu);
+            UI.watchKey(27, do_close_allmenu);            
         }
 
         // 全局其他的菜单统统关闭
-        do_close_allmenu();
+        do_close_allmenu(UI.cid);
     },
     //..............................................
     events : {
@@ -130,6 +132,10 @@ return ZUI.def("ui.menu", {
     // 假想给定的 ele 是 .ment-item
     closeGroup : function(ele){
         var UI = this;
+        // 还没初始化完的，无视 
+        if(!UI.arena)
+            return;
+
         // 指定一个组
         if(ele){
             var jq = $(ele);
@@ -226,9 +232,6 @@ return ZUI.def("ui.menu", {
         var opt = UI.options;
         var context = UI.options.context || UI.parent || UI;
 
-        // 弄个开关，防止重绘分隔符
-        var last_is_separator;
-
         // 循环绘制每个项目
         for(var i=0; i<items.length; i++){
             var mi = items[i];
@@ -263,8 +266,12 @@ return ZUI.def("ui.menu", {
             }
             // 分隔符
             else if(mi.type == "separator"){
-                // 禁止绘制重复
-                if(0==i || last_is_separator){
+                // 后面没有项目或者后面还有分隔符，那么本分隔符就没必要绘制
+                var will_rm_sep = (0 == i) || (i == items.length-1);
+                if(!will_rm_sep)
+                    will_rm_sep = ("separator" == items[i+1].type);
+
+                if(will_rm_sep){
                     jItem.remove();
                 }
                 // 绘制
@@ -277,8 +284,6 @@ return ZUI.def("ui.menu", {
                 console.warn("unknown menu item: ", mi);
                 jItem.remove();
             }
-            // 最后标记一下本次循环是不是一个分隔符
-            last_is_separator = (mi.type == "separator");
         }
     },
     //..............................................
@@ -351,24 +356,43 @@ return ZUI.def("ui.menu", {
     },
     //..............................................
     __draw_fireable : function(mi, jq, jItem){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
+
+        // 增加自定义的类选择器
+        if(mi.className){
+            jq.addClass(mi.className);
+        }
+
         // 图标：不是顶层项目，一律添加图标以便下拉时对其
+        var jIcon;
         if(!mi.is_top_item || mi.icon){
-            var jIcon = $('<span class="menu-item-icon">').appendTo(jq);
+            jIcon = $('<span class="menu-item-icon">').appendTo(jq)
             if(mi.icon){
                 jIcon.html(mi.icon);
             }
         }
 
         // 文字
+        var jT;
         if(mi.text){
-            var jT = $('<span class="menu-item-text">');
+            jT = $('<span class="menu-item-text">');
             if(mi.iconAtRight){
                 jT.prependTo(jq);
             }else{
                 jT.appendTo(jq);
             }
             jT.text(UI.text(mi.text));
+        }
+
+        // 添加提示文字
+        if(mi.tip){
+            if(jT || jIcon) {
+                (jT || jIcon).attr({
+                    "data-balloon" : UI.text(mi.tip),
+                    "data-balloon-pos" : opt.tipDirection || "down"
+                });
+            }
         }
     }
     //..............................................

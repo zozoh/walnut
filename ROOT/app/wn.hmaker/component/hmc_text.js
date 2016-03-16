@@ -2,103 +2,144 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/menu/menu'
-], function(ZUI, Wn, MenuUI){
+    'app/wn.hmaker/component/hmc',
+    'ui/menu/menu',
+    'ui/form/form'
+], function(ZUI, Wn, HMC, MenuUI, FormUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena hmaker-page" ui-fitparent="yes">
-    <div class="ue-bar1"><span>{{hmaker.comlib_add}}</span><span>{{hmaker.comlib_add_c}}</span></div>
-    <div class="ue-shelf"></div>
-    <div class="ue-bar2">
-        <div class="ue-ssize">
-            <input name="x"><em>x</em><input name="y">
-            <span>
-                <i class="fa fa-laptop highlight" val=""></i>
-                <i class="fa fa-tablet" val="800x600"></i>
-                <i class="fa fa-mobile" val="400x600"></i>
-            </span>
-        </div>
-        <div class="ue-com-menu"></div>
-    </div>
-    <div class="ue-stage" mode="pc">
-        <div class="ue-screen"><iframe src="/a/load/wn.hmaker/screen.html"></iframe></div>
-    </div>
-</div>
+<textarea placeholder="{{hmaker.com.text.empty}}" spellcheck="false"></textarea>
 */};
 //==============================================
 return ZUI.def("app.wn.hmaker_com_text", {
-    dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
-    init : function(){
-        var UI = this;
-        // 增加一个 iframe 的回调
-        if(!_.isFunction(window._hmaker_page_on_load)){
-            window._hmaker_page_on_load = function(){
-                UI.setup_page_editing();
+    events : {
+        "click .hmc-main,.hmc-assist" : function(e){
+            var jCom  = $(e.currentTarget).closest(".hm-com");
+            var jMain = jCom.find(".hmc-main");
+
+            // 只有激活的控件才能编辑
+            if(!jCom.attr("actived"))
+                return;
+
+            // 绝对位置
+            if(jCom.attr("pos") == "absolute"){
+                $z.editIt(jMain, {
+                    multi  : true,
+                    // width  : jCom.width(),
+                    // height : jCom.height()
+                });
             }
+            // 相对位置的编辑
+            else {
+                $z.editIt(jMain, {
+                    multi : true,
+                    extendHeight : true,
+                    takePlace : true,
+                });
+            }
+        }
+    },
+    //...............................................................
+    updateStyle : function(info){
+        var UI = this;
+        var ID = UI.$el.prop("id");
+
+        // 先过滤一遍通用规则
+        var styleRules = [];
+        info = UI.parent.gen_rules(ID, styleRules, info);
+
+        // 再弄一下自己的规则
+        var rule = {
+            selector : "#"+ID+" .hmc-main",
+            items    : []
+        };
+        for(var key in info){
+            if("ID" == key)
+                continue;
+            var val = info[key];
+            var ru  = UI.parent.gen_rule_item(key, val);
+            rule.items.push(ru);
+        }
+        styleRules.push(rule);
+
+        // 应用样式规则
+        UI.parent.updateComStyle(UI.$el, styleRules);
+    },
+    //...............................................................
+    checkDom : function(){
+        var UI = this;
+        var jM = UI.arena.find(".hmc-main");
+        if(!jM.text()){
+            jM.text(UI.msg("hmaker.com.text.empty"));
         }
     },
     //...............................................................
     redraw : function(){
         var UI  = this;
+        var opt = UI.options;
 
-        // 读取加载项的内容
-        UI.__reload_components(function(){
-            UI.defer_report("coms");
+        // 确保 DOM 结构合法
+        UI.checkDom();
+
+        // 标题
+        opt.$title.html(opt.titleHtml);
+
+        // 获得属性
+        var info = UI.parent.getComponentInfo(UI.$el);
+
+        new FormUI({
+            $pel   : opt.$prop,
+            fields : [opt.propSetup, {
+                title  : 'i18n:hmaker.cprop_special',
+                fields : [{
+                    key    : "color",
+                    title  : "i18n:hmaker.cprop.color",
+                    type   : "string",
+                    nullAsUndefined : true,
+                    editAs : "color",
+                    uiConf : UI.parent.getColorConf()
+                }, {
+                    key    : "backgroundColor",
+                    title  : "i18n:hmaker.cprop.backgroundColor",
+                    type   : "string",
+                    nullAsUndefined : true,
+                    editAs : "color",
+                    uiConf : UI.parent.getColorConf()
+                }, {
+                    key    : "fontSize",
+                    title  : "i18n:hmaker.cprop.fontSize",
+                    type   : "int",
+                    uiConf : {unit : "px"}
+                }, {
+                    key    : "lineHeight",
+                    title  : "i18n:hmaker.cprop.lineHeight",
+                    type   : "int",
+                    uiConf : {unit : "px"}
+                }, {
+                    key    : "letterSpacing",
+                    title  : "i18n:hmaker.cprop.letterSpacing",
+                    type   : "int",
+                    uiConf : {unit : "px"}
+                }]
+            }],
+            on_change : function(key, val) {
+                // console.log("detect form change: ", key, val);
+                UI.setProperty(key, val);
+            }
+        }).render(function(){
+            //console.log(this.parent.uiName);
+            this.setData(info);
         });
 
-        // 标记延迟
-        return ["coms"];
-    },
-    //...............................................................
-    __reload_components : function(callback){
-        var UI = this;
-        // 加载插入项目
-        var o = Wn.fetch("~/.hmaker/components.html", true);
-        if(!o){
-            alert(UI.msg("hmaker.page.e_nocoms"));
-            return;
-        }
-
-        // 读取加载项的内容     
-        Wn.read(o, function(html){
-            // 将加载项目计入 DOM
-            var jSh = UI.arena.find(".ue-shelf");
-            jSh.empty().html(html);
-
-            // 解析多国语言
-            jSh.find("span,h4").each(function(){
-                $(this).text(UI.text($(this).text()));
-            });
-
-            // 调用回调
-            callback();
-        }); 
-    },
-    //...............................................................
-    update : function(oPg) {
-        this.$el.attr("oid", oPg.id);
-    },
-    //...............................................................
-    setup_page_editing : function(){
-        var UI  = this;
-        var oid = UI.$el.attr("oid");
-        var oPg = Wn.getById(oid);
-
-        // 读取 HTML
-        var html = Wn.read(oPg);
-        console.log("html:" + html);
-
-        // 首先看看子页
-        var ifrm = UI.arena.find(".ue-screen iframe")[0];
-        var eDoc = ifrm.contentDocument;
-
-        $(eDoc).find("head *").each(function(){
-            console.log(this.tagName)
-            if('LINK' == this.tagName)
-                $(this).remove();
-        })
-
+        // 菜单
+        new MenuUI({
+            $pel   : opt.$menu,
+            setup  : []
+        }).render(function(){
+            //console.log(this.parent.uiName);
+        });
+        
     }
     //...............................................................
 });

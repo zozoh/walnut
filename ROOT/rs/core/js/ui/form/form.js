@@ -14,7 +14,7 @@ var html = function(){/*
         class="ff-txt"></div><div
         class="ff-val"><div class="ffv-ui"></div><div class="ffv-tip"></div></div></div>
 </div>
-<div class="ui-arena" ui-fitparent="yes">
+<div class="ui-arena form" ui-fitparent="yes">
     <div class="form-title"></div>
     <div class="form-body"><div class="form-body-wrapper"></div></div>
 </div>
@@ -63,6 +63,10 @@ return ZUI.def("ui.form", {
         // 嗯，那么现在所有的顶层对象都是组了
         UI.groups = grpList;
 
+        // 给每个字段做个编号
+        UI._fld_form_keys = [];
+        var _fld_form_keys_seq = 0;
+
         // 重新分析所有的字段，确保都有 uiType/uiConf
         // 同时归纳需要加载的 UI 类型
         var uiTypeMap = {};
@@ -70,6 +74,11 @@ return ZUI.def("ui.form", {
             var grp = UI.groups[i];
             for(var m=0;m<grp.fields.length;m++){
                 var fld = grp.fields[m];
+
+                // 给自己分配一个唯一的键值，这个键值基本是用来做 defer_report 的
+                fld._form_key = "_form_fld_" + (_fld_form_keys_seq++);
+                UI._fld_form_keys.push(fld._form_key);
+
                 // 字段的类型默认为 string
                 fld.type = fld.type || "string";
                 // 做了自定义显示
@@ -79,7 +88,7 @@ return ZUI.def("ui.form", {
                 // 有快捷定义 ..
                 else if(fld.editAs){
                     // 内置
-                    if(/^(input|label|switch|text|(drop|check|radio)list)$/.test(fld.editAs)){
+                    if(/^(input|color|label|switch|text|link|(drop|check|radio)list)$/.test(fld.editAs)){
                         fld.uiType = "ui/form/c_" + fld.editAs;
                     }
                     // 各种 picker
@@ -98,7 +107,13 @@ return ZUI.def("ui.form", {
                 }
                 // 确保 uiConf
                 fld.uiConf = fld.uiConf || {};
-                // 归纳
+
+                // 确保 acceptForFormUpdate
+                $z.setUndefined(fld, "acceptForFormUpdate", function(obj){
+                    return !_.isUndefined($z.getValue(obj, this.key));
+                });
+
+                // 归纳控件类型
                 uiTypeMap[fld.uiType] = true;
             }
         }
@@ -111,7 +126,6 @@ return ZUI.def("ui.form", {
     events : {
         "click .fg-title" : function(e){
             var jG = $(e.currentTarget).closest(".form-group");
-            console.log(jG.size())
             jG.toggleClass("form-group-hide");
         }
     },
@@ -122,6 +136,7 @@ return ZUI.def("ui.form", {
         var uiw = fld.uiWidth || grp.uiWidth || opt.uiWidth;
         var jF  = UI.ccode("field")
                     .attr("ui-width", uiw)
+                    .attr("fld-key", fld.key)
                     .data("@FLD", fld)
                     .data("@jOBJ", jType(fld))
                     .appendTo(jG);
@@ -130,14 +145,27 @@ return ZUI.def("ui.form", {
             jF.attr("ui-fixed-width", uiw);
         }
 
+        // 自定义的类
+        if(fld.className)
+            jF.addClass(grp.className);
+
         var jTxt = jF.children(".ff-txt");
         var jFui = jF.find(".ffv-ui");
         var jTip = jF.find(".ffv-tip");
         // 绘制标题
-        if(fld.required)
-            jTxt.attr("required","yes");
-        if(fld.title)
-            $('<span class="fft-text">').html(UI.text(fld.title)).appendTo(jTxt);
+        if(fld.required || fld.icon || fld.title){
+            if(fld.required)
+                jTxt.attr("required","yes");
+            if(fld.icon)
+                $(fld.icon).appendTo(jTxt);
+            if(fld.title)
+                $('<span class="fft-text">').html(UI.text(fld.title)).appendTo(jTxt);
+        }
+        // 靠，啥都木有，搞掉标题区
+        else {
+            jTxt.remove();
+        }
+
 
         // 绘制值
         seajs.use(fld.uiType, function(TheUI){
@@ -153,9 +181,14 @@ return ZUI.def("ui.form", {
             // 渲染 UI 控件 
             var theUI = new TheUI(_.extend(theConf, fld.uiConf, {
                 gasketName : fld.key,
-                $pel       : jFui
+                $pel       : jFui,
+                context    : fld,
+                on_change  : function(v){
+                    UI.__on_change(this, v);
+                }
             })).render(function(){
-                UI.defer_report(fld.uiType);
+                // console.log("UI.defer_report:", fld.uiType, fld._form_key);
+                UI.defer_report(fld._form_key);
             });
             // 检查 UI 控件的合法性
             if(!_.isFunction(theUI.setData) || !_.isFunction(theUI.getData)){
@@ -174,6 +207,15 @@ return ZUI.def("ui.form", {
         }
     },
     //...............................................................
+    __on_change : function(fld, v){
+        var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+        var val = jType(fld).parse(v).toNative();
+        $z.invoke(opt, "on_change", [fld.key, val], context);
+        UI.trigger("form:change", fld.key, val);
+    },
+    //...............................................................
     _draw_group : function(grp){
         var UI  = this;
         var opt = UI.options;
@@ -184,7 +226,12 @@ return ZUI.def("ui.form", {
         var jGtt  = jG.children(".fg-title");
         var jGff  = jG.children(".fg-fields");
 
-        if(grp.cols > 1){
+        // 自定义的类
+        if(grp.className)
+            jG.addClass(grp.className);
+
+        // 标记多重组
+        if(grp.cols > 1){   
             jG.attr("multi-cols", "yes");
         }
         
@@ -219,7 +266,7 @@ return ZUI.def("ui.form", {
             jTitle.html(UI.text(opt.title));
         }
         else{
-            jTitle.hide();
+            jTitle.remove();
         }
 
         // 首先加载所有的子控件
@@ -230,7 +277,8 @@ return ZUI.def("ui.form", {
             }
         });
 
-        return UI.uiTypes;
+        //console.log("form redraw defer:", UI._fld_form_keys);
+        return UI._fld_form_keys;
     },
     //...............................................................
     resize : function(){
@@ -246,21 +294,64 @@ return ZUI.def("ui.form", {
             return;
         }
 
-
         jBody.css("height", UI.arena.height() - jTitle.outerHeight(true));
 
         var W = jBody.children(".form-body-wrapper").width();
         
-        // 首先计算组，看看一个组有多宽
-        var grpW = W / Math.max(opt.cols || 1, 1);
-        var jGrps = UI.arena.find(".form-group").css("width", grpW);
+        // 首先计算列，看看一个列有多宽
+        var colNb       = opt.cols || 1;
+        var colSizeHint = opt.colSizeHint || [0];
+        var col_widths  = [];
+        var col_wsum    = W;
+        var col_autoN   = 0;
+        for(var i=0;i<colNb;i++){
+            var c_W = colSizeHint.length >i ? colSizeHint[i] : 0;  // 0 表示自动分配
+            // 浮点数表示比例
+            if(c_W > 0 && c_W < 1){
+                c_W = Math.round(W * c_W);
+                col_wsum -= c_W;
+            }
+            // 大于1 取整后表示绝对数
+            else if(c_W > 1) {
+                c_W = Math.round(c_W);
+            }
+            // 其他的作为自动分配
+            else{
+                c_W = 0; 
+                col_autoN ++;
+            }
+            // 计入
+            col_widths[i] = c_W;
+        }
+        // 最后搞下自动分配
+        if(col_autoN > 0) {
+            var grp_autoW = parseInt(col_wsum / col_autoN);
+            var grp_auto_indexes = [];
+            for(var i=0;i<col_widths.length;i++){
+                if(col_widths[i] == 0) {
+                    col_widths[i] = grp_autoW;
+                    col_wsum -= grp_autoW;
+                    grp_auto_indexes.push(i);
+                }
+            }
+            // 处理自动分配剩下的余数
+            if(col_wsum>0) {
+                for(var i=0;i<col_wsum;i++){
+                    col_widths[grp_auto_indexes[i]]++;
+                }
+            }
+        }
 
-        // 然后依次计算每个组的字段
-        jGrps.each(function(){
-            var jG    = $(this);
+        // 拿到组集合
+        var jGrps = UI.arena.find(".form-group");
+
+        // 然后依次计算每个组宽度，和其内的字段的宽度
+        jGrps.each(function(index){
+            var jG    = $(this).css("width", col_widths[index % colNb]);
             var grp   = jG.data("@GRP");
             var colnb = Math.max(grp.cols || 1, 1);
-            var fldW = parseInt(grpW / Math.max(colnb, 1)) - (colnb>1?1:0);
+            var fbW   = $(this).find(".fg-fields").width(); 
+            var fldW = parseInt(fbW / Math.max(colnb, 1)) - (colnb>1?1:0);
 
             // 同时归纳最大的字段标题宽度
             var maxFFW = 0;
@@ -268,19 +359,21 @@ return ZUI.def("ui.form", {
                 var jF   = $(this);
                 var fld  = jF.data("@FLD");
                 var span = Math.max(fld.span || 1, 1);
-                var theW = Math.min(fldW * span, grpW);
+                var theW = Math.min(fldW * span, fbW);
                 jF.css("width", theW);
 
                 // 看看当前字段的标题
                 var jTxt = jF.children(".ff-txt");
-                if(jTxt.attr("org-width")){
-                    maxFFW = Math.max(maxFFW, jTxt.attr("org-width")*1);
-                }
-                // 从来没记录过原始宽度，嗯 ...
-                else{
-                    var w = jTxt.innerWidth();
-                    maxFFW = Math.max(maxFFW, w);
-                    jTxt.attr("org-width", w);
+                if(jTxt.size()>0){
+                    if(jTxt.attr("org-width")){
+                        maxFFW = Math.max(maxFFW, jTxt.attr("org-width")*1);
+                    }
+                    // 从来没记录过原始宽度，嗯 ...
+                    else{
+                        var w = jTxt.innerWidth();
+                        maxFFW = Math.max(maxFFW, w);
+                        jTxt.attr("org-width", w);
+                    }
                 }
             });
 
@@ -290,15 +383,30 @@ return ZUI.def("ui.form", {
             // 继续设置所有的值应该的宽度
             jG.find(".form-fld").each(function(){
                 var jF   = $(this);
+                var fld  = jF.data("@FLD");
                 var jTxt = jF.children(".ff-txt");
                 var jVal = jF.children(".ff-val");
                 var jUi  = jVal.children(".ffv-ui");
-                var vW   = jF.width() - jTxt.outerWidth(true) - 1;
+
+                // 计算值区域的宽度
+                var vW = jF.width();
+                if(jTxt.size()>0){
+                    vW  = vW - jTxt.outerWidth(true) - 1;
+                }
                 jVal.css("width", vW);
 
-                var uiw = jF.attr("ui-fixed-width");
+                // 指定标题行的高度
+                if(jTxt.size()>0 && (fld.autoLineHeight || grp.autoLineHeight)){
+                    jTxt.css({
+                        "line-height" : jVal.outerHeight()+"px",
+                        "height"      : jVal.outerHeight(),
+                        "padding-top" : 0,
+                        "padding-bottom" : 0
+                    });
+                }
                 
                 // 指定宽度
+                var uiw = jF.attr("ui-fixed-width");
                 if(uiw){
                     var uiWidth = $z.dimension(uiw * 1, vW);
                     jUi.css("width", uiWidth);
@@ -306,6 +414,22 @@ return ZUI.def("ui.form", {
                 
             });
 
+        });
+    },
+    //...............................................................
+    update : function(obj){
+        var UI = this;
+        UI.ui_parse_data(obj, function(o){
+            // 设置每个字段
+            UI.arena.find(".form-fld").each(function(){
+                var jF  = $(this);
+                var jso = jF.data("@jOBJ");
+                var fui = jF.data("@UI");
+                if(jso.type().acceptForFormUpdate(o)){
+                    var val = jso.parseByObj(o).value();
+                    fui.setData(val, jso);
+                }
+            });
         });
     },
     //...............................................................

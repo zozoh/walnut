@@ -61,9 +61,12 @@
         padding:0px; position: relative;
     }
     .flt-keyword input{
-        font-size:@f3; padding:@d3 @d5 @d3 @d7; width:100%; color:@cf3;
-        border:1px solid @cborder0; background: @cb3;
+        font-size:@f3; padding:@d3 @d5 @d3 @d7; width:100%; color:@cinput_f;
+        border:1px solid @cinput_l; background: @cinput_b;
         border-radius: 100px; outline: none;
+    }
+    .flt-keyword input:focus {
+        color:@cinput_fF; background: @cinput_bF; border-color: @cinput_lF;
     }
     .flt-icon {
         position: absolute; top:1px;left:@d1; padding:@d3; color:@cf3;

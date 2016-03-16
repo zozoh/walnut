@@ -175,7 +175,8 @@ class DoAppInit {
                                             : sys.io.createIfNoExists(taHome, item.path, item.race);
             _set_metas(o, item.metas);
 
-            if (o.isFILE() && !Strings.isBlank(item.content)) {
+            // 空文件，将用默认内容写入
+            if (o.isFILE() && !Strings.isBlank(item.content) && o.len() == 0) {
                 sys.io.writeText(o, item.content);
             }
 

@@ -17,9 +17,11 @@ tags:
 ```
 <div class="hm-com hmc-text" ctype="text" id="text1">
     <script type="text/x-template" class="hmc-prop">...</script>
-    <div class="hmc-assist">...</div>
     <div class="hmc-wrapper">
-        <textarea></textarea>
+        <div class="hmc-assist">...</div>
+        <div class="hmc-main">
+            <textarea></textarea>
+        </div>
     </div>
 </div>
 ```

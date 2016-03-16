@@ -1,0 +1,53 @@
+@import "../plugin.less";
+
+.slidebar { @noselect();
+    background: rgba(200,200,200,0.4); margin:1px; 
+    border:1px solid rgba(0,0,0,0.2);
+    border-radius: 2px;
+    .slidebar-wrapper {
+        width:100%; height:100%; position: relative;
+        > div {position: absolute;}
+    }
+    * {position: default;}
+}
+.slidebar[pointer-moving] .sb-change-mask { 
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 1000; background: #000; opacity: 0; cursor: pointer;
+}
+
+@sBs : 32px;
+@sPs : 16px;
+
+// 垂直
+.slidebar[mode="vertical"] {
+    width:@sBs;
+    .sb-bg-0 {top:0; bottom:0; left:0; width:50%; border-right:1px solid rgba(0,0,0,0.4);}
+    .sb-bg-1 {top:0; bottom:0; right:0; width:50%; border-left:1px solid rgba(255,255,255,0.8);}
+    .sb-ruler {
+        top:0;bottom:0;left:0;right:0;
+        @flex(); flex-flow: column nowrap;
+        justify-content: space-between; align-items:center;
+        > div {
+            flex:0 0 auto;
+            height:0; width:40%; 
+            border-top:1px solid rgba(0,0,0,0.3);
+            border-bottom:1px solid rgba(255,255,255,0.6);
+        }
+        > div:first-child, > div:last-child {visibility: hidden;}
+    }
+    .sb-pointer{
+        cursor: pointer; bottom:23px;
+        left:0; right:0; 
+    }
+    .sb-pointer:before{
+        display:block; margin: 0 auto; content: ""; 
+        background: rgba(255,255,255,0.6); box-shadow: 1px 1px 3px #000; 
+        border-radius: 100px; border:1px solid rgba(0,0,0,0.4);
+        width: @sPs; height: @sPs; cursor: pointer; 
+    }
+}
+
+// 水平
+.slidebar[mode="horizontal"] {
+    height:@sBs;
+}

@@ -15,7 +15,7 @@ var html = function(){/*
         </div>
     </div>
     <div class="ui-wedit-main">
-        <textarea class="ui-wedit-textarea"></textarea>
+        <textarea class="ui-wedit-textarea" spellcheck="false"></textarea>
     </div>
     <div class="ui-wedit-footer"></div>
 </div>

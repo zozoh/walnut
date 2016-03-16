@@ -3,6 +3,7 @@ package org.nutz.walnut.web.view;
 import java.io.DataInputStream;
 import java.io.InputStream;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.mvc.view.RawView2;
 import org.nutz.walnut.api.io.WnIo;
@@ -15,7 +16,7 @@ public class WnObjDownloadView extends RawView2 {
     }
 
     public WnObjDownloadView(WnIo io, WnObj o, String mimeType) {
-        this(io.getInputStream(o, 0), (int) o.len(), mimeType);
+        this(o.len() == 0 ? Lang.ins("") : io.getInputStream(o, 0), (int) o.len(), mimeType);
     }
 
     public WnObjDownloadView(InputStream ins, int maxLen, String mimeType) {

@@ -15,18 +15,15 @@ tags:
 # DOM 结构
 
 ```
-<div class="hm-com hmc-image" ctype="image" id="text1">
-    <script type="text/x-template" class="hmc-prop">...</script>
-    <div class="hmc-assist">...</div>
-    <div class="hmc-wrapper">
-        <img src="/o/read/id:xxxx" path="image/x.jpg">
-    </div>
+...
+<div class="hmc-main">
+    <img src="/o/read/id:xxxx">
 </div>
 ```
 
-# 编辑区行为
+* 转换的时候，应该根据 *src* 的里面的 *ID* 变成路径
+* 所有的包裹层都去掉，只留 `<img>` 标签， 内外边距合并为 `margin`;
 
-在 textarea 里随便写咯
 
 # 控件属性
 

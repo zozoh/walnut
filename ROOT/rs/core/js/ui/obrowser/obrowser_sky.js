@@ -12,7 +12,7 @@ var html = function(){/*
         <b></b><span class="ochild"><i class="fa fa-caret-down"></i></span>
     </div>
 </div>
-<div class="ui-arena obrowser-sky ui-clr">
+<div class="ui-arena obrowser-sky ui-clr" ui-fitparent="true">
     <div class="obrowser-crumb"></div>
     <div class="obrowser-menu" ui-gasket="menu"></div>
 </div>
@@ -53,7 +53,7 @@ return ZUI.def("ui.obrowser_sky", {
         },
         "click .obrowser-crumb" : function(e){
             var UI = this;
-            var UIBrowser = UI.parent.parent;
+            var UIBrowser = UI.parent;
             var jq = $(e.target);
             var jItem = jq.closest(".citem");
             // 点击空白处，编辑路径
@@ -112,7 +112,7 @@ return ZUI.def("ui.obrowser_sky", {
     //..............................................
     editPath : function(){
         var UI = this;
-        var UIBrowser = UI.parent.parent;
+        var UIBrowser = UI.parent;
         var jCrumb = UI.arena.find(".obrowser-crumb");
 
         $z.editIt(jCrumb, {
@@ -224,7 +224,7 @@ return ZUI.def("ui.obrowser_sky", {
         UI._draw_crumb(UIBrowser, o);
 
         // 绘制右侧动作菜单
-        UI._draw_menu(UIBrowser, o, asetup);
+        // UI._draw_menu(UIBrowser, o, asetup);
 
         // 最后重新计算一下尺寸
         UI.resize();
@@ -234,17 +234,18 @@ return ZUI.def("ui.obrowser_sky", {
         $z.invoke(UIBrowser.options, "on_current", [o], UI);
     },
     //..............................................
-    updateMenu : function(UIBrowser, o, asetup){
-        this._draw_menu(UIBrowser, o, asetup);
+    updateMenu : function(menuSetup, menuContext){
+        this._draw_menu(menuSetup, menuContext);
         this.resize();
     },
     //..............................................
-    _draw_menu : function(UIBrowser, o, asetup){
+    _draw_menu : function(menuSetup, menuContext){
         var UI = this;
+        var UIBrowser = UI.parent;
         var jMenu = UI.arena.find(".obrowser-menu");
 
         // 没有菜单
-        if(!asetup || !asetup.actions || !asetup.actions.length){
+        if(!_.isArray(menuSetup) || menuSetup.length == 0){
             jMenu.hide();
             return;
         }
@@ -256,8 +257,8 @@ return ZUI.def("ui.obrowser_sky", {
         new MenuUI({
             parent       : UI,
             gasketName   : "menu",
-            setup        : asetup.menu,
-            context      : UIBrowser
+            setup        : menuSetup,
+            context      : menuContext || UIBrowser
         }).render(function(){
             $z.defer(function(){
                 UI.resize();
@@ -301,7 +302,7 @@ return ZUI.def("ui.obrowser_sky", {
     },
     _append_crumb_item : function(jCrumb, o, itype){
         var UI = this;
-        var UIBrowser = UI.parent.parent;
+        var UIBrowser = UI.parent;
         var jq = UI.ccode("crumb.item");
         jq.attr("oid", o.id);
 
@@ -338,13 +339,13 @@ return ZUI.def("ui.obrowser_sky", {
     //..............................................
     resize : function(){
         var UI = this;
-        //console.log("I am resize")
         var jCrumb = UI.arena.find(".obrowser-crumb");
         var jMenu  = UI.arena.find(".obrowser-menu:visible");
         jCrumb.css({
             "width"  : UI.arena.width() - jMenu.outerWidth(true),
             "height" : UI.arena.height()
-        }).folder({
+        });
+        jCrumb.folder({
             dmode : "tail",
             keep : 1
         });

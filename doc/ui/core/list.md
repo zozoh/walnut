@@ -59,11 +59,11 @@ new ListUI({
 
     //............................................................
     // 事件
-    on_change  : {c}F()          // "list:change"!首次加载一定会被触发
-    on_add     : {c}F(objs)      // "list:add"   !setData 时不会触发
-    on_checked : {c}F([objs,jq]) // "list:checked"
-    on_blur    : {c}F([objs,jq]) // "list:blur"
-    on_actived : {c}F(o,jq)      // "list:actived"
+    on_change  : {c}F()           // "list:change"!首次加载一定会被触发
+    on_add     : {c}F(objs)       // "list:add"   !setData 时不会触发
+    on_checked : {c}F([objs,jq])  // "list:checked"
+    on_blur    : {c}F([objs,jq])  // "list:blur"
+    on_actived : {c}F(o,index,jq) // "list:actived"
 
     //............................................................
     // 上下文，可以之际指定 {c} 对应的上下，默认 UI 自身

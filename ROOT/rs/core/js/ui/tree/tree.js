@@ -113,7 +113,7 @@ return ZUI.def("ui.tree", {
     },
     //...............................................................
     $node : function(nd){
-        if(_.isUndefined(nd)){
+        if(_.isUndefined(nd) || _.isNull(nd)){
             return this.arena.find(".tree-node-actived");
         }
         else if(_.isElement(nd)){
@@ -132,7 +132,7 @@ return ZUI.def("ui.tree", {
             var jqs = this.arena.find(".tree-node");
             for(var i=0;i<jqs.length;i++){
                 var jq = jqs.eq(i);
-                var obj = this.options.data((this.options.context||this), jq);
+                var obj = this.options.data.call((this.options.context||this), jq);
                 if(_.isMatch(obj, nd)){
                     return jq;
                 }
@@ -443,7 +443,7 @@ return ZUI.def("ui.tree", {
     },
     //...............................................................
     getActived : function(){
-        return this.options.data((this.options.context||this), this.arena.find(".tree-node-actived"));
+        return this.options.data.call((this.options.context||this), this.arena.find(".tree-node-actived"));
     },
     //...............................................................
     getActivedNode : function(){
@@ -457,10 +457,40 @@ return ZUI.def("ui.tree", {
         return this.$node(nd).attr("oid");
     },
     //...............................................................
-    removeNode : function(nd){
+    removeNode : function(nd, keepAtLeastOne){
         var UI = this;
+
+        // 支持 removeNode(true) 这种形式
+        if(_.isBoolean(nd)){
+            keepAtLeastOne = nd;
+            nd = null;
+        }
+
+        // 得到节点
         var jNode = UI.$node(nd);
+        var jN2   = null;
+
+        // 如果当前是高亮节点，则试图得到下一个高亮的节点，给调用者备选
+        if(UI.isActived(jNode)){
+            jN2 = jNode.next();
+            if(jN2.size() == 0){
+                jN2 = jNode.prev();
+                if(jN2.size() == 0){
+                    jN2 = jNode.parents(".tree-node");
+
+                    // 返回 false 表示只剩下最后一个节点额
+                    if(jN2.size() == 0 && keepAtLeastOne){
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // 执行移除
         jNode.remove();
+
+        // 返回下一个要激活的节点，由调用者来决定是否激活它
+        return jN2 && jN2.size() > 0 ? jN2 : null;
     },
     //...............................................................
     moveNode : function(direction, nd){

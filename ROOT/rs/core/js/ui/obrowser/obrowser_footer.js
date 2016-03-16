@@ -10,7 +10,7 @@ return ZUI.def("ui.obrowser_footer", {
     //..............................................
     init : function(){
         var UI = this;
-        var browser = UI.parent.parent;
+        var browser = UI.parent;
         UI.listenUI(browser, "browser:info", function(html){
             UI.show_info(html)
         });

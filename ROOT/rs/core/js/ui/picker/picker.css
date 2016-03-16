@@ -1,23 +1,22 @@
 .picker {
-  border: 1px solid #cccccc;
-  border-radius: 4px;
-  background: #eeeeee;
-  color: #666666;
-  min-height: 32px;
-  position: relative;
-  min-width: 200px;
-}
-.picker-box {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  line-height: 30px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  color: #666666;
+  position: relative;
+  display: -webkit-flex;
+  display: flex;
+  flex-flow: row nowrap;
 }
-.picker-box .pick-box-con {
+.picker-box {
+  flex: 1 1 auto;
+  overflow: hidden;
+  height: 32px;
+  line-height: 30px;
+  background: #eeeeee;
   padding: 0 6px;
 }
 .picker-box .picker-obj {
@@ -36,35 +35,28 @@
 .picker-box .picker-obj a:hover {
   color: #F80;
 }
-.picker-btns {
+.picker-btn {
+  flex: 0 0 auto;
+  line-height: 30px;
   background: #e0e0e0;
-  position: absolute;
-  top: -1px;
-  right: -1px;
-  bottom: -1px;
-  border: 1px solid #cccccc;
-  border-left: 0;
-  padding: 0;
-  border-radius: 0 4px 4px 0;
-  overflow: hidden;
-}
-.picker-btns b {
-  display: inline-block;
-  vertical-align: middle;
   cursor: pointer;
   padding: 0 8px;
   border-left: 1px solid #cccccc;
-  height: 32px;
-  line-height: 30px;
-  text-align: center;
   font-size: 8px;
+  text-align: center;
 }
-.picker-btns b:hover {
+.picker-btn:hover {
   color: #444444;
   background: #cccccc;
 }
-.picker-btns .picker-choose {
-  min-width: 64px;
+.picker[wrap-button] {
+  flex-wrap: wrap;
+}
+.picker[wrap-button] .picker-box {
+  width: 100%;
+}
+.picker[wrap-button] .picker-btn {
+  flex-grow: 1;
 }
 .picker-mask .picker-mask-main {
   background: #FFF;
@@ -131,9 +123,6 @@
   line-height: 20px;
   border-radius: 2px;
   margin-right: 4px;
-}
-.opicker .picker-box {
-  padding-left: 6px;
 }
 .picker-mask .zcal {
   font-size: 10px;

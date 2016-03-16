@@ -23,6 +23,10 @@ new UIMenu({
         x : $pageX,  y : $pageY
     }
     
+    // 提示信息的展出方向，up|down|left|right
+    // 默认 down
+    tipDirection : "down"
+    
     // 指明每个菜单项被调用的时候，函数的上下文是什么，默认为菜单控件的父视图
     // 如果没有父视图，则用自身
     context : parent

@@ -5,6 +5,17 @@ import org.nutz.walnut.util.UnitTestable;
 public interface WnStore extends UnitTestable {
 
     /**
+     * 给出一个快捷的方法，将对象 A 的内容快速 copy 到对象B 中
+     * 
+     * @param a
+     *            对象A
+     * @param b
+     *            对象B
+     * @return 0 表示失败，非零的数，不同的实现类可以有不同的定义
+     */
+    long copyData(WnObj a, WnObj b);
+
+    /**
      * 打开一个句柄
      * 
      * @param o

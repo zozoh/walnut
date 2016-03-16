@@ -176,9 +176,10 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public boolean isSameSha1(String sha1) {
-        if (null == sha1)
-            return false;
         String mySha1 = sha1();
+        if (null == sha1)
+            return null == mySha1;
+
         if (null == mySha1)
             return false;
         return mySha1.equals(sha1);
@@ -214,11 +215,13 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public boolean isSameData(String data) {
-        if (null == data)
-            return false;
         String myData = data();
+        if (null == data)
+            return null == myData;
+
         if (null == myData)
             return false;
+
         return myData.equals(data);
     }
 
@@ -414,6 +417,11 @@ public class WnBean extends NutMap implements WnObj {
             return true;
         }
         return false;
+    }
+
+    public int hashCode() {
+        String id = id();
+        return null == id ? -1 : id.hashCode();
     }
 
     public String toString() {

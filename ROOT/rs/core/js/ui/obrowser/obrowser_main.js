@@ -10,11 +10,23 @@ $z.declare([
 ], function(ZUI, MenuUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena obrowser-main" ui-gasket="view"></div>
+<div class="ui-arena obrowser-main" ui-gasket="view" ui-fitparent="true"></div>
 */};
 //==============================================
 return ZUI.def("ui.obrowser_main", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
+    //..............................................
+    init : function(){
+        var UI = this;
+
+        // 记录通用变量
+        UI.browser = UI.parent;
+
+        // 监听事件
+        UI.on("menu:viewmode", function(vm){
+            UI.browser.setViewMode(vm);
+        });
+    },
     //..............................................
     events : {
         "contextmenu .wnobj" : function(e){
@@ -22,12 +34,16 @@ return ZUI.def("ui.obrowser_main", {
         }
     },
     //..............................................
-    update : function(UIBrowser, o, asetup){
+    update : function(UIBrowser, o, asetup, callback){
         var UI = this;
         var subView = UI.subUI("view");
 
         // 准备加载子 UI
         var uiType, uiConf;
+
+        //console.log(asetup)
+        // 准备记录 menuContext
+        var menuContext;
 
         // 如果有编辑器，就用编辑器处理
         if(asetup && asetup.currentEditor){
@@ -44,14 +60,16 @@ return ZUI.def("ui.obrowser_main", {
                 editor : ed
             });
             // 支持外部 outline
-            if(ed.outline)
-                uiConf.outline = UIBrowser.subUI("shelf/chute").showOutline();
-            else
-                UIBrowser.subUI("shelf/chute").removeOutline();
+            if(UIBrowser.subUI("chute")){
+                if(ed.outline)
+                    uiConf.outline = UIBrowser.subUI("chute").showOutline();
+                else
+                    UIBrowser.subUI("chute").removeOutline();
+            }
 
             // 支持外部脚注
-            if(ed.footer)
-                uiConf.footer = UIBrowser.subUI("shelf/footer").arena;
+            if(ed.footer && UIBrowser.subUI("footer"))
+                uiConf.footer = UIBrowser.subUI("footer").arena;
 
             // 编辑器附着在在哪里呢？
             if(subView && subView.editorGasketName){
@@ -67,7 +85,7 @@ return ZUI.def("ui.obrowser_main", {
         // 没有编辑器，那么 DIR 还能处理
         else if('DIR' == o.race){
             // 去掉 outline
-            var uiChute = UIBrowser.subUI("shelf/chute");
+            var uiChute = UIBrowser.subUI("chute");
             if(uiChute)
                 uiChute.removeOutline();
             // 得到显示模式
@@ -77,6 +95,10 @@ return ZUI.def("ui.obrowser_main", {
                 parent : UI,
                 gasketName : "view"
             };
+
+            // 菜单的上下文一定是 obrowser_main
+            menuContext = UI;
+
             // 发出通知
             UIBrowser.trigger("browser:info", o.ph);
         }
@@ -92,7 +114,7 @@ return ZUI.def("ui.obrowser_main", {
 
         // 没必要改变视图类型，直接更新就好，如果是这种情况，那么肯定不是打开编辑器喔
         if(subView && UI.$el.attr("ui-type") == uiType){
-            subView.update(o, UIBrowser);
+            subView.update(o, callback);
             subView.trigger("browser:show", o);
             UI.resize();
         }
@@ -101,7 +123,12 @@ return ZUI.def("ui.obrowser_main", {
             UI.$el.attr("ui-type", uiType);
             seajs.use(uiType, function(TheUI){
                 new TheUI(uiConf).render(function(){
-                    this.update(o, UIBrowser);
+                    // 绘制菜单
+                    if(asetup)
+                        UIBrowser.updateMenu(asetup.menu, menuContext || this);
+
+                    // 更新编辑器内容
+                    this.update(o, callback);
                     this.parent.trigger("browser:show", o);
                     UI.resize();
                 });
@@ -109,8 +136,8 @@ return ZUI.def("ui.obrowser_main", {
         }
     },
     //..............................................
-    updateMenuByObj : function(o, theEditor){
-        this.parent.parent.updateMenuByObj(o, theEditor);
+    updateMenuByObj : function(o, theEditor, menuContext){
+        this.parent.updateMenuByObj(o, theEditor, menuContext);
     },
     //..............................................
     getData : function(arg){
@@ -123,6 +150,10 @@ return ZUI.def("ui.obrowser_main", {
     //..............................................
     getActived : function(){
         return this.subUI("view").getActived();
+    },
+    //..............................................
+    setActived : function(arg){
+        this.subUI("view").setActived(arg);
     },
     //..............................................
     getChecked : function(){

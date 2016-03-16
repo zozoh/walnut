@@ -104,9 +104,6 @@ return ZUI.def("app.wn.hmaker_nav", {
         // 解析
         var oNP = $z.fromJson(re);
 
-        // 写入空内容
-        Wn.exec('echo "<html><head></head><body></body></html>" > id:'+oNP.id);
-
         // 添加节点并高亮它
         UI.uiTree.addNode(oNP).setActived(oNP.id);
     },
@@ -157,6 +154,10 @@ return ZUI.def("app.wn.hmaker_nav", {
             },
             on_actived : function(o, jNode){
                 //console.log("nav actived", o, this);
+                // 记录一下上次激活的 ID
+                UI.local("last_open_obj_id", o.id);
+
+                // 激活
                 UI.parent.change_mainUI(o);
             },
             on_click_actived_text : function(o, jText, jNode){
@@ -188,7 +189,10 @@ return ZUI.def("app.wn.hmaker_nav", {
                 });
             }
         }).render(function(){
-            this.setActived(2);
+            var lastOpenId = UI.local("last_open_obj_id");
+            if(lastOpenId)
+                this.setActived(lastOpenId);
+            //this.setActived(2);
         });
         
     },

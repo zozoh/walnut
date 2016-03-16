@@ -32,6 +32,31 @@ import org.w3c.dom.Document;
 public class WnIoImplTest extends BaseIoTest {
 
     @Test
+    public void test_copyData() {
+        WnObj a = io.create(null, "/a.txt", WnRace.FILE);
+        WnObj b = io.create(null, "/b.txt", WnRace.FILE);
+
+        io.writeText(a, "haha");
+        io.copyData(a, b);
+        assertEquals(4, b.len());
+        assertEquals(4, io.get(b.id()).len());
+        assertTrue(a.isSameSha1(b.sha1()));
+        assertTrue(a.isSameData(b.data()));
+        assertTrue(io.get(a.id()).isSameSha1(io.get(b.id()).sha1()));
+        assertTrue(io.get(a.id()).isSameData(io.get(b.id()).data()));
+
+        io.writeText(a, "xyzmmm");
+        io.copyData(a, b);
+        assertEquals(6, b.len());
+        assertEquals(6, io.get(b.id()).len());
+        assertTrue(a.isSameSha1(b.sha1()));
+        assertTrue(a.isSameData(b.data()));
+        assertTrue(io.get(a.id()).isSameSha1(io.get(b.id()).sha1()));
+        assertTrue(io.get(a.id()).isSameData(io.get(b.id()).data()));
+
+    }
+
+    @Test
     public void test_write_empty_file_by_ins() {
         WnObj o = io.create(null, "/a.txt", WnRace.FILE);
 

@@ -83,6 +83,16 @@ return ZUI.def("ui.table", {
         });
     },
     //...............................................................
+    //
+    getFieldType : function(key) {
+        var opt = this.options;
+        for(var i=0; i<opt.__fields.length; i++) {
+            var fld = opt.__fields[i];
+            if(fld && fld.key == key)
+                return fld.type || "string";
+        }
+    },
+    //...............................................................
     depose : function(){
         var UI = this;
         UI.arena.find(".tbl-body").unbind();
@@ -189,6 +199,7 @@ return ZUI.def("ui.table", {
     setActived : function(arg){
         var UI  = this;
         var opt = UI.options;
+        var context = opt.context || UI;
 
         // 不许激活项目 ...
         if(!opt.activable)
@@ -202,18 +213,28 @@ return ZUI.def("ui.table", {
 
         // 执行查找
         var jRow = UI.$item(arg);
-        if(!UI.isActived(jRow)){
+        if(jRow.size()>0 && !UI.isActived(jRow)){
+            // 得到数据
+            var o = jRow.data("OBJ");
+
+            // 看看是不是调用者要禁止激活
+            var cancelIt = $z.doCallback(opt.on_before_actived, [o, jRow], context);
+            if(false === cancelIt){
+                return;
+            }
+
+            // 取消其他的激活
             UI.blur();
             jRow.addClass("tbl-row-actived tbl-row-checked");
-            var o = jRow.data("OBJ");
+
             // 触发消息 
             UI.trigger("table:actived", o, jRow);
-            $z.invoke(opt, "on_actived", [o, jRow], UI);
+            $z.invoke(opt, "on_actived", [o, jRow], context);
 
             // 触发消息 
             var objs = UI.getChecked();
             UI.trigger("table:checked", objs);
-            $z.invoke(UI.options, "on_checked", [objs], UI);
+            $z.invoke(UI.options, "on_checked", [objs], context);
         }
         // 同步选择器 
         UI.__sync_checker();
@@ -417,6 +438,34 @@ return ZUI.def("ui.table", {
         return this;
     },
     //...............................................................
+    remove : function(it, keepAtLeastOne) {
+        var UI   = this;
+        var jRow = UI.$item(it);
+
+        // 如果没有匹配的行，啥也不做
+        if(jRow.size() == 0)
+            return;
+
+        // 如果当前是高亮节点，则试图得到下一个高亮的节点，给调用者备选
+        var jN2   = null;
+        if(UI.isActived(jRow)){
+            jN2 = jRow.next();
+            if(jN2.size() == 0){
+                jN2 = jRow.prev();
+                // 返回 false 表示只剩下最后一个节点额
+                if(jN2.size() == 0 && keepAtLeastOne){
+                    return false;
+                }
+            }
+        }
+
+        // 删除当前节点
+        jRow.remove();
+
+        // 返回下一个要激活的节点，由调用者来决定是否激活它
+        return jN2 && jN2.size() > 0 ? jN2 : null;
+    },
+    //...............................................................
     update : function(obj, it) {
         this._upsert_row(obj, null, this.$item(it || this.getObjId(obj)), 0);
     },
@@ -523,6 +572,12 @@ return ZUI.def("ui.table", {
 
         // 调用配置项，自定义更多节点外观
         $z.invoke(opt, "on_draw_row", [jRow, o], context);
+
+        // 如果原来就已经是高亮的，那么还需要回调一下激活事件
+        if(jRow.hasClass("tbl-row-actived")){
+            UI.trigger("table:actived", o, jRow);
+            $z.invoke(opt, "on_actived", [o, jRow], context);
+        }
 
         // 添加到表格
         return jRow;

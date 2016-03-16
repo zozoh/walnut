@@ -3,8 +3,9 @@ $z.declare([
     'zui',
     'wn/util',
     'app/wn.hmaker/hmaker_nav',
-    'app/wn.hmaker/hmaker_page'
-], function(ZUI, Wn, NavUI, PageUI){
+    'app/wn.hmaker/hmaker_page',
+    'ui/obrowser/vmd_thumbnail'
+], function(ZUI, Wn, NavUI, PageUI, ThumbnailUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena hmaker" ui-fitparent="yes" mode="inside">
@@ -13,10 +14,6 @@ var html = function(){/*
         <div class="ue-list" ui-gasket="tree"></div>
     </div>
     <div class="hmaker-main" ui-gasket="main"></div>
-    <div class="hmaker-deta"><div class="hmaker-deta-wrapper">
-        <div class="ue-com-title"></div>
-        <div class="ue-com-prop"></div>
-    </div></div>
 </div>
 */};
 //==============================================
@@ -31,64 +28,6 @@ return ZUI.def("app.wn.hmaker", {
             var jMa = UI.arena.find(".hmaker-main");
             jMa.toggleClass("shelf-hide");
             UI.local("shelfHide", jMa.hasClass("shelf-hide"));
-        },
-        "click .ue-ssize i" : function(e){
-            var jq = $(e.currentTarget);
-            // 高亮
-            jq.parent().children().removeClass("highlight");
-            jq.addClass("highlight");
-            // 设置
-            this.updateScreenSize(jq.attr("val"));
-        },
-        "change .ue-ssize input" : function(e){
-            var UI  = this;
-            var jq  = $(e.currentTarget);
-            var val = jq.val();
-            // 没值，用默认的
-            if(!val){
-                jq.val(jq.attr("oldv") || "");
-                return;
-            }
-            // 确保是数字 
-            if(!/^\d+$/.test(jq.val())){
-                alert(UI.msg("hmaker.e_nonb"));
-                jq.val(jq.attr("oldv") || "");
-                return;
-            }
-            // 设置吧
-            var jIx = UI.arena.find(".ue-ssize input[name=x]");
-            var jIy = UI.arena.find(".ue-ssize input[name=y]");
-            var val = (jIx.val()*1) + "x" + (jIy.val()*1);
-            this.updateScreenSize(val);
-        }
-    },
-    //...............................................................
-    updateScreenSize : function(val){
-        var UI  = this;
-        var jIx = UI.arena.find(".ue-ssize input[name=x]");
-        var jIy = UI.arena.find(".ue-ssize input[name=y]");
-        var jSt = UI.arena.find(".ue-stage");
-        var jSc = jSt.children(".ue-screen");
-        // 限制宽高
-        if(val) {
-            jSt.attr("mode", "mobile");
-            var m = /^(\d+)x(\d+)$/.exec(val);
-            var w = m[1] * 1;
-            var h = m[2] * 1;
-            jSc.css({
-                width  : w,
-                height : h
-            });
-            jIx.val(w).attr("oldv",w); jIy.val(h).attr("oldv",h);
-        }
-        // 全屏模式
-        else {
-            jSt.attr("mode", "pc");
-            jSc.css({
-                width  : "",
-                height : ""
-            });
-            jIx.val("").removeAttr("oldv"); jIy.val("").removeAttr("oldv");
         }
     },
     //...............................................................
@@ -126,15 +65,23 @@ return ZUI.def("app.wn.hmaker", {
         // html 就打开页面编辑器
         if('html' == o.tp) {
             // 已经打开页面编辑器了，那么就更新就好了
-            if(UI.gasket.main && PageUI.uiName == UI.gasket.main.uiName ){
-                UI.gasket.main.update(o);
-            }
-            // 重新建立页面编辑器
-            else{
+            // if(UI.gasket.main && PageUI.uiName == UI.gasket.main.uiName ){
+            //     UI.gasket.main.update(o);
+            // }
+            // // 重新建立页面编辑器
+            // else{
                 new PageUI({parent:UI, gasketName:"main"}).render(function(){
                     this.update(o);
+                    UI.parent.updateMenuByObj(o, "hmaker", this);
                 });
-            }
+            //}
+        }
+        // 如果是目录，就显示缩略图界面
+        else if('DIR' == o.race) {
+            new ThumbnailUI({parent:UI, gasketName:"main"}).render(function(){
+                this.update(o, UI);
+                UI.parent.updateMenuByObj(o, null, this);
+            });
         }
         // 不支持
         else {

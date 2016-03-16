@@ -1,0 +1,185 @@
+@import (reference) "../ui";
+@import (reference) "hmaker_common";
+
+html {height:100%;}
+body {height:100%;}
+
+* {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body{
+    margin:0;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+}
+
+@HDL : 8px;    // 控制柄的大小
+@cHb : #0DD;   // 激活项目边框颜色
+@actived_item_border: {
+    border:1px dashed @cHb;
+};
+
+//........................................
+// 通用的控件样式
+.hm-com {
+    .hmc-assist-wrapper {
+        position: relative;
+        > * {position: absolute;}
+    }
+}
+
+// 激活
+.hm-com[actived] {
+    .hmc-assist {
+        box-shadow: 0 0 10px #FF0;
+    }
+}
+
+// 绝对定位
+.hm-com[pos="absolute"] .hmc-wrapper{
+    width:100%; height:100%; position: relative;
+    .hmc-main {
+        width:100%; height:100%; overflow: hidden; 
+    }
+}
+
+// 绝对定位 + 激活
+.hm-com[actived][pos="absolute"] .hmc-assist {
+    position: absolute; top:0; left: 0; right: 0; bottom: 0;
+    .hmc-assist-wrapper {
+        width:100%; height:100%;
+    }
+
+    .hmc-assist-hdls {
+        top:0; left: 0; right: 0; bottom: 0;
+        @flex(); flex-flow:row nowrap; justify-content:space-between;
+        .hmca-grp {
+            flex:0 0 @HDL;  
+            @flex(); flex-flow:column nowrap; justify-content:space-between;
+            .hmca-hdl {flex:0 0 @HDL; border:1px solid #CCC; background: rgba(255,255,255,0.6);z-index: 999;}
+            .hmca-hdl:hover {background: #000; border-color:#FFF;}
+            .hmca-hdl[hd="NW"], .hmca-hdl[hd="SE"]{cursor: nwse-resize;}
+            .hmca-hdl[hd="NE"], .hmca-hdl[hd="SW"]{cursor: nesw-resize;}
+            .hmca-hdl[hd="N"],  .hmca-hdl[hd="S"] {cursor: ns-resize;}
+            .hmca-hdl[hd="W"],  .hmca-hdl[hd="E"] {cursor: ew-resize;}
+        }
+    }
+}
+
+._icon(@fsz:8px; @top:2px; @left:2px;) {
+    font:normal normal normal @fsz/1 FontAwesome;
+    color:rgba(200,200,200,0.4); 
+    position: absolute; top:@top; left:@left;
+}
+
+// 助手的图标的样式
+.hm-com .hmc-assist-icon {
+    ._icon(16px; 8px; 8px;)
+}
+
+// 拖动遮罩
+body[noselect] {@noselect();}
+.hmaker-mouse-mask {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: #000; opacity: 0; z-index:  999999; 
+    cursor: move;
+}
+.hm-com[mouse-moving] * {
+    cursor: move;
+}
+
+//............................. 导航按钮
+.hmc-navbtns { @noselect();
+    .hmc-main{
+        border:1px solid rgba(0,0,0,0);
+        padding: @navbtn_box_dft_padding; 
+        // 所有的按钮（包括新增按钮）都是依次排开的
+        > div {
+            float:left;
+        }
+        // .navbtn-add {
+        //     margin:  @navbtn_dft_padding;
+        //     width: @navbtn_dft_img_size; height:@navbtn_dft_img_size; line-height:@navbtn_dft_img_size;
+        //     border:1px dashed #CCC; color:#888; text-align: center;
+        //     cursor: pointer; border-radius: 3px; 
+        //     * {cursor: pointer;}
+        // }
+        .navbtn-add:hover {
+            border-color:#FFF; color:#FFF; background: rgba(0,0,0,0.2);
+        }
+        .navbtn {
+            padding: @navbtn_dft_padding; border:1px dotted rgba(0,0,0,0);
+            .navbtn-img {
+                width: @navbtn_dft_img_size; height:@navbtn_dft_img_size; position: relative;
+                margin:0 auto; overflow: hidden;
+                background-repeat: no-repeat; background-size:cover; background-color:#000;
+            }
+            .navbtn-txt {
+                width: @navbtn_dft_img_size; text-align: center; 
+                padding:8px 0; white-space: nowrap; overflow: hidden;
+                text-align: center;
+            }
+        }
+        .navbtn[actived] {
+            background: rgba(255,255,0, 0.3); border-color:rgba(0,0,0,0.5);
+        }
+        .navbtn[href^="id:"] .navbtn-img:before{
+            ._icon();
+            content: "\f0c1";
+        }
+        .navbtn[href^="http://"] .navbtn-img:before ,
+        .navbtn[href^="https://"] .navbtn-img:before{
+            ._icon();
+            content: "\f08e";
+        }
+    }
+    .hmc-main:after{@clr();}
+}
+.hmc-navbtns[actived]{
+    .hmc-main{@actived_item_border();}
+}
+.hmc-navbtns[pos="absolute"] {
+    .hmc-main {position: absolute;}
+}
+.hmc-navbtns[hide-btn-text] .navbtn-txt {display: none;}
+.hmc-navbtns .navbtn .navbtn-img i {display: none;}
+.hmc-navbtns .navbtn[href] .navbtn-img i {display: inline;}
+//............................. 简单文本控件
+.hmc-text[actived]{
+    .hmc-main{@actived_item_border();}
+}
+
+.hmc-text {
+    .hmc-main {
+        border:1px solid rgba(0,0,0,0);
+        padding: 10px; letter-spacing: 2px; 
+        font-size: 14px; line-height: 24px;
+    }
+}
+
+//............................. 图片控件
+.hmc-image { @noselect();
+    display:inline-block; width: 100px; height: 100px;
+    .hmc-wrapper, .hmc-main, img {
+        width:100%; height:100%;
+    }
+    .hmc-wrapper {position: relative;}
+    .hmc-assist {
+        position: absolute; top:0; left:0; right:0; bottom:0;
+    }
+}
+.hmc-image[actived]{
+    .hmc-assist {@actived_item_border();}
+}
+.hmc-image[href^="id:"] .hmc-assist-icon:before {
+    content: "\f0c1";
+}
+.hmc-image[href^="http://"] .hmc-assist-icon:before ,
+.hmc-image[href^="https://"] .hmc-assist-icon:before{
+    content: "\f08e";
+}
+

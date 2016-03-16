@@ -7,7 +7,7 @@ require("theme/ui/zui.css");
 var parse_dom = function (html) {
     var UI = this;
     // 解析代码模板
-    var tmpl = _.template(html);
+    var tmpl = $z.tmpl(html);
     html = tmpl(UI._msg_map);
     UI.$el[0].innerHTML = html;  // FIXME 这里有严重的bug, tr不能被加入到页面中
 
@@ -59,7 +59,10 @@ var register = function(UI) {
         UI.pel    = UI.$pel[0];
         UI.parent = UI.parent || ZUI.getInstance(UI.pel);
         // 这种模式下，默认是要 keepDom 的
-        $z.setUndefined(opt,"keepDom", true);
+        $z.setUndefined(UI, "keepDom", (_.isUndefined(opt.keepDom) || opt.keepDom));
+        UI.keepDom = _.isUndefined(opt.keepDom)
+                        ? (UI.keepDom===false? false:true)
+                        : opt.keepDom
 
         // 指明了 $el 那么 arena 与 $el 指向同样的 DOM
         UI.arena = UI.$el;
@@ -69,12 +72,14 @@ var register = function(UI) {
 
         // 如果本身就是一个 UI，则试图注销它
         if(cid){
-            ZUI(cid).destroy();
+            var oldUI = ZUI(cid);
+            if(oldUI)
+                oldUI.destroy();
             UI.$el = null;
             UI.el  = null;
         }
         // 否则清空它
-        else if(!opt.keepDom){
+        else if(!UI.keepDom){
             UI.$el.empty();
         }
     }
@@ -82,7 +87,16 @@ var register = function(UI) {
     // 指定了 $pel 的话 ...
     else if(UI.$pel){
         // 如果有 gasketName 那么就试图看看其所在 UI
-        UI.parent = ZUI.getInstance(UI.$pel);
+        UI.parent = UI.parent || ZUI.getInstance(UI.$pel);
+        // 如果这个元素带了 gasketName，则采用它
+        var gnm = UI.$pel.attr("ui-gasket");
+        var m   = /^(\w+)@(\w+)$/.exec(gnm);
+        opt.gasketName = m ? m[2] : gnm;
+        // 如果配置里没指定父，那么就得手动来一下
+        if(!opt.parent && UI.parent){
+            UI.parent.children.push(UI);
+            UI.depth = UI.parent.depth + 1;
+        }        
     }
     //....................................
     // 没有 $pel 则需要寻找选区
@@ -101,7 +115,7 @@ var register = function(UI) {
 
         // 没找到是不能忍受的哦
         if(UI.$pel.size() == 0){
-            throw _.template("fail to match gasket[{{gas}}] in {{pnm}}({{pid}})")({
+            throw $z.tmpl("fail to match gasket[{{gas}}] in {{pnm}}({{pid}})")({
                 gas : opt.gasketName,
                 pnm : UI.parent.uiName,
                 pid : UI.parent.cid
@@ -192,38 +206,62 @@ ZUIObj.prototype = {
             UI.pel  = opt.pel;
             UI.$pel = $(opt.pel);
         }
-        //............................... 继承父UI的属性执行器
-        UI.exec = opt.exec || (UI.parent||{}).exec;
-        UI.app = opt.app || (UI.parent||{}).app;
+
+        //............................... 控件的通用方法
+        $z.setUndefined(UI, "blur", function(){
+            this.$el.removeAttr("actived");
+            $z.invoke(this.$ui, "blur", [], this);
+        });
+        $z.setUndefined(UI, "active", function(){
+            this.$el.attr("actived", "yes");
+            $z.invoke(this.$ui, "active", [], this);
+        });
 
         // 默认先用父类的多国语言字符串顶个先
         UI._msg_map = UI.parent ? UI.parent._msg_map : ZUI.g_msg_map;
 
-        // 调用子类自定义的 init
-        $z.invoke(UI.$ui, "init", [opt], UI);
-
         // 注册 UI 实例
         register(UI);
 
+        //............................... 继承父UI的属性执行器
+        UI.exec = opt.exec || (UI.parent||{}).exec;
+        UI.app = opt.app || (UI.parent||{}).app;
+
+        // 得到 UI 的事件
+        var events = _.extend({}, UI.events, opt.events);
+
         // 监听事件
-        if(UI.$el && UI.events){
-            for(var key in UI.events){
+        if(UI.$el){
+            for(var key in events){
                 var m = /^([^ ]+)[ ]+(.+)$/.exec(key);
                 if(null==m){
                     throw "wrong events key: " + key;
                 }
-                UI.$el.on(m[1], m[2], UI.events[key], function(e){
+                UI.$el.on(m[1], m[2], events[key], function(e){
                     e.data.apply(UI, [e]);
                 });
             }
         }
+
+        // 调用子类自定义的 init
+        $z.invoke(UI.$ui, "init", [opt], UI);
 
         // 触发初始化事件
         $z.invoke(opt, "on_init", [opt], UI);
         UI.trigger("ui:init", UI);
     },
     //............................................
-    destroy: function () {
+    // 释放全部自己的子
+    releaseAllChildren : function(forceRemoveDom){
+        var UI = this;
+        // 释放掉自己所有的子
+        var __children = UI.children ? [].concat(UI.children) : [];
+        for (var i=0; i<__children.length; i++) {
+            __children[i].destroy(forceRemoveDom);
+        }
+    },
+    //............................................
+    destroy: function (forceRemoveDom) {
         var UI  = this;
         var opt = UI.options;
 
@@ -233,9 +271,7 @@ ZUIObj.prototype = {
         UI.trigger("ui:depose", UI);
 
         // 释放掉自己所有的子
-        for (var i=0; i<UI.children.length; i++) {
-            UI.children[i].destroy();
-        }
+        UI.releaseAllChildren(forceRemoveDom);
 
         // 移除自己在父节点的记录
         if(UI.parent){
@@ -251,9 +287,14 @@ ZUIObj.prototype = {
         UI.unwatchKey();
         UI.unwatchMouse();
 
-        // 删除自己的 DOM 节点
+        // 移除 DOM 的事件监听
         $z.invoke(UI.$el, "undelegate", []);
-        UI.$el.off().remove();
+        UI.$el.off();
+
+        // 删除自己的 DOM 节点
+        if(forceRemoveDom || !UI.keepDom){
+            UI.$el.remove();
+        }
 
         // 移除注册
         delete ZUI.instances[UI.cid];
@@ -428,7 +469,7 @@ ZUIObj.prototype = {
                 var it = uiI18N[i];
                 // 字符串的话，转换后加入待加载列表
                 if(_.isString(it)){
-                    i18nLoading.push(_.template(it)({lang: UI.lang}));
+                    i18nLoading.push($z.tmpl(it)({lang: UI.lang}));
                 }
                 // 对象的话，直接融合进来
                 else if(_.isObject(it)){
@@ -670,7 +711,7 @@ ZUIObj.prototype = {
         }
         // 需要解析
         if (re && ctx && _.isObject(ctx)) {
-            re = (_.template(re))(ctx);
+            re = ($z.tmpl(re))(ctx);
         }
         return re;
     },
@@ -687,7 +728,7 @@ ZUIObj.prototype = {
         }
         // 字符串模板
         if(str && ctx && _.isObject(ctx)){
-            return (_.template(str))(ctx);
+            return ($z.tmpl(str))(ctx);
         }
         // 普通字符串
         return str;
@@ -703,8 +744,8 @@ ZUIObj.prototype = {
     },
     // 根据路径获取一个子 UI
     subUI : function(uiPath){
-        var ss = uiPath.split(/[\/\\.]/);
         var UI = this;
+        var ss = uiPath.split(/[\/\\.]/);
         for(var i=0;i<ss.length;i++){
             var s = ss[i];
             UI = UI.gasket[s];
@@ -712,6 +753,12 @@ ZUIObj.prototype = {
                 return null;
         }
         return UI;
+    },
+    // 释放某个子 UI
+    releaseSubUI : function(uiPath){
+        var sub = this.subUI(uiPath);
+        if(sub)
+            sub.destroy();
     },
     // 快捷方法，帮助 UI 存储本地状态
     // 需要设置 "app" 段
@@ -729,7 +776,7 @@ ZUIObj.prototype = {
         var F = obj ? obj[nm] : null;
         if(!F)
             return null;
-        return _.isFunction(F) ? F : _.template(F);
+        return _.isFunction(F) ? F : $z.tmpl(F);
     },
     //............................................
     ui_parse_data : function(obj, callback) {
@@ -923,14 +970,14 @@ ZUI.def = function (uiName, conf) {
         };
         // 将 UI 的保留方法放入 $ui 中，其余 copy
         for (var key in conf) {
-            if (/^(css|dom|i18n|init|redraw|depose|resize)$/g.test(key)) {
+            if (/^(css|dom|i18n|init|redraw|depose|resize|active|blur)$/g.test(key)) {
                 opt.$ui[key] = conf[key];
             }
             else if("className" == key){
                 opt.className += " " + conf.className;
             }
             else {
-                opt[key] = conf[key] || opt[key];
+                opt[key] = opt[key] || conf[key];
             }
         }
 
@@ -999,7 +1046,7 @@ ZUI.checkByKey = function(uiKey){
 
 // 异步读取全局的消息字符串
 ZUI.loadi18n = function (path, callback) {
-    path = _.template(path)({lang: window.$zui_i18n || "zh-cn"});
+    path = $z.tmpl(path)({lang: window.$zui_i18n || "zh-cn"});
     require.async(path, function (mm) {
         ZUI.g_msg_map = mm || {};
         callback();
@@ -1007,24 +1054,41 @@ ZUI.loadi18n = function (path, callback) {
 };
 
 // 调试方法，打印当前 UI 的级联 tree
-ZUI.dump_tree = function(UI, depth){
+ZUI.dump_tree = function(UI, depth, stopBy, No){
     // 显示一个 UI 的树
     if(UI){
-        var depth = _.isUndefined(depth) ? 0 : depth
-        var prefix = $z.dupString("    ", depth);
-        var str = (_.template("{{nm}}({{cid}}){{uiKey}}"))({
+        No = No || "";
+        var depth  = _.isUndefined(depth) ? 0 : depth
+        var indent = "    ";
+        var prefix = $z.dupString(indent, depth);
+        var ctx    = {
             nm     : UI.uiName,
             cid    : UI.cid,
-            uiKey  : UI.uiKey ? "["+UI.uiKey+"]" : ""
-        });
+            uiKey  : UI.uiKey ? "["+UI.uiKey+"]" : "",
+            klass  : UI.$pel.prop("className"),
+            childN : UI.children.length
+        }
+        var str = ($z.tmpl("{{nm}}({{cid}}){{uiKey}}<{{klass}}>:{{childN}}children"))(ctx);
+        // 显示扩展点
         for(var key in UI.gasket) {
             var sui = UI.gasket[key];
             if(sui){
                 str += "\n" + prefix 
                        + "  @" + $z.alignLeft('"' + key + '"', 8, " ")
-                       + "-> " + ZUI.dump_tree(sui, depth+1);
+                       + "-> " + ZUI.dump_tree(sui, depth+1, stopBy);
             }
         }
+        // 显示子
+        if(!stopBy || !stopBy.test(UI.uiName))
+            if(UI.children.length > 0){
+                str += "\n" + prefix + "   >>>>>>>>>>>>>>";
+                for(var i=0; i<UI.children.length; i++){
+                    str += "\n" + prefix + indent
+                           + "[" + No + i + "]" 
+                           + ZUI.dump_tree(UI.children[i], depth+1, stopBy, No+i+".");
+                }
+            }
+        // 返回
         return str;
     }
     // 显示全部顶层 UI

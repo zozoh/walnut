@@ -3,10 +3,10 @@
 	text : "i18n:obrowser.action.upload",
 	type : "button",
 	handler : function($ele, a) {
-		var UIBrowser = this;
-		UIBrowser.showUploader({
+		var UI = this;
+		UI.browser.showUploader({
 			finish : function(){
-				UIBrowser.refresh();
+				UI.browser.refresh();
 				this.parent.close();
 			}
 		});
