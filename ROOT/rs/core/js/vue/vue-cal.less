@@ -1,0 +1,228 @@
+@import "vue-cal-var";
+
+.clearfix {
+  display: block;
+  zoom: 1;
+  &:after {
+    content: " ";
+    display: block;
+    font-size: 0;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+  }
+}
+
+.vcal {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  * {
+    box-sizing: border-box;
+  }
+
+  table {
+    border-spacing: 0;
+  }
+
+  tr, th, td {
+    padding: 0;
+    margin: 0;
+  }
+
+  td {
+    vertical-align: top;
+  }
+
+}
+
+.vcal-header {
+  width: 100%;
+  height: @vh-height;
+  .clearfix;
+  padding: 10px;
+
+  .vcal-info {
+    float: left;
+    height: @vhc-height;
+    line-height: @vhc-height;
+    color: #03A9F4;
+    font-size: 1.5rem;
+  }
+
+  .vcal-btns {
+    float: right;
+    height: @vhc-height;
+    line-height: @vhc-height;
+
+    span {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      padding: 6px 12px;
+      text-align: center;
+      background: #EEE;
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      &:active {
+        background: #b4b4b4;
+        color: #FFF;
+      }
+
+      &:first-child {
+        border-radius: 8px 0 0 8px;
+      }
+
+      &:last-child {
+        border-radius: 0 8px 8px 0;
+      }
+    }
+  }
+
+  .vcal-switch {
+    float: right;
+    height: @vhc-height;
+    line-height: @vhc-height;
+    margin-left: 16px;
+  }
+}
+
+.vcal-body {
+  width: 100%;
+  height: calc(~"100% - @{vh-height}");
+}
+
+.vcal-cal-entity {
+
+  width: 100%;
+
+  > .header {
+    background: @vcal-heder-bg;
+    color: #000;
+    font-weight: bold;
+  }
+
+}
+
+.vcal-matrix-entity {
+  border-right: @vcal-border;
+  border-bottom: @vcal-border;
+
+  &:first-child {
+    border-left: @vcal-border;
+  }
+
+  &.week-tip {
+    text-align: center;
+    height: @vmatrix-h * 1.5;
+    line-height: @vmatrix-h * 1.5;
+  }
+}
+
+.day-entity {
+  cursor: pointer;
+  .day-tip {
+    height: @vmatrix-h;
+    line-height: @vmatrix-h;
+    text-align: center;
+  }
+}
+
+// day-status
+
+.ds-today {
+  .day-tip {
+    color: #f00;
+  }
+
+  &.week-tip {
+    color: #f00;
+  }
+}
+
+.ds-select {
+  background: @vcal-day-bg;
+  .day-tip {
+    color: #FFF;
+  }
+}
+
+.ds-outmonth {
+  background: none;
+  cursor: not-allowed;
+  .day-tip {
+    color: #ccc;
+  }
+}
+
+// 周视图
+.vcal-week-entity {
+
+  // 空出时间点来
+  width: calc(~"100% - @{vcal-weekday-sb-width}");
+  margin-left: @vcal-weekday-sb-width;
+
+  .vcal-hour-entity {
+    height: @vmatrix-h * 1.2;
+    border-bottom: @vcal-border;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .hour-tip {
+    display: none;
+  }
+
+  .week-day-entity {
+    &:first-child {
+
+      .vcal-hour-entity {
+        position: relative;
+      }
+
+      .hour-tip {
+        display: block;
+        position: absolute;
+        top: -8px;
+        left: -@vcal-weekday-sb-width + 5;
+        color: #cccccc;
+      }
+    }
+  }
+
+}
+
+
+// 月视图
+
+.vcal-month-entity {
+
+}
+
+// 年视图
+.vcal-year-entity {
+
+  .vcal-year-month-wrap {
+    padding: 16px;
+    width: 25%;
+    display: inline-block;
+
+    > .header {
+      height: @vmatrix-h * 1.5;
+      line-height: @vmatrix-h * 1.5;
+    }
+    .vcal-matrix-entity {
+      &.week-tip {
+        height: @vmatrix-h;
+        line-height: @vmatrix-h;
+      }
+    }
+  }
+
+}
