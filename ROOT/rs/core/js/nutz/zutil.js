@@ -676,7 +676,7 @@ var zUtil = {
             // 同时有 icon 和 text
             if(fld.__dis_icon && fld.__dis_text){
                 func = function(o, jso){
-                    var fld = jso.type();
+                    var fld = _.isFunction(jso.type) ? jso.type() : jso;
                     return fld.__dis_icon.call(this, o, jso)
                          + fld.__dis_text.call(this, o, jso);
                 };

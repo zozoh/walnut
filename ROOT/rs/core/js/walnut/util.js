@@ -903,7 +903,7 @@ var Wn = {
                     objs = $z.fromJson(json);
                     // 数组的话，循环处理对象
                     if(_.isArray(objs)){
-                        obj.forEach(function(obj){
+                        objs.forEach(function(obj){
                             _cache_obj(obj);
                         });
                     }

@@ -92,12 +92,24 @@ return ZUI.def("ui.form_com_checklist", {
     //...............................................................
     redraw : function(){
         var UI  = this;
-        var re = ["loading"];
+        var opt = UI.options;
+
+        // 去掉快速按钮
+        if(opt.quickButton === false){
+            UI.arena.find(".cc-quick").remove();
+        }
+
+        // 看看是否需要延迟加载，回调的 re.pop() 会搞这个
+        re = ["loading"];
+
+        // 加载数据
         $z.evalData(UI.options.items, null, function(items){
             UI._draw_items(items);
             re.pop();
             UI.defer_report(0, "loading");
         });
+
+        // 返回以便延迟加载
         return re;
     },
     //...............................................................
