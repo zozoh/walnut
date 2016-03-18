@@ -68,7 +68,9 @@ return ZUI.def("ui.form_com_radiolist", {
                 .appendTo(jLi);
 
             // 图标
-            var icon = opt.icon.call(context, item, i);
+            var icon = _.isString(opt.icon)
+                                ? $z.tmpl(opt.icon)(item)
+                                : opt.icon.call(context, item, i);
             jIcon = $('<span it="icon">').appendTo(jLi);
             if(_.isString(icon)){
                 jIcon.html(icon);
@@ -76,7 +78,9 @@ return ZUI.def("ui.form_com_radiolist", {
             }
 
             // 文字
-            var text = opt.text.call(context, item, i);
+            var text = _.isString(opt.icon)
+                                ? $z.tmpl(opt.icon)(item)
+                                : opt.text.call(context, item, i);
             $('<b it="text">').text(UI.text(text)).appendTo(jLi);
         }
 

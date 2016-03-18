@@ -390,7 +390,7 @@ ZUIObj.prototype = {
                 // 哦？ 是异步的绘制，那么先存储一下回调，等待 UI 全部加载完再调用
                 else {
                     UI._defer_do_after_redraw = do_after_redraw;
-                    UI._defer_uiTypes = uiTypes;
+                    UI._defer_uiTypes = [].concat(uiTypes);
                     UI._check_defer_done("redraw");
                 }
 

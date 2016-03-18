@@ -133,7 +133,9 @@ return ZUI.def("ui.form_com_checklist", {
                 .appendTo(jLi);
 
             // 图标
-            var icon = opt.icon.call(context, item, i);
+            var icon = _.isString(opt.icon)
+                                ? $z.tmpl(opt.icon)(item)
+                                : opt.icon.call(context, item, i);
             jIcon = $('<span it="icon">').appendTo(jLi);
             if(_.isString(icon)){
                 jIcon.html(icon);
@@ -141,7 +143,9 @@ return ZUI.def("ui.form_com_checklist", {
             }
 
             // 文字
-            var text = opt.text.call(context, item, i);
+            var text = _.isString(opt.icon)
+                                ? $z.tmpl(opt.icon)(item)
+                                : opt.text.call(context, item, i);
             $('<b it="text">').text(UI.text(text)).appendTo(jLi);
         }
 
@@ -167,7 +171,7 @@ return ZUI.def("ui.form_com_checklist", {
             val = [val];
         }
         // 查找吧少年
-        UI.arena.find("li").each(function(){
+        UI.arena.find("li").removeClass("checked").each(function(){
             var jLi = $(this);
             var v0  = jLi.data("@VAL");
             if(val.indexOf(v0)>=0){

@@ -46,7 +46,7 @@ public class WnObjMetaOutputStream extends OutputStream {
                 if (append) {
                     for (String key : newObj.keySet()) {
                         // id 等是绝对不可以改的
-                        if (key.matches("^(ph|id|pid|race)$")) {
+                        if (key.matches("^(ph|id|race)$")) {
                             continue;
                         }
                         // 获取值
@@ -66,7 +66,7 @@ public class WnObjMetaOutputStream extends OutputStream {
                     // 循环对象
                     for (String key : o.keySet()) {
                         // id 等是绝对不可以改的
-                        if (key.matches("^(ph|id|pid|race)$")) {
+                        if (key.matches("^(ph|id|race)$")) {
                             continue;
                         }
                         // 获取值

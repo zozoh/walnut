@@ -12,12 +12,12 @@ return ZUI.def("ui.form_com_label", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     getData : function(){
-        return this.$el.data("@VAL");
+        return this.$el.data("@VAL") || "";
     },
     //...............................................................
     setData : function(val, jso){
-        this.$el.data("@VAL", val);
-        this.arena.text(jso.toStr());
+        this.$el.data("@VAL", val||"");
+        this.arena.text(jso.toStr()||"");
     }
     //...............................................................
 });

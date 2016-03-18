@@ -126,7 +126,7 @@ return ZUI.def("ui.tree", {
             return this.arena.find(".tree-node").eq(nd);
         }
         else if(_.isString(nd)){
-            return this.arena.find(".tree-node[oid="+nd+"]");
+            return this.arena.find('.tree-node[oid="'+nd+'"]');
         }
         else if($z.isPlainObj(nd)){
             var jqs = this.arena.find(".tree-node");
@@ -282,7 +282,8 @@ return ZUI.def("ui.tree", {
             return;
 
         // 读取子节点
-        UI.reload(jNode, callback);
+        if(jNode.size() > 0)
+            UI.reload(jNode, callback);
     },
     //...............................................................
     reload : function(nd, callback) {

@@ -40,6 +40,12 @@ var d = cal.current();
 cal.current(new Date());
 ```
 
+## refresh : 重绘日历
+
+```
+cal.refresh();
+```
+
 ## viewport : 获取当前控件显示的日期范围(包含)
 
 ```
@@ -55,34 +61,39 @@ console.log(d.toLocaleString());
 ```
 
 * 如果是日期范围选择模式，返回的永远是最后一次点击的日期
+* 如果没有激活，则返回 *null*
 
-## active : 改变被激活的日期
+## setActived : 改变被激活的日期
 
 ```
 var d = new Date('1995-12-17T03:24:00');
-var re = cal.active(d);
+var re = cal.setActived(d);
 console.log(re);   // logs true
 ```
 
 * 注意，如果这个日期不在显示范围内，则无效，返回的是 「false」
 
-## range : 获取/设置日期范围
+## getRange : 获取日期范围
 
 ```
-var dateRange = cal.range();
+var dateRange = cal.getRange();
 console.log(dateRange);  // logs [Mon Sep 28 1998..., Mon Oct 16 1998..] 
 
 // 仅仅获取绝对毫秒
-var msRange = cal.range("ms");
+var msRange = cal.getRange("ms");
 console.log(msRange);  // logs [1447287120000, 1447538190000] 
-
-// 传入数组，表示设置一个日期范围, 比如设置从今天起四天的范围
-jQuery.zcal("range", [new Date(), (new Date()).getTime() + 3 * 86400000]);
 ```
 
 * 如果当前是单选模式，数组的两个元素是相同的，都是当前被激活的日期
 * 但是时间，一个是 `00:00:00` 一个是 `23:59:59`
 * 如果是多选模式，`dateRange[0]` 时间一定是 `00:00:00`，而 `dateRange[1]` 时间一定是 `23:59:59`
+
+## setRange : 设置日期范围
+
+```
+// 传入数组，表示设置一个日期范围, 比如设置从今天起四天的范围
+cal.setRange([new Date(), (new Date()).getTime() + 3 * 86400000]);
+```
 
 
 
