@@ -244,6 +244,12 @@ public class WnContext extends NutMap {
         return nd;
     }
 
+    public WnObj whenMeta(WnObj nd) {
+        if (null != security)
+            return security.meta(nd);
+        return nd;
+    }
+
     public boolean testSecurity(WnObj nd, int mode) {
         if (null != security)
             return security.test(nd, mode);

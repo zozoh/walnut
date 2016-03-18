@@ -6,9 +6,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Map;
+
 import org.nutz.json.JsonFormat;
 
 public interface WnIo extends WnStore, WnTree {
+
+    /**
+     * @see org.nutz.walnut.api.io.WnTree#setBy(String, Map)
+     */
+    WnObj setBy(String id, String key, Object val);
 
     void setMount(WnObj o, String mnt);
 

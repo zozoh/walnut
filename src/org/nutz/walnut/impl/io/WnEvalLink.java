@@ -43,9 +43,14 @@ public class WnEvalLink implements WnSecurity {
     // return __eval_obj(nd, false);
     // }
 
+    @Override
+    public WnObj meta(WnObj nd) {
+        return nd;
+    }
+
     protected WnObj __eval_obj(WnObj o) {
         // 处理链接文件
-        if (null!=o && o.isLink()) {
+        if (null != o && o.isLink()) {
             String oldPath = o.path();
             String ln = o.link();
             // 用 ID

@@ -22,6 +22,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
@@ -86,6 +87,30 @@ public class WnIoImpl implements WnIo {
                 Wn.Io.update_ancestor_synctime(tree, o, false);
             }
         });
+    }
+
+    @Override
+    public WnObj setBy(String id, String key, Object val) {
+        return setBy(id, key, val);
+    }
+
+    @Override
+    public WnObj setBy(String id, NutMap map) {
+        WnObj o = tree.setBy(id, map);
+
+        // 调用钩子
+        WnContext wc = Wn.WC();
+        wc.doHook("meta", o);
+
+        // 触发同步时间修改
+        wc.hooking(null, new Atom() {
+            public void run() {
+                Wn.Io.update_ancestor_synctime(tree, o, false);
+            }
+        });
+
+        // 返回
+        return o;
     }
 
     @Override

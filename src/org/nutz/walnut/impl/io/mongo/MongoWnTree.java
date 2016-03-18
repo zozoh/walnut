@@ -113,33 +113,59 @@ public class MongoWnTree extends AbstractWnTree {
         // 更新或者创建
         if (map.size() > 0) {
             ZMoDoc q = WnMongos.qID(id);
-            ZMoDoc doc = ZMoDoc.NEW();
-
-            // 提炼字段
-            for (Map.Entry<String, Object> en : map.entrySet()) {
-                String key = en.getKey();
-                Object val = en.getValue();
-                boolean unset = key.startsWith("!");
-                if (unset)
-                    key = key.substring(1);
-
-                // ID 字段不能被修改
-                if ("id".equals(key)) {
-                    continue;
-                }
-                // 如果为空，则表示 unset
-                if (unset) {
-                    doc.unset(key);
-                }
-                // 其他的字段
-                else {
-                    doc.set(key, val);
-                }
-            }
+            ZMoDoc doc = __map_to_doc_for_update(map);
 
             // 执行更新
             co.update(q, doc, true, false);
         }
+    }
+
+    @Override
+    protected WnObj _set_by(String id, NutMap map) {
+        WnObj o = null;
+
+        // 更新或者创建
+        if (map.size() > 0) {
+            ZMoDoc q = WnMongos.qID(id);
+            ZMoDoc doc = __map_to_doc_for_update(map);
+
+            // 执行更新
+            ZMoDoc re = co.findAndModify(q, doc);
+
+            // 执行结果
+            if (null != re)
+                o = WnMongos.toWnObj(re);
+        }
+
+        // 返回
+        return null == o ? this._get_my_node(id) : o;
+    }
+
+    private ZMoDoc __map_to_doc_for_update(NutMap map) {
+        ZMoDoc doc = ZMoDoc.NEW();
+
+        // 提炼字段
+        for (Map.Entry<String, Object> en : map.entrySet()) {
+            String key = en.getKey();
+            Object val = en.getValue();
+            boolean unset = key.startsWith("!");
+            if (unset)
+                key = key.substring(1);
+
+            // ID 字段不能被修改
+            if ("id".equals(key)) {
+                continue;
+            }
+            // 如果为空，则表示 unset
+            if (unset) {
+                doc.unset(key);
+            }
+            // 其他的字段
+            else {
+                doc.set(key, val);
+            }
+        }
+        return doc;
     }
 
     @Override

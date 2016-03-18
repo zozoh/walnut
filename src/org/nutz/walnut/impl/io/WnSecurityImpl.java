@@ -94,6 +94,18 @@ public class WnSecurityImpl extends WnEvalLink {
         }
     }
 
+    @Override
+    public WnObj meta(WnObj nd) {
+        WnContext wc = Wn.WC();
+        wc.setSecurity(null);
+        try {
+            return __do_check(nd, Wn.Io.W, false);
+        }
+        finally {
+            wc.setSecurity(this);
+        }
+    }
+
     private WnObj __do_check(WnObj o, int mask, boolean asNull) {
 
         // 防止空指针

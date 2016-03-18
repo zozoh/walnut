@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.UnitTestable;
 
 public interface WnTree extends UnitTestable {
@@ -23,12 +24,23 @@ public interface WnTree extends UnitTestable {
     void walk(WnObj p, Callback<WnObj> callback, WalkMode mode);
 
     WnObj move(WnObj src, String destPath);
-    
+
     WnObj move(WnObj src, String destPath, int mode);
 
     WnObj rename(WnObj o, String nm);
 
     void set(WnObj o, String regex);
+
+    /**
+     * 设置某对象的一个值，并直接返回设置前的对象元数据
+     * 
+     * @param id
+     *            对象 ID
+     * @param map
+     *            要修改的值表
+     * @return 对象
+     */
+    WnObj setBy(String id, NutMap map);
 
     /**
      * 修改某对象的某个整型元数据
@@ -77,7 +89,7 @@ public interface WnTree extends UnitTestable {
 
     List<WnObj> query(WnQuery q);
 
-    List<WnObj> getChildren(WnObj o,String name);
+    List<WnObj> getChildren(WnObj o, String name);
 
     long count(WnQuery q);
 

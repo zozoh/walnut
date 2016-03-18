@@ -32,6 +32,21 @@ import org.w3c.dom.Document;
 public class WnIoImplTest extends BaseIoTest {
 
     @Test
+    public void test_setBy() {
+        WnObj a = io.create(null, "/a.txt", WnRace.FILE);
+
+        WnObj a1 = io.setBy(a.id(), Lang.map("x:100,y:80"));
+        assertEquals(a.id(), a1.id());
+        assertEquals(-1, a1.getInt("x"));
+        assertEquals(-1, a1.getInt("y"));
+
+        WnObj a2 = io.get(a.id());
+        assertEquals(a.id(), a2.id());
+        assertEquals(100, a2.getInt("x"));
+        assertEquals(80, a2.getInt("y"));
+    }
+
+    @Test
     public void test_copyData() {
         WnObj a = io.create(null, "/a.txt", WnRace.FILE);
         WnObj b = io.create(null, "/b.txt", WnRace.FILE);

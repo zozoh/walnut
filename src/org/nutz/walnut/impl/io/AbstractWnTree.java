@@ -631,6 +631,9 @@ public abstract class AbstractWnTree implements WnTree {
             this.rename(o, nm);
         }
 
+        // 确保对象有写权限
+        o = Wn.WC().whenMeta(o);
+
         // 修改元数据
         _set(o.id(), map);
     }
@@ -640,6 +643,33 @@ public abstract class AbstractWnTree implements WnTree {
     }
 
     protected abstract void _set(String id, NutMap map);
+
+    @Override
+    public WnObj setBy(String id, NutMap map) {
+        // 不支持改名和移动目录
+        if (null != map) {
+            map.remove("nm");
+            map.remove("pid");
+        }
+
+        // 确保对象存在，并有写权限
+        WnObj o = this.get(id);
+        o = Wn.WC().whenMeta(o);
+
+        // 执行修改
+        if (map.size() > 0) {
+            o = _set_by(id, map);
+            if (null != o) {
+                o.remove("ph");
+                o.setTree(this);
+            }
+        }
+
+        // 返回修改后内容
+        return o;
+    }
+
+    protected abstract WnObj _set_by(String id, NutMap map);
 
     protected void _do_walk_children(WnObj p, final Callback<WnObj> callback) {
         this.each(Wn.Q.pid(null == p ? getRootId() : p.id()), new Each<WnObj>() {

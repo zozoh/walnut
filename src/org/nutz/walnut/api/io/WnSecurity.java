@@ -11,6 +11,8 @@ public interface WnSecurity {
     WnObj read(WnObj nd);
 
     WnObj write(WnObj nd);
+    
+    WnObj meta(WnObj nd);
 
     // WnObj remove(WnObj nd);
 
