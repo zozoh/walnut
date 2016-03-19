@@ -10,7 +10,9 @@ public class WxConf {
 
     public String jsSdkUrl;
 
-    public String payKey;
+    public String[] jsApiList;
+
+    public String pay_key;
 
     public String pay_mch_id;
 

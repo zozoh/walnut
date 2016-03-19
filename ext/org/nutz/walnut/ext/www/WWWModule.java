@@ -83,12 +83,13 @@ public class WWWModule extends AbstractWnModule {
 
         // 如果失败
         if (sbErr.length() > 0) {
-            re.put("url", conf.getString("create_fail", "/create_fail.wnml"));
+            re.put("url", conf.getString("login_fail", "/login_fail.wnml"));
         }
-
         // 成功的话
-        re.put("url", conf.getString("login_ok", "/"));
-        re.put("dseid", Strings.trim(sbOut));
+        else {
+            re.put("url", conf.getString("login_ok", "/"));
+            re.put("dseid", Strings.trim(sbOut));
+        }
 
         // 返回
         return re;

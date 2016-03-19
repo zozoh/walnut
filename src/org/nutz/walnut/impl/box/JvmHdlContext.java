@@ -1,10 +1,11 @@
 package org.nutz.walnut.impl.box;
 
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.ZParams;
 
-public class JvmHdlContext {
+public class JvmHdlContext extends NutMap {
 
     public WnSystem sys;
 

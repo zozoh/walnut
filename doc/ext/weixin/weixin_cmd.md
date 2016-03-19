@@ -141,15 +141,15 @@ tags:
 ## 注册 httpapi
 
 首先需要在 `~/.regapi/api/` 目录下建立一个注册的 api，
-比如 `~/.regapi/api/demo/myweixin`。内容是:
+比如 `~/.regapi/api/weixin/in`。内容是:
 
-        weixin -in id:${id}
+        weixin in id:${id}
 
 ## 配置转发 URL
 
 之后在微信公众号后台，将 api 的地址配置入 `开发者中心>服务器配置>URL`，
 
-    http://$youhost/api/$usr/demo/myweixin
+    http://$youhost/api/$usr/weixin/in
 
 # 自定义菜单
 

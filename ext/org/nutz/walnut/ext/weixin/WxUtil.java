@@ -7,6 +7,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
@@ -38,9 +39,14 @@ public abstract class WxUtil {
         return Lang.map2Object(map, WxInMsg.class);
     }
 
+    @Deprecated
     public static WnIoWeixinApi newWxApi(final WnSystem sys, ZParams params) {
-        WnObj oConf = null;
         String pnb = params.get("pnb");
+        return newWxApi(sys, pnb);
+    }
+
+    public static WnIoWeixinApi newWxApi(final WnSystem sys, String pnb) {
+        WnObj oConf = null;
         if (Strings.isBlank(pnb)) {
             // 获取当前目录
             String pwd = sys.se.vars().getString("PWD");
@@ -63,8 +69,18 @@ public abstract class WxUtil {
         else {
             oConf = sys.io.check(null, Wn.normalizeFullPath("~/.weixin/" + pnb + "/wxconf", sys));
         }
-        WnIoWeixinApi wxApi = new WnIoWeixinApi(sys.io, oConf);
-        return wxApi;
+
+        // 返回 API
+        return new WnIoWeixinApi(sys.io, oConf);
+    }
+
+    public static WnObj getWxConf(JvmHdlContext hc) {
+        return hc.getAs("wxconf_obj", WnObj.class);
+    }
+
+    public static WnIoWeixinApi genWxApi(WnSystem sys, JvmHdlContext hc) {
+        WnObj oConf = getWxConf(hc);
+        return new WnIoWeixinApi(sys.io, oConf);
     }
 
 }

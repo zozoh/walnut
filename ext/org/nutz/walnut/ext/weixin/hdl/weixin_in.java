@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.weixin;
+package org.nutz.walnut.ext.weixin.hdl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,15 +11,35 @@ import org.nutz.lang.segment.Segments;
 import org.nutz.lang.util.Context;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.weixin.WxConf;
+import org.nutz.walnut.ext.weixin.WxMsgHandler;
+import org.nutz.walnut.ext.weixin.WxUtil;
+import org.nutz.walnut.impl.box.JvmHdl;
+import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.weixin.bean.WxInMsg;
 import org.nutz.weixin.bean.WxOutMsg;
 import org.nutz.weixin.util.Wxs;
 
-public class WeixinIn {
+/**
+ * 命令的使用方法:
+ * 
+ * <pre>
+ * weixin in id:xxxx
+ * </pre>
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
+@JvmHdlParamArgs("^debug$")
+public class weixin_in implements JvmHdl {
 
-    public void handle(WnSystem sys, WnObj o, boolean debug) {
+    @Override
+    public void invoke(WnSystem sys, JvmHdlContext hc) {
+        // 输出的微信请求对象
+        WnObj o = Wn.checkObj(sys, hc.args[0]);
+
         Object method = o.get("http-method");
         // 认证
         if ("GET".equals(method)) {
@@ -27,10 +47,14 @@ public class WeixinIn {
         }
         // 消息输入
         else if ("POST".equals(method)) {
-            do_POST(sys, o, debug);
+            do_POST(sys, o, hc.params.is("debug"));
         }
         // 最后设置删除时间（缓存10分钟）
-        sys.io.appendMeta(o, Lang.map("expi", System.currentTimeMillis() + 600 * 1000));
+        int reqexpi = hc.params.getInt("reqexpi", 10);
+        if (reqexpi > 0) {
+            o.setv("expi", System.currentTimeMillis() + (reqexpi * 60 * 1000));
+            sys.io.set(o, "^expi$");
+        }
     }
 
     private void do_POST(WnSystem sys, WnObj o, boolean debug) {
@@ -121,4 +145,5 @@ public class WeixinIn {
         // Wxs.check(token, signature, timestamp, nonce);
         sys.out.println(o.getString("http-qs-echostr"));
     }
+
 }

@@ -17,6 +17,25 @@
         tip :  "i18n:weixin.mp.token_tip",
         type :"string"
     }, {
+        key :"pay_mch_id",
+        title :"i18n:weixin.mp.pay_mch_id",
+        type :"string"
+    }, {
+        key :"pay_key",
+        title :"i18n:weixin.mp.pay_key",
+        type :"string"
+    }, {
+        key :"pay_time_expire",
+        title :"i18n:weixin.mp.pay_time_expire",
+        tip :  "i18n:weixin.mp.pay_time_expire_tip",
+        type :"string",
+        dft : 10,
+        uiWidth : 50
+    }, {
+        key :"pay_notify_url",
+        title :"i18n:weixin.mp.pay_notify_url",
+        type :"string"
+    }, {
         key :"jsSdkUrl",
         title :"i18n:weixin.mp.jsSdkUrl",
         tip :  "i18n:weixin.mp.jsSdkUrl_tip",
