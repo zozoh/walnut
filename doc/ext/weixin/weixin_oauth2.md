@@ -1,5 +1,5 @@
 ---
-title:微信命令
+title:微信的oauth2验证
 author:zozoh
 tags:
 - 系统

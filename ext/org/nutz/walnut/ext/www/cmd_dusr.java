@@ -18,15 +18,13 @@ import org.nutz.walnut.util.ZParams;
 
 public class cmd_dusr extends JvmExecutor {
 
-    private static JsonFormat _u_json_fmt = JsonFormat.nice();
-
-    {
-        _u_json_fmt.setLocked("^(_.*|race|nm|pid|ph|d[01]|md|c|m|g)$");
+    private JsonFormat __jfmt(ZParams params) {
+        return this.gen_json_format(params).setLocked("^(_.*|ph|salt|passwd)$");
     }
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, "^(json)$");
+        ZParams params = ZParams.parse(args, "^(json|c|q|n)$");
 
         // 创建用户
         if (params.has("create")) {
@@ -42,62 +40,66 @@ public class cmd_dusr extends JvmExecutor {
         }
         // 获取 session
         else if (params.has("session")) {
-            get_session(sys, params.check("session"));
+            WnObj oSe = get_session(sys, params);
+            if (null == oSe) {
+                sys.out.println("{\"exists\":false}");
+            }
+            // 找到了，读取内容
+            else {
+                NutMap se = sys.io.readJson(oSe, NutMap.class);
+                sys.out.println(Json.toJson(se, __jfmt(params)));
+            }
         }
-        // 根据ID获取用户
-        else if (params.has("uid")) {
-            get_usr_by_id(sys, params.check("uid"));
-        }
-        // 根据条件获取用户
-        else if (params.has("u")) {
-            get_usr(sys, params);
+        // 获取用户
+        else if (params.has("get")) {
+            WnObj oU = get_usr(sys, params);
+            if (null == oU) {
+                sys.out.println("{\"exists\":false}");
+            }
+            // 打印用户对象元数据
+            else {
+                sys.out.println(Json.toJson(oU, __jfmt(params)));
+            }
         }
     }
 
-    private void get_usr(WnSystem sys, ZParams params) {
-        NutMap umap = readJsonInput(sys, params, "u");
+    private WnObj get_usr(WnSystem sys, ZParams params) {
+        String uid = params.get("get");
 
+        // 得到当前会话的用户
+        if (Strings.isBlank(uid) || "true".equals(uid)) {
+            String dseid = Wn.WC().getString(WWW.AT_SEID);
+            WnObj oHome = this.getHome(sys);
+            WnObj oSe = sys.io.fetch(oHome, ".session/" + dseid);
+            if (null == oSe)
+                return null;
+            uid = oSe.getString("dusr_id");
+        }
+        // 直接通过 ID 获取
+        return sys.io.get(uid);
+    }
+
+    private WnObj get_session(WnSystem sys, ZParams params) {
+        String dseid = params.get("session");
+        // 得到当前的的会话 ID
+        if (Strings.isBlank(dseid) || "true".equals(dseid)) {
+            dseid = Wn.WC().getString(WWW.AT_SEID);
+        }
+        // 获取
         WnObj oHome = this.getHome(sys);
-        WnObj oHU = sys.io.createIfNoExists(oHome, ".usr", WnRace.DIR);
-        WnQuery q = Wn.Q.pid(oHU);
-        q.setAll(umap);
-        WnObj oU = sys.io.getOne(q);
-
-        __output_usr(sys, oU);
-    }
-
-    private void get_usr_by_id(WnSystem sys, String uid) {
-        WnObj oHome = this.getHome(sys);
-        WnObj oU = sys.io.fetch(oHome, ".usr/" + uid);
-        __output_usr(sys, oU);
-    }
-
-    private void get_session(WnSystem sys, String dseid) {
-        WnObj oHome = this.getHome(sys);
-        WnObj oSe = sys.io.fetch(oHome, ".session/" + dseid);
-
-        if (null == oSe) {
-            sys.out.println("{\"exists\":false}");
-        }
-        // 找到了，读取内容
-        else {
-            NutMap se = sys.io.readJson(oSe, NutMap.class);
-            sys.out.println(Json.toJson(se, _u_json_fmt));
-        }
-    }
-
-    private void __output_usr(WnSystem sys, WnObj oU) {
-        if (null == oU) {
-            sys.out.println("{\"exists\":false}");
-        }
-        // 打印用户对象元数据
-        else {
-            sys.out.println(Json.toJson(oU, _u_json_fmt));
-        }
+        return sys.io.fetch(oHome, ".session/" + dseid);
     }
 
     private void _do_logout(WnSystem sys, ZParams params) {
-        String dseid = params.check("logout");
+        String dseid = params.get("logout");
+        // 得到当前的的会话 ID
+        if (Strings.isBlank(dseid) || "true".equals(dseid)) {
+            dseid = Wn.WC().getString(WWW.AT_SEID);
+        }
+
+        if (Strings.isBlank(dseid)) {
+            throw Er.create("e.cmd.dusr.logout.noexist");
+        }
 
         WnObj oHome = this.getHome(sys);
         WnObj oSe = sys.io.fetch(oHome, ".session/" + dseid);
@@ -139,25 +141,46 @@ public class cmd_dusr extends JvmExecutor {
         oU.remove("salt");
         oU.remove("passwd");
 
-        // 创建会话
-        WnObj oHSe = sys.io.createIfNoExists(oHome, ".session", WnRace.DIR);
-        WnObj oSe = sys.io.create(oHSe, "${id}", WnRace.FILE);
-        NutMap se = new NutMap();
+        // 确保会话主目录存在
         String grp = sys.se.group();
-        se.put("grp", grp);
-        se.put("usr", oU);
-        se.put("id", oSe.id());
-        sys.io.writeJson(oSe, se, null);
+        WnObj oHSe = sys.io.createIfNoExists(oHome, ".session", WnRace.DIR);
+        WnObj oSe = null;
+        NutMap se = null;
+
+        // 复用会话
+        if (params.is("reuse")) {
+            oSe = sys.io.getOne(Wn.Q.pid(oHSe).setv("dusr_id", oU.id()));
+        }
+
+        // 创建会话
+        if (null == oSe) {
+            oSe = sys.io.create(oHSe, "${id}", WnRace.FILE);
+            se = new NutMap();
+            se.put("grp", grp);
+            se.put("usr", oU);
+            se.put("id", oSe.id());
+            sys.io.writeJson(oSe, se, null);
+        }
+        // 读取会话
+        else {
+            se = sys.io.readJson(oSe, NutMap.class);
+        }
 
         // 设置会话过期时间, 最长不能超过3天
         NutMap conf = WWW.read_conf(sys.io, grp);
         long ms = Math.min(conf.getLong("duration", 3600L) * 1000, 86400000L * 3);
         oSe.expireTime(System.currentTimeMillis() + ms);
-        sys.io.set(oSe, "^expi$");
+
+        // 标记一下会话的元数据，和用户关联，以后说不定有用
+        oSe.setv("dusr_id", oU.id());
+        oSe.setv("dusr_nm", oU.name());
+
+        // 保存
+        sys.io.set(oSe, "^(expi|dusr_id|dusr_nm)$");
 
         // 最后输出会话信息
         if (params.is("json")) {
-            sys.out.println(Json.toJson(se, _u_json_fmt));
+            sys.out.println(Json.toJson(se, __jfmt(params)));
         }
         // 仅仅输出 ID
         else {
@@ -191,9 +214,10 @@ public class cmd_dusr extends JvmExecutor {
         sys.io.appendMeta(oU, umap);
 
         // 输出用户对象, 密码可不敢给别人看见
-        oU.remove("salt");
-        oU.remove("passwd");
-        sys.out.println(Json.toJson(oU, _u_json_fmt));
+        // 嗯不用，jfmt 会过滤掉的
+        // oU.remove("salt");
+        // oU.remove("passwd");
+        sys.out.println(Json.toJson(oU, __jfmt(params)));
     }
 
     private String __check_passwd(NutMap umap) {
@@ -211,7 +235,7 @@ public class cmd_dusr extends JvmExecutor {
     public static NutMap readJsonInput(WnSystem sys, ZParams params, String key) {
         String s = params.get(key);
         // 来自管道
-        if ("true".equals(s)) {
+        if ((Strings.isBlank(s) || "true".equals(s)) && sys.pipeId > 0) {
             s = sys.in.readAll();
         }
         // 来自文件

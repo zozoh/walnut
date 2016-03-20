@@ -21,11 +21,12 @@ public class cmd_httpparam extends JvmExecutor {
         ZParams params = ZParams.parse(args, null);
 
         String str;
+        WnObj oReq = null;
 
         // 文件里
         if (params.has("in")) {
-            WnObj o = Wn.checkObj(sys.io, params.check("in"));
-            str = sys.io.readText(o);
+            oReq = Wn.checkObj(sys.io, params.check("in"));
+            str = sys.io.readText(oReq);
         }
         // 管道里
         else if (sys.pipeId > 0) {
@@ -49,6 +50,16 @@ public class cmd_httpparam extends JvmExecutor {
                 c.setv(key, val);
             } else {
                 c.setv(des, "");
+            }
+        }
+
+        // 如果是请求文件，那么也把 GET 参数也回复一下
+        if (oReq != null) {
+            for (String key : oReq.keySet()) {
+                if (key.startsWith("http-qs-")) {
+                    String val = oReq.getString(key);
+                    c.setv(key.substring("http-qs-".length()), val);
+                }
             }
         }
 

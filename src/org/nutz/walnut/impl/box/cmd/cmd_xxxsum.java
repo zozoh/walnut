@@ -21,7 +21,7 @@ public abstract class cmd_xxxsum extends JvmExecutor {
     }
 
     public void exec(WnSystem sys, String[] args) {
-    	ZParams params = ZParams.parse(args, "t");
+        ZParams params = ZParams.parse(args, "t");
         // 文件输入
         if (params.vals.length == 1) {
             String ph = Wn.normalizeFullPath(params.vals[0], sys);
@@ -41,14 +41,20 @@ public abstract class cmd_xxxsum extends JvmExecutor {
             }
         }
         // 如果有管道输入
-        else {
+        else if (sys.pipeId > 0) {
             InputStream ins = sys.in.getInputStream();
-        	if (params.is("t")) {
-        		String tmp = Streams.readAndClose(new InputStreamReader(ins));
-        		tmp = tmp.trim();
-        		ins = new ByteArrayInputStream(tmp.getBytes());
-        	}
+            if (params.is("t")) {
+                String tmp = Streams.readAndClose(new InputStreamReader(ins));
+                tmp = tmp.trim();
+                ins = new ByteArrayInputStream(tmp.getBytes());
+            }
             String _sum = sum(ins);
+            sys.out.println(_sum);
+        }
+        // 字符串
+        else if (params.has("s")) {
+            String str = params.get("s");
+            String _sum = sum(str);
             sys.out.println(_sum);
         }
     }

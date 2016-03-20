@@ -101,9 +101,37 @@ API 注册文件的属性列表中，任何 `http-header-` 开头的属性会被
 请求如果带有特殊的参数 `resp-mime`，则表示客户端指定了响应的类型。
 这个设定会比在命令执行文件里添加 `http-header-Content-Type` 还要优先
 
+# 动态决定响应头
 
+有时候，你的希望你的 api 命令来指定 HTTP 响应的头部内容，你可以为你的 api 文件添加元数据 `http-dynamic-header=true`。这样系统执行你的命令时，会先将你命令所有的输出，输出到一个字符串缓冲里，然后进行分析。 如果你的输出格式类似:
 
+```
+HTTP/1.1 200 OK
+Content-Type: text/html;charset=UTF-8
+SET-COOKIE:MYID=xxxxxxxx; Path=/;
+Server: Walnut HTTPAPI
 
+<html>
+...
+```
+
+那么他会解析输出内容的头部，将其作为标准的 HTTP 头写回到响应里。
+
+> !!! 注意。 因为会一次读取全部的命令输出，所以如果你输出的是多媒体文件之类的很大的内容，不建议采用这种方式。
+
+# 对于请求的 Cookie 处理
+
+有时候请求上来的 cookie 你可能在命令里面需要处理，你可以声明元数据
+
+```
+copy-cookie : "SEID,DSEID"   # 半角逗号分隔
+```
+
+这样，你在命令里面，就能取到线程上下文的 SEID 和 DSEID 的值了
+
+```
+Wn.WC.getString("SEID");
+```
 
 
 

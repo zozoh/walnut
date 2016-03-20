@@ -105,6 +105,10 @@ public class JvmBoxOutput implements Flushable, Closeable {
         }
     }
 
+    public void writeJson(Object o) {
+        writeJson(o, JsonFormat.forLook());
+    }
+
     public void printf(String fmt, Object... args) {
         print(String.format(fmt, args));
     }

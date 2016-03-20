@@ -95,6 +95,14 @@ public class HttpApiModule extends AbstractWnModule {
             wc.me("root", "root");
             WnSession se = sess.create(u);
             wc.SE(se);
+
+            // 如果 API 文件声明了需要 copy 的 cookie 到线程上下文 ...
+            String[] copyCookieNames = oApi.getAs("copy-cookie", String[].class);
+            if (null != copyCookieNames && copyCookieNames.length > 0) {
+                wc.copyCookieItems(req, copyCookieNames);
+            }
+
+            // 执行 API 文件
             try {
                 _do_api(req, resp, oHome, se, u, oApi);
             }

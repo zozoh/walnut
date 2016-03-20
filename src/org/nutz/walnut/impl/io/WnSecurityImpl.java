@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.io;
 
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -19,28 +20,21 @@ public class WnSecurityImpl extends WnEvalLink {
 
     @Override
     public WnObj enter(WnObj nd) {
-        WnContext wc = Wn.WC();
-        wc.setSecurity(null);
-        try {
-            WnObj o = __eval_obj(nd);
-            return __do_check(o, Wn.Io.RX, false);
-        }
-        finally {
-            wc.setSecurity(this);
-        }
+        return Wn.WC().security(null, new Proton<WnObj>() {
+            protected WnObj exec() {
+                WnObj o = __eval_obj(nd);
+                return __do_check(o, Wn.Io.RX, false);
+            }
+        });
     }
 
     @Override
     public WnObj access(WnObj nd) {
-        WnContext wc = Wn.WC();
-        wc.setSecurity(null);
-        try {
-            // WnObj o = __eval_obj(nd, true);
-            return __do_check(nd, Wn.Io.R, true);
-        }
-        finally {
-            wc.setSecurity(this);
-        }
+        return Wn.WC().security(null, new Proton<WnObj>() {
+            protected WnObj exec() {
+                return __do_check(nd, Wn.Io.R, true);
+            }
+        });
     }
 
     // @Override
@@ -70,40 +64,31 @@ public class WnSecurityImpl extends WnEvalLink {
 
     @Override
     public WnObj read(WnObj nd) {
-        WnContext wc = Wn.WC();
-        wc.setSecurity(null);
-        try {
-            WnObj o = __eval_obj(nd);
-            return __do_check(o, Wn.Io.R, false);
-        }
-        finally {
-            wc.setSecurity(this);
-        }
+        return Wn.WC().security(null, new Proton<WnObj>() {
+            protected WnObj exec() {
+                WnObj o = __eval_obj(nd);
+                return __do_check(o, Wn.Io.R, false);
+            }
+        });
     }
 
     @Override
     public WnObj write(WnObj nd) {
-        WnContext wc = Wn.WC();
-        wc.setSecurity(null);
-        try {
-            WnObj o = __eval_obj(nd);
-            return __do_check(o, Wn.Io.W, false);
-        }
-        finally {
-            wc.setSecurity(this);
-        }
+        return Wn.WC().security(null, new Proton<WnObj>() {
+            protected WnObj exec() {
+                WnObj o = __eval_obj(nd);
+                return __do_check(o, Wn.Io.W, false);
+            }
+        });
     }
 
     @Override
     public WnObj meta(WnObj nd) {
-        WnContext wc = Wn.WC();
-        wc.setSecurity(null);
-        try {
-            return __do_check(nd, Wn.Io.W, false);
-        }
-        finally {
-            wc.setSecurity(this);
-        }
+        return Wn.WC().security(null, new Proton<WnObj>() {
+            protected WnObj exec() {
+                return __do_check(nd, Wn.Io.W, false);
+            }
+        });
     }
 
     private WnObj __do_check(WnObj o, int mask, boolean asNull) {

@@ -1,0 +1,49 @@
+# 命令简介 
+
+    `dusr` 命令用来管理一个域的用户数据
+    
+
+# 用法
+
+    dusr [options...]
+    
+    参数表: 
+    
+    -create   JSON, 创建用户
+    -login    JSON, 登录用户
+    -reuse    登录时，复用已有的会话
+    -logout   SEID, 登出一个会话
+    -session  SEID|<nil>, 得到会话详情
+    -get      UID |<nil>, 获取用户详情
+    -c        按json输出时，紧凑显示
+    -n        按json输出时，如果有 null 值的键也不忽略
+    -q        按json输出时，键值用双引号包裹
+    
+# 示例
+
+    # 创建一个用户
+    $:> dusr -create '{nm:"zozoh",passwd:"123456"}'
+    
+    # 登录
+    $:> dusr -login '{nm:"zozoh",passwd:"123456"}'
+    
+    # 登出当前会话
+    $:> dusr -logout
+    
+    # 登出指定会话会话
+    $:> dusr -logout 6jeh35l080iojpipc5f1mrorki
+    
+    # 得到当前的会话信息
+    $:> dusr -session
+    
+    # 得到指定的会话信息
+    $:> dusr -session 6jeh35l080iojpipc5f1mrorki
+    
+    # 得到当前用户信息
+    $:> dusr -get
+    
+    # 得到指定用户信息
+    $:> dusr -get t9obk3tai2hi7rcqio07kqthra
+        
+
+    

@@ -3,6 +3,10 @@ package org.nutz.walnut.util;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
+import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -362,6 +366,29 @@ public class WnContext extends NutMap {
             throw Er.create("e.wc.seid.nomatch");
         }
         return se;
+    }
+
+    /**
+     * 如果请求对象的 Cookie 里存在制定的项目，copy 到本上下文中
+     * 
+     * @param req
+     *            请求对象
+     * @param cookieNames
+     *            Cookie 名称列表
+     */
+    public void copyCookieItems(HttpServletRequest req, String[] cookieNames) {
+        Cookie[] cookies = req.getCookies();
+        if (null != cookies)
+            for (Cookie co : cookies) {
+                String cknm = co.getName();
+                if (Lang.contains(cookieNames, cknm)) {
+                    if (Wn.AT_SEID.equals(cknm)) {
+                        this.seid = co.getValue();
+                    } else {
+                        this.setv(cknm, co.getValue());
+                    }
+                }
+            }
     }
 
 }

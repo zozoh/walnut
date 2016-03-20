@@ -1,7 +1,6 @@
 package org.nutz.walnut.ext.www;
 
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +44,7 @@ public class WWWModule extends AbstractWnModule {
 
     private static final Log log = Logs.get();
 
-    private static final Pattern _P = Pattern.compile("^([^/]+)(/(.+))?$");
+    // private static final Pattern _P = Pattern.compile("^([^/]+)(/(.+))?$");
 
     private static final String[] ENTRIES = Lang.array("index.wnml", "index.html");
 
@@ -187,6 +186,7 @@ public class WWWModule extends AbstractWnModule {
         if (log.isInfoEnabled())
             log.infof("www(%s): /%s/%s", req.getRemoteAddr(), usr, a_path);
 
+        // ..............................................
         // 找到用户和对应的命令
         WnUsr u = usrs.check(usr);
         String homePath = Strings.sBlank(u.home(), "/home/" + u.name());
@@ -196,26 +196,41 @@ public class WWWModule extends AbstractWnModule {
             return gen_errpage(tmpl_404, a_path, "Home not exists!");
         }
 
-        // 准备起始查询条件
+        // ..............................................
+        // 准备起始查询条件: 要找 www 目录了
         WnQuery q = new WnQuery();
         q.setv("d0", oHome.d0());
         if (!"root".equals(usr))
             q.setv("d1", oHome.d1());
 
+        // 请求里带了 host 了吗
+        Object host = req.getAttribute("www_host");
+        if (null != host) {
+            q.setv("www", host.toString());
+        } else {
+            q.setv("www", "ROOT");
+        }
+
+        // 找到发布目录
+        WnObj oROOT = io.getOne(q);
+        if (null == oROOT && null != host) {
+            oROOT = io.getOne(q.setv("www", "ROOT"));
+        }
+
+        // 发布目录不存在
+        if (null == oROOT) {
+            return gen_errpage(tmpl_404, a_path);
+        }
+
+        // ..............................................
         // 开始试图找到文件对象
         WnObj o = null;
 
         // 找到 ROOT
         String contextPath = "";
-        WnObj oROOT = io.getOne(q.setv("www", "ROOT"));
 
         // 空路径的话，那么意味着对象是 ROOT
         if (Strings.isBlank(a_path)) {
-            // 又没有 ROOT 又没有 a_path ，毛，肯定啥也没有
-            if (null == oROOT) {
-                return gen_errpage(tmpl_404, a_path);
-            }
-            // 对象本身就是 ROOT 需要拿它的默认值
             o = oROOT;
         }
         // 否则如果有 ROOT 再其内查找
@@ -223,44 +238,22 @@ public class WWWModule extends AbstractWnModule {
             o = io.fetch(oROOT, a_path);
         }
 
-        // 这个是一个对象
-        String[] entries = ENTRIES;
-        if (null != oROOT) {
-            entries = oROOT.getArray("www_entry", String.class, ENTRIES);
-        }
-
-        // 如果木有，那么看看是不是存在其他的 www 映射
-        if (null == o) {
-            // 分析路径
-            Matcher m = _P.matcher(a_path);
-            String cate = null;
-            String path = null;
-            // 至少是二级路径
-            if (m.find()) {
-                cate = m.group(1);
-                path = m.group(3);
-
-                oROOT = io.getOne(q.setv("www", cate));
-                contextPath = cate;
-                if (null != oROOT) {
-                    o = io.fetch(oROOT, path);
-                    entries = oROOT.getArray("www_entry", String.class, entries);
-                }
-            }
-            // 否则肯定还是啥也木有
-            else {
-                return gen_errpage(tmpl_404, a_path);
-            }
-
-        }
-
-        // 找不到文件对象，就是找不到咯
+        // 文件对象不存在，直接 404 咯
         if (null == o) {
             return gen_errpage(tmpl_404, a_path);
         }
 
-        // 如果发现找到的是个路径对象，依次尝试入口
+        // ..............................................
+        // 根据目录找到对应的页面
+
+        // 目录的话，依次上传入口
         if (o.isDIR()) {
+            // 获取入口
+            String[] entries = ENTRIES;
+            if (null != oROOT) {
+                entries = oROOT.getArray("www_entry", String.class, ENTRIES);
+            }
+            // 依次尝试入口对象
             for (String entry : entries) {
                 WnObj o2 = io.fetch(o, entry);
                 if (null != o2 && o2.isFILE()) {
@@ -274,6 +267,7 @@ public class WWWModule extends AbstractWnModule {
             }
         }
 
+        // 渲染这个文件对象
         try {
             // 动态网页
             // 执行命令
@@ -303,7 +297,7 @@ public class WWWModule extends AbstractWnModule {
                 // 返回网页
                 return new ViewWrapper(new RawView("text/html"), html);
             }
-            // 其他的，就直接下载了
+            // 其他的都是静态资源，就直接下载了
             if (log.isDebugEnabled())
                 log.debugf(" - download (%s)@%s : %s", o.id(), usr, a_path);
             return new WnObjDownloadView(io, o);
@@ -319,6 +313,8 @@ public class WWWModule extends AbstractWnModule {
         NutMap context = new NutMap();
         // 生成上下文
         NutMap params = new NutMap();
+
+        // 寻找一个请求里的所有参数
         Map<String, String[]> paramMap = req.getParameterMap();
         for (Map.Entry<String, String[]> en : paramMap.entrySet()) {
             String key = en.getKey();

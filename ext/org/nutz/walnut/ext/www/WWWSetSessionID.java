@@ -1,8 +1,8 @@
 package org.nutz.walnut.ext.www;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.nutz.lang.Lang;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.ActionFilter;
 import org.nutz.mvc.View;
@@ -21,14 +21,7 @@ public class WWWSetSessionID implements ActionFilter {
         HttpServletRequest req = ac.getRequest();
 
         // 获取 Session
-        Cookie[] cookies = req.getCookies();
-        if (null != cookies)
-            for (Cookie co : cookies) {
-                if (WWW.AT_SEID.equals(co.getName())) {
-                    Wn.WC().setv(WWW.AT_SEID, co.getValue());
-                    break;
-                }
-            }
+        Wn.WC().copyCookieItems(req, Lang.array(WWW.AT_SEID));
 
         // 继续下面的操作
         return null;

@@ -589,6 +589,37 @@ public class WnIoImplTest extends BaseIoTest {
 
     }
 
+    @Test
+    public void test_mount_and_ln() {
+        Wn.WC().setSecurity(new WnEvalLink(io));
+        try {
+            File f = Files.findFile("org/nutz/walnut");
+            String mnt = "file://" + f.getAbsolutePath();
+
+            WnObj b = io.create(null, "/a/b", WnRace.DIR);
+            WnObj y = io.create(null, "/x/y", WnRace.DIR);
+
+            // 挂载
+            io.setMount(b, mnt);
+
+            // 链接
+            y.link("/a/b/impl/io");
+            io.set(y, "^ln$");
+
+            // 试图找找文件
+            WnObj x = io.fetch(null, "/x");
+            WnObj o = io.fetch(x, "y/WnIoImplTest.class");
+
+            // 验证
+            assertTrue(o.isMount());
+
+        }
+        finally {
+            Wn.WC().setSecurity(null);
+        }
+
+    }
+
     /**
      * mount 一个节点后，unmount 它，会回到原来的 mount
      */
