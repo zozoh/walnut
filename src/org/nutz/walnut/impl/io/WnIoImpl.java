@@ -91,7 +91,7 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public WnObj setBy(String id, String key, Object val) {
-        return setBy(id, key, val);
+        return setBy(id, new NutMap().setv(key, val));
     }
 
     @Override
