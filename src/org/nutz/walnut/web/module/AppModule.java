@@ -89,7 +89,7 @@ public class AppModule extends AbstractWnModule {
         WnObj oInitTmpl = io.fetch(oAppHome, "init_tmpl");
         if (null != oInitTmpl) {
             String cmdText = io.readText(oInitTmpl);
-            tmpl = _run_cmd("app-init-tmpl:", se, appJson, cmdText);
+            tmpl = exec("app-init-tmpl:", se, appJson, cmdText);
         }
         // 否则查找静态模板文件
         else {
@@ -103,7 +103,7 @@ public class AppModule extends AbstractWnModule {
         WnObj oInitContext = io.fetch(oAppHome, "init_context");
         if (null != oInitContext) {
             String cmdText = io.readText(oInitContext);
-            String contextJson = _run_cmd("app-init-context:", se, appJson, cmdText);
+            String contextJson = exec("app-init-context:", se, appJson, cmdText);
             map = Json.fromJson(NutMap.class, contextJson);
         }
 
@@ -227,7 +227,7 @@ public class AppModule extends AbstractWnModule {
         se.var("PWD", PWD);
         se.var("APP_HOME", oAppHome.path());
 
-        _run_cmd("", se, cmdText, out, err, null, new Callback<WnBoxContext>() {
+        exec("", se, cmdText, out, err, null, new Callback<WnBoxContext>() {
             public void invoke(WnBoxContext bc) {
                 WnSession se = bc.session;
                 if (!Strings.isBlank(metaOutputSeparator))

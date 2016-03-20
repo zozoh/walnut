@@ -140,7 +140,7 @@ public class FuseModule extends AbstractWnModule {
     @At
     public void symlink(@Param("source") String source, @Param("target") String target) {
     	String dir = target.substring(0, target.lastIndexOf('/')+1);
-        _run_cmd("fuse_ln",
+        exec("fuse_ln",
                  Wn.WC().checkMe(),
                  "ln -s "
                        + Wn.normalizeFullPath(dir + source, Wn.WC().SE())

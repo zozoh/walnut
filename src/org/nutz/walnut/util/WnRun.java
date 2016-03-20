@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.Callback;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -14,22 +15,16 @@ import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
-import org.nutz.walnut.web.WnConfig;
-import org.nutz.web.WebException;
 
 @IocBean
 public class WnRun {
 
     private static final Log log = Logs.get();
-
-    @Inject("refer:conf")
-    protected WnConfig conf;
 
     @Inject("refer:io")
     protected WnIo io;
@@ -46,10 +41,11 @@ public class WnRun {
     @Inject("java:$conf.getInt('box-alloc-timeout')")
     protected int allocTimeout;
 
-    @Inject("refer:mimes")
-    protected MimeMap mimes;
+    public String exec(String logPrefix, String unm, final String cmdText) {
+        return exec(logPrefix, unm, null, cmdText);
+    }
 
-    public String exec(final String logPrefix, String unm, final String cmdText) {
+    public String exec(String logPrefix, String unm, String input, String cmdText) {
         // 检查用户和会话
         final WnUsr u = usrs.check(unm);
         final WnSession se = Wn.WC().su(u, new Proton<WnSession>() {
@@ -59,13 +55,33 @@ public class WnRun {
         });
         // 执行命令
         try {
-            return exec(logPrefix, se, null, cmdText);
+            return exec(logPrefix, se, input, cmdText);
         }
-        catch (WebException we) {
-            throw we;
+        // 退出会话
+        finally {
+            sess.logout(se.id());
         }
-        catch (Exception e) {
-            throw Lang.wrapThrow(e);
+    }
+
+    public void exec(String logPrefix,
+                     String unm,
+                     String input,
+                     String cmdText,
+                     StringBuilder sbOut,
+                     StringBuilder sbErr) {
+        // 检查用户和会话
+        final WnUsr u = usrs.check(unm);
+        final WnSession se = Wn.WC().su(u, new Proton<WnSession>() {
+            protected WnSession exec() {
+                return sess.create(u);
+            }
+        });
+        InputStream in = null == input ? null : Lang.ins(input);
+        OutputStream out = Lang.ops(sbOut);
+        OutputStream err = Lang.ops(sbErr);
+        // 执行命令
+        try {
+            this.exec(logPrefix, se, cmdText, out, err, in, null);
         }
         // 退出会话
         finally {
@@ -98,8 +114,15 @@ public class WnRun {
         // 得到一个沙箱
         WnBox box = boxes.alloc(allocTimeout);
 
-        if (log.isDebugEnabled())
-            log.debugf("%sbox:alloc: %s", logPrefix, box.id());
+        // 开始计时
+        Stopwatch sw = null;
+        if (log.isDebugEnabled()) {
+            sw = Stopwatch.begin();
+
+            if (log.isTraceEnabled()) {
+                log.tracef("%sbox:alloc: %s", logPrefix, box.id());
+            }
+        }
 
         // 保存到请求属性中，box.onClose 的时候会删除这个属性
         // req.setAttribute(WnBox.class.getName(), box);
@@ -112,13 +135,13 @@ public class WnRun {
         bc.usrService = usrs;
         bc.sessionService = sess;
 
-        if (log.isDebugEnabled())
-            log.debugf("%sbox:setup: %s", logPrefix, bc);
+        if (log.isTraceEnabled())
+            log.tracef("%sbox:setup: %s", logPrefix, bc);
         box.setup(bc);
 
         // 准备回调
-        if (log.isDebugEnabled())
-            log.debugf("%sbox:set stdin/out/err", logPrefix);
+        if (log.isTraceEnabled())
+            log.tracef("%sbox:set stdin/out/err", logPrefix);
 
         box.setStdin(in);
         box.setStdout(out);
@@ -126,17 +149,19 @@ public class WnRun {
         box.onBeforeFree(on_before_free);
 
         // 运行
-        if (log.isDebugEnabled())
-            log.debugf("%sbox:run: %s", logPrefix, cmdText);
+        if (log.isInfoEnabled())
+            log.infof("%sbox:run: %s", logPrefix, cmdText);
 
         box.run(cmdText);
 
         // 释放沙箱
-        if (log.isDebugEnabled())
-            log.debugf("%sbox:free: %s", logPrefix, box.id());
+        if (log.isTraceEnabled())
+            log.tracef("%sbox:free: %s", logPrefix, box.id());
         boxes.free(box);
 
-        if (log.isDebugEnabled())
-            log.debugf("%sbox:done", logPrefix);
+        if (log.isDebugEnabled()) {
+            sw.stop();
+            log.debugf("%sbox:done : %dms", logPrefix, sw.getDuration());
+        }
     }
 }

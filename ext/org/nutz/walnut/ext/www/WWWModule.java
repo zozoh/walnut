@@ -73,7 +73,7 @@ public class WWWModule extends AbstractWnModule {
         StringBuilder sbOut = new StringBuilder();
         StringBuilder sbErr = new StringBuilder();
         String input = Json.toJson(u, JsonFormat.compact());
-        this._run_cmd("duc", grp, input, "dusr -login", sbOut, sbErr);
+        this.exec("duc", grp, input, "dusr -login", sbOut, sbErr);
 
         // 读取配置信息
         NutMap conf = WWW.read_conf(io, grp);
@@ -102,7 +102,7 @@ public class WWWModule extends AbstractWnModule {
     public String u_do_logout(String grp) {
         String dseid = Wn.WC().getString(WWW.AT_SEID);
         if (null != dseid) {
-            this._run_cmd("duc", grp, "dusr -logout " + dseid);
+            this.exec("duc", grp, "dusr -logout " + dseid);
         }
 
         // 读取配置信息，决定重定向到什么 URL
@@ -133,7 +133,7 @@ public class WWWModule extends AbstractWnModule {
         StringBuilder sbOut = new StringBuilder();
         StringBuilder sbErr = new StringBuilder();
         String input = Json.toJson(u, JsonFormat.compact());
-        this._run_cmd("duc", grp, input, "dusr -create", sbOut, sbErr);
+        this.exec("duc", grp, input, "dusr -create", sbOut, sbErr);
 
         // 读取配置信息
         NutMap conf = WWW.read_conf(io, grp);
@@ -291,7 +291,7 @@ public class WWWModule extends AbstractWnModule {
                 // 执行命令
                 String json = Json.toJson(context, JsonFormat.compact());
                 String cmdText = "www -c -in id:" + o.id();
-                String html = this._run_cmd("www", usr, json, cmdText);
+                String html = this.exec("www", usr, json, cmdText);
 
                 // 如果以 HTTP/1.x 开头，则认为是要输出 HTTP 头
                 if (html.startsWith("HTTP/1.")) {

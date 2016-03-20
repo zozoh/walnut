@@ -200,7 +200,7 @@ public class HttpApiModule extends AbstractWnModule {
         if (oApi.getBoolean("http-dynamic-header")) {
             this.__setup_resp_header(oApi, oReq, mimeType, resp);
 
-            String html = this._run_cmd("box", se, null, cmdText);
+            String html = this.exec("box", se, null, cmdText);
 
             HttpServerResponse hsr = new HttpServerResponse();
             hsr.updateBy(html);
@@ -234,7 +234,7 @@ public class HttpApiModule extends AbstractWnModule {
         OutputStream out = Lang.ops(sbOut);
         OutputStream err = Lang.ops(sbErr);
 
-        this._run_cmd("apiR", se, cmdText, out, err, null, null);
+        this.exec("apiR", se, cmdText, out, err, null, null);
 
         // 处理出错了
         if (sbErr.length() > 0) {
