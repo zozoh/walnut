@@ -135,6 +135,9 @@ public class JvmAtomRunner {
                     sbErr.setLength(0);
                 }
             }
+            // 输出剩余的部分
+            if (pos < cmdLine.length())
+                sb.append(cmdLine.substring(pos));
         }
         // 出点错误，就打个 Log 咯
         catch (IOException e) {

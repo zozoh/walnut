@@ -26,6 +26,9 @@ return ZUI.def("ui.obrowser_main", {
         UI.on("menu:viewmode", function(vm){
             UI.browser.setViewMode(vm);
         });
+        UI.on("menu:showhide", function(isShow){
+            UI.browser.setHiddenObjVisibility(isShow ? "show" : "hidden");
+        });
     },
     //..............................................
     events : {

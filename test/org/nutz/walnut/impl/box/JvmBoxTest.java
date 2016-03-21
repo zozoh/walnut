@@ -8,7 +8,13 @@ import org.nutz.walnut.BaseBoxTest;
 import org.nutz.walnut.api.io.WnObj;
 
 public class JvmBoxTest extends BaseBoxTest {
-    
+
+    @Test
+    public void test_subsitution_in_pipe() {
+        box.run("echo -n `echo -n abc` | md5sum -n");
+        assertEquals(Lang.md5("abc"), outs());
+    }
+
     @Test
     public void test_subsitution2() {
         box.run("echo -n `echo abc` `echo xyz`");
@@ -19,7 +25,7 @@ public class JvmBoxTest extends BaseBoxTest {
     public void test_subsitution_simple() {
         box.run("echo -n `echo -n abc`");
         assertEquals("abc", outs());
-        
+
         this.cleanOutputAndErr();
 
         box.run("echo 'haha' > ~/abc.txt; echo -n `obj -V ~/abc.txt -e ^(id)$`");

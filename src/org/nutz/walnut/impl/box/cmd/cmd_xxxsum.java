@@ -21,14 +21,14 @@ public abstract class cmd_xxxsum extends JvmExecutor {
     }
 
     public void exec(WnSystem sys, String[] args) {
-        ZParams params = ZParams.parse(args, "t");
+        ZParams params = ZParams.parse(args, "nt");
         // 文件输入
         if (params.vals.length == 1) {
             String ph = Wn.normalizeFullPath(params.vals[0], sys);
             WnObj o = sys.io.check(null, ph);
             InputStream ins = sys.io.getInputStream(o, 0);
             String _sum = sum(ins);
-            sys.out.println(_sum);
+            sys.out.print(_sum);
         }
         // 多个文件输入
         else if (params.vals.length > 1) {
@@ -37,7 +37,7 @@ public abstract class cmd_xxxsum extends JvmExecutor {
                 WnObj o = sys.io.check(null, ph);
                 InputStream ins = sys.io.getInputStream(o, 0);
                 String _sum = sum(ins);
-                sys.out.printlnf("%s : %s(%s)", _sum, algorithm.toUpperCase(), val);
+                sys.out.printf("%s : %s(%s)", _sum, algorithm.toUpperCase(), val);
             }
         }
         // 如果有管道输入
@@ -49,14 +49,17 @@ public abstract class cmd_xxxsum extends JvmExecutor {
                 ins = new ByteArrayInputStream(tmp.getBytes());
             }
             String _sum = sum(ins);
-            sys.out.println(_sum);
+            sys.out.print(_sum);
         }
         // 字符串
         else if (params.has("s")) {
             String str = params.get("s");
             String _sum = sum(str);
-            sys.out.println(_sum);
+            sys.out.print(_sum);
         }
+        // 输出换行
+        if (!params.is("n"))
+            sys.out.println();
     }
 
     protected String sum(CharSequence cs) {

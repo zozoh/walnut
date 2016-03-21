@@ -84,13 +84,10 @@ return ZUI.def("ui.obrowser", {
         // UI.on("menu:viewmode", function(vm){
         //     this.setViewMode(vm);
         // });
-        UI.on("change:hidden-obj-visibility", function(){
-            var o = UI.getCurrentObj();
-            UI.subUI("main").update(UI, o);
-        });
-        UI.on("menu:showhide", function(isShow){
-            this.setHiddenObjVisibility(isShow ? "show" : "hidden");
-        });
+        // UI.on("change:hidden-obj-visibility", function(){
+        //     var o = UI.getCurrentObj();
+        //     UI.subUI("main").update(UI, o);
+        // });
 
         // 绑定历史记录
         if(opt.history){
@@ -414,10 +411,12 @@ return ZUI.def("ui.obrowser", {
         return this.local("hidden-obj-visibility") || "hidden";
     },
     setHiddenObjVisibility : function(vho){
+        var UI = this;
         if(_.isString(vho)
            && /^(show|hidden)$/.test(vho)){
             this.local("hidden-obj-visibility", vho);
-            this.trigger("change:hidden-obj-visibility", vho);
+            var o = UI.getCurrentObj();
+            UI.subUI("main").update(UI, o);
             this.arena.attr("hidden-obj-visibility", vho);
         }
     },
