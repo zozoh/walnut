@@ -11,7 +11,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.impl.io.WnJob;
+import org.nutz.walnut.job.WnJob;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_job extends JvmExecutor {

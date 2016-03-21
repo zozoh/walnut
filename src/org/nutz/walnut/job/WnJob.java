@@ -1,8 +1,5 @@
-package org.nutz.walnut.impl.io;
+package org.nutz.walnut.job;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -140,15 +137,5 @@ public class WnJob extends WnRun implements Callable<Object> {
             return null;
         }
 
-    }
-    static NopOutputStream NopOut = new NopOutputStream();
-    static NopInputStream NopIn = new NopInputStream();
-    static class NopOutputStream extends OutputStream {
-        public void write(int b) throws IOException {}
-    }
-    static class NopInputStream extends InputStream {
-        public int read() throws IOException {
-            return -1;
-        }
     }
 }
