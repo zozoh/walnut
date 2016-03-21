@@ -16,7 +16,7 @@ import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.impl.io.WnJob;
+import org.nutz.walnut.job.WnJob;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZType;
 

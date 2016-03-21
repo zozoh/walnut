@@ -1,4 +1,4 @@
-package org.nutz.walnut.impl.io;
+package org.nutz.walnut.job;
 
 import java.io.IOException;
 import java.io.InputStream;
