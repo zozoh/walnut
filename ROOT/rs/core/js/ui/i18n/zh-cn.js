@@ -25,6 +25,7 @@ define({
     "search"     : "搜索",
     "choose"     : "选择",
     "empty"      : "没有内容",
+    "noselected" : "没有对象被选中",
     "loading"    : "正在加载...",
     "doing"      : "执行中...",
     "favorites"  : "收藏",
@@ -63,6 +64,8 @@ define({
         "FILE" : "文件"
     },
     "ftype" : {
+        // 应该遵从 ~/.ui/i18n/$LANG.js 里面的设定
+        // app 的 main 应该处理这一点
     },
     "fmime" : {
         "application_octet_stream" :"Octet-stream 应用",

@@ -46,7 +46,7 @@ tags:
 ```
 /o/thumbnail/**
 
-路径参数 : id:xxx 或者 /path/to/obj
+路径参数 : id:xxx 或者 /path/to/obj 或者 type:xxxx
 
 GET参数:
 w : 64      # 【选】指明缩略图的宽度
@@ -61,6 +61,16 @@ HTTP 404  对象不存在
 * 如果对象不存在 `thumb` 元数据，则返回默认的相关类型的缩略图，
 * 默认的缩略图 MIME一定是 `image/png`，即透明png24表示的图标
 * 不指明尺寸，系统将会自行决定返回什么尺寸的图像
+
+比如:
+
+```
+// 直接读取某对象缩略图(64x64)
+/o/thumbnail/id:10n8qk1m7ui5foqb5f7ejhoqs5?sh=64
+
+// 直接读取 folder 类型的缩略图(32x32)
+/o/thumbnail/type:folder?sh=32
+```
 
 ## 自动生成缩略图
 

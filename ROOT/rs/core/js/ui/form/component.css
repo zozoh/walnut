@@ -365,11 +365,12 @@
   width: 100%;
   height: 100%;
   padding: 8px;
+  resize: none;
+  outline: none;
   border: 1px solid #cccccc;
+  border-radius: 4px;
   color: #000000;
   background: #ffffff;
-  border-radius: 4px;
-  resize: none;
 }
 .com-text textarea:focus {
   color: #000000;

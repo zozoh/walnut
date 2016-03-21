@@ -141,61 +141,40 @@ public class ObjModule extends AbstractWnModule {
                               @Param("scale") String scale,
                               @Param("f") boolean force,
                               @Param("bg") String bg) {
-        // 首先读取对象
-        WnObj o = Wn.checkObj(io, str);
-
+        // 缩略图对象
         BufferedImage im = null;
-        String mime, imtp;
 
-        // 如果缩略图，使用
-        if (o.hasThumbnail()) {
-            WnObj oThumb = Wn.getObj(io, o.thumbnail());
-            im = io.readImage(oThumb);
-            mime = oThumb.mime();
-            imtp = oThumb.type();
+        // 统一设定默认缩略图的格式
+        String mime = "image/png";
+        String imtp = "png";
+
+        // 直接指定的就是文件类型
+        if (str.startsWith("type:")) {
+            im = __read_by_type(sizeHint, null, str.substring("type:".length()));
         }
-        // 否则找默认的，默认的一定是 image/png
+        // 根据对象找吧
         else {
-            // 先确定一下类型
-            String tp = o.type();
-            if (Strings.isBlank(tp)) {
-                tp = o.isDIR() ? "folder" : "unknown";
-            }
+            // 首先读取对象
+            WnObj o = Wn.checkObj(io, str);
+            WnRace race = o.race();
 
-            // 读取指定尺寸图片
-            sizeHint = sizeHint > 0 ? sizeHint : dftSizeHint;
-            // 确保是标准给定尺寸
-            int s_h = -1;
-            for (int i = 0; i < SIZE_HINTS.length; i++) {
-                if (SIZE_HINTS[i] >= sizeHint) {
-                    s_h = SIZE_HINTS[i];
-                    break;
-                }
-            }
-            sizeHint = s_h < 0 ? SIZE_HINTS[SIZE_HINTS.length - 1] : s_h;
-            String sz_key = String.format("%1$dx%1$d", sizeHint);
-
-            // 尝试从本域读取默认缩略图
-            String ph = Wn.normalizeFullPath("~/.thumbnail/dft/"
-                                             + tp
-                                             + "/"
-                                             + sz_key
-                                             + ".png",
-                                             Wn.WC().checkSE());
-            WnObj oThumb = io.fetch(null, ph);
-
-            // 如果找到了 ...
-            if (null != oThumb) {
+            // 如果缩略图，使用
+            if (o.hasThumbnail()) {
+                WnObj oThumb = Wn.getObj(io, o.thumbnail());
                 im = io.readImage(oThumb);
+                mime = oThumb.mime();
+                imtp = oThumb.type();
             }
-            // 没找到就用系统的缩略图，这样可以利用上缓存
+            // 否则找默认的，默认的一定是 image/png
             else {
-                im = __read_dft_thumbnail(tp, o.race(), sz_key);
-            }
+                // 先确定一下类型
+                String tp = o.type();
+                if (Strings.isBlank(tp)) {
+                    tp = o.isDIR() ? "folder" : "unknown";
+                }
 
-            // 统一设定默认缩略图的格式
-            mime = "image/png";
-            imtp = "png";
+                im = __read_by_type(sizeHint, race, tp);
+            }
         }
 
         // 是否要缩放
@@ -220,6 +199,41 @@ public class ObjModule extends AbstractWnModule {
         // 最后返回 Image 视图
         return new ViewWrapper(new WnImageView(imtp, mime), im);
         // return new ViewWrapper(new RawView(oThumb.mime()), im);
+    }
+
+    private BufferedImage __read_by_type(int sizeHint, WnRace race, String tp) {
+        BufferedImage im;
+        // 读取指定尺寸图片
+        sizeHint = sizeHint > 0 ? sizeHint : dftSizeHint;
+        // 确保是标准给定尺寸
+        int s_h = -1;
+        for (int i = 0; i < SIZE_HINTS.length; i++) {
+            if (SIZE_HINTS[i] >= sizeHint) {
+                s_h = SIZE_HINTS[i];
+                break;
+            }
+        }
+        sizeHint = s_h < 0 ? SIZE_HINTS[SIZE_HINTS.length - 1] : s_h;
+        String sz_key = String.format("%1$dx%1$d", sizeHint);
+
+        // 尝试从本域读取默认缩略图
+        String ph = Wn.normalizeFullPath("~/.thumbnail/dft/"
+                                         + tp
+                                         + "/"
+                                         + sz_key
+                                         + ".png",
+                                         Wn.WC().checkSE());
+        WnObj oThumb = io.fetch(null, ph);
+
+        // 如果找到了 ...
+        if (null != oThumb) {
+            im = io.readImage(oThumb);
+        }
+        // 没找到就用系统的缩略图，这样可以利用上缓存
+        else {
+            im = __read_dft_thumbnail(tp, race, sz_key);
+        }
+        return im;
     }
 
     private static final int[] SIZE_HINTS = Nums.array(16, 24, 32, 64, 128);

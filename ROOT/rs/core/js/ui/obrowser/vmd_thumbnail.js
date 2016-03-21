@@ -121,11 +121,12 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
     update : function(o, callback){
         var UI = this;
 
+
         // 显示正在加载
         UI.showLoading();
 
         // 得到当前所有的子节点
-        Wn.getChildren(o, null, function(objs){
+        Wn.getChildren(o, UI.browser.options.filter, function(objs){
             // 清空
             UI.arena.empty();
 

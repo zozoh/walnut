@@ -717,6 +717,9 @@ ZUIObj.prototype = {
     },
     // 得到多国语言字符串，如果没有返回默认值，如果没指定默认值，返回空串 ("")
     str : function(key, dft){
+        if(/^i18n:.+$/g.test(key)){
+            key = key.substring(5);
+        }
         var re = $z.getValue(this._msg_map, key);
         return re || dft || "";
     },

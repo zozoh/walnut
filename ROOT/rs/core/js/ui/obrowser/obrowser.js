@@ -377,10 +377,10 @@ return ZUI.def("ui.obrowser", {
         
     },
     //..............................................
-    refresh : function(){
+    refresh : function(callback){
         var oid = this.getCurrentObjId();
         this.cleanCache("oid:"+oid);
-        this.setData("id:"+oid);
+        this.setData("id:"+oid, callback);
     },
     //..............................................
     showUploader: function(options){

@@ -10,7 +10,7 @@ public class cmd_date extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) {
         // 分析参数
-        ZParams params = ZParams.parse(args, "f");
+        ZParams params = ZParams.parse(args, "n");
 
         // 将显示这个时间
         long now;
@@ -39,43 +39,46 @@ public class cmd_date extends JvmExecutor {
 
         // -fmt
         if (params.has("fmt")) {
-            sys.out.println(Times.format(params.get("fmt"), Times.D(now)));
+            sys.out.print(Times.format(params.get("fmt"), Times.D(now)));
         }
         // -ss
         else if (params.is("ss")) {
-            sys.out.println("" + now / 1000L);
+            sys.out.print("" + now / 1000L);
         }
         // -ms
         else if (params.is("ms")) {
-            sys.out.println("" + now);
+            sys.out.print("" + now);
         }
         // -1ms
         else if (params.is("1ms")) {
-            sys.out.println("" + (now - (now / 1000L) * 1000L));
+            sys.out.print("" + (now - (now / 1000L) * 1000L));
         }
         // -full
         else if (params.is("full")) {
-            sys.out.println(Times.D(now).toString());
+            sys.out.print(Times.D(now).toString());
         }
         // -dt
         else if (params.is("dt")) {
-            sys.out.println(Times.format("yyyy-MM-dd HH:mm:ss", Times.D(now)));
+            sys.out.print(Times.format("yyyy-MM-dd HH:mm:ss", Times.D(now)));
         }
         // -dtms
         else if (params.is("dtms")) {
-            sys.out.println(Times.format("yyyy-MM-dd HH:mm:ss.SSS", Times.D(now)));
+            sys.out.print(Times.format("yyyy-MM-dd HH:mm:ss.SSS", Times.D(now)));
         }
         // -time
         else if (params.is("time")) {
-            sys.out.println(Times.format("HH:mm:ss", Times.D(now)));
+            sys.out.print(Times.format("HH:mm:ss", Times.D(now)));
         }
         // -timems
         else if (params.is("timems")) {
-            sys.out.println(Times.format("HH:mm:ss.SSS", Times.D(now)));
+            sys.out.print(Times.format("HH:mm:ss.SSS", Times.D(now)));
         }
         // 默认
         else {
-            sys.out.println(Times.format("yy-MM-dd HH:mm:ss", Times.D(now)));
+            sys.out.print(Times.format("yy-MM-dd HH:mm:ss", Times.D(now)));
         }
+
+        if (!params.is("n"))
+            sys.out.println();
     }
 }

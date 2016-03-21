@@ -76,9 +76,9 @@
   cursor: pointer;
   margin: 0 2px;
   padding: 8px 32px;
-  border: 1px solid #000000;
-  background: #000000;
-  color: #cccccc;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
   border-radius: 4px;
   padding: 8px 6px;
 }
@@ -128,16 +128,16 @@
   font-size: 14px;
   padding: 8px 16px 8px 32px;
   width: 100%;
-  color: #cccccc;
-  border: 1px solid #444444;
-  background: #888888;
+  color: #444444;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 100px;
   outline: none;
 }
 .srh-filter .flt-keyword input:focus {
   color: #000000;
-  background: #ffffff;
-  border-color: #aaaaaa;
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #ffffff;
 }
 .srh-filter .flt-icon {
   position: absolute;

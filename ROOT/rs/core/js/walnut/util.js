@@ -99,16 +99,73 @@ var Wn = {
         return text;
     },
     //...................................................................
-    objDisplayPath : function(UI, ph, offset){
+    // offset : >0 从正面算，<0 从后面算
+    // 如果是个函数，必须返回数组 [beginIndex, lastIndex]
+    // 其中 lastIndex 与 offset 等意，如果返回不是二元数组，继续迭代
+    // wrapper : F(nms, index):HTML 一个包裹函数，默认用 <b> 包裹，并对显示名称 i18n
+    //           如果返回空，则忽略输出
+    // sep : 一段 HTML，用来分隔个个路径，默认为 <em>/</em>
+    objDisplayPath : function(UI, ph, offset, wrapper, sep){
+        var Wn  = this;
         var nms = ph
         if(!_.isArray(ph)){
             nms = _.without(ph.split("/"), "");
         }
+        // 默认包裹函数
+        wrapper = wrapper || function(nms, index){
+            return '<b>' + Wn.objDisplayName(UI, nms[index], 0) + '</b>';
+        };
+        // 开始的下标
+        var beginIndex = 0;
+        // 判断 offset
+        if(_.isFunction(offset)){
+            for(var index = 0; index<nms.length; index++){
+                var ns = offset(nms, index);
+                if(_.isArray(ns) && ns.length == 2){
+                    beginIndex = ns[0];
+                    offset = ns[1];
+                    break;
+                }
+            }
+        }
+        // 那么 offset 被假设为一个数字，小于 0 从后面来
+        if(offset < 0) {
+            offset = Math.max(beginIndex, nms.length + offset);
+        }
+
         var ary = [];
         for(var i=(offset||0); i<nms.length; i++){
-            ary.push(this.objDisplayName(UI, nms[i], 0));
+            var html = wrapper(nms, i);
+            if(html)
+                ary.push(html);
         }
-        return ary.join("/");
+        return ary.join(sep || '<em>/</em>');
+    },
+    /*...................................................................
+    提供一个通用的创建界面，可以在给定的目录对象下面创建一个对象
+    appclist 命令会提供数据方面的帮助
+    */
+    createPanel: function(o, callback, context){
+        // 打开遮罩
+        var MaskUI    = require("ui/mask/mask");
+        new MaskUI({
+            width : 640,
+            height: 480,
+            setup : {
+                uiType : "ui/o_create/o_create",
+                uiConf : {
+                    on_ok : function(o){
+                        $z.doCallback(callback, [o], context);
+                        this.parent.close();
+                    },
+                    on_cancel : function(){
+                        this.parent.close();
+                    }
+                }
+            }
+        }).render(function(){
+            this.body.update(o);
+        });
     },
     /*...................................................................
     提供一个通用的文件上传界面，任何 UI 可以通过

@@ -102,9 +102,20 @@ new TableUI({
     // 事件
     on_change  : {c}F()          // "table:change"!首次加载一定会被触发
     on_add     : {c}F(objs)      // "table:add"   !setData 时不会触发
-    on_checked : {c}F([objs,jq]) // "table:checked"
-    on_blur    : {c}F([objs,jq]) // "table:blur"
-    on_actived : {c}F(o,jq)      // "table:actived"
+    
+    // "table:checked" 这里说明一下，objs 表示所有被选中的对象（包括以前）
+    // 而 jRows 表示所有本次被选中的行对象（不包括以前）
+    on_checked   : {c}F([objs, jRows])
+    
+    // "table:unchecked" 
+    on_unchecked : {c}F([objs, jRows])
+
+    // "table:actived"  激活一项的时候触发
+    on_actived : {c}F(o,jRow)
+    
+    // "table:blur" 当一个列取消选中的时候，会被触发
+    // 四个参数，前两个不解释，后两个表示即将被激活的元素
+    on_blur : {c}F([objs,jRows, nextObj, nextRow])
     
     //............................................................
     // 上下文，可以之际指定 {c} 对应的上下，默认 UI 自身
@@ -165,7 +176,7 @@ uiTable.setActived("45cfad78a3ec99ade12");
 uiTable.setActived();
 ```
 
-## blur
+## setAllBure
 
 ```
 uiTable.blur();

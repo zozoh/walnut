@@ -207,7 +207,7 @@ return ZUI.def("ui.table", {
 
         // 未给入参数，相当于 blur
         if(_.isUndefined(arg) || _.isNull(arg)){
-            UI.blur();
+            UI.setAllBure();
             return;
         }
 
@@ -224,23 +224,22 @@ return ZUI.def("ui.table", {
             }
 
             // 取消其他的激活
-            UI.blur();
+            UI.setAllBure(o, jRow);
             jRow.addClass("tbl-row-actived tbl-row-checked");
 
             // 触发消息 
             UI.trigger("table:actived", o, jRow);
             $z.invoke(opt, "on_actived", [o, jRow], context);
-
-            // 触发消息 
-            var objs = UI.getChecked();
-            UI.trigger("table:checked", objs);
-            $z.invoke(UI.options, "on_checked", [objs], context);
         }
         // 同步选择器 
         UI.__sync_checker();
     },
     //...............................................................
     blur : function(){
+        this.setAllBure();
+    },
+    //...............................................................
+    setAllBure : function(nextObj, nextRow){
         var UI = this;
         var jRows = UI.arena.find(".tbl-row-checked");
 
@@ -258,8 +257,8 @@ return ZUI.def("ui.table", {
             UI.__sync_checker();
 
             // 触发消息 
-            UI.trigger("table:blur", objs);
-            $z.invoke(UI.options, "on_blur", [objs, jRows], UI);
+            UI.trigger("table:blur", objs, jRows, nextObj, nextRow);
+            $z.invoke(UI.options, "on_blur", [objs, jRows, nextObj, nextRow], UI);
         }
     },
     //...............................................................
@@ -281,8 +280,8 @@ return ZUI.def("ui.table", {
             jRows.addClass("tbl-row-checked");
             var objs = UI.getChecked();
             // 触发消息 
-            UI.trigger("table:checked", objs);
-            $z.invoke(UI.options, "on_checked", [objs], UI);
+            UI.trigger("table:checked", objs, jRows);
+            $z.invoke(UI.options, "on_checked", [objs, jRows], UI);
 
             // 同步选择器 
             UI.__sync_checker();
@@ -300,8 +299,8 @@ return ZUI.def("ui.table", {
                 objs.push($(this).data("OBJ"));
             });
             // 触发消息 
-            UI.trigger("table:uncheck", objs);
-            $z.invoke(UI.options, "on_uncheck", [objs], UI);
+            UI.trigger("table:unchecked", objs, jRows);
+            $z.invoke(UI.options, "on_unchecked", [objs, jRows], UI);
 
             // 同步选择器 
             UI.__sync_checker();

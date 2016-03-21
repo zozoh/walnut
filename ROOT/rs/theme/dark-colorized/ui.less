@@ -27,15 +27,15 @@
 @cmenu_f       : #FFF;     // 弹出菜单前景色
 @cmenu_b       : rgba(0,0,0,0.8);     // 弹出菜单背景色
 @cmenu_l       : #F80;     // 弹出菜单边框颜色
-@cbtn_f        : #CCC;     // 按钮前景色
-@cbtn_b        : #000;     // 按钮背景色
-@cbtn_l        : #000;     // 按钮边框颜色
-@cinput_f      : #CCC;     // 输入控件前景色
-@cinput_b      : #888;     // 输入控件背景色
-@cinput_l      : #444;     // 输入控件边框颜色
+@cbtn_f        : rgba(255,255,255,0.6);     // 按钮前景色
+@cbtn_b        : rgba(255,255,255,0.1);     // 按钮背景色
+@cbtn_l        : rgba(255,255,255,0.2);     // 按钮边框颜色
+@cinput_f      : #444;     // 输入控件前景色
+@cinput_b      : rgba(255,255,255,0.4);     // 输入控件背景色
+@cinput_l      : @cborder0;     // 输入控件边框颜色
 @cinput_fF     : #000;     // 聚焦的输入控件前景色
-@cinput_bF     : #FFF;     // 聚焦的输入控件背景色
-@cinput_lF     : #AAA;     // 聚焦的输入控件边框颜色
+@cinput_bF     : rgba(255,255,255,0.8);     // 聚焦的输入控件背景色
+@cinput_lF     : #FFF;     // 聚焦的输入控件边框颜色
 @clink         : #CC0;     // 链接颜色
 @clink_hover   : #FF0;     // 链接高亮颜色
 @cborder0      : rgba(255,255,255,.2);     // 主要边框颜色
@@ -96,4 +96,11 @@
     border-radius: @d1; 
 };
 @btn_hover : {color:@ch0_f; background: @ch0_b;};
+
+@input : {
+    outline:none; border:1px solid @cinput_l;
+    border-radius: @d1; color:@cinput_f; background: @cinput_b;
+};
+
+@input_focus:{color:@cinput_fF; background: @cinput_bF; border-color:@cinput_lF;};
 

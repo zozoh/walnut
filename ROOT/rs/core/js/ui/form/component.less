@@ -26,13 +26,9 @@
 .com-input {
     white-space: nowrap; position: relative;
     input {
-        padding:@d2; width:100%;  outline:none;
-        border:1px solid @cinput_l;
-        border-radius: @d1; color:@cinput_f; background: @cinput_b;
+        padding:@d2; width:100%; @input();
     }
-    input:focus {
-        color:@cinput_fF; background: @cinput_bF; border-color:@cinput_lF;
-    }
+    input:focus {@input_focus();}
     .unit {
         display: block; position: absolute; top:0; bottom:0; right:0;
         padding:0 @d1 0 @d0; color:rgba(0,0,0,0.2);
@@ -217,13 +213,10 @@
 .com-text {
     width: 100%; height:100%;
     textarea {
-        width: 100%; height:100%; padding:@f0;
-        border:1px solid @cinput_l;
-        border-radius: @d1; color:@cinput_f; background: @cinput_b;
-        border-radius: @d1;
-        resize: none;
+        width: 100%; height:100%; padding:@f0; border-radius: @d1; resize: none;
+        @input();
     }
     textarea:focus {
-        color:@cinput_fF; background: @cinput_bF; border-color:@cinput_lF;
+        @input_focus();
     }
 }

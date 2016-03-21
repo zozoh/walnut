@@ -4,20 +4,56 @@
     font-family: @f_fixed; padding:@d1;
 }
 //----------------------------------------------------------------
+.com-link {
+    padding:@d2; white-space: nowrap;
+    u {cursor: pointer; color:@clink; text-decoration: none;}
+    u:hover {color:@clink_hover; text-decoration: underline;}
+    span {
+        color: @cf2; width: 16px; display: inline-block; vertical-align: middle;
+        text-align: center;
+        i[tp="cl-obj"]     {display: none;}
+        i[tp="cl-ext"]     {display: none;}
+        i[tp="cl-unknown"] {display: none;}
+    }
+    u {
+        display: inline-block; vertical-align: middle;
+    }
+}
+.com-link[link-type="obj"] span i[tp="cl-obj"]{display: inline;}
+.com-link[link-type="ext"] span i[tp="cl-ext"]{display: inline;}
+.com-link[link-type="unknown"] span i[tp="cl-unknown"]{display: inline;}
+//----------------------------------------------------------------
 .com-input {
     white-space: nowrap; position: relative;
     input {
-        padding:@d2; width:100%; outline:none;
-        border:1px solid @cborder0;
-        border-radius: @d1; color:#444; background: rgba(255,255,255,0.4);
+        padding:@d2; width:100%; @input();
     }
-    input:focus {
-        background: rgba(255,255,255,0.8); color:#000;
-    }
+    input:focus {@input_focus();}
     .unit {
         display: block; position: absolute; top:0; bottom:0; right:0;
         padding:0 @d1 0 @d0; color:rgba(0,0,0,0.2);
     }
+}
+//----------------------------------------------------------------
+@CCH : 30px;
+.com-color {
+    input, div.preview {
+        vertical-align: middle; display: inline-block;
+        padding:0 @d2; outline:none; height:@CCH; line-height: @CCH;
+        border:1px solid @cborder0; 
+        border-radius: @d1; color:#888; background: #FFF;
+        font-size:@f2; font-family: @f_fixed;
+    }
+    div.preview {
+        width:@CCH; height:@CCH; position: relative; padding: 0; overflow: hidden;
+        background: url(/gu/rs/core/js/ui/form/bgcanvas.png);
+        > div {
+            width: 100%; height: 100%;
+        }
+    }
+    input.color {position: fixed; top:-999999999999px; left:-999999999999px;}
+    input.hex {width:@f2 * 6;}
+    input.alpha {width:@f1*4;}
 }
 //----------------------------------------------------------------
 @cdlH  : @f5;
@@ -161,13 +197,13 @@
     padding:@d0;
     ul {
         list-style: none; padding:1px 1px 1px 0; margin:0;
-        background: #DDD; display: inline-block;
+        background: @cborder1; display: inline-block;
     }
     ul:after{@clr();}
     li {
-        float:left; padding:@d2; background: #CCC; color:#888;
+        float:left; padding:@d1; background: #CCC; color:#888;
         margin-left:1px; min-width: @d7; text-align: center;
-        cursor: pointer; font-size: @f0;
+        cursor: pointer;
     }
     li.checked {
         color:#FFF; background: #080;
@@ -177,9 +213,10 @@
 .com-text {
     width: 100%; height:100%;
     textarea {
-        width: 100%; height:100%; padding:@f0;
-        border:1px solid @cborder0;
-        border-radius: @d1;
-        resize: none;
+        width: 100%; height:100%; padding:@f0; border-radius: @d1; resize: none;
+        @input();
+    }
+    textarea:focus {
+        @input_focus();
     }
 }

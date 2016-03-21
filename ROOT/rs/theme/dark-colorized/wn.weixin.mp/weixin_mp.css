@@ -102,16 +102,16 @@
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat select,
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat input {
   outline: none;
-  color: #cccccc;
-  background: #888888;
+  color: #444444;
+  background: rgba(255, 255, 255, 0.4);
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat input {
-  border: 1px solid #444444;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat input:focus {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.8);
   color: #000000;
-  border-color: #aaaaaa;
+  border-color: #ffffff;
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat .key {
   padding: 4px;
@@ -193,14 +193,14 @@
   padding: 8px;
   outline: none;
   font-family: Monaco, Consolas, Courier New;
-  color: #cccccc;
-  background: #888888;
-  border: 1px solid #444444;
+  color: #444444;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-command textarea:focus {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.8);
   color: #000000;
-  border-color: #aaaaaa;
+  border-color: #ffffff;
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl-add {
   -moz-user-select: none;
