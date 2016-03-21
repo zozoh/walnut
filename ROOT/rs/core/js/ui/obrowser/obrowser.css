@@ -275,7 +275,7 @@ body > .ui-obrowser {
   background: #0044bb;
 }
 .obrowser .obrowser-crumb .citem:hover {
-  border-color: #dddddd;
+  border-color: #d0d0d0;
 }
 .obrowser .obrowser-crumb .citem-tail {
   padding-right: 2px;

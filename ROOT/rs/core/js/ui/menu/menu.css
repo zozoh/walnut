@@ -42,14 +42,14 @@
 .menu-item .menu-item-wrapper .menu-item-status {
   display: inline-block;
   vertical-align: middle;
-  border: 1px solid #dddddd;
+  border: 1px solid #d0d0d0;
   border-radius: 4px;
 }
 .menu-item .menu-item-wrapper .menu-item-status .menu-item-si {
   width: 24px;
   display: inline-block;
   text-align: center;
-  border-right: 1px solid #dddddd;
+  border-right: 1px solid #d0d0d0;
   cursor: pointer;
   color: #666666;
 }
@@ -122,5 +122,5 @@
   line-height: 0;
   height: 0;
   margin: 6px 0;
-  border-top: 1px dotted #dddddd;
+  border-top: 1px dotted #d0d0d0;
 }

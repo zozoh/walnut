@@ -118,12 +118,12 @@
   background: #e0e0e0;
 }
 .wn-thumbnail .wnobj-checked .wnobj-thumbnail[thumb] .img {
-  border: 1px solid #dddddd;
+  border: 1px solid #d0d0d0;
 }
 .wn-thumbnail .wnobj-checked .wnobj-nm {
   background: #0044bb;
   color: #ffffff;
 }
 .wn-thumbnail .wnobj-actived .wnobj-nm {
-  border-color: #dddddd;
+  border-color: #d0d0d0;
 }

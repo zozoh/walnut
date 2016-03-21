@@ -47,7 +47,7 @@
   margin: 0 6px;
 }
 .form-fld {
-  border-bottom: 1px dashed #dddddd;
+  border-bottom: 1px dashed #d0d0d0;
   padding: 4px;
 }
 [multi-cols] .form-fld {

@@ -122,11 +122,12 @@
   vertical-align: middle;
   cursor: pointer;
   margin: 0 2px;
-  padding: 8px 32px;
+  padding: 6px 32px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.6);
   border-radius: 4px;
+  text-align: center;
   width: 100px;
 }
 .ocreate > div .ocreate-actions b:hover {

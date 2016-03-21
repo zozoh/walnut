@@ -3,6 +3,9 @@
 	text : "i18n:refresh",
 	type : "button",
 	handler : function($ele, a) {
-		this.browser.refresh();
+		if(this.browser)
+			this.browser.refresh();
+		else if(_.isFunction(this.refresh))
+			this.refresh();
 	}
 })

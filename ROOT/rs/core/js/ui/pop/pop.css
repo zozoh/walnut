@@ -13,7 +13,7 @@
   padding: 8px;
   text-align: center;
   font-size: 14px;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid #d0d0d0;
 }
 .pop .pm-body {
   flex: 1 0 auto;
@@ -27,7 +27,7 @@
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  border-top: 1px solid #dddddd;
+  border-top: 1px solid #d0d0d0;
   text-align: right;
   padding: 8px;
 }

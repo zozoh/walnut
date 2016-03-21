@@ -79,11 +79,12 @@
   vertical-align: middle;
   cursor: pointer;
   margin: 0 2px;
-  padding: 8px 32px;
+  padding: 6px 32px;
   border: 1px solid #bbbbbb;
   background: #d0d0d0;
   color: #000000;
   border-radius: 4px;
+  text-align: center;
   padding: 8px 6px;
 }
 .srh-mask .srh-qbtns b:hover {
