@@ -88,7 +88,7 @@ public class cmd_job extends JvmExecutor {
             if (!WnJob.me.isRunning()) {
                 sys.out.println("job service isn't running");
             } else {
-                sys.out.printlnf("job service is running\n%d", WnJob.me);
+                sys.out.printlnf("job service is running\n%s", WnJob.me);
             }
             return;
         default:

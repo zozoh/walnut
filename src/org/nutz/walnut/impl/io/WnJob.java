@@ -129,7 +129,7 @@ public class WnJob extends WnRun implements Callable<Object> {
                     WnUsr usr = usrs.fetch(jobDir.getString("job_user"));
                     if (usr != null) {
                     	WnSession se = sess.create(usr);
-                        exec("job-"+jobDir.getString("name", "_"), se, "", cmdText);
+                        exec("job-"+jobDir.getString("job_name", "_")+" ", se, "", cmdText);
                     }
                 }
             } finally {
