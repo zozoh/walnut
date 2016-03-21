@@ -31,6 +31,11 @@ var ioc = {
 			},
 			handles : {
 				type : 'org.nutz.walnut.impl.io.handle.WnHandleManagerImpl'
+			},
+			mapping : {
+				"baidu://" : {
+					type : 'org.nutz.walnut.ext.baidu.BaiduYunPanBucketFactory'
+				}
 			}
 		}
 	},

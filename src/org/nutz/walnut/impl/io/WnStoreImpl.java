@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.io;
 
 import java.io.File;
+import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -10,6 +11,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnBucket;
+import org.nutz.walnut.api.io.WnBucketFactory;
 import org.nutz.walnut.api.io.WnBucketManager;
 import org.nutz.walnut.api.io.WnHandle;
 import org.nutz.walnut.api.io.WnHandleManager;
@@ -27,6 +29,8 @@ public class WnStoreImpl implements WnStore {
     private WnBucketManager buckets;
 
     private WnHandleManager handles;
+
+    private Map<String, WnBucketFactory> mapping;
 
     public void on_depose() {
         handles.dropAll();
@@ -125,6 +129,21 @@ public class WnStoreImpl implements WnStore {
 
         // 分析文件数据
         String data = o.data();
+
+        // 首先看看有没有可以构建的桶实例
+        if (null != mapping && null != data) {
+            // 得到前缀
+            int pos = data.indexOf("://");
+            if (pos > 0) {
+                String prefix = data.substring(0, pos + 3);
+                WnBucketFactory bf = mapping.get(prefix);
+                if (null != bf) {
+                    hdl.bucket = bf.getBucket(o);
+                    // 返回吧
+                    return hdl.id;
+                }
+            }
+        }
 
         // 对象元数据句柄
         if (o.isRWMeta()) {
