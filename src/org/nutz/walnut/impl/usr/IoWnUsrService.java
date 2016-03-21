@@ -8,16 +8,15 @@ import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
-import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 
 /**
  * 这个实现类基于一个 ZIo 的实现，保存和读取 Session 的数据
@@ -158,17 +157,22 @@ public class IoWnUsrService implements WnUsrService {
 
         // 创建组的主目录
         final String phHome = Wn.getUsrHome(u.name());
-        Wn.WC().su(u, new Atom() {
-            public void run() {
-                Wn.WC().me(u.name(), u.group());
-                WnSecurity se = Wn.WC().getSecurity();
-                Wn.WC().setSecurity(null); // FIXME 一定情况下会出问题, 还在查 @pw
+        final WnContext wc = Wn.WC();
+        wc.su(u, () -> {
+            wc.me(u.name(), u.group());
+            wc.security(null, () -> {
                 WnObj oHome = io.create(null, phHome, WnRace.DIR);
                 // 保护主目录
                 oHome.mode(0750);
                 io.appendMeta(oHome, "^md$");
-                Wn.WC().setSecurity(se);
-            }
+            });
+            // WnSecurity se = wc.getSecurity();
+            // wc.setSecurity(null); // FIXME 一定情况下会出问题, 还在查 @pw
+            // WnObj oHome = io.create(null, phHome, WnRace.DIR);
+            // // 保护主目录
+            // oHome.mode(0750);
+            // io.appendMeta(oHome, "^md$");
+            // wc.setSecurity(se);
         });
 
         // 写入用户注册信息
