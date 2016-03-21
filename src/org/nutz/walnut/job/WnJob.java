@@ -1,8 +1,5 @@
 package org.nutz.walnut.job;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -22,6 +19,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
 @IocBean(create="init", depose="depose")
@@ -129,6 +127,7 @@ public class WnJob extends WnRun implements Callable<Object> {
                     WnUsr usr = usrs.fetch(jobDir.getString("job_user"));
                     if (usr != null) {
                     	WnSession se = sess.create(usr);
+                    	Wn.WC().me(usr.name(), jobDir.getString("job_group", usr.name()));
                         exec("job-"+jobDir.getString("job_name", "_")+" ", se, "", cmdText);
                     }
                 }
@@ -138,15 +137,5 @@ public class WnJob extends WnRun implements Callable<Object> {
             return null;
         }
 
-    }
-    static NopOutputStream NopOut = new NopOutputStream();
-    static NopInputStream NopIn = new NopInputStream();
-    static class NopOutputStream extends OutputStream {
-        public void write(int b) throws IOException {}
-    }
-    static class NopInputStream extends InputStream {
-        public int read() throws IOException {
-            return -1;
-        }
     }
 }
