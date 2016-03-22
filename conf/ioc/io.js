@@ -35,6 +35,9 @@ var ioc = {
 			mapping : {
 				"baidu://" : {
 					type : 'org.nutz.walnut.ext.baidu.BaiduYunPanBucketFactory'
+				},
+				"qiniu://" : {
+					type : 'org.nutz.walnut.ext.qiniu.QiniuBucketFactory'
 				}
 			}
 		}
