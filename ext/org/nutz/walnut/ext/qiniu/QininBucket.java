@@ -138,14 +138,14 @@ public class QininBucket extends AbstractBucket {
                         break;
                     count += _len;
                 }
-                log.debug("qiniu read Headers\n" + resp.getHeader());
-                log.debug("qiniu resp code=" + resp.getStatus());
-                log.debugf("qiniu read %s pos=%s off=%d len=%d count=%d",
-                           path(),
-                           pos,
-                           off,
-                           len,
-                           count);
+//                log.debug("qiniu read Headers\n" + resp.getHeader());
+//                log.debug("qiniu resp code=" + resp.getStatus());
+//                log.debugf("qiniu read %s pos=%s off=%d len=%d count=%d",
+//                           path(),
+//                           pos,
+//                           off,
+//                           len,
+//                           count);
                 return count;
             }
             catch (IOException e) {
