@@ -42,7 +42,7 @@ public class cmd_dusr extends JvmExecutor {
         else if (params.has("session")) {
             WnObj oSe = get_session(sys, params);
             if (null == oSe) {
-                sys.out.println("{\"exists\":false}");
+                sys.out.println("{\"noexists\":true}");
             }
             // 找到了，读取内容
             else {
@@ -54,7 +54,7 @@ public class cmd_dusr extends JvmExecutor {
         else if (params.has("get")) {
             WnObj oU = get_usr(sys, params);
             if (null == oU) {
-                sys.out.println("{\"exists\":false}");
+                sys.out.println("{\"noexists\":true}");
             }
             // 打印用户对象元数据
             else {
@@ -69,12 +69,36 @@ public class cmd_dusr extends JvmExecutor {
         // 得到当前会话的用户
         if (Strings.isBlank(uid) || "true".equals(uid)) {
             String dseid = Wn.WC().getString(WWW.AT_SEID);
+
+            if (Strings.isBlank(dseid))
+                return null;
+
             WnObj oHome = this.getHome(sys);
             WnObj oSe = sys.io.fetch(oHome, ".session/" + dseid);
+
             if (null == oSe)
                 return null;
+
+            // 延长会话的过期时间
+            String grp = sys.se.group();
+            NutMap conf = WWW.read_conf(sys.io, grp);
+            long duInMs = __get_se_duration(conf);
+            oSe.expireTime(System.currentTimeMillis() + duInMs);
+            sys.io.set(oSe, "^(expi)$");
+
+            // 得到当前用户的 ID
             uid = oSe.getString("dusr_id");
         }
+
+        // 这个是个 JSON 字符串
+        if (Strings.isQuoteBy(uid, '{', '}')) {
+            WnQuery q = new WnQuery();
+            q.setv("d1", sys.se.group());
+            NutMap map = Json.fromJson(NutMap.class, uid);
+            q.setAll(map);
+            return sys.io.getOne(q);
+        }
+
         // 直接通过 ID 获取
         return sys.io.get(uid);
     }
@@ -168,8 +192,8 @@ public class cmd_dusr extends JvmExecutor {
 
         // 设置会话过期时间, 最长不能超过3天
         NutMap conf = WWW.read_conf(sys.io, grp);
-        long ms = Math.min(conf.getLong("duration", 3600L) * 1000, 86400000L * 3);
-        oSe.expireTime(System.currentTimeMillis() + ms);
+        long duInMs = __get_se_duration(conf);
+        oSe.expireTime(System.currentTimeMillis() + duInMs);
 
         // 标记一下会话的元数据，和用户关联，以后说不定有用
         oSe.setv("dusr_id", oU.id());
@@ -187,6 +211,11 @@ public class cmd_dusr extends JvmExecutor {
             sys.out.println(oSe.id());
         }
 
+    }
+
+    private long __get_se_duration(NutMap conf) {
+        long ms = Math.min(conf.getLong("duration", 3600L) * 1000, 86400000L * 3);
+        return ms;
     }
 
     private void _do_create(WnSystem sys, ZParams params) {

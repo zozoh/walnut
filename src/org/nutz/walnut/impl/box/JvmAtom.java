@@ -24,6 +24,8 @@ class JvmAtom extends JvmCmd implements Atom {
 
     WnHookContext hc;
 
+    WnContext parentContext; // 记录，以便 copy 父线程的一些临时变量
+
     JvmExecutor executor;
 
     JvmAtomRunner runner;
@@ -66,6 +68,13 @@ class JvmAtom extends JvmCmd implements Atom {
         // 切换线程上下文到当前用户，并执行业务逻辑
         final WnContext wc = Wn.WC();
         wc.SE(sys.se);
+
+        // 如果不是父线程运行的，则 copy 父线程变量
+        if (parentContext != wc) {
+            wc.putAll(parentContext);
+        }
+
+        // 设置钩子，安全接口，等，然后运行
         try {
             wc.hooking(hc, new Atom() {
                 public void run() {

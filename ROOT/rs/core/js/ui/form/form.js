@@ -450,6 +450,10 @@ return ZUI.def("ui.form", {
         });
     },
     //...............................................................
+    getFormDataObj : function(){
+        return this.$el.data("@DATA");
+    },
+    //...............................................................
     getData : function(){
         var UI = this;
         return this.ui_format_data(function(opt){

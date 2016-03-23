@@ -155,6 +155,8 @@ return ZUI.def("ui.form_com_droplist", {
     //...............................................................
     redraw : function(){
         var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
 
         // 标记单/多选形态
         UI.arena.attr("multi", UI.isMulti() ? "yes" : "no");
@@ -165,7 +167,7 @@ return ZUI.def("ui.form_com_droplist", {
             UI._draw_items(items);
             re.pop();
             UI.defer_report(0, "loading");
-        });
+        }, context);
 
         // 返回，以便异步的时候延迟加载
         return re;

@@ -14,7 +14,7 @@
     -reuse    登录时，复用已有的会话
     -logout   SEID, 登出一个会话
     -session  SEID|<nil>, 得到会话详情
-    -get      UID |<nil>, 获取用户详情
+    -get      UID |<nil>|JSON, 获取用户详情
     -c        按json输出时，紧凑显示
     -n        按json输出时，如果有 null 值的键也不忽略
     -q        按json输出时，键值用双引号包裹
@@ -44,6 +44,12 @@
     
     # 得到指定用户信息
     $:> dusr -get t9obk3tai2hi7rcqio07kqthra
+    
+    # 得到手机号为 13998874213 的用户信息
+    $:> dusr -get "{phone:'13998874213'}"
+    
+    # 得到手机号为 13998874213，并已验证通过的用户信息
+    $:> dusr -get "{phone:'13998874213', phone_checked:true}"
         
 
     

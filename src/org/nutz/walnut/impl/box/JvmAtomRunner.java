@@ -243,6 +243,7 @@ public class JvmAtomRunner {
             a.sys.jef = jef;
             a.secu = secu;
             a.hc = hc;
+            a.parentContext = wc;
 
             // 看看是否重定向输出
             if (null != a.redirectPath) {

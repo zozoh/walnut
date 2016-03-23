@@ -31,7 +31,8 @@ W -> W : env scode=`random -s 6`
 W -> W : obj id:${uid} 
             -u 'phone:"${phone}"
                 sms_vcode:"$scode", 
-                sms_vexpi:"$ms:now+10m"'
+                sms_vnext:"%ms:now+1m"'
+                sms_vexpi:"%ms:now+10m"'
 W -> W : sms -r ${phone} "您的验证码是 $scode"
 ```
 
@@ -44,15 +45,17 @@ S : 短息服务
 
 # 调用顺序
 C -> W : /api/sms/vcode_check
-W -> W : vcode -check id:xxxx 277076 
-               -u 'sms_vcode:null,sms_vexpi:null,phone_verified:true'
+W -> W : 检查传入的 vcode 是否相符，如果相符
+W -> W : obj id:xxxxx  
+            -u 'sms_vcode:null,
+                sms_vexpi:null,
+                sms_vnext:null,
+                phone_verified:true'
 ```
-
-* `vcode` 命令输出的是标准 AJAX Return，根据 *ok* 字段即可判断是否成功
 
 # 系统用户的更多操作
 
-对于 `/api/sms/gen_vcode`，还需要保存用户的内容
+对于 `/api/sms/vcode_get`，还需要保存用户的内容
 
 ```
 cat id:${uid}
@@ -60,7 +63,7 @@ cat id:${uid}
 > id:${uid}
 ```
 
-对于 `/api/sms/check_vcode`，也需要保存用户的内容
+对于 `/api/sms/vcode_check`，也需要保存用户的内容
 
 ```
 cat id:${uid}
