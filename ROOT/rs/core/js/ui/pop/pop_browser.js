@@ -9,6 +9,10 @@ function(ZUI, Wn, MaskUI, BrowserUI){
 return ZUI.def("ui.pop.browser", {
     css  : "theme/ui/pop/pop.css",
     //...............................................................
+    init : function(opt) {
+        $z.setUndefined(opt, "defaultByCurrent", true);
+    },
+    //...............................................................
     redraw : function(){
         var UIPOP = this;
         var opt   = this.options;
@@ -31,6 +35,9 @@ return ZUI.def("ui.pop.browser", {
                 "click .pm-btn-ok" : function(){
                     var UI   = ZUI(this);
                     var objs = UI.body.getChecked();
+                    if(objs.length == 0 && opt.defaultByCurrent){
+                        objs = [UI.body.getCurrentObj()];
+                    }
                     var context = UI.options.context || UI.body;
                     $z.invoke(UI.options, "on_ok", [objs], context);
                     UI.close();
