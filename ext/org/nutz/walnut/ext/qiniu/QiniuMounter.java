@@ -21,7 +21,7 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.storage.model.FileListing;
 
-public class QiniuMouter implements WnMounter {
+public class QiniuMounter implements WnMounter {
 
     public WnObj get(MimeMap mimes, WnObj mo, String[] paths, int fromIndex, int toIndex) {
         QiniuWnObj top = new QiniuWnObj(mo);

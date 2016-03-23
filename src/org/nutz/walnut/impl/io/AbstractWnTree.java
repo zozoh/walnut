@@ -22,7 +22,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.io.WnTree;
-import org.nutz.walnut.ext.qiniu.QiniuMouter;
+import org.nutz.walnut.ext.qiniu.QiniuMounter;
 import org.nutz.walnut.impl.io.mnt.LocalFileMounter;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
@@ -41,7 +41,7 @@ public abstract class AbstractWnTree implements WnTree {
     public AbstractWnTree() {
         mounters = new HashMap<String, WnMounter>();
         mounters.put("file", new LocalFileMounter());
-        mounters.put("qiniu", new QiniuMouter());
+        mounters.put("qiniu", new QiniuMounter());
     }
 
     @Override
