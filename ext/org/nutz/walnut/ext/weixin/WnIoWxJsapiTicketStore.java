@@ -20,20 +20,20 @@ public class WnIoWxJsapiTicketStore implements WxJsapiTicketStore {
     public WxJsapiTicket get() {
         WnObj oAt = io.fetch(home, "jsapi_ticket");
         if (null != oAt) {
-            WxJsapiTicket wat = new WxJsapiTicket();
-            wat.setTicket(oAt.getString("wx_jt_ticket"));
-            wat.setExpires(oAt.getInt("wx_jt_expires"));
-            return wat;
+            return new WxJsapiTicket(oAt.getString("wx_jt_ticket"),
+                                     oAt.getInt("wx_jt_expires"),
+                                     oAt.getLong("wx_jt_lm"));
         }
         return null;
     }
 
     @Override
-    public void save(String ticket, int expires) {
+    public void save(String ticket, int expires, long lastCacheTimeMillis) {
         WnObj oAt = io.createIfNoExists(home, "jsapi_ticket", WnRace.FILE);
         oAt.setv("wx_jt_ticket", ticket);
-        oAt.setv("wx_jt_expires", System.currentTimeMillis() / 1000 + expires);
-        io.appendMeta(oAt, "^wx_jt_.*$");
+        oAt.setv("wx_jt_expires", expires);
+        oAt.setv("wx_jt_lm", lastCacheTimeMillis);
+        io.set(oAt, "^wx_jt_.*$");
     }
 
 }
