@@ -24,7 +24,7 @@ public class cmd_dusr extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, "^(json|c|q|n)$");
+        ZParams params = ZParams.parse(args, "^(json|reuse|c|q|n)$");
 
         // 创建用户
         if (params.has("create")) {
@@ -203,10 +203,11 @@ public class cmd_dusr extends JvmExecutor {
             if (!expapasswd.equals(saltpasswd)) {
                 throw Er.create("e.cmd.dusr.login.invalid");
             }
-            // 密码可不敢给别人看见
-            oU.remove("salt");
-            oU.remove("passwd");
         }
+
+        // 密码可不敢给别人看见
+        oU.remove("salt");
+        oU.remove("passwd");
 
         // 确保会话主目录存在
         String grp = sys.se.group();
@@ -231,6 +232,12 @@ public class cmd_dusr extends JvmExecutor {
         // 读取会话
         else {
             se = sys.io.readJson(oSe, NutMap.class);
+            // 比较一下，如果会话的 User 数据有更新，这里也更新一下
+            NutMap seUsr = se.getAs("usr", NutMap.class);
+            if (!Lang.equals(seUsr, oU)) {
+                se.setv("usr", oU);
+                sys.io.writeJson(oSe, se, null);
+            }
         }
 
         // 设置会话过期时间, 最长不能超过3天
