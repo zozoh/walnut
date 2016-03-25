@@ -22,6 +22,9 @@ import org.nutz.weixin.util.Wxs;
  * <pre>
  * # 生成 JS-SDK 的支付准备对象
  * weixin xxx order -submit xxx -openid xxx -client_ip xxx
+ * 
+ * # 接受支付的回调
+ * weixin xxx order -result id:xxx
  * </pre>
  * 
  * 参数说明:
@@ -59,13 +62,14 @@ public class weixin_order implements JvmHdl {
         }
         // 接受订单完成的回调
         else if (hc.params.has("result")) {
+            WnObj oOr = this.__do_result(sys, hc);
             // 成功
-            if (this.__do_result(sys, hc)) {
-                re = hc.params.is("ajax") ? Ajax.ok() : true;
+            if (null != oOr) {
+                re = hc.params.is("ajax") ? Ajax.ok().setData(oOr) : oOr;
             }
             // 失败
             else {
-                re = hc.params.is("ajax") ? Ajax.fail() : false;
+                re = Ajax.fail();
             }
         }
         // 靠
@@ -77,7 +81,7 @@ public class weixin_order implements JvmHdl {
         sys.out.println(Json.toJson(re, hc.jfmt));
     }
 
-    private boolean __do_result(WnSystem sys, JvmHdlContext hc) {
+    private WnObj __do_result(WnSystem sys, JvmHdlContext hc) {
         // 公众号ID
         String pnb = hc.oHome.name();
 
@@ -99,7 +103,7 @@ public class weixin_order implements JvmHdl {
             // 如果订单已经被处理完毕了，就没必要后续处理了
             // 因为微信支付会反复调用这个回调好几遍的
             if (oOrder.getInt("or_status") > 0) {
-                return true;
+                return null;
             }
 
             // 修改账单状态
@@ -109,11 +113,11 @@ public class weixin_order implements JvmHdl {
             sys.io.set(oOrder, "^(pay_result|pay_time|or_status)$");
 
             // 返回 true 表示成功，噢耶
-            return true;
+            return oOrder;
         }
 
         // 否则返回失败
-        return false;
+        return null;
     }
 
     private NutMap __do_submit(WnSystem sys, JvmHdlContext hc) {

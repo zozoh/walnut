@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.impl.box.JvmBoxInput;
 import org.nutz.walnut.impl.box.JvmBoxOutput;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -25,8 +26,11 @@ public class cmd_jsc_api {
 
     public WnSession se;
 
+    public JvmBoxInput in;
+
     public cmd_jsc_api(WnSystem sys) {
         this.sys = sys;
+        this.in = sys.in;
         this.out = sys.out;
         this.err = sys.err;
         this.se = sys.se;

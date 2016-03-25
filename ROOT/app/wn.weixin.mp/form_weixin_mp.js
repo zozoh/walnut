@@ -35,11 +35,11 @@
         key :"pay_notify_url",
         title :"i18n:weixin.mp.pay_notify_url",
         type :"string"
-    }, {
-        key :"jsSdkUrl",
-        title :"i18n:weixin.mp.jsSdkUrl",
-        tip :  "i18n:weixin.mp.jsSdkUrl_tip",
-        type :"string"
+    // }, {
+    //     key :"jsSdkUrl",
+    //     title :"i18n:weixin.mp.jsSdkUrl",
+    //     tip :  "i18n:weixin.mp.jsSdkUrl_tip",
+    //     type :"string"
     }, {
         key :"jsApiList",
         title :"i18n:weixin.mp.jsApiList",

@@ -31,6 +31,9 @@ return ZUI.def("ui.form_com_label", {
 
         // 设置显示 
         this.ui_parse_data(val, function(html){
+            if(_.isDate(html)){
+                html = html.format("yyyy-mm-dd HH:MM:ss");
+            }
             if(opt.escapeHtml){
                 this.arena.text(html);
             }else {

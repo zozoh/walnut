@@ -42,7 +42,8 @@ public class cmd_dusr extends JvmExecutor {
         else if (params.has("session")) {
             WnObj oSe = get_session(sys, params);
             if (null == oSe) {
-                sys.out.println("{\"noexists\":true}");
+                // sys.out.println("{\"noexists\":true}");
+                throw Er.create("e.cmd.dusr.nologin");
             }
             // 找到了，读取内容
             else {
@@ -50,11 +51,27 @@ public class cmd_dusr extends JvmExecutor {
                 sys.out.println(Json.toJson(se, __jfmt(params)));
             }
         }
-        // 获取用户
-        else if (params.has("get")) {
+        // 获取用户，有可能要改密码
+        else {
             WnObj oU = get_usr(sys, params);
             if (null == oU) {
-                sys.out.println("{\"noexists\":true}");
+                throw Er.create("e.cmd.dusr.noexists");
+            }
+            // 改密码
+            if (params.has("passwd")) {
+                // 得到密码
+                String passwd = params.get("passwd");
+
+                // 设置密码加盐，换密码也同时换盐咯
+                String salt = R.UU64();
+                oU.setv("salt", salt);
+                oU.put("passwd", Lang.sha1(passwd + salt));
+
+                // 更新密码
+                sys.io.set(oU, "^(passwd|salt)$");
+
+                if (params.is("o"))
+                    sys.out.println(Json.toJson(oU, __jfmt(params)));
             }
             // 打印用户对象元数据
             else {
@@ -64,10 +81,28 @@ public class cmd_dusr extends JvmExecutor {
     }
 
     private WnObj get_usr(WnSystem sys, ZParams params) {
-        String uid = params.get("get");
+        // 根据条件获取用户
+        if (params.has("get")) {
+            NutMap map = Lang.map(params.get("get"));
+            WnQuery q = new WnQuery();
+            WnObj oHome = Wn.checkObj(sys, "~/.usr");
+            q.setAll(map);
+            q.setv("pid", oHome.id());
+            q.setv("d1", sys.se.group());
+            return sys.io.getOne(q);
+        }
+
+        // 指定名称
+        String uid = params.get("id");
+        if (!Strings.isBlank(uid)) {
+            return sys.io.get(uid);
+        }
+
+        // 指定 ID 吗？
+        String unm = params.vals.length > 0 ? params.vals[0] : null;
 
         // 得到当前会话的用户
-        if (Strings.isBlank(uid) || "true".equals(uid)) {
+        if (Strings.isBlank(unm)) {
             String dseid = Wn.WC().getString(WWW.AT_SEID);
 
             if (Strings.isBlank(dseid))
@@ -88,19 +123,11 @@ public class cmd_dusr extends JvmExecutor {
 
             // 得到当前用户的 ID
             uid = oSe.getString("dusr_id");
+            return sys.io.get(uid);
         }
 
-        // 这个是个 JSON 字符串
-        if (Strings.isQuoteBy(uid, '{', '}')) {
-            WnQuery q = new WnQuery();
-            q.setv("d1", sys.se.group());
-            NutMap map = Json.fromJson(NutMap.class, uid);
-            q.setAll(map);
-            return sys.io.getOne(q);
-        }
-
-        // 直接通过 ID 获取
-        return sys.io.get(uid);
+        // 直接通过 名称 获取
+        return Wn.getObj(sys, "~/.usr/" + unm);
     }
 
     private WnObj get_session(WnSystem sys, ZParams params) {
@@ -138,32 +165,48 @@ public class cmd_dusr extends JvmExecutor {
 
     private void _do_login(WnSystem sys, ZParams params) {
 
-        // 分析输入，并取出密码
-        NutMap umap = readJsonInput(sys, params, "login");
-        String passwd = __check_passwd(umap);
-
         // 得到主目录
         WnObj oHome = this.getHome(sys);
         WnObj oHU = sys.io.createIfNoExists(oHome, ".usr", WnRace.DIR);
 
-        // 看看用户是否存在
-        WnQuery q = Wn.Q.pid(oHU);
-        q.setAll(umap);
-        WnObj oU = sys.io.getOne(q);
-        if (null == oU) {
-            throw Er.create("e.cmd.dusr.login.noexists");
-        }
+        WnObj oU = null;
 
-        // 检查一下用户密码
-        String salt = oU.getString("salt", "NOSALT");
-        String expapasswd = oU.getString("passwd", "NO-PASSWD");
-        String saltpasswd = Lang.sha1(passwd + salt);
-        if (!expapasswd.equals(saltpasswd)) {
-            throw Er.create("e.cmd.dusr.login.invalid");
+        NutMap umap = readJsonInput(sys, params, "login");
+
+        // 微信的 openid 方式登录
+        if (umap.has("openid")) {
+            // 看看用户是否存在
+            WnQuery q = Wn.Q.pid(oHU);
+            q.setv("openid", umap.get("openid"));
+            oU = sys.io.getOne(q);
+            if (null == oU) {
+                throw Er.create("e.cmd.dusr.login.noexists");
+            }
         }
-        // 密码可不敢给别人看见
-        oU.remove("salt");
-        oU.remove("passwd");
+        // 用户名密码方式登录
+        else {
+            // 分析输入，并取出密码
+            String passwd = __check_passwd(umap);
+
+            // 看看用户是否存在
+            WnQuery q = Wn.Q.pid(oHU);
+            q.setAll(umap);
+            oU = sys.io.getOne(q);
+            if (null == oU) {
+                throw Er.create("e.cmd.dusr.login.noexists");
+            }
+
+            // 检查一下用户密码
+            String salt = oU.getString("salt", "NOSALT");
+            String expapasswd = oU.getString("passwd", "NO-PASSWD");
+            String saltpasswd = Lang.sha1(passwd + salt);
+            if (!expapasswd.equals(saltpasswd)) {
+                throw Er.create("e.cmd.dusr.login.invalid");
+            }
+            // 密码可不敢给别人看见
+            oU.remove("salt");
+            oU.remove("passwd");
+        }
 
         // 确保会话主目录存在
         String grp = sys.se.group();
@@ -220,7 +263,6 @@ public class cmd_dusr extends JvmExecutor {
 
     private void _do_create(WnSystem sys, ZParams params) {
         NutMap umap = readJsonInput(sys, params, "create");
-        String passwd = __check_passwd(umap);
 
         // 得到主目录
         WnObj oHome = this.getHome(sys);
@@ -228,15 +270,40 @@ public class cmd_dusr extends JvmExecutor {
 
         // 看看用户是否存在
         WnQuery q = Wn.Q.pid(oHU);
-        q.setAll(umap);
+        // 采用用户名
+        if (umap.has("nm")) {
+            q.setv("nm", umap.get("nm"));
+        }
+        // 采用微信 OpenId
+        else if (umap.has("openid")) {
+            q.setv("openid", umap.get("openid"));
+        }
+        // 采用手机号
+        else if (umap.has("phone")) {
+            q.setv("openid", umap.get("phone"));
+            q.setv("phone_checked", true);
+        }
+        // 采用邮箱
+        else if (umap.has("email")) {
+            q.setv("email", umap.get("phone"));
+            q.setv("email_checked", true);
+        }
+        // 都木有，没法创建了
+        else {
+            throw Er.create("e.cmd.dusr.create.noway");
+        }
+
         if (null != sys.io.getOne(q)) {
             throw Er.create("e.cmd.dusr.create.exists");
         }
 
         // 设置密码加盐
-        String salt = R.UU64();
-        umap.put("salt", salt);
-        umap.put("passwd", Lang.sha1(passwd + salt));
+        if (umap.has("passwd")) {
+            String passwd = __check_passwd(umap);
+            String salt = R.UU64();
+            umap.put("salt", salt);
+            umap.put("passwd", Lang.sha1(passwd + salt));
+        }
 
         // 创建用户对象并保存
         WnObj oU = sys.io.createIfNoExists(oHU, "${id}", WnRace.DIR);
