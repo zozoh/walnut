@@ -182,7 +182,7 @@ return ZUI.def("ui.form_com_droplist", {
         var hasIcon = false;
         for(var i=0; i<items.length; i++){
             var item = items[i];
-            var val  = opt.value.call(context, item, i); 
+            var val  = opt.value.call(context, item, UI); 
 
             var jLi = $('<li>').appendTo(jUl)
                 .attr("index", i)
@@ -200,7 +200,7 @@ return ZUI.def("ui.form_com_droplist", {
             // 图标
             var icon = _.isString(opt.icon)
                                 ? $z.tmpl(opt.icon)(item)
-                                : opt.icon.call(context, item, i);
+                                : opt.icon.call(context, item, UI);
             jIcon = $('<span it="icon">').appendTo(jLi);
             if(_.isString(icon)){
                 jIcon.html(icon);
@@ -210,7 +210,7 @@ return ZUI.def("ui.form_com_droplist", {
             // 文字
             var text = _.isString(opt.icon)
                                 ? $z.tmpl(opt.icon)(item)
-                                : opt.text.call(context, item, i);
+                                : opt.text.call(context, item, UI);
             $('<b it="text">').text(UI.text(text)).appendTo(jLi);
         }
 

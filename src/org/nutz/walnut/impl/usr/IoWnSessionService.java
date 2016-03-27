@@ -50,7 +50,7 @@ public class IoWnSessionService implements WnSessionService {
         if (Strings.isBlank(pwd))
             throw Er.create("e.usr.blank.pwd");
 
-        IoWnUsr u = usrs.check(nm);
+        WnUsr u = usrs.check(nm);
         if (!usrs.checkPassword(nm, pwd)) {
             throw Er.create("e.usr.invalid.login");
         }

@@ -1022,15 +1022,18 @@ var zUtil = {
     //.............................................
     // 根据颜色对象的 red,green,blue,alpha ，更新其他字段的值
     updateColor : function(color){
+        color.AA   = parseInt(color.alpha * 255).toString(16).toUpperCase();
         color.RR   = color.red.toString(16).toUpperCase();
         color.GG   = color.green.toString(16).toUpperCase();
         color.BB   = color.blue.toString(16).toUpperCase();
+        color.AA   = color.AA.length == 1 ? color.AA+color.AA : color.AA;
         color.RR   = color.RR.length == 1 ? color.RR+color.RR : color.RR;
         color.GG   = color.GG.length == 1 ? color.GG+color.GG : color.GG;
         color.BB   = color.BB.length == 1 ? color.BB+color.BB : color.BB;
         color.HEX  = "#"+color.RR+color.GG+color.BB;
         color.RGB  = "rgb("+color.red+","+color.green+","+color.blue+")";
         color.RGBA = "rgba("+color.red+","+color.green+","+color.blue+","+color.alpha+")";
+        color.AARRGGBB = "0x"+color.AA+color.RR+color.GG+color.BB;
         return color;
     },
     /*.............................................
@@ -1039,6 +1042,7 @@ var zUtil = {
         red   : 255,
         green : 255,
         blue  : 255,
+        AA    : "FF",
         RR    : "FF",
         GG    : "FF",
         BB    : "FF",
@@ -1046,6 +1050,7 @@ var zUtil = {
         HEX   : "#FFFFFF",
         RGB   : rgb(255,255,255),
         RGBA  : rgb(255,255,255, 1)
+        AARRGGBB : "0xFF00AA99"
     }
     */
     parseColor : function(str, alpha) {
@@ -1093,6 +1098,17 @@ var zUtil = {
             color.green = parseInt(m[2], 10);
             color.blue  = parseInt(m[3], 10);
             color.alpha = m[4] * 1;
+        }
+        // AARRGGBB : 0xFF000000
+        else if (m = /^0[xX]([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2});?$/.exec(str)) {
+            color.alpha = parseInt(m[1], 16)/255;
+            color.red   = parseInt(m[2], 16);
+            color.green = parseInt(m[3], 16);
+            color.blue  = parseInt(m[4], 16);
+        }
+        // 不支持的颜色值格式
+        else {
+            throw "unknown color format: " + str;
         }
 
         // 最后返回颜色

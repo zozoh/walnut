@@ -156,7 +156,7 @@ public class cmd_obj extends JvmExecutor {
 
         // 最后执行输出
         if ((null == u_map || params.is("o")) && !params.is("Q")) {
-            output_objs(sys, params, wp, list);
+            output_objs(sys, params, wp, list, true);
         }
 
     }

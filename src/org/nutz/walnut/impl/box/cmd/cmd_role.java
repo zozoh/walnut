@@ -5,6 +5,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -19,7 +20,14 @@ public class cmd_role extends JvmExecutor {
             throw Er.create("e.cmd.lackargs");
         }
 
-        // 分析
+        Wn.WC().security(new WnEvalLink(sys.io), () -> {
+            __exec_without_security(sys, params);
+        });
+
+    }
+
+    private void __exec_without_security(WnSystem sys, ZParams params) {
+        // 分析输入参数
         String str = params.vals[0];
         String[] ss = Strings.splitIgnoreBlank(str, ":");
         String unm, grp;
@@ -31,23 +39,26 @@ public class cmd_role extends JvmExecutor {
             grp = ss[0];
         }
 
-        // 检查用户
-        WnUsr u = sys.usrService.check(unm);
+        // 得到要操作的用户
+        String myName = sys.se.me();
+        WnUsr me = sys.usrService.check(myName);
+        WnUsr u = myName.equals(unm) ? me : sys.usrService.check(unm);
+
+        // 如果要操作的用户不是自己，那么必须得有 root 组的权限
+        int roleInRoot = sys.usrService.getRoleInGroup(me, "root");
+        boolean I_am_member_of_root = roleInRoot == 1 || roleInRoot == 10;
+        if (!myName.equals(unm) && !I_am_member_of_root) {
+            throw Er.create("e.me.nopvg");
+        }
 
         // 改变权限
         if (params.has("role")) {
             int role = params.getInt("role");
             // 检查合法性
-            switch (role) {
-            case Wn.ROLE.ADMIN:
-            case Wn.ROLE.BLOCK:
-            case Wn.ROLE.MEMBER:
-            case Wn.ROLE.OTHERS:
-            case Wn.ROLE.REQUEST:
-                break;
-            default:
-                throw Er.create("e.cmd.role.invalid", role);
-            }
+            Wn.ROLE.getRoleName(role);
+
+            if (!I_am_member_of_root)
+                __assert_I_am_admin_of_group(sys, params, me, grp);
 
             // 修改
             sys.usrService.setRoleInGroup(u, grp, role);
@@ -61,7 +72,12 @@ public class cmd_role extends JvmExecutor {
                 sys.out.println("" + role);
             }
         }
-
     }
 
+    private void __assert_I_am_admin_of_group(WnSystem sys, ZParams params, WnUsr me, String grp) {
+        int role = sys.usrService.getRoleInGroup(me, grp);
+        if (role != 1) {
+            throw Er.create("e.me.nopvg");
+        }
+    }
 }

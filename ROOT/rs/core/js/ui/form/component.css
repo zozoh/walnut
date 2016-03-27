@@ -79,12 +79,21 @@
   outline: none;
   height: 30px;
   line-height: 30px;
+  border-radius: 4px;
+}
+.com-color input {
+  outline: none;
   border: 1px solid #cccccc;
   border-radius: 4px;
-  color: #888;
-  background: #FFF;
-  font-size: 12px;
+  color: #000000;
+  background: #ffffff;
   font-family: Monaco, Consolas, Courier New;
+  font-size: 12px;
+}
+.com-color input:focus {
+  color: #000000;
+  background: #ffffcc;
+  border-color: #ff8800;
 }
 .com-color div.preview {
   width: 30px;

@@ -48,7 +48,7 @@ public class cmd_mkdir extends JvmExecutor {
 
         // 输出
         if (params.is("o")) {
-            this.output_objs(sys, params, null, outs);
+            this.output_objs(sys, params, null, outs, true);
         }
     }
 

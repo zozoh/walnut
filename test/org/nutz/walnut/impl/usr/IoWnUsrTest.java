@@ -62,7 +62,7 @@ public class IoWnUsrTest extends BaseUsrTest {
             });
 
             // 把 B 用户加入到组里就能写
-            usrs.setRoleInGroup(ub, ua.group(), Wn.ROLE.MEMBER);
+            usrs.setRoleInGroup(ub, ua.mainGroup(), Wn.ROLE.MEMBER);
             String str = wc.su(ub, new Proton<String>() {
                 protected String exec() {
                     WnObj o = io.check(null, path);
@@ -98,7 +98,7 @@ public class IoWnUsrTest extends BaseUsrTest {
             // 只有变成管理员
             wc.su(root, new Atom() {
                 public void run() {
-                    usrs.setRoleInGroup(ub, ua.group(), Wn.ROLE.ADMIN);
+                    usrs.setRoleInGroup(ub, ua.mainGroup(), Wn.ROLE.ADMIN);
                 }
             });
 
@@ -161,7 +161,7 @@ public class IoWnUsrTest extends BaseUsrTest {
             }
 
             // 把 B 用户加入到组里就能读
-            usrs.setRoleInGroup(ub, ua.group(), Wn.ROLE.MEMBER);
+            usrs.setRoleInGroup(ub, ua.mainGroup(), Wn.ROLE.MEMBER);
             str = wc.su(ub, new Proton<String>() {
                 protected String exec() {
                     WnObj o = io.check(null, path);
@@ -195,7 +195,7 @@ public class IoWnUsrTest extends BaseUsrTest {
             // 只有变成管理员
             wc.su(root, new Atom() {
                 public void run() {
-                    usrs.setRoleInGroup(ub, ua.group(), Wn.ROLE.ADMIN);
+                    usrs.setRoleInGroup(ub, ua.mainGroup(), Wn.ROLE.ADMIN);
                 }
             });
 
@@ -397,7 +397,7 @@ public class IoWnUsrTest extends BaseUsrTest {
         assertTrue(usrs.checkPassword("xiaobai", "123456"));
         assertEquals(xiaobai.id(), u.id());
         assertEquals("xiaobai", u.name());
-        assertEquals("xiaobai", u.group());
+        assertEquals("xiaobai", u.mainGroup());
         assertNull(u.phone());
         assertNull(u.email());
 
@@ -405,16 +405,16 @@ public class IoWnUsrTest extends BaseUsrTest {
         WnObj oHome = io.check(null, u.home());
 
         // 检查权限设定
-        WnObj oMe = io.check(oHome, "/sys/grp/" + u.group() + "/people/" + u.id());
+        WnObj oMe = io.check(oHome, "/sys/grp/" + u.mainGroup() + "/people/" + u.id());
         assertEquals(Wn.ROLE.ADMIN, oMe.getInt("role"));
-        assertEquals(Wn.ROLE.ADMIN, usrs.getRoleInGroup(u, u.group()));
+        assertEquals(Wn.ROLE.ADMIN, usrs.getRoleInGroup(u, u.mainGroup()));
 
         // 删除就什么也没了
         usrs.delete(u);
         assertNull(usrs.fetch("xiaobai"));
 
         // 但是组目录还在
-        io.check(oHome, "/sys/grp/" + u.group() + "/people/" + u.id());
+        io.check(oHome, "/sys/grp/" + u.mainGroup() + "/people/" + u.id());
 
     }
 

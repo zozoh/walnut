@@ -182,7 +182,7 @@ return ZUI.def("ui.form", {
             var theUI = new TheUI(_.extend(theConf, fld.uiConf, {
                 gasketName : fld.key,
                 $pel       : jFui,
-                //context    : fld,
+                context    : fld,
                 on_change  : function(v){
                     UI.__on_change(this, v);
                 }

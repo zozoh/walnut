@@ -17,7 +17,7 @@ public class WnPager {
 
     public WnPager(ZParams params) {
         this();
-        this.skip = params.getInt("skip", -1);
+        this.skip = params.getInt("skip", 0);
         this.limit = params.getInt("limit", -1);
         this.countPage = params.is("pager");
         this.pgsz = limit > 0 ? limit : 50;

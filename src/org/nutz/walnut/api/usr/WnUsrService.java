@@ -1,6 +1,9 @@
 package org.nutz.walnut.api.usr;
 
-import org.nutz.walnut.impl.usr.IoWnUsr;
+import java.util.List;
+
+import org.nutz.lang.Each;
+import org.nutz.walnut.api.io.WnQuery;
 
 public interface WnUsrService {
 
@@ -14,7 +17,7 @@ public interface WnUsrService {
      * @return 被删除的用户，null 表用户不存在
      */
     void delete(WnUsr u);
-    
+
     boolean checkPassword(String nm, String pwd);
 
     WnUsr setPassword(String str, String pwd);
@@ -31,12 +34,24 @@ public interface WnUsrService {
 
     WnUsr fetch(String str);
 
-    IoWnUsr check(String str);
+    WnUsr check(String str);
 
     int getRoleInGroup(WnUsr u, String grp);
 
     void setRoleInGroup(WnUsr u, String grp, int role);
 
     int removeRoleFromGroup(WnUsr u, String grp);
+
+    List<String> findMyGroups(WnUsr u);
+
+    boolean isInGroup(WnUsr u, String grp);
+
+    void eachInGroup(String grp, WnQuery q, Each<WnRole> callback);
+
+    List<WnUsr> queryInGroup(String grp, WnQuery q);
+
+    void each(WnQuery q, Each<WnUsr> callback);
+
+    List<WnUsr> query(WnQuery q);
 
 }

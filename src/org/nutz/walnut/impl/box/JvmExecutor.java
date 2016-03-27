@@ -224,11 +224,15 @@ public abstract class JvmExecutor {
         return list.get(0);
     }
 
-    protected void output_objs(WnSystem sys, ZParams params, WnPager wp, List<WnObj> list) {
+    protected void output_objs(WnSystem sys,
+                               ZParams params,
+                               WnPager wp,
+                               List<? extends WnObj> list,
+                               boolean autoPath) {
         // 生成输出列表
         List<NutMap> outs = new ArrayList<NutMap>(list.size());
         for (WnObj o : list) {
-            if (list.size() == 1 || params.is("P")) {
+            if (autoPath && (list.size() == 1 || params.is("P"))) {
                 o.path();
                 if (params.is("A")) {
                     List<WnObj> ancestors = new LinkedList<WnObj>();

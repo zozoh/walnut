@@ -40,10 +40,10 @@
     input, div.preview {
         vertical-align: middle; display: inline-block;
         padding:0 @d2; outline:none; height:@CCH; line-height: @CCH;
-        border:1px solid @cborder0; 
-        border-radius: @d1; color:#888; background: #FFF;
-        font-size:@f2; font-family: @f_fixed;
+        border-radius: @d1; 
     }
+    input {@input();font-family: @f_fixed; font-size:@f2; }
+    input:focus {@input_focus();}
     div.preview {
         width:@CCH; height:@CCH; position: relative; padding: 0; overflow: hidden;
         background: url(/gu/rs/core/js/ui/form/bgcanvas.png);
