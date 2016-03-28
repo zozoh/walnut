@@ -101,14 +101,14 @@ return ZUI.def("ui.form_com_switch", {
 
         for(var i=0; i<items.length; i++){
             var item = items[i];
-            var val  = opt.value.call(context, item, i); 
+            var val  = opt.value.call(context, item, i, UI); 
 
             var jLi = $('<li>').appendTo(jUl)
                 .attr("index", i)
                 .data("@VAL", val);
 
             // 图标
-            var icon = opt.icon.call(context, item, i);
+            var icon = opt.icon.call(context, item, i, UI);
             jIcon = $('<span it="icon">').appendTo(jLi);
             if(_.isString(icon)){
                 jIcon.html(icon);
@@ -116,7 +116,7 @@ return ZUI.def("ui.form_com_switch", {
             }
 
             // 下拉项目
-            var text = opt.text.call(context, item, i);
+            var text = opt.text.call(context, item, i, UI);
             $('<b it="text">').text(UI.text(text)).appendTo(jLi);
         }
     },

@@ -105,8 +105,11 @@ public class weixin_order implements JvmHdl {
 
             // 如果订单已经被处理完毕了，就没必要后续处理了
             // 因为微信支付会反复调用这个回调好几遍的
-            if (oOrder.getInt("or_status") > 0) {
-                return null;
+            if (oOrder.getInt("or_status") > 1
+                && oOrder.getLong("pay_time") > 0
+                && oOrder.has("pay_result")
+                && !(oOrder.expireTime() > 0)) {
+                return oOrder;
             }
 
             // 修改账单状态
@@ -145,7 +148,11 @@ public class weixin_order implements JvmHdl {
         // 防守一下
         String client_openid = hc.params.check("openid");
         if (!client_openid.equals(or_openid)) {
-            throw Er.create("e.cmd.weixin.order.user.nosame");
+            throw Er.createf("e.cmd.weixin.order.user.nosame",
+                             "client:[%s],order:[%s]@{%s}",
+                             client_openid,
+                             or_openid,
+                             openIdKey);
         }
 
         // 看看是否有缓存对象
@@ -237,13 +244,13 @@ public class weixin_order implements JvmHdl {
         }
 
         // 得到公众号的签名秘钥，以及 appId 以备后用
-        String wxinfo = sys.exec2("weixin " + pnb + " -info '^(appID|payKey)$'");
+        String wxinfo = sys.exec2("weixin " + pnb + " info '^(appID|pay_key)$'");
         NutMap mapInfo = Json.fromJson(NutMap.class, wxinfo);
         String appId = mapInfo.getString("appID");
-        String payKey = mapInfo.getString("payKey");
+        String pay_key = mapInfo.getString("pay_key");
 
         // 验证返回
-        NutMap mapResp = Wxs.checkPayReturn(xml, payKey);
+        NutMap mapResp = Wxs.checkPayReturn(xml, pay_key);
 
         // 记录到订单对象
         oOrder.setv("pay_remap", mapResp);
@@ -259,7 +266,7 @@ public class weixin_order implements JvmHdl {
         mapPay.setv("signType", "MD5");
         mapPay.setv("appId", appId);
 
-        String sign = Wxs.genPaySignMD5(mapPay, payKey);
+        String sign = Wxs.genPaySignMD5(mapPay, pay_key);
         mapPay.remove("appId");
         mapPay.setv("paySign", sign);
 
@@ -272,7 +279,14 @@ public class weixin_order implements JvmHdl {
     }
 
     private String __gen_out_trade_no(WnSystem sys, WnObj oOrder) {
-        int seq = sys.io.inc(oOrder.id(), "or_pay_seq", 1);
+        int seq;
+        if (oOrder.getInt("or_pay_seq") > 0) {
+            seq = sys.io.inc(oOrder.id(), "or_pay_seq", 1);
+        } else {
+            seq = 0;
+            oOrder.setv("or_pay_seq", 0);
+            sys.io.set(oOrder, "^or_pay_seq$");
+        }
         return oOrder.id() + "_" + seq;
     }
 
