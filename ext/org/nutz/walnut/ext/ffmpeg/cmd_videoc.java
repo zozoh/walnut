@@ -75,6 +75,7 @@ public class cmd_videoc extends JvmExecutor {
                 Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
                 t = sys.io.createIfNoExists(tdir, "_preview.jpg", WnRace.FILE);
                 sys.io.writeAndClose(t, new FileInputStream(thumb));
+                t = sys.io.checkById(t.id());
                 sys.io.appendMeta(obj, "thumb:'" + t.thumbnail() + "'");
                 sys.io.appendMeta(t, tMap);
             }
@@ -92,7 +93,7 @@ public class cmd_videoc extends JvmExecutor {
             }
             // 生成主文件
             if (mode == null || mode.matcher("preview_video").find()) {
-                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ${preset} -vcodec ${vcodec} -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
+                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
                 cmd = seg.render(new SimpleContext(vc_params)).toString();
                 log.debug("cmd: " + cmd);
                 Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
