@@ -1,20 +1,54 @@
 @import "../ui.less";
 
-.opreview-wrapper {
-    width:100%;  height:100%; overflow: hidden; background: @cb0;
+@infoW : 340px;
+
+.opreview {
+    position: relative; 
+    > div {position: absolute;top:0;bottom: 0;transition: 0.5s;}
+    .opreview-main {overflow: auto; background: @cb0;padding:@d4;}
+    .opreview-info {width:@infoW; background: @cb1;}
+    .form {
+        .form-title {
+            text-align: left; color:@cf2; font-size:@f2; font-family: @f_fixed;
+            opacity: 0.6;
+            i {margin: 0 @d2;}
+        }
+        .ff-txt {padding-left:@d4;}
+    }
 }
 
-.opreview-wrapper[mode="text"]{
-    pre {padding:20px;}
+.opreview[show-info="yes"] {
+    .opreview-main {
+        left:0; right:@infoW; overflow: auto; background: @cb0;
+        padding:@d4;
+    }
+    .opreview-info {
+        right: 0;
+    }
 }
 
-.opreview-wrapper[mode="pic"]{
-    text-align: center; 
-    img.autofit {
+.opreview[show-info="no"] {
+    .opreview-main {
+        left:0; right:0; overflow: auto; background: @cb0;
+        padding:@d4;
+    }
+    .opreview-info {
+        right: -@infoW;
+    }
+}
+
+.opreview-main[mode="text"]{
+    pre {padding:@d2;}
+}
+
+.opreview-main[mode="pic"]{@noselect();
+    text-align: center;  @flex(); justify-content:center; align-items:center;
+    img.autofit {@noselect();
         object-fit: contain; width:100%; height:100%;
     }
 }
 
-.opreview-wrapper[mode="others"] {
+.opreview-main[mode="others"] {
     font-size: @f6; color:@cf0; padding:@da; text-align: center;
 }
+

@@ -24,6 +24,7 @@ import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
+import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpServerResponse;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.RawView;
@@ -173,7 +174,10 @@ public class WWWModule extends AbstractWnModule {
 
     @At("/?/**")
     @Filters({@By(type = WWWSetSessionID.class)})
-    public View show_page(String usr, String a_path, HttpServletRequest req) {
+    public View show_page(String usr,
+                          String a_path,
+                          HttpServletRequest req,
+                          @ReqHeader("User-Agent") String ua) {
         // 如果有的话，去掉开头的绝对路径符
         if (null == a_path) {
             a_path = "";
@@ -300,7 +304,7 @@ public class WWWModule extends AbstractWnModule {
             // 其他的都是静态资源，就直接下载了
             if (log.isDebugEnabled())
                 log.debugf(" - download (%s)@%s : %s", o.id(), usr, a_path);
-            return new WnObjDownloadView(io, o);
+            return new WnObjDownloadView(io, o, ua);
 
         }
         catch (Exception e) {

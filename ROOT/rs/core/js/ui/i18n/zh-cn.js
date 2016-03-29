@@ -47,16 +47,9 @@ define({
         week : ["日","一","二","三","四","五","六"]
     },
     "e" : {
-        "fld" : {
-            "invalid" : {
-                "datetime" : "错误的日期时间格式"
-            }
-        },
         "act" : {
-            "noapi" : {
-                "obj"     : "找不到需要的对象数据接口",
-                "content" : "找不到需要的内容数据接口"
-            }
+            "noapi_obj"     : "找不到需要的对象数据接口",
+            "noapi_content" : "找不到需要的内容数据接口",
         }
     },
     "frace" : {
@@ -66,6 +59,23 @@ define({
     "ftype" : {
         // 应该遵从 ~/.ui/i18n/$LANG.js 里面的设定
         // app 的 main 应该处理这一点
+    },
+    "obj" : {
+        "id"   : "ID",
+        "ph"   : "路径",
+        "race" : "对象种类",
+        "nm"   : "名称",
+        "tp"   : "类型",
+        "mime" : "内容类型",
+        "len"  : "文件尺寸",
+        "md"   : "权限",
+        "c"    : "创建者",
+        "m"    : "修改者",
+        "g"    : "所属组",
+        "ct"   : "创建时间",
+        "lm"   : "最后修改时间",
+        "width"  : "宽度",
+        "height" : "高度",
     },
     "fmime" : {
         "application_octet_stream" :"Octet-stream 应用",

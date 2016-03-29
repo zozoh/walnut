@@ -9,6 +9,7 @@ import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
+import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
@@ -43,7 +44,7 @@ public class ThemeModule extends AbstractWnModule {
     @At("/r/?/**")
     @Ok("void")
     @Fail("http:404")
-    public View getUiTheme(String themeCate, String rsName) {
+    public View getUiTheme(String themeCate, String rsName, @ReqHeader("User-Agent") String ua) {
         WnObj oCss = null;
 
         // 分析
@@ -117,7 +118,7 @@ public class ThemeModule extends AbstractWnModule {
         }
 
         // 读取 CSS 内容返回以便输出
-        return new WnObjDownloadView(io, oCss);
+        return new WnObjDownloadView(io, oCss, ua);
     }
 
 }

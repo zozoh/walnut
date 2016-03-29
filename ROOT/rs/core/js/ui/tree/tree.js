@@ -379,14 +379,18 @@ return ZUI.def("ui.tree", {
         var UI  = this;
         var opt = UI.options;
         // 确保是数组
-        if(!_.isArray(list)){
+        if(list && !_.isArray(list)){
             list = [list];
         }
         // 遍历数组进行绘制
         jP.empty();
-        list.forEach(function(obj){
-            UI.__gen_node(obj).appendTo(jP);
-        });
+
+        // 如果列表有内容才遍历吧
+        if(list){
+            list.forEach(function(obj){
+                UI.__gen_node(obj).appendTo(jP);
+            });
+        }
     },
     //...............................................................
     __gen_node : function(obj) {

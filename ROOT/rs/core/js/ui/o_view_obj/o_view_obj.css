@@ -1,21 +1,78 @@
-.opreview-wrapper {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+.opreview {
+  position: relative;
+}
+.opreview > div {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  transition: 0.5s;
+}
+.opreview .opreview-main {
+  overflow: auto;
   background: #ffffff;
+  padding: 12px;
 }
-.opreview-wrapper[mode="text"] pre {
-  padding: 20px;
+.opreview .opreview-info {
+  width: 340px;
+  background: #eeeeee;
 }
-.opreview-wrapper[mode="pic"] {
+.opreview .form .form-title {
+  text-align: left;
+  color: #999999;
+  font-size: 12px;
+  font-family: Monaco, Consolas, Courier New;
+  opacity: 0.6;
+}
+.opreview .form .form-title i {
+  margin: 0 6px;
+}
+.opreview .form .ff-txt {
+  padding-left: 12px;
+}
+.opreview[show-info="yes"] .opreview-main {
+  left: 0;
+  right: 340px;
+  overflow: auto;
+  background: #ffffff;
+  padding: 12px;
+}
+.opreview[show-info="yes"] .opreview-info {
+  right: 0;
+}
+.opreview[show-info="no"] .opreview-main {
+  left: 0;
+  right: 0;
+  overflow: auto;
+  background: #ffffff;
+  padding: 12px;
+}
+.opreview[show-info="no"] .opreview-info {
+  right: -340px;
+}
+.opreview-main[mode="text"] pre {
+  padding: 6px;
+}
+.opreview-main[mode="pic"] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
   text-align: center;
+  display: -webkit-flex;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.opreview-wrapper[mode="pic"] img.autofit {
+.opreview-main[mode="pic"] img.autofit {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
   object-fit: contain;
   width: 100%;
   height: 100%;
 }
-.opreview-wrapper[mode="others"] {
+.opreview-main[mode="others"] {
   font-size: 32px;
   color: #333333;
   padding: 96px;

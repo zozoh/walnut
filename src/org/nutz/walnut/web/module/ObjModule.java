@@ -34,6 +34,7 @@ import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.POST;
 import org.nutz.mvc.annotation.Param;
+import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.err.Er;
@@ -304,7 +305,7 @@ public class ObjModule extends AbstractWnModule {
      */
     @At("/read/**")
     @Ok("void")
-    public View read(String str, @Param("sha1") String sha1) {
+    public View read(String str, @Param("sha1") String sha1, @ReqHeader("User-Agent") String ua) {
         // 首先得到目标对象
         WnObj o = Wn.checkObj(io, str);
 
@@ -315,7 +316,7 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 读取对象的值
-        return new WnObjDownloadView(io, o);
+        return new WnObjDownloadView(io, o, ua);
     }
 
     @At("/write/**")

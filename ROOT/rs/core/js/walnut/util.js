@@ -435,8 +435,9 @@ var Wn = {
     //..............................................
     /* 根据一个对象获取其应用配置信息
      opt - {
-        forceTop: true,   // 是否为每个菜单项强制加上 "@"
-        editor  : "xxx",  // 【选】采用指定的编辑器 
+        forceTop: true    // 是否为每个菜单项强制加上 "@"
+        editor  : "xxx"   // 【选】采用指定的编辑器 
+        tp      : "xxx"   // 【选】采用指定对象类型的菜单
         context : this    // 回调的上下文
         inEditor: false   // 是否指定在编辑器，如果是未定义
                           // 则 asetup.editors 数组有内容就表示在编辑器内
@@ -454,9 +455,22 @@ var Wn = {
         else if(!opt){
             opt = {forceTop : false};
         }
+
+        // 分析一下，如果 theEditor 格式类似  type:xxxx 那么就不是编辑器
+        if(opt.editor){
+            var m = /^type:(.+)$/.exec(opt.editor);
+            if(m) {
+                opt.tp = m[1];
+                opt.editor = null;
+            }
+        }
+
         // 开始从服务器获取数据
         var Wn = this;
-        Wn.exec("appsetup id:"+o.id, function(json){
+        var cmdText = "appsetup id:"+o.id;
+        if(opt.tp)
+            cmdText += " -tp " + opt.tp;
+        Wn.exec(cmdText, function(json){
             var asetup = $z.fromJson(json);
             
             // 强制使用指定的编辑器
