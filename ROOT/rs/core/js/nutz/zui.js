@@ -745,6 +745,9 @@ ZUIObj.prototype = {
         var jq = selector ? $(selector) : this.arena;
         jq.empty().html(html);
     },
+    hideLoading : function(){
+        this.arena.find(".ui-loading").remove();
+    },
     // 根据路径获取一个子 UI
     subUI : function(uiPath){
         var UI = this;

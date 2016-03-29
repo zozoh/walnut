@@ -1,53 +1,72 @@
 @import "../ui.less";
 
 @infoW : 340px;
-
+//--------------------------------------------------------- 全局
 .opreview {
     position: relative; 
-    > div {position: absolute;top:0;bottom: 0;transition: 0.5s;}
-    .opreview-main {overflow: auto; background: @cb0;padding:@d4;}
-    .opreview-info {width:@infoW; background: @cb1;}
+    > div {position: absolute;top:0;transition: 0.5s;}
+    .opreview-main {background: @cb4;padding:@d4; bottom: 0;}
+    .opreview-info {width:@infoW; background: @cb1; bottom: 0;}
+    .opreview-showinfo {
+        top:0; right:0; padding:@d3; magin:@d2; font-size: @f5; cursor: pointer;
+    }
+    .opreview-showinfo[data-balloon]::before {font-size: @f4;}
     .form {
         .form-title {
-            text-align: left; color:@cf2; font-size:@f2; font-family: @f_fixed;
+            text-align: left; color:@cf1; font-size:@f2; font-family: @f_fixed;
             opacity: 0.6;
             i {margin: 0 @d2;}
         }
         .ff-txt {padding-left:@d4;}
     }
+    .ui-loading {
+        padding:@d6; text-align: center; font-size: @f5; height:100%;
+    }
+    .ui-loading:before {
+        content:"";
+        display: block;
+        height:40%;
+    }
 }
 
 .opreview[show-info="yes"] {
     .opreview-main {
-        left:0; right:@infoW; overflow: auto; background: @cb0;
+        left:0; right:@infoW; overflow: auto;
         padding:@d4;
     }
     .opreview-info {
         right: 0;
     }
+    .opreview-showinfo {opacity: 0; width:1px; height:1px; padding:0; margin: 0;}
 }
 
 .opreview[show-info="no"] {
     .opreview-main {
-        left:0; right:0; overflow: auto; background: @cb0;
+        left:0; right:0; overflow: auto; 
         padding:@d4;
     }
     .opreview-info {
         right: -@infoW;
     }
+    .opreview-showinfo {opacity: 0.6;}
+    .opreview-showinfo:hover {opacity: 1; font-size: @f6;}
 }
-
+//--------------------------------------------------------- 文本
 .opreview-main[mode="text"]{
+    overflow: auto;
     pre {padding:@d2;}
 }
-
+//--------------------------------------------------------- 图片
 .opreview-main[mode="pic"]{@noselect();
-    text-align: center;  @flex(); justify-content:center; align-items:center;
-    img.autofit {@noselect();
-        object-fit: contain; width:100%; height:100%;
+    div.img-con {
+        width:100%; height:100%;
+        text-align: center;  @flex(); justify-content:center; align-items:center;
+        img.autofit {@noselect();
+            object-fit: contain; width:100%; height:100%;
+        }
     }
 }
-
+//--------------------------------------------------------- 未知
 .opreview-main[mode="others"] {
     font-size: @f6; color:@cf0; padding:@da; text-align: center;
 }
