@@ -69,7 +69,7 @@ public class cmd_videoc extends JvmExecutor {
 
             // 先生成预览图
             if (mode == null || mode.matcher("preview_image").find()) {
-                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -f image2 -ss 1 -vframes 1  ${thumbPath}");
+                seg = Segments.create("ffmpeg -y -v quiet -ss 00:00:01.00  -i ${source} -f image2 -vframes 1  ${thumbPath}");
                 cmd = seg.render(new SimpleContext(vc_params)).toString();
                 log.debug("cmd: " + cmd);
                 Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
@@ -102,6 +102,7 @@ public class cmd_videoc extends JvmExecutor {
                 sys.io.appendMeta(obj, "videoc_dir:'" + tdir.id() + "'");
                 sys.io.appendMeta(t, tMap);
             }
+            sys.io.appendMeta(obj, "videoc_dir:id:"+tdir.id());
             sys.out.print(tdir.id());
         }
         finally {
