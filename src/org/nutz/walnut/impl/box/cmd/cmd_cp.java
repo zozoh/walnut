@@ -1,52 +1,79 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import org.nutz.walnut.api.err.Er;
+import org.nutz.lang.Each;
+import org.nutz.lang.util.Disks;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
+import org.nutz.walnut.util.ZParams;
 import org.nutz.web.Webs.Err;
 
 public class cmd_cp extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        if (args.length != 2) {
+        ZParams params = ZParams.parse(args, "p|v|r");
+        if (params.vals.length != 2) {
             throw Err.create("e.cmds.cp.not_enugh_args");
         }
-        String ph_src = Wn.normalizeFullPath(args[0], sys);
-        String ph_dst = Wn.normalizeFullPath(args[1], sys);
+        String ph_src = Wn.normalizeFullPath(params.vals[0], sys);
+        String ph_dst = Wn.normalizeFullPath(params.vals[1], sys);
         WnObj src = sys.io.check(null, ph_src);
-        WnObj dst = sys.io.fetch(null, ph_dst);
-
-        if (null == dst) {
-            dst = sys.io.createIfNoExists(null, ph_dst, src.race());
+        if (src.isDIR() && !params.is("r")) {
+            throw Err.create("e.cmds.cp.omitting_directory");
         }
 
-        // Copy 单个文件
-        if (src.isFILE()) {
-            __cp_src_as_file(sys, src, dst);
+        _do_copy(sys, params, ph_src, ph_dst, src);
+    }
+
+    protected void _do_copy(final WnSystem sys,
+                            final ZParams params,
+                            final String base,
+                            final String dst_base,
+                            WnObj o) {
+        // 打印
+        if (params.is("v")) {
+            sys.out.printlnf(Disks.getRelativePath(base, o.path()));
         }
-        // Copy 一组目录
-        else {
-            throw Er.create("e.cmd.cp.src.dir", "unsupported");
+        // 递归
+        if (!o.isFILE() && params.is("r")) {
+            sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
+                public void invoke(int index, WnObj child, int length) {
+                    _do_copy(sys, params, base, dst_base, child);
+                }
+            });
+        }
+        // 删除自己
+        String dstPath;
+        if (base.equals(o.path())) {
+            dstPath = dst_base;
+        } else {
+            dstPath = dst_base + o.path().substring(base.length());
+        }
+        WnObj dst = sys.io.createIfNoExists(null, dstPath, o.race());
+        if (o.isFILE())
+            __cp_src_as_file(sys, o, dst);
+        if (params.is("p")) {
+            NutMap meta = new NutMap();
+            meta.put("mode", o.mode());
+            meta.put("group", o.group());
+            sys.io.appendMeta(dst, meta);
         }
     }
 
     private void __cp_src_as_file(WnSystem sys, WnObj src, WnObj dst) {
-        WnObj dst_o;
-        // 如果目标是个目录
-        if (dst.isDIR()) {
-            dst_o = sys.io.createIfNoExists(dst, src.name(), src.race());
-        } else {
-            dst_o = dst;
-        }
-
-        if (!src.isFILE())
-            throw Err.create("e.cmds.cp.only_file");
 
         // 执行快速 copy
-        sys.io.copyData(src, dst_o);
+        if (src.isMount())
+            sys.io.writeAndClose(dst, sys.io.getInputStream(src, 0));
+        else {
+            sys.io.copyData(src, dst);
+            WnContext wc = Wn.WC();
+            wc.doHook("write", dst);
+        }
     }
 
 }
