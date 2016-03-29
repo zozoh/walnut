@@ -4,21 +4,32 @@
 .opreview > div {
   position: absolute;
   top: 0;
-  bottom: 0;
   transition: 0.5s;
 }
 .opreview .opreview-main {
-  overflow: auto;
-  background: #ffffff;
+  background: #cccccc;
   padding: 12px;
+  bottom: 0;
 }
 .opreview .opreview-info {
   width: 340px;
   background: #eeeeee;
+  bottom: 0;
+}
+.opreview .opreview-showinfo {
+  top: 0;
+  right: 0;
+  padding: 8px;
+  magin: 6px;
+  font-size: 24px;
+  cursor: pointer;
+}
+.opreview .opreview-showinfo[data-balloon]::before {
+  font-size: 16px;
 }
 .opreview .form .form-title {
   text-align: left;
-  color: #999999;
+  color: #666666;
   font-size: 12px;
   font-family: Monaco, Consolas, Courier New;
   opacity: 0.6;
@@ -29,25 +40,51 @@
 .opreview .form .ff-txt {
   padding-left: 12px;
 }
+.opreview .ui-loading {
+  padding: 24px;
+  text-align: center;
+  font-size: 24px;
+  height: 100%;
+}
+.opreview .ui-loading:before {
+  content: "";
+  display: block;
+  height: 40%;
+}
 .opreview[show-info="yes"] .opreview-main {
   left: 0;
   right: 340px;
   overflow: auto;
-  background: #ffffff;
   padding: 12px;
 }
 .opreview[show-info="yes"] .opreview-info {
   right: 0;
 }
+.opreview[show-info="yes"] .opreview-showinfo {
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: 0;
+}
 .opreview[show-info="no"] .opreview-main {
   left: 0;
   right: 0;
   overflow: auto;
-  background: #ffffff;
   padding: 12px;
 }
 .opreview[show-info="no"] .opreview-info {
   right: -340px;
+}
+.opreview[show-info="no"] .opreview-showinfo {
+  opacity: 0.6;
+}
+.opreview[show-info="no"] .opreview-showinfo:hover {
+  opacity: 1;
+  font-size: 32px;
+}
+.opreview-main[mode="text"] {
+  overflow: auto;
 }
 .opreview-main[mode="text"] pre {
   padding: 6px;
@@ -57,13 +94,17 @@
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
+}
+.opreview-main[mode="pic"] div.img-con {
+  width: 100%;
+  height: 100%;
   text-align: center;
   display: -webkit-flex;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.opreview-main[mode="pic"] img.autofit {
+.opreview-main[mode="pic"] div.img-con img.autofit {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
