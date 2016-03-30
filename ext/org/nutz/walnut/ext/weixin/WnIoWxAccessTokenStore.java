@@ -42,7 +42,7 @@ public class WnIoWxAccessTokenStore implements WxAccessTokenStore {
     }
 
     @Override
-    public void save(String token, int expires) {
+    public void save(String token, int expires, long lastCacheTimeMillis) {
         WnObj oAt = io.createIfNoExists(home, "access_token", WnRace.FILE);
         oAt.setv("wx_at_token", token);
         oAt.setv("wx_at_expires", System.currentTimeMillis() / 1000 + expires);
