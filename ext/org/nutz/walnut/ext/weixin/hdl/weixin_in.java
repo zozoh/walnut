@@ -49,12 +49,6 @@ public class weixin_in implements JvmHdl {
         else if ("POST".equals(method)) {
             do_POST(sys, o, hc.params.is("debug"));
         }
-        // 最后设置删除时间（缓存10分钟）
-        int reqexpi = hc.params.getInt("reqexpi", 10);
-        if (reqexpi > 0) {
-            o.setv("expi", System.currentTimeMillis() + (reqexpi * 60 * 1000));
-            sys.io.set(o, "^expi$");
-        }
     }
 
     private void do_POST(WnSystem sys, WnObj o, boolean debug) {

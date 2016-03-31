@@ -200,6 +200,10 @@ public class HttpApiModule extends AbstractWnModule {
         OutputStream ops = io.getOutputStream(oReq, 0);
         Streams.writeAndClose(ops, ins);
 
+        // 将请求的对象设置一下清除标志（缓存 30 分钟)
+        oReq.expireTime(System.currentTimeMillis() + 1800000L);
+        io.set(oReq, "^expi$");
+
         // 解析命令
         String cmdPattern = io.readText(oApi);
         String cmdText = Tmpl.exec(cmdPattern, oReq);
@@ -228,11 +232,6 @@ public class HttpApiModule extends AbstractWnModule {
         else {
             _do_run_box(oApi, oReq, mimeType, resp, cmdText, se, u);
         }
-
-        // 最后将请求的对象设置一下清除标志
-        oReq.expireTime(System.currentTimeMillis() + 100L * 1000);
-        io.appendMeta(oReq, "^expi$");
-
     }
 
     private void _do_redirect(HttpServletResponse resp, String cmdText, WnSession se, WnUsr u)

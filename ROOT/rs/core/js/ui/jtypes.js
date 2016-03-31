@@ -34,6 +34,8 @@ function _eval_enum_text (fld, v){
 }
 //..................................................
 function _to_native() {
+    if(_.isNull(this.__val))
+        return null;
     if(!_.isUndefined(this.__val)){
         switch(this.__fld.nativeAs){
             case "string" : 

@@ -14,7 +14,7 @@
 		var o = $z.invoke(this, "getCurrentEditObj");
 		// 未定义，那么就表示 context 不提供这个方法
 		if(_.isUndefined(o)){
-			alert(_C.msg("e.act.noapi.obj") + " :-> getCurrentEditObj");
+			alert(_C.msg("e.act.noapi_obj") + " :-> getCurrentEditObj");
 			return;
 		}
 		
@@ -22,7 +22,7 @@
 		var content = $z.invoke(this, "getCurrentTextContent");
 		// 未定义，那么就表示 context 不提供这个方法
 		if(_.isUndefined(content)){
-			alert(_C.msg("e.act.noapi.content") + " :-> getCurrentTextContent");
+			alert(_C.msg("e.act.noapi_content") + " :-> getCurrentTextContent");
 			return;
 		}
 		

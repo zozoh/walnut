@@ -145,6 +145,8 @@ return ZUI.def("ui.obrowser", {
         var UI  = this;
         var opt = UI.options;
 
+        //console.log("changeCurrentObj", theEditor);
+
         // 支持没有 theEditor 的写法
         if(_.isFunction(theEditor)){
             callback  = theEditor;
@@ -177,6 +179,7 @@ return ZUI.def("ui.obrowser", {
         // 动态读取对象对应
         if("auto" == opt.appSetup){
             var UI = this;
+
             Wn.loadAppSetup(o, {
                 context : UI,
                 editor  : theEditor
@@ -188,14 +191,19 @@ return ZUI.def("ui.obrowser", {
         // 否则相当于打开对象的父目录，同时菜单项只有有限的几个
         else{
             var asetup;
+            // 给定 appSetup 的获取逻辑
             if(_.isFunction(opt.appSetup)){
                 asetup = opt.appSetup.call(UI, o);
             }
+            // 给定一个静态的 appSetup
             else if(_.isObject(opt.appSetup)){
                 asetup = $z.clone(opt.appSetup);
             }
+            // 否则给个默认的
             else{
-                throw "Unsupport appSetup: " + opt.appSetup;
+                asetup = {
+                    actions : ["@::viewmode"]
+                };
             }
             Wn.extendAppSetup(asetup);
             // 调用个个子 UI 的更新

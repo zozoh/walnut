@@ -69,12 +69,13 @@ public class cmd_videoc extends JvmExecutor {
 
             // 先生成预览图
             if (mode == null || mode.matcher("preview_image").find()) {
-                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -f image2 -ss 1 -vframes 1  ${thumbPath}");
+                seg = Segments.create("ffmpeg -y -v quiet -ss 00:00:01.00 -i ${source} -f image2 -vframes 1 ${thumbPath}");
                 cmd = seg.render(new SimpleContext(vc_params)).toString();
                 log.debug("cmd: " + cmd);
                 Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
                 t = sys.io.createIfNoExists(tdir, "_preview.jpg", WnRace.FILE);
                 sys.io.writeAndClose(t, new FileInputStream(thumb));
+                t = sys.io.checkById(t.id());
                 sys.io.appendMeta(obj, "thumb:'" + t.thumbnail() + "'");
                 sys.io.appendMeta(t, tMap);
             }
@@ -92,7 +93,7 @@ public class cmd_videoc extends JvmExecutor {
             }
             // 生成主文件
             if (mode == null || mode.matcher("preview_video").find()) {
-                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ${preset} -vcodec ${vcodec} -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
+                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
                 cmd = seg.render(new SimpleContext(vc_params)).toString();
                 log.debug("cmd: " + cmd);
                 Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
@@ -101,6 +102,7 @@ public class cmd_videoc extends JvmExecutor {
                 sys.io.appendMeta(obj, "videoc_dir:'" + tdir.id() + "'");
                 sys.io.appendMeta(t, tMap);
             }
+            sys.io.appendMeta(obj, "videoc_dir:'id:"+tdir.id()+"'");
             sys.out.print(tdir.id());
         }
         finally {

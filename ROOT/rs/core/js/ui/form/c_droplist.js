@@ -155,6 +155,8 @@ return ZUI.def("ui.form_com_droplist", {
     //...............................................................
     redraw : function(){
         var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
 
         // 标记单/多选形态
         UI.arena.attr("multi", UI.isMulti() ? "yes" : "no");
@@ -165,7 +167,7 @@ return ZUI.def("ui.form_com_droplist", {
             UI._draw_items(items);
             re.pop();
             UI.defer_report(0, "loading");
-        });
+        }, context);
 
         // 返回，以便异步的时候延迟加载
         return re;
@@ -180,7 +182,7 @@ return ZUI.def("ui.form_com_droplist", {
         var hasIcon = false;
         for(var i=0; i<items.length; i++){
             var item = items[i];
-            var val  = opt.value.call(context, item, i); 
+            var val  = opt.value.call(context, item, i, UI); 
 
             var jLi = $('<li>').appendTo(jUl)
                 .attr("index", i)
@@ -198,7 +200,7 @@ return ZUI.def("ui.form_com_droplist", {
             // 图标
             var icon = _.isString(opt.icon)
                                 ? $z.tmpl(opt.icon)(item)
-                                : opt.icon.call(context, item, i);
+                                : opt.icon.call(context, item, i, UI);
             jIcon = $('<span it="icon">').appendTo(jLi);
             if(_.isString(icon)){
                 jIcon.html(icon);
@@ -208,7 +210,7 @@ return ZUI.def("ui.form_com_droplist", {
             // 文字
             var text = _.isString(opt.icon)
                                 ? $z.tmpl(opt.icon)(item)
-                                : opt.text.call(context, item, i);
+                                : opt.text.call(context, item, i, UI);
             $('<b it="text">').text(UI.text(text)).appendTo(jLi);
         }
 

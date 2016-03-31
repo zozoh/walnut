@@ -116,7 +116,7 @@ public class IoWnSession implements WnSession {
     @Override
     public WnSession me(WnUsr me) {
         this.me = me.name();
-        this.grp = me.group();
+        this.grp = me.mainGroup();
         return this;
     }
 

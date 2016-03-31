@@ -3,6 +3,13 @@
     text : "i18n:download",
     type : "button",
     handler : function($ele, a) {
-        console.log(this);
+    	var UI = this;
+        var o  = $z.invoke(UI, "getCurrentEditObj");
+        if(!o){
+        	alert(UI.msg("e.act.noapi_obj"));
+        	return;
+        }
+        
+        $z.openUrl("/o/read/id:" + o.id);
     }
 })

@@ -19,7 +19,7 @@ import org.nutz.walnut.impl.box.WnSystem;
  * weixin xxx info
  * 
  * # 显示被正则表达式约束的配置信息
- * weixin xxx menu "^pay_.+$"
+ * weixin xxx info "^pay_.+$"
  * </pre>
  * 
  * @author zozoh(zozohtnt@gmail.com)

@@ -2,9 +2,13 @@ package org.nutz.walnut.impl.box.cmd;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.nutz.img.Colors;
 import org.nutz.img.Images;
 import org.nutz.lang.Strings;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -22,103 +26,92 @@ public class cmd_chimg extends cmd_image {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, "z");
-        WnObj inObj = getObj(sys, args);
-        WnObj outObj = null;
-        if (inObj != null) {
-            // -s 大小
-            int sw = 0;
-            int sh = 0;
-            String pa_s = params.get("s");
-            if (Strings.isBlank(pa_s)) {
-                return;
-            } else {
-                String[] wh = pa_s.toLowerCase().split("x");
-                if (wh.length != 2) {
-                    sys.err.print("size need 2 args, width and height");
-                    return;
-                }
-                try {
-                    sw = Integer.parseInt(wh[0]);
-                    sh = Integer.parseInt(wh[1]);
-                }
-                catch (Exception e) {
-                    sys.err.printf("size has err, please check %s", pa_s);
-                    return;
-                }
-            }
-            // -z 保持比例
-            Color bgcolor = null;
-            boolean scaleZoom = params.has("z");
-            if (scaleZoom) {
-                // -bg 背景颜色
-                String pa_bg = params.get("bg");
-                if (!Strings.isBlank(pa_bg)) {
-                    bgcolor = getColor(pa_bg);
-                    if (bgcolor == null) {
-                        sys.err.printf("bg-color has err, please check %s", pa_bg);
-                        return;
-                    }
-                }
-            }
-            // -o 输出
-            String pa_o = params.get("o");
-            if (Strings.isBlank(pa_o)) {
-                outObj = inObj;
-            } else {
-                if (pa_o.startsWith("id:")) {
-                    String id = pa_o.substring("id:".length());
-                    outObj = sys.io.checkById(id);
-                } else {
-                    String path = Wn.normalizeFullPath(pa_o, sys);
-                    outObj = sys.io.fetch(null, path);
-                    if (outObj == null) {
-                        outObj = sys.io.createIfNoExists(null, path, WnRace.FILE);
-                    }
-                }
-            }
 
-            BufferedImage inImg = Images.read(sys.io.getInputStream(inObj, 0));
-            BufferedImage outImg = null;
-            // 转换图片
+        if (params.vals.length == 0)
+            throw Er.create("e.cmd.chimg.noinput");
+
+        // 输入对象
+        WnObj inObj = Wn.checkObj(sys, params.vals[0]);
+
+        // 必须是文件
+        if (!inObj.isFILE()) {
+            throw Er.create("e.cmd.chimg.notfile", inObj.path());
+        }
+
+        // 必须是图片
+        if (!inObj.mime().startsWith("image/")) {
+            throw Er.create("e.cmd.chimg.notimage", inObj.path());
+        }
+
+        // -s 大小
+        int sw = 0;
+        int sh = 0;
+        if (params.has("s")) {
+            String pa_s = params.get("s");
+            Matcher m = Pattern.compile("^(\\d+)[xX](\\d+)$").matcher(pa_s);
+            if (m.find()) {
+                sw = Integer.parseInt(m.group(1));
+                sh = Integer.parseInt(m.group(2));
+            }
+        }
+
+        // -z 保持比例
+        Color bgcolor = null;
+        boolean scaleZoom = params.has("z");
+        if (scaleZoom) {
+            // -bg 背景颜色
+            String pa_bg = params.get("bg");
+            if (!Strings.isBlank(pa_bg)) {
+                bgcolor = Colors.as(pa_bg);
+            }
+        }
+        // 旋转
+        int degree = params.getInt("ro", 0);
+
+        // 准备输出对象
+        WnObj outObj = null;
+
+        // 看看输出到哪里呀
+        String pa_o = params.get("o", params.vals.length > 1 ? params.vals[1] : null);
+
+        // 没指定新路径则替换原来的
+        if (Strings.isBlank(pa_o)) {
+            outObj = inObj;
+        }
+        // 否则就试图创建这个对象
+        else {
+            outObj = Wn.checkObj(sys, pa_o);
+
+            // 如果是目录，就创建一个文件对象
+            if (outObj.isDIR()) {
+                outObj = sys.io.createIfNoExists(outObj, inObj.name(), WnRace.FILE);
+            }
+        }
+
+        // 开始处理
+        BufferedImage inImg = Images.read(sys.io.getInputStream(inObj, 0));
+        BufferedImage outImg = null;
+
+        // 缩放图片
+        if (sw > 0 && sh > 0) {
             if (scaleZoom) {
                 outImg = Images.zoomScale(inImg, sw, sh, bgcolor);
-            } else {
+            }
+            // 剪裁缩放
+            else {
                 outImg = Images.clipScale(inImg, sw, sh);
             }
-            // 写入outObj中
-            Images.write(outImg, outObj.type(), sys.io.getOutputStream(outObj, 0));
+            // 作为下一个输入的源
+            inImg = outImg;
         }
+
+        // 旋转图片
+        if (degree != 0) {
+            outImg = Images.rotate(inImg, degree);
+        }
+
+        // 写入outObj中
+        Images.writeAndClose(outImg, outObj.type(), sys.io.getOutputStream(outObj, 0));
     }
 
-    private Color getColor(String colorStr) {
-        Color re = null;
-        colorStr = colorStr.toLowerCase();
-        try {
-            // RGB
-            if (colorStr.startsWith("rgb(") && colorStr.endsWith(")")) {
-                colorStr = colorStr.substring(4, colorStr.length() - 1);
-                String[] rgb = colorStr.split(",");
-                int r = Integer.parseInt(rgb[0]);
-                int g = Integer.parseInt(rgb[1]);
-                int b = Integer.parseInt(rgb[2]);
-                re = new Color(r, g, b);
-            }
-            // RGBA
-            else if (colorStr.startsWith("rgba(") && colorStr.endsWith(")")) {
-                colorStr = colorStr.substring(5, colorStr.length() - 1);
-                String[] rgba = colorStr.split(",");
-                int r = Integer.parseInt(rgba[0]);
-                int g = Integer.parseInt(rgba[1]);
-                int b = Integer.parseInt(rgba[2]);
-                float a = Float.parseFloat(rgba[3]);
-                re = new Color(r, g, b, (int) (a * 255));
-            }
-            // #开头
-            else if (colorStr.startsWith("#")) {
-
-            }
-        }
-        catch (Exception e) {}
-        return re;
-    }
 }

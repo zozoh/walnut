@@ -156,7 +156,7 @@ public class cmd_obj extends JvmExecutor {
 
         // 最后执行输出
         if ((null == u_map || params.is("o")) && !params.is("Q")) {
-            output_objs(sys, params, wp, list);
+            output_objs(sys, params, wp, list, true);
         }
 
     }
@@ -169,9 +169,7 @@ public class cmd_obj extends JvmExecutor {
         WnObj oP;
         // 根据路径
         if (params.vals.length > 0) {
-            WnObj oCurrent = this.getCurrentObj(sys);
-            String path = Wn.normalizePath(params.vals[0], sys);
-            oP = sys.io.check(oCurrent, path);
+            oP = Wn.checkObj(sys, params.vals[0]);
         }
         // 指明了 pid
         else if (null != pid) {

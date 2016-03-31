@@ -68,7 +68,7 @@ public class weixin_pay implements JvmHdl {
 
         NutMap payMap;
         // 从 pipe 读取
-        if (Strings.isBlank(pay) && sys.pipeId > 0) {
+        if (Strings.isBlank(pay)) {
             String str = sys.in.readAll();
             payMap = Lang.map(str);
         }

@@ -112,6 +112,10 @@ public class ZParams {
         return map.getBoolean(key, dft);
     }
 
+    public void setv(String key, Object val) {
+        map.setv(key, val);
+    }
+
     public boolean has(String key) {
         return map.containsKey(key);
     }
@@ -225,6 +229,6 @@ public class ZParams {
     }
 
     public NutMap map() {
-    	return map;
+        return map;
     }
 }

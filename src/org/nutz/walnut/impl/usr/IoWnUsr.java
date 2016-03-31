@@ -1,7 +1,10 @@
 package org.nutz.walnut.impl.usr;
 
-import org.nutz.lang.util.NutMap;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.impl.io.WnBean;
 
 /**
  * 保存一个用户的所有信息
@@ -9,38 +12,38 @@ import org.nutz.walnut.api.usr.WnUsr;
  * @author zozoh(zozohtnt@gmail.com)
  */
 @SuppressWarnings("serial")
-public class IoWnUsr extends NutMap implements WnUsr {
+public class IoWnUsr extends WnBean implements WnUsr {
 
     @Override
-    public String id() {
-        return getString("id");
-    }
-
-    @Override
-    public WnUsr id(String id) {
-        this.setv("id", id);
-        return this;
-    }
-
-    @Override
-    public String name() {
-        return getString("nm");
-    }
-
-    @Override
-    public WnUsr name(String name) {
-        this.setv("nm", name);
-        return this;
-    }
-
-    @Override
-    public String group() {
+    public String mainGroup() {
         return getString("grp");
     }
 
     @Override
-    public WnUsr group(String grp) {
+    public WnUsr mainGroup(String grp) {
         this.setv("grp", grp);
+
+        List<String> groups = this.myGroups();
+        if (!groups.contains(grp)) {
+            groups.add(grp);
+        }
+
+        return this;
+    }
+
+    @Override
+    public List<String> myGroups() {
+        List<String> groups = getList("my_grps", String.class);
+        if (null == groups) {
+            groups = new LinkedList<String>();
+            this.myGroups(groups);
+        }
+        return groups;
+    }
+
+    @Override
+    public WnUsr myGroups(List<String> groups) {
+        this.setv("my_grps", groups);
         return this;
     }
 
@@ -65,12 +68,12 @@ public class IoWnUsr extends NutMap implements WnUsr {
         this.setv("passwd", passwd);
         return this;
     }
-    
+
     public WnUsr salt(String salt) {
         this.setv("salt", salt);
         return this;
     }
-    
+
     public String salt() {
         return this.getString("salt");
     }

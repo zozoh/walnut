@@ -296,7 +296,7 @@ public class WnContext extends NutMap {
         String old_grp = grp;
         try {
             me = u.name();
-            grp = u.group();
+            grp = u.mainGroup();
             proton.run();
             return proton.get();
         }
@@ -312,7 +312,7 @@ public class WnContext extends NutMap {
         String old_grp = grp;
         try {
             me = u.name();
-            grp = u.group();
+            grp = u.mainGroup();
             atom.run();
         }
         finally {

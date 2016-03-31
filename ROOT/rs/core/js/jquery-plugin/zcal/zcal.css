@@ -70,21 +70,20 @@
   overflow: hidden;
 }
 .zcal .zcal-fixed .zcal-cell .zcal-text,
-.zcal .zcal-fixed .zcal-cell-hide {
+.zcal .zcal-fixed .zcal-cell[hide] {
   width: 28px;
   height: 28px;
   line-height: 28px;
   text-align: center;
 }
-.zcal .zcal-cell-out {
+.zcal .zcal-cell[in-month="no"] {
   opacity: 0.4;
 }
-.zcal .zcal-cell-in {
+.zcal .zcal-cell[in-month="yes"] {
   font-weight: bold;
 }
-.zcal .zcal-cell-today {
+.zcal .zcal-cell[today][in-month="yes"] {
   color: #F80;
-  background: #FEC;
 }
 .zcal .zcal-cell-odd {
   background: rgba(0, 0, 0, 0.08);
@@ -149,7 +148,9 @@
   background: #0088ff;
 }
 .zcal-customized .zcal-cell-actived,
-.zcal-show-border .zcal-cell-actived {
+.zcal-show-border .zcal-cell-actived,
+.zcal-customized .zcal-cell-actived[today],
+.zcal-show-border .zcal-cell-actived[today] {
   background: #0088ff;
   color: #ffffff;
 }

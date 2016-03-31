@@ -40,10 +40,10 @@
     input, div.preview {
         vertical-align: middle; display: inline-block;
         padding:0 @d2; outline:none; height:@CCH; line-height: @CCH;
-        border:1px solid @cborder0; 
-        border-radius: @d1; color:#888; background: #FFF;
-        font-size:@f2; font-family: @f_fixed;
+        border-radius: @d1; 
     }
+    input {@input();font-family: @f_fixed; font-size:@f2; }
+    input:focus {@input_focus();}
     div.preview {
         width:@CCH; height:@CCH; position: relative; padding: 0; overflow: hidden;
         background: url(/gu/rs/core/js/ui/form/bgcanvas.png);
@@ -65,7 +65,7 @@
         min-width: 100px; width:100%;
         border:1px solid @cborder1; border-radius: @d1;
         position: relative; 
-        padding: 0 @cdlIW 0 @d3;  white-space: nowrap;
+        padding: 0 @cdlIW 0 @d3; 
         background: @cb0; color:@cf0; overflow: hidden;
         .com-box-drop {
             position: absolute; top:0; right:0; bottom:0; width: @cdlIW;
@@ -115,7 +115,7 @@
 }
 .com-droplist[multi="no"]{
     .com-box {
-        min-height:@cdlH + 3; line-height: @cdlH;
+        min-height:@cdlH + 3; line-height: @cdlH; white-space: nowrap;
         span[it="check"] { display: none; }
         .com-box-drop {
             line-height: @cdlH;
@@ -139,7 +139,7 @@
 
 .com-droplist[multi="yes"] {
     .com-box {
-        padding:@d1; min-height:@cdlH + @d1 * 2;
+        padding:@d1 @d1 + @cdlIW @d1 @d1; min-height:@cdlH + @d1 * 2;
         .com-box-drop {
             line-height: @cdlH + @d1 * 2;
         }
@@ -155,7 +155,7 @@
         display: inline-block; vertical-align: middle;
         background: rgba(0,0,0,0.08); border:1px solid rgba(0,0,0,0.12);
         border-radius: @d1;
-        margin:0 @d0; padding:@d0 @d2;
+        margin:@d0; padding:@d0 @d2;
         span[it="check"]{display: none;}
     }
 }

@@ -40,7 +40,7 @@ public class cmd_touch extends JvmExecutor {
         }
 
         if (params.is("o")) {
-            this.output_objs(sys, params, null, list);
+            this.output_objs(sys, params, null, list, true);
         }
     }
 

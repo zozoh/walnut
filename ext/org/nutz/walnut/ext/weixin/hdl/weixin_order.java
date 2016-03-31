@@ -1,5 +1,8 @@
 package org.nutz.walnut.ext.weixin.hdl;
 
+import java.text.ParseException;
+import java.util.Date;
+
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
@@ -22,6 +25,9 @@ import org.nutz.weixin.util.Wxs;
  * <pre>
  * # 生成 JS-SDK 的支付准备对象
  * weixin xxx order -submit xxx -openid xxx -client_ip xxx
+ * 
+ * # 接受支付的回调
+ * weixin xxx order -result id:xxx
  * </pre>
  * 
  * 参数说明:
@@ -59,13 +65,14 @@ public class weixin_order implements JvmHdl {
         }
         // 接受订单完成的回调
         else if (hc.params.has("result")) {
+            WnObj oOr = this.__do_result(sys, hc);
             // 成功
-            if (this.__do_result(sys, hc)) {
-                re = hc.params.is("ajax") ? Ajax.ok() : true;
+            if (null != oOr) {
+                re = hc.params.is("ajax") ? Ajax.ok().setData(oOr) : oOr;
             }
             // 失败
             else {
-                re = hc.params.is("ajax") ? Ajax.fail() : false;
+                re = Ajax.fail();
             }
         }
         // 靠
@@ -77,13 +84,13 @@ public class weixin_order implements JvmHdl {
         sys.out.println(Json.toJson(re, hc.jfmt));
     }
 
-    private boolean __do_result(WnSystem sys, JvmHdlContext hc) {
+    private WnObj __do_result(WnSystem sys, JvmHdlContext hc) {
         // 公众号ID
         String pnb = hc.oHome.name();
 
         // 分析参数
         String reid = hc.params.check("result");
-        String cmdText = String.format("weixin -pnb %s -payre %s", pnb, reid);
+        String cmdText = String.format("weixin %s payre %s", pnb, reid);
 
         String json = sys.exec2(cmdText);
         NutMap map = Json.fromJson(NutMap.class, json);
@@ -98,22 +105,26 @@ public class weixin_order implements JvmHdl {
 
             // 如果订单已经被处理完毕了，就没必要后续处理了
             // 因为微信支付会反复调用这个回调好几遍的
-            if (oOrder.getInt("or_status") > 0) {
-                return true;
+            if (oOrder.getInt("or_status") > 1
+                && oOrder.getLong("pay_time") > 0
+                && oOrder.has("pay_result")
+                && !(oOrder.expireTime() > 0)) {
+                return oOrder;
             }
 
             // 修改账单状态
             oOrder.setv("pay_result", map);
             oOrder.setv("pay_time", System.currentTimeMillis());
-            oOrder.setv("or_status", 1);
-            sys.io.set(oOrder, "^(pay_result|pay_time|or_status)$");
+            oOrder.setv("or_status", 2);
+            oOrder.setv("expi", null);
+            sys.io.set(oOrder, "^(pay_result|pay_time|or_status|expi)$");
 
             // 返回 true 表示成功，噢耶
-            return true;
+            return oOrder;
         }
 
         // 否则返回失败
-        return false;
+        return null;
     }
 
     private NutMap __do_submit(WnSystem sys, JvmHdlContext hc) {
@@ -137,7 +148,11 @@ public class weixin_order implements JvmHdl {
         // 防守一下
         String client_openid = hc.params.check("openid");
         if (!client_openid.equals(or_openid)) {
-            throw Er.create("e.cmd.weixin.order.user.nosame");
+            throw Er.createf("e.cmd.weixin.order.user.nosame",
+                             "client:[%s],order:[%s]@{%s}",
+                             client_openid,
+                             or_openid,
+                             openIdKey);
         }
 
         // 看看是否有缓存对象
@@ -164,14 +179,31 @@ public class weixin_order implements JvmHdl {
             map.setv("spbill_create_ip", clientIp);
 
             // 设置订单过期时间
-            long order_expi = oOrder.getLong("order_expi", -1);
-            if (order_expi > 0)
-                map.setv("time_expire", Times.format("yyyyMMddHHmmss", Times.D(order_expi)));
+            // long order_expi = oOrder.getLong("order_expi", -1);
+            // if (order_expi > 0)
+            // map.setv("time_expire", Times.format("yyyyMMddHHmmss",
+            // Times.D(order_expi)));
 
             // 对 Map 进行签名以及填充
             String json = Json.toJson(map);
+
+            // 调试模式，打印签名前 Map
+            if (hc.params.is("debug")) {
+                sys.out.println("signMap:");
+                sys.out.println(json);
+            }
+
             String cmdText = String.format("weixin %s pay", pnb);
             String xmlSigned = sys.exec2(cmdText, json);
+
+            // 调试模式，打印签名后 XML
+            if (hc.params.is("debug")) {
+                sys.out.println("---------------------------------------");
+                sys.out.println(cmdText);
+                sys.out.println("---------------------------------------");
+                sys.out.println(xmlSigned);
+                sys.out.println("---------------------------------------");
+            }
 
             NutMap mapSend = Xmls.xmlToMap(xmlSigned);
 
@@ -180,10 +212,28 @@ public class weixin_order implements JvmHdl {
                 return mapSend;
             }
 
+            // 确保订单在这个过期时间前不会被删除
+            if (oOrder.expireTime() > 0) {
+                String time_expire = mapSend.getString("time_expire");
+                if (null != time_expire) {
+                    try {
+                        // 在订单过期时间之后再加1分钟
+                        Date d_time_expire = Times.parse("yyyyMMddHHmmss", time_expire);
+                        long ms_time_expire = d_time_expire.getTime() + 60000L;
+                        if (oOrder.expireTime() < ms_time_expire) {
+                            oOrder.expireTime(ms_time_expire);
+                        }
+                    }
+                    catch (ParseException e) {
+                        throw Er.wrap(e);
+                    }
+                }
+            }
+
             // 这个签好名的 map 将会被发送，先保存到订单记录里
             oOrder.setv("pay_type", "weixin");
             oOrder.setv("pay_send", mapSend);
-            sys.io.set(oOrder, "^(pay_type|pay_send)$");
+            sys.io.set(oOrder, "^(pay_type|pay_send|expi)$");
 
             // 发送请求
             cmdText = "httpc POST https://api.mch.weixin.qq.com/pay/unifiedorder";
@@ -194,13 +244,13 @@ public class weixin_order implements JvmHdl {
         }
 
         // 得到公众号的签名秘钥，以及 appId 以备后用
-        String wxinfo = sys.exec2("weixin " + pnb + " -info '^(appID|payKey)$'");
+        String wxinfo = sys.exec2("weixin " + pnb + " info '^(appID|pay_key)$'");
         NutMap mapInfo = Json.fromJson(NutMap.class, wxinfo);
         String appId = mapInfo.getString("appID");
-        String payKey = mapInfo.getString("payKey");
+        String pay_key = mapInfo.getString("pay_key");
 
         // 验证返回
-        NutMap mapResp = Wxs.checkPayReturn(xml, payKey);
+        NutMap mapResp = Wxs.checkPayReturn(xml, pay_key);
 
         // 记录到订单对象
         oOrder.setv("pay_remap", mapResp);
@@ -216,7 +266,7 @@ public class weixin_order implements JvmHdl {
         mapPay.setv("signType", "MD5");
         mapPay.setv("appId", appId);
 
-        String sign = Wxs.genPaySignMD5(mapPay, payKey);
+        String sign = Wxs.genPaySignMD5(mapPay, pay_key);
         mapPay.remove("appId");
         mapPay.setv("paySign", sign);
 
@@ -229,7 +279,14 @@ public class weixin_order implements JvmHdl {
     }
 
     private String __gen_out_trade_no(WnSystem sys, WnObj oOrder) {
-        int seq = sys.io.inc(oOrder.id(), "or_pay_seq", 1);
+        int seq;
+        if (oOrder.getInt("or_pay_seq") > 0) {
+            seq = sys.io.inc(oOrder.id(), "or_pay_seq", 1);
+        } else {
+            seq = 0;
+            oOrder.setv("or_pay_seq", 0);
+            sys.io.set(oOrder, "^or_pay_seq$");
+        }
         return oOrder.id() + "_" + seq;
     }
 

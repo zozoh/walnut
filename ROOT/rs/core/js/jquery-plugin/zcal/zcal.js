@@ -213,7 +213,7 @@ function on_click_swithcer(){
         }
         // 那么是按月
         else{
-            d = cellD(jRoot.find(".zcal-cell-in").first());
+            d = cellD(jRoot.find('.zcal-cell[in-month="yes"]').first());
             d.setMonth(d.getMonth() + val);
         }
     }
@@ -313,7 +313,7 @@ function update(jRoot, opt, d){
 
     // 标记今天
     var todayKey = dkey(new Date());
-    jWrapper.find('.zcal-cell[key='+todayKey+']').addClass("zcal-cell-today");
+    jWrapper.find('.zcal-cell[key='+todayKey+']').attr("today","yes");
 
     // 重新规划尺寸
     do_resize(jRoot, opt);
@@ -464,16 +464,16 @@ function draw_block(jWrapper, opt, d){
             }
             // 整月显示才标记一下，是否属于当月
             else if(theMonth != MM){
-                jTd.addClass("zcal-cell-out");
+                jTd.attr("in-month","no");
             }
             // 否则算匹配当月
             else{
-                jTd.addClass("zcal-cell-in");
+                jTd.attr("in-month","yes");
             }
 
             // 如果是范围选择，那么就不显示非本月日期了
             if(opt.blockNumber>1 && !opt.byWeek && MM != theMonth){
-                jTd.addClass("zcal-cell-hide").html("&nbsp;");
+                jTd.attr("hide", "yes").html("&nbsp;");
             }
             // 绘制日期单元格的内容
             else{

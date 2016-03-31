@@ -1,20 +1,18 @@
 package org.nutz.walnut.api.usr;
 
-import org.nutz.lang.util.NutBean;
+import java.util.List;
 
-public interface WnUsr extends NutBean {
+import org.nutz.walnut.api.io.WnObj;
 
-    String id();
+public interface WnUsr extends WnObj {
 
-    WnUsr id(String id);
+    String mainGroup();
 
-    String name();
+    WnUsr mainGroup(String grp);
 
-    WnUsr name(String name);
+    List<String> myGroups();
 
-    String group();
-
-    WnUsr group(String grp);
+    WnUsr myGroups(List<String> groups);
 
     String alias();
 
@@ -23,9 +21,9 @@ public interface WnUsr extends NutBean {
     String password();
 
     WnUsr password(String passwd);
-    
+
     String salt();
-    
+
     WnUsr salt(String salt);
 
     String email();

@@ -140,4 +140,5 @@
 }
 .datepicker .picker-box .pick-box-con {
   padding-right: 12px;
+  white-space: nowrap;
 }

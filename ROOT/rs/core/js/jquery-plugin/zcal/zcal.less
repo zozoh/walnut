@@ -41,13 +41,13 @@
         position:relative;padding:0; text-align: center; cursor:pointer;
         overflow: hidden;
     }
-    .zcal-fixed .zcal-cell .zcal-text, .zcal-fixed .zcal-cell-hide{
+    .zcal-fixed .zcal-cell .zcal-text, .zcal-fixed .zcal-cell[hide]{
         width:28px; height:28px; line-height:28px;  text-align: center;
     }
 
-    .zcal-cell-out {opacity: 0.4;}
-    .zcal-cell-in {font-weight: bold;}
-    .zcal-cell-today {color:#F80; background: #FEC;}
+    .zcal-cell[in-month="no"]  {opacity: 0.4;}
+    .zcal-cell[in-month="yes"] {font-weight: bold;}
+    .zcal-cell[today][in-month="yes"]{color:#F80; }
     .zcal-cell-odd {background: rgba(0,0,0,0.08);}
     .zcal-d1mark{font-size:10px; -webkit-transform:scale(0.72);}
     .zcal-cell-checked{
@@ -90,7 +90,7 @@
 
 // 自定义日历的高亮方法
 .zcal-customized, .zcal-show-border{
-    .zcal-cell-actived {background: @zcalHb; color:@zcalHf;}
+    .zcal-cell-actived, .zcal-cell-actived[today] {background: @zcalHb; color:@zcalHf;}
 }
 
 

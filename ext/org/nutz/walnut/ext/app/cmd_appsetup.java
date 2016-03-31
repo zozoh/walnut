@@ -34,7 +34,15 @@ public class cmd_appsetup extends JvmExecutor {
         WnObj oUiHome = sys.io.fetch(null, Wn.normalizePath("~/.ui", sys));
         WnObj oFType = null;
         if (null != oUiHome) {
-            oFType = __find_ftype(sys, o, oUiHome);
+            // 指定的类型
+            if (params.has("tp")) {
+                String tp = params.get("tp");
+                oFType = sys.io.fetch(oUiHome, "ftypes/" + tp + ".js");
+            }
+            // 根据对象查找
+            else {
+                oFType = __find_ftype(sys, o, oUiHome);
+            }
         }
         // 还是没有？ 那么就返回空吧
         if (null == oFType) {

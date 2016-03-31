@@ -28,6 +28,7 @@ import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
+import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.box.WnBoxContext;
@@ -161,7 +162,8 @@ public class AppModule extends AbstractWnModule {
     public View load(String appName,
                      String rsName,
                      @Param("mime") String mimeType,
-                     @Param("auto_unwrap") boolean auto_unwrap) {
+                     @Param("auto_unwrap") boolean auto_unwrap,
+                     @ReqHeader("User-Agent") String ua) {
         WnObj oAppHome = this._check_app_home(appName);
         WnObj o = io.check(oAppHome, rsName);
         String text = null;
@@ -192,7 +194,7 @@ public class AppModule extends AbstractWnModule {
             return new WnObjDownloadView(io, o, mimeType);
         }
         // 其他就默认咯
-        return new WnObjDownloadView(io, o);
+        return new WnObjDownloadView(io, o, ua);
     }
 
     @At("/run/**")

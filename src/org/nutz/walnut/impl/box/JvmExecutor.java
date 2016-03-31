@@ -12,6 +12,8 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
@@ -224,11 +226,13 @@ public abstract class JvmExecutor {
         return list.get(0);
     }
 
-    protected void output_objs(WnSystem sys, ZParams params, WnPager wp, List<WnObj> list) {
-        // 生成输出列表
-        List<NutMap> outs = new ArrayList<NutMap>(list.size());
-        for (WnObj o : list) {
-            if (list.size() == 1 || params.is("P")) {
+    protected void output_objs(WnSystem sys,
+                               ZParams params,
+                               WnPager wp,
+                               List<? extends WnObj> list,
+                               boolean autoPath) {
+        if (autoPath && (list.size() == 1 || params.is("P"))) {
+            for (WnObj o : list) {
                 o.path();
                 if (params.is("A")) {
                     List<WnObj> ancestors = new LinkedList<WnObj>();
@@ -236,6 +240,19 @@ public abstract class JvmExecutor {
                     o.setv("ancestors", ancestors);
                 }
             }
+        }
+
+        // 最后输出
+        output_beans(sys, params, wp, list);
+    }
+
+    protected void output_beans(WnSystem sys,
+                                ZParams params,
+                                WnPager wp,
+                                List<? extends NutBean> list) {
+        // 生成输出列表
+        List<NutMap> outs = new ArrayList<NutMap>(list.size());
+        for (NutBean o : list) {
             outs.add(_obj_to_outmap(o, params));
         }
 
@@ -249,6 +266,10 @@ public abstract class JvmExecutor {
             else if (params.has("t")) {
                 output_objs_as_table(sys, params, wp, outs);
             }
+            // 按照模板输出
+            else if (params.has("tmpl")) {
+                output_objs_by_tmpl(sys, params, wp, outs);
+            }
             // 用 Json 的方法输出
             else {
                 output_objs_as_json(sys, params, wp, outs);
@@ -260,7 +281,43 @@ public abstract class JvmExecutor {
         }
     }
 
-    protected NutMap _obj_to_outmap(WnObj o, ZParams params) {
+    protected void output_objs_by_tmpl(WnSystem sys,
+                                       ZParams params,
+                                       WnPager wp,
+                                       List<NutMap> outs) {
+        Tmpl tmpl = Tmpl.parse(params.get("tmpl"));
+
+        boolean show_index = params.is("i");
+
+        // 主体
+        int i = params.getInt("ibase", 0);
+        for (NutMap map : outs) {
+            if (show_index)
+                sys.out.print("" + (i++) + "# ");
+            String str = tmpl.render(map);
+            sys.out.println(str);
+        }
+        // 尾部
+        if (params.is("s")) {
+            sys.out.println("---------------------------------------");
+            // 是计算分页的
+            if (null != wp && wp.countPage) {
+                sys.out.printlnf("total %d/%d items, skip %d page %d/%d, %d per page",
+                                 outs.size(),
+                                 wp.sum_count,
+                                 wp.skip,
+                                 wp.pn,
+                                 wp.sum_page,
+                                 wp.pgsz);
+            }
+            // 就是显示列表
+            else {
+                sys.out.printlnf("total %d items", outs.size());
+            }
+        }
+    }
+
+    protected NutMap _obj_to_outmap(NutBean o, ZParams params) {
         // true 表示输出的时候，也显示双下划线开头的隐藏字段
         boolean isShowAutoHide = params.is("H");
 

@@ -52,7 +52,7 @@ return ZUI.def("ui.picker.datepicker", {
                     "click .pm-btn-ok" : function(){
                         var uiMask = ZUI(this); 
                         var jBody  = uiMask.$main.find(".pm-body");
-                        var dr     = jBody.zcal("range");
+                        var dr     = jBody.zcal("range", opt.mode);
                         UI._update(dr, true);
                         uiMask.close();
                     },
@@ -162,7 +162,8 @@ return ZUI.def("ui.picker.datepicker", {
             var __display = _.isFunction(opt.display)
                                 ? opt.display
                                 : function(d){
-                                    return d.format("yyyy-mm-dd")
+                                    d = $z.parseDate(d);
+                                    return d.format("yyyy-mm-dd");
                                 };
 
             // 范围的话，则是一个数组
@@ -179,7 +180,7 @@ return ZUI.def("ui.picker.datepicker", {
         }
         // 移除数据
         else{
-            UI.$el.removeData("@OBJ");
+            UI.$el.data("@OBJ", null);
         }
 
         // 显示效果
