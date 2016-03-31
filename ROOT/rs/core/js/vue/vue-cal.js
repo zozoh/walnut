@@ -187,6 +187,9 @@
             }
         },
         methods: {
+            selectDate: function () {
+                return this.vcal.sel;
+            },
             refreshVcal: function (date) {
                 this.vcal.year = date.getFullYear();
                 this.vcal.month = date.getMonth() + 1;
@@ -226,6 +229,21 @@
                 this.refreshVcal(new Date());
                 this.refreshCal();
             },
+            toPrevR: function () {
+                this.toPrev();
+                this.refreshData();
+            },
+            toNextR: function () {
+                this.toNext();
+                this.refreshData();
+            },
+            toTodayR: function () {
+                this.toToday();
+                this.refreshData();
+            },
+            refreshData: function () {
+                console.log("month-data refresh");
+            },
             selDay: function (day) {
                 if (day.inMonth) {
                     this.vcal.sel = day.text;
@@ -247,13 +265,13 @@
                 </div>
                 <div class="vcal-body">
                     <table class="vcal-cal-entity vcal-month-entity">
-                        <thead class="header">
+                        <thead class="vheader">
                             <tr>
                                 <th class="vcal-matrix-entity week-tip" v-for="(index, wn) in wtips">{{wn}}</th>
                             </tr>
                         </thead>
-                        <tbody class="container">
-                            <tr class="row" v-for="(ri, rdays) in mdays">
+                        <tbody class="vcontainer">
+                            <tr class="vrow" v-for="(ri, rdays) in mdays">
                                 <td class="vcal-matrix-entity day-entity"
                                     @click="selDay(day)"
                                     v-bind:class="{'ds-outmonth': !day.inMonth, 'ds-today': day.text == vcal.currday, 'ds-select': vcal.sel == day.text}"
@@ -287,6 +305,9 @@
             }
         },
         methods: {
+            selectDate: function () {
+                return this.vcal.sel;
+            },
             refreshVcalInfo: function () {
                 this.vcal.info = this.vcal.year;
                 this.vcal.currday = getDayStr(new Date());
@@ -310,6 +331,21 @@
                 this.refreshVcalInfo();
                 this.refreshCal();
             },
+            toPrevR: function () {
+                this.toPrev();
+                this.refreshData();
+            },
+            toNextR: function () {
+                this.toNext();
+                this.refreshData();
+            },
+            toTodayR: function () {
+                this.toToday();
+                this.refreshData();
+            },
+            refreshData: function () {
+                console.log("year-data refresh");
+            },
             selDay: function (day) {
                 if (day.inMonth) {
                     this.vcal.sel = day.text;
@@ -332,18 +368,18 @@
                 <div class="vcal-body">
                     <div class="vcal-cal-entity vcal-year-entity">
                         <div class="vcal-year-month-wrap" v-for="(yi, mdays) in ydays">
-                            <div class="header">
+                            <div class="vheader">
                                 {{mtips[yi]}}
                             </div>
-                            <div class="container">
+                            <div class="vcontainer">
                                 <table class="vcal-cal-entity vcal-month-entity">
-                                    <thead class="header">
+                                    <thead class="vheader">
                                         <tr>
                                             <th class="vcal-matrix-entity week-tip" v-for="(index, wn) in wtips">{{wn}}</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="container">
-                                        <tr class="row" v-for="(ri, rdays) in mdays">
+                                    <tbody class="vcontainer">
+                                        <tr class="vrow" v-for="(ri, rdays) in mdays">
                                             <td class="vcal-matrix-entity day-entity"
                                                 @click="selDay(day)"
                                                 v-bind:class="{'ds-outmonth': !day.inMonth, 'ds-today': day.text == vcal.currday, 'ds-select': vcal.sel == day.text}"
@@ -377,14 +413,19 @@
                     year: y,
                     mondy: m,
                     currday: getDayStr(new Date()),
-                    info: "Week " + getWeekNum(m) + "-" + y
+                    info: "",
+                    sel: ""
                 }
             }
         },
         methods: {
+            selectDate: function () {
+                return this.vcal.sel;
+            },
             refreshVcalInfo: function () {
                 this.vcal.year = this.vcal.mondy.getFullYear();
-                this.vcal.info = "Week " + getWeekNum(this.vcal.mondy) + "-" + this.vcal.year;
+                this.vcal.info = this.vcal.year + " 第" + getWeekNum(this.vcal.mondy) + "周";
+                this.vcal.sel = "";
             },
             refreshCal: function () {
                 this.wdays = getWeekDays(this.vcal.mondy);
@@ -404,13 +445,34 @@
                 this.refreshVcalInfo();
                 this.refreshCal();
             },
+            toPrevR: function () {
+                this.toPrev();
+                this.refreshData();
+            },
+            toNextR: function () {
+                this.toNext();
+                this.refreshData();
+            },
+            toTodayR: function () {
+                this.toToday();
+                this.refreshData();
+            },
+            refreshData: function () {
+                console.log("week-data refresh");
+            },
             isCurrday: function (i) {
                 return this.wdays[i].text == this.vcal.currday;
             },
             wdayStr: function (i) {
                 var wday = this.wdays[i];
                 return wday.month + "/" + wday.day;
+            },
+            selDay: function (day) {
+                this.vcal.sel = day.text;
             }
+        },
+        ready: function () {
+            this.refreshVcalInfo();
         }
     };
 
@@ -427,15 +489,15 @@
                 </div>
                 <div class="vcal-body">
                     <table class="vcal-cal-entity vcal-week-entity">
-                        <thead class="header">
+                        <thead class="vheader">
                             <tr>
                                 <th class="vcal-matrix-entity week-tip" v-for="(wi, wn) in wtips"
                                      v-bind:class="{'ds-today': isCurrday(wi)}">{{wn}} ({{wdayStr(wi)}})
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="container">
-                            <tr class="row">
+                        <tbody class="vcontainer">
+                            <tr class="vrow">
                                 <td class="vcal-matrix-entity week-day-entity"
                                     v-for="(wi, day) in wdays">
                                     <div class="day-hours">

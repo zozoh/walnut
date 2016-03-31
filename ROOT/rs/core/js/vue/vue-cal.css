@@ -19,6 +19,7 @@
   box-sizing: border-box;
 }
 .vcal table {
+  table-layout: fixed;
   border-spacing: 0;
 }
 .vcal tr,
@@ -92,7 +93,7 @@
 .vcal-cal-entity {
   width: 100%;
 }
-.vcal-cal-entity > .header {
+.vcal-cal-entity > .vheader {
   background: #DCDCDC;
   color: #000;
   font-weight: bold;
@@ -124,7 +125,7 @@
   color: #f00;
 }
 .ds-select {
-  background: #c1edf6;
+  background: rgba(248, 178, 208, 0.3);
 }
 .ds-select .day-tip {
   color: #FFF;
@@ -139,6 +140,10 @@
 .vcal-week-entity {
   width: calc(100% - 30px);
   margin-left: 30px;
+}
+.vcal-week-entity.no-sidebar {
+  width: 100%;
+  margin-left: 0;
 }
 .vcal-week-entity .vcal-hour-entity {
   height: 28.8px;
@@ -165,7 +170,7 @@
   width: 25%;
   display: inline-block;
 }
-.vcal-year-entity .vcal-year-month-wrap > .header {
+.vcal-year-entity .vcal-year-month-wrap > .vheader {
   height: 36px;
   line-height: 36px;
 }

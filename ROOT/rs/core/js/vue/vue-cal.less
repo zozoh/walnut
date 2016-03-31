@@ -22,6 +22,7 @@
   }
 
   table {
+    table-layout: fixed;
     border-spacing: 0;
   }
 
@@ -100,7 +101,7 @@
 
   width: 100%;
 
-  > .header {
+  > .vheader {
     background: @vcal-heder-bg;
     color: #000;
     font-weight: bold;
@@ -135,6 +136,7 @@
 // day-status
 
 .ds-today {
+
   .day-tip {
     color: #f00;
   }
@@ -145,7 +147,7 @@
 }
 
 .ds-select {
-  background: @vcal-day-bg;
+  background: rgba(248, 178, 208, 0.3);
   .day-tip {
     color: #FFF;
   }
@@ -165,6 +167,11 @@
   // 空出时间点来
   width: calc(~"100% - @{vcal-weekday-sb-width}");
   margin-left: @vcal-weekday-sb-width;
+
+  &.no-sidebar {
+    width: 100%;
+    margin-left: 0;
+  }
 
   .vcal-hour-entity {
     height: @vmatrix-h * 1.2;
@@ -198,9 +205,7 @@
 
 }
 
-
 // 月视图
-
 .vcal-month-entity {
 
 }
@@ -213,7 +218,7 @@
     width: 25%;
     display: inline-block;
 
-    > .header {
+    > .vheader {
       height: @vmatrix-h * 1.5;
       line-height: @vmatrix-h * 1.5;
     }

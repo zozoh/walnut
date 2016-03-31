@@ -4359,7 +4359,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (this.value.length) {
 	        for (var item in this.value) {
 	          if (typeof this.value[item] === "string") {
-	            foundItems.push(this.value[item]);
+				  foundItems.push(this.value[item]);
 	          }
 	        }
 	        return foundItems.join(', ');
