@@ -236,12 +236,40 @@ function update(jRoot, opt, tps, resetAll){
     }
     
     // 处理每个时间点项目
+    __do_update(jRoot, opt, tps, jItems);
+
+    // 回调
+    __do_on_change(jRoot, opt, tps);
+}
+//...........................................................
+function __do_on_change(jRoot, opt, tps) {
+    if("auto" != opt.callbackArgType) {
+        tps = [].concat(tps);
+        for(var i=0;i<tps.length;i++) {
+            var t = $z.parseTime(tps[i]);
+            // 绝对秒数
+            if("asec" == opt.callbackArgType) {
+                tps[i] = t.sec;
+            }
+            // "08:12:23" 格式的时间字符串
+            if("ssec" == opt.callbackArgType) {
+                tps[i] = t.key;
+            }
+            // "08:12" 格式的时间字符串
+            if("smin" == opt.callbackArgType) {
+                tps[i] = t.key_min;
+            }
+        }
+    }
+    $z.invoke(opt, "on_change", [tps], jRoot);
+}
+//...........................................................
+function __do_update(jRoot, opt, tps, jItems) {
+    jItems = jItems || jRoot.find(".timelist-item");
+    // 处理每个时间点项目
     do_each_item(jRoot, jItems, opt, tps, function(){
         this.addClass("timelist-item-checked");
     });
-
-    // 回调
-    $z.invoke(opt, "on_change", [tps], jRoot);
 }
 //...........................................................
 // 接受输入标记一组时间点是不可选的
@@ -268,11 +296,14 @@ function do_each_item(jRoot, jItems, opt, tps, callback){
             var jItem = $(this);
             var sec = jItem.attr("sec") * 1;
             var sto = sec + sUnit;
-            // 在给定时间点里找，有木有能匹配的，匹配的就置 -1 表示用过了
+            // 在给定时间点里找，有木有能匹配的，匹配的就置 null 表示用过了
             for(var i=0;i<_tps.length;i++){
                 var tp = _tps[i];
-                if(tp>=0 && tp>=sec && tp<sto){
-                    _tps[i] = -1;
+                if(_.isNull(tp))
+                    continue;
+                var t  = $z.parseTime(tp);
+                if(t.sec>=sec && t.sec<sto){
+                    _tps[i] = null;
                     callback.apply(jItem, [tps, i, jRoot, opt]);
                     break;
                 }
@@ -344,6 +375,7 @@ $.fn.extend({ "timelist" : function(opt, arg0, arg1){
     $z.setUndefined(opt, "display",   "horizontal");
     $z.setUndefined(opt, "timeUnit",  60);
     $z.setUndefined(opt, "groupUnit", 1);
+    $z.setUndefined(opt, "callbackArgType", "auto");
     $z.setUndefined(opt, "scopes",    [["00:00", "24:00"]]);
 
     // 重绘基础 dom 结构，同时这会保存配置信息
@@ -353,8 +385,8 @@ $.fn.extend({ "timelist" : function(opt, arg0, arg1){
     bindEvents(jRoot, opt);
 
     // 更新
-    if(opt.date)
-        update(jRoot, opt.date);
+    if(opt.data)
+        __do_update(jRoot, opt, opt.data);
 
     // 如果有必要，标记一些不可用的项目
     if(opt.disabled)

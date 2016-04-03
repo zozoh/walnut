@@ -136,6 +136,11 @@ public class WnBean extends NutMap implements WnObj {
             return null == tp;
         if (null == tp)
             return false;
+        // 用正则
+        if(tp.startsWith("^")){
+            return mytp.matches(tp);
+        }
+        // 精确匹配
         return mytp.equals(tp);
     }
 

@@ -280,7 +280,7 @@ return ZUI.def("ui.form_com_droplist", {
             }
         }
         // 触发事件
-        UI.__on_change();
+        //UI.__on_change();
     },
     //...............................................................
     __on_change : function(){

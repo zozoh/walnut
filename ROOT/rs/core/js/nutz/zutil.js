@@ -125,6 +125,28 @@ var zUtil = {
         return v;
     },
     //.............................................
+    toggleAttr : function(jq, attNm, valOn, valOff){
+        // 没有 valOn 那么，默认当做 true
+        if(_.isUndefined(valOn)) {
+            if(jq.attr(attNm)){
+                jq.removeAttr(attNm);
+            }else{
+                jq.attr(attNm, true || valOn);
+            }
+        }
+        // 否则用 valOn 来判断
+        else{
+            if(jq.attr(attNm) == valOn){
+                if(_.isUndefined(valOff))
+                    jq.removeAttr(attNm);
+                else
+                    jq.attr(attNm, valOff);
+            }else{
+                jq.attr(attNm, valOn);
+            }
+        }
+    },
+    //.............................................
     // 计算尺寸
     //  -v : 要计算的尺寸值的类型可以是
     //       500   - 整数，直接返回
@@ -205,7 +227,12 @@ var zUtil = {
         | C | D |
         +---+---+
         */
-        var off;
+        var off = {
+            "top"    : "",
+            "left"   : "",
+            "right"  : "",
+            "bottom" : ""
+        };
 
         // 分析模式
         var m = /^([VH])([ABCD])?$/.exec((mode||"H").toUpperCase());
@@ -224,31 +251,31 @@ var zUtil = {
         if("V" == mode){
             // A : 右上角对齐
             if("A" == area){
-                off = {
+                _.extend(off, {
                     "left" : rect.right,
-                    "top"  : rect.top
-                };
+                    "top"  : rect.top,
+                });
             }
             // B : 左上角对齐
             else if("B" == area){
-                off = {
+                _.extend(off, {
                     "left" : rect.left   - sub.width,
                     "top"  : rect.top
-                };
+                });
             }
             // C : 右下角对齐
             else if("C" == area){
-                off = {
+                _.extend(off, {
                     "left"   : rect.right,
                     "bottom" : viewport.height - rect.bottom
-                };
+                });
             }
             // D : 左下角对齐
             else {
-                off = {
+                _.extend(off, {
                     "left"   : rect.left   - sub.width,
                     "bottom" : viewport.height - rect.bottom
-                };
+                });
             }
         }
         // 停靠在上水平边
@@ -262,37 +289,38 @@ var zUtil = {
         else{
             // A : 左下角对齐
             if("A" == area){
-                off = {
+                _.extend(off, {
                     "left" : rect.left,
                     "top"  : rect.bottom
-                };
+                });
             }
             // B : 右下角对齐
             else if("B" == area){
-                off = {
+                _.extend(off, {
                     "left" : rect.right - sub.width,
                     "top"  : rect.bottom
-                };
+                });
             }
             // C : 左上角对齐
             else if("C" == area){
-                off = {
+                _.extend(off, {
                     "left" : rect.left,
                     "top"  : rect.top - sub.height
-                };
+                });
             }
             // D : 右上角对齐
             else {
-                off = {
+                _.extend(off, {
                     "left" : rect.right   - sub.width,
                     "top"  : rect.top - sub.height
-                };
+                });
             }
         }
         // 调整上下边缘
-        if(off.top < viewport.top){
+        if(_.isNumber(off.top) && off.top < viewport.top){
             off.top = viewport.top;
-        }else if(off.bottom > viewport.bottom){
+        }
+        else if(_.isNumber(off.bottom) && off.bottom > viewport.bottom){
             off.top = viewport.bottom - sub.height;
         }
         // 设置属性

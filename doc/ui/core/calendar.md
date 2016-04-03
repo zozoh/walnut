@@ -12,6 +12,11 @@ author:zozoh
 ```
 new UILayout({
     $pel    : $(document.body),
+    
+    // 声明这个属性，点击 body 的时候，将会取消单元格的激活
+    // 默认 true
+    blurable : true
+    
     // 下面的属性是 zcal 支持的全部属性
     ...
     // 附加的，控件会对应的支持相关消息

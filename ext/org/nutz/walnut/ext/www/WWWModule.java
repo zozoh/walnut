@@ -297,13 +297,23 @@ public class WWWModule extends AbstractWnModule {
                     hsr.updateBy(html);
                     return new HttpStatusView(hsr);
                 }
-
+                if (log.isDebugEnabled())
+                    log.debugf(" - dynamic (%s)@%s : %s", o.id(), usr, a_path);
                 // 返回网页
                 return new ViewWrapper(new RawView("text/html"), html);
             }
+            // 网页图片等，直接显示，清空 UA 后会去掉 CONTENT_DISPOSITION
+            else if (o.isType("^(html|htm|txt|gif|png|jpe?g|webp)$")) {
+                if (log.isDebugEnabled())
+                    log.debugf(" - static (%s)@%s : %s", o.id(), usr, a_path);
+                ua = null;
+            }
             // 其他的都是静态资源，就直接下载了
-            if (log.isDebugEnabled())
-                log.debugf(" - download (%s)@%s : %s", o.id(), usr, a_path);
+            else {
+                if (log.isDebugEnabled())
+                    log.debugf(" - download (%s)@%s : %s", o.id(), usr, a_path);
+            }
+            // 输出吧
             return new WnObjDownloadView(io, o, ua);
 
         }

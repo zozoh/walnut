@@ -382,7 +382,7 @@ return ZUI.def("ui.table", {
         // 获取完整的列表
         return UI.ui_format_data(function(opt){
             var objs = [];
-            jTBody.children('.tbl-row').each(function(){
+            UI.arena.find('.tbl-row').each(function(){
                 objs.push($(this).data("OBJ"));
             });
             return objs;

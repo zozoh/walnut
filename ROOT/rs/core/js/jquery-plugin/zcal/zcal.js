@@ -106,6 +106,10 @@ function get_range(ele, selector) {
 }
 //...........................................................
 var commands = {
+    blur : function(){
+        var jRoot = $root(this);
+        return do_blur(jRoot);
+    },
     current : function(d){
         // 获取
         if(!d){
@@ -502,6 +506,18 @@ function draw_block(jWrapper, opt, d){
     return [from, to];
 }
 //...........................................................
+function do_blur(jRoot, opt){
+    var opt = opt || options(jRoot);
+    var jLast = jRoot.find(".zcal-cell-actived");
+    var dLast = commands.actived.call(jRoot);
+    if(dLast){
+        jLast.removeClass("zcal-cell-actived");
+        $z.invoke(opt, "on_blur", [dLast], jLast);
+        return true;
+    }
+    return false;
+}
+//...........................................................
 function do_active(jRoot, obj, autoSelect){
     var opt = options(jRoot);
     // 不响应点击等默认事件
@@ -520,12 +536,7 @@ function do_active(jRoot, obj, autoSelect){
     d.setHours(0,0,0,0);
 
     // 找到上一个被激活的日期，并取消激活
-    var jLast = jRoot.find(".zcal-cell-actived");
-    var dLast = commands.actived.call(jRoot);
-    if(dLast){
-        jLast.removeClass("zcal-cell-actived");
-        $z.invoke(opt, "on_blur", [dLast], jLast);
-    }
+    do_blur(jRoot, opt);
 
     // 根据 key 找到现在应该被激活的日期，并激活
     var key = dkey(d);
@@ -559,7 +570,7 @@ function do_active(jRoot, obj, autoSelect){
     }
 
     // 调用回调 
-    $z.invoke(opt, "on_actived", [d], jCell);
+    $z.invoke(opt, "on_actived", [d, jCell], jCell);
 
     // 返回激活的日期
     return d;

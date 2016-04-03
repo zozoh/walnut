@@ -11,6 +11,36 @@ return ZUI.def("ui.form_com_text", {
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
+    events : {
+        "change textarea" : function(){
+            this.__on_change();
+        }
+    },
+    //...............................................................
+    __on_change : function(){
+        var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+        var v = UI.getData();
+        $z.invoke(opt, "on_change", [v], context);
+        UI.trigger("change", v);
+    },
+    //...............................................................
+    getData : function(){
+        var UI = this;
+        return UI.ui_format_data(function(opt){
+            return UI.arena.find("textarea").val();
+        });
+    },
+    //...............................................................
+    setData : function(val, jso){
+        var UI = this;
+        this.ui_parse_data(val, function(s){
+            var str = jso.parse(s).toStr();
+            UI.arena.find("textarea").val(jso.toStr());
+        });
+    },
+    //...............................................................
     resize : function(){
         var UI  = this;
         var opt = UI.options;
@@ -25,16 +55,6 @@ return ZUI.def("ui.form_com_text", {
         if(opt.height){
             UI.arena.css("height", $z.dimension(opt.height, H));   
         }
-        
-
-    },
-    //...............................................................
-    getData : function(){
-        return this.arena.find("textarea").val();
-    },
-    //...............................................................
-    setData : function(val, jso){
-        this.arena.find("textarea").val(jso.toStr());
     }
     //...............................................................
 });

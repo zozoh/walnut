@@ -22,7 +22,8 @@ public class WnObjDownloadView extends RawView2 {
         if (o.hasType() && !nm.endsWith("." + o.type())) {
             nm += "." + o.type();
         }
-        this.CONTENT_DISPOSITION = WnWeb.genHttpRespHeaderContentDisposition(nm, ua);
+        if (!Strings.isBlank(ua))
+            this.CONTENT_DISPOSITION = WnWeb.genHttpRespHeaderContentDisposition(nm, ua);
     }
 
     public WnObjDownloadView(InputStream ins, int maxLen, String mimeType) {

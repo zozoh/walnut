@@ -195,6 +195,15 @@ console.log(re);   // logs true
 
 * 注意，如果这个日期不在显示范围内，则无效，返回的是 「false」
 
+## blur : 取消激活的日期
+
+```
+var re = jQuery.zcal("blur");
+console.log(re);   // logs true
+```
+
+* 返回 true 表示有日期被取消了激活
+
 ## range : 获取/设置日期范围
 
 ```
