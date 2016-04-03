@@ -69,7 +69,7 @@ public class WalnutFilter implements Filter {
         Request req = (Request) arg0;
 
         String path = Wn.appendPath(req.getServletPath(), req.getPathInfo());
-        String usrip = req.getRemoteAddr();
+        String usrip = Lang.getIP(req);
         String host = req.getHeader("Host");
         int port = req.getLocalPort();
         
