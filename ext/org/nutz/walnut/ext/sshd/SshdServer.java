@@ -31,11 +31,9 @@ public class SshdServer extends WnRun {
         sshd.setShellFactory(() -> {
             return new WalnutSshdCommand(SshdServer.this);
         });
-        // sshd.setCommandFactory(new CommandFactory() {
-        // public Command createCommand(String command) {
-        // return new WalnutSshdCommand(command);
-        // }
-        // });
+        sshd.setCommandFactory((cmd) -> {
+            return new WalnutSshdCommand(SshdServer.this, cmd);
+        });
         sshd.setPort(2222);
         sshd.start();
     }
