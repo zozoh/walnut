@@ -60,7 +60,8 @@ public class job_add implements JvmHdl {
         metas.put("job_cron", cron);
         metas.put("job_ava", System.currentTimeMillis());
         metas.put("job_st", "wait");
-        metas.put("job_user", "root".equals(sys.me.name()) ? params.get("user", "root") : sys.me.name());
+        metas.put("job_user",
+                  "root".equals(sys.me.name()) ? params.get("user", "root") : sys.me.name());
         metas.put("job_create_user", sys.me.name());
         metas.put("job_st", "wait");
         io.appendMeta(jobDir, metas);
