@@ -56,6 +56,8 @@ public class WnJob extends WnRun implements Callable<Object> {
     public void init() {
         io.createIfNoExists(null, root, WnRace.DIR);
         io.createIfNoExists(null, tmpRoot, WnRace.DIR);
+        if (es.isTerminated())
+            es = (ThreadPoolExecutor) Executors.newFixedThreadPool(64);
         es.submit(this);
     }
 
