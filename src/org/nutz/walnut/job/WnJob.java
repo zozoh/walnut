@@ -56,6 +56,8 @@ public class WnJob extends WnRun implements Callable<Object> {
     public void init() {
         io.createIfNoExists(null, root, WnRace.DIR);
         io.createIfNoExists(null, tmpRoot, WnRace.DIR);
+        if (es.isTerminated())
+            es = (ThreadPoolExecutor) Executors.newFixedThreadPool(64);
         es.submit(this);
     }
 
@@ -66,7 +68,7 @@ public class WnJob extends WnRun implements Callable<Object> {
         query.setv("pid", pid);
         // query.limit(1);
         // query.sortBy("job_ava", 1);
-        query.setv("job_ava", new NutMap().setv("$lt", now.getTime()));
+        query.setv("job_ava", new NutMap().setv("$lt", now.getTime())).setv("job_st", "wait");
         List<WnObj> list = io.query(query);
         if (list == null || list.isEmpty())
             return null;
