@@ -791,14 +791,14 @@ ZUIObj.prototype = {
         var context = opt.context || UI;
         // 同步
         if(_.isFunction(opt.parseData)){
-            var o = opt.parseData.call(context, obj);
+            var o = opt.parseData.call(context, obj, UI);
             callback.call(UI, o, opt);
         }
         // 异步 
         else if(_.isFunction(opt.asyncParseData)){
             opt.asyncParseData.call(context, obj, function(o){
                 callback.call(UI, o, opt);
-            });
+            }, UI);
         }
         // 直接使用
         else{
@@ -812,7 +812,7 @@ ZUIObj.prototype = {
         var obj = callback.call(UI, opt);
         if(_.isFunction(opt.formatData)){
             var context = opt.context || UI;
-            return opt.formatData.call(context, obj);
+            return opt.formatData.call(context, obj, UI);
         }
         return obj;
     },
