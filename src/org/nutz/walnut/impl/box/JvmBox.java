@@ -3,12 +3,14 @@ package org.nutz.walnut.impl.box;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.Callback;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.repo.Base64;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
@@ -66,6 +68,12 @@ public class JvmBox implements WnBox {
         String[] cmdLines = Strings.split(cmdText, true, '\n', ';');
 
         for (String cmdLine : cmdLines) {
+            if (Strings.isBlank(cmdLine))
+                continue;
+            if (Strings.trim(cmdLine).endsWith("&")) {
+                cmdLine = cmdLine.substring(0, cmdLine.length() -1);
+                cmdLine = "job add -base64 true " + Base64.encodeToString(cmdLine.getBytes(Encoding.CHARSET_UTF8), false);
+            }
             runner.run(cmdLine);
             runner.wait_for_idle();
         }

@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -175,6 +176,13 @@ public class WnJob extends WnRun implements Callable<Object> {
                         hc.me = usr;
                         hc.se = se;
                         hc.service = hookService;
+                        
+                        NutMap env = jobDir.getAs("job_env", NutMap.class);
+                        if (env != null) {
+                            for (Entry<String, Object> en : env.entrySet()) {
+                                se.var(en.getKey(), en.getValue());
+                            }
+                        }
 
                         Wn.WC().setHookContext(hc);
                         exec("job-" + jobDir.getString("job_name", "_") + " ", se, "", cmdText);
