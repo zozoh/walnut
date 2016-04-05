@@ -32,7 +32,7 @@ return ZUI.def("ui.form_com_input", {
         var jUnit = UI.arena.find(".unit");
         // 声明了单位，显示一下
         if(opt.unit) {
-            jUnit.text(opt.unit);
+            jUnit.text(UI.text(opt.unit));
         }
         // 木有单位，移除
         else{

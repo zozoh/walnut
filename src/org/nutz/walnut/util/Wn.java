@@ -552,8 +552,13 @@ public abstract class Wn {
 
     public static void set_type(MimeMap mimes, WnObj o, String tp) {
         if (o.isFILE()) {
-            if (Strings.isBlank(tp))
+            if (Strings.isBlank(tp)) {
                 tp = Files.getSuffixName(o.name());
+            }
+
+            // 类型会被强制设置成小写
+            if (null != tp)
+                tp = tp.toLowerCase();
 
             if (!o.hasType() || !o.isType(tp)) {
                 if (Strings.isBlank(tp)) {

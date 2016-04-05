@@ -587,6 +587,8 @@ return ZUI.def("ui.table", {
         var fld  = jso.type();
         var context = UI.options.context || UI;
         jTd.attr("key", fld.key);
+        if(fld.className)
+            jTd.addClass(fld.className);
 
         // 获取字段显示值
         var s  = fld.__dis_obj.call(context, o, jso);

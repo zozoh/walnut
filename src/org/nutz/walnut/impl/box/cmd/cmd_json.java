@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
@@ -8,8 +9,10 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.MapKeyConvertor;
 import org.nutz.lang.Streams;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
@@ -24,7 +27,7 @@ public class cmd_json extends JvmExecutor {
     }
 
     @SuppressWarnings("unchecked")
-	@Override
+    @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
 
         ZParams params = ZParams.parse(args, "cqnr");
@@ -43,15 +46,8 @@ public class cmd_json extends JvmExecutor {
             return;
         }
 
-        // 过滤字段
-        JsonFormat fmt;
-        if (params.is("c"))
-            fmt = JsonFormat.compact();
-        else
-            fmt = JsonFormat.forLook();
-
-        fmt.setQuoteName(!params.is("q"));
-        fmt.setIgnoreNull(params.is("n"));
+        // JSON 输出的格式化
+        JsonFormat fmt = this.gen_json_format(params);
 
         if (params.has("e")) {
             String regex = params.get("e");
@@ -96,17 +92,33 @@ public class cmd_json extends JvmExecutor {
                 }
             }, C.recur);
         }
-        
+
         if (params.has("u")) {
-        	NutMap map = Lang.map(params.get("u"));
-        	if (map != null && map.size() > 0) {
-        		((Map<String, Object>)obj).putAll(map);
-        	}
+            NutMap map = Lang.map(params.get("u"));
+            if (map != null && map.size() > 0) {
+                ((Map<String, Object>) obj).putAll(map);
+            }
         }
 
-        // 最后输出
-        sys.out.println(Json.toJson(obj, fmt));
+        // 模板方式输出
+        if (params.has("out")) {
+            if (obj instanceof Map<?, ?>) {
+                String out = params.get("out");
+                NutMap c = NutMap.WRAP((Map<String, Object>) obj);
+                String str = Tmpl.exec(out, _P, 2, 4, c, false);
+                sys.out.print(str);
+            }
+            // 不是 map
+            else {
+                throw Er.create("e.cmd.json.out_nomap", obj);
+            }
+        }
+        // 直接输出 JSON
+        else {
+            sys.out.println(Json.toJson(obj, fmt));
+        }
 
     }
 
+    private static final Pattern _P = Pattern.compile("((?<![@])[@][{]([^}]+)[}])|([@]([@][{][^}]+[}]))");
 }

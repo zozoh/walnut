@@ -28,7 +28,7 @@ public abstract class IoWnHookService implements WnHookService {
         if (!hr.oDir.isDIR())
             throw Er.create("e.hook.load.nodir", hr.oDir);
 
-        List<WnObj> oHooks = io.query(Wn.Q.pid(hr.oDir));
+        List<WnObj> oHooks = io.query(Wn.Q.pid(hr.oDir).asc("nm"));
         hr.hooks = new ArrayList<WnHook>(oHooks.size());
         for (WnObj oHook : oHooks) {
             AbstractWnHook hook;
