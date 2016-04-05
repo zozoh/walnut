@@ -212,7 +212,7 @@ return ZUI.def("ui.table", {
         }
 
         // 执行查找
-        var jRow = UI.$item(arg);
+        var jRow = UI.$item(arg).first();
         if(jRow.size()>0 && !UI.isActived(jRow)){
             // 得到数据
             var o = jRow.data("OBJ");
@@ -269,6 +269,14 @@ return ZUI.def("ui.table", {
             objs.push($(this).data("OBJ"));
         });
         return objs;
+    },
+    isChecked : function(arg){
+        var jRow = this.$item(arg);
+        return jRow.hasClass("tbl-row-checked");
+    },
+    //...............................................................
+    getCheckedRow : function(){
+        return this.arena.find(".tbl-row-checked");
     },
     //...............................................................
     check : function(arg){
@@ -447,10 +455,10 @@ return ZUI.def("ui.table", {
 
         // 如果当前是高亮节点，则试图得到下一个高亮的节点，给调用者备选
         var jN2   = null;
-        if(UI.isActived(jRow)){
-            jN2 = jRow.next();
+        if(UI.isActived(jRow) || UI.isChecked(jRow)){
+            jN2 = jRow.last().next();
             if(jN2.size() == 0){
-                jN2 = jRow.prev();
+                jN2 = jRow.first().prev();
                 // 返回 false 表示只剩下最后一个节点额
                 if(jN2.size() == 0 && keepAtLeastOne){
                     return false;

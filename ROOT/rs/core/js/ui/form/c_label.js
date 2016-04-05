@@ -27,7 +27,8 @@ return ZUI.def("ui.form_com_label", {
         var opt = UI.options;
 
         // 记录数据
-        this.$el.data("@VAL", val||"");
+        this.$el.data("@VAL", val);
+        val = _.isNull(val) || _.isUndefined(val) ? "" : val;
 
         // 设置显示 
         this.ui_parse_data(val, function(html){

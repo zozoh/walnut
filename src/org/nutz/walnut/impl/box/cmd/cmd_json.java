@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -9,6 +10,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.MapKeyConvertor;
 import org.nutz.lang.Streams;
+import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
@@ -102,22 +104,40 @@ public class cmd_json extends JvmExecutor {
 
         // 模板方式输出
         if (params.has("out")) {
+            String out = params.get("out");
+            Tmpl tmpl = Tmpl.parse(out, _P, 2, 4);
+            // 如果是 Map 则直接渲染
             if (obj instanceof Map<?, ?>) {
-                String out = params.get("out");
-                NutMap c = NutMap.WRAP((Map<String, Object>) obj);
-                String str = Tmpl.exec(out, _P, 2, 4, c, false);
-                sys.out.print(str);
+                __output(sys, tmpl, obj);
             }
-            // 不是 map
-            else {
-                throw Er.create("e.cmd.json.out_nomap", obj);
+            // 集合
+            else if (obj instanceof Collection<?>) {
+                for (Object ele : (Collection<?>) obj) {
+                    __output(sys, tmpl, ele);
+                }
             }
+
         }
         // 直接输出 JSON
         else {
             sys.out.println(Json.toJson(obj, fmt));
         }
 
+    }
+
+    @SuppressWarnings("unchecked")
+    private void __output(WnSystem sys, Tmpl tmpl, Object obj) {
+        // 是 Map 就输出
+        if (obj instanceof Map<?, ?>) {
+            NutMap c = NutMap.WRAP((Map<String, Object>) obj);
+            String str = tmpl.render(c, false);
+            str = Strings.evalEscape(str);
+            sys.out.print(str);
+        }
+        // 不支持
+        else {
+            throw Er.create("e.cmd.json.nomap", obj.getClass());
+        }
     }
 
     private static final Pattern _P = Pattern.compile("((?<![@])[@][{]([^}]+)[}])|([@]([@][{][^}]+[}]))");
