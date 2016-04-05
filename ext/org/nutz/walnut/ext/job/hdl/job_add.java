@@ -2,10 +2,12 @@ package org.nutz.walnut.ext.job.hdl;
 
 import java.io.IOException;
 
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
+import org.nutz.repo.Base64;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -32,8 +34,11 @@ public class job_add implements JvmHdl {
             params = ZParams.parse(hc.args, null);
         }
         String cmd;
-        if (params.vals.length > 0)
+        if (params.vals.length > 0) {
             cmd = params.vals[0];
+            if ("true".equals(params.get("base64")))
+                cmd = new String(Base64.decode(cmd), Encoding.CHARSET_UTF8);
+        }
         else if (sys.pipeId > 0) {
             try {
                 cmd = Streams.read(sys.in.getReader()).toString();
@@ -60,9 +65,11 @@ public class job_add implements JvmHdl {
         metas.put("job_cron", cron);
         metas.put("job_ava", System.currentTimeMillis());
         metas.put("job_st", "wait");
-        metas.put("job_user", "root".equals(sys.me.name()) ? params.get("user", "root") : sys.me.name());
+        metas.put("job_user",
+                  "root".equals(sys.me.name()) ? params.get("user", "root") : sys.me.name());
         metas.put("job_create_user", sys.me.name());
         metas.put("job_st", "wait");
+        metas.put("job_env", sys.se.vars());
         io.appendMeta(jobDir, metas);
         sys.out.print(id);
         return;

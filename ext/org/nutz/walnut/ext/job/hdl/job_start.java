@@ -14,8 +14,7 @@ public class job_start implements JvmHdl {
         }
         if (!WnJob.me.isRunning()) {
             WnJob.me.init();
-        }
-        else
+        } else
             sys.out.println("aready started");
         return;
     }
