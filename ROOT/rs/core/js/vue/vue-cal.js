@@ -183,7 +183,23 @@
                     info: getMonthStr(this.date),
                     sel: "",
                     currday: getDayStr(new Date()),
-                }
+                },
+                selvc: {
+                    date: "___-__",
+                    total: 0
+                },
+                cnm: "month",
+                dmap: {}
+            }
+        },
+        computed: {
+            sstart: function () {
+                var monthDays = VueCal.monthDays(this.vcal.year, this.vcal.month, true);
+                return monthDays[0].text;
+            },
+            send: function () {
+                var monthDays = VueCal.monthDays(this.vcal.year, this.vcal.month, true);
+                return monthDays[monthDays.length - 1].text;
             }
         },
         methods: {
@@ -204,6 +220,26 @@
             },
             refreshCal: function () {
                 this.mdays = getMonthDaysMatrix(this.vcal.year, this.vcal.month);
+            },
+            hasVCData: function (wday) {
+                return this.getVCNum(wday) > 0;
+            },
+            getVCData: function (wday) {
+                return this.dmap[wday.text];
+            },
+            getVCNum: function (wday) {
+                return this.dmap[wday.text] != undefined ? this.dmap[wday.text].total : 0;
+            },
+            showVCOday: function (wday) {
+                if (this.dmap[wday.text] != null) {
+                    this.$set('selvc', this.dmap[wday.text]);
+                } else {
+                    this.$set('selvc', {
+                        date: "___-__",
+                        total: 0
+                    });
+                }
+                this.selDay(wday);
             },
             toPrev: function () {
                 if (this.vcal.month == 1) {
@@ -416,6 +452,14 @@
                     info: "",
                     sel: ""
                 }
+            }
+        },
+        computed: {
+            sstart: function () {
+                return this.wdays[0].text;
+            },
+            send: function () {
+                return this.wdays[this.wdays.length - 1].text;
             }
         },
         methods: {
