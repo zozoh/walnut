@@ -193,7 +193,7 @@ return ZUI.def("ui.form_com_droplist", {
                 $('<span it="check"><i class="fa fa-square-o"></i><i class="fa fa-check-square"></i></span>')
                     .appendTo(jLi);
             }else{
-                $('<span it="check"><i class="fa fa-check"></i></span>')
+                $('<span it="check"><i class="fa fa-caret-right"></i></span>')
                     .appendTo(jLi);
             }
 

@@ -194,7 +194,7 @@
   display: inline-block;
   vertical-align: middle;
   width: 16px;
-  text-align: left;
+  text-align: center;
 }
 .com-droplist span[it="check"] i:first-child {
   display: inline;

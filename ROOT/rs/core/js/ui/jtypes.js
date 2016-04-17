@@ -313,8 +313,8 @@ JsDateTime.prototype.clone = function(){
 标准格式为:  $z.parseTime() 输出的格式
 fld {
     validate : @see $z.parseTime 支持的正则表达式
-               支持 "@min" 快捷表示 /^(\d{1,2}):(\d{1,2})$/
     nativeAs : "string | int"   // 原生的字段值是字符串还是毫秒数，默认 int
+    format   : "@min"    // 指明字符串输出格式为 HH:mm
 }
 */
 var JsTime = function(fld){
@@ -329,6 +329,8 @@ JsTime.prototype.toText = function(){
      return this.__val.key;
 };
 JsTime.prototype.toStr = function(){
+    if("@min" == this.__fld.format)
+        return this.__val.key_min;
     return this.__val.key;
 };
 JsTime.prototype.toInt = function(){
