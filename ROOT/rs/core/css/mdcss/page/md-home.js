@@ -400,7 +400,8 @@ $(document).ready(function () {
                 navhtml += '    <a  class="ripple-button" onclick="return false;" type="' + ni.type + '" label="' + ni.label + '"';
                 // 类型
                 if (ni.type == 'url') {
-                    navhtml += ' url="' + ni.url + '" ';
+                    navhtml += ' nurl="' + ni.url + '" ';
+                    navhtml += ' href="' + window.location.host + "/a/open/caraide.home#" + ni.url + '" ';
                     if (ni.args) {
                         navhtml += ' args="' + ni.args + '"';
                     }
@@ -479,7 +480,7 @@ $(document).ready(function () {
         'navUrl': function (navItem) {
             // TODO 这里参杂着walnut的相关代码, 等着需要抽离出来
             // 加载页面
-            var url = navItem.url;
+            var url = navItem.nurl;
             var lochref = window.location.href;
             var lhi = lochref.indexOf("#");
             var page = hconf.page_setting.page_dft;
@@ -697,7 +698,7 @@ $(document).ready(function () {
             }
             else if (type == 'url') {
                 mphome.nav.navUrl({
-                    'url': $a.attr('url'),
+                    'nurl': $a.attr('nurl'),
                     'label': $a.attr('label'),
                     'args': $a.attr('args'),
                     'page': $a.attr('page')
@@ -819,7 +820,7 @@ $(document).ready(function () {
                             url = url.substr(0, qi);
                         }
                     }
-                    $a = $('a[url="' + url + '"]');
+                    $a = $('a[nurl="' + url + '"]');
                     if ($a.length > 0) {
                         // TODO 如果匹配上了多个?看看参数
                         var $realA = $a;
@@ -833,7 +834,7 @@ $(document).ready(function () {
                             });
                         }
                         mphome.nav.navUrl({
-                            'url': url,
+                            'nurl': url,
                             'label': $realA.attr('label'),
                             'args': args,
                             'page': $realA.attr('page')
