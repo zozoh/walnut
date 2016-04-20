@@ -417,8 +417,16 @@ return ZUI.def("ui.form", {
         });
     },
     //...............................................................
-    update : function(obj){
-        var UI = this;
+    update : function(key, val){
+        var UI  = this;
+        // 解析参数
+        var obj = {};
+        if(_.isString(key)){
+            obj[key] = val;
+        }else{
+            _.extend(obj, key);
+        }
+        // 执行更新
         UI.ui_parse_data(obj, function(o){
             // 设置每个字段
             UI.arena.find(".form-fld").each(function(){

@@ -23,7 +23,7 @@ public class cmd_cat extends JvmExecutor {
         ZParams params = ZParams.parse(args, null);
 
         // 计算要列出的要处理的对象
-        List<WnObj> list = evalCandidateObjsNoEmpty(sys, params.vals, false);
+        List<WnObj> list = evalCandidateObjsNoEmpty(sys, params.vals, 0);
 
         // 没内容
         if (list.isEmpty()) {

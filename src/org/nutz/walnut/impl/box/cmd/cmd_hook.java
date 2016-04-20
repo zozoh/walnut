@@ -46,7 +46,7 @@ public class cmd_hook extends JvmExecutor {
         else if (params.has("do") && params.vals.length > 0) {
             String action = _check_action_name(params);
             String str = params.get("do");
-            List<WnObj> objs = this.evalCandidateObjs(sys, Lang.array(str), false);
+            List<WnObj> objs = this.evalCandidateObjs(sys, Lang.array(str), 0);
             for (WnObj o : objs) {
                 if (params.is("v"))
                     sys.out.printlnf("redo hook -> %s", o.path());

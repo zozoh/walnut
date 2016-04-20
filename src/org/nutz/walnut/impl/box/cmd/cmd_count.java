@@ -28,7 +28,7 @@ public class cmd_count extends JvmExecutor {
         }
 
         List<WnObj> list = new LinkedList<WnObj>();
-        WnObj p = evalCandidateObjs(sys, new String[]{path}, list, true);
+        WnObj p = evalCandidateObjs(sys, new String[]{path}, list, Wn.Cmd.JOIN_CURRENT);
         String ph;
         if (list.isEmpty()) {
             if (args.length > 0) {

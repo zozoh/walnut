@@ -47,6 +47,20 @@
                 .wnobj-icon-hide {display: none;}
             }
         }
+        .wnobj-thumbnail[noexists]{
+            text-align: center;
+            .img:before {
+                display: block;
+                content: "";
+                height: 50%;
+            }
+            .img:after {
+                display:block;
+                font-family: FontAwesome;
+                font-size: 3.0em;
+                content: "\f1f8";
+            }
+        }
         .wnobj-thumbnail[thumb]{
             .img {background-color: #000;}
         }

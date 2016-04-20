@@ -94,6 +94,20 @@
 .wn-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-icon-hide {
   display: none;
 }
+.wn-thumbnail .wnobj .wnobj-thumbnail[noexists] {
+  text-align: center;
+}
+.wn-thumbnail .wnobj .wnobj-thumbnail[noexists] .img:before {
+  display: block;
+  content: "";
+  height: 50%;
+}
+.wn-thumbnail .wnobj .wnobj-thumbnail[noexists] .img:after {
+  display: block;
+  font-family: FontAwesome;
+  font-size: 3.0em;
+  content: "\f1f8";
+}
 .wn-thumbnail .wnobj .wnobj-thumbnail[thumb] .img {
   background-color: #000;
 }

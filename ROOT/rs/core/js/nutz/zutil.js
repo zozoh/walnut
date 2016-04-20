@@ -414,6 +414,12 @@ var zUtil = {
     //   key : 键值，支持 "."
     //   dft : 如果木找到，返回的东东
     getValue : function(obj, key, dft){
+        // 首先硬取试试
+        var re = obj[key];
+        if(!_.isUndefined(re))
+            return re;
+
+        // 嗯，按照路径来白
         var ks = _.isArray(key)
                     ? key
                     : _.isString(key) 
@@ -431,7 +437,7 @@ var zUtil = {
             }
             key = ks[lastIndex];;
         }
-        var re = o[key];
+        re = o[key];
         return _.isUndefined(re) ? dft : re;
     },
     //.............................................
@@ -1661,6 +1667,8 @@ var zUtil = {
         //...............................................
         // 计算宿主尺寸
         var rect = $z.rect(jEle);
+        var el = jEle[0];
+
         //...............................................
         // 显示输入框
         var boxW = opt.width || rect.width;
@@ -1732,8 +1740,8 @@ var zUtil = {
             // 显示绝对定位
             jDiv.css({
                 "position" : "fixed",
-                "top"      : rect.top,
-                "left"     : rect.left,
+                "top"      : rect.top - document.body.scrollTop,
+                "left"     : rect.left - document.body.scrollLeft,
                 "z-index"  : 999999
             });
             // 显示遮罩

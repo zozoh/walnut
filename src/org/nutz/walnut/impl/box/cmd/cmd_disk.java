@@ -22,7 +22,7 @@ public class cmd_disk extends JvmExecutor {
 
         // 计算要列出的目录并得到当前目录
         List<WnObj> list = new LinkedList<WnObj>();
-        evalCandidateObjs(sys, params.vals, list, true);
+        evalCandidateObjs(sys, params.vals, list, Wn.Cmd.JOIN_CURRENT);
 
         // 检查是否候选对象列表为空
         checkCandidateObjsNoEmpty(args, list);

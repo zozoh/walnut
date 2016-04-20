@@ -21,6 +21,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnPager;
 import org.nutz.walnut.util.ZParams;
+import org.nutz.web.WebException;
 
 public abstract class JvmExecutor {
 
@@ -61,7 +62,11 @@ public abstract class JvmExecutor {
         return sys.io.check(null, path);
     }
 
-    protected void joinObjByPath(WnSystem sys, final List<WnObj> list, WnObj p, String str) {
+    protected void joinObjByPath(WnSystem sys,
+                                 final List<WnObj> list,
+                                 WnObj p,
+                                 String str,
+                                 int mode) {
         // 分析路径
         str = Wn.normalizePath(str, sys);
 
@@ -85,7 +90,27 @@ public abstract class JvmExecutor {
         for (int i = ss.length - 1; i >= 0; i--) {
             String nm = ss[i];
             if (nm.startsWith("id:")) {
-                p = sys.io.checkById(nm.substring(3));
+                try {
+                    p = sys.io.checkById(nm.substring(3));
+                }
+                catch (WebException e) {
+                    // 没找到，那么后面的路径接表找了
+                    // 根据配置，看看是忽略呢，还是抛错
+                    if (e.isKey("e.io.noexists")) {
+                        // 输出 null
+                        if (Wn.Cmd.isNoExistsNull(mode)) {
+                            list.add(null);
+                            return;
+                        }
+                        // 忽略
+                        else if (Wn.Cmd.isNoExistsIgnore(mode)) {
+                            return;
+                        }
+                    }
+                    // 没的处理，就抛出咯
+                    throw e;
+                }
+
                 off = i + 1;
                 break;
             }
@@ -98,7 +123,7 @@ public abstract class JvmExecutor {
         }
 
         // 递归查找
-        __find_last_level_objs(sys.io, p, ss, off, list);
+        __find_last_level_objs(sys.io, p, ss, off, list, mode);
 
     }
 
@@ -106,22 +131,42 @@ public abstract class JvmExecutor {
                                         WnObj p,
                                         final String[] ss,
                                         final int off,
-                                        final List<WnObj> list) {
+                                        final List<WnObj> list,
+                                        int mode) {
         String nm = ss.length > off ? ss[off] : null;
 
         // 当前目录
         if (".".equals(nm)) {
-            __find_last_level_objs_handle(io, ss, off + 1, list, p);
+            __find_last_level_objs_handle(io, ss, off + 1, list, p, mode);
         }
         // 回退一级
         else if ("..".equals(nm)) {
             WnObj o = p.parent();
-            __find_last_level_objs_handle(io, ss, off + 1, list, o);
+            __find_last_level_objs_handle(io, ss, off + 1, list, o, mode);
         }
         // 根据 ID
         else if (nm.startsWith("id:")) {
-            WnObj o = io.checkById(nm.substring("id:".length()));
-            __find_last_level_objs(io, o, ss, off + 1, list);
+            try {
+                WnObj o = io.checkById(nm.substring("id:".length()));
+                __find_last_level_objs(io, o, ss, off + 1, list, mode);
+            }
+            catch (WebException e) {
+                // 没找到，那么后面的路径接表找了
+                // 根据配置，看看是忽略呢，还是抛错
+                if (e.isKey("e.io.noexists")) {
+                    // 输出 null
+                    if (Wn.Cmd.isNoExistsNull(mode)) {
+                        list.add(null);
+                        return;
+                    }
+                    // 忽略
+                    else if (Wn.Cmd.isNoExistsIgnore(mode)) {
+                        return;
+                    }
+                }
+                // 没的处理，就抛出咯
+                throw e;
+            }
         }
         // 继续查找
         else {
@@ -132,8 +177,24 @@ public abstract class JvmExecutor {
             // }
             // });
             List<WnObj> children = io.getChildren(p, nm);
-            for (WnObj child : children) {
-                __find_last_level_objs_handle(io, ss, off + 1, list, child);
+            // 木有，根据模式来处理
+            if (children.isEmpty()) {
+                // 输出 null
+                if (Wn.Cmd.isNoExistsNull(mode)) {
+                    list.add(null);
+                    return;
+                }
+                // 忽略
+                else if (Wn.Cmd.isNoExistsIgnore(mode)) {
+                    return;
+                }
+                // 默认的，啥也不输出
+            }
+            // 处理每个子节点
+            else {
+                for (WnObj child : children) {
+                    __find_last_level_objs_handle(io, ss, off + 1, list, child, mode);
+                }
             }
         }
     }
@@ -142,7 +203,8 @@ public abstract class JvmExecutor {
                                                final String[] ss,
                                                final int off,
                                                final List<WnObj> list,
-                                               WnObj o) {
+                                               WnObj o,
+                                               int mode) {
         // 如果到了最后一层，才加入 list
         if (off >= ss.length) {
             if (null == o)
@@ -150,32 +212,42 @@ public abstract class JvmExecutor {
             else
                 list.add(o);
         }
+        // 如果根本木有
+        else if (null == o) {
+            // 输出 null
+            if (Wn.Cmd.isNoExistsNull(mode)) {
+                list.add(null);
+                return;
+            }
+            // 忽略
+            else if (Wn.Cmd.isNoExistsIgnore(mode)) {
+                return;
+            }
+        }
         // 否则继续递归
         else if (!o.isFILE()) {
-            __find_last_level_objs(io, o, ss, off, list);
+            __find_last_level_objs(io, o, ss, off, list, mode);
         }
     }
 
-    protected List<WnObj> evalCandidateObjsNoEmpty(WnSystem sys,
-                                                   String[] paths,
-                                                   boolean joinCurrent) {
+    protected List<WnObj> evalCandidateObjsNoEmpty(WnSystem sys, String[] paths, int mode) {
         LinkedList<WnObj> list = new LinkedList<WnObj>();
-        evalCandidateObjs(sys, paths, list, joinCurrent);
+        evalCandidateObjs(sys, paths, list, mode);
         checkCandidateObjsNoEmpty(paths, list);
         return list;
     }
 
-    protected List<WnObj> evalCandidateObjs(WnSystem sys, String[] paths, boolean joinCurrent) {
+    protected List<WnObj> evalCandidateObjs(WnSystem sys, String[] paths, int mode) {
         LinkedList<WnObj> list = new LinkedList<WnObj>();
-        evalCandidateObjs(sys, paths, list, joinCurrent);
+        evalCandidateObjs(sys, paths, list, mode);
         return list;
     }
 
     protected WnObj evalCandidateObjsNoEmpty(WnSystem sys,
                                              String[] paths,
                                              final List<WnObj> list,
-                                             boolean joinCurrent) {
-        WnObj re = evalCandidateObjs(sys, paths, list, joinCurrent);
+                                             int mode) {
+        WnObj re = evalCandidateObjs(sys, paths, list, mode);
         checkCandidateObjsNoEmpty(paths, list);
         return re;
     }
@@ -183,21 +255,21 @@ public abstract class JvmExecutor {
     protected WnObj evalCandidateObjs(WnSystem sys,
                                       String[] paths,
                                       final List<WnObj> list,
-                                      boolean joinCurrent) {
+                                      int mode) {
         // 得到当前目录
         WnObj p = getCurrentObj(sys);
 
         // 计算要列出的目录
         // 没参数认为是当前目录
         if (paths.length == 0) {
-            if (joinCurrent) {
+            if (Wn.Cmd.isJoinCurrent(mode)) {
                 list.add(p);
             }
         }
         // 否则根据路径归纳需要列的目录
         else {
             for (String val : paths) {
-                joinObjByPath(sys, list, p, val);
+                joinObjByPath(sys, list, p, val, mode);
             }
         }
 
@@ -213,7 +285,7 @@ public abstract class JvmExecutor {
     protected WnObj getObj(WnSystem sys, String[] args) {
         ZParams params = ZParams.parse(args, null);
         List<WnObj> list = new LinkedList<WnObj>();
-        evalCandidateObjs(sys, params.vals, list, false);
+        evalCandidateObjs(sys, params.vals, list, 0);
         if (list.size() <= 0) {
             sys.err.print("need a obj");
             return null;
@@ -233,11 +305,13 @@ public abstract class JvmExecutor {
                                boolean autoPath) {
         if (autoPath && (list.size() == 1 || params.is("P"))) {
             for (WnObj o : list) {
-                o.path();
-                if (params.is("A")) {
-                    List<WnObj> ancestors = new LinkedList<WnObj>();
-                    o.loadParents(ancestors, false);
-                    o.setv("ancestors", ancestors);
+                if (null != o) {
+                    o.path();
+                    if (params.is("A")) {
+                        List<WnObj> ancestors = new LinkedList<WnObj>();
+                        o.loadParents(ancestors, false);
+                        o.setv("ancestors", ancestors);
+                    }
                 }
             }
         }
@@ -318,6 +392,10 @@ public abstract class JvmExecutor {
     }
 
     protected NutMap _obj_to_outmap(NutBean o, ZParams params) {
+        if (null == o) {
+            return null;
+        }
+
         // true 表示输出的时候，也显示双下划线开头的隐藏字段
         boolean isShowAutoHide = params.is("H");
 

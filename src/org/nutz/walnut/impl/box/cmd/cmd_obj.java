@@ -193,11 +193,23 @@ public class cmd_obj extends JvmExecutor {
 
     private List<WnObj> __query_by_path(WnSystem sys, String[] args, ZParams params, NutMap sort) {
         List<WnObj> list = new LinkedList<WnObj>();
-        evalCandidateObjs(sys, params.vals, list, false);
+
+        // 模式
+        int mode = 0;
+        if (params.has("noexists")) {
+            if ("null".equals(params.get("noexists"))) {
+                mode |= Wn.Cmd.NOEXISTS_NULL;
+            } else {
+                mode |= Wn.Cmd.NOEXISTS_IGNORE;
+            }
+        }
+
+        // 根据模式计算候选对象
+        evalCandidateObjs(sys, params.vals, list, mode);
 
         // 不是强制列表模式的时候，检查是否候选对象列表为空
         if (!params.is("l")) {
-            checkCandidateObjsNoEmpty(args, list);
+            checkCandidateObjsNoEmpty(params.vals, list);
         }
 
         // 排序

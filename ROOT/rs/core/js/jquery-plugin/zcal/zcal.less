@@ -2,6 +2,7 @@
 
 @zcalHb  : #08F;
 @zcalHf  : #FFF;
+@zcalHfToday  : #FF0;
 @zcalFsz : 12px;
 
 .zcal{@noselect();}
@@ -46,18 +47,20 @@
     }
 
     .zcal-cell[in-month="no"]  {opacity: 0.4;}
-    .zcal-cell[in-month="yes"] {font-weight: bold;}
-    .zcal-cell[today][in-month="yes"]{color:#F80; }
+    .zcal-cell[in-month="yes"] {}
+    .zcal-cell[today] {color:#F80; font-weight: bold;}
     .zcal-cell-odd {background: rgba(0,0,0,0.08);}
     .zcal-d1mark{font-size:10px; -webkit-transform:scale(0.72);}
     .zcal-cell-checked{
         background: @zcalHb; color:@zcalHf; border-color:#19F;
     }
+    .zcal-cell-checked[today]{
+        color:@zcalHfToday;
+    }
 
     .zcal-multi-block {
         .zcal-block{padding-right:1px;}
     }
-    
 
     .zcal-head {line-height: 32px; padding:4px;}
     .zcal-switcher{}
@@ -66,31 +69,16 @@
         font-weight: bolder; color:#FFF; background: #888; 
     }
     .zcal-switcher>.zcal-today{margin:0 4px;}
-    .zcal-title{padding:0 6px;}
+    .zcal-title{
+        padding:0 6px;
+        .z-edit-it input {
+            outline:none; padding:6px; 
+        }
+    }
+
+    .zcal-cell-actived {background: @zcalHb; color:@zcalHf;}
+    .zcal-cell-actived[today] {background: @zcalHb; color:@zcalHfToday;}
 }
 
-// 简单无边框日历的高亮方法
-.zcal-simple .zcal-hide-border{
-    .zcal-text {
-        position: absolute; top:0; left: 0; bottom: 0; right: 0;
-        text-align: center; margin-top: @zcalFsz  * -1;
-    }
-    .zcal-text:before{
-        content: ""; display: block; height: 50%;
-    }
-    .zcal-cell-actived .zcal-text {
-        color:@zcalHf;
-    }
-    .zcal-cell-actived:before {
-        position: absolute; top:1px; left: 1px; bottom: 1px; right: 1px;
-        content: ""; display: block; border-radius:1000px; 
-        background: @zcalHb; 
-    }
-}
-
-// 自定义日历的高亮方法
-.zcal-customized, .zcal-show-border{
-    .zcal-cell-actived, .zcal-cell-actived[today] {background: @zcalHb; color:@zcalHf;}
-}
 
 

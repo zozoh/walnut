@@ -220,19 +220,52 @@ function on_click_swithcer(){
             d = cellD(jRoot.find('.zcal-cell[in-month="yes"]').first());
             d.setMonth(d.getMonth() + val);
         }
+        // 更新日历格子
+        update(jRoot, options(jRoot), d);
     }
     // 用今天
     else{
         d = new Date();
+        // 更新日历格子
+        update(jRoot, options(jRoot), d);
+        // 看看是不是要激活今天
+        if(opt.activeWhenSwitchTody) {
+            commands.active.call(jRoot, d);
+        }
     }
-    update(jRoot, options(jRoot), d);
+    
 }
 //...........................................................
 function on_click_cell(e){
     var jRoot = $root(this);
     var opt   = options(jRoot);
-    var d = do_active(jRoot, this, e.shiftKey);
-    $z.invoke(opt, "on_cell_click", [e, d], this);
+    var jCell = $(this);
+    var d;
+    // 如果是支持 toggle 取消
+    if(opt.toggleBlur && jCell.hasClass("zcal-cell-actived")){
+        d = do_blur(jRoot, opt);
+    }
+    // 否则激活
+    else {
+        d = do_active(jRoot, jCell, e.shiftKey);
+    }
+    $z.invoke(opt, "on_cell_click", [e, d], jCell);
+}
+//...........................................................
+function on_click_title(e){
+    var jRoot  = $root(this);
+    var opt    = options(jRoot);
+    var jTitle = jRoot.find(".zcal-title"); 
+    var theD   = $z.parseDate(current(jRoot));
+    $z.editIt(jTitle, {
+        text : "" + theD.getFullYear(),
+        after : function(newval, oldval){
+            if(newval > 0){
+                theD.setFullYear(newval);
+                update(jRoot, opt, theD);
+            }
+        }
+    });
 }
 //...........................................................
 function bindEvents(jRoot, opt){
@@ -240,6 +273,7 @@ function bindEvents(jRoot, opt){
     jRoot.on("click", ".zcal-prev",  on_click_swithcer);
     jRoot.on("click", ".zcal-next",  on_click_swithcer);
     jRoot.on("click", ".zcal-cell-show", on_click_cell);
+    jRoot.on("click", ".zcal-title", on_click_title);
 }
 //...........................................................
 function redraw($ele, opt){
@@ -462,9 +496,10 @@ function draw_block(jWrapper, opt, d){
                .attr("day",   _d_cell.getDay());
             // 如果是按周显示，标记一下格子所在月份的奇偶
             if(opt.byWeek) {
-                jTd.addClass(parseInt((theMonth - currentMonth)%2)==0
-                             ?"zcal-cell-even"
-                             :"zcal-cell-odd");
+                jTd.attr("in-month","yes")
+                   .addClass(parseInt((theMonth - currentMonth)%2)==0
+                            ?"zcal-cell-even"
+                            :"zcal-cell-odd");
             }
             // 整月显示才标记一下，是否属于当月
             else if(theMonth != MM){
@@ -511,11 +546,13 @@ function do_blur(jRoot, opt){
     var jLast = jRoot.find(".zcal-cell-actived");
     var dLast = commands.actived.call(jRoot);
     if(dLast){
+        // 移除存储的激活日期
+        jRoot.removeData(NM_ACTIVED);
+        // 移除激活单元格的标记，并调用回调
         jLast.removeClass("zcal-cell-actived");
         $z.invoke(opt, "on_blur", [dLast], jLast);
-        return true;
     }
-    return false;
+    return dLast;
 }
 //...........................................................
 function do_active(jRoot, obj, autoSelect){
@@ -536,7 +573,7 @@ function do_active(jRoot, obj, autoSelect){
     d.setHours(0,0,0,0);
 
     // 找到上一个被激活的日期，并取消激活
-    do_blur(jRoot, opt);
+    var dLast = do_blur(jRoot, opt);
 
     // 根据 key 找到现在应该被激活的日期，并激活
     var key = dkey(d);

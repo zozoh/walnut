@@ -79,11 +79,9 @@
 .zcal .zcal-cell[in-month="no"] {
   opacity: 0.4;
 }
-.zcal .zcal-cell[in-month="yes"] {
-  font-weight: bold;
-}
-.zcal .zcal-cell[today][in-month="yes"] {
+.zcal .zcal-cell[today] {
   color: #F80;
+  font-weight: bold;
 }
 .zcal .zcal-cell-odd {
   background: rgba(0, 0, 0, 0.08);
@@ -96,6 +94,9 @@
   background: #0088ff;
   color: #ffffff;
   border-color: #19F;
+}
+.zcal .zcal-cell-checked[today] {
+  color: #ffff00;
 }
 .zcal .zcal-multi-block .zcal-block {
   padding-right: 1px;
@@ -119,38 +120,15 @@
 .zcal .zcal-title {
   padding: 0 6px;
 }
-.zcal-simple .zcal-hide-border .zcal-text {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  text-align: center;
-  margin-top: -12px;
+.zcal .zcal-title .z-edit-it input {
+  outline: none;
+  padding: 6px;
 }
-.zcal-simple .zcal-hide-border .zcal-text:before {
-  content: "";
-  display: block;
-  height: 50%;
-}
-.zcal-simple .zcal-hide-border .zcal-cell-actived .zcal-text {
-  color: #ffffff;
-}
-.zcal-simple .zcal-hide-border .zcal-cell-actived:before {
-  position: absolute;
-  top: 1px;
-  left: 1px;
-  bottom: 1px;
-  right: 1px;
-  content: "";
-  display: block;
-  border-radius: 1000px;
-  background: #0088ff;
-}
-.zcal-customized .zcal-cell-actived,
-.zcal-show-border .zcal-cell-actived,
-.zcal-customized .zcal-cell-actived[today],
-.zcal-show-border .zcal-cell-actived[today] {
+.zcal .zcal-cell-actived {
   background: #0088ff;
   color: #ffffff;
+}
+.zcal .zcal-cell-actived[today] {
+  background: #0088ff;
+  color: #ffff00;
 }

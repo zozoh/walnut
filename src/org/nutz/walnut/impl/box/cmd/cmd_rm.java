@@ -24,7 +24,7 @@ public class cmd_rm extends JvmExecutor {
         }
         // 得到源
         List<WnObj> list = new LinkedList<WnObj>();
-        WnObj p = evalCandidateObjs(sys, params.vals, list, false);
+        WnObj p = evalCandidateObjs(sys, params.vals, list, 0);
 
         // 检查是否候选对象列表为空
         checkCandidateObjsNoEmpty(args, list);

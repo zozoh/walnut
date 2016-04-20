@@ -27,6 +27,9 @@ jQuery.zcal({
     // true 表示单击就是选择
     autoSelect : false,
     
+    // 当激活项被点击的时候，是否取消激活，默认 true
+    toggleBlur : true,
+    
     // 要绘制几个日历块
     blockNumber : 3,
     
@@ -107,12 +110,17 @@ jQuery.zcal({
     // 指明，月份切换按钮应该在右边
     swticherAtRight : false,
     
+    // 指明，如果点击 today 按钮，会同时高亮今天
+    // 默认 false
+    activeWhenSwitchTody : false
+    
     // 创建控件就开始绘制，否则，则当 "current" 被调用才会绘制
     // 默认 true
     drawWhenCreate : true,
     
     // 右侧的扩展动作按钮区域的回调
-    menuDraw : {$menu}F(),
+    // TODO zzh 额，这个有用吗？ 再观察一下
+    ?menuDraw : {$menu}F(),
 
     //------------------------- 单元格配置
     // 绘制单元格，默认的实现就是显示一个当前日期 

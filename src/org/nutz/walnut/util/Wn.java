@@ -287,6 +287,32 @@ public abstract class Wn {
         return wc;
     }
 
+    public static class Cmd {
+
+        public static final int JOIN_CURRENT = 1;
+
+        public static final int NOEXISTS_NULL = 1 << 1;
+
+        public static final int NOEXISTS_IGNORE = 1 << 2;
+
+        public static boolean is(int mode, int mask) {
+            return Maths.isMask(mode, mask);
+        }
+
+        public static boolean isJoinCurrent(int mode) {
+            return is(mode, JOIN_CURRENT);
+        }
+
+        public static boolean isNoExistsNull(int mode) {
+            return is(mode, NOEXISTS_NULL);
+        }
+
+        public static boolean isNoExistsIgnore(int mode) {
+            return is(mode, NOEXISTS_IGNORE);
+        }
+
+    }
+
     public static final String AT_SEID = "SEID";
 
     public static class Io {

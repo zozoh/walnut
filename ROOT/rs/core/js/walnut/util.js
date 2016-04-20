@@ -35,6 +35,13 @@ var Wn = {
     //...................................................................
     // 根据对象，填充给定的一段 DOM 中的缩略图和名称
     update_wnobj_thumbnail : function(UI, o, jq, evalThumb, nmMaxLen){
+        var jThumb = jq.find(".wnobj-thumbnail");
+        
+        // 对象不存在，那么显示删除
+        if(!o) {
+            jThumb.attr("noexists","yes");
+            return;
+        }
         
         // 标记关键属性
         jq.attr("oid",o.id).attr("onm", o.nm);
@@ -45,7 +52,6 @@ var Wn = {
         }
         
         // 得到缩略图角标
-        var jThumb = jq.find(".wnobj-thumbnail");
         if(_.isFunction(evalThumb)){
             var thumbnails = evalThumb(child);
             if(thumbnail){
@@ -1060,7 +1066,7 @@ var Wn = {
     },
     //..............................................
     // 根据 ID 列表批量获取对象的元数据
-    batchGetById : function(ids, callback){
+    batchGetById : function(ids, callback, noExistsAsNull){
         var Wn = this;
         var store = Wn._storeAPI;
 
@@ -1084,14 +1090,15 @@ var Wn = {
             // 存入缓存
             var list = $z.fromJson(re);
             for(var i=0;i<list.length;i++){
-                Wn.saveToCache(list[i]);
+                if(list[i])
+                    Wn.saveToCache(list[i]);
             }
 
             // 更新未加载对象
             for(var i=0;i<objs.length;i++){
                 var o = objs[i];
                 if(_.isString(o)){
-                    objs[i] = Wn.getById(o);
+                    objs[i] = Wn.getById(o, true);
                 }
             }
 
@@ -1103,7 +1110,7 @@ var Wn = {
 
         // 如果有需要读取的 ID，则发送请求
         if(loadIds.length>0){
-            var cmdText = "obj id:" + loadIds.join(" id:") + " -lP -json";
+            var cmdText = "obj id:" + loadIds.join(" id:") + " -lP -json -noexists null";
             // 异步调用
             if(_.isFunction(callback)){
                 Wn.exec(cmdText, fill_unload_objs_and_invoke_callback);
@@ -1121,6 +1128,14 @@ var Wn = {
 
         // 最后返回
         return objs;
+    },
+    //..............................................
+    getObjFromCache : function(oid){
+        var key  = "oid:" + oid;
+        var json = store.getItem(key);
+        if(json)
+            return $z.fromJson(json);
+        return null;
     },
     //..............................................
     saveToCache : function(o, cleanSubs){

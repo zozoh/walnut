@@ -35,7 +35,7 @@ public class cmd_grep extends JvmExecutor {
 
             // 计算要列出的要处理的对象
             List<WnObj> list = new LinkedList<WnObj>();
-            evalCandidateObjs(sys, Lang.array(filePath), list, false);
+            evalCandidateObjs(sys, Lang.array(filePath), list, 0);
 
             // 检查是否候选对象列表为空
             checkCandidateObjsNoEmpty(args, list);
