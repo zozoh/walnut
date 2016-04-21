@@ -90,12 +90,12 @@ var Wn = {
     },
     //...................................................................
     objDisplayName : function(UI, nm, maxLen){
-        var text = _.isString(nm) ? nm : nm.nm;   // TODO 以后考虑 _key_ 开头的名称
+        var text = _.isString(nm) ? nm : nm.nm;
         // 默认大小
         if(!_.isNumber(maxLen)){
             maxLen = 20;
         }
-        // TODO 翻译多国语言
+        // 翻译多国语言
         var nms = UI.msg("fnm") || {};
         text = nms[text] || text;
 
