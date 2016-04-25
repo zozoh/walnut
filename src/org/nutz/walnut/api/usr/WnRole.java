@@ -8,4 +8,6 @@ public class WnRole {
 
     public int role;
 
+    public String roleName;
+
 }

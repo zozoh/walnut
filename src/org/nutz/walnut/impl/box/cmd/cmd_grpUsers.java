@@ -38,12 +38,18 @@ public class cmd_grpUsers extends JvmExecutor {
         WnUsr me = sys.usrService.check(myName);
 
         // 必须是组的管理员，或者是根组用户
-        String grp = params.vals.length > 0 ? params.vals[0] : sys.me.mainGroup();
+        final String grp = params.vals.length > 0 ? params.vals[0] : sys.me.mainGroup();
         if (!__I_am_admin_of_group(sys, me, grp)) {
             // 如果要列 root 组，那么必须管理员才能干
             if ("root".equals(grp))
                 throw Er.create("e.me.nopvg");
             __assert_I_am_root_member(sys, me);
+        }
+        
+        // 排序
+        NutMap sort = null;
+        if (params.has("sort")) {
+            sort = Lang.map(params.check("sort"));
         }
 
         // 分析过滤条件
@@ -73,6 +79,8 @@ public class cmd_grpUsers extends JvmExecutor {
         if (mamap.size() > 0) {
             WnQuery q = new WnQuery();
             q.setAll(mamap);
+            
+            q.sort(sort);
 
             // 确保查询的是组
             q.setv("my_grps", grp);
@@ -82,13 +90,16 @@ public class cmd_grpUsers extends JvmExecutor {
                 q.limit(wp.limit);
                 q.skip(wp.skip);
             }
-            if (role > 0) {
-                q.setv("role", role);
-            }
+
             // 查吧
             sys.usrService.each(q, (int index, WnUsr u, int len) -> {
                 // 去掉不想给看的字段
                 __rm_hidden_key(u);
+
+                // 得到用户相对于组的角色
+                int ro = sys.usrService.getRoleInGroup(u, grp);
+                u.setv("role", ro);
+                u.setv("roleName", Wn.ROLE.getRoleName(ro));
 
                 // 加入列表
                 list.add(u);
@@ -97,6 +108,7 @@ public class cmd_grpUsers extends JvmExecutor {
         // 没有的话，从组里找
         else {
             WnQuery q = new WnQuery();
+            q.sort(sort);
             // 记录翻页信息
             if (wp.limit > 0) {
                 q.limit(wp.limit);
@@ -111,6 +123,10 @@ public class cmd_grpUsers extends JvmExecutor {
                 if (null != u) {
                     // 去掉不想给看的字段
                     __rm_hidden_key(u);
+
+                    // 得到用户相对于组的角色
+                    u.setv("role", r.role);
+                    u.setv("roleName", r.roleName);
 
                     // 加入列表
                     list.add(u);

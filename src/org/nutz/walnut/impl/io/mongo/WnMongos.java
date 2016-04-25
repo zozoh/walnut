@@ -218,6 +218,11 @@ public abstract class WnMongos {
         ZMoDoc doc = ZMoDoc.NEW();
         for (Map.Entry<String, Object> en : map.entrySet()) {
             String key2 = en.getKey();
+            // 如果 key2 为 "%xxxx" 形式，比如 %exists:true 等值，统统换成 $
+            if (key2.startsWith("%")) {
+                key2 = "$" + key2.substring(1);
+            }
+
             Object val2 = en.getValue();
             _set_to_doc(doc, key2, val2);
         }

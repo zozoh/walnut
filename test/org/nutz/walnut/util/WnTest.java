@@ -69,6 +69,7 @@ public class WnTest {
         assertEquals("/home/zozoh/workspace/test/bin", Wn.normalizePath("./bin", sys));
         assertEquals("cmd_echo 'haha'", Wn.normalizeStr("cmd_echo '$ABC'", sys.se.vars()));
         assertEquals("~/abc", Wn.normalizeStr("~/abc", sys.se.vars()));
+        assertEquals("\\n", Wn.normalizeStr("\\n", sys.se.vars()));
     }
 
 }

@@ -155,9 +155,6 @@ public class JvmAtomRunner {
     }
 
     public void run(String cmdLine) {
-        // 执行预处理
-        cmdLine = Wn.normalizeStr(cmdLine, bc.session.vars());
-
         // 忽略空行和注释行
         if (Strings.isBlank(cmdLine) || cmdLine.matches("^[ \t]*(#|//).*$")) {
             return;
@@ -170,6 +167,9 @@ public class JvmAtomRunner {
         // 预处理失败，就不向下执行了
         if (Strings.isBlank(cmdLine))
             return;
+
+        // 执行预处理
+        cmdLine = Wn.normalizeStr(cmdLine, bc.session.vars());
 
         // 执行处理后的命令行（不再处理预处理指令了）
         __run(cmdLine);

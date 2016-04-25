@@ -511,6 +511,10 @@ return ZUI.def("ui.tree", {
     //...............................................................
     getNodeData : function(nd){
         return this.options.data.call((this.options.context||this), this.$node(nd));
+    },
+    //...............................................................
+    has : function(nd){
+        return this.$node(nd).size() > 0;
     }
     //...............................................................
 });

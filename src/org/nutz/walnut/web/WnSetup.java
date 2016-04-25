@@ -80,7 +80,7 @@ public class WnSetup implements Setup {
         boxes = ioc.get(WnBoxService.class, "boxService");
 
         // 获得wnRun
-        //wnRun = ioc.get(WnRun.class, "wnRun");
+        // wnRun = ioc.get(WnRun.class, "wnRun");
 
         // etc/thumbnail
         // initThumbnail();

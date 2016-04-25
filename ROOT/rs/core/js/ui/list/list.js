@@ -115,6 +115,16 @@ return ZUI.def("ui.list", {
         }
     },
     //...............................................................
+    redraw : function(){
+        var UI  = this;
+        var opt = UI.options;
+
+        // 如果需要显示选择框 ...
+        if(opt.checkable){
+            UI.arena.addClass("lst-show-checkbox");
+        }
+    },
+    //...............................................................
     getObjId : function(obj){
         return obj[this.options.idKey];
     },
@@ -257,6 +267,10 @@ return ZUI.def("ui.list", {
         }
     },
     //...............................................................
+    has: function(arg) {
+        return this.$item(arg).size() > 0;
+    },
+    //...............................................................
     getData : function(arg){
         var UI = this;
         // 特指某个项目
@@ -368,11 +382,6 @@ return ZUI.def("ui.list", {
         objs.forEach(function(o, index){
             UI._upsert_row(o);
         });
-
-        // 如果需要显示选择框 ...
-        if(opt.checkable){
-            UI.arena.addClass("lst-show-checkbox");
-        }
 
         // 重新计算尺寸
         UI.resize();

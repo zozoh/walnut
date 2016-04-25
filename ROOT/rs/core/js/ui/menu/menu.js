@@ -232,6 +232,10 @@ return ZUI.def("ui.menu", {
         var opt = UI.options;
         var context = UI.options.context || UI.parent || UI;
 
+        // 没啥可绘制的 ...
+        if(!_.isArray(items) || items.length == 0)
+            return;
+
         // 循环绘制每个项目
         for(var i=0; i<items.length; i++){
             var mi = items[i];

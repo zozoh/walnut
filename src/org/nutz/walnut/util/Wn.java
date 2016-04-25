@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Files;
@@ -126,36 +125,6 @@ public abstract class Wn {
         return o;
     }
 
-    private static final String regex = "([$])([a-zA-Z0-9_]+)";
-    private static final Pattern p = Pattern.compile(regex);
-
-    // public static String appendPath(String base, String rpath) {
-    // if (!Strings.isBlank(rpath)) {
-    // // null
-    // if (null == base) {
-    // if (rpath.startsWith("/"))
-    // return rpath;
-    // else
-    // return "/" + rpath;
-    // }
-    // // root
-    // else if (base.endsWith("/")) {
-    // if (rpath.startsWith("/"))
-    // return base + rpath.substring(1);
-    // else
-    // return base + rpath;
-    // }
-    // // 正常
-    // else {
-    // if (rpath.startsWith("/"))
-    // return base + rpath;
-    // else
-    // return base + "/" + rpath;
-    // }
-    // }
-    // return base == null ? "/" : base;
-    // }
-
     public static String appendPath(String... phs) {
         String[] paths = Lang.without(phs, null);
         if (null != paths && paths.length > 0) {
@@ -245,26 +214,60 @@ public abstract class Wn {
     }
 
     public static String normalizeStr(String str, NutMap env) {
-        Matcher m = p.matcher(str);
-        int pos = 0;
+        char[] cs = str.toCharArray();
+        StringBuilder var = new StringBuilder();
         StringBuilder sb = new StringBuilder();
-        while (m.find()) {
-            // System.out.println(Dumps.matcherFound(m));
-            int l = m.start();
-            int r = m.end();
-            if (l > pos) {
-                sb.append(str.substring(pos, l));
+        for (int i = 0; i < cs.length; i++) {
+            char c = cs[i];
+
+            // 如果是转义字符，那么仅仅能转移 $
+            if (c == '\\') {
+                i++;
+                // 嗯，要转义 $
+                if (i < cs.length && '$' == cs[i]) {
+                    sb.append('$');
+                }
+                // 其他 ..
+                else {
+                    sb.append('\\');
+                    i--;
+                }
             }
-            pos = r;
-            String var = m.group(2);
-            String val = env.getString(var, "");
-            val = normalizeStr(val, env);
-            sb.append(val);
+            // 变量
+            else if (c == '$') {
+                // 清空，并开始记录变量名
+                var.setLength(0);
+                while (++i < cs.length) {
+                    char c2 = cs[i];
+                    // 属于变量名，记录
+                    if ((c2 >= 'A' && c2 <= 'Z')
+                        || (c2 >= 'a' && c2 <= 'z')
+                        || (c2 >= '0' && c2 <= '9')
+                        || c2 == '_') {
+                        var.append(c2);
+                    }
+                    // 否则退出
+                    else {
+                        i--;
+                        break;
+                    }
+                }
+                // 空变量名，那么就输出个 $ ，否则进行转义
+                if (var.length() > 0) {
+                    sb.append(env.getString(var.toString(), ""));
+                }
+                // 就是一个 $
+                else {
+                    sb.append('$');
+                }
+            }
+            // 其他，计入
+            else {
+                sb.append(c);
+            }
         }
-        if (pos == 0)
-            return str;
-        if (pos < str.length())
-            sb.append(str.substring(pos));
+
+        // 返回整理后的命令
         return sb.toString();
     }
 
@@ -461,7 +464,7 @@ public abstract class Wn {
             case Wn.ROLE.BLOCK:
                 return "BLOCK";
             case Wn.ROLE.MEMBER:
-                return "MEMEBER";
+                return "MEMBER";
             case Wn.ROLE.OTHERS:
                 return "OTHERS";
             case Wn.ROLE.REQUEST:

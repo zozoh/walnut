@@ -8,11 +8,11 @@
 }
 .com-link u {
   cursor: pointer;
-  color: #cccc00;
+  color: #aabbff;
   text-decoration: none;
 }
 .com-link u:hover {
-  color: #ffff00;
+  color: #ccddff;
   text-decoration: underline;
 }
 .com-link span {

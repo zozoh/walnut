@@ -160,6 +160,17 @@ public class ZParams {
         return map.getString(key, dft);
     }
 
+    public String getString(String key) {
+        return this.getString(key, "");
+    }
+
+    public String getString(String key, String dft) {
+        Object val = map.get(key);
+        if (null == val || val instanceof Boolean)
+            return dft;
+        return val.toString();
+    }
+
     public String wrap(String key, String fmt) {
         return wrap(key, fmt, "");
     }

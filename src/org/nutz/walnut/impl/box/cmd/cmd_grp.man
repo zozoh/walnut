@@ -4,9 +4,9 @@
 
 # 用法
 
-    grp [usr] [-a grp] [-role 1] [-d grp] [-json] [-o] [-quiet]
+    grp [grp] [-a usr] [-role 1] [-d usr] [-get usr] [-json] [-quiet]
     
-    [usr]  表示用户名，如果没有输入，表示当前用户。
+    [grp]  表示组名，如果为空则表示当前组。
     
     -a     添加用户到一个组, 执行者必须是组管理员
     -role  如果指定了一个组，那么默认的角色是什么，可以是 1|10|100|-1,
@@ -17,7 +17,8 @@
            默认是 10
     
     -d     从一个组删除用户, 执行者必须是组管理员
-    -o     添加/删除操作后，是否需要输出用户组的信息
+    
+    -get   指明要查询某个用户的所在组，如果没有值，则表示当前用户
     -json  表示输出的是一个 JSON 数组
     
     -quiet 尽量不输出错误
@@ -30,27 +31,31 @@
     root xiaobai
     
     # 显示某特殊用户所在的组。如果不是自己，则需要 root 权限
-    demo@~$ grp xiaobai -json
+    demo@~$ grp -get xiaobai -json
     ["root", "xiaobai"]
     
     # 将自己添加到某组的组员（必须需要对应组的管理员权限）
-    demo@~$ grp -a nutz
+    demo@~$ grp nutz -a
     
     # 将自己添加到某组的管理员（必须需要对应组的管理员权限）
-    demo@~$ grp -a nutz -role 1
+    demo@~$ grp nutz -a -role 1
     
     # 将指定用户添加到某组黑名单（必须需要对应组的管理员权限）
-    demo@~$ grp xiaobai -a nutz role -1
+    demo@~$ grp nutz -a xiaobai role -1
     
     # 将自己从某组删除（必须需要对应组的管理员权限）
-    demo@~$ grp -d nutz
+    demo@~$ grp nutz -d
     
     # 将指定用户从某组删除（必须需要对应组的管理员权限）
-    demo@~$ grp xiaobai -d nutz
+    demo@~$ grp nutz -d xiaobai
     
-    # 将指定用户从某组删除（必须需要对应组的管理员权限）
-    # 并输出修改后该用户的所在组
-    demo@~$ grp xiaobai -d nutz -o 
-    root xiaobai
+    # 显示某用户在某组内的权限
+    demo@~$ grp nutz -get xiaobai
+    1 ADMIN
+    
+    # 显示某用户在某组内的权限 (JSON)
+    demo@~$ grp nutz -get xiaobai
+    {"grp":"nutz","usr":"xiaobai","role":10,"roleName":"MEMBER"}
+    
 
     

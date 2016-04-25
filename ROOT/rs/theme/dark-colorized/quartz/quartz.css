@@ -79,12 +79,12 @@
 }
 .quartz .qz-main-con h3 u {
   font-size: 10px;
-  color: #cccc00;
+  color: #aabbff;
   cursor: pointer;
   text-decoration: none;
 }
 .quartz .qz-main-con h3 u:hover {
-  color: #ffff00;
+  color: #ccddff;
   text-decoration: underline;
 }
 .quartz .qz-main-con section {

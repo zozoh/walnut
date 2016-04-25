@@ -42,32 +42,14 @@
     
 # 示例
 
-    # 显示当前用户所在的组
-    demo@~$ grp-users
-    root xiaobai
+    # 显示当前组所有的用户
+    demo@~$ grp-users -t nm
+    root
+    xiaobai
     
-    # 显示某特殊用户所在的组。如果不是自己，则需要 root 权限
-    demo@~$ grp-users xiaobai -json
-    ["root", "xiaobai"]
+    # 显示指定组所有的用户
+    demo@~$ grp-users xiaobai -t nm
+    xiaobai
     
-    # 将自己添加到某组的组员（必须需要对应组的管理员权限）
-    demo@~$ grp-users -a nutz
     
-    # 将自己添加到某组的管理员（必须需要对应组的管理员权限）
-    demo@~$ grp-users -a nutz -role 1
-    
-    # 将指定用户添加到某组黑名单（必须需要对应组的管理员权限）
-    demo@~$ grp-users xiaobai -a nutz role -1
-    
-    # 将自己从某组删除（必须需要对应组的管理员权限）
-    demo@~$ grp-users -d nutz
-    
-    # 将指定用户从某组删除（必须需要对应组的管理员权限）
-    demo@~$ grp-users xiaobai -d nutz
-    
-    # 将指定用户从某组删除（必须需要对应组的管理员权限）
-    # 并输出修改后该用户的所在组
-    demo@~$ grp-users xiaobai -d nutz -o 
-    root xiaobai
-
     

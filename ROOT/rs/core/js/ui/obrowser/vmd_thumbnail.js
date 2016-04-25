@@ -76,7 +76,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
 
         // 单个多选
         if(ctrlIsOn && UI.browser.options.multi){
-            console.log("haha",jObj.size())
+            //console.log("haha",jObj.size())
             jA.removeClass("wnobj-actived");
             jObj.toggleClass("wnobj-actived")
                 .toggleClass("wnobj-checked");

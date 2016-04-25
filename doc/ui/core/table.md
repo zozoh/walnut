@@ -234,6 +234,13 @@ uiTable.uncheck();
 uiTable.toggle(Element | jQuery | Number | "selector" | {..})
 ```
 
+## has
+
+```
+// 是否存在某个 ID 的行
+uiTable.has("45cfad78a3ec99ade12");
+```
+
 ## getData
 
 ```

@@ -183,6 +183,13 @@ uiList.uncheck();
 uiList.toggle(Element | jQuery | Number | "selector" | {..})
 ```
 
+## has
+
+```
+// 是否存在某个 ID 项目
+uiList.has("45cfad78a3ec99ade12");
+```
+
 ## getData
 
 ```

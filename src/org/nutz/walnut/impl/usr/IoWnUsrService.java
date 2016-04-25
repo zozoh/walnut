@@ -250,6 +250,7 @@ public class IoWnUsrService implements WnUsrService {
                     r.grp = grp;
                     r.usr = o.name();
                     r.role = o.getInt("role", 0);
+                    r.roleName = Wn.ROLE.getRoleName(r.role);
                     callback.invoke(index, r, len);
                 });
             }
