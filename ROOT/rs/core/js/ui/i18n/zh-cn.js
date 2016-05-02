@@ -51,6 +51,10 @@ define({
         "act" : {
             "noapi_obj"     : "找不到需要的对象数据接口",
             "noapi_content" : "找不到需要的内容数据接口",
+        },
+        "fnm" : {
+            "blank"   : "文件名不能为空",
+            "invalid" : "文件名包含非法字符"
         }
     },
     "frace" : {

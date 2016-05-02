@@ -9,6 +9,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import org.nutz.castor.Castors;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
@@ -39,8 +40,12 @@ public class WnJob extends WnRun implements Callable<Object> {
     public static String root = "/sys/job";
     protected String tmpRoot = "/sys/job/tmp";
     public static WnJob me;
+
     @Inject
     protected WnHookService hookService;
+
+    // 保持一个 root 会话
+    private WnSession _se;
 
     public boolean isRunning() {
         return es != null && !es.isShutdown();
@@ -49,6 +54,10 @@ public class WnJob extends WnRun implements Callable<Object> {
     public void depose() {
         if (es != null)
             es.shutdown();
+
+        if (null != _se) {
+            this.sess.logout(_se.id());
+        }
     }
 
     public String toString() {
@@ -62,6 +71,9 @@ public class WnJob extends WnRun implements Callable<Object> {
     public void init() {
         io.createIfNoExists(null, root, WnRace.DIR);
         io.createIfNoExists(null, tmpRoot, WnRace.DIR);
+
+        _se = this.creatSession("root");
+
         if (es.isTerminated())
             es = (ThreadPoolExecutor) Executors.newFixedThreadPool(64);
         es.submit(this);
@@ -103,6 +115,8 @@ public class WnJob extends WnRun implements Callable<Object> {
         }
         int MIN_TNT = 3; // 3分钟间隔
         Integer[] jobs = new Integer[24 * 60 / MIN_TNT];
+
+        // 因为要执行多遍，所以预先创建会话，防止重复创建
         quartz.each(jobs, new QzEach<Integer>() {
             public void invoke(Integer[] array, int index) throws Exception {
                 calendar.set(Calendar.HOUR_OF_DAY, (index * MIN_TNT) / 60);
@@ -111,18 +125,30 @@ public class WnJob extends WnRun implements Callable<Object> {
                     return;
                 String tmpName = "." + R.UU32();
                 String tmpDir = tmpRoot + "/" + tmpName;
-                exec("job.cron.copy ", "root", "cp -r -p " + jobDir.path() + " " + tmpDir);
+                exec("job.cron.copy ", _se, "cp -r -p " + jobDir.path() + " " + tmpDir);
                 WnObj tmp = io.fetch(null, tmpDir);
                 if (tmp == null)
                     return;
-                Map<String, Object> meta = Lang.filter(jobDir, null, "^job_.+$", "^job_cron$", null);
+                Map<String, Object> meta = Lang.filter(jobDir,
+                                                       null,
+                                                       "^job_.+$",
+                                                       "^job_cron$",
+                                                       null);
                 meta.put("job_ava", calendar.getTimeInMillis());
                 meta.put("job_st", "wait");
-                meta.put("job_name", jobDir.get("job_name", jobDir.id()) + "_" + Times.sDT(calendar.getTime()));
+                meta.put("job_name",
+                         jobDir.get("job_name", jobDir.id()) + "_" + Times.sDT(calendar.getTime()));
                 io.appendMeta(tmp, meta);
-                exec("job.cron.copy ", "root", "mv " + tmpDir + " " + root + "/" + tmpName);
+                exec("job.cron.copy ", _se, "mv " + tmpDir + " " + root + "/" + tmpName);
+
+                if (log.isDebugEnabled()) {
+                    log.debugf(" ++ @%s:J(%s)",
+                               Times.format("yy/MM/dd'T'HH:mm", calendar.getTime()),
+                               jobDir.id());
+                }
             }
         }, calendar);
+
         return null;
     }
 
@@ -176,7 +202,7 @@ public class WnJob extends WnRun implements Callable<Object> {
                         hc.me = usr;
                         hc.se = se;
                         hc.service = hookService;
-                        
+
                         NutMap env = jobDir.getAs("job_env", NutMap.class);
                         if (env != null) {
                             for (Entry<String, Object> en : env.entrySet()) {

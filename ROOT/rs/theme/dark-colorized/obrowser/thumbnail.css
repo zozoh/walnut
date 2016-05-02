@@ -73,26 +73,25 @@
   position: absolute;
   width: 16px;
   height: 16px;
-  background: red;
 }
 .wn-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-NW {
-  top: 0;
-  left: 0;
+  top: -8px;
+  left: -8px;
 }
 .wn-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-NE {
-  top: 0;
-  right: 0;
+  top: -8px;
+  right: -8px;
 }
 .wn-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-SW {
-  bottom: 0;
-  left: 0;
+  bottom: -8px;
+  left: -8px;
 }
 .wn-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-SE {
-  bottom: 0;
-  right: 0;
+  bottom: -8px;
+  right: -8px;
 }
 .wn-thumbnail .wnobj .wnobj-thumbnail .img .wnobj-icon-hide {
-  display: none;
+  ddisplay: none;
 }
 .wn-thumbnail .wnobj .wnobj-thumbnail[noexists] {
   text-align: center;

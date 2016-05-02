@@ -39,12 +39,12 @@
                 background-size: contain; background-repeat: no-repeat;
                 background-position: center;
                 border:1px solid rgba(0,0,0,0); border-radius: @d1;
-                >div {position: absolute; width:@thumb_icon; height:@thumb_icon; background: red;}
-                .wnobj-NW {top:0;    left:0;}
-                .wnobj-NE {top:0;    right:0;}
-                .wnobj-SW {bottom:0; left:0;}
-                .wnobj-SE {bottom:0; right:0;}
-                .wnobj-icon-hide {display: none;}
+                >div {position: absolute; width:@thumb_icon; height:@thumb_icon;}
+                .wnobj-NW {top:@thumb_icon/-2;    left:@thumb_icon/-2;}
+                .wnobj-NE {top:@thumb_icon/-2;    right:@thumb_icon/-2;}
+                .wnobj-SW {bottom:@thumb_icon/-2; left:@thumb_icon/-2;}
+                .wnobj-SE {bottom:@thumb_icon/-2; right:@thumb_icon/-2;}
+                .wnobj-icon-hide {ddisplay: none;}
             }
         }
         .wnobj-thumbnail[noexists]{

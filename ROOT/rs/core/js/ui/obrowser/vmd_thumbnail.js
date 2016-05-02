@@ -8,17 +8,17 @@ var html = function(){/*
 return ZUI.def("ui.obrowser_vmd_thumbnail", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //..............................................
-    init : function(){
-        var UI = this;
-        UI.on("ui:display", function(){
-            UI.arena.find(".wnobj-nm-con").each(function(){
-                // 溢出了，处理一下
-                if(this.scrollHeight > this.offsetHeight){
-                    $(this).addClass("wnobj-nm-overflow")
-                }
-            });
-        });
-    },
+    // init : function(){
+    //     var UI = this;
+    //     UI.on("ui:display", function(){
+    //         UI.arena.find(".wnobj-nm-con").each(function(){
+    //             // 溢出了，处理一下
+    //             if(this.scrollHeight > this.offsetHeight){
+    //                 $(this).addClass("wnobj-nm-overflow")
+    //             }
+    //         });
+    //     });
+    // },
     //..............................................
     events : {
         "dblclick .wnobj-thumbnail" : function(e){
@@ -50,7 +50,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
             var ctrlIsOn = $z.os.mac?e.metaKey:$z.os.ctrlKey;
             // 如果是选中的，那么就改名
             if(UI.isActived(jq) && !ctrlIsOn){
-                console.log("will rename...");
+                UI.browser.rename();
             }
             // 否则表示选中
             else{
@@ -169,6 +169,51 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
     //..............................................
     getData : function(arg){
         return this.browser.getById($(arg).closest(".wnobj").attr("oid"));
+    },
+    //..............................................
+    // 修改激活项目的名称
+    rename : function(){
+        var UI = this;
+        var jq = UI.arena.find(".wnobj-actived");
+        if(jq.size()==0)
+            return;
+
+        // 得到对象
+        var o = Wn.getById(jq.attr("oid"));
+
+        // 如果是可编辑的，显示编辑框
+        if(Wn.isObjNameEditable(UI, o)) {
+            var jNmCon = jq.find(".wnobj-nm-con");
+            var jNm = jNmCon.children(".wnobj-nm");
+            $z.editIt(jNmCon, {
+                multi : true,
+                text  : o.nm,
+                after : function(newval, oldval){
+                    var newName = $.trim(newval);
+                    // 重名的话，就不搞了
+                    if(newval == oldval){
+                        return;
+                    }
+                    // 不能为空
+                    if(!newName) {
+                        alert(UI.msg("e.fnm.blank"));
+                        return;
+                    }
+                    // 不支持特殊字符
+                    if(/['"\\\\\/$%*]/.test(newval)) {
+                        alert(UI.msg("e.fnm.invalid"));
+                        return;
+                    }
+                    // 执行改名
+                    Wn.exec('mv id:'+o.id+' "id:'+o.pid+'/'+newName+'" -o', function(re){
+                        var newObj = $z.fromJson(re);
+                        Wn.saveToCache(newObj);
+                    });
+                    // 修改显示
+                    jNm.text(newName);
+                }
+            });
+        }
     },
     //..............................................
     isActived : function(ele){
