@@ -94,16 +94,16 @@
   width: 100%;
 }
 .vcal-cal-entity > .vheader {
-  background: #DCDCDC;
+  background: #dcdcdc;
   color: #000;
   font-weight: bold;
 }
 .vcal-matrix-entity {
-  border-right: 1px solid #eee;
-  border-bottom: 1px solid #eee;
+  border-right: 1px solid #eeeeee;
+  border-bottom: 1px solid #eeeeee;
 }
 .vcal-matrix-entity:first-child {
-  border-left: 1px solid #eee;
+  border-left: 1px solid #eeeeee;
 }
 .vcal-matrix-entity.week-tip {
   text-align: center;
@@ -147,7 +147,7 @@
 }
 .vcal-week-entity .vcal-hour-entity {
   height: 28.8px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #eeeeee;
 }
 .vcal-week-entity .vcal-hour-entity:last-child {
   border-bottom: none;

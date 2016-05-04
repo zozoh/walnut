@@ -541,7 +541,7 @@ function draw_block(jWrapper, opt, d){
     return [from, to];
 }
 //...........................................................
-function do_blur(jRoot, opt){
+function do_blur(jRoot, opt, quit){
     var opt = opt || options(jRoot);
     var jLast = jRoot.find(".zcal-cell-actived");
     var dLast = commands.actived.call(jRoot);
@@ -550,7 +550,10 @@ function do_blur(jRoot, opt){
         jRoot.removeData(NM_ACTIVED);
         // 移除激活单元格的标记，并调用回调
         jLast.removeClass("zcal-cell-actived");
-        $z.invoke(opt, "on_blur", [dLast], jLast);
+
+        // 调用回调
+        if(!quit)
+            $z.invoke(opt, "on_blur", [dLast], jLast);
     }
     return dLast;
 }
@@ -573,7 +576,7 @@ function do_active(jRoot, obj, autoSelect){
     d.setHours(0,0,0,0);
 
     // 找到上一个被激活的日期，并取消激活
-    var dLast = do_blur(jRoot, opt);
+    var dLast = do_blur(jRoot, opt, true);
 
     // 根据 key 找到现在应该被激活的日期，并激活
     var key = dkey(d);
