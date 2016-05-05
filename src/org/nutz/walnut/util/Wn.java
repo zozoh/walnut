@@ -572,6 +572,14 @@ public abstract class Wn {
             return new WnQuery().setv("pid", pid);
         }
 
+        public static WnQuery map(String str) {
+            return new WnQuery().setAll(Lang.map(str));
+        }
+
+        public static WnQuery mapf(String fmt, Object... args) {
+            return new WnQuery().setAll(Lang.mapf(fmt, args));
+        }
+
     }
 
     public static final String OBJ_META_PREFIX = ".wn_obj_meta_";

@@ -285,7 +285,7 @@ public abstract class WnMongos {
      */
     public static void setup_sorting(DBCursor cu, WnQuery q) {
         NutMap sort = q.sort();
-        if (sort.size() > 0) {
+        if (null != sort && sort.size() > 0) {
             cu.sort(ZMo.me().toDoc(sort));
         }
     }

@@ -281,7 +281,7 @@ public class weixin_order implements JvmHdl {
     private String __gen_out_trade_no(WnSystem sys, WnObj oOrder) {
         int seq;
         if (oOrder.getInt("or_pay_seq") > 0) {
-            seq = sys.io.inc(oOrder.id(), "or_pay_seq", 1);
+            seq = sys.io.inc(oOrder.id(), "or_pay_seq", 1, false);
         } else {
             seq = 0;
             oOrder.setv("or_pay_seq", 0);

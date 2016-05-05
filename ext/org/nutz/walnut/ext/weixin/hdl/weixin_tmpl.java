@@ -14,10 +14,11 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.weixin.bean.WxTemplateData;
 import org.nutz.weixin.spi.WxResp;
 
-@JvmHdlParamArgs("^(list|c|q|n)$")
+@JvmHdlParamArgs("cqn")
 public class weixin_tmpl implements JvmHdl {
 
     @Override
@@ -39,9 +40,12 @@ public class weixin_tmpl implements JvmHdl {
             // demo@~$ weixin xxx tmpl -get
             else {
                 WxResp re = wxApi.get_all_private_template();
+                // 打印模板详情
                 if (re.containsKey("template_list")) {
                     sys.out.println(Json.toJson(re.get("template_list"), hc.jfmt));
-                } else {
+                }
+                // 打印空数组
+                else {
                     sys.out.println("[]");
                 }
             }
@@ -80,10 +84,8 @@ public class weixin_tmpl implements JvmHdl {
         // -to OPENID
         else if (hc.params.has("content")) {
             // 读取发送内容
-            String json = hc.params.get("content");
-            if ("true".equals(json) && sys.pipeId > 0) {
-                json = sys.in.readAll();
-            }
+            String json = Cmds.checkParamOrPipe(sys, hc.params, "content");
+
             // 解析 ...
             NutMap map = Lang.map(json);
             Map<String, WxTemplateData> data = new HashMap<String, WxTemplateData>();

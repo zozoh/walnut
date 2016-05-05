@@ -23,7 +23,10 @@ public class JvmHdlContext extends NutMap {
 
     public void parseParams(String[] args) {
         // 得到注解
-        JvmHdlParamArgs jhpa = this.hdl.getClass().getAnnotation(JvmHdlParamArgs.class);
+        JvmHdlParamArgs jhpa = null;
+
+        if (null != this.hdl)
+            jhpa = this.hdl.getClass().getAnnotation(JvmHdlParamArgs.class);
 
         // 解析
         this.params = ZParams.parse(args, null == jhpa ? null : jhpa.value());

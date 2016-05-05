@@ -9,6 +9,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -48,7 +49,7 @@ public class cmd_mkdir extends JvmExecutor {
 
         // 输出
         if (params.is("o")) {
-            this.output_objs(sys, params, null, outs, true);
+            Cmds.output_objs(sys, params, null, outs, true);
         }
     }
 

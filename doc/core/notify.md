@@ -13,7 +13,7 @@ tags:
 # 通知队列
 
 ```
-/sys/notify
+/sys/noti
     $id         # 每条通知都是一个文件
 ```
 
@@ -26,23 +26,29 @@ tags:
     // 消息的创建者
     noti_c : "xiaobai",
     
+    // 消息优先级，优先级越高，会被首先发送
+    // 默认 1， 数字越大表示优先级越高
+    noti_lv : 1
+    
     // 消息的状态
-    // 0  : 新建
-    // 1  : 正在处理，会配合 lm，如果 timeout 则会增加 retry
+    // -1 : 错误的消息内容，不能被处理
+    // 0  : 失败
+    // 1  : 还未处理
     // 10 : 完成，完成后，会设置 expi ，以便系统统一删除 
-    // 14 : 失败
-    noti_st     : 0,
+    noti_st : 1,
     
     // 消息执行发送后的状态的具体描述
     // 如果状态是 10 则一定是 "ok"，否则就是错误详情
     noti_errmsg : "xxxx"
     
-    // 消息发送的 timeout，单位秒，默认 10
-    noti_timeout : 10,
+    // 如果一个处理器正在处理某条消息，它会给对应消息设置一个绝对毫秒数
+    // 表示这个时间之前，大家都不要处理这个消息，我来处理
+    // 默认这个值会被赋值为 0 表示欢迎任何处理器来处理 
+    noti_timeout_at : 14932114..,
     
     // 消息的发送方式
     // 可以是 "weixin", "sms" 等
-    noti_by     : "weixin",
+    noti_type   : "weixin",
     noti_retry  : 0      // 重试次数
     noti_retry_max : 3   // 最大重试次数，默认 3
     
@@ -62,6 +68,9 @@ tags:
     //...........................................
     // 微信模板消息专有参数 
     //...........................................
+    // 微信公众号
+    noti_wx_pnb : "xxx"
+    
     // 模板 ID
     noti_wx_tmpl_id : "xxxxx"
     
@@ -82,40 +91,60 @@ tags:
 # 添加通知
 
 ```
-# 添加模板通知
+# 添加微信模板通知
 noti add weixin -tmpl "ngqIp.."
+                -pnb "xxx"
                 -to "OPENID"
                 -url "xxxxx"
                 -content "{..}"
+                -lv 1
 
 # 添加短信通知
-noti add sms -text "xxxx" -to "139.." -provider xxx
+noti add sms -text "xxxx" -to "139.." -provider xxx -lv 1
 ```
+
+* *lv* 是可选的，默认是1 
+    * *root* 组管理员可以最大设到 1000
+    * *root* 组成员可最大设置到 100
+    * 其他用户怎么设置也木用，都是 1
+    * 以后可能增加付费用户，可最大设置到 10 （这个以后再说）
+* 当然也支持 `-cqnQ` 来指定输出，`-json` 表示输出一个 JSON 文本
+    * 默认的输出消息的 ID
 
 
 # 执行发送通知
 
 ```
-noti send [消息ID] [-u 用户] [-limit 1]
+noti send [消息ID] [-u 用户] [-limit 1] [-timeout 10]
 ```
 
 * 在一个 Job（也可能是几个）执行命令，挑选一个消息（cmd_obj），并调用 `noti do`
 * 只能处理自己创建的消息
 * 不输入 *-limit* 表示一次性处理所有的消息
+* *timeout* 默认为 10 秒， 最大只可以是 600 秒
 
 # 清理已经完成的通知
 
 ```
-noti clean 
+noti clean [-limit 100]
 ```
 
 * 清除所有 `noti_st=10` 的消息
 * 只有 root 组的用户可以执行这个命令
 
+# 显示通知 
+
+```
+noti list [-u 用户] [-st -1]
+```
+
+* 只有 root 组用户才列出其他用户信息
+* 不指定 *st* 参数，表示全部消息
+
 # 删除通知
 
 ```
-noti del [消息ID] [-u 用户] 
+noti del [消息ID]
 ```
 
 * 只有 root 组用户才能删除其他用户的消息

@@ -9,13 +9,21 @@ import java.io.Writer;
 import java.util.Map;
 
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.util.NutMap;
 
 public interface WnIo extends WnStore, WnTree {
 
     /**
+     * 返回修改前对象
+     * 
      * @see org.nutz.walnut.api.io.WnTree#setBy(String, Map)
      */
-    WnObj setBy(String id, String key, Object val);
+    WnObj setBy(String id, String key, Object val, boolean returnNew);
+
+    /**
+     * @see org.nutz.walnut.api.io.WnTree#setBy(String, NutMap, boolean)
+     */
+    WnObj setBy(WnQuery q, String key, Object val, boolean returnNew);
 
     void setMount(WnObj o, String mnt);
 

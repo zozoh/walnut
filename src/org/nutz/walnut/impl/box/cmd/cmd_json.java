@@ -17,6 +17,7 @@ import org.nutz.mapl.Mapl;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_json extends JvmExecutor {
@@ -49,7 +50,7 @@ public class cmd_json extends JvmExecutor {
         }
 
         // JSON 输出的格式化
-        JsonFormat fmt = this.gen_json_format(params);
+        JsonFormat fmt = Cmds.gen_json_format(params);
 
         if (params.has("e")) {
             String regex = params.get("e");

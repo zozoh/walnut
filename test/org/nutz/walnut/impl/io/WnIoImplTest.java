@@ -32,10 +32,46 @@ import org.w3c.dom.Document;
 public class WnIoImplTest extends BaseIoTest {
 
     @Test
+    public void test_setBy_query() {
+        WnObj a = io.create(null, "/a.txt", WnRace.FILE);
+        WnObj b = io.create(null, "/b.txt", WnRace.FILE);
+        WnObj c = io.create(null, "/c.txt", WnRace.FILE);
+
+        // 设置条件
+        io.appendMeta(a, Lang.map("age:10, weight:10"));
+        io.appendMeta(b, Lang.map("age:12, weight:14"));
+        io.appendMeta(c, Lang.map("age:12, weight:10"));
+
+        // 修改的字段
+        // 修改一个，没条件应该是 null
+        WnObj o = io.setBy(Wn.Q.map("{}"), Lang.map("realname:'xiaobai', nb:24"), false);
+        assertNull(o);
+
+        // 修改 "{age:12}" 的，只有一个修改了
+        o = io.setBy(Wn.Q.map("{age:12}"), Lang.map("realname:'xiaobai', nb:24"), false);
+        assertTrue(b.isSameId(o) || c.isSameId(o));
+        assertEquals("xiaobai", io.getString(o.id(), "realname", null));
+        assertEquals(24, io.getInt(o.id(), "nb", 0));
+
+        // 修改 "{age:12, weight:11}" 的返回 null
+        o = io.setBy(Wn.Q.map("{age:12, weight:11}"), Lang.map("brief:'AAA', x:3001"), false);
+        assertNull(o);
+
+        // 修改 "{age:12 weight:14}" 的返回只有一个被修改了
+        o = io.setBy(Wn.Q.map("{age:12, weight:14}"), Lang.map("brief:'AAA', x:3001"), true);
+        assertTrue(b.isSameId(o));
+        assertEquals("AAA", io.getString(o.id(), "brief", null));
+        assertEquals(3001, io.getInt(o.id(), "x", 0));
+        assertEquals("AAA", o.getString("brief"));
+        assertEquals(3001, o.getInt("x"));
+
+    }
+
+    @Test
     public void test_setBy() {
         WnObj a = io.create(null, "/a.txt", WnRace.FILE);
 
-        WnObj a1 = io.setBy(a.id(), Lang.map("x:100,y:80"));
+        WnObj a1 = io.setBy(a.id(), Lang.map("x:100,y:80"), false);
         assertEquals(a.id(), a1.id());
         assertEquals(-1, a1.getInt("x"));
         assertEquals(-1, a1.getInt("y"));
@@ -315,9 +351,14 @@ public class WnIoImplTest extends BaseIoTest {
         o.setv("nb", 10);
         io.set(o, "nb");
 
-        assertEquals(10, io.inc(o.id(), "nb", -1));
-        assertEquals(9, io.inc(o.id(), "nb", 3));
-        assertEquals(12, io.inc(o.id(), "nb", -2));
+        assertEquals(10, io.inc(o.id(), "nb", -1, false));
+        assertEquals(9, io.inc(o.id(), "nb", 3, false));
+        assertEquals(12, io.inc(o.id(), "nb", -2, false));
+
+        assertEquals(9, io.inc(o.id(), "nb", -1, true));
+        assertEquals(109, io.inc(o.id(), "nb", 100, true));
+        assertEquals(-1, io.inc(o.id(), "nb", -110, true));
+
     }
 
     @Test

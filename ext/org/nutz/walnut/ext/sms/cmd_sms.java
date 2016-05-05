@@ -1,7 +1,9 @@
 package org.nutz.walnut.ext.sms;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.sms.provider.YunPianSmsProvider;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -24,25 +26,36 @@ public class cmd_sms extends JvmExecutor {
         sc.provider = params.get("provider", "Yunpian");
         sc.mobiles = params.get("r");
         sc.conf = params.get("config");
-        if (params.vals.length == 0) {
-            sys.err.println("need msg");
-            return;
-        }
+
         if (Strings.isBlank(sc.mobiles)) {
-            sys.err.println("need mobiles!!");
-            return;
+            throw Er.create("e.cmd.sms.nophone");
         }
-        sc.msg = params.vals[0];
-        if(!sc.provider.equals("Yunpian")) {
-            sys.err.println("当前仅支持云片网的SMS服务");
-            return;
+
+        if (!sc.provider.equals("Yunpian")) {
+            throw Er.create("e.cmd.sms.provider.unsupport", sc.provider);
         }
+
+        // 从参数里读取
+        if (params.vals.length > 0) {
+            sc.msg = Lang.concat(" ", params.vals).toString();
+        }
+        // 从管道里读取
+        else if (null != sys.in) {
+            sc.msg = sys.in.readAll();
+        }
+
+        if (Strings.isBlank(sc.msg)) {
+            throw Er.create("e.cmd.sms.nomsg");
+        }
+
+        // 默认配置文件
         if (sc.conf == null) {
-            sc.conf = Wn.normalizeFullPath("~/.sms/config_" + sc.provider, sys);
+            sc.conf = "~/.sms/config_" + sc.provider;
         }
-        WnObj tmp = sys.io.check(null, sc.conf);
-        NutMap conf = sys.io.readJson(tmp, NutMap.class);
-        
+
+        WnObj oConf = Wn.checkObj(sys, sc.conf);
+        NutMap conf = sys.io.readJson(oConf, NutMap.class);
+
         // TODO 适应各种提供商
         SmsProvider provider = new YunPianSmsProvider();
         for (String mobile : Strings.splitIgnoreBlank(sc.mobiles, ",")) {

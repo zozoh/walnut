@@ -18,6 +18,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnPager;
 import org.nutz.walnut.util.ZParams;
@@ -143,7 +144,7 @@ public class cmd_obj extends JvmExecutor {
             }
 
             // 输出结果，到此为止
-            JsonFormat fmt = this.gen_json_format(params);
+            JsonFormat fmt = Cmds.gen_json_format(params);
             sys.out.println(Json.toJson(re, fmt));
             return;
         }
@@ -153,7 +154,7 @@ public class cmd_obj extends JvmExecutor {
 
         // 最后执行输出
         if ((null == u_map || params.is("o")) && !params.is("Q")) {
-            output_objs(sys, params, wp, list, true);
+            Cmds.output_objs(sys, params, wp, list, true);
         }
 
     }

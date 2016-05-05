@@ -37,6 +37,14 @@ public class WnQuery {
         return list;
     }
 
+    public boolean isEmptyMatch() {
+        for (NutMap ele : list) {
+            if (ele.size() > 0)
+                return false;
+        }
+        return true;
+    }
+
     public NutMap first() {
         NutMap ele;
         if (list.isEmpty()) {
