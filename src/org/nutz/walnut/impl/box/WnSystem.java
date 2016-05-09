@@ -85,6 +85,10 @@ public class WnSystem {
         exec(cmdText, out, err, ins);
     }
 
+    public void exec(String cmdText, CharSequence input) {
+        exec(cmdText, null, null, input);
+    }
+
     public String exec2(String cmdText) {
         return exec2(cmdText, null);
     }

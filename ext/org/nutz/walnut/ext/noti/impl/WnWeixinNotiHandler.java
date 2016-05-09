@@ -22,10 +22,10 @@ public class WnWeixinNotiHandler implements WnNotiHandler {
         meta.put("noti_wx_pnb", params.check("pnb"));
         meta.put("noti_wx_tmpl_id", params.check("tmpl"));
         meta.put("noti_weixin_tmpl_content",
-                 Lang.map(Cmds.checkParamOrPipe(sys, params, "content")));
+                 Lang.map(Cmds.checkParamOrPipe(sys, params, "content", true)));
 
         if (params.has("url"))
-            meta.put("noti_wx_tmpl_url", params.get(""));
+            meta.put("noti_wx_tmpl_url", params.get("url"));
 
         return meta;
     }

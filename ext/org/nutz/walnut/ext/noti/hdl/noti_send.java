@@ -23,7 +23,7 @@ public class noti_send implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) {
 
         // 分析参数
-        int limit = hc.params.getInt("limit", 1);
+        int limit = hc.params.getInt("limit", 0);
         long timeout = hc.params.getLong("timeout", 10) * 1000;
 
         // 准备记录发送结果
@@ -98,8 +98,9 @@ public class noti_send implements JvmHdl {
                                    long timeout,
                                    WnQuery q,
                                    List<WnObj> reList) {
+        int i = 0;
         // 循环发送
-        for (int i = 0; i < limit; i++) {
+        while (i++ < limit || limit <= 0) {
             // 得到当前系统时间
             long nowInMs = System.currentTimeMillis();
 
@@ -108,6 +109,10 @@ public class noti_send implements JvmHdl {
 
             // 首先从队列里获取一个消息，同时标识上 timeout_at
             WnObj oN = sys.io.setBy(q, "noti_timeout_at", nowInMs + timeout, true);
+
+            // 木有消息了 ...
+            if (null == oN)
+                break;
 
             // 得到消息的类型
             String notiType = oN.getString("noti_type");

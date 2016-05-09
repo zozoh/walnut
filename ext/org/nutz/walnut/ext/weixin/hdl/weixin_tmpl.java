@@ -84,7 +84,7 @@ public class weixin_tmpl implements JvmHdl {
         // -to OPENID
         else if (hc.params.has("content")) {
             // 读取发送内容
-            String json = Cmds.checkParamOrPipe(sys, hc.params, "content");
+            String json = Cmds.checkParamOrPipe(sys, hc.params, "content", true);
 
             // 解析 ...
             NutMap map = Lang.map(json);

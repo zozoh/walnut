@@ -17,7 +17,7 @@ public class WnSmsNotiHandler implements WnNotiHandler {
         meta.put("noti_target", params.check("to"));
         if (params.has("provider"))
             meta.put("noti_sms_provider", params.get("provider"));
-        meta.put("noti_sms_text", Cmds.checkParamOrPipe(sys, params, "text"));
+        meta.put("noti_sms_text", Cmds.checkParamOrPipe(sys, params, "text", true));
 
         return meta;
     }

@@ -19,18 +19,33 @@ import org.nutz.walnut.impl.box.WnSystem;
 
 public abstract class Cmds {
 
-    public static String checkParamOrPipe(WnSystem sys, ZParams params, String key) {
+    public static String getParamOrPipe(WnSystem sys,
+                                        ZParams params,
+                                        String key,
+                                        boolean readPipeWhenBlank) {
         // 得到内容
         String str = params.get(key);
-        if ((Strings.isBlank(str) || "true".equals(str)) && null != sys.in) {
+        if (((Strings.isBlank(str) && readPipeWhenBlank) || "true".equals(str)) && null != sys.in) {
             str = sys.in.readAll();
         }
+
+        // 返回
+        return Strings.trim(str);
+
+    }
+
+    public static String checkParamOrPipe(WnSystem sys,
+                                          ZParams params,
+                                          String key,
+                                          boolean readPipeWhenBlank) {
+        // 得到内容
+        String str = getParamOrPipe(sys, params, key, readPipeWhenBlank);
 
         if (Strings.isBlank(str)) {
             throw Er.create("e.cmd.lack.param", key);
         }
 
-        return Strings.trim(str);
+        return str;
 
     }
 

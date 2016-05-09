@@ -367,8 +367,6 @@ return ZUI.def("ui.srh", {
         var UI  = this;
         var opt = UI.options;
 
-        console.log("I am searh refresh")
-
         // zozoh@20151026:
         // 推迟运行，以便确保界面都加载完毕了
         // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题

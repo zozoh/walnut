@@ -1,6 +1,10 @@
 package org.nutz.walnut.ext.noti.hdl;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.Region;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -21,9 +25,32 @@ public class noti_clean implements JvmHdl {
 
         boolean quiet = hc.params.is("Q");
         int limit = hc.params.getInt("limit", 0);
+        String keep = hc.params.get("keep");
 
         // 进入内核态执行
         Wn.WC().core(null, true, null, () -> {
+
+            // 分析保留多长时间
+            long keepInMs = 0;
+            if (!Strings.isBlank(keep)) {
+                Matcher m = Pattern.compile("^(\\d+)(h|m|day)$").matcher(keep);
+                if (m.find()) {
+                    int nb = Integer.parseInt(m.group(1));
+                    String unit = m.group(2);
+                    // 分钟
+                    if ("m".equals(unit)) {
+                        keepInMs = 60000L * nb;
+                    }
+                    // 小时
+                    else if ("h".equals(unit)) {
+                        keepInMs = 3600000L * nb;
+                    }
+                    // 天
+                    else {
+                        keepInMs = 86400000L * nb;
+                    }
+                }
+            }
 
             // 得到要操作的用户
             String myName = sys.se.me();
@@ -46,8 +73,8 @@ public class noti_clean implements JvmHdl {
             WnQuery q = Wn.Q.pid(oNotiHome);
             q.setv("noti_st", Lang.map("$ne:1"));
 
-            // 保留最近 3 小时的消息
-            q.setv("ct", Region.Longf("(,%d)", System.currentTimeMillis() - 3 * 3600000L));
+            // 保留一定的消息
+            q.setv("ct", Region.Longf("(,%d)", System.currentTimeMillis() - keepInMs));
 
             if (limit > 0)
                 q.limit(limit);
