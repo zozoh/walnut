@@ -9,6 +9,7 @@ import java.util.Map;
 import org.nutz.lang.Mirror;
 import org.nutz.resource.Scans;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.util.Cmds;
 
 public abstract class JvmHdlExecutor extends JvmExecutor {
 
@@ -50,7 +51,7 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
 
     protected void _parse_params(WnSystem sys, JvmHdlContext hc) {
         hc.parseParams(hc.args);
-        hc.jfmt = this.gen_json_format(hc.params);
+        hc.jfmt = Cmds.gen_json_format(hc.params);
     }
 
     private String myName;

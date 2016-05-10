@@ -156,15 +156,8 @@ public class WnContext extends NutMap {
     }
 
     public <T> T hooking(WnHookContext hc, Proton<T> proton) {
-        WnHookContext old = hookContext;
-        try {
-            hookContext = hc;
-            proton.run();
-            return proton.get();
-        }
-        finally {
-            hookContext = old;
-        }
+        hooking(hc, (Atom) proton);
+        return proton.get();
     }
 
     public boolean isSynctimeOff() {
@@ -182,15 +175,8 @@ public class WnContext extends NutMap {
     }
 
     public <T> T synctimeOff(Proton<T> proton) {
-
-        try {
-            synctime_off = true;
-            proton.run();
-            return proton.get();
-        }
-        finally {
-            synctime_off = false;
-        }
+        synctimeOff((Atom) proton);
+        return proton.get();
     }
 
     public WnSecurity getSecurity() {
@@ -213,15 +199,27 @@ public class WnContext extends NutMap {
     }
 
     public <T> T security(WnSecurity secu, Proton<T> proton) {
-        WnSecurity old = security;
-        try {
-            security = secu;
-            proton.run();
-            return proton.get();
-        }
-        finally {
-            security = old;
-        }
+        security(secu, (Atom) proton);
+        return proton.get();
+    }
+
+    public void core(WnSecurity secu, boolean synctimeOff, WnHookContext hc, Atom atom) {
+        final WnContext wc = this;
+
+        wc.security(secu, () -> {
+            if (synctimeOff) {
+                wc.synctimeOff(() -> {
+                    wc.hooking(hc, atom);
+                });
+            } else {
+                wc.hooking(hc, atom);
+            }
+        });
+    }
+
+    public <T> T core(WnSecurity secu, boolean synctimeOff, WnHookContext hc, Proton<T> proton) {
+        core(secu, synctimeOff, hc, (Atom) proton);
+        return proton.get();
     }
 
     public WnObj whenEnter(WnObj nd) {

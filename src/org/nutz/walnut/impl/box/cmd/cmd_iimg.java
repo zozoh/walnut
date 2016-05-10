@@ -14,6 +14,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -52,7 +53,7 @@ public class cmd_iimg extends JvmExecutor {
 
         // 最后输出
         if (!params.is("Q")) {
-            JsonFormat fmt = this.gen_json_format(params);
+            JsonFormat fmt = Cmds.gen_json_format(params);
             sys.out.println(Json.toJson(oim, fmt));
         }
 

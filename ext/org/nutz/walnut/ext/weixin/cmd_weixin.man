@@ -15,37 +15,152 @@
 
 # 用法
 
-    weixin [-in 请求文件] [-menu 菜单文件] [-pnm 微信号] [-out 发送文件]
-           [-qrcode "{..}|$ticket"]
-	
-# 示例
+    weixin [操作] [..参数]
+    
+# 显示配置信息
 
-    执行微信业务逻辑处理的响应
-    weixin -in id:tnctk3v6n4jnarjdo4uolegm38
+    # 显示全部配置信息
+    demo@~$ weixin xxx info
     
-    创建自定义菜单
-    weixin -pnb 微信号 -menu id:r30skk8j76if4pmckbjhr4lhso
+    # 显示被正则表达式约束的配置信息
+    demo@~$ weixin xxx info "^pay_.+$"
+	
+# 普通消息
+
+    # 执行微信业务逻辑处理的响应
+    demo@~$ weixin in id:xxxx
     
-    删除自定义菜单
-    weixin -pnb 微信号 -menu :delete
+    # 输出一段简单文本
+    demo@~$ weixin xxx out "text:Hello world" -openid xxxx
     
-    查询自定义菜单
-    weixin -pnb 微信号 -menu :get
+    # 输出一段链接
+    demo@~$ weixin xxx out "article:Hello;;brief;;http://xxxxx" -openid xxx
     
-    创建临时二维码
-    weixin -pnb 微信号 -qrcode QR_SCENE -qrexpi 500 -qrsid 123
+    # 输出更复杂的消息
+    demo@~$ weixin xxx out "{..}" -openid xxx
     
-    创建永久时二维码
-    weixin -pnb 微信号 -qrcode QR_LIMIT_SCENE -qrsid 123
+    # 根据直接回复消息
+    demo@~$ weixin out "text:xxxxx" -inmsg id:xxxx
     
-    创建永久时字符串形式二维码
-    weixin -pnb 微信号 -qrcode QR_LIMIT_STR_SCENE -qrsid "hello" 
+
+# 自定义菜单
+
+    # 获取
+    demo@~$ weixin xxx menu -get
     
-    输出二维码图片地址到标准输出
-    weixin -qrcode url -qrticket gQH47joAAAAAAAAAASxodH..
+    # 删除
+    demo@~$ weixin xxx menu -del
     
-    输出二维码图片内容到标准输出
-    weixin -qrcode img -qrticket gQH47joAAAAAAAAAASxodH..
+    # 设置
+    demo@~$ weixin xxx menu -set id:xxx
+
+# 二维码
+
+    # 显示二维码地址
+    demo@~$ weixin xxx qrcode url -qrticket xxxxxxx
+    
+    # 显示二维码图片内容
+    demo@~$ weixin xxx qrcode img -qrticket xxxxxxx
+    
+    # 临时二维码
+    # qrsid 整数，场景 ID
+    # qrexpi 过期秒数
+    demo@~$ weixin xxx qrcode QR_SCENE -qrsid 2 -qrexpi 3600
+    
+    # 永久二维码
+    # qrsid 整数，场景 ID
+    demo@~$ weixin xxx qrcode QR_LIMIT_SCENE -qrsid 2
+    
+    # 永久字符串二维码
+    # qrsid 字符串，场景 ID
+    demo@~$ weixin xxx qrcode QR_LIMIT_STR_SCENE -qrsid "hahaID"
+    
+# OAuth2
+
+    # 生成重定向请求的 URL
+    demo@~$ weixin xxx oauth2 "http://redirect.com"
+    
+    # 指定信息获取的级别
+    demo@~$ weixin xxx oauth2 "http://xxx" -scope snsapi_base
+    
+    # 指定一个状态码
+    demo@~$ weixin xxx oauth2 "http://xxx" -state ANY
+
+# 获取用户信息
+
+    # 根据 OpenID 获取用户信息
+    demo@~$ weixin xxx user -openid xxx
+    
+    # 指定语言
+    demo@~$ weixin xxx user -openid xxx -lang zh_CN
+    
+    # 根据 code 获取用户信息(仅OpenId)
+    demo@~$ weixin xxx user -code xxx
+    
+    # 根据 code 获取用户信息(仅关注者)
+    demo@~$ weixin xxx user -code xxx -infol follower
+    
+    # 根据 code 获取用户信息(任何人) ! 未实现
+    demo@~$ weixin xxx user -code xxx -infol others
+
+# 获取 JS-SDK 配置信息
+
+    # 采用默认的 JS-SDK 的配置信息
+    # 默认 URL 存在 wxconf.jsSdkUrl
+    # 默认的 api_list 存放在 wxconf.jsApiList 
+    demo@~$ weixin xxx jssdk
+    
+    # 指定一个 URL 的 JS-SDK 配置信息
+    demo@~$ weixin xxx jssdk http://xxxx
+    
+    # 指定了 api_list
+    demo@~$ weixin xxx jssdk -apilist ":aa,bb,cc,dd"
+    
+    # 指定了 api_list (JSON)
+    demo@~$ weixin xxx jssdk -apilist "['aa','bb','cc','dd']
+    
+    # 指定了 api_list (文件对象)
+    demo@~$ weixin xxx jssdk -apilist id:xxxx
+    
+# 模板消息
+
+    # 列出所有模板
+    demo@~$ weixin xxx tmpl -get
+    [{
+        "template_id": "iPk5sOIt5X_flOVKn5GrTFpncEYTojx6ddbt8WYoV5s",
+        "title": "领取奖金提醒",
+        "primary_industry": "IT科技",
+        "deputy_industry": "互联网|电子商务",
+        "content": "{{first.DATA}}\n\n..\n{{remark.DATA}}",
+        "example": "您已提交领奖申请.."
+    }, {
+        ...
+    }]
+    
+    # 获取行业信息
+    demo@~$ weixin xxx tmpl -get industry
+    {
+        "primary_industry":{"first_class":"运输与仓储","second_class":"快递"},
+        "secondary_industry":{"first_class":"IT科技","second_class":"互联网|电子商务"}
+    }
+    
+    # 添加一个模板得到模板的 ID
+    demo@~$ weixin xxx tmpl -add TM00015
+    Doclyl5uP7Aciu-qZ7mJNPtWkbkYnWBWVja26EGbNyk
+    
+    # 删除一个模板
+    demo@~$ weixin xxx tmpl -del iPk5sOIt5X_flOVKn5GrTFpncEYTojx6ddbt8WYoV5s
+    
+    # 设置行业
+    demo@~$ weixin xxx tmpl -industry 2,5
+    
+    # 发送模板消息
+    demo@~$ weixin xxx tmpl -content "{..}" 
+                -url http:xxx 
+                -tid iPk5sOIt5X_flOVKn5GrTFpncEYTojx6ddbt8WYoV5s
+                -to  OPENID
+    
+    
     
 
 	

@@ -646,32 +646,53 @@ public abstract class AbstractWnTree implements WnTree {
 
     protected abstract void _set(String id, NutMap map);
 
-    @Override
-    public WnObj setBy(String id, NutMap map) {
-        // 不支持改名和移动目录
+    private void __format_set_by_map(NutMap map) {
         if (null != map) {
             map.remove("nm");
             map.remove("pid");
         }
+    }
+
+    @Override
+    public WnObj setBy(String id, NutMap map, boolean returnNew) {
+        return setBy(Wn.Q.id(id), map, returnNew);
+    }
+
+    @Override
+    public WnObj setBy(WnQuery q, NutMap map, boolean returnNew) {
+        // 不支持改名和移动目录
+        __format_set_by_map(map);
 
         // 确保对象存在，并有写权限
-        WnObj o = this.get(id);
+        WnObj o = this.getOne(q);
+        if (null == o)
+            return null;
+
         o = Wn.WC().whenMeta(o);
 
         // 执行修改
         if (map.size() > 0) {
-            o = _set_by(id, map);
-            if (null != o) {
-                o.remove("ph");
-                o.setTree(this);
+            // 这里再次确保只匹配一个
+            q.limit(1);
+
+            WnObj o1 = _set_by(q, map, returnNew);
+
+            if (null != o1) {
+                o1.remove("ph");
+                o1.setTree(this);
             }
+            o = o1;
         }
 
-        // 返回修改后内容
+        // 返回修改前内容
         return o;
     }
 
-    protected abstract WnObj _set_by(String id, NutMap map);
+    protected abstract WnObj _set_by(WnQuery q, NutMap map, boolean returnNew);
+
+    public int inc(String id, String key, int val, boolean returnNew) {
+        return this.inc(Wn.Q.id(id), key, val, returnNew);
+    }
 
     protected void _do_walk_children(WnObj p, final Callback<WnObj> callback) {
         this.each(Wn.Q.pid(null == p ? getRootId() : p.id()), new Each<WnObj>() {

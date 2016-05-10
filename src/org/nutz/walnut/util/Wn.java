@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Files;
@@ -13,6 +14,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Maths;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
 import org.nutz.lang.segment.Segment;
 import org.nutz.lang.segment.Segments;
@@ -570,6 +572,14 @@ public abstract class Wn {
             return new WnQuery().setv("pid", pid);
         }
 
+        public static WnQuery map(String str) {
+            return new WnQuery().setAll(Lang.map(str));
+        }
+
+        public static WnQuery mapf(String fmt, Object... args) {
+            return new WnQuery().setAll(Lang.mapf(fmt, args));
+        }
+
     }
 
     public static final String OBJ_META_PREFIX = ".wn_obj_meta_";
@@ -650,5 +660,86 @@ public abstract class Wn {
                 Streams.safeClose(out);
         }
         return cf;
+    }
+
+    /**
+     * 展开字符串的宏。包括:
+     * 
+     * <pre>
+     * %date:now
+     * %date:now+5m
+     * %date:now-12h
+     * %date:now+12s
+     * %date:2019-02-13T23:34:12
+     * %ms:now
+     * %ms:now+5m
+     * %ms:now-12h
+     * %ms:now+12s
+     * %ms:2019-02-13T23:34:12
+     * </pre>
+     * 
+     * @param s
+     *            输入的字符串
+     * @return 展开后的字符串
+     */
+    public static Object fmt_str_macro(String s) {
+        Object v2;
+        // 日期对象
+        if (s.startsWith("%date:")) {
+            String str = Strings.trim(s.substring("%date:".length()));
+            long ms = __eval_time_macro(str);
+            v2 = Times.D(ms);
+        }
+        // 毫秒数
+        else if (s.startsWith("%ms:")) {
+            String str = Strings.trim(s.substring("%ms:".length()));
+            v2 = __eval_time_macro(str);
+        }
+        // 默认采用原值
+        else {
+            v2 = s;
+        }
+        return v2;
+    }
+
+    private static long __eval_time_macro(String str) {
+        long ms = -1;
+
+        // 判断到操作符
+        Matcher m = Pattern.compile("^now[ \t]*(([+-])[ \t]*([0-9]+)([smh])[ \t]*)?$").matcher(str);
+
+        // 当前时间
+        if (m.find()) {
+            ms = System.currentTimeMillis();
+
+            // 嗯要加点偏移量
+            if (!Strings.isBlank(m.group(1))) {
+                int off = Integer.parseInt(m.group(3));
+                String unit = m.group(4);
+                // s 秒
+                if ("s".equals(unit)) {
+                    off = off * 1000;
+                }
+                // m 分
+                else if ("m".equals(unit)) {
+                    off = off * 60000;
+                }
+                // h 小时
+                else {
+                    off = off * 60000 * 24;
+                }
+                // 看是加还是减
+                if ("-".equals(m.group(2))) {
+                    off = off * -1;
+                }
+                // 偏移
+                ms += off;
+            }
+        }
+        // 指定时间
+        if (ms < 0) {
+            ms = Times.D(str).getTime();
+        }
+        return ms;
     }
 }

@@ -7,6 +7,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.Webs.Err;
@@ -40,7 +41,7 @@ public class cmd_touch extends JvmExecutor {
         }
 
         if (params.is("o")) {
-            this.output_objs(sys, params, null, list, true);
+            Cmds.output_objs(sys, params, null, list, true);
         }
     }
 

@@ -478,6 +478,11 @@ return ZUI.def("ui.obrowser", {
     getChecked : function(){
         return this.subUI("main").getChecked();
     },
+    //..............................................
+    // 修改激活项目的名称
+    rename : function(){
+        this.subUI("main").rename();
+    },
     //.............................................. 
     getChildren : function(o, filter, callback){
         return Wn.getChildren(o, filter||this.options.filter, callback);

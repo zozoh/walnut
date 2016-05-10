@@ -1529,7 +1529,8 @@ var zUtil = {
      ele - 为任何可以有子元素的 DOM 或者 jq，本函数在该元素的位置绘制一个 input 框，让用户输入新值
      opt - 配置项目
      {
-        multi : false  // 是否是多行文本
+        multi : false       // 是否是多行文本
+        newLineAsBr : false // 多行文本上，新行用 BR 替换。 默认 false
         text  : null   // 初始文字，如果没有给定，采用 ele 的文本
         width : 0      // 指定宽度，没有指定则默认采用宿主元素的宽度
         height: 0      // 指定高度，没有指定则默认采用宿主元素的高度
@@ -1636,7 +1637,7 @@ var zUtil = {
             }
 
             // 如果是多行的话，用 HTML 替换一下
-            if(opt.multi){
+            if(opt.multi && opt.newLineAsBr){
                 val = val.replace("<", "&lt;")
                          .replace(">", "&gt;")
                          .replace(/\r?\n/g, "\n<br>");

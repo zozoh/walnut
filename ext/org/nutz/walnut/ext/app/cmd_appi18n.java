@@ -6,6 +6,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -22,7 +23,7 @@ public class cmd_appi18n extends JvmExecutor {
         WnObj o = Wn.checkObj(sys, "~/.ui/i18n/" + lang + ".js");
         NutMap json = sys.io.readJson(o, NutMap.class);
 
-        JsonFormat fmt = this.gen_json_format(params);
+        JsonFormat fmt = Cmds.gen_json_format(params);
         sys.out.println(Json.toJson(json, fmt));
 
     }

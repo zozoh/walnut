@@ -70,12 +70,7 @@ public class WnRun {
                      StringBuilder sbOut,
                      StringBuilder sbErr) {
         // 检查用户和会话
-        final WnUsr u = usrs.check(unm);
-        final WnSession se = Wn.WC().su(u, new Proton<WnSession>() {
-            protected WnSession exec() {
-                return sess.create(u);
-            }
-        });
+        final WnSession se = creatSession(unm);
         InputStream in = null == input ? null : Lang.ins(input);
         OutputStream out = Lang.ops(sbOut);
         OutputStream err = Lang.ops(sbErr);
@@ -87,6 +82,19 @@ public class WnRun {
         finally {
             sess.logout(se.id());
         }
+    }
+
+    public WnSession creatSession(String unm) {
+        final WnUsr u = usrs.check(unm);
+        return Wn.WC().su(u, new Proton<WnSession>() {
+            protected WnSession exec() {
+                return sess.create(u);
+            }
+        });
+    }
+
+    public String exec(String logPrefix, WnSession se, String cmdText) {
+        return exec(logPrefix, se, null, cmdText);
     }
 
     public String exec(String logPrefix, WnSession se, String input, String cmdText) {

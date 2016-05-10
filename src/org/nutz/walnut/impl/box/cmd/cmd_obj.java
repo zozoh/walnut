@@ -6,14 +6,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.lang.Times;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -21,6 +18,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnPager;
 import org.nutz.walnut.util.ZParams;
@@ -146,7 +144,7 @@ public class cmd_obj extends JvmExecutor {
             }
 
             // 输出结果，到此为止
-            JsonFormat fmt = this.gen_json_format(params);
+            JsonFormat fmt = Cmds.gen_json_format(params);
             sys.out.println(Json.toJson(re, fmt));
             return;
         }
@@ -156,7 +154,7 @@ public class cmd_obj extends JvmExecutor {
 
         // 最后执行输出
         if ((null == u_map || params.is("o")) && !params.is("Q")) {
-            output_objs(sys, params, wp, list, true);
+            Cmds.output_objs(sys, params, wp, list, true);
         }
 
     }
@@ -274,62 +272,11 @@ public class cmd_obj extends JvmExecutor {
                 Object v = en.getValue();
                 if (null != v && v instanceof String) {
                     String s = v.toString();
-                    // 日期对象
-                    if (s.startsWith("%date:")) {
-                        String str = s.substring("%date:".length());
-                        // 当前时间
-                        if ("now".equals(str)) {
-                            en.setValue(Times.now());
-                        }
-                        // 指定时间
-                        else {
-                            en.setValue(Times.D(str));
-                        }
-                    }
-                    // 毫秒数
-                    else if (s.startsWith("%ms:")) {
-                        String str = s.substring("%ms:".length());
-                        // 判断到操作符
-                        Matcher m = Pattern.compile("^now[ \t]*(([+-])[ \t]*([0-9]+)([smh])[ \t]*)?$")
-                                           .matcher(str);
-                        // 当前时间
-                        if (m.find()) {
-                            long ms = System.currentTimeMillis();
-
-                            // 嗯要加点偏移量
-                            if (!Strings.isBlank(m.group(1))) {
-                                int off = Integer.parseInt(m.group(3));
-                                String unit = m.group(4);
-                                // s 秒
-                                if ("s".equals(unit)) {
-                                    off = off * 1000;
-                                }
-                                // m 分
-                                else if ("m".equals(unit)) {
-                                    off = off * 60000;
-                                }
-                                // h 小时
-                                else {
-                                    off = off * 60000 * 24;
-                                }
-                                // 看是加还是减
-                                if ("-".equals(m.group(2))) {
-                                    off = off * -1;
-                                }
-                                // 偏移
-                                ms += off;
-                            }
-
-                            // 设值
-                            en.setValue(ms);
-                        }
-                        // 指定时间
-                        else {
-                            en.setValue(Times.D(str).getTime());
-                        }
-                    }
+                    Object v2 = Wn.fmt_str_macro(s);
+                    en.setValue(v2);
                 }
             }
+
             // 对每个对象执行更新
             for (WnObj o : list) {
                 sys.io.appendMeta(o, u_map);

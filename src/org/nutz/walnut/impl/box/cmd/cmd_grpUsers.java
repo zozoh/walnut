@@ -13,6 +13,7 @@ import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnEvalLink;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnPager;
 import org.nutz.walnut.util.ZParams;
@@ -136,7 +137,7 @@ public class cmd_grpUsers extends JvmExecutor {
 
         // 最后输出，肯定要输出成列表
         params.setv("l", true);
-        output_objs(sys, params, wp, list, false);
+        Cmds.output_objs(sys, params, wp, list, false);
     }
 
     private void __rm_hidden_key(WnUsr u) {
