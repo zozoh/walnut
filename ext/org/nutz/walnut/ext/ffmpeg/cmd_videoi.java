@@ -11,6 +11,7 @@ import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZType;
+import org.nutz.web.Webs.Err;
 
 /**
  * 读取视频信息
@@ -31,14 +32,15 @@ public class cmd_videoi extends JvmExecutor {
 			String vpath = tmpFile.getAbsolutePath();
 
 			VideoInfo vi = readVideoInfo(vpath);
+            tmpFile.delete();
 			if (vi != null) {
 				sys.out.print(Json.toJson(vi));
 			} else {
-				sys.err.printf("read %s(%s) videoInfo has err", obj.name(), obj.id());
+                //sys.err.printf("read %s(%s) videoInfo has err", obj.name(), obj.id());
+			    throw Err.create("e.cmds.videoi.video_info_null");
 			}
-			tmpFile.delete();
 		} else {
-			sys.err.printf("obj %s(%s) is not a video", obj.name(), obj.id());
+		    throw Err.create("e.cmds.videoi.not_video", String.format("obj %s(%s) is not a video", obj.name(), obj.id()));
 		}
 	}
 

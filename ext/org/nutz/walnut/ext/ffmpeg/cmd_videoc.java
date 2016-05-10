@@ -20,6 +20,7 @@ import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
+import org.nutz.web.Webs.Err;
 
 public class cmd_videoc extends JvmExecutor {
 
@@ -59,6 +60,8 @@ public class cmd_videoc extends JvmExecutor {
         try {
             Files.write(source, sys.io.getInputStream(obj, 0));
             VideoInfo vi = cmd_videoi.readVideoInfo(source.getPath());
+            if (vi == null)
+                throw Err.create("e.cmds.videoc.video_info_null");
 
             log.debug("video info=\n" + Json.toJson(vi));
 
