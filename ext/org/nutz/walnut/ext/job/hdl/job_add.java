@@ -11,20 +11,15 @@ import org.nutz.repo.Base64;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.job.WnJob;
-import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.Webs.Err;
 
 @JvmHdlParamArgs("Q")
-public class job_add implements JvmHdl {
+public class job_add extends job_abstract {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
@@ -64,11 +59,8 @@ public class job_add implements JvmHdl {
         String id = R.UU32();
 
         // 用根用户权限执行
-        final String cmdText = cmd;
-        WnContext wc = Wn.WC();
-        wc.security(new WnEvalLink(sys.io), () -> {
-            WnUsr root = sys.usrService.check("root");
-            wc.su(root, () -> {
+        String cmdText = cmd;
+        sudo(sys, () -> {
                 WnObj jobDir = io.create(null, WnJob.root + "/" + id, WnRace.DIR);
                 WnObj cmdFile = io.create(jobDir, "cmd", WnRace.FILE);
                 io.writeText(cmdFile, cmdText);
@@ -77,14 +69,11 @@ public class job_add implements JvmHdl {
                 metas.put("job_cron", cron);
                 metas.put("job_ava", System.currentTimeMillis());
                 metas.put("job_st", "wait");
-                metas.put("job_user",
-                          "root".equals(sys.me.name()) ? params.get("user", "root")
-                                                       : sys.me.name());
+                metas.put("job_user", user(sys.me.name(), params.get("user")));
                 metas.put("job_create_user", sys.me.name());
                 metas.put("job_st", "wait");
                 metas.put("job_env", sys.se.vars());
                 io.appendMeta(jobDir, metas);
-            });
         });
 
         // 打印任务的 ID

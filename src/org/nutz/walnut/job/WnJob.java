@@ -137,6 +137,7 @@ public class WnJob extends WnRun implements Callable<Object> {
                 meta.put("job_st", "wait");
                 meta.put("job_name",
                          jobDir.get("job_name", jobDir.id()) + "_" + Times.sDT(calendar.getTime()));
+                meta.put("job_pid", jobDir.id());
                 io.appendMeta(tmp, meta);
                 exec("job.cron.copy ", _se, "mv " + tmpDir + " " + root + "/" + tmpName);
 
