@@ -51,7 +51,7 @@ $(document).ready(function () {
     };
 
     // confirm
-    var mdconfirm = function (msg, title, callback) {
+    var mdconfirm = function (title, msg, callback) {
         var mlength = msg.length * 40 + 32 * 2;
         if (mlength < 300) {
             mlength = 300;
@@ -67,10 +67,10 @@ $(document).ready(function () {
         }
         html += '       <div class="md-buildin-content">' + msg + '</div>';
         html += '       <div class="md-buildin-btns">';
-        html += '           <button class="md-button raised-button is-primary" val="false">';
+        html += '           <button class="md-button raised-button is-primary" val="0">';
         html += '               <span class="md-button-label">取消</span>';
         html += '           </button>';
-        html += '           <button class="md-button raised-button is-secondary" val="true">';
+        html += '           <button class="md-button raised-button is-secondary" val="1">';
         html += '               <span class="md-button-label">确认</span>';
         html += '           </button>';
         html += '       </div>';
@@ -90,7 +90,7 @@ $(document).ready(function () {
             opacity: 1,
         }, 'fast', function () {
             $confirm.delegate('button', 'click', function () {
-                var isTrue = $(this).attr('val') == 'true';
+                var isTrue = ($(this).attr('val') == '1');
                 callback(isTrue);
                 $confirmbg.animate({
                     opacity: 0,
@@ -111,7 +111,9 @@ $(document).ready(function () {
         if (title) {
             html += '   <div class="md-buildin-title">' + title + '</div>';
         }
-        html += '       <input class="md-buildin-input" type="text" value="' + dftmsg + '" />';
+        html += '       <div class="md-buildin-content">';
+        html += '           <input class="md-buildin-input" type="text" value="' + dftmsg + '" />';
+        html += '       </div>';
         html += '       <div class="md-buildin-btns">';
         html += '           <button class="md-button raised-button is-primary md-btn-cancel" val="false">';
         html += '               <span class="md-button-label">取消</span>';
@@ -143,7 +145,7 @@ $(document).ready(function () {
                 if (isTrue) {
                     callback(inval);
                 } else {
-                    callback(null);
+                    // callback(null);
                 }
                 $confirmbg.animate({
                     opacity: 0,

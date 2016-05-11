@@ -100,7 +100,6 @@
 }
 .vcal-matrix-entity {
   border-right: 1px solid #eee;
-  border-bottom: 1px solid #eee;
 }
 .vcal-matrix-entity:first-child {
   border-left: 1px solid #eee;
@@ -122,7 +121,8 @@
   color: #f00;
 }
 .ds-today.week-tip {
-  color: #f00;
+  color: #FFF;
+  background: #2196f3;
 }
 .ds-select {
   background: rgba(248, 178, 208, 0.3);

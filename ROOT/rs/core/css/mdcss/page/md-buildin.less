@@ -1,7 +1,7 @@
 @import "_page_vars";
 @import "../component/paper";
 
-@buildin-height: 40px;
+@buildin-height: 30px;
 @buildin-padding: 32px;
 
 .md-buildin {
@@ -61,17 +61,18 @@
   background: @white;
   //padding: @buildin-padding /2 @buildin-padding;
   .md-buildin-content {
-    padding: 16px 0;
+    padding: 16px;
     min-height: 60px;
+    font-size: 1.5rem;
   }
   .md-buildin-input {
-    margin: 16px 0;
+    width: 100%;
   }
 }
 
 .md-prompt {
   .md-buildin-content {
-    padding: 16px 0;
+    padding: 16px;
     min-height: 60px;
   }
 }
@@ -92,7 +93,7 @@
   font-size: @font-size-h3;
   background-color: @primary-1-color;
   color: @white;
-  padding: 0 32px;
+  padding: 0 16px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
 }
 
@@ -109,6 +110,12 @@
     &.left {
       float: left;
     }
+  }
+}
+
+.hl {
+  &.red {
+    color: red;
   }
 }
 
