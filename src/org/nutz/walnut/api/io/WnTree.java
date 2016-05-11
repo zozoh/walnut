@@ -32,28 +32,52 @@ public interface WnTree extends UnitTestable {
     void set(WnObj o, String regex);
 
     /**
-     * 设置某对象的一个值，并直接返回设置前的对象元数据
+     * 设置某对象的一个值，并直接返回设置前/后的对象元数据
      * 
      * @param id
      *            对象 ID
      * @param map
      *            要修改的值表
-     * @return 对象
+     * @param returnNew
+     *            如果是 true 返回修改后的值
+     * @return 修改前/后 对象
      */
-    WnObj setBy(String id, NutMap map);
+    WnObj setBy(String id, NutMap map, boolean returnNew);
 
     /**
-     * 修改某对象的某个整型元数据
+     * 设置符合条件的某一对象的一组值，并直接返回设置前/后的对象元数据
      * 
-     * @param id
-     *            对象 ID
+     * @param q
+     *            对象查询条件
+     * @param map
+     *            要修改的值表
+     * @param returnNew
+     *            如果是 true 返回修改后的值
+     * @return 修改前/后 对象
+     */
+    WnObj setBy(WnQuery q, NutMap map, boolean returnNew);
+
+    /**
+     * 返回修改前/后值
+     * 
+     * @see #inc(WnQuery, String, int, boolean)
+     */
+    int inc(String id, String key, int val, boolean returnNew);
+
+    /**
+     * 「同步」修改符合条件的某对象的某个整型元数据，并返回
+     * 
+     * @param q
+     *            对象查询条件
      * @param key
      *            元数据名称
      * @param val
      *            修改的值
-     * @return 修改前的值
+     * @param returnNew
+     *            如果是 true 返回修改后的值
+     * @return 修改前/后的值
      */
-    int inc(String id, String key, int val);
+    int inc(WnQuery q, String key, int val, boolean returnNew);
 
     int getInt(String id, String key, int dft);
 

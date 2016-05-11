@@ -94,15 +94,20 @@
   width: 100%;
 }
 .vcal-cal-entity > .vheader {
-  background: #DCDCDC;
+  background: #dcdcdc;
   color: #000;
   font-weight: bold;
 }
 .vcal-matrix-entity {
+<<<<<<< HEAD
   border-right: 1px solid #eee;
+=======
+  border-right: 1px solid #eeeeee;
+  border-bottom: 1px solid #eeeeee;
+>>>>>>> a405aa353c92ba3ce79ec82b0f4f13519a52c3ac
 }
 .vcal-matrix-entity:first-child {
-  border-left: 1px solid #eee;
+  border-left: 1px solid #eeeeee;
 }
 .vcal-matrix-entity.week-tip {
   text-align: center;

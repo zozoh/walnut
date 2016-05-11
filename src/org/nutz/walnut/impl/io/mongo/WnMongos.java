@@ -101,9 +101,14 @@ public abstract class WnMongos {
                 // 非空
                 if (s.length() == 0) {
                     q.ne(key, null);
+                    return;
                 }
+
+                // 如果是范围，那么默认的，那么展开里面的内容
+                s = WnRg.extend_rg_macro(s);
+
                 // 正则表达式
-                else if (s.startsWith("^")) {
+                if (s.startsWith("^")) {
                     q.put(key, Pattern.compile(s));
                 }
                 // 通配符
@@ -280,7 +285,7 @@ public abstract class WnMongos {
      */
     public static void setup_sorting(DBCursor cu, WnQuery q) {
         NutMap sort = q.sort();
-        if (sort.size() > 0) {
+        if (null != sort && sort.size() > 0) {
             cu.sort(ZMo.me().toDoc(sort));
         }
     }

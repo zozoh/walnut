@@ -100,7 +100,7 @@ public class Th_comment implements TaskHdl {
 
         // 曾经有值，则仅仅增减
         if (sc.oTask.getInt("cmtnb") >= 0) {
-            sys.io.inc(sc.oTask.id(), "cmtnb", inc);
+            sys.io.inc(sc.oTask.id(), "cmtnb", inc, false);
         }
 
         // 否则要重新计算一下

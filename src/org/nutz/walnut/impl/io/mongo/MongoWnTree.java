@@ -121,24 +121,30 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    protected WnObj _set_by(String id, NutMap map) {
+    protected WnObj _set_by(WnQuery q, NutMap map, boolean returnNew) {
         WnObj o = null;
+
+        // 必须得有条件
+        if (null == q || q.isEmptyMatch()) {
+            return null;
+        }
 
         // 更新或者创建
         if (map.size() > 0) {
-            ZMoDoc q = WnMongos.qID(id);
-            ZMoDoc doc = __map_to_doc_for_update(map);
+            ZMoDoc qDoc = WnMongos.toQueryDoc(q);
+            ZMoDoc update = __map_to_doc_for_update(map);
+            ZMoDoc sort = ZMoDoc.NEW(q.sort());
 
             // 执行更新
-            ZMoDoc re = co.findAndModify(q, doc);
+            ZMoDoc doc = co.findAndModify(qDoc, null, sort, false, update, returnNew, false);
 
             // 执行结果
-            if (null != re)
-                o = WnMongos.toWnObj(re);
+            if (null != doc)
+                o = WnMongos.toWnObj(doc);
         }
 
         // 返回
-        return null == o ? this._get_my_node(id) : o;
+        return o;
     }
 
     private ZMoDoc __map_to_doc_for_update(NutMap map) {
@@ -169,10 +175,14 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    public int inc(String id, String key, int val) {
-        ZMoDoc q = ZMoDoc.NEW("id", id);
-        // TODO 靠，得换个方法，效率高点
-        ZMoDoc doc = co.findAndModify(q, ZMoDoc.NEW().m("$inc", key, val));
+    public int inc(WnQuery q, String key, int val, boolean returnNew) {
+        ZMoDoc qDoc = WnMongos.toQueryDoc(q);
+        ZMoDoc fields = ZMoDoc.NEW(key, 1);
+        ZMoDoc update = ZMoDoc.NEW().m("$inc", key, val);
+        ZMoDoc sort = ZMoDoc.NEW(q.sort());
+
+        ZMoDoc doc = co.findAndModify(qDoc, fields, sort, false, update, returnNew, false);
+
         return doc.getInt(key);
     }
 

@@ -11,14 +11,15 @@ import org.nutz.repo.Base64;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.job.WnJob;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.Webs.Err;
 
-public class job_add implements JvmHdl {
+@JvmHdlParamArgs("Q")
+public class job_add extends job_abstract {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
@@ -38,8 +39,7 @@ public class job_add implements JvmHdl {
             cmd = params.vals[0];
             if ("true".equals(params.get("base64")))
                 cmd = new String(Base64.decode(cmd), Encoding.CHARSET_UTF8);
-        }
-        else if (sys.pipeId > 0) {
+        } else if (sys.pipeId > 0) {
             try {
                 cmd = Streams.read(sys.in.getReader()).toString();
             }
@@ -57,21 +57,29 @@ public class job_add implements JvmHdl {
         String cron = params.get("cron");
         String name = params.get("name");
         String id = R.UU32();
-        WnObj jobDir = io.create(null, WnJob.root + "/" + id, WnRace.DIR);
-        WnObj cmdFile = io.create(jobDir, "cmd", WnRace.FILE);
-        io.writeText(cmdFile, cmd);
-        NutMap metas = new NutMap();
-        metas.put("job_name", name);
-        metas.put("job_cron", cron);
-        metas.put("job_ava", System.currentTimeMillis());
-        metas.put("job_st", "wait");
-        metas.put("job_user",
-                  "root".equals(sys.me.name()) ? params.get("user", "root") : sys.me.name());
-        metas.put("job_create_user", sys.me.name());
-        metas.put("job_st", "wait");
-        metas.put("job_env", sys.se.vars());
-        io.appendMeta(jobDir, metas);
-        sys.out.print(id);
+
+        // 用根用户权限执行
+        String cmdText = cmd;
+        sudo(sys, () -> {
+                WnObj jobDir = io.create(null, WnJob.root + "/" + id, WnRace.DIR);
+                WnObj cmdFile = io.create(jobDir, "cmd", WnRace.FILE);
+                io.writeText(cmdFile, cmdText);
+                NutMap metas = new NutMap();
+                metas.put("job_name", name);
+                metas.put("job_cron", cron);
+                metas.put("job_ava", System.currentTimeMillis());
+                metas.put("job_st", "wait");
+                metas.put("job_user", user(sys.me.name(), params.get("user")));
+                metas.put("job_create_user", sys.me.name());
+                metas.put("job_st", "wait");
+                metas.put("job_env", sys.se.vars());
+                io.appendMeta(jobDir, metas);
+        });
+
+        // 打印任务的 ID
+        if (!params.is("Q"))
+            sys.out.print(id);
+
         return;
     }
 

@@ -2,6 +2,8 @@ package org.nutz.walnut.web;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.ChainBy;
 import org.nutz.mvc.annotation.Encoding;
@@ -28,6 +30,8 @@ import org.nutz.web.ajax.AjaxViewMaker;
 @IocBean
 @Encoding(input = "UTF-8", output = "UTF-8")
 public class WnMainModule extends AbstractWnModule {
+
+    private static Log log = Logs.get();
 
     // 跳转到homePage吗?还是loginPage
     @Inject("java:$conf.getBoolean('use-homepage','false')")
@@ -67,7 +71,8 @@ public class WnMainModule extends AbstractWnModule {
             return "/a/open/" + appPath;
         }
         catch (WebException e) {
-            e.printStackTrace();
+            if (log.isInfoEnabled())
+                log.info(e.toString());
             if (useHomePage) {
                 return page_home;
             }

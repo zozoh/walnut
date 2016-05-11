@@ -11,6 +11,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -77,7 +78,7 @@ public class cmd_mv extends JvmExecutor {
 
         // 准备输出
         if (outs.size() > 0) {
-            JsonFormat fmt = this.gen_json_format(params);
+            JsonFormat fmt = Cmds.gen_json_format(params);
             // 输出单个
             if (outs.size() == 1) {
                 sys.out.println(Json.toJson(outs.get(0), fmt));

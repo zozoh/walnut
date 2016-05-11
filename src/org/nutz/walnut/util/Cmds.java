@@ -1,0 +1,304 @@
+package org.nutz.walnut.util;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.impl.box.TextTable;
+import org.nutz.walnut.impl.box.WnSystem;
+
+public abstract class Cmds {
+
+    public static String getParamOrPipe(WnSystem sys,
+                                        ZParams params,
+                                        String key,
+                                        boolean readPipeWhenBlank) {
+        // 得到内容
+        String str = params.get(key);
+        if (((Strings.isBlank(str) && readPipeWhenBlank) || "true".equals(str)) && null != sys.in) {
+            str = sys.in.readAll();
+        }
+
+        // 返回
+        return Strings.trim(str);
+
+    }
+
+    public static String checkParamOrPipe(WnSystem sys,
+                                          ZParams params,
+                                          String key,
+                                          boolean readPipeWhenBlank) {
+        // 得到内容
+        String str = getParamOrPipe(sys, params, key, readPipeWhenBlank);
+
+        if (Strings.isBlank(str)) {
+            throw Er.create("e.cmd.lack.param", key);
+        }
+
+        return str;
+
+    }
+
+    // 静态帮助函数集合，不许实例化
+    private Cmds() {}
+
+    public static void output_objs(WnSystem sys,
+                                   ZParams params,
+                                   WnPager wp,
+                                   List<? extends WnObj> list,
+                                   boolean autoPath) {
+        if (autoPath && (list.size() == 1 || params.is("P"))) {
+            for (WnObj o : list) {
+                if (null != o) {
+                    o.path();
+                    if (params.is("A")) {
+                        List<WnObj> ancestors = new LinkedList<WnObj>();
+                        o.loadParents(ancestors, false);
+                        o.setv("ancestors", ancestors);
+                    }
+                }
+            }
+        }
+
+        // 最后输出
+        Cmds.output_beans(sys, params, wp, list);
+    }
+
+    public static void output_beans(WnSystem sys,
+                                    ZParams params,
+                                    WnPager wp,
+                                    List<? extends NutBean> list) {
+        // 生成输出列表
+        List<NutMap> outs = new ArrayList<NutMap>(list.size());
+        for (NutBean o : list) {
+            outs.add(_obj_to_outmap(o, params));
+        }
+
+        // 当没有更新，或者强制输出的时候，执行输出
+        if (outs.size() > 0) {
+            // 仅输出值
+            if (params.is("V")) {
+                output_objs_as_value(sys, params, outs);
+            }
+            // 按表格输出
+            else if (params.has("t")) {
+                output_objs_as_table(sys, params, wp, outs);
+            }
+            // 按照模板输出
+            else if (params.has("tmpl")) {
+                output_objs_by_tmpl(sys, params, wp, outs);
+            }
+            // 用 Json 的方法输出
+            else {
+                output_objs_as_json(sys, params, wp, outs);
+            }
+        }
+        // 如果值为空
+        else if (params.is("l") && params.is("json")) {
+            sys.out.println("[]");
+        }
+    }
+
+    public static void output_objs_by_tmpl(WnSystem sys,
+                                           ZParams params,
+                                           WnPager wp,
+                                           List<NutMap> outs) {
+        Tmpl tmpl = Tmpl.parse(params.get("tmpl"));
+
+        boolean show_index = params.is("i");
+
+        // 主体
+        int i = params.getInt("ibase", 0);
+        for (NutMap map : outs) {
+            if (show_index)
+                sys.out.print("" + (i++) + "# ");
+            String str = tmpl.render(map);
+            sys.out.println(str);
+        }
+        // 尾部
+        if (params.is("s")) {
+            sys.out.println("---------------------------------------");
+            // 是计算分页的
+            if (null != wp && wp.countPage) {
+                sys.out.printlnf("total %d/%d items, skip %d page %d/%d, %d per page",
+                                 outs.size(),
+                                 wp.sum_count,
+                                 wp.skip,
+                                 wp.pn,
+                                 wp.sum_page,
+                                 wp.pgsz);
+            }
+            // 就是显示列表
+            else {
+                sys.out.printlnf("total %d items", outs.size());
+            }
+        }
+    }
+
+    private static NutMap _obj_to_outmap(NutBean o, ZParams params) {
+        if (null == o) {
+            return null;
+        }
+
+        // true 表示输出的时候，也显示双下划线开头的隐藏字段
+        boolean isShowAutoHide = params.is("H");
+
+        // 字段过滤正则表达式
+        Pattern p = null;
+        boolean not = false;
+        String regex = params.get("e");
+        if (!Strings.isBlank(regex)) {
+            if (regex.startsWith("!")) {
+                not = true;
+                regex = regex.substring(1);
+            }
+            p = Pattern.compile(regex);
+        }
+
+        // 依次判断字段
+        NutMap map = new NutMap();
+        for (String key : o.keySet()) {
+            // 忽略自动隐藏字段
+            if (!isShowAutoHide && key.startsWith("__"))
+                continue;
+
+            // 用正则表达式判断
+            if (null != p) {
+                if (p.matcher(key).matches()) {
+                    if (!not)
+                        map.put(key, o.get(key));
+                } else if (not) {
+                    map.put(key, o.get(key));
+                }
+            }
+            // 那么一定要添加的
+            else {
+                map.put(key, o.get(key));
+            }
+        }
+        return map;
+    }
+
+    public static void output_objs_as_value(WnSystem sys, ZParams params, List<NutMap> outs) {
+        String sep = params.get("sep", "");
+        for (NutMap map : outs) {
+            sys.out.print(Lang.concat(sep, map.values()));
+            if (params.is("N")) {
+                sys.out.println();
+            }
+        }
+        if (params.is("N"))
+            sys.out.println();
+    }
+
+    public static void output_objs_as_table(WnSystem sys,
+                                            ZParams params,
+                                            WnPager wp,
+                                            List<NutMap> outs) {
+        String sCols = params.get("t");
+        String[] aCols = Strings.splitIgnoreBlank(sCols);
+        if (params.is("i")) {
+            aCols = Lang.arrayFirst("#", aCols);
+        }
+
+        // 准备输出表
+        TextTable tt = new TextTable(aCols.length);
+        if (params.is("b")) {
+            tt.setShowBorder(true);
+        } else {
+            tt.setCellSpacing(2);
+        }
+        // 加标题
+        if (params.is("h")) {
+            tt.addRow(aCols);
+            tt.addHr();
+        }
+        // 主体
+        int i = params.getInt("ibase", 0);
+        for (NutMap map : outs) {
+            List<String> cells = new ArrayList<String>(aCols.length);
+            for (String key : aCols) {
+                if ("#".equals(key)) {
+                    cells.add("" + (i++));
+                    continue;
+                }
+                Object v = map.get(key);
+                cells.add(v == null ? null : v.toString());
+            }
+            tt.addRow(cells);
+        }
+        // 尾部
+        if (params.is("s")) {
+            tt.addHr();
+        }
+        // 输出
+        sys.out.print(tt.toString());
+        if (params.is("s")) {
+            // 是计算分页的
+            if (null != wp && wp.countPage) {
+                sys.out.printlnf("total %d/%d items, skip %d page %d/%d, %d per page",
+                                 outs.size(),
+                                 wp.sum_count,
+                                 wp.skip,
+                                 wp.pn,
+                                 wp.sum_page,
+                                 wp.pgsz);
+            }
+            // 就是显示列表
+            else {
+                sys.out.printlnf("total %d items", outs.size());
+            }
+        }
+    }
+
+    public static void output_objs_as_json(WnSystem sys,
+                                           ZParams params,
+                                           WnPager wp,
+                                           List<NutMap> outs) {
+        JsonFormat fmt = Cmds.gen_json_format(params);
+
+        String json;
+
+        // 打印分页信息的 JSON 对象
+        if (null != wp && wp.countPage) {
+            NutMap re = new NutMap();
+            re.setv("list", outs);
+            re.setv("pager",
+                    Lang.mapf("pn:%d,pgsz:%d,pgnb:%d,sum:%d,skip:%d,nb:%d",
+                              wp.pn,
+                              wp.pgsz,
+                              wp.sum_page,
+                              wp.sum_count,
+                              wp.skip,
+                              outs.size()));
+            json = Json.toJson(re, fmt);
+        }
+        // 强制输出列表
+        else if (params.is("l") || outs.size() > 1) {
+            json = Json.toJson(outs, fmt);
+        }
+        // 显示一个单独对象
+        else {
+            json = Json.toJson(outs.get(0), fmt);
+        }
+
+        // 输出
+        sys.out.println(json);
+    }
+
+    public static JsonFormat gen_json_format(ZParams params) {
+        JsonFormat fmt = params.is("c") ? JsonFormat.compact() : JsonFormat.forLook();
+        fmt.setIgnoreNull(!params.is("n")).setQuoteName(params.is("q"));
+        return fmt;
+    }
+}

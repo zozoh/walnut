@@ -77,45 +77,65 @@ public class WnIoImpl implements WnIo {
     public void set(final WnObj o, String regex) {
         tree.set(o, regex);
 
-        // 调用钩子
-        WnContext wc = Wn.WC();
-        wc.doHook("meta", o);
-
-        // 触发同步时间修改
-        wc.hooking(null, new Atom() {
-            public void run() {
-                Wn.Io.update_ancestor_synctime(tree, o, false);
-            }
-        });
+        // 处理元数据修改的后续事宜
+        __do_after_set_meta(o);
     }
 
     @Override
-    public WnObj setBy(String id, String key, Object val) {
-        return setBy(id, new NutMap().setv(key, val));
+    public WnObj setBy(String id, String key, Object val, boolean returnNew) {
+        return setBy(id, Lang.map(key, val), returnNew);
     }
 
     @Override
-    public WnObj setBy(String id, NutMap map) {
-        WnObj o = tree.setBy(id, map);
+    public WnObj setBy(String id, NutMap map, boolean returnNew) {
+        WnObj o = tree.setBy(id, map, returnNew);
 
-        // 调用钩子
-        WnContext wc = Wn.WC();
-        wc.doHook("meta", o);
-
-        // 触发同步时间修改
-        wc.hooking(null, new Atom() {
-            public void run() {
-                Wn.Io.update_ancestor_synctime(tree, o, false);
-            }
-        });
+        // 处理元数据修改的后续事宜
+        __do_after_set_meta(o);
 
         // 返回
         return o;
     }
 
     @Override
-    public int inc(String id, String key, int val) {
-        return tree.inc(id, key, val);
+    public WnObj setBy(WnQuery q, NutMap map, boolean returnNew) {
+        WnObj o = tree.setBy(q, map, returnNew);
+
+        // 处理元数据修改的后续事宜
+        __do_after_set_meta(o);
+
+        // 返回
+        return o;
+    }
+
+    private void __do_after_set_meta(WnObj o) {
+        if (null != o) {
+            // 调用钩子
+            WnContext wc = Wn.WC();
+            wc.doHook("meta", o);
+
+            // 触发同步时间修改
+            wc.hooking(null, new Atom() {
+                public void run() {
+                    Wn.Io.update_ancestor_synctime(tree, o, false);
+                }
+            });
+        }
+    }
+
+    @Override
+    public int inc(WnQuery q, String key, int val, boolean returnNew) {
+        return tree.inc(q, key, val, returnNew);
+    }
+
+    @Override
+    public WnObj setBy(WnQuery q, String key, Object val, boolean returnNew) {
+        return setBy(q, Lang.map(key, val), returnNew);
+    }
+
+    @Override
+    public int inc(String id, String key, int val, boolean returnNew) {
+        return inc(Wn.Q.id(id), key, val, returnNew);
     }
 
     @Override

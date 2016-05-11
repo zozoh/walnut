@@ -104,6 +104,21 @@ public class ZParams {
 
     private ZParams() {}
 
+    public String val(int index) {
+        int i = index >= 0 ? index : vals.length + index;
+        if (i < 0 || i >= vals.length)
+            return null;
+        return this.vals[i];
+    }
+
+    public String val_check(int index) {
+        String v = val(index);
+        if (null == v) {
+            throw Er.create("e.cmd.lack.param.vals", index);
+        }
+        return v;
+    }
+
     public boolean is(String key) {
         return map.getBoolean(key, false);
     }

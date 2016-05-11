@@ -53,11 +53,16 @@ var Wn = {
         
         // 得到缩略图角标
         if(_.isFunction(evalThumb)){
-            var thumbnails = evalThumb(child);
-            if(thumbnail){
-                for(var thumbkey in thumbnails){
-                    var jThumbIcon = jThumb.find(".wnobj-"+key);
-                    jThumbIcon.html(thumbnails[thumbkey]).removeClass("wnobj-icon-hide");
+            var thumbIcons = evalThumb(o);
+            if(thumbIcons){
+                // 统一设定 className
+                if(thumbIcons.className){
+                    jThumb.addClass(thumbIcons.className);
+                }
+                // 依次设置各个角标
+                for(var tiKey in thumbIcons){
+                    var jThumbIcon = jThumb.find(".wnobj-"+tiKey);
+                    jThumbIcon.html(thumbIcons[tiKey]).removeClass("wnobj-icon-hide");
                 }
             }
         }
@@ -87,6 +92,13 @@ var Wn = {
     //...................................................................
     objTypeName : function(o){
         return o.tp || ('DIR'==o.race ? 'folder' : 'unknown');
+    },
+    //...................................................................
+    // 本地化字符串 fnm.xxx 声明的名称，不可编辑，否则本地化失败
+    isObjNameEditable : function(UI, o) {
+        var nm  = _.isString(o) ? o : o.nm;
+        var nms = UI.msg("fnm") || {};
+        return nms[nm] ? false : true;
     },
     //...................................................................
     objDisplayName : function(UI, nm, maxLen){

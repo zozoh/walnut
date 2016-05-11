@@ -13,13 +13,14 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_dusr extends JvmExecutor {
 
     private JsonFormat __jfmt(ZParams params) {
-        return this.gen_json_format(params).setLocked("^(_.*|ph|salt|passwd)$");
+        return Cmds.gen_json_format(params).setLocked("^(_.*|ph|salt|passwd)$");
     }
 
     @Override

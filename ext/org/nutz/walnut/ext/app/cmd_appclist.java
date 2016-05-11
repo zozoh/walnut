@@ -10,6 +10,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -63,7 +64,7 @@ public class cmd_appclist extends JvmExecutor {
                 map.remove("editors");
                 list.add(map);
             }
-            JsonFormat jfmt = this.gen_json_format(params);
+            JsonFormat jfmt = Cmds.gen_json_format(params);
             sys.out.println(Json.toJson(list, jfmt));
         }
 
