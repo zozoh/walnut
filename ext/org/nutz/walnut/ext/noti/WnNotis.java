@@ -6,6 +6,7 @@ import java.util.Map;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.noti.impl.WnSmsNotiHandler;
 import org.nutz.walnut.ext.noti.impl.WnWeixinNotiHandler;
+import org.nutz.walnut.ext.noti.impl.WnXXPushNotiHandler;
 
 public final class WnNotis {
 
@@ -35,6 +36,7 @@ public final class WnNotis {
         notis = new HashMap<String, WnNotiHandler>();
         notis.put("weixin", new WnWeixinNotiHandler());
         notis.put("sms", new WnSmsNotiHandler());
+        notis.put("xxpush", new WnXXPushNotiHandler());
     }
 
     public static WnNotiHandler checkHandler(String notiType) {

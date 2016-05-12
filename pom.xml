@@ -71,7 +71,7 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz</artifactId>
-			<version>1.r.56-SNAPSHOT</version>
+			<version>1.r.56</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz-web</artifactId>
-			<version>1.r.55-SNAPSHOT</version>
+			<version>1.r.56</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -142,6 +142,11 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.13</version>
+		</dependency>
+		<dependency>
+			<groupId>cn.jpush.api</groupId>
+			<artifactId>jpush-client</artifactId>
+			<version>3.2.8</version>
 		</dependency>
 	</dependencies>
 
