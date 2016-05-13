@@ -341,17 +341,17 @@ function update(jRoot, opt, d){
         jHead.hide();
     }
 
-    // 固定计算单元格的比率
-    var wCell = 100 / 7 + "%";
-    var hCell = 100 / (opt.byWeek||6);
-    jWrapper.find(".zcal-cell").css({
-        "width"  : wCell,
-        "height" : hCell
-    });
-
     // 标记今天
     var todayKey = dkey(new Date());
     jWrapper.find('.zcal-cell[key='+todayKey+']').attr("today","yes");
+
+    // 固定计算单元格的比率
+    var wCell = 100 / 7 + "%";
+    // //var hCell = (100 / ((opt.byWeek||6) + 1)) + "%";
+    jWrapper.find(".zcal-cell").css({
+        "width"  : wCell,
+        //"height" : hCell
+    });
 
     // 重新规划尺寸
     do_resize(jRoot, opt);
@@ -680,6 +680,7 @@ function do_resize(jRoot, opt){
     // 计算选区的宽高
     var jHead      = jRoot.children(".zcal-head");
     var jSelection = jRoot.parent();
+    var jWrapper   = jRoot.find(".zcal-wrapper");
     var W = jSelection.width();
     var H = jSelection.height() - jHead.outerHeight(true);
 
