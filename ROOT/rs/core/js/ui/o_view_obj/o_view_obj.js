@@ -6,6 +6,31 @@ $z.declare([
 ], function(ZUI, Wn, FormUI){
 //==============================================
 var html = function(){/*
+<div class="ui-code-template">
+    <pre code-id="showTxt"></pre>
+    <div code-id="showImg" class="img-con"><img style="visibility:hidden"></div>
+    <div code-id="showVideo" class="video-con" video-status="pause">
+        <video width="100%" controls>
+            <source></source>
+        </video>
+        <!--div class="video-ctrl">
+            <div class="vc-play"><i class="fa fa-play-circle"></i></div>
+            <div class="vc-pause"><i class="fa fa-pause-circle"></i></div>
+        </div>
+        <div class="video-bar">
+            <div class="vb-loop"><i class="fa fa-retweet"></i></div>
+            <div class="vb-go-head"><i class="fa fa-step-backward"></i></div>
+            <div class="vb-play"><i class="fa fa-play"></i></div>
+            <div class="vb-stop"><i class="fa fa-stop"></i></div>
+            <div class="vb-go-end"><i class="fa fa-step-forward"></i></div>
+            <div class="vb-progress">
+                <div class="vbp-current" style="width:100px;"></div>
+            </div>
+            <div class="vb-time">00:00:00</div>
+            <div class="vb-volume"><i class="fa fa-volume-up"></i></div>
+        </div-->
+    </div>
+</div>
 <div class="ui-arena opreview" ui-fitparent="yes" show-info="yes">
     <div class="opreview-main"></div>
     <div class="opreview-info" ui-gasket="info"></div>
@@ -38,7 +63,22 @@ return ZUI.def("ui.o_view_obj", {
         "click .opreview-showinfo" : function() {
             var UI = this;
             UI.arena.attr("show-info", "yes");
-        }
+        },
+        "click .video-ctrl" : function(){
+            var UI = this;
+            var jCon = UI.arena.find(".video-con");
+            console.log(jCon)
+            // 正在播放 -> 暂停
+            if("play" == jCon.attr("video-status")){
+                jCon.attr("video-status","pause")
+                    .find("video")[0].pause();    
+            }
+            // 正在暂停 -> 播放
+            else {
+                jCon.attr("video-status","play")
+                    .find("video")[0].play();    
+            }
+        },
     },
     //...............................................................
     __show_info : function(o, fields) {
@@ -84,7 +124,7 @@ return ZUI.def("ui.o_view_obj", {
             jM.attr("mode", "text");
             Wn.read(o, function(content){
                 jM.empty();
-                var jPre = $('<pre>').appendTo(jM);
+                var jPre = UI.ccode("showTxt").appendTo(jM);
                 jPre.text(content);
             });
             // 显示信息
@@ -93,7 +133,7 @@ return ZUI.def("ui.o_view_obj", {
         // 可以预览的图像
         else if(/\/(jpeg|png|gif)/.test(o.mime)){
             jM.attr("mode", "pic");
-            var jDiv = $('<div class="img-con"><img style="visibility:hidden"></div>').appendTo(jM);
+            var jDiv = UI.ccode("showImg").appendTo(jM);
             jImg = jDiv.find("img");
             jImg.prop("src", "/o/read/id:"+o.id+"?_="+Date.now()).one("load", function(){
                 UI.hideLoading();
@@ -124,6 +164,16 @@ return ZUI.def("ui.o_view_obj", {
                 editAs : "label"
             }]);
         }
+        // 可预览的视频
+        else if(/^video/.test(o.mime) && o.video_preview){
+            UI.hideLoading();
+            jM.attr("mode", "video");
+            var jDiv = UI.ccode("showVideo").appendTo(jM);
+            jVideo = jDiv.find("video");
+            jVideo.find("source").prop("src", "/o/read/id:"+o.video_preview+"?_="+Date.now());
+            // 显示信息
+            UI.__show_info(o);
+        }
         // 其他的对象
         else{
             jM.attr("mode","others");
@@ -131,6 +181,21 @@ return ZUI.def("ui.o_view_obj", {
             // 显示信息
             UI.__show_info(o);
         }
+    },
+    //...............................................................
+    resize : function(){
+        // var UI = this;
+        // var jM = UI.arena.find(".opreview-main");
+        // var md = jM.attr("mode");
+        // // 视频
+        // if("video" == md) {
+        //     var jVideo = jM.find("video");
+        //     var jVCtrl = jM.find(".video-ctrl");
+        //     jVCtrl.css({
+        //         "height"    : jVideo.height(),
+        //         "font-size" : jVideo.height()/4
+        //     });
+        // }
     },
     //...............................................................
     init : function(){

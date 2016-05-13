@@ -66,6 +66,53 @@
         }
     }
 }
+//--------------------------------------------------------- 视频
+.opreview-main[mode="video"]{@noselect();
+    .video-con {
+        position: relative; 
+        .video-ctrl {
+            position: absolute; top:0; left:0; right:0; cursor: pointer;
+            text-align: center;  @flex(); justify-content:center; align-items:center;
+            > div {opacity: 0.3;}
+        }
+        .video-ctrl:hover > div {opacity: 0.8;}
+        .video-bar {
+            @flex(); padding:@d2; align-items:center;
+            > div {padding:@d2; color:@cf2; cursor: pointer;}
+            > div:hover {color:@cf0;}
+            .vb-progress {
+                @vbpBSZ : 12px;  @vbpH : 6px; 
+                flex:1 1 auto; background: @cb3; height:6px; padding:0;
+                .vbp-current {background: @chx_b;position: relative; height:100%;}
+                .vbp-current:after {
+                    position: absolute; top: (@vbpH - @vbpBSZ) / 2; right:(@vbpH - @vbpBSZ) / 2;
+                    display: block; content:"";
+                    background: @chx_f;
+                    border-radius: @vbpBSZ; width:@vbpBSZ; height:@vbpBSZ;
+                }
+            }
+        }
+    }
+    .video-con[video-status="play"]{
+        .vc-play  {display: none;}
+        .vc-pause {display: none;}
+        .video-ctrl:hover {
+            .vc-pause {display: block;}
+        }
+        .video-bar {
+            .vb-play {display: none;}
+            .vb-stop {display: block;}
+        }
+    }
+    .video-con[video-status="pause"]{
+        .vc-play  {display: block;}
+        .vc-pause {display: none;}
+        .video-bar {
+            .vb-play {display: block;}
+            .vb-stop {display: none;}
+        }
+    }
+}
 //--------------------------------------------------------- 未知
 .opreview-main[mode="others"] {
     font-size: @f6; color:@cf0; padding:@da; text-align: center;

@@ -458,6 +458,12 @@ return ZUI.def("ui.form", {
         });
     },
     //...............................................................
+    getFormCtrl : function(key) {
+        var UI = this;
+        var jF = UI.arena.find('.form-fld[fld-key="'+key+'"]');
+        return jF.data("@UI");
+    },
+    //...............................................................
     getFormDataObj : function(){
         return this.$el.data("@DATA");
     },

@@ -137,7 +137,7 @@ public class WnBean extends NutMap implements WnObj {
         if (null == tp)
             return false;
         // 用正则
-        if(tp.startsWith("^")){
+        if (tp.startsWith("^")) {
             return mytp.matches(tp);
         }
         // 精确匹配
@@ -577,12 +577,11 @@ public class WnBean extends NutMap implements WnObj {
         // 得到父节点
         String pid = parentId();
         // 如果引用自身，那么做一下标识
-        if(this.isSameId(pid)){
-            this.setv("pid", "R");
-            this.tree.set(this, "^pid$");
+        if (this.isSameId(pid)) {
+            this.setv("pid", "!!R");
             return this;
         }
-        
+
         WnObj p = tree.isRoot(pid) ? tree.getRoot() : tree.get(pid);
 
         // 没有父，是不可能的

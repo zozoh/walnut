@@ -2,17 +2,22 @@ package org.nutz.walnut.impl.box.cmd;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -27,7 +32,7 @@ public class cmd_obj extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        ZParams params = ZParams.parse(args, "iocnqhbslAVNPHQ");
+        ZParams params = ZParams.parse(args, "iocnqhbslAVNPHQ", "^(pager)$");
 
         WnPager wp = new WnPager(params);
 
@@ -39,16 +44,13 @@ public class cmd_obj extends JvmExecutor {
         // 如果是要更新，首先分析一下更新参数
         NutMap u_map = null;
         if (params.has("u")) {
-            String mapstr;
-            // 从管道里读取
-            if (sys.pipeId > 0 && "true".equals(params.get("u"))) {
-                mapstr = sys.in.readAll();
+            String json = params.get("u");
+            // 标准输入里读取
+            if ("true".equals(json)) {
+                json = sys.in.readAll();
             }
-            // 从内容里读取
-            else {
-                mapstr = params.get("u");
-            }
-            u_map = Lang.map(mapstr);
+            // 解析 Map
+            u_map = Lang.map(json);
         }
 
         // 计算要列出的要处理的对象
@@ -59,7 +61,7 @@ public class cmd_obj extends JvmExecutor {
             String json = params.get("new", "{}");
             NutMap meta;
             // 类似 cat xxx | obj -new -u 的方式创建对象
-            if (json.equals("true")) {
+            if ("true".equals(json)) {
                 meta = new NutMap();
             }
             // 解析 JSON
@@ -150,13 +152,340 @@ public class cmd_obj extends JvmExecutor {
         }
 
         // 执行更新
-        __do_update(sys, u_map, list);
+        if (null != u_map) {
+            __do_update(sys, u_map, list);
+        }
+
+        // 执行 push 操作 ..
+        boolean _is_push = params.has("push");
+        if (_is_push) {
+            __do_push(sys, params, list);
+        }
+
+        // 执行 pop 操作 ..
+        boolean _is_pop = params.has("pop");
+        if (_is_pop) {
+            __do_pop(sys, params, list);
+        }
 
         // 最后执行输出
-        if ((null == u_map || params.is("o")) && !params.is("Q")) {
+        if (((null == u_map && !_is_push && !_is_pop) || params.is("o")) && !params.is("Q")) {
             Cmds.output_objs(sys, params, wp, list, true);
         }
 
+    }
+
+    static abstract class PopEach implements Each<Object> {
+
+        protected List<Object> vList;
+
+        PopEach setVList(List<Object> vList) {
+            this.vList = vList;
+            return this;
+        }
+
+        static PopEach create(String str) {
+
+            PopEach pe = PopEachByEmpty.TRY(str);
+            if (null != pe)
+                return pe;
+
+            pe = PopEachByIndex.TRY(str);
+            if (null != pe)
+                return pe;
+
+            pe = PopEachByNumber.TRY(str);
+            if (null != pe)
+                return pe;
+
+            pe = PopEachByValue.TRY(str);
+            if (null != pe)
+                return pe;
+
+            pe = PopEachBySet.TRY(str);
+            if (null != pe)
+                return pe;
+
+            pe = PopEachByPattern.TRY(str);
+            if (null != pe)
+                return pe;
+
+            throw Er.create("e.cmd.obj.pop.invalidOpt", str);
+        }
+
+    }
+
+    // - "i:3" 表示 0 base下标，即第四个
+    // - "i:-1" 表示最后一个
+    // - "i:-2" 表示倒数第二个
+    static class PopEachByIndex extends PopEach {
+
+        private static final Pattern REGEX = Pattern.compile("^i:([-]?\\d+)$");
+
+        static PopEach TRY(String str) {
+            Matcher m = REGEX.matcher(str);
+            if (m.find())
+                return new PopEachByIndex(Integer.parseInt(m.group(1)));
+            return null;
+        }
+
+        private int index;
+
+        PopEachByIndex(int index) {
+            this.index = index;
+        }
+
+        public void invoke(int i, Object ele, int length) {
+            // 下标从前面数
+            if (index >= 0) {
+                if (index != i) {
+                    vList.add(ele);
+                }
+            }
+            // 下标从后面数
+            else {
+                if (index + length != i) {
+                    vList.add(ele);
+                }
+            }
+        }
+    }
+
+    // - "n:3" 表示从后面弹出最多三个
+    // - "n:-1" 表示从开始处弹出最多一个
+    static class PopEachByNumber extends PopEach {
+
+        private static final Pattern REGEX = Pattern.compile("^n:([-]?\\d+)$");
+
+        static PopEach TRY(String str) {
+            Matcher m = REGEX.matcher(str);
+            if (m.find())
+                return new PopEachByNumber(Integer.parseInt(m.group(1)));
+            return null;
+        }
+
+        private int n;
+
+        PopEachByNumber(int n) {
+            this.n = n;
+        }
+
+        public void invoke(int i, Object ele, int length) {
+            // 从后面弹
+            if (n >= 0) {
+                if (i >= (length - n)) {
+                    Lang.Break();
+                } else {
+                    vList.add(ele);
+                }
+            }
+            // 从前面弹
+            else {
+                if (i >= (n * -1)) {
+                    vList.add(ele);
+                }
+            }
+        }
+    }
+
+    // - "v:xyz" 表示弹出内容为 'xyz' 的项目
+    // - "!v:xyz" 表示弹出内容不为 'xyz' 的项目
+    static class PopEachByValue extends PopEach {
+
+        private static final Pattern REGEX = Pattern.compile("^(!?)v:(.+)$");
+
+        static PopEach TRY(String str) {
+            Matcher m = REGEX.matcher(str);
+            if (m.find())
+                return new PopEachByValue(m.group(2), !"!".equals(m.group(1)));
+            return null;
+        }
+
+        private Object v;
+
+        // !v -> false, v-> true
+        private boolean match_for_remove;
+
+        PopEachByValue(Object v, boolean match_for_remove) {
+            this.v = v;
+            this.match_for_remove = match_for_remove;
+        }
+
+        public void invoke(int i, Object ele, int length) {
+            if (Lang.equals(ele, v) ^ match_for_remove) {
+                vList.add(ele);
+            }
+        }
+    }
+
+    // - "l:a,b" 表示弹出半角逗号分隔的列表里的值
+    // - "!l:a,b" 表示弹出不在半角逗号分隔的列表里的值
+    static class PopEachBySet extends PopEach {
+
+        private static final Pattern REGEX = Pattern.compile("^(!?)l:(.+)$");
+
+        static PopEach TRY(String str) {
+            Matcher m = REGEX.matcher(str);
+            if (m.find())
+                return new PopEachBySet(m.group(2), !"!".equals(m.group(1)));
+            return null;
+        }
+
+        private HashSet<String> set;
+
+        // !v -> false, v-> true
+        private boolean match_for_remove;
+
+        PopEachBySet(String vs, boolean match_for_remove) {
+            this.set = new HashSet<String>();
+            String[] ss = Strings.splitIgnoreBlank(vs);
+            for (String s : ss)
+                this.set.add(s);
+            this.match_for_remove = match_for_remove;
+        }
+
+        public void invoke(int i, Object ele, int length) {
+            if ((null != ele && set.contains(ele.toString())) ^ match_for_remove) {
+                vList.add(ele);
+            }
+        }
+    }
+
+    // - "e:^a.*" 表示弹出被正则表达式匹配的项目
+    // - "!e:^a.*" 表示弹出没有被正则表达式匹配的项目
+    static class PopEachByPattern extends PopEach {
+
+        private static final Pattern REGEX = Pattern.compile("^(!?)e:(.+)$");
+
+        static PopEach TRY(String str) {
+            Matcher m = REGEX.matcher(str);
+            if (m.find())
+                return new PopEachByPattern(m.group(2), !"!".equals(m.group(1)));
+            return null;
+        }
+
+        private Pattern ptn;
+
+        // !v -> false, v-> true
+        private boolean match_for_remove;
+
+        PopEachByPattern(String regex, boolean match_for_remove) {
+            this.ptn = Pattern.compile(regex);
+            this.match_for_remove = match_for_remove;
+        }
+
+        public void invoke(int i, Object ele, int length) {
+            if ((null != ele && ptn.matcher(ele.toString()).find()) ^ match_for_remove) {
+                vList.add(ele);
+            }
+        }
+    }
+
+    // - "" 表示删除全部空数据项目
+    static class PopEachByEmpty extends PopEach {
+
+        static PopEach TRY(String str) {
+            if (Strings.isEmpty(str))
+                return new PopEachByEmpty();
+            return null;
+        }
+
+        public void invoke(int i, Object ele, int length) {
+            if (null != ele && !Strings.isBlank(ele.toString())) {
+                vList.add(ele);
+            }
+        }
+    }
+
+    private void __do_pop(WnSystem sys, ZParams params, List<WnObj> list) {
+        // 得到要 pop 的值
+        String json = Cmds.getParamOrPipe(sys, params, "pop", false);
+        NutMap popMap = Lang.map(json);
+
+        // 处理每个对象
+        for (WnObj o : list) {
+
+            // 对每个对象对应的 key 执行操作
+            for (Map.Entry<String, Object> en : popMap.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+
+                // 准备一个空列表准备来拼合值
+                List<Object> vList = new LinkedList<Object>();
+
+                // null 表示清除全部数据，那就啥也别干了
+                // 否则具体看看 val 是几个意思
+                if (null != val) {
+                    // 准备回调函数
+                    Each<Object> callback = PopEach.create(val.toString()).setVList(vList);
+
+                    // 搞一遍
+                    Lang.each(o.get(key), callback);
+                }
+
+                // 更新到对象里
+                o.setv(key, vList.isEmpty() ? null : vList);
+            }
+
+            // 更新的正则表达式
+            String regex = "^(" + Lang.concat("|", popMap.keySet()) + ")$";
+
+            // 执行更新
+            sys.io.set(o, regex);
+        }
+    }
+
+    private void __do_push(WnSystem sys, ZParams params, List<WnObj> list) {
+        // 得到要 push 的值
+        String json = Cmds.getParamOrPipe(sys, params, "push", false);
+        NutMap pushMap = Lang.map(json);
+
+        // 是否唯一
+        boolean pushUniq = params.is("push_uniq", true);
+
+        // 处理每个对象
+        for (WnObj o : list) {
+
+            // 对每个对象对应的 key 执行操作
+            for (Map.Entry<String, Object> en : pushMap.entrySet()) {
+                String key = en.getKey();
+
+                // 准备一个空列表准备来拼合值
+                List<Object> vList = new LinkedList<Object>();
+
+                // 首先搞一下原来的值
+                HashSet<Object> memo = pushUniq ? new HashSet<Object>() : null;
+
+                // 准备回调函数
+                Each<Object> callback = new Each<Object>() {
+                    public void invoke(int index, Object v, int len) {
+                        // 唯一值的过滤
+                        if (null != memo) {
+                            if (memo.contains(v))
+                                return;
+                            memo.add(v);
+                        }
+                        // 添加
+                        vList.add(v);
+                    }
+                };
+
+                // 搞一遍旧值
+                Lang.each(o.get(key), callback);
+
+                // 搞一遍新值
+                Lang.each(en.getValue(), callback);
+
+                // 更新到对象里
+                o.setv(key, vList);
+            }
+
+            // 更新的正则表达式
+            String regex = "^(" + Lang.concat("|", pushMap.keySet()) + ")$";
+
+            // 执行更新
+            sys.io.set(o, regex);
+        }
     }
 
     private WnObj __do_new(WnSystem sys, ZParams params, NutMap meta) {
@@ -265,22 +594,20 @@ public class cmd_obj extends JvmExecutor {
     }
 
     private void __do_update(WnSystem sys, NutMap u_map, List<WnObj> list) {
-        if (null != u_map) {
-            u_map.remove("id");
-            // 将日期的字符串，搞一下
-            for (Map.Entry<String, Object> en : u_map.entrySet()) {
-                Object v = en.getValue();
-                if (null != v && v instanceof String) {
-                    String s = v.toString();
-                    Object v2 = Wn.fmt_str_macro(s);
-                    en.setValue(v2);
-                }
+        u_map.remove("id");
+        // 将日期的字符串，搞一下
+        for (Map.Entry<String, Object> en : u_map.entrySet()) {
+            Object v = en.getValue();
+            if (null != v && v instanceof String) {
+                String s = v.toString();
+                Object v2 = Wn.fmt_str_macro(s);
+                en.setValue(v2);
             }
+        }
 
-            // 对每个对象执行更新
-            for (WnObj o : list) {
-                sys.io.appendMeta(o, u_map);
-            }
+        // 对每个对象执行更新
+        for (WnObj o : list) {
+            sys.io.appendMeta(o, u_map);
         }
     }
 

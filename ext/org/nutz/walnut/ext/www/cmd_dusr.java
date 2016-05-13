@@ -265,8 +265,7 @@ public class cmd_dusr extends JvmExecutor {
     }
 
     private long __get_se_duration(NutMap conf) {
-        long ms = Math.min(conf.getLong("duration", 3600L) * 1000, 86400000L * 3);
-        return ms;
+        return Math.min(conf.getLong("duration", 3600L) * 1000, 86400000L * 3);
     }
 
     private void _do_create(WnSystem sys, ZParams params) {

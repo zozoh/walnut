@@ -5,7 +5,7 @@ author:zozoh
 
 # 控件的调用方法
 
-让当前选区所有子元素超出选区的部分折叠在一起
+在给定选区外 dock 一个滑杆控件
 
 ```
 jQuery.slidebar({

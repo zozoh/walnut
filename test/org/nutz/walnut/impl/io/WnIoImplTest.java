@@ -32,6 +32,32 @@ import org.w3c.dom.Document;
 public class WnIoImplTest extends BaseIoTest {
 
     @Test
+    public void test_pid_to_self() {
+        WnObj a = io.create(null, "a", WnRace.DIR);
+        WnObj b = io.create(a, "b", WnRace.DIR);
+
+        io.move(b, "/a/b");
+
+        WnObj b2 = io.get(b.id());
+        assertEquals("b", b2.name());
+        assertEquals(a.id(), b2.parentId());
+
+        b.setv("pid", b.id());
+        try {
+            io.set(b, "^pid$");
+            fail();
+        }
+        catch (WebException e) {
+            assertEquals("e.io.mv.parentToChild", e.getKey());
+        }
+
+        WnObj b3 = io.get(b.id());
+        assertEquals("b", b3.name());
+        assertEquals(a.id(), b3.parentId());
+
+    }
+
+    @Test
     public void test_setBy_query() {
         WnObj a = io.create(null, "/a.txt", WnRace.FILE);
         WnObj b = io.create(null, "/b.txt", WnRace.FILE);

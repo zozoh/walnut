@@ -298,6 +298,9 @@ public class ObjModule extends AbstractWnModule {
      * @param sha1
      *            SHA1 校验，可选。如果给定了值，如果对象的内容不符合这个指纹，则抛错
      * 
+     * @param d
+     *            是否是下载模式，如果是下载，将提供 CONTENT_DISPOSITION 响应头 默认 false
+     * 
      * @return 对象当前的内容输入流
      * 
      * @see org.nutz.walnut.util.Wn#checkObj(org.nutz.walnut.api.io.WnIo,
@@ -305,7 +308,10 @@ public class ObjModule extends AbstractWnModule {
      */
     @At("/read/**")
     @Ok("void")
-    public View read(String str, @Param("sha1") String sha1, @ReqHeader("User-Agent") String ua) {
+    public View read(String str,
+                     @Param("sha1") String sha1,
+                     @Param("d") boolean download,
+                     @ReqHeader("User-Agent") String ua) {
         // 首先得到目标对象
         WnObj o = Wn.checkObj(io, str);
 
@@ -316,7 +322,7 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 读取对象的值
-        return new WnObjDownloadView(io, o, ua);
+        return new WnObjDownloadView(io, o, download ? ua : null);
     }
 
     @At("/write/**")

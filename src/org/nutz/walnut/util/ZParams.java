@@ -2,6 +2,7 @@ package org.nutz.walnut.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Strings;
@@ -15,16 +16,23 @@ import org.nutz.walnut.api.err.Er;
  */
 public class ZParams {
 
+    private static final Pattern PARAM_KEY = Pattern.compile("^-([a-zA-Z_].*)$");
+
     public String[] vals;
 
     NutMap map;
 
-    private static boolean _match_bool_char(String key, String chars) {
-        char[] cs = key.toCharArray();
-        for (char c : cs)
-            if (chars.indexOf(c) == -1)
-                return false;
-        return true;
+    /**
+     * @see #parse(String[], String, String)
+     */
+    public static ZParams parse(String[] args, String bools) {
+        if (null == bools)
+            return parse(args, null, null);
+
+        if (bools.startsWith("^"))
+            return parse(args, null, bools);
+
+        return parse(args, bools, null);
     }
 
     /**
@@ -33,46 +41,71 @@ public class ZParams {
      * <pre>
      * 如果参数以 "-" 开头，则所谓名值对的键。
      * 如果后面接着一个 "-" 开头的参数，则认为当前项目是布尔
-     * 当然，如果给入的参数 bools 匹配上了这个参数，也认为是布尔
+     * 当然，如果给入的参数 boolChars 或者 boolRegex 匹配上了这个参数，也认为是布尔
      * </pre>
      * 
      * @param args
      *            参数表
-     * @param bools
-     *            描述了布尔值，如果以 "^" 开头，则是正则表达式，匹配的键作为布尔项<br>
-     *            否则认为是一个普通的布尔字符串
+     * 
+     * @param boolChars
+     *            指明一个键的哪个字符是布尔值。 一个键如果全部内容都是布尔值，则分别记录。否则认为是一个普通键 <br>
+     *            你可以直接给一个正则表达式来匹配 boolChar，但是你的正则表达式必须得有 group(1) 表示内容
+     * 
+     * @param boolRegex
+     *            用一个正则表达式来描述哪些键（参数的整体）为布尔值
+     * 
      * @return 参数表
      */
-    public static ZParams parse(String[] args, String bools) {
+    public static ZParams parse(String[] args, String boolChars, String boolRegex) {
         ZParams params = new ZParams();
         List<String> list = new ArrayList<String>(args.length);
         params.map = new NutMap();
         if (args.length > 0) {
-            boolean is_define_bool_chars = false;
+
+            // 预编译 boolRegex
             Pattern bool_key = null;
-            if (!Strings.isBlank(bools)) {
-                if (bools.startsWith("^")) {
-                    bool_key = Pattern.compile(bools);
-                } else {
-                    is_define_bool_chars = true;
+            if (!Strings.isBlank(boolRegex)) {
+                bool_key = Pattern.compile(boolRegex);
+            }
+
+            // 预编译 boolChars，如果匹配这个正则表达式的参数，将被认为是一个布尔参数
+            // 支持 -bish 这样的组合形式
+            Pattern bool_char = null;
+            if (!Strings.isBlank(boolChars)) {
+                // 给的就是正则表达式
+                if (boolChars.startsWith("^")) {
+                    bool_char = Pattern.compile(boolChars);
+                }
+                // 直接是普通的字符串，那么做一下拼装
+                else {
+                    bool_char = Pattern.compile("^-([" + boolChars + "]+)$");
                 }
             }
+
             // 参数表 ...
             int i = 0;
+            Matcher m;
             for (; i < args.length; i++) {
                 String s = args[i];
-                // 键值
-                if (s.matches("^-[a-zA-Z_].*$")) {
-                    String key = s.substring(1);
-                    // 是否是布尔值表
-                    if (is_define_bool_chars && _match_bool_char(key, bools)) {
-                        char[] cs = key.toCharArray();
+                // boolChars
+                // 是否是布尔值表
+                if (null != bool_char) {
+                    m = bool_char.matcher(s);
+                    if (m.find()) {
+                        char[] cs = m.group(m.groupCount()).toCharArray();
                         for (char c : cs) {
                             params.map.put("" + c, true);
                         }
+                        continue;
                     }
+                }
+
+                // 键值
+                m = PARAM_KEY.matcher(s);
+                if (m.find()) {
+                    String key = m.group(m.groupCount());
                     // 键就是布尔值
-                    else if (null != bool_key && bool_key.matcher(key).matches()) {
+                    if (null != bool_key && bool_key.matcher(key).matches()) {
                         params.map.put(key, true);
                     }
                     // 木有后面的值了，那么作为 boolean

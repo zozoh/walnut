@@ -114,6 +114,11 @@ public abstract class AbstractWnTree implements WnTree {
             o.setTree(this);
         }
 
+        // 这里处理一下自己引用自己的对象问题，直接返回吧，这个对象一定是错误的
+        if (o.isSameId(o.parentId())) {
+            return o;
+        }
+
         // 最后校验一下权限
         return Wn.WC().whenAccess(o);
     }
@@ -506,10 +511,19 @@ public abstract class AbstractWnTree implements WnTree {
 
     @Override
     public WnObj move(WnObj src, String destPath, int mode) {
+        // 目标是空的，啥也不做
+        if (Strings.isBlank(destPath))
+            return src;
+
         // 不用移动
         String srcPath = this.checkById(src.id()).path();
         if (srcPath.equals(destPath)) {
             return src;
+        }
+
+        // 将自己移动到自己的子里面，这个不能够啊
+        if (destPath.startsWith(srcPath) && srcPath.lastIndexOf('/') < destPath.lastIndexOf('/')) {
+            throw Er.create("e.io.mv.parentToChild");
         }
 
         // 肯定要移动了 ...

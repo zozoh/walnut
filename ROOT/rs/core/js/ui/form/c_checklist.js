@@ -103,8 +103,7 @@ return ZUI.def("ui.form_com_checklist", {
         re = ["loading"];
 
         // 加载数据
-        $z.evalData(UI.options.items, null, function(items){
-            UI._draw_items(items);
+        UI.setItems(UI.options.items, function(){
             re.pop();
             UI.defer_report(0, "loading");
         });
@@ -113,11 +112,26 @@ return ZUI.def("ui.form_com_checklist", {
         return re;
     },
     //...............................................................
+    setItems : function(items, callback){
+        var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+
+        $z.evalData(items, null, function(items){
+            UI._draw_items(items);
+            UI.setData();
+            $z.doCallback(callback, [items], UI);
+        }, context);
+    },
+    //...............................................................
     _draw_items : function(items){
         var UI  = this;
         var opt = UI.options;
         var jUl = UI.arena.find("ul");
         var context = opt.context || UI;
+
+        if(!_.isArray(items))
+            return;
 
         var hasIcon = false;
         for(var i=0; i<items.length; i++){

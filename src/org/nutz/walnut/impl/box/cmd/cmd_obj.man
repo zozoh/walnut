@@ -10,9 +10,11 @@
         [-t fld0,fld1..]
         [-iocnqhbslVNPH]
         [-ibase 1 or 0]
+        [-push "key:value"]
+        [-push_uniq false]
         [-pager]
-        [-limit]
-        [-skip]
+        [-limit 1]
+        [-skip 0]
         [-match {..}]
         [-GrpupCount $Tmpl]
         [-noexists null|ignore]
@@ -45,6 +47,26 @@
             
     -match  对输出的对象过滤, 在指定路径模式下，本参数无效
     
+    -push   将名值对中的内容追加到对象对应字段中，确保会生成数组形式的值
+    -push_uniq  当进行 push 操作的时候，是否确保已有的内容就不追加了, 默认 true
+    
+    -pop    将名值对中的内容从对象对应字段中删除，如果最后成为空数组，会置 null
+            格式类似  key1:"val1", key2:"val2"
+            val 的格式是
+             - "i:3"  表示 0 base下标，即第四个
+             - "i:-1" 表示最后一个
+             - "i:-2" 表示倒数第二个
+             - "n:3"  表示从后面弹出最多三个
+             - "n:-1" 表示从开始处弹出最多一个
+             - "v:xyz"  表示弹出内容为 'xyz' 的项目
+             - "!v:xyz" 表示弹出内容不为 'xyz' 的项目
+             - "l:a,b"  表示弹出半角逗号分隔的列表里的值
+             - "!l:a,b" 表示弹出不在半角逗号分隔的列表里的值
+             - "e:^a.*" 表示弹出被正则表达式匹配的项目
+             - "!e:^a.*" 表示弹出没有被正则表达式匹配的项目
+             - ""    表示删除全部空数据项目
+             - null  表示清空全部数据
+             
     -GroupCount 参数是一个字符串模板，根据这个模板生成的键，并计入结果 Map，值就是计数
                 GroupCount是一个实验性参数，它就是在查询的基础上做的进一步归纳，所以会比较慢
                 一旦声明了这个参数，所有对输出的过滤都不生效了，会直接打印出 JSON 
@@ -114,4 +136,27 @@
         usr2_demo : 4
     }
     
+    为对象增加数组字段的值
+    demo@~$ obj abc.txt -push "x:100"; obj abc.txt -push "x:100" -o
+    {
+        ..
+        x: [100]
+        ..
+    }
+    
+    为对象增加数组字段的值即使重复也追加
+    demo@~$ obj abc.txt -push "x:100"; obj abc.txt -push "x:100" -push_uniq false -o
+    {
+        ..
+        x: [100, 100]
+        ..
+    }
+    
+    弹出对象的某个字段的某个值
+    demo@~$ obj abc.txt -push "x:['A','B','C']"; obj abc.txt -pop "x:'n:1'" -o
+    {
+        ..
+        x: ['A','B']
+        ..
+    }
     

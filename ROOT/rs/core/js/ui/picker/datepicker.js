@@ -54,6 +54,7 @@ return ZUI.def("ui.picker.datepicker", {
                         var jBody  = uiMask.$main.find(".pm-body");
                         var dr     = jBody.zcal("range", opt.mode);
                         UI._update(dr, true);
+                        UI.__on_change();
                         uiMask.close();
                     },
                     "click .pm-btn-cancel" : function(){
@@ -105,6 +106,7 @@ return ZUI.def("ui.picker.datepicker", {
                         var jBtns = $(this).closest(".picker-mask-main").find(".pm-btns");
                         if(jBtns.size() == 0){
                             UI._update(d, true);
+                            UI.__on_change();
                             ZUI(this).close();
                         }
                     }
@@ -123,6 +125,7 @@ return ZUI.def("ui.picker.datepicker", {
         },
         "click .picker-clear" : function(){
             this._update();
+            this.__on_change();
         }
     },
     //...............................................................
@@ -193,6 +196,15 @@ return ZUI.def("ui.picker.datepicker", {
         return this.ui_format_data(function(opt){
             return UI.$el.data("@OBJ");
         });
+    },
+    //...............................................................
+    __on_change : function(){
+        var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+        var v = UI.getData();
+        $z.invoke(opt, "on_change", [v], context);
+        UI.trigger("change", v);
     },
     //...............................................................
     resize : function(){

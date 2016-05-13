@@ -40,19 +40,33 @@ return ZUI.def("ui.form_com_radiolist", {
     redraw : function(){
         var UI  = this;
         var re = ["loading"];
-        $z.evalData(UI.options.items, null, function(items){
-            UI._draw_items(items);
+        UI.setItems(UI.options.items, function(){
             re.pop();
             UI.defer_report(0, "loading");
         });
         return re;
     },
     //...............................................................
+    setItems : function(items, callback){
+        var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+
+        $z.evalData(items, null, function(items){
+            UI._draw_items(items);
+            UI.setData();
+            $z.doCallback(callback, [items], UI);
+        }, context);
+    },
+    //...............................................................
     _draw_items : function(items){
         var UI  = this;
         var opt = UI.options;
-        var jUl = UI.arena.find("ul");
+        var jUl = UI.arena.find("ul").empty();
         var context = opt.context || UI;
+
+        if(!_.isArray(items))
+            return;
 
         var hasIcon = false;
         for(var i=0; i<items.length; i++){
@@ -91,7 +105,7 @@ return ZUI.def("ui.form_com_radiolist", {
     },
     //...............................................................
     getData : function(){
-        return UI.arena.find("li.checked").first().data("@VAL");
+        return this.arena.find("li.checked").first().data("@VAL");
     },
     //...............................................................
     setData : function(val){
@@ -102,7 +116,7 @@ return ZUI.def("ui.form_com_radiolist", {
             val = [val];
         }
         // 查找吧少年
-        var jLis = UI.arena.find("li");
+        var jLis = UI.arena.find("li").removeClass("checked");
         for(var i=0;i<jLis.length;i++){
             var jLi = jLis.eq(i);
             var v0  = jLi.data("@VAL");

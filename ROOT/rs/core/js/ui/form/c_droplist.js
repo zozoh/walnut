@@ -163,14 +163,25 @@ return ZUI.def("ui.form_com_droplist", {
 
         // 读取数据
         var re = ["loading"];
-        $z.evalData(UI.options.items, null, function(items){
-            UI._draw_items(items);
+        UI.setItems(UI.options.items, function(){
             re.pop();
             UI.defer_report(0, "loading");
-        }, context);
+        });
 
         // 返回，以便异步的时候延迟加载
         return re;
+    },
+    //...............................................................
+    setItems : function(items, callback){
+        var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+
+        $z.evalData(items, null, function(items){
+            UI._draw_items(items);
+            UI.setData();
+            $z.doCallback(callback, [items], UI);
+        }, context);
     },
     //...............................................................
     _draw_items : function(items){
@@ -178,6 +189,9 @@ return ZUI.def("ui.form_com_droplist", {
         var opt = UI.options;
         var jUl = UI.arena.find("ul");
         var context = opt.context || UI;
+
+        if(!_.isArray(items))
+            return;
 
         var hasIcon = false;
         for(var i=0; i<items.length; i++){

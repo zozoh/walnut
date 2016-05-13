@@ -804,6 +804,7 @@ var zUtil = {
     // context  - 指明特殊的回调的 this 参数，如果未定义，则采用本函数的 this
     evalData : function(data, params, callback, context) {
         if(!data){
+            $z.doCallback(callback,[],context);
             return;
         }
 

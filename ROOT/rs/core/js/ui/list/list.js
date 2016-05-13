@@ -280,7 +280,7 @@ return ZUI.def("ui.list", {
         // 获取完整的列表
         return UI.ui_format_data(function(opt){
             var objs = [];
-            jTBody.children('.lst-item').each(function(){
+            UI.arena.find('.lst-item').each(function(){
                 objs.push($(this).data("OBJ"));
             });
             return objs;
