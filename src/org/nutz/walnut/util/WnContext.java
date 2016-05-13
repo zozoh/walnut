@@ -317,7 +317,6 @@ public class WnContext extends NutMap {
             me = old_me;
             grp = old_grp;
         }
-
     }
 
     public String SEID() {
