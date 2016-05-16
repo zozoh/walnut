@@ -299,6 +299,10 @@ return ZUI.def("ui.list", {
         if(_.isUndefined(it)){
             return UI.arena.find(".lst-item-actived");
         }
+        // 全部
+        else if("all" == it){
+            return UI.arena.find(".lst-item");
+        }
         // 如果是字符串表示 ID
         else if(_.isString(it)){
             return UI.arena.find(".lst-item[oid="+it+"]");

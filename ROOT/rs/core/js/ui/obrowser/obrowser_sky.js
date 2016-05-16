@@ -8,12 +8,16 @@ $z.declare([
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
+    <div code-id="me.info">
+        <span></span><b></b><a>{{exit}}</a>
+    </div>
     <div code-id="crumb.item" class="citem ui-clr">
         <b></b><span class="ochild"><i class="fa fa-caret-down"></i></span>
     </div>
 </div>
 <div class="ui-arena obrowser-sky ui-clr" ui-fitparent="true">
     <div class="obrowser-crumb"></div>
+    <div class="obrowser-me"></div>
     <div class="obrowser-menu" ui-gasket="menu"></div>
 </div>
 */};
@@ -210,10 +214,11 @@ return ZUI.def("ui.obrowser_sky", {
     },
     //..............................................
     update : function(UIBrowser, o, asetup){
-        var UI = this;
+        var UI  = this;
+        var opt = UIBrowser.options;
 
         // 标识禁止主目录点击
-        if(UIBrowser.options.forbidClickHomeInCrumb){
+        if(opt.forbidClickHomeInCrumb){
             UI.arena.find(".obrowser-crumb").attr("forbid-click-home","yes");
         }
 
@@ -222,6 +227,30 @@ return ZUI.def("ui.obrowser_sky", {
         
         // 绘制面包屑道航
         UI._draw_crumb(UIBrowser, o);
+
+        // 绘制用户信息
+        var jMe = UI.arena.find(".obrowser-me").empty();
+        if(opt.myInfo) {
+            var jMyInfo = UI.ccode("me.info").appendTo(jMe);
+            // 名称
+            jMyInfo.find("b").text(opt.myInfo.name);
+            // 头像
+            if(opt.myInfo.avata){
+                jMyInfo.find("span").html(opt.myInfo.avata);
+            }else{
+                jMyInfo.find("span").remove();
+            }
+
+            // 登出链接
+            if(opt.myInfo.logout)
+                jMyInfo.find("a").prop("href", opt.myInfo.logout);
+            else
+                jMyInfo.find("a").remove();
+        }
+        // 否则删除
+        else {
+            jMe.remove();
+        }
 
         // 绘制右侧动作菜单
         // UI._draw_menu(UIBrowser, o, asetup);
@@ -340,11 +369,12 @@ return ZUI.def("ui.obrowser_sky", {
     resize : function(){
         var UI = this;
         var jCrumb = UI.arena.find(".obrowser-crumb");
-        var jMenu  = UI.arena.find(".obrowser-menu:visible");
-        jCrumb.css({
-            "width"  : UI.arena.width() - jMenu.outerWidth(true),
-            "height" : UI.arena.height()
-        });
+        // var jMe = UI.arena.find(".obrowser-me");
+        // var jMenu  = UI.arena.find(".obrowser-menu:visible");
+        // jCrumb.css({
+        //     "width"  : UI.arena.width() -  jMe.outerWidth(true) -jMenu.outerWidth(true),
+        //     "height" : UI.arena.height()
+        // });
         jCrumb.folder({
             dmode : "tail",
             keep : 1

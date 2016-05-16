@@ -140,19 +140,13 @@ body > .ui-obrowser {
     //---------------------------------------------- BEGIN Sky
     .obrowser-sky {
         position: relative; border-bottom:1px solid @cborder0;
-        // 禁止主目录点击
-        .obrowser-crumb[forbid-click-home="yes"] .citem[home="yes"] {
-            border-color: rgba(0,0,0,0);
-            .ochild{
-                background: inherit; color: inherit;
-            }
-        }
+        @flex();
     }
 
     .obrowser-crumb { @noselect(); cursor: default;
         background: @cb1;
         padding:@d2; white-space: nowrap;
-        position: absolute; top:0;left:0;
+        flex: 1 1 auto;
         .z-edit-it input {
             background: @cb0; color:@cf0;
             padding-left:@d4; outline: none;
@@ -213,9 +207,25 @@ body > .ui-obrowser {
             .citem:hover{color:@ch0_f; background: @ch0_b;}
         }
     }
+    .obrowser-me {
+        background: @cb2;padding:@d3 @d2; border-left:1px solid @cborder1;
+        > div {
+            line-height:@d6; 
+            > * {margin:0 @d1;}
+        }
+    }
     .obrowser-menu {
-        position: absolute; top:0; right:0; background: @cb2;
-        padding-left:@d2;
+        background: @cb2;padding-left:@d2; border-left:1px solid @cborder1;
+        .menu {
+            padding:@d2 @d2; line-height:@d6; 
+        }
+    }
+    // 禁止主目录点击
+    .obrowser-sky .obrowser-crumb[forbid-click-home="yes"] .citem[home="yes"] {
+        border-color: rgba(0,0,0,0);
+        .ochild{
+            background: inherit; color: inherit;
+        }
     }
     //---------------------------------------------- END Sky
 

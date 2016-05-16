@@ -113,6 +113,10 @@ public abstract class AbstractWnTree implements WnTree {
             o.remove("ph");
             o.setTree(this);
         }
+        // 木有找到
+        else {
+            return null;
+        }
 
         // 这里处理一下自己引用自己的对象问题，直接返回吧，这个对象一定是错误的
         if (o.isSameId(o.parentId())) {

@@ -2,6 +2,7 @@ define({
     "save"       : "保存",
     "saving"     : "正在保存..",
     "refresh"    : "刷新",
+    "exit"       : "退出",
     "new"        : "新建",
     "delete"     : "删除",
     "create"     : "新建",

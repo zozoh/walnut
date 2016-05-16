@@ -18,6 +18,9 @@
         [-match {..}]
         [-GrpupCount $Tmpl]
         [-noexists null|ignore]
+        [-ExtendBy {..}]
+        [-ExtendFilter {..}]
+        [-ExtendDeeply]
     
     -new    创建一个新的对象，内容是一个 JSON 字段，可以不用 "{}" 包裹，其中:
              - 即使里面包括 "id,ct,lm" 等标准字段也是无效的
@@ -38,6 +41,10 @@
     
     -noexists  如果根据路径指定的对象不存在，默认会抛出异常，声明这个参数则表示
                不要抛出异常，null 表示用 null 来代替， ignore 表示忽略
+    
+    -ExtendFilter   一个Map，匹配上的DIR项目，将会被展开子，展开子将遵守 -sort 设定，但是会无视 -limit 和 -skip
+    -ExtendBy       展开子的条件，默认是全部子
+    -ExtendDeeply   展开子的时候是否递归
     
     -limit  一页显示多少数据，默认全部数据
     -skip   分页显示时，跳过多少数据

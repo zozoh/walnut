@@ -36,6 +36,16 @@ author:zozoh
     // 默认 false
     forbidClickHomeInCrumb : false,
     
+    // 是否在 sky 上显示当前用户的信息，一个用户信息对象
+    /*
+    {
+        logout : "/xxx/xxx"   // 登出的 URL
+        avata  : "<..>"       // 头像的 HTML
+        name   : "xxx"        // 显示的用户名
+    }
+    */
+    myInfo : {..},
+    
     // filter 表示对子节点的一些过滤
     //  - undefined    : 全部显示
     //  - "DIR"        : 仅目录

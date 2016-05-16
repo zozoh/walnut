@@ -12,7 +12,8 @@ var html = function(){/*
     </div>
     <div code-id="field" class="form-fld"><div
         class="ff-txt"></div><div
-        class="ff-val"><div class="ffv-ui"></div><div class="ffv-tip"></div></div></div>
+        class="ff-val"><div class="ffv-ui"></div><div class="ffv-tip"></div></div><div class="ff-tmpl"><i 
+            class="fa fa-square"></i><i class="fa fa-check-square"></i></div></div>
 </div>
 <div class="ui-arena form" ui-fitparent="yes">
     <div class="form-title"></div>
@@ -127,6 +128,9 @@ return ZUI.def("ui.form", {
         "click .fg-title" : function(e){
             var jG = $(e.currentTarget).closest(".form-group");
             jG.toggleClass("form-group-hide");
+        },
+        "click .form-fld .ff-tmpl" : function(e){
+            $z.toggleAttr($(e.currentTarget).closest(".form-fld"), "tmpl-on", "yes", "no");
         }
     },
     //...............................................................
@@ -148,6 +152,10 @@ return ZUI.def("ui.form", {
         // 自定义的类
         if(fld.className)
             jF.addClass(grp.className);
+
+        // 如果是模板，默认 off
+        if(opt.asTemplate)
+            jF.attr("tmpl-on", "no");
 
         var jTxt = jF.children(".ff-txt");
         var jFui = jF.find(".ffv-ui");
@@ -260,6 +268,11 @@ return ZUI.def("ui.form", {
         var jBody  = UI.arena.children(".form-body");
         var jBodyW = jBody.children(".form-body-wrapper");
         jBodyW.empty();
+
+        // 标记模板
+        if(opt.asTemplate){
+            UI.arena.attr("as-template", "yes");
+        }
 
         // 设置标题区域
         if(opt.title){
@@ -472,11 +485,18 @@ return ZUI.def("ui.form", {
         var UI = this;
         return this.ui_format_data(function(opt){
             // 准备返回值
-            var re = opt.mergeData ? _.extend({}, UI.$el.data("@DATA")) : {};
+            var re = opt.mergeData && !opt.asTemplate 
+                        ? _.extend({}, UI.$el.data("@DATA")) 
+                        : {};
 
             // 读取每个字段的返回值
             UI.arena.find(".form-fld").each(function(){
                 var jF  = $(this);
+
+                // 模板的话，判断一下是否选项开启
+                if(opt.asTemplate && "yes" != jF.attr("tmpl-on"))
+                    return;
+
                 var jso = jF.data("@jOBJ");
                 var fui = jF.data("@UI"); 
                 var v  = fui.getData();

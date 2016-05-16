@@ -183,7 +183,25 @@ public abstract class Wn {
     }
 
     public static String normalizeFullPath(String ph, WnSystem sys) {
-        return normalizeFullPath(ph, sys.se);
+        // 嗯，搞一下变量吧
+        ph = normalizeFullPath(ph, sys.se);
+
+        // 如果 ph 以 id:xxx 开头，将其搞一下
+        if (ph.startsWith("id:")) {
+            int pos = ph.indexOf('/');
+            if (pos > 0) {
+                String id = ph.substring(3, pos);
+                WnObj o = sys.io.checkById(id);
+                return Wn.appendPath(o.path(), ph.substring(pos + 1));
+            }
+            // 就是一个 id:xxx 形式的东东
+            String id = ph.substring(3);
+            WnObj o = sys.io.checkById(id);
+            return o.path();
+        }
+
+        // 返回
+        return ph;
     }
 
     public static String normalizeFullPath(String ph, WnSession se) {

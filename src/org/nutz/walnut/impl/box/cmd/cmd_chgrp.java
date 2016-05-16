@@ -21,7 +21,8 @@ public class cmd_chgrp extends cmd_chxxx {
 
     private void __do_ch(final WnSystem sys, final _ch_context cc, WnObj o) {
         if (!o.group().equals(cc.str)) {
-            sys.io.appendMeta(o, "g:" + cc.str);
+            o.group(cc.str);
+            sys.io.set(o, "^g$");
             if (cc.v) {
                 String rpath = Disks.getRelativePath(cc.current.path(), o.path());
                 sys.out.println(rpath);

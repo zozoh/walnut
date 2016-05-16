@@ -34,6 +34,10 @@
   display: none;
 }
 .fg-title {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
   padding: 6px;
   margin: 6px 0 0 0;
   font-size: 16px;
@@ -41,6 +45,7 @@
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(0, 0, 0, 0);
   position: relative;
+  cursor: pointer;
 }
 .fg-title .fg-tt-icon {
   margin: 0 6px;
@@ -51,6 +56,7 @@
 .form-fld {
   border-top: 1px dashed rgba(255, 255, 255, 0.15);
   padding: 4px;
+  position: relative;
 }
 .form-fld[first-row] {
   border: 0;
@@ -96,6 +102,38 @@
   color: #00aa00;
   padding: 4px;
   font-size: 8px;
+}
+.ff-tmpl {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  padding: 16px 0;
+  display: none;
+}
+.form-fld[tmpl-on="yes"] {
+  opacity: 1.0;
+}
+.form-fld[tmpl-on="yes"] .ff-tmpl > i:first-child {
+  display: none;
+}
+.form-fld[tmpl-on="yes"] .ff-tmpl > i:last-child {
+  display: inline;
+}
+.form-fld[tmpl-on="no"] {
+  opacity: 0.4;
+}
+.form-fld[tmpl-on="no"] .ff-tmpl {
+  right: 0;
+}
+.form-fld[tmpl-on="no"] .ff-tmpl > i:first-child {
+  display: inline;
+}
+.form-fld[tmpl-on="no"] .ff-tmpl > i:last-child {
+  display: none;
+}
+.form[as-template] .ff-tmpl {
+  display: block;
 }
 .form-group [ui-width="auto"] .ffv-ui,
 .form-group [ui-fixed-width] .ffv-ui {

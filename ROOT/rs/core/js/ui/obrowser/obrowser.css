@@ -198,13 +198,8 @@ body > .ui-obrowser {
 .obrowser .obrowser-sky {
   position: relative;
   border-bottom: 1px solid #cccccc;
-}
-.obrowser .obrowser-sky .obrowser-crumb[forbid-click-home="yes"] .citem[home="yes"] {
-  border-color: rgba(0, 0, 0, 0);
-}
-.obrowser .obrowser-sky .obrowser-crumb[forbid-click-home="yes"] .citem[home="yes"] .ochild {
-  background: inherit;
-  color: inherit;
+  display: -webkit-flex;
+  display: flex;
 }
 .obrowser .obrowser-crumb {
   -moz-user-select: none;
@@ -215,9 +210,7 @@ body > .ui-obrowser {
   background: #eeeeee;
   padding: 6px;
   white-space: nowrap;
-  position: absolute;
-  top: 0;
-  left: 0;
+  flex: 1 1 auto;
 }
 .obrowser .obrowser-crumb .z-edit-it input {
   background: #ffffff;
@@ -314,12 +307,32 @@ body > .ui-obrowser {
   color: #ffffff;
   background: #0044bb;
 }
+.obrowser .obrowser-me {
+  background: #e0e0e0;
+  padding: 8px 6px;
+  border-left: 1px solid #d0d0d0;
+}
+.obrowser .obrowser-me > div {
+  line-height: 24px;
+}
+.obrowser .obrowser-me > div > * {
+  margin: 0 4px;
+}
 .obrowser .obrowser-menu {
-  position: absolute;
-  top: 0;
-  right: 0;
   background: #e0e0e0;
   padding-left: 6px;
+  border-left: 1px solid #d0d0d0;
+}
+.obrowser .obrowser-menu .menu {
+  padding: 6px 6px;
+  line-height: 24px;
+}
+.obrowser .obrowser-sky .obrowser-crumb[forbid-click-home="yes"] .citem[home="yes"] {
+  border-color: rgba(0, 0, 0, 0);
+}
+.obrowser .obrowser-sky .obrowser-crumb[forbid-click-home="yes"] .citem[home="yes"] .ochild {
+  background: inherit;
+  color: inherit;
 }
 .obrowser[hidden-obj-visibility=hidden] .wnobj-hide {
   display: none;

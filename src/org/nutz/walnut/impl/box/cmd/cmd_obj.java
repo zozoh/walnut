@@ -130,25 +130,32 @@ public class cmd_obj extends JvmExecutor {
         // 如果是按组查询
         String groupCount = params.get("GroupCount");
         if (!Strings.isBlank(groupCount)) {
-            Tmpl tmpl = Tmpl.parse(groupCount);
+            __do_groupCount(sys, params, list, groupCount);
+            return;
+        }
 
-            Map<String, Integer> re = new TreeMap<String, Integer>();
+        // 需要递归展开所有的子
+        if (params.has("ExtendFilter")) {
+            List<WnObj> list2 = new LinkedList<WnObj>();
+            String json = params.get("ExtendFilter");
+            NutMap flt = Lang.map(json);
 
-            // 开始归纳
+            WnQuery q = new WnQuery();
+            NutMap by = Lang.map(params.get("ExtendBy", "{}"));
+            q.setAll(by);
+
+            if (null != sort)
+                q.sort(sort);
+
+            boolean ExtendDeeply = params.is("ExtendDeeply", true);
+
+            // 逐个展开结果列表
             for (WnObj o : list) {
-                String key = tmpl.render(o);
-                Integer n = re.get(key);
-                if (null == n) {
-                    re.put(key, 1);
-                } else {
-                    re.put(key, n + 1);
-                }
+                __do_extend(sys, list2, flt, q, o, ExtendDeeply);
             }
 
-            // 输出结果，到此为止
-            JsonFormat fmt = Cmds.gen_json_format(params);
-            sys.out.println(Json.toJson(re, fmt));
-            return;
+            // 指向新的结果
+            list = list2;
         }
 
         // 执行更新
@@ -173,6 +180,57 @@ public class cmd_obj extends JvmExecutor {
             Cmds.output_objs(sys, params, wp, list, true);
         }
 
+    }
+
+    private void __do_extend(WnSystem sys,
+                             List<WnObj> list2,
+                             NutMap flt,
+                             WnQuery q,
+                             WnObj o,
+                             final boolean ExtendDeeply) {
+        // 匹配的就展开
+        if (o.isDIR() && flt.match(o)) {
+            q.setv("pid", o.id());
+            sys.io.each(q, (int i, WnObj child, int len) -> {
+                // 深层递归展开
+                if (ExtendDeeply) {
+                    __do_extend(sys, list2, flt, q, child, ExtendDeeply);
+                }
+                // 仅仅展开一层
+                else {
+                    child.setParent(o);
+                    list2.add(child);
+                }
+            });
+        }
+        // 没匹配，加入到结果里
+        else {
+            list2.add(o);
+        }
+    }
+
+    private void __do_groupCount(WnSystem sys,
+                                 ZParams params,
+                                 List<WnObj> list,
+                                 String groupCount) {
+        Tmpl tmpl = Tmpl.parse(groupCount);
+
+        Map<String, Integer> re = new TreeMap<String, Integer>();
+
+        // 开始归纳
+        for (WnObj o : list) {
+            String key = tmpl.render(o);
+            Integer n = re.get(key);
+            if (null == n) {
+                re.put(key, 1);
+            } else {
+                re.put(key, n + 1);
+            }
+        }
+
+        // 输出结果，到此为止
+        JsonFormat fmt = Cmds.gen_json_format(params);
+        sys.out.println(Json.toJson(re, fmt));
     }
 
     static abstract class PopEach implements Each<Object> {

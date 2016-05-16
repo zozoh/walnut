@@ -106,7 +106,11 @@ public class IoWnSessionService implements WnSessionService {
         o.setv("du", duration);
         o.expireTime(o.lastModified() + duration);
         o.setv("me", u.name());
-        io.set(o, "^me|expi$");
+
+        // 修改 session 文件的反问权限
+        o.setv("g", u.group());
+
+        io.set(o, "^(me|expi|g)$");
 
         // if (log.isDebugEnabled()) {
         // log.debugf("CreateWnSessionObj, %s", Json.toJson(o));

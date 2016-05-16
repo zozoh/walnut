@@ -252,20 +252,12 @@ public class JvmAtomRunner {
                     public void run() {
                         wc.security(secu, new Atom() {
                             public void run() {
-                                WnObj o;
-                                // 采用 id:xxx
-                                if (_a.redirectPath.startsWith("id:")) {
-                                    String id = _a.redirectPath.substring("id:".length());
-                                    o = bc.io.checkById(id);
-                                }
-                                // 采用路径
-                                else {
-                                    String path = Wn.normalizeFullPath(_a.redirectPath, _a.sys);
-                                    o = bc.io.createIfNoExists(null, path, WnRace.FILE);
-                                }
-                                OutputStream ops = bc.io.getOutputStream(o,
-                                                                         _a.redirectAppend ? -1
-                                                                                           : 0);
+                                String path = Wn.normalizeFullPath(_a.redirectPath, _a.sys);
+                                WnObj o = bc.io.createIfNoExists(null, path, WnRace.FILE);
+
+                                int offset = _a.redirectAppend ? -1 : 0;
+                                OutputStream ops = bc.io.getOutputStream(o, offset);
+
                                 _a.sys.out = new JvmBoxOutput(ops);
                                 // opss.add(ops);
                             }

@@ -7,6 +7,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 abstract class cmd_chxxx extends JvmExecutor {
@@ -27,6 +28,9 @@ abstract class cmd_chxxx extends JvmExecutor {
         // 得到路径
         cc.list = new LinkedList<WnObj>();
         String[] paths = Arrays.copyOfRange(params.vals, 1, params.vals.length);
+        for (int i = 0; i < paths.length; i++) {
+            paths[i] = Wn.normalizeFullPath(paths[i], sys);
+        }
         cc.current = evalCandidateObjsNoEmpty(sys, paths, cc.list, 0);
         return cc;
     }

@@ -9,7 +9,7 @@
   bottom: 0;
   z-index: 10000;
 }
-.ui-mask .ui-arena {
+.ui-mask > .ui-arena {
   position: relative;
   width: 100%;
   height: 100%;

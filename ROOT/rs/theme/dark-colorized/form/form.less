@@ -32,10 +32,10 @@
     }
 }
 
-.fg-title {
+.fg-title { @noselect();
     padding:@d2; margin: @d2 0 0 0; font-size:@f4;
     color:@cf1; background: rgba(255,255,255,0.1); border:1px solid rgba(0,0,0,0);
-    position: relative;
+    position: relative; cursor: pointer;
     .fg-tt-icon {
         margin:0 @d2;
     }
@@ -46,6 +46,7 @@
 
 .form-fld {
     border-top: 1px dashed rgba(255,255,255,0.15); padding:@d1;
+    position: relative;
 }
 .form-fld[first-row]{border:0;}
 
@@ -69,6 +70,30 @@
 .ffv-ui {display: inline-block; vertical-align: middle; padding-right:@d2;}
 .ffv-ui[fill="all"]{width:100%;}
 .ffv-tip {display: inline-block; color:@c3; padding: @d1; font-size:@f0;}
+
+.ff-tmpl {
+    position: absolute; top:0; left:0; bottom:0; padding:@d5 0; display: none;
+}
+.form-fld[tmpl-on="yes"]{
+    opacity: 1.0;
+    .ff-tmpl {
+        > i:first-child {display: none;}
+        > i:last-child {display: inline;}
+    }
+}
+
+.form-fld[tmpl-on="no"]{
+    opacity: 0.4;
+    .ff-tmpl {
+        right:0; 
+        > i:first-child {display: inline;}
+        > i:last-child {display: none;}
+    }
+}
+
+.form[as-template] {
+    .ff-tmpl{display: block;}
+}
 
 .form-group{
     [ui-width="auto"], [ui-fixed-width] {

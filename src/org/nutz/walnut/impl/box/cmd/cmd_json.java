@@ -99,7 +99,7 @@ public class cmd_json extends JvmExecutor {
         if (params.has("u")) {
             NutMap map = Lang.map(params.get("u"));
             if (map != null && map.size() > 0) {
-                ((Map<String, Object>) obj).putAll(map);
+                obj = NutMap.WRAP(((Map<String, Object>) obj)).mergeWith(map);
             }
         }
 

@@ -144,11 +144,14 @@ public class IoWnUsrService implements WnUsrService {
         // 设定用户组
         u.mainGroup(u.name());
 
+        // 设定用户文件的访问权限
+        u.group(u.mainGroup());
+
         // 创建用户组
         WnObj oPeople = io.create(oGrps, u.mainGroup() + "/people", WnRace.DIR);
         WnObj oMe = io.create(oPeople, u.id(), WnRace.FILE);
         oMe.setv("role", Wn.ROLE.ADMIN);
-        io.appendMeta(oMe, "^role$");
+        io.set(oMe, "^(role)$");
 
         // 创建组的主目录
         final String phHome = Wn.getUsrHome(u.name());
@@ -159,7 +162,7 @@ public class IoWnUsrService implements WnUsrService {
                 WnObj oHome = io.create(null, phHome, WnRace.DIR);
                 // 保护主目录
                 oHome.mode(0750);
-                io.appendMeta(oHome, "^md$");
+                io.set(oHome, "^md$");
             });
             // WnSecurity se = wc.getSecurity();
             // wc.setSecurity(null); // FIXME 一定情况下会出问题, 还在查 @pw
