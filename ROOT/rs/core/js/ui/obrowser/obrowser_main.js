@@ -116,27 +116,27 @@ return ZUI.def("ui.obrowser_main", {
         };
 
         // 没必要改变视图类型，直接更新就好，如果是这种情况，那么肯定不是打开编辑器喔
-        if(subView && UI.$el.attr("ui-type") == uiType){
-            subView.update(o, callback);
-            subView.trigger("browser:show", o);
-            UI.resize();
-        }
+        // if(subView && UI.$el.attr("ui-type") == uiType){
+        //     subView.update(o, callback);
+        //     subView.trigger("browser:show", o);
+        //     UI.resize();
+        // }
         // 渲染新的 UI
-        else {
-            UI.$el.attr("ui-type", uiType);
-            seajs.use(uiType, function(TheUI){
-                new TheUI(uiConf).render(function(){
-                    // 绘制菜单
-                    if(asetup)
-                        UIBrowser.updateMenu(asetup.menu, menuContext || this);
+        //else {
+        UI.$el.attr("ui-type", uiType);
+        seajs.use(uiType, function(TheUI){
+            new TheUI(uiConf).render(function(){
+                // 绘制菜单
+                if(asetup)
+                    UIBrowser.updateMenu(asetup.menu, menuContext || this);
 
-                    // 更新编辑器内容
-                    this.update(o, callback);
-                    this.parent.trigger("browser:show", o);
-                    UI.resize();
-                });
+                // 更新编辑器内容
+                this.update(o, callback);
+                this.parent.trigger("browser:show", o);
+                UI.resize();
             });
-        }
+        });
+        //}
     },
     //..............................................
     updateMenuByObj : function(o, theEditor, menuContext){
