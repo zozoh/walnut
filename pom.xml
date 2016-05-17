@@ -71,7 +71,7 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz</artifactId>
-			<version>1.r.56</version>
+			<version>1.r.57-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
