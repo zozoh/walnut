@@ -127,6 +127,9 @@ public class JvmAtomRunner {
                     // 去掉双引号，换行等一切邪恶的东东 >_<
                     else {
                         String subst = sbOut.toString().replaceAll("([\r\n\"' ])", "");
+                        // String subst = sbOut.toString()
+                        // .replaceAll("([\r\n])", "")
+                        // .replaceAll("(\"' )", "\\$1");
                         sb.append(subst);
                     }
 

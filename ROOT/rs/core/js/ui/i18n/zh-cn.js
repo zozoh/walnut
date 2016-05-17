@@ -6,6 +6,7 @@ define({
     "new"        : "新建",
     "delete"     : "删除",
     "create"     : "新建",
+    "duplicate"  : "制作副本",
     "del"        : "删除",
     "delwarn"    : "你确定要删除吗？",
     "moveTo"     : "移动到..",

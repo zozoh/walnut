@@ -21,54 +21,61 @@ public class cmd_cp extends JvmExecutor {
         }
         String ph_src = Wn.normalizeFullPath(params.vals[0], sys);
         String ph_dst = Wn.normalizeFullPath(params.vals[1], sys);
-        WnObj src = sys.io.check(null, ph_src);
-        if (src.isDIR() && !params.is("r")) {
+        
+        WnObj oSrc = sys.io.check(null, ph_src);
+        if (oSrc.isDIR() && !params.is("r")) {
             throw Err.create("e.cmds.cp.omitting_directory");
         }
 
-        _do_copy(sys, params, ph_src, ph_dst, src);
+        _do_copy(sys, params, ph_src, ph_dst, oSrc);
     }
 
     protected void _do_copy(final WnSystem sys,
                             final ZParams params,
-                            final String base,
-                            final String dst_base,
-                            WnObj o) {
+                            final String ph_src,
+                            final String ph_dst,
+                            WnObj oSrc) {
         // 打印
         if (params.is("v")) {
-            sys.out.printlnf(Disks.getRelativePath(base, o.path()));
+            sys.out.printlnf(Disks.getRelativePath(ph_src, oSrc.path()));
         }
         // 递归
-        if (!o.isFILE() && params.is("r")) {
-            sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
+        if (!oSrc.isFILE() && params.is("r")) {
+            sys.io.each(Wn.Q.pid(oSrc.id()), new Each<WnObj>() {
                 public void invoke(int index, WnObj child, int length) {
-                    _do_copy(sys, params, base, dst_base, child);
+                    _do_copy(sys, params, ph_src, ph_dst, child);
                 }
             });
         }
         // 删除自己
         String dstPath;
-        if (base.equals(o.path())) {
-            dstPath = dst_base;
+        if (ph_src.equals(oSrc.path())) {
+            dstPath = ph_dst;
         } else {
-            dstPath = dst_base + o.path().substring(base.length());
+            dstPath = ph_dst + oSrc.path().substring(ph_src.length());
         }
-        WnObj dst = sys.io.createIfNoExists(null, dstPath, o.race());
-        if (o.isFILE())
-            __cp_src_as_file(sys, o, dst);
+        WnObj dst = sys.io.createIfNoExists(null, dstPath, oSrc.race());
+
+        if (oSrc.isFILE())
+            __cp_src_as_file(sys, oSrc, dst);
+
         if (params.is("p")) {
             NutMap meta = new NutMap();
-            meta.put("mode", o.mode());
-            meta.put("group", o.group());
+            meta.put("mode", oSrc.mode());
+            meta.put("group", oSrc.group());
+            meta.put("tp", oSrc.type());
+            meta.put("mime", oSrc.mime());
             sys.io.appendMeta(dst, meta);
         }
     }
 
     private void __cp_src_as_file(WnSystem sys, WnObj src, WnObj dst) {
 
-        // 执行快速 copy
-        if (src.isMount())
+        // 如果是 Mount 就傻傻的写流
+        if (src.isMount()) {
             sys.io.writeAndClose(dst, sys.io.getInputStream(src, 0));
+        }
+        // 执行快速 copy
         else {
             sys.io.copyData(src, dst);
             WnContext wc = Wn.WC();
