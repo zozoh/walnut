@@ -70,6 +70,10 @@ public class IoWnUsrService implements WnUsrService {
         if (str.startsWith("id:")) {
             q.setv("id", str.substring("id:".length()));
         }
+        // 根据Oauth授权
+        else if (str.startsWith("oauth_") && str.contains(":")) {
+            q.setv(str.substring(0, str.indexOf(':')), str.substring(str.indexOf(':')+1));
+        }
         // 根据手机
         else if (regexPhone.matcher(str).find()) {
             q.setv("phone", str);
