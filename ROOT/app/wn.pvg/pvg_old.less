@@ -1,0 +1,86 @@
+@import (reference) "../ui";
+
+@menuH : 42px;
+@leftW : 40%;
+
+.pvg {@noselect();
+    position: relative; background: @cb1;
+    > div {position: absolute; }
+    .pvg-users-head {top:0;left:0;height:@menuH;width:@leftW;}
+    .pvg-users-list {top:@menuH; bottom:0; left:0; width:@leftW;}
+    .pvg-paths-head {top:0; height:@menuH;left:@leftW; right:0;}
+    .pvg-paths-list {top:@menuH; bottom:0;left:@leftW; right:0;}
+    //.........................................................
+    // 统一的头部样式
+    .pvg-head > div {
+        width:100%; height:100%; position: relative;
+        border-bottom:1px solid @cborder1;
+        > div {position: absolute; top:0; bottom:0; }
+        .pvg-title {
+            left:0; padding:@d4;
+            b {margin-left: @d3;}
+        }
+        .pvg-menu {right:0;}
+    }
+    //.........................................................
+    // 统一列表样式
+    .pvg-list {
+        padding:@d4;
+        .lst-item {
+            > * {display: inline-block; vertical-align: middle;}
+            b {margin:0 @d2; min-width: 100px;}
+        }
+        .lst-item[role="ADMIN"]{color:#FF0;}
+        .lst-item[role="REQUEST"]{opacity: 0.5;}
+        .lst-item[role="BLOCK"]{opacity: 0.5; color:#F00;}
+    }
+    //.........................................................
+    // 区域样式
+    //.........................................................
+    .pvg-users-head {
+        border-right:1px solid @cborder1;
+    }
+    .pvg-users-list {
+        border-right:1px solid @cborder1;
+        .lst-item {
+            > em {min-width: 60px;}
+            > span.pvg-edit {
+                display:none;
+                color:@cf0; white-space: nowrap;
+                .pvg-cus {
+                    color:@clink; 
+                }
+                .pvg-cus:hover {
+                    color:@clink_hover; text-decoration: underline;
+                }
+                .pvg-mode {
+                    padding: @d2 0; background: @ch1_b; color:@ch1_f;
+                    u {text-decoration: none; padding:@d2;}
+                    u.checked {background:@chx_b; color:@chx_f;}
+                    u.pvg-auto:hover {
+                        background: @ch0_b; color:ch0_f;
+                    }
+                }
+            }
+        }
+    }
+    .pvg-users-list[pvg-edit-on]{
+        .lst-item{
+            > span.pvg-edit{
+                display:inline-block;
+                .pvg-cus {display: inline;}
+                .pvg-mode{display: none;}
+            }
+            > span.pvg-edit[pvg] {
+                .pvg-cus {display: none;}
+                .pvg-mode{display: inline;}
+            }
+        }
+    }
+    .pvg-paths-head {
+        
+    }
+    .pvg-paths-list {
+        
+    }
+}

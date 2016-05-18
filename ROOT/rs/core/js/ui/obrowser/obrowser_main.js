@@ -54,7 +54,6 @@ return ZUI.def("ui.obrowser_main", {
             // 准备通知消息
             var msg = ed.icon || "";
             msg += " " + UI.text(ed.text) || ed.key;
-            msg += ": " + o.nm;
             UIBrowser.trigger("browser:info", msg);
 
             // 创建编辑器
@@ -103,7 +102,9 @@ return ZUI.def("ui.obrowser_main", {
             menuContext = UI;
 
             // 发出通知
-            UIBrowser.trigger("browser:info", o.ph);
+            var msg = '<i class="oicon" otp="'+o.tp+'"></i>';
+            msg += " <b>" + Wn.objDisplayPath(UI, o.ph, 2) + '</b>';
+            UIBrowser.trigger("browser:info", msg);
         }
         // 实在不知道怎么处理了
         else{
