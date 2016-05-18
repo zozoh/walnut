@@ -86,12 +86,12 @@ public class OauthModule extends AbstractWnModule {
 		boolean isGithub = "github".equals(p.getProviderId());
 		if (user == null) {
 		    if (isGithub)
-		        user = usrs.fetch(p.getValidatedId());
+		        user = usrs.fetch(p.getDisplayName());
 	        if (user == null) {
-	            String username = isGithub ? p.getValidatedId() : R.UU32();
+	            String username = isGithub ? p.getDisplayName() : R.UU32();
 	            user = usrs.create(username, R.UU32());
-	            usrs.set(username, "oauth_"+p.getProviderId(), p.getValidatedId());
 	        }
+            usrs.set(user.name(), "oauth_"+p.getProviderId(), p.getValidatedId());
 		}
 		return sess.create(user);
 	}
