@@ -205,7 +205,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
                         return;
                     }
                     // 执行改名
-                    Wn.exec('mv id:'+o.id+' "id:'+o.pid+'/'+newName+'" -o', function(re){
+                    Wn.exec('mv -T id:'+o.id+' "id:'+o.pid+'/'+newName+'" -o', function(re){
                         var newObj = $z.fromJson(re);
                         Wn.saveToCache(newObj);
                     });

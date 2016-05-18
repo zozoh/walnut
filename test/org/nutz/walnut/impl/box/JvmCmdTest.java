@@ -19,6 +19,11 @@ public class JvmCmdTest {
         assertEquals("xyz", jc.args[0]);
         assertEquals("-u", jc.args[1]);
         assertEquals("icon:\"<i class=\"fa fa-tags></i>\"", jc.args[2]);
+        
+        jc = new JvmCmd("A B\\ C");
+        assertEquals("A", jc.cmdName);
+        assertEquals(1, jc.args.length);
+        assertEquals("B C", jc.args[0]);
     }
 
     @Test

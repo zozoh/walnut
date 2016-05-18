@@ -50,7 +50,12 @@ public class cmd_obj extends JvmExecutor {
                 json = sys.in.readAll();
             }
             // 解析 Map
-            u_map = Lang.map(json);
+            try {
+                u_map = Lang.map(json);
+            }
+            catch (Exception e) {
+                u_map = new NutMap();
+            }
         }
 
         // 计算要列出的要处理的对象

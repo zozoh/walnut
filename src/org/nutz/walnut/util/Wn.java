@@ -186,9 +186,15 @@ public abstract class Wn {
         // 嗯，搞一下变量吧
         ph = normalizeFullPath(ph, sys.se);
 
+        // 如果 ph 里面有 ../id:xxx/... 则用这个来截断
+        int pos = ph.lastIndexOf("/id:");
+        if (pos > 0) {
+            ph = ph.substring(pos + 1);
+        }
+
         // 如果 ph 以 id:xxx 开头，将其搞一下
         if (ph.startsWith("id:")) {
-            int pos = ph.indexOf('/');
+            pos = ph.indexOf('/');
             if (pos > 0) {
                 String id = ph.substring(3, pos);
                 WnObj o = sys.io.checkById(id);
