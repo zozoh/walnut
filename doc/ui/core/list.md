@@ -58,6 +58,11 @@ new ListUI({
     on_draw_item : {c}F(jItem, obj)
 
     //............................................................
+    // 在激活某个对象前的回调，如果函数返回的是 false
+    // 那么会禁止这个对象的激活
+    on_before_actived : {c}F(o,jq):Boolean
+
+    //............................................................
     // 事件
     on_change  : {c}F()           // "list:change"!首次加载一定会被触发
     on_add     : {c}F(objs)       // "list:add"   !setData 时不会触发

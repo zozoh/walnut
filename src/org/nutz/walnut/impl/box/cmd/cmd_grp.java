@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -7,13 +8,14 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.usr.WnRole;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmExecutor;
-import org.nutz.walnut.impl.box.TextTable;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnEvalLink;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.WebException;
@@ -23,7 +25,7 @@ public class cmd_grp extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         // 分析参数
-        ZParams params = ZParams.parse(args, "^(json|o|quiet)$");
+        ZParams params = ZParams.parse(args, "cqnbisho", "^(json|quiet)$");
 
         // 所有逻辑都是在不检查安全性的前提下进行
         Wn.WC().security(new WnEvalLink(sys.io), () -> {
@@ -47,26 +49,14 @@ public class cmd_grp extends JvmExecutor {
         // 得到要操作的用户
         String myName = sys.se.me();
         WnUsr me = sys.usrService.check(myName);
-        String grp = params.vals.length > 0 ? params.vals[0] : myName;
-
-        // 如果要操作的用户不是自己，那么必须得有 root 组的权限
-        int roleInRoot = sys.usrService.getRoleInGroup(me, "root");
-        boolean I_am_admin_of_root = roleInRoot == Wn.ROLE.ADMIN;
-        boolean I_am_member_of_root = I_am_admin_of_root || roleInRoot == Wn.ROLE.MEMBER;
+        String grp = params.vals.length > 0 ? params.vals[0] : me.mainGroup();
 
         // 添加到组
         if (willAppend) {
             String unm = __get_unm(params, "a", myName);
 
-            if (!myName.equals(unm) && !I_am_member_of_root) {
-                throw Er.create("e.me.nopvg");
-            }
-
-            if ("root".equals(grp) && !I_am_admin_of_root)
-                throw Er.create("e.me.nopvg");
-
-            if (!I_am_member_of_root)
-                __assert_I_am_admin_of_group(sys, me, grp);
+            // 检查权限
+            __check_right(sys, me, grp, unm);
 
             int role = __check_role(params);
 
@@ -77,15 +67,8 @@ public class cmd_grp extends JvmExecutor {
         else if (willDelete) {
             String unm = __get_unm(params, "d", myName);
 
-            if (!myName.equals(unm) && !I_am_member_of_root) {
-                throw Er.create("e.me.nopvg");
-            }
-
-            if ("root".equals(grp) && !I_am_admin_of_root)
-                throw Er.create("e.me.nopvg");
-
-            if (!I_am_member_of_root)
-                __assert_I_am_admin_of_group(sys, me, grp);
+            // 检查权限
+            __check_right(sys, me, grp, unm);
 
             WnUsr u = sys.usrService.check(unm);
             sys.usrService.removeRoleFromGroup(u, grp);
@@ -94,9 +77,8 @@ public class cmd_grp extends JvmExecutor {
         else if (params.has("get")) {
             String unm = __get_unm(params, "get", myName);
 
-            if (!myName.equals(unm) && !I_am_member_of_root) {
-                throw Er.create("e.me.nopvg");
-            }
+            // 检查权限
+            __check_right(sys, me, null, unm);
 
             WnUsr u = sys.usrService.check(unm);
 
@@ -105,6 +87,11 @@ public class cmd_grp extends JvmExecutor {
         }
         // 显示指定组内部所有的用户
         else {
+
+            // 检查权限
+            __check_right(sys, me, grp, null);
+
+            // 查询
             final List<WnRole> list = new LinkedList<WnRole>();
             sys.usrService.eachInGroup(grp, null, (int index, WnRole r, int len) -> {
                 WnUsr u = sys.usrService.fetch("id:" + r.usr);
@@ -114,16 +101,40 @@ public class cmd_grp extends JvmExecutor {
                 }
             });
 
+            // 输出 JSON
             if (params.is("json")) {
                 sys.out.println(Json.toJson(list, JsonFormat.nice()));
-            } else {
-                TextTable tt = new TextTable(4);
+            }
+            // 输出成表格
+            else {
+                params.setv("t", "grp,usr,roleName,role");
+
+                List<NutMap> outs = new ArrayList<NutMap>(list.size());
                 for (WnRole r : list)
-                    tt.addRow(Lang.array(r.grp, r.usr, r.roleName, "" + r.role));
-                sys.out.print(tt.toString());
+                    outs.add(NutMap.WRAP(Lang.obj2map(r)));
+
+                Cmds.output_objs_as_table(sys, params, null, outs);
             }
         }
 
+    }
+
+    private void __check_right(WnSystem sys, WnUsr me, String grp, String unm) {
+        if (Strings.isBlank(unm) || !me.name().equals(unm)) {
+
+            // 那么本组的管理员可以进行这个操作
+            int _ro = Strings.isBlank(grp) ? -10000 : sys.usrService.getRoleInGroup(me, grp);
+            if (Wn.ROLE.ADMIN != _ro) {
+
+                // 如果不是本组管理员，根用户成员也成
+                _ro = sys.usrService.getRoleInGroup(me, "root");
+                if (_ro != Wn.ROLE.ADMIN && _ro != Wn.ROLE.MEMBER) {
+                    // 靠，木权限
+                    throw Er.create("e.me.nopvg");
+                }
+            }
+
+        }
     }
 
     private String __get_unm(ZParams params, String key, String myName) {
@@ -166,13 +177,6 @@ public class cmd_grp extends JvmExecutor {
 
         // 返回 role
         return role;
-    }
-
-    private void __assert_I_am_admin_of_group(WnSystem sys, WnUsr me, String grp) {
-        int role = sys.usrService.getRoleInGroup(me, grp);
-        if (role != 1) {
-            throw Er.create("e.me.nopvg");
-        }
     }
 
 }

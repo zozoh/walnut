@@ -54,7 +54,7 @@
     1 ADMIN
     
     # 显示某用户在某组内的权限 (JSON)
-    demo@~$ grp nutz -get xiaobai
+    demo@~$ grp nutz -get xiaobai -json
     {"grp":"nutz","usr":"xiaobai","role":10,"roleName":"MEMBER"}
     
 

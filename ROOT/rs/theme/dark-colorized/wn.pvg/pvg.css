@@ -65,6 +65,35 @@
   margin: 0 6px;
   min-width: 100px;
 }
+.pvg .pvg-list .lst-item > span.pvg-edit {
+  display: none;
+  color: #cccccc;
+  white-space: nowrap;
+}
+.pvg .pvg-list .lst-item > span.pvg-edit .pvg-cus {
+  color: #aabbff;
+}
+.pvg .pvg-list .lst-item > span.pvg-edit .pvg-cus:hover {
+  color: #ccddff;
+  text-decoration: underline;
+}
+.pvg .pvg-list .lst-item > span.pvg-edit .pvg-mode {
+  padding: 6px 0;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+.pvg .pvg-list .lst-item > span.pvg-edit .pvg-mode u {
+  text-decoration: none;
+  padding: 6px;
+}
+.pvg .pvg-list .lst-item > span.pvg-edit .pvg-mode u.checked {
+  background: #008800;
+  color: #ffffff;
+}
+.pvg .pvg-list .lst-item > span.pvg-edit .pvg-mode u.pvg-auto:hover {
+  background: rgba(0, 64, 255, 0.6);
+  color: ch0_f;
+}
 .pvg .pvg-list .lst-item[role="ADMIN"] {
   color: #FF0;
 }
@@ -75,6 +104,21 @@
   opacity: 0.5;
   color: #F00;
 }
+.pvg .pvg-list[pvg-edit-on] .lst-item > span.pvg-edit {
+  display: inline-block;
+}
+.pvg .pvg-list[pvg-edit-on] .lst-item > span.pvg-edit .pvg-cus {
+  display: inline;
+}
+.pvg .pvg-list[pvg-edit-on] .lst-item > span.pvg-edit .pvg-mode {
+  display: none;
+}
+.pvg .pvg-list[pvg-edit-on] .lst-item > span.pvg-edit[pvg] .pvg-cus {
+  display: none;
+}
+.pvg .pvg-list[pvg-edit-on] .lst-item > span.pvg-edit[pvg] .pvg-mode {
+  display: inline;
+}
 .pvg .pvg-users-head {
   border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -83,48 +127,4 @@
 }
 .pvg .pvg-users-list .lst-item > em {
   min-width: 60px;
-}
-.pvg .pvg-users-list .lst-item > span.pvg-edit {
-  display: none;
-  color: #cccccc;
-  white-space: nowrap;
-}
-.pvg .pvg-users-list .lst-item > span.pvg-edit .pvg-cus {
-  color: #aabbff;
-}
-.pvg .pvg-users-list .lst-item > span.pvg-edit .pvg-cus:hover {
-  color: #ccddff;
-  text-decoration: underline;
-}
-.pvg .pvg-users-list .lst-item > span.pvg-edit .pvg-mode {
-  padding: 6px 0;
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-}
-.pvg .pvg-users-list .lst-item > span.pvg-edit .pvg-mode u {
-  text-decoration: none;
-  padding: 6px;
-}
-.pvg .pvg-users-list .lst-item > span.pvg-edit .pvg-mode u.checked {
-  background: #008800;
-  color: #ffffff;
-}
-.pvg .pvg-users-list .lst-item > span.pvg-edit .pvg-mode u.pvg-auto:hover {
-  background: rgba(0, 64, 255, 0.6);
-  color: ch0_f;
-}
-.pvg .pvg-users-list[pvg-edit-on] .lst-item > span.pvg-edit {
-  display: inline-block;
-}
-.pvg .pvg-users-list[pvg-edit-on] .lst-item > span.pvg-edit .pvg-cus {
-  display: inline;
-}
-.pvg .pvg-users-list[pvg-edit-on] .lst-item > span.pvg-edit .pvg-mode {
-  display: none;
-}
-.pvg .pvg-users-list[pvg-edit-on] .lst-item > span.pvg-edit[pvg] .pvg-cus {
-  display: none;
-}
-.pvg .pvg-users-list[pvg-edit-on] .lst-item > span.pvg-edit[pvg] .pvg-mode {
-  display: inline;
 }

@@ -39,6 +39,7 @@ return ZUI.def("ui.list", {
     events : {
         "click .lst-item" : function(e){
             var UI = this;
+            console.log(".lst-item click");
             // 如果支持多选 ...
             if(UI.options.multi){
                 // 仅仅表示单击选中

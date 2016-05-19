@@ -29,21 +29,6 @@
         .lst-item {
             > * {display: inline-block; vertical-align: middle;}
             b {margin:0 @d2; min-width: 100px;}
-        }
-        .lst-item[role="ADMIN"]{color:#FF0;}
-        .lst-item[role="REQUEST"]{opacity: 0.5;}
-        .lst-item[role="BLOCK"]{opacity: 0.5; color:#F00;}
-    }
-    //.........................................................
-    // 区域样式
-    //.........................................................
-    .pvg-users-head {
-        border-right:1px solid @cborder1;
-    }
-    .pvg-users-list {
-        border-right:1px solid @cborder1;
-        .lst-item {
-            > em {min-width: 60px;}
             > span.pvg-edit {
                 display:none;
                 color:@cf0; white-space: nowrap;
@@ -63,8 +48,11 @@
                 }
             }
         }
+        .lst-item[role="ADMIN"]{color:#FF0;}
+        .lst-item[role="REQUEST"]{opacity: 0.5;}
+        .lst-item[role="BLOCK"]{opacity: 0.5; color:#F00;}
     }
-    .pvg-users-list[pvg-edit-on]{
+    .pvg-list[pvg-edit-on]{
         .lst-item{
             > span.pvg-edit{
                 display:inline-block;
@@ -75,6 +63,18 @@
                 .pvg-cus {display: none;}
                 .pvg-mode{display: inline;}
             }
+        }
+    }
+    //.........................................................
+    // 区域样式
+    //.........................................................
+    .pvg-users-head {
+        border-right:1px solid @cborder1;
+    }
+    .pvg-users-list {
+        border-right:1px solid @cborder1;
+        .lst-item {
+            > em {min-width: 60px;}
         }
     }
     .pvg-paths-head {

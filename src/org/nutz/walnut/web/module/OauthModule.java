@@ -61,6 +61,9 @@ public class OauthModule extends AbstractWnModule {
 		log.debug("URL=" + url);
 		Mvcs.getResp().setHeader("Location", url);
 		Mvcs.getResp().setStatus(302);
+		
+		// TODO zozoh: 考虑到分布式， manager 应该被预先序列化到 /sys/auth/xxxx 文件内
+		// 在 callback 的时候，得到 ID，再反序列化回来
 		session.setAttribute("openid_manager", manager);
 	}
 
