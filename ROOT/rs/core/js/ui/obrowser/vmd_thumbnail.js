@@ -59,10 +59,13 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
         },
         // 取消全部选择
         "click .ui-arena" : function(e){
+            var UI = this;
             if($(e.target).hasClass("ui-arena")){
-                this.arena.find(".wnobj")
+                UI.arena.find(".wnobj")
                     .removeClass("wnobj-actived")
                     .removeClass("wnobj-checked");
+                // 发出通知
+                UI.__notify_footer();
             }
         }
     },
@@ -114,7 +117,12 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
             UI.arena.find(".wnobj-checked").removeClass("wnobj-checked");
             jObj.addClass("wnobj-actived wnobj-checked");
         }
-
+        // 发出通知
+        UI.__notify_footer();
+    },
+    //..............................................
+    __notify_footer : function(){
+        var UI = this;
         UI.browser.trigger("browser:info", UI.msg("obrowser.selectNobj", {n:UI.getChecked().length}));
     },
     //..............................................

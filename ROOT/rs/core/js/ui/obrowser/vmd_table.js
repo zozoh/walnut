@@ -40,10 +40,13 @@ return ZUI.def("ui.obrowser_vmd_table", {
             },
             // 捕捉事件
             on_checked : function(objs){
-                UI.browser.trigger("browser:info", UI.msg("obrowser.selectNobj", {n:objs.length}))
+                UI.__notify_footer();
+            },
+            on_actived : function(objs){
+                UI.__notify_footer();
             },
             on_blur : function(){
-                UI.browser.trigger("browser:info", "");
+                UI.__notify_footer();
             },
             fields : [ {
                 key   : "nm",
@@ -98,6 +101,11 @@ return ZUI.def("ui.obrowser_vmd_table", {
             UI.defer_report("table");
         });
         return ["table"];
+    },
+    //..............................................
+    __notify_footer : function(){
+        var UI = this;
+        UI.browser.trigger("browser:info", UI.msg("obrowser.selectNobj", {n:UI.getChecked().length}));
     },
     //..............................................
     update : function(o, callback){

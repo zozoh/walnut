@@ -26,20 +26,6 @@ return ZUI.def("app.wn.pvg", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "theme/app/wn.pvg/pvg.css",
     i18n : "app/wn.pvg/i18n/{{lang}}.js",
-    init : function(){
-        var UI = this;
-
-        // 这里初始化一下 pvg 编辑控件的 HTML
-        UI.pvgHTML = '<span class="pvg-edit">';
-        UI.pvgHTML += '<span class="pvg-cus">'+UI.msg("pvg.mode_cus")+'</span>';
-        UI.pvgHTML += '<span class="pvg-mode">';
-        UI.pvgHTML += '<u mode="r" val="4">'+UI.msg("pvg.mode_r")+'</u>';
-        UI.pvgHTML += '<u mode="w" val="2">'+UI.msg("pvg.mode_w")+'</u>';
-        UI.pvgHTML += '<u mode="x" val="1">'+UI.msg("pvg.mode_x")+'</u>';
-        UI.pvgHTML += '<u class="pvg-auto" data-balloon="'+UI.msg("pvg.mode_auto")+'" data-balloon-pos="up"><i class="fa fa-close"></i></u>';
-        UI.pvgHTML += '</span>';
-        UI.pvgHTML += '</span>';
-    },
     //...............................................................
     events : {
         // 改变模式
@@ -207,7 +193,15 @@ return ZUI.def("app.wn.pvg", {
                 var html = '<i class="uicon fa"></i>';
                 html += '<b>' + o.nm + '</b>';
                 html += '<em>' + UI.msg("pvg.role_"+o.roleName) + '</em>';
-                html += UI.pvgHTML;
+                html += '<span class="pvg-edit">';
+                html += '<span class="pvg-cus">'+UI.msg("pvg.mode_cus")+'</span>';
+                html += '<span class="pvg-mode">';
+                html += '<u mode="r" val="4">'+UI.msg("pvg.mode_r")+'</u>';
+                html += '<u mode="w" val="2">'+UI.msg("pvg.mode_w")+'</u>';
+                html += '<u mode="x" val="1">'+UI.msg("pvg.mode_x")+'</u>';
+                html += '<u class="pvg-auto" data-balloon="'+UI.msg("pvg.mode_auto")+'" data-balloon-pos="up"><i class="fa fa-close"></i></u>';
+                html += '</span>';
+                html += '</span>';
                 return html;
             },
             on_draw_item : function(jItem, o){
@@ -283,7 +277,6 @@ return ZUI.def("app.wn.pvg", {
             display : function(o){
                 var html = '<i class="oicon" otp="'+Wn.objTypeName(o)+'"></i>';
                 html += '<span>' + Wn.objDisplayPath(UI, o.ph) + '</span>';
-                html += UI.pvgHTML;
                 return html;
             },
             on_actived : function(o){
