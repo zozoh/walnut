@@ -160,7 +160,7 @@
                 -tid iPk5sOIt5X_flOVKn5GrTFpncEYTojx6ddbt8WYoV5s
                 -to  OPENID
     
-    
-    
+# 接受扫描事件
 
-	
+   # 接受一个扫描事件,执行对应的命令文件 ~/.weixin/xxx/scene/12345678 可选参数-c代表是否新建用户(需要加入root组)
+   demo@~$  weixin xxx scan -openid yyy -eventkey '12345678' [-c] 

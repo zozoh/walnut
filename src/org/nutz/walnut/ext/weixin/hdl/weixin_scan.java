@@ -1,0 +1,53 @@
+package org.nutz.walnut.ext.weixin.hdl;
+
+import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.impl.box.JvmHdl;
+import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.ZParams;
+
+public class weixin_scan implements JvmHdl {
+
+    public void invoke(WnSystem sys, JvmHdlContext hc) {
+        // regapi的模板
+        // weixin ${weixin_ToUserName} scan -openid ${weixin_FromUserName} -eventkey '${weixin_EventKey}'
+        ZParams params = ZParams.parse(hc.args, "c");
+        String openid = params.check("openid");
+        String eventkey = params.check("eventkey");
+
+        // 如果指定了需要新建用户,且为root组的权限
+        if (params.is("c") && sys.me.myGroups().contains("root")) {
+            // 检查是否已经建好用户,没有的话就建一下
+            String oauthKey = "oauth_weixin_mp_" + hc.oHome.name();
+            WnUsr usr = sys.usrService.fetch(oauthKey + ":" + openid);
+            if (usr == null) {
+                String username = R.UU32();
+                usr = sys.usrService.create(username, R.UU32());
+                sys.usrService.set(username, oauthKey, openid);
+                sys.out.println("用户新建完成");
+            }
+        }
+
+        // 乱入?
+        if (Strings.isBlank(eventkey)) {
+            return;
+        }
+
+        // 第一次关注就扫描的话, 会添加前缀qrscene_ 移除之
+        if (eventkey.startsWith("qrscene_"))
+            eventkey = eventkey.substring("qrscene_".length());
+
+        // 找找有没有对应的文本,有就当命令执行一下
+        String path = Wn.normalizeFullPath("~/.weixin/" + hc.oHome.name() + "/scene/" + eventkey, sys);
+        WnObj obj = sys.io.fetch(null, path);
+        if (obj != null) {
+            String cmd = sys.io.readText(obj);
+            sys.out.print(sys.exec2(cmd));
+        }
+        // TODO 支持default?
+    }
+}
