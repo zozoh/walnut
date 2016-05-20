@@ -205,7 +205,6 @@ body{
 <div>
 	<button onclick="oauth_github();">Github登陆</button>
 	<button onclick="wx_mp_qrcode();">微信登陆二维码</button>
-	<button onclick="wx_mp_login_check();">微信登陆验证</button>
 	<script type="text/javascript">
 		var uu32 = "<%=org.nutz.lang.random.R.UU32()%>"
 		function oauth_github() {
@@ -239,6 +238,7 @@ body{
 				}
 			});
 		}
+		setInterval(wx_mp_login_check, 3000);
 	</script>
 	<img alt="" src="" id="img_wx_mp_qrcode">
 </div>
