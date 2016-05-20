@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@include file="/WEB-INF/jsp/_include/page_head.jsp" %>
 <script src="${rs}/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js"></script>
 <script>
@@ -201,6 +202,45 @@ body{
 
 </div>
 </form>
-
+<div>
+	<button onclick="oauth_github();">Github登陆</button>
+	<button onclick="wx_mp_qrcode();">微信登陆二维码</button>
+	<button onclick="wx_mp_login_check();">微信登陆验证</button>
+	<script type="text/javascript">
+		var uu32 = "<%=org.nutz.lang.random.R.UU32()%>"
+		function oauth_github() {
+			window.location.href = "http://" + window.location.host + "${base}/oauth/github";
+		}
+		function wx_mp_qrcode() {
+			$.ajax({
+				url : "${base}/api/root/mplogin/qrcode?uu32="+uu32,
+				dataType : "json",
+				success : function(re){
+					console.log(re);
+					if (re) {
+						$("#img_wx_mp_qrcode").attr("src", "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket="+re.ticket);
+					}
+				},
+				error : function (e, e2) {
+					console.log(e);
+					console.log(e2);
+				}
+			});
+			
+		}
+		function wx_mp_login_check() {
+			$.ajax({
+				url : "${base}/u/check/mplogin?uu32="+uu32,
+				dataType : "json",
+				error : function (e, e2) {
+					if (e.status == 200 || e.status == 302) {
+						window.location = "${base}/";
+					}
+				}
+			});
+		}
+	</script>
+	<img alt="" src="" id="img_wx_mp_qrcode">
+</div>
 <%/*------------------------------------------------*/%>
 <%@include file="/WEB-INF/jsp/_include/page_tail.jsp" %>

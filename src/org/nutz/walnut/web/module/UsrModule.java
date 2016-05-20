@@ -22,6 +22,7 @@ import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
@@ -321,5 +322,24 @@ public class UsrModule extends AbstractWnModule {
         else
         	req.setAttribute("target", "/");
         return se;
+    }
+    
+    @At("/check/mplogin")
+    @Ok("++cookie>>:/")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public Object do_check_mplogin(@Param("uu32") String uu32) {
+        if (Strings.isBlank(uu32) || uu32.contains(".."))
+            return new HttpStatusView(403);
+        WnObj rdir = io.fetch(null, "/root/.weixin/");
+        String mopenid = io.query(new WnQuery().setv("pid", rdir.id())).get(0).name();
+
+        WnObj obj = io.fetch(null, "/root/.weixin/"+mopenid+"/mplogin/"+uu32);
+        if (obj == null)
+            return new HttpStatusView(403);
+        String openid = io.readText(obj);
+        if (Strings.isBlank(openid))
+            return new HttpStatusView(403);
+        WnUsr usr = usrs.check("oauth_weixin_mp_"+mopenid+":"+openid);
+        return sess.create(usr);
     }
 }

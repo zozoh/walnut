@@ -1,7 +1,9 @@
 package org.nutz.walnut.ext.weixin.hdl;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
+import org.nutz.lang.segment.CharSegment;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -14,7 +16,8 @@ public class weixin_scan implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // regapi的模板
-        // weixin ${weixin_ToUserName} scan -openid ${weixin_FromUserName} -eventkey '${weixin_EventKey}'
+        // weixin ${weixin_ToUserName} scan -openid ${weixin_FromUserName} -eventkey '${weixin_EventKey}' -c
+        
         ZParams params = ZParams.parse(hc.args, "c");
         String openid = params.check("openid");
         String eventkey = params.check("eventkey");
@@ -46,6 +49,8 @@ public class weixin_scan implements JvmHdl {
         WnObj obj = sys.io.fetch(null, path);
         if (obj != null) {
             String cmd = sys.io.readText(obj);
+            CharSegment cs = new CharSegment(cmd);
+            cmd = cs.render(Lang.context().set("weixin_FromUserName", openid)).toString();
             sys.out.print(sys.exec2(cmd));
         }
         // TODO 支持default?
