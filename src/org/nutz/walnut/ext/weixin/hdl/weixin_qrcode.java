@@ -6,6 +6,7 @@ import org.nutz.http.Http;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -79,7 +80,7 @@ public class weixin_qrcode implements JvmHdl {
         // 临时二维码
         if ("QR_SCENE".equals(str)) {
             int qrsid = 0;
-            if ("-".equals(hc.params.get("qrsid"))) {
+            if ("0".equals(hc.params.get("qrsid"))) {
                 WnObj tmp = sys.io.createIfNoExists(hc.oHome, "scene_seq", WnRace.FILE);
                 String key = "weixin_scene_seq";
                 qrsid = tmp.getInt("weixin_scene_seq", 0);
@@ -94,12 +95,17 @@ public class weixin_qrcode implements JvmHdl {
             int qrexpi = hc.params.getInt("qrexpi", 3600);
             WxResp resp = wxApi.qrcode_create(qrsid, qrexpi);
             sys.out.println(Json.toJson(resp, df));
+            WnObj tmp = sys.io.createIfNoExists(hc.oHome, "scene/"+qrsid, WnRace.FILE);
             // 从流中读取cmd文本,然后写入对应的scene
             String cmd = Cmds.getParamOrPipe(sys, hc.params, "cmd", true);
             if (!Strings.isBlank(cmd)) {
-                WnObj tmp = sys.io.createIfNoExists(hc.oHome, "scene/"+qrsid, WnRace.FILE);
                 sys.io.writeText(tmp, cmd);
             }
+            NutMap meta = new NutMap();
+            meta.put("weixin_scene_ticket", resp.get("ticket"));
+            meta.put("weixin_scene_url", resp.get("url"));
+            meta.put("weixin_scene_exp", System.currentTimeMillis() + resp.getInt("expire_seconds", 0)*1000 - 15*1000);
+            sys.io.setBy(tmp.id(), meta, false);
             return;
         }
         // 永久二维码
