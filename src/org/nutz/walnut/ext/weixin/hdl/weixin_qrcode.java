@@ -5,12 +5,16 @@ import java.io.InputStream;
 import org.nutz.http.Http;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.weixin.WxUtil;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.weixin.spi.WxApi2;
 import org.nutz.weixin.spi.WxResp;
 
@@ -74,10 +78,28 @@ public class weixin_qrcode implements JvmHdl {
         JsonFormat df = hc.jfmt.setDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         // 临时二维码
         if ("QR_SCENE".equals(str)) {
-            int qrsid = hc.params.getInt("qrsid");
-            int qrexpi = hc.params.getInt("qrexpi");
+            int qrsid = 0;
+            if ("-".equals(hc.params.get("qrsid"))) {
+                WnObj tmp = sys.io.createIfNoExists(hc.oHome, "scene_seq", WnRace.FILE);
+                String key = "weixin_scene_seq";
+                qrsid = tmp.getInt("weixin_scene_seq", 0);
+                if (qrsid == 0) {
+                    tmp.put("weixin_scene_seq", 100000); // 自增的从10w开始
+                    sys.io.set(tmp, "weixin_scene_seq");
+                }
+                qrsid = sys.io.inc(tmp.id(), key, 1, true);
+            } else {
+                qrsid = hc.params.getInt("qrsid");
+            }
+            int qrexpi = hc.params.getInt("qrexpi", 3600);
             WxResp resp = wxApi.qrcode_create(qrsid, qrexpi);
             sys.out.println(Json.toJson(resp, df));
+            // 从流中读取cmd文本,然后写入对应的scene
+            String cmd = Cmds.getParamOrPipe(sys, hc.params, "cmd", true);
+            if (!Strings.isBlank(cmd)) {
+                WnObj tmp = sys.io.createIfNoExists(hc.oHome, "scene/"+qrsid, WnRace.FILE);
+                sys.io.writeText(tmp, cmd);
+            }
             return;
         }
         // 永久二维码
