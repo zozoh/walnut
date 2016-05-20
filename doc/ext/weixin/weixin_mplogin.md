@@ -29,6 +29,23 @@ tags:
 	
 # 关于生成临时二维码
 
-通过regapi调用weixin qrcode命令
+通过regapi调用weixin qrcode命令 (root用户下)
+
+	~/.regapi/api/mplogin/qrcode
 
 	weixin gh_72b9a9f8e20a qrcode QR_SCENE -qrsid 0 -qrexpi 120 -cmd "echo '${weixin_FromUserName}' > ~/.weixin/gh_72b9a9f8e20a/mplogin/${http-qs-uu32}" | json -q
+	
+# wxconf中的扫描事件映射
+
+```
+    "handlers": [
+        {
+            "id": "scan",
+            "match": {
+                "Event": "SCAN"
+            },
+            "context": false,
+            "command": "weixin gh_72b9a9f8e20a scan -openid ${weixin_FromUserName} -eventkey ${weixin_EventKey} -c"
+        }
+    ],
+```
