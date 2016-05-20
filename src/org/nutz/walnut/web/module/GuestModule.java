@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.IocBean;
@@ -20,6 +21,7 @@ import org.nutz.mvc.annotation.POST;
 import org.nutz.mvc.annotation.PUT;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
+import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.RawView2;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
@@ -35,12 +37,23 @@ import org.nutz.walnut.web.util.WnWeb;
 @At("/gu")
 @Filters(@By(type = WnAsUsr.class, args = {"guest", "guest"}))
 public class GuestModule extends AbstractWnModule {
+    
+    public static View HTTP_304 = new HttpStatusView(304);
 
     @At("/**")
     @Fail("http:404")
-    public View read(String str) {
+    public View read(String str, HttpServletRequest req, 
+                     HttpServletResponse resp) {
         WnObj o = Wn.checkObj(io, str);
-
+        resp.setDateHeader("Last-Modified", o.lastModified());
+        String sha1 = o.sha1();
+        if (!Strings.isBlank(sha1))
+            resp.setHeader("ETag", sha1);
+        System.out.println(o.lastModified() +","+ req.getDateHeader("If-Modified-Since"));
+        if (o.lastModified()/1000 == req.getDateHeader("If-Modified-Since")/1000) {
+            if (Strings.isBlank(sha1) || sha1.equals(req.getAttribute("If-None-Match")))
+                return HTTP_304;
+        }
         // 返回输入流
         String contentType = o.mime();
 
