@@ -94,6 +94,10 @@ public class weixin_qrcode implements JvmHdl {
             }
             int qrexpi = hc.params.getInt("qrexpi", 3600);
             WxResp resp = wxApi.qrcode_create(qrsid, qrexpi);
+            
+            long expire_time = System.currentTimeMillis() + resp.getInt("expire_seconds", 0)*1000 - 15*1000;
+            resp.setv("scene_id", qrsid);
+            resp.setv("scene_exp", expire_time);
             sys.out.println(Json.toJson(resp, df));
             WnObj tmp = sys.io.createIfNoExists(hc.oHome, "scene/"+qrsid, WnRace.FILE);
             // 从流中读取cmd文本,然后写入对应的scene
@@ -104,7 +108,7 @@ public class weixin_qrcode implements JvmHdl {
             NutMap meta = new NutMap();
             meta.put("weixin_scene_ticket", resp.get("ticket"));
             meta.put("weixin_scene_url", resp.get("url"));
-            meta.put("weixin_scene_exp", System.currentTimeMillis() + resp.getInt("expire_seconds", 0)*1000 - 15*1000);
+            meta.put("weixin_scene_exp", expire_time);
             sys.io.setBy(tmp.id(), meta, false);
             return;
         }
