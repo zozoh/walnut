@@ -21,7 +21,7 @@ public class cmd_me extends JvmExecutor {
 
             // 设置到自身
             sys.me.setv(key, val);
-            sys.usrService.set(sys.me.name(), key, val);
+            sys.usrService.set(sys.me, key, val);
 
             // 更新到当前 Session
             sys.exec("export '" + str + "'");

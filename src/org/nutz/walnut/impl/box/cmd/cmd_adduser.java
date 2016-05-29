@@ -1,17 +1,27 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import org.nutz.lang.Strings;
+import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.ZParams;
 
 public class cmd_adduser extends JvmExecutor {
 
-	public void exec(WnSystem sys, String[] args) throws Exception {
-		if (args.length < 1)
-            return;
-		String name = Strings.trim(args[0]);
-		String password = args.length > 1 ? Strings.trim(args[1]) : "123456";
-		sys.usrService.create(name, password);
-	}
+    public void exec(WnSystem sys, String[] args) throws Exception {
+        ZParams params = ZParams.parse(args, null);
+
+        String str = params.val_check(0);
+        String passwd = params.get("p", "123456");
+
+        WnUsrInfo info = new WnUsrInfo(str);
+
+        // 创建用户
+        WnUsr u = sys.usrService.create(info);
+
+        // 修改密码
+        sys.usrService.setPassword(u, passwd);
+
+    }
 
 }

@@ -2,7 +2,6 @@ package org.nutz.walnut.impl.usr;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
@@ -18,9 +17,11 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnRole;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
+import org.nutz.web.WebException;
 
 /**
  * 这个实现类基于一个 ZIo 的实现，保存和读取 Session 的数据
@@ -33,116 +34,39 @@ public class IoWnUsrService implements WnUsrService {
 
     private WnIo io;
 
-    // ^[0-9a-zA-Z._-]{4,}$
-    private Pattern regexName;
-
-    // ^[0-9+-]{11,20}
-    private Pattern regexPhone;
-
-    // ^[0-9a-zA-Z_.-]+@[0-9a-zA-Z_.-]+.[0-9a-zA-Z_.-]+$
-    private Pattern regexEmail;
-
     private NutMap initEnvs;
 
-    private String usrHome;
-
-    private String grpHome;
-
-    private WnObj oUsrs;
-
-    private WnObj oGrps;
-
-    public void on_create() {
-        Wn.WC().me("root", "root");
-        oUsrs = io.createIfNoExists(null, usrHome, WnRace.DIR);
-        oGrps = io.createIfNoExists(null, grpHome, WnRace.DIR);
-    }
-
-    private WnQuery _eval_query(String str) {
-        // 去掉空白
-        str = Strings.trim(str);
-
-        // 准备查询对象
-        WnQuery q = new WnQuery();
-        q.setv("pid", oUsrs.id());
-
-        // 根据 ID
-        if (str.startsWith("id:")) {
-            q.setv("id", str.substring("id:".length()));
-        }
-        // 根据Oauth授权
-        else if (str.startsWith("oauth_") && str.contains(":")) {
-            q.setv(str.substring(0, str.indexOf(':')), str.substring(str.indexOf(':')+1));
-        }
-        // 根据手机
-        else if (regexPhone.matcher(str).find()) {
-            q.setv("phone", str);
-        }
-        // 根据 Email
-        else if (regexEmail.matcher(str).find()) {
-            q.setv("email", str);
-        }
-        // 根据名称
-        else if (regexName.matcher(str).find()) {
-            q.setv("nm", str);
-        }
-        // 不可能
-        else {
-            throw Er.create("e.usr.invalid.str", str);
-        }
-        return q;
-    }
-
-    private WnObj _get_usr_obj(String str) {
-        WnQuery q = _eval_query(str);
-        return io.getOne(q);
-    }
-
     @Override
-    public WnUsr create(String str, String pwd) {
+    public WnUsr create(WnUsrInfo info) {
         // 分析
-        WnQuery q = _eval_query(str);
+        WnObj oUsrs = io.createIfNoExists(null, "/sys/usr", WnRace.DIR);
+        WnQuery q = Wn.Q.pid(oUsrs);
+        info.joinQuery(q);
 
         // 检查同名
         WnObj oU = io.getOne(q);
 
         if (null != oU)
-            throw Er.create("e.usr.exists", str);
+            throw Er.create("e.usr.exists", info.toString());
 
         // 创建对象
         oU = io.create(oUsrs, "${id}", WnRace.FILE);
 
-        // 创建用户对象
+        // 创建用户对象，并设置信息
         final WnUsr u = new IoWnUsr();
         u.update2(oU);
-        u.salt(R.UU32());
-
-        // 这里的hash算法与checkPassword/setPassword中一致
-        u.password(Lang.sha1(pwd + u.salt()));
+        try {
+            info.joinObj(u);
+        }
+        // 信息加入不成功，删除已创建的对象
+        catch (WebException e) {
+            io.delete(oU);
+            throw e;
+        }
 
         // 添加所有的初始环境变量
         if (null != initEnvs) {
             u.putAll(initEnvs);
-        }
-
-        // 电话
-        if (q.first().containsKey("phone")) {
-            u.phone(q.first().getString("phone"));
-            oU.setv("phone", u.phone());
-        }
-        // 邮箱
-        else if (q.first().containsKey("email")) {
-            u.email(q.first().getString("email"));
-            oU.setv("email", u.email());
-        }
-        // 用户名
-        else if (q.first().containsKey("nm")) {
-            u.name(q.first().getString("nm"));
-            oU = io.rename(oU, u.name());
-        }
-        // 不可能
-        else {
-            throw Lang.impossible();
         }
 
         // 设定用户组
@@ -152,7 +76,8 @@ public class IoWnUsrService implements WnUsrService {
         u.group(u.mainGroup());
 
         // 创建用户组
-        WnObj oPeople = io.create(oGrps, u.mainGroup() + "/people", WnRace.DIR);
+        String aph = Wn.appendPath("/sys/grp", u.mainGroup(), "/people");
+        WnObj oPeople = io.create(null, aph, WnRace.DIR);
         WnObj oMe = io.create(oPeople, u.id(), WnRace.FILE);
         oMe.setv("role", Wn.ROLE.ADMIN);
         io.set(oMe, "^(role)$");
@@ -163,18 +88,11 @@ public class IoWnUsrService implements WnUsrService {
         wc.su(u, () -> {
             wc.me(u.name(), u.mainGroup());
             wc.security(null, () -> {
-                WnObj oHome = io.create(null, phHome, WnRace.DIR);
+                WnObj oHome = io.createIfNoExists(null, phHome, WnRace.DIR);
                 // 保护主目录
                 oHome.mode(0750);
                 io.set(oHome, "^md$");
             });
-            // WnSecurity se = wc.getSecurity();
-            // wc.setSecurity(null); // FIXME 一定情况下会出问题, 还在查 @pw
-            // WnObj oHome = io.create(null, phHome, WnRace.DIR);
-            // // 保护主目录
-            // oHome.mode(0750);
-            // io.appendMeta(oHome, "^md$");
-            // wc.setSecurity(se);
         });
 
         // 写入用户注册信息
@@ -186,8 +104,231 @@ public class IoWnUsrService implements WnUsrService {
     }
 
     @Override
+    public void rename(WnUsr u, String newName) {
+        if (log.isInfoEnabled())
+            log.infof("rename [%s].nm to: '%s'", u, newName);
+
+        // 检查用户是否重名
+        WnUsr dbUsr = this.fetch(newName);
+        if (null != dbUsr)
+            throw Er.create("e.usr.rename.exists", newName);
+
+        // 修改用户主目录到新名称
+        String aph = Wn.getUsrHome(u.name());
+        WnObj oHome = io.fetch(null, aph);
+        if (null != oHome && !oHome.name().equals(newName)) {
+            io.rename(oHome, newName);
+        }
+
+        // 修改用户的主组到新名称
+        WnObj oGrp = io.fetch(null, "/sys/grp/" + u.name());
+        if (null != oGrp && !oGrp.name().equals(newName)) {
+            io.rename(oGrp, newName);
+        }
+
+        // 修改自身
+        u.mainGroup(newName);
+        u.name(newName);
+        u.home(oHome.path());
+        io.set(u, "^(home|grp|nm)$");
+
+        this.__sync_my_groups(u);
+
+        // 最后在 Tree 上同步一下
+        this.__sync_tree_creator(u);
+        this.__sync_tree_mender(u);
+        this.__sync_tree_grp(oGrp);
+    }
+
+    private void __sync_tree_creator(WnUsr u) {
+        WnQuery q = new WnQuery();
+        q.setv("cid", u.id());
+        io.each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj o, int length) {
+                o.creator(u.name());
+                io.set(o, "^(c)$");
+            }
+        });
+    }
+
+    private void __sync_tree_mender(WnUsr u) {
+        WnQuery q = new WnQuery();
+        q.setv("mid", u.id());
+        io.each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj o, int length) {
+                o.mender(u.name());
+                io.set(o, "^(m)$");
+            }
+        });
+    }
+
+    private void __sync_tree_grp(WnObj oGrp) {
+        WnQuery q = new WnQuery();
+        q.setv("gid", oGrp.id());
+        io.each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj o, int length) {
+                o.group(oGrp.name());
+                // /home/xxx 的 d1 也需要修改
+                if (o.d0().equals("home"))
+                    o.d1(oGrp.name());
+                // 更新吧
+                io.set(o, "^(d1|g)$");
+            }
+        });
+    }
+
+    @Override
+    public boolean checkPassword(String nm, String passwd) {
+        if (Strings.isBlank(nm) || Strings.isBlank(passwd))
+            return false;
+
+        WnUsr u = check(nm);
+
+        return checkPassword(u, passwd);
+    }
+
+    @Override
+    public boolean checkPassword(WnUsr u, String passwd) {
+        if (null == u || Strings.isBlank(passwd))
+            return false;
+
+        if (log.isDebugEnabled())
+            log.debugf("read u: %s :: %s :: %s ", u.name(), u.password(), u.salt());
+
+        if (u.salt() == null) { // 没有加盐? 加盐之
+            setPassword(u, u.password());
+        }
+
+        if (log.isDebugEnabled())
+            log.debugf(" -- Lang.sha1('%s', '%s') == %s", passwd, u.salt(), u.password());
+
+        return Lang.sha1(passwd + u.salt()).equals(u.password());
+    }
+
+    @Override
+    public void setPassword(WnUsr u, String passwd) {
+        if (Strings.isBlank(passwd))
+            throw Er.create("e.usr.passwd.blank");
+
+        if (passwd.length() < 6)
+            throw Er.create("e.usr.passwd.tooshort");
+
+        // 先加盐
+        u.salt(R.UU32());
+
+        // 然后设置加盐后的密码
+        u.password(Lang.sha1(passwd + u.salt()));
+
+        // 存吧
+        io.set(u, "^(passwd|salt)$");
+
+    }
+
+    @Override
+    public void set(WnUsr u, String key, Object val) {
+        // 密码
+        if ("passwd".equals(key)) {
+            this.setPassword(u, val.toString());
+        }
+        // 改名
+        else if ("nm".equals(key)) {
+            this.rename(u, val.toString());
+        }
+        // 其他
+        else {
+            u.setv(key, val);
+            io.set(u, "^" + key + "$");
+        }
+    }
+
+    @Override
+    public void delete(WnUsr u) {
+        io.delete(u);
+    }
+
+    @Override
+    public WnUsr fetch(String str) {
+        WnUsrInfo info = new WnUsrInfo();
+        info.valueOf(str);
+        return fetchBy(info);
+    }
+
+    @Override
+    public WnUsr check(String str) {
+        WnUsrInfo info = new WnUsrInfo();
+        info.valueOf(str);
+        return checkBy(info);
+    }
+
+    @Override
+    public WnUsr fetchBy(WnUsrInfo info) {
+        // 得到用户的文件对象
+        WnObj oU = __fetch_usr_obj(info);
+
+        // 木有？
+        if (null == oU)
+            return null;
+
+        // 包裹返回
+        return __wrap_usr_obj(oU);
+    }
+
+    private WnObj __fetch_usr_obj(WnUsrInfo info) {
+        // 得到用户存放的目录
+        WnObj oUsrHome = io.check(null, "/sys/usr");
+
+        // 生成查询条件
+        WnQuery q = Wn.Q.pid(oUsrHome);
+        info.joinQuery(q);
+
+        // 查询一个对象
+        WnObj oU = io.getOne(q);
+        return oU;
+    }
+
+    private WnUsr __wrap_usr_obj(WnObj oU) {
+        WnUsr u = new IoWnUsr();
+
+        // zozoh: 这里检查一下，如果还是写到了文件里，统统读出来作为元数据
+        if (!oU.has("passwd")) {
+            NutMap map = io.readJson(oU, NutMap.class);
+            io.appendMeta(oU, map);
+        }
+        // 嗯，文件内容没用了，写成空吧
+        if (oU.len() > 0) {
+            io.writeText(oU, "");
+        }
+
+        // 根据 WnObj 得到用户对象
+        u.update2(oU);
+
+        // 没有缓存过组的索引，那么就缓存一下
+        if (u.myGroups().size() == 0) {
+            __sync_my_groups(u);
+        }
+
+        // 返回
+        return u;
+    }
+
+    private void __sync_my_groups(WnUsr u) {
+        List<String> groups = this.findMyGroups(u);
+        u.myGroups(groups);
+        io.set(u, "^my_grps$");
+    }
+
+    @Override
+    public WnUsr checkBy(WnUsrInfo info) {
+        WnUsr u = fetchBy(info);
+        if (null == u)
+            throw Er.create("e.usr.noexists", info);
+        return u;
+    }
+
+    @Override
     public int getRoleInGroup(WnUsr u, String grp) {
-        WnObj oMe = io.fetch(oGrps, grp + "/people/" + u.id());
+        String aph = Wn.appendPath("/sys/grp", grp, "/people", u.id());
+        WnObj oMe = io.fetch(null, aph);
         if (null != oMe) {
             return oMe.getInt("role", 0);
         }
@@ -196,7 +337,8 @@ public class IoWnUsrService implements WnUsrService {
 
     @Override
     public void setRoleInGroup(WnUsr u, String grp, int role) {
-        WnObj oMe = io.createIfNoExists(oGrps, grp + "/people/" + u.id(), WnRace.FILE);
+        String aph = Wn.appendPath("/sys/grp", grp, "/people", u.id());
+        WnObj oMe = io.createIfNoExists(null, aph, WnRace.FILE);
         if (!oMe.containsKey("role") || role != oMe.getInt("role")) {
             oMe.setv("role", role);
             io.set(oMe, "^(role)$");
@@ -209,7 +351,8 @@ public class IoWnUsrService implements WnUsrService {
     @Override
     public int removeRoleFromGroup(WnUsr u, String grp) {
         // 查询
-        WnObj oMe = io.fetch(oGrps, grp + "/people/" + u.id());
+        String aph = Wn.appendPath("/sys/grp", grp, "/people", u.id());
+        WnObj oMe = io.createIfNoExists(null, aph, WnRace.FILE);
         if (null == oMe)
             return Wn.ROLE.OTHERS;
 
@@ -226,7 +369,7 @@ public class IoWnUsrService implements WnUsrService {
     @Override
     public List<String> findMyGroups(WnUsr u) {
         WnQuery q = new WnQuery();
-        q.setv("d0", oGrps.d0()).setv("d1", oGrps.d1());
+        q.setv("d0", "sys").setv("d1", "grp");
         q.setv("nm", u.id());
 
         List<String> list = new LinkedList<String>();
@@ -238,16 +381,15 @@ public class IoWnUsrService implements WnUsrService {
 
     @Override
     public boolean isInGroup(WnUsr u, String grp) {
-        WnObj oMe = io.fetch(oGrps, grp + "/people/" + u.id());
-        if (null == oMe)
-            return false;
-        return true;
+        int role = this.getRoleInGroup(u, grp);
+        return Wn.ROLE.OTHERS == role;
     }
 
     @Override
     public void eachInGroup(String grp, WnQuery q, Each<WnRole> callback) {
         if (null != callback) {
-            WnObj oHome = io.fetch(oGrps, grp + "/people");
+            String aph = Wn.appendPath("/sys/grp", grp, "/people");
+            WnObj oHome = io.fetch(null, aph);
             if (null != oHome) {
                 if (null == q)
                     q = new WnQuery();
@@ -278,6 +420,9 @@ public class IoWnUsrService implements WnUsrService {
     @Override
     public void each(WnQuery q, Each<WnUsr> callback) {
         if (null != callback) {
+            WnObj oUsrs = io.fetch(null, "/sys/usr");
+            if (null == oUsrs)
+                return;
             if (null == q)
                 q = new WnQuery();
             q.setv("pid", oUsrs.id());
@@ -297,192 +442,4 @@ public class IoWnUsrService implements WnUsrService {
         });
         return list;
     }
-
-    /**
-     * 删除一个用户
-     * 
-     * @param nm
-     *            用户名
-     * @return 被删除的用户，null 表用户不存在
-     */
-    @Override
-    public void delete(WnUsr u) {
-        io.delete(u);
-    }
-
-    @Override
-    public WnUsr setPassword(String str, String pwd) {
-        __assert(null, str, "passwd");
-
-        WnUsr u = this.check(str);
-        u.salt(R.UU32()); // 先设置salt
-        u.password(Lang.sha1(pwd + u.salt())); // 然后设置加盐后的密码
-        io.set(u, "^(passwd|salt)$");
-
-        return u;
-    }
-
-    @Override
-    public boolean checkPassword(String nm, String pwd) {
-        __assert(null, nm, "passwd");
-
-        WnUsr u = check(nm);
-
-        if (log.isDebugEnabled())
-            log.debugf("read u: %s :: %s :: %s ", u.name(), u.password(), u.salt());
-
-        if (u.salt() == null) { // 没有加盐? 加盐之
-            u = setPassword(nm, u.password());
-        }
-
-        if (log.isDebugEnabled())
-            log.debugf(" -- Lang.sha1('%s', '%s') == %s", pwd, u.salt(), u.password());
-
-        return Lang.sha1(pwd + u.salt()).equals(u.password());
-    }
-
-    @Override
-    public WnUsr setName(String str, String nm) {
-        __assert(regexName, nm, "nm");
-
-        // 写入内容
-        WnUsr u = this.check(str);
-
-        // 如果节点名字发生变化
-        if (!u.name().equals(nm)) {
-            io.rename(u, nm);
-
-            // 修改主目录名称
-            String phHome = "/home/" + u.id();
-            WnObj oHome = io.fetch(null, phHome);
-            if (null != oHome) {
-                io.rename(oHome, nm);
-
-                // 更新用户的主目录
-                u.home(oHome.path());
-                io.set(u, "^home$");
-
-            }
-            // 警告一下
-            else {
-                if (log.isWarnEnabled())
-                    log.warnf("usr::rename(%s) noHome : %s", u.id(), phHome);
-            }
-        }
-
-        // 返回
-        return u;
-    }
-
-    @Override
-    public WnUsr setPhone(String str, String phone) {
-        __assert(regexPhone, phone, "phone");
-
-        WnUsr u = this.check(str);
-        u.setv("phone", phone);
-        io.appendMeta(u, "^phone$");
-
-        // 返回
-        return u;
-
-    }
-
-    @Override
-    public WnUsr set(String str, String key, String val) {
-        if (key.matches("^nm|pwd|phone|email")) {
-            throw Er.create("e.u.forbiden.set", key);
-        }
-        if ("home".equals(key)) {
-            return this.setHome(str, val);
-        }
-        // 其他自由的属性
-        WnUsr u = this.check(str);
-        u.setv(key, val);
-        io.set(u, "^" + key + "$");
-
-        return u;
-    }
-
-    @Override
-    public WnUsr setEmail(String str, String email) {
-        __assert(regexEmail, email, "email");
-
-        WnUsr u = this.check(str);
-        u.setv("email", email);
-        io.set(u, "^email$");
-
-        // 返回
-        return u;
-
-    }
-
-    @Override
-    public WnUsr setHome(String str, String home) {
-        // 确保 HOME 存在
-        io.check(null, home);
-
-        // 修改
-        WnUsr u = this.check(str);
-        u.home(home);
-        io.set(u, "^home$");
-
-        // 返回
-        return u;
-
-    }
-
-    @Override
-    public WnUsr fetch(String str) {
-        WnObj o = _get_usr_obj(str);
-
-        if (null == o)
-            return null;
-
-        // 这个就准备返回了
-        WnUsr u = new IoWnUsr();
-
-        // zozoh: 这里检查一下，如果还是写到了文件里，统统读出来作为元数据
-        if (!o.has("passwd")) {
-            NutMap map = io.readJson(o, NutMap.class);
-            io.appendMeta(o, map);
-        }
-        // 嗯，文件内容没用了，写成空吧
-        if (o.len() > 0) {
-            io.writeText(o, "");
-        }
-
-        // 根据 WnObj 得到用户对象
-        u.update2(o);
-
-        // 没有缓存过组的索引，那么就缓存一下
-        if (u.myGroups().size() == 0) {
-            __sync_my_groups(u);
-        }
-
-        // 返回
-        return u;
-    }
-
-    private void __sync_my_groups(WnUsr u) {
-        List<String> groups = this.findMyGroups(u);
-        u.myGroups(groups);
-        io.set(u, "^my_grps$");
-    }
-
-    @Override
-    public WnUsr check(String str) {
-        WnUsr u = fetch(str);
-
-        if (null == u)
-            throw Er.create("e.usr.noexists", str);
-
-        return u;
-    }
-
-    private void __assert(Pattern p, String str, String key) {
-        if (!Strings.isBlank(str))
-            if (null != p && !p.matcher(str).find())
-                throw Er.create("e.usr.invalid." + key, str);
-    }
-
 }

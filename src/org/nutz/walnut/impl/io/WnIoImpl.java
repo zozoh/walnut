@@ -110,8 +110,9 @@ public class WnIoImpl implements WnIo {
 
     private void __do_after_set_meta(WnObj o) {
         if (null != o) {
-            // 调用钩子
             WnContext wc = Wn.WC();
+
+            // 调用钩子
             wc.doHook("meta", o);
 
             // 触发同步时间修改
@@ -204,10 +205,13 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public WnObj get(String id) {
+        // 接从树里面拿吧
         WnObj o = tree.get(id);
+
         // 确保有全路径
         if (null != o)
             o.path();
+
         return o;
     }
 
@@ -270,6 +274,8 @@ public class WnIoImpl implements WnIo {
 
             o.path();
         }
+
+        // 返回
         return o;
     }
 

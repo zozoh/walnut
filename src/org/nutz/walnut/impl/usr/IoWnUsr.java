@@ -117,4 +117,8 @@ public class IoWnUsr extends WnBean implements WnUsr {
         u.putAll(this);
         return u;
     }
+
+    public String toString() {
+        return String.format("%s(%s)", name(), id());
+    }
 }

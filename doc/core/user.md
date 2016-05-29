@@ -13,14 +13,60 @@ tags:
 
 ```
 {
-   id        : "e4ca..",            // id     : 用户的ID
-   name      : "xiaobai",           // nm     : 用户名称
-   alias     : "小白",              // aa     : 用户昵称
-   password  : "34ce..23ab",        // @pwd   : 密码
-   home      : "/home/xiaobai",     // @home  : 用户的登录主目录
-   email     : "zozoh@nutzam.com",  // @email : 邮箱
-   phone     : "18501211985",       // @phone : 手机
-   ... 之后慢慢加咯 ...
+    id     : "e4ca..",        // 用户的ID
+    nm     : "xiaobai",       // 「唯一」用户名称和密码连用，作为登录名
+    init   : "xxxx",          // 「选」用户初始化类型
+
+    //................................ 采用 oauth 认证
+    aa     : "小白",           // 「唯一」用户昵称
+    headimgurl : "http://xxx"
+    country    : "xx"
+    gender     : "xx"
+
+    //................................ 采用密码登录
+    passwd : SHA1             // 加盐密码
+    salt   : Random           // 盐值
+    
+    //................................ 采用 oauth 认证
+    oauth_github : "xxxxxxx",
+    
+    //................................ 采用微信公众号的 openid
+    // 键的格式为 wx_公众号ID
+    // 值为 OpenID
+    wxgh_xxxx : OpenId
+    
+    //................................ 采用手机号登录
+    phone  : "18501211985",       // 手机号码
+    phone_checked : false         // 手机号是否经过验证
+   
+    // 短信验证
+    sms_vcode  : "xxxx"        # 短信验证码
+    sms_vnext  : 1433..        # 过了这个时间，才能再次取得验证码
+    sms_vexpi  : 14339..       # 短信验证码有效期至（绝对毫秒数）
+    sms_retry  : {             # 验证码重试次数
+        retry : 2   // 已经验证的次数
+        maxre : 5   // 最多验证多少次 
+    }
+    
+    //................................ 采用Email登录
+    email     : "zozoh@nutzam.com",  // 邮箱
+    email_checked : false            // 邮箱是否经过验证
+   
+    // 短信验证
+    email_vcode  : "xxxx"        # 邮件验证码
+    email_vnext  : 1433..        # 过了这个时间，才能再次取得验证码
+    email_vexpi  : 14339..       # 邮件验证码有效期至（绝对毫秒数）
+    email_retry  : {             # 验证码重试次数
+        retry : 2   // 已经验证的次数
+        maxre : 5   // 最多验证多少次 
+    }
+
+    //................................ 其他信息
+    home : "/home/xiaobai"      // 用户的登录主目录
+    open : "wn.console"         // 登录后打开的应用
+
+
+    ... 之后慢慢加咯 ...
 }
 ```
 
@@ -96,10 +142,11 @@ tags:
 
 ```
 {
-   his_usr : "e4ca..",    // 执行操作的用户 ID
-   his_app : "console",   // 应用的名称
-   his_cmd : "echo "abc" > ~/abc.txt", 命令细节
-   his_pwd : "~"          // 命令的当前目录
+    tp : "uhis",           // 特殊的类型
+    his_usr : "e4ca..",    // 执行操作的用户 ID
+    his_app : "console",   // 应用的名称
+    his_cmd : "echo "abc" > ~/abc.txt", 命令细节
+    his_pwd : "~"          // 命令的当前目录
 }
 ```
 
@@ -148,7 +195,27 @@ tags:
 * 任何对象访问，都会向上查询自己的祖先
 * 如果自己的父有了 *pvg*，那么优先采用
 
-`
+# 用户创建的初始化脚本
+
+```
+/sys/init/usr_create     # 当用户创建成功后，可以指定其初始化脚本
+    _all                 # 任何用户都要执行的脚本
+    abc                  # 初始化类型为 "abc" @see user 的 "init" 字段
+        01_init_folders      # 具体的一个脚本内容
+        02_setup_weixin.js   # 如果是 js 文件，则交给 jsc 来执行
+```
+
+# 用户登录的初始化脚本
+
+```
+/sys/init/usr_login      # 当用户登录成功后，可以指定其初始化脚本
+    _all                 # 任何用户都要执行的脚本
+    abc                  # 初始化类型为 "abc" @see user 的 "init" 字段
+        01_store_log         # 具体的一个脚本内容
+        02_check_finger.js   # 如果是 js 文件，则交给 jsc 来执行
+        03_call_local        # 当然，你可以在脚本里再调用脚本
+                             # 比如 cat ~/.profile | run
+```
 
 
 

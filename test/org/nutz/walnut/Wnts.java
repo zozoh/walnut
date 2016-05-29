@@ -13,10 +13,10 @@ public class Wnts {
     public static WnUsrService create_io_usr_service(PropertiesProxy pp, WnIo io) {
         IoWnUsrService usrs = new IoWnUsrService();
         Mirror.me(usrs).setValue(usrs, "io", io);
-        Mirror.me(usrs).setValue(usrs, "regexName", pp.get("usr-name"));
-        Mirror.me(usrs).setValue(usrs, "regexPhone", pp.get("usr-phone"));
-        Mirror.me(usrs).setValue(usrs, "regexEmail", pp.get("usr-email"));
-        usrs.on_create();
+        // Mirror.me(usrs).setValue(usrs, "regexName", pp.get("usr-name"));
+        // Mirror.me(usrs).setValue(usrs, "regexPhone", pp.get("usr-phone"));
+        // Mirror.me(usrs).setValue(usrs, "regexEmail", pp.get("usr-email"));
+        // usrs.on_create();
         return usrs;
     }
 

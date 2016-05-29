@@ -10,6 +10,7 @@ import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.impl.box.JvmBoxService;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.util.Wn;
@@ -65,7 +66,8 @@ public abstract class BaseBoxTest extends BaseUsrTest {
 
         boxes = _create_box_service();
 
-        me = usrs.create("xiaobai", "123456");
+        me = usrs.create(new WnUsrInfo("xiaobai"));
+        usrs.setPassword(me, "123456");
         se = ses.create(me);
 
         // 将测试线程切换到当前测试账号

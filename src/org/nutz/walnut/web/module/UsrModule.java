@@ -25,6 +25,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.filter.WnCheckSession;
@@ -67,8 +68,8 @@ public class UsrModule extends AbstractWnModule {
                            @Param("passwd") String passwd,
                            @Param("email") String email,
                            @Param("phone") String phone) {
-        if (Strings.isBlank(nm)) {
-            throw Er.create("e.usr.name.blank");
+        if (Strings.isBlank(nm) || Strings.isBlank(email) || Strings.isBlank(phone)) {
+            throw Er.create("e.usr.signup.blank");
         }
         if (Strings.isBlank(passwd)) {
             throw Er.create("e.usr.pwd.blank");
@@ -76,17 +77,14 @@ public class UsrModule extends AbstractWnModule {
         if (!regexPasswd.matcher(passwd).find()) {
             throw Er.create("e.usr.pwd.invalid");
         }
-        WnUsr u = usrs.create(nm, passwd);
 
-        if (!Strings.isBlank(email)) {
-            usrs.setEmail(nm, email);
-        }
+        WnUsrInfo info = new WnUsrInfo();
+        info.setName(nm);
+        info.setEmail(email);
+        info.setPhone(phone);
+        info.setLoginPassword(passwd);
 
-        if (!Strings.isBlank(phone)) {
-            usrs.setPhone(nm, phone);
-        }
-
-        return u;
+        return usrs.create(info);
     }
 
     @At("/do/signup/ajax")
@@ -198,12 +196,17 @@ public class UsrModule extends AbstractWnModule {
         if (!regexPasswd.matcher(passwd).find()) {
             throw Er.create("e.usr.pwd.invalid");
         }
+
+        // 得到用户
+        WnUsr uMe = usrs.check(me);
+
         // 检查旧密码是否正确
-        if (!usrs.checkPassword(me, oldpasswd)) {
+        if (!usrs.checkPassword(uMe, oldpasswd)) {
             throw Er.create("e.usr.pwd.old.invalid");
         }
+
         // 设置新密码
-        usrs.setPassword(me, passwd);
+        usrs.setPassword(uMe, passwd);
         return Ajax.ok();
     }
 
@@ -215,9 +218,20 @@ public class UsrModule extends AbstractWnModule {
     public Object do_reset_password(@Param("nm") String nm) {
         String seid = Wn.WC().SEID();
         String me = sess.check(seid).me();
-        if (!"root".equals(me)) // 只有root可以改其他人的密码
+        WnUsr uMe = usrs.check(me);
+
+        // 只有root组管理员能修改别人密码
+        int role = usrs.getRoleInGroup(uMe, "root");
+        if (Wn.ROLE.ADMIN != role)
             throw Er.create("e.usr.not.root");
-        usrs.setPassword(nm, "123456");
+
+        // 得到用户
+        WnUsr u = usrs.check(nm);
+
+        // 修改密码
+        usrs.setPassword(u, "123456");
+
+        // 返回
         return Ajax.ok();
     }
 
@@ -286,11 +300,11 @@ public class UsrModule extends AbstractWnModule {
     @At("/do/login/auto")
     @Ok("++cookie>>:${a.target}")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public Object do_login_auto(@Param("user") String nm, 
-                                @Param("sign") String sign, 
+    public Object do_login_auto(@Param("user") String nm,
+                                @Param("sign") String sign,
                                 @Param("time") long time,
                                 @Param("once") String once,
-                                @Param("target")String target,
+                                @Param("target") String target,
                                 HttpServletRequest req) {
         if (Strings.isBlank(nm)) {
             return new HttpStatusView(403);
@@ -305,7 +319,7 @@ public class UsrModule extends AbstractWnModule {
         }
         int timeout = usr.getInt("ackey_timeout", 1800) * 1000;
         if (timeout == 0) {
-        	return new HttpStatusView(403);
+            return new HttpStatusView(403);
         }
         if (timeout > 0 && System.currentTimeMillis() - time > timeout) {
             return new HttpStatusView(403);
@@ -320,10 +334,10 @@ public class UsrModule extends AbstractWnModule {
         if (!Strings.isBlank(target))
             req.setAttribute("target", target);
         else
-        	req.setAttribute("target", "/");
+            req.setAttribute("target", "/");
         return se;
     }
-    
+
     @At("/check/mplogin")
     @Ok("++cookie>>:/")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
@@ -333,13 +347,13 @@ public class UsrModule extends AbstractWnModule {
         WnObj rdir = io.fetch(null, "/root/.weixin/");
         String mopenid = io.query(new WnQuery().setv("pid", rdir.id())).get(0).name();
 
-        WnObj obj = io.fetch(null, "/root/.weixin/"+mopenid+"/mplogin/"+uu32);
+        WnObj obj = io.fetch(null, "/root/.weixin/" + mopenid + "/mplogin/" + uu32);
         if (obj == null)
             return new HttpStatusView(403);
         String openid = io.readText(obj);
         if (Strings.isBlank(openid))
             return new HttpStatusView(403);
-        WnUsr usr = usrs.check("oauth_weixin_mp_"+mopenid+":"+openid);
+        WnUsr usr = usrs.check("oauth_weixin_mp_" + mopenid + ":" + openid);
         return sess.create(usr);
     }
 }

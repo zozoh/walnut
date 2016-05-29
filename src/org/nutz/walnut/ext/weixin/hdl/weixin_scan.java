@@ -2,10 +2,10 @@ package org.nutz.walnut.ext.weixin.hdl;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.lang.random.R;
 import org.nutz.lang.segment.CharSegment;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -16,21 +16,24 @@ public class weixin_scan implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // regapi的模板
-        // weixin ${weixin_ToUserName} scan -openid ${weixin_FromUserName} -eventkey '${weixin_EventKey}' -c
-        
+        // weixin ${weixin_ToUserName} scan -openid ${weixin_FromUserName}
+        // -eventkey '${weixin_EventKey}' -c
+
         ZParams params = ZParams.parse(hc.args, "c");
+        String pnb = hc.oHome.name();
         String openid = params.check("openid");
         String eventkey = params.check("eventkey");
 
         // 如果指定了需要新建用户,且为root组的权限
         if (params.is("c") && sys.me.myGroups().contains("root")) {
             // 检查是否已经建好用户,没有的话就建一下
-            String oauthKey = "oauth_weixin_mp_" + hc.oHome.name();
-            WnUsr usr = sys.usrService.fetch(oauthKey + ":" + openid);
+            WnUsrInfo info = new WnUsrInfo();
+            info.setWeixinPNB(pnb);
+            info.setWeixinOpenId(openid);
+
+            WnUsr usr = sys.usrService.fetchBy(info);
             if (usr == null) {
-                String username = R.UU32();
-                usr = sys.usrService.create(username, R.UU32());
-                sys.usrService.set(username, oauthKey, openid);
+                usr = sys.usrService.create(info);
                 sys.out.println("用户新建完成");
             }
         }
@@ -45,7 +48,11 @@ public class weixin_scan implements JvmHdl {
             eventkey = eventkey.substring("qrscene_".length());
 
         // 找找有没有对应的文本,有就当命令执行一下
-        String path = Wn.normalizeFullPath("~/.weixin/" + hc.oHome.name() + "/scene/" + eventkey, sys);
+        String path = Wn.normalizeFullPath("~/.weixin/"
+                                           + hc.oHome.name()
+                                           + "/scene/"
+                                           + eventkey,
+                                           sys);
         WnObj obj = sys.io.fetch(null, path);
         if (obj != null) {
             String cmd = sys.io.readText(obj);

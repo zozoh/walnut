@@ -11,25 +11,12 @@ var ioc = {
 	},
 	usrService : {
 		type : 'org.nutz.walnut.impl.usr.IoWnUsrService',
-		parent : "ioService",
 		fields : {
+			io : {
+				refer : "io"
+			},
 			initEnvs : {
 				java : '$conf.initUsrEnvs'
-			},
-			regexName : {
-				java : '$conf.get("usr-name")'
-			},
-			regexPhone : {
-				java : '$conf.get("usr-phone")'
-			},
-			regexEmail : {
-				java : '$conf.get("usr-email")'
-			},
-			usrHome : {
-				java : '$conf.get("usr-home", "/sys/usr")'
-			},
-			grpHome : {
-				java : '$conf.get("grp-home", "/sys/grp")'
 			}
 		}
 	},

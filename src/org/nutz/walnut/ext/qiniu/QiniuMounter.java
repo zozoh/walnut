@@ -145,6 +145,7 @@ public class QiniuMounter implements WnMounter {
 
         o.mode(p.mode());
         o.creator(p.creator()).group(p.creator()).mender(p.creator());
+        o.creatorId(p.creatorId()).groupId(p.groupId()).menderId(p.menderId());
 
         o.mount(p.mount() + "/" + o.name());
         o.mountRootId(p.mountRootId());

@@ -6,6 +6,7 @@ import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.api.usr.WnUsrService;
 
 public class WnCheckRootSetup implements Setup {
@@ -22,7 +23,9 @@ public class WnCheckRootSetup implements Setup {
         WnUsrService usrs = ioc.get(WnUsrService.class, "usrService");
         WnUsr root = usrs.fetch("root");
         if (root == null) {
-            root = usrs.create("root", conf.get("root-init-passwd"));
+            String passwd = conf.get("root-init-passwd");
+            root = usrs.create(new WnUsrInfo("root"));
+            usrs.setPassword(root, passwd);
             log.infof("init root usr: %s", root.id());
         }
     }

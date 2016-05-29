@@ -7,34 +7,70 @@ import org.nutz.walnut.api.io.WnQuery;
 
 public interface WnUsrService {
 
-    WnUsr create(String str, String pwd);
+    /**
+     * 创建一个用户，同时为其创建 /home 和 /sys/grp 下的内容
+     * 
+     * @param info
+     *            用户信息
+     * @return 用户对象
+     */
+    WnUsr create(WnUsrInfo info);
+
+    /**
+     * 一个快捷的便于阅读的登录名。 这个操作同时会修改用户主组以及 /home/UNM 两个目录的名称
+     * 
+     * @param u
+     *            用户
+     * @param newName
+     *            新的登录名
+     */
+    void rename(WnUsr u, String newName);
+
+    /**
+     * @param nm
+     *            用户登录名
+     * @param passwd
+     *            密码
+     * @return 密码是否正确
+     */
+    boolean checkPassword(String nm, String passwd);
+
+    /**
+     * @param u
+     *            用户
+     * @param passwd
+     *            密码
+     * @return 密码是否正确
+     */
+    boolean checkPassword(WnUsr u, String passwd);
+
+    /**
+     * 修改用户的密码
+     * 
+     * @param u
+     *            用户
+     * @param passwd
+     *            密码
+     */
+    void setPassword(WnUsr u, String passwd);
+
+    void set(WnUsr u, String key, Object val);
 
     /**
      * 删除一个用户
      * 
-     * @param nm
-     *            用户名
-     * @return 被删除的用户，null 表用户不存在
+     * @param u
+     *            用户
      */
     void delete(WnUsr u);
-
-    boolean checkPassword(String nm, String pwd);
-
-    WnUsr setPassword(String str, String pwd);
-
-    WnUsr setName(String str, String nm);
-
-    WnUsr setPhone(String str, String phone);
-
-    WnUsr setEmail(String str, String email);
-
-    WnUsr setHome(String str, String home);
-
-    WnUsr set(String str, String key, String val);
 
     WnUsr fetch(String str);
 
     WnUsr check(String str);
+
+    WnUsr fetchBy(WnUsrInfo info);
+
+    WnUsr checkBy(WnUsrInfo info);
 
     int getRoleInGroup(WnUsr u, String grp);
 

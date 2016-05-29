@@ -1,0 +1,18 @@
+# 命令简介 
+
+    `sync_obj_user` 命令用来检查用户系统的数据是否符合规范
+    
+     - 确保每个 WnObj 都有 c,m,g,cid,mid,gid 并且都一致
+    
+# 用法
+
+    sync_obj_user
+     
+# 示例
+    
+    # 同步所有的用户
+    sync_obj_user
+   
+    
+    
+    

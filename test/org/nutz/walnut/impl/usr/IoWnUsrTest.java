@@ -14,6 +14,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
@@ -22,8 +23,10 @@ public class IoWnUsrTest extends BaseUsrTest {
     @Test
     public void test_forbidden_write() {
         // 创建两个用户
-        final WnUsr ua = usrs.create("userA", "123456");
-        final WnUsr ub = usrs.create("userB", "123456");
+        final WnUsr ua = usrs.create(new WnUsrInfo("userA"));
+        usrs.setPassword(ua, "123456");
+        final WnUsr ub = usrs.create(new WnUsrInfo("userB"));
+        usrs.setPassword(ub, "123456");
 
         // 设置权限监控
         WnContext wc = Wn.WC();
@@ -120,8 +123,10 @@ public class IoWnUsrTest extends BaseUsrTest {
     @Test
     public void test_forbidden_read() {
         // 创建两个用户
-        final WnUsr ua = usrs.create("userA", "123456");
-        final WnUsr ub = usrs.create("userB", "123456");
+        final WnUsr ua = usrs.create(new WnUsrInfo("userA"));
+        usrs.setPassword(ua, "123456");
+        final WnUsr ub = usrs.create(new WnUsrInfo("userB"));
+        usrs.setPassword(ub, "123456");
 
         // 设置权限监控
         WnContext wc = Wn.WC();
@@ -215,7 +220,8 @@ public class IoWnUsrTest extends BaseUsrTest {
 
     @Test
     public void se_login_logout() throws Throwable {
-        WnUsr xiaobai = usrs.create("xiaobai", "123456");
+        WnUsr xiaobai = usrs.create(new WnUsrInfo("xiaobai"));
+        usrs.setPassword(xiaobai, "123456");
         WnSession se = ses.login("xiaobai", "123456");
 
         assertEquals(se.vars().getString("MY_ID"), xiaobai.id());
@@ -275,7 +281,8 @@ public class IoWnUsrTest extends BaseUsrTest {
 
     @Test
     public void usr_create_by_email() {
-        WnUsr xiaobai = usrs.create("xiaobai@nutzam.com", "123456");
+        WnUsr xiaobai = usrs.create(new WnUsrInfo("xiaobai@nutzam.com"));
+        usrs.setPassword(xiaobai, "123456");
 
         // 获取一个
         WnUsr u = usrs.fetch("xiaobai@nutzam.com");
@@ -290,7 +297,7 @@ public class IoWnUsrTest extends BaseUsrTest {
         assertEquals(u.id(), oHome.name());
 
         // 改个名
-        usrs.setName("id:" + u.id(), "xiaobai");
+        usrs.rename(u, "xiaobai");
 
         // 再次按照 Email 获取
         u = usrs.fetch("xiaobai@nutzam.com");
@@ -314,7 +321,7 @@ public class IoWnUsrTest extends BaseUsrTest {
         assertNull(u.phone());
 
         // 设置手机
-        usrs.setPhone("xiaobai", "13910110054");
+        usrs.set(u, "phone", "13910110054");
 
         // 按照 Name 获取
         u = usrs.fetch("xiaobai");
@@ -332,7 +339,8 @@ public class IoWnUsrTest extends BaseUsrTest {
 
     @Test
     public void usr_create_by_phone() {
-        WnUsr xiaobai = usrs.create("13910110054", "123456");
+        WnUsr xiaobai = usrs.create(new WnUsrInfo("13910110054"));
+        usrs.setPassword(xiaobai, "123456");
 
         // 获取一个
         WnUsr u = usrs.fetch("13910110054");
@@ -347,7 +355,7 @@ public class IoWnUsrTest extends BaseUsrTest {
         assertEquals(u.id(), oHome.name());
 
         // 改个名
-        usrs.setName("id:" + u.id(), "xiaobai");
+        usrs.rename(u, "xiaobai");
 
         // 再次按照 Phone 获取
         u = usrs.fetch("13910110054");
@@ -371,7 +379,7 @@ public class IoWnUsrTest extends BaseUsrTest {
         assertNull(u.email());
 
         // 设置邮箱
-        usrs.setEmail("xiaobai", "xiaobai@nutzam.com");
+        usrs.set(u, "email", "xiaobai@nutzam.com");
 
         // 按照 Name 获取
         u = usrs.fetch("xiaobai");
@@ -389,7 +397,8 @@ public class IoWnUsrTest extends BaseUsrTest {
 
     @Test
     public void usr_create_delete() {
-        WnUsr xiaobai = usrs.create("xiaobai", "123456");
+        WnUsr xiaobai = usrs.create(new WnUsrInfo("xiaobai"));
+        usrs.setPassword(xiaobai, "123456");
 
         // 获取一个
         WnUsr u = usrs.fetch("xiaobai");

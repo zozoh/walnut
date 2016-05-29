@@ -79,9 +79,9 @@ public interface WnObj extends NutBean {
     String mount();
 
     WnObj mount(String mnt);
-    
+
     String mountRootId();
-    
+
     WnObj mountRootId(String mrid);
 
     boolean isMount();
@@ -125,11 +125,11 @@ public interface WnObj extends NutBean {
     WnObj sha1(String sha1);
 
     boolean isSameSha1(String sha1);
-    
+
     boolean hasThumbnail();
-    
+
     String thumbnail();
-    
+
     WnObj thumbnail(String thumbnail);
 
     boolean hasData();
@@ -148,17 +148,29 @@ public interface WnObj extends NutBean {
 
     WnObj creator(String creator);
 
+    WnObj creatorId(String creatorId);
+
     WnObj mender(String mender);
 
+    WnObj menderId(String menderId);
+
     WnObj group(String grp);
+
+    WnObj groupId(String grpId);
 
     WnObj mode(int md);
 
     String creator();
 
+    String creatorId();
+
     String mender();
 
+    String menderId();
+
     String group();
+
+    String groupId();
 
     int mode();
 

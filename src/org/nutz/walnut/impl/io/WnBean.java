@@ -257,6 +257,15 @@ public class WnBean extends NutMap implements WnObj {
         return this;
     }
 
+    public WnObj creatorId(String creatorId) {
+        this.setOrRemove("cid", creatorId);
+        return this;
+    }
+
+    public String creatorId() {
+        return this.getString("cid");
+    }
+
     public String mender() {
         return this.getString("m");
     }
@@ -266,6 +275,17 @@ public class WnBean extends NutMap implements WnObj {
         return this;
     }
 
+    @Override
+    public WnObj menderId(String menderId) {
+        this.setOrRemove("mid", menderId);
+        return this;
+    }
+
+    @Override
+    public String menderId() {
+        return this.getString("mid");
+    }
+
     public String group() {
         return this.getString("g");
     }
@@ -273,6 +293,17 @@ public class WnBean extends NutMap implements WnObj {
     public WnBean group(String grp) {
         this.setOrRemove("g", grp);
         return this;
+    }
+
+    @Override
+    public WnObj groupId(String grpId) {
+        this.setOrRemove("gid", grpId);
+        return this;
+    }
+
+    @Override
+    public String groupId() {
+        return this.getString("gid");
     }
 
     public int mode() {
