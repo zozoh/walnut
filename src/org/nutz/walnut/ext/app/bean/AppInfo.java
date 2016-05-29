@@ -12,6 +12,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.lang.segment.CharSegment;
 import org.nutz.lang.segment.Segments;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.MultiLineProperties;
@@ -291,8 +292,11 @@ public class AppInfo {
                     line = lines[i];
                     if (line.matches("^[-]{6,} *end *$"))
                         break;
-                    item.content.append(line.replaceAll("(\\\\)([*@\\\\])", "$2")).append('\n');
+                    line = line.replaceAll("(\\\\)([*@\\\\])", "$2");
+                    line = new CharSegment(line).render(c).toString();
+                    item.content.append(line).append('\n');
                 }
+                
                 continue;
             }
 
