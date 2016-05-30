@@ -148,29 +148,17 @@ public interface WnObj extends NutBean {
 
     WnObj creator(String creator);
 
-    WnObj creatorId(String creatorId);
-
     WnObj mender(String mender);
 
-    WnObj menderId(String menderId);
-
     WnObj group(String grp);
-
-    WnObj groupId(String grpId);
 
     WnObj mode(int md);
 
     String creator();
 
-    String creatorId();
-
     String mender();
 
-    String menderId();
-
     String group();
-
-    String groupId();
 
     int mode();
 

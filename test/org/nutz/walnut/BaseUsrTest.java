@@ -40,7 +40,6 @@ public abstract class BaseUsrTest extends BaseIoTest {
         Mirror.me(ses).setValue(ses, "io", io);
         Mirror.me(ses).setValue(ses, "usrs", usrs);
         Mirror.me(ses).setValue(ses, "duration", pp.getInt("se-duration"));
-        Mirror.me(ses).setValue(ses, "sessionHome", pp.get("se-home", "/sys/session"));
         ses.on_create();
         return ses;
     }

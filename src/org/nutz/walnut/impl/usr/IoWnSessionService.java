@@ -27,8 +27,6 @@ public class IoWnSessionService implements WnSessionService {
 
     private WnIo io;
 
-    private String sessionHome;
-
     private int duration;
 
     private WnUsrService usrs;
@@ -37,7 +35,7 @@ public class IoWnSessionService implements WnSessionService {
 
     public void on_create() {
         Wn.WC().me("root", "root");
-        oSessions = io.createIfNoExists(null, sessionHome, WnRace.DIR);
+        oSessions = io.createIfNoExists(null, "/sys/session", WnRace.DIR);
     }
 
     @Override

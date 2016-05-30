@@ -467,7 +467,6 @@ public abstract class AbstractWnTree implements WnTree {
             // 线程没设置，用父对象的
             catch (Exception e) {
                 o.creator(p.creator()).mender(p.mender()).group(p.group());
-                o.creatorId(p.creatorId()).groupId(p.groupId()).menderId(p.menderId());
             }
         }
 

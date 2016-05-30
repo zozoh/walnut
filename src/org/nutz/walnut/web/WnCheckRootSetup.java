@@ -23,7 +23,7 @@ public class WnCheckRootSetup implements Setup {
         WnUsrService usrs = ioc.get(WnUsrService.class, "usrService");
         WnUsr root = usrs.fetch("root");
         if (root == null) {
-            String passwd = conf.get("root-init-passwd");
+            String passwd = conf.get("root-init-passwd", "123456");
             root = usrs.create(new WnUsrInfo("root"));
             usrs.setPassword(root, passwd);
             log.infof("init root usr: %s", root.id());

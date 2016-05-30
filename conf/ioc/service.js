@@ -11,10 +11,8 @@ var ioc = {
 	},
 	usrService : {
 		type : 'org.nutz.walnut.impl.usr.IoWnUsrService',
+		parent : "ioService",
 		fields : {
-			io : {
-				refer : "io"
-			},
 			initEnvs : {
 				java : '$conf.initUsrEnvs'
 			}
@@ -29,9 +27,6 @@ var ioc = {
 			},
 			duration : {
 				java : '$conf.getInt("se-duration", 3600000)'
-			},
-			sessionHome : {
-				java : '$conf.get("se-home", "/sys/session")'
 			}
 		}
 	},

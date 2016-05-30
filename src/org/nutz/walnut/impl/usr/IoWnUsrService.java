@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
@@ -35,6 +36,12 @@ public class IoWnUsrService implements WnUsrService {
     private WnIo io;
 
     private NutMap initEnvs;
+
+    public void on_create() {
+        Wn.WC().me("root", "root");
+        io.createIfNoExists(null, "/sys/usr", WnRace.DIR);
+        io.createIfNoExists(null, "/sys/grp", WnRace.DIR);
+    }
 
     @Override
     public WnUsr create(WnUsrInfo info) {
@@ -108,71 +115,80 @@ public class IoWnUsrService implements WnUsrService {
         if (log.isInfoEnabled())
             log.infof("rename [%s].nm to: '%s'", u, newName);
 
+        // 没必要
+        if (u.name().equals(newName)) {
+            if (log.isInfoEnabled())
+                log.info(" .. ignore");
+            return;
+        }
+
         // 检查用户是否重名
         WnUsr dbUsr = this.fetch(newName);
         if (null != dbUsr)
             throw Er.create("e.usr.rename.exists", newName);
 
+        // 记录旧名称
+        String oldName = u.name();
+
+        // 开始记时
+        Stopwatch sw = Stopwatch.begin();
+
         // 修改用户主目录到新名称
-        String aph = Wn.getUsrHome(u.name());
+        String aph = Wn.getUsrHome(oldName);
         WnObj oHome = io.fetch(null, aph);
         if (null != oHome && !oHome.name().equals(newName)) {
+            if (log.isInfoEnabled())
+                log.infof(" - rename home: %s -> %s", oHome, newName);
             io.rename(oHome, newName);
         }
 
         // 修改用户的主组到新名称
-        WnObj oGrp = io.fetch(null, "/sys/grp/" + u.name());
+        WnObj oGrp = io.fetch(null, "/sys/grp/" + oldName);
         if (null != oGrp && !oGrp.name().equals(newName)) {
+            if (log.isInfoEnabled())
+                log.infof(" - rename mainGroup: %s -> %s", oGrp, newName);
             io.rename(oGrp, newName);
         }
 
         // 修改自身
+        if (log.isInfoEnabled())
+            log.info(" - update self");
         u.mainGroup(newName);
         u.name(newName);
         u.home(oHome.path());
         io.set(u, "^(home|grp|nm)$");
 
+        // 同步所属组的冗余数据
+        if (log.isInfoEnabled())
+            log.info(" - sync_my_groups");
         this.__sync_my_groups(u);
 
-        // 最后在 Tree 上同步一下
-        this.__sync_tree_creator(u);
-        this.__sync_tree_mender(u);
-        this.__sync_tree_grp(oGrp);
+        // 最后在 Tree 上同步一下所有所属对象
+        if (log.isInfoEnabled())
+            log.info(" - sync_tree: c");
+        this.__sync_tree("c", oldName, newName);
+
+        if (log.isInfoEnabled())
+            log.info(" - sync_tree: m");
+        this.__sync_tree("m", oldName, newName);
+
+        if (log.isInfoEnabled())
+            log.info(" - sync_tree: m");
+        this.__sync_tree("g", oldName, newName);
+
+        // 最后结束
+        sw.stop();
+        if (log.isInfoEnabled())
+            log.info(" - All done: " + sw.toString());
     }
 
-    private void __sync_tree_creator(WnUsr u) {
+    private void __sync_tree(String key, String oldName, String newName) {
         WnQuery q = new WnQuery();
-        q.setv("cid", u.id());
+        q.setv(key, oldName);
         io.each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj o, int length) {
-                o.creator(u.name());
-                io.set(o, "^(c)$");
-            }
-        });
-    }
-
-    private void __sync_tree_mender(WnUsr u) {
-        WnQuery q = new WnQuery();
-        q.setv("mid", u.id());
-        io.each(q, new Each<WnObj>() {
-            public void invoke(int index, WnObj o, int length) {
-                o.mender(u.name());
-                io.set(o, "^(m)$");
-            }
-        });
-    }
-
-    private void __sync_tree_grp(WnObj oGrp) {
-        WnQuery q = new WnQuery();
-        q.setv("gid", oGrp.id());
-        io.each(q, new Each<WnObj>() {
-            public void invoke(int index, WnObj o, int length) {
-                o.group(oGrp.name());
-                // /home/xxx 的 d1 也需要修改
-                if (o.d0().equals("home"))
-                    o.d1(oGrp.name());
-                // 更新吧
-                io.set(o, "^(d1|g)$");
+                o.setv(key, newName);
+                io.set(o, "^(" + key + ")$");
             }
         });
     }
