@@ -26,6 +26,8 @@ public class cmd_appInit extends JvmExecutor {
         c.set("grp", params.get("grp", sys.se.group()));
         String pnb = params.get("pnb");
         c.set("pnb", pnb);
+        if (params.has("img"))
+            c.set("img", params.get("img"));
 
         // 读取并解析输入
         Reader reader = null;

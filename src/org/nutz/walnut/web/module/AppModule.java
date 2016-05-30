@@ -29,6 +29,7 @@ import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
+import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.box.WnBoxContext;
@@ -53,6 +54,9 @@ public class AppModule extends AbstractWnModule {
     @Fail("jsp:jsp.show_text")
     public View open(String appName, @Param("ph") String str, @Param("m") boolean meta)
             throws UnsupportedEncodingException {
+        
+        if (Strings.isBlank(appName))
+            return HttpStatusView.HTTP_404;
 
         // 如果 appName 没有名称空间，补上 "wn"
         if (appName.indexOf('.') < 0) {
