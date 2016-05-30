@@ -64,11 +64,15 @@ public class UsrModule extends AbstractWnModule {
     @Ok(">>:/")
     @Fail("jsp:jsp.show_text")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public WnUsr do_signup(@Param("nm") String nm,
+    public WnUsr do_signup(@Param("str") String str,
+                           @Param("nm") String nm,
                            @Param("passwd") String passwd,
                            @Param("email") String email,
                            @Param("phone") String phone) {
-        if (Strings.isBlank(nm) || Strings.isBlank(email) || Strings.isBlank(phone)) {
+        if (Strings.isBlank(str)
+            && Strings.isBlank(nm)
+            && Strings.isBlank(email)
+            && Strings.isBlank(phone)) {
             throw Er.create("e.usr.signup.blank");
         }
         if (Strings.isBlank(passwd)) {
@@ -79,23 +83,39 @@ public class UsrModule extends AbstractWnModule {
         }
 
         WnUsrInfo info = new WnUsrInfo();
-        info.setName(nm);
-        info.setEmail(email);
-        info.setPhone(phone);
+        // 肯定是指定了特殊的字段
+        // TODO zozoh 这段逻辑应该删掉，没用了，用自动判断就好
+        if (Strings.isBlank(str)) {
+            info.setName(nm);
+            info.setEmail(email);
+            info.setPhone(phone);
+        }
+        // 自动判断
+        else {
+            info.setLoginStr(str);
+        }
+
         info.setLoginPassword(passwd);
 
-        return usrs.create(info);
+        WnUsr u = usrs.create(info);
+
+        // 执行创建后初始化脚本
+        this.exec("do_signup", u.name(), "setup -quiet -u '" + u.name() + "' usr/create");
+
+        // 返回
+        return u;
     }
 
     @At("/do/signup/ajax")
     @Ok("ajax")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public WnUsr do_signup_ajax(@Param("nm") String nm,
+    public WnUsr do_signup_ajax(@Param("str") String str,
+                                @Param("nm") String nm,
                                 @Param("passwd") String passwd,
                                 @Param("email") String email,
                                 @Param("phone") String phone) {
-        return do_signup(nm, passwd, email, phone);
+        return do_signup(str, nm, passwd, email, phone);
     }
 
     @Inject("java:$conf.get('page-login','login')")
@@ -131,6 +151,10 @@ public class UsrModule extends AbstractWnModule {
     public WnSession do_login(@Param("nm") String nm, @Param("passwd") String passwd) {
         WnSession se = sess.login(nm, passwd);
         Wn.WC().SE(se);
+
+        // 执行登录后初始化脚本
+        this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
+
         return se;
     }
 
@@ -142,6 +166,10 @@ public class UsrModule extends AbstractWnModule {
     public WnSession do_login_ajax(@Param("nm") String nm, @Param("passwd") String passwd) {
         WnSession se = sess.login(nm, passwd);
         Wn.WC().SE(se);
+
+        // 执行登录后初始化脚本
+        this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
+
         return se;
     }
 
@@ -164,18 +192,18 @@ public class UsrModule extends AbstractWnModule {
      *
      * @param nm
      *            用户名
-     * @param pwd
+     * @param passwd
      *            密码
      */
     @POST
     @At("/check/login")
     @Ok("ajax")
     @Fail("ajax")
-    public boolean do_check_login(@Param("nm") String nm, @Param("passwd") String pwd) {
-        if (Strings.isBlank(pwd))
-            throw Er.create("e.usr.blank.pwd");
+    public boolean do_check_login(@Param("nm") String nm, @Param("passwd") String passwd) {
+        if (Strings.isBlank(passwd))
+            throw Er.create("e.usr.blank.passwd");
 
-        if (!usrs.checkPassword(nm, pwd)) {
+        if (!usrs.checkPassword(nm, passwd)) {
             throw Er.create("e.usr.invalid.login");
         }
         return true;
@@ -329,12 +357,18 @@ public class UsrModule extends AbstractWnModule {
         if (!_sign.equals(sign)) {
             return new HttpStatusView(403);
         }
+
         WnSession se = sess.create(sess.usrs().check(usr.name()));
         Wn.WC().SE(se);
+
+        // 执行登录后初始化脚本
+        this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
+
         if (!Strings.isBlank(target))
             req.setAttribute("target", target);
         else
             req.setAttribute("target", "/");
+
         return se;
     }
 
@@ -347,13 +381,24 @@ public class UsrModule extends AbstractWnModule {
         WnObj rdir = io.fetch(null, "/root/.weixin/");
         String mopenid = io.query(new WnQuery().setv("pid", rdir.id())).get(0).name();
 
+        // 检查扫码结果
         WnObj obj = io.fetch(null, "/root/.weixin/" + mopenid + "/mplogin/" + uu32);
         if (obj == null)
             return new HttpStatusView(403);
+
         String openid = io.readText(obj);
         if (Strings.isBlank(openid))
             return new HttpStatusView(403);
+
+        // 扫码成功，执行登录
         WnUsr usr = usrs.check("oauth_weixin_mp_" + mopenid + ":" + openid);
-        return sess.create(usr);
+
+        WnSession se = sess.create(usr);
+        Wn.WC().SE(se);
+
+        // 执行登录后初始化脚本
+        this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
+
+        return se;
     }
 }

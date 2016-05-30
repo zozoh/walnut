@@ -215,6 +215,10 @@ public class WnUsrInfo {
         return loginPassword;
     }
 
+    public boolean hasLoginPassword() {
+        return !Strings.isBlank(loginPassword);
+    }
+
     public void setLoginPassword(String loginPassword) {
         this.loginPassword = loginPassword;
     }

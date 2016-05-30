@@ -106,6 +106,11 @@ public class IoWnUsrService implements WnUsrService {
         u.home(phHome);
         io.set(u, null);
 
+        // 如果有密码，设置密码
+        if (info.hasLoginPassword()) {
+            this.setPassword(u, info.getLoginPassword());
+        }
+
         // 返回
         return u;
     }
@@ -212,7 +217,7 @@ public class IoWnUsrService implements WnUsrService {
             log.debugf("read u: %s :: %s :: %s ", u.name(), u.password(), u.salt());
 
         if (u.salt() == null) { // 没有加盐? 加盐之
-            setPassword(u, u.password());
+            setPassword(u, Strings.sBlank(u.password(), "123456"));
         }
 
         if (log.isDebugEnabled())
@@ -349,6 +354,18 @@ public class IoWnUsrService implements WnUsrService {
             return oMe.getInt("role", 0);
         }
         return Wn.ROLE.OTHERS;
+    }
+
+    @Override
+    public boolean isMemberOfGroup(WnUsr u, String grp) {
+        int role = this.getRoleInGroup(u, grp);
+        return Wn.ROLE.ADMIN == role || Wn.ROLE.MEMBER == role;
+    }
+
+    @Override
+    public boolean isAdminOfGroup(WnUsr u, String grp) {
+        int role = this.getRoleInGroup(u, grp);
+        return Wn.ROLE.ADMIN == role;
     }
 
     @Override

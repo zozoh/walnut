@@ -41,6 +41,10 @@ public class WnRun {
     @Inject("java:$conf.getInt('box-alloc-timeout')")
     protected int allocTimeout;
 
+    public WnIo io() {
+        return io;
+    }
+
     public String exec(String logPrefix, String unm, final String cmdText) {
         return exec(logPrefix, unm, null, cmdText);
     }
@@ -86,11 +90,15 @@ public class WnRun {
 
     public WnSession creatSession(String unm) {
         final WnUsr u = usrs.check(unm);
-        return Wn.WC().su(u, new Proton<WnSession>() {
-            protected WnSession exec() {
-                return sess.create(u);
-            }
-        });
+
+        // zozoh: 为啥？考，应该直接创建就好了吧 ...
+        // return Wn.WC().su(u, new Proton<WnSession>() {
+        // protected WnSession exec() {
+        // return sess.create(u);
+        // }
+        // });
+
+        return sess.create(u);
     }
 
     public String exec(String logPrefix, WnSession se, String cmdText) {
