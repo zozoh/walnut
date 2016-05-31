@@ -29,6 +29,8 @@ public class WnUsrInfo {
 
     private String loginPassword;
 
+    private String userId;
+
     private String phone;
 
     private String email;
@@ -98,6 +100,10 @@ public class WnUsrInfo {
         if (isByOAuth())
             return q.setv("oauth_" + this.oauthProvider, this.oauthProfileId);
 
+        // 用户 ID
+        if (isByUserId())
+            return q.setv("id", this.userId);
+
         // 手机
         if (isByPhone())
             return q.setv("phone", this.phone);
@@ -166,8 +172,12 @@ public class WnUsrInfo {
         if (str.length() < 4)
             throw Er.create("e.usr.loginstr.tooshort");
 
+        // 用户 ID
+        if (str.startsWith("id:")) {
+            userId = Strings.trim(str.substring(3));
+        }
         // 手机
-        if (str.matches("^[0-9+-]{11,20}$")) {
+        else if (str.matches("^[0-9+-]{11,20}$")) {
             phone = str;
         }
         // 邮箱
@@ -185,6 +195,14 @@ public class WnUsrInfo {
 
         // 记录原始字符串
         this.loginStr = loginStr;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getPhone() {
@@ -257,6 +275,10 @@ public class WnUsrInfo {
 
     public boolean isByLoginStr() {
         return !Strings.isBlank(loginStr);
+    }
+
+    public boolean isByUserId() {
+        return !Strings.isBlank(userId);
     }
 
     public boolean isByPhone() {
