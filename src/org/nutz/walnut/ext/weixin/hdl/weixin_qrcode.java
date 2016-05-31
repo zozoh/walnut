@@ -109,7 +109,7 @@ public class weixin_qrcode implements JvmHdl {
         }
         
         if (resp != null) {
-            long expire_time = resp.has("expire_seconds")? -1 : System.currentTimeMillis() + resp.getInt("expire_seconds", 0)*1000 - 15*1000;
+            long expire_time = resp.has("expire_seconds")? System.currentTimeMillis() + resp.getInt("expire_seconds", 0)*1000 - 15*1000 : -1;
             resp.setv("scene_id", qrsid);
             resp.setv("scene_exp", expire_time);
             sys.out.println(Json.toJson(resp, df));
