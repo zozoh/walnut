@@ -1,17 +1,36 @@
 package org.nutz.walnut.ext.weixin.hdl;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.lang.segment.CharSegment;
+import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.ZParams;
 
+/**
+ * 根据扫码信息，执行对应脚本模板，模板固定到占位符为
+ * 
+ * <pre>
+ * {
+ *      openid   : "xxxxx",   // 微信用户到 openid
+ *      pnb      : "xxxxx",   // 公众号
+ *      scene    : "xxxxx",   // 场景字符串或者数字
+ *      eventKey : "xxxxx",   // 原始到扫码事件 KEY
+ * }
+ * </pre>
+ * 
+ * <p>
+ * 命令的使用方法:
+ * 
+ * <pre>
+ * # 执行对应脚本
+ * weixin xxx scan -openid yyy -eventkey '12345678' [-dft 'default']
+ * </pre>
+ * 
+ * @author wendal(wendal
+ * @author zozoh(zozohtnt@gmail.com)
+ */
 public class weixin_scan implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) {
@@ -19,24 +38,9 @@ public class weixin_scan implements JvmHdl {
         // weixin ${weixin_ToUserName} scan -openid ${weixin_FromUserName}
         // -eventkey '${weixin_EventKey}' -c
 
-        ZParams params = ZParams.parse(hc.args, "c");
         String pnb = hc.oHome.name();
-        String openid = params.check("openid");
-        String eventkey = params.check("eventkey");
-
-        // 如果指定了需要新建用户,且为root组的权限
-        if (params.is("c") && sys.me.myGroups().contains("root")) {
-            // 检查是否已经建好用户,没有的话就建一下
-            WnUsrInfo info = new WnUsrInfo();
-            info.setWeixinPNB(pnb);
-            info.setWeixinOpenId(openid);
-
-            WnUsr usr = sys.usrService.fetchBy(info);
-            if (usr == null) {
-                usr = sys.usrService.create(info);
-                sys.out.println("用户新建完成");
-            }
-        }
+        String openid = hc.params.check("openid");
+        String eventkey = hc.params.check("eventkey");
 
         // 乱入?
         if (Strings.isBlank(eventkey)) {
@@ -44,22 +48,34 @@ public class weixin_scan implements JvmHdl {
         }
 
         // 第一次关注就扫描的话, 会添加前缀qrscene_ 移除之
+        String scene = eventkey;
         if (eventkey.startsWith("qrscene_"))
-            eventkey = eventkey.substring("qrscene_".length());
+            scene = eventkey.substring("qrscene_".length());
 
         // 找找有没有对应的文本,有就当命令执行一下
-        String path = Wn.normalizeFullPath("~/.weixin/"
-                                           + hc.oHome.name()
-                                           + "/scene/"
-                                           + eventkey,
-                                           sys);
-        WnObj obj = sys.io.fetch(null, path);
-        if (obj != null) {
-            String cmd = sys.io.readText(obj);
-            CharSegment cs = new CharSegment(cmd);
-            cmd = cs.render(Lang.context().set("weixin_FromUserName", openid)).toString();
-            sys.out.print(sys.exec2(cmd));
+        WnObj obj = sys.io.fetch(hc.oHome, "scene/" + scene);
+
+        // 没找到，那么看看要不要执行默认到 key
+        if (null == obj && hc.params.has("dft")) {
+            obj = sys.io.fetch(hc.oHome, "scene/" + hc.params.get("dft"));
         }
-        // TODO 支持default?
+
+        // 找到了
+        if (obj != null) {
+            // 得到命令模版上下文
+            NutMap c = new NutMap();
+            c.put("openid", openid);
+            c.put("pnb", pnb);
+            c.put("eventkey", eventkey);
+            c.put("scene", scene);
+
+            // 读取命令模板
+            String tmpl = sys.io.readText(obj);
+            String cmdText = Tmpl.exec(tmpl, c);
+
+            // 执行并输出
+            sys.out.print(sys.exec2(cmdText));
+        }
+
     }
 }

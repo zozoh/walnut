@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnIo;
@@ -12,6 +11,7 @@ import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.web.util.WalnutLog;
 
@@ -59,7 +59,7 @@ public class WnSystem {
     }
 
     public void exec(String cmdText, OutputStream stdOut, OutputStream stdErr, InputStream stdIn) {
-        String[] cmdLines = Strings.split(cmdText, true, '\n', ';');
+        String[] cmdLines = Cmds.splitCmdLine(cmdText);
         _runner.out = new EscapeCloseOutputStream(null == stdOut ? out.getOutputStream() : stdOut);
         _runner.err = new EscapeCloseOutputStream(null == stdErr ? err.getOutputStream() : stdErr);
         _runner.in = new EscapeCloseInputStream(null == stdIn ? in.getInputStream() : stdIn);

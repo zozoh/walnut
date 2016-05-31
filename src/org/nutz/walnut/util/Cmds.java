@@ -19,6 +19,41 @@ import org.nutz.walnut.impl.box.WnSystem;
 
 public abstract class Cmds {
 
+    /**
+     * 考虑到文本行尾连接到命令行拆分
+     * 
+     * @param cmdText
+     *            命令文本
+     * @return 拆分到一个个逻辑命令行
+     */
+    public static String[] splitCmdLine(String cmdText) {
+        // 首先处理行尾到连接符号
+        String[] lines = Strings.trim(cmdText).split("\r?\n");
+
+        StringBuilder sb = new StringBuilder();
+        for (String line : lines) {
+            int len = sb.length();
+            // 有内容到话
+            if (len > 0) {
+                // 结尾是 '\\'
+                if (sb.charAt(len - 1) == '\\') {
+                    // 不计入回车，删除这个连接符
+                    sb.setLength(len - 1);
+                }
+                // 计入一个回车
+                else {
+                    sb.append('\n');
+                }
+            }
+            // 计入行到内容
+            sb.append(line);
+        }
+
+        // 作为一行，拆分
+        String str = sb.toString();
+        return Strings.split(str, true, '\n', ';');
+    }
+
     public static String getParamOrPipe(WnSystem sys,
                                         ZParams params,
                                         String key,
@@ -297,8 +332,23 @@ public abstract class Cmds {
     }
 
     public static JsonFormat gen_json_format(ZParams params) {
-        JsonFormat fmt = params.is("c") ? JsonFormat.compact() : JsonFormat.forLook();
-        fmt.setIgnoreNull(!params.is("n")).setQuoteName(params.is("q"));
-        return fmt;
+        String json = params.get("json");
+
+        // 用 -cqn 方式
+        if ("true" == json || json == null) {
+            JsonFormat fmt = params.is("c") ? JsonFormat.compact() : JsonFormat.forLook();
+            fmt.setIgnoreNull(!params.is("n")).setQuoteName(params.is("q"));
+            return fmt;
+        }
+        // 更复杂的 json 格式设定
+        else {
+            return Json.fromJson(JsonFormat.class, json);
+        }
+    }
+
+    private static final Pattern _out_ptn = Pattern.compile("((?<![@])[@][{]([^}]+)[}])|([@]([@][{][^}]+[}]))");
+
+    public static String out_by_tmpl(String tmpl, NutBean context) {
+        return Tmpl.exec(tmpl, _out_ptn, 2, 4, context, false);
     }
 }

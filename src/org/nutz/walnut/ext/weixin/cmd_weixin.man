@@ -163,5 +163,8 @@
     
 # 接受扫描事件
 
-   # 接受一个扫描事件,执行对应的命令文件 ~/.weixin/xxx/scene/12345678 可选参数-c代表是否新建用户(需要加入root组)
-   demo@~$  weixin xxx scan -openid yyy -eventkey '12345678' [-c] 
+    # 处理一个扫描事件,执行对应的命令文件 ~/.weixin/xxx/scene/12345678
+    demo@~$ weixin xxx scan -openid yyy -eventkey '12345678' -dft 'default'
+    
+    
+     

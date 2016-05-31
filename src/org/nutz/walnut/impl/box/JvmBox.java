@@ -15,6 +15,7 @@ import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.box.WnBoxStatus;
+import org.nutz.walnut.util.Cmds;
 
 public class JvmBox implements WnBox {
 
@@ -65,7 +66,7 @@ public class JvmBox implements WnBox {
 
     @Override
     public void run(String cmdText) {
-        String[] cmdLines = Strings.split(cmdText, true, '\n', ';');
+        String[] cmdLines = Cmds.splitCmdLine(cmdText);
 
         for (String cmdLine : cmdLines) {
             if (Strings.isBlank(cmdLine))

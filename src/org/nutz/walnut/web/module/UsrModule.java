@@ -22,7 +22,6 @@ import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrInfo;
@@ -269,7 +268,6 @@ public class UsrModule extends AbstractWnModule {
      * @return true 成功登出，false，没有可用会话不用登出
      */
     @At("/do/logout")
-    @Filters(@By(type = WnCheckSession.class))
     @Ok("--cookie>>:/")
     @Fail("ajax")
     public boolean do_logout() {
@@ -374,31 +372,45 @@ public class UsrModule extends AbstractWnModule {
 
     @At("/check/mplogin")
     @Ok("++cookie>>:/")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    // zozoh: 应该不用切换到 root 目录吧，当前线程的权限就是免检的
+    // @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
     public Object do_check_mplogin(@Param("uu32") String uu32) {
+        // zozoh ?? 为啥要 contains("..") ?? 求解释
         if (Strings.isBlank(uu32) || uu32.contains(".."))
             return new HttpStatusView(403);
-        WnObj rdir = io.fetch(null, "/root/.weixin/");
-        String mopenid = io.query(new WnQuery().setv("pid", rdir.id())).get(0).name();
+
+        // 嗯，那么用哪个账号的微信设置呢？
+        // 需要读取 /etc/mplogin 文件，文件内容就是一个字符串，表示处理的路径
+        // 如果没有这个文件，那么就采用 /root/.weixin/mplogin/tickets 目录
+        WnObj oConf = io.fetch(null, "/etc/mplogin");
+        String ticketsHomePath = "/root/.weixin/mplogin/tickets";
+        if (null != oConf) {
+            ticketsHomePath = Strings.trim(io.readText(oConf));
+        }
 
         // 检查扫码结果
-        WnObj obj = io.fetch(null, "/root/.weixin/" + mopenid + "/mplogin/" + uu32);
+        WnObj obj = io.fetch(null, Wn.appendPath(ticketsHomePath, uu32));
+
+        // 还木有生成，大约是没有被扫码吧
         if (obj == null)
             return new HttpStatusView(403);
 
-        String openid = io.readText(obj);
-        if (Strings.isBlank(openid))
+        // 生成了文件，但是内容为空，也容忍一下吧
+        String uid = Strings.trim(io.readText(obj));
+        if (Strings.isBlank(uid))
             return new HttpStatusView(403);
 
-        // 扫码成功，执行登录
-        WnUsr usr = usrs.check("wxgh:" + mopenid + ":" + openid);
+        // 扫码成功，看看给出 uid 是否正确
+        WnUsr usr = usrs.check("id:" + uid);
 
+        // 为这个用户创建一个会话
         WnSession se = sess.create(usr);
         Wn.WC().SE(se);
 
         // 执行登录后初始化脚本
         this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
 
+        // 搞定，返回
         return se;
     }
 }

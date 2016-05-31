@@ -78,7 +78,7 @@ public class weixin_qrcode implements JvmHdl {
 
         WxResp resp = null;
         String qrsid = hc.params.check("qrsid");
-        
+
         JsonFormat df = hc.jfmt.setDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         // 临时二维码
         if ("QR_SCENE".equals(str)) {
@@ -97,7 +97,7 @@ public class weixin_qrcode implements JvmHdl {
             }
             int qrexpi = hc.params.getInt("qrexpi", 3600);
             resp = wxApi.qrcode_create(_qrsid, qrexpi);
-            qrsid = ""+_qrsid;
+            qrsid = "" + _qrsid;
         }
         // 永久二维码
         if ("QR_LIMIT_SCENE".equals(str)) {
@@ -107,23 +107,42 @@ public class weixin_qrcode implements JvmHdl {
         if ("QR_LIMIT_STR_SCENE".equals(str)) {
             resp = wxApi.qrcode_create(qrsid, -1);
         }
-        
+
+        // 请求成功后，后续处理
         if (resp != null) {
-            long expire_time = resp.has("expire_seconds")? System.currentTimeMillis() + resp.getInt("expire_seconds", 0)*1000 - 15*1000 : -1;
+            // 计算过期时间
+            long expire_time = -1;
+            if (resp.has("expire_seconds"))
+                expire_time = System.currentTimeMillis()
+                              + resp.getInt("expire_seconds", 0) * 1000
+                              - 15 * 1000;
+
+            // 输出
             resp.setv("scene_id", qrsid);
             resp.setv("scene_exp", expire_time);
             sys.out.println(Json.toJson(resp, df));
-            WnObj tmp = sys.io.createIfNoExists(hc.oHome, "scene/"+qrsid, WnRace.FILE);
-            // 从流中读取cmd文本,然后写入对应的scene
-            String cmd = Cmds.getParamOrPipe(sys, hc.params, "cmd", true);
-            if (!Strings.isBlank(cmd)) {
-                sys.io.writeText(tmp, cmd);
+
+            // 看看是否需要输出场景后续执行脚本
+            if (hc.params.has("cmd")) {
+                // 创建场景后续脚本文件
+                WnObj tmp = sys.io.createIfNoExists(hc.oHome, "scene/" + qrsid, WnRace.FILE);
+
+                // 从流中读取cmd文本,然后写入对应的scene
+                String cmd = Cmds.getParamOrPipe(sys, hc.params, "cmd", true);
+                if (!Strings.isBlank(cmd)) {
+                    sys.io.writeText(tmp, cmd);
+                }
+
+                // 设置脚本文件到属性
+                NutMap meta = new NutMap();
+                meta.put("weixin_scene_ticket", resp.get("ticket"));
+                meta.put("weixin_scene_url", resp.get("url"));
+                meta.put("weixin_scene_exp", expire_time);
+                if (expire_time > 0)
+                    meta.put("expi", expire_time);
+
+                sys.io.setBy(tmp.id(), meta, false);
             }
-            NutMap meta = new NutMap();
-            meta.put("weixin_scene_ticket", resp.get("ticket"));
-            meta.put("weixin_scene_url", resp.get("url"));
-            meta.put("weixin_scene_exp", expire_time);
-            sys.io.setBy(tmp.id(), meta, false);
             return;
         }
 
