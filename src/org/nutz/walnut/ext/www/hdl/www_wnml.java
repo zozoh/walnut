@@ -43,7 +43,7 @@ public class www_wnml implements WWWHdl {
             __do_include(sys, wwc, ele, wwc.context);
         }
         
-        System.out.println(doc);
+        //System.out.println(doc);
 
         // 然后处理数据源
         // eles = doc.select("script.wn-datasource");

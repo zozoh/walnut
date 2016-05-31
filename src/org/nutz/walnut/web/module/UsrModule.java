@@ -391,7 +391,7 @@ public class UsrModule extends AbstractWnModule {
             return new HttpStatusView(403);
 
         // 扫码成功，执行登录
-        WnUsr usr = usrs.check("oauth_weixin_mp_" + mopenid + ":" + openid);
+        WnUsr usr = usrs.check("wxgh:" + mopenid + ":" + openid);
 
         WnSession se = sess.create(usr);
         Wn.WC().SE(se);

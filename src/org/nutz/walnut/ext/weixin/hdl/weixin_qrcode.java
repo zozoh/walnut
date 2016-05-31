@@ -76,26 +76,40 @@ public class weixin_qrcode implements JvmHdl {
         // 创建微信 API
         WxApi2 wxApi = WxUtil.genWxApi(sys, hc);
 
+        WxResp resp = null;
+        String qrsid = hc.params.check("qrsid");
+        
         JsonFormat df = hc.jfmt.setDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         // 临时二维码
         if ("QR_SCENE".equals(str)) {
-            int qrsid = 0;
+            int _qrsid = 0;
             if ("0".equals(hc.params.get("qrsid"))) {
                 WnObj tmp = sys.io.createIfNoExists(hc.oHome, "scene_seq", WnRace.FILE);
                 String key = "weixin_scene_seq";
-                qrsid = tmp.getInt("weixin_scene_seq", 0);
-                if (qrsid == 0) {
+                _qrsid = tmp.getInt("weixin_scene_seq", 0);
+                if (_qrsid == 0) {
                     tmp.put("weixin_scene_seq", 100000); // 自增的从10w开始
                     sys.io.set(tmp, "weixin_scene_seq");
                 }
-                qrsid = sys.io.inc(tmp.id(), key, 1, true);
+                _qrsid = sys.io.inc(tmp.id(), key, 1, true);
             } else {
-                qrsid = hc.params.getInt("qrsid");
+                _qrsid = hc.params.getInt("qrsid");
             }
             int qrexpi = hc.params.getInt("qrexpi", 3600);
-            WxResp resp = wxApi.qrcode_create(qrsid, qrexpi);
-            
-            long expire_time = System.currentTimeMillis() + resp.getInt("expire_seconds", 0)*1000 - 15*1000;
+            resp = wxApi.qrcode_create(_qrsid, qrexpi);
+            qrsid = ""+_qrsid;
+        }
+        // 永久二维码
+        if ("QR_LIMIT_SCENE".equals(str)) {
+            resp = wxApi.qrcode_create(qrsid, -1);
+        }
+        // 永久字符串二维码
+        if ("QR_LIMIT_STR_SCENE".equals(str)) {
+            resp = wxApi.qrcode_create(qrsid, -1);
+        }
+        
+        if (resp != null) {
+            long expire_time = resp.has("expire_seconds")? -1 : System.currentTimeMillis() + resp.getInt("expire_seconds", 0)*1000 - 15*1000;
             resp.setv("scene_id", qrsid);
             resp.setv("scene_exp", expire_time);
             sys.out.println(Json.toJson(resp, df));
@@ -110,20 +124,6 @@ public class weixin_qrcode implements JvmHdl {
             meta.put("weixin_scene_url", resp.get("url"));
             meta.put("weixin_scene_exp", expire_time);
             sys.io.setBy(tmp.id(), meta, false);
-            return;
-        }
-        // 永久二维码
-        if ("QR_LIMIT_SCENE".equals(str)) {
-            int qrsid = hc.params.getInt("qrsid");
-            WxResp resp = wxApi.qrcode_create(qrsid, -1);
-            sys.out.println(Json.toJson(resp, df));
-            return;
-        }
-        // 永久字符串二维码
-        if ("QR_LIMIT_STR_SCENE".equals(str)) {
-            String qrsid = hc.params.check("qrsid");
-            WxResp resp = wxApi.qrcode_create(qrsid, -1);
-            sys.out.println(Json.toJson(resp, df));
             return;
         }
 

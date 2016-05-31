@@ -49,7 +49,6 @@ public class GuestModule extends AbstractWnModule {
         String sha1 = o.sha1();
         if (!Strings.isBlank(sha1))
             resp.setHeader("ETag", sha1);
-        System.out.println(o.lastModified() +","+ req.getDateHeader("If-Modified-Since"));
         if (o.lastModified()/1000 == req.getDateHeader("If-Modified-Since")/1000) {
             if (Strings.isBlank(sha1) || sha1.equals(req.getAttribute("If-None-Match")))
                 return HTTP_304;

@@ -13,6 +13,10 @@ public class cmd_adduser extends JvmExecutor {
 
         String str = params.val_check(0);
         String passwd = params.get("p", "123456");
+        
+        if (sys.usrService.fetch(str) != null) {
+            return;
+        }
 
         WnUsrInfo info = new WnUsrInfo(str);
 
