@@ -766,15 +766,18 @@ public abstract class Wn {
         }
         return ms;
     }
-    
+
     /**
-     * 处理链接文件
+     * 处理链接文件，如果是链接对象，返回原始对象
+     * 
      * @param o
-     * @return
+     *            原始对象
+     *            
+     * @return 真实文件对象
      */
     public static WnObj real(WnObj o, WnIo io) {
         if (null != o && o.isLink()) {
-            //String oldPath = o.path();
+            // String oldPath = o.path();
             String ln = o.link();
             // 用 ID
             if (ln.startsWith("id:")) {
@@ -794,7 +797,7 @@ public abstract class Wn {
             if (null == o)
                 throw Er.create("e.io.obj.noexists", ln);
             // 恢复节点的 path
-            //o.path(oldPath);
+            // o.path(oldPath);
         }
         return o;
     }
