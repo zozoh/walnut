@@ -24,6 +24,7 @@ public class cmd_appInit extends JvmExecutor {
         Context c = Lang.context();
         c.set("host", params.get("host", "<nil>"));
         c.set("grp", params.get("grp", sys.se.group()));
+        c.set("usr", sys.se.me());
         String pnb = params.get("pnb");
         c.set("pnb", pnb);
         if (params.has("img"))

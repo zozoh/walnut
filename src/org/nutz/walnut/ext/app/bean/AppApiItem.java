@@ -13,6 +13,8 @@ public class AppApiItem {
     public Map<String, String> headers;
 
     public NutMap metas;
+    
+    public String when;
 
     public List<String> commands;
 

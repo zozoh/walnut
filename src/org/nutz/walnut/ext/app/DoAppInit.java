@@ -70,7 +70,7 @@ class DoAppInit {
 
         // 处理 httpapi
         if (ai.apiItems.size() > 0) {
-            _do_httpapi();
+            _do_httpapi(c);
         }
 
         // 处理微信
@@ -136,12 +136,19 @@ class DoAppInit {
         _Ln(Strings.dup('-', 44));
     }
 
-    private void _do_httpapi() {
+    private void _do_httpapi(Context c) {
         _Ln("init httpapi :");
 
         String phApiHome = Wn.normalizeFullPath("~/.regapi/api", sys);
         WnObj apiHome = sys.io.createIfNoExists(null, phApiHome, WnRace.DIR);
         for (AppApiItem item : ai.apiItems) {
+            
+            if (!Strings.isBlank(item.when)) {
+                if (item.when.startsWith("user:") && !item.when.equals("user:"+c.getString("usr"))) {
+                    continue;
+                }
+            }
+            
             _Lf("  - %-38s", item.path);
 
             WnObj oApi = sys.io.createIfNoExists(apiHome, item.path, WnRace.FILE);

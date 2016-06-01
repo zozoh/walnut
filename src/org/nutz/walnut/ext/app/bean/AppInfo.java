@@ -184,7 +184,14 @@ public class AppInfo {
                     apiItems.add(item);
                 }
                 item = new AppApiItem();
-                item.path = Segments.replace(Strings.trim(line.substring(1)), c);
+                item.path = Segments.replace(Strings.trim(line.substring(1)), c).trim();
+                if (item.path.contains(" ")) {
+                    String[] tmp = item.path.split(" ", 2);
+                    if (tmp.length == 2) {
+                        item.path = tmp[0];
+                        item.when = tmp[1];
+                    }
+                }
                 item.headers = new HashMap<String, String>();
                 item.metas = new NutMap();
 
