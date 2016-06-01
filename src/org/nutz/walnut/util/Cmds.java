@@ -351,4 +351,8 @@ public abstract class Cmds {
     public static String out_by_tmpl(String tmpl, NutBean context) {
         return Tmpl.exec(tmpl, _out_ptn, 2, 4, context, false);
     }
+
+    public static Tmpl parse_tmpl(String tmpl) {
+        return Tmpl.parse(tmpl, _out_ptn, 2, 4);
+    }
 }

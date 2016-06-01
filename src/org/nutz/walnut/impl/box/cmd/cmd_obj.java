@@ -180,6 +180,12 @@ public class cmd_obj extends JvmExecutor {
             __do_pop(sys, params, list);
         }
 
+        // 执行 set 操作
+        boolean _is_set = params.has("set");
+        if (_is_set) {
+            __do_set(sys, params, list);
+        }
+
         // 最后执行输出
         if (((null == u_map && !_is_push && !_is_pop) || params.is("o")) && !params.is("Q")) {
             Cmds.output_objs(sys, params, wp, list, true);
@@ -458,6 +464,63 @@ public class cmd_obj extends JvmExecutor {
                 vList.add(ele);
             }
         }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private void __do_set(WnSystem sys, ZParams params, List<WnObj> list) {
+        // 得到要 set 的值
+        String json = Cmds.getParamOrPipe(sys, params, "set", false);
+        NutMap setMap = Lang.map(json);
+
+        // 处理每个对象
+        for (WnObj o : list) {
+
+            // 对每个对象对应的 key 执行操作
+            for (Map.Entry<String, Object> en : setMap.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+
+                // val 必须为 Map
+                if (!(val instanceof Map)) {
+                    throw Er.create("e.cmd.obj.set.nomap", key + ":" + Json.toJson(val));
+                }
+
+                Map map = (Map) val;
+
+                // 得到原对象的值
+                Object valueInObj = o.get(key);
+
+                // 原来的值也是 Map，那么合并
+                if (null != valueInObj && (valueInObj instanceof Map)) {
+                    Map mapInObj = (Map) valueInObj;
+                    for (Object key2 : map.keySet()) {
+                        Object val2 = map.get(key2);
+                        // 移除
+                        if (null == val2) {
+                            mapInObj.remove(key2);
+                        }
+                        // 修改
+                        else {
+                            mapInObj.put(key2, val2);
+                        }
+                    }
+                }
+                // 否则替换
+                else {
+                    valueInObj = map;
+                }
+
+                // 更新到对象里
+                o.setv(key, valueInObj);
+            }
+
+            // 更新的正则表达式
+            String regex = "^(" + Lang.concat("|", setMap.keySet()) + ")$";
+
+            // 执行更新
+            sys.io.set(o, regex);
+        }
+
     }
 
     private void __do_pop(WnSystem sys, ZParams params, List<WnObj> list) {
