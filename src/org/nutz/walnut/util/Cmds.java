@@ -335,7 +335,7 @@ public abstract class Cmds {
         String json = params.get("json");
 
         // 用 -cqn 方式
-        if ("true" == json || json == null) {
+        if ("true".equals(json) || json == null) {
             JsonFormat fmt = params.is("c") ? JsonFormat.compact() : JsonFormat.forLook();
             fmt.setIgnoreNull(!params.is("n")).setQuoteName(params.is("q"));
             return fmt;

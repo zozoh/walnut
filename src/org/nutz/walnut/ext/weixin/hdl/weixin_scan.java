@@ -4,6 +4,8 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -68,6 +70,13 @@ public class weixin_scan implements JvmHdl {
             c.put("pnb", pnb);
             c.put("eventkey", eventkey);
             c.put("scene", scene);
+            WnUsrInfo usrInfo = new WnUsrInfo();
+            usrInfo.setWeixinPNB(pnb);
+            usrInfo.setWeixinOpenId(openid);
+            WnUsr usr = sys.usrService.fetchBy(usrInfo);
+            if (usr != null) {
+                c.put("uid", usr.id());
+            }
 
             // 读取命令模板
             String tmpl = sys.io.readText(obj);

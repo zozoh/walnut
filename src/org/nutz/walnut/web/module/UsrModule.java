@@ -399,6 +399,9 @@ public class UsrModule extends AbstractWnModule {
         String uid = Strings.trim(io.readText(obj));
         if (Strings.isBlank(uid))
             return new HttpStatusView(403);
+        
+        // 清除登陆信息
+        io.delete(obj);
 
         // 扫码成功，看看给出 uid 是否正确
         WnUsr usr = usrs.check("id:" + uid);
