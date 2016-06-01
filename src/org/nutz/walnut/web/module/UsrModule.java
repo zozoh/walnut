@@ -404,7 +404,7 @@ public class UsrModule extends AbstractWnModule {
         io.delete(obj);
 
         // 扫码成功，看看给出 uid 是否正确
-        WnUsr usr = usrs.check("id:" + uid);
+        WnUsr usr = usrs.check(uid);
 
         // 为这个用户创建一个会话
         WnSession se = sess.create(usr);

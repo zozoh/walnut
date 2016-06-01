@@ -766,4 +766,36 @@ public abstract class Wn {
         }
         return ms;
     }
+    
+    /**
+     * 处理链接文件
+     * @param o
+     * @return
+     */
+    public static WnObj real(WnObj o, WnIo io) {
+        if (null != o && o.isLink()) {
+            //String oldPath = o.path();
+            String ln = o.link();
+            // 用 ID
+            if (ln.startsWith("id:")) {
+                String id = ln.substring("id:".length());
+                o = io.get(id);
+            }
+            // 用路径
+            else {
+                if (ln.startsWith("/")) {
+                    o = io.fetch(null, ln);
+                } else {
+                    WnObj p = o.parent();
+                    o = io.fetch(p, ln);
+                }
+            }
+            // 如果节点不存在
+            if (null == o)
+                throw Er.create("e.io.obj.noexists", ln);
+            // 恢复节点的 path
+            //o.path(oldPath);
+        }
+        return o;
+    }
 }

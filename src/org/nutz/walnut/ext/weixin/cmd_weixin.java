@@ -43,6 +43,11 @@ public class cmd_weixin extends JvmHdlExecutor {
                 String aph = Wn.normalizeFullPath("~/.weixin/" + hc.args[0], sys);
                 hc.oHome = sys.io.check(null, aph);
             }
+            
+            if (hc.oHome != null && hc.oHome.isLink()) {
+                String aph = Wn.normalizeFullPath("~/.weixin/" + hc.oHome.link(), sys);
+                hc.oHome = sys.io.check(null, aph);
+            }
 
             // 获得处理器名称
             hc.hdlName = hc.args[1];

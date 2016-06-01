@@ -137,7 +137,7 @@ public class weixin_qrcode implements JvmHdl {
                 NutMap meta = new NutMap();
                 meta.put("weixin_scene_ticket", resp.get("ticket"));
                 meta.put("weixin_scene_url", resp.get("url"));
-                meta.put("weixin_scene_exp", expire_time);
+                //meta.put("weixin_scene_exp", expire_time);
                 if (expire_time > 0)
                     meta.put("expi", expire_time);
 
