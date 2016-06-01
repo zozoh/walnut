@@ -300,7 +300,8 @@ public class AppInfo {
                     if (line.matches("^[-]{6,} *end *$"))
                         break;
                     line = line.replaceAll("(\\\\)([*@\\\\])", "$2");
-                    line = new CharSegment(line).render(c).toString();
+                    if (line.contains("${img}")) //TODO 先临时解决一下
+                        line = new CharSegment(line).render(c).toString();
                     item.content.append(line).append('\n');
                 }
                 
