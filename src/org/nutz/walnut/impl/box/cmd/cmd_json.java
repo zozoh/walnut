@@ -1,10 +1,11 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
@@ -29,7 +30,7 @@ public class cmd_json extends JvmExecutor {
         boolean recur;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
 
@@ -42,11 +43,31 @@ public class cmd_json extends JvmExecutor {
         Object obj = Json.fromJson(json);
 
         // 取值模式
-        String key = params.get("get");
-        if (null != key) {
-            Object val = Mapl.cell(obj, key);
-            sys.out.println(Castors.me().castToString(val));
-            return;
+        String getKey = params.get("get");
+        if (null != getKey) {
+            Object val = Mapl.cell(obj, getKey);
+            obj = val;
+        }
+
+        // 过滤一层 key
+        if (params.has("key") && obj instanceof Map) {
+            Map map = (Map) obj;
+            // 分析
+            String keyRegex = params.get("key");
+            boolean isNot = keyRegex.startsWith("!");
+            if (isNot)
+                keyRegex = keyRegex.substring(1);
+            // 循环看看那些要删除
+            List<String> delKeys = new ArrayList<String>(map.size());
+            for (Object mapKey : map.keySet()) {
+                String key = mapKey.toString();
+                if (!(key.matches(keyRegex) ^ isNot)) {
+                    delKeys.add(key);
+                }
+            }
+            // 依次删除
+            for (String key : delKeys)
+                map.remove(key);
         }
 
         // JSON 输出的格式化
@@ -96,11 +117,17 @@ public class cmd_json extends JvmExecutor {
             }, C.recur);
         }
 
+        // 修改模式
         if (params.has("u")) {
             NutMap map = Lang.map(params.get("u"));
             if (map != null && map.size() > 0) {
                 obj = NutMap.WRAP(((Map<String, Object>) obj)).mergeWith(map);
             }
+        }
+
+        // 添加模式
+        if (params.has("put")) {
+            obj = Lang.map(params.get("put"), obj);
         }
 
         // 模板方式输出

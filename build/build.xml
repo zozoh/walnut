@@ -19,7 +19,7 @@
 	<property name="JDK_VERSION" value="1.8" />
 
 
-	<property name="v" value="1.6" />
+	<property name="v" value="1.7" />
 
 	<path id="CLASSPATH">
 		<fileset dir="${DEPS}" casesensitive="no">
@@ -32,7 +32,6 @@
 	    <mkdir dir="${TMP_SRC}" />
 	    <copy todir="${TMP_SRC}">
             <fileset dir="${SRC}"/>
-            <fileset dir="${EXT}"/>
         </copy>
         <mkdir dir="${TMP_JAR}" />
 		<javac srcdir="${TMP_SRC}" destdir="${TMP_JAR}" debuglevel="lines,vars,source" debug="true" 

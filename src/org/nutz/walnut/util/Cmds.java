@@ -131,7 +131,7 @@ public abstract class Cmds {
             }
             // 按照模板输出
             else if (params.has("tmpl")) {
-                output_objs_by_tmpl(sys, params, wp, outs);
+                output_objs_by_tmpl(sys, params, wp, outs, "tmpl");
             }
             // 用 Json 的方法输出
             else {
@@ -147,8 +147,9 @@ public abstract class Cmds {
     public static void output_objs_by_tmpl(WnSystem sys,
                                            ZParams params,
                                            WnPager wp,
-                                           List<NutMap> outs) {
-        Tmpl tmpl = Tmpl.parse(params.get("tmpl"));
+                                           List<NutMap> outs,
+                                           String tmplKey) {
+        Tmpl tmpl = Cmds.parse_tmpl(params.get(tmplKey));
 
         boolean show_index = params.is("i");
 
