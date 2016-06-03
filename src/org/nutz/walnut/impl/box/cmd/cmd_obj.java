@@ -698,21 +698,12 @@ public class cmd_obj extends JvmExecutor {
         if (!"root".equals(sys.se.group()))
             q.setv("d1", sys.se.group());
 
-        // 如果给定了分页信息
+        // 设置分页信息
         if (null != wp) {
-            // 看看是否需要查询分页信息
-            if (wp.countPage && wp.limit > 0) {
-                wp.sum_count = (int) sys.io.count(q);
-                wp.sum_page = (int) Math.ceil(((double) wp.sum_count) / ((double) wp.limit));
-            }
-
-            if (wp.skip > 0)
-                q.skip(wp.skip);
-
-            if (wp.limit > 0)
-                q.limit(wp.limit);
+            wp.setupQuery(sys, q);
         }
 
+        // 设置排序
         if (null != sort)
             q.sort(sort);
 

@@ -18,4 +18,6 @@ public @interface JvmHdlParamArgs {
 
     public String value() default "";
 
+    public String regex() default "";
+
 }

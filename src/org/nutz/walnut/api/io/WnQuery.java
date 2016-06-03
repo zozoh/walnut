@@ -68,9 +68,23 @@ public class WnQuery {
         return this;
     }
 
+    public WnQuery setvToList(String key, Object value) {
+        for (NutMap ele : list) {
+            ele.setv(key, value);
+        }
+        return this;
+    }
+
     public WnQuery setAll(Map<String, Object> map) {
         NutMap ele = first();
         ele.setAll(map);
+        return this;
+    }
+
+    public WnQuery setAllToList(Map<String, Object> map) {
+        for (NutMap ele : list) {
+            ele.setAll(map);
+        }
         return this;
     }
 

@@ -72,14 +72,7 @@ public class ZParams {
             // 支持 -bish 这样的组合形式
             Pattern bool_char = null;
             if (!Strings.isBlank(boolChars)) {
-                // 给的就是正则表达式
-                if (boolChars.startsWith("^")) {
-                    bool_char = Pattern.compile(boolChars);
-                }
-                // 直接是普通的字符串，那么做一下拼装
-                else {
-                    bool_char = Pattern.compile("^-([" + boolChars + "]+)$");
-                }
+                bool_char = Pattern.compile("^-([" + boolChars + "]+)$");
             }
 
             // 参数表 ...

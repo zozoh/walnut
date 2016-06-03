@@ -66,7 +66,6 @@ public abstract class Cmds {
 
         // 返回
         return Strings.trim(str);
-
     }
 
     public static String checkParamOrPipe(WnSystem sys,
@@ -78,6 +77,29 @@ public abstract class Cmds {
 
         if (Strings.isBlank(str)) {
             throw Er.create("e.cmd.lack.param", key);
+        }
+
+        return str;
+
+    }
+
+    public static String getParamOrPipe(WnSystem sys, ZParams params, int index) {
+        // 得到内容
+        String str = params.val(index);
+        if (Strings.isBlank(str) && null != sys.in) {
+            str = sys.in.readAll();
+        }
+
+        // 返回
+        return Strings.trim(str);
+    }
+
+    public static String checkParamOrPipe(WnSystem sys, ZParams params, int index) {
+        // 得到内容
+        String str = getParamOrPipe(sys, params, index);
+
+        if (Strings.isBlank(str)) {
+            throw Er.create("e.cmd.lack.param", "[" + index + "]");
         }
 
         return str;

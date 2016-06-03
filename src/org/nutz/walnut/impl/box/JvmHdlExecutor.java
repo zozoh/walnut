@@ -37,7 +37,11 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
         // 调用执行器
         hc.hdl.invoke(sys, hc);
 
+        // 最后执行
+        _before_quit(sys, hc);
     }
+
+    protected void _before_quit(WnSystem sys, JvmHdlContext hc) {}
 
     protected void _find_hdl_name(WnSystem sys, JvmHdlContext hc) {
         if (hc.args.length == 0)

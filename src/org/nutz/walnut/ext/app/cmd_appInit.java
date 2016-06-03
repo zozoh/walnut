@@ -32,8 +32,8 @@ public class cmd_appInit extends JvmExecutor {
 
         // 读取并解析输入
         Reader reader = null;
-        if (sys.pipeId == 0) {
-            reader = Streams.fileInr(params.check("file"));
+        if (params.has("file")) {
+            reader = Streams.fileInr(params.get("file"));
         } else {
             reader = sys.in.getReader();
         }
