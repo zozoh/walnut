@@ -329,7 +329,7 @@ public class ObjModule extends AbstractWnModule {
     public WnObj write(String str, InputStream ins) {
         WnObj o = Wn.checkObj(io, str);
         OutputStream ops = io.getOutputStream(o, 0);
-        Streams.writeAndClose(ops, ins);
+        Streams.writeAndClose(ops, ins, 256*1024);
         return o;
     }
 
@@ -436,7 +436,7 @@ public class ObjModule extends AbstractWnModule {
 
         // 写入
         OutputStream ops = io.getOutputStream(o, 0);
-        Streams.writeAndClose(ops, ins);
+        Streams.writeAndClose(ops, ins, 256*1024);
 
         // 返回
         return o;
