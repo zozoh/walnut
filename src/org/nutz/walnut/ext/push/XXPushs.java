@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.push;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -10,6 +11,11 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.Webs.Err;
+
+import com.xiaomi.push.sdk.ErrorCode;
+import com.xiaomi.xmpush.server.Message;
+import com.xiaomi.xmpush.server.Result;
+import com.xiaomi.xmpush.server.Sender;
 
 import cn.jpush.api.JPushClient;
 import cn.jpush.api.common.resp.APIConnectionException;
@@ -26,6 +32,7 @@ import cn.jpush.api.push.model.notification.Notification;
 public class XXPushs {
     
     protected static Map<String, JPushClient> jpushs = new HashMap<>();
+    protected static Map<String, Sender> xmpushs = new HashMap<>();
     
     public static String send(WnSystem sys, String provider, String alias, String message, String alert, Map<String, String> extras, String platform) {
         WnObj tmp = sys.io.fetch(null, Wn.normalizeFullPath("~/.xxpush/config_"+provider, sys));
@@ -35,7 +42,8 @@ public class XXPushs {
         switch (provider) {
         case "jpush":
             return toJpush(conf, alias, message, alert, extras, platform);
-
+        case "xmpush":
+            return toXmPush(conf, alias, message, alert, extras, platform);
         default:
             break;
         }
@@ -97,6 +105,44 @@ public class XXPushs {
             throw Err.create("e.cmd.push.jpush_fail", re);
         }
         catch (APIConnectionException | APIRequestException e) {
+            throw Err.create(e, "e.cmd.push.jpush_fail", e.getMessage());
+        }
+    }
+    
+    public static String toXmPush(NutMap conf, String alias, String message, String alert, Map<String, String> extras, String platform) {
+        Message msg = null;
+        if (Strings.isBlank(alert)) {
+            Message.Builder builder = new Message.Builder().title(message).description(message).passThrough(1).payload(message);
+            for (Entry<String, String> en : extras.entrySet()) {
+                builder.extra(en.getKey(), en.getValue());
+            }
+            msg = builder.build();
+        } else {
+            Message.Builder builder = new Message.Builder().title(alert).description(alert);
+            for (Entry<String, String> en : extras.entrySet()) {
+                builder.extra(en.getKey(), en.getValue());
+            }
+            msg = builder.build();
+        }
+        try {
+            String appSecret = conf.getString("appSecret");
+            String key = Lang.md5(appSecret);
+            Sender xmpush = xmpushs.get(key);
+            if (xmpush == null) {
+                synchronized (jpushs) {
+                    xmpush = xmpushs.get(key);
+                    if (xmpush == null) {
+                        xmpush = new Sender(appSecret);
+                        xmpushs.put(key, xmpush);
+                    }
+                }
+            }
+            Result re = xmpush.sendToAlias(msg, alias, 3);
+            if (re.getErrorCode() == ErrorCode.Success)
+                return "msgid="+re.getMessageId();
+            throw Err.create("e.cmd.push.jpush_fail", re);
+        }
+        catch (Exception e) {
             throw Err.create(e, "e.cmd.push.jpush_fail", e.getMessage());
         }
     }
