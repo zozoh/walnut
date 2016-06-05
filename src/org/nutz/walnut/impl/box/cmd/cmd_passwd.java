@@ -1,6 +1,8 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
+import org.nutz.lang.random.StringGenerator;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -15,6 +17,8 @@ import org.nutz.walnut.util.ZParams;
  *
  */
 public class cmd_passwd extends JvmExecutor {
+    
+    private static StringGenerator sg = R.sg(6);
 
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, null);
@@ -28,9 +32,13 @@ public class cmd_passwd extends JvmExecutor {
         else {
             passwd = params.val(0);
         }
-
+        
+        boolean printOut = false;
         if (passwd.length() < 4) {
             throw Er.create("e.cmd.passwd.tooshort");
+        } else if ("wxgh_reset".equals(passwd)) {
+            passwd = sg.next().toLowerCase();
+            printOut = true;
         }
 
         // 确定用户
@@ -49,6 +57,8 @@ public class cmd_passwd extends JvmExecutor {
 
         // 执行密码修改
         sys.usrService.setPassword(u, passwd);
+        if (printOut)
+            sys.out.print(passwd);
     }
 
 }
