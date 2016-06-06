@@ -9,6 +9,7 @@ import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 
 /**
  * 根据扫码信息，执行对应脚本模板，模板固定到占位符为
@@ -27,7 +28,7 @@ import org.nutz.walnut.impl.box.WnSystem;
  * 
  * <pre>
  * # 执行对应脚本
- * weixin xxx scan -openid yyy -eventkey '12345678' [-dft 'default']
+ * weixin xxx scan -openid yyy -eventkey '12345678' [-dft 'default'] -scan_lock 15000
  * </pre>
  * 
  * @author wendal(wendal
@@ -64,6 +65,18 @@ public class weixin_scan implements JvmHdl {
 
         // 找到了
         if (obj != null) {
+            // 防止重复
+            long scen_lock = sys.io.getLong(obj.id(), "scan_lock_at", 0);
+            long nowInMs = System.currentTimeMillis();
+            if (scen_lock > nowInMs) {
+                return;
+            }
+
+            sys.io.setBy(Wn.Q.id(obj),
+                         "scan_lock_at",
+                         nowInMs + hc.params.getLong("scan_lock", 15000),
+                         true);
+
             // 得到命令模版上下文
             NutMap c = new NutMap();
             c.put("openid", openid);
