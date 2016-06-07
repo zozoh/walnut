@@ -112,12 +112,14 @@ public class XXPushs {
     public static String toXmPush(NutMap conf, String alias, String message, String alert, Map<String, String> extras, String platform) {
         Message msg = null;
         if (Strings.isBlank(alert)) {
+            // Message 透传信息
             Message.Builder builder = new Message.Builder().title(message).description(message).passThrough(1).payload(message);
             for (Entry<String, String> en : extras.entrySet()) {
                 builder.extra(en.getKey(), en.getValue());
             }
             msg = builder.build();
         } else {
+            // 通知栏
             Message.Builder builder = new Message.Builder().title(alert).description(alert);
             for (Entry<String, String> en : extras.entrySet()) {
                 builder.extra(en.getKey(), en.getValue());
@@ -129,7 +131,7 @@ public class XXPushs {
             String key = Lang.md5(appSecret);
             Sender xmpush = xmpushs.get(key);
             if (xmpush == null) {
-                synchronized (jpushs) {
+                synchronized (xmpushs) {
                     xmpush = xmpushs.get(key);
                     if (xmpush == null) {
                         xmpush = new Sender(appSecret);
@@ -140,10 +142,12 @@ public class XXPushs {
             Result re = xmpush.sendToAlias(msg, alias, 3);
             if (re.getErrorCode() == ErrorCode.Success)
                 return "msgid="+re.getMessageId();
-            throw Err.create("e.cmd.push.jpush_fail", re);
+            System.out.println(re.getReason());
+            System.out.println(msg);
+            throw Err.create("e.cmd.push.xmpush_fail", re);
         }
         catch (Exception e) {
-            throw Err.create(e, "e.cmd.push.jpush_fail", e.getMessage());
+            throw Err.create(e, "e.cmd.push.xmpush_fail", e.getMessage());
         }
     }
 }

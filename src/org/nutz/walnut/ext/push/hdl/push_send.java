@@ -23,7 +23,7 @@ public class push_send implements JvmHdl {
         String platform = params.get("platform");
         
         String message = "message".equals(msgtype) ? text : null;
-        String alert = !"message".equals(msgtype) ? null : message;
+        String alert = !"message".equals(msgtype) ? text : null;
         Map<String, String> extras;
         if (params.has("extras")) {
             extras = Json.fromJsonAsMap(String.class, params.get("extras"));
