@@ -2,7 +2,6 @@ package org.nutz.walnut.impl.usr;
 
 import java.util.Map;
 
-import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -158,7 +157,7 @@ public class IoWnSessionService implements WnSessionService {
         WnObj o = _check_seobj(se.id());
 
         // 持久化
-        io.writeJson(io.check(o, "data"), se, null);
+        io.writeJson(o.isDIR() ? io.check(o, "data") : o, se, null);
 
         // 更新过期时间
         _touch(o);
