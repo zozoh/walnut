@@ -13,6 +13,7 @@ import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
@@ -206,7 +207,7 @@ public class WnRun {
     }
     
     public void runWithHook(WnSession se, WnUsr usr, String grp, NutMap env, Callback<WnSession> callback) {
-        Wn.WC().me(usr.name(), Strings.sBlank(grp, usr.name()));
+        
         WnBoxContext bc = new WnBoxContext();
         bc.io = io;
         bc.me = usr;
@@ -225,7 +226,12 @@ public class WnRun {
             }
         }
 
-        Wn.WC().setHookContext(hc);
-        callback.invoke(se);
+        Wn.WC().me(usr.name(), Strings.sBlank(grp, usr.name()));
+        Wn.WC().hooking(hc, new Atom() {
+            public void run() {
+                callback.invoke(se);
+            }
+        });
+        
     }
 }

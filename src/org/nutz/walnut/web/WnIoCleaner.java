@@ -68,7 +68,7 @@ public class WnIoCleaner implements Atom {
                     }
                     _run.runWithHook(se, usr, "root", null, new Callback<WnSession>() {
                         public void invoke(WnSession se) {
-                            _run.exec("IO_CLEAN ", se, "rm -r id:"+o.id());
+                            _run.io().delete(o, true);
                         }
                     });
                 }

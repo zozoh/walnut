@@ -65,13 +65,13 @@ public class IoWnSessionService implements WnSessionService {
     @Override
     public WnSession create(WnUsr u) {
         // 创建一个 Session 对象
-        WnObj o = io.create(oSessions, "${id}", WnRace.FILE);
+        WnObj o = io.create(oSessions, "${id}/data", WnRace.FILE);
         // io.changeType(o, SESSTP);
         io.appendMeta(o, Lang.mapf("tp:'%s',mime:'%s'", SESSTP, "application/json"));
 
         // 设置环境变量等 ..
         WnSession se = new IoWnSession();
-        se.id(o.id()).me(u);
+        se.id(o.parentId()).me(u);
 
         NutMap envs = new NutMap();
         for (Map.Entry<String, Object> en : u.entrySet()) {
@@ -102,6 +102,17 @@ public class IoWnSessionService implements WnSessionService {
 
         // 更新索引
         o.setv("du", duration);
+        //o.expireTime(o.lastModified() + duration);
+        o.setv("me", u.name());
+
+        // 修改 session 文件的反问权限
+        o.setv("g", u.group());
+
+        io.set(o, "^(me|expi|g)$");
+        
+        // 设置session目录的权限及过期时间
+        o = io.checkById(o.parentId());
+        o.setv("du", duration);
         o.expireTime(o.lastModified() + duration);
         o.setv("me", u.name());
 
@@ -109,17 +120,6 @@ public class IoWnSessionService implements WnSessionService {
         o.setv("g", u.group());
 
         io.set(o, "^(me|expi|g)$");
-
-        // if (log.isDebugEnabled()) {
-        // log.debugf("CreateWnSessionObj, %s", Json.toJson(o));
-        // log.debugf("CreateWnSession, %s", Json.toJson(se));
-        // log.debugf("ExpireTime\nsysNano: %d\nsysCurr: %d\nwnsNano:
-        // %d\nobjLaMo: %d",
-        // System.nanoTime(),
-        // System.currentTimeMillis(),
-        // Wn.nanoTime(),
-        // o.lastModified());
-        // }
 
         return se;
     }
@@ -141,7 +141,7 @@ public class IoWnSessionService implements WnSessionService {
         WnSession re = null;
         WnObj o = this._fetch_seobj(seid);
         if (null != o) {
-            io.delete(o);
+            io.delete(o, true);
             if (log.isDebugEnabled())
                 log.debugf("sess[%s] logout", seid);
 
@@ -158,7 +158,7 @@ public class IoWnSessionService implements WnSessionService {
         WnObj o = _check_seobj(se.id());
 
         // 持久化
-        io.writeJson(o, se, null);
+        io.writeJson(io.check(o, "data"), se, null);
 
         // 更新过期时间
         _touch(o);
@@ -188,14 +188,13 @@ public class IoWnSessionService implements WnSessionService {
             WnUsr root = usrs.check("root");
             Wn.WC().su(root, new Atom() {
                 public void run() {
-                    io.delete(o);
+                    logout(seid);
                 }
             });
             return null;
         }
 
-        String json = io.readText(o);
-        return Json.fromJson(IoWnSession.class, json);
+        return io.readJson(o.isDIR() ? io.check(o, "data") : o, IoWnSession.class);
     }
 
     @Override
