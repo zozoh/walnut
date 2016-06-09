@@ -40,6 +40,9 @@ class ESS(LoggingMixIn, Operations):
         return resp
 
     def chmod(self, path, mode):
+        with closing(self._get("chmod", dict(path=path,mode=mode))) as resp :
+            if resp.status_code != 200 :
+                pass
         return 0
 
     def chown(self, path, uid, gid):
@@ -68,7 +71,7 @@ class ESS(LoggingMixIn, Operations):
         return 0
 
     def read(self, path, size, offset, fh):
-        with closing(self._get("read", dict(path=path, size=size, offset=offset), False)) as resp :
+        with closing(self._get("read", dict(path=path, size=size, offset=offset,fh=fh), False)) as resp :
             if resp.status_code != 200 :
                 raise FuseOSError(EBUSY)
         return resp.content
@@ -93,6 +96,16 @@ class ESS(LoggingMixIn, Operations):
         with closing(self._get("rmdir", dict(path=path))) as resp :
             return 0
 
+    def open(self, path, flags):        
+        with closing(self._get("open", dict(path=path, flags=flags))) as resp :
+            if resp.status_code == 200:
+                return int(resp.content)
+        return 0
+
+    def release(self, path, fh):
+        with closing(self._get("open", dict(path=path, fh=fh))) as resp :
+            return 0
+
     def symlink(self, target, source):
         with closing(self._get("symlink", dict(target=target, source=source))) as resp :
             return 0
@@ -110,7 +123,7 @@ class ESS(LoggingMixIn, Operations):
     #    return self._get("utimens", dict(path=path)).json()
 
     def write(self, path, data, offset, fh):
-        URI = "write?offset=%d&size=%d&path=%s" % (offset, len(data), path)
+        URI = "write?offset=%d&size=%d&path=%s&fh=%s" % (offset, len(data), path, str(fh))
         headers = {"content-type":"application/octet-stream", "Cookie":"SEID=" + self.seid}
         print URI, headers
         with closing(self.session.post(self._url(URI), data=data, headers=headers)) as resp :
