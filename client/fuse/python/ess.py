@@ -50,8 +50,8 @@ class ESS(LoggingMixIn, Operations):
 
     def create(self, path, mode):
         with closing(self._get("create", dict(path=path))) as resp :
-            if resp.status_code != 200 :
-                raise FuseOSError(EEXIST)
+            if resp.status_code == 200 :
+                return int(resp.content)
         return 0
 
     def destroy(self, path):
@@ -103,7 +103,7 @@ class ESS(LoggingMixIn, Operations):
         return 0
 
     def release(self, path, fh):
-        with closing(self._get("close", dict(path=path, fh=fh))) as resp :
+        with closing(self._get("release", dict(path=path, fh=fh))) as resp :
             return 0
 
     def symlink(self, target, source):
