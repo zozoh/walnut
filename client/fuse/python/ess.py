@@ -103,7 +103,7 @@ class ESS(LoggingMixIn, Operations):
         return 0
 
     def release(self, path, fh):
-        with closing(self._get("open", dict(path=path, fh=fh))) as resp :
+        with closing(self._get("close", dict(path=path, fh=fh))) as resp :
             return 0
 
     def symlink(self, target, source):
