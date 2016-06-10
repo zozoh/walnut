@@ -39,11 +39,7 @@ if is_py2:
     import cookielib
     from Cookie import Morsel
     from StringIO import StringIO
-
-    try:
-        from collections import OrderedDict # py2.7
-    except:
-        from ordereddict import OrderedDict # py2.6 and lower (el6, etc.)
+    from .packages.urllib3.packages.ordered_dict import OrderedDict
 
     builtin_str = str
     bytes = str
