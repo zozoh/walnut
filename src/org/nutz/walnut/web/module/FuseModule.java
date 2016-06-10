@@ -19,8 +19,6 @@ import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
-import org.nutz.mvc.view.HttpStatusView;
-import org.nutz.mvc.view.HttpStatusView.HttpStatusException;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
@@ -40,7 +38,8 @@ public class FuseModule extends AbstractWnModule {
     public int create(@Param("path") String path) {
         WnObj obj = io.create(null, path, WnRace.FILE);
         io.writeText(obj, "");
-        return _open(obj, Wn.S.WM);
+        //return 0;
+        return _open(obj, Wn.S.W);
     }
 
     @At
@@ -71,6 +70,7 @@ public class FuseModule extends AbstractWnModule {
             hid = io.open(_obj(), Wn.S.WM);
         }
         byte[] buf = new byte[size];
+        io.seek(hid, offset);
         int len = io.read(hid, buf);
         resp.setContentLength(len);
         resp.getOutputStream().write(buf, 0, len);
@@ -238,6 +238,7 @@ public class FuseModule extends AbstractWnModule {
         }
         switch (flags) {
         case 0:
+        case 0x20:
             return _open(_obj(), Wn.S.R);
         case 1:
             return _open(_obj(), Wn.S.W);
@@ -270,8 +271,7 @@ public class FuseModule extends AbstractWnModule {
     @At
     @Ok("void")
     public void chmod(@Param("path")String path, @Param("mode")int mode) {
-       _obj().mode(mode);
-       io.set(_obj(), "^md$");
+        io.appendMeta(_obj(), "md:" + (mode % (0777+1)));
     }
 
     public WnObj _obj() {
@@ -291,7 +291,7 @@ public class FuseModule extends AbstractWnModule {
     }
     
     protected int _open(WnObj obj, int mode) {
-        String fh = io.open(obj, Wn.S.WM);
+        String fh = io.open(obj, mode);
         WnObj seDir = io.check(null, "/sys/session/" + Wn.WC().SEID());
         for (int i = 10; i < 2048; i++) { // 先用笨办法测试一下
             WnObj tmp = io.fetch(seDir, "fd." + i);
