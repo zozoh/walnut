@@ -27,10 +27,10 @@ class ESS(LoggingMixIn, Operations):
         return "http://%s:%d/fuse/%s" % (self.host, self.port, uri)
         
     def _get(self, uri, params, do_print=True):
-        print self._url(uri), params
+        #print self._url(uri), params
         resp = self.session.get(self._url(uri), params=params, headers={"Cookie":"SEID="+self.seid})
         if do_print :
-            print "resp", resp.status_code, len(resp.content)
+            print "resp", resp.status_code, len(resp.content), uri, params
         if resp.status_code == 404 :
             raise FuseOSError(ENOENT)
         if resp.status_code == 403:
@@ -41,11 +41,11 @@ class ESS(LoggingMixIn, Operations):
 
     def init(self, root, conn):
         conn = conn.contents
-        print(dir(conn))
-        print(conn.proto_major)
-        print(conn.proto_minor)
-        print(conn.capable)
-        print(conn.want)
+        #print(dir(conn))
+        #print(conn.proto_major)
+        #print(conn.proto_minor)
+        #print(conn.capable)
+        #print(conn.want)
         conn.want |= 8
 
     def chmod(self, path, mode):
@@ -60,6 +60,7 @@ class ESS(LoggingMixIn, Operations):
     def create(self, path, mode):
         with closing(self._get("create", dict(path=path))) as resp :
             if resp.status_code == 200 :
+                #print path, resp.content
                 return int(resp.content)
         return 0
 
@@ -72,7 +73,9 @@ class ESS(LoggingMixIn, Operations):
                                 st_size=0, st_ctime=time(), st_mtime=time(),
                                 st_atime=time())
         with closing(self._get("getattr", dict(path=path))) as resp :
-            return resp.json()
+            re = resp.json()
+            #print re
+            return re
 
     def mkdir(self, path, mode):
         with closing(self._get("mkdir", dict(path=path))) as resp :
@@ -108,6 +111,7 @@ class ESS(LoggingMixIn, Operations):
     def open(self, path, flags):        
         with closing(self._get("open", dict(path=path, flags=flags))) as resp :
             if resp.status_code == 200:
+                print path, resp.content
                 return int(resp.content)
         return 0
 
@@ -154,8 +158,8 @@ if __name__ == '__main__':
     fuse = FUSE(ESS(argv[1], argv[2], int(argv[3])), argv[4], foreground=1, debug=0
 					#,entry_timeout=5, attr_timeout=5
 					, big_writes=True
-					, kernel_cache=True
-					, auto_cache=True
+					#, kernel_cache=True
+					#, auto_cache=True
 					#,large_read=True
 					#, flags=8
 					)
