@@ -36,18 +36,22 @@ public class IoWnUsrService implements WnUsrService {
     private WnIo io;
 
     private NutMap initEnvs;
+    
+
+    // 得到用户存放的目录
+    WnObj oUsrHome;
+    WnObj oGrpHome;
 
     public void on_create() {
         Wn.WC().me("root", "root");
-        io.createIfNoExists(null, "/sys/usr", WnRace.DIR);
-        io.createIfNoExists(null, "/sys/grp", WnRace.DIR);
+        oUsrHome = io.createIfNoExists(null, "/sys/usr", WnRace.DIR);
+        oGrpHome = io.createIfNoExists(null, "/sys/grp", WnRace.DIR);
     }
 
     @Override
     public WnUsr create(WnUsrInfo info) {
         // 分析
-        WnObj oUsrs = io.createIfNoExists(null, "/sys/usr", WnRace.DIR);
-        WnQuery q = Wn.Q.pid(oUsrs);
+        WnQuery q = Wn.Q.pid(oUsrHome);
         info.joinQuery(q);
 
         // 检查同名
@@ -57,7 +61,7 @@ public class IoWnUsrService implements WnUsrService {
             throw Er.create("e.usr.exists", info.toString());
 
         // 创建对象
-        oU = io.create(oUsrs, "${id}", WnRace.FILE);
+        oU = io.create(oUsrHome, "${id}", WnRace.FILE);
 
         // 创建用户对象，并设置信息
         final WnUsr u = new IoWnUsr();
@@ -295,8 +299,6 @@ public class IoWnUsrService implements WnUsrService {
     }
 
     private WnObj __fetch_usr_obj(WnUsrInfo info) {
-        // 得到用户存放的目录
-        WnObj oUsrHome = io.check(null, "/sys/usr");
 
         // 生成查询条件
         WnQuery q = Wn.Q.pid(oUsrHome);
