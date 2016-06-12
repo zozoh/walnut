@@ -165,15 +165,19 @@
     #----------------------------------------------------
     - 注释内容，支持从管道读取
     
+    # 查询所有的注释
+    thing xxx comment 
+    - 支持 'sort|pager|limit|skip|json|out|t' 等参数
+    
     # 添加注释，会自动修改 task.th_c_cmt 字段 
-    thing xxx comment add "搞定了，呼" 
+    thing xxx comment -add "搞定了，呼" 
     
     # 修改注释
     thing xxx comment 20150721132134321 "修改一下注释"
     
     # 删除注释，会自动修改 task.th_c_cmt 字段 
-    thing xxx comment del 20150721132134321
-     
+    thing xxx comment -del 20150721132134321
+    
     
 # thing xxx clean
 
