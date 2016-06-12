@@ -111,7 +111,7 @@ public class cmd_iimg extends JvmExecutor {
             }
 
             // 最后写入
-            sys.io.writeImage(oThumb, im2);
+            sys.io.writeImage(oThumb, Images.redraw(im2, Color.BLACK));
         }
     }
 

@@ -5,23 +5,26 @@ import java.util.Date;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Region;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
-import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnRun;
 
 public class WnIoCleaner implements Atom {
 
     private static final Log log = Logs.get();
+    
+    WnRun _run;
 
-    private WnIo io;
-
-    public WnIoCleaner(WnIo io) {
-        this.io = io;
+    public WnIoCleaner(WnRun _run) {
+        this._run = _run;
     }
 
     @Override
@@ -54,21 +57,20 @@ public class WnIoCleaner implements Atom {
         long now = System.currentTimeMillis();
         WnQuery q = new WnQuery();
         q.setv("expi", Region.Longf("(,%d]", now));
-        io.each(q, new Each<WnObj>() {
+        WnUsr usr = _run.usrs().check("root");
+        WnSession se = _run.sess().create(usr);
+        _run.io().each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj o, int length) {
                 if (o.isExpired()) {
                     if (log.isInfoEnabled()) {
                         Date d = new Date(o.expireTime());
                         log.infof("rm expired : %s : %s", Times.sDTms2(d), o.path());
                     }
-                    io.delete(o);
-                    // 每删除一个对象，就休息一下
-                    try {
-                        Thread.sleep(1);
-                    }
-                    catch (InterruptedException e) {
-                        throw Lang.wrapThrow(e);
-                    }
+                    _run.runWithHook(se, usr, "root", null, new Callback<WnSession>() {
+                        public void invoke(WnSession se) {
+                            _run.io().delete(o, true);
+                        }
+                    });
                 }
             }
         });

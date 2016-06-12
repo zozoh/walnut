@@ -375,6 +375,20 @@ public class WnIoImpl implements WnIo {
             Wn.Io.update_ancestor_synctime(this, o, false);
         }
     }
+    
+    @Override
+    public void delete(WnObj o, boolean r) {
+        if (o.isDIR() && r) {
+            // 递归
+            each(Wn.Q.pid(o.id()), new Each<WnObj>() {
+                public void invoke(int index, WnObj child, int length) {
+                    delete(child, true);
+                }
+            });
+        }
+        // 删除自己
+        delete(o);
+    }
 
     @Override
     public void setMount(WnObj o, String mnt) {

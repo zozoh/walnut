@@ -392,6 +392,11 @@ public class WnStoreImpl implements WnStore {
             bu.free();
 
     }
+    
+    @Override
+    public void delete(WnObj o, boolean r) {
+        this.delete(o);
+    }
 
     private WnBucket __check_bucket(WnObj o) {
         // 对象元数据句柄，忽略

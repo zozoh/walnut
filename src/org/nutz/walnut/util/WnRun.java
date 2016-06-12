@@ -2,19 +2,25 @@ package org.nutz.walnut.util;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map.Entry;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.hook.WnHookContext;
+import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
@@ -37,12 +43,31 @@ public class WnRun {
 
     @Inject("refer:boxService")
     protected WnBoxService boxes;
+    
+    @Inject("refer:hookService")
+    protected WnHookService hooks;
 
     @Inject("java:$conf.getInt('box-alloc-timeout')")
     protected int allocTimeout;
 
     public WnIo io() {
         return io;
+    }
+    
+    public WnSessionService sess() {
+        return sess;
+    }
+    
+    public WnUsrService usrs() {
+        return usrs;
+    }
+    
+    public WnBoxService boxes() {
+        return boxes;
+    }
+    
+    public WnHookService hooks() {
+        return hooks;
     }
 
     public String exec(String logPrefix, String unm, final String cmdText) {
@@ -179,5 +204,34 @@ public class WnRun {
             sw.stop();
             log.debugf("%sbox:done : %dms", logPrefix, sw.getDuration());
         }
+    }
+    
+    public void runWithHook(WnSession se, WnUsr usr, String grp, NutMap env, Callback<WnSession> callback) {
+        
+        WnBoxContext bc = new WnBoxContext();
+        bc.io = io;
+        bc.me = usr;
+        bc.session = se;
+        bc.usrService = usrs;
+        bc.sessionService = sess;
+        WnHookContext hc = new WnHookContext(boxes, bc);
+        hc.io = io;
+        hc.me = usr;
+        hc.se = se;
+        hc.service = hooks;
+
+        if (env != null) {
+            for (Entry<String, Object> en : env.entrySet()) {
+                se.var(en.getKey(), en.getValue());
+            }
+        }
+
+        Wn.WC().me(usr.name(), Strings.sBlank(grp, usr.name()));
+        Wn.WC().hooking(hc, new Atom() {
+            public void run() {
+                callback.invoke(se);
+            }
+        });
+        
     }
 }

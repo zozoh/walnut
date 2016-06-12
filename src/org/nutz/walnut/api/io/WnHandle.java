@@ -28,7 +28,7 @@ public class WnHandle {
     public WnBucket bucket;
 
     public WnHandle() {
-        this.id = R.UU64();
+        this.id = R.UU32();
         this.ct = System.currentTimeMillis();
         this.lm = this.ct;
     }

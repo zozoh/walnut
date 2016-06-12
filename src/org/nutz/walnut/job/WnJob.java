@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -15,20 +14,18 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.quartz.Quartz;
 import org.nutz.quartz.QzEach;
-import org.nutz.walnut.api.box.WnBoxContext;
-import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
 @IocBean(create = "init", depose = "depose")
@@ -190,28 +187,13 @@ public class WnJob extends WnRun implements Callable<Object> {
                     WnUsr usr = usrs.fetch(jobDir.getString("job_user"));
                     if (usr != null) {
                         WnSession se = sess.create(usr);
-                        Wn.WC().me(usr.name(), jobDir.getString("job_group", usr.name()));
-                        WnBoxContext bc = new WnBoxContext();
-                        bc.io = io;
-                        bc.me = usr;
-                        bc.session = se;
-                        bc.usrService = usrs;
-                        bc.sessionService = sess;
-                        WnHookContext hc = new WnHookContext(boxes, bc);
-                        hc.io = io;
-                        hc.me = usr;
-                        hc.se = se;
-                        hc.service = hookService;
-
-                        NutMap env = jobDir.getAs("job_env", NutMap.class);
-                        if (env != null) {
-                            for (Entry<String, Object> en : env.entrySet()) {
-                                se.var(en.getKey(), en.getValue());
+                       WnJob.this.runWithHook(se, usr, jobDir.getString("job_group"), 
+                                              jobDir.getAs("job_env", NutMap.class), new Callback<WnSession>() {
+                            
+                            public void invoke(WnSession se) {
+                                exec("job-" + jobDir.getString("job_name", "_") + " ", se, "", cmdText);
                             }
-                        }
-
-                        Wn.WC().setHookContext(hc);
-                        exec("job-" + jobDir.getString("job_name", "_") + " ", se, "", cmdText);
+                        });
                     }
                 }
             }

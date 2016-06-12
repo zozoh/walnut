@@ -5,7 +5,7 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
-import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.util.WnRun;
 
 public class WnCleanExpiredSetup implements Setup {
 
@@ -16,8 +16,8 @@ public class WnCleanExpiredSetup implements Setup {
     @Override
     public void init(NutConfig nc) {
         Ioc ioc = nc.getIoc();
-        WnIo io = ioc.get(WnIo.class, "io");
-        _t = new Thread(new WnIoCleaner(io), "IO_CLEAN");
+        WnRun _run = ioc.get(WnRun.class);
+        _t = new Thread(new WnIoCleaner(_run), "IO_CLEAN");
         _t.start();
 
         if (log.isInfoEnabled())

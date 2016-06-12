@@ -9,7 +9,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -35,8 +34,12 @@ public class FuseModule extends AbstractWnModule {
     private static final Log log = Logs.get();
 
     @At
-    public void create(@Param("path") String path) {
-        io.writeText(io.create(null, path, WnRace.FILE), "");
+    @Ok("raw")
+    public int create(@Param("path") String path) {
+        WnObj obj = io.create(null, path, WnRace.FILE);
+        io.writeText(obj, "");
+        //return 0;
+        return _open(obj, Wn.S.W);
     }
 
     @At
@@ -56,35 +59,23 @@ public class FuseModule extends AbstractWnModule {
     public void read(@Param("path") String path,
                      @Param("size") int size,
                      @Param("offset") int offset,
+                     @Param("fh")int fh,
                      HttpServletResponse resp) throws IOException {
         if (log.isDebugEnabled())
             log.debugf("path=%s, size=%s, offset=%s", path, size, offset);
-        InputStream ins = io.getInputStream(_obj(), offset);
-        try {
-            ByteArrayOutputStream bao = new ByteArrayOutputStream();
-            int len = 0;
-            byte[] buf = new byte[4096];
-            int count = 0;
-            while (true) {
-                if (size <= count)
-                    break;
-                len = ins.read(buf, 0, size - count);
-                if (len == -1)
-                    break;
-                if (len > 0) {
-                    bao.write(buf, 0, len);
-                    count += len;
-                } else {
-                    break; // TODO 为啥总是返回0了呢,没数据的时候
-                }
-            }
-            buf = bao.toByteArray();
-            resp.setContentLength(buf.length);
-            resp.getOutputStream().write(buf);
+        String hid = get_hid(fh, false);
+        boolean doClose = hid == null;
+        if (hid == null) {
+            log.debug("fh not found, create new");
+            hid = io.open(_obj(), Wn.S.WM);
         }
-        finally {
-            Streams.safeClose(ins);
-        }
+        byte[] buf = new byte[size];
+        io.seek(hid, offset);
+        int len = io.read(hid, buf);
+        resp.setContentLength(len);
+        resp.getOutputStream().write(buf, 0, len);
+        if (doClose)
+            io.close(hid);
     }
 
     @At
@@ -151,7 +142,7 @@ public class FuseModule extends AbstractWnModule {
     @At
     public void truncate(@Param("path") String path, @Param("length") int length)
             throws IOException {
-        io.trancate(io.check(null, path), length);
+        io.trancate(_obj(), length);
     }
 
     @At
@@ -170,7 +161,8 @@ public class FuseModule extends AbstractWnModule {
     public long write(@Param("path") String path,
                       InputStream ins,
                       @Param("offset") int offset,
-                      @Param("size") int size) throws IOException {
+                      @Param("size") int size,
+                      @Param("fh")int fh) throws IOException {
         WnObj obj = _obj();
         if (log.isDebugEnabled())
             log.debugf("write file path=%s, offset=%s, old_len=%d, size=%d",
@@ -178,17 +170,23 @@ public class FuseModule extends AbstractWnModule {
                        offset,
                        obj.len(),
                        size);
-        String hid = io.open(obj, Wn.S.WM);
+        String hid = get_hid(fh, false);
+        boolean doClose = hid == null;
+        if (hid == null) {
+            log.debug("fh not found, create new");
+            hid = io.open(obj, Wn.S.WM);
+        }
         io.seek(hid, offset);
         ByteArrayOutputStream bao = new ByteArrayOutputStream();
-        byte[] buf = new byte[8192];
+        byte[] buf = new byte[32*1024];
         int len = 0;
         while (-1 != (len = ins.read(buf))) {
             bao.write(buf, 0, len);
         }
         buf = bao.toByteArray();
         io.write(hid, buf);
-        io.close(hid);
+        if (doClose)
+            io.close(hid);
         return buf.length;
     }
 
@@ -208,10 +206,105 @@ public class FuseModule extends AbstractWnModule {
     	WnObj obj = _obj();
     	if (obj == null)
     		return null;
-    	return obj.link();
+    	return Wn.real(obj, io).path();
+    }
+
+    @At
+    @Ok("raw")
+    public Object open(@Param("path")String path, @Param("flags")int flags) throws IOException {
+        /*
+        #define O_RDONLY    0x0000
+        #define O_WRONLY    0x0001
+        #define O_RDWR      0x0002
+        #define O_ACCMODE   0x0003
+
+        #define O_BINARY    0x0004  
+        #define O_TEXT      0x0008  
+        #define O_NOINHERIT 0x0080  
+
+        #define O_CREAT     0x0100  
+        #define O_EXCL      0x0200
+        #define O_NOCTTY    0x0400
+        #define O_TRUNC     0x0800
+        #define O_APPEND    0x1000
+        #define O_NONBLOCK  0x2000
+        */
+        if (flags >= 0x8000) {
+            flags -= 0x8000;
+        }
+        if ((0x0200 & flags) != 0){
+            truncate(path, 0);
+            flags -= 0x0200;
+        }
+        switch (flags) {
+        case 0:
+        case 0x20:
+            return _open(_obj(), Wn.S.R);
+        case 1:
+            return _open(_obj(), Wn.S.W);
+        case 2:
+            return _open(_obj(), Wn.S.WM);
+        //case 1024:
+        //    return _open(_obj(), Wn.S.A);
+        default:
+            log.debugf("not support mode=%04X", flags);
+            break;
+        }
+        return 0; 
+    }
+    
+    @At
+    @Ok("raw")
+    public void release(@Param("path")String path, @Param("fh")int fh) {
+        try {
+            if (fh > 0) {
+                String hid = get_hid(fh, true);
+                if (hid != null)
+                    io.close(hid);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @At
+    @Ok("void")
+    public void chmod(@Param("path")String path, @Param("mode")int mode) {
+        io.appendMeta(_obj(), "md:" + (mode % (0777+1)));
     }
 
     public WnObj _obj() {
         return (WnObj) Mvcs.getReq().getAttribute("fuse_obj");
+    }
+    
+    protected String get_hid(int fh, boolean delete) {
+        if (fh == 0)
+            return null;
+        WnObj obj = io.fetch(null, "/sys/session/" + Wn.WC().SEID()+"/fd."+fh);
+        if (obj != null) {
+            if (delete)
+                io.delete(obj);
+            return obj.getString("fh");
+        }
+        return null;
+    }
+    
+    protected int _open(WnObj obj, int mode) {
+        String fh = io.open(obj, mode);
+        WnObj seDir = io.check(null, "/sys/session/" + Wn.WC().SEID());
+        for (int i = 10; i < 2048; i++) { // 先用笨办法测试一下
+            WnObj tmp = io.fetch(seDir, "fd." + i);
+            if (tmp == null) {
+                try {
+                    log.debug("fh="+fh);
+                    tmp = io.create(seDir, "fd." + i, WnRace.FILE);
+                    io.appendMeta(tmp, new NutMap("fh", fh));
+                    return i;
+                }
+                catch (Throwable e) {}
+            }
+        }
+        return 0;
     }
 }

@@ -111,6 +111,8 @@ public interface WnStore extends UnitTestable {
      *            对象
      */
     void delete(WnObj o);
+    
+    void delete(WnObj o, boolean r);
 
     /**
      * 将对象剪裁到给定大小
