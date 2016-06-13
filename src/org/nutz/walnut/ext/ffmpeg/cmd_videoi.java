@@ -64,6 +64,7 @@ public class cmd_videoi extends JvmExecutor {
 			}
 			return vi;
 		} catch (IOException e) {
+		    e.printStackTrace();
 		}
 		return null;
 	}

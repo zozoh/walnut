@@ -8,6 +8,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
 import org.nutz.lang.segment.Segment;
 import org.nutz.lang.segment.Segments;
@@ -72,14 +73,26 @@ public class cmd_videoc extends JvmExecutor {
 
             // 先生成预览图
             if (mode == null || mode.matcher("preview_image").find()) {
-                seg = Segments.create("ffmpeg -y -v quiet -ss 00:00:01.00 -i ${source} -f image2 -vframes 1 ${thumbPath}");
+                // 预览图不能是视频的第一秒，应该是开头的 38.2% 左右的帧
+                int preview_in_sec = (int) (vi.getLength() * 0.382);
+                String preview_in_secS = Times.sT(preview_in_sec);
+
+                seg = Segments.create("ffmpeg -y -v quiet -ss "
+                                      + preview_in_secS
+                                      + ".00 -i ${source} -f image2 -vframes 1 ${thumbPath}");
                 cmd = seg.render(new SimpleContext(vc_params)).toString();
                 log.debug("cmd: " + cmd);
                 Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
                 t = sys.io.createIfNoExists(tdir, "_preview.jpg", WnRace.FILE);
                 sys.io.writeAndClose(t, new FileInputStream(thumb));
                 t = sys.io.checkById(t.id());
-                sys.io.appendMeta(obj, "thumb:'" + t.thumbnail() + "'");
+
+                // 这里要将预览图的 thumb 设置给 video，同时将预览图作为 video_cover
+                NutMap meta = new NutMap();
+                meta.put("thumb", t.thumbnail());
+                meta.put("video_cover", t.id());
+
+                sys.io.appendMeta(obj, meta);
                 sys.io.appendMeta(t, tMap);
             }
             // 再生成预览视频
@@ -105,7 +118,7 @@ public class cmd_videoc extends JvmExecutor {
                 sys.io.appendMeta(obj, "videoc_dir:'" + tdir.id() + "'");
                 sys.io.appendMeta(t, tMap);
             }
-            sys.io.appendMeta(obj, "videoc_dir:'id:"+tdir.id()+"'");
+            sys.io.appendMeta(obj, "videoc_dir:'id:" + tdir.id() + "'");
             sys.out.print(tdir.id());
         }
         finally {

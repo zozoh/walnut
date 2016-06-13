@@ -64,11 +64,14 @@
 .ui-oicon-16 .oicon[otp="eps"] {
   background-position: -16px -80px;
 }
-.ui-oicon-16 .oicon[otp="fla"] {
+.ui-oicon-16 .oicon[otp="fboard"] {
   background-position: 0px -96px;
 }
-.ui-oicon-16 .oicon[otp="folder"] {
+.ui-oicon-16 .oicon[otp="fla"] {
   background-position: -16px -96px;
+}
+.ui-oicon-16 .oicon[otp="folder"] {
+  background-position: -32px -96px;
 }
 .ui-oicon-16 .oicon[otp="galx"] {
   background-position: 0px -112px;
@@ -224,11 +227,14 @@
 .ui-oicon-32 .oicon[otp="eps"] {
   background-position: -32px -128px;
 }
-.ui-oicon-32 .oicon[otp="fla"] {
+.ui-oicon-32 .oicon[otp="fboard"] {
   background-position: 0px -160px;
 }
-.ui-oicon-32 .oicon[otp="folder"] {
+.ui-oicon-32 .oicon[otp="fla"] {
   background-position: -32px -160px;
+}
+.ui-oicon-32 .oicon[otp="folder"] {
+  background-position: -64px -160px;
 }
 .ui-oicon-32 .oicon[otp="galx"] {
   background-position: 0px -192px;
