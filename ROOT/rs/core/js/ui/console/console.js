@@ -72,10 +72,14 @@ return ZUI.def("ui.console", {
     dom: "ui/console/console.html",
     css: "ui/console/console.css",
     i18n : "ui/console/i18n/{{lang}}.js",
-    init: function (options) {
+    init: function (opt) {
         var UI  = this;
         var app = Wn.app();
         UI.app = app;
+        UI._lineNB = 0;
+
+        // 初始化默认配置
+        $z.setUndefined(opt, "maxScroll", 10000);
 
         // 消费原本的 PWD
         var oldPWD = UI.local("PWD");
@@ -186,12 +190,27 @@ return ZUI.def("ui.console", {
         this._old_s = s.substring(i);
     },
     __print_txt: function (s) {
-        var jq = this.ccode("block");
-        this.__join_txt(jq, s);
+        var UI = this;
+        var jq = UI.ccode("block");
+        UI.__join_txt(jq, s);
+        // 计算本块行数
+        var lineNB = s.length - s.replace(/\n/g,"").length;
+        jq.attr("line-nb", lineNB);
+        // 累加行计数
+        UI._lineNB += lineNB;
+        //console.log(UI._lineNB)
+
+        // 如果超过了最大行数，从头部开始删除
+        while(UI._lineNB > UI.options.maxScroll){
+            var jBlock = UI.arena.find(".ui-console-block:first-child");
+            UI._lineNB -= (jBlock.attr("line-nb")*1) || 1;
+            jBlock.remove();
+        }
+
         // 显示
-        this.arena.append(jq);
-        //this.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
-        //this.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
+        UI.arena.append(jq);
+        //UI.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
+        //UI.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
         jq[0].scrollIntoView({block: "end", behavior: "smooth"});
     },
     __join_txt : function(jq, s){
@@ -310,6 +329,9 @@ return ZUI.def("ui.console", {
             jq.find('.ui-console-text').text(str);
             UI.arena.append(jq);
             jBlock.remove();
+
+            // 行计数
+            UI._lineNB ++;
 
             // 退出登录
             if ("exit" == cmdText) {
