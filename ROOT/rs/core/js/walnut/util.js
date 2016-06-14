@@ -381,8 +381,8 @@ var Wn = {
             oReq._last = nextPos;
 
             // 查找显示内容结束标记
-            var pos_head = str.indexOf(mosHead, off);
-            var pos_tail = str.indexOf(mosTail, off);
+            var pos_head = str.indexOf(mosHead);
+            var pos_tail = str.indexOf(mosTail);
             // 发现完整的mos
             if (pos_head >= 0 && pos_tail >= 0) {
                 var from = pos_head + mosHead.length;
