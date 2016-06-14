@@ -376,7 +376,7 @@ var Wn = {
             var nextPos = lastEOL + 1;
             // 得到要处理的字符串
             var str = oReq.responseText.substring(oReq._last, lastEOL+1);
-            console.log("_show_msg@" + (new Date()) + ":\n" + lastEOL + "/" + txtLen);
+            //console.log("_show_msg@" + (new Date()) + ":\n" + lastEOL + "/" + txtLen);
             // 标记下一次要处理的起始位置
             oReq._last = nextPos;
 
@@ -429,7 +429,7 @@ var Wn = {
         
         oReq.open("POST", url, opt.async);
         oReq.onreadystatechange = function () {
-            console.log("rs:" + oReq.readyState + " status:" + oReq.status + " :: \n" + oReq.responseText);
+            //console.log("rs:" + oReq.readyState + " status:" + oReq.status + " :: \n" + oReq.responseText);
             // LOADING | DONE 只要有数据输入，显示一下信息
             if(oReq._show_msg)
                 oReq._show_msg();

@@ -8,7 +8,9 @@ define(function (require, exports, module) {
         	$pel  : $(document.body),
         	exec  : Wn.exec,
             app   : Wn.app()
-        }).render();
+        }).render(function(){
+        	this.on_cmd_wait();
+        });
     }
 
     exports.init = init;

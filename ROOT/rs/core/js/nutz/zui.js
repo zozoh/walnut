@@ -332,10 +332,6 @@ ZUIObj.prototype = {
                 //     console.log("!!!!! do_after_redraw:", UI.uiName, UI._defer_uiTypes)
                 // 回调，延迟处理，以便调用者拿到返回值之类的
                 window.setTimeout(function(){
-                    if (typeof afterRender === "function") {
-                        afterRender.call(UI);
-                    }
-
                     // 触发事件
                     $z.invoke(UI.options, "on_redraw", [], UI);
                     UI.trigger("ui:redraw", UI);
@@ -357,12 +353,17 @@ ZUIObj.prototype = {
                         }
                     }
 
+                    // 让 UI 的内容显示出来
+                    UI.$el.removeAttr("ui-loadding").show();
+
+                    // 触发当前实例的绘制回调
+                    if (typeof afterRender === "function") {
+                        afterRender.call(UI);
+                    }
+
                     // 触发显示事件
                     $z.invoke(UI.options, "on_display", [], UI);
                     UI.trigger("ui:display", UI);
-
-                    // 让 UI 的内容显示出来
-                    UI.$el.removeAttr("ui-loadding").show();
 
                     // 因为重绘了，看看有木有必要重新计算尺寸，这里用 setTimeout 确保 resize 是最后执行的指令
                     // TODO 这里可以想办法把 resize 的重复程度降低
