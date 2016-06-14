@@ -364,39 +364,54 @@ var Wn = {
         oReq._moss_str = "";
 
         oReq._show_msg = function () {
-            var str = oReq.responseText.substring(oReq._last);
-            oReq._last += str.length;
-            var pos = str.indexOf(mosHead);
-            var tailpos = str.indexOf(mosTail);
+            var txtLen  = oReq.responseText.length;
+            // 还没内容
+            if(txtLen <= 0)
+                return;
+            // 开始处理的位置
+            var off = oReq._last;
+
+            // 找到最后一个整行
+            var lastEOL = oReq.responseText.lastIndexOf('\n');
+            var nextPos = lastEOL + 1;
+            // 得到要处理的字符串
+            var str = oReq.responseText.substring(oReq._last, lastEOL+1);
+            console.log("_show_msg@" + (new Date()) + ":\n" + lastEOL + "/" + txtLen);
+            // 标记下一次要处理的起始位置
+            oReq._last = nextPos;
+
+            // 查找显示内容结束标记
+            var pos_head = str.indexOf(mosHead, off);
+            var pos_tail = str.indexOf(mosTail, off);
             // 发现完整的mos
-            if (pos >= 0 && tailpos >= 0) {
-                var from = pos + mosHead.length;
+            if (pos_head >= 0 && pos_tail >= 0) {
+                var from = pos_head + mosHead.length;
                 var pl = str.indexOf("\n", from);
                 var pr = str.indexOf(mosTail, pl);
                 oReq._moss.push({
                     type: str.substring(from, pl),
                     content: str.substring(pl + 1, pr)
                 });
-                str = str.substring(0, pos);
+                str = str.substring(0, pos_head);
             }
             // 发现开头
-            else if (pos >= 0 && tailpos < 0) {
-                var from = pos + mosHead.length;
+            else if (pos_head >= 0 && pos_tail < 0) {
+                var from = pos_head + mosHead.length;
                 var pl = str.indexOf("\n", from);
                 oReq._moss_tp = str.substring(from, pl);
                 oReq._moss_str = str.substring(pl + 1);
-                str = str.substring(0, pos);
+                str = str.substring(0, pos_head);
             }
             // 发现结尾
-            else if (pos < 0 && tailpos >= 0) {
-                oReq._moss_str += str.substr(0, tailpos);
+            else if (pos_head < 0 && pos_tail >= 0) {
+                oReq._moss_str += str.substr(0, pos_tail);
                 oReq._moss.push({
                     type: oReq._moss_tp,
                     content: oReq._moss_str
                 });
                 oReq._moss_tp = "";
                 oReq._moss_str = "";
-                str = str.substring(tailpos + mosTail.length + 1);
+                str = str.substring(pos_tail + mosTail.length + 1);
             }
             // 累计 Content
             oReq._content += str;
@@ -414,7 +429,7 @@ var Wn = {
         
         oReq.open("POST", url, opt.async);
         oReq.onreadystatechange = function () {
-            //console.log("rs:" + oReq.readyState + " status:" + oReq.status + " :: \n" + oReq.responseText);
+            console.log("rs:" + oReq.readyState + " status:" + oReq.status + " :: \n" + oReq.responseText);
             // LOADING | DONE 只要有数据输入，显示一下信息
             if(oReq._show_msg)
                 oReq._show_msg();
