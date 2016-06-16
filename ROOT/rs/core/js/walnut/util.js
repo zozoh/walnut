@@ -87,6 +87,14 @@ var Wn = {
     },
     //...................................................................
     objIconHtml : function(o){
+        // 有了指定的 icon
+        if(o.icon)
+            return o.icon;
+        // 主目录特殊显示
+        if(this.app().session.envs.HOME == o.ph){
+            return '<i class="fa fa-home" style="font-size:1.2em;">';
+        }
+        // 采用自身的文件类型
         return o.icon || '<i class="oicon" otp="'+this.objTypeName(o)+'"></i>';;
     },
     //...................................................................

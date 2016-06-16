@@ -8,13 +8,11 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
-import org.nutz.walnut.util.Wn;
 
 public class cmd_thing extends JvmHdlExecutor {
 
@@ -25,36 +23,40 @@ public class cmd_thing extends JvmHdlExecutor {
 
         // 没有参数
         if (hc.args.length == 0) {
-            hc.hdlName = "get";
             hc.oHome = this.getCurrentObj(sys);
+            hc.hdlName = "get";
             pos = 0;
         }
         // 第一个参数就是 hdl，那么当前目录就作为 oHome
+        // :> thing hdlName xxx
         else if (null != this.getHdl(hc.args[0])) {
-            hc.hdlName = hc.args[0];
             hc.oHome = this.getCurrentObj(sys);
+            hc.hdlName = hc.args[0];
             pos = 1;
         }
         // 第一个参数表示一个 Thing|ThingSet
+        // :> thing ID
+        else if (hc.args.length == 1) {
+            hc.oHome = sys.io.checkById(hc.args[0]);
+            hc.hdlName = "get";
+            pos = 1;
+        }
+        // 第一个参数表示一个 Thing|ThingSet
+        // :> thing ID hdlName xxx
         else {
-            hc.hdlName = hc.args.length > 1 ? hc.args[1] : "get";
-            hc.oHome = Wn.checkObj(sys, hc.args[0]);
+            hc.oHome = sys.io.checkById(hc.args[0]);
+            hc.hdlName = hc.args[1];
             pos = 2;
         }
 
         // 检查 oHome，如果又不是 ThingSet 又不是 Thing，抛错
-        if (!hc.oHome.isType("thing") && !hc.oHome.has("thing")) {
-            throw Er.create("e.cmd.thing.invalidHome", hc.oHome);
-        }
+        // if (!hc.oHome.isType("thing") && !hc.oHome.has("thing")) {
+        // throw Er.create("e.cmd.thing.invalidHome", hc.oHome);
+        // }
 
-        // 解析参数
+        // Copy 剩余参数
         hc.args = Arrays.copyOfRange(hc.args, pos, hc.args.length);
 
-        // 得到配置文件
-        if (null != hc.oHome) {
-            WnObj oConf = sys.io.check(hc.oHome, "wxconf");
-            hc.setv("wxconf_obj", oConf);
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -80,8 +82,12 @@ public class cmd_thing extends JvmHdlExecutor {
                 // 如果是数组或者列表，直接搞
                 else if (hc.output.getClass().isArray() || hc.output instanceof List) {
                     Object oFirst = Lang.first(hc.output);
+
+                    // 确保按照列表输出
+                    hc.params.setv("l", true);
+
                     // WnObj 的集合
-                    if (oFirst instanceof WnObj) {
+                    if (null == oFirst || oFirst instanceof WnObj) {
                         Cmds.output_objs(sys,
                                          hc.params,
                                          hc.pager,

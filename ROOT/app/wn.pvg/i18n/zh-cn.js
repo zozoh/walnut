@@ -10,10 +10,17 @@ define({
         "mode_x"       : "可用",
         "mode_auto"    : "删除定制权限",
         "users_title"  : "账号列表",
-        "user_add" : "添加账号",
+        "user_add"     : "添加账号",
+        "user_add_tip" : "输入要添加到本组的账号（登录名，手机号或者邮箱）",
+        "user_add_tipI": "请输入要添加的账号",
+        "user_add_ing"   : '<i class="fa fa-cog fa-spin fa-3x fa-fw"></i> 正在添加 ...',
+        "user_add_ok"    : '<i class="fa fa-check"></i> 添加成功',
+        "user_add_fail"  : '<i class="fa fa-warning"></i> 添加失败: {{msg}}',
+        "user_del_none"  : "请从用户列表中选择一个用户删除",
         "user_del" : "移除账号",
         "paths_title" : "路径列表",
         "paths_add" : "添加路径",
         "paths_del" : "移除路径",
+        "path_del_none"  : "请从路径列表中选择一个路径删除",
     }
 });

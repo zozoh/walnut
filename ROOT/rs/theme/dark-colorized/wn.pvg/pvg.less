@@ -84,3 +84,40 @@
         
     }
 }
+
+//.........................................................
+// 增加用户弹出窗的样式
+//.........................................................
+@MH1 : 48px;
+@MbtnW : 80px;
+.pvgau-mask {
+    width:100%; height:100%; position: relative; overflow: auto;
+    padding-top: @MH1 * 2;
+    header {
+        font-size: @f3; padding:0 @d6; 
+        position: absolute; left:0; right:0; top:0; height:@MH1; line-height: @MH1;
+        background:@cb1; color:@c0; border-bottom:1px solid @cborder1;
+    }
+    .pvgau-tip {
+        padding:@d3; text-align: center;
+        position: absolute; left:0; right:0; top:@MH1; 
+        background:@cb2; color:@c2; border-bottom:1px solid @cborder1;
+    }
+    section {
+        > div {
+            padding:@d4 @d6; border-bottom: 1px dashed @cborder1;
+        }
+    }
+    footer {
+        padding:@d2 @MbtnW+@d2*2 @d2 @d2; position: relative;
+        input{@input();
+            width:100%; padding:@d3; font-size: @f4;
+        }
+        input:focus{@input_focus();}
+        b {@btn();
+            position: absolute; top:@d2; right:@d2; bottom:@d2; width:@MbtnW;
+            text-align: center; padding: @d3+@d0 0; 
+        }
+        b:hover {@btn_hover();}
+    }
+}

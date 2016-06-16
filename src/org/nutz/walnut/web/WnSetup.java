@@ -39,6 +39,7 @@ public class WnSetup implements Setup {
 
     @Override
     public void init(NutConfig nc) {
+        // 获取 Ioc 容器
         ioc = nc.getIoc();
 
         // 读取默认的category

@@ -12,44 +12,6 @@
     clear:both;
 };
 
-@fit : {width:100%; height:100%;};
-
-@c_main          : #F80;
-@c_main_blue     : #08F;
-@c_main_red      : #F00;
-
-@c_text_hover_color : #A00;
-@c_text_hover_bg    : #FFA;
-
-@c_btn_color     : #08F;
-@c_btn_bg        : #EEE;
-@c_btn_border    : #CCC;
-@c_btn_hover_color : #4AF;
-@c_btn_hover_bg    : #DDF;
-
-@c_gray_f       : #888;
-@c_gray_b       : #DDD;
-@c_gray_shallow : #AAA;
-@c_gray_dim     : #444;
-@c_gray_light   : #F0F0F0;
-
-@c_green_f      : #080;
-@c_green_b      : #0D0;
-@c_green_shallow: #0A0;
-@c_green_dim    : #040;
-
-@c_white : #FFF;
-@c_black : #000;
-
-@line   : 1px solid @c_main;
-@tiny   : 2px;
-@small  : 4px;
-@normal : 8px;
-@big    : 16px;
-@bigger : 32px;
-@large  : 64px;
-@hug    : 128px;
-
 @cb0           : #FFF;     // 主体背景色
 @cb1           : #EEE;     // 背景1
 @cb2           : #E0E0E0;  // 背景2
@@ -127,16 +89,6 @@
     display: flex;
 };
 
-@f_tiny     : 10px;
-@f_small    : 12px;
-@f_normal   : 14px;  
-@f_big      : 18px;
-@f_bigger   : 24px; 
-@f_large    : 36px;
-@f_hug      : 72px;
-
-@ff_code : 'Lucida Console', Monaco, monospace;
-
 @btn : {
     @noselect();
     display:inline-block; vertical-align: middle; cursor: pointer;
@@ -154,6 +106,56 @@
 };
 
 @input_focus:{color:@cinput_fF; background: @cinput_bF; border-color:@cinput_lF;};
+
+//--------------------------------------------------
+// 下面的变量应该作废
+@fit : {width:100%; height:100%;};
+
+@c_main          : #F80;
+@c_main_blue     : #08F;
+@c_main_red      : #F00;
+
+@c_text_hover_color : #A00;
+@c_text_hover_bg    : #FFA;
+
+@c_btn_color     : #08F;
+@c_btn_bg        : #EEE;
+@c_btn_border    : #CCC;
+@c_btn_hover_color : #4AF;
+@c_btn_hover_bg    : #DDF;
+
+@c_gray_f       : #888;
+@c_gray_b       : #DDD;
+@c_gray_shallow : #AAA;
+@c_gray_dim     : #444;
+@c_gray_light   : #F0F0F0;
+
+@c_green_f      : #080;
+@c_green_b      : #0D0;
+@c_green_shallow: #0A0;
+@c_green_dim    : #040;
+
+@c_white : #FFF;
+@c_black : #000;
+
+@line   : 1px solid @c_main;
+@tiny   : 2px;
+@small  : 4px;
+@normal : 8px;
+@big    : 16px;
+@bigger : 32px;
+@large  : 64px;
+@hug    : 128px;
+
+@f_tiny     : 10px;
+@f_small    : 12px;
+@f_normal   : 14px;  
+@f_big      : 18px;
+@f_bigger   : 24px; 
+@f_large    : 36px;
+@f_hug      : 72px;
+
+@ff_code : 'Lucida Console', Monaco, monospace;
 
 @tab : {
     display:inline-block; vertical-align: middle; cursor: pointer;

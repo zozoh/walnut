@@ -5,9 +5,9 @@
 
 # 用法
 
-    thing [xxx] ACTION [options] [-json "{..}] [-tmpl "TMPL"] [-N] [-Q]
+    thing [ID] ACTION [options] [-json "{..}] [-tmpl "TMPL"] [-N] [-Q]
     
-    - 第一个参数(如果有)代表一个 Thing 或者 ThingSet
+    - ID         「选」代表一个 Thing 或者 ThingSet的 ID
     - ACTION     可以是  get|init|create|detail|delete|update|query|comment|clean
                  默认为 "get"
     - options    根据不同的 ACTION 意义不同
@@ -47,22 +47,22 @@
     
     #----------------------------------------------------
     # 命令格式
-    thing [xxx] [get]
+    thing [ID] [get]
     #----------------------------------------------------
     # 得到一个 thing 的详细信息 
-    thing [xxx]
+    thing [ID]
     
     # 打印某个 thing 的全部 JSON 信息
-    thing [xxx] get -json 
+    thing [ID] get -json 
     
     # 打印某个 thing 的名称和所属者，且不输出换行符
-    thing [xxx] get -out '@{th_ow} belong to @{th_name}' -N
+    thing [ID] get -out '@{th_ow} belong to @{th_name}' -N
 
 # thing xxx init
 
     #----------------------------------------------------
     # 命令格式
-    thing [xxx] init
+    thing [ID] init
     #----------------------------------------------------
     - 初始化一个 ThingSet，当前的目录必须是个 ThingSet，否则跑错
    
@@ -70,32 +70,44 @@
 
     #----------------------------------------------------
     # 命令格式
-    thing [xxx] create ["$th_nm"] 
-                       [-brief "xxx"]
-                       [-ow "xxx"]
-                       [-cate CateID]
-                       [-fields "{..}"]
+    thing [ID] create [th_nm] [th_brief] [-cate th_cate] [-fields "{..}"]
     #----------------------------------------------------
      - 当前对象可以是一个 thing 或者 ThingSet
      - 如果是一个 thing，相当于是它的 ThingSet
-     - 参数的意义和 thing update 一致
+     
+    # 创建一个名为 ABC 的 thing
+    thing xxx create ABC
+    
+    # 创建一个名为 ABC 且有一个简要说明的 thing
+    thing xxx create 'ABC' 'This is abc'
+    # or
+    thing xxx create ABC -fields "{th_brief:'This is abc'}"
+    # or
+    thing xxx create -fields "{th_nm:'ABC', th_brief:'This is abc'}"
+    
+    # 创建一个匿名的 Thing 并指明分类
+    thing xxx create -cate xxx
+
 # thing xxx detail
 
     #----------------------------------------------------
     # 命令格式
-    thing [xxx] detail [-set "xxxxx"] [-tp "md|txt|html"] [-drop]
+    thing [ID] detail [-content "xxxxx"] [-tp "md|txt|html"] [-drop] [-quiet]
     #----------------------------------------------------
     - 内容，支持从管道读取
     - 默认 tp 为 txt
     
-    # 显示 thing 的 detail
+    # 显示 thing 的 detail，如果没有，则抛错
     thing xxx detail
     
+    # 显示 thing 的 detail，如果没有，则什么都不输出
+    thing xxx detail -quiet
+    
     # 为 thing 修改详细内容
-    thing xxx detail -set "哈哈哈"
+    thing xxx detail -content "哈哈哈"
     
     # 为 thing 修改详细内容 HTML
-    thing xxx detail -set "<b>哈哈哈</b>" -tp "html"
+    thing xxx detail -content "<b>哈哈哈</b>" -tp "html"
     
     # 为 thing 删除详细内容
     thing xxx detail -drop
@@ -104,16 +116,40 @@
     
     #----------------------------------------------------
     # 命令格式
-    thing [xxx] delete
+    thing [ID] delete [-quiet]
     #----------------------------------------------------
      - 当前对象必须是一个 thing，否则不能删除
-     - 所谓删除其实就是做一个标记 th_live = -1
+     - 已经删除的，再次删除会抛错，除非 -quiet
+     - 所谓删除其实就是标记 th_live = -1
+
+# thing xxx restore
+    
+    #----------------------------------------------------
+    # 命令格式
+    thing [ID] restore [-quiet]
+    #----------------------------------------------------
+     - 当前对象必须是一个 thing，否则不能恢复
+     - 已经恢复的，再次恢复会抛错，除非 -quiet
+     - 所谓恢复其实就是标记 th_live = 1
+
+# thing xxx clean
+
+    #----------------------------------------------------
+    # 命令格式
+    thing [ID] clean [-limit 0]
+    #----------------------------------------------------
+    - 当前对象可以是一个 thing 或者 ThingSet
+    - 如果是一个 thing，相当于是它的 ThingSet
+    - 将真正执行 `rm`，所有的 th_live = -1 的都会被清除
+    - limit 参数将限制清除的个数
+    - 清除的顺序为最后修改时间从旧到新
+
 
 # thing xxx update
 
     #----------------------------------------------------
     # 命令格式
-    thing [xxx] update ["$th_nm"] 
+    thing [ID] update ["$th_nm"] 
                        [-brief "xxx"]
                        [-ow "xxx"]
                        [-cate CateID]
@@ -129,28 +165,22 @@
     thing xxx update -brief "会员半价"
     
     # 修改更多的信息
-    thing xxx update -fields "x:100,y:99" -json
-    {
-        ...
-        tha_x : 100,    <- 会被添加 "tha_" 前缀
-        tha_y : 99
-        ...
-    }
+    thing xxx update -fields "x:100,y:99"
 
      
 # thing xxx query
 
     #----------------------------------------------------
     # 命令格式
-    thing [xxx] query "{...}"
+    thing [ID] query "{...}"
                       [-t "c0,c1,c2.."]
                       [-pager]
-                      [-sort {..}]
                       [-limit 10]
                       [-skip 0]
     #----------------------------------------------------
      - 当前对象可以是一个 thing 或者 ThingSet
      - 如果是一个 thing，相当于是它的 ThingSet
+     - 查询条件如果不包括 th_live，那么默认将设置为 th_live=1 表示所有可用的 thing
      - t 表示按照表格方式输出，是 query 的专有形式，内容就是半角逗号分隔的列名
      - pager  显示分页信息，如果是 JSON 输出，则将对象显示成 {list:[..],pager:{..}} 格式
         - 在 limit 小于等于 0 时，本参数依然无效
@@ -161,32 +191,50 @@
 
     #----------------------------------------------------
     # 命令格式
-    thing [xxx] comment [options]
+    thing [ID] comment [-add xxx]
+                       [-del xxx]
+                       [-quick]
+                       [commentID content]
+                       [-tp txt|html|md]
+                       [-minsz 5]
+                       [-maxsz 256]
     #----------------------------------------------------
     - 注释内容，支持从管道读取
-    
-    # 查询所有的注释
-    thing xxx comment 
     - 支持 'sort|pager|limit|skip|json|out|t' 等参数
+    - minsz 当创建/修改时，表示最小长度，默认 5
+    - maxsz 当创建/修改时，长度超过这一限制，将生成 brief，将内容写入文件
     
     # 添加注释，会自动修改 task.th_c_cmt 字段 
-    thing xxx comment -add "搞定了，呼" 
+    thing xxx comment -add "搞定了，呼"
+    
+    # 添加 makrkdown 注释
+    thing xxx comment -add "<b>哈哈</b>" -tp html
     
     # 修改注释
     thing xxx comment 20150721132134321 "修改一下注释"
     
+    # 修改注释为 markdown
+    thing xxx comment 20150721132134321 "修改一下注释" -tp md
+    
     # 删除注释，会自动修改 task.th_c_cmt 字段 
     thing xxx comment -del 20150721132134321
     
+    # 获取全部注释, 如果注释内容过长(有 breif 字段)，主动读取 content
+    thing xxx comment
     
-# thing xxx clean
+    # 获取全部注释, 如果注释内容过长也不主动读取
+    thing xxx comment -quick
+    
+    # 获取最多 100 个注释，并显示翻页信息
+    thing xxx comment -limit 100 -skip 0 -pager
+    
+    # 获取某个注释全部属性(自动确保读取 content)
+    thing xxx comment -get 20150721132134321
+    
+    # 获取某个注释的内容文本（仅仅是内容文本，不是 breif)
+    thing xxx comment -read 20150721132134321
+    
 
-    #----------------------------------------------------
-    # 命令格式
-    thing [xxx] clean
-    #----------------------------------------------------
-    - 当前对象可以是一个 thing 或者 ThingSet
-    - 如果是一个 thing，相当于是它的 ThingSet
-    - 将真正执行 `rm`，所有的 th_live = -1 的都会被清除
-    
+
+
 

@@ -4,10 +4,22 @@ $z.declare([
     'wn/util',
     'ui/list/list',
     'ui/menu/menu',
+    'ui/mask/mask',
     'ui/pop/pop_browser'
-], function(ZUI, Wn, ListUI, MenuUI, PopBrowser){
+], function(ZUI, Wn, ListUI, MenuUI, MaskUI, PopBrowser){
 //==============================================
 var html = function(){/*
+<div class="ui-code-template">
+    <div code-id="adduser" class="pvgau-mask">
+        <header>{{pvg.user_add}}</header>
+        <div class="pvgau-tip"><%=pvg.user_add_tip%></div>
+        <section></section>
+        <footer>
+            <input placeholder="{{pvg.user_add_tipI}}">
+            <b><i class="fa fa-plus"></i> {{add}}</b>
+        </footer>
+    </div>
+</div>
 <div class="ui-arena pvg" ui-fitparent="yes" mode="inside">
     <div class="pvg-users-head pvg-head"><div>
         <div class="pvg-users-title pvg-title"><i class="fa fa-user"></i><b>{{pvg.users_title}}</b></div>
@@ -48,12 +60,93 @@ return ZUI.def("app.wn.pvg", {
             setup : [{
                 text : "i18n:pvg.user_add",
                 handler : function(){
-
+                    // 定义执行添加的函数
+                    var on_add_user = function(e){
+                        var jInput = $(e.target).closest(".pvgau-mask footer").find("input");
+                        var jMM    = jInput.closest(".pvgau-mask");
+                        var jTip   = jMM.find(".pvgau-tip");
+                        if(jInput.size()>0) {
+                            var unm = $.trim(jInput.val()).replace(/"/g,"\\\"");
+                            if(unm){
+                                var cmdText = 'grp ' + Wn.app().session.grp + ' -a "'+unm+'" -role 10';
+                                // 显示提示文字
+                                jTip.html(UI.msg('pvg.user_add_ing'));
+                                // 执行
+                                Wn.exec(cmdText, function(re){
+                                    // 失败
+                                    if(/^e./.test(re)){
+                                        jTip.html(UI.msg('pvg.user_add_fail',{msg:$.trim(re)}));
+                                        // 闪一下提示文字
+                                        $z.blinkIt(jTip);
+                                    }
+                                    // 成功
+                                    else {
+                                        jTip.html(UI.msg('pvg.user_add_ok'));
+                                        // 创建一个新的行
+                                        var html = '<div><i class="fa fa-user"></i> <b>' + unm + '</b>';
+                                        var jUsr = $(html).appendTo(jMM.find("section"));
+                                        $z.blinkIt(jUsr);
+                                        // 去掉原来的文字
+                                        jInput.val("");
+                                    }
+                                });
+                            }
+                        }
+                    };
+                    // 打开遮罩
+                    new MaskUI({
+                        height: "80%",
+                        on_close : function(){
+                            UI.reloadUsers();
+                        },
+                        on_init : function(){
+                            this.watchKey(13, on_add_user);
+                        },
+                        dom_events : {
+                            "click footer b" : on_add_user
+                        }
+                    }).render(function(){
+                        UI.ccode("adduser").appendTo(this.$main);
+                    });
                 }
             }, {
                 text : "i18n:pvg.user_del",
                 handler : function(){
-                    
+                    // 得到选中的用户
+                    var u = UI.gasket.usersList.getActived();
+                    if(!u){
+                        alert(UI.msg("pvg.user_del_none"));
+                        return;
+                    }
+
+                    // 遍历右侧列表，依次删除路径中的权限设定
+                    var oList = UI.gasket.pathsList.getData();
+                    if(oList) {
+                        for(var i=0; i<oList.length; i++) {
+                            var o = oList[i];
+                            UI.delPvg(o.id, u);
+                        }
+                    }
+
+                    // 从组中移除选定用户
+                    var cmdText = 'grp ' + Wn.app().session.grp + ' -d "id:'+u.id+'"';
+                    Wn.exec(cmdText, function(re){
+                        // 失败
+                        if(/^e./.test(re)){
+                            alert(re);
+                        }
+                        // 删除成功，修改界面显示
+                        else {
+                            var jN2 = UI.gasket.usersList.remove(u.id);
+                            UI.gasket.usersList.setActived(jN2);
+                        }
+                    });
+                }
+            }, {
+                icon : '<i class="fa fa-refresh"></i>',
+                text : "i18n:refresh",
+                handler : function(){
+                    UI.reloadUsers();
                 }
             }]
         }).render(function(){
@@ -158,12 +251,18 @@ return ZUI.def("app.wn.pvg", {
                         },
                         on_ok : function(objs){
                             if(objs){
+                                var cmdText = "";
+                                // 显示路径
                                 for(var i=0;i<objs.length;i++){
                                     var obj = objs[i];
                                     if(!UI.gasket.pathsList.has(obj.id)) {
                                         UI.gasket.pathsList.add(obj);
+                                        cmdText += 'obj id:'+obj.id+" -u 'pvg:{}';\n";
                                     }
                                 }
+                                // 标识 pvg 元数据
+                                if(cmdText)
+                                    Wn.exec(cmdText);
                             }
                         }
                     }).render();
@@ -171,7 +270,37 @@ return ZUI.def("app.wn.pvg", {
             }, {
                 text : "i18n:pvg.paths_del",
                 handler : function(){
-                    
+                    // 得到选中的路径
+                    var oid = UI.gasket.pathsList.getActivedId();
+                    if(!oid){
+                        alert(UI.msg("pvg.path_del_none"));
+                        return;
+                    }
+
+                    // 从组中移除选定用户
+                    var cmdText = 'obj "id:'+oid+'" -u "pvg:null" -o';
+                    console.log(cmdText)
+                    Wn.exec(cmdText, function(re){
+                        // 失败
+                        if(/^e./.test(re)){
+                            alert(re);
+                        }
+                        // 删除成功，
+                        else {
+                            // 缓存数据
+                            var o = $z.fromJson(re);
+                            Wn.saveToCache(o);
+                            // 修改界面显示
+                            var jN2 = UI.gasket.pathsList.remove(oid);
+                            UI.gasket.pathsList.setActived(jN2);
+                        }
+                    });
+                }
+            }, {
+                icon : '<i class="fa fa-refresh"></i>',
+                text : "i18n:refresh",
+                handler : function(){
+                    UI.reloadPaths();
                 }
             }]
         }).render(function(){
@@ -184,7 +313,7 @@ return ZUI.def("app.wn.pvg", {
             gasketName : "pathsList",
             escapeHtml : false,
             display : function(o){
-                var html = '<i class="oicon" otp="'+Wn.objTypeName(o)+'"></i>';
+                var html = Wn.objIconHtml(o);
                 html += '<span>' + Wn.objDisplayPath(UI, o.ph) + '</span>';
                 html += UI.pvgHTML;
                 return html;
@@ -251,7 +380,7 @@ return ZUI.def("app.wn.pvg", {
             md |= $(this).attr("val") * 1;
         });
 
-        var pvg = o.pvg || {};
+        var pvg = {};
         pvg[u.id] = md;
 
         // 执行提交
@@ -259,7 +388,7 @@ return ZUI.def("app.wn.pvg", {
             oid : oid,
             pvg : $z.toJson(pvg)
         };
-        var cmdTmpl = 'obj id:{{oid}} -u \'pvg:<%=pvg%>\' -o';
+        var cmdTmpl = 'obj id:{{oid}} -set \'pvg:<%=pvg%>\' -o';
         //console.log($z.tmpl(cmdTmpl)(map));
         Wn.execf(cmdTmpl, map, function(re){
             var obj = $z.fromJson(re);
@@ -283,7 +412,7 @@ return ZUI.def("app.wn.pvg", {
             return;
 
         // 计算权限
-        var pvg = o.pvg || {};
+        var pvg = {};
         pvg[u.id] = 0;
 
         // 执行提交
@@ -291,7 +420,7 @@ return ZUI.def("app.wn.pvg", {
             oid : oid,
             pvg : $z.toJson(pvg)
         };
-        var cmdTmpl = 'obj id:{{oid}} -u \'pvg:<%=pvg%>\' -o';
+        var cmdTmpl = 'obj id:{{oid}} -set \'pvg:<%=pvg%>\' -o';
         //console.log($z.tmpl(cmdTmpl)(map));
         Wn.execf(cmdTmpl, map, function(re){
             var obj = $z.fromJson(re);
@@ -303,6 +432,7 @@ return ZUI.def("app.wn.pvg", {
         });
     },
     //...............................................................
+    // jq 参数可选，就是控制界面显示的
     delPvg : function(oid, u, jq){
         var UI = this;
 
@@ -315,23 +445,25 @@ return ZUI.def("app.wn.pvg", {
             return;
 
         // 计算权限
-        var pvg = o.pvg || {};
-        delete pvg[u.id];
+        var pvg = {};
+        pvg[u.id] = null;
 
         // 执行提交
         var map = {
             oid : oid,
             pvg : $z.toJson(pvg)
         };
-        var cmdTmpl = 'obj id:{{oid}} -u \'pvg:<%=pvg%>\' -o';
+        var cmdTmpl = 'obj id:{{oid}} -set \'pvg:<%=pvg%>\' -o';
         //console.log($z.tmpl(cmdTmpl)(map));
         Wn.execf(cmdTmpl, map, function(re){
             var obj = $z.fromJson(re);
             Wn.saveToCache(obj);
 
             // 界面上隐藏权限编辑控件
-            var jSpan = jq.closest("span.pvg-edit");
-            jSpan.removeAttr("pvg").find("u[mode]").removeClass("checked");
+            if(jq){
+                var jSpan = jq.closest("span.pvg-edit");
+                jSpan.removeAttr("pvg").find("u[mode]").removeClass("checked");
+            }
         });
     },
     //...............................................................
@@ -387,6 +519,7 @@ return ZUI.def("app.wn.pvg", {
         var grp = Wn.app().session.grp;
 
         // 得到用户列表
+        UI.gasket.usersList.showLoading();
         Wn.exec("grp-users -sort 'role:1' -json" + grp, function(re){
             var list = $z.fromJson(re);
             UI.gasket.usersList.setData(list);
@@ -399,7 +532,8 @@ return ZUI.def("app.wn.pvg", {
         var grp = Wn.app().session.grp;
 
         // 得到路径列表
-        Wn.exec('obj -match \'d1:"'+grp+'", pvg:{"\\$exists":true}\' -json -l -P', function(re){
+        UI.gasket.pathsList.showLoading();
+        Wn.exec('obj -match \'d1:"'+grp+'", pvg:{"\\$ne":null}\' -json -l -P', function(re){
             var list = $z.fromJson(re);
             UI.gasket.pathsList.setData(list);
             $z.doCallback(callback, [], UI);
@@ -407,7 +541,10 @@ return ZUI.def("app.wn.pvg", {
     },
     //...............................................................
     // 这个木啥用了，就是一个空函数，以便 browser 来调用
-    update : function(o) {}
+    update : function(o) {
+        // var UI = this;
+        // UI.arena.find(".pvg-users-menu .menu-item").first().click();
+    }
     //...............................................................
 });
 //===================================================================

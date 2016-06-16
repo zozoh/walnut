@@ -16,27 +16,37 @@ public class EscapeCloseInputStream extends InputStream {
     }
 
     public int read(byte[] b) throws IOException {
+        if (null == ins)
+            return -1;
         return ins.read(b);
     }
 
     public int read(byte[] b, int off, int len) throws IOException {
+        if (null == ins)
+            return -1;
         return ins.read(b, off, len);
     }
 
     public long skip(long n) throws IOException {
+        if (null == ins)
+            return 0;
         return ins.skip(n);
     }
 
     public int available() throws IOException {
+        if (null == ins)
+            return 0;
         return ins.available();
     }
 
     public void mark(int readlimit) {
-        ins.mark(readlimit);
+        if (null != ins)
+            ins.mark(readlimit);
     }
 
     public void reset() throws IOException {
-        ins.reset();
+        if (null != ins)
+            ins.reset();
     }
 
     public boolean markSupported() {

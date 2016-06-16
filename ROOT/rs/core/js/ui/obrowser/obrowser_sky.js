@@ -343,7 +343,7 @@ return ZUI.def("ui.obrowser_sky", {
                 jq.find(".ochild").html('<i class="fa fa-angle-right"></i>')
             }
             // 显示图标
-            $('<i class="fa fa-home" style="font-size:1.2em;">').prependTo(jq);
+            $(Wn.objIconHtml(o)).prependTo(jq);
             // 显示文字
             jq.find("b").text(UI.msg("home"));
         }
@@ -353,6 +353,7 @@ return ZUI.def("ui.obrowser_sky", {
             $(Wn.objIconHtml(o)).attr("mime",o.mime).prependTo(jq);
             jq.find("b").text(Wn.objDisplayName(UI, o.nm));
         }
+
         // 移除最后的展开符
         if(o.race!='DIR' || "tail"==itype){
             jq.addClass("citem-tail");

@@ -82,7 +82,7 @@
   padding: 8px;
   width: 80%;
   margin: 4px auto;
-  border: 1px dashed #dddddd;
+  border: 1px dashed #d0d0d0;
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-match-add b {
   margin: 0 6px;
@@ -118,7 +118,7 @@
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl .hdl-matchs .hdl-mat .val input {
   padding: 6px;
-  border: 1px solid #dddddd;
+  border: 1px solid #d0d0d0;
   border-radius: 6px;
   font-family: Monaco, Consolas, Courier New;
 }
@@ -210,7 +210,7 @@
   padding: 8px;
   text-align: center;
   border-radius: 4px;
-  border: 1px solid #dddddd;
+  border: 1px solid #d0d0d0;
   cursor: pointer;
 }
 .weixin-mp .weixin-mp-handler .wxmh-hdl-add:hover {

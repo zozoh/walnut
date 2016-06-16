@@ -27,6 +27,7 @@ public class thing_create implements JvmHdl {
         NutMap meta = Things.fillMeta(hc.params, new NutMap());
 
         // 设置更多的固有属性
+        meta.put("tp", "thing");
         meta.put("th_set", oTS.id());
         meta.put("th_live", Things.TH_LIVE);
 

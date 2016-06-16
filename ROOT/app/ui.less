@@ -20,7 +20,7 @@
 @cf0           : #333;     // 主要文字颜色
 @cf1           : #666;     // cb1 的前景
 @cf2           : #999;     // cb2 的前景
-@cf3           : #AAA;     // cb3 的前景
+@cf3           : #888;     // cb3 的前景
 @cf4           : #666;     // cb4 的前景
 @cpop_f        : #000;     // 弹出体前景色
 @cpop_b        : #DDD;     // 弹出体背景色
@@ -41,14 +41,14 @@
 @clink         : #08F;     // 链接颜色
 @clink_hover   : #F00;     // 链接高亮颜色
 @cborder0      : #CCC;     // 主要边框颜色
-@cborder1      : #DDD;     // 次要边框颜色
+@cborder1      : #D0D0D0;     // 次要边框颜色
 @ch0_f         : #FFF;     // 高亮元素前景色
 @ch0_b         : #04B;     // 高亮元素背景色
 @ch1_f         : #444;     // 次要高亮元素前景色
 @ch1_b         : #CCC;     // 次要高亮元素背景色
 @chx_b         : #080;     // 补充高亮元素背景色
 @chx_f         : #FFF;     // 补充高亮元素前景色
-@cshadow       : #888;     // 阴影颜色
+@cshadow       : rgba(0,0,0,0.5);     // 阴影颜色
 @c0            : #F80;     // 主要颜色
 @c1            : #F00;     // 重点文字颜色
 @c2            : #888;     // 补充文字颜色
@@ -90,14 +90,19 @@
 };
 
 @btn : {
+    @noselect();
     display:inline-block; vertical-align: middle; cursor: pointer;
     margin: 0 @d0; 
-    padding: @d3 @d7; 
+    padding: @d2 @d7; 
     border:1px solid @cbtn_l; 
     background: @cbtn_b;  color:@cbtn_f;
-    border-radius: @d1; 
+    border-radius: @d1;  text-align: center;
 };
 @btn_hover : {color:@ch0_f; background: @ch0_b;};
 
+@input : {
+    outline:none; border:1px solid @cinput_l;
+    border-radius: @d1; color:@cinput_f; background: @cinput_b;
+};
 
-
+@input_focus:{color:@cinput_fF; background: @cinput_bF; border-color:@cinput_lF;};

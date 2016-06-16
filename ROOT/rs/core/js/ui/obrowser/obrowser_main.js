@@ -102,8 +102,7 @@ return ZUI.def("ui.obrowser_main", {
             menuContext = UI;
 
             // 发出通知
-            var msg = '<i class="oicon" otp="'+o.tp+'"></i>';
-            msg += " <b>" + Wn.objDisplayPath(UI, o.ph, 2) + '</b>';
+            var msg = Wn.objIconHtml(o) + " <b>" + Wn.objDisplayPath(UI, o.ph, 2) + '</b>';
             UIBrowser.trigger("browser:info", msg);
         }
         // 实在不知道怎么处理了

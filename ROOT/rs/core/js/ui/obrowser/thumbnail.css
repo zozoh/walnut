@@ -128,15 +128,15 @@
   font-family: Monaco, Consolas, Courier New;
 }
 .wn-thumbnail .wnobj-checked .wnobj-thumbnail {
-  background: #E0E0E0;
+  background: #e0e0e0;
 }
 .wn-thumbnail .wnobj-checked .wnobj-thumbnail[thumb] .img {
-  border: 1px solid #D0D0D0;
+  border: 1px solid #d0d0d0;
 }
 .wn-thumbnail .wnobj-checked .wnobj-nm {
-  background: #04B;
-  color: #FFF;
+  background: #0044bb;
+  color: #ffffff;
 }
 .wn-thumbnail .wnobj-actived .wnobj-nm {
-  border-color: #D0D0D0;
+  border-color: #d0d0d0;
 }

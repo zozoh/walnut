@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.thing.hdl;
 
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.thing.Things;
@@ -10,7 +11,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 
-@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(drop)$")
+@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(drop|quiet)$")
 public class thing_detail implements JvmHdl {
 
     @Override
@@ -24,7 +25,20 @@ public class thing_detail implements JvmHdl {
         // 清除详情
         if (hc.params.is("drop")) {
             if (null != oDetail) {
+                // 删除 detail
                 sys.io.delete(oDetail);
+
+                // 设置 thing 元数据
+                oT.setv("th_detail_tp", null);
+                oT.setv("th_detail_sz", 0);
+                sys.io.set(oT, "^th_detail_.+$");
+
+                // 输出被删除 detail 对象
+                hc.output = oDetail;
+            }
+            // 看看有没有必要报错
+            else if (!hc.params.is("quiet")) {
+                throw Er.create("e.cmd.thing.detail.blank", oT.id());
             }
         }
         // 创建或者修改
@@ -44,11 +58,23 @@ public class thing_detail implements JvmHdl {
             // 写入内容
             String content = Cmds.getParamOrPipe(sys, hc.params, "content", false);
             sys.io.writeText(oDetail, content);
-        }
-        // 那就是获取内容咯，啥也不用做就好了
 
-        // 最后返回 detail 对象
-        hc.output = oDetail;
+            // 设置 thing 元数据
+            oT.setv("th_detail_tp", oDetail.type());
+            oT.setv("th_detail_sz", oDetail.len());
+            sys.io.set(oT, "^th_detail_.+$");
+
+            // 输出 detail 对象
+            hc.output = oDetail;
+        }
+        // 那就是获取内容咯，检查一下空内容要不要抛错
+        else if (null == oDetail && !hc.params.is("quiet")) {
+            throw Er.create("e.cmd.thing.detail.blank", oT.id());
+        }
+        // 输出 detail 对象的内容
+        else {
+            hc.output = sys.io.readText(oDetail);
+        }
     }
 
 }

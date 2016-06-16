@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.thing.hdl;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.json.Json;
@@ -23,14 +24,25 @@ public class thing_query implements JvmHdl {
         // 找到集合
         WnObj oTS = Things.checkThingSet(hc.oHome);
 
+        // 找到数据目录
+        WnObj oTData = sys.io.fetch(oTS, "data");
+
         // ..............................................
         // 准备分页信息
         WnPager wp = new WnPager(hc.params);
+
+        // 没有数据
+        if (null == oTData) {
+            hc.pager = wp;
+            hc.output = new LinkedList<WnObj>();
+            return;
+        }
 
         // ..............................................
         // 准备查询条件
         String qStr = hc.params.val(0);
         WnQuery q = new WnQuery();
+        // 指定了条件
         if (!Strings.isBlank(qStr)) {
             // 条件是"或"
             if (Strings.isQuoteBy(qStr, '[', ']')) {
@@ -42,8 +54,24 @@ public class thing_query implements JvmHdl {
                 q.add(Lang.map(qStr));
             }
         }
+        // 未指定条件
+        else {
+            q.first();
+        }
         // 确保限定了集合
-        q.setAllToList(Lang.mapf("th_set:'%s',th_live:%d", oTS.id(), Things.TH_LIVE));
+        NutMap map = new NutMap();
+        map.put("th_set", oTS.id());
+        map.put("tp", "thing");
+        map.put("pid", oTData.id());
+        q.setAllToList(map);
+
+        // 检查 th_live
+        List<NutMap> qList = q.getList();
+        for (NutMap qe : qList) {
+            if (!qe.has("th_live")) {
+                qe.put("th_live", Things.TH_LIVE);
+            }
+        }
 
         // ..............................................
         // 设置分页信息
