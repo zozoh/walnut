@@ -1,2 +1,123 @@
 @import (reference) "../ui";
 
+@menuH : 42px;
+@leftW : 40%;
+
+.pvg {@noselect();
+    position: relative; background: @cb1;
+    > div {position: absolute; }
+    .pvg-users-head {top:0;left:0;height:@menuH;width:@leftW;}
+    .pvg-users-list {top:@menuH; bottom:0; left:0; width:@leftW;}
+    .pvg-paths-head {top:0; height:@menuH;left:@leftW; right:0;}
+    .pvg-paths-list {top:@menuH; bottom:0;left:@leftW; right:0;}
+    //.........................................................
+    // 统一的头部样式
+    .pvg-head > div {
+        width:100%; height:100%; position: relative;
+        border-bottom:1px solid @cborder1;
+        > div {position: absolute; top:0; bottom:0; }
+        .pvg-title {
+            left:0; padding:@d4;
+            b {margin-left: @d3;}
+        }
+        .pvg-menu {right:0;}
+    }
+    //.........................................................
+    // 统一列表样式
+    .pvg-list {
+        padding:@d4;
+        .lst-item {
+            > * {display: inline-block; vertical-align: middle;}
+            b {margin:0 @d2; min-width: 100px;}
+            > span.pvg-edit {
+                display:none;
+                color:@cf0; white-space: nowrap;
+                .pvg-cus {
+                    color:@clink; 
+                }
+                .pvg-cus:hover {
+                    color:@clink_hover; text-decoration: underline;
+                }
+                .pvg-mode {
+                    padding: @d2 0; background: @ch1_b; color:@ch1_f;
+                    u {text-decoration: none; padding:@d2;}
+                    u.checked {background:@chx_b; color:@chx_f;}
+                    u.pvg-auto:hover {
+                        background: @ch0_b; color:ch0_f;
+                    }
+                }
+            }
+        }
+        .lst-item[role="ADMIN"]{color:#FF0;}
+        .lst-item[role="REQUEST"]{opacity: 0.5;}
+        .lst-item[role="BLOCK"]{opacity: 0.5; color:#F00;}
+    }
+    .pvg-list[pvg-edit-on]{
+        .lst-item{
+            > span.pvg-edit{
+                display:inline-block;
+                .pvg-cus {display: inline;}
+                .pvg-mode{display: none;}
+            }
+            > span.pvg-edit[pvg] {
+                .pvg-cus {display: none;}
+                .pvg-mode{display: inline;}
+            }
+        }
+    }
+    //.........................................................
+    // 区域样式
+    //.........................................................
+    .pvg-users-head {
+        border-right:1px solid @cborder1;
+    }
+    .pvg-users-list {
+        border-right:1px solid @cborder1;
+        .lst-item {
+            > em {min-width: 60px;}
+        }
+    }
+    .pvg-paths-head {
+        
+    }
+    .pvg-paths-list {
+        
+    }
+}
+
+//.........................................................
+// 增加用户弹出窗的样式
+//.........................................................
+@MH1 : 48px;
+@MbtnW : 80px;
+.pvgau-mask {
+    width:100%; height:100%; position: relative; overflow: auto;
+    padding-top: @MH1 * 2;
+    header {
+        font-size: @f3; padding:0 @d6; 
+        position: absolute; left:0; right:0; top:0; height:@MH1; line-height: @MH1;
+        background:@cb1; color:@c0; border-bottom:1px solid @cborder1;
+    }
+    .pvgau-tip {
+        padding:@d3; text-align: center;
+        position: absolute; left:0; right:0; top:@MH1; 
+        background:@cb2; color:@c2; border-bottom:1px solid @cborder1;
+    }
+    section {
+        > div {
+            padding:@d4 @d6; border-bottom: 1px dashed @cborder1;
+        }
+    }
+    footer {
+        padding:@d2 @MbtnW+@d2*2 @d2 @d2; position: relative;
+        input{@input();
+            width:100%; padding:@d3; font-size: @f4;
+        }
+        input:focus{@input_focus();}
+        b {@btn();
+            position: absolute; top:@d2; right:@d2; bottom:@d2; width:@MbtnW;
+            text-align: center; padding: @d3+@d0 0; 
+        }
+        b:hover {@btn_hover();}
+    }
+}
