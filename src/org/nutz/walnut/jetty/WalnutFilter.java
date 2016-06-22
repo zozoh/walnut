@@ -139,7 +139,7 @@ public class WalnutFilter implements Filter {
                 // 记录一下
                 Wn.WC().setv(WWW.AT_BASE, "/");
 
-                req.setServletPath(newPath);
+                req.setServletPath(newPath);//擦,这是什么鬼
                 if (log.isDebugEnabled()) {
                     log.debug(" - router to: " + newPath);
                 }
