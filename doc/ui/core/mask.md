@@ -24,6 +24,11 @@ new MaskUI({
     // 行为
     closer  : Boolean   // 是否显示关闭按钮
     escape  : Boolean   // 是否支持 esc 键退出
+
+    // 弹出时是否将之前的元素都进行标识
+    // 默认 "ui-mask-others"
+    // 如果为 null 则不标识，而是直接将前面的元素都隐藏
+    markPrevBy : "ui-mask-others" 
     
     // 主体使用的 UI，如果没有就是一个空的遮罩
     setup   : {

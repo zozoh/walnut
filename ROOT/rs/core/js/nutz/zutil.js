@@ -154,13 +154,14 @@
         //       "12%" - 百分比，相当于 .12
         // - base : 百分比的基数
         dimension: function (v, base) {
-            if (_.isNumber(v)) {
-                if (parseInt(v) == v)
-                    return v;
-                return v * base;
+            var n = v * 1;
+            if (_.isNumber(n) && !isNaN(n)) {
+                if (parseInt(n) == n)
+                    return n;
+                return n * base;
             }
             // 百分比
-            var m = /^([0-9]{1,3})%$/g.exec(v);
+            var m = /^([0-9.]{1,3})%$/g.exec(v);
             if (m) {
                 return (m[1] / 100) * base;
             }

@@ -8,6 +8,7 @@
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
+  z-index: 99999;
   background: rgba(200, 200, 200, 0.4);
   margin: 1px;
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -30,7 +31,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000;
+  z-index: 999999;
   background: #000;
   opacity: 0;
   cursor: pointer;

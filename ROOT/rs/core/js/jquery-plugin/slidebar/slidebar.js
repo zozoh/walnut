@@ -54,7 +54,7 @@ function try_move_pointer(jSb){
             y = Math.min(viewport.bottom, y);
             pos = (viewport.bottom - y) / viewport.height;
         }
-        //console.log("pos", pos);
+        //console.log("position", pos);
         // 调用回调
         var val = pos_to_val(jSb, pos);
         $z.invoke(opt, "change", [val, pos], opt.context||jEle);
@@ -136,6 +136,7 @@ function pos_to_val(ele, pos){
     }
 
     // 如果定义了取值函数
+    //console.log(typeof opt.valueBy)
     if(_.isFunction(opt.valueBy)){
         return opt.valueBy.apply(opt.context||$ele(jSb), [val, pos]);
     }
@@ -261,7 +262,7 @@ $.fn.extend({ "slidebar" : function(opt, arg){
     });
     jSb.on("dblclick", function(){
         var pos = get_pos_by_pointer(jSb)
-        console.log("pos:", pos);
+        //console.log("pos:", pos);
     });
 
     // 绑定模式，会自动注销

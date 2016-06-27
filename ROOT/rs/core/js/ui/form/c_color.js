@@ -34,6 +34,10 @@ return ZUI.def("ui.form_com_color", {
             this.__update(true);
         },
         "change input.hex" : function(){
+            var jAlpha = this.arena.find(".alpha");
+            if(!jAlpha.val()){
+                jAlpha.val("1.0");
+            }
             this.__update(true);
         },
         "change input.alpha" : function(e){
@@ -55,7 +59,8 @@ return ZUI.def("ui.form_com_color", {
                 jAlpha.slidebar({
                     ruler : 4,
                     valueBy : function(v){
-                        return Math.round(v*100)/100;
+                        // console.log("valueBy", v, Math.round(v))
+                        return Math.round(v);
                     },
                     change : function(v, pos){
                         jAlpha.val(v/100);

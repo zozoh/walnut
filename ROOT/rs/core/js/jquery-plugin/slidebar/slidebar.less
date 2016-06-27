@@ -1,6 +1,7 @@
 @import "../plugin.less";
 
 .slidebar { @noselect();
+    z-index: 99999;
     background: rgba(200,200,200,0.4); margin:1px; 
     border:1px solid rgba(0,0,0,0.2);
     border-radius: 2px;
@@ -12,7 +13,7 @@
 }
 .slidebar[pointer-moving] .sb-change-mask { 
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 1000; background: #000; opacity: 0; cursor: pointer;
+    z-index: 999999; background: #000; opacity: 0; cursor: pointer;
 }
 
 @sBs : 32px;

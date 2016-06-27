@@ -238,16 +238,29 @@ var Wn = {
     */
     logpanel : function(cmdText, maskConf, callback){
         var options;
+        // 给入命令文本 
         if(_.isString(cmdText)){
             options = {cmdText: cmdText};
+            // 第二个参数是回调
             if(_.isFunction(maskConf)){
                 options.maskConf = {};
                 options.complete = maskConf;
-            }else{
+            }
+            // 第二个参数就是预先显示的信息
+            else if(_.isString(maskConf)) {
+                options.maskConf = {
+                    welcome : maskConf
+                };
+                options.complete = callback;
+            }
+            // 第二个参数是弹出层配置
+            else{
                 options.maskConf = maskConf;
                 options.complete = callback;
             }
-        }else{
+        }
+        // 直接就是配置项
+        else{
             options = cmdText;
         }
         // 显示遮罩
@@ -256,6 +269,11 @@ var Wn = {
             width : "60%"
         }, options.maskConf)).render(function(){
             var jPre = $('<pre class="ui-log">').appendTo(this.$main);
+            // 预先显示信息
+            if(options.maskConf.welcome) {
+                $('<div>').html(options.maskConf.welcome).appendTo(jPre);
+            }
+            // 执行命令
             Wn.exec(options.cmdText, _.extend(options, {
                 msgShow : function(str){
                     $('<div class="ui-log-info">')

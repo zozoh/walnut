@@ -17,11 +17,12 @@ return ZUI.def("ui.mask", {
     init : function(options){
         $z.setUndefined(options, "width", 0.618);
         $z.setUndefined(options, "height", 0.618);
+        $z.setUndefined(options, "markPrevBy", "ui-mask-others");
     },
     //...............................................................
     redraw : function() {
         var UI = this;
-        var options = this.options;
+        var opt = this.options;
 
         // 禁止拖拽
         UI.$el.on("dragover", ".ui-mask-bg", function(e){
@@ -48,24 +49,31 @@ return ZUI.def("ui.mask", {
             // webkit 在 input type=color 的时候，设置 opactiy，只要小于 1 就全隐藏，靠
             // 不知道为毛
         }
-        else{
-            UI.$el.prevAll().addClass("ui-mask-others");
+        else if(opt.markPrevBy){
+            UI.$el.prevAll().addClass(opt.markPrevBy);
+        }
+        else {
+            UI.$el.prevAll().hide();
         }
 
         // 记录主区域
         UI.$main = UI.arena.children(".ui-mask-main");
-        if(options.closer === false) {
+        if(opt.closer === false) {
             this.arena.find(".ui-mask-closer").hide();
         }
-        if(!(options.escape === false)) {
+
+        // 监控 esc 事件
+        if(!(opt.escape === false)) {
             this.watchKey(27, function(e){
-                this.close();
+                // 如果自己是最顶层的元素，才关闭自己
+                if(this.$el.next().size() == 0)
+                    this.close();
             });
         }
         // 如果声明了主体 UI
-        var uiType = (options.setup||{}).uiType;
+        var uiType = (opt.setup||{}).uiType;
         if(uiType){
-            var uiConf = _.extend({}, options.setup.uiConf, {
+            var uiConf = _.extend({}, opt.setup.uiConf, {
                 parent     : UI,
                 gasketName : "main"
             });
@@ -129,8 +137,15 @@ return ZUI.def("ui.mask", {
     },
     //...............................................................
     depose : function(){
+        var UI  = this;
+        var opt = UI.options;
         // 将之前的对象的半透明度，都设置回来
-        this.$el.prevAll().removeClass("ui-mask-others");
+        if(opt.markPrevBy) {
+            UI.$el.prevAll().removeClass(opt.markPrevBy);
+        }
+        else {
+            UI.$el.prevAll().show();
+        }
     },
     //...............................................................
     close : function(){

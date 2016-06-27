@@ -70,6 +70,14 @@ public class cmd_videoc extends JvmExecutor {
                             String.format("%dx%d", vi.getWidth() / 4 * 2, vi.getHeight() / 4 * 2));
 
             log.debug("ffmpeg params :\n" + Json.toJson(vc_params));
+            
+            // 记录一下视频的信息
+            obj.setv("width", vi.getWidth());
+            obj.setv("height", vi.getHeight());
+            obj.setv("duration", vi.getLength());
+            obj.setv("video_frame_count", vi.getFrameCount());
+            obj.setv("video_frame_rate", vi.getFrameRate());
+            sys.io.set(obj, "^(video_frame_.+|width|height|duration)");
 
             // 先生成预览图
             if (mode == null || mode.matcher("preview_image").find()) {
@@ -91,7 +99,7 @@ public class cmd_videoc extends JvmExecutor {
                 NutMap meta = new NutMap();
                 meta.put("thumb", t.thumbnail());
                 meta.put("video_cover", t.id());
-
+                
                 sys.io.appendMeta(obj, meta);
                 sys.io.appendMeta(t, tMap);
             }

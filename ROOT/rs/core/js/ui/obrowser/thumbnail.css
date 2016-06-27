@@ -128,7 +128,7 @@
   font-family: Monaco, Consolas, Courier New;
 }
 .wn-thumbnail .wnobj-checked .wnobj-thumbnail {
-  background: #e0e0e0;
+  background: rgba(0, 0, 0, 0.1);
 }
 .wn-thumbnail .wnobj-checked .wnobj-thumbnail[thumb] .img {
   border: 1px solid #d0d0d0;
