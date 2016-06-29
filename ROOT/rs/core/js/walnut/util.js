@@ -255,7 +255,7 @@ var Wn = {
             }
             // 第二个参数是弹出层配置
             else{
-                options.maskConf = maskConf;
+                options.maskConf = maskConf || {};
                 options.complete = callback;
             }
         }
