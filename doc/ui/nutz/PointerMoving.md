@@ -42,7 +42,12 @@ author:zozoh
         beginY,
     }
     //.........................................
-    设置一个全局遮罩层，监听 {
+    设置一个全局遮罩层
+    pmvContext += {
+        $mask,
+        $helper,
+    }
+    监听遮罩层 {
         mouseup(mask) {
             pmvContext += {
                 endInMs,
@@ -86,11 +91,6 @@ author:zozoh
     设置延迟函数(opt.delay) {
         如果没有 pvmContext.endInMs 表示要进入激活态 {
             标识 trigger.pmv_mode_a = "yes"
-            创建 mask 层和辅助框
-            pmvContext += {
-                $mask,
-                $helper,
-            }
             修改辅助框位置，使其完全覆盖 trigger          
             opt.on_begin(pvmContext)
             opt.on_update(pvmContext);
@@ -104,19 +104,18 @@ author:zozoh
 
 ```
 {
-    event     : Event,    // 事件对象
+    Event     : Event,    // 事件对象
     $trigger  : jQuery,   // 触发者 DOM
     $viewport : jQuery,   // 视口 DOM
     $helper   : jQuery,   // 辅助块 DOM
     $mask     : jQuery,   // 遮罩层 DOM
-    startInMs : MS,      // 开始时间
-    endInMs   : MS,      // 结束时间
-    atX    : Number,     // 初始点击相对于 viewport 左顶点的水平距离
-    atY    : Number,     // 初始点击相对于 viewport 左顶点的垂直距离
-    beginX : Number,     // 初始点击全局水平位置
-    beginY : Number,     // 初始点击全局垂直位置
-    X      : Number,     // 当前指针全局水平位置
-    Y      : Number,     // 当前指针全局垂直位置
+    options   : {..},     // 配置信息对象
+    startInMs : MS,       // 开始时间
+    endInMs   : MS,       // 结束时间
+    posAt     : {x, y},   // 初始点击相对于 viewport
+    posBegin  : {x, y},   // 初始点击全局
+    x      : Number,      // 当前指针全局水平位置
+    y      : Number,      // 当前指针全局垂直位置
     // 下面是一组位置信息，控件自动实时计算，回调们就取个数就成了
     rect : {
         viewport : Rect,   // 视口
@@ -140,10 +139,13 @@ $z.rect_count_tlbr(rect);
 // 根据 bottom,right,width,height 计算剩下的信息
 $z.rect_count_brwh(rect);
 
+// 根据 x,y,width,height 计算剩下的信息
+$z.rect_count_xywh(rect);
+
 // 得到一个新 Rect 坐标系相对于 base
 $z.rect_relative(rect, base);
 
-// 相交
+// 计算相交
 $z.rect_overlap(rectA, rectB);
 
 // 相交面积
@@ -155,15 +157,18 @@ $z.rect_contains(rectA, rectB)
 // A 是否与 B 相交
 $z.rect_is_overlap(rectA, rectB)
 
-// 用 B 裁剪 A
-$z.rect_cut(rectA, rectB);
-
+// 生成一个新的矩形
 // 用 B 限制 A，会保证 A 完全在 B 中，且距离原来的位置最近
-$z.rect_boundary(rectA, rectB);
+$z.rect_clip_boundary(rectA, rectB);
 
 // 修改 A ，将其中点移动到某个位置
 // 第二个参数对象只要有 x,y 就好了，因此也可以是另外一个 Rect
-$z.rect_move_xy(rectA, {x,y});
+$z.rect_move_xy(rect, {x,y});
+
+// 修改 ，将其左上顶点移动到某个位置
+// 第二个参数对象只要有 x,y 就好了，因此也可以是另外一个 Rect
+// offset 表示一个偏移量，可选。通用用来计算移动时，鼠标与左上顶点的偏移
+$z.rect_move_tl(rect, {x,y}, offset:{x,y});
 ```
 
 # Rect 结构
@@ -193,9 +198,13 @@ $z.rect_move_xy(rectA, {x,y});
 # 如何创建
 
 ```
-$(context).PointerMoving({
-    // 指明移动的视口，如果指针超过了视口，将不会再触发 on_ing
-    viewport : DOM | Rect | null
+$(viewport).PointerMoving({
+    // 在 viewport 之内，的选择器，会被应用
+    // $(viewport).on("mousedown", trigger, F())
+    trigger : "selector",
+    
+    // 建立的遮罩层 z-index，默认为 999999
+    maskZIndex : 999999,
     
     // 移动的方式，默认 both
     //   x : 只能横向移动
@@ -208,7 +217,7 @@ $(context).PointerMoving({
     // ["top","right"]     - 右上顶点
     // ["bottom", "left"]  - 左下顶点
     // ["bottom", "right"] - 右下顶点
-    // 否则表示不更新
+    // 否则表示不自动更新
     autoUpdateTriggerBy : ["top", "left"]
     
     // 如何判断 trigger 超出了 viewport
@@ -219,7 +228,7 @@ $(context).PointerMoving({
     boundary : 0 | Float | undefined
     
     // 表示按住多久才表示进入激活模式（mode_a）
-    // 默认 300ms
+    // 默认 100ms
     delay : MS
     
     // 如果释放的时候，没有进入激活模式，则有可能是对 trigger 的一次点击
@@ -235,13 +244,19 @@ $(context).PointerMoving({
         stickRadius : 36 | .2 | "10%", // 吸附半径
     }
     
-    
+    // 辅助框的位置，有下面几种形式
+    //  hover    - 时刻完全覆盖在 trigger 上面
+    //  trigger  - 「默认」完全跟随 rect.trigger 计算结果
+    //  boundary - 完全跟随 rect.boundary 的计算结果
+    //  {pmvContext}F():Rect - 自由计算，函数返回一个 rect (相对于viewport)
+    //  nil      - 无视
+    helperPosition : "trigger",
+        
     // 回调函数
-    context : $(trigger)   // 各个回调函数的 this 参数，默认为 $(trigger)
-    on_begin  : {C}F(pmvContext)  // 移动开始时
-    on_ing    : {C}F(pmvContext)  // 移动时
-    on_end    : {C}F(pmvContext)  // 移动结束时
-    on_update : {C}F(pmvContext)  // 开始或移动结束时，主要用来更新 heper
+    on_begin  : {pmvContext}F()  // 移动开始时
+    on_ing    : {pmvContext}F()  // 移动时
+    on_end    : {pmvContext}F()  // 移动结束时
+    on_update : {pmvContext}F()  // 开始或移动结束时，主要用来更新 heper
 });
 ``` 
 

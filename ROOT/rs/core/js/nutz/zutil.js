@@ -194,11 +194,138 @@
                 rect.width = jEle.outerWidth();
                 rect.height = jEle.outerHeight();
             }
+            return this.rect_count_tlwh(rect);
+        },
+        //.............................................
+        // 根据 top,left,width,height 计算剩下的信息
+        rect_count_tlwh : function(rect) {
             rect.right = rect.left + rect.width;
             rect.bottom = rect.top + rect.height;
             rect.x = rect.left + rect.width / 2;
             rect.y = rect.top + rect.height / 2;
             return rect;
+        },
+        //.............................................
+        // 根据 top,left,bottom,right 计算剩下的信息
+        rect_count_tlbr : function(rect) {
+            rect.width = rect.right - rect.left;
+            rect.height = rect.bottom - rect.top;
+            rect.x = rect.left + rect.width / 2;
+            rect.y = rect.top + rect.height / 2;
+            return rect;
+        },
+        //.............................................
+        // 根据 bottom,right,width,height 计算剩下的信息
+        rect_count_brwh : function(rect) {
+            rect.top = rect.bottom - rect.height;
+            rect.left = rect.right - rect.width;
+            rect.x = rect.left + rect.width / 2;
+            rect.y = rect.top + rect.height / 2;
+            return rect;
+        },
+        //.............................................
+        // 根据 x,y,width,height 计算剩下的信息
+        rect_count_xywh : function(rect) {
+            var W2 = rect.width  / 2;
+            var H2 = rect.height / 2;
+            rect.top    = rect.y - H2;
+            rect.bottom = rect.y + H2;
+            rect.left   = rect.x - W2;
+            rect.right  = rect.x + W2;
+            return rect;
+        },
+        //.............................................
+        // 得到一个新 Rect 坐标系相对于 base
+        rect_relative : function(rect, base) {
+            return {
+                width  : rect.width,
+                height : rect.height,
+                top    : rect.top    - base.top,
+                left   : rect.left   - base.left,
+                right  : rect.right  - base.right,
+                bottom : rect.bottom - base.bottom,
+                x      : rect.x      - base.x,
+                y      : rect.y      - base.y
+            };
+        },
+        //.............................................
+        // 计算相交
+        rect_overlap : function(rectA, rectB) {
+            var r2 = {
+                top    : Math.max(rectA.top,    rectB.top),
+                left   : Math.max(rectA.left,   rectB.left),
+                right  : Math.min(rectA.right,  rectB.right),
+                bottom : Math.min(rectA.bottom, rectB.bottom),
+            };
+            return this.rect_count_tlbr(r2);
+        },
+        //.............................................
+        // 相交面积
+        rect_overlap_area : function(rectA, rectB) {
+            var r2 = this.rect_overlap(rectA, rectB);
+            return r2.width * r2.height;
+        },
+        //.............................................
+        // A 是否全部包含 B
+        rect_contains : function(rectA, rectB) {
+            return rectA.top <= rectB.top
+                   && rectA.bottom >= rectB.bottom
+                   && rectA.left <= rectB.left
+                   && rectA.right >= rectB.right;
+        },
+        //.............................................
+        // A 是否与 B 相交
+        rect_is_overlap : function(rectA, rectB) {
+            return this.rect_overlap_area(rectA, rectB) > 0;
+        },
+        //.............................................
+        // 生成一个新的矩形
+        // 用 B 限制 A，会保证 A 完全在 B 中，实在放不下了，就剪裁
+        rect_clip_boundary : function(rectA, rectB) {
+            var re = {};
+            // @移动上下边
+            // 在上面，先修改 top
+            if(rectA.y < rectB.y) {
+                re.top = Math.max(rectA.top, rectB.top);
+                re.bottom = re.top + rectA.height;
+            }
+            // 否则修改 bottom
+            else {
+                re.bottom = Math.min(rectA.bottom, rectB.bottom);
+                re.top = re.bottom - rectA.hegiht;
+            }
+
+            // @移动左右边
+            // 在左边，先修改 left
+            if(rectA.x < rectB.x) {
+                re.left = Math.max(rectA.left, rectB.left);
+                re.right = re.left + rectA.width;
+            }
+            // 否则修改 right
+            else {
+                re.right = Math.min(rectA.right, rectB.right);
+                re.left  = re.right - rectA.width;
+            }
+
+            // 最后取一下重叠部分
+            return this.rect_overlap(re, rectB);
+        },
+        //.............................................
+        // 修改 A ，将其中点移动到某个位置
+        // 第二个参数对象只要有 x,y 就好了，因此也可以是另外一个 Rect
+        rect_move_xy : function(rect, pos) {
+            rect.x = pos.x;
+            rect.y = pos.y;
+            return this.rect_count_xywh(rect);
+        },
+        //.............................................
+        // 修改 ，将其左上顶点移动到某个位置
+        // 第二个参数对象只要有 x,y 就好了，因此也可以是另外一个 Rect
+        // offset 表示一个偏移量，可选。通用用来计算移动时，鼠标与左上顶点的偏移
+        rect_move_tl : function(rect, pos, offset) {
+            rect.top  = pos.y - (offset ? offset.y : 0);
+            rect.left = pos.x - (offset ? offset.x : 0);
+            return this.rect_count_tlwh(rect);
         },
         //.............................................
         // 将一个元素停靠再另外一个元素上，根据目标元素在文档的位置来自动决定最佳的停靠方案
