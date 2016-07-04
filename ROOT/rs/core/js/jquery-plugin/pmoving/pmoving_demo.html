@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zcal 测试页</title>
+    <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">
+    <script src="/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js"></script>
+    <script src="/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js"></script>
+    <script src="/gu/rs/core/js/nutz/zutil.js"></script>
+    <script src="/gu/rs/core/js/ui/dateformat.js"></script>
+    <script src="/gu/rs/core/js/jquery-plugin/zcal/zcal.js"></script>
+    <link  href="/gu/rs/core/js/jquery-plugin/demo.css" rel="stylesheet" type="text/css">
+    <script  src="/gu/rs/core/js/jquery-plugin/pmoving/pmoving.js"></script>
+    <link  href="/gu/rs/core/js/jquery-plugin/pmoving/pmoving_demo.css" rel="stylesheet" type="text/css">
+    <script>
+    function log(str) {
+        $('<div>').text(str).appendTo($('.log'));
+    }
+    function show_helper() {
+        var R = this.rect.inview;
+        this.$helper.html($z.tmpl("l:{{left}},r:{{right}},t:{{top}},b:{{bottom}}")(R));
+    }
+    function demo_off(btn) {
+        $('.viewport').pmoving('destroy');
+        log($(btn).text());
+    }
+    function demo_normal(btn) {
+        $('.viewport').pmoving();
+        log($(btn).text());
+    }
+    function demo_grid(btn) {
+        $('.viewport').pmoving({
+            position : {
+                gridX  : "25%",
+                gridY  : "25%",
+                stickX : 20,
+                stickY : 20,
+            },
+            on_update: show_helper
+        });
+        log($(btn).text());
+    }
+    function demo_boundary(btn) {
+        $('.viewport').pmoving({
+            on_update: show_helper,
+            boundary : "100%"
+        });
+        log($(btn).text());
+    }
+    function demo_boundary_in_10px(btn) {
+        $('.viewport').pmoving({
+            on_update: show_helper,
+            boundary : 10
+        });
+        log($(btn).text());
+    }
+    function demo_mode_x(btn) {
+        $('.viewport').pmoving({
+            on_update: show_helper,
+            mode : "x"
+        });
+        log($(btn).text());
+    }
+    function demo_mode_y(btn) {
+        $('.viewport').pmoving({
+            on_update: show_helper,
+            mode : "y"
+        });
+        log($(btn).text());
+    }
+    function demo_complex(btn) {
+        $('.viewport').pmoving({
+            on_update: show_helper,
+            position : {
+                by : "center",
+                gridX  : "25%",
+                gridY  : "25%",
+                stickX : "25%",
+                stickY : "25%",
+            },
+            boundary : 1,
+        });
+        log($(btn).text());
+    }
+    $(function(){
+        $(".item").click(function(){
+            alert("I am item:" + $(this).text());
+        });
+    });
+    </script>
+</head>
+<body>
+<!--.........................................................-->
+<div class="main">
+    <div class="viewport">
+        <div class="item item0" style="top:10px; left:10px;"></div>
+        <div class="item item1" style="top:10px; left:300px;"></div>
+    </div>
+</div>
+<div class="panel">
+    <button onclick="demo_off(this);">注销</button>
+    <button onclick="demo_normal(this);">普通移动</button>
+    <button onclick="demo_grid(this);">网格移动</button>
+    <button onclick="demo_boundary(this);">限制边界</button>
+    <button onclick="demo_boundary_in_10px(this);">限制边界(10px)</button>
+    <button onclick="demo_mode_x(this);">只能横向移动</button>
+    <button onclick="demo_mode_y(this);">只能纵向移动</button>
+    <button onclick="demo_complex(this);">综合</button>
+</div>
+<pre class="log" ondblclick="$(this).empty();">请选择移动模式</pre>
+<!--.........................................................-->
+</body>
+</html>

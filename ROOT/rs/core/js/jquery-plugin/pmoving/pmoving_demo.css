@@ -13,7 +13,7 @@ body > div {
 }
 
 .item {
-    width:100px; height:60px; cursor: pointer;
+    width:200px; height:100px; cursor: pointer;
     position: absolute; padding:10px;
     background: #FF0; border: 1px solid #888;
 }
@@ -32,5 +32,5 @@ pre {
 }
 
 .pmv-mask .pmv-helper {
-    background: rgba(255,0,0,0.2);
+    background: rgba(255,0,0,0.2); padding:2px;
 }

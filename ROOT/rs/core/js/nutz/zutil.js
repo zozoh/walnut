@@ -197,6 +197,18 @@
             return this.rect_count_tlwh(rect);
         },
         //.............................................
+        rectObj : function(rect, keys) {
+            if(_.isString(keys)) {
+                keys = keys.split(/[ \t]*,[ \t]*/);
+            }
+            var re = {};
+            for(var i=0;i<keys.length;i++){
+                var key = keys[i];
+                re[key] = rect[key];
+            }
+            return re;
+        },
+        //.............................................
         // 根据 top,left,width,height 计算剩下的信息
         rect_count_tlwh : function(rect) {
             rect.right = rect.left + rect.width;
@@ -235,18 +247,15 @@
             return rect;
         },
         //.............................................
-        // 得到一个新 Rect 坐标系相对于 base
+        // 得到一个新 Rect，左上顶点坐标系相对于 base
         rect_relative : function(rect, base) {
-            return {
+            var r2 = {
                 width  : rect.width,
                 height : rect.height,
                 top    : rect.top    - base.top,
-                left   : rect.left   - base.left,
-                right  : rect.right  - base.right,
-                bottom : rect.bottom - base.bottom,
-                x      : rect.x      - base.x,
-                y      : rect.y      - base.y
+                left   : rect.left   - base.left
             };
+            return this.rect_count_tlwh(r2);
         },
         //.............................................
         // 计算相交
@@ -292,7 +301,7 @@
             // 否则修改 bottom
             else {
                 re.bottom = Math.min(rectA.bottom, rectB.bottom);
-                re.top = re.bottom - rectA.hegiht;
+                re.top = re.bottom - rectA.height;
             }
 
             // @移动左右边
