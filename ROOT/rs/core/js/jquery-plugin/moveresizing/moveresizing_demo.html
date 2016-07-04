@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>moveresizing 测试页</title>
+    <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">
+    <script src="/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js"></script>
+    <script src="/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js"></script>
+    <script src="/gu/rs/core/js/nutz/zutil.js"></script>
+    <script src="/gu/rs/core/js/ui/dateformat.js"></script>
+    <script src="/gu/rs/core/js/jquery-plugin/zcal/zcal.js"></script>
+    <link  href="/gu/rs/core/js/jquery-plugin/demo.css" rel="stylesheet" type="text/css">
+    <script src="/gu/rs/core/js/jquery-plugin/pmoving/pmoving.js"></script>
+    <script src="/gu/rs/core/js/jquery-plugin/moveresizing/moveresizing.js"></script>
+    <link  href="/gu/rs/core/js/jquery-plugin/moveresizing/moveresizing.css" rel="stylesheet" type="text/css">
+    <link  href="/gu/rs/core/js/jquery-plugin/moveresizing/moveresizing_demo.css" rel="stylesheet" type="text/css">
+    <script>
+    function log(str) {
+        $('<div>').text(str).appendTo($('.log'));
+    }
+    function on_move(rect) {
+        this.$con.text("move:" + $z.dump.rectV(rect));
+    }
+    function on_resize(rect) {
+        this.$con.text("resize:" + $z.dump.rectV(rect));
+    }
+    function demo_off(btn) {
+        $('.viewport').moveresizing('destroy');
+        log($(btn).text());
+    }
+    function demo_normal(btn) {
+        $('.viewport').moveresizing();
+        log($(btn).text());
+    }
+    function demo_grid(btn) {
+        $('.viewport').moveresizing({
+            position : {
+                gridX  : "25%",
+                gridY  : "25%",
+                stickX : 20,
+                stickY : 20,
+            },
+            boundary : "100%",
+            on_move: on_move,
+            on_resize: on_resize
+        });
+        log($(btn).text());
+    }
+    $(function(){
+        $(".item").click(function(){
+            alert("I am item:" + $(this).text());
+        });
+    });
+    </script>
+</head>
+<body>
+<!--.........................................................-->
+<div class="main">
+    <div class="viewport">
+        <div class="item item0" style="top:10px; left:10px;"><div><div class="con">haha</div></div></div>
+        <div class="item item1" style="top:10px; left:300px;"><div><div class="con">AAA</div></div></div>
+    </div>
+</div>
+<div class="panel">
+    <button onclick="demo_off(this);">注销</button>
+    <button onclick="demo_normal(this);">默认模式</button>
+    <button onclick="demo_grid(this);">网格移动</button>
+</div>
+<pre class="log" ondblclick="$(this).empty();">请选择模式:</pre>
+<!--.........................................................-->
+</body>
+</html>

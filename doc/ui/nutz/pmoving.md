@@ -1,5 +1,5 @@
 ---
-title:PointerMoving - 指针移动上下文
+title:$().pmoving - 指针移动上下文
 author:zozoh
 ---
 
@@ -100,7 +100,7 @@ author:zozoh
 
 ```
 
-# 回调上下文
+# 运行时上下文
 
 ```
 {
@@ -110,6 +110,7 @@ author:zozoh
     $helper   : jQuery,   // 辅助块 DOM
     $mask     : jQuery,   // 遮罩层 DOM
     options   : {..},     // 配置信息对象
+    data      : null,     // 调用者自定义的数据对象
     startInMs : MS,       // 开始时间
     endInMs   : MS,       // 结束时间
     posAt     : {x, y},   // 初始点击相对于 viewport
@@ -207,13 +208,25 @@ $z.rect_move_tl(rect, {x,y}, offset:{x,y});
 # 如何创建
 
 ```
-$(viewport).PointerMoving({
+$(viewport).pmoving({
     // 在 viewport 之内，的选择器，会被应用
     // $(viewport).on("mousedown", trigger, F())
     trigger : "selector",
     
+    // 有可能是 trigger 选择器内部某个元素（比如修改大小的手柄）被作为触发对象
+    // 可以通过一个自定义函数，返回你确定要移动的元素。
+    // 默认的，会认为整个 trigger 元素就是要移动的对象
+    // 如果函数返回 null 或者一个空 jQuery 集合，那么表示禁止触发
+    findTriggerElement : {Element}F(e):jTrigger
+    
+    // 在上下文中记录一个你自定义的对象，你可以直接从 pmvContext.data 获取你设置的值
+    data : null,
+    
     // 建立的遮罩层 z-index，默认为 999999
     maskZIndex : 999999,
+    
+    // 为 $mask 附加类选择器，默认 null 不加
+    maskClass : null,
     
     // 移动的方式，默认 both
     //   x : 只能横向移动
@@ -221,13 +234,13 @@ $(viewport).PointerMoving({
     //   both : 两个方向都能移动
     mode : "x|y|both"
     
-    // 自动修改 trigger 的 位置属性，有效的值为
-    // ["top","left"]      - 左上顶点 「默认」
-    // ["top","right"]     - 右上顶点
-    // ["bottom", "left"]  - 左下顶点
-    // ["bottom", "right"] - 右下顶点
+    // 自动修改 trigger 的位置时，采用哪个顶点
+    // "top,left"      - 左上顶点 「默认」
+    // "top,right"     - 右上顶点
+    // "bottom,left"   - 左下顶点
+    // "bottom,right"  - 右下顶点
     // 否则表示不自动更新
-    autoUpdateTriggerBy : ["top", "left"]
+    autoUpdateTriggerBy : "top,left"
     
     // 如何判断 trigger 超出了 viewport
     // undefined : 表示不限制
@@ -278,7 +291,7 @@ $(viewport).PointerMoving({
 # 如何销毁
 
 ```
-$(context).PointerMoving("destroy");
+$(context).pmoving("destroy");
 ```
 
 * 销毁会删除在宿主上的事件监听

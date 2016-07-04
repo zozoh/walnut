@@ -118,7 +118,8 @@ function on_mask_mouseup(e) {
     // 否则如果在 opt.clickRadius 内释放
     else if (is_end_in_click_radius(pmvContext)){
         //console.log("is_end_in_click_radius");
-        pmvContext.$trigger.click();
+        $(pmvContext.Event.target).click();
+        console.log($(pmvContext.Event.target).html())
     }
 
     // 无论怎样，都要移除遮罩和辅助框
@@ -163,8 +164,12 @@ function on_mousedown(e) {
     }
 
     var jViewport = e.data.$viewport;
-    var jTrigger  = $(this);
     var opt = options(jViewport);
+    var jTrigger  = opt.findTriggerElement.call(this, e);
+    // 没找到触发对象，啥都表做了
+    if(!jTrigger || jTrigger.size() == 0) {
+        return;
+    }
     //console.log("on_mousedown", jTrigger.attr("pmv_mode_a"));
     //.........................................
     var rect_trigger  = $z.rect(jTrigger);
@@ -176,6 +181,7 @@ function on_mousedown(e) {
         $trigger  : jTrigger,
         $viewport : jViewport,
         options   : opt,
+        data      : opt.data,
         beginInMs : Date.now(),
         posAt : {
             x : e.pageX - rect_trigger.left,
@@ -200,10 +206,16 @@ function on_mousedown(e) {
         position : "fixed", top:0, left:0, right:0, bottom:0,
         "z-index" : opt.maskZIndex
     });
+    // 增加 mask 的类选择器 
+    if(opt.maskClass)
+        jMask.addClass(maskClass);
+    // 记录
     pmvContext.$mask = jMask;
+    // 创建 helper 元素
     pmvContext.$helper = $('<div class="pmv-helper">').hide().appendTo(jMask).css({
         position : "fixed", "z-index" : opt.maskZIndex + 1
     });
+    // 监听事件
     jMask.on("mousemove", pmvContext, on_mask_mousemove);
     jMask.on("mouseup", pmvContext, on_mask_mouseup);
 
@@ -217,13 +229,17 @@ function on_mousedown(e) {
             // 显示辅助框
             pmvContext.$helper.show();
             //console.log('标识 trigger.pmv_mode_a = "yes"');
-            pmvContext.$trigger.attr("pmv_mode_a", "yes");
-            
+                        
             // 修改辅助框位置，使其完全覆盖 trigger
             do_update_helper(pmvContext);
             
-            // 调用回调
+            // 回调:开始 
             $z.invoke(opt, "on_begin",  [], pmvContext);
+            
+            // 最后标识一下
+            pmvContext.$trigger.attr("pmv_mode_a", "yes");
+
+            // 回调: 更新
             $z.invoke(opt, "on_update", [], pmvContext);
         }
     }, opt.delay || 300, pmvContext);
@@ -252,6 +268,13 @@ $.fn.extend({ "pmoving" : function(opt){
 
     // 默认是自己的所有 children 被监视移动 
     $z.setUndefined(opt, "trigger", ">*");
+
+    // 默认的查找 trigger 元素的方法
+    if(!_.isFunction(opt.findTriggerElement)) {
+        opt.findTriggerElement = function(){
+            return $(this);
+        }
+    } 
 
     // 默认值
     $z.setUndefined(opt, "maskZIndex", "999999");

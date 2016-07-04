@@ -1,0 +1,49 @@
+body {
+    margin:30px;
+}
+
+body > div {
+    float: left;
+}
+
+.viewport {
+    width:600px; height:400px;
+    background: #CCC; border:1px solid #000;
+    position: relative;
+}
+
+.item {
+    width:200px; height:100px; cursor: default;
+    position: absolute;
+    background: #FF0; border: 1px solid #888;
+    font-family: Monaco, Consolas, Courier New; 
+}
+
+.item > div {
+    width:100%; height:100%; position: relative;
+}
+
+.item .con {
+    padding-top:30px; text-align: center;
+}
+
+.panel {
+    padding:20px; 
+}
+
+.panel button {
+    font-size: 1.2em; padding:8px 14px; display: block; margin: 2px 0;
+}
+
+pre {
+    padding:10px; font-family: Monaco, Consolas, Courier New; 
+    background: #000; color:#CCC;
+}
+
+.pmv-mask .pmv-helper {
+    background: rgba(255,0,0,0.2);
+}
+
+.pmv-mask .pmv-helper > div{
+    background: rgba(0,0,0,0.4); color:#FFF; padding:4px;
+}

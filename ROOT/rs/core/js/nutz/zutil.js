@@ -161,7 +161,7 @@
                 return n * base;
             }
             // 百分比
-            var m = /^([0-9.]{1,3})%$/g.exec(v);
+            var m = /^([0-9.]{1,})%$/g.exec(v);
             if (m) {
                 return (m[1] / 100) * base;
             }
@@ -174,6 +174,15 @@
             if (m)
                 return m[1] * 1;
             return dft || 0;
+        },
+        //.............................................
+        dump : {
+            rectV : function(rect) {
+                return $z.tmpl("l:{{left}},r:{{right}},t:{{top}},b:{{bottom}},x:{{x}},y:{{y}}")(rect);
+            },
+            pos : function(pos) {
+                return $z.tmpl("x:{{x}},y:{{y}}")(pos);
+            }
         },
         //.............................................
         // 获取一个元素的矩形信息，包括 top,left,right,bottom,width,height,x,y
