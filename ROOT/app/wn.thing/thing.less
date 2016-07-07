@@ -1,0 +1,197 @@
+@import (reference) "../ui";
+
+//......................................... 定义变量
+@navW  : 200px;
+@detaW : 300px;
+@clW   : 140px;
+@clWc  : 32px;
+@barH  : 32px;
+@bar   : {
+    @noselect(); z-index:10; 
+    color:@cf1; border-bottom:1px solid @cborder0; background: @cb1;
+};
+//......................................... 两种布局模式
+.hmaker {
+    position: relative;
+    > div {
+        position: absolute; top:0; bottom:0;
+    }
+}
+// 文件列表在内部的布局
+.hmaker[mode=inside] {
+    .hmaker-nav  {left:0; width:@navW;}
+    .hmaker-main {left:@navW; right:0;}
+}
+// 文件列表在外部的布局
+.hmaker[mode=outside] {
+    .hmaker-main {left:0; right:0;}
+}
+.outline-con .hmaker-nav{width:100%; height:100%;}
+
+//......................................... 左侧资源导航
+.hmaker-nav{
+    @flex(); flex-flow: column nowrap;
+    > div {flex:1 1 auto;}
+    .ue-bar0 { 
+        height: @barH; flex:0 0 auto;
+        > div {float: right;}
+        .menu {padding:@d1 @d0;}
+    }
+    .ue-list {
+        .z-edit-it input {outline:none;}
+    }
+}
+//......................................... 主区域
+.hmaker-main {
+    background: @cb0;
+}
+//......................................... 隐藏的插入项
+.hmaker .shelf-hide .hmaker-page .hmaker-view-warpper {
+    .ue-bar1  {
+        width:@clWc;
+        span:first-child {display: none;}
+        span:last-child  {display: inline;}
+    }
+    .ue-shelf {
+        width:@clWc;
+        ul{
+            padding:@d2 0;
+            li {
+                padding:0; text-align: center;
+                span{display: none;}
+            }
+        }
+    }
+    .ue-stage {left:@clWc;}
+    .ue-bar2  {left:@clWc;}
+}
+//......................................... 页面编辑器
+.hmaker-page {
+    > div {position: absolute; top:0; bottom: 0;}
+    .hmaker-view {left: 0; right: @detaW;}
+    .hmaker-deta {right:0; width: @detaW;}
+
+    .hmaker-view-warpper {
+        width:100%; height:100%; position: relative;
+        > div {position: absolute; transition : 0.3s;}
+        //................................ 插入项
+        .ue-bar1 { @bar(); 
+            top:0; left:0; width:@clW; height:@barH; 
+            line-height: @barH; text-align: center; cursor: pointer;
+            background: @cb2;
+            span:first-child {display: inline;}
+            span:last-child  {display: none;}
+        }
+        //................................ 插入项目
+        .ue-shelf { @noselect(); background: @cb2; 
+            top:@barH; left:0; width:@clW; bottom:0; border-right: 1px solid #CCC;
+            ul {
+                padding:@d2; 
+                li {
+                    padding:0 @d0; line-height: @f4 * 2;
+                    cursor: pointer;
+                    i {width:@f5; text-align: center;}
+                }
+                li:hover {
+                    background: rgba(255,255,255,0.2); color:@c0;
+                }
+            }
+        }
+        //................................ 组合工具条
+        .ue-bar2 { @bar();
+            top:0; left:@clW; height:@barH; right:0;
+            @flex(); flex-flow: row nowrap;
+            //...........................................
+            .ue-ssize { flex: 0 0 auto;
+                padding:@d1 + 1; 
+                input {
+                    color:@cf1;
+                    padding:1px; outline:none; width:40px; font-size:@f1; font-family: @f_fixed;
+                }
+                em {font-style: normal; color:@cf2; margin: 0 4px;}
+                span {
+                    display: inline-block; vertical-align: middle; margin-left: @d2;
+                    color:#AAA;
+                    i {
+                        float: left; width:20px; height:20px; cursor: pointer;
+                        @flex(); justify-content:center; align-items:center;
+                    }
+                    i.highlight {background: #FFF; color:#000;}
+                }
+                span:after{@clr();}
+            }
+            //...........................................
+            .ue-com-menu { flex: 1 1 auto; 
+            }
+            //...........................................
+            .ue-general-actions {
+                flex: 0 0 auto;
+            }
+            //...........................................
+            .menu {
+                padding:@d1;
+            }
+            //...........................................
+        }
+        //................................ 编辑区
+        .ue-stage {
+            background: #AAB;
+            top:@barH; left:@clW; bottom:0; right:0;
+            z-index:5; overflow: hidden;
+        }
+        .ue-stage[mode="pc"] .ue-screen {
+            width:100%; height:100%;
+        }
+        .ue-stage[mode="pad"], .ue-stage[mode="phone"]{
+            padding:@d6 @d2 @d2 @d2;
+            .ue-screen {
+                width:400px; height:300px; margin: 0 auto;
+                box-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+            }
+        }
+        .ue-screen {
+            background: #FFF; transition : 0.1s;
+
+            iframe {width:100%; height:100%; border:0;}
+        }
+    }  // 结束 .hmaker-view-wrapper
+
+    //................................ 属性面板
+    .hmaker-deta {
+        .hmaker-deta-wrapper {
+            width:100%; height:100%; background: #C0C0C8; position: relative;
+            > div {position:absolute; left: 0; right: 0;}
+            .ue-com-title {
+                top:0; height:@barH; line-height: @barH; padding:0 @d4;
+                background-color:rgba(0,0,0,0.2); color:rgba(255,255,255,0.8);
+                i {margin-right: @d2; }
+            }
+            .ue-com-prop {
+                top:@barH; bottom: 0; 
+            }
+        }
+        //...................... 属性面板 form 的特殊设置
+        .form{
+            .fg-title {
+                font-size:@f1; border-radius: @d1;
+            }
+            .form-body {padding:@d1;}
+            .hmaker-prop-compactly {
+                .fg-fields {padding:@d1 @d1 @d1 @d4;}
+                .fg-title {margin:@d2 0 @d1 0;}
+                .form-fld {
+                    padding:@d1 0; border:0;
+                    .ff-txt {padding:@d1 @d1; font-size: @f1;}
+                    .ff-val {padding:0;}
+                    .com-input input{ padding:@d0;}
+                    .com-switch li{font-size:@f1; padding:@d3;}
+                }
+                .form-fld[fld-key="ID"] {
+                    input{font-family: @f_fixed; padding:@d2;}
+                }
+            }
+        }
+        //^^^^^^^^^^^^^^^^^^^^^ 以上属性面板 form 的特殊设置
+    }
+}
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 以上是页面编辑器

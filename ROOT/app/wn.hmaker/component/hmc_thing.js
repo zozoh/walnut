@@ -7,34 +7,14 @@ $z.declare([
     'ui/form/form'
 ], function(ZUI, Wn, HMC, MenuUI, FormUI){
 //==============================================
-return ZUI.def("app.wn.hmaker_com_text", {
+var html = function(){/*
+<b> I am thing</b>
+*/};
+//==============================================
+return ZUI.def("app.wn.hmaker_com_thing", {
     //...............................................................
     events : {
-        "click .hmc-main,.hmc-assist" : function(e){
-            var jCom  = $(e.currentTarget).closest(".hm-com");
-            var jMain = jCom.find(".hmc-main");
-
-            // 只有激活的控件才能编辑
-            if(!jCom.attr("actived"))
-                return;
-
-            // 绝对位置
-            if(jCom.attr("pos") == "absolute"){
-                $z.editIt(jMain, {
-                    multi  : true,
-                    // width  : jCom.width(),
-                    // height : jCom.height()
-                });
-            }
-            // 相对位置的编辑
-            else {
-                $z.editIt(jMain, {
-                    multi : true,
-                    extendHeight : true,
-                    takePlace : true,
-                });
-            }
-        }
+        
     },
     //...............................................................
     updateStyle : function(info){
@@ -66,9 +46,7 @@ return ZUI.def("app.wn.hmaker_com_text", {
     checkDom : function(){
         var UI = this;
         var jM = UI.arena.find(".hmc-main");
-        if(!jM.text()){
-            jM.text(UI.msg("hmaker.com.text.empty"));
-        }
+        jM.html($($z.getFuncBodyAsStr(html,true)));
     },
     //...............................................................
     redraw : function(){
@@ -88,36 +66,7 @@ return ZUI.def("app.wn.hmaker_com_text", {
             $pel   : opt.$prop,
             fields : [opt.propSetup, {
                 title  : 'i18n:hmaker.cprop_special',
-                fields : [{
-                    key    : "color",
-                    title  : "i18n:hmaker.cprop.color",
-                    type   : "string",
-                    nullAsUndefined : true,
-                    editAs : "color",
-                    uiConf : UI.parent.getColorConf()
-                }, {
-                    key    : "backgroundColor",
-                    title  : "i18n:hmaker.cprop.backgroundColor",
-                    type   : "string",
-                    nullAsUndefined : true,
-                    editAs : "color",
-                    uiConf : UI.parent.getColorConf()
-                }, {
-                    key    : "fontSize",
-                    title  : "i18n:hmaker.cprop.fontSize",
-                    type   : "int",
-                    uiConf : {unit : "px"}
-                }, {
-                    key    : "lineHeight",
-                    title  : "i18n:hmaker.cprop.lineHeight",
-                    type   : "int",
-                    uiConf : {unit : "px"}
-                }, {
-                    key    : "letterSpacing",
-                    title  : "i18n:hmaker.cprop.letterSpacing",
-                    type   : "int",
-                    uiConf : {unit : "px"}
-                }]
+                fields : []
             }],
             on_change : function(key, val) {
                 // console.log("detect form change: ", key, val);
