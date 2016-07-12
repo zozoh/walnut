@@ -641,6 +641,8 @@ public class cmd_obj extends JvmExecutor {
         meta.remove("pid");
         meta.remove("race");
         meta.remove("nm");
+        meta.remove("ct");
+        meta.remove("lm");
         return o;
     }
 

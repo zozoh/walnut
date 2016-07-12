@@ -30,6 +30,12 @@ public class WnBean extends NutMap implements WnObj {
 
     public NutMap toMap4Update(String regex) {
         NutMap map = new NutMap();
+
+        // 正则表达式支持 "!" 开头
+        boolean not = null != regex && regex.startsWith("!");
+        if (not)
+            regex = regex.substring(1);
+
         for (Map.Entry<String, Object> en : this.entrySet()) {
             String key = en.getKey();
             // id 等是绝对不可以改的
@@ -42,7 +48,7 @@ public class WnBean extends NutMap implements WnObj {
                     map.put(key, en.getValue());
             }
             // 否则只给出正则表达式匹配的部分
-            else if (key.matches(regex)) {
+            else if (key.matches(regex) ^ not) {
                 map.put(key, en.getValue());
             }
         }

@@ -15,7 +15,7 @@ return ZUI.def("app.wn.thing", {
     i18n : "app/wn.thing/i18n/{{lang}}.js",
     //...............................................................
     init : function() {
-        this.my_fields = $z.loadResource("jso:///a/load/wn.thing/form_thing.js");
+        this.my_fields = $z.loadResource("jso:///a/load/wn.thing/form_thing_game.js");
     },
     //...............................................................
     redraw : function(){
@@ -42,8 +42,8 @@ return ZUI.def("app.wn.thing", {
                 }
             },
             maskConf : {
-                width  : 500,
-                height : 530
+                width  : 600,
+                height : "90%"
             },
             filter : {
                 keyField : ["mobile:^[0-9+-]{11,}","nm:^[0-9a-zA-Z._-]{3,}","realname"]
