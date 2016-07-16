@@ -9,6 +9,26 @@
     var INDENT_BY = "    ";
 
     var zUtil = {
+        //.............................................
+        // 提供 AMD/CMD 支持功能
+        defineModule : function(mdName, mdObj){
+            if (typeof define === "function") {
+                // CMD
+                if (define.cmd) {
+                    define(function (require, exports, module) {
+                        module.exports = mdObj;
+                    });
+                }
+                // AMD
+                else {
+                    define(mdName, [], function () {
+                        return mdObj;
+                    });
+                }
+            }
+        },
+        //.............................................
+        // 安全的调用回调
         doCallback: function (callback, args, context) {
             if (_.isFunction(callback)) {
                 return callback.apply(context || this, args);
@@ -290,6 +310,20 @@
                    && rectA.bottom >= rectB.bottom
                    && rectA.left <= rectB.left
                    && rectA.right >= rectB.right;
+        },
+        //.............................................
+        // 一个点是否在矩形之中，是否算上边
+        rect_in : function(rect, pos, countBorder) {
+            if(countBorder) {
+                return rect.left   <= pos.x
+                    && rect.right  >= pos.x
+                    && rect.top    <= pos.y
+                    && rect.bottom >= pos.y;
+            }
+            return rect.left   < pos.x
+                && rect.right  > pos.x
+                && rect.top    < pos.y
+                && rect.bottom > pos.y;
         },
         //.............................................
         // A 是否与 B 相交
@@ -2287,19 +2321,20 @@
 
 // TODO 支持 AMD | CMD
 //===============================================================
-    if (typeof define === "function") {
-        // CMD
-        if (define.cmd) {
-            define(function (require, exports, module) {
-                module.exports = zUtil;
-            });
-        }
-        // AMD
-        else {
-            define("zutil", [], function () {
-                return zUtil;
-            });
-        }
-    }
+    // if (typeof define === "function") {
+    //     // CMD
+    //     if (define.cmd) {
+    //         define(function (require, exports, module) {
+    //             module.exports = zUtil;
+    //         });
+    //     }
+    //     // AMD
+    //     else {
+    //         define("zutil", [], function () {
+    //             return zUtil;
+    //         });
+    //     }
+    // }
+    zUtil.defineModule("zutil", zUtil);
 //===================================================================
 })();

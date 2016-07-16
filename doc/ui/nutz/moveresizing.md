@@ -79,9 +79,7 @@ $(viewport).moveresizing({
     //  - findTriggerElement
     //  - autoUpdateTriggerBy
     //  - helperPosition
-    //  - on_begin
     //  - on_ing
-    //  - on_end 
     // 之外全部选项
     
     // 采用哪个顶点作为锚点，修改 CSS
@@ -96,7 +94,10 @@ $(viewport).moveresizing({
     // 默认为0，表示采用 css 来设定
     hdlZIndex : 0
         
-    // 回调函数，参数是 trigger 的矩形
+    // 回调函数，参数是 trigger 的相对于 viewport 的矩形
+    // 你也可以用 this.rect.blockInView 来获取
+    on_begin  : {pmvContext}F()    // 开始时
+    on_end    : {pmvContext}F()    // 结束时
     on_move   : {context}F(rect)   // 被移动时触发
     on_resize : {context}F(rect)   // 修改大小时触发
     on_change : {context}F(rect)   // 移动或修改大小均触发

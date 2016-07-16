@@ -42,6 +42,7 @@ var HDLc = {
 };
 //...........................................................
 function on_begin() {
+    var opt = this.options;
     // console.log("开始时，记录一下移动的模式，是手柄还是整体移动");
     if(this.$trigger.hasClass("mvrza-hdl")){
         this.hdlMode = this.$trigger.attr("hd");
@@ -56,10 +57,14 @@ function on_begin() {
     this.$con = this.$ass.next();
     this.rect.block = $z.rect(this.$block);
     this.rect.blockInView = $z.rect_relative(this.rect.block, this.rect.viewport);
+
+    // 调用回调
+    $z.invoke(opt, "on_client_begin", [], this);
 }
 //...........................................................
 function on_end() {
-    // console.log("厄，结束了");
+    var opt = this.options;
+    $z.invoke(opt, "on_client_end", [], this);
 }
 //...........................................................
 function on_ing() {
@@ -128,21 +133,35 @@ $.fn.extend({ "moveresizing" : function(opt){
         return this;
     }
 
+    // 主动格式化
+    if("format" == opt) {
+        var opt = this.data("@MVRZ_OPT");
+        this.find(opt.trigger).each(function(){
+            format_trigger_dom.call(this, opt);
+        });    
+        return;
+    }
+
     // 确保有配置对象
     opt = opt || {};
 
+    // 保存配置对象
+    this.data("@MVRZ_OPT", opt);
+
     // 默认是自己的所有 children 被监视移动 
-    $z.setUndefined(opt, "trigger", ">*");
+    $z.setUndefined(opt, "trigger", ">*");   // 自己也需要 trigger 的
     $z.setUndefined(opt, "anchorVertex", "top,left");
 
     // 为所有的 trigger 创建辅助节点
-    this.find(opt.trigger).each(function(){
-        format_trigger_dom.call(this, opt);
-    });
+    this.moveresizing("format");
+
+    // 保存用户自定义的 on_begin/on_end
+    opt.on_client_begin = opt.on_begin;
+    opt.on_client_end   = opt.on_end;
 
     // 监听上
     this.pmoving(_.extend(opt, {
-        findTriggerElement  : find_trigger_element,
+        findTrigger         : find_trigger_element,
         helperPosition      : "hover",
         autoUpdateTriggerBy : null,
         on_begin            : on_begin,

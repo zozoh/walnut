@@ -18,6 +18,15 @@ body > div {
     background: #FF0; border: 1px solid #888;
 }
 
+.drop {
+    width:100%; 
+}
+
+.drop > div {
+    width:200px; height:100px; text-align: center; padding:20px;
+    display: inline-block;
+}
+
 .panel {
     padding:20px; 
 }
@@ -33,4 +42,12 @@ pre {
 
 .pmv-mask .pmv-helper {
     background: rgba(255,0,0,0.2); padding:2px;
+}
+
+.pmv-mask .pmv-dropi {
+    border:1px dashed red;
+}
+
+.pmv-mask .pmv-dropi[pmv-hover]{
+    background-color: rgba(255,0,0,0.2);
 }
