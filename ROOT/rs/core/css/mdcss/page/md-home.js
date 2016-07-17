@@ -252,7 +252,8 @@ $(document).ready(function () {
                 if (!tab.action) {
                     continue;
                 }
-                ebhtml += '<li class="md-icon-wrap ext-btn-icon"  action="' + tab.action + '">';
+                ebhtml += '';
+                ebhtml += '<div class="btn-wrap md-icon-wrap ext-btn-icon"  action="' + tab.action + '">';
                 if (tab.icon) {
                     if (tab.iconType == 'fa') {
                         ebhtml += '<i class="fa-icon ' + tab.icon + '"></i>';
@@ -262,7 +263,7 @@ $(document).ready(function () {
                         ebhtml += '<i class="md-icon ' + tab.icon + '"></i>';
                     }
                 }
-                ebhtml += '</li>';
+                ebhtml += '</div>';
             }
             return ebhtml;
         },
@@ -626,7 +627,7 @@ $(document).ready(function () {
             }
         });
 
-        mphome.components.extBtnGroup.delegate('li', 'click', function () {
+        mphome.components.extBtnGroup.delegate('.btn-wrap', 'click', function () {
             var $li = $(this);
             var acNm = $li.attr('action');
             var acFun = mphome.action[acNm];
@@ -778,7 +779,7 @@ $(document).ready(function () {
                 $ftab.click();
             } else {
                 mphome.components.extSwtich.remove();
-                mphome.components.extBtnGroup.remove();
+                // mphome.components.extBtnGroup.remove();
                 mphome.components.ext.remove();
             }
 

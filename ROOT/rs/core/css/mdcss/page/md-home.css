@@ -239,7 +239,7 @@ body.md-home.show-nav #md-page-main {
 #md-page-header .mp-header-right.ext-btn-group {
   margin: 0 16px;
 }
-#md-page-header .mp-header-right li {
+#md-page-header .mp-header-right .btn-wrap {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -248,18 +248,18 @@ body.md-home.show-nav #md-page-main {
   float: left;
   height: 48px;
 }
-#md-page-header .mp-header-right li:hover {
+#md-page-header .mp-header-right .btn-wrap:hover {
   cursor: pointer;
 }
-#md-page-header .mp-header-right li.ext-btn-icon {
+#md-page-header .mp-header-right .btn-wrap.ext-btn-icon {
   position: relative;
   margin-right: 1px;
   margin-left: 1px;
 }
-#md-page-header .mp-header-right li.ext-btn-icon i {
+#md-page-header .mp-header-right .btn-wrap.ext-btn-icon i {
   position: absolute;
 }
-#md-page-header .mp-header-right li.ext-btn-icon:before {
+#md-page-header .mp-header-right .btn-wrap.ext-btn-icon:before {
   position: absolute;
   content: "";
   border-radius: 2px;
@@ -279,8 +279,8 @@ body.md-home.show-nav #md-page-main {
   -o-transform: scale(0);
   transform: scale(0);
 }
-#md-page-header .mp-header-right li.ext-btn-icon:hover:before,
-#md-page-header .mp-header-right li.ext-btn-icon.open:before {
+#md-page-header .mp-header-right .btn-wrap.ext-btn-icon:hover:before,
+#md-page-header .mp-header-right .btn-wrap.ext-btn-icon.open:before {
   -webkit-transform: scale(1);
   -moz-transform: scale(1);
   -ms-transform: scale(1);
