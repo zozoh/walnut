@@ -5,9 +5,9 @@ $(document).ready(function () {
     var mdmessage = function (msg, top, callback) {
         top = top || -48;
         var delay = 400;
-        var mlength = msg.length * 20 + 32 * 2;
-        if (mlength > 400) {
-            mlength = 400;
+        var mlength = msg.length * 15 + 32 * 2;
+        if (mlength < 300) {
+            mlength = 300;
         }
         var pos = '';
         if (top > 0) {
@@ -16,7 +16,7 @@ $(document).ready(function () {
             pos = 'bottom:' + (top * -1) + 'px';
         }
         var html = '';
-        html += '<div class="md-buildin paper rounded z-depth-5 md-message" style="opacity: 0; width:' + mlength + '; ' + pos + ';">';
+        html += '<div class="md-buildin paper rounded z-depth-5 md-message" style="opacity: 0; width:' + mlength + 'px; ' + pos + ';">';
         html += '   <div class="md-buildin-content">' + msg + '</div>';
         html += '</div>';
 
@@ -52,12 +52,9 @@ $(document).ready(function () {
 
     // confirm
     var mdconfirm = function (title, msg, callback) {
-        var mlength = msg.length * 40 + 32 * 2;
+        var mlength = msg.length * 15 + 32 * 2;
         if (mlength < 300) {
             mlength = 300;
-        }
-        if (mlength > 400) {
-            mlength = 400;
         }
         var html = '';
         html += '<div class="md-buildin-bg">';
