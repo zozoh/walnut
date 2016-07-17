@@ -252,7 +252,7 @@ $(document).ready(function () {
                 if (!tab.action) {
                     continue;
                 }
-                ebhtml += '';
+                ebhtml += '<div class="btn-wrap-tip" data-balloon="' + tab.label + '" data-balloon-pos="left">';
                 ebhtml += '<div class="btn-wrap md-icon-wrap ext-btn-icon"  action="' + tab.action + '">';
                 if (tab.icon) {
                     if (tab.iconType == 'fa') {
@@ -263,6 +263,7 @@ $(document).ready(function () {
                         ebhtml += '<i class="md-icon ' + tab.icon + '"></i>';
                     }
                 }
+                ebhtml += '</div>';
                 ebhtml += '</div>';
             }
             return ebhtml;

@@ -239,13 +239,16 @@ body.md-home.show-nav #md-page-main {
 #md-page-header .mp-header-right.ext-btn-group {
   margin: 0 16px;
 }
-#md-page-header .mp-header-right .btn-wrap {
+#md-page-header .mp-header-right .btn-wrap-tip {
+  width: 48px;
+  height: 48px;
+  float: left;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  display: block;
-  float: left;
+}
+#md-page-header .mp-header-right .btn-wrap {
   height: 48px;
 }
 #md-page-header .mp-header-right .btn-wrap:hover {
