@@ -22,10 +22,10 @@ var html = function(){/*
         <div class="com-box-drop"><i class="fa fa-caret-down"></i></div>
     </div>
     <div class="com-mask"></div>
-    <div class="com-drop">
+    <div class="com-drop"><div>
         <ul></ul>
         <div class="com-multi-apply">{{ok}}</div>
-    </div>
+    </div></div>
 </div>
 */};
 //===================================================================
@@ -91,6 +91,9 @@ return ZUI.def("ui.form_com_droplist", {
                 }
                 // 标记显示
                 UI.arena.attr("show", "yes");
+                
+                // 最后自动确定尺寸
+                UI.resize();
             }
         },
         "click li" : function(e){
@@ -304,6 +307,29 @@ return ZUI.def("ui.form_com_droplist", {
         var v = UI.getData();
         $z.invoke(opt, "on_change", [v], context);
         UI.trigger("change", v);
+    },
+    //...............................................................
+    resize : function() {
+        var UI = this;
+        var opt = UI.options;
+        // 展开了下拉框，那么需要自动调整大小和位置
+        if(UI.arena.attr("show")) {
+            var jBox  = UI.arena.find(".com-box");
+            var jDrop = UI.arena.find(".com-drop").removeAttr("freeze");
+            jDrop.css(_.extend(jBox.offset(), {
+                width  : "",
+                height : ""
+            }));
+
+            // 下面不要让下拉框超出窗口
+            var rect = $z.rect(jDrop);
+            var viewport = $z.winsz();
+            var rect2 = $z.rect_clip_boundary(rect, viewport);
+            jDrop.css($z.rectObj(rect2, "top,left,width,height"));
+
+            // 冻结后， CSS 可以修改内容的显示
+            jDrop.attr("freeze", "yes");
+        }
     }
     //...............................................................
 });

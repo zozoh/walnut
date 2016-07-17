@@ -33,6 +33,7 @@ return ZUI.def("ui.form", {
         $z.setUndefined(options, "mergeData", true);
         $z.setUndefined(options, "idKey", "id");
         $z.setUndefined(options, "uiWidth", "auto");
+        $z.setUndefined(options, "fields", []);
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 整理 fields 字段
         var grpList = [];

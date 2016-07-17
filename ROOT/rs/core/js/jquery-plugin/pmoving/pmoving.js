@@ -111,20 +111,52 @@ function on_mask_mouseup(e) {
         // 回调: 通知鼠标移动以及结束
         $z.invoke(opt, "on_ing", [], pmvContext);
         $z.invoke(opt, "on_end", [], pmvContext);
+
+        // 找到可被放置的对象，调用 on_drop 回调
+        if(_.isArray(pmvContext.dropping)) {
+            for(var i=0; i<pmvContext.dropping.length; i++) {
+                var di = pmvContext.dropping[i];
+                if(di.helper.attr("pmv-hover")){
+                    $z.invoke(opt, "on_drop", [di.$ele], pmvContext);
+                }
+            }
+        }
         
         // 移除 trigger.pmv_mode_a 标识
         pmvContext.$trigger.removeAttr("pmv_mode_a");
     }
-    // 否则如果在 opt.clickRadius 内释放
-    else if (is_end_in_click_radius(pmvContext)){
-        //console.log("is_end_in_click_radius");
+    // 如果在 opt.clickRadius 内释放，也模拟一下点击
+    if (is_end_in_click_radius(pmvContext)){
+        // console.log("is_end_in_click_radius");
         $(pmvContext.Event.target).click();
-        console.log($(pmvContext.Event.target).html())
+        // console.log($(pmvContext.Event.target).html())
     }
 
-    // 无论怎样，都要移除遮罩和辅助框
-    pmvContext.$helper.remove();
+    // 无论怎样，都要移除遮罩极其内容
     pmvContext.$mask.remove();
+}
+//...........................................................
+function do_drag_and_drop(pmvContext) {
+    if(_.isArray(pmvContext.dropping)) {
+        var opt = pmvContext.options;
+        for(var i=0; i<pmvContext.dropping.length; i++) {
+            var di = pmvContext.dropping[i];
+            // 在矩形中，是 enter 吗?
+            if($z.rect_in(di.rect, pmvContext)){
+                if(!di.helper.attr("pmv-hover")) {
+                    di.helper.attr("pmv-hover", "yes");
+                    $z.invoke(opt, "on_dragenter", [di.$ele, di.helper], pmvContext);
+                }
+            }
+            // 不在矩形中，是 leave 吗？
+            else {
+                if(di.helper.attr("pmv-hover")) {
+                    $z.invoke(opt, "on_dragleave", [di.$ele, di.helper], pmvContext);
+                    di.helper.removeAttr("pmv-hover");
+                }
+            }
+        }
+    }
 }
 //...........................................................
 function on_mask_mousemove(e) {
@@ -143,6 +175,9 @@ function on_mask_mousemove(e) {
 
         // 根据 opt.autoUpdateTriggerBy 更新 trigger 位置
         auto_update_trigger(pmvContext);
+
+        // 改变 drop
+        do_drag_and_drop(pmvContext);
 
         // 回调: 通知鼠标移动
         $z.invoke(opt, "on_ing", [], pmvContext);
@@ -163,21 +198,31 @@ function on_mousedown(e) {
         return;
     }
 
-    var jViewport = e.data.$viewport;
-    var opt = options(jViewport);
-    var jTrigger  = opt.findTriggerElement.call(this, e);
+    var jContext = e.data.$context;
+    var opt = options(jContext);
+
     // 没找到触发对象，啥都表做了
+    var jTrigger  = opt.findTrigger.call(this, e);
     if(!jTrigger || jTrigger.size() == 0) {
         return;
     }
+
+    // 找到视口，没有视口也啥都表做了
+    var jViewport = opt.findViewport.call(jTrigger, jContext, e);
+    if(!jViewport || jViewport.size() == 0) {
+        return;
+    }
+
     //console.log("on_mousedown", jTrigger.attr("pmv_mode_a"));
     //.........................................
     var rect_trigger  = $z.rect(jTrigger);
     var rect_viewport = $z.rect(jViewport);
+    var rect_inview   = $z.rect_relative(rect_trigger, rect_viewport);
     //.........................................
     // 创建上下文
     var pmvContext = {
         Event     : e,
+        $context  : jContext,
         $trigger  : jTrigger,
         $viewport : jViewport,
         options   : opt,
@@ -196,28 +241,51 @@ function on_mousedown(e) {
         move : {x:0, y:0},
         rect : {
             viewport : rect_viewport,
+            origin   : _.extend({}, rect_trigger),
+            originInView : _.extend({}, rect_inview),
             trigger  : rect_trigger,
-            inview   : $z.rect_relative(rect_trigger, rect_viewport)
+            inview   : rect_inview
         }
     };
     //.........................................
-    // 设置一个全局遮罩层，监听 
+    // 设置一个全局遮罩层
     var jMask = $('<div class="pmv-mask">').appendTo(document.body).css({
         position : "fixed", top:0, left:0, right:0, bottom:0,
         "z-index" : opt.maskZIndex
     });
     // 增加 mask 的类选择器 
     if(opt.maskClass)
-        jMask.addClass(maskClass);
+        jMask.addClass(opt.maskClass);
     // 记录
     pmvContext.$mask = jMask;
+
+    // 创建要 drop 的目标
+    var jDrops = $z.invoke(opt, "findDropTarget", [], pmvContext);
+    // console.log(jDrops.size())
+    if(jDrops && jDrops.size()>0) {
+        pmvContext.$drops = $('<div class="pmv-drops">').hide().appendTo(jMask);
+        pmvContext.dropping = [];
+        jDrops.each(function(){
+            var di = {
+                rect : $z.rect(this),
+                $ele : $(this)
+            };
+            di.helper = $('<div class="pmv-dropi">').appendTo(pmvContext.$drops)
+                .css(_.extend($z.rectObj(di.rect, "top,left,width,height"), {
+                    position : "fixed"
+                }));
+            pmvContext.dropping.push(di);
+        });
+    }
+
     // 创建 helper 元素
     pmvContext.$helper = $('<div class="pmv-helper">').hide().appendTo(jMask).css({
-        position : "fixed", "z-index" : opt.maskZIndex + 1
+        position : "fixed", "z-index" : opt.maskZIndex + 2
     });
-    // 监听事件
+    //.........................................
+    // 在遮罩层监听事件
     jMask.on("mousemove", pmvContext, on_mask_mousemove);
-    jMask.on("mouseup", pmvContext, on_mask_mouseup);
+    jMask.on("mouseup",   pmvContext, on_mask_mouseup);
 
     //.........................................
     // 设置延迟函数(opt.delay) 
@@ -228,6 +296,8 @@ function on_mousedown(e) {
         if(!pmvContext.endInMs) {
             // 显示辅助框
             pmvContext.$helper.show();
+            if(pmvContext.$drops)
+                pmvContext.$drops.show();
             //console.log('标识 trigger.pmv_mode_a = "yes"');
                         
             // 修改辅助框位置，使其完全覆盖 trigger
@@ -270,16 +340,31 @@ $.fn.extend({ "pmoving" : function(opt){
     $z.setUndefined(opt, "trigger", ">*");
 
     // 默认的查找 trigger 元素的方法
-    if(!_.isFunction(opt.findTriggerElement)) {
-        opt.findTriggerElement = function(){
+    if(!_.isFunction(opt.findTrigger)) {
+        opt.findTrigger = function(){
             return $(this);
-        }
-    } 
+        };
+    }
+
+    // 默认的查找 viewport 元素的方法
+    if(!_.isFunction(opt.findViewport)) {
+        opt.findViewport = function($context, e){
+            return $context;
+        };
+    }
+
+    // 一个选择器指定的 drop 对象
+    if(_.isString(opt.findDropTarget)){
+        opt.__find_drop_target_selector = opt.findDropTarget;
+        opt.findDropTarget = function(){
+            return $(this.options.__find_drop_target_selector);
+        };
+    }
 
     // 默认值
     $z.setUndefined(opt, "maskZIndex", "999999");
     $z.setUndefined(opt, "mode", "both");
-    $z.setUndefined(opt, "autoUpdateTriggerBy", ["top","left"]);
+    $z.setUndefined(opt, "autoUpdateTriggerBy", opt.findDropTarget ? null : ["top","left"]);
     $z.setUndefined(opt, "delay", 100);
     $z.setUndefined(opt, "clickRadius", 3);
     $z.setUndefined(opt, "helperPosition", "trigger");
@@ -442,7 +527,7 @@ $.fn.extend({ "pmoving" : function(opt){
 
     // 监控上下文的 mousedown 事件
     this.on("mousedown", opt.trigger, {
-        $viewport : this
+        $context : this
     }, on_mousedown);
     
     // 返回自身以便链式赋值

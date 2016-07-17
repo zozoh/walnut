@@ -64,24 +64,20 @@ return ZUI.def("app.wn.hmaker", {
 
         // html 就打开页面编辑器
         if('html' == o.tp) {
-            // 已经打开页面编辑器了，那么就更新就好了
-            // if(UI.gasket.main && PageUI.uiName == UI.gasket.main.uiName ){
-            //     UI.gasket.main.update(o);
-            // }
-            // // 重新建立页面编辑器
-            // else{
-                new PageUI({parent:UI, gasketName:"main"}).render(function(){
-                    this.update(o);
-                    UI.parent.updateMenuByObj(o, "hmaker", this);
-                });
-            //}
+            new PageUI({parent:UI, gasketName:"main"}).render(function(){
+                this.update(o);
+                UI.parent.updateMenuByObj(o, "hmaker", this);
+            });
+            UI.browser.setCurrentObjId(o.pid);
         }
         // 如果是目录，就显示缩略图界面
         else if('DIR' == o.race) {
             new ThumbnailUI({parent:UI, gasketName:"main"}).render(function(){
+                this.browser = UI.browser;
                 this.update(o, UI);
                 UI.parent.updateMenuByObj(o, null, this);
             });
+            UI.browser.setCurrentObjId(o.id);
         }
         // 不支持
         else {
@@ -95,7 +91,15 @@ return ZUI.def("app.wn.hmaker", {
 
         // 显示道航栏
         UI.uiNav.update(o);
-    }
+    },
+    //...............................................................
+    getCurrentEditObj : function() {
+        return $z.invoke(this.gasket.main, "getCurrentEditObj", []);
+    },
+    //...............................................................
+    getCurrentTextContent : function() {
+        return $z.invoke(this.gasket.main, "getCurrentTextContent", []);
+    },
     //...............................................................
 });
 //===================================================================

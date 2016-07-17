@@ -5,8 +5,11 @@
  -->
 <script>console.log("I am evil, very evil >o<")</script>
 <section>
-    <!-- 段落的标题 -->
-    <h1>i18n:favorites</h1>
+    <!--
+    ===========================================
+    -->
+    <!-- h1>i18n:favorites</h1-->
+    <h1>站点管理</h1>
     <!--
     内部每个 <item> 标签都将出现在侧边栏上
       - 属性 @ph 指明这个项目对应的路径 
@@ -15,15 +18,46 @@
             如果没有声明 <i> 就用对象的图标，当然如果声明了@noicon就不显示图标
       - <b> 被认为是文字，支持 i18n 形式的表述
     -->
-    <item ph="~">
-        <i class="fa fa-home"></i>
-        <b>i18n:home</b>
-    </item>
     <item ph="~/demo_site" editor="hmaker">
         <i class="fa fa-sitemap"></i>
+        <b>演示站点A</b>
     </item>
+    <item ph="~/demo_site2" editor="hmaker">
+        <i class="fa fa-sitemap"></i>
+        <b>演示站点B</b>
+    </item>
+    <item ph="~/demo_site3" editor="hmaker">
+        <i class="fa fa-sitemap"></i>
+        <b>演示站点C</b>
+    </item>
+</section>
+<section>
     <!-- item ph="~/屏幕"></item>
     <item ph="~/素材库"></item>
     <item ph="~/可播放对象"></item -->
+    <!--
+    ===========================================
+    -->
+    <h1>数据管理</h1>
+    <item ph="~/.thing/news" editor="thing_set">
+        <i class="fa fa-newspaper-o"></i>
+        <b>咨询管理</b>
+    </item>
+    <item ph="~/.thing/app" editor="thing_set">
+        <i class="fa fa-rocket"></i>
+        <b>应用管理</b>
+    </item>
+    <item ph="~/.thing/game" editor="thing_set">
+        <i class="fa fa-gamepad"></i>
+        <b>游戏管理</b>
+    </item>
+    <item ph="~/.thing/shop" editor="thing_set">
+        <i class="fa fa-shopping-bag"></i>
+        <b>商户管理</b>
+    </item>
+    <item ph="~/.thing/menu" editor="thing_set">
+        <i class="fa fa-file-text"></i>
+        <b>餐单管理</b>
+    </item>
 </section> 
 

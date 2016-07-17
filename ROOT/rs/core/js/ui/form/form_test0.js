@@ -148,6 +148,7 @@ return ZUI.def("ui.form_test0", {
             type  : "int",
             editAs : "droplist",
             emptyArrayAsUndefined : true,
+            uiWidth : "auto",
             dft : 1,
             uiConf : {
                 items : ["党员","团员","群众","敌特"]
@@ -162,7 +163,7 @@ return ZUI.def("ui.form_test0", {
             dft : 1,
             uiConf : {
                 multi : 1,
-                items : ["中国","美国","日本","天堂","地狱"]
+                items : ["中国","美国","日本","天堂","地狱","!!!一个随便什么不知道特别名字的地方我很想去但是去不了的地方*","A","B","C","D","E"]
             }
         },{
             key   : "FTF",
@@ -241,9 +242,20 @@ return ZUI.def("ui.form_test0", {
         }];
     },
     //...............................................................
-    do_t0 : function(formConf){
+    formConf : function(){
         var UI = this;
-        new FormUI(_.extend(formConf, {
+        return {
+            parent : UI,
+            gasketName : "myform",
+            on_change : function(key, val){
+                console.log("form change:", key, val);
+            }
+        };
+    },
+    //...............................................................
+    do_t0 : function(){
+        var UI = this;
+        new FormUI(_.extend(UI.formConf(), {
             title : "普通测试表单",
             uiWidth : "auto",
             fields : UI.fields_A()
@@ -252,9 +264,9 @@ return ZUI.def("ui.form_test0", {
         });
     },
     //...............................................................
-    do_t1 : function(formConf){
+    do_t1 : function(){
         var UI = this;
-        new FormUI(_.extend(formConf, {
+        new FormUI(_.extend(UI.formConf(), {
             title : "分组表单",
             fields : [{
                 icon : '<i class="fa fa-tachometer"></i>',
@@ -276,9 +288,9 @@ return ZUI.def("ui.form_test0", {
         });
     },
     //...............................................................
-    do_t2 : function(formConf){
+    do_t2 : function(){
         var UI = this;
-        new FormUI(_.extend(formConf, {
+        new FormUI(_.extend(UI.formConf(), {
             title : "组为多列的表单",
             uiWidth : "all",
             fields : [{
@@ -300,13 +312,7 @@ return ZUI.def("ui.form_test0", {
     update : function(o){
         var UI = this;
         UI.$el.attr("obj-id", o.id);
-        UI.do_t0({
-            parent : UI,
-            gasketName : "myform",
-            on_change : function(key, val){
-                console.log("form change:", key, val);
-            }
-        });
+        UI.do_t1();
     }
     //...............................................................
 });

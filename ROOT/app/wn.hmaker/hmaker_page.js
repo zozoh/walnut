@@ -370,7 +370,7 @@ return ZUI.def("app.wn.hmaker_page", {
     getLinkHrefConf : function(){
         return {
             setup : {
-                baseObj : this.getCurrentObj()
+                baseObj : this.getCurrentEditObj()
             }
         };
     },
@@ -821,7 +821,7 @@ return ZUI.def("app.wn.hmaker_page", {
         return this.$el.attr("oid");
     },
     // 获取当前页面对应的 WnObj
-    getCurrentObj : function(){
+    getCurrentEditObj : function(){
         return Wn.getById(this.getPageId());
     },
     // 获取当前编辑的内容的文本形式

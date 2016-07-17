@@ -105,10 +105,17 @@ author:zozoh
 ```
 {
     Event     : Event,    // 事件对象
+    $context  : jQuery,   // 绑定了 pmoving 的对象，默认也作为视口
     $trigger  : jQuery,   // 触发者 DOM
     $viewport : jQuery,   // 视口 DOM
-    $helper   : jQuery,   // 辅助块 DOM
     $mask     : jQuery,   // 遮罩层 DOM
+    $drops    : jQuery,   // 遮罩层内拖拽目标辅助层 DOM
+    dropping  : [{        // 拖拽目标信息
+        rect   : Rect     // 目标矩形的绝对位置
+        $ele   : jQuery   // 原始目标对象
+        helper : jQuery   // 辅助对象
+    }],
+    $helper   : jQuery,   // 遮罩层内辅助块 DOM
     options   : {..},     // 配置信息对象
     data      : null,     // 调用者自定义的数据对象
     startInMs : MS,       // 开始时间
@@ -125,12 +132,14 @@ author:zozoh
     },
     // 下面是一组位置信息，控件自动实时计算，回调们就取个数就成了
     rect : {
-        viewport : Rect,   // 视口
-        trigger  : Rect,   // 触发者
-        boundary : Rect,   // 触发者的边界
-        inview   : Rect,   // 触发者相对于视口的矩形
-                           // 不要改它，它是只读的，改了也没用
-                           // 是控件自动改的
+        viewport : Rect,      // 视口绝对位置
+        origin   : Rect,      // 触发者原始绝对位置
+        originInView : Rect,  // 触发者原始的相对(视口)位置
+        trigger  : Rect,      // 触发者绝对位置
+        boundary : Rect,      // 触发者边界的绝对位置
+        inview   : Rect,      // 触发者相对(视口)位置
+                              // !!! 不要改它，它是只读的，改了也没用
+                              // !!! 是控件自动改的
     }
 }
 ```
@@ -201,6 +210,14 @@ $z.rect_move_tl(rect, {x,y}, offset:{x,y});
 
 ```
 <div class="pmv-mask">
+    <!--
+    「选」 绘制放置的目标，每个子元素都对应要放置的目标
+    可以用 css  .pmv-dropi[pmv-hover] 来修改鼠标进入时的显示模式
+    -->
+    <div class="pmv-drops">
+        <div class="pmv-dropi" pmv-hover="yes"></div>
+        <div class="pmv-dropi"></div>
+    </div>
     <div class="pmv-helper"><!--// 来自用户的自定义--></div>
 </div>
 ```
@@ -208,17 +225,31 @@ $z.rect_move_tl(rect, {x,y}, offset:{x,y});
 # 如何创建
 
 ```
-$(viewport).pmoving({
+$(ele).pmoving({
     // 在 viewport 之内，的选择器，会被应用
     // $(viewport).on("mousedown", trigger, F())
-    trigger : "selector",
+    // 默认，会是 ">*"
+    trigger  : "selector",
+    
+    // 因为考虑到 viewport 可能是动态生成的, 根据 triger 的元素找到对应的 viewport
+    // 默认，会认为是 $(ele) 自身
+    // 函数第一个参数将是绑定 pmoving 的 jQuery 对象
+    // 第二个参数为事件对象
+    // 如果函数返回 null 或者一个空 jQuery 集合，那么表示禁止触发
+    findViewport : {jTrigger}F($context, e):jViewport,
     
     // 有可能是 trigger 选择器内部某个元素（比如修改大小的手柄）被作为触发对象
     // 可以通过一个自定义函数，返回你确定要移动的元素。
     // 默认的，会认为整个 trigger 元素就是要移动的对象
     // 如果函数返回 null 或者一个空 jQuery 集合，那么表示禁止触发
-    findTriggerElement : {Element}F(e):jTrigger
+    findTrigger : {Element}F(e):jTrigger
     
+    // 如果移动的时候支持 Drag&Drop 模式，这个选项给出了哪些是 drop 的目标
+    // 对应 drop 的目标，会在 mask 上绘制出单独的一层，辅助显示
+    // 如果传入的参数是一个字符串，那么认为是一个全局选择器，从文档上选择对应的元素
+    // 当然也可是是一个 jQuery 对象或者的 DOM 对象，只要能被 $(xxx) 就好
+    findDropTarget : selector | {pmvContext}F():jDropTarget
+       
     // 在上下文中记录一个你自定义的对象，你可以直接从 pmvContext.data 获取你设置的值
     data : null,
     
@@ -235,11 +266,14 @@ $(viewport).pmoving({
     mode : "x|y|both"
     
     // 自动修改 trigger 的位置时，采用哪个顶点
-    // "top,left"      - 左上顶点 「默认」
+    // "top,left"      - 左上顶点
     // "top,right"     - 右上顶点
     // "bottom,left"   - 左下顶点
     // "bottom,right"  - 右下顶点
-    // 否则表示不自动更新
+    //  null 表示不自动更新
+    // 可以是数组模式，即 "top,left" 与 ["top","left"] 等价
+    // 如果是拖拽模式，默认为 null
+    // 否则默认为 "top,left"
     autoUpdateTriggerBy : "top,left"
     
     // 如何判断 trigger 超出了 viewport
@@ -280,13 +314,26 @@ $(viewport).pmoving({
     //  nil      - 无视
     helperPosition : "trigger",
         
-    // 回调函数
+    /*
+    移动相关回调函数
+    */
     on_begin  : {pmvContext}F()  // 移动开始时
     on_ing    : {pmvContext}F()  // 移动时
     on_end    : {pmvContext}F()  // 移动结束时
     on_update : {pmvContext}F()  // 开始或移动结束时，主要用来更新 heper
+    
+    /*
+    拖拽相关回调
+    参数 ele 为目标的 jQuery 对象
+    参数 helper 为拖动过程中绘制的辅助显示的 jQuery 对象 
+    */
+    on_dragenter : {pmvContext}F($ele,helper)  // 鼠标进入drop区域
+    on_dragleave : {pmvContext}F($ele,helper)  // 鼠标离开 drop 的区域
+    on_drop      : {pmvContext}F($ele)  // 当丢下一个对象的回调
 });
 ``` 
+
+
 
 # 如何销毁
 

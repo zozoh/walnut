@@ -95,6 +95,13 @@ public class WnObjMatcher {
         for (Map.Entry<String, Object> en : __map.entrySet()) {
             String key = en.getKey();
             Object m = en.getValue();
+            
+            // 如果是路径，那么确保一下路径是存在的
+            if("ph".equals(key)){
+                o.path();
+            }
+            
+            // 得到值
             Object v = o.get(key);
 
             // 空值表示没有

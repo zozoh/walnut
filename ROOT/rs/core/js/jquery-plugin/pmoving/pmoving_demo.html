@@ -84,6 +84,22 @@
         });
         log($(btn).text());
     }
+    function demo_dragdrop(btn) {
+        $('.viewport').pmoving({
+            findDropTarget : ".drop>div",
+            on_dragenter : function(jq){
+                jq.attr("old-txt",jq.text()).text("ININ");
+            },
+            on_dragleave : function(jq){
+                jq.text(jq.attr("old-txt"));
+            },
+            on_drop : function(jq) {
+                console.log("drop in", jq.text());
+                jq.text(this.$trigger.text());
+            }
+        });
+        log($(btn).text());
+    }
     $(function(){
         $(".item").click(function(){
             alert("I am item:" + $(this).text());
@@ -95,8 +111,8 @@
 <!--.........................................................-->
 <div class="main">
     <div class="viewport">
-        <div class="item item0" style="top:10px; left:10px;"></div>
-        <div class="item item1" style="top:10px; left:300px;"></div>
+        <div class="item item0" style="top:10px; left:10px;">ObjA</div>
+        <div class="item item1" style="top:10px; left:300px;">ObjB</div>
     </div>
 </div>
 <div class="panel">
@@ -108,8 +124,13 @@
     <button onclick="demo_mode_x(this);">只能横向移动</button>
     <button onclick="demo_mode_y(this);">只能纵向移动</button>
     <button onclick="demo_complex(this);">综合</button>
+    <button onclick="demo_dragdrop(this);">拖拽</button>
 </div>
 <pre class="log" ondblclick="$(this).empty();">请选择移动模式</pre>
+<div class="drop">
+    <div>AA</div>
+    <div>BB</div>
+</div>
 <!--.........................................................-->
 </body>
 </html>
