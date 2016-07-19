@@ -118,7 +118,7 @@ public class ThemeModule extends AbstractWnModule {
         }
 
         // 读取 CSS 内容返回以便输出
-        return new WnObjDownloadView(io, oCss, ua);
+        return new WnObjDownloadView(io, oCss, null);
     }
 
 }
