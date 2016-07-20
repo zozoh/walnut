@@ -18,6 +18,11 @@ define(function(require, exports, module) {
             editable : true,
             sidebar  : true,
             history  : true,
+            myInfo : {
+				logout : "/u/do/logout",
+				avata : '<i class="fa fa-user"></i>',
+				name : Wn.app().session.me,
+			},
             canOpen  : function(o){
             	return true;
             },

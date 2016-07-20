@@ -1,5 +1,8 @@
 (function($z){
-$z.declare(['zui'], function(ZUI, MenuUI){
+$z.declare([
+    'zui',
+    'wn/util'
+], function(ZUI, Wn){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
@@ -43,11 +46,8 @@ return ZUI.def("ui.obrowser_chute", {
         },
         "click item" : function(e){
             var UI = this;
-            var jq = $(e.currentTarget);
+            var jq = UI.setActived(e.currentTarget);
             UI.browser.setData(jq.attr("ph"), jq.attr("editor"));
-            // 修改显示
-            UI.arena.find("item").removeClass("chute-actived");
-            jq.addClass("chute-actived");
         },
         "click .chute-show-nav" : function(e){
             this.hideOutline();
@@ -55,6 +55,41 @@ return ZUI.def("ui.obrowser_chute", {
         "click .chute-show-outline" : function(e){
             this.showOutline();
         }
+    },
+    //..............................................
+    // 根据传入的对象，自动高亮侧边栏的项目
+    setActived : function(o, asetup){
+        var UI = this;
+        // console.log("!!!!",o.ph, asetup)
+        // 找到 DOM 节点
+        var jq;
+        if(!_.isElement(o) && !$z.isjQuery(o)){
+            // 查找侧边栏所有项目，看看哪个需要被高亮
+            var jItems = UI.arena.find(".chute-nav item");
+            for(var i=0;i<jItems.size();i++){
+                var jItem = jItems.eq(i);
+                var iPh = Wn.absPath(jItem.attr("ph") || "");
+                if(iPh.length > o.ph.length)
+                    continue;
+
+                var ph1 = o.ph.substring(0, iPh.length);
+                var ph2 = o.ph.substring(iPh.length);
+
+                if(ph1 == iPh && (!ph2 || /^\//.test(ph2))) {
+                    jq = jItem;
+                }
+            }
+        }
+        // 给定的就是侧边栏项目
+        else {
+            jq = $(o).closest("item");
+        }
+        // 修改显示
+        if(jq){
+            UI.arena.find("item").removeClass("chute-actived");
+            jq.addClass("chute-actived");
+        }
+        return jq;
     },
     //..............................................
     showOutline : function(){
@@ -71,12 +106,13 @@ return ZUI.def("ui.obrowser_chute", {
         return this.arena.find(".chute-scroller").attr("outline") == "yes";
     },
     //..............................................
-    update : function(UIBrowser, o){
+    update : function(UIBrowser, o, asetup){
         var UI = this;
         UI.browser = UIBrowser;  // 记录一下，让事件们访问能方便一下
 
-        // 如果已经读取到侧边栏了，就无视
+        // 如果已经读取到侧边栏了，就仅仅高亮项目
         if(UI.arena.find("section").size()>0){
+            UI.setActived(o, asetup);
             return;
         }
 
@@ -167,6 +203,9 @@ return ZUI.def("ui.obrowser_chute", {
         // 加入 DOM
         var jNav = UI.arena.find(".chute-nav");
         jNav.empty().append(jq);
+
+        // 高亮项目
+        UI.setActived(o, asetup);
         
     },
     //..............................................

@@ -1082,14 +1082,41 @@ var Wn = {
         return objs;
     },
     //..............................................
+    // 将一堆字符串合并成一个路径
+    appendPath : function() {
+        var paths = Array.from(arguments);
+        if (paths && paths.length > 0) {
+            var str = paths.join("/").toString();
+            var ss  = str.split(/\/+/);
+            return ss.join("/");
+        }
+        return null;
+    },
+    //..............................................
+    // 得到绝对路径
+    absPath : function(ph) {
+        // 本来就是绝对路径
+        if(/^\//.test(ph))
+            return ph;
+
+        // ~/xxxx 的路径
+        if(/^~/.test(ph)){
+            return this.appendPath(Wn.app().session.envs.HOME, ph.substring(1));
+        }
+
+        // 相对路径
+        return this.appendPath(Wn.app().session.envs.PWD, ph);
+    },
+    //..............................................
     fetch : function(ph, quiet){
         var Wn = this;
         // 首先格式化 Path 到绝对路径
-        var ss = ph.split(/\/+/);
-        if(ss[0] == "~"){
-            ss[0] = Wn.app().session.envs.HOME.substring(1);
-        }
-        var aph = "/" + ss.join("/");
+        // var ss = ph.split(/\/+/);
+        // if(ss[0] == "~"){
+        //     ss[0] = Wn.app().session.envs.HOME.substring(1);
+        // }
+        // var aph = "/" + ss.join("/");
+        var aph = this.absPath(ph);
 
         // 首先试图从缓存里获取 ID
         var oid = Wn._index.ph[aph];

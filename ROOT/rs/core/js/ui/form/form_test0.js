@@ -60,8 +60,23 @@ return ZUI.def("ui.form_test0", {
                 key   : "birthday",
                 title : "生日",
                 type  : "datetime",
-                dft   : "1977-09-21",
+                dft   : new Date(),
                 editAs: "datepicker"
+            },{
+                key :"exp_start",
+                title :"发货时间",
+                uiWidth : 200,
+                type :"datetime",
+                dft : new Date(),
+                nativeAs : "string",
+                format : "yyyy-mm-dd",
+                editAs :"datepicker"
+            }, {
+                key :"exp_id",
+                title :"快递单号",
+                dft : null,
+                type :"string",
+                editAs :"input"
             },{
                 key   : "drange",
                 title : "选一个日期范围",
@@ -312,7 +327,7 @@ return ZUI.def("ui.form_test0", {
     update : function(o){
         var UI = this;
         UI.$el.attr("obj-id", o.id);
-        UI.do_t1();
+        UI.do_t0();
     }
     //...............................................................
 });

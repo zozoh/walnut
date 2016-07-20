@@ -44,6 +44,12 @@ new SearchUI({
     data : ..      // 参见 $z.evalData
     
     /*
+    执行查询的上下文基础对象，这个对象会与 filter, pager 控件一起
+    构建一个查询上下文
+    */
+    queryContext : {..} |{UI}F(),
+    
+    /*
     过滤控件, getData 返回:
     {
         // 查询的 JS 对象，参见 cmd_obj 的 match 命令
@@ -136,6 +142,8 @@ new SearchUI({
 # 控件方法
 
 .. 以后再添加 ..
+
+
 
 
 

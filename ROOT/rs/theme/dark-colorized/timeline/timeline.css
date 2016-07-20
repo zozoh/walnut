@@ -1,4 +1,8 @@
 .tmln > .tmln-con {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
   position: relative;
   overflow: auto;
   width: 100%;
@@ -75,4 +79,13 @@
 }
 .tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > footer:hover > * {
   display: inline;
+}
+.tmln-obj-resize {
+  cursor: ns-resize;
+}
+.tmln-obj-move {
+  cursor: default;
+}
+.tmln-mask .pmv-helper {
+  dbackground-color: rgba(255, 0, 0, 0.4);
 }

@@ -1,6 +1,7 @@
 (function($z){
 $z.declare([
-    'zui'
+    'zui',
+    'jquery-plugin/pmoving/pmoving',
 ], function(ZUI){
 //==============================================
 var html = function(){/*
@@ -148,6 +149,54 @@ return ZUI.def("ui.timeline", {
                 .data("@LAYER", layer)
                 .appendTo(jCon);
         }
+
+        // 响应各层的鼠标拖拽事件
+        jCon.pmoving({
+            trigger   : ".tmln-obj",
+            mode      : "y",
+            maskClass : "tmln-mask",
+            on_begin  : function(){
+                var jq = $(this.Event.target);
+                // 得到 tmln-obj
+                this.$tmlnObj = jq.closest(".tmln-obj");
+                console.log(jq.html())
+                this.rect.tmlnObj = $z.rect(this.$tmlnObj);
+
+                // 标识遮罩层
+                if(jq.closest("footer").size() > 0){
+                    this.aMode = "obj-resize";
+                    this.$mask.addClass("tmln-obj-resize");
+                    console.log("resize")
+                }
+                // 否则就是移动
+                else {
+                    this.aMode = "obj-move";
+                    this.$mask.addClass("tmln-obj-move");
+                    console.log("move")
+                }
+            },
+            autoUpdateTriggerBy : null,
+            boundary : "100%",
+            position : {
+                gridX  : "100%",
+                gridY  : "4.1.66667%",
+                stickX : 0,
+                stickY : "4%"
+            },
+            on_ing : function() {
+                var css = {}
+                // 模式: move
+                if("obj-move" == this.aMode) {
+                    css.top = this.rect.inview.top;
+                }
+                // 模式: resize
+                else {
+                    css.height = Math.max(10, this.rect.trigger.bottom - this.rect.tmlnObj.top);
+                }
+                // 修改
+                this.$tmlnObj.css(css);
+            }
+        });
 
 
     },

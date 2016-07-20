@@ -43,7 +43,7 @@
       就是说，如果不指定第一个参数，那么当前的目录就作为所在的 ThingSet 或者 Thing
     > 执行任何命令，默认是输出 JSON
 
-# thing xxx get
+# thing get
     
     #----------------------------------------------------
     # 命令格式
@@ -58,7 +58,7 @@
     # 打印某个 thing 的名称和所属者，且不输出换行符
     thing [ID] get -out '@{th_ow} belong to @{th_name}' -N
 
-# thing xxx init
+# thing init
 
     #----------------------------------------------------
     # 命令格式
@@ -66,7 +66,7 @@
     #----------------------------------------------------
     - 初始化一个 ThingSet，当前的目录必须是个 ThingSet，否则跑错
    
-# thing xxx create
+# thing create
 
     #----------------------------------------------------
     # 命令格式
@@ -88,7 +88,7 @@
     # 创建一个匿名的 Thing 并指明分类
     thing xxx create -cate xxx
 
-# thing xxx detail
+# thing detail
 
     #----------------------------------------------------
     # 命令格式
@@ -112,7 +112,7 @@
     # 为 thing 删除详细内容
     thing xxx detail -drop
     
-# thing xxx delete
+# thing delete
     
     #----------------------------------------------------
     # 命令格式
@@ -122,7 +122,7 @@
      - 已经删除的，再次删除会抛错，除非 -quiet
      - 所谓删除其实就是标记 th_live = -1
 
-# thing xxx restore
+# thing restore
     
     #----------------------------------------------------
     # 命令格式
@@ -132,7 +132,7 @@
      - 已经恢复的，再次恢复会抛错，除非 -quiet
      - 所谓恢复其实就是标记 th_live = 1
 
-# thing xxx clean
+# thing clean
 
     #----------------------------------------------------
     # 命令格式
@@ -145,7 +145,7 @@
     - 清除的顺序为最后修改时间从旧到新
 
 
-# thing xxx update
+# thing update
 
     #----------------------------------------------------
     # 命令格式
@@ -156,7 +156,7 @@
                        [-fields "{..}"]
     #----------------------------------------------------
      - 当前对象必须是一个 thing，否则不能更新
-     - fields 里面的值，均会被添加 "tha_" 前缀
+     - fields 里面的值，没有 -brief|ow|cate 优先
     
     # 改名
     thing xxx update "原力觉醒电影票"
@@ -168,15 +168,17 @@
     thing xxx update -fields "x:100,y:99"
 
      
-# thing xxx query
+# thing query
 
     #----------------------------------------------------
     # 命令格式
-    thing [ID] query "{...}"
+    thing [ThingSet ID] query 
+                      [Condition Map]
                       [-t "c0,c1,c2.."]
                       [-pager]
                       [-limit 10]
                       [-skip 0]
+                      [-sort "nm:1"]
     #----------------------------------------------------
      - 当前对象可以是一个 thing 或者 ThingSet
      - 如果是一个 thing，相当于是它的 ThingSet
@@ -186,23 +188,26 @@
         - 在 limit 小于等于 0 时，本参数依然无效
      - limit  限制输出的数量，默认 100
      - skip   跳过的对象数量，默认 0
+     - sort 排序字段
      
-# thing xxx comment
+# thing comment
 
     #----------------------------------------------------
     # 命令格式
     thing [ID] comment [-add xxx]
                        [-del xxx]
+                       [-get xxx]
+                       [-read xxx]
                        [-quick]
                        [commentID content]
                        [-tp txt|html|md]
-                       [-minsz 5]
                        [-maxsz 256]
+                       [-minsz 5]
     #----------------------------------------------------
     - 注释内容，支持从管道读取
     - 支持 'sort|pager|limit|skip|json|out|t' 等参数
-    - minsz 当创建/修改时，表示最小长度，默认 5
-    - maxsz 当创建/修改时，长度超过这一限制，将生成 brief，将内容写入文件
+    - maxsz 默认 256 表示，超长的字符串，会被截取为 breif，完整内容将存在文件里
+    - minsz 默认 5 表示评论最小长度
     
     # 添加注释，会自动修改 task.th_c_cmt 字段 
     thing xxx comment -add "搞定了，呼"

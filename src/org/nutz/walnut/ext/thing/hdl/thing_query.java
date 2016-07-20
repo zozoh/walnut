@@ -14,6 +14,7 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.WnPager;
 
 @JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(pager)$")
@@ -40,7 +41,7 @@ public class thing_query implements JvmHdl {
 
         // ..............................................
         // 准备查询条件
-        String qStr = hc.params.val(0);
+        String qStr = Cmds.checkParamOrPipe(sys, hc.params, 0);
         WnQuery q = new WnQuery();
         // 指定了条件
         if (!Strings.isBlank(qStr)) {
