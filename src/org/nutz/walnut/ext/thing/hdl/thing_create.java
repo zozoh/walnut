@@ -24,7 +24,7 @@ public class thing_create implements JvmHdl {
         WnObj oT = sys.io.create(oTData, "${id}", WnRace.DIR);
 
         // 准备要更新的元数据集合
-        NutMap meta = Things.fillMeta(hc.params, new NutMap());
+        NutMap meta = Things.fillMeta(sys, hc.params);
 
         // 设置更多的固有属性
         meta.put("tp", "thing");

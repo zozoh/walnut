@@ -39,6 +39,7 @@ import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.bean.WnApp;
 import org.nutz.walnut.web.filter.WnCheckSession;
+import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.walnut.web.view.WnObjDownloadView;
 
 @IocBean
@@ -54,7 +55,7 @@ public class AppModule extends AbstractWnModule {
     @Fail("jsp:jsp.show_text")
     public View open(String appName, @Param("ph") String str, @Param("m") boolean meta)
             throws UnsupportedEncodingException {
-        
+
         if (Strings.isBlank(appName))
             return HttpStatusView.HTTP_404;
 
@@ -182,6 +183,9 @@ public class AppModule extends AbstractWnModule {
             }
         }
 
+        // 处理一下 ua 来决定是否下载
+        ua = WnWeb.autoUserAgent(o, ua, true);
+
         // 如果是 JSON ，那么特殊的格式化一下
         if ("application/json".equals(mimeType)) {
             NutMap json = Json.fromJson(NutMap.class, text);
@@ -195,7 +199,7 @@ public class AppModule extends AbstractWnModule {
         }
         // 指定了 mimeType
         else if (!Strings.isBlank(mimeType)) {
-            return new WnObjDownloadView(io, o, mimeType);
+            return new WnObjDownloadView(io, o, mimeType, ua);
         }
         // 其他就默认咯
         return new WnObjDownloadView(io, o, ua);
@@ -210,7 +214,8 @@ public class AppModule extends AbstractWnModule {
                     @Param("PWD") String PWD,
                     @Param("cmd") String cmdText,
                     HttpServletRequest req,
-                    final HttpServletResponse resp) throws IOException {
+                    final HttpServletResponse resp)
+            throws IOException {
         // String cmdText = Streams.readAndClose(req.getReader());
         // cmdText = URLDecoder.decode(cmdText, "UTF-8");
 

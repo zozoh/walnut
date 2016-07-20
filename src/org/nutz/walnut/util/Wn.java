@@ -772,7 +772,7 @@ public abstract class Wn {
      * 
      * @param o
      *            原始对象
-     *            
+     * 
      * @return 真实文件对象
      */
     public static WnObj real(WnObj o, WnIo io) {

@@ -205,7 +205,14 @@ return ZUI.def("ui.srh", {
                 }
             }
         }
-
+        //...........................................
+        // 默认查询上下文
+        if(!_.isFunction(opt.queryContext)) {
+            opt.__static_query_context = opt.queryContext || {};
+            opt.queryContext = function(){
+                return _.extend({}, this.options.__static_query_context);
+            }
+        }
         //...........................................
         // 加载完毕，触发的事件
         UI.on("ui:redraw", function(){
@@ -366,53 +373,55 @@ return ZUI.def("ui.srh", {
     refresh : function(callback, flt, pgr){
         var UI  = this;
         var opt = UI.options;
-
+        // console.log("refresh!!!!")
         // zozoh@20151026:
         // 推迟运行，以便确保界面都加载完毕了
         // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题
         //window.setTimeout(function(){
-            flt = flt || UI.uiFilter.getData();
-            pgr = pgr || UI.uiPager.getData();
+        flt = flt || UI.uiFilter.getData();
+        pgr = pgr || UI.uiPager.getData();
 
-            var qc = _.extend({}, pgr, {
-                match : flt.match ? $z.toJson(flt.match) : '',
-                sort  : flt.sort  ? $z.toJson(flt.sort)  : ''
-            });
-            
-            //console.log("do_search",qc)
+        // 创建查询上下文
+        var qc = opt.queryContext.call(UI);
+        _.extend(qc, pgr, {
+            match : flt.match ? $z.toJson(flt.match) : '',
+            sort  : flt.sort  ? $z.toJson(flt.sort)  : ''
+        });
+        
+        //console.log("do_search",qc)
 
-            // 记录一下之前激活的项目
-            var activedId = UI.uiList.getActivedId();
-            
-            // 显示正在加载数据
-            $z.invoke(UI.uiList, "showLoading");
+        // 记录一下之前激活的项目
+        var activedId = UI.uiList.getActivedId();
+        
+        // 显示正在加载数据
+        $z.invoke(UI.uiList, "showLoading");
 
-            // 组合成查询条件，执行查询
-            $z.evalData(UI.options.data, qc, function(re){
-                // 将查询的结果分别设置到列表以及分页器里
-                UI.uiList.setData(re ? re.list : []);
-                UI.uiPager.setData(re.pager);
+        // 组合成查询条件，执行查询
+        $z.evalData(UI.options.data, qc, function(re){
+            // 将查询的结果分别设置到列表以及分页器里
+            UI.uiList.setData(re ? re.list : []);
+            UI.uiPager.setData(re.pager);
 
-                // 如果之前有高亮内容，重新高亮
-                if(activedId){
-                    UI.uiList.setActived(activedId);
-                }
+            // 如果之前有高亮内容，重新高亮
+            if(activedId){
+                UI.uiList.setActived(activedId);
+            }
 
-                // 触发事件回调
-                UI.trigger("search:refresh", re);
-                $z.invoke(UI.options, "on_refresh", [re], UI);
+            // 触发事件回调
+            UI.trigger("search:refresh", re);
+            $z.invoke(UI.options, "on_refresh", [re], UI);
 
-                // 调整尺寸
-                UI.resize();
+            // 调整尺寸
+            UI.resize();
 
-                // 回调
-                if(_.isFunction(callback)){
-                    callback.call(UI, re.list, re.pager);
-                }
-            }, UI);
+            // 回调
+            if(_.isFunction(callback)){
+                callback.call(UI, re.list, re.pager);
+            }
+        }, UI);
         //}, 0);
 
-        // 返回自身
+        // 返回自身dddd
         return UI;
     }
     //..............................................

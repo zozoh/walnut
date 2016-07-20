@@ -1,22 +1,28 @@
-.tmln {
+.tmln > .tmln-con {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
   position: relative;
   overflow: auto;
+  width: 100%;
+  height: 100%;
 }
-.tmln .tmlnW {
+.tmln > .tmln-con .tmln-bg {
   width: 100%;
   height: 100%;
   display: -webkit-flex;
   display: flex;
   flex-flow: column nowrap;
 }
-.tmln .tmlnW .tmln-hour {
+.tmln > .tmln-con .tmln-bg .tmln-hour {
   flex: 1 1 auto;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
-.tmln .tmlnW .tmln-hour:first-child {
+.tmln > .tmln-con .tmln-bg .tmln-hour:first-child {
   border: 0;
 }
-.tmln .tmln-ruler {
+.tmln > .tmln-con .tmln-ruler {
   background: rgba(0, 0, 0, 0.4);
   position: absolute;
   top: 0;
@@ -28,12 +34,58 @@
   display: flex;
   flex-flow: column nowrap;
 }
-.tmln .tmln-ruler .tmln-rui {
+.tmln > .tmln-con .tmln-ruler .tmln-rui {
   flex: 1 1 auto;
   overflow: hidden;
   text-align: right;
-  padding: 6px;
+  padding: 2px;
   color: rgba(255, 255, 255, 0.2);
   font-size: 10px;
   font-family: Monaco, Consolas, Courier New;
+}
+.tmln > .tmln-con .tmln-layer > .tmln-obj {
+  position: absolute;
+  top: 0;
+  left: 61px;
+  right: 6px;
+  height: 4%;
+  background-color: rgba(88, 88, 255, 0.8);
+  border: 1px solid rgba(66, 66, 200, 0.8);
+}
+.tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  font-size: 10px;
+  padding-bottom: 12px;
+}
+.tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > header {
+  font-weight: bold;
+  padding: 2px 4px;
+}
+.tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > footer {
+  text-align: center;
+  font-size: 8px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  cursor: ns-resize;
+  height: 12px;
+  line-height: 12px;
+}
+.tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > footer > * {
+  display: none;
+}
+.tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > footer:hover > * {
+  display: inline;
+}
+.tmln-obj-resize {
+  cursor: ns-resize;
+}
+.tmln-obj-move {
+  cursor: default;
+}
+.tmln-mask .pmv-helper {
+  dbackground-color: rgba(255, 0, 0, 0.4);
 }

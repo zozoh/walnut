@@ -1,12 +1,12 @@
 package org.nutz.walnut.ext.thing;
 
-import java.util.Map;
-
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.ZParams;
 
 public abstract class Things {
@@ -122,22 +122,18 @@ public abstract class Things {
     /**
      * 根据参数填充元数据
      * 
+     * @param sys
+     *            系统接口
+     * 
      * @param params
      *            参数表
-     * @param meta
-     *            待填充的元数据
+     * 
      * @return 填充完毕的元数据
      */
-    public static NutMap fillMeta(ZParams params, NutMap meta) {
-        // Thing 的其他字段，统统加上前缀
-        if (params.has("fields")) {
-            NutMap fields = Lang.map(params.get("fields"));
-            for (Map.Entry<String, Object> en : fields.entrySet()) {
-                String key = en.getKey();
-                Object val = en.getValue();
-                meta.put("tha_" + key, val);
-            }
-        }
+    public static NutMap fillMeta(WnSystem sys, ZParams params) {
+        // 得到所有字段
+        String json = Cmds.getParamOrPipe(sys, params, "fields", false);
+        NutMap meta = Lang.map(json);
 
         // 名称
         String th_nm = params.val(0);

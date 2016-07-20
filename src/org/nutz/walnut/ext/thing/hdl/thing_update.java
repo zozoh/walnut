@@ -23,7 +23,7 @@ public class thing_update implements JvmHdl {
         }
 
         // 准备要更新的元数据集合
-        NutMap meta = Things.fillMeta(hc.params, new NutMap());
+        NutMap meta = Things.fillMeta(sys,hc.params);
 
         // 更新这个 Thing
         sys.io.appendMeta(oT, meta);
