@@ -102,7 +102,7 @@ body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-b
     font-size:0.9em; margin:-2px -2px 0 0; 
 }
 
-.ui-loading {padding:14px; font-size:14px; color:#AAA;line-height: 24px;}
+.ui-loading {padding:14px; font-size:14px; color:#AAA; background-color:#FFF; line-height: 24px;}
 .ui-loading i {display: inline-block; vertical-align: middle;font-size: 18px;}
 
 .z-edit-it input {padding:0 6px;}

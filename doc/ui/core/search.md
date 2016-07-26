@@ -14,6 +14,7 @@ new SearchUI({
     // 是否支持更多的操作
     //  - 支持快捷按钮配置字符串 "new", "delete", "edit", "refresh"
     // 具体配置信息 @see menu 控件
+    // 你也可以用 {qkey:"create", icon:"<...>"} 来修改某个快捷菜单的图标和显示文字
     menu : ["create","delete","edit"]
 
     // 动作模板，支持了这些动作模板后， menu 才能支持对应的快捷动作

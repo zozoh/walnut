@@ -111,7 +111,7 @@ new TableUI({
     on_unchecked : {c}F([objs, jRows])
 
     // "table:actived"  激活一项的时候触发
-    on_actived : {c}F(o,jRow)
+    on_actived : {c}F(o,jRow, prevObj, prevRow)
     
     // "table:blur" 当一个列取消选中的时候，会被触发
     // 四个参数，前两个不解释，后两个表示即将被激活的元素

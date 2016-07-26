@@ -92,12 +92,6 @@ return ZUI.def("ui.console", {
             //console.log("oldPWD nil")
         }
 
-        UI.listenModel("screen:clear", UI.clearScreen);
-        UI.listenModel("cmd:wait", UI.on_cmd_wait);
-        UI.listenModel("show:err", UI.on_show_err);
-        UI.listenModel("show:txt", UI.on_show_txt);
-        UI.listenModel("show:end", UI.on_show_end);
-
         // 如果页面重新加载
         // window.addEventListener("beforeunload", function (event) {
         //     var PWD = UI.app.session.envs.PWD;

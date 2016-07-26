@@ -123,6 +123,7 @@ return ZUI.def("ui.o_view_obj", {
         if(/text|javascript|json/.test(o.mime)){
             jM.attr("mode", "text");
             Wn.read(o, function(content){
+                UI.hideLoading();
                 jM.empty();
                 var jPre = UI.ccode("showTxt").appendTo(jM);
                 jPre.text(content);
@@ -176,6 +177,7 @@ return ZUI.def("ui.o_view_obj", {
         }
         // 其他的对象
         else{
+            UI.hideLoading();
             jM.attr("mode","others");
             jM.html(UI.msg("opreview.noway"));
             // 显示信息

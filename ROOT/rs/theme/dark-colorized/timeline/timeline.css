@@ -57,7 +57,7 @@
   height: 100%;
   position: relative;
   font-size: 10px;
-  padding-bottom: 12px;
+  padding-bottom: 6px;
 }
 .tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > header {
   font-weight: bold;
@@ -71,8 +71,8 @@
   left: 0;
   right: 0;
   cursor: ns-resize;
-  height: 12px;
-  line-height: 12px;
+  height: 6px;
+  line-height: 6px;
 }
 .tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > footer > * {
   display: none;
@@ -85,6 +85,12 @@
 }
 .tmln-obj-move {
   cursor: default;
+}
+.tmln-mask {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .tmln-mask .pmv-helper {
   dbackground-color: rgba(255, 0, 0, 0.4);

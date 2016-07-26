@@ -23,21 +23,28 @@
 .ui-mask-closer {
   position: absolute;
   font-size: 16px;
-  color: #CCC;
-  background: #000;
-  border: 3px solid #888;
-  border-radius: 32px;
-  display: block;
-  width: 32px;
-  height: 32px;
-  line-height: 26px;
-  text-align: center;
+  font-family: 'Material-Design-Iconic-Font';
   cursor: pointer;
+  color: #000000;
+  background-color: #d0d0d0;
+  border-radius: 100px;
+  border: 2px solid #bbbbbb;
+  line-height: 24px;
+  width: 28px;
+  text-align: center;
+  transition: 0.2s;
+}
+.ui-mask-closer:before {
+  display: "inline";
+  content: "\f136";
 }
 .ui-mask-closer:hover {
-  color: #FFF;
-  border-color: #FFF;
-  box-shadow: 0 0 4px #FFF;
+  background-color: #0044bb;
+  color: #ffffff;
+  border-color: #d0d0d0;
+  font-size: 1.2em;
+  font-weight: bold;
+  transform: scale(1.2) rotate(360deg);
 }
 .ui-mask-main {
   position: absolute;

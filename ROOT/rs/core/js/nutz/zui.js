@@ -742,12 +742,13 @@ ZUIObj.prototype = {
         var html = '<div class="ui-loading">';
         html += '<i class="fa fa-spinner fa-pulse"></i> <span>'+this.msg("loading")+'</span>';
         html += '</div>';
-
-        var jq = selector ? $(selector) : this.arena;
-        jq.empty().html(html);
+        var rect = $z.rect(this.$pel);
+        $(html).appendTo(this.$el).css(_.extend({
+            "position" : "fixed",
+        }, $z.rectObj(rect,"top,left,width,height")));
     },
     hideLoading : function(){
-        this.arena.find(".ui-loading").remove();
+        this.$el.find(".ui-loading").remove();
     },
     // 根据路径获取一个子 UI
     subUI : function(uiPath){
@@ -819,8 +820,8 @@ ZUIObj.prototype = {
     },
     //............................................
     // 监听本 UI 的模块事件
-    listenModel: function (event, handler) {
-        this._listen_to(this.model, event, handler);
+    listenSelf: function (event, handler) {
+        this._listen_to(this, event, handler);
     },
     // 监听本 UI 的父UI事件
     listenParent : function(event, handler) {

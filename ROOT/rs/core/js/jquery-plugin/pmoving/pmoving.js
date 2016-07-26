@@ -438,7 +438,7 @@ $.fn.extend({ "pmoving" : function(opt){
                 // 开始计算这两个偏移量
                 var offX = 0;
                 var offY = 0;
-                //console.log("before", $z.rectObj(this.rect.trigger, "top,left,x,y"))
+                // console.log("before", $z.rectObj(this.rect.trigger, "top,left,x,y"))
                 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 // 根据中点来吸附
                 if("center" == this.__grid.by) {

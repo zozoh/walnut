@@ -223,13 +223,17 @@ return ZUI.def("ui.table", {
                 return;
             }
 
+            // 得到之前的激活项
+            var jPreRow = UI.$item();
+            var prevObj = UI.getData(jPreRow);
+
             // 取消其他的激活
             UI.setAllBure(o, jRow);
             jRow.addClass("tbl-row-actived tbl-row-checked");
 
             // 触发消息 
             UI.trigger("table:actived", o, jRow);
-            $z.invoke(opt, "on_actived", [o, jRow], context);
+            $z.invoke(opt, "on_actived", [o, jRow, prevObj, jPreRow], context);
         }
         // 同步选择器 
         UI.__sync_checker();
@@ -409,7 +413,7 @@ return ZUI.def("ui.table", {
     //...............................................................
     $item : function(it){
         var UI = this;
-        // 默认用更新
+        // 默认选择激活项目
         if(_.isUndefined(it)){
             return UI.arena.find(".tbl-row-actived");
         }
@@ -587,10 +591,14 @@ return ZUI.def("ui.table", {
         // 如果原来就已经是高亮的，那么还需要回调一下激活事件
         if(jRow.hasClass("tbl-row-actived")){
             UI.trigger("table:actived", o, jRow);
-            $z.invoke(opt, "on_actived", [o, jRow], context);
+            $z.invoke(opt, "on_actived", [o, jRow, o, jRow], context);
         }
 
-        // 添加到表格
+        // 重新调整尺寸 
+        UI._cols_org_size = null;
+        UI.resize();
+
+        // 返回
         return jRow;
     },
     //...............................................................

@@ -206,9 +206,10 @@
                 return n * base;
             }
             // 百分比
-            var m = /^([0-9.]{1,})%$/g.exec(v);
+            var m = /^(-?)([0-9.]{1,})%$/g.exec(v);
             if (m) {
-                return (m[1] / 100) * base;
+                var neg = "-" == m[1] ? -1 : 1;
+                return (m[2] / 100) * base * neg;
             }
             // 靠不知道是啥
             throw  "fail to dimension : " + v;
@@ -798,7 +799,7 @@
         // 资源描述符如果不可识别将原样返回，现在支持下列资源种类
         //  - json:///path/to/json
         //  - text:///path/to/text
-        //  - jso:///path/to/jpeg_or_jpg
+        //  - jso:///path/to/js
         loadResource: function (rs, callback, context) {
             var ME = this;
             // 对结果的处理函数
@@ -818,6 +819,7 @@
                 // 分析一下
                 var m = /^(jso|json|text):\/\/(.+)$/.exec(rs);
                 if (m) {
+                    var reObj;
                     var type = m[1];
                     var url = m[2];
                     // 看看缓冲里有木有
@@ -1263,12 +1265,8 @@
             _t.key = _t.key_min + ":" + _t.ss;
 
             // 自动显示
-            _t.T = _t.H +(_t.m == 0 ? "" : (
-                            ":" + _t.m + ( _t.s == 0 ? "" : ":"+_t.s)
-                        ));
-            _t.TT = _t.HH +(_t.m == 0 ? "" : (
-                            ":" + _t.mm + ( _t.s == 0 ? "" : ":"+_t.ss)
-                        ));
+            _t.T = _t.H +(_t.m == 0 ? "" : ":" + _t.m );
+            _t.TT = _t.HH +(_t.m == 0 ? "" : ":" + _t.mm);
 
             // 12小时制支持
             _t.H12   = _t.H > 12 ? _t.H % 12 : _t.H;
@@ -1279,12 +1277,8 @@
             _t.pm    = (_t.H == _t.H12 ? "" : "p");
 
             // 12小时制自动显示
-            _t.T12 = _t.H12 +(_t.m == 0 ? "" : (
-                            ":" + _t.m + ( _t.s == 0 ? "" : ":"+_t.s)
-                        ));
-            _t.TT12 = _t.HH12 +(_t.m == 0 ? "" : (
-                            ":" + _t.mm + ( _t.s == 0 ? "" : ":"+_t.ss)
-                        ));
+            _t.T12 = _t.H12   + (_t.m == 0 ? "" : ":" + _t.m);
+            _t.TT12 = _t.HH12 + (_t.m == 0 ? "" : ":" + _t.mm);
 
             // 返回
             return _t;

@@ -31,7 +31,7 @@ public abstract class BaseUsrTest extends BaseIoTest {
         // "/sys/usr"));
         // Mirror.me(usrs).setValue(usrs, "grpHome", pp.get("grp-home",
         // "/sys/grp"));
-        // usrs.on_create();
+        usrs.on_create();
         return usrs;
     }
 

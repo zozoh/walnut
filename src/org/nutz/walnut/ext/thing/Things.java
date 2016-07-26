@@ -60,14 +60,14 @@ public abstract class Things {
      */
     public static WnObj getThingSet(WnObj o) {
         // 自己就是
-        if (o.has("thing")) {
+        if (o.isType("thing_set")) {
             return o;
         }
 
         // 找祖先
         while (o.hasParent()) {
             o = o.parent();
-            if (o.has("thing"))
+            if (o.isType("thing_set"))
                 return o;
         }
 

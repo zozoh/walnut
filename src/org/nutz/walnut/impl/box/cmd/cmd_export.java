@@ -3,6 +3,8 @@ package org.nutz.walnut.impl.box.cmd;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.impl.io.WnEvalLink;
+import org.nutz.walnut.util.Wn;
 
 public class cmd_export extends JvmExecutor {
 
@@ -25,7 +27,10 @@ public class cmd_export extends JvmExecutor {
                     sys.se.persist(key);
                 }
             }
-            sys.sessionService.save(sys.se);
+            // 强制写入
+            Wn.WC().security(new WnEvalLink(sys.io), () -> {
+                sys.sessionService.save(sys.se);
+            });
         }
     }
 }

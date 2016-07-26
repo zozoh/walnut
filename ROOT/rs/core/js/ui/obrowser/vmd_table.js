@@ -115,6 +115,8 @@ return ZUI.def("ui.obrowser_vmd_table", {
 
         // 得到当前所有的子节点
         Wn.getChildren(o, UI.browser.options.filter, function(objs){
+            UI.hideLoading();
+            
             // 更新数据
             UI.uiTable.setData(objs);
 

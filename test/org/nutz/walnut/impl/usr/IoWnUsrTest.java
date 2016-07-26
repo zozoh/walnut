@@ -230,7 +230,6 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         // 检查对象
         WnObj oSe = io.check(null, "/sys/session/" + se.id());
-        assertEquals("application/json", oSe.mime());
         assertTrue(oSe.expireTime() > (System.currentTimeMillis() + 5000));
 
         // 获取

@@ -13,7 +13,7 @@ var html = function(){/*
     <div code-id="field" class="form-fld"><div
         class="ff-txt"></div><div
         class="ff-val"><div class="ffv-ui"></div><div class="ffv-tip"></div></div><div class="ff-tmpl"><i 
-            class="fa fa-square"></i><i class="fa fa-check-square"></i></div></div>
+            class="fa fa-square"></i><i class="fa fa-check-square"></i></div><div class="ff-prompt"></div></div>
 </div>
 <div class="ui-arena form" ui-fitparent="yes">
     <div class="form-title"></div>
@@ -34,6 +34,10 @@ return ZUI.def("ui.form", {
         $z.setUndefined(options, "idKey", "id");
         $z.setUndefined(options, "uiWidth", "auto");
         $z.setUndefined(options, "fields", []);
+        $z.setUndefined(options, "prompts", {
+            spinning : '<i class="fa fa-spinner fa-spin"></i>',
+            warning  : '<i class="fa fa-warning"></i>'
+        });
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 整理 fields 字段
         var grpList = [];
@@ -393,6 +397,7 @@ return ZUI.def("ui.form", {
 
             // 设置本组最大的标题宽度
             jG.find(".ff-txt").css("width", maxFFW);
+            jG.find(".ff-prompt").css("width", maxFFW);
             
             // 继续设置所有的值应该的宽度
             jG.find(".form-fld").each(function(){
@@ -472,10 +477,12 @@ return ZUI.def("ui.form", {
         });
     },
     //...............................................................
+    $fld : function(key) {
+        return this.arena.find('.form-fld[fld-key="'+key+'"]');
+    },
+    //...............................................................
     getFormCtrl : function(key) {
-        var UI = this;
-        var jF = UI.arena.find('.form-fld[fld-key="'+key+'"]');
-        return jF.data("@UI");
+        return this.$fld(key).data("@UI");
     },
     //...............................................................
     getFormDataObj : function(){
@@ -507,6 +514,28 @@ return ZUI.def("ui.form", {
             // 返回值
             return re;
         });
+    },
+    //...............................................................
+    showPrompt : function(key, prompt) {
+        var UI  = this;
+        var opt = UI.options;
+
+        // 分析
+        var pKey = prompt;
+        var html = opt.prompts[pKey];
+        if(!html) {
+            pKey = "_customized";
+            html = prompt;
+        }
+
+        // 设置 
+        var jF = UI.$fld(key);
+
+        jF.attr("form-prompt", pKey).find(".ff-prompt").html(html);
+    },
+    //...............................................................
+    hidePrompt : function(key) {
+        this.$fld(key).removeAttr("form-prompt");
     },
     //...............................................................
     getObjId : function(obj){
