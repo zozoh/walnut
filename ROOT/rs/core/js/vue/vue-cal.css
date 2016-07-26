@@ -94,15 +94,15 @@
   width: 100%;
 }
 .vcal-cal-entity > .vheader {
-  background: #dcdcdc;
+  background: #DCDCDC;
   color: #000;
   font-weight: bold;
 }
 .vcal-matrix-entity {
-  border-right: 1px solid #eeeeee;
+  border-right: 1px solid #eee;
 }
 .vcal-matrix-entity:first-child {
-  border-left: 1px solid #eeeeee;
+  border-left: 1px solid #eee;
 }
 .vcal-matrix-entity.week-tip {
   text-align: center;
@@ -128,7 +128,8 @@
   background: rgba(248, 178, 208, 0.3);
 }
 .ds-select .day-tip {
-  color: #FFF;
+  color: #36a624;
+  font-size: 1.1rem;
 }
 .ds-outmonth {
   background: none;
@@ -147,7 +148,7 @@
 }
 .vcal-week-entity .vcal-hour-entity {
   height: 28.8px;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid #eee;
 }
 .vcal-week-entity .vcal-hour-entity:last-child {
   border-bottom: none;
