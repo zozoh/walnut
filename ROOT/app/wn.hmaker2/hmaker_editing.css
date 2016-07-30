@@ -1,0 +1,21 @@
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+.hm-block[hmb-mode="abs"] .hmb-con {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.hm-block[hmb-mode="abs"] .hmb-area {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.hm-page-move-mask .pmv-helper {
+  background: rgba(255, 0, 0, 0.2);
+}

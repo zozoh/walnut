@@ -249,7 +249,7 @@ function on_mousedown(e) {
     };
     //.........................................
     // 设置一个全局遮罩层
-    var jMask = $('<div class="pmv-mask">').appendTo(document.body).css({
+    var jMask = $('<div class="pmv-mask">').appendTo(pmvContext.$viewport[0].ownerDocument.body).css({
         position : "fixed", top:0, left:0, right:0, bottom:0,
         "z-index" : opt.maskZIndex
     });

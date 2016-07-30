@@ -737,6 +737,39 @@ ZUIObj.prototype = {
         // 普通字符串
         return str;
     },
+    // 对于控件 DOM 中所有的元素应用 data-balloon 的设定
+    // 查找属性 "balloon" 格式是 "方向:msgKey"
+    // selector 如果不给，默认是 "*"
+    balloon : function(selector, enabled) {
+        var UI = this;
+
+        if(false === selector) {
+            selector = "*";
+            enabled = false;
+        }
+        if(_.isUndefined(enabled))
+            enabled = true;
+
+        // 启用
+        if(enabled) {
+            UI.arena.find(selector || "*").filter('[balloon]').each(function(){
+                var jq = $(this);
+                var ss = jq.attr("balloon").split(/\W*:\W*/);
+                jq.attr({
+                    "data-balloon" : UI.msg(ss[1]),
+                    "data-balloon-pos" : ss[0]
+                });
+            });
+        }
+        // 取消
+        else {
+            UI.arena.find(selector || "*").filter('[balloon]').each(function(){
+                $(this)
+                    .removeAttr("data-balloon")
+                    .removeAttr("data-balloon-pos");
+            });
+        }
+    },
     // 在某区域显示读取中，如果没有指定区域，则为整个 arena
     showLoading : function(selector){
         var html = '<div class="ui-loading">';

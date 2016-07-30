@@ -1,0 +1,197 @@
+@import (reference) "../ui";
+
+@lW : 180px;
+@rW : 400px;
+@panTH : 32px;
+
+.hmaker {
+    position: relative;
+    > div {position: absolute; top:0; bottom:0;}
+    .hm-con-main {left:@lW;right:@rW;}
+    .hm-con-resource {left:0; width:@lW;}
+    .hm-con-prop {right:0; width:@rW;}
+    //.............................................................
+    .hm-W {width: 100%; height:100%; position: relative;}
+    //.............................................................
+    // 面板的通用样式
+    .hm-panel {
+        position: relative; padding-top:@panTH;
+        background: @cb1;
+        > header { @noselect();
+            position: absolute; top:0;left:0;right:0;
+            background: @cb2; color:@cf2; height:@panTH; line-height: @panTH; 
+            > ul {
+                > li {
+                    position: absolute; top:0; bottom: 0; padding:0 @d3;
+                }
+                .hmpn-pin {
+                    right:0; cursor: pointer;
+                }
+                .hmpn-tt {
+                    left: 0;
+                }
+                .hmpn-opt {
+                    right: @d6;
+                }
+            }
+        }
+        > section {
+            width: 100%; height:100%; position: relative;
+        }
+    }
+    //.............................................................
+    // 属性面板
+    @ppTabH : 28px;
+    .hm-prop {
+        > section {padding:@ppTabH/2 + @d2 @d2 @d2 @d2;}
+        .hm-prop-tabs {
+            position: absolute; top:@d2; left:0; right:0; height:@ppTabH; 
+            ul {
+                @flex(); justify-content: center;
+                li {
+                    height:@ppTabH; line-height: @ppTabH - 1; 
+                    border:1px solid @cborder1; border-left:0;
+                    min-width: 80px; text-align: center; padding:0 @d2; font-size:@f2;
+                    background: @cb1; color:@cf1; cursor: pointer; 
+                }
+                li:first-child {
+                    border-left:1px solid @cborder1;
+                    border-radius: @d2 0 0 @d2;
+                }
+                li:last-child {
+                    border-radius: 0 @d2 @d2 0;
+                }
+                li[current] {background: @ch0_b; color:@ch0_f;}
+            }
+        }
+        .hm-prop-body {
+            width:100%; height:100%; border:1px solid @cborder1;
+            padding:@ppTabH/2 + @d1 @d1 @d1 @d1;
+            .hm-prop-con {
+                position: absolute; top:0; left:0; right:0; bottom:0; display: none;
+            }
+            .hm-prop-con[current] {display: block;}
+            //....................................................
+            // 块属性
+            .hm-prop-block {
+                position: relative;
+                .hmpb-pos {
+                    .hmpb-pos-abs {
+                        padding:@d2; text-align: center;
+                        > label {cursor: pointer;}
+                        > label>* {display: inline;}
+                        i {display: inline-block; width:14px; vertical-align: middle;}
+                        i:first-child {display: none;}
+                        i:last-child  {display: inline-block;}
+                    }
+                }
+                // 绝对定位
+                .hmpb-pos[mode="abs"] {
+                    .hmpb-pos-abs{
+                        i:first-child {display: inline-block;}
+                        i:last-child  {display: none;}
+                    }
+                    .hmpb-pos-v:hover {background: @ch1_b; border-color:@ch1_f;}
+                    .hmpb-pos-v[highlight], .hmpb-pos-v[highlight]:hover {
+                        background:@chx_f; border-color:@chx_b;
+                    }
+                    .hmpb-pos-d[show], .hmpb-pos-v{display: block;}
+                }
+                // 位置信息编辑区
+                @boxW : 200px;
+                @boxH : 120px;
+                .hmpb-pos-box {
+                    margin:@d5 auto; width:@boxW; height:@boxH;
+                    border:1px dashed @cborder0;
+                    position: relative;
+
+                    @vS : 12px;
+                    .hmpb-pos-v {display: none;
+                        width:@vS;height:@vS;border-radius: @vS; 
+                        border:1px solid @cborder1; position: absolute;
+                        cursor: pointer;
+                    }
+                    .hmpb-pos-v[md="lt"]{top:@vS/-2;    left:@vS/-2;}
+                    .hmpb-pos-v[md="rt"]{top:@vS/-2;    right:@vS/-2;}
+                    .hmpb-pos-v[md="lb"]{bottom:@vS/-2; left:@vS/-2;}
+                    .hmpb-pos-v[md="rb"]{bottom:@vS/-2; right:@vS/-2;}
+                    .hmpb-pos-d {display: none;
+                        position: absolute; padding:@d2; 
+                        > span {background: @cb1; color:@cf1;}
+                    }
+                    .hmpb-pos-d[key="left"]{top:@boxH/2 - @vS;left:@vS*-1;}
+                    .hmpb-pos-d[key="top"]{top:@vS/-1;left:@vS;right:@vS;text-align: center;}
+                    .hmpb-pos-d[key="right"]{top:@boxH/2 - @vS;right:@vS*-1;}
+                    .hmpb-pos-d[key="bottom"]{bottom:@vS/-1;left:@vS;right:@vS;text-align: center;}
+                    .hmpb-pos-d[key="width"]{bottom:@boxH/2;left:0;right:0;text-align: center;}
+                    .hmpb-pos-d[key="height"]{top:@boxH/2;left:0;right:0;text-align: center;}
+                }
+                .hmpb-form {
+                    position: absolute; left:0; right:0; bottom:0;
+                }
+            } // ~ 块属性
+            //....................................................
+            // 栏属性
+            .hm-prop-area {
+
+            } // ~ 栏属性
+            //....................................................
+            // 控件属性
+            .hm-prop-com {
+
+            } // ~ 控件属性
+            //....................................................
+
+        } // ~ .hm-prop-body
+    } // ~ 属性面板
+    //.............................................................
+    // 主区域
+    .hm-page {
+        border-right:1px solid @cborder1;
+        //.........................................................
+        > .hm-W > div {position: absolute;}
+        .hmpg-stage {
+            top:@panTH; left:@panTH; right:0; bottom:0; 
+            background:#AAB;
+            .hmpg-screen {
+                background: #FFF; width: 100%; height:100%;
+            }
+        }
+        //.........................................................
+        .hmpg-frame-load { display: none;
+            width:380px; height:100%; position: fixed; top:0px; left:0px;
+            border:3px solid red; z-index: 1000; background: rgba(255,255,255,0.8);
+        }
+        //.........................................................
+        .hmpg-ibar {@noselect();
+            top:0;bottom:0;left:0;width:@panTH;
+            border:1px solid @cborder1;
+            border-top: 0; border-bottom: 0;
+            background:@cb2; text-align: center;
+            h4 {
+                line-height: @panTH; border-bottom:1px solid @cborder1;
+            }
+            ul {
+                line-height: @panTH; font-size: @f3; 
+                li {cursor: pointer;}
+                li:hover {color: @ch1_f; background: @ch1_b;}
+                li:before{line-height: @f5; font-size:@f3;}
+            }
+        }
+        //.........................................................
+        .hmpg-sbar {
+            top:0;left:@panTH;right:0; height:@panTH;
+            background:@cb2;
+            > .hm-W > div {position: absolute; top:0;bottom:0;}
+            .hmpg-sbar-com  {left:0;}
+            .hmpg-sbar-page {right:0;}
+            // 菜单的统一属性
+            .menu {
+                padding:@d1 @d2;
+            }
+        }
+        //.........................................................
+    }
+    // ~End of 主区域
+    //.............................................................
+}

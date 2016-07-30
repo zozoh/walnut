@@ -56,7 +56,7 @@ function on_begin() {
     this.$ass = this.$wrapper.children(".mvrz-ass").first();
     this.$con = this.$ass.next();
     this.rect.block = $z.rect(this.$block);
-    this.rect.blockInView = $z.rect_relative(this.rect.block, this.rect.viewport);
+    this.rect.blockInView = $z.rect_relative(this.rect.block, this.rect.viewport, true);
 
     // 调用回调
     $z.invoke(opt, "on_client_begin", [], this);
@@ -88,11 +88,9 @@ function on_ing() {
         this.$mask.attr("mvrz-hd", "move");
     }
     // 最后更新一下块的位置
-    this.rect.blockInView = $z.rect_relative(this.rect.block, this.rect.viewport);
-    this.$block.css($z.rectObj(
-        this.rect.blockInView, 
-        this.options.anchorVertex + ",width,height"
-    ));
+    this.rect.blockInView = $z.rect_relative(this.rect.block, this.rect.viewport, true);
+    $z.invoke(this.options, "updateBlockBy", [this.rect.blockInView], this);
+
     // 回调:改变尺寸
     if(this.hdlMode) {
         $z.invoke(this.options, "on_resize", [this.rect.blockInView], this);
@@ -151,6 +149,20 @@ $.fn.extend({ "moveresizing" : function(opt){
     // 默认是自己的所有 children 被监视移动 
     $z.setUndefined(opt, "trigger", ">*");   // 自己也需要 trigger 的
     $z.setUndefined(opt, "anchorVertex", "top,left");
+
+    // 默认修改 $block 的风格的逻辑
+    if(!_.isNull(opt.updateBlockBy)) {
+        opt.updateBlockBy = opt.updateBlockBy || "top,left,width,height";
+        if(!_.isFunction(opt.updateBlockBy)) {
+            opt.__update_block_by = opt.updateBlockBy;
+            opt.updateBlockBy = function(rect) {
+                this.$block.css($z.rectObj(
+                    this.rect.blockInView, 
+                    this.options.__update_block_by
+                ));
+            };
+        }
+    }
 
     // 为所有的 trigger 创建辅助节点
     this.moveresizing("format");

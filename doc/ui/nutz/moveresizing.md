@@ -90,14 +90,19 @@ $(viewport).moveresizing({
     // 否则表示不自动更新
     anchorVertex : "top,left"
     
+    // 如何修改目标块的位置，默认为 "top,left,width,height"
+    // null 表示不自动修改
+    // 给定函数则表示你自行修改
+    updateBlockBy : "top,left,width,height" | {context}F(rect)
+    
     // 为了保证修改大小的手柄可以显示，需要调整其 zIndex
     // 默认为0，表示采用 css 来设定
     hdlZIndex : 0
         
     // 回调函数，参数是 trigger 的相对于 viewport 的矩形
     // 你也可以用 this.rect.blockInView 来获取
-    on_begin  : {pmvContext}F()    // 开始时
-    on_end    : {pmvContext}F()    // 结束时
+    on_begin  : {context}F()       // 开始时
+    on_end    : {context}F()       // 结束时
     on_move   : {context}F(rect)   // 被移动时触发
     on_resize : {context}F(rect)   // 修改大小时触发
     on_change : {context}F(rect)   // 移动或修改大小均触发
@@ -125,7 +130,7 @@ extend pmvoing.context {
     rect   : {
         ...
         block          // 块对象的尺寸
-        blockInView    // 块对象相对于 viewport 的尺寸
+        blockInView    // 块对象相对于 viewport 的尺寸(CSS描述)
     }
 }
 ```

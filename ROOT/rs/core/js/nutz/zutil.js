@@ -222,6 +222,12 @@
             return dft || 0;
         },
         //.............................................
+        obj : function(key, val) {
+            var re = {};
+            re[key] = val;
+            return re;
+        },
+        //.............................................
         dump : {
             rectV : function(rect) {
                 return $z.tmpl("l:{{left}},r:{{right}},t:{{top}},b:{{bottom}},x:{{x}},y:{{y}}")(rect);
@@ -303,14 +309,43 @@
         },
         //.............................................
         // 得到一个新 Rect，左上顶点坐标系相对于 base
-        rect_relative : function(rect, base) {
+        // 如果给定 forCss=true，则将坐标系统换成 CSS 描述
+        rect_relative : function(rect, base, forCss) {
             var r2 = {
                 width  : rect.width,
                 height : rect.height,
                 top    : rect.top    - base.top,
                 left   : rect.left   - base.left
             };
-            return this.rect_count_tlwh(r2);
+            // 计算其余
+            this.rect_count_tlwh(r2);
+
+            // 返回 
+            return forCss ? this.rectCss(r2, base) : r2;
+        },
+        //.............................................
+        // 将一个矩形转换为得到一个 CSS 的矩形描述
+        // 即 right,bottom 是相对于视口的右边和底边的
+        rectCss : function(rect, vpWidth, vpHeight) {
+            // 支持 {width:xxx, height:xxx} 形式的参数
+            var vp;
+            if(_.isObject(vpWidth)){
+                vp = vpWidth
+            }else {
+                vp = {
+                    width  : vpWidth,
+                    height : vpHeight
+                }
+            }
+            // 计算
+            return {
+                top    : rect.top,
+                left   : rect.left,
+                width  : rect.width,
+                height : rect.height,
+                right  : vp.width  - rect.right,
+                bottom : vp.height - rect.bottom
+            };
         },
         //.............................................
         // 计算相交
@@ -672,9 +707,25 @@
                     }
                 }
                 key = ks[lastIndex];
-                ;
             }
             o[key] = val;
+        },
+        //.............................................
+        // 向普通对象里设置值，如果值是无效的，那么无视
+        setMeaningful : function(obj, key, val) {
+            if(_.isObject(obj) && $z.isMeaningful(val)) {
+                obj[key] = val;
+            }
+        },
+        //.............................................
+        // 判断一个值是否是有意义的
+        // undefined, null, NaN, 空串 都是没意义的
+        isMeaningful : function(v) {
+            if(_.isUndefined(v) || _.isNull(v) || isNaN(v))
+                return false;
+            if(_.isString(v) && v.length == 0)
+                return false;
+            return true;
         },
         //.............................................
         // 向普通对象里添加值
@@ -2159,7 +2210,7 @@
          *
          * @return 转换后字符串
          */
-        lowerWord: function (cs, c) {
+        lowerWord: function (cs, c="-") {
             var sb = "";
             for (var i = 0; i < cs.length; i++) {
                 var ch = cs.charAt(i);
@@ -2188,7 +2239,7 @@
          *
          * @return 转换后字符串
          */
-        upperWord: function (cs, c) {
+        upperWord: function (cs, c="-") {
             var sb = "";
             for (var i = 0; i < cs.length; i++) {
                 var ch = cs.charAt(i);
