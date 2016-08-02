@@ -33,8 +33,6 @@ return ZUI.def("ui.timeline", {
             var tFrom = UI.__get_timeObj(jHour);
             var tTo   = UI.__get_timeObj(jHour, true);
 
-            console.log("create on:", tFrom.key)
-
             // 调用回调，以便创建新块
             $z.invoke(opt, "on_create", [tFrom,tTo, function(tlo){
                 if(tlo) {
@@ -66,11 +64,9 @@ return ZUI.def("ui.timeline", {
         var tFrom = $z.parseTime(tlo.from);
         var tTo   = $z.parseTime(tlo.to);
 
-        var time_text = $z.timeText(tFrom, "12H") + " - " + $z.timeText(tTo, "12H");
         var jBlock = UI.ccode("timeline.obj")
-                        .appendTo(jLayer);
-        jBlock.find("> .tmln-objw > header > dt").text(time_text);
-        jBlock.css(ly.css);
+                        .appendTo(jLayer)
+                        .css(ly.css);
 
         // 保存对象
         jBlock.data("@TLO", tlo);
@@ -90,6 +86,10 @@ return ZUI.def("ui.timeline", {
         var tlo   = jBlock.data("@TLO");
         var tFrom = $z.parseTime(tlo.from);
         var tTo   = $z.parseTime(tlo.to);
+
+        // 修改显示值
+        var time_text = $z.timeText(tFrom, "12H") + " - " + $z.timeText(tTo, "12H");
+        jBlock.find("> .tmln-objw > header > dt").text(time_text);
 
         // 得到 top 和 height 的比例
         var scaleTop    = tFrom.sec / 86400;
@@ -159,42 +159,57 @@ return ZUI.def("ui.timeline", {
                 var jq = $(this.Event.target);
                 // 得到 tmln-obj
                 this.$tmlnObj = jq.closest(".tmln-obj");
-                console.log(jq.html())
                 this.rect.tmlnObj = $z.rect(this.$tmlnObj);
+
+                // 确定最小高度
+                this.minHeight = this.$tmlnObj.find(">.tmln-objw>header").outerHeight(true);
 
                 // 标识遮罩层
                 if(jq.closest("footer").size() > 0){
                     this.aMode = "obj-resize";
                     this.$mask.addClass("tmln-obj-resize");
-                    console.log("resize")
                 }
                 // 否则就是移动
                 else {
                     this.aMode = "obj-move";
                     this.$mask.addClass("tmln-obj-move");
-                    console.log("move")
                 }
             },
             autoUpdateTriggerBy : null,
             boundary : "100%",
-            position : {
+            dposition : {
                 gridX  : "100%",
-                gridY  : "4.1.66667%",
-                stickX : 0,
-                stickY : "4%"
+                gridY  : "2.0833333%",
+                stickX : 1,
+                stickY : 100
             },
             on_ing : function() {
+                var tlo  = this.$tmlnObj.data("@TLO");
+                var tFrom = $z.parseTime(tlo.from);
+                var tTo   = $z.parseTime(tlo.to);
+
                 var css = {}
                 // 模式: move
                 if("obj-move" == this.aMode) {
                     css.top = this.rect.inview.top;
+                    // 改变 from 和 to
+                    var du = tTo.sec - tFrom.sec;
+                    var fromSec = Math.round((css.top / this.rect.viewport.height) * 86400 / 1800) * 1800;
+                    tlo.from = $z.parseTime(fromSec).key;
+                    tlo.to   = $z.parseTime(fromSec + du).key;
                 }
                 // 模式: resize
                 else {
-                    css.height = Math.max(10, this.rect.trigger.bottom - this.rect.tmlnObj.top);
+                    css.height = Math.max(this.minHeight, this.rect.trigger.bottom - this.rect.tmlnObj.top);
+                    // 仅仅改变 to
+                    var toSec = tFrom.sec + Math.round((css.height / this.rect.viewport.height) * 86400 / 1800) * 1800;
+                    tlo.to = $z.parseTime(toSec).key;
                 }
                 // 修改
                 this.$tmlnObj.css(css);
+                
+                // 修改区块的大小
+                UI.__update_obj_display(this.$tmlnObj);
             }
         });
 

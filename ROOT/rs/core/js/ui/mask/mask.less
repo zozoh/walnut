@@ -17,18 +17,22 @@
 
 .ui-mask-closer {
     position: absolute;
-    font-size:@d5; 
-    color:#CCC; background: #000; border:3px solid #888;
-    border-radius: @d7; 
-    display: block;
-    width:@d7; height:@d7; line-height: @d7 - 3px * 2;
-    text-align: center;
+    font-size:@f4; font-family: 'Material-Design-Iconic-Font';
     cursor:pointer; 
+    color:@cbtn_f; background-color: @cbtn_b; 
+    border-radius: 100px; border:2px solid @cbtn_l;
+    line-height: @d6; width:@d6 + 4px; text-align: center;
+    transition:0.2s;
+}
+.ui-mask-closer:before {
+    display: "inline";
+    content: "\f136";
 }
 
 .ui-mask-closer:hover {
-    color:#FFF; border-color:#FFF;
-    box-shadow:0 0 4px #FFF;
+    background-color: @ch0_b; color:@ch0_f; border-color:@cborder1;
+    font-size:1.2em; font-weight: bold;
+    transform: scale(1.2) rotate(360deg);
 }
 
 .ui-mask-main {

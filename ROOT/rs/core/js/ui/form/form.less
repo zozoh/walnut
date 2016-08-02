@@ -34,7 +34,8 @@
 
 .fg-title { @noselect();
     padding:@d2; margin: @d2 0 0 0; font-size:@f4;
-    color:@cf1; background: rgba(255,255,255,0.1); border:1px solid rgba(0,0,0,0);
+    color:@cf1; background: rgba(255,255,255,0.1); border:1px solid rgba(0,0,0,0.0);
+    border-bottom-color: rgba(0,0,0,0.2);
     position: relative; cursor: pointer;
     .fg-tt-icon {
         margin:0 @d2;
@@ -49,6 +50,16 @@
     position: relative;
 }
 .form-fld[first-row]{border:0;}
+
+.ff-prompt {
+    position: absolute; top:0; bottom:0; left:0;  font-size:1.2em;
+    padding:@d5; display: none;
+}
+
+.form-fld[form-prompt] .ff-prompt{
+    display: block;
+}
+
 
 .ff-txt, .ff-val {
     display: inline-block; vertical-align: top; 

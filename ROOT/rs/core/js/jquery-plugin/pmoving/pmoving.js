@@ -249,7 +249,7 @@ function on_mousedown(e) {
     };
     //.........................................
     // 设置一个全局遮罩层
-    var jMask = $('<div class="pmv-mask">').appendTo(document.body).css({
+    var jMask = $('<div class="pmv-mask">').appendTo(pmvContext.$viewport[0].ownerDocument.body).css({
         position : "fixed", top:0, left:0, right:0, bottom:0,
         "z-index" : opt.maskZIndex
     });
@@ -438,7 +438,7 @@ $.fn.extend({ "pmoving" : function(opt){
                 // 开始计算这两个偏移量
                 var offX = 0;
                 var offY = 0;
-                //console.log("before", $z.rectObj(this.rect.trigger, "top,left,x,y"))
+                // console.log("before", $z.rectObj(this.rect.trigger, "top,left,x,y"))
                 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 // 根据中点来吸附
                 if("center" == this.__grid.by) {

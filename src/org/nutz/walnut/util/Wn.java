@@ -100,10 +100,10 @@ public abstract class Wn {
         if (Strings.isBlank(str))
             return null;
 
-        if (str.startsWith("id:")) {
-            String id = str.substring("id:".length());
-            return io.get(id);
-        }
+        // if (str.startsWith("id:")) {
+        // String id = str.substring("id:".length());
+        // return io.get(id);
+        // }
 
         return io.fetch(null, str);
     }

@@ -5,7 +5,7 @@ var html = function(){/*
 <div class="ui-arena" ui-fitparent="yes">
     <div class="ui-mask-bg"></div>
     <div class="ui-mask-main" ui-gasket="main"></div>
-    <div class="ui-mask-closer"><i class="fa fa-close"></i></div>
+    <div class="ui-mask-closer"></div>
 </div>
 */};
 //===================================================================

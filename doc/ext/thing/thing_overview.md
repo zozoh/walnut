@@ -23,9 +23,8 @@ Walnut 的 `WnObj` 是对所有的数据进行的最高级的抽象。 因为抽
 你可以认为任何一个目录下面，都存放了一组（可能是海量）的 *thing*，通常它的目录结构为:
 
 ```
-# 带有 thing 元数据的目录被认为是一个 ThingSet
-@DIR {thing:"xxxx"}   # 集合内每个 Thing 的物品种类名称，支持 i18n:xxx 形式
-    thing_init        # 初始化配置，是 app-init 支持的配置文件格式
+# 带有 thing_set 类型的目录被认为是一个 ThingSet
+@DIR {tp:"thing_set"} # 特殊类型目录
     thing.json        # 每个 Thing 的定义
     cate              # ［选］表示 Thing 的分类
         cateA         # 每个分类就是一个子目录
@@ -48,7 +47,7 @@ Walnut 的 `WnObj` 是对所有的数据进行的最高级的抽象。 因为抽
 # ThingSet
 
 ```
-thing  : "i18n:xxx"   // 标识了东西的名称
+tp : "thing_set" // 目录类型是 thing_set
 //...........................................
 icon  : HTML     // 小图标
 thumb : ID       // 缩略图ID  @see 缩略图机制

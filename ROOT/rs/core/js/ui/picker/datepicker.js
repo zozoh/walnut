@@ -19,7 +19,7 @@ var html = function(){/*
                     <b class="pm-btn-cancel">{{cancel}}</b>
                 </div>
             </div></div>
-            <div class="ui-mask-closer"><i class="fa fa-close"></i></div>
+            <div class="ui-mask-closer"></div>
         </div>
     </div>
 </div>

@@ -737,17 +737,51 @@ ZUIObj.prototype = {
         // 普通字符串
         return str;
     },
+    // 对于控件 DOM 中所有的元素应用 data-balloon 的设定
+    // 查找属性 "balloon" 格式是 "方向:msgKey"
+    // selector 如果不给，默认是 "*"
+    balloon : function(selector, enabled) {
+        var UI = this;
+
+        if(false === selector) {
+            selector = "*";
+            enabled = false;
+        }
+        if(_.isUndefined(enabled))
+            enabled = true;
+
+        // 启用
+        if(enabled) {
+            UI.arena.find(selector || "*").filter('[balloon]').each(function(){
+                var jq = $(this);
+                var ss = jq.attr("balloon").split(/\W*:\W*/);
+                jq.attr({
+                    "data-balloon" : UI.msg(ss[1]),
+                    "data-balloon-pos" : ss[0]
+                });
+            });
+        }
+        // 取消
+        else {
+            UI.arena.find(selector || "*").filter('[balloon]').each(function(){
+                $(this)
+                    .removeAttr("data-balloon")
+                    .removeAttr("data-balloon-pos");
+            });
+        }
+    },
     // 在某区域显示读取中，如果没有指定区域，则为整个 arena
     showLoading : function(selector){
         var html = '<div class="ui-loading">';
         html += '<i class="fa fa-spinner fa-pulse"></i> <span>'+this.msg("loading")+'</span>';
         html += '</div>';
-
-        var jq = selector ? $(selector) : this.arena;
-        jq.empty().html(html);
+        var rect = $z.rect(this.$pel);
+        $(html).appendTo(this.$el).css(_.extend({
+            "position" : "fixed",
+        }, $z.rectObj(rect,"top,left,width,height")));
     },
     hideLoading : function(){
-        this.arena.find(".ui-loading").remove();
+        this.$el.find(".ui-loading").remove();
     },
     // 根据路径获取一个子 UI
     subUI : function(uiPath){
@@ -819,8 +853,8 @@ ZUIObj.prototype = {
     },
     //............................................
     // 监听本 UI 的模块事件
-    listenModel: function (event, handler) {
-        this._listen_to(this.model, event, handler);
+    listenSelf: function (event, handler) {
+        this._listen_to(this, event, handler);
     },
     // 监听本 UI 的父UI事件
     listenParent : function(event, handler) {

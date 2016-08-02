@@ -19,3 +19,16 @@
   left: 50%;
   border-left: 1px solid #d0d0d0;
 }
+.thing .th-err {
+  padding: 48px;
+  font-size: 32px;
+  color: #ff0000;
+}
+.thing .th-blank {
+  padding: 48px;
+  font-size: 24px;
+  color: #888888;
+}
+.thing .th-form .th-con {
+  padding-left: 6px;
+}

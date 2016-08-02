@@ -8,79 +8,36 @@ $z.declare([
 // 快捷菜单项
 var quick_menus = {
     "refresh" : {
-        key   : "srh_refresh",
         text  : "i18n:refresh",
         handler : function(){
             this.refresh();
         }
     },
     "delete" : {
-        key   : "srh_delete",
         text  : "i18n:delete",
         handler : function(){
-            var UI   = this;
-            var objs = UI.uiList.getChecked();
-            if(!objs || objs.length == 0){
-                alert(UI.msg("srh.e.nochecked"));
-                return;
-            }
-            // 警告
-            if(!confirm(UI.msg("delwarn"))){
-                return;
-            }
-            // 开始执行 ...
-            var opt  = UI.options;
-            var tmpl = $z.tmpl(opt.edtCmdTmpl["delete"]);
-            var str = "";
-            objs.forEach(function(obj){
-                str += tmpl(obj) + ";\n";
-            });
-            UI.exec(str, function(){
-                var jN2 = null;
-                for(var i=0; i<objs.length; i++){
-                    jN2 = UI.uiList.remove(objs[i].id);
-                }
-                if(jN2){
-                    UI.uiList.setActived(jN2);
-                }
-            });
+            this.deleteChecked();
         }
     },
     // 只有表格的时候才能生效
     "create" : {
-        key   : "srh_new",
         text  : "i18n:new",
         handler : function(){
-            var UI   = this;
-            var opt  = UI.options;
-            _pop_form_mask(UI, "i18n:new",{},opt.edtCmdTmpl["create"],function(newObj){
-                UI.uiList.add(newObj).setActived(UI.uiList.getObjId(newObj));
-                UI.uiList.resize();
-            });
+            this.openCreateMask();
         }
     },
     // 只有表格的时候才能生效
     "edit" : {
-        key   : "srh_edit",
         text  : "i18n:edit",
         handler : function(){
-            var UI   = this;
-            var obj  = UI.uiList.getActived();
-            if(!obj){
-                alert(UI.msg("srh.e.noactived"));
-                return;
-            }
-            // 开始执行 ...
-            var opt  = UI.options;
-            _pop_form_mask(UI, "i18n:edit",obj,opt.edtCmdTmpl["edit"],function(newObj){
-                UI.uiList.update(newObj);
-            });
+            this.openEditMask();
         }
     }
 };
 //...............................................................
 function _pop_form_mask(UI, title, obj, cmdTmpl, callback){
     var opt = UI.options;
+    console.log(opt.list.uiConf.fields)
     new MaskUI(_.extend({}, opt.maskConf, {
         dom   : UI.ccode("formmask").html(),
         i18n  : UI._msg_map,
@@ -136,7 +93,7 @@ var html = function(){/*
                     <b class="srh-qform-cancel">{{cancel}}</b>
                 </div>
             </div></div>
-            <div class="ui-mask-closer"><i class="fa fa-close"></i></div>
+            <div class="ui-mask-closer"></div>
         </div>
     </div>
 </div>
@@ -196,12 +153,16 @@ return ZUI.def("ui.srh", {
         
         //...........................................
         // 检查菜单, string 表示的为快捷菜单项
-        if(opt.menu){
+        if(_.isArray(opt.menu)){
             for(var i=0; i<opt.menu.length; i++){
                 var mi = opt.menu[i];
                 // 快捷菜单
                 if(_.isString(mi)){
-                    opt.menu[i] = quick_menus[mi];
+                    opt.menu[i] = _.extend({}, quick_menus[mi]);
+                }
+                // 自定义的快捷菜单
+                else if(mi.qkey){
+                    opt.menu[i] = _.extend({}, quick_menus[mi.qkey], mi);
                 }
             }
         }
@@ -306,6 +267,63 @@ return ZUI.def("ui.srh", {
         return this.uiList.getFieldType(key);
     },
     //...............................................................
+    // 删除选中的项目
+    deleteChecked : function(){
+        var UI   = this;
+        var objs = UI.uiList.getChecked();
+        if(!objs || objs.length == 0){
+            alert(UI.msg("srh.e.nochecked"));
+            return;
+        }
+        // 警告
+        if(!confirm(UI.msg("delwarn"))){
+            return;
+        }
+        // 开始执行 ...
+        var opt  = UI.options;
+        var tmpl = $z.tmpl(opt.edtCmdTmpl["delete"]);
+        var str = "";
+        objs.forEach(function(obj){
+            str += tmpl(obj) + ";\n";
+        });
+        UI.exec(str, function(){
+            var jN2 = null;
+            for(var i=0; i<objs.length; i++){
+                jN2 = UI.uiList.remove(objs[i].id);
+            }
+            if(jN2){
+                UI.uiList.setActived(jN2);
+            }
+        });
+    },
+    //...............................................................
+    // 弹出创建对象的表单 
+    openCreateMask : function(){
+        var UI   = this;
+        var opt  = UI.options;
+        _pop_form_mask(UI, "i18n:new",{},opt.edtCmdTmpl["create"],function(newObj){
+            UI.uiList.add(newObj).setActived(UI.uiList.getObjId(newObj));
+            UI.uiList.resize();
+        });
+    },
+    //...............................................................
+    // 弹出编辑对象的表单，str 表示某对象的下标或者ID 如果不传，那么将选择当前的对象
+    openEditMask : function(str) {
+        var UI   = this;
+        var obj = _.isUndefined(str)
+                    ? UI.uiList.getActived()
+                    : UI.uiList.getData(str);
+        if(!obj){
+            alert(UI.msg("srh.e.noactived"));
+            return;
+        }
+        // 开始执行 ...
+        var opt  = UI.options;
+        _pop_form_mask(UI, "i18n:edit",obj,opt.edtCmdTmpl["edit"],function(newObj){
+            UI.uiList.update(newObj);
+        });
+    },
+    //...............................................................
     resize : function(deep){
         var UI = this;
         var jSky = UI.arena.find(".srh-sky");
@@ -394,10 +412,12 @@ return ZUI.def("ui.srh", {
         var activedId = UI.uiList.getActivedId();
         
         // 显示正在加载数据
-        $z.invoke(UI.uiList, "showLoading");
+        UI.uiList.showLoading();
 
         // 组合成查询条件，执行查询
         $z.evalData(UI.options.data, qc, function(re){
+            UI.uiList.hideLoading();
+
             // 将查询的结果分别设置到列表以及分页器里
             UI.uiList.setData(re ? re.list : []);
             UI.uiPager.setData(re.pager);
