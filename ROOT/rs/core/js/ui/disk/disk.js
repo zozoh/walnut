@@ -221,6 +221,8 @@ define(function (require, exports, module) {
     var ASC = "ASC";
 
     var PLAY_MAP = {
+        'json': 'plainText',
+        'js': 'plainText',
         'txt': 'plainText',
         'jpg': 'image',
         'jpeg': 'image',
