@@ -2,11 +2,12 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/form/form'
-], function(ZUI, Wn, FormUI){
+    'ui/form/form',
+    'app/wn.hmaker2/hm__methods',
+], function(ZUI, Wn, FormUI, HmMethods){
 //==============================================
 var html = function(){/*
-<div class="ui-arena hm-prop-block" ui-fitparent="yes">
+<div class="ui-arena hm-prop-block">
     <div class="hmpb-pos" mode="abs">
         <div class="hmpb-pos-box">
             <div class="hmpb-pos-d" key="left"><span><b>{{hmaker.pos.left}}</b><em></em></span></div>
@@ -31,14 +32,19 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.hm_prop_block", {
+return ZUI.def("app.wn.hm_prop_edit_block", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
+    //...............................................................
+    init : function() {
+        var UI = HmMethods(this);
+    },
     //...............................................................
     events : {
         "click .hmpb-pos-abs label" : function() {
+            console.log("haha")
             var UI = this;
             var md = UI.arena.find(".hmpb-pos").attr("mode") == "abs" ? "inflow" : "abs";
-            this.fire("block:change", {
+            this.fire("change:block", {
                 "mode" : md
             });
         },
@@ -54,7 +60,7 @@ return ZUI.def("app.wn.hm_prop_block", {
             var rect   = UI.pageUI().getBlockRectInCss();
             var posVal = UI.transRectToPosVal(rect, posBy);
 
-            this.fire("block:change", {
+            this.fire("change:block", {
                 "posBy"  : posBy,
                 "posVal" : posVal
             });
@@ -127,7 +133,7 @@ return ZUI.def("app.wn.hm_prop_block", {
 
         // 其他属性
         var dd = _.omit(prop, "mode", "posBy", "posVal");
-        console.log(dd)
+        //console.log(dd)
         UI.gasket.form.update(dd);
     },
     //...............................................................
@@ -143,7 +149,7 @@ return ZUI.def("app.wn.hm_prop_block", {
             gasketName : "form",
             uiWidth: "all",
             on_change : function(key, val) {
-                UI.fire("block:change", $z.obj(key, val));
+                UI.fire("change:block", $z.obj(key, val));
             },
             fields : [{
                 key    : "padding",

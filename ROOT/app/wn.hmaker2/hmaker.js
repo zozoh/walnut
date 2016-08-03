@@ -3,17 +3,20 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/form/form',
-    'app/wn.hmaker2/hm_ui_methods',
-    'app/wn.hmaker2/hm_panel_methods',
+    'app/wn.hmaker2/hm__methods',
+    'app/wn.hmaker2/hm__methods_panel',
     'app/wn.hmaker2/hm_resource',
     'app/wn.hmaker2/hm_page',
-    'app/wn.hmaker2/hm_page_prop',
+    'app/wn.hmaker2/hm_prop',
     'app/wn.hmaker2/hm_folder',
-    'app/wn.hmaker2/hm_unknown',
-], function(ZUI, Wn, FormUI, SetupHmUI, SetupPanelUI, 
+    'app/wn.hmaker2/hm_other',
+], function(ZUI, Wn, FormUI, 
+    HmMethods, HmPanelMethods, 
     HmResourceUI, 
-    HmPageUI, HmPagePropUI,
-    HmFolderUI, HmUnknownUI){
+    HmPageUI, 
+    HmPropUI,
+    HmFolderUI, 
+    HmOtherUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena hmaker" ui-fitparent="yes">
@@ -32,7 +35,7 @@ return ZUI.def("app.wn.hmaker2", {
     init : function() {
         var UI = this;
         
-        UI.listenSelf("rs:actived", function(o){
+        UI.listenSelf("active:rs", function(o){
             UI.changeMain(o);
         });
     },
@@ -40,17 +43,28 @@ return ZUI.def("app.wn.hmaker2", {
     redraw : function(){
         var UI  = this;
         
-        SetupPanelUI(new HmResourceUI({
+        // 资源面板
+        HmPanelMethods(new HmResourceUI({
             parent : UI,
             gasketName : "resource"
         })).render(function(){
             UI.defer_report("resource");
         });
 
-        return ["resource"];
+        // 属性面板
+        HmPanelMethods(new HmPropUI({
+            parent : UI,
+            gasketName : "prop"
+        })).render(function(){
+            UI.defer_report("prop");
+        });
+
+        // 返回延迟加载
+        return ["resource", "prop"];
     },
     //...............................................................
     update : function(o) {
+        this.__home_id = o.id;
         this.gasket.resource.update(o);
     },
     //...............................................................
@@ -66,25 +80,18 @@ return ZUI.def("app.wn.hmaker2", {
         // 如果是网页，显示 PageUI
         else if(/^text\/html$/.test(o.mime)){
             MainUI = HmPageUI;
-            PropUI = HmPagePropUI;
         }
         // 其他的显示错误的 UI
         else {
-            MainUI = HmUnknownUI;
-            PropUI = HmPagePropUI;
+            MainUI = HmOtherUI;
         }
 
-        // 首先加载属性
-        SetupPanelUI(new PropUI({
+        // 加载主界面
+        HmMethods(new MainUI({
             parent : UI,
-            gasketName : "prop"
+            gasketName : "main"
         })).render(function(){
-            SetupHmUI(new MainUI({
-                parent : UI,
-                gasketName : "main"
-            })).render(function(){
-                this.update(o);
-            });
+            this.update(o);
         });
     },
     //...............................................................

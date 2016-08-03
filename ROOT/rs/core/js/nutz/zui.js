@@ -165,7 +165,7 @@ var register = function(UI) {
 // 定义一个 UI 的原型
 var ZUIObj = function(){};
 ZUIObj.prototype = {
-    nutz_ui_version : "1.0",
+    nutz_ui_version : "1.3",
     //............................................
     // Backbone.View 的初始化函数
     __init__: function (options) {

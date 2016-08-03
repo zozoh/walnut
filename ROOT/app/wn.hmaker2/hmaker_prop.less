@@ -1,0 +1,108 @@
+@import (reference) "../ui";
+
+// 编辑属性面板
+@ppTabH : 28px;
+.hmaker .hm-prop-edit {
+    position:relative; padding:@ppTabH/2 + @d2 @d2 @d2 @d2;
+    .hm-prop-tabs {
+        position: absolute; top:@d2; left:0; right:0; height:@ppTabH; 
+        ul {
+            @flex(); justify-content: center;
+            li {
+                height:@ppTabH; line-height: @ppTabH - 1; 
+                border:1px solid @cborder1; border-left:0;
+                min-width: 80px; text-align: center; padding:0 @d2; font-size:@f2;
+                background: @cb1; color:@cf1; cursor: pointer; 
+            }
+            li:first-child {
+                border-left:1px solid @cborder1;
+                border-radius: @d2 0 0 @d2;
+            }
+            li:last-child {
+                border-radius: 0 @d2 @d2 0;
+            }
+            li[current] {background: @ch0_b; color:@ch0_f;}
+        }
+    }
+    .hm-prop-body {
+        width:100%; height:100%; border:1px solid @cborder1;
+        padding:@ppTabH/2 + @d1 @d1 @d1 @d1;
+        .hm-prop-con {
+            position: absolute; top:0; left:0; right:0; bottom:0; display: none;
+            > * {width:100%; height:100%;}
+        }
+        .hm-prop-con[current] {display: block;}
+        //....................................................
+        // 块属性
+        .hm-prop-block {
+            position: relative; width:100%; height:100%;
+            .hmpb-pos {
+                .hmpb-pos-abs {
+                    padding:@d2; text-align: center;
+                    > label {cursor: pointer;}
+                    > label>* {display: inline;}
+                    i {display: inline-block; width:14px; vertical-align: middle;}
+                    i:first-child {display: none;}
+                    i:last-child  {display: inline-block;}
+                }
+            }
+            // 绝对定位
+            .hmpb-pos[mode="abs"] {
+                .hmpb-pos-abs{
+                    i:first-child {display: inline-block;}
+                    i:last-child  {display: none;}
+                }
+                .hmpb-pos-v:hover {background: @ch1_b; border-color:@ch1_f;}
+                .hmpb-pos-v[highlight], .hmpb-pos-v[highlight]:hover {
+                    background:@chx_f; border-color:@chx_b;
+                }
+                .hmpb-pos-d[show], .hmpb-pos-v{display: block;}
+            }
+            // 位置信息编辑区
+            @boxW : 200px;
+            @boxH : 120px;
+            .hmpb-pos-box {
+                margin:@d5 auto; width:@boxW; height:@boxH;
+                border:1px dashed @cborder0;
+                position: relative;
+
+                @vS : 12px;
+                .hmpb-pos-v {display: none;
+                    width:@vS;height:@vS;border-radius: @vS; 
+                    border:1px solid @cborder1; position: absolute;
+                    cursor: pointer;
+                }
+                .hmpb-pos-v[md="lt"]{top:@vS/-2;    left:@vS/-2;}
+                .hmpb-pos-v[md="rt"]{top:@vS/-2;    right:@vS/-2;}
+                .hmpb-pos-v[md="lb"]{bottom:@vS/-2; left:@vS/-2;}
+                .hmpb-pos-v[md="rb"]{bottom:@vS/-2; right:@vS/-2;}
+                .hmpb-pos-d {display: none;
+                    position: absolute; padding:@d2; 
+                    > span {background: @cb1; color:@cf1;}
+                }
+                .hmpb-pos-d[key="left"]{top:@boxH/2 - @vS;left:@vS*-1;}
+                .hmpb-pos-d[key="top"]{top:@vS/-1;left:@vS;right:@vS;text-align: center;}
+                .hmpb-pos-d[key="right"]{top:@boxH/2 - @vS;right:@vS*-1;}
+                .hmpb-pos-d[key="bottom"]{bottom:@vS/-1;left:@vS;right:@vS;text-align: center;}
+                .hmpb-pos-d[key="width"]{bottom:@boxH/2;left:0;right:0;text-align: center;}
+                .hmpb-pos-d[key="height"]{top:@boxH/2;left:0;right:0;text-align: center;}
+            }
+            .hmpb-form {
+                position: absolute; left:0; right:0; bottom:0;
+            }
+        } // ~ 块属性
+        //....................................................
+        // 栏属性
+        .hm-prop-area {
+
+        } // ~ 栏属性
+        //....................................................
+        // 控件属性
+        .hm-prop-com {
+
+        } // ~ 控件属性
+        //....................................................
+
+    } // ~ .hm-prop-body
+} // ~ 编辑属性面板
+    

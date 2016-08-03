@@ -8,17 +8,27 @@
 
 body {margin:0;}
 
+//............................................................
+// 块:绝对位置
 .hm-block[hmb-mode="abs"] {
     .hmb-con {
         width: 100%; height:100%; position: relative;
-    }
-    .hmb-area {
-        width: 100%; height:100%; position: relative;
+        .mvrz-ass {display: none;}
+
+        .hmb-area {
+            width: 100%; height:100%; position: relative;
+        }
     }
 }
 
+.hm-block[hmb-mode="abs"][hm-actived] .hmb-con .mvrz-ass {
+    @flex(); border:1px dotted #0FF;
+}
+
+//............................................................
+// 移动鼠标的遮罩
 .hm-page-move-mask {
     .pmv-helper {
-        background: rgba(255,0,0,0.2);
+        background: rgba(255,255,0,0.4);
     }
 }

@@ -2,9 +2,10 @@
 $z.declare([
     'zui',
     'wn/util',
+    'app/wn.hmaker2/hm__methods_panel',
     'ui/menu/menu',
-    'ui/tree/tree'
-], function(ZUI, Wn, MenuUI, TreeUI){
+    'ui/tree/tree',
+], function(ZUI, Wn, HmPanelMethods, MenuUI, TreeUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena hm-panel hm-resource" ui-fitparent="yes">
@@ -23,7 +24,8 @@ return ZUI.def("app.wn.hmaker_resource", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     reloadPage : function(aid){
-        var UI = this;
+        var UI = HmPanelMethods(this);
+        
         aid = aid || UI.uiTree.getActivedId();
 
         // 清除缓存
@@ -137,7 +139,7 @@ return ZUI.def("app.wn.hmaker_resource", {
                 UI.local("last_open_obj_id", o.id);
 
                 // 激活
-                UI.fire("rs:actived", o);
+                UI.fire("active:rs", o);
             },
             // on_blur : function() {
             //     UI.local("last_open_obj_id", null);

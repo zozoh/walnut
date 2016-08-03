@@ -721,7 +721,9 @@
         // 判断一个值是否是有意义的
         // undefined, null, NaN, 空串 都是没意义的
         isMeaningful : function(v) {
-            if(_.isUndefined(v) || _.isNull(v) || isNaN(v))
+            if(_.isUndefined(v) || _.isNull(v))
+                return false;
+            if(_.isNumber(v) && isNaN(v))
                 return false;
             if(_.isString(v) && v.length == 0)
                 return false;

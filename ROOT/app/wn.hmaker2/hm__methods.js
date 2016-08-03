@@ -7,10 +7,21 @@ var methods = {
         }
         return UI;
     },
+    // 得到站点主目录
+    getHomeObj : function() {
+        var uiHMaker = this.hmaker();
+        return Wn.getById(uiHMaker.__home_id);
+    },
+    // 监听消息
+    listenBus : function(event, handler){
+        var uiHMaker = this.hmaker();
+        this.listenUI(uiHMaker, event, handler);
+    },
     // 发送消息
     fire : function() {
         var args = Array.from(arguments);
         var uiHMaker = this.hmaker();
+        //console.log("fire", args)
         uiHMaker.trigger.apply(uiHMaker, args);
     },
     // 得到 HmPageUI，如果不是，则抛错
@@ -39,7 +50,7 @@ var methods = {
         return _.values(re).join(",");
     }
 
-}; // ~End wn
+}; // ~End methods
 //====================================================================
 
 //====================================================================

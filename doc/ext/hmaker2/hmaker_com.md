@@ -90,40 +90,20 @@ tags:
 
 hmaker 的子 UI 可以监听下列通知:
 
- Message      | Params        | Comments 
---------------|---------------|----------
-prop:update   | key,val       | 属性面板被编辑
-rs:actived    | o             | 选中资源项目
-rs:blur       | o             | 资源项目失去焦点
-com:actived   | jCom          | 组件被激活
-com:change    | {..}          | 组件被修改
-area:actived  | jArea         | 栏被激活
-area:change   | {..}          | 栏被修改
-block:actived | jBlock        | 块被激活
-block:change  | {..}          | 块被修改
-page:actived  | *--*          | 整个页面被激活
+ Message        | Params        | Comments 
+----------------|---------------|----------
+active:rs       | o             | 选中资源项目
+active:folder   | o             | 文件夹被激活
+active:other    | o             | 其他对象被激活
+active:page     | o             | 页面被激活
+active:block    | jBlock        | 块被激活
+active:area     | jArea         | 栏被激活
+active:com      | jCom          | 组件被激活
+change:block    | {..}          | 块被修改
+change:area     | {..}          | 栏被修改
+change:com      | {..}          | 组件被修改
 
 
-# 一些主要的调用逻辑
-
-## 打开一个文件
-
-```
-1. resource.actived -> rs:actived(o)
-2. hmaker.changeMain(o) {
-    网页 ?= o
-    hm_page.update(o)
-    
-    文件夹 ?= o
-    hm_folder.update(o)
-}
-```
-
-## 加载网页的编辑界面
-
-```
-
-```
 
 # 页面保存时的逻辑
 
@@ -131,6 +111,45 @@ page:actived  | *--*          | 整个页面被激活
 
 ```
 
+# 组件方法
+
+## getData
+
+获取数据，会调用控件实现类的 `getProp` 获取额外方法
+
+```
+{
+    _seq   : 1,      # 序号
+    _type  : "text", # 类型
+    
+    ... 剩下的由 getProp 来填充
+}
+```
+
+## setData
+
+根据数据设置显示
+
+## getProp
+
+子类实现
+
+## paint
+
+子类实现，绘制 `$el` 区域的 DOM 显示
+
+## setupProp
+
+子类实现，返回属性面板的自定义设置，返回的数据格式为
+
+```
+{
+    uiType : "xxxxx",    # UI 的定义
+    uiConf : {           # UI 的配置信息
+        ...
+    }
+}
+```
 
 
 

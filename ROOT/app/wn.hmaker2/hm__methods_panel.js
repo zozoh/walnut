@@ -4,15 +4,15 @@ var methods = {
     setTitle : function(titleKey) {
         this.arena.find(">header .hmpn-tt").html(this.msg(titleKey));
     }
-}; // ~End wn
+}; // ~End methods
 //====================================================================
 // 得到 HMaker 所有 UI 对象的方法
-var HmUiMethods = require("app/wn.hmaker2/hm_ui_methods");
+var HmMethods = require("app/wn.hmaker2/hm__methods");
 
 //====================================================================
 // 输出
 module.exports = function(uiPanel){
-    return _.extend(HmUiMethods(uiPanel), methods);
+    return _.extend(HmMethods(uiPanel), methods);
 };
 //=======================================================================
 });

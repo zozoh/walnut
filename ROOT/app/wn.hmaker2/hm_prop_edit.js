@@ -3,45 +3,38 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/menu/menu',
-    'app/wn.hmaker2/hm_ui_methods',
-    'app/wn.hmaker2/hm_page_prop_block'
+    'app/wn.hmaker2/hm__methods',
+    'app/wn.hmaker2/hm_prop_edit_block'
 ], function(ZUI, Wn, MenuUI, 
-    SetupHmUI,
-    HmPagePropBlockUI){
+    HmMethods,
+    EditBlockUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena hm-panel hm-prop" ui-fitparent="yes">
-    <header>
+<div class="ui-arena hm-prop-edit" ui-fitparent="yes">
+    <div class="hm-prop-tabs">
         <ul class="hm-W">
-            <li class="hmpn-tt"><i class="zmdi zmdi-settings"></i> {{hmaker.prop.title}}</li>
-            <li class="hmpn-opt" ui-gasket="opt"></li>
-            <li class="hmpn-pin"><i class="fa fa-thumb-tack"></i></li>
+            <li ptype="block"><%=hmaker.prop.tab_block%></li>
+            <li ptype="area"><%=hmaker.prop.tab_area%></li>
+            <li ptype="com"><%=hmaker.prop.tab_com%></li>
         </ul>
-    </header>
-    <section>
-        <div class="hm-prop-tabs">
-            <ul class="hm-W">
-                <li ptype="block"><%=hmaker.prop.tab_block%></li>
-                <li ptype="area"><%=hmaker.prop.tab_area%></li>
-                <li ptype="com"><%=hmaker.prop.tab_com%></li>
-            </ul>
-        </div>
-        <div class="hm-prop-body"><div class="hm-W">
-            <div class="hm-prop-con" ptype="block" ui-gasket="block"></div>
-            <div class="hm-prop-con" ptype="area"  ui-gasket="area">现在还没啥可设置的，无视我吧</div>
-            <div class="hm-prop-con" ptype="com"   ui-gasket="com">I am com</div>
-        </div></div>
-    </section>
+    </div>
+    <div class="hm-prop-body"><div class="hm-W">
+        <div class="hm-prop-con" ptype="block" ui-gasket="block"></div>
+        <div class="hm-prop-con" ptype="area"  ui-gasket="area">现在还没啥可设置的，无视我吧</div>
+        <div class="hm-prop-con" ptype="com"   ui-gasket="com"></div>
+    </div></div>
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.hmaker_page_prop", {
+return ZUI.def("app.wn.hm_prop_edit", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     init : function() {
-        var UI = this;
-        UI.listenParent("block:actived", UI.activeBlock);
-        UI.listenParent("block:change",  UI.updateBlock);
+        var UI = HmMethods(this);
+
+        UI.listenBus("active:block",  UI.activeBlock);
+        UI.listenBus("change:block",  UI.updateBlock);
+        UI.listenBus("change:com",    UI.changeCom);
     },
     //...............................................................
     events : {
@@ -57,10 +50,10 @@ return ZUI.def("app.wn.hmaker_page_prop", {
         UI.switchTab();
 
         // 块元素的属性编辑器
-        SetupHmUI(new HmPagePropBlockUI({
+        new EditBlockUI({
             parent : UI,
             gasketName : "block"
-        })).render(function(){
+        }).render(function(){
             UI.defer_report("block");
         });
 
@@ -77,6 +70,8 @@ return ZUI.def("app.wn.hmaker_page_prop", {
 
         UI.arena.find('.hm-prop-con').removeAttr("current")
             .filter('[ptype="'+ptype+'"]').attr("current", "yes");
+
+        UI.resize(true);
     },
     //...............................................................
     activeBlock : function(jBlock) {
@@ -94,7 +89,11 @@ return ZUI.def("app.wn.hmaker_page_prop", {
         this.gasket.block.update(prop);
     },
     //...............................................................
-    updateCom : function(uiDef) {
+    changeCom : function(com) {
+        console.log("edit> change:com", com);
+    },
+    //...............................................................
+    drawCom : function(uiDef, callback) {
         var UI = this;
         // 先销毁
         if(UI.gasket.body)
@@ -107,11 +106,10 @@ return ZUI.def("app.wn.hmaker_page_prop", {
         // 设置
         else {
             seajs.use(uiDef.uiType, function(PropUI){
-                new PropUI(_.extend({}, uiConf||{}, {
+                new PropUI(_.extend({}, uiDef.uiConf||{}, {
                     parent : UI,
-                    gasketName : "body"
+                    gasketName : "com"
                 })).render(function(){
-                    // 回调
                     $z.doCallback(callback, [this], UI);
                 });
             });

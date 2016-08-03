@@ -11,11 +11,19 @@ body {
   height: 100%;
   position: relative;
 }
-.hm-block[hmb-mode="abs"] .hmb-area {
+.hm-block[hmb-mode="abs"] .hmb-con .mvrz-ass {
+  display: none;
+}
+.hm-block[hmb-mode="abs"] .hmb-con .hmb-area {
   width: 100%;
   height: 100%;
   position: relative;
 }
+.hm-block[hmb-mode="abs"][hm-actived] .hmb-con .mvrz-ass {
+  display: -webkit-flex;
+  display: flex;
+  border: 1px dotted #0FF;
+}
 .hm-page-move-mask .pmv-helper {
-  background: rgba(255, 0, 0, 0.2);
+  background: rgba(255, 255, 0, 0.4);
 }
