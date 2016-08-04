@@ -98,8 +98,19 @@
         } // ~ 栏属性
         //....................................................
         // 控件属性
+        @hmpcH : 32px;
         .hm-prop-com {
-
+            width:100%; height:100%; position: relative; padding:@hmpcH 0 0 0;
+            .hmpc-info {
+                position: absolute; top:0; left:0; right:0; height: @hmpcH; line-height: @hmpcH;
+                padding:0 @d4; font-family: @f_fixed; color:@cf1;
+                > * {margin-right: @d2; }
+                > em {color:@c3; font-style: normal;}
+                > em:before {display: inline; content: " : ";}
+            }
+            .hmpc-form {
+                width: 100%; height:100%;
+            }
         } // ~ 控件属性
         //....................................................
 

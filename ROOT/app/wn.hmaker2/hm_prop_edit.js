@@ -4,10 +4,12 @@ $z.declare([
     'wn/util',
     'ui/menu/menu',
     'app/wn.hmaker2/hm__methods',
-    'app/wn.hmaker2/hm_prop_edit_block'
+    'app/wn.hmaker2/hm_prop_edit_block',
+    'app/wn.hmaker2/hm_prop_edit_com',
 ], function(ZUI, Wn, MenuUI, 
     HmMethods,
-    EditBlockUI){
+    EditBlockUI,
+    EditComUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena hm-prop-edit" ui-fitparent="yes">
@@ -33,7 +35,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
         var UI = HmMethods(this);
 
         UI.listenBus("active:block",  UI.activeBlock);
-        UI.listenBus("change:block",  UI.updateBlock);
+        UI.listenBus("change:block",  UI.changeBlock);
         UI.listenBus("change:com",    UI.changeCom);
     },
     //...............................................................
@@ -57,13 +59,21 @@ return ZUI.def("app.wn.hm_prop_edit", {
             UI.defer_report("block");
         });
 
+        // 控件的属性编辑器
+        new EditComUI({
+            parent : UI,
+            gasketName : "com"
+        }).render(function(){
+            UI.defer_report("com");
+        });
+
         // 返回延迟加载
-        return ["block"];
+        return ["block", "com"];
     },
     //...............................................................
     switchTab : function(ptype) {
         var UI = this;
-        ptype = ptype || "block";
+        ptype = ptype || "com";
 
         UI.arena.find('.hm-prop-tabs li').removeAttr("current")
             .filter('[ptype="'+ptype+'"]').attr("current", "yes");
@@ -82,38 +92,20 @@ return ZUI.def("app.wn.hm_prop_edit", {
         var prop = uiPage.getBlockProp(jBlock, true);
 
         // 更新
-        UI.updateBlock(prop);
+        UI.changeBlock(prop);
     },
     //...............................................................
-    updateBlock : function(prop) {
+    changeBlock : function(prop) {
         this.gasket.block.update(prop);
     },
     //...............................................................
     changeCom : function(com) {
         console.log("edit> change:com", com);
+        this.gasket.com.update(com);
     },
     //...............................................................
     drawCom : function(uiDef, callback) {
-        var UI = this;
-        // 先销毁
-        if(UI.gasket.body)
-            UI.gasket.body.destroy();
-
-        // 没定义，就直接回调了
-        if(!uiDef) {
-            $z.doCallback(callback, [], UI);
-        }
-        // 设置
-        else {
-            seajs.use(uiDef.uiType, function(PropUI){
-                new PropUI(_.extend({}, uiDef.uiConf||{}, {
-                    parent : UI,
-                    gasketName : "com"
-                })).render(function(){
-                    $z.doCallback(callback, [this], UI);
-                });
-            });
-        }        
+        this.gasket.com.drawCom(uiDef, callback);
     }
     //...............................................................
 });

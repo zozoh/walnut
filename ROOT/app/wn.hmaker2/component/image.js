@@ -7,9 +7,7 @@ $z.declare([
 ], function(ZUI, Wn, HmComMethods, MenuUI, TreeUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena hmc-image">
-    I am image
-</div>
+<div class="ui-arena hmc-image"></div>
 */};
 //==============================================
 return ZUI.def("app.wn.hm_com_image", {
@@ -28,7 +26,59 @@ return ZUI.def("app.wn.hm_com_image", {
     redraw : function() {
         var UI = this;
 
-        console.log("I am com.text redraw")
+        console.log("C:image redraw")
+    },
+    //...............................................................
+    paint : function(com) {
+        var UI = this;
+
+        // 准备更新的样式
+        var css = {
+            "background-image"  : 'url(/a/load/wn.hmaker2/img_blank.jpg)',
+            "background-color"  : "#000",
+            "background-repeat" : "norepeat",
+            "background-size"   : "100% 100%",
+        };
+
+        // 图片源
+        // 指定
+        if(com.src) {
+            UI.$el.attr("image-src", com.src);
+            css["background-image"] = 'url(/o/read/'+com.src+')';    
+        }
+        // 清除
+        else {
+            UI.$el.removeAttr("image-src");
+        }
+
+        // 大小
+        UI.arena.css({
+            "width"  : "100%",
+            "height" : "100%",
+        });
+
+        // 链接
+        // 指定 
+        if(com.href) {
+            UI.$el.attr("image-href", com.href);
+        }
+        // 清除
+        else {
+            UI.$el.removeAttr("image-href");
+        }
+
+        // 最后更新显示
+        UI.arena.css(css);
+
+    },
+    //...............................................................
+    getProp : function() {
+        var UI = this;
+
+        return {
+            src  : UI.$el.attr("image-src") || null,
+            href : UI.$el.attr("image-href") || null,
+        };
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性
@@ -39,9 +89,6 @@ return ZUI.def("app.wn.hm_com_image", {
             uiType : 'ui/form/form',
             uiConf : {
                 uiWidth: "all",
-                on_change : function(key, val) {
-                    console.log(this.uiCom.uiName, key, val);
-                },
                 fields : [{
                     key    : "src",
                     title  : "i18n:hmaker.prop.img_src",
@@ -50,6 +97,7 @@ return ZUI.def("app.wn.hm_com_image", {
                     uiConf : {
                         base : oHome,
                         setup : {
+                            lastObjId : "hmaker_pick_media",
                             filter    : function(o) {
                                 if('DIR' == o.race)
                                     return true;

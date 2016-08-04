@@ -438,13 +438,10 @@ return ZUI.def("ui.form", {
     //...............................................................
     update : function(key, val){
         var UI  = this;
+        console.log("form update: key=",key, " : val=", val);
         // 解析参数
-        var obj = {};
-        if(_.isString(key)){
-            obj[key] = val;
-        }else{
-            _.extend(obj, key);
-        }
+        var obj = $z.obj(key, val);
+
         // 执行更新
         UI.ui_parse_data(obj, function(o){
             // 设置每个字段

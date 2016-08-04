@@ -223,9 +223,12 @@
         },
         //.............................................
         obj : function(key, val) {
-            var re = {};
-            re[key] = val;
-            return re;
+            if(_.isString(key)){
+                var re = {};
+                re[key] = val;
+                return re;    
+            }
+            return key;
         },
         //.............................................
         dump : {

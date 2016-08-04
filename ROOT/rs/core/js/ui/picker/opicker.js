@@ -53,6 +53,7 @@ return ZUI.def("ui.picker.opicker", {
     },
     //...............................................................
     redraw : function(){
+        console.log("opicker redraw")
         var UI   = this;
         var opt  = UI.options;
         // 不用取消
@@ -69,6 +70,7 @@ return ZUI.def("ui.picker.opicker", {
     },
     //...............................................................
     setData : function(obj){
+        console.log("opicker setData")
         this.ui_parse_data(obj, function(o){
             this._update(o, true);
         });

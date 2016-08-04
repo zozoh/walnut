@@ -35,22 +35,34 @@ define({
         },
         "com" : {
             "block" : {
-                "tip" : "空白块: 你可以在此基础上对页面布局进行切割"
+                "name"  : "空白块",
+                "tip"   : "你可以在此基础上对页面布局进行切割",
+                "icon"  : '<i class="zmdi zmdi-view-column"></i>',
             },
             "text" : {
-                "tip" : "文本: 直接编辑你想要的文字内容"
+                "name"  : "文本",
+                "tip"   : "直接编辑你想要的文字内容",
+                "icon"  : '<i class="fa fa-text-width"></i>',
             },
             "image" : {
-                "tip" : "单张图片: 不解释你懂的"
+                "name"  : "单张图片",
+                "tip"   : "不解释你懂的",
+                "icon"  : '<i class="fa fa-image"></i>',
             },
             "slider" : {
-                "tip" : "图片幻灯: 选择一组图片或者一个文件夹，进行图片播放"
+                "name"  : "图片幻灯",
+                "tip"   : "选择一组图片或者一个文件夹，进行图片播放",
+                "icon"  : '<i class="zmdi zmdi-slideshow"></i>',
             },
             "thingset" : {
-                "tip" : "动态数据集合: 为你的数据集合设置列表模式的显示版式。支持翻页，海量数据也没问题哦"
+                "name"  : "动态数据集合",
+                "tip"   : "为你的数据集合设置列表模式的显示版式。支持翻页，海量数据也没问题哦",
+                "icon"  : '<i class="fa fa-cubes"></i>',
             },
             "thingobj" : {
-                "tip" : "动态数据对象: 详细的定制了某个数据的详细显示方式"
+                "name"  : "动态数据对象",
+                "tip"   : "详细的定制了某个数据的详细显示方式",
+                "icon"  : '<i class="fa fa-cube"></i>',
             },
         }
     }

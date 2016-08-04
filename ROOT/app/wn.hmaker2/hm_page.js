@@ -42,23 +42,35 @@ var html = function(){/*
     <div class="hmpg-ibar"><div class="hm-W">
         <h4>插</h4>
         <ul>
-            <li ctype="block" data-balloon="<%=hmaker.com.block.tip%>" data-balloon-pos="left" data-balloon-length="medium">
-                <i class="zmdi zmdi-view-column"></i>
+            <li ctype="block"
+                data-balloon="{{hmaker.com.block.name}} : {{hmaker.com.block.tip}}" 
+                data-balloon-pos="left" data-balloon-length="medium">
+                <%=hmaker.com.block.icon%>
             </li>
-            <li ctype="text" data-balloon="<%=hmaker.com.text.tip%>" data-balloon-pos="left" data-balloon-length="medium">
-                <i class="fa fa-text-width"></i>
+            <li ctype="text"
+                data-balloon="{{hmaker.com.text.name}} : {{hmaker.com.text.tip}}" 
+                data-balloon-pos="left" data-balloon-length="medium">
+                <%=hmaker.com.text.icon%>
             </li>
-            <li ctype="image" data-balloon="<%=hmaker.com.image.tip%>" data-balloon-pos="left" data-balloon-length="medium">
-                <i class="fa fa-image"></i>
+            <li ctype="image"
+                data-balloon="{{hmaker.com.image.name}} : {{hmaker.com.image.tip}}" 
+                data-balloon-pos="left" data-balloon-length="medium">
+                <%=hmaker.com.image.icon%>
             </li>
-            <li ctype="slider" data-balloon="<%=hmaker.com.slider.tip%>" data-balloon-pos="left" data-balloon-length="medium">
-                <i class="zmdi zmdi-slideshow"></i>
+            <li ctype="slider"
+                data-balloon="{{hmaker.com.slider.name}} : {{hmaker.com.slider.tip}}" 
+                data-balloon-pos="left" data-balloon-length="medium">
+                <%=hmaker.com.slider.icon%>
             </li>
-            <li ctype="thingset" data-balloon="<%=hmaker.com.thingset.tip%>" data-balloon-pos="left" data-balloon-length="medium">
-                <i class="fa fa-cubes"></i>
+            <li ctype="thingset"
+                data-balloon="{{hmaker.com.thingset.name}} : {{hmaker.com.thingset.tip}}" 
+                data-balloon-pos="left" data-balloon-length="medium">
+                <%=hmaker.com.thingset.icon%>
             </li>
-            <li ctype="thingobj" data-balloon="<%=hmaker.com.thingobj.tip%>" data-balloon-pos="left" data-balloon-length="medium">
-                <i class="fa fa-cube"></i>
+            <li ctype="thingobj"
+                data-balloon="{{hmaker.com.thingobj.name}} : {{hmaker.com.thingobj.tip}}" 
+                data-balloon-pos="left" data-balloon-length="medium">
+                <%=hmaker.com.thingobj.icon%>
             </li>
         </ul>
     </div></div>
@@ -323,10 +335,15 @@ return ZUI.def("app.wn.hmaker_page", {
 
             // 如果点在了控件里，激活控件
             if(jq.hasClass("hm-com")){
+                e.stopPropagation();
+                UI.fire("active:block", jq.closest(".hm-block"));
+                UI.fire("active:area", jq.closest(".hmb-area"));
                 UI.fire("active:com", jq);
             }
             // 如果点在了区域里，激活区域
             else if(jq.hasClass("hmb-area")){
+                e.stopPropagation();
+                UI.fire("active:block", jq.closest(".hm-block"));
                 UI.fire("active:area", jq);
             }
             // 如果点在了块里，激活块，然后就不要冒泡了
@@ -403,6 +420,7 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 定义得到 COMUI 的后续处理
         var _do_com_ui = function(uiCom) {
+            console.log("bindCom _do_com_ui")
             // 确保有组件序号
             UI.assignComSequanceNumber(jCom);
 
@@ -423,6 +441,11 @@ return ZUI.def("app.wn.hmaker_page", {
             _.extend(PropComDef.uiConf, {
                 on_init : function(){
                     this.uiCom = uiCom;
+                },
+                on_change : function(key, val) {
+                    console.log(this.uiCom.uiName, key, val);
+                    //UI.fire("change:com", $z.obj(key, val));
+                    this.uiCom.notifyChange(key, val);
                 }
             });
 
@@ -487,9 +510,8 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     doChangeCom : function(com) {
         var jCom = this.getActivedComElement();
-        this.bindComUI(jCom, function(uiCom){
-            uiCom.setData(com);
-        });
+        var uiCom = ZUI(jCom, true);
+        uiCom.setData(com);
     },
     //...............................................................
     doActiveBlock : function(jq) {
@@ -526,7 +548,7 @@ return ZUI.def("app.wn.hmaker_page", {
         var jW = UI.arena.find(">.hm-W");
         var jScreen = jW.find(".hmpg-screen");
         var jIfmLoad = $('<iframe class="hmpg-frame-load">').appendTo(jW);
-        var jIfmEdit = $('<iframe class="hmpg-frame-edit">').appendTo(jScreen);
+        var jIfmEdit = $('<iframe class="hmpg-frame-edit" src="/a/load/wn.hmaker2/page_loading.html">').appendTo(jScreen);
         jIfmLoad.bind("load", function(e) {
             UI.setup_page_editing();
         });

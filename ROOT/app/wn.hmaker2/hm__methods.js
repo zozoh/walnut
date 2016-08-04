@@ -21,7 +21,7 @@ var methods = {
     fire : function() {
         var args = Array.from(arguments);
         var uiHMaker = this.hmaker();
-        //console.log("fire", args)
+        // console.log("fire", args)
         uiHMaker.trigger.apply(uiHMaker, args);
     },
     // 得到 HmPageUI，如果不是，则抛错
