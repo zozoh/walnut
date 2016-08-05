@@ -42,10 +42,10 @@ var html = function(){/*
     <div class="hmpg-ibar"><div class="hm-W">
         <h4>插</h4>
         <ul>
-            <li ctype="block"
-                data-balloon="{{hmaker.com.block.name}} : {{hmaker.com.block.tip}}" 
+            <li ctype="columns"
+                data-balloon="{{hmaker.com.columns.name}} : {{hmaker.com.columns.tip}}" 
                 data-balloon-pos="left" data-balloon-length="medium">
-                <%=hmaker.com.block.icon%>
+                <%=hmaker.com.columns.icon%>
             </li>
             <li ctype="text"
                 data-balloon="{{hmaker.com.text.name}} : {{hmaker.com.text.tip}}" 
@@ -85,8 +85,6 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 监听 Bus 的各种事件处理页面上的响应
         UI.listenBus("active:block", UI.doActiveBlock);
-        UI.listenBus("active:area",  UI.doActiveArea);
-        UI.listenBus("active:com",   UI.doActiveCom);
         UI.listenBus("change:block", UI.doChangeBlock);
         UI.listenBus("change:com",   UI.doChangeCom);
         UI.listenBus("active:page",  UI.doBlurAll);
@@ -124,24 +122,19 @@ return ZUI.def("app.wn.hmaker_page", {
 
             // 首先插入一个块
             var jBlock = UI.doInsertBlock();
+            var jArea = jBlock.find(".hmb-area").empty();
 
             // 得到组件的类型
             var ctype = jLi.attr("ctype");
 
+            // 创建组件的 DOM
+            var jCom = $('<div class="hm-com">').attr({
+                "ctype"   : ctype
+            }).appendTo(jArea);
+
             // 激活块
             UI.fire("active:block", jBlock);
 
-            // 根据类型(如果不是 block) 在块中创建对应的组件
-            if("block" != ctype) {
-                var jArea = jBlock.find(".hmb-area").empty();
-                // 创建组件的 DOM
-                var jCom = $('<div class="hm-com">').attr({
-                    "ctype"   : ctype
-                }).appendTo(jArea);
-
-                // 绑定组件的 UI 对象，并激活它
-                UI.fire("active:com", jCom);
-            }
         }
     },
     //...............................................................
@@ -153,8 +146,6 @@ return ZUI.def("app.wn.hmaker_page", {
 
         var jBlock = UI.ccode("block").appendTo(UI._C.iedit.$body);
         UI.applyBlockProp(jBlock, {}, true);
-
-        jBlock.find(".hmb-area").text("B" + UI.nnn++);
 
         UI._C.iedit.$body.moveresizing("format");
 
@@ -333,21 +324,8 @@ return ZUI.def("app.wn.hmaker_page", {
 
             var jq = $(this);
 
-            // 如果点在了控件里，激活控件
-            if(jq.hasClass("hm-com")){
-                e.stopPropagation();
-                UI.fire("active:block", jq.closest(".hm-block"));
-                UI.fire("active:area", jq.closest(".hmb-area"));
-                UI.fire("active:com", jq);
-            }
-            // 如果点在了区域里，激活区域
-            else if(jq.hasClass("hmb-area")){
-                e.stopPropagation();
-                UI.fire("active:block", jq.closest(".hm-block"));
-                UI.fire("active:area", jq);
-            }
             // 如果点在了块里，激活块，然后就不要冒泡了
-            else if(jq.hasClass("hm-block")){
+            if(jq.hasClass("hm-block")){
                 e.stopPropagation();
                 UI.fire("active:block", jq);
             }
@@ -476,31 +454,16 @@ return ZUI.def("app.wn.hmaker_page", {
         }
     },
     //...............................................................
-    doActiveCom : function(jq) {
-        var UI = this;
-        
-        UI._C.iedit.$body.find(".hm-com[hm-actived]").removeAttr("hm-actived");
-        var jCom = jq.closest(".hm-com").attr("hm-actived", "yes");
-
-        // 绑定 UI，并显示属性
-        UI.bindComUI(jCom, function(uiCom){
-            // 得到组件的纯数据描述
-            var com = uiCom.getData();
-            // 发出通知
-            UI.fire("change:com", com);
-        });
-    },
-    //...............................................................
     // 找到当前的操作区，如果没有，那么默认为整个 body
     // 返回的是一个 jQuery 对象
     getActivedComElement : function() {
-        return this._C.iedit.$body.find(".hm-com[hm-actived]");
-    },
-    getActivedAreaElement : function() {
-        return this._C.iedit.$body.find(".hmb-area[hm-actived]");
+        return this.getComElement(this.getActivedBlockElement());
     },
     getActivedBlockElement : function() {
         return this._C.iedit.$body.find(".hm-block[hm-actived]");
+    },
+    getComElement : function(jBlock) {
+        return jBlock.find(">.hmb-con>.hmb-area>.hm-com");
     },
     //...............................................................
     doChangeBlock : function(prop) {
@@ -515,13 +478,23 @@ return ZUI.def("app.wn.hmaker_page", {
     },
     //...............................................................
     doActiveBlock : function(jq) {
-        this._C.iedit.$body.find(".hm-block[hm-actived]").removeAttr("hm-actived");
-        jq.closest(".hm-block").attr("hm-actived", "yes");
-    },
-    //...............................................................
-    doActiveArea : function(jq) {
-        this._C.iedit.$body.find(".hmb-area[hm-actived]").removeAttr("hm-actived");
-        jq.closest(".hm-area").attr("hm-actived", "yes");
+        var UI = this;
+
+        UI._C.iedit.$body.find(".hm-block[hm-actived]").removeAttr("hm-actived");
+        var jBlock = jq.closest(".hm-block").attr("hm-actived", "yes");
+        
+        var jCom = UI.getComElement(jBlock);
+
+        // 通知激活组件
+        UI.fire("active:com", jCom);
+
+        // 绑定 UI，并显示属性
+        UI.bindComUI(jCom, function(uiCom){
+            // 得到组件的纯数据描述
+            var com = uiCom.getData();
+            // 发出通知
+            UI.fire("change:com", com);
+        });
     },
     //...............................................................
     doBlurAll : function() {

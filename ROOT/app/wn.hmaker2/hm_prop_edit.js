@@ -16,13 +16,11 @@ var html = function(){/*
     <div class="hm-prop-tabs">
         <ul class="hm-W">
             <li ptype="block"><%=hmaker.prop.tab_block%></li>
-            <li ptype="area"><%=hmaker.prop.tab_area%></li>
             <li ptype="com"><%=hmaker.prop.tab_com%></li>
         </ul>
     </div>
     <div class="hm-prop-body"><div class="hm-W">
         <div class="hm-prop-con" ptype="block" ui-gasket="block"></div>
-        <div class="hm-prop-con" ptype="area"  ui-gasket="area">现在还没啥可设置的，无视我吧</div>
         <div class="hm-prop-con" ptype="com"   ui-gasket="com"></div>
     </div></div>
 </div>
@@ -37,6 +35,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
         UI.listenBus("active:block",  UI.activeBlock);
         UI.listenBus("change:block",  UI.changeBlock);
         UI.listenBus("change:com",    UI.changeCom);
+        UI.listenBus("hide:com",      UI.hideCom);
     },
     //...............................................................
     events : {
@@ -106,6 +105,10 @@ return ZUI.def("app.wn.hm_prop_edit", {
     //...............................................................
     drawCom : function(uiDef, callback) {
         this.gasket.com.drawCom(uiDef, callback);
+    },
+    //...............................................................
+    hideCom : function() {
+        this.gasket.com.showBlank();
     }
     //...............................................................
 });

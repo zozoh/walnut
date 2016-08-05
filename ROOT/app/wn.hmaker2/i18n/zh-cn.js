@@ -5,8 +5,7 @@ define({
         },
         "prop" : {
             "title" : '属性',
-            "tab_block" : '<b>块</b>',
-            "tab_area"  : '<b>栏</b>',
+            "tab_block" : '<b>外观</b>',
             "tab_com"   : '<b>控件</b>',
             "padding"   : "边距",
             "border"    : "边框",
@@ -34,9 +33,9 @@ define({
             "show_prop" : "显示页面属性"
         },
         "com" : {
-            "block" : {
-                "name"  : "空白块",
-                "tip"   : "你可以在此基础上对页面布局进行切割",
+            "columns" : {
+                "name"  : "垂直分栏",
+                "tip"   : "对于所在区域进行垂直分隔，可以容纳更多控件",
                 "icon"  : '<i class="zmdi zmdi-view-column"></i>',
             },
             "text" : {

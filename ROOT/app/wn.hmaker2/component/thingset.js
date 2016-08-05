@@ -2,8 +2,8 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/hm__methods_com',
-], function(ZUI, Wn, HmComMethods, MenuUI, TreeUI){
+    'app/wn.hmaker2/hm__methods_com'
+], function(ZUI, Wn, HmComMethods){
 //==============================================
 var html = function(){/*
 <div class="ui-arena hmc-thingset">

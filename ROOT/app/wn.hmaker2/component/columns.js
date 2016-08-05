@@ -7,27 +7,21 @@ $z.declare([
 //==============================================
 var html = function(){/*
 <div class="ui-arena hmc-text">
-    I am text
+    I am columns
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.hm_com_text", {
+return ZUI.def("app.wn.hm_com_columns", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     init : function(){
         HmComMethods(this);
     },
     //...............................................................
-    events : {
-        'click .hmc-text' : function(){
-            console.log("Hi you click me!")
-        }
-    },
-    //...............................................................
     redraw : function() {
         var UI = this;
 
-        console.log("I am com.text redraw")
+        console.log("I am com.columns redraw")
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性

@@ -438,7 +438,7 @@ return ZUI.def("ui.form", {
     //...............................................................
     update : function(key, val){
         var UI  = this;
-        console.log("form update: key=",key, " : val=", val);
+        //console.log("form update: key=",key, " : val=", val);
         // 解析参数
         var obj = $z.obj(key, val);
 
