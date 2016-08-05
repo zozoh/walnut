@@ -327,7 +327,8 @@ return ZUI.def("app.wn.hmaker_page", {
             // 如果点在了块里，激活块，然后就不要冒泡了
             if(jq.hasClass("hm-block")){
                 e.stopPropagation();
-                UI.fire("active:block", jq);
+                if(!jq.attr("hm-actived"))
+                    UI.fire("active:block", jq);
             }
             // 如果点到了 body，那么激活页
             else if('BODY' == this.tagName){
@@ -357,7 +358,8 @@ return ZUI.def("app.wn.hmaker_page", {
             delay : 50,
             maskClass : "hm-page-move-mask",
             on_begin : function() {
-                UI.fire("active:block", this.$trigger);
+                if(!this.$trigger.attr("hm-actived"))
+                    UI.fire("active:block", this.$trigger);
             },
             on_change : notify_move_or_resize,
             updateBlockBy : null,

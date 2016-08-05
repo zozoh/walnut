@@ -40,6 +40,7 @@ tags:
             .hmc-ths-filter         # 过滤器
             .hmc-ths-list           # 列表
                 .hmc-ths-item       # 每个列表项的版式
+                <script>            # 存放 display.mapping 的JSON
             .hmc-ths-pager          # 翻页器
         
 ```
@@ -67,7 +68,7 @@ tags:
 列表版式
     更换版式，会更换对应的 版式 <style> 和 DOM
     版式存放在
-        ~/.hmaker/thingset/
+        ~/.hmaker/display/thingset/
             aaa            # 版式名称
                 dom.html   # DOM 结构
                 css.json   # CSS 的JSON描述
@@ -77,5 +78,66 @@ tags:
     每页大小
 ```
 
+# 关于数据显示
 
+## dom.html
+
+```
+<div class="hm-th-obj">
+    <ul>
+        <li class="hm-tho-fld" key="xxx" as="text" ...>
+            <span for="-1">live</span>
+            <span for="2">dead</span>
+        </li>
+        ...
+    </ul>
+</div>
+```
+
+支持如下值的配置
+
+* `.hm-th-obj > .hm-th-W > ul > li ` 结构是必须的
+* `class` : 你可以随便定义，以便配合 *css.json*
+* `key`   : 每个 `<li>` 都必须有一个 `key` 字段作为标识
+* `as`    : 每个字段的具体如何显示，通过 as 来指定:
+    - *text*   : 普通文字节点
+    - *img*    : 图片节点，这要求值必须是一个 WnObj 的 ID
+    - *html*   : 值本身就是一段HTML，直接输出就好了
+    - *sub:eq* : 在节点内寻找可以匹配的子元素
+    - *sub:loop* : 值必须是个数组或者集合，将子节点循环输出
+* `replace` : 输出的时候，将自身替换成什么元素
+    - `DIV` : 默认
+    - `unwrap` : 解除包裹
+* `required` 属性表示这个字段是必须的，不能被标记删除
+
+## css.json
+
+```
+{
+    "selector" : {
+        // rule， 采用驼峰名名法，即 background-color 这里应该是 backgroundColor
+    }
+}
+```
+
+## display 属性
+
+```
+{
+    templateId : "xxx"     // 对应到版式目录
+    // 将 thingset 的字段映射到版式文件的 DOM 中
+    mapping : {
+        "dom.key0" : "th_nm",         // 直接对应到对象某字段
+        "dom.key1" : null,            // null 表示不显示
+        "dom.key2" : "",              // 空字符串表示字段显示，但是没值
+                                      // 通常和 as="html" 联用
+        "dom.key3" : "cat:detail",    // 表示获取对象内某对象内容
+        "dom.key4" : "obj:detail",    // 表示获取对象内某对象全部元数据
+        "dom.key5" : "obj.nm:detail", // 表示获取对象内某对象某个元数据
+        "dom.key6" : "obj:detail/*",  // 表示获取对象内某目录全部子对象
+
+        ...
+    }
+}
+```
 
