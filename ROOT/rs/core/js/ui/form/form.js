@@ -296,6 +296,10 @@ return ZUI.def("ui.form", {
         });
 
         //console.log("form redraw defer:", UI._fld_form_keys);
+        // 暂时隐藏，在 resize 里去掉这个开关
+        UI.$el.css("visibility", "hidden");
+
+        // 返回延迟加载
         return UI._fld_form_keys;
     },
     //...............................................................
@@ -434,6 +438,9 @@ return ZUI.def("ui.form", {
             });
 
         });
+
+        // 结束隐藏
+        UI.$el.css("visibility", "");
     },
     //...............................................................
     update : function(key, val){

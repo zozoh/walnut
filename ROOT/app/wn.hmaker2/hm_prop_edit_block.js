@@ -167,10 +167,9 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 type   : "string",
                 editAs : "input"
             }, {
-                key    : "background",
-                title  : "i18n:hmaker.prop.background",
+                key    : "color",
+                title  : "i18n:hmaker.prop.color",
                 type   : "string",
-                nullAsUndefined : true,
                 editAs : "color",
                 uiConf : {
                     formatData : function(color){
@@ -178,9 +177,10 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                     }
                 }
             }, {
-                key    : "color",
-                title  : "i18n:hmaker.prop.color",
+                key    : "background",
+                title  : "i18n:hmaker.prop.background",
                 type   : "string",
+                nullAsUndefined : true,
                 editAs : "color",
                 uiConf : {
                     formatData : function(color){

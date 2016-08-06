@@ -62,7 +62,7 @@ define({
                 "tt_pager"  : "翻页器",
                 "ds_id"     : "数据源",
                 "ds_query"  : "数据过滤条件",
-                "display"   : "数据显示",
+                "template"  : "显示模板",
                 "flt_enabled": "支持过滤",
                 "flt_cnd"   : "过滤条件",
                 "flt_keywd" : "关键字",
@@ -72,7 +72,31 @@ define({
                 "flt_sort"  : "排序",
                 "flt_sort_add" : "添加排序字段",
                 "pg_enabled" : "支持翻页",
-                "pg_size"    : "页大小",
+                "pg_size"    : "每页记录数",
+                "redata"     : "更换数据源",
+                "retemplate" : "更换显示模板",
+                "mode" : {
+                    "none"      : "未设置数据源", 
+                    "gone"      : "数据源不存在",
+                    "invalid"   : "数据源格式非法",
+                    "lackdef"   : "数据源缺少数据定义文件",
+                    "wrongdef"  : "数据源字段定义文件错误",
+                    "tmplnone"  : "未设定显示模板",
+                    "tmplgone"  : "显示模板不存在",
+                    "tmplnodom" : "显示模板缺少 DOM 文件",
+                    "tmplnocss" : "显示模板缺少样式文件",
+                    "tmpldom_E" : "显示模板DOM文件内容为空",
+                    "tmplcss_E" : "显示模板样式文件格式错误或者内容为空",
+                },
+                "flt" : {
+                    "enabled"  : "显示过滤器",
+                    "disabled" : "隐藏过滤器",
+                },
+                "pg" : {
+                    "enabled"  : "显示翻页条",
+                    "disabled" : "隐藏翻页条",
+                }
+
             },
             "thingobj" : {
                 "name"  : "动态数据对象",

@@ -42,6 +42,8 @@ return ZUI.def("app.wn.hmaker2", {
     //...............................................................
     redraw : function(){
         var UI  = this;
+
+        UI.showLoading();
         
         // 资源面板
         HmPanelMethods(new HmResourceUI({
@@ -64,8 +66,11 @@ return ZUI.def("app.wn.hmaker2", {
     },
     //...............................................................
     update : function(o) {
-        this.__home_id = o.id;
-        this.gasket.resource.update(o);
+        var UI = this;
+        UI.__home_id = o.id;
+        UI.gasket.resource.update(o, function(){
+            UI.hideLoading();
+        });
     },
     //...............................................................
     changeMain : function(o) {

@@ -97,7 +97,7 @@ return ZUI.def("app.wn.hmaker_resource", {
         UI.uiTree.addNode(oNP).setActived(oNP.id);
     },
     //...............................................................
-    update : function(o) {
+    update : function(o, callback) {
         var UI = this;
 
         // 记录根节点
@@ -179,6 +179,7 @@ return ZUI.def("app.wn.hmaker_resource", {
             if(lastOpenId)
                 this.setActived(lastOpenId);
             //this.setActived(2);
+            $z.doCallback(callback, [], UI);
         });
         
     }

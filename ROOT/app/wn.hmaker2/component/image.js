@@ -31,6 +31,9 @@ return ZUI.def("app.wn.hm_com_image", {
     paint : function(com) {
         var UI = this;
 
+        // 保存属性
+        UI.setPropToDom(com);
+
         // 准备更新的样式
         var css = {
             "background-image"  : 'url(/a/load/wn.hmaker2/img_blank.jpg)',
@@ -42,13 +45,13 @@ return ZUI.def("app.wn.hm_com_image", {
         // 图片源
         // 指定
         if(com.src) {
-            UI.$el.attr("image-src", com.src);
+            //UI.$el.attr("image-src", com.src);
             css["background-image"] = 'url(/o/read/'+com.src+')';    
         }
-        // 清除
-        else {
-            UI.$el.removeAttr("image-src");
-        }
+        // // 清除
+        // else {
+        //     UI.$el.removeAttr("image-src");
+        // }
 
         // 大小
         UI.arena.css({
@@ -56,15 +59,15 @@ return ZUI.def("app.wn.hm_com_image", {
             "height" : "100%",
         });
 
-        // 链接
-        // 指定 
-        if(com.href) {
-            UI.$el.attr("image-href", com.href);
-        }
-        // 清除
-        else {
-            UI.$el.removeAttr("image-href");
-        }
+        // // 链接
+        // // 指定 
+        // if(com.href) {
+        //     UI.$el.attr("image-href", com.href);
+        // }
+        // // 清除
+        // else {
+        //     UI.$el.removeAttr("image-href");
+        // }
 
         // 最后更新显示
         UI.arena.css(css);
@@ -72,12 +75,7 @@ return ZUI.def("app.wn.hm_com_image", {
     },
     //...............................................................
     getProp : function() {
-        var UI = this;
-
-        return {
-            src  : UI.$el.attr("image-src") || null,
-            href : UI.$el.attr("image-href") || null,
-        };
+        return this.getPropFromDom();
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性

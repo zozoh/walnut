@@ -99,7 +99,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
     },
     //...............................................................
     changeCom : function(com) {
-        console.log("edit> change:com", com);
+        //console.log("edit> change:com", com);
         this.gasket.com.update(com);
     },
     //...............................................................

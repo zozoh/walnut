@@ -25,5 +25,82 @@ body {
   border: 1px dotted #0FF;
 }
 .hm-page-move-mask .pmv-helper {
-  background: rgba(255, 255, 0, 0.4);
+  background: rgba(255, 255, 0, 0.2);
+}
+.hm-com {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.hmc-thingset > .hmc-th-W {
+  display: none;
+}
+.hmc-thingset > .hmc-th-W[show] {
+  display: block;
+}
+.hmc-thingset > .hmc-th-tip {
+  text-align: center;
+  background: #eeeeee;
+}
+.hmc-thingset > .hmc-th-tip > .tiptxt {
+  padding: 12px;
+  font-size: 16px;
+}
+.hmc-thingset > .hmc-th-tip > .tiptxt i {
+  font-size: 48px;
+  display: block;
+  padding: 12px;
+}
+.hmc-thingset > .hmc-th-tip > .lnkbtn {
+  padding: 12px;
+  font-size: 12px;
+}
+.hmc-thingset > .hmc-th-tip > .info {
+  color: #888888;
+}
+.hmc-thingset > .hmc-th-tip > .warn {
+  color: #ff8800;
+}
+.hmc-thingset > .hmc-th-tip > .error {
+  color: #ff0000;
+}
+.hmc-thingset > .hmc-th-tip .lnkbtn {
+  text-align: center;
+  text-decoration: underline;
+  color: #0088ff;
+  cursor: pointer;
+}
+.hmc-thingset > .hmc-th-tip .lnkbtn:hover {
+  color: #ff0000;
+}
+.hmc-thingset > .hmc-ths-main .hmc-ths-part {
+  border: 1px dashed rgba(0, 255, 255, 0.6);
+  padding: 12px;
+  font-size: 14px;
+}
+.hmc-thingset > .hmc-ths-main .hmc-ths-part .part-disabled {
+  opacity: 0.4;
+}
+.hmc-thingset > .hmc-ths-main .hmc-ths-part[enabled] .part-enabled {
+  display: block;
+}
+.hmc-thingset > .hmc-ths-main .hmc-ths-part[enabled] .part-disabled {
+  display: none;
+}
+.hmc-thingset > .hmc-ths-main .hmc-ths-part[disabled] .part-enabled {
+  display: none;
+}
+.hmc-thingset > .hmc-ths-main .hmc-ths-part[disabled] .part-disabled {
+  display: block;
+}
+.hmc-thingset > .hmc-ths-main .hmc-ths-more {
+  line-height: 48px;
+  color: #888888;
+  padding: 0 12px;
+  font: 24px 'Material-Design-Iconic-Font';
+}
+.hmc-thingset > .hmc-ths-main .hmc-ths-more:before {
+  content: "\f19c";
+  display: inline;
 }

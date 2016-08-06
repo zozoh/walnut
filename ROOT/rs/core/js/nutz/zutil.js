@@ -1758,6 +1758,13 @@
                 return false;
             return _.isObject(obj);
         },
+        //.............................................
+        isEmptyString : function(str) {
+            return "" === str;
+        },
+        isBlankString : function(str) {
+            return "" === $.trim(str);
+        },
         //---------------------------------------------------------------------------------------
         /**
          * jq - 要闪烁的对象
@@ -2246,7 +2253,8 @@
          */
         upperWord: function (cs, c="-") {
             var sb = "";
-            for (var i = 0; i < cs.length; i++) {
+            var len = cs.length;
+            for (var i = 0; i < len; i++) {
                 var ch = cs.charAt(i);
                 if (ch == c) {
                     do {

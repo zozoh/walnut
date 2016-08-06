@@ -29,6 +29,65 @@ body {margin:0;}
 // 移动鼠标的遮罩
 .hm-page-move-mask {
     .pmv-helper {
-        background: rgba(255,255,0,0.4);
+        background: rgba(255,255,0,0.2);
     }
+}
+
+.hm-com {@noselect();}
+
+//............................................................
+// 各个控件的特殊显示
+//............................................................
+.hmc-thingset {
+    > .hmc-th-W {display: none;}
+    > .hmc-th-W[show] {display: block;}
+    //........................................................
+    // 提示文字
+    > .hmc-th-tip {
+        text-align: center; background:@cb1;
+        > .tiptxt {
+            padding:@d4; font-size:@f4;
+            i {font-size:@f7; display: block; padding:@d4;}
+        }
+        > .lnkbtn {
+            padding:@d4; font-size:@f2;
+        }
+        > .info {color:@c2;}
+        > .warn {color:@c0;}
+        > .error {color:@c1;}
+        .lnkbtn {
+            text-align: center; text-decoration: underline;
+            color:@clink; cursor: pointer;
+        }
+        .lnkbtn:hover {color:@clink_hover;}
+    }
+    //........................................................
+    // 主区域
+    > .hmc-ths-main {
+        .hmc-ths-list {
+            
+        }
+        //....................................................
+        // 可开关区域， filter 和 pager
+        .hmc-ths-part {
+            border:1px dashed rgba(0,255,255,0.6); padding:@d4;
+            font-size:@f3;
+            .part-disabled {opacity: 0.4;}
+        }
+        .hmc-ths-part[enabled]{
+            .part-enabled  {display: block;}
+            .part-disabled {display: none;}
+        }
+        .hmc-ths-part[disabled]{
+            .part-enabled  {display: none;}
+            .part-disabled {display: block;}
+        }
+        //....................................................
+        // 省略号
+        .hmc-ths-more {
+            line-height: @f7; color:@c2; padding:0 @d4;
+            font: @f5 'Material-Design-Iconic-Font';
+        }
+        .hmc-ths-more:before {content: "\f19c"; display: inline;}
+    } // ~ 主区域 .hmc-ths-main
 }

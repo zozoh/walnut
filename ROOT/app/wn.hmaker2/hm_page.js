@@ -95,7 +95,7 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     // 分配一个组件需要，并做记录
     assignComSequanceNumber : function(jCom) {
-        if(!jCom.attr("com-seq")){
+        if(!jCom.attr("c_seq")){
             var UI = this;
             var i  = 0;
             // 查找序号表
@@ -107,12 +107,12 @@ return ZUI.def("app.wn.hmaker_page", {
             }
             // 增加一个记录
             UI._com_seq[i] = true;
-            jCom.attr("com-seq", i);
+            jCom.attr("c_seq", i).prop("id", "com"+i);
             // 返回这个序号
             return i;
         }
         // 返回已有序号
-        return jCom.attr("com-seq") * 1;
+        return jCom.attr("c_seq") * 1;
     },
     //...............................................................
     events : {
@@ -160,8 +160,8 @@ return ZUI.def("app.wn.hmaker_page", {
             padding : "10px",
             border : 0 ,   // "1px solid #000",
             borderRadius : "5px",
-            background : "#CCC",
-            color : "#F00",
+            background : "rgba(40,40,40,0.3)",
+            color : "#000",
         };
     },
     //...............................................................
@@ -268,9 +268,10 @@ return ZUI.def("app.wn.hmaker_page", {
                 continue;
 
             // 其他的设置到 CSS 里
-            var pKey  = $z.lowerWord(key);
-            css[pKey] = val;
+            css[key] = val || "";
         }
+
+        console.log(css)
 
         // 最后应用一下 CSS
         jBlock.children().css(css);
@@ -302,10 +303,17 @@ return ZUI.def("app.wn.hmaker_page", {
         var jHead = UI._C.iedit.$head.empty();
 
         // 链入固定的 CSS 
+        _H(jHead, 'link[href*="normalize.css"]',
+            '<link for-edit="yes" rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">');
+        _H(jHead, 'link[href*="font-awesome.css"]',
+            '<link for-edit="yes" rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">');
+        _H(jHead, 'link[href*="material-design-iconic-font.css"]',
+            '<link for-edit="yes" rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">');
         _H(jHead, 'link[href*="hmaker_editing.css"]',
             '<link for-edit="yes" rel="stylesheet" type="text/css" href="/a/load/wn.hmaker2/hmaker_editing.css">');
         _H(jHead, 'link[href*="moveresizing.css"]',
             '<link for-edit="yes" rel="stylesheet" type="text/css" href="/theme/r/jqp/moveresizing/moveresizing.css">');
+
         _H(jHead, 'meta[name="viewport"]',
             '<meta name="viewport" content="width=device-width, initial-scale=1.0">');
         _H(jHead, 'meta[http-equiv="X-UA-Compatible"]',
@@ -320,7 +328,7 @@ return ZUI.def("app.wn.hmaker_page", {
         // 首先所有元素的点击事件，全部禁止默认行为
         UI._C.iedit.$root.on("click", "*", function(e){
             e.preventDefault();
-            console.log("click", this.tagName, this.className);
+            // console.log("hm_page.js: click", this.tagName, this.className);
 
             var jq = $(this);
 
@@ -355,10 +363,10 @@ return ZUI.def("app.wn.hmaker_page", {
             findViewport : function(){
                 return UI.getBlockViewport(this);
             },
-            delay : 50,
+            delay : 300,
             maskClass : "hm-page-move-mask",
             on_begin : function() {
-                if(!this.$trigger.attr("hm-actived"))
+                if(!this.$trigger.closest(".hm-block").attr("hm-actived"))
                     UI.fire("active:block", this.$trigger);
             },
             on_change : notify_move_or_resize,
@@ -400,7 +408,7 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 定义得到 COMUI 的后续处理
         var _do_com_ui = function(uiCom) {
-            console.log("bindCom _do_com_ui")
+            //console.log("bindCom _do_com_ui")
             // 确保有组件序号
             UI.assignComSequanceNumber(jCom);
 
@@ -423,7 +431,7 @@ return ZUI.def("app.wn.hmaker_page", {
                     this.uiCom = uiCom;
                 },
                 on_change : function(key, val) {
-                    console.log(this.uiCom.uiName, key, val);
+                    //console.log(this.uiCom.uiName, key, val);
                     //UI.fire("change:com", $z.obj(key, val));
                     this.uiCom.notifyChange(key, val);
                 }
@@ -604,11 +612,11 @@ return ZUI.def("app.wn.hmaker_page", {
         // 分析序号表
         UI._com_seq = [];
         C.iedit.$body.find(".hm-com").each(function(){
-            var seq = $(this).attr("com-seq") * 1;
+            var seq = $(this).attr("c_seq") * 1;
             if(_.isNumber(seq)){
                 // 无效的或者已经存在的序号
                 if(isNaN(seq) || UI._com_seq[i]) {
-                    $(this).removeAttr("com-seq");
+                    $(this).removeAttr("c_seq");
                 }
                 // 记录序号
                 else {
@@ -617,7 +625,7 @@ return ZUI.def("app.wn.hmaker_page", {
             }
         })
         // 为所有未分配序号的组件，分配
-        .not("[com-seq]").each(function(){
+        .not("[c_seq]").each(function(){
             UI.assignComSequanceNumber($(this));
         });
     },
