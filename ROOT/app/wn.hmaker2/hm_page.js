@@ -1,10 +1,10 @@
 (function($z){
 // ......................... 以下是帮助函数
-var _H = function(jHead, selector, html) {
+function _H(jHead, selector, html) {
     if(jHead.children(selector).size() == 0){
         jHead.prepend($(html));
     }
-};
+}
 // ......................... 以上是帮助函数
 $z.declare([
     'zui',
@@ -134,7 +134,6 @@ return ZUI.def("app.wn.hmaker_page", {
 
             // 激活块
             UI.fire("active:block", jBlock);
-
         }
     },
     //...............................................................
@@ -271,7 +270,7 @@ return ZUI.def("app.wn.hmaker_page", {
             css[key] = val || "";
         }
 
-        console.log(css)
+        //console.log(css)
 
         // 最后应用一下 CSS
         jBlock.children().css(css);
@@ -291,6 +290,29 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 监视编辑区，响应其他必要的事件处理
         UI.__setup_page_events();
+
+        // 处理所有的块显示
+        UI._C.iedit.$body.find(".hm-block").each(function(){
+            var jBlock = $(this);
+            var prop = UI.getBlockProp(jBlock, true);
+            UI.applyBlockProp(jBlock, prop);
+
+            // 处理块中的组件
+            var jCom = UI.getComElement(jBlock);
+
+            if(jCom.size()==0) {
+                console.log("no jCom", jBlock.html());
+            }
+
+            // 绑定 UI，并显示属性
+            UI.bindComUI(jCom, function(uiCom){
+                // 得到组件的纯数据描述
+                var com = uiCom.getData();
+                // 修改控件的显示
+                UI.doChangeCom(com, jCom);
+            }, false);
+
+        });
 
         // 通知网页被加载
         UI.fire("active:page", UI._page_obj);
@@ -403,7 +425,7 @@ return ZUI.def("app.wn.hmaker_page", {
         });
     },
     //...............................................................
-    bindComUI : function(jCom, callback) {
+    bindComUI : function(jCom, callback, showProp) {
         var UI = this;
 
         // 定义得到 COMUI 的后续处理
@@ -412,35 +434,48 @@ return ZUI.def("app.wn.hmaker_page", {
             // 确保有组件序号
             UI.assignComSequanceNumber(jCom);
 
-            // 得到属性编辑控件
-            var PropComDef = $z.invoke(uiCom, "setupProp");
+            // 确保有组件属性存放的 <script>
+            // var jPropEle = UI.$el.children("script.hmc-th-prop-ele");
+            // if(jPropEle.size() == 0) {
+            //     $('<script class="hmc-th-prop-ele">').prependTo(UI.$el);
+            // }
 
-            // 如果没有属性，默认显示一个空面板
-            if(!PropComDef) {
-                PropComDef = {
-                    uiType : 'ui/support/dom',
-                    uiConf : {
-                        dom : $z.getFuncBodyAsStr(html_empty_prop.toString())
+            // 同时显示属性
+            if(showProp) {
+                // 得到属性编辑控件
+                var PropComDef = $z.invoke(uiCom, "setupProp");
+
+                // 如果没有属性，默认显示一个空面板
+                if(!PropComDef) {
+                    PropComDef = {
+                        uiType : 'ui/support/dom',
+                        uiConf : {
+                            dom : $z.getFuncBodyAsStr(html_empty_prop.toString())
+                        }
                     }
                 }
-            }
-            
-            // 将 uiCom 与这个属性控件关联
-            _.extend(PropComDef.uiConf, {
-                on_init : function(){
-                    this.uiCom = uiCom;
-                },
-                on_change : function(key, val) {
-                    //console.log(this.uiCom.uiName, key, val);
-                    //UI.fire("change:com", $z.obj(key, val));
-                    this.uiCom.notifyChange(key, val);
-                }
-            });
+                
+                // 将 uiCom 与这个属性控件关联
+                _.extend(PropComDef.uiConf, {
+                    on_init : function(){
+                        this.uiCom = uiCom;
+                    },
+                    on_change : function(key, val) {
+                        //console.log(this.uiCom.uiName, key, val);
+                        //UI.fire("change:com", $z.obj(key, val));
+                        this.uiCom.notifyChange(key, val);
+                    }
+                });
 
-            // 执行创建
-            UI.parent.subUI("prop/edit").drawCom(PropComDef, function(){
+                // 执行创建
+                UI.parent.subUI("prop/edit").drawCom(PropComDef, function(){
+                    $z.doCallback(callback, [uiCom], UI);
+                });
+            }
+            // 不显示属性的话，就直接回调了
+            else {
                 $z.doCallback(callback, [uiCom], UI);
-            });
+            }
         };
 
         // TODO 这里根据控件获取 UI
@@ -453,6 +488,10 @@ return ZUI.def("app.wn.hmaker_page", {
         // 否则根据类型加载 UI 吧
         else {
             var ctype = jCom.attr("ctype");
+            if(!ctype) {
+                console.warn(ctype, jCom);
+                throw "fail to found ctype from jCom";
+            }
             seajs.use("app/wn.hmaker2/component/"+ctype, function(ComUI){
                 new ComUI({
                     parent : UI,
@@ -481,8 +520,8 @@ return ZUI.def("app.wn.hmaker_page", {
         this.applyBlockProp(jBlock, prop, false);
     },
     //...............................................................
-    doChangeCom : function(com) {
-        var jCom = this.getActivedComElement();
+    doChangeCom : function(com, jCom) {
+        jCom = jCom || this.getActivedComElement();
         var uiCom = ZUI(jCom, true);
         uiCom.setData(com);
     },
@@ -504,7 +543,7 @@ return ZUI.def("app.wn.hmaker_page", {
             var com = uiCom.getData();
             // 发出通知
             UI.fire("change:com", com);
-        });
+        }, true);
     },
     //...............................................................
     doBlurAll : function() {
@@ -615,7 +654,7 @@ return ZUI.def("app.wn.hmaker_page", {
             var seq = $(this).attr("c_seq") * 1;
             if(_.isNumber(seq)){
                 // 无效的或者已经存在的序号
-                if(isNaN(seq) || UI._com_seq[i]) {
+                if(isNaN(seq) || UI._com_seq[seq]) {
                     $(this).removeAttr("c_seq");
                 }
                 // 记录序号
@@ -636,6 +675,62 @@ return ZUI.def("app.wn.hmaker_page", {
         cobj.$root = $(cobj.root);
         cobj.$head = $(cobj.head);
         cobj.$body = $(cobj.body);
+    },
+    //...............................................................
+    getCurrentEditObj : function() {
+        return this._page_obj;
+    },
+    //...............................................................
+    getCurrentTextContent : function() {
+        var UI = this;
+        var C  = UI._C;
+
+        // 将 iedit 的内容复制到 iload 里面
+        C.iload.root.innerHTML = C.iedit.root.innerHTML;
+        UI._reset_context_vars(C.iload);
+
+        // 清空 iload 的头部
+        C.iload.$head.empty();
+        C.iload.$body.removeAttr("pointer-moving-enabled");
+
+        // 移除所有的辅助节点
+        C.iload.$body.find(".mvrz-ass, .hm-del-save").remove();
+
+        // 删除所有的块和控件的 CSS 渲染属性
+        C.iload.$body.find(".hm-block,.hmb-con,.hmb-area,.hm-com,.ui-arena").each(function(){
+            var jq = $(this).removeAttr("style");
+
+            // 块
+            if(jq.hasClass("hm-block")) {
+                jq.removeAttr("mvrz-block");
+                jq.removeAttr("hm-actived");
+            }
+            // 控件
+            else if(jq.hasClass("hm-com")) {
+                jq.removeAttr("ui-id");
+            }
+        }).filter(".hm-com").each(function(){
+            $(this).removeAttr("ui-id");
+        });
+
+        // 最后整理所有的空节点，让其为一个回车
+        $z.eachTextNode(C.iload.$body, function(){
+            var str = $.trim(this.nodeValue);
+            // 处理空白节点
+            if(0 == str.length) {
+                // 如果之前的节点是个文本节点的话，那么自己就变成空字符串吧
+                if(this.previousSibling && this.previousSibling.nodeType == 3) {
+                    this.nodeValue = "";
+                }
+                // 否则输出个回车
+                else {
+                    this.nodeValue = "\n";
+                }
+            }
+        });
+
+        // 返回 HTML
+        return '<!DOCTYPE html>\n<html>\n' + C.iload.$root.html() + '\n</html>\n';;
     },
     //...............................................................
 });

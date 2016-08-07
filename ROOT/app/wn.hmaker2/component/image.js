@@ -6,7 +6,7 @@ $z.declare([
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
 var html = function(){/*
-<div class="ui-arena hmc-image"></div>
+<div class="ui-arena hmc-image hm-del-save"></div>
 */};
 //==============================================
 return ZUI.def("app.wn.hm_com_image", {
@@ -30,6 +30,8 @@ return ZUI.def("app.wn.hm_com_image", {
     //...............................................................
     paint : function(com) {
         var UI = this;
+
+        console.log("image", com)
 
         // 保存属性
         UI.setPropToDom(com);

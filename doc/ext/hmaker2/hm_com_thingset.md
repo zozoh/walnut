@@ -155,26 +155,27 @@ tags:
 ```
 <div class="hm-th-obj">
     <ul>
-        <li class="hm-tho-fld" key="xxx" as="text" ...>
-            <span for="-1">live</span>
-            <span for="2">dead</span>
+        <li class="hm-tho-fld" key="xxx" as="text">
+           <span for="-1">live</span>
+           <span for="2">dead</span>
         </li>
-        ...
     </ul>
 </div>
 ```
 
 支持如下值的配置
 
-* `.hm-th-obj > .hm-th-W > ul > li ` 结构是必须的
+* `.hm-th-obj > ul > li ` 结构是必须的 
 * `class` : 你可以随便定义，以便配合 *css.json*
 * `key`   : 每个 `<li>` 都必须有一个 `key` 字段作为标识
 * `as`    : 每个字段的具体如何显示，通过 as 来指定:
-    - *text*   : 普通文字节点
+    - *text*   : 普通文字节点: 子节点作为默认值
     - *img*    : 图片节点，这要求值必须是一个 WnObj 的 ID
-    - *html*   : 值本身就是一段HTML，直接输出就好了
+    - *html*   : 值本身就是一段HTML，直接输出就好了，
+    -            使用 ${item.xxx} 了直接输出对象的某个字段
     - *sub:eq* : 在节点内寻找可以匹配的子元素
     - *sub:loop* : 值必须是个数组或者集合，将子节点循环输出
+                   ${ele} 表示这个元素，通常将是一个字符串  
 * `replace` : 输出的时候，将自身替换成什么元素
     - `DIV` : 默认
     - `unwrap` : 解除包裹

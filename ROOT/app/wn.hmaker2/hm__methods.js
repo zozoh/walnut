@@ -48,7 +48,58 @@ var methods = {
             return Math.round(val) + "px";
         });
         return _.values(re).join(",");
-    }
+    },
+    // 将属性设置到控件的 DOM 上
+    setPropToElement : function(ele, prefix, prop) {
+        ele = $(ele)[0];
+
+        // 准备属性键解析的正则表达式
+        var regex = new RegExp("^"+prefix+"(.+)$");
+
+        // 检查所有的控件属性
+        var attrs = {};
+        for(var i=0;i<ele.attributes.length;i++){
+            var attr = ele.attributes[i];
+            if(regex.test(attr.name))
+                attrs[attr.name] = null;   // 设成 null 表示删除
+        }
+
+        // 分析
+        for(var key in prop) {
+            if(!/^_/.test(key)){
+                var attrName = "com-" + $z.lowerWord(key);
+                var val = prop[key];
+                if(_.isUndefined(val) || $z.isEmptyString(val)) {
+                    val = null;
+                }
+                attrs[attrName] = val;
+            }
+        }
+
+        // 记录
+        UI.$el.attr(attrs);
+
+    },
+    // 从控件的 DOM 上获取控件的属性
+    getPropFromElement : function(ele, prefix){
+        ele = $(ele)[0];
+
+        // 准备属性键解析的正则表达式
+        var regex = new RegExp("^"+prefix+"(.+)$");
+
+        // 分析
+        var prop = {};
+        for(var i=0;i<ele.attributes.length;i++){
+            var attr = ele.attributes[i];
+            var m = regex.exec(attr.name);
+            if(m) {
+                prop[$z.upperWord(m[1])] = attr.value;
+            }
+        }
+        
+        // 返回
+        return prop;
+    },
 
 }; // ~End methods
 //====================================================================

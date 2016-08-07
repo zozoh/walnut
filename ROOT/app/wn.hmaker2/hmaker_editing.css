@@ -6,22 +6,29 @@
 body {
   margin: 0;
 }
+.hm-block > .hmb-con {
+  position: relative;
+}
+.hm-block > .hmb-con > .mvrz-ass {
+  display: none;
+}
+.hm-block > .hmb-con > .hmb-area {
+  position: relative;
+}
 .hm-block[hmb-mode="abs"] .hmb-con {
   width: 100%;
   height: 100%;
-  position: relative;
-}
-.hm-block[hmb-mode="abs"] .hmb-con .mvrz-ass {
-  display: none;
 }
 .hm-block[hmb-mode="abs"] .hmb-con .hmb-area {
   width: 100%;
   height: 100%;
-  position: relative;
 }
 .hm-block[hmb-mode="abs"][hm-actived] .hmb-con .mvrz-ass {
   display: -webkit-flex;
   display: flex;
+  border: 1px dotted #0FF;
+}
+.hm-block[hmb-mode="inflow"][hm-actived] {
   border: 1px dotted #0FF;
 }
 .hm-page-move-mask .pmv-helper {
@@ -74,6 +81,30 @@ body {
 .hmc-thingset > .hmc-th-tip .lnkbtn:hover {
   color: #ff0000;
 }
+.hmc-thingset > .hmc-ths-main .hmc-ths-list {
+  border: 1px dashed rgba(0, 255, 255, 0.6);
+  margin: 1px 0;
+}
+.hmc-thingset > .hmc-ths-main .hmc-ths-list .hm-th-obj .hm-tho-avatar {
+  border: 1px dashed #888;
+  padding: 6px 12px;
+  font: 16px Monaco, Consolas, Courier New;
+  cursor: pointer;
+}
+.hmc-thingset > .hmc-ths-main .hmc-ths-list .hm-th-obj .hm-tho-avatar > i {
+  margin-right: 4px;
+}
+.hmc-thingset > .hmc-ths-main .hmc-ths-list .hm-th-obj .hm-tho-avatar > em {
+  font: 12px normal;
+}
+.hmc-thingset > .hmc-ths-main .hmc-ths-list .hm-th-obj .hm-tho-avatar:hover {
+  color: #ffffff;
+  background: #008800;
+  border-color: #ffffff;
+}
+.hmc-thingset > .hmc-ths-main .hmc-ths-list .hm-th-obj .hm-tho-subs {
+  display: none;
+}
 .hmc-thingset > .hmc-ths-main .hmc-ths-part {
   border: 1px dashed rgba(0, 255, 255, 0.6);
   padding: 12px;
@@ -95,12 +126,13 @@ body {
   display: block;
 }
 .hmc-thingset > .hmc-ths-main .hmc-ths-more {
-  line-height: 48px;
   color: #888888;
   padding: 0 12px;
-  font: 24px 'Material-Design-Iconic-Font';
+  font-size: 14px;
 }
 .hmc-thingset > .hmc-ths-main .hmc-ths-more:before {
-  content: "\f19c";
-  display: inline;
+  content: "......";
+  display: block;
+  height: 24px;
+  line-height: 24px;
 }

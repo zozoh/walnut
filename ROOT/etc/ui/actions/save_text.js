@@ -26,6 +26,7 @@
 			return;
 		}
 		
+		//console.log(content);
 		
 		// 准备提交
 		window.setTimeout(function(){

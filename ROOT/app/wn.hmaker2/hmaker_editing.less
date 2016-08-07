@@ -8,21 +8,34 @@
 
 body {margin:0;}
 
+
+
 //............................................................
-// 块:绝对位置
+// 块
+.hm-block {
+    > .hmb-con {
+        position: relative;
+        > .mvrz-ass {display: none;}
+        > .hmb-area {position: relative;}
+    }
+}
+// 绝对位置
 .hm-block[hmb-mode="abs"] {
     .hmb-con {
-        width: 100%; height:100%; position: relative;
-        .mvrz-ass {display: none;}
-
+        width: 100%; height:100%; 
         .hmb-area {
-            width: 100%; height:100%; position: relative;
+            width: 100%; height:100%;
         }
     }
 }
 
 .hm-block[hmb-mode="abs"][hm-actived] .hmb-con .mvrz-ass {
     @flex(); border:1px dotted #0FF;
+}
+
+// 相对位置
+.hm-block[hmb-mode="inflow"][hm-actived] {
+    border:1px dotted #0FF;
 }
 
 //............................................................
@@ -39,6 +52,7 @@ body {margin:0;}
 // 各个控件的特殊显示
 //............................................................
 .hmc-thingset {
+    @areaBorder : 1px dashed rgba(0,255,255,0.6);
     > .hmc-th-W {display: none;}
     > .hmc-th-W[show] {display: block;}
     //........................................................
@@ -65,12 +79,30 @@ body {margin:0;}
     // 主区域
     > .hmc-ths-main {
         .hmc-ths-list {
-            
+            border : @areaBorder; margin:1px 0;
+            .hm-th-obj {
+                // > ul {
+                //     list-style: none; margin:0; padding:0;
+                //     > li {
+                //         border:1px dashed #888;
+                //     }
+                // }
+                .hm-tho-avatar {
+                    border:1px dashed #888; padding:@d2 @d4; font:@f4 @f_fixed;
+                    cursor: pointer;
+                    > i {margin-right:@d1;}
+                    > em {font: @f2 normal; }
+                }
+                .hm-tho-avatar:hover {
+                    color:@chx_f; background:@chx_b; border-color:@chx_f;
+                }
+                .hm-tho-subs {display: none;}
+            }
         }
         //....................................................
         // 可开关区域， filter 和 pager
         .hmc-ths-part {
-            border:1px dashed rgba(0,255,255,0.6); padding:@d4;
+            border:@areaBorder; padding:@d4;
             font-size:@f3;
             .part-disabled {opacity: 0.4;}
         }
@@ -85,9 +117,10 @@ body {margin:0;}
         //....................................................
         // 省略号
         .hmc-ths-more {
-            line-height: @f7; color:@c2; padding:0 @d4;
-            font: @f5 'Material-Design-Iconic-Font';
+            color:@c2; padding:0 @d4;
+            //font: @f2 'FontAwesome';
+            font-size:@f3;
         }
-        .hmc-ths-more:before {content: "\f19c"; display: inline;}
+        .hmc-ths-more:before {content: "......"; display: block; height:@f5; line-height: @f5; }
     } // ~ 主区域 .hmc-ths-main
-}
+} // ~ .hmc-thingset

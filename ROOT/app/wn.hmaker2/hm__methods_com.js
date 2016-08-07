@@ -25,48 +25,21 @@ var methods = {
     },
     // 将属性设置到控件的 DOM 上
     setPropToDom : function(prop) {
-        var UI = this;
-
-        // 检查所有的控件属性
-        var attrs = {};
-        for(var i=0;i<UI.el.attributes.length;i++){
-            var attr = UI.el.attributes[i];
-            if(/^com-(.+)$/.test(attr.name))
-                attrs[attr.name] = null;   // 设成 null 表示删除
+        var jPropEle = this.$el.children("script.hmc-th-prop-ele");
+        if(jPropEle.size() == 0) {
+            jPropEle = $('<script type="text/x-template" class="hmc-th-prop-ele">').prependTo(this.$el);
         }
-
-        // 分析
-        for(var key in prop) {
-            if(!/^_/.test(key)){
-                var attrName = "com-" + $z.lowerWord(key);
-                var val = prop[key];
-                if(_.isUndefined(val) || $z.isEmptyString(val)) {
-                    val = null;
-                }
-                attrs[attrName] = val;
-            }
-        }
-
-        // 记录
-        UI.$el.attr(attrs);
-
+        jPropEle.html("\n"+$z.toJson(prop,null,'    ')+"\n");
     },
     // 从控件的 DOM 上获取控件的属性
     getPropFromDom : function(){
-        var UI = this;
-
-        // 分析
-        var prop = {};
-        for(var i=0;i<UI.el.attributes.length;i++){
-            var attr = UI.el.attributes[i];
-            var m = /^com-(.+)$/.exec(attr.name);
-            if(m) {
-                prop[$z.upperWord(m[1])] = attr.value;
-            }
+        var jPropEle = this.$el.children("script.hmc-th-prop-ele");
+        if(jPropEle.size() > 0){
+            var json = jPropEle.html();
+            return $z.fromJson(json);
         }
-        
-        // 返回
-        return prop;
+        // 返回空
+        return {};
     },
     // 将一个 json 描述的 CSS 对象变成 CSS 文本
     // css 对象，key 作为 selector，值是 JS 对象，代表 rule

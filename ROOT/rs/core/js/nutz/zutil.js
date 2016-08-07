@@ -1576,6 +1576,28 @@
             throw "Fuck! unknown arg : " + arg;
         },
         //............................................
+        // 递归迭代给定元素下面所有的文本节点
+        // jq 给定元素的 jQuery 对象
+        // callback 回调 F(TextNode)
+        eachTextNode : function(jq, callback) {
+            jq = $(jq);
+            for(var i=0; i<jq.size(); i++) {
+                var ele = jq[i];
+                var ndList = ele.childNodes;
+                for(var x=0; x<ndList.length; x++) {
+                    var nd = ndList[x];
+                    // 文本节点
+                    if(3 == nd.nodeType) {
+                        callback.call(nd);
+                    }
+                    // 元素的话，递归
+                    else if(1 == nd.nodeType) {
+                        this.eachTextNode(nd, callback);
+                    }
+                }
+            }
+        },
+        //............................................
         // 对一个字符串进行转换，相当于 $(..).text(str) 的效果
         __escape_ele: $(document.createElement("b")),
         escapeText: function (str) {

@@ -5,97 +5,104 @@ $z.declare([
     'app/wn.hmaker2/hm__methods_com'
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
+var FLD_ICONS = {
+    'text'     : '<i class="fa fa-font"></i>',
+    'img'      : '<i class="fa fa-image"></i>',
+    'html'     : '<i class="fa fa-code"></i>',
+    'sub:eq'   : '<i class="fa fa-code-fork"></i>',
+    'sub:loop' : '<i class="zmdi zmdi-repeat"></i>',
+};
+//==============================================
 var html = function(){/*
-<script type="text/x-template"></script>
-<style rel="stylesheet" type="text/css"></style>
-<div class="ui-arena hmc-thingset">
-    <section class="hmc-th-W hmc-th-tip" mode="none">
+<style rel="stylesheet" type="text/css" class="hm-del-save"></style>
+<div class="ui-arena hmc-thingset hm-del-save">
+    <section class="hmc-th-W hmc-th-tip hm-del-save" mode="none">
         <div class="tiptxt info">
             <i class="zmdi zmdi-info"></i>
             {{hmaker.com.thingset.mode.none}}
         </div>
         <div class="lnkbtn redata">{{hmaker.com.thingset.redata}}</div>
     </section>
-    <section class="hmc-th-W hmc-th-tip" mode="gone">
+    <section class="hmc-th-W hmc-th-tip hm-del-save" mode="gone">
         <div class="tiptxt warn">
             <i class="fa fa-trash-o" aria-hidden="true"></i>
             {{hmaker.com.thingset.mode.gone}}
         </div>
         <div class="lnkbtn redata">{{hmaker.com.thingset.redata}}</div>
     </section>
-    <section class="hmc-th-W hmc-th-tip" mode="invalid">
+    <section class="hmc-th-W hmc-th-tip hm-del-save" mode="invalid">
         <div class="tiptxt warn">
             <i class="zmdi zmdi-alert-polygon"></i>
             {{hmaker.com.thingset.mode.invalid}}
         </div>
         <div class="lnkbtn redata">{{hmaker.com.thingset.redata}}</div>
     </section>
-    <section class="hmc-th-W hmc-th-tip" mode="lackdef">
+    <section class="hmc-th-W hmc-th-tip hm-del-save" mode="lackdef">
         <div class="tiptxt error">
             <i class="zmdi zmdi-alert-circle-o"></i>
             {{hmaker.com.thingset.mode.lackdef}}
         </div>
         <div class="lnkbtn redata">{{hmaker.com.thingset.redata}}</div>
     </section>
-    <section class="hmc-th-W hmc-th-tip" mode="wrongdef">
+    <section class="hmc-th-W hmc-th-tip hm-del-save" mode="wrongdef">
         <div class="tiptxt error">
             <i class="zmdi zmdi-alert-octagon"></i>
             {{hmaker.com.thingset.mode.wrongdef}}
         </div>
         <div class="lnkbtn redata">{{hmaker.com.thingset.redata}}</div>
     </section>
-    <section class="hmc-th-W hmc-th-tip" mode="tmplnone">
+    <section class="hmc-th-W hmc-th-tip hm-del-save" mode="tmplnone">
         <div class="tiptxt warn">
             <i class="zmdi zmdi-view-compact"></i>
             {{hmaker.com.thingset.mode.tmplnone}}
         </div>
         <div class="lnkbtn retemplate">{{hmaker.com.thingset.retemplate}}</div>
     </section>
-    <section class="hmc-th-W hmc-th-tip" mode="tmplgone">
+    <section class="hmc-th-W hmc-th-tip hm-del-save" mode="tmplgone">
         <div class="tiptxt warn">
             <i class="zmdi zmdi-folder-outline"></i>
             {{hmaker.com.thingset.mode.tmplgone}}
         </div>
         <div class="lnkbtn retemplate">{{hmaker.com.thingset.retemplate}}</div>
     </section>
-    <section class="hmc-th-W hmc-th-tip" mode="tmplnodom">
+    <section class="hmc-th-W hmc-th-tip hm-del-save" mode="tmplnodom">
         <div class="tiptxt error">
             <i class="zmdi zmdi-language-html5"></i>
             {{hmaker.com.thingset.mode.tmplnodom}}
         </div>
         <div class="lnkbtn retemplate">{{hmaker.com.thingset.retemplate}}</div>
     </section>
-    <section class="hmc-th-W hmc-th-tip" mode="tmplnocss">
+    <section class="hmc-th-W hmc-th-tip hm-del-save" mode="tmplnocss">
         <div class="tiptxt error">
             <i class="zmdi zmdi-language-css3"></i>
             {{hmaker.com.thingset.mode.tmplnocss}}
         </div>
         <div class="lnkbtn retemplate">{{hmaker.com.thingset.retemplate}}</div>
     </section>
-    <section class="hmc-th-W hmc-th-tip" mode="tmpldom_E">
+    <section class="hmc-th-W hmc-th-tip hm-del-save" mode="tmpldom_E">
         <div class="tiptxt error">
             <i class="fa fa-square-o" aria-hidden="true"></i>
             {{hmaker.com.thingset.mode.tmpldom_E}}
         </div>
         <div class="lnkbtn retemplate">{{hmaker.com.thingset.retemplate}}</div>
     </section>
-    <section class="hmc-th-W hmc-th-tip" mode="tmplcss_E">
+    <section class="hmc-th-W hmc-th-tip hm-del-save" mode="tmplcss_E">
         <div class="tiptxt error">
             <i class="fa fa-circle-o" aria-hidden="true"></i>
             {{hmaker.com.thingset.mode.tmplcss_E}}
         </div>
         <div class="lnkbtn retemplate">{{hmaker.com.thingset.retemplate}}</div>
     </section>
-    <section class="hmc-th-W hmc-ths-main" mode="ok">
+    <section class="hmc-th-W hmc-ths-main hm-del-save" mode="ok">
         <div class="hmc-ths-part hmc-ths-filter">
             <div class="part-enabled">{{hmaker.com.thingset.flt.enabled}}</div>
             <div class="part-disabled"><i class="fa fa-eye-slash"></i> {{hmaker.com.thingset.flt.disabled}}</div>
         </div>
         <div class="hmc-ths-list">
             <div class="hmc-ths-more"></div>
-            <div class="hmc-ths-item">
-            
-            </div>
+            <div class="hmc-ths-item"></div>
+            <div class="hmc-ths-more"></div>
+            <div class="hmc-ths-more"></div>
             <div class="hmc-ths-more"></div>
         </div>
         <div class="hmc-ths-part hmc-ths-pager">
@@ -112,12 +119,14 @@ return ZUI.def("app.wn.hm_com_thingset", {
     init : function(){
         var UI = HmComMethods(this);
 
-        UI.setPropToDom({
-            dsId     : "thing:5osnmkm988jeuoduvmu773a260",
-            template : "test",
-            fltEnabled : true,
-            pgEnabled : true
-        });
+        window.setTimeout(function(){
+            UI.setPropToDom({
+                dsId     : "thing:5osnmkm988jeuoduvmu773a260",
+                template : "test",
+                fltEnabled : true,
+                pgEnabled : true
+            });
+        }, 0);
     },
     //...............................................................
     events : {
@@ -126,12 +135,16 @@ return ZUI.def("app.wn.hm_com_thingset", {
         },
         "click .retemplate" : function(){
             alert("额... 你点了这里 ... 还没实现呢，右侧属性面板手动输入吧 -_-!")
+        },
+        "click .hm-tho-avatar" : function(e) {
+            var jFld = $(e.currentTarget).closest("[t-key]");
+            console.log("click var:", jFld.attr("t-key"));
         }
     },
     //...............................................................
     redraw : function() {
         var UI = this;
-
+        
         console.log("I am com.thingset redraw")
     },
     //...............................................................
@@ -244,14 +257,28 @@ return ZUI.def("app.wn.hm_com_thingset", {
     __paint_item : function(com) {
         var UI = this;
 
-        // 记录 Mapping 关系
-        UI.$el.children("script").html($z.toJson(com.mapping || "{}"));
-
         // 生成 CSS
         UI.$el.children("style").html(this.genCssText(UI._R.css, "#"+com._id));
 
         // 插入 DOM
-        UI.arena.find(".hmc-ths-item").html(UI._R.itemHtml);
+        UI.arena.find(".hmc-ths-item").html(UI._R.itemHtml)
+            // 处理插入的 DOM，将所有的值包裹
+            .find(".hm-th-obj>ul>li").each(function(){
+                var jLi = $(this);
+
+                // 得到所有的子节点
+                var jSubs = jLi.children();
+
+                // 包裹值
+                var jLiW = $('<div class="hm-tho-subs">').appendTo(jLi);
+                jSubs.appendTo(jLiW);
+
+                // 设置每个区域的显示
+                var jAvatar = $('<div class="hm-tho-avatar">').prependTo(jLi);
+                var html = FLD_ICONS[jLi.attr("as")||"text"];
+                html += '<em>' + jLi.attr("t-key") + '</em>';
+                jAvatar.html(html);
+            });
     },
     //...............................................................
     __check_mode : function(com) {
