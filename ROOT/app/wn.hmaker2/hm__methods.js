@@ -42,6 +42,14 @@ var methods = {
             return null;
         return re;
     },
+    // 获取 prop UI 下面的子 UI，如果类型未定义，则返回 prop UI 本身
+    propUI : function(uiPath) {
+        var uiHMaker = this.hmaker();
+        var uiProp   = uiHMaker.gasket.prop;
+        if(uiPath)
+            return uiProp.subUI(uiPath);
+        return uiProp;
+    },
     // 将 rect 按照 posBy 转换成 posVal 字符串
     transRectToPosVal : function(rect, posBy) {
         var re = _.mapObject($z.rectObj(rect, posBy), function(val){

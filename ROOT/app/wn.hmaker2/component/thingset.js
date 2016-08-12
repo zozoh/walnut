@@ -15,7 +15,7 @@ var FLD_ICONS = {
 //==============================================
 var html = function(){/*
 <style rel="stylesheet" type="text/css" class="hm-del-save"></style>
-<div class="ui-arena hmc-thingset hm-del-save">
+<div class="hmc-thingset hm-del-save">
     <section class="hmc-th-W hmc-th-tip hm-del-save" mode="none">
         <div class="tiptxt info">
             <i class="zmdi zmdi-info"></i>
@@ -119,14 +119,18 @@ return ZUI.def("app.wn.hm_com_thingset", {
     init : function(){
         var UI = HmComMethods(this);
 
-        window.setTimeout(function(){
-            UI.setPropToDom({
-                dsId     : "thing:5osnmkm988jeuoduvmu773a260",
-                template : "test",
-                fltEnabled : true,
-                pgEnabled : true
-            });
-        }, 0);
+        UI.listenBus("hide:com:ele",  function(){
+            UI.$el.find(".hm-tho-avatar").removeAttr("current");
+        });
+
+        // window.setTimeout(function(){
+        //     UI.setPropToDom({
+        //         dsId     : "thing:5osnmkm988jeuoduvmu773a260",
+        //         template : "test",
+        //         fltEnabled : true,
+        //         pgEnabled : true
+        //     });
+        // }, 0);
     },
     //...............................................................
     events : {
@@ -137,15 +141,31 @@ return ZUI.def("app.wn.hm_com_thingset", {
             alert("额... 你点了这里 ... 还没实现呢，右侧属性面板手动输入吧 -_-!")
         },
         "click .hm-tho-avatar" : function(e) {
-            var jFld = $(e.currentTarget).closest("[t-key]");
-            console.log("click var:", jFld.attr("t-key"));
+            var UI   = this;
+            var jTa  = $(e.currentTarget);
+            var jFld = jTa.closest("[t-key]");
+            
+            // 在激活的块中，可以激活元素
+            if(UI.isInActivedBlock(jFld)) {
+                // 激活的块中就不要再冒泡了
+                e.stopPropagation();
+
+                console.log("click var:", jFld.attr("t-key"));
+
+                // 显示控件元素的动态属性面板
+                UI.fire("show:com:ele");
+
+                // 激活自身 
+                UI.$el.find(".hm-tho-avatar").removeAttr("current");
+                jTa.attr("current", "yes");
+            }
         }
     },
     //...............................................................
     redraw : function() {
         var UI = this;
         
-        console.log("I am com.thingset redraw")
+        console.log("I am com.thingset redraw", this.getProp())
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性
@@ -208,8 +228,8 @@ return ZUI.def("app.wn.hm_com_thingset", {
     },
     //...............................................................
     __show_mode : function(mode) {
-        this.arena.find('[mode!="'+mode+'"]').removeAttr("show");
-        this.arena.find('[mode="'+mode+'"]').attr("show", "yes");
+        this.$el.find('[mode!="'+mode+'"]').removeAttr("show");
+        this.$el.find('[mode="'+mode+'"]').attr("show", "yes");
         return "ok" == mode;
     },
     //...............................................................
@@ -232,10 +252,10 @@ return ZUI.def("app.wn.hm_com_thingset", {
     __paint_filter : function(com) {
         var UI = this;
 
-        console.log(com)
+        //console.log(com)
 
         // 标记属性
-        var jFlt = UI.arena.find(".hmc-ths-filter").attr({
+        var jFlt = UI.$el.find(".hmc-ths-filter").attr({
             "enabled" :  com.fltEnabled ? "yes" : null,
             "disabled":  !com.fltEnabled ? "yes" : null,
         });
@@ -247,7 +267,7 @@ return ZUI.def("app.wn.hm_com_thingset", {
         var UI = this;
 
         // 标记属性
-        var jPg = UI.arena.find(".hmc-ths-pager").attr({
+        var jPg = UI.$el.find(".hmc-ths-pager").attr({
             "enabled" :  com.pgEnabled ? "yes" : null,
             "disabled":  !com.pgEnabled ? "yes" : null,
         });
@@ -261,7 +281,7 @@ return ZUI.def("app.wn.hm_com_thingset", {
         UI.$el.children("style").html(this.genCssText(UI._R.css, "#"+com._id));
 
         // 插入 DOM
-        UI.arena.find(".hmc-ths-item").html(UI._R.itemHtml)
+        UI.$el.find(".hmc-ths-item").html(UI._R.itemHtml)
             // 处理插入的 DOM，将所有的值包裹
             .find(".hm-th-obj>ul>li").each(function(){
                 var jLi = $(this);

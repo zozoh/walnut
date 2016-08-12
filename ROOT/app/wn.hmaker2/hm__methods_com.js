@@ -65,6 +65,14 @@ var methods = {
         }
         re += '\n}'
         return re;
+    },
+    // 判断一个 DOM 元素是否在一个激活的块中
+    isInActivedBlock : function(jq) {
+        return $(jq).closest(".hm-block[hm-actived]").size() > 0;
+    },
+    // 在属性面板的扩展元素接口，绘制自定义 UI
+    drawComEleInProp : function(uiDef, callback) {
+        this.propUI("edit").drawComEle(uiDef, callback);
     }
 }; // ~End methods
 //====================================================================

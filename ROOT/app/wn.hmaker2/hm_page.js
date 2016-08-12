@@ -316,6 +316,11 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 通知网页被加载
         UI.fire("active:page", UI._page_obj);
+
+        // 模拟第一个块被点击
+        window.setTimeout(function(){
+            UI._C.iedit.$body.find(".hm-block").first().click();
+        },200);
     },
     //...............................................................
     __setup_page_head : function() {
@@ -356,12 +361,16 @@ return ZUI.def("app.wn.hmaker_page", {
 
             // 如果点在了块里，激活块，然后就不要冒泡了
             if(jq.hasClass("hm-block")){
+                console.log("click block")
                 e.stopPropagation();
                 if(!jq.attr("hm-actived"))
                     UI.fire("active:block", jq);
+                // 确保控件扩展属性面板被隐藏
+                UI.fire("hide:com:ele");
             }
             // 如果点到了 body，那么激活页
             else if('BODY' == this.tagName){
+                console.log("click body")
                 UI.fire("active:page", UI._page_obj);
             }
         });
@@ -494,8 +503,9 @@ return ZUI.def("app.wn.hmaker_page", {
             }
             seajs.use("app/wn.hmaker2/component/"+ctype, function(ComUI){
                 new ComUI({
-                    parent : UI,
-                    $el    : jCom
+                    parent  : UI,
+                    $el     : jCom,
+                    keepDom : true
                 }).render(function(){
                     _do_com_ui(this);
                 })

@@ -6,10 +6,14 @@ require("theme/ui/zui.css");
 //====================================================
 var parse_dom = function (html) {
     var UI = this;
+
     // 解析代码模板
     var tmpl = $z.tmpl(html);
     html = tmpl(UI._msg_map);
-    UI.$el[0].innerHTML = html;  // FIXME 这里有严重的bug, tr不能被加入到页面中
+
+    // 这里需要添加 dom 段描述的 HTML 到当前的 $el 
+    // 为了兼顾 keepDom 所以要用 +=
+    UI.el.innerHTML += html;  // FIXME 这里有严重的bug, tr不能被加入到页面中
 
     // 分析 DOM 结构
     var map = this._code_templates;
@@ -22,7 +26,11 @@ var parse_dom = function (html) {
         var key = jq.attr('code-id');
         map[key] = jq;
     });
-    UI.arena = UI.$el.children('.ui-arena');
+
+    // 搞完了 dom，根据 .ui-arena 找找有没有指定的 arena
+    var $arena = UI.$el.children('.ui-arena');
+    if($arena.size() > 0)
+        UI.arena = $arena;
 
     // 标识所有的扩展点
     sign_gaskets(UI);

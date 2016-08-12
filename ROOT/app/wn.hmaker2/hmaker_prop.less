@@ -92,11 +92,6 @@
             }
         } // ~ 块属性
         //....................................................
-        // 栏属性
-        .hm-prop-area {
-
-        } // ~ 栏属性
-        //....................................................
         // 控件属性
         @hmpcH : 32px;
         .hm-prop-com {
@@ -112,6 +107,47 @@
                 width: 100%; height:100%;
             }
         } // ~ 控件属性
+        //....................................................
+        // 控件内元素属性
+        .hm-prop-com-ele { background:@cb4; color:@cf4;
+            position: absolute; top:0; bottom:0;left:10000px;
+            transition:0.2s; opacity: 0.3;
+        }
+        .hm-prop-com-ele[show] {
+            left:0; opacity: 1.0;
+        }
+        .hm-prop-ele {
+            width:100%; height:100%; position: relative; padding:@hmpcH 0 0 0;
+            .hmpe-info {
+                position: absolute; top:0; left:0; right:0; height: @hmpcH; line-height: @hmpcH;
+                padding:0 @d4; font-family: @f_fixed; color:@cf1; background:red;
+                > * {margin-right: @d2; }
+                > em {color:@c3; font-style: normal;}
+                > em:before {display: inline; content: " : ";}
+            }
+            .hmpe-form {
+                width: 100%; height:100%;
+            }
+            .hmpe-hide {
+                position: absolute; top:@d0; right:@d0;
+                font-size:@f4; font-family: 'Material-Design-Iconic-Font';
+                cursor:pointer; 
+                color:@cbtn_f; background-color: @cbtn_b; 
+                border-radius: 100px; border:2px solid @cbtn_l;
+                line-height: @d6; width:@d6 + 4px; text-align: center;
+                transition:0.2s;
+            }
+            .hmpe-hide:before {
+                display: "inline";
+                content: "\f136";
+            }
+
+            .hmpe-hide:hover {
+                background-color: @ch0_b; color:@ch0_f; border-color:@cborder1;
+                font-size:1.2em; font-weight: bold;
+                transform: scale(1.2) rotate(360deg);
+            }
+        } 
         //....................................................
 
     } // ~ .hm-prop-body

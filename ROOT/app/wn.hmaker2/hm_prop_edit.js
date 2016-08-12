@@ -6,10 +6,12 @@ $z.declare([
     'app/wn.hmaker2/hm__methods',
     'app/wn.hmaker2/hm_prop_edit_block',
     'app/wn.hmaker2/hm_prop_edit_com',
+    'app/wn.hmaker2/hm_prop_edit_ele',
 ], function(ZUI, Wn, MenuUI, 
     HmMethods,
     EditBlockUI,
-    EditComUI){
+    EditComUI,
+    EditEleUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena hm-prop-edit" ui-fitparent="yes">
@@ -19,10 +21,13 @@ var html = function(){/*
             <li ptype="com"><%=hmaker.prop.tab_com%></li>
         </ul>
     </div>
-    <div class="hm-prop-body"><div class="hm-W">
-        <div class="hm-prop-con" ptype="block" ui-gasket="block"></div>
-        <div class="hm-prop-con" ptype="com"   ui-gasket="com"></div>
-    </div></div>
+    <div class="hm-prop-body">
+        <div class="hm-W">
+            <div class="hm-prop-con" ptype="block" ui-gasket="block"></div>
+            <div class="hm-prop-con" ptype="com"   ui-gasket="com"></div>
+        </div>
+        <div class="hm-prop-com-ele"><div class="hm-W" ui-gasket="ele"></div></div>
+    </div>
 </div>
 */};
 //==============================================
@@ -36,6 +41,12 @@ return ZUI.def("app.wn.hm_prop_edit", {
         UI.listenBus("change:block",  UI.changeBlock);
         UI.listenBus("change:com",    UI.changeCom);
         UI.listenBus("hide:com",      UI.hideCom);
+        UI.listenBus("show:com:ele",  UI.showComEle);
+        UI.listenBus("hide:com:ele",  UI.hideComEle);
+        UI.listenBus("active:page",   UI.hideComEle);
+        UI.listenBus("active:folder", UI.hideComEle);
+        UI.listenBus("active:rs",     UI.hideComEle);
+        UI.listenBus("active:other",  UI.hideComEle);
     },
     //...............................................................
     events : {
@@ -66,8 +77,16 @@ return ZUI.def("app.wn.hm_prop_edit", {
             UI.defer_report("com");
         });
 
+        // 控件内元素扩展编辑面板
+        new EditEleUI({
+            parent : UI,
+            gasketName : "ele"
+        }).render(function(){
+            UI.defer_report("ele");
+        });
+
         // 返回延迟加载
-        return ["block", "com"];
+        return ["block", "com", "ele"];
     },
     //...............................................................
     switchTab : function(ptype) {
@@ -103,12 +122,41 @@ return ZUI.def("app.wn.hm_prop_edit", {
         this.gasket.com.update(com);
     },
     //...............................................................
+    changeComEle : function(ele) {
+        //console.log("edit> change:ele", ele);
+        this.gasket.ele.update(ele);
+    },
+    //...............................................................
     drawCom : function(uiDef, callback) {
-        this.gasket.com.drawCom(uiDef, callback);
+        this.gasket.com.draw(uiDef, callback);
     },
     //...............................................................
     hideCom : function() {
         this.gasket.com.showBlank();
+    },
+    //...............................................................
+    drawComEle : function(uiDef, callback) {
+        this.gasket.ele.draw(uiDef, callback);
+    },
+    //...............................................................
+    showComEle : function() {
+        this.arena.find('.hm-prop-com-ele').attr("show","yes");
+        this.resize(true);
+    },
+    //...............................................................
+    hideComEle : function() {
+        this.arena.find('.hm-prop-com-ele').removeAttr("show");
+        this.resize(true);
+    },
+    //...............................................................
+    resize : function() {
+        var UI  = this;
+        var jCE = UI.arena.find('.hm-prop-com-ele');
+        var W   = UI.arena.outerWidth();
+        jCE.css({
+            "width" : W,
+            "left"  : jCE.attr("show") ? 0 : W
+        });
     }
     //...............................................................
 });

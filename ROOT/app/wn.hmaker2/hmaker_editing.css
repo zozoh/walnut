@@ -97,7 +97,7 @@ body {
 .hmc-thingset > .hmc-ths-main .hmc-ths-list .hm-th-obj .hm-tho-avatar > em {
   font: 12px normal;
 }
-.hmc-thingset > .hmc-ths-main .hmc-ths-list .hm-th-obj .hm-tho-avatar:hover {
+.hmc-thingset > .hmc-ths-main .hmc-ths-list .hm-th-obj .hm-tho-avatar[current] {
   color: #ffffff;
   background: #008800;
   border-color: #ffffff;

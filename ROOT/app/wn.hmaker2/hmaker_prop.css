@@ -215,3 +215,78 @@
   width: 100%;
   height: 100%;
 }
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-com-ele {
+  background: #cccccc;
+  color: #666666;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 10000px;
+  transition: 0.2s;
+  opacity: 0.3;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-com-ele[show] {
+  left: 0;
+  opacity: 1.0;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  padding: 32px 0 0 0;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 12px;
+  font-family: Monaco, Consolas, Courier New;
+  color: #666666;
+  background: red;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-info > * {
+  margin-right: 6px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-info > em {
+  color: #008800;
+  font-style: normal;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-info > em:before {
+  display: inline;
+  content: " : ";
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-form {
+  width: 100%;
+  height: 100%;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-hide {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 16px;
+  font-family: 'Material-Design-Iconic-Font';
+  cursor: pointer;
+  color: #000000;
+  background-color: #d0d0d0;
+  border-radius: 100px;
+  border: 2px solid #bbbbbb;
+  line-height: 24px;
+  width: 28px;
+  text-align: center;
+  transition: 0.2s;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-hide:before {
+  display: "inline";
+  content: "\f136";
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-hide:hover {
+  background-color: #0044bb;
+  color: #ffffff;
+  border-color: #d0d0d0;
+  font-size: 1.2em;
+  font-weight: bold;
+  transform: scale(1.2) rotate(360deg);
+}

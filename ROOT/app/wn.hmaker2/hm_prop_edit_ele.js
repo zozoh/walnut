@@ -7,30 +7,43 @@ $z.declare([
 ], function(ZUI, Wn, FormUI, HmMethods){
 //==============================================
 var html = function(){/*
-<div class="ui-arena hm-prop-com">
-    <div class="hmpc-info"></div>
-    <div class="hmpc-form" ui-gasket="form"></div>
+<div class="ui-arena hm-prop-ele">
+    <div class="hmpe-info"></div>
+    <div class="hmpe-form" ui-gasket="form"></div>
+    <div class="hmpe-hide"></div>
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.hm_prop_edit_com", {
+return ZUI.def("app.wn.hm_prop_edit_ele", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
     },
     //...............................................................
-    update : function(com) {
+    events : {
+        "click .hmpe-hide" : function() {
+            this.fire("hide:com:ele");
+        }
+    },
+    //...............................................................
+    update : function(comEle) {
         var UI = this;
 
         // 处理 info 区域
-        var html = UI.msg("hmaker.com."+com._type+".icon");
-        html += '<b>'+UI.msg("hmaker.com."+com._type+".name")+'</b>';
-        html += '<em>#'+com._id+'</em>';
-        UI.arena.find(".hmpc-info").html(html);
+        UI.arena.find(".hmpe-info").html(comEle._info || '<b>Unknown</b>');
 
         // 处理控件扩展区域
-        $z.invoke(UI.gasket.form, "update", [com]);
+        $z.invoke(UI.gasket.form, "update", [comEle]);
+    },
+    //...............................................................
+    showBlank : function() {
+        var UI = this;
+
+        UI.arena.find(".hmpc-info").empty();
+
+        if(UI.gasket.form)
+            UI.gasket.form.destroy();
     },
     //...............................................................
     draw : function(uiDef, callback) {
@@ -47,8 +60,8 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
         // 设置
         else {
             // 重新绑定控件
-            seajs.use(uiDef.uiType, function(EleUI){
-                new EleUI(_.extend({}, uiDef.uiConf||{}, {
+            seajs.use(uiDef.uiType, function(PropUI){
+                new PropUI(_.extend({}, uiDef.uiConf||{}, {
                     parent : UI,
                     gasketName : "form"
                 })).render(function(){
