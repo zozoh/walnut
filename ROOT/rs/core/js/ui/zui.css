@@ -4,14 +4,9 @@
     box-sizing: border-box;
 }
 
-.ui-clr:after {
-    clear: both;
-    height: 1px;
-    line-height: 1px;
-    overflow: hidden;
-    display: block;
-    content: "";
-}
+/* 清除浮动 */
+.ui-clr:before, .ui-clr:after {content:"";display:block;}
+.ui-clr:after {clear: both;}
 
 body.ui-body {
     margin: 0;

@@ -33,9 +33,6 @@ return ZUI.def("app.wn.hm_com_image", {
 
         console.log("image", com)
 
-        // 保存属性
-        UI.setPropToDom(com);
-
         // 准备更新的样式
         var css = {
             "background-image"  : 'url(/a/load/wn.hmaker2/img_blank.jpg)',
@@ -74,10 +71,6 @@ return ZUI.def("app.wn.hm_com_image", {
         // 最后更新显示
         UI.arena.css(css);
 
-    },
-    //...............................................................
-    getProp : function() {
-        return this.getPropFromDom();
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性

@@ -7,7 +7,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.Webs.Err;
 
@@ -21,7 +20,7 @@ public class cmd_cp extends JvmExecutor {
         }
         String ph_src = Wn.normalizeFullPath(params.vals[0], sys);
         String ph_dst = Wn.normalizeFullPath(params.vals[1], sys);
-        
+
         WnObj oSrc = sys.io.check(null, ph_src);
         if (oSrc.isDIR() && !params.is("r")) {
             throw Err.create("e.cmds.cp.omitting_directory");
@@ -57,7 +56,7 @@ public class cmd_cp extends JvmExecutor {
         WnObj dst = sys.io.createIfNoExists(null, dstPath, oSrc.race());
 
         if (oSrc.isFILE())
-            __cp_src_as_file(sys, oSrc, dst);
+            Wn.Io.copyFile(sys.io, oSrc, dst);
 
         if (params.is("p")) {
             NutMap meta = new NutMap();
@@ -66,20 +65,6 @@ public class cmd_cp extends JvmExecutor {
             meta.put("tp", oSrc.type());
             meta.put("mime", oSrc.mime());
             sys.io.appendMeta(dst, meta);
-        }
-    }
-
-    private void __cp_src_as_file(WnSystem sys, WnObj src, WnObj dst) {
-
-        // 如果是 Mount 就傻傻的写流
-        if (src.isMount()) {
-            sys.io.writeAndClose(dst, sys.io.getInputStream(src, 0));
-        }
-        // 执行快速 copy
-        else {
-            sys.io.copyData(src, dst);
-            WnContext wc = Wn.WC();
-            wc.doHook("write", dst);
         }
     }
 

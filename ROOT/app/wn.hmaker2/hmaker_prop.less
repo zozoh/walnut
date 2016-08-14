@@ -109,7 +109,7 @@
         } // ~ 控件属性
         //....................................................
         // 控件内元素属性
-        .hm-prop-com-ele { background:@cb4; color:@cf4;
+        .hm-prop-com-ele { background:@cb2; color:@cf4;
             position: absolute; top:0; bottom:0;left:10000px;
             transition:0.2s; opacity: 0.3;
         }
@@ -120,21 +120,22 @@
             width:100%; height:100%; position: relative; padding:@hmpcH 0 0 0;
             .hmpe-info {
                 position: absolute; top:0; left:0; right:0; height: @hmpcH; line-height: @hmpcH;
-                padding:0 @d4; font-family: @f_fixed; color:@cf1; background:red;
+                padding:0 @d4; font-family: @f_fixed; font-size:@f3; color:@cf1;  
+                border-top: 1px solid @cborder0;
+                border-bottom: 1px solid @cborder0;
                 > * {margin-right: @d2; }
                 > em {color:@c3; font-style: normal;}
-                > em:before {display: inline; content: " : ";}
             }
             .hmpe-form {
                 width: 100%; height:100%;
             }
             .hmpe-hide {
-                position: absolute; top:@d0; right:@d0;
-                font-size:@f4; font-family: 'Material-Design-Iconic-Font';
+                position: absolute; top:@d2; right:@d2;
+                font-size:@f3; font-family: 'Material-Design-Iconic-Font';
                 cursor:pointer; 
                 color:@cbtn_f; background-color: @cbtn_b; 
                 border-radius: 100px; border:2px solid @cbtn_l;
-                line-height: @d6; width:@d6 + 4px; text-align: center;
+                line-height: @d5; width:@d5 + 4px; text-align: center;
                 transition:0.2s;
             }
             .hmpe-hide:before {

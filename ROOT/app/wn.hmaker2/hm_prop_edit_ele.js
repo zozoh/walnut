@@ -7,7 +7,7 @@ $z.declare([
 ], function(ZUI, Wn, FormUI, HmMethods){
 //==============================================
 var html = function(){/*
-<div class="ui-arena hm-prop-ele">
+<div class="ui-arena hm-prop-ele" ui-fitparent="yes">
     <div class="hmpe-info"></div>
     <div class="hmpe-form" ui-gasket="form"></div>
     <div class="hmpe-hide"></div>
@@ -31,7 +31,8 @@ return ZUI.def("app.wn.hm_prop_edit_ele", {
         var UI = this;
 
         // 处理 info 区域
-        UI.arena.find(".hmpe-info").html(comEle._info || '<b>Unknown</b>');
+        if(comEle._info)
+            UI.arena.find(".hmpe-info").html(comEle._info);
 
         // 处理控件扩展区域
         $z.invoke(UI.gasket.form, "update", [comEle]);

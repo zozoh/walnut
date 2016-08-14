@@ -9,12 +9,15 @@ var methods = {
         };
     },
     getData : function() {
-        return _.extend({}, $z.invoke(this,"getProp"), this.__gen_base_data());
+        return _.extend({}, this.getPropFromDom(), this.__gen_base_data());
     },
     // 通常由 hm_page::doChangeCom 调用
     setData : function(com) {
         // 得到完整的属性
         var com2 = _.extend(this.getData(), com);
+
+        // 保存属性
+        this.setPropToDom(com2);
 
         // 子类的绘制方法
         $z.invoke(this, "paint", [com2]);
@@ -61,9 +64,9 @@ var methods = {
             if(_.isNumber(val)){
                 val = val + "px";
             }
-            re += "\n" +$z.lowerWord(key) + ":" + val + ";"
+            re += "\n" +$z.lowerWord(key) + ":" + val + ";";
         }
-        re += '\n}'
+        re += '\n}';
         return re;
     },
     // 判断一个 DOM 元素是否在一个激活的块中

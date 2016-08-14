@@ -95,6 +95,13 @@ define({
                 "pg" : {
                     "enabled"  : "显示翻页条",
                     "disabled" : "隐藏翻页条",
+                },
+                "fld" : {
+                    "className" : "类选择器",
+                    "as"        : "显示类型",
+                    "key"       : "键名",
+                    "replace"   : "输出元素",
+                    "valueBy"   : "取值方式"
                 }
 
             },

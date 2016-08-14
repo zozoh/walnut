@@ -9,13 +9,13 @@ import org.nutz.lang.Mirror;
 import org.nutz.resource.Scans;
 import org.nutz.walnut.api.err.Er;
 
-public class HComFactory {
+public class HmComFactory {
 
-    private Map<String, HComHandler> comHdls;
+    private Map<String, HmComHandler> comHdls;
 
-    public HComFactory() {
+    public HmComFactory() {
         // 开始扫描
-        comHdls = new HashMap<String, HComHandler>();
+        comHdls = new HashMap<String, HmComHandler>();
         // 扫描本包下的所有类
         List<Class<?>> list = Scans.me().scanPackage(this.getClass());
         for (Class<?> klass : list) {
@@ -33,21 +33,22 @@ public class HComFactory {
                 continue;
 
             // 得到控件类型
-            HComType comType = klass.getAnnotation(HComType.class);
-            if (null == comType)
+            String nm = klass.getSimpleName();
+            if (!nm.startsWith("hmc_"))
                 continue;
+            String ctype = nm.substring("hmc_".length());
 
             // 如果是 HopeHdl 的实现类 ...
             Mirror<?> mi = Mirror.me(klass);
-            if (mi.isOf(HComHandler.class)) {
-                HComHandler hdl = (HComHandler) mi.born();
-                comHdls.put(comType.value(), hdl);
+            if (mi.isOf(HmComHandler.class)) {
+                HmComHandler hdl = (HmComHandler) mi.born();
+                comHdls.put(ctype, hdl);
             }
         }
     }
 
-    public HComHandler check(String type) {
-        HComHandler cmdHdl = comHdls.get(type);
+    public HmComHandler check(String type) {
+        HmComHandler cmdHdl = comHdls.get(type);
         if (null == cmdHdl)
             throw Er.create("e.hmaker.unknown.comType", type);
         return cmdHdl;

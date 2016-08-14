@@ -37,12 +37,17 @@ return ZUI.def("app.wn.hm_prop_edit", {
     init : function() {
         var UI = HmMethods(this);
 
-        UI.listenBus("active:block",  UI.activeBlock);
-        UI.listenBus("change:block",  UI.changeBlock);
-        UI.listenBus("change:com",    UI.changeCom);
-        UI.listenBus("hide:com",      UI.hideCom);
+        
+        UI.listenBus("change:block",    UI.changeBlock);
+        UI.listenBus("change:com",      UI.changeCom);
+        UI.listenBus("change:com:ele",  UI.changeComEle);
+
         UI.listenBus("show:com:ele",  UI.showComEle);
+
+        UI.listenBus("hide:com",      UI.hideCom);
         UI.listenBus("hide:com:ele",  UI.hideComEle);
+
+        UI.listenBus("active:block",  UI.activeBlock);
         UI.listenBus("active:page",   UI.hideComEle);
         UI.listenBus("active:folder", UI.hideComEle);
         UI.listenBus("active:rs",     UI.hideComEle);

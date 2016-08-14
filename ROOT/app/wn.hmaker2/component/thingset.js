@@ -16,6 +16,23 @@ var FLD_ICONS = {
 var html = function(){/*
 <style rel="stylesheet" type="text/css" class="hm-del-save"></style>
 <div class="hmc-thingset hm-del-save">
+    <section class="hmc-th-W hmc-ths-main hm-del-save" mode="ok">
+        <div class="hmc-ths-part hmc-ths-filter">
+            <div class="part-enabled">{{hmaker.com.thingset.flt.enabled}}</div>
+            <div class="part-disabled"><i class="fa fa-eye-slash"></i> {{hmaker.com.thingset.flt.disabled}}</div>
+        </div>
+        <div class="hmc-ths-list">
+            <div class="hmc-ths-more"></div>
+            <div class="hmc-ths-item"></div>
+            <div class="hmc-ths-more"></div>
+            <div class="hmc-ths-more"></div>
+            <div class="hmc-ths-more"></div>
+        </div>
+        <div class="hmc-ths-part hmc-ths-pager">
+            <div class="part-enabled">{{hmaker.com.thingset.pg.enabled}}</div>
+            <div class="part-disabled"><i class="fa fa-eye-slash"></i> {{hmaker.com.thingset.pg.disabled}}</div>
+        </div>
+    </section>
     <section class="hmc-th-W hmc-th-tip hm-del-save" mode="none">
         <div class="tiptxt info">
             <i class="zmdi zmdi-info"></i>
@@ -93,23 +110,6 @@ var html = function(){/*
         </div>
         <div class="lnkbtn retemplate">{{hmaker.com.thingset.retemplate}}</div>
     </section>
-    <section class="hmc-th-W hmc-ths-main hm-del-save" mode="ok">
-        <div class="hmc-ths-part hmc-ths-filter">
-            <div class="part-enabled">{{hmaker.com.thingset.flt.enabled}}</div>
-            <div class="part-disabled"><i class="fa fa-eye-slash"></i> {{hmaker.com.thingset.flt.disabled}}</div>
-        </div>
-        <div class="hmc-ths-list">
-            <div class="hmc-ths-more"></div>
-            <div class="hmc-ths-item"></div>
-            <div class="hmc-ths-more"></div>
-            <div class="hmc-ths-more"></div>
-            <div class="hmc-ths-more"></div>
-        </div>
-        <div class="hmc-ths-part hmc-ths-pager">
-            <div class="part-enabled">{{hmaker.com.thingset.pg.enabled}}</div>
-            <div class="part-disabled"><i class="fa fa-eye-slash"></i> {{hmaker.com.thingset.pg.disabled}}</div>
-        </div>
-    </section>
 </div>
 */};
 //==============================================
@@ -122,6 +122,9 @@ return ZUI.def("app.wn.hm_com_thingset", {
         UI.listenBus("hide:com:ele",  function(){
             UI.$el.find(".hm-tho-avatar").removeAttr("current");
         });
+        UI.listenBus("change:com:ele", UI.on_change_com_ele);
+
+        UI.$el.css("visibility", "hidden");
 
         // window.setTimeout(function(){
         //     UI.setPropToDom({
@@ -158,14 +161,27 @@ return ZUI.def("app.wn.hm_com_thingset", {
                 // 激活自身 
                 UI.$el.find(".hm-tho-avatar").removeAttr("current");
                 jTa.attr("current", "yes");
-            }
+
+                // 丢出内容改变事件
+                UI.fire("change:com:ele", UI.getFldInfoFromComEle(jFld))
+;            }
         }
     },
     //...............................................................
-    redraw : function() {
+    getFldInfoFromComEle : function(jFld){
         var UI = this;
-        
-        console.log("I am com.thingset redraw", this.getProp())
+        var re = {
+            _info : UI.__gen_avatar_innerHtml(jFld),
+            className : jFld[0].className,
+            key : jFld.attr("t-key"),
+            as  : jFld.attr("as"),
+            replace : jFld.attr('replace') || 'DIV'
+        };
+        // 得到映射
+        var prop = this.getPropFromDom();
+        re.valueBy = (prop.mapping || {})[re.key] || null;
+        // 返回 
+        return re;
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性
@@ -223,10 +239,6 @@ return ZUI.def("app.wn.hm_com_thingset", {
         };
     },
     //...............................................................
-    getProp : function() {
-        return this.getPropFromDom();
-    },
-    //...............................................................
     __show_mode : function(mode) {
         this.$el.find('[mode!="'+mode+'"]').removeAttr("show");
         this.$el.find('[mode="'+mode+'"]').attr("show", "yes");
@@ -236,17 +248,83 @@ return ZUI.def("app.wn.hm_com_thingset", {
     paint : function(com) {
         var UI = this;
 
-        // 保存属性
-        UI.setPropToDom(com);
+        // console.log(com)
 
         // 检查显示模式
-        if(!UI.__check_mode(com))
-            return;
+        if(!UI.__check_mode(com)){
+            UI.$el.css("visibility", "");
+            return ;
+        }
+
+        UI.$el.css("visibility", "");
 
         // 绘制
         UI.__paint_filter(com);
         UI.__paint_item(com);
         UI.__paint_pager(com);
+
+        // 绘制空间内元素的面板
+        UI.drawComEleInProp({
+            uiType : 'ui/form/form',
+            uiConf : {
+                uiWidth : 'all',
+                fields  : [{
+                    key    : 'className',
+                    title  : 'i18n:hmaker.com.thingset.fld.className',
+                    type   : 'string',
+                    editAs : 'label',
+                }, {
+                    key    : 'key',
+                    title  : 'i18n:hmaker.com.thingset.fld.key',
+                    type   : 'string',
+                    editAs : 'label'
+                }, {
+                    key    : 'as',
+                    title  : 'i18n:hmaker.com.thingset.fld.as',
+                    type   : 'string',
+                    editAs : 'label'
+                }, {
+                    key    : 'replace',
+                    title  : 'i18n:hmaker.com.thingset.fld.replace',
+                    type   : 'string',
+                    editAs : 'label'
+                }, {
+                    key    : 'valueBy',
+                    title  : 'i18n:hmaker.com.thingset.fld.valueBy',
+                    type   : 'string',
+                    editAs : 'input'
+                }],
+                on_change : function(key, val){
+                    UI.fire("change:com:ele", $z.obj(key, val));
+                }
+            }
+        });
+    },
+    //...............................................................
+    on_change_com_ele : function(comEle) {
+        var UI = this;
+        
+        // 得到属性，并确保有 mapping 字段
+        var prop = this.getPropFromDom();
+        prop.mapping = prop.mapping || {};
+
+        // 得到当前激活的字段
+        var jFld = UI.arena.find(".hm-tho-avatar[current]").closest("[t-key]");
+
+        // 没有激活字段，啥都表处理了，不过我想这应该不太可能吧，打个警告咯
+        if(jFld.size() == 0) {
+            $z.invoke(console, "warn", ["no actived .hm-tho-avatar for thingset :", UI.cid]);
+            return;
+        }
+        var tKey = jFld.attr("t-key");
+
+        // 只处理 valueBy
+        $z.setUndefined(comEle, "valueBy", "");
+        prop.mapping[tKey] = comEle.valueBy
+        
+        // 保存属性
+        UI.setPropToDom(prop);
+
     },
     //...............................................................
     __paint_filter : function(com) {
@@ -284,21 +362,24 @@ return ZUI.def("app.wn.hm_com_thingset", {
         UI.$el.find(".hmc-ths-item").html(UI._R.itemHtml)
             // 处理插入的 DOM，将所有的值包裹
             .find(".hm-th-obj>ul>li").each(function(){
-                var jLi = $(this);
+                var jFld = $(this);
 
                 // 得到所有的子节点
-                var jSubs = jLi.children();
+                var jSubs = jFld.children();
 
                 // 包裹值
-                var jLiW = $('<div class="hm-tho-subs">').appendTo(jLi);
+                var jLiW = $('<div class="hm-tho-subs">').appendTo(jFld);
                 jSubs.appendTo(jLiW);
 
                 // 设置每个区域的显示
-                var jAvatar = $('<div class="hm-tho-avatar">').prependTo(jLi);
-                var html = FLD_ICONS[jLi.attr("as")||"text"];
-                html += '<em>' + jLi.attr("t-key") + '</em>';
+                var jAvatar = $('<div class="hm-tho-avatar">').prependTo(jFld);
+                var html = UI.__gen_avatar_innerHtml(jFld);
                 jAvatar.html(html);
             });
+    },
+    //...............................................................
+    __gen_avatar_innerHtml : function(jFld) {
+        return FLD_ICONS[jFld.attr("as")||"text"] + '<em>' + jFld.attr("t-key") + '</em>';
     },
     //...............................................................
     __check_mode : function(com) {

@@ -445,6 +445,34 @@ public abstract class Wn {
             });
         }
 
+        /**
+         * 两个文件内容对拷的帮助方法。 如果可以，本函数会自动调用快速 copy
+         * 
+         * @param io
+         *            IO 接口
+         * @param src
+         *            源文件
+         * @param dst
+         *            目标文件
+         */
+        public static void copyFile(WnIo io, WnObj src, WnObj dst) {
+            // 两个必须是文件
+            if (!src.isFILE() || !dst.isFILE()) {
+                throw Er.create("");
+            }
+
+            // 如果是 Mount 就傻傻的写流
+            if (src.isMount()) {
+                io.writeAndClose(dst, io.getInputStream(src, 0));
+            }
+            // 执行快速 copy
+            else {
+                io.copyData(src, dst);
+                WnContext wc = Wn.WC();
+                wc.doHook("write", dst);
+            }
+        }
+
     }
 
     /**

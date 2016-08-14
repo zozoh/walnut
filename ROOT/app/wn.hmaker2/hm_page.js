@@ -15,6 +15,12 @@ $z.declare([
     'ui/form/form',
     'jquery-plugin/pmoving/pmoving',
     'jquery-plugin/moveresizing/moveresizing',
+    // 预先加载
+    'app/wn.hmaker2/component/columns.js',
+    'app/wn.hmaker2/component/image.js',
+    'app/wn.hmaker2/component/text.js',
+    'app/wn.hmaker2/component/thingobj.js',
+    'app/wn.hmaker2/component/thingset.js',
 ], function(ZUI, Wn, HmMethods, MenuUI){
 //==============================================
 var html_empty_prop = function(){/*
@@ -91,6 +97,10 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 这里分配一个控件序号数组，采用 bitMap，序号从 0 开始一直排列
         UI._com_seq = [];
+
+        // 监听键盘事件
+        UI.watchKey(8,  UI.on_block_delete);
+        UI.watchKey(46, UI.on_block_delete);
     },
     //...............................................................
     // 分配一个组件需要，并做记录
@@ -101,8 +111,7 @@ return ZUI.def("app.wn.hmaker_page", {
             // 查找序号表
             for(;i<UI._com_seq.length;i++){
                 if(!UI._com_seq[i]) {
-                    UI._com_seq[i] = true;
-                    return i;
+                    break;
                 }
             }
             // 增加一个记录
@@ -134,6 +143,22 @@ return ZUI.def("app.wn.hmaker_page", {
 
             // 激活块
             UI.fire("active:block", jBlock);
+        }
+    },
+    //...............................................................
+    on_block_delete : function(e) {
+        var UI = this;
+
+        console.log("haha", e.which)
+
+        // 防止默认事件
+        e.preventDefault();
+
+        // 删除当前块
+        var jBlock = UI.getActivedBlockElement();
+        if(jBlock.size() > 0) {
+            jBlock.remove();
+            UI.fire("active:page");
         }
     },
     //...............................................................
@@ -318,9 +343,9 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.fire("active:page", UI._page_obj);
 
         // 模拟第一个块被点击
-        window.setTimeout(function(){
+        //window.setTimeout(function(){
             UI._C.iedit.$body.find(".hm-block").first().click();
-        },200);
+        //},0);
     },
     //...............................................................
     __setup_page_head : function() {
@@ -375,6 +400,10 @@ return ZUI.def("app.wn.hmaker_page", {
             }
         });
 
+        // 截获所有的键事件，转发给 ZUI
+        UI._C.iedit.$body.on("keydown", function(e){
+            ZUI.on_keydown(e);
+        });
     },
     //...............................................................
     __setup_page_moveresizing : function() {
@@ -647,6 +676,9 @@ return ZUI.def("app.wn.hmaker_page", {
             $screen : UI.arena.find(".hmpg-screen"),
             $pginfo : UI.arena.find(".hmpg-sbar .hmpg-pginfo"),
         };
+
+        // 确保加载区的 dom 合法
+
 
         // 设置 HTML 到编辑区
         C.iedit.root.innerHTML = C.iload.root.innerHTML;

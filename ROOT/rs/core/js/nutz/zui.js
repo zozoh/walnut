@@ -1152,6 +1152,35 @@ ZUI.dump_tree = function(UI, depth, stopBy, No){
 window.ZUI = ZUI;
 module.exports = ZUI;
 //===================================================================
+// 处理键盘事件的函数
+ZUI.on_keydown = function(e) {
+    //console.log(e.which);
+    var keys = [];
+    // 顺序添加，所以不用再次排序了
+    if (e.altKey)   keys.push("alt");
+    if (e.ctrlKey)  keys.push("ctrl");
+    if (e.metaKey)  keys.push("meta");
+    if (e.shiftKey) keys.push("shift");
+    var key;
+    if (keys.length > 0) {
+        key = keys.join("+") + "+" + e.which;
+    } else {
+        key = "" + e.which;
+    }
+    var wkm = ZUI.keymap[key];
+    if (wkm) {
+        for(var cid in wkm){
+            var ui = ZUI(cid);
+            if(!ui) continue;
+            var funcs = wkm[cid];
+            if(funcs){
+                for(var i=0;i<funcs.length;i++)
+                    funcs[i].call(ui, e);
+            }
+        }
+    }
+};
+//===================================================================
 // 注册 window 的 resize 和键盘事件
 // 以便统一处理所有 UI 的 resize 行为和快捷键行为 
 if (!window._zui_events_binding) {
@@ -1163,33 +1192,7 @@ if (!window._zui_events_binding) {
         }
     });
     // 键盘快捷键
-    $(document.body).keydown(function (e) {
-        //console.log(e.which);
-        var keys = [];
-        // 顺序添加，所以不用再次排序了
-        if (e.altKey)   keys.push("alt");
-        if (e.ctrlKey)  keys.push("ctrl");
-        if (e.metaKey)  keys.push("meta");
-        if (e.shiftKey) keys.push("shift");
-        var key;
-        if (keys.length > 0) {
-            key = keys.join("+") + "+" + e.which;
-        } else {
-            key = "" + e.which;
-        }
-        var wkm = ZUI.keymap[key];
-        if (wkm) {
-            for(var cid in wkm){
-                var ui = ZUI(cid);
-                if(!ui) continue;
-                var funcs = wkm[cid];
-                if(funcs){
-                    for(var i=0;i<funcs.length;i++)
-                        funcs[i].call(ui, e);
-                }
-            }
-        }
-    });
+    $(document.body).on("keydown", ZUI.on_keydown);
     // 全局鼠标事件
     var on_g_mouse_event = function(e){
         var wmm = ZUI.mousemap[e.type];

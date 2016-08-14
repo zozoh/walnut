@@ -105,6 +105,17 @@ public class WnSystem {
     }
 
     public Log getLog(ZParams params) {
-        return new WalnutLog(this, params.is("v") ? 10 : 40);
+        WalnutLog log = new WalnutLog(this, params.is("v") ? 10 : 40);
+        // 设置级别（默认info)
+        if (params.is("warn")) {
+            log.asWarn();
+        } else if (params.is("debug")) {
+            log.asDebug();
+        } else if (params.is("v") || params.is("trace")) {
+            log.asTrace();
+        } else {
+            log.asInfo();
+        }
+        return log;
     }
 }

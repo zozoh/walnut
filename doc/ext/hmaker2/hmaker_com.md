@@ -102,6 +102,7 @@ active:com      | jCom          | 组件被激活
 change:block    | {..}          | 块被修改
 change:area     | {..}          | 栏被修改
 change:com      | {..}          | 组件被修改
+change:com:ele  : {..}          | 组件内元素被修改后
 show:com:ele    | --            | 需要显示控件的扩展属性面板
 hide:com:ele    | --            | 需要隐藏控件的扩展属性面板
 
