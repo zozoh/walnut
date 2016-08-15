@@ -23,17 +23,32 @@ new TimelineUI({
                 "background-color" : "rgba(88,88,255,0.8)",
                 "border-color" : "rgba(66,66,200,0.8)",
             }
-            // 当绘制一个时间块后，会调用这个函数来重绘内部的显示内容
-            // jBlock 参数是一个 jQuery 对象表示你要绘制的区域，DOM 结构参加下节
-            // tlo  参数是一个这个区域你在 on_create 时候生成的 JS Object
-            // 如果掉到这个函数，那么一定是这个区块的位置大小什么都已经给你设置好了
-            // 你就直接在里面绘制就好了
-            on_draw_block : {context}F(jBlock, tlo)
+            /*
+            当绘制一个时间块后，会调用这个函数来重绘内部的显示内容
+            如果掉到这个函数，那么一定是这个区块的位置大小什么都已经给你设置好了
+            你就直接在里面绘制就好了.
+            
+            context 参数是一个 JS 对象，包括字段:
+              - $block : jQuery: 你要绘制的区域，DOM 结构参加下节
+              - $info  : jQuery: 绘制区内的标题区
+              - $main  : jQuery: 绘制区内的内容区
+              - ui     : UI : 指向当前的 timeline UI
+                 
+            tlo  参数是一个这个区域你在 on_create 时候生成的 JS Object
+            */ 
+            on_draw_block : {context}F(tlo)
+            
+            /*
+            当层发生变化时的回调
+            context 参数是一个 JS 对象，包括字段：
+             - layerName  : "xxxx",     // 改变的层
+             - currentObj : {...},      // 改变的 tlo
+             - layerData  : [{..},{..}] // 当前层的数据
+             - data       : {...},      // 整个时间线的数据
+            */
+            on_layer_change : {context}F(layerData)
         }
     }
-
-    // 各种回调的上下文，默认是 UI 自身
-    context : null,
     
     /*
     事件: 当点击空白区域，会调用
@@ -51,7 +66,17 @@ new TimelineUI({
     
     控件会在对应位置绘制相关区块。当然，如果你给出的 obj 是假，那么什么也不会绘制
     */
-    on_create : {context}F(from, to， callback)
+    on_create : {UI}F(from, to， callback)
+    
+    /*
+    当任何层发生变化时的回调。这个会在对应层的 on_layer_change 后面被调用
+    context 参数是一个 JS 对象，包括字段：
+    - layerName  : "xxxx",     // 改变的层
+    - currentObj : {...},      // 改变的 tlo
+    - layerData  : [{..},{..}] // 当前层的数据
+    - data       : {...},      // 整个时间线的数据
+    */
+    on_change : {context}F(data)
     
 })
 ```
@@ -61,12 +86,20 @@ new TimelineUI({
 ```
 <div class="tmln-obj">
     <div class="tmln-objw">
-        <!--标题区-->
-        <header><dt>11 - 1p</dt></header>
-        <!--内容区-->
-        <section></section>
-        <!--控制柄-->
-        <footer><span>==</span></footer>
+        <!--
+        头部区
+        -->
+        <header>
+            <dt>11 - 1p</dt>
+            <em><!--$info:标题区--></em>
+        </header>
+        <section><!--$main:内容区--></section>
+        <!--
+        控制柄
+        -->
+        <footer>
+            <span>==</span>
+        </footer>
     </div>
 </div>
 ```

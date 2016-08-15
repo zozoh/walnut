@@ -51,6 +51,7 @@
   height: 4%;
   background-color: rgba(88, 88, 255, 0.8);
   border: 1px solid rgba(66, 66, 200, 0.8);
+  overflow: hidden;
 }
 .tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw {
   width: 100%;
@@ -61,7 +62,16 @@
 }
 .tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > header {
   font-weight: bold;
-  padding: 2px 4px;
+  padding: 2px 24px 2px 6px;
+}
+.tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > header dt {
+  float: left;
+}
+.tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > header em {
+  float: right;
+}
+.tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > section {
+  padding: 6px;
 }
 .tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > footer {
   text-align: center;
@@ -79,6 +89,21 @@
 }
 .tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > footer:hover > * {
   display: inline;
+}
+.tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > .tmln-obj-del {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 2px 4px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 16px;
+}
+.tmln > .tmln-con .tmln-layer > .tmln-obj > .tmln-objw > .tmln-obj-del:hover {
+  font-size: 24px;
+  font-weight: bolder;
+  color: #ffff00;
+  transform: scale(1.2) rotate(360deg);
 }
 .tmln-obj-resize {
   cursor: ns-resize;
