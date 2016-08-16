@@ -30,6 +30,8 @@ $.fn.extend({ "thingset" : function(opt){
     // 显示主
     $("<b>haha, Iam thingset JS agent! ^_*</b>").appendTo(this);
 
+    console.log(opt)
+
     // 返回自身以便链式赋值
     return this;
 }});

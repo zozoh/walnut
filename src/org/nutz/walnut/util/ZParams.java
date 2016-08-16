@@ -158,7 +158,12 @@ public class ZParams {
     }
 
     public boolean has(String key) {
-        return map.containsKey(key);
+        return map.has(key);
+    }
+
+    public boolean hasString(String key) {
+        String val = this.get(key);
+        return !Strings.isBlank(val) && !"true".equals(val);
     }
 
     public float getFloat(String key) {

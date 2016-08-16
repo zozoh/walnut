@@ -97,10 +97,6 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 这里分配一个控件序号数组，采用 bitMap，序号从 0 开始一直排列
         UI._com_seq = [];
-
-        // 监听键盘事件
-        UI.watchKey(8,  UI.on_block_delete);
-        UI.watchKey(46, UI.on_block_delete);
     },
     //...............................................................
     // 分配一个组件需要，并做记录
@@ -148,8 +144,6 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     on_block_delete : function(e) {
         var UI = this;
-
-        console.log("haha", e.which)
 
         // 防止默认事件
         e.preventDefault();
@@ -386,7 +380,6 @@ return ZUI.def("app.wn.hmaker_page", {
 
             // 如果点在了块里，激活块，然后就不要冒泡了
             if(jq.hasClass("hm-block")){
-                console.log("click block")
                 e.stopPropagation();
                 if(!jq.attr("hm-actived"))
                     UI.fire("active:block", jq);
@@ -400,9 +393,12 @@ return ZUI.def("app.wn.hmaker_page", {
             }
         });
 
-        // 截获所有的键事件，转发给 ZUI
+        // 截获所有的键事件
         UI._C.iedit.$body.on("keydown", function(e){
-            ZUI.on_keydown(e);
+            // 删除
+            if(8 == e.which || 46 == e.which) {
+                UI.on_block_delete(e);
+            }
         });
     },
     //...............................................................

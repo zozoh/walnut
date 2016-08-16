@@ -124,15 +124,13 @@ public class HmPageTranslating extends HmContext {
 
             // 块的特殊属性
             if (anm.startsWith(prefix)) {
-                // 计入特殊属性，稍后准备删除
-                attNames.add(anm);
-
-                // 处理位置
+                // 处理位置。这个属性就不删除了，以便标识绝对位置块等
                 if ("hmb-mode".equals(anm)) {
                     mode = val;
+                    continue;
                 }
                 // posBy
-                else if ("hmb-pos-by".equals(anm)) {
+                if ("hmb-pos-by".equals(anm)) {
                     posBy = val;
                 }
                 // posVal
@@ -147,6 +145,9 @@ public class HmPageTranslating extends HmContext {
                 else {
                     conCss.put(anm.substring(prefixLen), val);
                 }
+
+                // 计入特殊属性，稍后准备删除
+                attNames.add(anm);
             }
         }
 

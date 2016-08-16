@@ -286,6 +286,7 @@ return ZUI.def("ui.obrowser_sky", {
         new MenuUI({
             parent       : UI,
             gasketName   : "menu",
+            tipDirection : "left",
             setup        : menuSetup,
             context      : menuContext || UIBrowser
         }).render(function(){

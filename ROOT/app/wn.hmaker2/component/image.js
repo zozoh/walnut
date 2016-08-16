@@ -25,13 +25,13 @@ return ZUI.def("app.wn.hm_com_image", {
     redraw : function() {
         var UI = this;
 
-        console.log("C:image redraw")
+        //console.log("C:image redraw")
     },
     //...............................................................
     paint : function(com) {
         var UI = this;
 
-        console.log("image", com)
+        // console.log("image", com)
 
         // 准备更新的样式
         var css = {

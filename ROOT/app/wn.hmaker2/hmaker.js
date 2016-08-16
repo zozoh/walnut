@@ -108,6 +108,14 @@ return ZUI.def("app.wn.hmaker2", {
         return $z.invoke(this.gasket.main, "getCurrentTextContent", []);
     },
     //...............................................................
+    getSiteHomeId : function() {
+        return this.__home_id;
+    },
+    //...............................................................
+    getSiteHome : function() {
+        return Wn.getById(this.getSiteHomeId());
+    }
+    //...............................................................
 });
 //===================================================================
 });

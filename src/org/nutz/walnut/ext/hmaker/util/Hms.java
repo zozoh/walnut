@@ -147,6 +147,10 @@ public final class Hms {
         return html.replace("\\hm:%N", "\n").replace("\\hm:%W", " ");
     }
 
+    public static String wrapjQueryDocumentOnLoad(String script) {
+        return "$(function(){" + script + "});";
+    }
+
     // =================================================================
     // 不许实例化
     private Hms() {}

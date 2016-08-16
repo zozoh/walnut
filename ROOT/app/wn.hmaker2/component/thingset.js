@@ -153,7 +153,7 @@ return ZUI.def("app.wn.hm_com_thingset", {
                 // 激活的块中就不要再冒泡了
                 e.stopPropagation();
 
-                console.log("click var:", jFld.attr("t-key"));
+                // console.log("click var:", jFld.attr("t-key"));
 
                 // 显示控件元素的动态属性面板
                 UI.fire("show:com:ele");
@@ -364,12 +364,15 @@ return ZUI.def("app.wn.hm_com_thingset", {
             .find(".hm-th-obj>ul>li").each(function(){
                 var jFld = $(this);
 
-                // 得到所有的子节点
-                var jSubs = jFld.children();
-
                 // 包裹值
-                var jLiW = $('<div class="hm-tho-subs">').appendTo(jFld);
-                jSubs.appendTo(jLiW);
+                var liW = document.createElement('div');
+                var ndList = Array.from(this.childNodes);
+                for(var i=0; i<ndList.length; i++) {
+                    liW.appendChild(ndList[i]);
+                }
+
+                // 附加包裹
+                $(liW).appendTo(jFld).addClass("hm-tho-subs");
 
                 // 设置每个区域的显示
                 var jAvatar = $('<div class="hm-tho-avatar">').prependTo(jFld);

@@ -21,19 +21,25 @@ public class hmaker_publish implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        // 参数太少
-        if (hc.params.vals.length < 2) {
-            throw Er.create("e.cmd.hmaker.publish.lackArgs");
-        }
-
         // 上下文
         final HmContext hpc = new HmContext(sys.io);
         hpc.strict = !hc.params.is("quiet");
         hpc.oConfHome = Wn.checkObj(sys, "~/.hmaker");
 
-        // 得到源和目标
+        // 得到源
         hpc.oHome = Wn.checkObj(sys, hc.params.val_check(0));
-        hpc.oDest = Wn.checkObj(sys, hc.params.val_check(1));
+
+        // 得到目标
+        String dst = hc.params.val(1);
+        // 没有的话，尝试读取源的目标设置
+        if (Strings.isBlank(dst)) {
+            dst = hpc.oHome.getString("hm_target_release");
+        }
+        // 还没有!!! 不能忍受，抛错吧
+        if (Strings.isBlank(dst)) {
+            throw Er.create("cmd.hmaker.publish.nodest");
+        }
+        hpc.oDest = Wn.checkObj(sys, dst);
 
         // 源和目标不能相互包含
         if (hpc.oHome.path().startsWith(hpc.oDest.path())

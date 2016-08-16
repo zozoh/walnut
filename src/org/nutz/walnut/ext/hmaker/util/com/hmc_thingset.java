@@ -13,6 +13,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
+import org.nutz.walnut.ext.hmaker.util.Hms;
 import org.nutz.web.WebException;
 
 public class hmc_thingset extends AbstractComHanlder {
@@ -66,7 +67,7 @@ public class hmc_thingset extends AbstractComHanlder {
         String script = String.format("$('#%s').thingset(%s);",
                                       ing.comId,
                                       Json.toJson(conf, JsonFormat.forLook().setIgnoreNull(false)));
-        ing.scripts.add(script);
+        ing.scripts.add(Hms.wrapjQueryDocumentOnLoad(script));
     }
 
     private WebException _create_err(HmPageTranslating ing, String mode) {
