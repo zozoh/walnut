@@ -72,8 +72,10 @@ var register = function(UI) {
                         ? (UI.keepDom===false? false:true)
                         : opt.keepDom
 
-        // 指明了 $el 那么 arena 与 $el 指向同样的 DOM
-        UI.arena = UI.$el;
+        // 试图正确的获取 Arena
+        UI.arena = UI.$el.children('.ui-arena');
+        if(UI.arena.size() == 0)
+            UI.arena = UI.$el;
 
         // 看看这个 $el 是不是已经是个 UI 了
         var cid = UI.$el.attr("ui-id");

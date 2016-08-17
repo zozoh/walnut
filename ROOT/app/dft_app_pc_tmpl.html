@@ -48,7 +48,7 @@
 
     //define.amd = define.cmd;
     seajs.on("error", function (data) {
-        alert("load '" + data.uri + "' failed!!!'");
+        throw "load '" + data.uri + "' failed!!!'";
     });
 
     seajs.use("zui", function (ZUI) {

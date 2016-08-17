@@ -40,6 +40,17 @@ body {
   -webkit-user-select: none;
   user-select: none;
 }
+.hmc-rows .hmc-row-block {
+  min-height: 30px;
+}
+[hm-actived] .hmc-rows .hmc-row-block {
+  min-height: 30px;
+  border: 1px dotted #ff8800;
+  border-bottom: 0;
+}
+[hm-actived] .hmc-rows .hmc-row-block:last-child {
+  border-bottom: 1px dotted #ff8800;
+}
 .hmc-thingset > .hmc-th-W {
   display: none;
 }

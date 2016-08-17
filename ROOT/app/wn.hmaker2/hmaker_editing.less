@@ -51,6 +51,18 @@ body {margin:0;}
 //............................................................
 // 各个控件的特殊显示
 //............................................................
+// rows
+.hmc-rows {
+    .hmc-row-block {
+        min-height: 30px; 
+    }
+}
+[hm-actived] .hmc-rows {
+    .hmc-row-block {min-height: 30px; border:1px dotted @c0; border-bottom:0;}
+    .hmc-row-block:last-child {border-bottom:1px dotted @c0;}
+}
+//............................................................
+// ThingSet
 .hmc-thingset {
     @areaBorder : 1px dashed rgba(0,255,255,0.6);
     > .hmc-th-W {display: none;}

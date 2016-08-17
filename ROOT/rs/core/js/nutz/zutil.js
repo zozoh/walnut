@@ -1797,6 +1797,10 @@
         blinkIt: function (jq, opt) {
             // 格式化参数
             jq = $(jq);
+
+            if(jq.size() == 0)
+                return;
+
             opt = opt || {};
             if (typeof opt == "function") {
                 opt = {
@@ -1823,7 +1827,7 @@
             };
             // 建立闪烁层
             var lg = $(opt.html || '<div class="z_blink_light">&nbsp;</div>');
-            lg.css(css).appendTo(document.body);
+            lg.css(css).appendTo(jq[0].ownerDocument.body);
             lg.animate({
                 opacity: 0.1
             }, opt.speed || 500, function () {

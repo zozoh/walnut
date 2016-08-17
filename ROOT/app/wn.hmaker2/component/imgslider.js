@@ -6,12 +6,12 @@ $z.declare([
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
 var html = function(){/*
-<div class="ui-arena hmc-columns hm-del-save"">
-    I am columns
+<div class="ui-arena hmc-imgslider">
+    I am imgslider
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.hm_com_columns", {
+return ZUI.def("app.wn.hm_com_imgslider", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     init : function(){
@@ -21,7 +21,7 @@ return ZUI.def("app.wn.hm_com_columns", {
     redraw : function() {
         var UI = this;
 
-        console.log("I am com.columns redraw")
+        console.log("I am com.imgslider redraw")
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性

@@ -48,10 +48,20 @@ var html = function(){/*
     <div class="hmpg-ibar"><div class="hm-W">
         <h4>插</h4>
         <ul>
+            <li ctype="rows"
+                data-balloon="{{hmaker.com.rows.name}} : {{hmaker.com.rows.tip}}" 
+                data-balloon-pos="left" data-balloon-length="medium">
+                <%=hmaker.com.rows.icon%>
+            </li>
             <li ctype="columns"
                 data-balloon="{{hmaker.com.columns.name}} : {{hmaker.com.columns.tip}}" 
                 data-balloon-pos="left" data-balloon-length="medium">
                 <%=hmaker.com.columns.icon%>
+            </li>
+            <li ctype="navmenu"
+                data-balloon="{{hmaker.com.navmenu.name}} : {{hmaker.com.navmenu.tip}}" 
+                data-balloon-pos="left" data-balloon-length="medium">
+                <%=hmaker.com.navmenu.icon%>
             </li>
             <li ctype="text"
                 data-balloon="{{hmaker.com.text.name}} : {{hmaker.com.text.tip}}" 
@@ -63,10 +73,10 @@ var html = function(){/*
                 data-balloon-pos="left" data-balloon-length="medium">
                 <%=hmaker.com.image.icon%>
             </li>
-            <li ctype="slider"
-                data-balloon="{{hmaker.com.slider.name}} : {{hmaker.com.slider.tip}}" 
+            <li ctype="imgslider"
+                data-balloon="{{hmaker.com.imgslider.name}} : {{hmaker.com.imgslider.tip}}" 
                 data-balloon-pos="left" data-balloon-length="medium">
-                <%=hmaker.com.slider.icon%>
+                <%=hmaker.com.imgslider.icon%>
             </li>
             <li ctype="thingset"
                 data-balloon="{{hmaker.com.thingset.name}} : {{hmaker.com.thingset.tip}}" 
@@ -337,9 +347,9 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.fire("active:page", UI._page_obj);
 
         // 模拟第一个块被点击
-        //window.setTimeout(function(){
+        window.setTimeout(function(){
             UI._C.iedit.$body.find(".hm-block").first().click();
-        //},0);
+        },500);
     },
     //...............................................................
     __setup_page_head : function() {

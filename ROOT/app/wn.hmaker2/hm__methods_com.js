@@ -13,6 +13,10 @@ var methods = {
     },
     // 通常由 hm_page::doChangeCom 调用
     setData : function(com) {
+        // 直接无视吧
+        if(com && com.__com_ignore_setData)
+            return;
+
         // 得到完整的属性
         var com2 = _.extend(this.getData(), com);
 
@@ -24,7 +28,15 @@ var methods = {
     },
     // 发出属性修改通知，本函数自动合并其余未改动过的属性
     notifyChange : function(key, val) {
-        this.fire("change:com", _.extend($z.obj(key,val), this.__gen_base_data()));
+        // 如果 key 都未定义，那么表示发出这个消息的组件不希望引起自己的属性的保存和界面的绘制
+        // 通常，这种 com 都是通过自身的 DOM 来存放某些数据的，它修改了自身的 DOM 
+        // 剩下的就是通知 prop 那边刷新显示而已
+        if(_.isUndefined(key)) {
+            this.fire("change:com", _.extend({__com_ignore_setData:true}, this.__gen_base_data()));
+        } 
+        else {
+            this.fire("change:com", _.extend($z.obj(key,val), this.__gen_base_data()));
+        }
     },
     // 将属性设置到控件的 DOM 上
     setPropToDom : function(prop) {

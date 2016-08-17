@@ -33,10 +33,26 @@ define({
             "show_prop" : "显示页面属性"
         },
         "com" : {
+            "rows" : {
+                "name"  : "水平分栏",
+                "tip"   : "对于所在区域进行水平分隔，可以容纳更多控件",
+                "icon"  : '<i class="zmdi zmdi-view-day"></i>',
+                "fixwidth"  : "固定宽度",
+                "fixwidth_tip" : "单位是 px 或者 %",
+                "padding"   : "栏内边距",
+                "move_up"   : "上移",
+                "move_down" : "下移",
+                "del"       : "删除",
+            },
             "columns" : {
                 "name"  : "垂直分栏",
                 "tip"   : "对于所在区域进行垂直分隔，可以容纳更多控件",
-                "icon"  : '<i class="zmdi zmdi-view-column"></i>',
+                "icon"  : '<i class="zmdi zmdi-view-array"></i>',
+            },
+            "navmenu" : {
+                "name"  : "导航菜单",
+                "tip"   : "可垂直或水平放置，可支持多级菜单",
+                "icon"  : '<i class="zmdi zmdi-dns"></i>',
             },
             "text" : {
                 "name"  : "文本",
@@ -48,9 +64,9 @@ define({
                 "tip"   : "不解释你懂的",
                 "icon"  : '<i class="fa fa-image"></i>',
             },
-            "slider" : {
+            "imgslider" : {
                 "name"  : "图片幻灯",
-                "tip"   : "选择一组图片或者一个文件夹，进行图片播放",
+                "tip"   : "选择一组图片或者一个文件夹，进行图片幻灯播放",
                 "icon"  : '<i class="zmdi zmdi-slideshow"></i>',
             },
             "thingset" : {
