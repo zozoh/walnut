@@ -113,7 +113,7 @@ function on_mask_mouseup(e) {
         $z.invoke(opt, "on_end", [], pmvContext);
 
         // 找到可被放置的对象，调用 on_drop 回调
-        if(_.isArray(pmvContext.dropping)) {
+        if(!pmvContext.$mask.attr("no-drag") && _.isArray(pmvContext.dropping)) {
             for(var i=0; i<pmvContext.dropping.length; i++) {
                 var di = pmvContext.dropping[i];
                 if(di.helper.attr("pmv-hover")){
@@ -214,6 +214,9 @@ function on_mousedown(e) {
         return;
     }
 
+    // 找到自己所在的文档
+    var doc = jViewport[0].ownerDocument;
+
     //console.log("on_mousedown", jTrigger.attr("pmv_mode_a"));
     //.........................................
     var rect_trigger  = $z.rect(jTrigger);
@@ -223,6 +226,9 @@ function on_mousedown(e) {
     // 创建上下文
     var pmvContext = {
         Event     : e,
+        doc       : doc,
+        docBody   : doc.body,
+        $docBody  : $(doc.body),
         $context  : jContext,
         $trigger  : jTrigger,
         $viewport : jViewport,
@@ -250,7 +256,7 @@ function on_mousedown(e) {
     };
     //.........................................
     // 设置一个全局遮罩层
-    var jMask = $('<div class="pmv-mask">').appendTo(pmvContext.$viewport[0].ownerDocument.body).css({
+    var jMask = $('<div class="pmv-mask">').appendTo(pmvContext.docBody).css({
         position : "fixed", top:0, left:0, right:0, bottom:0,
         "z-index" : opt.maskZIndex
     });
@@ -317,7 +323,7 @@ function on_mousedown(e) {
 }
 //...........................................................
 function do_drag_and_drop(pmvContext) {
-    if(_.isArray(pmvContext.dropping)) {
+    if(!pmvContext.$mask.attr("no-drag") && _.isArray(pmvContext.dropping)) {
         var opt = pmvContext.options;
         for(var i=0; i<pmvContext.dropping.length; i++) {
             var di = pmvContext.dropping[i];
@@ -381,7 +387,7 @@ $.fn.extend({ "pmoving" : function(opt){
     if(_.isString(opt.findDropTarget)){
         opt.__find_drop_target_selector = opt.findDropTarget;
         opt.findDropTarget = function(){
-            return $(this.options.__find_drop_target_selector);
+            return $(this.options.__find_drop_target_selector, this.docBody);
         };
     }
 

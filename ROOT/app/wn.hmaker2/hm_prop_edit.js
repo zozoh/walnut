@@ -112,7 +112,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
         var uiPage = UI.pageUI();
 
         // 得到 Block 的属性
-        var prop = uiPage.getBlockProp(jBlock, true);
+        var prop = uiPage.getBlockProp(jBlock);
 
         // 更新
         UI.changeBlock(prop);

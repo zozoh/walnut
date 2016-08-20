@@ -25,7 +25,7 @@ return ZUI.def("app.wn.hm_com_rows", {
 
         // 如果发现主区域没有任何一块，主动添加一个
         if(UI.arena.children(".hmc-row-block").size() == 0) {
-            $('<div class="hmc-row-block">').appendTo(UI.arena.empty());
+            $('<div class="hmc-row-block" hm-droppable="yes">').appendTo(UI.arena.empty());
         }
 
         // 查找并记录最大的栏目序号
@@ -62,7 +62,7 @@ return ZUI.def("app.wn.hm_com_rows", {
     addBlock : function() {
         var UI = this;
 
-        var jBlock = $('<div class="hmc-row-block">').appendTo(UI.arena)
+        var jBlock = $('<div class="hmc-row-block" hm-droppable="yes">').appendTo(UI.arena)
             .attr("row-b-seq", ++UI.__max_block_seq);
 
         $z.blinkIt(jBlock);
@@ -71,13 +71,8 @@ return ZUI.def("app.wn.hm_com_rows", {
     },
     //...............................................................
     delBlock : function(seq) {
-        var UI = this;
-
-        var jBlock = UI.getBlock(seq);
-
-        $z.removeIt(jBlock, function(){
-            UI.notifyChange();
-        });
+        this.getBlock(seq).remove();
+        this.notifyChange();
     },
     //...............................................................
     // direction : "prev" || "next"
@@ -101,6 +96,10 @@ return ZUI.def("app.wn.hm_com_rows", {
             }
         }
 
+        // 闪动一下做个标记
+        $z.blinkIt(jBlock);
+
+        // 通知其他控件更新
         this.notifyChange();
     },
     //...............................................................

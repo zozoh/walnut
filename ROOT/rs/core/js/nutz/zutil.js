@@ -215,11 +215,18 @@
             throw  "fail to dimension : " + v;
         },
         //.............................................
-        toPixel: function (str, dft) {
-            var m = /^(\d+)(px)?/.exec(str);
-            if (m)
+        toPixel: function (str, dft, base) {
+            var re;
+            var m = /^([\d.]+)(px)?(%)?/.exec(str);
+            if (m){
+                // %
+                if(m[3])
+                    return m[1] * base;
+                // 要不是 px 要不直接就是数字
                 return m[1] * 1;
-            return dft || 0;
+            }
+            // 靠返回默认
+            return dft;
         },
         //.............................................
         obj : function(key, val) {
@@ -271,6 +278,28 @@
                 re[key] = rect[key];
             }
             return re;
+        },
+        //.............................................
+        // 自动根据矩形对象的值进行判断
+        rect_count_auto : function(rect, quiet) {
+            // 有 width, height
+            if(_.isNumber(rect.width) && _.isNumber(rect.height)) {
+                if(_.isNumber(rect.top) && _.isNumber(rect.left))
+                    return this.rect_count_tlwh(rect);
+                if(_.isNumber(rect.bottom) && _.isNumber(rect.right))
+                    return this.rect_count_brwh(rect);
+                if(_.isNumber(rect.x) && _.isNumber(rect.x))
+                    return this.rect_count_xywh(rect);
+            }
+            // 有 top,left
+            else if(_.isNumber(rect.top) && _.isNumber(rect.left)) {
+                if(_.isNumber(rect.bottom) && _.isNumber(rect.right))
+                    return this.rect_count_tlbr(rect);
+            }
+            // 不知道咋弄了
+            if(!quiet)
+                throw "Don't know how to count rect:" + this.toJson(rect);
+            return rect;
         },
         //.............................................
         // 根据 top,left,width,height 计算剩下的信息
@@ -1786,6 +1815,26 @@
         },
         isBlankString : function(str) {
             return "" === $.trim(str);
+        },
+        //.............................................
+        // 将属性设置到控件的 DOM 上
+        setJsonToSubScriptEle : function(jq, className, prop, needFormatJson) {
+            var jPropEle = jq.children("script."+className);
+            if(jPropEle.length == 0) {
+                jPropEle = $('<script type="text/x-template" class="'+className+'">').appendTo(jq);
+            }
+            var json = needFormatJson ? "\n"+$z.toJson(prop,null,'    ')+"\n" : $z.toJson(prop);
+            jPropEle.html(json);
+        },
+        // 从控件的 DOM 上获取控件的属性
+        getJsonFromSubScriptEle : function(jq, className, dft){
+            var jPropEle = jq.children("script." + className);
+            if(jPropEle.length > 0){
+                var json = jPropEle.html();
+                return $z.fromJson(json);
+            }
+            // 返回默认或者空
+            return dft || {};
         },
         //---------------------------------------------------------------------------------------
         /**

@@ -7,8 +7,25 @@
 }
 
 body {margin:0;}
-
-
+//............................................................
+// 拖拽相关
+.pmv-dropi {
+    padding:1px;
+    .hm-drag-tip {
+        width:100%; height:100%;
+        border:1px dashed rgba(255,128,0,0.6);
+        text-align: center; padding:@d1; color:@c0;
+        font-size:@f2; line-height: 22px;
+        > * { display: none;}
+    }
+}
+.pmv-dropi[pmv-hover] {
+    .hm-drag-tip {
+        background: rgba(255,255,255,0.6);
+        > * { display: inline;}
+    }
+}
+.pmv-mask[no-drag] .pmv-drops {display: none;}
 
 //............................................................
 // 块
@@ -19,17 +36,8 @@ body {margin:0;}
         > .hmb-area {position: relative;}
     }
 }
-// 绝对位置
-.hm-block[hmb-mode="abs"] {
-    .hmb-con {
-        width: 100%; height:100%; 
-        .hmb-area {
-            width: 100%; height:100%;
-        }
-    }
-}
 
-.hm-block[hmb-mode="abs"][hm-actived] .hmb-con .mvrz-ass {
+.hm-block[hmb-mode="abs"][hm-actived] > .hmb-con > .mvrz-ass {
     @flex(); border:1px dotted #0FF;
 }
 
@@ -51,6 +59,23 @@ body {margin:0;}
 //............................................................
 // 各个控件的特殊显示
 //............................................................
+// columns
+.hmc-columns {
+    @flex();
+    .hmc-col-block {
+        flex: 1 1 auto;
+        min-height: 30px;
+    }
+}
+[hmb-mode="abs"] .hmc-columns {
+    width:100%; height:100%;
+    align-item : stretch;
+}
+[hm-actived] .hmc-columns {
+    .hmc-col-block {border:1px dotted @c0; border-right:0;}
+    .hmc-col-block:last-child {border-right:1px dotted @c0;}
+}
+//............................................................
 // rows
 .hmc-rows {
     .hmc-row-block {
@@ -58,7 +83,7 @@ body {margin:0;}
     }
 }
 [hm-actived] .hmc-rows {
-    .hmc-row-block {min-height: 30px; border:1px dotted @c0; border-bottom:0;}
+    .hmc-row-block {border:1px dotted @c0; border-bottom:0;}
     .hmc-row-block:last-child {border-bottom:1px dotted @c0;}
 }
 //............................................................

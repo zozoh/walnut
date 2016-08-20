@@ -35,6 +35,9 @@ var html = function(){/*
             <div class="hmb-area"></div>
         </div>
     </div>
+    <div code-id="drag_tip" class="hm-drag-tip">
+        <i class="zmdi zmdi-arrows"></i> <b>{{hmaker.drag.hover}}</b>
+    </div>
 </div>
 <div class="ui-arena hm-page" ui-fitparent="yes"><div class="hm-W">
     <!--iframe class="hmpg-frame-load" id="hmaker_page_loader" name="load"></iframe-->
@@ -173,7 +176,7 @@ return ZUI.def("app.wn.hmaker_page", {
             UI.nnn = 1;
 
         var jBlock = UI.ccode("block").appendTo(UI._C.iedit.$body);
-        UI.applyBlockProp(jBlock, {}, true);
+        UI.applyBlockProp(jBlock, UI.genBlockDefaultProp());
 
         UI._C.iedit.$body.moveresizing("format");
 
@@ -186,10 +189,13 @@ return ZUI.def("app.wn.hmaker_page", {
             posBy   : "top,left,width,height",
             posVal  : "10px,10px,300px,200px",
             padding : "10px",
-            border : 0 ,   // "1px solid #000",
-            borderRadius : "5px",
+            border : "" ,   // "1px solid #000",
+            borderRadius : "",
             background : "rgba(40,40,40,0.3)",
-            color : "#000",
+            color : "",
+            overflow : "",
+            areaWidth : "",
+            areaAlign : ""
         };
     },
     //...............................................................
@@ -209,52 +215,41 @@ return ZUI.def("app.wn.hmaker_page", {
         return $z.rect_relative(rect, viewport, true);
     },
     //...............................................................
-    // 参数 mergeDefault 会将当前块的属性与默认属性组合，即，保证了每个值都有值
-    getBlockProp : function(jBlock, mergeDefault) {
+    getBlockProp : function(jBlock) {
         var UI = this;
-        // 默认应用到激活的块
-        if(!$z.isjQuery(jBlock)){
-            mergeDefault = jBlock;
-            jBlock = UI.getActivedBlockElement();
-        }
-        
-        // 准备返回的属性
-        var prop = mergeDefault ? UI.genBlockDefaultProp() : {};
 
-        $z.setMeaningful(prop, "mode",         jBlock.attr("hmb-mode"));
-        $z.setMeaningful(prop, "posBy",        jBlock.attr("hmb-pos-by"));
-        $z.setMeaningful(prop, "posVal",       jBlock.attr("hmb-pos-val"));
-        $z.setMeaningful(prop, "width",        jBlock.attr("hmb-width"));
-        $z.setMeaningful(prop, "padding",      jBlock.attr("hmb-padding"));
-        $z.setMeaningful(prop, "border",       jBlock.attr("hmb-border"));
-        $z.setMeaningful(prop, "borderRadius", jBlock.attr("hmb-border-radius"));
-        $z.setMeaningful(prop, "background",   jBlock.attr("hmb-background"));
-        $z.setMeaningful(prop, "color",        jBlock.attr("hmb-color"));
+        // 默认应用到激活的块
+        jBlock = $(jBlock || UI.getActivedBlockElement());
         
-        // 返回属性
-        return prop;
+        // 得到属性存放的 <Script>标签
+        return $z.getJsonFromSubScriptEle(jBlock, "hmc-prop-block");
+
+        // $z.setMeaningful(prop, "mode",         jBlock.attr("hmb-mode"));
+        // $z.setMeaningful(prop, "posBy",        jBlock.attr("hmb-pos-by"));
+        // $z.setMeaningful(prop, "posVal",       jBlock.attr("hmb-pos-val"));
+        // $z.setMeaningful(prop, "width",        jBlock.attr("hmb-width"));
+        // $z.setMeaningful(prop, "padding",      jBlock.attr("hmb-padding"));
+        // $z.setMeaningful(prop, "border",       jBlock.attr("hmb-border"));
+        // $z.setMeaningful(prop, "borderRadius", jBlock.attr("hmb-border-radius"));
+        // $z.setMeaningful(prop, "background",   jBlock.attr("hmb-background"));
+        // $z.setMeaningful(prop, "color",        jBlock.attr("hmb-color"));
     },
     //...............................................................
-    // 参数 mergeDefault 会将当前块的属性与默认属性组合，即，保证了每个值都有值
-    applyBlockProp : function(jBlock, prop, mergeDefault) {
+    applyBlockProp : function(jBlock, prop) {
         var UI = this;
         jBlock = jBlock || UI.getActivedBlockElement();
         //console.log("apply", prop)
 
-        // 合并属性
-        if(mergeDefault)
-            prop = _.extend(UI.genBlockDefaultProp(), prop);
+        // 与旧属性合并
+        prop = _.extend(UI.getBlockProp(jBlock), prop);
 
+        // 根据属性生成 CSS
         var css;
 
         // 确定要修改位置方面的数值
         if(prop.mode || prop.posBy || prop.posVal) {
-            // 计算 prop 的几个默认默认属性
-            $z.setUndefined(prop, "mode", jBlock.attr("hmb-mode"));
-            $z.setUndefined(prop, "posBy", jBlock.attr("hmb-pos-by"));
-
             // 准备 CSS
-            css = {position:"", top:"",left:"",width:"",height:"",right:"",bottom:"",margin:""};
+            css = {position:"", top:"",left:"",width:"",height:"",right:"",bottom:"",margin:"",background:"",color:""};
 
             // 处理位置
             // 绝对定位
@@ -267,32 +262,64 @@ return ZUI.def("app.wn.hmaker_page", {
                         css[pKeys[i]] = pVals[i];
                     }
                 }
+                // 如果绝对定位的块在一个 [hm-droppable] 内，将其移出到 body
+                if(jBlock.parents("[hm-droppable]").length > 0) {
+                    jBlock.appendTo(UI._C.iedit.body);
+                }
             }
             // 跟随
             else if("inflow" == prop.mode) {
-                // 厄，啥都没必要做吧
+                // 如果确认是固定居中的
+                if(!_.isUndefined(prop.width) || !_.isUndefined(prop.height)) {
+                    css.width  = prop.width  || "";
+                    css.height = prop.height || "";
+                    css.margin = "0 auto";
+                }
             }
-            // 居中
-            else if("center" == prop.mode) {
-                css.margin = "0 auto";
-                css.width = prop.width;
-            }
+            
             // 修改位置 CSS
             jBlock.css(css);
         }
 
+        // 更新块模式
+        jBlock.attr("hmb-mode", prop.mode);
+
+        // 除了位置大小的属性，都设置到 .hmb-area 上
+        // 如果父块有了宽高，那么它对应的尺寸应该设置成 100%
+        css = _.pick(css, "width", "height");
+        if(css.width  || _.isNumber(css.width))
+            css.width = "100%";
+        if(css.height || _.isNumber(css.height))
+            css.height = "100%";
+
+        // 如果指定了内容的宽度
+        if(prop.areaWidth)
+            css.width = prop.areaWidth;
+        else
+            prop.areaAlign = "";
+
+        // 内容的排列
+        switch(prop.areaAlign) {
+            case "center":
+                css.margin = "0 auto";
+                break;
+            case "right":
+                css.margin = "0 0 0 auto";
+                break;
+            default:
+                css.margin = "";
+        }
+
+        // 首先下为 .hmb-con 设置一下
+        var jCon = jBlock.children(".hmb-con");
+        jCon.css(css);
+
         // 循环处理其他属性
-        css = {};
         for(var key in prop) {
             var val = prop[key];
 
-            // 记录属性
-            var attrName = "hmb-" + $z.lowerWord(key);
-            jBlock.attr(attrName, val);
-
-
             // 位置信息，忽略
-            if(/^(mode|pos)/.test(key))
+            if(/^(mode|pos|width|height|area)/.test(key))
                 continue;
 
             // 其他的设置到 CSS 里
@@ -300,9 +327,15 @@ return ZUI.def("app.wn.hmaker_page", {
         }
 
         //console.log(css)
+        // 绝对位置的属性，确保经过格式化
+        if ("abs" == prop.mode)
+            UI._C.iedit.$body.moveresizing("format");
 
-        // 最后应用一下 CSS
-        jBlock.children().css(css);
+        // 应用一下 CSS
+        jCon.children(".hmb-area").css(css);
+
+        // 保存属性
+        var jPropEle = $z.setJsonToSubScriptEle(jBlock, "hmc-prop-block", prop, true);
     },
     //...............................................................
     setup_page_editing : function(){
@@ -347,9 +380,9 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.fire("active:page", UI._page_obj);
 
         // 模拟第一个块被点击
-        window.setTimeout(function(){
-            UI._C.iedit.$body.find(".hm-block").first().click();
-        },500);
+        // window.setTimeout(function(){
+        //     UI._C.iedit.$body.find(".hm-block").first().click();
+        // },500);
     },
     //...............................................................
     __setup_page_head : function() {
@@ -410,6 +443,15 @@ return ZUI.def("app.wn.hmaker_page", {
                 UI.on_block_delete(e);
             }
         });
+        UI._C.iedit.$body.on("keyup", function(e){
+            // Shift 将表示开关移动遮罩的  no-drag
+            if(16 == e.which) {
+                var mvMask = UI._C.iedit.$body.children(".pmv-mask");
+                if(mvMask.length > 0) {
+                    $z.toggleAttr(mvMask, "no-drag", "yes");
+                }
+            }
+        });
     },
     //...............................................................
     __setup_page_moveresizing : function() {
@@ -417,10 +459,13 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 通知移动的过程
         var notify_move_or_resize = function(rect) {
-            var vals = UI.transRectToPosVal(rect, this.$block.attr("hmb-pos-by"));
-            UI.fire("change:block", {
-                posVal : vals
-            });
+            var vals = UI.transRectToPosVal(rect, this.prop.posBy);
+
+            // 更新
+            this.prop.posVal = vals;
+
+            // 通知
+            UI.fire("change:block", this.prop);
         };
 
         // 监视控件的拖拽
@@ -432,45 +477,71 @@ return ZUI.def("app.wn.hmaker_page", {
             delay : 300,
             maskClass : "hm-page-move-mask",
             on_begin : function() {
+                // 如果未被激活，激活当前的块
                 if(!this.$trigger.closest(".hm-block").attr("hm-actived"))
                     UI.fire("active:block", this.$trigger);
+                // 为所有的 drag 帮助类设置内容
+                if(this.dropping)
+                    for(var di of this.dropping) {
+                        di.helper.append(UI.ccode("drag_tip"));
+                    }
+                // 记录 uiCom 以及初始的 prop 等信息
+                this.$com  = UI.getComElement(this.$block);
+                this.uiCom = ZUI(this.$com);
+                this.prop  = UI.getBlockProp(this.$block);
             },
             on_change : notify_move_or_resize,
             updateBlockBy : null,
-            // findDropTarget : ".canvas-wrapper>.moni:not(.moni-current)",
-            // on_dragenter : function(jMoni, helper) {
-            //     jMoni.attr("show-drop-pobj-tip", "yes");
-            //     helper.append(UI.ccode("changeMoni"));
+            findDropTarget : function(){
+                // 如果是移动尺寸手柄，那么就不是拖动了
+                if(this.$trigger.hasClass("mvrza-hdl")){
+                    return;
+                }
+                // 寻找可以被放置的目标
+                var re = [];
+                var me = this.$trigger[0];
+                this.$viewport.find("[hm-droppable]").each(function(){
+                    if($(this).closest(me).length == 0){
+                        re.push(this);
+                    }
+                });
+                // 返回
+                return $(re);
+            },
+            // on_dragenter : function(jq, helper) {
+            //     helper.attr("drag-hover", "yes");
             // },
-            // on_dragleave : function(jMoni, helper) {
-            //     jMoni.removeAttr("show-drop-pobj-tip");
-            //     helper.empty();
+            // on_dragleave : function(jq, helper) {
+            //     helper.removeAttr("drag-hover");
             // },
-            // on_drop : function(jMoni) {
-            //     // 得到对应的 pobj 元素
-            //     var jPobj = this.$trigger.closest(".moni-pobj");
+            on_drop : function(jq) {
+                var jBlock = this.$block;
+                var jCom   = this.$com;
+                var uiCom  = this.uiCom;
+                var prop   = this.prop;
 
-            //     // 切换监视器
-            //     var moniIndex = jMoni.attr("moni-index") * 1;
-            //     var pobj = jPobj.data("@POBJ");
-            //     // 嗯果然换了，改吧
-            //     if(pobj.args.monitor != moniIndex){                        
-            //         pobj.args.monitor = moniIndex;
-            //         pobj.style = this.pobj_origin_style;
+                // 确保
+                prop.mode = "inflow";
 
-            //         // 触发事件
-            //         UI.parent.trigger("screen:pobj:style", pobj);
+                // 将控件附加在放置区末尾
+                jq.append(jBlock);
 
-            //         // 更新自身显示
-            //         UI.update();
-            //     }
+                // 格式化组件和块的尺寸
+                var com = uiCom.getData();
+                $z.invoke(uiCom, "formatSize", [prop, com, jBlock.attr("hmb-mode")]);
 
-            // }
+                // 通知 Block 更新: 确保组件的块不再是绝对位置
+                uiCom.fire("change:block", prop);
+
+                // 通知 COM 更新
+                UI.fire("change:com", com);
+            }
         });
     },
     //...............................................................
     bindComUI : function(jCom, callback, showProp) {
         var UI = this;
+        jCom = jCom.closest(".hm-com");
 
         // 定义得到 COMUI 的后续处理
         var _do_com_ui = function(uiCom) {
@@ -522,12 +593,12 @@ return ZUI.def("app.wn.hmaker_page", {
             }
         };
 
-        // TODO 这里根据控件获取 UI
-        var uiCom = ZUI(jCom);
+        // 看看是否之前就绑定过
+        var uiId  = jCom.attr("ui-id");
 
         // 已经绑定了 UI，那么继续弄后面的
-        if(uiCom) {
-            _do_com_ui(uiCom);
+        if(uiId) {
+            _do_com_ui(ZUI(uiId));
         }
         // 否则根据类型加载 UI 吧
         else {
@@ -559,10 +630,13 @@ return ZUI.def("app.wn.hmaker_page", {
     getComElement : function(jBlock) {
         return jBlock.find(">.hmb-con>.hmb-area>.hm-com");
     },
+    getBlockElement : function(jCom) {
+        return jCom.closest(".hm-block");
+    },
     //...............................................................
     doChangeBlock : function(prop) {
         var jBlock = this.getActivedBlockElement();
-        this.applyBlockProp(jBlock, prop, false);
+        this.applyBlockProp(jBlock, prop);
     },
     //...............................................................
     doChangeCom : function(com, jCom) {
@@ -586,6 +660,13 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.bindComUI(jCom, function(uiCom){
             // 得到组件的纯数据描述
             var com = uiCom.getData();
+
+            // 得到块的属性
+            var prop = UI.getBlockProp(jBlock);
+
+            // 格式化组件和块的尺寸
+            $z.invoke(uiCom, "formatSize", [prop, com, jBlock.attr("hmb-mode")]);
+
             // 发出通知
             UI.fire("change:com", com);
         }, true);

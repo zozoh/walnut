@@ -192,6 +192,45 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 title  : "i18n:hmaker.prop.boxShadow",
                 type   : "string",
                 editAs : "input"
+            }, {
+                key    : "overflow",
+                title  : "i18n:hmaker.prop.overflow",
+                type   : "string",
+                editAs : "switch", 
+                uiConf : {
+                    items : [{
+                        text : 'i18n:hmaker.prop.overflow_visible',
+                        val  : 'visible',
+                    }, {
+                        text : 'i18n:hmaker.prop.overflow_auto',
+                        val  : 'auto',
+                    }, {
+                        text : 'i18n:hmaker.prop.overflow_hidden',
+                        val  : 'hidden',
+                    }]
+                }
+            }, {
+                key    : "areaWidth",
+                title  : "i18n:hmaker.prop.areaWidth",
+                type   : "string",
+                editAs : "input"
+             }, {
+                key    : "areaAlign",
+                title  : "i18n:hmaker.prop.areaAlign",
+                type   : "string",
+                editAs : "switch", 
+                uiConf : {
+                    items : [{
+                        icon : '<i class="fa fa-align-left">',
+                        val  : 'left',
+                    }, {
+                        icon : '<i class="fa fa-align-center">',
+                        val  : 'center',
+                    }, {
+                        icon : '<i class="fa fa-align-right">',
+                        val  : 'right',
+                    }]
+                }
             }]
         }).render(function(){
             // 位置编辑界面

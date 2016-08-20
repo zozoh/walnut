@@ -36,10 +36,23 @@ return ZUI.def("app.wn.hm_com_image", {
         // 准备更新的样式
         var css = {
             "background-image"  : 'url(/a/load/wn.hmaker2/img_blank.jpg)',
-            "background-color"  : "#000",
-            "background-repeat" : "norepeat",
-            "background-size"   : "100% 100%",
+            "background-repeat" : "no-repeat",
         };
+
+        // 图片拉伸方式
+        switch(com.scale) {
+            case "contain":
+            case "cover"  :
+                css["background-size"] = com.scale;
+                css["background-position"] = "center center";
+                break;
+            case "tile" :
+                css["background-size"] = "";
+                css["background-repeat"] = "repeat";
+                break;
+            default:
+                css["background-size"] = "100% 100%";
+        }
 
         // 图片源
         // 指定
@@ -54,8 +67,8 @@ return ZUI.def("app.wn.hm_com_image", {
 
         // 大小
         UI.arena.css({
-            "width"  : "100%",
-            "height" : "100%",
+            "width"  : com.width,
+            "height" : com.height,
         });
 
         // // 链接
@@ -112,10 +125,78 @@ return ZUI.def("app.wn.hm_com_image", {
                     uiConf : {
                         base : oHome
                     }
+                }, {
+                    key    : "scale",
+                    title  : "i18n:hmaker.prop.scale",
+                    type   : "string",
+                    editAs : "link",
+                    editAs : "switch", 
+                    uiConf : {
+                        items : [{
+                            text : 'i18n:hmaker.prop.scale_full',
+                            val  : 'full',
+                        }, {
+                            text : 'i18n:hmaker.prop.scale_contain',
+                            val  : 'contain',
+                        }, {
+                            text : 'i18n:hmaker.prop.scale_cover',
+                            val  : 'cover',
+                        }, {
+                            text : 'i18n:hmaker.prop.scale_tile',
+                            val  : 'tile',
+                        }]
+                    }
+                }, {
+                    key    : "width",
+                    title  : "i18n:hmaker.prop.width",
+                    type   : "string",
+                    uiWidth : 80, 
+                    editAs : "input",
+                }, {
+                    key    : "height",
+                    title  : "i18n:hmaker.prop.height",
+                    type   : "string",
+                    uiWidth : 80, 
+                    editAs : "input",
                 }]
             }
         }
+    },
+    //...............................................................
+    formatSize : function(prop, com, fromMode) {
+        var UI = this;
+        
+        console.log("I am img.formatSize:before", prop)
+
+        // 组件默认还是要 100% 的
+        $z.setUndefined(com, "width",  "100%");
+        $z.setUndefined(com, "height", "100%");
+        
+        // 模式变了，我要参与一下
+        if(fromMode != prop.mode) {
+            // 根据属性计算出矩形
+            var rect = UI.getBlockRectByProp(prop);
+
+            // 绝对位置，把宽高设置回 posVal
+            if("abs" == prop.mode) {
+                // 将块属性的宽高，设置回矩形里
+                rect.width  = prop.width;
+                rect.height = prop.height;
+
+                prop.posVal = UI.transRectToPosVal(rect, prop.posBy);
+               
+            }
+            // 绝对位置，从 posVal 里把宽高 copy 出来
+            else {
+                // 将矩形的宽高设置到块属性里
+                prop.width  = rect.width;
+                prop.height = rect.height;
+            }
+        }
+        
+        console.log("I am img.formatSize:after", prop)
     }
+    //...............................................................
 });
 //===================================================================
 });

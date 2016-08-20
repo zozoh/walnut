@@ -156,6 +156,50 @@
 //............................................................
 // 控件们的私有属性面板
 //............................................................
+// columns
+.hmc-columns-prop {
+    padding:@d3;
+    // 样式显示区域
+    .crp-layout { @noselect();
+        padding: @d4;
+        @lyBH : 160px;
+        .ly-wrapper {
+            border:3px solid @cborder0; padding:@d3;
+            @flex(); 
+        }
+        .ly-block {
+            height:@lyBH; line-height: @f3; flex:1 1 auto;
+            background:rgba(255,255,255,0.4); border:1px dashed @cborder1;
+            position: relative;
+            .ly-b-nm {
+                padding:@d5; 
+            }
+            .ly-a { 
+                position: absolute; bottom: 0; left:0; right:0;
+                text-align: center; padding:@d3;
+                > div {
+                    display:inline-block; padding:@d1 @d2; transition: 0.2s; cursor: pointer;
+                }
+                > div:hover {
+                    transform: scale(1.2); font-weight: bold; color:@c6;
+                }
+            }
+        }
+        .ly-newer { transition: 0.2s;
+            border:1px solid @cborder1; margin:@d3 auto;
+            text-align: center; width:80px; height:@d6; line-height:@d6 - 2;
+            cursor: pointer;
+        }
+        .ly-newer:hover {
+            color:@c0; border-color:@c0; font-size: 1.6em;
+        }
+    }
+    //
+    .crp-form {
+
+    }
+}
+//............................................................
 // rows
 .hmc-rows-prop {
     padding:@d3;
@@ -168,7 +212,7 @@
         }
         .ly-block {
             height:@lyBH; position: relative;
-            background:rgba(255,255,255,0.4); box-shadow: 2px 2px 4px @cshadow;
+            background:rgba(255,255,255,0.4); border:1px dashed @cborder1;
             .ly-b-nm {
                 position: absolute; top:@d2; bottom:@d2; left:0;
                 padding:0 @d5; line-height: @lyBH - @d2 * 2;
@@ -199,6 +243,3 @@
     }
 }
 
-
-
-    

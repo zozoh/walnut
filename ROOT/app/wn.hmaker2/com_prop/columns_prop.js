@@ -11,13 +11,13 @@ var html = function(){/*
     <div code-id="block" class="ly-block">
         <div class="ly-b-nm">??</div>
         <div class="ly-a">
-            <div class="ly-a-del"><i class="zmdi zmdi-delete"></i> {{hmaker.com.rows.del}}</div>
-            <div move="next"><i class="zmdi zmdi-long-arrow-down"></i> {{hmaker.com.rows.move_down}}</div>
-            <div move="prev"><i class="zmdi zmdi-long-arrow-up"></i> {{hmaker.com.rows.move_up}}</div>
+            <div class="ly-a-del"><i class="zmdi zmdi-delete"></i> {{hmaker.com.columns.del}}</div>
+            <div move="prev"><i class="zmdi zmdi-long-arrow-left"></i> {{hmaker.com.columns.move_left}}</div>
+            <div move="next"><i class="zmdi zmdi-long-arrow-right"></i> {{hmaker.com.columns.move_right}}</div>
         </div>
     </div>
 </div>
-<div class="ui-arena hmc-rows-prop" ui-fitparent="yes">
+<div class="ui-arena hmc-columns-prop" ui-fitparent="yes">
     <section class="crp-layout">
         <div class="ly-wrapper"></div>
         <div class="ly-newer"><i class="zmdi zmdi-plus"></i></div>
@@ -25,7 +25,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.hm_com_rows_prop", {
+return ZUI.def("app.wn.hm_com_columns_prop", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     init : function(){
@@ -47,36 +47,6 @@ return ZUI.def("app.wn.hm_com_rows_prop", {
             this.uiCom.delBlock(seq);
         }
     },
-    // //...............................................................
-    // redraw : function() {
-    //     var UI = this;
-
-    //     new FormUI({
-    //         parent : UI,
-    //         gasketName : "form",
-    //         fields : [{
-    //             key    : 'fixwidth',
-    //             title  : 'i18n:hmaker.com.rows.fixwidth',
-    //             tip    : 'i18n:hmaker.com.rows.fixwidth_tip',
-    //             uiWidth : 60,
-    //             type   : 'string',
-    //             editAs : 'input',
-    //         }, {
-    //             key    : 'fixwidth',
-    //             title  : 'i18n:hmaker.com.rows.padding',
-    //             uiWidth : 60,
-    //             type   : 'string',
-    //             editAs : 'input',
-    //             uiConf : {
-    //                 unit : "px"
-    //             }
-    //         }]
-    //     }).render(function(){
-    //         UI.defer_report("form");
-    //     });
-        
-    //     return "form";
-    // },
     //...............................................................
     update : function(com) {
         var UI = this;
@@ -96,14 +66,14 @@ return ZUI.def("app.wn.hm_com_rows_prop", {
     },
     //...............................................................
     resize : function() {
-        // var UI = this;
-        // var jLayout = UI.arena.find(".crp-layout");
-        // var jForm   = UI.arena.find(".crp-form");
+        var UI = this;
+        var jLayout = UI.arena.find(".crp-layout");
+        var jForm   = UI.arena.find(".crp-form");
 
-        // var H = UI.arena.height();
-        // jForm.css({
-        //     "height" : H - jLayout.outerHeight(true)
-        // });
+        var H = UI.arena.height();
+        jForm.css({
+            "height" : H - jLayout.outerHeight(true)
+        });
     }
 });
 //===================================================================

@@ -38,23 +38,23 @@ var methods = {
             this.fire("change:com", _.extend($z.obj(key,val), this.__gen_base_data()));
         }
     },
-    // 将属性设置到控件的 DOM 上
-    setPropToDom : function(prop) {
-        var jPropEle = this.$el.children("script.hmc-th-prop-ele");
-        if(jPropEle.size() == 0) {
-            jPropEle = $('<script type="text/x-template" class="hmc-th-prop-ele">').prependTo(this.$el);
+    // 根据 Block 的属性设置，得到它的应该的矩形对象
+    getBlockRectByProp : function(prop) {
+        var keys = prop.posBy.split(",");
+        var vals = prop.posVal.split(",");
+        var rect = {};
+        for(var i in keys) {
+            rect[keys[i]] = $z.toPixel(vals[i]);
         }
-        jPropEle.html("\n"+$z.toJson(prop,null,'    ')+"\n");
+        return $z.rect_count_auto(rect, true);
+    },
+    // 将属性设置到控件的 DOM 上
+    setPropToDom : function(com) {
+        $z.setJsonToSubScriptEle(this.$el, "hmc-prop-ele", com, true);
     },
     // 从控件的 DOM 上获取控件的属性
     getPropFromDom : function(){
-        var jPropEle = this.$el.children("script.hmc-th-prop-ele");
-        if(jPropEle.size() > 0){
-            var json = jPropEle.html();
-            return $z.fromJson(json);
-        }
-        // 返回空
-        return {};
+        return $z.getJsonFromSubScriptEle(this.$el, "hmc-prop-ele");
     },
     // 将一个 json 描述的 CSS 对象变成 CSS 文本
     // css 对象，key 作为 selector，值是 JS 对象，代表 rule

@@ -288,6 +288,67 @@
   font-weight: bold;
   transform: scale(1.2) rotate(360deg);
 }
+.hmc-columns-prop {
+  padding: 8px;
+}
+.hmc-columns-prop .crp-layout {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 12px;
+}
+.hmc-columns-prop .crp-layout .ly-wrapper {
+  border: 3px solid #cccccc;
+  padding: 8px;
+  display: -webkit-flex;
+  display: flex;
+}
+.hmc-columns-prop .crp-layout .ly-block {
+  height: 160px;
+  line-height: 14px;
+  flex: 1 1 auto;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px dashed #d0d0d0;
+  position: relative;
+}
+.hmc-columns-prop .crp-layout .ly-block .ly-b-nm {
+  padding: 16px;
+}
+.hmc-columns-prop .crp-layout .ly-block .ly-a {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 8px;
+}
+.hmc-columns-prop .crp-layout .ly-block .ly-a > div {
+  display: inline-block;
+  padding: 4px 6px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+.hmc-columns-prop .crp-layout .ly-block .ly-a > div:hover {
+  transform: scale(1.2);
+  font-weight: bold;
+  color: #ff0000;
+}
+.hmc-columns-prop .crp-layout .ly-newer {
+  transition: 0.2s;
+  border: 1px solid #d0d0d0;
+  margin: 8px auto;
+  text-align: center;
+  width: 80px;
+  height: 24px;
+  line-height: 22px;
+  cursor: pointer;
+}
+.hmc-columns-prop .crp-layout .ly-newer:hover {
+  color: #ff8800;
+  border-color: #ff8800;
+  font-size: 1.6em;
+}
 .hmc-rows-prop {
   padding: 8px;
 }
@@ -306,7 +367,7 @@
   height: 48px;
   position: relative;
   background: rgba(255, 255, 255, 0.4);
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  border: 1px dashed #d0d0d0;
 }
 .hmc-rows-prop .crp-layout .ly-block .ly-b-nm {
   position: absolute;
