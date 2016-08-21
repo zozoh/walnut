@@ -59,6 +59,17 @@ body {margin:0;}
 //............................................................
 // 各个控件的特殊显示
 //............................................................
+// rows
+.hmc-rows {
+    .hmc-row-block {
+        min-height: 30px; 
+    }
+}
+[hm-actived] .hmc-rows {
+    .hmc-row-block {border:1px dotted @c0; border-bottom:0;}
+    .hmc-row-block:last-child {border-bottom:1px dotted @c0;}
+}
+//............................................................
 // columns
 .hmc-columns {
     @flex();
@@ -76,15 +87,36 @@ body {margin:0;}
     .hmc-col-block:last-child {border-right:1px dotted @c0;}
 }
 //............................................................
-// rows
-.hmc-rows {
-    .hmc-row-block {
-        min-height: 30px; 
+// navmenu
+[hmb-mode="abs"] .hmc-navmenu {
+    width:100%; height:100%;
+}
+.hmc-navmenu {
+    ul{
+        margin:0; padding:0; list-style: none;
+        line-height: 24px;
+    }
+    li {padding:@d2 @d5 + @d0; position: relative; cursor: pointer;}
+    li[href]{color:@clink; text-decoration: underline;}
+    li[current] {color:@c0;}
+    li[newtab] a:after {
+        font-family: 'FontAwesome'; display: inline; content: "\f08e";
+        font-size: @f0; color:@c2; 
+        position: absolute; margin:-6px 0 0 2px;
     }
 }
-[hm-actived] .hmc-rows {
-    .hmc-row-block {border:1px dotted @c0; border-bottom:0;}
-    .hmc-row-block:last-child {border-bottom:1px dotted @c0;}
+// 水平导航条(默认)
+.hmc-navmenu[mode="default"] {
+    ul {
+        @flex(); flex-wrap: wrap;
+        li {border-left:1px solid @cborder0; flex:0 0 auto;}
+        li:first-child {border-left:0;}
+    }
+    ul:after{@clr();}
+}
+// 垂直导航条
+.hmc-navmenu[mode="aside"] {
+
 }
 //............................................................
 // ThingSet

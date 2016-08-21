@@ -188,14 +188,15 @@ return ZUI.def("app.wn.hmaker_page", {
             mode : "abs",
             posBy   : "top,left,width,height",
             posVal  : "10px,10px,300px,200px",
+            width   : "auto",
+            height  : "auto",
             padding : "10px",
             border : "" ,   // "1px solid #000",
             borderRadius : "",
             background : "rgba(40,40,40,0.3)",
             color : "",
             overflow : "",
-            areaWidth : "",
-            areaAlign : ""
+            blockBackground : "",
         };
     },
     //...............................................................
@@ -222,8 +223,15 @@ return ZUI.def("app.wn.hmaker_page", {
         jBlock = $(jBlock || UI.getActivedBlockElement());
         
         // 得到属性存放的 <Script>标签
-        return $z.getJsonFromSubScriptEle(jBlock, "hmc-prop-block");
+        var prop = $z.getJsonFromSubScriptEle(jBlock, "hmc-prop-block");
 
+        // 如果是相对定位，默认的宽高都是 auto
+        if("inflow" == prop.mode) {
+            $z.setUndefined(prop, "width",  "auto");
+            $z.setUndefined(prop, "height", "auto");
+        }
+
+        return prop;
         // $z.setMeaningful(prop, "mode",         jBlock.attr("hmb-mode"));
         // $z.setMeaningful(prop, "posBy",        jBlock.attr("hmb-pos-by"));
         // $z.setMeaningful(prop, "posVal",       jBlock.attr("hmb-pos-val"));
@@ -238,101 +246,56 @@ return ZUI.def("app.wn.hmaker_page", {
     applyBlockProp : function(jBlock, prop) {
         var UI = this;
         jBlock = jBlock || UI.getActivedBlockElement();
+        var jCon  = jBlock.children(".hmb-con");
+        var jArea = jCon.children(".hmb-area");
         //console.log("apply", prop)
 
         // 与旧属性合并
         prop = _.extend(UI.getBlockProp(jBlock), prop);
 
-        // 根据属性生成 CSS
-        var css;
-
-        // 确定要修改位置方面的数值
-        if(prop.mode || prop.posBy || prop.posVal) {
-            // 准备 CSS
-            css = {position:"", top:"",left:"",width:"",height:"",right:"",bottom:"",margin:"",background:"",color:""};
-
-            // 处理位置
-            // 绝对定位
-            if("abs" == prop.mode) {
-                css.position = "absolute";
-                var pKeys = (prop.posBy||"").split(/\W+/);
-                var pVals = (prop.posVal||"").split(/[^\dpx%.-]+/);
-                if(pKeys.length==pVals.length && pKeys.length > 0) {
-                    for(var i=0;i<pKeys.length;i++) {
-                        css[pKeys[i]] = pVals[i];
-                    }
-                }
-                // 如果绝对定位的块在一个 [hm-droppable] 内，将其移出到 body
-                if(jBlock.parents("[hm-droppable]").length > 0) {
-                    jBlock.appendTo(UI._C.iedit.body);
-                }
-            }
-            // 跟随
-            else if("inflow" == prop.mode) {
-                // 如果确认是固定居中的
-                if(!_.isUndefined(prop.width) || !_.isUndefined(prop.height)) {
-                    css.width  = prop.width  || "";
-                    css.height = prop.height || "";
-                    css.margin = "0 auto";
-                }
-            }
-            
-            // 修改位置 CSS
-            jBlock.css(css);
-        }
-
-        // 更新块模式
+        // 更新块的熟悉
         jBlock.attr("hmb-mode", prop.mode);
 
-        // 除了位置大小的属性，都设置到 .hmb-area 上
-        // 如果父块有了宽高，那么它对应的尺寸应该设置成 100%
-        css = _.pick(css, "width", "height");
-        if(css.width  || _.isNumber(css.width))
-            css.width = "100%";
-        if(css.height || _.isNumber(css.height))
-            css.height = "100%";
+        //-----------------------------------------------------
+        // 对于绝对位置
+        if("abs" == prop.mode) {
+            // 如果绝对定位的块在一个 [hm-droppable] 内，将其移出到 body
+            // TODO 厄，介个，要想想如何在对象内部还继续维持 absolute
+            if(jBlock.parents("[hm-droppable]").length > 0) {
+                jBlock.appendTo(UI._C.iedit.body);
+            }
 
-        // 如果指定了内容的宽度
-        if(prop.areaWidth)
-            css.width = prop.areaWidth;
-        else
-            prop.areaAlign = "";
-
-        // 内容的排列
-        switch(prop.areaAlign) {
-            case "center":
-                css.margin = "0 auto";
-                break;
-            case "right":
-                css.margin = "0 0 0 auto";
-                break;
-            default:
-                css.margin = "";
-        }
-
-        // 首先下为 .hmb-con 设置一下
-        var jCon = jBlock.children(".hmb-con");
-        jCon.css(css);
-
-        // 循环处理其他属性
-        for(var key in prop) {
-            var val = prop[key];
-
-            // 位置信息，忽略
-            if(/^(mode|pos|width|height|area)/.test(key))
-                continue;
-
-            // 其他的设置到 CSS 里
-            css[key] = val || "";
-        }
-
-        //console.log(css)
-        // 绝对位置的属性，确保经过格式化
-        if ("abs" == prop.mode)
+            // 确保经过格式化以便出现控制手柄
             UI._C.iedit.$body.moveresizing("format");
 
-        // 应用一下 CSS
-        jCon.children(".hmb-area").css(css);
+            // 嗯搞吧，先搞位置
+            var pKeys = (prop.posBy||"").split(/\W+/);
+            var pVals = (prop.posVal||"").split(/[^\dpx%.-]+/);
+            
+            // 块
+            var css = _.object(pKeys,pVals);
+            css.position = "absolute";
+            jBlock.css(UI.formatCss(css, true));
+
+            // area 的属性
+            css = _.pick(prop,"padding","border","borderRadius","color","background","overflow","boxShadow");
+            css.width  = "100%";
+            css.height = "100%";
+            css = UI.formatCss(css, true);
+            //jArea.css(UI.formatCss(css, true));
+            jArea.css(css);
+        }
+        //-----------------------------------------------------
+        // 相对位置
+        else {
+            // 块
+            jBlock.css(UI.getBaseCss());
+
+            // area
+            var css = _.pick(prop,"margin","width","height","padding","border","borderRadius","color","background","overflow","boxShadow");;
+            jArea.css(UI.formatCss(css, true));
+        }
+
 
         // 保存属性
         var jPropEle = $z.setJsonToSubScriptEle(jBlock, "hmc-prop-block", prop, true);
@@ -380,9 +343,9 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.fire("active:page", UI._page_obj);
 
         // 模拟第一个块被点击
-        // window.setTimeout(function(){
-        //     UI._C.iedit.$body.find(".hm-block").first().click();
-        // },500);
+        window.setTimeout(function(){
+            UI._C.iedit.$body.find(".hm-block").first().click();
+        },500);
     },
     //...............................................................
     __setup_page_head : function() {
@@ -431,7 +394,6 @@ return ZUI.def("app.wn.hmaker_page", {
             }
             // 如果点到了 body，那么激活页
             else if('BODY' == this.tagName){
-                console.log("click body")
                 UI.fire("active:page", UI._page_obj);
             }
         });
@@ -668,7 +630,7 @@ return ZUI.def("app.wn.hmaker_page", {
             $z.invoke(uiCom, "formatSize", [prop, com, jBlock.attr("hmb-mode")]);
 
             // 发出通知
-            UI.fire("change:com", com);
+            UI.fire("change:com", com, jCom);
         }, true);
     },
     //...............................................................
@@ -842,7 +804,7 @@ return ZUI.def("app.wn.hmaker_page", {
             $(this).removeAttr("ui-id");
         });
 
-        // 最后整理所有的空节点，让其为一个回车
+        // 整理所有的空节点，让其为一个回车
         $z.eachTextNode(C.iload.$body, function(){
             var str = $.trim(this.nodeValue);
             // 处理空白节点
@@ -855,6 +817,17 @@ return ZUI.def("app.wn.hmaker_page", {
                 else {
                     this.nodeValue = "\n";
                 }
+            }
+        });
+
+        // 删除所有临时属性
+        C.iload.$body.find('[del-attrs]').each(function(){
+            var jq = $(this);
+            var attrNames = jq.attr("del-attrs").split(",");
+            console.log(attrNames)
+            var subs = jq.find("*").andSelf();
+            for(var attrName of attrNames) {
+                subs.removeAttr(attrName);
             }
         });
 

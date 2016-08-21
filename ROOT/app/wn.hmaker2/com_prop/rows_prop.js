@@ -11,9 +11,9 @@ var html = function(){/*
     <div code-id="block" class="ly-block">
         <div class="ly-b-nm">??</div>
         <div class="ly-a">
-            <div class="ly-a-del"><i class="zmdi zmdi-delete"></i> {{hmaker.com.rows.del}}</div>
-            <div move="next"><i class="zmdi zmdi-long-arrow-down"></i> {{hmaker.com.rows.move_down}}</div>
-            <div move="prev"><i class="zmdi zmdi-long-arrow-up"></i> {{hmaker.com.rows.move_up}}</div>
+            <div class="ly-a-del"><i class="zmdi zmdi-delete"></i> {{hmaker.com._.del}}</div>
+            <div move="next"><i class="zmdi zmdi-long-arrow-down"></i> {{hmaker.com._.move_down}}</div>
+            <div move="prev"><i class="zmdi zmdi-long-arrow-up"></i> {{hmaker.com._.move_up}}</div>
         </div>
     </div>
 </div>

@@ -5,7 +5,7 @@ define({
         },
         "prop" : {
             "title" : '属性',
-            "tab_block" : '<b>外观</b>',
+            "tab_block" : '<b>布局</b>',
             "tab_com"   : '<b>控件</b>',
             "padding"   : "边距",
             "border"    : "边框",
@@ -28,6 +28,7 @@ define({
             "scale_tile"    : "平铺",
             "areaWidth" : "内容宽度",
             "areaAlign" : "内容排列",
+            "blockBackground"   : "块背景",
         }, 
         "drag" : {
             "hover" : "拖拽至此，Shift键取消"
@@ -49,6 +50,14 @@ define({
             "show_prop" : "显示页面属性"
         },
         "com" : {
+            "_" : {
+                "move_left"   : "左移",
+                "move_right"  : "右移",
+                "move_up"     : "上移",
+                "move_down"   : "下移",
+                "create"      : "新建",
+                "del"         : "删除",
+            },
             "rows" : {
                 "name"  : "水平分栏",
                 "tip"   : "对于所在区域进行水平分隔，可以容纳更多控件",
@@ -56,9 +65,6 @@ define({
                 "fixwidth"  : "固定宽度",
                 "fixwidth_tip" : "单位是 px 或者 %",
                 "padding"   : "栏内边距",
-                "move_up"   : "上移",
-                "move_down" : "下移",
-                "del"       : "删除",
             },
             "columns" : {
                 "name"  : "垂直分栏",
@@ -67,14 +73,21 @@ define({
                 "fixwidth"  : "固定宽度",
                 "fixwidth_tip" : "单位是 px 或者 %",
                 "padding"   : "栏内边距",
-                "move_left"   : "左移",
-                "move_right"  : "右移",
-                "del"       : "删除",
             },
             "navmenu" : {
                 "name"  : "导航菜单",
                 "tip"   : "可垂直或水平放置，可支持多级菜单",
                 "icon"  : '<i class="zmdi zmdi-dns"></i>',
+                "item_dft_text" : "菜单项文字",
+                "newtab" : "新窗口",
+                "nohref" : "无链接",
+                "nocurrent" : "抱歉，您执行这个操作前，必须要选择一个菜单项",
+                "empty" : "菜单无任何项目",
+                "mode"  : "放置模式",
+                "mode_default" : "水平",
+                "mode_aside"   : "垂直",
+                "itemAlign"    : "对齐方式",
+                "itemPadding"  : "项目边距",
             },
             "text" : {
                 "name"  : "文本",

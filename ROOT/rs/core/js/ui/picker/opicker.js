@@ -69,7 +69,6 @@ return ZUI.def("ui.picker.opicker", {
     },
     //...............................................................
     setData : function(obj){
-        console.log("opicker setData")
         this.ui_parse_data(obj, function(o){
             this._update(o, true);
         });

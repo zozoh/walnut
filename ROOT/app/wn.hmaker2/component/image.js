@@ -16,12 +16,6 @@ return ZUI.def("app.wn.hm_com_image", {
         HmComMethods(this);
     },
     //...............................................................
-    events : {
-        'click .hmc-text' : function(){
-            console.log("Hi you click me!")
-        }
-    },
-    //...............................................................
     redraw : function() {
         var UI = this;
 
@@ -166,7 +160,7 @@ return ZUI.def("app.wn.hm_com_image", {
     formatSize : function(prop, com, fromMode) {
         var UI = this;
         
-        console.log("I am img.formatSize:before", prop)
+        //console.log("I am img.formatSize:before", prop)
 
         // 组件默认还是要 100% 的
         $z.setUndefined(com, "width",  "100%");
@@ -194,7 +188,7 @@ return ZUI.def("app.wn.hm_com_image", {
             }
         }
         
-        console.log("I am img.formatSize:after", prop)
+        //console.log("I am img.formatSize:after", prop)
     }
     //...............................................................
 });

@@ -1,4 +1,14 @@
 define(function (require, exports, module) {
+// ....................................
+// 块的 CSS 属性基础对象
+var _css_base = {
+    position:"",top:"",left:"",width:"",height:"",right:"",bottom:"",
+    margin:"",padding:"",border:"",borderRadius:"",
+    color:"",background:"",
+    overflow:"",boxShadow:"",
+};
+// ....................................
+// 方法表
 var methods = {
     hmaker : function(){
         var UI = this;
@@ -25,12 +35,12 @@ var methods = {
         uiHMaker.trigger.apply(uiHMaker, args);
     },
     // 得到 HmPageUI，如果不是，则抛错
-    pageUI : function(strict) {
+    pageUI : function(quiet) {
         var UI = this;
         var uiHMaker = this.hmaker();
         var re = uiHMaker.gasket.main;
         // 严格模式
-        if(strict){
+        if(!quiet){
             if(!re){
                 throw 'PageUI Not Loadded!';
             }
@@ -57,7 +67,35 @@ var methods = {
         });
         return _.values(re).join(",");
     },
-    // 将属性设置到控件的 DOM 上
+    // 将 CSS 对象与 base 合并，并将内部所有的 undefined 和 null 都变成空串
+    formatCss : function(css, mergeWithBase) {
+        if(mergeWithBase)
+            css = _.extend({}, _css_base, css);
+
+        return _.mapObject(css, function(val, key) {
+            if(_.isUndefined(val) || _.isNull(val))
+                return "";
+            return val;
+        });
+    },
+    // 返回 base_css 的一个新实例
+    getBaseCss : function() {
+        return _.extend({}, _css_base);
+    }
+
+}; // ~End methods
+//====================================================================
+
+//====================================================================
+// 输出
+module.exports = function(uiSub){
+    return _.extend(uiSub, methods);
+};
+//=======================================================================
+});
+
+/* TODO 应该可以删了 ...
+// 将属性设置到控件的 DOM 上
     setPropToElement : function(ele, prefix, prop) {
         ele = $(ele)[0];
 
@@ -108,14 +146,4 @@ var methods = {
         // 返回
         return prop;
     },
-
-}; // ~End methods
-//====================================================================
-
-//====================================================================
-// 输出
-module.exports = function(uiSub){
-    return _.extend(uiSub, methods);
-};
-//=======================================================================
-});
+*/

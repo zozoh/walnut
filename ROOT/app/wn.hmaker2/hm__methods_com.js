@@ -32,10 +32,10 @@ var methods = {
         // 通常，这种 com 都是通过自身的 DOM 来存放某些数据的，它修改了自身的 DOM 
         // 剩下的就是通知 prop 那边刷新显示而已
         if(_.isUndefined(key)) {
-            this.fire("change:com", _.extend({__com_ignore_setData:true}, this.__gen_base_data()));
+            this.fire("change:com", _.extend({__com_ignore_setData:true}, this.__gen_base_data()), this.$el);
         } 
         else {
-            this.fire("change:com", _.extend($z.obj(key,val), this.__gen_base_data()));
+            this.fire("change:com", _.extend($z.obj(key,val), this.__gen_base_data()), this.$el);
         }
     },
     // 根据 Block 的属性设置，得到它的应该的矩形对象
@@ -83,7 +83,11 @@ var methods = {
     },
     // 判断一个 DOM 元素是否在一个激活的块中
     isInActivedBlock : function(jq) {
-        return $(jq).closest(".hm-block[hm-actived]").size() > 0;
+        return $(jq).closest(".hm-block").attr("hm-actived") == "yes";
+    },
+    // 判断控件自身是否是 Actived
+    isActived : function() {
+        return this.$el.closest(".hm-block").attr("hm-actived") == "yes";
     },
     // 在属性面板的扩展元素接口，绘制自定义 UI
     drawComEleInProp : function(uiDef, callback) {

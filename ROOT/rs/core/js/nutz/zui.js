@@ -1067,7 +1067,7 @@ ZUI.checkInstance = function (el) {
     if (jui.size() == 0) {
         if(console && console.warn)
             console.warn(el);
-        throw "Current DOMElement no belone to any UI!";
+        throw "Current DOMElement no belone to any UI: " + jq[0].outerHTML ;
     }
     var cid = jui.attr("ui-id");
     return this.checkByCid(cid);

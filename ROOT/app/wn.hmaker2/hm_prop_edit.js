@@ -96,7 +96,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
     //...............................................................
     switchTab : function(ptype) {
         var UI = this;
-        ptype = ptype || "com";
+        ptype = ptype || "block";
 
         UI.arena.find('.hm-prop-tabs li').removeAttr("current")
             .filter('[ptype="'+ptype+'"]').attr("current", "yes");
@@ -115,11 +115,11 @@ return ZUI.def("app.wn.hm_prop_edit", {
         var prop = uiPage.getBlockProp(jBlock);
 
         // 更新
-        UI.changeBlock(prop);
+        UI.changeBlock(prop, true);
     },
     //...............................................................
-    changeBlock : function(prop) {
-        this.gasket.block.update(prop);
+    changeBlock : function(prop, full) {
+        this.gasket.block.update(prop, full);
     },
     //...............................................................
     changeCom : function(com) {
