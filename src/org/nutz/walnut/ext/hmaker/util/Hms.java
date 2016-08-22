@@ -2,10 +2,13 @@ package org.nutz.walnut.ext.hmaker.util;
 
 import java.util.Map;
 
+import org.jsoup.nodes.Element;
+import org.nutz.json.Json;
 import org.nutz.lang.Maths;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 
 /**
  * 帮助函数集
@@ -68,6 +71,8 @@ public final class Hms {
             // 其他的全当字符串
             else {
                 str = val.toString();
+                if (Strings.isBlank(str))
+                    continue;
             }
 
             // 拼装
@@ -96,7 +101,7 @@ public final class Hms {
      * @see #genCssRule(NutMap, int)
      */
     public static String genCssRuleStyle(Map<String, Object> rule) {
-        return genCssRule(rule, 0);
+        return genCssRule(rule, AUTO_LOWER);
     }
 
     /**
@@ -139,16 +144,51 @@ public final class Hms {
         return re;
     }
 
-    public static String escapeHtmlNewline(String html) {
-        return html.replace("\n", "\\hm:%N").replace(" ", "\\hm:%W");
+    public static String escapeJsoupHtml(String html) {
+        return html.replace("\n", "\\hm:%N")
+                   .replace(" ", "\\hm:%W")
+                   .replace("<", "\\hm:%[")
+                   .replace(">", "\\hm:%]")
+                   .replace("&", "\\hm:%#");
     }
 
-    public static String unescapeHtmlNewline(String html) {
-        return html.replace("\\hm:%N", "\n").replace("\\hm:%W", " ");
+    public static String unescapeJsoupHtml(String html) {
+        return html.replace("\\hm:%N", "\n")
+                   .replace("\\hm:%W", " ")
+                   .replace("\\hm:%[", "<")
+                   .replace("\\hm:%]", ">")
+                   .replace("\\hm:%#", "&");
     }
 
     public static String wrapjQueryDocumentOnLoad(String script) {
         return "$(function(){" + script + "});";
+    }
+
+    /**
+     * 从一个节点里读取 hmaker 给它设置的属性
+     * 
+     * @param ele
+     *            元素
+     * @param className
+     *            类选择器选择器
+     * 
+     * @return 解析好的属性
+     */
+    public static Element fillProp(NutMap prop, Element ele, String className) {
+        Element eleProp = ele.children().last();
+        if (!eleProp.tagName().equals("script") || !eleProp.hasClass(className))
+            throw Er.createf("e.cmd.hmaker.publish.invalidEleProp",
+                             "<%s.%s>",
+                             ele.tagName(),
+                             className);
+
+        // 读取
+        String json = eleProp.html();
+        NutMap map = Json.fromJson(NutMap.class, json);
+        prop.putAll(map);
+
+        // 返回
+        return eleProp;
     }
 
     // =================================================================

@@ -338,6 +338,25 @@
   font-weight: bold;
   transform: scale(1.2) rotate(360deg);
 }
+.hm-prop-edit .form {
+  padding: 0 6px;
+}
+.hm-prop-edit .form .fg-title {
+  border-radius: 2px;
+  font-size: 12px;
+}
+.hm-prop-edit .form .form-fld {
+  padding: 4px;
+}
+.hm-prop-edit .form .form-fld .ff-txt {
+  padding: 8px 8px 8px 12px;
+}
+.hm-prop-edit .form .form-fld .ff-val {
+  padding: 2px;
+}
+.hm-prop-edit .form .form-fld .ff-val input {
+  font-family: Monaco, Consolas, Courier New;
+}
 .hmc-rows-prop {
   padding: 8px;
 }
@@ -423,9 +442,23 @@
   background: rgba(255, 255, 255, 0.4);
   border: 1px dashed #d0d0d0;
   position: relative;
+  overflow: hidden;
 }
 .hmc-columns-prop .crp-layout .ly-block .ly-b-nm {
-  padding: 16px;
+  padding: 16px 0;
+  text-align: center;
+}
+.hmc-columns-prop .crp-layout .ly-block .ly-b-sz {
+  text-align: center;
+}
+.hmc-columns-prop .crp-layout .ly-block .ly-b-sz > b {
+  display: block;
+  font-weight: normal;
+}
+.hmc-columns-prop .crp-layout .ly-block .ly-b-sz > em {
+  display: inline-block;
+  font-style: normal;
+  padding: 6px;
 }
 .hmc-columns-prop .crp-layout .ly-block .ly-a {
   position: absolute;
@@ -433,16 +466,16 @@
   left: 0;
   right: 0;
   text-align: center;
-  padding: 8px;
+  padding: 2px;
 }
 .hmc-columns-prop .crp-layout .ly-block .ly-a > div {
   display: inline-block;
-  padding: 4px 6px;
+  padding: 2px 4px;
   transition: 0.2s;
   cursor: pointer;
 }
 .hmc-columns-prop .crp-layout .ly-block .ly-a > div:hover {
-  transform: scale(1.2);
+  transform: scale(1.4);
   font-weight: bold;
   color: #ff0000;
 }

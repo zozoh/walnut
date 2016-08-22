@@ -1,20 +1,17 @@
 package org.nutz.walnut.ext.hmaker.util;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Attribute;
-import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 
 /**
@@ -42,11 +39,6 @@ public class HmPageTranslating extends HmContext {
     public Document doc;
 
     /**
-     * 当前处理的块
-     */
-    public Element eleBlock;
-
-    /**
      * 当前处理的组件
      */
     public Element eleCom;
@@ -55,6 +47,11 @@ public class HmPageTranslating extends HmContext {
      * 当前处理的组件属性
      */
     public NutMap prop;
+
+    /**
+     * 当前组件的 arena 区
+     */
+    public Element eleArena;
 
     /**
      * 当前处理的 COM 的 ID
@@ -90,7 +87,9 @@ public class HmPageTranslating extends HmContext {
         jsLinks = new LinkedHashSet<String>();
     }
 
-    private void __do_com() {
+    private void __do_com(Element eleCom) {
+        this.eleCom = eleCom;
+
         // 得到控件类型
         String ctype = eleCom.attr("ctype");
 
@@ -102,94 +101,73 @@ public class HmPageTranslating extends HmContext {
         eleCom.removeAttr("c_seq");
     }
 
-    private void __do_block() {
+    private void __do_block(Element eleBlock) {
         // 准备变量
-        String mode = null;
-        String posBy = null;
-        String posVal = null;
-        String width = null;
-        NutMap posCss = new NutMap();
-        NutMap conCss = new NutMap();
+        Element eleCon = eleBlock.child(0);
+        Element eleArea = eleCon.child(0);
 
-        // 属性的前缀
-        String prefix = "hmb-";
-        int prefixLen = prefix.length();
-
-        // 首先分析所有的属性
-        List<String> attNames = new ArrayList<String>();
-        Attributes attrs = eleBlock.attributes();
-        for (Attribute attr : attrs) {
-            String anm = attr.getKey();
-            String val = attr.getValue();
-
-            // 块的特殊属性
-            if (anm.startsWith(prefix)) {
-                // 处理位置。这个属性就不删除了，以便标识绝对位置块等
-                if ("hmb-mode".equals(anm)) {
-                    mode = val;
-                    continue;
-                }
-                // posBy
-                if ("hmb-pos-by".equals(anm)) {
-                    posBy = val;
-                }
-                // posVal
-                else if ("hmb-pos-val".equals(anm)) {
-                    posVal = val;
-                }
-                // posBy
-                else if ("hmb-width".equals(anm)) {
-                    width = val;
-                }
-                // 其他的计入 CSS
-                else {
-                    conCss.put(anm.substring(prefixLen), val);
-                }
-
-                // 计入特殊属性，稍后准备删除
-                attNames.add(anm);
-            }
+        // 读取属性
+        prop = new NutMap();
+        Element eleProp = Hms.fillProp(prop, eleBlock, "hmc-prop-block");
+        if (null == eleProp) {
+            Element eleCom = eleBlock.select(">.hmb-con>.hmb-area>.hm-com").first();
+            throw Er.createf("e.cmd.hmaker.publish.block.noprop",
+                             "#%s.%s",
+                             eleCom.attr("ctype"),
+                             eleCom.attr("id"));
         }
+        eleProp.remove();
 
-        // 根据位置信息生成 CSS
-        // 绝对定位
-        if ("abs".equals(mode)) {
-            posCss.put("position", "absolute");
+        // 要挑选的属性
+        NutMap cssArea;
 
-            String[] pKeys = Strings.sNull(posBy, "").split("\\W+");
-            String[] pVals = Strings.sNull(posVal, "").split("[^\\dpx%.-]+");
+        // 对于绝对位置
+        if ("abs".equals(prop.getString("mode"))) {
+
+            // 分析
+            NutMap cssBlock = new NutMap();
+
+            cssBlock.put("position", "absolute");
+
+            String[] pKeys = prop.getString("posBy", "").split("\\W+");
+            String[] pVals = prop.getString("posVal", "").split("[^\\dpx%.-]+");
 
             if (pKeys.length == pVals.length && pKeys.length > 0) {
                 for (int i = 0; i < pKeys.length; i++) {
-                    posCss.put(pKeys[i], pVals[i]);
+                    cssBlock.put(pKeys[i], pVals[i]);
                 }
             }
-        }
-        // 跟随
-        else if ("inflow".equals(mode)) {
-            // 厄，啥都没必要做吧
-        }
-        // 居中
-        else if ("center".equals(mode)) {
-            posCss.put("margin", "0 auto");
-            posCss.put("width", width);
-        }
 
-        // 处理位置
-        if (posCss.size() > 0) {
-            String css = Hms.genCssRuleStyle(posCss);
+            // 设置块属性
+            String css = Hms.genCssRuleStyle(cssBlock);
             eleBlock.attr("style", css);
+
+            // 生成 Area 部分的 CSS
+            cssArea = prop.pick("padding",
+                                "border",
+                                "borderRadius",
+                                "color",
+                                "background",
+                                "overflow",
+                                "boxShadow");
+        }
+        // 相对位置
+        else {
+            cssArea = prop.pick("margin",
+                                "width",
+                                "height",
+                                "padding",
+                                "border",
+                                "borderRadius",
+                                "color",
+                                "background",
+                                "overflow",
+                                "boxShadow");
         }
 
-        // 处理其他样式属性
-        if (conCss.size() > 0) {
-            String css = Hms.genCssRuleStyle(conCss);
-            eleBlock.child(0).attr("style", css);
-        }
-
-        // 删除没必要的属性
-        for (String anm : attNames)
-            eleBlock.removeAttr(anm);
+        // 设置 Area 的 CSS
+        String css = Hms.genCssRuleStyle(cssArea);
+        eleArea.attr("style", css);
     }
 
     public WnObj translate(WnObj o) {
@@ -213,28 +191,23 @@ public class HmPageTranslating extends HmContext {
 
         // TODO 处理整个页面的 body
 
-        // 按块处理
+        // 处理块
         Elements eleBlocks = doc.body().getElementsByClass("hm-block");
         for (Element eleBlock : eleBlocks) {
-            // 处理块
-            this.eleBlock = eleBlock;
-            this.__do_block();
+            this.__do_block(eleBlock);
+        }
 
-            // 处理块内的控件
-            Elements eleComs = eleBlock.getElementsByClass("hm-com");
-
-            // 虽然假设很多个控件，但是实际上只有一个
-            for (Element eleCom : eleComs) {
-                this.eleCom = eleCom;
-                this.__do_com();
-            }
+        // 处理控件
+        Elements eleComs = doc.body().getElementsByClass("hm-com");
+        for (Element eleCom : eleComs) {
+            this.__do_com(eleCom);
         }
 
         // 展开链接资源
         __extend_link_and_style();
 
         // 将处理后的文档写入目标
-        html = Hms.unescapeHtmlNewline(doc.html());
+        html = Hms.unescapeJsoupHtml(doc.html());
         io.writeText(oTa, html);
 
         // 返回创建结果文件
@@ -258,7 +231,7 @@ public class HmPageTranslating extends HmContext {
         }
         if (!Strings.isBlank(sb)) {
             Element eleStyle = doc.head().appendElement("style");
-            eleStyle.html(Hms.escapeHtmlNewline(sb.toString()));
+            eleStyle.html(Hms.escapeJsoupHtml(sb.toString()));
         }
 
         // 在网页尾部链接所有的脚本
@@ -271,8 +244,45 @@ public class HmPageTranslating extends HmContext {
         String scriptText = "\n" + Lang.concat("\n", scripts).toString() + "\n";
         if (!Strings.isBlank(scriptText)) {
             Element eleScript = doc.appendElement("script");
-            eleScript.attr("type", "text/javascript").text(Hms.escapeHtmlNewline(scriptText));
+            eleScript.attr("type", "text/javascript").text(Hms.escapeJsoupHtml(scriptText));
         }
+    }
+
+    // ..............................................................
+    // 给控件提供的帮助函数
+
+    /**
+     * 为当前控件(由 comId 决定)添加一个 CSS 规则
+     * 
+     * @param rule
+     *            CSS 规则
+     */
+    public void addMyCss(NutMap rule) {
+        NutMap myRule = this.cssRules.get(comId);
+        if (null == myRule)
+            this.cssRules.put(comId, rule);
+        else
+            myRule.putAll(rule);
+    }
+
+    /**
+     * 将给定 link 字符串解释成 HTML 能接受的链接格式。
+     * <p>
+     * 比如 "id:xxxx" 会被转换成相对路径
+     * 
+     * @param link
+     *            链接
+     * @return 转换后的 link
+     */
+    public String explainLink(String link) {
+        // 指向特殊文件
+        if (link.startsWith("id:")) {
+            WnObj oLink = io.checkById(link.substring(3));
+            String rph = this.getRelativePath(this.oSrc, oLink);
+            return rph;
+        }
+        // 其他的，原样返回
+        return link;
     }
 
 }

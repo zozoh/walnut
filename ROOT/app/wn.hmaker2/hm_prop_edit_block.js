@@ -106,7 +106,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 var val = $.trim(newval) || "auto";
                 if(val && val!=oldval) {
                     // 看看值是否合法，合法就进行后续处理
-                    var m = /^((\d+)(px)?(%)?|auto)$/.exec(val);
+                    var m = /^(([\d.]+)(px)?(%)?|auto)$/.exec(val);
                     if(m) {
                         // 如果没有单位自动补上 px
                         if(m[2] && !m[3] && !m[4]){
@@ -155,8 +155,6 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         var UI   = this;
         var jPos = UI.arena.find(".hmpb-pos");
 
-        console.log("update full is ", full, prop)
-
         // 模式
         if(prop.mode)
             jPos.attr("mode", prop.mode);
@@ -203,6 +201,8 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             if(prop.height) {
                 UI.arena.find('.hmpb-pos-d[key="height"] em').text(prop.height);
             }
+            // 排序
+            UI.gasket.margin.setData(prop.margin);
         }
 
         // 其他属性
@@ -229,6 +229,9 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         new SwitchUI({
             parent : UI,
             gasketName : "margin",
+            on_change : function(val){
+                UI.fire("change:block", {margin:val});
+            },
             items : [{
                 icon : '<i class="fa fa-align-left">',
                 val  : '',

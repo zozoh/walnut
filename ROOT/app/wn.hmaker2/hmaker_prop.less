@@ -181,6 +181,25 @@
     } // ~ .hm-prop-body
 } // ~ 编辑属性面板
 //............................................................
+// 重新设置 form 表单的间距
+//............................................................
+.hm-prop-edit {
+    .form {
+        padding:0 @d2;
+        .fg-title {
+            border-radius: @d0; font-size:@f2; 
+        }
+        .form-fld {
+            padding:@d1;
+            .ff-txt {padding:@d3 @d3 @d3 @d4;}
+            .ff-val {
+                padding:@d0;
+                input {font-family: @f_fixed;}
+            }
+        }
+    }
+}
+//............................................................
 // 控件们的私有属性面板
 //............................................................
 // rows
@@ -238,20 +257,25 @@
             @flex(); 
         }
         .ly-block {
-            height:@lyBH; line-height: @f3; flex:1 1 auto;
+            height:@lyBH; line-height: @f3; flex:1 1 auto; 
             background:rgba(255,255,255,0.4); border:1px dashed @cborder1;
-            position: relative;
+            position: relative; overflow: hidden;
             .ly-b-nm {
-                padding:@d5; 
+                padding:@d5 0; text-align: center; 
+            }
+            .ly-b-sz {
+                text-align: center;
+                > b  {display: block; font-weight: normal; }
+                > em {display: inline-block; font-style:normal; padding:@d2;}
             }
             .ly-a { 
                 position: absolute; bottom: 0; left:0; right:0;
-                text-align: center; padding:@d3;
+                text-align: center; padding:@d0;
                 > div {
-                    display:inline-block; padding:@d1 @d2; transition: 0.2s; cursor: pointer;
+                    display:inline-block; padding:@d0 @d1; transition: 0.2s; cursor: pointer;
                 }
                 > div:hover {
-                    transform: scale(1.2); font-weight: bold; color:@c6;
+                    transform: scale(1.4); font-weight: bold; color:@c6;
                 }
             }
         }

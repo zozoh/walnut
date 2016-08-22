@@ -96,7 +96,10 @@ return ZUI.def("app.wn.hm_prop_edit", {
     //...............................................................
     switchTab : function(ptype) {
         var UI = this;
-        ptype = ptype || "block";
+        ptype = ptype || UI.local("hm_prop_edit_tab") || "block";
+
+        // 记录状态
+        UI.local("hm_prop_edit_tab", ptype);
 
         UI.arena.find('.hm-prop-tabs li').removeAttr("current")
             .filter('[ptype="'+ptype+'"]').attr("current", "yes");

@@ -1,0 +1,108 @@
+/* 所有 hmaker 生成的网页都要引入这个 css 作为统一的样式规范*/
+
+@noselect : {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;  
+};
+
+@clr : {
+    content:"";
+    display:block;
+    height:0;
+    clear:both;
+};
+
+@flex : {
+    display: -webkit-flex;
+    display: flex;
+};
+
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* 清除浮动 */
+.cf:before, .cf:after {content:"";display:block;}
+.cf:after {clear: both;}
+
+/**
+ * 1. Set default font family to sans-serif.
+ * 2. Prevent iOS and IE text size adjust after device orientation change,
+ *    without disabling user zoom.
+ */
+html {
+  font-family: sans-serif; /* 1 */
+  -ms-text-size-adjust: 100%; /* 2 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+
+/* 默认的 body 属性 */
+body{margin: 0;}
+
+/**
+ * Address `[hidden]` styling not present in IE 8/9/10.
+ * Hide the `template` element in IE 8/9/10/11, Safari, and Firefox < 22.
+ */
+[hidden],
+template {
+  display: none;
+}
+
+/**
+ * Hmaker 的默认控件样式
+ */
+.hm-block[hmb-mode="abs"] .hmb-con,
+.hm-block[hmb-mode="abs"] .hmb-area {
+    position: relative; width:100%; height:100%;
+}
+
+/**
+ * 控件: columns
+ */
+.hmc-columns {
+    @flex();
+    .hmc-col-block {flex: 1 1 auto;min-height: 30px;}
+}
+[hmb-mode="abs"]>.hmb-con>.hmb-area>.hm-com>.hmc-columns {
+    width:100%; height:100%;
+    align-item : stretch;
+}
+
+/**
+ * 控件: navmenu
+ */
+[hmb-mode="abs"]>.hmb-con>.hmb-area>.hm-com>.hmc-navmenu {
+    width:100%; height:100%;
+}
+.hmc-navmenu {
+    ul{
+        margin:0; padding:0; list-style: none;
+        line-height: 24px;
+    }
+    li {padding:6px 24px;}
+}
+// 水平导航条(默认)
+.hmc-navmenu[mode="default"] {
+    ul {
+        @flex(); flex-wrap: wrap;
+        li {flex:0 0 auto;}
+    }
+    ul:after{@clr();}
+}
+// 垂直导航条
+.hmc-navmenu[mode="aside"] {
+
+}
+
+/**
+ * 控件: Text
+ */
+.hmc-text {
+    > * {cursor: pointer;}
+    > header {margin-bottom:10px;}
+}
+

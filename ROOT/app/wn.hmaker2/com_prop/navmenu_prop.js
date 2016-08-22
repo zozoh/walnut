@@ -178,13 +178,6 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                         val  : 'right',
                     }]
                 }
-            }, {
-                key   : "itemPadding",
-                title : "i18n:hmaker.com.navmenu.itemPadding",
-                type  : "int",
-                uiWidth : 60,
-                editAs : "input", 
-                uiConf : {unit : "px"}
             }]
         }).render(function(){
             UI.defer_report("form");
@@ -217,11 +210,14 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
         if(jCurrentItem.length > 0) {
             var rectList = $z.rect(jList);
             var rectItem = $z.rect(jCurrentItem);
-            console.log($z.rectObj(rectList,"top,bottom"), $z.rectObj(rectItem, "top,height"))
+            // console.log($z.rectObj(rectList,"top,bottom"), $z.rectObj(rectItem, "top,height"))
             if(rectItem.bottom >= rectList.bottom || rectItem.top <= rectList.top){
                 jCurrentItem[0].scrollIntoView();
             }
         }
+
+        // 更新 form
+        UI.gasket.form.update(com);
 
         // 最后在调用一遍 resize
         UI.resize(true);

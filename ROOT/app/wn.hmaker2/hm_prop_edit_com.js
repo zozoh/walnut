@@ -24,10 +24,12 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
         var UI = this;
 
         // 处理 info 区域
-        var html = UI.msg("hmaker.com."+com._type+".icon");
-        html += '<b>'+UI.msg("hmaker.com."+com._type+".name")+'</b>';
-        html += '<em>#'+com._id+'</em>';
-        UI.arena.find(".hmpc-info").html(html);
+        if(com._type) {
+            var html = UI.msg("hmaker.com."+com._type+".icon");
+            html += '<b>'+UI.msg("hmaker.com."+com._type+".name")+'</b>';
+            html += '<em>#'+com._id+'</em>';
+            UI.arena.find(".hmpc-info").html(html);
+        }
 
         // 处理控件扩展区域
         $z.invoke(UI.gasket.form, "update", [com]);

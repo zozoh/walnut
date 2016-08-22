@@ -50,7 +50,7 @@ public class hmaker_publish implements JvmHdl {
         // 如果限定了源
         WnObj oSrc = hpc.oHome;
         if (hc.params.has("src")) {
-            oSrc = Wn.checkObj(sys, hc.params.get("src"));
+            oSrc = sys.io.check(oSrc, hc.params.get("src"));
             // 确保给定的 site 是 src 的父目录
             if (!oSrc.path().startsWith(hpc.oHome.path())) {
                 throw Er.create("e.cmd.hmaker.siteNoIncludeSrc", hpc.oHome + " :: " + oSrc);

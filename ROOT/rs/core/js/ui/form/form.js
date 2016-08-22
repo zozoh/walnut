@@ -520,6 +520,7 @@ return ZUI.def("ui.form", {
         });
     },
     //...............................................................
+    // 在字段上显示提示，比如错误警告之类的
     showPrompt : function(key, prompt) {
         var UI  = this;
         var opt = UI.options;

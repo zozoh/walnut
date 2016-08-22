@@ -13,7 +13,7 @@ body {margin:0;}
     padding:1px;
     .hm-drag-tip {
         width:100%; height:100%;
-        border:1px dashed rgba(255,128,0,0.6);
+        border:2px dashed #F0F;
         text-align: center; padding:@d1; color:@c0;
         font-size:@f2; line-height: 22px;
         > * { display: none;}
@@ -78,17 +78,17 @@ body {margin:0;}
         min-height: 30px;
     }
 }
-[hmb-mode="abs"] .hmc-columns {
+[hmb-mode="abs"]>.hmb-con>.hmb-area>.hm-com>.hmc-columns {
     width:100%; height:100%;
     align-item : stretch;
 }
-[hm-actived] .hmc-columns {
+[hm-actived]>.hmb-con>.hmb-area>.hm-com>.hmc-columns {
     .hmc-col-block {border:1px dotted @c0; border-right:0;}
     .hmc-col-block:last-child {border-right:1px dotted @c0;}
 }
 //............................................................
 // navmenu
-[hmb-mode="abs"] .hmc-navmenu {
+[hmb-mode="abs"]>.hmb-con>.hmb-area>.hm-com>.hmc-navmenu {
     width:100%; height:100%;
 }
 .hmc-navmenu {
@@ -117,6 +117,19 @@ body {margin:0;}
 // 垂直导航条
 .hmc-navmenu[mode="aside"] {
 
+}
+//............................................................
+// Text
+.hmc-text {
+    > * {cursor: pointer;}
+    > header {margin-bottom:10px;}
+}
+
+[hm-actived] .hmc-text{
+    > header:hover, 
+    > section:hover{
+        background: rgba(255,255,0,0.4);
+    }
 }
 //............................................................
 // ThingSet

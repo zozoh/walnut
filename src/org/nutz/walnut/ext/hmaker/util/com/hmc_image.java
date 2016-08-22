@@ -1,10 +1,10 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.hmaker.util.Hms;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
 public class hmc_image extends AbstractComHanlder {
@@ -15,7 +15,9 @@ public class hmc_image extends AbstractComHanlder {
         String src = ing.prop.getString("src");
 
         // 准备 CSS
-        NutMap css = new NutMap();
+        NutMap css = ing.prop.pick("width", "height");
+        css.putDefault("width", "100%");
+        css.putDefault("height", "100%");
 
         // 处理图片路径
         if (!Strings.isBlank(src)) {
@@ -52,17 +54,25 @@ public class hmc_image extends AbstractComHanlder {
             }
         }
 
-        // 处理其他属性
-        css.put("background-color", "#000");
-        css.put("background-repeat", "norepeat");
-        css.put("background-size", "100% 100%");
-        css.put("width", "100%");
-        css.put("height", "100%");
+        // 处理缩放
+        String scale = ing.prop.getString("scale");
+        switch (scale) {
+        case "contain":
+        case "cover":
+            css.put("background-repeat", "no-repeat");
+            css.put("background-size", scale);
+            css.put("background-position", "center center");
+            break;
+        case "tile":
+            css.put("background-repeat", "repeat");
+            break;
+        default:
+            css.put("background-repeat", "no-repeat");
+            css.put("background-size", "100% 100%");
+        }
 
         // 设置
-        String style = Hms.genCssRuleStyle(css);
-        ing.eleCom.attr("style", style);
-
+        ing.addMyCss(Lang.map(" ", css));
     }
 
 }

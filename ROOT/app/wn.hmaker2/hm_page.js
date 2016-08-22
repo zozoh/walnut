@@ -396,6 +396,9 @@ return ZUI.def("app.wn.hmaker_page", {
             else if('BODY' == this.tagName){
                 UI.fire("active:page", UI._page_obj);
             }
+
+            // 不管怎样，模拟一下父框架页面的点击
+            $(document.body).click();
         });
 
         // 截获所有的键事件
@@ -800,6 +803,9 @@ return ZUI.def("app.wn.hmaker_page", {
             else if(jq.hasClass("hm-com")) {
                 jq.removeAttr("ui-id");
             }
+            // 所有的子
+            jq.find("*").removeAttr("style");
+
         }).filter(".hm-com").each(function(){
             $(this).removeAttr("ui-id");
         });

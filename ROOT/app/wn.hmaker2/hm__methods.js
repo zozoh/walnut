@@ -69,14 +69,30 @@ var methods = {
     },
     // 将 CSS 对象与 base 合并，并将内部所有的 undefined 和 null 都变成空串
     formatCss : function(css, mergeWithBase) {
-        if(mergeWithBase)
-            css = _.extend({}, _css_base, css);
+        // 传入了 base 对象
+        if(_.isObject(mergeWithBase)){
+            css = _.extend({}, mergeWithBase, css);
+        }
+        // 与默认 base 对象合并
+        else if(mergeWithBase) {
+            css = _.extend({}, _css_base, css);   
+        }
 
-        return _.mapObject(css, function(val, key) {
+        // 将所有的 undefined 和 null 都变成空串，表示去掉
+        // 如果 key 以 _ 开头，则会被删除掉
+        var re = {};
+        for(var key in  css) {
+            if(/^_/.test(key))
+                continue;
+            var val = css[key];
             if(_.isUndefined(val) || _.isNull(val))
-                return "";
-            return val;
-        });
+                re[key] = "";
+            else
+                re[key] = val;
+        }
+
+        // 返回新创建的对象 
+        return re;
     },
     // 返回 base_css 的一个新实例
     getBaseCss : function() {

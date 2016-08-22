@@ -18,7 +18,7 @@ var methods = {
             return;
 
         // 得到完整的属性
-        var com2 = _.extend(this.getData(), com);
+        var com2 = $z.extend(this.getData(), com);
 
         // 保存属性
         this.setPropToDom(com2);
@@ -31,11 +31,14 @@ var methods = {
         // 如果 key 都未定义，那么表示发出这个消息的组件不希望引起自己的属性的保存和界面的绘制
         // 通常，这种 com 都是通过自身的 DOM 来存放某些数据的，它修改了自身的 DOM 
         // 剩下的就是通知 prop 那边刷新显示而已
-        if(_.isUndefined(key)) {
+        if(!key) {
             this.fire("change:com", _.extend({__com_ignore_setData:true}, this.__gen_base_data()), this.$el);
         } 
+        // 如果 key 不是字符串，或者里面包含了 "." 那么可能是多层的 key
+        // $z.setValue 提供了这个逻辑的封装 
         else {
-            this.fire("change:com", _.extend($z.obj(key,val), this.__gen_base_data()), this.$el);
+            var prop = $z.setValue({}, key, val);
+            this.fire("change:com", _.extend(prop, this.__gen_base_data()), this.$el);
         }
     },
     // 根据 Block 的属性设置，得到它的应该的矩形对象
