@@ -189,7 +189,8 @@
                     total: 0
                 },
                 cnm: "month",
-                dmap: {}
+                dmap: {},
+                selwday: {}
             }
         },
         computed: {
@@ -200,6 +201,18 @@
             send: function () {
                 var monthDays = VueCal.monthDays(this.vcal.year, this.vcal.month, true);
                 return monthDays[monthDays.length - 1].text;
+            }
+        },
+        watch: {
+            dmap: function () {
+                console.log("dmap refersh");
+                // 如果有选中的日期,再选中一次
+                var self = this;
+                if (this.selwday.text) {
+                    setTimeout(function () {
+                        self.selDay(self.selwday);
+                    }, 100);
+                }
             }
         },
         methods: {
@@ -231,15 +244,17 @@
                 return this.dmap[wday.text] != undefined ? this.dmap[wday.text].total : 0;
             },
             showVCOday: function (wday) {
-                if (this.dmap[wday.text] != null) {
-                    this.$set('selvc', this.dmap[wday.text]);
+                console.log("sidelist refresh");
+                var selvc = this.dmap[wday.text];
+                if (selvc.total > 0) {
+                    this.$set('selvc', selvc);
                 } else {
                     this.$set('selvc', {
-                        date: "___-__",
-                        total: 0
+                        date: selvc.date,
+                        total: 0,
+                        day: selvc.day
                     });
                 }
-                this.selDay(wday);
             },
             toPrev: function () {
                 if (this.vcal.month == 1) {
@@ -281,8 +296,11 @@
                 console.log("month-data refresh");
             },
             selDay: function (day) {
+                console.log("selday refresh");
+                this.selwday = day;
                 if (day.inMonth) {
                     this.vcal.sel = day.text;
+                    this.showVCOday(day);
                 }
             }
         }
