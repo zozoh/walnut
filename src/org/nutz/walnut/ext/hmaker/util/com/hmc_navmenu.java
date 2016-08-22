@@ -3,7 +3,6 @@ package org.nutz.walnut.ext.hmaker.util.com;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
