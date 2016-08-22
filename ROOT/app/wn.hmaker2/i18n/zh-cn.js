@@ -5,15 +5,33 @@ define({
         },
         "prop" : {
             "title" : '属性',
-            "tab_block" : '<b>块</b>',
-            "tab_area"  : '<b>栏</b>',
+            "tab_block" : '<b>布局</b>',
             "tab_com"   : '<b>控件</b>',
             "padding"   : "边距",
             "border"    : "边框",
             "borderRadius" : "圆角",
             "background": "背景",
             "color"     : "前景色",
-            "boxShadow" : "阴影"
+            "boxShadow" : "阴影",
+            "img_src"   : "图片源",
+            "href"      : "超链接",
+            "width"     : "宽度",
+            "height"    : "高度",
+            "overflow"  : "内容溢出",
+            "overflow_visible" : "可见",
+            "overflow_auto"    : "滚动",
+            "overflow_hidden"  : "剪裁",
+            "scale" : "拉伸方式",
+            "scale_contain" : "包含",
+            "scale_cover"   : "封面",
+            "scale_full"    : "撑满",
+            "scale_tile"    : "平铺",
+            "areaWidth" : "内容宽度",
+            "areaAlign" : "内容排列",
+            "blockBackground"   : "块背景",
+        }, 
+        "drag" : {
+            "hover" : "拖拽至此，Shift键取消"
         },
         "pos" : {
             "abs"    : "绝对定位: 用鼠标在页面上任意定位本块",
@@ -28,24 +46,120 @@ define({
             "width"  : "宽",
             "height" : "高",            
         },
+        "page" : {
+            "show_prop" : "显示页面属性"
+        },
         "com" : {
-            "block" : {
-                "tip" : "空白块: 你可以在此基础上对页面布局进行切割"
+            "_" : {
+                "move_left"   : "左移",
+                "move_right"  : "右移",
+                "move_up"     : "上移",
+                "move_down"   : "下移",
+                "create"      : "新建",
+                "del"         : "删除",
+            },
+            "rows" : {
+                "name"  : "水平分栏",
+                "tip"   : "对于所在区域进行水平分隔，可以容纳更多控件",
+                "icon"  : '<i class="zmdi zmdi-view-day"></i>',
+                "fixwidth"  : "固定宽度",
+                "fixwidth_tip" : "单位是 px 或者 %",
+                "padding"   : "栏内边距",
+            },
+            "columns" : {
+                "name"  : "垂直分栏",
+                "tip"   : "对于所在区域进行垂直分隔，可以容纳更多控件",
+                "icon"  : '<i class="zmdi zmdi-view-array"></i>',
+                "fixwidth"  : "固定宽度",
+                "fixwidth_tip" : "单位是 px 或者 %",
+                "padding"   : "栏内边距",
+            },
+            "navmenu" : {
+                "name"  : "导航菜单",
+                "tip"   : "可垂直或水平放置，可支持多级菜单",
+                "icon"  : '<i class="zmdi zmdi-dns"></i>',
+                "item_dft_text" : "菜单项文字",
+                "newtab" : "新窗口",
+                "nohref" : "无链接",
+                "nocurrent" : "抱歉，您执行这个操作前，必须要选择一个菜单项",
+                "empty" : "菜单无任何项目",
+                "mode"  : "放置模式",
+                "mode_default" : "水平",
+                "mode_aside"   : "垂直",
+                "itemAlign"    : "对齐方式",
+                "itemPadding"  : "项目边距",
             },
             "text" : {
-                "tip" : "文本: 直接编辑你想要的文字内容"
+                "name"  : "文本",
+                "tip"   : "直接编辑你想要的文字内容",
+                "icon"  : '<i class="fa fa-text-width"></i>',
             },
             "image" : {
-                "tip" : "单张图片: 不解释你懂的"
+                "name"  : "单张图片",
+                "tip"   : "不解释你懂的",
+                "icon"  : '<i class="fa fa-image"></i>',
             },
-            "slider" : {
-                "tip" : "图片幻灯: 选择一组图片或者一个文件夹，进行图片播放"
+            "imgslider" : {
+                "name"  : "图片幻灯",
+                "tip"   : "选择一组图片或者一个文件夹，进行图片幻灯播放",
+                "icon"  : '<i class="zmdi zmdi-slideshow"></i>',
             },
-            "thingSet" : {
-                "tip" : "动态数据集合: 为你的数据集合设置列表模式的显示版式。支持翻页，海量数据也没问题哦"
+            "thingset" : {
+                "name"  : "动态数据集合",
+                "tip"   : "为你的数据集合设置列表模式的显示版式。支持翻页，海量数据也没问题哦",
+                "icon"  : '<i class="fa fa-cubes"></i>',
+                "tt_ds"     : "控件数据",
+                "tt_flt"    : "过滤器",
+                "tt_pager"  : "翻页器",
+                "ds_id"     : "数据源",
+                "ds_query"  : "数据过滤条件",
+                "template"  : "显示模板",
+                "flt_enabled": "支持过滤",
+                "flt_cnd"   : "过滤条件",
+                "flt_keywd" : "关键字",
+                "flt_region": "范围",
+                "flt_val"   : "值",
+                "flt_add"   : "添加过滤字段",
+                "flt_sort"  : "排序",
+                "flt_sort_add" : "添加排序字段",
+                "pg_enabled" : "支持翻页",
+                "pg_size"    : "每页记录数",
+                "redata"     : "更换数据源",
+                "retemplate" : "更换显示模板",
+                "mode" : {
+                    "none"      : "未设置数据源", 
+                    "gone"      : "数据源不存在",
+                    "invalid"   : "数据源格式非法",
+                    "lackdef"   : "数据源缺少数据定义文件",
+                    "wrongdef"  : "数据源字段定义文件错误",
+                    "tmplnone"  : "未设定显示模板",
+                    "tmplgone"  : "显示模板不存在",
+                    "tmplnodom" : "显示模板缺少 DOM 文件",
+                    "tmplnocss" : "显示模板缺少样式文件",
+                    "tmpldom_E" : "显示模板DOM文件内容为空",
+                    "tmplcss_E" : "显示模板样式文件格式错误或者内容为空",
+                },
+                "flt" : {
+                    "enabled"  : "显示过滤器",
+                    "disabled" : "隐藏过滤器",
+                },
+                "pg" : {
+                    "enabled"  : "显示翻页条",
+                    "disabled" : "隐藏翻页条",
+                },
+                "fld" : {
+                    "className" : "类选择器",
+                    "as"        : "显示类型",
+                    "key"       : "键名",
+                    "replace"   : "输出元素",
+                    "valueBy"   : "取值方式"
+                }
+
             },
-            "thingObj" : {
-                "tip" : "动态数据对象: 详细的定制了某个数据的详细显示方式"
+            "thingobj" : {
+                "name"  : "动态数据对象",
+                "tip"   : "详细的定制了某个数据的详细显示方式",
+                "icon"  : '<i class="fa fa-cube"></i>',
             },
         }
     }

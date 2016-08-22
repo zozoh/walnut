@@ -1,0 +1,578 @@
+.hmaker .hm-prop-edit {
+  position: relative;
+  padding: 20px 6px 6px 6px;
+}
+.hmaker .hm-prop-edit .hm-prop-tabs {
+  position: absolute;
+  top: 6px;
+  left: 0;
+  right: 0;
+  height: 28px;
+}
+.hmaker .hm-prop-edit .hm-prop-tabs ul {
+  display: -webkit-flex;
+  display: flex;
+  justify-content: center;
+}
+.hmaker .hm-prop-edit .hm-prop-tabs ul li {
+  height: 28px;
+  line-height: 27px;
+  border: 1px solid #d0d0d0;
+  border-left: 0;
+  min-width: 80px;
+  text-align: center;
+  padding: 0 6px;
+  font-size: 12px;
+  background: #eeeeee;
+  color: #666666;
+  cursor: pointer;
+}
+.hmaker .hm-prop-edit .hm-prop-tabs ul li:first-child {
+  border-left: 1px solid #d0d0d0;
+  border-radius: 6px 0 0 6px;
+}
+.hmaker .hm-prop-edit .hm-prop-tabs ul li:last-child {
+  border-radius: 0 6px 6px 0;
+}
+.hmaker .hm-prop-edit .hm-prop-tabs ul li[current] {
+  background: #0044bb;
+  color: #ffffff;
+}
+.hmaker .hm-prop-edit .hm-prop-body {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #d0d0d0;
+  padding: 18px 4px 4px 4px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-con {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-con > * {
+  width: 100%;
+  height: 100%;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-con[current] {
+  display: block;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs {
+  padding: 6px;
+  text-align: center;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs > label {
+  cursor: pointer;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs > label > * {
+  display: inline;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs i {
+  display: inline-block;
+  width: 14px;
+  vertical-align: middle;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs i:first-child {
+  display: none;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs i:last-child {
+  display: inline-block;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-abs i:first-child {
+  display: inline-block;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-abs i:last-child {
+  display: none;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-v:hover {
+  background: #cccccc;
+  border-color: #444444;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-v[highlight],
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-v[highlight]:hover {
+  background: #ffffff;
+  border-color: #008800;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-d[show],
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-v {
+  display: block;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-margin {
+  display: none;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos[mode="inflow"] .hmpb-pos-d[show] {
+  display: block;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos[mode="inflow"] .hmpb-margin {
+  display: block;
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: -12px;
+  height: 24px;
+  text-align: center;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos[mode="inflow"] .hmpb-margin > [ui-id] {
+  display: inline-block;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos[mode="inflow"] .hmpb-margin > [ui-id] .com-switch ul {
+  overflow: hidden;
+  border-radius: 6px;
+  padding: 0;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  margin: 16px auto;
+  width: 200px;
+  height: 120px;
+  border: 1px dashed #cccccc;
+  position: relative;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-v {
+  display: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 12px;
+  border: 1px solid #d0d0d0;
+  position: absolute;
+  cursor: pointer;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-v[md="lt"] {
+  top: -6px;
+  left: -6px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-v[md="rt"] {
+  top: -6px;
+  right: -6px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-v[md="lb"] {
+  bottom: -6px;
+  left: -6px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-v[md="rb"] {
+  bottom: -6px;
+  right: -6px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d {
+  display: none;
+  position: absolute;
+  padding: 0 4px;
+  line-height: 24px;
+  height: 24px;
+  text-align: center;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d > span {
+  background: #eeeeee;
+  color: #666666;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d > span > * {
+  display: inline-block;
+  padding: 2px 4px;
+  vertical-align: middle;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="left"] {
+  top: 48px;
+  left: -36px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="right"] {
+  top: 48px;
+  right: -36px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="top"] {
+  top: -12px;
+  left: 12px;
+  right: 12px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="bottom"] {
+  bottom: -12px;
+  left: 12px;
+  right: 12px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="width"],
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="height"] {
+  left: 0;
+  right: 0;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="width"] span > *,
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="height"] span > * {
+  display: inline-block;
+  padding: 0 4px;
+  vertical-align: middle;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="width"] b,
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="height"] b {
+  width: 30px;
+  text-align: right;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="width"] em,
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="height"] em {
+  width: 60px;
+  text-align: left;
+  font-style: normal;
+  font: 10px Monaco, Consolas, Courier New;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="width"] {
+  bottom: 60px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="height"] {
+  top: 60px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-form {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-com {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  padding: 32px 0 0 0;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-com .hmpc-info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 12px;
+  font-family: Monaco, Consolas, Courier New;
+  color: #666666;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-com .hmpc-info > * {
+  margin-right: 6px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-com .hmpc-info > em {
+  color: #008800;
+  font-style: normal;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-com .hmpc-info > em:before {
+  display: inline;
+  content: " : ";
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-com .hmpc-form {
+  width: 100%;
+  height: 100%;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-com-ele {
+  background: #e0e0e0;
+  color: #666666;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 10000px;
+  transition: 0.2s;
+  opacity: 0.3;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-com-ele[show] {
+  left: 0;
+  opacity: 1.0;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  padding: 32px 0 0 0;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 12px;
+  font-family: Monaco, Consolas, Courier New;
+  font-size: 14px;
+  color: #666666;
+  border-top: 1px solid #cccccc;
+  border-bottom: 1px solid #cccccc;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-info > * {
+  margin-right: 6px;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-info > em {
+  color: #008800;
+  font-style: normal;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-form {
+  width: 100%;
+  height: 100%;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-hide {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 14px;
+  font-family: 'Material-Design-Iconic-Font';
+  cursor: pointer;
+  color: #000000;
+  background-color: #d0d0d0;
+  border-radius: 100px;
+  border: 2px solid #bbbbbb;
+  line-height: 16px;
+  width: 20px;
+  text-align: center;
+  transition: 0.2s;
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-hide:before {
+  display: "inline";
+  content: "\f136";
+}
+.hmaker .hm-prop-edit .hm-prop-body .hm-prop-ele .hmpe-hide:hover {
+  background-color: #0044bb;
+  color: #ffffff;
+  border-color: #d0d0d0;
+  font-size: 1.2em;
+  font-weight: bold;
+  transform: scale(1.2) rotate(360deg);
+}
+.hmc-rows-prop {
+  padding: 8px;
+}
+.hmc-rows-prop .crp-layout {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 12px;
+}
+.hmc-rows-prop .crp-layout .ly-wrapper {
+  border: 3px solid #cccccc;
+  padding: 8px;
+}
+.hmc-rows-prop .crp-layout .ly-block {
+  height: 48px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px dashed #d0d0d0;
+}
+.hmc-rows-prop .crp-layout .ly-block .ly-b-nm {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 0;
+  padding: 0 16px;
+  line-height: 36px;
+}
+.hmc-rows-prop .crp-layout .ly-block .ly-a {
+  width: 100%;
+  height: 100%;
+  padding: 0 8px;
+  display: -webkit-flex;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.hmc-rows-prop .crp-layout .ly-block .ly-a > div {
+  padding: 4px 6px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+.hmc-rows-prop .crp-layout .ly-block .ly-a > div:hover {
+  transform: scale(1.2);
+  font-weight: bold;
+  color: #ff0000;
+}
+.hmc-rows-prop .crp-layout .ly-newer {
+  transition: 0.2s;
+  border: 1px solid #d0d0d0;
+  margin: 8px auto;
+  text-align: center;
+  width: 80px;
+  height: 24px;
+  line-height: 22px;
+  cursor: pointer;
+}
+.hmc-rows-prop .crp-layout .ly-newer:hover {
+  color: #ff8800;
+  border-color: #ff8800;
+  font-size: 1.6em;
+}
+.hmc-columns-prop {
+  padding: 8px;
+}
+.hmc-columns-prop .crp-layout {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 12px;
+}
+.hmc-columns-prop .crp-layout .ly-wrapper {
+  border: 3px solid #cccccc;
+  padding: 8px;
+  display: -webkit-flex;
+  display: flex;
+}
+.hmc-columns-prop .crp-layout .ly-block {
+  height: 160px;
+  line-height: 14px;
+  flex: 1 1 auto;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px dashed #d0d0d0;
+  position: relative;
+}
+.hmc-columns-prop .crp-layout .ly-block .ly-b-nm {
+  padding: 16px;
+}
+.hmc-columns-prop .crp-layout .ly-block .ly-a {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 8px;
+}
+.hmc-columns-prop .crp-layout .ly-block .ly-a > div {
+  display: inline-block;
+  padding: 4px 6px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+.hmc-columns-prop .crp-layout .ly-block .ly-a > div:hover {
+  transform: scale(1.2);
+  font-weight: bold;
+  color: #ff0000;
+}
+.hmc-columns-prop .crp-layout .ly-newer {
+  transition: 0.2s;
+  border: 1px solid #d0d0d0;
+  margin: 8px auto;
+  text-align: center;
+  width: 80px;
+  height: 24px;
+  line-height: 22px;
+  cursor: pointer;
+}
+.hmc-columns-prop .crp-layout .ly-newer:hover {
+  color: #ff8800;
+  border-color: #ff8800;
+  font-size: 1.6em;
+}
+.hmc-navmenu-prop .cnavmp-item-list {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 0 6px;
+  margin: 8px 0;
+  max-height: 50%;
+  overflow: auto;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item {
+  border: 1px solid rgba(0, 0, 0, 0);
+  cursor: pointer;
+  padding: 6px;
+  margin-bottom: 1px;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span {
+  float: left;
+  padding: 4px;
+  display: block;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="href"] {
+  color: #888888;
+  font-family: Monaco, Consolas, Courier New;
+  width: 190px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="href"]:before {
+  font-family: 'FontAwesome';
+  display: inline;
+  content: "\f0c1";
+  letter-spacing: 2px;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="href"][nohref] {
+  font-style: italic;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="href"][nohref]:before {
+  content: "\f127";
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="newtab"] {
+  float: right;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="newtab"] u {
+  text-decoration: none;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="newtab"] em {
+  font-style: normal;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="newtab"] i:first-child {
+  display: none;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="newtab"] i:last-child {
+  display: inline;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="newtab"][open-newtab] i:first-child {
+  display: inline;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="newtab"][open-newtab] i:last-child {
+  display: none;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item:after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item[current] {
+  background: #ffffff;
+  color: #ff8800;
+  border-color: #ff8800;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item[current] > span[key="href"] {
+  text-decoration: underline;
+  color: #0088ff;
+  opacity: 0.7;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item[current] > span[key="href"]:hover {
+  opacity: 1.0;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-empty {
+  text-align: center;
+  padding: 16px 0;
+  font-size: 14px;
+  color: #ff0000;
+}
+.hmc-navmenu-prop .cnavmp-actions {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.hmc-navmenu-prop .cnavmp-actions ul {
+  height: 32px;
+  border: solid #d0d0d0;
+  border-width: 1px 0;
+  display: -webkit-flex;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+.hmc-navmenu-prop .cnavmp-actions ul li {
+  padding: 6px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+.hmc-navmenu-prop .cnavmp-actions ul li:hover {
+  color: #ff8800;
+  border-color: #ff8800;
+  font-size: 1.6em;
+}
+.hmc-navmenu-prop .cnavmp-form {
+  padding: 8px;
+}

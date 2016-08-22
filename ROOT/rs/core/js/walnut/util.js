@@ -44,7 +44,7 @@ var Wn = {
         }
         
         // 标记关键属性
-        jq.attr("oid",o.id).attr("onm", o.nm);
+        jq.attr("oid",o.id).attr("onm", o.nm).attr("otp", o.tp || "");
 
         // 标记隐藏文件
         if(/^[.].+/.test(o.nm)){

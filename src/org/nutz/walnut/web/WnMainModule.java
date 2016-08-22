@@ -13,7 +13,7 @@ import org.nutz.mvc.annotation.Modules;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.SetupBy;
 import org.nutz.mvc.annotation.Views;
-import org.nutz.mvc.ioc.provider.JsonIocProvider;
+import org.nutz.mvc.ioc.provider.ComboIocProvider;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.module.AbstractWnModule;
@@ -22,7 +22,7 @@ import org.nutz.web.WebException;
 import org.nutz.web.ajax.AjaxViewMaker;
 
 @SetupBy(WnSetup.class)
-@IocBy(type = JsonIocProvider.class, args = {"ioc"}, init = {"loader"})
+@IocBy(type = ComboIocProvider.class, args = {"*js", "ioc"}, init = {"loader"})
 @Modules(by = "ioc:webscan")
 @Localization("msg")
 @Views({AjaxViewMaker.class, WnViewMaker.class})

@@ -7,15 +7,17 @@ $z.declare([
 var html = function(){/*
 <div class="ui-code-template">
     <div code-id="timeline.obj" class="tmln-obj"><div class="tmln-objw">
-        <header><dt></dt></header>
+        <header class="ui-clr"><dt></dt><em></em></header>
         <section></section>
         <footer><span>==</span></footer>
+        <div class="tmln-obj-del"><i class="zmdi zmdi-close"></i></div>
     </div></div>
 </div>
 <div class="ui-arena tmln" ui-fitparent="yes"><div class="tmln-con">
     <div class="tmln-bg"></div>
     <div class="tmln-ruler"></div>
     <!-- 这里是一个个的层 -->
+    <div class="tmln-layer-con"></div>
 </div></div>
 */};
 //==============================================
@@ -27,39 +29,97 @@ return ZUI.def("ui.timeline", {
         "click .tmln-hour" : function(e) {
             var UI  = this;
             var opt = UI.options;
-            var context = opt.context || UI;
 
             var jHour = $(e.currentTarget);
             var tFrom = UI.__get_timeObj(jHour);
             var tTo   = UI.__get_timeObj(jHour, true);
 
             // 调用回调，以便创建新块
-            $z.invoke(opt, "on_create", [tFrom,tTo, function(tlo){
+            $z.invoke(opt, "on_create", [tFrom,tTo, function(tlo, layer){
                 if(tlo) {
-                    if(tlo.layer && tlo.from && tlo.to) {
-                        UI.__add_block(tlo);
-                    }
-                    // 格式错误 
-                    else {
-                        throw "invalid param for timline.on_create->callback" + tlo;
-                    }
+                    // 各种检查
+                    if(!tlo.from)
+                        throw "timline.on_create->callback: no tlo.from";
+                    if(!tlo.to)
+                        throw "timline.on_create->callback: no tlo.to";
+                    
+                    // 执行添加
+                    UI.__add_block(tlo, layer);
                 }
-            }], context);
+            }], UI);
+        },
+        "click .tmln-obj-del" : function(e) {
+            var UI  = this;
+            var opt = UI.options;
+            var jBlock = $(e.currentTarget).closest(".tmln-obj");
+            var jLayer = jBlock.closest(".tmln-layer");
+            jBlock.remove();
+
+            UI.do_on_change(jLayer);
         }
     },
     //..............................................
-    __add_block : function(tlo) {
+    do_on_change : function(jBlock) {
+        var UI   = this;
+        var opt  = UI.options;
+
+        var data = UI.getData();
+        var layerName = jBlock.closest(".tmln-layer").attr("layer-name");
+        
+        var context = {
+            currentObj : jBlock.data("@TLO"),
+            layerName  : layerName,
+            layerData  : data[layerName],
+            data       : data,
+        };
+
+        // 调用层回调
+        var optLayer = (opt.layers || {})[layerName];
+        $z.invoke(optLayer, "on_layer_change", [context.layerData], context);
+
+        // 调用全局回调
+        $z.invoke(opt, "on_change", [data], context);
+    },
+    //..............................................
+    $layer : function(layer) {
+        var UI = this;
+        // 指定了添加的层名称
+        if(_.isString(layer)) {
+            return UI.arena.find('.tmln-layer[layer-name="'+layer+'"]');
+        }
+        // 指定了添加层的序号
+        if(_.isNumber(layer)) {
+             return UI.arena.find('.tmln-layer:eq('+layer+')');
+        }
+        // 本身就是 jQuery 或者 DOM
+        if($z.isjQuery(layer) || _.isElement(layer)){
+            return $(layer);
+        }
+        // 如果没指定，那么默认选择最后一个层（即最高层）
+        return UI.arena.find('.tmln-layer:last-child');
+    },
+    //..............................................
+    __add_block : function(tlo, layer) {
         var UI  = this;
         var opt = UI.options;
-        var context = opt.context || UI;
+
+        // 增加块
+        var jBlock = UI.__append_block_dom(tlo, layer);
+
+        // 最后发出绘制通知回调
+        UI.do_on_change(jBlock);
+    },
+    //..............................................
+    __append_block_dom : function(tlo, layer) {
+        var UI  = this;
 
         // 找到对应的层
-        var jLayer = UI.arena.find('.tmln-layer[layer-name="'+tlo.layer+'"]');
+        var jLayer = UI.$layer(layer);
+
         if(jLayer.size() == 0){
-            throw "invalid layerName for timline.__add_block : " + tlo.layer;
+            throw "invalid layerName for timline.__add_block : " + layer;
         }
         var ly = jLayer.data("@LAYER");
-
 
         var tFrom = $z.parseTime(tlo.from);
         var tTo   = $z.parseTime(tlo.to);
@@ -75,8 +135,21 @@ return ZUI.def("ui.timeline", {
         UI.__update_obj_display(jBlock);
 
         // 调用回调进一步绘制
-        $z.invoke(ly, "on_draw_block", [jBlock, tlo], context);
-        
+        var context = UI.__context(jBlock);
+        $z.invoke(ly, "on_draw_block", [tlo], context);
+
+        // 返回
+        return jBlock;
+    },
+    //..............................................
+    // 返回一个绘制块的上下文
+    __context : function(jBlock) {
+        return {
+            $block : jBlock,
+            $info  : jBlock.find(">.tmln-objw>header>em"),
+            $main  : jBlock.find(">.tmln-objw>section"),
+            ui     : this
+        };
     },
     //..............................................
     __update_obj_display : function(jBlock) {
@@ -122,6 +195,7 @@ return ZUI.def("ui.timeline", {
         var jCon = UI.arena.find(".tmln-con");
         var jBg  = jCon.find(".tmln-bg");
         var jRu  = jCon.find(".tmln-ruler");
+        var jLyCon = jCon.find(">.tmln-layer-con");
 
         // 输出 24 个小时的时间槽和标尺
         for(var i=0;i<24;i++){
@@ -147,7 +221,7 @@ return ZUI.def("ui.timeline", {
             $('<div class="tmln-layer">')
                 .attr("layer-name", layerName)
                 .data("@LAYER", layer)
-                .appendTo(jCon);
+                .appendTo(jLyCon);
         }
 
         // 响应各层的鼠标拖拽事件
@@ -177,12 +251,6 @@ return ZUI.def("ui.timeline", {
             },
             autoUpdateTriggerBy : null,
             boundary : "100%",
-            dposition : {
-                gridX  : "100%",
-                gridY  : "2.0833333%",
-                stickX : 1,
-                stickY : 100
-            },
             on_ing : function() {
                 var tlo  = this.$tmlnObj.data("@TLO");
                 var tFrom = $z.parseTime(tlo.from);
@@ -210,10 +278,67 @@ return ZUI.def("ui.timeline", {
                 
                 // 修改区块的大小
                 UI.__update_obj_display(this.$tmlnObj);
+            },
+            on_end : function() {
+                UI.do_on_change(this.$tmlnObj);                
             }
         });
+    },
+    //..............................................
+    getData : function(layer) {
+        var UI = this;
 
+        // 返回固定某层数据
+        if(layer) {
+            return UI.getLayerData(layer);
+        }
 
+        // 逐层返回
+        var re = {};
+        UI.arena.find(".tmln-layer").each(function(){
+            var jLayer = $(this);
+            var lynm = jLayer.attr("layer-name");
+            re[lynm] = UI.getLayerData(jLayer);
+        });
+        return re;
+    },
+    //..............................................
+    getLayerData : function(layer) {
+        var jLayer = this.$layer(layer);
+        var re = [];
+        jLayer.children(".tmln-obj").each(function(){
+            re.push($(this).data("@TLO"));
+        });
+        return re;
+    },
+    //..............................................
+    setData : function(data, layer) {
+        var UI = this;
+
+        // 返回固定某层数据
+        if(layer) {
+            return UI.setLayerData(layer, data[layer]);
+        }
+
+        // 逐层添加
+        UI.arena.find(".tmln-layer").each(function(){
+            var jLayer = $(this);
+            var layerName = jLayer.attr("layer-name");
+            UI.setLayerData(layerName, data[layerName]);
+        });
+    },
+    //..............................................
+    setLayerData : function(layer, layerData) {
+        var UI = this;
+
+        var jLayer = UI.$layer(layer).empty();
+
+        if(_.isArray(layerData)) {
+            for(var i=0; i<layerData.length; i++) {
+                var tlo = layerData[i];
+                UI.__append_block_dom(tlo, jLayer);
+            }
+        }
     },
     //..............................................
     resize : function() {

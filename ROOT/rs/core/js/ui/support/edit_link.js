@@ -9,7 +9,7 @@ function(ZUI, Wn, BrowserUI){
 var html = function(){/*
 <div class="ui-code-template">
     <div code-id="el.ext" class="el-ext">
-        <input>
+        <input placeholder="{{support.edit_link.tip}}">
     </div>
 </div>
 <div class="ui-arena edit-link" ui-fitparent="yes">

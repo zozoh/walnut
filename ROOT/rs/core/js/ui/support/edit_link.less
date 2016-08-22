@@ -26,7 +26,10 @@
 
         .el-ext {
             padding:@d6;
-            input {width:100%; padding:@d4; font-size:@f4;}
+            input { @input();
+                width:100%; padding:@d4; font:@f4 @f_fixed; 
+            }
+            input:focus {@input_focus();}
         }
     }
 }

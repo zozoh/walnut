@@ -3,13 +3,14 @@ $z.declare(['zui', 'jquery-plugin/zcal/zcal'], function(ZUI){
 //==============================================
 function wrap_func(UI, options, funcName, evenName){
     var func = options[funcName];
+    var context = options.context || UI;
     
     options[funcName] = function(){
         var args = Array.prototype.slice.call(arguments);
         if(_.isFunction(func)){
-           func.apply(UI, args)
+           func.apply(context, args)
         }
-        UI.trigger.apply(UI, [evenName].concat(args));
+        UI.trigger.apply(context, [evenName].concat(args));
     }
 }    
 //==============================================

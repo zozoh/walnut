@@ -27,13 +27,8 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.ext.www.WWW;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.web.WnConfig;
-import org.nutz.walnut.web.filter.WnCheckSession;
-import org.nutz.walnut.web.processor.CreateWnContext;
 
 public class WalnutFilter implements Filter {
 
@@ -65,14 +60,15 @@ public class WalnutFilter implements Filter {
     @Override
     public void doFilter(ServletRequest arg0, ServletResponse resp, FilterChain chain)
             throws IOException, ServletException {
-
+        // 用 Jettry 的 Request 对象接口
         Request req = (Request) arg0;
 
+        // 分析路径
         String path = Wn.appendPath(req.getServletPath(), req.getPathInfo());
         String usrip = Lang.getIP(req);
         String host = req.getHeader("Host");
         int port = req.getLocalPort();
-        
+
         // 容忍 HEADER 里没有 Host 字段的情况
         if (null == host) {
             host = req.getLocalName();
@@ -91,13 +87,18 @@ public class WalnutFilter implements Filter {
         // 确保有 Io 接口等
         __setup();
 
+        // TODO zozoh: 再检查一下下面的逻辑，登录状态也应该路由，不会有啥问题的，除非规则写错了
         // 检查一下会话状态，如果是登录状态，那么就不要路由了
         // 否则就根据配置，判断是否对域名路由
-        WnContext wc = Wn.WC();
-        CreateWnContext.setupWnContext(wc, req);
-        WnSession se = WnCheckSession.testSession(wc, ioc);
+        // WnContext wc = Wn.WC();
+        // CreateWnContext.setupWnContext(wc, req);
+        // WnSession se = WnCheckSession.testSession(wc, ioc);
 
-        if (null == se && rMainHost != null && !rMainHost.matcher(host).find()) {
+        // if (null == se && rMainHost != null &&
+        // !rMainHost.matcher(host).find()) {
+
+        // main-host 配置项目指定了哪些 host 是不要路由的
+        if (null != rMainHost && !rMainHost.matcher(host).find()) {
             WnObj oDmn = null;
 
             // 首先试图找到对应的组
@@ -111,7 +112,7 @@ public class WalnutFilter implements Filter {
             // 找不到记录
             if (null == oDmn) {
                 Mvcs.updateRequestAttributes(req);
-                req.setAttribute("obj", Lang.map("host", host));
+                req.setAttribute("obj", Lang.map("host", host).setv("path", path));
                 req.getRequestDispatcher(errorPage).forward(req, resp);
                 return;
             }
@@ -122,7 +123,9 @@ public class WalnutFilter implements Filter {
             NutMap map = new NutMap().setv("grp", grp);
             String newPath = null;
 
-            // 然后，根据映射规整改变 URL
+            // 然后，根据映射规整得到新的改过的 URL
+            // 这个规则通常定义在 hostmap 文件中
+            // 当然在 web.xml 你可以指定其他的规则文件
             for (DmnMatcher dm : _dms) {
                 Matcher m = dm.regex.matcher(path);
                 if (m.find()) {
@@ -134,17 +137,30 @@ public class WalnutFilter implements Filter {
                 }
             }
 
-            // 如果改变了 URL
+            // 正常情况得到修订的 URL，那么 ...
             if (null != newPath) {
-                // 记录一下
-                Wn.WC().setv(WWW.AT_BASE, "/");
+                // 将一些必要的信息都记录到 req 对象里，便于 WWW 模块处理
+                req.setAttribute("wn_www_path_org", path);
+                req.setAttribute("wn_www_path_new", newPath);
+                req.setAttribute("wn_www_host", host);
+                req.setAttribute("wn_www_grp", grp);
+                req.setAttribute("wn_www_ip", usrip);
+                req.setAttribute("wn_www_port", port);
 
-                req.setServletPath(newPath);//擦,这是什么鬼
+                // 这个通常还是要记录一下日志的
                 if (log.isDebugEnabled()) {
                     log.debug(" - router to: " + newPath);
                 }
+
+                // 服务器端转发到对应的处理路径
+                // req.setServletPath(newPath); // 擦,这是什么鬼 // zozoh: 额，换成下面的写法了
+                req.getRequestDispatcher(newPath).forward(req, resp);
+                return;
+
             }
-            // 否则做个记录
+            // 得不到修订的 URL，表示规则文件设定的不合理，没有考虑所有的情况
+            // 那么我也做不了啥了，直接做个记录吧。
+            // 考虑到或许可以依靠后续的 filter 来处理，那么 .. 还是继续其他的 Filter 吧
             else {
                 if (log.isDebugEnabled()) {
                     log.debug(" - no rule -");

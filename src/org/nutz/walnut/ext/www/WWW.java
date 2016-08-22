@@ -8,7 +8,6 @@ import org.nutz.walnut.util.Wn;
 public abstract class WWW {
 
     public static final String AT_SEID = "DSEID";
-    public static final String AT_BASE = "base";
 
     public static NutMap read_conf(WnIo io, String grp) {
         String phConf = Wn.appendPath(Wn.getUsrHome(grp), ".wwwrc");

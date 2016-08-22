@@ -215,17 +215,27 @@
             throw  "fail to dimension : " + v;
         },
         //.............................................
-        toPixel: function (str, dft) {
-            var m = /^(\d+)(px)?/.exec(str);
-            if (m)
+        toPixel: function (str, dft, base) {
+            var re;
+            var m = /^([\d.]+)(px)?(%)?/.exec(str);
+            if (m){
+                // %
+                if(m[3])
+                    return m[1] * base;
+                // 要不是 px 要不直接就是数字
                 return m[1] * 1;
-            return dft || 0;
+            }
+            // 靠返回默认
+            return dft;
         },
         //.............................................
         obj : function(key, val) {
-            var re = {};
-            re[key] = val;
-            return re;
+            if(_.isString(key)){
+                var re = {};
+                re[key] = val;
+                return re;    
+            }
+            return key;
         },
         //.............................................
         dump : {
@@ -268,6 +278,28 @@
                 re[key] = rect[key];
             }
             return re;
+        },
+        //.............................................
+        // 自动根据矩形对象的值进行判断
+        rect_count_auto : function(rect, quiet) {
+            // 有 width, height
+            if(_.isNumber(rect.width) && _.isNumber(rect.height)) {
+                if(_.isNumber(rect.top) && _.isNumber(rect.left))
+                    return this.rect_count_tlwh(rect);
+                if(_.isNumber(rect.bottom) && _.isNumber(rect.right))
+                    return this.rect_count_brwh(rect);
+                if(_.isNumber(rect.x) && _.isNumber(rect.x))
+                    return this.rect_count_xywh(rect);
+            }
+            // 有 top,left
+            else if(_.isNumber(rect.top) && _.isNumber(rect.left)) {
+                if(_.isNumber(rect.bottom) && _.isNumber(rect.right))
+                    return this.rect_count_tlbr(rect);
+            }
+            // 不知道咋弄了
+            if(!quiet)
+                throw "Don't know how to count rect:" + this.toJson(rect);
+            return rect;
         },
         //.............................................
         // 根据 top,left,width,height 计算剩下的信息
@@ -721,7 +753,9 @@
         // 判断一个值是否是有意义的
         // undefined, null, NaN, 空串 都是没意义的
         isMeaningful : function(v) {
-            if(_.isUndefined(v) || _.isNull(v) || isNaN(v))
+            if(_.isUndefined(v) || _.isNull(v))
+                return false;
+            if(_.isNumber(v) && isNaN(v))
                 return false;
             if(_.isString(v) && v.length == 0)
                 return false;
@@ -1571,6 +1605,28 @@
             throw "Fuck! unknown arg : " + arg;
         },
         //............................................
+        // 递归迭代给定元素下面所有的文本节点
+        // jq 给定元素的 jQuery 对象
+        // callback 回调 F(TextNode)
+        eachTextNode : function(jq, callback) {
+            jq = $(jq);
+            for(var i=0; i<jq.size(); i++) {
+                var ele = jq[i];
+                var ndList = ele.childNodes;
+                for(var x=0; x<ndList.length; x++) {
+                    var nd = ndList[x];
+                    // 文本节点
+                    if(3 == nd.nodeType) {
+                        callback.call(nd);
+                    }
+                    // 元素的话，递归
+                    else if(1 == nd.nodeType) {
+                        this.eachTextNode(nd, callback);
+                    }
+                }
+            }
+        },
+        //............................................
         // 对一个字符串进行转换，相当于 $(..).text(str) 的效果
         __escape_ele: $(document.createElement("b")),
         escapeText: function (str) {
@@ -1753,6 +1809,33 @@
                 return false;
             return _.isObject(obj);
         },
+        //.............................................
+        isEmptyString : function(str) {
+            return "" === str;
+        },
+        isBlankString : function(str) {
+            return "" === $.trim(str);
+        },
+        //.............................................
+        // 将属性设置到控件的 DOM 上
+        setJsonToSubScriptEle : function(jq, className, prop, needFormatJson) {
+            var jPropEle = jq.children("script."+className);
+            if(jPropEle.length == 0) {
+                jPropEle = $('<script type="text/x-template" class="'+className+'">').appendTo(jq);
+            }
+            var json = needFormatJson ? "\n"+$z.toJson(prop,null,'    ')+"\n" : $z.toJson(prop);
+            jPropEle.html(json);
+        },
+        // 从控件的 DOM 上获取控件的属性
+        getJsonFromSubScriptEle : function(jq, className, dft){
+            var jPropEle = jq.children("script." + className);
+            if(jPropEle.length > 0){
+                var json = jPropEle.html();
+                return $z.fromJson(json);
+            }
+            // 返回默认或者空
+            return dft || {};
+        },
         //---------------------------------------------------------------------------------------
         /**
          * jq - 要闪烁的对象
@@ -1763,6 +1846,10 @@
         blinkIt: function (jq, opt) {
             // 格式化参数
             jq = $(jq);
+
+            if(jq.size() == 0)
+                return;
+
             opt = opt || {};
             if (typeof opt == "function") {
                 opt = {
@@ -1789,7 +1876,7 @@
             };
             // 建立闪烁层
             var lg = $(opt.html || '<div class="z_blink_light">&nbsp;</div>');
-            lg.css(css).appendTo(document.body);
+            lg.css(css).appendTo(jq[0].ownerDocument.body);
             lg.animate({
                 opacity: 0.1
             }, opt.speed || 500, function () {
@@ -1863,6 +1950,7 @@
             extendWidth  : false   // 自动延伸宽度
             extendHeight : false   // 自动延伸高度
             takePlace    : false   // 是否代替宿主的位置，如果代替那么将不用绝对位置和遮罩
+            selectOnFocus : true   // 当显示输入框，是否全选文字（仅当非 multi 模式有效）
 
             // 修改之后的回调
             // 如果不指定这个项，默认实现是修改元素的 innertText
@@ -1896,7 +1984,7 @@
                 };
             }
             // 定义默认的回调
-            if (!_.isFunction(opt.after))
+            if (!_.isFunction(opt.after)) {
                 opt.after = function (newval, oldval, jEle, opt) {
                     // 多行用 HTML
                     if (opt.multi) {
@@ -1907,6 +1995,12 @@
                         jEle.text(newval);
                     }
                 };
+            }
+            //...............................................
+            // 定义一些默认值
+            zUtil.setUndefined(opt, "extendWidth", true);
+            zUtil.setUndefined(opt, "extendHeight", opt.multi);
+            zUtil.setUndefined(opt, "selectOnFocus", true);
             //...............................................
             // 定义键盘处理函数
             var __on_keydown = function (e) {
@@ -1969,9 +2063,6 @@
                         .replace(/\r?\n/g, "\n<br>");
                 }
 
-                // 调用回调
-                opt.after.apply(jEle, [val, old, jEle, opt]);
-
                 // 回来吧宿主
                 if (opt.takePlace) {
                     jEle.insertBefore(jDiv).show();
@@ -1986,6 +2077,9 @@
 
                 // 移除宿主标识
                 jEle.removeAttr("z-edit-it-on");
+
+                // 调用回调
+                opt.after.apply(jEle, [val, old, jEle, opt]);
             };
             //...............................................
             // 准备显示输入框
@@ -2012,41 +2106,46 @@
                 });
             // 给输入框设值
             var jInput = jDiv.children();
-            jInput.val(val).attr("spellcheck", "false").css({"width": "100%", "height": "100%"});
+            jInput.val(val).attr("spellcheck", "false").css({
+                "width"   : "100%", 
+                "height"  : "100%",
+                "outline" : "none",
+            });
             // 单行输入框，设一下行高
-            if (!opt.multi)
+            if (!opt.multi) {
                 jInput.css("line-height", boxH);
+                if(opt.selectOnFocus)
+                    jInput[0].select();
+            }
 
             //...............................................
-            // 多行的话取得宿主的显示模式
-            if (opt.multi) {
-                var eleStyle = window.getComputedStyle(jEle[0]);
+            // 取得宿主的显示模式
+            var eleStyle = window.getComputedStyle(jEle[0]);
 
-                var rKeys = ["display", "letter-spacing", "margin", "padding"
-                    , "font-size", "font-family", "border"
-                    , "line-height"];
-                // 如果占位模式，才 copy 背景色和前景色
-                if (opt.takePlace) {
-                    rKeys.push("background");
-                    rKeys.push("color");
-                }
-
-                var css = {};
-                for (var i = 0; i < rKeys.length; i++) {
-                    var rKey = rKeys[i];
-                    var pKey = $z.upperWord(rKey);
-                    css[rKey] = eleStyle[pKey];
-                    //console.log(rKey, " : ", eleStyle[pKey]);
-                }
-                //console.log(css);
-
-                // 将自身设置成和宿主一样的显示模式
-                jInput.css(_.extend(css, {
-                    "overflow": "hidden",
-                    "outline": "none",
-                    "resize": "none"
-                }));
+            var rKeys = ["display", "letter-spacing", "margin", "padding"
+                , "font-size", "font-family", "border"
+                , "line-height"];
+            // 如果占位模式，才 copy 背景色和前景色
+            if (opt.takePlace) {
+                rKeys.push("background");
+                rKeys.push("color");
             }
+
+            var css = {};
+            for (var i = 0; i < rKeys.length; i++) {
+                var rKey = rKeys[i];
+                var pKey = $z.upperWord(rKey);
+                css[rKey] = eleStyle[pKey];
+                //console.log(rKey, " : ", eleStyle[pKey]);
+            }
+            //console.log(css);
+
+            // 将自身设置成和宿主一样的显示模式
+            jInput.css(_.extend(css, {
+                "overflow": "hidden",
+                "outline": "none",
+                "resize": "none"
+            }));
             //...............................................
             // 替代宿主的位置
             if (opt.takePlace) {
@@ -2241,7 +2340,8 @@
          */
         upperWord: function (cs, c="-") {
             var sb = "";
-            for (var i = 0; i < cs.length; i++) {
+            var len = cs.length;
+            for (var i = 0; i < len; i++) {
                 var ch = cs.charAt(i);
                 if (ch == c) {
                     do {

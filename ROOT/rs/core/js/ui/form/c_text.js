@@ -4,7 +4,7 @@ $z.declare([
 ], function(ZUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena com-text"><textarea></textarea></div>
+<div class="ui-arena com-text"><textarea spellcheck="false"></textarea></div>
 */};
 //===================================================================
 return ZUI.def("ui.form_com_text", {

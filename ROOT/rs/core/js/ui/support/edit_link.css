@@ -52,7 +52,17 @@
   padding: 24px;
 }
 .edit-link section .el-ext input {
+  outline: none;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  color: #000000;
+  background: #ffffff;
   width: 100%;
   padding: 12px;
-  font-size: 16px;
+  font: 16px Monaco, Consolas, Courier New;
+}
+.edit-link section .el-ext input:focus {
+  color: #000000;
+  background: #ffffcc;
+  border-color: #ff8800;
 }

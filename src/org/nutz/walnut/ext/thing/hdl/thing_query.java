@@ -41,7 +41,7 @@ public class thing_query implements JvmHdl {
 
         // ..............................................
         // 准备查询条件
-        String qStr = Cmds.checkParamOrPipe(sys, hc.params, 0);
+        String qStr = Cmds.getParamOrPipe(sys, hc.params, 0);
         WnQuery q = new WnQuery();
         // 指定了条件
         if (!Strings.isBlank(qStr)) {
@@ -81,7 +81,7 @@ public class thing_query implements JvmHdl {
         }
 
         // 设置排序
-        if (hc.params.has("sort")) {
+        if (hc.params.hasString("sort")) {
             NutMap sort = Lang.map(hc.params.check("sort"));
             q.sort(sort);
         }

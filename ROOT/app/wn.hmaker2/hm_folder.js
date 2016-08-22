@@ -1,7 +1,8 @@
 (function($z){
 $z.declare([
     'zui',
-], function(ZUI){
+    'app/wn.hmaker2/hm__methods',
+], function(ZUI, HmMethods){
 //==============================================
 var html = function(){/*
 <div class="ui-arena hm-unknown" ui-fitparent="yes">
@@ -12,8 +13,14 @@ var html = function(){/*
 return ZUI.def("app.wn.hmaker_folder", {
     dom : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
+    init : function() {
+        var UI = HmMethods(this);
+    },
+    //...............................................................
     update : function(o) {
         this.arena.find("b").text(o.ph);
+
+        this.fire("active:folder", o);
     }
 });
 //===================================================================

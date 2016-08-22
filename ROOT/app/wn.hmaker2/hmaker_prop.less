@@ -1,0 +1,339 @@
+@import (reference) "../ui";
+
+// 编辑属性面板
+@ppTabH : 28px;
+.hmaker .hm-prop-edit {
+    position:relative; padding:@ppTabH/2 + @d2 @d2 @d2 @d2;
+    .hm-prop-tabs {
+        position: absolute; top:@d2; left:0; right:0; height:@ppTabH; 
+        ul {
+            @flex(); justify-content: center;
+            li {
+                height:@ppTabH; line-height: @ppTabH - 1; 
+                border:1px solid @cborder1; border-left:0;
+                min-width: 80px; text-align: center; padding:0 @d2; font-size:@f2;
+                background: @cb1; color:@cf1; cursor: pointer; 
+            }
+            li:first-child {
+                border-left:1px solid @cborder1;
+                border-radius: @d2 0 0 @d2;
+            }
+            li:last-child {
+                border-radius: 0 @d2 @d2 0;
+            }
+            li[current] {background: @ch0_b; color:@ch0_f;}
+        }
+    }
+    .hm-prop-body {
+        width:100%; height:100%; border:1px solid @cborder1;
+        padding:@ppTabH/2 + @d1 @d1 @d1 @d1;
+        .hm-prop-con {
+            position: absolute; top:0; left:0; right:0; bottom:0; display: none;
+            > * {width:100%; height:100%;}
+        }
+        .hm-prop-con[current] {display: block;}
+        //....................................................
+        // 块属性
+        @boxW : 200px;
+        @boxH : 120px;
+        @vS : 12px;
+        @dH : 24px;
+        .hm-prop-block {
+            position: relative; width:100%; height:100%;
+            .hmpb-pos {
+                .hmpb-pos-abs {
+                    padding:@d2; text-align: center;
+                    > label {cursor: pointer;}
+                    > label>* {display: inline;}
+                    i {display: inline-block; width:14px; vertical-align: middle;}
+                    i:first-child {display: none;}
+                    i:last-child  {display: inline-block;}
+                }
+            }
+            // 绝对定位
+            .hmpb-pos[mode="abs"] {
+                .hmpb-pos-abs{
+                    i:first-child {display: inline-block;}
+                    i:last-child  {display: none;}
+                }
+                .hmpb-pos-v:hover {background: @ch1_b; border-color:@ch1_f;}
+                .hmpb-pos-v[highlight], .hmpb-pos-v[highlight]:hover {
+                    background:@chx_f; border-color:@chx_b;
+                }
+                .hmpb-pos-d[show], .hmpb-pos-v{display: block;}
+                .hmpb-margin {display: none;}
+            }
+            // 相对定位
+            .hmpb-pos[mode="inflow"] {
+                .hmpb-pos-d[show] {display: block;}
+                .hmpb-margin {
+                    display: block; position: absolute; left:@dH; right:@dH; top: @dH / -2; height:@dH;
+                    text-align: center;
+                    > [ui-id] {
+                        display: inline-block;
+                        .com-switch ul {
+                            overflow: hidden; border-radius: @d2; padding:0;
+                        }
+                    }
+                }
+            }
+            // 位置信息编辑区
+            .hmpb-pos-box { @noselect();
+                margin:@d5 auto; width:@boxW; height:@boxH;
+                border:1px dashed @cborder0;
+                position: relative;
+                .hmpb-pos-v {display: none;
+                    width:@vS;height:@vS;border-radius: @vS; 
+                    border:1px solid @cborder1; position: absolute;
+                    cursor: pointer;
+                }
+                .hmpb-pos-v[md="lt"]{top:@vS/-2;    left:@vS/-2;}
+                .hmpb-pos-v[md="rt"]{top:@vS/-2;    right:@vS/-2;}
+                .hmpb-pos-v[md="lb"]{bottom:@vS/-2; left:@vS/-2;}
+                .hmpb-pos-v[md="rb"]{bottom:@vS/-2; right:@vS/-2;}
+                .hmpb-pos-d {display: none;
+                    position: absolute; padding:0 @d1; line-height: @dH; height: @dH;
+                    text-align: center;
+                    > span {
+                        background: @cb1; color:@cf1; 
+                        > * {display: inline-block; padding:@d0 @d1; vertical-align: middle;}
+                    }
+                }
+                .hmpb-pos-d[key="left"]  {top:@boxH/2 - @vS; left:@vS*-3;}
+                .hmpb-pos-d[key="right"] {top:@boxH/2 - @vS; right:@vS*-3;}
+                .hmpb-pos-d[key="top"]   {top:@dH/-2;   left:@vS;right:@vS;}
+                .hmpb-pos-d[key="bottom"]{bottom:@dH/-2;left:@vS;right:@vS;}
+                .hmpb-pos-d[key="width"],
+                .hmpb-pos-d[key="height"] { left:0; right:0;
+                    span > * {display: inline-block; padding:0 @d1; vertical-align: middle;}
+                    b  {width: 30px; text-align: right;}
+                    em {
+                        width: 60px; text-align: left; font-style: normal; font: @f1 @f_fixed;
+                    }
+                }
+                .hmpb-pos-d[key="width"]{bottom:@boxH/2;}
+                .hmpb-pos-d[key="height"]{top:@boxH/2;}
+            }
+            .hmpb-form {
+                position: absolute; left:0; right:0; bottom:0;
+            }
+        } // ~ 块属性
+        //....................................................
+        // 控件属性
+        @hmpcH : 32px;
+        .hm-prop-com {
+            width:100%; height:100%; position: relative; padding:@hmpcH 0 0 0;
+            .hmpc-info {
+                position: absolute; top:0; left:0; right:0; height: @hmpcH; line-height: @hmpcH;
+                padding:0 @d4; font-family: @f_fixed; color:@cf1;
+                > * {margin-right: @d2; }
+                > em {color:@c3; font-style: normal;}
+                > em:before {display: inline; content: " : ";}
+            }
+            .hmpc-form {
+                width: 100%; height:100%;
+            }
+        } // ~ 控件属性
+        //....................................................
+        // 控件内元素属性
+        .hm-prop-com-ele { background:@cb2; color:@cf4;
+            position: absolute; top:0; bottom:0;left:10000px;
+            transition:0.2s; opacity: 0.3;
+        }
+        .hm-prop-com-ele[show] {
+            left:0; opacity: 1.0;
+        }
+        .hm-prop-ele {
+            width:100%; height:100%; position: relative; padding:@hmpcH 0 0 0;
+            .hmpe-info {
+                position: absolute; top:0; left:0; right:0; height: @hmpcH; line-height: @hmpcH;
+                padding:0 @d4; font-family: @f_fixed; font-size:@f3; color:@cf1;  
+                border-top: 1px solid @cborder0;
+                border-bottom: 1px solid @cborder0;
+                > * {margin-right: @d2; }
+                > em {color:@c3; font-style: normal;}
+            }
+            .hmpe-form {
+                width: 100%; height:100%;
+            }
+            .hmpe-hide {
+                position: absolute; top:@d2; right:@d2;
+                font-size:@f3; font-family: 'Material-Design-Iconic-Font';
+                cursor:pointer; 
+                color:@cbtn_f; background-color: @cbtn_b; 
+                border-radius: 100px; border:2px solid @cbtn_l;
+                line-height: @d5; width:@d5 + 4px; text-align: center;
+                transition:0.2s;
+            }
+            .hmpe-hide:before {
+                display: "inline";
+                content: "\f136";
+            }
+
+            .hmpe-hide:hover {
+                background-color: @ch0_b; color:@ch0_f; border-color:@cborder1;
+                font-size:1.2em; font-weight: bold;
+                transform: scale(1.2) rotate(360deg);
+            }
+        } 
+        //....................................................
+
+    } // ~ .hm-prop-body
+} // ~ 编辑属性面板
+//............................................................
+// 控件们的私有属性面板
+//............................................................
+// rows
+.hmc-rows-prop {
+    padding:@d3;
+    // 样式显示区域
+    .crp-layout { @noselect();
+        padding: @d4;
+        @lyBH : 48px;
+        .ly-wrapper {
+            border:3px solid @cborder0; padding:@d3;
+        }
+        .ly-block {
+            height:@lyBH; position: relative;
+            background:rgba(255,255,255,0.4); border:1px dashed @cborder1;
+            .ly-b-nm {
+                position: absolute; top:@d2; bottom:@d2; left:0;
+                padding:0 @d5; line-height: @lyBH - @d2 * 2;
+            }
+            .ly-a {
+                width:100%; height:100%; padding:0 @d3;
+                @flex(); justify-content: flex-end;  align-items: center;
+                > div {
+                    padding:@d1 @d2; transition: 0.2s; cursor: pointer;
+                }
+                > div:hover {
+                    transform: scale(1.2); font-weight: bold; color:@c6;
+                }
+            }
+        }
+        .ly-newer { transition: 0.2s;
+            border:1px solid @cborder1; margin:@d3 auto;
+            text-align: center; width:80px; height:@d6; line-height:@d6 - 2;
+            cursor: pointer;
+        }
+        .ly-newer:hover {
+            color:@c0; border-color:@c0; font-size: 1.6em;
+        }
+    }
+    //
+    .crp-form {
+
+    }
+}
+//............................................................
+// columns
+.hmc-columns-prop {
+    padding:@d3;
+    // 样式显示区域
+    .crp-layout { @noselect();
+        padding: @d4;
+        @lyBH : 160px;
+        .ly-wrapper {
+            border:3px solid @cborder0; padding:@d3;
+            @flex(); 
+        }
+        .ly-block {
+            height:@lyBH; line-height: @f3; flex:1 1 auto;
+            background:rgba(255,255,255,0.4); border:1px dashed @cborder1;
+            position: relative;
+            .ly-b-nm {
+                padding:@d5; 
+            }
+            .ly-a { 
+                position: absolute; bottom: 0; left:0; right:0;
+                text-align: center; padding:@d3;
+                > div {
+                    display:inline-block; padding:@d1 @d2; transition: 0.2s; cursor: pointer;
+                }
+                > div:hover {
+                    transform: scale(1.2); font-weight: bold; color:@c6;
+                }
+            }
+        }
+        .ly-newer { transition: 0.2s;
+            border:1px solid @cborder1; margin:@d3 auto;
+            text-align: center; width:80px; height:@d6; line-height:@d6 - 2;
+            cursor: pointer;
+        }
+        .ly-newer:hover {
+            color:@c0; border-color:@c0; font-size: 1.6em;
+        }
+    }
+    //
+    .crp-form {
+
+    }
+}
+//............................................................
+// navmenu
+.hmc-navmenu-prop {
+    .cnavmp-item-list { @noselect();
+        padding: 0 @d2; margin:@d3 0; max-height: 50%; overflow: auto;
+        .cnavmp-item {
+            border:1px solid rgba(0,0,0,0); cursor: pointer;
+            padding:@d2; margin-bottom:1px;
+            > span {float:left; padding:@d1; display: block;}
+            > span[key="text"]{
+            }
+            > span[key="href"]{ 
+                color:@c2; font-family: @f_fixed; width: 190px; 
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            }
+            > span[key="href"]:before {
+                font-family: 'FontAwesome'; display: inline; content: "\f0c1";
+                letter-spacing: @d0; 
+            }
+            > span[key="href"][nohref] {
+                font-style: italic;
+            }
+            > span[key="href"][nohref]:before {
+                content: "\f127"; 
+            }
+            > span[key="newtab"]{
+                float:right;
+                u {text-decoration: none;}
+                em {font-style: normal;}
+                i:first-child {display: none;}
+                i:last-child {display: inline;}
+            }
+            > span[key="newtab"][open-newtab]{
+                i:first-child {display: inline;}
+                i:last-child {display: none;}
+            }
+        }
+        .cnavmp-item:after {@clr();}
+        .cnavmp-item[current] {
+            background:@cb0; color:@c0; border-color:@c0; 
+            > span[key="href"] {
+                text-decoration: underline; color:@clink; opacity: 0.7;
+            }
+            > span[key="href"]:hover {
+                opacity: 1.0;
+            }
+        }
+        .cnavmp-empty {
+            text-align: center; padding:@d5 0; font-size: @f3; color:@c6;
+        }
+    }
+    .cnavmp-actions {@noselect();
+        ul {
+            height: 32px; border:solid @cborder1;
+            border-width:1px 0;
+            @flex(); justify-content: flex-end; align-items:flex-start;
+            li {padding:@d2; transition: 0.2s; cursor: pointer;}
+            li:hover {
+                color:@c0; border-color:@c0; font-size: 1.6em;
+            }
+        }
+    }
+    .cnavmp-form {
+        padding: @d3;
+    }
+}
+//............................................................
+

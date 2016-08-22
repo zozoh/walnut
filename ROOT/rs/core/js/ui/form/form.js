@@ -296,6 +296,10 @@ return ZUI.def("ui.form", {
         });
 
         //console.log("form redraw defer:", UI._fld_form_keys);
+        // 暂时隐藏，在 resize 里去掉这个开关
+        UI.$el.css("visibility", "hidden");
+
+        // 返回延迟加载
         return UI._fld_form_keys;
     },
     //...............................................................
@@ -434,17 +438,17 @@ return ZUI.def("ui.form", {
             });
 
         });
+
+        // 结束隐藏
+        UI.$el.css("visibility", "");
     },
     //...............................................................
     update : function(key, val){
         var UI  = this;
+        //console.log("form update: key=",key, " : val=", val);
         // 解析参数
-        var obj = {};
-        if(_.isString(key)){
-            obj[key] = val;
-        }else{
-            _.extend(obj, key);
-        }
+        var obj = $z.obj(key, val);
+
         // 执行更新
         UI.ui_parse_data(obj, function(o){
             // 设置每个字段

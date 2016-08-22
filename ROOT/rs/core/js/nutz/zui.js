@@ -6,10 +6,14 @@ require("theme/ui/zui.css");
 //====================================================
 var parse_dom = function (html) {
     var UI = this;
+
     // 解析代码模板
     var tmpl = $z.tmpl(html);
     html = tmpl(UI._msg_map);
-    UI.$el[0].innerHTML = html;  // FIXME 这里有严重的bug, tr不能被加入到页面中
+
+    // 这里需要添加 dom 段描述的 HTML 到当前的 $el 
+    // 为了兼顾 keepDom 所以要用 +=
+    UI.el.innerHTML += html;  // FIXME 这里有严重的bug, tr不能被加入到页面中
 
     // 分析 DOM 结构
     var map = this._code_templates;
@@ -22,7 +26,11 @@ var parse_dom = function (html) {
         var key = jq.attr('code-id');
         map[key] = jq;
     });
-    UI.arena = UI.$el.children('.ui-arena');
+
+    // 搞完了 dom，根据 .ui-arena 找找有没有指定的 arena
+    var $arena = UI.$el.children('.ui-arena');
+    if($arena.size() > 0)
+        UI.arena = $arena;
 
     // 标识所有的扩展点
     sign_gaskets(UI);
@@ -64,8 +72,10 @@ var register = function(UI) {
                         ? (UI.keepDom===false? false:true)
                         : opt.keepDom
 
-        // 指明了 $el 那么 arena 与 $el 指向同样的 DOM
-        UI.arena = UI.$el;
+        // 试图正确的获取 Arena
+        UI.arena = UI.$el.children('.ui-arena');
+        if(UI.arena.size() == 0)
+            UI.arena = UI.$el;
 
         // 看看这个 $el 是不是已经是个 UI 了
         var cid = UI.$el.attr("ui-id");
@@ -165,7 +175,7 @@ var register = function(UI) {
 // 定义一个 UI 的原型
 var ZUIObj = function(){};
 ZUIObj.prototype = {
-    nutz_ui_version : "1.0",
+    nutz_ui_version : "1.3",
     //............................................
     // Backbone.View 的初始化函数
     __init__: function (options) {
@@ -1057,7 +1067,7 @@ ZUI.checkInstance = function (el) {
     if (jui.size() == 0) {
         if(console && console.warn)
             console.warn(el);
-        throw "Current DOMElement no belone to any UI!";
+        throw "Current DOMElement no belone to any UI: " + jq[0].outerHTML ;
     }
     var cid = jui.attr("ui-id");
     return this.checkByCid(cid);
@@ -1144,6 +1154,35 @@ ZUI.dump_tree = function(UI, depth, stopBy, No){
 window.ZUI = ZUI;
 module.exports = ZUI;
 //===================================================================
+// 处理键盘事件的函数
+ZUI.on_keydown = function(e) {
+    //console.log(e.which);
+    var keys = [];
+    // 顺序添加，所以不用再次排序了
+    if (e.altKey)   keys.push("alt");
+    if (e.ctrlKey)  keys.push("ctrl");
+    if (e.metaKey)  keys.push("meta");
+    if (e.shiftKey) keys.push("shift");
+    var key;
+    if (keys.length > 0) {
+        key = keys.join("+") + "+" + e.which;
+    } else {
+        key = "" + e.which;
+    }
+    var wkm = ZUI.keymap[key];
+    if (wkm) {
+        for(var cid in wkm){
+            var ui = ZUI(cid);
+            if(!ui) continue;
+            var funcs = wkm[cid];
+            if(funcs){
+                for(var i=0;i<funcs.length;i++)
+                    funcs[i].call(ui, e);
+            }
+        }
+    }
+};
+//===================================================================
 // 注册 window 的 resize 和键盘事件
 // 以便统一处理所有 UI 的 resize 行为和快捷键行为 
 if (!window._zui_events_binding) {
@@ -1155,33 +1194,7 @@ if (!window._zui_events_binding) {
         }
     });
     // 键盘快捷键
-    $(document.body).keydown(function (e) {
-        //console.log(e.which);
-        var keys = [];
-        // 顺序添加，所以不用再次排序了
-        if (e.altKey)   keys.push("alt");
-        if (e.ctrlKey)  keys.push("ctrl");
-        if (e.metaKey)  keys.push("meta");
-        if (e.shiftKey) keys.push("shift");
-        var key;
-        if (keys.length > 0) {
-            key = keys.join("+") + "+" + e.which;
-        } else {
-            key = "" + e.which;
-        }
-        var wkm = ZUI.keymap[key];
-        if (wkm) {
-            for(var cid in wkm){
-                var ui = ZUI(cid);
-                if(!ui) continue;
-                var funcs = wkm[cid];
-                if(funcs){
-                    for(var i=0;i<funcs.length;i++)
-                        funcs[i].call(ui, e);
-                }
-            }
-        }
-    });
+    $(document.body).on("keydown", ZUI.on_keydown);
     // 全局鼠标事件
     var on_g_mouse_event = function(e){
         var wmm = ZUI.mousemap[e.type];

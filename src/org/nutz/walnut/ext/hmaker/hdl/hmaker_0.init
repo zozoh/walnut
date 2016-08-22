@@ -1,0 +1,37 @@
+#========================================================
+appid=hmaker
+appnm=hmaker
+#========================================================
+# 初始文件结构
+#========================================================
+data:
+@DIR .ui
+  - ln = /etc/ui
+  
+@DIR .weixin
+
+@DIR www
+    - www = ROOT
+
+@FILE .hook/write/create_thumbnail
+    - hook_by = [{mime:'^image/', ph:'!^/home/.+/(.thumbnail/gen|.publish/gen|www)'}]
+------------------------------------------ begin
+iimg id:${id} -thumb 64x64 -Q
+------------------------------------------ end
+
+#========================================================
+# HTTP 接口
+#========================================================
+httpapi:
+
+@thing/query
+> thing $${http-qs-id} query '$${http-qs-cnd?}' -pager -qc
+        -limit $${http-qs-limit?0}
+        -skip $${http-qs-skip?0}
+        -sort '$${http-qs-sort?}'
+
+@thing/get
+> thing $${http-qs-id} get -json
+
+@thing/detail
+> thing $${http-qs-id} detail 

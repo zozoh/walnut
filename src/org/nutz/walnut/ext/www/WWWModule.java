@@ -28,6 +28,7 @@ import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpServerResponse;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.RawView;
+import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -191,7 +192,7 @@ public class WWWModule extends AbstractWnModule {
             log.infof("www(%s): /%s/%s", req.getRemoteAddr(), usr, a_path);
 
         // ..............................................
-        // 找到用户和对应的命令
+        // 找到用户
         WnUsr u = usrs.check(usr);
         String homePath = Strings.sBlank(u.home(), "/home/" + u.name());
         WnObj oHome = io.fetch(null, homePath);
@@ -201,23 +202,22 @@ public class WWWModule extends AbstractWnModule {
         }
 
         // ..............................................
-        // 准备起始查询条件: 要找 www 目录了
+        // 准备起始查询条件: 要找 www 的目录，复制给 oROOT
+        WnObj oROOT = null;
         WnQuery q = new WnQuery();
         q.setv("d0", oHome.d0());
         if (!"root".equals(usr))
             q.setv("d1", oHome.d1());
 
         // 请求里带了 host 了吗
-        Object host = req.getAttribute("www_host");
+        Object host = req.getAttribute("wn_www_host");
         if (null != host) {
             q.setv("www", host.toString());
-        } else {
-            q.setv("www", "ROOT");
+            oROOT = io.getOne(q);
         }
 
-        // 找到发布目录
-        WnObj oROOT = io.getOne(q);
-        if (null == oROOT && null != host) {
+        // 实在找不到用 ROOT
+        if (null == oROOT) {
             oROOT = io.getOne(q.setv("www", "ROOT"));
         }
 
@@ -227,11 +227,8 @@ public class WWWModule extends AbstractWnModule {
         }
 
         // ..............................................
-        // 开始试图找到文件对象
+        // 通过 ROOT 找到文件对象
         WnObj o = null;
-
-        // 找到 ROOT
-        String contextPath = "";
 
         // 空路径的话，那么意味着对象是 ROOT
         if (Strings.isBlank(a_path)) {
@@ -249,10 +246,10 @@ public class WWWModule extends AbstractWnModule {
 
         // ..............................................
         // 根据目录找到对应的页面
-
+        // ..............................................
         // 目录的话，依次上传入口
         if (o.isDIR()) {
-            // 获取入口
+            // 获取入口网页的可能列表
             String[] entries = ENTRIES;
             if (null != oROOT) {
                 entries = oROOT.getArray("www_entry", String.class, ENTRIES);
@@ -269,6 +266,23 @@ public class WWWModule extends AbstractWnModule {
             if (o.isDIR()) {
                 return gen_errpage(tmpl_400, a_path);
             }
+            // 如果不是目录，那么应该返回一个重定向
+            // 否则在访问 http://zozoh.com/abc 这样路径的时候，
+            // 路径对应的网页里面如果有相对的图片链接，会有问题
+            String redirectPath;
+            Object orgPath = req.getAttribute("wn_www_path_org");
+
+            // 嗯，不是从 WalnutFilter 过来的
+            if (null == orgPath) {
+                redirectPath = Wn.appendPath("/www", usr, a_path, o.name());
+            }
+            // 从 WalnutFilter 过来的，直接使用原始路径
+            else {
+                redirectPath =Wn.appendPath(orgPath.toString(),o.name());
+            }
+            
+            // 重定向吧
+            return new ServerRedirectView(redirectPath);
         }
 
         // 渲染这个文件对象
@@ -279,17 +293,11 @@ public class WWWModule extends AbstractWnModule {
                 // 从请求对象得到上下文
                 NutMap context = _gen_context_by_req(req);
                 context.put("SITE_HOME", oROOT.path());
-                String base = Wn.WC().getString(WWW.AT_BASE, "/www/" + usr);
-                base = Wn.appendPath(base, contextPath);
-                if (base.endsWith("/")) {
-                    base = base.substring(0, base.length() - 1);
-                }
-                context.put("base", base);
 
                 // 执行命令
                 String json = Json.toJson(context, JsonFormat.compact());
-                String cmdText = "www -c -in id:" + o.id();
-                String html = this.exec("www", usr, json, cmdText);
+                String cmdText = "www -c '" + json + "' -in id:" + o.id();
+                String html = this.exec("www", usr, cmdText);
 
                 // 如果以 HTTP/1.x 开头，则认为是要输出 HTTP 头
                 if (html.startsWith("HTTP/1.")) {
@@ -298,20 +306,20 @@ public class WWWModule extends AbstractWnModule {
                     return new HttpStatusView(hsr);
                 }
                 if (log.isDebugEnabled())
-                    log.debugf(" - dynamic (%s)@%s : %s", o.id(), usr, a_path);
+                    log.debugf(" - www.$ (%s)@%s : %s", o.id(), usr, a_path);
                 // 返回网页
                 return new ViewWrapper(new RawView("text/html"), html);
             }
             // 网页图片等，直接显示，清空 UA 后会去掉 CONTENT_DISPOSITION
             else if (o.isType("^(html|htm|txt|gif|png|jpe?g|webp)$")) {
                 if (log.isDebugEnabled())
-                    log.debugf(" - static (%s)@%s : %s", o.id(), usr, a_path);
+                    log.debugf(" - www.S (%s)@%s : %s", o.id(), usr, a_path);
                 ua = null;
             }
             // 其他的都是静态资源，就直接下载了
             else {
                 if (log.isDebugEnabled())
-                    log.debugf(" - download (%s)@%s : %s", o.id(), usr, a_path);
+                    log.debugf(" - www.D (%s)@%s : %s", o.id(), usr, a_path);
             }
             // 输出吧
             return new WnObjDownloadView(io, o, ua);

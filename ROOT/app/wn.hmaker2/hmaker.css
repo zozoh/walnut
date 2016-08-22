@@ -63,183 +63,16 @@
   height: 100%;
   position: relative;
 }
-.hmaker .hm-prop > section {
-  padding: 20px 6px 6px 6px;
-}
-.hmaker .hm-prop .hm-prop-tabs {
-  position: absolute;
-  top: 6px;
-  left: 0;
-  right: 0;
-  height: 28px;
-}
-.hmaker .hm-prop .hm-prop-tabs ul {
-  display: -webkit-flex;
-  display: flex;
-  justify-content: center;
-}
-.hmaker .hm-prop .hm-prop-tabs ul li {
-  height: 28px;
-  line-height: 27px;
-  border: 1px solid #d0d0d0;
-  border-left: 0;
-  min-width: 80px;
-  text-align: center;
-  padding: 0 6px;
-  font-size: 12px;
-  background: #eeeeee;
-  color: #666666;
-  cursor: pointer;
-}
-.hmaker .hm-prop .hm-prop-tabs ul li:first-child {
-  border-left: 1px solid #d0d0d0;
-  border-radius: 6px 0 0 6px;
-}
-.hmaker .hm-prop .hm-prop-tabs ul li:last-child {
-  border-radius: 0 6px 6px 0;
-}
-.hmaker .hm-prop .hm-prop-tabs ul li[current] {
-  background: #0044bb;
-  color: #ffffff;
-}
-.hmaker .hm-prop .hm-prop-body {
-  width: 100%;
-  height: 100%;
-  border: 1px solid #d0d0d0;
-  padding: 18px 4px 4px 4px;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-con {
+.hmaker .hm-panel > section > * {
+  display: none;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  display: none;
 }
-.hmaker .hm-prop .hm-prop-body .hm-prop-con[current] {
+.hmaker .hm-panel > section > *[current] {
   display: block;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block {
-  position: relative;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs {
-  padding: 6px;
-  text-align: center;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs > label {
-  cursor: pointer;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs > label > * {
-  display: inline;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs i {
-  display: inline-block;
-  width: 14px;
-  vertical-align: middle;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs i:first-child {
-  display: none;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs i:last-child {
-  display: inline-block;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-abs i:first-child {
-  display: inline-block;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-abs i:last-child {
-  display: none;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-v:hover {
-  background: #cccccc;
-  border-color: #444444;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-v[highlight],
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-v[highlight]:hover {
-  background: #ffffff;
-  border-color: #008800;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-d[show],
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos[mode="abs"] .hmpb-pos-v {
-  display: block;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box {
-  margin: 16px auto;
-  width: 200px;
-  height: 120px;
-  border: 1px dashed #cccccc;
-  position: relative;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-v {
-  display: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 12px;
-  border: 1px solid #d0d0d0;
-  position: absolute;
-  cursor: pointer;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-v[md="lt"] {
-  top: -6px;
-  left: -6px;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-v[md="rt"] {
-  top: -6px;
-  right: -6px;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-v[md="lb"] {
-  bottom: -6px;
-  left: -6px;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-v[md="rb"] {
-  bottom: -6px;
-  right: -6px;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d {
-  display: none;
-  position: absolute;
-  padding: 6px;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d > span {
-  background: #eeeeee;
-  color: #666666;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="left"] {
-  top: 48px;
-  left: -12px;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="top"] {
-  top: -12px;
-  left: 12px;
-  right: 12px;
-  text-align: center;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="right"] {
-  top: 48px;
-  right: -12px;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="bottom"] {
-  bottom: -12px;
-  left: 12px;
-  right: 12px;
-  text-align: center;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="width"] {
-  bottom: 60px;
-  left: 0;
-  right: 0;
-  text-align: center;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-pos-box .hmpb-pos-d[key="height"] {
-  top: 60px;
-  left: 0;
-  right: 0;
-  text-align: center;
-}
-.hmaker .hm-prop .hm-prop-body .hm-prop-block .hmpb-form {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
 }
 .hmaker .hm-page {
   border-right: 1px solid #d0d0d0;
@@ -264,7 +97,7 @@
   width: 380px;
   height: 100%;
   position: fixed;
-  top: 0px;
+  top: 300px;
   left: 0px;
   border: 3px solid red;
   z-index: 1000;

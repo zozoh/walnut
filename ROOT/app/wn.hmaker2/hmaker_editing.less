@@ -7,18 +7,189 @@
 }
 
 body {margin:0;}
-
-.hm-block[hmb-mode="abs"] {
-    .hmb-con {
-        width: 100%; height:100%; position: relative;
+//............................................................
+// 拖拽相关
+.pmv-dropi {
+    padding:1px;
+    .hm-drag-tip {
+        width:100%; height:100%;
+        border:1px dashed rgba(255,128,0,0.6);
+        text-align: center; padding:@d1; color:@c0;
+        font-size:@f2; line-height: 22px;
+        > * { display: none;}
     }
-    .hmb-area {
-        width: 100%; height:100%; position: relative;
+}
+.pmv-dropi[pmv-hover] {
+    .hm-drag-tip {
+        background: rgba(255,255,255,0.6);
+        > * { display: inline;}
+    }
+}
+.pmv-mask[no-drag] .pmv-drops {display: none;}
+
+//............................................................
+// 块
+.hm-block {
+    > .hmb-con {
+        position: relative;
+        > .mvrz-ass {display: none;}
+        > .hmb-area {position: relative;}
     }
 }
 
+.hm-block[hmb-mode="abs"][hm-actived] > .hmb-con > .mvrz-ass {
+    @flex(); border:1px dotted #0FF;
+}
+
+// 相对位置
+.hm-block[hmb-mode="inflow"][hm-actived] {
+    border:1px dotted #0FF;
+}
+
+//............................................................
+// 移动鼠标的遮罩
 .hm-page-move-mask {
     .pmv-helper {
-        background: rgba(255,0,0,0.2);
+        background: rgba(255,255,0,0.2);
     }
 }
+
+.hm-com {@noselect();}
+
+//............................................................
+// 各个控件的特殊显示
+//............................................................
+// rows
+.hmc-rows {
+    .hmc-row-block {
+        min-height: 30px; 
+    }
+}
+[hm-actived] .hmc-rows {
+    .hmc-row-block {border:1px dotted @c0; border-bottom:0;}
+    .hmc-row-block:last-child {border-bottom:1px dotted @c0;}
+}
+//............................................................
+// columns
+.hmc-columns {
+    @flex();
+    .hmc-col-block {
+        flex: 1 1 auto;
+        min-height: 30px;
+    }
+}
+[hmb-mode="abs"] .hmc-columns {
+    width:100%; height:100%;
+    align-item : stretch;
+}
+[hm-actived] .hmc-columns {
+    .hmc-col-block {border:1px dotted @c0; border-right:0;}
+    .hmc-col-block:last-child {border-right:1px dotted @c0;}
+}
+//............................................................
+// navmenu
+[hmb-mode="abs"] .hmc-navmenu {
+    width:100%; height:100%;
+}
+.hmc-navmenu {
+    ul{
+        margin:0; padding:0; list-style: none;
+        line-height: 24px;
+    }
+    li {padding:@d2 @d5 + @d0; position: relative; cursor: pointer;}
+    li[href]{color:@clink; text-decoration: underline;}
+    li[current] {color:@c0;}
+    li[newtab] a:after {
+        font-family: 'FontAwesome'; display: inline; content: "\f08e";
+        font-size: @f0; color:@c2; 
+        position: absolute; margin:-6px 0 0 2px;
+    }
+}
+// 水平导航条(默认)
+.hmc-navmenu[mode="default"] {
+    ul {
+        @flex(); flex-wrap: wrap;
+        li {border-left:1px solid @cborder0; flex:0 0 auto;}
+        li:first-child {border-left:0;}
+    }
+    ul:after{@clr();}
+}
+// 垂直导航条
+.hmc-navmenu[mode="aside"] {
+
+}
+//............................................................
+// ThingSet
+.hmc-thingset {
+    @areaBorder : 1px dashed rgba(0,255,255,0.6);
+    > .hmc-th-W {display: none;}
+    > .hmc-th-W[show] {display: block;}
+    //........................................................
+    // 提示文字
+    > .hmc-th-tip {
+        text-align: center; background:@cb1;
+        > .tiptxt {
+            padding:@d4; font-size:@f4;
+            i {font-size:@f7; display: block; padding:@d4;}
+        }
+        > .lnkbtn {
+            padding:@d4; font-size:@f2;
+        }
+        > .info {color:@c2;}
+        > .warn {color:@c0;}
+        > .error {color:@c1;}
+        .lnkbtn {
+            text-align: center; text-decoration: underline;
+            color:@clink; cursor: pointer;
+        }
+        .lnkbtn:hover {color:@clink_hover;}
+    }
+    //........................................................
+    // 主区域
+    > .hmc-ths-main {
+        .hmc-ths-list {
+            border : @areaBorder; margin:1px 0;
+            .hm-th-obj {
+                // > ul {
+                //     list-style: none; margin:0; padding:0;
+                //     > li {
+                //         border:1px dashed #888;
+                //     }
+                // }
+                .hm-tho-avatar {
+                    border:1px dashed #888; padding:@d2 @d4; font:@f4 @f_fixed;
+                    cursor: pointer;
+                    > i {margin-right:@d1;}
+                    > em {font: @f2 normal; }
+                }
+                .hm-tho-avatar[current] {
+                    color:@chx_f; background:@chx_b; border-color:@chx_f;
+                }
+                .hm-tho-subs {display: none;}
+            }
+        }
+        //....................................................
+        // 可开关区域， filter 和 pager
+        .hmc-ths-part {
+            border:@areaBorder; padding:@d4;
+            font-size:@f3;
+            .part-disabled {opacity: 0.4;}
+        }
+        .hmc-ths-part[enabled]{
+            .part-enabled  {display: block;}
+            .part-disabled {display: none;}
+        }
+        .hmc-ths-part[disabled]{
+            .part-enabled  {display: none;}
+            .part-disabled {display: block;}
+        }
+        //....................................................
+        // 省略号
+        .hmc-ths-more {
+            color:@c2; padding:0 @d4;
+            //font: @f2 'FontAwesome';
+            font-size:@f3;
+        }
+        .hmc-ths-more:before {content: "......"; display: block; height:@f5; line-height: @f5; }
+    } // ~ 主区域 .hmc-ths-main
+} // ~ .hmc-thingset

@@ -32,14 +32,17 @@
             position: absolute; top:0; left:@rulerW + 1px; right:@d2; height:4%;
             background-color: rgba(88,88,255,0.8); 
             border:1px solid rgba(66,66,200,0.8);
+            overflow: hidden;
             > .tmln-objw {
                 width: 100%; height:100%; position: relative;
                 font-size: @f1; padding-bottom: @objFH;
                 > header {
-                    font-weight: bold; padding:@d0 @d1;
+                    font-weight: bold; padding:@d0 @d6 @d0 @d2;
+                    dt {float:left;}
+                    em {float:right;}
                 }
                 > section {
-
+                    padding:@d2;
                 }
                 > footer {
                     text-align: center; font-size: @f0;
@@ -48,6 +51,14 @@
                     > * {display: none;}
                 }
                 > footer:hover > * {display: inline;}
+                > .tmln-obj-del {
+                    position: absolute; top:0; right:0; padding:@d0 @d1;
+                    cursor: pointer; transition:0.3s;
+                    font-size: @f4;
+                }
+                > .tmln-obj-del:hover {
+                    font-size: @f5; font-weight: bolder; color:@c1; transform: scale(1.2) rotate(360deg);
+                }
             }
         } 
     }
