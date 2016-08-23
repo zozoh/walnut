@@ -206,14 +206,20 @@ return ZUI.def("ui.form_com_color2", {
             var UI = this;
             var jU = $(e.currentTarget);
             UI.__redraw_colors(jU.attr("U") * 1);
+
+            var alpha = (UI.__get_alpha() || 100) / 100;
+            var hex = jU.attr("value");
+            var color = $z.parseColor(hex, alpha);
+            UI.setData(color);
+            UI.__on_change();
         },
         // 显示颜色提示
-        'mouseenter .ccec-body u' : function(e){
+        'mouseenter .cce-colors u' : function(e){
             var UI = this;
             var jU = $(e.currentTarget);
             UI.arena.find(".ccec-ctip").text(jU.attr("value"));
         },
-        'mouseleave .ccec-body' : function(e){
+        'mouseleave .cce-colors' : function(e){
             this.arena.find(".ccec-ctip").text("");
         },
         // 提取颜色
@@ -304,8 +310,7 @@ return ZUI.def("ui.form_com_color2", {
                     width:cW, backgroundColor : color.HEX
                 }).attr({
                     "U": i,
-                    "data-balloon" : color.HEX,
-                    "data-balloon-pos" : "up"
+                    "value" : color.HEX,
                 });
             }
             // 绘制颜色板
@@ -438,7 +443,7 @@ return ZUI.def("ui.form_com_color2", {
         var jDrop = UI.arena.find(".cce-con");
         UI.arena.attr("show", "yes");
         jDrop.css({"top":"", "left":""});
-        $z.dock(jBox,jDrop,"H");
+        $z.dock(jBox,jDrop,"HA");
 
         // 下面不要让下拉框超出窗口
         var rect = $z.rect(jDrop);
