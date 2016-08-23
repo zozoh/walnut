@@ -13,8 +13,7 @@ var html = function(){/*
       <button class="t1">T1</button>
       <button class="t2">T2</button>
     </div>
-    <div class="myform" ui-gasket="myform"
-    style="width:100%; height:100%; padding-top:50px; background: #FFF; margin:10px;"></div>
+    <div class="myform" ui-gasket="myform" style="width:100%; height:100%; "></div>
 </div>
 */};
 //===================================================================
@@ -43,7 +42,7 @@ return ZUI.def("ui.form_test0", {
             x:100, y:80, 
             birthday : "1977-09-21",
             name:'I am zozoh', 
-            favColor : "rgba(255,128,32,0.4)",
+            favColor : null,
             sex:"m",
             live:true,
             //myphoto : {fid:'4thoboi83khmdqmqqvf5arogki'}
@@ -105,7 +104,7 @@ return ZUI.def("ui.form_test0", {
                 title : "最喜爱的颜色",
                 tip   : "代表了你的性格哟",
                 type  : "object",
-                editAs : "color"
+                editAs : "color2"
             },{
                 key   : "name",
                 title : "名称",

@@ -1417,14 +1417,16 @@
         //.............................................
         // 根据颜色对象的 red,green,blue,alpha ，更新其他字段的值
         updateColor: function (color) {
+            if(!_.isNumber(color.alpha))
+                color.alpha = 1;
             color.AA = parseInt(color.alpha * 255).toString(16).toUpperCase();
             color.RR = color.red.toString(16).toUpperCase();
             color.GG = color.green.toString(16).toUpperCase();
             color.BB = color.blue.toString(16).toUpperCase();
-            color.AA = color.AA.length == 1 ? color.AA + color.AA : color.AA;
-            color.RR = color.RR.length == 1 ? color.RR + color.RR : color.RR;
-            color.GG = color.GG.length == 1 ? color.GG + color.GG : color.GG;
-            color.BB = color.BB.length == 1 ? color.BB + color.BB : color.BB;
+            color.AA = color.AA.length == 1 ? '0' + color.AA : color.AA;
+            color.RR = color.RR.length == 1 ? '0' + color.RR : color.RR;
+            color.GG = color.GG.length == 1 ? '0' + color.GG : color.GG;
+            color.BB = color.BB.length == 1 ? '0' + color.BB : color.BB;
             color.HEX = "#" + color.RR + color.GG + color.BB;
             color.RGB = "rgb(" + color.red + "," + color.green + "," + color.blue + ")";
             color.RGBA = "rgba(" + color.red + "," + color.green + "," + color.blue + "," + color.alpha + ")";

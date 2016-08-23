@@ -71,52 +71,205 @@
   padding: 0 4px 0 2px;
   color: rgba(0, 0, 0, 0.2);
 }
-.com-color input,
-.com-color div.preview {
-  vertical-align: middle;
+.com-color .cc-box {
   display: inline-block;
-  padding: 0 6px;
-  outline: none;
-  height: 30px;
-  line-height: 30px;
-  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  padding: 1px;
+  border-radius: 3px;
+  background: #CCC;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+  background: url(/gu/rs/core/js/ui/form/bgcanvas.png);
 }
-.com-color input {
+.com-color .cc-box .ccb-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+.com-color .cc-box .ccb-preview[no-color] {
+  background: #FFF;
+}
+.com-color .cc-box .ccb-preview[no-color]:before {
+  content: "";
+  display: block;
+  height: 2px;
+  background: #F00;
+  position: absolute;
+  top: 50%;
+  left: -100px;
+  right: -100px;
+  transform: rotate(-45deg);
+}
+.com-color .cc-edit > * {
+  z-index: 20;
+}
+.com-color .cc-edit .cce-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 0, 0, 0);
+}
+.com-color .cc-edit .cce-con {
+  position: fixed;
+  width: 340px;
+  height: 200px;
+  background: #000000;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 3px 3px 5px #000000;
+}
+.com-color .cc-edit .cce-con > div {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.com-color .cc-edit .cce-con > div > div {
+  position: absolute;
+}
+.com-color .cc-edit .cce-colors {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 40%;
+  padding: 12px;
+}
+.com-color .cc-edit .cce-colors > div {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.com-color .cc-edit .cce-colors > div > div {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.com-color .cc-edit .cce-colors .ccec-head {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  top: 0;
+  height: 24px;
+  padding-bottom: 12px;
+}
+.com-color .cc-edit .cce-colors .ccec-head span {
+  height: 100%;
+  border: 1px solid #cccccc;
+}
+.com-color .cc-edit .cce-colors .ccec-head u {
+  cursor: pointer;
+}
+.com-color .cc-edit .cce-colors .ccec-body {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  top: 24px;
+  bottom: 24px;
+  border: 1px solid #cccccc;
+}
+.com-color .cc-edit .cce-colors .ccec-body span:first-child {
+  border: 0;
+}
+.com-color .cc-edit .cce-colors .ccec-body u {
+  overflow: hidden;
+}
+.com-color .cc-edit .cce-colors .ccec-body u:hover {
+  border: 1px solid #FFF;
+  transform: scale(1.8);
+  z-index: 200;
+  width: 80px;
+}
+.com-color .cc-edit .cce-colors .ccec-body u:hover b {
+  color: #FFF;
+  text-shadow: 0 0 2px #000;
+}
+.com-color .cc-edit .cce-colors .ccec-ctip {
+  bottom: 0;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  color: #cccccc;
+  font: 12px Monaco, Consolas, Courier New;
+}
+.com-color .cc-edit .cce-colors span {
+  display: block;
+  width: 100%;
+  border-top: 1px solid #cccccc;
+}
+.com-color .cc-edit .cce-colors span u {
+  display: block;
+  float: left;
+  border-left: 1px solid #cccccc;
+  height: 100%;
+}
+.com-color .cc-edit .cce-colors span u:first-child {
+  border: 0;
+}
+.com-color .cc-edit .cce-colors span:after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+}
+.com-color .cc-edit .cce-values {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 60%;
+  padding: 0;
+  text-align: right;
+}
+.com-color .cc-edit .cce-values b {
+  display: inline-block;
+  width: 60px;
+  vertical-align: middle;
+  text-align: left;
+}
+.com-color .cc-edit .cce-values input {
   outline: none;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   color: #444444;
   background: rgba(255, 255, 255, 0.4);
-  font-family: Monaco, Consolas, Courier New;
-  font-size: 12px;
+  padding: 4px;
+  border-radius: 2px;
+  border-radius: 1px;
+  font: 10px Monaco, Consolas, Courier New;
+  width: 50px;
 }
-.com-color input:focus {
+.com-color .cc-edit .cce-values input:focus {
   color: #000000;
   background: rgba(255, 255, 255, 0.8);
   border-color: #ffffff;
 }
-.com-color div.preview {
-  width: 30px;
-  height: 30px;
-  position: relative;
-  padding: 0;
-  overflow: hidden;
-  background: url(/gu/rs/core/js/ui/form/bgcanvas.png);
+.com-color .cc-edit .cce-values em {
+  display: inline-block;
+  padding: 0 6px;
+  vertical-align: middle;
 }
-.com-color div.preview > div {
-  width: 100%;
-  height: 100%;
+.com-color .cc-edit .cce-values > div {
+  padding: 8px 0;
 }
-.com-color input.color {
-  position: fixed;
-  top: -999999999998.9999px;
-  left: -999999999998.9999px;
+.com-color .cc-edit .cce-values .cce-rgb > div {
+  padding: 2px 0;
 }
-.com-color input.hex {
-  width: 72px;
+.com-color .cc-edit .cce-values .cce-hex input {
+  width: 91px;
 }
-.com-color input.alpha {
-  width: 40px;
+.com-color .cc-edit {
+  display: none;
+}
+.com-color[show] .cc-edit {
+  display: block;
 }
 .com-droplist {
   -moz-user-select: none;
