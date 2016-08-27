@@ -766,9 +766,6 @@
   display: block;
   margin: 0 auto 8px auto;
 }
-.hmc-objlist-prop .olstp-params > div {
-  min-height: 80px;
-}
 .hmc-objlist-prop .olstp-filter .olstp-kwd-label {
   display: -webkit-flex;
   display: flex;

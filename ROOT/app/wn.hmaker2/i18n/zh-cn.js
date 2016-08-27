@@ -169,6 +169,8 @@ define({
             "params"       : "接口参数表",
             "template"     : "显示模板",
             "tmpl_refresh" : "刷新显示模板列表",
+            "allkeys"      : "对象",
+            "merge"        : "合并",
         },
     }
 });

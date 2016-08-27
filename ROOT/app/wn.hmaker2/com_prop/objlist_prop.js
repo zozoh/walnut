@@ -94,6 +94,7 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
         new DynamicDataSettingUI({
             parent : UI,
             gasketName : "dds",
+            uiCom : UI.uiCom,
         }).render(function(){
             UI.defer_report("dds");
         });
@@ -186,7 +187,8 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
     update : function(com) {
         var UI = this;
         
-        console.log("I am update")
+        // 更新数据源
+        UI.gasket.dds.update(com);
 
         // 更新翻页器
         UI.gasket.pager.setData(com.pager||{});

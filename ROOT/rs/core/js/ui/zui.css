@@ -102,6 +102,13 @@ body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-b
 
 .z-edit-it input {padding:0 6px;}
 
+/*--------------------------------------------------- SPAN做的选择框 --------*/
+.ui-checkbox {
+    font-family:FontAwesome; display: inline-block; padding:2px; margin:1px; cursor: pointer;
+    vertical-align: middle;
+}
+.ui-checkbox:before{content:"\f096"; display: inline;}
+.ui-checkbox[checked]:before{content:"\f14a";}
 
 /*--------------------------------------------------- balloon.css --------*/
 [data-balloon] {position: relative; }

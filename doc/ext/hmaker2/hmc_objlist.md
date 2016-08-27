@@ -76,7 +76,7 @@ params : {
    cnd : {
        base  : {...},
        from  : "filter",
-       key   : "..",
+       key   : null,
        merge : true
    },
    limit : {
@@ -91,10 +91,10 @@ params : {
        key   : "skip",
        merge : false
    },
-   sort {
+   sort : {
        base  : {nm:1},
        from  : "sorter",
-       key   : "..",
+       key   : null,
        merge : false
    },
 },
