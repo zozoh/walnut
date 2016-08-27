@@ -28,12 +28,14 @@ var html = `
         <div>
             <div>
                 <div class="olstp-kwd" part-disabled="yes">
-                    <span class="olstp-check"><i class="fa fa-square-o"></i><i class="fa fa-check-square"></i></span>
-                    <b>{{hmaker.com.objlist.flt_kwd}}</b>
-                    <input placeholder="{{hmaker.com.objlist.flt_kwd_tip}}">
+                    <div class="olstp-kwd-label">
+                        <span class="olstp-check"><i class="fa fa-square-o"></i><i class="fa fa-check-square"></i></span>
+                        <b>{{hmaker.com.objlist.flt_kwd}}</b>
+                        <input placeholder="{{hmaker.com.objlist.flt_kwd_tip}}">
+                    </div>
+                    <div  class="olstp-kwd-tip">{{hmaker.com.objlist.flt_kwd_tip2}}</div>
                 </div>
             </div>
-            <div  class="olstp-kwd-tip">{{hmaker.com.objlist.flt_kwd_tip2}}</div>
             <div class="olstp-items"></div>
         </div>
     </section>
@@ -71,7 +73,12 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
         'click h4 .olstp-check' : function(e) {
             var jPart = $(e.currentTarget).closest("section");
             $z.toggleAttr(jPart, "part-disabled", "yes");
-        }
+        },
+        // 启用/关闭 关键字
+        'click .olstp-kwd .olstp-check' : function(e) {
+            var jKwd = $(e.currentTarget).closest(".olstp-kwd");
+            $z.toggleAttr(jKwd, "part-disabled", "yes");
+        },
     },
     //...............................................................
     redraw : function() {

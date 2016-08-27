@@ -756,7 +756,6 @@
   display: none;
 }
 .hmc-objlist-prop > section[part-disabled] > div:before {
-  display: block;
   content: "...";
   width: 40px;
   text-align: center;
@@ -764,12 +763,13 @@
   line-height: 12px;
   border: 1px solid #d0d0d0;
   border-radius: 2px;
+  display: block;
   margin: 0 auto 8px auto;
 }
 .hmc-objlist-prop .olstp-params > div {
   min-height: 80px;
 }
-.hmc-objlist-prop .olstp-filter .olstp-kwd {
+.hmc-objlist-prop .olstp-filter .olstp-kwd-label {
   display: -webkit-flex;
   display: flex;
   line-height: 30px;
@@ -777,11 +777,26 @@
   font-size: 12px;
   color: #888888;
 }
-.hmc-objlist-prop .olstp-filter .olstp-kwd b {
+.hmc-objlist-prop .olstp-filter .olstp-kwd-label b {
   padding-right: 4px;
 }
-.hmc-objlist-prop .olstp-filter .olstp-kwd input {
+.hmc-objlist-prop .olstp-filter .olstp-kwd-label input {
   flex: 1 0 auto;
+}
+.hmc-objlist-prop .olstp-filter .olstp-kwd[part-disabled] > .olstp-kwd-label > input,
+.hmc-objlist-prop .olstp-filter .olstp-kwd[part-disabled] > .olstp-kwd-tip {
+  display: none;
+}
+.hmc-objlist-prop .olstp-filter .olstp-kwd[part-disabled] > .olstp-kwd-label:after {
+  content: "...";
+  width: 40px;
+  text-align: center;
+  height: 12px;
+  line-height: 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 2px;
+  display: inline-block;
+  align-self: center;
 }
 .hmc-objlist-prop .olstp-filter .olstp-kwd-tip {
   padding: 6px;

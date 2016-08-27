@@ -394,6 +394,11 @@
 .hmc-objlist-prop {
     padding:@d2; overflow-y: auto; overflow-x: hidden;
     //.....................................................
+    @partDisabled : {
+        content: "..."; width:40px; text-align: center;
+        height:@f2; line-height: @f2; border:1px solid @cborder1; border-radius: @d0;
+    };
+    //.....................................................
     // 通用段落样式
     > section {
         padding:0 @d3;
@@ -446,11 +451,7 @@
             ul {display: none;}
         }
         > div > * {display: none;}
-        > div:before {
-            display: block; content: "..."; width:40px; text-align: center;
-            height:@f2; line-height: @f2; border:1px solid @cborder1; border-radius: @d0;
-            margin:0 auto @d3 auto;
-        }
+        > div:before {@partDisabled(); display:block; margin:0 auto @d3 auto;}
     }
     //.....................................................
     // 参数表
@@ -461,11 +462,18 @@
     // 过滤器
     .olstp-filter {
         @kwdH : 30px;
-        .olstp-kwd {
+        .olstp-kwd-label {
             @flex(); line-height:@kwdH; height:@kwdH;
             font-size: @f2; color:@c2;
             b {padding-right:@d1;}
             input {flex:1 0 auto;}
+        }
+        .olstp-kwd[part-disabled] {
+            > .olstp-kwd-label > input,
+            > .olstp-kwd-tip {display: none;}
+        }
+        .olstp-kwd[part-disabled] > .olstp-kwd-label:after {
+            @partDisabled(); display: inline-block; align-self:center;
         }
         .olstp-kwd-tip {padding:@d2; font-size:@f1; color:@c3; text-align: right;}
     }
