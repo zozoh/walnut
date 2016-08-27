@@ -360,4 +360,126 @@
     }
 }
 //............................................................
+.hm-dynamic-data-setting {
+    > section {
+        padding:@d2;
+        > dl {
+            @flex(); line-height: @d6;
+            > dt {padding:@d0 @d2; font-size: @f2; color:@c2;}
+            > [ui-gasket] {flex:1 0 auto;}
+            > .refresh {
+                padding:@d0 @d2; cursor: pointer; 
+                i:first-child {display: inline-block; transition:0.2s;}
+                i:last-child  {display: none; color:@c2; font-size:@f3;}
+            }
+            > .refresh:hover i:first-child{
+                font-size:1.4em; color:@c0; transform:rotate(0.3turn)
+            }
+            > .refresh[loading] {
+                i:first-child {display: none;}
+                i:last-child  {display: inline-block;}
+            }
+        }
+    }
+    //.....................................................
+    // 下拉菜单样式
+    .com-box .cbsi b,
+    .com-drop b {
+        font-size:@f1; font-family: @f_fixed; font-weight: normal;
+    }
+    .cmd-box .cbsi {padding:@d1;}
+}
+//............................................................
+// hmc-objlist-prop
+.hmc-objlist-prop {
+    padding:@d2; overflow-y: auto; overflow-x: hidden;
+    //.....................................................
+    // 通用段落样式
+    > section {
+        padding:0 @d3;
+        // 标题
+        > h4 { @noselect();
+            padding:@d4 @d2 @d0 @d2; margin:0; color:@c2; font:@f2 @f_fixed; 
+            border-bottom:1px solid @cborder0;
+            ul{
+                float: right; @flex();
+                i {font-size:@f3; margin-left:@d2;}
+                li{cursor: pointer; transition:0.2s;}
+                li:hover {transform:scale(1.2); color:@c0;}
+            }
+        }
+        > h4:after{@clr();}
+        // 内容区
+        > div {
+            padding:@d2 0 @d2 @d2;
+            .olstp-items {
+                border:1px solid @cborder1;
+                padding:@d2 0 @d2 @d2; margin-top:5px;
+                min-height: 50px; background: @cb2; color:@cf2;
+            }
+        }
 
+        // 输入框
+        input, textarea {
+            @input(); padding:@d2; font-size:@f2; font-family:@f_fixed;
+        }
+        input:focus, textarea:focus {@input_focus();}
+    }
+    //.....................................................
+    // 复选框样式
+    .olstp-check {
+        cursor: pointer; display: inline-block; width:@d5; text-align: left;
+        i:first-child {display: none;}
+        i:last-child  {display: inline;}
+    }
+    //.....................................................
+    // 禁止的部分样式
+    [part-disabled] {
+        .olstp-check {
+            i:first-child {display: inline;}
+            i:last-child  {display: none;}
+        }
+    }
+    > section[part-disabled] {
+        > h4 {
+            b {opacity: 0.4;}
+            ul {display: none;}
+        }
+        > div > * {display: none;}
+        > div:before {
+            display: block; content: "..."; width:40px; text-align: center;
+            height:@f2; line-height: @f2; border:1px solid @cborder1; border-radius: @d0;
+            margin:0 auto @d3 auto;
+        }
+    }
+    //.....................................................
+    // 参数表
+    .olstp-params {
+        > div {min-height: 80px;}
+    }
+    //.....................................................
+    // 过滤器
+    .olstp-filter {
+        @kwdH : 30px;
+        .olstp-kwd {
+            @flex(); line-height:@kwdH; height:@kwdH;
+            font-size: @f2; color:@c2;
+            b {padding-right:@d1;}
+            input {flex:1 0 auto;}
+        }
+        .olstp-kwd-tip {padding:@d2; font-size:@f1; color:@c3; text-align: right;}
+    }
+    //.....................................................
+    // 排序器
+    .olstp-sorter {
+    }
+    //.....................................................
+    // 翻页器
+    .olstp-pager {
+        > div {
+            height:360px; width:100%;
+            .form-body {overflow-y: hidden;}
+        }
+    }
+    //.....................................................
+}

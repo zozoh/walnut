@@ -64,8 +64,9 @@ return ZUI.def("ui.form_com_input", {
     setData : function(val, jso){
         var UI = this;
         this.ui_parse_data(val, function(s){
-            var str = jso.parse(s).toStr();
-            UI.arena.find("input").val($.trim(str));
+            if((_.isNumber(s) && isNaN(s)) || _.isUndefined(s) || _.isNull(s))
+                s = "";
+            UI.arena.find("input").val(s);
         });
     }
     //...............................................................

@@ -1,7 +1,8 @@
 (function($z){
 $z.declare([
-    'zui'
-], function(ZUI){
+    'zui',
+    'ui/form/support/bullet_list',
+], function(ZUI, BulletListSupport){
 //==============================================
 var html = function(){/*
 <div class="ui-arena com-checklist com-butlist">
@@ -14,7 +15,7 @@ var html = function(){/*
 </div>
 */};
 //===================================================================
-return ZUI.def("ui.form_com_checklist", {
+return ZUI.def("ui.form_com_checklist", BulletListSupport({
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
@@ -90,82 +91,12 @@ return ZUI.def("ui.form_com_checklist", {
         }
     },
     //...............................................................
-    redraw : function(){
-        var UI  = this;
-        var opt = UI.options;
-
+    _list_item_icon : '<i class="fa fa-square-o"></i><i class="fa fa-check-square"></i>',
+    //...............................................................
+    _before_load : function() {
         // 去掉快速按钮
-        if(opt.quickButton === false){
-            UI.arena.find(".cc-quick").remove();
-        }
-
-        // 看看是否需要延迟加载，回调的 re.pop() 会搞这个
-        re = ["loading"];
-
-        // 加载数据
-        UI.setItems(UI.options.items, function(){
-            re.pop();
-            UI.defer_report(0, "loading");
-        });
-
-        // 返回以便延迟加载
-        return re;
-    },
-    //...............................................................
-    setItems : function(items, callback){
-        var UI  = this;
-        var opt = UI.options;
-        var context = opt.context || UI;
-
-        $z.evalData(items, null, function(items){
-            UI._draw_items(items);
-            UI.setData();
-            $z.doCallback(callback, [items], UI);
-        }, context);
-    },
-    //...............................................................
-    _draw_items : function(items){
-        var UI  = this;
-        var opt = UI.options;
-        var jUl = UI.arena.find("ul");
-        var context = opt.context || UI;
-
-        if(!_.isArray(items))
-            return;
-
-        var hasIcon = false;
-        for(var i=0; i<items.length; i++){
-            var item = items[i];
-            var val  = opt.value.call(context, item, i, UI); 
-
-            var jLi = $('<li>').appendTo(jUl)
-                .attr("index", i)
-                .data("@VAL", val);
-
-            // 选择框
-            $('<span it="but"><i class="fa fa-square-o"></i><i class="fa fa-check-square"></i></span>')
-                .appendTo(jLi);
-
-            // 图标
-            var icon = _.isString(opt.icon)
-                                ? $z.tmpl(opt.icon)(item)
-                                : opt.icon.call(context, item, i, UI);
-            jIcon = $('<span it="icon">').appendTo(jLi);
-            if(_.isString(icon)){
-                jIcon.html(icon);
-                hasIcon = true;
-            }
-
-            // 文字
-            var text = _.isString(opt.icon)
-                                ? $z.tmpl(opt.icon)(item)
-                                : opt.text.call(context, item, i, UI);
-            $('<b it="text">').text(UI.text(text)).appendTo(jLi);
-        }
-
-        // 没有 Icon 就全部移除
-        if(!hasIcon){
-            UI.arena.find("span[it='icon']").remove();
+        if(this.options.quickButton === false){
+            this.arena.find(".cc-quick").remove();
         }
     },
     //...............................................................
@@ -195,7 +126,7 @@ return ZUI.def("ui.form_com_checklist", {
         
     }
     //...............................................................
-});
+}));
 //===================================================================
 });
 })(window.NutzUtil);

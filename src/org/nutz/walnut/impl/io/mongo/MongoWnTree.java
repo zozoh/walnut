@@ -12,7 +12,6 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.io.AbstractWnTree;
-import org.nutz.walnut.util.Wn;
 
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -230,20 +229,20 @@ public class MongoWnTree extends AbstractWnTree {
         co.remove(WnMongos.qID(nd.id()));
     }
 
-    @Override
-    protected WnObj _do_append(WnObj p, WnObj nd, String newName) {
-        // 开始移动
-        ZMoDoc q = WnMongos.qID(nd.id());
-        ZMoDoc doc = ZMoDoc.SET("pid", p.id()).set("nm", newName);
-        co.update(q, doc);
-
-        // 更新内存
-        nd.path(Wn.appendPath(p.path(), newName));
-        nd.name(newName);
-        nd.setParent(p);
-
-        // 返回
-        return nd;
-    }
+    // @Override
+    // protected WnObj _do_append(WnObj p, WnObj nd, String newName) {
+    // // 开始移动
+    // ZMoDoc q = WnMongos.qID(nd.id());
+    // ZMoDoc doc = ZMoDoc.SET("pid", p.id()).set("nm", newName);
+    // co.update(q, doc);
+    //
+    // // 更新内存
+    // nd.path(Wn.appendPath(p.path(), newName));
+    // nd.name(newName);
+    // nd.setParent(p);
+    //
+    // // 返回
+    // return nd;
+    // }
 
 }

@@ -1840,6 +1840,36 @@
             // 返回默认或者空
             return dft || {};
         },
+        //.............................................
+        /**
+         * 将两个路径比较，得出相对路径
+         * 
+         * @param base
+         *            基础路径，以 '/' 结束，表示目录
+         * @param path
+         *            相对文件路径，以 '/' 结束，表示目录
+         * @return 相对于基础路径对象的相对路径
+         */
+        getRelativePath : function(base, path) {
+            var bb = base.split(/[\\\//]+/g);
+            var ff = path.split(/[\\\//]+/g);
+            var len = Math.min(bb.length, ff.length);
+            var pos = 0;
+            for (; pos < len; pos++)
+                if (bb[pos] != (ff[pos]))
+                    break;
+
+            if (len == pos && bb.length == ff.length)
+                return "./";
+
+            var dir = 1;
+            if (/\/$/.test(base))
+                dir = 0;
+
+            var sb = zUtil.dupString("../", bb.length - pos - dir);
+            ff.splice(0, pos);
+            return sb + ff.join("/");
+        },
         //---------------------------------------------------------------------------------------
         /**
          * jq - 要闪烁的对象

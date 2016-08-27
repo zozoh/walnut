@@ -104,7 +104,7 @@ return ZUI.def("ui.form_test0", {
                 title : "最喜爱的颜色",
                 tip   : "代表了你的性格哟",
                 type  : "object",
-                editAs : "color2"
+                editAs : "color"
             },{
                 key   : "name",
                 title : "名称",
@@ -187,7 +187,6 @@ return ZUI.def("ui.form_test0", {
             editAs : "checklist",
             dft   : 1,
             uiConf : {
-                multi : 0,
                 items : [{
                     icon:'<i class="fa fa-fire"></i>',
                     text:"辣"
@@ -198,6 +197,16 @@ return ZUI.def("ui.form_test0", {
                 },{
                     text:"卤味"
                 }]
+            }
+        },{
+            key   : "Fleval",
+            title : "攻击能力级别",
+            tip   : "给你一拳看你是不是能受得了",
+            type  : "int",
+            editAs : "radiolist",
+            dft   : 1,
+            uiConf : {
+                items : ["蠢萌","很厉害","靠无敌了","弗利萨"]
             }
         },{
             key   : "myphoto",
@@ -326,7 +335,7 @@ return ZUI.def("ui.form_test0", {
     update : function(o){
         var UI = this;
         UI.$el.attr("obj-id", o.id);
-        UI.do_t0();
+        UI.do_t1();
     }
     //...............................................................
 });

@@ -330,7 +330,8 @@ public abstract class AbstractWnTree implements WnTree {
 
     protected abstract WnObj _fetch_one_by_name(WnObj p, String name);
 
-    protected abstract WnObj _do_append(WnObj p, WnObj nd, String newName);
+    // TODO zozoh: 嗯这个看来没啥用了，删了吧...
+    // protected abstract WnObj _do_append(WnObj p, WnObj nd, String newName);
 
     @Override
     public WnObj create(WnObj p, String path, WnRace race) {

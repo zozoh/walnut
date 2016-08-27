@@ -8,8 +8,8 @@ var parse_dom = function (html) {
     var UI = this;
 
     // 解析代码模板
-    var tmpl = $z.tmpl(html);
-    html = tmpl(UI._msg_map);
+    html = html.replace(/[ ]*\r?\n[ ]*/g, "");
+    html = $z.tmpl(html)(UI._msg_map);
 
     // 这里需要添加 dom 段描述的 HTML 到当前的 $el 
     // 为了兼顾 keepDom 所以要用 +=

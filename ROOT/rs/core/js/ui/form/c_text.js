@@ -36,8 +36,7 @@ return ZUI.def("ui.form_com_text", {
     setData : function(val, jso){
         var UI = this;
         this.ui_parse_data(val, function(s){
-            var str = jso.parse(s).toStr();
-            UI.arena.find("textarea").val(jso.toStr());
+            UI.arena.find("textarea").val(s);
         });
     },
     //...............................................................

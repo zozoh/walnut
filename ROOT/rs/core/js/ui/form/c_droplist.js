@@ -1,7 +1,8 @@
 (function($z){
 $z.declare([
-    'zui'
-], function(ZUI){
+    'zui',
+    'ui/form/support/enum_list',
+], function(ZUI, EnumListSupport){
 //==============================================
 var do_close_all = function(ignore_cids){
     if(!ignore_cids){
@@ -29,28 +30,18 @@ var html = function(){/*
 </div>
 */};
 //===================================================================
-return ZUI.def("ui.form_com_droplist", {
+return ZUI.def("ui.form_com_droplist", EnumListSupport({
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    init : function(options){
-        $z.setUndefined(options, "icon", function(o){
-            if(_.isObject(o)) 
-                return o.icon;
-        });
-        $z.setUndefined(options, "text", function(o){
-            if(_.isString(o))
-                return o;
-            return o.text;
-        });
-        $z.setUndefined(options, "value", function(o, index){
-            if(_.isString(o))
-                return index;
-            return _.isUndefined(o.val) ? index : o.val;
-        });
+    init : function(opt){
+        var UI = this;
+
+        // 设置默认取值方法
+        UI.__setup_dft_display_func(opt);
 
         // 注册全局关闭
-        this.watchMouse("click", do_close_all);
-        this.watchKey(27, do_close_all);
+        UI.watchMouse("click", do_close_all);
+        UI.watchKey(27, do_close_all);
     },
     //...............................................................
     events : {
@@ -139,6 +130,11 @@ return ZUI.def("ui.form_com_droplist", {
         }
     },
     //...............................................................
+    _before_load : function() {
+        // 标记单/多选形态
+        this.arena.attr("multi", this.isMulti() ? "yes" : "no");
+    },
+    //...............................................................
     _append_val : function(jLis) {
         var UI    = this;
         var jShow = UI.arena.find(".com-box-show");
@@ -156,42 +152,11 @@ return ZUI.def("ui.form_com_droplist", {
         });
     },
     //...............................................................
-    redraw : function(){
-        var UI  = this;
-        var opt = UI.options;
-        var context = opt.context || UI;
-
-        // 标记单/多选形态
-        UI.arena.attr("multi", UI.isMulti() ? "yes" : "no");
-
-        // 读取数据
-        var re = ["loading"];
-        UI.setItems(UI.options.items, function(){
-            re.pop();
-            UI.defer_report(0, "loading");
-        });
-
-        // 返回，以便异步的时候延迟加载
-        return re;
-    },
-    //...............................................................
-    setItems : function(items, callback){
-        var UI  = this;
-        var opt = UI.options;
-        var context = opt.context || UI;
-
-        $z.evalData(items, null, function(items){
-            UI._draw_items(items);
-            UI.setData();
-            $z.doCallback(callback, [items], UI);
-        }, context);
-    },
-    //...............................................................
     _draw_items : function(items){
         var UI  = this;
         var opt = UI.options;
-        var jUl = UI.arena.find("ul");
-        var context = opt.context || UI;
+        var jUl = UI.arena.find("ul").empty();
+        var context = opt.context || UI.parent;
 
         if(!_.isArray(items))
             return;
@@ -225,9 +190,12 @@ return ZUI.def("ui.form_com_droplist", {
             }
 
             // 文字
-            var text = _.isString(opt.icon)
-                                ? $z.tmpl(opt.icon)(item)
-                                : opt.text.call(context, item, i, UI);
+            var text = val;
+            if(_.isString(opt.text))
+                text = $z.tmpl(opt.text)(item);
+            else if(_.isFunction(opt.text))
+                text = opt.text.call(context, item, i, UI);
+
             $('<b it="text">').text(UI.text(text)).appendTo(jLi);
         }
 
@@ -300,15 +268,6 @@ return ZUI.def("ui.form_com_droplist", {
         //UI.__on_change();
     },
     //...............................................................
-    __on_change : function(){
-        var UI  = this;
-        var opt = UI.options;
-        var context = opt.context || UI;
-        var v = UI.getData();
-        $z.invoke(opt, "on_change", [v], context);
-        UI.trigger("change", v);
-    },
-    //...............................................................
     resize : function() {
         var UI = this;
         var opt = UI.options;
@@ -332,7 +291,7 @@ return ZUI.def("ui.form_com_droplist", {
         }
     }
     //...............................................................
-});
+}));
 //===================================================================
 });
 })(window.NutzUtil);

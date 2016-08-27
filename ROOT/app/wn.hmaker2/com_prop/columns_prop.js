@@ -6,7 +6,7 @@ $z.declare([
     'ui/form/form'
 ], function(ZUI, Wn, HmComMethods, FormUI){
 //==============================================
-var html = function(){/*
+var html = `
 <div class="ui-code-template">
     <div code-id="block" class="ly-block">
         <div class="ly-b-nm">??</div>
@@ -25,11 +25,10 @@ var html = function(){/*
         <div class="ly-wrapper"></div>
         <div class="ly-newer"><i class="zmdi zmdi-plus"></i></div>
     </section>
-</div>
-*/};
+</div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_columns_prop", {
-    dom  : $z.getFuncBodyAsStr(html.toString()),
+    dom  : html,
     //...............................................................
     init : function(){
         HmComMethods(this);

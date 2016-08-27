@@ -19,8 +19,8 @@ $z.declare([
     'app/wn.hmaker2/component/columns.js',
     'app/wn.hmaker2/component/image.js',
     'app/wn.hmaker2/component/text.js',
+    'app/wn.hmaker2/component/objlist.js',
     'app/wn.hmaker2/component/thingobj.js',
-    'app/wn.hmaker2/component/thingset.js',
 ], function(ZUI, Wn, HmMethods, MenuUI){
 //==============================================
 var html_empty_prop = function(){/*
@@ -81,10 +81,10 @@ var html = function(){/*
                 data-balloon-pos="left" data-balloon-length="medium">
                 <%=hmaker.com.imgslider.icon%>
             </li>
-            <li ctype="thingset"
-                data-balloon="{{hmaker.com.thingset.name}} : {{hmaker.com.thingset.tip}}" 
+            <li ctype="objlist"
+                data-balloon="{{hmaker.com.objlist.name}} : {{hmaker.com.objlist.tip}}" 
                 data-balloon-pos="left" data-balloon-length="medium">
-                <%=hmaker.com.thingset.icon%>
+                <%=hmaker.com.objlist.icon%>
             </li>
             <li ctype="thingobj"
                 data-balloon="{{hmaker.com.thingobj.name}} : {{hmaker.com.thingobj.tip}}" 

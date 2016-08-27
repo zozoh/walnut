@@ -26,7 +26,7 @@ Walnut 的 `WnObj` 是对所有的数据进行的最高级的抽象。 因为抽
 # 带有 thing_set 类型的目录被认为是一个 ThingSet
 @DIR {tp:"thing_set"} # 特殊类型目录
     thing.json        # 每个 Thing 的定义
-    cate              # ［选］表示 Thing 的分类
+    cate              # ［选］表示 Thing 的分类，当然也可以存放在任何目录里面
         cateA         # 每个分类就是一个子目录
             cateAA    # 分类可以无限嵌套
         cateB         # 可以有无限多的分类

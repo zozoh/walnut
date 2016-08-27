@@ -76,7 +76,7 @@ return ZUI.def("ui.form_com_switch", {
     __on_change : function(){
         var UI  = this;
         var opt = UI.options;
-        var context = opt.context || UI;
+        var context = opt.context || UI.parent;
         var v = UI.getData();
         $z.invoke(opt, "on_change", [v], context);
         UI.trigger("change", v);
@@ -85,19 +85,37 @@ return ZUI.def("ui.form_com_switch", {
     redraw : function(){
         var UI  = this;
         var re = ["loading"];
-        $z.evalData(UI.options.items, null, function(items){
-            UI._draw_items(items);
+        UI.setItems(UI.options.items, function(){
             re.pop();
             UI.defer_report(0, "loading");
         });
         return re;
     },
     //...............................................................
+    setItems : function(items, callback){
+        var UI  = this;
+        var opt = UI.options;
+        var context = opt.context || UI.parent;
+
+        $z.evalData(items, null, function(items){
+            UI._draw_items(items);
+            UI.setData();
+            $z.doCallback(callback, [items], UI);
+        }, context);
+    },
+    //...............................................................
+    refresh : function(callback) {
+        var UI  = this;
+        var opt = UI.options;
+        
+        UI.setItems(opt.items, callback);
+    },
+    //...............................................................
     _draw_items : function(items){
         var UI  = this;
         var opt = UI.options;
         var jUl = UI.arena.find("ul");
-        var context = opt.context || UI;
+        var context = opt.context || UI.parent;
 
         for(var i=0; i<items.length; i++){
             var item = items[i];
@@ -115,8 +133,13 @@ return ZUI.def("ui.form_com_switch", {
                 hasIcon = true;
             }
 
-            // 下拉项目
-            var text = opt.text.call(context, item, i, UI);
+            // 文字
+            var text = val;
+            if(_.isString(opt.text))
+                text = $z.tmpl(opt.text)(item);
+            else if(_.isFunction(opt.text))
+                text = opt.text.call(context, item, i, UI);
+
             $('<b it="text">').text(UI.text(text)).appendTo(jLi);
         }
     },

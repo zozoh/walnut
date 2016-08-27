@@ -7,8 +7,7 @@ $z.declare([
     'ui/mask/mask'
 ], function(ZUI, Wn, HmComMethods, FormUI, MaskUI){
 //==============================================
-return ZUI.def("app.wn.hm_com_navmenu_prop", {
-    dom  : `
+var html = `
 <div class="ui-code-template">
     <div code-id="item" class="cnavmp-item">
         <span><i class="fa fa-circle-thin"></i></span>
@@ -34,7 +33,10 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
     </section>
     <section class="cnavmp-item-list"></section>
     <section class="cnavmp-form" ui-gasket="form"></section>
-</div>`,
+</div>`;
+//==============================================
+return ZUI.def("app.wn.hm_com_navmenu_prop", {
+    dom  : html,
     //...............................................................
     init : function(){
         HmComMethods(this);

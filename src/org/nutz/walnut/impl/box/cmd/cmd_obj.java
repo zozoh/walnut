@@ -143,7 +143,7 @@ public class cmd_obj extends JvmExecutor {
         if (params.has("ExtendFilter")) {
             List<WnObj> list2 = new LinkedList<WnObj>();
             String json = params.get("ExtendFilter");
-            NutMap flt = Lang.map(json);
+            NutMap flt = "true".equals(json) ? new NutMap() : Lang.map(json);
 
             WnQuery q = new WnQuery();
             NutMap by = Lang.map(params.get("ExtendBy", "{}"));
@@ -203,6 +203,9 @@ public class cmd_obj extends JvmExecutor {
         if (o.isDIR() && flt.match(o)) {
             q.setv("pid", o.id());
             sys.io.each(q, (int i, WnObj child, int len) -> {
+                // 设置父
+                child.setParent(o);
+                
                 // 深层递归展开
                 if (ExtendDeeply) {
                     __do_extend(sys, list2, flt, q, child, ExtendDeeply);

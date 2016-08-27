@@ -10,10 +10,16 @@ var html = function(){/*
         <div class="fg-title"></div>
         <div class="fg-fields"></div>
     </div>
-    <div code-id="field" class="form-fld"><div
-        class="ff-txt"></div><div
-        class="ff-val"><div class="ffv-ui"></div><div class="ffv-tip"></div></div><div class="ff-tmpl"><i 
-            class="fa fa-square"></i><i class="fa fa-check-square"></i></div><div class="ff-prompt"></div></div>
+    <div code-id="field" class="form-fld">
+        <div class="ff-txt"></div>
+        <div class="ff-val">
+            <div class="ffv-ui"></div>
+            <div class="ffv-tip"></div></div>
+        <div class="ff-tmpl">
+            <i class="fa fa-square"></i><i class="fa fa-check-square"></i>
+        </div>
+        <div class="ff-prompt"></div>
+    </div>
 </div>
 <div class="ui-arena form" ui-fitparent="yes">
     <div class="form-title"></div>
@@ -94,7 +100,7 @@ return ZUI.def("ui.form", {
                 // 有快捷定义 ..
                 else if(fld.editAs){
                     // 内置
-                    if(/^(input|color2?|label|switch|text|link|(drop|check|radio)list)$/.test(fld.editAs)){
+                    if(/^(input|color|label|switch|text|link|(drop|check|radio)list)$/.test(fld.editAs)){
                         fld.uiType = "ui/form/c_" + fld.editAs;
                     }
                     // 各种 picker

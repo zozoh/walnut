@@ -1144,6 +1144,15 @@ var Wn = {
         return o2;
     },
     //..............................................
+    getRelativePath : function(oBase, o) {
+        return $z.getRelativePath(oBase.ph, o.ph);
+    },
+    //..............................................
+    getRelativePathToHome : function(o) {
+        var oHome = Wn.getHome();
+        return $z.getRelativePath(o.ph, oHome.ph);
+    },
+    //..............................................
     getHome : function(){
         return this.fetch("~");
     },

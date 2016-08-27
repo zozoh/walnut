@@ -609,3 +609,190 @@
 .hmc-navmenu-prop .cnavmp-form {
   padding: 8px;
 }
+.hm-dynamic-data-setting > section {
+  padding: 6px;
+}
+.hm-dynamic-data-setting > section > dl {
+  display: -webkit-flex;
+  display: flex;
+  line-height: 24px;
+}
+.hm-dynamic-data-setting > section > dl > dt {
+  padding: 2px 6px;
+  font-size: 12px;
+  color: #888888;
+}
+.hm-dynamic-data-setting > section > dl > [ui-gasket] {
+  flex: 1 0 auto;
+}
+.hm-dynamic-data-setting > section > dl > .refresh {
+  padding: 2px 6px;
+  cursor: pointer;
+}
+.hm-dynamic-data-setting > section > dl > .refresh i:first-child {
+  display: inline-block;
+  transition: 0.2s;
+}
+.hm-dynamic-data-setting > section > dl > .refresh i:last-child {
+  display: none;
+  color: #888888;
+  font-size: 14px;
+}
+.hm-dynamic-data-setting > section > dl > .refresh:hover i:first-child {
+  font-size: 1.4em;
+  color: #ff8800;
+  transform: rotate(0.3turn);
+}
+.hm-dynamic-data-setting > section > dl > .refresh[loading] i:first-child {
+  display: none;
+}
+.hm-dynamic-data-setting > section > dl > .refresh[loading] i:last-child {
+  display: inline-block;
+}
+.hm-dynamic-data-setting .com-box .cbsi b,
+.hm-dynamic-data-setting .com-drop b {
+  font-size: 10px;
+  font-family: Monaco, Consolas, Courier New;
+  font-weight: normal;
+}
+.hm-dynamic-data-setting .cmd-box .cbsi {
+  padding: 4px;
+}
+.hmc-objlist-prop {
+  padding: 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.hmc-objlist-prop > section {
+  padding: 0 8px;
+}
+.hmc-objlist-prop > section > h4 {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 12px 6px 2px 6px;
+  margin: 0;
+  color: #888888;
+  font: 12px Monaco, Consolas, Courier New;
+  border-bottom: 1px solid #cccccc;
+}
+.hmc-objlist-prop > section > h4 ul {
+  float: right;
+  display: -webkit-flex;
+  display: flex;
+}
+.hmc-objlist-prop > section > h4 ul i {
+  font-size: 14px;
+  margin-left: 6px;
+}
+.hmc-objlist-prop > section > h4 ul li {
+  cursor: pointer;
+  transition: 0.2s;
+}
+.hmc-objlist-prop > section > h4 ul li:hover {
+  transform: scale(1.2);
+  color: #ff8800;
+}
+.hmc-objlist-prop > section > h4:after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+}
+.hmc-objlist-prop > section > div {
+  padding: 6px 0 6px 6px;
+}
+.hmc-objlist-prop > section > div .olstp-items {
+  border: 1px solid #d0d0d0;
+  padding: 6px 0 6px 6px;
+  margin-top: 5px;
+  min-height: 50px;
+  background: #e0e0e0;
+  color: #999999;
+}
+.hmc-objlist-prop > section input,
+.hmc-objlist-prop > section textarea {
+  outline: none;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  color: #000000;
+  background: #ffffff;
+  padding: 6px;
+  font-size: 12px;
+  font-family: Monaco, Consolas, Courier New;
+}
+.hmc-objlist-prop > section input:focus,
+.hmc-objlist-prop > section textarea:focus {
+  color: #000000;
+  background: #ffffcc;
+  border-color: #ff8800;
+}
+.hmc-objlist-prop .olstp-check {
+  cursor: pointer;
+  display: inline-block;
+  width: 16px;
+  text-align: left;
+}
+.hmc-objlist-prop .olstp-check i:first-child {
+  display: none;
+}
+.hmc-objlist-prop .olstp-check i:last-child {
+  display: inline;
+}
+.hmc-objlist-prop [part-disabled] .olstp-check i:first-child {
+  display: inline;
+}
+.hmc-objlist-prop [part-disabled] .olstp-check i:last-child {
+  display: none;
+}
+.hmc-objlist-prop > section[part-disabled] > h4 b {
+  opacity: 0.4;
+}
+.hmc-objlist-prop > section[part-disabled] > h4 ul {
+  display: none;
+}
+.hmc-objlist-prop > section[part-disabled] > div > * {
+  display: none;
+}
+.hmc-objlist-prop > section[part-disabled] > div:before {
+  display: block;
+  content: "...";
+  width: 40px;
+  text-align: center;
+  height: 12px;
+  line-height: 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 2px;
+  margin: 0 auto 8px auto;
+}
+.hmc-objlist-prop .olstp-params > div {
+  min-height: 80px;
+}
+.hmc-objlist-prop .olstp-filter .olstp-kwd {
+  display: -webkit-flex;
+  display: flex;
+  line-height: 30px;
+  height: 30px;
+  font-size: 12px;
+  color: #888888;
+}
+.hmc-objlist-prop .olstp-filter .olstp-kwd b {
+  padding-right: 4px;
+}
+.hmc-objlist-prop .olstp-filter .olstp-kwd input {
+  flex: 1 0 auto;
+}
+.hmc-objlist-prop .olstp-filter .olstp-kwd-tip {
+  padding: 6px;
+  font-size: 10px;
+  color: #008800;
+  text-align: right;
+}
+.hmc-objlist-prop .olstp-pager > div {
+  height: 360px;
+  width: 100%;
+}
+.hmc-objlist-prop .olstp-pager > div .form-body {
+  overflow-y: hidden;
+}

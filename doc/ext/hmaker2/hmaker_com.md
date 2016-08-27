@@ -3,7 +3,7 @@ title:组件的DOM结构
 author:zozoh
 tags:
 - 扩展
-- HMaker
+- hmaker
 ---
 
 # DOM 结构
