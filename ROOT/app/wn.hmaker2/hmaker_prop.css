@@ -658,6 +658,65 @@
 .hm-dynamic-data-setting .cmd-box .cbsi {
   padding: 4px;
 }
+.hm-dynamic-data-setting [part="params"] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.hm-dynamic-data-setting [part="params"] table {
+  width: 100%;
+}
+.hm-dynamic-data-setting [part="params"] td {
+  border: 1px solid #d0d0d0;
+  padding: 6px;
+}
+.hm-dynamic-data-setting [part="params"] td.pkey {
+  font: 12px Monaco, Consolas, Courier New;
+  color: #888888;
+  vertical-align: top;
+  padding: 12px;
+}
+.hm-dynamic-data-setting [part="params"] td.pval .param-item > [nm="base"] {
+  width: 100%;
+}
+.hm-dynamic-data-setting [part="params"] td.pval .param-item input {
+  width: 100%;
+}
+.hm-dynamic-data-setting [part="params"] td.pval .param-item em {
+  display: inline-block;
+  vertical-align: middle;
+  padding-right: 2px;
+  font-style: normal;
+  font-size: 10px;
+}
+.hm-dynamic-data-setting [part="params"] td.pval .param-item [nm="base"] em,
+.hm-dynamic-data-setting [part="params"] td.pval .param-item [nm="from"] em {
+  width: 50px;
+  flex: 0 0 auto;
+  text-align: right;
+  padding-right: 8px;
+}
+.hm-dynamic-data-setting [part="params"] td.pval .param-item > div {
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+}
+.hm-dynamic-data-setting [part="params"] td.pval .param-item .dynamic > * {
+  padding: 1px;
+  white-space: nowrap;
+}
+.hm-dynamic-data-setting [part="params"] td.pval .param-item .dynamic > div {
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+}
+.hm-dynamic-data-setting [part="params"] td.pval .param-item .dynamic > div[nm="from"] input {
+  width: 70px;
+}
+.hm-dynamic-data-setting [part="params"] td.pval .param-item .dynamic > div[nm="key"][for-all] input {
+  background: #eeeeee;
+}
 .hmc-objlist-prop {
   padding: 6px;
   overflow-y: auto;
@@ -676,6 +735,9 @@
   color: #888888;
   font: 12px Monaco, Consolas, Courier New;
   border-bottom: 1px solid #cccccc;
+}
+.hmc-objlist-prop > section > h4 b {
+  cursor: pointer;
 }
 .hmc-objlist-prop > section > h4 ul {
   float: right;
@@ -702,14 +764,6 @@
 }
 .hmc-objlist-prop > section > div {
   padding: 6px 0 6px 6px;
-}
-.hmc-objlist-prop > section > div .olstp-items {
-  border: 1px solid #d0d0d0;
-  padding: 6px 0 6px 6px;
-  margin-top: 5px;
-  min-height: 50px;
-  background: #e0e0e0;
-  color: #999999;
 }
 .hmc-objlist-prop > section input,
 .hmc-objlist-prop > section textarea {
@@ -766,21 +820,120 @@
   display: block;
   margin: 0 auto 8px auto;
 }
+.hmc-objlist-prop .olstp-dds h4 {
+  cursor: pointer;
+}
+.hmc-objlist-prop .olstp-dds[part-disabled] h4 {
+  color: #0088ff;
+  font-weight: bold;
+}
+.hmc-objlist-prop .olstp-items {
+  border: 1px solid #d0d0d0;
+  padding: 6px;
+  margin-top: 5px;
+  min-height: 50px;
+  background: #e0e0e0;
+  color: #999999;
+  width: 100%;
+}
+.hmc-objlist-prop .olstp-items .part-item {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 6px;
+  background: #eeeeee;
+  color: #666666;
+  border-radius: 2px;
+  margin-bottom: 8px;
+}
+.hmc-objlist-prop .olstp-items .part-item em {
+  display: inline-block;
+  padding: 0 4px 0 8px;
+  font-style: normal;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.hmc-objlist-prop .olstp-items .part-item header {
+  display: -webkit-flex;
+  display: flex;
+}
+.hmc-objlist-prop .olstp-items .part-item header > * {
+  flex: 1 1 auto;
+}
+.hmc-objlist-prop .olstp-items .part-item header input {
+  width: 100%;
+}
+.hmc-objlist-prop .olstp-items .part-item header em {
+  line-height: 32px;
+}
+.hmc-objlist-prop .olstp-items .part-item section {
+  display: -webkit-flex;
+  display: flex;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 6px;
+  border: 1px solid #d0d0d0;
+  border-width: 1px 0;
+  margin-top: 4px;
+}
+.hmc-objlist-prop .olstp-items .part-item section > div:first-child {
+  flex: 1 1 auto;
+}
+.hmc-objlist-prop .olstp-items .part-item section > [key] {
+  flex: 0 0 auto;
+  text-align: right;
+}
+.hmc-objlist-prop .olstp-items .part-item footer {
+  padding: 8px;
+}
+.hmc-objlist-prop .olstp-items .part-item footer textarea {
+  width: 100%;
+  height: 80px;
+  resize: none;
+}
+.hmc-objlist-prop .olstp-items .part-item footer .tip {
+  color: #888888;
+  font-size: 10px;
+  padding: 0 4px;
+}
+.hmc-objlist-prop .olstp-items .part-item input,
+.hmc-objlist-prop .olstp-items .part-item textarea {
+  background: #eeeeee;
+  color: #666666;
+}
+.hmc-objlist-prop .olstp-items .part-item[current] {
+  background: #ffffff;
+  color: #333333;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+  border-color: #ff8800;
+}
+.hmc-objlist-prop .olstp-items .part-item[current] input,
+.hmc-objlist-prop .olstp-items .part-item[current] textarea {
+  background: #ffffff;
+  color: #000000;
+}
+.hmc-objlist-prop .olstp-items .part-item[current] input:focus,
+.hmc-objlist-prop .olstp-items .part-item[current] textarea:focus {
+  background: #ffffcc;
+  color: #000000;
+}
 .hmc-objlist-prop .olstp-filter .olstp-kwd-label {
   display: -webkit-flex;
   display: flex;
-  line-height: 30px;
-  height: 30px;
   font-size: 12px;
   color: #888888;
 }
+.hmc-objlist-prop .olstp-filter .olstp-kwd-label .olstp-check,
 .hmc-objlist-prop .olstp-filter .olstp-kwd-label b {
-  padding-right: 4px;
+  display: inline-block;
+  padding: 6px;
 }
-.hmc-objlist-prop .olstp-filter .olstp-kwd-label input {
+.hmc-objlist-prop .olstp-filter .olstp-kwd-label textarea {
   flex: 1 0 auto;
+  height: 50px;
 }
-.hmc-objlist-prop .olstp-filter .olstp-kwd[part-disabled] > .olstp-kwd-label > input,
+.hmc-objlist-prop .olstp-filter .olstp-kwd[part-disabled] > .olstp-kwd-label > textarea,
 .hmc-objlist-prop .olstp-filter .olstp-kwd[part-disabled] > .olstp-kwd-tip {
   display: none;
 }

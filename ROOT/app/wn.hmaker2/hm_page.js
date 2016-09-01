@@ -788,7 +788,7 @@ return ZUI.def("app.wn.hmaker_page", {
         C.iload.$body.removeAttr("pointer-moving-enabled");
 
         // 移除所有的辅助节点
-        C.iload.$body.find(".mvrz-ass, .hm-del-save").remove();
+        C.iload.$body.find(".mvrz-ass, .hm-del-save, .ui-code-template").remove();
 
         // 删除所有的块和控件的 CSS 渲染属性
         C.iload.$body.find(".hm-block,.hmb-con,.hmb-area,.hm-com,.ui-arena").each(function(){

@@ -127,6 +127,9 @@ return ZUI.def("app.wn.hm_prop_edit", {
     //...............................................................
     changeCom : function(com) {
         //console.log("edit> change:com", com);
+        // 直接无视吧
+        if(com && com.__prop_ignore_update)
+            return;
         this.gasket.com.update(com);
     },
     //...............................................................

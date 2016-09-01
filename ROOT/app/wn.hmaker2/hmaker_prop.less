@@ -390,8 +390,37 @@
     .cmd-box .cbsi {padding:@d1;}
     //.....................................................
     // 参数表
-    [part="params"] {
-        
+    [part="params"] { @noselect();
+        table {width: 100%;}
+        td {border:1px solid @cborder1; padding:@d2;}
+        td.pkey {
+            font: @f2 @f_fixed; color:@c2; vertical-align: top;
+            padding:@d4;
+        }
+        td.pval {
+            .param-item {
+                > [nm="base"] {width:100%; }
+                input {width: 100%;}
+                em {
+                    display: inline-block; vertical-align: middle; padding-right:@d0;
+                    font-style: normal; font-size:@f1;
+                }
+                [nm="base"] em, [nm="from"] em {
+                    width:50px; flex:0 0 auto; text-align: right; padding-right: @d3;
+                }
+                > div {@flex(); align-items:center;}
+                .dynamic {
+                    > * {padding:1px; white-space: nowrap;}
+                    > div {@flex(); align-items:center;}
+                    > div[nm="from"] {
+                        input {width:70px;}
+                    }
+                    > div[nm="key"][for-all] {
+                        input {background:@cb1;}
+                    }
+                }
+            }
+        }
     }
     //.....................................................
 }
@@ -412,6 +441,7 @@
         > h4 { @noselect();
             padding:@d4 @d2 @d0 @d2; margin:0; color:@c2; font:@f2 @f_fixed; 
             border-bottom:1px solid @cborder0;
+            b {cursor: pointer;}
             ul{
                 float: right; @flex();
                 i {font-size:@f3; margin-left:@d2;}
@@ -423,11 +453,6 @@
         // 内容区
         > div {
             padding:@d2 0 @d2 @d2;
-            .olstp-items {
-                border:1px solid @cborder1;
-                padding:@d2 0 @d2 @d2; margin-top:5px;
-                min-height: 50px; background: @cb2; color:@cf2;
-            }
         }
 
         // 输入框
@@ -460,17 +485,65 @@
         > div:before {@partDisabled(); display:block; margin:0 auto @d3 auto;}
     }
     //.....................................................
+    // 数据源
+    .olstp-dds {
+        h4 {cursor: pointer;}
+    }
+    .olstp-dds[part-disabled] {
+        h4 {color: @c4; font-weight: bold;}
+    }
+    //.....................................................
+    // 过滤器和排序器的表格
+    .olstp-items {
+        border:1px solid @cborder1;
+        padding:@d2; margin-top:5px;
+        min-height: 50px; background: @cb2; color:@cf2;
+        width:100%;
+        .part-item { @noselect();
+            padding:@d2; background: @cb1; color:@cf1;
+            border-radius: @d0; margin-bottom:@d3;
+            em {
+                display: inline-block; padding:0 @d1 0 @d3; font-style:normal; 
+                white-space: nowrap; vertical-align: middle;
+            }
+            header {
+                @flex();
+                > * {flex:1 1 auto;}
+                input {width:100%;}
+                em {line-height: @d7;}
+            }
+            section {
+                @flex(); height:@d7; line-height: @d7; padding:0 @d2;
+                border:1px solid @cborder1; border-width: 1px 0;
+                margin-top:@d1;
+                > div:first-child {flex:1 1 auto;}
+                > [key] {flex:0 0 auto; text-align: right;}
+            }
+            footer {
+                padding:@d3;
+                textarea { width:100%; height: 80px; resize:none;}
+                .tip {color:@c2; font-size:@f1; padding:0 @d1;}
+            }
+            input,textarea {background: @cb1; color:@cf1;}
+        }
+        .part-item[current] {
+            background: @cb0; color:@cf0; box-shadow:2px 2px 5px @cshadow;
+            border-color:@c0;
+            input,textarea {background: @cinput_b; color:@cinput_f;}
+            input:focus,textarea:focus {background: @cinput_bF; color:@cinput_fF;}
+        }
+    }
+    //.....................................................
     // 过滤器
     .olstp-filter {
-        @kwdH : 30px;
         .olstp-kwd-label {
-            @flex(); line-height:@kwdH; height:@kwdH;
+            @flex(); 
             font-size: @f2; color:@c2;
-            b {padding-right:@d1;}
-            input {flex:1 0 auto;}
+            .olstp-check, b {display: inline-block; padding:@d2;}
+            textarea {flex:1 0 auto; height:50px;}
         }
         .olstp-kwd[part-disabled] {
-            > .olstp-kwd-label > input,
+            > .olstp-kwd-label > textarea,
             > .olstp-kwd-tip {display: none;}
         }
         .olstp-kwd[part-disabled] > .olstp-kwd-label:after {

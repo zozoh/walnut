@@ -8,6 +8,7 @@ var methods = {
             "_type" : this.$el.attr("ctype"),
         };
     },
+    // 获取组件的属性
     getData : function() {
         return _.extend({}, this.getPropFromDom(), this.__gen_base_data());
     },
@@ -17,14 +18,25 @@ var methods = {
         if(com && com.__com_ignore_setData)
             return;
 
+        // 执行更新
+        var com2 = this.updateProp(com);
+
+        // 子类的绘制方法
+        $z.invoke(this, "paint", [com2]);
+    },
+    // 合并修改组件的属性，并保存
+    updateProp : function(com) {
         // 得到完整的属性
         var com2 = $z.extend(this.getData(), com);
+
+        // // 删除不必要保存东东
+        // delete com2.__com_ignore_setData;
+        // delete com2.__prop_ignore_update;
 
         // 保存属性
         this.setPropToDom(com2);
 
-        // 子类的绘制方法
-        $z.invoke(this, "paint", [com2]);
+        return com2;
     },
     // 发出属性修改通知，本函数自动合并其余未改动过的属性
     notifyChange : function(key, val) {

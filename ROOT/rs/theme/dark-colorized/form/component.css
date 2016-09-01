@@ -183,10 +183,11 @@
   overflow: hidden;
 }
 .com-color .cc-edit .cce-colors .ccec-body u:hover {
-  border: 1px solid #FFF;
+  border: 0;
   transform: scale(1.8);
   z-index: 200;
   width: 80px;
+  box-shadow: 1px 1px 3px #000000;
 }
 .com-color .cc-edit .cce-colors .ccec-body u:hover b {
   color: #FFF;

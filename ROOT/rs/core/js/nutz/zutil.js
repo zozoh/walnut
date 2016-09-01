@@ -171,6 +171,7 @@
         },
         //.............................................
         toggleAttr: function (jq, attNm, valOn, valOff) {
+            jq = $(jq);
             // 没有 valOn 那么，默认当做 true
             if (_.isUndefined(valOn)) {
                 if (jq.attr(attNm)) {
@@ -1821,13 +1822,27 @@
             return "" === $.trim(str);
         },
         //.............................................
+        // 对 HTML 去掉空格等多余内容，并进行多国语言替换
+        compactHTML : function(html, msgMap) {
+            html = (html||"").replace(/[ ]*\r?\n[ ]*/g, "");
+            if(_.isObject(msgMap)){
+                return zUtil.tmpl(html)(msgMap);
+            }
+            return html;
+        },
+        //.............................................
         // 将属性设置到控件的 DOM 上
         setJsonToSubScriptEle : function(jq, className, prop, needFormatJson) {
             var jPropEle = jq.children("script."+className);
             if(jPropEle.length == 0) {
                 jPropEle = $('<script type="text/x-template" class="'+className+'">').appendTo(jq);
             }
-            var json = needFormatJson ? "\n"+$z.toJson(prop,null,'    ')+"\n" : $z.toJson(prop);
+            var RP = function(key, val){
+                if(/^__/.test(key))
+                    return undefined;
+                return val;
+            };
+            var json = needFormatJson ? "\n"+$z.toJson(prop, RP, '    ')+"\n" : $z.toJson(prop, RP);
             jPropEle.html(json);
         },
         // 从控件的 DOM 上获取控件的属性

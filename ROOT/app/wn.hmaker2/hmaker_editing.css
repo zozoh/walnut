@@ -146,6 +146,16 @@ body {
 [hm-actived] .hmc-text > section:hover {
   background: rgba(255, 255, 0, 0.4);
 }
+.hmc-objlist > .warn {
+  text-align: center;
+  color: #ff0000;
+  padding: 12px;
+}
+.hmc-objlist > .warn > i {
+  display: block;
+  font-size: 64px;
+  padding: 8px;
+}
 .hmc-thingset > .hmc-th-W {
   display: none;
 }

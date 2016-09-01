@@ -7,25 +7,17 @@ $z.declare([
 //==============================================
 var html = `
 <div class="ui-code-template">
-    <div code-id="item" class="cnavmp-item">
-        <span><i class="fa fa-circle-thin"></i></span>
-        <span key="newtab">
-            <u><i class="fa fa-check-square"></i><i class="fa fa-square-o"></i></u>
-            <em>{{hmaker.com.navmenu.newtab}}</em>
-        </span>
-        <span key="text"></span>
-        <span key="href"></span>
+    <div code-id="noapi" class="warn">
+        <i class="zmdi zmdi-alert-polygon"></i> {{hmaker.com.objlist.noapi}}
     </div>
-    <div code-id="empty" class="cnavmp-empty">
-        <i class="fa fa-warning"></i> {{hmaker.com.navmenu.empty}}
+    <div code-id="notemplate" class="warn">
+        <i class="zmdi zmdi-alert-polygon"></i> {{hmaker.com.objlist.notemplate}}
+    </div>
+    <div code-id="filter" class="filter">
+
     </div>
 </div>
-<div class="hmc-objlist hm-del-save">
-    <section class="hmc-ol-tip">
-    </section>
-    <section class="hmc-ol-main">
-    </section>
-</div>
+<div class="hmc-objlist ui-arena hm-del-save"></div>
 `
 //==============================================
 return ZUI.def("app.wn.hm_com_objlist", {
@@ -49,7 +41,7 @@ return ZUI.def("app.wn.hm_com_objlist", {
     paint : function(com) {
         var UI = this;
 
-        // console.log(com)
+        console.log("paint:", com)
 
         // 检查显示模式
         if(!UI.__check_mode(com)){
@@ -86,7 +78,22 @@ return ZUI.def("app.wn.hm_com_objlist", {
     //...............................................................
     __check_mode : function(com) {
         var UI = this;
+        UI.arena.empty();
 
+        // 确保有数据接口
+        if(!com.api) {
+            UI.ccode("noapi").appendTo(UI.arena);
+            return false;
+        }
+
+        // 确保有显示模板
+        if(!com.template) {
+            UI.ccode("notemplate").appendTo(UI.arena);
+            return false;
+        }
+
+        // 通过检查
+        return true;
         
     },
     //...............................................................

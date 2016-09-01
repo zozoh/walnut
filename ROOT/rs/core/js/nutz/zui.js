@@ -8,8 +8,9 @@ var parse_dom = function (html) {
     var UI = this;
 
     // 解析代码模板
-    html = html.replace(/[ ]*\r?\n[ ]*/g, "");
-    html = $z.tmpl(html)(UI._msg_map);
+    // html = html.replace(/[ ]*\r?\n[ ]*/g, "");
+    // html = $z.tmpl(html)(UI._msg_map);
+    html = UI.compactHTML(html);
 
     // 这里需要添加 dom 段描述的 HTML 到当前的 $el 
     // 为了兼顾 keepDom 所以要用 +=
@@ -156,7 +157,7 @@ var register = function(UI) {
             UI.$el.addClass(opt.className);
         //.....................................
         // 加载时保持隐藏
-        UI.$el.attr("ui-loadding","yes").hide();
+        UI.$el.attr("ui-loadding","yes").css("visibility", "hidden");
         // 加入 DOM 树
         UI.$pel.append(UI.$el);
     }
@@ -364,7 +365,7 @@ ZUIObj.prototype = {
                     }
 
                     // 让 UI 的内容显示出来
-                    UI.$el.removeAttr("ui-loadding").show();
+                    UI.$el.removeAttr("ui-loadding").css("visibility", "");
 
                     // 触发当前实例的绘制回调
                     if (typeof afterRender === "function") {
@@ -713,6 +714,10 @@ ZUIObj.prototype = {
             if(wmm && wmm[this.cid])
                 delete wmm[this.cid];
         }
+    },
+    // 对 HTML 去掉空格等多余内容，并进行多国语言替换
+    compactHTML : function(html, msgMap) {
+        return $z.compactHTML(html, msgMap || this._msg_map);
     },
     // 得到多国语言字符串
     msg: function (key, ctx, msgMap) {
