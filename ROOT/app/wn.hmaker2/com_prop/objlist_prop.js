@@ -13,9 +13,9 @@ var OLSTP = {
         html : `
         <div class="part-item">
             <header>
-                <em>{{hmaker.com.objlist.flti_key}}</em>
+                <em>{{hmaker.com.objlist.parti_key}}</em>
                 <div><input name="key"></div>
-                <em>{{hmaker.com.objlist.flti_text}}</em>
+                <em>{{hmaker.com.objlist.parti_text}}</em>
                 <div><input name="text"></div>
             </header>
             <section>
@@ -23,9 +23,8 @@ var OLSTP = {
                 <div key="multi"><em>{{hmaker.com.objlist.flti_multi}}</em><span class="ui-toggle"></span></div>
                 <div key="show"><em>{{hmaker.com.objlist.flti_show}}</em><span class="ui-toggle"></span></div>
             </section>
-            <footer>
+            <footer balloon="up:large:{{hmaker.com.objlist.flti_list_tip}}">
                 <textarea placeholder="{{hmaker.com.objlist.flti_list_demo}}"></textarea>
-                <div class="tip">{{hmaker.com.objlist.flti_list_tip}}</div>
             </footer>
         </div>
         `,
@@ -63,15 +62,16 @@ var OLSTP = {
         },
         getPartData : function(UI) {
             var jFlt = UI.arena.find(".olstp-filter");
-            var re   = {};
+            var re   = {
+                keyword : null
+            };
 
             // 关键字
             var jKwd = jFlt.find(".olstp-kwd");
             if(!jKwd.attr("part-disabled")){
                 var kwd = $.trim(jKwd.find("textarea").val());
-                re.keyword = kwd.split(/[ \t]*\r?\n[ \t]*/g);
-            }else{
-                re.keyword = null;
+                if(kwd)
+                    re.keyword = kwd.split(/[ \t]*\r?\n[ \t]*/g);
             }
 
             // 列表
@@ -79,11 +79,12 @@ var OLSTP = {
             re.fields = [];
             jItems.find(".part-item").each(function(){
                 var item = OLSTP.filter.get($(this));
-                re.fields.push(item);
+                if(item.key && item.list.length > 0)
+                    re.fields.push(item);
             });
 
             // 返回
-            return re;
+            return (re.keyword || re.fields.length > 0) ? re : null;
         },
         setPartData : function(UI, data) {
             data = data || {};
@@ -106,16 +107,93 @@ var OLSTP = {
             }
         }
     },
-    sort : {
+    sorter : {
         html : `
+        <div class="part-item">
+            <header>
+                <em>{{hmaker.com.objlist.parti_key}}</em>
+                <div><input name="key"></div>
+                <em>{{hmaker.com.objlist.parti_text}}</em>
+                <div><input name="text"></div>
+            </header>
+            <section>
+                <div>{{hmaker.com.objlist.sorti_more}}</div>
+                <div key="toggleable"><em>{{hmaker.com.objlist.sorti_toggleable}}</em><span class="ui-toggle"></span></div>
+                <div key="order">
+                    <span>
+                        <i class="fa fa-sort-alpha-asc"></i>
+                        <i class="fa fa-sort-alpha-desc"></i>
+                    </span>
+                    <em asc="{{hmaker.com.objlist.sorti_asc}}" desc="{{hmaker.com.objlist.sorti_desc}}"></em>
+                </div>
+            </section>
+            <footer>
+                <div key="more" balloon="up:large:{{hmaker.com.objlist.sorti_more_tip}}">
+                    <textarea placeholder="{{hmaker.com.objlist.sorti_more_demo}}"></textarea>
+                </div>
+                <div key="lskey" balloon="up:large:{{hmaker.com.objlist.sorti_lskey_tip}}">
+                    <em>{{hmaker.com.objlist.sorti_lskey}}</em>
+                    <input placeholder="{{hmaker.com.objlist.sorti_lskey_demo}}">
+                </div>
+            </footer>
+        </div>
         `,
         set : function(jDiv, item){
-
+            jDiv.find('input[name="key"]').val(item.key || "");
+            jDiv.find('input[name="text"]').val(item.text || "");
+            jDiv.find('[key="toggleable"] .ui-toggle').attr("on", item.toggleable ? "yes" : null);
+            jDiv.find('[key="order"]').attr("order", item.order < 0 ? 'desc' : 'asc');
+            jDiv.find('[key="more"] textarea').val(item.more ? $z.toJson(item.more) : "");
+            jDiv.find('[key="lskey"] input').val(item.localStoreKey || "");
         },
         get : function(jDiv) {
+            var item = {
+                key  : $.trim(jDiv.find('input[name="key"]').val()),
+                text : $.trim(jDiv.find('input[name="text"]').val()),
+                toggleable : jDiv.find('[key="toggleable"] .ui-toggle').attr("on") ? true : false,
+                order      : jDiv.find('[key="order"]').attr("order") == 'desc' ? -1 : 1,
+                localStoreKey  : $.trim(jDiv.find('[key="lskey"] input').val()) || null
+            };
+            var more = jDiv.find('[key="more"] textarea').val();
+            if(more)
+                item.more = $z.fromJson(more);
 
+            return item;
+        },
+        getPartData : function(UI) {
+            var jSort = UI.arena.find(".olstp-sorter");
+            var re   = [];
+
+            // 列表
+            var jItems = jSort.find(".olstp-items");
+            jItems.find(".part-item").each(function(){
+                var item = OLSTP.sorter.get($(this));
+                re.push(item);
+            });
+
+            // 返回
+            return re.length > 0 ? re : null;
+        },
+        setPartData : function(UI, data) {
+            data = data || {};
+            var jSort = UI.arena.find(".olstp-sorter");
+
+            // 列表
+            jSort.find(".olstp-items").empty();
+            if(_.isArray(data) && data.length > 0){
+                for(var item of data)
+                    UI._append_list_item(jSort, item);
+            }
         }
-    }
+    },
+    pager : {
+        getPartData : function(UI) {
+            return UI.gasket.pager.getData();
+        },
+        setPartData : function(UI, data) {
+            UI.gasket.pager.setData(data || {});
+        }
+    },
 };
 //==============================================
 var html = `
@@ -124,7 +202,7 @@ var html = `
         <h4><i class="fa fa-database"></i> <span>{{hmaker.com.objlist.dds}}</span></h4>
         <div ui-gasket="dds"></div>
     </section>
-    <section class="olstp-part olstp-filter">
+    <section class="olstp-part olstp-filter" part="filter">
         <h4>
             <span class="olstp-check"><i class="fa fa-square-o"></i><i class="fa fa-check-square"></i></span>
             <b>{{hmaker.com.objlist.filter}}</b>
@@ -149,7 +227,7 @@ var html = `
             <div class="olstp-items"></div>
         </div>
     </section>
-    <section class="olstp-part olstp-sorter">
+    <section class="olstp-part olstp-sorter" part="sorter">
         <h4>
             <span class="olstp-check"><i class="fa fa-square-o"></i><i class="fa fa-check-square"></i></span>
             <b>{{hmaker.com.objlist.sort}}</b>
@@ -162,7 +240,7 @@ var html = `
         </h4>
         <div><div class="olstp-items"></div></div>
     </section>
-    <section class="olstp-pager">
+    <section class="olstp-pager" part="pager">
         <h4>
             <span class="olstp-check"><i class="fa fa-square-o"></i><i class="fa fa-check-square"></i></span>
             <b>{{hmaker.com.objlist.pager}}</b>
@@ -185,20 +263,29 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
         },
         // 启用/关闭 过滤器/排序器/分页器
         'click h4 .olstp-check, h4 b' : function(e) {
+            var UI = this;
             var jPart = $(e.currentTarget).closest("section");
             $z.toggleAttr(jPart, "part-disabled", "yes");
+
+            // 通知改动
+            UI._notify_part_change(jPart);
+
+            // 调整页面布局
+            UI.resize(true);
         },
         // 启用/关闭 关键字
         'click .olstp-kwd .olstp-check' : function(e) {
+            var UI = this;
             var jKwd = $(e.currentTarget).closest(".olstp-kwd");
             $z.toggleAttr(jKwd, "part-disabled", "yes");
 
             // 通知改动
-            this._notify_part_change(jKwd);
+            UI._notify_part_change(jKwd);
         },
         // 添加 filter/sorter 的项目
         'click .olstp-part h4 > ul > li[a="add"]' : function(e) {
-            this._append_list_item($(e.currentTarget).closest("section"), {});
+            var jDiv = this._append_list_item($(e.currentTarget).closest("section"), {});
+            jDiv.click();
         },
         // 删除 filter/sorter 的项目
         'click .olstp-part h4 > ul > li[a="del"]' : function(e) {
@@ -248,21 +335,46 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
             $z.toggleAttr(e.currentTarget, "on");
             this._notify_part_change(e.currentTarget);
         },
+        // sorter 的排序
+        'click .olstp-sorter [key="order"]' : function(e) {
+            var UI = this;
+            var jOrder = $(e.currentTarget);
+            $z.toggleAttr(jOrder, "order", "asc", "desc");
+            $z.blinkIt(jOrder);
+            UI._notify_part_change(jOrder);
+        },
         // 通知 filter/sorter 的改变
         'change .olstp-part input, .olstp-part textarea' : function(e) {
             this._notify_part_change(e.currentTarget);
         },
         // 高亮 filter/sorter 的项目
         'click .olstp-part .part-item' : function(e){
+            var UI = this;
+
+            // 防止冒泡
             e.stopPropagation();
+
+            // 取消其他高亮
+            UI.balloon(".part-item", false);
+            UI.arena.find('.part-item[current]').removeAttr("current");
+
+            // 高亮当前
             var jItem = $(e.currentTarget);
+            this.balloon(jItem);
             jItem.parent().children().removeAttr("current");
             jItem.attr("current", "yes");
         },
         // 取消高亮 filter/sorter 的项目
         'click .olstp-part' : function(e){
-            var jPart = this.$part(e.currentTarget);
-            jPart.find('.part-item[current]').removeAttr("current");
+            var UI = this;
+            var jq = $(e.target);
+            // 如果在快捷菜单里，就不取消了
+            if(jq.closest('li[a]').length > 0) {
+                return;
+            }
+            // 取消其他高亮
+            UI.balloon(".part-item", false);
+            UI.arena.find('.part-item[current]').removeAttr("current");
         },
     },
     //...............................................................
@@ -284,23 +396,31 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
         var HDL    = OLSTP[part];
         var jDiv   = $(UI.compactHTML(HDL.html)).appendTo(jItems);
         HDL.set(jDiv, item);
+        return jDiv;
     },
     //...............................................................
     $part : function(ele) {
-        return $(ele).closest(".olstp-part");
+        return $(ele).closest("section[part]");
     },
     _get_part_by : function(jPart) {
-        return jPart.hasClass("olstp-filter") ? "filter" : "sorter";
+        return jPart.attr("part");
     },
     //...............................................................
     _notify_part_change : function(ele) {
         var UI = this;
         var jPart = UI.$part(ele);
         var part  = UI._get_part_by(jPart);
-        var HDL   = OLSTP[part];
-        var data  = HDL.getPartData(UI);
+
+        // 取值
+        var partData = null;
         var com = {__prop_ignore_update : true};
-        com[part] = data;
+        if(!jPart.attr("part-disabled")){
+            var HDL  = OLSTP[part];
+            partData = HDL.getPartData(UI);
+        }
+
+        // 通知
+        com[part] = partData;
         UI.fire("change:com", com);
     },
     //...............................................................
@@ -340,7 +460,15 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
                 editAs : "input",
                 uiConf : {
                     formatData : function(str) {
-                        return (str||"").split(/[ \t,，;；\n]+/g);
+                        str = $.trim(str);
+                        var list = (str||"").split(/[ \t,，;；\n]+/g);
+                        var re   = [];
+                        for(var s of list) {
+                            if(/^\d+$/.test(s)) {
+                                re.push(parseInt(s));
+                            }
+                        }
+                        return re.length > 0 ? re : null;
                     },
                     parseData : function(sizes) {
                         return (sizes || []).join(",");
@@ -389,9 +517,12 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
                         var lines = str.split(/(\r?\n)+/g);
                         for(var line of lines) {
                             var ss  = line.split(/:/);
-                            var key = $.trim(ss[0]);
-                            var val = $.trim(ss[1]);
-                            i18n[key] = val;
+                            if(ss.length > 1){
+                                var key = $.trim(ss[0]);
+                                var val = $.trim(ss[1]);
+                                if(key && val)
+                                    i18n[key] = val;
+                            }
                         }
                         return i18n;
                     },
@@ -415,20 +546,37 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
     //...............................................................
     update : function(com) {
         var UI = this;
+
+        console.log("I am update:", com)
         
         // 更新数据源
         UI.gasket.dds.update(com);
 
-        // 更新过滤器
-        OLSTP.filter.setPartData(UI, com.filter);
+        // 更新过滤器/排序器/翻页器
+        UI._update_part("filter", com.filter);
+        UI._update_part("sorter", com.sorter);
+        UI._update_part("pager" , com.pager);
 
-        // 更新排序器
-
-        // 更新翻页器
-        UI.gasket.pager.setData(com.pager||{});
+        // 确保翻页器有默认值
+        if(!com.pager)
+            UI.gasket.pager.setData({});
 
         // 最后在调用一遍 resize
         UI.resize(true);
+    },
+    //...............................................................
+    _update_part : function(part, partData) {
+        var UI = this;
+        var jPart = UI.arena.find(".olstp-" + part);
+        // 失效
+        if(!partData) {
+            jPart.attr("part-disabled", "yes");
+        }
+        // 启用
+        else {
+            jPart.attr("part-disabled", null);
+            OLSTP[part].setPartData(UI, partData);
+        }
     },
     //...............................................................
     resize : function() {

@@ -522,7 +522,6 @@
             footer {
                 padding:@d3;
                 textarea { width:100%; height: 80px; resize:none;}
-                .tip {color:@c2; font-size:@f1; padding:0 @d1;}
             }
             input,textarea {background: @cb1; color:@cf1;}
         }
@@ -554,6 +553,28 @@
     //.....................................................
     // 排序器
     .olstp-sorter {
+        section {padding-right:0;}
+        [key="toggleable"] {
+            padding-right:@d3;
+        }
+        [key="order"] {
+            cursor: pointer; padding-left:@d4; border-left:1px solid @cborder1;
+            em:before {display: inline-block; vertical-align: middle;}
+            span > i {display: none;}
+        }
+        [key="order"][order="asc"] {
+            em:before {content: attr(asc);}
+            span > i:first-child{display: inline;}
+        }
+        [key="order"][order="desc"] {
+            em:before {content: attr(desc);}
+            span > i:last-child {display: inline;}
+        }
+        [key="lskey"] {
+            @flex(); padding-top:@d2;
+            em {display:inline-block; padding:@d3 @d3 @d2 0;}
+            input {flex:1 1 auto;}
+        }
     }
     //.....................................................
     // 翻页器

@@ -765,23 +765,33 @@ ZUIObj.prototype = {
         if(_.isUndefined(enabled))
             enabled = true;
 
+        // 得到选区
+        var jq = UI.$el;
+        if(_.isString(selector))
+            jq = jq.find(selector);
+        else if(_.isElement(selector) || $z.isjQuery(selector))
+            jq = $(selector);
+
         // 启用
         if(enabled) {
-            UI.arena.find(selector || "*").filter('[balloon]').each(function(){
-                var jq = $(this);
-                var ss = jq.attr("balloon").split(/\W*:\W*/);
-                jq.attr({
-                    "data-balloon" : UI.msg(ss[1]),
-                    "data-balloon-pos" : ss[0]
+            jq.find('[balloon]').each(function(){
+                var me = $(this);
+                var m  = /^((up|down|left|right)(:(small|medium|large|xlarge|fit))?:)?(.*)/.exec(me.attr("balloon"));
+                me.attr({
+                    "data-balloon" : UI.msg($.trim(m[5])),
+                    "data-balloon-pos"    : $.trim(m[2]) || null,
+                    "data-balloon-length" : $.trim(m[4]) || null,
                 });
             });
         }
         // 取消
         else {
-            UI.arena.find(selector || "*").filter('[balloon]').each(function(){
-                $(this)
-                    .removeAttr("data-balloon")
-                    .removeAttr("data-balloon-pos");
+            jq.find('[balloon]').each(function(){
+                $(this).attr({
+                    "data-balloon"        : null,
+                    "data-balloon-pos"    : null,
+                    "data-balloon-length" : null,
+                });
             });
         }
     },

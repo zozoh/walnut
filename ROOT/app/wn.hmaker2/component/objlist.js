@@ -41,7 +41,7 @@ return ZUI.def("app.wn.hm_com_objlist", {
     paint : function(com) {
         var UI = this;
 
-        console.log("paint:", com)
+        //console.log("paint:", com)
 
         // 检查显示模式
         if(!UI.__check_mode(com)){

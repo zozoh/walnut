@@ -892,11 +892,6 @@
   height: 80px;
   resize: none;
 }
-.hmc-objlist-prop .olstp-items .part-item footer .tip {
-  color: #888888;
-  font-size: 10px;
-  padding: 0 4px;
-}
 .hmc-objlist-prop .olstp-items .part-item input,
 .hmc-objlist-prop .olstp-items .part-item textarea {
   background: #eeeeee;
@@ -953,6 +948,48 @@
   font-size: 10px;
   color: #008800;
   text-align: right;
+}
+.hmc-objlist-prop .olstp-sorter section {
+  padding-right: 0;
+}
+.hmc-objlist-prop .olstp-sorter [key="toggleable"] {
+  padding-right: 8px;
+}
+.hmc-objlist-prop .olstp-sorter [key="order"] {
+  cursor: pointer;
+  padding-left: 12px;
+  border-left: 1px solid #d0d0d0;
+}
+.hmc-objlist-prop .olstp-sorter [key="order"] em:before {
+  display: inline-block;
+  vertical-align: middle;
+}
+.hmc-objlist-prop .olstp-sorter [key="order"] span > i {
+  display: none;
+}
+.hmc-objlist-prop .olstp-sorter [key="order"][order="asc"] em:before {
+  content: attr(asc);
+}
+.hmc-objlist-prop .olstp-sorter [key="order"][order="asc"] span > i:first-child {
+  display: inline;
+}
+.hmc-objlist-prop .olstp-sorter [key="order"][order="desc"] em:before {
+  content: attr(desc);
+}
+.hmc-objlist-prop .olstp-sorter [key="order"][order="desc"] span > i:last-child {
+  display: inline;
+}
+.hmc-objlist-prop .olstp-sorter [key="lskey"] {
+  display: -webkit-flex;
+  display: flex;
+  padding-top: 6px;
+}
+.hmc-objlist-prop .olstp-sorter [key="lskey"] em {
+  display: inline-block;
+  padding: 8px 8px 6px 0;
+}
+.hmc-objlist-prop .olstp-sorter [key="lskey"] input {
+  flex: 1 1 auto;
 }
 .hmc-objlist-prop .olstp-pager > div {
   height: 360px;

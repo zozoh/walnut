@@ -199,7 +199,7 @@ sorter : [{
     order : 1 | -1    // 1 为asc默认，-1 为 desc
     
     // 是否用户可以修改正序反序
-    toggleOrder : false
+    toggleable : false
 
     // 选择本项后的，还会附加的固定排序条件
     more  : [{nm:1,ct:-1}]
