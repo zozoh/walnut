@@ -42,9 +42,8 @@ return ZUI.def("ui.form_com_link", {
         "click u" : function(){
             var UI    = this;
             var opt   = UI.options;
-            console.log(opt)
             var setup = opt.setup || {};
-            var str   = UI.getData();
+            var str   = UI.$el.data("@LINK");
             // 准备遮罩的宽高
             //$z.setUndefined(setup, "blockNumber",  "range"==setup.mode?2:1);
             // $z.setUndefined(setup, "width",  300 * (setup.blockNumber||1));
@@ -86,7 +85,7 @@ return ZUI.def("ui.form_com_link", {
 
         // 记录值
         str = $.trim(str);
-        UI.arena.attr("link-val", str || "");
+        UI.$el.data("@LINK", str);
 
         // 修正显示
         if(str){
@@ -125,7 +124,7 @@ return ZUI.def("ui.form_com_link", {
     __on_change : function(){
         var UI  = this;
         var opt = UI.options;
-        var context = opt.context || UI;
+        var context = opt.context || UI.parent;
         var v = UI.getData();
         $z.invoke(opt, "on_change", [v], context);
         UI.trigger("change", v);
@@ -134,7 +133,7 @@ return ZUI.def("ui.form_com_link", {
     getData : function(){
         var UI = this;
         return this.ui_format_data(function(opt){
-            return UI.arena.attr("link-val");
+            return UI.$el.data("@LINK");
         });
     }
     //...............................................................

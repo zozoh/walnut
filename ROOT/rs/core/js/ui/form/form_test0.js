@@ -106,6 +106,12 @@ return ZUI.def("ui.form_test0", {
                 type  : "object",
                 editAs : "color"
             },{
+                key   : "background",
+                title : "背景颜色",
+                tip   : "代表了你的性格哟",
+                type  : "string",
+                editAs : "background"
+            },{
                 key   : "name",
                 title : "名称",
                 tip   : "请输入正确的名称",
@@ -335,7 +341,7 @@ return ZUI.def("ui.form_test0", {
     update : function(o){
         var UI = this;
         UI.$el.attr("obj-id", o.id);
-        UI.do_t1();
+        UI.do_t0();
     }
     //...............................................................
 });

@@ -20,7 +20,7 @@ return ZUI.def("ui.form_com_text", {
     __on_change : function(){
         var UI  = this;
         var opt = UI.options;
-        var context = opt.context || UI;
+        var context = opt.context || UI.parent;
         var v = UI.getData();
         $z.invoke(opt, "on_change", [v], context);
         UI.trigger("change", v);

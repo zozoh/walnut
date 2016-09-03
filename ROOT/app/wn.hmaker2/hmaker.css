@@ -64,14 +64,16 @@
   position: relative;
 }
 .hmaker .hm-panel > section > * {
-  display: none;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
 }
-.hmaker .hm-panel > section > *[current] {
+.hmaker .hm-con-prop .hm-panel > section > * {
+  display: none;
+}
+.hmaker .hm-con-prop .hm-panel > section > *[current] {
   display: block;
 }
 .hmaker .hm-page {

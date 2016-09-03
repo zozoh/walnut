@@ -20,7 +20,7 @@ return ZUI.def("ui.form_com_input", {
     __on_change : function(){
         var UI  = this;
         var opt = UI.options;
-        var context = opt.context || UI;
+        var context = opt.context || UI.parent;
         var v = UI.getData();
         $z.invoke(opt, "on_change", [v], context);
         UI.trigger("change", v);
@@ -37,6 +37,18 @@ return ZUI.def("ui.form_com_input", {
         // 木有单位，移除
         else{
             jUnit.remove();
+        }
+        // ComboBox 列表
+        if(_.isArray(opt.list) && opt.list.length > 0 ) {
+            var comboId = "combo_id_ui_" + UI.cid;
+            var html = '<datalist id="' + comboId + '">';
+            for(var v of opt.list){
+                html += '<option value="'+v+'">';
+            }
+            html += '</datalist>';
+            $(html).appendTo(UI.arena);
+            
+            UI.arena.find("input").attr("list", comboId);
         }
     },
     //...............................................................

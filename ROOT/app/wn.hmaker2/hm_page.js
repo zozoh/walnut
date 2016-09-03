@@ -155,6 +155,19 @@ return ZUI.def("app.wn.hmaker_page", {
         }
     },
     //...............................................................
+    getPageAttr : function(){
+        return $z.getJsonFromSubScriptEle(this._C.iedit.$body, "hm-page-attr");
+    },
+    setPageAttr : function(attr){
+        $z.setJsonToSubScriptEle(this._C.iedit.$body, "hm-page-attr", attr, true);
+        this.applyPageAttr(attr);
+    },
+    applyPageAttr : function(attr){
+        var UI = this;
+        attr = attr || UI.getPageAttr() || {};
+        UI._C.iedit.$body.css(attr);
+    },
+    //...............................................................
     on_block_delete : function(e) {
         var UI = this;
 
@@ -339,13 +352,16 @@ return ZUI.def("app.wn.hmaker_page", {
 
         });
 
+        // 应用网页显示样式
+        UI.applyPageAttr();
+
         // 通知网页被加载
         UI.fire("active:page", UI._page_obj);
 
         // 模拟第一个块被点击
-        window.setTimeout(function(){
-            UI._C.iedit.$body.find(".hm-block").first().click();
-        },500);
+        // window.setTimeout(function(){
+        //     UI._C.iedit.$body.find(".hm-block").first().click();
+        // },500);
     },
     //...............................................................
     __setup_page_head : function() {

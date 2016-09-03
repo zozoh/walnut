@@ -127,14 +127,8 @@ var OLSTP = {
                     <em asc="{{hmaker.com.objlist.sorti_asc}}" desc="{{hmaker.com.objlist.sorti_desc}}"></em>
                 </div>
             </section>
-            <footer>
-                <div key="more" balloon="up:large:{{hmaker.com.objlist.sorti_more_tip}}">
-                    <textarea placeholder="{{hmaker.com.objlist.sorti_more_demo}}"></textarea>
-                </div>
-                <div key="lskey" balloon="up:large:{{hmaker.com.objlist.sorti_lskey_tip}}">
-                    <em>{{hmaker.com.objlist.sorti_lskey}}</em>
-                    <input placeholder="{{hmaker.com.objlist.sorti_lskey_demo}}">
-                </div>
+            <footer key="more" balloon="up:large:{{hmaker.com.objlist.sorti_more_tip}}">
+                <textarea placeholder="{{hmaker.com.objlist.sorti_more_demo}}"></textarea>
             </footer>
         </div>
         `,
@@ -144,7 +138,6 @@ var OLSTP = {
             jDiv.find('[key="toggleable"] .ui-toggle').attr("on", item.toggleable ? "yes" : null);
             jDiv.find('[key="order"]').attr("order", item.order < 0 ? 'desc' : 'asc');
             jDiv.find('[key="more"] textarea').val(item.more ? $z.toJson(item.more) : "");
-            jDiv.find('[key="lskey"] input').val(item.localStoreKey || "");
         },
         get : function(jDiv) {
             var item = {
@@ -152,7 +145,6 @@ var OLSTP = {
                 text : $.trim(jDiv.find('input[name="text"]').val()),
                 toggleable : jDiv.find('[key="toggleable"] .ui-toggle').attr("on") ? true : false,
                 order      : jDiv.find('[key="order"]').attr("order") == 'desc' ? -1 : 1,
-                localStoreKey  : $.trim(jDiv.find('[key="lskey"] input').val()) || null
             };
             var more = jDiv.find('[key="more"] textarea').val();
             if(more)
@@ -162,26 +154,35 @@ var OLSTP = {
         },
         getPartData : function(UI) {
             var jSort = UI.arena.find(".olstp-sorter");
-            var re   = [];
+            var re   = {
+                fields : []
+            };
+
+            // 本地存储键
+            re.localStoreKey = $.trim(jSort.find(".sorter-lskey input").val()) || null;
 
             // 列表
             var jItems = jSort.find(".olstp-items");
             jItems.find(".part-item").each(function(){
                 var item = OLSTP.sorter.get($(this));
-                re.push(item);
+                if(item.key)
+                    re.fields.push(item);
             });
 
             // 返回
-            return re.length > 0 ? re : null;
+            return re.fields.length > 0 ? re : null;
         },
         setPartData : function(UI, data) {
             data = data || {};
             var jSort = UI.arena.find(".olstp-sorter");
 
+            // 本地存储键
+            jSort.find(".sorter-lskey input").val(data.localStoreKey || "");
+
             // 列表
             jSort.find(".olstp-items").empty();
-            if(_.isArray(data) && data.length > 0){
-                for(var item of data)
+            if(_.isArray(data.fields) && data.fields.length > 0){
+                for(var item of data.fields)
                     UI._append_list_item(jSort, item);
             }
         }
@@ -238,7 +239,15 @@ var html = `
                 <li a="down" balloon="up:hmaker.com.objlist.sort_mvdown"><i class="zmdi zmdi-long-arrow-down"></i></li>
             </ul>
         </h4>
-        <div><div class="olstp-items"></div></div>
+        <div>
+            <div class="olstp-items"></div>
+            <div>
+                <div class="sorter-lskey" balloon="up:large:{{hmaker.com.objlist.sort_lskey_tip}}">
+                    <em>{{hmaker.com.objlist.sort_lskey}}</em>
+                    <input placeholder="{{hmaker.com.objlist.sort_lskey_demo}}">
+                </div>
+            </div>
+        </div>
     </section>
     <section class="olstp-pager" part="pager">
         <h4>
@@ -546,8 +555,6 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
     //...............................................................
     update : function(com) {
         var UI = this;
-
-        console.log("I am update:", com)
         
         // 更新数据源
         UI.gasket.dds.update(com);

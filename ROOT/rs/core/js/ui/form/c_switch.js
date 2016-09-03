@@ -140,8 +140,20 @@ return ZUI.def("ui.form_com_switch", {
             else if(_.isFunction(opt.text))
                 text = opt.text.call(context, item, i, UI);
 
-            $('<b it="text">').text(UI.text(text)).appendTo(jLi);
+            if(text)
+                $('<b it="text">').text(UI.text(text)).appendTo(jLi);
+
+            // 提示文字
+            if(item.tip) {
+                var tip = item.tip;
+                if(!/^(up|down|left|right):/.test(item.tip))
+                    tip = "up:" + tip;
+                jLi.attr("balloon", tip);
+            }
         }
+
+        // 打开提示文字
+        UI.balloon();
     },
     //...............................................................
     // limit 参数表示是否为限定数量的多选

@@ -122,6 +122,8 @@ return ZUI.def("app.wn.hm_prop_edit", {
     },
     //...............................................................
     changeBlock : function(prop, full) {
+        if(prop && prop.__prop_ignore_update)
+            return;
         this.gasket.block.update(prop, full);
     },
     //...............................................................

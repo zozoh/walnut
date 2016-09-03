@@ -100,7 +100,7 @@ return ZUI.def("ui.form", {
                 // 有快捷定义 ..
                 else if(fld.editAs){
                     // 内置
-                    if(/^(input|color|label|switch|text|link|(drop|check|radio)list)$/.test(fld.editAs)){
+                    if(/^(input|color|background|label|switch|text|link|(drop|check|radio)list)$/.test(fld.editAs)){
                         fld.uiType = "ui/form/c_" + fld.editAs;
                     }
                     // 各种 picker
@@ -150,8 +150,11 @@ return ZUI.def("ui.form", {
         var opt = UI.options;
         var uiw = fld.uiWidth || grp.uiWidth || opt.uiWidth;
         var jF  = UI.ccode("field")
-                    .attr("ui-width", uiw)
-                    .attr("fld-key", fld.key)
+                    .attr({
+                        "ui-width" : uiw,
+                        "fld-key"  : fld.key,
+                        "form-id"  : UI.cid
+                    })
                     .data("@FLD", fld)
                     .data("@jOBJ", jType(fld))
                     .appendTo(jG);
@@ -188,7 +191,10 @@ return ZUI.def("ui.form", {
 
         // 绘制值
         seajs.use(fld.uiType, function(TheUI){
-            var theConf = {};
+            // 默认根据字段类型给出控件的数据类型
+            var theConf = {
+                dataType : fld.type || "string"
+            };
             // 如果用户定义了 display 函数，则自动应用到控件 UI 里
             if(!fld.uiConf.display && _.isFunction(fld.display)){
                 theConf.display = fld.display;
@@ -197,6 +203,7 @@ return ZUI.def("ui.form", {
             if(!fld.uiConf.title && fld.title){
                 theConf.title = fld.title;
             }
+
             // 渲染 UI 控件 
             var theUI = new TheUI(_.extend(theConf, fld.uiConf, {
                 gasketName : fld.key,
@@ -231,7 +238,7 @@ return ZUI.def("ui.form", {
         var opt = UI.options;
         var context = opt.context || UI;
         var val = jType(fld).parse(v).toNative();
-        $z.invoke(opt, "on_change", [fld.key, val], context);
+        $z.invoke(opt, "on_change", [fld.key, val, fld], context);
         UI.trigger("form:change", fld.key, val);
     },
     //...............................................................
@@ -383,7 +390,7 @@ return ZUI.def("ui.form", {
 
             // 同时归纳最大的字段标题宽度
             var maxFFW = 0;
-            jG.find(".form-fld").each(function(index, ele){
+            jG.find('.form-fld[form-id="'+UI.cid+'"]').each(function(index, ele){
                 var jF   = $(this);
                 var fld  = jF.data("@FLD");
                 var span = Math.max(fld.span || 1, 1);
@@ -410,7 +417,7 @@ return ZUI.def("ui.form", {
             jG.find(".ff-prompt").css("width", maxFFW);
             
             // 继续设置所有的值应该的宽度
-            jG.find(".form-fld").each(function(){
+            UI.$myfields(jG).each(function(){
                 var jF   = $(this);
                 var fld  = jF.data("@FLD");
                 var jTxt = jF.children(".ff-txt");
@@ -449,6 +456,10 @@ return ZUI.def("ui.form", {
         UI.$el.css("visibility", "");
     },
     //...............................................................
+    $myfields : function(jP) {
+        return (jP || this.arena).find('.form-fld[form-id="'+this.cid+'"]');
+    },
+    //...............................................................
     update : function(key, val){
         var UI  = this;
         //console.log("form update: key=",key, " : val=", val);
@@ -458,7 +469,7 @@ return ZUI.def("ui.form", {
         // 执行更新
         UI.ui_parse_data(obj, function(o){
             // 设置每个字段
-            UI.arena.find(".form-fld").each(function(){
+            UI.$myfields().each(function(){
                 var jF  = $(this);
                 var jso = jF.data("@jOBJ");
                 var fui = jF.data("@UI");
@@ -477,7 +488,7 @@ return ZUI.def("ui.form", {
             UI.$el.data("@DATA", o);
 
             // 设置每个字段
-            UI.arena.find(".form-fld").each(function(){
+            UI.$myfields().each(function(){
                 var jF  = $(this);
                 var jso = jF.data("@jOBJ");
                 var fui = jF.data("@UI"); 
@@ -508,7 +519,7 @@ return ZUI.def("ui.form", {
                         : {};
 
             // 读取每个字段的返回值
-            UI.arena.find(".form-fld").each(function(){
+            UI.$myfields().each(function(){
                 var jF  = $(this);
 
                 // 模板的话，判断一下是否选项开启

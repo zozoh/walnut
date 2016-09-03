@@ -778,7 +778,7 @@ ZUIObj.prototype = {
                 var me = $(this);
                 var m  = /^((up|down|left|right)(:(small|medium|large|xlarge|fit))?:)?(.*)/.exec(me.attr("balloon"));
                 me.attr({
-                    "data-balloon" : UI.msg($.trim(m[5])),
+                    "data-balloon" : UI.text($.trim(m[5])),
                     "data-balloon-pos"    : $.trim(m[2]) || null,
                     "data-balloon-length" : $.trim(m[4]) || null,
                 });

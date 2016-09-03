@@ -1,7 +1,6 @@
 (function($z){
 $z.declare([
-    'zui',
-    'jquery-plugin/slidebar/slidebar'
+    'zui'
 ], function(ZUI){
 //==============================================
 function _TC(v) {
@@ -138,8 +137,8 @@ var CC = {
     }
 };
 //==============================================
-var html = function(){/*
-<div class="ui-arena com-color">
+var html = `
+<div class="ui-arena com-color com-square-drop">
     <div class="cc-box"><div class="ccb-preview"></div></div>
     <div class="cc-edit">
         <div class="cce-mask"></div>
@@ -165,14 +164,16 @@ var html = function(){/*
         </div></div>
     </div>
 </div>
-*/};
+`;
 //===================================================================
-return ZUI.def("ui.form_com_color2", {
-    css  : "theme/jqp/slidebar/slidebar.css",  
-    //...............................................................
-    dom  : $z.getFuncBodyAsStr(html.toString()),
+return ZUI.def("ui.form_com_color", {
+    dom  : html,
+    css  : "theme/ui/form/component.css",
     i18n : "ui/form/i18n/{{lang}}.js",
+    //...............................................................
     init : function(opt) {
+        var UI = this;
+
         // Z轴实例颜色的 X,Y 值
         $z.setUndefined(opt, "Zx", 1);
         $z.setUndefined(opt, "Zy", 1);
@@ -187,8 +188,8 @@ return ZUI.def("ui.form_com_color2", {
         $z.setUndefined(opt, "mode", "BSH");
 
         // ESC 键，将会隐藏自己
-        this.watchKey(27, function(e){
-            this.arena.removeAttr("show");
+        UI.watchKey(27, function(e){
+            UI.hideDrop();
         });
     },
     //...............................................................
@@ -385,7 +386,7 @@ return ZUI.def("ui.form_com_color2", {
     __on_change : function(){
         var UI  = this;
         var opt = UI.options;
-        var context = opt.context || UI;
+        var context = opt.context || UI.parent;
         var v = UI.getData();
         $z.invoke(opt, "on_change", [v], context);
         UI.trigger("change", v);
@@ -399,7 +400,7 @@ return ZUI.def("ui.form_com_color2", {
         // 没颜色，清空
         if(!color){
             UI.arena.find("input").val("");
-            jPrew.css("background-color","").attr("no-color","yes");
+            jPrew.css("background-color","").attr("empty","yes");
         }
         // 设置颜色
         else {
@@ -416,14 +417,29 @@ return ZUI.def("ui.form_com_color2", {
             UI.arena.find('.cce-hex input').val(hex)
                 .attr("old-val", hex);
 
-            jPrew.css("background-color",color.RGBA).removeAttr("no-color");
+            jPrew.css("background-color",color.RGBA).removeAttr("empty");
         }
     },
     //...............................................................
     getData : function(){
         var UI = this;
         return this.ui_format_data(function(opt){
-            return UI.__get_color();
+            var color = UI.__get_color();
+            if(color && "string" == opt.dataType){
+                switch(opt.colorFormat) {
+                    case "HEX":
+                        return color.HEX;
+                    case "RGB":
+                        return color.RGB;
+                    case "RGBA":
+                        return color.RGBA;
+                    case "AARRGGBB":
+                        return color.AARRGGBB;
+                    default:
+                        return color.alpha < 1.0 ? color.RGBA : color.HEX;
+                }
+            }
+            return color;
         });
     },
     //...............................................................

@@ -200,6 +200,14 @@
     }
 }
 //............................................................
+// 页面编辑面板
+//............................................................
+.hm-prop-page {
+    > section {
+        width:100%; height:100%;
+    }
+}
+//............................................................
 // 控件们的私有属性面板
 //............................................................
 // rows
@@ -570,9 +578,9 @@
             em:before {content: attr(desc);}
             span > i:last-child {display: inline;}
         }
-        [key="lskey"] {
+        .sorter-lskey {
             @flex(); padding-top:@d2;
-            em {display:inline-block; padding:@d3 @d3 @d2 0;}
+            em {display:inline-block; padding:@d3 @d3 @d2 0; font-style:normal;}
             input {flex:1 1 auto;}
         }
     }

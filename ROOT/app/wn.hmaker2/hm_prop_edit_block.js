@@ -2,7 +2,7 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/hm__methods',
+    'app/wn.hmaker2/hm__methods_panel',
     'ui/form/form',
     'ui/form/c_switch',
 ], function(ZUI, Wn, HmMethods, FormUI, SwitchUI){
@@ -252,7 +252,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             gasketName : "form",
             uiWidth: "all",
             on_change : function(key, val) {
-                UI.fire("change:block", $z.obj(key, val));
+                UI.notifyBlockChange($z.obj(key, val));
             },
             fields : [{
                 key    : "padding",
@@ -274,22 +274,13 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 title  : "i18n:hmaker.prop.color",
                 type   : "string",
                 editAs : "color",
-                uiConf : {
-                    formatData : function(color){
-                        return color ? color.RGBA : null;
-                    }
-                }
             }, {
                 key    : "background",
                 title  : "i18n:hmaker.prop.background",
                 type   : "string",
                 nullAsUndefined : true,
-                editAs : "color",
-                uiConf : {
-                    formatData : function(color){
-                        return color ? color.RGBA : null;
-                    }
-                }
+                editAs : "background",
+                uiConf : UI.getBackgroundImageEditConf()
             }, {
                 key    : "boxShadow",
                 title  : "i18n:hmaker.prop.boxShadow",

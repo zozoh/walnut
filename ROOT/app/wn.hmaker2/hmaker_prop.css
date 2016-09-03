@@ -357,6 +357,10 @@
 .hm-prop-edit .form .form-fld .ff-val input {
   font-family: Monaco, Consolas, Courier New;
 }
+.hm-prop-page > section {
+  width: 100%;
+  height: 100%;
+}
 .hmc-rows-prop {
   padding: 8px;
 }
@@ -979,16 +983,17 @@
 .hmc-objlist-prop .olstp-sorter [key="order"][order="desc"] span > i:last-child {
   display: inline;
 }
-.hmc-objlist-prop .olstp-sorter [key="lskey"] {
+.hmc-objlist-prop .olstp-sorter .sorter-lskey {
   display: -webkit-flex;
   display: flex;
   padding-top: 6px;
 }
-.hmc-objlist-prop .olstp-sorter [key="lskey"] em {
+.hmc-objlist-prop .olstp-sorter .sorter-lskey em {
   display: inline-block;
   padding: 8px 8px 6px 0;
+  font-style: normal;
 }
-.hmc-objlist-prop .olstp-sorter [key="lskey"] input {
+.hmc-objlist-prop .olstp-sorter .sorter-lskey input {
   flex: 1 1 auto;
 }
 .hmc-objlist-prop .olstp-pager > div {
