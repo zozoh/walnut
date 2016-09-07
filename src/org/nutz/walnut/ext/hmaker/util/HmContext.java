@@ -40,10 +40,12 @@ public class HmContext {
     }
 
     public HmContext(HmContext hpc) {
-        this(hpc.io);
+        this.io = hpc.io;
+        this.resources = hpc.resources;
         this.oHome = hpc.oHome;
         this.oDest = hpc.oDest;
         this.oConfHome = hpc.oConfHome;
+        
     }
 
     public String getRelativePath(WnObj o) {

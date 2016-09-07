@@ -152,7 +152,6 @@ return ZUI.def("ui.support.edit_link", {
         // 如果是内部对象
         if(UI.gasket.main){
             var obj = UI.gasket.main.getActived();
-            console.log(obj)
             if(!obj){
                 return "";
             }

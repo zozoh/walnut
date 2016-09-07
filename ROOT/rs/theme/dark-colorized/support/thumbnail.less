@@ -65,14 +65,17 @@
             .img {background-color: #000;}
         }
         .wnobj-nm-con {
-            text-align: center; margin-top:@d1;
-            width: @wnobj_w; height: @d5*3 + 2; line-height: @d5;
+            text-align: center; padding-top:@d1;
+            width: @wnobj_w; height: @d5*3 + 8; line-height: @d5;
             overflow: hidden; word-break:break-all; 
-            position: relative;
+            position: relative; font-family: @f_fixed;
         }
         .wnobj-nm{
             display: inline-block; padding:0 @d1; border-radius: @d0;
-            border:1px dotted rgba(0,0,0,0); font-family: @f_fixed;
+            border:1px dotted rgba(0,0,0,0); font-weight: normal; font-style: normal;
+        }
+        .z-edit-it {
+            border:1px solid @cborder0;
         }
     }
     .wnobj-checked {

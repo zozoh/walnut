@@ -8,9 +8,10 @@ var Wn = {
     },
     //...................................................................
     // 生成标准缩略图的 DOM 结构
-    gen_wnobj_thumbnail_html : function(nmTagName){
+    gen_wnobj_thumbnail_html : function(nmTagName, innerOnly){
         nmTagName = nmTagName || 'a';
-        var html = '<div class="wnobj"><div class="wnobj-wrapper">';
+        var html = innerOnly ? '' : '<div class="wnobj">';
+        html += '<div class="wnobj-wrapper">';
         html += '<div class="wnobj-seq"><span>0</span></div>'
         html += '<div class="wnobj-del"><i class="fa fa-close"></i></div>'
         html += '<div class="wnobj-thumbnail">';
@@ -22,14 +23,15 @@ var Wn = {
         html += ' </div>';
         html += '</div>';
         html += '<div class="wnobj-nm-con"><'+nmTagName+' class="wnobj-nm"></'+nmTagName+'></div>';
-        html += '</div></div>';
+        html += '</div>';
+        html += innerOnly ? '' : '</div>';
         return html;
     },
     //...................................................................
     // 生成一个缩略图的 jQuery 对象，但是没加入 DOM 树
     gen_wnobj_thumbnail : function(UI, o, nmTagName, evalThumb, nmMaxLen){
-        var jq = $(this.gen_wnobj_thumbnail_html(nmTagName));
-        this.update_wnobj_thumbnail(UI, o, jq, evalThumb, nmMaxLen);
+        var jq = $(Wn.gen_wnobj_thumbnail_html(nmTagName));
+        Wn.update_wnobj_thumbnail(UI, o, jq, evalThumb, nmMaxLen);
         return jq;
     },
     //...................................................................

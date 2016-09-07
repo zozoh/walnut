@@ -11,12 +11,12 @@
   padding: 12px;
   bottom: 0;
 }
-.opreview .opreview-info {
+.opreview .opreview-meta {
   width: 340px;
   background: #eeeeee;
   bottom: 0;
 }
-.opreview .opreview-showinfo {
+.opreview .opreview-showmeta {
   top: 0;
   right: 0;
   padding: 8px;
@@ -24,7 +24,7 @@
   font-size: 24px;
   cursor: pointer;
 }
-.opreview .opreview-showinfo[data-balloon]::before {
+.opreview .opreview-showmeta[data-balloon]::before {
   font-size: 16px;
 }
 .opreview .form .form-title {
@@ -51,35 +51,35 @@
   display: block;
   height: 40%;
 }
-.opreview[show-info="yes"] .opreview-main {
+.opreview[show-meta="yes"] .opreview-main {
   left: 0;
   right: 340px;
   overflow: auto;
   padding: 12px;
 }
-.opreview[show-info="yes"] .opreview-info {
+.opreview[show-meta="yes"] .opreview-meta {
   right: 0;
 }
-.opreview[show-info="yes"] .opreview-showinfo {
+.opreview[show-meta="yes"] .opreview-showmeta {
   opacity: 0;
   width: 1px;
   height: 1px;
   padding: 0;
   margin: 0;
 }
-.opreview[show-info="no"] .opreview-main {
+.opreview[show-meta="no"] .opreview-main {
   left: 0;
   right: 0;
   overflow: auto;
   padding: 12px;
 }
-.opreview[show-info="no"] .opreview-info {
+.opreview[show-meta="no"] .opreview-meta {
   right: -340px;
 }
-.opreview[show-info="no"] .opreview-showinfo {
+.opreview[show-meta="no"] .opreview-showmeta {
   opacity: 0.6;
 }
-.opreview[show-info="no"] .opreview-showinfo:hover {
+.opreview[show-meta="no"] .opreview-showmeta:hover {
   opacity: 1;
   font-size: 32px;
 }

@@ -2,14 +2,12 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/form/form',
-    'app/wn.hmaker2/hm__methods',
-], function(ZUI, Wn, FormUI, HmMethods){
+    'app/wn.hmaker2/hm__methods_panel',
+    'ui/o_view_obj/o_view_meta',
+], function(ZUI, Wn, HmMethods, ObjMetaUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena hm-prop-folder" ui-fitparent="yes">
-    I am other prop
-</div>
+<div class="ui-arena hm-prop-other" ui-fitparent="yes" ui-gasket="meta"></div>
 */};
 //==============================================
 return ZUI.def("app.wn.hm_prop_other", {
@@ -17,6 +15,23 @@ return ZUI.def("app.wn.hm_prop_other", {
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
+
+        UI.listenBus("active:other",  function(o){
+            UI.gasket.meta.update(o);
+        });
+    },
+    //...............................................................
+    redraw : function() {
+        var UI = this;
+
+        new ObjMetaUI({
+            parent : UI,
+            gasketName : "meta"
+        }).render(function(){
+            UI.defer_report("meta");
+        });
+
+        return ["meta"];
     },
     //...............................................................
 });

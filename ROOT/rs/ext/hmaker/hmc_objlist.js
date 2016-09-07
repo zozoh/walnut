@@ -25,7 +25,7 @@ $(context).thingset({
 (function($, $z){
 
 //...........................................................
-$.fn.extend({ "thingset" : function(opt){
+$.fn.extend({ "objlist" : function(opt){
 
     // 显示主
     $("<b>haha, Iam thingset JS agent! ^_*</b>").appendTo(this);

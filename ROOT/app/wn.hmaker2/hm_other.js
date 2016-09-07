@@ -2,25 +2,52 @@
 $z.declare([
     'zui',
     'app/wn.hmaker2/hm__methods',
-], function(ZUI, HmMethods){
+    'ui/o_view_obj/o_view_obj',
+], function(ZUI, HmMethods, ViewObjUI){
 //==============================================
-var html = function(){/*
+var html = `
 <div class="ui-arena hm-other" ui-fitparent="yes">
-    不知道如何打开这个文件 : <b></b>
+    <header></header>
+    <section ui-gasket="objview"></section>
 </div>
-*/};
+`;
 //==============================================
 return ZUI.def("app.wn.hmaker_other", {
-    dom : $z.getFuncBodyAsStr(html.toString()),
+    dom : html,
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
     },
     //...............................................................
-    update : function(o) {
-        this.arena.find("b").text(o.ph);
+    redraw : function(){
+        var UI = this;
 
-        this.fire("active:other", o);
+        // 显示对象浏览器
+        new ViewObjUI({
+            parent : UI,
+            gasketName : "objview",
+            showMeta : false,
+        }).render(function(){
+            UI.defer_report("objview");
+        });
+
+        return ["objview"];
+    },
+    //...............................................................
+    update : function(o) {
+        var UI = this;
+
+        // 通知其他部分激活某个对象的属性
+        UI.fire("active:other", o);
+
+        // 显示对象路径
+        var aph = UI.getRelativePath(o);
+        UI.arena.children("header")
+            .append($(UI.getObjIcon(o)))
+            .append($('<a target="_blank" href="/a/open/browser?ph=id:'+o.id+'">' + aph + '</a>'));
+
+        // 更新显示对象 
+        UI.gasket.objview.update(o);
     }
 });
 //===================================================================

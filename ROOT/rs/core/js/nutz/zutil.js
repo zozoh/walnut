@@ -54,10 +54,21 @@
         },
         //.............................................
         // 安全的调用回调
-        doCallback: function (callback, args, context) {
+        doCallback: function (callback, args, context, dftFunc) {
+            // 支持 context 为函数的形式
+            if(_.isFunction(context)){
+                dftFunc = context;
+                context = undefined;
+            }
+            // 有函数
             if (_.isFunction(callback)) {
                 return callback.apply(context || this, args);
             }
+            // 默认逻辑
+            if (_.isFunction(dftFunc)) {
+                return dftFunc.apply(context || this, args);
+            }
+            // 神马都木有
             return args.length == 1 ? args[0] : args;
         },
         //.............................................
@@ -1992,12 +2003,13 @@
          opt - 配置项目
          {
             multi : false       // 是否是多行文本
+            enterAsConfirm : false  // 多行文本下，回车是否表示确认
             newLineAsBr : false // 多行文本上，新行用 BR 替换。 默认 false
             text  : null   // 初始文字，如果没有给定，采用 ele 的文本
             width : 0      // 指定宽度，没有指定则默认采用宿主元素的宽度
             height: 0      // 指定高度，没有指定则默认采用宿主元素的高度
-            extendWidth  : false   // 自动延伸宽度
-            extendHeight : false   // 自动延伸高度
+            extendWidth  : true   // 自动延伸宽度
+            extendHeight : true   // 自动延伸高度
             takePlace    : false   // 是否代替宿主的位置，如果代替那么将不用绝对位置和遮罩
             selectOnFocus : true   // 当显示输入框，是否全选文字（仅当非 multi 模式有效）
 
@@ -2067,7 +2079,7 @@
                 else if (e.which == 13) {
                     // 多行的话，必须加 ctrl 才算确认
                     if (opt.multi) {
-                        if (($z.os.mac && e.metaKey) || e.ctrlKey) {
+                        if (($z.os.mac && e.metaKey) || e.ctrlKey || opt.enterAsConfirm) {
                             jInput.blur();
                             return;
                         }
@@ -2173,7 +2185,7 @@
 
             var rKeys = ["display", "letter-spacing", "margin", "padding"
                 , "font-size", "font-family", "border"
-                , "line-height"];
+                , "line-height", "text-align"];
             // 如果占位模式，才 copy 背景色和前景色
             if (opt.takePlace) {
                 rKeys.push("background");

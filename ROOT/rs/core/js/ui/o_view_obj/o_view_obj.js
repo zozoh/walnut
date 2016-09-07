@@ -2,8 +2,8 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/form/form'
-], function(ZUI, Wn, FormUI){
+    'ui/o_view_obj/o_view_meta'
+], function(ZUI, Wn, ObjMetaUI){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
@@ -31,11 +31,11 @@ var html = function(){/*
         </div-->
     </div>
 </div>
-<div class="ui-arena opreview" ui-fitparent="yes" show-info="yes">
+<div class="ui-arena opreview" ui-fitparent="yes">
     <div class="opreview-main"></div>
-    <div class="opreview-info" ui-gasket="info"></div>
-    <div class="opreview-showinfo"
-        data-balloon="{{opreview.showinfo}}"
+    <div class="opreview-meta" ui-gasket="meta"></div>
+    <div class="opreview-showmeta"
+        data-balloon="{{opreview.showmeta}}"
         data-balloon-pos="left">
         <i class="fa fa-info-circle"></i>
     </div>
@@ -46,6 +46,10 @@ return ZUI.def("ui.o_view_obj", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "theme/ui/o_view_obj/o_view_obj.css",
     i18n : "ui/o_view_obj/i18n/{{lang}}.js",
+    //...............................................................
+    init : function(opt) {
+        $z.setUndefined(opt, "showMeta", true);
+    },
     //...............................................................
     events : {
         "dblclick .opreview-main[mode=pic] img" : function(e){
@@ -58,11 +62,11 @@ return ZUI.def("ui.o_view_obj", {
         },
         "click .form-title" : function() {
             var UI = this;
-            UI.arena.attr("show-info", "no");
+            UI.arena.attr("show-meta", "no");
         },
-        "click .opreview-showinfo" : function() {
+        "click .opreview-showmeta" : function() {
             var UI = this;
-            UI.arena.attr("show-info", "yes");
+            UI.arena.attr("show-meta", "yes");
         },
         "click .video-ctrl" : function(){
             var UI = this;
@@ -81,26 +85,48 @@ return ZUI.def("ui.o_view_obj", {
         },
     },
     //...............................................................
-    __show_info : function(o, fields) {
-        var UI = this;
-        new FormUI({
-            parent : UI,
-            gasketName : "info",
-            title : '<i class="oicon" otp="'+o.tp+'"></i>' + o.nm,
-            fields : (fields||[]).concat(UI.my_fields)
-        }).render(function(){
-            this.setData(o);
-        });
+    redraw : function() {
+        var UI  = this;
+        var opt = UI.options;
+
+        // 根据配置显示/隐藏信息区域
+        UI.arena.attr({
+            "show-meta" : opt.showMeta ? "yes" : "no"
+        }).find(".opreview-meta, .opreview-showmeta")
+            .css({
+                "display" : (opt.showMeta ? "" : "none")
+            });
+
+        // 如果显示信息，则创建元数据视图
+        if(opt.showMeta) {
+            new ObjMetaUI({
+                parent : UI,
+                gasketName : "meta"
+            }).render(function(){
+                UI.defer_report("meta");
+            });
+
+            // 延迟加载
+            return ["meta"];
+        }
+       
     },
     //...............................................................
     getCurrentEditObj : function(){
-        return this.gasket.info.getData();
+        return this.gasket.meta.getData();
     },
     //...............................................................
     update : function(o) {
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
+
         UI.$el.attr("oid", o.id);
         UI.refresh();
+
+        // 更新元数据视图
+        if(opt.showMeta) {
+            UI.gasket.meta.update(o);
+        }
     },
     //...............................................................
     refresh : function() {
@@ -128,8 +154,6 @@ return ZUI.def("ui.o_view_obj", {
                 var jPre = UI.ccode("showTxt").appendTo(jM);
                 jPre.text(content);
             });
-            // 显示信息
-            UI.__show_info(o);
         }
         // 可以预览的图像
         else if(/\/(jpeg|png|gif)/.test(o.mime)){
@@ -150,20 +174,6 @@ return ZUI.def("ui.o_view_obj", {
                     jImg.removeClass("autofit");
                 }
             });
-            // 显示信息
-            UI.__show_info(o, [{
-                key   : "width",
-                title : "i18n:obj.width",
-                type  : "int",
-                dft : -1,
-                editAs : "label"
-            },{
-                key   : "height",
-                title : "i18n:obj.height",
-                type  : "int",
-                dft : -1,
-                editAs : "label"
-            }]);
         }
         // 可预览的视频
         else if(/^video/.test(o.mime) && o.video_preview){
@@ -172,112 +182,14 @@ return ZUI.def("ui.o_view_obj", {
             var jDiv = UI.ccode("showVideo").appendTo(jM);
             jVideo = jDiv.find("video");
             jVideo.find("source").prop("src", "/o/read/id:"+o.video_preview+"?_="+Date.now());
-            // 显示信息
-            UI.__show_info(o);
         }
         // 其他的对象
         else{
             UI.hideLoading();
             jM.attr("mode","others");
             jM.html(UI.msg("opreview.noway"));
-            // 显示信息
-            UI.__show_info(o);
         }
     },
-    //...............................................................
-    resize : function(){
-        // var UI = this;
-        // var jM = UI.arena.find(".opreview-main");
-        // var md = jM.attr("mode");
-        // // 视频
-        // if("video" == md) {
-        //     var jVideo = jM.find("video");
-        //     var jVCtrl = jM.find(".video-ctrl");
-        //     jVCtrl.css({
-        //         "height"    : jVideo.height(),
-        //         "font-size" : jVideo.height()/4
-        //     });
-        // }
-    },
-    //...............................................................
-    init : function(){
-        var UI = this;
-
-        UI.my_fields = [{
-            key   : "id",
-            title : "i18n:obj.id",
-            type  : "string",
-            editAs : "label"
-        }, {
-            key   : "ph",
-            title : "i18n:obj.ph",
-            type  : "string",
-            editAs : "label",
-            uiConf : {
-                escapeHtml : false,
-                parseData : function(ph) {
-                    return Wn.objDisplayPath(UI, ph, -3);
-                }
-            }
-        }, {
-            key   : "lm",
-            title : "i18n:obj.lm",
-            type  : "datetime",
-            editAs : "label"
-        }, {
-            key   : "len",
-            title : "i18n:obj.len",
-            type  : "int",
-            dft : 0,
-            editAs : "label",
-            uiConf : {
-                escapeHtml : false,
-                parseData : function(len) {
-                    return '<b>' + $z.sizeText(len) + '</b> <em>(' + len + ')</em>';
-                }
-            }
-        }, {
-            key   : "race",
-            title : "i18n:obj.race",
-            type  : "string",
-            editAs : "label"
-        }, {
-            key   : "tp",
-            title : "i18n:obj.tp",
-            type  : "string",
-            editAs : "label"
-        }, {
-            key   : "mime",
-            title : "i18n:obj.mime",
-            type  : "string",
-            editAs : "label"
-        }, {
-            key   : "md",
-            title : "i18n:obj.md",
-            type  : "string",
-            editAs : "label"
-        }, {
-            key   : "c",
-            title : "i18n:obj.c",
-            type  : "string",
-            editAs : "label"
-        }, {
-            key   : "m",
-            title : "i18n:obj.m",
-            type  : "string",
-            editAs : "label"
-        }, {
-            key   : "g",
-            title : "i18n:obj.g",
-            type  : "string",
-            editAs : "label"
-        }, {
-            key   : "ct",
-            title : "i18n:obj.ct",
-            type  : "datetime",
-            editAs : "label"
-        }];
-    }
     //...............................................................
 });
 //===================================================================

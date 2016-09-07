@@ -116,13 +116,8 @@ return ZUI.def("app.wn.hmaker_resource", {
             },
             idKey : "id",
             nmKey : "nm",
-            icon : function(o){
-                if('DIR' == o.race){
-                    return  '<i class="fa fa-folder-o"></i>';
-                }
-                return  '<i class="fa fa-file-code-o"></i>';
-            },
-            text : function(o){
+            icon  : UI.getObjIcon,
+            text  : function(o){
                 return o.nm;
             },
             isLeaf : function(o){

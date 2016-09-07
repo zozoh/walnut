@@ -268,13 +268,15 @@ ZUIObj.prototype = {
         // 释放掉自己所有的子
         var __children = UI.children ? [].concat(UI.children) : [];
         for (var i=0; i<__children.length; i++) {
-            __children[i].destroy(forceRemoveDom);
+            __children[i].destroy(forceRemoveDom, true);
         }
     },
     //............................................
-    destroy: function (forceRemoveDom) {
+    destroy: function (forceRemoveDom, dontNeedRemoveFromParent) {
         var UI  = this;
         var opt = UI.options;
+
+        // console.log("destroy UI:", UI.uiName, "::", UI.cid);
 
         // 调用更多的释放逻辑
         $z.invoke(UI.$ui, "depose", [], UI);
@@ -283,12 +285,14 @@ ZUIObj.prototype = {
 
         // 释放掉自己所有的子
         UI.releaseAllChildren(forceRemoveDom);
+        UI.children = [];
 
         // 移除自己在父节点的记录
-        if(UI.parent){
-            UI.parent.children = UI.parent.children.filter(function(subUI){
-                return subUI.cid != UI.cid;
-            });
+        if(UI.parent && !dontNeedRemoveFromParent){
+            // UI.parent.children = UI.parent.children.filter(function(subUI){
+            //     return subUI.cid != UI.cid;
+            // });
+            UI.parent.children = _.without(UI.parent.children, UI);
             if(opt.gasketName){
                 delete UI.parent.gasket[opt.gasketName];
             }
@@ -778,7 +782,7 @@ ZUIObj.prototype = {
                 var me = $(this);
                 var m  = /^((up|down|left|right)(:(small|medium|large|xlarge|fit))?:)?(.*)/.exec(me.attr("balloon"));
                 me.attr({
-                    "data-balloon" : UI.text($.trim(m[5])),
+                    "data-balloon" : UI.msg($.trim(m[5])),
                     "data-balloon-pos"    : $.trim(m[2]) || null,
                     "data-balloon-length" : $.trim(m[4]) || null,
                 });
@@ -800,7 +804,7 @@ ZUIObj.prototype = {
         var html = '<div class="ui-loading">';
         html += '<i class="fa fa-spinner fa-pulse"></i> <span>'+this.msg("loading")+'</span>';
         html += '</div>';
-        var rect = $z.rect(this.$pel);
+        var rect = $z.rect(this.$el);
         $(html).appendTo(this.$el).css(_.extend({
             "position" : "fixed",
         }, $z.rectObj(rect,"top,left,width,height")));

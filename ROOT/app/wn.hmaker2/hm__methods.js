@@ -60,6 +60,56 @@ var methods = {
             return uiProp.subUI(uiPath);
         return uiProp;
     },
+    // 得到某个对象相对于 HOME 的路径
+    getRelativePath : function(o) {
+        var oHome = this.getHomeObj();
+        return Wn.getRelativePath(oHome, o);
+    },
+    // 得到一个对象在 HMaker 里表示的 Icon HTML
+    getObjIcon : function(o) {
+        // 有了自定义
+        if(o.icon)
+            return o.icon;
+        
+        // 文件夹
+        if('DIR' == o.race)
+            return  '<i class="fa fa-folder-o"></i>';
+        
+        // 网页 / XML
+        if(/^text\/(xml|html)$/.test(o.mime))
+            return  '<i class="fa fa-file-code-o"></i>';
+
+        // 文本
+        if(/^text\//.test(o.mime))
+            return  '<i class="fa fa-file-text"></i>';
+
+        // 图片
+        if(/^image\//.test(o.mime))
+            return  '<i class="fa fa-file-image-o"></i>';
+
+        // 视频
+        if(/^video\//.test(o.mime))
+            return  '<i class="fa fa-file-video-o"></i>';
+
+        // 音频
+        if(/^audio\//.test(o.mime))
+            return  '<i class="fa fa-file-audio-o"></i>';
+
+        // pdf
+        if("pdf" == o.tp)
+            return  '<i class="fa fa-file-pdf-o"></i>';
+
+        // excel
+        if(/^xlsx?$/.test(o.tp))
+            return  '<i class="fa fa-file-excel-o"></i>';
+
+        // word
+        if(/^docx?$/.test(o.tp))
+            return  '<i class="fa fa-file-word-o"></i>';
+
+        // 其他
+        return  '<i class="fa fa-file"></i>';
+    },
     // 将 rect 按照 posBy 转换成 posVal 字符串
     transRectToPosVal : function(rect, posBy) {
         var re = _.mapObject($z.rectObj(rect, posBy), function(val){

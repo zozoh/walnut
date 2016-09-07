@@ -160,3 +160,28 @@
 .hmaker .hm-page .hmpg-sbar .menu {
   padding: 4px 6px;
 }
+.hmaker .hm-other,
+.hmaker .hm-folder {
+  padding: 32px 0 0 0;
+}
+.hmaker .hm-other > header,
+.hmaker .hm-folder > header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  line-height: 32px;
+  background: #eeeeee;
+  padding: 0 8px;
+  font-family: Monaco, Consolas, Courier New;
+}
+.hmaker .hm-other > header i,
+.hmaker .hm-folder > header i {
+  margin: 0 6px;
+}
+.hmaker .hm-other > section,
+.hmaker .hm-folder > section {
+  width: 100%;
+  height: 100%;
+}

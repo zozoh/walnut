@@ -1,6 +1,8 @@
 package org.nutz.walnut.ext.hmaker.util;
 
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
@@ -8,7 +10,7 @@ import org.nutz.lang.Maths;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnObj;
 
 /**
  * 帮助函数集
@@ -35,6 +37,9 @@ public final class Hms {
     /**
      * 根据一个 Map 描述的CSS规则，生成 CSS 文本，
      * 
+     * @param ing
+     *            上下文对象
+     * 
      * @param rule
      *            Map 描述的规则
      * 
@@ -48,7 +53,7 @@ public final class Hms {
      * @see #WRAP_BRACE
      * @see #RULE_MULTILINE
      */
-    public static String genCssRule(Map<String, Object> rule, int mode) {
+    public static String genCssRule(HmPageTranslating ing, Map<String, Object> rule, int mode) {
         boolean autoLower = Maths.isMask(mode, AUTO_LOWER);
         boolean wrapBrace = Maths.isMask(mode, WRAP_BRACE);
         boolean multiline = Maths.isMask(mode, RULE_MULTILINE);
@@ -73,6 +78,28 @@ public final class Hms {
                 str = val.toString();
                 if (Strings.isBlank(str))
                     continue;
+            }
+
+            // 对于背景的特殊处理 /o/read/id:xxxx 要改成相对路径
+            if ("background".equals(key)) {
+                Matcher m = Pattern.compile("url\\(\"?/o/read/id:([0-9a-z]+)\"?\\)").matcher(str);
+                if (m.find()) {
+                    String bgImgId = m.group(1);
+
+                    // 确保图片对象会被加载
+                    WnObj oBgImg = ing.io.checkById(bgImgId);
+                    ing.resources.add(oBgImg);
+
+                    // 得到相对路径
+                    String rph = ing.getRelativePath(ing.oSrc, oBgImg);
+
+                    // 替换
+                    str = str.substring(0, m.start())
+                          + " url(\""
+                          + rph
+                          + "\")"
+                          + str.substring(m.end());
+                }
             }
 
             // 拼装
@@ -100,8 +127,8 @@ public final class Hms {
      * @return 样式文本
      * @see #genCssRule(NutMap, int)
      */
-    public static String genCssRuleStyle(Map<String, Object> rule) {
-        return genCssRule(rule, AUTO_LOWER);
+    public static String genCssRuleStyle(HmPageTranslating ing, Map<String, Object> rule) {
+        return genCssRule(ing, rule, AUTO_LOWER);
     }
 
     /**
@@ -112,8 +139,8 @@ public final class Hms {
      * @return 样式文本
      * @see #genCssRule(NutMap, int)
      */
-    public static String genCssRuleText(Map<String, Object> rule) {
-        return genCssRule(rule, AUTO_LOWER | WRAP_BRACE | RULE_MULTILINE);
+    public static String genCssRuleText(HmPageTranslating ing, Map<String, Object> rule) {
+        return genCssRule(ing, rule, AUTO_LOWER | WRAP_BRACE | RULE_MULTILINE);
     }
 
     /**
@@ -128,7 +155,7 @@ public final class Hms {
      * @see #genCssRuleText(Map)
      */
     @SuppressWarnings("unchecked")
-    public static String genCssText(NutMap css, String prefix) {
+    public static String genCssText(HmPageTranslating ing, NutMap css, String prefix) {
         prefix = Strings.isBlank(prefix) ? "" : prefix + " ";
         String re = "";
         for (Map.Entry<String, Object> en : css.entrySet()) {
@@ -137,7 +164,7 @@ public final class Hms {
             if (val instanceof Map<?, ?>) {
                 NutMap rule = NutMap.WRAP((Map<String, Object>) val);
                 re += prefix + selector;
-                re += genCssRuleText(rule);
+                re += genCssRuleText(ing, rule);
                 re += "\n";
             }
         }
@@ -175,12 +202,14 @@ public final class Hms {
      * @return 解析好的属性
      */
     public static Element fillProp(NutMap prop, Element ele, String className) {
-        Element eleProp = ele.children().last();
-        if (!eleProp.tagName().equals("script") || !eleProp.hasClass(className))
-            throw Er.createf("e.cmd.hmaker.publish.invalidEleProp",
-                             "<%s.%s>",
-                             ele.tagName(),
-                             className);
+        // Element eleProp = ele.children().last();
+        Element eleProp = ele.select(">script." + className).first();
+        if (null == eleProp)
+            return null;
+        // throw Er.createf("e.cmd.hmaker.publish.invalidEleProp",
+        // "<%s#%s>",
+        // ele.tagName(),
+        // Strings.sBlank(ele.attr("id"), "BLOCK"));
 
         // 读取
         String json = eleProp.html();

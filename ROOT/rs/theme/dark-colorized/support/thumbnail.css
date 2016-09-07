@@ -112,31 +112,36 @@
 }
 .wn-thumbnail .wnobj .wnobj-nm-con {
   text-align: center;
-  margin-top: 4px;
+  padding-top: 4px;
   width: 102px;
-  height: 50px;
+  height: 56px;
   line-height: 16px;
   overflow: hidden;
   word-break: break-all;
   position: relative;
+  font-family: Monaco, Consolas, Courier New;
 }
 .wn-thumbnail .wnobj .wnobj-nm {
   display: inline-block;
   padding: 0 4px;
   border-radius: 2px;
   border: 1px dotted rgba(0, 0, 0, 0);
-  font-family: Monaco, Consolas, Courier New;
+  font-weight: normal;
+  font-style: normal;
+}
+.wn-thumbnail .wnobj .z-edit-it {
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .wn-thumbnail .wnobj-checked .wnobj-thumbnail {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 .wn-thumbnail .wnobj-checked .wnobj-thumbnail[thumb] .img {
-  border: 1px solid #d0d0d0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 .wn-thumbnail .wnobj-checked .wnobj-nm {
-  background: #0044bb;
+  background: rgba(0, 64, 255, 0.6);
   color: #ffffff;
 }
 .wn-thumbnail .wnobj-actived .wnobj-nm {
-  border-color: #d0d0d0;
+  border-color: rgba(255, 255, 255, 0.1);
 }

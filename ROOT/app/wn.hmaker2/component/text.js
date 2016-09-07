@@ -153,11 +153,6 @@ return ZUI.def("app.wn.hm_com_text", {
                         type   : "string",
                         nullAsUndefined : true,
                         editAs : "color",
-                        uiConf : {
-                            formatData : function(color){
-                                return color ? color.RGBA : null;
-                            }
-                        }
                     }, {
                         key   : "upperFirst",
                         title : 'i18n:hmaker.com.text.upperFirst',
@@ -216,11 +211,6 @@ return ZUI.def("app.wn.hm_com_text", {
                         type   : "string",
                         nullAsUndefined : true,
                         editAs : "color",
-                        uiConf : {
-                            formatData : function(color){
-                                return color ? color.RGBA : null;
-                            }
-                        }
                     }, {
                         key   : "title.marginBottom",
                         title : 'i18n:hmaker.com.text.marginBottom',

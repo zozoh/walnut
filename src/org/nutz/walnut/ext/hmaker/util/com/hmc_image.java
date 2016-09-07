@@ -55,7 +55,7 @@ public class hmc_image extends AbstractComHanlder {
         }
 
         // 处理缩放
-        String scale = ing.prop.getString("scale");
+        String scale = ing.prop.getString("scale", "");
         switch (scale) {
         case "contain":
         case "cover":

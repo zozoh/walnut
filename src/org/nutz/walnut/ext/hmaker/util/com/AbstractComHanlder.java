@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
-import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmComHandler;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
@@ -15,7 +14,7 @@ public abstract class AbstractComHanlder implements HmComHandler {
     @Override
     public void invoke(HmPageTranslating ing) {
         // 读取属性
-        ing.prop = new NutMap();
+        ing.prop.clear();
         Hms.fillProp(ing.prop, ing.eleCom, "hmc-prop-ele").remove();
 
         // 设置 arena

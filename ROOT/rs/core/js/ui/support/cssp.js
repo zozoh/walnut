@@ -39,7 +39,7 @@ var CssP = {
         // 1: backgroundColor
         var R = "(#[0-9a-f]{3,}|rgba?\\([\\d, .]+\\))";
         // 2: backgroundImage
-        R += "|(url\\(.+\\))";
+        R += "|(url\\([^\\)]+\\))";
         // 3: 组合 backgroundPosition / backgroundSize 的组合
         R += "|(";
         // 4: backgroundPosition : 2 子表达式

@@ -40,9 +40,9 @@ var html = function(){/*
     </div>
 </div>
 <div class="ui-arena hm-page" ui-fitparent="yes"><div class="hm-W">
-    <!--iframe class="hmpg-frame-load" id="hmaker_page_loader" name="load"></iframe-->
+    <iframe class="hmpg-frame-load"></iframe>
     <div class="hmpg-stage">
-        <div class="hmpg-screen"><!--iframe class="hmpg-frame-edit" id="hmaker_page_editor" name="edit"></iframe--></div>
+        <div class="hmpg-screen"><iframe class="hmpg-frame-edit"></iframe></div>
     </div>
     <div class="hmpg-sbar"><div class="hm-W">
         <div class="hmpg-sbar-com"  ui-gasket="combar"></div>
@@ -657,6 +657,18 @@ return ZUI.def("app.wn.hmaker_page", {
         this._C.iedit.$body.find("[hm-actived]").removeAttr("hm-actived");
     },
     //...............................................................
+    __after_iframe_loaded : function(name) {
+        var UI = this;
+
+        // 移除加载完毕的项目
+        UI._need_load = _.without(UI._need_load, name);
+
+        // 全部加载完毕了
+        if(UI._need_load.length == 0){
+            UI.setup_page_editing();
+        }
+    },
+    //...............................................................
     redraw : function(){
         var UI  = this;
         
@@ -676,10 +688,27 @@ return ZUI.def("app.wn.hmaker_page", {
         // hmpg-frame-load
         var jW = UI.arena.find(">.hm-W");
         var jScreen = jW.find(".hmpg-screen");
-        var jIfmLoad = $('<iframe class="hmpg-frame-load">').appendTo(jW);
-        var jIfmEdit = $('<iframe class="hmpg-frame-edit" src="/a/load/wn.hmaker2/page_loading.html">').appendTo(jScreen);
-        jIfmLoad.bind("load", function(e) {
-            UI.setup_page_editing();
+        // var jIfmLoad = $('<iframe class="hmpg-frame-load">').appendTo(jW);
+        // var jIfmEdit = $('<iframe class="hmpg-frame-edit" src="/a/load/wn.hmaker2/page_loading.html">').appendTo(jScreen);
+
+        // var jIfmLoad = UI.arena.find(".hmpg-frame-load");
+        // var jIfmEdit = UI.arena.find(".hmpg-frame-edit");
+
+        var jIfmLoad = $(".hmpg-frame-load");
+        var jIfmEdit = $(".hmpg-frame-edit");
+
+        // 保存记录 
+        UI._need_load = ["iedit", "iload"];
+
+        // 监听加载完毕的事件
+        jIfmLoad.one("load", function(e) {
+            console.log("AAAAA")
+            UI.__after_iframe_loaded("iload");
+        });
+
+        jIfmEdit.one("load", function(e) {
+            console.log("BBBBBB")
+            UI.__after_iframe_loaded("iedit");
         });
        
         // 菜单条
@@ -689,8 +718,8 @@ return ZUI.def("app.wn.hmaker_page", {
             setup : [{
                 text : "Test",
                 handler : function(){
-                    var rect = UI.getBlockRectInCss();
-                    console.log(rect);
+                    UI._C.iload = UI._reset_context_vars(".hmpg-frame-load");
+                    UI._C.iedit = UI._reset_context_vars(".hmpg-frame-edit");
                 }
             },{
                 icon : '<i class="zmdi zmdi-more-vert"></i>',
@@ -715,6 +744,9 @@ return ZUI.def("app.wn.hmaker_page", {
         // 记录
         UI._page_obj = o;
 
+        var jIfmEdit = UI.arena.find(".hmpg-frame-edit");
+        jIfmEdit.prop("src", "/a/load/wn.hmaker2/page_loading.html");
+
         var jIfmLoad = UI.arena.find(".hmpg-frame-load");
         jIfmLoad.prop("src", "/o/read/id:"+o.id);
     },
@@ -725,35 +757,25 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // TODO 有必要是，来个 jIfmTmpl 用来加载模板文件
         var jIfmLoad = UI.arena.find(".hmpg-frame-load");
+        var docLoad  = jIfmLoad[0].contentDocument;
+        var rootLoad = docLoad.documentElement;
+
         var jIfmEdit = UI.arena.find(".hmpg-frame-edit");
+        var docEdit  = jIfmEdit[0].contentDocument;
+        var rootEdit = docEdit.documentElement;
 
         // 创建上下文对象
         var C = {
-            // 加载的 iFrame
-            iload : {
-                ifrm  : jIfmLoad[0],
-                doc   : jIfmLoad[0].contentDocument,
-                root  : jIfmLoad[0].contentDocument.documentElement,
-            },
-            // 编辑的 iframe
-            iedit : {
-                ifrm  : jIfmEdit[0],
-                doc   : jIfmEdit[0].contentDocument,
-                root  : jIfmEdit[0].contentDocument.documentElement,
-            },
             $screen : UI.arena.find(".hmpg-screen"),
             $pginfo : UI.arena.find(".hmpg-sbar .hmpg-pginfo"),
         };
 
-        // 确保加载区的 dom 合法
-
-
         // 设置 HTML 到编辑区
-        C.iedit.root.innerHTML = C.iload.root.innerHTML;
+        rootEdit.innerHTML = rootLoad.innerHTML;
 
         // 重新索引快捷标记
-        UI._reset_context_vars(C.iload);
-        UI._reset_context_vars(C.iedit);
+        C.iload = UI._reset_context_vars(".hmpg-frame-load");
+        C.iedit = UI._reset_context_vars(".hmpg-frame-edit");
 
         // 记录上下文
         UI._C = C;
@@ -779,12 +801,22 @@ return ZUI.def("app.wn.hmaker_page", {
         });
     },
     //...............................................................
-    _reset_context_vars : function(cobj) {
-        cobj.head  = cobj.doc.head;
-        cobj.body  = cobj.doc.body;
+    _reset_context_vars : function(selector) {
+        var UI = this;
+
+        var ifrm = $(selector);
+        var doc  = ifrm[0].contentDocument;
+
+        var cobj = {
+            doc  : doc,
+            root : doc.documentElement,
+            head : doc.head,
+            body : doc.body,
+        };
         cobj.$root = $(cobj.root);
         cobj.$head = $(cobj.head);
         cobj.$body = $(cobj.body);
+        return cobj;
     },
     //...............................................................
     getCurrentEditObj : function() {
@@ -797,11 +829,15 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 将 iedit 的内容复制到 iload 里面
         C.iload.root.innerHTML = C.iedit.root.innerHTML;
-        UI._reset_context_vars(C.iload);
+        C.iload = UI._reset_context_vars(".hmpg-frame-load");
 
         // 清空 iload 的头部
         C.iload.$head.empty();
-        C.iload.$body.removeAttr("pointer-moving-enabled");
+
+        // 移除 body 的一些属性
+        C.iload.$body
+            .removeAttr("pointer-moving-enabled")
+            .removeAttr("style");
 
         // 移除所有的辅助节点
         C.iload.$body.find(".mvrz-ass, .hm-del-save, .ui-code-template").remove();
@@ -810,15 +846,12 @@ return ZUI.def("app.wn.hmaker_page", {
         C.iload.$body.find(".hm-block,.hmb-con,.hmb-area,.hm-com,.ui-arena").each(function(){
             var jq = $(this).removeAttr("style");
 
-            // 块
-            if(jq.hasClass("hm-block")) {
-                jq.removeAttr("mvrz-block");
-                jq.removeAttr("hm-actived");
-            }
-            // 控件
-            else if(jq.hasClass("hm-com")) {
-                jq.removeAttr("ui-id");
-            }
+            jq.attr({
+                "mvrz-block" : null,
+                "hm-actived" : null,
+                "ui-id" : null,
+            });
+
             // 所有的子
             jq.find("*").removeAttr("style");
 

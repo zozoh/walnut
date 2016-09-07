@@ -85,6 +85,7 @@ public class HmPageTranslating extends HmContext {
         scripts = new LinkedHashSet<String>();
         cssLinks = new LinkedHashSet<String>();
         jsLinks = new LinkedHashSet<String>();
+        prop = new NutMap();
     }
 
     private void __do_com(Element eleCom) {
@@ -107,7 +108,7 @@ public class HmPageTranslating extends HmContext {
         Element eleArea = eleCon.child(0);
 
         // 读取属性
-        prop = new NutMap();
+        prop.clear();
         Element eleProp = Hms.fillProp(prop, eleBlock, "hmc-prop-block");
         if (null == eleProp) {
             Element eleCom = eleBlock.select(">.hmb-con>.hmb-area>.hm-com").first();
@@ -139,7 +140,7 @@ public class HmPageTranslating extends HmContext {
             }
 
             // 设置块属性
-            String css = Hms.genCssRuleStyle(cssBlock);
+            String css = Hms.genCssRuleStyle(this, cssBlock);
             eleBlock.attr("style", css);
 
             // 生成 Area 部分的 CSS
@@ -166,7 +167,7 @@ public class HmPageTranslating extends HmContext {
         }
 
         // 设置 Area 的 CSS
-        String css = Hms.genCssRuleStyle(cssArea);
+        String css = Hms.genCssRuleStyle(this, cssArea);
         eleArea.attr("style", css);
     }
 
@@ -190,6 +191,13 @@ public class HmPageTranslating extends HmContext {
         this.jsLinks.add("/gu/rs/core/js/nutz/zutil.js");
 
         // TODO 处理整个页面的 body
+        prop.clear();
+        Element eleProp = Hms.fillProp(prop, doc.body(), "hm-page-attr");
+        if (null != eleProp) {
+            eleProp.remove();
+        }
+        String css = Hms.genCssRuleStyle(this, prop);
+        doc.body().attr("style", css);
 
         // 处理块
         Elements eleBlocks = doc.body().getElementsByClass("hm-block");
@@ -226,7 +234,7 @@ public class HmPageTranslating extends HmContext {
         for (Map.Entry<String, NutMap> en : cssRules.entrySet()) {
             String prefix = "#" + en.getKey();
             NutMap rules = en.getValue();
-            String cssText = Hms.genCssText(rules, prefix);
+            String cssText = Hms.genCssText(this, rules, prefix);
             sb.append(cssText);
         }
         if (!Strings.isBlank(sb)) {
