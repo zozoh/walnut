@@ -208,6 +208,43 @@
     }
 }
 //............................................................
+// 文件夹属性面板
+//............................................................
+@pfH0 : 180px;
+@pfH1 : 200px;
+.hm-prop-folder {
+    position: relative;
+    > section {
+        position: absolute; left: 0; right: 0;
+    }
+    > .pf-preview {top:0; height:@pfH0;
+        .opreview {
+            background:rgba(0,0,0,0.1);
+        }
+    }
+    > .pf-meta    {top:@pfH0; bottom:@pfH1;
+        padding:@d4 @d4 0 @d4;
+        // 表单项的特殊属性
+        .ui-form {
+            border:1px solid @cborder1; border-radius: @d0;
+            background: @cb2; color:@cf2;
+            .form-fld{
+                padding:@d2 @d0; font-size:@f1;
+                .ff-txt {padding:@d2 @d0 @d2 @d7; border-right:1px solid @cborder1;}
+                
+                .ff-val {padding:0; color:@c3;}
+                b {font-weight: normal;}
+            }
+        }
+    }
+    > .pf-upload  {height:@pfH1; bottom:0; 
+        padding:@d4;
+        .ui-upload {
+            border:1px dashed @cborder1; border-radius: @d2;
+        }
+    }
+}
+//............................................................
 // 控件们的私有属性面板
 //............................................................
 // rows

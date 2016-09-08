@@ -361,6 +361,56 @@
   width: 100%;
   height: 100%;
 }
+.hm-prop-folder {
+  position: relative;
+}
+.hm-prop-folder > section {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.hm-prop-folder > .pf-preview {
+  top: 0;
+  height: 180px;
+}
+.hm-prop-folder > .pf-preview .opreview {
+  background: rgba(0, 0, 0, 0.1);
+}
+.hm-prop-folder > .pf-meta {
+  top: 180px;
+  bottom: 200px;
+  padding: 12px 12px 0 12px;
+}
+.hm-prop-folder > .pf-meta .ui-form {
+  border: 1px solid #d0d0d0;
+  border-radius: 2px;
+  background: #e0e0e0;
+  color: #999999;
+}
+.hm-prop-folder > .pf-meta .ui-form .form-fld {
+  padding: 6px 2px;
+  font-size: 10px;
+}
+.hm-prop-folder > .pf-meta .ui-form .form-fld .ff-txt {
+  padding: 6px 2px 6px 32px;
+  border-right: 1px solid #d0d0d0;
+}
+.hm-prop-folder > .pf-meta .ui-form .form-fld .ff-val {
+  padding: 0;
+  color: #008800;
+}
+.hm-prop-folder > .pf-meta .ui-form .form-fld b {
+  font-weight: normal;
+}
+.hm-prop-folder > .pf-upload {
+  height: 200px;
+  bottom: 0;
+  padding: 12px;
+}
+.hm-prop-folder > .pf-upload .ui-upload {
+  border: 1px dashed #d0d0d0;
+  border-radius: 6px;
+}
 .hmc-rows-prop {
   padding: 8px;
 }

@@ -18,6 +18,8 @@ return ZUI.def("app.wn.hmaker_folder", {
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
+
+        UI.listenBus("reload:folder", UI.refresh);
     },
     //...............................................................
     redraw : function(){
@@ -27,7 +29,13 @@ return ZUI.def("app.wn.hmaker_folder", {
         new OTilesUI({
             parent : UI,
             gasketName : "list",
-            renameable : true
+            renameable : true,
+            on_actived : function(o){
+                UI.fire("active:file", o);
+            },
+            on_blur : function(){
+                UI.fire("blur:file");
+            }
         }).render(function(){
             UI.defer_report("list");
         });
@@ -37,14 +45,26 @@ return ZUI.def("app.wn.hmaker_folder", {
     //...............................................................
     update : function(o) {
         var UI = this;
-        console.log("I am hm_folder update")
+
+        // 记录数据 
+        UI.oFolderId = o.id;
 
         // 通知其他部分激活某个对象的属性
         UI.fire("active:folder", o);
 
+        // 更新显示对象 
+        UI.refresh();
+    },
+    //...............................................................
+    refresh : function(){
+        var UI = this;
+        
+        // 得到数据 
+        var o = Wn.getById(UI.oFolderId);
+
         // 显示对象路径
         var aph = UI.getRelativePath(o);
-        UI.arena.children("header")
+        UI.arena.children("header").empty()
             .append($(UI.getObjIcon(o)))
             .append($('<a target="_blank" href="/a/open/browser?ph=id:'+o.id+'">' + aph + '</a>'));
 
@@ -52,7 +72,7 @@ return ZUI.def("app.wn.hmaker_folder", {
         Wn.getChildren(o, null, function(children){
             //console.log("haha", children)
             UI.gasket.list.setData(children);
-        });
+        }, true);
     }
 });
 //===================================================================

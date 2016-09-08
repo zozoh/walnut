@@ -13,11 +13,12 @@ return ZUI.def("ui.o_view_meta", {
     i18n : "ui/o_view_obj/i18n/{{lang}}.js",
     //...............................................................
     __show_info : function(o, fields) {
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         new FormUI({
             parent : UI,
             gasketName : "form",
-            title : '<i class="oicon" otp="'+o.tp+'"></i>' + o.nm,
+            title : opt.hideTitle ? null : '<i class="oicon" otp="'+o.tp+'"></i>' + o.nm,
             fields : (fields||[]).concat(UI.my_fields)
         }).render(function(){
             this.setData(o);

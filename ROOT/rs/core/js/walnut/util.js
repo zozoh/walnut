@@ -675,7 +675,8 @@ var Wn = {
     //  - {..}         : 一个搜索条件，比如 {tp:'jpeg', len:0}
     //  - F(o):boolean : 高级过滤方法 
     // callback : F(os) 可以有，也可以木有，木有的话就同步读，否则异步读
-    getChildren : function(o, filter, callback){
+    // forceReload : 强制刷新，否则会尽量利用缓存，默认 false
+    getChildren : function(o, filter, callback, forceReload){
         var Wn = this;
 
         // 确保有路径
@@ -739,7 +740,7 @@ var Wn = {
         };
 
         // 重新从服务器读取
-        if(!o.children || o.children.length==0 ){
+        if(forceReload || !o.children || o.children.length==0 ){
             // 有回调，异步
             if(_.isFunction(callback)){
                 Wn.exec("obj id:"+o.id+"/* -l -sort 'nm:1'", function(re){

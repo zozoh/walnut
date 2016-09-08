@@ -343,7 +343,7 @@ var methods = {
         $z.invoke(UI, "__before_draw_data", [objs]);
 
         // 输出表格内容 
-        var jListBody = UI.$listBody();
+        var jListBody = UI.$listBody().empty();
         objs.forEach(function(o, index){
             UI._upsert_item(o, jListBody);
         });

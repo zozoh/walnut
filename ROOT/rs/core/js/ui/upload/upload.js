@@ -53,22 +53,67 @@ module.exports = ZUI.def("ui.upload", {
         }
     },
     //...............................................................
+    events: {
+        "dblclick .ui-upload-multi": function () {
+            var jList = this.arena.find(".ui-upload-multi");
+            var jTip = jList.find(".ui-upload-multi-tip").show();
+            jList.children().not(".ui-upload-multi-tip").remove();
+        }
+    },
+    //...............................................................
     redraw: function () {
         var UI = this;
         var opt = UI.options;
-        var title = opt.title;
-        var ta = opt.target;
-        // 默认根据目标的 race 判断模式
-        if (typeof opt.multi == "undefined") {
-            opt.multi = (ta.race == 'DIR');
+        
+        // 更新上传目标
+        if(opt.target)
+            UI.setTarget(opt.target);
+
+        // 更新帮助
+        if (opt.tip) {
+            UI.arena.find(".ui-upload-tip").html(opt.tip);
         }
+    },
+    //...............................................................
+    setTarget : function(ta) {
+        var UI  = this;
+        var opt = UI.options;
+        opt.target = ta;
+        var jTitle = UI.$el.find(".ui-upload-sky");
+
+        // 默认根据目标的 race 判断模式
+        if (_.isUndefined(opt.multi)) {
+            UI.is_multi = (ta.race == 'DIR');
+        }else{
+            UI.is_multi = opt.multi ? true : false;
+        }
+
+
+        // 修改标题
+        if(opt.title) {
+            jTitle.css("display", "");
+            // 得到目标路径名称
+            var ph = ta.ph;
+            if(!ph && ta.id) {
+                var o = Wn.getById(ta.id);
+                ph = o.ph;
+            }
+            // 生成路径字符串
+            var title = UI.msg(UI.is_multi ? "upload.multi.sky" : "upload.single.sky", {
+                ph : Wn.objDisplayPath(UI, ph, 3)
+            });
+            jTitle.html(title);
+        }
+        // 移除
+        else {
+            jTitle.css("display", "none");
+        }
+
         // 多文件上传
-        if (opt.multi) {
+        if (UI.is_multi) {
             UI.$el.on("dragover", ".ui-upload-arena", UI.multi.on_dragover);
             UI.$el.on("dragleave", ".ui-upload-arena", UI.multi.on_dragleave);
             UI.$el.on("drop", ".ui-upload-arena", UI.multi.on_drop);
-            if (title === true || title == undefined)
-                title = UI.msg("upload.multi.sky");
             UI.arena.find(".ui-upload-arena").append(UI.ccode("multi.main"));
         }
         // 单文件上传
@@ -76,8 +121,6 @@ module.exports = ZUI.def("ui.upload", {
             UI.$el.on("dragover", ".ui-upload-arena", UI.single.on_dragover);
             UI.$el.on("dragleave", ".ui-upload-arena", UI.single.on_dragleave);
             UI.$el.on("drop", ".ui-upload-arena", UI.single.on_drop);
-            if (title === true || title == undefined)
-                title = UI.msg("upload.single.sky");
             UI.arena.find(".ui-upload-arena").append(UI.ccode("single.main"));
             // 如果上传目标是图片
             if (opt.preview || /^image\//.test(ta.mime)) {
@@ -89,27 +132,7 @@ module.exports = ZUI.def("ui.upload", {
                 });
             }
         }
-        // 更新标题 
-        if (title) {
-            title = ($z.tmpl(title))(ta);
-            UI.$el.find(".ui-upload-sky").html(title);
-        } else {
-            UI.$el.find(".ui-upload-sky").remove();
-        }
-        // 更新帮助
-        if (opt.tip) {
-            UI.arena.find(".ui-upload-tip").html(opt.tip);
-        }
-    },
-    depose: function () {
-    },
-    //...............................................................
-    events: {
-        "dblclick .ui-upload-multi": function () {
-            var jList = this.arena.find(".ui-upload-multi");
-            var jTip = jList.find(".ui-upload-multi-tip").show();
-            jList.children().not(".ui-upload-multi-tip").remove();
-        }
+
     },
     //...............................................................
     resize: function () {
