@@ -1,5 +1,6 @@
 .hmaker {
   position: relative;
+  background: #ffffff;
 }
 .hmaker > div {
   position: absolute;

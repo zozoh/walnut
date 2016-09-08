@@ -12,7 +12,7 @@ define(function(require, exports, module) {
 
     function init() {
         new UI({
-        	$pel  : $(document.body),
+        	$pel  : $(".ui-body"),
         	exec  : Wn.exec,
             app   : Wn.app(),
             editable : true,

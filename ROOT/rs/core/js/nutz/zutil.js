@@ -2335,7 +2335,7 @@
             if (str.length >= length) {
                 return str;
             }
-            return str + zUtil.dupString(char, length - str.length);
+            return str + zUtil.dupString(char||' ', length - str.length);
         },
         // 补全左边
         alignRight: function (str, length, char) {
@@ -2343,7 +2343,7 @@
             if (str.length >= length) {
                 return str;
             }
-            return zUtil.dupString(char, length - str.length) + str;
+            return zUtil.dupString(char||' ', length - str.length) + str;
         },
         // 重复字符
         dupString: function (char, num) {

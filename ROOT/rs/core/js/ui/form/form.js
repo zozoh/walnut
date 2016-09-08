@@ -215,6 +215,13 @@ return ZUI.def("ui.form", {
             })).render(function(){
                 // console.log("UI.defer_report:", fld.uiType, fld._form_key);
                 UI.defer_report(fld._form_key);
+                // 这里做一下额外检查，如果发现自己的 parent 已经不对了，自杀
+                var comUI = this;
+                if(comUI.parent !== UI){
+                    window.setTimeout(function(){
+                        comUI.destroy();
+                    }, 0);
+                }
             });
             // 检查 UI 控件的合法性
             if(!_.isFunction(theUI.setData) || !_.isFunction(theUI.getData)){
@@ -308,7 +315,7 @@ return ZUI.def("ui.form", {
             }
         });
 
-        //console.log("form redraw defer:", UI._fld_form_keys);
+        // console.log("form redraw defer:", UI._fld_form_keys);
         // 暂时隐藏，在 resize 里去掉这个开关
         UI.$el.css("visibility", "hidden");
 

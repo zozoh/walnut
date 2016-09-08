@@ -1,0 +1,77 @@
+// 绝对浮动的模式
+.ui-debug-mask {
+    position: fixed; top:0; left:0; right:0; bottom:0; z-index: 9999;
+    padding: 20px;
+    .ui-debug {
+        width:600px; height:100%; margin:0 auto; display: block;
+    }
+}
+
+// 调试区域样式 
+.ui-debug {
+    color:#CCC; background: #000;
+    font-size:12px; font-family: Monaco, Consolas, Courier New;
+    line-height: 20px; 
+    > section {width:100%; overflow: auto;}
+    .uid-detail {
+         height:10%; border-bottom:1px dashed rgba(255,255,0,0.3);
+         white-space: pre-wrap; padding:10px; overflow: auto;
+    }
+    .uid-tree {
+        height:90%; padding:10px;
+        .uid-tnode {
+            // border:1px solid transparent; margin-bottom:1px;
+            .uid-self {
+                color:rgba(255,255,0,0.6); cursor: pointer; position: relative;
+                > * {display: inline-block; vertical-align: middle; margin: 0 2px;}
+                > span.tnd-handle {
+                    font-family:FontAwesome; display: inline-block; color:#888; width: 16px;
+                    text-align: center;
+                }
+                > span.tnd-handle:before{content: '\f0d7';}
+                > span.tnd-handle:hover {color:#FFF; text-shadow:0 0 4px #FFF;}
+                > b {font-weight: normal;}
+                > u {text-decoration: none; color:#888;}
+                em {font-style: normal;}
+                > em.index  {color:#F0F; font-size: 10px; margin: 0 6px;}
+                > span.gasket {
+                    color:#0AA; width: 100px; border-right:1px solid #0AA;
+                    > em.gasket {font-size: 11px; margin: 0 2px;}
+                }
+                > div {
+                    position: absolute; top:0; bottom:0; right:0; padding:0 4px;
+                }
+                > div:hover {
+                    color: #FFF; font-size: 16px;
+                }
+            }
+            .uid-self:hover {
+                color:rgba(255,255,0,1.0); 
+            }
+            .uid-self[show-in-live] {background: #36A; color:#FFF;}
+            .uid-self[no-area] {
+                opacity: 0.4; color:#F00;
+                > span.gasket {color:#F00;}
+            }
+            .uid-self[no-area]:hover {opacity: 1.0;}
+            .uid-tsub {
+                border-left:1px dotted rgba(255,255,255,0.2);
+                padding-left:12px;
+                margin-left:8px;
+            }
+        }
+        .uid-tnode[collapse] {
+            //border-color:rgba(255,255,0,0.4);
+            .uid-self {
+                > span.tnd-handle:before{content: '\f0da'; color:#FF0; text-shadow:0 0 2px #FF0;}
+            }
+            .uid-tsub {display: none;}
+        }
+        .uid-tnode[no-children] {
+            .uid-self {
+                > span.tnd-handle{visibility: hidden;}
+                > div {display: none;}
+            }
+        }
+    }
+}

@@ -396,7 +396,7 @@ return ZUI.def("app.wn.hmaker_page", {
         // 首先所有元素的点击事件，全部禁止默认行为
         UI._C.iedit.$root.on("click", "*", function(e){
             e.preventDefault();
-            // console.log("hm_page.js: click", this.tagName, this.className);
+            console.log("hm_page.js: click", this.tagName, this.className);
 
             var jq = $(this);
 
@@ -414,7 +414,7 @@ return ZUI.def("app.wn.hmaker_page", {
             }
 
             // 不管怎样，模拟一下父框架页面的点击
-            $(document.body).click();
+            // $(document.body).click();
         });
 
         // 截获所有的键事件
@@ -702,12 +702,12 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 监听加载完毕的事件
         jIfmLoad.one("load", function(e) {
-            console.log("AAAAA")
+            //console.log("AAAAA")
             UI.__after_iframe_loaded("iload");
         });
 
         jIfmEdit.one("load", function(e) {
-            console.log("BBBBBB")
+            //console.log("BBBBBB")
             UI.__after_iframe_loaded("iedit");
         });
        

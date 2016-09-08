@@ -12,7 +12,7 @@ return ZUI.def("ui.o_view_meta", {
     css  : "theme/ui/o_view_obj/o_view_obj.css",
     i18n : "ui/o_view_obj/i18n/{{lang}}.js",
     //...............................................................
-    __show_info : function(o, fields) {
+    __show_info : function(o, fields, callback) {
         var UI  = this;
         var opt = UI.options;
         new FormUI({
@@ -22,6 +22,7 @@ return ZUI.def("ui.o_view_meta", {
             fields : (fields||[]).concat(UI.my_fields)
         }).render(function(){
             this.setData(o);
+            $z.doCallback(callback, [o], UI);
         });
     },
     //...............................................................
@@ -29,18 +30,20 @@ return ZUI.def("ui.o_view_meta", {
         return this.gasket.form.getData();
     },
     //...............................................................
-    update : function(o) {
+    update : function(o, callback) {
         var UI = this;
         UI.$el.attr("oid", o.id);
-        UI.refresh();
+        UI.refresh(callback);
     },
     //...............................................................
-    refresh : function() {
+    refresh : function(callback) {
         var UI = this;
 
         // 得到对象
         var oid = UI.$el.attr("oid");
         var o = Wn.getById(oid);
+
+        // console.log("I am refresh");
         
         // 图像
         if(/^image\//.test(o.mime)){
@@ -56,7 +59,7 @@ return ZUI.def("ui.o_view_meta", {
                 type  : "int",
                 dft : -1,
                 editAs : "label"
-            }]);
+            }], callback);
         }
         // 可预览的视频
         else if(/^video\./.test(o.mime) && o.video_preview){
@@ -72,11 +75,11 @@ return ZUI.def("ui.o_view_meta", {
                 type  : "int",
                 dft : -1,
                 editAs : "label"
-            }]);
+            }], callback);
         }
         // 其他的对象
         else{
-            UI.__show_info(o);
+            UI.__show_info(o, null, callback);
         }
     },
     //...............................................................

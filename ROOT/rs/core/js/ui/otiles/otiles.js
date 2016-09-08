@@ -19,11 +19,21 @@ return ZUI.def("ui.otiles", {
     },
     //..............................................
     events : {
-        "click .list-item" : function(e){
+        "click .list-item .wnobj-thumbnail, .list-item .wnobj-nm" : function(e){
             this._do_click_list_item(e);
         },
         "click .ui-arena" : function(e){
-            this._do_click_arena(e);
+            var UI  = this;
+            var opt = UI.options;
+
+            // 如果点击到了选中的项目的有效区域里，则啥都不做
+            if($(e.target).closest('.list-item[li-actived]').length > 0){
+                if($(e.target).closest(".wnobj-thumbnail, .wnobj-nm").length > 0)
+                    return;
+            }
+
+            // 否则取消所有项目选中
+            UI.setAllBure();
         },
         "click .list-item[li-actived] .wnobj-nm-con" : function(e) {
             var UI  = this;

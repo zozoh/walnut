@@ -248,6 +248,7 @@ ZUIObj.prototype = {
                 if(null==m){
                     throw "wrong events key: " + key;
                 }
+                // 将处理函数作为 data 传入事件， 以便调用的时候，让 UI 变成 this
                 UI.$el.on(m[1], m[2], events[key], function(e){
                     e.data.apply(UI, [e]);
                 });
@@ -297,6 +298,24 @@ ZUIObj.prototype = {
                 delete UI.parent.gasket[opt.gasketName];
             }
         }
+
+        // 注销 DOM 事件
+        // var events = _.extend({}, UI.events, opt.events);
+        // for(var key in events){
+        //     var m = /^([^ ]+)[ ]+(.+)$/.exec(key);
+        //     if(m){
+        //         UI.$el.off(m[1], m[2]);
+        //     };
+        // }
+
+        // if(opt.dom_events) {
+        //     for(var key in UI.options.dom_events){
+        //         var m = /^([^ ]+)[ ]+(.+)$/.exec(key);
+        //         if(m){
+        //             UI.$el.off(m[1], m[2]);
+        //         }
+        //     }
+        // }
 
         // 移除自己的监听事件
         UI.unwatchKey();
@@ -1168,6 +1187,189 @@ ZUI.dump_tree = function(UI, depth, stopBy, No){
     }
     return str;
 };
+
+// 显示 ZUI 的调试界面
+ZUI.debug = function() {
+    // 找到调试内容输出的 DOM，没有就创建
+    var jDebugRoot = $(".ui-debug");
+    if(jDebugRoot.length == 0) {
+        var jDebugMask = $('<div class="ui-debug-mask">').appendTo(document.body);
+        jDebugRoot = $('<div class="ui-debug">').appendTo(jDebugMask);
+    }
+
+    // 确保调试样式 CSS 被加载
+    seajs.use("theme/ui/zui_debug.css");
+
+    // 预先声明闭包要用到的变量
+    var info = {count:0};
+    var _draw_sub, _draw_tree;
+
+    var _show_mark = function(jSelf){
+        var cid   = jSelf.children('b').text();
+        var UI    = ZUI(cid);
+
+        var jMark = $('.ui-debug-mark', UI.el.ownerDocument);
+        if(jMark.length == 0) {
+            jMark = $('<div class="ui-debug-mark">').appendTo(UI.el.ownerDocument.body);
+        }
+        var rect = $z.rect(UI.$el);
+
+        jMark.css(_.extend($z.rectObj(rect, "top,left,width,height"), {
+            "position"   : "fixed",
+            "z-index"    : 999,
+            "border"     : "1px dashed #F0F",
+            "background" : "rgba(255,255,0,0.4)",
+        }));
+    };
+
+    var _hide_mark = function(jSelf){
+        var cid   = jSelf.children('b').text();
+        var UI    = ZUI(cid);
+
+        $('.ui-debug-mark', UI.el.ownerDocument).remove();
+    };
+
+    // 加载处理函数
+    if(!jDebugRoot.attr("bind-debug-func")){
+        jDebugRoot.attr("bind-debug-func", "yes");
+        jDebugRoot
+            .on("click", "[has-children] .uid-self > .tnd-handle", function(e){
+                $z.toggleAttr($(this).closest(".uid-tnode"), "collapse");
+            })
+            .on("click", ".uid-self", function(e){
+                if($(e.target).closest('.tnd-handle, .tnd-actions').length > 0)
+                    return;
+
+                var jSelf = $(this);
+                $z.toggleAttr(jSelf, "show-in-live");
+
+                if(jSelf.attr("show-in-live")) {
+                    jDebugRoot.find('[show-in-live]').not(jSelf).removeAttr("show-in-live");
+                    _show_mark(jSelf);
+                }
+                // 去掉标记
+                else {
+                    _hide_mark(jSelf);
+                }
+            })
+            .on("mouseenter", ".uid-self", function(e){
+                var jSelf = $(this).closest(".uid-self");
+                if(jDebugRoot.find("[show-in-live]").length == 0){
+                    _show_mark(jSelf);
+                }
+            })
+            .on("mouseleave", ".uid-self", function(e){
+                var jSelf = $(this).closest(".uid-self");
+                if(jDebugRoot.find("[show-in-live]").length == 0){
+                    _hide_mark(jSelf);
+                }
+            })
+            .on("click", '.uid-self [a="reload"]', function(e){
+                var jq    = $(this);
+                var jSelf = jq.closest(".uid-self");
+                var cid   = jSelf.children('b').text();
+                var UI    = ZUI(cid);
+                var jNode = jSelf.parent();
+
+                _draw_sub(UI, jNode);
+
+                $z.blinkIt(jq);
+                $z.blinkIt(jNode.children(".uid-tsub"));
+            });
+    }
+
+    // 重置 DOM
+    jDebugRoot.html(`
+        <section class="uid-detail"></section>
+        <section class="uid-tree"></section>
+    `);
+
+    // 绘制子节点
+    _draw_sub = function(UI, jNode){
+        // 有子
+        if(_.isArray(UI.children) && UI.children.length > 0) {
+            var jMySub = jNode.children(".uid-tsub").empty();
+            if(jMySub.length == 0){
+                jMySub = $('<div class="uid-tsub">').appendTo(jNode);
+            }
+            _draw_tree(UI, UI.children, jMySub);
+            jNode.attr("has-children", "yes");
+        }
+        // 无子节点
+        else {
+            jNode.attr("no-children", "yes");
+        }
+    };
+
+    // 递归输出界面的数
+    _draw_tree = function(parentUI, uiList, jSub) {
+        if(!_.isArray(uiList))
+            return;
+        
+        // 循环输出
+        for(var i=0; i<uiList.length; i++){
+            // 计数
+            info.count ++;
+
+            // 准备绘节点 DOM
+            var UI = uiList[i];
+            var jNode = $('<div class="uid-tnode">').appendTo(jSub);
+            var jSelf = $('<div class="uid-self">').appendTo(jNode);
+
+            // 查找自己的 gasket
+            var gasketName = null;
+            if(parentUI) {
+                for(var key in parentUI.gasket) {
+                    if(parentUI.gasket[key] === UI) {
+                        gasketName = key;
+                        break;
+                    }
+                }
+            }
+
+            // 计算自己的面积
+            var rect = $z.rect(UI.$el);
+            var area = rect.width * rect.height;
+            jSelf.attr("no-area", area ? null : "yes");
+
+            // 绘制自己的结构
+            $('<span class="tnd-handle">').appendTo(jSelf);
+            $('<em class="index">').appendTo(jSelf).text(i + ")");
+            // 有扩展点名称
+            if(gasketName){
+                var jGasket = $('<span class="gasket">').appendTo(jSelf);
+                $('<i class="fa fa-puzzle-piece">').appendTo(jGasket);
+                $('<em class="gasket">').appendTo(jGasket).text(gasketName);
+                $('<i class="zmdi zmdi-arrow-right">').appendTo(jGasket);
+            }
+            $('<b>').appendTo(jSelf).text(UI.cid);
+            $('<u>').appendTo(jSelf).text(UI.uiName);
+            $('<div class="tnd-actions"><i class="zmdi zmdi-refresh" a="reload"></i></div>').appendTo(jSelf);
+
+            // 对于 form UI，自动折叠子
+            if('ui.form' == UI.uiName)
+                jNode.attr("collapse", "yes");
+
+            // 处理子节点
+            _draw_sub(UI, jNode);
+        }
+    };
+
+    // 从顶级树开始显示
+    _draw_tree(null, ZUI.tops, jDebugRoot.children(".uid-tree"));
+
+    // 汇总更多统计信息
+    info.instances = Object.keys(ZUI.instances).length;
+    info._uis      = Object.keys(ZUI._uis).length;
+    info.__CID     = ZUI.__CID;
+
+    // 显示信息
+    var str = "";
+    for(var key in info){
+        str += $z.alignLeft(key, 10) + " : " + info[key] + "\n";
+    }
+    jDebugRoot.children(".uid-detail").text($.trim(str));
+}
 
 // 创建全局变量，以及模块导出
 window.ZUI = ZUI;

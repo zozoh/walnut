@@ -45,7 +45,7 @@ li-checked="yes"
 消息
 
 "item:actived"   : {UI}on_actived(o, jItem, prevObj, jPreItem)
-"item:blur"      : {UI}on_blur(jItems)
+"item:blur"      : {UI}on_blur(jItems, nextObj, nextItem)
 "item:checked"   : {UI}on_checked(jItems)
 "item:unchecked" : {UI}on_unchecked(jItems)
 "item:add"
@@ -180,13 +180,14 @@ var methods = {
         $z.invoke(UI, "__after_actived", [o, jItem, prevObj, jPreItem]);
     },
     //...............................................................
-    setAllBure : function(nextObj, nextRow){
+    setAllBure : function(nextObj, nextItem){
         var UI  = this;
         var opt = UI.options;
         var jItems  = UI.$checked();
         var context = UI;
 
-        if(jItems.length > 0){
+        // 如果有下一个高亮对象，或者 blurable 为 true 则可以取消
+        if((opt.blurable || nextObj) && jItems.length > 0){
             // 移除标记
             jItems.attr({
                 "li-checked" : null,
@@ -194,11 +195,11 @@ var methods = {
             });
 
             // 同步选择器 
-            $z.invoke(UI, "__after_blur", [jItems]);
+            $z.invoke(UI, "__after_blur", [jItems, nextObj, nextItem]);
 
             // 触发消息 
-            UI.trigger("item:blur", jItems);
-            $z.invoke(opt, "on_blur", [jItems], context);
+            UI.trigger("item:blur", jItems, nextObj, nextItem);
+            $z.invoke(opt, "on_blur", [jItems, nextObj, nextItem], context);
         }
     },
     //...............................................................
@@ -458,6 +459,7 @@ var methods = {
     // 子 UI 截获事件后调用这个函数处理即可
     _do_click_list_item : function(e){
         var UI = this;
+        var jItem = UI.$item(e.currentTarget);
         //console.log(".lst-item click");
         // 如果支持多选 ...
         if(UI.options.multi){
@@ -471,9 +473,6 @@ var methods = {
                 // 准备计算需要选中的项目
                 var jItems;
 
-                // 得到自己
-                var jq = $(e.currentTarget);
-
                 // 找到激活项目的 ID
                 var jA = UI.$item();
 
@@ -484,16 +483,16 @@ var methods = {
                 
                 // 激活项目在自己以前
                 var selector = "[oid=" + jA.attr("oid") + "]";
-                if(jq.prevAll(selector).size() > 0){
-                    jItems = jq.prevUntil(jA).addBack().add(jA);
+                if(jItem.prevAll(selector).size() > 0){
+                    jItems = jItem.prevUntil(jA).addBack().add(jA);
                 }
                 // 激活项目在自己以后
-                else if(jq.nextAll(selector).size() > 0){
-                    jItems = jq.nextUntil(jA).addBack().add(jA);
+                else if(jItem.nextAll(selector).size() > 0){
+                    jItems = jItem.nextUntil(jA).addBack().add(jA);
                 }
                 // 那就是自己咯
                 else{
-                    jItems = jq;
+                    jItems = jItem;
                 }
 
                 // 选中这些项目
@@ -507,22 +506,8 @@ var methods = {
             }
         }
         // 否则就是激活
-        UI.setActived(e.currentTarget);
+        UI.setActived(jItem);
     },
-    //...............................................................
-    // 处理点击界面空白区域
-    _do_click_arena : function(e) {
-        var UI  = this;
-        var opt = UI.options;
-
-        // 如果点击到了选中的项目里，则啥都不做
-        if(!opt.blurable || $(e.target).closest('.list-item[li-actived]').length > 0){
-            return;
-        }
-
-        // 否则取消所有项目选中
-        UI.setAllBure();
-    }
     //...............................................................
 }; // ~End methods
 //====================================================================
