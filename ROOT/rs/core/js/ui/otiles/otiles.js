@@ -35,12 +35,12 @@ return ZUI.def("ui.otiles", {
             // 否则取消所有项目选中
             UI.setAllBure();
         },
-        "click .list-item[li-actived] .wnobj-nm-con" : function(e) {
+        "click .list-item[li-actived] .wnobj-nm" : function(e) {
             var UI  = this;
             if(UI.options.renameable){
-                var jq    = $(e.currentTarget);
-                var obj = UI.getData(jq);
-                $z.editIt(jq, {
+                var jCon    = $(e.currentTarget).closest(".wnobj-nm-con");
+                var obj = UI.getData(jCon);
+                $z.editIt(jCon, {
                     text  : obj.nm,
                     multi : true,
                     enterAsConfirm : true,

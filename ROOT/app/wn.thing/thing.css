@@ -1,5 +1,7 @@
 .thing {
   position: relative;
+  background: #ffffff;
+  color: #333333;
 }
 .thing > section {
   position: absolute;

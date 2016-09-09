@@ -300,24 +300,27 @@ ZUIObj.prototype = {
         }
 
         // 注销 DOM 事件
-        // var events = _.extend({}, UI.events, opt.events);
-        // for(var key in events){
-        //     var m = /^([^ ]+)[ ]+(.+)$/.exec(key);
-        //     if(m){
-        //         UI.$el.off(m[1], m[2]);
-        //     };
-        // }
+        var events = _.extend({}, UI.events, opt.events);
+        for(var key in events){
+            var m = /^([^ ]+)[ ]+(.+)$/.exec(key);
+            if(m){
+                UI.$el.off(m[1], m[2]);
+            };
+        }
 
-        // if(opt.dom_events) {
-        //     for(var key in UI.options.dom_events){
-        //         var m = /^([^ ]+)[ ]+(.+)$/.exec(key);
-        //         if(m){
-        //             UI.$el.off(m[1], m[2]);
-        //         }
-        //     }
-        // }
+        if(opt.dom_events) {
+            for(var key in UI.options.dom_events){
+                var m = /^([^ ]+)[ ]+(.+)$/.exec(key);
+                if(m){
+                    UI.$el.off(m[1], m[2]);
+                }
+            }
+        }
 
-        // 移除自己的监听事件
+        // 停止监听其他 UI 的事件
+        UI.stopListening();
+
+        // 移除自己的监听的键盘和鼠标事件
         UI.unwatchKey();
         UI.unwatchMouse();
 

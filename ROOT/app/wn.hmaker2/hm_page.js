@@ -396,7 +396,7 @@ return ZUI.def("app.wn.hmaker_page", {
         // 首先所有元素的点击事件，全部禁止默认行为
         UI._C.iedit.$root.on("click", "*", function(e){
             e.preventDefault();
-            console.log("hm_page.js: click", this.tagName, this.className);
+            // console.log("hm_page.js: click", this.tagName, this.className);
 
             var jq = $(this);
 
