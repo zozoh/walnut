@@ -5,6 +5,7 @@
 }
 body {
   margin: 0;
+  font-size: 12px;
 }
 .pmv-dropi {
   padding: 1px;
@@ -162,99 +163,109 @@ body {
   font-size: 64px;
   padding: 8px;
 }
-.hmc-thingset > .hmc-th-W {
-  display: none;
+.hmc-objlist > .hmol-filter .flt-kwd {
+  padding: 6px;
 }
-.hmc-thingset > .hmc-th-W[show] {
+.hmc-objlist > .hmol-filter .flt-kwd > div {
+  float: left;
+  padding: 4px;
+}
+.hmc-objlist > .hmol-filter .flt-kwd:after {
+  content: "";
   display: block;
+  height: 0;
+  clear: both;
 }
-.hmc-thingset > .hmc-th-tip {
-  text-align: center;
-  background: #eeeeee;
+.hmc-objlist > .hmol-filter .flt-kwd-input input {
+  padding: 6px;
+  outline: none;
 }
-.hmc-thingset > .hmc-th-tip > .tiptxt {
-  padding: 12px;
-  font-size: 16px;
+.hmc-objlist > .hmol-filter .flt-kwd-btn b {
+  display: inline-block;
+  background: #080;
+  color: #FFF;
+  padding: 7px 10px;
+  border-radius: 2px;
 }
-.hmc-thingset > .hmc-th-tip > .tiptxt i {
-  font-size: 48px;
-  display: block;
-  padding: 12px;
+.hmc-objlist > .hmol-filter .flt-fld-list .flt-fld {
+  padding: 4px 60px;
+  position: relative;
+  border-bottom: 1px solid #DDD;
 }
-.hmc-thingset > .hmc-th-tip > .lnkbtn {
-  padding: 12px;
-  font-size: 12px;
+.hmc-objlist > .hmol-filter .flt-fld-list .flt-fld ul {
+  padding: 8px;
+  margin: 0;
+  list-style: none;
 }
-.hmc-thingset > .hmc-th-tip > .info {
-  color: #888888;
-}
-.hmc-thingset > .hmc-th-tip > .warn {
-  color: #ff8800;
-}
-.hmc-thingset > .hmc-th-tip > .error {
-  color: #ff0000;
-}
-.hmc-thingset > .hmc-th-tip .lnkbtn {
-  text-align: center;
+.hmc-objlist > .hmol-filter .flt-fld-list .flt-fld ul li {
+  float: left;
+  min-width: 60px;
+  cursor: pointer;
   text-decoration: underline;
-  color: #0088ff;
+  color: #08F;
+  padding: 0 6px;
+}
+.hmc-objlist > .hmol-filter .flt-fld-list .flt-fld ul:after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+}
+.hmc-objlist > .hmol-filter .flt-fld-list .flt-fld .flt-fld-text {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  padding: 8px;
+}
+.hmc-objlist > .hmol-filter .flt-fld-list .flt-fld .flt-fld-multi {
+  position: absolute;
+  right: 0;
+  top: 4px;
+  padding: 4px;
   cursor: pointer;
+  background: #CCC;
+  border: 1px solid #888;
 }
-.hmc-thingset > .hmc-th-tip .lnkbtn:hover {
-  color: #ff0000;
+.hmc-objlist > .hmol-filter .flt-fld-list .flt-fld:first-child {
+  border-top: 1px solid #DDD;
 }
-.hmc-thingset > .hmc-ths-main .hmc-ths-list {
-  border: 1px dashed rgba(0, 255, 255, 0.6);
-  margin: 1px 0;
+.hmc-objlist > .hmol-sorter {
+  padding: 4px;
 }
-.hmc-thingset > .hmc-ths-main .hmc-ths-list .hm-th-obj .hm-tho-avatar {
-  border: 1px dashed #888;
-  padding: 6px 12px;
-  font: 16px Monaco, Consolas, Courier New;
+.hmc-objlist > .hmol-sorter ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.hmc-objlist > .hmol-sorter ul li {
+  float: left;
+  min-width: 60px;
+  text-align: center;
   cursor: pointer;
+  padding: 4px 6px;
+  background: #FFF;
+  border: 1px solid #CCC;
+  border-right: 0;
 }
-.hmc-thingset > .hmc-ths-main .hmc-ths-list .hm-th-obj .hm-tho-avatar > i {
-  margin-right: 4px;
+.hmc-objlist > .hmol-sorter ul li:last-child {
+  border-right: 1px solid #CCC;
 }
-.hmc-thingset > .hmc-ths-main .hmc-ths-list .hm-th-obj .hm-tho-avatar > em {
-  font: 12px normal;
-}
-.hmc-thingset > .hmc-ths-main .hmc-ths-list .hm-th-obj .hm-tho-avatar[current] {
-  color: #ffffff;
-  background: #008800;
-  border-color: #ffffff;
-}
-.hmc-thingset > .hmc-ths-main .hmc-ths-list .hm-th-obj .hm-tho-subs {
-  display: none;
-}
-.hmc-thingset > .hmc-ths-main .hmc-ths-part {
-  border: 1px dashed rgba(0, 255, 255, 0.6);
-  padding: 12px;
-  font-size: 14px;
-}
-.hmc-thingset > .hmc-ths-main .hmc-ths-part .part-disabled {
-  opacity: 0.4;
-}
-.hmc-thingset > .hmc-ths-main .hmc-ths-part[enabled] .part-enabled {
+.hmc-objlist > .hmol-sorter ul:after {
+  content: "";
   display: block;
+  height: 0;
+  clear: both;
 }
-.hmc-thingset > .hmc-ths-main .hmc-ths-part[enabled] .part-disabled {
-  display: none;
+.hmc-objlist > .hmol-items {
+  padding: 10px;
 }
-.hmc-thingset > .hmc-ths-main .hmc-ths-part[disabled] .part-enabled {
-  display: none;
+.hmc-objlist > .hmol-items .hmol-items-loader {
+  padding: 30px;
+  text-align: center;
 }
-.hmc-thingset > .hmc-ths-main .hmc-ths-part[disabled] .part-disabled {
-  display: block;
-}
-.hmc-thingset > .hmc-ths-main .hmc-ths-more {
-  color: #888888;
-  padding: 0 12px;
-  font-size: 14px;
-}
-.hmc-thingset > .hmc-ths-main .hmc-ths-more:before {
-  content: "......";
-  display: block;
-  height: 24px;
-  line-height: 24px;
+.hmc-objlist > .pager {
+  color: #888;
+  padding: 10px;
+  border-top: 1px solid #CCC;
+  text-align: center;
 }

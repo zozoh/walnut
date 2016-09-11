@@ -71,6 +71,9 @@ return ZUI.def("ui.o_create", {
 
             // 显示提示信息
             UI.arena.find(".ocreate-tip").html(tip);
+
+            // 聚焦 input 框
+            UI.arena.find("input")[0].focus();
         },
         'click .ocreate-actions b[md="ok"]' : function(){
             this.__do_create();
@@ -137,7 +140,7 @@ return ZUI.def("ui.o_create", {
         });
     },
     //...............................................................
-    __draw_body : function(clist, o) {
+    __draw_body : function(clist) {
         var UI  = this;
         var opt = UI.options;
 
@@ -158,10 +161,19 @@ return ZUI.def("ui.o_create", {
 
         // 模拟点击第一项
         jUl.children().first().click();
-
     },
     //...............................................................
-    update : function(o) {
+    /*
+    o     - 要创建对象的父目录对象
+    clist - 要创建的对象类型列表，数组，每个元素格式: 
+        {
+            race  : "DIR|FILE"  // 对象种类
+            tp    : "xxx"       // 新对象类型
+            text  : "xxx"       // 对象名称
+            tip   : "xxx"       // 对象描述
+        }
+    */
+    update : function(o, clist) {
         var UI  = this;
         var opt = UI.options;
         
@@ -174,21 +186,30 @@ return ZUI.def("ui.o_create", {
         // 记录 pid
         UI.$el.attr("pid", o.id);
 
-        // 查询一下对象可以被创建的列表
-        var cmdText = o.tp ? "appclist type:"+o.tp
-                           : "appclist id:"+o.id;
-        Wn.exec(cmdText, function(re){
-            var clist = re ? $z.fromJson(re) : [];
+        // 定义后续处理方法
+        var __after = function(clist) {
             if(clist.length == 0){
                 UI.ccode("noitem").appendTo(UI.arena);
             }
             // 绘制主体
             else {
-                UI.__draw_body(clist, o);
+                UI.__draw_body(clist);
             }
-        });
+        };
 
-
+        // 如果直接给明了候选列表
+        if(_.isArray(clist) && clist.length > 0) {
+            __after(clist);
+        }
+        // 查询一下对象可以被创建的列表
+        else {
+            var cmdText = o.tp ? "appclist type:"+o.tp
+                               : "appclist id:"+o.id;
+            Wn.exec(cmdText, function(re){
+                var clist = re ? $z.fromJson(re) : [];
+                __after(clist);
+            });
+        }
     }
     //...............................................................
 });

@@ -107,9 +107,9 @@ return ZUI.def("app.wn.hmaker_resource", {
         UI.uiTree = new TreeUI({
             parent     : UI,
             gasketName : "body",
-            tops       : function(callback){
+            tops : function(callback){
                 var rootObj = Wn.getById(UI.rootId);
-                Wn.getChildren(rootObj, null, callback);
+                Wn.getChildren(rootObj, null, callback, true);
             },
             children : function(o, callback){
                 Wn.getChildren(o, null, callback);
@@ -177,6 +177,27 @@ return ZUI.def("app.wn.hmaker_resource", {
             $z.doCallback(callback, [], UI);
         });
         
+    },
+    //...............................................................
+    remove : function(oid) {
+        var UI = this;
+
+        // 移除
+        var jN2 = UI.uiTree.removeNode(oid);
+
+        // 高亮下一个节点
+        UI.uiTree.setActived(jN2);
+    },
+    //...............................................................
+    setActived : function(arg){
+        this.uiTree.setActived(arg);
+    },
+    //...............................................................
+    refresh : function(callback){
+        var UI = this;
+        UI.uiTree.reload(function(){
+            callback.apply(UI);
+        });
     }
     //...............................................................
 });

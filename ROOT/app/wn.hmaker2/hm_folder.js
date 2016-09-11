@@ -62,18 +62,38 @@ return ZUI.def("app.wn.hmaker_folder", {
         // 得到数据 
         var o = Wn.getById(UI.oFolderId);
 
-        // 显示对象路径
-        var aph = UI.getRelativePath(o);
-        UI.arena.children("header").empty()
-            .append($(UI.getObjIcon(o)))
-            .append($('<a target="_blank" href="/a/open/browser?ph=id:'+o.id+'">' + aph + '</a>'));
-
         // 更新显示对象 
+        UI.showLoading();
         Wn.getChildren(o, null, function(children){
+            UI.hideLoading();
+
+            // 显示对象路径
+            var aph = UI.getRelativePath(o);
+            UI.arena.children("header").empty()
+                .append($(UI.getObjIcon(o)))
+                .append($('<a target="_blank" href="/a/open/browser?ph=id:'+o.id+'">' + aph + '</a>'));
             //console.log("haha", children)
+            // 更新列表
             UI.gasket.list.setData(children);
+
+            // 如果没有激活的项目了，相当于 blur
+            if(!UI.gasket.list.hasActived())
+                UI.fire("blur:file");
         }, true);
+    },
+    //...............................................................
+    getCurrentEditObj : function(){
+        return Wn.getById(this.oFolderId);
+    },
+    //...............................................................
+    getChecked : function() {
+        return this.gasket.list.getChecked();
+    },
+    //...............................................................
+    getActions : function(){
+        return ["@::hmaker/hm_create", "@::hmaker/hm_delete", "@::refresh", "@::hmaker/pub_site", "@::zui_debug"];
     }
+    //...............................................................
 });
 //===================================================================
 });

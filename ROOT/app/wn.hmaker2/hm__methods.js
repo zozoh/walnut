@@ -19,8 +19,12 @@ var methods = {
     },
     // 得到站点主目录
     getHomeObj : function() {
-        var uiHMaker = this.hmaker();
-        return Wn.getById(uiHMaker.__home_id);
+        var homeId = this.getHomeObjId();
+        return Wn.getById(homeId);
+    },
+    // 得到站点主目录 ID
+    getHomeObjId : function() {
+        return this.hmaker().__home_id;
     },
     // 监听消息
     listenBus : function(event, handler){
@@ -51,6 +55,10 @@ var methods = {
         if(re && re.uiName != "app.wn.hmaker_page")
             return null;
         return re;
+    },
+    // 获取资源列表的 UI 实例
+    resourceUI : function() {
+        return this.hmaker().gasket.resource;
     },
     // 获取 prop UI 下面的子 UI，如果类型未定义，则返回 prop UI 本身
     propUI : function(uiPath) {

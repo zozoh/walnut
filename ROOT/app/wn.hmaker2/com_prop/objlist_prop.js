@@ -2,7 +2,7 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/hm__methods',
+    'app/wn.hmaker2/hm__methods_panel',
     'app/wn.hmaker2/support/dynamic_data_setting',
     'ui/form/form',
     'ui/form/c_droplist',
@@ -422,7 +422,7 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
 
         // 取值
         var partData = null;
-        var com = {__prop_ignore_update : true};
+        var com = {};
         if(!jPart.attr("part-disabled")){
             var HDL  = OLSTP[part];
             partData = HDL.getPartData(UI);
@@ -430,7 +430,7 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
 
         // 通知
         com[part] = partData;
-        UI.fire("change:com", com);
+        UI.notifyComChange(com);
     },
     //...............................................................
     redraw : function() {
@@ -449,9 +449,17 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
             on_init : function(){
                 this.uiCom = UI.uiCom;
             },
+            paramsFrom : ["filter","pager","sorter","HTTP_GET","HTTP_COOKIE"],
+            paramsDefault : {
+                id    : null,
+                cnd   : {base:{},     from:"filter", key:null   , merge : true },
+                limit : {base:50,     from:"pager" , key:"limit", merge : false},
+                skip  : {base:0 ,     from:"pager" , key:"skip" , merge : false},
+                sort  : {base:{nm:1}, from:"sorter", key:null   , merge : false},
+            },
             on_change : function(com) {
                 // console.log("haha", com)
-                this.uiCom.notifyChange(com);
+                UI.notifyComChange(com);
             }
         }).render(function(){
             UI.defer_report("dds");
@@ -462,6 +470,12 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
             parent : UI,
             gasketName : "pager",
             uiWidth : "all",
+            on_change : function() {
+                var pager = this.getData();
+                UI.notifyComChange({
+                    pager : pager
+                });
+            },
             fields : [{
                 key   : "sizes",
                 title : "i18n:hmaker.com.objlist.pg_sizes",
@@ -558,6 +572,11 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
         
         // 更新数据源
         UI.gasket.dds.update(com);
+
+        // 如果数据源部分资料不全，则显示
+        if(true || !com.api || !com.params || !com.template){
+            UI.arena.find(".olstp-dds").removeAttr("part-disabled");
+        }
 
         // 更新过滤器/排序器/翻页器
         UI._update_part("filter", com.filter);

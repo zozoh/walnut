@@ -6,7 +6,7 @@
     box-sizing: border-box;
 }
 
-body {margin:0;}
+body {margin:0; font-size:12px;}
 //............................................................
 // 拖拽相关
 .pmv-dropi {
@@ -142,79 +142,78 @@ body {margin:0;}
         text-align: center; color:@c6; padding:@d4;
         > i {display: block; font-size:@f8; padding:@d3;}
     }
-}
-//............................................................
-// ThingSet
-.hmc-thingset {
-    @areaBorder : 1px dashed rgba(0,255,255,0.6);
-    > .hmc-th-W {display: none;}
-    > .hmc-th-W[show] {display: block;}
-    //........................................................
-    // 提示文字
-    > .hmc-th-tip {
-        text-align: center; background:@cb1;
-        > .tiptxt {
-            padding:@d4; font-size:@f4;
-            i {font-size:@f7; display: block; padding:@d4;}
+    // 过滤器
+    > .hmol-filter {
+        .flt-kwd {
+            padding: @d2;
+            > div {float: left; padding:4px;} 
         }
-        > .lnkbtn {
-            padding:@d4; font-size:@f2;
+        .flt-kwd:after{@clr();}
+        .flt-kwd-input input{padding:6px; outline:none;}
+        .flt-kwd-btn b{
+            display:inline-block; background: #080; color:#FFF; padding:7px 10px;
+            border-radius: 2px;
         }
-        > .info {color:@c2;}
-        > .warn {color:@c0;}
-        > .error {color:@c1;}
-        .lnkbtn {
-            text-align: center; text-decoration: underline;
-            color:@clink; cursor: pointer;
-        }
-        .lnkbtn:hover {color:@clink_hover;}
-    }
-    //........................................................
-    // 主区域
-    > .hmc-ths-main {
-        .hmc-ths-list {
-            border : @areaBorder; margin:1px 0;
-            .hm-th-obj {
-                // > ul {
-                //     list-style: none; margin:0; padding:0;
-                //     > li {
-                //         border:1px dashed #888;
-                //     }
-                // }
-                .hm-tho-avatar {
-                    border:1px dashed #888; padding:@d2 @d4; font:@f4 @f_fixed;
-                    cursor: pointer;
-                    > i {margin-right:@d1;}
-                    > em {font: @f2 normal; }
+        .flt-fld-list {
+            .flt-fld {
+                padding:4px 60px; position: relative;
+                border-bottom:1px solid #DDD;
+                ul {
+                    padding:8px; margin:0; list-style: none;
+                    li {
+                        float: left; min-width: 60px; cursor: pointer; 
+                        text-decoration: underline; color:#08F;
+                        padding: 0 6px;
+                    }
                 }
-                .hm-tho-avatar[current] {
-                    color:@chx_f; background:@chx_b; border-color:@chx_f;
+                ul:after {@clr();}
+                .flt-fld-text  {
+                    position: absolute; left:0; top:4px;
+                    padding:8px;
                 }
-                .hm-tho-subs {display: none;}
+                .flt-fld-multi {
+                    position: absolute; right:0; top:4px;
+                    padding:4px; cursor: pointer;
+                    background: #CCC; border:1px solid #888;
+                }
+            }
+            .flt-fld:first-child {
+                border-top:1px solid #DDD;
             }
         }
-        //....................................................
-        // 可开关区域， filter 和 pager
-        .hmc-ths-part {
-            border:@areaBorder; padding:@d4;
-            font-size:@f3;
-            .part-disabled {opacity: 0.4;}
+    }
+    // 排序器
+    > .hmol-sorter {
+        padding:4px;
+        ul {
+            padding:0; margin:0; list-style: none;
+            li {
+                float: left; min-width: 60px; text-align: center; cursor: pointer; 
+                padding: 4px 6px; background:#FFF;
+                border: 1px solid #CCC; border-right: 0;
+            }
+            li:last-child {border-right: 1px solid #CCC;}
         }
-        .hmc-ths-part[enabled]{
-            .part-enabled  {display: block;}
-            .part-disabled {display: none;}
+        ul:after {@clr();}
+    }
+    // 列表内容
+    > .hmol-items {
+        padding:10px;
+        .hmol-items-loader {
+            padding:30px; text-align: center;
         }
-        .hmc-ths-part[disabled]{
-            .part-enabled  {display: none;}
-            .part-disabled {display: block;}
-        }
-        //....................................................
-        // 省略号
-        .hmc-ths-more {
-            color:@c2; padding:0 @d4;
-            //font: @f2 'FontAwesome';
-            font-size:@f3;
-        }
-        .hmc-ths-more:before {content: "......"; display: block; height:@f5; line-height: @f5; }
-    } // ~ 主区域 .hmc-ths-main
-} // ~ .hmc-thingset
+    }
+    // 翻页器
+    > .pager {
+        color:#888; padding:10px; border-top:1px solid #CCC;
+        text-align: center;
+    }
+    // 翻页器: 普通
+    > .pager-normal {
+
+    }
+    // 翻页器: 跳转
+    > .pager-jump {
+
+    }
+} // ~ objlist

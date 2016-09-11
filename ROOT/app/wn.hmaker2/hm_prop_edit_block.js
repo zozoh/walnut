@@ -44,7 +44,6 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
     events : {
         // 切换绝对/相对定位选择框
         "click .hmpb-pos-abs label" : function() {
-            console.log("haha")
             var UI = this;
             var prop = UI.pageUI().getBlockProp();
 
@@ -76,8 +75,6 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             var jq = $(e.currentTarget);
             var key = jq.parents(".hmpb-pos-d").attr("key");
             var prop = UI.pageUI().getBlockProp();
-
-            console.log("hahah", key)
 
             // 得到模式
             var md = UI.arena.find(".hmpb-pos").attr("mode");

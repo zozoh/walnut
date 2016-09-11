@@ -27,7 +27,8 @@ var methods = {
     // 合并修改组件的属性，并保存
     updateProp : function(com) {
         // 得到完整的属性
-        var com2 = $z.extend(this.getData(), com);
+        //var com2 = $z.extend(this.getData(), com);
+        var com2 = _.extend(this.getData(), com);
 
         // // 删除不必要保存东东
         // delete com2.__com_ignore_setData;

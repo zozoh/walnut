@@ -37,6 +37,9 @@ return ZUI.def("app.wn.hmaker_other", {
     update : function(o) {
         var UI = this;
 
+        // 记录数据
+        UI.__my_obj = o;
+
         // 通知其他部分激活某个对象的属性
         UI.fire("active:other", o);
 
@@ -48,7 +51,16 @@ return ZUI.def("app.wn.hmaker_other", {
 
         // 更新显示对象 
         UI.gasket.objview.update(o);
+    },
+    //...............................................................
+    getCurrentEditObj : function(){
+        return this.__my_obj;
+    },
+    //...............................................................
+    getActions : function(){
+        return ["@::hmaker/hm_delete", "@::download"];
     }
+    //...............................................................
 });
 //===================================================================
 });

@@ -10,12 +10,6 @@
 		if(_.isFunction(UI.refresh)){
 			UI.refresh();
 		}
-		else if(UI.browser){
-			UI.browser.refresh();
-		}
-		else if(UI.parent && _.isFunction(UI.parent.refresh)){
-			UI.parent.refresh();
-		}
 		else {
 			alert(UI.msg("e.act.noapi_obj") + " :-> refresh");
 		}

@@ -470,6 +470,19 @@
         }
     }
     //.....................................................
+    // 映射表
+    [part="mapping"] { @noselect();
+        table {width: 100%;}
+        td {border:1px solid @cborder1; padding:@d2; width:50%;}
+        td.mkey {
+            font: @f2 @f_fixed; color:@c2; vertical-align: top;
+            padding:@d4;
+        }
+        td.mval {
+            input {width:100%;}
+        }
+    }
+    //.....................................................
 }
 //............................................................
 // hmc-objlist-prop

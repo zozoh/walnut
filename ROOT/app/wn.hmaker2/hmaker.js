@@ -33,7 +33,7 @@ return ZUI.def("app.wn.hmaker2", {
     i18n : "app/wn.hmaker2/i18n/{{lang}}.js",
     //...............................................................
     init : function() {
-        var UI = this;
+        var UI = HmMethods(this);
         
         UI.listenSelf("active:rs", function(o){
             UI.changeMain(o);
@@ -96,8 +96,36 @@ return ZUI.def("app.wn.hmaker2", {
             parent : UI,
             gasketName : "main"
         })).render(function(){
+            // 更新菜单
+            var actions = $z.invoke(this, "getActions") || [];
+            var menuSetup = Wn.extendActions(actions, false, true);
+            UI.browser.updateMenu(menuSetup, this);
+
+            // 更新主界面
             this.update(o);
         });
+    },
+    //...............................................................
+    openCreatePanel : function() {
+        var UI   = this;
+        var oHome = UI.getHomeObj();
+
+        // 显示新建文件对象面板
+        Wn.createPanel(oHome, function(newObj){
+            UI.resourceUI().refresh(function(){
+                this.setActived(newObj.id);
+            });
+        }, [{
+            race : "FILE",
+            tp   : "html",
+            text : "i18n:hmaker.html",
+            tip  : "i18n:hmaker.html_tip",
+        }, {
+            race : "DIR",
+            tp   : "folder",
+            text : "i18n:hmaker.folder",
+            tip  : "i18n:hmaker.folder_tip",
+        }]);
     },
     //...............................................................
     getCurrentEditObj : function() {
@@ -107,14 +135,6 @@ return ZUI.def("app.wn.hmaker2", {
     getCurrentTextContent : function() {
         return $z.invoke(this.gasket.main, "getCurrentTextContent", []);
     },
-    //...............................................................
-    getSiteHomeId : function() {
-        return this.__home_id;
-    },
-    //...............................................................
-    getSiteHome : function() {
-        return Wn.getById(this.getSiteHomeId());
-    }
     //...............................................................
 });
 //===================================================================

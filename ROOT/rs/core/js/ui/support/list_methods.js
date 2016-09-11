@@ -135,6 +135,9 @@ var methods = {
         var jItem = this.$item(arg);
         return jItem.attr("li-actived") ? true : false;
     },
+    hasActived : function(){
+        return this.getActivedId() ? true : false;
+    },
     //...............................................................
     setActived : function(arg){
         var UI  = this;
@@ -340,6 +343,9 @@ var methods = {
         if(!_.isArray(objs))
             return;
 
+        // 得到上次激活对象的 ID
+        var aiid = UI.getActivedId();
+
         // 绘制前子类准备
         $z.invoke(UI, "__before_draw_data", [objs]);
 
@@ -351,6 +357,10 @@ var methods = {
 
         // 绘制后子类处理
         $z.invoke(UI, "__after_draw_data", [objs]);
+
+        // 如果之前有激活，那么继续激活
+        if(aiid)
+            UI.setActived(aiid);
 
         // 重新计算尺寸
         UI.resize();

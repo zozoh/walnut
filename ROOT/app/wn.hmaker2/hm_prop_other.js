@@ -26,7 +26,8 @@ return ZUI.def("app.wn.hm_prop_other", {
 
         new ObjMetaUI({
             parent : UI,
-            gasketName : "meta"
+            gasketName : "meta",
+            hideTitle  : true,
         }).render(function(){
             UI.defer_report("meta");
         });

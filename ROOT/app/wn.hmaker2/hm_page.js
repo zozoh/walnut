@@ -171,15 +171,27 @@ return ZUI.def("app.wn.hmaker_page", {
     on_block_delete : function(e) {
         var UI = this;
 
-        // 防止默认事件
+        // 防止默认行为
         e.preventDefault();
 
-        // 删除当前块
+        // 得到块
         var jBlock = UI.getActivedBlockElement();
-        if(jBlock.size() > 0) {
-            jBlock.remove();
-            UI.fire("active:page");
+
+        // 如果有组件，那么注销
+        var jCom = UI.getComElement(jBlock);
+        if(jCom.length > 0){
+            UI.bindComUI(jCom, function(uiCom){
+                uiCom.destroy();
+                jBlock.remove();
+            }, false);
         }
+        // 否则纯删当前块
+        else {
+            jBlock.remove();
+        }
+
+        // 激活页面属性面板
+        UI.fire("active:page");
     },
     //...............................................................
     doInsertBlock : function() {
@@ -889,6 +901,16 @@ return ZUI.def("app.wn.hmaker_page", {
         // 返回 HTML
         return '<!DOCTYPE html>\n<html>\n' + C.iload.$root.html() + '\n</html>\n';;
     },
+    //...............................................................
+    getActions : function(){
+        return ["@::save_text",
+                "@::hmaker/hm_create", 
+                "@::hmaker/hm_delete",
+                "@::view_text",
+                "@::hmaker/pub_site",
+                "@::hmaker/pub_current_page",
+                "@::zui_debug"];
+    }
     //...............................................................
 });
 //===================================================================

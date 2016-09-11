@@ -11,6 +11,13 @@ var methods = {
                 __prop_ignore_update : true
             }));
     },
+    // 发出属性修改通知，本函数自动合并其余未改动过的属性
+    notifyComChange : function(com) {
+        if(com)
+            this.fire("change:com", _.extend(com, {
+                __prop_ignore_update : true
+            }));
+    },
     // 获取背景属性编辑控件的关于 image 编辑的配置信息
     getBackgroundImageEditConf : function(){
         return {

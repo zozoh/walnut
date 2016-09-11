@@ -139,8 +139,9 @@ template : "xxx"    // 模板的名称
 ```
 ~/.hmaker/template/abc
    abc.wnml     // 服务端渲染代码 @see WWW 机制
-   abc.js       // JS 端渲染代码，需要一个 CMD 模块来声明一个函数
+   abc.js       // JS 端渲染代码，是一个 jQuery 插件
    abc.css      // 模板的 CSS
+   mapping.js   // 一个 JSON 对象，描述模板需要字段映射关系
 ```
 
 - 模板内文件，会随发布 copy 到发布目标 `comt` 目录下，因此保留唯一名字很重要

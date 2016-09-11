@@ -3,7 +3,7 @@
 	text : "ThingSetEditor",
 	icon : '<i class="fa fa-cube"></i>',
 	outline : false,
-	actions : [ "@::save_text","@::upload" ],
+	actions : [],
 	uiType : "app/wn.thing/thing",
 	uiConf : {}
 })

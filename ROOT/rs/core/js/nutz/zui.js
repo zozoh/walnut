@@ -1145,59 +1145,15 @@ ZUI.loadi18n = function (path, callback) {
     });
 };
 
-// 调试方法，打印当前 UI 的级联 tree
-ZUI.dump_tree = function(UI, depth, stopBy, No){
-    // 显示一个 UI 的树
-    if(UI){
-        No = No || "";
-        var depth  = _.isUndefined(depth) ? 0 : depth
-        var indent = "    ";
-        var prefix = $z.dupString(indent, depth);
-        var ctx    = {
-            nm     : UI.uiName,
-            cid    : UI.cid,
-            uiKey  : UI.uiKey ? "["+UI.uiKey+"]" : "",
-            klass  : UI.$pel.prop("className"),
-            childN : UI.children.length
-        }
-        var str = ($z.tmpl("{{nm}}({{cid}}){{uiKey}}<{{klass}}>:{{childN}}children"))(ctx);
-        // 显示扩展点
-        for(var key in UI.gasket) {
-            var sui = UI.gasket[key];
-            if(sui){
-                str += "\n" + prefix 
-                       + "  @" + $z.alignLeft('"' + key + '"', 8, " ")
-                       + "-> " + ZUI.dump_tree(sui, depth+1, stopBy);
-            }
-        }
-        // 显示子
-        if(!stopBy || !stopBy.test(UI.uiName))
-            if(UI.children.length > 0){
-                str += "\n" + prefix + "   >>>>>>>>>>>>>>";
-                for(var i=0; i<UI.children.length; i++){
-                    str += "\n" + prefix + indent
-                           + "[" + No + i + "]" 
-                           + ZUI.dump_tree(UI.children[i], depth+1, stopBy, No+i+".");
-                }
-            }
-        // 返回
-        return str;
-    }
-    // 显示全部顶层 UI
-    var str = "";
-    for(var i in ZUI.tops){
-        str += "-> " + ZUI.dump_tree(ZUI.tops[i], 0) + "\n"; 
-    }
-    return str;
-};
-
 // 显示 ZUI 的调试界面
 ZUI.debug = function() {
     // 找到调试内容输出的 DOM，没有就创建
     var jDebugRoot = $(".ui-debug");
+    var inMask = false;
     if(jDebugRoot.length == 0) {
         var jDebugMask = $('<div class="ui-debug-mask">').appendTo(document.body);
         jDebugRoot = $('<div class="ui-debug">').appendTo(jDebugMask);
+        inMask = true;
     }
 
     // 确保调试样式 CSS 被加载
@@ -1235,7 +1191,15 @@ ZUI.debug = function() {
     // 加载处理函数
     if(!jDebugRoot.attr("bind-debug-func")){
         jDebugRoot.attr("bind-debug-func", "yes");
+        if(inMask){
+            $(document.body).one("keydown", function(){
+                $('.ui-debug-mask').remove();
+            });
+        }
         jDebugRoot
+            .on("click", ".uid-closer", function(){
+                $('.ui-debug-mask').remove();
+            })
             .on("click", "[has-children] .uid-self > .tnd-handle", function(e){
                 $z.toggleAttr($(this).closest(".uid-tnode"), "collapse");
             })
@@ -1286,6 +1250,8 @@ ZUI.debug = function() {
         <section class="uid-detail"></section>
         <section class="uid-tree"></section>
     `);
+    if(inMask)
+        $('<div class="uid-closer">').appendTo(jDebugRoot);
 
     // 绘制子节点
     _draw_sub = function(UI, jNode){

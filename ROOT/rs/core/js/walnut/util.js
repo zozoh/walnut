@@ -173,7 +173,8 @@ var Wn = {
     提供一个通用的创建界面，可以在给定的目录对象下面创建一个对象
     appclist 命令会提供数据方面的帮助
     */
-    createPanel: function(o, callback, context){
+    createPanel: function(o, callback, clist){
+        var context = this;
         // 打开遮罩
         var MaskUI    = require("ui/mask/mask");
         new MaskUI({
@@ -192,7 +193,7 @@ var Wn = {
                 }
             }
         }).render(function(){
-            this.body.update(o);
+            this.body.update(o, clist);
         });
     },
     /*...................................................................

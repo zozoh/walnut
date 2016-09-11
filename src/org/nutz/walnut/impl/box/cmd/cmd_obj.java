@@ -205,7 +205,7 @@ public class cmd_obj extends JvmExecutor {
             sys.io.each(q, (int i, WnObj child, int len) -> {
                 // 设置父
                 child.setParent(o);
-                
+
                 // 深层递归展开
                 if (ExtendDeeply) {
                     __do_extend(sys, list2, flt, q, child, ExtendDeeply);
@@ -638,6 +638,10 @@ public class cmd_obj extends JvmExecutor {
 
         // 创建对象
         WnObj o = sys.io.create(oP, meta.getString("nm", "${id}"), race);
+
+        // 如果定义了类型,自动获取 mime
+        if (meta.has("tp") && !meta.has("mime"))
+            meta.setOrRemove("mime", sys.io.mimes().getMime(meta.getString("tp")));
 
         // 准备更新的元数据
         meta.remove("id");

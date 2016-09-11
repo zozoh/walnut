@@ -73,7 +73,7 @@ var html = `
         <div class="dynamic">
             <div nm="from">
                 <em>{{hmaker.dds.param_from}}</em>
-                <input list="param_item_from">
+                <input list="dss-param_item_from">
             </div>
             <div nm="key"><span class="ui-checkbox"></span><em>{{hmaker.dds.param_key}}</em><input></div>
             <div nm="merge"><span class="ui-checkbox"></span><em>{{hmaker.dds.param_merge}}</em></div>
@@ -81,13 +81,7 @@ var html = `
     </div>
 </div>
 <div class="ui-arena hm-dynamic-data-setting">
-    <datalist id="param_item_from">
-        <option value="filter">
-        <option value="pager">
-        <option value="sorter">
-        <option value="HTTP_GET">
-        <option value="HTTP_COOKIE">
-    </datalist>
+    <datalist id="dss-param_item_from"></datalist>
     <section part="api">
         <dl>
             <dt>{{hmaker.dds.api}}</dt>
@@ -109,13 +103,17 @@ var html = `
             </dd>
         </dl>
     </section>
+    <section part="mapping"><table><tbody></tbody></table></section>
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_dynamic_data_setting", {
     dom  : html,
     //...............................................................
-    init : function(){
+    init : function(opt){
         HmMethods(this);
+
+        $z.setUndefined(opt, "paramsFrom", ["HTTP_GET","HTTP_COOKIE"]);
+        $z.setUndefined(opt, "paramsDefault", {id:null});
     },
     //...............................................................
     events : {
@@ -137,7 +135,7 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
                     // 调用回调
                     UI.__do_on_change();
                 });
-            }, 800);
+            }, 200);
         },
         // 复杂参数:开启/关闭键的输入
         'click .pval .ui-checkbox' : function(e) {
@@ -177,7 +175,14 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
     },
     //...............................................................
     redraw : function() {
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
+
+        // param_item_from
+        var jDL = UI.arena.children("datalist#dss-param_item_from").empty();
+        for(var str of opt.paramsFrom) {
+            jDL.append('<option value="'+str+'">');
+        }
 
         // 得到 API 的主目录
         var oApiHome = Wn.fetch("~/.regapi/api");
@@ -191,7 +196,7 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
             text  : null,
             on_change : function(apiPath) {
                 var com = UI._eval_params_by_api({api:apiPath});
-                UI.fire("change:com", com);
+                UI.notifyComChange(com);
             },
             value : function(o){
                 return "/" + Wn.getRelativePath(oApiHome, o);
@@ -208,7 +213,8 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
             icon  : '<i class="fa fa-puzzle-piece"></i>',
             text  : null,
             on_change : function(template) {
-                UI.fire("change:com", {template:template});
+                var com = UI._eval_mapping_by_template({template:template});
+                UI.notifyComChange(com);
             },
             value : function(o){
                 return o.nm;
@@ -223,15 +229,23 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
     },
     //...............................................................
     _eval_params_by_api : function(com) {
+        var UI  = this;
+        var opt = UI.options;
         if(com.api) {
-            // TODO 这里根据 api 的 params 元数据生成默认参数表
-            com.params = {
-                id    : null,
-                cnd   : {base:{},     from:"filter", key:null   , merge : true },
-                limit : {base:50,     from:"pager" , key:"limit", merge : false},
-                skip  : {base:0 ,     from:"pager" , key:"skip" , merge : false},
-                sort  : {base:{nm:1}, from:"sorter", key:null   , merge : false},
-            };
+            // 得到 api 对象
+            var oApi = Wn.fetch("~/.regapi/api" + com.api);
+
+            // 如果 API 定义了自己的参数表
+            if(oApi && oApi.params && oApi.params.length > 0) {
+                com.params = {};
+                for(var paramName of oApi.params) {
+                    com.params[paramName] = opt.paramsDefault[paramName] || null;
+                }
+            } 
+            // 否则用默认
+            else {
+                com.params = opt.paramsDefault;
+            }
         }
         return com;
     },
@@ -239,21 +253,60 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
     _reload_params : function(com) {
         var UI = this;
 
-        // 看看是否指定了参数表
-        var paramNames = Object.keys(com.params || {});
+        // 开始绘制
+        if(_.isObject(com.params)){
+            var jTable = UI.arena.find('[part="params"] table tbody').empty();
+            for(var key in com.params) {
+                var val = com.params[key];
+
+                // 准备绘制行
+                var jTr = $('<tr><td class="pkey"></td><td class="pval"></td></tr>').appendTo(jTable);
+                jTr.children(".pkey").text(key);
+
+                var jTd = jTr.children(".pval");
+                var jDiv = UI.ccode("paramItem").appendTo(jTd);
+                _PARAMS.set(jDiv, val);
+            }
+        }
+    },
+    //...............................................................
+    _eval_mapping_by_template : function(com) {
+        var UI  = this;
+        var opt = UI.options;
+        if(com.template) {
+            // 得到 api 对象
+            var json    = Wn.read("~/.hmaker/template/" + com.template + "/mapping.js") || "{}";
+            var mapping = $z.fromJson(json);
+
+            // 如果已经定义了映射，试图取取旧值
+            if(_.isObject(com.mapping)) {
+                for(var key in mapping) {
+                    var val = com.mapping[key];
+                    if(!_.isUndefined(val)) {
+                        mappingp[key] = val;
+                    }
+                }
+            } 
+            // 计入
+            com.mapping = mapping;
+        }
+        return com;
+    },
+    //...............................................................
+    _reload_mapping : function(com) {
+        var UI = this;
 
         // 开始绘制
-        var jTable = UI.arena.find('[part="params"] table tbody').empty();
-        for(var key of paramNames) {
-            var val = com.params[key];
+        if(_.isObject(com.mapping)){
+            var jTable = UI.arena.find('[part="mapping"] table tbody').empty();
+            for(var key in com.mapping) {
+                var val = com.mapping[key];
 
-            // 准备绘制行
-            var jTr = $('<tr><td class="pkey"></td><td class="pval"></td></tr>').appendTo(jTable);
-            jTr.children(".pkey").text(key);
-
-            var jTd = jTr.children(".pval");
-            var jDiv = UI.ccode("paramItem").appendTo(jTd);
-            _PARAMS.set(jDiv, val);
+                // 绘制行
+                var jTr = $('<tr><td class="mkey"></td><td class="mval"><input></td></tr>').appendTo(jTable);
+                jTr.children(".mkey").text(key);
+                jTr.find(".mval input").val(val);
+            }
         }
     },
     //...............................................................
@@ -271,6 +324,9 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
         // 更新模板
         if(com.template)
             UI.gasket.template.setData(com.template);
+
+        if(com.mapping)
+            UI._reload_mapping(com);
     },
     //...............................................................
     getData : function() {

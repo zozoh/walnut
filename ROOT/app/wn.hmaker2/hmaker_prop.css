@@ -775,6 +775,29 @@
 .hm-dynamic-data-setting [part="params"] td.pval .param-item .dynamic > div[nm="key"][for-all] input {
   background: #eeeeee;
 }
+.hm-dynamic-data-setting [part="mapping"] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.hm-dynamic-data-setting [part="mapping"] table {
+  width: 100%;
+}
+.hm-dynamic-data-setting [part="mapping"] td {
+  border: 1px solid #d0d0d0;
+  padding: 6px;
+  width: 50%;
+}
+.hm-dynamic-data-setting [part="mapping"] td.mkey {
+  font: 12px Monaco, Consolas, Courier New;
+  color: #888888;
+  vertical-align: top;
+  padding: 12px;
+}
+.hm-dynamic-data-setting [part="mapping"] td.mval input {
+  width: 100%;
+}
 .hmc-objlist-prop {
   padding: 6px;
   overflow-y: auto;

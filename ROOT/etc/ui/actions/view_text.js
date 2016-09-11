@@ -1,4 +1,5 @@
 ({
+	icon : '<i class="zmdi zmdi-code"></i>',
 	text : "i18n:ui.view_text",
 	type : "button",
 	handler : function($ele, a) {

@@ -9,9 +9,27 @@
 
 // 调试区域样式 
 .ui-debug {
-    color:#CCC; background: #000;
+    color:#CCC; background: #000; 
     font-size:12px; font-family: Monaco, Consolas, Courier New;
-    line-height: 20px; 
+    line-height: 20px; position: relative;
+    > .uid-closer {
+        position: absolute; top:-12px; right:-12px;
+        font-size:18px; font-family: 'Material-Design-Iconic-Font';
+        cursor:pointer; 
+        color:#FFF; background-color: #888; 
+        border-radius: 100px; border:2px solid #CCC;
+        line-height: 24px; width:28px; text-align: center;
+        transition:0.2s;
+    }
+    > .uid-closer:before {
+        display: "inline";
+        content: "\f136";
+    }
+    > .uid-closer:hover {
+        background-color: #00F; color:#FFF; border-color:#DDD;
+        font-size:1.2em; font-weight: bold;
+        transform: scale(1.2) rotate(360deg);
+    }
     > section {width:100%; overflow: auto;}
     .uid-detail {
          height:10%; border-bottom:1px dashed rgba(255,255,0,0.3);
