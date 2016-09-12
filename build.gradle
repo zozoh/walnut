@@ -67,10 +67,24 @@ dependencies {
     compile group: 'javax.servlet', name: 'javax.servlet-api', version:'3.1.0'
 }
 
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.nutz:nutz:1.r.57.r3'
+    }
+}
+
+import org.nutz.lang.Files
+
 task wzip(dependsOn: classes) << {
 	copy {
 		from sourceSets.main.output
 		into "build/wzip/classes"
+		exclude '**/web_local.properties'
 	}
 	copy {
 		from "WebContent"
@@ -86,7 +100,7 @@ task wzip(dependsOn: classes) << {
 	}
 	
 	def props = new Properties()
-   	def writer = new FileWriter(file('build/wzip/walnut_version.properties'))
+   	def writer = new FileWriter(file('build/wzip/build.properties'))
    	def version_tag = getDate()
    	try {
    		props["build"] = version_tag
@@ -103,17 +117,14 @@ task wzip(dependsOn: classes) << {
    		tmpUnix  += ":libs/" + it.getName()
    	}
    	tmpWin32 += " org.nutz.web.WebLauncher"
-   	writer = new FileWriter(file('build/wzip/start.bat'))
-   	writer.write(tmpWin32)
-   	writer.flush()
-   	writer.close()
-   	
-   	
+   	Files.write(file('build/wzip/start.bat'), tmpWin32)
+
    	tmpUnix += " org.nutz.web.WebLauncher"
-   	writer = new FileWriter(file('build/wzip/start.sh'))
-   	writer.write(tmpUnix)
-   	writer.flush()
-   	writer.close()
+   	Files.write(file('build/wzip/start.sh'), tmpUnix)
+   	
+   	def web_props = Files.read(file('build/wzip/classes/web.properties'))
+   	web_props = web_props.replaceAll("~/workspace/git/github/walnut", ".")
+   	Files.write(file('build/wzip/classes/web.properties'), web_props)
    	
    	task (_wzip, type: Zip) {
    		from "build/wzip/"
