@@ -5,12 +5,31 @@ apply plugin: "war"
 group = 'org.nutz'
 version = '1.r.58-SNAPSHOT'
 
-description = """walnut"""
+description = "一台神奇的计算机"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+sourceSets {
+    main{
+    	java {
+    		srcDirs = ["$projectDir/src"]
+    	}
+    	resources {
+    		srcDirs = ["$projectDir/conf"]
+    	}
+    }
+    test {
+    	java {
+    		srcDirs "$projectDir/test"
+    	}
+    }
+}
 
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+	options.compilerArgs = ["-parameters"]
+}
 
 repositories {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
@@ -46,4 +65,65 @@ dependencies {
     runtime group: 'log4j', name: 'log4j', version:'1.2.17'
     testCompile group: 'junit', name: 'junit', version:'4.12'
     compile group: 'javax.servlet', name: 'javax.servlet-api', version:'3.1.0'
+}
+
+task wzip(dependsOn: classes) << {
+	copy {
+		from sourceSets.main.output
+		into "build/wzip/classes"
+	}
+	copy {
+		from "WebContent"
+		into "build/wzip/WebContent"
+	}
+	copy {
+		from "ROOT"
+		into "build/wzip/ROOT"
+	}
+	copy {
+		from configurations.runtime
+		into "build/wzip/libs"
+	}
+	
+	def props = new Properties()
+   	def writer = new FileWriter(file('build/wzip/walnut_version.properties'))
+   	def version_tag = getDate()
+   	try {
+   		props["build"] = version_tag
+      	props.store(writer, 'Walnut')
+      	writer.flush()
+   	} finally {
+      	writer.close()
+   	}
+   	
+   	def tmpWin32 = "java -Dfile.encoding=UTF-8 -cp classes"
+   	def tmpUnix = "java -Dfile.encoding=UTF-8 -cp classes"
+   	configurations.runtime.each {
+   		tmpWin32 += ";libs/" + it.getName()
+   		tmpUnix  += ":libs/" + it.getName()
+   	}
+   	tmpWin32 += " org.nutz.web.WebLauncher"
+   	writer = new FileWriter(file('build/wzip/start.bat'))
+   	writer.write(tmpWin32)
+   	writer.flush()
+   	writer.close()
+   	
+   	
+   	tmpUnix += " org.nutz.web.WebLauncher"
+   	writer = new FileWriter(file('build/wzip/start.sh'))
+   	writer.write(tmpUnix)
+   	writer.flush()
+   	writer.close()
+   	
+   	task (_wzip, type: Zip) {
+   		from "build/wzip/"
+   		archiveName 'walnut-'+version_tag+'.zip'
+   		destinationDir buildDir
+   	}.execute()
+}
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMddHHmmss')
+    return formattedDate
 }
