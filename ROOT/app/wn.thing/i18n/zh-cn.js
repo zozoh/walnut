@@ -1,5 +1,7 @@
 define({
     "thing" : {
+        "create" : "创建..",
+        "create_tip" : "请输入对象的名称",
         "fld" : {
             "general"   : "基本信息",
             "content"   : "内容信息",

@@ -11,8 +11,7 @@ $z.declare([
     'wn/util',
     'app/wn.hmaker2/hm__methods',
     'ui/menu/menu',
-    'ui/support/dom',
-    'ui/form/form',
+    'app/wn.hmaker2/hm_page_com_bar',
     'jquery-plugin/pmoving/pmoving',
     'jquery-plugin/moveresizing/moveresizing',
     // 预先加载
@@ -21,14 +20,14 @@ $z.declare([
     'app/wn.hmaker2/component/text.js',
     'app/wn.hmaker2/component/objlist.js',
     'app/wn.hmaker2/component/thingobj.js',
-], function(ZUI, Wn, HmMethods, MenuUI){
+], function(ZUI, Wn, HmMethods, MenuUI, PageComBarUI){
 //==============================================
 var html_empty_prop = function(){/*
 <div class="ui-arena">
     empty prop
 </div>
 */};
-var html = function(){/*
+var html = `
 <div class="ui-code-template">
     <div code-id="block" class="hm-block">
         <div class="hmb-con">
@@ -76,11 +75,11 @@ var html = function(){/*
                 data-balloon-pos="left" data-balloon-length="medium">
                 <%=hmaker.com.image.icon%>
             </li>
-            <li ctype="imgslider"
+            <!--li ctype="imgslider"
                 data-balloon="{{hmaker.com.imgslider.name}} : {{hmaker.com.imgslider.tip}}" 
                 data-balloon-pos="left" data-balloon-length="medium">
                 <%=hmaker.com.imgslider.icon%>
-            </li>
+            </li-->
             <li ctype="objlist"
                 data-balloon="{{hmaker.com.objlist.name}} : {{hmaker.com.objlist.tip}}" 
                 data-balloon-pos="left" data-balloon-length="medium">
@@ -94,10 +93,10 @@ var html = function(){/*
         </ul>
     </div></div>
 </div></div>
-*/};
+`;
 //==============================================
 return ZUI.def("app.wn.hmaker_page", {
-    dom : $z.getFuncBodyAsStr(html.toString()),
+    dom : html,
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
@@ -368,7 +367,7 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.applyPageAttr();
 
         // 通知网页被加载
-        UI.fire("active:page", UI._page_obj);
+        UI.fire("active:page");
 
         // 模拟第一个块被点击
         // window.setTimeout(function(){
@@ -623,8 +622,15 @@ return ZUI.def("app.wn.hmaker_page", {
     getComElement : function(jBlock) {
         return jBlock.find(">.hmb-con>.hmb-area>.hm-com");
     },
+    getComElementById : function(comId) {
+        return this._C.iedit.$body.find("#" + comId);
+    },
     getBlockElement : function(jCom) {
         return jCom.closest(".hm-block");
+    },
+    getBlockElementById : function(comId) {
+        var jCom = this.getComElementById(comId);
+        return this.getBlockElement(jCom);
     },
     //...............................................................
     doChangeBlock : function(prop) {
@@ -722,28 +728,34 @@ return ZUI.def("app.wn.hmaker_page", {
             //console.log("BBBBBB")
             UI.__after_iframe_loaded("iedit");
         });
+
+        // 组件条
+        new PageComBarUI({
+            parent : UI,
+            gasketName : "combar",
+        }).render();
        
         // 菜单条
-        new MenuUI({
-            parent : UI,
-            gasketName : "pagebar",
-            setup : [{
-                text : "Test",
-                handler : function(){
-                    UI._C.iload = UI._reset_context_vars(".hmpg-frame-load");
-                    UI._C.iedit = UI._reset_context_vars(".hmpg-frame-edit");
-                }
-            },{
-                icon : '<i class="zmdi zmdi-more-vert"></i>',
-                items : [{
-                    icon : '<i class="zmdi zmdi-settings"></i>',
-                    text : 'i18n:hmaker.page.show_prop',
-                    handler : function() {
-                        UI.fire("active:page", UI._page_obj);
-                    }
-                }]
-            }]
-        }).render(); 
+        // new MenuUI({
+        //     parent : UI,
+        //     gasketName : "pagebar",
+        //     setup : [{
+        //         text : "Test",
+        //         handler : function(){
+        //             UI._C.iload = UI._reset_context_vars(".hmpg-frame-load");
+        //             UI._C.iedit = UI._reset_context_vars(".hmpg-frame-edit");
+        //         }
+        //     },{
+        //         icon : '<i class="zmdi zmdi-more-vert"></i>',
+        //         items : [{
+        //             icon : '<i class="zmdi zmdi-settings"></i>',
+        //             text : 'i18n:hmaker.page.show_prop',
+        //             handler : function() {
+        //                 UI.fire("active:page");
+        //             }
+        //         }]
+        //     }]
+        // }).render(); 
     },
     //...............................................................
     depose : function() {

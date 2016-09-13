@@ -521,6 +521,14 @@ return ZUI.def("ui.form", {
                 var jF  = $(this);
                 var fld = jF.data("@FLD");
                 var fui = jF.data("@UI"); 
+
+                // TODO 这里有诡异的问题，有时候 fld 会为 undefined
+                // 可能这个 form 还没设置完 data 内容就被在另外一个回调里面的过程清空了？
+                // 有时间要查查，基本上是快速在一个 gasketName 上切换 formUI 和另外的 UI 造成的
+                if(!fld || !fui) {
+                    return;
+                }
+
                 // 虚拟字段 
                 if(fld.virtual) {
                     fui.setData(o);
@@ -569,7 +577,7 @@ return ZUI.def("ui.form", {
 
                 // 虚拟字段，合并到输出
                 if(fld.virtual) {
-                    var fo = fui.setData(o);
+                    var fo = fui.getData();
                     _.extend(re, fo);
                 }
                 // 指定字段

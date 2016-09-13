@@ -180,8 +180,6 @@ return ZUI.def("ui.form_com_obj_detail", {
         $z.setUndefined(data, "contentType", "text");
         $z.setUndefined(data, "len", 0);
 
-        console.log(data)
-
         // 绘制摘要
         var briefText = data.brief || UI.msg("com.content.nobrief");
         // briefText = $z.dupString(briefText, 2);

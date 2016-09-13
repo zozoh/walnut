@@ -59,7 +59,7 @@ return ZUI.def("ui.zeditor", {
     init : function(opt) {
         var UI = this;
 
-        console.log("opt", opt.contentType)
+        // console.log("opt", opt.contentType)
 
         // 设置一系列默认值
         $z.setUndefined(opt, "contentType", "text");

@@ -91,7 +91,7 @@ return ZUI.def("app.wn.thing", {
             on_update : function(data, fld) {
                 var json  = $z.toJson(data);
                 var cmdText = UI.__cmd(thConf.updateBy, th.id, json);
-                console.log(cmdText)
+                //console.log(cmdText)
                 // 执行命令
                 var uiForm = this;
                 this.showPrompt(fld.key, "spinning");
@@ -122,11 +122,11 @@ return ZUI.def("app.wn.thing", {
         return Wn.getById(oid);
     },
     //...............................................................
-    __cmd : function(cmd, id, json) {
-        var str = cmd.replace(/<id>/g, id);
-        if(json)
-            return str.replace(/<json>/g, json.replace(/'/g, "\\'"));
-        return str;
+    __cmd : function(cmd, id, str) {
+        var re = cmd.replace(/<id>/g, id);
+        if(str)
+            return re.replace(/<str>/g, str.replace(/'/g, "\\'"));
+        return re;
     },
     //...............................................................
     __draw : function(thConf, callback) {
@@ -137,9 +137,9 @@ return ZUI.def("app.wn.thing", {
         UI.thConf = thConf;
 
         // 定义默认命令模板
-        $z.setUndefined(thConf, "updateBy", "thing <id> update -fields '<json>'");
+        $z.setUndefined(thConf, "updateBy", "thing <id> update -fields '<str>'");
         $z.setUndefined(thConf, "queryBy" , "thing <id> query '<%=match%>' -skip {{skip}} -limit {{limit}} -json -pager -sort 'ct:-1'");
-        $z.setUndefined(thConf, "createBy", "thing <id> create -fields '<%=json%>'");
+        $z.setUndefined(thConf, "createBy", "thing <id> create '<str>'");
         $z.setUndefined(thConf, "deleteBy", "thing {{id}} delete -quiet");
 
         // 创建搜索条
@@ -150,15 +150,26 @@ return ZUI.def("app.wn.thing", {
                 qkey  : "refresh",
                 icon  : '<i class="zmdi zmdi-refresh"></i>',
             }, {
-                qkey  : "create",
+                text  : "i18n:thing.create",
                 icon  : '<i class="zmdi zmdi-flare"></i>',
+                handler : function() {
+                    var objName = window.prompt(UI.msg("thing.create_tip"));
+                    if(objName){
+                        var cmdText = UI.__cmd(thConf.createBy, oTS.id, objName);
+                        Wn.exec(cmdText, function(re){
+                            var newObj = $z.fromJson(re);
+                            UI.gasket.search.refresh(function(){
+                                UI.subUI("search/list").setActived(newObj.id);
+                            });
+                        });
+                    }
+                }
             }, {
                 qkey  : "delete",
                 icon  : '<i class="zmdi zmdi-delete"></i>',
             }],
             data : UI.__cmd(thConf.queryBy, oTS.id),
             edtCmdTmpl : {
-                "create" : UI.__cmd(thConf.createBy, oTS.id),
                 "delete" : UI.__cmd(thConf.deleteBy, oTS.id),
             },
             list : {

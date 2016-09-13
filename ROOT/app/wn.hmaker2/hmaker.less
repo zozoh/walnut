@@ -90,13 +90,32 @@
         //.........................................................
         .hmpg-sbar {
             top:0;left:@panTH;right:0; height:@panTH;
-            background:@cb2;
+            background:@cb2; padding:0 @d2;
             > .hm-W > div {position: absolute; top:0;bottom:0;}
             .hmpg-sbar-com  {left:0;}
             .hmpg-sbar-page {right:0;}
-            // 菜单的统一属性
+            // 右侧快捷菜单
             .menu {
                 padding:@d1 @d2;
+            }
+            // 组件路径条
+            .hm-combar{
+                white-space: nowrap; line-height: @panTH;
+                .hm-combar-item { 
+                    display: inline-block; padding:0 @d2;
+                    color:@c2; font-size:@f0;
+                    i:first-child {vertical-align: middle;}
+                    b {margin: 0 @d1; font-weight: normal;}
+                }
+                .hm-combar-item[parent] {
+                    cursor: pointer;
+                }
+                .hm-combar-item[parent]:hover {
+                    color:@c0; text-decoration: underline;
+                }
+                .hm-combar-item[current]{
+                    font-weight: bold;; color:@cf0; cursor: default;
+                }
             }
         }
         //.........................................................

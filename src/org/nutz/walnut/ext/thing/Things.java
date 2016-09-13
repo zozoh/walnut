@@ -133,7 +133,7 @@ public abstract class Things {
     public static NutMap fillMeta(WnSystem sys, ZParams params) {
         // 得到所有字段
         String json = Cmds.getParamOrPipe(sys, params, "fields", false);
-        NutMap meta = Lang.map(json);
+        NutMap meta = Strings.isBlank(json) ? new NutMap() : Lang.map(json);
 
         // 名称
         String th_nm = params.val(0);
