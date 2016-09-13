@@ -128,6 +128,10 @@ return ZUI.def("app.wn.hmaker2", {
         }]);
     },
     //...............................................................
+    openSiteConf : function() {
+
+    },
+    //...............................................................
     getCurrentEditObj : function() {
         return $z.invoke(this.gasket.main, "getCurrentEditObj", []);
     },

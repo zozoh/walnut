@@ -443,7 +443,7 @@ return ZUI.def("ui.form_com_color", {
         });
     },
     //...............................................................
-    setData : function(val, jso){
+    setData : function(val){
         //console.log(val)
         var UI = this;
         this.ui_parse_data(val, function(s){

@@ -1,6 +1,7 @@
 package org.nutz.walnut.web.module;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -213,6 +214,7 @@ public class AppModule extends AbstractWnModule {
                     @Param("mos") final String metaOutputSeparator,
                     @Param("PWD") String PWD,
                     @Param("cmd") String cmdText,
+                    @Param("in") String in,
                     HttpServletRequest req,
                     final HttpServletResponse resp)
             throws IOException {
@@ -231,6 +233,7 @@ public class AppModule extends AbstractWnModule {
         HttpRespStatusSetter _resp = new HttpRespStatusSetter(resp);
         OutputStream out = new AppRespOutputStreamWrapper(_resp, 200);
         OutputStream err = new AppRespOutputStreamWrapper(_resp, 500);
+        InputStream ins = Strings.isEmpty(in) ? null : Lang.ins(in);
         final Writer w = new OutputStreamWriter(out);
 
         // 运行
@@ -238,7 +241,7 @@ public class AppModule extends AbstractWnModule {
         se.var("PWD", PWD);
         se.var("APP_HOME", oAppHome.path());
 
-        exec("", se, cmdText, out, err, null, new Callback<WnBoxContext>() {
+        exec("", se, cmdText, out, err, ins, new Callback<WnBoxContext>() {
             public void invoke(WnBoxContext bc) {
                 WnSession se = bc.session;
                 if (!Strings.isBlank(metaOutputSeparator))

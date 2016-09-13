@@ -904,12 +904,16 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     getActions : function(){
         return ["@::save_text",
-                "@::hmaker/hm_create", 
-                "@::hmaker/hm_delete",
-                "@::view_text",
-                "@::hmaker/pub_site",
-                "@::hmaker/pub_current_page",
-                "@::zui_debug"];
+                "::hmaker/hm_create", 
+                "::hmaker/hm_delete",
+                "~",
+                "::view_text",
+                "~",
+                "::hmaker/pub_site",
+                "::hmaker/pub_current_page",
+                "~",
+                "::zui_debug",
+                "::open_console"];
     }
     //...............................................................
 });

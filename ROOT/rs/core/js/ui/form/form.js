@@ -100,7 +100,7 @@ return ZUI.def("ui.form", {
                 // 有快捷定义 ..
                 else if(fld.editAs){
                     // 内置
-                    if(/^(input|color|background|label|switch|text|link|(drop|check|radio)list)$/.test(fld.editAs)){
+                    if(/^(input|color|content|background|label|switch|text|link|(drop|check|radio)list)$/.test(fld.editAs)){
                         fld.uiType = "ui/form/c_" + fld.editAs;
                     }
                     // 各种 picker
@@ -156,8 +156,13 @@ return ZUI.def("ui.form", {
                         "form-id"  : UI.cid
                     })
                     .data("@FLD", fld)
-                    .data("@jOBJ", jType(fld))
                     .appendTo(jG);
+
+        // 非虚拟字段，找到类型处理器
+        if(!fld.virtual){
+            jF.data("@jOBJ", jType(fld));
+        }
+
         // 指定的宽度，需要特殊标记
         if(!isNaN(uiw * 1)){
             jF.attr("ui-fixed-width", uiw);
@@ -244,9 +249,26 @@ return ZUI.def("ui.form", {
         var UI  = this;
         var opt = UI.options;
         var context = opt.context || UI;
-        var val = jType(fld).parse(v).toNative();
-        $z.invoke(opt, "on_change", [fld.key, val, fld], context);
-        UI.trigger("form:change", fld.key, val);
+
+        // 准备 update 要用的参数
+        var obj;
+
+        // 非虚拟字段
+        if(!fld.virtual) {
+            var val = jType(fld).parse(v).toNative();
+            $z.invoke(opt, "on_change", [fld.key, val, fld], context);
+            UI.trigger("form:change"  , fld.key, val, fld);
+            obj = $z.obj(fld.key, val);
+        }
+        // 虚拟字段
+        else {
+            obj = v;
+        }
+
+        // 总之都要调用一下 on_update
+        $z.invoke(opt, "on_update", [obj, fld], context);
+        UI.trigger("form:update"  , obj, fld);
+
     },
     //...............................................................
     _draw_group : function(grp){
@@ -497,10 +519,18 @@ return ZUI.def("ui.form", {
             // 设置每个字段
             UI.$myfields().each(function(){
                 var jF  = $(this);
-                var jso = jF.data("@jOBJ");
+                var fld = jF.data("@FLD");
                 var fui = jF.data("@UI"); 
-                var val = jso.parseByObj(o).value();
-                fui.setData(val, jso);
+                // 虚拟字段 
+                if(fld.virtual) {
+                    fui.setData(o);
+                }
+                // 指定字段
+                else {
+                    var jso = jF.data("@jOBJ");
+                    var val = jso.parseByObj(o).value();
+                    fui.setData(val, jso);
+                }
             });
         });
     },
@@ -528,15 +558,26 @@ return ZUI.def("ui.form", {
             // 读取每个字段的返回值
             UI.$myfields().each(function(){
                 var jF  = $(this);
+                var fld = jF.data("@FLD");
 
                 // 模板的话，判断一下是否选项开启
                 if(opt.asTemplate && "yes" != jF.attr("tmpl-on"))
                     return;
 
-                var jso = jF.data("@jOBJ");
+                // 得到字段的控件
                 var fui = jF.data("@UI"); 
-                var v  = fui.getData();
-                jso.parse(v).setToObj(re);
+
+                // 虚拟字段，合并到输出
+                if(fld.virtual) {
+                    var fo = fui.setData(o);
+                    _.extend(re, fo);
+                }
+                // 指定字段
+                else {
+                    var jso = jF.data("@jOBJ");
+                    var v   = fui.getData();
+                    jso.parse(v).setToObj(re);
+                }
             });
 
             // 返回值

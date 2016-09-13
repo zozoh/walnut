@@ -89,8 +89,8 @@ th_nm     : "xxx"   // 东西的名称，如果是文章，那么就是标题
 th_breif  : "xxx"   // 东西的简单文本介绍，用作详细列表显示
 th_live   : 1       // 1 表示有效， -1 表示删除了
 //...........................................
-th_detail_tp  : 'txt' // thing detail 的类型
-th_detail_sz  : 0     // thing detail 的长度， 0 表示没有 detail
+th_detail_tp  : 'text' // thing detail 的类型, text|html|markdown
+th_detail_sz  : 0      // thing detail 的长度， 0 表示没有 detail
 //...........................................
 th_set    : ID      // 对应 ThingSet 的 ID
 th_cate   : "xxx"   // 分类ID（如果有分类）

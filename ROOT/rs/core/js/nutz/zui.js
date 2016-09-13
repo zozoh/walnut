@@ -743,7 +743,7 @@ ZUIObj.prototype = {
     },
     // 对 HTML 去掉空格等多余内容，并进行多国语言替换
     compactHTML : function(html, msgMap) {
-        return $z.compactHTML(html, msgMap || this._msg_map);
+        return $z.compactHTML(html, msgMap || this._msg_map, this.tmplSettings);
     },
     // 得到多国语言字符串
     msg: function (key, ctx, msgMap) {

@@ -565,3 +565,106 @@
   background: #ffffcc;
   border-color: #ff8800;
 }
+.com-content .ccnt-actions {
+  float: right;
+  padding: 8px;
+}
+.com-content .ccnt-actions ul {
+  padding: 12px;
+  border-left: 1px solid #d0d0d0;
+}
+.com-content .ccnt-actions ul li {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  margin: 0 2px;
+  padding: 6px 32px;
+  border: 1px solid #bbbbbb;
+  background: #d0d0d0;
+  color: #000000;
+  border-radius: 4px;
+  text-align: center;
+  display: block;
+  padding: 6px;
+  margin: 6px 0;
+}
+.com-content .ccnt-actions ul li:hover {
+  color: #ffffff;
+  background: #0044bb;
+}
+.com-content .ccnt-brief {
+  padding: 8px;
+}
+.com-content .ccnt-brief[no-brief] {
+  font-style: italic;
+  color: #008800;
+}
+.com-content > footer {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  height: 32px;
+  line-height: 32px;
+  border-top: 1px dotted #d0d0d0;
+  display: -webkit-flex;
+  display: flex;
+}
+.com-content > footer .ccnt-cinfo {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 0 6px;
+  color: #888888;
+  text-align: center;
+  cursor: pointer;
+}
+.com-content > footer .ccnt-cinfo i {
+  display: inline-block;
+  cursor: pointer;
+  margin: 0 2px;
+  vertical-align: middle;
+  font-family: 'Material-Design-Iconic-Font';
+  font-style: normal;
+  font-size: 1.2em;
+}
+.com-content > footer .ccnt-cinfo i:before {
+  display: inline;
+}
+.com-content > footer .ccnt-cinfo i[type="text"]:before {
+  content: "\f24e";
+}
+.com-content > footer .ccnt-cinfo i[type="html"]:before {
+  content: "\f351";
+}
+.com-content > footer .ccnt-cinfo i[type="markdown"]:before {
+  content: "\f222";
+}
+.com-content > footer .ccnt-cinfo > span {
+  color: #888888;
+}
+.com-content > footer ul {
+  display: -webkit-flex;
+  display: flex;
+}
+.com-content > footer ul li {
+  float: left;
+  color: #0088ff;
+  padding: 0 6px;
+  cursor: pointer;
+}
+.com-content > footer ul li:hover {
+  color: #ff0000;
+  text-decoration: underline;
+}
+.com-content > footer ul:after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+}

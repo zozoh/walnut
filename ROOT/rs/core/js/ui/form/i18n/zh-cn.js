@@ -41,6 +41,14 @@ define({
             "attachment" : "背景图附着",
             "attachment_scroll" : "随内容滚动",
             "attachment_fixed"  : "固定",
+        },
+        "content" : {
+            "nobrief"  : "没有摘要",
+            "noloader" : "不知道如何加载对象的内容",
+            "nosaver"  : "不知道如何保存对象的内容",
+            "info" : '<i type="{{contentType}}"></i> <span>内容 <em>{{len}}</em> 字</span>',
+            "edit_content" : "编辑内容",
+            "gen_brief"    : "自动生成摘要",
         }
     }
 });

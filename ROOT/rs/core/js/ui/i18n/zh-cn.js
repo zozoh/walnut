@@ -36,6 +36,7 @@ define({
     "show"       : "显示",
     "hide"       : "隐藏",
     "zui_debug"  : "UI调试器",
+    "console"    : "控制台",
     "e_ajax"     : "靠，有问题啦， 错误码:{{errCode}}  细节:{{msg}} : {{data}}",
     "editing"    : {
         "multiselectbox" : {

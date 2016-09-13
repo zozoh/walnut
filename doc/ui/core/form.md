@@ -55,7 +55,12 @@ new FormUI({
     
     //............................................................
     // 事件
-    on_change  : {c}F(key, val)      // "form:change" 字段有修改
+    // "form:change" 字段有修改，不包括 virtual 字段
+    on_change  : {c}F(key, val, fld)
+    
+    // "form:update" 对象改动，包括 virtual 字段
+    // 参数是对象改动的部分的对象
+    on_update  : {c}F(obj, fld}
 
 }).render();
 ```
@@ -84,6 +89,16 @@ new FormUI({
    
    // 字段编辑区宽度，与全局意义相当
    uiWidth  : 0.3
+   
+   // 字段是一个虚拟字段，它实际需要合并编辑多个字段
+   // 输出的对象也是多个字段，需要合并到表单最后输出的对象里
+   // 默认 false
+   // 一旦指定这个字段，后面的 type 均被作为 object 看待
+   // 同时 uiConf 里的 formatData 和 parseData 将收到的是
+   // 完整的 form 对象的引用，而不是某个键的值
+   // 注意，因为 form 的 on_change 的参数形式， virtual 类型
+   // 的键将不会被通知，请用 on_update 来获取
+   virtual : false,
    
    type     : "string"      // @see jtypes.js
    editAs   : "input"       // 快捷的编辑控件类型

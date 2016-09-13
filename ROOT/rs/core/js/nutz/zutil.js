@@ -73,8 +73,8 @@
         },
         //.............................................
         // 处理 underscore 的模板
-        tmpl: function (str) {
-            return _.template(str, {
+        tmpl: function (str, settings) {
+            return _.template(str, settings || {
                 escape: /\{\{([\s\S]+?)\}\}/g
             });
         },
@@ -1834,10 +1834,10 @@
         },
         //.............................................
         // 对 HTML 去掉空格等多余内容，并进行多国语言替换
-        compactHTML : function(html, msgMap) {
+        compactHTML : function(html, msgMap, settings) {
             html = (html||"").replace(/[ ]*\r?\n[ ]*/g, "");
             if(_.isObject(msgMap)){
-                return zUtil.tmpl(html)(msgMap);
+                return zUtil.tmpl(html, settings)(msgMap);
             }
             return html;
         },
