@@ -1,0 +1,140 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: "war"
+
+group = 'org.nutz'
+version = '1.r.58-SNAPSHOT'
+
+description = "一台神奇的计算机"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+sourceSets {
+    main{
+    	java {
+    		srcDirs = ["$projectDir/src"]
+    	}
+    	resources {
+    		srcDirs = ["$projectDir/conf"]
+    	}
+    }
+    test {
+    	java {
+    		srcDirs "$projectDir/test"
+    	}
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+	options.compilerArgs = ["-parameters"]
+}
+
+repositories {
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+    maven { url "http://repo.maven.apache.org/maven2" }
+}
+dependencies {
+    compile group: 'org.nutz', name: 'nutz', version:'1.r.58-SNAPSHOT'
+    compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version:'9.2.17.v20160517'
+    compile(group: 'org.nutz', name: 'nutz-web', version:'1.r.58-SNAPSHOT') {
+		exclude(module: 'jetty-all-server')
+		exclude(module: 'javax.servlet.jsp')
+    }
+    compile group: 'org.apache.commons', name: 'commons-email', version:'1.4'
+    compile group: 'org.jsoup', name: 'jsoup', version:'1.8.3'
+    compile group: 'org.nutz', name: 'nutzmongo', version:'1.r.57-SNAPSHOT'
+    compile group: 'org.nutz', name: 'nutzwx', version:'1.r.58-SNAPSHOT'
+    compile group: 'org.nutz', name: 'nutz-plugins-qrcode', version:'1.r.58-SNAPSHOT'
+    compile group: 'net.sourceforge.htmlunit', name: 'htmlunit', version:'2.19'
+    compile group: 'org.eclipse.jetty', name: 'jetty-server', version:'9.2.17.v20160517'
+    compile group: 'org.eclipse.jetty', name: 'jetty-jsp', version:'9.2.17.v20160517'
+    compile group: 'org.nutz', name: 'nutz-quartz', version:'1.r.58-SNAPSHOT'
+    compile group: 'com.qiniu', name: 'qiniu-java-sdk', version:'7.0.8'
+    compile group: 'org.apache.sshd', name: 'sshd-core', version:'1.1.1'
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version:'1.7.13'
+    compile group: 'cn.jpush.api', name: 'jpush-client', version:'3.2.8'
+    compile group: 'org.brickred', name: 'socialauth', version:'4.10'
+    compile group: 'org.nutz', name: 'nutz-mipush-sdk', version:'3.0.MOD'
+    compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version:'9.2.17.v20160517'
+    compile group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version:'9.2.17.v20160517'
+    compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version:'9.2.17.v20160517'
+    compile group: 'javax.websocket', name: 'javax.websocket-api', version:'1.1'
+    compile group: 'org.eclipse.jetty.websocket', name: 'javax-websocket-server-impl', version:'9.2.17.v20160517'
+    runtime group: 'log4j', name: 'log4j', version:'1.2.17'
+    testCompile group: 'junit', name: 'junit', version:'4.12'
+    compile group: 'javax.servlet', name: 'javax.servlet-api', version:'3.1.0'
+}
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.nutz:nutz:1.r.57.r3'
+    }
+}
+
+import org.nutz.lang.Files
+
+task wzip(dependsOn: classes) << {
+	copy {
+		from sourceSets.main.output
+		into "build/wzip/classes"
+		exclude '**/web_local.properties'
+	}
+	copy {
+		from "WebContent"
+		into "build/wzip/WebContent"
+	}
+	copy {
+		from "ROOT"
+		into "build/wzip/ROOT"
+	}
+	copy {
+		from configurations.runtime
+		into "build/wzip/libs"
+	}
+	
+	def props = new Properties()
+   	def writer = new FileWriter(file('build/wzip/build.properties'))
+   	def version_tag = getDate()
+   	try {
+   		props["build"] = version_tag
+      	props.store(writer, 'Walnut')
+      	writer.flush()
+   	} finally {
+      	writer.close()
+   	}
+   	
+   	def tmpWin32 = "java -Dfile.encoding=UTF-8 -cp classes"
+   	def tmpUnix = "java -Dfile.encoding=UTF-8 -cp classes"
+   	configurations.runtime.each {
+   		tmpWin32 += ";libs/" + it.getName()
+   		tmpUnix  += ":libs/" + it.getName()
+   	}
+   	tmpWin32 += " org.nutz.web.WebLauncher"
+   	Files.write(file('build/wzip/start.bat'), tmpWin32)
+
+   	tmpUnix += " org.nutz.web.WebLauncher"
+   	Files.write(file('build/wzip/start.sh'), tmpUnix)
+   	
+   	def web_props = Files.read(file('build/wzip/classes/web.properties'))
+   	web_props = web_props.replaceAll("~/workspace/git/github/walnut", ".")
+   	Files.write(file('build/wzip/classes/web.properties'), web_props)
+   	
+   	task (_wzip, type: Zip) {
+   		from "build/wzip/"
+   		archiveName 'walnut-'+version_tag+'.zip'
+   		destinationDir buildDir
+   	}.execute()
+}
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMddHHmmss')
+    return formattedDate
+}
