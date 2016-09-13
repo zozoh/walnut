@@ -19,6 +19,10 @@
   vertical-align: middle;
 }
 .thing > header b {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
   font-weight: bold;
   margin: 0 4px;
 }

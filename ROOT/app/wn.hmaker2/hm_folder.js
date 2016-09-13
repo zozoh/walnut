@@ -91,7 +91,16 @@ return ZUI.def("app.wn.hmaker_folder", {
     },
     //...............................................................
     getActions : function(){
-        return ["@::hmaker/hm_create", "@::hmaker/hm_delete", "@::refresh", "@::hmaker/pub_site", "@::zui_debug"];
+        return ["@::refresh",
+                "::hmaker/hm_create", 
+                "::delete",
+                "~",
+                "::hmaker/pub_site",
+                "~",
+                "::hmaker/hm_site_conf",
+                "~",
+                "::zui_debug",
+                "::open_console"];
     }
     //...............................................................
 });

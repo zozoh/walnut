@@ -1,5 +1,10 @@
 define({
     "hmaker" : {
+        "site" : {
+            "conf"  : "站点配置信息",
+            "title" : "站点标题",
+            "hm_target_release" : "发布目标"
+        },
         "res" : {
             "title" : '资源库',
         },

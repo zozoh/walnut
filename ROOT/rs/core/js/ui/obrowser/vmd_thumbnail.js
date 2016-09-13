@@ -150,7 +150,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
 
             // 调用回调
             $z.doCallback(callback, [objs]);
-        });
+        }, true);
     },
     //..............................................
     $item : function(it){

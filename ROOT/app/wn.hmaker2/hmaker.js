@@ -2,7 +2,7 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/form/form',
+    'ui/mask/mask',
     'app/wn.hmaker2/hm__methods',
     'app/wn.hmaker2/hm__methods_panel',
     'app/wn.hmaker2/hm_resource',
@@ -10,7 +10,7 @@ $z.declare([
     'app/wn.hmaker2/hm_prop',
     'app/wn.hmaker2/hm_folder',
     'app/wn.hmaker2/hm_other',
-], function(ZUI, Wn, FormUI, 
+], function(ZUI, Wn, MaskUI,
     HmMethods, HmPanelMethods, 
     HmResourceUI, 
     HmPageUI, 
@@ -129,7 +129,73 @@ return ZUI.def("app.wn.hmaker2", {
     },
     //...............................................................
     openSiteConf : function() {
+        var UI = this;
+        var oHome = UI.getHomeObj();
 
+        // 显示弹出层
+        new MaskUI({
+            dom : 'ui/pop/pop.html',
+            css : 'ui/pop/pop.css',
+            width  : 600,
+            height : 500,
+            events : {
+                "click .pm-btn-ok" : function(){
+                    var uiMask  = this;
+                    var conf = uiMask.body.getData();
+
+                    // 更新配置信息
+                    Wn.exec("obj id:"+oHome.id+" -u -o", $z.toJson(conf), function(re){
+                        var obj  = $z.fromJson(re);
+                        Wn.saveToCache(obj);
+
+                        uiMask.close();
+                    });
+                },
+                "click .pm-btn-cancel" : function(){
+                    this.close();
+                }
+            }, 
+            setup : {
+                uiType : "ui/form/form",
+                uiConf : {
+                    uiWidth : "all",
+                    fields  : [{
+                        key : "title",
+                        title : UI.msg("hmaker.site.title"),
+                        type : "string",
+                        editAs : "input"
+                    }, {
+                        key    : "hm_target_release",
+                        title  : UI.msg("hmaker.site.hm_target_release"),
+                        type   : "string",
+                        dft    : null,
+                        uiType : "ui/picker/opicker",
+                        uiConf : {
+                            setup : {
+                                lastObjId : "hmaker_pick_hm_target_release",
+                                filter    : function(o) {
+                                    return 'DIR' == o.race;
+                                }
+                            },
+                            parseData : function(str){
+                                var m = /id:(\w+)/.exec(str);
+                                if(m)
+                                    return Wn.getById(m[1], true);
+                                if(str)
+                                    return Wn.fetch(str, true);
+                                return null;
+                            },
+                            formatData : function(o){
+                                return o ? "~/" + Wn.getRelativePathToHome(o) : null;
+                            }
+                        }
+                    }]
+                }
+            }
+        }).render(function(){
+            this.arena.find(".pm-title").html(UI.msg('hmaker.site.conf'));
+            this.body.setData(_.pick(oHome, "hm_target_release", "title"));
+        });
     },
     //...............................................................
     getCurrentEditObj : function() {

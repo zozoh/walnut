@@ -1183,7 +1183,7 @@ var Wn = {
     //..............................................
     getRelativePathToHome : function(o) {
         var oHome = Wn.getHome();
-        return $z.getRelativePath(o.ph, oHome.ph);
+        return $z.getRelativePath(oHome.ph, o.ph);
     },
     //..............................................
     getHome : function(){

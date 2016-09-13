@@ -125,7 +125,7 @@ return ZUI.def("ui.obrowser_vmd_table", {
 
             // 调用回调
             $z.doCallback(callback, [objs]);
-        });
+        }, true);
     },
     //..............................................
     getData : function(arg){

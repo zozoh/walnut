@@ -1,6 +1,6 @@
 ({
-	icon : '<i class="fa fa-trash"></i>',
-	text : "i18n:delete",
+	icon : '<i class="zmdi zmdi-settings"></i>',
+	text : "i18n:hmaker.site_conf",
 	type : "button",
 	handler : function($ele, a) {
 		this.hmaker().openSiteConf();
