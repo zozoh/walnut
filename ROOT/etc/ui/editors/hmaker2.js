@@ -3,7 +3,14 @@
 	text : "hMaker2",
 	icon : '<i class="fa fa-flash"></i>',
 	outline : false,
-	actions : [ "@::save_text","@::view_text","@::hmaker/pub_site", "@::zui_debug"],
+	actions : ["@::hmaker/hm_create", 
+               "~",
+               "::hmaker/pub_site",
+               "~",
+               "::hmaker/hm_site_conf",
+               "~",
+               "::zui_debug",
+               "::open_console"],
 	uiType : "app/wn.hmaker2/hmaker",
 	uiConf : {}
 })
