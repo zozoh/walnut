@@ -233,22 +233,6 @@ return ZUI.def("ui.form_com_obj_detail", {
         this.ui_parse_data(val, function(data){
             UI._set_data(data);
         });
-    },
-    //...............................................................
-    resize : function(){
-        var UI  = this;
-        var opt = UI.options;
-        var W   = UI.$pel.width();
-        var H   = UI.$pel.height();
-
-        // 指定宽度
-        if(opt.width) {
-            UI.arena.css("width", $z.dimension(opt.width, W));
-        }
-
-        if(opt.height){
-            UI.arena.css("height", $z.dimension(opt.height, H));   
-        }
     }
     //...............................................................
 });

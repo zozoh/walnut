@@ -1646,7 +1646,7 @@
         // 对一个字符串进行转换，相当于 $(..).text(str) 的效果
         __escape_ele: $(document.createElement("b")),
         escapeText: function (str) {
-            return __escape_ele.text(str).text();
+            return str ? str.replace("<", "&lt;") : str;
         },
         //.............................................
         // 调用某对象的方法，如果方法不存在或者不是函数，无视

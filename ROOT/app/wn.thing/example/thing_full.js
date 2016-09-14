@@ -15,7 +15,7 @@
 			editAs : "input",
 			escapeHtml : false,
 			display : function(o) {
-				return o.th_nm + (o.th_brief ? "<em>" + o.th_brief + "</em>" : "");
+				return $z.escapeText(o.th_nm) + (o.th_brief ? "<em>" + o.th_brief + "</em>" : "");
 			}
 		}, {
 			key : "icon",
