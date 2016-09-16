@@ -4,7 +4,7 @@
 	<groupId>org.nutz</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>1.r.57-SNAPSHOT</version>
+	<version>1.r.58-SNAPSHOT</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -115,8 +115,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
-			<artifactId>nutz-qrcode</artifactId>
-			<version>1.r.57-SNAPSHOT</version>
+			<artifactId>nutz-plugins-qrcode</artifactId>
+			<version>1.r.58-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.htmlunit</groupId>
@@ -136,7 +136,7 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz-quartz</artifactId>
-			<version>1.r.57-SNAPSHOT</version>
+			<version>1.r.58-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.qiniu</groupId>
