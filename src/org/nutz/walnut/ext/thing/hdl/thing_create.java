@@ -15,13 +15,13 @@ public class thing_create implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 找到集合
-        WnObj oTS = Things.checkThingSet(hc.oHome);
+        WnObj oTS = Things.checkThingSet(hc.oRefer);
 
-        // 找到数据目录
-        WnObj oTData = sys.io.createIfNoExists(oTS, "data", WnRace.DIR);
+        // 找到索引
+        WnObj oIndex = Things.checkThingSetDir(sys, hc.oRefer, "index");
 
         // 创建一个 Thing
-        WnObj oT = sys.io.create(oTData, "${id}", WnRace.DIR);
+        WnObj oT = sys.io.create(oIndex, "${id}", WnRace.DIR);
 
         // 准备要更新的元数据集合
         NutMap meta = Things.fillMeta(sys, hc.params);

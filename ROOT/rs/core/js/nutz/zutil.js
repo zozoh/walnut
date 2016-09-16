@@ -10,7 +10,7 @@
 
     var zUtil = {
         // 全屏幕
-        toggleFullScreen() {
+        toggleFullScreen : function() {
             if (!document.fullscreenElement &&    // alternative standard method
                 !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {  // current working methods
                 if (document.documentElement.requestFullscreen) {
@@ -2370,7 +2370,8 @@
          *
          * @return 转换后字符串
          */
-        lowerWord: function (cs, c="-") {
+        lowerWord: function (cs, c) {
+            c = c || "-";
             var sb = "";
             for (var i = 0; i < cs.length; i++) {
                 var ch = cs.charAt(i);
@@ -2399,7 +2400,8 @@
          *
          * @return 转换后字符串
          */
-        upperWord: function (cs, c="-") {
+        upperWord: function (cs) {
+            c = c || "-";
             var sb = "";
             var len = cs.length;
             for (var i = 0; i < len; i++) {

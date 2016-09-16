@@ -23,28 +23,28 @@ public class cmd_thing extends JvmHdlExecutor {
 
         // 没有参数
         if (hc.args.length == 0) {
-            hc.oHome = this.getCurrentObj(sys);
+            hc.oRefer = this.getCurrentObj(sys);
             hc.hdlName = "get";
             pos = 0;
         }
         // 第一个参数就是 hdl，那么当前目录就作为 oHome
         // :> thing hdlName xxx
         else if (null != this.getHdl(hc.args[0])) {
-            hc.oHome = this.getCurrentObj(sys);
+            hc.oRefer = this.getCurrentObj(sys);
             hc.hdlName = hc.args[0];
             pos = 1;
         }
-        // 第一个参数表示一个 Thing|ThingSet
+        // 第一个参数表示一个 TsID[/ThID]
         // :> thing ID
         else if (hc.args.length == 1) {
-            hc.oHome = sys.io.checkById(hc.args[0]);
+            hc.oRefer = Things.checkRefer(sys.io, hc.args[0]);
             hc.hdlName = "get";
             pos = 1;
         }
         // 第一个参数表示一个 Thing|ThingSet
         // :> thing ID hdlName xxx
         else {
-            hc.oHome = sys.io.checkById(hc.args[0]);
+            hc.oRefer = Things.checkRefer(sys.io, hc.args[0]);
             hc.hdlName = hc.args[1];
             pos = 2;
         }

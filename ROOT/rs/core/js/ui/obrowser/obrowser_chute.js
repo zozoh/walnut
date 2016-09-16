@@ -4,7 +4,7 @@ $z.declare([
     'wn/util'
 ], function(ZUI, Wn){
 //==============================================
-var html = function(){/*
+var html = `
 <div class="ui-code-template">
     <div code-id="dft" class="chute-wrapper">
         <section text="i18n:favorites">
@@ -19,11 +19,10 @@ var html = function(){/*
         <div class="chute-scroller-btn chute-show-outline"><i class="fa fa-caret-right"></i></div>
         <div class="chute-scroller-btn chute-show-nav"><i class="fa fa-caret-left"></i></div>
     </div>
-</div>
-*/};
+</div>`;
 //==============================================
 return ZUI.def("ui.obrowser_chute", {
-    dom  : $z.getFuncBodyAsStr(html.toString()),
+    dom  : html,
     //..............................................
     events : {
         "click section h1" : function(e){
@@ -60,13 +59,16 @@ return ZUI.def("ui.obrowser_chute", {
     // 根据传入的对象，自动高亮侧边栏的项目
     setActived : function(o, asetup){
         var UI = this;
-        // console.log("!!!!",o.ph, asetup)
-        // 找到 DOM 节点
         var jq;
+        //console.log("!!!!",o.ph, asetup)
+        // 嗯是个对象，那么要自动寻找匹配项 ...
         if(!_.isElement(o) && !$z.isjQuery(o)){
+            // 根据路径和编辑器给各个项目打分
+            var currentWeight = 0;
+
             // 查找侧边栏所有项目，看看哪个需要被高亮
             var jItems = UI.arena.find(".chute-nav item");
-            for(var i=0;i<jItems.size();i++){
+            for(var i=0;i<jItems.length;i++){
                 var jItem = jItems.eq(i);
                 var iPh = Wn.absPath(jItem.attr("ph") || "");
                 if(iPh.length > o.ph.length)
@@ -75,12 +77,36 @@ return ZUI.def("ui.obrowser_chute", {
                 var ph1 = o.ph.substring(0, iPh.length);
                 var ph2 = o.ph.substring(iPh.length);
 
+                // 起始分值为 0
+                var weight = 0;
+
+                // 项目路径完全包含给定路径，得一份
                 if(ph1 == iPh && (!ph2 || /^\//.test(ph2))) {
+                    // 完全匹配得10分
+                    if(o.ph == iPh) {
+                        weight += 10;
+                    }
+                    // 否则仅得 1 分
+                    else {
+                        weight += 1;
+                    }
+                }
+
+                // 匹配编辑器再得10分
+                if(asetup && asetup.editors.length>0 && asetup.editors[0] == jItem.attr("editor")){
+                    weight += 10;
+                }
+
+                // 如果具备更高的权重，计入候选
+                if(weight > currentWeight){
+                    currentWeight = weight;
                     jq = jItem;
                 }
             }
+
+            
         }
-        // 给定的就是侧边栏项目
+        // 给定的就是侧边栏项目，甭找了，直接用吧
         else {
             jq = $(o).closest("item");
         }
@@ -111,7 +137,7 @@ return ZUI.def("ui.obrowser_chute", {
         UI.browser = UIBrowser;  // 记录一下，让事件们访问能方便一下
 
         // 如果已经读取到侧边栏了，就仅仅高亮项目
-        if(UI.arena.find("section").size()>0){
+        if(UI.arena.find("section").length>0){
             UI.setActived(o, asetup);
             return;
         }
@@ -171,7 +197,7 @@ return ZUI.def("ui.obrowser_chute", {
             }
 
             // 如果没有 icon
-            if(jIcon.size() == 0){
+            if(jIcon.length == 0){
                 jIcon = $('<i class="oicon">');
                 var iconHtml;
                 // 没有对象，显示一个 icon 的占位
@@ -186,7 +212,7 @@ return ZUI.def("ui.obrowser_chute", {
             }
 
             // 如果没有文字
-            if(jText.size() == 0){
+            if(jText.length == 0){
                 jText = $('<b>').appendTo(jItem);
             }
 

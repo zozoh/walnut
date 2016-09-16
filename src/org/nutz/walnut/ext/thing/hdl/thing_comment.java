@@ -27,7 +27,7 @@ public class thing_comment implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 得到对应对 Thing
-        WnObj oT = Things.checkThing(hc.oHome);
+        WnObj oT = Things.checkThing(hc.oRefer);
 
         // # 添加注释，会自动修改 task.th_c_cmt 字段
         // thing xxx comment -add "搞定了，呼"

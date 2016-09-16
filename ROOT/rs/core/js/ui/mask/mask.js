@@ -45,7 +45,7 @@ return ZUI.def("ui.mask", {
         Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36
         */
         if(/AppleWebKit/i.test(window.navigator.userAgent)
-            && $(document.body).find('input[type="color"]').size()>0){
+            && $(document.body).find('input[type="color"]').length>0){
             // webkit 在 input type=color 的时候，设置 opactiy，只要小于 1 就全隐藏，靠
             // 不知道为毛
         }
@@ -53,7 +53,7 @@ return ZUI.def("ui.mask", {
             UI.$el.prevAll().addClass(opt.markPrevBy);
         }
         else {
-            UI.$el.prevAll().hide();
+            UI.$el.prevAll().css("visibility", "hidden");
         }
 
         // 记录主区域
@@ -66,7 +66,7 @@ return ZUI.def("ui.mask", {
         if(!(opt.escape === false)) {
             this.watchKey(27, function(e){
                 // 如果自己是最顶层的元素，才关闭自己
-                if(this.$el.next().size() == 0)
+                if(this.$el.next().length == 0)
                     this.close();
             });
         }
@@ -139,12 +139,26 @@ return ZUI.def("ui.mask", {
     depose : function(){
         var UI  = this;
         var opt = UI.options;
-        // 将之前的对象的半透明度，都设置回来
-        if(opt.markPrevBy) {
-            UI.$el.prevAll().removeClass(opt.markPrevBy);
+        var jPrevMask = UI.$el.prevAll(".ui-mask").last();
+        // 如果之前已经木有 mask 遮罩了，要重置回之前的状态
+        if(jPrevMask.length == 0){
+            if(opt.markPrevBy) {
+                UI.$el.prevAll().removeClass(opt.markPrevBy);
+            }
+            // 否则标记显示属性
+            else {
+                UI.$el.prevAll().css("visibility", "");
+            }
         }
+        // 否则仅仅是恢复前一个遮罩的状态
         else {
-            UI.$el.prevAll().show();
+            if(opt.markPrevBy) {
+                jPrevMask.removeClass(opt.markPrevBy);
+            }
+            // 否则标记显示属性
+            else {
+                jPrevMask.css("visibility", "");
+            }
         }
     },
     //...............................................................

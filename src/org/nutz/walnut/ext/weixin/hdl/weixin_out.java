@@ -56,7 +56,7 @@ public class weixin_out implements JvmHdl {
         WxOutMsg om = null;
 
         String openid = hc.params.get("openid");
-        String pnb = hc.oHome == null ? null : hc.oHome.name();
+        String pnb = hc.oRefer == null ? null : hc.oRefer.name();
 
         // 一个 JSON
         if (Strings.isQuoteBy(out, '{', '}')) {

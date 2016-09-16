@@ -17,7 +17,7 @@ public class thing_detail implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 得到对应对 Thing
-        WnObj oT = Things.checkThing(hc.oHome);
+        WnObj oT = Things.checkThing(hc.oRefer);
 
         // 得到 Detail 文件
         WnObj oDetail = sys.io.fetch(oT, "detail");

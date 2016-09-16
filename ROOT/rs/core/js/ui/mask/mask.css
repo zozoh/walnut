@@ -1,5 +1,11 @@
 .ui-mask-others {
-  opacity: 0.2;
+  opacity: 0.4;
+  transition: 0.3s;
+  -webkit-filter: blur(10px);
+  /* Chrome, Opera */
+  -moz-filter: blur(10px);
+  -ms-filter: blur(10px);
+  filter: blur(10px);
 }
 .ui-mask {
   position: fixed;
@@ -18,7 +24,7 @@
   width: 100%;
   height: 100%;
   background: #000;
-  opacity: 0.4;
+  opacity: 0.2;
 }
 .ui-mask-closer {
   position: absolute;

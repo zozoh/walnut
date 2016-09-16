@@ -5,9 +5,14 @@
 
 # 用法
 
-    thing [ID] ACTION [options] [-json "{..}] [-tmpl "TMPL"] [-N] [-Q]
+    thing [TsID[/ThID]] 
+           ACTION [options] 
+           [-json "{..}] [-tmpl "TMPL"] [-N] [-Q]
     
-    - ID         「选」代表一个 Thing 或者 ThingSet的 ID
+    - TsID[/ThID] 「选」获取参考对象，默认为当前目录
+                   ThingSetID 与 ThingID 用 / 分隔
+                   没有后面的部分代表指定一个 ThingSet
+                   全部声明，则表示一个 Thing
     - ACTION     可以是  get|init|create|detail|delete|update|query|comment|clean
                  默认为 "get"
     - options    根据不同的 ACTION 意义不同
@@ -95,7 +100,9 @@
 
     #----------------------------------------------------
     # 命令格式
-    thing [ID] detail [-content "xxxxx"] [-tp "md|txt|html"] [-drop] [-quiet]
+    thing [ID] detail 
+                [-content "xxxxx"] 
+                [-tp "md|txt|html"] [-drop] [-quiet]
     #----------------------------------------------------
     - 内容，支持从管道读取
     - 默认 tp 为 txt
@@ -114,6 +121,64 @@
     
     # 为 thing 删除详细内容
     thing xxx detail -drop
+    
+# thing media
+
+    #----------------------------------------------------
+    # 命令格式
+    thing [ID] media 
+                [-add xxx.jpg]
+                [-overwrite]
+                [-dupp '@{major}(@{nb})@{suffix}']
+                [-read]
+    #----------------------------------------------------
+    # 列出一个 thing 所有的媒体文件，空的返回空数组 []
+    thing xxx media
+    
+    # 添加一个空图片，如果已存在则抛错
+    thing xxx media -add abc.jpg
+    
+    # 添加一个空图片，如果已存在则返回
+    thing xxx media -add abc.jpg -overwrite
+    
+    # 添加一个空图片，如果已存在则根据模板创建新的
+    thing xxx media -add abc.jpg -dupp
+    
+    # 添加一个图片，内容来自另外一个文件，如果已存在则抛错
+    # 如果想不抛错，参见上面创建空文件的例子，根据需要添加
+    # -overwrite 或者 -dupp 参数
+    thing xxx media -add abc.jpg -read id:45vff..
+    
+    # 添加一个图片，内容来自标准输入，如果已存在则抛错
+    cat abc.jpg | thing xxx media -add abc.jpg -read  
+
+# thing attachment
+
+    #----------------------------------------------------
+    # 命令格式
+    thing [ID] attachment 
+                [-add xyz.zip]
+                [-read]
+    #----------------------------------------------------
+    # 列出一个 thing 所有的附件，空的返回空数组 []
+    thing xxx attachment
+    
+    # 添加一个空文件，如果已存在则抛错
+    thing xxx attachment -add xyz.zip
+    
+    # 添加一个空文件，如果已存在则返回
+    thing xxx attachment -add xyz.zip -overwrite
+    
+    # 添加一个空文件，如果已存在则根据模板创建新的
+    thing xxx attachment -add xyz.zip -dupp
+    
+    # 添加一个附件，内容来自另外一个文件，如果已存在则抛错
+    # 如果想不抛错，参见上面创建空文件的例子，根据需要添加
+    # -overwrite 或者 -dupp 参数
+    thing xxx attachment -add xyz.zip -read id:gf98..
+    
+    # 添加一个附件，内容来自标准输入，如果已存在则抛错
+    cat my.zip | thing xxx attachment -add xyz.zip -read  
     
 # thing delete
     

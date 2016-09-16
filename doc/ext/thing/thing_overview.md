@@ -26,23 +26,22 @@ Walnut 的 `WnObj` 是对所有的数据进行的最高级的抽象。 因为抽
 # 带有 thing_set 类型的目录被认为是一个 ThingSet
 @DIR {tp:"thing_set"} # 特殊类型目录
     thing.json        # 每个 Thing 的定义
-    cate              # ［选］表示 Thing 的分类，当然也可以存放在任何目录里面
-        cateA         # 每个分类就是一个子目录
-            cateAA    # 分类可以无限嵌套
-        cateB         # 可以有无限多的分类
-    data              # 集合内全部的数据
-        $ThingID           # 每个子目录就是一个 thing
-            detail         # 详情文件，其 tp 可以是 "md|txt|html"
-            photos         # 相关的一组照片
-            attachments    # 相关的一组附件
-            comments       # 每个 thing 都可能有评论信息，信息可以是 md,html,txt
-                20150721132134321     # 一个注释一个文件
+    index             # 索引表，存放 thing 的所有元数据
+        $ThingID      # 每个都是文件
+    comments          # 存放所有的评论信息
+        $CommentID    # 每个都是一个文件
+    data              # 存放每个 thing 的负数数据 
+        $ThingID           # 每个子目录对应一个 thing，有必要才创建
+                           # tp 为 'thing_data'
+            media          # 目录，存放相关的一组媒体
+            attachment     # 目录，存放相关的一组附件
+            resource       # 目录，存放评论信息
 ``` 
 
 我们认为:
 
-* Thing 没有子
-* 基于约定，通过文件和目录，可以描述世间万物
+- Thing 没有子
+- 基于约定，通过文件和目录，可以描述世间万物
 
 # ThingSet
 
@@ -59,7 +58,7 @@ th_thumb : ID    // Thing 的默认缩略图
 
 * 标识了元数据 `thing` 的目录就是 *ThingSet*
 
-# thing.json
+# thing.js
 
 ```
 {
@@ -75,24 +74,27 @@ th_thumb : ID    // Thing 的默认缩略图
 # Thing
 
 ```
-nm    : ID       // 与自己的id字段相同，无意义，你可以随意修改，只不过 ls 的时候好看
-tp    : "thing"  // 目录类型表示是个 Thing
+nm    : ID       // 唯一标识
 lbls  : ["xx"]   // 标签
 ct    : MS       // 创建时间
 lm    : MS       // 最后修改时间
+//...........................................
+tp    : 'text'       // 类型 txt|html|md
+mime  : 'text/html'  // 内容类型 text|html|markdown 等
+//...........................................
+// 如果内容不足 256 个字符，直接存入 content，len为 0
+// 如果内容超过 256 个字符，则content为null，细节存入内容，并计入 len
+len     : 0            // 内容长度 
+content : "xxx"        // 短内容
+brief   : "xxx"        // 摘要
 //...........................................
 icon  : HTML     // 小图标，如果没有，默认用 ThingSet.th_icon
 thumb : ID       // 缩略图ID  @see 缩略图机制，如果没有，默认用 ThingSet.th_thumb
 //...........................................
 th_ow     : "xxx"   // 所属者，通常表示 dusr 指定的账号系统，默认null
 th_nm     : "xxx"   // 东西的名称，如果是文章，那么就是标题
-th_breif  : "xxx"   // 东西的简单文本介绍，用作详细列表显示
 th_live   : 1       // 1 表示有效， -1 表示删除了
 //...........................................
-th_detail_tp  : 'text' // thing detail 的类型, text|html|markdown
-th_detail_sz  : 0      // thing detail 的长度， 0 表示没有 detail
-//...........................................
-th_set    : ID      // 对应 ThingSet 的 ID
 th_cate   : "xxx"   // 分类ID（如果有分类）
 //...........................................
 th_c_cmt   : 45      // 评论数
@@ -103,6 +105,8 @@ xxx : ??            // 其他属性是根据定义文件里面的字段来声明
 ..
 ```
 
+- 详情信息就是文件的内容
+
 # ThingComments
 
 ```
@@ -110,16 +114,15 @@ nm    : TS       // 创建时时间戳，格式类似 20150721132134321
 ct    : MS       // 创建时间
 lm    : MS       // 最后修改时间
 //...........................................
-// 评论的内容，如果内容过长（超过256个字符)，则存入摘要
-// 详细内容，则需要读取文件的内容
-// 如果评论内容很短，则不会有 brief 元数据，只会有 content 
-// 这样，只有几句话的评论，就不用再次读取文件内容了
-brief       : "xxx"            // 评论过长时的摘要
-content     : "xxx"            // 评论的全部内容
-tp          : "md"             // 内容类型("md|txt|html")
-mime        : "text/markdown"  // 根据 tp ...
+tp    : 'text'       // 类型 txt|html|md
+mime  : 'text/html'  // 内容类型 text|html|markdown 等
 //...........................................
-th_set : ID          // 对应 ThingSet 的 ID
+// 如果内容不足 256 个字符，直接存入 content，len为 0
+// 如果内容超过 256 个字符，则content为null，细节存入内容，并计入 len
+len     : 0            // 内容长度 
+content : "xxx"        // 短内容
+brief   : "xxx"        // 摘要
+//...........................................
 th_id  : ID          // 对应的 ThingID
 th_rep : ID          // 「选」表示本评论是针对某个评论的评论
 //...........................................
@@ -128,5 +131,5 @@ th_c_agree  : 86      // 赞同次数
 th_ow     : "xxx"     // 所属者，通常表示 dusr 指定的账号系统，默认null
 ``
 
-* 评论发出，不能删除，只能修改
+* 评论发出，不能删除，只能修改?
 

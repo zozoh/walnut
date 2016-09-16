@@ -22,19 +22,29 @@ public class thing_init implements JvmHdl {
         boolean isQ = hc.params.is("Q");
 
         // 找到集合
-        WnObj oTS = Things.checkThingSet(hc.oHome);
+        WnObj oTS = Things.checkThingSet(hc.oRefer);
+        
+        // 确保有索引目录
+        WnObj oIndex = sys.io.createIfNoExists(oTS, "data", WnRace.DIR);
+        if (!isQ)
+            sys.out.println("index-home  : " + oIndex.id());
+        
+        // 确保有注释目录
+        WnObj oComment = sys.io.createIfNoExists(oTS, "data", WnRace.DIR);
+        if (!isQ)
+            sys.out.println("comment-home : " + oComment.id());
 
         // 确保有 data 目录
         WnObj oData = sys.io.createIfNoExists(oTS, "data", WnRace.DIR);
         if (!isQ)
-            sys.out.println("check data : " + oData.id());
+            sys.out.println("data-home    : " + oData.id());
 
-        // 确保有 thing.json
+        // 确保有 thing.js
         WnObj oDef = sys.io.createIfNoExists(oTS, "thing.js", WnRace.FILE);
         if (!isQ)
             sys.out.println("check thing.js : " + oDef.id());
 
-        // 写入 thing.json 默认内容
+        // 写入 thing.js 默认内容
         if (oDef.len() == 0 || hc.params.is("f")) {
             if (!isQ)
                 sys.out.println(" >> default write thing.js");

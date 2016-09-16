@@ -23,7 +23,7 @@ public class thing_query implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 找到集合
-        WnObj oTS = Things.checkThingSet(hc.oHome);
+        WnObj oTS = Things.checkThingSet(hc.oRefer);
 
         // 找到数据目录
         WnObj oTData = sys.io.fetch(oTS, "data");

@@ -28,9 +28,7 @@ var html = function(){/*
         <b class="tbl-col-tt"></b>
     </div>
 </div>
-<div class="ui-arena tbl" ui-fitparent="yes">
-    I am table haha
-</div>
+<div class="ui-arena tbl" ui-fitparent="yes"></div>
 */};
 //==============================================
 return ZUI.def("ui.table", {

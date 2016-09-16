@@ -96,6 +96,8 @@
 					}
 				}
 			}
+		}, {
+			
 		} ]
 	}, {
 		icon : '<i class="fa fa-bar-chart"></i>',

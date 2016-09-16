@@ -14,7 +14,7 @@ public class thing_restore implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 得到对应对 Thing
-        WnObj oT = Things.checkThing(hc.oHome);
+        WnObj oT = Things.checkThing(hc.oRefer);
 
         // 已经是恢复的了
         if (oT.getInt("th_live", 0) == Things.TH_LIVE) {
