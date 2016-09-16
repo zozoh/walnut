@@ -115,8 +115,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
-			<artifactId>nutz-qrcode</artifactId>
-			<version>1.r.57-SNAPSHOT</version>
+			<artifactId>nutz-plugins-qrcode</artifactId>
+			<version>1.r.58-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.htmlunit</groupId>
