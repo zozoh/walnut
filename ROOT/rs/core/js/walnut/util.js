@@ -863,7 +863,7 @@ var Wn = {
         return list;
     },
     //..............................................
-    read : function(o, callback, context){
+    read : function(o, callback, context, forceReload){
         var Wn = this;
         var store = Wn._storeAPI;
 
@@ -887,6 +887,12 @@ var Wn = {
                 alert("Fail to load obj: "+o.id+":> "+o.ph);
             }
         };
+
+        // 强制刷新，清除缓存，发送的请求也不带 sha1
+        if(forceReload) {
+            store.removeItem(sha1Key);
+            ajaxConf.data = {}
+        }
 
         // 异步的方式 ...........................................
         if(_.isFunction(callback)){

@@ -1,6 +1,5 @@
 .ui-mask-others {
   opacity: 0.4;
-  transition: 0.3s;
   -webkit-filter: blur(10px);
   /* Chrome, Opera */
   -moz-filter: blur(10px);

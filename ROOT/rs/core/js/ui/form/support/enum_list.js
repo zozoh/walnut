@@ -16,7 +16,13 @@ var methods = {
         $z.setUndefined(opt, "value", function(o, index){
             if(_.isString(o))
                 return index;
-            return _.isUndefined(o.val) ? index : o.val;
+            if(!_.isUndefined(o.value)) {
+                return o.value;
+            }
+            if(!_.isUndefined(o.val)) {
+                return o.val;
+            }
+            return index;
         });
     },
     //...............................................................

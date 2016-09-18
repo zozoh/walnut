@@ -9,17 +9,17 @@ import org.nutz.lang.Files;
 
 public class GenFileTypeCssSprite {
 
-    private static int css_y_offset = 16;
+//    private static int css_y_offset = 16;
+//
+//    private static int css_size = 16;
+//
+//    private static int base_size = 16;
 
-    private static int css_size = 16;
-
-    private static int base_size = 16;
-
-    // private static int css_y_offset = 0;
-    //
-    // private static int css_size = 32;
-    //
-    // private static int base_size = 32;
+     private static int css_y_offset = 0;
+    
+     private static int css_size = 32;
+    
+     private static int base_size = 32;
 
     private static int[] row_x = new int[26];
 

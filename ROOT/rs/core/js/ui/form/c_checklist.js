@@ -18,6 +18,8 @@ var html = function(){/*
 return ZUI.def("ui.form_com_checklist", BulletListSupport({
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
+    css  : "theme/ui/form/component.css",
+    i18n : "ui/form/i18n/{{lang}}.js",
     //...............................................................
     init : function(options){
         $z.setUndefined(options, "icon", function(o){
@@ -59,6 +61,7 @@ return ZUI.def("ui.form_com_checklist", BulletListSupport({
             else{
                 jq.toggleClass("checked");
             }
+            UI.__on_change();
         },
         "click .cc-quick span" : function(e) {
             var UI  = this;
@@ -88,6 +91,7 @@ return ZUI.def("ui.form_com_checklist", BulletListSupport({
             else {
                 jLi.removeClass("checked");
             }
+            UI.__on_change();
         }
     },
     //...............................................................
