@@ -2371,7 +2371,7 @@
          * @return 转换后字符串
          */
         lowerWord: function (cs, c) {
-            c = c || "-";
+            var c = c || "-";
             var sb = "";
             for (var i = 0; i < cs.length; i++) {
                 var ch = cs.charAt(i);
@@ -2401,7 +2401,7 @@
          * @return 转换后字符串
          */
         upperWord: function (cs) {
-            c = c || "-";
+            var c = c || "-";
             var sb = "";
             var len = cs.length;
             for (var i = 0; i < len; i++) {
