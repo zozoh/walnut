@@ -2,15 +2,15 @@
 
 @infoW : 340px;
 //--------------------------------------------------------- 全局
-.opreview {
+.oview {
     position: relative; 
     > div {position: absolute;top:0;transition: 0.5s;}
-    .opreview-main {background: @cb4;padding:@d4; bottom: 0;}
-    .opreview-info {width:@infoW; background: @cb1; bottom: 0;}
-    .opreview-showinfo {
+    .oview-main {background: @cb4;padding:@d4; bottom: 0;}
+    .oview-meta {width:@infoW; background: @cb1; bottom: 0;}
+    .oview-showmeta {
         top:0; right:0; padding:@d3; magin:@d2; font-size: @f5; cursor: pointer;
     }
-    .opreview-showinfo[data-balloon]::before {font-size: @f4;}
+    .oview-showmeta[data-balloon]::before {font-size: @f4;}
     .form {
         .form-title {
             text-align: left; color:@cf1; font-size:@f2; font-family: @f_fixed;
@@ -29,35 +29,41 @@
     }
 }
 
-.opreview[show-info="yes"] {
-    .opreview-main {
+.oview[show-meta="yes"] {
+    .oview-main {
         left:0; right:@infoW; overflow: auto;
         padding:@d4;
     }
-    .opreview-info {
+    .oview-meta {
         right: 0;
     }
-    .opreview-showinfo {opacity: 0; width:1px; height:1px; padding:0; margin: 0;}
+    .oview-showmeta {opacity: 0; width:1px; height:1px; padding:0; margin: 0;}
 }
 
-.opreview[show-info="no"] {
-    .opreview-main {
+.oview[show-meta="no"] {
+    .oview-main {
         left:0; right:0; overflow: auto; 
         padding:@d4;
     }
-    .opreview-info {
+    .oview-meta {
         right: -@infoW;
     }
-    .opreview-showinfo {opacity: 0.6;}
-    .opreview-showinfo:hover {opacity: 1; font-size: @f6;}
+    .oview-showmeta {opacity: 0.6;}
+    .oview-showmeta:hover {opacity: 1; font-size: @f6;}
+}
+//---------------------------------------------------------
+// 预览部分
+//---------------------------------------------------------
+.ui-o_view_preview, .opreview {
+    width: 100%; height: 100%;
 }
 //--------------------------------------------------------- 文本
-.opreview-main[mode="text"]{
+.opreview[mode="text"]{
     overflow: auto;
     pre {padding:@d2;}
 }
 //--------------------------------------------------------- 图片
-.opreview-main[mode="pic"]{@noselect();
+.opreview[mode="pic"]{@noselect();
     div.img-con {
         width:100%; height:100%;
         text-align: center;  @flex(); justify-content:center; align-items:center;
@@ -67,7 +73,7 @@
     }
 }
 //--------------------------------------------------------- 视频
-.opreview-main[mode="video"]{@noselect();
+.opreview[mode="video"]{@noselect();
     .video-con {
         position: relative; 
         .video-ctrl {
@@ -114,7 +120,12 @@
     }
 }
 //--------------------------------------------------------- 未知
-.opreview-main[mode="others"] {
-    font-size: @f6; color:@cf0; padding:@da; text-align: center;
+.opreview[mode="thumb"] {
+    .thumb-con {
+        width: 100%; height:100%;
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center; 
+    }
 }
 

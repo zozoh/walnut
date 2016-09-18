@@ -132,16 +132,20 @@
 .wn-thumbnail .wnobj .z-edit-it {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
-.wn-thumbnail .wnobj-checked .wnobj-thumbnail {
+.wn-thumbnail .wnobj-checked .wnobj-thumbnail,
+.wn-thumbnail .wnobj[li-checked] .wnobj-thumbnail {
   background: rgba(255, 255, 255, 0.1);
 }
-.wn-thumbnail .wnobj-checked .wnobj-thumbnail[thumb] .img {
+.wn-thumbnail .wnobj-checked .wnobj-thumbnail[thumb] .img,
+.wn-thumbnail .wnobj[li-checked] .wnobj-thumbnail[thumb] .img {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.wn-thumbnail .wnobj-checked .wnobj-nm {
+.wn-thumbnail .wnobj-checked .wnobj-nm,
+.wn-thumbnail .wnobj[li-checked] .wnobj-nm {
   background: rgba(0, 64, 255, 0.6);
   color: #ffffff;
 }
-.wn-thumbnail .wnobj-actived .wnobj-nm {
+.wn-thumbnail .wnobj-actived .wnobj-nm,
+.wn-thumbnail .wnobj[li-actived] .wnobj-nm {
   border-color: rgba(255, 255, 255, 0.1);
 }

@@ -1,3 +1,17 @@
+.ui-menu[contextmenu="yes"] {
+  position: absolute;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #ff8800;
+  border-radius: 2px;
+  box-shadow: 2px 2px 6px #000000;
+  min-width: 128px;
+  text-align: left;
+}
+.ui-menu[contextmenu="yes"] .menu-item-more {
+  position: absolute;
+  right: 6px;
+}
 .menu-item {
   -moz-user-select: none;
   -khtml-user-select: none;
@@ -23,7 +37,7 @@
 .menu-item .menu-item-wrapper .menu-item-text {
   display: inline-block;
   vertical-align: middle;
-  margin: 0 6px;
+  margin: 0 8px;
 }
 .menu-item .menu-item-wrapper .menu-item-status {
   display: inline-block;
@@ -80,26 +94,27 @@
   border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 .menu .menu-sub {
-  padding: 6px;
+  color: #ffffff;
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid #ff8800;
   border-radius: 2px;
   box-shadow: 2px 2px 6px #000000;
   min-width: 128px;
-}
-.menu .menu-sub .menu-item {
-  line-height: 24px;
-  height: 24px;
+  text-align: left;
+  min-width: 180px;
 }
 .menu .menu-sub .menu-item .menu-item-wrapper {
   position: relative;
+  padding: 0 8px;
+  line-height: 32px;
+  height: 32px;
 }
 .menu .menu-sub .menu-item .menu-item-wrapper .menu-item-more {
   position: absolute;
   right: 6px;
 }
 .menu .menu-sub .menu-item .menu-item-status {
-  margin-left: 10px;
+  margin-left: 12px;
 }
 .menu .menu-sub .menu-item[tp="status"] .menu-item-wrapper {
   padding-right: 0;
@@ -109,5 +124,5 @@
   line-height: 0;
   height: 0;
   margin: 6px 0;
-  border-top: 1px dotted rgba(255, 255, 255, 0.1);
+  border-top: 1px dotted rgba(255, 255, 255, 0.2);
 }

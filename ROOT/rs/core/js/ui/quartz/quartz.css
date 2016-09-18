@@ -158,12 +158,13 @@
   text-align: right;
   padding: 6px 2px;
   cursor: pointer;
-  color: rgba(0, 0, 0, 0.6);
+  color: #666666;
 }
 .quartz .qz-month-mo .qz-month-W span {
   display: inline-block;
   vertical-align: middle;
   width: 14px;
+  margin-right: 4px;
 }
 .quartz .qz-month-mo .qz-month-W span i:first-child {
   display: inline;
@@ -175,7 +176,7 @@
   vertical-align: middle;
 }
 .quartz .qz-month-mo .qz-month-W[checked] {
-  color: #000000;
+  color: #666666;
 }
 .quartz .qz-month-mo .qz-month-W[checked] i:first-child {
   display: none;

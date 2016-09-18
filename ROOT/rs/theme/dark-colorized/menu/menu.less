@@ -1,4 +1,13 @@
-@import "../ui";
+@import (reference) "../ui";
+
+.ui-menu[contextmenu="yes"] {
+    position: absolute; color:@cmenu_f; background: @cmenu_b; border:1px solid @cmenu_l;
+    border-radius: @d0; box-shadow: @d0 @d0 @d2 @cshadow;
+    min-width: @db; text-align: left;
+    .menu-item-more {
+        position: absolute; right: @d2;
+    }
+}
 
 // 默认菜单项
 .menu-item {
@@ -16,7 +25,7 @@
             font-size:@f3; vertical-align: middle;
         }
         .menu-item-text{
-            display: inline-block; vertical-align: middle; margin:0 @d2;
+            display: inline-block; vertical-align: middle; margin:0 @d3;
         }
         .menu-item-status {
             display: inline-block; vertical-align: middle;
@@ -63,19 +72,18 @@
     
     // 分组菜单项
     .menu-sub{
-        padding:@d2; background: @cmenu_b; border:1px solid @cmenu_l;
+        color:@cmenu_f; background: @cmenu_b; border:1px solid @cmenu_l;
         border-radius: @d0; box-shadow: @d0 @d0 @d2 @cshadow;
-        min-width: @db;
+        min-width: @db; text-align: left; min-width: 180px;
         .menu-item{
-            line-height: @d6; height:@d6;
             .menu-item-wrapper{
-                position: relative;
+                position: relative; padding:0 @d3; line-height: @d7; height:@d7; 
                 .menu-item-more {
                     position: absolute; right: @d2;
                 }
             }
             .menu-item-status{
-                margin-left:10px;
+                margin-left:@d4;
             }
         }
         .menu-item[tp="status"]{
@@ -83,7 +91,7 @@
         }
         .menu-item[tp="separator"] {
             padding:0; line-height: 0; height: 0; margin:@d2 0;
-            border-top:1px dotted @cborder1;
+            border-top:1px dotted @cborder0;
         }
     }
 
