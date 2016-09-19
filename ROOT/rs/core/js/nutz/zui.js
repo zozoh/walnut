@@ -10,7 +10,10 @@ var parse_dom = function (html) {
     // 解析代码模板
     // html = html.replace(/[ ]*\r?\n[ ]*/g, "");
     // html = $z.tmpl(html)(UI._msg_map);
-    html = UI.compactHTML(html);
+    // TODO 暂时vue的不做处理
+    if(!UI.vue){
+        html = UI.compactHTML(html);
+    }
 
     // 这里需要添加 dom 段描述的 HTML 到当前的 $el 
     // 为了兼顾 keepDom 所以要用 +=
@@ -525,7 +528,7 @@ ZUIObj.prototype = {
                 //console.log(UI.uiName, "i18n", uiI18N);
                 require.async(i18nLoading, callback);
             }
-        }
+        };
         //============================================== 从处理CSS开始
         // 加载 CSS
         var uiCSS = $z.concat(UI.$ui.css, UI.options.css);
@@ -1060,6 +1063,28 @@ ZUI.def = function (uiName, conf) {
             className: uiName.replace(/[.]/g, '-'),
             $ui: {}
         };
+        // pkg信息补全css，dom, i18n
+        if (conf.pkg) {
+            // i18n 加载一个即可
+            conf.i18n = conf.i18n || _.template("ui/{{pkg}}/i18n/{{lang}}.js")({pkg: conf.pkg, lang: "{{lang}}"});
+            // dom
+            conf.dom = conf.dom || _.template("ui/{{pkg}}/{{pkg}}.html")({pkg: conf.pkg});
+            // TODO 这里还需要再讨论下
+            // if (conf.vue) { // 使用了vue的话，也就是直接加载html即可，无需经过转换
+            //     conf.dom = [conf.dom, _.template("ui/{{pkg}}/{{pkg}}_vue.html")({pkg: conf.pkg})];
+            // }
+            // css 可以追加到当前的配置中
+            var dftcss = _.template("ui/{{pkg}}/{{pkg}}.css")({pkg: conf.pkg});
+            if (conf.css) {
+                if (_.isArray(conf.css)) {
+                    conf.css.push(dftcss);
+                } else {
+                    conf.css = [conf.css, dftcss];
+                }
+            } else {
+                conf.css = dftcss;
+            }
+        }
         // 将 UI 的保留方法放入 $ui 中，其余 copy
         for (var key in conf) {
             if (/^(css|dom|i18n|init|redraw|depose|resize|active|blur)$/g.test(key)) {

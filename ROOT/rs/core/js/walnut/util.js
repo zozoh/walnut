@@ -1371,6 +1371,70 @@ var Wn = {
             var val  = store.getItem(key);
             _the_cleaner(Wn, store, key, val);
         }
+    },
+    readObj: function (UI, obj, readS) {
+        obj = obj || UI.app.obj;
+        // 读元数据
+        if (obj.__obj_meta_rw) {
+            Wn.exec("obj id:" + obj.id, function (re) {
+                obj = $z.fromJson(re);
+                if (readS) {
+                    readS.call(UI, re);
+                }
+            });
+        }
+        // 读内容
+        else {
+            Wn.exec("cat id:" + obj.id, function (re) {
+                if (readS) {
+                    readS.call(UI, re);
+                }
+            });
+        }
+    },
+    writeObj: function (UI, obj, content, readB, readS, readF) {
+        obj = obj || UI.app.obj;
+        if (readB) {
+            readB.call(UI);
+        }
+        // 写入元数据
+        if (obj.__obj_meta_rw) {
+            var o2 = $z.fromJson(content) || {};
+            o2.id = obj.id;
+            _.extend(obj, o2);
+            $.ajax({
+                type: "POST",
+                url: "/o/set/id:" + obj.id,
+                contentType: "application/jsonrequest",
+                data: $z.toJson(o2)
+            }).done(function (re) {
+                if (readS) {
+                    readS.call(UI);
+                }
+            }).fail(function (re) {
+                if (readF) {
+                    readF.call(UI);
+                }
+                throw "fail to save!";
+            });
+        }
+        // 写入内容
+        else {
+            $.ajax({
+                type: "POST",
+                url: "/o/write/id:" + obj.id,
+                data: content
+            }).done(function (re) {
+                if (readS) {
+                    readS.call(UI);
+                }
+            }).fail(function (re) {
+                if (readF) {
+                    readF.call(UI);
+                }
+                throw "fail to save!";
+            });
+        }
     }
 }; // ~End wn
 //====================================================================

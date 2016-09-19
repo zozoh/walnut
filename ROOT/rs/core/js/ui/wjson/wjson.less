@@ -1,0 +1,127 @@
+@import "../ui.less";
+
+.ui-wjson {
+  background: #FFF;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.ui-wjson-editor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  @wj-header-h: 40px;
+  @wj-header-psize: 6px;
+  @wj-header-isize: @wj-header-h - @wj-header-psize * 2;
+
+  .ui-wjson-menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: @wj-header-h;
+    line-height: @wj-header-h;
+    padding: @wj-header-psize;
+    color: #1A1A1A;
+    background-color: #729CBD;
+    border-bottom: 1px solid #5882A3;
+
+    .menu-item {
+      min-width: @wj-header-isize;
+      height: @wj-header-isize;
+      line-height: @wj-header-isize;
+      float: left;
+      margin-right: @wj-header-psize;
+      text-align: center;
+
+      &.right {
+        float: right;
+        margin-right: 0px;
+        margin-left: @wj-header-psize;
+      }
+
+      // 按钮
+      &.btn {
+        border: 1px solid #aec0f8;
+        background: #e3eaf6;
+        color: #4D4D4D;
+        opacity: 0.8;
+        &:hover {
+          cursor: pointer;
+          background-color: #f0f2f5;
+        }
+      }
+
+      // 输入框
+      input {
+        display: block;
+        height: @wj-header-isize;
+        padding-left: 4px;
+        padding-right: 4px;
+        @input();
+        &:focus {
+          @input_focus();
+        }
+      }
+    }
+  }
+
+  .ui-wjson-container {
+    position: absolute;
+    top: @wj-header-h;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border: 1px solid #5882A3;
+    border-top: none;
+    overflow: auto;
+    color: #333;
+    font-family: droid sans mono, monospace, courier new, courier, sans-serif;
+    line-height: 1.3;
+    background: #fff;
+  }
+
+  @container-curb-size: 40px;
+
+  .ui-wjson-curb {
+    display: block;
+    width: @container-curb-size;
+    height: 100%;
+    background: #ebebeb;
+    float: left;
+    text-align: right;
+    @noselect();
+    li {
+      padding-left: 10px;
+      padding-right: 10px;
+      display: block;
+      background: #ebebeb;
+    }
+  }
+
+  .ui-wjson-content {
+    display: block;
+    padding-left: @container-curb-size + 4;
+    width: 100%;
+    height: 100%;
+    li {
+      display: block;
+    }
+  }
+}
+
+.ui-wjson-textarea {
+  width: 100%;
+  height: 100%;
+  outline: none;
+  border: 1px dashed #DDD;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #444;
+  font-family: Monaco, Consolas, Courier New;
+  padding: 20px;
+}
