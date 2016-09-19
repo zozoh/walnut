@@ -179,7 +179,7 @@
     .com-drop { display: none;
         z-index: 1000; min-width:100px;
         position: fixed; top:0; left:0; 
-        overflow: hidden; white-space: nowrap; 
+        overflow: auto; white-space: nowrap; 
         background: @cmenu_b; color:@cmenu_f; border-radius: @d2;
         box-shadow: 2px 2px 8px @cshadow;
         > div {
@@ -335,3 +335,44 @@
         @input_focus();
     }
 }
+//----------------------------------------------------------------
+.com-content {
+    @fH : 32px;
+    .ccnt-actions {
+        float: right; padding:@d3;
+        ul {
+            padding:@d4; border-left:1px solid @cborder1;
+            li { @btn(); display: block; padding:@d2; margin:@d2 0;}
+            li:hover {@btn_hover();}
+        }
+    }
+    .ccnt-brief {
+        padding:@d3;
+    }
+    .ccnt-brief[no-brief] {font-style: italic; color:@c3;}
+    > footer { @noselect();
+        height:@fH; line-height: @fH;  border-top:1px dotted @cborder1;
+        @flex(); 
+        .ccnt-cinfo { @noselect();
+            padding:0 @d2; color:@c2; text-align: center; cursor: pointer;
+            i {
+                display: inline-block; cursor: pointer; margin:0 2px;vertical-align: middle;
+                font-family:'Material-Design-Iconic-Font'; font-style: normal; font-size: 1.2em;
+            }
+            i:before{display: inline; }
+            i[type="text"]:before {content: "\f24e";}
+            i[type="html"]:before {content: "\f351";}
+            i[type="markdown"]:before {content: "\f222";}
+            > span {color:@c2; }
+        }
+        ul {
+            @flex();
+            li {float:left; color:@clink; padding:0 @d2; cursor: pointer;}
+            li:hover {color:@clink_hover; text-decoration: underline;}
+        }
+        ul:after{@clr();}
+    }
+}
+
+
+

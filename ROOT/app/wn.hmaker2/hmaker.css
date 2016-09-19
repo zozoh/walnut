@@ -146,6 +146,7 @@
   right: 0;
   height: 32px;
   background: #e0e0e0;
+  padding: 0 6px;
 }
 .hmaker .hm-page .hmpg-sbar > .hm-W > div {
   position: absolute;
@@ -160,6 +161,35 @@
 }
 .hmaker .hm-page .hmpg-sbar .menu {
   padding: 4px 6px;
+}
+.hmaker .hm-page .hmpg-sbar .hm-combar {
+  white-space: nowrap;
+  line-height: 32px;
+}
+.hmaker .hm-page .hmpg-sbar .hm-combar .hm-combar-item {
+  display: inline-block;
+  padding: 0 6px;
+  color: #888888;
+  font-size: 8px;
+}
+.hmaker .hm-page .hmpg-sbar .hm-combar .hm-combar-item i:first-child {
+  vertical-align: middle;
+}
+.hmaker .hm-page .hmpg-sbar .hm-combar .hm-combar-item b {
+  margin: 0 4px;
+  font-weight: normal;
+}
+.hmaker .hm-page .hmpg-sbar .hm-combar .hm-combar-item[parent] {
+  cursor: pointer;
+}
+.hmaker .hm-page .hmpg-sbar .hm-combar .hm-combar-item[parent]:hover {
+  color: #ff8800;
+  text-decoration: underline;
+}
+.hmaker .hm-page .hmpg-sbar .hm-combar .hm-combar-item[current] {
+  font-weight: bold;
+  color: #333333;
+  cursor: default;
 }
 .hmaker .hm-other,
 .hmaker .hm-folder {

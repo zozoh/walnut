@@ -3,9 +3,40 @@
   background: #ffffff;
   color: #333333;
 }
-.thing > section {
+.thing > header {
   position: absolute;
   top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  line-height: 32px;
+  border-bottom: 1px solid #d0d0d0;
+  padding: 0 12px;
+  font-family: Monaco, Consolas, Courier New;
+}
+.thing > header > * {
+  display: inline-block;
+  vertical-align: middle;
+}
+.thing > header b {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  font-weight: bold;
+  margin: 0 4px;
+}
+.thing > header b:after {
+  display: inline;
+  content: ": ";
+}
+.thing > header em {
+  font-style: normal;
+  color: #008800;
+}
+.thing > section {
+  position: absolute;
+  top: 32px;
   bottom: 0;
   left: 0;
   right: 0;
@@ -33,4 +64,8 @@
 }
 .thing .th-form .th-con {
   padding-left: 6px;
+}
+.thing .th-search [key="th_nm"] em {
+  margin-left: 6px;
+  color: #888888;
 }

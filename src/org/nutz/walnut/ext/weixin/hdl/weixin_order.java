@@ -48,7 +48,7 @@ public class weixin_order implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
 
-        if (null == hc.oHome)
+        if (null == hc.oRefer)
             throw Er.create("e.cmd.weixin.pnb.blank");
 
         // 准备返回值
@@ -86,7 +86,7 @@ public class weixin_order implements JvmHdl {
 
     private WnObj __do_result(WnSystem sys, JvmHdlContext hc) {
         // 公众号ID
-        String pnb = hc.oHome.name();
+        String pnb = hc.oRefer.name();
 
         // 分析参数
         String reid = hc.params.check("result");
@@ -129,7 +129,7 @@ public class weixin_order implements JvmHdl {
 
     private NutMap __do_submit(WnSystem sys, JvmHdlContext hc) {
         // 公众号ID
-        String pnb = hc.oHome.name();
+        String pnb = hc.oRefer.name();
 
         // 分析参数
         String orderId = hc.params.check("submit");

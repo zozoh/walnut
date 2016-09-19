@@ -36,9 +36,9 @@
 }
 //----------------------------------------------------------------
 @CCH : 24px;
-.com-color {
+.com-square-drop {
     // 预览
-    .cc-box {
+    > .cc-box {
         display: inline-block; width:@CCH; height:@CCH; padding:1px;
         border-radius: 3px; background: #CCC; border:1px solid @cborder0;
         position: relative; overflow: hidden;
@@ -47,22 +47,43 @@
             width:100%; height:100%; border-radius: 2px; border:1px solid @cborder0;
             position: relative; overflow: hidden;
         }
-        .ccb-preview[no-color] {
+        .ccb-preview[empty] {
             background: #FFF;
         }
-        .ccb-preview[no-color]:before {
+        .ccb-preview[empty]:before {
             content:""; display: block; height: 2px; background:#F00; 
             position: absolute; top:50%; left:-100px; right:-100px;
             transform: rotate(-45deg);
         }
     }
     // 编辑区
-    .cc-edit {
+    > .cc-edit {
         > * {z-index: 20;}
-        .cce-mask {position: fixed; top:0;left:0;right:0;bottom:0; background: rgba(255,0,0,0);}
-        .cce-con  {
+        > .cce-mask {position: fixed; top:0;left:0;right:0;bottom:0; background: rgba(255,0,0,0);}
+        > .cce-con  {
             position: fixed; width:340px; height:200px; background: @cb0; padding:@d3;
             border-radius: @d2; border:1px solid @cborder0; box-shadow: 3px 3px 5px @cshadow;
+        }
+        
+    }
+}
+.com-square-drop > .cc-edit {display: none;}
+.com-square-drop[show] > .cc-edit {display: block;}
+//----------------------------------------------------------------
+// 背景
+.com-background {
+    > .cc-edit {
+        > .cce-con  {
+            height:330px; width:430px; border:1px solid @cborder1; border-radius: @d3;
+        }
+    }
+}
+//----------------------------------------------------------------
+// 颜色拾取
+.com-color {
+    // 编辑区
+    > .cc-edit {
+        > .cce-con  {
             > div {
                 width:100%; height:100%; position: relative;
                 > div {position: absolute;}
@@ -133,8 +154,6 @@
         }
     }
 }
-.com-color .cc-edit {display: none;}
-.com-color[show] .cc-edit {display: block;}
 //----------------------------------------------------------------
 @cdlH  : @f5;
 @cdlIW : @d6;
@@ -160,7 +179,7 @@
     .com-drop { display: none;
         z-index: 1000; min-width:100px;
         position: fixed; top:0; left:0; 
-        overflow: hidden; white-space: nowrap; 
+        overflow: auto; white-space: nowrap; 
         background: @cmenu_b; color:@cmenu_f; border-radius: @d2;
         box-shadow: 2px 2px 8px @cshadow;
         > div {
@@ -316,3 +335,44 @@
         @input_focus();
     }
 }
+//----------------------------------------------------------------
+.com-content {
+    @fH : 32px;
+    .ccnt-actions {
+        float: right; padding:@d3;
+        ul {
+            padding:@d4; border-left:1px solid @cborder1;
+            li { @btn(); display: block; padding:@d2; margin:@d2 0;}
+            li:hover {@btn_hover();}
+        }
+    }
+    .ccnt-brief {
+        padding:@d3;
+    }
+    .ccnt-brief[no-brief] {font-style: italic; color:@c3;}
+    > footer { @noselect();
+        height:@fH; line-height: @fH;  border-top:1px dotted @cborder1;
+        @flex(); 
+        .ccnt-cinfo { @noselect();
+            padding:0 @d2; color:@c2; text-align: center; cursor: pointer;
+            i {
+                display: inline-block; cursor: pointer; margin:0 2px;vertical-align: middle;
+                font-family:'Material-Design-Iconic-Font'; font-style: normal; font-size: 1.2em;
+            }
+            i:before{display: inline; }
+            i[type="text"]:before {content: "\f24e";}
+            i[type="html"]:before {content: "\f351";}
+            i[type="markdown"]:before {content: "\f222";}
+            > span {color:@c2; }
+        }
+        ul {
+            @flex();
+            li {float:left; color:@clink; padding:0 @d2; cursor: pointer;}
+            li:hover {color:@clink_hover; text-decoration: underline;}
+        }
+        ul:after{@clr();}
+    }
+}
+
+
+

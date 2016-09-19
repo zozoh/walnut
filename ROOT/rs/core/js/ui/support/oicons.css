@@ -160,6 +160,9 @@
 .ui-oicon-16 .oicon[otp="unknown"] {
   background-position: 0px -336px;
 }
+.ui-oicon-16 .oicon[otp="vstream"] {
+  background-position: 0px -352px;
+}
 .ui-oicon-16 .oicon[otp="wav"] {
   background-position: 0px -368px;
 }
@@ -322,6 +325,9 @@
 }
 .ui-oicon-32 .oicon[otp="unknown"] {
   background-position: 0px -640px;
+}
+.ui-oicon-32 .oicon[otp="vstream"] {
+  background-position: 0px -672px;
 }
 .ui-oicon-32 .oicon[otp="wav"] {
   background-position: 0px -704px;

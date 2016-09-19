@@ -10,7 +10,7 @@
 
     var zUtil = {
         // 全屏幕
-        toggleFullScreen() {
+        toggleFullScreen : function() {
             if (!document.fullscreenElement &&    // alternative standard method
                 !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {  // current working methods
                 if (document.documentElement.requestFullscreen) {
@@ -73,8 +73,8 @@
         },
         //.............................................
         // 处理 underscore 的模板
-        tmpl: function (str) {
-            return _.template(str, {
+        tmpl: function (str, settings) {
+            return _.template(str, settings || {
                 escape: /\{\{([\s\S]+?)\}\}/g
             });
         },
@@ -1646,7 +1646,7 @@
         // 对一个字符串进行转换，相当于 $(..).text(str) 的效果
         __escape_ele: $(document.createElement("b")),
         escapeText: function (str) {
-            return __escape_ele.text(str).text();
+            return str ? str.replace("<", "&lt;") : str;
         },
         //.............................................
         // 调用某对象的方法，如果方法不存在或者不是函数，无视
@@ -1834,10 +1834,10 @@
         },
         //.............................................
         // 对 HTML 去掉空格等多余内容，并进行多国语言替换
-        compactHTML : function(html, msgMap) {
+        compactHTML : function(html, msgMap, settings) {
             html = (html||"").replace(/[ ]*\r?\n[ ]*/g, "");
             if(_.isObject(msgMap)){
-                return zUtil.tmpl(html)(msgMap);
+                return zUtil.tmpl(html, settings)(msgMap);
             }
             return html;
         },
@@ -2370,7 +2370,8 @@
          *
          * @return 转换后字符串
          */
-        lowerWord: function (cs, c="-") {
+        lowerWord: function (cs, c) {
+            var c = c || "-";
             var sb = "";
             for (var i = 0; i < cs.length; i++) {
                 var ch = cs.charAt(i);
@@ -2399,7 +2400,8 @@
          *
          * @return 转换后字符串
          */
-        upperWord: function (cs, c="-") {
+        upperWord: function (cs) {
+            var c = c || "-";
             var sb = "";
             var len = cs.length;
             for (var i = 0; i < len; i++) {

@@ -37,7 +37,7 @@
 .menu-item .menu-item-wrapper .menu-item-text {
   display: inline-block;
   vertical-align: middle;
-  margin: 0 6px;
+  margin: 0 8px;
 }
 .menu-item .menu-item-wrapper .menu-item-status {
   display: inline-block;
@@ -91,31 +91,30 @@
   height: 16px;
   margin: 2px;
   border-left: 1px solid rgba(0, 0, 0, 0.2);
-  border-right: 1px solid #FFF;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 .menu .menu-sub {
   color: #000000;
   background: #ffffff;
   border: 1px solid #ffffff;
-  padding: 6px;
   border-radius: 2px;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
   min-width: 128px;
   text-align: left;
-}
-.menu .menu-sub .menu-item {
-  line-height: 24px;
-  height: 24px;
+  min-width: 180px;
 }
 .menu .menu-sub .menu-item .menu-item-wrapper {
   position: relative;
+  padding: 0 8px;
+  line-height: 32px;
+  height: 32px;
 }
 .menu .menu-sub .menu-item .menu-item-wrapper .menu-item-more {
   position: absolute;
   right: 6px;
 }
 .menu .menu-sub .menu-item .menu-item-status {
-  margin-left: 10px;
+  margin-left: 12px;
 }
 .menu .menu-sub .menu-item[tp="status"] .menu-item-wrapper {
   padding-right: 0;
@@ -125,5 +124,5 @@
   line-height: 0;
   height: 0;
   margin: 6px 0;
-  border-top: 1px dotted #d0d0d0;
+  border-top: 1px dotted #cccccc;
 }

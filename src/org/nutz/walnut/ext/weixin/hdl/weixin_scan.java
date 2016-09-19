@@ -41,7 +41,7 @@ public class weixin_scan implements JvmHdl {
         // weixin ${weixin_ToUserName} scan -openid ${weixin_FromUserName}
         // -eventkey '${weixin_EventKey}' -c
 
-        String pnb = hc.oHome.name();
+        String pnb = hc.oRefer.name();
         String openid = hc.params.check("openid");
         String eventkey = hc.params.check("eventkey");
 
@@ -56,11 +56,11 @@ public class weixin_scan implements JvmHdl {
             scene = eventkey.substring("qrscene_".length());
 
         // 找找有没有对应的文本,有就当命令执行一下
-        WnObj obj = sys.io.fetch(hc.oHome, "scene/" + scene);
+        WnObj obj = sys.io.fetch(hc.oRefer, "scene/" + scene);
 
         // 没找到，那么看看要不要执行默认到 key
         if (null == obj && hc.params.has("dft")) {
-            obj = sys.io.fetch(hc.oHome, "scene/" + hc.params.get("dft"));
+            obj = sys.io.fetch(hc.oRefer, "scene/" + hc.params.get("dft"));
         }
 
         // 找到了

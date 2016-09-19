@@ -307,7 +307,10 @@ var Wn = {
     {
         // 应用的名称命令执行时会自动添加环境变量 $WN_APP_HOME
         // 默认采用当前的 app 名称，如果设定的 app 找不到命令将拒绝执行
-        appName     : "xxx"  
+        appName     : "xxx" 
+        
+        // 传入输入流内容
+        input : "xxxx"
         //..................................... 回调设定
         processData : false  // 调用结束回调的时候，是否先解析数据
         dataType : "json"    // 如果 processData 为 true 时的数据类型，默认JSON
@@ -323,18 +326,18 @@ var Wn = {
         // 所有回调的 this 对象，默认用本函数的 this
         context  : {..}
     }
-    如果仅仅是一个函数，那么相当于
-    {
-        complate : function(content){..}
-    }
+    // 其他模式
+    exec(cmdText, input, complete);
+    exec(cmdText, complete);
+    // 如果 
     */
-    exec : function (str, opt) {
+    exec : function (str, input, opt) {
         var app = window._app;
         var se = app.session;
         var re = undefined;
 
         // 没设置回调，则默认认为是同步调用
-        if(_.isUndefined(opt)){
+        if(_.isUndefined(input)){
             opt = {
                 async : false,
                 complete : function(content){
@@ -343,8 +346,33 @@ var Wn = {
             };
         }
         // 一个回调处理所有的情况
-        else if (_.isFunction(opt)) {
-            opt = {async:true, complete: opt};
+        else if (_.isFunction(input)) {
+            opt = {async:true, complete: input};
+        }
+        // 给入输入 
+        else if(_.isString(input)){
+            // 同步
+            if(_.isUndefined(opt)){
+                opt = {
+                    async : false,
+                    input : input,
+                    complete : function(content){
+                        re = content;
+                    }
+                }
+            }
+            // 异步
+            else if(_.isFunction(opt)){
+                opt = {async:true, complete: opt, input:input};
+            }
+            // 补充对象
+            else if(_.isObject(opt)){
+                opt.input = input;
+            }
+        }
+        // 如果是直接是配置对象
+        else if(input && _.isObject(input)) {
+            opt = input;
         }
 
         // 有 opt 的情况，默认是异步
@@ -384,6 +412,7 @@ var Wn = {
         var sendData = "mos=" + encodeURIComponent(mos);
         sendData += "&PWD=" + encodeURIComponent(se.envs.PWD);
         sendData += "&cmd=" + encodeURIComponent(cmdText);
+        sendData += "&in=" + encodeURIComponent(opt.input);
 
         var oReq = new XMLHttpRequest();
         oReq._last = 0;
@@ -834,7 +863,7 @@ var Wn = {
         return list;
     },
     //..............................................
-    read : function(o, callback, context){
+    read : function(o, callback, context, forceReload){
         var Wn = this;
         var store = Wn._storeAPI;
 
@@ -858,6 +887,12 @@ var Wn = {
                 alert("Fail to load obj: "+o.id+":> "+o.ph);
             }
         };
+
+        // 强制刷新，清除缓存，发送的请求也不带 sha1
+        if(forceReload) {
+            store.removeItem(sha1Key);
+            ajaxConf.data = {}
+        }
 
         // 异步的方式 ...........................................
         if(_.isFunction(callback)){
@@ -1154,7 +1189,7 @@ var Wn = {
     //..............................................
     getRelativePathToHome : function(o) {
         var oHome = Wn.getHome();
-        return $z.getRelativePath(o.ph, oHome.ph);
+        return $z.getRelativePath(oHome.ph, o.ph);
     },
     //..............................................
     getHome : function(){

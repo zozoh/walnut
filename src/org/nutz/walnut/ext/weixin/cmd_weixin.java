@@ -23,7 +23,7 @@ public class cmd_weixin extends JvmHdlExecutor {
         // 第一个参数就是 hdl，那么就不设置 home，可能有的命令不需要 Home
         if (null != this.getHdl(hc.args[0])) {
             hc.hdlName = hc.args[0];
-            hc.oHome = null;
+            hc.oRefer = null;
             pos = 1;
         }
         // 第一个参数必须为微信公众号目录名
@@ -36,17 +36,17 @@ public class cmd_weixin extends JvmHdlExecutor {
 
             // 表示当前目录为主目录
             if (".".equals(pnb)) {
-                hc.oHome = this.getCurrentObj(sys);
+                hc.oRefer = this.getCurrentObj(sys);
             }
             // 获取主目录
             else {
                 String aph = Wn.normalizeFullPath("~/.weixin/" + hc.args[0], sys);
-                hc.oHome = sys.io.check(null, aph);
+                hc.oRefer = sys.io.check(null, aph);
             }
             
-            if (hc.oHome != null && hc.oHome.isLink()) {
-                String aph = Wn.normalizeFullPath("~/.weixin/" + hc.oHome.link(), sys);
-                hc.oHome = sys.io.check(null, aph);
+            if (hc.oRefer != null && hc.oRefer.isLink()) {
+                String aph = Wn.normalizeFullPath("~/.weixin/" + hc.oRefer.link(), sys);
+                hc.oRefer = sys.io.check(null, aph);
             }
 
             // 获得处理器名称
@@ -60,8 +60,8 @@ public class cmd_weixin extends JvmHdlExecutor {
         hc.args = Arrays.copyOfRange(hc.args, pos, hc.args.length);
 
         // 得到配置文件
-        if (null != hc.oHome) {
-            WnObj oConf = sys.io.check(hc.oHome, "wxconf");
+        if (null != hc.oRefer) {
+            WnObj oConf = sys.io.check(hc.oRefer, "wxconf");
             hc.setv("wxconf_obj", oConf);
         }
     }

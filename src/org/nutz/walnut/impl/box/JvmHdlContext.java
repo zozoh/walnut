@@ -21,7 +21,10 @@ public class JvmHdlContext extends NutMap {
 
     public WnPager pager;
 
-    public WnObj oHome;
+    /**
+     * 通常为 cmd xxx hdl 形式的 xxx 指代的命令参考对象
+     */
+    public WnObj oRefer;
 
     public JsonFormat jfmt;
 

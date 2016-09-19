@@ -25,7 +25,7 @@
             font-size:@f3; vertical-align: middle;
         }
         .menu-item-text{
-            display: inline-block; vertical-align: middle; margin:0 @d2;
+            display: inline-block; vertical-align: middle; margin:0 @d3;
         }
         .menu-item-status {
             display: inline-block; vertical-align: middle;
@@ -67,24 +67,23 @@
     .menu-item[md="top"][tp="separator"] {
         padding:0; height:16px; margin: 2px;
         border-left:1px solid rgba(0,0,0,0.2);
-        border-right:1px solid #FFF;
+        border-right:1px solid rgba(255,255,255,0.2);
     }
     
     // 分组菜单项
     .menu-sub{
         color:@cmenu_f; background: @cmenu_b; border:1px solid @cmenu_l;
-        padding:@d2; border-radius: @d0; box-shadow: @d0 @d0 @d2 @cshadow;
-        min-width: @db; text-align: left;
+        border-radius: @d0; box-shadow: @d0 @d0 @d2 @cshadow;
+        min-width: @db; text-align: left; min-width: 180px;
         .menu-item{
-            line-height: @d6; height:@d6;
             .menu-item-wrapper{
-                position: relative;
+                position: relative; padding:0 @d3; line-height: @d7; height:@d7; 
                 .menu-item-more {
                     position: absolute; right: @d2;
                 }
             }
             .menu-item-status{
-                margin-left:10px;
+                margin-left:@d4;
             }
         }
         .menu-item[tp="status"]{
@@ -92,7 +91,7 @@
         }
         .menu-item[tp="separator"] {
             padding:0; line-height: 0; height: 0; margin:@d2 0;
-            border-top:1px dotted @cborder1;
+            border-top:1px dotted @cborder0;
         }
     }
 

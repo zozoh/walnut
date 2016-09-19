@@ -12,10 +12,12 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.srh_flt", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    init : function(options){
-        $z.setUndefined(options, "keyField", ["nm"]);
-        if(!_.isArray(options.keyField))
-            options.keyField = [options.keyField];
+    init : function(opt){
+        $z.setUndefined(opt, "keyField", ["nm"]);
+        $z.setUndefined(opt, "forceWildcard", true);
+
+        if(!_.isArray(opt.keyField))
+            opt.keyField = [opt.keyField];
     },
     //..............................................
     events : {
@@ -126,6 +128,11 @@ return ZUI.def("ui.srh_flt", {
                 else {
                     key = kf;
                 }
+            }
+            // 如果 str 以 ^ 开头，则为正则表达式，不管它
+            // 否则看看是否要强制升级通配符
+            if(opt.forceWildcard && !/^\^/.test(str)){
+                str = "^.*" + str + ".*";
             }
             // 那么最后判断一下是否取到 key 了
             if(key){

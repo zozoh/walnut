@@ -18,7 +18,7 @@ public class weixin_text implements JvmHdl {
         WxOutMsg om = Wxs.respText(null, text);
         WxInMsg im = new WxInMsg();
         im.setFromUserName(openvpn);
-        im.setToUserName(hc.oHome.name());
+        im.setToUserName(hc.oRefer.name());
         Wxs.fix(im, om);
         String xml = Wxs.asXml(om);
         sys.out.println(xml);

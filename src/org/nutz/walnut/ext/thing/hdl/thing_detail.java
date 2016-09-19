@@ -17,7 +17,7 @@ public class thing_detail implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 得到对应对 Thing
-        WnObj oT = Things.checkThing(hc.oHome);
+        WnObj oT = Things.checkThing(hc.oRefer);
 
         // 得到 Detail 文件
         WnObj oDetail = sys.io.fetch(oT, "detail");
@@ -68,8 +68,11 @@ public class thing_detail implements JvmHdl {
             hc.output = oDetail;
         }
         // 那就是获取内容咯，检查一下空内容要不要抛错
-        else if (null == oDetail && !hc.params.is("quiet")) {
-            throw Er.create("e.cmd.thing.detail.blank", oT.id());
+        else if (null == oDetail) {
+            if (hc.params.is("quiet"))
+                hc.output = "";
+            else
+                throw Er.create("e.cmd.thing.detail.blank", oT.id());
         }
         // 输出 detail 对象的内容
         else {

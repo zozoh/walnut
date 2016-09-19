@@ -146,6 +146,7 @@ public class cmd_sheet extends JvmExecutor {
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         // 分析参数
@@ -160,7 +161,7 @@ public class cmd_sheet extends JvmExecutor {
 
         // 读取输入
         String json = sys.in.readAll();
-        List<NutMap> list = Json.fromJsonAsList(NutMap.class, Strings.sBlank(json, "[]"));
+        List<Map> list = Json.fromJsonAsList(Map.class, Strings.sBlank(json, "[]"));
 
         // 啥都没有就啥都不写
         if (list.isEmpty())
@@ -180,7 +181,7 @@ public class cmd_sheet extends JvmExecutor {
         }
         // 根据第一个元素总结出字段列表
         else {
-            NutMap first = list.get(0);
+            NutMap first = NutMap.WRAP(list.get(0));
             fields = new ArrayList<Fld>(first.size());
             for (Map.Entry<String, Object> en : first.entrySet()) {
                 Fld fld = new Fld(en.getKey());
@@ -204,10 +205,11 @@ public class cmd_sheet extends JvmExecutor {
         }
 
         // 写入输出
-        for (NutMap ele : list) {
-            sys.out.printf("\"%s\"", flds[0].getValue(ele));
+        for (Map ele : list) {
+            NutMap map = NutMap.WRAP(ele);
+            sys.out.printf("\"%s\"", flds[0].getValue(map));
             for (int i = 1; i < flds.length; i++) {
-                sys.out.printf("%s\"%s\"", sep, flds[i].getValue(ele));
+                sys.out.printf("%s\"%s\"", sep, flds[i].getValue(map));
             }
             sys.out.println();
         }

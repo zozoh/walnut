@@ -16,7 +16,13 @@ var methods = {
         $z.setUndefined(opt, "value", function(o, index){
             if(_.isString(o))
                 return index;
-            return _.isUndefined(o.val) ? index : o.val;
+            if(!_.isUndefined(o.value)) {
+                return o.value;
+            }
+            if(!_.isUndefined(o.val)) {
+                return o.val;
+            }
+            return index;
         });
     },
     //...............................................................
@@ -58,21 +64,15 @@ var methods = {
         UI.setItems(opt.items, callback);
     },
     //...............................................................
-    __on_change : function(){
-        var UI  = this;
-        var opt = UI.options;
-        var context = opt.context || UI.parent;
-        var v = UI.getData();
-        $z.invoke(opt, "on_change", [v], context);
-        UI.trigger("change", v);
-    },
-    //...............................................................
 }; // ~End methods
+//====================================================================
+// 得到枚举列表的顶级方法 
+var ParentMethods = require("ui/form/support/form_c_methods");
 
 //====================================================================
 // 输出
 module.exports = function(uiSub){
-    return _.extend(uiSub, methods);
+    return _.extend(ParentMethods(uiSub), methods);
 };
 //=======================================================================
 });

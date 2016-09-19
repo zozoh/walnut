@@ -47,7 +47,8 @@ define({
             "height" : "高",            
         },
         "page" : {
-            "show_prop" : "显示页面属性"
+            "show_prop" : "显示页面属性",
+            "body"      : "页面",
         },
         "com" : {
             "_" : {
@@ -112,7 +113,7 @@ define({
                 "marginBottom"  : "与内容间距"
             },
             "image" : {
-                "name"  : "单张图片",
+                "name"  : "图片",
                 "tip"   : "不解释你懂的",
                 "icon"  : '<i class="fa fa-image"></i>',
             },

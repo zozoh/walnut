@@ -1,8 +1,11 @@
 define({
     "thing" : {
+        "create" : "创建..",
+        "create_tip" : "请输入对象的名称",
         "fld" : {
-            "general" : "基本信息",
-            "numerical" : "统计信息"
+            "general"   : "基本信息",
+            "content"   : "内容信息",
+            "numerical" : "统计信息",
         },
         "key" : {
             "id" : "ID",
@@ -18,12 +21,13 @@ define({
             "th_c_cmt" : "评论数",
             "th_c_view" : "浏览数",
             "th_c_agree" : "赞同数",
+            "detail" : "详情文本"
         },
         "live_a" : "有效",
         "live_d" : "已删除",
         "err" : {
             "nothingjs" : "没有找到 thing.js!"
         },
-        "blank" : '请从左侧列表中选择一个项目查看详情和编辑'
+        "blank" : '请从左侧列表中选择一个项目查看详情和编辑',
     }
 });

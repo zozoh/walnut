@@ -26,7 +26,7 @@ public class hmaker_newpage implements JvmHdl {
         while (true) {
             String nm = retry > 0 ? String.format("%s(%d)", pgName, retry) : pgName;
             try {
-                oPage = sys.io.create(hc.oHome, nm, WnRace.FILE);
+                oPage = sys.io.create(hc.oRefer, nm, WnRace.FILE);
                 break;
             }
             catch (WebException e) {

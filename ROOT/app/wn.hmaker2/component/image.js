@@ -92,6 +92,7 @@ return ZUI.def("app.wn.hm_com_image", {
                     key    : "src",
                     title  : "i18n:hmaker.prop.img_src",
                     type   : "string",
+                    dft    : null,
                     uiType : "ui/picker/opicker",
                     uiConf : {
                         base : oHome,

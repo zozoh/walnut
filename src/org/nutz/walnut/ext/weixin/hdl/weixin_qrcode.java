@@ -84,7 +84,7 @@ public class weixin_qrcode implements JvmHdl {
         if ("QR_SCENE".equals(str)) {
             int _qrsid = 0;
             if ("0".equals(hc.params.get("qrsid"))) {
-                WnObj tmp = sys.io.createIfNoExists(hc.oHome, "scene_seq", WnRace.FILE);
+                WnObj tmp = sys.io.createIfNoExists(hc.oRefer, "scene_seq", WnRace.FILE);
                 String key = "weixin_scene_seq";
                 _qrsid = tmp.getInt("weixin_scene_seq", 0);
                 if (_qrsid == 0) {
@@ -125,7 +125,7 @@ public class weixin_qrcode implements JvmHdl {
             // 看看是否需要输出场景后续执行脚本
             if (hc.params.has("cmd")) {
                 // 创建场景后续脚本文件
-                WnObj tmp = sys.io.createIfNoExists(hc.oHome, "scene/" + qrsid, WnRace.FILE);
+                WnObj tmp = sys.io.createIfNoExists(hc.oRefer, "scene/" + qrsid, WnRace.FILE);
 
                 // 从流中读取cmd文本,然后写入对应的scene
                 String cmd = Cmds.getParamOrPipe(sys, hc.params, "cmd", true);

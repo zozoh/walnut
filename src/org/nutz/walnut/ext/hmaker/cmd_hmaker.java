@@ -22,7 +22,7 @@ public class cmd_hmaker extends JvmHdlExecutor {
         // 第一个参数就是 hdl，那么主目录被认为是当前目录
         if (null != this.getHdl(hc.args[0])) {
             hc.hdlName = hc.args[0];
-            hc.oHome = this.getCurrentObj(sys);
+            hc.oRefer = this.getCurrentObj(sys);
             pos = 1;
         }
         // 第一个参数必须为主目录
@@ -31,7 +31,7 @@ public class cmd_hmaker extends JvmHdlExecutor {
                 throw Er.create("e.cmd.hmaker.lackArgs", hc.args);
             }
             // 获取主目录
-            hc.oHome = Wn.checkObj(sys, hc.args[0]);
+            hc.oRefer = Wn.checkObj(sys, hc.args[0]);
 
             // 获得处理器名称
             hc.hdlName = hc.args[1];

@@ -13,6 +13,8 @@ var html = function(){/*
 return ZUI.def("ui.form_com_radiolist", BulletListSupport({
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
+    css  : "theme/ui/form/component.css",
+    i18n : "ui/form/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt){
         this.__setup_dft_display_func(opt);
@@ -22,13 +24,26 @@ return ZUI.def("ui.form_com_radiolist", BulletListSupport({
         "click li" : function(e){
             this.arena.find(".checked").removeClass("checked");
             $(e.currentTarget).addClass("checked");
+            this.__on_change();
         }
     },
     //...............................................................
     _list_item_icon : '<i class="fa fa-circle-thin"></i><i class="fa fa-chevron-circle-right"></i>',
     //...............................................................
     getData : function(){
-        return this.arena.find("li.checked").first().data("@VAL");
+        var UI  = this;
+        var opt = UI.options;
+        var jLi = this.arena.find("li.checked").first();
+        var val = jLi.data("@VAL");
+
+        if(opt.fullData) {
+            return {
+                text  : jLi.find('b[it]').text(),
+                value : val
+            }
+        }
+
+        return val;
     },
     //...............................................................
     setData : function(val){

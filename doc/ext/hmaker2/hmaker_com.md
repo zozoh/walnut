@@ -95,7 +95,7 @@ hmaker 的子 UI 可以监听下列通知:
 active:rs       | o             | 选中资源项目
 active:folder   | o             | 文件夹被激活
 active:other    | o             | 其他对象被激活
-active:page     | o             | 页面被激活
+active:page     |               | 页面被激活
 active:block    | jBlock        | 块被激活
 active:area     | jArea         | 栏被激活
 active:com      | jCom          | 组件被激活
