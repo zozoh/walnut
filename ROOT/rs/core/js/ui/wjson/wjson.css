@@ -1,0 +1,116 @@
+.ui-wjson {
+  background: #FFF;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.ui-wjson-editor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.ui-wjson-editor .ui-wjson-menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  line-height: 40px;
+  padding: 6px;
+  color: #1A1A1A;
+  background-color: #729CBD;
+  border-bottom: 1px solid #5882A3;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item {
+  min-width: 28px;
+  height: 28px;
+  line-height: 28px;
+  float: left;
+  margin-right: 6px;
+  text-align: center;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item.right {
+  float: right;
+  margin-right: 0px;
+  margin-left: 6px;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn {
+  border: 1px solid #aec0f8;
+  background: #e3eaf6;
+  color: #4D4D4D;
+  opacity: 0.8;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover {
+  cursor: pointer;
+  background-color: #f0f2f5;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item input {
+  display: block;
+  height: 28px;
+  padding-left: 4px;
+  padding-right: 4px;
+  outline: none;
+  border: 1px solid #CCC;
+  border-radius: 4px;
+  color: #000;
+  background: #FFF;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item input:focus {
+  color: #000;
+  background: #FFC;
+  border-color: #F80;
+}
+.ui-wjson-editor .ui-wjson-container {
+  position: absolute;
+  top: 40px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border: 1px solid #5882A3;
+  border-top: none;
+  overflow: auto;
+  color: #333;
+  font-family: droid sans mono, monospace, courier new, courier, sans-serif;
+  line-height: 1.3;
+  background: #fff;
+}
+.ui-wjson-editor .ui-wjson-curb {
+  display: block;
+  width: 40px;
+  height: 100%;
+  background: #ebebeb;
+  float: left;
+  text-align: right;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.ui-wjson-editor .ui-wjson-curb li {
+  padding-left: 10px;
+  padding-right: 10px;
+  display: block;
+  background: #ebebeb;
+}
+.ui-wjson-editor .ui-wjson-content {
+  display: block;
+  padding-left: 44px;
+  width: 100%;
+  height: 100%;
+}
+.ui-wjson-editor .ui-wjson-content li {
+  display: block;
+}
+.ui-wjson-textarea {
+  width: 100%;
+  height: 100%;
+  outline: none;
+  border: 1px dashed #DDD;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #444;
+  font-family: Monaco, Consolas, Courier New;
+  padding: 20px;
+}

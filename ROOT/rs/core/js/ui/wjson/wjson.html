@@ -1,0 +1,70 @@
+<div class="ui-arena">
+    <div class="ui-wedit-sky">
+        <div class="ui-wedit-title">
+            <i class="fa fa-file-text"></i>
+            <span class="ui-tt"></span>
+        </div>
+        <div class="ui-wedit-actions">
+            <b class="ui-btn ui-wjson-reload">
+                <i class="fa fa-refresh"></i><span>{{reload}}</span>
+            </b>
+            <b class="ui-btn ui-wjson-save">
+                <i class="fa fa-save"></i><span>{{save}}</span>
+            </b>
+        </div>
+    </div>
+    <div class="ui-wedit-main ui-wjson-main">
+        <!--json格式编辑器-->
+        <div class="ui-wjson-editor" v-if="showJson">
+            <div class="ui-wjson-menu">
+                <div class="menu-item btn" @click="toogleEditor();"><i class="fa fa-exchange"></i></div>
+                <div class="menu-item btn" @click="expandTree(json.tree)"><i class="fa fa-expand"></i></div>
+                <div class="menu-item btn" @click="collapseTree(json.tree)"><i class="fa fa-compress"></i></div>
+                <div class="menu-item right"><input type="text"></div>
+            </div>
+            <div class="ui-wjson-container">
+                <ul class="ui-wjson-curb">
+                </ul>
+                <ul class="ui-wjson-content">
+                    <ui-wjson-treenode
+                            class="ui-wjson-treenode"
+                            :model="json.tree">
+                    </ui-wjson-treenode>
+                </ul>
+            </div>
+        </div>
+        <!--源码格式编辑器-->
+        <div class="ui-wjson-editor" v-else>
+            <div class="ui-wjson-menu">
+                <div class="menu-item btn" @click="toogleEditor();"><i class="fa fa-exchange"></i></div>
+            </div>
+            <div class="ui-wjson-container">
+                <ul class="ui-wjson-curb source-line">
+                    <li v-for="(i, line) in source.lines">{{i+1}}</li>
+                </ul>
+                <ul class="ui-wjson-content">
+                    <li v-for="(i, line) in source.lines">{{{line}}}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="ui-wedit-footer"></div>
+</div>
+
+<script type="text/x-template" id="ui-wjson-template-treenode">
+    <li>
+        <div
+                :class="{bold: isFolder}"
+                @click="toggle">
+            {{model.name}}
+            <span v-if="isFolder">[{{model.open ? '-' : '+'}}]</span>
+        </div>
+        <ul v-show="model.open" v-if="isFolder">
+            <ui-wjson-treenode
+                    class="ui-wjson-treenode"
+                    v-for="model in model.children"
+                    :model="model">
+            </ui-wjson-treenode>
+        </ul>
+    </li>
+</script>
