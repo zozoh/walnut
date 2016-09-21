@@ -19,18 +19,82 @@
                 var mid = "wjson-id-" + Math.floor((Math.random() * 1000000) + 1); // $z.guid();
                 this.$wj_main.attr('id', mid);
                 // 注册控件
+                Vue.directive('wjson-tn-edit', {
+                    twoWay: true,
+                    bind: function () {
+                        this.handler = function () {
+                            this.set(this.el.innerHTML)
+                        }.bind(this);
+                        this.el.addEventListener('keyup', this.handler)
+                    },
+                    update: function (newValue, oldValue) {
+                        this.el.innerHTML = newValue || ''
+                    },
+                    unbind: function () {
+                        this.el.removeEventListener('keyup', this.handler)
+                    }
+                });
                 Vue.component('ui-wjson-treenode', {
                     template: '#ui-wjson-template-treenode',
                     props: {
-                        model: Object
+                        model: Object,
+                        qkey: String
                     },
                     data: function () {
                         return {}
+                    },
+                    watch: {
+                        "qkey": function (val) {
+                            console.log("tn-qkey:" + this.model.name + " > " + val);
+                        }
                     },
                     computed: {
                         isFolder: function () {
                             return this.model.children &&
                                 this.model.children.length
+                        },
+                        isArray: function () {
+                            return this.model.type == "array";
+                        },
+                        isBoolean: function () {
+                            return this.model.type == "boolean";
+                        },
+                        isNumber: function () {
+                            return this.model.type == "number";
+                        },
+                        isString: function () {
+                            return this.model.type == "string";
+                        },
+                        keyEmpty: function () {
+                            return !this.model.name;
+                        },
+                        valEmpty: function () {
+                            return !this.model.value;
+                        },
+                        length: function () {
+                            if (this.model.type == "object") {
+                                return "{" + this.model.children.length + "}";
+                            } else {
+                                return "[" + this.model.children.length + "]";
+                            }
+                        },
+                        hasValue: function () {
+                            if (this.model.value != null || this.model.value != undefined || this.model.value != "") {
+                                return true;
+                            }
+                            return false;
+                        },
+                        matchKey: function () {
+                            if (this.qkey == "") {
+                                return false;
+                            }
+                            return this.model.name.indexOf(this.qkey) != -1;
+                        },
+                        matchVal: function () {
+                            if (this.qkey == "" || !this.hasValue) {
+                                return false;
+                            }
+                            return this.value.indexOf(this.qkey) != -1;
                         }
                     },
                     methods: {
@@ -49,13 +113,14 @@
                         showJson: true,
                         sindex: 0,
                         jindex: 0,
+                        qkey: "",
                         // 内容相关
                         json: {
                             root: {},
                             tree: {
                                 name: "root",
                                 type: "object",
-                                val: {},
+                                value: {},
                                 children: [],
                                 open: true
                             }
@@ -86,6 +151,9 @@
                             } else {
 
                             }
+                        },
+                        "qkey": function (val) {
+                            console.log("qkey:" + val);
                         }
                     },
                     methods: {
@@ -94,7 +162,7 @@
                             var self = this;
                             var tree = {
                                 name: "root",
-                                val: obj,
+                                value: obj,
                                 type: self.valType(obj),
                                 open: true,
                                 children: []
@@ -154,12 +222,6 @@
                             else if (_.isUndefined(val)) {
                                 vt = "undefined";
                             }
-                            else if (_.isObject(val)) {
-                                vt = "object";
-                            }
-                            else if (_.isArray(val)) {
-                                vt = "array";
-                            }
                             else if (_.isBoolean(val)) {
                                 vt = "boolean";
                             }
@@ -168,6 +230,12 @@
                             }
                             else if (_.isString(val)) {
                                 vt = "string";
+                            }
+                            else if (_.isArray(val)) {
+                                vt = "array";
+                            }
+                            else if (_.isObject(val)) {
+                                vt = "object";
                             }
                             return vt;
                         },

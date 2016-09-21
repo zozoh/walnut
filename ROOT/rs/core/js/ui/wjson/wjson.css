@@ -102,6 +102,76 @@
 }
 .ui-wjson-editor .ui-wjson-content li {
   display: block;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+.ui-wjson-editor .ui-wjson-content ul {
+  padding-left: 24px;
+}
+.ui-wjson-editor .ui-wjson-content .tn {
+  position: relative;
+}
+.ui-wjson-editor .ui-wjson-content .tn .tn-toggle {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  top: 2px;
+  left: -16px;
+}
+.ui-wjson-editor .ui-wjson-content .tn.mkey .tn-key,
+.ui-wjson-editor .ui-wjson-content .tn.mval .tn-val {
+  background-color: #ffffad;
+  border: 1px solid #ff0;
+}
+.ui-wjson-editor .ui-wjson-content .tn > span {
+  display: inline-block;
+  outline: none;
+  border: 1px solid transparent;
+  padding-left: 1px;
+  padding-right: 1px;
+  word-wrap: break-word;
+}
+.ui-wjson-editor .ui-wjson-content .tn > span.tn-sp,
+.ui-wjson-editor .ui-wjson-content .tn > span.tn-length {
+  min-width: 1px;
+}
+.ui-wjson-editor .ui-wjson-content .tn > span.empty {
+  border-color: #d3d3d3;
+  border-style: dashed;
+}
+.ui-wjson-editor .ui-wjson-content .tn > span.empty.tn-key:after {
+  pointer-events: none;
+  color: #d3d3d3;
+  font-size: 8pt;
+  content: "name";
+}
+.ui-wjson-editor .ui-wjson-content .tn > span.empty.tn-val:after {
+  pointer-events: none;
+  color: #d3d3d3;
+  font-size: 8pt;
+  content: "value";
+}
+.ui-wjson-editor .ui-wjson-content .tn-key {
+  color: #000;
+}
+.ui-wjson-editor .ui-wjson-content .tn-val.boolean {
+  color: #ffab00;
+}
+.ui-wjson-editor .ui-wjson-content .tn-val.number {
+  color: #f00;
+}
+.ui-wjson-editor .ui-wjson-content .tn-val.string {
+  color: #080;
+}
+.ui-wjson-editor .ui-wjson-content .tn-val.null,
+.ui-wjson-editor .ui-wjson-content .tn-val.undefined {
+  color: #007aff;
+}
+.ui-wjson-editor .ui-wjson-content .tn-sp {
+  color: #888;
+}
+.ui-wjson-editor .ui-wjson-content .tn-length {
+  color: #585858;
 }
 .ui-wjson-textarea {
   width: 100%;
