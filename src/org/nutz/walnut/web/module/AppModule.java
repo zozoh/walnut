@@ -37,6 +37,10 @@ import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.impl.srv.WnActiveCode;
+import org.nutz.walnut.impl.srv.WnAppLicenceInfo;
+import org.nutz.walnut.impl.srv.WnLicence;
+import org.nutz.walnut.impl.srv.WnLicenceService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.bean.WnApp;
 import org.nutz.walnut.web.filter.WnCheckSession;
@@ -48,8 +52,17 @@ import org.nutz.walnut.web.view.WnObjDownloadView;
 @Filters(@By(type = WnCheckSession.class, args = {"true"}))
 public class AppModule extends AbstractWnModule {
 
+    @Inject("java:$conf.get('page-licence-fail', 'licence_fail')")
+    private String page_licence_fail;
+
+    @Inject("java:$conf.get('page-licence-gone', 'licence_gone')")
+    private String page_licence_gone;
+
     @Inject("java:$conf.get('page-app', 'app')")
     private String page_app;
+
+    @Inject("refer:licenceService")
+    private WnLicenceService licences;
 
     @Filters(@By(type = WnCheckSession.class))
     @At("/open/**")
@@ -86,11 +99,39 @@ public class AppModule extends AbstractWnModule {
         app.setSession(seMap);
         app.setName(appName);
 
-        // 这个是 app 的 JSON 描述
-        String appJson = Json.toJson(app, JsonFormat.forLook().setQuoteName(true));
+        // .............................................
+        // 准备返回视图
+        View reView = null;
+
+        // .............................................
+        // 检查 Licence 的逻辑
+        WnObj oAppLicence = io.fetch(oAppHome, "app_licence");
+        if (null != oAppLicence) {
+            WnAppLicenceInfo ali = io.readJson(oAppLicence, WnAppLicenceInfo.class);
+            reView = __check_licence(app, se, ali);
+        }
+
+        // .............................................
+        // 如果 null 表示过了许可证检查
+        // 后续正常的 APP 打开逻辑
+        if (null == reView) {
+            reView = __open_page(app, oAppHome, se);
+        }
+
+        // 返回输出
+        return reView;
+    }
+
+    private View __open_page(WnApp app, WnObj oAppHome, WnSession se) {
+        NutMap c = new NutMap();
+        String appName = app.getName();
+        WnObj o = app.getObj();
 
         // 这个是要输出的模板
         String tmpl;
+
+        // 检查完毕后，生成 app 的 JSON 描述
+        String appJson = Json.toJson(app, JsonFormat.forLook().setQuoteName(true));
 
         // 如果存在 `init_tmpl` 文件，则执行，将其结果作为模板
         WnObj oInitTmpl = io.fetch(oAppHome, "init_tmpl");
@@ -100,7 +141,7 @@ public class AppModule extends AbstractWnModule {
         }
         // 否则查找静态模板文件
         else {
-            tmpl = __find_tmpl(appName, oAppHome);
+            tmpl = __find_tmpl(app.getName(), oAppHome);
         }
 
         // 分析模板
@@ -120,7 +161,6 @@ public class AppModule extends AbstractWnModule {
             title = o.name() + " : " + title;
 
         // 填充模板占位符
-        NutMap c = new NutMap();
         c.put("title", title);
 
         // 添加自定义的上下文
@@ -128,14 +168,56 @@ public class AppModule extends AbstractWnModule {
             c.putAll(map);
 
         // 这些优先级最高
-        c.put("session", seMap);
+        c.put("session", app.getSession());
         c.put("rs", conf.get("app-rs"));
         c.put("appName", appName);
         c.put("app", appJson);
         c.put("appClass", appName.replace('.', '_').toLowerCase());
 
-        // 渲染输出
+        // 渲染视图
         return new ViewWrapper(new JspView("jsp." + page_app), Tmpl.exec(tmpl, c));
+    }
+
+    private View __check_licence(WnApp app, WnSession se, WnAppLicenceInfo ali) {
+        // 得到有效的激活码
+        String clientName = se.group();
+        WnActiveCode acode = licences.getActiveCode(ali, clientName);
+
+        // 根据激活码，找到许可证本身
+        if (null != acode && !acode.isExpired()) {
+            WnLicence licn = licences.getLicence(acode);
+
+            // 没找到许可证那么显示许可证不存在页面
+            if (null == licn)
+                return new ViewWrapper(new JspView("jsp." + page_licence_gone), ali.toContextMap());
+
+            // 看看是否需要动态判断
+            StringBuilder err = new StringBuilder();
+            if (licn.hasVerify()) {
+                String cmdText = licn.getVerify();
+                StringBuilder out = new StringBuilder();
+                this.exec("app-licence-check", clientName, null, cmdText, out, err);
+            }
+
+            // 嗯，通过验证
+            if (err.length() == 0) {
+                // 为 app 添加权限字段
+                app.setPrivilege(licn.getPrivilege());
+
+                // 总之，返回 null，放过你了
+                return null;
+            }
+
+            // 添加错误的信息
+            ali.setErrMessage(err.toString());
+        }
+        // 激活码过期或者不存在
+        else {
+            ali.setErrMessage("e.licence.acode_noexists");
+        }
+
+        // 错误，不能通过许可证验证，返回错误视图
+        return new ViewWrapper(new JspView("jsp." + page_licence_fail), ali.toContextMap());
     }
 
     private String __find_tmpl(String appName, WnObj oAppHome) {

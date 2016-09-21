@@ -1,13 +1,11 @@
 (function($z){
 $z.declare([
     'zui',
+    'wn/util',
+    'ui/obrowser/support/browser__methods',
     'ui/obrowser/vmd_table',
     'ui/obrowser/vmd_thumbnail ',
-    'ui/obrowser/vmd_icons',
-    'ui/obrowser/vmd_scroller',
-    'ui/obrowser/vmd_columns',
-    'ui/obrowser/vmd_slider'
-], function(ZUI, MenuUI){
+], function(ZUI, Wn, BrowserMethods){
 //==============================================
 var html = function(){/*
 <div class="ui-arena obrowser-main" ui-gasket="view" ui-fitparent="true"></div>
@@ -17,17 +15,14 @@ return ZUI.def("ui.obrowser_main", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //..............................................
     init : function(){
-        var UI = this;
-
-        // 记录通用变量
-        UI.browser = UI.parent;
+        var UI = BrowserMethods(this);
 
         // 监听事件
         UI.on("menu:viewmode", function(vm){
-            UI.browser.setViewMode(vm);
+            UI.browser().setViewMode(vm);
         });
         UI.on("menu:showhide", function(isShow){
-            UI.browser.setHiddenObjVisibility(isShow ? "show" : "hidden");
+            UI.browser().setHiddenObjVisibility(isShow ? "show" : "hidden");
         });
     },
     //..............................................
@@ -37,9 +32,10 @@ return ZUI.def("ui.obrowser_main", {
         }
     },
     //..............................................
-    update : function(UIBrowser, o, asetup, callback){
+    update : function(o, asetup, callback){
         var UI = this;
         var subView = UI.subUI("view");
+        var UIBrowser = UI.browser();
 
         // 准备加载子 UI
         var uiType, uiConf;
@@ -87,7 +83,7 @@ return ZUI.def("ui.obrowser_main", {
         // 没有编辑器，那么 DIR 还能处理
         else if('DIR' == o.race){
             // 去掉 outline
-            var uiChute = UIBrowser.subUI("chute");
+            var uiChute = UI.chuteUI();
             if(uiChute)
                 uiChute.removeOutline();
             // 得到显示模式
@@ -112,7 +108,7 @@ return ZUI.def("ui.obrowser_main", {
 
         // 为其设置一些帮助属性
         uiConf.on_init = function(){
-            this.browser = UIBrowser;
+            this.browser = UI.browser();
         };
 
         // 没必要改变视图类型，直接更新就好，如果是这种情况，那么肯定不是打开编辑器喔
