@@ -38,15 +38,11 @@
                     template: '#ui-wjson-template-treenode',
                     props: {
                         model: Object,
-                        qkey: String
+                        qkey: String,
+                        depth: 0
                     },
                     data: function () {
                         return {}
-                    },
-                    watch: {
-                        "qkey": function (val) {
-                            console.log("tn-qkey:" + this.model.name + " > " + val);
-                        }
                     },
                     computed: {
                         isFolder: function () {
@@ -71,6 +67,9 @@
                         valEmpty: function () {
                             return !this.model.value;
                         },
+                        guessType: function () {
+
+                        },
                         length: function () {
                             if (this.model.type == "object") {
                                 return "{" + this.model.children.length + "}";
@@ -94,7 +93,13 @@
                             if (this.qkey == "" || !this.hasValue) {
                                 return false;
                             }
-                            return this.value.indexOf(this.qkey) != -1;
+                            return ("" + this.model.value).indexOf(this.qkey) != -1;
+                        }
+                    },
+                    watch: {
+                        'model.value': function (val) {
+                            // console.log(this.model.name + ":" + val + "[" + this.valType(val) + "]");
+                            this.model.type = this.valType(val);
                         }
                     },
                     methods: {
@@ -102,6 +107,32 @@
                             if (this.isFolder) {
                                 this.model.open = !this.model.open;
                             }
+                        },
+                        showMenu: function () {
+
+                        },
+                        valType: function (val) {
+                            var vt = "unknow";
+                            if (val == "") {
+                                vt = "null";
+                            }
+                            // 判断bool
+                            else if (val == "true" || val == "false" || val == "True" || val == "False") {
+                                vt = "boolean";
+                            }
+                            // 整数
+                            else if (/^-?[1-9]\d*$/.test(val)) {
+                                vt = "number";
+                            }
+                            // 浮点数
+                            else if (/^-?([1-9]\d*.\d+|0.\d+|0?.0+|0)$/.test(val)) {
+                                vt = "number";
+                            }
+                            // 字符串
+                            else if (_.isString(val)) {
+                                vt = "string";
+                            }
+                            return vt;
                         }
                     }
                 });
@@ -151,9 +182,6 @@
                             } else {
 
                             }
-                        },
-                        "qkey": function (val) {
-                            console.log("qkey:" + val);
                         }
                     },
                     methods: {

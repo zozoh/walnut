@@ -28,6 +28,7 @@
                 <ul class="ui-wjson-content">
                     <ui-wjson-treenode
                             class="ui-wjson-treenode"
+                            depth="0"
                             :qkey.sync="qkey"
                             :model="json.tree">
                     </ui-wjson-treenode>
@@ -41,10 +42,10 @@
             </div>
             <div class="ui-wjson-container">
                 <ul class="ui-wjson-curb source-line">
-                    <li v-for="(i, line) in source.lines">{{i+1}}</li>
+                    <li v-for="(i, line) in source.lines" track-by="$index">{{i+1}}</li>
                 </ul>
                 <ul class="ui-wjson-content">
-                    <li v-for="(i, line) in source.lines">{{{line}}}</li>
+                    <li v-for="(i, line) in source.lines" track-by="$index">{{{line}}}</li>
                 </ul>
             </div>
         </div>
@@ -58,6 +59,10 @@
             <!--展开，折叠-->
             <div class="tn-toggle" v-if="isFolder" @click="toggle">
                 <i class="fa" :class="{'fa-caret-down': model.open, 'fa-caret-right': !model.open}"></i>
+            </div>
+            <!--菜单-->
+            <div class="tn-menu" @click="showMenu" :style="{ left: (depth * -16 + -48) + 'px' }">
+                <i class="fa fa-th-list"></i>
             </div>
             <!--名称-->
             <span class="tn-key"
@@ -76,6 +81,7 @@
                     class="ui-wjson-treenode"
                     v-for="model in model.children"
                     :qkey.sync="qkey"
+                    :depth="parseInt(depth) + 1"
                     :model="model">
             </ui-wjson-treenode>
         </ul>

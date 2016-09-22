@@ -41,9 +41,9 @@
   background: #e3eaf6;
   color: #4D4D4D;
   opacity: 0.8;
+  cursor: pointer;
 }
 .ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover {
-  cursor: pointer;
   background-color: #f0f2f5;
 }
 .ui-wjson-editor .ui-wjson-menu .menu-item input {
@@ -79,7 +79,6 @@
 .ui-wjson-editor .ui-wjson-curb {
   display: block;
   width: 40px;
-  height: 100%;
   background: #ebebeb;
   float: left;
   text-align: right;
@@ -91,8 +90,11 @@
 .ui-wjson-editor .ui-wjson-curb li {
   padding-left: 10px;
   padding-right: 10px;
+  margin-bottom: 2px;
   display: block;
-  background: #ebebeb;
+}
+.ui-wjson-editor .ui-wjson-treenode {
+  padding-left: 16px;
 }
 .ui-wjson-editor .ui-wjson-content {
   display: block;
@@ -102,21 +104,38 @@
 }
 .ui-wjson-editor .ui-wjson-content li {
   display: block;
-  margin-top: 2px;
   margin-bottom: 2px;
 }
-.ui-wjson-editor .ui-wjson-content ul {
-  padding-left: 24px;
-}
-.ui-wjson-editor .ui-wjson-content .tn {
-  position: relative;
-}
-.ui-wjson-editor .ui-wjson-content .tn .tn-toggle {
+.ui-wjson-editor .ui-wjson-content .tn-toggle {
   width: 16px;
   height: 16px;
   position: absolute;
+  cursor: pointer;
+  text-align: center;
   top: 2px;
   left: -16px;
+}
+.ui-wjson-editor .ui-wjson-content .tn-toggle:hover {
+  background: #EEEEEE;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  cursor: pointer;
+  text-align: center;
+  top: 2px;
+  left: -32px;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu i {
+  color: #888;
+  opacity: 0.3;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu:hover i {
+  opacity: 1;
+}
+.ui-wjson-editor .ui-wjson-content .tn {
+  position: relative;
 }
 .ui-wjson-editor .ui-wjson-content .tn.mkey .tn-key,
 .ui-wjson-editor .ui-wjson-content .tn.mval .tn-val {
@@ -153,6 +172,14 @@
 }
 .ui-wjson-editor .ui-wjson-content .tn-key {
   color: #000;
+}
+.ui-wjson-editor .ui-wjson-content .tn-key:focus {
+  background-color: #ffffad;
+  border: 1px solid #ff0;
+}
+.ui-wjson-editor .ui-wjson-content .tn-val:focus {
+  background-color: #ffffad;
+  border: 1px solid #ff0;
 }
 .ui-wjson-editor .ui-wjson-content .tn-val.boolean {
   color: #ffab00;
