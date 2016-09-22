@@ -2,9 +2,10 @@
 $z.declare([
     'zui',
     'wn/util',
+    'ui/obrowser/support/browser__methods',
     'ui/menu/menu', 
     'jquery-plugin/folder/folder'
-], function(ZUI, Wn, MenuUI){
+], function(ZUI, Wn, BrowserMethods, MenuUI){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
@@ -26,26 +27,27 @@ return ZUI.def("ui.obrowser_sky", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //..............................................
     init : function(){
+        var UI = BrowserMethods(this);
         // 注册全局事件，控制子菜单的关闭
         var on_hide_drop_menu = function(e){
             var jq = $(e.target);
             // 只要不点击展开按钮，就关闭菜单
             if(jq.closest(".folder-item").size()==0){
-                this.hideFolderDropMenu();
+                UI.hideFolderDropMenu();
             }
             // 只要不是点击打开按钮，就关闭子节点菜单
             if(jq.closest(".ochild").size() == 0){
-                this.hideItemDropMenu();
+                UI.hideItemDropMenu();
             }
         };
         var on_edit_address = function(e){
             e.preventDefault();
-            this.arena.find(".obrowser-crumb").click();
+            UI.arena.find(".obrowser-crumb").click();
         };
-        this.watchMouse("click", on_hide_drop_menu);
-        this.watchKey(27, on_hide_drop_menu);
-        this.watchKey(76, "alt", on_edit_address);
-        this.watchKey(76, "meta", on_edit_address);
+        UI.watchMouse("click", on_hide_drop_menu);
+        UI.watchKey(27, on_hide_drop_menu);
+        UI.watchKey(76, "alt", on_edit_address);
+        UI.watchKey(76, "meta", on_edit_address);
     },
     //..............................................
     events : {
@@ -56,9 +58,9 @@ return ZUI.def("ui.obrowser_sky", {
             $z.dock(jBtn, jDrop.fadeIn(300));
         },
         "click .obrowser-crumb" : function(e){
-            var UI = this;
-            var UIBrowser = UI.parent;
-            var jq = $(e.target);
+            var UI  = this;
+            var opt = UI.browser().options;
+            var jq  = $(e.target);
             var jItem = jq.closest(".citem");
             // 点击空白处，编辑路径
             if(jItem.size() == 0 
@@ -69,14 +71,14 @@ return ZUI.def("ui.obrowser_sky", {
             else if(jq.closest(".ochild").size()>0){
                 // 禁止主目录点击
                 var ph = UI.getPath(jItem);
-                if(UIBrowser.options.forbidClickHomeInCrumb && "~" == ph){
+                if(opt.forbidClickHomeInCrumb && "~" == ph){
                     return;
                 }
 
                 // 嗯准备展开项目吧
                 var oid = jItem.attr("oid");
-                var o   = UIBrowser.getById(oid);
-                var children = UIBrowser.getChildren(o, "DIR");
+                var o   = Wn.getById(oid);
+                var children = Wn.getChildren(o, "DIR");
                 var jDrop = jItem.find(".citem-drop");
                 // 已经展开了，就啥也不做了
                 if(jDrop.size()>0)
@@ -104,26 +106,25 @@ return ZUI.def("ui.obrowser_sky", {
             else if(jq.closest(".folder-btn").size()==0){
                 var ph = UI.getPath(jItem);
                 // 禁止主目录点击
-                if(UIBrowser.options.forbidClickHomeInCrumb && "~" == ph){
+                if(opt.forbidClickHomeInCrumb && "~" == ph){
                     return;
                 }
 
                 //console.log("::", ph);
-                UIBrowser.setData(ph);
+                UI.browser().setData(ph);
             }
         }
     },
     //..............................................
     editPath : function(){
         var UI = this;
-        var UIBrowser = UI.parent;
         var jCrumb = UI.arena.find(".obrowser-crumb");
 
         $z.editIt(jCrumb, {
             text   : UI.getPath(),
             after  : function(newval, oldval){
                 if(newval != oldval){
-                    UIBrowser.setData(newval);
+                    UI.browser().setData(newval);
                 }
             }
         });
@@ -213,9 +214,9 @@ return ZUI.def("ui.obrowser_sky", {
         this.arena.find(".obrowser-crumb .citem-drop").remove();
     },
     //..............................................
-    update : function(UIBrowser, o, asetup){
+    update : function(o, asetup){
         var UI  = this;
-        var opt = UIBrowser.options;
+        var opt = UI.browser().options;
 
         // 标识禁止主目录点击
         if(opt.forbidClickHomeInCrumb){
@@ -226,7 +227,7 @@ return ZUI.def("ui.obrowser_sky", {
         UI.arena.attr("PWD", o.ph);
         
         // 绘制面包屑道航
-        UI._draw_crumb(UIBrowser, o);
+        UI._draw_crumb(o);
 
         // 绘制用户信息
         var jMe = UI.arena.find(".obrowser-me").empty();
@@ -259,8 +260,8 @@ return ZUI.def("ui.obrowser_sky", {
         UI.resize();
 
         // 触发事件
-        UIBrowser.trigger("browser:current", o);
-        $z.invoke(UIBrowser.options, "on_current", [o], UI);
+        UI.fire("browser:current", o);
+        UI.invokeCallback("on_current", [o], UI);
     },
     //..............................................
     updateMenu : function(menuSetup, menuContext){
@@ -270,7 +271,6 @@ return ZUI.def("ui.obrowser_sky", {
     //..............................................
     _draw_menu : function(menuSetup, menuContext){
         var UI = this;
-        var UIBrowser = UI.parent;
         var jMenu = UI.arena.find(".obrowser-menu");
 
         // 没有菜单
@@ -288,7 +288,7 @@ return ZUI.def("ui.obrowser_sky", {
             gasketName   : "menu",
             tipDirection : "left",
             setup        : menuSetup,
-            context      : menuContext || UIBrowser
+            context      : menuContext || UI.browser()
         }).render(function(){
             $z.defer(function(){
                 UI.resize();
@@ -296,11 +296,11 @@ return ZUI.def("ui.obrowser_sky", {
         });
     },
     //..............................................
-    _draw_crumb : function(UIBrowser, o){
+    _draw_crumb : function(o){
         var UI = this;
         // 开始创建面包屑道航条
         var jCrumb = UI.arena.find(".obrowser-crumb").empty();
-        var list = UIBrowser.getAncestors(o, true);
+        var list = Wn.getAncestors(o, true);
 
         // 查找主目录
         var i=0;
@@ -331,8 +331,8 @@ return ZUI.def("ui.obrowser_sky", {
         }
     },
     _append_crumb_item : function(jCrumb, o, itype){
-        var UI = this;
-        var UIBrowser = UI.parent;
+        var UI  = this;
+        var opt = UI.browser().options;
         var jq = UI.ccode("crumb.item");
         jq.attr("oid", o.id);
 
@@ -340,7 +340,7 @@ return ZUI.def("ui.obrowser_sky", {
         if("home" == itype){
             jq.attr("onm", "~").attr("home", "yes");
             // 如果禁止主目录点击，那么就不是下拉箭头了
-            if(UIBrowser.options.forbidClickHomeInCrumb) {
+            if(opt.forbidClickHomeInCrumb) {
                 jq.find(".ochild").html('<i class="fa fa-angle-right"></i>')
             }
             // 显示图标

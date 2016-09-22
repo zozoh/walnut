@@ -867,6 +867,12 @@ var Wn = {
         var Wn = this;
         var store = Wn._storeAPI;
 
+        // 支持匿名 context 模式
+        if(_.isBoolean(context)) {
+            forceReload = context;
+            context = undefined;
+        }
+
         // 如果是字符串，变对象
         if(_.isString(o)){
             o = Wn.get(o);

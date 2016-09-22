@@ -8,7 +8,7 @@ $z.declare([
     'ui/pop/pop_browser'
 ], function(ZUI, Wn, ListUI, MenuUI, MaskUI, PopBrowser){
 //==============================================
-var html = function(){/*
+var html = `
 <div class="ui-code-template">
     <div code-id="adduser" class="pvgau-mask">
         <header>{{pvg.user_add}}</header>
@@ -31,11 +31,10 @@ var html = function(){/*
         <div class="pvg-paths-menu pvg-menu" ui-gasket="pathsMenu"></div>
     </div></div>
     <div class="pvg-paths-list pvg-list" ui-gasket="pathsList"></div>
-</div>
-*/};
+</div>`;
 //==============================================
 return ZUI.def("app.wn.pvg", {
-    dom  : $z.getFuncBodyAsStr(html.toString()),
+    dom  : html,
     css  : "theme/app/wn.pvg/pvg.css",
     i18n : "app/wn.pvg/i18n/{{lang}}.js",
     //...............................................................
@@ -521,6 +520,7 @@ return ZUI.def("app.wn.pvg", {
         // 得到用户列表
         UI.gasket.usersList.showLoading();
         Wn.exec("grp-users -sort 'role:1' -json" + grp, function(re){
+            UI.gasket.usersList.hideLoading();
             var list = $z.fromJson(re);
             UI.gasket.usersList.setData(list);
             $z.doCallback(callback, [], UI);
@@ -534,6 +534,7 @@ return ZUI.def("app.wn.pvg", {
         // 得到路径列表
         UI.gasket.pathsList.showLoading();
         Wn.exec('obj -match \'d1:"'+grp+'", pvg:{"\\$ne":null}\' -json -l -P', function(re){
+            UI.gasket.pathsList.hideLoading();
             var list = $z.fromJson(re);
             UI.gasket.pathsList.setData(list);
             $z.doCallback(callback, [], UI);

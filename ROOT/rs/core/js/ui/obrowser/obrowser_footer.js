@@ -20,15 +20,8 @@ return ZUI.def("ui.obrowser_footer", {
         this.arena.html(html);
     },
     //..............................................
-    update : function(UIBrowser, o){
-        var UI = this;
-        UI.browser = UIBrowser;  // 记录一下，让事件们访问能方便一下
-
+    update : function(o, asetup){
     },
-    //..............................................
-    resize : function(){
-
-    }
     //..............................................
 });
 //==================================================

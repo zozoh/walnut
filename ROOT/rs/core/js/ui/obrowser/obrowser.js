@@ -26,6 +26,8 @@ return ZUI.def("ui.obrowser", {
             "theme/ui/support/oicons.css"],
     i18n : "ui/obrowser/i18n/{{lang}}.js",
     //..............................................
+    __browser__ : true,
+    //..............................................
     __eval_canOpen : function(options){
         var co = options.canOpen;
         // 默认只要是目录就能打开
@@ -62,7 +64,32 @@ return ZUI.def("ui.obrowser", {
         var UI  = this;
         var opt = options;
 
-        $z.setUndefined(opt, "sidebar", true);
+        // 设置默认的 sidebar 定义
+        $z.setUndefined(opt, "sidebar", {});
+        if(opt.sidebar) {
+            // 兼容以前的 sidebar : true 格式的选项
+            if(_.isBoolean(opt.sidebar)) {
+                opt.sidebar = {};
+            }
+            // 用户直接给了一个 uiConf
+            if(!opt.sidebar.uiType && !opt.sidebar.uiConf && !_.isEmpty(opt.sidebar)) {
+                opt.sidebar = {
+                    uiType : 'ui/obrowser/obrowser_chute_sidebar',
+                    uiConf : opt.sidebar
+                }
+            }
+            // 补充不足
+            else {
+                opt.sidebar = $z.extend({
+                    uiType : 'ui/obrowser/obrowser_chute_sidebar',
+                    uiConf : {
+                        path : "~/.ui/sidebar.html"
+                    }
+                }, opt.sidebar);
+            }
+        }
+
+        // 其他默认设置
         $z.setUndefined(opt, "checkable", false);
         $z.setUndefined(opt, "multi", true);
         $z.setUndefined(opt, "editable", false);
@@ -233,13 +260,13 @@ return ZUI.def("ui.obrowser", {
         var opt = UI.options;
 
         if(UI.subUI("sky"))
-            UI.subUI("sky").update(UI, o, asetup);
+            UI.subUI("sky").update(o, asetup);
 
         if(UI.subUI("chute"))
-            UI.subUI("chute").update(UI, o, asetup);
+            UI.subUI("chute").update(o, asetup);
 
         // 当前主区域绘制完成后，需要调用回调
-        UI.subUI("main").update(UI, o, asetup, callback);
+        UI.subUI("main").update(o, asetup, callback);
         
         // 持久记录最后一次位置
         if(opt.lastObjId){
@@ -278,12 +305,13 @@ return ZUI.def("ui.obrowser", {
             UI.arena.find(".obw-con").css("top",0);
         }
         //......................................
-        // Footer
+        // Chute
         if(opt.sidebar){
             uiTypes.push("chute");
             new ChuteUI({
                 parent : UI,
-                gasketName : "chute"
+                gasketName : "chute",
+                setup : opt.sidebar
             }).render(function(){
                 UI.defer_report("chute");
             });

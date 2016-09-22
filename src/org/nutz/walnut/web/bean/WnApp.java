@@ -11,6 +11,8 @@ public class WnApp {
 
     private WnObj obj;
 
+    private NutMap privilege;
+
     public String getName() {
         return name;
     }
@@ -33,6 +35,14 @@ public class WnApp {
 
     public void setObj(WnObj obj) {
         this.obj = obj;
+    }
+
+    public NutMap getPrivilege() {
+        return privilege;
+    }
+
+    public void setPrivilege(NutMap privilege) {
+        this.privilege = privilege;
     }
 
 }
