@@ -26,7 +26,7 @@ public class IoWnSessionService implements WnSessionService {
 
     private WnIo io;
 
-    private int duration;
+    private long duration;
 
     private WnUsrService usrs;
 
@@ -61,22 +61,20 @@ public class IoWnSessionService implements WnSessionService {
         return create(u);
     }
 
-    @Override
-    public WnSession create(WnUsr u) {
+    private WnSession __create(WnUsr u, String parentSeId) {
         // 创建一个 Session 对象
-        WnObj o = io.create(oSessions, "${id}/data", WnRace.FILE);
+        WnObj o = io.create(oSessions, "${id}", WnRace.FILE);
         // io.changeType(o, SESSTP);
-        io.appendMeta(o, Lang.mapf("tp:'%s',mime:'%s'", SESSTP, "application/json"));
 
-        // 设置环境变量等 ..
-        WnSession se = new IoWnSession();
-        se.id(o.parentId()).me(u);
-
-        NutMap envs = new NutMap();
+        // 准备环境变量
+        NutMap envs = Lang.map("PWD", u.home());
         for (Map.Entry<String, Object> en : u.entrySet()) {
             String key = en.getKey();
-            // 不显示密码和盐
-            if ("passwd".equals(key) || "salt".equals(key)) {
+            // 双下划线开始的元数据无视
+            if (key.startsWith("__"))
+                continue;
+            // 其他不显示的键
+            if (key.matches("^(passwd|salt|pid|ct|lm|data|sha1|len|c|g|m|d0|d1|md|tp|mime|ph)$")) {
                 continue;
             }
             // HOME 特殊处理
@@ -93,92 +91,73 @@ public class IoWnSessionService implements WnSessionService {
             }
         }
 
-        se.setEnvs(envs);
-        se.var("PWD", u.home());
-
-        // 持久化
-        io.writeJson(o, se, null);
-
-        // 更新索引
-        o.setv("du", duration);
-        //o.expireTime(o.lastModified() + duration);
-        o.setv("me", u.name());
-
-        // 修改 session 文件的反问权限
-        o.setv("g", u.group());
-
-        io.set(o, "^(me|expi|g)$");
-        
-        // 设置session目录的权限及过期时间
-        o = io.checkById(o.parentId());
-        o.setv("du", duration);
+        // 更新文件元数据
+        o.type(SESSTP);
+        o.mime("application/json");
+        o.group(u.mainGroup()); // 确保这个文件是属于当前用户主组的
         o.expireTime(o.lastModified() + duration);
+        o.setv("du", duration);
         o.setv("me", u.name());
+        o.setv("grp", u.mainGroup());
 
-        // 修改 session 文件的反问权限
-        o.setv("g", u.group());
+        io.set(o, "^(tp|g|mime|expi|du|me|grp)$");
 
-        io.set(o, "^(me|expi|g)$");
+        // 创建 Session 对象
+        WnSession se = new IoWnSession(io, o);
+
+        // 计入 session 并持久化
+        se.vars().putAll(envs);
+        se.save();
 
         return se;
     }
 
-    private WnObj _fetch_seobj(String seid) {
-        return io.fetch(oSessions, seid);
+    @Override
+    public WnSession create(WnUsr u) {
+        return this.__create(u, null);
     }
 
-    private WnObj _check_seobj(String seid) {
-        WnObj o = _fetch_seobj(seid);
-        if (null == o) {
-            throw Er.create("e.sess.noexists", seid);
-        }
-        return o;
+    @Override
+    public WnSession login(WnSession pse) {
+        WnUsr u = usrs.check(pse.me());
+        return this.__create(u, pse.id());
     }
 
     @Override
     public WnSession logout(String seid) {
-        WnSession re = null;
-        WnObj o = this._fetch_seobj(seid);
-        if (null != o) {
-            io.delete(o, true);
+        IoWnSession se = (IoWnSession) this.fetch(seid);
+        IoWnSession re = null;
+        if (null != se) {
+            io.delete(se.getObj(), true);
             if (log.isDebugEnabled())
                 log.debugf("sess[%s] logout", seid);
+
+            // 试图返回父会话
+            re = (IoWnSession) this.fetch(se.getParentSessionId());
+
+            // 如果父会话存在，更新一下
+            if (null != re)
+                this.__touch(re);
 
         } else {
             if (log.isWarnEnabled())
                 log.warnf("sess[%s] losed Obj", seid);
         }
+
+        // 返回父会话
         return re;
     }
 
     @Override
-    public void save(WnSession se) {
-        // 确保 Session 对象
-        WnObj o = _check_seobj(se.id());
-
-        // 持久化
-        io.writeJson(o.isDIR() ? io.check(o, "data") : o, se, null);
-
-        // 更新过期时间
-        _touch(o);
-    }
-
-    private void _touch(WnObj o) {
-        int du = o.getInt("du", duration);
-        o.lastModified(System.currentTimeMillis());
-        o.expireTime(o.lastModified() + du);
-        io.appendMeta(o, "^nano|lm|expi$");
-    }
-
-    @Override
     public void touch(String seid) {
-        WnObj o = this._check_seobj(seid);
-        _touch(o);
+        WnObj o = this.__check_seobj(seid);
+        IoWnSession se = new IoWnSession(io, o);
+        this.__touch(se);
     }
 
     @Override
     public WnSession fetch(String seid) {
-        final WnObj o = this._fetch_seobj(seid);
+        final WnObj o = this.__fetch_seobj(seid);
         if (null == o)
             return null;
 
@@ -193,17 +172,43 @@ public class IoWnSessionService implements WnSessionService {
             return null;
         }
 
-        return io.readJson(o.isDIR() ? io.check(o, "data") : o, IoWnSession.class);
+        return new IoWnSession(io, o);
     }
 
     @Override
     public WnSession check(String seid) {
-        WnSession se = fetch(seid);
-        if (null == se) {
-            throw Er.create("e.sess.noexists", seid);
-        }
-        touch(seid);
+        WnObj o = this.__check_seobj(seid);
+        IoWnSession se = new IoWnSession(io, o);
+        this.__touch(se);
         return se;
     }
 
+    private void __touch(IoWnSession se) {
+        WnObj o = se.getObj();
+        long du = se.duration();
+        o.lastModified(System.currentTimeMillis());
+        o.expireTime(o.lastModified() + du);
+        io.appendMeta(o, "^(lm|expi)$");
+
+        // 试图更新父会话
+        if (se.hasParentSession()) {
+            IoWnSession pse = (IoWnSession) this.fetch(se.getParentSessionId());
+            if (null != pse)
+                this.__touch(pse);
+        }
+    }
+
+    private WnObj __fetch_seobj(String seid) {
+        if (null == seid)
+            return null;
+        return io.fetch(oSessions, seid);
+    }
+
+    private WnObj __check_seobj(String seid) {
+        WnObj o = __fetch_seobj(seid);
+        if (null == o) {
+            throw Er.create("e.sess.noexists", seid);
+        }
+        return o;
+    }
 }

@@ -1,10 +1,11 @@
 package org.nutz.walnut.impl.usr;
 
-import org.nutz.json.JsonField;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnUsr;
 
 /**
  * 记录一个 ZSession 相关信息
@@ -13,80 +14,62 @@ import org.nutz.walnut.api.usr.WnUsr;
  */
 public class IoWnSession implements WnSession {
 
-    private String id;
+    private NutMap vars;
 
-    /**
-     * 存放需要持久化的变量
-     */
-    private NutMap envs;
+    private WnIo io;
 
-    /**
-     * 存放临时的变量
-     */
-    @JsonField(ignore = true)
-    private NutMap tmp_vars;
+    private WnObj obj;
 
-    private String me;
+    public IoWnSession(WnIo io, WnObj obj) {
+        this.io = io;
+        this.obj = obj;
+    }
 
-    private String grp;
+    WnObj getObj() {
+        return obj;
+    }
 
     /**
      * @return 会话ID
      */
     @Override
     public String id() {
-        return id;
+        return obj.id();
     }
 
-    /**
-     * 设置会话 ID
-     * 
-     * @param id
-     *            会话ID
-     * @return 自身以便链式赋值
-     */
     @Override
-    public WnSession id(String id) {
-        this.id = id;
-        return this;
+    public boolean hasParentSession() {
+        return !Strings.isBlank(this.getParentSessionId());
+    }
+
+    @Override
+    public String getParentSessionId() {
+        return obj.getString("p_se_id");
     }
 
     @Override
     public NutMap vars() {
-        if (null == tmp_vars) {
+        if (null == vars) {
             synchronized (this) {
-                if (null == tmp_vars) {
-                    tmp_vars = new NutMap().attach(envs);
+                if (null == vars) {
+                    vars = io.readJson(obj, NutMap.class);
+                    if (null == vars)
+                        vars = new NutMap();
                 }
             }
         }
-        return tmp_vars;
+        return vars;
     }
 
     @Override
-    public WnSession setEnvs(NutMap envs) {
-        this.envs = envs;
-
-        if (null == this.tmp_vars)
-            this.tmp_vars = new NutMap();
-
-        this.tmp_vars.attach(this.envs);
-
-        return this;
-    }
-
-    public void setTmp_vars(NutMap tmp_vars) {
-        if (null == this.tmp_vars) {
-            this.tmp_vars = new NutMap();
-        }
-        if (null != this.envs) {
-            this.tmp_vars.attach(this.envs);
-        }
+    public void save() {
+        NutMap map = vars();
+        io.writeJson(obj, map, JsonFormat.nice().setIgnoreNull(true).setQuoteName(false));
     }
 
     @Override
     public WnSession var(String nm, Object val) {
-        vars().setv(nm, val);
+        vars().setOrRemove(nm, val);
         return this;
     }
 
@@ -96,54 +79,32 @@ public class IoWnSession implements WnSession {
     }
 
     @Override
-    public void persist(String... nms) {
-        for (String nm : nms) {
-            Object val = this.tmp_vars.remove(nm);
-            this.envs.setOrRemove(nm, val);
-        }
-    }
-
-    @Override
     public String me() {
-        return me;
+        return obj.getString("me");
     }
 
     @Override
     public String group() {
-        return grp;
+        return obj.getString("grp");
     }
 
     @Override
-    public WnSession me(WnUsr me) {
-        this.me = me.name();
-        this.grp = me.mainGroup();
-        return this;
+    public long duration() {
+        return obj.getLong("du");
     }
 
     @Override
     public WnSession clone() {
-        IoWnSession se = new IoWnSession();
-        se.id = id;
-        se.me = me;
-        se.grp = grp;
-        se.envs = new NutMap();
-        se.envs.putAll(envs);
-        se.tmp_vars = new NutMap().attach(se.envs);
-        if (null != tmp_vars)
-            se.tmp_vars.putAll(tmp_vars);
-        return se;
+        return new IoWnSession(io, obj.clone());
     }
 
     public NutMap toMapForClient(JsonFormat fmt) {
         NutMap map = new NutMap();
-        map.put("id", this.id);
-        map.put("me", this.me);
-        map.put("grp", this.grp);
-
-        NutMap myEnvs = new NutMap();
-        myEnvs.putAll(this.envs);
-        myEnvs.putAll(this.tmp_vars);
-        map.put("envs", myEnvs);
+        map.put("id", this.id());
+        map.put("me", this.me());
+        map.put("grp", this.group());
+        map.put("du", this.duration());
+        map.put("envs", this.vars());
         return map;
     }
 }

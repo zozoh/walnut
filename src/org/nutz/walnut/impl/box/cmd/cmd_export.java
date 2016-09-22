@@ -24,12 +24,11 @@ public class cmd_export extends JvmExecutor {
                     String key = Strings.trim(s.substring(0, pos));
                     String val = s.substring(pos + 1);
                     sys.se.var(key, val);
-                    sys.se.persist(key);
                 }
             }
             // 强制写入
             Wn.WC().security(new WnEvalLink(sys.io), () -> {
-                sys.sessionService.save(sys.se);
+                sys.se.save();
             });
         }
     }

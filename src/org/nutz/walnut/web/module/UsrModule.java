@@ -6,8 +6,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
@@ -147,14 +149,14 @@ public class UsrModule extends AbstractWnModule {
     @Ok("++cookie>>:/")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public WnSession do_login(@Param("nm") String nm, @Param("passwd") String passwd) {
+    public NutMap do_login(@Param("nm") String nm, @Param("passwd") String passwd) {
         WnSession se = sess.login(nm, passwd);
         Wn.WC().SE(se);
 
         // 执行登录后初始化脚本
         this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
 
-        return se;
+        return se.toMapForClient(JsonFormat.compact());
     }
 
     @POST
@@ -367,7 +369,7 @@ public class UsrModule extends AbstractWnModule {
         else
             req.setAttribute("target", "/");
 
-        return se;
+        return se.toMapForClient(JsonFormat.compact());
     }
 
     @At("/check/mplogin")
@@ -414,6 +416,6 @@ public class UsrModule extends AbstractWnModule {
         this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
 
         // 搞定，返回
-        return se;
+        return se.toMapForClient(JsonFormat.compact());
     }
 }

@@ -17,14 +17,7 @@ public class cmd_env extends JvmExecutor {
             for (String varName : ss) {
                 sys.se.var(varName, null);
             }
-            sys.se.persist(ss);
-            sys.sessionService.save(sys.se);
-        }
-        // 持久化给定变量
-        else if (params.has("export")) {
-            String[] ss = Strings.splitIgnoreBlank(params.get("export"));
-            sys.se.persist(ss);
-            sys.sessionService.save(sys.se);
+            sys.se.save();
         }
         // 没有参数，列出所有环境变量
         else if (params.vals.length == 0) {

@@ -74,6 +74,7 @@ public class WnIoCleaner implements Atom {
                 }
             }
         });
+        _run.sess().logout(se.id());
     }
 
 }

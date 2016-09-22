@@ -194,6 +194,7 @@ public class WnJob extends WnRun implements Callable<Object> {
                                 exec("job-" + jobDir.getString("job_name", "_") + " ", se, "", cmdText);
                             }
                         });
+                       sess.logout(se.id());
                     }
                 }
             }

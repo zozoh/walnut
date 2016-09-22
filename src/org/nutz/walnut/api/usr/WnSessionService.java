@@ -1,5 +1,10 @@
 package org.nutz.walnut.api.usr;
 
+/**
+ * 会话服务接口
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
 public interface WnSessionService {
 
     WnUsrService usrs();
@@ -22,6 +27,13 @@ public interface WnSessionService {
     WnSession login(String nm, String pwd);
 
     /**
+     * @param pse
+     *            父会话
+     * @return 会话对象
+     */
+    WnSession login(WnSession pse);
+
+    /**
      * 为某用户直接创建一个 Session
      * 
      * @param u
@@ -30,8 +42,21 @@ public interface WnSessionService {
      */
     WnSession create(WnUsr u);
 
+    /**
+     * 删除会话
+     * 
+     * @param seid
+     *            会话 ID
+     * @return 父会话，null 表示没有父会话
+     */
     WnSession logout(String seid);
 
+    /**
+     * 更新会话。会同时更新所有的父会话
+     * 
+     * @param seid
+     *            会话 ID
+     */
     void touch(String seid);
 
     /**
@@ -42,8 +67,6 @@ public interface WnSessionService {
      * @return 会话对象
      */
     WnSession fetch(String seid);
-
-    void save(WnSession se);
 
     /**
      * 根据 ID 获取一个会话对象。如果会话对象不存在或者过期，则统统抛错

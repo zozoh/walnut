@@ -15,9 +15,11 @@ import org.brickred.socialauth.SocialAuthManager;
 import org.brickred.socialauth.exception.SocialAuthException;
 import org.brickred.socialauth.util.SocialAuthUtil;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Streams;
 import org.nutz.lang.stream.NullInputStream;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.Mvcs;
@@ -76,7 +78,7 @@ public class OauthModule extends AbstractWnModule {
     @Ok("++cookie>>:/")
     @Fail(">>:/")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public Object callback(String _providerId,
+    public NutMap callback(String _providerId,
                            HttpSession session,
                            HttpServletRequest req,
                            HttpServletResponse resp)
@@ -116,7 +118,7 @@ public class OauthModule extends AbstractWnModule {
         }
 
         // 创建会话
-        return sess.create(u);
+        return sess.create(u).toMapForClient(JsonFormat.compact());
     }
 
     private SocialAuthConfig config;

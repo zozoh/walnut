@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.impl.usr.IoWnSession;
 import org.nutz.walnut.impl.usr.IoWnUsr;
 
 public class WnTest {
@@ -58,7 +57,7 @@ public class WnTest {
     @Test
     public void test_normalize() {
         WnSystem sys = new WnSystem();
-        sys.se = new IoWnSession();
+        sys.se = new FakeWnSession();
         sys.se.var("HOME", "/home/zozoh");
         sys.se.var("PWD", "$HOME/workspace/test");
         sys.se.var("ABC", "haha");

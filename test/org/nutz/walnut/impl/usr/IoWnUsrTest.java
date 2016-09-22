@@ -244,8 +244,7 @@ public class IoWnUsrTest extends BaseUsrTest {
         try {
             se.var("say", "hello");
             se.var("x", "100");
-            se.persist("say", "x");
-            ses.save(se);
+            se.save();
 
             se = ses.check(se.id());
             assertEquals("100", se.vars().getString("x"));
@@ -254,8 +253,7 @@ public class IoWnUsrTest extends BaseUsrTest {
             // 删除环境变量
             se.var("say", null);
             se.var("x", null);
-            se.persist("say", "x");
-            ses.save(se);
+            se.save();
 
             se = ses.check(se.id());
             assertNull(se.vars().get("x"));
@@ -267,10 +265,10 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         }
         catch (Throwable e) {
-            System.out.println(Json.toJson(se));
+            System.out.println(Json.toJson(se.toMapForClient(null)));
             System.out.println("--------------------check again:");
             se = ses.check(se.id());
-            System.out.println(Json.toJson(se));
+            System.out.println(Json.toJson(se.toMapForClient(null)));
             System.out.println("--------------------Obj:");
             WnObj oSe2 = io.check(null, "/sys/session/" + se.id());
             System.out.println(Json.toJson(oSe2));
