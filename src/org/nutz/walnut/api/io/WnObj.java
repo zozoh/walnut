@@ -43,6 +43,10 @@ public interface WnObj extends NutBean {
     WnObj setRWMetaKeys(String regex);
 
     WnObj clearRWMetaKeys();
+    
+    void genSnapshot();
+    
+    void cleanSnapshot();
 
     String path();
 
