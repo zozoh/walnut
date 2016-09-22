@@ -57,6 +57,7 @@ login superman
     - @see `sys.usrService.isAdminOfGroup(sys.me, "op")`
     - @see `sys.usrService.isMemberOfGroup(sys.me, "root")` 
     - 参考命令 `cmd_renameUser`
+    - 帮助命令 `grp` 和 `role`，通过 `man xxx` 查看使用帮助
 * 如果检查通过会根据当前会话创建父会话（注意，这里需要用 root 权限执行
     - `Wn.WC().su` 函数可以用来切换用户
 
