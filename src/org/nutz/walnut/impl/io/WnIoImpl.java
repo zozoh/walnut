@@ -104,9 +104,6 @@ public class WnIoImpl implements WnIo {
         // 处理元数据修改的后续事宜
         __do_after_set_meta(o);
 
-        // 清除元数据快照
-        o.cleanSnapshot();
-
         // 返回
         return o;
     }

@@ -694,9 +694,6 @@ public abstract class AbstractWnTree implements WnTree {
             // 这里再次确保只匹配一个
             q.limit(1);
 
-            // 记录之前旧的元数据
-            o.genSnapshot();
-
             // 执行设置
             WnObj o1 = _set_by(q, map, returnNew);
 

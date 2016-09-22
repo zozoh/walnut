@@ -655,20 +655,6 @@ public class WnBean extends NutMap implements WnObj {
         return this;
     }
 
-    private static String ssKey = "__snapshot_meta";
-
-    @Override
-    public void genSnapshot() {
-        NutMap map = this.toMap(null);
-        map.remove(ssKey);
-        this.put(ssKey, map);
-    }
-
-    @Override
-    public void cleanSnapshot() {
-        this.remove(ssKey);
-    }
-
     public WnObj clone() {
         return new WnBean().update2(this);
     }
