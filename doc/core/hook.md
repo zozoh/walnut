@@ -8,10 +8,13 @@ tags:
 
 # 钩子怎么声明
 
+## 用户钩子
+
 ```
 $HOME/.hook                   # .hook 文件夹存放所有的钩子
     create                    # 当创建完一个对象后调用
         init_box_folder       # 命令模板文件
+        video_convert         # 另外一个命令模板文件
     write                     # 当对象被修改后调用
         make_thumbnail.js     # 一个JS脚本，描述调用后逻辑
 
@@ -21,7 +24,23 @@ $HOME/.hook                   # .hook 文件夹存放所有的钩子
     mount                     # 当对象被设置挂载后调用
 ```
 
+## 全局钩子
+
+```
+/etc/hook                     #全局钩子的存放目录
+	create
+		0_create_user_notify
+	write
+		full_md5.js
+	delete
+	move
+	meta
+	mount
+```
+
 * 钩子的执行顺序是根据名字来排列的，你可以给钩子的名字前面加上 *"0_"*, *"1_"* 等前缀，来确保执行顺序。 排序的方式是 ASC
+
+* 全局钩子总是比用户钩子先执行
 
 每个钩子文件都支持元数据:
 
@@ -45,8 +64,8 @@ $HOME/.hook                   # .hook 文件夹存放所有的钩子
         "ow"  : "xiaobai",           // 其他字符串当做固定的值
     },{
         // ... 下一个条件 ...
-    }]
-    // ..
+    }],
+    "hook_user" : "root" // 全局钩子特有的属性,默认以当前用户执行,可以指定为root
 }
 ```
 
