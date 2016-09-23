@@ -1,6 +1,7 @@
 package org.nutz.walnut.web.filter;
 
 import org.nutz.ioc.Ioc;
+import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.ActionFilter;
 import org.nutz.mvc.View;
@@ -86,7 +87,7 @@ public class WnCheckSession implements ActionFilter {
             se.var("PWD", me.home());
 
             // 生成沙盒上下文
-            WnBoxContext bc = new WnBoxContext();
+            WnBoxContext bc = new WnBoxContext(new NutMap());
             bc.io = io;
             bc.me = me;
             bc.session = se;

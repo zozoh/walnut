@@ -16,6 +16,27 @@ public interface WnSession {
     String id();
 
     /**
+     * @param se
+     *            另外一个会话对象
+     * @return 两个会话对象是否相等
+     */
+    boolean isSame(WnSession se);
+
+    /**
+     * @param seid
+     *            另外一个会话对象ID
+     * @return 两个会话对象是否相等
+     */
+    boolean isSame(String seid);
+
+    /**
+     * @param se
+     *            另外一个会话对象
+     * @return 给定会话是否是自己的子会话
+     */
+    boolean isMyParent(WnSession se);
+
+    /**
      * @return 是否有父会话
      */
     boolean hasParentSession();
@@ -71,14 +92,24 @@ public interface WnSession {
     long duration();
 
     /**
+     * @return 会话的截止时间（绝对毫秒数）
+     */
+    long expireTime();
+
+    /**
      * @return 一个当前会话的新实例
      */
     WnSession clone();
 
     /**
-     * @param fmt
-     *            JSON 格式化信息
-     * @return 显示成可以让客户端看到的 JSON 对象
+     * @return 显示成可以让客户端看到的 Map 对象
      */
-    NutMap toMapForClient(JsonFormat fmt);
+    NutMap toMapForClient();
+
+    /**
+     * @param jfmt
+     *            JSON 的格式化配置
+     * @return 会话的 JSON 描述
+     */
+    String toJson(JsonFormat jfmt);
 }

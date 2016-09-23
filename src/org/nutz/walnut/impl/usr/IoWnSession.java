@@ -1,10 +1,10 @@
 package org.nutz.walnut.impl.usr;
 
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.usr.AbstractWnSession;
 import org.nutz.walnut.api.usr.WnSession;
 
 /**
@@ -12,7 +12,7 @@ import org.nutz.walnut.api.usr.WnSession;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class IoWnSession implements WnSession {
+public class IoWnSession extends AbstractWnSession {
 
     private NutMap vars;
 
@@ -38,8 +38,8 @@ public class IoWnSession implements WnSession {
     }
 
     @Override
-    public boolean hasParentSession() {
-        return !Strings.isBlank(this.getParentSessionId());
+    public boolean isSame(String seid) {
+        return id().equals(seid);
     }
 
     @Override
@@ -94,17 +94,13 @@ public class IoWnSession implements WnSession {
     }
 
     @Override
+    public long expireTime() {
+        return obj.expireTime();
+    }
+
+    @Override
     public WnSession clone() {
         return new IoWnSession(io, obj.clone());
     }
 
-    public NutMap toMapForClient(JsonFormat fmt) {
-        NutMap map = new NutMap();
-        map.put("id", this.id());
-        map.put("me", this.me());
-        map.put("grp", this.group());
-        map.put("du", this.duration());
-        map.put("envs", this.vars());
-        return map;
-    }
 }

@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnIo;
@@ -48,6 +49,10 @@ public class WnSystem {
     public JvmExecutorFactory jef;
 
     JvmAtomRunner _runner;
+
+    public NutMap attrs() {
+        return _runner.bc.attrs;
+    }
 
     public void exec(String cmdText) {
         exec(cmdText, out.getOutputStream(), err.getOutputStream(), in.getInputStream());

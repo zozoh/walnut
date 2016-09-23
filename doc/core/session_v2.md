@@ -53,11 +53,12 @@ tags:
 login superman
 ```
 
-* 检查当前账号是否是 `op` 组管理员，或者 `root` 组成员
+* 检查当前账号是否是 `op` 组管或者 `root` 组成员
     - @see `sys.usrService.isAdminOfGroup(sys.me, "op")`
     - @see `sys.usrService.isMemberOfGroup(sys.me, "root")` 
     - 参考命令 `cmd_renameUser`
     - 帮助命令 `grp` 和 `role`，通过 `man xxx` 查看使用帮助
+    
 * 如果检查通过会根据当前会话创建父会话（注意，这里需要用 root 权限执行
     - `Wn.WC().su` 函数可以用来切换用户
 
@@ -66,7 +67,7 @@ login superman
     - 同时命令会向线程上下文放置这个新会话的 ID
 * `AppModule.run` 会在请求结束的时候，添加一个新的宏，告诉客户端切换 SessionID
 * `Wn.exec` 应用执行这个宏
-    - 将请求 `/u/do/chse/ajax?id=NewSeId` 切换会话的 cookie
+    - 将请求 `/u/ajax/chse?id=NewSeId` 切换会话的 cookie
     - 这个请求将会是同步请求
 
 ## 界面实现

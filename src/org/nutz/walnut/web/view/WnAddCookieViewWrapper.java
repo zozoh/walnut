@@ -31,6 +31,11 @@ public class WnAddCookieViewWrapper implements View {
         }
     }
 
+    public WnAddCookieViewWrapper(View view) {
+        this.cookie = Tmpl.parsef("%s=${id}", Wn.AT_SEID);
+        this.view = view;
+    }
+
     @Override
     public void render(HttpServletRequest req, HttpServletResponse resp, Object obj)
             throws Throwable {

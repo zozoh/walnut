@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.ActionFilter;
 import org.nutz.mvc.View;
@@ -54,7 +55,7 @@ public class FuseActionFilter implements ActionFilter {
             WnUsrService usrs = sess.usrs();
             WnUsr me = usrs.check(se.me());
 
-            WnBoxContext bc = new WnBoxContext();
+            WnBoxContext bc = new WnBoxContext(new NutMap());
             bc.io = io;
             bc.me = me;
             bc.session = se;

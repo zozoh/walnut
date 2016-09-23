@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -156,7 +155,7 @@ public class UsrModule extends AbstractWnModule {
         // 执行登录后初始化脚本
         this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
 
-        return se.toMapForClient(JsonFormat.compact());
+        return se.toMapForClient();
     }
 
     @POST
@@ -164,6 +163,7 @@ public class UsrModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Deprecated
     public WnSession do_login_ajax(@Param("nm") String nm, @Param("passwd") String passwd) {
         WnSession se = sess.login(nm, passwd);
         Wn.WC().SE(se);
@@ -179,6 +179,7 @@ public class UsrModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     @Filters(@By(type = WnCheckSession.class))
+    @Deprecated
     public boolean do_logout_ajax() {
         String seid = Wn.WC().SEID();
         if (null != seid) {
@@ -317,6 +318,38 @@ public class UsrModule extends AbstractWnModule {
         }
     }
 
+    /**
+     * 改变当前页面的会话
+     * 
+     * @param seid
+     *            新的会话 ID
+     * @return 新会话对象
+     */
+    @At("/ajax/chse")
+    @Ok("++cookie->ajax")
+    @Fail("ajax")
+    @Filters(@By(type = WnCheckSession.class))
+    public NutMap ajax_change_session(@Param("id") String seid) {
+        // 得到当前会话的
+        WnSession se = Wn.WC().checkSE();
+
+        // 不用切换
+        if (se.isSame(seid)) {
+            throw Er.create("e.web.u.chse.self");
+        }
+
+        // 得到新会话
+        WnSession seNew = this.sess.check(seid);
+
+        // 校验父会话
+        if (!seNew.isMyParent(se)) {
+            throw Er.create("e.web.u.chse.notMyParent");
+        }
+
+        // 执行切换
+        return seNew.toMapForClient();
+    }
+
     // @At("/avatar/upload")
     // @AdaptBy(type = UploadAdaptor.class, args = {"${app.root}/WEB-INF/tmp"})
     // public Object usrAvatarUpload() {
@@ -369,7 +402,7 @@ public class UsrModule extends AbstractWnModule {
         else
             req.setAttribute("target", "/");
 
-        return se.toMapForClient(JsonFormat.compact());
+        return se.toMapForClient();
     }
 
     @At("/check/mplogin")
@@ -401,7 +434,7 @@ public class UsrModule extends AbstractWnModule {
         String uid = Strings.trim(io.readText(obj));
         if (Strings.isBlank(uid))
             return new HttpStatusView(403);
-        
+
         // 清除登陆信息
         io.delete(obj);
 
@@ -416,6 +449,6 @@ public class UsrModule extends AbstractWnModule {
         this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
 
         // 搞定，返回
-        return se.toMapForClient(JsonFormat.compact());
+        return se.toMapForClient();
     }
 }

@@ -169,7 +169,7 @@ public class WnRun {
         // req.setAttribute(WnBox.class.getName(), box);
 
         // 设置沙箱
-        WnBoxContext bc = new WnBoxContext();
+        WnBoxContext bc = new WnBoxContext(new NutMap());
         bc.io = io;
         bc.me = usrs.check(se.me());
         bc.session = se;
@@ -208,7 +208,7 @@ public class WnRun {
     
     public void runWithHook(WnSession se, WnUsr usr, String grp, NutMap env, Callback<WnSession> callback) {
         
-        WnBoxContext bc = new WnBoxContext();
+        WnBoxContext bc = new WnBoxContext(new NutMap());
         bc.io = io;
         bc.me = usr;
         bc.session = se;

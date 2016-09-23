@@ -4,6 +4,7 @@ import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
@@ -78,7 +79,7 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         out = new StringBuilder();
         err = new StringBuilder();
 
-        bc = new WnBoxContext();
+        bc = new WnBoxContext(new NutMap());
         bc.io = io;
         bc.me = me;
         bc.session = se;

@@ -42,29 +42,23 @@ public class IoWnSessionService implements WnSessionService {
         return usrs;
     }
 
-    @Override
-    public WnSession login(final String nm, final String pwd) {
-        if (Strings.isBlank(pwd))
-            throw Er.create("e.usr.blank.pwd");
-
-        WnUsr u = usrs.check(nm);
-        if (!usrs.checkPassword(nm, pwd)) {
-            throw Er.create("e.usr.invalid.login");
-        }
-
-        // 如果主目录过期，也不能登录
-        WnObj oHome = io.check(null, u.home());
-        if (oHome.isExpired()) {
-            throw Er.create("e.usr.home.expired");
-        }
-
-        return create(u);
-    }
-
-    private WnSession __create(WnUsr u, String parentSeId) {
+    /**
+     * @param u
+     *            用户
+     * @param pseid
+     *            父会话ID，null 表示顶级会话
+     * @param du
+     *            持续时间，小于0 将采用默认
+     * @return 新创建的会话对象
+     */
+    private WnSession __create(WnUsr u, String pseid, long du) {
         // 创建一个 Session 对象
         WnObj o = io.create(oSessions, "${id}", WnRace.FILE);
         // io.changeType(o, SESSTP);
+
+        // 小于 0 采用默认会话持续时间
+        if (du < 0)
+            du = this.duration;
 
         // 准备环境变量
         NutMap envs = Lang.map("PWD", u.home());
@@ -95,12 +89,15 @@ public class IoWnSessionService implements WnSessionService {
         o.type(SESSTP);
         o.mime("application/json");
         o.group(u.mainGroup()); // 确保这个文件是属于当前用户主组的
-        o.expireTime(o.lastModified() + duration);
-        o.setv("du", duration);
+        o.expireTime(o.lastModified() + du);
+        o.setv("du", du);
         o.setv("me", u.name());
         o.setv("grp", u.mainGroup());
+        if (!Strings.isBlank(pseid)) {
+            o.setv("p_se_id", pseid);
+        }
 
-        io.set(o, "^(tp|g|mime|expi|du|me|grp)$");
+        io.set(o, "^(tp|g|mime|expi|du|me|grp|p_se_id)$");
 
         // 创建 Session 对象
         WnSession se = new IoWnSession(io, o);
@@ -113,14 +110,47 @@ public class IoWnSessionService implements WnSessionService {
     }
 
     @Override
-    public WnSession create(WnUsr u) {
-        return this.__create(u, null);
+    public WnSession login(final String nm, final String pwd, long du) {
+        if (Strings.isBlank(pwd))
+            throw Er.create("e.usr.blank.pwd");
+
+        WnUsr u = usrs.check(nm);
+        if (!usrs.checkPassword(nm, pwd)) {
+            throw Er.create("e.usr.invalid.login");
+        }
+
+        // 如果主目录过期，也不能登录
+        WnObj oHome = io.check(null, u.home());
+        if (oHome.isExpired()) {
+            throw Er.create("e.usr.home.expired");
+        }
+
+        return create(u, du);
     }
 
     @Override
-    public WnSession login(WnSession pse) {
-        WnUsr u = usrs.check(pse.me());
-        return this.__create(u, pse.id());
+    public WnSession login(String nm, String pwd) {
+        return login(nm, pwd, -1);
+    }
+
+    @Override
+    public WnSession create(WnUsr u) {
+        return create(u, -1);
+    }
+
+    @Override
+    public WnSession create(WnUsr u, long du) {
+        return this.__create(u, null, du);
+    }
+
+    @Override
+    public WnSession create(WnSession pse, WnUsr u) {
+        return create(pse, u, -1);
+    }
+
+    @Override
+    public WnSession create(WnSession pse, WnUsr u, long du) {
+        return this.__create(u, pse.id(), du);
     }
 
     @Override

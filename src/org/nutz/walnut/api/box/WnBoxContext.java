@@ -1,5 +1,6 @@
 package org.nutz.walnut.api.box;
 
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
@@ -17,5 +18,11 @@ public class WnBoxContext {
     public WnSessionService sessionService;
 
     public WnUsrService usrService;
+
+    public NutMap attrs;
+
+    public WnBoxContext(NutMap attrs) {
+        this.attrs = attrs;
+    }
 
 }

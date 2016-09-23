@@ -399,11 +399,10 @@ var Wn = {
             cmdText = str;
         }
 
-        // 处理命令
+        // 处理命令 mos = (Macro Object Separator)
         var mos = "%%wn.meta." + $z.randomString(10) + "%%";
         //var regex = new RegExp("^(\n"+mos+":BEGIN:)(\\w+)(.+)(\n"+mos+":END\n)$","m");
-        var mosHead = "\n" + mos + ":BEGIN:";
-        var mosTail = "\n" + mos + ":END\n";
+        var mosHead = "\n" + mos + ":MACRO:";
 
         // 执行命令的地址
         var url = '/a/run/' + (appName || opt.appName || app.name);
@@ -416,73 +415,60 @@ var Wn = {
 
         var oReq = new XMLHttpRequest();
         oReq._last = 0;
-        oReq._content = "";
-        oReq._moss = [];
-        oReq._moss_tp = "";
-        oReq._moss_str = "";
+        oReq._macro_begin_pos = -1;
 
         oReq._show_msg = function () {
-            var txtLen  = oReq.responseText.length;
-            // 还没内容
-            if(txtLen <= 0)
-                return;
-            // 开始处理的位置
-            var off = oReq._last;
+            // 本次要处理的内容（已经读到的所有有效内容）
+            var content = oReq.responseText;
 
-            // 找到最后一个整行
-            var lastEOL = oReq.responseText.lastIndexOf('\n');
-            var nextPos = lastEOL + 1;
-            // 得到要处理的字符串
-            var str = oReq.responseText.substring(oReq._last, lastEOL+1);
+            // 还没内容
+            if(content.length <= oReq._last)
+                return;
+
+            //.........................................
+            // 如果之前的 _show_msg 找到过宏，则什么都不做，直到最后执行宏的时候才解析
+            if(oReq._macro_begin_pos>=0) {
+                return;
+            }
+
+            // 看看内容是否包含宏
+            oReq._macro_begin_pos = content.indexOf(mosHead, oReq._last);
+
+            // 定义本次要处理的字符串
+            var str;
+
+            //.........................................
+            // 如果找到了宏，宏之前算是可处理部分
+            if(oReq._macro_begin_pos >= 0) {
+                content = content.substring(oReq._last, oReq._macro_begin_pos);
+                str = content;
+                nextPos = oReq._macro_begin_pos;
+            }
+            //.........................................
+            // 那么没找到过宏，就找到最后一个整行，作为本次的消息
+            else {
+                // 找到最后一个整行，以便保证是整行拼接的
+                var lastEOL = oReq.responseText.lastIndexOf('\n');
+                var nextPos = lastEOL + 1;
+                str = oReq.responseText.substring(oReq._last, nextPos);
+            }
+
+            // 本次得到内容为空
+            if(!str)
+                return;
+
+            // 正常显示
+            if (oReq.status == 200) {
+                $z.invoke(opt, "msgShow", [str], context);
+            }
+            // 错误显示
+            else {
+                $z.invoke(opt, "msgError", [str], context);
+            }
+
             //console.log("_show_msg@" + (new Date()) + ":\n" + lastEOL + "/" + txtLen);
             // 标记下一次要处理的起始位置
             oReq._last = nextPos;
-
-            // 查找显示内容结束标记
-            var pos_head = str.indexOf(mosHead);
-            var pos_tail = str.indexOf(mosTail);
-            // 发现完整的mos
-            if (pos_head >= 0 && pos_tail >= 0) {
-                var from = pos_head + mosHead.length;
-                var pl = str.indexOf("\n", from);
-                var pr = str.indexOf(mosTail, pl);
-                oReq._moss.push({
-                    type: str.substring(from, pl),
-                    content: str.substring(pl + 1, pr)
-                });
-                str = str.substring(0, pos_head);
-            }
-            // 发现开头
-            else if (pos_head >= 0 && pos_tail < 0) {
-                var from = pos_head + mosHead.length;
-                var pl = str.indexOf("\n", from);
-                oReq._moss_tp = str.substring(from, pl);
-                oReq._moss_str = str.substring(pl + 1);
-                str = str.substring(0, pos_head);
-            }
-            // 发现结尾
-            else if (pos_head < 0 && pos_tail >= 0) {
-                oReq._moss_str += str.substr(0, pos_tail);
-                oReq._moss.push({
-                    type: oReq._moss_tp,
-                    content: oReq._moss_str
-                });
-                oReq._moss_tp = "";
-                oReq._moss_str = "";
-                str = str.substring(pos_tail + mosTail.length + 1);
-            }
-            // 累计 Content
-            oReq._content += str;
-            if (str) {
-                // 正常显示
-                if (oReq.status == 200) {
-                    $z.invoke(opt, "msgShow", [str], context);
-                }
-                // 错误显示
-                else {
-                    $z.invoke(opt, "msgError", [str], context);
-                }
-            }
         };
         
         oReq.open("POST", url, opt.async);
@@ -493,19 +479,83 @@ var Wn = {
                 oReq._show_msg();
             // DONE: 请求结束了，调用回调
             if (oReq.readyState == 4) {
-                // 处理请求的状态更新命令
-                for (var i = 0; i < oReq._moss.length; i++) {
-                    var mosc = oReq._moss[i];
-                    // 修改环境变量
-                    if ("envs" == mosc.type) {
-                        app.session.envs = $z.fromJson(mosc.content);
+                //...............................................
+                // 请求都处理完毕了，得到总体的文本
+                var content    = oReq.responseText;
+                var macro_str  = null;
+                var macroArray = [];
+                if(oReq._macro_begin_pos >= 0) {
+                    content   = oReq.responseText.substring(0, oReq._macro_begin_pos);
+                    macro_str = oReq.responseText.substring(oReq._macro_begin_pos);
+                }
+                //...............................................
+                // 得到宏的内容，并进行解析
+                if(macro_str) {
+                    var pos_l = mosHead.length;
+                    while(pos_l > 0) {
+                        var macro = {};
+                        // 找到行尾，作为宏类型
+                        var pos_begin = macro_str.indexOf('\n', pos_l);
+                        macro.type = $.trim(macro_str.substring(pos_l, pos_begin));
+                        
+                        // 找到下一个宏的开始作为本宏的内容
+                        pos_l = macro_str.indexOf(mosHead, ++pos_begin);
+
+                        // 如果没有宏了，剩下的内容作为宏的内容
+                        if(pos_l <= pos_begin) {
+                            macro.content = $.trim(macro_str.substring(pos_begin));
+                        }
+                        // 否则截取内容，并移动下标到下一个宏的开始
+                        else {
+                            macro.content = $.trim(macro_str.substring(pos_begin, pos_l));
+                            pos_l += mosHead.length;
+                        }
+
+                        // 记录宏到数组，以便后续处理
+                        macroArray.push(macro);
                     }
                 }
+                //...............................................
+                // 处理请求的状态更新命令
+                for (var macro of macroArray) {
+                    // 修改环境变量
+                    if ("update_envs" == macro.type) {
+                        app.session.envs = $z.fromJson(macro.content);
+                    }
+                    // 修改当前会话
+                    else if("change_session" == macro.type) {
+                        var newSeId = $.trim(macro.content);
+                        // 有新回话，试图切换一下
+                        if(newSeId){
+                            $.ajax({
+                                type : "GET",
+                                async:false, 
+                                url  : "/u/ajax/chse",
+                                data : {
+                                    id : newSeId
+                                },
+                                success : function(re) {
+                                    var reo = $z.fromJson(re);
+                                    if(reo.ok)
+                                        app.session = reo.data;
+                                    else
+                                        $z.invoke(opt, "msgError", [re], context);
+                                }
+                            });
+                        }
+                        // 否则重定向
+                        else {
+                            $z.openUrl("/", "_self");
+                        }
+                    }
+                }
+                //...............................................
                 // 最后确保通知了显示流结束
-                $z.invoke(opt, "msgEnd", [str], context);
-                
-                var re = oReq._content;
-
+                $z.invoke(opt, "msgEnd", [], context);
+                //...............................................
+                // 准备调用结束的回调 done/fail/complete
+                var re = content;
+                //...............................................
                 // 执行回调前数据处理
                 if(opt.processData){
                     if("json" == opt.dataType){
@@ -514,11 +564,12 @@ var Wn = {
                         $z.checkSessionNoExists(re);
                     }
                 }
-
+                //...............................................
                 // 调用完成后的回调
                 var funcName = oReq.status == 200 ? "done" : "fail";
                 $z.invoke(opt, funcName,   [re], context);
                 $z.invoke(opt, "complete", [re], context);
+                //...............................................
             }
         };
         oReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");

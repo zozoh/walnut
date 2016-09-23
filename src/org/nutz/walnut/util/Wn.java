@@ -342,7 +342,15 @@ public abstract class Wn {
 
     }
 
+    /**
+     * Cookie 中 Walnut 用户的 Session ID 键
+     */
     public static final String AT_SEID = "SEID";
+
+    public static class MACRO {
+        public static final String UPDATE_ENVS = "update_envs";
+        public static final String CHANGE_SESSION = "change_session";
+    }
 
     public static class Io {
 

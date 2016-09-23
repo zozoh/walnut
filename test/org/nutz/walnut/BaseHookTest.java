@@ -1,6 +1,7 @@
 package org.nutz.walnut;
 
 import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.io.WnObj;
@@ -24,7 +25,7 @@ public abstract class BaseHookTest extends BaseBoxTest {
         oHookHome = io.createIfNoExists(oHome, ".hook", WnRace.DIR);
 
         // 准备钩子上下文
-        WnBoxContext bc = new WnBoxContext();
+        WnBoxContext bc = new WnBoxContext(new NutMap());
         bc.io = io;
         bc.me = me;
         bc.session = se;

@@ -94,7 +94,7 @@ public class AppModule extends AbstractWnModule {
 
         // 生成 app 的对象
         WnApp app = new WnApp();
-        NutMap seMap = se.toMapForClient(null);
+        NutMap seMap = se.toMapForClient();
         app.setObj(o);
         app.setSession(seMap);
         app.setName(appName);
@@ -323,19 +323,37 @@ public class AppModule extends AbstractWnModule {
         se.var("PWD", PWD);
         se.var("APP_HOME", oAppHome.path());
 
+        // 执行命令
         exec("", se, cmdText, out, err, ins, new Callback<WnBoxContext>() {
             public void invoke(WnBoxContext bc) {
                 WnSession se = bc.session;
-                if (!Strings.isBlank(metaOutputSeparator))
+                // 有宏的分隔符，表示客户端可以接受更多的宏命令
+                if (!Strings.isBlank(metaOutputSeparator)) {
                     try {
-                        w.write("\n" + metaOutputSeparator + ":BEGIN:envs\n");
+                        // 无论怎样，都设置环境变量
+                        w.write("\n"
+                                + metaOutputSeparator
+                                + ":MACRO:"
+                                + Wn.MACRO.UPDATE_ENVS
+                                + "\n");
                         w.write(Json.toJson(se.vars()));
-                        w.write("\n" + metaOutputSeparator + ":END\n");
                         w.flush();
+                        // 修改当前客户端的 session
+                        String new_seid = bc.attrs.getString(Wn.MACRO.CHANGE_SESSION);
+                        if (!Strings.isBlank(new_seid) && !new_seid.equals(se.id())) {
+                            w.write("\n"
+                                    + metaOutputSeparator
+                                    + ":MACRO:"
+                                    + Wn.MACRO.CHANGE_SESSION
+                                    + "\n");
+                            w.write(new_seid);
+                            w.flush();
+                        }
                     }
                     catch (IOException e) {
                         throw Lang.wrapThrow(e);
                     }
+                }
             }
         });
     }

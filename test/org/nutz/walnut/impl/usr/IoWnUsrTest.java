@@ -265,10 +265,10 @@ public class IoWnUsrTest extends BaseUsrTest {
 
         }
         catch (Throwable e) {
-            System.out.println(Json.toJson(se.toMapForClient(null)));
+            System.out.println(Json.toJson(se.toMapForClient()));
             System.out.println("--------------------check again:");
             se = ses.check(se.id());
-            System.out.println(Json.toJson(se.toMapForClient(null)));
+            System.out.println(Json.toJson(se.toMapForClient()));
             System.out.println("--------------------Obj:");
             WnObj oSe2 = io.check(null, "/sys/session/" + se.id());
             System.out.println(Json.toJson(oSe2));

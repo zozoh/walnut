@@ -37,7 +37,7 @@ var on_keydown_at_inbox = function (e) {
     // 回车，添加历史记录，并清除索引
     else if (e.which == 13) {
         var str = $.trim(me.val());
-        if(!/^(exit|clear)$/g.test(str))
+        if(!/^(clear)$/g.test(str))
             UI.history(str);
     }
     // 上箭头
@@ -327,13 +327,14 @@ return ZUI.def("ui.console", {
             // 行计数
             UI._lineNB ++;
 
-            // 退出登录
-            if ("exit" == cmdText) {
-                $.get("/u/do/logout", function (re) {
-                    window.location = "/";
-                });
-                return;
-            }
+            // zozoh 这个由服务器来执行了
+            // 退出登录 
+            // if ("exit" == cmdText) {
+            //     $.get("/u/do/logout", function (re) {
+            //         window.location = "/";
+            //     });
+            //     return;
+            // }
             // 清屏幕
             if ("clear" == cmdText) {
                 UI.clearScreen();

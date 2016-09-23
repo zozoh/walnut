@@ -15,7 +15,6 @@ import org.brickred.socialauth.SocialAuthManager;
 import org.brickred.socialauth.exception.SocialAuthException;
 import org.brickred.socialauth.util.SocialAuthUtil;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Streams;
 import org.nutz.lang.stream.NullInputStream;
@@ -118,7 +117,7 @@ public class OauthModule extends AbstractWnModule {
         }
 
         // 创建会话
-        return sess.create(u).toMapForClient(JsonFormat.compact());
+        return sess.create(u).toMapForClient();
     }
 
     private SocialAuthConfig config;

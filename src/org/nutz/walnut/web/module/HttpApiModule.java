@@ -269,7 +269,7 @@ public class HttpApiModule extends AbstractWnModule {
             log.debugf("box:alloc: %s", box.id());
 
         // 设置沙箱
-        WnBoxContext bc = new WnBoxContext();
+        WnBoxContext bc = new WnBoxContext(new NutMap());
         bc.io = io;
         bc.me = u;
         bc.session = se;

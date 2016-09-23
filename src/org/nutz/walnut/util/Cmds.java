@@ -208,8 +208,9 @@ public abstract class Cmds {
             return null;
         }
 
+        // zozoh 这个不判断不做了，用 gen_json_format 函数包含了这个逻辑
         // true 表示输出的时候，也显示双下划线开头的隐藏字段
-        boolean isShowAutoHide = params.is("H");
+        // boolean isShowAutoHide = params.is("H");
 
         // 字段过滤正则表达式
         Pattern p = null;
@@ -227,8 +228,8 @@ public abstract class Cmds {
         NutMap map = new NutMap();
         for (String key : o.keySet()) {
             // 忽略自动隐藏字段
-            if (!isShowAutoHide && key.startsWith("__"))
-                continue;
+            // if (!isShowAutoHide && key.startsWith("__"))
+            // continue;
 
             // 用正则表达式判断
             if (null != p) {
@@ -361,6 +362,8 @@ public abstract class Cmds {
         if ("true".equals(json) || json == null) {
             JsonFormat fmt = params.is("c") ? JsonFormat.compact() : JsonFormat.forLook();
             fmt.setIgnoreNull(!params.is("n")).setQuoteName(params.is("q"));
+            if (params.is("H"))
+                fmt.setLocked("^__");
             return fmt;
         }
         // 更复杂的 json 格式设定

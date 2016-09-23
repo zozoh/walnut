@@ -1,10 +1,10 @@
 package org.nutz.walnut.util;
 
-import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.usr.AbstractWnSession;
 import org.nutz.walnut.api.usr.WnSession;
 
-public class FakeWnSession implements WnSession {
+public class FakeWnSession extends AbstractWnSession {
 
     private String id;
     private NutMap vars;
@@ -35,11 +35,6 @@ public class FakeWnSession implements WnSession {
     @Override
     public String id() {
         return this.id;
-    }
-
-    @Override
-    public boolean hasParentSession() {
-        return false;
     }
 
     @Override
@@ -82,6 +77,11 @@ public class FakeWnSession implements WnSession {
     }
 
     @Override
+    public long expireTime() {
+        return System.currentTimeMillis() + du;
+    }
+
+    @Override
     public WnSession clone() {
         FakeWnSession se = new FakeWnSession();
         se.id = this.id;
@@ -90,17 +90,6 @@ public class FakeWnSession implements WnSession {
         se.du = this.du;
         se.vars.putAll(this.vars);
         return se;
-    }
-
-    @Override
-    public NutMap toMapForClient(JsonFormat fmt) {
-        NutMap map = new NutMap();
-        map.put("id", this.id());
-        map.put("me", this.me());
-        map.put("grp", this.group());
-        map.put("du", this.duration());
-        map.put("envs", this.vars());
-        return map;
     }
 
 }
