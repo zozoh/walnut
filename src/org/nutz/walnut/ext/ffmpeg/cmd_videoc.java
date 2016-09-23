@@ -2,12 +2,15 @@ package org.nutz.walnut.ext.ffmpeg;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.RandomAccessFile;
+import java.security.MessageDigest;
 import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
 import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
 import org.nutz.lang.segment.Segment;
@@ -122,8 +125,12 @@ public class cmd_videoc extends JvmExecutor {
                 log.debug("cmd: " + cmd);
                 Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
                 t = sys.io.createIfNoExists(tdir, "_1_1.mp4", WnRace.FILE);
+                String fmd5 = Lang.md5(mainTarget);
+                String smd5 = simpleMd5(mainTarget);
                 sys.io.writeAndClose(t, new FileInputStream(mainTarget));
                 sys.io.appendMeta(obj, "videoc_dir:'" + tdir.id() + "'");
+                sys.io.appendMeta(t, "fmd5:'" + fmd5 + "'");
+                sys.io.appendMeta(t, "smd5:'" + smd5 + "'");
                 sys.io.appendMeta(t, tMap);
             }
             sys.io.appendMeta(obj, "videoc_dir:'id:" + tdir.id() + "'");
@@ -132,6 +139,37 @@ public class cmd_videoc extends JvmExecutor {
         finally {
             if (!params.is("k"))
                 Files.deleteDir(tmpDir);
+        }
+    }
+    
+    /**
+     * 抽样式md5
+     * 
+     * @return
+     */
+    public static String simpleMd5(File f) {
+        if (f.length() <= 1024 * 1024) {
+            return Lang.md5(f);
+        }
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(f, "r");
+            MessageDigest md = MessageDigest.getInstance("md5");
+            byte[] data = new byte[1024 * 8];
+            long size = f.length();
+            for (int i = 0; i < 128; i++) {
+                long pos = ((size * i / 128) / 8192) * 8192;
+                raf.seek(pos);
+                raf.read(data);
+                md.update(data);
+            }
+            return Lang.fixedHexString(md.digest());
+        }
+        catch (Exception e) {
+            throw Err.wrap(e);
+        }
+        finally {
+            Streams.safeClose(raf);
         }
     }
 }
