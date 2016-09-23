@@ -12,6 +12,9 @@ var methods = {
     chuteUI : function() {
         return this.browser().subUI("chute");
     },
+    mainUI : function() {
+        return this.browser().subUI("main");
+    },
     fire : function() {
         var args = Array.from(arguments);
         var uiBrowser = this.browser();
@@ -23,7 +26,39 @@ var methods = {
         var opt  = UI.browser().options;
         $z.invoke(opt, methodName, args, context || UI);
     },
+    //..............................................
+    getViewMode : function(){
+        return this.browser().local("viewmode") || "thumbnail";
+    },
+    setViewMode : function(mode){
+        var UI = this;
+        if(_.isString(mode)
+           && /^(table|thumbnail|slider|scroller|icons|columns)$/.test(mode)
+           && mode != UI.getViewMode()){
 
+            // 本地存储
+            UI.browser().local("viewmode", mode);
+            
+            // 更新显示
+            var o = UI.browser().getCurrentObj();
+            UI.mainUI().update(o);
+        }
+    },
+    //..............................................
+    getHiddenObjVisibility : function(){
+        return this.browser().local("hidden-obj-visibility") || "hidden";
+    },
+    setHiddenObjVisibility : function(vho){
+        var UI = this;
+        if(_.isString(vho)
+           && /^(show|hidden)$/.test(vho)){
+            UI.browser().local("hidden-obj-visibility", vho);
+            var o = UI.browser().getCurrentObj();
+            UI.mainUI().update(o);
+            UI.browser().arena.attr("hidden-obj-visibility", vho);
+        }
+    },
+    //..............................................
 }; // ~End methods
 //====================================================================
 

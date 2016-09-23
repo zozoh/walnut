@@ -3,7 +3,7 @@
 	type : "button",
 	handler : function($ele, a) {
 		var UI = this;
-		var objs = UI.browser.getChecked();
+		var objs = UI.browser().getChecked();
 
 		//console.log(objs);
 
@@ -80,7 +80,7 @@
 						//console.log(cmdText);
 						// 执行
 						Wn.exec(cmdText, function() {
-							UI.browser.refresh();
+							UI.browser().refresh();
 						});
 
 					}

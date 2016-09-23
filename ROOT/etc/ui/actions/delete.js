@@ -1,17 +1,11 @@
 ({
-	icon : '<i class="fa fa-trash"></i>',
+	icon : '<i class="zmdi zmdi-delete"></i>',
 	text : "i18n:delete",
 	type : "button",
 	handler : function($ele, a) {
 		var UI = this;
 		
-		// 没有数据接口 
-        if(!_.isFunction(UI.getChecked)){
-        	alert(UI.msg("e.act.noapi_obj"));
-        	return;
-        }
-		
-		var list = UI.getChecked();
+		var list = UI.browser().getChecked();
 		// 没内容
 		if (list.length == 0) {
 			alert(UI.msg("obrowser.warn.empty"));
@@ -19,12 +13,9 @@
 		}
 		// 有目录
 		var hasFolder = false;
-		for(var o of list){
-			if("DIR" == o.race){
-				hasFolder = true;
-				break;
-			}
-		}
+		list.forEach(function(o) {
+			hasFolder |= "DIR" == o.race;
+		});
 		if (hasFolder) {
 			if (!window.confirm(UI.msg("obrowser.warn.rmdir"))) {
 				return;
@@ -33,12 +24,12 @@
 
 		// 执行
 		var cmdText = "rm -rf ";
-		for(var o of list) {
+		list.forEach(function(o) {
 			cmdText += " id:" + o.id;
-		}
+		});
+
 		Wn.exec(cmdText);
 
-		// 刷新
-		$z.invoke(UI, "refresh");
+		UI.browser().refresh();
 	}
 })

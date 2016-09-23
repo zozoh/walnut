@@ -1,19 +1,19 @@
 ({
-	icon : '<i class="fa fa-gear"></i>',
+	icon : '<i class="zmdi zmdi-settings-square"></i>',
 	text : "i18n:properties",
 	type : "button",
 	handler : function($ele, a) {
-		var _C = this;
+		var UI = this.browser();
 		
 		// 获取当前的对象
-		var o = $z.invoke(this, "getActived");
+		var o = $z.invoke(UI, "getActived");
 		
 		if(!o){
-			o = $z.invoke(this, "getCurrentObj");
+			o = $z.invoke(UI, "getCurrentObj");
 		}
 		
 		if(!o){
-			alert(_C.msg("e.act.noapi_obj") + " :-> getCurrentObj");
+			alert(UI.msg("e.act.noapi_obj") + " :-> getCurrentObj");
 			return;
 		}
 		

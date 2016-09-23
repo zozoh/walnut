@@ -2,11 +2,12 @@
 $z.declare([
     'zui',
     'wn/util',
+    'ui/obrowser/support/browser__methods',
     'ui/obrowser/obrowser_sky',
     'ui/obrowser/obrowser_chute',
     'ui/obrowser/obrowser_main',
     'ui/obrowser/obrowser_footer'
-], function(ZUI, Wn, SkyUI, ChuteUI, MainUI, FooterUI){
+], function(ZUI, Wn, BrowserMethods, SkyUI, ChuteUI, MainUI, FooterUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena obrowser ui-oicon-16" ui-fitparent="true">
@@ -61,7 +62,7 @@ return ZUI.def("ui.obrowser", {
     },
     //..............................................
     init : function(options){
-        var UI  = this;
+        var UI  = BrowserMethods(this);
         var opt = options;
 
         // 设置默认的 sidebar 定义
@@ -424,37 +425,6 @@ return ZUI.def("ui.obrowser", {
         Wn.uploadPanel(_.extend({
             target : ta
         }, options));
-    },
-    //..............................................
-    getViewMode : function(){
-        return this.local("viewmode") || "thumbnail";
-    },
-    setViewMode : function(mode){
-        var UI = this;
-        if(_.isString(mode)
-           && /^(table|thumbnail|slider|scroller|icons|columns)$/.test(mode)
-           && mode != this.getViewMode()){
-            // 本地存储
-            this.local("viewmode", mode);
-            
-            // 更新显示
-            var o = UI.getCurrentObj();
-            UI.subUI("main").update(UI, o);
-        }
-    },
-    //..............................................
-    getHiddenObjVisibility : function(){
-        return this.local("hidden-obj-visibility") || "hidden";
-    },
-    setHiddenObjVisibility : function(vho){
-        var UI = this;
-        if(_.isString(vho)
-           && /^(show|hidden)$/.test(vho)){
-            this.local("hidden-obj-visibility", vho);
-            var o = UI.getCurrentObj();
-            UI.subUI("main").update(UI, o);
-            this.arena.attr("hidden-obj-visibility", vho);
-        }
     },
     //..............................................
     getCurrentEditObj : function(){

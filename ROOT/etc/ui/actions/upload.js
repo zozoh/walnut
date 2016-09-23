@@ -4,9 +4,9 @@
 	type : "button",
 	handler : function($ele, a) {
 		var UI = this;
-		UI.browser.showUploader({
+		UI.browser().showUploader({
 			finish : function(){
-				UI.browser.refresh();
+				UI.browser().refresh();
 				this.parent.close();
 			}
 		});

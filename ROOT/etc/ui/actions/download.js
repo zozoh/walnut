@@ -3,7 +3,7 @@
     text : "i18n:download",
     type : "button",
     handler : function($ele, a) {
-    	var UI = this;
+    	var UI = this.browser();
         var o  = $z.invoke(UI, "getCurrentEditObj");
         if(!o){
         	alert(UI.msg("e.act.noapi_obj"));
