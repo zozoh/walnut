@@ -524,16 +524,14 @@ var Wn = {
                     }
                     // 修改当前会话
                     else if("change_session" == macro.type) {
-                        var newSeId = $.trim(macro.content);
+                        var data = $z.fromJson(macro.content);
                         // 有新回话，试图切换一下
-                        if(newSeId){
+                        if(data && data.seid){
                             $.ajax({
                                 type : "GET",
                                 async:false, 
                                 url  : "/u/ajax/chse",
-                                data : {
-                                    id : newSeId
-                                },
+                                data : data,
                                 success : function(re) {
                                     var reo = $z.fromJson(re);
                                     if(reo.ok)
@@ -545,7 +543,7 @@ var Wn = {
                         }
                         // 否则重定向
                         else {
-                            $z.openUrl("/", "_self");
+                            window.location = "/";
                         }
                     }
                 }

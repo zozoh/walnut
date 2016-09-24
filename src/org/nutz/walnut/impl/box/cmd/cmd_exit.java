@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -29,7 +30,11 @@ public class cmd_exit extends JvmExecutor {
 
         // ............................................
         // 在沙盒的上下文标记一把
-        sys.attrs().put(Wn.MACRO.CHANGE_SESSION, null == newSe ? "" : newSe.id());
+        if (null != newSe) {
+            sys.attrs().put(Wn.MACRO.CHANGE_SESSION, Lang.mapf("seid:'%s',exit:true", newSe.id()));
+        } else {
+            sys.attrs().put(Wn.MACRO.CHANGE_SESSION, "{}");
+        }
     }
 
 }

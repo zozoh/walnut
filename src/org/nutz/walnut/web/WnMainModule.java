@@ -58,7 +58,7 @@ public class WnMainModule extends AbstractWnModule {
         }
 
         try {
-            WnSession se = sess.check(seid);
+            WnSession se = sess.check(seid, true);
 
             // 记录到上下文
             Wn.WC().SE(se);

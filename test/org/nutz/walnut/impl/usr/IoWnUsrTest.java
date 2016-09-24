@@ -233,7 +233,7 @@ public class IoWnUsrTest extends BaseUsrTest {
         assertTrue(oSe.expireTime() > (System.currentTimeMillis() + 5000));
 
         // 获取
-        se = ses.check(se.id());
+        se = ses.check(se.id(), true);
         assertEquals(se.vars().getString("MY_ID"), xiaobai.id());
         assertEquals(se.vars().getString("HOME"), xiaobai.home());
         assertEquals(se.me(), xiaobai.name());
@@ -246,7 +246,7 @@ public class IoWnUsrTest extends BaseUsrTest {
             se.var("x", "100");
             se.save();
 
-            se = ses.check(se.id());
+            se = ses.check(se.id(), true);
             assertEquals("100", se.vars().getString("x"));
             assertEquals("hello", se.vars().getString("say"));
 
@@ -255,7 +255,7 @@ public class IoWnUsrTest extends BaseUsrTest {
             se.var("x", null);
             se.save();
 
-            se = ses.check(se.id());
+            se = ses.check(se.id(), true);
             assertNull(se.vars().get("x"));
             assertNull(se.vars().get("say"));
 
@@ -267,7 +267,7 @@ public class IoWnUsrTest extends BaseUsrTest {
         catch (Throwable e) {
             System.out.println(Json.toJson(se.toMapForClient()));
             System.out.println("--------------------check again:");
-            se = ses.check(se.id());
+            se = ses.check(se.id(), true);
             System.out.println(Json.toJson(se.toMapForClient()));
             System.out.println("--------------------Obj:");
             WnObj oSe2 = io.check(null, "/sys/session/" + se.id());

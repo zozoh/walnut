@@ -24,8 +24,8 @@ public abstract class AbstractWnSession implements WnSession {
     }
 
     @Override
-    public boolean isMyParent(WnSession se) {
-        return this.hasParentSession() && se.isSame(this.getParentSessionId());
+    public boolean isParentOf(WnSession se) {
+        return se.hasParentSession() && this.isSame(se.getParentSessionId());
     }
 
     @Override

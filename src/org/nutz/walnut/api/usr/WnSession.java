@@ -34,7 +34,7 @@ public interface WnSession {
      *            另外一个会话对象
      * @return 给定会话是否是自己的子会话
      */
-    boolean isMyParent(WnSession se);
+    boolean isParentOf(WnSession se);
 
     /**
      * @return 是否有父会话

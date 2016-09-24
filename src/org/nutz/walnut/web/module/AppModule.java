@@ -339,14 +339,15 @@ public class AppModule extends AbstractWnModule {
                         w.write(Json.toJson(se.vars()));
                         w.flush();
                         // 修改当前客户端的 session
-                        String new_seid = bc.attrs.getString(Wn.MACRO.CHANGE_SESSION);
-                        if (!Strings.isBlank(new_seid) && !new_seid.equals(se.id())) {
+                        if (bc.attrs.has(Wn.MACRO.CHANGE_SESSION)) {
+                            String json = Json.toJson(bc.attrs.get(Wn.MACRO.CHANGE_SESSION),
+                                                      JsonFormat.compact());
                             w.write("\n"
                                     + metaOutputSeparator
                                     + ":MACRO:"
                                     + Wn.MACRO.CHANGE_SESSION
                                     + "\n");
-                            w.write(new_seid);
+                            w.write(json);
                             w.flush();
                         }
                     }

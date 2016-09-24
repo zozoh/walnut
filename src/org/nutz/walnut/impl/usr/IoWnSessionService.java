@@ -7,7 +7,6 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
-import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -16,6 +15,7 @@ import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 
 public class IoWnSessionService implements WnSessionService {
@@ -158,20 +158,31 @@ public class IoWnSessionService implements WnSessionService {
         IoWnSession se = (IoWnSession) this.fetch(seid);
         IoWnSession re = null;
         if (null != se) {
-            io.delete(se.getObj(), true);
-            if (log.isDebugEnabled())
-                log.debugf("sess[%s] logout", seid);
+            // 得到当前会话的文件对象
+            WnObj oSe = se.getObj();
 
             // 试图返回父会话
             re = (IoWnSession) this.fetch(se.getParentSessionId());
 
-            // 如果父会话存在，更新一下
-            if (null != re)
+            // 如果父会话存在，更新一下，同时延迟 10秒删除
+            if (null != re) {
                 this.__touch(re);
+                oSe.expireTime(System.currentTimeMillis() + 10000L);
+                oSe.setv("du", 0); // 标识了 du==0，那么即使 touch 也不会更新会话的过期时间了
+                io.set(oSe, "^(expi|du)$");
+                if (log.isDebugEnabled())
+                    log.debugf("sess[%s] logout delay 10s", seid);
+            }
+            // 否则直接删了
+            else {
+                io.delete(oSe, true);
+                if (log.isDebugEnabled())
+                    log.debugf("sess[%s] logout", seid);
+            }
 
         } else {
             if (log.isWarnEnabled())
-                log.warnf("sess[%s] losed Obj", seid);
+                log.warnf("sess[%s] noexists", seid);
         }
 
         // 返回父会话
@@ -193,11 +204,8 @@ public class IoWnSessionService implements WnSessionService {
 
         // 如果过期，删除
         if (o.isExpired()) {
-            WnUsr root = usrs.check("root");
-            Wn.WC().su(root, new Atom() {
-                public void run() {
-                    logout(seid);
-                }
+            Wn.WC().security(new WnEvalLink(io), () -> {
+                io.delete(o);
             });
             return null;
         }
@@ -206,25 +214,30 @@ public class IoWnSessionService implements WnSessionService {
     }
 
     @Override
-    public WnSession check(String seid) {
+    public WnSession check(String seid, boolean autoTouch) {
         WnObj o = this.__check_seobj(seid);
         IoWnSession se = new IoWnSession(io, o);
-        this.__touch(se);
+        if (autoTouch)
+            this.__touch(se);
         return se;
     }
 
     private void __touch(IoWnSession se) {
         WnObj o = se.getObj();
         long du = se.duration();
-        o.lastModified(System.currentTimeMillis());
-        o.expireTime(o.lastModified() + du);
-        io.appendMeta(o, "^(lm|expi)$");
 
-        // 试图更新父会话
-        if (se.hasParentSession()) {
-            IoWnSession pse = (IoWnSession) this.fetch(se.getParentSessionId());
-            if (null != pse)
-                this.__touch(pse);
+        // 只有 duration 大于 0 才表示有效
+        if (du > 0) {
+            o.lastModified(System.currentTimeMillis());
+            o.expireTime(o.lastModified() + du);
+            io.appendMeta(o, "^(lm|expi)$");
+
+            // 试图更新父会话
+            if (se.hasParentSession()) {
+                IoWnSession pse = (IoWnSession) this.fetch(se.getParentSessionId());
+                if (null != pse)
+                    this.__touch(pse);
+            }
         }
     }
 

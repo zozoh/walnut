@@ -68,19 +68,19 @@ public class WnHookContext {
         return hc;
     }
 
-    public WnUsrService usrs(){
+    public WnUsrService usrs() {
         return _bc.usrService;
     }
-    
+
     public WnSessionService sess() {
         return _bc.sessionService;
     }
-    
+
     public void setSession(WnSession se) {
         this.se = se;
         this._bc.session = se;
     }
-    
+
     public void setUser(WnUsr usr) {
         this.me = usr;
         this._bc.me = usr;

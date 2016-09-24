@@ -17,7 +17,7 @@ import org.brickred.socialauth.util.SocialAuthUtil;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Streams;
-import org.nutz.lang.stream.NullInputStream;
+import org.nutz.lang.stream.VoidInputStream;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -130,7 +130,7 @@ public class OauthModule extends AbstractWnModule {
             devConfig = getClass().getClassLoader()
                                   .getResourceAsStream("oauth_consumer.properties"); // 真实环境所使用的配置文件
         if (devConfig == null)
-            config.load(new NullInputStream());
+            config.load(new VoidInputStream());
         else {
             log.debug("Using " + devConfig);
             config.load(devConfig);

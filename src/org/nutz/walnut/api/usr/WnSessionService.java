@@ -97,6 +97,8 @@ public interface WnSessionService {
      * 
      * @param seid
      *            会话的 ID
+     * @param autoTouch
+     *            如果取得了会话，是否自动更新会话过期时间
      * @return 会话对象
      * @throws
      *             <ul>
@@ -104,6 +106,6 @@ public interface WnSessionService {
      *             <li>"e.se.expired"
      *             </ul>
      */
-    WnSession check(String seid);
+    WnSession check(String seid, boolean autoTouch);
 
 }

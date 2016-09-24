@@ -127,7 +127,7 @@ public class UsrModule extends AbstractWnModule {
         String seid = Wn.WC().SEID();
         if (null != seid) {
             try {
-                sess.check(seid);
+                sess.check(seid, true);
                 throw Lang.makeThrow("already login, go to /");
             }
             catch (WebException e) {}
@@ -219,7 +219,7 @@ public class UsrModule extends AbstractWnModule {
     public Object do_change_password(@Param("oldpasswd") String oldpasswd,
                                      @Param("passwd") String passwd) {
         String seid = Wn.WC().SEID();
-        String me = sess.check(seid).me();
+        String me = sess.check(seid, true).me();
         if (Strings.isBlank(passwd)) {
             throw Er.create("e.usr.pwd.blank");
         }
@@ -247,7 +247,7 @@ public class UsrModule extends AbstractWnModule {
     @Filters(@By(type = WnCheckSession.class))
     public Object do_reset_password(@Param("nm") String nm) {
         String seid = Wn.WC().SEID();
-        String me = sess.check(seid).me();
+        String me = sess.check(seid, true).me();
         WnUsr uMe = usrs.check(me);
 
         // 只有root组管理员能修改别人密码
@@ -289,7 +289,7 @@ public class UsrModule extends AbstractWnModule {
     @At("/avatar/me")
     @Ok("raw")
     public Object usrAvatar() {
-        WnSession se = sess.check(Wn.WC().SEID());
+        WnSession se = sess.check(Wn.WC().SEID(), true);
         String avatarPath = Wn.normalizeFullPath("~/.avatar", se);
         WnObj avatarObj = io.fetch(null, avatarPath);
         if (avatarObj != null) {
@@ -319,17 +319,27 @@ public class UsrModule extends AbstractWnModule {
     }
 
     /**
-     * 改变当前页面的会话
+     * 执行改变当前页面的会话，会改变响应里面的 COOKIE
+     * <p>
+     * 会话的改变有两种方式，这个由参数 <code>isExit</code> 来界定
+     * 
+     * <ul>
+     * <li><code>isExit == true</code> : 退出到父会话，那么给定的会话ID必须是当前会话的父会话
+     * <li><code>isExit == false</code> : 进入子会话，那么给定的会话ID必须是当前会话的子会话
+     * </ul>
      * 
      * @param seid
      *            新的会话 ID
+     * @param isExit
+     *            切换会话是从当前会话退出到父会话。false 则表示创建当前会话的子会话
+     * 
      * @return 新会话对象
      */
     @At("/ajax/chse")
     @Ok("++cookie->ajax")
     @Fail("ajax")
     @Filters(@By(type = WnCheckSession.class))
-    public NutMap ajax_change_session(@Param("id") String seid) {
+    public NutMap ajax_change_session(@Param("seid") String seid, @Param("exit") boolean isExit) {
         // 得到当前会话的
         WnSession se = Wn.WC().checkSE();
 
@@ -339,11 +349,19 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 得到新会话
-        WnSession seNew = this.sess.check(seid);
+        WnSession seNew = this.sess.check(seid, false);
 
-        // 校验父会话
-        if (!seNew.isMyParent(se)) {
-            throw Er.create("e.web.u.chse.notMyParent");
+        // 退出: 这个新回话必须是当前会话的父会话
+        if (isExit) {
+            if (!seNew.isParentOf(se)) {
+                throw Er.create("e.web.u.chse.exit");
+            }
+        }
+        // 进入: 这个新会话必须是当前会话的子会话
+        else {
+            if (!se.isParentOf(seNew)) {
+                throw Er.create("e.web.u.chse.enter");
+            }
         }
 
         // 执行切换

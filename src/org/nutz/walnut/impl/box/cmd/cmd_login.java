@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
@@ -50,7 +51,7 @@ public class cmd_login extends JvmExecutor {
                 throw Er.create("e.cmd.login.me.forbid");
             }
             if (us.isMemberOfGroup(ta, "op") || us.isMemberOfGroup(ta, "root")) {
-                throw Er.create("e.cmd.login.ta.forbid");
+                throw Er.create("e.cmd.login.ta.forbidden");
             }
         }
 
@@ -65,7 +66,7 @@ public class cmd_login extends JvmExecutor {
 
         // ............................................
         // 在沙盒的上下文标记一把
-        sys.attrs().put(Wn.MACRO.CHANGE_SESSION, newSe.id());
+        sys.attrs().put(Wn.MACRO.CHANGE_SESSION, Lang.map("seid", newSe.id()));
     }
 
 }
