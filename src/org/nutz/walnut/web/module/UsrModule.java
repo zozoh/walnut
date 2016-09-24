@@ -266,20 +266,21 @@ public class UsrModule extends AbstractWnModule {
     }
 
     /**
-     * 销毁用户的当前会话
+     * 销毁用户的当前会话，如果有父会话，则退出到父会话。否则完全退出登录
      * 
-     * @return true 成功登出，false，没有可用会话不用登出
+     * @return 父会话
      */
     @At("/do/logout")
-    @Ok("--cookie>>:/")
-    @Fail("ajax")
-    public boolean do_logout() {
+    @Ok("++cookie>>:/")
+    @Fail("--cookie>>:/")
+    public NutMap do_logout() {
         String seid = Wn.WC().SEID();
         if (null != seid) {
-            sess.logout(seid);
-            return true;
+            WnSession pse = sess.logout(seid);
+            if (null != pse)
+                return pse.toMapForClient();
         }
-        return false;
+        throw Lang.makeThrow("logout delete cookie");
     }
 
     // --------- 用户头像
