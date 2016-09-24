@@ -10,6 +10,11 @@ public class TmplCommandlHook extends AbstractWnHook {
     private Tmpl tmpl;
 
     @Override
+    public String getType() {
+        return "tmpl";
+    }
+
+    @Override
     protected void _init(String text) {
         tmpl = Strings.isBlank(text) ? null : Tmpl.parse(text);
     }

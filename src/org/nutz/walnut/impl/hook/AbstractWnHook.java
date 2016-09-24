@@ -14,8 +14,13 @@ public abstract class AbstractWnHook implements WnHook {
     private WnObjMatcher[] ms;
 
     private String brief;
-    
+
     private String runby;
+
+    @Override
+    public String getName() {
+        return name;
+    }
 
     public String toString() {
         return String.format("%s(%s) : %s", name, ms == null ? "*" : ms.length, brief);
@@ -68,7 +73,7 @@ public abstract class AbstractWnHook implements WnHook {
     public final void setRunby(String runby) {
         this.runby = runby;
     }
-    
+
     public final String getRunby() {
         return runby;
     }

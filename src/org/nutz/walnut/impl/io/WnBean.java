@@ -622,6 +622,20 @@ public class WnBean extends NutMap implements WnObj {
         return Lang.equals(this.parentId(), p.id());
     }
 
+    public boolean isMyAncestor(WnObj an) {
+        if (null == an)
+            return false;
+        if (this.isMyParent(an))
+            return true;
+        if (this.hasParent()) {
+            WnObj p = this.parent();
+            if (null != p) {
+                return p.isMyAncestor(an);
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean isRWMeta() {
         return getBoolean("__obj_meta_rw");

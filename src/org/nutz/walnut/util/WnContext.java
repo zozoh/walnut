@@ -103,7 +103,7 @@ public class WnContext extends NutMap {
                     int i = 0;
                     for (WnHook hook : hooks) {
                         if (log.isInfoEnabled())
-                            log.infof(" @[%d]: %s", i++, hook.getClass().getSimpleName());
+                            log.infof(" @[%d]: %s", i++, hook);
 
                         try {
                             String runby = hook.getRunby();

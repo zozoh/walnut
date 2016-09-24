@@ -13,9 +13,9 @@ import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.io.WnObj;
 
 public class JsCommandHook extends AbstractWnHook {
-    
+
     private static final Log log = Logs.get();
-    
+
     private static ScriptEngineManager engineManager = new ScriptEngineManager();
 
     private static String engineName = "nashorn";
@@ -24,6 +24,11 @@ public class JsCommandHook extends AbstractWnHook {
 
     protected void _init(String text) {
         this.text = text;
+    }
+
+    @Override
+    public String getType() {
+        return "js";
     }
 
     @Override
@@ -39,7 +44,7 @@ public class JsCommandHook extends AbstractWnHook {
         engine.put("stdin", new VoidInputStream());
         engine.put("stdout", out);
         engine.put("stderr", out);
-        
+
         try {
             engine.eval(text);
         }

@@ -32,6 +32,8 @@ public interface WnObj extends NutBean {
 
     boolean isMyParent(WnObj p);
 
+    boolean isMyAncestor(WnObj an);
+
     boolean isRWMeta();
 
     WnObj setRWMeta(boolean rwmeta);
