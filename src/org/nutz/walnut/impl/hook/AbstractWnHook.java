@@ -14,6 +14,8 @@ public abstract class AbstractWnHook implements WnHook {
     private WnObjMatcher[] ms;
 
     private String brief;
+    
+    private String runby;
 
     public String toString() {
         return String.format("%s(%s) : %s", name, ms == null ? "*" : ms.length, brief);
@@ -40,7 +42,7 @@ public abstract class AbstractWnHook implements WnHook {
         // 保存名称
         name = oHook.name();
         brief = Strings.trim(text.length() > 80 ? text.substring(0, 80) + " ..." : text);
-
+        runby = oHook.getString("hook_user");
         // 返回自身以便链式赋值
         return this;
     }
@@ -63,4 +65,11 @@ public abstract class AbstractWnHook implements WnHook {
         return false;
     }
 
+    public final void setRunby(String runby) {
+        this.runby = runby;
+    }
+    
+    public final String getRunby() {
+        return runby;
+    }
 }

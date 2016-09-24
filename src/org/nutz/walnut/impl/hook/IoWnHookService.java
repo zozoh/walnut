@@ -3,12 +3,14 @@ package org.nutz.walnut.impl.hook;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.hook.WnHook;
 import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 
 public abstract class IoWnHookService implements WnHookService {
 
@@ -28,7 +30,12 @@ public abstract class IoWnHookService implements WnHookService {
         if (!hr.oDir.isDIR())
             throw Er.create("e.hook.load.nodir", hr.oDir);
 
-        List<WnObj> oHooks = io.query(Wn.Q.pid(hr.oDir).asc("nm"));
+        WnContext wc = Wn.WC();
+        List<WnObj> oHooks = wc.security(null, new Proton<List<WnObj>>() {
+            protected List<WnObj> exec() {
+                return io.query(Wn.Q.pid(hr.oDir).asc("nm"));
+            }
+        });
         hr.hooks = new ArrayList<WnHook>(oHooks.size());
         for (WnObj oHook : oHooks) {
             AbstractWnHook hook;
@@ -41,7 +48,7 @@ public abstract class IoWnHookService implements WnHookService {
                 hook = new TmplCommandlHook();
             }
             // 添加到结果集
-            hook.init(io, oHook);
+            wc.security(null, ()->hook.init(io, oHook));
             hr.hooks.add(hook);
         }
 

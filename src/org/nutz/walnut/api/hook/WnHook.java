@@ -10,4 +10,7 @@ public interface WnHook {
     
     String toString();
 
+    String getRunby();
+    
+    void setRunby(String runby);
 }

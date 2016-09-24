@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -21,6 +22,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.api.usr.WnUsrInfo;
 
 /**
  * 这个是 ThreadLocal 的上下文
@@ -105,7 +107,31 @@ public class WnContext extends NutMap {
                             log.infof(" @[%d]: %s", i++, hook.getClass().getSimpleName());
 
                         try {
-                            hook.invoke(hc, o);
+                            String runby = hook.getRunby();
+                            if (Strings.isBlank(runby))
+                                hook.invoke(hc, o);
+                            else {
+                                final WnHookContext _hc = hc.clone();
+                                final WnHookContext oldHc = hc;
+                                try {
+                                    hc = _hc;
+                                    this.security(null, () -> {
+                                        WnUsr usr = _hc.usrs().fetch(runby);
+                                        _hc.setUser(usr);
+                                        _hc.setSession(_hc.sess().create(usr));
+                                        se = _hc.se;
+                                        this.su(usr, new Atom() {
+                                            public void run() {
+                                                hook.invoke(_hc, o);
+                                            }
+                                        });
+                                    });
+                                }
+                                finally {
+                                    hc = oldHc;
+                                    se = hc.se;
+                                }
+                            }
                         }
                         catch (WnHookBreak e) {
                             if (log.isDebugEnabled())
