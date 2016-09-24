@@ -41,6 +41,9 @@ public abstract class IoWnHookService implements WnHookService {
         WnEvalLink secu = new WnEvalLink(io);
         for (WnObj oHook : oHooks) {
             AbstractWnHook hook;
+            // 隐藏文件，忽略
+            if (oHook.isHidden())
+                continue;
             // js
             if (oHook.isType("js")) {
                 hook = new JsCommandHook();
@@ -50,7 +53,7 @@ public abstract class IoWnHookService implements WnHookService {
                 hook = new TmplCommandlHook();
             }
             // 添加到结果集
-            wc.security(secu, ()->hook.init(io, oHook));
+            wc.security(secu, () -> hook.init(io, oHook));
             hr.hooks.add(hook);
         }
 
