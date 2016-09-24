@@ -22,6 +22,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.impl.io.WnEvalLink;
 
 /**
  * 这个是 ThreadLocal 的上下文
@@ -114,11 +115,11 @@ public class WnContext extends NutMap {
                                 final WnHookContext oldHc = hc;
                                 try {
                                     hc = _hc;
-                                    this.security(null, () -> {
+                                    this.security(new WnEvalLink(hookContext.io()), () -> {
                                         WnUsr usr = _hc.usrs().fetch(runby);
                                         _hc.setUser(usr);
                                         _hc.setSession(_hc.sess().create(usr));
-                                        se = _hc.se;
+                                        se = _hc.getSession();
                                         this.su(usr, new Atom() {
                                             public void run() {
                                                 hook.invoke(_hc, o);
@@ -128,7 +129,7 @@ public class WnContext extends NutMap {
                                 }
                                 finally {
                                     hc = oldHc;
-                                    se = hc.se;
+                                    se = hc.getSession();
                                 }
                             }
                         }
@@ -153,7 +154,7 @@ public class WnContext extends NutMap {
                     log.infof("HOOK(%d)%s: DONE:%dms", hooks.size(), action, sw.getDuration());
 
                 // 调用了钩子，则重新获取
-                return hookContext.io.checkById(o.id());
+                return hookContext.io().checkById(o.id());
             }
 
         }

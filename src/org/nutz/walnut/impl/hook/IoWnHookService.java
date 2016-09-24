@@ -9,6 +9,7 @@ import org.nutz.walnut.api.hook.WnHook;
 import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
@@ -37,6 +38,7 @@ public abstract class IoWnHookService implements WnHookService {
             }
         });
         hr.hooks = new ArrayList<WnHook>(oHooks.size());
+        WnEvalLink secu = new WnEvalLink(io);
         for (WnObj oHook : oHooks) {
             AbstractWnHook hook;
             // js
@@ -48,7 +50,7 @@ public abstract class IoWnHookService implements WnHookService {
                 hook = new TmplCommandlHook();
             }
             // 添加到结果集
-            wc.security(null, ()->hook.init(io, oHook));
+            wc.security(secu, ()->hook.init(io, oHook));
             hr.hooks.add(hook);
         }
 

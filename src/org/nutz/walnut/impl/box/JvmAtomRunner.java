@@ -202,8 +202,6 @@ public class JvmAtomRunner {
         WnHookContext hc = wc.getHookContext();
         if (null != hc) {
             hc = hc.clone();
-            hc.me = me;
-            hc.se = se;
         }
 
         // 分析每个执行原子

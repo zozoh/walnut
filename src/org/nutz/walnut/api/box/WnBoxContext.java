@@ -25,4 +25,15 @@ public class WnBoxContext {
         this.attrs = attrs;
     }
 
+    public WnBoxContext clone() {
+        WnBoxContext bc = new WnBoxContext(new NutMap());
+        bc.me = this.me;
+        bc.session = this.session;
+        bc.io = this.io;
+        bc.sessionService = this.sessionService;
+        bc.usrService = this.usrService;
+        bc.attrs.putAll(this.attrs);
+        return bc;
+    }
+
 }

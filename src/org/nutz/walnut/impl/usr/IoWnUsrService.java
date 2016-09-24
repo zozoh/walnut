@@ -20,6 +20,7 @@ import org.nutz.walnut.api.usr.WnRole;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.api.usr.WnUsrService;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.web.WebException;
@@ -36,7 +37,6 @@ public class IoWnUsrService implements WnUsrService {
     private WnIo io;
 
     private NutMap initEnvs;
-    
 
     // 得到用户存放的目录
     WnObj oUsrHome;
@@ -98,7 +98,7 @@ public class IoWnUsrService implements WnUsrService {
         final WnContext wc = Wn.WC();
         wc.su(u, () -> {
             wc.me(u.name(), u.mainGroup());
-            wc.security(null, () -> {
+            wc.security(new WnEvalLink(io), () -> {
                 WnObj oHome = io.createIfNoExists(null, phHome, WnRace.DIR);
                 // 保护主目录
                 oHome.mode(0750);

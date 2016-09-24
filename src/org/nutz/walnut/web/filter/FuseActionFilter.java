@@ -63,9 +63,6 @@ public class FuseActionFilter implements ActionFilter {
             bc.sessionService = sess;
 
             WnHookContext hc = new WnHookContext(boxes, bc);
-            hc.io = io;
-            hc.me = me;
-            hc.se = se;
             hc.service = ioc.get(WnHookService.class, "hookService");
 
             wc.setHookContext(hc);

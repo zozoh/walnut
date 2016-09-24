@@ -33,9 +33,6 @@ public abstract class BaseHookTest extends BaseBoxTest {
         bc.sessionService = ses;
 
         hc = new WnHookContext(boxes, bc);
-        hc.io = io;
-        hc.me = me;
-        hc.se = se;
         hc.service = new CachedWnHookService().setIo(io);
     }
 

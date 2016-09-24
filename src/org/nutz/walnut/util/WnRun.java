@@ -215,9 +215,6 @@ public class WnRun {
         bc.usrService = usrs;
         bc.sessionService = sess;
         WnHookContext hc = new WnHookContext(boxes, bc);
-        hc.io = io;
-        hc.me = usr;
-        hc.se = se;
         hc.service = hooks;
 
         if (env != null) {

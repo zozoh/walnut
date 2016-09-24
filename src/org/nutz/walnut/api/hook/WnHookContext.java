@@ -18,14 +18,8 @@ public class WnHookContext {
 
     public WnHookContext(WnBoxService boxes, WnBoxContext bc) {
         this._boxes = boxes;
-        this._bc = bc;
+        this._bc = bc.clone();
     }
-
-    public WnIo io;
-
-    public WnUsr me;
-
-    public WnSession se;
 
     protected WnBoxContext _bc;
 
@@ -61,9 +55,6 @@ public class WnHookContext {
 
     public WnHookContext clone() {
         WnHookContext hc = new WnHookContext(_boxes, _bc);
-        hc.io = io;
-        hc.me = me;
-        hc.se = se;
         hc.service = service;
         return hc;
     }
@@ -76,13 +67,23 @@ public class WnHookContext {
         return _bc.sessionService;
     }
 
+    public WnIo io() {
+        return _bc.io;
+    }
+
+    public WnSession getSession() {
+        return this._bc.session;
+    }
+
     public void setSession(WnSession se) {
-        this.se = se;
         this._bc.session = se;
     }
 
+    public WnUsr getUser() {
+        return this._bc.me;
+    }
+
     public void setUser(WnUsr usr) {
-        this.me = usr;
         this._bc.me = usr;
     }
 }
