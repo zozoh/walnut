@@ -186,7 +186,7 @@ public class WnJob extends WnRun implements Callable<Object> {
                     String cmdText = io.readText(cmdFile);
                     WnUsr usr = usrs.fetch(jobDir.getString("job_user"));
                     if (usr != null) {
-                        WnSession se = sess.create(usr);
+                       WnSession se = sess.create(usr);
                        WnJob.this.runWithHook(se, usr, jobDir.getString("job_group"), 
                                               jobDir.getAs("job_env", NutMap.class), new Callback<WnSession>() {
                             

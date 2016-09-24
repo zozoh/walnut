@@ -1,3 +1,3 @@
 package org.nutz.walnut.api.hook;
 
-public class WnHookBreak extends Exception {}
+public class WnHookBreak extends RuntimeException {}
