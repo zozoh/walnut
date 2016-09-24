@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
-import org.nutz.lang.stream.NullInputStream;
+import org.nutz.lang.stream.VoidInputStream;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
@@ -275,7 +275,7 @@ public class JvmAtomRunner {
         }
 
         // 为第一个原子分配标准输入
-        atoms[0].sys.in = new JvmBoxInput(null == in ? new NullInputStream() : in);
+        atoms[0].sys.in = new JvmBoxInput(null == in ? new VoidInputStream() : in);
 
         // 如果没有重定向，为最后一个原子分配标准输出
         int lastIndex = atoms.length - 1;
