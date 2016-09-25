@@ -11,7 +11,6 @@ import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 

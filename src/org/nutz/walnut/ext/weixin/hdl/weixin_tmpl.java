@@ -110,7 +110,8 @@ public class weixin_tmpl implements JvmHdl {
 
             // 调用接口
             WxResp re = wxApi.template_send(to, tid, url, data);
-            sys.out.println(Json.toJson(re, hc.jfmt));
+            if (!"true".equals(hc.params.get("quite")))
+                sys.out.println(Json.toJson(re, hc.jfmt));
         }
 
     }
