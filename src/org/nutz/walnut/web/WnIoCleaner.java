@@ -5,14 +5,12 @@ import java.util.Date;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
-import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Region;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
@@ -57,8 +55,6 @@ public class WnIoCleaner implements Atom {
         long now = System.currentTimeMillis();
         WnQuery q = new WnQuery();
         q.setv("expi", Region.Longf("(,%d]", now));
-        WnUsr usr = _run.usrs().check("root");
-        WnSession se = _run.sess().create(usr);
         _run.io().each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj o, int length) {
                 if (o.isExpired()) {
@@ -66,15 +62,10 @@ public class WnIoCleaner implements Atom {
                         Date d = new Date(o.expireTime());
                         log.infof("rm expired : %s : %s", Times.sDTms2(d), o.path());
                     }
-                    _run.runWithHook(se, usr, "root", null, new Callback<WnSession>() {
-                        public void invoke(WnSession se) {
-                            _run.io().delete(o, true);
-                        }
-                    });
+                    _run.io().delete(o, true);
                 }
             }
         });
-        _run.sess().logout(se.id());
     }
 
 }
