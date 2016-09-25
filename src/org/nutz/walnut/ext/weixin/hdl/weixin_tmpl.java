@@ -8,6 +8,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
 import org.nutz.walnut.ext.weixin.WxUtil;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -107,6 +108,13 @@ public class weixin_tmpl implements JvmHdl {
             String url = hc.params.get("url");
             String tid = hc.params.check("tid");
             String to = hc.params.check("to");
+            
+            // 支持本地别名
+            if (tid.startsWith("nm:")) {
+                String tmplName = tid.substring(3);
+                WnObj t = sys.io.check(wxApi.getHomeObj(), "tmpl/"+tmplName);
+                tid = t.getString("weixin_tid");
+            }
 
             // 调用接口
             WxResp re = wxApi.template_send(to, tid, url, data);
