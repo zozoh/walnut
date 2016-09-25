@@ -111,25 +111,25 @@ public class WnContext extends NutMap {
                             if (Strings.isBlank(runby))
                                 hook.invoke(hc, o);
                             else {
-                                final WnHookContext _hc = hc.clone();
-                                final WnHookContext oldHc = hc;
+                                final WnUsr oldUser = hc.getUser();
+                                final WnSession oldSession = hc.getSession();
                                 try {
-                                    hc = _hc;
-                                    this.security(new WnEvalLink(hookContext.io()), () -> {
-                                        WnUsr usr = _hc.usrs().fetch(runby);
-                                        _hc.setUser(usr);
-                                        _hc.setSession(_hc.sess().create(usr));
-                                        se = _hc.getSession();
+                                    this.security(new WnEvalLink(hc.io()), () -> {
+                                        WnUsr usr = hc.usrs().fetch(runby);
+                                        hc.setUser(usr);
+                                        hc.setSession(hc.sess().create(usr));
+                                        se = hc.getSession();
                                         this.su(usr, new Atom() {
                                             public void run() {
-                                                hook.invoke(_hc, o);
+                                                hook.invoke(hc, o);
                                             }
                                         });
                                     });
                                 }
                                 finally {
-                                    hc = oldHc;
                                     se = hc.getSession();
+                                    hc.setUser(oldUser);
+                                    hc.setSession(oldSession);
                                 }
                             }
                         }
