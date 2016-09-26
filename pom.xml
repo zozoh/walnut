@@ -4,7 +4,7 @@
 	<groupId>org.nutz</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>1.r.58-SNAPSHOT</version>
+	<version>1.r.59-SNAPSHOT</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -71,7 +71,7 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz</artifactId>
-			<version>1.r.58-SNAPSHOT</version>
+			<version>1.r.59-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
