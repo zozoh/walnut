@@ -67,7 +67,7 @@ public class cmd_jsc extends JvmExecutor {
         }
 
         // 分析输入变量
-        NutMap vars;
+        NutMap vars = new NutMap();
 
         // 用户定义了变量
         if (params.has("vars")) {
@@ -75,15 +75,11 @@ public class cmd_jsc extends JvmExecutor {
             // 从管道读取
             if (("~pipe".equals(vstr) || "true".equals(vstr)) && sys.pipeId > 0) {
                 vstr = sys.in.readAll();
-                vars = Lang.map(vstr);
             }
-            // 解析
-            else {
-                vars = new NutMap();
-            }
+            vars = Lang.map(vstr);
         }
-        // 空变量
-        else {
+        // 预防null
+        if (vars == null) {
             vars = new NutMap();
         }
 
@@ -123,6 +119,9 @@ public class cmd_jsc extends JvmExecutor {
             engine.put(en.getKey(), en.getValue());
         }
         engine.put("sys", new cmd_jsc_api(sys));
+        engine.put("stdin", sys.in.getInputStream());
+        engine.put("stdout", sys.out.getOutputStream());
+        engine.put("stderr", sys.err.getOutputStream());
 
         // 执行
         if (debug)
