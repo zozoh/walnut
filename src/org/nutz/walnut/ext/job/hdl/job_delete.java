@@ -4,6 +4,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.WnRun;
 import org.nutz.web.Webs.Err;
 
 public class job_delete extends job_abstract{
@@ -12,7 +13,7 @@ public class job_delete extends job_abstract{
         if (hc.args.length == 0) {
             throw Err.create("e.cmds.need_args");
         }
-        sudo(sys, () -> {
+        WnRun.sudo(sys, () -> {
             for (String id : hc.args) {
                 WnObj jobDir = sys.io.get(id);
                 if (jobDir == null)

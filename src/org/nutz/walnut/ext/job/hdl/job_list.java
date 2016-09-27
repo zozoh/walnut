@@ -7,12 +7,13 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.WnRun;
 import org.nutz.walnut.util.ZParams;
 
 public class job_list extends job_abstract {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        sudo(sys, () -> {
+        WnRun.sudo(sys, () -> {
 
                 ZParams params = ZParams.parse(hc.args, null);
                 //String mode = params.get("mode", "simple");

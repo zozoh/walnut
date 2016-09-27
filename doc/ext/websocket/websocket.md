@@ -89,6 +89,7 @@ wss://$ip/websocket
 
 ```js
 {
+	method: "resp",
 	id: "aabbccddeeffgg",
 	ok: true,
 	args: ["xxx", "yyy"]

@@ -15,6 +15,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.job.WnJob;
+import org.nutz.walnut.util.WnRun;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.Webs.Err;
 
@@ -60,7 +61,7 @@ public class job_add extends job_abstract {
 
         // 用根用户权限执行
         String cmdText = cmd;
-        sudo(sys, () -> {
+        WnRun.sudo(sys, () -> {
                 WnObj jobDir = io.create(null, WnJob.root + "/" + id, WnRace.DIR);
                 WnObj cmdFile = io.create(jobDir, "cmd", WnRace.FILE);
                 io.writeText(cmdFile, cmdText);

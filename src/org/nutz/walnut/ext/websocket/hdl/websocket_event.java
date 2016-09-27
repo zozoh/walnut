@@ -6,11 +6,17 @@ import javax.websocket.Session;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
+import org.nutz.trans.Atom;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.websocket.WnWebSocket;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.WnRun;
 import org.nutz.walnut.util.ZParams;
 
 public class websocket_event implements JvmHdl {
@@ -26,7 +32,24 @@ public class websocket_event implements JvmHdl {
         if (params.vals.length > 2) {
             map = Json.fromJson(Map.class, params.val(2));
         }
-        session.getAsyncRemote().sendText(Json.toJson(new NutMap("event", event).setv("params", map), JsonFormat.compact()));
+        NutMap re = new NutMap("event", event).setv("params", map);
+        String callback = params.get("callback");
+        if (!Strings.isBlank(callback)) {
+            String id = R.UU32();
+            re.put("id", id);
+            re.put("user", sys.me.name());
+            WnRun.sudo(sys, new Atom() {
+                public void run() {
+                    WnObj cfile = sys.io.createIfNoExists(null, "/sys/ws/"+id, WnRace.FILE);
+                    NutMap meta = new NutMap();
+                    meta.put("ws_usr", sys.me.name());
+                    meta.put("ws_grp", sys.me.group());
+                    meta.put("expi", System.currentTimeMillis() +300*1000);
+                    sys.io.writeMeta(cfile, meta);
+                }
+            });
+        }
+        session.getAsyncRemote().sendText(Json.toJson(re, JsonFormat.compact()));
     }
 
 }

@@ -5,6 +5,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.job.WnJob;
+import org.nutz.walnut.util.WnRun;
 import org.nutz.web.Webs.Err;
 
 public class job_show extends job_abstract {
@@ -13,7 +14,7 @@ public class job_show extends job_abstract {
         if (hc.args.length == 0) {
             throw Err.create("e.cmds.need_args");
         }
-        sudo(sys, () -> {
+        WnRun.sudo(sys, () -> {
                 WnObj jobRoot = sys.io.check(null, WnJob.root);
                 for (String id : hc.args) {
                     WnObj jobDir = sys.io.check(jobRoot, id);

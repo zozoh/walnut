@@ -23,26 +23,30 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.WnRun;
 
 @ServerEndpoint(value="/websocket", configurator=WnWebSocketConfigurator.class)
 @SuppressWarnings("unchecked")
-@IocBean
+@IocBean(create="init")
 public class WnWebSocket extends Endpoint {
     
     private static final Log log = Logs.get();
     
-    static Map<String, Session> peers = Collections.synchronizedMap(new HashMap<>());
+    protected static Map<String, Session> peers = Collections.synchronizedMap(new HashMap<>());
     
     @Inject
     protected WnRun wnRun;
     
     protected Field idField;
+    
+    protected WnObj root;
 
     @OnOpen
     public void onOpen(final Session session, EndpointConfig config) {
@@ -87,7 +91,33 @@ public class WnWebSocket extends Endpoint {
                 if (doReturn)
                     session.getAsyncRemote().sendText(Json.toJson(new NutMap("event", "watched").setv("obj", obj.id()), JsonFormat.compact()));
                 break;
-
+            case "resp":
+                String id = map.getString("id");
+                if (Strings.isBlank(id) || id.contains(".."))
+                    break;
+                WnObj cfile = wnRun.io().fetch(root, id);
+                if (cfile == null) {
+                    log.debug("not such websocket callback file id=" + id);
+                    break;
+                }
+                String callback = wnRun.io().readText(cfile);
+                if (Strings.isBlank(callback)) {
+                    log.debug("websocket callback file is emtry id=" + id);
+                    break;
+                }
+                String ws_usr = map.getString("ws_usr");
+                if (Strings.isBlank(ws_usr)) {
+                    log.debug("websocket callback file without ws_usr id=" + id);
+                    break;
+                }
+                Tmpl tmpl = Tmpl.parse(callback);
+                NutMap ctx = new NutMap();
+                ctx.put("ok", map.getBoolean("ok", false));
+                ctx.put("args", map.getList("args", Object.class));
+                ctx.put("cfile", cfile);
+                String cmd = tmpl.render(ctx);
+                wnRun.exec("websocket", ws_usr, cmd);
+                break;
             default:
                 log.info("unknown method="+methodName);
                 break;
@@ -110,5 +140,9 @@ public class WnWebSocket extends Endpoint {
     
     public static Session get(String id) {
         return peers.get(id);
+    }
+    
+    public void init() {
+        root = wnRun.io().createIfNoExists(null, "/sys/ws", WnRace.DIR);
     }
 }
