@@ -106,17 +106,17 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutzmongo</artifactId>
-			<version>1.r.57-SNAPSHOT</version>
+			<version>1.r.59-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutzwx</artifactId>
-			<version>1.r.58-SNAPSHOT</version>
+			<version>1.r.58</version>
 		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz-plugins-qrcode</artifactId>
-			<version>1.r.58-SNAPSHOT</version>
+			<version>1.r.58</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.htmlunit</groupId>
@@ -136,7 +136,7 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz-quartz</artifactId>
-			<version>1.r.58-SNAPSHOT</version>
+			<version>1.r.59-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.qiniu</groupId>
