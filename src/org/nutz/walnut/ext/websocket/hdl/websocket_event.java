@@ -33,7 +33,7 @@ public class websocket_event implements JvmHdl {
             map = Lang.map(params.val(2));
         }
         NutMap re = new NutMap("event", event);
-        if (params != null)
+        if (map != null)
             re.putAll(map);
         String callback = params.get("callback");
         if (!Strings.isBlank(callback)) {
