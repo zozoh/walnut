@@ -2,10 +2,14 @@ package org.nutz.walnut.impl.hook;
 
 import java.io.ByteArrayOutputStream;
 
+import javax.script.Bindings;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.nutz.lang.Stopwatch;
 import org.nutz.lang.stream.VoidInputStream;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -19,11 +23,17 @@ public class JsCommandHook extends AbstractWnHook {
     private static ScriptEngineManager engineManager = new ScriptEngineManager();
 
     private static String engineName = "nashorn";
-
-    protected String text;
+    ScriptEngine engine = engineManager.getEngineByName(engineName);
+    protected CompiledScript function;
 
     protected void _init(String text) {
-        this.text = text;
+        Compilable compilable = (Compilable) engine;
+        try {
+            function = compilable.compile(text);
+        }
+        catch (ScriptException e) {
+           log.debug("bad js hook", e); 
+        }
     }
 
     @Override
@@ -33,24 +43,26 @@ public class JsCommandHook extends AbstractWnHook {
 
     @Override
     public void invoke(WnHookContext hc, WnObj o) {
+        if (function == null) {
+            log.debug("bad js hook, skip");
+            return;
+        }
+        Stopwatch sw = Stopwatch.begin();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        ScriptEngine engine = engineManager.getEngineByName(engineName);
-
-        // 分析输入变量
-        engine.put("obj", o);
-        engine.put("hc", hc);
-        engine.put("stdin", new VoidInputStream());
-        engine.put("stdout", out);
-        engine.put("stderr", out);
-
+        Bindings bindings = engine.createBindings();
+        bindings.put("obj", o);
+        bindings.put("hc", hc);
+        bindings.put("stdin", new VoidInputStream());
+        bindings.put("stdout", out);
+        bindings.put("stderr", out);
         try {
-            engine.eval(text);
+            function.eval(bindings);
         }
         catch (ScriptException e) {
             log.debug("js hook error", e);
         }
+        sw.stop();
+        log.debug("js hook time = " + sw);
     }
-
 }
