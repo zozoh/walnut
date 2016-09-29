@@ -2,6 +2,7 @@ package org.nutz.walnut.impl.io;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
@@ -35,6 +36,7 @@ public class WnBean extends NutMap implements WnObj {
         boolean not = null != regex && regex.startsWith("!");
         if (not)
             regex = regex.substring(1);
+        Pattern pattern = regex == null ? null : Pattern.compile(regex);
 
         for (Map.Entry<String, Object> en : this.entrySet()) {
             String key = en.getKey();
@@ -43,12 +45,12 @@ public class WnBean extends NutMap implements WnObj {
                 continue;
             }
             // 如果 regex 为空，不是 "__" 开头（表隐藏），则全要
-            else if (null == regex) {
+            else if (null == pattern) {
                 if (!key.startsWith("__"))
                     map.put(key, en.getValue());
             }
             // 否则只给出正则表达式匹配的部分
-            else if (key.matches(regex) ^ not) {
+            else if (pattern.matcher(key).matches() ^ not) {
                 map.put(key, en.getValue());
             }
         }

@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.usr;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -31,6 +32,7 @@ public class IoWnSessionService implements WnSessionService {
     private WnUsrService usrs;
 
     private WnObj oSessions;
+    private static Pattern Session_Key_Reserved_Pattern = Pattern.compile("^(passwd|salt|pid|ct|lm|data|sha1|len|c|g|m|d0|d1|md|tp|mime|ph)$");
 
     public void on_create() {
         Wn.WC().me("root", "root");
@@ -68,7 +70,7 @@ public class IoWnSessionService implements WnSessionService {
             if (key.startsWith("__"))
                 continue;
             // 其他不显示的键
-            if (key.matches("^(passwd|salt|pid|ct|lm|data|sha1|len|c|g|m|d0|d1|md|tp|mime|ph)$")) {
+            if (Session_Key_Reserved_Pattern.matcher(key).matches()) {
                 continue;
             }
             // HOME 特殊处理
