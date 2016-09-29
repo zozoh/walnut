@@ -1,13 +1,19 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.script.Bindings;
+import javax.script.Compilable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -27,8 +33,13 @@ public class cmd_jsc extends JvmExecutor {
     private static ScriptEngineManager engineManager = new ScriptEngineManager();
 
     private static String dft_engine_nm = null;
+    
+    protected Map<String, ScriptEngine> engines = new HashMap<>();
+    
+    private static final Log log = Logs.get();
 
     public void exec(WnSystem sys, String[] args) throws Exception {
+        log.info("init exec");
         // 分析参数
         ZParams params = ZParams.parse(args, "^debug$");
         boolean debug = params.is("debug");
@@ -60,10 +71,15 @@ public class cmd_jsc extends JvmExecutor {
         // 得到引擎
         String engineName = params.get("engine", dft_engine_nm);
 
-        ScriptEngine engine = engineManager.getEngineByName(engineName);
+        ScriptEngine engine = engines.get(engineName);
         if (engine == null) {
-            sys.err.println("no such engine name=" + engineName);
-            return;
+            engine = engineManager.getEngineByName(engineName);
+            if (engine == null) {
+                sys.err.println("no such engine name=" + engineName);
+                return;
+            } else {
+                engines.put(engineName, engine);
+            }
         }
 
         // 分析输入变量
@@ -90,6 +106,9 @@ public class cmd_jsc extends JvmExecutor {
             WnObj o = Wn.checkObj(sys, str);
             jsStr = sys.io.readText(o);
         }
+        else if (params.has("cmd")) {
+            jsStr = params.get("cmd");
+        }
         // 用输入的参数吧
         else if (params.vals.length > 0) {
             String str = params.vals[0];
@@ -115,20 +134,20 @@ public class cmd_jsc extends JvmExecutor {
         }
 
         // 准备运行，首先设置上下文
+        Bindings bindings = engine.createBindings();
         for (Entry<String, Object> en : vars.entrySet()) {
-            engine.put(en.getKey(), en.getValue());
+            bindings.put(en.getKey(), en.getValue());
         }
-        engine.put("sys", new cmd_jsc_api(sys));
-        engine.put("stdin", sys.in.getInputStream());
-        engine.put("stdout", sys.out.getOutputStream());
-        engine.put("stderr", sys.err.getOutputStream());
+        bindings.put("sys", new cmd_jsc_api(sys));
+        bindings.put("stdin", sys.in.getInputStream());
+        bindings.put("stdout", sys.out.getOutputStream());
+        bindings.put("stderr", sys.err.getOutputStream());
 
         // 执行
         if (debug)
             sys.out.println("js=" + jsStr + "\n");
-        Object obj = engine.eval(jsStr);
-        if (debug) {
+        Object obj = ((Compilable) engine).compile(jsStr).eval(bindings);
+        if (debug)
             sys.out.println("re=" + obj);
-        }
     }
 }
