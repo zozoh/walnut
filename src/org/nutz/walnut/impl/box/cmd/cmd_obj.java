@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -32,7 +33,7 @@ public class cmd_obj extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        ZParams params = ZParams.parse(args, "iocnqhbslAVNPHQ", "^(pager)$");
+        ZParams params = ZParams.parse(args, "iocnqhbslAVNPHQ", "^(pager|ExtendDeeply|hide)$");
 
         WnPager wp = new WnPager(params);
 
@@ -184,6 +185,15 @@ public class cmd_obj extends JvmExecutor {
         boolean _is_set = params.has("set");
         if (_is_set) {
             __do_set(sys, params, list);
+        }
+
+        // 输出前，是否过滤所有的隐藏文件
+        if (params.is("hide")) {
+            List<WnObj> list2 = new ArrayList<WnObj>(list.size());
+            for (WnObj o : list)
+                if (!o.isHidden())
+                    list2.add(o);
+            list = list2;
         }
 
         // 最后执行输出

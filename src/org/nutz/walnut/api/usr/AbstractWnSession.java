@@ -1,5 +1,6 @@
 package org.nutz.walnut.api.usr;
 
+import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
@@ -31,6 +32,23 @@ public abstract class AbstractWnSession implements WnSession {
     @Override
     public boolean hasParentSession() {
         return !Strings.isBlank(this.getParentSessionId());
+    }
+
+    @Override
+    public String varString(String nm) {
+        Object v = var(nm);
+        return null == v ? null : v.toString();
+    }
+
+    @Override
+    public int varInt(String nm) {
+        return varInt(nm, Integer.MIN_VALUE);
+    }
+
+    @Override
+    public int varInt(String nm, int dft) {
+        Object v = var(nm);
+        return null == v ? dft : Castors.me().castTo(v, Integer.class);
     }
 
     @Override

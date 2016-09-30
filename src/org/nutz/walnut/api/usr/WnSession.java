@@ -72,6 +72,29 @@ public interface WnSession {
     Object var(String nm);
 
     /**
+     * @param nm
+     *            变量名
+     * @return 某变量的值的字符串形式
+     */
+    String varString(String nm);
+
+    /**
+     * @param nm
+     *            变量名
+     * @return 某变量的值的整数形式，默认值为最小整数
+     */
+    int varInt(String nm);
+
+    /**
+     * @param nm
+     *            变量名
+     * @param dft
+     *            默认值
+     * @return 某变量的值的整数形式
+     */
+    int varInt(String nm, int dft);
+
+    /**
      * 将自身所有变量持久化到会话对象中，其他进程可以随时读取
      */
     void save();
