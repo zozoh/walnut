@@ -23,7 +23,9 @@ author:zozoh
     // 用户可以自定义控件
     sidebar : {
         uiType : 'ui/obrowser/obrowser_chute_sidebar',
-        uiConf : {..}
+        uiConf : {
+            path : "/etc/ui/sidebar.js"
+        }
     }
     
     // 是否显示顶栏(包括菜单和地址条)

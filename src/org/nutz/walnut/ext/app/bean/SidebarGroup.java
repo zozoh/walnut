@@ -2,6 +2,8 @@ package org.nutz.walnut.ext.app.bean;
 
 import java.util.List;
 
+import org.nutz.lang.Strings;
+
 public class SidebarGroup {
 
     private String title;
@@ -27,6 +29,9 @@ public class SidebarGroup {
     public String toHtml() {
         StringBuilder sb = new StringBuilder();
         sb.append("<section>");
+        if (!Strings.isBlank(title)) {
+            sb.append("\n    <h1>").append(Strings.escapeHtml(title)).append("</h1>");
+        }
         for (SidebarItem si : items)
             si.joinHtml(sb);
         sb.append("\n</section>");

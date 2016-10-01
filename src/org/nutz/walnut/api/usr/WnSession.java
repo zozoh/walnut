@@ -74,6 +74,13 @@ public interface WnSession {
     /**
      * @param nm
      *            变量名
+     * @return 是否存在某变量
+     */
+    boolean hasVar(String nm);
+
+    /**
+     * @param nm
+     *            变量名
      * @return 某变量的值的字符串形式
      */
     String varString(String nm);

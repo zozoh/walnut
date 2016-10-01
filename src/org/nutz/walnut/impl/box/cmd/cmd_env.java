@@ -3,6 +3,8 @@ package org.nutz.walnut.impl.box.cmd;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.impl.io.WnEvalLink;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_env extends JvmExecutor {
@@ -17,7 +19,9 @@ public class cmd_env extends JvmExecutor {
             for (String varName : ss) {
                 sys.se.var(varName, null);
             }
-            sys.se.save();
+            Wn.WC().security(new WnEvalLink(sys.io), () -> {
+                sys.se.save();
+            });
         }
         // 没有参数，列出所有环境变量
         else if (params.vals.length == 0) {

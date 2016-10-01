@@ -38,10 +38,10 @@ public class WnEvalLink implements WnSecurity {
         return __eval_obj(nd);
     }
 
-    // @Override
-    // public WnObj remove(WnObj nd) {
-    // return __eval_obj(nd, false);
-    // }
+    @Override
+    public WnObj remove(WnObj nd) {
+        return nd;
+    }
 
     @Override
     public WnObj meta(WnObj nd) {

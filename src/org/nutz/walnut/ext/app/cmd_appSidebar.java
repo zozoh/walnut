@@ -6,7 +6,6 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.app.bean.SidebarGroup;
 import org.nutz.walnut.ext.app.bean.SidebarItem;
@@ -24,6 +23,10 @@ public class cmd_appSidebar extends JvmExecutor {
         // 解析参数
         ZParams params = ZParams.parse(args, "cqnH", "^html$");
 
+        // 确保会话有关键变量,自己的域名
+        if (!sys.se.hasVar("SIDEBAR_DOMAIN"))
+            sys.se.var("SIDEBAR_DOMAIN", sys.se.var("MY_GRP"));
+
         // 读取配置文件
         WnObj oConf = __find_conf(sys, params);
         SidebarGroup[] sgs = sys.io.readJson(oConf, SidebarGroup[].class);
@@ -34,7 +37,8 @@ public class cmd_appSidebar extends JvmExecutor {
             for (SidebarItem si : sg.getItems()) {
                 // 动态: objs
                 if (si.isType("objs")) {
-                    String json = sys.exec2(si.getCmd());
+                    String cmdText = si.getCmd();
+                    String json = sys.exec2(cmdText);
                     List<WnBean> objs = Json.fromJsonAsList(WnBean.class, json);
                     for (WnObj o : objs) {
                         o.setTree(sys.io);
@@ -43,15 +47,27 @@ public class cmd_appSidebar extends JvmExecutor {
                 }
                 // 动态: items
                 else if (si.isType("items")) {
-                    String json = sys.exec2(si.getCmd());
+                    String cmdText = si.getCmd();
+                    String json = sys.exec2(cmdText);
                     List<SidebarItem> items2 = Json.fromJsonAsList(SidebarItem.class, json);
                     items.addAll(items2);
                 }
                 // 静态，看看是否有权限
                 else {
-                    WnObj o = Wn.getObj(sys, si.getPh());
-                    if (null != o)
+                    String aph = Wn.normalizeFullPath(si.getPh(), sys);
+                    WnObj o = sys.io.fetch(null, aph);
+                    if (null != o) {
+                        // 设置默认的 icon
+                        if (!si.hasIcon()) {
+                            si.setIcon(o.getString("icon"));
+                        }
+                        // 设置默认的文本
+                        if (!si.hasText()) {
+                            si.setText(o.name());
+                        }
+
                         items.add(si);
+                    }
                 }
             }
             // 更新本组项目列表
@@ -74,29 +90,19 @@ public class cmd_appSidebar extends JvmExecutor {
     }
 
     private WnObj __find_conf(WnSystem sys, ZParams params) {
-        // 首先找一下配置文件
-        WnObj oConf;
+        // 环境变量里最优先
+        String phConf = sys.se.varString("SIDEBAR");
 
-        // 看看是否指定了配置文件位置
-        String phConf = params.val(0);
-
-        // 然后看看是否环境变量里指定了
+        // 否则看看是否指定了默认配置的位置
         if (Strings.isBlank(phConf))
-            phConf = sys.se.varString("SIDEBAR");
+            phConf = params.val(0);
+
+        // 还是木有，那么采用系统的默认位置
+        if (Strings.isBlank(phConf))
+            phConf = "/etc/ui/sidebar.js";
 
         // 得到配置文件对象
-        if (!Strings.isBlank(phConf)) {
-            oConf = Wn.checkObj(sys, phConf);
-        }
-        // 按照默认规则搜索一下
-        else {
-            oConf = Wn.getObj(sys, "~/.ui/sidebar.js");
-            if (null == oConf)
-                oConf = sys.io.fetch(null, "/etc/ui/sidebar.js");
-            if (null == oConf)
-                throw Er.create("e.cmd.appSidebar.noconf");
-        }
-        return oConf;
+        return Wn.checkObj(sys, phConf);
     }
 
 }

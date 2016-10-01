@@ -121,8 +121,16 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
         var UI  = this;
         var opt = UI.options;
 
+        // 准备命令
+        var cmdText = 'app-sidebar -html';
+        if(opt.path){
+            cmdText += ' "' + opt.path + '"';
+        }
+
+        console.log(cmdText)
+
         // 读取侧边栏
-        Wn.read(opt.path, function(sideHtml){
+        Wn.exec(cmdText, function(sideHtml){
             // 处理侧边栏 HTML
             sideHtml = UI.compactHTML(sideHtml || `<div>
                 empty sidebar
@@ -144,8 +152,7 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
 
             // 调用回调
             $z.doCallback(callback, [], UI);
-
-        }, true);
+        });
 
     },
     //..............................................
@@ -178,35 +185,11 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
             var jIcon  = jItem.children("i");
             var jText  = jItem.children("b");
             var ph     = jItem.attr("ph");
-            var noicon = jItem.attr("noicon");
-            var o      =  null;
 
             // 如果没有 ph 那么就标记一下
             if(!ph){
                 jItem.addClass("chute-item-delete");
                 return;
-            }
-            // 读取对象
-            o = Wn.fetch(ph, true);
-
-            // 如果没有读到对象，标记一下
-            if(!o){
-                jItem.addClass("chute-item-dead");
-            }
-
-            // 如果没有 icon
-            if(jIcon.length == 0){
-                jIcon = $('<i class="oicon">');
-                var iconHtml;
-                // 没有对象，显示一个 icon 的占位
-                if(!o){
-                    iconHtml = '<i class="oicon oicon_hide></i>';
-                }
-                // 根据对象生成 icon
-                else{
-                    iconHtml = Wn.objIconHtml(o);
-                }
-                jItem.prepend($(iconHtml));
             }
 
             // 如果没有文字
@@ -215,9 +198,15 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
             }
 
             // 如果没有文字内容，默认用对象的名称，否则用路径
-            if(!$.trim(jText.text())){
-                jText.text(o ? Wn.objDisplayName(UI, o.nm) : ph);
+            var text = $.trim(jText.text());
+            if(!text){
+                jText.text(ph || "no text");
             }
+            // 否则国际化
+            else {
+                jText.text(Wn.objDisplayName(UI, text));
+            }
+
 
         });
 

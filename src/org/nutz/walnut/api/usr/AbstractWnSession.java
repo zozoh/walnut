@@ -35,6 +35,11 @@ public abstract class AbstractWnSession implements WnSession {
     }
 
     @Override
+    public boolean hasVar(String nm) {
+        return null != var(nm);
+    }
+
+    @Override
     public String varString(String nm) {
         Object v = var(nm);
         return null == v ? null : v.toString();

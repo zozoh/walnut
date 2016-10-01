@@ -25,7 +25,7 @@ public class SidebarItem {
         this.ph = o.path();
         this.icon = o.getString("icon");
         if (Strings.isBlank(this.icon))
-            this.icon = String.format("<i class=\"oicon\" otp=\"%s\">",
+            this.icon = String.format("<i class=\"oicon\" otp=\"%s\"></i>",
                                       Strings.sBlank(o.type(), "folder"));
         this.text = o.name();
         this.editor = o.getString("editor");
@@ -68,12 +68,20 @@ public class SidebarItem {
         this.icon = icon;
     }
 
+    public boolean hasIcon() {
+        return !Strings.isBlank(this.icon);
+    }
+
     public String getText() {
         return text;
     }
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public boolean hasText() {
+        return !Strings.isBlank(this.text);
     }
 
     public String getEditor() {
