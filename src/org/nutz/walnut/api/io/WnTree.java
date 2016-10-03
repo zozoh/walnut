@@ -119,4 +119,5 @@ public interface WnTree extends UnitTestable {
 
     boolean hasChild(WnObj p);
 
+    WnObj getDirect(String id);
 }

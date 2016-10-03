@@ -229,6 +229,11 @@ public class MongoWnTree extends AbstractWnTree {
         co.remove(WnMongos.qID(nd.id()));
     }
 
+    @Override
+    public WnObj getDirect(String id) {
+        return get(id);
+    }
+
     // @Override
     // protected WnObj _do_append(WnObj p, WnObj nd, String newName) {
     // // 开始移动

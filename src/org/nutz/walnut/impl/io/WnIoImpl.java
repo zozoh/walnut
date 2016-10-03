@@ -214,6 +214,10 @@ public class WnIoImpl implements WnIo {
 
         return o;
     }
+    
+    public WnObj getDirect(String id) {
+        return tree.get(id);
+    }
 
     @Override
     public WnObj getRoot() {

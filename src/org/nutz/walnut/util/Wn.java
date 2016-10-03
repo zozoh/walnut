@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +49,17 @@ public abstract class Wn {
     // Thread.sleep(100);
     // }
     // }
+    
+    protected static final ConcurrentHashMap<String, Pattern> patterns = new ConcurrentHashMap<>();
+    
+    public static boolean matchs(String str, String pattern) {
+        Pattern p = patterns.get(pattern);
+        if (p == null) {
+            p = Pattern.compile(pattern);
+            patterns.put(pattern, p);
+        }
+        return p.matcher(str).matches();
+    }
 
     public static class Ctx {
 

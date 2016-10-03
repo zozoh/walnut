@@ -3,6 +3,7 @@ package org.nutz.walnut.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
@@ -55,7 +56,10 @@ public class WnIoOutputStreamWrapper extends OutputStream {
 
         // 文件:触发同步时间修改
         if (o.isFILE()) {
-            String sha1 = io.checkById(o.id()).sha1();
+            WnObj tmp = io.getDirect(o.id());
+            if (null == tmp)
+                throw Er.create("e.io.noexists", "id:" + o.id());
+            String sha1 = tmp.sha1();
             if (null == old_sha1 || !old_sha1.equals(sha1)) {
                 Wn.Io.update_ancestor_synctime(io, o, false);
                 old_sha1 = sha1;

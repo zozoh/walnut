@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Each;
+import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -876,12 +877,13 @@ public abstract class AbstractWnTree implements WnTree {
     @Override
     public WnObj getOne(WnQuery q) {
         final WnObj[] re = new WnObj[1];
-        if (null != q)
-            q.limit(1);
+        if (q == null)
+            q = new WnQuery();
+        q.limit(1);
+        
         each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj obj, int length) {
                 re[0] = obj;
-                Lang.Break();
             }
         });
         return re[0];
