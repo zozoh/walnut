@@ -18,8 +18,15 @@ author:zozoh
     */
     thumbnail : {UIBrowser}F(o)
     
-    // 是否显示侧边栏，默认 true
-    sidebar : true
+    // 侧边栏，默认 {}，如果为 false 则不显示侧边栏
+    // 默认会由 ui/obrowser/obrowser_chute_sidebar 控件接管
+    // 用户可以自定义控件
+    sidebar : {
+        uiType : 'ui/obrowser/obrowser_chute_sidebar',
+        uiConf : {
+            path : "/etc/ui/sidebar.js"
+        }
+    }
     
     // 是否显示顶栏(包括菜单和地址条)
     skybar  : true,

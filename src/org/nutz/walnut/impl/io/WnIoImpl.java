@@ -350,8 +350,14 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public void delete(WnObj o) {
+        // 得到线程上下文
+        WnContext wc = Wn.WC();
+
+        // 自己可被删除
+        o = wc.whenRemove(o);
+
         // 调用回调
-        o = Wn.WC().doHook("delete", o);
+        o = wc.doHook("delete", o);
 
         // 钩子可以让这东西变 null, 表示不能删
         if (null != o) {

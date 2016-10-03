@@ -83,12 +83,11 @@ return ZUI.def("ui.obrowser", {
             else {
                 opt.sidebar = $z.extend({
                     uiType : 'ui/obrowser/obrowser_chute_sidebar',
-                    uiConf : {
-                        path : "~/.ui/sidebar.html"
-                    }
+                    uiConf : {}
                 }, opt.sidebar);
             }
         }
+        console.log(opt.sidebar)
 
         // 其他默认设置
         $z.setUndefined(opt, "checkable", false);

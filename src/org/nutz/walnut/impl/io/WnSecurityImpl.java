@@ -37,17 +37,19 @@ public class WnSecurityImpl extends WnEvalLink {
         });
     }
 
-    // @Override
-    // public WnObj remove(WnObj nd) {
-    // WnContext wc = Wn.WC();
-    // wc.setSecurity(null);
-    // try {
-    // return __do_check(nd, Wn.Io.RW, false);
-    // }
-    // finally {
-    // wc.setSecurity(this);
-    // }
-    // }
+    @Override
+    public WnObj remove(WnObj nd) {
+        return Wn.WC().security(null, new Proton<WnObj>() {
+            protected WnObj exec() {
+                // 父目录可写可访问
+                if (nd.hasParent())
+                    __do_check(nd.parent(), Wn.Io.WX, false);
+
+                // 自己可写
+                return __do_check(nd, Wn.Io.W, false);
+            }
+        });
+    }
 
     // @Override
     // public WnObj view(WnObj nd) {
