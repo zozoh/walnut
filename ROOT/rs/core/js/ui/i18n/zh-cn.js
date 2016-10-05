@@ -38,6 +38,8 @@ define({
     "preview"    : "预览",
     "zui_debug"  : "UI调试器",
     "console"    : "控制台",
+    "acode_manager" : "激活码管理",
+    "licence"    : "许可证",
     "e_ajax"     : "靠，有问题啦， 错误码:{{errCode}}  细节:{{msg}} : {{data}}",
     "editing"    : {
         "multiselectbox" : {

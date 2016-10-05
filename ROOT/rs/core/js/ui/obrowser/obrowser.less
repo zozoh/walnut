@@ -12,6 +12,7 @@ body > .ui-obrowser {
     > div {position: absolute; left: 0; right: 0;}
     .obw-sky { 
         top:0; height:@skyH;
+
     }
     .obw-con {
         top:@skyH; bottom:@footerH;
@@ -234,5 +235,6 @@ body > .ui-obrowser {
 // 隐藏对象
 .obrowser[hidden-obj-visibility=hidden] {
     .wnobj-hide {display: none;}
+    .obw-sky .obrowser-crumb > .wnobj-hide {display: inline-block;}
 }
 

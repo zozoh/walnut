@@ -1,5 +1,6 @@
 package org.nutz.walnut.util;
 
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.box.WnSystem;
 
@@ -28,9 +29,13 @@ public class WnPager {
     }
 
     public void setupQuery(WnSystem sys, WnQuery q) {
+        setupQuery(sys.io, q);
+    }
+
+    public void setupQuery(WnIo io, WnQuery q) {
         // 看看是否需要查询分页信息
         if (this.countPage && this.limit > 0) {
-            this.sum_count = (int) sys.io.count(q);
+            this.sum_count = (int) io.count(q);
             this.sum_page = (int) Math.ceil(((double) this.sum_count) / ((double) this.limit));
         }
 

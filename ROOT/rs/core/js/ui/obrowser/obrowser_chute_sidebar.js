@@ -70,23 +70,30 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
                 var ph1 = o.ph.substring(0, iPh.length);
                 var ph2 = o.ph.substring(iPh.length);
 
+                var itemEditor = jItem.attr("editor");
+
                 // 起始分值为 0
                 var weight = 0;
 
-                // 项目路径完全包含给定路径，得一份
+                // 如果激活对象没有编辑器设定，但是 item 有，那么无视
+                if((!asetup || !asetup.editors || asetup.editors.length == 0) && itemEditor){
+                    continue;
+                }
+
+                // 项目路径完全包含给定路径，得一分
                 if(ph1 == iPh && (!ph2 || /^\//.test(ph2))) {
                     // 完全匹配得10分
                     if(o.ph == iPh) {
                         weight += 10;
                     }
-                    // 否则仅得 1 分
-                    else {
+                    // 否则没有编辑器的话，得 1 分
+                    else if(!itemEditor){
                         weight += 1;
                     }
                 }
 
                 // 匹配编辑器再得10分
-                if(asetup && asetup.editors.length>0 && asetup.editors[0] == jItem.attr("editor")){
+                if(asetup && asetup.editors.length>0 && asetup.editors[0] == itemEditor){
                     weight += 10;
                 }
 
@@ -102,8 +109,8 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
             jq = $(o).closest("item");
         }
         // 修改显示
+        UI.arena.find("item").removeClass("chute-actived");
         if(jq){
-            UI.arena.find("item").removeClass("chute-actived");
             jq.addClass("chute-actived");
         }
         return jq;

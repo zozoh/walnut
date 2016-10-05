@@ -215,6 +215,15 @@ return ZUI.def("ui.form_test0", {
                 items : ["蠢萌","很厉害","靠无敌了","弗利萨"]
             }
         },{
+            key   : "yaoyao",
+            title : "抓药",
+            type  : "string",
+            editAs : "radiolist",
+            dft   : "全部抓药 全部代煎 等取",
+            uiConf : {
+                items : [{val:"全部抓药 全部代煎 送",text:"全部抓药 全部代煎 送  "},{val:"全部抓药 全部代煎 等取",text:"全部抓药 全部代煎 等取 "},{val:"全部抓药 自煎",text:"全部抓药 自煎 "},{val:"全部抓药 自煎 （三七自备）",text:"全部抓药 自煎 （三七自备）"},{val:"全部抓药 自煎 顺丰",text:"全部抓药 自煎 顺丰"},{val:"7付代煎等取，7付自煎",text:"7付代煎等取，7付自煎 "},{val:"只拿7付代煎",text:"只拿7付代煎 "},{val:"不抓药",text:"不抓药"},{val:"待定",text:"待定"}]
+            }
+        },{
             key   : "myphoto",
             title : "我的图片",
             tip   : "随便选个图片",
@@ -341,7 +350,7 @@ return ZUI.def("ui.form_test0", {
     update : function(o){
         var UI = this;
         UI.$el.attr("obj-id", o.id);
-        UI.do_t0();
+        UI.do_t1();
     }
     //...............................................................
 });
