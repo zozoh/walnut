@@ -39,7 +39,11 @@ public class cmd_licence extends JvmExecutor {
         final String clientName = client;
 
         // 检查执行权限
-        this.__check_right(sys, client, provider);
+        sys.nosecurity(new Atom() {
+            public void run() {
+                __check_right(sys, clientName, provider);
+            }
+        });
 
         // 进入内核态获取激活码列表
         WnLicenceService licenceService = ioc.get(WnLicenceService.class);
