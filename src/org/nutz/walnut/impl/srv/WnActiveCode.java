@@ -9,8 +9,6 @@ public class WnActiveCode {
 
     public String id;
 
-    public int ac_day;
-
     public String ac_licence;
 
     public String ac_app;
@@ -33,7 +31,6 @@ public class WnActiveCode {
 
     public WnActiveCode(WnObj oAcode) {
         this.id = oAcode.id();
-        this.ac_day = oAcode.getInt("ac_day");
         this.ac_licence = oAcode.getString("ac_licence");
         this.ac_app = oAcode.getString("ac_app");
         this.ac_tp = oAcode.getString("ac_tp");
@@ -57,13 +54,12 @@ public class WnActiveCode {
      * @return 是否是过期的
      */
     public boolean isExpired() {
-        return false;
+        return this.ac_expi > 0 && System.currentTimeMillis() > this.ac_expi;
     }
 
     public NutMap toMap() {
         NutMap map = new NutMap();
         map.put("id", this.id);
-        map.put("ac_day", this.ac_day);
         map.put("ac_licence", this.ac_licence);
         map.put("ac_app", this.ac_app);
         map.put("ac_tp", this.ac_tp);

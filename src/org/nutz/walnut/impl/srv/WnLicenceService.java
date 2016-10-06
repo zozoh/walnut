@@ -205,7 +205,9 @@ public class WnLicenceService extends WnService {
             // 准备查询条件
             WnQuery q = Wn.Q.pid(oHomeAcode);
             q.setv("ow_dmn_id", oHomeProvider.id());
-            q.setv("buyer_id", client.id());
+            if (null != client) {
+                q.setv("buyer_id", client.id());
+            }
             if (!Strings.isBlank(appName))
                 q.setv("ac_app", appName);
 

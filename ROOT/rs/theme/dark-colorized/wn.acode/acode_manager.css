@@ -9,7 +9,7 @@
 }
 .acode-manager .am-search {
   left: 0;
-  border-right: 1px solid #d0d0d0;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 .acode-manager .am-search .tbl .tbl-row td {
   font-family: Monaco, Consolas, Courier New;

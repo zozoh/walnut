@@ -119,6 +119,7 @@ id         : "xxx"        // 唯一标识符
 ac_day     : 0            // 有效天数
 ac_licence : "abc"        // 对应本域的哪个许可证
 ac_app     : "wn.hmaker"  // 对应哪个 app
+ac_expi    : AMS          // 激活码过期时间，0 表示永不过期
 //.............................................
 // 激活码类型
 //  auto - 自动生成
@@ -126,11 +127,11 @@ ac_app     : "wn.hmaker"  // 对应哪个 app
 ac_tp      : "auto|gen"
 //.............................................
 // 用户信息
-ow_dmn_id  : ID        // 属于哪个域 ID
-ow_dmn_nm  : xxx       // 「冗余」所属域名
+ow_dmn_id  : ID        // 服务商域 ID
+ow_dmn_nm  : xxx       // 服务商域 nm，必须与 ow_dmn_id 匹配
 buyer_id   : ID        // 购买者 ID，
-buyer_nm   : xxx       // 「冗余」购买者 nm
-buy_time   : MS        // 购买时间
+buyer_nm   : xxx       // 购买者 nm，必须与 buyer_id 匹配
+ct         : MS        // 创建时间
 use_time   : MS        // 生效时间
 ```
 

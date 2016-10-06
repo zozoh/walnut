@@ -612,8 +612,10 @@ return ZUI.def("ui.form", {
         jF.attr("form-prompt", pKey).find(".ff-prompt").html(html);
     },
     //...............................................................
-    hidePrompt : function(key) {
-        this.$fld(key).removeAttr("form-prompt");
+    hidePrompt : function() {
+        var keys = Array.from(arguments);
+        for(var key of keys)
+            this.$fld(key).removeAttr("form-prompt");
     },
     //...............................................................
     getObjId : function(obj){
