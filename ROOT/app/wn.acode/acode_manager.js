@@ -190,6 +190,7 @@ return ZUI.def("app.wn.acode_manager", {
 
         // 生成一个新对象
         var obj = {
+            nm : "${id}.acode",
             buyer_id  : "-unknown-",
             buyer_nm  : "-unknown-",
             ow_dmn_id : oDomain.id,
