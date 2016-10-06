@@ -337,3 +337,6 @@ body > .ui-obrowser {
 .obrowser[hidden-obj-visibility=hidden] .wnobj-hide {
   display: none;
 }
+.obrowser[hidden-obj-visibility=hidden] .obw-sky .obrowser-crumb > .wnobj-hide {
+  display: inline-block;
+}

@@ -7,12 +7,16 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.trans.Atom;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.web.util.WalnutLog;
 
@@ -122,5 +126,53 @@ public class WnSystem {
             log.asInfo();
         }
         return log;
+    }
+
+    /**
+     * 进入内核态执行操作
+     * 
+     * @param atom
+     *            操作
+     */
+    public void nosecurity(Atom atom) {
+        Wn.WC().security(new WnEvalLink(io), atom);
+    }
+
+    /**
+     * 进入内核态执行带返回的操作
+     * 
+     * @param protom
+     *            操作
+     * 
+     * @return 返回结果
+     */
+    public <T> T nosecurity(Proton<T> proton) {
+        return Wn.WC().security(new WnEvalLink(io), proton);
+    }
+
+    /**
+     * 进入超级内核态（不执行钩子）执行操作
+     * 
+     * @param synctimeOff
+     *            是否关闭文件同步时间戳的更新逻辑（关闭的话，速度会更快，就像偷偷的把数据改掉一样）
+     * @param atom
+     *            操作
+     */
+    public void core(boolean synctimeOff, Atom atom) {
+        Wn.WC().core(new WnEvalLink(io), synctimeOff, null, atom);
+    }
+
+    /**
+     * 进入超级内核态（不执行钩子）执行带返回操作
+     * 
+     * @param synctimeOff
+     *            是否关闭文件同步时间戳的更新逻辑（关闭的话，速度会更快，就像偷偷的把数据改掉一样）
+     * @param atom
+     *            操作
+     * 
+     * @return 返回结果
+     */
+    public <T> T core(boolean synctimeOff, Proton<T> proton) {
+        return Wn.WC().core(new WnEvalLink(io), synctimeOff, null, proton);
     }
 }

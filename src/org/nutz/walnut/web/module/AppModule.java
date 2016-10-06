@@ -196,6 +196,8 @@ public class AppModule extends AbstractWnModule {
             if (licn.hasVerify()) {
                 String cmdText = licn.getVerify();
                 StringBuilder out = new StringBuilder();
+                
+                // 用客户的账号去验证
                 this.exec("app-licence-check", clientName, null, cmdText, out, err);
             }
 

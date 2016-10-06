@@ -87,7 +87,7 @@ return ZUI.def("ui.obrowser", {
                 }, opt.sidebar);
             }
         }
-        console.log(opt.sidebar)
+        //console.log(opt.sidebar)
 
         // 其他默认设置
         $z.setUndefined(opt, "checkable", false);

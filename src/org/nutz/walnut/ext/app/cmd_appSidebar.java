@@ -57,6 +57,8 @@ public class cmd_appSidebar extends JvmExecutor {
                     String aph = Wn.normalizeFullPath(si.getPh(), sys);
                     WnObj o = sys.io.fetch(null, aph);
                     if (null != o) {
+                        // 更新路径
+                        si.setPh(aph);
                         // 设置默认的 icon
                         if (!si.hasIcon()) {
                             si.setIcon(o.getString("icon"));

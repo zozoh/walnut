@@ -1,5 +1,7 @@
 package org.nutz.walnut.impl.srv;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
@@ -61,6 +63,20 @@ public class WnLicence {
 
     public boolean hasPrivilege() {
         return null != this.privilege;
+    }
+
+    public NutMap toMap() {
+        NutMap map = new NutMap();
+        map.put("name", this.name);
+        map.put("signDate", this.signDate);
+        map.put("belongTo", this.belongTo);
+        map.put("verify", this.verify);
+        map.put("privilege", this.privilege);
+        return map;
+    }
+
+    public String toJson(JsonFormat jfmt) {
+        return Json.toJson(this.toMap(), jfmt);
     }
 
 }

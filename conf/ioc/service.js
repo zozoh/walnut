@@ -47,9 +47,5 @@ var ioc = {
 	hookService : {
 		type : 'org.nutz.walnut.impl.hook.CachedWnHookService',
 		parent : "ioService"
-	},
-	licenceService : {
-		type : 'org.nutz.walnut.impl.srv.WnLicenceService',
-		parent : "ioService"
 	}
 }
