@@ -19,17 +19,31 @@ public class SidebarItem {
 
     private boolean dynamic;
 
+    private String[] roles;
+
     public SidebarItem() {}
 
-    public SidebarItem(WnObj o) {
+    public SidebarItem(WnObj o, SidebarItem siTmpl) {
         this.ph = o.path();
-        this.icon = o.getString("icon");
-        if (Strings.isBlank(this.icon))
+        this.icon = o.getString("icon", siTmpl.getIcon());
+        if (!this.hasIcon())
             this.icon = String.format("<i class=\"oicon\" otp=\"%s\"></i>",
                                       Strings.sBlank(o.type(), "folder"));
-        this.text = o.name();
-        this.editor = o.getString("editor");
+        this.text = o.getString("title");
+        if (!this.hasText())
+            this.text = o.name();
+        this.editor = o.getString("editor", siTmpl.getEditor());
         this.dynamic = true;
+    }
+
+    public SidebarItem setDefaultValue(SidebarItem siTmpl) {
+        if (!this.hasIcon()) {
+            this.setIcon(siTmpl.getIcon());
+        }
+        if (!this.hasEditor()) {
+            this.setEditor(siTmpl.getEditor());
+        }
+        return this;
     }
 
     public String getType() {
@@ -92,12 +106,28 @@ public class SidebarItem {
         this.editor = editor;
     }
 
+    public boolean hasEditor() {
+        return !Strings.isBlank(this.editor);
+    }
+
     public boolean isDynamic() {
         return dynamic;
     }
 
     public void setDynamic(boolean dynamic) {
         this.dynamic = dynamic;
+    }
+
+    public String[] getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String[] roles) {
+        this.roles = roles;
+    }
+
+    public boolean hasRoles() {
+        return null != roles && roles.length > 0;
     }
 
     void joinHtml(StringBuilder sb) {
