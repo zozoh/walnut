@@ -14,7 +14,7 @@ public class thing_delete implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 得到对应对 Thing
-        WnObj oT = Things.checkThing(hc.oRefer);
+        WnObj oT = Things.checkThIndex(sys, hc);
 
         // 已经是删除的了
         if (oT.getInt("th_live", 0) == Things.TH_DEAD) {

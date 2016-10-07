@@ -120,6 +120,10 @@ public interface WnObj extends NutBean {
 
     WnObj mime(String mime);
 
+    boolean hasMime();
+
+    boolean isMime(String mime);
+
     boolean hasSha1();
 
     String sha1();

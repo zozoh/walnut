@@ -18,7 +18,7 @@ public class thing_create implements JvmHdl {
         WnObj oTS = Things.checkThingSet(hc.oRefer);
 
         // 找到索引
-        WnObj oIndex = Things.checkThingSetDir(sys, hc.oRefer, "index");
+        WnObj oIndex = Things.dirTsIndex(sys, hc);
 
         // 创建一个 Thing
         WnObj oT = sys.io.create(oIndex, "${id}", WnRace.DIR);
@@ -27,9 +27,13 @@ public class thing_create implements JvmHdl {
         NutMap meta = Things.fillMeta(sys, hc.params);
 
         // 设置更多的固有属性
-        meta.put("tp", "thing");
+        meta.put("tp", "th_index");
         meta.put("th_set", oTS.id());
         meta.put("th_live", Things.TH_LIVE);
+
+        // 默认的内容类型
+        if (!meta.has("mime"))
+            meta.put("mime", "text/plain");
 
         // 图标
         if (!meta.has("icon"))

@@ -15,13 +15,10 @@ import org.nutz.img.Images;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Nums;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
-import org.nutz.lang.segment.Segment;
-import org.nutz.lang.segment.Segments;
-import org.nutz.lang.util.Context;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
 import org.nutz.mvc.adaptor.JsonAdaptor;
@@ -422,14 +419,14 @@ public class ObjModule extends AbstractWnModule {
             // 那么重名的话，则创建新文件
             else {
                 if (io.exists(ta, fname)) {
-                    Context c = Lang.context();
-                    c.set("major", Files.getMajorName(nm));
-                    c.set("suffix", Files.getSuffix(nm));
-                    Segment seg = Segments.create(dupp);
+                    NutMap c = new NutMap();
+                    c.put("major", Files.getMajorName(nm));
+                    c.put("suffix", Files.getSuffix(nm));
+                    Tmpl seg = Tmpl.parse(dupp);
                     int i = 1;
                     do {
-                        c.set("nb", i++);
-                        fname = seg.render(c).toString();
+                        c.put("nb", i++);
+                        fname = seg.render(c);
                     } while (io.exists(ta, fname));
                 }
                 // 创建文件对象

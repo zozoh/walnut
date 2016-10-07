@@ -23,12 +23,12 @@ public class thing_init implements JvmHdl {
 
         // 找到集合
         WnObj oTS = Things.checkThingSet(hc.oRefer);
-        
+
         // 确保有索引目录
         WnObj oIndex = sys.io.createIfNoExists(oTS, "data", WnRace.DIR);
         if (!isQ)
             sys.out.println("index-home  : " + oIndex.id());
-        
+
         // 确保有注释目录
         WnObj oComment = sys.io.createIfNoExists(oTS, "data", WnRace.DIR);
         if (!isQ)
@@ -38,6 +38,9 @@ public class thing_init implements JvmHdl {
         WnObj oData = sys.io.createIfNoExists(oTS, "data", WnRace.DIR);
         if (!isQ)
             sys.out.println("data-home    : " + oData.id());
+        if (!oData.isType("th_data")) {
+            sys.io.set(oData.type("th_data"), "^(tp)$");
+        }
 
         // 确保有 thing.js
         WnObj oDef = sys.io.createIfNoExists(oTS, "thing.js", WnRace.FILE);

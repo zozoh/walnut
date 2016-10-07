@@ -9,13 +9,13 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
-@JvmHdlParamArgs("cnqihbslVNHQ")
+@JvmHdlParamArgs(value = "cnqVNHQ", regex = "^(quiet|overwrite)$")
 public class thing_update implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 得到对应对 Thing
-        WnObj oT = Things.checkThing(hc.oRefer);
+        WnObj oT = Things.checkThIndex(sys, hc);
 
         // 确保 Thing 是可用的
         if (oT.getInt("th_live") != Things.TH_LIVE) {

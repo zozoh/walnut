@@ -175,6 +175,24 @@ public class WnBean extends NutMap implements WnObj {
         return this;
     }
 
+    public boolean hasMime() {
+        return !Strings.isBlank(mime());
+    }
+
+    public boolean isMime(String mime) {
+        String myMime = mime();
+        if (null == myMime)
+            return null == mime;
+        if (null == mime)
+            return false;
+        // 用正则
+        if (mime.startsWith("^")) {
+            return myMime.matches(mime);
+        }
+        // 精确匹配
+        return myMime.equals(mime);
+    }
+
     public boolean hasSha1() {
         return !Strings.isBlank(sha1());
     }

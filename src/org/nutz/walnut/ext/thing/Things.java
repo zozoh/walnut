@@ -1,13 +1,20 @@
 package org.nutz.walnut.ext.thing;
 
+import java.io.InputStream;
+
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public abstract class Things {
@@ -16,16 +23,39 @@ public abstract class Things {
     public static final int TH_DEAD = -1;
 
     /**
-     * 检查一个对象是否是 Thing 的索引对象
-     * 
-     * @return 如果成功，返回该索引对象
+     * @param io
+     *            IO 接口
+     * @param oRefer
+     *            参考对象
+     * @param id
+     *            Thing索引的ID
+     * @return Thing的索引对象
      */
-    public static WnObj checkThing(WnObj oT) {
+    public static WnObj getThIndex(WnIo io, WnObj oRefer, String id) {
+        WnObj oIndex = dirTsIndex(io, oRefer);
+        return io.fetch(oIndex, id);
+    }
+
+    /**
+     * @see #getThIndex(WnIo, WnObj, String)
+     */
+    public static WnObj checkThIndex(WnIo io, WnObj oRefer, String id) {
+        WnObj oT = getThIndex(io, oRefer, id);
         if (null == oT)
-            throw Er.create("e.cmd.thing.null");
-        if (oT.getInt("th_live", 0) != 0)
-            throw Er.create("e.cmd.thing.notThing", oT);
+            throw Er.create("e.cmd.thing.noexists", id + " in " + oRefer);
         return oT;
+    }
+
+    /**
+     * @param sys
+     *            命令系统上下文
+     * @param hc
+     *            命令控制器调用上下文
+     * @return Thing 的索引对象
+     */
+    public static WnObj checkThIndex(WnSystem sys, JvmHdlContext hc) {
+        String thId = hc.params.val_check(0);
+        return checkThIndex(sys.io, hc.oRefer, thId);
     }
 
     /**
@@ -62,44 +92,89 @@ public abstract class Things {
         return oTS;
     }
 
-    public static WnObj checkThingSetDir(WnIo io, WnObj oRefer, String dirName) {
+    public static WnObj checkThingSet(WnIo io, String id) {
+        WnObj o = io.checkById(id);
+        WnObj oTS = getThingSet(o);
+        if (null == oTS)
+            throw Er.create("e.cmd.thing.notInThingSet", o);
+        return oTS;
+    }
+
+    // ..................................... ThingSet 的关键目录
+
+    public static WnObj dirTsConf(WnIo io, WnObj oRefer) {
         WnObj oTS = checkThingSet(oRefer);
-        return io.check(oTS, dirName);
+        return io.check(oTS, "thing.js");
     }
 
-    public static WnObj checkThingSetDir(WnSystem sys, WnObj oRefer, String dirName) {
-        return checkThingSetDir(sys.io, oRefer, dirName);
+    public static WnObj dirTsConf(WnSystem sys, JvmHdlContext hc) {
+        return dirTsConf(sys.io, hc.oRefer);
     }
 
-    public static WnObj checkThingDir(WnIo io, WnObj oRefer, String dirName) {
-        WnObj oT = checkThing(oRefer);
-        return io.check(oT, dirName);
+    public static WnObj dirTsIndex(WnIo io, WnObj oRefer) {
+        WnObj oTS = checkThingSet(oRefer);
+        return io.check(oTS, "index");
     }
 
-    public static WnObj checkThingDir(WnSystem sys, WnObj oRefer, String dirName) {
-        return checkThingDir(sys.io, oRefer, dirName);
+    public static WnObj dirTsIndex(WnSystem sys, JvmHdlContext hc) {
+        return dirTsIndex(sys.io, hc.oRefer);
     }
 
-    /**
-     * 根据格式如 “TsID[/ThID]” 的字符串，得到 ThingSet 或者 Thing 对象
-     * 
-     * @param io
-     *            IO 接口
-     * @param str
-     *            描述字符串，格式为 TsID[/ThID]
-     * @return ThingSet 或者 Thing索引对象
-     */
-    public static WnObj checkRefer(WnIo io, String str) {
-        String[] ss = Strings.splitIgnoreBlank(str, "/");
-        // 指定了 TsID
-        if (ss.length == 1) {
-            return io.checkById(ss[0]);
-        }
-        // 指定了 TsID/ThId
-        WnObj oTS = io.checkById(ss[0]);
-        WnObj oTsIndexHome = checkThingSetDir(io, oTS, "index");
-        return io.check(oTsIndexHome, ss[1]);
+    public static WnObj dirTsComment(WnIo io, WnObj oRefer) {
+        WnObj oTS = checkThingSet(oRefer);
+        return io.check(oTS, "comment");
     }
+
+    public static WnObj dirTsComment(WnSystem sys, JvmHdlContext hc) {
+        return dirTsComment(sys.io, hc.oRefer);
+    }
+
+    public static WnObj dirTsData(WnIo io, WnObj oRefer) {
+        WnObj oTS = checkThingSet(oRefer);
+        return io.check(oTS, "data");
+    }
+
+    public static WnObj dirTsData(WnSystem sys, JvmHdlContext hc) {
+        return dirTsData(sys.io, hc.oRefer);
+    }
+
+    // ..................................... Thing 的附件目录
+
+    public static WnObj dirThMedia(WnIo io, WnObj oTS, WnObj oT) {
+        WnObj oData = dirTsData(io, oTS);
+        return io.createIfNoExists(oData, oT.id() + "/media", WnRace.DIR);
+    }
+
+    public static WnObj dirThAttachment(WnIo io, WnObj oTS, WnObj oT) {
+        WnObj oData = dirTsData(io, oTS);
+        return io.createIfNoExists(oData, oT.id() + "/attachment", WnRace.DIR);
+    }
+
+    public static WnObj dirThResource(WnIo io, WnObj oTS, WnObj oT) {
+        WnObj oData = dirTsData(io, oTS);
+        return io.createIfNoExists(oData, oT.id() + "/resource", WnRace.DIR);
+    }
+
+    // /**
+    // * 根据格式如 “TsID[/ThID]” 的字符串，得到 ThingSet 或者 Thing 对象
+    // *
+    // * @param io
+    // * IO 接口
+    // * @param str
+    // * 描述字符串，格式为 TsID[/ThID]
+    // * @return ThingSet 或者 Thing索引对象
+    // */
+    // public static WnObj checkRefer(WnIo io, String str) {
+    // String[] ss = Strings.splitIgnoreBlank(str, "/");
+    // // 指定了 TsID
+    // if (ss.length == 1) {
+    // return io.checkById(ss[0]);
+    // }
+    // // 指定了 TsID/ThId
+    // WnObj oTS = io.checkById(ss[0]);
+    // WnObj oTsIndexHome = checkThingSetDir(io, oTS, "index");
+    // return io.check(oTsIndexHome, ss[1]);
+    // }
 
     /**
      * 根据参数填充元数据
@@ -145,4 +220,82 @@ public abstract class Things {
     // ..........................................................
     // 纯帮助函数集合
     private Things() {}
+
+    /**
+     * @param sys
+     *            系统
+     * @param hc
+     *            命令控制器调用上下文
+     * @param oDir
+     *            文件的所在目录
+     */
+    public static void doFileObj(WnSystem sys, JvmHdlContext hc, WnObj oDir) {
+        // 判断是否静默输出
+        boolean isQ = hc.params.is("quiet");
+
+        // 添加
+        if (hc.params.has("add")) {
+            String fnm = hc.params.get("add");
+            // 首先判断文件是否存在
+            WnObj oM = sys.io.fetch(oDir, fnm);
+
+            // 不存在，创建一个
+            if (null == oM) {
+                oM = sys.io.create(oDir, fnm, WnRace.FILE);
+            }
+            // 如果存在 ...
+            else {
+                // 是否生成一个新的
+                String dupp = hc.params.get("dupp");
+                if (!Strings.isBlank(dupp)) {
+                    // 准备文件名模板
+                    NutMap c = new NutMap();
+                    c.put("major", Files.getMajorName(fnm));
+                    c.put("suffix", Files.getSuffix(fnm));
+                    Tmpl seg = Tmpl.parse(dupp);
+                    // 挨个尝试新的文件名
+                    int i = 1;
+                    do {
+                        c.put("nb", i++);
+                        fnm = seg.render(c);
+                    } while (sys.io.exists(oDir, fnm));
+                    // 创建
+                    oM = sys.io.create(oDir, fnm, WnRace.FILE);
+                }
+                // 不能生成一个新的，并且还不能覆盖就抛错
+                else if (!hc.params.is("overwrite")) {
+                    throw Er.create("e.cmd.thing.media.exists", oDir.path() + "/" + fnm);
+                }
+            }
+
+            // 嗯得到一个空文件了，那么看看怎么写入内容呢？
+            String read = hc.params.get("read");
+
+            // 从输出流中读取
+            if ("true".equals(read)) {
+                InputStream ins = sys.in.getInputStream();
+                sys.io.writeAndClose(oM, ins);
+            }
+            // 否则试图从指定的文件里读取
+            else {
+                WnObj oSrc = Wn.checkObj(sys, read);
+                sys.io.copyData(oSrc, oM);
+            }
+
+            // 最后计入输出
+            hc.output = oM;
+        }
+        // 删除
+        else if (hc.params.has("del")) {
+            String fnm = hc.params.get("del");
+            WnObj oM = sys.io.fetch(oDir, fnm);
+            if (null == oM && !isQ) {
+                throw Er.create("e.cmd.thing.media.noexists", oDir.path() + "/" + fnm);
+            }
+            sys.io.delete(oM);
+            // 最后计入输出
+            hc.output = oM;
+        }
+    }
+
 }
