@@ -411,7 +411,7 @@ var Wn = {
         var sendData = "mos=" + encodeURIComponent(mos);
         sendData += "&PWD=" + encodeURIComponent(se.envs.PWD);
         sendData += "&cmd=" + encodeURIComponent(cmdText);
-        sendData += "&in=" + encodeURIComponent(opt.input);
+        sendData += "&in=" + encodeURIComponent(opt.input||"");
 
         var oReq = new XMLHttpRequest();
         oReq._last = 0;

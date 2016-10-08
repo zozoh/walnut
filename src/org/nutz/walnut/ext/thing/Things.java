@@ -10,6 +10,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -192,15 +193,9 @@ public abstract class Things {
         String json = Cmds.getParamOrPipe(sys, params, "fields", false);
         NutMap meta = Strings.isBlank(json) ? new NutMap() : Lang.map(json);
 
-        // 名称
-        String th_nm = params.val(0);
-        if (!Strings.isBlank(th_nm)) {
-            meta.put("th_nm", th_nm);
-        }
-
         // 摘要
         if (params.has("brief")) {
-            meta.put("th_brief", params.get("brief"));
+            meta.put("brief", params.get("brief"));
         }
 
         // 所有者
@@ -211,6 +206,19 @@ public abstract class Things {
         // 分类
         if (params.has("cate")) {
             meta.put("th_cate", params.get("cate"));
+        }
+
+        // 内容类型
+        if (params.has("tp")) {
+            meta.put("tp", params.get("tp"));
+        }
+
+        // 确保类型变成内容类型
+        if (meta.has("tp")) {
+            String tp = meta.getString("tp");
+            meta.remove("tp");
+            String mime = sys.io.mimes().getMime(tp, "text/plain");
+            meta.put("mime", mime);
         }
 
         // 返回传入的元数据
@@ -271,15 +279,17 @@ public abstract class Things {
             // 嗯得到一个空文件了，那么看看怎么写入内容呢？
             String read = hc.params.get("read");
 
-            // 从输出流中读取
-            if ("true".equals(read)) {
-                InputStream ins = sys.in.getInputStream();
-                sys.io.writeAndClose(oM, ins);
-            }
-            // 否则试图从指定的文件里读取
-            else {
-                WnObj oSrc = Wn.checkObj(sys, read);
-                sys.io.copyData(oSrc, oM);
+            if (null != read) {
+                // 从输出流中读取
+                if ("true".equals(read)) {
+                    InputStream ins = sys.in.getInputStream();
+                    sys.io.writeAndClose(oM, ins);
+                }
+                // 否则试图从指定的文件里读取
+                else {
+                    WnObj oSrc = Wn.checkObj(sys, read);
+                    sys.io.copyData(oSrc, oM);
+                }
             }
 
             // 最后计入输出
@@ -295,6 +305,18 @@ public abstract class Things {
             sys.io.delete(oM);
             // 最后计入输出
             hc.output = oM;
+        }
+        // 那么就是查询咯
+        else {
+            WnQuery q = Wn.Q.pid(oDir);
+            if (hc.params.has("sort")) {
+                q.sort(Lang.map(hc.params.check("sort")));
+            }
+            // 默认按名称排序
+            else {
+                q.asc("nm");
+            }
+            hc.output = sys.io.query(q);
         }
     }
 

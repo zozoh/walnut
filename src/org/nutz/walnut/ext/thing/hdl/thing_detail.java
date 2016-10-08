@@ -32,10 +32,17 @@ public class thing_detail implements JvmHdl {
         }
         // 创建或者修改
         else if (hc.params.has("content")) {
-            // 修改类型
+            // 根据类型修改内容类型
             if (hc.params.has("tp")) {
                 String tp = hc.params.get("tp", "txt");
                 String mime = sys.io.mimes().getMime(tp, "text/plain");
+                if (!oT.isMime(mime)) {
+                    sys.io.set(oT.mime(mime), "^(mime)$");
+                }
+            }
+            // 直接修改内容蕾西
+            else if (hc.params.has("mime")) {
+                String mime = hc.params.get("mime");
                 if (!oT.isMime(mime)) {
                     sys.io.set(oT.mime(mime), "^(mime)$");
                 }
@@ -49,7 +56,7 @@ public class thing_detail implements JvmHdl {
             // TODO 根据内容类型设计不同的摘要算法
             String brief = hc.params.get("brief");
             if (Strings.isBlank(brief)) {
-                brief = content.substring(0, Math.max(content.length(), 256));
+                brief = content.substring(0, Math.min(content.length(), 256));
             }
 
             // 设置 thing 元数据

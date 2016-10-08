@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.thing.hdl;
 
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -23,7 +24,13 @@ public class thing_update implements JvmHdl {
         }
 
         // 准备要更新的元数据集合
-        NutMap meta = Things.fillMeta(sys,hc.params);
+        NutMap meta = Things.fillMeta(sys, hc.params);
+
+        // 名称
+        String th_nm = hc.params.val(1);
+        if (!Strings.isBlank(th_nm)) {
+            meta.put("th_nm", th_nm);
+        }
 
         // 更新这个 Thing
         sys.io.appendMeta(oT, meta);

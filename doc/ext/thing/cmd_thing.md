@@ -93,16 +93,22 @@ thing [TsID] init
 ```
 #----------------------------------------------------
 # 命令格式
-thing [TsID] create [th_nm] [th_brief] [-cate th_cate] [-fields "{..}"]
+thing [TsID] create [th_nm] 
+                  [-brief "xxx"]
+                  [-ow "xxx"]
+                  [-cate CateID]
+                  [-tp "md|txt|html"]
+                  [-fields "{..}"]
 #----------------------------------------------------
 - 当前对象可以是一个 thing 或者 ThingSet
 - 如果是一个 thing，相当于是它的 ThingSet
+- tp 实际上是 mime 的快捷表达
      
 # 创建一个名为 ABC 的 thing
 thing xxx create ABC
     
 # 创建一个名为 ABC 且有一个简要说明的 thing
-thing xxx create 'ABC' 'This is abc'
+thing xxx create 'ABC' -brief 'This is abc'
 # or
 thing xxx create ABC -fields "{th_brief:'This is abc'}"
 # or
@@ -240,10 +246,12 @@ thing [TsID] update ID ["$th_nm"]
                   [-brief "xxx"]
                   [-ow "xxx"]
                   [-cate CateID]
+                  [-tp "md|txt|html"]
                   [-fields "{..}"]
 #----------------------------------------------------
 - 当前对象必须是一个 thing，否则不能更新
 - fields 里面的值，没有 -brief|ow|cate 优先
+- tp 实际上是 mime 的快捷表达
     
 # 改名
 thing xxx update 45ad6823.. "原力觉醒电影票"
