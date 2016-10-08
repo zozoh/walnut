@@ -21,7 +21,7 @@ define({
             "th_c_cmt" : "评论数",
             "th_c_view" : "浏览数",
             "th_c_agree" : "赞同数",
-            "detail" : "详情文本"
+            "brief_and_content" : "内容及摘要"
         },
         "live_a" : "有效",
         "live_d" : "已删除",

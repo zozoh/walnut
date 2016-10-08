@@ -53,15 +53,19 @@ public class thing_detail implements JvmHdl {
             sys.io.writeText(oT, content);
 
             // 得到摘要
-            // TODO 根据内容类型设计不同的摘要算法
             String brief = hc.params.get("brief");
-            if (Strings.isBlank(brief)) {
-                brief = content.substring(0, Math.min(content.length(), 256));
-            }
 
-            // 设置 thing 元数据
-            oT.setv("brief", brief);
-            sys.io.set(oT, "^brief$");
+            // 指定了摘要
+            if (!Strings.isBlank(brief)) {
+                // 自动摘要 TODO 根据内容类型设计不同的摘要算法
+                if ("true".equals(brief)) {
+                    brief = content.substring(0, Math.min(content.length(), 256));
+                }
+
+                // 设置 thing 元数据
+                oT.setv("brief", brief);
+                sys.io.set(oT, "^brief$");
+            }
 
             // 输出 detail 对象
             hc.output = oT;

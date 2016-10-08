@@ -297,10 +297,19 @@ var Wn = {
     },
     //................................................................
     // 采用模板方式执行命令
-    execf : function(tmpl, context, opt) {
-        var str = $z.tmpl(tmpl)(context);
-        //console.log(str)
-        this.exec(str, opt);
+    execf : function(tmpl, input, context, opt) {
+        if(!_.isString(input)) {
+            opt = context;
+            context = input;
+
+            var str = $z.tmpl(tmpl)(context);
+            this.exec(str, opt);    
+        }
+        // 带 input 的模式
+        else {
+            var str = $z.tmpl(tmpl)(context);
+            this.exec(str, input, opt);       
+        }
     },
     /*................................................................
     # 执行命令的 opt 配置对象的内容

@@ -41,7 +41,7 @@ return ZUI.def("app.wn.thing", {
 
         // 重新加载数据 
         UI.reload(function(){
-            UI.subUI("search/list").setActived(0);
+            //UI.subUI("search/list").setActived(0);
         });
     },
     //...............................................................
@@ -77,43 +77,53 @@ return ZUI.def("app.wn.thing", {
         var thConf = UI.thConf;
 
         th = th || UI.gasket.search.uiList.getActived();
+
         // 没东西，那么久显示空
         if(!th) {
             UI.showBlank();
             return;
         }
-        // 显示表单
-        new FormUI({
-            parent : this,
-            gasketName : "form",
-            uiWidth : "all",
-            fields : UI.thConf.fields,
-            on_update : function(data, fld) {
-                var json  = $z.toJson(data);
-                var cmdText = UI.__cmd(thConf.updateBy, th.id, json);
-                //console.log(cmdText)
-                // 执行命令
-                var uiForm = this;
-                this.showPrompt(fld.key, "spinning");
-                Wn.exec(cmdText, function(re) {
-                    var newTh = $z.fromJson(re);
-                    // 计入缓存
-                    Wn.saveToCache(newTh);
-                    // 更新左侧列表
-                    UI.gasket.search.uiList.update(newTh);
-                    // 隐藏提示
-                    uiForm.hidePrompt(fld.key);
-                });
-                // var th = this.getData();
-                // UI.gasket.search.uiList.update(th);
-                // this.showPrompt(key, "spinning");
-                // window.setTimeout(function(){
-                //     UI.gasket.form.hidePrompt(key);
-                // }, 500);
-            }
-        }).render(function(){
-            this.setData(th);
-        });
+        // 已经是表单了，更新
+        else if(UI.gasket.form.uiName == "ui.form") {
+            UI.gasket.form.setData(th);
+        }
+        // 重新显示表单
+        else {
+            new FormUI({
+                parent : this,
+                gasketName : "form",
+                uiWidth : "all",
+                fields : UI.thConf.fields,
+                on_update : function(data, fld) {
+                    var th      = this.getData();
+                    var oTS     = UI.getThingSetObj();
+                    var json    = $z.toJson(data);
+                    var cmdTmpl = UI.__cmd(thConf.updateBy, oTS.id, json);
+                    var cmdText = $z.tmpl(cmdTmpl)(th);
+                    console.log(cmdText)
+                    // 执行命令
+                    var uiForm = this;
+                    this.showPrompt(fld.key, "spinning");
+                    Wn.exec(cmdText, function(re) {
+                        var newTh = $z.fromJson(re);
+                        // 计入缓存
+                        Wn.saveToCache(newTh);
+                        // 更新左侧列表
+                        UI.gasket.search.uiList.update(newTh);
+                        // 隐藏提示
+                        uiForm.hidePrompt(fld.key);
+                    });
+                    // var th = this.getData();
+                    // UI.gasket.search.uiList.update(th);
+                    // this.showPrompt(key, "spinning");
+                    // window.setTimeout(function(){
+                    //     UI.gasket.form.hidePrompt(key);
+                    // }, 500);
+                }
+            }).render(function(){
+                this.setData(th);
+            });
+        }
     },
     //...............................................................
     getThingSetObj : function(){
@@ -122,10 +132,10 @@ return ZUI.def("app.wn.thing", {
         return Wn.getById(oid);
     },
     //...............................................................
-    __cmd : function(cmd, id, str) {
-        var re = cmd.replace(/<id>/g, id);
+    __cmd : function(cmd, TsId, str) {
+        var re = cmd.replace(/<TsId>/g, TsId);
         if(str)
-            return re.replace(/<str>/g, str.replace(/'/g, "\\'"));
+            return re.replace(/<str>/g, str.replace(/'/g, "\\'").replace(/"/g, "\\\""));
         return re;
     },
     //...............................................................
@@ -137,10 +147,10 @@ return ZUI.def("app.wn.thing", {
         UI.thConf = thConf;
 
         // 定义默认命令模板
-        $z.setUndefined(thConf, "updateBy", "thing <id> update -fields '<str>'");
-        $z.setUndefined(thConf, "queryBy" , "thing <id> query '<%=match%>' -skip {{skip}} -limit {{limit}} -json -pager -sort 'ct:-1'");
-        $z.setUndefined(thConf, "createBy", "thing <id> create '<str>'");
-        $z.setUndefined(thConf, "deleteBy", "thing {{id}} delete -quiet");
+        $z.setUndefined(thConf, "updateBy", "thing <TsId> update {{id}} -fields '<str>'");
+        $z.setUndefined(thConf, "queryBy" , "thing <TsId> query '<%=match%>' -skip {{skip}} -limit {{limit}} -json -pager -sort 'ct:-1'");
+        $z.setUndefined(thConf, "createBy", "thing <TsId> create '<str>'");
+        $z.setUndefined(thConf, "deleteBy", "thing <TsId> delete {{id}} -quiet");
 
         // 创建搜索条
         new SearchUI({

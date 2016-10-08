@@ -137,7 +137,7 @@ thing [TsID] detail ID
 thing xxx detail 45ad6823..
    
 # 为 thing 修改详细内容，并自动生成摘要
-thing xxx detail 45ad6823.. -content "哈哈哈"
+thing xxx detail 45ad6823.. -content "哈哈哈" -breif
 
 # 为 thing 修改详细内容，并手动设置摘要
 thing xxx detail 45ad6823.. -content "哈哈哈" -brief "haha"

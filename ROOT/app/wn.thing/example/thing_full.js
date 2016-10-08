@@ -15,7 +15,7 @@
 			editAs : "input",
 			escapeHtml : false,
 			display : function(o) {
-				return $z.escapeText(o.th_nm) + (o.th_brief ? "<em>" + o.th_brief + "</em>" : "");
+				return $z.escapeText(o.th_nm) + (o.brief ? "<em>" + o.brief + "</em>" : "");
 			}
 		}, {
 			key : "icon",
@@ -56,8 +56,8 @@
 		icon : '<i class="fa fa-rss" aria-hidden="true"></i>',
 		title : "i18n:thing.fld.content",
 		fields : [ {
-			key : "content",
-			title : "i18n:thing.key.detail",
+			key : "__brief_and_content__",
+			title : "i18n:thing.key.brief_and_content",
 			hide : true,
 			virtual : true,
 			editAs : "content",
@@ -65,7 +65,7 @@
 				loadContent : function(obj, callback) {
 					// 有内容
 					if (obj.len > 0) {
-						Wn.exec("thing " + obj.id + " detail -quiet", function(re) {
+						Wn.execf("thing {{th_set}} detail {{id}}", obj, function(re) {
 							callback(re);
 						});
 					}
@@ -75,24 +75,33 @@
 					}
 				},
 				saveContent : function(obj, content, callback) {
-					Wn.exec("thing " + obj.id + " detail -content", content, function(re) {
+					console.log(obj)
+					Wn.execf("thing {{th_set}} detail {{id}} -content", content, obj, function(re) {
 						callback(re);
 					});
 				},
 				parseData : function(th) {
 					return {
 						id : th.id,
-						contentType : th.th_detail_tp,
-						brief : th.th_brief,
-						len : th.th_detail_sz,
+						contentType : {
+							"text/plain"    : "text",
+							"text/markdown" : "markdown",
+							"text/html"     : "html",
+						}[th.mime] || "text/plain",
+						brief  : th.brief,
+						len    : th.len,
+						th_set : th.th_set
 					};
 				},
 				formatData : function(obj) {
 					return {
-						id : obj.id,
-						th_detail_tp : obj.contentType,
-						th_brief : obj.brief,
-						th_detail_sz : obj.len
+						id    : obj.id,
+						mime  : {
+							"text"      : "text/plain",
+							"markdown"  : "text/markdown",
+							"html"      : "text/html"
+						}[obj.contentType] || 'txt',
+						brief : obj.brief
 					}
 				}
 			}
