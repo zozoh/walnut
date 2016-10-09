@@ -95,6 +95,7 @@
   padding-left: 10px;
   padding-right: 10px;
   display: block;
+  min-height: 18px;
 }
 .ui-wjson-editor .ui-wjson-treenode {
   padding-left: 16px;
@@ -109,6 +110,7 @@
 }
 .ui-wjson-editor .ui-wjson-content li {
   display: block;
+  min-height: 18px;
 }
 .ui-wjson-editor .ui-wjson-content .tn-toggle {
   width: 16px;

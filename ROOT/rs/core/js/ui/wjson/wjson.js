@@ -298,6 +298,7 @@
                         showJson: true,
                         showRoot: false,
                         compress: false,
+                        tabwidth: 2,
                         sindex: 0,
                         jindex: 0,
                         qkey: "",
@@ -315,22 +316,19 @@
                         },
                         source: {
                             lines: [],
-                            content: ""
-                        }
-                    },
-                    computed: {
-                        jtab: function () {
-                            return this.compress ? 0 : 2;
+                            content: "",
+                            content_normal: "",
+                            content_compress: ""
                         }
                     },
                     watch: {
                         "json.root": function (val) {
                             // 转换为字符串
-                            this.source.content = $z.toJson(val, null, this.jtab);
+                            // this.source.content = $z.toJson(val, null, this.jtab);
                             // 更新tree
                             this.json.tree = this.obj2tree(val);
                             // console.log("### JSON ###\n" + $z.toJson(val, null, 2) + "\n");
-                            console.log("### TREE ###\n" + $z.toJson(this.json.tree, null, 2) + "\n");
+                            console.log("### TREE ###\n" + $z.toJson(this.json.tree, null, this.tabwidth) + "\n");
                         },
                         "source.content": function (val) {
                             // TODO 按照 key, value等进行处理， 可以高亮一些一些内容
@@ -358,76 +356,6 @@
                                 throw "Not a Json Object";
                             }
                             return tree;
-                        },
-                        tree2obj: function () {
-                            var self = this;
-                            var troot = this.json.tree;
-                            var objw = {};
-                            var isOk = this.tn2js("", objw, true, troot);
-                            if (isOk) {
-                                return objw;
-                            }
-                            return null;
-                        },
-                        tn2js: function (path, parent, isObj, tn) {
-                            var self = this;
-                            var name = tn.name;
-                            var tval = tn.value;
-                            var value = null;
-                            if (tn.dupkey) {
-                                alert("对象路径：" + path + "下有重复的键[" + tn.name + "]，请检查");
-                                return false;
-                            }
-                            if (name.trim() == "") {
-                                alert("对象路径：" + path + "下有空键，请检查");
-                                return false;
-                            }
-                            // 根据类型转换
-                            if (tn.type == "object" || tn.type == "array") {
-                                if (tn.type == "object") {
-                                    value = {};
-                                } else {
-                                    value = [];
-                                }
-                                var herr = false;
-                                tn.children.forEach(function (ele, index) {
-                                    if (!self.tn2js(path + "/" + name, value, true, ele)) {
-                                        herr = true;
-                                        return false;
-                                    }
-                                });
-                                if (herr) {
-                                    return false;
-                                }
-                            }
-                            else if (tn.type == "null") {
-                                value = null;
-                            }
-                            else if (tn.type == "string") {
-                                value = tn.value;
-                            }
-                            else if (tn.type == "number") {
-                                if (/^-?[1-9]\d*$/.test(tval)) {
-                                    value = parseInt(tval);
-                                }
-                                // 浮点数
-                                else {
-                                    value = parseFloat(tval);
-                                }
-                            }
-                            else if (tn.type == "boolean") {
-                                if (tval == "true" || tval == "True") {
-                                    value = true;
-                                } else {
-                                    value = false;
-                                }
-                            }
-                            if (isObj) {
-                                parent[name] = value;
-                            } else {
-                                parent[parseInt(name)] = value;
-                            }
-                            return true;
                         },
                         // js转换为treenode
                         js2tn: function (parent, key, val) {
@@ -468,6 +396,155 @@
                                 }
                             }
                         },
+                        // treenode转换为json
+                        tree2obj: function () {
+                            var self = this;
+                            var troot = this.json.tree;
+                            var objw = {};
+                            var isOk = this.tn2js("", objw, true, troot);
+                            if (isOk) {
+                                return objw;
+                            }
+                            return null;
+                        },
+                        tn2js: function (path, parent, isObj, tn) {
+                            var self = this;
+                            var name = tn.name;
+                            var tval = tn.value;
+                            var value = null;
+                            if (tn.dupkey) {
+                                alert("对象路径：" + path + "下有重复的键[" + tn.name + "]，请检查");
+                                return false;
+                            }
+                            if (name.trim() == "") {
+                                alert("对象路径：" + path + "下有空键，请检查");
+                                return false;
+                            }
+                            // 根据类型转换
+                            if (tn.type == "object" || tn.type == "array") {
+                                if (tn.type == "object") {
+                                    value = {};
+                                } else {
+                                    value = [];
+                                }
+                                for (var i = 0; i < tn.children.length; i++) {
+                                    var ele = tn.children[i];
+                                    if (!self.tn2js(path + "/" + name, value, true, ele)) {
+                                        return false;
+                                    }
+                                }
+                            }
+                            else if (tn.type == "null") {
+                                value = null;
+                            }
+                            else if (tn.type == "string") {
+                                value = tn.value;
+                            }
+                            else if (tn.type == "number") {
+                                if (/^-?[1-9]\d*$/.test(tval)) {
+                                    value = parseInt(tval);
+                                }
+                                // 浮点数
+                                else {
+                                    value = parseFloat(tval);
+                                }
+                            }
+                            else if (tn.type == "boolean") {
+                                if (tval == "true" || tval == "True") {
+                                    value = true;
+                                } else {
+                                    value = false;
+                                }
+                            }
+                            if (isObj) {
+                                parent[name] = value;
+                            } else {
+                                parent[parseInt(name)] = value;
+                            }
+                            return true;
+                        },
+                        // 为了解决{}中字段顺序不能按照添加顺序序列化的问题，采用拼接字符串的方式来做
+                        tree2objAsStr: function () {
+                            var self = this;
+                            var troot = this.json.tree;
+                            var objw = {
+                                c: ""
+                            };
+                            for (var i = 0; i < troot.children.length; i++) {
+                                var ele = troot.children[i];
+                                if (!self.tn2jsAsStr("/root", 1, objw, true, ele)) {
+                                    return null;
+                                }
+                            }
+                            var clength = objw.c.length;
+                            var json = "{\n" + objw.c.substr(0, clength - 2) + "\n}";
+                            return json;
+                        },
+                        tabStr: function (depth) {
+                            return $z.dupString(' ', this.tabwidth * depth);
+                        },
+                        tn2jsAsStr: function (path, depth, parent, isObj, tn) {
+                            var self = this;
+                            var name = tn.name;
+                            var tval = tn.value;
+                            var value = this.tabStr(depth) + (isObj ? ('"' + name + '": ') : "");
+                            if (tn.dupkey) {
+                                alert("对象路径：" + path + "下有重复的键[" + tn.name + "]，请检查");
+                                return false;
+                            }
+                            if (name.trim() == "") {
+                                alert("对象路径：" + path + "下有空键，请检查");
+                                return false;
+                            }
+                            // 根据类型转换
+                            if (tn.type == "object" || tn.type == "array") {
+                                if (tn.type == "object") {
+                                    value += "{\n";
+                                }
+                                if (tn.type == "array") {
+                                    value += "[\n";
+                                }
+                                var objw = {c: ""};
+                                for (var i = 0; i < tn.children.length; i++) {
+                                    var ele = tn.children[i];
+                                    if (!self.tn2jsAsStr(path + "/" + name, depth + 1, objw, tn.type == "object", ele)) {
+                                        return false;
+                                    }
+                                }
+                                var clength = objw.c.length;
+                                value += objw.c.substr(0, clength - 2);
+                                if (tn.type == "object") {
+                                    value += "\n" + this.tabStr(depth) + "}";
+                                }
+                                if (tn.type == "array") {
+                                    value += "\n" + this.tabStr(depth) + "]";
+                                }
+                            }
+                            else if (tn.type == "null") {
+                                value += "null";
+                            }
+                            else if (tn.type == "string") {
+                                value += '"' + tn.value + '"';
+                            }
+                            else if (tn.type == "number") {
+                                if (/^-?[1-9]\d*$/.test(tval)) {
+                                    value += parseInt(tval);
+                                }
+                                // 浮点数
+                                else {
+                                    value += parseFloat(tval);
+                                }
+                            }
+                            else if (tn.type == "boolean") {
+                                if (tval == "true" || tval == "True") {
+                                    value += true;
+                                } else {
+                                    value += false;
+                                }
+                            }
+                            parent.c += value + ",\n";
+                            return true;
+                        },
                         valType: function (val) {
                             var vt = "unknow";
                             if (_.isNull(val)) {
@@ -496,9 +573,16 @@
                         // 更新content
                         updateContent: function () {
                             // 获取最新的的json对象
-                            var njson = this.tree2obj();
+                            // var njson = this.tree2obj();
+                            var njson = this.tree2objAsStr();
                             if (njson) {
-                                this.source.content = $z.toJson(njson.root, null, this.jtab); // root节点
+                                this.source.content_normal = njson; // 字符串
+                                this.source.content_compress = njson.replace(/ /g, "").replace(/\n/g, ""); // 字符串
+                                if (this.compress) {
+                                    this.source.content = this.source.content_compress;
+                                } else {
+                                    this.source.content = this.source.content_normal;
+                                }
                                 return true;
                             } else {
                                 return false;
@@ -515,7 +599,12 @@
                         },
                         toogleCompress: function () {
                             this.compress = !this.compress;
-                            this.source.content = $z.toJson($z.fromJson(this.source.content), null, this.jtab);
+                            if (this.compress) {
+                                this.source.content = this.source.content_compress;
+                            } else {
+                                this.source.content = this.source.content_normal;
+                            }
+                            // this.source.content = $z.toJson($z.fromJson(this.source.content), null, this.tabwidth);
                         },
                         // 全部展开
                         expandTree: function (tn) {
