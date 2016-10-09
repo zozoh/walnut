@@ -106,7 +106,36 @@
 				}
 			}
 		}, {
-			
+			key : "__media__",
+			title : "i18n:thing.key.media",
+			hide : true,
+			virtual : true,
+			editAs : "file",
+			uiConf : {
+				multi : true,
+				asyncParseData : function(th, callback) {
+					Wn.execf("thing {{th_set}} media {{id}} -json -l", th, function(re){
+						callback($z.fromJson(re));
+					});
+				},
+				formatData : function(objList) {
+					return {
+						th_media_nb : objList.length
+					};
+				},
+				on_remove : function(o, jItem, UI) {
+					var th = UI.parent.getData();
+					console.log(th)
+					Wn.execf("thing {{th_set}} media {{th_id}} -del {{nm}}", {
+						th_set : th.th_set,
+						th_id  : th.id,
+						nm     : o.nm,
+					}, function(re){
+						jItem.remove();
+						UI.showHideAdder();
+					});
+				}
+			}
 		} ]
 	}, {
 		icon : '<i class="fa fa-bar-chart"></i>',

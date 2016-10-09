@@ -289,6 +289,8 @@ public abstract class Things {
                 else {
                     WnObj oSrc = Wn.checkObj(sys, read);
                     sys.io.copyData(oSrc, oM);
+                    // 因为 copyData 是快速命令，所以要重新执行一下钩子
+                    oM = Wn.WC().doHook("write", oM);
                 }
             }
 

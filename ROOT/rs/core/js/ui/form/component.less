@@ -373,6 +373,82 @@
         ul:after{@clr();}
     }
 }
+//----------------------------------------------------------------
+@cfiW : 32px;
+@cfiH : 32px;
+@cfpW : 128px;
+@cfpH : 128px;
+@cfSecW : 256px;
+.com-file {
+    @flex();
+    .cf-adder { @noselect();
+        border:1px dotted @cborder0; cursor: pointer; margin:@d1;
+        width:@cfiW; text-align: center; height:@cfiH; line-height: @cfiH;
+        font-weight: bold; font-size: @f4; color:@cborder0;
+    }
+    .cf-adder:hover {
+        color:@ch1_f; background: @ch1_b; border:1px dotted @ch1_f;
+    }
+    .cf-item {
+        position: relative; padding:@d1;
+        > header {
+            cursor: pointer; opacity: 0.6; transition:0.5s;
+            .cf-thumb {
+                width: @cfiW; height: @cfiH;
+                background-repeat: no-repeat;
+                background-size: contain;
+                border-radius: @d0;
+                background-position: center center;
+            }
+        }
+        > section {
+            position: fixed; display: none; margin:@d2*-1;
+            color:@cf0; background: @cb0; border-radius: @d2; box-shadow: @d0 @d0 @d3 @cshadow;
+            border:1px solid @cborder1;
+            width: @cfSecW; overflow: hidden;
+            > div {
+                width: 100%; height:100%; 
+                > .cf-ititle { @noselect();
+                    background: @cb2; color:@clink;
+                    margin: 0; padding:@d3;
+                    font-family: @f_fixed; font-size:@f1;
+                    cursor: pointer;
+                }
+                > .cf-ititle:hover {
+                    color:@clink_hover; text-decoration: underline;
+                }
+                > .cf-preview-con {
+                    padding:@d4 0; background: @cb4;
+                    .cf-preview {
+                        width:@cfpW; height:@cfpH; margin: 0 auto;
+                        background-repeat: no-repeat;
+                        background-size: contain;
+                        background-position: center center;
+                    }
+                }
+                > .cf-actions { @noselect();
+                    padding:@d4; background: @cb2;
+                    ul {
+                        @flex(); justify-content:flex-end;
+                        li {
+                            cursor: pointer; color:@clink; font-size:@f1;
+                            padding:0 @d2; border-left:1px solid @cborder0;
+                        }
+                        li:hover {color:@clink_hover; text-decoration: underline;}
+                    }
+                }
+            }
+        }
+    }
+    .cf-item[preview] {
+        > header {
+            opacity: 1.0;
+        }
+        > section {
+            display: block;
+        }
+    }
+}
 
 
 

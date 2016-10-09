@@ -41,7 +41,7 @@ return ZUI.def("app.wn.thing", {
 
         // 重新加载数据 
         UI.reload(function(){
-            //UI.subUI("search/list").setActived(0);
+            UI.subUI("search/list").setActived(0);
         });
     },
     //...............................................................

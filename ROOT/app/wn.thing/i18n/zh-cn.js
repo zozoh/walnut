@@ -13,6 +13,8 @@ define({
             "ct" : "创建时间",
             "lm" : "最后修改",
             "icon" : "图标",
+            "media" : "多媒体",
+            "attachment" : "附件", 
             "th_ow" : "所有者",
             "th_nm" : "名称",
             "th_brief" : "摘要",

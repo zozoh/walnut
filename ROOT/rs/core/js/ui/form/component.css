@@ -668,3 +668,120 @@
   height: 0;
   clear: both;
 }
+.com-file {
+  display: -webkit-flex;
+  display: flex;
+}
+.com-file .cf-adder {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  border: 1px dotted #cccccc;
+  cursor: pointer;
+  margin: 4px;
+  width: 32px;
+  text-align: center;
+  height: 32px;
+  line-height: 32px;
+  font-weight: bold;
+  font-size: 16px;
+  color: #cccccc;
+}
+.com-file .cf-adder:hover {
+  color: #444444;
+  background: #cccccc;
+  border: 1px dotted #444444;
+}
+.com-file .cf-item {
+  position: relative;
+  padding: 4px;
+}
+.com-file .cf-item > header {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: 0.5s;
+}
+.com-file .cf-item > header .cf-thumb {
+  width: 32px;
+  height: 32px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  border-radius: 2px;
+  background-position: center center;
+}
+.com-file .cf-item > section {
+  position: fixed;
+  display: none;
+  margin: -6px;
+  color: #333333;
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+  border: 1px solid #d0d0d0;
+  width: 256px;
+  overflow: hidden;
+}
+.com-file .cf-item > section > div {
+  width: 100%;
+  height: 100%;
+}
+.com-file .cf-item > section > div > .cf-ititle {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  background: #e0e0e0;
+  color: #0088ff;
+  margin: 0;
+  padding: 8px;
+  font-family: Monaco, Consolas, Courier New;
+  font-size: 10px;
+  cursor: pointer;
+}
+.com-file .cf-item > section > div > .cf-ititle:hover {
+  color: #ff0000;
+  text-decoration: underline;
+}
+.com-file .cf-item > section > div > .cf-preview-con {
+  padding: 12px 0;
+  background: #cccccc;
+}
+.com-file .cf-item > section > div > .cf-preview-con .cf-preview {
+  width: 128px;
+  height: 128px;
+  margin: 0 auto;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+}
+.com-file .cf-item > section > div > .cf-actions {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 12px;
+  background: #e0e0e0;
+}
+.com-file .cf-item > section > div > .cf-actions ul {
+  display: -webkit-flex;
+  display: flex;
+  justify-content: flex-end;
+}
+.com-file .cf-item > section > div > .cf-actions ul li {
+  cursor: pointer;
+  color: #0088ff;
+  font-size: 10px;
+  padding: 0 6px;
+  border-left: 1px solid #cccccc;
+}
+.com-file .cf-item > section > div > .cf-actions ul li:hover {
+  color: #ff0000;
+  text-decoration: underline;
+}
+.com-file .cf-item[preview] > header {
+  opacity: 1.0;
+}
+.com-file .cf-item[preview] > section {
+  display: block;
+}

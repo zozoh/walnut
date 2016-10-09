@@ -24,6 +24,14 @@ public class thing_init implements JvmHdl {
         // 找到集合
         WnObj oTS = Things.checkThingSet(hc.oRefer);
 
+        // 如果 thing 目录木有 icon 标记一个
+        if (!oTS.has("icon")) {
+            oTS.setv("icon", "<i class=\"fa fa-cubes\"></i>");
+            sys.io.set(oTS, "^icon$");
+            if (!isQ)
+                sys.out.printlnf("%-12s: %s", " ++ icon", oTS.getString("icon"));
+        }
+
         // 确保有索引目录
         WnObj oIndex = sys.io.createIfNoExists(oTS, "index", WnRace.DIR);
         if (!isQ)

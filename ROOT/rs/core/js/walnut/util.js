@@ -22,7 +22,8 @@ var Wn = {
         html += '<div class="wnobj-SE wnobj-icon-hide"></div>';
         html += ' </div>';
         html += '</div>';
-        html += '<div class="wnobj-nm-con"><'+nmTagName+' class="wnobj-nm"></'+nmTagName+'></div>';
+        if(_.isString(nmTagName))
+            html += '<div class="wnobj-nm-con"><'+nmTagName+' class="wnobj-nm"></'+nmTagName+'></div>';
         html += '</div>';
         html += innerOnly ? '' : '</div>';
         return html;
@@ -75,16 +76,18 @@ var Wn = {
 
         // 填充对象名称
         var jNm = jq.find(".wnobj-nm");
-        var nmText = o.nm; 
-        if(UI && _.isFunction(UI.text))
-            nmText = UI.text(nmText);
-        nmText = this.objDisplayName(UI, nmText, nmMaxLen);
-        
-        jNm.text(nmText)
-        // 标记链接
-        if(jNm[0].tagName == 'A'){
-            jNm.prop("target", "_blank");
-            jNm.prop("href","/a/open/"+(window.wn_browser_appName||"wn.browser")+"?ph=id:"+o.id);
+        if(jNm.length > 0) {
+            var nmText = o.nm; 
+            if(UI && _.isFunction(UI.text))
+                nmText = UI.text(nmText);
+            nmText = this.objDisplayName(UI, nmText, nmMaxLen);
+            
+            jNm.text(nmText)
+            // 标记链接
+            if(jNm[0].tagName == 'A'){
+                jNm.prop("target", "_blank");
+                jNm.prop("href","/a/open/"+(window.wn_browser_appName||"wn.browser")+"?ph=id:"+o.id);
+            }
         }
     },
     //...................................................................
