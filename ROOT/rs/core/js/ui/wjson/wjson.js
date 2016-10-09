@@ -207,7 +207,7 @@
                                 }
                                 // 布尔
                                 else if (ttp == "boolean") {
-                                    if (ctp == "string" && (bval == "true" || val == "True")) {
+                                    if (ctp == "string" && (bval == "true" || bval == "True")) {
                                         this.model.value = "true";
                                     } else {
                                         this.model.value = "false";

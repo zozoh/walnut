@@ -28,7 +28,6 @@
                 </ul>
                 <ul class="ui-wjson-content">
                     <ui-wjson-treenode
-                            class="ui-wjson-treenode"
                             depth="0"
                             ptype="object"
                             :sroot.sync="showRoot"
@@ -60,7 +59,7 @@
 </div>
 
 <script type="text/x-template" id="ui-wjson-template-treenode">
-    <li :class="{'no-root' : !showTn}">
+    <li class="ui-wjson-treenode" :class="{'no-root' : !showTn}">
         <!--当前节点-->
         <div class="tn" v-if="showTn"
              :class="{'mkey' : matchKey, 'mval': matchVal, 'empty': isEmptyTn }">
@@ -189,7 +188,6 @@
         <ul v-show="model.open" v-if="isFolder">
             <template v-if="model.children && model.children.length > 0">
                 <ui-wjson-treenode
-                        class="ui-wjson-treenode"
                         v-for="child in model.children"
                         :sroot.sync="sroot"
                         :ptype="model.type"
@@ -201,7 +199,6 @@
             </template>
             <template v-else>
                 <ui-wjson-treenode
-                        class="ui-wjson-treenode"
                         :sroot.sync="sroot"
                         :ptype="model.type"
                         :depth="parseInt(depth) + 1"

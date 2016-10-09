@@ -83,7 +83,6 @@
 .ui-wjson-editor .ui-wjson-curb {
   display: block;
   width: 40px;
-  height: 100%;
   background: #f0f0f0;
   float: left;
   text-align: right;
@@ -95,7 +94,6 @@
 .ui-wjson-editor .ui-wjson-curb li {
   padding-left: 10px;
   padding-right: 10px;
-  margin-bottom: 2px;
   display: block;
 }
 .ui-wjson-editor .ui-wjson-treenode {
@@ -111,7 +109,6 @@
 }
 .ui-wjson-editor .ui-wjson-content li {
   display: block;
-  margin-bottom: 2px;
 }
 .ui-wjson-editor .ui-wjson-content .tn-toggle {
   width: 16px;
