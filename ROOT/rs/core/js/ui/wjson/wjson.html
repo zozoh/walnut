@@ -17,9 +17,10 @@
         <!--json格式编辑器-->
         <div class="ui-wjson-editor" v-if="showJson">
             <div class="ui-wjson-menu">
-                <div class="menu-item btn" @click="toogleEditor();"><i class="fa fa-exchange"></i></div>
-                <div class="menu-item btn" @click="expandTree(json.tree)"><i class="fa fa-expand"></i></div>
-                <div class="menu-item btn" @click="collapseTree(json.tree, true)"><i class="fa fa-compress"></i></div>
+                <div class="menu-item btn" @click="toogleEditor();"><i class="fa fa-fw fa-exchange"></i></div>
+                <div class="menu-item btn" @click="expandTree(json.tree)"><i class="fa fa-fw fa-expand"></i></div>
+                <div class="menu-item btn" @click="collapseTree(json.tree, true)"><i class="fa fa-fw fa-compress"></i>
+                </div>
                 <div class="menu-item right"><input type="text" v-model="qkey"></div>
             </div>
             <div class="ui-wjson-container">
@@ -40,7 +41,10 @@
         <!--源码格式编辑器-->
         <div class="ui-wjson-editor" v-else>
             <div class="ui-wjson-menu">
-                <div class="menu-item btn" @click="toogleEditor();"><i class="fa fa-exchange"></i></div>
+                <div class="menu-item btn" @click="toogleEditor();"><i class="fa fa-fw fa-exchange"></i></div>
+                <div class="menu-item btn" @click="toogleCompress();"><i class="fa fa-fw"
+                                                                         :class="{'fa-align-justify': compress, 'fa-align-right': !compress}"></i>
+                </div>
             </div>
             <div class="ui-wjson-container">
                 <ul class="ui-wjson-curb source-line">

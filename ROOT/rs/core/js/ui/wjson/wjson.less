@@ -31,6 +31,7 @@
     border-bottom: 1px solid #5882A3;
 
     .menu-item {
+      @noselect();
       min-width: @wj-header-isize;
       height: @wj-header-isize;
       line-height: @wj-header-isize;
@@ -90,7 +91,8 @@
   .ui-wjson-curb {
     display: block;
     width: @container-curb-size;
-    background: #ebebeb;
+    height: 100%;
+    background: #f0f0f0;
     float: left;
     text-align: right;
     @noselect();
@@ -118,7 +120,7 @@
     display: block;
     padding-left: @container-curb-size + 4;
     width: 100%;
-    height: 100%;
+    //height: 100%;
     li {
       display: block;
       margin-bottom: 2px;

@@ -297,6 +297,7 @@
                         // 显示相关
                         showJson: true,
                         showRoot: false,
+                        compress: false,
                         sindex: 0,
                         jindex: 0,
                         qkey: "",
@@ -317,10 +318,15 @@
                             content: ""
                         }
                     },
+                    computed: {
+                        jtab: function () {
+                            return this.compress ? 0 : 2;
+                        }
+                    },
                     watch: {
                         "json.root": function (val) {
                             // 转换为字符串
-                            this.source.content = $z.toJson(val, null, 2);
+                            this.source.content = $z.toJson(val, null, this.jtab);
                             // 更新tree
                             this.json.tree = this.obj2tree(val);
                             // console.log("### JSON ###\n" + $z.toJson(val, null, 2) + "\n");
@@ -492,7 +498,7 @@
                             // 获取最新的的json对象
                             var njson = this.tree2obj();
                             if (njson) {
-                                this.source.content = $z.toJson(njson.root, null, 2); // root节点
+                                this.source.content = $z.toJson(njson.root, null, this.jtab); // root节点
                                 return true;
                             } else {
                                 return false;
@@ -506,6 +512,10 @@
                                 }
                             }
                             this.showJson = !this.showJson;
+                        },
+                        toogleCompress: function () {
+                            this.compress = !this.compress;
+                            this.source.content = $z.toJson($z.fromJson(this.source.content), null, this.jtab);
                         },
                         // 全部展开
                         expandTree: function (tn) {
