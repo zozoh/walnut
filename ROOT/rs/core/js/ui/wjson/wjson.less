@@ -31,6 +31,7 @@
     border-bottom: 1px solid #5882A3;
 
     .menu-item {
+      @noselect();
       min-width: @wj-header-isize;
       height: @wj-header-isize;
       line-height: @wj-header-isize;
@@ -90,15 +91,16 @@
   .ui-wjson-curb {
     display: block;
     width: @container-curb-size;
-    background: #ebebeb;
+    background: #f0f0f0;
     float: left;
     text-align: right;
     @noselect();
     li {
       padding-left: 10px;
       padding-right: 10px;
-      margin-bottom: 2px;
+      //margin-bottom: 2px;
       display: block;
+      min-height: 18px;
     }
   }
 
@@ -107,6 +109,9 @@
 
   .ui-wjson-treenode {
     padding-left: 16px;
+    &.no-root {
+      padding-left: 0;
+    }
   }
 
   @tn-focus: { background-color: #ffffad; border: 1px solid #ff0; };
@@ -115,14 +120,17 @@
     display: block;
     padding-left: @container-curb-size + 4;
     width: 100%;
-    height: 100%;
+    //height: 100%;
     li {
       display: block;
-      margin-bottom: 2px;
+      min-height: 18px;
+      //margin-bottom: 2px;
     }
     // treenode 内部两个按钮
 
-    @tn-btn: { width: 16px; height: 16px; position: absolute; cursor: pointer; text-align: center; };
+    @tn-btn-sz: 16px;
+    @tn-btn: { width: @tn-btn-sz; height: @tn-btn-sz; position: absolute; cursor: pointer;
+      @noselect(); };
 
     .tn-toggle {
       @tn-btn();
@@ -147,11 +155,118 @@
           opacity: 1;
         }
       }
+
+      &.show {
+        width: 100px; // 鼠标往右滑动不会隐藏
+        .tn-menu-list {
+          display: block;
+        }
+      }
+
+      // menu
+      .tn-menu-anchor {
+        position: relative;
+      }
+
+      .tn-menu-list {
+        display: none;
+        position: absolute;
+        overflow: hidden;
+        top: @tn-btn-sz;
+        left: -6px;
+        z-index: 1000;
+        min-width: 120px;
+        background: #fff;
+        border: 1px solid #d3d3d3;
+        box-shadow: 2px 2px 12px rgba(128, 128, 128, .3);
+        list-style: none;
+
+        li {
+          display: block;
+          margin-bottom: 0px;
+        }
+      }
+
+      .tn-menu-btn {
+        text-align: left;
+        padding: 4px;
+        min-height: 28px;
+        position: relative;
+        line-height: 1.5em;
+        i {
+          display: inline-block;
+          width: 20px;
+          height: 20px;
+          line-height: 20px;
+          text-align: center;
+
+          &.act-tip {
+            background: #888;
+            color: #fff;
+            margin-right: 4px;
+          }
+
+          &.sub-tip {
+            display: block;
+            float: right;
+            color: #888;
+          }
+        }
+        span {
+          display: inline-block;
+          //font-size: 1.1em;
+        }
+        &:hover {
+          background: rgba(128, 128, 128, .1);
+          i.btn-insert {
+            background: #080;
+          }
+          i.btn-clone {
+            background: #ff8940;
+          }
+          i.btn-clean {
+            background: #f00;
+          }
+          i.btn-delete {
+            background: #f00;
+          }
+          i.btn-types {
+            background: #0087ff;
+          }
+        }
+
+        &.curType {
+          background: #0087ff;
+          color: #fff;
+          font-weight: bold;
+        }
+      }
+
+      .tn-menu-sp {
+
+      }
+
+      @nmargin: 5px;
+      // 子菜单，类型转换
+      .tn-menu-sublist {
+        background: #fff;
+        box-shadow: inset 0 0 10px rgba(128, 128, 128, .5);
+        // 抵消上一层padding：4px
+        margin-right: -4px - @nmargin;
+        margin-left: -4px - @nmargin;
+        span {
+          padding-left: 24px + @nmargin;
+        }
+      }
     }
 
     // treenode
     .tn {
       position: relative;
+
+      &:hover {
+        background: rgba(255, 255, 173, 0.3);
+      }
 
       &.mkey .tn-key, &.mval .tn-val {
         @tn-focus();
@@ -167,6 +282,12 @@
 
         &.tn-sp, &.tn-length {
           min-width: 1px;
+        }
+
+        &.tn-err {
+          i {
+            color: #ff8940;
+          }
         }
 
         &.empty {
@@ -192,6 +313,14 @@
 
       &:focus {
         @tn-focus();
+      }
+
+      &.emptytn {
+        color: #585858;
+      }
+
+      &.dupkey {
+
       }
     }
 
