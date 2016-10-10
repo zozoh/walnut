@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz-web</artifactId>
-			<version>1.r.58-SNAPSHOT</version>
+			<version>1.r.59-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jetty-all-server</artifactId>
