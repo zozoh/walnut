@@ -22,7 +22,7 @@ public class thing_media implements JvmHdl {
         WnObj oDir = Things.dirThMedia(sys.io, oTS, oT);
 
         // 执行处理
-        Things.doFileObj(sys, hc, oDir);
+        Things.doFileObj(sys, hc, oDir, oT, "th_media_nb");
 
     }
 

@@ -15,7 +15,7 @@ define(function(require, exports, module) {
         	$pel  : $(".ui-body"),
         	exec  : Wn.exec,
             app   : Wn.app(),
-            editable : true,
+            renameable : true,
             sidebar  : true,
             history  : true,
             myInfo : {

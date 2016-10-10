@@ -18,7 +18,7 @@ define(function(require, exports, module) {
 			$pel : $(document.body),
 			exec : Wn.exec,
 			app : Wn.app(),
-			editable : true,
+			renameable : true,
 			sidebar : {
 				path : "/app/wn.hmaker2/sidebar.js"
 			},

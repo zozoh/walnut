@@ -9,6 +9,9 @@ var methods = {
         }
         return UI;
     },
+    opt : function(){
+        return this.browser().options;
+    },
     chuteUI : function() {
         return this.browser().subUI("chute");
     },

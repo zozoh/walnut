@@ -120,19 +120,38 @@
 				},
 				formatData : function(objList) {
 					return {
-						th_media_nb : objList.length
+						th_media_nb : _.isArray(objList) ? objList.length : 0
 					};
 				},
-				on_remove : function(o, jItem, UI) {
+				on_add : function(callback, UI) {
+					var th = UI.parent.getData();
+					Wn.selectFilePanel({
+						mask  : {
+
+						},
+						body  : {
+							uploader : {
+								target : {
+									ph   : "id:"+th.th_set+"/data/"+th.id+"/media",
+									race : "DIR"
+								},
+								validate : /^.+[.](png|jpe?g|gif)$/i
+							}
+						},
+						on_ok : function(objs) {
+							console.log(objs);
+						}
+					});
+				},
+				on_remove : function(o, callback, jItem, UI) {
 					var th = UI.parent.getData();
 					console.log(th)
-					Wn.execf("thing {{th_set}} media {{th_id}} -del {{nm}}", {
+					Wn.execf("thing {{th_set}} media {{th_id}} -del {{nm}} -Q", {
 						th_set : th.th_set,
 						th_id  : th.id,
 						nm     : o.nm,
 					}, function(re){
-						jItem.remove();
-						UI.showHideAdder();
+						callback(re);
 					});
 				}
 			}

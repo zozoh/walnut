@@ -200,9 +200,7 @@ var Wn = {
         });
     },
     /*...................................................................
-    提供一个通用的文件上传界面，任何 UI 可以通过
-       this.listenModel("do:upload", this.on_do_upload); 
-    来启用这个方法
+    提供一个通用的文件上传界面
     */
     uploadPanel: function (options) {
         var MaskUI    = require("ui/mask/mask");
@@ -215,14 +213,56 @@ var Wn = {
             height: 500,
             setup : {
                 uiType : "ui/upload/upload",
-                uiConf : _.extend({
-                    parent: this,
-                    gasketName: "main"
-                }, options)
+                uiConf : _.extend({}, options)
             }
         }, options);
 
         new MaskUI(mask_options).render();
+    },
+    /*................................................................
+    提供一个文件对象选择（上传）框的快捷方法，参数为
+    {
+        icon  : '<xxxx>', // 对话框标题的图标
+        title : "xxx",    // 对话框标题，不支持i18n格式 
+        mask  : {.. @see ui/mask/mask 的配置规范 ..},
+        body  : {.. @see ui/support/select_file 的配置规范 ..}
+        on_ok     : F(objs);
+        on_cancel : F();
+    }
+    */
+    selectFilePanel : function(opt) {
+        opt = opt || {}
+        var MaskUI = require("ui/mask/mask");
+
+        new MaskUI(_.extend({
+            dom    : "ui/pop/pop.html",
+            css    : "theme/ui/pop/pop.css",
+            exec   : Wn.exec,
+            app    : Wn.app(),
+            closer : true,
+            escape : true,
+            width  : "60%",
+            height : "80%",
+            setup  : {
+                uiType : "ui/support/select_file",
+                uiConf : _.extend({}, opt.body)
+            },
+            events : {
+                "click .pm-btn-ok" : function(){
+                    var data = this.body.getData();
+                    this.close();
+                    $z.invoke(opt, "on_ok", [data]);
+                },
+                "click .pm-btn-cancel" : function(){
+                    this.close();
+                    $z.invoke(opt, "on_cancel", []);
+                }
+            },
+        }, opt.mask)).render(function(){
+            this.$main.find(".pm-title")
+                .append($(opt.icon))
+                .append($('<b>').text(opt.title || this.msg("selectFile")));
+        });
     },
     /*................................................................
     执行一个命令，并且在一个弹出的日志窗口显示命令的返回情况

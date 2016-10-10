@@ -56,15 +56,15 @@
   padding-left: 4px;
   padding-right: 4px;
   outline: none;
-  border: 1px solid #CCC;
+  border: 1px solid #cccccc;
   border-radius: 4px;
-  color: #000;
-  background: #FFF;
+  color: #000000;
+  background: #ffffff;
 }
 .ui-wjson-editor .ui-wjson-menu .menu-item input:focus {
-  color: #000;
-  background: #FFC;
-  border-color: #F80;
+  color: #000000;
+  background: #ffffcc;
+  border-color: #ff8800;
 }
 .ui-wjson-editor .ui-wjson-container {
   position: absolute;

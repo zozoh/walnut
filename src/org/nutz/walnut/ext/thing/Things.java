@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.thing;
 
 import java.io.InputStream;
+import java.util.List;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
@@ -236,10 +237,21 @@ public abstract class Things {
      *            命令控制器调用上下文
      * @param oDir
      *            文件的所在目录
+     * @param oT
+     *            Thing 的索引对象
+     * @param countKey
+     *            计数的键值
      */
-    public static void doFileObj(WnSystem sys, JvmHdlContext hc, WnObj oDir) {
+    public static void doFileObj(WnSystem sys,
+                                 JvmHdlContext hc,
+                                 WnObj oDir,
+                                 WnObj oT,
+                                 String countKey) {
         // 判断是否静默输出
         boolean isQ = hc.params.is("quiet");
+
+        // 准备查询条件
+        WnQuery q = Wn.Q.pid(oDir);
 
         // 添加
         if (hc.params.has("add")) {
@@ -294,6 +306,12 @@ public abstract class Things {
                 }
             }
 
+            // 如果声明了键，就更新计数
+            if (!Strings.isBlank(countKey)) {
+                oT.setv(countKey, sys.io.count(q));
+                sys.io.set(oT, "^" + countKey + "$");
+            }
+
             // 最后计入输出
             hc.output = oM;
         }
@@ -305,12 +323,18 @@ public abstract class Things {
                 throw Er.create("e.cmd.thing.media.noexists", oDir.path() + "/" + fnm);
             }
             sys.io.delete(oM);
+
+            // 如果声明了键，就更新计数
+            if (!Strings.isBlank(countKey)) {
+                oT.setv(countKey, sys.io.count(q));
+                sys.io.set(oT, "^" + countKey + "$");
+            }
+
             // 最后计入输出
             hc.output = oM;
         }
         // 那么就是查询咯
         else {
-            WnQuery q = Wn.Q.pid(oDir);
             if (hc.params.has("sort")) {
                 q.sort(Lang.map(hc.params.check("sort")));
             }
@@ -318,7 +342,18 @@ public abstract class Things {
             else {
                 q.asc("nm");
             }
-            hc.output = sys.io.query(q);
+
+            // 得到查询记过
+            List<WnObj> list = sys.io.query(q);
+
+            // 如果声明了键，看看是否需要更新计数
+            if (!Strings.isBlank(countKey) && oT.getInt(countKey) != list.size()) {
+                oT.setv(countKey, sys.io.count(q));
+                sys.io.set(oT, "^" + countKey + "$");
+            }
+
+            // 记录到输出中
+            hc.output = list;
         }
     }
 

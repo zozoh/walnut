@@ -1,0 +1,47 @@
+.select-file {
+  position: relative;
+}
+.select-file > * {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.select-file > header {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  top: 0;
+  background: #e0e0e0;
+  color: #999999;
+  padding: 6px;
+  border-bottom: 1px solid #d0d0d0;
+}
+.select-file > header > ul {
+  display: -webkit-flex;
+  display: flex;
+}
+.select-file > header > ul li {
+  cursor: pointer;
+  margin: 0 8px;
+  border: 1px solid #d0d0d0;
+  padding: 6px;
+  margin: 0 6px 0 0;
+  min-width: 80px;
+  text-align: center;
+}
+.select-file > header > ul li.highlight {
+  background: #0044bb;
+  color: #ffffff;
+  font-weight: bold;
+}
+.select-file > section {
+  bottom: 32px;
+}
+.select-file > footer {
+  bottom: 0;
+  height: 32px;
+  border-top: 1px solid #d0d0d0;
+  background: #dddddd;
+  color: #888888;
+}

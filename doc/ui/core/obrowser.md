@@ -69,6 +69,9 @@ author:zozoh
     // 实际上，如果两个 browser 实例的这个字段相同，那么则会共享
     lastObjId : "last-oid",
     
+    // 默认打开的目录位置，这个比 lastObjId 优先级低，默认为 "~"
+    defaultPath : "~",
+    
     // 当加载一个对象的时候，如何获得其编辑器配置信息，可以支持:
     // - {..}    : 默认采用  {actions : ["@::viewmode"]}
     // - "auto"  : 则会每次都询问服务器
@@ -89,6 +92,9 @@ author:zozoh
     
     // 当列表模式的时候，是否显示复选框, 默认 false
     checkable : Boolean
+    
+    // 是否支持修改对象名称，默认 false
+    renameable : false,
     
     // 是否允许多选，默认是 true
     multi : Boolean

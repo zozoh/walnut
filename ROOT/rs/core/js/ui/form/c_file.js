@@ -86,7 +86,19 @@ return ZUI.def("ui.form_com_file", {
         _.extend(opt.actions, {
             "remove" : {
                 text : "i18n:delete",
-                handler : opt.on_remove
+                handler : function(obj, jItem, UI){
+                    opt.on_remove.call(this, obj, function(errMsg){
+                        if(!errMsg) {
+                            jItem.remove();
+                            // 更新 Adder 的显示
+                            UI.showHideAdder();
+                            // 调用回调
+                            UI.__on_change();
+                        } else {
+                            alert(errMsg);
+                        }
+                    }, jItem, UI);
+                }
             }
         })
     },
@@ -103,8 +115,10 @@ return ZUI.def("ui.form_com_file", {
             opt.on_add.call(context, function(obj){
                 var jItem = UI.__gen_item(objList[i]);
                 jItem.insertBefore(jAdd);
-
+                // 更新 Adder 的显示
                 UI.showHideAdder();
+                // 调用回调
+                UI.__on_change();
             }, UI);
         },
         // 鼠标进入项目，显示详细面板

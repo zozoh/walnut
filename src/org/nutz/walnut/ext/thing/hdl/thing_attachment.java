@@ -22,7 +22,7 @@ public class thing_attachment implements JvmHdl {
         WnObj oDir = Things.dirThAttachment(sys.io, oTS, oT);
 
         // 执行处理
-        Things.doFileObj(sys, hc, oDir);
+        Things.doFileObj(sys, hc, oDir, oT, "th_att_nb");
 
     }
 

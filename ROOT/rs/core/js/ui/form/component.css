@@ -598,6 +598,7 @@
 }
 .com-content .ccnt-brief {
   padding: 8px;
+  word-break: break-all;
 }
 .com-content .ccnt-brief[no-brief] {
   font-style: italic;
@@ -608,11 +609,11 @@
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  height: 32px;
-  line-height: 32px;
+  padding: 6px;
   border-top: 1px dotted #d0d0d0;
   display: -webkit-flex;
   display: flex;
+  flex-wrap: wrap;
 }
 .com-content > footer .ccnt-cinfo {
   -moz-user-select: none;
@@ -653,10 +654,11 @@
   display: flex;
 }
 .com-content > footer ul li {
-  float: left;
   color: #0088ff;
   padding: 0 6px;
   cursor: pointer;
+  word-spacing: nowrap;
+  flex: 0 0 auto;
 }
 .com-content > footer ul li:hover {
   color: #ff0000;

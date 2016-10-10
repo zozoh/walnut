@@ -145,7 +145,10 @@ return ZUI.def("ui.obrowser_main", {
     //..............................................
     // 修改激活项目的名称
     rename : function(){
-        $z.invoke(this.subUI("view"),"rename");
+        var UI  = this;
+        var opt = UI.opt();
+        if(opt.renameable)
+            $z.invoke(UI.subUI("view"),"rename");
     },
     //..............................................
     isActived : function(){

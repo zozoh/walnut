@@ -337,7 +337,6 @@
 }
 //----------------------------------------------------------------
 .com-content {
-    @fH : 32px;
     .ccnt-actions {
         float: right; padding:@d3;
         ul {
@@ -347,12 +346,12 @@
         }
     }
     .ccnt-brief {
-        padding:@d3;
+        padding:@d3; word-break: break-all;
     }
     .ccnt-brief[no-brief] {font-style: italic; color:@c3;}
     > footer { @noselect();
-        height:@fH; line-height: @fH;  border-top:1px dotted @cborder1;
-        @flex(); 
+        padding:@d2; border-top:1px dotted @cborder1;
+        @flex(); flex-wrap:wrap;
         .ccnt-cinfo { @noselect();
             padding:0 @d2; color:@c2; text-align: center; cursor: pointer;
             i {
@@ -367,7 +366,10 @@
         }
         ul {
             @flex();
-            li {float:left; color:@clink; padding:0 @d2; cursor: pointer;}
+            li {
+                color:@clink; padding:0 @d2; cursor: pointer; word-spacing: nowrap;
+                flex: 0 0 auto;
+            }
             li:hover {color:@clink_hover; text-decoration: underline;}
         }
         ul:after{@clr();}

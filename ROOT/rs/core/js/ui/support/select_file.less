@@ -1,0 +1,36 @@
+@import "../ui.less";
+
+@fH : 32px;
+.select-file {
+    position: relative;
+    > * {position: absolute; left: 0; right: 0;}
+    //.........................................
+    // 标签
+    > header {@noselect();
+        top:0; background: @cb2; color:@cf2; padding:@d2;
+        border-bottom:1px solid @cborder1;
+        > ul {
+            @flex();
+            li {
+                cursor: pointer; margin: 0 @d3;
+                border:1px solid @cborder1;
+                padding:@d2; margin:0 @d2 0 0;
+                min-width: 80px; text-align: center;
+            }
+            li.highlight {
+                background: @ch0_b; color:@ch0_f; font-weight: bold;
+            }
+        }
+    }
+    //.........................................
+    // 主体
+    > section {
+        bottom: @fH;
+    }
+    //.........................................
+    // 底部对象选择提示器
+    > footer {
+        bottom: 0; height: @fH; border-top:1px solid @cborder1;
+        background: @cb3; color:@cf3;
+    }
+}

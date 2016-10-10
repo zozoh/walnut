@@ -30,7 +30,7 @@ var ZUI = require("zui");
 module.exports = ZUI.def("ui.upload", {
     //...............................................................
     dom: "ui/upload/upload.html",
-    css: "ui/upload/upload.css",
+    css: "theme/ui/upload/upload.css",
     i18n: "ui/upload/i18n/{{lang}}.js",
     //...............................................................
     init: function (options) {
@@ -188,6 +188,7 @@ module.exports = ZUI.def("ui.upload", {
                 },
                 evalReturn: "ajax",
                 done: function (re) {
+                    UI.__obj = re;  // 记录成功的对象以备 finish 使用
                     $z.invoke(opt, "done", [re], context);
                 },
                 fail: function (re) {
@@ -205,7 +206,7 @@ module.exports = ZUI.def("ui.upload", {
                     }
                     // 调用回调
                     $z.invoke(opt, "complete", [re, status], context);
-                    $z.invoke(opt, "finish", [], context);
+                    $z.invoke(opt, "finish", [UI.__obj], context);
                 }
             });
         }
@@ -227,6 +228,8 @@ module.exports = ZUI.def("ui.upload", {
             var UI = ZUI.checkInstance(this);
             if (!UI.multi.addFiles.call(UI, e.originalEvent.dataTransfer.files))
                 return;
+            // 记录成功的对象以备 finish 使用
+            UI.__list = [];
             UI.multi.doUpload.call(UI);
         },
         addFiles: function (files) {
@@ -255,7 +258,7 @@ module.exports = ZUI.def("ui.upload", {
                 .first();
             // 没有更多项目了，返回
             if (jItem.size() <= 0) {
-                $z.invoke(opt, "finish", [], context);
+                $z.invoke(opt, "finish", [UI.__list], context);
                 return;
             }
             jItem[0].scrollIntoView();
@@ -276,6 +279,9 @@ module.exports = ZUI.def("ui.upload", {
                     jItem.addClass("ui-upload-item-done");
                     jItem.find(".thumbnail .fa").prop("className", "fa fa-check-circle");
                     jItem.find(".rname").text(re.nm);
+                    // 记录成功的对象以备 finish 使用
+                    UI.__list.push(re);
+                    // 调用回调
                     $z.invoke(opt, "done", [re], context);
                 },
                 fail: function (re) {

@@ -91,8 +91,9 @@ return ZUI.def("ui.obrowser", {
 
         // 其他默认设置
         $z.setUndefined(opt, "checkable", false);
+        $z.setUndefined(opt, "renameable", false);
         $z.setUndefined(opt, "multi", true);
-        $z.setUndefined(opt, "editable", false);
+        //$z.setUndefined(opt, "editable", false);
         $z.setUndefined(opt, "skybar", true);
         $z.setUndefined(opt, "footbar", true);
 
@@ -352,10 +353,17 @@ return ZUI.def("ui.obrowser", {
     },
     //..............................................
     setData : function(obj, theEditor, callback){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
 
+        // 支持没有对象的写法
+        if(_.isFunction(obj)){
+            callback = obj;
+            theEditor = undefined;
+            obj = undefined;
+        }
         // 支持没有 theEditor 的写法
-        if(_.isFunction(theEditor)){
+        else if(_.isFunction(theEditor)){
             callback  = theEditor;
             theEditor = undefined;
         }
@@ -363,8 +371,8 @@ return ZUI.def("ui.obrowser", {
         // 没值
         if(!obj){
             // 如果是记录最后一次
-            if(UI.options.lastObjId){
-                var lastId = UI.local(UI.options.lastObjId);
+            if(opt.lastObjId){
+                var lastId = UI.local(opt.lastObjId);
                 if(lastId && Wn.getById(lastId, true)){
                     UI.setData("id:"+lastId, theEditor, callback);
                     return;
@@ -377,7 +385,7 @@ return ZUI.def("ui.obrowser", {
             }
             // 默认采用主目录
             else{
-                UI.setData("~", theEditor, callback);
+                UI.setData(opt.defaultPath || "~", theEditor, callback);
             }
             return;
         }
@@ -409,7 +417,7 @@ return ZUI.def("ui.obrowser", {
 
         // 触发事件
         UI.trigger("browser:change", obj, theEditor);
-        $z.invoke(UI.options, "on_change", [obj, theEditor], UI);
+        $z.invoke(opt, "on_change", [obj, theEditor], UI);
         
     },
     //..............................................

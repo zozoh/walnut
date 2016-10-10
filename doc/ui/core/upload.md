@@ -58,10 +58,11 @@ author:zozoh
      complete : function(re, status) {..}
      
      //.......................................
-     // 上传不在工作时调用，批量上传，最后一个文件处理完毕后调用
+     // 上传不再工作时调用，批量上传，最后一个文件处理完毕后调用
      // 它和你声明的 complete 不冲突，会在它之后调用
-     // this 位 Upload 的 UI 本身
-     finish : function(){..}
+     // this 为 Upload 的 UI 本身
+     // objs 为本次上传一共成功的文件对象列表。单选的话就是一个对象
+     finish : function(objs){..}
      
      // 多文件上传，当最后一个文件处理完了才会调用
  }).render();
