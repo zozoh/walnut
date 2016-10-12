@@ -1,22 +1,29 @@
 .pop {
   width: 100%;
   height: 100%;
-  display: -webkit-flex;
-  display: flex;
-  flex-flow: column nowrap;
+  position: relative;
+}
+.pop > * {
+  position: absolute;
+  left: 0;
+  right: 0;
 }
 .pop .pm-title {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  padding: 8px;
+  top: 0;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 12px;
   text-align: center;
   font-size: 14px;
   border-bottom: 1px solid #d0d0d0;
 }
 .pop .pm-body {
-  flex: 1 0 auto;
+  top: 32px;
+  bottom: 48px;
   background: #ffffff;
 }
 .pop .pm-body .ui-quartz {
@@ -27,22 +34,29 @@
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
+  bottom: 0;
+  height: 48px;
   border-top: 1px solid #d0d0d0;
   text-align: right;
   padding: 8px;
 }
 .pop .pm-btns .pm-btn {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
   display: inline-block;
   vertical-align: middle;
-  padding: 8px 24px;
-  font-size: 12px;
   cursor: pointer;
+  margin: 0 2px;
+  padding: 6px 32px;
   border: 1px solid #bbbbbb;
   background: #d0d0d0;
   color: #000000;
-  border-radius: 2px;
+  border-radius: 4px;
+  text-align: center;
 }
 .pop .pm-btns .pm-btn:hover {
-  background: #0044bb;
   color: #ffffff;
+  background: #0044bb;
 }

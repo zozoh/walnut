@@ -8,7 +8,10 @@ define({
         },
         "select_file" : {
             "browse" : "浏览",
-            "upload" : "本地上传"
+            "upload" : "本地上传",
+            "shelf_msg" : "共选择了 {{n}} 个文件 ...",
+            "shelf_msg_empty" : "没有选择任何文件",
+            "selected_tt" : "选择的文件详情"
         }
     }
 });

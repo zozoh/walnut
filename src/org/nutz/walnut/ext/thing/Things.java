@@ -250,6 +250,13 @@ public abstract class Things {
         // 判断是否静默输出
         boolean isQ = hc.params.is("quiet");
 
+        // 如何写入内容
+        String read = hc.params.get("read");
+        WnObj oSrc = null;
+        if (null != read && !"true".equals(read)) {
+            oSrc = Wn.getObj(sys, read);
+        }
+
         // 准备查询条件
         WnQuery q = Wn.Q.pid(oDir);
 
@@ -265,14 +272,24 @@ public abstract class Things {
             }
             // 如果存在 ...
             else {
+                // 如果存在，并且还要 -read 自己，那么就直接过
+                if (null != oSrc && oSrc.isSameId(oM)) {
+                    hc.output = oM;
+                    return;
+                }
+
                 // 是否生成一个新的
                 String dupp = hc.params.get("dupp");
                 if (!Strings.isBlank(dupp)) {
+                    // 准备默认的模板
+                    if ("true".equals(dupp)) {
+                        dupp = "@{major}(@{nb})@{suffix}";
+                    }
                     // 准备文件名模板
                     NutMap c = new NutMap();
                     c.put("major", Files.getMajorName(fnm));
                     c.put("suffix", Files.getSuffix(fnm));
-                    Tmpl seg = Tmpl.parse(dupp);
+                    Tmpl seg = Cmds.parse_tmpl(dupp);
                     // 挨个尝试新的文件名
                     int i = 1;
                     do {
@@ -289,8 +306,6 @@ public abstract class Things {
             }
 
             // 嗯得到一个空文件了，那么看看怎么写入内容呢？
-            String read = hc.params.get("read");
-
             if (null != read) {
                 // 从输出流中读取
                 if ("true".equals(read)) {
@@ -298,11 +313,14 @@ public abstract class Things {
                     sys.io.writeAndClose(oM, ins);
                 }
                 // 否则试图从指定的文件里读取
-                else {
-                    WnObj oSrc = Wn.checkObj(sys, read);
+                else if (null != oSrc) {
                     sys.io.copyData(oSrc, oM);
                     // 因为 copyData 是快速命令，所以要重新执行一下钩子
                     oM = Wn.WC().doHook("write", oM);
+                }
+                // 那么源文件必然不存在
+                else {
+                    throw Er.create("e.cmd.thing.media.readNone", read);
                 }
             }
 

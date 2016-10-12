@@ -23,6 +23,7 @@ define({
     "exit"       : "退出",
     "walcome"    : "欢迎",
     "title"      : "标题",
+    "close"      : "关闭",
     "download"   : "下载",
     "properties" : "属性",
     "search"     : "搜索",

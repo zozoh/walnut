@@ -9,6 +9,7 @@
     iimg $FILE              # 图片文件 
          [-thumb 64x64]     # 是否生成缩略图
          [-mode zoom|clip]  # 剪裁模式，默认 zoom
+         [-force]           # 是否强制重新计算，否则会自动寻找一个现成的计算结果
          [-bgc]             # 如果 mode==zoom，可支持背景色，支持 RRGGBB 格式
          [-Q]               # 不输出，否则将输出对象的 JSON        
          [-c|n|q|l]         # 如果输出的话，JSON 的格式

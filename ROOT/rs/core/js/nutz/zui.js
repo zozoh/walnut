@@ -181,7 +181,6 @@ var ZUIObj = function(){};
 ZUIObj.prototype = {
     nutz_ui_version : "1.3",
     //............................................
-    // Backbone.View 的初始化函数
     __init__: function (options) {
         var UI  = this;
         //............................... 保存配置项

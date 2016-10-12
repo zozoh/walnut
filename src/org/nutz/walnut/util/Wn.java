@@ -49,9 +49,9 @@ public abstract class Wn {
     // Thread.sleep(100);
     // }
     // }
-    
+
     protected static final ConcurrentHashMap<String, Pattern> patterns = new ConcurrentHashMap<>();
-    
+
     public static boolean matchs(String str, String pattern) {
         Pattern p = patterns.get(pattern);
         if (p == null) {
@@ -96,12 +96,11 @@ public abstract class Wn {
     }
 
     public static WnObj getObj(WnIo io, WnSession se, String str) {
-        // 用 ID
-        if (str.startsWith("id:")) {
-            String id = str.substring("id:".length());
-            return io.get(id);
-        }
-
+        // // 用 ID
+        // if (str.startsWith("id:")) {
+        // String id = str.substring("id:".length());
+        // return io.get(id);
+        // }
         // 用路径
         String path = normalizeFullPath(str, se);
         return io.fetch(null, path);

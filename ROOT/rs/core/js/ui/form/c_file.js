@@ -112,13 +112,19 @@ return ZUI.def("ui.form_com_file", {
 
             var jAdd = $(e.currentTarget);
 
-            opt.on_add.call(context, function(obj){
-                var jItem = UI.__gen_item(objList[i]);
-                jItem.insertBefore(jAdd);
-                // 更新 Adder 的显示
-                UI.showHideAdder();
-                // 调用回调
-                UI.__on_change();
+            opt.on_add.call(context, function(objList, shouldResetList){
+                if(objList){
+                    // 重置列表了哦
+                    if(shouldResetList) {
+                        UI.__draw_data(objList);
+                        UI.__on_change();
+                    }
+                    // 追加模式的话，只有有效的数据执行才有意义
+                    else if(!_.isArray(objList) || objList.length > 0) {
+                        UI.__join_data(objList);
+                        UI.__on_change();
+                    }
+                }
             }, UI);
         },
         // 鼠标进入项目，显示详细面板
@@ -172,7 +178,7 @@ return ZUI.def("ui.form_com_file", {
 
         // 绘制扩展命令
         var jUl = jItem.find(">section .cf-actions > ul");
-        console.log(opt.actions)
+        //console.log(opt.actions)
         for(var aKey in opt.actions) {
             // 得到命令项
             var a = opt.actions[aKey];
@@ -188,11 +194,28 @@ return ZUI.def("ui.form_com_file", {
         return jItem.data("@OBJ", obj);
     },
     //...............................................................
+    __join_data : function(data) {
+        var UI = this;
+
+        // 合并数据
+        var objList = UI._get_data(true);
+        if(_.isArray(data))
+            objList = objList.concat(data);
+        else if(data)
+            objList.push(data);
+
+        // 重绘
+        UI.__draw_data(objList);
+    },
+    //...............................................................
     __draw_data : function(objList) {
         var UI  = this;
         var opt = UI.options;
 
-        console.log(objList)
+        // 确保是数组
+        if(!_.isArray(objList)){
+            objList = objList ? [objList] : [];
+        }
 
         // 得到最大项目数量
         var maxNB = objList.length;

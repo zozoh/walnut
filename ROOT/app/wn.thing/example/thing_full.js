@@ -56,105 +56,19 @@
 		icon : '<i class="fa fa-rss" aria-hidden="true"></i>',
 		title : "i18n:thing.fld.content",
 		fields : [ {
-			key : "__brief_and_content__",
+			key   : "__brief_and_content__",
 			title : "i18n:thing.key.brief_and_content",
-			hide : true,
-			virtual : true,
-			editAs : "content",
-			uiConf : {
-				loadContent : function(obj, callback) {
-					// 有内容
-					if (obj.len > 0) {
-						Wn.execf("thing {{th_set}} detail {{id}}", obj, function(re) {
-							callback(re);
-						});
-					}
-					// 无内容
-					else {
-						callback("");
-					}
-				},
-				saveContent : function(obj, content, callback) {
-					console.log(obj)
-					Wn.execf("thing {{th_set}} detail {{id}} -content", content, obj, function(re) {
-						callback(re);
-					});
-				},
-				parseData : function(th) {
-					return {
-						id : th.id,
-						contentType : {
-							"text/plain"    : "text",
-							"text/markdown" : "markdown",
-							"text/html"     : "html",
-						}[th.mime] || "text/plain",
-						brief  : th.brief,
-						len    : th.len,
-						th_set : th.th_set
-					};
-				},
-				formatData : function(obj) {
-					return {
-						id    : obj.id,
-						mime  : {
-							"text"      : "text/plain",
-							"markdown"  : "text/markdown",
-							"html"      : "text/html"
-						}[obj.contentType] || 'txt',
-						brief : obj.brief
-					}
-				}
-			}
+			hide  : true
 		}, {
 			key : "__media__",
 			title : "i18n:thing.key.media",
 			hide : true,
-			virtual : true,
-			editAs : "file",
-			uiConf : {
-				multi : true,
-				asyncParseData : function(th, callback) {
-					Wn.execf("thing {{th_set}} media {{id}} -json -l", th, function(re){
-						callback($z.fromJson(re));
-					});
-				},
-				formatData : function(objList) {
-					return {
-						th_media_nb : _.isArray(objList) ? objList.length : 0
-					};
-				},
-				on_add : function(callback, UI) {
-					var th = UI.parent.getData();
-					Wn.selectFilePanel({
-						mask  : {
-
-						},
-						body  : {
-							uploader : {
-								target : {
-									ph   : "id:"+th.th_set+"/data/"+th.id+"/media",
-									race : "DIR"
-								},
-								validate : /^.+[.](png|jpe?g|gif)$/i
-							}
-						},
-						on_ok : function(objs) {
-							console.log(objs);
-						}
-					});
-				},
-				on_remove : function(o, callback, jItem, UI) {
-					var th = UI.parent.getData();
-					console.log(th)
-					Wn.execf("thing {{th_set}} media {{th_id}} -del {{nm}} -Q", {
-						th_set : th.th_set,
-						th_id  : th.id,
-						nm     : o.nm,
-					}, function(re){
-						callback(re);
-					});
-				}
-			}
+			editAs : "thing_media",
+		}, {
+			key : "__attachment__",
+			title : "i18n:thing.key.attachment",
+			hide : true,
+			editAs : "thing_attachment",
 		} ]
 	}, {
 		icon : '<i class="fa fa-bar-chart"></i>',

@@ -673,6 +673,7 @@
 .com-file {
   display: -webkit-flex;
   display: flex;
+  flex-wrap: wrap;
 }
 .com-file .cf-adder {
   -moz-user-select: none;

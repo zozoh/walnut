@@ -87,8 +87,7 @@ module.exports = ZUI.def("ui.upload", {
         }else{
             UI.is_multi = opt.multi ? true : false;
         }
-
-
+        
         // 修改标题
         if(opt.title) {
             jTitle.css("display", "");

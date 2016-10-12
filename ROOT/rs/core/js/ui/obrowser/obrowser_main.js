@@ -106,11 +106,6 @@ return ZUI.def("ui.obrowser_main", {
             throw "obrowser.warn.fail_open";
         }
 
-        // 为其设置一些帮助属性
-        uiConf.on_init = function(){
-            this.browser = UI.browser();
-        };
-
         // 没必要改变视图类型，直接更新就好，如果是这种情况，那么肯定不是打开编辑器喔
         // if(subView && UI.$el.attr("ui-type") == uiType){
         //     subView.update(o, callback);
