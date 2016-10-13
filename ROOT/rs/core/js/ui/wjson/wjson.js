@@ -37,6 +37,8 @@
                 Vue.component('ui-wjson-treenode', {
                     template: '#ui-wjson-template-treenode',
                     props: {
+                        path: String,
+                        tips: Object,
                         ptype: String,
                         pindex: Number,
                         model: Object,
@@ -57,6 +59,21 @@
                         }
                     },
                     computed: {
+                        cpath: function () {
+                            return this.path + "." + this.model.name;
+                        },
+                        tipPos: function () {
+                            if (this.hasTip) {
+                                return "down";
+                            }
+                            return "";
+                        },
+                        tipMsg: function () {
+                            return this.tips[this.cpath.substr(6)];
+                        },
+                        hasTip: function () {
+                            return this.tipMsg != null;
+                        },
                         showTn: function () {
                             if (!this.isRootTn) {
                                 return true;
@@ -298,6 +315,10 @@
                         showJson: true,
                         showRoot: false,
                         compress: false,
+                        tips: {
+                            "name": "名称",
+                            "obj.haha": "哈哈"
+                        },
                         tabwidth: 2,
                         sindex: 0,
                         jindex: 0,

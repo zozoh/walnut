@@ -30,6 +30,8 @@
                     <ui-wjson-treenode
                             depth="0"
                             ptype="object"
+                            path=""
+                            :tips="tips"
                             :sroot.sync="showRoot"
                             :model="json.tree"
                             :qkey.sync="qkey">
@@ -69,16 +71,18 @@
             <template v-else>
                 <!--名称 or 序号-->
                 <span class="tn-key" v-if="ptype != 'array'"
-                      :class="{'empty': keyEmpty}"
+                      :class="{'empty': keyEmpty, 'hasTip': hasTip}"
                       v-wjson-tn-edit="model.name" :contenteditable="true"></span>
                 <span class="tn-key" v-else>{{pindex}}</span>
                 <!--分隔符 or 长度-->
                 <span class="tn-sp" v-if="!isFolder">:</span>
                 <span class="tn-length" v-else>{{length}}</span>
                 <!--内容-->
+                <input type="checkbox" v-if="isBoolean" v-model="model.value"/>
                 <span class="tn-val" v-if="!isFolder"
                       :class="{'boolean' : isBoolean, 'number': isNumber, 'string' : isString, 'empty': valEmpty}"
-                      v-wjson-tn-edit="model.value" contenteditable="true"></span>
+                      v-wjson-tn-edit="model.value" contenteditable="true" data-balloon="{{tipMsg}}"
+                      data-balloon-pos="{{tipPos}}"></span>
                 <!--错误提示-->
                 <span class="tn-err" data-balloon="重复的键" data-balloon-pos="right" v-show="model.dupkey">
                     <i class="fa fa-fw fa-info-circle"></i>
@@ -190,6 +194,8 @@
                 <ui-wjson-treenode
                         v-for="child in model.children"
                         :sroot.sync="sroot"
+                        :path="cpath"
+                        :tips="tips"
                         :ptype="model.type"
                         :pindex="$index"
                         :qkey.sync="qkey"
@@ -199,6 +205,7 @@
             </template>
             <template v-else>
                 <ui-wjson-treenode
+                        :path="cpath"
                         :sroot.sync="sroot"
                         :ptype="model.type"
                         :depth="parseInt(depth) + 1"
