@@ -9,7 +9,6 @@ function(ZUI, Wn, PopBrowser){
 var html = function(){/*
 <div class="ui-code-template">
     <span code-id="obj" class="picker-obj">
-        <i class="oicon"></i>
         <a target="_blank"></a>
     </span>
 </div>
@@ -126,9 +125,8 @@ return ZUI.def("ui.picker.opicker", {
     __append_item : function(o, jBox){
         var UI = this;
         jBox = jBox || UI.arena.find(".picker-box")
-        var jq = UI.ccode("obj").data("@OBJ", o);
-        jq.find("i")
-            .attr("otp", Wn.objTypeName(o));
+        var jq = UI.ccode("obj").data("@OBJ", o)
+                    .prepend(Wn.objIconHtml(o));
         jq.find("a")
             .prop("href", "/a/open/wn.browser?ph=id:"+o.id)
             .text(Wn.objDisplayName(UI, o));

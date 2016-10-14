@@ -83,6 +83,7 @@
   text-align: right;
   padding: 12px 12px 12px 48px;
   color: #888888;
+  white-space: nowrap;
 }
 .ff-txt .fft-icon {
   margin-right: 6px;

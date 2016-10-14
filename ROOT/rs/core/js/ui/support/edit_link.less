@@ -24,12 +24,15 @@
         flex: 1 1 auto; position: relative;
         > div {position: absolute;top:0;left:0;right:0;bottom:0;}
 
-        .el-ext {
+        .el-lnk {
             padding:@d6;
             input { @input();
                 width:100%; padding:@d4; font:@f4 @f_fixed; 
             }
             input:focus {@input_focus();}
+            .el-lnk-comment {
+                padding:@d3; color:@c3; font-size:@f1;
+            }
         }
     }
 }

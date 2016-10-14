@@ -2,7 +2,7 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/hm__methods',
+    'app/wn.hmaker2/hm__methods_panel',
     'ui/form/c_droplist',
 ], function(ZUI, Wn, HmMethods, DroplistUI){
 //==============================================

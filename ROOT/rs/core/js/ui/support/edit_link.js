@@ -8,14 +8,15 @@ function(ZUI, Wn, BrowserUI){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
-    <div code-id="el.ext" class="el-ext">
+    <div code-id="el.lnk" class="el-lnk">
         <input placeholder="{{support.edit_link.tip}}">
+        <div class="el-lnk-comment">{{support.edit_link.tip}}</div>
     </div>
 </div>
 <div class="ui-arena edit-link" ui-fitparent="yes">
     <header>
         <ul>
-            <li tp="ext">{{support.edit_link.ext}}</li>
+            <li tp="lnk">{{support.edit_link.lnk}}</li>
             <li tp="obj">{{support.edit_link.obj}}</li>
         </ul>
     </header>
@@ -32,8 +33,8 @@ return ZUI.def("ui.support.edit_link", {
         "click header li"  : function(e){
             var str = this._get_data();
             switch($(e.currentTarget).attr("tp")){
-                case "ext":
-                    this._show_ext(str);
+                case "lnk":
+                    this._show_lnk(str);
                     break;
                 case "obj":
                     this._show_obj(str);
@@ -51,19 +52,19 @@ return ZUI.def("ui.support.edit_link", {
         jUl.find('[tp="'+tp+'"]').addClass("highlight");
     },
     //...............................................................
-    _show_ext : function(val){
+    _show_lnk : function(val){
         var UI  = this;
         var opt = UI.options;
 
         // 切换标签
-        UI.__swich_tab("ext");
+        UI.__swich_tab("lnk");
         
         // 释放插件并清空 
         UI.releaseSubUI("main");
         UI.arena.find("section>div").empty();
 
         // 绘制主体区域
-        var jq = UI.ccode("el.ext");
+        var jq = UI.ccode("el.lnk");
         jq.appendTo(UI.arena.find("section>div"));
         jq.find("input").val(val);
     },
@@ -89,6 +90,7 @@ return ZUI.def("ui.support.edit_link", {
             footbar    : false,
             history    : false,
             multi      : false,
+            objTagName : 'SPAN',
             canOpen : function(o) {
                 return true;
             }
@@ -126,12 +128,12 @@ return ZUI.def("ui.support.edit_link", {
         //console.log("update:", str)
         // 用内部文件 [默认]
         if(!str || /^id:.+$/.test(str)) {
-            //UI._show_ext(str);
+            //UI._show_lnk(str);
             UI._show_obj(str);
         }
         // 是外部链接
         else if(/^https?:\/\//i.test(str)){
-            UI._show_ext(str);
+            UI._show_lnk(str);
         }
         // 不支持
         else{
@@ -158,7 +160,7 @@ return ZUI.def("ui.support.edit_link", {
             return "id:" + obj.id;
         }
         // 如果是外部链接
-        return $.trim(UI.arena.find(".el-ext input").val());
+        return $.trim(UI.arena.find(".el-lnk input").val());
     }
     //...............................................................
 });

@@ -214,7 +214,7 @@ return ZUI.def("app.wn.hmaker_page", {
             posVal  : "10px,10px,300px,200px",
             width   : "auto",
             height  : "auto",
-            padding : "10px",
+            padding : "",
             border : "" ,   // "1px solid #000",
             borderRadius : "",
             background : "rgba(40,40,40,0.3)",
