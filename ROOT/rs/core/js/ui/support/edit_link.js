@@ -18,6 +18,7 @@ var html = function(){/*
         <ul>
             <li tp="lnk">{{support.edit_link.lnk}}</li>
             <li tp="obj">{{support.edit_link.obj}}</li>
+            <li tp="ext">{{support.edit_link.ext}}</li>
         </ul>
     </header>
     <section><div ui-gasket="main"></div></section>
@@ -39,7 +40,19 @@ return ZUI.def("ui.support.edit_link", {
                 case "obj":
                     this._show_obj(str);
                     break;
+                case "ext":
+                    this._show_ext(str);
             }
+        }
+    },
+    //...............................................................
+    redraw : function(){
+        var UI  = this;
+        var opt = UI.options;
+
+        // 如果没有定义扩展行为，移除对应标签
+        if(!opt.ext) {
+            UI.arena.find('>header>ul li[tp="ext"]').remove();
         }
     },
     //...............................................................
@@ -79,13 +92,13 @@ return ZUI.def("ui.support.edit_link", {
         UI.__swich_tab("obj");
 
         // 清空区域
+        UI.releaseSubUI("main");
         UI.arena.find("section>div").empty();
 
         // 绘制主体 
         new BrowserUI(_.extend({
             parent     : UI,
             gasketName : "main",
-            lastObjId  : "com_edit_link",
             sidebar    : false,
             footbar    : false,
             history    : false,
@@ -104,14 +117,32 @@ return ZUI.def("ui.support.edit_link", {
                     uiBW.setActived(o.id);
                 });                
             }
-            // 默认目录是个对象 
-            else if(_.isObject(opt.baseObj)) {
-                uiBW.setData(opt.baseObj.race=='DIR'?opt.baseObj:"id:"+opt.baseObj.pid);
+            // 否则用默认
+            else {
+                uiBW.setData();
             }
-            // 打开默认目录，或者主目录
-            else{
-                uiBW.setData(opt.baseObj || "~");
-            }
+        });
+    },
+    //...............................................................
+    _show_ext : function(val) {
+        var UI  = this;
+        var opt = UI.options;
+
+        // 切换标签
+        UI.__swich_tab("ext");
+
+        // 清空区域
+        UI.releaseSubUI("main");
+        UI.arena.find("section>div").empty();
+
+        // 绘制主体 
+        seajs.use(opt.ext.uiType, function(ExtUI){
+            new ExtUI(_.extend({
+                parent     : UI,
+                gasketName : "main",
+            }, opt.ext.uiConf)).render(function(){
+                this.setData(val);
+            });
         });
     },
     //...............................................................
@@ -135,6 +166,10 @@ return ZUI.def("ui.support.edit_link", {
         else if(/^https?:\/\//i.test(str)){
             UI._show_lnk(str);
         }
+        // 扩展行为
+        else if($z.invoke(opt.ext, "test", [str])) {
+            UI._show_ext(str);
+        }
         // 不支持
         else{
             alert(UI.msg("support.unknown") + " : " + str)
@@ -151,8 +186,12 @@ return ZUI.def("ui.support.edit_link", {
     //...............................................................
     _get_data : function(){
         var UI = this;
+
+        // 得到类型
+        var tp = UI.arena.find(">header>ul .highlight").attr("tp");
+
         // 如果是内部对象
-        if(UI.gasket.main){
+        if("obj" == tp){
             var obj = UI.gasket.main.getActived();
             if(!obj){
                 return "";
@@ -160,7 +199,15 @@ return ZUI.def("ui.support.edit_link", {
             return "id:" + obj.id;
         }
         // 如果是外部链接
-        return $.trim(UI.arena.find(".el-lnk input").val());
+        if("lnk" == tp) {
+            return $.trim(UI.arena.find(".el-lnk input").val());
+        }
+        // 扩展行为 
+        if("ext" == tp) {
+            return UI.gasket.main.getData();
+        }
+        // 不可能
+        throw "invalid type: [" + tp + "]";
     }
     //...............................................................
 });

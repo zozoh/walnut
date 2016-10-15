@@ -1,5 +1,6 @@
 define({
     "hmaker" : {
+        "edit_link" : "编辑链接行为",
         "res" : {
             "title" : '资源库',
         },

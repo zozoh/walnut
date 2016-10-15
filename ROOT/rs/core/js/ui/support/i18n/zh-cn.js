@@ -3,7 +3,7 @@ define({
         "edit_link" : {
             "obj" : "我的文件",
             "lnk" : "外部链接",
-            "ext" : "扩展",
+            "ext" : "扩展行为",
             "tip" : "外部链接需用 http:// 或者 https:// 开头"
         },
         "select_file" : {

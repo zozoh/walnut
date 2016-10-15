@@ -56,6 +56,7 @@ return ZUI.def("ui.form_com_link", {
                     uiConf : opt.body
                 }
             }, opt.mask)).render(function(){
+                this.$main.find('.pm-title').text(UI.msg('com.link.edit_link_tt'));
                 this.body.setData(str);
             });
         }
@@ -95,6 +96,7 @@ return ZUI.def("ui.form_com_link", {
             // 其他
             else {
                 UI.arena.attr("link-type", "ext");
+                jU.text(str);
             }
         }
         else{
