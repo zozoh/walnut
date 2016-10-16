@@ -3,16 +3,11 @@ $z.declare([
     'zui',
 ], function(ZUI){
 //==============================================
-// 行为列表
-var BE = {
-    "toggleShowArea" : {
-
-    }
-};
-//==============================================
 var html = `
 <div class="ui-arena edit-behavior">
-    
+    <div class="ebe-tsa-tip"></section>
+    <div class="ebe-tsa-bars"></section>
+    <div class="ebe-tsa-areas"></section>
 </div>`;
 //==============================================
 return ZUI.def("ui.edit_behavior", {

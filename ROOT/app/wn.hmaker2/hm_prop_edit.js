@@ -48,10 +48,10 @@ return ZUI.def("app.wn.hm_prop_edit", {
         UI.listenBus("hide:com:ele",  UI.hideComEle);
 
         UI.listenBus("active:block",  UI.activeBlock);
-        UI.listenBus("active:page",   UI.hideComEle);
-        UI.listenBus("active:folder", UI.hideComEle);
-        UI.listenBus("active:rs",     UI.hideComEle);
-        UI.listenBus("active:other",  UI.hideComEle);
+        UI.listenBus("active:page",   UI.activeOther);
+        UI.listenBus("active:folder", UI.activeOther);
+        UI.listenBus("active:rs",     UI.activeOther);
+        UI.listenBus("active:other",  UI.activeOther);
     },
     //...............................................................
     events : {
@@ -108,6 +108,11 @@ return ZUI.def("app.wn.hm_prop_edit", {
             .filter('[ptype="'+ptype+'"]').attr("current", "yes");
 
         UI.resize(true);
+    },
+    //...............................................................
+    activeOther : function(){
+        this.hideCom();
+        this.hideComEle();
     },
     //...............................................................
     activeBlock : function(jBlock) {

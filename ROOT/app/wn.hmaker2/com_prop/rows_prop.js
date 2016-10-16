@@ -11,9 +11,9 @@ var html = `
     <div code-id="block" class="ly-block">
         <div class="ly-b-nm">??</div>
         <div class="ly-a">
-            <div class="ly-a-del"><i class="zmdi zmdi-delete"></i> {{hmaker.com._.del}}</div>
-            <div move="next"><i class="zmdi zmdi-long-arrow-down"></i> {{hmaker.com._.move_down}}</div>
-            <div move="prev"><i class="zmdi zmdi-long-arrow-up"></i> {{hmaker.com._.move_up}}</div>
+            <div class="ly-a-del" balloon="up:hmaker.com._.del"><i class="zmdi zmdi-delete"></i></div>
+            <div move="next" balloon="up:hmaker.com._.move_down"><i class="zmdi zmdi-long-arrow-down"></i></div>
+            <div move="prev" balloon="up:hmaker.com._.move_up"><i class="zmdi zmdi-long-arrow-up"></i></div>
         </div>
     </div>
 </div>
@@ -44,7 +44,34 @@ return ZUI.def("app.wn.hm_com_rows_prop", {
             var jq = $(e.currentTarget);
             var seq = jq.closest(".ly-block").attr("seq") * 1;
             this.uiCom.delBlock(seq);
+        },
+        // 高亮/取消对应的栏
+        'click .ly-block' : function(e) {
+            var jMe = $(e.target);
+            // 动作按钮不会触发本行为
+            if(jMe.closest(".ly-a").length > 0){
+                return;
+            }
+            // 准备数据
+            var UI = this;
+            var jBlock = jMe.closest(".ly-block");
+            var seq = jBlock.attr("seq") * 1;
+            // 取消高亮
+            if(jBlock.attr("highlight")){
+                jBlock.removeAttr("highlight");
+                UI.uiCom.setBlockHighlight(false);
+            }
+            // 高亮自己
+            else {
+                UI.arena.find(".ly-block").removeAttr("highlight");
+                jBlock.attr("highlight", "yes");
+                UI.uiCom.setBlockHighlight(seq);
+            }
         }
+    },
+    //...............................................................
+    depose : function(){
+        this.uiCom.setBlockHighlight(false);
     },
     // //...............................................................
     // redraw : function() {
@@ -82,13 +109,15 @@ return ZUI.def("app.wn.hm_com_rows_prop", {
 
         // 首先绘制块
         var jLyW  = UI.arena.find(".ly-wrapper").empty();
-        var bSeqs = UI.uiCom.getBlockSeqArray();
-        for(var i=0; i<bSeqs.length; i++) {
-            UI.ccode("block").appendTo(jLyW)
-                .attr("seq", bSeqs[i])
-                    .find(".ly-b-nm")
-                    .text("B" + bSeqs[i]);
+        var datas = UI.uiCom.getBlockDataArray();
+        for(var b of datas) {
+            var jBlock = UI.ccode("block").appendTo(jLyW);
+            jBlock.attr(_.pick(b, "seq", "bid", "highlight"));
+            jBlock.find(".ly-b-nm").text(b.bid);
         }
+
+        // 显示提示
+        UI.balloon();
 
         // 最后在调用一遍 resize
         //UI.resize(true);

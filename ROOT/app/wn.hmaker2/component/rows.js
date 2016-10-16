@@ -32,41 +32,85 @@ return ZUI.def("app.wn.hm_com_rows", {
         UI.__max_block_seq = 0;
         var will_assign = [];
         UI.arena.children(".hmc-row-block").each(function(){
+            var jBlock = $(this);
+            // 确保有序号
             var seq = $(this).attr("row-b-seq") * 1;
-            if(seq)
+            if(seq){
                 UI.__max_block_seq = Math.max(UI.__max_block_seq, seq * 1);
-            else
+                // 确保有 ID
+                var bid = jBlock.attr("row-b-id");
+                if(!bid) {
+                    jBlock.attr("row-b-id", "B" + seq);
+                }
+            }
+            // 延迟分配
+            else {
                 will_assign.push(this);
+            }
         });
 
         // 未分配的序号也分配一下
         for(var i=0; i<will_assign.length; i++){
-            $(will_assign[i]).attr("row-b-seq", ++UI.__max_block_seq);
+            var jBlock = $(will_assign[i]);
+            // 分配 seq
+            var seq = ++UI.__max_block_seq;
+            jBlock.attr("row-b-seq", seq);
+            // 确保有 ID
+            var bid = jBlock.attr("row-b-id");
+            if(!bid) {
+                jBlock.attr("row-b-id", "B" + seq);
+            }
         }
 
     },
     //...............................................................
     // 查询自己有几个块，返回一个数组作为标识
-    getBlockSeqArray : function() {
+    getBlockDataArray : function() {
+        var UI = this;
         var re = [];
-        this.arena.children(".hmc-row-block").each(function(){
-            re.push($(this).attr("row-b-seq") * 1);
+        UI.arena.children(".hmc-row-block").each(function(){
+            re.push(UI.getBlockData(this));
         });
         return re;
     },
     //...............................................................
+    getBlockData : function(seq) {
+        var jBlock = this.getBlock(seq);
+        return {
+            bid    : jBlock.attr("row-b-id"),
+            seq    : jBlock.attr("row-b-seq") * 1,
+            highlight : jBlock.attr("highlight") ? "yes" : null,
+        };
+    },
+    //...............................................................
     getBlock : function(seq) {
+        if(_.isElement(seq) || $z.isjQuery(seq))
+            return $(seq).closest(".hmc-row-block");
+        // 根据 ID
+        if(_.isString(seq)){
+            this.arena.children('.hmc-row-block[row-b-id="'+seq+'"]');
+        }
+        // 根据序列号
         return this.arena.children('.hmc-row-block[row-b-seq="'+seq+'"]');
     },
     //...............................................................
     addBlock : function() {
         var UI = this;
 
-        var jBlock = $('<div class="hmc-row-block" hm-droppable="yes">').appendTo(UI.arena)
-            .attr("row-b-seq", ++UI.__max_block_seq);
+        // 分配序列号
+        var seq = ++UI.__max_block_seq;
 
+        // 插入 DOM
+        var jBlock = $('<div class="hmc-row-block" hm-droppable="yes">').appendTo(UI.arena)
+            .attr({
+                "row-b-seq" : seq,
+                "row-b-id"  : "B" + seq,
+            });
+
+        // 显示效果
         $z.blinkIt(jBlock);
 
+        // 通知
         UI.notifyChange();
     },
     //...............................................................
@@ -101,6 +145,22 @@ return ZUI.def("app.wn.hm_com_rows", {
 
         // 通知其他控件更新
         this.notifyChange();
+    },
+    //...............................................................
+    setBlockHighlight : function(seq) {
+        var UI = this;
+        var jBlock = (false === seq ? null : UI.getBlock(seq));
+        // 先取消全部块高亮标记
+        UI.arena.find(">.hmc-row-block").removeAttr("highlight");
+        // 设置某个块高亮，那么其他的块就需要虚掉
+        if(jBlock && jBlock.length > 0) {
+            UI.arena.attr("highlight-mode", "yes");
+            jBlock.attr("highlight", "yes");
+        }
+        // 否则就是表示取消全部高亮
+        else {
+            UI.arena.removeAttr("highlight-mode");
+        }
     },
     //...............................................................
     paint : function(com) {

@@ -45,7 +45,7 @@ var methods = {
         // 通常，这种 com 都是通过自身的 DOM 来存放某些数据的，它修改了自身的 DOM 
         // 剩下的就是通知 prop 那边刷新显示而已
         if(!key) {
-            this.fire("change:com", _.extend({__com_ignore_setData:true}, this.__gen_base_data()), this.$el);
+            this.fire("change:com", _.extend(this.getData(), {__com_ignore_setData:true}), this.$el);
         } 
         // 如果 key 不是字符串，或者里面包含了 "." 那么可能是多层的 key
         // $z.setValue 提供了这个逻辑的封装 

@@ -32,16 +32,34 @@ return ZUI.def("app.wn.hm_com_columns", {
         UI.__max_block_seq = 0;
         var will_assign = [];
         UI.arena.children(".hmc-col-block").each(function(){
-            var seq = $(this).attr("col-b-seq") * 1;
-            if(seq)
+            var jBlock = $(this);
+            // 确保有序号
+            var seq = jBlock.attr("col-b-seq") * 1;
+            if(seq){
                 UI.__max_block_seq = Math.max(UI.__max_block_seq, seq * 1);
-            else
+                // 确保有 ID
+                var bid = jBlock.attr("col-b-id");
+                if(!bid) {
+                    jBlock.attr("col-b-id", "B" + seq);
+                }
+            }
+            // 延迟分配
+            else {
                 will_assign.push(this);
+            }
         });
 
         // 未分配的序号也分配一下
         for(var i=0; i<will_assign.length; i++){
-            $(will_assign[i]).attr("col-b-seq", ++UI.__max_block_seq);
+            var jBlock = $(will_assign[i]);
+            // 分配 seq
+            var seq = ++UI.__max_block_seq;
+            jBlock.attr("col-b-seq", seq);
+            // 确保有 ID
+            var bid = jBlock.attr("col-b-id");
+            if(!bid) {
+                jBlock.attr("col-b-id", "B" + seq);
+            }
         }
 
     },
@@ -50,7 +68,7 @@ return ZUI.def("app.wn.hm_com_columns", {
     getBlockDataArray : function() {
         var UI = this;
         var re = [];
-        this.arena.children(".hmc-col-block").each(function(){
+        UI.arena.children(".hmc-col-block").each(function(){
             re.push(UI.getBlockData(this));
         });
         return re;
@@ -59,14 +77,21 @@ return ZUI.def("app.wn.hm_com_columns", {
     getBlockData : function(seq) {
         var jBlock = this.getBlock(seq);
         return {
+            bid    : jBlock.attr("col-b-id"),
             seq    : jBlock.attr("col-b-seq") * 1,
-            width  : jBlock.attr("col-b-width") || "auto"
+            width  : jBlock.attr("col-b-width") || "auto",
+            highlight : jBlock.attr("highlight") ? "yes" : null,
         };
     },
     //...............................................................
     getBlock : function(seq) {
         if(_.isElement(seq) || $z.isjQuery(seq))
-            return $(seq);
+            return $(seq).closest(".hmc-col-block");
+        // 根据 ID
+        if(_.isString(seq)){
+            this.arena.children('.hmc-col-block[col-b-id="'+seq+'"]');
+        }
+        // 根据序列号
         return this.arena.children('.hmc-col-block[col-b-seq="'+seq+'"]');
     },
     //...............................................................
@@ -83,11 +108,20 @@ return ZUI.def("app.wn.hm_com_columns", {
     addBlock : function() {
         var UI = this;
 
-        var jBlock = $('<div class="hmc-col-block" hm-droppable="yes">').appendTo(UI.arena)
-            .attr("col-b-seq", ++UI.__max_block_seq);
+        // 分配序列号
+        var seq = ++UI.__max_block_seq;
 
+        // 插入 DOM
+        var jBlock = $('<div class="hmc-col-block" hm-droppable="yes">').appendTo(UI.arena)
+            .attr({
+                "col-b-seq" : seq,
+                "col-b-id"  : "B" + seq,
+            });
+
+        // 显示效果
         $z.blinkIt(jBlock);
 
+        // 通知
         UI.notifyChange();
     },
     //...............................................................
@@ -124,6 +158,31 @@ return ZUI.def("app.wn.hm_com_columns", {
         this.notifyChange();
     },
     //...............................................................
+    setBlockHighlight : function(seq) {
+        var UI = this;
+        var jBlock = (false === seq ? null : UI.getBlock(seq));
+        // 先取消全部块高亮标记
+        UI.arena.find(">.hmc-col-block").removeAttr("highlight");
+        // 设置某个块高亮，那么其他的块就需要虚掉
+        if(jBlock && jBlock.length > 0) {
+            UI.arena.attr("highlight-mode", "yes");
+            jBlock.attr("highlight", "yes");
+        }
+        // 否则就是表示取消全部高亮
+        else {
+            UI.arena.removeAttr("highlight-mode");
+        }
+    },
+    //...............................................................
+    paint : function(com) {
+        var UI = this;
+
+        // 更新每个块的显示
+        UI.arena.children(".hmc-col-block").each(function(){
+            UI.__update_block_style(this);
+        });
+    },
+    //...............................................................
     __update_block_style : function(seq) {
         var UI = this;
         var jBlock = UI.getBlock(seq);
@@ -138,15 +197,6 @@ return ZUI.def("app.wn.hm_com_columns", {
             css.flex  = "0 0 auto";
         }
         jBlock.css(css);
-    },
-    //...............................................................
-    paint : function(com) {
-        var UI = this;
-
-        // 更新每个块的显示
-        UI.arena.children(".hmc-col-block").each(function(){
-            UI.__update_block_style(this);
-        });
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性

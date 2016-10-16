@@ -156,23 +156,6 @@ var methods = {
     getBaseCss : function() {
         return _.extend({}, _css_base);
     },
-    // 获取链接编辑控件的配置项目
-    getEditLinkConfig : function(oHome) {
-        return {
-            setup : {
-                defaultPath : oHome
-            },
-            ext : {
-                test : function(str) {
-                    return /^be:.+$/.test(str);
-                },
-                uiType : 'app/wn.hmaker2/support/edit_behavior',
-                uiConf : {
-                    uiPage : this.pageUI()
-                }
-            }
-        };
-    },
 }; // ~End methods
 //====================================================================
 

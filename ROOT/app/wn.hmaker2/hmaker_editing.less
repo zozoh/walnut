@@ -61,30 +61,38 @@ body {margin:0; font-size:12px;}
 //............................................................
 // rows
 .hmc-rows {
-    .hmc-row-block {
+    > .hmc-row-block {
         min-height: 30px; 
     }
 }
+.hmc-rows[highlight-mode] {
+    > .hmc-row-block {opacity: 0.4;}
+    > .hmc-row-block[highlight] {opacity: 1.0; background:rgba(255,255,0,0.4);}
+}
 [hm-actived] .hmc-rows {
-    .hmc-row-block {border:1px dotted @c0; border-bottom:0;}
-    .hmc-row-block:last-child {border-bottom:1px dotted @c0;}
+    > .hmc-row-block {border:1px dotted @c0; border-bottom:0;}
+    > .hmc-row-block:last-child {border-bottom:1px dotted @c0;}
 }
 //............................................................
 // columns
 .hmc-columns {
     @flex();
-    .hmc-col-block {
+    > .hmc-col-block {
         flex: 1 1 auto;
         min-height: 30px;
     }
+}
+.hmc-columns[highlight-mode] {
+    > .hmc-col-block {opacity: 0.4;}
+    > .hmc-col-block[highlight] {opacity: 1.0; background:rgba(255,255,0,0.4);}
 }
 [hmb-mode="abs"]>.hmb-con>.hmb-area>.hm-com>.hmc-columns {
     width:100%; height:100%;
     align-item : stretch;
 }
 [hm-actived]>.hmb-con>.hmb-area>.hm-com>.hmc-columns {
-    .hmc-col-block {border:1px dotted @c0; border-right:0;}
-    .hmc-col-block:last-child {border-right:1px dotted @c0;}
+    > .hmc-col-block {border:1px dotted @c0; border-right:0;}
+    > .hmc-col-block:last-child {border-right:1px dotted @c0;}
 }
 //............................................................
 // navmenu
@@ -117,6 +125,10 @@ body {margin:0; font-size:12px;}
 // 垂直导航条
 .hmc-navmenu[mode="aside"] {
 
+}
+
+.hmc-navmenu {
+    li[toar-checked] {background: rgba(0,0,0,0.2);}
 }
 //............................................................
 // Text

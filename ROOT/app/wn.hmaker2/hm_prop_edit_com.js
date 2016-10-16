@@ -35,12 +35,20 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
         $z.invoke(UI.gasket.form, "update", [com]);
     },
     //...............................................................
+    showBlank : function() {
+        var UI = this;
+
+        UI.arena.find(".hmpc-info").empty();
+
+        if(UI.gasket.form)
+            UI.gasket.form.destroy();
+    },
+    //...............................................................
     draw : function(uiDef, callback) {
         var UI = this;
 
         // 先销毁
-        if(UI.gasket.form)
-            UI.gasket.form.destroy();
+        UI.release();
 
         // 没定义，就直接回调了
         if(!uiDef) {
@@ -58,6 +66,11 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
                 });
             });
         }
+    },
+    //...............................................................
+    release : function(){
+        if(this.gasket.form)
+            this.gasket.form.destroy();
     }
     //...............................................................
 });

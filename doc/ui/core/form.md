@@ -80,6 +80,9 @@ new FormUI({
    tip      : "i18n:xxx"    // 字段的提示说明
    required : Boolean       // 字段是否必须
    className : "XXXX"       // 指定特殊的类选择器
+
+   // 字段是否为无效，disableField/enableField 方法可以动态控制
+   disabled  : Boolean
    
    // 如果为 true 则会自动将文字区设置行高，并将 padding-top/bottom 归零
    autoLineHeight : false

@@ -101,6 +101,15 @@
     }
 }
 
+.form-fld[fld-disabled]{
+    opacity: 0.3; font-style: italic;
+}
+
+.form-fld[fld-disabled]:after {
+    position: absolute; left: 0; right:0; top:0; bottom:0; background: rgba(0,0,0,0);
+    display: block; content: "";
+}
+
 .form[as-template] {
     .ff-tmpl{display: block;}
 }

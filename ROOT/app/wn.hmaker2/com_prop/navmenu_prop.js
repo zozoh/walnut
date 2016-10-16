@@ -10,12 +10,14 @@ $z.declare([
 var html = `
 <div class="ui-code-template">
     <div code-id="item" class="cnavmp-item">
-        <span><i class="fa fa-circle-thin"></i></span>
         <span key="newtab">
             <u><i class="fa fa-check-square"></i><i class="fa fa-square-o"></i></u>
             <em>{{hmaker.com.navmenu.newtab}}</em>
         </span>
+        <span key="link-icon"><i class="fa fa-circle-thin"></i></span>
+        <span key="toar-icon" balloon="right:hmaker.com.navmenu.toar_check_tip"><i class="ui-radio"></i></span>
         <span key="text"></span>
+        <span key="toar-bid">BID</span>
         <span key="href"></span>
     </div>
     <div code-id="empty" class="cnavmp-empty">
@@ -23,6 +25,7 @@ var html = `
     </div>
 </div>
 <div class="ui-arena hmc-navmenu-prop" ui-fitparent="yes">
+    <section class="cnavmp-form" ui-gasket="form"></section>
     <section class="cnavmp-actions">
         <ul>
             <li act="createItem"><i class="fa fa-plus"></i> {{hmaker.com._.create}}</li>
@@ -32,7 +35,6 @@ var html = `
         </ul>
     </section>
     <section class="cnavmp-item-list"></section>
-    <section class="cnavmp-form" ui-gasket="form"></section>
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_navmenu_prop", {
@@ -71,6 +73,15 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             var index = jItem.prevAll().length;
 
             UI.uiCom.selectItem(index);
+        },
+        // 区域显示: 默认高亮项目
+        'click .cnavmp-item > span[key="toar-icon"]' : function(e) {
+            e.stopPropagation();
+            var UI = this;
+            var jItem = $(e.currentTarget).closest(".cnavmp-item");
+            var index = jItem.prevAll().length;
+
+            UI.uiCom.checkToggleAreaItem(index);
         },
         // 编辑文字
         'click .cnavmp-item[current] span[key="text"]' : function(e) {
@@ -111,10 +122,23 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                 }, 
                 setup : {
                     uiType : 'ui/support/edit_link',
-                    uiConf : UI.getEditLinkConfig(oHome)
+                    uiConf : {
+                        setup : {
+                            defaultPath : oHome
+                        },
+                        ext : {
+                            test : function(str) {
+                                return /^be:.+$/.test(str);
+                            },
+                            uiType : 'app/wn.hmaker2/support/edit_behavior',
+                            uiConf : {
+                                uiPage : this.pageUI()
+                            }
+                        }
+                    }
                 }
             }).render(function(){
-                this.$main.find('.pm-title').text(UI.msg('hmaker.edit_link'));
+                this.$main.find('.pm-title').text(UI.msg('hmaker.edit_link.title'));
                 this.body.setData(item.href);
             });
         },
@@ -141,12 +165,39 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
     redraw : function() {
         var UI = this;
 
+         // 通用样式设定
         new FormUI({
             parent : UI,
             gasketName : "form",
             uiWidth : "all",
             on_change : function(key, val) {
+                // 如果是改变了类型
+                if("atype" == key) {
+                    // 重新刷新一下分栏列表
+                    if("toggleArea" == val){
+                        this.enableField("areaCom");
+                        UI.__reload_toggleAreaItems();
+                    }
+                    // 否则禁止分栏列表
+                    else {
+                        this.disableField("areaCom");
+                    }
+                    // 更新菜单条项目编辑模式
+                    UI._update_menu_items($z.obj(key, val));
+                }
+                // 最后通知修改
                 UI.fire("change:com", $z.obj(key, val));
+            },
+            parseData : function(com){
+                // 根据菜单的链接类型，来处理下拉列表的启用状态
+                if("toggleArea" == com.atype){
+                    this.enableField("areaCom");
+                }
+                // 禁用分栏选择下拉列表
+                else {
+                    this.disableField("areaCom");
+                }
+                return com;
             },
             fields : [{
                 key   : "mode",
@@ -179,12 +230,57 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                         val  : 'right',
                     }]
                 }
+            }, {
+                key   : "atype",
+                title : "i18n:hmaker.com.navmenu.atype.title",
+                type  : "string",
+                dft : "link",
+                editAs : "switch",
+                uiConf : {
+                    items : [{
+                        text : 'i18n:hmaker.com.navmenu.atype.link',
+                        val  : 'link',
+                    }, {
+                        text : 'i18n:hmaker.com.navmenu.atype.toggleArea',
+                        val  : 'toggleArea',
+                    }]
+                }
+            }, {
+                key   : "areaCom",
+                title : "i18n:hmaker.com.navmenu.atype.areaCom",
+                type  : "string",
+                disabled : true,
+                editAs : "droplist",
+                uiConf : {
+                    icon  : function(ag){
+                        return UI.msg("hmaker.com."+ag.ctype+".icon");
+                    },
+                    text  : function(ag){
+                        return UI.msg("hmaker.com."+ag.ctype+".name")+"#"+ag.cid;
+                    },
+                    value : function(ag){
+                        return ag.cid;
+                    },
+                    items : []
+                }
             }]
         }).render(function(){
+            UI.__reload_toggleAreaItems();
             UI.defer_report("form");
         });
 
+        // 返回延迟加载
         return ["form"];
+    },
+    //...............................................................
+    __reload_toggleAreaItems : function(){
+        var UI  = this;
+        var ags = UI.pageUI().getAreaGroups();
+
+        var cAreaCom = UI.gasket.form.getFormCtrl("areaCom");
+        var ag = cAreaCom.getData();
+        cAreaCom.setItems(ags);
+        cAreaCom.setData(ag);
     },
     //...............................................................
     update : function(com) {
@@ -213,19 +309,35 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             var rectItem = $z.rect(jCurrentItem);
             // console.log($z.rectObj(rectList,"top,bottom"), $z.rectObj(rectItem, "top,height"))
             if(rectItem.bottom >= rectList.bottom || rectItem.top <= rectList.top){
-                jCurrentItem[0].scrollIntoView();
+                jCurrentItem[0].scrollIntoView(false);
             }
         }
 
+        // 更新菜单条项目编辑模式
+        UI._update_menu_items(com);
+
         // 更新 form
         UI.gasket.form.update(com);
+
+        // 打开提示
+        UI.balloon();
 
         // 最后在调用一遍 resize
         UI.resize(true);
     },
     //...............................................................
+    // 根据 com.atype 来表示菜单列表的显示模式
+    _update_menu_items : function(com) {
+        this.arena.find('.cnavmp-item-list').attr({
+            "atype" : com.atype || "link"
+        });
+    },
+    //...............................................................
     _update_item : function(jItem, item) {
         jItem.attr("current", item.current ? "yes" : null);
+        jItem.children('[key="toar-icon"]').children("i").attr({
+            "checked" : item.toarChecked ? "yes" : null
+        });
         jItem.children('[key="text"]').text(item.text);
         jItem.children('[key="href"]')
             .text(item.href || this.msg("hmaker.com.navmenu.nohref"))
@@ -235,15 +347,15 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
     },
     //...............................................................
     resize : function() {
-        var UI = this;
-        var jS0 = UI.arena.find(".cnavmp-item-list");
-        var jS1 = UI.arena.find(".cnavmp-actions");
-        var jForm   = UI.arena.find(".cnavmp-form");
+        // var UI = this;
+        // var jS0 = UI.arena.find(".cnavmp-item-list");
+        // var jS1 = UI.arena.find(".cnavmp-actions");
+        // var jForm   = UI.arena.find(".cnavmp-form");
 
-        var H = UI.arena.height();
-        jForm.css({
-            "height" : H - jS0.outerHeight(true) - jS1.outerHeight(true)
-        });
+        // var H = UI.arena.height();
+        // jForm.css({
+        //     "height" : H - jS0.outerHeight(true) - jS1.outerHeight(true)
+        // });
     }
 });
 //===================================================================

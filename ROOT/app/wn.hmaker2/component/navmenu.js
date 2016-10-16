@@ -93,6 +93,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             href : jLi.attr("href") || "",
             newtab : jLi.attr("newtab") == "yes",
             current : jLi.attr("current") == "yes",
+            toarChecked : jLi.attr("toar-checked") == "yes",
         };
     },
     //...............................................................
@@ -134,6 +135,29 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     //...............................................................
     unselectItem : function() {
         this.arena.find('li[current]').removeAttr("current");
+
+        // 通知修改
+        this.notifyChange();  
+    },
+    //...............................................................
+    checkToggleAreaItem : function(index) {
+        var UI  = this;
+        var jLi = UI.$item(index);
+
+        // 已经激活了 ...
+        if(jLi.attr("toar-checked")){
+            return;
+        }
+
+        UI.arena.find('li[toar-checked]').removeAttr("toar-checked");
+        jLi.attr("toar-checked", "yes");
+
+        // 通知修改
+        UI.notifyChange();
+    },
+    //...............................................................
+    uncheckToggleAreaItem : function() {
+        this.arena.find('li[toar-checked]').removeAttr("toar-checked");
 
         // 通知修改
         this.notifyChange();  

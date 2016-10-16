@@ -370,9 +370,9 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.fire("active:page");
 
         // 模拟第一个块被点击
-        // window.setTimeout(function(){
-        //     UI._C.iedit.$body.find(".hm-block").first().click();
-        // },500);
+        window.setTimeout(function(){
+            UI._C.iedit.$body.find(".hm-block").first().click();
+        },500);
     },
     //...............................................................
     __setup_page_head : function() {
@@ -685,6 +685,26 @@ return ZUI.def("app.wn.hmaker_page", {
         if(UI._need_load.length == 0){
             UI.setup_page_editing();
         }
+    },
+    //...............................................................
+    getAreaGroups : function(){
+        var UI = this;
+        var _C = UI._C;
+
+        // 准备返回值
+        var re = [];
+
+        // 找到所有的分栏控件
+        _C.iedit.$body.find('.hm-com[ctype="rows"],.hm-com[ctype="columns"]').each(function(){
+            var jCom = $(this);
+            re.push({
+                cid   : jCom.attr("id"),
+                ctype : jCom.attr("ctype")
+            });
+        });
+
+        // 返回
+        return re;
     },
     //...............................................................
     redraw : function(){

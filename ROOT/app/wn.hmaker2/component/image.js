@@ -118,7 +118,11 @@ return ZUI.def("app.wn.hm_com_image", {
                     type   : "string",
                     editAs : "link",
                     uiConf : {
-                        body : UI.getEditLinkConfig(oHome)
+                        body : {
+                            setup : {
+                                defaultPath : oHome
+                            }
+                        }
                     }
                 }, {
                     key    : "scale",

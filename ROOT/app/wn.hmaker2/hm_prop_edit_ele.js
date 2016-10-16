@@ -41,7 +41,7 @@ return ZUI.def("app.wn.hm_prop_edit_ele", {
     showBlank : function() {
         var UI = this;
 
-        UI.arena.find(".hmpc-info").empty();
+        UI.arena.find(".hmpe-info").empty();
 
         if(UI.gasket.form)
             UI.gasket.form.destroy();

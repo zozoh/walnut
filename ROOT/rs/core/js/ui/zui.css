@@ -107,7 +107,15 @@ html, body, .ui-body {width:100%; height:100%; margin:0; overflow: hidden; backg
 
 .z-edit-it input {padding:0 6px;}
 
-/*--------------------------------------------------- SPAN做的选择框 --------*/
+/*--------------------------------------------------- SPAN做的单选框 --------*/
+.ui-radio {
+    font-family:FontAwesome; display: inline-block; cursor: pointer; margin:0 2px;
+    vertical-align: middle;
+}
+.ui-radio:before{content:"\f10c"; display: inline;}
+.ui-radio[checked]:before{content:"\f192";}
+
+/*--------------------------------------------------- SPAN做的复选框 --------*/
 .ui-checkbox {
     font-family:FontAwesome; display: inline-block; cursor: pointer; margin:0 2px;
     vertical-align: middle;

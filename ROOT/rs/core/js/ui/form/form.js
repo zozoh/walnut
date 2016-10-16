@@ -120,6 +120,9 @@ return ZUI.def("ui.form", {
                 // 确保 uiConf
                 fld.uiConf = fld.uiConf || {};
 
+                // 记录自己所属的 form 控件
+                fld.uiForm = UI;
+
                 // 确保 acceptForFormUpdate
                 $z.setUndefined(fld, "acceptForFormUpdate", function(obj){
                     return !_.isUndefined($z.getValue(obj, this.key));
@@ -162,6 +165,10 @@ return ZUI.def("ui.form", {
         if(!fld.virtual){
             jF.data("@jOBJ", jType(fld));
         }
+
+        // 激活状态
+        if(fld.disabled)
+            jF.attr("fld-disabled", "yes");
 
         // 指定的宽度，需要特殊标记
         if(!isNaN(uiw * 1)){
@@ -566,6 +573,11 @@ return ZUI.def("ui.form", {
             // 读取每个字段的返回值
             UI.$myfields().each(function(){
                 var jF  = $(this);
+
+                // 禁止的控件，忽略之
+                if(jF.attr("fld-disabled"))
+                    return;
+
                 var fld = jF.data("@FLD");
 
                 // 模板的话，判断一下是否选项开启
@@ -591,6 +603,28 @@ return ZUI.def("ui.form", {
             // 返回值
             return re;
         });
+    },
+    //...............................................................
+    // 指定忽略字段，可以输入多个字段
+    disableField : function() {
+        var UI  = this;
+
+        // 逐个处理字段
+        var keys = Array.from(arguments);
+        for(var key of keys) {
+            UI.$fld(key).attr("fld-disabled", "yes");
+        }
+    },
+    //...............................................................
+    // 指定启用字段，可以输入多个字段
+    enableField : function() {
+        var UI  = this;
+
+        // 逐个处理字段
+        var keys = Array.from(arguments);
+        for(var key of keys) {
+            UI.$fld(key).removeAttr("fld-disabled");
+        }
     },
     //...............................................................
     // 在字段上显示提示，比如错误警告之类的

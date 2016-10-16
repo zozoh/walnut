@@ -1,6 +1,8 @@
 define({
     "hmaker" : {
-        "edit_link" : "编辑链接行为",
+        "edit_link" : {
+            "title" : "编辑链接行为",
+        },
         "res" : {
             "title" : '资源库',
         },
@@ -83,8 +85,8 @@ define({
                 "padding"   : "栏内边距",
             },
             "navmenu" : {
-                "name"  : "导航菜单",
-                "tip"   : "可垂直或水平放置，可支持多级菜单",
+                "name"  : "菜单条",
+                "tip"   : "可垂直或水平放置，支持超链接或者显示隐藏某个区域的客户端动作",
                 "icon"  : '<i class="zmdi zmdi-dns"></i>',
                 "item_dft_text" : "菜单项文字",
                 "newtab" : "新窗口",
@@ -95,6 +97,13 @@ define({
                 "mode_default" : "水平",
                 "mode_aside"   : "垂直",
                 "itemAlign"    : "对齐方式",
+                "atype" : {
+                    "title" : "菜单类型",
+                    "link"  : "超链接",
+                    "toggleArea" : "区域显示",
+                    "areaCom" : "对应分栏",
+                },
+                "toar_check_tip" : "标识当前项对应的区域为默认显示区域",
             },
             "text" : {
                 "name"  : "文本",
