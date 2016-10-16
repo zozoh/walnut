@@ -3,7 +3,7 @@
     var tmpl_treenode = `
     <li class="ui-wjson-treenode" :class="{'no-root' : !showTn}">
         <!--当前节点-->
-        <div class="tn" v-if="showTn"
+        <div class="tn" v-if="showTn" @click="selectNode"
              :class="{'mkey' : matchKey, 'mval': matchVal, 'empty': isEmptyTn }">
             <template v-if="isEmptyTn">
                 <span class="tn-key emptytn">{{emptyTn}}</span>
@@ -102,7 +102,7 @@
                             </li>
                             <li>
                                 <div class="tn-menu-btn" @click="appendItem()">
-                                    <i class="fa fa-plus act-tip btn-insert"></i><span>追加</span>
+                                    <i class="fa fa-plus-circle act-tip btn-insert"></i><span>追加</span>
                                 </div>
                             </li>
                             <li>
@@ -303,6 +303,12 @@
         },
         events: {},
         methods: {
+            selectNode: function () {
+                this.$dispatch('selectTreeNode', this.$parent, this);
+            },
+            selectNextNode: function () {
+
+            },
             showMenu: function () {
                 this.menuVisiable = true;
             },
@@ -471,6 +477,12 @@
                 <div class="menu-item btn" @click="expandTree(json.tree)"><i class="fa fa-fw fa-expand"></i></div>
                 <div class="menu-item btn" @click="collapseTree(json.tree, true)"><i class="fa fa-fw fa-compress"></i>
                 </div>
+                <!--节点相关-->
+                <template v-if="seltn != null">
+                    <div class="menu-item btn btn-insert" @click="menuAdd();"><i class="fa fa-fw fa-plus"></i></div>
+                    <div class="menu-item btn btn-insert" @click="menuAdd();"><i class="fa fa-fw fa-plus-circle "></i></div>
+                    <div class="menu-item btn btn-delete" @click="menuDelete();"><i class="fa fa-fw fa-minus"></i></div>
+                </template>
                 <div class="menu-item right"><input type="text" v-model="qkey"></div>
             </div>
             <div class="ui-wjson-container">
@@ -517,6 +529,8 @@
         },
         data: function () {
             return {
+                selparent: null,
+                seltn: null,
                 tabwidth: 2,
                 compress: false,
                 qkey: "",
@@ -554,7 +568,27 @@
                 this.$set("source.lines", lines);
             }
         },
+        events: {
+            selectTreeNode: function ($parent, $tn) {
+                this.selparent = $parent;
+                this.seltn = $tn;
+                if (this.selparent) {
+                    console.log("seltn: [" + this.selparent.model.name + "]>[" + this.seltn.model.name + "]");
+                }
+            },
+        },
         methods: {
+            // 菜单上的几个按钮
+            menuAdd: function () {
+                if (this.seltn) {
+                    this.seltn.addItem();
+                }
+            },
+            menuDelete: function () {
+                if (this.seltn) {
+                    this.seltn.deleteItem();
+                }
+            },
             // 对象与显示用的tree相互转换
             obj2tree: function (obj) {
                 var self = this;

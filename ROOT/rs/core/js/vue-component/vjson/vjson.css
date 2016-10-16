@@ -42,6 +42,27 @@
 .ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover {
   background-color: #f0f2f5;
 }
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover.btn-insert {
+  background: #080;
+  border: 1px solid #00a900;
+  color: #FFFFFF;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover.btn-clone {
+  background: #ff8940;
+  border: 1px solid #ffb241;
+  color: #FFFFFF;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover.btn-clean,
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover.btn-delete {
+  background: #f00;
+  border: 1px solid #ff2f00;
+  color: #FFFFFF;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover.btn-types {
+  background: #0087ff;
+  border: 1px solid #02a6ff;
+  color: #FFFFFF;
+}
 .ui-wjson-editor .ui-wjson-menu .menu-item input {
   display: block;
   height: 28px;
@@ -139,7 +160,7 @@
   opacity: 1;
 }
 .ui-wjson-editor .ui-wjson-content .tn-menu.show {
-  width: 100px;
+  width: 50px;
 }
 .ui-wjson-editor .ui-wjson-content .tn-menu.show .tn-menu-list {
   display: block;

@@ -45,6 +45,26 @@
         cursor: pointer;
         &:hover {
           background-color: #f0f2f5;
+          &.btn-insert {
+            background: #080;
+            border: 1px solid #00a900;
+            color: #FFFFFF;
+          }
+          &.btn-clone {
+            background: #ff8940;
+            border: 1px solid #ffb241;
+            color: #FFFFFF;
+          }
+          &.btn-clean, &.btn-delete {
+            background: #f00;
+            border: 1px solid #ff2f00;
+            color: #FFFFFF;
+          }
+          &.btn-types {
+            background: #0087ff;
+            border: 1px solid #02a6ff;
+            color: #FFFFFF;
+          }
         }
       }
 
@@ -148,7 +168,7 @@
       }
 
       &.show {
-        width: 100px; // 鼠标往右滑动不会隐藏
+        width: 50px; // 鼠标往右滑动不会隐藏
         .tn-menu-list {
           display: block;
         }
