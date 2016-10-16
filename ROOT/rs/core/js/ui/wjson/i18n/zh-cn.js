@@ -1,3 +1,4 @@
 define({
-    "reload" : "重新加载"
+    "reload" : "重新加载",
+    "save": "保存"
 });

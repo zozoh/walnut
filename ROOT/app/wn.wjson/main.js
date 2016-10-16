@@ -7,7 +7,9 @@ define(function (require, exports, module) {
         new WJSON({
             $pel: $(document.body),
             exec: Wn.exec,
-            app: Wn.app()
+            app: Wn.app(),
+            sjson: true,
+            sroot: false
         }).render();
     }
 
