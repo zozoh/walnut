@@ -7,27 +7,11 @@ $z.declare([
 function(ZUI, Wn, MaskUI){
 //==============================================
 var html = function(){/*
-<div class="ui-code-template">
-    <div code-id="mask">
-        <div class="ui-arena picker-mask">
-            <div class="ui-mask-bg"></div>
-            <div class="ui-mask-main"><div class="picker-mask-main">
-                <div class="pm-title"></div>
-                <div class="pm-body" ui-gasket="main"></div>
-                <div class="pm-btns">
-                    <b class="pm-btn-ok">{{ok}}</b>
-                    <b class="pm-btn-cancel">{{cancel}}</b>
-                </div>
-            </div></div>
-            <div class="ui-mask-closer"></div>
-        </div>
-    </div>
-</div>
 <div class="ui-arena com-link" link-type="unknown">
     <span>
+        <i tp="cl-lnk" class="fa fa-external-link"></i>
         <i tp="cl-obj" class="fa fa-link"></i>
-        <i tp="cl-ext" class="fa fa-external-link"></i>
-        <i tp="cl-unknown" class="fa fa-question"></i>
+        <i tp="cl-ext" class="fa fa-flash"></i>
     </span>
     <u blank="yes">{{edit}}</u>
 </div>
@@ -38,11 +22,15 @@ return ZUI.def("ui.form_com_link", {
     css  : "theme/ui/picker/picker.css",
     i18n : "ui/picker/i18n/{{lang}}.js",
     //...............................................................
+    init : function(opt) {
+        $z.setUndefined(opt, "mask", {});
+        $z.setUndefined(opt, "body", {});
+    },
+    //...............................................................
     events : {
         "click u" : function(){
             var UI    = this;
             var opt   = UI.options;
-            var setup = opt.setup || {};
             var str   = UI.$el.data("@LINK");
             // 准备遮罩的宽高
             //$z.setUndefined(setup, "blockNumber",  "range"==setup.mode?2:1);
@@ -52,7 +40,8 @@ return ZUI.def("ui.form_com_link", {
             // 弹出遮罩层
             new MaskUI(_.extend({
                 app : UI.app,
-                dom : UI.ccode("mask").html(),
+                dom : 'ui/pop/pop.html',
+                css : 'theme/ui/pop/pop.css',
                 events : {
                     "click .pm-btn-ok" : function(){
                         UI._update(this.body.getData(), true);
@@ -64,9 +53,10 @@ return ZUI.def("ui.form_com_link", {
                 }, 
                 setup : {
                     uiType : 'ui/support/edit_link',
-                    uiConf : opt.setup
+                    uiConf : opt.body
                 }
-            }, setup)).render(function(){
+            }, opt.mask)).render(function(){
+                this.$main.find('.pm-title').text(UI.msg('com.link.edit_link_tt'));
                 this.body.setData(str);
             });
         }
@@ -91,7 +81,7 @@ return ZUI.def("ui.form_com_link", {
         if(str){
             // 修改链接类型: 外部链接
             if(/^https?:\/\/.+/i.test(str)){
-                UI.arena.attr("link-type", "ext");
+                UI.arena.attr("link-type", "lnk");
                 jU.text(str);
             }
             // 内部文件
@@ -105,11 +95,12 @@ return ZUI.def("ui.form_com_link", {
             }
             // 其他
             else {
-                UI.arena.attr("link-type", "unknown");
+                UI.arena.attr("link-type", "ext");
+                jU.text(str);
             }
         }
         else{
-            UI.arena.attr("link-type", "unknown");
+            UI.arena.attr("link-type", "empty");
             jU.text(UI.msg("edit"));
         }
         // 效果

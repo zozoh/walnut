@@ -111,11 +111,10 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                 }, 
                 setup : {
                     uiType : 'ui/support/edit_link',
-                    uiConf : {
-                        baseObj   : oHome
-                    }
+                    uiConf : UI.getEditLinkConfig(oHome)
                 }
             }).render(function(){
+                this.$main.find('.pm-title').text(UI.msg('hmaker.edit_link'));
                 this.body.setData(item.href);
             });
         },

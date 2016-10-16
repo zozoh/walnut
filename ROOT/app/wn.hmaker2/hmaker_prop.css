@@ -811,11 +811,12 @@
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  padding: 12px 6px 2px 6px;
-  margin: 0;
-  color: #888888;
+  padding: 6px;
+  margin: 6px 0 0 0;
   font: 12px Monaco, Consolas, Courier New;
-  border-bottom: 1px solid #cccccc;
+  border: 1px solid #cccccc;
+  background: #cccccc;
+  color: #666666;
 }
 .hmc-objlist-prop > section > h4 b {
   cursor: pointer;

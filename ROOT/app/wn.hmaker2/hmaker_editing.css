@@ -125,7 +125,6 @@ body {
   flex-wrap: wrap;
 }
 .hmc-navmenu[mode="default"] ul li {
-  border-left: 1px solid #cccccc;
   flex: 0 0 auto;
 }
 .hmc-navmenu[mode="default"] ul li:first-child {

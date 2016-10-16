@@ -9,19 +9,20 @@
     u {cursor: pointer; color:@clink; text-decoration: none;}
     u:hover {color:@clink_hover; text-decoration: underline;}
     span {
-        color: @cf2; width: 16px; display: inline-block; vertical-align: middle;
-        text-align: center;
-        i[tp="cl-obj"]     {display: none;}
-        i[tp="cl-ext"]     {display: none;}
-        i[tp="cl-unknown"] {display: none;}
+        color: @cf2; display: inline-block; vertical-align: middle;
+        margin-right:@d2;
+        i[tp="cl-lnk"] {display: none;}
+        i[tp="cl-obj"] {display: none;}
+        i[tp="cl-ext"] {display: none;}
     }
     u {
         display: inline-block; vertical-align: middle;
     }
 }
+.com-link[link-type="lnk"] span i[tp="cl-lnk"]{display: inline;}
 .com-link[link-type="obj"] span i[tp="cl-obj"]{display: inline;}
 .com-link[link-type="ext"] span i[tp="cl-ext"]{display: inline;}
-.com-link[link-type="unknown"] span i[tp="cl-unknown"]{display: inline;}
+.com-link[link-type="empty"] span {display: none;}
 //----------------------------------------------------------------
 .com-input {
     white-space: nowrap; position: relative;

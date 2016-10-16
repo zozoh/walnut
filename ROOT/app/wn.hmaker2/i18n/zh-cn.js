@@ -1,7 +1,14 @@
 define({
     "hmaker" : {
+        "edit_link" : "编辑链接行为",
         "res" : {
             "title" : '资源库',
+        },
+        "site" : {
+            "conf"   : '<i class="fa fa-gear"></i> <b>站点设置</b>',
+            "title"  : "站点标题",
+            "hm_target_release" : "在线发布目标",
+            "hm_target_debug"   : "调试发布目标",
         },
         "prop" : {
             "title" : '属性',

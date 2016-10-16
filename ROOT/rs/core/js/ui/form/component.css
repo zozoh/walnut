@@ -17,10 +17,12 @@
 }
 .com-link span {
   color: #999999;
-  width: 16px;
   display: inline-block;
   vertical-align: middle;
-  text-align: center;
+  margin-right: 6px;
+}
+.com-link span i[tp="cl-lnk"] {
+  display: none;
 }
 .com-link span i[tp="cl-obj"] {
   display: none;
@@ -28,12 +30,12 @@
 .com-link span i[tp="cl-ext"] {
   display: none;
 }
-.com-link span i[tp="cl-unknown"] {
-  display: none;
-}
 .com-link u {
   display: inline-block;
   vertical-align: middle;
+}
+.com-link[link-type="lnk"] span i[tp="cl-lnk"] {
+  display: inline;
 }
 .com-link[link-type="obj"] span i[tp="cl-obj"] {
   display: inline;
@@ -41,8 +43,8 @@
 .com-link[link-type="ext"] span i[tp="cl-ext"] {
   display: inline;
 }
-.com-link[link-type="unknown"] span i[tp="cl-unknown"] {
-  display: inline;
+.com-link[link-type="empty"] span {
+  display: none;
 }
 .com-input {
   white-space: nowrap;

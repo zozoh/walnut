@@ -99,7 +99,7 @@ return ZUI.def("app.wn.hmaker2", {
             // 更新菜单
             var actions = $z.invoke(this, "getActions") || [];
             var menuSetup = Wn.extendActions(actions, false, true);
-            UI.browser.updateMenu(menuSetup, this);
+            UI.parent.browser().updateMenu(menuSetup, this);
 
             // 更新主界面
             this.update(o);
