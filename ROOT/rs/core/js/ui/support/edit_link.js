@@ -113,7 +113,6 @@ return ZUI.def("ui.support.edit_link", {
             // 指定了对象
             if(o){
                 uiBW.setData("id:" + o.pid, function(){
-                    console.log("I am browser setData callback!!");
                     uiBW.setActived(o.id);
                 });                
             }

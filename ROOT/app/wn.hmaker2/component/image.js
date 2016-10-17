@@ -117,6 +117,10 @@ return ZUI.def("app.wn.hm_com_image", {
             css.color      = txt.color      || "";
             css.background = txt.background || "";
             css.textAlign  = txt.textAlign  || "";
+            css.lineHeight = txt.lineHeight  || "";
+            css.letterSpacing  = txt.letterSpacing  || "";
+            css.fontSize   = txt.fontSize   || "";
+            css.textShadow = txt.textShadow || "";
 
             // 设置文本显示
             UI.arena.children(".hmc-image-txt")
@@ -276,6 +280,26 @@ return ZUI.def("app.wn.hm_com_image", {
             nullAsUndefined : true,
             editAs : "background",
             uiConf : this.getBackgroundImageEditConf()
+        }, {
+            key   : "text.lineHeight",
+            title : 'i18n:hmaker.com.text.lineHeight',
+            type  : "string",
+            editAs : "input",
+        }, {
+            key   : "text.letterSpacing",
+            title : 'i18n:hmaker.com.text.letterSpacing',
+            type  : "string",
+            editAs : "input",
+        }, {
+            key   : "text.fontSize",
+            title : 'i18n:hmaker.com.text.fontSize',
+            type  : "string",
+            editAs : "input",
+        }, {
+            key   : "text.textShadow",
+            title : 'i18n:hmaker.com.text.textShadow',
+            type  : "string",
+            editAs : "input",
         }];
     },
     //...............................................................
