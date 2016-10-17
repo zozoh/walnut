@@ -104,11 +104,11 @@ body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-b
 
 /*--------------------------------------------------- SPAN做的单选框 --------*/
 .ui-radio {
-    font-family:FontAwesome; display: inline-block; cursor: pointer; margin:0 2px;
+    font-family:'Material-Design-Iconic-Font'; display: inline-block; cursor: pointer; margin:0 2px;
     vertical-align: middle;
 }
-.ui-radio:before{content:"\f10c"; display: inline;}
-.ui-radio[checked]:before{content:"\f192";}
+.ui-radio:before{content:"\f26c"; display: inline;}
+.ui-radio[checked]:before{content:"\f26f";}
 
 /*--------------------------------------------------- SPAN做的复选框 --------*/
 .ui-checkbox {

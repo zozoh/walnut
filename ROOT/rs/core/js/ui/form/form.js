@@ -562,8 +562,38 @@ return ZUI.def("ui.form", {
         return this.$el.data("@DATA");
     },
     //...............................................................
-    getData : function(){
-        var UI = this;
+    getData : function(key){
+        var UI  = this;
+        var opt = UI.options;
+
+        // 得到某个控件的值
+        if(_.isString(key)){
+            var jF = UI.$fld(key);
+
+            // 禁止的控件，忽略之
+            if(jF.attr("fld-disabled"))
+                return;
+
+            var fld = jF.data("@FLD");
+
+            // 模板的话，判断一下是否选项开启
+            if(opt.asTemplate && "yes" != jF.attr("tmpl-on"))
+                return;
+
+            // 得到字段的控件
+            var fui = jF.data("@UI");
+
+            // 虚拟字段，合并到输出
+            if(fld.virtual) {
+                return fui.getData();
+            }
+            // 指定字段，根据类型解析一下
+            var jso = jF.data("@jOBJ");
+            var v   = fui.getData();
+            return jso.parse(v).toNative();
+        }
+
+        // 获得全部控件的值，合并成一个对象
         return this.ui_format_data(function(opt){
             // 准备返回值
             var re = opt.mergeData && !opt.asTemplate 

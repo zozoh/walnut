@@ -363,6 +363,9 @@
                 >i {font-style: normal;}
             }
             > span[key="text"]{display: block;}
+            > span[key="toar-bid"]{
+                > i {margin:0 @d2;}
+            }
             > span[key="href"]{ 
                 color:@c2; font-family: @f_fixed; font-size:@f1; width: 180px; 
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -387,6 +390,29 @@
             > span[key="newtab"][open-newtab]{
                 i:first-child {display: inline;}
                 i:last-child {display: none;}
+            }
+            // 区域显示的遮罩
+            .toar-drop-mask {
+                position: fixed; top:0; left:0; right:0; bottom:0; z-index: 99999;
+                background: rgba(0,0,0,0);
+            }
+            .toar-drop {
+                position: fixed; z-index: 100000;
+                border:1px solid @cborder1; padding:@d0;
+                background: @cpop_b; color:@cpop_f; 
+                box-shadow: 2px 2px 3px @cshadow;
+                border-radius: @d1;
+                ul {
+                    li {
+                        padding: @d2 @d4 @d2 @d2; border-radius: @d0;
+                        > i {display: inline-block; width: 20px; text-align: center; margin-right:@d1;}
+                        > em {font-size: @f1;}
+                        > b {font-weight: normal;}
+                    }
+                    li:hover {
+                        background: @ch0_b; color:@ch0_f;
+                    }
+                }
             }
         }
         .cnavmp-item:after {@clr();}
@@ -430,7 +456,7 @@
         }
     }
     .cnavmp-form {
-        padding: @d3;
+        padding: @d3; height: 200px;
     }
 }
 //............................................................

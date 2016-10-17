@@ -593,6 +593,9 @@
 .hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="text"] {
   display: block;
 }
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="toar-bid"] > i {
+  margin: 0 6px;
+}
 .hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="href"] {
   color: #888888;
   font-family: Monaco, Consolas, Courier New;
@@ -635,6 +638,45 @@
 }
 .hmc-navmenu-prop .cnavmp-item-list .cnavmp-item > span[key="newtab"][open-newtab] i:last-child {
   display: none;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item .toar-drop-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0);
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item .toar-drop {
+  position: fixed;
+  z-index: 100000;
+  border: 1px solid #d0d0d0;
+  padding: 2px;
+  background: #dddddd;
+  color: #000000;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item .toar-drop ul li {
+  padding: 6px 12px 6px 6px;
+  border-radius: 2px;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item .toar-drop ul li > i {
+  display: inline-block;
+  width: 20px;
+  text-align: center;
+  margin-right: 4px;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item .toar-drop ul li > em {
+  font-size: 10px;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item .toar-drop ul li > b {
+  font-weight: normal;
+}
+.hmc-navmenu-prop .cnavmp-item-list .cnavmp-item .toar-drop ul li:hover {
+  background: #0044bb;
+  color: #ffffff;
 }
 .hmc-navmenu-prop .cnavmp-item-list .cnavmp-item:after {
   content: "";
@@ -704,6 +746,7 @@
 }
 .hmc-navmenu-prop .cnavmp-form {
   padding: 8px;
+  height: 200px;
 }
 .hm-dynamic-data-setting > section {
   padding: 6px;

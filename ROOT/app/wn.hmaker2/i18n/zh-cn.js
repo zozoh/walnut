@@ -100,10 +100,12 @@ define({
                 "atype" : {
                     "title" : "菜单类型",
                     "link"  : "超链接",
-                    "toggleArea" : "区域显示",
-                    "areaCom" : "对应分栏",
+                    "toggleArea"  : "区域显示",
+                    "layoutComId" : "对应分栏",
                 },
                 "toar_check_tip" : "标识当前项对应的区域为默认显示区域",
+                "toar_area_none" : "选择一个区域",
+                "toar_no_bar"    : "请选择菜单条对应的分栏控件"
             },
             "text" : {
                 "name"  : "文本",

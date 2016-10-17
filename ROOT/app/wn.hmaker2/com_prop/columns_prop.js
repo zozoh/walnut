@@ -2,9 +2,9 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/hm__methods_com',
+    'app/wn.hmaker2/hm__methods_panel',
     'ui/form/form'
-], function(ZUI, Wn, HmComMethods, FormUI){
+], function(ZUI, Wn, HmMethods, FormUI){
 //==============================================
 var html = `
 <div class="ui-code-template">
@@ -31,7 +31,7 @@ return ZUI.def("app.wn.hm_com_columns_prop", {
     dom  : html,
     //...............................................................
     init : function(){
-        HmComMethods(this);
+        HmMethods(this);
     },
     //...............................................................
     events : {
