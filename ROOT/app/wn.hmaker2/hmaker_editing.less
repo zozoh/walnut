@@ -131,6 +131,28 @@ body {margin:0; font-size:12px;}
     li[toar-checked] {background: rgba(0,0,0,0.2);}
 }
 //............................................................
+// image
+.hmc-image {
+    width:100%; height:100%; position: relative;
+    .hmc-image-link-tip {
+        position: absolute; right: 0; top:0; margin:@d2;
+        display: none; color:#FFF; font-size:1.8em;
+        border-radius: 50%; background: rgba(0,0,0,0.3);
+        padding:@d3; 
+    }
+}
+.hmc-image[image-href] .hmc-image-link-tip{
+    display: block;
+}
+.hmc-image-pic {
+    width:100%; height:100%;
+}
+.hmc-image-txt {
+    position: absolute; padding: @d2;
+    background: rgba(0,0,0,0.2);
+    color:#FFF;
+}
+//............................................................
 // Text
 .hmc-text {
     > * {cursor: pointer;}

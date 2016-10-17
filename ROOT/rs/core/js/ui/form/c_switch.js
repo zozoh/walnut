@@ -1,7 +1,8 @@
 (function($z){
 $z.declare([
-    'zui'
-], function(ZUI){
+    'zui',
+    'ui/form/support/enum_list',
+], function(ZUI, EnumListSupport){
 //==============================================
 var html = function(){/*
 <div class="ui-arena com-switch">
@@ -9,32 +10,23 @@ var html = function(){/*
 </div>
 */};
 //===================================================================
-return ZUI.def("ui.form_com_switch", {
+return ZUI.def("ui.form_com_switch", EnumListSupport({
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
-    init : function(options){
-        $z.setUndefined(options, "items", [{
+    init : function(opt){
+        
+        // 设置默认取值方法
+        this.__setup_dft_display_func(opt);
+
+        // 默认是布尔选项
+        $z.setUndefined(opt, "items", [{
             val   : false,
             text  : "i18n:no"
         },{
             val   : true,
             text  : "i18n:yes"
         }]);
-        $z.setUndefined(options, "icon", function(o){
-            if(_.isObject(o)) 
-                return o.icon;
-        });
-        $z.setUndefined(options, "text", function(o){
-            if(_.isString(o))
-                return o;
-            return o.text;
-        });
-        $z.setUndefined(options, "value", function(o, index){
-            if(_.isString(o))
-                return index;
-            return _.isUndefined(o.val) ? index : o.val;
-        });
     },
     //...............................................................
     events : {
@@ -64,51 +56,19 @@ return ZUI.def("ui.form_com_switch", {
             }
             // 单选，就简单了
             else {
-                if(!jq.hasClass("checked")){
+                // 如果选中那么就取消选中
+                if(jq.hasClass("checked")){
+                    jq.removeClass("checked");
+                }
+                // 选中
+                else {
                     UI.arena.find(".checked").removeClass("checked");
                     jq.addClass("checked");
-                    UI.__on_change();
                 }
+                // 通知
+                UI.__on_change();
             }
         }
-    },
-    //...............................................................
-    __on_change : function(){
-        var UI  = this;
-        var opt = UI.options;
-        var context = opt.context || UI.parent;
-        var v = UI.getData();
-        $z.invoke(opt, "on_change", [v], context);
-        UI.trigger("change", v);
-    },
-    //...............................................................
-    redraw : function(){
-        var UI  = this;
-        var re = ["loading"];
-        UI.setItems(UI.options.items, function(){
-            re.pop();
-            UI.defer_report(0, "loading");
-        });
-        return re;
-    },
-    //...............................................................
-    setItems : function(items, callback){
-        var UI  = this;
-        var opt = UI.options;
-        var context = opt.context || UI.parent;
-
-        $z.evalData(items, null, function(items){
-            UI._draw_items(items);
-            UI.setData();
-            $z.doCallback(callback, [items], UI);
-        }, context);
-    },
-    //...............................................................
-    refresh : function(callback) {
-        var UI  = this;
-        var opt = UI.options;
-        
-        UI.setItems(opt.items, callback);
     },
     //...............................................................
     _draw_items : function(items){
@@ -145,8 +105,8 @@ return ZUI.def("ui.form_com_switch", {
 
             // 提示文字
             if(item.tip) {
-                var tip = item.tip;
-                if(!/^(up|down|left|right):/.test(item.tip))
+                var tip = UI.text(item.tip);
+                if(!/^(up|down|left|right):/.test(tip))
                     tip = "up:" + tip;
                 jLi.attr("balloon", tip);
             }
@@ -213,7 +173,7 @@ return ZUI.def("ui.form_com_switch", {
         }
     }
     //...............................................................
-});
+}));
 //===================================================================
 });
 })(window.NutzUtil);

@@ -156,6 +156,52 @@ var methods = {
     getBaseCss : function() {
         return _.extend({}, _css_base);
     },
+    // 获取背景属性编辑控件的关于 image 编辑的配置信息
+    getBackgroundImageEditConf : function(){
+        return {
+            imageBy : {
+                editAs : "link",
+                uiConf : {
+                    body : {
+                        setup : {
+                            defaultPath : this.getHomeObj(),
+                            lastObjId : "hmaker_pick_media",
+                            filter    : function(o) {
+                                if('DIR' == o.race)
+                                    return true;
+                                return /^image/.test(o.mime);
+                            }
+                        }
+                    },
+                    // 解析对象，如果是 url(/o/read/id:xxx) 那么就认为是对象
+                    parseData : function(str){
+                        // 看看是不是对象
+                        var m = /^url\("?\/o\/read\/(id:\w+)"?\)$/i.exec(str);
+                        if(m)
+                            return m[1];
+                        // 外部链接 
+                        m = /^url\("?(https?:\/\/[^"\)]+)"?\)$/i.exec(str);
+                        if(m)
+                            return m[1];
+                        return null;
+                    },
+                    // 把 link 搞出来的东西用 url() 包裹
+                    formatData : function(link){
+                        // 内部对象
+                        if(/^id:.+/.test(link)) {
+                            return 'url("/o/read/' + link + '")';
+                        }
+                        // 外部链接
+                        if(/^https?:\/\/.+/i.test(link)) {
+                            return 'url("' + link + '")';
+                        }
+                        // 其他
+                        return null;
+                    }
+                }
+            }
+        };
+    } // ~ getBackgroundImageEditConf()
 }; // ~End methods
 //====================================================================
 
