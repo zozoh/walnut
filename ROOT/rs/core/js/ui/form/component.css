@@ -790,3 +790,54 @@
 .com-file .cf-item[preview] > section {
   display: block;
 }
+.com-pair > section.pairs table {
+  width: 100%;
+  border-spacing: 1px;
+  border-collapse: separate;
+  background: #cccccc;
+}
+.com-pair > section.pairs table tr {
+  background: #eeeeee;
+  color: #666666;
+}
+.com-pair > section.pairs table td {
+  padding: 0;
+}
+.com-pair > section.pairs table td.cp-key {
+  white-space: nowrap;
+  font-family: Monaco, Consolas, Courier New;
+  font-size: 10px;
+  padding: 0 8px;
+}
+.com-pair > section.pairs table td.cp-val input {
+  outline: none;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  color: #000000;
+  background: #ffffff;
+  width: 100%;
+  border-radius: 0;
+  border: 0;
+}
+.com-pair > section.pairs table td.cp-val input:focus {
+  color: #000000;
+  background: #ffffcc;
+  border-color: #ff8800;
+}
+.com-pair > section.empty {
+  padding: 6px;
+  font-style: italic;
+  color: #008800;
+}
+.com-pair[show="pairs"] > section.pairs {
+  display: block;
+}
+.com-pair[show="pairs"] > section.empty {
+  display: none;
+}
+.com-pair[show="empty"] > section.pairs {
+  display: none;
+}
+.com-pair[show="empty"] > section.empty {
+  display: block;
+}

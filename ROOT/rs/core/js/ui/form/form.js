@@ -100,7 +100,7 @@ return ZUI.def("ui.form", {
                 // 有快捷定义 ..
                 else if(fld.editAs){
                     // 内置
-                    if(/^(input|color|content|file|background|label|switch|text|link|(drop|check|radio)list)$/.test(fld.editAs)){
+                    if(/^(input|color|content|file|background|label|switch|text|link|(drop|check|radio)list|pair)$/.test(fld.editAs)){
                         fld.uiType = "ui/form/c_" + fld.editAs;
                     }
                     // 各种 picker

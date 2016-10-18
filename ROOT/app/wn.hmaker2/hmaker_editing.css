@@ -308,6 +308,12 @@ body {
 .hmc-objlist > .hmol-items .hmol-items-loader {
   padding: 30px;
   text-align: center;
+  cursor: pointer;
+  color: #0088ff;
+  text-decoration: underline;
+}
+.hmc-objlist > .hmol-items .hmol-items-loader:hover {
+  color: #ff0000;
 }
 .hmc-objlist > .pager {
   color: #888;

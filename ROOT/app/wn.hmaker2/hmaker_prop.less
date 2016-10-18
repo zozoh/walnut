@@ -461,81 +461,24 @@
 }
 //............................................................
 .hm-dynamic-data-setting {
-    > section {
-        padding:@d2;
-        > dl {
-            @flex(); line-height: @d6;
-            > dt {padding:@d0 @d2; font-size: @f2; color:@c2;}
-            > [ui-gasket] {flex:1 0 auto;}
-            > .refresh {
-                padding:@d0 @d2; cursor: pointer; 
-                i:first-child {display: inline-block; transition:0.2s;}
-                i:last-child  {display: none; color:@c2; font-size:@f3;}
-            }
-            > .refresh:hover i:first-child{
-                font-size:1.4em; color:@c0; transform:rotate(0.3turn)
-            }
-            > .refresh[loading] {
-                i:first-child {display: none;}
-                i:last-child  {display: inline-block;}
-            }
-        }
-    }
-    //.....................................................
-    // 下拉菜单样式
-    .com-box .cbsi b,
-    .com-drop b {
-        font-size:@f1; font-family: @f_fixed; font-weight: normal;
-    }
-    .cmd-box .cbsi {padding:@d1;}
-    //.....................................................
-    // 参数表
-    [part="params"] { @noselect();
-        table {width: 100%;}
-        td {border:1px solid @cborder1; padding:@d2;}
-        td.pkey {
-            font: @f2 @f_fixed; color:@c2; vertical-align: top;
-            padding:@d4;
-        }
-        td.pval {
-            .param-item {
-                > [nm="base"] {width:100%; }
-                input {width: 100%;}
-                em {
-                    display: inline-block; vertical-align: middle; padding-right:@d0;
-                    font-style: normal; font-size:@f1;
-                }
-                [nm="base"] em, [nm="from"] em {
-                    width:50px; flex:0 0 auto; text-align: right; padding-right: @d3;
-                }
-                > div {@flex(); align-items:center;}
-                .dynamic {
-                    > * {padding:1px; white-space: nowrap;}
-                    > div {@flex(); align-items:center;}
-                    > div[nm="from"] {
-                        input {width:70px;}
+    // 表单样式
+    .form {
+        padding:0;
+        .form-fld {
+            padding:0;
+            .ff-val{
+                padding-right:0;
+                .ffv-ui {
+                    padding-right:0;
+                    .com-box .cbsi b,
+                    .com-drop b {
+                        font-size:@f1; font-family: @f_fixed; font-weight: normal;
                     }
-                    > div[nm="key"][for-all] {
-                        input {background:@cb1;}
-                    }
+                    .cmd-box .cbsi {padding:@d1;}
                 }
             }
         }
     }
-    //.....................................................
-    // 映射表
-    [part="mapping"] { @noselect();
-        table {width: 100%;}
-        td {border:1px solid @cborder1; padding:@d2; width:50%;}
-        td.mkey {
-            font: @f2 @f_fixed; color:@c2; vertical-align: top;
-            padding:@d4;
-        }
-        td.mval {
-            input {width:100%;}
-        }
-    }
-    //.....................................................
 }
 //............................................................
 // hmc-objlist-prop

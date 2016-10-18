@@ -52,7 +52,14 @@ return ZUI.def("app.wn.hm_com_objlist", {
     },
     //...............................................................
     events : {
-        
+        'click .hmol-items-loader' : function(){
+            $.post("/api/zozoh/gbox/list", {
+                pid : "6k3t3mi6iuiomqu5rp0idk3iue",
+                c   : "工具"
+            }, function(re){
+                console.log(re);
+            });
+        }
     },
     //...............................................................
     setupProp : function(){

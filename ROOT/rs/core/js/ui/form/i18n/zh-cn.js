@@ -50,6 +50,9 @@ define({
             "info" : '<i type="{{contentType}}"></i> <span>内容 <em>{{len}}</em> 字</span>',
             "edit_content" : "编辑内容",
             "gen_brief"    : "自动生成摘要",
+        },
+        "pair" : {
+            "empty" : "无内容"
         }
     }
 });

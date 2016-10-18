@@ -217,9 +217,10 @@ define({
         "dds" : {
             "api"          : "数据接口",
             "api_refresh"  : "刷新数据接口列表",
-            "params"       : "接口参数表",
+            "params"       : "接口参数",
             "template"     : "显示模板",
             "tmpl_refresh" : "刷新显示模板列表",
+            "mapping"      : "模板映射",
             "param_base"   : "基础值",
             "param_from"   : "来自",
             "param_key"    : "键",

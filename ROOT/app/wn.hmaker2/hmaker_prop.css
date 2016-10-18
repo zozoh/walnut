@@ -748,136 +748,26 @@
   padding: 8px;
   height: 200px;
 }
-.hm-dynamic-data-setting > section {
-  padding: 6px;
+.hm-dynamic-data-setting .form {
+  padding: 0;
 }
-.hm-dynamic-data-setting > section > dl {
-  display: -webkit-flex;
-  display: flex;
-  line-height: 24px;
+.hm-dynamic-data-setting .form .form-fld {
+  padding: 0;
 }
-.hm-dynamic-data-setting > section > dl > dt {
-  padding: 2px 6px;
-  font-size: 12px;
-  color: #888888;
+.hm-dynamic-data-setting .form .form-fld .ff-val {
+  padding-right: 0;
 }
-.hm-dynamic-data-setting > section > dl > [ui-gasket] {
-  flex: 1 0 auto;
+.hm-dynamic-data-setting .form .form-fld .ff-val .ffv-ui {
+  padding-right: 0;
 }
-.hm-dynamic-data-setting > section > dl > .refresh {
-  padding: 2px 6px;
-  cursor: pointer;
-}
-.hm-dynamic-data-setting > section > dl > .refresh i:first-child {
-  display: inline-block;
-  transition: 0.2s;
-}
-.hm-dynamic-data-setting > section > dl > .refresh i:last-child {
-  display: none;
-  color: #888888;
-  font-size: 14px;
-}
-.hm-dynamic-data-setting > section > dl > .refresh:hover i:first-child {
-  font-size: 1.4em;
-  color: #ff8800;
-  transform: rotate(0.3turn);
-}
-.hm-dynamic-data-setting > section > dl > .refresh[loading] i:first-child {
-  display: none;
-}
-.hm-dynamic-data-setting > section > dl > .refresh[loading] i:last-child {
-  display: inline-block;
-}
-.hm-dynamic-data-setting .com-box .cbsi b,
-.hm-dynamic-data-setting .com-drop b {
+.hm-dynamic-data-setting .form .form-fld .ff-val .ffv-ui .com-box .cbsi b,
+.hm-dynamic-data-setting .form .form-fld .ff-val .ffv-ui .com-drop b {
   font-size: 10px;
   font-family: Monaco, Consolas, Courier New;
   font-weight: normal;
 }
-.hm-dynamic-data-setting .cmd-box .cbsi {
+.hm-dynamic-data-setting .form .form-fld .ff-val .ffv-ui .cmd-box .cbsi {
   padding: 4px;
-}
-.hm-dynamic-data-setting [part="params"] {
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-.hm-dynamic-data-setting [part="params"] table {
-  width: 100%;
-}
-.hm-dynamic-data-setting [part="params"] td {
-  border: 1px solid #d0d0d0;
-  padding: 6px;
-}
-.hm-dynamic-data-setting [part="params"] td.pkey {
-  font: 12px Monaco, Consolas, Courier New;
-  color: #888888;
-  vertical-align: top;
-  padding: 12px;
-}
-.hm-dynamic-data-setting [part="params"] td.pval .param-item > [nm="base"] {
-  width: 100%;
-}
-.hm-dynamic-data-setting [part="params"] td.pval .param-item input {
-  width: 100%;
-}
-.hm-dynamic-data-setting [part="params"] td.pval .param-item em {
-  display: inline-block;
-  vertical-align: middle;
-  padding-right: 2px;
-  font-style: normal;
-  font-size: 10px;
-}
-.hm-dynamic-data-setting [part="params"] td.pval .param-item [nm="base"] em,
-.hm-dynamic-data-setting [part="params"] td.pval .param-item [nm="from"] em {
-  width: 50px;
-  flex: 0 0 auto;
-  text-align: right;
-  padding-right: 8px;
-}
-.hm-dynamic-data-setting [part="params"] td.pval .param-item > div {
-  display: -webkit-flex;
-  display: flex;
-  align-items: center;
-}
-.hm-dynamic-data-setting [part="params"] td.pval .param-item .dynamic > * {
-  padding: 1px;
-  white-space: nowrap;
-}
-.hm-dynamic-data-setting [part="params"] td.pval .param-item .dynamic > div {
-  display: -webkit-flex;
-  display: flex;
-  align-items: center;
-}
-.hm-dynamic-data-setting [part="params"] td.pval .param-item .dynamic > div[nm="from"] input {
-  width: 70px;
-}
-.hm-dynamic-data-setting [part="params"] td.pval .param-item .dynamic > div[nm="key"][for-all] input {
-  background: #eeeeee;
-}
-.hm-dynamic-data-setting [part="mapping"] {
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-.hm-dynamic-data-setting [part="mapping"] table {
-  width: 100%;
-}
-.hm-dynamic-data-setting [part="mapping"] td {
-  border: 1px solid #d0d0d0;
-  padding: 6px;
-  width: 50%;
-}
-.hm-dynamic-data-setting [part="mapping"] td.mkey {
-  font: 12px Monaco, Consolas, Courier New;
-  color: #888888;
-  vertical-align: top;
-  padding: 12px;
-}
-.hm-dynamic-data-setting [part="mapping"] td.mval input {
-  width: 100%;
 }
 .hmc-objlist-prop {
   padding: 6px;
