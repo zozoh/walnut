@@ -69,6 +69,9 @@ author:zozoh
     // 实际上，如果两个 browser 实例的这个字段相同，那么则会共享
     lastObjId : "last-oid",
     
+    // 默认打开的目录位置，这个比 lastObjId 优先级低，默认为 "~"
+    defaultPath : "~",
+    
     // 当加载一个对象的时候，如何获得其编辑器配置信息，可以支持:
     // - {..}    : 默认采用  {actions : ["@::viewmode"]}
     // - "auto"  : 则会每次都询问服务器
@@ -90,6 +93,15 @@ author:zozoh
     // 当列表模式的时候，是否显示复选框, 默认 false
     checkable : Boolean
     
+    // 是否支持修改对象名称，默认 false
+    renameable : false,
+    
+    // 如果 renameable==true，那么默认为 'B'
+    // 否则默认为 'A' 表示一个可以点击的一个链接
+    // 有时候你即不想 rename 也不想显示一个可以点击的连接
+    // 可以把这个选项设置为 'SPAN'
+    objTagName : 'B',
+    
     // 是否允许多选，默认是 true
     multi : Boolean
     
@@ -97,6 +109,12 @@ author:zozoh
     on_change  : F(o)    // "browser:change"  由 setData 触发
     on_info    : F(html) // "browser:info" 任何组件都可以发送消息，footer来显示
     on_current : F(o)    // "browser:current" 由 sky 控件绘制完成后触发
+    
+    // "browser:select" 浏览器选中的对象发生更改
+    // aObj  表示当前激活对象
+    // cObjs 表示当前选中对象，是个数组，没有对象选中会是一个空数组
+    on_select  : F(aObj, cObjs);
+    
 }
 ```
 

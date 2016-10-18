@@ -2,9 +2,9 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/hm__methods_com',
+    'app/wn.hmaker2/hm__methods_panel',
     'ui/form/form'
-], function(ZUI, Wn, HmComMethods, FormUI){
+], function(ZUI, Wn, HmMethods, FormUI){
 //==============================================
 var html = `
 <div class="ui-code-template">
@@ -31,7 +31,7 @@ return ZUI.def("app.wn.hm_com_columns_prop", {
     dom  : html,
     //...............................................................
     init : function(){
-        HmComMethods(this);
+        HmMethods(this);
     },
     //...............................................................
     events : {
@@ -57,8 +57,6 @@ return ZUI.def("app.wn.hm_com_columns_prop", {
             var jq = $(e.currentTarget);
             var seq = jq.closest(".ly-block").attr("seq") * 1;
 
-            console.log("hahah")
-
             $z.editIt(jq, function(newval, oldval) {
                 var val = $.trim(newval) || "auto";
                 if(val && val!=oldval) {
@@ -74,7 +72,34 @@ return ZUI.def("app.wn.hm_com_columns_prop", {
                     }
                 }
             });
+        },
+        // 高亮/取消对应的栏
+        'click .ly-block' : function(e) {
+            var jMe = $(e.target);
+            // 动作按钮不会触发本行为
+            if(jMe.closest(".ly-a").length > 0){
+                return;
+            }
+            // 准备数据
+            var UI = this;
+            var jBlock = jMe.closest(".ly-block");
+            var seq = jBlock.attr("seq") * 1;
+            // 取消高亮
+            if(jBlock.attr("highlight")){
+                jBlock.removeAttr("highlight");
+                UI.uiCom.setBlockHighlight(false);
+            }
+            // 高亮自己
+            else {
+                UI.arena.find(".ly-block").removeAttr("highlight");
+                jBlock.attr("highlight", "yes");
+                UI.uiCom.setBlockHighlight(seq);
+            }
         }
+    },
+    //...............................................................
+    depose : function(){
+        this.uiCom.setBlockHighlight(false);
     },
     //...............................................................
     update : function(com) {
@@ -85,8 +110,8 @@ return ZUI.def("app.wn.hm_com_columns_prop", {
         var datas = UI.uiCom.getBlockDataArray();
         for(var b of datas) {
             var jBlock = UI.ccode("block").appendTo(jLyW);
-            jBlock.attr("seq", b.seq);
-            jBlock.find(".ly-b-nm").text("B" + b.seq);
+            jBlock.attr(_.pick(b, "seq", "bid", "highlight"));
+            jBlock.find(".ly-b-nm").text(b.bid);
             jBlock.find(".ly-b-sz em").text(b.width);
         }
 

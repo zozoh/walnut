@@ -48,7 +48,12 @@ new SearchUI({
     执行查询的上下文基础对象，这个对象会与 filter, pager 控件一起
     构建一个查询上下文
     */
-    queryContext : {..} |{UI}F(),
+    queryContext   : {..} | {UI}F(),
+    
+    /*
+    执行动作模板的快捷命令时，补充的上下文
+    */
+    cmdTmplContext : {..} | {UI}F(),
     
     /*
     过滤控件, getData 返回:

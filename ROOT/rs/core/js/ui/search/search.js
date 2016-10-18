@@ -37,7 +37,6 @@ var quick_menus = {
 //...............................................................
 function _pop_form_mask(UI, title, obj, cmdTmpl, callback){
     var opt = UI.options;
-    console.log(opt.list.uiConf.fields)
     new MaskUI(_.extend({}, opt.maskConf, {
         dom   : UI.ccode("formmask").html(),
         i18n  : UI._msg_map,
@@ -53,7 +52,7 @@ function _pop_form_mask(UI, title, obj, cmdTmpl, callback){
                 // 如果数据不符合规范，form 控件会返回空的
                 if(formData){
                     var json   = $z.toJson(formData).replace("'","\\'");
-                    var cmdText = $z.tmpl(cmdTmpl)(_.extend({}, obj, {json:json}));
+                    var cmdText = $z.tmpl(cmdTmpl)(_.extend(opt.cmdTmplContext.call(UI), obj, {json:json}));
                     //console.log(cmdText);
                     UI.exec(cmdText, function(re){
                         var newObj = $z.fromJson(re);
@@ -172,7 +171,15 @@ return ZUI.def("ui.srh", {
             opt.__static_query_context = opt.queryContext || {};
             opt.queryContext = function(){
                 return _.extend({}, this.options.__static_query_context);
-            }
+            };
+        }
+        //...........................................
+        // 默认动作模板上下文上下文
+        if(!_.isFunction(opt.cmdTmplContext)) {
+            opt.__static_cmdTmpl_context = opt.cmdTmplContext || {};
+            opt.cmdTmplContext = function(){
+                return _.extend({}, this.options.__static_cmdTmpl_context);
+            };
         }
         //...........................................
         // 加载完毕，触发的事件

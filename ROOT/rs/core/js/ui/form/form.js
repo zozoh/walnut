@@ -100,7 +100,7 @@ return ZUI.def("ui.form", {
                 // 有快捷定义 ..
                 else if(fld.editAs){
                     // 内置
-                    if(/^(input|color|content|background|label|switch|text|link|(drop|check|radio)list)$/.test(fld.editAs)){
+                    if(/^(input|color|content|file|background|label|switch|text|link|(drop|check|radio)list)$/.test(fld.editAs)){
                         fld.uiType = "ui/form/c_" + fld.editAs;
                     }
                     // 各种 picker
@@ -119,6 +119,9 @@ return ZUI.def("ui.form", {
                 }
                 // 确保 uiConf
                 fld.uiConf = fld.uiConf || {};
+
+                // 记录自己所属的 form 控件
+                fld.uiForm = UI;
 
                 // 确保 acceptForFormUpdate
                 $z.setUndefined(fld, "acceptForFormUpdate", function(obj){
@@ -162,6 +165,10 @@ return ZUI.def("ui.form", {
         if(!fld.virtual){
             jF.data("@jOBJ", jType(fld));
         }
+
+        // 激活状态
+        if(fld.disabled)
+            jF.attr("fld-disabled", "yes");
 
         // 指定的宽度，需要特殊标记
         if(!isNaN(uiw * 1)){
@@ -555,8 +562,38 @@ return ZUI.def("ui.form", {
         return this.$el.data("@DATA");
     },
     //...............................................................
-    getData : function(){
-        var UI = this;
+    getData : function(key){
+        var UI  = this;
+        var opt = UI.options;
+
+        // 得到某个控件的值
+        if(_.isString(key)){
+            var jF = UI.$fld(key);
+
+            // 禁止的控件，忽略之
+            if(jF.attr("fld-disabled"))
+                return;
+
+            var fld = jF.data("@FLD");
+
+            // 模板的话，判断一下是否选项开启
+            if(opt.asTemplate && "yes" != jF.attr("tmpl-on"))
+                return;
+
+            // 得到字段的控件
+            var fui = jF.data("@UI");
+
+            // 虚拟字段，合并到输出
+            if(fld.virtual) {
+                return fui.getData();
+            }
+            // 指定字段，根据类型解析一下
+            var jso = jF.data("@jOBJ");
+            var v   = fui.getData();
+            return jso.parse(v).toNative();
+        }
+
+        // 获得全部控件的值，合并成一个对象
         return this.ui_format_data(function(opt){
             // 准备返回值
             var re = opt.mergeData && !opt.asTemplate 
@@ -566,6 +603,11 @@ return ZUI.def("ui.form", {
             // 读取每个字段的返回值
             UI.$myfields().each(function(){
                 var jF  = $(this);
+
+                // 禁止的控件，忽略之
+                if(jF.attr("fld-disabled"))
+                    return;
+
                 var fld = jF.data("@FLD");
 
                 // 模板的话，判断一下是否选项开启
@@ -593,6 +635,28 @@ return ZUI.def("ui.form", {
         });
     },
     //...............................................................
+    // 指定忽略字段，可以输入多个字段
+    disableField : function() {
+        var UI  = this;
+
+        // 逐个处理字段
+        var keys = Array.from(arguments);
+        for(var key of keys) {
+            UI.$fld(key).attr("fld-disabled", "yes");
+        }
+    },
+    //...............................................................
+    // 指定启用字段，可以输入多个字段
+    enableField : function() {
+        var UI  = this;
+
+        // 逐个处理字段
+        var keys = Array.from(arguments);
+        for(var key of keys) {
+            UI.$fld(key).removeAttr("fld-disabled");
+        }
+    },
+    //...............................................................
     // 在字段上显示提示，比如错误警告之类的
     showPrompt : function(key, prompt) {
         var UI  = this;
@@ -612,8 +676,10 @@ return ZUI.def("ui.form", {
         jF.attr("form-prompt", pKey).find(".ff-prompt").html(html);
     },
     //...............................................................
-    hidePrompt : function(key) {
-        this.$fld(key).removeAttr("form-prompt");
+    hidePrompt : function() {
+        var keys = Array.from(arguments);
+        for(var key of keys)
+            this.$fld(key).removeAttr("form-prompt");
     },
     //...............................................................
     getObjId : function(obj){

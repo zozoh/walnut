@@ -15,7 +15,7 @@
 			editAs : "input",
 			escapeHtml : false,
 			display : function(o) {
-				return $z.escapeText(o.th_nm) + (o.th_brief ? "<em>" + o.th_brief + "</em>" : "");
+				return $z.escapeText(o.th_nm) + (o.brief ? "<em>" + o.brief + "</em>" : "");
 			}
 		}, {
 			key : "icon",
@@ -56,48 +56,19 @@
 		icon : '<i class="fa fa-rss" aria-hidden="true"></i>',
 		title : "i18n:thing.fld.content",
 		fields : [ {
-			key : "content",
-			title : "i18n:thing.key.detail",
-			hide : true,
-			virtual : true,
-			editAs : "content",
-			uiConf : {
-				loadContent : function(obj, callback) {
-					// 有内容
-					if (obj.len > 0) {
-						Wn.exec("thing " + obj.id + " detail -quiet", function(re) {
-							callback(re);
-						});
-					}
-					// 无内容
-					else {
-						callback("");
-					}
-				},
-				saveContent : function(obj, content, callback) {
-					Wn.exec("thing " + obj.id + " detail -content", content, function(re) {
-						callback(re);
-					});
-				},
-				parseData : function(th) {
-					return {
-						id : th.id,
-						contentType : th.th_detail_tp,
-						brief : th.th_brief,
-						len : th.th_detail_sz,
-					};
-				},
-				formatData : function(obj) {
-					return {
-						id : obj.id,
-						th_detail_tp : obj.contentType,
-						th_brief : obj.brief,
-						th_detail_sz : obj.len
-					}
-				}
-			}
+			key   : "__brief_and_content__",
+			title : "i18n:thing.key.brief_and_content",
+			hide  : true
 		}, {
-			
+			key : "__media__",
+			title : "i18n:thing.key.media",
+			hide : true,
+			editAs : "thing_media",
+		}, {
+			key : "__attachment__",
+			title : "i18n:thing.key.attachment",
+			hide : true,
+			editAs : "thing_attachment",
 		} ]
 	}, {
 		icon : '<i class="fa fa-bar-chart"></i>',

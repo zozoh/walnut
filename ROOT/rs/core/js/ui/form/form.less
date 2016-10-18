@@ -65,7 +65,7 @@
 }
 
 .ff-txt {
-    text-align: right; padding:@d4 @d4 @d4 @d8; color:@c2;
+    text-align: right; padding:@d4 @d4 @d4 @d8; color:@c2; white-space: nowrap;
     .fft-icon {margin-right:@d2;}
     .fft-text {}
 }
@@ -99,6 +99,15 @@
         > i:first-child {display: inline;}
         > i:last-child {display: none;}
     }
+}
+
+.form-fld[fld-disabled]{
+    opacity: 0.3; font-style: italic;
+}
+
+.form-fld[fld-disabled]:after {
+    position: absolute; left: 0; right:0; top:0; bottom:0; background: rgba(0,0,0,0);
+    display: block; content: "";
 }
 
 .form[as-template] {

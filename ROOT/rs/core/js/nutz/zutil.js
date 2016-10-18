@@ -693,6 +693,29 @@
                 return dft;
             return arr[index];
         },
+        // 生成一个新数组，移除指定下标元素
+        //   arr   : 数组
+        //   index : 要移除元素下标，如果是个数组，表示多个
+        removeItemAt : function(arr, index){
+            // 一个下标
+            if(_.isNumber(index)){
+                var list = [];
+                for(var i=0; i<arr.length; i++){
+                    if(i!=index)
+                        list.push(arr[i]);
+                }
+                return list;
+            }
+            // 多个下标
+            else if(_.isArray(index)){
+                var list = [];
+                for(var i=0; i<arr.length; i++){
+                    if(index.indexOf(i) < 0)
+                        list.push(arr[i]);
+                }
+                return list;
+            }
+        },
         //.............................................
         // 从普通对象里获取值
         // 根据键获取某对象的值，如果键是  "." 分隔的，则依次一层层进入对象获取值
@@ -1969,16 +1992,19 @@
             // 计算尺寸
             var w = jq.outerWidth(true);
             var h = jq.outerHeight(true);
+
+            // 得到被删除目标的真实样式
+            var eleStyle = window.getComputedStyle(jq[0]);
+
             // 增加占位对象，以及移动 me
             var html = opt.holder || '<div class="z_remove_holder">&nbsp;</div>';
             var holder = $(html).css({
-                "display": "inline-block",
+                "display": eleStyle.display,
                 "vertical-align": "middle",
                 "padding": 0,
                 "margin": 0,
                 "width": w,
                 "height": h,
-                "display": "inline-block"
             }).insertAfter(jq);
             // 删除元素
             if (opt.appendTo)
@@ -2471,6 +2497,63 @@
                     re.push(s);
             }
             return re;
+        },
+        /**
+         * 获取文件主名。 即去掉后缀的名称
+         * 
+         * @param path
+         *            文件路径
+         * @return 文件主名
+         */
+        getMajorName: function(path) {
+            if(!path)
+                return "";
+            var len = path.length;
+            var l = 0;
+            var r = len;
+            for (var i = r - 1; i > 0; i--) {
+                if (r == len)
+                    if (path[i] == '.') {
+                        r = i;
+                    }
+                if (path[i] == '/' || path[i] == '\\') {
+                    l = i + 1;
+                    break;
+                }
+            }
+            return path.substring(l, r);
+        },
+        /**
+         * 获取文件后缀名，不包括 '.'，如 'abc.gif','，则返回 'gif'
+         * 
+         * @param path
+         *            文件路径
+         * @return 文件后缀名
+         */
+        getSuffixName : function(path) {
+            if (!path)
+                return "";
+            var p0 = path.lastIndexOf('.');
+            var p1 = path.lastIndexOf('/');
+            if (-1 == p0 || p0 < p1)
+                return "";
+            return path.substring(p0 + 1);
+        },
+        /**
+         * 获取文件后缀名，包括 '.'，如 'abc.gif','，则返回 '.gif'
+         * 
+         * @param path
+         *            文件路径
+         * @return 文件后缀
+         */
+        getSuffix : function(path) {
+            if (!path)
+                return "";
+            var p0 = path.lastIndexOf('.');
+            var p1 = path.lastIndexOf('/');
+            if (-1 == p0 || p0 < p1)
+                return "";
+            return path.substring(p0);
         },
         //============== 计算文件大小
         sizeText: function (sz) {

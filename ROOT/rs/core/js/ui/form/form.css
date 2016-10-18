@@ -83,6 +83,7 @@
   text-align: right;
   padding: 12px 12px 12px 48px;
   color: #888888;
+  white-space: nowrap;
 }
 .ff-txt .fft-icon {
   margin-right: 6px;
@@ -144,6 +145,20 @@
 }
 .form-fld[tmpl-on="no"] .ff-tmpl > i:last-child {
   display: none;
+}
+.form-fld[fld-disabled] {
+  opacity: 0.3;
+  font-style: italic;
+}
+.form-fld[fld-disabled]:after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0);
+  display: block;
+  content: "";
 }
 .form[as-template] .ff-tmpl {
   display: block;

@@ -9,16 +9,27 @@ var html = `
 <div class="ui-code-template">
     <div code-id="item" class="cf-item">
         <header></header>
-        <section>
-            <div class="wn-thumbnail" preview="yes"></div>
-            <ul></ul>
-        </section>
+        <section><div>
+            <div class="cf-ititle"></div>
+            <div class="cf-preview-con"></div>
+            <div class="cf-actions"><ul></ul></div>
+        </div></section>
     </div>
     <div code-id="adder" class="cf-adder">
         <i class="zmdi zmdi-plus"></i>
     </div>
 </div>
 <div class="ui-arena com-file"></div>`;
+//...............................................................
+var do_on_preview = function(e) {
+    var UI  = this;
+    var opt = UI.options;
+    var context = opt.context || UI;
+
+    var jItem = $(e.currentTarget).closest(".cf-item");
+    var obj   = jItem.data("@OBJ");
+    opt.on_preview.call(context, obj, jItem, UI);
+};
 //===================================================================
 return ZUI.def("ui.form_com_file", {
     //...............................................................
@@ -28,74 +39,126 @@ return ZUI.def("ui.form_com_file", {
     init : function(opt) {
         var UI = ParentMethods(this);
 
-        // 最多可选择有多少个项目，max=1 表示大选，0 表示不限
-        $z.setUndefined(opt, "max", 0);
+        // 最多可选择有多少个项目，max=1 表示单选，0 表示不限
+        $z.setUndefined(opt, "max", opt.multi ? 0 : 1);
 
-        // 是多选模式
+        // 多选模式
         $z.setUndefined(opt, "multi", opt.max > 1);
 
-        // 模式可以是 icon | thumbnail
-        $z.setUndefined(opt, "mode", "icon");
-
-        // 生成图标的方法
-        $z.setUndefined(opt, "icon", function(obj){
-            return '<i class="zmdi zmdi-image-o"></i>';
+        // 生成生成排排显示的缩略图的方法
+        $z.setUndefined(opt, "thumbnail", function(obj, UI){
+            return '<div class="cf-thumb" style="background-image: url(/o/thumbnail/id:'+obj.id+'?sh=32);"></div>';
         });
 
-        // 生成项缩略图的方法
-        $z.setUndefined(opt, "thumbnail", function(obj){
-            return '<i class="zmdi zmdi-image cf-dft-thumbnail"></i>';
+        // 生成比较大的预览图的方法 
+        $z.setUndefined(opt, "preview", function(obj, UI){
+            var url = '/o/thumbnail/id:'+obj.id+'?sh=128';
+            if(/^image\//.test(obj.mime)){
+                url = "/o/read/id:" + obj.id;
+            }
+            return '<div class="cf-preview" style="background-image: url('+url+');"></div>';
         });
 
-        // 每个项目支持的命令，preview 和 remove 作为保留字
-        $z.setUndefined("opt", "actions", {});
+        // 生成对象名称 
+        $z.setUndefined(opt, "itemTitle", function(obj, UI){
+            return $('<span>').text(obj.title || obj.name || obj.nm);
+        });
+
+        // 如何添加一个对象
+        $z.setUndefined(opt, "on_add", function(callback, UI){
+            alert("undefined on_add");
+        });
+
+        // 如何删除一个对象
+        $z.setUndefined(opt, "on_remove", function(obj, jItem, UI){
+            alert("undefined on_remove");
+        });
+
+        // 如果点击对象的预览图会发生什么
+        $z.setUndefined(opt, "on_preview", function(obj, jItem, UI){
+            $z.openUrl("/a/open/"+(window.wn_browser_appName||"wn.browser"), "_blank", "GET", {
+                ph : "id:" + obj.id
+            });
+        });
+
+        // 每个项目支持的扩展命令，其中 "remove" 保留，一定会被路由到 on_remove 回调里
+        $z.setUndefined(opt, "actions", {});
         _.extend(opt.actions, {
-            "preview" : {
-                text : "i18n:preview",
-                handler : function(obj){
-
-                }
-            },
             "remove" : {
                 text : "i18n:delete",
-                handler : function(obj, jItem){
-
+                handler : function(obj, jItem, UI){
+                    opt.on_remove.call(this, obj, function(errMsg){
+                        if(!errMsg) {
+                            jItem.remove();
+                            // 更新 Adder 的显示
+                            UI.showHideAdder();
+                            // 调用回调
+                            UI.__on_change();
+                        } else {
+                            alert(errMsg);
+                        }
+                    }, jItem, UI);
                 }
             }
         })
-
-        // 如果有完整内容预览的 HTML，则生成它
-        $z.setUndefined(opt, "preview", function(obj){
-            return "<h1> Dont't know how to preview</h1>";
-        });
-
-        // 生成一个新链接，打开该资源的唯一页面
-        $z.setUndefined(opt, "url", function(obj){
-            return '/a/open/browser?ph=id:' + obj.id;
-        });
-
-        // 如何选择一个对象
-        $z.setUndefined(opt, "addBy", function(callback){
-            callback({
-                name : "fake object"
-            });
-        });
     },
     //...............................................................
     events : {
-    },
-    //...............................................................
-    redraw : function() {
-        var UI  = this;
-        var opt = UI.options;
+        // 添加
+        "click .cf-adder" : function(e){
+            var UI  = this;
+            var opt = UI.options;
+            var context = opt.context || UI;
 
-        // 标识模式等属性
-        UI.arena.attr({
-            "mode" : opt.mode
-        });
+            var jAdd = $(e.currentTarget);
+
+            opt.on_add.call(context, function(objList, shouldResetList){
+                if(objList){
+                    // 重置列表了哦
+                    if(shouldResetList) {
+                        UI.__draw_data(objList);
+                        UI.__on_change();
+                    }
+                    // 追加模式的话，只有有效的数据执行才有意义
+                    else if(!_.isArray(objList) || objList.length > 0) {
+                        UI.__join_data(objList);
+                        UI.__on_change();
+                    }
+                }
+            }, UI);
+        },
+        // 鼠标进入项目，显示详细面板
+        "mouseenter .cf-item" : function(e){
+            var jItem = $(e.currentTarget).attr("preview", "yes");
+            var jHead = jItem.children("header");
+            var jPreview = jItem.children("section");
+            $z.dock(jHead, jPreview, "H");
+        },
+        // 鼠标离开项目，隐藏详细面板
+        "mouseleave .cf-item" : function(e){
+            $(e.currentTarget).removeAttr("preview");
+        },
+        // 点击项目动作连接
+        "click .cf-item > section .cf-actions li" : function(e){
+            var UI  = this;
+            var opt = UI.options;
+            var context = opt.context || UI;
+
+            var jLi   = $(e.currentTarget);
+            var aKey  = jLi.attr("a");
+            var jItem = jLi.closest(".cf-item");
+            var obj   = jItem.data("@OBJ");
+            opt.actions[aKey].handler.call(context, obj, jItem, UI);
+        },
+        // 点击项目标题
+        "click .cf-item > section .cf-ititle" : do_on_preview,
+        // 点击项目预览图
+        "click .cf-item > section .cf-preview" : do_on_preview,
     },
     //...............................................................
-    __append_item : function(obj) {
+    redraw : function() {},
+    //...............................................................
+    __gen_item : function(obj) {
         var UI  = this;
         var opt = UI.options;
         var context = opt.context || UI;
@@ -103,25 +166,20 @@ return ZUI.def("ui.form_com_file", {
         // 生成项
         var jItem = UI.ccode("item");
 
-        // 绘制 icon
-        jItem.children("header").html(opt.icon.call(context, obj))
+        // 绘制项目的快捷缩略图
+        var jThumb = $(opt.thumbnail.call(context, obj, UI));
+        jItem.children("header").append(jThumb);
 
         // 绘制 thumbnail
-        var jThumb = jItem.find(">section>.wn-thumbnail")
-                        .html(opt.thumbnail.call(context, obj));
-
-        // 无法预览做一下标识
-        if(!opt.preview){
-            jThumb.removeAttr("preview");
-        }
+        var jItTitle = $(opt.itemTitle.call(context, obj, UI));
+        var jPreview = $(opt.preview.call(context, obj, UI));
+        jItem.find(">section .cf-ititle").append(jItTitle);
+        jItem.find(">section .cf-preview-con").append(jPreview);
 
         // 绘制扩展命令
-        var jUl = jItem.find(">section>ul");
+        var jUl = jItem.find(">section .cf-actions > ul");
+        //console.log(opt.actions)
         for(var aKey in opt.actions) {
-            // 无法预览，无视预览命令
-            if(!opt.preview && "preview" == aKey)
-                continue;
-
             // 得到命令项
             var a = opt.actions[aKey];
 
@@ -132,16 +190,41 @@ return ZUI.def("ui.form_com_file", {
             jLi.appendTo(jUl);
         }
 
-        // 最后计入 DOM
-        jItem.appendTo(UI.arena).data("@OBJ", obj);
+        // 返回生成项目
+        return jItem.data("@OBJ", obj);
+    },
+    //...............................................................
+    __join_data : function(data) {
+        var UI = this;
+
+        // 合并数据
+        var objList = UI._get_data(true);
+        if(_.isArray(data))
+            objList = objList.concat(data);
+        else if(data)
+            objList.push(data);
+
+        // 重绘
+        UI.__draw_data(objList);
     },
     //...............................................................
     __draw_data : function(objList) {
         var UI  = this;
         var opt = UI.options;
 
+        // 确保是数组
+        if(!_.isArray(objList)){
+            objList = objList ? [objList] : [];
+        }
+
         // 得到最大项目数量
-        var maxNB = Math.min(opt.multi ? opt.max : 1, objList.length);
+        var maxNB = objList.length;
+        if(!opt.multi){
+            maxNB = Math.min(maxNB, 1);
+        }
+        else if(opt.max > 0){
+            maxNB = Math.min(maxNB, opt.max);
+        }
 
         // 清空
         UI.arena.empty();
@@ -149,13 +232,40 @@ return ZUI.def("ui.form_com_file", {
         // 循环绘制
         var i = 0;
         for(; i<maxNB; i++) {
-            UI.__append_item(objList[i]);
+            var jItem = UI.__gen_item(objList[i]);
+            UI.arena.append(jItem);
         }
 
-        // 如果没超出限制，添加 adder
-        if(i < maxNB) {
-            UI.ccdoe("adder").appendTo(UI.arena);
+        // 是否添加 adder
+        UI.__showhide_adder(i);
+    },
+    //...............................................................
+    __showhide_adder : function(nb) {
+        var UI = this;
+        var jAdd = UI.arena.find(".cf-adder");
+        // 确保有
+        if(UI._can_add_more(nb)){
+            if(jAdd.length == 0)
+                UI.ccode("adder").appendTo(UI.arena);
         }
+        // 去除
+        else {
+            jAdd.remove();
+        }
+    },
+    //...............................................................
+    showHideAdder : function(){
+        var UI = this;
+        var objList = UI._get_data(true);
+        UI.__showhide_adder(objList.length);
+    },
+    //...............................................................
+    _can_add_more : function(nb) {
+        var UI  = this;
+        var opt = UI.options;
+
+        return (opt.multi && (opt.max == 0 || nb<opt.max))
+               || (!opt.multi && nb==0)
     },
     //...............................................................
     _set_data : function(objList) {
@@ -173,7 +283,7 @@ return ZUI.def("ui.form_com_file", {
         UI.__draw_data(objList);
     },
     //...............................................................
-    _get_data : function() {
+    _get_data : function(foreArray) {
         var UI  = this;
         var opt = UI.options;
 
@@ -184,6 +294,10 @@ return ZUI.def("ui.form_com_file", {
         UI.arena.children(".cf-item").each(function(){
             objList.push($(this).data("@OBJ"));
         });
+
+        // 只返回数组
+        if(foreArray)
+            return objList;
 
         // 返回
         if(opt.multi)

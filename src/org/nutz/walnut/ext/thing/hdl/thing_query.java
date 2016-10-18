@@ -22,18 +22,15 @@ public class thing_query implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        // 找到集合
-        WnObj oTS = Things.checkThingSet(hc.oRefer);
-
         // 找到数据目录
-        WnObj oTData = sys.io.fetch(oTS, "data");
+        WnObj oIndex = Things.dirTsIndex(sys, hc);
 
         // ..............................................
         // 准备分页信息
         WnPager wp = new WnPager(hc.params);
 
         // 没有数据
-        if (null == oTData) {
+        if (null == oIndex) {
             hc.pager = wp;
             hc.output = new LinkedList<WnObj>();
             return;
@@ -61,9 +58,7 @@ public class thing_query implements JvmHdl {
         }
         // 确保限定了集合
         NutMap map = new NutMap();
-        map.put("th_set", oTS.id());
-        map.put("tp", "thing");
-        map.put("pid", oTData.id());
+        map.put("pid", oIndex.id());
         q.setAllToList(map);
 
         // 检查 th_live

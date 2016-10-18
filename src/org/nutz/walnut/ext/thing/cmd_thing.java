@@ -8,6 +8,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlExecutor;
@@ -23,9 +24,7 @@ public class cmd_thing extends JvmHdlExecutor {
 
         // 没有参数
         if (hc.args.length == 0) {
-            hc.oRefer = this.getCurrentObj(sys);
-            hc.hdlName = "get";
-            pos = 0;
+            throw Er.create("e.cmd.thing.lackArgs", hc.args);
         }
         // 第一个参数就是 hdl，那么当前目录就作为 oHome
         // :> thing hdlName xxx
@@ -34,19 +33,16 @@ public class cmd_thing extends JvmHdlExecutor {
             hc.hdlName = hc.args[0];
             pos = 1;
         }
-        // 第一个参数表示一个 TsID[/ThID]
-        // :> thing ID
-        else if (hc.args.length == 1) {
-            hc.oRefer = Things.checkRefer(sys.io, hc.args[0]);
-            hc.hdlName = "get";
-            pos = 1;
-        }
-        // 第一个参数表示一个 Thing|ThingSet
+        // 第一个参数表示一个 TsID 并且有多余一个的参数
         // :> thing ID hdlName xxx
-        else {
-            hc.oRefer = Things.checkRefer(sys.io, hc.args[0]);
+        else if(hc.args.length >= 2){
+            hc.oRefer = Things.checkThingSet(sys.io, hc.args[0]);
             hc.hdlName = hc.args[1];
             pos = 2;
+        }
+        // 否则还是缺参数
+        else {
+            throw Er.create("e.cmd.thing.lackArgs", hc.args);
         }
 
         // 检查 oHome，如果又不是 ThingSet 又不是 Thing，抛错

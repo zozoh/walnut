@@ -142,7 +142,7 @@ var methods = {
     setActived : function(arg){
         var UI  = this;
         var opt = UI.options;
-        var context = UI;
+        var context = opt.context || UI;
 
         // 不许激活项目 ...
         if(!opt.activable)
@@ -187,7 +187,7 @@ var methods = {
         var UI  = this;
         var opt = UI.options;
         var jItems  = UI.$checked();
-        var context = UI;
+        var context = opt.context || UI;
 
         // 如果有下一个高亮对象，或者 blurable 为 true 则可以取消
         if((opt.blurable || nextObj) && jItems.length > 0){
@@ -423,7 +423,7 @@ var methods = {
     _upsert_item : function(obj, jListBody, jReferItem, direction){
         var UI  = this;
         var opt = UI.options;
-        var context = UI;
+        var context = opt.context || UI;
         
         // 要修改的项目
         var jItem;

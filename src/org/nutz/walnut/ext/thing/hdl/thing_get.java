@@ -14,7 +14,7 @@ public class thing_get implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 得到对应对 Thing
-        WnObj oT = Things.checkThing(hc.oRefer);
+        WnObj oT = Things.checkThIndex(sys, hc);
 
         if (oT.getInt("th_live") == Things.TH_DEAD) {
             throw Er.create("e.cmd.thing.gone", oT.id());

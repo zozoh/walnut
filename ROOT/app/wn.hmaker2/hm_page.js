@@ -214,7 +214,7 @@ return ZUI.def("app.wn.hmaker_page", {
             posVal  : "10px,10px,300px,200px",
             width   : "auto",
             height  : "auto",
-            padding : "10px",
+            padding : "",
             border : "" ,   // "1px solid #000",
             borderRadius : "",
             background : "rgba(40,40,40,0.3)",
@@ -370,9 +370,9 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.fire("active:page");
 
         // 模拟第一个块被点击
-        // window.setTimeout(function(){
-        //     UI._C.iedit.$body.find(".hm-block").first().click();
-        // },500);
+        window.setTimeout(function(){
+            UI._C.iedit.$body.find(".hm-block").first().click();
+        },500);
     },
     //...............................................................
     __setup_page_head : function() {
@@ -537,7 +537,6 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 定义得到 COMUI 的后续处理
         var _do_com_ui = function(uiCom) {
-            //console.log("bindCom _do_com_ui")
             // 确保有组件序号
             UI.assignComSequanceNumber(jCom);
 
@@ -590,25 +589,25 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 已经绑定了 UI，那么继续弄后面的
         if(uiId) {
-            _do_com_ui(ZUI(uiId));
+            var uiCom = ZUI(uiId);
+            _do_com_ui(uiCom);
+            return uiCom;
         }
         // 否则根据类型加载 UI 吧
-        else {
-            var ctype = jCom.attr("ctype");
-            if(!ctype) {
-                console.warn(ctype, jCom);
-                throw "fail to found ctype from jCom";
-            }
-            seajs.use("app/wn.hmaker2/component/"+ctype, function(ComUI){
-                new ComUI({
-                    parent  : UI,
-                    $el     : jCom,
-                    keepDom : true
-                }).render(function(){
-                    _do_com_ui(this);
-                })
-            });
+        var ctype = jCom.attr("ctype");
+        if(!ctype) {
+            console.warn(ctype, jCom);
+            throw "fail to found ctype from jCom";
         }
+        seajs.use("app/wn.hmaker2/component/"+ctype, function(ComUI){
+            new ComUI({
+                parent  : UI,
+                $el     : jCom,
+                keepDom : true
+            }).render(function(){
+                _do_com_ui(this);
+            })
+        });
     },
     //...............................................................
     // 找到当前的操作区，如果没有，那么默认为整个 body
@@ -685,6 +684,41 @@ return ZUI.def("app.wn.hmaker_page", {
         if(UI._need_load.length == 0){
             UI.setup_page_editing();
         }
+    },
+    //...............................................................
+    // 得到本页所有布局控件的信息列表
+    getLayoutComInfoList : function(){
+        var UI = this;
+        var _C = UI._C;
+
+        // 准备返回值
+        var re = [];
+
+        // 找到所有的分栏控件
+        _C.iedit.$body.find('.hm-com[ctype="rows"],.hm-com[ctype="columns"]').each(function(){
+            var jCom = $(this);
+            re.push({
+                cid   : jCom.attr("id"),
+                ctype : jCom.attr("ctype")
+            });
+        });
+
+        // 返回
+        return re;
+    },
+    //...............................................................
+    // 取得某个布局控件内部的可用区域（不包括子控件的区域）
+    getLayoutComBlockDataArray : function(comId){
+        var UI = this;
+        var jCom  = UI.getComElementById(comId);
+        var uiCom = UI.bindComUI(jCom);
+
+        // 没有组件，返回就是空
+        if(!uiCom)
+            return [];
+
+        // 返回
+        return uiCom.getBlockDataArray();
     },
     //...............................................................
     redraw : function(){

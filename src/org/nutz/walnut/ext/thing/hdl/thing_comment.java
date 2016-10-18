@@ -27,7 +27,10 @@ public class thing_comment implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 得到对应对 Thing
-        WnObj oT = Things.checkThing(hc.oRefer);
+        WnObj oT = Things.checkThIndex(sys, hc);
+        
+        // 得到对应的 comment 目录
+        // TODO 这个命令实现有问题，需要修改一下，因为 comment 变成单文件了
 
         // # 添加注释，会自动修改 task.th_c_cmt 字段
         // thing xxx comment -add "搞定了，呼"

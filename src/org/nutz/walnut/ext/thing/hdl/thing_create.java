@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.thing.hdl;
 
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -18,18 +19,28 @@ public class thing_create implements JvmHdl {
         WnObj oTS = Things.checkThingSet(hc.oRefer);
 
         // 找到索引
-        WnObj oIndex = Things.checkThingSetDir(sys, hc.oRefer, "index");
+        WnObj oIndex = Things.dirTsIndex(sys, hc);
 
         // 创建一个 Thing
-        WnObj oT = sys.io.create(oIndex, "${id}", WnRace.DIR);
+        WnObj oT = sys.io.create(oIndex, "${id}", WnRace.FILE);
 
         // 准备要更新的元数据集合
         NutMap meta = Things.fillMeta(sys, hc.params);
 
+        // 名称
+        String th_nm = hc.params.val(0);
+        if (!Strings.isBlank(th_nm)) {
+            meta.put("th_nm", th_nm);
+        }
+
         // 设置更多的固有属性
-        meta.put("tp", "thing");
+        meta.put("tp", "th_index");
         meta.put("th_set", oTS.id());
         meta.put("th_live", Things.TH_LIVE);
+
+        // 默认的内容类型
+        if (!meta.has("mime"))
+            meta.put("mime", "text/plain");
 
         // 图标
         if (!meta.has("icon"))

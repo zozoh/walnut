@@ -243,6 +243,9 @@ return ZUI.def("ui.table", {
     //...............................................................
     setAllBure : function(nextObj, nextRow){
         var UI = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+
         var jRows = UI.arena.find(".tbl-row-checked");
 
         if(jRows.size() > 0){
@@ -260,7 +263,7 @@ return ZUI.def("ui.table", {
 
             // 触发消息 
             UI.trigger("table:blur", objs, jRows, nextObj, nextRow);
-            $z.invoke(UI.options, "on_blur", [objs, jRows, nextObj, nextRow], UI);
+            $z.invoke(opt, "on_blur", [objs, jRows, nextObj, nextRow], context);
         }
     },
     //...............................................................

@@ -22,7 +22,8 @@ var Wn = {
         html += '<div class="wnobj-SE wnobj-icon-hide"></div>';
         html += ' </div>';
         html += '</div>';
-        html += '<div class="wnobj-nm-con"><'+nmTagName+' class="wnobj-nm"></'+nmTagName+'></div>';
+        if(_.isString(nmTagName))
+            html += '<div class="wnobj-nm-con"><'+nmTagName+' class="wnobj-nm"></'+nmTagName+'></div>';
         html += '</div>';
         html += innerOnly ? '' : '</div>';
         return html;
@@ -75,16 +76,18 @@ var Wn = {
 
         // 填充对象名称
         var jNm = jq.find(".wnobj-nm");
-        var nmText = o.nm; 
-        if(UI && _.isFunction(UI.text))
-            nmText = UI.text(nmText);
-        nmText = this.objDisplayName(UI, nmText, nmMaxLen);
-        
-        jNm.text(nmText)
-        // 标记链接
-        if(jNm[0].tagName == 'A'){
-            jNm.prop("target", "_blank");
-            jNm.prop("href","/a/open/"+(window.wn_browser_appName||"wn.browser")+"?ph=id:"+o.id);
+        if(jNm.length > 0) {
+            var nmText = o.nm; 
+            if(UI && _.isFunction(UI.text))
+                nmText = UI.text(nmText);
+            nmText = this.objDisplayName(UI, nmText, nmMaxLen);
+            
+            jNm.text(nmText)
+            // 标记链接
+            if(jNm[0].tagName == 'A'){
+                jNm.prop("target", "_blank");
+                jNm.prop("href","/a/open/"+(window.wn_browser_appName||"wn.browser")+"?ph=id:"+o.id);
+            }
         }
     },
     //...................................................................
@@ -197,9 +200,7 @@ var Wn = {
         });
     },
     /*...................................................................
-    提供一个通用的文件上传界面，任何 UI 可以通过
-       this.listenModel("do:upload", this.on_do_upload); 
-    来启用这个方法
+    提供一个通用的文件上传界面
     */
     uploadPanel: function (options) {
         var MaskUI    = require("ui/mask/mask");
@@ -212,14 +213,56 @@ var Wn = {
             height: 500,
             setup : {
                 uiType : "ui/upload/upload",
-                uiConf : _.extend({
-                    parent: this,
-                    gasketName: "main"
-                }, options)
+                uiConf : _.extend({}, options)
             }
         }, options);
 
         new MaskUI(mask_options).render();
+    },
+    /*................................................................
+    提供一个文件对象选择（上传）框的快捷方法，参数为
+    {
+        icon  : '<xxxx>', // 对话框标题的图标
+        title : "xxx",    // 对话框标题，不支持i18n格式 
+        mask  : {.. @see ui/mask/mask 的配置规范 ..},
+        body  : {.. @see ui/support/select_file 的配置规范 ..}
+        on_ok     : F(objs);
+        on_cancel : F();
+    }
+    */
+    selectFilePanel : function(opt) {
+        opt = opt || {}
+        var MaskUI = require("ui/mask/mask");
+
+        new MaskUI(_.extend({
+            dom    : "ui/pop/pop.html",
+            css    : "theme/ui/pop/pop.css",
+            exec   : Wn.exec,
+            app    : Wn.app(),
+            closer : true,
+            escape : true,
+            width  : "60%",
+            height : "80%",
+            setup  : {
+                uiType : "ui/support/select_file",
+                uiConf : _.extend({}, opt.body)
+            },
+            events : {
+                "click .pm-btn-ok" : function(){
+                    var data = this.body.getData();
+                    this.close();
+                    $z.invoke(opt, "on_ok", [data]);
+                },
+                "click .pm-btn-cancel" : function(){
+                    this.close();
+                    $z.invoke(opt, "on_cancel", []);
+                }
+            },
+        }, opt.mask)).render(function(){
+            this.$main.find(".pm-title")
+                .append($(opt.icon))
+                .append($('<b>').text(opt.title || this.msg("selectFile")));
+        });
     },
     /*................................................................
     执行一个命令，并且在一个弹出的日志窗口显示命令的返回情况
@@ -297,10 +340,19 @@ var Wn = {
     },
     //................................................................
     // 采用模板方式执行命令
-    execf : function(tmpl, context, opt) {
-        var str = $z.tmpl(tmpl)(context);
-        //console.log(str)
-        this.exec(str, opt);
+    execf : function(tmpl, input, context, opt) {
+        if(!_.isString(input)) {
+            opt = context;
+            context = input;
+
+            var str = $z.tmpl(tmpl)(context);
+            this.exec(str, opt);    
+        }
+        // 带 input 的模式
+        else {
+            var str = $z.tmpl(tmpl)(context);
+            this.exec(str, input, opt);       
+        }
     },
     /*................................................................
     # 执行命令的 opt 配置对象的内容
@@ -411,7 +463,7 @@ var Wn = {
         var sendData = "mos=" + encodeURIComponent(mos);
         sendData += "&PWD=" + encodeURIComponent(se.envs.PWD);
         sendData += "&cmd=" + encodeURIComponent(cmdText);
-        sendData += "&in=" + encodeURIComponent(opt.input);
+        sendData += "&in=" + encodeURIComponent(opt.input||"");
 
         var oReq = new XMLHttpRequest();
         oReq._last = 0;

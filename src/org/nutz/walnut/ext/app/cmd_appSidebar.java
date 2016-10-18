@@ -6,6 +6,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.app.bean.SidebarGroup;
 import org.nutz.walnut.ext.app.bean.SidebarItem;
@@ -35,6 +36,11 @@ public class cmd_appSidebar extends JvmExecutor {
         for (SidebarGroup sg : sgs) {
             List<SidebarItem> items = new LinkedList<SidebarItem>();
             for (SidebarItem si : sg.getItems()) {
+                // 需要限制权限
+                if (si.hasRoles()) {
+                    if (!checkMatchRoleOrNot(sys, si.getRoles()))
+                        continue;
+                }
                 // 动态: objs
                 if (si.isType("objs")) {
                     String cmdText = si.getCmd();
@@ -42,7 +48,7 @@ public class cmd_appSidebar extends JvmExecutor {
                     List<WnBean> objs = Json.fromJsonAsList(WnBean.class, json);
                     for (WnObj o : objs) {
                         o.setTree(sys.io);
-                        items.add(new SidebarItem(o));
+                        items.add(new SidebarItem(o, si));
                     }
                 }
                 // 动态: items
@@ -50,6 +56,9 @@ public class cmd_appSidebar extends JvmExecutor {
                     String cmdText = si.getCmd();
                     String json = sys.exec2(cmdText);
                     List<SidebarItem> items2 = Json.fromJsonAsList(SidebarItem.class, json);
+                    for (SidebarItem item2 : items2) {
+                        item2.setDefaultValue(si);
+                    }
                     items.addAll(items2);
                 }
                 // 静态，看看是否有权限
@@ -89,6 +98,37 @@ public class cmd_appSidebar extends JvmExecutor {
             sys.out.println(Json.toJson(sgs, jfmt));
         }
 
+    }
+
+    public static boolean checkMatchRoleOrNot(WnSystem sys, String[] roles) {
+        return sys.nosecurity(new Proton<Boolean>() {
+            protected Boolean exec() {
+                if (null != roles && roles.length > 0) {
+                    for (String role : roles) {
+                        String[] ss = Strings.splitIgnoreBlank(role, ":");
+                        String roleName = ss[0];
+                        String[] grps = Strings.splitIgnoreBlank(ss[1]);
+                        for (String grp : grps) {
+                            // 管理员
+                            if ("ADMIN".equals(roleName)) {
+                                if (sys.usrService.isAdminOfGroup(sys.me, grp))
+                                    return true;
+                            }
+                            // 成员
+                            else if ("MEMBER".equals(roleName)) {
+                                if (sys.usrService.isMemberOfGroup(sys.me, grp))
+                                    return true;
+                            }
+                            // 角色名称错误
+                            else {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+        });
     }
 
     private WnObj __find_conf(WnSystem sys, ZParams params) {

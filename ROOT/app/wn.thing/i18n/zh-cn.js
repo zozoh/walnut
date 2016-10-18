@@ -13,6 +13,8 @@ define({
             "ct" : "创建时间",
             "lm" : "最后修改",
             "icon" : "图标",
+            "media" : "多媒体",
+            "attachment" : "附件", 
             "th_ow" : "所有者",
             "th_nm" : "名称",
             "th_brief" : "摘要",
@@ -21,7 +23,7 @@ define({
             "th_c_cmt" : "评论数",
             "th_c_view" : "浏览数",
             "th_c_agree" : "赞同数",
-            "detail" : "详情文本"
+            "brief_and_content" : "内容及摘要"
         },
         "live_a" : "有效",
         "live_d" : "已删除",

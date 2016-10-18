@@ -7,6 +7,6 @@
 		dynamic : false
 	}, {
 		type : "objs",
-		cmd : "obj ~ -match 'tp:\"^d-\"' -l -json -hide"
+		cmd : "obj ~/* -l -json -hide"
 	} ]
 } ])

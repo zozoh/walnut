@@ -134,7 +134,7 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
             cmdText += ' "' + opt.path + '"';
         }
 
-        console.log(cmdText)
+        //console.log(cmdText)
 
         // 读取侧边栏
         Wn.exec(cmdText, function(sideHtml){

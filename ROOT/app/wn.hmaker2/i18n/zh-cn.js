@@ -1,7 +1,16 @@
 define({
     "hmaker" : {
+        "edit_link" : {
+            "title" : "编辑链接行为",
+        },
         "res" : {
             "title" : '资源库',
+        },
+        "site" : {
+            "conf"   : '<i class="fa fa-gear"></i> <b>站点设置</b>',
+            "title"  : "站点标题",
+            "hm_target_release" : "在线发布目标",
+            "hm_target_debug"   : "调试发布目标",
         },
         "prop" : {
             "title" : '属性',
@@ -76,8 +85,8 @@ define({
                 "padding"   : "栏内边距",
             },
             "navmenu" : {
-                "name"  : "导航菜单",
-                "tip"   : "可垂直或水平放置，可支持多级菜单",
+                "name"  : "菜单条",
+                "tip"   : "可垂直或水平放置，支持超链接或者显示隐藏某个区域的客户端动作",
                 "icon"  : '<i class="zmdi zmdi-dns"></i>',
                 "item_dft_text" : "菜单项文字",
                 "newtab" : "新窗口",
@@ -88,6 +97,15 @@ define({
                 "mode_default" : "水平",
                 "mode_aside"   : "垂直",
                 "itemAlign"    : "对齐方式",
+                "atype" : {
+                    "title" : "菜单类型",
+                    "link"  : "超链接",
+                    "toggleArea"  : "区域显示",
+                    "layoutComId" : "对应分栏",
+                },
+                "toar_check_tip" : "标识当前项对应的区域为默认显示区域",
+                "toar_area_none" : "选择一个区域",
+                "toar_no_bar"    : "请选择菜单条对应的分栏控件"
             },
             "text" : {
                 "name"  : "文本",
@@ -116,6 +134,18 @@ define({
                 "name"  : "图片",
                 "tip"   : "不解释你懂的",
                 "icon"  : '<i class="fa fa-image"></i>',
+                "tt_image" : "图片属性",
+                "tt_text"  : "文本属性",
+                "text"  : "图片文本",
+                "text_pos" : "文字位置",
+                "text_pos_N" : "顶部",
+                "text_pos_S" : "底部",
+                "text_pos_W" : "左侧",
+                "text_pos_E" : "右侧",
+                "text_padding" : "文本边距",
+                "text_size"    : "文本区大小",
+                "text_color"   : "文本颜色",
+                "text_background"  : "文本背景",
             },
             "imgslider" : {
                 "name"  : "图片幻灯",

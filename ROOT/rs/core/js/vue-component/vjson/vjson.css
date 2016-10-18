@@ -1,0 +1,332 @@
+.ui-wjson-editor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.ui-wjson-editor .ui-wjson-menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  line-height: 40px;
+  padding: 6px;
+  color: #1A1A1A;
+  background-color: #729CBD;
+  border-bottom: 1px solid #5882A3;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  min-width: 28px;
+  height: 28px;
+  line-height: 28px;
+  float: left;
+  margin-right: 6px;
+  text-align: center;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item.right {
+  float: right;
+  margin-right: 0px;
+  margin-left: 6px;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn {
+  border: 1px solid #aec0f8;
+  background: #e3eaf6;
+  color: #4D4D4D;
+  opacity: 0.8;
+  cursor: pointer;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover {
+  background-color: #f0f2f5;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover.btn-insert {
+  background: #080;
+  border: 1px solid #00a900;
+  color: #FFFFFF;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover.btn-clone {
+  background: #ff8940;
+  border: 1px solid #ffb241;
+  color: #FFFFFF;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover.btn-clean,
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover.btn-delete {
+  background: #f00;
+  border: 1px solid #ff2f00;
+  color: #FFFFFF;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item.btn:hover.btn-types {
+  background: #0087ff;
+  border: 1px solid #02a6ff;
+  color: #FFFFFF;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item input {
+  display: block;
+  height: 28px;
+  padding-left: 4px;
+  padding-right: 4px;
+  outline: none;
+  border: 1px solid #CCC;
+  border-radius: 4px;
+  color: #000;
+  background: #FFF;
+}
+.ui-wjson-editor .ui-wjson-menu .menu-item input:focus {
+  color: #000;
+  background: #FFC;
+  border-color: #F80;
+}
+.ui-wjson-editor .ui-wjson-container {
+  position: absolute;
+  top: 40px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border: 1px solid #5882A3;
+  border-top: none;
+  overflow: auto;
+  color: #333;
+  font-family: droid sans mono, monospace, courier new, courier, sans-serif;
+  line-height: 1.3;
+  background: #fff;
+}
+.ui-wjson-editor .ui-wjson-curb {
+  display: block;
+  width: 40px;
+  background: #f0f0f0;
+  float: left;
+  text-align: right;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.ui-wjson-editor .ui-wjson-curb li {
+  padding-left: 10px;
+  padding-right: 10px;
+  display: block;
+  min-height: 18px;
+}
+.ui-wjson-editor .ui-wjson-treenode {
+  padding-left: 16px;
+}
+.ui-wjson-editor .ui-wjson-treenode.no-root {
+  padding-left: 0;
+}
+.ui-wjson-editor .ui-wjson-content {
+  display: block;
+  padding-left: 44px;
+  width: 100%;
+}
+.ui-wjson-editor .ui-wjson-content li {
+  display: block;
+  min-height: 18px;
+}
+.ui-wjson-editor .ui-wjson-content .tn-toggle {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  cursor: pointer;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  top: 2px;
+  left: -16px;
+}
+.ui-wjson-editor .ui-wjson-content .tn-toggle:hover {
+  background: #EEEEEE;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  cursor: pointer;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  top: 2px;
+  left: -32px;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu i {
+  color: #888;
+  opacity: 0.3;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu:hover i {
+  opacity: 1;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu.show {
+  width: 50px;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu.show .tn-menu-list {
+  display: block;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-anchor {
+  position: relative;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-list {
+  display: none;
+  position: absolute;
+  overflow: hidden;
+  top: 16px;
+  left: -6px;
+  z-index: 1000;
+  min-width: 120px;
+  background: #fff;
+  border: 1px solid #d3d3d3;
+  box-shadow: 2px 2px 12px rgba(128, 128, 128, 0.3);
+  list-style: none;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-list li {
+  display: block;
+  margin-bottom: 0px;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-btn {
+  text-align: left;
+  padding: 4px;
+  min-height: 28px;
+  position: relative;
+  line-height: 1.5em;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-btn i {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-btn i.act-tip {
+  background: #888;
+  color: #fff;
+  margin-right: 4px;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-btn i.sub-tip {
+  display: block;
+  float: right;
+  color: #888;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-btn span {
+  display: inline-block;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-btn:hover {
+  background: rgba(128, 128, 128, 0.1);
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-btn:hover i.btn-insert {
+  background: #080;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-btn:hover i.btn-clone {
+  background: #ff8940;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-btn:hover i.btn-clean {
+  background: #f00;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-btn:hover i.btn-delete {
+  background: #f00;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-btn:hover i.btn-types {
+  background: #0087ff;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-btn.curType {
+  background: #0087ff;
+  color: #fff;
+  font-weight: bold;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-sublist {
+  background: #fff;
+  box-shadow: inset 0 0 10px rgba(128, 128, 128, 0.5);
+  margin-right: -9px;
+  margin-left: -9px;
+}
+.ui-wjson-editor .ui-wjson-content .tn-menu .tn-menu-sublist span {
+  padding-left: 29px;
+}
+.ui-wjson-editor .ui-wjson-content .tn {
+  position: relative;
+}
+.ui-wjson-editor .ui-wjson-content .tn:hover {
+  background: rgba(255, 255, 173, 0.3);
+}
+.ui-wjson-editor .ui-wjson-content .tn.mkey .tn-key,
+.ui-wjson-editor .ui-wjson-content .tn.mval .tn-val {
+  background-color: #ffffad;
+  border: 1px solid #ff0;
+}
+.ui-wjson-editor .ui-wjson-content .tn > span {
+  display: inline-block;
+  outline: none;
+  border: 1px solid transparent;
+  padding-left: 1px;
+  padding-right: 1px;
+  word-wrap: break-word;
+}
+.ui-wjson-editor .ui-wjson-content .tn > span.tn-sp,
+.ui-wjson-editor .ui-wjson-content .tn > span.tn-length {
+  min-width: 1px;
+}
+.ui-wjson-editor .ui-wjson-content .tn > span.tn-err i {
+  color: #ff8940;
+}
+.ui-wjson-editor .ui-wjson-content .tn > span.empty {
+  border-color: #d3d3d3;
+  border-style: dashed;
+}
+.ui-wjson-editor .ui-wjson-content .tn > span.empty.tn-key:after {
+  pointer-events: none;
+  color: #d3d3d3;
+  font-size: 8pt;
+  content: "name";
+}
+.ui-wjson-editor .ui-wjson-content .tn > span.empty.tn-val:after {
+  pointer-events: none;
+  color: #d3d3d3;
+  font-size: 8pt;
+  content: "value";
+}
+.ui-wjson-editor .ui-wjson-content .tn-key {
+  color: #000;
+}
+.ui-wjson-editor .ui-wjson-content .tn-key:focus {
+  background-color: #ffffad;
+  border: 1px solid #ff0;
+}
+.ui-wjson-editor .ui-wjson-content .tn-key.emptytn {
+  color: #585858;
+}
+.ui-wjson-editor .ui-wjson-content .tn-val:focus {
+  background-color: #ffffad;
+  border: 1px solid #ff0;
+}
+.ui-wjson-editor .ui-wjson-content .tn-val.boolean {
+  color: #ffab00;
+}
+.ui-wjson-editor .ui-wjson-content .tn-val.number {
+  color: #f00;
+}
+.ui-wjson-editor .ui-wjson-content .tn-val.string {
+  color: #080;
+}
+.ui-wjson-editor .ui-wjson-content .tn-val.null,
+.ui-wjson-editor .ui-wjson-content .tn-val.undefined {
+  color: #007aff;
+}
+.ui-wjson-editor .ui-wjson-content .tn-sp {
+  color: #888;
+}
+.ui-wjson-editor .ui-wjson-content .tn-length {
+  color: #585858;
+}
+.ui-wjson-textarea {
+  width: 100%;
+  height: 100%;
+  outline: none;
+  border: 1px dashed #DDD;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #444;
+  font-family: Monaco, Consolas, Courier New;
+  padding: 20px;
+}

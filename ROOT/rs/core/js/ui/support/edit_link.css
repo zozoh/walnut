@@ -48,10 +48,10 @@
   right: 0;
   bottom: 0;
 }
-.edit-link section .el-ext {
+.edit-link section .el-lnk {
   padding: 24px;
 }
-.edit-link section .el-ext input {
+.edit-link section .el-lnk input {
   outline: none;
   border: 1px solid #cccccc;
   border-radius: 4px;
@@ -61,8 +61,13 @@
   padding: 12px;
   font: 16px Monaco, Consolas, Courier New;
 }
-.edit-link section .el-ext input:focus {
+.edit-link section .el-lnk input:focus {
   color: #000000;
   background: #ffffcc;
   border-color: #ff8800;
+}
+.edit-link section .el-lnk .el-lnk-comment {
+  padding: 8px;
+  color: #008800;
+  font-size: 10px;
 }

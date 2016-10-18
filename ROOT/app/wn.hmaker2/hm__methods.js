@@ -155,8 +155,53 @@ var methods = {
     // 返回 base_css 的一个新实例
     getBaseCss : function() {
         return _.extend({}, _css_base);
-    }
-
+    },
+    // 获取背景属性编辑控件的关于 image 编辑的配置信息
+    getBackgroundImageEditConf : function(){
+        return {
+            imageBy : {
+                editAs : "link",
+                uiConf : {
+                    body : {
+                        setup : {
+                            defaultPath : this.getHomeObj(),
+                            lastObjId : "hmaker_pick_media",
+                            filter    : function(o) {
+                                if('DIR' == o.race)
+                                    return true;
+                                return /^image/.test(o.mime);
+                            }
+                        }
+                    },
+                    // 解析对象，如果是 url(/o/read/id:xxx) 那么就认为是对象
+                    parseData : function(str){
+                        // 看看是不是对象
+                        var m = /^url\("?\/o\/read\/(id:\w+)"?\)$/i.exec(str);
+                        if(m)
+                            return m[1];
+                        // 外部链接 
+                        m = /^url\("?(https?:\/\/[^"\)]+)"?\)$/i.exec(str);
+                        if(m)
+                            return m[1];
+                        return null;
+                    },
+                    // 把 link 搞出来的东西用 url() 包裹
+                    formatData : function(link){
+                        // 内部对象
+                        if(/^id:.+/.test(link)) {
+                            return 'url("/o/read/' + link + '")';
+                        }
+                        // 外部链接
+                        if(/^https?:\/\/.+/i.test(link)) {
+                            return 'url("' + link + '")';
+                        }
+                        // 其他
+                        return null;
+                    }
+                }
+            }
+        };
+    } // ~ getBackgroundImageEditConf()
 }; // ~End methods
 //====================================================================
 
@@ -168,56 +213,3 @@ module.exports = function(uiSub){
 //=======================================================================
 });
 
-/* TODO 应该可以删了 ...
-// 将属性设置到控件的 DOM 上
-    setPropToElement : function(ele, prefix, prop) {
-        ele = $(ele)[0];
-
-        // 准备属性键解析的正则表达式
-        var regex = new RegExp("^"+prefix+"(.+)$");
-
-        // 检查所有的控件属性
-        var attrs = {};
-        for(var i=0;i<ele.attributes.length;i++){
-            var attr = ele.attributes[i];
-            if(regex.test(attr.name))
-                attrs[attr.name] = null;   // 设成 null 表示删除
-        }
-
-        // 分析
-        for(var key in prop) {
-            if(!/^_/.test(key)){
-                var attrName = "com-" + $z.lowerWord(key);
-                var val = prop[key];
-                if(_.isUndefined(val) || $z.isEmptyString(val)) {
-                    val = null;
-                }
-                attrs[attrName] = val;
-            }
-        }
-
-        // 记录
-        UI.$el.attr(attrs);
-
-    },
-    // 从控件的 DOM 上获取控件的属性
-    getPropFromElement : function(ele, prefix){
-        ele = $(ele)[0];
-
-        // 准备属性键解析的正则表达式
-        var regex = new RegExp("^"+prefix+"(.+)$");
-
-        // 分析
-        var prop = {};
-        for(var i=0;i<ele.attributes.length;i++){
-            var attr = ele.attributes[i];
-            var m = regex.exec(attr.name);
-            if(m) {
-                prop[$z.upperWord(m[1])] = attr.value;
-            }
-        }
-        
-        // 返回
-        return prop;
-    },
-*/

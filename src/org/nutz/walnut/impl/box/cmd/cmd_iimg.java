@@ -9,8 +9,11 @@ import org.nutz.img.Colors;
 import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.trans.Atom;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -23,7 +26,7 @@ public class cmd_iimg extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
 
-        ZParams params = ZParams.parse(args, "Qcnql");
+        ZParams params = ZParams.parse(args, "Qcnqlf", "^(force)$");
 
         // 读取文件
         if (params.vals.length == 0)
@@ -35,6 +38,57 @@ public class cmd_iimg extends JvmExecutor {
         if (!oim.mime().startsWith("image/"))
             throw Er.create("e.cmd.iimg.noimage", oim);
 
+        // 看看系统里面是否已经有了这个图片的缩略图
+        WnObj o_old = null;
+        if (!params.is("force")) {
+            WnQuery q = new WnQuery();
+            q.setv("mime", oim.mime());
+            q.setv("sha1", oim.sha1());
+            q.setv("thumb", "^id:.+");
+            q.setv("width", "[1,]");
+            q.setv("height", "[1,]");
+            o_old = sys.nosecurity(new Proton<WnObj>() {
+                protected WnObj exec() {
+                    return sys.io.getOne(q);
+                }
+            });
+        }
+
+        // 重新计算
+        if (null == o_old) {
+            __force_gen(sys, params, oim);
+        }
+        // 利用现成结果
+        else {
+            // 看看要不要更新图片文件的元数据
+            int im_w = o_old.getInt("width");
+            int im_h = o_old.getInt("height");
+            if (oim.getInt("width") != im_w || oim.getInt("height") != im_h) {
+                oim.setv("width", im_w).setv("height", im_h);
+                sys.io.set(oim, "^(width|height)$");
+            }
+
+            // 要不要生成缩略图
+            if (params.has("thumb")) {
+                final WnObj o_old2 = o_old;
+                WnObj o_old_thumb = sys.nosecurity(new Proton<WnObj>() {
+                    protected WnObj exec() {
+                        return Wn.checkObj(sys, o_old2.thumbnail());
+                    }
+                });
+                _gen_thumb(sys, params, oim, null, o_old_thumb);
+            }
+        }
+
+        // 最后输出
+        if (!params.is("Q")) {
+            JsonFormat fmt = Cmds.gen_json_format(params);
+            sys.out.println(Json.toJson(oim, fmt));
+        }
+
+    }
+
+    private void __force_gen(WnSystem sys, ZParams params, WnObj oim) {
         // 读取图片
         BufferedImage im = sys.io.readImage(oim);
 
@@ -48,18 +102,15 @@ public class cmd_iimg extends JvmExecutor {
 
         // 要不要生成缩略图
         if (params.has("thumb")) {
-            _gen_thumb(sys, params, oim, im);
+            _gen_thumb(sys, params, oim, im, null);
         }
-
-        // 最后输出
-        if (!params.is("Q")) {
-            JsonFormat fmt = Cmds.gen_json_format(params);
-            sys.out.println(Json.toJson(oim, fmt));
-        }
-
     }
 
-    private void _gen_thumb(WnSystem sys, ZParams params, WnObj oim, BufferedImage im) {
+    private void _gen_thumb(WnSystem sys,
+                            ZParams params,
+                            WnObj oim,
+                            BufferedImage im,
+                            WnObj o_old_thumb) {
         // 当然，如果是 thumbnail 里面的图片 ...
         String aph = Wn.normalizeFullPath("~/.thumbnail/gen/", sys);
         WnObj oThumbHome = sys.io.createIfNoExists(null, aph, WnRace.DIR);
@@ -74,19 +125,6 @@ public class cmd_iimg extends JvmExecutor {
         if (m.find()) {
             int w = Integer.parseInt(m.group(1));
             int h = Integer.parseInt(m.group(2));
-            BufferedImage im2 = null;
-            // 缩放
-            if ("zoom".equals(params.get("mode", "zoom"))) {
-                Color bgColor = null;
-                if (params.has("bgc"))
-                    bgColor = Colors.as(params.get("bgc"));
-
-                im2 = Images.zoomScale(im, w, h, bgColor);
-            }
-            // 剪裁
-            else {
-                im2 = Images.clipScale(im, w, h);
-            }
 
             // 那么得到目标缩略图
             WnObj oThumb = null;
@@ -110,8 +148,42 @@ public class cmd_iimg extends JvmExecutor {
                 sys.io.set(oThumb, "^(width|height)$");
             }
 
-            // 最后写入
-            sys.io.writeImage(oThumb, Images.redraw(im2, Color.BLACK));
+            // 如果尺寸匹配，就不再生成了，直接使用
+            if (null != o_old_thumb
+                && w == o_old_thumb.getInt("width")
+                && h == o_old_thumb.getInt("height")) {
+                WnObj oThumb2 = oThumb;
+                sys.nosecurity(new Atom() {
+                    public void run() {
+                        sys.io.copyData(o_old_thumb, oThumb2);
+                    }
+                });
+            }
+            // 否则是要生成的
+            else {
+                // 确保读取了图片
+                if (null == im) {
+                    im = sys.io.readImage(oim);
+                }
+
+                // 开始转换
+                BufferedImage im2 = null;
+                // 缩放
+                if ("zoom".equals(params.get("mode", "zoom"))) {
+                    Color bgColor = null;
+                    if (params.has("bgc"))
+                        bgColor = Colors.as(params.get("bgc"));
+
+                    im2 = Images.zoomScale(im, w, h, bgColor);
+                }
+                // 剪裁
+                else {
+                    im2 = Images.clipScale(im, w, h);
+                }
+
+                // 最后写入
+                sys.io.writeImage(oThumb, Images.redraw(im2, Color.BLACK));
+            }
         }
     }
 

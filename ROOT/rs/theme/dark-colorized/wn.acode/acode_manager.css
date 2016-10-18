@@ -1,0 +1,26 @@
+.acode-manager {
+  position: relative;
+}
+.acode-manager > div {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+}
+.acode-manager .am-search {
+  left: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+.acode-manager .am-search .tbl .tbl-row td {
+  font-family: Monaco, Consolas, Courier New;
+}
+.acode-manager .am-form {
+  right: 0;
+}
+.acode-manager .am-form .form .com-input input {
+  font-family: Monaco, Consolas, Courier New;
+}
+.acode-manager .am-form .am-empty {
+  padding: 24px;
+  font-size: 16px;
+}

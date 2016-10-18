@@ -1,82 +1,78 @@
 package org.nutz.walnut.ext.thing.hdl;
 
-import org.nutz.walnut.api.err.Er;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.thing.Things;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
-import org.nutz.walnut.util.Wn;
 
-@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(drop|quiet)$")
+@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(drop)$")
 public class thing_detail implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 得到对应对 Thing
-        WnObj oT = Things.checkThing(hc.oRefer);
-
-        // 得到 Detail 文件
-        WnObj oDetail = sys.io.fetch(oT, "detail");
+        WnObj oT = Things.checkThIndex(sys, hc);
 
         // 清除详情
         if (hc.params.is("drop")) {
-            if (null != oDetail) {
-                // 删除 detail
-                sys.io.delete(oDetail);
+            // 情况 detail
+            sys.io.writeText(oT, "");
 
-                // 设置 thing 元数据
-                oT.setv("th_detail_tp", null);
-                oT.setv("th_detail_sz", 0);
-                sys.io.set(oT, "^th_detail_.+$");
+            // 设置 thing 元数据
+            oT.setv("th_detail_tp", null);
+            oT.setv("th_detail_sz", 0);
+            sys.io.set(oT, "^th_detail_.+$");
 
-                // 输出被删除 detail 对象
-                hc.output = oDetail;
-            }
-            // 看看有没有必要报错
-            else if (!hc.params.is("quiet")) {
-                throw Er.create("e.cmd.thing.detail.blank", oT.id());
-            }
+            // 输出被清空的 detail 对象
+            hc.output = oT;
         }
         // 创建或者修改
         else if (hc.params.has("content")) {
-            // 确保创建
-            if (null == oDetail) {
-                oDetail = sys.io.createIfNoExists(oT, "detail", WnRace.FILE);
+            // 根据类型修改内容类型
+            if (hc.params.has("tp")) {
+                String tp = hc.params.get("tp", "txt");
+                String mime = sys.io.mimes().getMime(tp, "text/plain");
+                if (!oT.isMime(mime)) {
+                    sys.io.set(oT.mime(mime), "^(mime)$");
+                }
             }
-
-            // 修改类型
-            if (!oDetail.isType("^(txt|html|md)$")
-                || (hc.params.has("tp") && !oDetail.isType(hc.params.get("tp")))) {
-                Wn.set_type(sys.io.mimes(), oDetail, hc.params.get("tp", "txt"));
-                sys.io.set(oDetail, "^(tp|mime)$");
+            // 直接修改内容蕾西
+            else if (hc.params.has("mime")) {
+                String mime = hc.params.get("mime");
+                if (!oT.isMime(mime)) {
+                    sys.io.set(oT.mime(mime), "^(mime)$");
+                }
             }
 
             // 写入内容
             String content = Cmds.getParamOrPipe(sys, hc.params, "content", false);
-            sys.io.writeText(oDetail, content);
+            sys.io.writeText(oT, content);
 
-            // 设置 thing 元数据
-            oT.setv("th_detail_tp", oDetail.type());
-            oT.setv("th_detail_sz", oDetail.len());
-            sys.io.set(oT, "^th_detail_.+$");
+            // 得到摘要
+            String brief = hc.params.get("brief");
+
+            // 指定了摘要
+            if (!Strings.isBlank(brief)) {
+                // 自动摘要 TODO 根据内容类型设计不同的摘要算法
+                if ("true".equals(brief)) {
+                    brief = content.substring(0, Math.min(content.length(), 256));
+                }
+
+                // 设置 thing 元数据
+                oT.setv("brief", brief);
+                sys.io.set(oT, "^brief$");
+            }
 
             // 输出 detail 对象
-            hc.output = oDetail;
-        }
-        // 那就是获取内容咯，检查一下空内容要不要抛错
-        else if (null == oDetail) {
-            if (hc.params.is("quiet"))
-                hc.output = "";
-            else
-                throw Er.create("e.cmd.thing.detail.blank", oT.id());
+            hc.output = oT;
         }
         // 输出 detail 对象的内容
         else {
-            hc.output = sys.io.readText(oDetail);
+            hc.output = sys.io.readText(oT);
         }
     }
 

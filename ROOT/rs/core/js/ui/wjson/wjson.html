@@ -14,76 +14,8 @@
         </div>
     </div>
     <div class="ui-wedit-main ui-wjson-main">
-        <!--json格式编辑器-->
-        <div class="ui-wjson-editor" v-if="showJson">
-            <div class="ui-wjson-menu">
-                <div class="menu-item btn" @click="toogleEditor();"><i class="fa fa-exchange"></i></div>
-                <div class="menu-item btn" @click="expandTree(json.tree)"><i class="fa fa-expand"></i></div>
-                <div class="menu-item btn" @click="collapseTree(json.tree)"><i class="fa fa-compress"></i></div>
-                <div class="menu-item right"><input type="text" v-model="qkey"></div>
-            </div>
-            <div class="ui-wjson-container">
-                <ul class="ui-wjson-curb">
-                </ul>
-                <ul class="ui-wjson-content">
-                    <ui-wjson-treenode
-                            class="ui-wjson-treenode"
-                            depth="0"
-                            :qkey.sync="qkey"
-                            :model="json.tree">
-                    </ui-wjson-treenode>
-                </ul>
-            </div>
-        </div>
-        <!--源码格式编辑器-->
-        <div class="ui-wjson-editor" v-else>
-            <div class="ui-wjson-menu">
-                <div class="menu-item btn" @click="toogleEditor();"><i class="fa fa-exchange"></i></div>
-            </div>
-            <div class="ui-wjson-container">
-                <ul class="ui-wjson-curb source-line">
-                    <li v-for="(i, line) in source.lines" track-by="$index">{{i+1}}</li>
-                </ul>
-                <ul class="ui-wjson-content">
-                    <li v-for="(i, line) in source.lines" track-by="$index">{{{line}}}</li>
-                </ul>
-            </div>
-        </div>
+        <ui-wjson-editor :sjson="conf.sjson" :sroot="conf.sroot" :tips="conf.tips" v-ref:wjson></ui-wjson-editor>
     </div>
     <div class="ui-wedit-footer"></div>
 </div>
 
-<script type="text/x-template" id="ui-wjson-template-treenode">
-    <li>
-        <div class="tn" :class="{'mkey' : matchKey, 'mval': matchVal}">
-            <!--展开，折叠-->
-            <div class="tn-toggle" v-if="isFolder" @click="toggle">
-                <i class="fa" :class="{'fa-caret-down': model.open, 'fa-caret-right': !model.open}"></i>
-            </div>
-            <!--菜单-->
-            <div class="tn-menu" @click="showMenu" :style="{ left: (depth * -16 + -48) + 'px' }">
-                <i class="fa fa-th-list"></i>
-            </div>
-            <!--名称-->
-            <span class="tn-key"
-                  :class="{'empty': keyEmpty}"
-                  v-wjson-tn-edit="model.name" :contenteditable="true"></span>
-            <!--分隔符 or 长度-->
-            <span class="tn-sp" v-if="!isFolder">:</span>
-            <span class="tn-length" v-else>{{length}}</span>
-            <!--内容-->
-            <span class="tn-val" v-if="!isFolder"
-                  :class="{'boolean' : isBoolean, 'number': isNumber, 'string' : isString, 'empty': valEmpty}"
-                  v-wjson-tn-edit="model.value" contenteditable="true"></span>
-        </div>
-        <ul v-show="model.open" v-if="isFolder">
-            <ui-wjson-treenode
-                    class="ui-wjson-treenode"
-                    v-for="model in model.children"
-                    :qkey.sync="qkey"
-                    :depth="parseInt(depth) + 1"
-                    :model="model">
-            </ui-wjson-treenode>
-        </ul>
-    </li>
-</script>

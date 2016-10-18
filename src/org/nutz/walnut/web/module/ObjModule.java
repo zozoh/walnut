@@ -15,13 +15,10 @@ import org.nutz.img.Images;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Nums;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
-import org.nutz.lang.segment.Segment;
-import org.nutz.lang.segment.Segments;
-import org.nutz.lang.util.Context;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
 import org.nutz.mvc.adaptor.JsonAdaptor;
@@ -41,6 +38,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.view.WnImageView;
@@ -346,6 +344,8 @@ public class ObjModule extends AbstractWnModule {
      * @param str
      *            对象字符串。@see
      *            {@link #checkObj(String, org.nutz.lang.util.NutMap, String)}
+     * @param abpath
+     *            说明参数 str 是否是绝对路径。如果是绝对路径，将会确保 str 参数是以 <code>/</code> 开头的
      * @param nm
      *            本地文件名
      * @param sz
@@ -393,6 +393,9 @@ public class ObjModule extends AbstractWnModule {
                         @Param("mime") String mime,
                         @Param("dupp") String dupp,
                         InputStream ins) {
+        // 得到当前会话
+        WnSession se = Wn.WC().checkSE();
+
         // 首先得到目标对象
         WnObj ta;
         if (createIfNoExists && !str.startsWith("id:")) {
@@ -400,11 +403,10 @@ public class ObjModule extends AbstractWnModule {
             if (abpath && !str.startsWith("/")) {
                 str = "/" + str;
             }
-            String ph = Wn.normalizeFullPath(str, Wn.WC().checkSE());
+            String ph = Wn.normalizeFullPath(str, se);
             ta = io.createIfNoExists(null, ph, race);
         } else {
-            String id = str.substring("id:".length());
-            ta = io.checkById(id);
+            ta = Wn.checkObj(io, se, str);
         }
 
         WnObj o;
@@ -422,14 +424,14 @@ public class ObjModule extends AbstractWnModule {
             // 那么重名的话，则创建新文件
             else {
                 if (io.exists(ta, fname)) {
-                    Context c = Lang.context();
-                    c.set("major", Files.getMajorName(nm));
-                    c.set("suffix", Files.getSuffix(nm));
-                    Segment seg = Segments.create(dupp);
+                    NutMap c = new NutMap();
+                    c.put("major", Files.getMajorName(nm));
+                    c.put("suffix", Files.getSuffix(nm));
+                    Tmpl seg = Tmpl.parse(dupp);
                     int i = 1;
                     do {
-                        c.set("nb", i++);
-                        fname = seg.render(c).toString();
+                        c.put("nb", i++);
+                        fname = seg.render(c);
                     } while (io.exists(ta, fname));
                 }
                 // 创建文件对象

@@ -25,17 +25,19 @@ Walnut 的 `WnObj` 是对所有的数据进行的最高级的抽象。 因为抽
 ```
 # 带有 thing_set 类型的目录被认为是一个 ThingSet
 @DIR {tp:"thing_set"} # 特殊类型目录
-    thing.json        # 每个 Thing 的定义
+    thing.js          # 每个 Thing 的定义
     index             # 索引表，存放 thing 的所有元数据
-        $ThingID      # 每个都是文件
-    comments          # 存放所有的评论信息
+        $ThingID      # 每个都是文件，nm==id
+                      # tp 为 'th_index'
+    comment           # 存放所有的评论信息
         $CommentID    # 每个都是一个文件
+                      # tp 为 'th_cmt'
     data              # 存放每个 thing 的负数数据 
-        $ThingID           # 每个子目录对应一个 thing，有必要才创建
-                           # tp 为 'thing_data'
+        $ThingID           # 每个子目录对应一个 thing, nm与索引对象同名
+                           # tp 为 'th_data'
             media          # 目录，存放相关的一组媒体
             attachment     # 目录，存放相关的一组附件
-            resource       # 目录，存放评论信息
+            resource       # 目录，存放评论信息相关的附件
 ``` 
 
 我们认为:
@@ -71,7 +73,7 @@ th_thumb : ID    // Thing 的默认缩略图
 }
 ```
 
-# Thing
+# Thing索引
 
 ```
 nm    : ID       // 唯一标识
@@ -79,14 +81,11 @@ lbls  : ["xx"]   // 标签
 ct    : MS       // 创建时间
 lm    : MS       // 最后修改时间
 //...........................................
-tp    : 'text'       // 类型 txt|html|md
+tp    : 'th_index'   // 类型
 mime  : 'text/html'  // 内容类型 text|html|markdown 等
 //...........................................
-// 如果内容不足 256 个字符，直接存入 content，len为 0
-// 如果内容超过 256 个字符，则content为null，细节存入内容，并计入 len
 len     : 0            // 内容长度 
-content : "xxx"        // 短内容
-brief   : "xxx"        // 摘要
+brief   : "xxx"        // 摘要自动生成的话，截取内容前面 256 个字符
 //...........................................
 icon  : HTML     // 小图标，如果没有，默认用 ThingSet.th_icon
 thumb : ID       // 缩略图ID  @see 缩略图机制，如果没有，默认用 ThingSet.th_thumb
@@ -97,9 +96,11 @@ th_live   : 1       // 1 表示有效， -1 表示删除了
 //...........................................
 th_cate   : "xxx"   // 分类ID（如果有分类）
 //...........................................
-th_c_cmt   : 45      // 评论数
-th_c_view  : 1980    // 浏览次数
-th_c_agree : 86      // 赞同次数
+th_c_cmt    : 45      // 评论数
+th_c_view   : 1980    // 浏览次数
+th_c_agree  : 86      // 赞同次数
+th_media_nb : 0       // 具有的媒体计数
+th_att_nb   : 0       // 具有的附件计数
 //...........................................
 xxx : ??            // 其他属性是根据定义文件里面的字段来声明的
 ..
@@ -114,7 +115,7 @@ nm    : TS       // 创建时时间戳，格式类似 20150721132134321
 ct    : MS       // 创建时间
 lm    : MS       // 最后修改时间
 //...........................................
-tp    : 'text'       // 类型 txt|html|md
+tp    : 'th_cmt'     // 类型
 mime  : 'text/html'  // 内容类型 text|html|markdown 等
 //...........................................
 // 如果内容不足 256 个字符，直接存入 content，len为 0

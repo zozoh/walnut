@@ -23,26 +23,38 @@ public class thing_init implements JvmHdl {
 
         // 找到集合
         WnObj oTS = Things.checkThingSet(hc.oRefer);
-        
+
+        // 如果 thing 目录木有 icon 标记一个
+        if (!oTS.has("icon")) {
+            oTS.setv("icon", "<i class=\"fa fa-cubes\"></i>");
+            sys.io.set(oTS, "^icon$");
+            if (!isQ)
+                sys.out.printlnf("%-12s: %s", " ++ icon", oTS.getString("icon"));
+        }
+
         // 确保有索引目录
-        WnObj oIndex = sys.io.createIfNoExists(oTS, "data", WnRace.DIR);
+        WnObj oIndex = sys.io.createIfNoExists(oTS, "index", WnRace.DIR);
         if (!isQ)
-            sys.out.println("index-home  : " + oIndex.id());
-        
+            sys.out.printlnf("%-12s: %s", "./index", oIndex.id());
+
         // 确保有注释目录
-        WnObj oComment = sys.io.createIfNoExists(oTS, "data", WnRace.DIR);
+        WnObj oComment = sys.io.createIfNoExists(oTS, "comment", WnRace.DIR);
         if (!isQ)
-            sys.out.println("comment-home : " + oComment.id());
+            sys.out.printlnf("%-12s: %s", "./comment", oComment.id());
 
         // 确保有 data 目录
         WnObj oData = sys.io.createIfNoExists(oTS, "data", WnRace.DIR);
         if (!isQ)
-            sys.out.println("data-home    : " + oData.id());
+            sys.out.printlnf("%-12s: %s", "./data", oData.id());
+
+        if (!oData.isType("th_data")) {
+            sys.io.set(oData.type("th_data"), "^(tp)$");
+        }
 
         // 确保有 thing.js
         WnObj oDef = sys.io.createIfNoExists(oTS, "thing.js", WnRace.FILE);
         if (!isQ)
-            sys.out.println("check thing.js : " + oDef.id());
+            sys.out.printlnf("%-12s: %s", "./thing.js", oDef.id());
 
         // 写入 thing.js 默认内容
         if (oDef.len() == 0 || hc.params.is("f")) {

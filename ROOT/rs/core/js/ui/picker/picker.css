@@ -24,16 +24,17 @@
   display: inline-block;
   vertical-align: middle;
 }
-.picker-box .picker-obj .icon {
+.picker-box .picker-obj > i {
   vertical-align: middle;
+  margin-right: 4px;
 }
-.picker-box .picker-obj a {
+.picker-box .picker-obj > a {
   display: inline-block;
   color: #08F;
   vertical-align: middle;
   font-size: 10px;
 }
-.picker-box .picker-obj a:hover {
+.picker-box .picker-obj > a:hover {
   color: #F80;
 }
 .picker-btn {

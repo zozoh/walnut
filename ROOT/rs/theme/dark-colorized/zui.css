@@ -102,6 +102,29 @@ body.ui-body font, body.ui-body td, body.ui-body form, body.ui-body p, body.ui-b
 
 .z-edit-it input {padding:0 6px;}
 
+/*--------------------------------------------------- SPAN做的单选框 --------*/
+.ui-radio {
+    font-family:'Material-Design-Iconic-Font'; display: inline-block; cursor: pointer; margin:0 2px;
+    vertical-align: middle;
+}
+.ui-radio:before{content:"\f26c"; display: inline;}
+.ui-radio[checked]:before{content:"\f26f";}
+
+/*--------------------------------------------------- SPAN做的复选框 --------*/
+.ui-checkbox {
+    font-family:FontAwesome; display: inline-block; cursor: pointer; margin:0 2px;
+    vertical-align: middle;
+}
+.ui-checkbox:before{content:"\f096"; display: inline;}
+.ui-checkbox[checked]:before{content:"\f14a";}
+
+/*--------------------------------------------------- SPAN做的ON/OFF控件 --------*/
+.ui-toggle {
+    font-family:FontAwesome; display: inline-block; cursor: pointer;
+    vertical-align: middle;
+}
+.ui-toggle:before{content:"\f204"; display: inline;}
+.ui-toggle[on]:before{content:"\f205";}
 
 /*--------------------------------------------------- balloon.css --------*/
 [data-balloon] {position: relative; }

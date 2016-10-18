@@ -10,10 +10,7 @@ var parse_dom = function (html) {
     // 解析代码模板
     // html = html.replace(/[ ]*\r?\n[ ]*/g, "");
     // html = $z.tmpl(html)(UI._msg_map);
-    // TODO 暂时vue的不做处理
-    if(!UI.vue){
-        html = UI.compactHTML(html);
-    }
+    html = UI.compactHTML(html);
 
     // 这里需要添加 dom 段描述的 HTML 到当前的 $el 
     // 为了兼顾 keepDom 所以要用 +=
@@ -181,7 +178,6 @@ var ZUIObj = function(){};
 ZUIObj.prototype = {
     nutz_ui_version : "1.3",
     //............................................
-    // Backbone.View 的初始化函数
     __init__: function (options) {
         var UI  = this;
         //............................... 保存配置项
