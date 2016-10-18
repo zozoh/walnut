@@ -80,7 +80,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.nutz:nutz:1.r.57.r3'
+        classpath 'org.nutz:nutz:1.r.58'
     }
 }
 
