@@ -43,13 +43,13 @@ repositories {
 }
 dependencies {
     compile group: 'org.nutz', name: 'nutz', version:'1.r.59-SNAPSHOT'
-    compile group: 'org.eclipse.jetty', name: 'jetty-server', version:'9.3.12.v20160915'
-    compile group: 'org.eclipse.jetty', name: 'jetty-jsp', version:'9.3.12.v20160915'
-    compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version:'9.3.12.v20160915'
-    compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version:'9.3.12.v20160915'
-    compile group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version:'9.3.12.v20160915'
-    compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version:'9.3.12.v20160915'
-    compile group: 'org.eclipse.jetty.websocket', name: 'javax-websocket-server-impl', version:'9.3.12.v20160915'
+    compile group: 'org.eclipse.jetty', name: 'jetty-server', version:'9.2.19.v20160908'
+    compile group: 'org.eclipse.jetty', name: 'jetty-jsp', version:'9.2.19.v20160908'
+    compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version:'9.2.19.v20160908'
+    compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version:'9.2.19.v20160908'
+    compile group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version:'9.2.19.v20160908'
+    compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version:'9.2.19.v20160908'
+    compile group: 'org.eclipse.jetty.websocket', name: 'javax-websocket-server-impl', version:'9.2.19.v20160908'
     compile(group: 'org.nutz', name: 'nutz-web', version:'1.r.59-SNAPSHOT') {
 		exclude(module: 'jetty-all-server')
 		exclude(module: 'javax.servlet.jsp')
