@@ -13,22 +13,22 @@ var methods = {
         return _.extend({}, this.getPropFromDom(), this.__gen_base_data());
     },
     // 通常由 hm_page::doChangeCom 调用
-    setData : function(com) {
+    setData : function(com, shallow) {
         // 直接无视吧
         if(com && com.__com_ignore_setData)
             return;
 
         // 执行更新
-        var com2 = this.updateProp(com);
+        var com2 = this.updateProp(com, shallow);
 
         // 子类的绘制方法
         $z.invoke(this, "paint", [com2]);
     },
     // 合并修改组件的属性，并保存
-    updateProp : function(com) {
+    updateProp : function(com, shallow) {
         // 得到完整的属性
-        var com2 = $z.extend(this.getData(), com);
-        //var com2 = _.extend(this.getData(), com);
+        var com2 = shallow ? _.extend(this.getData(), com)
+                           : $z.extend(this.getData(), com);
 
         // // 删除不必要保存东东
         // delete com2.__com_ignore_setData;

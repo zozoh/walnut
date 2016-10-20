@@ -365,7 +365,9 @@ return ZUI.def("ui.form", {
             return;
         }
 
-        jBody.css("height", UI.arena.height() - jTitle.outerHeight(true));
+        // 自动适应父的话，限制高度
+        if(UI.isFitParent())
+            jBody.css("height", UI.arena.height() - jTitle.outerHeight(true));
 
         var W = jBody.children(".form-body-wrapper").width();
         

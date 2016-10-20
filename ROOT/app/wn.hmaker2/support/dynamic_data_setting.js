@@ -104,7 +104,7 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
 
         // 最后调用回调
         var com = UI.getData();
-        console.log("__do_on_change:", com);
+        //console.log("__do_on_change:", com);
         $z.invoke(opt, "on_change", [com], UI);
     },
     //...............................................................

@@ -48,7 +48,7 @@ return ZUI.def("app.wn.pvg", {
         UI.pvgHTML += '<u mode="r" val="4">'+UI.msg("pvg.mode_r")+'</u>';
         UI.pvgHTML += '<u mode="w" val="2">'+UI.msg("pvg.mode_w")+'</u>';
         UI.pvgHTML += '<u mode="x" val="1">'+UI.msg("pvg.mode_x")+'</u>';
-        UI.pvgHTML += '<u class="pvg-auto" data-balloon="'+UI.msg("pvg.mode_auto")+'" data-balloon-pos="up"><i class="fa fa-close"></i></u>';
+        UI.pvgHTML += '<u class="pvg-auto" data-balloon="'+UI.msg("pvg.mode_auto")+'" data-balloon-pos="down"><i class="zmdi zmdi-close"></i></u>';
         UI.pvgHTML += '</span>';
         UI.pvgHTML += '</span>';
 
@@ -94,7 +94,8 @@ return ZUI.def("app.wn.pvg", {
                     };
                     // 打开遮罩
                     new MaskUI({
-                        height: "80%",
+                        width  : 400,
+                        height : 500,
                         on_close : function(){
                             UI.reloadUsers();
                         },
@@ -242,6 +243,7 @@ return ZUI.def("app.wn.pvg", {
                     new PopBrowser({
                         title   : UI.msg("pvg.paths_add"),
                         lastObjId : "pvgAddPath",
+                        objTagName : "SPAN",
                         filter  : function(o){
                             return 'DIR' == o.race;
                         },
@@ -313,7 +315,7 @@ return ZUI.def("app.wn.pvg", {
             escapeHtml : false,
             display : function(o){
                 var html = Wn.objIconHtml(o);
-                html += '<span>' + Wn.objDisplayPath(UI, o.ph) + '</span>';
+                html += '<span>' + Wn.objDisplayPath(UI, o.ph, 1) + '</span>';
                 html += UI.pvgHTML;
                 return html;
             },

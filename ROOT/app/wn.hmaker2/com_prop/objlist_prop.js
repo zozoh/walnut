@@ -430,7 +430,7 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
 
         // 通知
         com[part] = partData;
-        UI.notifyComChange(com);
+        UI.notifyComChange(com, true);
     },
     //...............................................................
     redraw : function() {
@@ -459,7 +459,7 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
             },
             on_change : function(com) {
                 // console.log("haha", com)
-                UI.notifyComChange(com);
+                UI.notifyComChange(com, true);
             }
         }).render(function(){
             UI.defer_report("dds");
@@ -474,7 +474,7 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
                 var pager = this.getData();
                 UI.notifyComChange({
                     pager : pager
-                });
+                }, true);
             },
             fields : [{
                 key   : "sizes",

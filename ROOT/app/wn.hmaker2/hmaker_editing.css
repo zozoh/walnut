@@ -199,12 +199,12 @@ body {
     background: red url(/o/read/id:6p9oqsdb1sj4qpbfcalhjgdvih) no-repeat contain;
     end debug */
 }
-.hmc-objlist > .warn {
+.hmc-objlist > section.hmol-msg > .warn {
   text-align: center;
   color: #ff0000;
   padding: 12px;
 }
-.hmc-objlist > .warn > i {
+.hmc-objlist > section.hmol-msg > .warn > i {
   display: block;
   font-size: 64px;
   padding: 8px;
@@ -302,20 +302,28 @@ body {
   height: 0;
   clear: both;
 }
-.hmc-objlist > .hmol-items {
+.hmc-objlist > .hmol-list {
   padding: 10px;
 }
-.hmc-objlist > .hmol-items .hmol-items-loader {
+.hmc-objlist > .hmol-list .hmol-list-loading {
   padding: 30px;
   text-align: center;
-  cursor: pointer;
-  color: #0088ff;
-  text-decoration: underline;
+  color: #888888;
+  font-size: 1.4em;
 }
-.hmc-objlist > .hmol-items .hmol-items-loader:hover {
-  color: #ff0000;
+.hmc-objlist > .hmol-list .hmol-list-empty {
+  padding: 30px;
+  text-align: center;
+  color: #888888;
+  font-size: 1.4em;
 }
-.hmc-objlist > .pager {
+.hmc-objlist > .hmol-list .api-error {
+  padding: 30px;
+  text-align: center;
+  color: #F00;
+  font-size: 1.4em;
+}
+.hmc-objlist > .hmol-pager > .pager {
   color: #888;
   padding: 10px;
   border-top: 1px solid #CCC;

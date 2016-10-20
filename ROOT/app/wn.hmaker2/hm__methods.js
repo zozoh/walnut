@@ -26,6 +26,17 @@ var methods = {
     getHomeObjId : function() {
         return this.hmaker().__home_id;
     },
+    // 得到站点 api 的前缀
+    //  - path 为 api 的路径
+    getHttpApiUrl : function(path) {
+        var oHome = this.getHomeObj();
+        return "/api/" + oHome.d1 + path;
+    },
+    // 得到站点控件对应模板文件对象的全路径
+    getTemplateObjPath : function(templateName, suffixName) {
+        var oHome = this.getHomeObj();
+        return "/home/" + oHome.d1 + "/.hmaker/template/" + templateName + "/" + templateName + "." + suffixName;
+    },
     // 监听消息
     listenBus : function(event, handler){
         var uiHMaker = this.hmaker();

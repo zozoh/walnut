@@ -24,7 +24,7 @@ public class cmd_httpparam extends JvmExecutor {
 
         // 文件里
         if (params.has("in")) {
-            oReq = Wn.checkObj(sys.io, params.check("in"));
+            oReq = Wn.checkObj(sys, params.check("in"));
             str = sys.io.readText(oReq);
         }
         // 管道里

@@ -172,9 +172,11 @@ body {margin:0; font-size:12px;}
     width:100%; height:100%;
     background: red url(/o/read/id:6p9oqsdb1sj4qpbfcalhjgdvih) no-repeat contain;
     end debug */
-    > .warn {
-        text-align: center; color:@c6; padding:@d4;
-        > i {display: block; font-size:@f8; padding:@d3;}
+    > section.hmol-msg {
+        > .warn {
+            text-align: center; color:@c6; padding:@d4;
+            > i {display: block; font-size:@f8; padding:@d3;}
+        }
     }
     // 过滤器
     > .hmol-filter {
@@ -231,24 +233,34 @@ body {margin:0; font-size:12px;}
         ul:after {@clr();}
     }
     // 列表内容
-    > .hmol-items {
+    > .hmol-list {
         padding:10px;
-        .hmol-items-loader {
-            padding:30px; text-align: center; cursor: pointer; color:@clink; text-decoration: underline;
+        .hmol-list-loading {
+            padding:30px; text-align: center;
+            color:@c2; font-size: 1.4em;
         }
-        .hmol-items-loader:hover{color:@clink_hover;}
+        .hmol-list-empty {
+            padding:30px; text-align: center;
+            color:@c2; font-size: 1.4em;
+        }
+        .api-error {
+            padding:30px; text-align: center;
+            color:#F00; font-size: 1.4em;
+        }
     }
     // 翻页器
-    > .pager {
-        color:#888; padding:10px; border-top:1px solid #CCC;
-        text-align: center;
-    }
-    // 翻页器: 普通
-    > .pager-normal {
+    > .hmol-pager {
+        > .pager {
+            color:#888; padding:10px; border-top:1px solid #CCC;
+            text-align: center;
+        }
+        // 翻页器: 普通
+        > .pager-normal {
 
-    }
-    // 翻页器: 跳转
-    > .pager-jump {
+        }
+        // 翻页器: 跳转
+        > .pager-jump {
 
+        }
     }
 } // ~ objlist

@@ -358,7 +358,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 // 得到组件的纯数据描述
                 var com = uiCom.getData();
                 // 修改控件的显示
-                UI.doChangeCom(com, jCom);
+                UI.doChangeCom(com, true, jCom);
             }, false);
 
         });
@@ -372,7 +372,7 @@ return ZUI.def("app.wn.hmaker_page", {
         // 模拟第一个块被点击
         window.setTimeout(function(){
             UI._C.iedit.$body.find(".hm-block").first().click();
-        },500);
+        }, 500);
     },
     //...............................................................
     __setup_page_head : function() {
@@ -380,6 +380,14 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 首先清空
         var jHead = UI._C.iedit.$head.empty();
+
+        // 头部元数据
+        _H(jHead, 'meta[name="viewport"]',
+            '<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+        _H(jHead, 'meta[http-equiv="X-UA-Compatible"]',
+            '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">');
+        _H(jHead, 'meta[charset="utf-8"]',
+            '<meta charset="utf-8">');
 
         // 链入固定的 CSS 
         _H(jHead, 'link[href*="normalize.css"]',
@@ -393,12 +401,13 @@ return ZUI.def("app.wn.hmaker_page", {
         _H(jHead, 'link[href*="moveresizing.css"]',
             '<link for-edit="yes" rel="stylesheet" type="text/css" href="/theme/r/jqp/moveresizing/moveresizing.css">');
 
-        _H(jHead, 'meta[name="viewport"]',
-            '<meta name="viewport" content="width=device-width, initial-scale=1.0">');
-        _H(jHead, 'meta[http-equiv="X-UA-Compatible"]',
-            '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">');
-        _H(jHead, 'meta[charset="utf-8"]',
-            '<meta charset="utf-8">');
+        
+        // _H(jHead, 'script[src*="zutil.js"]',
+        //     '<script src="/gu/rs/core/js/nutz/zutil.js"></script>');
+        // _H(jHead, 'script[src*="seajs"]',
+        //     '<script src="/gu/rs/core/js/seajs/seajs-2.3.0/sea-debug.js" id="seajsnode"></script>');
+        // _H(jHead, 'script[src*="jquery-2.1.3"]',
+        //     '<script src="/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js"></script>');
     },
     //...............................................................
     __setup_page_events : function() {
@@ -637,10 +646,10 @@ return ZUI.def("app.wn.hmaker_page", {
         this.applyBlockProp(jBlock, prop);
     },
     //...............................................................
-    doChangeCom : function(com, jCom) {
+    doChangeCom : function(com, shallow, jCom) {
         jCom = jCom || this.getActivedComElement();
         var uiCom = ZUI(jCom, true);
-        uiCom.setData(com);
+        uiCom.setData(com, shallow);
     },
     //...............................................................
     doActiveBlock : function(jq) {

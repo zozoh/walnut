@@ -206,7 +206,9 @@ define({
                 "noapi" : "没设定数据接口",
                 "notemplate" : "未设定显示模板",
                 "nopartitem" : "没有选中任何项目，无法继续操作",
-                "show_items" : "列表项目"
+                "show_items" : "列表项目",
+                "items_reloading" : "正在从接口加载数据 ...",
+                "items_empty"     : "厄...没有数据"
             },
             "thingobj" : {
                 "name"  : "动态数据对象",

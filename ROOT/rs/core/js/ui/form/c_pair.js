@@ -28,8 +28,6 @@ return ZUI.def("ui.form_com_pair", {
         var UI  = this;
         var opt = UI.options;
 
-        console.log("draw", obj)
-
         // 如果没内容显示空
         if(!obj || _.isEmpty(obj)){
             UI.arena.attr("show", "empty");

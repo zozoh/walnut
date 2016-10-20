@@ -582,6 +582,13 @@ ZUIObj.prototype = {
         }
     },
     //............................................
+    isFitParent : function(){
+        var UI  = this;
+        var opt = UI.options;
+        return opt.fitparent === true
+               || (opt.fitparent !== false && UI.arena.attr("ui-fitparent"));
+    },
+    //............................................
     // 修改 UI 的大小
     resize: function (deep) {
         var UI  = this;
@@ -602,8 +609,9 @@ ZUIObj.prototype = {
         // 那么自己的 arena 就是未定义，因此不能继续执行 resize
         if (UI.arena) {
             // 需要调整自身，适应父大小
-            if (opt.fitparent === true
-                || (opt.fitparent !== false && UI.arena.attr("ui-fitparent"))) {
+            // if (opt.fitparent === true
+            //     || (opt.fitparent !== false && UI.arena.attr("ui-fitparent"))) {
+            if(UI.isFitParent()) {
                 // 调整自身的顶级元素
                 var w, h;
                 if (this.pel === document.body) {

@@ -61,12 +61,18 @@
   display: inline-block;
   vertical-align: middle;
 }
+.pvg .pvg-list .lst-item > i {
+  width: 24px;
+  text-align: center;
+}
 .pvg .pvg-list .lst-item b {
-  margin: 0 6px;
+  margin: 0 2px;
   min-width: 100px;
 }
 .pvg .pvg-list .lst-item > span.pvg-edit {
   display: none;
+  margin: 0 6px;
+  font-size: 10px;
   color: #333333;
   white-space: nowrap;
 }
@@ -92,10 +98,10 @@
 }
 .pvg .pvg-list .lst-item > span.pvg-edit .pvg-mode u.pvg-auto:hover {
   background: #0044bb;
-  color: ch0_f;
+  color: #ffffff;
 }
 .pvg .pvg-list .lst-item[role="ADMIN"] {
-  color: #FF0;
+  color: #ff8800;
 }
 .pvg .pvg-list .lst-item[role="REQUEST"] {
   opacity: 0.5;

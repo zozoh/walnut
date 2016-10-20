@@ -13,19 +13,9 @@ var html = `
     <div code-id="notemplate" class="warn">
         <i class="zmdi zmdi-alert-polygon"></i> {{hmaker.com.objlist.notemplate}}
     </div>
-    <div code-id="filter" class="hmol-filter">
-        <div class="flt-kwd">
-            <div class="flt-kwd-input"><input></div>
-            <div class="flt-kwd-btn"><b>Search</b></div>
-        </div>
-        <div class="flt-fld-list"></div>
-        <div class="flt-fld-more"></div>
-    </div>
-    <div code-id="sorter" class="hmol-sorter">
-        <ul></ul>
-    </div>
-    <div code-id="items" class="hmol-items">
-        <div class="hmol-items-loader">点击测试数据加载</div>
+    <div code-id="list.empty"   class="hmol-list-empty">{{hmaker.com.objlist.items_empty}}</div>
+    <div code-id="api.loading" class="hmol-list-loading">
+        <i class="zmdi zmdi-rotate-right zmdi-hc-spin"></i> {{hmaker.com.objlist.items_reloading}}
     </div>
     <div code-id="pager_normal" class="pager pager-normal">
         普通翻页条
@@ -41,7 +31,22 @@ var html = `
         带跳转的翻页条
     </div>
 </div>
-<div class="hmc-objlist ui-arena hm-del-save"></div>
+<div class="hmc-objlist ui-arena hm-del-save">
+    <section class="hmol-msg"></section>
+    <div class="hmol-filter">
+        <div class="flt-kwd">
+            <div class="flt-kwd-input"><input></div>
+            <div class="flt-kwd-btn"><b>Search</b></div>
+        </div>
+        <div class="flt-fld-list"></div>
+        <div class="flt-fld-more"></div>
+    </div>
+    <div class="hmol-sorter">
+        <ul></ul>
+    </div>
+    <div class="hmol-list"></div>
+    <div class="hmol-pager"></div>
+</div>
 `
 //==============================================
 return ZUI.def("app.wn.hm_com_objlist", {
@@ -51,15 +56,43 @@ return ZUI.def("app.wn.hm_com_objlist", {
         var UI = HmComMethods(this);
     },
     //...............................................................
-    events : {
-        'click .hmol-items-loader' : function(){
-            $.post("/api/zozoh/gbox/list", {
-                pid : "6k3t3mi6iuiomqu5rp0idk3iue",
-                c   : "工具"
-            }, function(re){
-                console.log(re);
-            });
+    __draw_items : function(list, com) {
+        var UI  = this;
+        com = com || UI.getData();
+        var jList = UI.arena.children(".hmol-list").empty();
+
+        console.log(list);
+
+        // 如果木有数据，就显示空
+        if(!_.isArray(list) || list.length == 0) {
+            UI.ccode("list.empty").appendTo(jList);
+            return;
         }
+
+        // 读取 JS 文件内容(必须是个jQuery插件)，并生成逻辑
+        var aphJS  = UI.getTemplateObjPath(com.template, "js");
+        var jsContent = Wn.read(aphJS);
+        eval(jsContent);
+
+
+        // 在页内，加载 css
+        var aphCss = UI.getTemplateObjPath(com.template, "css");
+        var cssContent = Wn.read(aphCss);
+        var jStyle = UI.arena.children('style[template-css]');
+        if(jStyle.length == 0) {
+            jStyle = $('<style>').attr({
+                "template-css" : "yes",
+                "rel"          : "stylesheet",
+                "type"         : "text/css"
+            }).appendTo(UI.arena);
+        }
+        jStyle.html(cssContent);
+
+        // 逐个绘制
+        for(var obj of list) {
+            $('<div>').addClass(com.template).appendTo(jList)[com.template](obj, com.mapping);
+        }
+
     },
     //...............................................................
     setupProp : function(){
@@ -77,9 +110,6 @@ return ZUI.def("app.wn.hm_com_objlist", {
             return ;
         }
 
-        // 清空
-        UI.arena.empty();
-
         // 绘制
         UI.__paint_filter(com);
         UI.__paint_sorter(com);
@@ -88,23 +118,77 @@ return ZUI.def("app.wn.hm_com_objlist", {
 
     },
     //...............................................................
+    __paint_item : function(com) {
+        var UI = this;
+        var jList = UI.arena.find(">.hmol-list").show();
+
+        // 记录一下接口的特征，以防止重复加载
+        var api_finger = $z.toJson(_.pick(com, "api", "params"));
+
+        // 采用旧数据
+        if(UI.__list && api_finger == UI.__api_finger) {
+            UI.__draw_items(UI.__list, com);
+        }
+        // 重新加载
+        else {
+            // 得到 api 的相关信息
+            var apiUrl = UI.getHttpApiUrl(com.api);
+            var params = com.params || {};
+            // 显示正在加载
+            UI.ccode("api.loading").appendTo(jList.empty());
+            // 向服务器请求
+            $.post(apiUrl, params, function(re){
+                // 请求成功后记录接口特征
+                UI.__api_finger = api_finger;
+
+                // api 返回错误
+                if(/^e[.]/.test(re)){
+                    $('<div class="api-error">').text(re).appendTo(jList.empty());
+                    return;
+                }
+
+                // 试图解析数据
+                try {
+                    // 记录数据
+                    UI.__list = $z.fromJson(re);
+
+                    // 重绘项目
+                    UI.__draw_items(UI.__list, com);
+                }
+                // 接口调用错误
+                catch (errMsg) {
+                    $('<div class="api-error">').text(errMsg).appendTo(jList.empty());
+                }
+            });
+        }
+    },
+    //...............................................................
     __paint_filter : function(com) {
         var UI  = this;
         var flt = com.filter;
-        if(!flt)
-            return;
+        var jFilter = UI.arena.find(">.hmol-filter");
 
-        var jFilter = UI.ccode("filter").appendTo(UI.arena);
+        // 隐藏过滤器
+        if(!flt){
+            jFilter.hide();
+            return;
+        }
+        
+        // 显示过滤器
+        jFilter.show();
 
         // 关键字
         if(!flt.keyword || flt.keyword.length == 0) {
-            jFilter.find(".flt-kwd").remove();
+            jFilter.find(".flt-kwd").hide();
+        }else{
+            jFilter.find(".flt-kwd").show();
         }
 
         // 过滤字段
-        var jFlds = jFilter.find(".flt-fld-list");
-        var jMore = jFilter.find(".flt-fld-more");
+        var jFlds = jFilter.find(".flt-fld-list").empty();
+        var jMore = jFilter.find(".flt-fld-more").empty();
         if(flt.fields.length > 0) {
+            jFlds.show();
             var showCount = 0;
             for(var fld of flt.fields) {
                 // 创建字段
@@ -132,62 +216,79 @@ return ZUI.def("app.wn.hm_com_objlist", {
 
             // 如果还有字段需要隐藏
             if(showCount == flt.fields.length) {
-                jMore.remove();
+                jMore.hide();
+            }else{
+                jMore.show();
             }
         }
         // 没有过滤字段
         else {
-            jFlds.remove();
-            jMore.remove();
+            jFlds.hide();
+            jMore.hide();
         }
 
      },
      //...............................................................
     __paint_sorter : function(com) {
         var UI = this;
+        var jSorter = UI.arena.find(">.hmol-sorter");
 
-        if(com.sorter && com.sorter.fields.length > 0) {
-            var jSorter = UI.ccode("sorter").appendTo(UI.arena);
-            var jUl = jSorter.find("ul");
+        // 隐藏排序
+        if(!com.sorter || com.sorter.fields.length == 0){
+            jSorter.hide();
+            return;
+        }
+        
+        // 显示排序
+        jSorter.show();
 
-            for(var fld of com.sorter.fields) {
-                $('<li>').text(fld.text).attr({
-                    "key"   : fld.key,
-                    "order" : fld.order || 1,
-                    "toggleable" : fld.toggleable ? "yes" : null,
-                    "more" : fld.more ? $z.toJson(fld.more) : null
-                }).appendTo(jUl);
-            }
+        // 准备循环绘制
+        var jUl = jSorter.find("ul").empty();
+        for(var fld of com.sorter.fields) {
+            $('<li>').text(fld.text).attr({
+                "key"   : fld.key,
+                "order" : fld.order || 1,
+                "toggleable" : fld.toggleable ? "yes" : null,
+                "more" : fld.more ? $z.toJson(fld.more) : null
+            }).appendTo(jUl);
         }
      },
      //...............................................................
     __paint_pager : function(com) {
-        if(com.pager)
-            this.ccode("pager_" + (com.pager.style || "normal")).appendTo(this.arena);
-    },
-     //...............................................................
-    __paint_item : function(com) {
         var UI = this;
-        UI.ccode("items").appendTo(UI.arena);
+        var jPager = UI.arena.find(">.hmol-pager").empty();
+
+        // 隐藏翻页器
+        if(!com.pager){
+            jPager.hide();
+            return;
+        }
+        
+        // 显示翻页器
+        jPager.show();
+        UI.ccode("pager_" + (com.pager.style || "normal")).appendTo(jPager);
     },
     //...............................................................
     __check_mode : function(com) {
         var UI = this;
-        UI.arena.empty();
+        var jMsg = UI.arena.find(">section.hmol-msg").empty();
 
         // 确保有数据接口
         if(!com.api) {
-            UI.ccode("noapi").appendTo(UI.arena);
+            UI.ccode("noapi").appendTo(jMsg.show());
+            UI.arena.find(">div").hide();
             return false;
         }
 
         // 确保有显示模板
         if(!com.template) {
-            UI.ccode("notemplate").appendTo(UI.arena);
+            UI.ccode("notemplate").appendTo(jMsg.show());
+            UI.arena.find(">div").hide();
             return false;
         }
 
         // 通过检查
+        jMsg.hide();
         return true;
         
     },
