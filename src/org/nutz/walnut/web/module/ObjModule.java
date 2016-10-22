@@ -398,14 +398,16 @@ public class ObjModule extends AbstractWnModule {
 
         // 首先得到目标对象
         WnObj ta;
-        if (createIfNoExists && !str.startsWith("id:")) {
+        if (createIfNoExists && str.contains("/")) {
             // 绝对目录 会丢失第一个字符 /
-            if (abpath && !str.startsWith("/")) {
+            if (abpath && !str.startsWith("/") && !str.startsWith("id:")) {
                 str = "/" + str;
             }
             String ph = Wn.normalizeFullPath(str, se);
             ta = io.createIfNoExists(null, ph, race);
-        } else {
+        }
+        // 通常为 id:xxx 形式的对象
+        else {
             ta = Wn.checkObj(io, se, str);
         }
 

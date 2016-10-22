@@ -54,94 +54,137 @@ var THING_DETAIL = function(){
     };
 };
 //==============================================
-var THING_FILE = function(key, subhdl, validate) {
+var THING_FILE = function(fld, subhdl, validate) {
     return {
-        multi : true,
-        asyncParseData : function(th, callback) {
-            Wn.execf("thing {{th_set}} {{subhdl}} {{id}} -json -l", {
-                th_set : th.th_set,
-                id     : th.id,
-                subhdl : subhdl
-            }, function(re){
-                callback($z.fromJson(re));
-            });
+        title : "i18n:thing.key." + subhdl,
+        escapeHtml : false,
+        display : function(o, jso, UI) {
+            var nb = o["th_" + subhdl + "_nb"] || 0;
+            var html = "";
+            // 显示数量
+            if(nb > 0 ){
+                html += '<span class="th_file_nb">';
+                // 媒体文件
+                if("media" == subhdl){
+                    html += '<i class="zmdi zmdi-camera-alt"></i>';
+                }
+                // 附件
+                else if("attachment" == subhdl) {
+                    html += '<i class="zmdi zmdi-attachment-alt"></i>';
+                }
+                // 其他
+                else {
+                    html += '<i class="zmdi zmdi-file"></i>';
+                }
+                html += '<em>' + nb + '</em>';
+                html += '</span>';
+            }
+            // 显示空
+            else {
+                html += '<em class="th_file_none">' + UI.msg("none") + '</em>';
+            }
+            return html;
         },
-        formatData : function(objList) {
-            return {
-                th_media_nb : _.isArray(objList) ? objList.length : 0
-            };
-        },
-        on_add : function(callback, UI) {
-            var th = UI.parent.getData();
-            Wn.selectFilePanel({
-                body  : {
-                    multi : UI.options.multi,
-                    max   : UI.options.max,
-                    uploader : {
-                        target : {
-                            ph   : "id:"+th.th_set+"/data/"+th.id+"/"+subhdl,
-                            race : "DIR"
-                        },
-                        validate : validate
-                    }
-                },
-                on_ok : function(objs) {
-                    // 准备生成的命令
-                    var cmdText = "";
-                    var cmdTmpl = $z.tmpl("thing {{th_set}} {{subhdl}} {{th_id}} -add {{nm}} -overwrite -read id:{{id}} -Q;\n")
-                    for(var o of objs){
-                        cmdText += cmdTmpl({
-                            th_set : th.th_set,
-                            th_id  : th.id,
-                            id     : o.id,
-                            nm     : o.nm,
-                            subhdl : subhdl
-                        });
-                    }
+        virtual : true,
+        editAs  : "file",
+        uiConf  : {
+            multi : _.isUndefined(fld.multi) ? true : fld.multi,
+            asyncParseData : function(th, callback) {
+                Wn.execf("thing {{th_set}} {{subhdl}} {{id}} -json -l", {
+                    th_set : th.th_set,
+                    id     : th.id,
+                    subhdl : subhdl
+                }, function(re){
+                    callback($z.fromJson(re));
+                });
+            },
+            formatData : function(objList) {
+                var re = {};
+                if(_.isArray(objList) && objList.length > 0){
+                    re["th_"+subhdl+"_nb"] = objList.length;
+                    var ids = [];
+                    for(var obj of objList)
+                        ids.push(obj.id);
+                    re["th_"+subhdl+"_ids"] = ids;
+                } else {
+                    re["th_"+subhdl+"_nb"]  = 0;
+                    re["th_"+subhdl+"_ids"] = [];
+                }
+                
+                return re;
+            },
+            on_add : function(callback, UI) {
+                var th = UI.parent.getData();
+                Wn.selectFilePanel({
+                    body  : {
+                        multi : UI.options.multi,
+                        max   : UI.options.max,
+                        uploader : {
+                            target : {
+                                ph   : "id:"+th.th_set+"/data/"+th.id+"/"+subhdl,
+                                race : "DIR"
+                            },
+                            validate : fld.validate || validate
+                        }
+                    },
+                    on_ok : function(objs) {
+                        // 准备生成的命令
+                        var cmdText = "";
+                        var cmdTmpl = $z.tmpl("thing {{th_set}} {{subhdl}} {{th_id}} -add '{{nm}}' -overwrite -read id:{{id}} -Q;\n")
+                        for(var o of objs){
+                            cmdText += cmdTmpl({
+                                th_set : th.th_set,
+                                th_id  : th.id,
+                                id     : o.id,
+                                nm     : o.nm.replace(/'/g,"\\'"),
+                                subhdl : subhdl
+                            });
+                        }
 
-                    // 有命令就执行
-                    if(cmdText) {
-                        // 最后加入查询语句
-                        cmdText += $z.tmpl("thing {{th_set}} {{subhdl}} {{id}} -json -l")({
+                        // 有命令就执行
+                        if(cmdText) {
+                            // 最后加入查询语句
+                            cmdText += $z.tmpl("thing {{th_set}} {{subhdl}} {{id}} -json -l")({
+                                th_set : th.th_set,
+                                id     : th.id,
+                                subhdl : subhdl
+                            });
+                            UI.parent.showPrompt(fld.key, "spinning");
+                            Wn.exec(cmdText, function(re){
+                                UI.parent.hidePrompt(fld.key);
+                                callback($z.fromJson(re), true);
+                            });
+                        }
+                        // 否则直接调用回调
+                        else {
+                            callback(objs);
+                        }
+                    },
+                    on_cancel : function(){
+                        var cmdText = $z.tmpl("thing {{th_set}} {{subhdl}} {{id}} -json -l")({
                             th_set : th.th_set,
                             id     : th.id,
                             subhdl : subhdl
                         });
-                        UI.parent.showPrompt(key, "spinning");
+                        UI.parent.showPrompt(fld.key, "spinning");
                         Wn.exec(cmdText, function(re){
-                            UI.parent.hidePrompt(key);
+                            UI.parent.hidePrompt(fld.key);
                             callback($z.fromJson(re), true);
                         });
                     }
-                    // 否则直接调用回调
-                    else {
-                        callback(objs);
-                    }
-                },
-                on_cancel : function(){
-                    var cmdText = $z.tmpl("thing {{th_set}} {{subhdl}} {{id}} -json -l")({
-                        th_set : th.th_set,
-                        id     : th.id,
-                        subhdl : subhdl
-                    });
-                    UI.parent.showPrompt(key, "spinning");
-                    Wn.exec(cmdText, function(re){
-                        UI.parent.hidePrompt(key);
-                        callback($z.fromJson(re), true);
-                    });
-                }
-            });
-        },
-        on_remove : function(o, callback, jItem, UI) {
-            var th = UI.parent.getData();
-            Wn.execf("thing {{th_set}} {{subhdl}} {{th_id}} -del {{nm}} -Q", {
-                th_set : th.th_set,
-                th_id  : th.id,
-                nm     : o.nm,
-                subhdl : subhdl
-            }, function(re){
-                callback(re);
-            });
+                });
+            },
+            on_remove : function(o, callback, jItem, UI) {
+                var th = UI.parent.getData();
+                Wn.execf("thing {{th_set}} {{subhdl}} {{th_id}} -del '{{nm}}' -Q", {
+                    th_set : th.th_set,
+                    th_id  : th.id,
+                    nm     : o.nm.replace(/'/g,"\\'"),
+                    subhdl : subhdl
+                }, function(re){
+                    callback(re);
+                });
+            }
         }
     };
 };
@@ -239,7 +282,7 @@ return ZUI.def("app.wn.thing", {
                     var json    = $z.toJson(data);
                     var cmdTmpl = UI.__cmd(thConf.updateBy, oTS.id, json);
                     var cmdText = $z.tmpl(cmdTmpl)(th);
-                    //console.log(cmdText)
+                    console.log(data)
                     // 执行命令
                     var uiForm = this;
                     this.showPrompt(fld.key, "spinning");
@@ -295,28 +338,86 @@ return ZUI.def("app.wn.thing", {
     },
     //...............................................................
     __format_theConf_field : function(fld) {
+        // th_nm
+        if("th_nm" == fld.key) {
+            $z.extend(fld, {
+                title : "i18n:thing.key.th_nm",
+                type : "string",
+                editAs : "input",
+                escapeHtml : false,
+                display : function(o) {
+                    var html = "";
+                    if(o.thumb){
+                        html += '<img src="/o/thumbnail/id:'+o.id+'?_t='+$z.timestamp()+'">';
+                    }else{
+                        html += '<i class="fa fa-cube th_thumb"></i>';
+                    }
+                    html += $z.escapeText(o.th_nm);
+                    html += (o.brief ? "<em>" + o.brief + "</em>" : "");
+                    return html;
+                }
+            });
+        }
         // __brief_and_content__
-        if("__brief_and_content__" == fld.key){
-            _.extend(fld, {
+        else if("__brief_and_content__" == fld.key){
+            $z.extend(fld, {
                 virtual : true,
                 editAs  : "content",
                 uiConf  : THING_DETAIL()
             });
         }
         // __media__
-        else if("thing_media" == fld.editAs){
-            _.extend(fld, {
-                virtual : true,
-                editAs  : "file",
-                uiConf  : THING_FILE(fld.key, "media", /^.+[.](png|jpe?g|gif)$/i)
-            });
+        else if("__media__" == fld.key){
+            $z.extend(fld, THING_FILE(fld, "media", /^.+[.](png|jpe?g|gif|mov|mp4|wmv|avi)$/i));
         }
         // __attachment__
-        else if("thing_attachment" == fld.editAs){
-            _.extend(fld, {
-                virtual : true,
-                editAs  : "file",
-                uiConf  : THING_FILE(fld.key, "attachment")
+        else if("__attachment__" == fld.key){
+            $z.extend(fld, THING_FILE(fld, "attachment"));
+        }
+        // lbls
+        else if("lbls" == fld.key) {
+            $z.extend(fld, {
+                title : "i18n:thing.key.lbls",
+                tip   : "i18n:thing.key.lbls_tip",
+                type : "object",
+                virtual : false,
+                editAs : "input",
+                uiConf : {
+                    parseData : function(lbls){
+                        if(_.isArray(lbls))
+                            return lbls.join(", ");
+                        return "";
+                    },
+                    formatData : function(str) {
+                        if(str)
+                            return str.split(/[,， \t]+/g);
+                        return [];
+                    }
+                },
+                display : function(o) {
+                    var html = "";
+                    if(_.isArray(o.lbls)){
+                        for(var lbl of o.lbls) {
+                            html += '<span class="th-lbl">' + lbl + '</span>';
+                        }
+                    }
+                    return html;
+                }
+            });
+        }
+        // thumb
+        else if("thumb" == fld.key) {
+            $z.extend(fld, {
+                title : "i18n:thing.key.thumb",
+                hide : true,
+                type : "string",
+                beforeSetData : function(o){
+                    this.UI.setTarget($z.tmpl("id:{{th_set}}/data/{{id}}/thumb.jpg")(o));
+                },
+                editAs : "image",
+                uiConf : {
+                    dataType : "idph"
+                }
             });
         }
         // 递归

@@ -35,6 +35,7 @@ Walnut 的 `WnObj` 是对所有的数据进行的最高级的抽象。 因为抽
     data              # 存放每个 thing 的负数数据 
         $ThingID           # 每个子目录对应一个 thing, nm与索引对象同名
                            # tp 为 'th_data'
+            thumb.jpg      # 对象的缩略图
             media          # 目录，存放相关的一组媒体
             attachment     # 目录，存放相关的一组附件
             resource       # 目录，存放评论信息相关的附件

@@ -103,6 +103,10 @@ new FormUI({
    // 的键将不会被通知，请用 on_update 来获取
    virtual : false,
    
+   // 当字段对应控件被 setData 时的回调
+   beforeSetData : {fld}F(o),
+   afterSetData  : {fld}F(o),
+   
    type     : "string"      // @see jtypes.js
    editAs   : "input"       // 快捷的编辑控件类型
    uiType   : "xxxx"        // 编辑控件类型，比 editAs 优先

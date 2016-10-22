@@ -214,7 +214,7 @@ public class WnIoImpl implements WnIo {
 
         return o;
     }
-    
+
     public WnObj getDirect(String id) {
         return tree.get(id);
     }
@@ -361,6 +361,13 @@ public class WnIoImpl implements WnIo {
 
         // 钩子可以让这东西变 null, 表示不能删
         if (null != o) {
+            // 如果有缩略图，那就删了吧
+            if (o.hasThumbnail()) {
+                WnObj oThumb = this.fetch(null, o.thumbnail());
+                if (null != oThumb) {
+                    this.delete(oThumb);
+                }
+            }
             // 链接或者映射的话，就删了吧
             if (o.isLink() || o.isMount()) {
                 tree.delete(o);

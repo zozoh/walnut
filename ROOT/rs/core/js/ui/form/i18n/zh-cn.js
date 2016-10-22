@@ -53,6 +53,13 @@ define({
         },
         "pair" : {
             "empty" : "无内容"
+        },
+        "image" : {
+            "select"    : "选择文件",
+            "err_multi" : "一次只能选择一张图片",
+            "invalidTarget"  : "错误的上传目标或者上传目标不存在",
+            "noFile" : "您必须选择一张图片!",
+            "invalideFile" : "错误的图片类型!!"
         }
     }
 });

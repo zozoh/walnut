@@ -756,7 +756,7 @@ var Wn = {
                 if(mi.type=="group" || _.isArray(mi.items)){
                     mi._items_array = mi.items;
                     mi.items = function(jq, mi, callback){
-                        var items = this.browser.extend_actions(mi._items_array, true);
+                        var items = this.browser().extend_actions(mi._items_array, true);
                         callback(items);
                     };
                 }
@@ -1122,7 +1122,7 @@ var Wn = {
     },
     //..............................................
     get : function(o, quiet){
-        if(/^id:\w{6,}$/.test(o))
+        if(/^id:\w{6,}$/.test(o) && o.indexOf("/")<0)
             return this.getById(o.substring(3), quiet);
         return this.fetch(o, quiet);
     },

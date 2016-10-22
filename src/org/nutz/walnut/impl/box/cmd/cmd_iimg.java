@@ -152,12 +152,14 @@ public class cmd_iimg extends JvmExecutor {
             if (null != o_old_thumb
                 && w == o_old_thumb.getInt("width")
                 && h == o_old_thumb.getInt("height")) {
-                WnObj oThumb2 = oThumb;
-                sys.nosecurity(new Atom() {
-                    public void run() {
-                        sys.io.copyData(o_old_thumb, oThumb2);
-                    }
-                });
+                if (!o_old_thumb.isSameId(oThumb)) {
+                    WnObj oThumb2 = oThumb;
+                    sys.nosecurity(new Atom() {
+                        public void run() {
+                            sys.io.copyData(o_old_thumb, oThumb2);
+                        }
+                    });
+                }
             }
             // 否则是要生成的
             else {

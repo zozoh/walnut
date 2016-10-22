@@ -408,7 +408,7 @@
             position: fixed; display: none; margin:@d2*-1;
             color:@cf0; background: @cb0; border-radius: @d2; box-shadow: @d0 @d0 @d3 @cshadow;
             border:1px solid @cborder1;
-            width: @cfSecW; overflow: hidden;
+            width: @cfSecW; overflow: hidden; z-index: 99;
             > div {
                 width: 100%; height:100%; 
                 > .cf-ititle { @noselect();
@@ -488,5 +488,57 @@
     > section.pairs {display: none;}
     > section.empty {display: block;}
 }
-
+//----------------------------------------------------------------
+.com-image { @noselect();
+    .comi-image {
+        padding:2px; display: inline-block;
+        border:2px dashed transparent;
+        img{
+            margin:0; float: left;
+            border-radius: @d2; border:2px solid @cborder1;
+            
+        }
+    }
+    .comi-image[drag-show] {
+        border-color:@c0;
+        img{opacity: 0.4;}
+    }
+    .comi-image:after{@clr();}
+    .comi-select {
+        input[type="file"]{display: none;}
+        > * {vertical-align: middle; display: inline-block; margin-right:@d3;}
+        > b {@btn();}
+        > b:hover{@btn_hover();}
+        > .comi-process-con { display: none;
+            border:1px solid @cborder0; background: @cb0; width: 100px; 
+            > .comi-process-inner {
+                display: block; background: @c3; height: 2px; width: 0%;
+            }
+        }
+        > .comi-process-info {display:none; color:@c2;}
+        > .comi-msg {
+            margin:0 @d2; display: none;
+            > i {font-size: 1.2em;}
+        }
+        > .comi-msg[st="done"] {color:@c7;}
+        > .comi-msg[st="fail"] {
+            color:@c6;
+            > em {margin-left:@d1;font-style: normal;}
+        }
+    }
+}
+.com-image[ing] .comi-select{
+    > b {display: none;}
+    > .comi-process-con  {display: inline-block;}
+    > .comi-process-info {display: inline-block;}
+    > .comi-msg {display: none;}
+}
+.com-image[upload-status="done"] .comi-select{
+    > .comi-msg[st="done"] {display:inline-block;}
+    > .comi-msg[st="fail"] {display:none;}
+}
+.com-image[upload-status="fail"] .comi-select{
+    > .comi-msg[st="done"] {display:none;}
+    > .comi-msg[st="fail"] {display:inline-block;}
+}
 

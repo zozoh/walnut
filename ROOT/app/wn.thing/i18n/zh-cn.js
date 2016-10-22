@@ -10,9 +10,11 @@ define({
         "key" : {
             "id" : "ID",
             "lbls" : "标签",
+            "lbls_tip" : "多个标签请用空格分隔",
             "ct" : "创建时间",
             "lm" : "最后修改",
-            "icon" : "图标",
+            "icon"  : "图标",
+            "thumb" : "缩略图",
             "media" : "多媒体",
             "attachment" : "附件", 
             "th_ow" : "所有者",

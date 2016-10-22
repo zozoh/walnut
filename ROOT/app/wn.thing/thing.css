@@ -65,7 +65,58 @@
 .thing .th-form .th-con {
   padding-left: 6px;
 }
+.thing .th-search [key="th_nm"] i.th_thumb {
+  display: inline-block;
+  vertical-align: middle;
+  width: 16px;
+  text-align: center;
+  margin-right: 6px;
+}
+.thing .th-search [key="th_nm"] img {
+  height: 16px;
+  vertical-align: middle;
+  border-radius: 2px;
+  border: 1px solid #d0d0d0;
+  margin-right: 6px;
+}
 .thing .th-search [key="th_nm"] em {
   margin-left: 6px;
   color: #888888;
+}
+.thing .th-search .th-lbl {
+  display: inline-block;
+  padding: 0 6px;
+  vertical-align: middle;
+  margin: 0 1px;
+  border: 1px solid #d0d0d0;
+  font-size: 10px;
+  border-radius: 2px;
+  background: #eeeeee;
+  color: #666666;
+}
+.thing .th-search .th_file_none {
+  font-size: 10px;
+  font-style: italic;
+  color: #888888;
+}
+.thing .th-search .th_file_nb {
+  font-size: 10px;
+}
+.thing .th-search .th_file_nb > i {
+  color: #0088ff;
+}
+.thing .th-search .th_file_nb > em {
+  font-style: normal;
+  font-weight: bold;
+  color: #008800;
+  margin-left: 2px;
+}
+.thing .th-search .tbl-row-actived .th_file_none {
+  color: #ffffff;
+}
+.thing .th-search .tbl-row-actived .th_file_nb > i {
+  color: #ffffff;
+}
+.thing .th-search .tbl-row-actived .th_file_nb > em {
+  color: #ffffff;
 }

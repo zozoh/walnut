@@ -100,7 +100,7 @@ return ZUI.def("ui.form", {
                 // 有快捷定义 ..
                 else if(fld.editAs){
                     // 内置
-                    if(/^(input|color|content|file|background|label|switch|text|link|(drop|check|radio)list|pair)$/.test(fld.editAs)){
+                    if(/^(input|color|content|file|background|label|switch|text|link|(drop|check|radio)list|pair|image)$/.test(fld.editAs)){
                         fld.uiType = "ui/form/c_" + fld.editAs;
                     }
                     // 各种 picker
@@ -163,7 +163,8 @@ return ZUI.def("ui.form", {
 
         // 非虚拟字段，找到类型处理器
         if(!fld.virtual){
-            jF.data("@jOBJ", jType(fld));
+            fld.JsObjType = jType(fld);
+            //jF.data("@jOBJ", fld.JsObjType);
         }
 
         // 激活状态
@@ -227,11 +228,12 @@ return ZUI.def("ui.form", {
             })).render(function(){
                 // console.log("UI.defer_report:", fld.uiType, fld._form_key);
                 UI.defer_report(fld._form_key);
+                // 记录字段对应的 UI 对象
+                fld.UI = this;
                 // 这里做一下额外检查，如果发现自己的 parent 已经不对了，自杀
-                var comUI = this;
-                if(comUI.parent !== UI){
+                if(fld.UI .parent !== UI){
                     window.setTimeout(function(){
-                        comUI.destroy();
+                        fld.UI.destroy();
                     }, 0);
                 }
             });
@@ -241,7 +243,7 @@ return ZUI.def("ui.form", {
                 throw "field '" + fld.key + "' has invalid UIComponent : " + fld.uiType + " : without get/setData()";
             }
             // 记录实例的引用
-            jF.data("@UI", theUI);
+            //jF.data("@UI", theUI);
         });
 
         // 绘制补充说明
@@ -262,7 +264,7 @@ return ZUI.def("ui.form", {
 
         // 非虚拟字段
         if(!fld.virtual) {
-            var val = jType(fld).parse(v).toNative();
+            var val = fld.JsObjType.parse(v).toNative();
             $z.invoke(opt, "on_change", [fld.key, val, fld], context);
             UI.trigger("form:change"  , fld.key, val, fld);
             obj = $z.obj(fld.key, val);
@@ -508,15 +510,51 @@ return ZUI.def("ui.form", {
         UI.ui_parse_data(obj, function(o){
             // 设置每个字段
             UI.$myfields().each(function(){
-                var jF  = $(this);
-                var jso = jF.data("@jOBJ");
-                var fui = jF.data("@UI");
-                if(jso.type().acceptForFormUpdate(o)){
-                    var val = jso.parseByObj(o).value();
-                    fui.setData(val, jso);
-                }
+                // var jF  = $(this);
+                // var jso = jF.data("@jOBJ");
+                // var fui = jF.data("@UI");
+                // if(jso.type().acceptForFormUpdate(o)){
+                //     var val = jso.parseByObj(o).value();
+                //     fui.setData(val, jso);
+                // }
+                UI.__set_fld_data(this, o, true);
             });
         });
+    },
+    //...............................................................
+    __set_fld_data : function(jF, o, forUpdate) {
+        var jF  = $(jF);
+        var fld = jF.data("@FLD");
+        var fui = fld.UI;
+        var jso = fld.JsObjType;
+
+        // 更新的时候，检查是否接受
+        if(forUpdate && !jso.type().acceptForFormUpdate(o)){
+            return;
+        }
+
+        // TODO 这里有诡异的问题，有时候 fld 会为 undefined
+        // 可能这个 form 还没设置完 data 内容就被在另外一个回调里面的过程清空了？
+        // 有时间要查查，基本上是快速在一个 gasketName 上切换 formUI 和另外的 UI 造成的
+        if(!fld || !fui) {
+            return;
+        }
+
+        // 调用回调
+        $z.invoke(fld, "beforeSetData", [o]);
+
+        // 虚拟字段 
+        if(fld.virtual) {
+            fui.setData(o);
+        }
+        // 指定字段
+        else {
+            var val = jso.parseByObj(o).value();
+            fui.setData(val, jso);
+        }
+
+        // 调用回调
+        $z.invoke(fld, "afterSetData", [o]);
     },
     //...............................................................
     setData : function(obj){
@@ -527,27 +565,7 @@ return ZUI.def("ui.form", {
 
             // 设置每个字段
             UI.$myfields().each(function(){
-                var jF  = $(this);
-                var fld = jF.data("@FLD");
-                var fui = jF.data("@UI"); 
-
-                // TODO 这里有诡异的问题，有时候 fld 会为 undefined
-                // 可能这个 form 还没设置完 data 内容就被在另外一个回调里面的过程清空了？
-                // 有时间要查查，基本上是快速在一个 gasketName 上切换 formUI 和另外的 UI 造成的
-                if(!fld || !fui) {
-                    return;
-                }
-
-                // 虚拟字段 
-                if(fld.virtual) {
-                    fui.setData(o);
-                }
-                // 指定字段
-                else {
-                    var jso = jF.data("@jOBJ");
-                    var val = jso.parseByObj(o).value();
-                    fui.setData(val, jso);
-                }
+                UI.__set_fld_data(this, o);
             });
         });
     },
@@ -557,7 +575,8 @@ return ZUI.def("ui.form", {
     },
     //...............................................................
     getFormCtrl : function(key) {
-        return this.$fld(key).data("@UI");
+        //return this.$fld(key).data("@UI");
+        return this.$fld(key).data("@FLD").UI;
     },
     //...............................................................
     getFormDataObj : function(){
@@ -583,14 +602,16 @@ return ZUI.def("ui.form", {
                 return;
 
             // 得到字段的控件
-            var fui = jF.data("@UI");
+            //var fui = jF.data("@UI");
+            var fui = fld.UI;
 
             // 虚拟字段，合并到输出
             if(fld.virtual) {
                 return fui.getData();
             }
             // 指定字段，根据类型解析一下
-            var jso = jF.data("@jOBJ");
+            //var jso = jF.data("@jOBJ");
+            var jso = fld.JsObjType;
             var v   = fui.getData();
             return jso.parse(v).toNative();
         }
@@ -617,7 +638,8 @@ return ZUI.def("ui.form", {
                     return;
 
                 // 得到字段的控件
-                var fui = jF.data("@UI"); 
+                //var fui = jF.data("@UI"); 
+                var fui = fld.UI; 
 
                 // 虚拟字段，合并到输出
                 if(fld.virtual) {
@@ -626,7 +648,8 @@ return ZUI.def("ui.form", {
                 }
                 // 指定字段
                 else {
-                    var jso = jF.data("@jOBJ");
+                    //var jso = jF.data("@jOBJ");
+                    var jso = fld.JsObjType;
                     var v   = fui.getData();
                     jso.parse(v).setToObj(re);
                 }

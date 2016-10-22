@@ -259,6 +259,7 @@ public abstract class Things {
 
         // 准备查询条件
         WnQuery q = Wn.Q.pid(oDir);
+        q.setv("race", WnRace.FILE);
 
         // 添加
         if (hc.params.has("add")) {

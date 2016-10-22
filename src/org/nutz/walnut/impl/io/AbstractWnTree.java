@@ -178,7 +178,9 @@ public abstract class AbstractWnTree implements WnTree {
         for (int i = toIndex - 1; i >= fromIndex; i--) {
             String nm = paths[i];
             if (nm.startsWith("id:")) {
-                p = this.checkById(nm.substring(3));
+                p = this.get(nm.substring(3));
+                if (null == p)
+                    return null;
                 fromIndex = i + 1;
                 break;
             }
@@ -879,7 +881,7 @@ public abstract class AbstractWnTree implements WnTree {
         if (q == null)
             q = new WnQuery();
         q.limit(1);
-        
+
         each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj obj, int length) {
                 re[0] = obj;

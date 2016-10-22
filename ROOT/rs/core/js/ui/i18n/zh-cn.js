@@ -29,6 +29,7 @@ define({
     "search"     : "搜索",
     "choose"     : "选择",
     "empty"      : "没有内容",
+    "none"       : "无",
     "noselected" : "没有对象被选中",
     "loading"    : "正在加载 ...",
     "doing"      : "执行中 ...",

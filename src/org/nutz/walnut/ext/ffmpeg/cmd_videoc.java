@@ -11,6 +11,7 @@ import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
+import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
 import org.nutz.lang.segment.Segment;
@@ -73,7 +74,7 @@ public class cmd_videoc extends JvmExecutor {
                             String.format("%dx%d", vi.getWidth() / 4 * 2, vi.getHeight() / 4 * 2));
 
             log.debug("ffmpeg params :\n" + Json.toJson(vc_params));
-            
+
             // 记录一下视频的信息
             obj.setv("width", vi.getWidth());
             obj.setv("height", vi.getHeight());
@@ -98,11 +99,20 @@ public class cmd_videoc extends JvmExecutor {
                 sys.io.writeAndClose(t, new FileInputStream(thumb));
                 t = sys.io.checkById(t.id());
 
+                // 如果预览图没有缩略图，生成它
+                if (!t.hasThumbnail()) {
+                    String thumbSize = params.get("thumb");
+                    if (Strings.isBlank(thumbSize) || "true".equals(thumbSize))
+                        thumbSize = "64x64";
+                    sys.execf("iimg id:%s -thumb %s -Q", t.id(), thumbSize);
+                    t = sys.io.checkById(t.id());
+                }
+
                 // 这里要将预览图的 thumb 设置给 video，同时将预览图作为 video_cover
                 NutMap meta = new NutMap();
                 meta.put("thumb", t.thumbnail());
                 meta.put("video_cover", t.id());
-                
+
                 sys.io.appendMeta(obj, meta);
                 sys.io.appendMeta(t, tMap);
             }
@@ -141,7 +151,7 @@ public class cmd_videoc extends JvmExecutor {
                 Files.deleteDir(tmpDir);
         }
     }
-    
+
     /**
      * 抽样式md5
      * 

@@ -38,7 +38,35 @@
     //......................................... 左侧搜索列表
     .th-search {
         [key="th_nm"] {
+            i.th_thumb {
+                display:inline-block; vertical-align: middle; width: 16px; text-align: center;
+                margin-right:@d2;
+            }
+            img {
+                height:16px; vertical-align: middle;border-radius: @d0; border:1px solid @cborder1;
+                margin-right:@d2;
+            }
             em {margin-left:@d2; color:@c2;}
+        }
+        .th-lbl {
+            display: inline-block; padding:0 @d2; vertical-align: middle;
+            margin: 0 1px; border:1px solid @cborder1; font-size:@f1;
+            border-radius: @d0; background: @cb1; color:@cf1;
+        }
+        .th_file_none {
+            font-size:@f1; font-style: italic; color:@c2;
+        }
+        .th_file_nb {
+            font-size:@f1; 
+            > i {color:@c4;}
+            > em {font-style: normal; font-weight: bold; color:@c3; margin-left: @d0;}
+        }
+        .tbl-row-actived {
+             .th_file_none {color:@ch0_f;}
+            .th_file_nb {
+                > i {color:@ch0_f;}
+                > em {color:@ch0_f;}
+            }
         }
     }
     //......................................... 右侧表单
