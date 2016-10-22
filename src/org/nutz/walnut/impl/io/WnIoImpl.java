@@ -368,6 +368,14 @@ public class WnIoImpl implements WnIo {
                     this.delete(oThumb);
                 }
             }
+            // 如果有视频转换的结果集合，也删除
+            String vcDir = o.getString("videoc_dir");
+            if (!Strings.isBlank(vcDir)) {
+                WnObj oVcDir = this.fetch(null, vcDir);
+                if (null != oVcDir) {
+                    this.delete(oVcDir, true);
+                }
+            }
             // 链接或者映射的话，就删了吧
             if (o.isLink() || o.isMount()) {
                 tree.delete(o);
