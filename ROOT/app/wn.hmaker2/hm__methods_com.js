@@ -50,7 +50,7 @@ var methods = {
         // 如果 key 不是字符串，或者里面包含了 "." 那么可能是多层的 key
         // $z.setValue 提供了这个逻辑的封装 
         else {
-            var prop = $z.setValue({}, key, val);
+            var prop = $z.extend(this.getData(), $z.setValue({}, key, val));
             this.fire("change:com", _.extend(prop, this.__gen_base_data()), this.$el);
         }
     },

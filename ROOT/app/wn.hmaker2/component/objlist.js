@@ -56,12 +56,16 @@ return ZUI.def("app.wn.hm_com_objlist", {
         var UI = HmComMethods(this);
     },
     //...............................................................
+    events : {
+        "dblclick .hmol-list" : function(){
+            this.__reload_items();
+        }
+    },
+    //...............................................................
     __draw_items : function(list, com) {
         var UI  = this;
         com = com || UI.getData();
         var jList = UI.arena.children(".hmol-list").empty();
-
-        console.log(list);
 
         // 如果木有数据，就显示空
         if(!_.isArray(list) || list.length == 0) {
@@ -74,25 +78,51 @@ return ZUI.def("app.wn.hm_com_objlist", {
         var jsContent = Wn.read(aphJS);
         eval(jsContent);
 
-
-        // 在页内，加载 css
-        var aphCss = UI.getTemplateObjPath(com.template, "css");
-        var cssContent = Wn.read(aphCss);
-        var jStyle = UI.arena.children('style[template-css]');
-        if(jStyle.length == 0) {
-            jStyle = $('<style>').attr({
-                "template-css" : "yes",
-                "rel"          : "stylesheet",
-                "type"         : "text/css"
-            }).appendTo(UI.arena);
-        }
-        jStyle.html(cssContent);
-
         // 逐个绘制
+        // TODO 加入皮肤的支持
         for(var obj of list) {
             $('<div>').addClass(com.template).appendTo(jList)[com.template](obj, com.mapping);
         }
 
+    },
+    //...............................................................
+    __reload_items : function(com){
+        var UI = this;
+        var jList = UI.arena.find(">.hmol-list").show();
+        com = com || UI.getData();
+
+        // 记录一下接口的特征，以防止重复加载
+        var api_finger = $z.toJson(_.pick(com, "api", "params"));
+
+        // 得到 api 的相关信息
+        var apiUrl = UI.getHttpApiUrl(com.api);
+        var params = com.params || {};
+        // 显示正在加载
+        UI.ccode("api.loading").appendTo(jList.empty());
+        // 向服务器请求
+        $.post(apiUrl, params, function(re){
+            // 请求成功后记录接口特征
+            UI.__api_finger = api_finger;
+
+            // api 返回错误
+            if(/^e[.]/.test(re)){
+                $('<div class="api-error">').text(re).appendTo(jList.empty());
+                return;
+            }
+
+            // 试图解析数据
+            try {
+                // 记录数据
+                UI.__list = $z.fromJson(re);
+
+                // 重绘项目
+                UI.__draw_items(UI.__list, com);
+            }
+            // 接口调用错误
+            catch (errMsg) {
+                $('<div class="api-error">').text(errMsg).appendTo(jList.empty());
+            }
+        });
     },
     //...............................................................
     setupProp : function(){
@@ -131,35 +161,7 @@ return ZUI.def("app.wn.hm_com_objlist", {
         }
         // 重新加载
         else {
-            // 得到 api 的相关信息
-            var apiUrl = UI.getHttpApiUrl(com.api);
-            var params = com.params || {};
-            // 显示正在加载
-            UI.ccode("api.loading").appendTo(jList.empty());
-            // 向服务器请求
-            $.post(apiUrl, params, function(re){
-                // 请求成功后记录接口特征
-                UI.__api_finger = api_finger;
-
-                // api 返回错误
-                if(/^e[.]/.test(re)){
-                    $('<div class="api-error">').text(re).appendTo(jList.empty());
-                    return;
-                }
-
-                // 试图解析数据
-                try {
-                    // 记录数据
-                    UI.__list = $z.fromJson(re);
-
-                    // 重绘项目
-                    UI.__draw_items(UI.__list, com);
-                }
-                // 接口调用错误
-                catch (errMsg) {
-                    $('<div class="api-error">').text(errMsg).appendTo(jList.empty());
-                }
-            });
+            UI.__reload_items(com);
         }
     },
     //...............................................................

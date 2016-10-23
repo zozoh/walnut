@@ -180,8 +180,12 @@ body {
 .hmc-image-txt {
   position: absolute;
   padding: 6px;
-  background: rgba(0, 0, 0, 0.2);
-  color: #FFF;
+}
+.hmc-image .hmc-image-txt {
+  display: none;
+}
+.hmc-image[show-txt] .hmc-image-txt {
+  display: block;
 }
 .hmc-text > * {
   cursor: pointer;

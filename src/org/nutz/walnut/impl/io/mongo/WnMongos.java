@@ -6,7 +6,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.DateRegion;
 import org.nutz.lang.util.FloatRegion;
 import org.nutz.lang.util.IntRegion;
@@ -40,6 +42,16 @@ public abstract class WnMongos {
             for (Map.Entry<String, Object> en : map.entrySet()) {
                 String key = en.getKey();
                 Object val = en.getValue();
+                // 如果顶级条件是 "lbls"，那么自动拆解值为数组
+                if ("lbls".equals(key) && val instanceof CharSequence) {
+                    String[] ss = Strings.splitIgnoreBlank(val.toString(), "[ ,，\t;；]");
+                    if(0 == ss.length){
+                        val = null;
+                    }else{
+                        val = Lang.arrayFirst("all", ss);
+                    }
+                }
+                // 设置到查询条件中
                 _set_to_doc(doc, key, val);
             }
             list.add(doc);

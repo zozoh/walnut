@@ -132,7 +132,7 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
         var re = {}; 
         if(templateName) {
             // 得到模板对象的映射关系
-            var json = Wn.read("~/.hmaker/template/" + templateName + "/mapping.js") || "{}";
+            var json = Wn.read("~/.hmaker/template/" + templateName + "/" + templateName + ".mapping.js") || "{}";
             var re   = $z.fromJson(json);
 
             // 更新模板映射的值
