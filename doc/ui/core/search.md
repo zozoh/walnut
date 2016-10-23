@@ -56,6 +56,12 @@ new SearchUI({
     cmdTmplContext : {..} | {UI}F(),
     
     /*
+    这里指定过滤器部分的宽度的参考值，如果过滤器区域宽度小于这个值
+    那么就会尝试收缩 action 部分扩展其显示。默认 50%
+    */
+    filterWidthHint : "50%",
+    
+    /*
     过滤控件, getData 返回:
     {
         // 查询的 JS 对象，参见 cmd_obj 的 match 命令

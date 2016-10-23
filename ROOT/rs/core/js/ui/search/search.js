@@ -332,7 +332,8 @@ return ZUI.def("ui.srh", {
     },
     //...............................................................
     resize : function(deep){
-        var UI = this;
+        var UI   = this;
+        var opt  = UI.options;
         var jSky = UI.arena.find(".srh-sky");
         var jActions = jSky.children(".srh-actions");
         var jFilter = jSky.children(".srh-filter");
@@ -365,16 +366,20 @@ return ZUI.def("ui.srh", {
             //     jFilter.css("height", jActions.outerHeight());
             // }
             jFilter.css("height", h_action);
+
+            // 得到 filter 宽度的参考值
+            var fltWidthHint  = $z.dimension(opt.filterWidthHint || "50%", w_sky);
+            var fltWidthCount = w_sky - w_action;
             
-            // 太窄
-            if(w_sky/2 < w_action){
+            // filter 计算值小于参考值，那么变成窄模式，试图收缩 action
+            if(fltWidthCount < fltWidthHint){
                 // 原来不是窄的，那么现在要绘制成窄的
                 if(!jSky.attr("narrow")){
                     jSky.attr("narrow","true");
                     UI._draw_actions(true);
                 }
             }
-            // 并排
+            // 恢复并排
             else{
                 // 原来是窄的，那么恢复回来
                 if(jSky.attr("narrow")){
