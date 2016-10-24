@@ -19,19 +19,25 @@ public class MongoDB {
     private String usr;
     private String pwd;
     private String db;
+    private String uri;
 
     private ZMongo _zm;
     private ZMoDB _zdb;
 
     public void on_create() {
-        ServerAddress sa = ZMongo.NEW_SA(host, port);
-        MongoCredential cred = null;
-        if (!Strings.isBlank(usr))
-            cred = MongoCredential.createPlainCredential(usr, db, pwd.toCharArray());
-        if (log.isInfoEnabled())
-            log.infof("MongoCredential : '%s'", cred);
-        // 连接数据库
-        _zm = ZMongo.me(sa, cred, null);
+        if (Strings.isBlank(uri)) {
+            ServerAddress sa = ZMongo.NEW_SA(host, port);
+            MongoCredential cred = null;
+            if (!Strings.isBlank(usr))
+                cred = MongoCredential.createPlainCredential(usr, db, pwd.toCharArray());
+            if (log.isInfoEnabled())
+                log.infof("MongoCredential : '%s'", cred);
+            // 连接数据库
+            _zm = ZMongo.me(sa, cred, null);
+        } else {
+            _zm = ZMongo.uri(uri);
+        }
+        
         _zdb = _zm.db(db);
 
     }

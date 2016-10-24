@@ -20,6 +20,9 @@ var ioc = {
 			},
 			db : {
 				java : '$conf.get("mongo-db")'
+			},
+			uri : {
+				java : '$conf.get("mongo-uri")'
 			}
 		}
 	}
