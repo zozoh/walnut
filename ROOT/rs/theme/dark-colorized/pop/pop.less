@@ -1,14 +1,18 @@
 @import (reference) "../ui";
 
+@pT : 32px;
+@pB : 48px;
+
 .pop {
-    width:100%; height:100%; 
-    @flex(); flex-flow : column nowrap;
+    width:100%; height:100%; position: relative;
+    > * {position: absolute; left: 0; right: 0;}
     .pm-title {@noselect();
-        padding:@d3; text-align: center; font-size: @f3;
+        top:0; height:@pT; line-height: @pT; padding:0 @d4;
+        text-align: center; font-size: @f3;
         border-bottom: 1px solid @cborder1;
     }
     .pm-body {
-        flex : 1 0 auto;
+        top:@pT; bottom:@pB;
         background: @cb0;
 
         .ui-quartz {
@@ -16,16 +20,10 @@
         }
     }
     .pm-btns {@noselect();
+        bottom:0; height:@pB;
         border-top: 1px solid @cborder1;
         text-align: right; padding:@d3;
-        .pm-btn {
-            display: inline-block; vertical-align: middle;
-            padding:@d3 @d6; font-size:@f2; cursor: pointer;
-            border:1px solid @cbtn_l; background: @cbtn_b; color:@cbtn_f;
-            border-radius: @d0;
-        }
-        .pm-btn:hover{
-            background: @ch0_b; color:@ch0_f;
-        }
+        .pm-btn {@btn();}
+        .pm-btn:hover{@btn_hover();}
     }
 }

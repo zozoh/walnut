@@ -36,8 +36,8 @@
   padding: 0 8px;
   margin: 0;
   white-space: nowrap;
-  border-left: 1px solid rgba(0, 0, 0, 0.2);
-  color: #aaaaaa;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  color: #cccccc;
   text-align: center;
   cursor: pointer;
 }
@@ -51,7 +51,7 @@
   width: 32px;
   height: 32px;
   text-align: center;
-  border-right: 1px solid rgba(0, 0, 0, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
   color: #cccccc;
 }
 .tbl-checker > * {
@@ -73,7 +73,7 @@
   width: 100%;
   height: 100%;
   overflow: auto;
-  border-top: 32px solid rgba(255, 255, 255, 0.1);
+  border-top: 32px solid rgba(0, 0, 0, 0.5);
 }
 .tbl-row td {
   padding: 8px;
@@ -81,7 +81,7 @@
   position: relative;
   vertical-align: middle;
   border: 1px dashed rgba(0, 0, 0, 0);
-  border-bottom-color: rgba(255, 255, 255, 0.06);
+  border-bottom-color: rgba(0, 0, 0, 0.05);
 }
 .tbl-row td .oicon {
   margin: 0 6px;
@@ -126,5 +126,5 @@
   display: inline;
 }
 .tbl-row-checked td {
-  border-color: #338;
+  border-color: rgba(0, 64, 255, 0.6);
 }

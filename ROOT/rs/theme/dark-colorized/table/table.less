@@ -20,14 +20,14 @@
 
 .tbl-head-t td {
     padding:0 @d3;margin:0; white-space:nowrap;
-    border-left:1px solid rgba(0,0,0,0.2); color:@cf1;
+    border-left:1px solid @cborder0; color:@cf0;
     text-align: center; cursor: pointer;
 }
 .tbl-head td:first-child{border:0;}
 
 .tbl-checker {
     position: absolute; top:0; left:0; width:@d7; height:@d7;
-    text-align: center; border-right:1px solid rgba(0,0,0,0.2);
+    text-align: center; border-right:1px solid @cborder1; 
     color:@cf0;
 
     >* {display: none;}
@@ -39,10 +39,10 @@
 
 .tbl-body{
     width:100%; height:100%; overflow: auto;
-    border-top:@d7 solid rgba(255,255,255,0.1);
+    border-top:@d7 solid @cb1;
 }
 
-@tddc : rgba(255,255,255,0.06);
+@tddc : rgba(0,0,0,0.05);
 @tddh : rgba(255,255,255,0.6);
 .tbl-row td {
     padding:@d3; white-space: nowrap;
@@ -75,11 +75,11 @@
 }
 
 .tbl-row-checked {
-    background: @ch0_b; color:@ch0_f;
+    background: @ch0_b; color:@ch0_f; 
     .tbl-row-checker{
         >*:first-child {display: none;}
         >*:last-child  {display: inline;}
     }
+    td {border-color: @ch0_b;}
 }
-//.tbl-row-checked .tbl-row-nm i[tp]{color: @ch1_f;}
-.tbl-row-checked td {border-color: #338;}
+

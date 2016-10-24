@@ -17,10 +17,12 @@
 }
 .com-link span {
   color: #888888;
-  width: 16px;
   display: inline-block;
   vertical-align: middle;
-  text-align: center;
+  margin-right: 6px;
+}
+.com-link span i[tp="cl-lnk"] {
+  display: none;
 }
 .com-link span i[tp="cl-obj"] {
   display: none;
@@ -28,12 +30,12 @@
 .com-link span i[tp="cl-ext"] {
   display: none;
 }
-.com-link span i[tp="cl-unknown"] {
-  display: none;
-}
 .com-link u {
   display: inline-block;
   vertical-align: middle;
+}
+.com-link[link-type="lnk"] span i[tp="cl-lnk"] {
+  display: inline;
 }
 .com-link[link-type="obj"] span i[tp="cl-obj"] {
   display: inline;
@@ -41,8 +43,8 @@
 .com-link[link-type="ext"] span i[tp="cl-ext"] {
   display: inline;
 }
-.com-link[link-type="unknown"] span i[tp="cl-unknown"] {
-  display: inline;
+.com-link[link-type="empty"] span {
+  display: none;
 }
 .com-input {
   white-space: nowrap;
@@ -594,6 +596,7 @@
 }
 .com-content .ccnt-brief {
   padding: 8px;
+  word-break: break-all;
 }
 .com-content .ccnt-brief[no-brief] {
   font-style: italic;
@@ -604,11 +607,11 @@
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  height: 32px;
-  line-height: 32px;
+  padding: 6px;
   border-top: 1px dotted rgba(255, 255, 255, 0.1);
   display: -webkit-flex;
   display: flex;
+  flex-wrap: wrap;
 }
 .com-content > footer .ccnt-cinfo {
   -moz-user-select: none;
@@ -649,10 +652,11 @@
   display: flex;
 }
 .com-content > footer ul li {
-  float: left;
   color: #aabbff;
   padding: 0 6px;
   cursor: pointer;
+  word-spacing: nowrap;
+  flex: 0 0 auto;
 }
 .com-content > footer ul li:hover {
   color: #ccddff;
@@ -663,4 +667,284 @@
   display: block;
   height: 0;
   clear: both;
+}
+.com-file {
+  display: -webkit-flex;
+  display: flex;
+  flex-wrap: wrap;
+}
+.com-file .cf-adder {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  border: 1px dotted rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  margin: 4px;
+  width: 32px;
+  text-align: center;
+  height: 32px;
+  line-height: 32px;
+  font-weight: bold;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.2);
+}
+.com-file .cf-adder:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px dotted #ffffff;
+}
+.com-file .cf-item {
+  position: relative;
+  padding: 4px;
+}
+.com-file .cf-item > header {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: 0.5s;
+}
+.com-file .cf-item > header .cf-thumb {
+  width: 32px;
+  height: 32px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  border-radius: 2px;
+  background-position: center center;
+}
+.com-file .cf-item > section {
+  position: fixed;
+  display: none;
+  margin: -6px;
+  color: #cccccc;
+  background: #000000;
+  border-radius: 6px;
+  box-shadow: 2px 2px 8px #000000;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 256px;
+  overflow: hidden;
+  z-index: 99;
+}
+.com-file .cf-item > section > div {
+  width: 100%;
+  height: 100%;
+}
+.com-file .cf-item > section > div > .cf-ititle {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  background: rgba(0, 0, 0, 0.3);
+  color: #aabbff;
+  margin: 0;
+  padding: 8px;
+  font-family: Monaco, Consolas, Courier New;
+  font-size: 10px;
+  cursor: pointer;
+}
+.com-file .cf-item > section > div > .cf-ititle:hover {
+  color: #ccddff;
+  text-decoration: underline;
+}
+.com-file .cf-item > section > div > .cf-preview-con {
+  padding: 12px 0;
+  background: rgba(0, 0, 0, 0.8);
+}
+.com-file .cf-item > section > div > .cf-preview-con .cf-preview {
+  width: 128px;
+  height: 128px;
+  margin: 0 auto;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+}
+.com-file .cf-item > section > div > .cf-actions {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+}
+.com-file .cf-item > section > div > .cf-actions ul {
+  display: -webkit-flex;
+  display: flex;
+  justify-content: flex-end;
+}
+.com-file .cf-item > section > div > .cf-actions ul li {
+  cursor: pointer;
+  color: #aabbff;
+  font-size: 10px;
+  padding: 0 6px;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+.com-file .cf-item > section > div > .cf-actions ul li:hover {
+  color: #ccddff;
+  text-decoration: underline;
+}
+.com-file .cf-item[preview] > header {
+  opacity: 1.0;
+}
+.com-file .cf-item[preview] > section {
+  display: block;
+}
+.com-pair > section.pairs table {
+  width: 100%;
+  border-spacing: 1px;
+  border-collapse: separate;
+  background: rgba(255, 255, 255, 0.2);
+}
+.com-pair > section.pairs table tr {
+  background: rgba(0, 0, 0, 0.5);
+  color: #aaaaaa;
+}
+.com-pair > section.pairs table td {
+  padding: 0;
+}
+.com-pair > section.pairs table td.cp-key {
+  white-space: nowrap;
+  font-family: Monaco, Consolas, Courier New;
+  font-size: 10px;
+  padding: 0 8px;
+}
+.com-pair > section.pairs table td.cp-val input {
+  outline: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: #444444;
+  background: rgba(255, 255, 255, 0.4);
+  width: 100%;
+  border-radius: 0;
+  border: 0;
+}
+.com-pair > section.pairs table td.cp-val input:focus {
+  color: #000000;
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #ffffff;
+}
+.com-pair > section.empty {
+  padding: 6px;
+  font-style: italic;
+  color: #00aa00;
+}
+.com-pair[show="pairs"] > section.pairs {
+  display: block;
+}
+.com-pair[show="pairs"] > section.empty {
+  display: none;
+}
+.com-pair[show="empty"] > section.pairs {
+  display: none;
+}
+.com-pair[show="empty"] > section.empty {
+  display: block;
+}
+.com-image {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.com-image .comi-image {
+  padding: 2px;
+  display: inline-block;
+  border: 2px dashed transparent;
+}
+.com-image .comi-image img {
+  margin: 0;
+  float: left;
+  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+.com-image .comi-image[drag-show] {
+  border-color: #ff8800;
+}
+.com-image .comi-image[drag-show] img {
+  opacity: 0.4;
+}
+.com-image .comi-image:after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+}
+.com-image .comi-select input[type="file"] {
+  display: none;
+}
+.com-image .comi-select > * {
+  vertical-align: middle;
+  display: inline-block;
+  margin-right: 8px;
+}
+.com-image .comi-select > b {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  margin: 0 2px;
+  padding: 6px 32px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  text-align: center;
+}
+.com-image .comi-select > b:hover {
+  color: #ffffff;
+  background: rgba(0, 64, 255, 0.6);
+}
+.com-image .comi-select > .comi-process-con {
+  display: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #000000;
+  width: 100px;
+}
+.com-image .comi-select > .comi-process-con > .comi-process-inner {
+  display: block;
+  background: #00aa00;
+  height: 2px;
+  width: 0%;
+}
+.com-image .comi-select > .comi-process-info {
+  display: none;
+  color: #aaaaaa;
+}
+.com-image .comi-select > .comi-msg {
+  margin: 0 6px;
+  display: none;
+}
+.com-image .comi-select > .comi-msg > i {
+  font-size: 1.2em;
+}
+.com-image .comi-select > .comi-msg[st="done"] {
+  color: #00aa00;
+}
+.com-image .comi-select > .comi-msg[st="fail"] {
+  color: #ff0000;
+}
+.com-image .comi-select > .comi-msg[st="fail"] > em {
+  margin-left: 4px;
+  font-style: normal;
+}
+.com-image[ing] .comi-select > b {
+  display: none;
+}
+.com-image[ing] .comi-select > .comi-process-con {
+  display: inline-block;
+}
+.com-image[ing] .comi-select > .comi-process-info {
+  display: inline-block;
+}
+.com-image[ing] .comi-select > .comi-msg {
+  display: none;
+}
+.com-image[upload-status="done"] .comi-select > .comi-msg[st="done"] {
+  display: inline-block;
+}
+.com-image[upload-status="done"] .comi-select > .comi-msg[st="fail"] {
+  display: none;
+}
+.com-image[upload-status="fail"] .comi-select > .comi-msg[st="done"] {
+  display: none;
+}
+.com-image[upload-status="fail"] .comi-select > .comi-msg[st="fail"] {
+  display: inline-block;
 }

@@ -28,9 +28,10 @@
         padding:@d4;
         .lst-item {
             > * {display: inline-block; vertical-align: middle;}
-            b {margin:0 @d2; min-width: 100px;}
+            > i {width:24px; text-align: center;}
+            b {margin:0 @d0; min-width: 100px;}
             > span.pvg-edit {
-                display:none;
+                display:none; margin: 0 @d2; font-size: @f1;
                 color:@cf0; white-space: nowrap;
                 .pvg-cus {
                     color:@clink; 
@@ -43,12 +44,12 @@
                     u {text-decoration: none; padding:@d2;}
                     u.checked {background:@chx_b; color:@chx_f;}
                     u.pvg-auto:hover {
-                        background: @ch0_b; color:ch0_f;
+                        background: @ch0_b; color:@ch0_f;
                     }
                 }
             }
         }
-        .lst-item[role="ADMIN"]{color:#FF0;}
+        .lst-item[role="ADMIN"]{color:@c0;}
         .lst-item[role="REQUEST"]{opacity: 0.5;}
         .lst-item[role="BLOCK"]{opacity: 0.5; color:#F00;}
     }
