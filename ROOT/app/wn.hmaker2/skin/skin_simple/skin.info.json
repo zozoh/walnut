@@ -1,4 +1,4 @@
-({
+{
 	"name" : "skin-simple",
 	"com" : {
 		"navmenu" : [ {
@@ -19,4 +19,4 @@
 	"template" : {
 		"simple_list_item" : "simple-list-item"
 	}
-})
+}

@@ -395,7 +395,7 @@ return ZUI.def("app.wn.hmaker_page", {
         // 更新样式
         var jHead = UI._C.iedit.$head;
         _H(jHead, 'link[skin]', !skinName ? null
-            : $z.tmpl('<link skin="yes" rel="stylesheet" type="text/css" href="/o/read/home/{{d1}}/.hmaker/skin/{{skinName}}/{{skinName}}.css?aph=true">')({
+            : $z.tmpl('<link skin="yes" rel="stylesheet" type="text/css" href="/o/read/home/{{d1}}/.hmaker/skin/{{skinName}}/skin.css?aph=true">')({
                 d1       : oHome.d1,
                 skinName : skinName,
             }));

@@ -1,0 +1,8 @@
+{
+    "name"    : "simple_list_item",
+    "mapping" : {
+        "id"     : "id",
+        "title"  : "title",
+        "lastModified" : "lm",
+    }
+}

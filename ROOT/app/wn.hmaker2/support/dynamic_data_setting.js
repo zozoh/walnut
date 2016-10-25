@@ -70,7 +70,7 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
                     items : function(params, callback){
                         // 得到站点皮肤
                         var skinInfo = UI.getSkinInfo();
-                        var siTempl  = skinInfo.template || {}
+                        var siTempl  = (skinInfo||{}).template || {}
                         // 得到模板列表
                         Wn.exec("obj ~/.hmaker/template/* -json -l", function(re){
                             var list  = $z.fromJson(re);
@@ -146,16 +146,17 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
         var UI = this;
         var re = {}; 
         if(templateName) {
-            // 得到模板对象的映射关系
-            var json = Wn.read("~/.hmaker/template/" + templateName + "/" + templateName + ".mapping.js") || "{}";
-            var re   = $z.fromJson(json);
+            // 加载模板
+            var tmplInfo = UI.evalTemplate(templateName);
+
+            console.log(tmplInfo)
 
             // 更新模板映射的值
-            for(var key in re) {
-                var val = UI.__mapping[key];
-                if(!_.isUndefined(val))
-                    re[key] = val;
+            for(var key in tmplInfo.mapping) {
+                re[key] = UI.__mapping[key] || tmplInfo.mapping[key] || "";
             }
+
+            console.log(re)
         }
         // 返回
         return re;
