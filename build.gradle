@@ -88,7 +88,7 @@ buildscript {
 
 import org.nutz.lang.Files
 
-task wzip(dependsOn: classes) << {
+task wbuild(dependsOn: classes) << {
 	copy {
 		from sourceSets.main.output
 		into "build/wzip/classes"
@@ -133,7 +133,9 @@ task wzip(dependsOn: classes) << {
    	def web_props = Files.read(file('build/wzip/classes/web.properties'))
    	web_props = web_props.replaceAll("~/workspace/git/github/walnut", ".")
    	Files.write(file('build/wzip/classes/web.properties'), web_props)
-   	
+}
+
+def wzip(dependsOn: wbuild) {
    	task (_wzip, type: Zip) {
    		from "build/wzip/"
    		archiveName 'walnut-'+version_tag+'.zip'
