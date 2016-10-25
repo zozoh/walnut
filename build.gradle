@@ -135,7 +135,7 @@ task wbuild(dependsOn: classes) << {
    	Files.write(file('build/wzip/classes/web.properties'), web_props)
 }
 
-def wzip(dependsOn: wbuild) << {
+task wzip(dependsOn: wbuild) << {
    	task (_wzip, type: Zip) {
    		from "build/wzip/"
    		archiveName 'walnut-'+version_tag+'.zip'
