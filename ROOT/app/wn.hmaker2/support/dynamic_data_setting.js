@@ -149,7 +149,7 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
             // 加载模板
             var tmplInfo = UI.evalTemplate(templateName);
 
-            console.log(tmplInfo)
+            // console.log(tmplInfo)
 
             // 更新模板映射的值
             for(var key in tmplInfo.mapping) {

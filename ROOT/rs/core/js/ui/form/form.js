@@ -525,6 +525,11 @@ return ZUI.def("ui.form", {
     __set_fld_data : function(jF, o, forUpdate) {
         var jF  = $(jF);
         var fld = jF.data("@FLD");
+
+        // 有时候调到这个方法的时候，节点已经被清空了
+        if(!fld)
+            return;
+        
         var fui = fld.UI;
         var jso = fld.JsObjType;
 
