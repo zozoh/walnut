@@ -115,7 +115,7 @@ var methods = {
     //  - path 为 api 的路径
     getHttpApiUrl : function(path) {
         var oHome = this.getHomeObj();
-        return "/api/" + oHome.d1 + path;
+        return "/api/" + oHome.d1 + (path || "");
     },
     //=========================================================
     // 站点的模板

@@ -283,7 +283,7 @@ return ZUI.def("ui.form_com_file", {
         UI.__draw_data(objList);
     },
     //...............................................................
-    _get_data : function(foreArray) {
+    _get_data : function(forceArray) {
         var UI  = this;
         var opt = UI.options;
 
@@ -296,7 +296,7 @@ return ZUI.def("ui.form_com_file", {
         });
 
         // 只返回数组
-        if(foreArray)
+        if(forceArray)
             return objList;
 
         // 返回
@@ -313,12 +313,14 @@ return ZUI.def("ui.form_com_file", {
         [{..}, {..}] or []
     else :
         {..} or null
+    除非配置里声明了 dataForceArray
     */
     //...............................................................
     getData : function(){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         return UI.ui_format_data(function(opt){
-            return UI._get_data();
+            return UI._get_data(opt.dataForceArray);
         });
     },
     //...............................................................

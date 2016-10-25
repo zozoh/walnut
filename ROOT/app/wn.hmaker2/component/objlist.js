@@ -91,15 +91,23 @@ return ZUI.def("app.wn.hm_com_objlist", {
             return;
         }
 
+        // console.log(list)
+
         // 加载模板
         var tmplInfo = UI.evalTemplate(com.template);
 
         // 得到皮肤选择器
         var skinSelector = UI.getSkinForTemplate(com.template);
 
+        // 准备绘制模板参数
+        var tmplOptions = _.extend({}, com.options, {
+            API : UI.getHttpApiUrl()
+        });
+
         // 逐个绘制
         for(var obj of list) {
-            var jDiv = $('<div>').appendTo(jList)[tmplInfo.name](obj, com.mapping);
+            var ele  = document.createElement(tmplInfo.tagName || 'DIV');
+            var jDiv = $(ele).appendTo(jList)[tmplInfo.name](obj, tmplOptions);
             if(skinSelector)
                 jDiv.addClass(skinSelector);
         }

@@ -10,7 +10,7 @@
 		} ],
 		"objlist" : [ {
 			"text" : "逐行列表",
-			"selector" : "skin-objlist-row"
+			"selector" : "skin-objlist-rows"
 		}, {
 			"text" : "按钮布局",
 			"selector" : "skin-objlist-btns"

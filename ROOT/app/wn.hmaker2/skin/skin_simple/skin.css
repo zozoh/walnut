@@ -7,7 +7,7 @@ body[skin="skin-simple"] .skin-menu-normal {
 body[skin="skin-simple"] .skin-menu-ava {
   background: blue;
 }
-body[skin="skin-simple"] .skin-objlist-row .hmc-objlist-list > * {
+body[skin="skin-simple"] .skin-objlist-rows .hmc-objlist-list > * {
   border-top: 1px solid #CCC;
 }
 body[skin="skin-simple"] .skin-objlist-btns .hmc-objlist-list > * {

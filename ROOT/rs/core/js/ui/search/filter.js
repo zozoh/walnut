@@ -4,7 +4,7 @@ $z.declare('zui', function(ZUI){
 var html = function(){/*
 <div class="ui-arena srh-flt">
     <div class="flt-keyword">
-        <input placeholder="{{srh.filter.tip}}">
+        <input placeholder="{{srh.filter.tip}}" spellcheck="false">
         <div class="flt-icon"><i class="fa fa-search"></i></div>
     </div>
 </div>

@@ -1,6 +1,6 @@
 {
     "name"    : "simple_list_item",
-    "mapping" : {
+    "options" : {
         "id"     : "id",
         "title"  : "title",
         "lastModified" : "lm",

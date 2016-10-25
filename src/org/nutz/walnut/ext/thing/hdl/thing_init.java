@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.thing.hdl;
 
 import org.nutz.lang.Files;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.thing.Things;
@@ -56,8 +57,11 @@ public class thing_init implements JvmHdl {
         if (!isQ)
             sys.out.printlnf("%-12s: %s", "./thing.js", oDef.id());
 
+        // 试图读取一下
+        String json = sys.io.readText(oDef);
+
         // 写入 thing.js 默认内容
-        if (oDef.len() == 0 || hc.params.is("f")) {
+        if (!oDef.isLink() && (Strings.isBlank(json) || hc.params.is("f"))) {
             if (!isQ)
                 sys.out.println(" >> default write thing.js");
 

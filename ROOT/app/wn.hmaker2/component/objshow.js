@@ -68,8 +68,14 @@ return ZUI.def("app.wn.hm_com_objshow", {
         // 得到皮肤选择器
         var skinSelector = UI.getSkinForTemplate(com.template);
 
+        // 准备绘制模板参数
+        var tmplOptions = _.extend({}, com.options, {
+            API : UI.getHttpApiUrl()
+        });
+
         // 绘制
-        var jDiv = $('<div>').appendTo(jData)[tmplInfo.name](obj, com.mapping);
+        var ele  = document.createElement(tmplInfo.tagName || 'DIV');
+        var jDiv = $(ele).appendTo(jData)[tmplInfo.name](obj, tmplOptions);
         if(skinSelector)
             jDiv.addClass(skinSelector);
 

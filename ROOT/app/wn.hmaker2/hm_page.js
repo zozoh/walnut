@@ -226,7 +226,7 @@ return ZUI.def("app.wn.hmaker_page", {
             padding : "",
             border : "" ,   // "1px solid #000",
             borderRadius : "",
-            background : "rgba(40,40,40,0.3)",
+            background : "",
             color : "",
             overflow : "",
             blockBackground : "",
@@ -411,12 +411,13 @@ return ZUI.def("app.wn.hmaker_page", {
         var jHead = UI._C.iedit.$head.empty();
 
         // 头部元数据
-        _H(jHead, 'meta[name="viewport"]',
-            '<meta name="viewport" content="width=device-width, initial-scale=1.0">');
-        _H(jHead, 'meta[http-equiv="X-UA-Compatible"]',
-            '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">');
         _H(jHead, 'meta[charset="utf-8"]',
             '<meta charset="utf-8">');
+        _H(jHead, 'meta[name="viewport"]',
+            '<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">');
+        _H(jHead, 'meta[http-equiv="X-UA-Compatible"]',
+            '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">');
+        
 
         // 链入固定的 CSS 
         _H(jHead, 'link[href*="normalize.css"]',

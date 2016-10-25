@@ -225,7 +225,7 @@ define({
             "template"     : "显示模板",
             "tmpl_refresh" : "刷新显示模板列表",
             "tmpl_noskin"  : "无皮肤",
-            "mapping"      : "模板映射",
+            "options"      : "模板映射",
             "param_base"   : "基础值",
             "param_from"   : "来自",
             "param_key"    : "键",
