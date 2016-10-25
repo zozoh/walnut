@@ -22,12 +22,17 @@ tags:
 
 ```
 {
+    // 将会在 body 上标识属性 body[skin="XXX"] 
+    // 必须为英文或者数字下划线或中划线
+    name : "skin-name",
+    
     // 针对各个控件的可选样式，用户可以在界面上为控件附加上皮肤的类选择器
     // 因为各个控件的 DOM 结构已知，所以皮肤的 css 可以针对各个层级产生作用
+    // 选择器推荐也用 skin 开头, 以避免冲突
     com : {
         "image" : [{
-            selector : ".skin_name-imageA",  // 类选择器
-            text     : "i18n:xxxx",          // 显示文字
+            selector : "AAAA",          // 类选择器，不加 "."
+            text     : "i18n:xxxx",     // 显示文字
         },{
             ..
         }],

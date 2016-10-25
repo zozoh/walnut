@@ -21,6 +21,12 @@ var methods = {
         // 执行更新
         var com2 = this.updateProp(com, shallow);
 
+        // 更新皮肤
+        if(com2._skin_old)
+            this.$el.removeClass(com2._skin_old);
+        if(com2._skin)
+            this.$el.addClass(com2._skin);
+
         // 子类的绘制方法
         $z.invoke(this, "paint", [com2]);
     },

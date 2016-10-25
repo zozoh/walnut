@@ -348,6 +348,11 @@
 .com-droplist .com-drop ul li {
   padding: 6px 12px;
 }
+.com-droplist .com-drop ul li > b {
+  font-weight: normal;
+  font-family: Monaco, Consolas, Courier New;
+  font-size: 10px;
+}
 .com-droplist span[it="check"] {
   display: inline-block;
   vertical-align: middle;
@@ -370,6 +375,9 @@
   display: inline-block;
   vertical-align: middle;
   padding-left: 4px;
+  font-weight: normal;
+  font-size: 10px;
+  font-family: Monaco, Consolas, Courier New;
 }
 .com-droplist[show] .com-mask {
   display: block;

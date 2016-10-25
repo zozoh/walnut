@@ -142,13 +142,18 @@ return ZUI.def("app.wn.hmaker2", {
                 "click .pm-btn-ok" : function(){
                     var uiMask  = this;
                     var conf = uiMask.body.getData();
-
+                    console.log(conf)
                     // 更新配置信息
                     Wn.exec("obj id:"+oHome.id+" -u -o", $z.toJson(conf), function(re){
+                        // 保存站点对象
                         var obj  = $z.fromJson(re);
                         Wn.saveToCache(obj);
 
+                        // 关闭对话框
                         uiMask.close();
+
+                        // 更新皮肤
+                        UI.fire("change:site:skin");
                     });
                 },
                 "click .pm-btn-cancel" : function(){
@@ -158,44 +163,75 @@ return ZUI.def("app.wn.hmaker2", {
             setup : {
                 uiType : "ui/form/form",
                 uiConf : {
+                    app  : UI.app,
+                    exec : UI.exec,
                     uiWidth : "all",
                     fields  : [{
                         key : "title",
                         title : UI.msg("hmaker.site.title"),
                         type : "string",
                         editAs : "input"
-                    }, {
-                        key    : "hm_target_release",
-                        title  : UI.msg("hmaker.site.hm_target_release"),
-                        type   : "string",
-                        dft    : null,
-                        uiType : "ui/picker/opicker",
+                    }, UI.__form_fld_pick_folder({
+                        key       : "hm_target_release",
+                        title     : "i18n:hmaker.site.hm_target_release",
+                        lastObjId : "hmaker_pick_hm_target_publish",
+                    // }), UI.__form_fld_pick_folder({
+                    //     key       : "hm_target_debug",
+                    //     title     : "i18n:hmaker.site.hm_target_debug",
+                    //     lastObjId : "hmaker_pick_hm_target_publish",
+                    }), {
+                        key   : "hm_site_skin",
+                        title : UI.msg("hmaker.site.skin"),
+                        icon  : UI.msg("hmaker.icon.skin"),
+                        type  : "string",
+                        editAs : "droplist",
                         uiConf : {
-                            setup : {
-                                lastObjId : "hmaker_pick_hm_target_release",
-                                filter    : function(o) {
-                                    return 'DIR' == o.race;
-                                }
+                            items : "obj ~/.hmaker/skin/* -json -l",
+                            icon  : UI.msg("hmaker.icon.skin"),
+                            text  : null,
+                            value : function(o){
+                                return o.nm;
                             },
-                            parseData : function(str){
-                                var m = /id:(\w+)/.exec(str);
-                                if(m)
-                                    return Wn.getById(m[1], true);
-                                if(str)
-                                    return Wn.fetch(str, true);
-                                return null;
-                            },
-                            formatData : function(o){
-                                return o ? "~/" + Wn.getRelativePathToHome(o) : null;
-                            }
+                            emptyItem : {}
                         }
                     }]
                 }
             }
         }).render(function(){
             this.arena.find(".pm-title").html(UI.msg('hmaker.site.conf'));
-            this.body.setData(_.pick(oHome, "hm_target_release", "title"));
+            this.body.setData(_.pick(oHome, "title", "hm_target_release", "hm_target_debug", "hm_site_skin"));
         });
+    },
+    //...............................................................
+    __form_fld_pick_folder : function(fld) {
+        var UI = this;
+        return {
+            key    : fld.key,
+            title  : UI.text(fld.title),
+            type   : "string",
+            dft    : null,
+            uiType : "ui/picker/opicker",
+            uiConf : {
+                setup : {
+                    lastObjId : fld.lastObjId,
+                    filter    : function(o) {
+                        return 'DIR' == o.race;
+                    },
+                    objTagName : 'SPAN',
+                },
+                parseData : function(str){
+                    var m = /id:(\w+)/.exec(str);
+                    if(m)
+                        return Wn.getById(m[1], true);
+                    if(str)
+                        return Wn.fetch(str, true);
+                    return null;
+                },
+                formatData : function(o){
+                    return o ? "~/" + Wn.getRelativePathToHome(o) : null;
+                }
+            }
+        };
     },
     //...............................................................
     getCurrentEditObj : function() {

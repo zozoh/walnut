@@ -39,6 +39,12 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
         // 设置默认取值方法
         UI.__setup_dft_display_func(opt);
 
+        // 设置默认空项目的文字
+        if(opt.emptyItem) {
+            $z.setUndefined(opt.emptyItem, "text", "i18n:none");
+            $z.setUndefined(opt.emptyItem, "value", "");
+        }
+
         // 注册全局关闭
         UI.watchMouse("click", do_close_all);
         UI.watchKey(27, do_close_all);
@@ -157,52 +163,81 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
         var opt = UI.options;
         var jUl = UI.arena.find("ul").empty();
         var context = opt.context || UI.parent;
+        var multi   = UI.isMulti();
 
         if(!_.isArray(items))
             return;
 
+        // 是否绘制空对象
+        var offset = 0;
+        if(!multi && opt.emptyItem) {
+            UI.__append_item(offset++, opt.emptyItem, multi, jUl);
+        }
+
         var hasIcon = false;
         for(var i=0; i<items.length; i++){
             var item = items[i];
-            var val  = opt.value.call(context, item, i, UI); 
 
-            var jLi = $('<li>').appendTo(jUl)
-                .attr("index", i)
-                .data("@VAL", val);
-
-            // 是否是多选，数值大于 1
-            if(UI.isMulti()){
-                $('<span it="check"><i class="fa fa-square-o"></i><i class="fa fa-check-square"></i></span>')
-                    .appendTo(jLi);
-            }else{
-                $('<span it="check"><i class="fa fa-caret-right"></i></span>')
-                    .appendTo(jLi);
-            }
+            // 准备绘制项目
+            var it = {
+                value : opt.value.call(context, item, i, multi, UI)
+            };
 
             // 图标
-            var icon = _.isString(opt.icon)
-                                ? $z.tmpl(opt.icon)(item)
-                                : opt.icon.call(context, item, i, UI);
-            jIcon = $('<span it="icon">').appendTo(jLi);
-            if(_.isString(icon)){
-                jIcon.html(icon);
-                hasIcon = true;
-            }
+            it.icon = _.isString(opt.icon)
+                        ? $z.tmpl(opt.icon)(item)
+                        : opt.icon.call(context, item, i, UI);
+            hasIcon = _.isString(it.icon);
 
             // 文字
-            var text = val;
-            if(_.isString(opt.text))
-                text = $z.tmpl(opt.text)(item);
-            else if(_.isFunction(opt.text))
-                text = opt.text.call(context, item, i, UI);
+            it.text = it.value;
+            // 指定了文字模板
+            if(_.isString(opt.text)){
+                it.text = $z.tmpl(opt.text)(item);
+            }
+            // 指定了文字回调函数
+            else if(_.isFunction(opt.text)){
+                it.text = opt.text.call(context, item, i, UI);
+            }
 
-            $('<b it="text">').text(UI.text(text)).appendTo(jLi);
+            // 追加项目
+            UI.__append_item(offset + i, it, multi, jUl);
         }
 
         // 没有 Icon 就全部移除
         if(!hasIcon){
             UI.arena.find("span[it='icon']").remove();
         }
+    },
+    //...............................................................
+    // it - 接受标准的 {icon,text,value} 格式对象，绘制一个项目
+    __append_item : function(index, it, multi, jUl) {
+        var UI  = this;
+        jUl = jUl || UI.arena.find("ul");
+
+        var jLi = $('<li>').appendTo(jUl)
+                .attr("index", index)
+                .data("@VAL", it.value);
+
+        // 多选的话显示选择框
+        if(UI.isMulti()){
+            $('<span it="check"><i class="fa fa-square-o"></i><i class="fa fa-check-square"></i></span>')
+                .appendTo(jLi);
+        }
+        // 否则显示一个选中指示器
+        else{
+            $('<span it="check"><i class="zmdi zmdi-check"></i></span>')
+                .appendTo(jLi);
+        }
+
+        // 图标
+        if(it.icon){
+            $('<span it="icon">').html(it.icon).appendTo(jLi);
+        }
+
+        // 文字
+        if(it.text)
+            $('<b it="text">').text(UI.text(it.text)).appendTo(jLi);
     },
     //...............................................................
     // limit 参数表示是否为限定数量的多选
@@ -231,7 +266,10 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
     },
     //...............................................................
     setData : function(val){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
+
+        // 清空显示框
         UI.arena.find(".com-box-show").empty();
 
         // 所有的备选项
@@ -260,8 +298,12 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
                 var v0  = jLi.data("@VAL");
                 if(v0 == val){
                     UI._append_val(jLi);
-                    break;
+                    return;
                 }
+            }
+            // 没有找到，看看有没有默认值
+            if(opt.emptyItem) {
+                UI._append_val(jLis.first());
             }
         }
         // 触发事件
@@ -276,7 +318,7 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
             var jBox  = UI.arena.find(".com-box");
             var jDrop = UI.arena.find(".com-drop").removeAttr("freeze");
             jDrop.css(_.extend(jBox.offset(), {
-                width  : "",
+                width  : Math.max(jBox.outerWidth(), jDrop.width()),
                 height : ""
             }));
 

@@ -1,7 +1,7 @@
 define(function (require, exports, module) {
 // ....................................
 // 块的 CSS 属性基础对象
-var _css_base = {
+var CSS_BASE = {
     position:"",top:"",left:"",width:"",height:"",right:"",bottom:"",
     margin:"",padding:"",border:"",borderRadius:"",
     color:"",background:"",
@@ -10,44 +10,13 @@ var _css_base = {
 // ....................................
 // 方法表
 var methods = {
+    //=========================================================
     hmaker : function(){
         var UI = this;
         while(!UI.__hmaker__ && UI) {
             UI = UI.parent;
         }
         return UI;
-    },
-    // 得到站点主目录
-    getHomeObj : function() {
-        var homeId = this.getHomeObjId();
-        return Wn.getById(homeId);
-    },
-    // 得到站点主目录 ID
-    getHomeObjId : function() {
-        return this.hmaker().__home_id;
-    },
-    // 得到站点 api 的前缀
-    //  - path 为 api 的路径
-    getHttpApiUrl : function(path) {
-        var oHome = this.getHomeObj();
-        return "/api/" + oHome.d1 + path;
-    },
-    // 得到站点控件对应模板文件对象的全路径
-    getTemplateObjPath : function(templateName, suffixName) {
-        var oHome = this.getHomeObj();
-        return "/home/" + oHome.d1 + "/.hmaker/template/" + templateName + "/" + templateName + "." + suffixName;
-    },
-    // 监听消息
-    listenBus : function(event, handler){
-        var uiHMaker = this.hmaker();
-        this.listenUI(uiHMaker, event, handler);
-    },
-    // 发送消息
-    fire : function() {
-        var args = Array.from(arguments);
-        var uiHMaker = this.hmaker();
-        // console.log("fire", args)
-        uiHMaker.trigger.apply(uiHMaker, args);
     },
     // 得到 HmPageUI，如果不是，则抛错
     pageUI : function(quiet) {
@@ -79,6 +48,90 @@ var methods = {
             return uiProp.subUI(uiPath);
         return uiProp;
     },
+    //=========================================================
+    // 得到站点主目录
+    getHomeObj : function() {
+        var homeId = this.getHomeObjId();
+        return Wn.getById(homeId);
+    },
+    // 得到站点主目录 ID
+    getHomeObjId : function() {
+        return this.hmaker().__home_id;
+    },
+    //=========================================================
+    // 得到站点的皮肤设定， {} 表示没有设定皮肤
+    getSkinInfo : function() {
+        var UI = this;
+        var oHome = UI.getHomeObj();
+
+        var skinName = oHome.hm_site_skin;
+        if(!skinName)
+            return {};
+        
+        // 读取皮肤信息
+        var json = Wn.read("~/.hmaker/skin/" + skinName + "/" + skinName + ".info.json");
+        if(!json)
+            return json;
+
+        return $z.fromJson(json);
+    },
+    // 根据一个控件类型，获取其皮肤的可用样式表单，返回的一律是
+    // {text,selector} 格式的对象
+    // 返回 null 表示站点没设置皮肤
+    // 返回 [] 表示皮肤中没有定义控件的类选择器列表
+    getSkinListForCom : function(comType) {
+        var skinInfo = this.getSkinInfo();
+
+        if(!skinInfo.com)
+            return null;
+
+        return skinInfo.com[comType] || [];
+    },
+    // 针对一个组件，根据选择器获取其样式名
+    getSkinTextForCom : function(comType, selector) {
+        var sList = this.getSkinListForCom(comType);
+        if(_.isArray(sList))
+            for(var si of sList){
+                if(si.selector == selector)
+                    return si.text;
+            }
+        return null;
+    },
+    // 得到一个模板对应的类选择器名称
+    getSkinForTemplate : function(templateName) {
+        var skinInfo = this.getSkinInfo();
+
+        if(!skinInfo.template)
+            return null;
+
+        return skinInfo.template[templateName];
+    },
+    //=========================================================
+    // 得到站点 api 的前缀
+    //  - path 为 api 的路径
+    getHttpApiUrl : function(path) {
+        var oHome = this.getHomeObj();
+        return "/api/" + oHome.d1 + path;
+    },
+    // 得到站点控件对应模板文件对象的全路径
+    getTemplateObjPath : function(templateName, suffixName) {
+        var oHome = this.getHomeObj();
+        return "/home/" + oHome.d1 + "/.hmaker/template/" + templateName + "/" + templateName + "." + suffixName;
+    },
+    //=========================================================
+    // 监听消息
+    listenBus : function(event, handler){
+        var uiHMaker = this.hmaker();
+        this.listenUI(uiHMaker, event, handler);
+    },
+    // 发送消息
+    fire : function() {
+        var args = Array.from(arguments);
+        var uiHMaker = this.hmaker();
+        // console.log("fire", args)
+        uiHMaker.trigger.apply(uiHMaker, args);
+    },
+    //=========================================================
     // 得到某个对象相对于 HOME 的路径
     getRelativePath : function(o) {
         var oHome = this.getHomeObj();
@@ -129,6 +182,7 @@ var methods = {
         // 其他
         return  '<i class="fa fa-file"></i>';
     },
+    //=========================================================
     // 将 rect 按照 posBy 转换成 posVal 字符串
     transRectToPosVal : function(rect, posBy) {
         var re = _.mapObject($z.rectObj(rect, posBy), function(val){
@@ -144,7 +198,7 @@ var methods = {
         }
         // 与默认 base 对象合并
         else if(mergeWithBase) {
-            css = _.extend({}, _css_base, css);   
+            css = _.extend({}, CSS_BASE, css);   
         }
 
         // 将所有的 undefined 和 null 都变成空串，表示去掉
@@ -165,8 +219,9 @@ var methods = {
     },
     // 返回 base_css 的一个新实例
     getBaseCss : function() {
-        return _.extend({}, _css_base);
+        return _.extend({}, CSS_BASE);
     },
+    //=========================================================
     // 获取背景属性编辑控件的关于 image 编辑的配置信息
     getBackgroundImageEditConf : function(){
         return {
@@ -213,6 +268,7 @@ var methods = {
             }
         };
     } // ~ getBackgroundImageEditConf()
+    //=========================================================
 }; // ~End methods
 //====================================================================
 

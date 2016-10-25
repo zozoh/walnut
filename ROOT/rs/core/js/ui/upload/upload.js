@@ -12,9 +12,9 @@ function gen_url(opt) {
         url += ta.ph + "?race=" + ta.race + "&cie=true&";
         // FIXME 绝对目录
         if (ta.ph.substr(0, 1) == '/') {
-            url += "abpath=true&"
+            url += "aph=true&"
         } else {
-            url += "abpath=false&"
+            url += "aph=false&"
         }
     }
     url += "nm={{file.name}}&sz={{file.size}}&mime={{file.type}}";

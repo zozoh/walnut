@@ -1,5 +1,8 @@
 define({
     "hmaker" : {
+        "icon" : {
+            "skin" : '<i class="zmdi zmdi-texture"></i>'
+        },
         "edit_link" : {
             "title" : "编辑链接行为",
         },
@@ -11,6 +14,7 @@ define({
             "title"  : "站点标题",
             "hm_target_release" : "在线发布目标",
             "hm_target_debug"   : "调试发布目标",
+            "skin" : "站点皮肤"
         },
         "prop" : {
             "title" : '属性',
@@ -38,6 +42,10 @@ define({
             "areaWidth" : "内容宽度",
             "areaAlign" : "内容排列",
             "blockBackground"   : "块背景",
+            "skin_tip" : "为控件选择一个皮肤样式",
+            "skin_none"  : "无皮肤样式",
+            "skin_unset" : '<i class="zmdi zmdi-alert-triangle"></i> 站点没有设置皮肤，请在 "菜单>站点设置>站点皮肤" 处选择皮肤',
+            "skin_empty" : '<i class="zmdi zmdi-info-outline"></i> 没有针对这个控件的皮肤样式',
         }, 
         "drag" : {
             "hover" : "拖拽至此，Shift键取消"
@@ -203,14 +211,8 @@ define({
                     "pgsz"  : "页大小",
                     "sum"   : "共{{pn}}页"
                 },
-                "noapi" : "没设定数据接口",
-                "notemplate" : "未设定显示模板",
-                "nopartitem" : "没有选中任何项目，无法继续操作",
-                "show_items" : "列表项目",
-                "items_reloading" : "正在从接口加载数据 ...",
-                "items_empty"     : "厄...没有数据"
             },
-            "thingobj" : {
+            "objshow" : {
                 "name"  : "动态数据对象",
                 "tip"   : "详细的定制了某个数据的详细显示方式",
                 "icon"  : '<i class="fa fa-cube"></i>',
@@ -222,11 +224,17 @@ define({
             "params"       : "接口参数",
             "template"     : "显示模板",
             "tmpl_refresh" : "刷新显示模板列表",
+            "tmpl_noskin"  : "无皮肤",
             "mapping"      : "模板映射",
             "param_base"   : "基础值",
             "param_from"   : "来自",
             "param_key"    : "键",
             "param_merge"  : "合并",
+            "noapi"        : "没设定数据接口",
+            "notemplate"   : "未设定显示模板",
+            "nopartitem"   : "没有选中任何项目，无法继续操作",
+            "api_loading"  : "正在从接口加载数据 ...",
+            "api_empty"    : "厄...没有数据"
         },
     }
 });

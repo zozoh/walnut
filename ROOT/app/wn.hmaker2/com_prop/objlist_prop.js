@@ -439,23 +439,12 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
         // 打开提示
         UI.balloon();
 
-        // 得到 API 的主目录
-        var oApiHome = Wn.fetch("~/.regapi/api");
-
         // DDS
         new DynamicDataSettingUI({
             parent : UI,
             gasketName : "dds",
             on_init : function(){
                 this.uiCom = UI.uiCom;
-            },
-            paramsFrom : ["filter","pager","sorter","HTTP_GET","HTTP_COOKIE"],
-            paramsDefault : {
-                id    : null,
-                cnd   : {base:{},     from:"filter", key:null   , merge : true },
-                limit : {base:50,     from:"pager" , key:"limit", merge : false},
-                skip  : {base:0 ,     from:"pager" , key:"skip" , merge : false},
-                sort  : {base:{nm:1}, from:"sorter", key:null   , merge : false},
             },
             on_change : function(com) {
                 // console.log("haha", com)

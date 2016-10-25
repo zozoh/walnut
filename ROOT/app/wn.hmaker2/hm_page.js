@@ -1,9 +1,17 @@
 (function($z){
 // ......................... 以下是帮助函数
 function _H(jHead, selector, html) {
-    if(jHead.children(selector).size() == 0){
-        jHead.prepend($(html));
+    var jq = jHead.children(selector);
+    // 确保存在
+    if(html){
+        if(jq.size() == 0){
+            jHead.prepend($(html));
+        }
     }
+    // 确保删除
+    else {
+        jq.remove();
+    } 
 }
 // ......................... 以上是帮助函数
 $z.declare([
@@ -19,7 +27,7 @@ $z.declare([
     'app/wn.hmaker2/component/image.js',
     'app/wn.hmaker2/component/text.js',
     'app/wn.hmaker2/component/objlist.js',
-    'app/wn.hmaker2/component/thingobj.js',
+    'app/wn.hmaker2/component/objshow.js',
 ], function(ZUI, Wn, HmMethods, MenuUI, PageComBarUI){
 //==============================================
 var html_empty_prop = function(){/*
@@ -85,10 +93,10 @@ var html = `
                 data-balloon-pos="left" data-balloon-length="medium">
                 <%=hmaker.com.objlist.icon%>
             </li>
-            <li ctype="thingobj"
-                data-balloon="{{hmaker.com.thingobj.name}} : {{hmaker.com.thingobj.tip}}" 
+            <li ctype="objshow"
+                data-balloon="{{hmaker.com.objshow.name}} : {{hmaker.com.objshow.tip}}" 
                 data-balloon-pos="left" data-balloon-length="medium">
-                <%=hmaker.com.thingobj.icon%>
+                <%=hmaker.com.objshow.icon%>
             </li>
         </ul>
     </div></div>
@@ -106,6 +114,7 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.listenBus("change:block", UI.doChangeBlock);
         UI.listenBus("change:com",   UI.doChangeCom);
         UI.listenBus("active:page",  UI.doBlurAll);
+        UI.listenBus("change:site:skin", UI.doChangeSkin);
 
         // 这里分配一个控件序号数组，采用 bitMap，序号从 0 开始一直排列
         UI._com_seq = [];
@@ -375,6 +384,26 @@ return ZUI.def("app.wn.hmaker_page", {
         }, 500);
     },
     //...............................................................
+    doChangeSkin : function(){
+        var UI = this;
+
+        // 得到皮肤的信息
+        var oHome    = UI.getHomeObj();
+        var skinName = oHome.hm_site_skin;
+        var skinInfo = UI.getSkinInfo() || {};
+
+        // 更新样式
+        var jHead = UI._C.iedit.$head;
+        _H(jHead, 'link[skin]', !skinName ? null
+            : $z.tmpl('<link skin="yes" rel="stylesheet" type="text/css" href="/o/read/home/{{d1}}/.hmaker/skin/{{skinName}}/{{skinName}}.css?aph=true">')({
+                d1       : oHome.d1,
+                skinName : skinName,
+            }));
+
+        // 确保样式加入到 body
+        UI._C.iedit.$body.attr("skin", skinInfo.name || null);
+    },
+    //...............................................................
     __setup_page_head : function() {
         var UI = this;
 
@@ -391,23 +420,25 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 链入固定的 CSS 
         _H(jHead, 'link[href*="normalize.css"]',
-            '<link for-edit="yes" rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">');
+            '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">');
         _H(jHead, 'link[href*="font-awesome.css"]',
-            '<link for-edit="yes" rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">');
+            '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">');
         _H(jHead, 'link[href*="material-design-iconic-font.css"]',
-            '<link for-edit="yes" rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">');
+            '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">');
         _H(jHead, 'link[href*="hmaker_editing.css"]',
-            '<link for-edit="yes" rel="stylesheet" type="text/css" href="/a/load/wn.hmaker2/hmaker_editing.css">');
+            '<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker2/hmaker_editing.css">');
         _H(jHead, 'link[href*="moveresizing.css"]',
-            '<link for-edit="yes" rel="stylesheet" type="text/css" href="/theme/r/jqp/moveresizing/moveresizing.css">');
+            '<link rel="stylesheet" type="text/css" href="/theme/r/jqp/moveresizing/moveresizing.css">');
 
-        
         // _H(jHead, 'script[src*="zutil.js"]',
         //     '<script src="/gu/rs/core/js/nutz/zutil.js"></script>');
         // _H(jHead, 'script[src*="seajs"]',
         //     '<script src="/gu/rs/core/js/seajs/seajs-2.3.0/sea-debug.js" id="seajsnode"></script>');
         // _H(jHead, 'script[src*="jquery-2.1.3"]',
         //     '<script src="/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js"></script>');
+
+        // 设置皮肤
+        UI.doChangeSkin();
     },
     //...............................................................
     __setup_page_events : function() {
@@ -943,7 +974,7 @@ return ZUI.def("app.wn.hmaker_page", {
         });
 
         // 删除所有临时属性
-        C.iload.$body.find('[del-attrs]').each(function(){
+        C.iload.$body.removeAttr("skin").find('[del-attrs]').each(function(){
             var jq = $(this);
             var attrNames = jq.attr("del-attrs").split(",");
             console.log(attrNames)

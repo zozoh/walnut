@@ -63,13 +63,15 @@ public class ObjModule extends AbstractWnModule {
     }
 
     @At("/get/**")
-    public WnObj get(String str) {
+    public WnObj get(String str, @Param("aph") boolean isAbsolutePath) {
+        str = __format_str(str, isAbsolutePath);
         return Wn.checkObj(io, str);
     }
 
     @POST
     @At("/fetch")
-    public WnObj fetch(@Param("str") String str) {
+    public WnObj fetch(@Param("str") String str, @Param("aph") boolean isAbsolutePath) {
+        str = __format_str(str, isAbsolutePath);
         return Wn.checkObj(io, Wn.WC().checkSE(), str);
     }
 
@@ -85,7 +87,11 @@ public class ObjModule extends AbstractWnModule {
      */
     @At("/set/**")
     @AdaptBy(type = JsonAdaptor.class)
-    public WnObj set(String str, NutMap map) {
+    public WnObj set(String str, @Param("aph") boolean isAbsolutePath, NutMap map) {
+        // 确保 str 的形式正确
+        str = __format_str(str, isAbsolutePath);
+
+        // 取得并写入
         WnObj o = Wn.checkObj(io, str);
         io.writeMeta(o, map);
         return o;
@@ -136,6 +142,7 @@ public class ObjModule extends AbstractWnModule {
     @Ok("void")
     @Fail("http:404")
     public View readThumbnail(String str,
+                              @Param("aph") boolean isAbsolutePath,
                               @Param("sh") int sizeHint,
                               @Param("scale") String scale,
                               @Param("f") boolean force,
@@ -146,6 +153,9 @@ public class ObjModule extends AbstractWnModule {
         // 统一设定默认缩略图的格式
         String mime = "image/png";
         String imtp = "png";
+
+        // 确保 str 的形式正确
+        str = __format_str(str, isAbsolutePath);
 
         // 直接指定的就是文件类型
         if (str.startsWith("type:")) {
@@ -296,8 +306,14 @@ public class ObjModule extends AbstractWnModule {
      * @param sha1
      *            SHA1 校验，可选。如果给定了值，如果对象的内容不符合这个指纹，则抛错
      * 
-     * @param d
+     * @param isDownload
      *            是否是下载模式，如果是下载，将提供 CONTENT_DISPOSITION 响应头 默认 false
+     * 
+     * @param isAbsolutePath
+     *            给的对象字符串是否是绝对路径，如果是，则必须确保 "/" 或者 "~" 开头
+     * 
+     * @param ua
+     *            客户端类型，下载模式下才生效，主要是根据浏览器的不同，生成下载目标的响应头（Safari的乱码问题）
      * 
      * @return 对象当前的内容输入流
      * 
@@ -308,8 +324,12 @@ public class ObjModule extends AbstractWnModule {
     @Ok("void")
     public View read(String str,
                      @Param("sha1") String sha1,
-                     @Param("d") boolean download,
+                     @Param("d") boolean isDownload,
+                     @Param("aph") boolean isAbsolutePath,
                      @ReqHeader("User-Agent") String ua) {
+        // 确保 str 的形式正确
+        str = __format_str(str, isAbsolutePath);
+
         // 首先得到目标对象
         WnObj o = Wn.checkObj(io, str);
 
@@ -323,18 +343,28 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 读取对象的值
-        return new WnObjDownloadView(io, o, download ? ua : null);
+        return new WnObjDownloadView(io, o, isDownload ? ua : null);
     }
 
+    @POST
+    @AdaptBy(type = QueryStringAdaptor.class)
     @At("/write/**")
-    public WnObj write(String str, InputStream ins) {
+    public WnObj write(String str, @Param("aph") boolean isAbsolutePath, InputStream ins) {
+        // 确保 str 的形式正确
+        str = __format_str(str, isAbsolutePath);
+
+        // 取得对象
         WnObj o = Wn.checkObj(io, str);
 
         // 确保可写，同时处理链接文件
         o = Wn.WC().whenWrite(o);
 
+        // 写入
         OutputStream ops = io.getOutputStream(o, 0);
         Streams.writeAndClose(ops, ins, 256 * 1024);
+
+        // 确保有路径
+        o.path();
         return o;
     }
 
@@ -344,7 +374,7 @@ public class ObjModule extends AbstractWnModule {
      * @param str
      *            对象字符串。@see
      *            {@link #checkObj(String, org.nutz.lang.util.NutMap, String)}
-     * @param abpath
+     * @param isAbsolutePath
      *            说明参数 str 是否是绝对路径。如果是绝对路径，将会确保 str 参数是以 <code>/</code> 开头的
      * @param nm
      *            本地文件名
@@ -385,9 +415,9 @@ public class ObjModule extends AbstractWnModule {
     @At("/upload/**")
     @AdaptBy(type = QueryStringAdaptor.class)
     public WnObj upload(String str,
-                        @Param("abpath") boolean abpath,
+                        @Param("aph") boolean isAbsolutePath,
                         @Param("nm") String nm,
-                        @Param("cie") boolean createIfNoExists,
+                        @Param("cie") boolean isCreateIfNoExists,
                         @Param("race") WnRace race,
                         @Param("sz") long sz,
                         @Param("mime") String mime,
@@ -398,11 +428,9 @@ public class ObjModule extends AbstractWnModule {
 
         // 首先得到目标对象
         WnObj ta;
-        if (createIfNoExists && str.contains("/")) {
-            // 绝对目录 会丢失第一个字符 /
-            if (abpath && !str.startsWith("/") && !str.startsWith("id:")) {
-                str = "/" + str;
-            }
+        if (isCreateIfNoExists && str.contains("/")) {
+            // 确保 str 的形式正确
+            str = __format_str(str, isAbsolutePath);
             String ph = Wn.normalizeFullPath(str, se);
             ta = io.createIfNoExists(null, ph, race);
         }
@@ -451,5 +479,16 @@ public class ObjModule extends AbstractWnModule {
 
         // 返回
         return o;
+    }
+
+    private String __format_str(String str, boolean isAbsolutePath) {
+        // 绝对目录 会丢失第一个字符 /
+        if (isAbsolutePath
+            && !str.startsWith("/")
+            && !str.startsWith("~")
+            && !str.startsWith("id:")) {
+            str = "/" + str;
+        }
+        return str;
     }
 }

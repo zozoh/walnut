@@ -39,7 +39,7 @@ return ZUI.def("ui.form_com_pair", {
 
         // 开始循环设置内容
         for(var key in obj) {
-            var jTr = $('<tr><td class="cp-key"></td><td class="cp-val"><input></td></tr>').appendTo(jTBody);
+            var jTr = $('<tr><td class="cp-key"></td><td class="cp-val"><input spellcheck="false"></td></tr>').appendTo(jTBody);
             jTr.children(".cp-key").text(key);
             jTr.find(".cp-val input").val(obj[key]);
         }

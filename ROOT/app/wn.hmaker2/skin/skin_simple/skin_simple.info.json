@@ -1,5 +1,22 @@
-{
-    "com" : {
-        
-    }
-}
+({
+	"name" : "skin-simple",
+	"com" : {
+		"navmenu" : [ {
+			"text" : "普通菜单",
+			"selector" : "skin-menu-normal"
+		}, {
+			"text" : "高级菜单",
+			"selector" : "skin-menu-ava"
+		} ],
+		"objlist" : [ {
+			"text" : "逐行列表",
+			"selector" : "skin-objlist-row"
+		}, {
+			"text" : "按钮布局",
+			"selector" : "skin-objlist-btns"
+		} ]
+	},
+	"template" : {
+		"simple_list_item" : "simple-list-item"
+	}
+})

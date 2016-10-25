@@ -1,0 +1,19 @@
+body[skin="skin-simple"] {
+  background: #FCC;
+}
+body[skin="skin-simple"] .skin-menu-normal {
+  background: yellow;
+}
+body[skin="skin-simple"] .skin-menu-ava {
+  background: blue;
+}
+body[skin="skin-simple"] .skin-objlist-row .hmol-list > * {
+  border-top: 1px solid #CCC;
+}
+body[skin="skin-simple"] .skin-objlist-btns .hmol-list > * {
+  display: inline-block;
+}
+body[skin="skin-simple"] .simple-list-item {
+  padding: 20px;
+  color: red;
+}

@@ -333,7 +333,8 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                     value : function(ag){
                         return ag.cid;
                     },
-                    items : []
+                    items : [],
+                    emptyItem : {}
                 }
             }]
         }).render(function(){

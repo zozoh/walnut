@@ -185,9 +185,9 @@ return ZUI.def("ui.form_com_image", {
             url += opt.target + "?race=FILE&cie=true&";
             // FIXME 绝对目录
             if (opt.target.substr(0, 1) == '/') {
-                url += "abpath=true&"
+                url += "aph=true&"
             } else {
-                url += "abpath=false&"
+                url += "aph=false&"
             }
         }
         // 不知道传到哪里啊，大锅

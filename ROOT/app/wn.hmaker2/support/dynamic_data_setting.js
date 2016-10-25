@@ -45,12 +45,13 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
                 type   : "string",
                 editAs : "droplist",
                 uiConf : {
+                    emptyItem : {},
                     items : "obj ~/.regapi/api/* -ExtendFilter -json -l",
                     icon  : '<i class="fa fa-plug"></i>',
                     text  : null,
                     value : function(o){
                         return "/" + Wn.getRelativePath(oApiHome, o);
-                    }
+                    },
                 }
             }, {
                 key    : "params",
@@ -64,12 +65,26 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
                 type   : "string",
                 editAs : "droplist",
                 uiConf : {
-                    items : "obj ~/.hmaker/template/* -json -l",
+                    emptyItem : {},
                     icon  : '<i class="fa fa-puzzle-piece"></i>',
-                    text  : null,
-                    value : function(o){
-                        return o.nm;
-                    }
+                    items : function(params, callback){
+                        // 得到站点皮肤
+                        var skinInfo = UI.getSkinInfo();
+                        var siTempl  = skinInfo.template || {}
+                        // 得到模板列表
+                        Wn.exec("obj ~/.hmaker/template/* -json -l", function(re){
+                            var list  = $z.fromJson(re);
+                            var items = [];
+                            for(var o of list) {
+                                var suffix = siTempl[o.nm] ? '' : ' !(' + UI.msg("hmaker.dds.tmpl_noskin") + ')';
+                                items.push({
+                                    text  : o.nm + suffix,
+                                    value : o.nm
+                                });
+                            }
+                            callback(items);
+                        });
+                    },
                 }
             }, {
                 key    : "mapping",

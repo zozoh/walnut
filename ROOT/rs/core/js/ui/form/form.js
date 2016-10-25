@@ -192,7 +192,7 @@ return ZUI.def("ui.form", {
             if(fld.required)
                 jTxt.attr("required","yes");
             if(fld.icon)
-                $(fld.icon).appendTo(jTxt);
+                $('<span class="fft-icon">').html(fld.icon).appendTo(jTxt);
             if(fld.title)
                 $('<span class="fft-text">').html(UI.text(fld.title)).appendTo(jTxt);
         }

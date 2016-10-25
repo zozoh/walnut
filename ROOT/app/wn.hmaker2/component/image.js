@@ -22,7 +22,7 @@ return ZUI.def("app.wn.hm_com_image", {
     paint : function(com) {
         var UI = this;
 
-        console.log("image", com)
+        //console.log("image", com)
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 指定链接
         if(com.href) {
@@ -70,7 +70,7 @@ return ZUI.def("app.wn.hm_com_image", {
         // 准备更新文本样式
         var txt = com.text || {};
         if(txt.content) {
-            console.log(txt)
+            //console.log(txt)
             // 计算文本的 CSS
             css = {};
 
