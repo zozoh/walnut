@@ -38,6 +38,8 @@ tasks.withType(JavaCompile) {
 }
 
 repositories {
+    maven { url "http://maven.nutz.cn/nexus/content/repositories/central"}
+    maven { url "http://maven.nutz.cn/nexus/content/repositories/ossrh"}
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
     maven { url "http://repo.maven.apache.org/maven2" }
 }
