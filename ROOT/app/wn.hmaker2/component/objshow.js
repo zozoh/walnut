@@ -62,16 +62,20 @@ return ZUI.def("app.wn.hm_com_objshow", {
             return;
         }
 
-        // 读取 JS 文件内容(必须是个jQuery插件)，并生成逻辑
-        var aphJS  = UI.getTemplateObjPath(com.template, "js");
-        var jsContent = Wn.read(aphJS);
-        eval(jsContent);
+        // 加载模板
+        var tmplInfo = UI.evalTemplate(com.template);
 
         // 得到皮肤选择器
         var skinSelector = UI.getSkinForTemplate(com.template);
 
+        // 准备绘制模板参数
+        var tmplOptions = _.extend({}, com.options, {
+            API : UI.getHttpApiUrl()
+        });
+
         // 绘制
-        var jDiv = $('<div>').appendTo(jData)[com.template](obj, com.mapping);
+        var ele  = document.createElement(tmplInfo.tagName || 'DIV');
+        var jDiv = $(ele).appendTo(jData)[tmplInfo.name](obj, tmplOptions);
         if(skinSelector)
             jDiv.addClass(skinSelector);
 

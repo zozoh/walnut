@@ -1,4 +1,4 @@
-({
+{
 	"name" : "skin-simple",
 	"com" : {
 		"navmenu" : [ {
@@ -10,7 +10,7 @@
 		} ],
 		"objlist" : [ {
 			"text" : "逐行列表",
-			"selector" : "skin-objlist-row"
+			"selector" : "skin-objlist-rows"
 		}, {
 			"text" : "按钮布局",
 			"selector" : "skin-objlist-btns"
@@ -19,4 +19,4 @@
 	"template" : {
 		"simple_list_item" : "simple-list-item"
 	}
-})
+}

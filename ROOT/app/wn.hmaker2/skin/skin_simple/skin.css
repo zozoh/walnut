@@ -7,10 +7,10 @@ body[skin="skin-simple"] .skin-menu-normal {
 body[skin="skin-simple"] .skin-menu-ava {
   background: blue;
 }
-body[skin="skin-simple"] .skin-objlist-row .hmol-list > * {
+body[skin="skin-simple"] .skin-objlist-rows .hmc-objlist-list > * {
   border-top: 1px solid #CCC;
 }
-body[skin="skin-simple"] .skin-objlist-btns .hmol-list > * {
+body[skin="skin-simple"] .skin-objlist-btns .hmc-objlist-list > * {
   display: inline-block;
 }
 body[skin="skin-simple"] .simple-list-item {

@@ -70,7 +70,7 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
                     items : function(params, callback){
                         // 得到站点皮肤
                         var skinInfo = UI.getSkinInfo();
-                        var siTempl  = skinInfo.template || {}
+                        var siTempl  = (skinInfo||{}).template || {}
                         // 得到模板列表
                         Wn.exec("obj ~/.hmaker/template/* -json -l", function(re){
                             var list  = $z.fromJson(re);
@@ -87,8 +87,8 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
                     },
                 }
             }, {
-                key    : "mapping",
-                title  : "i18n:hmaker.dds.mapping",
+                key    : "options",
+                title  : "i18n:hmaker.dds.options",
                 type   : "object",
                 dft    : {},
                 editAs : "pair",
@@ -107,14 +107,14 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
 
         // 更新了 API -> 更新参数表
         if("api" == key) {
-            var params = UI._eval_params_by_api(val);
+            var params = UI._eval_api_params(val);
             console.log(params)
             UI.gasket.form.update("params", params);
         }
         // 更新了模板 -> 模板映射
         else if("template" == key) {
-            var mapping = UI._eval_mapping_by_template(val);
-            UI.gasket.form.update("mapping", mapping);
+            var options = UI._eval_template_options(val);
+            UI.gasket.form.update("options", options);
         }
 
         // 最后调用回调
@@ -123,7 +123,7 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
         $z.invoke(opt, "on_change", [com], UI);
     },
     //...............................................................
-    _eval_params_by_api : function(apiPath) {
+    _eval_api_params : function(apiPath) {
         var UI = this;
         var re = {};
         if(apiPath) {
@@ -142,19 +142,18 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
         return re;
     },
     //...............................................................
-    _eval_mapping_by_template : function(templateName) {
+    _eval_template_options : function(templateName) {
         var UI = this;
         var re = {}; 
         if(templateName) {
-            // 得到模板对象的映射关系
-            var json = Wn.read("~/.hmaker/template/" + templateName + "/" + templateName + ".mapping.js") || "{}";
-            var re   = $z.fromJson(json);
+            // 加载模板
+            var tmplInfo = UI.evalTemplate(templateName);
+
+            // console.log(tmplInfo)
 
             // 更新模板映射的值
-            for(var key in re) {
-                var val = UI.__mapping[key];
-                if(!_.isUndefined(val))
-                    re[key] = val;
+            for(var key in tmplInfo.options) {
+                re[key] = UI.__options[key] || tmplInfo.options[key] || "";
             }
         }
         // 返回
@@ -166,11 +165,11 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
 
         // 记录原始的映射数据
         UI.__params  = com.params  || {};
-        UI.__mapping = com.mapping || {};
+        UI.__options = com.options || {};
 
         // 更新映射表
-        com.params  = UI._eval_params_by_api(com.api);
-        com.mapping = UI._eval_mapping_by_template(com.template);
+        com.params  = UI._eval_api_params(com.api);
+        com.options = UI._eval_template_options(com.template);
 
         // 更新表单
         this.gasket.form.setData(com);

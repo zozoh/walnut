@@ -59,7 +59,7 @@ var methods = {
         return this.hmaker().__home_id;
     },
     //=========================================================
-    // 得到站点的皮肤设定， {} 表示没有设定皮肤
+    // 得到站点的皮肤设定， null 表示没有设定皮肤
     getSkinInfo : function() {
         var UI = this;
         var oHome = UI.getHomeObj();
@@ -69,11 +69,15 @@ var methods = {
             return {};
         
         // 读取皮肤信息
-        var json = Wn.read("~/.hmaker/skin/" + skinName + "/" + skinName + ".info.json");
-        if(!json)
-            return json;
+        var oInfo = Wn.fetch("~/.hmaker/skin/" + skinName + "/skin.info.json", true);
+        if(!oInfo)
+            return null;
 
-        return $z.fromJson(json);
+        var json = Wn.read(oInfo);
+        if(json)
+            return $z.fromJson(json);
+
+        return null;
     },
     // 根据一个控件类型，获取其皮肤的可用样式表单，返回的一律是
     // {text,selector} 格式的对象
@@ -82,10 +86,10 @@ var methods = {
     getSkinListForCom : function(comType) {
         var skinInfo = this.getSkinInfo();
 
-        if(!skinInfo.com)
-            return null;
+        if(skinInfo && skinInfo.com)
+            return skinInfo.com[comType] || [];
 
-        return skinInfo.com[comType] || [];
+        return null;
     },
     // 针对一个组件，根据选择器获取其样式名
     getSkinTextForCom : function(comType, selector) {
@@ -101,22 +105,32 @@ var methods = {
     getSkinForTemplate : function(templateName) {
         var skinInfo = this.getSkinInfo();
 
-        if(!skinInfo.template)
-            return null;
+        if(skinInfo && skinInfo.template)
+            return skinInfo.template[templateName];
 
-        return skinInfo.template[templateName];
+        return null;
     },
     //=========================================================
     // 得到站点 api 的前缀
     //  - path 为 api 的路径
     getHttpApiUrl : function(path) {
         var oHome = this.getHomeObj();
-        return "/api/" + oHome.d1 + path;
+        return "/api/" + oHome.d1 + (path || "");
     },
-    // 得到站点控件对应模板文件对象的全路径
-    getTemplateObjPath : function(templateName, suffixName) {
+    //=========================================================
+    // 站点的模板
+    // 让模板的JS生效，并返回模板的信息对象
+    evalTemplate : function(templateName) {
         var oHome = this.getHomeObj();
-        return "/home/" + oHome.d1 + "/.hmaker/template/" + templateName + "/" + templateName + "." + suffixName;
+        var phTmplHome = "/home/" + oHome.d1 + "/.hmaker/template/" + templateName;
+
+        // 加载 jQuery 控件
+        var jsContent = Wn.read(phTmplHome + "/jquery.fn.js");
+        eval(jsContent);
+
+        // 返回模板信息
+        var jsonInfo = Wn.read(phTmplHome + "/template.info.json");
+        return $z.fromJson(jsonInfo);
     },
     //=========================================================
     // 监听消息

@@ -89,6 +89,7 @@ var THING_FILE = function(fld, subhdl, validate) {
         editAs  : "file",
         uiConf  : {
             multi : _.isUndefined(fld.multi) ? true : fld.multi,
+            dataForceArray : true,
             asyncParseData : function(th, callback) {
                 Wn.execf("thing {{th_set}} {{subhdl}} {{id}} -json -l", {
                     th_set : th.th_set,
@@ -98,7 +99,7 @@ var THING_FILE = function(fld, subhdl, validate) {
                     callback($z.fromJson(re));
                 });
             },
-            formatData : function(objList) {
+            formatData : function(objList, UI) {
                 var re = {};
                 if(_.isArray(objList) && objList.length > 0){
                     re["th_"+subhdl+"_nb"] = objList.length;
@@ -128,6 +129,11 @@ var THING_FILE = function(fld, subhdl, validate) {
                         }
                     },
                     on_ok : function(objs) {
+                        if(!objs)
+                            return;
+                        if(!_.isArray(objs)) {
+                            objs = [objs];
+                        }
                         // 准备生成的命令
                         var cmdText = "";
                         var cmdTmpl = $z.tmpl("thing {{th_set}} {{subhdl}} {{th_id}} -add '{{nm}}' -overwrite -read id:{{id}} -Q;\n")
@@ -470,6 +476,9 @@ return ZUI.def("app.wn.thing", {
             data : UI.__cmd(thConf.queryBy, oTS.id),
             edtCmdTmpl : {
                 "delete" : UI.__cmd(thConf.deleteBy, oTS.id),
+            },
+            filter : {
+                keyField : "th_nm"
             },
             list : {
                 fields : thConf.fields,
