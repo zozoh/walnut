@@ -234,7 +234,8 @@ define({
             "notemplate"   : "未设定显示模板",
             "nopartitem"   : "没有选中任何项目，无法继续操作",
             "api_loading"  : "正在从接口加载数据 ...",
-            "api_empty"    : "厄...没有数据"
+            "api_empty"    : "厄...没有数据",
+            "api_lack_params" : "动态参数没有提供默认数据，不能预览显示，只能发布以后查看效果"
         },
     }
 });

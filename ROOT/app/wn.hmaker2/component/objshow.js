@@ -17,6 +17,9 @@ var html = `
     <div code-id="api.loading" class="api-loading">
         <i class="zmdi zmdi-rotate-right zmdi-hc-spin"></i> {{hmaker.dds.api_loading}}
     </div>
+    <div code-id="api.lackParams" class="api-lack-params">
+        <i class="zmdi zmdi-alert-circle-o"></i> {{hmaker.dds.api_lack_params}}
+    </div>
 </div>
 <div class="hmc-objshow ui-arena hm-del-save hmc-dds">
     <section class="hmc-dds-msg"></section>
@@ -55,6 +58,18 @@ return ZUI.def("app.wn.hm_com_objshow", {
         
         // 清空显示
         var jData = UI.arena.children(".hmc-objshow-data").empty();
+
+        // 绘制动态参数键列表
+        UI.__draw_dynamic_keys(jData);
+
+        // 绘制重新加载按钮
+        UI.__draw_dynamic_reload(jData);
+
+        // 动态参数，但是缺少默认值，那么就没有足够的数据绘制了，显示一个信息吧
+        if(UI.isDynamicButLackParams()) {
+            UI.ccode("api.lackParams").appendTo(jData);
+            return;
+        }
 
         // 如果木有数据，就显示空
         if(!obj) {

@@ -17,6 +17,9 @@ var html = `
     <div code-id="api.loading" class="api-loading">
         <i class="zmdi zmdi-rotate-right zmdi-hc-spin"></i> {{hmaker.dds.api_loading}}
     </div>
+    <div code-id="api.lackParams" class="api-lack-params">
+        <i class="zmdi zmdi-alert-circle-o"></i> {{hmaker.dds.api_lack_params}}
+    </div>
     <div code-id="pager_normal" class="pager pager-normal">
         普通翻页条
     </div>
@@ -44,7 +47,7 @@ var html = `
     <div class="hmc-objlist-sorter">
         <ul></ul>
     </div>
-    <div class="hmc-objlist-list"></div>
+    <div class="hmc-objlist-list hmc-dynamic-con"></div>
     <div class="hmc-objlist-pager"></div>
 </div>`;
 //==============================================
@@ -53,6 +56,14 @@ return ZUI.def("app.wn.hm_com_objlist", {
     //...............................................................
     init : function(){
         var UI = HmComMethods(this);
+    },
+    //...............................................................
+    events : {
+        "click .dynamic-reload" : function(){
+            var UI    = this;
+            var jList = UI.arena.children(".hmc-objlist-list");
+            UI.__reload_data(null, jList);
+        }
     },
     //...............................................................
     setupProp : function(){
@@ -80,10 +91,22 @@ return ZUI.def("app.wn.hm_com_objlist", {
 
     },
     //...............................................................
-    __draw_data : function(list, com) {
+    __draw_data : function(list, com, dynamicKeys) {
         var UI  = this;
         com = com || UI.getData();
         var jList = UI.arena.children(".hmc-objlist-list").empty();
+
+        // 绘制动态参数键列表
+        UI.__draw_dynamic_keys(jList);
+
+        // 绘制重新加载按钮
+        UI.__draw_dynamic_reload(jList);
+
+        // 动态参数，但是缺少默认值，那么就没有足够的数据绘制了，显示一个信息吧
+        if(UI.isDynamicButLackParams()) {
+            UI.ccode("api.lackParams").appendTo(jList);
+            return;
+        }
 
         // 如果木有数据，就显示空
         if(!_.isArray(list) || list.length == 0) {
