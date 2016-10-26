@@ -4,7 +4,7 @@ $z.declare([
     'wn/util',
     'ui/obrowser/support/browser__methods',
     'ui/obrowser/vmd_table',
-    'ui/obrowser/vmd_thumbnail ',
+    'ui/obrowser/vmd_thumbnail',
 ], function(ZUI, Wn, BrowserMethods){
 //==============================================
 var html = function(){/*
