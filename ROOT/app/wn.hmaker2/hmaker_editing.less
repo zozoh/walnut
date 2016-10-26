@@ -184,6 +184,10 @@ body {margin:0; font-size:12px;}
         padding:30px; text-align: center;
         color:@c6; font-size: 1.4em;
     }
+    .api-lack-params {
+        padding:30px; text-align: center;
+        color:@c3; font-size: 1.2em;
+    }
 }
 //............................................................
 // objlist
@@ -248,7 +252,7 @@ body {margin:0; font-size:12px;}
     }
     // 列表内容
     > .hmc-objlist-list {
-        padding:10px;
+        padding:10px; 
     }
     // 翻页器
     > .hmc-objlist-pager {
@@ -266,3 +270,28 @@ body {margin:0; font-size:12px;}
         }
     }
 } // ~ objlist
+
+//............................................................
+// objlist/objshow 的动态部分
+.hmc-dynamic-con {
+    position: relative;
+    > .dynamic-keys {
+        position: absolute; top:0; left:0; z-index: 49;
+        padding:1px @d3; background: rgba(255,255,0,0.5); color:#000;
+        font-family: @f_fixed; font-size:@f0; border-radius: 0 0 @d2 0; font-weight: normal;
+        ul {
+            list-style: none; padding: 0; margin: 0;
+            > li {float:left; padding:@d0;}
+        }
+        ul:after{@clr();}
+    }
+    > .dynamic-reload { @noselect();
+        position: absolute; top:0; right:0;  z-index: 50;
+        padding:@d2; background: rgba(0,0,0,0.3); color:rgba(255,255,255,0.6);
+        font-size:@f2; cursor: pointer; transition:0.3s; border-radius: 0 0 0 @d2;
+    }
+    > .dynamic-reload:hover {
+        background: rgba(0,0,0,0.8); color:#FFF;
+    }
+}
+

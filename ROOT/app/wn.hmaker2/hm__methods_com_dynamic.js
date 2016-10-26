@@ -40,19 +40,73 @@ var methods = {
             UI.__reload_data(com, jP);
         }
     },
+    __draw_dynamic_keys : function(jP) {
+        var dynamicKeys = this.__dynamicKeys;
+        if(_.isArray(dynamicKeys) && dynamicKeys.length > 0) {
+            var jUl = $('<div class="dynamic-keys"><ul></ul></div>').appendTo(jP).find("ul");
+            for(var dKey of dynamicKeys)
+                $('<li>').text(dKey).appendTo(jUl);
+        }
+    },
+    __draw_dynamic_reload : function(jP) {
+        jP.append('<div class="dynamic-reload"><i class="fa fa-refresh"></i></div>')
+    },
+    //...............................................................
+    isDynamicButLackParams : function(){
+        return this.__dynamicKeys 
+                && this.__dynamicKeys.length > 0
+                && this.__isLackParams;
+    },
     //...............................................................
     __reload_data : function(com, jP){
         var UI = this;
         com = com || UI.getData();
 
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 记录一下接口的特征，以防止重复加载
         var api_finger = $z.toJson(_.pick(com, "api", "params"));
 
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 得到 api 的相关信息
         var apiUrl = UI.getHttpApiUrl(com.api);
-        var params = com.params || {};
+        var pm_org = _.extend({}, com.params);
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 处理动态参数 (来自请求参数，Session变量，Cookies 里面的值等)
+        var params = {};
+        var m;
+        var dynamicKeys  = [];     // 参数是否有动态参数
+        var isLackParams = false;  // 是否所有的动态参数都有默认值
+        for(var key in pm_org) {
+            var val = $.trim(pm_org[key]);
+
+            // 请求参数
+            m = /^@([\w\d_-]+)(<(.+)>)?$/.exec(val);
+            if(m) {
+                dynamicKeys.push(key);
+                isLackParams = isLackParams || !m[3];
+                params[key]  = m[3];
+                continue;
+            }
+            // TODO Session 变量
+            // TODO Cookie 的值
+            params[key] = val;
+        }
+        // 保存这个分析状态
+        UI.__dynamicKeys  = dynamicKeys;
+        UI.__isLackParams = isLackParams;
+
+        // 如果有动态参数，且缺少足够的默认参数，那么会直接让组件绘制 null
+        if(UI.isDynamicButLackParams()) {
+            UI.__draw_data(null, com);
+            return;
+        }
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 显示正在加载
         UI.ccode("api.loading").appendTo(jP.empty());
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 向服务器请求
         $.post(apiUrl, params, function(re){
             // 请求成功后记录接口特征
@@ -77,6 +131,8 @@ var methods = {
                 $('<div class="api-error">').text(errMsg).appendTo(jP.empty());
             }
         });
+        // 这个请求，显然是异步的
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     },
     //...............................................................
 }; // ~End methods
