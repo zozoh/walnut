@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.thing;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.lang.Files;
@@ -239,14 +240,10 @@ public abstract class Things {
      *            文件的所在目录
      * @param oT
      *            Thing 的索引对象
-     * @param countKey
+     * @param key
      *            计数的键值
      */
-    public static void doFileObj(WnSystem sys,
-                                 JvmHdlContext hc,
-                                 WnObj oDir,
-                                 WnObj oT,
-                                 String countKey) {
+    public static void doFileObj(WnSystem sys, JvmHdlContext hc, WnObj oDir, WnObj oT, String key) {
         // 判断是否静默输出
         boolean isQ = hc.params.is("quiet");
 
@@ -302,7 +299,7 @@ public abstract class Things {
                 }
                 // 不能生成一个新的，并且还不能覆盖就抛错
                 else if (!hc.params.is("overwrite")) {
-                    throw Er.create("e.cmd.thing.media.exists", oDir.path() + "/" + fnm);
+                    throw Er.create("e.cmd.thing." + key + ".exists", oDir.path() + "/" + fnm);
                 }
             }
 
@@ -321,15 +318,12 @@ public abstract class Things {
                 }
                 // 那么源文件必然不存在
                 else {
-                    throw Er.create("e.cmd.thing.media.readNone", read);
+                    throw Er.create("e.cmd.thing." + key + ".readNone", read);
                 }
             }
 
-            // 如果声明了键，就更新计数
-            if (!Strings.isBlank(countKey)) {
-                oT.setv(countKey, sys.io.count(q));
-                sys.io.set(oT, "^" + countKey + "$");
-            }
+            // 更新计数
+            __update_file_count(sys, oT, key, q);
 
             // 最后计入输出
             hc.output = oM;
@@ -339,15 +333,12 @@ public abstract class Things {
             String fnm = hc.params.get("del");
             WnObj oM = sys.io.fetch(oDir, fnm);
             if (null == oM && !isQ) {
-                throw Er.create("e.cmd.thing.media.noexists", oDir.path() + "/" + fnm);
+                throw Er.create("e.cmd.thing." + key + ".noexists", oDir.path() + "/" + fnm);
             }
             sys.io.delete(oM);
 
-            // 如果声明了键，就更新计数
-            if (!Strings.isBlank(countKey)) {
-                oT.setv(countKey, sys.io.count(q));
-                sys.io.set(oT, "^" + countKey + "$");
-            }
+            // 更新计数
+            __update_file_count(sys, oT, key, q);
 
             // 最后计入输出
             hc.output = oM;
@@ -366,14 +357,24 @@ public abstract class Things {
             List<WnObj> list = sys.io.query(q);
 
             // 如果声明了键，看看是否需要更新计数
-            if (!Strings.isBlank(countKey) && oT.getInt(countKey) != list.size()) {
-                oT.setv(countKey, sys.io.count(q));
-                sys.io.set(oT, "^" + countKey + "$");
+            if (!Strings.isBlank(key) && oT.getInt(key) != list.size()) {
+                oT.setv(key, sys.io.count(q));
+                sys.io.set(oT, "^" + key + "$");
             }
 
             // 记录到输出中
             hc.output = list;
         }
+    }
+
+    private static void __update_file_count(WnSystem sys, WnObj oT, String countKey, WnQuery q) {
+        List<WnObj> oFiles = sys.io.query(q);
+        oT.setv(String.format("th_%s_nb", countKey), oFiles.size());
+        List<String> fIds = new ArrayList<String>(oFiles.size());
+        for (WnObj oF : oFiles)
+            fIds.add(oF.id());
+        oT.setv(String.format("th_%s_ids", countKey), fIds);
+        sys.io.set(oT, "^(th_" + countKey + "_(nb|ids))$");
     }
 
 }
