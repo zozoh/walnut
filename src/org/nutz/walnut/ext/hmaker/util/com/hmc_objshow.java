@@ -16,6 +16,8 @@ public class hmc_objshow extends AbstractComHanlder {
         // 生成 DOM 结构
         ing.eleCom.append("<div class=\"hmc-objshow hmc-dds\"></div>");
 
+        _setup_dynamic_content(ing, conf);
+
         // 得到 api 的URL
         if (ing.prop.has("api")) {
             String apiUrl = "/api/" + ing.oHome.d1() + conf.getString("api");
