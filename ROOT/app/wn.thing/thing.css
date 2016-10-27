@@ -79,9 +79,13 @@
   border: 1px solid #d0d0d0;
   margin-right: 6px;
 }
-.thing .th-search [key="th_nm"] em {
-  margin-left: 6px;
-  color: #888888;
+.thing .th-search [key="th_nm"] span {
+  margin-left: 8px;
+  color: #0088ff;
+}
+.thing .th-search [key="th_nm"] span em {
+  margin-left: 4px;
+  color: #008800;
 }
 .thing .th-search .th-lbl {
   display: inline-block;
@@ -110,6 +114,12 @@
   font-weight: bold;
   color: #008800;
   margin-left: 2px;
+}
+.thing .th-search .tbl-row-actived [key="th_nm"] span {
+  color: #ffffff;
+}
+.thing .th-search .tbl-row-actived [key="th_nm"] span em {
+  color: #ffffff;
 }
 .thing .th-search .tbl-row-actived .th_file_none {
   color: #ffffff;

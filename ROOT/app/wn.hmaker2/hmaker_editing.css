@@ -110,10 +110,8 @@ body {
   margin: 0;
   padding: 0;
   list-style: none;
-  line-height: 24px;
 }
 .hmc-navmenu li {
-  padding: 6px 18px;
   position: relative;
   cursor: pointer;
 }
@@ -133,6 +131,9 @@ body {
   position: absolute;
   margin: -6px 0 0 2px;
 }
+.hmc-navmenu li[toar-checked] {
+  background: rgba(0, 0, 0, 0.2);
+}
 .hmc-navmenu[mode="default"] ul {
   display: -webkit-flex;
   display: flex;
@@ -150,9 +151,6 @@ body {
   height: 0;
   clear: both;
 }
-.hmc-navmenu li[toar-checked] {
-  background: rgba(0, 0, 0, 0.2);
-}
 .hmc-image {
   width: 100%;
   height: 100%;
@@ -160,15 +158,13 @@ body {
 }
 .hmc-image .hmc-image-link-tip {
   position: absolute;
-  right: 0;
-  top: 0;
-  margin: 6px;
+  right: 2px;
+  top: 2px;
   display: none;
   color: #FFF;
-  font-size: 1.8em;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.3);
-  padding: 8px;
+  padding: 6px;
 }
 .hmc-image[image-href] .hmc-image-link-tip {
   display: block;
@@ -346,7 +342,7 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 49;
+  z-index: 1;
   padding: 1px 8px;
   background: rgba(255, 255, 0, 0.5);
   color: #000;
@@ -378,11 +374,11 @@ body {
   position: absolute;
   top: 0;
   right: 0;
-  z-index: 50;
-  padding: 6px;
+  z-index: 2;
+  padding: 12px;
   background: rgba(0, 0, 0, 0.3);
   color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
   transition: 0.3s;
   border-radius: 0 0 0 6px;

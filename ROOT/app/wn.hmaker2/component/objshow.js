@@ -23,7 +23,7 @@ var html = `
 </div>
 <div class="hmc-objshow ui-arena hm-del-save hmc-dds">
     <section class="hmc-dds-msg"></section>
-    <div class="hmc-objshow-data"></div>
+    <div class="hmc-objshow-data hmc-dynamic-con"></div>
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_objshow", {
@@ -31,6 +31,14 @@ return ZUI.def("app.wn.hm_com_objshow", {
     //...............................................................
     init : function(){
         var UI = HmComMethods(this);
+    },
+    //...............................................................
+    events : {
+        "click .dynamic-reload" : function(){
+            var UI    = this;
+            var jData = UI.arena.children(".hmc-objshow-data");
+            UI.__reload_data(null, jData);
+        }
     },
     //...............................................................
     setupProp : function(){

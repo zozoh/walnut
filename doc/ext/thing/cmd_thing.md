@@ -63,7 +63,7 @@ thing [ThingSetID]
 ```    
 #----------------------------------------------------
 # 命令格式
-thing [TsID] get ID
+thing [TsID] get ID [-full]
 #----------------------------------------------------
 # 得到一个 thing 的详细信息 
 thing xxx get 45ad6823..
@@ -73,6 +73,11 @@ thing xxx get 45ad6823.. -json
     
 # 打印某个 thing 的名称和所属者，且不输出换行符
 thing xxx get 45ad6823.. -out '@{th_ow} belong to @{th_name}' -N
+
+# 输出一个 thing 的全部内容，如果有 detail，则将其加入元数据 "th_detail"
+# 同时根据附件和媒体的 ID 读取全部的媒体名称与 ID 映射的，存成
+# "th_media_map" 和 "th_attachment_map"
+thing xxx get 45ad6823.. -full
 ```
 
 # thing init

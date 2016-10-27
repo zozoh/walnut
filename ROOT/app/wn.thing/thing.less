@@ -46,7 +46,10 @@
                 height:16px; vertical-align: middle;border-radius: @d0; border:1px solid @cborder1;
                 margin-right:@d2;
             }
-            em {margin-left:@d2; color:@c2;}
+            span {
+                margin-left:@d3; color:@c4;
+                em {margin-left:@d1; color:@c3;}
+            }
         }
         .th-lbl {
             display: inline-block; padding:0 @d2; vertical-align: middle;
@@ -62,7 +65,13 @@
             > em {font-style: normal; font-weight: bold; color:@c3; margin-left: @d0;}
         }
         .tbl-row-actived {
-             .th_file_none {color:@ch0_f;}
+            [key="th_nm"] {
+                span {
+                    color:@ch0_f;
+                    em {color:@ch0_f;}
+                }
+            }
+            .th_file_none {color:@ch0_f;}
             .th_file_nb {
                 > i {color:@ch0_f;}
                 > em {color:@ch0_f;}

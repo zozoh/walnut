@@ -102,9 +102,8 @@ body {margin:0; font-size:12px;}
 .hmc-navmenu {
     ul{
         margin:0; padding:0; list-style: none;
-        line-height: 24px;
     }
-    li {padding:@d2 @d5 + @d0; position: relative; cursor: pointer;}
+    li {position: relative; cursor: pointer;}
     li[href]{color:@clink; text-decoration: underline;}
     li[current] {color:@c0;}
     li[newtab] a:after {
@@ -112,6 +111,7 @@ body {margin:0; font-size:12px;}
         font-size: @f0; color:@c2; 
         position: absolute; margin:-6px 0 0 2px;
     }
+    li[toar-checked] {background: rgba(0,0,0,0.2);}
 }
 // 水平导航条(默认)
 .hmc-navmenu[mode="default"] {
@@ -126,19 +126,15 @@ body {margin:0; font-size:12px;}
 .hmc-navmenu[mode="aside"] {
 
 }
-
-.hmc-navmenu {
-    li[toar-checked] {background: rgba(0,0,0,0.2);}
-}
 //............................................................
 // image
 .hmc-image {
     width:100%; height:100%; position: relative;
     .hmc-image-link-tip {
-        position: absolute; right: 0; top:0; margin:@d2;
-        display: none; color:#FFF; font-size:1.8em;
+        position: absolute; right: @d0; top:@d0;
+        display: none; color:#FFF; 
         border-radius: 50%; background: rgba(0,0,0,0.3);
-        padding:@d3; 
+        padding:@d2; 
     }
 }
 .hmc-image[image-href] .hmc-image-link-tip{
@@ -276,7 +272,7 @@ body {margin:0; font-size:12px;}
 .hmc-dynamic-con {
     position: relative;
     > .dynamic-keys {
-        position: absolute; top:0; left:0; z-index: 49;
+        position: absolute; top:0; left:0; z-index: 1;
         padding:1px @d3; background: rgba(255,255,0,0.5); color:#000;
         font-family: @f_fixed; font-size:@f0; border-radius: 0 0 @d2 0; font-weight: normal;
         ul {
@@ -286,9 +282,9 @@ body {margin:0; font-size:12px;}
         ul:after{@clr();}
     }
     > .dynamic-reload { @noselect();
-        position: absolute; top:0; right:0;  z-index: 50;
-        padding:@d2; background: rgba(0,0,0,0.3); color:rgba(255,255,255,0.6);
-        font-size:@f2; cursor: pointer; transition:0.3s; border-radius: 0 0 0 @d2;
+        position: absolute; top:0; right:0;  z-index: 2;
+        padding:@d4; background: rgba(0,0,0,0.3); color:rgba(255,255,255,0.6);
+        font-size:@f3; cursor: pointer; transition:0.3s; border-radius: 0 0 0 @d2;
     }
     > .dynamic-reload:hover {
         background: rgba(0,0,0,0.8); color:#FFF;

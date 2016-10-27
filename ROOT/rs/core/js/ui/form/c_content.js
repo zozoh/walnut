@@ -64,12 +64,19 @@ return ZUI.def("ui.form_com_obj_detail", {
             var UI = this;
             var jq = $(e.currentTarget);
 
-            $z.editIt(jq, function(newval, oldval){
-                newval = $.trim(newval) || "";
-                if(newval != oldval) {
-                    UI.__data.brief = newval;
-                    UI.__draw_data();
-                    UI.__on_change();
+            $z.editIt(jq, {
+                multi          : true, 
+                enterAsConfirm : true,
+                extendWidth    : false,
+                extendHeight   : true,
+                takePlace      : true,
+                after : function(newval, oldval){
+                    newval = $.trim(newval) || "";
+                    if(newval != oldval) {
+                        UI.__data.brief = newval;
+                        UI.__draw_data();
+                        UI.__on_change();
+                    }
                 }
             });
         },
@@ -202,6 +209,9 @@ return ZUI.def("ui.form_com_obj_detail", {
 
         // 记录对象
         UI.__data = data;
+
+        // 清空缓存
+        UI.__content = null;
 
         // 绘制数据
         UI.__draw_data();

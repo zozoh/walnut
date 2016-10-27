@@ -1,11 +1,17 @@
 package org.nutz.walnut.ext.hmaker.util;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.nutz.lang.util.Disks;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.hmaker.skin.HmSkinInfo;
+import org.nutz.walnut.ext.hmaker.template.HmTemplate;
+import org.nutz.walnut.ext.hmaker.template.HmTemplateInfo;
 
 public class HmContext {
 
@@ -27,6 +33,18 @@ public class HmContext {
     public WnObj oDest;
 
     /**
+     * 站点皮肤
+     */
+    public WnObj oSkinCss;
+    public WnObj oSkinJs;
+    public HmSkinInfo skinInfo;
+
+    /**
+     * 记录所有的控件使用的模板，最后 copy 到 template 目录
+     */
+    public Map<String, HmTemplate> templates;
+
+    /**
      * 站点除了转换还要 copy 的资源
      */
     public Set<WnObj> resources;
@@ -36,6 +54,7 @@ public class HmContext {
 
     public HmContext(WnIo io) {
         this.io = io;
+        this.templates = new HashMap<String, HmTemplate>();
         this.resources = new HashSet<WnObj>();
     }
 
@@ -45,7 +64,27 @@ public class HmContext {
         this.oHome = hpc.oHome;
         this.oDest = hpc.oDest;
         this.oConfHome = hpc.oConfHome;
-        
+        this.oSkinCss = hpc.oSkinCss;
+        this.oSkinJs = hpc.oSkinJs;
+        this.skinInfo = hpc.skinInfo;
+        this.templates = hpc.templates;
+    }
+
+    public HmTemplate getTemplate(String templateName) {
+        HmTemplate tmpl = this.templates.get(templateName);
+        if (null == tmpl) {
+            tmpl = new HmTemplate();
+            WnObj oTmplHome = io.check(oConfHome, "template/" + templateName);
+            tmpl.oJs = io.check(oTmplHome, "jquery.fn.js");
+            WnObj oInfo = io.check(oTmplHome, "template.info.json");
+            tmpl.info = io.readJson(oInfo, HmTemplateInfo.class);
+            this.templates.put(templateName, tmpl);
+        }
+        return tmpl;
+    }
+
+    public boolean hasSkin() {
+        return null != skinInfo && null != oSkinCss;
     }
 
     public String getRelativePath(WnObj o) {
@@ -77,7 +116,12 @@ public class HmContext {
         String rph = this.getTargetRelativePath(o);
 
         // 在目标处创建
-        return io.createIfNoExists(this.oDest, rph, o.race());
+        return createTarget(rph, o.race());
+
+    }
+
+    public WnObj createTarget(String rph, WnRace race) {
+        return io.createIfNoExists(this.oDest, rph, race);
 
     }
 }

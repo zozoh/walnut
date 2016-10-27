@@ -34,6 +34,11 @@ public class HmPageTranslating extends HmContext {
     public WnObj oTa;
 
     /**
+     * 当前文件到根的路径，顶级为 "", 下一级为 "../"
+     */
+    public String rootPath;
+
+    /**
      * 当前处理的页面 Document 对象
      */
     public Document doc;
@@ -178,6 +183,9 @@ public class HmPageTranslating extends HmContext {
         // 准备目标
         this.oTa = this.createTarget(oSrc);
 
+        // 计算源到根的路径
+        this.rootPath = this.getRelativePath(oSrc, oHome);
+
         // 解析页面
         String html = io.readText(oSrc);
         this.doc = Jsoup.parse(html);
@@ -185,10 +193,30 @@ public class HmPageTranslating extends HmContext {
         // 清空页面的头
         doc.head().empty();
 
+        // 添加必要的元数据
+        doc.head().append("<meta charset=\"utf-8\">");
+        doc.head()
+           .append("<meta name=\"viewport\""
+                   + " content=\"width=device-width, "
+                   + "initial-scale=1.0, "
+                   + "user-scalable=0, "
+                   + "minimum-scale=1.0, "
+                   + "maximum-scale=1.0\">");
+        doc.head().append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\">");
+
         // TODO 处理页面的头
         this.cssLinks.add("/gu/rs/ext/hmaker/hm_page.css");
         this.jsLinks.add("/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js");
+        this.jsLinks.add("/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js");
         this.jsLinks.add("/gu/rs/core/js/nutz/zutil.js");
+
+        // 加入皮肤
+        if (null != this.oSkinJs) {
+            this.jsLinks.add(rootPath + "skin/skin.js");
+        }
+        if (null != this.oSkinCss) {
+            this.cssLinks.add(rootPath + "skin/skin.css");
+        }
 
         // TODO 处理整个页面的 body
         prop.clear();
@@ -198,6 +226,11 @@ public class HmPageTranslating extends HmContext {
         }
         String css = Hms.genCssRuleStyle(this, prop);
         doc.body().attr("style", css);
+
+        // 添加页面皮肤过滤器
+        if (this.hasSkin()) {
+            doc.body().attr("skin", this.skinInfo.name);
+        }
 
         // 处理块
         Elements eleBlocks = doc.body().getElementsByClass("hm-block");

@@ -10,6 +10,7 @@ $z.declare([
 var THING_DETAIL = function(){
     return {
         loadContent : function(obj, callback) {
+            console.log("loadContent", obj.id);
             // 有内容
             if (obj.len > 0) {
                 Wn.execf("thing {{th_set}} detail {{id}}", obj, function(re) {
@@ -22,12 +23,13 @@ var THING_DETAIL = function(){
             }
         },
         saveContent : function(obj, content, callback) {
-            console.log(obj)
+            console.log("saveContent", obj.id, content.substring(0, 10));
             Wn.execf("thing {{th_set}} detail {{id}} -content", content, obj, function(re) {
                 callback(re);
             });
         },
         parseData : function(th) {
+            console.log("parseData:", th.th_nm);
             return {
                 id : th.id,
                 contentType : {
@@ -41,6 +43,7 @@ var THING_DETAIL = function(){
             };
         },
         formatData : function(obj) {
+            console.log("formatData:", obj);
             return {
                 id    : obj.id,
                 mime  : {
@@ -288,7 +291,7 @@ return ZUI.def("app.wn.thing", {
                     var json    = $z.toJson(data);
                     var cmdTmpl = UI.__cmd(thConf.updateBy, oTS.id, json);
                     var cmdText = $z.tmpl(cmdTmpl)(th);
-                    console.log(data)
+                    // console.log(data)
                     // 执行命令
                     var uiForm = this;
                     this.showPrompt(fld.key, "spinning");
@@ -359,7 +362,9 @@ return ZUI.def("app.wn.thing", {
                         html += '<i class="fa fa-cube th_thumb"></i>';
                     }
                     html += $z.escapeText(o.th_nm);
-                    html += (o.brief ? "<em>" + o.brief + "</em>" : "");
+                    if(o.len > 0) {
+                        html += '<span><i class="zmdi zmdi-format-align-left"></i><em>' + o.len + '</em></span>';
+                    }
                     return html;
                 }
             });

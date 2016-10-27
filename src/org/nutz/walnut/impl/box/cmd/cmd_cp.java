@@ -26,18 +26,21 @@ public class cmd_cp extends JvmExecutor {
             throw Err.create("e.cmds.cp.omitting_directory");
         }
 
-        _do_copy(sys, params, ph_src, ph_dst, oSrc);
-    }
-
-    protected void _do_copy(final WnSystem sys,
-                            final ZParams params,
-                            final String ph_src,
-                            final String ph_dst,
-                            WnObj oSrc) {
         // 打印
         if (params.is("v")) {
             sys.out.printlnf(Disks.getRelativePath(ph_src, oSrc.path()));
         }
+
+        // 执行 copy
+        _do_copy(sys, params, ph_src, ph_dst, oSrc);
+    }
+
+    protected static void _do_copy(final WnSystem sys,
+                                   final ZParams params,
+                                   final String ph_src,
+                                   final String ph_dst,
+                                   WnObj oSrc) {
+
         // 递归
         if (!oSrc.isFILE() && params.is("r")) {
             sys.io.each(Wn.Q.pid(oSrc.id()), new Each<WnObj>() {

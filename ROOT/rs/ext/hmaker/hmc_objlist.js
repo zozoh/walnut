@@ -1,36 +1,59 @@
-/*
-给定选区是一个 thingset，它的用法大约是
-$(context).thingset({
-    // 需要调用的 httpapi，返回必须是 AJAX
-    api : {
-        query : "/thing/query"
-    },
-    // 基于这个进行条件筛选
-    match : {
-        "th" : "xxxx"
-    },
-    // 字段映射
-    mapping : {
-        "aaa" : "xxxx"
-    },
-
-});
-对于选区，它假想的结构是
-<div class="hm-com" id="com1">
-    <section hidden="yes">
-        <!--// 这里就是 Template 的innerHTML -->
-    </section>
-</div>
-*/
 (function($, $z){
-
 //...........................................................
 $.fn.extend({ "objlist" : function(opt){
 
-    // 显示主
-    $("<b>haha, Iam thingset JS agent! ^_*</b>").appendTo(this);
+    // 记录自己
+    var jq = this;
 
-    console.log(opt)
+    // 检查 api
+    if(!opt.apiUrl){
+        $('<div class="api-none">').text("No Api!").appendTo(jq);
+        return;
+    }
+
+    // 检查模板
+    if(!opt.tmplInfo){
+        $('<div class="template-none">').text("No Template!").appendTo(jq);
+        return;
+    }
+
+    var tmplOptions = opt.options || {};
+
+    // TODO 处理参数
+
+    // 请求
+    $.post(opt.apiUrl, opt.params||{}, function(re){
+
+        // api 返回错误
+        if(/^e[.]/.test(re)){
+            $('<div class="api-error">').text(re).appendTo(jq);
+            return;
+        }
+        // 试图解析数据
+        try {
+            // 记录数据
+            var list = $z.fromJson(re);
+
+            // 没数据
+            if(!_.isArray(list) || list.length == 0) {
+                $('<div class="api-empty">').text("没有数据").appendTo(jq);
+                return;
+            }
+
+            // 循环绘制
+            for(var obj of list) {
+                var ele  = document.createElement(opt.tmplInfo.tagName || 'DIV');
+                var jDiv = $(ele).appendTo(jq)[opt.tmplInfo.name](obj, tmplOptions);
+                if(opt.skinSelector)
+                    jDiv.addClass(opt.skinSelector);
+            }
+
+        }
+        // 接口调用错误
+        catch (errMsg) {
+            $('<div class="api-error">').text(errMsg).appendTo(jq);
+        }
+    });
 
     // 返回自身以便链式赋值
     return this;

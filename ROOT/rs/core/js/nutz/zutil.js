@@ -148,7 +148,14 @@
                         var re = v * 1;
                         return v == re ? parseInt(re) : -1;
                     case 'object':
-                        return this.fromJson(v);
+                        // 弱弱的尝试一下转换成 Json 对象
+                        try {
+                            return zUtil.fromJson(v);
+                        }
+                        // 嗯，好像不行，变字符串吧
+                        catch(E) {
+                            return v;
+                        }
                     case 'boolean':
                         if (_.isBoolean(v))
                             return v;
@@ -168,7 +175,7 @@
             // 日期
             var regex = /^(\d{4})-(\d{2})-(\d{2})$/;
             if (regex.test(v)) {
-                return this.parseDate(v, regex);
+                return zUtil.parseDate(v, regex);
             }
             // 布尔
             regex = /^ *(true|false|yes|no|on|off) *$/i;
