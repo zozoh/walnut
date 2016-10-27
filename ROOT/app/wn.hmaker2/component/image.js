@@ -168,14 +168,15 @@ return ZUI.def("app.wn.hm_com_image", {
             key    : "href",
             title  : "i18n:hmaker.prop.href",
             type   : "string",
-            editAs : "link",
-            uiConf : {
-                body : {
-                    setup : {
-                        defaultPath : oHome
-                    }
-                }
-            }
+            uiWidth : "all",
+            // editAs : "link",
+            // uiConf : {
+            //     body : {
+            //         setup : {
+            //             defaultPath : oHome
+            //         }
+            //     }
+            // }
         }, {
             key    : "scale",
             title  : "i18n:hmaker.prop.scale",
