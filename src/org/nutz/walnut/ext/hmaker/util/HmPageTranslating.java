@@ -206,6 +206,8 @@ public class HmPageTranslating extends HmContext {
 
         // TODO 处理页面的头
         this.cssLinks.add("/gu/rs/ext/hmaker/hm_page.css");
+        this.cssLinks.add("/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css");
+        this.cssLinks.add("/gu/rs/core/css/font-md/css/material-design-iconic-font.css");
         this.jsLinks.add("/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js");
         this.jsLinks.add("/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js");
         this.jsLinks.add("/gu/rs/core/js/nutz/zutil.js");

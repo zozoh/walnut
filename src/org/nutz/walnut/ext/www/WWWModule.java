@@ -332,7 +332,7 @@ public class WWWModule extends AbstractWnModule {
                 return new ViewWrapper(new RawView("text/html"), html);
             }
             // 网页图片等，直接显示，清空 UA 后会去掉 CONTENT_DISPOSITION
-            else if (o.isType("^(html|htm|txt|gif|png|jpe?g|webp)$")) {
+            else if (o.isType("^(html|htm|css|js|txt|gif|png|jpe?g|webp)$")) {
                 if (log.isDebugEnabled())
                     log.debugf(" - www.S (%s)@%s : %s", o.id(), usr, a_path);
                 ua = null;
