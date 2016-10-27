@@ -40,7 +40,7 @@ public class hmc_image extends AbstractComHanlder {
         NutMap css = Lang.map("position:'absolute'");
 
         // 文本位置极其宽高，根据顶底左右不同，选择 txt.size 表示的是宽还是高
-        String pos = txt.getString("pos");
+        String pos = txt.getString("pos", "S");
         switch (pos) {
         // N: North 顶
         case "N":
