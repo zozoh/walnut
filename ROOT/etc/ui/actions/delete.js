@@ -3,9 +3,11 @@
 	text : "i18n:delete",
 	type : "button",
 	handler : function($ele, a) {
-		var UI = this;
+		// 得到要操作的 UI，如果是 browser 的子 UI，则一定得到 browser 的顶级控件
+		// 否则控件必须实现 "getChecked" 和 "refresh" 函数，以便本过程调用
+		var UI = $z.invoke(this, "browser") || this;
 		
-		var list = UI.browser().getChecked();
+		var list = UI.getChecked();
 		// 没内容
 		if (list.length == 0) {
 			alert(UI.msg("obrowser.warn.empty"));
@@ -30,6 +32,6 @@
 
 		Wn.exec(cmdText);
 
-		UI.browser().refresh();
+		UI.refresh();
 	}
 })
