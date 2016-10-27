@@ -197,6 +197,9 @@ public class WWWModule extends AbstractWnModule {
         String homePath = Strings.sBlank(u.home(), "/home/" + u.name());
         WnObj oHome = io.fetch(null, homePath);
 
+        if (log.isDebugEnabled())
+            log.debugf(" - www:usrHome: %s : [%s]", homePath, oHome);
+
         if (null == oHome) {
             return gen_errpage(tmpl_404, a_path, "Home not exists!");
         }
@@ -209,17 +212,25 @@ public class WWWModule extends AbstractWnModule {
         if (!"root".equals(usr))
             q.setv("d1", oHome.d1());
 
+        if (log.isDebugEnabled())
+            log.debugf(" - www:query: %s", q.toString());
+
         // 请求里带了 host 了吗
         Object host = req.getAttribute("wn_www_host");
         if (null != host) {
             q.setv("www", host.toString());
             oROOT = io.getOne(q);
         }
+        if (log.isDebugEnabled())
+            log.debugf(" - www:regHost: %s -> %s", host, oROOT);
 
         // 实在找不到用 ROOT
         if (null == oROOT) {
             oROOT = io.getOne(q.setv("www", "ROOT"));
         }
+
+        if (log.isDebugEnabled())
+            log.debugf(" - www:=ROOT: %s -> %s", host, oROOT);
 
         // 发布目录不存在
         if (null == oROOT) {
@@ -238,6 +249,9 @@ public class WWWModule extends AbstractWnModule {
         else if (null != oROOT) {
             o = io.fetch(oROOT, a_path);
         }
+
+        if (log.isDebugEnabled())
+            log.debugf(" - www:findObj: %s -> %s", a_path, o);
 
         // 文件对象不存在，直接 404 咯
         if (null == o) {
@@ -262,6 +276,10 @@ public class WWWModule extends AbstractWnModule {
                     break;
                 }
             }
+            
+            if (log.isDebugEnabled())
+                log.debugf(" - www:findEntry: %s", o);
+            
             // 还是目录，那就抛错吧
             if (o.isDIR()) {
                 return gen_errpage(tmpl_400, a_path);
@@ -278,9 +296,12 @@ public class WWWModule extends AbstractWnModule {
             }
             // 从 WalnutFilter 过来的，直接使用原始路径
             else {
-                redirectPath =Wn.appendPath(orgPath.toString(),o.name());
+                redirectPath = Wn.appendPath(orgPath.toString(), o.name());
             }
             
+            if (log.isDebugEnabled())
+                log.debugf(" - www:redirect-> %s", redirectPath);
+
             // 重定向吧
             return new ServerRedirectView(redirectPath);
         }
