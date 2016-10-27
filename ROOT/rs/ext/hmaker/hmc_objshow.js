@@ -8,13 +8,13 @@ $.fn.extend({ "objshow" : function(opt){
     // 检查 api
     if(!opt.apiUrl){
         $('<div class="api-none">').text("No Api!").appendTo(jq);
-        return;
+        return jq;
     }
 
     // 检查模板
     if(!opt.tmplInfo){
         $('<div class="template-none">').text("No Template!").appendTo(jq);
-        return;
+        return jq;
     }
 
     var tmplOptions = opt.options || {};
@@ -27,7 +27,7 @@ $.fn.extend({ "objshow" : function(opt){
         // api 返回错误
         if(/^e[.]/.test(re)){
             $('<div class="api-error">').text(re).appendTo(jq);
-            return;
+            return jq;
         }
         // 试图解析数据
         try {
@@ -37,7 +37,7 @@ $.fn.extend({ "objshow" : function(opt){
             // 没数据
             if(!obj) {
                 $('<div class="api-empty">').text("没有数据").appendTo(jq);
-                return;
+                return jq;
             }
 
             // 循环绘制

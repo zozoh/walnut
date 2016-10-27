@@ -13,6 +13,9 @@ public class hmc_objshow extends AbstractComHanlder {
         // JS 控件的配置项目
         NutMap conf = ing.prop;
 
+        // 确保页面输出是 wnml
+        ing.markPageAsWnml();
+
         // 生成 DOM 结构
         ing.eleCom.append("<div class=\"hmc-objshow hmc-dds\"></div>");
 

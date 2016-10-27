@@ -8,6 +8,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -83,6 +84,15 @@ public class HmPageTranslating extends HmContext {
      * 保存所有的外部引入 JavaScript，并去除重复
      */
     public LinkedHashSet<String> jsLinks;
+
+    /**
+     * 控件们可以通过 markPageAsWnml() 方法来标记这个页面是 wnml 输出的
+     */
+    private boolean isWnml;
+
+    public void markPageAsWnml() {
+        this.isWnml = true;
+    }
 
     public HmPageTranslating(HmContext hpc) {
         super(hpc);
@@ -179,20 +189,17 @@ public class HmPageTranslating extends HmContext {
     public WnObj translate(WnObj o) {
         // 记录源
         this.oSrc = o;
-
-        // 准备目标
-        this.oTa = this.createTarget(oSrc);
-
+        // ---------------------------------------------------
         // 计算源到根的路径
         this.rootPath = this.getRelativePath(oSrc, oHome);
-
+        // ---------------------------------------------------
         // 解析页面
         String html = io.readText(oSrc);
         this.doc = Jsoup.parse(html);
-
+        // ---------------------------------------------------
         // 清空页面的头
         doc.head().empty();
-
+        // ---------------------------------------------------
         // 添加必要的元数据
         doc.head().append("<meta charset=\"utf-8\">");
         doc.head()
@@ -203,7 +210,7 @@ public class HmPageTranslating extends HmContext {
                    + "minimum-scale=1.0, "
                    + "maximum-scale=1.0\">");
         doc.head().append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\">");
-
+        // ---------------------------------------------------
         // TODO 处理页面的头
         this.cssLinks.add("/gu/rs/ext/hmaker/hm_page.css");
         this.cssLinks.add("/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css");
@@ -211,7 +218,7 @@ public class HmPageTranslating extends HmContext {
         this.jsLinks.add("/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js");
         this.jsLinks.add("/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js");
         this.jsLinks.add("/gu/rs/core/js/nutz/zutil.js");
-
+        // ---------------------------------------------------
         // 加入皮肤
         if (null != this.oSkinJs) {
             this.jsLinks.add(rootPath + "skin/skin.js");
@@ -219,7 +226,7 @@ public class HmPageTranslating extends HmContext {
         if (null != this.oSkinCss) {
             this.cssLinks.add(rootPath + "skin/skin.css");
         }
-
+        // ---------------------------------------------------
         // TODO 处理整个页面的 body
         prop.clear();
         Element eleProp = Hms.fillProp(prop, doc.body(), "hm-page-attr");
@@ -228,31 +235,45 @@ public class HmPageTranslating extends HmContext {
         }
         String css = Hms.genCssRuleStyle(this, prop);
         doc.body().attr("style", css);
-
+        // ---------------------------------------------------
         // 添加页面皮肤过滤器
         if (this.hasSkin()) {
             doc.body().attr("skin", this.skinInfo.name);
         }
-
+        // ---------------------------------------------------
         // 处理块
         Elements eleBlocks = doc.body().getElementsByClass("hm-block");
         for (Element eleBlock : eleBlocks) {
             this.__do_block(eleBlock);
         }
-
+        // ---------------------------------------------------
         // 处理控件
         Elements eleComs = doc.body().getElementsByClass("hm-com");
         for (Element eleCom : eleComs) {
             this.__do_com(eleCom);
         }
-
+        // ---------------------------------------------------
         // 展开链接资源
         __extend_link_and_style();
 
+        // ---------------------------------------------------
+        // 准备目标
+        // 得到资源的相对路径
+        String rph = this.getTargetRelativePath(o);
+
+        // 如果是 wnml 则改变名称
+        if (isWnml) {
+            rph = Files.renameSuffix(rph, ".wnml");
+        }
+
+        // 在目标处创建
+        this.oTa = createTarget(rph, o.race());
+
+        // ---------------------------------------------------
         // 将处理后的文档写入目标
         html = Hms.unescapeJsoupHtml(doc.html());
         io.writeText(oTa, html);
-
+        // ---------------------------------------------------
         // 返回创建结果文件
         return oTa;
     }

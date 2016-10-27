@@ -276,10 +276,10 @@ public class WWWModule extends AbstractWnModule {
                     break;
                 }
             }
-            
+
             if (log.isDebugEnabled())
                 log.debugf(" - www:findEntry: %s", o);
-            
+
             // 还是目录，那就抛错吧
             if (o.isDIR()) {
                 return gen_errpage(tmpl_400, a_path);
@@ -298,7 +298,7 @@ public class WWWModule extends AbstractWnModule {
             else {
                 redirectPath = Wn.appendPath(orgPath.toString(), o.name());
             }
-            
+
             if (log.isDebugEnabled())
                 log.debugf(" - www:redirect-> %s", redirectPath);
 
