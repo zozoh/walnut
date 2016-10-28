@@ -13,9 +13,9 @@ tags:
 ```
 ~/.hmaker/skin
     skin_nameA                # 皮肤所有的资源存放目录
-        skin_nameA.info.json  # 一个JSON文件，以便编辑器理解皮肤
-        skin_nameA.css        # 皮肤的样式文件
-        skin_nameA.js         # 「选」皮肤的 JS 文件
+        skin.info.json  # 一个JSON文件，以便编辑器理解皮肤
+        skin.css        # 皮肤的样式文件
+        skin.js         # 「选」皮肤的 JS 文件
 ```
 
 # skin.info.json
