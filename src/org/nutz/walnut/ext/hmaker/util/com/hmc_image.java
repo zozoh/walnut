@@ -12,10 +12,13 @@ public class hmc_image extends AbstractComHanlder {
 
     @Override
     protected void _exec(HmPageTranslating ing) {
+        // 区域属性
+        ing.eleCom.attr("style","position:relative;width:100%; height:100%;");
 
         // 图片属性
+        ing.eleCom.append("<div class=\"hmc-image-pic\"></div>");
         NutMap css = __gen_img_css(ing);
-        ing.addMyCss(Lang.map(" ", css));
+        ing.addMyCss(Lang.map("> .hmc-image-pic", css));
 
         // 超链接
         String tagName = "DIV";
@@ -116,7 +119,6 @@ public class hmc_image extends AbstractComHanlder {
         NutMap css = ing.prop.pick("width", "height");
         css.putDefault("width", "100%");
         css.putDefault("height", "100%");
-        css.put("position", "relative");
 
         // 处理图片路径
         if (!Strings.isBlank(src)) {
