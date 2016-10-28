@@ -21,9 +21,6 @@ public class hmc_image extends AbstractComHanlder {
         String tagName = "DIV";
         if (ing.prop.has("href")) {
             String href = ing.prop.getString("href");
-            if (!href.matches("^https?://")) {
-                href = "http://" + href;
-            }
             Element eleA = ing.eleCom.ownerDocument()
                                      .createElement("A")
                                      .attr("href", href)
