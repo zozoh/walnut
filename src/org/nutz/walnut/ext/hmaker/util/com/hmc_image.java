@@ -17,6 +17,24 @@ public class hmc_image extends AbstractComHanlder {
         NutMap css = __gen_img_css(ing);
         ing.addMyCss(Lang.map(" ", css));
 
+        // 超链接
+        String tagName = "DIV";
+        if (ing.prop.has("href")) {
+            String href = ing.prop.getString("href");
+            if (!href.matches("^https?://")) {
+                href = "http://" + href;
+            }
+            Element eleA = ing.eleCom.ownerDocument()
+                                     .createElement("A")
+                                     .attr("href", href)
+                                     .text(" ");
+            ing.eleCom.appendChild(eleA);
+            ing.addMyCss(Lang.map(" > a",
+                                  Lang.map("top:0,left:0,right:0,bottom:0")
+                                      .setv("position", "absolute")
+                                      .setv("display", "block")));
+        }
+
         // 文字属性
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 准备更新文本样式
@@ -27,10 +45,10 @@ public class hmc_image extends AbstractComHanlder {
 
             // 设置文本显示
             Element eleTxt = ing.eleCom.ownerDocument()
-                                       .createElement("DIV")
+                                       .createElement(tagName)
                                        .addClass("hmc-image-txt")
                                        .text(content);
-            ing.eleCom.appendChild(eleTxt);
+            ing.eleCom.prependChild(eleTxt);
             ing.addMyCss(Lang.map(" > .hmc-image-txt", css));
         }
     }
