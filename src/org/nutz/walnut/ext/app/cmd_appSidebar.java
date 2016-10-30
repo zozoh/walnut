@@ -15,6 +15,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnBean;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_appSidebar extends JvmExecutor {
@@ -32,6 +33,9 @@ public class cmd_appSidebar extends JvmExecutor {
         WnObj oConf = __find_conf(sys, params);
         SidebarGroup[] sgs = sys.io.readJson(oConf, SidebarGroup[].class);
 
+        // 获取线程上下文
+        WnContext wc = Wn.WC();
+
         // 展开所有动态加载项
         for (SidebarGroup sg : sgs) {
             List<SidebarItem> items = new LinkedList<SidebarItem>();
@@ -48,7 +52,11 @@ public class cmd_appSidebar extends JvmExecutor {
                     List<WnBean> objs = Json.fromJsonAsList(WnBean.class, json);
                     for (WnObj o : objs) {
                         o.setTree(sys.io);
-                        items.add(new SidebarItem(o, si));
+
+                        // 进一步检查侧边栏项目权限
+                        if (__can_show(wc, o)) {
+                            items.add(new SidebarItem(o, si));
+                        }
                     }
                 }
                 // 动态: items
@@ -65,7 +73,7 @@ public class cmd_appSidebar extends JvmExecutor {
                 else {
                     String aph = Wn.normalizeFullPath(si.getPh(), sys);
                     WnObj o = sys.io.fetch(null, aph);
-                    if (null != o) {
+                    if (null != o && __can_show(wc, o)) {
                         // 更新路径
                         si.setPh(aph);
                         // 设置默认的 icon
@@ -129,6 +137,25 @@ public class cmd_appSidebar extends JvmExecutor {
                 return false;
             }
         });
+    }
+
+    /**
+     * @param o
+     *            对象
+     * @return 当前用户是否有权限在侧边栏上显示这个项目
+     */
+    private boolean __can_show(WnContext wc, WnObj o) {
+        // 进一步检查侧边栏项目权限
+        // 目录的话 必须是可进入的才可见
+        if (o.isDIR() && null != wc.whenEnter(o, true)) {
+            return true;
+        }
+        // 文件的话，必须是可读的才可见
+        else if (o.isFILE() && null != wc.whenRead(o, true)) {
+            return true;
+        }
+        // 通不过检查
+        return false;
     }
 
     private WnObj __find_conf(WnSystem sys, ZParams params) {

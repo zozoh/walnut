@@ -334,7 +334,7 @@ public class ObjModule extends AbstractWnModule {
         WnObj o = Wn.checkObj(io, str);
 
         // 确保可读，同时处理链接文件
-        o = Wn.WC().whenRead(o);
+        o = Wn.WC().whenRead(o, false);
 
         // 校验 sha1
         if (!Strings.isBlank(sha1)) {
@@ -357,7 +357,7 @@ public class ObjModule extends AbstractWnModule {
         WnObj o = Wn.checkObj(io, str);
 
         // 确保可写，同时处理链接文件
-        o = Wn.WC().whenWrite(o);
+        o = Wn.WC().whenWrite(o, false);
 
         // 写入
         OutputStream ops = io.getOutputStream(o, 0);

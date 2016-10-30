@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.usr.WnUsr;
 
 public interface WnObj extends NutBean {
 
@@ -71,6 +72,8 @@ public interface WnObj extends NutBean {
     boolean hasParent();
 
     WnObj parent();
+    
+    int getCustomizedPrivilege(WnUsr u);
 
     WnObj loadParents(List<WnObj> list, boolean force);
 

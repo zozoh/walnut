@@ -45,7 +45,7 @@ public abstract class JvmExecutor {
         String pwd = sys.se.vars().getString("PWD");
         String path = Wn.normalizePath(pwd, sys);
         WnObj re = sys.io.check(null, path);
-        return Wn.WC().whenEnter(re);
+        return Wn.WC().whenEnter(re, false);
     }
 
     protected WnObj getHome(WnSystem sys) {

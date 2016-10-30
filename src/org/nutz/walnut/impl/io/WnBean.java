@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.nutz.castor.Castors;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -12,6 +13,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnTree;
+import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
 
 public class WnBean extends NutMap implements WnObj {
@@ -566,9 +568,42 @@ public class WnBean extends NutMap implements WnObj {
 
     public WnObj parent() {
         if (null == _parent && hasParent()) {
-            this.setParent(tree.getOne(Wn.Q.id(parentId())));
+            String pid = this.parentId();
+            if (this.tree == null) {
+                throw Lang.makeThrow("NPE tree: %s/%s > %s", pid, this.id(), this.name());
+            }
+            WnObj oP = tree.get(pid);
+            if (null == oP) {
+                // oP = tree.get(pid);
+                throw Lang.makeThrow("NPE parent: %s/%s > %s", pid, this.id(), this.name());
+            }
+            this.setParent(oP);
         }
         return _parent;
+    }
+
+    @SuppressWarnings("rawtypes")
+    public int getCustomizedPrivilege(WnUsr u) {
+        if (null != u) {
+            // 自己有木有
+            Map map = this.getAs("pvg", Map.class);
+            if (null != map) {
+                Object pvg = map.get(u.id());
+                if (null != pvg)
+                    return Castors.me().castTo(pvg, Integer.class);
+            }
+
+            // 看看自己的父
+            if (this.hasParent())
+                // try {
+                return this.parent().getCustomizedPrivilege(u);
+            // }
+            // catch (NullPointerException e) {
+            // throw Lang.makeThrow("NPE: %s @ %s", this.name(), unm);
+            // }
+        }
+        // 那就是没有啊
+        return Wn.Io.NO_PVG;
     }
 
     public void setParent(WnObj parent) {
@@ -619,7 +654,7 @@ public class WnBean extends NutMap implements WnObj {
         p.loadParents(list, force);
 
         // 确保可访问
-        p = Wn.WC().whenEnter(p);
+        p = Wn.WC().whenEnter(p, false);
 
         // 设置成自己的父
         _parent = p;

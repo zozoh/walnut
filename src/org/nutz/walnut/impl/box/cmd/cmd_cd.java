@@ -27,10 +27,13 @@ public class cmd_cd extends JvmExecutor {
 
         // 检查这个目录是否存在
         WnObj o = sys.io.check(null, ph);
-
+        
         if (!o.isDIR()) {
             throw Er.create("e.cmd.cd.nodir", ph);
         }
+        
+        // 确保可进入 
+        o = Wn.WC().whenEnter(o, false);
 
         // 修改会话中的设定
         sys.se.var("PWD", o.path());

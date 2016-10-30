@@ -2,19 +2,17 @@ package org.nutz.walnut.api.io;
 
 public interface WnSecurity {
 
-    WnObj enter(WnObj nd);
+    WnObj enter(WnObj nd, boolean asNull);
 
-    WnObj access(WnObj nd);
+    WnObj access(WnObj nd, boolean asNull);
 
-    // WnObj view(WnObj nd);
+    WnObj read(WnObj nd, boolean asNull);
 
-    WnObj read(WnObj nd);
+    WnObj write(WnObj nd, boolean asNull);
 
-    WnObj write(WnObj nd);
+    WnObj meta(WnObj nd, boolean asNull);
 
-    WnObj meta(WnObj nd);
-
-    WnObj remove(WnObj nd);
+    WnObj remove(WnObj nd, boolean asNull);
 
     boolean test(WnObj nd, int mode);
 

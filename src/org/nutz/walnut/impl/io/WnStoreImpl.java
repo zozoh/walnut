@@ -99,10 +99,10 @@ public class WnStoreImpl implements WnStore {
 
         // secu下
         if (Wn.S.isRead(mode)) {
-            o = Wn.WC().whenRead(o);
+            o = Wn.WC().whenRead(o, false);
         }
         if (Wn.S.isWriteOrAppend(mode)) {
-            o = Wn.WC().whenWrite(o);
+            o = Wn.WC().whenWrite(o, false);
         }
 
         // 一个对象只能打开一个写句柄
@@ -113,10 +113,10 @@ public class WnStoreImpl implements WnStore {
         // 检查一些读写权限
         WnContext wc = Wn.WC();
         if (Wn.S.isWriteOrAppend(mode)) {
-            o = wc.whenWrite(o);
+            o = wc.whenWrite(o, false);
         }
         if (Wn.S.isRead(mode)) {
-            o = wc.whenRead(o);
+            o = wc.whenRead(o, false);
         }
 
         // 创建句柄
@@ -392,7 +392,7 @@ public class WnStoreImpl implements WnStore {
             bu.free();
 
     }
-    
+
     @Override
     public void delete(WnObj o, boolean r) {
         this.delete(o);

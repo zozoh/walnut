@@ -77,6 +77,10 @@ public abstract class AbstractWnTree implements WnTree {
         if (null == id)
             return null;
 
+        // 如果是根节点
+        if (root.isSameId(id))
+            return root.clone();
+
         // 如果是 mount 的 ID
         // 那么形式应该类似 34cdqef:file://path/to/file
         Matcher m = regex_id_mnt3.matcher(id);
@@ -124,7 +128,7 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 最后校验一下权限
-        return Wn.WC().whenAccess(o);
+        return Wn.WC().whenAccess(o, true);
     }
 
     private WnObj __eval_mnt_obj(WnObj mo,
@@ -314,14 +318,14 @@ public abstract class AbstractWnTree implements WnTree {
         nd.path(p.path()).appendPath(nd.name());
 
         // 确保节点可以访问
-        nd = wc.whenAccess(nd);
+        nd = wc.whenAccess(nd, true);
 
         // 搞定了，返回吧
         return nd;
     }
 
     private WnObj __enter_dir(WnObj o, WnSecurity secu) {
-        WnObj dir = secu.enter(o);
+        WnObj dir = secu.enter(o, false);
         // 肯定遇到了链接目录
         if (!dir.isSameId(o)) {
             dir.name(o.name());
@@ -387,7 +391,7 @@ public abstract class AbstractWnTree implements WnTree {
                 for (int i = fromIndex; i < rightIndex; i++) {
                     nd = fetch(p1, paths, i, i + 1);
                     // 确保节点可以进入
-                    nd = wc.whenEnter(nd);
+                    nd = wc.whenEnter(nd, false);
 
                     // 有节点的话继续下一个路径
                     if (null != nd) {
@@ -424,7 +428,7 @@ public abstract class AbstractWnTree implements WnTree {
         // 应对一下回调
         if (null != secu) {
             p = __enter_dir(p, secu);
-            p = secu.write(p);
+            p = secu.write(p, false);
         }
 
         // 检查一下重名
@@ -547,11 +551,8 @@ public abstract class AbstractWnTree implements WnTree {
         // 得到自身的原始的父
         WnObj oldSrcParent = src.parent();
 
-        // 确保源是可以访问的
-        src = wc.whenAccess(src);
-
-        // 确保源的父是可以写入的
-        wc.whenWrite(src.parent());
+        // 确保源是可移除的
+        src = wc.whenRemove(src, false);
 
         // 看看目标是否存在
         String newName = null;
@@ -578,7 +579,7 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 确认目标能写入
-        wc.whenWrite(ta);
+        ta = wc.whenWrite(ta, false);
 
         // 改变名称和类型
         if (null != newName) {
@@ -655,7 +656,7 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 确保对象有写权限
-        o = Wn.WC().whenMeta(o);
+        o = Wn.WC().whenMeta(o, false);
 
         // 修改元数据
         _set(o.id(), map);
@@ -689,7 +690,7 @@ public abstract class AbstractWnTree implements WnTree {
         if (null == o)
             return null;
 
-        o = Wn.WC().whenMeta(o);
+        o = Wn.WC().whenMeta(o, false);
 
         // 执行修改
         if (map.size() > 0) {
@@ -860,10 +861,10 @@ public abstract class AbstractWnTree implements WnTree {
         final WnContext wc = Wn.WC();
         return _each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj o, int length) {
-                o = wc.whenAccess(o);
+                o.setTree(tree);
+                o = wc.whenAccess(o, true);
                 if (null == o)
                     return;
-                o.setTree(tree);
                 // 确保有全路径
                 if (autoPath)
                     o.path();
@@ -904,7 +905,7 @@ public abstract class AbstractWnTree implements WnTree {
     @Override
     public List<WnObj> getChildren(WnObj o, String name) {
         // 确保解开了链接
-        o = Wn.WC().whenEnter(o);
+        o = Wn.WC().whenEnter(o, false);
 
         // 挂载点，用挂载点执行器来获取子
         if (o.isMount()) {

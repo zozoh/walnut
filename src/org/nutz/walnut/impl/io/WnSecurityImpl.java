@@ -6,10 +6,11 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
+import org.nutz.walnut.impl.AbstractWnSecurity;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
-public class WnSecurityImpl extends WnEvalLink {
+public class WnSecurityImpl extends AbstractWnSecurity {
 
     private WnUsrService usrs;
 
@@ -19,81 +20,68 @@ public class WnSecurityImpl extends WnEvalLink {
     }
 
     @Override
-    public WnObj enter(WnObj nd) {
+    public WnObj enter(WnObj nd, boolean asNull) {
         return Wn.WC().security(null, new Proton<WnObj>() {
             protected WnObj exec() {
                 WnObj o = __eval_obj(nd);
-                return __do_check(o, Wn.Io.RX, false);
+                return __do_check(o, Wn.Io.RX, asNull);
             }
         });
     }
 
     @Override
-    public WnObj access(WnObj nd) {
+    public WnObj access(WnObj nd, boolean asNull) {
         return Wn.WC().security(null, new Proton<WnObj>() {
             protected WnObj exec() {
-                return __do_check(nd, Wn.Io.R, true);
+                return __do_check(nd, Wn.Io.R, asNull);
             }
         });
     }
 
     @Override
-    public WnObj remove(WnObj nd) {
+    public WnObj read(WnObj nd, boolean asNull) {
+        return Wn.WC().security(null, new Proton<WnObj>() {
+            protected WnObj exec() {
+                WnObj o = __eval_obj(nd);
+                return __do_check(o, Wn.Io.R, asNull);
+            }
+        });
+    }
+
+    @Override
+    public WnObj write(WnObj nd, boolean asNull) {
+        return Wn.WC().security(null, new Proton<WnObj>() {
+            protected WnObj exec() {
+                WnObj o = __eval_obj(nd);
+                return __do_check(o, Wn.Io.W, asNull);
+            }
+        });
+    }
+
+    @Override
+    public WnObj meta(WnObj nd, boolean asNull) {
+        return Wn.WC().security(null, new Proton<WnObj>() {
+            protected WnObj exec() {
+                return __do_check(nd, Wn.Io.W, false);
+            }
+        });
+    }
+
+    @Override
+    public WnObj remove(WnObj nd, boolean asNull) {
         return Wn.WC().security(null, new Proton<WnObj>() {
             protected WnObj exec() {
                 // 父目录可写可访问
                 if (nd.hasParent())
-                    __do_check(nd.parent(), Wn.Io.WX, false);
+                    __do_check(nd.parent(), Wn.Io.WX, asNull);
 
                 // 自己可写
-                return __do_check(nd, Wn.Io.W, false);
+                return __do_check(nd, Wn.Io.W, asNull);
             }
         });
     }
 
-    // @Override
-    // public WnObj view(WnObj nd) {
-    // WnContext wc = Wn.WC();
-    // wc.setSecurity(null);
-    // try {
-    // WnObj o = __eval_obj(nd, false);
-    // return __do_check(o, Wn.Io.R, true);
-    // }
-    // finally {
-    // wc.setSecurity(this);
-    // }
-    // }
-
-    @Override
-    public WnObj read(WnObj nd) {
-        return Wn.WC().security(null, new Proton<WnObj>() {
-            protected WnObj exec() {
-                WnObj o = __eval_obj(nd);
-                return __do_check(o, Wn.Io.R, false);
-            }
-        });
-    }
-
-    @Override
-    public WnObj write(WnObj nd) {
-        return Wn.WC().security(null, new Proton<WnObj>() {
-            protected WnObj exec() {
-                WnObj o = __eval_obj(nd);
-                return __do_check(o, Wn.Io.W, false);
-            }
-        });
-    }
-
-    @Override
-    public WnObj meta(WnObj nd) {
-        return Wn.WC().security(null, new Proton<WnObj>() {
-            protected WnObj exec() {
-                return __do_check(nd, Wn.Io.W, false);
-            }
-        });
-    }
-
-    private WnObj __do_check(WnObj o, int mask, boolean asNull) {
+    protected WnObj __do_check(WnObj o, int mask, boolean asNull) {
 
         // 防止空指针
         if (null == o)
@@ -124,10 +112,13 @@ public class WnSecurityImpl extends WnEvalLink {
             throw Er.create("e.io.forbidden");
         }
 
-        // 对象的权限设定
-        // TODO zozoh: 这里考虑一下 /grp/$grp/pvg 下的权限设定
-        // 或许给 WnUsrService 加个函数，带点缓存就是了 ...
-        int md = o.mode();
+        // 自定义权限优先
+        int md = o.getCustomizedPrivilege(u);
+
+        // 采用默认的权限码
+        if (md == Wn.Io.NO_PVG) {
+            md = o.mode();
+        }
 
         // o 允许进入
         if ((md & mask) == mask)

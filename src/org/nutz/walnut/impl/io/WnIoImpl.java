@@ -354,7 +354,7 @@ public class WnIoImpl implements WnIo {
         WnContext wc = Wn.WC();
 
         // 自己可被删除
-        o = wc.whenRemove(o);
+        o = wc.whenRemove(o, false);
 
         // 调用回调
         o = wc.doHook("delete", o);

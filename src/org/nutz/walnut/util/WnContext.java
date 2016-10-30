@@ -248,39 +248,39 @@ public class WnContext extends NutMap {
         return proton.get();
     }
 
-    public WnObj whenEnter(WnObj nd) {
+    public WnObj whenEnter(WnObj nd, boolean asNull) {
         if (null != security)
-            return security.enter(nd);
+            return security.enter(nd, asNull);
         return nd;
     }
 
-    public WnObj whenAccess(WnObj nd) {
+    public WnObj whenAccess(WnObj nd, boolean asNull) {
         if (null != security)
-            return security.access(nd);
+            return security.access(nd, asNull);
         return nd;
     }
 
-    public WnObj whenRead(WnObj nd) {
+    public WnObj whenRead(WnObj nd, boolean asNull) {
         if (null != security)
-            return security.read(nd);
+            return security.read(nd, asNull);
         return nd;
     }
 
-    public WnObj whenWrite(WnObj nd) {
+    public WnObj whenWrite(WnObj nd, boolean asNull) {
         if (null != security)
-            return security.write(nd);
+            return security.write(nd, asNull);
         return nd;
     }
 
-    public WnObj whenRemove(WnObj nd) {
+    public WnObj whenRemove(WnObj nd, boolean asNull) {
         if (null != security)
-            return security.remove(nd);
+            return security.remove(nd, asNull);
         return nd;
     }
 
-    public WnObj whenMeta(WnObj nd) {
+    public WnObj whenMeta(WnObj nd, boolean asNull) {
         if (null != security)
-            return security.meta(nd);
+            return security.meta(nd, asNull);
         return nd;
     }
 
@@ -289,18 +289,6 @@ public class WnContext extends NutMap {
             return security.test(nd, mode);
         return true;
     }
-
-    // public WnObj whenView(WnObj nd) {
-    // if (null != security)
-    // return security.view(nd);
-    // return nd;
-    // }
-
-    // public WnObj whenRemove(WnObj nd) {
-    // if (null != security)
-    // return security.remove(nd);
-    // return nd;
-    // }
 
     public String checkMe() {
         if (null == me) {

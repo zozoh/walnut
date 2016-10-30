@@ -379,6 +379,8 @@ public abstract class Wn {
 
         public static final int WX = W | X;
 
+        public static final int NO_PVG = -999;
+
         public static String modeToStr(int md) {
             StringBuilder sb = new StringBuilder();
             for (int i = 2; i >= 0; i--) {
