@@ -114,7 +114,7 @@ public class IoWnUsr extends WnBean implements WnUsr {
     @Override
     public WnUsr clone() {
         IoWnUsr u = new IoWnUsr();
-        u.putAll(this);
+        u.update2(this);
         return u;
     }
 
