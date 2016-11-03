@@ -1,0 +1,34 @@
+#========================================================
+#
+# 初始文件结构
+#
+#========================================================
+data:
+@DIR wup/pkgs
+
+@DIR wup/confs
+
+@FILE wup/confs/default.json
+------------------------------------------ begin
+{
+	pkgs : [
+		{name:"agent", version:"lastest"}
+	]
+}
+------------------------------------------ end
+
+#========================================================
+#
+# HTTP 接口
+#
+#========================================================
+httpapi:
+
+@wup/v1/node/init
+> wup node_init -godkey ${http-qs-godkey} -macid ${http-qs-macid}
+
+@wup/v1/node/get
+> wup node_get -key ${http-qs-key} -macid ${http-qs-macid}
+
+@wup/v1/pkg/get
+> wup pkg_get -key ${http-qs-key} -macid ${http-qs-macid} -name ${http-qs-name} -version ${http-qs-version}
