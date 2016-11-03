@@ -160,18 +160,18 @@ public class UsrModule extends AbstractWnModule {
 
     @POST
     @At("/do/login/ajax")
-    @Ok("ajax")
+    @Ok("++cookie->ajax")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
     @Deprecated
-    public WnSession do_login_ajax(@Param("nm") String nm, @Param("passwd") String passwd) {
+    public NutMap do_login_ajax(@Param("nm") String nm, @Param("passwd") String passwd) {
         WnSession se = sess.login(nm, passwd);
         Wn.WC().SE(se);
 
         // 执行登录后初始化脚本
         this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
 
-        return se;
+        return se.toMapForClient();
     }
 
     @POST
