@@ -41,14 +41,14 @@ public class cmd_httpparam extends JvmExecutor {
         NutMap c = new NutMap();
 
         for (String s : ss) {
-            String des = URLDecoder.decode(s, "UTF-8");
-            int pos = des.indexOf('=');
+
+            int pos = s.indexOf('=');
             if (pos > 0) {
-                String key = des.substring(0, pos);
-                String val = des.substring(pos + 1);
+                String key = URLDecoder.decode(s.substring(0, pos), "UTF-8");
+                String val = URLDecoder.decode(s.substring(pos + 1), "UTF-8");
                 c.setv(key, val);
             } else {
-                c.setv(des, "");
+                c.setv(URLDecoder.decode(s, "UTF-8"), "");
             }
         }
 
