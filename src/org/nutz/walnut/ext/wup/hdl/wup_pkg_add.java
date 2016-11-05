@@ -26,7 +26,7 @@ public class wup_pkg_add implements JvmHdl {
         }
         WnObj src = sys.io.check(null, source);
         if (Strings.isBlank(name) || Strings.isBlank(version)) {
-            String[] tmp = source.split("-");
+            String[] tmp = src.name().split("-", 2);
             if (Strings.isBlank(name))
                 name = tmp[0];
             if (Strings.isBlank(version)) {
