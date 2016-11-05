@@ -16,8 +16,11 @@
 .ui-oicon-16 .oicon_hide {
   visibility: hidden;
 }
-.ui-oicon-16 .oicon[otp="avi"] {
+.ui-oicon-16 .oicon[otp="apk"] {
   background-position: 0px -16px;
+}
+.ui-oicon-16 .oicon[otp="avi"] {
+  background-position: -16px -16px;
 }
 .ui-oicon-16 .oicon[otp="bin"] {
   background-position: 0px -32px;
@@ -148,14 +151,17 @@
 .ui-oicon-16 .oicon[otp="tar"] {
   background-position: 0px -320px;
 }
-.ui-oicon-16 .oicon[otp="ticker"] {
+.ui-oicon-16 .oicon[otp="tgz"] {
   background-position: -16px -320px;
 }
-.ui-oicon-16 .oicon[otp="tiff"] {
+.ui-oicon-16 .oicon[otp="ticker"] {
   background-position: -32px -320px;
 }
-.ui-oicon-16 .oicon[otp="txt"] {
+.ui-oicon-16 .oicon[otp="tiff"] {
   background-position: -48px -320px;
+}
+.ui-oicon-16 .oicon[otp="txt"] {
+  background-position: -64px -320px;
 }
 .ui-oicon-16 .oicon[otp="unknown"] {
   background-position: 0px -336px;
@@ -182,8 +188,11 @@
 .ui-oicon-32 .oicon_hide {
   visibility: hidden;
 }
-.ui-oicon-32 .oicon[otp="avi"] {
+.ui-oicon-32 .oicon[otp="apk"] {
   background-position: 0px 0px;
+}
+.ui-oicon-32 .oicon[otp="avi"] {
+  background-position: -32px 0px;
 }
 .ui-oicon-32 .oicon[otp="bin"] {
   background-position: 0px -32px;
@@ -314,14 +323,17 @@
 .ui-oicon-32 .oicon[otp="tar"] {
   background-position: 0px -608px;
 }
-.ui-oicon-32 .oicon[otp="ticker"] {
+.ui-oicon-32 .oicon[otp="tgz"] {
   background-position: -32px -608px;
 }
-.ui-oicon-32 .oicon[otp="tiff"] {
+.ui-oicon-32 .oicon[otp="ticker"] {
   background-position: -64px -608px;
 }
-.ui-oicon-32 .oicon[otp="txt"] {
+.ui-oicon-32 .oicon[otp="tiff"] {
   background-position: -96px -608px;
+}
+.ui-oicon-32 .oicon[otp="txt"] {
+  background-position: -128px -608px;
 }
 .ui-oicon-32 .oicon[otp="unknown"] {
   background-position: 0px -640px;
