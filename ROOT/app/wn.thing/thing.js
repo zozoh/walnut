@@ -488,10 +488,12 @@ return ZUI.def("app.wn.thing", {
             list : {
                 fields : thConf.fields,
                 on_actived : function(th,jRow,prevTh) {
+                    console.log("AA", prevTh);
                     if(!prevTh || prevTh.id != th.id)
                         UI.showThing(th);
                 },
                 on_blur : function(objs, jRows, nextObj) {
+                    console.log("BB", nextObj);
                     if(!nextObj)
                         UI.showBlank();
                 }
