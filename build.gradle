@@ -131,6 +131,9 @@ task wbuild(dependsOn: classes) << {
    	Files.write(file('build/wzip/start.sh'), tmpUnix)
    	file('build/wzip/start.sh').setExecutable(true, false)
    	
+   	Files.write(file('build/wzip/stop.sh'), '#!/bin/bash\r\nkillall java')
+   	file('build/wzip/stop.sh').setExecutable(true, false)
+   	
    	def web_props = Files.read(file('build/wzip/classes/web.properties'))
    	web_props = web_props.replaceAll("~/workspace/git/github/walnut", ".")
    	Files.write(file('build/wzip/classes/web.properties'), web_props)
