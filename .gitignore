@@ -18,3 +18,7 @@ hs_err_pid*
 /target/
 /conf/web_local.properties
 build
+
+.classpath
+.project
+.settings
