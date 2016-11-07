@@ -72,14 +72,6 @@ return ZUI.def("ui.table", {
             $z.evalFldDisplay(fld);
             opt.__jsos.push(jType(fld));
         });
-
-        // 最后等重绘完毕模拟点击
-        UI.on("table:change", function(){
-            UI.arena.find(".tbl-body").scroll(function(e){
-                var left = $(this).scrollLeft();
-                UI.arena.find(".tbl-head").css("left", left * -1);
-            });
-        });
     },
     //...............................................................
     getFieldType : function(key) {
@@ -176,12 +168,10 @@ return ZUI.def("ui.table", {
     __before_draw_data : function() {
         var UI  = this;
 
-        var jq = UI.ccode("data.table");
-
+        // 清除内容区域
         UI.arena.find(".tbl-body").unbind();
-        UI.arena.empty().append(jq);
+        UI.arena.empty().append(UI.ccode("data.table"));
         
-        var jTBody = jq.find(".tbl-body-t");
     },
     __after_draw_data : function() {
         var UI  = this;
@@ -212,6 +202,12 @@ return ZUI.def("ui.table", {
 
         // 重新调整尺寸 
         UI._cols_org_size = null;
+
+        // 监听表格体滚动事件
+        UI.arena.find(".tbl-body").scroll(function(e){
+            var left = $(this).scrollLeft();
+            UI.arena.find(".tbl-head").css("left", left * -1);
+        });
     },
     //...............................................................
     $createItem : function(){

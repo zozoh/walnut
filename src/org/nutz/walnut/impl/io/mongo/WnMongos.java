@@ -45,9 +45,9 @@ public abstract class WnMongos {
                 // 如果顶级条件是 "lbls"，那么自动拆解值为数组
                 if ("lbls".equals(key) && val instanceof CharSequence) {
                     String[] ss = Strings.splitIgnoreBlank(val.toString(), "[ ,，\t;；]");
-                    if(0 == ss.length){
+                    if (0 == ss.length) {
                         val = null;
-                    }else{
+                    } else {
                         val = Lang.arrayFirst("all", ss);
                     }
                 }
@@ -122,6 +122,10 @@ public abstract class WnMongos {
                 // 正则表达式
                 if (s.startsWith("^")) {
                     q.put(key, Pattern.compile(s));
+                }
+                // 正则表达式取反
+                else if (s.startsWith("!^")) {
+                    q.put(key, Lang.map("$not", Pattern.compile(s.substring(1))));
                 }
                 // 通配符
                 else if (s.contains("*")) {

@@ -61,11 +61,11 @@ return ZUI.def("ui.form", {
                     grp = {fields : []};
                 }
                 // 添加自身
-                grpList.push(fld);
+                grpList.push(_.extend({},fld));
             }
             // 普通字段，归纳到组里
             else{
-                grp.fields.push(fld);
+                grp.fields.push(_.extend({},fld));
             }
         });
         // 最后确保最后一段被添加了

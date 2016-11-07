@@ -10,7 +10,7 @@ $z.declare([
 var THING_DETAIL = function(){
     return {
         loadContent : function(obj, callback) {
-            console.log("loadContent", obj.id);
+            // console.log("loadContent", obj.id);
             // 有内容
             if (obj.len > 0) {
                 Wn.execf("thing {{th_set}} detail {{id}}", obj, function(re) {
@@ -23,13 +23,13 @@ var THING_DETAIL = function(){
             }
         },
         saveContent : function(obj, content, callback) {
-            console.log("saveContent", obj.id, content.substring(0, 10));
+            // console.log("saveContent", obj.id, content.substring(0, 10));
             Wn.execf("thing {{th_set}} detail {{id}} -content", content, obj, function(re) {
                 callback(re);
             });
         },
         parseData : function(th) {
-            console.log("parseData:", th.th_nm);
+            // console.log("parseData:", th.th_nm);
             return {
                 id : th.id,
                 contentType : {
@@ -43,7 +43,7 @@ var THING_DETAIL = function(){
             };
         },
         formatData : function(obj) {
-            console.log("formatData:", obj);
+            // console.log("formatData:", obj);
             return {
                 id    : obj.id,
                 mime  : {
@@ -488,12 +488,12 @@ return ZUI.def("app.wn.thing", {
             list : {
                 fields : thConf.fields,
                 on_actived : function(th,jRow,prevTh) {
-                    console.log("AA", prevTh);
+                    // console.log("AA", prevTh);
                     if(!prevTh || prevTh.id != th.id)
                         UI.showThing(th);
                 },
                 on_blur : function(objs, jRows, nextObj) {
-                    console.log("BB", nextObj);
+                    // console.log("BB", nextObj);
                     if(!nextObj)
                         UI.showBlank();
                 }

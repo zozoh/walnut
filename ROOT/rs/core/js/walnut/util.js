@@ -346,13 +346,11 @@ var Wn = {
             context = input;
 
             var str = $z.tmpl(tmpl)(context);
-            this.exec(str, opt);    
+            return this.exec(str, opt);    
         }
         // 带 input 的模式
-        else {
-            var str = $z.tmpl(tmpl)(context);
-            this.exec(str, input, opt);       
-        }
+        var str = $z.tmpl(tmpl)(context);
+        return  this.exec(str, input, opt);       
     },
     /*................................................................
     # 执行命令的 opt 配置对象的内容
