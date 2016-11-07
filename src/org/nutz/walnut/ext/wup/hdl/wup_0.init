@@ -12,7 +12,8 @@ data:
 ------------------------------------------ begin
 {
 	pkgs : [
-		{name:"agent", version:"lastest"}
+		{name:"jdk", version:"8u112"},
+		{name:"mongodb", version:"3.2.10"}
 	]
 }
 ------------------------------------------ end
