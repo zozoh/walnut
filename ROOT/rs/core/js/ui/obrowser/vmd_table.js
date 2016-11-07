@@ -2,15 +2,20 @@
 $z.declare([
     'zui',
     'wn/util',
+    'ui/obrowser/support/browser__methods_list',
     'ui/table/table'
-], function(ZUI, Wn, TableUI){
+], function(ZUI, Wn, BrowserMethods, TableUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena obrowser-vmd-table" ui-gasket="table" ui-fitparent="yes"></div>
+<div class="ui-arena obrowser-vmd-table" ui-gasket="list" ui-fitparent="yes"></div>
 */};
 //==============================================
 return ZUI.def("ui.obrowser_vmd_table", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
+    //..............................................
+    init : function(){
+        BrowserMethods(this);
+    },
     //..............................................
     events : {
         "dblclick .wnobj" : function(e){
@@ -21,13 +26,16 @@ return ZUI.def("ui.obrowser_vmd_table", {
     },
     //..............................................
     redraw : function(){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.opt();
+
         UI.uiTable = (new TableUI({
             parent : UI,
             fitParent : true,
-            gasketName : "table",
-            checkable : UI.browser.options.checkable,
-            multi : UI.browser.options.multi,
+            gasketName : "list",
+            renameable : opt.renameable,
+            multi      : opt.multi,
+            checkable  : opt.checkable,
             layout : {
                 sizeHint : '*'
             },
@@ -40,13 +48,13 @@ return ZUI.def("ui.obrowser_vmd_table", {
             },
             // 捕捉事件
             on_checked : function(objs){
-                UI.__notify_footer();
+                UI.__do_notify();
             },
             on_actived : function(objs){
-                UI.__notify_footer();
+                UI.__do_notify();
             },
             on_blur : function(){
-                UI.__notify_footer();
+                UI.__do_notify();
             },
             fields : [ {
                 key   : "nm",
@@ -102,50 +110,6 @@ return ZUI.def("ui.obrowser_vmd_table", {
         });
         return ["table"];
     },
-    //..............................................
-    __notify_footer : function(){
-        var UI = this;
-        UI.browser.trigger("browser:info", UI.msg("obrowser.selectNobj", {n:UI.getChecked().length}));
-    },
-    //..............................................
-    update : function(o, callback){
-        var UI = this;
-
-        UI.uiTable.showLoading();
-
-        // 得到当前所有的子节点
-        Wn.getChildren(o, UI.browser.options.filter, function(objs){
-            UI.hideLoading();
-            
-            // 更新数据
-            UI.uiTable.setData(objs);
-
-            // 最后重新计算一下尺寸
-            UI.resize();
-
-            // 调用回调
-            $z.doCallback(callback, [objs]);
-        }, true);
-    },
-    //..............................................
-    getData : function(arg){
-        return this.uiTable.getData(arg);
-    },
-    //..............................................
-    isActived : function(ele){
-        return this.uiTable.isActived(ele);
-    },
-    //..............................................
-    getActived : function(){
-        return this.uiTable.getActived();
-    },
-    setActived : function(arg){
-        this.uiTable.setActived(arg);
-    },
-    //..............................................
-    getChecked : function(){
-        return this.uiTable.getChecked();
-    }
     //..............................................
 });
 //==================================================

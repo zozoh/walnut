@@ -6,7 +6,7 @@
         "~",
         "E:w:upload",
         "~",
-        "E::viewmode",
+        "@E::viewmode",
         "~",
         "E::showhide",
         "~",

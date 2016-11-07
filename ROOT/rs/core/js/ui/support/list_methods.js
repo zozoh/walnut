@@ -20,7 +20,6 @@
  - __after_toggle(jItems)
  - __before_draw_data(objs)
  - __after_draw_data(objs)
- - __after_draw_item(jItem, obj)
  - __after_add()
  - __after_remove()
  
@@ -150,7 +149,7 @@ var methods = {
 
         // 未给入参数，相当于 blur
         if(_.isUndefined(arg) || _.isNull(arg)){
-            UI.setAllBure();
+            UI.setAllBlur();
             return;
         }
 
@@ -168,10 +167,10 @@ var methods = {
 
             // 得到之前的激活项
             var jPreItem = UI.$item();
-            var prevObj  = UI.getData(jItem);
+            var prevObj  = UI.getData(jPreItem);
 
             // 取消其他的激活
-            UI.setAllBure(o, jItem);
+            UI.setAllBlur(o, jItem);
             jItem.attr("li-actived", "yes");
             jItem.attr("li-checked", "yes");
 
@@ -183,13 +182,23 @@ var methods = {
         $z.invoke(UI, "__after_actived", [o, jItem, prevObj, jPreItem]);
     },
     //...............................................................
-    setAllBure : function(nextObj, nextItem){
+    setBlur : function(arg) {
+        var UI  = this;
+        var jItems  = UI.$item(arg);
+        UI._do_blur(jItems);
+    },
+    //...............................................................
+    setAllBlur : function(nextObj, nextItem){
+        var UI  = this;
+        var jItems  = UI.$checked();
+        UI._do_blur(jItems, nextObj, nextItem);
+    },
+    //...............................................................
+    _do_blur : function(jItems, nextObj, nextItem) {
         var UI  = this;
         var opt = UI.options;
-        var jItems  = UI.$checked();
         var context = opt.context || UI;
 
-        // 如果有下一个高亮对象，或者 blurable 为 true 则可以取消
         if((opt.blurable || nextObj) && jItems.length > 0){
             // 移除标记
             jItems.attr({
@@ -197,7 +206,7 @@ var methods = {
                 "li-actived" : null,
             });
 
-            // 同步选择器 
+            // 子类的特殊过程，比如 table 的同步选择器 
             $z.invoke(UI, "__after_blur", [jItems, nextObj, nextItem]);
 
             // 触发消息 
@@ -280,9 +289,15 @@ var methods = {
             jItems.each(function(){
                 var jItem = $(this);
 
+                // 如果是激活的，就blur
+                if(UI.isActived(jItem)){
+                    UI.setBlur(jItem);
+                    return;
+                }
+
                 // 取消选中
                 if(UI.isChecked(jItem)){
-                    jItem.attr("li-checked", null);
+                    jItem.removeAttr("li-checked");
                     jCheckeds.add(jItem);
                 }
                 // 选中
@@ -296,12 +311,12 @@ var methods = {
             $z.invoke(UI, "__after_toggle", [jItems]);
 
             // 触发消息 : checked
-            if(checkeds.length > 0) {
+            if(jCheckeds.length > 0) {
                 UI.trigger("item:checked", jCheckeds);
                 $z.invoke(opt, "on_checked", [jCheckeds], UI);
             }
             // 触发消息 : uncheck
-            if(unchecks.length > 0) {
+            if(jUnchecks.length > 0) {
                 UI.trigger("item:unchecked", jUnchecks);
                 $z.invoke(opt, "on_unchecked", [jUnchecks], UI);
             }
@@ -467,10 +482,14 @@ var methods = {
     //...............................................................
     // 点击项目的时候，需要考虑 ctrl/shift 等单选多选问题
     // 子 UI 截获事件后调用这个函数处理即可
-    _do_click_list_item : function(e){
+    _do_click_list_item : function(e, stopPropagation){
         var UI = this;
         var jItem = UI.$item(e.currentTarget);
-        //console.log(".lst-item click");
+        
+        // 不要冒泡了
+        if(stopPropagation)
+            e.stopPropagation();
+
         // 如果支持多选 ...
         if(UI.options.multi){
             // 仅仅表示单击选中
