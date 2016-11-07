@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 import sys, os, time
 import traceback, subprocess
-import argparse, json, httplib, urllib
+import argparse, json, httplib, urllib,hashlib, thread
 
 # begin 全局变量
-APPS = {}
+# APPS = {}
+WATCHDOG_CHECK = True
 ROOT = "/opt"
 CONFS = dict(
     host = "192.168.88.133",
@@ -20,11 +21,14 @@ CONFS = dict(
 def main():
     # begin 处理命令行参数
     global ROOT
+    global WATCHDOG_CHECK
     if len(sys.argv) > 1 :
         ROOT = sys.argv[1]
     reloadConfig()
-    print "CONFIG=", json.dumps(CONFS, indent=2)
+    debug("CONFIG=" + json.dumps(CONFS, indent=2))
     # end 处理命令行参数
+
+    thread.start_new_thread(watchdog, ())
 
     # begin 事件循环
     while 1 :
@@ -32,10 +36,12 @@ def main():
             loop()
         except Exception as e:
             traceback.print_exc()
+        WATCHDOG_CHECK = True
         time.sleep(15)
     # end 事件循环
 
 def loop():
+
     if not CONFS.get("key") :
         re = getJson("/node/init", {"macid":CONFS["macid"], "godkey" : CONFS["godkey"]})
         if re and re.get("key") :
@@ -47,7 +53,7 @@ def loop():
     if not localc.get("pkgs") :
         localc["pkgs"] = {}
 
-    print remotec
+    debug("remotec="+json.dumps(remotec))
     # 检查各pkg的版本
     for pkg in remotec["pkgs"] :
         pkg_name = pkg["name"]
@@ -58,11 +64,17 @@ def loop():
             continue
         if localc["pkgs"].get(pkg_name) and check_resp.get("sha1") == localc["pkgs"][pkg_name].get("sha1") :
             continue
+        WATCHDOG_CHECK = False
         dst = ROOT + "/wup/pkgs/"+pkg_name + "/" + pkg_version +".tgz"
-        downloadFile("/pkg/get", {"macid":CONFS["macid"], "key":CONFS["key"], "name":pkg_name, "version":pkg_version}, dst)
+        downloadFile("/pkg/get", {"macid":CONFS["macid"], "key":CONFS["key"], "name":pkg_name, "version":pkg_version}, dst, check_resp.get("sha1"))
         _install(dst)
         localc["pkgs"][pkg_name] = check_resp
         writeJsonFile(ROOT + "/wup_local.json", localc)
+
+def watchdog() :
+    while 1 :
+        _watchdog()
+        time.sleep(3)
 
 def reloadConfig():
     tmp = readJsonFile(ROOT + "/wup_config.json")
@@ -73,8 +85,10 @@ def writeConfig() :
     writeJsonFile(ROOT + "/wup_config.json", CONFS)
 
 def _install(dst) :
+    debug("install ... " + dst )
     subprocess.check_call("tar -C /tmp -x -f " + dst, shell=1)
     subprocess.check_call("WUPROOT=%s /tmp/update" % (ROOT), cwd="/tmp", shell=1)
+    debug("install complete " + dst)
 
 # end 主函数群
 
@@ -95,7 +109,12 @@ def getJson(uri, params):
         if hc :
             hc.close()
 
-def downloadFile(uri, params, dst) :
+def downloadFile(uri, params, dst, sha1) :
+    if _sha1(dst) == sha1 :
+        debug("same sha1 >> " + dst)
+        return
+    else :
+        debug("expect %s but %s" % (sha1, _sha1(dst)))
     hc = None
     try:
         debug("download file >> " + dst)
@@ -113,8 +132,9 @@ def downloadFile(uri, params, dst) :
                     if not buf :
                         break
                     f.write(buf)
+            debug("Download Complete >> " + dst)
             return
-        print "WHAT?!!!"
+        debug("WHAT?!!! code=" + resp.status)
     except Exception, e:
         traceback.print_exc()
     finally :
@@ -163,9 +183,87 @@ def warn(msg):
 def error(msg):
     print "ERROR", msg
 
+def _sha1(path) :
+    if not os.path.exists(path) :
+        debug("not exists " + path)
+        return
 
+    m = hashlib.sha1()
+    with open(path, "rb") as f:
+        while True:
+            data = f.read(8192)
+            if not data:
+                break
+            m.update(data)
+    return m.hexdigest()
 
 # end 帮助函数
+
+# begin 日志
+
+import time
+import os,os.path
+import sys
+import logging, logging.handlers
+import subprocess
+import threading
+from compiler.ast import Exec
+
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
+fh = logging.handlers.RotatingFileHandler("/dev/shm/watchdog.log", maxBytes=16*1024*1024,
+                                          backupCount=1, encoding="UTF-8")
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter('$: %(asctime)s > %(levelname)-5s > %(filename)s:%(lineno)s > %(message)s')
+fh.setFormatter(formatter)
+log.addHandler(fh)
+
+td = {}
+
+base = ROOT
+
+def _watchdog():
+    global base
+    base = ROOT
+    if not WATCHDOG_CHECK :
+        return
+    try:
+        for app in os.listdir(base) :
+            if app in td.keys() and td[app].isAlive() :
+                continue
+            if "-" in app :
+                continue
+            start_cmd = "%s/%s/start.sh" % (base, app)
+            stop_cmd  = "%s/%s/stop.sh"  % (base, app)
+            if os.path.exists(start_cmd) and os.path.exists(stop_cmd) :
+                log.info("add new app " + app)
+                t = ExecThread(os.path.dirname(start_cmd), app,  start_cmd, stop_cmd)
+                td[app] = t
+                t.start()
+        #subprocess.call(["uptime"])
+        time.sleep(1)
+    except:
+        log.info("bad bad", exc_info=True)
+
+class ExecThread(threading.Thread):
+
+    def __init__(self, app_root, app, start_cmd, stop_cmd):
+        threading.Thread.__init__(self)
+        self.app_root  = app_root
+        self.start_cmd = start_cmd
+        self.stop_cmd  = stop_cmd
+        self.app = app
+        self.daemon    = True
+
+    def run(self):
+        log.info("restart app --> " + self.app)
+        subprocess.call(["chmod", "777", self.stop_cmd])
+        subprocess.call(["chmod", "777", self.start_cmd])
+        subprocess.call(self.stop_cmd, cwd=self.app_root, close_fds=True, shell=1)
+        time.sleep(5)
+        subprocess.call(self.start_cmd, cwd=self.app_root, close_fds=True, shell=1)
+
+# end 日志
 
 if __name__ == '__main__':
     main()
