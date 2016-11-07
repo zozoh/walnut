@@ -10,6 +10,8 @@ description = "一台神奇的计算机"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+def version_tag = getDate()
+
 sourceSets {
     main{
     	java {
@@ -109,7 +111,6 @@ task wbuild(dependsOn: classes) << {
 	
 	def props = new Properties()
    	def writer = new FileWriter(file('build/wzip/build.properties'))
-   	def version_tag = getDate()
    	try {
    		props["build"] = version_tag
       	props.store(writer, 'Walnut')
@@ -131,6 +132,11 @@ task wbuild(dependsOn: classes) << {
    	Files.write(file('build/wzip/start.sh'), tmpUnix)
    	file('build/wzip/start.sh').setExecutable(true, false)
    	
+   	Files.write(file('build/wzip/stop.sh'), '''#!/bin/bash
+		killall java
+	''')
+   	file('build/wzip/stop.sh').setExecutable(true, false)
+   	
    	def web_props = Files.read(file('build/wzip/classes/web.properties'))
    	web_props = web_props.replaceAll("~/workspace/git/github/walnut", ".")
    	Files.write(file('build/wzip/classes/web.properties'), web_props)
@@ -141,6 +147,35 @@ task wzip(dependsOn: wbuild) << {
    		from "build/wzip/"
    		archiveName 'walnut-'+version_tag+'.zip'
    		destinationDir buildDir
+   	}.execute()
+}
+
+task wtar(dependsOn: wbuild) << {
+	Files.write(file('build/wzip/start.sh'), '''
+	export JAVA_HOME=$WUPROOT/jdk
+	export PATH=$JAVA_HOME/bin:$PATH
+	
+	''' + Files.read(file('build/wzip/start.sh')))
+   	task (_wtar, type: Tar) {
+   		from "build/wzip/"
+   		archiveName 'walnut.tar'
+   		destinationDir buildDir
+   	}.execute()
+
+   	Files.write(file('build/update'), '''#!/bin/bash
+   		rm -r $WUPROOT/walnut.old
+   		mv $WUPROOT/walnut $WUPROOT/walnut.old
+   		mkdir $WUPROOT/walnut/
+   		tar -C $WUPROOT/walnut/ -x -f walnut.tar
+   	''')
+   	file('build/update').setExecutable(true, false)
+
+   	task (_wtar2, type: Tar) {
+   		from "build/update"
+   		from "build/walnut.tar"
+   		archiveName 'walnut-'+version_tag+'.tgz'
+   		destinationDir buildDir
+   		compression Compression.GZIP
    	}.execute()
 }
 

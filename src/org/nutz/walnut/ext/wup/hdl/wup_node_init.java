@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.wup.hdl;
 
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -25,7 +26,7 @@ public class wup_node_init implements JvmHdl {
             sys.io.appendMeta(confObj, new NutMap("vkey", confObj.get("vkey")));
         }
         sys.io.writeText(confObj, sys.io.readText(sys.io.check(null, Wn.normalizeFullPath("~/wup/confs/default.json", sys))));
-        sys.out.writeJson(new NutMap("key", confObj.get("vkey")));
+        sys.out.writeJson(new NutMap("key", confObj.get("vkey")), JsonFormat.full());
     }
 
 }
