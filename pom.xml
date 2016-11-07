@@ -111,7 +111,7 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutzwx</artifactId>
-			<version>1.r.58-SNAPSHOT</version>
+			<version>1.r.58</version>
 		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
