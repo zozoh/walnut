@@ -132,7 +132,9 @@ task wbuild(dependsOn: classes) << {
    	Files.write(file('build/wzip/start.sh'), tmpUnix)
    	file('build/wzip/start.sh').setExecutable(true, false)
    	
-   	Files.write(file('build/wzip/stop.sh'), '#!/bin/bash\r\nkillall java')
+   	Files.write(file('build/wzip/stop.sh'), '''#!/bin/bash
+		killall java
+	''')
    	file('build/wzip/stop.sh').setExecutable(true, false)
    	
    	def web_props = Files.read(file('build/wzip/classes/web.properties'))
@@ -149,6 +151,11 @@ task wzip(dependsOn: wbuild) << {
 }
 
 task wtar(dependsOn: wbuild) << {
+	Files.write(file('build/wzip/start.sh'), '''
+	export JAVA_HOME=$WUPROOT/jdk
+	export PATH=$JAVA_HOME/bin:$PATH
+	
+	''' + Files.read(file('build/wzip/start.sh')))
    	task (_wtar, type: Tar) {
    		from "build/wzip/"
    		archiveName 'walnut.tar'

@@ -24,8 +24,9 @@ def main():
     global WATCHDOG_CHECK
     if len(sys.argv) > 1 :
         ROOT = sys.argv[1]
+    log.debug("ROOT=" + ROOT)
     reloadConfig()
-    debug("CONFIG=" + json.dumps(CONFS, indent=2))
+    log.debug("CONFIG=" + json.dumps(CONFS, indent=2))
     # end 处理命令行参数
 
     thread.start_new_thread(watchdog, ())
@@ -53,14 +54,14 @@ def loop():
     if not localc.get("pkgs") :
         localc["pkgs"] = {}
 
-    debug("remotec="+json.dumps(remotec))
+    log.debug("remotec="+json.dumps(remotec))
     # 检查各pkg的版本
     for pkg in remotec["pkgs"] :
         pkg_name = pkg["name"]
         pkg_version = pkg.get("version") or "lastest"
         check_resp = getJson("/pkg/info", {"macid":CONFS["macid"], "key":CONFS["key"], "name":pkg_name, "version":pkg_version})
         if not check_resp :
-            warn("no such pkg=%s version=%s ?" % (pkg_name, pkg_version))
+            log.warn("no such pkg=%s version=%s ?" % (pkg_name, pkg_version))
             continue
         if localc["pkgs"].get(pkg_name) and check_resp.get("sha1") == localc["pkgs"][pkg_name].get("sha1") :
             continue
@@ -85,10 +86,10 @@ def writeConfig() :
     writeJsonFile(ROOT + "/wup_config.json", CONFS)
 
 def _install(dst) :
-    debug("install ... " + dst )
+    log.debug("install ... " + dst )
     subprocess.check_call("tar -C /tmp -x -f " + dst, shell=1)
     subprocess.check_call("WUPROOT=%s /tmp/update" % (ROOT), cwd="/tmp", shell=1)
-    debug("install complete " + dst)
+    log.debug("install complete " + dst)
 
 # end 主函数群
 
@@ -111,13 +112,13 @@ def getJson(uri, params):
 
 def downloadFile(uri, params, dst, sha1) :
     if _sha1(dst) == sha1 :
-        debug("same sha1 >> " + dst)
+        log.debug("same sha1 >> " + dst)
         return
     else :
-        debug("expect %s but %s" % (sha1, _sha1(dst)))
+        log.debug("expect %s but %s" % (sha1, _sha1(dst)))
     hc = None
     try:
-        debug("download file >> " + dst)
+        log.debug("download file >> " + dst)
         hc = _http()
         hc.request('GET', CONFS["apiroot"] + uri + "?" + urllib.urlencode(params))
         resp = hc.getresponse()
@@ -132,9 +133,9 @@ def downloadFile(uri, params, dst, sha1) :
                     if not buf :
                         break
                     f.write(buf)
-            debug("Download Complete >> " + dst)
+            log.debug("Download Complete >> " + dst)
             return
-        debug("WHAT?!!! code=" + resp.status)
+        log.info("WHAT?!!! code=" + resp.status)
     except Exception, e:
         traceback.print_exc()
     finally :
@@ -171,21 +172,9 @@ def writeJsonFile(path, vals) :
     with open(path, "w") as f :
         json.dump(vals, f)
 
-def debug(msg):
-    print "DEBUG", msg
-
-def info(msg):
-    print "INFO ", msg
-
-def warn(msg):
-    print "WARN ", msg
-
-def error(msg):
-    print "ERROR", msg
-
 def _sha1(path) :
     if not os.path.exists(path) :
-        debug("not exists " + path)
+        log.debug("not exists " + path)
         return
 
     m = hashlib.sha1()
@@ -259,9 +248,10 @@ class ExecThread(threading.Thread):
         log.info("restart app --> " + self.app)
         subprocess.call(["chmod", "777", self.stop_cmd])
         subprocess.call(["chmod", "777", self.start_cmd])
-        subprocess.call(self.stop_cmd, cwd=self.app_root, close_fds=True, shell=1)
+        subprocess.call(self.stop_cmd, cwd=self.app_root, close_fds=True, shell=1, env={"WUPROOT":ROOT})
         time.sleep(5)
-        subprocess.call(self.start_cmd, cwd=self.app_root, close_fds=True, shell=1)
+        with open("/var/log/"+self.app+".log", "w") as f:
+            subprocess.call(self.start_cmd, cwd=self.app_root, close_fds=True, shell=1, env={"WUPROOT":ROOT}, stdout=f, stderr=f)
 
 # end 日志
 
