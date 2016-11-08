@@ -21,7 +21,7 @@ public class wup_pkg_info implements JvmHdl {
     }
 
     protected WnObj fetchPkg(WnSystem sys, JvmHdlContext hc) {
-        String macid = hc.params.check("macid");
+        String macid = hc.params.check("macid").toUpperCase();
         String key = hc.params.check("key");
         WnObj confObj = sys.io.check(null, Wn.normalizeFullPath("~/wup/confs/" + macid + ".json", sys));
         if (!key.equals(confObj.getString("vkey"))) {
