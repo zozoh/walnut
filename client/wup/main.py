@@ -229,7 +229,7 @@ def _watchdog():
         for app in os.listdir(base) :
             if app in td.keys() and td[app].isAlive() :
                 continue
-            if "-" in app :
+            if "-" in app or "_" in app or "." in app:
                 continue
             start_cmd = "%s/%s/run.sh" % (base, app)
             stop_cmd  = "%s/%s/stop.sh"  % (base, app)
