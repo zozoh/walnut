@@ -152,9 +152,12 @@ task wzip(dependsOn: wbuild) << {
 
 task wtar(dependsOn: wbuild) << {
 	Files.write(file('build/wzip/start.sh'), '''
-	export JAVA_HOME=$WUPROOT/jdk
-	export PATH=$JAVA_HOME/bin:$PATH
-	
+cd "$(dirname "$0")"
+cp $WUPROOT/web_local.properties classes/web_local.properties
+touch classes/web_local.properties
+export JAVA_HOME=$WUPROOT/jdk
+export PATH=$JAVA_HOME/bin:$PATH
+
 	''' + Files.read(file('build/wzip/start.sh')))
    	task (_wtar, type: Tar) {
    		from "build/wzip/"
