@@ -222,7 +222,7 @@ def _watchdog():
                 continue
             if "-" in app :
                 continue
-            start_cmd = "%s/%s/start.sh" % (base, app)
+            start_cmd = "%s/%s/run.sh" % (base, app)
             stop_cmd  = "%s/%s/stop.sh"  % (base, app)
             if os.path.exists(start_cmd) and os.path.exists(stop_cmd) :
                 log.info("add new app " + app)
@@ -251,7 +251,7 @@ class ExecThread(threading.Thread):
         subprocess.call(self.stop_cmd, cwd=self.app_root, close_fds=True, shell=1, env={"WUPROOT":ROOT})
         time.sleep(5)
         with open("/var/log/"+self.app+".log", "w") as f:
-            subprocess.call(self.start_cmd, cwd=self.app_root, close_fds=True, shell=1, env={"WUPROOT":ROOT}, stdout=f, stderr=f)
+            subprocess.call(self.start_cmd, cwd=self.app_root, close_fds=True, shell=1, env={"WUPROOT":ROOT, "APPNAME":self.app}, stdout=f, stderr=f)
 
 # end 日志
 

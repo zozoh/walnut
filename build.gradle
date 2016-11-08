@@ -36,14 +36,12 @@ processResources {
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
-	options.compilerArgs = ["-parameters"]
+	  options.compilerArgs = ["-parameters"]
 }
 
 repositories {
     maven { url "http://maven.nutz.cn/nexus/content/repositories/central"}
     maven { url "http://maven.nutz.cn/nexus/content/repositories/ossrh"}
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-    maven { url "http://repo1.maven.org/maven2" }
 }
 dependencies {
     compile group: 'org.nutz', name: 'nutz', version:'1.r.59-SNAPSHOT'
@@ -108,7 +106,7 @@ task wbuild(dependsOn: classes) << {
 		from configurations.runtime
 		into "build/wzip/libs"
 	}
-	
+
 	def props = new Properties()
    	def writer = new FileWriter(file('build/wzip/build.properties'))
    	try {
@@ -118,7 +116,7 @@ task wbuild(dependsOn: classes) << {
    	} finally {
       	writer.close()
    	}
-   	
+
    	def tmpWin32 = "java -Dfile.encoding=UTF-8 -cp classes"
    	def tmpUnix = "java -Dfile.encoding=UTF-8 -cp classes"
    	configurations.runtime.each {
@@ -131,15 +129,33 @@ task wbuild(dependsOn: classes) << {
    	tmpUnix += " org.nutz.web.WebLauncher"
    	Files.write(file('build/wzip/start.sh'), tmpUnix)
    	file('build/wzip/start.sh').setExecutable(true, false)
-   	
+
    	Files.write(file('build/wzip/stop.sh'), '''#!/bin/bash
 		killall java
 	''')
    	file('build/wzip/stop.sh').setExecutable(true, false)
-   	
+
    	def web_props = Files.read(file('build/wzip/classes/web.properties'))
    	web_props = web_props.replaceAll("~/workspace/git/github/walnut", ".")
    	Files.write(file('build/wzip/classes/web.properties'), web_props)
+
+   	Files.write(file('build/wzip/run.sh'), '''
+cd "$(dirname "$0")"
+cp $WUPROOT/web_local.properties classes/web_local.properties
+touch classes/web_local.properties
+export JAVA_HOME=$WUPROOT/jdk
+export PATH=$JAVA_HOME/bin:$PATH
+./start.sh
+	''')
+
+   	Files.write(file('build/update'), '''#!/bin/bash
+   		killall java
+   		rm -r $WUPROOT/$APPNAME.old
+   		mv $WUPROOT/$APPNAME $WUPROOT/$APPNAME.old
+   		mkdir $WUPROOT/$APPNAME/
+   		tar -C $WUPROOT/$APPNAME/ -x -f $APPNAME.tar
+   	''')
+   	file('build/update').setExecutable(true, false)
 }
 
 task wzip(dependsOn: wbuild) << {
@@ -151,27 +167,11 @@ task wzip(dependsOn: wbuild) << {
 }
 
 task wtar(dependsOn: wbuild) << {
-	Files.write(file('build/wzip/start.sh'), '''
-cd "$(dirname "$0")"
-cp $WUPROOT/web_local.properties classes/web_local.properties
-touch classes/web_local.properties
-export JAVA_HOME=$WUPROOT/jdk
-export PATH=$JAVA_HOME/bin:$PATH
-
-	''' + Files.read(file('build/wzip/start.sh')))
    	task (_wtar, type: Tar) {
    		from "build/wzip/"
    		archiveName 'walnut.tar'
    		destinationDir buildDir
    	}.execute()
-
-   	Files.write(file('build/update'), '''#!/bin/bash
-   		rm -r $WUPROOT/walnut.old
-   		mv $WUPROOT/walnut $WUPROOT/walnut.old
-   		mkdir $WUPROOT/walnut/
-   		tar -C $WUPROOT/walnut/ -x -f walnut.tar
-   	''')
-   	file('build/update').setExecutable(true, false)
 
    	task (_wtar2, type: Tar) {
    		from "build/update"
