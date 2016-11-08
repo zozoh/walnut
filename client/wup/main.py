@@ -9,7 +9,7 @@ import argparse, json, httplib, urllib,hashlib, thread
 WATCHDOG_CHECK = True
 ROOT = "/opt"
 CONFS = dict(
-    host = "192.168.88.133",
+    host = "walnut.nutz.cn",
     apiroot = "/api/root/wup/v1",
     approot = "/opt",
     godkey = "123456"
@@ -68,11 +68,12 @@ def loop():
         WATCHDOG_CHECK = False
         dst = ROOT + "/wup/pkgs/"+pkg_name + "/" + pkg_version +".tgz"
         downloadFile("/pkg/get", {"macid":CONFS["macid"], "key":CONFS["key"], "name":pkg_name, "version":pkg_version}, dst, check_resp.get("sha1"))
-        _install(dst)
+        _install(dst, pkg_name)
         localc["pkgs"][pkg_name] = check_resp
         writeJsonFile(ROOT + "/wup_local.json", localc)
 
 def watchdog() :
+    time.sleep(5)
     while 1 :
         _watchdog()
         time.sleep(3)
@@ -85,10 +86,10 @@ def reloadConfig():
 def writeConfig() :
     writeJsonFile(ROOT + "/wup_config.json", CONFS)
 
-def _install(dst) :
+def _install(dst, app) :
     log.debug("install ... " + dst )
     subprocess.check_call("tar -C /tmp -x -f " + dst, shell=1)
-    subprocess.check_call("WUPROOT=%s /tmp/update" % (ROOT), cwd="/tmp", shell=1)
+    subprocess.check_call("/tmp/update", cwd="/tmp", shell=1, env={"WUPROOT":ROOT, "APPNAME":app})
     log.debug("install complete " + dst)
 
 # end 主函数群
@@ -144,7 +145,7 @@ def downloadFile(uri, params, dst, sha1) :
 
 
 def _http() :
-    hc = httplib.HTTPConnection(CONFS["host"], 8080, timeout=30)
+    hc = httplib.HTTPConnection(CONFS["host"], 80, timeout=30)
     hc.__exit__ = hc.close
     return hc
 
