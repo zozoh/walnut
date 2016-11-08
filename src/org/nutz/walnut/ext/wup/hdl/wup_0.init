@@ -25,7 +25,7 @@ data:
 httpapi:
 
 @wup/v1/node/init
-> wup node init -godkey ${http-qs-godkey} -macid ${http-qs-macid}
+> wup node init -godkey ${http-qs-godkey} -macid ${http-qs-macid} -type ${http-qs-type}
 
 @wup/v1/node/get
 > wup node get -key ${http-qs-key} -macid ${http-qs-macid} | json -q

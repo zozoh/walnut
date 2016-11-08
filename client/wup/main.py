@@ -8,6 +8,7 @@ import argparse, json, httplib, urllib,hashlib, thread
 # APPS = {}
 WATCHDOG_CHECK = True
 ROOT = "/opt"
+INIT_TYPE = ""
 CONFS = dict(
     host = "walnut.nutz.cn",
     apiroot = "/api/root/wup/v1",
@@ -22,8 +23,15 @@ def main():
     # begin 处理命令行参数
     global ROOT
     global WATCHDOG_CHECK
-    if len(sys.argv) > 1 :
-        ROOT = sys.argv[1]
+    global INIT_TYPE
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--root', dest="wuproot")
+    parser.add_argument('--type', dest='inittype')
+    args = parser.parse_args()
+    if args.wuproot :
+        ROOT = args.wuproot
+    if args.inittype :
+        INIT_TYPE = args.inittype
     log.debug("ROOT=" + ROOT)
     reloadConfig()
     log.debug("CONFIG=" + json.dumps(CONFS, indent=2))
@@ -44,7 +52,7 @@ def main():
 def loop():
 
     if not CONFS.get("key") :
-        re = getJson("/node/init", {"macid":CONFS["macid"], "godkey" : CONFS["godkey"]})
+        re = getJson("/node/init", {"macid":CONFS["macid"], "godkey" : CONFS["godkey"], "type" : INIT_TYPE})
         if re and re.get("key") :
             CONFS.update(re)
             writeConfig()
