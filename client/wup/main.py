@@ -8,8 +8,9 @@ import argparse, json, httplib, urllib,hashlib, thread
 # APPS = {}
 WATCHDOG_CHECK = True
 ROOT = "/opt"
+INIT_TYPE = ""
 CONFS = dict(
-    host = "192.168.88.133",
+    host = "walnut.nutz.cn",
     apiroot = "/api/root/wup/v1",
     approot = "/opt",
     godkey = "123456"
@@ -22,8 +23,15 @@ def main():
     # begin 处理命令行参数
     global ROOT
     global WATCHDOG_CHECK
-    if len(sys.argv) > 1 :
-        ROOT = sys.argv[1]
+    global INIT_TYPE
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--root', dest="wuproot")
+    parser.add_argument('--type', dest='inittype')
+    args = parser.parse_args()
+    if args.wuproot :
+        ROOT = args.wuproot
+    if args.inittype :
+        INIT_TYPE = args.inittype
     log.debug("ROOT=" + ROOT)
     reloadConfig()
     log.debug("CONFIG=" + json.dumps(CONFS, indent=2))
@@ -44,7 +52,7 @@ def main():
 def loop():
 
     if not CONFS.get("key") :
-        re = getJson("/node/init", {"macid":CONFS["macid"], "godkey" : CONFS["godkey"]})
+        re = getJson("/node/init", {"macid":CONFS["macid"], "godkey" : CONFS["godkey"], "type" : INIT_TYPE})
         if re and re.get("key") :
             CONFS.update(re)
             writeConfig()
@@ -68,11 +76,12 @@ def loop():
         WATCHDOG_CHECK = False
         dst = ROOT + "/wup/pkgs/"+pkg_name + "/" + pkg_version +".tgz"
         downloadFile("/pkg/get", {"macid":CONFS["macid"], "key":CONFS["key"], "name":pkg_name, "version":pkg_version}, dst, check_resp.get("sha1"))
-        _install(dst)
+        _install(dst, pkg_name)
         localc["pkgs"][pkg_name] = check_resp
         writeJsonFile(ROOT + "/wup_local.json", localc)
 
 def watchdog() :
+    time.sleep(5)
     while 1 :
         _watchdog()
         time.sleep(3)
@@ -85,10 +94,10 @@ def reloadConfig():
 def writeConfig() :
     writeJsonFile(ROOT + "/wup_config.json", CONFS)
 
-def _install(dst) :
+def _install(dst, app) :
     log.debug("install ... " + dst )
     subprocess.check_call("tar -C /tmp -x -f " + dst, shell=1)
-    subprocess.check_call("WUPROOT=%s /tmp/update" % (ROOT), cwd="/tmp", shell=1)
+    subprocess.check_call("/tmp/update", cwd="/tmp", shell=1, env={"WUPROOT":ROOT, "APPNAME":app})
     log.debug("install complete " + dst)
 
 # end 主函数群
@@ -144,7 +153,7 @@ def downloadFile(uri, params, dst, sha1) :
 
 
 def _http() :
-    hc = httplib.HTTPConnection(CONFS["host"], 8080, timeout=30)
+    hc = httplib.HTTPConnection(CONFS["host"], 80, timeout=30)
     hc.__exit__ = hc.close
     return hc
 
@@ -154,7 +163,7 @@ def getHwAddr(ifname):
     import fcntl, socket, struct
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', ifname[:15]))
-    return ''.join(['%02x' % ord(char) for char in info[18:24]])
+    return ''.join(['%02X' % ord(char) for char in info[18:24]])
 
 def _macid() :
     try:
@@ -220,9 +229,9 @@ def _watchdog():
         for app in os.listdir(base) :
             if app in td.keys() and td[app].isAlive() :
                 continue
-            if "-" in app :
+            if "-" in app or "_" in app or "." in app:
                 continue
-            start_cmd = "%s/%s/start.sh" % (base, app)
+            start_cmd = "%s/%s/run.sh" % (base, app)
             stop_cmd  = "%s/%s/stop.sh"  % (base, app)
             if os.path.exists(start_cmd) and os.path.exists(stop_cmd) :
                 log.info("add new app " + app)
@@ -251,7 +260,7 @@ class ExecThread(threading.Thread):
         subprocess.call(self.stop_cmd, cwd=self.app_root, close_fds=True, shell=1, env={"WUPROOT":ROOT})
         time.sleep(5)
         with open("/var/log/"+self.app+".log", "w") as f:
-            subprocess.call(self.start_cmd, cwd=self.app_root, close_fds=True, shell=1, env={"WUPROOT":ROOT}, stdout=f, stderr=f)
+            subprocess.call(self.start_cmd, cwd=self.app_root, close_fds=True, shell=1, env={"WUPROOT":ROOT, "APPNAME":self.app}, stdout=f, stderr=f)
 
 # end 日志
 
