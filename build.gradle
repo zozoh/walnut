@@ -117,12 +117,8 @@ task wbuild(dependsOn: classes) << {
       	writer.close()
    	}
 
-   	def tmpWin32 = "java -Dfile.encoding=UTF-8 -cp classes"
-   	def tmpUnix = "java -Dfile.encoding=UTF-8 -cp classes"
-   	configurations.runtime.each {
-   		tmpWin32 += ";libs/" + it.getName()
-   		tmpUnix  += ":libs/" + it.getName()
-   	}
+   	def tmpWin32 = '''java -Dfile.encoding=UTF-8 -cp "classes;libs/*"'''
+   	def tmpUnix = '''touch classes/web_local.properties; java -Dfile.encoding=UTF-8 -cp "classes:libs/*"'''
    	tmpWin32 += " org.nutz.web.WebLauncher"
    	Files.write(file('build/wzip/start.bat'), tmpWin32)
 
@@ -147,6 +143,7 @@ export JAVA_HOME=$WUPROOT/jdk
 export PATH=$JAVA_HOME/bin:$PATH
 ./start.sh
 	''')
+	file('build/wzip/run.sh').setExecutable(true, false)
 
    	Files.write(file('build/update'), '''#!/bin/bash
    		killall java
