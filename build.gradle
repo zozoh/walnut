@@ -88,6 +88,31 @@ buildscript {
 
 import org.nutz.lang.Files
 
+import org.apache.tools.ant.taskdefs.condition.Os
+
+task lessc << {
+	FileTree tree = fileTree('ROOT') {
+		include "**/*.less"
+		exclude "**/font-awesome*/**/*.*"
+	}
+	tree.each {File file ->
+    	def _src = file.path
+    	def _dst = _src.substring(0, _src.length() - 4) + 'css'
+    	println _src
+    	if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+    		exec {
+    			commandLine "cmd.exe", "/c", "lessc" , _src, _dst
+    			ignoreExitValue true
+    		}
+    	} else {
+    		exec {
+    			commandLine "lessc" , _src, _dst
+    			ignoreExitValue true
+    		}
+    	}
+	}
+}
+
 task wbuild(dependsOn: classes) << {
 	copy {
 		from sourceSets.main.output
