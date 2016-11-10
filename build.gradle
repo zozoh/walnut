@@ -41,7 +41,7 @@ tasks.withType(JavaCompile) {
 
 repositories {
     maven { url "http://maven.nutz.cn/nexus/content/repositories/central"}
-    maven { url "http://maven.nutz.cn/nexus/content/repositories/ossrh"}
+    maven { url "http://maven.nutz.cn/nexus/content/repositories/snapshots"}
 }
 dependencies {
     compile group: 'org.nutz', name: 'nutz', version:'1.r.59-SNAPSHOT'
@@ -107,15 +107,7 @@ task wbuild(dependsOn: classes) << {
 		into "build/wzip/libs"
 	}
 
-	def props = new Properties()
-   	def writer = new FileWriter(file('build/wzip/build.properties'))
-   	try {
-   		props["build"] = version_tag
-      	props.store(writer, 'Walnut')
-      	writer.flush()
-   	} finally {
-      	writer.close()
-   	}
+	Files.write(file('build/wzip/build.properties'), "walnut.version="+version_tag)
 
    	def tmpWin32 = '''java -Dfile.encoding=UTF-8 -cp "classes;libs/*"'''
    	def tmpUnix = '''touch classes/web_local.properties; java -Dfile.encoding=UTF-8 -cp "classes:libs/*"'''
