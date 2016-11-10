@@ -273,7 +273,7 @@ public class cmd_dusr extends JvmExecutor {
 
         // 得到主目录
         WnObj oHome = this.getHome(sys);
-        WnObj oHU = sys.io.createIfNoExists(oHome, ".usr", WnRace.DIR);
+        WnObj oHU = sys.io.createIfNoExists(oHome, ".usr", WnRace.FILE);
 
         // 看看用户是否存在
         WnQuery q = Wn.Q.pid(oHU);
@@ -287,7 +287,7 @@ public class cmd_dusr extends JvmExecutor {
         }
         // 采用手机号
         else if (umap.has("phone")) {
-            q.setv("openid", umap.get("phone"));
+            q.setv("phone", umap.get("phone"));
             q.setv("phone_checked", true);
         }
         // 采用邮箱
@@ -313,7 +313,7 @@ public class cmd_dusr extends JvmExecutor {
         }
 
         // 创建用户对象并保存
-        WnObj oU = sys.io.createIfNoExists(oHU, "${id}", WnRace.DIR);
+        WnObj oU = sys.io.createIfNoExists(oHU, "${id}", WnRace.FILE);
         sys.io.appendMeta(oU, umap);
 
         // 输出用户对象, 密码可不敢给别人看见
