@@ -1,0 +1,32 @@
+# 命令简介 
+
+    `wup` 用来提供通用更新服务
+
+# 用法
+
+    wup [操作] [子操作?] [..参数]
+    
+# wup服务初始化
+
+	# 初始化
+	wendal@~$ wup init
+    
+# 节点操作
+
+    # node初始化
+    wendal@~$ wup node init -macid AABBCCDDEEFF -godkey 123456 -type gbox
+    
+    # 显示被正则表达式约束的配置信息
+    wendal@~$ weixin xxx info "^pay_.+$"
+	
+# 更新包操作
+
+    # 添加更新包
+    wendal@~$ wup pkg add jdk-8u112.tgz
+    
+    # 获取更新包信息
+    wendal@~$ wup pkg info -name jdk -version 8u112 -macid AABBCCDDEEFF -key adw..dsfasd
+    
+    
+    # 获取更新包,将输出更新包的二进制数据
+    wendal@~$ wup pkg get -name jdk -version 8u112 -macid AABBCCDDEEFF -key adw..dsfasd
