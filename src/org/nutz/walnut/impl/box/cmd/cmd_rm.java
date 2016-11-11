@@ -34,14 +34,30 @@ public class cmd_rm extends JvmExecutor {
         String base = oCurrent.path();
 
         // 循环每个参数
-        WnQuery q = Wn.Q.pid(oCurrent);
-        if (limit > 0)
-            q.limit(limit);
         for (String str : params.vals) {
+            // 准备父目录
+            WnObj oP;
+
             // 修改通配符
             str = str.replace("*", ".*");
 
+            // 如果有路径
+            if (str.contains("/")) {
+                int pos = str.lastIndexOf('/');
+                String pPath = str.substring(0, pos);
+                String apPh = Wn.normalizeFullPath(pPath, sys);
+                oP = sys.io.check(oCurrent, apPh);
+                str = str.substring(pos + 1);
+            }
+            // 否则就是当前目录
+            else {
+                oP = oCurrent;
+            }
+
             // 设置查询条件
+            WnQuery q = Wn.Q.pid(oP);
+            if (limit > 0)
+                q.limit(limit);
             q.setv("nm", str);
 
             // 挨个查一下，然后删除
