@@ -56,6 +56,7 @@ def loop():
         if re and re.get("key") :
             CONFS.update(re)
             writeConfig()
+        return
     remotec = getJson("/node/get", {"macid":CONFS["macid"], "key":CONFS["key"]})
     writeJsonFile(ROOT + "/wup_remote.json", remotec)
     localc = readJsonFile(ROOT + "/wup_local.json")
@@ -63,6 +64,8 @@ def loop():
         localc["pkgs"] = {}
 
     log.debug("remotec="+json.dumps(remotec))
+    if not remotec :
+        return
     # 检查各pkg的版本
     for pkg in remotec["pkgs"] :
         pkg_name = pkg["name"]
