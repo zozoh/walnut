@@ -55,6 +55,7 @@ S : 微信服务
 1. S -> W : 发起 HTTP 请求  # /api/demo/aplypay/payresult
 2. W -> W : 分析请求内容  # alipay xxx payre id:${id} -SUCCESS "
 3. W ?> W : 如果成功就标记状态 # @see 订单对象的元数据
+```
 
 ## 订单对象的元数据
 
@@ -87,3 +88,4 @@ pay_type : "alipay"  // 订单的付款方式为微信
 ## 附录
 
 https://doc.open.alipay.com/doc2/detail?treeId=62&articleId=103566&docType=1
+
