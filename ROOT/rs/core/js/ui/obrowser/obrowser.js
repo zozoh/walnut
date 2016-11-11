@@ -428,9 +428,16 @@ return ZUI.def("ui.obrowser", {
     },
     //..............................................
     showUploader: function(options){
+        var UI = this;
         var ta =  this.getCurrentObj();
         Wn.uploadPanel(_.extend({
-            target : ta
+            target : ta,
+            finish : function(doneList, failList){
+                if(failList.length == 0) {
+                    UI.refresh();
+                    this.parent.close();
+                }
+            }
         }, options));
     },
     //..............................................

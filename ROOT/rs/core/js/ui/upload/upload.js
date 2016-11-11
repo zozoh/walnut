@@ -228,7 +228,8 @@ module.exports = ZUI.def("ui.upload", {
             if (!UI.multi.addFiles.call(UI, e.originalEvent.dataTransfer.files))
                 return;
             // 记录成功的对象以备 finish 使用
-            UI.__list = [];
+            UI.__list_done = [];
+            UI.__list_fail = [];
             UI.multi.doUpload.call(UI);
         },
         addFiles: function (files) {
@@ -257,7 +258,7 @@ module.exports = ZUI.def("ui.upload", {
                 .first();
             // 没有更多项目了，返回
             if (jItem.size() <= 0) {
-                $z.invoke(opt, "finish", [UI.__list], context);
+                $z.invoke(opt, "finish", [UI.__list_done, UI.__list_fail], context);
                 return;
             }
             jItem[0].scrollIntoView();
@@ -279,7 +280,7 @@ module.exports = ZUI.def("ui.upload", {
                     jItem.find(".thumbnail .fa").prop("className", "fa fa-check-circle");
                     jItem.find(".rname").text(re.nm);
                     // 记录成功的对象以备 finish 使用
-                    UI.__list.push(re);
+                    UI.__list_done.push(re);
                     // 调用回调
                     $z.invoke(opt, "done", [re], context);
                 },
@@ -287,6 +288,9 @@ module.exports = ZUI.def("ui.upload", {
                     jItem.addClass("ui-upload-item-fail");
                     jItem.find(".thumbnail .fa").prop("className", "fa fa-warning");
                     jItem.find(".rname").text(re.msg)
+                    // 记录失败的对象以备 finish 使用
+                    UI.__list_fail.push(re);
+                    // 调用回调
                     $z.invoke(opt, "fail", [re], context);
                 },
                 complete: function (re, status) {

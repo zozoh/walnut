@@ -140,6 +140,7 @@ body.zui-app-wn_upload {
 .ui-upload-item .remote .rname {
   display: inline-block;
   font-size: 12px;
+  margin-right: 4px;
 }
 .ui-upload-item .remote .fa {
   font-size: 1.3em;
