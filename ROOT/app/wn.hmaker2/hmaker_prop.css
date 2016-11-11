@@ -73,6 +73,7 @@
 }
 .hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs > label > * {
   display: inline;
+  margin: 0 2px;
 }
 .hmaker .hm-prop-edit .hm-prop-body .hm-prop-block .hmpb-pos .hmpb-pos-abs i {
   display: inline-block;

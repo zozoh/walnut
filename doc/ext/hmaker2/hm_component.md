@@ -41,6 +41,10 @@ tags:
 
 1. 用 pmoving 代替 moveresizing
 
+# 各个控件的 DOM 结构
+
+## image : 图片控件
+
 
 
 
