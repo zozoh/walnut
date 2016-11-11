@@ -15,12 +15,14 @@ tags:
 
 只有布局组件可以嵌套子组件
 
-# 组件的 DOM 结构
+# 组件的 DOM 通用结构
 
 ```
-.hm-block             # 最外层布局块
-    .hmb-con          # 内容包裹，确保下面的内容相对自己是 relative 的
-        .hmb-assist       # 块的辅助编辑元素
+.hm-com [ctype="xxx"]     # 最外层布局块
+    <script for="block">     # 控件的块布局配置信息
+    <script for="com">       # 控件的内容配置信息
+    .hm-com-W                # 内容包裹，确保下面的内容相对自己是 relative 的
+        .hm-com-assist       # 块的辅助编辑元素
             .rsz-N        # 顶部 resize 区
             .rsz-W        # 左侧 resize 区
             .rsz-E        # 右侧 resize 区
@@ -30,20 +32,45 @@ tags:
             .rsz-SW       # 左下角 resize 区
             .rsz-SE       # 右下角 resize 区
             .hmv-hdl      # 修改组件树结构的控制柄
-        .hmb-area     # 盛放组件
-            .hm-com [ctype="xxx"]     # 开始控件 UI
-                <script.hmc-prop>     # 控件的配置信息
-                .ui-arena             # 控件的 DOM
-     <script.hmc-prop-block>     # 控件的配置信息
+        .hm-com-ui [ui-id]   # 开始控件 UI
+            .ui-arena         # 通常控件的内容由这个来包裹
 ```
-
-要做的:
-
-1. 用 pmoving 代替 moveresizing
 
 # 各个控件的 DOM 结构
 
 ## image : 图片控件
+
+```html
+<div class="ui-arena hmc-image hm-del-save">
+    <img class="hmc-image-pic">
+    <div class="hmc-image-txt">这里面是图片的标注文字</div>
+    <div class="hmc-image-link-tip"><i class="zmdi zmdi-link"></i></div>
+</div>
+```
+
+## rows : 水平分栏
+
+```html
+<div class="ui-arena hmc-rows">
+    <div class="hm-area" area-id="Area1">
+        <div class="hm-area-con">
+            <!--// 这里是子控件的内容 -->
+        </div>
+    </div>
+    <div class="hm-area">..</div>
+</div>
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
