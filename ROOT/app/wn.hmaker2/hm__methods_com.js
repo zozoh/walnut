@@ -123,7 +123,57 @@ var HmMethods = require("app/wn.hmaker2/hm__methods");
 //====================================================================
 // 输出
 module.exports = function(uiCom){
-    return _.extend(HmMethods(uiCom), methods);
+    // 本函数调用的时机必须是 uiCom 实例还没有被 redraw，这时，我们统一修改
+    // 控件的 DOM 结构。我们假想每个控件都为自己的 `dom` 属性设置了 .ui-arena
+    // 为根元素的 HTML 结构。当然，同级的元素也可能是 code-template
+    uiCom.keepDom = true;
+    
+    // 确保初始化的 HTML 有正确的结构
+    uiCom.dom = '<div class="hm-com-W">' + uiCom.dom + '</div>';
+    
+    // 控件默认的布局属性
+    $z.setUndefined(uiCom, "blockProp", [
+        "padding",
+        "border",
+        "borderRadius",
+        "color",
+        "background",
+        "boxShadow",
+        "overflow",
+    ]);
+    
+    // 扩展自身属性
+    return _.extend(HmMethods(uiCom), methods, {
+        // 改变 code-template 的查找方式
+        findCodeTemplateDomNode : function(){
+            return this.$el.find(">.hm-com-W>.ui-code-template");
+        },
+        // 改变 arena 的查找方式
+        findArenaDomNode : function(){
+            return this.$el.find(">.hm-com-W>.ui-arena");
+        },
+        // 初次显示的时候，确保有控制柄
+        redraw : function() {
+            var jW   = this.$el.children(".hm-com-W");
+            if(jW.length == 0)
+                throw "com without .hm-com-W : " + uiCom.cid;
+                
+            var jAss = jW.children(".hm-com-assist");
+            if(jAss.length == 0) {
+                jAss = $(`<div class="hm-com-assist">
+                    <div class="rsz-N"></div>
+                    <div class="rsz-W"></div>
+                    <div class="rsz-E"></div>
+                    <div class="rsz-S"></div>
+                    <div class="rsz-NW"></div>
+                    <div class="rsz-NE"></div>
+                    <div class="rsz-SW"></div>
+                    <div class="rsz-SE"></div>
+                    <div class="hmv-hdl"></div>
+                </div>`).prepentTo(jW);
+            }
+        }
+    });
 };
 //=======================================================================
 });

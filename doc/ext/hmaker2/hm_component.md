@@ -18,7 +18,7 @@ tags:
 # 组件的 DOM 通用结构
 
 ```
-.hm-com [ctype="xxx"]     # 最外层布局块
+.hm-com [ctype="xxx"] [ui-id] [hm-actived]   # 最外层布局块
     <script for="block">     # 控件的块布局配置信息
     <script for="com">       # 控件的内容配置信息
     .hm-com-W                # 内容包裹，确保下面的内容相对自己是 relative 的
@@ -32,8 +32,7 @@ tags:
             .rsz-SW       # 左下角 resize 区
             .rsz-SE       # 右下角 resize 区
             .hmv-hdl      # 修改组件树结构的控制柄
-        .hm-com-ui [ui-id]   # 开始控件 UI
-            .ui-arena         # 通常控件的内容由这个来包裹
+        .ui-arena         # 每个控件在这个节点内定制自己的显示内容
 ```
 
 # 各个控件的 DOM 结构
