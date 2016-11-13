@@ -265,7 +265,7 @@ class ExecThread(threading.Thread):
         subprocess.call(["chmod", "777", self.start_cmd])
         _env = os.environ.copy()
         _env["WUPROOT"] = ROOT
-        _env["APPNAME"] = app
+        _env["APPNAME"] = self.app
         subprocess.call(self.stop_cmd, cwd=self.app_root, close_fds=True, shell=1, env=_env)
         time.sleep(5)
         with open("/var/log/"+self.app+".log", "w") as f:
