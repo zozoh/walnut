@@ -3,6 +3,8 @@ package org.nutz.walnut.impl.box.cmd;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.nutz.json.Json;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
@@ -100,4 +102,29 @@ public class cmd_jsc_api {
         return sys.exec2(cmdText, input);
     }
 
+    public String json(Object obj) {
+        return Json.toJson(obj);
+    }
+
+    public Object exec2map(String cmdText) {
+        try {
+            return Json.fromJson(NutMap.class, exec2(cmdText));
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public Object exec2list(String cmdText) {
+        try {
+            return Json.fromJsonAsList(NutMap.class, exec2(cmdText));
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public String path(String path) {
+        return Wn.normalizeFullPath(path, sys);
+    }
 }

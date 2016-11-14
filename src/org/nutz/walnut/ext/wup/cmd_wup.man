@@ -15,9 +15,6 @@
 
     # node初始化
     wendal@~$ wup node init -macid AABBCCDDEEFF -godkey 123456 -type gbox
-    
-    # 显示被正则表达式约束的配置信息
-    wendal@~$ weixin xxx info "^pay_.+$"
 	
 # 更新包操作
 

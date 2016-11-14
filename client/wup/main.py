@@ -100,7 +100,10 @@ def writeConfig() :
 def _install(dst, app) :
     log.debug("install ... " + dst )
     subprocess.check_call("tar -C /tmp -x -f " + dst, shell=1)
-    subprocess.check_call("/tmp/update", cwd="/tmp", shell=1, env={"WUPROOT":ROOT, "APPNAME":app})
+    _env = os.environ.copy()
+    _env["WUPROOT"] = ROOT
+    _env["APPNAME"] = app
+    subprocess.check_call("/tmp/update", cwd="/tmp", shell=1, env=_env)
     log.debug("install complete " + dst)
 
 # end 主函数群
@@ -260,10 +263,13 @@ class ExecThread(threading.Thread):
         log.info("restart app --> " + self.app)
         subprocess.call(["chmod", "777", self.stop_cmd])
         subprocess.call(["chmod", "777", self.start_cmd])
-        subprocess.call(self.stop_cmd, cwd=self.app_root, close_fds=True, shell=1, env={"WUPROOT":ROOT})
+        _env = os.environ.copy()
+        _env["WUPROOT"] = ROOT
+        _env["APPNAME"] = self.app
+        subprocess.call(self.stop_cmd, cwd=self.app_root, close_fds=True, shell=1, env=_env)
         time.sleep(5)
         with open("/var/log/"+self.app+".log", "w") as f:
-            subprocess.call(self.start_cmd, cwd=self.app_root, close_fds=True, shell=1, env={"WUPROOT":ROOT, "APPNAME":self.app}, stdout=f, stderr=f)
+            subprocess.call(self.start_cmd, cwd=self.app_root, close_fds=True, shell=1, env=_env, stdout=f, stderr=f)
 
 # end 日志
 

@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -123,6 +124,10 @@ public class cmd_jsc extends JvmExecutor {
             } else {
                 jsStr = str;
             }
+            if (params.vals.length > 1)
+                params.vals = Arrays.copyOfRange(params.vals, 1, params.vals.length);
+            else
+                params.vals = new String[0];
         }
         // 看看是不是要从管道里读取
         else if (sys.pipeId > 0) {
@@ -139,9 +144,8 @@ public class cmd_jsc extends JvmExecutor {
             bindings.put(en.getKey(), en.getValue());
         }
         bindings.put("sys", new cmd_jsc_api(sys));
-        bindings.put("stdin", sys.in.getInputStream());
-        bindings.put("stdout", sys.out.getOutputStream());
-        bindings.put("stderr", sys.err.getOutputStream());
+        bindings.put("args", params.vals);
+        bindings.put("log", log);
 
         // 执行
         if (debug)
