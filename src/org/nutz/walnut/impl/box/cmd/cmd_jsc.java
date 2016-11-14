@@ -24,7 +24,7 @@ import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.web.WnConfig;
 
 /**
- * 实验性质执行js文件或直接读取
+ * 执行js文件
  * 
  * @author wendal(wendal1985@gmail.com)
  *
@@ -146,6 +146,7 @@ public class cmd_jsc extends JvmExecutor {
         bindings.put("sys", new cmd_jsc_api(sys));
         bindings.put("args", params.vals);
         bindings.put("log", log);
+        bindings.put("walnut_js", "classpath:org/nutz/walnut/impl/box/cmd/jsc/walnut.js");
 
         // 执行
         if (debug)
