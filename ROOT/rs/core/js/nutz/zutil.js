@@ -257,6 +257,41 @@
             return key;
         },
         //.............................................
+        // 挑选属性，正则表达式如果以 ! 开头表示取反
+        pick : function(obj, regex) {
+            if(!regex)
+                return obj;
+            
+            // 解析正则表达式
+            var not = false;
+            var REG = _.isRegExp(regex) ? regex : null;
+            if(!REG) {
+                var str = regex.toString();
+                if(/^!/.test(str)){
+                    not = true;
+                    str = str.substring(1);
+                }
+                REG = new RegExp(str);
+            }
+            
+            // 准备返回值
+            var re = {};
+            
+            // 开始过滤字段
+            for(var key in obj) {
+                if(REG.test(key)){
+                    if(not)
+                        continue;
+                    re[key] = obj[key];
+                } else if(not){
+                    re[key] = obj[key];
+                }
+            }
+            
+            // 返回
+            return re;
+        },
+        //.............................................
         dump : {
             rectV : function(rect) {
                 return $z.tmpl("l:{{left}},r:{{right}},t:{{top}},b:{{bottom}},x:{{x}},y:{{y}}")(rect);
@@ -1875,7 +1910,7 @@
         setJsonToSubScriptEle : function(jq, className, prop, needFormatJson) {
             var jPropEle = jq.children("script."+className);
             if(jPropEle.length == 0) {
-                jPropEle = $('<script type="text/x-template" class="'+className+'">').appendTo(jq);
+                jPropEle = $('<script type="text/x-template" class="'+className+'">').prependTo(jq);
             }
             var RP = function(key, val){
                 if(/^__/.test(key))

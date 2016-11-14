@@ -19,8 +19,8 @@ tags:
 
 ```
 .hm-com [ctype="xxx"] [ui-id] [hm-actived]   # 最外层布局块
-    <script for="block">     # 控件的块布局配置信息
-    <script for="com">       # 控件的内容配置信息
+    <script class="hm-prop-block">   # 控件的块布局配置信息
+    <script class="hm-prop-com">     # 控件的内容配置信息
     .hm-com-W                # 内容包裹，确保下面的内容相对自己是 relative 的
         .hm-com-assist       # 块的辅助编辑元素
             .rsz-N        # 顶部 resize 区

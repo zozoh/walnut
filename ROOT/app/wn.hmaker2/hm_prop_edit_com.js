@@ -16,7 +16,7 @@ var html = `
         <div class="hmpc-skin-mask"><ul></ul></div>
         <div class="hmpc-skin-list"><ul></ul></div>
     </div></div>
-    <div class="hmpc-form" ui-gasket="form"></div>
+    <div class="hmpc-form" ui-gasket="prop"></div>
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_prop_edit_com", {
@@ -98,32 +98,56 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
         this.balloon();
     },
     //...............................................................
-    update : function(com) {
+    update : function(uiCom, com) {
         var UI = this;
+        
+        var comId = uiCom.getComId();
+        var ctype = uiCom.getComType();
 
         // 处理 info 区域
-        if(com._type) {
-            UI.__com_type = com._type;
-            var jInfo = UI.arena.find(">.hmpc-info").css("display", "");
-            // 图标
-            jInfo.children('span').html(UI.msg("hmaker.com."+com._type+".icon"));
-            // 名称
-            jInfo.children('b').text(UI.msg("hmaker.com."+com._type+".name"));
-            // ID
-            jInfo.children('em').text(com._id);
-        }
+        UI.__update_com_info(comId, ctype);
 
         // 处理皮肤选择区
-        UI.__skin = com._skin;
-        UI.__update_skin_info();
+        UI.__update_skin_info(ctype, com);
+        
+        // 如果控件类型发生了变化更新编辑区显示
+        if (UI.__com_type != ctype) {
+            // 先销毁
+            UI.release();
+            
+            // 得到扩展属性定义
+            var uiDef = uiCom.getDataProp();
 
-        // 处理控件扩展区域
-        $z.invoke(UI.gasket.form, "update", [com]);
+            // 加载属性控件
+            seajs.use(uiDef.uiType, function(DataPropUI){
+                new DataPropUI(_.extend({}, uiDef.uiConf||{}, {
+                    parent : UI,
+                    gasketName : "prop"
+                })).render(function(){
+                    UI.gasket.prop.update(com);
+                });
+            });
+        }
+        // 否则直接更新
+        else {
+            UI.gasket.prop.update(com);
+        }
+    },
+    //..............................................................
+    __update_com_info : function(comId, ctype){
+        var UI = this;
+        var jInfo = UI.arena.find(">.hmpc-info").css("display", "");
+        // 图标
+        jInfo.children('span').html(UI.msg("hmaker.com."+ctype+".icon"));
+        // 名称
+        jInfo.children('b').text(UI.msg("hmaker.com."+ctype+".name"));
+        // ID
+        jInfo.children('em').text(comId);
     },
     //...............................................................
-    __update_skin_info : function(){
+    __update_skin_info : function(ctype, com){
         var UI = this;
-        var sText = UI.getSkinTextForCom(UI.__com_type, UI.__skin);
+        var sText = UI.getSkinTextForCom(ctype, com.skin);
         UI.arena.find(">.hmpc-skin>div>b")
             .text(sText || UI.msg("hmaker.prop.skin_none"))
             .attr({
@@ -132,36 +156,8 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
     },
     //...............................................................
     showBlank : function() {
-        var UI = this;
-
-        UI.arena.find(".hmpc-info").hide();
-
-        if(UI.gasket.form)
-            UI.gasket.form.destroy();
-    },
-    //...............................................................
-    draw : function(uiDef, callback) {
-        var UI = this;
-
-        // 先销毁
-        UI.release();
-
-        // 没定义，就直接回调了
-        if(!uiDef) {
-            $z.doCallback(callback, [], UI);
-        }
-        // 设置
-        else {
-            // 重新绑定控件
-            seajs.use(uiDef.uiType, function(EleUI){
-                new EleUI(_.extend({}, uiDef.uiConf||{}, {
-                    parent : UI,
-                    gasketName : "form"
-                })).render(function(){
-                    $z.doCallback(callback, [this], UI);
-                });
-            });
-        }
+        this.arena.find(".hmpc-info").hide();
+        this.release();
     },
     //...............................................................
     release : function(){
