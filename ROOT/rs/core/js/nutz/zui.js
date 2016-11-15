@@ -12,7 +12,7 @@ var parse_dom = function (html) {
     // html = $z.tmpl(html)(UI._msg_map);
     html = UI.compactHTML(html);
 
-    // 这里需要添加 dom 段描述的 HTML 到当前的 $el 
+    // 这里需要添加 dom 段描述的 HTML 到当前的 $el
     // 为了兼顾 keepDom 所以要用 +=
     UI.el.innerHTML += html;  // FIXME 这里有严重的bug, tr不能被加入到页面中
 
@@ -33,8 +33,15 @@ var parse_dom = function (html) {
 
     // 分析 .ui-arena
     var jArena = UI.findArenaDomNode.call(UI);
-    if(jArena && jArena.size() > 0)
+    if (jArena && jArena.size() > 0) {
         UI.arena = jArena;
+    } else {
+        // 兼容旧版的查找方式
+        // jArena = UI.$el.children('.ui-arena');
+        // if (jArena.size() > 0)
+        //     UI.arena = jArena;
+    }
+
 
     // 标识所有的扩展点
     sign_gaskets(UI);
@@ -110,7 +117,7 @@ var register = function(UI) {
         if(!opt.parent && UI.parent){
             UI.parent.children.push(UI);
             UI.depth = UI.parent.depth + 1;
-        }        
+        }
     }
     //....................................
     // 没有 $pel 则需要寻找选区
@@ -354,7 +361,7 @@ ZUIObj.prototype = {
     // 渲染自身
     render: function (afterRender) {
         var UI = this;
-        
+
         // 确定语言
         UI.lang = (UI.parent||{}).lang || window.$zui_i18n || "zh-cn";
 
@@ -420,7 +427,7 @@ ZUIObj.prototype = {
 
                 // 调用UI的特殊重绘方法，如果方法返回了一组 ui 的类型，那么就表示
                 // 用户在方法里采用了异步还要加载这组 UI
-                // 加载完毕后，调用者需要主动在自己的 redraw 函数里，调用 
+                // 加载完毕后，调用者需要主动在自己的 redraw 函数里，调用
                 //  UI.defer_report(i, uiType)
                 // 标识加载完成，待全部异步加载的 UI 完成后，会调才会调用 do_after_redraw
                 var uiTypes = $z.invoke(UI.$ui, "redraw", [], UI);
@@ -500,7 +507,7 @@ ZUIObj.prototype = {
             // console.log(UI.uiName, "UI.options.i18n", UI.$ui.i18n);
 
             // 存储多国语言字符串
-            // 需要将自己的多国语言字符串与父 UI 的连接 
+            // 需要将自己的多国语言字符串与父 UI 的连接
             UI._msg_map = $z.inherit({}, UI.parent ? UI.parent._msg_map : ZUI.g_msg_map);
 
             // 找到需要加载的消息字符串
@@ -628,12 +635,12 @@ ZUIObj.prototype = {
                 // 得到自身顶级元素的左右边距
                 var margin = $z.margin(UI.$el);
                 UI.$el.css({
-                    "width" : w - margin.x, 
+                    "width" : w - margin.x,
                     "height": h - margin.y
                 });
                 margin = $z.margin(UI.arena);
                 UI.arena.css({
-                    "width" : UI.$el.width()  - margin.x, 
+                    "width" : UI.$el.width()  - margin.x,
                     "height": UI.$el.height() - margin.y
                 });
             }
@@ -680,7 +687,7 @@ ZUIObj.prototype = {
             handler = keys;
             keys = undefined;
         }
-        
+
         var key = this.__keyboard_watch_key(which, keys);
         //console.log("watchKey : '" + key + "' : " + this.cid);
         $z.pushValue(ZUI.keymap, [key, this.cid], handler);
@@ -864,7 +871,7 @@ ZUIObj.prototype = {
     },
     // 快捷方法，帮助 UI 存储本地状态
     // 需要设置 "app" 段
-    // 参数 appName 默认会用 app.name 来替代 
+    // 参数 appName 默认会用 app.name 来替代
     local : function(key,val, appName){
         var UI = this;
         var app = UI.app;
@@ -890,7 +897,7 @@ ZUIObj.prototype = {
             var o = opt.parseData.call(context, obj, UI);
             callback.call(UI, o, opt);
         }
-        // 异步 
+        // 异步
         else if(_.isFunction(opt.asyncParseData)){
             opt.asyncParseData.call(context, obj, function(o){
                 callback.call(UI, o, opt);
@@ -936,7 +943,7 @@ ZUIObj.prototype = {
             var taUI = ZUI.getByKey(uiKey);
             // 不需要推迟
             if(taUI) {
-                this._listen_to(taUI, event, handler);       
+                this._listen_to(taUI, event, handler);
             }
             // 暂存
             else {
@@ -946,14 +953,14 @@ ZUIObj.prototype = {
                     ZUI._defer_listen[uiKey] = dl;
                 }
                 dl.push({
-                    event : event, 
+                    event : event,
                     handler : handler,
                     context : this
                 });
             }
         }
     },
-    // 监听某个 backbone 的模块消息 
+    // 监听某个 backbone 的模块消息
     _listen_to: function (target, event, handler) {
         if (target){
             // 如果给的是一个字符串，那么就表示当前对象的一个方法
@@ -995,7 +1002,7 @@ ZUIObj.prototype = {
     },
     //...................................................................
     // 提供一个通用的文件上传界面，任何 UI 可以通过
-    //   this.listenModel("do:upload", this.on_do_upload); 
+    //   this.listenModel("do:upload", this.on_do_upload);
     // 来启用这个方法
     // !!! 这个方法将被删除
     on_do_upload: function (options) {
@@ -1032,7 +1039,7 @@ var ZUI = function(arg0, arg1){
     // 根据 uiKey
     else if(_.isString(arg0)){
         return arg1 ? ZUI.checkByKey(arg0) || ZUI.checkByCid(arg0)
-                    : ZUI.getByKey(arg0) || ZUI.getByCid(arg0); 
+                    : ZUI.getByKey(arg0) || ZUI.getByCid(arg0);
     }
     // 未知处理
     throw "Unknown arg0 : " + arg0 + ", arg1" + arg1;
@@ -1071,7 +1078,7 @@ ZUI.def = function (uiName, conf) {
             $ui: {}
         };
         // TODO zozoh@161113 这个逻辑分钟木用了吧，应该删了
-        /*
+        // FIXME pw@161115 有用，删了的话wedit，wjson报错
         // pkg信息补全css，dom, i18n
         if (conf.pkg) {
             // i18n 加载一个即可
@@ -1093,7 +1100,7 @@ ZUI.def = function (uiName, conf) {
             } else {
                 conf.css = dftcss;
             }
-        }*/
+        }
         // 将 UI 的保留方法放入 $ui 中，其余 copy
         for (var key in conf) {
             if (/^(css|dom|i18n|init|redraw|depose|resize|active|blur)$/g.test(key)) {
@@ -1114,7 +1121,7 @@ ZUI.def = function (uiName, conf) {
         $z.setUndefined(uiBaseObj, "findCodeTemplateDomNode", function(){
             return this.$el.children('.ui-code-template');
         });
-         
+
         // 定义新 UI
         uiDef = function(options){
             // 建立自己的 ID
@@ -1316,7 +1323,7 @@ ZUI.debug = function() {
     _draw_tree = function(parentUI, uiList, jSub) {
         if(!_.isArray(uiList))
             return;
-        
+
         // 循环输出
         for(var i=0; i<uiList.length; i++){
             // 计数

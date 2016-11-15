@@ -321,6 +321,9 @@
             },
             checkChildren: function () {
                 var nmMap = {};
+                if (this.model.type == 'array') { // 数组名称不唯一，免查询
+                    return;
+                }
                 this.model.children.forEach(function (ele, index) {
                     ele.dupkey = false;
                     var enm = ele.name;
@@ -508,6 +511,7 @@
                 <div class="menu-item btn" @click="toogleCompress();"><i class="fa fa-fw"
                                                                          :class="{'fa-align-justify': compress, 'fa-align-right': !compress}"></i>
                 </div>
+                <div class="menu-item btn" @click="copyText();"><i class="fa fa-fw fa-copy"></i></div>
             </div>
             <div class="ui-wjson-container">
                 <ul class="ui-wjson-curb source-line">
@@ -578,6 +582,9 @@
             },
         },
         methods: {
+            copyText: function () {
+
+            },
             // 菜单上的几个按钮
             menuAdd: function () {
                 if (this.seltn) {

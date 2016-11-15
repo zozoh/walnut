@@ -9,7 +9,6 @@
     <link rel="stylesheet" type="text/css" href="${rs}/core/css/animate.css">
     <link rel="stylesheet" type="text/css" href="${rs}/core/css/font-awesome-4.5.0/css/font-awesome.css">
     <link rel="stylesheet" type="text/css" href="${rs}/core/css/font-md/css/material-design-iconic-font.css">
-    <link rel="stylesheet" type="text/css" href="${rs}/core/css/mdcss/md.css">
     <script src="${rs}/core/js/seajs/seajs-2.3.0/sea-debug.js" id="seajsnode"></script>
     <script src="${rs}/core/js/seajs/seajs-2.3.0/seajs-text-debug.js"></script>
     <script src="${rs}/core/js/seajs/seajs-2.3.0/seajs-css-debug.js"></script>
@@ -19,7 +18,6 @@
     <script src="${rs}/core/js/nutz/zhttp.js"></script>
     <script src="${rs}/core/js/nutz/zutil.js"></script>
     <script src="${rs}/core/js/vue/vue.js"></script>
-    <script src="${rs}/core/css/mdcss/md.js"></script>
 </head>
 <body class="zui-app-${appClass} ui-body ui-oicon-16" appnm="${appName}">
 <script>
@@ -31,19 +29,19 @@
         base: "${rs}",
         debug: true,
         alias: {
-            "walnut"        : "wn/walnut.js",
-            "zui"           : "core/js/nutz/zui.js",
-            "zui_css"       : "core/js/nutz/zui.css"
+            "walnut": "wn/walnut.js",
+            "zui": "core/js/nutz/zui.js",
+            "zui_css": "core/js/nutz/zui.css"
         },
         paths: {
-            "theme"         : "/theme/r",
-            "ui"            : "core/js/ui",
-            "uix"           : "${session.envs.MY_UIX?ext/js/ui}",
-            "wn"            : "core/js/walnut",
-            "app"           : "/a/load",
-            "jquery-plugin" : "core/js/jquery-plugin",
-            "jquery-ui"     : "core/js/jquery-ui",
-            "vue-component" : "core/js/vue-component"
+            "theme": "/theme/r",
+            "ui": "core/js/ui",
+            "uix": "${session.envs.MY_UIX?ext/js/ui}",
+            "wn": "core/js/walnut",
+            "app": "/a/load",
+            "jquery-plugin": "core/js/jquery-plugin",
+            "jquery-ui": "core/js/jquery-ui",
+            "vue-component": "core/js/vue-component"
         },
         charset: 'utf-8'
     });
