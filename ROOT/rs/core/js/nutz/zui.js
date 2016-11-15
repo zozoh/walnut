@@ -16,22 +16,25 @@ var parse_dom = function (html) {
     // 为了兼顾 keepDom 所以要用 +=
     UI.el.innerHTML += html;  // FIXME 这里有严重的bug, tr不能被加入到页面中
 
-    // 分析 DOM 结构
-    var map = this._code_templates;
-    var jTmpl = this.$el.children('.ui-code-template').hide();
-    var commonClass = jTmpl.attr("common-class");
-    jTmpl.children('[code-id]').each(function () {
-        var jq = $(this);
-        if (commonClass && jq.attr("nocommon") != "true")
-            jq.addClass(commonClass);
-        var key = jq.attr('code-id');
-        map[key] = jq;
-    });
+    // 分析代码模板
+    var map = UI._code_templates;
+    var jTmpl = UI.findCodeTemplateDomNode.call(UI);
+    if(jTmpl) {
+        jTmpl.hide();
+        var commonClass = jTmpl.attr("common-class");
+        jTmpl.children('[code-id]').each(function () {
+            var jq = $(this);
+            if (commonClass && jq.attr("nocommon") != "true")
+                jq.addClass(commonClass);
+            var key = jq.attr('code-id');
+            map[key] = jq;
+        });
+    }
 
-    // 搞完了 dom，根据 .ui-arena 找找有没有指定的 arena
-    var $arena = UI.$el.children('.ui-arena');
-    if($arena.size() > 0)
-        UI.arena = $arena;
+    // 分析 .ui-arena
+    var jArena = UI.findArenaDomNode.call(UI);
+    if(jArena && jArena.size() > 0)
+        UI.arena = jArena;
 
     // 标识所有的扩展点
     sign_gaskets(UI);
@@ -1061,12 +1064,14 @@ ZUI.def = function (uiName, conf) {
     var uiDef = this.definitions[uiName];
     if (!uiDef) {
         // 准备配置对象的默认属性
-        var opt = {
+        var uiBaseObj = {
             uiName: uiName,
             tagName: 'div',
             className: uiName.replace(/[.]/g, '-'),
             $ui: {}
         };
+        // TODO zozoh@161113 这个逻辑分钟木用了吧，应该删了
+        /*
         // pkg信息补全css，dom, i18n
         if (conf.pkg) {
             // i18n 加载一个即可
@@ -1088,20 +1093,28 @@ ZUI.def = function (uiName, conf) {
             } else {
                 conf.css = dftcss;
             }
-        }
+        }*/
         // 将 UI 的保留方法放入 $ui 中，其余 copy
         for (var key in conf) {
             if (/^(css|dom|i18n|init|redraw|depose|resize|active|blur)$/g.test(key)) {
-                opt.$ui[key] = conf[key];
+                uiBaseObj.$ui[key] = conf[key];
             }
             else if("className" == key){
-                opt.className += " " + conf.className;
+                uiBaseObj.className += " " + conf.className;
             }
             else {
-                opt[key] = opt[key] || conf[key];
+                uiBaseObj[key] = uiBaseObj[key] || conf[key];
             }
         }
-
+        // 定义了默认的获取 arena 方法
+        $z.setUndefined(uiBaseObj, "findArenaDomNode", function(){
+            return this.$el.children('.ui-arena');
+        });
+        // 定义了默认获取 code-template 的方法
+        $z.setUndefined(uiBaseObj, "findCodeTemplateDomNode", function(){
+            return this.$el.children('.ui-code-template');
+        });
+         
         // 定义新 UI
         uiDef = function(options){
             // 建立自己的 ID
@@ -1111,7 +1124,7 @@ ZUI.def = function (uiName, conf) {
             // 调用初始化方法
             this.__init__(options);
         };
-        uiDef.prototype = _.extend(opt, new ZUIObj());
+        uiDef.prototype = _.extend(uiBaseObj, new ZUIObj());
         uiDef.uiName = uiName;
 
         // 缓存上这个定义

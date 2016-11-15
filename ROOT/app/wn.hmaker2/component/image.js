@@ -305,8 +305,13 @@ return ZUI.def("app.wn.hm_com_image", {
         }];
     },
     //...............................................................
+    getBlockPropFields : function() {
+        return ["margin","padding","border","borderRadius",
+                "boxShadow","overflow"];
+    },
+    //...............................................................
     // 返回属性菜单， null 表示没有属性
-    setupProp : function(){
+    getDataProp : function(){
         var UI = this;
         return {
             uiType : 'ui/form/form',
@@ -323,39 +328,28 @@ return ZUI.def("app.wn.hm_com_image", {
         };
     },
     //...............................................................
-    formatSize : function(prop, com, fromMode) {
-        var UI = this;
-        
-        //console.log("I am img.formatSize:before", prop)
-
-        // 组件默认还是要 100% 的
-        $z.setUndefined(com, "width",  "100%");
-        $z.setUndefined(com, "height", "100%");
-        
-        // 模式变了，我要参与一下
-        if(fromMode != prop.mode) {
-            // 根据属性计算出矩形
-            var rect = UI.getBlockRectByProp(prop);
-
-            // 绝对位置，把宽高设置回 posVal
-            if("abs" == prop.mode) {
-                // 将块属性的宽高，设置回矩形里
-                rect.width  = prop.width;
-                rect.height = prop.height;
-
-                prop.posVal = UI.transRectToPosVal(rect, prop.posBy);
-               
+    getDefaultData : function(){
+        return {
+            text : {
+                content : "hahah"
             }
-            // 绝对位置，从 posVal 里把宽高 copy 出来
-            else {
-                // 将矩形的宽高设置到块属性里
-                prop.width  = rect.width;
-                prop.height = rect.height;
-            }
-        }
-        
-        //console.log("I am img.formatSize:after", prop)
-    }
+        };
+    },
+    //...............................................................
+    getDefaultBlock : function(){
+        return {
+            mode : "abs",
+            posBy   : "top,left,width,height",
+            posVal  : "10px,10px,200px,200px",
+            width   : "",
+            height  : "",
+            padding : "",
+            border : "" ,   // "1px solid #000",
+            borderRadius : "",
+            overflow : "",
+            blockBackground : "",
+        };
+    },
     //...............................................................
 });
 //===================================================================

@@ -7,7 +7,7 @@ $z.declare([
     'ui/form/c_switch',
 ], function(ZUI, Wn, HmMethods, FormUI, SwitchUI){
 //==============================================
-var html = function(){/*
+var html = `
 <div class="ui-arena hm-prop-block">
     <div class="hmpb-pos" mode="abs">
         <div class="hmpb-pos-box">
@@ -31,11 +31,10 @@ var html = function(){/*
         </div>
     </div>
     <div class="hmpb-form" ui-gasket="form"></div>
-</div>
-*/};
+</div>`;
 //==============================================
 return ZUI.def("app.wn.hm_prop_edit_block", {
-    dom  : $z.getFuncBodyAsStr(html.toString()),
+    dom  : html,
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
@@ -148,33 +147,33 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         return md;
     },
     //...............................................................
-    update : function(prop, full) {
+    update : function(uiCom, block) {
+        this.__uiCom = uiCom;
+        this.__update_pos(block);
+        this.__update_form(block);
+    },
+    //...............................................................
+    __update_pos : function(block) {
         var UI   = this;
         var jPos = UI.arena.find(".hmpb-pos");
 
-        // 模式
-        if(prop.mode)
-            jPos.attr("mode", prop.mode);
-        else
-            prop.mode = jPos.attr("mode");
-        
         // 绝对定位
-        if("abs" == prop.mode) {
+        if("abs" == block.mode) {
             // 打开提示
             UI.balloon();
 
             // 更新位置信息
             var posBy;
-            if(prop.posBy){
-                posBy = UI.changePosBy(prop.posBy);
+            if(block.posBy){
+                posBy = UI.changePosBy(block.posBy);
             } else {
                 posBy = UI.arena.find(".hmpb-pos-box").attr("pos-by");
             }
 
             // 改变位置的值
-            if(posBy && prop.posVal) {
+            if(posBy && block.posVal) {
                 var posKeys = posBy.split(/,/);
-                var posVals = prop.posVal.split(/,/);
+                var posVals = block.posVal.split(/,/);
                 for(var i=0; i<posKeys.length; i++) {
                     var key = posKeys[i];
                     var val = posVals[i];
@@ -191,28 +190,47 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             UI.changePosBy("width,height");
 
             // 宽
-            if(prop.width) {
-                UI.arena.find('.hmpb-pos-d[key="width"] em').text(prop.width);
+            if(block.width) {
+                UI.arena.find('.hmpb-pos-d[key="width"] em').text(block.width);
             }
             // 高
-            if(prop.height) {
-                UI.arena.find('.hmpb-pos-d[key="height"] em').text(prop.height);
+            if(block.height) {
+                UI.arena.find('.hmpb-pos-d[key="height"] em').text(block.height);
             }
             // 排序
-            UI.gasket.margin.setData(prop.margin);
+            UI.gasket.margin.setData(block.margin);
         }
-
-        // 其他属性
-        var dd = _.omit(prop, "mode", "posBy", "posVal");
-        //console.log(dd)
-
-        // 完全更新
-        if(full){
-            UI.gasket.form.setData(dd);
+    },
+    //...............................................................
+    __update_form : function(block) {
+        var UI = this;
+        var uiCom = UI.__uiCom;
+        
+        // 得到块属性列表
+        var blockFields = uiCom.getBlockPropFields(block);
+        
+        // 看看是否需要重绘字段
+        var bf_finger = blockFields.join(",");
+        if(UI.__current_block_fields != bf_finger) {
+            // 创建其他属性
+            new FormUI({
+                parent : UI,
+                gasketName : "form",
+                uiWidth: "all",
+                on_change : function(key, val) {
+                    UI.notifyBlockChange("panel", $z.obj(key, val));
+                },
+                fields : UI.__gen_block_fields(blockFields, block)
+            }).render(function(){
+                // 设置数据
+                UI.gasket.form.setData(block);
+                // 记录最后的修改
+                UI.__current_block_fields = bf_finger;
+            });
         }
-        // 增量更新
+        // 直接设置数据
         else {
-            UI.gasket.form.update(dd);
+            UI.gasket.form.setData(block);
         }
     },
     //...............................................................
@@ -243,73 +261,100 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             UI.defer_report("margin");
         });
         
-        // 创建其他属性
-        new FormUI({
-            parent : UI,
-            gasketName : "form",
-            uiWidth: "all",
-            on_change : function(key, val) {
-                UI.notifyBlockChange($z.obj(key, val));
-            },
-            fields : [{
-                key    : "padding",
-                title  : "i18n:hmaker.prop.padding",
-                type   : "string",
-                editAs : "input"
-            }, {
-                key    : "border",
-                title  : "i18n:hmaker.prop.border",
-                type   : "string",
-                editAs : "input"
-            }, {
-                key    : "borderRadius",
-                title  : "i18n:hmaker.prop.borderRadius",
-                type   : "string",
-                editAs : "input"
-            }, {
-                key    : "color",
-                title  : "i18n:hmaker.prop.color",
-                type   : "string",
-                editAs : "color",
-            }, {
-                key    : "background",
-                title  : "i18n:hmaker.prop.background",
-                type   : "string",
-                nullAsUndefined : true,
-                editAs : "background",
-                uiConf : UI.getBackgroundImageEditConf()
-            }, {
-                key    : "boxShadow",
-                title  : "i18n:hmaker.prop.boxShadow",
-                type   : "string",
-                editAs : "input"
-            }, {
-                key    : "overflow",
-                title  : "i18n:hmaker.prop.overflow",
-                type   : "string",
-                editAs : "switch", 
-                uiConf : {
-                    items : [{
-                        text : 'i18n:hmaker.prop.overflow_visible',
-                        val  : 'visible',
-                    }, {
-                        text : 'i18n:hmaker.prop.overflow_auto',
-                        val  : 'auto',
-                    }, {
-                        text : 'i18n:hmaker.prop.overflow_hidden',
-                        val  : 'hidden',
-                    }]
+        return  ["margin"];
+    },
+    //...............................................................
+    __gen_block_fields : function(blockFields, block) {
+        var UI = this;
+        var re = [];
+        for(var key of blockFields) {
+            if("padding" == key) {
+                re.push({
+                    key    : "padding",
+                    title  : "i18n:hmaker.prop.padding",
+                    type   : "string",
+                    editAs : "input"
+                });
+            }
+            else if("margin" == key) {
+                if("abs" != block.mode){
+                    re.push({
+                        key    : "margin",
+                        title  : "i18n:hmaker.prop.margin",
+                        type   : "string",
+                        editAs : "input"
+                    });
                 }
-            }]
-        }).render(function(){
-            // 位置编辑界面
-            //UI.arena.find(".hmpb-pos-v").first().click();
-
-            // 汇报加载成功
-            UI.defer_report("form");
-        });
-
-        return  ["margin", "form"];
+            }
+            else if("border" == key) {
+                re.push({
+                    key    : "border",
+                    title  : "i18n:hmaker.prop.border",
+                    type   : "string",
+                    editAs : "input"
+                });
+            }
+            else if("borderRadius" == key) {
+                re.push({
+                    key    : "borderRadius",
+                    title  : "i18n:hmaker.prop.borderRadius",
+                    type   : "string",
+                    editAs : "input"
+                });
+            }
+            else if("color" == key) {
+                re.push({
+                    key    : "color",
+                    title  : "i18n:hmaker.prop.color",
+                    type   : "string",
+                    editAs : "color",
+                });
+            }
+            else if("background" == key) {
+                re.push({
+                    key    : "background",
+                    title  : "i18n:hmaker.prop.background",
+                    type   : "string",
+                    nullAsUndefined : true,
+                    editAs : "background",
+                    uiConf : UI.getBackgroundImageEditConf()
+                });
+            }
+            else if("boxShadow" == key) {
+                re.push({
+                    key    : "boxShadow",
+                    title  : "i18n:hmaker.prop.boxShadow",
+                    type   : "string",
+                    editAs : "input"
+                });
+            }
+            else if("overflow" == key) {
+                re.push({
+                    key    : "overflow",
+                    title  : "i18n:hmaker.prop.overflow",
+                    type   : "string",
+                    editAs : "switch", 
+                    uiConf : {
+                        items : [{
+                            text : 'i18n:hmaker.prop.overflow_visible',
+                            val  : 'visible',
+                        }, {
+                            text : 'i18n:hmaker.prop.overflow_auto',
+                            val  : 'auto',
+                        }, {
+                            text : 'i18n:hmaker.prop.overflow_hidden',
+                            val  : 'hidden',
+                        }]
+                    }
+                });
+            }
+            else {
+                console.warn("unsupport blockField:", key, uiCom);
+            }
+        }
+        
+        // 返回字段列表
+        return re;
     },
     //...............................................................
     resize : function() {

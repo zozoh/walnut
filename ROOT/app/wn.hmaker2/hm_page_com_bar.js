@@ -65,9 +65,9 @@ return ZUI.def("app.wn.hmpg_combar", {
         return html;
     },
     //...............................................................
-    updateComPath : function(jCom) {
+    updateComPath : function(uiCom) {
         var UI = this;
-        jCom = jCom || UI.pageUI().getActivedComElement();
+        jCom = uiCom.$el;
 
         // 清空
         this.arena.empty();

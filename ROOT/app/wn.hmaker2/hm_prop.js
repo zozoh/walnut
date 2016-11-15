@@ -40,7 +40,6 @@ return ZUI.def("app.wn.hm_prop", {
     init : function() {
         var UI = HmPanelMethods(this);
         
-        UI.listenBus("active:block",  function(){UI.showProp("edit");});
         UI.listenBus("active:com",    function(){UI.showProp("edit");});
         UI.listenBus("active:page",   function(){UI.showProp("page");});
         UI.listenBus("active:folder", function(){UI.showProp("folder");});
