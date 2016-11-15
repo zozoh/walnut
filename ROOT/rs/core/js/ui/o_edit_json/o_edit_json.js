@@ -56,6 +56,9 @@
                 // 延迟加载
                 return ["vjson"];
             },
+            refresh: function () {
+                this.update(this.cobj);
+            },
             load_fail: function (errMsg) {
                 alert(errMsg);
             },
