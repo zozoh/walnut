@@ -146,7 +146,7 @@ public class cmd_jsc extends JvmExecutor {
         bindings.put("sys", new cmd_jsc_api(sys));
         bindings.put("args", params.vals);
         bindings.put("log", log);
-        bindings.put("walnut_js", "classpath:org/nutz/walnut/impl/box/cmd/jsc/walnut.js");
+        bindings.put("walnut_js", "classpath:org/nutz/walnut/impl/box/cmd/jsc/jsc_walnut.js");
 
         // 执行
         if (debug)

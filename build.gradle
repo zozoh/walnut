@@ -90,7 +90,7 @@ import org.nutz.lang.Files
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
-task lessc << {
+task lessc(dependsOn: classes) << {
 	FileTree tree = fileTree('ROOT') {
 		include "**/*.less"
 		exclude "**/font-awesome*/**/*.*"
@@ -134,8 +134,8 @@ task wbuild(dependsOn: classes) << {
 
 	Files.write(file('build/wzip/build.properties'), "walnut.version="+version_tag)
 
-   	def tmpWin32 = '''java -Dfile.encoding=UTF-8 -cp "classes;libs/*"'''
-   	def tmpUnix = '''touch classes/web_local.properties; java -Dfile.encoding=UTF-8 -cp "classes:libs/*"'''
+   	def tmpWin32 = '''java -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -cp "classes;libs/*"'''
+   	def tmpUnix = '''touch classes/web_local.properties; java -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -cp "classes:libs/*"'''
    	tmpWin32 += " org.nutz.web.WebLauncher"
    	Files.write(file('build/wzip/start.bat'), tmpWin32)
 
