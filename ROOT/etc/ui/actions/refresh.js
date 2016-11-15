@@ -10,7 +10,7 @@
 		if(_.isFunction(UI.refresh)){
 			UI.refresh();
 		}
-		else if(UI.browser()){
+		else if(_.isFunction(UI.browser)){
 			UI.browser().refresh();
 		}
 		else if(UI.parent && _.isFunction(UI.parent.refresh)){
