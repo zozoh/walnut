@@ -90,14 +90,17 @@ return ZUI.def("ui.table", {
     //...............................................................
     events : {
         "click .tbl-row" : function(e){
-            this._do_click_list_item(e, true);
+            this._do_click_list_item(e, false);
         },
         "click .tbl-row-checker" : function(e){
             e.stopPropagation();
             this.toggle(e.currentTarget);
         },
         "click .ui-arena" : function(e){
-            this.setAllBlur();
+            // 只有点击空白区域，才会失去焦点
+            if($(e.target).closest(".list-item").length == 0) {
+                this.setAllBlur();
+            }
         },
         "click .tbl-checker" : function(e){
             e.stopPropagation();

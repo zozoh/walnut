@@ -190,6 +190,7 @@
             list-style: none; padding:0; margin:0;
             li {
                 padding:@d2 @d4;
+                > b {font-weight: normal; font-family: @f_fixed; font-size:@f1;}
             }
         }
     }
@@ -203,7 +204,10 @@
         display: inline-block; vertical-align: middle;
         width:20px; text-align: center;
     }
-    b[it="text"] {display: inline-block; vertical-align: middle; padding-left: @d1;}
+    b[it="text"] {
+        display: inline-block; vertical-align: middle; padding-left: @d1;
+        font-weight: normal; font-size:@f1; font-family: @f_fixed;
+    }
 }
 .com-droplist[show] {
     .com-mask {display: block;}
