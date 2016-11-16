@@ -40,7 +40,9 @@ tasks.withType(JavaCompile) {
 }
 
 repositories {
-    maven { url "http://maven.nutz.cn/nexus/content/repositories/central"}
+    //maven { url "http://maven.nutz.cn/nexus/content/repositories/central"}
+    //mavenLocal()
+    maven { url "http://repo2.maven.org/maven2"}
     maven { url "http://maven.nutz.cn/nexus/content/repositories/snapshots"}
 }
 dependencies {
@@ -73,6 +75,7 @@ dependencies {
     runtime group: 'log4j', name: 'log4j', version:'1.2.17'
     testCompile group: 'junit', name: 'junit', version:'4.12'
     compile group: 'javax.servlet', name: 'javax.servlet-api', version:'3.1.0'
+    compile group: 'org.apache.ftpserver', name: 'ftpserver-core', version:'1.1.0'
 }
 
 buildscript {
