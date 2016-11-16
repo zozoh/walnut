@@ -65,15 +65,15 @@ body {margin:0; font-size:12px;}
             > .rsz-E {border-right-width:1px;}
             
             > .hmv-hdl {
-                top:0; left:0; right:0; padding:@d1 0 @d0 0;
+                top:0; left:0; right:0; padding:@d2 0 @d1 0;
                 background: rgba(0,0,0,0.4); color:#FF0;
                 cursor: hand; font-size: 8px; opacity: 0.2;
+                > i {margin:0 @d2;}
+                > em {display: none; font-style: normal;}
             }
-            > .hmv-hdl:hover {opacity: 1.0;}
-            > .hmv-hdl:before {
-                font-family:'Material-Design-Iconic-Font';
-                margin:0 @d1;
-                display: "inline"; content: "\f18c";
+            > .hmv-hdl:hover {
+                opacity: 1.0;
+                > em {display: inline;}
             }
         }
     }
@@ -90,8 +90,12 @@ body {margin:0; font-size:12px;}
 }
 
 // 当前的相对定位控件
-.hm-block[hmb-mode="inflow"][hm-actived] {
-    border:1px dotted #0FF;
+.hm-com[hmc-mode="inflow"][hm-actived] {
+    > .hm-com-W {
+        > .hm-com-assist > * {
+            display: block;
+        }
+    }
 }
 
 //............................................................

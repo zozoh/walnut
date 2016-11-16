@@ -49,6 +49,7 @@ define({
             "skin_empty" : '<i class="zmdi zmdi-info-outline"></i> 没有针对这个控件的皮肤样式',
         }, 
         "drag" : {
+            "com_tip" : "移动到分栏",
             "hover" : "拖拽至此，Shift键取消"
         },
         "pos" : {
