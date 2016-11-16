@@ -1,0 +1,6 @@
+/*重置元素的默认显示属性 */
+
+body {font-size:12px;}
+
+ol, ul {list-style:none;padding:0;margin:0;}
+h1,h2,h3,h4,h5,h6{margin:0;padding:0;}

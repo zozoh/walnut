@@ -24,7 +24,20 @@ build
 .project
 .settings
 
+# .................................
 /ROOT/app/**/*.css
-/ROOT/rs/theme/**/*.css
+
+/ROOT/rs/core/js/jquery-plugin/**/*.css
+
+/ROOT/rs/core/js/ui/*/**/*.css
+/ROOT/rs/core/js/ui/ui.css
+/ROOT/rs/core/js/ui/zui_debug.css
+
+/ROOT/rs/core/js/vue*/**/*.css
+
 /ROOT/rs/ext/**/*.css
-/ROOT/rs/core/js/**/*.css
+
+/ROOT/rs/theme/*/ui.css
+/ROOT/rs/theme/*/*/*.css
+
+
