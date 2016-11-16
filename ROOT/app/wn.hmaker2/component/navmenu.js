@@ -6,10 +6,13 @@ $z.declare([
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
 var html = `
-<div class="ui-arena hmc-navmenu"><ul></ul></div>
+<div class="ui-arena hmc-navmenu" del-attrs="current"><ul></ul></div>
 `;
 //==============================================
 return ZUI.def("app.wn.hm_com_navmenu", {
+    keepDom : true,
+    dom : html,
+    //...............................................................
     init : function(){
         HmComMethods(this);
     },
@@ -242,13 +245,9 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         var UI = this;
 
         // 设置初始值的 DOM 结构
-        if(!UI.arena.hasClass("ui-arena")){
-            UI.arena = $(html).appendTo(UI.$el.empty());
+        if(UI.arena.children().length == 0){
             UI.createItem();
         }
-
-        // 标记要删除的属性
-        UI.arena.attr("del-attrs", "current");
     },
     //...............................................................
     paint : function(com) {
@@ -279,7 +278,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性
-    setupProp : function(){
+    getDataProp : function(){
         return {
             uiType : 'app/wn.hmaker2/com_prop/navmenu_prop.js',
             uiConf : {}

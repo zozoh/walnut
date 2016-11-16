@@ -322,7 +322,7 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 模拟第一个块被点击
         window.setTimeout(function(){
-            UI._C.iedit.$body.find(".hm-block").first().click();
+            UI._C.iedit.$body.find(".hm-com").first().click();
         }, 500);
     },
     //...............................................................
@@ -641,55 +641,56 @@ return ZUI.def("app.wn.hmaker_page", {
         C.iload.$head.empty();
 
         // 移除 body 的一些属性
-        C.iload.$body
-            .removeAttr("pointer-moving-enabled")
-            .removeAttr("style");
+        C.iload.$body.attr({
+            "pointer-moving-enabled" : null,
+            "style" : null,
+            "skin" : null
+        });
 
-        // 移除所有的辅助节点
-        C.iload.$body.find(".mvrz-ass, .hm-del-save, .ui-code-template").remove();
-
-        // 删除所有的块和控件的 CSS 渲染属性
-        C.iload.$body.find(".hm-block,.hmb-con,.hmb-area,.hm-com,.ui-arena").each(function(){
-            var jq = $(this).removeAttr("style");
-
-            jq.attr({
-                "mvrz-block" : null,
-                "hm-actived" : null,
+        // 处理所有的控件，删掉临时属性和辅助节点
+        C.iload.$body.find(".hm-com").each(function(){
+            // 删掉临时的 style 样式
+            var jCom = $(this).attr({
+                "style" : null,
                 "ui-id" : null,
             });
-
-            // 所有的子
-            jq.find("*").removeAttr("style");
-
-        }).filter(".hm-com").each(function(){
-            $(this).removeAttr("ui-id");
-        });
-
-        // 整理所有的空节点，让其为一个回车
-        $z.eachTextNode(C.iload.$body, function(){
-            var str = $.trim(this.nodeValue);
-            // 处理空白节点
-            if(0 == str.length) {
-                // 如果之前的节点是个文本节点的话，那么自己就变成空字符串吧
-                if(this.previousSibling && this.previousSibling.nodeType == 3) {
-                    this.nodeValue = "";
+            var jW   = jCom.children(".hm-com-W");
+            
+            jW.children(".ui-arena").removeAttr("style");
+            
+            // 删掉辅助节点
+            jW.children(".hm-com-assist").remove();
+            
+            // 所有标识删除的节点也要删除
+            jW.find(".hm-del-save, .ui-code-template").remove();
+            
+            // 删除所有临时属性
+            jW.find('[del-attrs]').each(function(){
+                var jq = $(this);
+                var attrNames = jq.attr("del-attrs").split(",");
+                console.log(attrNames)
+                var subs = jq.find("*").andSelf();
+                for(var attrName of attrNames) {
+                    subs.removeAttr(attrName);
                 }
-                // 否则输出个回车
-                else {
-                    this.nodeValue = "\n";
+            });
+            
+            // 整理所有的空节点，让其为一个回车
+            $z.eachTextNode(jCom, function(){
+                var str = $.trim(this.nodeValue);
+                // 处理空白节点
+                if(0 == str.length) {
+                    // 如果之前的节点是个文本节点的话，那么自己就变成空字符串吧
+                    if(this.previousSibling && this.previousSibling.nodeType == 3) {
+                        this.nodeValue = "";
+                    }
+                    // 否则输出个回车
+                    else {
+                        this.nodeValue = "\n";
+                    }
                 }
-            }
-        });
+            });
 
-        // 删除所有临时属性
-        C.iload.$body.removeAttr("skin").find('[del-attrs]').each(function(){
-            var jq = $(this);
-            var attrNames = jq.attr("del-attrs").split(",");
-            console.log(attrNames)
-            var subs = jq.find("*").andSelf();
-            for(var attrName of attrNames) {
-                subs.removeAttr(attrName);
-            }
         });
 
         // 返回 HTML

@@ -28,20 +28,68 @@ body {margin:0; font-size:12px;}
 .pmv-mask[no-drag] .pmv-drops {display: none;}
 
 //............................................................
-// 块
-.hm-block {
-    > .hmb-con {
+// 控件通用属性
+@hS : 4px;
+@hV : 12px;
+.hm-com {
+    > .hm-com-W {
         position: relative;
-        > .mvrz-ass {display: none;}
-        > .hmb-area {position: relative;}
+        > .hm-com-assist {
+            > * {position:absolute; z-index: 1; display: none;}
+            >.rsz-hdl1{
+                border-width: 0;
+                border-style: dashed;
+                border-color: #0FF;
+            }
+            >.rsz-hdl1:hover {
+                background: rgba(255,255,0,0.4);
+            }
+            >.rsz-hdl2 {
+                width:@hV;height:@hV;
+            }
+            >.rsz-hdl2:hover {
+                background: rgba(255,255,0,0.4);
+            }
+            > .rsz-N {cursor:ns-resize; top:0;    left:0;right:0; height:@hS;}
+            > .rsz-S {cursor:ns-resize; bottom:0; left:0;right:0; height:@hS;}
+            > .rsz-W {cursor:ew-resize; left:0;   top:0;bottom:0; width:@hS;}
+            > .rsz-E {cursor:ew-resize; right:0;  top:0;bottom:0; width:@hS;}
+            > .rsz-NW {cursor:nwse-resize; top:0; left:0;}
+            > .rsz-NE {cursor:nesw-resize; top:0; right:0;}
+            > .rsz-SW {cursor:nesw-resize; bottom:0; left:0;}
+            > .rsz-SE {cursor:nwse-resize; bottom:0; right:0;}
+            
+            > .rsz-N {border-top-width:1px;}
+            > .rsz-S {border-bottom-width:1px;}
+            > .rsz-W {border-left-width:1px;}
+            > .rsz-E {border-right-width:1px;}
+            
+            > .hmv-hdl {
+                top:0; left:0; right:0; padding:@d1 0 @d0 0;
+                background: rgba(0,0,0,0.4); color:#FF0;
+                cursor: hand; font-size: 8px; opacity: 0.2;
+            }
+            > .hmv-hdl:hover {opacity: 1.0;}
+            > .hmv-hdl:before {
+                font-family:'Material-Design-Iconic-Font';
+                margin:0 @d1;
+                display: "inline"; content: "\f18c";
+            }
+        }
     }
 }
 
-.hm-block[hmb-mode="abs"][hm-actived] > .hmb-con > .mvrz-ass {
-    @flex(); border:1px dotted #0FF;
+// 当前的绝对定位控件
+.hm-com[hmc-mode="abs"][hm-actived] {
+    > .hm-com-W {
+        width:100%; height:100%;
+        > .hm-com-assist > * {
+            display: block;
+        }
+    }
 }
 
-// 相对位置
+// 当前的相对定位控件
 .hm-block[hmb-mode="inflow"][hm-actived] {
     border:1px dotted #0FF;
 }

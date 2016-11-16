@@ -10,6 +10,7 @@ var html = function(){/*
 */};
 //==============================================
 return ZUI.def("app.wn.hm_com_rows", {
+    keepDom : true,
     //...............................................................
     init : function(){
         HmComMethods(this);

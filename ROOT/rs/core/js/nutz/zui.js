@@ -11,10 +11,11 @@ var parse_dom = function (html) {
     // html = html.replace(/[ ]*\r?\n[ ]*/g, "");
     // html = $z.tmpl(html)(UI._msg_map);
     html = UI.compactHTML(html);
-
-    // 这里需要添加 dom 段描述的 HTML 到当前的 $el
-    // 为了兼顾 keepDom 所以要用 +=
-    UI.el.innerHTML += html;  // FIXME 这里有严重的bug, tr不能被加入到页面中
+    
+    // 找到要加入 HTML 的位置并替换 HTML
+    var jCon = UI.findDomParent();
+    if(jCon && jCon.length > 0)
+        jCon.html(html);
 
     // 分析代码模板
     var map = UI._code_templates;
@@ -1113,6 +1114,11 @@ ZUI.def = function (uiName, conf) {
                 uiBaseObj[key] = uiBaseObj[key] || conf[key];
             }
         }
+        // 定义了默认的获取 DOM 插入点的方法
+        $z.setUndefined(uiBaseObj, "findDomParent", function(){
+            if(!this.keepDom)
+                return this.$el;
+        });
         // 定义了默认的获取 arena 方法
         $z.setUndefined(uiBaseObj, "findArenaDomNode", function(){
             return this.$el.children('.ui-arena');
