@@ -33,6 +33,10 @@ public class cmd_rm extends JvmExecutor {
         WnObj oCurrent = this.getCurrentObj(sys);
         String base = oCurrent.path();
 
+        // 准备计数
+        final int[] count = new int[1];
+        Stopwatch sw = Stopwatch.begin();
+
         // 循环每个参数
         for (String str : params.vals) {
             // 准备父目录
@@ -54,29 +58,35 @@ public class cmd_rm extends JvmExecutor {
                 oP = oCurrent;
             }
 
-            // 设置查询条件
-            WnQuery q = Wn.Q.pid(oP);
-            if (limit > 0)
-                q.limit(limit);
-            q.setv("nm", str);
-
-            // 挨个查一下，然后删除
-            final int[] count = new int[1];
-            Stopwatch sw = Stopwatch.begin();
-            sys.io.each(q, new Each<WnObj>() {
-                public void invoke(int index, WnObj o, int length) {
-                    _do_delete(sys, isV, isR, isI, count[0], base, o);
-                    count[0]++;
-                }
-            });
-            sw.stop();
-
-            // 最后打印结束
-            if (isV) {
-                long du = sw.getDuration();
-                String ts = Times.sT((int) du / 1000);
-                sys.out.printlnf("%d obj deleted in %s (%sms)", count[0], ts, du);
+            // 如果直接就是 ID 的，那么删除它
+            if (str.startsWith("id:")) {
+                WnObj o = sys.io.checkById(str.substring(3));
+                _do_delete(sys, isV, isR, isI, count[0], base, o);
+                count[0]++;
             }
+            // 否则设置查询条件
+            else {
+                WnQuery q = Wn.Q.pid(oP);
+                if (limit > 0)
+                    q.limit(limit);
+                q.setv("nm", str);
+
+                // 挨个查一下，然后删除
+                sys.io.each(q, new Each<WnObj>() {
+                    public void invoke(int index, WnObj o, int length) {
+                        _do_delete(sys, isV, isR, isI, count[0], base, o);
+                        count[0]++;
+                    }
+                });
+            }
+        }
+
+        // 最后打印结束
+        sw.stop();
+        if (isV) {
+            long du = sw.getDuration();
+            String ts = Times.sT((int) du / 1000);
+            sys.out.printlnf("%d obj deleted in %s (%sms)", count[0], ts, du);
         }
 
     }
