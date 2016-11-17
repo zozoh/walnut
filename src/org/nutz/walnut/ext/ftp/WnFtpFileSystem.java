@@ -35,7 +35,7 @@ public class WnFtpFileSystem implements FileSystemView {
 
     @Override
     public boolean changeWorkingDirectory(String dir) throws FtpException {
-        WnObj newCwd = io.fetch(null, dir);
+        WnObj newCwd = io.fetch(currentDir, dir);
         if (newCwd == null || !newCwd.isDIR())
             return false;
         currentDir = newCwd;
