@@ -21,7 +21,6 @@ $z.declare([
     'ui/menu/menu',
     'app/wn.hmaker2/hm_page_com_bar',
     'jquery-plugin/pmoving/pmoving',
-    'jquery-plugin/moveresizing/moveresizing',
     // 预先加载
     'app/wn.hmaker2/component/columns.js',
     'app/wn.hmaker2/component/image.js',
@@ -417,7 +416,10 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     __setup_page_moveresizing : function() {
         var UI = this;
-
+        
+        UI._C.iedit.$body.pmoving({
+            trigger : '.hm-com'
+        });
         
     },
     //...............................................................

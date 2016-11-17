@@ -71,54 +71,60 @@ function format_position(pmvContext) {
     pmvContext.rect.inview = $z.rect_relative(pmvContext.rect.trigger, pmvContext.rect.viewport);
 }
 //...........................................................
-function auto_scroll_viewport(pmvContext) {
-    var opt = pmvContext.options;
+function auto_scroll_viewport(pmvc) {
+    var opt = pmvc.options;
     if(!opt.autoScrollViewport)
         return;
+    
+    // 定义变量    
+    var scroll_step    = 10;  // 每次滚动的步长
+    var scroll_off     = 0;   // 滚动方向
     //.................................
     // 上下滚动
     //.................................
-    var st = pmvContext.$viewport.scrollTop();
-    var st_off = 0;
+    var st = pmvc.$viewport.scrollTop();
     // 向下滚动
-    if(pmvContext.rect.helper.bottom > pmvContext.rect.viewport.bottom){
-        st_off = 10;
+    if(pmvc.rect.helper.bottom > pmvc.rect.viewport.bottom
+       && pmvc.rect.trigger.bottom < pmvc.$viewport[0].scrollHeight){
+        scroll_off = 1;
     }
     // 向上滚动
-    else if(st > 0 && pmvContext.rect.helper.top < pmvContext.rect.viewport.top){
-        st_off = -10;
+    else if(st > 0 && pmvc.rect.helper.top < pmvc.rect.viewport.top){
+        scroll_off = -1;
     }
     // 执行滚动
-    if(st_off != 0) {
+    if(scroll_off != 0) {
+        var sval = scroll_off * scroll_step;
         // 上下滚动视口
-        pmvContext.$viewport.scrollTop(st + st_off);
+        pmvc.$viewport.scrollTop(st + sval);
         // 补偿滚动
-        pmvContext.rect.helper.bottom -= st_off;
-        $z.rect_count_brwh(pmvContext.rect.helper);
-        do_update_helper(pmvContext);
+        pmvc.rect.helper.bottom -= sval;
+        $z.rect_count_brwh(pmvc.rect.helper);
+        do_update_helper(pmvc);
     }
     
     //.................................
     // 左右滚动
     //.................................
-    var sl = pmvContext.$viewport.scrollLeft();
-    var sl_off = 0;
+    var sl = pmvc.$viewport.scrollLeft();
     // 向右滚动
-    if(pmvContext.rect.helper.right > pmvContext.rect.viewport.right){
-        sl_off = 10;
+    if(pmvc.rect.helper.right > pmvc.rect.viewport.right
+       && pmvc.rect.trigger.right < pmvc.$viewport[0].scrollWidth){
+        scroll_off = 1;
     }
     // 向左滚动
-    else if(sl > 0 && pmvContext.rect.helper.left < pmvContext.rect.viewport.left){
-        sl_off = -10;
+    else if(sl > 0 && pmvc.rect.helper.left < pmvc.rect.viewport.left){
+        scroll_off = -1;
     }
     // 执行滚动
-    if(sl_off != 0) {
+    if(scroll_off != 0) {
+        var sval = scroll_off * scroll_step;
         // 左右滚动视口
-        pmvContext.$viewport.scrollLeft(sl + sl_off);
+        pmvc.$viewport.scrollLeft(sl + sval);
         // 补偿滚动
-        pmvContext.rect.helper.right -= sl_off;
-        $z.rect_count_brwh(pmvContext.rect.helper);
-        do_update_helper(pmvContext);
+        pmvc.rect.helper.right -= sval;
+        $z.rect_count_brwh(pmvc.rect.helper);
+        do_update_helper(pmvc);
     }
 }
 //...........................................................
