@@ -3,39 +3,39 @@ package org.nutz.walnut.ext.ftp;
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnRun;
 
 public class WnFtpFileSystem implements FileSystemView {
     
-    protected WnRun run;
+    protected WnIo io;
     protected WnObj homeDir;
     protected WnObj currentDir;
-    protected WnSession session;
+    protected WnUsr u;
 
-    public WnFtpFileSystem(WnRun run, WnSession session) {
+    public WnFtpFileSystem(WnIo io, WnUsr u, WnObj home) {
         super();
-        this.run = run;
-        this.session = session;
-        homeDir = run.io().check(null, Wn.normalizeFullPath("~/", session));
+        this.io = io;
+        this.u = u;
+        homeDir = home;
         currentDir = homeDir;
     }
 
     @Override
     public FtpFile getHomeDirectory() throws FtpException {
-        return new WnFtpFile(run, homeDir, null);
+        return new WnFtpFile(u, io, homeDir, null);
     }
 
     @Override
     public FtpFile getWorkingDirectory() throws FtpException {
-        return new WnFtpFile(run, currentDir, null);
+        return new WnFtpFile(u, io, currentDir, null);
     }
 
     @Override
     public boolean changeWorkingDirectory(String dir) throws FtpException {
-        WnObj newCwd = run.io().fetch(null, dir);
+        WnObj newCwd = io.fetch(null, dir);
         if (newCwd == null || !newCwd.isDIR())
             return false;
         currentDir = newCwd;
@@ -43,7 +43,7 @@ public class WnFtpFileSystem implements FileSystemView {
     }
 
     public FtpFile getFile(String file) throws FtpException {
-        return new WnFtpFile(run, run.io().fetch(currentDir, file), Wn.appendPath(currentDir.path(), file));
+        return new WnFtpFile(u, io, io.fetch(currentDir, file), Wn.appendPath(currentDir.path(), file));
     }
 
     public boolean isRandomAccessible() throws FtpException {

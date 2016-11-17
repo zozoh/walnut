@@ -16,6 +16,7 @@ import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.ftp.WnFtpServer;
 import org.nutz.walnut.ext.sshd.SshdServer;
 import org.nutz.walnut.job.WnJob;
 import org.nutz.walnut.util.Wn;
@@ -99,6 +100,7 @@ public class WnSetup implements Setup {
 
         ioc.get(WnJob.class);
         ioc.get(SshdServer.class);
+        ioc.get(WnFtpServer.class);
     }
 
     // zozoh: 嗯，下面的也没用了吧，过段时间删掉

@@ -67,7 +67,12 @@ public class WnFtpUserManager extends AbstractUserManager {
     public void save(User user) throws FtpException {}
 
     public boolean doesExist(String username) throws FtpException {
-        return wnRun.usrs().fetch(username) != null;
+        try {
+            return wnRun.usrs().fetch(username) != null;
+        }
+        catch (Exception e) {
+            return false;
+        }
     }
 
     public User authenticate(Authentication authentication)

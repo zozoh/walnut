@@ -7,20 +7,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
+import org.nutz.trans.Atom;
+import org.nutz.trans.Proton;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnRun;
 
 public class WnFtpFile implements FtpFile {
     
-    protected WnRun run;
+    protected WnIo io;
     protected WnObj wobj;
     protected String path;
+    protected WnUsr u;
 
-    public WnFtpFile(WnRun run, WnObj wobj, String path) {
-        super();
-        this.run = run;
+    public WnFtpFile(WnUsr u, WnIo io, WnObj wobj, String path) {
+        this.u = u;
+        this.io = io;
         this.wobj = wobj;
         this.path = path;
         if (this.wobj != null)
@@ -94,8 +98,10 @@ public class WnFtpFile implements FtpFile {
 
     @Override
     public boolean setLastModified(long time) {
-        wobj.lastModified(time);
-        run.io().appendMeta(wobj, "^lm$");
+        su(()->{
+            wobj.lastModified(time);
+            io.appendMeta(wobj, "^lm$");
+        });
         return true;
     }
 
@@ -111,19 +117,24 @@ public class WnFtpFile implements FtpFile {
 
     @Override
     public boolean mkdir() {
-        run.io().createIfNoExists(null, path, WnRace.DIR);
-        return true;
+        su(()->
+            io.createIfNoExists(null, path, WnRace.DIR)
+        );return true;
     }
 
     @Override
     public boolean delete() {
-        run.io().delete(wobj);
+        su(()->
+            io.delete(wobj)
+        );
         return true;
     }
 
     @Override
     public boolean move(FtpFile destination) {
-        run.io().move(wobj, destination.getAbsolutePath());
+        su(()->
+            io.move(wobj, destination.getAbsolutePath())
+        );
         return true;
     }
 
@@ -131,22 +142,37 @@ public class WnFtpFile implements FtpFile {
     public List<? extends FtpFile> listFiles() {
         List<WnFtpFile> files = new ArrayList<>();
         if (wobj.isDIR()) {
-            List<WnObj> objs = run.io().query(Wn.Q.pid(wobj));
-            for (WnObj obj : objs) {
-                files.add(new WnFtpFile(run, obj, null));
-            }
+            su(()-> {
+                List<WnObj> objs = io.query(Wn.Q.pid(wobj));
+                for (WnObj obj : objs) {
+                    files.add(new WnFtpFile(u, io, obj, null));
+                }
+            });
         }
         return files;
     }
 
     public OutputStream createOutputStream(long offset) throws IOException {
-        if (wobj == null)
-            wobj = run.io().createIfNoExists(null, path, WnRace.FILE);
-        return run.io().getOutputStream(wobj, offset);
+        return Wn.WC().su(u, new Proton<OutputStream>() {
+            protected OutputStream exec() {
+                if (wobj == null)
+                    wobj = io.createIfNoExists(null, path, WnRace.FILE);
+                return io.getOutputStream(wobj, offset);
+            }
+            
+        });
+        
     }
 
     public InputStream createInputStream(long offset) throws IOException {
-        return run.io().getInputStream(wobj, offset);
+        return Wn.WC().su(u, new Proton<InputStream>() {
+            protected InputStream exec() {
+                return io.getInputStream(wobj, offset);
+            }
+        });
     }
 
+    protected void su(Atom atom) {
+        Wn.WC().su(u, atom);
+    }
 }
