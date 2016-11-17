@@ -7,13 +7,13 @@ body > div {
 }
 
 .viewport {
-    width:600px; height:400px;
+    width:400px; height:400px;
     background: #CCC; border:1px solid #000;
     position: relative;
 }
 
 .item {
-    width:200px; height:100px; cursor: pointer;
+    width:140px; height:100px; cursor: pointer;
     position: absolute; padding:10px;
     background: #FF0; border: 1px solid #888;
 }
@@ -39,6 +39,8 @@ pre {
     padding:10px; font-family: Monaco, Consolas, Courier New; 
     background: #000; color:#CCC;
 }
+
+.pmv-mask {background: rgba(0,0,0,0.4);}
 
 .pmv-mask .pmv-helper {
     background: rgba(255,0,0,0.2); padding:2px;

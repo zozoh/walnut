@@ -13,14 +13,6 @@ function options($ele, opt) {
     $ele.data("@pmoving_OPT", opt);
 }
 //...........................................................
-function do_update_helper(pmvContext) {
-    var opt = pmvContext.options;
-    if(_.isFunction(opt.helperPosition)) {
-        var rect = opt.helperPosition.call(pmvContext);
-        pmvContext.$helper.css($z.rectObj(rect, "top,left,width,height"));
-    }
-}
-//...........................................................
 function is_pos_in_click_radius(pmvContext) {
     // 根据勾股定理，计算半径
     var w = Math.abs(pmvContext.x - pmvContext.posBegin.x);
@@ -44,7 +36,11 @@ function format_position(pmvContext) {
 
     //console.log("format_position", $z.rectObj(pmvContext, ["x", "y"]))
     // 利用 opt.position 修正 X 和 Y
+    // 这里是修改 trigger 矩形的地方
     $z.invoke(opt, "position", [], pmvContext);
+    
+    // 更新 helper 的位置
+    pmvContext.rect.helper = opt.helperRect.call(pmvContext);
     
     // 根据 opt.boundary 计算 trigger 的位置
     // 这里要考虑 boundary 不能超过 viewport
@@ -75,11 +71,71 @@ function format_position(pmvContext) {
     pmvContext.rect.inview = $z.rect_relative(pmvContext.rect.trigger, pmvContext.rect.viewport);
 }
 //...........................................................
+function auto_scroll_viewport(pmvContext) {
+    var opt = pmvContext.options;
+    if(!opt.autoScrollViewport)
+        return;
+    //.................................
+    // 上下滚动
+    //.................................
+    var st = pmvContext.$viewport.scrollTop();
+    var st_off = 0;
+    // 向下滚动
+    if(pmvContext.rect.helper.bottom > pmvContext.rect.viewport.bottom){
+        st_off = 10;
+    }
+    // 向上滚动
+    else if(st > 0 && pmvContext.rect.helper.top < pmvContext.rect.viewport.top){
+        st_off = -10;
+    }
+    // 执行滚动
+    if(st_off != 0) {
+        // 上下滚动视口
+        pmvContext.$viewport.scrollTop(st + st_off);
+        // 补偿滚动
+        pmvContext.rect.helper.bottom -= st_off;
+        $z.rect_count_brwh(pmvContext.rect.helper);
+        do_update_helper(pmvContext);
+    }
+    
+    //.................................
+    // 左右滚动
+    //.................................
+    var sl = pmvContext.$viewport.scrollLeft();
+    var sl_off = 0;
+    // 向右滚动
+    if(pmvContext.rect.helper.right > pmvContext.rect.viewport.right){
+        sl_off = 10;
+    }
+    // 向左滚动
+    else if(sl > 0 && pmvContext.rect.helper.left < pmvContext.rect.viewport.left){
+        sl_off = -10;
+    }
+    // 执行滚动
+    if(sl_off != 0) {
+        // 左右滚动视口
+        pmvContext.$viewport.scrollLeft(sl + sl_off);
+        // 补偿滚动
+        pmvContext.rect.helper.right -= sl_off;
+        $z.rect_count_brwh(pmvContext.rect.helper);
+        do_update_helper(pmvContext);
+    }
+}
+//...........................................................
 function auto_update_trigger(pmvContext) {
     var opt = pmvContext.options;
     if(_.isArray(opt.autoUpdateTriggerBy) && opt.autoUpdateTriggerBy.length == 2) {
         var css  = $z.rectObj(pmvContext.rect.inview, opt.autoUpdateTriggerBy);
+        //console.log("trigger:", css);
         pmvContext.$trigger.css(css);
+    }
+}
+//...........................................................
+function do_update_helper(pmvContext) {
+    if(pmvContext.rect.helper){
+        var css  = $z.rectObj(pmvContext.rect.helper, "top,left,width,height");
+        //console.log("helper:", css);
+        pmvContext.$helper.css(css);
     }
 }
 //...........................................................
@@ -88,6 +144,25 @@ function set_event_XY(pmvContext, e) {
     pmvContext.move.y = e.pageY - pmvContext.y;
     pmvContext.x = e.pageX;
     pmvContext.y = e.pageY;
+}
+//...........................................................
+function stop_pmoving(pmvContext) {
+    // 移除监听事件
+    pmvContext.$scroll.off("scroll", on_viewport_scroll);
+    
+    // 无论怎样，都要移除遮罩极其内容
+    pmvContext.$mask.remove();
+}
+//...........................................................
+function on_viewport_scroll(e) {
+    var pmvContext = e.data;
+    if(pmvContext.$drops){
+        var sT = pmvContext.$scroll.scrollTop();
+        var sL = pmvContext.$scroll.scrollLeft();
+        //console.log("viewport scroll:", sT, sL);
+        pmvContext.$drops.css("margin-top" , sT * -1);
+        pmvContext.$drops.css("margin-left", sL * -1);
+    }
 }
 //...........................................................
 function on_mask_mouseup(e) {
@@ -132,8 +207,8 @@ function on_mask_mouseup(e) {
         // console.log($(pmvContext.Event.target).html())
     }
 
-    // 无论怎样，都要移除遮罩极其内容
-    pmvContext.$mask.remove();
+    // 结束
+    stop_pmoving(pmvContext);
 }
 //...........................................................
 function on_mask_mousemove(e) {
@@ -149,9 +224,15 @@ function on_mask_mousemove(e) {
     if("yes" == pmvContext.$trigger.attr("pmv_mode_a")) {
         // 根据配置，格式化位置
         format_position(pmvContext);
-
+        
         // 根据 opt.autoUpdateTriggerBy 更新 trigger 位置
         auto_update_trigger(pmvContext);
+        
+        // 修改辅助框位置，使其完全覆盖 trigger
+        do_update_helper(pmvContext);
+        
+        // 自动滚动视口
+        auto_scroll_viewport(pmvContext);
 
         // 改变 drop
         do_drag_and_drop(pmvContext);
@@ -159,8 +240,6 @@ function on_mask_mousemove(e) {
         // 回调: 通知鼠标移动
         $z.invoke(opt, "on_ing", [], pmvContext);
         
-        // 修改辅助框位置，使其完全覆盖 trigger
-        do_update_helper(pmvContext);
 
         // 回调: 通知辅助框更新
         $z.invoke(opt, "on_update", [], pmvContext);
@@ -170,9 +249,13 @@ function on_mask_mousemove(e) {
     else if(!pmvContext.endInMs && !is_pos_in_click_radius(pmvContext)) {
         // 显示辅助框
         pmvContext.$helper.show();
-        if(pmvContext.$drops)
+        if(pmvContext.$drops) {
+            // 显示放置的辅助层
             pmvContext.$drops.show();
-        //console.log('标识 trigger.pmv_mode_a = "yes"');
+            //console.log('标识 trigger.pmv_mode_a = "yes"');
+            // 监视视口滚动事件
+            pmvContext.$scroll.on("scroll", pmvContext, on_viewport_scroll);
+        }
         
         // 回调:开始 
         $z.invoke(opt, "on_begin",  [], pmvContext);
@@ -198,7 +281,12 @@ function on_mousedown(e) {
     if("mousedown" == e.type && 1!==e.which) {
         return;
     }
-
+    
+    // 之前的移动遮罩还在，那么什么也不做
+    if($(e.currentTarget.ownerDocument.body).children(".pmv-mask").length>0)
+        return;
+    
+    // 准备上下文
     var jContext = e.data.$context;
     var opt = options(jContext);
 
@@ -213,15 +301,25 @@ function on_mousedown(e) {
     if(!jViewport || jViewport.size() == 0) {
         return;
     }
-
+    
     // 找到自己所在的文档
     var doc = jViewport[0].ownerDocument;
+    
+    // 视口滚动监视对象，如果 jViewport 为 body 则监视 document
+    var jScroll = jViewport[0].tagName == 'BODY'
+                    ? $(doc)
+                    : jViewport;
 
     //console.log("on_mousedown", jTrigger.attr("pmv_mode_a"));
     //.........................................
+    // 预先计算触发者和视口的矩形，已经触发者相对于视口的矩形
+    // 这里需要注意的是，如果视口是 body，则需要包括 margin
     var rect_trigger  = $z.rect(jTrigger);
     var rect_viewport = $z.rect(jViewport);
     var rect_inview   = $z.rect_relative(rect_trigger, rect_viewport);
+    // console.log("rect_trigger", rect_trigger);
+    // console.log("rect_viewport", rect_viewport);
+    // console.log("rect_inview", rect_inview);
     //.........................................
     // 创建上下文
     var pmvContext = {
@@ -232,6 +330,7 @@ function on_mousedown(e) {
         $context  : jContext,
         $trigger  : jTrigger,
         $viewport : jViewport,
+        $scroll   : jScroll,
         options   : opt,
         data      : opt.data,
         beginInMs : Date.now(),
@@ -251,26 +350,32 @@ function on_mousedown(e) {
             origin   : _.extend({}, rect_trigger),
             originInView : _.extend({}, rect_inview),
             trigger  : rect_trigger,
-            inview   : rect_inview
+            inview   : rect_inview,
+            helper   : undefined
         }
     };
     //.........................................
     // 设置一个全局遮罩层
     var jMask = $('<div class="pmv-mask">').appendTo(pmvContext.docBody).css({
-        position : "fixed", top:0, left:0, right:0, bottom:0,
-        "z-index" : opt.maskZIndex
+        position  : "fixed", top:0, left:0, right:0, bottom:0,
+        "z-index" : opt.maskZIndex,
+        "padding" : 0
     });
     // 增加 mask 的类选择器 
     if(opt.maskClass)
         jMask.addClass(opt.maskClass);
     // 记录
     pmvContext.$mask = jMask;
-
+    
     // 创建要 drop 的目标
     var jDrops = $z.invoke(opt, "findDropTarget", [], pmvContext);
     // console.log(jDrops.size())
     if(jDrops && jDrops.size()>0) {
-        pmvContext.$drops = $('<div class="pmv-drops">').hide().appendTo(jMask);
+        pmvContext.$drops = $('<div class="pmv-drops">').hide().css({
+            "width"    : jViewport[0].scrollWidth,
+            "height"   : jViewport[0].scrollHeight,
+            "position" : "relative"
+        }).appendTo(jMask);
         pmvContext.dropping = [];
         jDrops.each(function(){
             var di = {
@@ -279,7 +384,7 @@ function on_mousedown(e) {
             };
             di.helper = $('<div class="pmv-dropi">').appendTo(pmvContext.$drops)
                 .css(_.extend($z.rectObj(di.rect, "top,left,width,height"), {
-                    position : "fixed"
+                    position : "absolute"
                 }));
             pmvContext.dropping.push(di);
         });
@@ -293,33 +398,9 @@ function on_mousedown(e) {
     // 在遮罩层监听事件
     jMask.on("mousemove", pmvContext, on_mask_mousemove);
     jMask.on("mouseup",   pmvContext, on_mask_mouseup);
-
-    //.........................................
-    // 设置延迟函数(opt.delay) 
-    // window.setTimeout(function(pmvContext){
-    //     //console.log("in delay", pmvContext.$trigger.attr("pmv_mode_a"));
-
-    //     // 如果没有 pmvContext.endInMs 表示要进入激活态 
-    //     if(!pmvContext.endInMs) {
-    //         // 显示辅助框
-    //         pmvContext.$helper.show();
-    //         if(pmvContext.$drops)
-    //             pmvContext.$drops.show();
-    //         //console.log('标识 trigger.pmv_mode_a = "yes"');
-                        
-    //         // 修改辅助框位置，使其完全覆盖 trigger
-    //         do_update_helper(pmvContext);
-            
-    //         // 回调:开始 
-    //         $z.invoke(opt, "on_begin",  [], pmvContext);
-            
-    //         // 最后标识一下
-    //         pmvContext.$trigger.attr("pmv_mode_a", "yes");
-
-    //         // 回调: 更新
-    //         $z.invoke(opt, "on_update", [], pmvContext);
-    //     }
-    // }, opt.delay || 300, pmvContext);
+    jMask.on("mouseleave", pmvContext, function(e){
+        stop_pmoving(e.data);
+    });
 }
 //...........................................................
 function do_drag_and_drop(pmvContext) {
@@ -397,33 +478,15 @@ $.fn.extend({ "pmoving" : function(opt){
     $z.setUndefined(opt, "autoUpdateTriggerBy", opt.findDropTarget ? null : ["top","left"]);
     $z.setUndefined(opt, "delay", 100);
     $z.setUndefined(opt, "clickRadius", 3);
-    $z.setUndefined(opt, "helperPosition", "trigger");
-
-    // 预先编译函数: helperPosition
-    if(opt.helperPosition && !_.isFunction(opt.helperPosition)) {
-        // 时刻完全覆盖在 trigger 上面
-        if("hover" == opt.helperPosition) {
-            opt.helperPosition = function(){
-                return $z.rect(this.$trigger);
-            };
-        }
-        // 完全跟随 rect.trigger 计算结果
-        else if("trigger" == opt.helperPosition) {
-            opt.helperPosition = function(){
-                return this.rect.trigger;
-            };
-        }
-        // 完全跟随 rect.boundary 计算结果
-        else if("boundary" == opt.helperPosition) {
-            opt.helperPosition = function(){
-                return this.rect.boundary;
-            };
-        }
-        // 靠不支持
-        else {
-            throw "invalid pmoving.helperPosition : " + opt.helperPosition;
-        }
-    }
+    $z.setUndefined(opt, "autoScrollViewport", _.isUndefined(opt.boundary));
+    
+    // 默认的 helperRect
+    $z.setUndefined(opt, "helperRect", function(){
+        var rect = _.extend({}, this.rect.trigger);
+        rect.top  -= this.$viewport.scrollTop();
+        rect.left -= this.$viewport.scrollLeft();
+        return $z.rect_count_tlwh(rect);
+    });
 
     // 预先编译函数: position
     if(opt.position && !_.isFunction(opt.position)) {

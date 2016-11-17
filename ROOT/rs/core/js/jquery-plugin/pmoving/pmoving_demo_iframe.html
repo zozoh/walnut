@@ -22,16 +22,19 @@
         var R = this.rect.inview;
         this.$helper.html($z.tmpl("l:{{left}},r:{{right}},t:{{top}},b:{{bottom}}")(R));
     }
+    function $VP() {
+        return $($('iframe')[0].contentDocument.body);
+    }
     function demo_off(btn) {
-        $('.viewport').pmoving('destroy');
+        $VP().pmoving('destroy');
         log($(btn).text());
     }
     function demo_normal(btn) {
-        $('.viewport').pmoving();
+        $VP().pmoving();
         log($(btn).text());
     }
     function demo_grid(btn) {
-        $('.viewport').pmoving({
+        $VP().pmoving({
             position : {
                 gridX  : "25%",
                 gridY  : "25%",
@@ -43,35 +46,35 @@
         log($(btn).text());
     }
     function demo_boundary(btn) {
-        $('.viewport').pmoving({
+        $VP().pmoving({
             on_update: show_helper,
             boundary : "100%"
         });
         log($(btn).text());
     }
     function demo_boundary_in_10px(btn) {
-        $('.viewport').pmoving({
+        $VP().pmoving({
             on_update: show_helper,
             boundary : 10
         });
         log($(btn).text());
     }
     function demo_mode_x(btn) {
-        $('.viewport').pmoving({
+        $VP().pmoving({
             on_update: show_helper,
             mode : "x"
         });
         log($(btn).text());
     }
     function demo_mode_y(btn) {
-        $('.viewport').pmoving({
+        $VP().pmoving({
             on_update: show_helper,
             mode : "y"
         });
         log($(btn).text());
     }
     function demo_complex(btn) {
-        $('.viewport').pmoving({
+        $VP().pmoving({
             on_update: show_helper,
             position : {
                 by : "center",
@@ -85,8 +88,10 @@
         log($(btn).text());
     }
     function demo_dragdrop(btn) {
-        $('.viewport').pmoving({
-            findDropTarget : ".drop>div",
+        $VP().pmoving({
+            findDropTarget : function(){
+                return this.$docBody.find(".drop-ta");
+            },
             on_dragenter : function(jq){
                 jq.attr("old-txt",jq.text()).text("ININ");
             },
@@ -111,8 +116,8 @@
 <!--.........................................................-->
 <div class="main">
     <div class="viewport">
-        <div class="item item0" style="top:10px; left:10px;">ObjA</div>
-        <div class="item item1" style="top:10px; left:200px;">ObjB</div>
+        <iframe width="100%" height="100%" style="border:0;"
+        src="pmoving_demo_inner.html"></iframe>
     </div>
 </div>
 <div class="panel">

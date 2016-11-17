@@ -305,6 +305,12 @@
         // 其中 x,y 表示中央点
         rect: function (ele, includeMargin) {
             var jEle = $(ele);
+            
+            // 如果计算 body 或者 document 或者 window
+            if(jEle[0].tagName == 'BODY')
+                return $z.winsz(jEle[0].ownerDocument.defaultView);
+            
+            // 开始计算
             var rect = jEle.offset();
             // 包括外边距，有点麻烦
             if (includeMargin && jEle.size() > 0) {
@@ -655,36 +661,40 @@
         },
         //.............................................
         // 获得视口的矩形信息
-        winsz: function () {
+        winsz: function (win) {
+            win = win || window;
             var rect;
-            if (window.innerWidth) {
+            if (win.innerWidth) {
                 rect = {
-                    width: window.innerWidth,
-                    height: window.innerHeight
+                    width: win.innerWidth,
+                    height: win.innerHeight
                 };
             }
-            else if (document.documentElement) {
+            else if (win.document.documentElement) {
                 rect = {
-                    width: document.documentElement.clientWidth,
-                    height: document.documentElement.clientHeight
+                    width : win.document.documentElement.clientWidth,
+                    height: win.document.documentElement.clientHeight
                 };
             }
             else {
                 rect = {
-                    width: document.body.clientWidth,
-                    height: document.body.clientHeight
+                    width : win.document.body.clientWidth,
+                    height: win.document.body.clientHeight
                 };
             }
             ;
             // 继续计算相对于文档的位置
-            var jBody = $(document.body);
-            rect.top = jBody.scrollTop();
-            rect.left = jBody.scrollLeft();
-            rect.right = rect.left + rect.width;
-            rect.bottom = rect.top + rect.height;
-            rect.x = rect.left + rect.width / 2;
-            rect.y = rect.top + rect.height / 2;
-            return rect;
+            // var jBody = $(win.document.body);
+            // rect.top = jBody.scrollTop();
+            // rect.left = jBody.scrollLeft();
+            // rect.right = rect.left + rect.width;
+            // rect.bottom = rect.top + rect.height;
+            // rect.x = rect.left + rect.width / 2;
+            // rect.y = rect.top + rect.height / 2;
+            rect.top = 0;
+            rect.left = 0;
+            
+            return zUtil.rect_count_tlwh(rect);
         },
         //.............................................
         // 得到一个元素的外边距

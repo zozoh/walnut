@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pmoving 测试页</title>
+    <script src="/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js"></script>
+    <script src="/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js"></script>
+    <script src="/gu/rs/core/js/nutz/zutil.js"></script>
+    <style>
+    * {
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+    body,td,th {font-size:12px;}
+    body {margin:20px;}
+    .pmv-mask {background: rgba(0,0,0,0.4);}
+
+    .pmv-mask .pmv-helper {
+        background: rgba(255,0,0,0.2); padding:2px;
+    }
+
+    .item {
+        width:140px; height:60px; cursor: pointer;
+        position: absolute; padding:10px;
+        background: #FF0; border: 1px solid #888;
+    }
+    
+    .drop-ta {
+        margin:100px; width:800px; height:50px;
+        background:#CCC; border:1px dashed #AAA;
+        
+    }
+        
+    .pmv-mask .pmv-dropi {
+        border:1px dashed red;
+    }
+
+    .pmv-mask .pmv-dropi[pmv-hover]{
+        background-color: rgba(255,0,0,0.2);
+    }
+    
+    </style>
+    <script>
+    $(function(){
+        $(".item").click(function(){
+            var jq = $(this);
+            console.log(jq.offset(), jq.position());
+        });
+        console.log($z.winsz(window))
+        
+        // $(document).scroll(function(){
+        //     var ele = this.body;
+        //     console.log(ele.scrollTop, ele.scrollHeight, $(document).height());
+        // }).scrollTop(200);
+        // $(document).scrollTop(300)
+        // console.log($(document).scrollTop())
+        
+        
+    });
+    </script>
+</head>
+<body>
+    <div class="item item0" style="top:10px; left:10px;">ObjA</div>
+    <div class="item item1" style="top:10px; left:200px;">ObjB</div>
+    <div class="drop-ta" dt="A"></div>
+    <div class="drop-ta" dt="B"></div>
+    <div class="drop-ta" dt="C"></div>
+</body>
+</html>

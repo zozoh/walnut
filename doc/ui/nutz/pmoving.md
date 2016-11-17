@@ -109,6 +109,8 @@ author:zozoh
     $trigger  : jQuery,   // 触发者 DOM
     $viewport : jQuery,   // 视口 DOM
     $mask     : jQuery,   // 遮罩层 DOM
+    $scroll   : jQuery,   // 视口响应滚动的 DOM，默认为 $viewport
+                          // 如果 BODY 为视口，则为 document
     $drops    : jQuery,   // 遮罩层内拖拽目标辅助层 DOM
     dropping  : [{        // 拖拽目标信息
         rect   : Rect     // 目标矩形的绝对位置
@@ -140,6 +142,7 @@ author:zozoh
         inview   : Rect,      // 触发者相对(视口)位置
                               // !!! 不要改它，它是只读的，改了也没用
                               // !!! 是控件自动改的
+        helper   : Rect,      // 去除掉视口滚动后，帮助对象的绝对位置
     }
 }
 ```
@@ -307,12 +310,13 @@ $(ele).pmoving({
     }
     
     // 辅助框的位置，有下面几种形式
-    //  hover    - 时刻完全覆盖在 trigger 上面
-    //  trigger  - 「默认」完全跟随 rect.trigger 计算结果
-    //  boundary - 完全跟随 rect.boundary 的计算结果
     //  {pmvContext}F():Rect - 自由计算，函数返回一个 rect (相对于viewport)
-    //  nil      - 无视
-    helperPosition : "trigger",
+    // 默认的，会自行计算（会考虑到 ViewPort 的 scrollTop 等状态
+    helperRect : {pmvContext}F():Rect,
+    
+    // 当移动超过边界的时候，是否自动滚动视口
+    // 默认的，当不是 boundary 模式的时候为 true 否则为 false
+    autoScrollViewport : true,
         
     /*
     移动相关回调函数
