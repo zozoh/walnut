@@ -34,7 +34,7 @@ public class WnFtpServer {
         serverFactory.setFileSystem(new FileSystemFactory() {
             public FileSystemView createFileSystemView(User user) throws FtpException {
                 WnUsr u = wnRun.usrs().check(user.getName());
-                return new WnFtpFileSystem(wnRun.io(), u, wnRun.io().check(null, user.getHomeDirectory()));
+                return new WnFtpFileSystem(wnRun.io(), wnRun.usrs(), u, wnRun.io().check(null, user.getHomeDirectory()));
             }
         });
         serverFactory.setUserManager(wnFtpUserManager);

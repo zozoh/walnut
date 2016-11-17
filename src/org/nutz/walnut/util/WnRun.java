@@ -28,7 +28,7 @@ import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.ext.job.hdl.job_abstract;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.impl.io.WnEvalLink;
+import org.nutz.walnut.impl.io.WnSecurityImpl;
 
 @IocBean
 public class WnRun {
@@ -237,7 +237,7 @@ public class WnRun {
 
     public static <T> void sudo(WnSystem sys, Atom atom) {
         WnContext wc = Wn.WC();
-        wc.security(new WnEvalLink(sys.io), () -> {
+        wc.security(new WnSecurityImpl(sys.io, sys.usrService), () -> {
             wc.su(job_abstract.rootUser(sys), atom);
         });
     }

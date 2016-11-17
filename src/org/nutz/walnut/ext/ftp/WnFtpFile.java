@@ -13,6 +13,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 
 public class WnFtpFile implements FtpFile {
@@ -153,19 +154,15 @@ public class WnFtpFile implements FtpFile {
     }
 
     public OutputStream createOutputStream(long offset) throws IOException {
-        return Wn.WC().su(u, new Proton<OutputStream>() {
+        return su2(new Proton<OutputStream>() {
             protected OutputStream exec() {
-                if (wobj == null)
-                    wobj = io.createIfNoExists(null, path, WnRace.FILE);
                 return io.getOutputStream(wobj, offset);
             }
-            
         });
-        
     }
 
     public InputStream createInputStream(long offset) throws IOException {
-        return Wn.WC().su(u, new Proton<InputStream>() {
+        return su2(new Proton<InputStream>() {
             protected InputStream exec() {
                 return io.getInputStream(wobj, offset);
             }
@@ -173,6 +170,14 @@ public class WnFtpFile implements FtpFile {
     }
 
     protected void su(Atom atom) {
-        Wn.WC().su(u, atom);
+        Wn.WC().security(new WnEvalLink(io), ()->Wn.WC().su(u, atom));
+    }
+    
+    protected <T> T su2(Proton<T> proton) {
+        return Wn.WC().security(new WnEvalLink(io), new Proton<T>() {
+            protected T exec() {
+                return Wn.WC().su(u, proton);
+            }
+        });
     }
 }
