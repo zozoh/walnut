@@ -29,7 +29,7 @@
     }
     
     .drop-ta {
-        margin:100px; width:800px; height:50px;
+        margin:20px; width:80px; height:50px;
         background:#CCC; border:1px dashed #AAA;
         
     }
@@ -42,6 +42,10 @@
         background-color: rgba(255,0,0,0.2);
     }
     
+    .viewport {
+        width:300px; height: 300px;
+        background: red; position: relative;
+    }
     </style>
     <script>
     $(function(){
@@ -63,8 +67,10 @@
     </script>
 </head>
 <body>
-    <div class="item item0" style="top:10px; left:10px;">ObjA</div>
-    <div class="item item1" style="top:10px; left:200px;">ObjB</div>
+    <div class="viewport">
+        <div class="item item0" style="top:10px; left:10px;">ObjA</div>
+        <div class="item item1" style="top:10px; left:200px;">ObjB</div>
+    </div>
     <div class="drop-ta" dt="A"></div>
     <div class="drop-ta" dt="B"></div>
     <div class="drop-ta" dt="C"></div>

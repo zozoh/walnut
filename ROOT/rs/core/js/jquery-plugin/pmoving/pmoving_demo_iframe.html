@@ -30,7 +30,9 @@
         log($(btn).text());
     }
     function demo_normal(btn) {
-        $VP().pmoving();
+        $VP().pmoving({
+            trigger : ".item"
+        });
         log($(btn).text());
     }
     function demo_grid(btn) {

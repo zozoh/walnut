@@ -1,7 +1,7 @@
 (function($z){
 $z.declare([
     'zui',
-    'app/wn.hmaker2/hm__methods',
+    'app/wn.hmaker2/support/hm__methods',
     'ui/o_view_obj/o_view_obj',
 ], function(ZUI, HmMethods, ViewObjUI){
 //==============================================

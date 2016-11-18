@@ -17,11 +17,14 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.stream.StringInputStream;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
@@ -51,6 +54,8 @@ import org.nutz.walnut.web.view.WnObjDownloadView;
 @At("/a")
 @Filters(@By(type = WnCheckSession.class, args = {"true"}))
 public class AppModule extends AbstractWnModule {
+
+    private static final Log log = Logs.get();
 
     @Inject("java:$conf.get('page-licence-fail', 'licence_fail')")
     private String page_licence_fail;
@@ -196,7 +201,7 @@ public class AppModule extends AbstractWnModule {
             if (licn.hasVerify()) {
                 String cmdText = licn.getVerify();
                 StringBuilder out = new StringBuilder();
-                
+
                 // 用客户的账号去验证
                 this.exec("app-licence-check", clientName, null, cmdText, out, err);
             }
@@ -254,40 +259,66 @@ public class AppModule extends AbstractWnModule {
                      @Param("mime") String mimeType,
                      @Param("auto_unwrap") boolean auto_unwrap,
                      @ReqHeader("User-Agent") String ua) {
-        WnObj oAppHome = this._check_app_home(appName);
-        WnObj o = io.check(oAppHome, rsName);
-        String text = null;
+        // 准备计时
+        Stopwatch sw = null;
+        if (log.isDebugEnabled()) {
+            log.debugf("APPLoad(%s) : %s", appName, rsName);
+            sw = Stopwatch.begin();
+        }
 
-        // TODO 这个木用，应该删掉，先去掉界面上那坨 var xxx = 就好
-        if (auto_unwrap) {
-            text = io.readText(o);
-            Matcher m = Pattern.compile("^var +\\w+ += *([\\[{].+[\\]}]);$", Pattern.DOTALL)
-                               .matcher(text);
-            if (m.find()) {
-                text = m.group(1);
+        try {
+            // 查找 app 的主目录
+            WnObj oAppHome = this._check_app_home(appName);
+
+            if (log.isDebugEnabled())
+                log.debugf("  -> %s %5dms : oAppHome", rsName, sw.stop().l_du());
+
+            // 读取资源对象
+            WnObj o = io.check(oAppHome, rsName);
+            String text = null;
+            if (log.isDebugEnabled())
+                log.debugf("  -> %s %5dms : check_rs", rsName, sw.stop().l_du());
+
+            // TODO 这个木用，应该删掉，先去掉界面上那坨 var xxx = 就好
+            if (auto_unwrap) {
+                text = io.readText(o);
+                Matcher m = Pattern.compile("^var +\\w+ += *([\\[{].+[\\]}]);$", Pattern.DOTALL)
+                                   .matcher(text);
+                if (m.find()) {
+                    text = m.group(1);
+                }
+                if (log.isDebugEnabled())
+                    log.debugf("  -> %s %5dms : auto_unwrap", rsName, sw.stop().l_du());
+            }
+
+            // 处理一下 ua 来决定是否下载
+            ua = WnWeb.autoUserAgent(o, ua, true);
+
+            // 如果是 JSON ，那么特殊的格式化一下
+            if ("application/json".equals(mimeType)) {
+                NutMap json = Json.fromJson(NutMap.class, text);
+                text = Json.toJson(json, JsonFormat.nice());
+            }
+
+            // 已经预先处理了内容
+            if (null != text) {
+                StringInputStream ins = new StringInputStream(text);
+                return new WnObjDownloadView(ins, ins.available(), mimeType);
+            }
+            // 指定了 mimeType
+            else if (!Strings.isBlank(mimeType)) {
+                return new WnObjDownloadView(io, o, mimeType, ua);
+            }
+            // 其他就默认咯
+            return new WnObjDownloadView(io, o, ua);
+        }
+        // 最后打印总时长
+        finally {
+            if (log.isDebugEnabled()) {
+                sw.stop();
+                log.debugf("APPLoad(%s) : %s DONE %d/%sms", appName, rsName, sw.l_du(), sw.du());
             }
         }
-
-        // 处理一下 ua 来决定是否下载
-        ua = WnWeb.autoUserAgent(o, ua, true);
-
-        // 如果是 JSON ，那么特殊的格式化一下
-        if ("application/json".equals(mimeType)) {
-            NutMap json = Json.fromJson(NutMap.class, text);
-            text = Json.toJson(json, JsonFormat.nice());
-        }
-
-        // 已经预先处理了内容
-        if (null != text) {
-            StringInputStream ins = new StringInputStream(text);
-            return new WnObjDownloadView(ins, ins.available(), mimeType);
-        }
-        // 指定了 mimeType
-        else if (!Strings.isBlank(mimeType)) {
-            return new WnObjDownloadView(io, o, mimeType, ua);
-        }
-        // 其他就默认咯
-        return new WnObjDownloadView(io, o, ua);
     }
 
     @At("/run/**")

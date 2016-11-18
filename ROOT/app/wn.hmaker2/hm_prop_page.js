@@ -3,7 +3,7 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/form/form',
-    'app/wn.hmaker2/hm__methods_panel',
+    'app/wn.hmaker2/support/hm__methods_panel',
 ], function(ZUI, Wn, FormUI, HmMethods){
 //==============================================
 var html = `

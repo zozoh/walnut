@@ -17,7 +17,7 @@ function _H(jHead, selector, html) {
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/hm__methods',
+    'app/wn.hmaker2/support/hm__methods',
     'ui/menu/menu',
     'app/wn.hmaker2/hm_page_com_bar',
     'jquery-plugin/pmoving/pmoving',

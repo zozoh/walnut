@@ -3,7 +3,7 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/menu/menu',
-    'app/wn.hmaker2/hm__methods_panel',
+    'app/wn.hmaker2/support/hm__methods_panel',
     'app/wn.hmaker2/hm_prop_folder',
     'app/wn.hmaker2/hm_prop_page',
     'app/wn.hmaker2/hm_prop_edit',

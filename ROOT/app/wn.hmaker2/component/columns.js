@@ -2,7 +2,7 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/hm__methods_com_layout'
+    'app/wn.hmaker2/support/hm__methods_com_layout'
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
 var html = function(){/*

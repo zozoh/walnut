@@ -2,7 +2,7 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/hm__methods_panel',
+    'app/wn.hmaker2/support/hm__methods_panel',
     'app/wn.hmaker2/support/dynamic_data_setting',
     'ui/form/form',
     'ui/form/c_droplist',

@@ -2,7 +2,7 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/hm__methods',
+    'app/wn.hmaker2/support/hm__methods',
     'ui/otiles/otiles'
 ], function(ZUI, Wn, HmMethods, OTilesUI){
 //==============================================

@@ -2,7 +2,7 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/hm__methods_com',
+    'app/wn.hmaker2/support/hm__methods_com',
     'ui/mask/mask',
 ], function(ZUI, Wn, HmComMethods, MaskUI){
 //==============================================

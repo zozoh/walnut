@@ -3,7 +3,7 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/menu/menu',
-    'app/wn.hmaker2/hm__methods',
+    'app/wn.hmaker2/support/hm__methods',
     'app/wn.hmaker2/hm_prop_edit_block',
     'app/wn.hmaker2/hm_prop_edit_com',
 ], function(ZUI, Wn, MenuUI, 
@@ -103,14 +103,14 @@ return ZUI.def("app.wn.hm_prop_edit", {
     doChangeBlock : function(mode, uiCom, block) {
         if("panel" == mode)
             return;
-        console.log("hm_prop_edit::doChangeBlock:", mode, uiCom.uiName, block);
+        console.log("hm_prop_edit::doChangeBlock:", mode, uiCom.uiName);
         this.gasket.block.update(uiCom, block);
     },
     //...............................................................
     doChangeCom : function(mode, uiCom, com) {
         if("panel" == mode)
             return;
-        console.log("hm_prop_edit::doChangeCom:", mode, uiCom.uiName, com);
+        console.log("hm_prop_edit::doChangeCom:", mode, uiCom.uiName);
         this.gasket.com.update(uiCom, com);
     },
     //...............................................................

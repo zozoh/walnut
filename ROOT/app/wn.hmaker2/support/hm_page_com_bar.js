@@ -2,7 +2,7 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/hm__methods',
+    'app/wn.hmaker2/support/hm__methods',
 ], function(ZUI, Wn, HmPanelMethods){
 //==============================================
 var html = '<div class="ui-arena hm-combar"></div>';
