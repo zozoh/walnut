@@ -28,6 +28,9 @@ var html = function(){/*
     <div code-id="thead.cell">
         <b class="tbl-col-tt"></b>
     </div>
+    <div code-id="empty" class="empty">
+        <i class="zmdi zmdi-alert-circle-o"></i> <em>{{empty}}</em>
+    </div>
 </div>
 <div class="ui-arena tbl" ui-fitparent="yes"></div>
 */};
@@ -168,15 +171,30 @@ return ZUI.def("ui.table", {
         return this.arena.find(".tbl-body-t tbody");
     },
     //...............................................................
-    __before_draw_data : function() {
+    __before_draw_data : function(objs) {
         var UI  = this;
 
-        // 清除内容区域
+        // 注销事件
         UI.arena.find(".tbl-body").unbind();
-        UI.arena.empty().append(UI.ccode("data.table"));
-        
+
+        // 清除内容区域
+        UI.arena.empty();
+
+        // 有内容
+        if(objs.length > 0) {
+            UI.arena.append(UI.ccode("data.table"));
+        }
+        // 内容为空
+        else {
+            UI.arena.append(UI.ccode("empty"));
+        }
     },
-    __after_draw_data : function() {
+    __after_draw_data : function(objs) {
+        // 如果没有内容，也没必要做什么后续处理了
+        if(objs.length == 0)
+            return;
+
+        // 后续处理
         var UI  = this;
         var opt = UI.options;
 

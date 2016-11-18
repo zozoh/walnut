@@ -354,9 +354,11 @@ var methods = {
         var UI  = this;
         var opt = UI.options;
 
-        // 检查要输出的数据
+        console.log("_draw_data:", objs)
+
+        // 如果数据不是数组，那么相当于空数组
         if(!_.isArray(objs))
-            return;
+            objs = [];
 
         // 得到上次激活对象的 ID
         var aiid = UI.getActivedId();
@@ -374,7 +376,7 @@ var methods = {
         $z.invoke(UI, "__after_draw_data", [objs]);
 
         // 如果之前有激活，那么继续激活
-        if(aiid)
+        if(aiid && objs.length > 0)
             UI.setActived(aiid);
 
         // 重新计算尺寸
