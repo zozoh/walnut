@@ -246,9 +246,6 @@ function on_mask_mousemove(e) {
         // 回调: 通知鼠标移动
         $z.invoke(opt, "on_ing", [], pmvContext);
         
-
-        // 回调: 通知辅助框更新
-        $z.invoke(opt, "on_update", [], pmvContext);
     }
     // 否则如果没有结束，那么看看是否移出了点击区域
     // 如果出了区域，那么就是拖拽了，要做拖拽的初始化
@@ -275,10 +272,7 @@ function on_mask_mousemove(e) {
         // 回调: 通知鼠标移动
         $z.invoke(opt, "on_ing", [], pmvContext);
 
-        // 回调: 更新
-        $z.invoke(opt, "on_update", [], pmvContext);
     }
-
 }
 //...........................................................
 // 处理 mousedown 事件，这个是整个控件判断是否进入激活态的地方
@@ -298,7 +292,7 @@ function on_mousedown(e) {
 
     // 没找到触发对象，啥都表做了
     var jTrigger  = opt.findTrigger.call(this, e);
-    if(!jTrigger || jTrigger.size() == 0) {
+    if(!jTrigger || jTrigger.length == 0) {
         return;
     }
 

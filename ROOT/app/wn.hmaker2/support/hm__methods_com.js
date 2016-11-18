@@ -219,17 +219,17 @@ module.exports = function(uiCom){
         var jAss = jW.children(".hm-com-assist");
         if(jAss.length == 0) {
             jAss = $(`<div class="hm-com-assist">
-                <div class="hmv-hdl"><i class="zmdi zmdi-layers"></i><em>`
+                <div class="hmc-ai" m="H"><i class="zmdi zmdi-layers"></i><em>`
                 + uiCom.msg("hmaker.drag.com_tip")
                 + `</em></div>
-                <div class="rsz-N  rsz-hdl1"></div>
-                <div class="rsz-W  rsz-hdl1"></div>
-                <div class="rsz-E  rsz-hdl1"></div>
-                <div class="rsz-S  rsz-hdl1"></div>
-                <div class="rsz-NW rsz-hdl2"></div>
-                <div class="rsz-NE rsz-hdl2"></div>
-                <div class="rsz-SW rsz-hdl2"></div>
-                <div class="rsz-SE rsz-hdl2"></div>
+                <div class="hmc-ai rsz-hdl1" m="N"></div>
+                <div class="hmc-ai rsz-hdl1" m="W"></div>
+                <div class="hmc-ai rsz-hdl1" m="E"></div>
+                <div class="hmc-ai rsz-hdl1" m="S"></div>
+                <div class="hmc-ai rsz-hdl2" m="NW"></div>
+                <div class="hmc-ai rsz-hdl2" m="NE"></div>
+                <div class="hmc-ai rsz-hdl2" m="SW"></div>
+                <div class="hmc-ai rsz-hdl2" m="SE"></div>
             </div>`).prependTo(jW);
         }
         

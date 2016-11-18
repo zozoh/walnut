@@ -50,28 +50,28 @@ body {margin:0; font-size:12px;}
             >.rsz-hdl2:hover {
                 background: rgba(255,255,0,0.4);
             }
-            > .rsz-N {cursor:ns-resize; top:0;    left:0;right:0; height:@hS;}
-            > .rsz-S {cursor:ns-resize; bottom:0; left:0;right:0; height:@hS;}
-            > .rsz-W {cursor:ew-resize; left:0;   top:0;bottom:0; width:@hS;}
-            > .rsz-E {cursor:ew-resize; right:0;  top:0;bottom:0; width:@hS;}
-            > .rsz-NW {cursor:nwse-resize; top:0; left:0;}
-            > .rsz-NE {cursor:nesw-resize; top:0; right:0;}
-            > .rsz-SW {cursor:nesw-resize; bottom:0; left:0;}
-            > .rsz-SE {cursor:nwse-resize; bottom:0; right:0;}
+            > .hmc-ai[m="N"] {cursor:ns-resize; top:0;    left:0;right:0; height:@hS;}
+            > .hmc-ai[m="S"] {cursor:ns-resize; bottom:0; left:0;right:0; height:@hS;}
+            > .hmc-ai[m="W"] {cursor:ew-resize; left:0;   top:0;bottom:0; width:@hS;}
+            > .hmc-ai[m="E"] {cursor:ew-resize; right:0;  top:0;bottom:0; width:@hS;}
+            > .hmc-ai[m="NW"] {cursor:nwse-resize; top:0; left:0;}
+            > .hmc-ai[m="NE"] {cursor:nesw-resize; top:0; right:0;}
+            > .hmc-ai[m="SW"] {cursor:nesw-resize; bottom:0; left:0;}
+            > .hmc-ai[m="SE"] {cursor:nwse-resize; bottom:0; right:0;}
             
-            > .rsz-N {border-top-width:1px;}
-            > .rsz-S {border-bottom-width:1px;}
-            > .rsz-W {border-left-width:1px;}
-            > .rsz-E {border-right-width:1px;}
+            > .hmc-ai[m="N"] {border-top-width:1px;}
+            > .hmc-ai[m="S"] {border-bottom-width:1px;}
+            > .hmc-ai[m="W"] {border-left-width:1px;}
+            > .hmc-ai[m="E"] {border-right-width:1px;}
             
-            > .hmv-hdl {
+            > .hmc-ai[m="H"] {
                 top:0; left:0; right:0; padding:@d2 0 @d1 0;
                 background: rgba(0,0,0,0.4); color:#FF0;
                 cursor: hand; font-size: 8px; opacity: 0.2;
                 > i {margin:0 @d2;}
                 > em {display: none; font-style: normal;}
             }
-            > .hmv-hdl:hover {
+            > .hmc-ai[m="H"]:hover {
                 opacity: 1.0;
                 > em {display: inline;}
             }
@@ -101,12 +101,24 @@ body {margin:0; font-size:12px;}
 //............................................................
 // 移动鼠标的遮罩
 .hm-page-move-mask {
-    background: rgba(255,0,0,0.1);
-    cursor: wait;
-    
+    //background: rgba(255,0,0,0.1);
     .pmv-helper {
         background: rgba(255,255,0,0.2);
     }
+}
+.hm-page-move-mask[mmode="move"] {cursor: move;}
+.hm-page-move-mask[mmode="N"] {cursor:ns-resize;}
+.hm-page-move-mask[mmode="S"] {cursor:ns-resize;}
+.hm-page-move-mask[mmode="W"] {cursor:ew-resize;}
+.hm-page-move-mask[mmode="E"] {cursor:ew-resize;}
+.hm-page-move-mask[mmode="NW"] {cursor:nwse-resize;}
+.hm-page-move-mask[mmode="NE"] {cursor:nesw-resize;}
+.hm-page-move-mask[mmode="SW"] {cursor:nesw-resize;}
+.hm-page-move-mask[mmode="SE"] {cursor:nwse-resize;}
+.hm-page-move-mask[mmode="H"] {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
+    cursor: -moz-grabbing;
 }
 
 .hm-com {@noselect();}

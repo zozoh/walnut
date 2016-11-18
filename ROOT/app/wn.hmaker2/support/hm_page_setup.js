@@ -114,6 +114,94 @@ var methods = {
         UI._C.iedit.$body.pmoving({
             trigger    : '.hm-com',
             maskClass  : 'hm-page-move-mask',
+            autoUpdateTriggerBy : null,
+            findTrigger : function(e) {
+                var jq    = $(e.target);
+                var jAi   = jq.closest(".hmc-ai");
+                if(jAi.length > 0)
+                    return jAi;
+                return $(this);
+            },
+            on_begin : function(e) {
+                // 得到组件顶部节点元素
+                var jCom  = this.$trigger.closest(".hm-com");
+                //...........................................................
+                // 这个对象描述了手柄模式的计算方式
+                var HDLc = {
+                    NW : ["left", "top"],
+                    W  : ["left"],
+                    SW : ["left", "bottom"],
+                    N  : ["top"],
+                    S  : ["bottom"],
+                    NE : ["right", "top"],
+                    E  : ["right"],
+                    SE : ["right", "bottom"]
+                };
+                //......................................
+                // 根据触发点类型不同，为上下文设置不同的处理函数
+                if(this.$trigger.hasClass("hmc-ai")) {
+                    var jAi = this.$trigger;
+                    
+                    // 得到辅助柄的类型
+                    var m   = jAi.attr("m");
+                    this.$mask.attr("mmode", m);
+                    
+                    // 移动控件的树的层级
+                    if("H" == m) {
+                        this.__is_for_drop = true;
+                        this.__do_ing = function(pmvc) {
+                            console.log("drag", pmvc.rect.inview)
+                        };
+                    }
+                    // 改变控件大小
+                    else {
+                        // 得到模式
+                        var hdl_mode = HDLc[m];
+                    
+                        // 设置回调
+                        this.__do_ing = function(pmvc) {
+                            // 计算顶点
+                            _.extend(pmvc.rect.com, 
+                                $z.rectObj(pmvc.rect.trigger, hdl_mode));
+
+                            // 重新计算矩形其他尺寸
+                            $z.rect_count_tlbr(this.rect.com);
+                        };
+                    }
+                }
+                //......................................
+                // 没有触发到特殊手柄，那么就表示移动自身
+                else {
+                    this.__do_ing = function(pmvc){
+                        pmvc.$mask.attr("mmode", "move")
+                        pmvc.rect.com = pmvc.rect.trigger;
+                    };
+                }
+                //......................................
+                this.uiCom = ZUI(jCom);
+                this.comBlock = this.uiCom.getBlock();
+                this.rect.com = $z.rect(jCom);
+            },
+            on_ing : function() {
+                // 计算，如果返回 true 表示不要更新块的位置大小
+                if(!this.__do_ing(this)){
+                    // 得到改变
+                    var rect = $z.rect_relative(this.rect.com, 
+                                                this.rect.viewport);
+                    var vals = UI.transRectToPosVal(rect, this.comBlock.posBy);
+                    this.comBlock.posVal = vals;
+                    
+                    // 通知修改，在 on_end 的时候会保存位置的
+                    this.uiCom.notifyBlockChange(null, this.comBlock);
+                }
+            },
+            // 移动结束，保存 Block 信息
+            on_end : function() {
+                // 这个拖动是修改位置，保存最后的位置
+                if(!this.__is_for_drop) {
+                    this.uiCom.setBlock(this.comBlock);
+                }
+            }
         });
         
     },

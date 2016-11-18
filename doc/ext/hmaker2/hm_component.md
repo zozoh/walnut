@@ -23,15 +23,15 @@ tags:
     <script class="hm-prop-com">     # 控件的内容配置信息
     .hm-com-W                # 内容包裹，确保下面的内容相对自己是 relative 的
         .hm-com-assist       # 块的辅助编辑元素
-            .rsz-N        # 顶部 resize 区
-            .rsz-W        # 左侧 resize 区
-            .rsz-E        # 右侧 resize 区
-            .rsz-S        # 底部 resize 区
-            .rsz-NW       # 左上角 resize 区
-            .rsz-NE       # 右上角 resize 区
-            .rsz-SW       # 左下角 resize 区
-            .rsz-SE       # 右下角 resize 区
-            .hmv-hdl      # 修改组件树结构的控制柄
+            .hmc-ai [m="N"]  # 顶部 resize 区
+            .hmc-ai [m="W"]  # 左侧 resize 区
+            .hmc-ai [m="E"]  # 右侧 resize 区
+            .hmc-ai [m="S"]  # 底部 resize 区
+            .hmc-ai [m="NW"] # 左上角 resize 区
+            .hmc-ai [m="NE"] # 右上角 resize 区
+            .hmc-ai [m="SW"] # 左下角 resize 区
+            .hmc-ai [m="SE"] # 右下角 resize 区
+            .hmc-ai [m="H"]  # 修改组件树结构的控制柄
         .ui-arena         # 每个控件在这个节点内定制自己的显示内容
 ```
 

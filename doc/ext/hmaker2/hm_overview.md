@@ -35,18 +35,18 @@ change:site:skin |               | 站点的皮肤发生改变
 
  Message         | Params            | Comments 
 -----------------|-------------------|----------
-active:rs        | o                 | 选中资源项目
-active:folder    | o                 | 文件夹被激活
-active:other     | o                 | 其他对象被激活
-active:page      | o                 | 页面被激活
-active:com       | uiCom             | 组件被激活
-active:area      | jArea             | 栏被激活
-change:block     | mode,uiCom,block  | 组件布局被修改
-change:com       | mode,uiCom,com    | 组件数据被修改
-active:file      | o                 | 文件夹视图里文件被激活
-blur:file        |                   | 文件夹视图里文件被取消激活
-reload:folder    |                   | 通知文件夹视图重新刷新自己的子节点
-change:site:skin |                   | 站点的皮肤发生改变
+active:rs        | `o`                 | 选中资源项目
+active:folder    | `o`                 | 文件夹被激活
+active:other     | `o`                 | 其他对象被激活
+active:page      | `o`                 | 页面被激活
+active:com       | `uiCom`             | 组件被激活
+active:area      | `jArea`             | 栏被激活
+change:block     | `mode,uiCom,block`  | 组件布局被修改
+change:com       | `mode,uiCom,com`    | 组件数据被修改
+active:file      | `o`                 | 文件夹视图里文件被激活
+blur:file        |                     | 文件夹视图里文件被取消激活
+reload:folder    |                     | 通知文件夹视图重新刷新自己的子节点
+change:site:skin |                     | 站点的皮肤发生改变
 
 
 # 关键调用顺序

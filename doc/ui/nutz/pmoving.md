@@ -122,7 +122,7 @@ author:zozoh
     data      : null,     // 调用者自定义的数据对象
     startInMs : MS,       // 开始时间
     endInMs   : MS,       // 结束时间
-    posAt     : {x, y},   // 初始点击相对于 viewport
+    posAt     : {x, y},   // 初始点击相对于 trigger
     posBegin  : {x, y},   // 初始点击全局
     x      : Number,      // 当前指针全局水平位置
     y      : Number,      // 当前指针全局垂直位置
@@ -324,7 +324,6 @@ $(ele).pmoving({
     on_begin  : {pmvContext}F()  // 移动开始时
     on_ing    : {pmvContext}F()  // 移动时
     on_end    : {pmvContext}F()  // 移动结束时
-    on_update : {pmvContext}F()  // 开始或移动结束时，主要用来更新 heper
     
     /*
     拖拽相关回调
