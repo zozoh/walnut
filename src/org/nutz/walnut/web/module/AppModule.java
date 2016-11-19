@@ -271,13 +271,13 @@ public class AppModule extends AbstractWnModule {
             WnObj oAppHome = this._check_app_home(appName);
 
             if (log.isDebugEnabled())
-                log.debugf("  -> %s %5dms : oAppHome", rsName, sw.stop().l_du());
+                sw.tag("appHome "+rsName);
 
             // 读取资源对象
             WnObj o = io.check(oAppHome, rsName);
             String text = null;
             if (log.isDebugEnabled())
-                log.debugf("  -> %s %5dms : check_rs", rsName, sw.stop().l_du());
+                sw.tag("check_rs "+rsName);
 
             // TODO 这个木用，应该删掉，先去掉界面上那坨 var xxx = 就好
             if (auto_unwrap) {
@@ -288,7 +288,7 @@ public class AppModule extends AbstractWnModule {
                     text = m.group(1);
                 }
                 if (log.isDebugEnabled())
-                    log.debugf("  -> %s %5dms : auto_unwrap", rsName, sw.stop().l_du());
+                    sw.tag("auto_unwrap ");
             }
 
             // 处理一下 ua 来决定是否下载
@@ -316,7 +316,7 @@ public class AppModule extends AbstractWnModule {
         finally {
             if (log.isDebugEnabled()) {
                 sw.stop();
-                log.debugf("APPLoad(%s) : %s DONE %d/%sms", appName, rsName, sw.l_du(), sw.du());
+                log.debugf("APPLoad(%s) : %s DONE %s", appName, rsName, sw);
             }
         }
     }
