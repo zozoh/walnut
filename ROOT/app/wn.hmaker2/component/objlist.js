@@ -52,7 +52,8 @@ var html = `
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_objlist", {
-    dom  : html,
+    dom     : html,
+    keepDom : false,
     //...............................................................
     init : function(){
         var UI = HmComMethods(this);

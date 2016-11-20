@@ -13,7 +13,8 @@ var html = `
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_image", {
-    dom  : html,
+    dom     : html,
+    keepDom : false,
     //...............................................................
     init : function(){
         HmComMethods(this);

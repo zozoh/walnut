@@ -27,7 +27,8 @@ var html = `
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_objshow", {
-    dom  : html,
+    dom     : html,
+    keepDom : false,
     //...............................................................
     init : function(){
         var UI = HmComMethods(this);
