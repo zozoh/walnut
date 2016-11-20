@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -19,7 +17,6 @@ public class WnFtpFile implements FtpFile {
     protected WnObj wobj;
     protected String path;
     protected WnFtpFileSystem fs;
-    private static final Log log = Logs.get();
 
     public WnFtpFile(WnFtpFileSystem fs, WnObj wobj, String path) {
         this.fs = fs;
@@ -27,7 +24,6 @@ public class WnFtpFile implements FtpFile {
         this.path = path;
         if (this.wobj != null)
             this.path = wobj.path();
-        log.error("path = " + path);
     }
 
     @Override

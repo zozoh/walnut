@@ -3,8 +3,6 @@ package org.nutz.walnut.ext.ftp;
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.io.WnIo;
@@ -21,7 +19,6 @@ public class WnFtpFileSystem implements FileSystemView {
     protected WnObj currentDir;
     protected WnUsr u;
     protected WnUsrService usrs;
-    private static final Log log = Logs.get();
 
     public WnFtpFileSystem(WnIo io, WnUsrService usrs, WnUsr u, WnObj home) {
         super();
@@ -44,7 +41,6 @@ public class WnFtpFileSystem implements FileSystemView {
 
     @Override
     public boolean changeWorkingDirectory(String dir) throws FtpException {
-        log.error("CWD " + dir);
         WnObj newCwd = io.fetch(currentDir, dir);
         if (newCwd == null || !newCwd.isDIR())
             return false;
