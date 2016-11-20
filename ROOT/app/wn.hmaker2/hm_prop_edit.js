@@ -111,6 +111,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
         if("panel" == mode)
             return;
         //console.log("hm_prop_edit::doChangeCom:", mode, uiCom.uiName);
+        // 执行更新
         this.gasket.com.update(uiCom, com);
     },
     //...............................................................

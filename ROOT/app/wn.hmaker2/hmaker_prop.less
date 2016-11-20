@@ -379,47 +379,37 @@
 // rows
 .hmc-rows-prop {
     padding:@d3;
+    // 动作菜单区
+    .crp-actions {
+        background:@cborder1; padding:0 @d2; text-align: right;
+        .menu {
+            .menu-item[tp="button"]>.menu-item-wrapper{
+                transition: 0.2s;
+            }
+            .menu-item[tp="button"]>.menu-item-wrapper:hover {
+                color:@c0; background: #FFF;
+                transform: translateY(-2px);
+            }
+        }
+    }
     // 样式显示区域
     .crp-layout { @noselect();
-        padding: @d4;
-        @lyBH : 48px;
-        .ly-wrapper {
-            border:3px solid @cborder0; padding:@d3;
-        }
-        .ly-block {
-            height:@lyBH; position: relative;
-            background:rgba(255,255,255,0.4); border:1px dashed @cborder1;
-            .ly-b-nm {
-                width:100%; height:100%; padding:0 @d3;
-                padding:0 @d5; line-height: @lyBH - @d2 * 2;
+        ul {
+            border:3px solid @cborder1; padding:@d3;
+            li {
+                padding:@d4; margin:@d1; cursor: pointer;
+                background:rgba(255,255,255,0.4);
+                border:1px dashed @cborder1;
+                font-family: @f_fixed;
             }
-            .ly-a {
-                position: absolute; top:@d2; bottom:@d2; right:0;
-                padding:0 @d5;
-                @flex(); justify-content: flex-end;  align-items: center;
-                > div {
-                    padding:@d1 @d2; transition: 0.2s; cursor: pointer;
-                }
-                > div:hover {
-                    transform: scale(1.2); font-weight: bold; color:@c6;
-                }
+            li[highlight] {
+                background: rgba(255,255,0,0.4);
             }
-        }
-        .ly-block[highlight] {
-            background: rgba(255,255,0,0.4);
-        }
-        .ly-newer { transition: 0.2s;
-            border:1px solid @cborder1; margin:@d3 auto;
-            text-align: center; width:80px; height:@d6; line-height:@d6 - 2;
-            cursor: pointer;
-        }
-        .ly-newer:hover {
-            color:@c0; border-color:@c0; font-size: 1.6em;
         }
     }
     //
     .crp-form {
-
+        padding:@d2 0; border:3px solid @cborder1;
     }
 }
 //............................................................

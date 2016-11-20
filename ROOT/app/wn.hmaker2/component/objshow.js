@@ -41,7 +41,7 @@ return ZUI.def("app.wn.hm_com_objshow", {
         }
     },
     //...............................................................
-    setupProp : function(){
+    getDataProp : function(){
         return {
             uiType : 'app/wn.hmaker2/com_prop/objshow_prop',
             uiConf : {}

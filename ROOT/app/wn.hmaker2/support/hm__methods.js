@@ -197,13 +197,6 @@ var methods = {
         return  '<i class="fa fa-file"></i>';
     },
     //=========================================================
-    // 将 rect 按照 posBy 转换成 posVal 字符串
-    transRectToPosVal : function(rect, posBy) {
-        var re = _.mapObject($z.rectObj(rect, posBy), function(val){
-            return Math.round(val) + "px";
-        });
-        return _.values(re).join(",");
-    },
     // 根据控件的块定位模式，从 css 集合里提取出相关的熟悉
     // 模式字符串为 "TLBRWH" 分别代表顶点和宽高，所有的模式字符串都遵守这个顺序
     //  @mode : 可能的值为:

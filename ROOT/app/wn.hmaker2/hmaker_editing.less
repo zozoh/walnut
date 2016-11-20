@@ -124,22 +124,39 @@ body {margin:0; font-size:12px;}
 .hm-com {@noselect();}
 
 //............................................................
+// 分栏控件通用
+//............................................................
+@areaP : 1px;
+.hm-area {
+    position: relative;
+    > .hm-area-assist {
+        .hma-ai {position: absolute; border:0 dotted rgba(0,0,0,0.2);}
+        .hma-ai[m="N"]{top:@areaP;left:@areaP;right:@areaP;border-top-width:1px;}
+        .hma-ai[m="W"]{top:@areaP;bottom:@areaP;left:@areaP;border-left-width:1px;}
+        .hma-ai[m="E"]{top:@areaP;bottom:@areaP;right:@areaP;border-right-width:1px;}
+        .hma-ai[m="S"]{bottom:@areaP;left:@areaP;right:@areaP;border-bottom-width:1px;}
+    }
+    > .hm-area-con {
+        position: relative;
+        min-height: 30px;
+    }
+}
+.hm-com[highlight-mode] {
+    > .hm-area {opacity: 0.4;}
+    > .hm-area[highlight] {opacity: 1.0; background:rgba(255,255,0,0.4);}
+}
+.hm-com[hm-actived] .hm-area {
+    .hma-ai {position: absolute; border-color:#F0F;}
+}
+
+//............................................................
 // 各个控件的特殊显示
 //............................................................
 // rows
 .hmc-rows {
-    > .hmc-row-block {
-        min-height: 30px; 
-    }
+    
 }
-.hmc-rows[highlight-mode] {
-    > .hmc-row-block {opacity: 0.4;}
-    > .hmc-row-block[highlight] {opacity: 1.0; background:rgba(255,255,0,0.4);}
-}
-[hm-actived] .hmc-rows {
-    > .hmc-row-block {border:1px dotted @c0; border-bottom:0;}
-    > .hmc-row-block:last-child {border-bottom:1px dotted @c0;}
-}
+
 //............................................................
 // columns
 .hmc-columns {

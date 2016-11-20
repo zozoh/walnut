@@ -560,6 +560,7 @@ return ZUI.def("app.wn.hmaker_page", {
             var jCom = $(this).attr({
                 "style" : null,
                 "ui-id" : null,
+                "hm-actived" : null
             });
             var jW   = jCom.children(".hm-com-W");
             
@@ -581,25 +582,29 @@ return ZUI.def("app.wn.hmaker_page", {
                     subs.removeAttr(attrName);
                 }
             });
-            
-            // 整理所有的空节点，让其为一个回车
-            $z.eachTextNode(jCom, function(){
-                var str = $.trim(this.nodeValue);
-                // 处理空白节点
-                if(0 == str.length) {
-                    // 如果之前的节点是个文本节点的话，那么自己就变成空字符串吧
-                    if(this.previousSibling && this.previousSibling.nodeType == 3) {
-                        this.nodeValue = "";
-                    }
-                    // 否则输出个回车
-                    else {
-                        this.nodeValue = "\n";
-                    }
-                }
-            });
-
         });
-
+        
+        // 所有的分栏和组件前面都加入一个回车
+        C.iload.$body.find(".hm-com, .hm-area").each(function(){
+            this.parentNode.insertBefore(document.createTextNode("\n"),this);
+        });
+        
+        // 整理所有的空节点，让其为一个回车
+        $z.eachTextNode(C.iload.$body, function(){
+            var str = $.trim(this.nodeValue);
+            // 处理空白节点
+            if(0 == str.length) {
+                // 如果之前的节点是个文本节点的话，那么自己就变成空字符串吧
+                if(this.previousSibling && this.previousSibling.nodeType == 3) {
+                    this.nodeValue = "";
+                }
+                // 否则输出个回车
+                else {
+                    this.nodeValue = "\n";
+                }
+            }
+        });
+        
         // 返回 HTML
         return '<!DOCTYPE html>\n<html>\n' + C.iload.$root.html() + '\n</html>\n';;
     },

@@ -6,10 +6,10 @@ $z.declare([
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
 var html = `
-<div class="ui-arena hmc-image hm-del-save">
-    <div class="hmc-image-pic"></div>
-    <div class="hmc-image-txt"></div>
-    <div class="hmc-image-link-tip"><i class="zmdi zmdi-link"></i></div>
+<div class="ui-arena hmc-image">
+    <div class="hmc-image-pic hm-del-save"></div>
+    <div class="hmc-image-txt hm-del-save"></div>
+    <div class="hmc-image-link-tip hm-del-save"><i class="zmdi zmdi-link"></i></div>
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_image", {
@@ -305,9 +305,14 @@ return ZUI.def("app.wn.hm_com_image", {
         }];
     },
     //...............................................................
-    getBlockPropFields : function() {
-        return ["margin","padding","border","borderRadius",
-                "boxShadow","overflow"];
+    getBlockPropFields : function(block) {
+        var re = [];
+        if(block.mode == 'inflow') {
+            re.push("margin");
+        }
+        return re.concat(["border","borderRadius","color",
+            "background","boxShadow","overflow",
+        ]);
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性

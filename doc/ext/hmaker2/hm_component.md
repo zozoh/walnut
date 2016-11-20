@@ -52,6 +52,12 @@ tags:
 ```html
 <div class="ui-arena hmc-rows">
     <div class="hm-area" area-id="Area1">
+        <div class="hm-area-assist hm-del-save">
+            <div class="hma-ai" m="N"></div>
+            <div class="hma-ai" m="W"></div>
+            <div class="hma-ai" m="E"></div>
+            <div class="hma-ai" m="S"></div>            
+        </div>
         <div class="hm-area-con">
             <!--// 这里是子控件的内容 -->
         </div>

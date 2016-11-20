@@ -95,6 +95,7 @@ var methods = {
             // 删除
             if(8 == e.which || 46 == e.which) {
                 UI.deleteCom(UI.getActivedCom());
+                UI.fire("active:page", UI._page_obj);
             }
         });
         UI._C.iedit.$body.on("keyup", function(e){
@@ -117,9 +118,14 @@ var methods = {
             autoUpdateTriggerBy : null,
             findTrigger : function(e) {
                 var jq    = $(e.target);
+                // 辅助节点
                 var jAi   = jq.closest(".hmc-ai");
                 if(jAi.length > 0)
                     return jAi;
+                // inflow 的不能移动
+                if('inflow' == jq.closest(".hm-com").attr("hmc-mode"))
+                    return null;
+                // 可以移动
                 return $(this);
             },
             on_begin : function(e) {
@@ -181,6 +187,14 @@ var methods = {
                 this.uiCom = ZUI(jCom);
                 this.comBlock = this.uiCom.getBlock();
                 this.rect.com = $z.rect(jCom);
+                //......................................
+                // 确保这个控件是激活的
+                if(!jCom.attr("hm-actived")){    
+                    // 通知激活控件
+                    this.uiCom.notifyActived();
+                    this.uiCom.notifyBlockChange("page", this.uiCom.getBlock());
+                    this.uiCom.notifyDataChange("page",  this.uiCom.getData());
+                }
             },
             on_ing : function() {
                 // 计算，如果返回 true 表示不要更新块的位置大小

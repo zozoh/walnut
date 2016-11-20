@@ -121,7 +121,7 @@ var methods = {
         else {
             cssCom   = $z.pick(block, "^(width|height|margin)$");
             cssArena = $z.pick(block,
-                "!^(mode|posBy|top|left|right|bottom|width|height)$");
+                "!^(mode|posBy|top|left|right|bottom|width|height|margin)$");
         }
                 
         // 位置和大小属性，记录在块上
@@ -202,22 +202,20 @@ module.exports = function(uiCom){
     
     // 控件默认的布局属性
     $z.setUndefined(uiCom, "getBlockPropFields", function(block){
-        return [
-            "margin",
-            "padding",
-            "border",
-            "borderRadius",
-            "color",
-            "background",
-            "boxShadow",
-            "overflow",
-        ];
+        var re = [];
+        if(block.mode == 'inflow') {
+            re.push("margin");
+        }
+        return re.concat(["padding","border","borderRadius","color",
+            "background","boxShadow","overflow",
+        ]);
     });
     
     // 控件的默认布局
     $z.setUndefined(uiCom, "getDefaultBlock", function(){
         return {
             mode : "inflow",
+            posBy   : "WH",
             width   : "auto",
             height  : "auto",
             padding : "",
@@ -235,6 +233,30 @@ module.exports = function(uiCom){
         return {};
     });
     
+    // 控件默认的确保块在各个模式下的正常显示
+    $z.setUndefined(uiCom, "checkBlockMode", function(block){
+        // 绝对定位的块，必须有宽高
+        if("abs" == block.mode) {
+            // 确保定位模式正确
+            if(!block.posBy || "WH" == block.posBy)
+                block.posBy = "TLWH";
+            // 确保有必要的位置属性
+            var css = this.getMyRectCss();
+            // 设置
+            _.extend(block, this.pickCssForMode(css, block.posBy));
+        }
+        // inflow 的块，高度应该为 auto
+        else if("inflow" == block.mode){
+            _.extend(block, {
+                top: "", left:"", bottom:"", right:"", height:"auto",
+                posBy : "WH"
+            });
+        }
+        // !!! 不支持
+        else {
+            throw "unsupport block mode: '" + block.mode + "'";
+        }
+    });
     
     // 重定义控件的 redraw
     uiCom.$ui.redraw = function(){
@@ -276,7 +298,7 @@ module.exports = function(uiCom){
             if(jW.length == 0) {
                 return $('<div class="hm-com-W">').appendTo(this.$el);
             }
-            if(!this.keeDom)
+            if(!this.keepDom)
                 return jW;
         },
         // 改变 code-template 的查找方式
