@@ -339,10 +339,13 @@ return ZUI.def("app.wn.hm_com_image", {
     getDefaultBlock : function(){
         return {
             mode : "abs",
-            posBy   : "top,left,width,height",
-            posVal  : "10px,10px,200px,200px",
-            width   : "",
-            height  : "",
+            posBy   : "TLWH",
+            //posBy   : "top,left,width,height",
+            //posVal  : "10px,10px,200px,200px",
+            top     : "10px",
+            left    : "10px",
+            width   : "200px",
+            height  : "200px",
             padding : "",
             border : "" ,   // "1px solid #000",
             borderRadius : "",

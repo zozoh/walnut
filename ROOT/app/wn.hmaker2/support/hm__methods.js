@@ -204,6 +204,57 @@ var methods = {
         });
         return _.values(re).join(",");
     },
+    // 根据控件的块定位模式，从 css 集合里提取出相关的熟悉
+    // 模式字符串为 "TLBRWH" 分别代表顶点和宽高，所有的模式字符串都遵守这个顺序
+    //  @mode : 可能的值为:
+    //            - WH   : 宽高
+    //            - TLWH : 左上顶点定位
+    //            - TRWH : 右上顶点定位
+    //            - LBWH : 左下顶点定位
+    //            - BRWH : 右下顶点定位
+    //            - TLBR : 四角顶点定位
+    //            - TLBW : 左边定位
+    //            - TBRW : 右边定位
+    //            - TLRH : 顶边定位
+    //            - LBRH : 底边定位
+    pickCssForMode : function(css, mode) {
+        var regex;
+        switch(mode) {
+        case "WH" :
+            regex = /^(width|height)$/;
+            break;
+        case "TLWH" : 
+            regex = /^(top|left|width|height)$/;
+            break;
+        case "TRWH" : 
+            regex = /^(top|right|width|height)$/;
+            break;
+        case "LBWH" : 
+            regex = /^(left|bottom|width|height)$/;
+            break;
+        case "BRWH" : 
+            regex = /^(bottom|right|width|height)$/;
+            break;
+        case "TLBR" : 
+            regex = /^(top|left|bottom|right)$/;
+            break;
+        case "TLBW" : 
+            regex = /^(top|left|bottom|width)$/;
+            break;
+        case "TBRW" : 
+            regex = /^(top|bottom|right|width)$/;
+            break;
+        case "TLRH" : 
+            regex = /^(top|left|right|height)$/;
+            break;
+        case "LBRH" : 
+            regex = /^(left|bottom|right|height)$/;
+            break;
+        default:
+            throw "unsupport mode: '" + mode + "'";
+        }
+        return $z.pick(css, regex);
+    },
     // 将 CSS 对象与 base 合并，并将内部所有的 undefined 和 null 都变成空串
     formatCss : function(css, mergeWithBase) {
         // 传入了 base 对象
@@ -234,6 +285,12 @@ var methods = {
     // 返回 base_css 的一个新实例
     getBaseCss : function() {
         return _.extend({}, CSS_BASE);
+    },
+    // 生成一个新的 css 集合，所有未给定的 css 会被表示空属性而删除
+    // 参见 CSS_BASE
+    // 本函数假定传入的 css 键值都是驼峰命名的
+    normalizeCss : function(css) {
+        return _.extend({}, CSS_BASE, css);
     },
     //=========================================================
     // 获取背景属性编辑控件的关于 image 编辑的配置信息

@@ -101,13 +101,13 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.listenBus("change:block", function(mode, uiCom, block){
             if("page" == mode)
                 return;
-            console.log("hm_page::on_change:block:", mode,uiCom.uiName, block);
+            //console.log("hm_page::on_change:block:", mode,uiCom.uiName, block);
             uiCom.applyBlock(block);
         });
         UI.listenBus("change:com", function(mode, uiCom, com){
             if("page" == mode)
                 return;
-            console.log("hm_page::on_change:com:", mode, uiCom.uiName, com);
+            //console.log("hm_page::on_change:com:", mode, uiCom.uiName, com);
             
             // 移除旧皮肤
             if(uiCom.__current_skin && uiCom.__current_skin != com.skin) {
@@ -322,6 +322,21 @@ return ZUI.def("app.wn.hmaker_page", {
         // 全部加载完毕了
         if(UI._need_load.length == 0){
             UI.setup_page_editing();
+        }
+    },
+    //...............................................................
+    getActivedCom : function() {
+        var UI = this;
+        var jCom = UI._C.iedit.$body.find(".hm-com[hm-actived]");
+        if(jCom.length > 0) {
+            return ZUI(jCom);
+        }
+    },
+    //...............................................................
+    deleteCom : function(uiCom) {
+        if(uiCom) {
+            uiCom.destroy();
+            uiCom.$el.remove();
         }
     },
     //...............................................................

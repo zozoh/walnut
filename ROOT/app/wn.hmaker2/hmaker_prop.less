@@ -82,15 +82,17 @@
                 margin:@d5 auto; width:@boxW; height:@boxH;
                 border:1px dashed @cborder0;
                 position: relative;
+                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 .hmpb-pos-v {display: none;
                     width:@vS;height:@vS;border-radius: @vS; 
                     border:1px solid @cborder1; position: absolute;
                     cursor: pointer;
                 }
-                .hmpb-pos-v[md="lt"]{top:@vS/-2;    left:@vS/-2;}
-                .hmpb-pos-v[md="rt"]{top:@vS/-2;    right:@vS/-2;}
-                .hmpb-pos-v[md="lb"]{bottom:@vS/-2; left:@vS/-2;}
-                .hmpb-pos-v[md="rb"]{bottom:@vS/-2; right:@vS/-2;}
+                .hmpb-pos-v[md="TL"]{top:@vS/-2;    left:@vS/-2;}
+                .hmpb-pos-v[md="TR"]{top:@vS/-2;    right:@vS/-2;}
+                .hmpb-pos-v[md="LB"]{bottom:@vS/-2; left:@vS/-2;}
+                .hmpb-pos-v[md="BR"]{bottom:@vS/-2; right:@vS/-2;}
+                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 .hmpb-pos-d {display: none;
                     position: absolute; padding:0 @d1; line-height: @dH; height: @dH;
                     text-align: center;
@@ -114,6 +116,66 @@
                 .hmpb-pos-d[key="width"]{bottom:@boxH/2;}
                 .hmpb-pos-d[key="height"]{top:@boxH/2;}
             }
+            // 各种位置模式的显示和隐藏
+            .hmpb-pos-box[pos-by="WH"] {
+                .hmpb-pos-d[key="width"],
+                .hmpb-pos-d[key="height"]{display:block;}
+            }
+            .hmpb-pos-box[pos-by="TLWH"] {
+                .hmpb-pos-d[key="top"],
+                .hmpb-pos-d[key="left"],
+                .hmpb-pos-d[key="width"],
+                .hmpb-pos-d[key="height"]{display:block;}
+            }
+            .hmpb-pos-box[pos-by="TRWH"] {
+                .hmpb-pos-d[key="top"],
+                .hmpb-pos-d[key="right"],
+                .hmpb-pos-d[key="width"],
+                .hmpb-pos-d[key="height"]{display:block;}
+            }
+            .hmpb-pos-box[pos-by="LBWH"] {
+                .hmpb-pos-d[key="left"],
+                .hmpb-pos-d[key="bottom"],
+                .hmpb-pos-d[key="width"],
+                .hmpb-pos-d[key="height"]{display:block;}
+            }
+            .hmpb-pos-box[pos-by="BRWH"] {
+                .hmpb-pos-d[key="bottom"],
+                .hmpb-pos-d[key="right"],
+                .hmpb-pos-d[key="width"],
+                .hmpb-pos-d[key="height"]{display:block;}
+            }
+            .hmpb-pos-box[pos-by="TLBR"] {
+                .hmpb-pos-d[key="top"],
+                .hmpb-pos-d[key="left"],
+                .hmpb-pos-d[key="bottom"],
+                .hmpb-pos-d[key="right"]{display:block;}
+            }
+            .hmpb-pos-box[pos-by="TLBW"] {
+                .hmpb-pos-d[key="top"],
+                .hmpb-pos-d[key="left"],
+                .hmpb-pos-d[key="bottom"],
+                .hmpb-pos-d[key="width"]{display:block;}
+            }
+            .hmpb-pos-box[pos-by="TBRW"] {
+                .hmpb-pos-d[key="top"],
+                .hmpb-pos-d[key="bottom"],
+                .hmpb-pos-d[key="right"],
+                .hmpb-pos-d[key="width"]{display:block;}
+            }
+            .hmpb-pos-box[pos-by="TLRH"] {
+                .hmpb-pos-d[key="top"],
+                .hmpb-pos-d[key="left"],
+                .hmpb-pos-d[key="right"],
+                .hmpb-pos-d[key="height"]{display:block;}
+            }
+            .hmpb-pos-box[pos-by="LBRH"] {
+                .hmpb-pos-d[key="left"],
+                .hmpb-pos-d[key="bottom"],
+                .hmpb-pos-d[key="right"],
+                .hmpb-pos-d[key="height"]{display:block;}
+            }
+            // 块的 form
             .hmpb-form {
                 position: absolute; left:0; right:0; bottom:0;
             }

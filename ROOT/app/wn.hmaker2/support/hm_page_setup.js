@@ -94,7 +94,7 @@ var methods = {
         UI._C.iedit.$body.on("keydown", function(e){
             // 删除
             if(8 == e.which || 46 == e.which) {
-                UI.on_block_delete(e);
+                UI.deleteCom(UI.getActivedCom());
             }
         });
         UI._C.iedit.$body.on("keyup", function(e){
@@ -187,9 +187,11 @@ var methods = {
                 if(!this.__do_ing(this)){
                     // 得到改变
                     var rect = $z.rect_relative(this.rect.com, 
-                                                this.rect.viewport);
-                    var vals = UI.transRectToPosVal(rect, this.comBlock.posBy);
-                    this.comBlock.posVal = vals;
+                                                this.rect.viewport,
+                                                true);
+                    _.extend(this.comBlock, {
+                        top:"",left:"",bottom:"",right:"",width:"",height:""
+                    }, UI.pickCssForMode(rect, this.comBlock.posBy))
                     
                     // 通知修改，在 on_end 的时候会保存位置的
                     this.uiCom.notifyBlockChange(null, this.comBlock);

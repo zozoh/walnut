@@ -47,6 +47,14 @@ var methods = {
     notifyDataChange : function(mode, com) {
         this.fire("change:com", mode, this, (com||this.getData()));
     },
+    // 相当于先 setData 然后再 notifyDataChange
+    saveData : function(mode, com, base) {
+        if(!base)
+            base = this.getData();
+        com = _.extend(base, com);
+        this.setData(com);
+        this.notifyDataChange(mode, com);
+    },
     //........................................................
     // 获取组件的属性
     getBlock : function() {
@@ -75,6 +83,14 @@ var methods = {
     notifyBlockChange : function(mode, block) {
         this.fire("change:block", mode, this, (block||this.getBlock()));
     },
+    // 相当于先 setBlock 然后再 notifyBlockChange
+    saveBlock : function(mode, block, base) {
+        if(!base)
+            base = this.getBlock();
+        block = _.extend(base, block);
+        this.setBlock(block);
+        this.notifyBlockChange(mode, block);
+    },
     //........................................................
     applyBlock : function(block) {
         var UI     = this;
@@ -83,27 +99,31 @@ var methods = {
         var jArena = jW.children(".ui-arena");
         
         // 更新控件的模式
-        jCom.attr("hmc-mode", block.mode);
+        jCom.attr({
+            "hmc-mode"   : block.mode,
+            "hmc-pos-by" : block.posBy
+        });
+        
+        // console.log(block)
         
         // 准备 css 对象
         var cssCom, cssArena;
         
         // 对于绝对位置，绝对位置的话，应该忽略 margin
         if("abs" == block.mode) {
-            var pKeys = (block.posBy||"").split(/\W+/);
-            var pVals = (block.posVal||"").split(/[^\dpx%.-]+/);
-            
-            cssCom = _.object(pKeys, pVals);
+            cssCom = $z.pick(block, "^(top|left|right|bottom|width|height)$");
             cssCom.position = "absolute";
             
-            cssArena = $z.pick(block,"!^(mode|posBy|posVal|margin)$");
+            cssArena = $z.pick(block,
+                "!^(mode|posBy|top|left|right|bottom|width|height|margin)$");
         }
         // 相对位置
         else {
-            cssCom   = {};
-            cssArena = $z.pick(block,"!^(mode|posBy|posVal)$");
+            cssCom   = $z.pick(block, "^(width|height|margin)$");
+            cssArena = $z.pick(block,
+                "!^(mode|posBy|top|left|right|bottom|width|height)$");
         }
-        
+                
         // 位置和大小属性，记录在块上
         jCom.css(UI.formatCss(cssCom, true));
         
@@ -111,17 +131,25 @@ var methods = {
         jArena.css(UI.formatCss(cssArena, true));
         
     },
-    //........................................................
-    // 根据 Block 的属性设置，得到它的应该的矩形对象
-    getBlockRectByProp : function(prop) {
-        var keys = prop.posBy.split(",");
-        var vals = prop.posVal.split(",");
-        var rect = {};
-        for(var i in keys) {
-            rect[keys[i]] = $z.toPixel(vals[i]);
-        }
-        return $z.rect_count_auto(rect, true);
+    //...............................................................
+    // 得到自己关于宽高位置的 css
+    getMyRectCss : function() {
+        var rect = $z.rect(this.$el);
+        var viewport = this.getMyViewportRect();
+        return $z.rect_relative(rect, viewport, true);
     },
+    //...............................................................
+    // 得到控件所属的视口 DOM，如果不在分栏里，那么就是 body
+    getMyViewport : function(){
+        var jArea = this.$el.closest(".hmb-area");
+        if(jArea.length > 0)
+            return jArea;
+        return this.$el.closest("body");
+    },
+    getMyViewportRect : function(){
+        return $z.rect(this.getMyViewport());
+    },
+    //...............................................................
     // 将一个 json 描述的 CSS 对象变成 CSS 文本
     // css 对象，key 作为 selector，值是 JS 对象，代表 rule
     // prefix 为 selector 增加前缀，如果有的话，后面会附加空格
