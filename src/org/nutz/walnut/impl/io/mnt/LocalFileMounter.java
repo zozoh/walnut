@@ -138,7 +138,7 @@ public class LocalFileMounter implements WnMounter {
                 reList.add(__gen_obj(mimes, mo, f));
             }
         }
-
+        reList.sort((from, to)-> from.name().compareTo(to.name()));
         return reList;
     }
 

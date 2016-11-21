@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import javax.imageio.ImageIO;
 
 import org.nutz.lang.Streams;
@@ -18,6 +19,7 @@ import org.nutz.walnut.util.ZParams;
 
 public class cmd_qrcode extends JvmExecutor {
 
+    @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
 
         // 分析参数
@@ -51,6 +53,7 @@ public class cmd_qrcode extends JvmExecutor {
 
         // 生成二维码
         QRCodeFormat qrcf = QRCodeFormat.NEW();
+        qrcf.setErrorCorrectionLevel('M');
         qrcf.setSize(params.getInt("size", 256));
         qrcf.setImageFormat(fmt);
         qrcf.setMargin(params.getInt("margin", 0));
