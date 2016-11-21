@@ -9,19 +9,18 @@ $z.declare([
 //==============================================
 var html = `
 <div class="ui-arena hm-prop-block">
-    <div class="hmpb-pos" mode="abs">
+    <div class="hmpb-pos">
         <div class="hmpb-pos-box">
-            <div class="hmpb-margin" ui-gasket="margin"></div>
             <div class="hmpb-pos-d" key="width"><span><b>{{hmaker.pos.width}}</b><em></em></span></div>
             <div class="hmpb-pos-d" key="height"><span><b>{{hmaker.pos.height}}</b><em></em></span></div>
             <div class="hmpb-pos-d" key="left"><span><b>{{hmaker.pos.left}}</b><em></em></span></div>
             <div class="hmpb-pos-d" key="right"><span><b>{{hmaker.pos.right}}</b><em></em></span></div>
             <div class="hmpb-pos-d" key="top"><span><b>{{hmaker.pos.top}}</b><em></em></span></div>
             <div class="hmpb-pos-d" key="bottom"><span><b>{{hmaker.pos.bottom}}</b><em></em></span></div>
-            <div class="hmpb-pos-v" md="lt" balloon="up:hmaker.pos.v_lt"   val="top,left,width,height"></div>
-            <div class="hmpb-pos-v" md="rt" balloon="up:hmaker.pos.v_rt"   val="top,right,width,height"></div>
-            <div class="hmpb-pos-v" md="lb" balloon="down:hmaker.pos.v_lb" val="bottom,left,width,height"></div>
-            <div class="hmpb-pos-v" md="rb" balloon="down:hmaker.pos.v_rb" val="bottom,right,width,height"></div>
+            <div class="hmpb-pos-v" md="TL" balloon="up:hmaker.pos.TL"   val="TLWH"></div>
+            <div class="hmpb-pos-v" md="TR" balloon="up:hmaker.pos.TR"   val="TRWH"></div>
+            <div class="hmpb-pos-v" md="LB" balloon="down:hmaker.pos.LB" val="LBWH"></div>
+            <div class="hmpb-pos-v" md="BR" balloon="down:hmaker.pos.BR" val="BRWH"></div>
         </div>
         <div class="hmpb-pos-abs">
             <label>
@@ -43,12 +42,20 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
     events : {
         // 切换绝对/相对定位选择框
         "click .hmpb-pos-abs label" : function() {
-            var UI = this;
-            var prop = UI.pageUI().getBlockProp();
+            var block = this.uiCom.getBlock();
 
-            prop.mode = UI.arena.find(".hmpb-pos").attr("mode") == "abs" ? "inflow" : "abs";
+            block.mode = this.arena.find(".hmpb-pos").attr("mode") == "abs"
+                            ? "inflow"
+                            : "abs";
+            
+            // 如果切换到了绝对定位，需要默认设置其宽高
+            this.uiCom.checkBlockMode(block);
 
-            this.fire("change:block", prop);
+            // 保存数据 
+            this.uiCom.setBlock(block);
+            
+            // 通知
+            this.uiCom.notifyBlockChange(null, block);
         },
         // 点击顶点
         "click .hmpb-pos[mode=abs] .hmpb-pos-v" : function(e) {
@@ -57,59 +64,54 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 return;
             }
 
-            var UI = this;
+            var block = this.uiCom.getBlock();
 
             var posBy  = jq.attr("val");
-            var rect   = UI.pageUI().getBlockRectInCss();
-            var posVal = UI.transRectToPosVal(rect, posBy);
+            var rect   = this.uiCom.getMyRectCss();
+            var css    = this.uiCom.pickCssForMode(rect, posBy);
+            block.posBy  = posBy;
+            _.extend(block, css);
 
-            this.fire("change:block", {
-                "posBy"  : posBy,
-                "posVal" : posVal
-            });
+            // 保存数据 
+            this.uiCom.setBlock(block);
+            
+            // 通知
+            this.uiCom.notifyBlockChange(null, block);
         },
         // 编辑位置/宽高
-        "click .hmpb-pos-d[show] em" : function(e) {
+        "click .hmpb-pos-d em" : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
             var key = jq.parents(".hmpb-pos-d").attr("key");
-            var prop = UI.pageUI().getBlockProp();
+            var block = UI.uiCom.getBlock();
 
             // 得到模式
             var md = UI.arena.find(".hmpb-pos").attr("mode");
 
             // 声明后续处理方式
             var __after_input_ok = function(val) {
-                // 绝对定位
-                if("abs" == md) {
-                    var pKeys = (prop.posBy||"").split(/\W+/);
-                    var pVals = (prop.posVal||"").split(/[^\dpx%.-]+/);
-                    var css = _.object(pKeys,pVals);
-                    css[key] = val;
-                    prop.posBy  = _.keys(css).join(",");
-                    prop.posVal = _.values(css).join(",");
-                }
-                // 相对定位 
-                else {
-                    prop[key] = val;
-                }
+                
+                // 修改值
+                block[key] = val;
+                
+                // 保存数据 
+                UI.uiCom.setBlock(block);
+                
                 // 通知
-                UI.fire("change:block", prop);
+                UI.uiCom.notifyBlockChange("panel", block);
             }
 
             // 监视编辑
-            $z.editIt(jq, function(newval, oldval){
+            $z.editIt(jq, function(newval, oldval, jEle){
                 var val = $.trim(newval) || "auto";
                 if(val && val!=oldval) {
-                    // 看看值是否合法，合法就进行后续处理
-                    var m = /^(([\d.]+)(px)?(%)?|auto)$/.exec(val);
-                    if(m) {
-                        // 如果没有单位自动补上 px
-                        if(m[2] && !m[3] && !m[4]){
-                            val += "px";
-                        }
+                    var v2 = $z.toCssDimension(val);
+                    if(v2) {
                         // 后续处理
-                        __after_input_ok(val);
+                        __after_input_ok(v2);
+                        
+                        // 显示修正后的值
+                        jEle.text(v2);
                     }
                 }
             });
@@ -117,38 +119,35 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         }
     },
     //...............................................................
-    changePosBy : function(md) {
-        var UI = this;
-        var ss = md.split(/,/).sort();
+    changePosBy : function(block, posBy) {
+        var jPos = this.arena.find(".hmpb-pos-box").attr("pos-by", posBy);
         
-        var jPosBox = UI.arena.find(".hmpb-pos-box").attr("pos-by", md);
-
-        // 隐藏显示对应尺度
-        jPosBox.find(".hmpb-pos-d").each(function(){
-            var jD = $(this);
-            if(md.indexOf(jD.attr("key")) >= 0) {
-                jD.attr("show", "yes");
-            }else {
-                jD.removeAttr("show");
-            }
-        });
-        // 处理对应的尺度显示点
-        var md2 = ss.join(",");
-        jPosBox.find(".hmpb-pos-v").each(function(){
+        // 取消所有的高亮节点
+        jPos.find('.hmpb-pos-v[highlight]').removeAttr("highlight");
+        
+        // 寻找高亮的顶点 
+        // 因为 posBy 的格式一定是 [T][L][B][R][W][H]
+        // 每个顶点的 md 也是这个顺序，那么简单判断一下字符串包含
+        // 就能来决定当前模式，这个顶点是否要高亮了
+        jPos.find(".hmpb-pos-v").each(function(){
             var jV = $(this);
-            var vv = jV.attr("val").split(/,/).sort();
-            if(md2 == vv.join(",")) {
+            var md = jV.attr("md");
+            if(posBy.indexOf(md) >= 0)
                 jV.attr("highlight", "yes");
-            }else {
-                jV.removeAttr("highlight");
-            }
         });
 
-        return md;
+        // 改变位置的值
+        this.arena.find(".hmpb-pos-d").each(function(){
+            var jD  = $(this);
+            var key = jD.attr("key");
+            var val = $z.toCssDimension(block[key], "NaN");
+            
+            jD.find("em").text(val);
+        });
     },
     //...............................................................
     update : function(uiCom, block) {
-        this.__uiCom = uiCom;
+        this.uiCom = uiCom;
         this.__update_pos(block);
         this.__update_form(block);
     },
@@ -159,55 +158,33 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
 
         // 绝对定位
         if("abs" == block.mode) {
+            // 标志
+            jPos.attr("mode", "abs");
+            
             // 打开提示
             UI.balloon();
 
-            // 更新位置信息
-            var posBy;
-            if(block.posBy){
-                posBy = UI.changePosBy(block.posBy);
-            } else {
-                posBy = UI.arena.find(".hmpb-pos-box").attr("pos-by");
-            }
-
-            // 改变位置的值
-            if(posBy && block.posVal) {
-                var posKeys = posBy.split(/,/);
-                var posVals = block.posVal.split(/,/);
-                for(var i=0; i<posKeys.length; i++) {
-                    var key = posKeys[i];
-                    var val = posVals[i];
-                    UI.arena.find('.hmpb-pos-d[key="'+key+'"] em').text(val);
-                }
-            }
+            // 更新显示
+            UI.changePosBy(block, block.posBy || "TLWH");
         }
         // 相对定位
         else {
+            // 标志
+            jPos.attr("mode", "inflow");
+            
             // 关闭提示
             UI.balloon(false);
 
             // 更新显示
-            UI.changePosBy("width,height");
-
-            // 宽
-            if(block.width) {
-                UI.arena.find('.hmpb-pos-d[key="width"] em').text(block.width);
-            }
-            // 高
-            if(block.height) {
-                UI.arena.find('.hmpb-pos-d[key="height"] em').text(block.height);
-            }
-            // 排序
-            UI.gasket.margin.setData(block.margin);
+            UI.changePosBy(block, "WH");
         }
     },
     //...............................................................
     __update_form : function(block) {
         var UI = this;
-        var uiCom = UI.__uiCom;
-        
+                
         // 得到块属性列表
-        var blockFields = uiCom.getBlockPropFields(block);
+        var blockFields = UI.uiCom.getBlockPropFields(block);
         
         // 看看是否需要重绘字段
         var bf_finger = blockFields.join(",");
@@ -218,9 +195,9 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 gasketName : "form",
                 uiWidth: "all",
                 on_change : function(key, val) {
-                    UI.notifyBlockChange("panel", $z.obj(key, val));
+                    UI.uiCom.saveBlock("panel", $z.obj(key, val));
                 },
-                fields : UI.__gen_block_fields(blockFields, block)
+                fields : UI.__gen_block_fields(blockFields)
             }).render(function(){
                 // 设置数据
                 UI.gasket.form.setData(block);
@@ -238,33 +215,33 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         var UI = this;
 
         // 测试用代码
-        UI.arena.find(".hmpb-pos-d em").text("nAn");
+        UI.arena.find(".hmpb-pos-d em").text("NaN");
 
-        // margin 
-        new SwitchUI({
-            parent : UI,
-            gasketName : "margin",
-            on_change : function(val){
-                UI.fire("change:block", {margin:val});
-            },
-            items : [{
-                icon : '<i class="fa fa-align-left">',
-                val  : '',
-            }, {
-                icon : '<i class="fa fa-align-center">',
-                val  : '0 auto',
-            }, {
-                icon : '<i class="fa fa-align-right">',
-                val  : '0 0 0 auto',
-            }]
-        }).render(function(){
-            UI.defer_report("margin");
-        });
-        
-        return  ["margin"];
+        // // margin 
+        // new SwitchUI({
+        //     parent : UI,
+        //     gasketName : "margin",
+        //     on_change : function(val){
+        //         UI.fire("change:block", {margin:val});
+        //     },
+        //     items : [{
+        //         icon : '<i class="fa fa-align-left">',
+        //         val  : '',
+        //     }, {
+        //         icon : '<i class="fa fa-align-center">',
+        //         val  : '0 auto',
+        //     }, {
+        //         icon : '<i class="fa fa-align-right">',
+        //         val  : '0 0 0 auto',
+        //     }]
+        // }).render(function(){
+        //     UI.defer_report("margin");
+        // });
+        // 
+        // return  ["margin"];
     },
     //...............................................................
-    __gen_block_fields : function(blockFields, block) {
+    __gen_block_fields : function(blockFields) {
         var UI = this;
         var re = [];
         for(var key of blockFields) {
@@ -277,14 +254,12 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 });
             }
             else if("margin" == key) {
-                if("abs" != block.mode){
-                    re.push({
-                        key    : "margin",
-                        title  : "i18n:hmaker.prop.margin",
-                        type   : "string",
-                        editAs : "input"
-                    });
-                }
+                re.push({
+                    key    : "margin",
+                    title  : "i18n:hmaker.prop.margin",
+                    type   : "string",
+                    editAs : "input"
+                });
             }
             else if("border" == key) {
                 re.push({
@@ -349,7 +324,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 });
             }
             else {
-                console.warn("unsupport blockField:", key, uiCom);
+                console.warn("unsupport blockField:", key, UI.uiCom);
             }
         }
         

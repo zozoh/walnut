@@ -248,6 +248,28 @@
             return dft;
         },
         //.............................................
+        // 将一个数值变成 css 表示的带单位的数值属性
+        // 如果不合法，就返回 dft 默认为 undefined
+        toCssDimension : function(val, dft) {
+            // 数字的话，一律是 px
+            if(_.isNumber(val))
+                return val + "px";
+            
+            // 看看值是否合法，合法就进行后续处理
+            var m = /^(([\d.]+)(px)?(%)?|auto)$/.exec(val);
+            if(m) {
+                // 如果没有单位自动补上 px
+                if(m[2] && !m[3] && !m[4]){
+                    val += "px";
+                }
+                
+                // 返回
+                return val;
+            }
+            
+            return dft;
+        },
+        //.............................................
         obj : function(key, val) {
             if(_.isString(key)){
                 var re = {};

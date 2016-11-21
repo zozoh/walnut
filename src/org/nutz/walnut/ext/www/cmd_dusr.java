@@ -261,7 +261,6 @@ public class cmd_dusr extends JvmExecutor {
         else {
             sys.out.println(oSe.id());
         }
-
     }
 
     private long __get_se_duration(NutMap conf) {
@@ -273,7 +272,7 @@ public class cmd_dusr extends JvmExecutor {
 
         // 得到主目录
         WnObj oHome = this.getHome(sys);
-        WnObj oHU = sys.io.createIfNoExists(oHome, ".usr", WnRace.FILE);
+        WnObj oHU = sys.io.createIfNoExists(oHome, ".usr", WnRace.DIR);
 
         // 看看用户是否存在
         WnQuery q = Wn.Q.pid(oHU);
@@ -313,7 +312,7 @@ public class cmd_dusr extends JvmExecutor {
         }
 
         // 创建用户对象并保存
-        WnObj oU = sys.io.createIfNoExists(oHU, "${id}", WnRace.FILE);
+        WnObj oU = sys.io.createIfNoExists(oHU, "${id}", WnRace.DIR);
         sys.io.appendMeta(oU, umap);
 
         // 输出用户对象, 密码可不敢给别人看见

@@ -52,7 +52,8 @@ var html = `
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_objlist", {
-    dom  : html,
+    dom     : html,
+    keepDom : false,
     //...............................................................
     init : function(){
         var UI = HmComMethods(this);
@@ -66,7 +67,7 @@ return ZUI.def("app.wn.hm_com_objlist", {
         }
     },
     //...............................................................
-    setupProp : function(){
+    getDataProp : function(){
         return {
             uiType : 'app/wn.hmaker2/com_prop/objlist_prop',
             uiConf : {}

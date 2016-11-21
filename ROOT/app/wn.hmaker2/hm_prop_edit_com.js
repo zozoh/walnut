@@ -124,12 +124,14 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
                     parent : UI,
                     gasketName : "prop"
                 })).render(function(){
+                    UI.gasket.prop.uiCom = uiCom;
                     UI.gasket.prop.update(com);
                 });
             });
         }
         // 否则直接更新
         else {
+            UI.gasket.prop.uiCom = uiCom;
             UI.gasket.prop.update(com);
         }
     },

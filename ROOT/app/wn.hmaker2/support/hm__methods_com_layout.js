@@ -1,5 +1,131 @@
 define(function (require, exports, module) {
 var methods = {
+    // 确保某个区域是否有辅助节点，如果没有就加上它
+    checkAreaAssistDOM : function(aid) {
+        var jArea = this.getArea(aid);
+        
+        // 辅助节点
+        var jAss = jArea.children(".hm-area-assist");
+        if(jAss.length == 0) {
+            $($z.compactHTML(`<div class="hm-area-assist hm-del-save">
+                <div class="hma-ai" m="N"></div>
+                <div class="hma-ai" m="W"></div>
+                <div class="hma-ai" m="E"></div>
+                <div class="hma-ai" m="S"></div>            
+            </div>`)).prependTo(jArea);
+        }
+        
+        // 内容区
+        var jCon = jArea.children(".hm-area-con");
+        if(jCon.length == 0){
+            $('<div class="hm-area-con"></div>').appendTo(jArea);
+        }
+        
+        // 返回区域的 DOM
+        return jArea;
+    },
+    // 分配一个区域 ID
+    assignAreaId : function() {
+        // 首选收集所有区域的 ID
+        var areaIds = [];
+        this.arena.children(".hm-area").each(function(){
+            areaIds.push($(this).attr("area-id"));
+        });
+        // 从 1 开始循环，找到一个没有分配的 ID
+        var n = 1;
+        var aid = "Area1"; 
+        while(areaIds.indexOf(aid)>=0) {
+            aid = "Area" + (++n);
+        }
+        // 返回 ID
+        return aid;
+    },
+    // 增加一个区域
+    addArea : function() {
+        var jArea = $('<div class="hm-area"><div class="hm-area-con"></div></div>')
+            .appendTo(this.arena);
+        jArea.attr("area-id", this.assignAreaId());
+        return this.checkAreaAssistDOM(jArea);
+    },
+    // 得到一个区域的 jQuery 对象
+    getArea : function(aid){
+        if(_.isString(aid))
+            return this.arena.children('[area-id="'+aid+'"]');
+        if(_.isElement(aid) || $z.isjQuery(aid))
+            return $(aid).closest(".hm-area");
+        throw "Don't known how to find area by : '" + aid + "'";
+    },
+    // 得到区域的 JSON 描述
+    getAreaObj : function(aid){
+        var jArea = this.getArea(aid);
+        return {
+            areaId    : jArea.attr("area-id"),
+            highlight : jArea.attr("highlight") == "yes"
+        };
+    },
+    // 得到所有区域的列表
+    getAreaObjList : function() {
+        var UI = this;
+        var re = [];
+        UI.arena.children(".hm-area").each(function(){
+            re.push(UI.getAreaObj(this));
+        });
+        return re;
+    },
+    // 删除这个区域
+    deleteArea : function(aid) {
+        var jArea = this.getArea(aid);
+        
+        // 找到这个区域包含的所有的组件
+        jArea.children(".hm-com").each(function(){
+            var uiCom = ZUI(this);
+            uiCom.destroy();
+        });
+        
+        // 移除自身
+        jArea.remove();
+    },
+    // 移动区域
+    // direction : "prev" || "next"
+    moveArea : function(aid, direction) {
+        var jArea = this.getArea(aid);
+        
+        // 向前
+        if("prev" == direction) {
+            var jPrev = jArea.prev();
+            if(jPrev.length > 0) {
+                jArea.insertBefore(jPrev);
+            }
+        }
+        // 向后
+        else {
+            var jNext = jArea.next();
+            if(jNext.length > 0) {
+                jArea.insertAfter(jNext);
+            }
+        }
+
+        // 闪动一下做个标记
+        $z.blinkIt(jArea);
+    },
+    // 高亮一个区域 
+    highlightArea : function(aid) {
+        var jArea = false === aid ? null : this.getArea(aid);
+        
+        // 反正要取消之前高亮的区域
+        this.arena.attr("highlight-mode", "yes")
+            .children(".hm-area[highlight]")
+                .removeAttr("highlight");
+        
+        // 设置某个块高亮，那么其他的块就需要虚掉
+        if(jArea && jArea.length > 0) {
+            jArea.attr("highlight", "yes");
+        }
+        // 否则就是表示取消全部高亮
+        else {
+            this.arena.removeAttr("highlight-mode");
+        }
+    }
     
 }; // ~End methods
 //====================================================================

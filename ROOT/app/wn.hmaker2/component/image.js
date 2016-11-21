@@ -6,14 +6,15 @@ $z.declare([
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
 var html = `
-<div class="ui-arena hmc-image hm-del-save">
-    <div class="hmc-image-pic"></div>
-    <div class="hmc-image-txt"></div>
-    <div class="hmc-image-link-tip"><i class="zmdi zmdi-link"></i></div>
+<div class="ui-arena hmc-image">
+    <div class="hmc-image-pic hm-del-save"></div>
+    <div class="hmc-image-txt hm-del-save"></div>
+    <div class="hmc-image-link-tip hm-del-save"><i class="zmdi zmdi-link"></i></div>
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_image", {
-    dom  : html,
+    dom     : html,
+    keepDom : false,
     //...............................................................
     init : function(){
         HmComMethods(this);
@@ -305,9 +306,14 @@ return ZUI.def("app.wn.hm_com_image", {
         }];
     },
     //...............................................................
-    getBlockPropFields : function() {
-        return ["margin","padding","border","borderRadius",
-                "boxShadow","overflow"];
+    getBlockPropFields : function(block) {
+        var re = [];
+        if(block.mode == 'inflow') {
+            re.push("margin");
+        }
+        return re.concat(["border","borderRadius","color",
+            "background","boxShadow","overflow",
+        ]);
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性
@@ -339,10 +345,13 @@ return ZUI.def("app.wn.hm_com_image", {
     getDefaultBlock : function(){
         return {
             mode : "abs",
-            posBy   : "top,left,width,height",
-            posVal  : "10px,10px,200px,200px",
-            width   : "",
-            height  : "",
+            posBy   : "TLWH",
+            //posBy   : "top,left,width,height",
+            //posVal  : "10px,10px,200px,200px",
+            top     : "10px",
+            left    : "10px",
+            width   : "200px",
+            height  : "200px",
             padding : "",
             border : "" ,   // "1px solid #000",
             borderRadius : "",

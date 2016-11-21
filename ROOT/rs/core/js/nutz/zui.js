@@ -82,12 +82,14 @@ var register = function(UI) {
         $z.setUndefined(UI, "keepDom", (_.isUndefined(opt.keepDom) || opt.keepDom));
         UI.keepDom = _.isUndefined(opt.keepDom)
                         ? (UI.keepDom===false? false:true)
-                        : opt.keepDom
-
+                        : opt.keepDom;
+        if(UI.keepDom)
+            console.log("keepDom", UI.uiName)
+        
         // 试图正确的获取 Arena
-        UI.arena = UI.$el.children('.ui-arena');
-        if(UI.arena.size() == 0)
-            UI.arena = UI.$el;
+        // UI.arena = UI.$el.children('.ui-arena');
+        // if(UI.arena.size() == 0)
+        //     UI.arena = UI.$el;
 
         // 看看这个 $el 是不是已经是个 UI 了
         var cid = UI.$el.attr("ui-id");
@@ -100,10 +102,11 @@ var register = function(UI) {
             UI.$el = null;
             UI.el  = null;
         }
-        // 否则清空它
-        else if(!UI.keepDom){
-            UI.$el.empty();
-        }
+        // // 否则清空它
+        // else if(!UI.keepDom){
+        //     var jCon = UI.findDomParent();
+        //     UI.$el.empty();
+        // }
     }
     //....................................
     // 指定了 $pel 的话 ...

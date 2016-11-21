@@ -16,3 +16,16 @@ function print(msg) {
 function printJson(obj) {
 	print(sys.json(obj));
 }
+
+//AJAX 成功输出
+function ajax_re(obj) {
+    // 处理返回对象
+    if (typeof obj == "string") {
+        obj = obj.trim();
+        if (/^\{.+\}$/.test(obj)) {
+            obj = eval('(' + obj + ')');
+        }
+    }
+    // 响应体
+    sys.out.println(JSON.stringify(obj, null, '    '));
+}

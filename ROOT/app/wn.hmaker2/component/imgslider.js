@@ -25,7 +25,7 @@ return ZUI.def("app.wn.hm_com_imgslider", {
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性
-    setupProp : function(){
+    getDataProp : function(){
 
     }
 });
