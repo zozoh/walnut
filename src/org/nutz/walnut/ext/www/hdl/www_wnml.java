@@ -42,8 +42,8 @@ public class www_wnml implements WWWHdl {
         for (Element ele : eles) {
             __do_include(sys, wwc, ele, wwc.context);
         }
-        
-        //System.out.println(doc);
+
+        // System.out.println(doc);
 
         // 然后处理数据源
         // eles = doc.select("script.wn-datasource");
@@ -158,6 +158,7 @@ public class www_wnml implements WWWHdl {
             // 每个子元素都要迭代
             final Node[] children = this.__get_children_array(ele);
             Lang.each(items, new Each<Object>() {
+                @Override
                 public void invoke(int index, Object val, int length) {
                     loopC.put(varName, val);
                     for (Node child : children) {
@@ -259,6 +260,8 @@ public class www_wnml implements WWWHdl {
 
         // 复制Body所有的内容到自己之后
         children = __get_children_array(doc.body());
+        // Fixed: 因为ele.after在当前节点后面一直插入，所以导致nd顺序完全倒置
+        Lang.reverse(children);
         for (Node nd : children) {
             ele.after(nd);
         }
