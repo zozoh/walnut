@@ -260,6 +260,17 @@
                     padding:@d3;
                 }
             }
+            // 重置菜单控件属性
+            .menu {
+                background:@cborder1; padding:@d2; text-align: right;
+                .menu-item[tp="button"]>.menu-item-wrapper{
+                    transition: 0.2s;
+                }
+                .menu-item[tp="button"]>.menu-item-wrapper:hover {
+                    color:@c0; background: rgba(255,255,255,0.4);
+                    transform: translateY(-2px);
+                }
+            }
         } // ~ 控件属性
         //....................................................
         // 控件内元素属性
@@ -381,16 +392,7 @@
     padding:@d3;
     // 动作菜单区
     .crp-actions {
-        background:@cborder1; padding:0 @d2; text-align: right;
-        .menu {
-            .menu-item[tp="button"]>.menu-item-wrapper{
-                transition: 0.2s;
-            }
-            .menu-item[tp="button"]>.menu-item-wrapper:hover {
-                color:@c0; background: #FFF;
-                transform: translateY(-2px);
-            }
-        }
+        
     }
     // 样式显示区域
     .crp-layout { @noselect();
