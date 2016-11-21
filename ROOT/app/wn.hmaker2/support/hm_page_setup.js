@@ -94,7 +94,8 @@ var methods = {
         UI._C.iedit.$body.on("keydown", function(e){
             // 删除
             if(8 == e.which || 46 == e.which) {
-                UI.on_block_delete(e);
+                UI.deleteCom(UI.getActivedCom());
+                UI.fire("active:page", UI._page_obj);
             }
         });
         UI._C.iedit.$body.on("keyup", function(e){
@@ -117,9 +118,14 @@ var methods = {
             autoUpdateTriggerBy : null,
             findTrigger : function(e) {
                 var jq    = $(e.target);
+                // 辅助节点
                 var jAi   = jq.closest(".hmc-ai");
                 if(jAi.length > 0)
                     return jAi;
+                // inflow 的不能移动
+                if('inflow' == jq.closest(".hm-com").attr("hmc-mode"))
+                    return null;
+                // 可以移动
                 return $(this);
             },
             on_begin : function(e) {
@@ -181,15 +187,25 @@ var methods = {
                 this.uiCom = ZUI(jCom);
                 this.comBlock = this.uiCom.getBlock();
                 this.rect.com = $z.rect(jCom);
+                //......................................
+                // 确保这个控件是激活的
+                if(!jCom.attr("hm-actived")){    
+                    // 通知激活控件
+                    this.uiCom.notifyActived();
+                    this.uiCom.notifyBlockChange("page", this.uiCom.getBlock());
+                    this.uiCom.notifyDataChange("page",  this.uiCom.getData());
+                }
             },
             on_ing : function() {
                 // 计算，如果返回 true 表示不要更新块的位置大小
                 if(!this.__do_ing(this)){
                     // 得到改变
                     var rect = $z.rect_relative(this.rect.com, 
-                                                this.rect.viewport);
-                    var vals = UI.transRectToPosVal(rect, this.comBlock.posBy);
-                    this.comBlock.posVal = vals;
+                                                this.rect.viewport,
+                                                true);
+                    _.extend(this.comBlock, {
+                        top:"",left:"",bottom:"",right:"",width:"",height:""
+                    }, UI.pickCssForMode(rect, this.comBlock.posBy))
                     
                     // 通知修改，在 on_end 的时候会保存位置的
                     this.uiCom.notifyBlockChange(null, this.comBlock);

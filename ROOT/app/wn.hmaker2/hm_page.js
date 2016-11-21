@@ -101,13 +101,13 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.listenBus("change:block", function(mode, uiCom, block){
             if("page" == mode)
                 return;
-            console.log("hm_page::on_change:block:", mode,uiCom.uiName, block);
+            //console.log("hm_page::on_change:block:", mode,uiCom.uiName, block);
             uiCom.applyBlock(block);
         });
         UI.listenBus("change:com", function(mode, uiCom, com){
             if("page" == mode)
                 return;
-            console.log("hm_page::on_change:com:", mode, uiCom.uiName, com);
+            //console.log("hm_page::on_change:com:", mode, uiCom.uiName, com);
             
             // 移除旧皮肤
             if(uiCom.__current_skin && uiCom.__current_skin != com.skin) {
@@ -322,6 +322,21 @@ return ZUI.def("app.wn.hmaker_page", {
         // 全部加载完毕了
         if(UI._need_load.length == 0){
             UI.setup_page_editing();
+        }
+    },
+    //...............................................................
+    getActivedCom : function() {
+        var UI = this;
+        var jCom = UI._C.iedit.$body.find(".hm-com[hm-actived]");
+        if(jCom.length > 0) {
+            return ZUI(jCom);
+        }
+    },
+    //...............................................................
+    deleteCom : function(uiCom) {
+        if(uiCom) {
+            uiCom.destroy();
+            uiCom.$el.remove();
         }
     },
     //...............................................................
@@ -545,6 +560,7 @@ return ZUI.def("app.wn.hmaker_page", {
             var jCom = $(this).attr({
                 "style" : null,
                 "ui-id" : null,
+                "hm-actived" : null
             });
             var jW   = jCom.children(".hm-com-W");
             
@@ -566,25 +582,29 @@ return ZUI.def("app.wn.hmaker_page", {
                     subs.removeAttr(attrName);
                 }
             });
-            
-            // 整理所有的空节点，让其为一个回车
-            $z.eachTextNode(jCom, function(){
-                var str = $.trim(this.nodeValue);
-                // 处理空白节点
-                if(0 == str.length) {
-                    // 如果之前的节点是个文本节点的话，那么自己就变成空字符串吧
-                    if(this.previousSibling && this.previousSibling.nodeType == 3) {
-                        this.nodeValue = "";
-                    }
-                    // 否则输出个回车
-                    else {
-                        this.nodeValue = "\n";
-                    }
-                }
-            });
-
         });
-
+        
+        // 所有的分栏和组件前面都加入一个回车
+        C.iload.$body.find(".hm-com, .hm-area").each(function(){
+            this.parentNode.insertBefore(document.createTextNode("\n"),this);
+        });
+        
+        // 整理所有的空节点，让其为一个回车
+        $z.eachTextNode(C.iload.$body, function(){
+            var str = $.trim(this.nodeValue);
+            // 处理空白节点
+            if(0 == str.length) {
+                // 如果之前的节点是个文本节点的话，那么自己就变成空字符串吧
+                if(this.previousSibling && this.previousSibling.nodeType == 3) {
+                    this.nodeValue = "";
+                }
+                // 否则输出个回车
+                else {
+                    this.nodeValue = "\n";
+                }
+            }
+        });
+        
         // 返回 HTML
         return '<!DOCTYPE html>\n<html>\n' + C.iload.$root.html() + '\n</html>\n';;
     },

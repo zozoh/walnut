@@ -92,25 +92,26 @@ return ZUI.def("app.wn.hm_prop_edit", {
     },
     //...............................................................
     doActiveOther : function(){
-        console.log("hm_prop_edit->doActiveOther:");
+        //console.log("hm_prop_edit->doActiveOther:");
         // this.gasket.com.showBlank();
     },
     //...............................................................
     doActiveCom : function(uiCom) {
-        console.log("hm_prop_edit->doActiveCom:", uiCom.uiName);
+        //console.log("hm_prop_edit->doActiveCom:", uiCom.uiName);
     },
     //...............................................................
     doChangeBlock : function(mode, uiCom, block) {
         if("panel" == mode)
             return;
-        console.log("hm_prop_edit::doChangeBlock:", mode, uiCom.uiName);
+        //console.log("hm_prop_edit::doChangeBlock:", mode, uiCom.uiName);
         this.gasket.block.update(uiCom, block);
     },
     //...............................................................
     doChangeCom : function(mode, uiCom, com) {
         if("panel" == mode)
             return;
-        console.log("hm_prop_edit::doChangeCom:", mode, uiCom.uiName);
+        //console.log("hm_prop_edit::doChangeCom:", mode, uiCom.uiName);
+        // 执行更新
         this.gasket.com.update(uiCom, com);
     },
     //...............................................................

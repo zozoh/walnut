@@ -11,7 +11,7 @@ var html = `
 //==============================================
 return ZUI.def("app.wn.hm_com_navmenu", {
     keepDom : true,
-    dom : html,
+    dom     : html,
     //...............................................................
     init : function(){
         HmComMethods(this);
