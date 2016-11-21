@@ -200,11 +200,13 @@ return ZUI.def("app.wn.hmaker_page", {
         
         // 执行加载
         seajs.use("app/wn.hmaker2/component/"+ctype, function(ComUI){
+            jCom.css("visibility", "hidden");
             new ComUI({
                 parent  : UI,
                 $el     : jCom,
             }).render(function(){
                 $z.doCallback(callback, [this], UI);
+                jCom.css("visibility", "");
             })
         });
     },
@@ -322,6 +324,9 @@ return ZUI.def("app.wn.hmaker_page", {
         // 全部加载完毕了
         if(UI._need_load.length == 0){
             UI.setup_page_editing();
+            
+            // 显示 iFrame
+            UI.arena.find(".hmpg-frame-edit").css("visibility", "");
         }
     },
     //...............................................................
@@ -458,6 +463,7 @@ return ZUI.def("app.wn.hmaker_page", {
         UI._page_obj = o;
 
         var jIfmEdit = UI.arena.find(".hmpg-frame-edit");
+        jIfmEdit.css("visibility", "hidden");
         jIfmEdit.prop("src", "/a/load/wn.hmaker2/page_loading.html");
 
         var jIfmLoad = UI.arena.find(".hmpg-frame-load");

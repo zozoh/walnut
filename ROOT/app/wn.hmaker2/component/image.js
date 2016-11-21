@@ -26,6 +26,7 @@ return ZUI.def("app.wn.hm_com_image", {
         },
         // 重置图片的原始宽度
         "dblclick img" : function(e){
+            console.log("dblclick img")
             var UI   = this;
             var jImg = UI.arena.children("img");
             var oW = jImg.attr("org-width") * 1;
@@ -34,7 +35,7 @@ return ZUI.def("app.wn.hm_com_image", {
                 UI.saveBlock(null, {
                     "width"   : oW,
                     "height"  : oH,
-                    "padding" : 0,
+                    "padding" : "",
                 });
             }
         }
@@ -70,7 +71,7 @@ return ZUI.def("app.wn.hm_com_image", {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 更新图片的样式
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        var src  = '/a/load/wn.hmaker2/img_blank.jpg';
+        var src  = '';
         if(com.src) {
             // 指定了绝对路径
             if(/^https?:\/\//i.test(com.src)) {
@@ -81,23 +82,23 @@ return ZUI.def("app.wn.hm_com_image", {
                 src = '/o/read/' + com.src;
             }
         }
-        console.log(jImg.attr("src"), src)
+        //console.log(jImg.attr("src"), src)
         // 如果 src 发生变更，重新加载图片后，应该重新设置图片控件宽高
         if(src != jImg.attr("src")) {
-            console.log("haha")
+            //console.log("haha")
             // 如果图片的原始宽高与设置的相等，那么就表示要自动改变宽高
             var block = UI.getBlock();
             var bW = $z.toPixel(block.width);
             var bH = $z.toPixel(block.height);
             var oW = jImg.attr("org-width") * 1;
             var oH = jImg.attr("org-height") * 1;
-            var iW = jImg.width();
-            var iH = jImg.height();
-            var isAutoResize = (bW == oW && bH== oH) || isNaN(oW) || isNaN(oH);
+            var iW = jImg.width()  || bW;
+            var iH = jImg.height() || bH;
+            var isAutoResize = (bW == oW && bH== oH) || !src;
             // 开始加载图片
             UI.showLoading();
             jImg.css({width:"", height:"", visibility:"hidden"}).one("load", function(){
-                console.log("reset img w/h")
+                //console.log("reset img w/h")
                 UI.hideLoading();
                 // 得到原始宽高
                 var w = this.width;
@@ -125,7 +126,7 @@ return ZUI.def("app.wn.hm_com_image", {
                 }
             });
             // 触发图片的内容改动
-            jImg.attr("src", src);
+            jImg.attr("src", src || '/a/load/wn.hmaker2/img_blank.jpg');
         }
 
         // 图片拉伸方式

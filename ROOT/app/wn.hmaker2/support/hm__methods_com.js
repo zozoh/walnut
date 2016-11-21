@@ -97,8 +97,11 @@ var methods = {
         
         // 更新控件的模式
         jCom.attr({
-            "hmc-mode"   : block.mode,
-            "hmc-pos-by" : block.posBy
+            "hmc-mode"    : block.mode,
+            "hmc-pos-by"  : block.posBy,
+            // 判断区域是否过小
+            "hmc-small-W" : block.width<100  ? "yes" : null,
+            "hmc-small-H" : block.height<100 ? "yes" : null,
         });
         
         // console.log(block)
@@ -119,6 +122,17 @@ var methods = {
             cssCom   = $z.pick(block, "^(width|height|margin)$");
             cssArena = $z.pick(block,
                 "!^(mode|posBy|top|left|right|bottom|width|height|margin)$");
+        }
+        
+        // 确保内容区域如果被滚动和剪裁，是有宽高的
+        if(/^(auto|hidden|scroll)/.test(cssArena.overflow)){
+            cssArena.width  = "100%";
+            cssArena.height = "100%";
+        }
+        // 否则清除这个设置
+        else {
+            cssArena.width  = "";
+            cssArena.height = "";
         }
                 
         // 位置和大小属性，记录在块上
@@ -206,7 +220,7 @@ module.exports = function(uiCom){
         if(block.mode == 'inflow') {
             re.push("margin");
         }
-        return re.concat(["padding","border","borderRadius","color",
+        return re.concat(["padding","border","borderRadius",/*"color",*/
             "background","boxShadow","overflow",
         ]);
     });

@@ -73,6 +73,11 @@ var methods = {
                 
                 // 得到组件的 UI
                 var uiCom = ZUI(jq);
+                
+                // 快速切换页面的时候会出现异步的问题
+                // 防守一道
+                if(!uiCom)
+                    return;
                             
                 // 通知激活控件
                 uiCom.notifyActived();
