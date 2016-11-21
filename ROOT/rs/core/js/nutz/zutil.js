@@ -273,7 +273,8 @@
         obj : function(key, val) {
             if(_.isString(key)){
                 var re = {};
-                re[key] = val;
+                //re[key] = val;
+                zUtil.setValue(re, key, val);
                 return re;    
             }
             return key;

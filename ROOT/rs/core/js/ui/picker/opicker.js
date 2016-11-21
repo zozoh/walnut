@@ -30,6 +30,7 @@ return ZUI.def("ui.picker.opicker", {
             new PopBrowser(_.extend({
                 checkable : false,
                 sidebar   : false,
+                objTagName : 'SPAN',
                 canOpen : function(o){
                     return o.race == 'DIR';
                 },

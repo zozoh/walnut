@@ -48,12 +48,9 @@ var methods = {
         this.fire("change:com", mode, this, (com||this.getData()));
     },
     // 相当于先 setData 然后再 notifyDataChange
-    saveData : function(mode, com, base) {
-        if(!base)
-            base = this.getData();
-        com = _.extend(base, com);
-        this.setData(com);
-        this.notifyDataChange(mode, com);
+    saveData : function(mode, com, shallow) {
+        var com2 = this.setData(com, shallow);
+        this.notifyDataChange(mode, com2);
     },
     //........................................................
     // 获取组件的属性
@@ -129,6 +126,9 @@ var methods = {
         
         // 其他记录在显示区上
         jArena.css(UI.formatCss(cssArena, true));
+        
+        // 调用控件特殊的设置
+        $z.invoke(UI, "on_apply_block", [block]);
         
     },
     //...............................................................

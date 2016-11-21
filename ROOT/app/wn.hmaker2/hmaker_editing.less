@@ -32,6 +32,9 @@ body {margin:0; font-size:12px;}
 @hS : 4px;
 @hV : 12px;
 .hm-com {
+    .ui-loading {
+        font-size: @f4; padding:@d4; color:@c2;
+    }
     > .hm-com-W {
         position: relative;
         > .hm-com-assist {
@@ -212,26 +215,21 @@ body {margin:0; font-size:12px;}
 }
 //............................................................
 // image
-.hmc-image {
-    width:100%; height:100%; position: relative;
-    .hmc-image-link-tip {
+.hm-com[ctype="image"] {display: inline-block;}
+.hmc-image { @noselect();
+    position: relative; width:100%; height:100%;
+    img {border:0;}
+    .hmc-image-link-tip { display: none;
         position: absolute; right: @d0; top:@d0;
-        display: none; color:#FFF; 
-        border-radius: 50%; background: rgba(0,0,0,0.3);
-        padding:@d2; 
+        color:#FFF; background: rgba(0,0,0,0.3);
+        padding:@d2; border-radius: 50%; 
+    }
+    .hmc-image-txt { display: none;
+        position: absolute; padding: @d2;
     }
 }
-.hmc-image[image-href] .hmc-image-link-tip{
-    display: block;
-}
-.hmc-image-pic {
-    width:100%; height:100%;
-}
-.hmc-image-txt {
-    position: absolute; padding: @d2;
-}
-.hmc-image .hmc-image-txt {display: none;}
-.hmc-image[show-txt] .hmc-image-txt {display: block;}
+.hmc-image[image-href] .hmc-image-link-tip {display: block;}
+.hmc-image[show-txt]   .hmc-image-txt      {display: block;}
 //............................................................
 // Text
 .hmc-text {

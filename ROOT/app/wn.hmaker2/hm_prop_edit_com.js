@@ -122,7 +122,10 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
             seajs.use(uiDef.uiType, function(DataPropUI){
                 new DataPropUI(_.extend({}, uiDef.uiConf||{}, {
                     parent : UI,
-                    gasketName : "prop"
+                    gasketName : "prop",
+                    on_update : function(com) {
+                        this.uiCom.saveData("panel", com);
+                    }
                 })).render(function(){
                     UI.gasket.prop.uiCom = uiCom;
                     UI.gasket.prop.update(com);

@@ -6,10 +6,10 @@ $z.declare([
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
 var html = `
-<div class="ui-arena hmc-image">
-    <div class="hmc-image-pic hm-del-save"></div>
-    <div class="hmc-image-txt hm-del-save"></div>
-    <div class="hmc-image-link-tip hm-del-save"><i class="zmdi zmdi-link"></i></div>
+<div class="ui-arena hmc-image hm-del-save">
+    <img class="hmc-image-pic">
+    <div class="hmc-image-txt"></div>
+    <div class="hmc-image-link-tip"><i class="zmdi zmdi-link"></i></div>
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_image", {
@@ -20,12 +20,46 @@ return ZUI.def("app.wn.hm_com_image", {
         HmComMethods(this);
     },
     //...............................................................
+    events : {
+        "dragstart img" : function(e){
+             e.preventDefault();
+        },
+        // 重置图片的原始宽度
+        "dblclick img" : function(e){
+            var UI   = this;
+            var jImg = UI.arena.children("img");
+            var oW = jImg.attr("org-width") * 1;
+            var oH = jImg.attr("org-height") * 1;
+            if(!isNaN(oW) && !isNaN(oH)) {
+                UI.saveBlock(null, {
+                    "width"   : oW,
+                    "height"  : oH,
+                    "padding" : 0,
+                });
+            }
+        }
+    },
+    //...............................................................
+    depose : function() {
+        this.arena.children("img").off();
+    },
+    //...............................................................
+    // 块大小改变，也同时改变 img 的宽高
+    on_apply_block : function(block) {
+        var jImg = this.arena.children("img");
+        jImg.css({
+            "width"  : this.arena.width(),
+            "height" : this.arena.height()
+        });
+    },
+    //...............................................................
     paint : function(com) {
         var UI = this;
-
-        //console.log("image", com)
+        var jImg = UI.arena.children("img");
+                
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 指定链接
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if(com.href) {
             UI.arena.attr("image-href", "yes");
         }
@@ -34,41 +68,76 @@ return ZUI.def("app.wn.hm_com_image", {
             UI.arena.removeAttr("image-href");
         }
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // 准备更新图片的样式
-        var css = {
-            "background-image"  : 'url(/a/load/wn.hmaker2/img_blank.jpg)',
-            "background-repeat" : "no-repeat",
-        };
+        // 更新图片的样式
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        var src  = '/a/load/wn.hmaker2/img_blank.jpg';
+        if(com.src) {
+            // 指定了绝对路径
+            if(/^https?:\/\//i.test(com.src)) {
+                src = com.src
+            }
+            // 指定了文件对象
+            else if(/^id:[\w\d]+/.test(com.src)) {
+                src = '/o/read/' + com.src;
+            }
+        }
+        console.log(jImg.attr("src"), src)
+        // 如果 src 发生变更，重新加载图片后，应该重新设置图片控件宽高
+        if(src != jImg.attr("src")) {
+            console.log("haha")
+            // 如果图片的原始宽高与设置的相等，那么就表示要自动改变宽高
+            var block = UI.getBlock();
+            var bW = $z.toPixel(block.width);
+            var bH = $z.toPixel(block.height);
+            var oW = jImg.attr("org-width") * 1;
+            var oH = jImg.attr("org-height") * 1;
+            var iW = jImg.width();
+            var iH = jImg.height();
+            var isAutoResize = (bW == oW && bH== oH) || isNaN(oW) || isNaN(oH);
+            // 开始加载图片
+            UI.showLoading();
+            jImg.css({width:"", height:"", visibility:"hidden"}).one("load", function(){
+                console.log("reset img w/h")
+                UI.hideLoading();
+                // 得到原始宽高
+                var w = this.width;
+                var h = this.height;
+                // 记录原始宽高
+                jImg.attr({
+                    "org-width"  : w,
+                    "org-height" : h                    
+                });
+                // 自动改变改变块的宽高
+                if(isAutoResize) {
+                    UI.saveBlock(null, {
+                        width  : w,
+                        height : h
+                    });
+                    jImg.css("visibility", "");
+                }
+                // 否则维持原来的图片大小
+                else {
+                    jImg.css({
+                        "visibility" : "",
+                        "width"  : iW,
+                        "height" : iH
+                    });
+                }
+            });
+            // 触发图片的内容改动
+            jImg.attr("src", src);
+        }
 
         // 图片拉伸方式
-        switch(com.scale) {
-            case "contain":
-            case "cover"  :
-                css["background-size"] = com.scale;
-                css["background-position"] = "center center";
-                break;
-            case "tile" :
-                css["background-size"] = "";
-                css["background-repeat"] = "repeat";
-                break;
-            default:
-                css["background-size"] = "100% 100%";
+        var fit = "";
+        if(com.objectFit && "fill" != com.objectFit) {
+            fit = com.objectFit;
         }
-
-        // 图片源
-        if(com.src) {
-            css["background-image"] = 'url(/o/read/'+com.src+')';    
-        }
-
-        // 大小
-        css.width  = com.width  || "";
-        css.height = com.height || "";
-
-        // 更新图片显示
-        UI.arena.children(".hmc-image-pic").css(css);
+        jImg.css("objectFit", fit);
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 准备更新文本样式
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         var txt = com.text || {};
         if(txt.content) {
             //console.log(txt)
@@ -139,6 +208,30 @@ return ZUI.def("app.wn.hm_com_image", {
 
     },
     //...............................................................
+    checkBlockMode : function(block) {
+        // 绝对定位的块，必须有宽高
+        if("abs" == block.mode) {
+            // 确保定位模式正确
+            if(!block.posBy || "WH" == block.posBy)
+                block.posBy = "TLWH";
+            // 确保有必要的位置属性
+            var css = this.getMyRectCss();
+            // 设置
+            _.extend(block, this.pickCssForMode(css, block.posBy));
+        }
+        // inflow 的块，高度应该为 auto
+        else if("inflow" == block.mode){
+            _.extend(block, {
+                top: "", left:"", bottom:"", right:"", 
+                posBy : "WH"
+            });
+        }
+        // !!! 不支持
+        else {
+            throw "unsupport block mode: '" + block.mode + "'";
+        }
+    },
+    //...............................................................
     IMG_FIELDS : function(){
         var oHome = this.getHomeObj();
         return [{
@@ -179,38 +272,23 @@ return ZUI.def("app.wn.hm_com_image", {
             //     }
             // }
         }, {
-            key    : "scale",
-            title  : "i18n:hmaker.prop.scale",
+            key    : "objectFit",
+            title  : "i18n:hmaker.prop.objectFit",
             type   : "string",
             editAs : "link",
             editAs : "switch", 
             uiConf : {
                 items : [{
-                    text : 'i18n:hmaker.prop.scale_full',
-                    val  : 'full',
+                    text : 'i18n:hmaker.prop.objectFit_fill',
+                    val  : 'fill',
                 }, {
-                    text : 'i18n:hmaker.prop.scale_contain',
+                    text : 'i18n:hmaker.prop.objectFit_contain',
                     val  : 'contain',
                 }, {
-                    text : 'i18n:hmaker.prop.scale_cover',
+                    text : 'i18n:hmaker.prop.objectFit_cover',
                     val  : 'cover',
-                }, {
-                    text : 'i18n:hmaker.prop.scale_tile',
-                    val  : 'tile',
                 }]
             }
-        }, {
-            key    : "width",
-            title  : "i18n:hmaker.prop.width",
-            type   : "string",
-            uiWidth : 80, 
-            editAs : "input",
-        }, {
-            key    : "height",
-            title  : "i18n:hmaker.prop.height",
-            type   : "string",
-            uiWidth : 80, 
-            editAs : "input",
         }];
     },
     //...............................................................
@@ -311,9 +389,7 @@ return ZUI.def("app.wn.hm_com_image", {
         if(block.mode == 'inflow') {
             re.push("margin");
         }
-        return re.concat(["border","borderRadius","color",
-            "background","boxShadow","overflow",
-        ]);
+        return re.concat(["padding","border","borderRadius","background","boxShadow","overflow"]);
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性
@@ -323,6 +399,7 @@ return ZUI.def("app.wn.hm_com_image", {
             uiType : 'ui/form/form',
             uiConf : {
                 uiWidth: "all",
+                autoLineHeight : true,
                 fields : [{
                     title  : "i18n:hmaker.com.image.tt_image",
                     fields : UI.IMG_FIELDS()
@@ -335,11 +412,7 @@ return ZUI.def("app.wn.hm_com_image", {
     },
     //...............................................................
     getDefaultData : function(){
-        return {
-            text : {
-                content : "hahah"
-            }
-        };
+        return {};
     },
     //...............................................................
     getDefaultBlock : function(){

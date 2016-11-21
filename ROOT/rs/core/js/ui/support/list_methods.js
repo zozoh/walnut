@@ -354,7 +354,7 @@ var methods = {
         var UI  = this;
         var opt = UI.options;
 
-        console.log("_draw_data:", objs)
+        //console.log("_draw_data:", objs)
 
         // 如果数据不是数组，那么相当于空数组
         if(!_.isArray(objs))

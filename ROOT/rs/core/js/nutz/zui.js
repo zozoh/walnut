@@ -83,8 +83,8 @@ var register = function(UI) {
         UI.keepDom = _.isUndefined(opt.keepDom)
                         ? (UI.keepDom===false? false:true)
                         : opt.keepDom;
-        if(UI.keepDom)
-            console.log("keepDom", UI.uiName)
+        // if(UI.keepDom)
+        //     console.log("keepDom", UI.uiName)
         
         // 试图正确的获取 Arena
         // UI.arena = UI.$el.children('.ui-arena');
