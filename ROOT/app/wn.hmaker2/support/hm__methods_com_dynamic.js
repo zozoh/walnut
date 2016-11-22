@@ -18,6 +18,10 @@ var methods = {
             UI.arena.find(">div").hide();
             return false;
         }
+        
+        // 确保表示数据
+        UI.$el.attr("dynamic-data", "yes")
+            .find(".dynamic-keys,.dynamic-reload").remove();
 
         // 通过检查
         jMsg.hide();
@@ -41,15 +45,29 @@ var methods = {
         }
     },
     __draw_dynamic_keys : function(jP) {
+        if(jP.find(".dynamic-keys").length > 0)
+            return;
+            
         var dynamicKeys = this.__dynamicKeys;
+        
         if(_.isArray(dynamicKeys) && dynamicKeys.length > 0) {
-            var jUl = $('<div class="dynamic-keys"><ul></ul></div>').appendTo(jP).find("ul");
+            var jUl = $('<div class="dynamic-keys"><ul></ul></div>')
+                        .appendTo(jP).find("ul");
             for(var dKey of dynamicKeys)
                 $('<li>').text(dKey).appendTo(jUl);
         }
     },
     __draw_dynamic_reload : function(jP) {
-        jP.append('<div class="dynamic-reload"><i class="fa fa-refresh"></i></div>')
+        if(jP.find(".dynamic-reload").length > 0)
+            return;
+            
+        $('<div class="dynamic-reload"><i class="fa fa-refresh"></i></div>')
+            .attr({
+                "data-balloon" : this.msg("hmaker.dds.reload"),
+                "data-balloon-pos"    : "left",
+                "data-balloon-length" : "small"
+            })
+            .appendTo(jP);
     },
     //...............................................................
     isDynamicButLackParams : function(){

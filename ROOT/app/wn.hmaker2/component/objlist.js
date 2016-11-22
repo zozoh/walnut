@@ -93,15 +93,16 @@ return ZUI.def("app.wn.hm_com_objlist", {
     },
     //...............................................................
     __draw_data : function(list, com, dynamicKeys) {
-        var UI  = this;
+        var UI = this;
+        var jW = UI.$el.find(".hm-com-W")
         com = com || UI.getData();
         var jList = UI.arena.children(".hmc-objlist-list").empty();
 
         // 绘制动态参数键列表
-        UI.__draw_dynamic_keys(jList);
+        UI.__draw_dynamic_keys(jW);
 
         // 绘制重新加载按钮
-        UI.__draw_dynamic_reload(jList);
+        UI.__draw_dynamic_reload(jW);
 
         // 动态参数，但是缺少默认值，那么就没有足够的数据绘制了，显示一个信息吧
         if(UI.isDynamicButLackParams()) {

@@ -154,7 +154,8 @@ var methods = {
         var comW = jCom.outerWidth();
         var comH = jCom.outerHeight();
         jCom.attr({
-            "hmc-small" : (comW < 100 || comH < 100) ? "yes" : null,
+            "hmc-small" : (comW < 300 && comH < 80) || (comW < 80)
+                          ? "yes" : null,
         });
         
         // 调用控件特殊的设置

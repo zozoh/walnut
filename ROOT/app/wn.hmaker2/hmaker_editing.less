@@ -43,7 +43,7 @@ body {margin:0; font-size:12px;}
             > * {position:absolute; z-index: 1; display: none;}
             >.rsz-hdl1{
                 border-width: 0;
-                border-style: dashed;
+                border-style: dotted;
                 border-color: #0FF;
             }
             >.rsz-hdl1:hover {
@@ -76,13 +76,14 @@ body {margin:0; font-size:12px;}
                 height:@aiH; line-height: @aiH;
                 background: rgba(0,0,0,0.4); color:#FF0;
                 cursor: hand; font-size: 8px; opacity: 0.6;
-                transition: 0.5s;
+                transition: 0.5s; overflow: hidden;
                 > i {
                     display: inline-block; text-align: center; 
                     width:@aiH; height: @aiH; line-height: @aiH;
                 }
             }
             > .hmc-ai[m="H"]:hover {
+                overflow: visible;;
                 opacity: 1.0; z-index: 999;
                 border-radius: 50%; 
             }
@@ -159,7 +160,7 @@ body {margin:0; font-size:12px;}
     > .hm-area[highlight] {opacity: 1.0; background:rgba(255,255,0,0.4);}
 }
 .hm-com[hm-actived] .hm-area {
-    .hma-ai {position: absolute; border-color:#F0F;}
+    .hma-ai {position: absolute; border-color:#0FF;}
 }
 
 //............................................................
@@ -362,25 +363,33 @@ body {margin:0; font-size:12px;}
 
 //............................................................
 // objlist/objshow 的动态部分
-.hmc-dynamic-con {
-    position: relative;
-    > .dynamic-keys {
-        position: absolute; top:0; left:0; z-index: 1;
+@ddsP : 6px;
+.hm-com[dynamic-data] {
+    .dynamic-keys {
+        position: absolute; top:@ddsP; left:@ddsP;
         padding:1px @d3; background: rgba(255,255,0,0.5); color:#000;
-        font-family: @f_fixed; font-size:@f0; border-radius: 0 0 @d2 0; font-weight: normal;
+        font-family: @f_fixed; font-size:@f0; border-radius: @d1;
+        font-weight: normal; border:1px solid rgba(0,0,0,0.2);
         ul {
             list-style: none; padding: 0; margin: 0;
             > li {float:left; padding:@d0;}
         }
         ul:after{@clr();}
     }
-    > .dynamic-reload { @noselect();
-        position: absolute; top:0; right:0;  z-index: 2;
-        padding:@d4; background: rgba(0,0,0,0.3); color:rgba(255,255,255,0.6);
-        font-size:@f3; cursor: pointer; transition:0.3s; border-radius: 0 0 0 @d2;
+    .dynamic-reload { @noselect(); display: none;
+        position: absolute; bottom:@ddsP; right:@ddsP;
+        padding:@d3; background: #000; color: #FFF; opacity: 0.4;
+        font-size:@f2; cursor: pointer; transition:0.3s;
     }
-    > .dynamic-reload:hover {
-        background: rgba(0,0,0,0.8); color:#FFF;
+    .dynamic-reload:hover {
+        opacity: 1.0; color:#FF0; border-radius: 50%;
+        transform: rotate(360deg); z-index: 999;
     }
+    .dynamic-reload:before {
+        line-height: 24px;
+    }
+}
+.hm-com[dynamic-data][hm-actived] {
+    .dynamic-reload {display: block;}
 }
 
