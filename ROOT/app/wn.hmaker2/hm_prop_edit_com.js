@@ -35,10 +35,9 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
         // 显示皮肤选择器
         "click .hmpc-skin" : function(e) {
             e.stopPropagation();
-            var UI = this;
+            var UI  = this;
 
             // 得到可用皮肤列表
-            
             var sList = UI.getSkinListForCom(UI.__com_type);
 
             // 准备绘制
@@ -162,6 +161,7 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
     //...............................................................
     __update_skin_info : function(ctype, com){
         var UI = this;
+        UI.__skin = com.skin;
         var sText = UI.getSkinTextForCom(ctype, com.skin);
         UI.arena.find(">.hmpc-skin>div>b")
             .text(sText || UI.msg("hmaker.prop.skin_none"))

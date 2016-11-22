@@ -110,15 +110,13 @@ return ZUI.def("app.wn.hmaker_page", {
             //console.log("hm_page::on_change:com:", mode, uiCom.uiName, com);
             
             // 移除旧皮肤
-            if(uiCom.__current_skin && uiCom.__current_skin != com.skin) {
-                uiCom.$el.removeClass(uiCom.__current_skin);
-                uiCom.__current_skin = null;
+            if(com._skin_old) {
+                uiCom.$el.removeClass(com._skin_old);
             }
             
             // 添加新皮肤
             if(com.skin) {
                 uiCom.$el.addClass(com.skin);
-                uiCom.__current_skin = com.skin;
             }
             
             // 绘制控件
