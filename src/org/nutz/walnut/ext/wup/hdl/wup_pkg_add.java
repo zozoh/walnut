@@ -37,7 +37,7 @@ public class wup_pkg_add implements JvmHdl {
         sys.out.printf("name=%s version=%s source=%s\r\n", name, version, source);
         String path = Wn.normalizePath("~/wup/pkgs/"+name+"/"+version+".tgz", sys);
         WnObj obj = sys.io.createIfNoExists(null, path, WnRace.FILE);
-        sys.io.copyData(src, obj);
+        sys.io.writeAndClose(obj, sys.io.getInputStream(src, 0));
     }
 
 }
