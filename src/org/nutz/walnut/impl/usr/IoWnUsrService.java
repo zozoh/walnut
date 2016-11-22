@@ -88,7 +88,7 @@ public class IoWnUsrService implements WnUsrService {
 
         // 创建用户组
         String aph = Wn.appendPath("/sys/grp", u.mainGroup(), "/people");
-        WnObj oPeople = io.create(null, aph, WnRace.DIR);
+        WnObj oPeople = io.createIfNoExists(null, aph, WnRace.DIR);
         WnObj oMe = io.create(oPeople, u.id(), WnRace.FILE);
         oMe.setv("role", Wn.ROLE.ADMIN);
         io.set(oMe, "^(role)$");

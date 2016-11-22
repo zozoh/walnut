@@ -38,6 +38,7 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
             var UI = this;
 
             // 得到可用皮肤列表
+            
             var sList = UI.getSkinListForCom(UI.__com_type);
 
             // 准备绘制
@@ -78,14 +79,21 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
             e.stopPropagation();
             var UI  = this;
             var jLi = $(e.currentTarget);
+            
+            var ctype   = UI.uiCom.getComType();
             var oldSkin = UI.__skin;
+            
             UI.__skin = jLi.attr("value");
-            UI.__update_skin_info();
+            
             UI.arena.find(".hmpc-skin").removeAttr("skin-list-show");
-            UI.notifyComChange({
-                _skin : UI.__skin,
+
+            var com = UI.uiCom.saveData("panel", {
+                skin : UI.__skin,
                 _skin_old : oldSkin
-            });
+            }, true);
+            console.log(com)
+
+            UI.__update_skin_info(ctype, com);
         },
         // 隐藏皮肤选择器
         "click .hmpc-skin-mask" : function(e){
@@ -100,6 +108,7 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
     //...............................................................
     update : function(uiCom, com) {
         var UI = this;
+        UI.uiCom  = uiCom;
         
         var comId = uiCom.getComId();
         var ctype = uiCom.getComType();
@@ -127,6 +136,7 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
                         this.uiCom.saveData("panel", com);
                     }
                 })).render(function(){
+                    UI.__com_type = ctype;
                     UI.gasket.prop.uiCom = uiCom;
                     UI.gasket.prop.update(com);
                 });

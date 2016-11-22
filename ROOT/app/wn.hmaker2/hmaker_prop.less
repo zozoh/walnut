@@ -565,12 +565,17 @@
     }
     .cnavmp-actions {@noselect();
         ul {
-            height: 32px; border:solid @cborder1;
-            border-width:1px 1px 0 1px;
-            @flex(); justify-content: flex-end; align-items:flex-start;
-            li {padding:@d2; transition: 0.2s; cursor: pointer; font-size: @f1;}
+            background: @cborder1; padding:@d2;
+            @flex(); 
+            justify-content: flex-end; 
+            align-items:flex-start;
+            li {
+                padding:@d2; transition: 0.2s; 
+                cursor: pointer; font-size: @f1;
+            }
             li:hover {
-                color:@c0; border-color:@c0; font-size: @f3;
+                color:@c0; background: rgba(255,255,255,0.4);
+                transform: translateY(-2px);
             }
         }
     }

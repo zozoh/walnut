@@ -236,7 +236,7 @@
         //.............................................
         toPixel: function (str, dft, base) {
             var re;
-            var m = /^([\d.]+)(px)?(%)?/.exec(str);
+            var m = /^([\d.]+)(px)?(%)?$/.exec(str);
             if (m){
                 // %
                 if(m[3])

@@ -29,8 +29,10 @@ body {margin:0; font-size:12px;}
 
 //............................................................
 // 控件通用属性
-@hS : 4px;
-@hV : 12px;
+@hS  : 4px;
+@hV  : 14px;
+@aS  : 2px;
+@aiH : 24px;
 .hm-com {
     .ui-loading {
         font-size: @f4; padding:@d4; color:@c2;
@@ -45,13 +47,15 @@ body {margin:0; font-size:12px;}
                 border-color: #0FF;
             }
             >.rsz-hdl1:hover {
-                background: rgba(255,255,0,0.4);
+                // background: rgba(255,255,0,0.6);
+                // border:1px solid rgba(0,0,0,0.2);
             }
             >.rsz-hdl2 {
                 width:@hV;height:@hV;
             }
             >.rsz-hdl2:hover {
-                background: rgba(255,255,0,0.4);
+                // background: rgba(255,255,0,0.6);
+                // border:1px solid rgba(0,0,0,0.2);
             }
             > .hmc-ai[m="N"] {cursor:ns-resize; top:0;    left:0;right:0; height:@hS;}
             > .hmc-ai[m="S"] {cursor:ns-resize; bottom:0; left:0;right:0; height:@hS;}
@@ -62,36 +66,38 @@ body {margin:0; font-size:12px;}
             > .hmc-ai[m="SW"] {cursor:nesw-resize; bottom:0; left:0;}
             > .hmc-ai[m="SE"] {cursor:nwse-resize; bottom:0; right:0;}
             
-            > .hmc-ai[m="N"] {border-top-width:1px;}
-            > .hmc-ai[m="S"] {border-bottom-width:1px;}
-            > .hmc-ai[m="W"] {border-left-width:1px;}
-            > .hmc-ai[m="E"] {border-right-width:1px;}
+            > .hmc-ai[m="N"] {border-top-width:@aS;}
+            > .hmc-ai[m="S"] {border-bottom-width:@aS;}
+            > .hmc-ai[m="W"] {border-left-width:@aS;}
+            > .hmc-ai[m="E"] {border-right-width:@aS;}
             
             > .hmc-ai[m="H"] {
-                top:0; left:0; right:0; padding:@d2 0 @d1 0;
+                top:0; right:0; padding:0;
+                height:@aiH; line-height: @aiH;
                 background: rgba(0,0,0,0.4); color:#FF0;
-                cursor: hand; font-size: 8px; opacity: 0.2;
-                white-space: nowrap;
-                > i {margin:0 @d2;}
-                > em {display: none; font-style: normal;}
+                cursor: hand; font-size: 8px; opacity: 0.6;
+                transition: 0.5s;
+                > i {
+                    display: inline-block; text-align: center; 
+                    width:@aiH; height: @aiH; line-height: @aiH;
+                }
             }
             > .hmc-ai[m="H"]:hover {
-                opacity: 1.0;
-                > em {display: inline;}
+                opacity: 1.0; z-index: 999;
+                border-radius: 50%; 
             }
         }
     }
 }
 
 // 比较小的块，辅助柄显示的不同
-.hm-com[hmc-small-W] > .hm-com-W > .hm-com-assist {
-    > .hmc-ai[m="H"] em {display: none;}
+.hm-com[hmc-small] > .hm-com-W > .hm-com-assist {
+    > .hmc-ai[m="H"] {
+        right: @aiH * -1; opacity: 0.8;
+    }
+    > .hmc-ai[m="H"]:hover {opacity: 1.0;}
 }
-.hm-com[hmc-small-H] > .hm-com-W > .hm-com-assist {
-    > .hmc-ai[m="H"] {top: -20px;}
-}
-.hm-com[hmc-small-W] > .hm-com-W > .hm-com-assist,
-.hm-com[hmc-small-H] > .hm-com-W > .hm-com-assist {
+.hm-com[hmc-small] > .hm-com-W > .hm-com-assist {
     > .rsz-hdl2 {display: none;}
 }
 
@@ -110,7 +116,7 @@ body {margin:0; font-size:12px;}
 .hm-page-move-mask {
     //background: rgba(255,0,0,0.1);
     .pmv-helper {
-        background: rgba(255,255,0,0.2);
+        //background: rgba(255,255,0,0.4);
     }
 }
 .hm-page-move-mask[mmode="move"] {cursor: move;}
@@ -187,9 +193,6 @@ body {margin:0; font-size:12px;}
 }
 //............................................................
 // navmenu
-[hmb-mode="abs"]>.hmb-con>.hmb-area>.hm-com>.hmc-navmenu {
-    width:100%; height:100%;
-}
 .hmc-navmenu {
     ul{
         margin:0; padding:0; list-style: none;
@@ -216,6 +219,10 @@ body {margin:0; font-size:12px;}
 // 垂直导航条
 .hmc-navmenu[mode="aside"] {
 
+}
+// 绝对定位模式下，导航条应该撑满
+.hm-com[ctype="navmenu"][hmc-mode="abs"]>.hm-com-W>.hmc-navmenu {
+    width:100%; height:100%;
 }
 //............................................................
 // image

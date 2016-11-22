@@ -51,6 +51,7 @@ var methods = {
     saveData : function(mode, com, shallow) {
         var com2 = this.setData(com, shallow);
         this.notifyDataChange(mode, com2);
+        return com2;
     },
     //........................................................
     // 获取组件的属性
@@ -87,6 +88,7 @@ var methods = {
         block = _.extend(base, block);
         this.setBlock(block);
         this.notifyBlockChange(mode, block);
+        return block;
     },
     //........................................................
     applyBlock : function(block) {
@@ -99,9 +101,6 @@ var methods = {
         jCom.attr({
             "hmc-mode"    : block.mode,
             "hmc-pos-by"  : block.posBy,
-            // 判断区域是否过小
-            "hmc-small-W" : block.width<100  ? "yes" : null,
-            "hmc-small-H" : block.height<100 ? "yes" : null,
         });
         
         // console.log(block)
@@ -122,6 +121,16 @@ var methods = {
             cssCom   = $z.pick(block, "^(width|height|margin)$");
             cssArena = $z.pick(block,
                 "!^(mode|posBy|top|left|right|bottom|width|height|margin)$");
+            
+            // 对于相对位置，最重要的是要保证 jW 与块是同样尺寸的
+            // 主要是高度
+            if(/^[\d.]+(px)?(%)?$/.test(cssCom.height)){
+                jW.css("height", "100%");
+            }
+            // 没设置高度，则清除
+            else {
+                jW.css("height", "");
+            }
         }
         
         // 确保内容区域如果被滚动和剪裁，是有宽高的
@@ -140,6 +149,13 @@ var methods = {
         
         // 其他记录在显示区上
         jArena.css(UI.formatCss(cssArena, true));
+        
+        // 判断区域是否过小
+        var comW = jCom.outerWidth();
+        var comH = jCom.outerHeight();
+        jCom.attr({
+            "hmc-small" : (comW < 100 || comH < 100) ? "yes" : null,
+        });
         
         // 调用控件特殊的设置
         $z.invoke(UI, "on_apply_block", [block]);
@@ -283,9 +299,9 @@ module.exports = function(uiCom){
         var jAss = jW.children(".hm-com-assist");
         if(jAss.length == 0) {
             jAss = $(`<div class="hm-com-assist">
-                <div class="hmc-ai" m="H"><i class="zmdi zmdi-layers"></i><em>`
+                <div class="hmc-ai" m="H" data-balloon-pos="down" data-balloon="`
                 + uiCom.msg("hmaker.drag.com_tip")
-                + `</em></div>
+                + `"><i class="zmdi zmdi-arrows"></i></div>
                 <div class="hmc-ai rsz-hdl1" m="N"></div>
                 <div class="hmc-ai rsz-hdl1" m="W"></div>
                 <div class="hmc-ai rsz-hdl1" m="E"></div>
@@ -296,6 +312,9 @@ module.exports = function(uiCom){
                 <div class="hmc-ai rsz-hdl2" m="SE"></div>
             </div>`).prependTo(jW);
         }
+        
+        // 试图调用一下组件自定义的 redraw
+        $z.invoke(this, "_redraw_com", []);
         
         // 绘制布局
         this.applyBlock(this.getBlock());

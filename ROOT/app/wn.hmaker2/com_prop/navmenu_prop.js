@@ -258,7 +258,7 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                     UI._update_menu_items($z.obj(key, val));
                 }
                 // 最后通知修改
-                UI.notifyComChange($z.obj(key, val));
+                UI.uiCom.saveData("panel", $z.obj(key, val), true);
             },
             parseData : function(com){
                 // 根据菜单的链接类型，来处理下拉列表的启用状态

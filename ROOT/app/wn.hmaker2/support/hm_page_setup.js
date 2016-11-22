@@ -31,6 +31,8 @@ var methods = {
         
 
         // 链入固定的 CSS 
+        UI._H(jHead, 'link[href*="balloon.min.css"]',
+            '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/balloon.min.css">');
         UI._H(jHead, 'link[href*="normalize.css"]',
             '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">');
         UI._H(jHead, 'link[href*="font-awesome.css"]',

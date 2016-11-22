@@ -134,14 +134,14 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         jLi.attr("current", "yes");
 
         // 通知修改
-        UI.notifyChange();
+        UI.notifyDataChange("page");
     },
     //...............................................................
     unselectItem : function() {
         this.arena.find('li[current]').removeAttr("current");
 
         // 通知修改
-        this.notifyChange();  
+        this.notifyDataChange("page");  
     },
     //...............................................................
     checkToggleAreaItem : function(index) {
@@ -157,14 +157,14 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         jLi.attr("toar-checked", "yes");
 
         // 通知修改
-        UI.notifyChange();
+        UI.notifyDataChange("page");
     },
     //...............................................................
     uncheckToggleAreaItem : function() {
         this.arena.find('li[toar-checked]').removeAttr("toar-checked");
 
         // 通知修改
-        this.notifyChange();  
+        this.notifyDataChange("page");  
     },
     //...............................................................
     updateItem : function(index, item, quiet) {
@@ -179,7 +179,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         });
 
         if(!quiet)
-            UI.notifyChange();
+            UI.notifyDataChange("page");
     },
     //...............................................................
     updateItemField : function(index, key, val, quiet) {
@@ -213,7 +213,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         }
         // 没的高亮了，就通知吧
         else{
-            UI.notifyChange();
+            UI.notifyDataChange("page");
         }
     },
     //...............................................................
@@ -226,7 +226,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             jLi.insertBefore(jTa);
         }
 
-        UI.notifyChange();
+        UI.notifyDataChange("page");
     },
     //...............................................................
     moveNext : function(index) {
@@ -238,15 +238,15 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             jLi.insertAfter(jTa);
         }
 
-        UI.notifyChange();
+        UI.notifyDataChange("page");
     },
     //...............................................................
-    redraw : function() {
-        var UI = this;
+    _redraw_com : function() {
+        var jUl = this.arena.find("ul");
 
-        // 设置初始值的 DOM 结构
-        if(UI.arena.children().length == 0){
-            UI.createItem();
+        // 确保至少有一个菜单项
+        if(jUl.children().length == 0){
+            this.createItem();
         }
     },
     //...............................................................

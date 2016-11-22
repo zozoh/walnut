@@ -291,7 +291,7 @@ public class cmd_dusr extends JvmExecutor {
         }
         // 采用邮箱
         else if (umap.has("email")) {
-            q.setv("email", umap.get("phone"));
+            q.setv("email", umap.get("email"));
             q.setv("email_checked", true);
         }
         // 都木有，没法创建了
