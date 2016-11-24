@@ -156,6 +156,9 @@ function stop_pmoving(pmvContext) {
     // 移除监听事件
     pmvContext.$scroll.off("scroll", on_viewport_scroll);
     
+    // 移除 trigger.pmv_mode_a 标识
+    pmvContext.$trigger.removeAttr("pmv_mode_a");
+    
     // 无论怎样，都要移除遮罩极其内容
     pmvContext.$mask.remove();
 }
@@ -203,18 +206,17 @@ function on_mask_mouseup(e) {
             }
         }
         
-        // 移除 trigger.pmv_mode_a 标识
-        pmvContext.$trigger.removeAttr("pmv_mode_a");
+        // 结束
+        stop_pmoving(pmvContext);
     }
     // 否则就认为是点击
     else {
-        // console.log("is_pos_in_click_radius");
+        // 首先结束拖拽
+        //console.log("stop_pmoving(pmvContext)");
+        stop_pmoving(pmvContext);
         $(pmvContext.Event.target).click();
         // console.log($(pmvContext.Event.target).html())
     }
-
-    // 结束
-    stop_pmoving(pmvContext);
 }
 //...........................................................
 function on_mask_mousemove(e) {
@@ -370,7 +372,7 @@ function on_mousedown(e) {
     // 创建要 drop 的目标
     var jDrops = $z.invoke(opt, "findDropTarget", [], pmvContext);
     // console.log(jDrops.size())
-    if(jDrops && jDrops.size()>0) {
+    if(jDrops) {
         pmvContext.$drops = $('<div class="pmv-drops">').hide().css({
             "width"    : jViewport[0].scrollWidth,
             "height"   : jViewport[0].scrollHeight,

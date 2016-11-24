@@ -31,6 +31,8 @@ return ZUI.def("ui.picker.opicker", {
                 checkable : false,
                 sidebar   : false,
                 objTagName : 'SPAN',
+                width  : "80%",
+                height : "80%",
                 canOpen : function(o){
                     return o.race == 'DIR';
                 },

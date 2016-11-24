@@ -33,7 +33,7 @@ body {margin:0; font-size:12px;}
 @hV  : 14px;
 @aS  : 2px;
 @aiH : 24px;
-.hm-com {
+.hm-com { @noselect();
     .ui-loading {
         font-size: @f4; padding:@d4; color:@c2;
     }
@@ -103,8 +103,11 @@ body {margin:0; font-size:12px;}
 }
 
 // 绝对定位控件包裹器应该撑满
-.hm-com[hmc-mode="abs"] > .hm-com-W {
-    width:100%; height:100%;
+.hm-com[hmc-mode="abs"] {
+    z-index: 1;
+    > .hm-com-W {
+        width:100%; height:100%;
+    }
 }
 
 // 激活块的辅助柄
@@ -114,7 +117,7 @@ body {margin:0; font-size:12px;}
 
 //............................................................
 // 移动鼠标的遮罩
-.hm-page-move-mask {
+.hm-page-move-mask {@noselect();
     //background: rgba(255,0,0,0.1);
     .pmv-helper {
         //background: rgba(255,255,0,0.4);
@@ -133,9 +136,35 @@ body {margin:0; font-size:12px;}
     cursor: grabbing;
     cursor: -webkit-grabbing;
     cursor: -moz-grabbing;
+    background: rgba(0,0,0,0.3);
+    .pmv-helper {
+        border:1px dotted #000;
+        background: rgba(255,255,255,0.6);
+        text-align: center; 
+        font-size:@f4;
+        > i {
+            line-height: @aiH;
+        }
+    }
+    .pmv-drops {
+        .pmv-dropi {
+            padding:1px;
+            .di-area {
+                width:100%; height:100%;
+                background: rgba(255,255,255,0.6);
+                padding: @d2; font-family: @f_fixed;
+                color:#888; transition: 0.2s;
+            }
+        }
+        .pmv-dropi[pmv-hover] {
+            .di-area {
+                background: rgba(255,255,0,0.8);
+                transform: translate(2px, -4px);
+                box-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+            }
+        }
+    }
 }
-
-.hm-com {@noselect();}
 
 //............................................................
 // 分栏控件通用

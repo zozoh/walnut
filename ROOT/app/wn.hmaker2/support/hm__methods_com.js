@@ -9,6 +9,9 @@ var methods = {
     getComType : function() {
         return this.$el.attr("ctype");
     },
+    getIconHtml : function() {
+        return this.msg('hmaker.com.' + this.getComType() + '.icon');
+    },
     // 判断组件是否是激活的
     isActived : function() {
         return this.$el.attr("hm-actived") == "yes";
@@ -163,6 +166,24 @@ var methods = {
         
     },
     //...............................................................
+    appendToArea : function(eArea) {
+        // 移动到 Body
+        if(!eArea) {
+            var uiPage = this.pageUI();
+            this.appendTo(uiPage);
+        }
+        // 移动到分栏
+        else {
+            // 确定 Area 所在的分栏控件
+            var jArea    = $(eArea).closest(".hm-area");
+            var jAreaCon = jArea.children(".hm-area-con");
+            var comArea  = ZUI(jArea);
+            
+            // 将自身移动到这个分栏内部
+            this.appendTo(comArea, jAreaCon);
+        }
+    },
+    //...............................................................
     // 得到自己关于宽高位置的 css
     getMyRectCss : function() {
         var rect = $z.rect(this.$el);
@@ -207,8 +228,8 @@ var methods = {
         return re;
     },
     // 判断一个 DOM 元素是否在一个激活的块中
-    isInActivedBlock : function(jq) {
-        return $(jq).closest(".hm-block").attr("hm-actived") == "yes";
+    isInActivedCom : function(jq) {
+        return $(jq).closest(".hm-com[hm-actived]").length > 0;
     },
     // 判断控件自身是否是 Actived
     isActived : function() {

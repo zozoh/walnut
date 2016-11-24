@@ -22,7 +22,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         'click ul>li' : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
-            if(!UI.isInActivedBlock(jq))
+            if(!UI.isInActivedCom(jq))
                 return;
             
             e.stopPropagation();
@@ -32,7 +32,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         'click .hmc-navmenu' : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
-            if(!UI.isInActivedBlock(jq))
+            if(!UI.isInActivedCom(jq))
                 return;
 
             e.stopPropagation();
@@ -42,7 +42,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         'click ul>li[current] a' : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
-            if(!UI.isInActivedBlock(jq))
+            if(!UI.isInActivedCom(jq))
                 return;
 
             var jItem = jq.closest("li");

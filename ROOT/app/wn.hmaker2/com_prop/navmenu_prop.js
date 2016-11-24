@@ -37,10 +37,10 @@ var html = `
     <section class="cnavmp-form" ui-gasket="form"></section>
     <section class="cnavmp-actions">
         <ul>
-            <li act="createItem"><i class="fa fa-plus"></i> {{hmaker.com._.create}}</li>
-            <li act="deleteItem"><i class="zmdi zmdi-delete"></i> {{hmaker.com._.del}}</li>
-            <li act="movePrev"><i class="zmdi zmdi-long-arrow-up"></i> {{hmaker.com._.move_up}}</li>
-            <li act="moveNext"><i class="zmdi zmdi-long-arrow-down"></i> {{hmaker.com._.move_down}}</li>
+            <li act="createItem"><i class="zmdi zmdi-plus"></i> {{hmaker.com.navmenu.add}}</li>
+            <li act="deleteItem"><i class="zmdi zmdi-delete"></i></li>
+            <li act="movePrev"><i class="zmdi zmdi-long-arrow-up"></i></li>
+            <li act="moveNext"><i class="zmdi zmdi-long-arrow-down"></i></li>
         </ul>
     </section>
     <section class="cnavmp-item-list"></section>

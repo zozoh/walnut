@@ -61,7 +61,7 @@ var methods = {
         // 首先所有元素的点击事件，全部禁止默认行为
         UI._C.iedit.$root.on("click", "*", function(e){
             e.preventDefault();
-            // console.log("hm_page.js: click", this.tagName, this.className);
+            //console.log("hm_page.js: click", this.tagName, this.className, e.target);
 
             var jq = $(this);
 
@@ -75,6 +75,8 @@ var methods = {
                 
                 // 得到组件的 UI
                 var uiCom = ZUI(jq);
+                
+                console.log("uiCom", uiCom);
                 
                 // 快速切换页面的时候会出现异步的问题
                 // 防守一道
@@ -135,9 +137,43 @@ var methods = {
                 // 可以移动
                 return $(this);
             },
+            findDropTarget : function(e) {
+                // 只有拖动手柄的时候才会触发
+                var jAi  = this.$trigger;
+                
+                if("H" == jAi.attr("m")) {
+                    var jAreaCons = UI._C.iedit.$body.find(".hm-area-con");
+                                        
+                    // 当前控件所在的区域
+                    var jMyArea = jAi.closest(".hm-area");
+                    var eMyArea = jMyArea.length > 0 ? jMyArea[0] : null;
+                    
+                    // 当前控件（如果是布局控件）包含的区域先找一下
+                    // 这些区域也要过滤到
+                    var jCom = jAi.closest(".hm-com");
+                    var jSubAreas = jCom.find(".hm-area-con");
+                    var eSubs = Array.from(jSubAreas);
+                    
+                    // 准备要返回的区域列表
+                    var eles = [];
+                    
+                    // 挨个查找：叶子区域，且不包含当前控件的，统统列出来
+                    UI._C.iedit.$body.find(".hm-area-con").each(function(){
+                        if(eMyArea != this
+                           && eSubs.indexOf(this) < 0
+                           && $(this).find(".hm-area-con").length == 0) {
+                            eles.push(this);
+                        }
+                    });
+                    
+                    // 返回
+                    return $(eles);
+                }
+            },
             on_begin : function(e) {
                 // 得到组件顶部节点元素
                 var jCom  = this.$trigger.closest(".hm-com");
+                var uiCom = ZUI(jCom);
                 //...........................................................
                 // 这个对象描述了手柄模式的计算方式
                 var HDLc = {
@@ -160,11 +196,24 @@ var methods = {
                     this.$mask.attr("mmode", m);
                     
                     // 移动控件的树的层级
-                    if("H" == m) {
+                    if("H" == m && this.$drops) {
                         this.__is_for_drop = true;
                         this.__do_ing = function(pmvc) {
-                            console.log("drag", pmvc.rect.inview)
+                            //console.log("drag", pmvc.rect.inview)
                         };
+                        
+                        // 处理每个拖放的目标的内容显示
+                        var pmvc = this;
+                        this.$drops.children().each(function(index){
+                            var di = pmvc.dropping[index];
+                            var jArea  = di.$ele.parents(".hm-area");
+                            var areaId = jArea.attr("area-id");
+                            $(`<div class="di-area"></div>`)
+                                .text(areaId).appendTo(this);
+                        });
+                        
+                        // 修改 trigger 的显示样式
+                        this.$helper.html(uiCom.getIconHtml());
                     }
                     // 改变控件大小
                     else {
@@ -191,7 +240,7 @@ var methods = {
                     };
                 }
                 //......................................
-                this.uiCom = ZUI(jCom);
+                this.uiCom = uiCom;
                 this.comBlock = this.uiCom.getBlock();
                 this.rect.com = $z.rect(jCom);
                 //......................................
@@ -205,7 +254,8 @@ var methods = {
             },
             on_ing : function() {
                 // 计算，如果返回 true 表示不要更新块的位置大小
-                if(!this.__do_ing(this)){
+                if(_.isFunction(this.__do_ing)
+                   && !this.__do_ing(this)){
                     // 得到改变
                     var rect = $z.rect_relative(this.rect.com, 
                                                 this.rect.viewport,
@@ -224,6 +274,10 @@ var methods = {
                 if(!this.__is_for_drop) {
                     this.uiCom.setBlock(this.comBlock);
                 }
+            },
+            // 拖拽到了一个目标，执行修改
+            on_drop : function(jAreaCon) {
+                console.log("drop to ", jAreaCon)
             }
         });
         

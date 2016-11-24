@@ -102,6 +102,7 @@ define({
                 "tip"   : "可垂直或水平放置，支持超链接或者显示隐藏某个区域的客户端动作",
                 "icon"  : '<i class="zmdi zmdi-dns"></i>',
                 "item_dft_text" : "菜单项文字",
+                "add"   : "添加菜单项",
                 "newtab" : "新窗口",
                 "nohref" : "无链接",
                 "nocurrent" : "抱歉，您执行这个操作前，必须要选择一个菜单项",

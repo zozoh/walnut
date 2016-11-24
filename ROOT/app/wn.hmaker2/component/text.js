@@ -23,7 +23,7 @@ return ZUI.def("app.wn.hm_com_text", {
         'click .hmc-text > header' : function(e){
             var UI = this;
             var jq = $(e.currentTarget);
-            if(!UI.isInActivedBlock(jq))
+            if(!UI.isInActivedCom(jq))
                 return;
 
             $z.editIt(jq);
@@ -32,7 +32,7 @@ return ZUI.def("app.wn.hm_com_text", {
         'click .hmc-text > section' : function(e){
             var UI = this;
             var jq = $(e.currentTarget);
-            if(!UI.isInActivedBlock(jq))
+            if(!UI.isInActivedCom(jq))
                 return;
 
             // 得到文字内容
