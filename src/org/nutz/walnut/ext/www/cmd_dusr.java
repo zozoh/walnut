@@ -312,7 +312,7 @@ public class cmd_dusr extends JvmExecutor {
         }
 
         // 创建用户对象并保存
-        WnObj oU = sys.io.createIfNoExists(oHU, "${id}", WnRace.DIR);
+        WnObj oU = sys.io.createIfNoExists(oHU, "${id}", WnRace.FILE);
         sys.io.appendMeta(oU, umap);
 
         // 输出用户对象, 密码可不敢给别人看见
