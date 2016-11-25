@@ -23,8 +23,8 @@ return ZUI.def("app.wn.hmpg_combar", {
             var comId  = $(e.currentTarget).attr("com-id");
             // 组件
             if(comId) {
-                var jBlock = UI.pageUI().getBlockElementById(comId);
-                UI.fire("active:block", jBlock);
+                var uiCom = UI.pageUI().getCom(comId);
+                uiCom.notifyActived();
             }
             // 页面
             else {

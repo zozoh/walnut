@@ -166,11 +166,15 @@ var methods = {
         
     },
     //...............................................................
-    appendToArea : function(eArea) {
+    appendToArea : function(eArea, quiet) {
+        var block;
         // 移动到 Body
         if(!eArea) {
             var uiPage = this.pageUI();
-            this.appendTo(uiPage);
+            this.appendTo(uiPage, uiPage.$editBody());
+            
+            // 切换到相对定位
+            var block = {mode : "abs"};
         }
         // 移动到分栏
         else {
@@ -181,19 +185,34 @@ var methods = {
             
             // 将自身移动到这个分栏内部
             this.appendTo(comArea, jAreaCon);
+            
+            // 切换到相对定位
+            var block = {mode : "inflow"};
         }
+        
+        // 修改块属性
+        this.checkBlockMode(block);
+
+        // 保存块属性
+        this.saveBlock(null, block);
+        
+        // 通知一下
+        if(!quiet)
+            this.notifyActived();
     },
     //...............................................................
     // 得到自己关于宽高位置的 css
     getMyRectCss : function() {
         var rect = $z.rect(this.$el);
         var viewport = this.getMyViewportRect();
+        console.log(rect);
+        console.log(viewport);
         return $z.rect_relative(rect, viewport, true);
     },
     //...............................................................
     // 得到控件所属的视口 DOM，如果不在分栏里，那么就是 body
     getMyViewport : function(){
-        var jArea = this.$el.closest(".hmb-area");
+        var jArea = this.$el.closest(".hm-area-con");
         if(jArea.length > 0)
             return jArea;
         return this.$el.closest("body");

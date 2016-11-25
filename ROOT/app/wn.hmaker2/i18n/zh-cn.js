@@ -65,8 +65,10 @@ define({
             "height" : "高",            
         },
         "page" : {
-            "show_prop" : "显示页面属性",
-            "body"      : "页面",
+            "body"         : "页面",
+            "move_to_body" : "移出分栏",
+            "move_before"  : "前移渲染顺位",
+            "move_after"   : "后移渲染顺位",
         },
         "com" : {
             "_" : {

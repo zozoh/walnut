@@ -52,10 +52,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             this.uiCom.checkBlockMode(block);
 
             // 保存数据 
-            this.uiCom.setBlock(block);
-            
-            // 通知
-            this.uiCom.notifyBlockChange(null, block);
+            this.uiCom.saveBlock(null, block);
         },
         // 点击顶点
         "click .hmpb-pos[mode=abs] .hmpb-pos-v" : function(e) {

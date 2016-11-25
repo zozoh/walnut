@@ -129,7 +129,7 @@ var register = function(UI) {
         var selector = '[ui-gasket="'+UI.parent.cid+"@"+opt.gasketName+'"]';
         UI.$pel = UI.parent.$el.find(selector);
         // 从扩展的搜索范围里去寻找
-        if(UI.$pel.size()==0 && UI.__elements.length>0){
+        if(UI.$pel.length == 0 && UI.__elements.length>0){
             for(var i=0; i<UI.__elements.length; i++){
                 var $_ele = UI.__elements[i];
                 UI.$pel = $_ele.find(selector);
@@ -139,7 +139,7 @@ var register = function(UI) {
         }
 
         // 没找到是不能忍受的哦
-        if(UI.$pel.size() == 0){
+        if(UI.$pel.length == 0){
             throw $z.tmpl("fail to match gasket[{{gas}}] in {{pnm}}({{pid}})")({
                 gas : opt.gasketName,
                 pnm : UI.parent.uiName,
@@ -286,6 +286,92 @@ ZUIObj.prototype = {
         }
     },
     //............................................
+    // 将自己加入另外一个 UI
+    // target 可以是一个 DOM 节点，或者一个 string 表示 gasket
+    appendTo : function(pui, target) {
+        var UI = this;
+
+        // 首先，将自己从父中去掉
+        if(UI.parent != pui)
+            UI.__remove_from_parent();
+        
+        // 然后加入到 pui 的子列表
+        if(pui)
+            pui.__append_child(UI);
+        
+        // 直接移动到某指定的元素下面
+        var gasketName;
+        if(_.isElement(target) || $z.isjQuery(target)) {
+            UI.$pel = $(target);
+            UI.pel  = UI.$pel[0];
+            var gnm = UI.$pel.attr("ui-gasket");
+            var m   = /^(\w+)@(\w+)$/.exec(gnm);
+            gasketName = m ? m[2] : gnm;
+        }
+        // 指定了 gasketName
+        else if(_.isString(target)) {
+            gasketName = target;
+            var selector = '[ui-gasket="'+pui.cid+"@"+gasketName+'"]';
+            UI.$pel = pui.$el.find(selector);
+            
+            // 没找到是不能忍受的哦
+            if(UI.$pel.length == 0){
+                throw $z.tmpl("fail to match gasket[{{gas}}] in {{pnm}}({{pid}})")({
+                    gas : gasketName,
+                    pnm : UI.parent.uiName,
+                    pid : UI.parent.cid
+                });
+            }
+            
+            UI.pel  = UI.$pel[0];
+        }
+        // 必须指定一个 target
+        else {
+            throw "UI.appendTo() need target!!!";
+        }
+        
+        // 确保自己移动到新的 pel 下面
+        UI.$el.appendTo(UI.$pel);
+        
+        // 指定了 gasketName
+        if(gasketName) {
+            opt.gasketName = gasketName;
+            var oldUI = pui.gasket[opt.gasketName];
+            if(oldUI)
+                oldUI.destroy();
+            pui.gasket[opt.gasketName] = UI;
+        }
+        
+        // 返回自身以便链式赋值
+        return this;
+    },
+    //............................................
+    __append_child : function(childUI) {
+        if(childUI.parent != this){
+            this.children.push(childUI);
+            childUI.parent = this;
+            childUI.depth  = this.depth + 1;
+        }
+    },
+    //............................................
+    __remove_child : function(childUI) {
+        var UI = this;
+        UI.children = _.without(UI.children, childUI);
+        for(var key in UI.gasket){
+            if(UI.gasket[key] === childUI) {
+                UI.gasket[key] = null;
+            }
+        }
+        childUI.parent = null;
+        UI.depth = 0;
+    },
+    //............................................
+    __remove_from_parent : function() {
+        if(this.parent){
+            this.parent.__remove_child(this);
+        }
+    },
+    //............................................
     destroy: function (forceRemoveDom, dontNeedRemoveFromParent) {
         var UI  = this;
         var opt = UI.options;
@@ -306,10 +392,11 @@ ZUIObj.prototype = {
             // UI.parent.children = UI.parent.children.filter(function(subUI){
             //     return subUI.cid != UI.cid;
             // });
-            UI.parent.children = _.without(UI.parent.children, UI);
-            if(opt.gasketName){
-                delete UI.parent.gasket[opt.gasketName];
-            }
+            // UI.parent.children = _.without(UI.parent.children, UI);
+            // if(opt.gasketName){
+            //     delete UI.parent.gasket[opt.gasketName];
+            // }
+            UI.parent.__remove_child(UI);
         }
 
         // 注销 DOM 事件

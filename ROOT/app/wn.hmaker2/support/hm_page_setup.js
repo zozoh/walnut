@@ -137,6 +137,12 @@ var methods = {
                 // 可以移动
                 return $(this);
             },
+            findViewport : function($context, e) {
+                var jVP = this.closest(".hm-area-con");
+                if(jVP.length > 0)
+                    return jVP;
+                return $context;
+            },
             findDropTarget : function(e) {
                 // 只有拖动手柄的时候才会触发
                 var jAi  = this.$trigger;
@@ -145,7 +151,7 @@ var methods = {
                     var jAreaCons = UI._C.iedit.$body.find(".hm-area-con");
                                         
                     // 当前控件所在的区域
-                    var jMyArea = jAi.closest(".hm-area");
+                    var jMyArea = jAi.closest(".hm-area-con");
                     var eMyArea = jMyArea.length > 0 ? jMyArea[0] : null;
                     
                     // 当前控件（如果是布局控件）包含的区域先找一下
@@ -174,6 +180,17 @@ var methods = {
                 // 得到组件顶部节点元素
                 var jCom  = this.$trigger.closest(".hm-com");
                 var uiCom = ZUI(jCom);
+                //...........................................................
+                this.__hm_check_viewport = function(){
+                    // 如果视口不是 body，那么在遮罩层做特殊标识
+                    if(this.$context[0] !== this.$viewport[0]) {
+                        var gRect = $z.rect(this.$context);
+                        var vpCss = $z.rect_relative(this.rect.viewport, gRect, true);
+                        $('<div class="pmv-viewport">')
+                            .css(vpCss)
+                            .appendTo(this.$mask.attr("in-area", "yes"));
+                    }
+                };
                 //...........................................................
                 // 这个对象描述了手柄模式的计算方式
                 var HDLc = {
@@ -229,15 +246,23 @@ var methods = {
                             // 重新计算矩形其他尺寸
                             $z.rect_count_tlbr(this.rect.com);
                         };
+                        
+                        // 检查 viewport 的模式
+                        // this.__hm_check_viewport();
+                        
                     }
                 }
                 //......................................
                 // 没有触发到特殊手柄，那么就表示移动自身
                 else {
+                    // 处理移动时回调
                     this.__do_ing = function(pmvc){
                         pmvc.$mask.attr("mmode", "move")
                         pmvc.rect.com = pmvc.rect.trigger;
                     };
+                    
+                    // 检查 viewport 的模式
+                    this.__hm_check_viewport();
                 }
                 //......................................
                 this.uiCom = uiCom;
@@ -277,7 +302,8 @@ var methods = {
             },
             // 拖拽到了一个目标，执行修改
             on_drop : function(jAreaCon) {
-                console.log("drop to ", jAreaCon)
+                console.log("drop to ", jAreaCon);
+                this.uiCom.appendToArea(jAreaCon);
             }
         });
         

@@ -336,6 +336,25 @@ return ZUI.def("app.wn.hmaker_page", {
         }
     },
     //...............................................................
+    getCom : function(comId) {
+        var jCom;
+        if(_.isString(comId)){
+            jCom = this._C.iedit.$body.find("#" + comId);
+        }
+        // 直接就是 DOM
+        else if(_.isElement(comId) || $z.isjQuery(comId)){
+            jCom = $(comId);
+        }
+        // 不支持
+        else {
+            throw "unsupport getCom by => " + comId;
+        }
+        // 得到组件
+        if(jCom.length > 0) {
+            return ZUI(jCom.closest(".hm-com"));
+        }
+    },
+    //...............................................................
     deleteCom : function(uiCom) {
         if(uiCom) {
             uiCom.destroy();
@@ -425,29 +444,54 @@ return ZUI.def("app.wn.hmaker_page", {
         new PageComBarUI({
             parent : UI,
             gasketName : "combar",
-        }).render();
+        }).render(function(){
+            UI.defer_report("combar");
+        });
        
         // 菜单条
-        // new MenuUI({
-        //     parent : UI,
-        //     gasketName : "pagebar",
-        //     setup : [{
-        //         text : "Test",
-        //         handler : function(){
-        //             UI._C.iload = UI._reset_context_vars(".hmpg-frame-load");
-        //             UI._C.iedit = UI._reset_context_vars(".hmpg-frame-edit");
-        //         }
-        //     },{
-        //         icon : '<i class="zmdi zmdi-more-vert"></i>',
-        //         items : [{
-        //             icon : '<i class="zmdi zmdi-settings"></i>',
-        //             text : 'i18n:hmaker.page.show_prop',
-        //             handler : function() {
-        //                 UI.fire("active:page");
-        //             }
-        //         }]
-        //     }]
-        // }).render(); 
+        new MenuUI({
+            parent : UI,
+            gasketName : "pagebar",
+            setup : [{
+                icon : '<i class="zmdi zmdi-upload"></i>',
+                text : 'i18n:hmaker.page.move_to_body',
+                handler : function() {
+                    var uiCom = UI.getActivedCom();
+                    if(uiCom){
+                        uiCom.appendToArea(null);
+                    }
+                }
+            },{
+                icon : '<i class="zmdi zmdi-long-arrow-up"></i>',
+                tip  : 'i18n:hmaker.page.move_before',
+                handler : function() {
+                    var uiCom = UI.getActivedCom();
+                    if(uiCom) {
+                        var jPrev = uiCom.$el.prev();
+                        if(jPrev.length > 0) {
+                            uiCom.$el.insertBefore(jPrev);
+                        }
+                    }
+                }
+            },{
+                icon : '<i class="zmdi zmdi-long-arrow-down"></i>',
+                tip  : 'i18n:hmaker.page.move_after',
+                handler : function() {
+                    var uiCom = UI.getActivedCom();
+                    if(uiCom) {
+                        var jNext = uiCom.$el.next();
+                        if(jNext.length > 0) {
+                            uiCom.$el.insertAfter(jNext);
+                        }
+                    }
+                }
+            }]
+        }).render(function(){
+            UI.defer_report("pagebar");
+        });
+        
+        // 返回延迟加载
+        return ["combar", "pagebar"];
     },
     //...............................................................
     depose : function() {
@@ -466,6 +510,10 @@ return ZUI.def("app.wn.hmaker_page", {
 
         var jIfmLoad = UI.arena.find(".hmpg-frame-load");
         jIfmLoad.prop("src", "/o/read/id:"+o.id);
+    },
+    //...............................................................
+    $editBody : function() {
+        return this._C.iedit.$body;
     },
     //...............................................................
     // 获取编辑操作时的上下文
