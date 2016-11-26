@@ -16,9 +16,17 @@ var methods = {
     isActived : function() {
         return this.$el.attr("hm-actived") == "yes";
     },
+    // 判断一个 DOM 元素是否在一个激活的块中
+    isInActivedCom : function(jq) {
+        return $(jq).closest(".hm-com[hm-actived]").length > 0;
+    },
     //........................................................
-    notifyActived : function(){
+    notifyActived : function(mode){
         this.fire("active:com", this);
+        if(!_.isUndefined(mode)){
+            this.notifyBlockChange(mode, this.getBlock());
+            this.notifyDataChange(mode,  this.getData());
+        }
     },
     //........................................................
     // 获取组件的属性
@@ -95,10 +103,10 @@ var methods = {
     },
     //........................................................
     applyBlock : function(block) {
+        //console.log(block)
         var UI     = this;
         var jCom   = UI.$el;
         var jW     = jCom.children(".hm-com-W");
-        var jArena = jW.children(".ui-arena");
         
         // 更新控件的模式
         jCom.attr({
@@ -109,49 +117,32 @@ var methods = {
         // console.log(block)
         
         // 准备 css 对象
-        var cssCom, cssArena;
+        var css = {};
         
         // 对于绝对位置，绝对位置的话，应该忽略 margin
         if("abs" == block.mode) {
-            cssCom = $z.pick(block, "^(top|left|right|bottom|width|height)$");
-            cssCom.position = "absolute";
-            
-            cssArena = $z.pick(block,
-                "!^(mode|posBy|top|left|right|bottom|width|height|margin)$");
+            _.extend(css, 
+                $z.pick(block, "!^(mode|posBy)$"),{
+                "position" : "absolute"
+            });
         }
         // 相对位置
         else {
-            cssCom   = $z.pick(block, "^(width|height|margin)$");
-            cssArena = $z.pick(block,
-                "!^(mode|posBy|top|left|right|bottom|width|height|margin)$");
-            
-            // 对于相对位置，最重要的是要保证 jW 与块是同样尺寸的
-            // 主要是高度
-            if(/^[\d.]+(px)?(%)?$/.test(cssCom.height)){
-                jW.css("height", "100%");
-            }
-            // 没设置高度，则清除
-            else {
-                jW.css("height", "");
-            }
+            _.extend(css, 
+                $z.pick(block, "!^(mode|posBy|top|left|right|bottom)$"),{
+                "position" : ""
+            });
         }
         
-        // 确保内容区域如果被滚动和剪裁，是有宽高的
-        if(/^(auto|hidden|scroll)/.test(cssArena.overflow)){
-            cssArena.width  = "100%";
-            cssArena.height = "100%";
-        }
-        // 否则清除这个设置
-        else {
-            cssArena.width  = "";
-            cssArena.height = "";
-        }
+        // 修正 css 的宽高
+        if("unset" == css.width)
+            css.width = "";
+        if("unset" == css.height)
+            css.height = "";
                 
-        // 位置和大小属性，记录在块上
-        jCom.css(UI.formatCss(cssCom, true));
-        
-        // 其他记录在显示区上
-        jArena.css(UI.formatCss(cssArena, true));
+        // 应用这个修改
+        //console.log("css:", css);
+        UI.applyBlockCss(css);
         
         // 判断区域是否过小
         var comW = jCom.outerWidth();
@@ -246,18 +237,6 @@ var methods = {
         re += '\n}';
         return re;
     },
-    // 判断一个 DOM 元素是否在一个激活的块中
-    isInActivedCom : function(jq) {
-        return $(jq).closest(".hm-com[hm-actived]").length > 0;
-    },
-    // 判断控件自身是否是 Actived
-    isActived : function() {
-        return this.$el.closest(".hm-block").attr("hm-actived") == "yes";
-    },
-    // 在属性面板的扩展元素接口，绘制自定义 UI
-    drawComEleInProp : function(uiDef, callback) {
-        this.propUI("edit").drawComEle(uiDef, callback);
-    }
 }; // ~End methods
 //====================================================================
 // 得到 HMaker 所有 UI 对象的方法
@@ -287,8 +266,8 @@ module.exports = function(uiCom){
         return {
             mode : "inflow",
             posBy   : "WH",
-            width   : "auto",
-            height  : "auto",
+            width   : "unset",
+            height  : "unset",
             padding : "",
             border : "" ,   // "1px solid #000",
             borderRadius : "",
@@ -327,6 +306,25 @@ module.exports = function(uiCom){
         else {
             throw "unsupport block mode: '" + block.mode + "'";
         }
+    });
+    
+    // 定默认控件应用布局块属性的方法
+    $z.setUndefined(uiCom, "applyBlockCss", function(css){
+        // 对于相对位置，最重要的是要保证 jW 与块是同样尺寸的
+        // 主要是高度
+        if(/^[\d.]+(px)?(%)?$/.test(css.height)){
+            this.$el.attr("auto-wrap-height", "yes");
+        }
+        // 没设置高度，则清除
+        else {
+            this.$el.removeAttr("auto-wrap-height");
+        }
+            
+        // 最后分别应用属性到对应的元素上
+        var cssCom   = $z.pick(css, "^(position|top|left|right|bottom|width|height|border|margin)$");
+        var cssArena = $z.pick(css, "!^(position|top|left|right|bottom|width|height|border||margin)$");
+        this.$el.css(this.formatCss(cssCom, true));
+        this.arena.css(this.formatCss(cssArena, true));
     });
     
     // 重定义控件的 redraw

@@ -224,11 +224,8 @@ return ZUI.def("app.wn.hmaker_page", {
             var block = uiCom.setBlock({});
             
             // 通知激活控件
-            uiCom.notifyActived();
+            uiCom.notifyActived(null);
             
-            // 通知改动
-            uiCom.notifyBlockChange(null, block);
-            uiCom.notifyDataChange(null, com);
         });
     },
     //...............................................................
@@ -363,7 +360,7 @@ return ZUI.def("app.wn.hmaker_page", {
     },
     //...............................................................
     // 得到本页所有布局控件的信息列表
-    getLayoutComInfoList : function(){
+    getLayoutList : function(){
         var UI = this;
         var _C = UI._C;
 
@@ -385,17 +382,16 @@ return ZUI.def("app.wn.hmaker_page", {
     },
     //...............................................................
     // 取得某个布局控件内部的可用区域（不包括子控件的区域）
-    getLayoutComBlockDataArray : function(comId){
+    getLayoutAreaList : function(comId){
         var UI = this;
-        var jCom  = UI.getComElementById(comId);
-        var uiCom = UI.bindComUI(jCom);
+        var uiCom = UI.getCom(comId);
 
         // 没有组件，返回就是空
         if(!uiCom)
             return [];
 
         // 返回
-        return uiCom.getBlockDataArray();
+        return $z.invoke(uiCom, "getAreaObjList", []) || [];
     },
     //...............................................................
     redraw : function(){

@@ -12,11 +12,12 @@ var CSS_BASE = {
 var methods = {
     //=========================================================
     hmaker : function(){
-        var UI = this;
-        while(!UI.__hmaker__ && UI) {
-            UI = UI.parent;
-        }
-        return UI;
+        var reUI = this;
+        //console.log(reUI.uiName, reUI.__hmaker__);
+        if(reUI.__hmaker__)
+            return reUI;
+        if(reUI.parent)
+            return reUI.parent.hmaker();
     },
     // 得到 HmPageUI，如果不是，则抛错
     pageUI : function(quiet) {

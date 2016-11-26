@@ -76,7 +76,7 @@ var methods = {
                 // 得到组件的 UI
                 var uiCom = ZUI(jq);
                 
-                console.log("uiCom", uiCom);
+                // console.log("uiCom", uiCom.uiName);
                 
                 // 快速切换页面的时候会出现异步的问题
                 // 防守一道
@@ -84,11 +84,7 @@ var methods = {
                     return;
                             
                 // 通知激活控件
-                uiCom.notifyActived();
-                
-                // 通知改动
-                uiCom.notifyBlockChange("page", uiCom.getBlock());
-                uiCom.notifyDataChange("page", uiCom.getData());
+                uiCom.notifyActived("page");
             }
             // 如果点到了 body，那么激活页
             else if('BODY' == this.tagName){
@@ -271,10 +267,7 @@ var methods = {
                 //......................................
                 // 确保这个控件是激活的
                 if(!jCom.attr("hm-actived")){    
-                    // 通知激活控件
-                    this.uiCom.notifyActived();
-                    this.uiCom.notifyBlockChange("page", this.uiCom.getBlock());
-                    this.uiCom.notifyDataChange("page",  this.uiCom.getData());
+                    this.uiCom.notifyActived("page");
                 }
             },
             on_ing : function() {

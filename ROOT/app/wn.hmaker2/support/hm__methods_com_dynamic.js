@@ -61,11 +61,11 @@ var methods = {
         if(jP.find(".dynamic-reload").length > 0)
             return;
             
-        $('<div class="dynamic-reload"><i class="fa fa-refresh"></i></div>')
+        $('<div class="dynamic-reload"><b><i class="fa fa-refresh"></i></b></div>')
             .attr({
                 "data-balloon" : this.msg("hmaker.dds.reload"),
                 "data-balloon-pos"    : "left",
-                "data-balloon-length" : "small"
+                "data-balloon-length" : "medium"
             })
             .appendTo(jP);
     },

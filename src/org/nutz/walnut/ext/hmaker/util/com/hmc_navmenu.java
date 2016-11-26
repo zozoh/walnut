@@ -12,13 +12,13 @@ public class hmc_navmenu extends AbstractComHanlder {
 
     @Override
     protected void _exec(HmPageTranslating ing) {
-        String mode = ing.prop.getString("mode", "default");
+        String mode = ing.propPage.getString("mode", "default");
 
         // 准备 CSS
         NutMap rule = new NutMap();
 
         // 垂直模式的对齐方式
-        String align = ing.prop.getString("itemAlign", "left");
+        String align = ing.propPage.getString("itemAlign", "left");
         if ("aside".equals(mode)) {
             rule.put("text-align", align);
         }
@@ -28,7 +28,7 @@ public class hmc_navmenu extends AbstractComHanlder {
         }
 
         // 修改链接项目标签
-        Elements lis = ing.eleArena.getElementsByTag("li");
+        Elements lis = ing.eleCom.getElementsByTag("li");
         for (Element li : lis) {
             Element a = li.child(0);
             String href = li.attr("href");

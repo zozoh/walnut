@@ -12,7 +12,6 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 
 /**
@@ -52,17 +51,28 @@ public class HmPageTranslating extends HmContext {
     /**
      * 当前处理的组件属性
      */
-    public NutMap prop;
-
-    /**
-     * 当前组件的 arena 区
-     */
-    public Element eleArena;
+    public NutMap propPage;
 
     /**
      * 当前处理的 COM 的 ID
      */
     public String comId;
+
+    /**
+     * 当前处理的组件的布局属性
+     */
+    public NutMap propBlock;
+
+    /**
+     * 抽象控件处理器预先分析的一个块的 CSS 规则<br>
+     * 各个控件需要将这些规则分组并设置对应的类选择器
+     */
+    public NutMap cssBlock;
+
+    /**
+     * 当前处理的组件内容属性
+     */
+    public NutMap propCom;
 
     /**
      * 各个控件有可能生成一些 CSS，都收集在这个容器里，之后会统一在页头生成 style 标签 <br>
@@ -100,7 +110,6 @@ public class HmPageTranslating extends HmContext {
         scripts = new LinkedHashSet<String>();
         cssLinks = new LinkedHashSet<String>();
         jsLinks = new LinkedHashSet<String>();
-        prop = new NutMap();
     }
 
     private void __do_com(Element eleCom) {
@@ -115,75 +124,11 @@ public class HmPageTranslating extends HmContext {
         // 移除没必要的属性
         eleCom.removeAttr("ctype");
         eleCom.removeAttr("c_seq");
-    }
-
-    private void __do_block(Element eleBlock) {
-        // 准备变量
-        Element eleCon = eleBlock.child(0);
-        Element eleArea = eleCon.child(0);
-
-        // 读取属性
-        prop.clear();
-        Element eleProp = Hms.fillProp(prop, eleBlock, "hmc-prop-block");
-        if (null == eleProp) {
-            Element eleCom = eleBlock.select(">.hmb-con>.hmb-area>.hm-com").first();
-            throw Er.createf("e.cmd.hmaker.publish.block.noprop",
-                             "#%s.%s",
-                             eleCom.attr("ctype"),
-                             eleCom.attr("id"));
-        }
-        eleProp.remove();
-
-        // 要挑选的属性
-        NutMap cssArea;
-
-        // 对于绝对位置
-        if ("abs".equals(prop.getString("mode"))) {
-
-            // 分析
-            NutMap cssBlock = new NutMap();
-
-            cssBlock.put("position", "absolute");
-
-            String[] pKeys = prop.getString("posBy", "").split("\\W+");
-            String[] pVals = prop.getString("posVal", "").split("[^\\dpx%.-]+");
-
-            if (pKeys.length == pVals.length && pKeys.length > 0) {
-                for (int i = 0; i < pKeys.length; i++) {
-                    cssBlock.put(pKeys[i], pVals[i]);
-                }
-            }
-
-            // 设置块属性
-            String css = Hms.genCssRuleStyle(this, cssBlock);
-            eleBlock.attr("style", css);
-
-            // 生成 Area 部分的 CSS
-            cssArea = prop.pick("padding",
-                                "border",
-                                "borderRadius",
-                                "color",
-                                "background",
-                                "overflow",
-                                "boxShadow");
-        }
-        // 相对位置
-        else {
-            cssArea = prop.pick("margin",
-                                "width",
-                                "height",
-                                "padding",
-                                "border",
-                                "borderRadius",
-                                "color",
-                                "background",
-                                "overflow",
-                                "boxShadow");
-        }
-
-        // 设置 Area 的 CSS
-        String css = Hms.genCssRuleStyle(this, cssArea);
-        eleArea.attr("style", css);
+        eleCom.removeAttr("hmc-mode");
+        eleCom.removeAttr("hmc-pos-by");
+        eleCom.removeAttr("auto-wrap-height");
+        eleCom.removeAttr("hm-actived");
+        eleCom.removeAttr("ui-id");
     }
 
     public WnObj translate(WnObj o) {
@@ -228,23 +173,14 @@ public class HmPageTranslating extends HmContext {
         }
         // ---------------------------------------------------
         // TODO 处理整个页面的 body
-        prop.clear();
-        Element eleProp = Hms.fillProp(prop, doc.body(), "hm-page-attr");
-        if (null != eleProp) {
-            eleProp.remove();
-        }
-        String css = Hms.genCssRuleStyle(this, prop);
+        this.propPage = Hms.loadPropAndRemoveNode(doc.body(), "hm-page-attr");
+
+        String css = Hms.genCssRuleStyle(this, propPage);
         doc.body().attr("style", css);
         // ---------------------------------------------------
         // 添加页面皮肤过滤器
         if (this.hasSkin()) {
             doc.body().attr("skin", this.skinInfo.name);
-        }
-        // ---------------------------------------------------
-        // 处理块
-        Elements eleBlocks = doc.body().getElementsByClass("hm-block");
-        for (Element eleBlock : eleBlocks) {
-            this.__do_block(eleBlock);
         }
         // ---------------------------------------------------
         // 处理控件
@@ -326,7 +262,7 @@ public class HmPageTranslating extends HmContext {
         if (null == myRule)
             this.cssRules.put(comId, rule);
         else
-            myRule.putAll(rule);
+            myRule.mergeWith(rule);
     }
 
     /**

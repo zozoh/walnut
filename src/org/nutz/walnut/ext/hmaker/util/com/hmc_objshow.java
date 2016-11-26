@@ -6,12 +6,12 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
 
-public class hmc_objshow extends AbstractComHanlder {
+public class hmc_objshow extends AbstractDynamicContentCom {
 
     @Override
     protected void _exec(HmPageTranslating ing) {
         // JS 控件的配置项目
-        NutMap conf = ing.prop;
+        NutMap conf = ing.propPage;
 
         // 确保页面输出是 wnml
         ing.markPageAsWnml();
@@ -19,10 +19,10 @@ public class hmc_objshow extends AbstractComHanlder {
         // 生成 DOM 结构
         ing.eleCom.append("<div class=\"hmc-objshow hmc-dds\"></div>");
 
-        _setup_dynamic_content(ing, conf);
+        this._setup_dynamic_content(ing, conf);
 
         // 得到 api 的URL
-        if (ing.prop.has("api")) {
+        if (ing.propPage.has("api")) {
             String apiUrl = "/api/" + ing.oHome.d1() + conf.getString("api");
             conf.put("apiUrl", apiUrl);
         }

@@ -256,7 +256,7 @@
                 return val + "px";
             
             // 看看值是否合法，合法就进行后续处理
-            var m = /^(([\d.]+)(px)?(%)?|auto)$/.exec(val);
+            var m = /^(([\d.]+)(px)?(%)?|auto|unset|inherit|initial)$/.exec(val);
             if(m) {
                 // 如果没有单位自动补上 px
                 if(m[2] && !m[3] && !m[4]){

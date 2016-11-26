@@ -100,7 +100,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
 
             // 监视编辑
             $z.editIt(jq, function(newval, oldval, jEle){
-                var val = $.trim(newval) || "auto";
+                var val = $.trim(newval) || "unset";
                 if(val && val!=oldval) {
                     var v2 = $z.toCssDimension(val);
                     if(v2) {

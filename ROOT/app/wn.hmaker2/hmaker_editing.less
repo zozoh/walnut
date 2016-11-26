@@ -6,7 +6,7 @@
     box-sizing: border-box;
 }
 
-body {margin:0; font-size:12px;}
+body {margin:0; font-size:12px; overflow-y: scroll;}
 //............................................................
 // 拖拽相关
 .pmv-dropi {
@@ -91,6 +91,13 @@ body {margin:0; font-size:12px;}
     }
 }
 
+// 指定高度的组件，设置包裹区的高度与外层等高
+.hm-com[auto-wrap-height] > .hm-com-W {
+    height: 100%;
+    > .ui-arena {height:100%;}
+}
+
+
 // 比较小的块，辅助柄显示的不同
 .hm-com[hmc-small] > .hm-com-W > .hm-com-assist {
     > .hmc-ai[m="H"] {
@@ -157,9 +164,10 @@ body {margin:0; font-size:12px;}
             }
         }
         .pmv-dropi[pmv-hover] {
+            z-index: 1;
             .di-area {
-                background: rgba(255,255,0,0.8);
-                transform: translate(2px, -4px);
+                background: rgba(255,255,0,0.6);
+                transform: scale(1.05);
                 box-shadow: 2px 2px 4px rgba(0,0,0,0.6);
             }
         }
@@ -270,7 +278,7 @@ body {margin:0; font-size:12px;}
 // image
 .hm-com[ctype="image"] {display: inline-block;}
 .hmc-image { @noselect();
-    position: relative; width:100%; height:100%;
+    position: relative; 
     img {border:0;}
     .hmc-image-link-tip { display: none;
         position: absolute; left: @d0; top:@d0;
@@ -419,12 +427,19 @@ body {margin:0; font-size:12px;}
     }
     .dynamic-reload { @noselect(); display: none;
         position: absolute; bottom:@ddsP; right:@ddsP;
-        padding:@d3; background: #000; color: #FFF; opacity: 0.4;
-        font-size:@f2; cursor: pointer; transition:0.3s;
+        z-index: 1;
+        b {
+            display: block;
+            padding:@d3; background: #000; color: #FFF; opacity: 0.4;
+            font-size:@f2; cursor: pointer; transition:0.3s;
+        }
     }
     .dynamic-reload:hover {
-        opacity: 1.0; color:#FF0; border-radius: 50%;
-        transform: rotate(360deg); z-index: 999;
+        z-index: 999;
+        b {
+            opacity: 1.0; color:#FF0; border-radius: 50%;
+            transform: rotate(360deg); 
+        }
     }
     .dynamic-reload:before {
         line-height: 24px;

@@ -45,13 +45,14 @@ return ZUI.def("app.wn.hm_com_image", {
         this.arena.children("img").off();
     },
     //...............................................................
-    // 块大小改变，也同时改变 img 的宽高
-    on_apply_block : function(block) {
-        var jImg = this.arena.children("img");
-        jImg.css({
-            "width"  : this.arena.width(),
-            "height" : this.arena.height()
-        });
+    // 自定义修改块布局的逻辑
+    applyBlockCss : function(css) {
+        var UI   = this;
+        
+        var cssCom   = $z.pick(css, "^(position|top|left|right|bottom|margin)$");
+        var cssArena = $z.pick(css, "!^(position|top|left|right|bottom|margin)$");
+        this.$el.css(this.formatCss(cssCom, true));
+        this.arena.find("img.hmc-image-pic").css(this.formatCss(cssArena, true));
     },
     //...............................................................
     paint : function(com) {
@@ -238,7 +239,7 @@ return ZUI.def("app.wn.hm_com_image", {
         if(block.mode == 'inflow') {
             re.push("margin");
         }
-        return re.concat(["padding","border","borderRadius","background","boxShadow","overflow"]);
+        return re.concat(["border","borderRadius","background","boxShadow","overflow"]);
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性

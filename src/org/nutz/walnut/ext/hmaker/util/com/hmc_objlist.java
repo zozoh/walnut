@@ -6,7 +6,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
 
-public class hmc_objlist extends AbstractComHanlder {
+public class hmc_objlist extends AbstractDynamicContentCom {
 
     static class TCC {
         // 代码模板
@@ -22,7 +22,7 @@ public class hmc_objlist extends AbstractComHanlder {
     @Override
     protected void _exec(HmPageTranslating ing) {
         // JS 控件的配置项目
-        NutMap conf = ing.prop;
+        NutMap conf = ing.propPage;
 
         // 确保页面输出是 wnml
         ing.markPageAsWnml();
@@ -30,7 +30,7 @@ public class hmc_objlist extends AbstractComHanlder {
         // 生成 DOM 结构
         ing.eleCom.append("<div class=\"hmc-objlist hmc-dds\"><div class=\"hmc-objlist-list\"></div></div>");
 
-        _setup_dynamic_content(ing, conf);
+        this._setup_dynamic_content(ing, conf);
 
         // 生成 JS 代码片段，并计入转换上下文
         String script = String.format("$('#%s .hmc-objlist-list').objlist(%s);",

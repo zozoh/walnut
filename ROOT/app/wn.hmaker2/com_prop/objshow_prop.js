@@ -39,7 +39,7 @@ return ZUI.def("app.wn.hm_com_objshow_prop", {
             },
             on_change : function(com) {
                 // console.log("haha", com)
-                UI.notifyComChange(com, true);
+                UI.uiCom.saveData("panel", com);
             }
         }).render(function(){
             UI.defer_report("dds");

@@ -130,7 +130,7 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             }
 
             // 获取分栏下的区域列表
-            var biList = UI.pageUI().getLayoutComBlockDataArray(comId);
+            var areaiList = UI.pageUI().getLayoutAreaList(comId);
 
             // 显示一个下拉框(带全局覆盖的 masker)
             var jDropMask = $('<div class="toar-drop-mask"></div>').appendTo(jItem);
@@ -138,12 +138,12 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             var jDropUl   = jDrop.find("ul");
 
             // 循环添加项目
-            for(var bi of biList) {
+            for(var area of areaiList) {
                 $('<li><i class="fa fa-square-o"></i><b></b></li>')
                     .attr({
-                        "value" : bi.bid
+                        "value" : area.areaId
                     }).appendTo(jDropUl)
-                        .find('b').text(bi.bid);
+                        .find('b').text(area.areaId);
             }
 
             // 最后让内容区域，停靠到正确的地方
@@ -338,6 +338,9 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                 }
             }]
         }).render(function(){
+            // console.log("after render: UI.parent", UI.parent);
+            if(!UI.parent)
+                return;
             UI.__reload_toggleAreaItems();
             UI.defer_report("form");
         });
@@ -347,8 +350,9 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
     },
     //...............................................................
     __reload_toggleAreaItems : function(){
+        // console.log("__reload_toggleAreaItems")
         var UI   = this;
-        var items = UI.pageUI().getLayoutComInfoList();
+        var items = UI.pageUI().getLayoutList();
 
         var cLayout = UI.gasket.form.getFormCtrl("layoutComId");
         var clData  = cLayout.getData();

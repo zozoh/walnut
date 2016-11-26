@@ -22,8 +22,8 @@ public class hmc_image extends AbstractComHanlder {
 
         // 超链接
         String tagName = "DIV";
-        if (ing.prop.has("href")) {
-            String href = ing.prop.getString("href");
+        if (ing.propPage.has("href")) {
+            String href = ing.propPage.getString("href");
             Element eleA = ing.eleCom.ownerDocument()
                                      .createElement("A")
                                      .attr("href", href)
@@ -38,7 +38,7 @@ public class hmc_image extends AbstractComHanlder {
         // 文字属性
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 准备更新文本样式
-        NutMap txt = ing.prop.getAs("text", NutMap.class);
+        NutMap txt = ing.propPage.getAs("text", NutMap.class);
         String content = null == txt ? null : txt.getString("content");
         if (null != content) {
             css = __gen_txt_css(txt);
@@ -113,10 +113,10 @@ public class hmc_image extends AbstractComHanlder {
 
     private NutMap __gen_img_css(HmPageTranslating ing) {
         // 得到属性
-        String src = ing.prop.getString("src");
+        String src = ing.propPage.getString("src");
 
         // 准备 CSS
-        NutMap css = ing.prop.pick("width", "height");
+        NutMap css = ing.propPage.pick("width", "height");
         css.putDefault("width", "100%");
         css.putDefault("height", "100%");
 
@@ -156,7 +156,7 @@ public class hmc_image extends AbstractComHanlder {
         }
 
         // 处理缩放
-        String scale = ing.prop.getString("scale", "");
+        String scale = ing.propPage.getString("scale", "");
         switch (scale) {
         case "contain":
         case "cover":

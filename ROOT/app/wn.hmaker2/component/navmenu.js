@@ -20,29 +20,27 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     events : {
         // 高亮项目
         'click ul>li' : function(e) {
-            var UI = this;
             var jq = $(e.currentTarget);
-            if(!UI.isInActivedCom(jq))
+
+            // 仅针对激活控件有效
+            if(!this.isActived())
                 return;
-            
-            e.stopPropagation();
+
             this.selectItem(jq);
         },
         // 取消高亮
         'click .hmc-navmenu' : function(e) {
-            var UI = this;
-            var jq = $(e.currentTarget);
-            if(!UI.isInActivedCom(jq))
-                return;
-
-            e.stopPropagation();
-            UI.unselectItem();
+            if($(e.target).closest('li').length == 0){
+                this.unselectItem();
+            }
         },
         // 编辑文字
         'click ul>li[current] a' : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
-            if(!UI.isInActivedCom(jq))
+            
+            // 仅针对激活控件有效
+            if(!this.isActived())
                 return;
 
             var jItem = jq.closest("li");

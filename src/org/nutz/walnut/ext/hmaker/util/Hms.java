@@ -192,7 +192,11 @@ public final class Hms {
     }
 
     /**
-     * 从一个节点里读取 hmaker 给它设置的属性
+     * 从一个节点里读取 hmaker 给它设置的属性，
+     * <p>
+     * 属性节点是一个 SCRIPT，根据类选择器确定该节点
+     * <p>
+     * 节点必须是给定节点的子，本函数读取完节点后，会将其删除
      * 
      * @param ele
      *            元素
@@ -201,11 +205,11 @@ public final class Hms {
      * 
      * @return 解析好的属性
      */
-    public static Element fillProp(NutMap prop, Element ele, String className) {
+    public static NutMap loadPropAndRemoveNode(Element ele, String className) {
         // Element eleProp = ele.children().last();
         Element eleProp = ele.select(">script." + className).first();
         if (null == eleProp)
-            return null;
+            return new NutMap();
         // throw Er.createf("e.cmd.hmaker.publish.invalidEleProp",
         // "<%s#%s>",
         // ele.tagName(),
@@ -213,11 +217,15 @@ public final class Hms {
 
         // 读取
         String json = eleProp.html();
-        NutMap map = Json.fromJson(NutMap.class, json);
-        prop.putAll(map);
 
-        // 返回
-        return eleProp;
+        // 删除属性
+        eleProp.remove();
+
+        // 解析并返回
+        if (Strings.isBlank(json))
+            return new NutMap();
+        return Json.fromJson(NutMap.class, json);
+
     }
 
     // =================================================================

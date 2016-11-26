@@ -24,7 +24,7 @@ return ZUI.def("app.wn.hmpg_combar", {
             // 组件
             if(comId) {
                 var uiCom = UI.pageUI().getCom(comId);
-                uiCom.notifyActived();
+                uiCom.notifyActived(null);
             }
             // 页面
             else {
@@ -56,7 +56,8 @@ return ZUI.def("app.wn.hmpg_combar", {
         else
             html += ' parent="yes">';
         html += UI.msg("hmaker.com."+ctype+".icon");
-        html += '<b>'+UI.msg("hmaker.com."+ctype+".name")+'</b>';
+        html += `<b data-balloon="`+UI.msg("hmaker.com."+ctype+".name")+`"
+                data-balloon-pos="down">`+comId+`</b>`;
         if(!current)
             html += '<i class="zmdi zmdi-chevron-right"></i>';
         //html += '<em>('+comId+')</em>';

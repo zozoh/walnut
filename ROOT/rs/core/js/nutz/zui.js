@@ -468,7 +468,7 @@ ZUIObj.prototype = {
                 // if("ui.mask" == UI.uiName)
                 //     console.log("!!!!! do_after_redraw:", UI.uiName, UI._defer_uiTypes)
                 // 回调，延迟处理，以便调用者拿到返回值之类的
-                window.setTimeout(function(){
+                //window.setTimeout(function(){
                     // 触发事件
                     $z.invoke(UI.options, "on_redraw", [], UI);
                     UI.trigger("ui:redraw", UI);
@@ -507,7 +507,7 @@ ZUIObj.prototype = {
                     window.setTimeout(function(){
                         UI.resize(true);
                     }, 0);
-                }, 0);
+                //}, 0);
             };
             // 定义后续处理
             var do_render = function () {
@@ -643,27 +643,37 @@ ZUIObj.prototype = {
         var UI = this;
         if(!UI._loaded_uiTypes)
             UI._loaded_uiTypes = [];
-
+        
         // 因为是延迟，所以放到执行队列最后执行
         window.setTimeout(function(){
-            // 如果仅仅给了个 uiType，那么自动寻找 i
-            if(_.isString(i)){
-                uiType = i;
-                i = UI._defer_uiTypes.indexOf(uiType);
-                if(i<0){
-                    alert("defer uiType '" + uiType + "' without define!");
-                    throw "defer uiType '" + uiType + "' without define!";
+            // console.log(" - defer", UI.uiName, i, uiType)
+            if(UI._loaded_uiTypes 
+                && UI._defer_uiTypes 
+                && UI._defer_do_after_redraw){
+                // 如果仅仅给了个 uiType，那么自动寻找 i
+                if(_.isString(i)){
+                    uiType = i;
+                    i = UI._defer_uiTypes.indexOf(uiType);
+                    if(i<0){
+                        alert("defer uiType '" + uiType + "' without define!");
+                        throw "defer uiType '" + uiType + "' without define!";
+                    }
                 }
+                // 记录加载完的项目
+                UI._loaded_uiTypes[i] = uiType;
+                UI._check_defer_done();
             }
-            // 记录加载完的项目
-            UI._loaded_uiTypes[i] = uiType;
-            UI._check_defer_done();
-
+            // 已经被执行完了
+            else {
+                // console.log(" - !!! ignore");
+            }
         }, 0);
     },
     _check_defer_done : function(){
         var UI = this;
-        if(UI._loaded_uiTypes && UI._defer_uiTypes && UI._defer_do_after_redraw){
+        if(UI._loaded_uiTypes 
+            && UI._defer_uiTypes 
+            && UI._defer_do_after_redraw){
             if(UI._loaded_uiTypes.length == UI._defer_uiTypes.length){
                 for(var i=0; i<UI._loaded_uiTypes.length; i++){
                     if(UI._loaded_uiTypes[i] != UI._defer_uiTypes[i]){
@@ -671,14 +681,17 @@ ZUIObj.prototype = {
                     }
                 }
                 // 延迟调用
-                window.setTimeout(function(){
-                    if(UI._loaded_uiTypes && UI._defer_uiTypes && UI._defer_do_after_redraw){
-                         UI._defer_do_after_redraw.call(UI);
-                         delete UI._defer_uiTypes;
+                //window.setTimeout(function(){
+                    if(UI._loaded_uiTypes 
+                        && UI._defer_uiTypes 
+                        && UI._defer_do_after_redraw){
+                        // console.log(" - defer done", UI.uiName)
+                        UI._defer_do_after_redraw.call(UI);
+                        delete UI._defer_uiTypes;
                         delete UI._loaded_uiTypes;
                         delete UI._defer_do_after_redraw;
                     }
-                }, 0);
+                //}, 0);
             }
         }
     },
