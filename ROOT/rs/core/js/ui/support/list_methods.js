@@ -114,9 +114,20 @@ var methods = {
     },
     //...............................................................
     // 从某项目取出数据
-    getObj : function(arg) {
-        var jItem = this.$item(arg);
-        return this.options.getItemData.call(this, jItem);
+    getObj : function(arg, forceArray) {
+        var UI    = this;
+        var opt   = UI.options;
+        var jItem = UI.$item(arg);
+        // 如果是单一对象
+        if(!forceArray && jItem.length <= 1){
+            return opt.getItemData.call(UI, jItem);
+        }
+        // 否则返回的是一个数组
+        var re = [];
+        jItem.each(function(){
+            re.push(opt.getItemData.call(UI, $(this)));
+        });
+        return re;
     },
     // 向某项目设置数据
     setObj : function(arg, obj) {
@@ -177,6 +188,9 @@ var methods = {
             // 触发消息 
             UI.trigger("item:actived", o, jItem);
             $z.invoke(opt, "on_actived", [o, jItem, prevObj, jPreItem], context);
+            
+            UI.trigger("item:checked", jItem);
+            $z.invoke(opt, "on_checked", [jItem], UI);
         }
         // 调用子类方法
         $z.invoke(UI, "__after_actived", [o, jItem, prevObj, jPreItem]);
@@ -212,6 +226,9 @@ var methods = {
             // 触发消息 
             UI.trigger("item:blur", jItems, nextObj, nextItem);
             $z.invoke(opt, "on_blur", [jItems, nextObj, nextItem], context);
+            
+            UI.trigger("item:unchecked", jItems);
+            $z.invoke(opt, "on_unchecked", [jItems], UI);
         }
     },
     //...............................................................
@@ -238,7 +255,6 @@ var methods = {
                         ? UI.arena.find(".list-item")
                         : UI.$item(arg))
                         .not('[li-checked]');
-
         // 执行
         if(jItems.length>0){
             jItems.attr("li-checked", "yes");
@@ -282,10 +298,10 @@ var methods = {
         var jItems = _.isUndefined(arg)
                         ? UI.arena.find(".list-item")
                         : UI.$item(arg);
-
+        //console.log("toggle", jItems.html())
         if(jItems.length>0){
-            var jCheckeds = $([]);
-            var jUnchecks = $([]);
+            var checkeds = [];
+            var unchecks = [];
             jItems.each(function(){
                 var jItem = $(this);
 
@@ -298,25 +314,29 @@ var methods = {
                 // 取消选中
                 if(UI.isChecked(jItem)){
                     jItem.removeAttr("li-checked");
-                    jCheckeds.add(jItem);
+                    unchecks.push(this);
                 }
                 // 选中
                 else{
                     jItem.attr("li-checked", "yes");
-                    jUnchecks.add(jItem);
+                    checkeds.push(this);
                 }
             });
+            // console.log("jCheckeds", checkeds);
+            // console.log("jUnchecks", unchecks);
 
             // 调用子类方法
             $z.invoke(UI, "__after_toggle", [jItems]);
 
             // 触发消息 : checked
-            if(jCheckeds.length > 0) {
+            if(checkeds.length > 0) {
+                var jCheckeds = $(checkeds);
                 UI.trigger("item:checked", jCheckeds);
                 $z.invoke(opt, "on_checked", [jCheckeds], UI);
             }
             // 触发消息 : uncheck
-            if(jUnchecks.length > 0) {
+            if(unchecks.length > 0) {
+                var jUnchecks = $(unchecks);
                 UI.trigger("item:unchecked", jUnchecks);
                 $z.invoke(opt, "on_unchecked", [jUnchecks], UI);
             }
@@ -327,14 +347,15 @@ var methods = {
         return this.$item(arg).length > 0;
     },
     //...............................................................
-    getData : function(arg){
+    getData : function(arg, forceArray){
         var UI = this;
-        // 特指某个项目
-        if(!_.isUndefined(arg)){
-            return UI.getObj(arg);
-        }
-        // 获取完整的列表
+        
         return UI.ui_format_data(function(opt){
+            // 特指某个项目
+            if(!_.isUndefined(arg)){
+                return UI.getObj(arg, forceArray);
+            }
+            // 获取完整的列表
             var objs = [];
             UI.arena.find('.list-item').each(function(){
                 var obj = UI.getObj(this);
