@@ -86,15 +86,33 @@ var methods = {
     // 返回 [] 表示皮肤中没有定义控件的类选择器列表
     getSkinListForCom : function(comType) {
         var skinInfo = this.getSkinInfo();
-
         if(skinInfo && skinInfo.com)
             return skinInfo.com[comType] || [];
-
+        return null;
+    },
+    // 返回皮肤支持的分栏列表
+    // {text,selector} 格式的对象
+    // 返回 null 表示站点没设置皮肤
+    // 返回 [] 表示皮肤中没有规定分栏的样式
+    getSkinListForArea : function() {
+        var skinInfo = this.getSkinInfo();
+        if(skinInfo)
+            return skinInfo.area || [];
         return null;
     },
     // 针对一个组件，根据选择器获取其样式名
     getSkinTextForCom : function(comType, selector) {
         var sList = this.getSkinListForCom(comType);
+        if(_.isArray(sList))
+            for(var si of sList){
+                if(si.selector == selector)
+                    return si.text;
+            }
+        return null;
+    },
+    // 针对一个分栏区域，根据选择器获取其样式名
+    getSkinTextForArea : function(selector) {
+        var sList = this.getSkinListForArea();
         if(_.isArray(sList))
             for(var si of sList){
                 if(si.selector == selector)

@@ -46,6 +46,7 @@ define({
             "skin_none"  : "无皮肤样式",
             "skin_unset" : '<i class="zmdi zmdi-alert-triangle"></i> 站点没有设置皮肤，请在 "菜单>站点设置>站点皮肤" 处选择皮肤',
             "skin_empty" : '<i class="zmdi zmdi-info-outline"></i> 没有针对这个控件的皮肤样式',
+            "noarea" : "您必须得在属性面板上选中一个区域才能进行这个操作"
         }, 
         "drag" : {
             "com_tip" : "您可以拖拽这个手柄，将组件移动到任意分栏",

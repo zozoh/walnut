@@ -189,57 +189,137 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
 //............................................................
 // 分栏控件通用
 //............................................................
-@areaP : 1px;
+@abW : 1px;
 .hm-area {
     position: relative;
     > .hm-area-assist {
-        .hma-ai {position: absolute; border:0 dotted rgba(0,0,0,0.2);}
-        .hma-ai[m="N"]{top:@areaP;left:@areaP;right:@areaP;border-top-width:1px;}
-        .hma-ai[m="W"]{top:@areaP;bottom:@areaP;left:@areaP;border-left-width:1px;}
-        .hma-ai[m="E"]{top:@areaP;bottom:@areaP;right:@areaP;border-right-width:1px;}
-        .hma-ai[m="S"]{bottom:@areaP;left:@areaP;right:@areaP;border-bottom-width:1px;}
+        .hma-ai {
+            position: absolute; border:0 dashed rgba(0,0,0,0.2); z-index:1;
+        }
+        .hma-ai[m="N"]{top:0;left:0;right:0;   border-top-width:@abW;}
+        .hma-ai[m="W"]{top:0;bottom:0;left:0;  border-left-width:@abW;}
+        .hma-ai[m="E"]{top:0;bottom:0;right:0; border-right-width:@abW;}
+        .hma-ai[m="S"]{bottom:0;left:0;right:0;border-bottom-width:@abW;}
     }
     > .hm-area-con {
         position: relative;
         min-height: 30px;
     }
 }
-.hm-com[highlight-mode] {
-    > .hm-area {opacity: 0.4;}
-    > .hm-area[highlight] {opacity: 1.0; background:rgba(255,255,0,0.4);}
+.hm-layout[highlight-mode] {
+    > .hm-com-W {
+        > .hm-com-assist {display: none;}
+        > .ui-arena {
+            > .hm-area {opacity: 0.2;}
+            > .hm-area[highlight] {
+                opacity: 1.0; 
+                > .hm-area-assist .hma-ai {border-color:#F0F;}
+            }
+        }
+    }
 }
-.hm-com[hm-actived] .hm-area {
-    .hma-ai {position: absolute; border-color:#0FF;}
+.hm-layout[hm-actived] {
+    > .hm-com-W {
+        > .ui-arena {
+            > .hm-area {
+                > .hm-area-assist {
+                    .hma-ai {border-color:#0FF;}
+                    .hma-ai[m="N"]{top:0a;left:0;right:0;}
+                    .hma-ai[m="W"]{top:0;bottom:0;left:0;}
+                    .hma-ai[m="E"]{top:0;bottom:0;right:0;}
+                    .hma-ai[m="S"]{bottom:0;left:0;right:0;}
+                }
+            }
+        }
+    }
 }
-
 //............................................................
 // 各个控件的特殊显示
 //............................................................
 // rows
-.hmc-rows {
-    
-}
-
-//............................................................
-// columns
-.hmc-columns {
-    @flex();
-    > .hmc-col-block {
-        flex: 1 1 auto;
-        min-height: 30px;
+.hm-layout[ctype="rows"] {
+    > .hm-com-W > .ui-arena {
+        > .hm-area {
+            > .hm-area-assist {
+                .hma-ai[m="N"]{border-top-width   : @abW;}
+                .hma-ai[m="W"]{border-left-width  : @abW;}
+                .hma-ai[m="E"]{border-right-width : @abW;}
+                .hma-ai[m="S"]{border-bottom-width: 0;}
+            }
+        }
+        > .hm-area:last-child {
+            > .hm-area-assist > .hma-ai[m="S"]{border-bottom-width: @abW;}
+        }
     }
 }
-.hmc-columns[highlight-mode] {
-    > .hmc-col-block {opacity: 0.4;}
-    > .hmc-col-block[highlight] {opacity: 1.0; background:rgba(255,255,0,0.4);}
+.hm-layout[ctype="rows"][hm-actived] {
+    > .hm-com-W > .ui-arena > .hm-area {
+        > .hm-area-assist {
+            .hma-ai[m="N"]{border-top-width    : 0;}
+            .hma-ai[m="W"]{border-left-width   : 0;}
+            .hma-ai[m="E"]{border-right-width  : 0;}
+            .hma-ai[m="S"]{border-bottom-width : @abW;}
+        }
+    }
+    > .hm-com-W > .ui-arena > .hm-area:last-child {
+        > .hm-area-assist > .hma-ai[m="S"]{border-bottom-width: 0;}
+    }
 }
-[hmb-mode="abs"]>.hmb-con>.hmb-area>.hm-com>.hmc-columns {
-    width:100%; height:100%;
-    align-item : stretch;
+.hm-layout[ctype="rows"][highlight-mode] {
+    > .hm-com-W .ui-arena > .hm-area[highlight] {
+        .hma-ai[m="N"]{border-top-width   : @abW;}
+        .hma-ai[m="W"]{border-left-width  : @abW;}
+        .hma-ai[m="E"]{border-right-width : @abW;}
+        .hma-ai[m="S"]{border-bottom-width: @abW;}
+    }
+    > .hm-com-W > .ui-arena > .hm-area:last-child {
+        > .hm-area-assist > .hma-ai[m="S"]{border-bottom-width: @abW;}
+    }
 }
-[hm-actived]>.hmb-con>.hmb-area>.hm-com>.hmc-columns {
-    > .hmc-col-block {border:1px dotted @c0; border-right:0;}
-    > .hmc-col-block:last-child {border-right:1px dotted @c0;}
+//............................................................
+// columns
+.hm-layout[ctype="columns"] {
+    > .hm-com-W > .ui-arena {
+        @flex(); justify-content: flex-end;
+        > .hm-area {
+            flex: 1 1 auto; @flex();
+            min-height: 30px;
+            > .hm-area-assist {
+                .hma-ai[m="N"]{border-top-width   : @abW;}
+                .hma-ai[m="W"]{border-left-width  : @abW;}
+                .hma-ai[m="E"]{border-right-width : 0;}
+                .hma-ai[m="S"]{border-bottom-width: @abW;}
+            }
+            > .hm-area-con {flex: 1 1 auto;}
+        }
+        > .hm-area:last-child {
+            > .hm-area-assist > .hma-ai[m="E"]{border-right-width: @abW;}
+        }
+    }
+}
+.hm-layout[ctype="columns"][hm-actived] {
+    > .hm-com-W > .ui-arena > .hm-area {
+        > .hm-area-assist {
+            .hma-ai[m="N"]{border-top-width    : 0;}
+            .hma-ai[m="W"]{border-left-width   : 0;}
+            .hma-ai[m="E"]{border-right-width  : @abW;}
+            .hma-ai[m="S"]{border-bottom-width : 0;}
+        }
+    }
+    > .hm-com-W > .ui-arena > .hm-area:last-child {
+        > .hm-area-assist > .hma-ai[m="E"]{border-right-width: 0;}
+    }
+}
+.hm-layout[ctype="columns"][highlight-mode] {
+    > .hm-com-W .ui-arena > .hm-area[highlight] {
+        .hma-ai[m="N"]{border-top-width   : @abW;}
+        .hma-ai[m="W"]{border-left-width  : @abW;}
+        .hma-ai[m="E"]{border-right-width : @abW;}
+        .hma-ai[m="S"]{border-bottom-width: @abW;}
+    }
+    > .hm-com-W > .ui-arena > .hm-area:last-child {
+        > .hm-area-assist > .hma-ai[m="E"]{border-right-width: @abW;}
+    }
 }
 //............................................................
 // navmenu
