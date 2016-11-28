@@ -492,6 +492,12 @@ return ZUI.def("app.wn.thing", {
                     if(!prevTh || prevTh.id != th.id)
                         UI.showThing(th);
                 },
+                // on_checked : function(jItems) {
+                //     console.log("on_checked", this.getObj(jItems))
+                // },
+                // on_unchecked : function(jItems) {
+                //     console.log("on_unchecked", this.getObj(jItems))
+                // },
                 on_blur : function(objs, jRows, nextObj) {
                     // console.log("BB", nextObj);
                     if(!nextObj)

@@ -415,6 +415,7 @@ function do_drag_and_drop(pmvContext) {
                 if(!di.helper.attr("pmv-hover")) {
                     di.helper.attr("pmv-hover", "yes");
                     $z.invoke(opt, "on_dragenter", [di.$ele, di.helper], pmvContext);
+                    break;
                 }
             }
             // 不在矩形中，是 leave 吗？

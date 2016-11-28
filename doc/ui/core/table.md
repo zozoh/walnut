@@ -103,12 +103,15 @@ new TableUI({
     on_change  : {c}F()          // "table:change"!首次加载一定会被触发
     on_add     : {c}F(objs)      // "table:add"   !setData 时不会触发
     
-    // "table:checked" 这里说明一下，objs 表示所有被选中的对象（包括以前）
-    // 而 jRows 表示所有本次被选中的行对象（不包括以前）
-    on_checked   : {c}F([objs, jRows])
-    
-    // "table:unchecked" 
-    on_unchecked : {c}F([objs, jRows])
+    // "table:checked"
+    // 其中 jItems 表示本次被选中的项目的 jQuery 对象
+    // 也可以用 getData(jItems, true) 来返回一个数组
+    on_checked : {c}F([jItems])
+
+    // "table:unchecked"     
+    // 其中 jItems 表示本次被取消选中的项目 jQuery 对象
+    // 也可以用 getData(jItems, true) 来返回一个数组
+    on_unchecked : {c}F([jItems])
 
     // "table:actived"  激活一项的时候触发
     on_actived : {c}F(o,jRow, prevObj, prevRow)

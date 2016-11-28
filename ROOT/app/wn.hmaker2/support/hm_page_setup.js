@@ -73,6 +73,13 @@ var methods = {
                 if(jq.attr("hm-actived"))
                     return;
                 
+                // 如果控件再一个 highlight-mode 的布局里面
+                // 那么应该激活这个布局，
+                var jHMLayout = jq.closest(".hm-layout[highlight-mode]");
+                if(jHMLayout.length > 0) {
+                    jq = jHMLayout;
+                }
+                
                 // 得到组件的 UI
                 var uiCom = ZUI(jq);
                 

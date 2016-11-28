@@ -165,10 +165,8 @@ var register = function(UI) {
     //....................................
     // 确保 $el 被创建
     if(!UI.$el){
-        UI.$el = $('<' + (opt.tagName||'div') + '>').addClass(UI.className);
+        UI.$el = $('<' + (opt.tagName||'div') + '>');
         UI.el  = UI.$el[0];
-        if(opt.className)
-            UI.$el.addClass(opt.className);
         //.....................................
         // 加载时保持隐藏
         UI.$el.attr("ui-loadding","yes").css("visibility", "hidden");
@@ -266,6 +264,14 @@ ZUIObj.prototype = {
                     e.data.apply(UI, [e]);
                 });
             }
+        }
+        
+        // 确保自己设置了自定义的 className
+        if(UI.className) {
+            UI.$el.addClass(UI.className);
+        }
+        if(opt.className){
+            UI.$el.addClass(opt.className);
         }
 
         // 调用子类自定义的 init
@@ -1211,7 +1217,14 @@ ZUI.def = function (uiName, conf) {
                 uiBaseObj.$ui[key] = conf[key];
             }
             else if("className" == key){
-                uiBaseObj.className += " " + conf.className;
+                // 重置
+                if(/^!/.test(conf.className)) {
+                    uiBaseObj.className = conf.className.substring(1);
+                }
+                // 附加
+                else {
+                    uiBaseObj.className += " " + conf.className;
+                }
             }
             else {
                 uiBaseObj[key] = uiBaseObj[key] || conf[key];

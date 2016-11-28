@@ -1,8 +1,30 @@
 define(function (require, exports, module) {
 var methods = {
+    //...............................................................
+    paint : function(com) {
+        var UI = this;
+        
+        // 确保有删除属性
+        UI.$el.attr("del-attrs", "highlight-mode");
+                
+        // 确保有一个区域
+        var jAreas = UI.arena.children(".hm-area");
+        if(jAreas.length == 0) {
+            UI.addArea();
+        }
+        
+        // 检查每个区域，确保有辅助节点
+        jAreas.each(function(){
+            UI.checkAreaAssistDOM(this);
+        });
+    },
+    //...............................................................
     // 确保某个区域是否有辅助节点，如果没有就加上它
     checkAreaAssistDOM : function(aid) {
         var jArea = this.getArea(aid);
+        
+        // 确保删除的属性
+        jArea.attr("del-attrs","highlight");
         
         // 辅助节点
         var jAss = jArea.children(".hm-area-assist");
@@ -24,6 +46,7 @@ var methods = {
         // 返回区域的 DOM
         return jArea;
     },
+    //...............................................................
     // 分配一个区域 ID
     assignAreaId : function() {
         // 首选收集所有区域的 ID
@@ -40,6 +63,27 @@ var methods = {
         // 返回 ID
         return aid;
     },
+    //...............................................................
+    setAreaId : function(aid, newId) {
+        if(newId && newId != aid) {
+            var jArea = this.getArea(aid);
+            if(jArea.length > 0) {
+                jArea.attr("area-id", newId);
+            }
+        }
+    },
+    setAreaSkin : function(aid, skin) {
+        var jArea = this.getArea(aid);
+        var ao = this.getAreaObj(jArea);
+        
+        // 移除老皮肤
+        if(ao.skin)
+            jArea.removeClass(ao.skin);
+        
+        // 设置新皮肤
+        jArea.addClass(skin).attr("skin", skin);
+    },
+    //...............................................................
     // 增加一个区域
     addArea : function() {
         var jArea = $('<div class="hm-area"><div class="hm-area-con"></div></div>')
@@ -47,6 +91,7 @@ var methods = {
         jArea.attr("area-id", this.assignAreaId());
         return this.checkAreaAssistDOM(jArea);
     },
+    //...............................................................
     // 得到一个区域的 jQuery 对象
     getArea : function(aid){
         if(_.isString(aid))
@@ -55,14 +100,17 @@ var methods = {
             return $(aid).closest(".hm-area");
         throw "Don't known how to find area by : '" + aid + "'";
     },
+    //...............................................................
     // 得到区域的 JSON 描述
     getAreaObj : function(aid){
         var jArea = this.getArea(aid);
         return {
             areaId    : jArea.attr("area-id"),
-            highlight : jArea.attr("highlight") == "yes"
+            highlight : jArea.attr("highlight") == "yes",
+            skin      : jArea.attr("skin"),
         };
     },
+    //...............................................................
     // 得到所有区域的列表
     getAreaObjList : function() {
         var UI = this;
@@ -72,6 +120,7 @@ var methods = {
         });
         return re;
     },
+    //...............................................................
     // 删除这个区域
     deleteArea : function(aid) {
         var jArea = this.getArea(aid);
@@ -82,9 +131,15 @@ var methods = {
             uiCom.destroy();
         });
         
+        // 如果自身是高亮区域，那么将修改控件区域显示模式
+        if(this.isHighlightArea(jArea)){
+            this.$el.removeAttr("highlight-mode");
+        }
+        
         // 移除自身
         jArea.remove();
     },
+    //...............................................................
     // 移动区域
     // direction : "prev" || "next"
     moveArea : function(aid, direction) {
@@ -108,25 +163,35 @@ var methods = {
         // 闪动一下做个标记
         $z.blinkIt(jArea);
     },
+    //...............................................................
+    // 得到一个高亮区域的 ID，没有高亮返回 null
+    getHighlightAreaId : function(){
+        var jArea = this.arena.children('[highlight]');
+        return jArea.attr("area-id") || null;
+    },
+    // 判断一个区域是否高亮
+    isHighlightArea : function(aid) {
+        var jArea = false === aid ? null : this.getArea(aid);
+        return jArea && jArea.attr("highlight") == "yes";
+    },
     // 高亮一个区域 
-    highlightArea : function(aid) {
+    highlightArea : function(aid, quiet) {
         var jArea = false === aid ? null : this.getArea(aid);
         
         // 反正要取消之前高亮的区域
-        this.arena.attr("highlight-mode", "yes")
-            .children(".hm-area[highlight]")
-                .removeAttr("highlight");
+        this.arena.children(".hm-area[highlight]").removeAttr("highlight");
         
         // 设置某个块高亮，那么其他的块就需要虚掉
         if(jArea && jArea.length > 0) {
+            this.$el.attr("highlight-mode", "yes");
             jArea.attr("highlight", "yes");
         }
         // 否则就是表示取消全部高亮
         else {
-            this.arena.removeAttr("highlight-mode");
+            this.$el.removeAttr("highlight-mode");
         }
     }
-    
+    //...............................................................
 }; // ~End methods
 //====================================================================
 // 得到 HMaker 所有 UI 对象的方法

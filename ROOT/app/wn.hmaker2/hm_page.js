@@ -616,20 +616,19 @@ return ZUI.def("app.wn.hmaker_page", {
             
             // 删掉辅助节点
             jW.children(".hm-com-assist").remove();
-            
-            // 所有标识删除的节点也要删除
-            jW.find(".hm-del-save, .ui-code-template").remove();
-            
-            // 删除所有临时属性
-            jW.find('[del-attrs]').each(function(){
-                var jq = $(this);
-                var attrNames = jq.attr("del-attrs").split(",");
-                console.log(attrNames)
-                var subs = jq.find("*").andSelf();
-                for(var attrName of attrNames) {
-                    subs.removeAttr(attrName);
-                }
-            });
+        });
+        
+        // 所有标识删除的节点也要删除
+        C.iload.$body.find(".hm-del-save, .ui-code-template").remove();
+        
+        // 删除所有临时属性
+        C.iload.$body.find('[del-attrs]').each(function(){
+            var jq = $(this);
+            var attrNames = jq.attr("del-attrs").split(",");
+            var subs = jq.find("*").andSelf();
+            for(var attrName of attrNames) {
+                subs.removeAttr(attrName);
+            }
         });
         
         // 所有的分栏和组件前面都加入一个回车

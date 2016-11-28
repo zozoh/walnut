@@ -430,7 +430,7 @@ return ZUI.def("app.wn.hm_com_objlist_prop", {
 
         // 通知
         com[part] = partData;
-        UI.saveData("panel", com);
+        UI.uiCom.saveData("panel", com);
     },
     //...............................................................
     redraw : function() {
