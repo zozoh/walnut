@@ -55,7 +55,7 @@ public class cmd_appSidebar extends JvmExecutor {
 
                         // 进一步检查侧边栏项目权限
                         if (__can_show(wc, o)) {
-                            items.add(new SidebarItem(o, si));
+                            items.add(new SidebarItem(si).updateBy(o));
                         }
                     }
                 }
@@ -74,18 +74,7 @@ public class cmd_appSidebar extends JvmExecutor {
                     String aph = Wn.normalizeFullPath(si.getPh(), sys);
                     WnObj o = sys.io.fetch(null, aph);
                     if (null != o && __can_show(wc, o)) {
-                        // 更新路径
-                        si.setPh(aph);
-                        // 设置默认的 icon
-                        if (!si.hasIcon()) {
-                            si.setIcon(o.getString("icon"));
-                        }
-                        // 设置默认的文本
-                        if (!si.hasText()) {
-                            si.setText(o.name());
-                        }
-
-                        items.add(si);
+                        items.add(si.updateBy(o));
                     }
                 }
             }

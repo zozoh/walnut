@@ -23,17 +23,34 @@ public class SidebarItem {
 
     public SidebarItem() {}
 
-    public SidebarItem(WnObj o, SidebarItem siTmpl) {
+    public SidebarItem(SidebarItem siTmpl) {
+        this.ph = siTmpl.ph;
+        this.icon = siTmpl.icon;
+        this.text = siTmpl.text;
+        this.editor = siTmpl.editor;
+        this.dynamic = siTmpl.dynamic;
+        this.roles = siTmpl.roles;
+    }
+
+    public SidebarItem updateBy(WnObj o) {
         this.ph = o.path();
-        this.icon = o.getString("icon", siTmpl.getIcon());
+        // 图标
+        this.icon = o.getString("icon", this.icon);
         if (!this.hasIcon())
             this.icon = String.format("<i class=\"oicon\" otp=\"%s\"></i>",
                                       Strings.sBlank(o.type(), "folder"));
-        this.text = o.getString("title");
+        // 文本
+        this.text = o.getString("title", this.text);
         if (!this.hasText())
             this.text = o.name();
-        this.editor = o.getString("editor", siTmpl.getEditor());
+        // 编辑器
+        this.editor = o.getString("editor", this.editor);
+
+        // 其他
         this.dynamic = true;
+
+        // 返回以便链式赋值
+        return this;
     }
 
     public SidebarItem setDefaultValue(SidebarItem siTmpl) {
