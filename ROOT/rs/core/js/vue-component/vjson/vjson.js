@@ -12,7 +12,7 @@
                 <!--名称 or 序号-->
                 <span class="tn-key" v-if="ptype != 'array'"
                       :class="{'empty': keyEmpty, 'hasTip': hasTip}"
-                      v-vjson-tn-edit="model.name" :contenteditable="true"></span>
+                      v-vjson-tn-edit="model.name" contenteditable="plaintext-only"></span>
                 <span class="tn-key" v-else>{{pindex}}</span>
                 <!--分隔符 or 长度-->
                 <span class="tn-sp" v-if="!isFolder">:</span>
@@ -21,7 +21,7 @@
                 <input type="checkbox" v-if="isBoolean" :checked="model.value" @click="toggleBoolean"/>
                 <span class="tn-val" v-if="!isFolder"
                       :class="{'boolean' : isBoolean, 'number': isNumber, 'string' : isString, 'empty': valEmpty}"
-                      v-vjson-tn-edit="model.value" contenteditable="true" data-balloon="{{tipMsg}}"
+                      v-vjson-tn-edit="model.value" contenteditable="plaintext-only" data-balloon="{{tipMsg}}"
                       data-balloon-pos="{{tipPos}}"></span>
                 <!--错误提示-->
                 <span class="tn-err" data-balloon="重复的键" data-balloon-pos="right" v-show="model.dupkey">
