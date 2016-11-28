@@ -10,7 +10,6 @@ import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.hook.WnHook;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 
@@ -56,6 +55,9 @@ public class CachedWnHookService extends IoWnHookService {
         // 准备返回列表
         List<WnHook> list = new LinkedList<WnHook>();
 
+        if (null == oHookHome)
+            return list;
+
         // 对于钩子文件，不再触发钩子
         if (o.isMyAncestor(oHookHome)) {
             return list;
@@ -69,10 +71,12 @@ public class CachedWnHookService extends IoWnHookService {
                 // 这里保证一下线程安全性
                 synchronized (this) {
                     oHookHome = __refetch_hook_home(hookHomePath);
-                    cache = caches.get(action);
-                    if (null == cache || cache.st != oHookHome.syncTime()) {
-                        cache = this.reload(oHookHome);
-                        caches.put(action, cache);
+                    if (null != oHookHome) {
+                        cache = caches.get(action);
+                        if (null == cache || cache.st != oHookHome.syncTime()) {
+                            cache = this.reload(oHookHome);
+                            caches.put(action, cache);
+                        }
                     }
                 }
             }
@@ -90,7 +94,9 @@ public class CachedWnHookService extends IoWnHookService {
     private WnObj __refetch_hook_home(String hookHomePath) {
         WnObj oHookHome = Wn.WC().core(new WnEvalLink(io), false, null, new Proton<WnObj>() {
             protected WnObj exec() {
-                WnObj oDir = io.createIfNoExists(null, hookHomePath, WnRace.DIR);
+                WnObj oDir = io.fetch(null, hookHomePath);
+                if (null == oDir)
+                    return null;
                 if (!oDir.isDIR())
                     throw Er.create("e.hook.home.noDir");
                 if (oDir.syncTime() <= 0) {
