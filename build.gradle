@@ -93,7 +93,7 @@ import org.nutz.lang.Files
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
-task lessc(dependsOn: classes) << {
+task lessc() << {
 	FileTree tree = fileTree('ROOT') {
 		include "**/*.less"
 		exclude "**/font-awesome*/**/*.*"

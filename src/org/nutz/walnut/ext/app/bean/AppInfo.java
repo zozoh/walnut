@@ -300,14 +300,17 @@ public class AppInfo {
                     if (line.matches("^[-]{6,} *end *$"))
                         break;
                     line = line.replaceAll("(\\\\)([*@\\\\])", "$2");
-                    if (line.contains("${img}")) //TODO 先临时解决一下
+                    if (line.contains("${img}")) // TODO 先临时解决一下
                         line = new CharSegment(line).render(c).toString();
                     item.content.append(line).append('\n');
                 }
-                
+
                 continue;
             }
-
+            // 遇到copy数据 TODO
+            // if(line.matches(regex)){
+            //
+            // }
             // 遇到元数据行
             m = P_DATA_META.matcher(line);
             if (m.find()) {
