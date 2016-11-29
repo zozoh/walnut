@@ -99,6 +99,12 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                 var index  = jItem.prevAll().length;
                 UI.uiCom.checkToggleAreaItem(index);
             }
+
+            // 总之最后清理一下
+            UI.pageUI().cleanToggleArea();
+
+            // 通知一下重绘
+            UI.uiCom.notifyDataChange(null);
         },
         // 编辑文字
         'click .cnavmp-item[current] span[key="text"]' : function(e) {
@@ -234,7 +240,7 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             parent : UI,
             gasketName : "form",
             uiWidth : "all",
-            fitParent : false,
+            fitparent : false,
             on_change : function(key, val) {
                 // 如果是改变了类型
                 if("atype" == key) {
@@ -247,11 +253,17 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                     else {
                         this.disableField("layoutComId");
                     }
-                    // 更新菜单条项目编辑模式
-                    UI._update_menu_items($z.obj(key, val));
                 }
                 // 最后通知修改
-                UI.uiCom.saveData("panel", $z.obj(key, val), true);
+                var com = UI.uiCom.saveData("panel", $z.obj(key, val), true);
+
+                // 更新菜单条项目编辑模式
+                UI._update_menu_items(com);
+
+                // 最后清除一下
+                if("layoutComId" == key)
+                    UI.pageUI().cleanToggleArea();
+
             },
             parseData : function(com){
                 // 根据菜单的链接类型，来处理下拉列表的启用状态
@@ -354,7 +366,43 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
     },
     //...............................................................
     update : function(com) {
+        console.log("prop", com);
         var UI = this;
+
+        // 更新菜单条项目编辑模式
+        var jList = UI._update_menu_items(com);
+
+        // 让高亮的滚屏出来
+        var jCurrentItem = jList.find('[current]');
+        if(jCurrentItem.length > 0) {
+            var rectList = $z.rect(jList);
+            var rectItem = $z.rect(jCurrentItem);
+            // console.log($z.rectObj(rectList,"top,bottom"), $z.rectObj(rectItem, "top,height"))
+            if(rectItem.bottom >= rectList.bottom || rectItem.top <= rectList.top){
+                jCurrentItem[0].scrollIntoView(false);
+            }
+        }
+
+        // 更新 form
+        UI.gasket.form.setData(com);
+
+        // 打开提示
+        UI.balloon();
+
+        // 最后在调用一遍 resize
+        // UI.resize(true);
+    },
+    //...............................................................
+    // 根据 com.atype 来表示菜单列表的显示模式
+    _update_menu_items : function(com) {
+        var UI = this;
+
+        // 修改模式
+        UI.arena.find('.cnavmp-item-list').attr({
+            "atype" : com.atype || "link"
+        });
+
+        // 清空列表
         var jList = UI.arena.find('.cnavmp-item-list').empty();
 
         // 首先得到所有的菜单项
@@ -366,8 +414,25 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
         }
         // 显示列表
         else {
-            for(var item of items) {
+            // 如果指定了一个区域，那么到对应的布局看看
+            var areaList = UI.pageUI().getLayoutAreaList(com.layoutComId);
+            var areaMap = {};
+            for(var ao of areaList)
+                areaMap[ao.areaId] = ao;
+
+            // 循环绘制项目
+            for(var i=0; i<items.length; i++) {
+                var item  = items[i];
                 var jItem = UI.ccode("item").appendTo(jList);
+
+                // 校验项目数据
+                if(item.toarId && !areaMap[item.toarId]){
+                    item.toarId = null;
+                    item.toarChecked = false;
+                    UI.uiCom.updateItem(i, item, true);
+                }
+
+                // 绘制项目
                 jItem.attr("current", item.current ? "yes" : null);
                 jItem.children('[key="toar-icon"]').children("i").attr({
                     "checked" : item.toarChecked ? "yes" : null
@@ -385,35 +450,8 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             }
         }
 
-        // 让高亮的滚屏出来
-        var jCurrentItem = jList.find('[current]');
-        if(jCurrentItem.length > 0) {
-            var rectList = $z.rect(jList);
-            var rectItem = $z.rect(jCurrentItem);
-            // console.log($z.rectObj(rectList,"top,bottom"), $z.rectObj(rectItem, "top,height"))
-            if(rectItem.bottom >= rectList.bottom || rectItem.top <= rectList.top){
-                jCurrentItem[0].scrollIntoView(false);
-            }
-        }
-
-        // 更新菜单条项目编辑模式
-        UI._update_menu_items(com);
-
-        // 更新 form
-        UI.gasket.form.setData(com);
-
-        // 打开提示
-        UI.balloon();
-
-        // 最后在调用一遍 resize
-        // UI.resize(true);
-    },
-    //...............................................................
-    // 根据 com.atype 来表示菜单列表的显示模式
-    _update_menu_items : function(com) {
-        this.arena.find('.cnavmp-item-list').attr({
-            "atype" : com.atype || "link"
-        });
+        // 返回
+        return jList;
     },
     //...............................................................
     resize : function() {

@@ -331,7 +331,7 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 模拟第一个块被点击
         window.setTimeout(function(){
-            UI._C.iedit.$body.find(".hm-com").first().click();
+            UI._C.iedit.$body.find(".hm-com").eq(1).click();
         }, 500);
     },
     //...............................................................
@@ -384,8 +384,67 @@ return ZUI.def("app.wn.hmaker_page", {
         }
     },
     //...............................................................
+    /* 
+    收集一下所有的区域显示菜单，对应的区域，返回
+    {
+        "布局组件ID" : {
+            "area-id" : true | false
+        }
+    }
+    */
+    getToggleAreaMap : function(){
+        var layoutMap = {};
+
+        // 找 ...
+        this._C.iedit.$body.find('.hm-com[navmenu-atype="toggleArea"]')
+        .each(function(){
+            var uiCom = ZUI(this);
+            var com   = uiCom.getData();
+            // 关联的某个布局 ...
+            if(com.layoutComId) {
+                var map = layoutMap[com.layoutComId];
+                if(!map){
+                    map = {};
+                    layoutMap[com.layoutComId] = map;
+                }
+                // 找一下，具体的布局设置
+                uiCom.arena.find('li[toar-id]').each(function(){
+                    var jLi = $(this);
+                    var aid = jLi.attr("toar-id");
+                    map[aid] = (jLi.attr("toar-checked") == "yes");
+                });
+            }
+        });
+
+        return layoutMap;
+    },
+    //...............................................................
     cleanToggleArea : function() {
-        // TODO ...
+        var UI = this;
+
+        // 菜单们都关联了哪些区域
+        var layoutMap = UI.getToggleAreaMap();
+
+        console.log(layoutMap)
+
+        // 找到所有的布局控件
+        UI._C.iedit.$body.find('.hm-layout').each(function(){
+            var jLayout = $(this);
+            // 如果标识了被关联，那么看看是否在索引中
+            if(jLayout.attr("toggle-on")) {
+                var comId = jLayout.attr("id");
+                // 不在的话，去掉关联标识
+                if(!layoutMap[comId]){
+                    jLayout.removeAttr("toggle-on");
+                }
+            }
+
+            // 如果没有被关联，确保所有的子区域，显示属性被清除
+            if(!jLayout.attr("toggle-on")) {
+                jLayout.find(">.hm-com-W>.ui-arena>.hm-area")
+                    .removeAttr("toggle-show");
+            }
+        });
     },
     //...............................................................
     toggleLayout : function(layoutId, isToggle) {
@@ -429,6 +488,9 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     // 取得某个布局控件内部的可用区域（不包括子控件的区域）
     getLayoutAreaList : function(comId){
+        if(!comId)
+            return [];
+
         var UI = this;
         var uiCom = UI.getCom(comId);
 
@@ -520,6 +582,7 @@ return ZUI.def("app.wn.hmaker_page", {
                         if(jPrev.length > 0) {
                             uiCom.$el.insertBefore(jPrev);
                         }
+                        $z.blinkIt(uiCom.$el);
                     }
                 }
             },{
@@ -532,6 +595,7 @@ return ZUI.def("app.wn.hmaker_page", {
                         if(jNext.length > 0) {
                             uiCom.$el.insertAfter(jNext);
                         }
+                        $z.blinkIt(uiCom.$el);
                     }
                 }
             },{

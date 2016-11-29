@@ -152,18 +152,13 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             return;
         }
 
+        // 选中了
         UI.arena.find('li[toar-checked]').removeAttr("toar-checked");
         jLi.attr("toar-checked", "yes");
-
-        // 通知修改
-        UI.notifyDataChange("page");
     },
     //...............................................................
     uncheckToggleAreaItem : function() {
         this.arena.find('li[toar-checked]').removeAttr("toar-checked");
-
-        // 通知修改
-        this.notifyDataChange("page");  
     },
     //...............................................................
     updateItem : function(index, item, quiet) {
@@ -252,21 +247,50 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     //...............................................................
     paint : function(com) {
         var UI  = this;
+
+        console.log("paint", com);
+
+        // 标识自己的类型
+        UI.$el.attr("navmenu-atype", com.atype);
         
         // 如果是区域显示，则找到对应分栏，设置属性
         if("toggleArea" == com.atype) {
+            // 设置了区域
             if(com.layoutComId) {
+                // 标识区域
                 UI.pageUI().toggleLayout(com.layoutComId, true);
+
+                // 找到高亮的显示项目
+                var jLi = UI.arena.find('li[toar-checked]');
+                // 触发页面区域修改
+                var aid = jLi.attr("toar-id");
+                UI.pageUI().setToggleArea(com.layoutComId, aid);
+            }
+            // 取消全部区域
+            else {
+                // 菜单上的项目全部取消
+                UI.arena.find('li').attr({
+                    "toar-id" : null,
+                    "toar-checked" : null
+                });
+
+                // 页面上清理一下
+                UI.pageUI().cleanToggleArea();
+
+                // 更新一下属性面板
+                UI.notifyDataChange("page");
             }
         }
         // 否则查找所有的分栏，如果没有任何菜单关联它，则取消
         else if(com.layoutComId){
             // 首先让自己取消关联
             com.layoutComId = null;
-            UI.saveData("page", com, true);
 
             // 整页搜索
             UI.pageUI().cleanToggleArea();
+
+            // 更新一下属性面板
+            UI.saveData("page", com, true);
         }
 
     },
