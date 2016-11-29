@@ -62,8 +62,11 @@
             top:@panTH; left:@panTH; right:0; bottom:0; 
             background:#AAB;
             .hmpg-screen {
-                background: #FFF; transition: 0.2s;
+                background: #FFF;
                 > iframe {width:100%; height:100%; border:0;}
+            }
+            .hmpg-screen[animat-on] {
+                transition: 0.2s;
             }
             .hmpg-screen[mode="pc"] {
                 width: 100%; height:100%; margin:0px auto;
@@ -127,10 +130,20 @@
             // 右侧快捷菜单
             .hmpg-sbar-page {right:0;
                 .menu {
-                    padding:3px 0 @d2 0;
+                    padding:@d1; @flex();
+                    .menu-item {
+                        flex:0 1 @panTH - @d0 - @d0;
+                        .menu-item-wrapper {
+                            padding:0 @d1; 
+                        }
+                    }
+                    .menu-item[md="top"][tp="separator"] {
+                        height: unset;margin:0 @d1;
+                        border-left:0; 
+                        border-right:1px solid rgba(0,0,0,0.1);
+                    }
                     .menu-item-status {
-                        font-size: 16px; line-height: 24px;
-                        overflow: hidden;
+                        font-size: 16px; overflow: hidden;
                     }
                 }
             }

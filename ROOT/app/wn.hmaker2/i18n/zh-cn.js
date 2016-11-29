@@ -67,6 +67,7 @@ define({
             "move_to_body" : "移出分栏",
             "move_before"  : "前移渲染顺位",
             "move_after"   : "后移渲染顺位",
+            "assisted_showhide" : "显示或者隐藏辅助线"
         },
         "com" : {
             "_" : {

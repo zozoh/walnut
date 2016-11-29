@@ -16,6 +16,54 @@ var methods = {
         } 
     },
     //...............................................................
+    setup_page_editing : function(){
+        var UI = this;
+
+        // 建立上下文: 这个过程，会把 load 的 iframe 内容弄到 edit 里
+        UI._rebuild_context();
+        
+        // 表示网页的编辑器模式
+        UI._C.iedit.$root.attr("hmaker", "2.0")
+
+        // 设置辅助线模式
+        UI._C.iedit.$body.attr("assisted-off", UI.isAssistedOff() ? "yes" : null);
+
+        //.......................... 下面的方法来自 support/hm_page_setup.js
+        // 设置编辑区页面的 <head> 部分
+        UI.__setup_page_head();
+
+        // 设置编辑区的移动
+        UI.__setup_page_moveresizing();
+
+        // 监视编辑区，响应其他必要的事件处理
+        UI.__setup_page_events();
+        //.......................... 上面的方法来自 support/hm_page_setup.js
+
+        // 处理所有的块显示
+        UI._C.iedit.$body.find(".hm-com").each(function(){
+            // 处理块中的组件
+            var jCom = $(this);
+
+            if(jCom.size()==0) {
+                console.log("no jCom", jBlock.html());
+            }
+
+            // 绑定 UI，并显示
+            UI.bindComUI(jCom);
+        });
+
+        // 应用网页显示样式
+        UI.applyPageAttr();
+
+        // 通知网页被加载
+        UI.fire("active:page");
+
+        // 模拟第一个块被点击
+        window.setTimeout(function(){
+            UI._C.iedit.$body.find(".hm-com").eq(1).click();
+        }, 500);
+    },
+    //...............................................................
     // 添加 JS
     // _HScript(doc, src, attrs) {
     //     var eScript = doc.createElement("script");

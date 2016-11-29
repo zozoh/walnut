@@ -298,51 +298,6 @@ return ZUI.def("app.wn.hmaker_page", {
         UI._C.iedit.$root.attr("skin", skinInfo.name || null);
     },
     //...............................................................
-    setup_page_editing : function(){
-        var UI = this;
-
-        // 建立上下文: 这个过程，会把 load 的 iframe 内容弄到 edit 里
-        UI._rebuild_context();
-        
-        // 表示网页的编辑器模式
-        UI._C.iedit.$root.attr("hmaker", "2.0")
-
-        //.......................... 下面的方法来自 support/hm_page_setup.js
-        // 设置编辑区页面的 <head> 部分
-        UI.__setup_page_head();
-
-        // 设置编辑区的移动
-        UI.__setup_page_moveresizing();
-
-        // 监视编辑区，响应其他必要的事件处理
-        UI.__setup_page_events();
-        //.......................... 上面的方法来自 support/hm_page_setup.js
-
-        // 处理所有的块显示
-        UI._C.iedit.$body.find(".hm-com").each(function(){
-            // 处理块中的组件
-            var jCom = $(this);
-
-            if(jCom.size()==0) {
-                console.log("no jCom", jBlock.html());
-            }
-
-            // 绑定 UI，并显示
-            UI.bindComUI(jCom);
-        });
-
-        // 应用网页显示样式
-        UI.applyPageAttr();
-
-        // 通知网页被加载
-        UI.fire("active:page");
-
-        // 模拟第一个块被点击
-        window.setTimeout(function(){
-            UI._C.iedit.$body.find(".hm-com").eq(1).click();
-        }, 500);
-    },
-    //...............................................................
     __after_iframe_loaded : function(name) {
         var UI = this;
 
@@ -451,14 +406,14 @@ return ZUI.def("app.wn.hmaker_page", {
     // 其他的统统无关
     toggleLayout : function(layoutId, areaMap) {
         var UI = this;
-        console.log("haha", areaMap, layoutId)
+        // console.log("haha", areaMap, layoutId)
         UI._C.iedit.$body.find("#" + layoutId).attr({
             "toggle-on" : "yes" 
         }).find(">.hm-com-W>.ui-arena>.hm-area").each(function(){
             var jArea = $(this);
             var aid   = jArea.attr("area-id");
             var mode  = areaMap[aid];
-            console.log(aid, mode)
+            // console.log(aid, mode)
             // 关联区域: 显示
             if("yes" == mode) {
                 jArea.attr("toggle-mode", "show")
@@ -537,15 +492,32 @@ return ZUI.def("app.wn.hmaker_page", {
         return $z.invoke(uiCom, "getAreaObjList", []) || [];
     },
     //...............................................................
+    isAssistedOff : function() {
+        return this.local("assisted_off");
+    },
+    // 设置是否显示辅助线 
+    // isOff :  true 表隐藏辅助线, 
+    setAssistedOff : function(isOff){
+        this.local("assisted_off", isOff);
+        this._C.iedit.$body.attr("assisted-off", isOff ? "yes" : null);
+    },
+    //...............................................................
     getScreenMode : function(){
-        return this.arena.find(".hmpg-screen").attr("mode") || "pc";
+        return this.local("screen_mode");
     },
     setScreenMode : function(mode) {
+        this.local("screen_mode", mode);
         this.arena.find(".hmpg-screen").attr("mode", mode);
     },
     //...............................................................
     redraw : function(){
         var UI  = this;
+
+        // 确保屏幕的模式
+        UI.arena.find(".hmpg-screen").attr("mode", this.getScreenMode());
+        window.setTimeout(function(){
+            UI.arena.find(".hmpg-screen").attr("animat-on", "yes");
+        }, 0);
         
         // 绑定隐藏 iframe onload 事件，这个 iframe 专门用来与服务器做数据交换的
         // var jIfmLoad = UI.arena.find(".hmpg-frame-load");
@@ -608,6 +580,8 @@ return ZUI.def("app.wn.hmaker_page", {
                     }
                 }
             },{
+                type : "separator"
+            },{
                 icon : '<i class="zmdi zmdi-long-arrow-up"></i>',
                 tip  : 'i18n:hmaker.page.move_before',
                 handler : function() {
@@ -634,24 +608,40 @@ return ZUI.def("app.wn.hmaker_page", {
                     }
                 }
             },{
+                type : "separator"
+            },{
+                key      : 'assisted_showhide',
+                tip      : "i18n:hmaker.page.assisted_showhide",
+                type     : "boolean",
+                icon_on  : '<i class="zmdi zmdi-border-all"></i>',
+                icon_off : '<i class="zmdi zmdi-border-clear"></i>',
+                on_change : function(isOn) {
+                    UI.setAssistedOff(!isOn);
+                },
+                init : function(mi){
+                    mi.on = !UI.isAssistedOff();
+                }
+            },{
+                type : "separator"
+            },{
                 key  : 'screen_mode',
-            	type : "status",
-            	status : [{
-            		icon : '<i class="zmdi zmdi-laptop"></i>',
-            		val  : 'pc'
-            	}, {
-            		icon : '<i class="zmdi zmdi-smartphone-android"></i>',
-            		val  : 'phone'
-            	}],
+                type : "status",
+                status : [{
+                    icon : '<i class="zmdi zmdi-laptop"></i>',
+                    val  : 'pc'
+                }, {
+                    icon : '<i class="zmdi zmdi-smartphone-android"></i>',
+                    val  : 'phone'
+                }],
                 on_change : function(mode){
                     UI.setScreenMode(mode);
                 },
-            	init : function(mi){
-            		var mode = UI.getScreenMode();
+                init : function(mi){
+                    var mode = UI.getScreenMode();
                     mi.status.forEach(function(si){
-            			si.on = (si.val == mode);
-            		});
-            	}
+                        si.on = (si.val == mode);
+                    });
+                }
             }]
         }).render(function(){
             UI.defer_report("pagebar");
