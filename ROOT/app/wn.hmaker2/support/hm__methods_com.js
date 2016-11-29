@@ -337,7 +337,7 @@ module.exports = function(uiCom){
         }
             
         // 最后分别应用属性到对应的元素上
-        var cssCom   = $z.pick(css, "^(position|top|left|right|bottom|margin)$");
+        var cssCom   = $z.pick(css, "^(position|top|left|right|bottom|margin|width|height)$");
         var cssArena = $z.pick(css, "!^(position|top|left|right|bottom|margin)$");
         this.$el.css(this.formatCss(cssCom, true));
         this.arena.css(this.formatCss(cssArena, true));

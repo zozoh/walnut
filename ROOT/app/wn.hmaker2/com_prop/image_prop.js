@@ -4,8 +4,7 @@ $z.declare([
     'wn/util',
     'app/wn.hmaker2/support/hm__methods_panel',
     'ui/form/form',
-    'ui/mask/mask'
-], function(ZUI, Wn, HmMethods, FormUI, MaskUI){
+], function(ZUI, Wn, HmMethods, FormUI){
 //==============================================
 var html = `
 <div class="ui-arena hmc-image-prop" ui-fitparent="yes" ui-gasket="form">
@@ -20,9 +19,8 @@ return ZUI.def("app.wn.hm_com_image_prop", {
     //...............................................................
     redraw : function() {
         var UI  = this;
-        var opt = UI.options;
 
-         // 通用样式设定
+        // 通用样式设定
         new FormUI({
             parent : UI,
             gasketName : "form",

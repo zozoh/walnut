@@ -499,7 +499,7 @@ return ZUI.def("app.wn.hmaker_page", {
     // isOff :  true 表隐藏辅助线, 
     setAssistedOff : function(isOff){
         this.local("assisted_off", isOff);
-        this._C.iedit.$body.attr("assisted-off", isOff ? "yes" : null);
+        this.syncAssistedMark();
     },
     //...............................................................
     getScreenMode : function(){
@@ -800,7 +800,8 @@ return ZUI.def("app.wn.hmaker_page", {
         
         // 所有的分栏和组件前面都加入一个回车
         C.iload.$root.find(".hm-com, .hm-area, meta, link, body").each(function(){
-            this.parentNode.insertBefore(document.createTextNode("\n"),this);
+            if(this.firstChild)
+                this.insertBefore(document.createTextNode("\n"),this.firstChild);
         });
         
         // 整理所有的空节点，让其为一个回车

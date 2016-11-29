@@ -6,39 +6,24 @@ $z.declare([
     'ui/mask/mask',
 ], function(ZUI, Wn, HmComMethods, MaskUI){
 //==============================================
-var html = `
-<div class="ui-arena hmc-text">
-    <header>{{hmaker.com.text.blank_title}}</header>
-    <section>{{hmaker.com.text.blank_content}}</section>
-</div>
-`;
+var html = '<div class="ui-arena hmc-text">{{hmaker.com.text.blank_content}}</div>';
 //==============================================
 return ZUI.def("app.wn.hm_com_text", {
+    dom     : html,
+    keepDom   : true,
+    className : "!hm-com-text",
+    //...............................................................
     init : function(){
         HmComMethods(this);
     },
     //...............................................................
     events : {
-        // 编辑标题
-        'click .hmc-text > header' : function(e){
-            var UI = this;
-            var jq = $(e.currentTarget);
-            if(!UI.isInActivedCom(jq))
-                return;
-
-            $z.editIt(jq);
-        },
         // 编辑内容 
-        'click .hmc-text > section' : function(e){
+        'click > *' : function(e){
             var UI = this;
-            var jq = $(e.currentTarget);
-            if(!UI.isInActivedCom(jq))
+
+            if(!UI.isActived())
                 return;
-
-            // 得到文字内容
-            var com = UI.getData();
-
-            console.log(com.contentType)
 
             // 打开编辑器
             new MaskUI({
@@ -49,7 +34,7 @@ return ZUI.def("app.wn.hm_com_text", {
                 events : {
                     "click .pm-btn-ok" : function(){
                         var html = this.body.getHtml();
-                        jq.html(html);
+                        UI.arena.html(html);
                         this.close();
                     },
                     "click .pm-btn-cancel" : function(){
@@ -59,188 +44,58 @@ return ZUI.def("app.wn.hm_com_text", {
                 setup : {
                     uiType : 'ui/zeditor/zeditor',
                     uiConf : {
-                        contentType : com.contentType
+                        contentType : "text"
                     }
                 }
             }).render(function(){
                 this.arena.find(".pm-title").html(UI.msg('hmaker.com.text.tt_editor'));
-                this.body.setHtml(jq);
+                this.body.setHtml(UI.arena);                
             });
         }
     },
     //...............................................................
-    redraw : function() {
+    _redraw_com : function() {
         var UI = this;
+        var jW = UI.$el.children(".hm-com-W");
 
-        // 设置初始值的 DOM 结构
-        if(!UI.arena.hasClass("ui-arena")){
-            UI.arena = $($z.tmpl(html)(UI._msg_map)).appendTo(UI.$el.empty());
+        // 确保有辅助节点
+        var jAA = jW.children(".hmc-text-tipicon");
+        if(jAA.length == 0) {
+            $('<div class="hmc-text-tipicon hm-del-save">')
+                .html('<i class="zmdi zmdi-edit"></i>')
+                    .append($('<em>').text(UI.msg("hmaker.com.text.edit_tip")))
+                        .appendTo(jW);
         }
     },
     //...............................................................
     paint : function(com) {
         var UI = this;
-        var jTitle   = UI.arena.children("header");
-        var jContent = UI.arena.children("section");
 
+        console.log("paint text:", com)
+        
         // 准备 CSS 的 base
         var cssBase = {
             fontSize:"",fontFamily:"",letterSpacing:"",lineHeight:"",
-            margin:"",padding:"",
             color:"",background:"",textShadow:"",textAlign:""
         };
 
-        // 更新标题显示
-        if(false === com.showTitle){
-            jTitle.hide();
-        }
-        // 显示标题
-        else{
-            jTitle.show();
-            var css = UI.formatCss(com.title,  cssBase);
-            jTitle.css(css);
-        }
-
-
-        // 更新内容显示
-        css = UI.formatCss(com.content,  cssBase);
-        jContent.css(css);
+        var css = UI.formatCss(com, cssBase);
+        UI.arena.css(com);
+    },
+    //...............................................................
+    getDefaultData : function(){
+        return {
+            "lineHeight" : ".24rem",
+            "fontSize"   : ".14rem",
+        };
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性
     getDataProp : function(){
         return {
-            uiType : 'ui/form/form',
-            uiConf : {
-                uiWidth : "all",
-                fields : [  // 文字区属性
-                {
-                    title : "i18n:hmaker.com.text.tt_content",
-                    fields : [{
-                        key   : "contentType",
-                        title : 'i18n:hmaker.com.text.contentType',
-                        type  : "string",
-                        editAs : "switch",
-                        uiConf : {
-                            items : [{
-                                text : 'i18n:hmaker.com.text.ct_text',
-                                val  : "text"
-                            }, {
-                                text : 'i18n:hmaker.com.text.ct_html',
-                                val  : "html"
-                            }]
-                        }
-                    }, {
-                        key   : "content.textAlign",
-                        title : 'i18n:hmaker.com.text.textAlign',
-                        type  : "string",
-                        editAs : "switch",
-                        uiConf : {
-                            items : [{
-                                icon : '<i class="fa fa-align-left">',
-                                val  : 'left',
-                            }, {
-                                icon : '<i class="fa fa-align-center">',
-                                val  : 'center',
-                            }, {
-                                icon : '<i class="fa fa-align-right">',
-                                val  : 'right',
-                            }]
-                        }
-                    }, {
-                        key   : "content.color",
-                        title : 'i18n:hmaker.com.text.color',
-                        type   : "string",
-                        nullAsUndefined : true,
-                        editAs : "color",
-                    }, {
-                        key   : "upperFirst",
-                        title : 'i18n:hmaker.com.text.upperFirst',
-                        type  : "boolean",
-                        editAs : "switch",
-                    }, {
-                        key   : "content.lineHeight",
-                        title : 'i18n:hmaker.com.text.lineHeight',
-                        type  : "string",
-                        editAs : "input",
-                    }, {
-                        key   : "content.letterSpacing",
-                        title : 'i18n:hmaker.com.text.letterSpacing',
-                        type  : "string",
-                        editAs : "input",
-                    }, {
-                        key   : "content.fontSize",
-                        title : 'i18n:hmaker.com.text.fontSize',
-                        type  : "string",
-                        editAs : "input",
-                    }, {
-                        key   : "content.textShadow",
-                        title : 'i18n:hmaker.com.text.textShadow',
-                        type  : "string",
-                        editAs : "input",
-                    }]
-                },
-                // 标题的属性
-                {
-                    title : "i18n:hmaker.com.text.tt_title",
-                    fields : [{
-                        key   : "showTitle",
-                        title : 'i18n:hmaker.com.text.showTitle',
-                        type  : "boolean",
-                        editAs : "switch",
-                    }, {
-                        key   : "title.textAlign",
-                        title : 'i18n:hmaker.com.text.textAlign',
-                        type  : "string",
-                        editAs : "switch",
-                        uiConf : {
-                            items : [{
-                                icon : '<i class="fa fa-align-left">',
-                                val  : 'left',
-                            }, {
-                                icon : '<i class="fa fa-align-center">',
-                                val  : 'center',
-                            }, {
-                                icon : '<i class="fa fa-align-right">',
-                                val  : 'right',
-                            }]
-                        }
-                    }, {
-                        key   : "title.color",
-                        title : 'i18n:hmaker.com.text.color',
-                        type   : "string",
-                        nullAsUndefined : true,
-                        editAs : "color",
-                    }, {
-                        key   : "title.marginBottom",
-                        title : 'i18n:hmaker.com.text.marginBottom',
-                        type  : "string",
-                        editAs : "input",
-                    }, {
-                        key   : "title.lineHeight",
-                        title : 'i18n:hmaker.com.text.lineHeight',
-                        type  : "string",
-                        editAs : "input",
-                    }, {
-                        key   : "title.letterSpacing",
-                        title : 'i18n:hmaker.com.text.letterSpacing',
-                        type  : "string",
-                        editAs : "input",
-                    }, {
-                        key   : "title.fontSize",
-                        title : 'i18n:hmaker.com.text.fontSize',
-                        type  : "string",
-                        editAs : "input",
-                    }, {
-                        key   : "title.textShadow",
-                        title : 'i18n:hmaker.com.text.textShadow',
-                        type  : "string",
-                        editAs : "input",
-                    }]
-                }]
-                
-            }
-        }
+            uiType : 'app/wn.hmaker2/com_prop/text_prop',
+            uiConf : {}
+        };
     }
 });
 //===================================================================

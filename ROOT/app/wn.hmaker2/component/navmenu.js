@@ -6,7 +6,7 @@ $z.declare([
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
 var html = `
-<div class="ui-arena hmc-navmenu" del-attrs="current"><ul></ul></div>
+<div class="ui-arena hmc-navmenu"><ul></ul></div>
 `;
 //==============================================
 return ZUI.def("app.wn.hm_com_navmenu", {

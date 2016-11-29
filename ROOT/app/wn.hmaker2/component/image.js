@@ -45,16 +45,6 @@ return ZUI.def("app.wn.hm_com_image", {
         this.arena.children("img").off();
     },
     //...............................................................
-    // 自定义修改块布局的逻辑
-    applyBlockCss : function(css) {
-        var UI   = this;
-        
-        var cssCom   = $z.pick(css, "^(position|top|left|right|bottom|margin)$");
-        var cssArena = $z.pick(css, "!^(position|top|left|right|bottom|margin)$");
-        this.$el.css(this.formatCss(cssCom, true));
-        this.arena.find("img.hmc-image-pic").css(this.formatCss(cssArena, true));
-    },
-    //...............................................................
     paint : function(com) {
         var UI = this;
         var jImg = UI.arena.children("img");
@@ -208,6 +198,16 @@ return ZUI.def("app.wn.hm_com_image", {
             UI.arena.removeAttr("show-txt");
         }
 
+    },
+    //...............................................................
+    // 自定义修改块布局的逻辑
+    applyBlockCss : function(css) {
+        var UI   = this;
+        
+        var cssCom   = $z.pick(css, "^(position|top|left|right|bottom|margin)$");
+        var cssArena = $z.pick(css, "!^(position|top|left|right|bottom|margin)$");
+        this.$el.css(this.formatCss(cssCom, true));
+        this.arena.find("img.hmc-image-pic").css(this.formatCss(cssArena, true));
     },
     //...............................................................
     checkBlockMode : function(block) {

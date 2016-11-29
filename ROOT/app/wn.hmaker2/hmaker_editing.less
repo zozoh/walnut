@@ -256,7 +256,7 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
         }
     }
 }
-.hm-layout[toggle-on][toggle-current] {
+[assisted-on] .hm-layout[toggle-on][toggle-current] {
     > .hm-com-W {
         > .ui-arena {
             > .hm-area > .hm-area-assist .hma-ai{
@@ -388,16 +388,21 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
 .hmc-image[show-txt]   .hmc-image-txt      {display: block;}
 //............................................................
 // Text
-.hmc-text {
-    > * {cursor: pointer;}
-    > header {margin-bottom:10px;}
-}
-
-[hm-actived] .hmc-text{
-    > header:hover, 
-    > section:hover{
-        background: rgba(255,255,0,0.4);
+.hm-com-text{
+    cursor: pointer;
+    .hmc-text-tipicon {
+        position: absolute; top:0; left: 0; padding:@d3;
+        background: rgba(0,0,0,0.3); color:#FFF;
+        display: none;
+        > i {margin: 0 @d2 0 0; font-size:@f4;}
+        > em {font-style: normal; font-size:@f2;}
     }
+}
+.hm-com-text[hm-actived]:hover {
+    .hmc-text {
+        background: rgba(255,255,0, 0.3);
+    }
+    .hmc-text-tipicon {display: block;}
 }
 //............................................................
 // 动态对象的通用属性

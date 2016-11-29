@@ -16,6 +16,20 @@ var methods = {
         } 
     },
     //...............................................................
+    syncAssistedMark : function(){
+        if(this.isAssistedOff()){
+            this._C.iedit.$body.attr({
+                "assisted-off" : "yes",
+                "assisted-on"  : null,
+            });
+        }else{
+            this._C.iedit.$body.attr({
+                "assisted-off" : null,
+                "assisted-on"  : "yes",
+            });
+        }
+    },
+    //...............................................................
     setup_page_editing : function(){
         var UI = this;
 
@@ -26,7 +40,7 @@ var methods = {
         UI._C.iedit.$root.attr("hmaker", "2.0")
 
         // 设置辅助线模式
-        UI._C.iedit.$body.attr("assisted-off", UI.isAssistedOff() ? "yes" : null);
+        UI.syncAssistedMark();
 
         //.......................... 下面的方法来自 support/hm_page_setup.js
         // 设置编辑区页面的 <head> 部分
