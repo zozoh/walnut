@@ -100,7 +100,7 @@ return ZUI.def("ui.form", {
                 // 有快捷定义 ..
                 else if(fld.editAs){
                     // 内置
-                    if(/^(input|color|content|file|background|label|switch|text|link|(drop|check|radio)list|pair|image)$/.test(fld.editAs)){
+                    if(/^(input|color|content|file|background|label|switch|text|link|(drop|check|radio)list|pair|image|button)$/.test(fld.editAs)){
                         fld.uiType = "ui/form/c_" + fld.editAs;
                     }
                     // 各种 picker
@@ -217,7 +217,7 @@ return ZUI.def("ui.form", {
                 theConf.title = fld.title;
             }
 
-            // 渲染 UI 控件 
+            // 渲染 UI 控件
             var theUI = new TheUI(_.extend(theConf, fld.uiConf, {
                 gasketName : fld.key,
                 $pel       : jFui,
@@ -295,10 +295,10 @@ return ZUI.def("ui.form", {
             jG.addClass(grp.className);
 
         // 标记多重组
-        if(grp.cols > 1){   
+        if(grp.cols > 1){
             jG.attr("multi-cols", "yes");
         }
-        
+
         // 绘制字段标题
         if(grp.icon || grp.title){
             if(grp.icon)
@@ -311,7 +311,7 @@ return ZUI.def("ui.form", {
             jGtt.remove();
         }
 
-        // 绘制每个字段 
+        // 绘制每个字段
         for(var i=0;i<grp.fields.length;i++){
             UI._draw_field(jGff, grp.fields[i], grp);
         }
@@ -372,7 +372,7 @@ return ZUI.def("ui.form", {
             jBody.css("height", UI.arena.height() - jTitle.outerHeight(true));
 
         var W = jBody.children(".form-body-wrapper").width();
-        
+
         // 首先计算列，看看一个列有多宽
         var colNb       = opt.cols || 1;
         var colSizeHint = opt.colSizeHint || [0];
@@ -392,7 +392,7 @@ return ZUI.def("ui.form", {
             }
             // 其他的作为自动分配
             else{
-                c_W = 0; 
+                c_W = 0;
                 col_autoN ++;
             }
             // 计入
@@ -425,7 +425,7 @@ return ZUI.def("ui.form", {
             var jG    = $(this).css("width", col_widths[index % colNb]);
             var grp   = jG.data("@GRP");
             var colnb = Math.max(grp.cols || 1, 1);
-            var fbW   = $(this).find(".fg-fields").width(); 
+            var fbW   = $(this).find(".fg-fields").width();
             var fldW = parseInt(fbW / Math.max(colnb, 1)) - (colnb>1?1:0);
 
             // 同时归纳最大的字段标题宽度
@@ -455,7 +455,7 @@ return ZUI.def("ui.form", {
             // 设置本组最大的标题宽度
             jG.find(".ff-txt").css("width", maxFFW);
             jG.find(".ff-prompt").css("width", maxFFW);
-            
+
             // 继续设置所有的值应该的宽度
             UI.$myfields(jG).each(function(){
                 var jF   = $(this);
@@ -480,14 +480,14 @@ return ZUI.def("ui.form", {
                         "padding-bottom" : 0
                     });
                 }
-                
+
                 // 指定宽度
                 var uiw = jF.attr("ui-fixed-width");
                 if(uiw){
                     var uiWidth = $z.dimension(uiw * 1, vW);
                     jUi.css("width", uiWidth);
                 }
-                
+
             });
 
         });
@@ -529,7 +529,7 @@ return ZUI.def("ui.form", {
         // 有时候调到这个方法的时候，节点已经被清空了
         if(!fld)
             return;
-        
+
         var fui = fld.UI;
         var jso = fld.JsObjType;
 
@@ -548,7 +548,7 @@ return ZUI.def("ui.form", {
         // 调用回调
         $z.invoke(fld, "beforeSetData", [o]);
 
-        // 虚拟字段 
+        // 虚拟字段
         if(fld.virtual) {
             fui.setData(o);
         }
@@ -624,8 +624,8 @@ return ZUI.def("ui.form", {
         // 获得全部控件的值，合并成一个对象
         return this.ui_format_data(function(opt){
             // 准备返回值
-            var re = opt.mergeData && !opt.asTemplate 
-                        ? _.extend({}, UI.$el.data("@DATA")) 
+            var re = opt.mergeData && !opt.asTemplate
+                        ? _.extend({}, UI.$el.data("@DATA"))
                         : {};
 
             // 读取每个字段的返回值
@@ -633,8 +633,9 @@ return ZUI.def("ui.form", {
                 var jF  = $(this);
 
                 // 禁止的控件，忽略之
-                if(jF.attr("fld-disabled"))
-                    return;
+                // @zozoh 虽然禁止修改了，但是没有说这个值不要了吧，暂时先注释下下面的东西
+                // if(jF.attr("fld-disabled"))
+                //     return;
 
                 var fld = jF.data("@FLD");
 
@@ -643,8 +644,8 @@ return ZUI.def("ui.form", {
                     return;
 
                 // 得到字段的控件
-                //var fui = jF.data("@UI"); 
-                var fui = fld.UI; 
+                //var fui = jF.data("@UI");
+                var fui = fld.UI;
 
                 // 虚拟字段，合并到输出
                 if(fld.virtual) {
@@ -700,7 +701,7 @@ return ZUI.def("ui.form", {
             html = prompt;
         }
 
-        // 设置 
+        // 设置
         var jF = UI.$fld(key);
 
         jF.attr("form-prompt", pKey).find(".ff-prompt").html(html);

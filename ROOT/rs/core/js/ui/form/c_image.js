@@ -93,7 +93,7 @@ return ZUI.def("ui.form_com_image", {
             if(e.currentTarget.files.length > 0){
                 this.__do_upload(e.currentTarget.files[0]);
                 // 清除文件选择框的记忆
-                UI.arena.find('input[type="file"]').val('');
+                this.arena.find('input[type="file"]').val('');
             }
         },
         'dragover .comi-image' : function(e) {
