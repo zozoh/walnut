@@ -248,11 +248,22 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
     }
 }
 .hm-layout[toggle-on] {
-    background: red;
     > .hm-com-W {
         > .ui-arena {
-            > .hm-area {display: none;}
-            > .hm-area[toggle-show] {display: block;}
+            > .hm-area[toggle-mode="hide"] {display: none;}
+        }
+    }
+}
+.hm-layout[toggle-on][toggle-current] {
+    > .hm-com-W {
+        > .ui-arena {
+            > .hm-area > .hm-area-assist .hma-ai{
+                border-color:#F0F;
+            }
+            > .hm-area[toggle-mode="show"] {
+                background: rgba(255,255,0,0.4);
+                > .hm-area-con {opacity: 0.6;}
+            }
         }
     }
 }

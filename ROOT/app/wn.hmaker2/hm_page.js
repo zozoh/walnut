@@ -231,14 +231,22 @@ return ZUI.def("app.wn.hmaker_page", {
             return;
         
         // 取消其他激活的控件
-        UI.doBlurActivedCom();
+        var prevCom = UI.doBlurActivedCom(uiCom);
         
         // 激活自己
         jCom.attr("hm-actived", "yes");
+        $z.invoke(uiCom, "on_actived", [prevCom]);
     },
     //...............................................................
-    doBlurActivedCom : function() {
-        this._C.iedit.$body.find("[hm-actived]").removeAttr("hm-actived");
+    doBlurActivedCom : function(nextCom) {
+        var re = [];
+        this._C.iedit.$body.find("[hm-actived]").each(function(){
+            var jCom  = $(this).removeAttr("hm-actived");
+            var uiCom = ZUI(jCom);
+            $z.invoke(uiCom, "on_blur", [nextCom]);
+            re.push(uiCom);
+        });
+        return re.length > 0 ? re[0] : null;
     },
     //...............................................................
     doChangeSkin : function(){
@@ -402,17 +410,8 @@ return ZUI.def("app.wn.hmaker_page", {
             var com   = uiCom.getData();
             // 关联的某个布局 ...
             if(com.layoutComId) {
-                var map = layoutMap[com.layoutComId];
-                if(!map){
-                    map = {};
-                    layoutMap[com.layoutComId] = map;
-                }
-                // 找一下，具体的布局设置
-                uiCom.arena.find('li[toar-id]').each(function(){
-                    var jLi = $(this);
-                    var aid = jLi.attr("toar-id");
-                    map[aid] = (jLi.attr("toar-checked") == "yes");
-                });
+                var map = uiCom.joinToggleAreaMap(layoutMap[com.layoutComId], com);
+                layoutMap[com.layoutComId] = map;
             }
         });
 
@@ -442,15 +441,36 @@ return ZUI.def("app.wn.hmaker_page", {
             // 如果没有被关联，确保所有的子区域，显示属性被清除
             if(!jLayout.attr("toggle-on")) {
                 jLayout.find(">.hm-com-W>.ui-arena>.hm-area")
-                    .removeAttr("toggle-show");
+                    .removeAttr("toggle-mode");
             }
         });
     },
     //...............................................................
-    toggleLayout : function(layoutId, isToggle) {
+    // 指定的一个布局控件，将其关联为区域显示
+    // 给定了 areaMap，表示这个表里面的区域才会被关联
+    // 其他的统统无关
+    toggleLayout : function(layoutId, areaMap) {
         var UI = this;
+        console.log("haha", areaMap, layoutId)
         UI._C.iedit.$body.find("#" + layoutId).attr({
-            "toggle-on" : isToggle ? "yes" : null
+            "toggle-on" : "yes" 
+        }).find(">.hm-com-W>.ui-arena>.hm-area").each(function(){
+            var jArea = $(this);
+            var aid   = jArea.attr("area-id");
+            var mode  = areaMap[aid];
+            console.log(aid, mode)
+            // 关联区域: 显示
+            if("yes" == mode) {
+                jArea.attr("toggle-mode", "show")
+            }
+            // 关联区域: 不显示
+            else if(mode) {
+                jArea.attr("toggle-mode", "hide")
+            }
+            // 否则无关
+            else {
+                jArea.attr("toggle-mode", "ignore")
+            }
         });
     },
     //...............................................................
@@ -460,8 +480,23 @@ return ZUI.def("app.wn.hmaker_page", {
             .each(function(){
                 var jArea = $(this);
                 var aid   = jArea.attr("area-id");
-                jArea.attr("toggle-show", aid == areaId ? "yes" : null);
+                if(jArea.attr("toggle-mode") != "ignore"){
+                    jArea.attr("toggle-mode", aid == areaId ? "show" : "hide");
+                }
             });
+    },
+    //...............................................................
+    // 标识当前菜单对应的 toggle 区域
+    setToggleCurrent : function(layoutId) {
+        var UI = this;
+        // 先取消了
+        UI._C.iedit.$body.find(".hm-layout[toggle-current]")
+            .removeAttr("toggle-current");
+        // 给了 ID 就标识一下
+        if(layoutId) {
+            UI._C.iedit.$body.find("#" + layoutId)
+                .attr("toggle-current", "yes");
+        }
     },
     //...............................................................
     // 得到本页所有布局控件的信息列表

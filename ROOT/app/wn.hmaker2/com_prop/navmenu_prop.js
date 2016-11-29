@@ -138,18 +138,49 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             // 获取分栏下的区域列表
             var areaiList = UI.pageUI().getLayoutAreaList(comId);
 
+            // 得到自己所在的分栏，看看是否是所选分栏
+            var myLayouts = [];
+            UI.uiCom.$el.parents(".hm-area").each(function(){
+                var jMyArea = $(this);
+                myLayouts.push({
+                    comId  : jMyArea.closest(".hm-layout").attr("id"),
+                    areaId : jMyArea.attr("area-id")
+                });
+            });
+            
+            // 看看是否选择了自己所在的布局链
+            var myAreaId = null;
+            for(var myl of myLayouts) {
+                if(myl.comId == comId) {
+                    myAreaId = myl.areaId;
+                    break;
+                }
+            }
+
+            // 得到自己已经选择的区域列表
+            var usedAreaMap = UI.uiCom.joinToggleAreaMap();
+
             // 显示一个下拉框(带全局覆盖的 masker)
             var jDropMask = $('<div class="toar-drop-mask"></div>').appendTo(jItem);
             var jDrop     = UI.ccode("toar.drop").appendTo(jItem);
             var jDropUl   = jDrop.find("ul");
 
             // 循环添加项目
-            for(var area of areaiList) {
+            for(var ao of areaiList) {
+                // 自己所在的区域不可选
+                if(ao.areaId == myAreaId) 
+                    continue;
+
+                // 已经使用过的区域，也无视
+                if(usedAreaMap[ao.areaId])
+                    continue;
+
+                // 其他项目显示
                 $('<li><i class="fa fa-square-o"></i><b></b></li>')
                     .attr({
-                        "value" : area.areaId
+                        "value" : ao.areaId
                     }).appendTo(jDropUl)
-                        .find('b').text(area.areaId);
+                        .find('b').text(ao.areaId);
             }
 
             // 最后让内容区域，停靠到正确的地方
@@ -173,6 +204,9 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             var index = jItem.prevAll().length;
             
             UI.uiCom.updateItemField(index, "toarId", val || null);
+
+            // 最后触发一下控件重绘
+            UI.uiCom.notifyDataChange("panel");
         },
         // 编辑链接
         'click .cnavmp-item[current] span[key="href"]' : function(e) {
@@ -366,7 +400,7 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
     },
     //...............................................................
     update : function(com) {
-        console.log("prop", com);
+        //console.log("prop", com);
         var UI = this;
 
         // 更新菜单条项目编辑模式

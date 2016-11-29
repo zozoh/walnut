@@ -180,7 +180,8 @@ var methods = {
             this.appendTo(uiPage, uiPage.$editBody());
             
             // 切换到相对定位
-            var block = {mode : "abs"};
+            // var block = {mode : "abs"};
+            var block = {mode : this.$el.attr("hmc-mode")};
         }
         // 移动到分栏
         else {
@@ -336,8 +337,8 @@ module.exports = function(uiCom){
         }
             
         // 最后分别应用属性到对应的元素上
-        var cssCom   = $z.pick(css, "^(position|top|left|right|bottom|width|height|border|margin)$");
-        var cssArena = $z.pick(css, "!^(position|top|left|right|bottom|width|height|border||margin)$");
+        var cssCom   = $z.pick(css, "^(position|top|left|right|bottom|margin)$");
+        var cssArena = $z.pick(css, "!^(position|top|left|right|bottom|margin)$");
         this.$el.css(this.formatCss(cssCom, true));
         this.arena.css(this.formatCss(cssArena, true));
     });

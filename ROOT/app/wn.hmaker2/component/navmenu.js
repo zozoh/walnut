@@ -27,7 +27,17 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             if(!this.isActived())
                 return;
 
+            // 如果当前模式是区域选择，还需要同时高亮当前区域
+            var com = this.getData();
+            if(com.atype == "toggleArea"){
+                this.checkToggleAreaItem(jq);
+            }
+
+            // 激活当前项目
             this.selectItem(jq);
+
+            // 触发一下重绘
+            this.paint(com);
         },
         // 取消高亮
         'click .hmc-navmenu' : function(e) {
@@ -161,6 +171,27 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         this.arena.find('li[toar-checked]').removeAttr("toar-checked");
     },
     //...............................................................
+    // 将自身对于 ToggleArea 的设定加入一个 Map
+    // 并返回一个结果对象
+    // {
+    //     map : {..},    // 结果集，即传入的 map
+    //     com : {..},    // 本组件的数据
+    // }
+    joinToggleAreaMap : function(map, com) {
+        com = com || this.getData();
+        map = map || {};
+        // 关联的某个布局 ...
+        if(com.layoutComId) {
+            // 找一下，具体的布局设置
+            this.arena.find('li[toar-id]').each(function(){
+                var jLi = $(this);
+                var aid = jLi.attr("toar-id");
+                map[aid] = jLi.attr("toar-checked") || "no";
+            });
+        }
+        return map;
+    },
+    //...............................................................
     updateItem : function(index, item, quiet) {
         console.log(item)
         var UI  = this;
@@ -245,10 +276,19 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         }
     },
     //...............................................................
+    on_actived : function(prevCom) {
+        var com = this.getData();
+        this.pageUI().setToggleCurrent(com.layoutComId);
+    },
+    //...............................................................
+    on_blur : function(nextCom) {
+        this.pageUI().setToggleCurrent();
+    },
+    //...............................................................
     paint : function(com) {
         var UI  = this;
 
-        console.log("paint", com);
+        // console.log("paint", com);
 
         // 标识自己的类型
         UI.$el.attr("navmenu-atype", com.atype);
@@ -258,10 +298,12 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             // 设置了区域
             if(com.layoutComId) {
                 // 标识区域
-                UI.pageUI().toggleLayout(com.layoutComId, true);
+                var map = UI.joinToggleAreaMap(null, com);
+                UI.pageUI().toggleLayout(com.layoutComId, map);
 
                 // 找到高亮的显示项目
                 var jLi = UI.arena.find('li[toar-checked]');
+
                 // 触发页面区域修改
                 var aid = jLi.attr("toar-id");
                 UI.pageUI().setToggleArea(com.layoutComId, aid);
@@ -291,6 +333,11 @@ return ZUI.def("app.wn.hm_com_navmenu", {
 
             // 更新一下属性面板
             UI.saveData("page", com, true);
+        }
+
+        // 对于激活控件，更新一下 toggle 区域
+        if(UI.isActived()) {
+            this.pageUI().setToggleCurrent(com.layoutComId);
         }
 
     },
