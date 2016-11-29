@@ -15,11 +15,15 @@ $z.declare([
     'app/wn.hmaker2/component/objshow.js',
 ], function(ZUI, Wn, MenuUI, HmMethods, PageComBarUI, PageSetup){
 //==============================================
-var html_empty_prop = function(){/*
-<div class="ui-arena">
-    empty prop
-</div>
-*/};
+var JS_LIB = { 
+    "@jquery"     : '/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js',
+    "@underscore" : '/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js',
+    "@backbone"   : '/gu/rs/core/js/backbone/backbone-1.1.2/backbone.js',
+    "@vue"        : '/gu/rs/core/js/vue/vue.js',
+    "@zutil"      : '/gu/rs/core/js/nutz/zutil.js',
+    "@dateformat" : '/gu/rs/core/js/ui/dateformat.js',
+};
+//==============================================
 var html = `
 <div class="ui-code-template">
     <div code-id="block" class="hm-block">
@@ -34,7 +38,7 @@ var html = `
 <div class="ui-arena hm-page" ui-fitparent="yes"><div class="hm-W">
     <iframe class="hmpg-frame-load"></iframe>
     <div class="hmpg-stage">
-        <div class="hmpg-screen"><iframe class="hmpg-frame-edit"></iframe></div>
+        <div class="hmpg-screen" mode="pc"><iframe class="hmpg-frame-edit"></iframe></div>
     </div>
     <div class="hmpg-sbar"><div class="hm-W">
         <div class="hmpg-sbar-com"  ui-gasket="combar"></div>
@@ -107,18 +111,7 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.listenBus("change:com", function(mode, uiCom, com){
             if("page" == mode)
                 return;
-            //console.log("hm_page::on_change:com:", mode, uiCom.uiName, com);
-            
-            // 移除旧皮肤
-            if(com._skin_old) {
-                uiCom.$el.removeClass(com._skin_old);
-            }
-            
-            // 添加新皮肤
-            if(com.skin) {
-                uiCom.$el.addClass(com.skin);
-            }
-            
+            //console.log("hm_page::on_change:com:", mode, uiCom.uiName, com);        
             // 绘制控件
             uiCom.paint(com);
         });
@@ -263,9 +256,38 @@ return ZUI.def("app.wn.hmaker_page", {
                 d1       : oHome.d1,
                 skinName : skinName,
             }));
+    
+        // 释放之前的皮肤 JS
+        if(UI._C.SkinJS){
+            $z.invoke(UI._C.SkinJS, "off", [], {
+                doc    : UI._C.iedit.doc,
+                win    : UI._C.iedit.doc.defaultView,
+                root   : UI._C.iedit.root,
+                jQuery : window.jQuery
+            });
+        }
+    
+        // 加载皮肤声明了 JS
+        if(skinInfo.js) {
+            var src = $z.tmpl('/o/read/home/{{d1}}/.hmaker/skin/{{skinName}}/skin.js?aph=true')({
+                d1       : oHome.d1,
+                skinName : skinName,
+            });
+            seajs.use(src, function(SkinJS){
+                // 应用
+                $z.invoke(SkinJS, "on", [], {
+                    doc    : UI._C.iedit.doc,
+                    win    : UI._C.iedit.doc.defaultView,
+                    root   : UI._C.iedit.root,
+                    jQuery : window.jQuery
+                });
+                // 记录这个皮肤JS
+                UI._C.SkinJS = SkinJS;
+            });
+        }
 
         // 确保样式加入到 body
-        UI._C.iedit.$body.attr("skin", skinInfo.name || null);
+        UI._C.iedit.$root.attr("skin", skinInfo.name || null);
     },
     //...............................................................
     setup_page_editing : function(){
@@ -273,6 +295,9 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 建立上下文: 这个过程，会把 load 的 iframe 内容弄到 edit 里
         UI._rebuild_context();
+        
+        // 表示网页的编辑器模式
+        UI._C.iedit.$root.attr("hmaker", "2.0")
 
         //.......................... 下面的方法来自 support/hm_page_setup.js
         // 设置编辑区页面的 <head> 部分
@@ -359,6 +384,27 @@ return ZUI.def("app.wn.hmaker_page", {
         }
     },
     //...............................................................
+    cleanToggleArea : function() {
+        // TODO ...
+    },
+    //...............................................................
+    toggleLayout : function(layoutId, isToggle) {
+        var UI = this;
+        UI._C.iedit.$body.find("#" + layoutId).attr({
+            "toggle-on" : isToggle ? "yes" : null
+        });
+    },
+    //...............................................................
+    setToggleArea : function(layoutId, areaId) {
+        var UI = this;
+        UI._C.iedit.$body.find("#" + layoutId + '>.hm-com-W>.ui-arena>.hm-area')
+            .each(function(){
+                var jArea = $(this);
+                var aid   = jArea.attr("area-id");
+                jArea.attr("toggle-show", aid == areaId ? "yes" : null);
+            });
+    },
+    //...............................................................
     // 得到本页所有布局控件的信息列表
     getLayoutList : function(){
         var UI = this;
@@ -392,6 +438,13 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 返回
         return $z.invoke(uiCom, "getAreaObjList", []) || [];
+    },
+    //...............................................................
+    getScreenMode : function(){
+        return this.arena.find(".hmpg-screen").attr("mode") || "pc";
+    },
+    setScreenMode : function(mode) {
+        this.arena.find(".hmpg-screen").attr("mode", mode);
     },
     //...............................................................
     redraw : function(){
@@ -481,6 +534,25 @@ return ZUI.def("app.wn.hmaker_page", {
                         }
                     }
                 }
+            },{
+                key  : 'screen_mode',
+            	type : "status",
+            	status : [{
+            		icon : '<i class="zmdi zmdi-laptop"></i>',
+            		val  : 'pc'
+            	}, {
+            		icon : '<i class="zmdi zmdi-smartphone-android"></i>',
+            		val  : 'phone'
+            	}],
+                on_change : function(mode){
+                    UI.setScreenMode(mode);
+                },
+            	init : function(mi){
+            		var mode = UI.getScreenMode();
+                    mi.status.forEach(function(si){
+            			si.on = (si.val == mode);
+            		});
+            	}
             }]
         }).render(function(){
             UI.defer_report("pagebar");
@@ -530,6 +602,9 @@ return ZUI.def("app.wn.hmaker_page", {
             $screen : UI.arena.find(".hmpg-screen"),
             $pginfo : UI.arena.find(".hmpg-sbar .hmpg-pginfo"),
         };
+        
+        // 清空编辑区
+        $(rootEdit).empty();
 
         // 设置 HTML 到编辑区
         rootEdit.innerHTML = rootLoad.innerHTML;
@@ -589,17 +664,17 @@ return ZUI.def("app.wn.hmaker_page", {
         var C  = UI._C;
 
         // 将 iedit 的内容复制到 iload 里面
+        // 需要将所有的可运行的 script 都删掉
         C.iload.root.innerHTML = C.iedit.root.innerHTML;
         C.iload = UI._reset_context_vars(".hmpg-frame-load");
 
         // 清空 iload 的头部
-        C.iload.$head.empty();
+        // C.iload.$head.empty();
 
         // 移除 body 的一些属性
         C.iload.$body.attr({
             "pointer-moving-enabled" : null,
-            "style" : null,
-            "skin" : null
+            "style" : null
         });
 
         // 处理所有的控件，删掉临时属性和辅助节点
@@ -619,10 +694,10 @@ return ZUI.def("app.wn.hmaker_page", {
         });
         
         // 所有标识删除的节点也要删除
-        C.iload.$body.find(".hm-del-save, .ui-code-template").remove();
+        C.iload.$root.find(".hm-del-save, .ui-code-template").remove();
         
         // 删除所有临时属性
-        C.iload.$body.find('[del-attrs]').each(function(){
+        C.iload.$root.find('[del-attrs]').each(function(){
             var jq = $(this);
             var attrNames = jq.attr("del-attrs").split(",");
             var subs = jq.find("*").andSelf();
@@ -631,13 +706,16 @@ return ZUI.def("app.wn.hmaker_page", {
             }
         });
         
+        // 删除所有的皮肤动态添加的节点
+        C.iload.$head.find('[skin]').remove();
+        
         // 所有的分栏和组件前面都加入一个回车
-        C.iload.$body.find(".hm-com, .hm-area").each(function(){
+        C.iload.$root.find(".hm-com, .hm-area, meta, link, body").each(function(){
             this.parentNode.insertBefore(document.createTextNode("\n"),this);
         });
         
         // 整理所有的空节点，让其为一个回车
-        $z.eachTextNode(C.iload.$body, function(){
+        $z.eachTextNode(C.iload.$root, function(){
             var str = $.trim(this.nodeValue);
             // 处理空白节点
             if(0 == str.length) {

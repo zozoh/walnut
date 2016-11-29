@@ -182,9 +182,12 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                 app : UI.app,
                 dom : 'ui/pop/pop.html',
                 css : 'ui/pop/pop.css',
+                width  : 480,
+                height : 200,
                 events : {
                     "click .pm-btn-ok" : function(){
-                        var href = this.body.getData();
+                        var href = (this.body.getData()||"").replace(
+                            /[\r\n]/g, "");
                         UI.uiCom.updateItemField(index, "href", href);
                         this.close();
                     },
@@ -193,24 +196,13 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                     }
                 }, 
                 setup : {
-                    uiType : 'ui/support/edit_link',
+                    uiType : 'ui/form/c_text',
                     uiConf : {
-                        setup : {
-                            defaultPath : oHome
-                        },
-                        ext : {
-                            test : function(str) {
-                                return /^be:.+$/.test(str);
-                            },
-                            uiType : 'app/wn.hmaker2/support/edit_behavior',
-                            uiConf : {
-                                uiPage : this.pageUI()
-                            }
-                        }
+                        className : "!navmenu-href-edit"
                     }
                 }
             }).render(function(){
-                this.$main.find('.pm-title').text(UI.msg('hmaker.edit_link.title'));
+                this.$main.find('.pm-title').text(UI.msg('hmaker.com.navmenu.edit_href'));
                 this.body.setData(item.href);
             });
         },
@@ -242,6 +234,7 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             parent : UI,
             gasketName : "form",
             uiWidth : "all",
+            fitParent : false,
             on_change : function(key, val) {
                 // 如果是改变了类型
                 if("atype" == key) {
@@ -272,37 +265,37 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                 return com;
             },
             fields : [{
-                key   : "mode",
-                title : "i18n:hmaker.com.navmenu.mode",
-                type  : "string",
-                editAs : "switch", 
-                uiConf : {
-                    items : [{
-                        text : 'i18n:hmaker.com.navmenu.mode_default',
-                        val  : 'default',
-                    }, {
-                        text : 'i18n:hmaker.com.navmenu.mode_aside',
-                        val  : 'aside',
-                    }]
-                }
-            }, {
-                key   : "itemAlign",
-                title : "i18n:hmaker.com.navmenu.itemAlign",
-                type  : "string",
-                editAs : "switch", 
-                uiConf : {
-                    items : [{
-                        icon : '<i class="fa fa-align-left">',
-                        val  : 'left',
-                    }, {
-                        icon : '<i class="fa fa-align-center">',
-                        val  : 'center',
-                    }, {
-                        icon : '<i class="fa fa-align-right">',
-                        val  : 'right',
-                    }]
-                }
-            }, {
+            //     key   : "mode",
+            //     title : "i18n:hmaker.com.navmenu.mode",
+            //     type  : "string",
+            //     editAs : "switch", 
+            //     uiConf : {
+            //         items : [{
+            //             text : 'i18n:hmaker.com.navmenu.mode_default',
+            //             val  : 'default',
+            //         }, {
+            //             text : 'i18n:hmaker.com.navmenu.mode_aside',
+            //             val  : 'aside',
+            //         }]
+            //     }
+            // }, {
+            //     key   : "itemAlign",
+            //     title : "i18n:hmaker.com.navmenu.itemAlign",
+            //     type  : "string",
+            //     editAs : "switch", 
+            //     uiConf : {
+            //         items : [{
+            //             icon : '<i class="fa fa-align-left">',
+            //             val  : 'left',
+            //         }, {
+            //             icon : '<i class="fa fa-align-center">',
+            //             val  : 'center',
+            //         }, {
+            //             icon : '<i class="fa fa-align-right">',
+            //             val  : 'right',
+            //         }]
+            //     }
+            // }, {
                 key   : "atype",
                 title : "i18n:hmaker.com.navmenu.atype.title",
                 type  : "string",
@@ -407,13 +400,13 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
         UI._update_menu_items(com);
 
         // 更新 form
-        UI.gasket.form.update(com);
+        UI.gasket.form.setData(com);
 
         // 打开提示
         UI.balloon();
 
         // 最后在调用一遍 resize
-        UI.resize(true);
+        // UI.resize(true);
     },
     //...............................................................
     // 根据 com.atype 来表示菜单列表的显示模式

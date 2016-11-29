@@ -5,19 +5,26 @@ var methods = {
         this.arena.find(">header .hmpn-tt").html(this.msg(titleKey));
     },
     // 更新皮肤选择框
-    updateSkinBox : function(jBox, skin){
-        jBox.attr("skin-selector", skin)
+    updateSkinBox : function(jBox, skin, getSkinText){
+        // 确保有回调
+        getSkinText = getSkinText || jBox.data("getSkinText");
+        
+        // 清空选区
+        jBox.attr("skin-selector", skin||"")
             .html('<span><i class="zmdi zmdi-texture"></i></span>');
         // 显示文字
         var jB = $('<b>').attr("skin-none", skin ? null : "yes");
         // 选择皮肤样式名
         if(skin){
-            jB.text(this.getSkinTextForArea(skin));
+            jB.text(getSkinText.call(this, skin));
         }
         // 显示默认
         else{
             jB.text(this.msg("hmaker.prop.skin_none"));
         }
+        // 记录获取 Text 的回调
+        jBox.data("getSkinText", getSkinText);
+        
         // 加入 DOM
         jB.appendTo(jBox);
     },

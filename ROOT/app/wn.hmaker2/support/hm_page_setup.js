@@ -1,6 +1,7 @@
 define(function (require, exports, module) {
 var methods = {
     //...............................................................
+    // 添加 CSS
     _H(jHead, selector, html) {
         var jq = jHead.children(selector);
         // 确保存在
@@ -14,6 +15,17 @@ var methods = {
             jq.remove();
         } 
     },
+    //...............................................................
+    // 添加 JS
+    // _HScript(doc, src, attrs) {
+    //     var eScript = doc.createElement("script");
+    //     eScript.type = "text/javascript";
+    //     eScript.src = src;
+    //     if(attrs){
+    //         $(eScript).attr(attrs);
+    //     }
+    //     doc.body.appendChild(eScript);
+    // },
     //...............................................................
     __setup_page_head : function() {
         var UI = this;
@@ -32,17 +44,17 @@ var methods = {
 
         // 链入固定的 CSS 
         UI._H(jHead, 'link[href*="balloon.min.css"]',
-            '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/balloon.min.css">');
+            '<link rel="stylesheet" type="text/css" class="hm-del-save" d href="/gu/rs/core/css/balloon.min.css">');
         UI._H(jHead, 'link[href*="normalize.css"]',
-            '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">');
+            '<link rel="stylesheet" type="text/css" class="hm-del-save" href="/gu/rs/core/css/normalize.css">');
         UI._H(jHead, 'link[href*="font-awesome.css"]',
-            '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">');
+            '<link rel="stylesheet" type="text/css" class="hm-del-save" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">');
         UI._H(jHead, 'link[href*="material-design-iconic-font.css"]',
-            '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">');
+            '<link rel="stylesheet" type="text/css" class="hm-del-save" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">');
         UI._H(jHead, 'link[href*="hmaker_editing.css"]',
-            '<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker2/hmaker_editing.css">');
+            '<link rel="stylesheet" type="text/css" class="hm-del-save" href="/a/load/wn.hmaker2/hmaker_editing.css">');
         UI._H(jHead, 'link[href*="moveresizing.css"]',
-            '<link rel="stylesheet" type="text/css" href="/theme/r/jqp/moveresizing/moveresizing.css">');
+            '<link rel="stylesheet" type="text/css" class="hm-del-save" href="/theme/r/jqp/moveresizing/moveresizing.css">');
 
         // _H(jHead, 'script[src*="zutil.js"]',
         //     '<script src="/gu/rs/core/js/nutz/zutil.js"></script>');
@@ -119,6 +131,19 @@ var methods = {
                 }
             }
         });
+        if(!UI._C.iedit.doc.defaultView.hm_resize_binded){
+            UI._C.iedit.doc.defaultView.hm_resize_binded = true;
+            $(UI._C.iedit.doc.defaultView).resize(function(){
+                if(UI._C.SkinJS){
+                    $z.invoke(UI._C.SkinJS, "on_resize", [], {
+                        doc    : UI._C.iedit.doc,
+                        win    : UI._C.iedit.doc.defaultView,
+                        root   : UI._C.iedit.root,
+                        jQuery : window.jQuery
+                    });
+                }
+            });
+        }
     },
     //...............................................................
     __setup_page_moveresizing : function() {

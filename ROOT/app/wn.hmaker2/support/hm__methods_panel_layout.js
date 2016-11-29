@@ -143,7 +143,9 @@ var methods = {
         
         // 显示皮肤
         var jBox = $('<div key="skin" class="hm-skin-box">').appendTo(jLi);
-        this.updateSkinBox(jBox, ao.skin);
+        this.updateSkinBox(jBox, ao.skin, function(skin){
+            return this.getSkinTextForArea(skin);
+        });
             
         // 返回以便链式赋值
         return jLi;

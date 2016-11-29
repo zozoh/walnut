@@ -9,9 +9,24 @@ var methods = {
     getComType : function() {
         return this.$el.attr("ctype");
     },
+    //........................................................
+    // 获取组件的皮肤
+    getComSkin : function() {
+        return this.$el.attr("skin");
+    },
+    // 设置组件的皮肤，这里会取消掉老的皮肤
+    setComSkin : function(skin) {
+        var old_skin = this.getComSkin();
+        if(old_skin) {
+            this.$el.removeClass(old_skin);
+        }
+        this.$el.attr("skin", skin||null).addClass(skin);
+    },
+    //........................................................
     getIconHtml : function() {
         return this.msg('hmaker.com.' + this.getComType() + '.icon');
     },
+    //........................................................
     // 判断组件是否是激活的
     isActived : function() {
         return this.$el.attr("hm-actived") == "yes";
@@ -295,10 +310,10 @@ module.exports = function(uiCom){
             // 设置
             _.extend(block, this.pickCssForMode(css, block.posBy));
         }
-        // inflow 的块，高度应该为 auto
+        // inflow 的块，高度应该为 unset
         else if("inflow" == block.mode){
             _.extend(block, {
-                top: "", left:"", bottom:"", right:"", height:"auto",
+                top: "", left:"", bottom:"", right:"", height:"unset",
                 posBy : "WH"
             });
         }

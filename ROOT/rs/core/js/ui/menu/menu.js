@@ -98,8 +98,12 @@ return ZUI.def("ui.menu", {
                 var val   = jq.attr("val");
                 jItem.find(".menu-item-si").removeClass("menu-item-si-on");
                 jq.addClass("menu-item-si-on");
-
+                
                 var context = this.options.context || this.parent || this;
+                
+                // 调用回调
+                $z.invoke(mi, "on_change", [val, mi], context);
+                
                 if(_.isFunction(context.trigger)){
                     context.trigger("menu:"+(mi.key||"status"), val);
                 }
@@ -110,6 +114,10 @@ return ZUI.def("ui.menu", {
             var jItem = $(e.currentTarget);
             var mi    =  jItem.data("@DATA");
             mi.on = mi.on ? false : true;
+            
+            // 调用回调
+            $z.invoke(mi, "on_change", [mi.on, mi], context);
+            
             if(_.isFunction(context.trigger)){
                 context.trigger("menu:"+(mi.key||"boolean"), mi.on);
             }

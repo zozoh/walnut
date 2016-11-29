@@ -267,11 +267,14 @@ ZUIObj.prototype = {
         }
         
         // 确保自己设置了自定义的 className
-        if(UI.className) {
+        var isOptResetClassName = /^!/.test(opt.className);
+        if(!isOptResetClassName && UI.className) {
             UI.$el.addClass(UI.className);
         }
         if(opt.className){
-            UI.$el.addClass(opt.className);
+            UI.$el.addClass(isOptResetClassName
+                                ? opt.className.substring(1)
+                                : opt.className);
         }
 
         // 调用子类自定义的 init

@@ -142,7 +142,7 @@ return ZUI.def("app.wn.hmaker2", {
                 "click .pm-btn-ok" : function(){
                     var uiMask  = this;
                     var conf = uiMask.body.getData();
-                    console.log(conf)
+                    //console.log(conf)
                     // 更新配置信息
                     Wn.exec("obj id:"+oHome.id+" -u -o", $z.toJson(conf), function(re){
                         // 保存站点对象

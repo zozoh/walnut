@@ -3,9 +3,6 @@ define({
         "icon" : {
             "skin" : '<i class="zmdi zmdi-texture"></i>'
         },
-        "edit_link" : {
-            "title" : "编辑链接行为",
-        },
         "res" : {
             "title" : '资源库',
         },
@@ -122,7 +119,8 @@ define({
                 },
                 "toar_check_tip" : "标识当前项对应的区域为默认显示区域",
                 "toar_area_none" : "选择一个区域",
-                "toar_no_bar"    : "请选择菜单条对应的分栏控件"
+                "toar_no_bar"    : "请选择菜单条对应的分栏控件",
+                "edit_href" : "编辑菜单项链接"
             },
             "text" : {
                 "name"  : "文本",

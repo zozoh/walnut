@@ -10,8 +10,9 @@ var html = `
 `;
 //==============================================
 return ZUI.def("app.wn.hm_com_navmenu", {
-    keepDom : true,
-    dom     : html,
+    keepDom   : true,
+    dom       : html,
+    className : "!",
     //...............................................................
     init : function(){
         HmComMethods(this);
@@ -35,7 +36,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             }
         },
         // 编辑文字
-        'click ul>li[current] a' : function(e) {
+        'click ul>li[current] a span' : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
             
@@ -90,7 +91,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     getItemData : function(index) {
         var jLi = this.$item(index);
         return {
-            text : jLi.text(),
+            text : jLi.find("span").text(),
             href : jLi.attr("href") || "",
             newtab : jLi.attr("newtab") == "yes",
             current : jLi.attr("current") == "yes",
@@ -110,7 +111,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
 
         // 用 A 包裹文字是因为考虑到以后可能增加 icon 之类的前缀修饰元素
         var jUl = UI.arena.find("ul");
-        var jLi = $('<li><a></a></li>').appendTo(jUl);
+        var jLi = $('<li><a><i></i><span></span></a></li>').appendTo(jUl);
         UI.updateItem(jLi, item, true);
 
         // 选中新增项目(顺便通知修改)
@@ -166,9 +167,10 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     },
     //...............................................................
     updateItem : function(index, item, quiet) {
+        console.log(item)
         var UI  = this;
         var jLi = UI.$item(index);
-        jLi.children("a").text(item.text);
+        jLi.find("a>span").text(item.text);
         jLi.attr({
             "newtab" : !item.newtab ? null : "yes",
             "href"   : item.href || null,
@@ -250,27 +252,21 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     //...............................................................
     paint : function(com) {
         var UI  = this;
-        var jUl = UI.arena.children("ul");
-
-        // 菜单的模式
-        UI.arena.attr("mode", com.mode || "default");
-
-        // 垂直模式的对齐方式
-        if("aside" == com.mode) {
-            jUl.css({
-                "text-align" : com.itemAlign || "left",
-            });   
+        
+        // 如果是区域显示，则找到对应分栏，设置属性
+        if("toggleArea" == com.atype) {
+            if(com.layoutComId) {
+                UI.pageUI().toggleLayout(com.layoutComId, true);
+            }
         }
-        // 默认水平方式的对齐方式
-        else {
-            _flex = {
-                "left"   : "flex-start",
-                "center" : "center",
-                "right"  : "flex-end",
-            };
-            jUl.css({
-                "justify-content" : _flex[com.itemAlign] || "flex-start"
-            });
+        // 否则查找所有的分栏，如果没有任何菜单关联它，则取消
+        else if(com.layoutComId){
+            // 首先让自己取消关联
+            com.layoutComId = null;
+            UI.saveData("page", com, true);
+
+            // 整页搜索
+            UI.pageUI().cleanToggleArea();
         }
 
     },

@@ -185,7 +185,7 @@
         @hmpcH : 32px;
         .hm-prop-com {
             width:100%; height:100%; position: relative; padding:@hmpcH 0 0 0;
-            .hmpc-info {@noselect();
+            > .hmpc-info {@noselect();
                 position: absolute; top:0; left:0; height: @hmpcH; line-height: @hmpcH;
                 padding:0 @d4; font-family: @f_fixed; color:@cf1;
                 > * {display:inline-block;vertical-align: middle;}
@@ -194,59 +194,10 @@
                 > em   {color:@c3; font-style: normal;}
                 > em:before {display:inline; content:"#";}
             }
-            .hmpc-skin {@noselect();
-                position: absolute; top:0; right:0; height: @hmpcH; line-height: @hmpcH;
-                padding:0 @d4; font-family: @f_fixed; color:@cf1;
-                > div {
-                    position: relative; font-family: @f_fixed; cursor: pointer; 
-                    padding:0 @d2;
-                    > * {display:inline-block;vertical-align: middle;}
-                    > b   { font-weight: normal; font-size:@f1; margin-left:@d1;}
-                    > b[skin-none] {font-style: italic; opacity: 0.4;}
-                    > span {cursor: pointer; transition:0.2s;}
-                    .hmpc-skin-mask { display: none;
-                        position: fixed; top:0; right:0; left:0; bottom:0;
-                        background: rgba(0,0,0,0.3);  z-index: 99;
-                    }
-                    .hmpc-skin-list { display: none;
-                        position: absolute; right:0; top: @hmpcH - @d0; 
-                        padding:1px; border:1px solid @cborder1; z-index: 100;
-                        background: @cb0; color:@cf0; 
-                        box-shadow: 4px 4px 3px @cshadow;
-                        ul {
-                            li {
-                                line-height: @f6; font-size:@f1; cursor: pointer;
-                                padding:0 @d3; cursor: pointer; white-space: nowrap;
-                            }
-                            li:hover {
-                                color:@ch0_f; background: @ch0_b;
-                            }
-                            li:before {
-                                display: inline-block; vertical-align: middle;
-                                width:20px; text-align: center; content: "";
-                                font-family:'Material-Design-Iconic-Font'; font-style: normal;
-                            }
-                            li[checked]:before {content: '\f26b';}
-                            li:after {
-                                display: inline;
-                                content: attr(value);
-                                color:@c2; font-size:@f0; margin-left:@d2;
-                            }
-                            li.skin-none {
-                                font-style: italic; color:@c2;
-                            }
-                        }
-                    }
-                    .hmpc-skin-list[warn] {
-                        padding: @d2 @d5; white-space: nowrap;
-                    }
-                    .hmpc-skin-list[warn="unset"] {color:@c6;}
-                    .hmpc-skin-list[warn="empty"] {color:@c3;}
-                }
-                > div:hover {
-                    color:@c0;
-                    > span {transform: translateX(-4px) scale(1.3);}
-                }
+            > .hmpc-skin {
+                position: absolute; top:0; right:0;
+                height: @hmpcH; line-height: @hmpcH; 
+                padding:0 @d4; 
             }
             .hmpc-skin[skin-list-show] {
                 .hmpc-skin-mask {display: block;}
@@ -389,7 +340,7 @@
 // TODO 将 com 上的那个改成用这个
 //............................................................
 .hm-skin-box {
-    white-space: nowrap;
+    white-space: nowrap; font-family: @f_fixed; color:@cf1; cursor: pointer;
     > * {display:inline-block;vertical-align: middle;}
     > b   { font-weight: normal; font-size:@f1; margin-left:@d1;}
     > b[skin-none] {font-style: italic; opacity: 0.4;}
@@ -610,9 +561,17 @@
         }
     }
     .cnavmp-form {
-        padding: @d3; height: 200px;
+        padding: @d3; 
     }
 }
+// 弹出的 href 编辑界面
+.navmenu-href-edit {
+    width:100%; height:100%; padding:@d4;
+    textarea {
+        font-size: @f3; font-family: @f_fixed;
+    }
+}
+
 //............................................................
 // 通用的动态数据对象属性
 //............................................................
