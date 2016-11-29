@@ -50,12 +50,12 @@ public class cmd_usermod extends JvmExecutor {
 
 			// 看看新增啥
 			for (String group : groups) {
-				if (!group.matches("[a-zA-Z0-0]+"))
-					continue;
-				if (prevGrps.contains(group)) {
+                if (prevGrps.contains(group)) {
 					prevGrps.remove(group);
 					continue;
 				}
+                if (!group.matches("[a-zA-Z0-9_]+"))
+                    continue;
 				sys.exec("touch /sys/grp/" + group + "/people/" + usr.id());
 				sys.exec("obj -u 'role:1' /sys/grp/" + group + "/people/" + usr.id());
 				sys.out.println("add to group      : " + group);
