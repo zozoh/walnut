@@ -384,11 +384,14 @@ function on_mousedown(e) {
                 rect : $z.rect(this),
                 $ele : $(this)
             };
-            di.helper = $('<div class="pmv-dropi">').appendTo(pmvContext.$drops)
-                .css(_.extend($z.rectObj(di.rect, "top,left,width,height"), {
-                    position : "absolute"
-                }));
-            pmvContext.dropping.push(di);
+            // 有面积才显示
+            if(di.rect.width * di.rect.height > 0 ){
+                di.helper = $('<div class="pmv-dropi">').appendTo(pmvContext.$drops)
+                    .css(_.extend($z.rectObj(di.rect, "top,left,width,height"), {
+                        position : "absolute"
+                    }));
+                pmvContext.dropping.push(di);
+            }
         });
     }
 

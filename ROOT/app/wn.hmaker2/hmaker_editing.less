@@ -173,16 +173,19 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
             .di-area {
                 width:100%; height:100%;
                 background: rgba(255,255,255,0.6);
-                padding: @d2; font-family: @f_fixed;
-                color:#888; transition: 0.2s;
+                padding: @d2; text-shadow:1px 1px 0 rgba(0,0,0,0.3);
+                font-size: @f2; font-family: @f_fixed;
+                color:#444; transition: 0.2s;
             }
         }
         .pmv-dropi[pmv-hover] {
             z-index: 1;
             .di-area {
                 background: rgba(255,255,0,0.6);
-                transform: scale(1.05);
+                //transform: translate(2px, 2px);
                 box-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+                font-size: @f3; text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+                color:#000; font-weight: bold;
             }
         }
     }
