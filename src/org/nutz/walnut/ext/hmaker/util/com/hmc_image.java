@@ -19,6 +19,8 @@ public class hmc_image extends AbstractComHanlder {
         ing.eleCom.append("<div class=\"hmc-image-pic\"></div>");
         NutMap css = __gen_img_css(ing);
         ing.addMyCss(Lang.map("> .hmc-image-pic", css));
+        
+        // 图片样式
 
         // 超链接
         String tagName = "DIV";

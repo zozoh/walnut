@@ -10,6 +10,12 @@
 
 html, body, .ui-body {width:100%; height:100%; margin:0; overflow: hidden; background: #CCC;}
 
+html {font-size:100px;}
+body {font-size:.12rem;}
+
+ol, ul {list-style:none;padding:0;margin:0;}
+h1,h2,h3,h4,h5,h6{margin:0;padding:0;}
+
 [ui-debuger="show"] .ui-body  {width:70%; float: left;}
 [ui-debuger="show"] .ui-debug {width:30%; float: right; display: block;}
 .ui-debug {display: none; height:100%;}
