@@ -5,6 +5,21 @@ var methods = {
     getComId : function(){
         return this.$el.attr("id");
     },
+    //........................................................
+    setComId : function(newId) {
+        var ele = this.el.ownerDocument.getElementById(newId);
+        // 有重名的
+        if(ele && ele !== this.el){
+            alert(this.msg("hmaker.com._.existsID"));
+            return false;
+        }
+        // 设置
+        this.$el.attr("id", newId);
+
+        // 返回成功
+        return true;
+    },
+    //........................................................
     // 获取组件的 type
     getComType : function() {
         return this.$el.attr("ctype");

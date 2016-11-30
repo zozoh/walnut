@@ -8,7 +8,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -20,8 +19,6 @@ import org.nutz.walnut.api.io.WnObj;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class HmPageTranslating extends HmContext {
-
-    private static HmComFactory COMs = new HmComFactory();
 
     /**
      * 源文件对象
@@ -119,7 +116,7 @@ public class HmPageTranslating extends HmContext {
         String ctype = eleCom.attr("ctype");
 
         // 处理
-        COMs.check(ctype).invoke(this);
+        Hms.COMs.check(ctype).invoke(this);
 
         // 移除没必要的属性
         eleCom.removeAttr("ctype");
@@ -162,6 +159,7 @@ public class HmPageTranslating extends HmContext {
         this.cssLinks.add("/gu/rs/core/css/font-md/css/material-design-iconic-font.css");
         this.jsLinks.add("/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js");
         this.jsLinks.add("/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js");
+        this.jsLinks.add("/gu/rs/core/js/seajs/seajs-2.3.0/sea.js");
         this.jsLinks.add("/gu/rs/core/js/nutz/zutil.js");
         // ---------------------------------------------------
         // 加入皮肤
@@ -176,7 +174,7 @@ public class HmPageTranslating extends HmContext {
         this.propPage = Hms.loadPropAndRemoveNode(doc.body(), "hm-page-attr");
 
         String css = Hms.genCssRuleStyle(this, propPage);
-        doc.body().attr("style", css);
+        doc.body().attr("style", css).removeAttr("assisted-off").removeAttr("assisted-on");
         // ---------------------------------------------------
         // 添加页面皮肤过滤器
         if (this.hasSkin()) {
@@ -197,10 +195,8 @@ public class HmPageTranslating extends HmContext {
         // 得到资源的相对路径
         String rph = this.getTargetRelativePath(o);
 
-        // 如果是 wnml 则改变名称
-        if (isWnml) {
-            rph = Files.renameSuffix(rph, ".wnml");
-        }
+        // 修改后缀
+        rph += isWnml ? ".wnml" : ".html";
 
         // 在目标处创建
         this.oTa = createTarget(rph, o.race());

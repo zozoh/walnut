@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
+import org.nutz.lang.Files;
 import org.nutz.lang.Maths;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
@@ -18,6 +19,11 @@ import org.nutz.walnut.api.io.WnObj;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public final class Hms {
+
+    /**
+     * 控件处理类工厂的单例
+     */
+    public static HmComFactory COMs = new HmComFactory();
 
     /**
      * 自动把驼峰命名的键变成中划线分隔的，比如 "borderColor" 的属性会变成 "border-color"
@@ -226,6 +232,20 @@ public final class Hms {
             return new NutMap();
         return Json.fromJson(NutMap.class, json);
 
+    }
+
+    /**
+     * 判断站点的一个文件对象是否需要转换
+     * <p>
+     * 没有后缀，且类型为 "html" 标识着需要转换
+     * 
+     * @param o
+     *            文件对象
+     * @return 是否需要转换
+     */
+    public static boolean isNeedTranslate(WnObj o) {
+        String suffixName = Strings.sNull(Files.getSuffixName(o.path()), "");
+        return Strings.isBlank(suffixName) && o.isType("html");
     }
 
     // =================================================================

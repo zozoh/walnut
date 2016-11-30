@@ -71,7 +71,7 @@ return ZUI.def("app.wn.hm_com_text", {
     paint : function(com) {
         var UI = this;
 
-        console.log("paint text:", com)
+        // console.log("paint text:", com)
         
         // 准备 CSS 的 base
         var cssBase = {

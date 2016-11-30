@@ -5,7 +5,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Disks;
+import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -49,13 +55,21 @@ public class HmContext {
      */
     public Set<WnObj> resources;
 
-    // true 为严格模式，这种情况下，所有的转换处理都需要尽量不容忍任何潜在的错误
+    /**
+     * true 为严格模式，这种情况下，所有的转换处理都需要尽量不容忍任何潜在的错误
+     */
     public boolean strict;
+
+    /**
+     * 转换前需要预先分析，看看哪些页面是动态的，哪些是静态的
+     */
+    public Map<String, String> pageOutputNames;
 
     public HmContext(WnIo io) {
         this.io = io;
-        this.templates = new HashMap<String, HmTemplate>();
-        this.resources = new HashSet<WnObj>();
+        this.templates = new HashMap<>();
+        this.resources = new HashSet<>();
+        this.pageOutputNames = new HashMap<>();
     }
 
     public HmContext(HmContext hpc) {
@@ -68,6 +82,43 @@ public class HmContext {
         this.oSkinJs = hpc.oSkinJs;
         this.skinInfo = hpc.skinInfo;
         this.templates = hpc.templates;
+        this.strict = hpc.strict;
+        this.pageOutputNames = hpc.pageOutputNames;
+    }
+
+    /**
+     * 遍历整个站点全部的页面，判断这些页面到底是动态还是静态的
+     */
+    public void preparePages() {
+        io.walk(oHome, new Callback<WnObj>() {
+            public void invoke(WnObj o) {
+                // 得到相对路径
+                String rph = getRelativePath(o);
+
+                // 如果需要转换，则深入分析一下
+                if (Hms.isNeedTranslate(o)) {
+                    // 解析页面
+                    String html = io.readText(o);
+                    Document doc = Jsoup.parse(html);
+
+                    // 遍历全部控件
+                    Elements eleComs = doc.getElementsByClass(".hm-com");
+                    for (Element eleCom : eleComs) {
+                        // 得到控件类型
+                        String ctype = eleCom.attr("ctype");
+
+                        // 判断
+                        if (Hms.COMs.check(ctype).isDynamic(eleCom)) {
+                            pageOutputNames.put(rph, o.name() + ".wnml");
+                            return;
+                        }
+                    }
+
+                    // 走到这里，说明是一个静态页面
+                    pageOutputNames.put(rph, o.name() + ".html");
+                }
+            }
+        }, WalkMode.LEAF_ONLY);
     }
 
     public HmTemplate getTemplate(String templateName) {

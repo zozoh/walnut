@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.hmaker.hdl;
 
-import org.nutz.lang.Files;
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
@@ -13,6 +14,7 @@ import org.nutz.walnut.ext.hmaker.skin.HmSkinInfo;
 import org.nutz.walnut.ext.hmaker.template.HmTemplate;
 import org.nutz.walnut.ext.hmaker.util.HmContext;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
+import org.nutz.walnut.ext.hmaker.util.Hms;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -79,14 +81,16 @@ public class hmaker_publish implements JvmHdl {
         Stopwatch sw = Stopwatch.begin();
 
         // ------------------------------------------------------------
+        // 预先分析整个站点，看看哪些页面是动态网页，哪些是静态的
+        hpc.preparePages();
+        log.info("preparePages:" + Json.toJson(hpc.pageOutputNames, JsonFormat.full()));
+
+        // ------------------------------------------------------------
         // 准备文件处理逻辑
         Callback<WnObj> callback = new Callback<WnObj>() {
             public void invoke(WnObj o) {
-                // 根据扩展名判断
-                String suffixName = Strings.sNull(Files.getSuffixName(o.path()), "").toLowerCase();
-
-                // 如果是网页，转换
-                if (suffixName.matches("^html?$")) {
+                // 没有后缀，且类型为 "html" 标识着需要转换
+                if (Hms.isNeedTranslate(o)) {
                     log.debug(" read: " + o.name());
                     WnObj oTa = new HmPageTranslating(hpc).translate(o);
                     log.info("   > trans ->: " + oTa.path());

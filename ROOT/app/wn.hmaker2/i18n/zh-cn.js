@@ -77,6 +77,7 @@ define({
                 "move_down"   : "下移",
                 "create"      : "新建",
                 "del"         : "删除",
+                "existsID" : "这个组件ID已经存在"
             },
             "_area" : {
                 "add"   : "添加分栏",

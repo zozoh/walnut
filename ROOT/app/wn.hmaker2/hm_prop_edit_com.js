@@ -26,10 +26,23 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
     //...............................................................
     events:{
         // TODO com 可以修改 ID
-        // "click .hmpc-info em" : function(e){
-        //     //alert($(e.currentTarget).text())
-        //     $z.editIt(e.currentTarget);
-        // },
+        "click .hmpc-info em" : function(e){
+            //alert($(e.currentTarget).text())
+            var UI = this;
+            $z.editIt(e.currentTarget, function(newval, oldval, jEle){
+                var comNewId = $.trim(newval);
+                if(comNewId != oldval) {
+                    console.log("change com ID", comNewId);
+                    // 修改接口
+                    if(UI.uiCom.setComId(comNewId)){
+                        // 通知更新
+                        UI.uiCom.notifyActived();
+                        // 修改显示
+                        jEle.text(comNewId);
+                    }
+                }
+            });
+        },
         // 显示皮肤选择器
         "click .hmpc-skin" : function(e) {
             e.stopPropagation();

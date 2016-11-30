@@ -73,9 +73,9 @@ var methods = {
         UI.fire("active:page");
 
         // 模拟第一个块被点击
-        window.setTimeout(function(){
-            UI._C.iedit.$body.find(".hm-com").eq(1).click();
-        }, 500);
+        // window.setTimeout(function(){
+        //     UI._C.iedit.$body.find(".hm-com").eq(1).click();
+        // }, 500);
     },
     //...............................................................
     // 添加 JS
