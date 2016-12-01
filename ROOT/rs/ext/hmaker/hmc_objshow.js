@@ -33,7 +33,7 @@ $.fn.extend({ "objshow" : function(opt){
         try {
             // 记录数据
             var obj = $z.fromJson(re);
-
+            
             // 没数据
             if(!obj) {
                 $('<div class="api-empty">').text("没有数据").appendTo(jq);

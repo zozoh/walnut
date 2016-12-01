@@ -2,45 +2,43 @@ package org.nutz.walnut.ext.hmaker.util.com;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.nutz.lang.Lang;
-import org.nutz.lang.util.NutMap;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
 public class hmc_navmenu extends AbstractComHanlder {
 
-    private static final NutMap _flex = Lang.map("left:'flex-start',center:'center',right:'flex-end'");
-
     @Override
     protected void _exec(HmPageTranslating ing) {
-        String mode = ing.propPage.getString("mode", "default");
+        // 设置块熟悉
+        ing.addMyRule(null, ing.cssBlock);
 
-        // 准备 CSS
-        NutMap rule = new NutMap();
-
-        // 垂直模式的对齐方式
-        String align = ing.propPage.getString("itemAlign", "left");
-        if ("aside".equals(mode)) {
-            rule.put("text-align", align);
+        // 区域显示
+        if (ing.propCom.is("atype", "toggleArea")) {
+            ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_navmenu_toggle_area.js");
+            ing.addScriptOnLoadf("$('#%s').navmenuToggleArea({target:$('#%s')});", ing.comId, ing.propCom.getString("layoutComId"));
+            
+            // 修改链接项目标签
+            Elements lis = ing.eleCom.getElementsByTag("li");
+            for (Element li : lis) {
+                li.removeAttr("newtab").removeAttr("href");
+            }
         }
-        // 默认水平方式的对齐方式
+        // 默认是 链接模式
         else {
-            rule.put("justify-content", _flex.getString(align, "flex-start"));
+            // 修改链接项目标签
+            Elements lis = ing.eleCom.getElementsByTag("li");
+            for (Element li : lis) {
+                Element a = li.child(0);
+                String href = li.attr("href");
+                href = ing.explainLink(href, false);
+                if (!Strings.isBlank(href))
+                    a.attr("href", href);
+                if ("yes".equals(li.attr("newtab")))
+                    a.attr("target", "_blank");
+                li.removeAttr("newtab").removeAttr("href");
+            }
         }
 
-        // 修改链接项目标签
-        Elements lis = ing.eleCom.getElementsByTag("li");
-        for (Element li : lis) {
-            Element a = li.child(0);
-            String href = li.attr("href");
-            href = ing.explainLink(href);
-            a.attr("href", href);
-            if ("yes".equals(li.attr("newtab")))
-                a.attr("target", "_blank");
-            li.removeAttr("newtab").removeAttr("href");
-        }
-
-        // 设置
-        ing.addMyCss(Lang.map(">.hmc-navmenu>ul", rule));
     }
 
 }

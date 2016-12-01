@@ -192,7 +192,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 gasketName : "form",
                 uiWidth: "all",
                 on_change : function(key, val) {
-                    UI.uiCom.saveBlock("panel", $z.obj(key, val));
+                    UI.uiCom.saveBlock("panel", $z.obj(key, val||""));
                 },
                 fields : UI.__gen_block_fields(blockFields)
             }).render(function(){
@@ -212,7 +212,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         var UI = this;
 
         // 测试用代码
-        UI.arena.find(".hmpb-pos-d em").text("NaN");
+        UI.arena.find(".hmpb-pos-d em").text("unset");
 
         // // margin 
         // new SwitchUI({
@@ -242,6 +242,8 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         var UI = this;
         var re = [];
         for(var key of blockFields) {
+            if(!key)
+                continue;
             if("padding" == key) {
                 re.push({
                     key    : "padding",

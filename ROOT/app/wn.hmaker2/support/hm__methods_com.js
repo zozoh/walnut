@@ -137,6 +137,8 @@ var methods = {
         var UI     = this;
         var jCom   = UI.$el;
         var jW     = jCom.children(".hm-com-W");
+
+        block = block || this.getBlock();
         
         // 更新控件的模式
         jCom.attr({
@@ -227,8 +229,8 @@ var methods = {
     getMyRectCss : function() {
         var rect = $z.rect(this.$el);
         var viewport = this.getMyViewportRect();
-        console.log(rect);
-        console.log(viewport);
+        // console.log(rect);
+        // console.log(viewport);
         return $z.rect_relative(rect, viewport, true);
     },
     //...............................................................
@@ -283,13 +285,10 @@ module.exports = function(uiCom){
     
     // 控件默认的布局属性
     $z.setUndefined(uiCom, "getBlockPropFields", function(block){
-        var re = [];
-        if(block.mode == 'inflow') {
-            re.push("margin");
-        }
-        return re.concat(["padding","border","borderRadius",/*"color",*/
-            "background","boxShadow","overflow",
-        ]);
+        return [block.mode == 'inflow' ? "margin" : null,
+                "padding","border","borderRadius",
+                /*"color",*/ "background",
+                "boxShadow","overflow"];
     });
     
     // 控件的默认布局
@@ -359,7 +358,7 @@ module.exports = function(uiCom){
     });
     
     // 重定义控件的 redraw
-    uiCom.$ui.redraw = function(){
+    var com_redraw = function(){
         // 弱弱的检查一下基础结构
         var jW   = this.$el.children(".hm-com-W");
         if(jW.length == 0)
@@ -370,7 +369,7 @@ module.exports = function(uiCom){
         if(jAss.length == 0) {
             jAss = $(`<div class="hm-com-assist">
                 <div class="hmc-ai" m="H" data-balloon-pos="down" data-balloon="`
-                + uiCom.msg("hmaker.drag.com_tip")
+                + this.msg("hmaker.drag.com_tip")
                 + `"><i class="zmdi zmdi-arrows"></i></div>
                 <div class="hmc-ai rsz-hdl1" m="N"></div>
                 <div class="hmc-ai rsz-hdl1" m="W"></div>
@@ -392,15 +391,25 @@ module.exports = function(uiCom){
         // 绘制外观
         this.paint(this.getData());
     };
+    // 判断一下是针对 Com 实例还是 Com 的定义
+    if(uiCom.$ui) {
+        uiCom.$ui.redraw = com_redraw;
+    } else {
+        uiCom.redraw = com_redraw;
+    }
     
     // 扩展自身属性
     return _.extend(HmMethods(uiCom), methods, {
         // 修改 DOM 的插入点
         findDomParent : function() {
             var jW = this.$el.find(">.hm-com-W");
+
+            // 没有 Wrapper 则插入内容
             if(jW.length == 0) {
                 return $('<div class="hm-com-W">').appendTo(this.$el);
             }
+
+            // 不保持 DOM，则返回 wrapper， ZUI 会重置内容
             if(!this.keepDom)
                 return jW;
         },

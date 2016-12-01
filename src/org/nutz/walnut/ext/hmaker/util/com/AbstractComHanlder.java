@@ -1,9 +1,6 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
-import java.util.regex.Pattern;
-
 import org.jsoup.nodes.Element;
-import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmComHandler;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
@@ -22,7 +19,7 @@ public abstract class AbstractComHanlder implements HmComHandler {
         ing.propBlock = Hms.loadPropAndRemoveNode(ing.eleCom, "hm-prop-block");
 
         // 应用这个布局 CSS
-        this.__apply_block(ing);
+        this.__prepare_block_css(ing);
 
         // 分析控件属性
         ing.propCom = Hms.loadPropAndRemoveNode(ing.eleCom, "hm-prop-com");
@@ -30,15 +27,12 @@ public abstract class AbstractComHanlder implements HmComHandler {
         // 记录当前控件的 ID
         ing.comId = ing.eleCom.attr("id");
 
-        // 将 ".hm-com-W" 解除包裹
-        ing.eleCom.child(0).unwrap();
-
         // 调用子类
         this._exec(ing);
 
     }
 
-    private void __apply_block(HmPageTranslating ing) {
+    private void __prepare_block_css(HmPageTranslating ing) {
         // 准备 css 对象
         ing.cssBlock = new NutMap();
 
@@ -60,17 +54,18 @@ public abstract class AbstractComHanlder implements HmComHandler {
             ing.cssBlock.remove("height");
 
         // 应用这个修改
-        this.applyBlockCss(ing);
+        // this.applyBlockCss(ing);
     }
 
-    protected void applyBlockCss(HmPageTranslating ing) {
-        Pattern p = Pattern.compile("^(position|top|left|right|bottom|width|height|border|margin)$");
-
-        NutMap cssCom = ing.cssBlock.pickBy(p, false);
-        NutMap cssArena = ing.cssBlock.pickBy(p, true);
-
-        ing.addMyCss(Lang.map("", cssCom).setv(">div", cssArena));
-    }
+    // protected void applyBlockCss(HmPageTranslating ing) {
+    // Pattern p =
+    // Pattern.compile("^(position|top|left|right|bottom|width|height|border|margin)$");
+    //
+    // NutMap cssCom = ing.cssBlock.pickBy(p, false);
+    // NutMap cssArena = ing.cssBlock.pickBy(p, true);
+    //
+    // ing.addMyCss(Lang.map("", cssCom).setv(">div", cssArena));
+    // }
 
     protected abstract void _exec(HmPageTranslating ing);
 

@@ -7,14 +7,10 @@ $z.declare([
 //==============================================
 var html = '<div class="ui-arena hmc-columns"></div>';
 //==============================================
-return ZUI.def("app.wn.hm_com_columns", {
+return ZUI.def("app.wn.hm_com_columns", HmComMethods({
     keepDom : true,
     dom     : html,
-    className : "!hm-layout",
-    //...............................................................
-    init : function(){
-        HmComMethods(this);
-    },
+    className : "!hm-layout hm-com-columns",
     //...............................................................
     // 返回属性菜单， null 表示没有属性
     getDataProp : function(){
@@ -23,7 +19,7 @@ return ZUI.def("app.wn.hm_com_columns", {
             uiConf : {}
         };
     }
-});
+}));
 //===================================================================
 });
 })(window.NutzUtil);

@@ -718,11 +718,26 @@ public abstract class AbstractWnTree implements WnTree {
     }
 
     protected void _do_walk_children(WnObj p, final Callback<WnObj> callback) {
-        this.each(Wn.Q.pid(null == p ? getRootId() : p.id()), new Each<WnObj>() {
-            public void invoke(int index, WnObj nd, int length) {
-                callback.invoke(nd);
-            }
-        });
+        List<WnObj> list = this.getChildren(p, null);
+        for (WnObj o : list) {
+            callback.invoke(o);
+        }
+        // // 映射节点，就直接 getChildren 吧
+        // if (p.isMount()) {
+        // List<WnObj> list = this.getChildren(p, null);
+        // for(WnObj o : list){
+        // callback.invoke(o);
+        // }
+        // }
+        // // 其他的就查
+        // else {
+        // this.each(Wn.Q.pid(null == p ? getRootId() : p.id()), new
+        // Each<WnObj>() {
+        // public void invoke(int index, WnObj nd, int length) {
+        // callback.invoke(nd);
+        // }
+        // });
+        // }
     }
 
     @Override

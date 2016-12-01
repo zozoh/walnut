@@ -1,6 +1,18 @@
 define(function (require, exports, module) {
 var methods = {
     //...............................................................
+    events : {
+        // 单击取消高亮模式
+        "click .hm-com-W" : function(e){
+            if(this.isHighlightMode() 
+                && $(e.target).closest('.hm-area[highlight]').length == 0) {
+                e.stopPropagation();
+                this.highlightArea(false);
+                this.notifyDataChange("page");
+            }
+        }
+    },
+    //...............................................................
     paint : function(com) {
         var UI = this;
         
@@ -168,6 +180,10 @@ var methods = {
     getHighlightAreaId : function(){
         var jArea = this.arena.children('[highlight]');
         return jArea.attr("area-id") || null;
+    },
+    // 判断当前控件是否是高亮模式
+    isHighlightMode : function(){
+        return this.$el.attr("highlight-mode");
     },
     // 判断一个区域是否高亮
     isHighlightArea : function(aid) {

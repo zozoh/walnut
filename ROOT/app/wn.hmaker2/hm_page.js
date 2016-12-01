@@ -16,12 +16,13 @@ $z.declare([
 ], function(ZUI, Wn, MenuUI, HmMethods, PageComBarUI, PageSetup){
 //==============================================
 var JS_LIB = { 
-    "@jquery"     : '/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js',
-    "@underscore" : '/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js',
-    "@backbone"   : '/gu/rs/core/js/backbone/backbone-1.1.2/backbone.js',
-    "@vue"        : '/gu/rs/core/js/vue/vue.js',
-    "@zutil"      : '/gu/rs/core/js/nutz/zutil.js',
-    "@dateformat" : '/gu/rs/core/js/ui/dateformat.js',
+    "@jquery"       : '/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js',
+    "@underscore"   : '/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js',
+    "@backbone"     : '/gu/rs/core/js/backbone/backbone-1.1.2/backbone.js',
+    "@vue"          : '/gu/rs/core/js/vue/vue.js',
+    "@alloy_finger" : '/gu/rs/core/js/alloy_finger/alloy_finger.js',
+    "@zutil"        : '/gu/rs/core/js/nutz/zutil.js',
+    "@dateformat"   : '/gu/rs/core/js/ui/dateformat.js',
 };
 //==============================================
 var html = `
@@ -67,7 +68,7 @@ var html = `
                 data-balloon-pos="left" data-balloon-length="medium">
                 <%=hmaker.com.text.icon%>
             </li>
-            <li ctype="image"
+            <li ctype="image" tag-name="A"
                 data-balloon="{{hmaker.com.image.name}} : {{hmaker.com.image.tip}}" 
                 data-balloon-pos="left" data-balloon-length="medium">
                 <%=hmaker.com.image.icon%>
@@ -107,6 +108,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 return;
             //console.log("hm_page::on_change:block:", mode,uiCom.uiName, block);
             uiCom.applyBlock(block);
+
         });
         UI.listenBus("change:com", function(mode, uiCom, com){
             if("page" == mode)
@@ -114,6 +116,9 @@ return ZUI.def("app.wn.hmaker_page", {
             //console.log("hm_page::on_change:com:", mode, uiCom.uiName, com);        
             // 绘制控件
             uiCom.paint(com);
+
+            // 重新应用皮肤
+            UI.invokeSkin("resize");
         });
 
         // 这里分配一个控件序号数组，采用 bitMap，序号从 0 开始一直排列
@@ -121,33 +126,38 @@ return ZUI.def("app.wn.hmaker_page", {
     },
     //...............................................................
     // 分配一个组件需要，并做记录
-    assignComSequanceNumber : function(jCom) {
-        if(!jCom.attr("c_seq")){
-            var UI = this;
-            var i  = 0;
-            // 查找序号表
-            for(;i<UI._com_seq.length;i++){
-                if(!UI._com_seq[i]) {
-                    break;
+    assignComId : function(jCom) {
+        var comId = jCom.attr("id");
+        if(!comId){
+            var ctype = jCom.attr("ctype");
+            // 遍历所有同类控件，找到最大的那个 ID 序号
+            var seq   = 0;
+            var regex = new RegExp("^"+ctype+"_([\\d]+)$");
+            this._C.iedit.$body.find('.hm-com[ctype="'+ctype+'"]').each(function(){
+                var theId = this.id;
+                var m = regex.exec(theId);
+                if(m) {
+                    seq = Math.max(seq, m[1] * 1);
                 }
+            });
+            // 嗯，这应该就是新控件的序号
+            var comId = ctype + "_" + (++seq);
+            // 为了保险，再做个判断
+            while(this._C.iedit.$body.find("#"+comId).length > 0) {
+                comId = ctype + '_' + (++seq);
             }
-            // 增加一个记录
-            UI._com_seq[i] = true;
-            jCom.attr("c_seq", i).prop("id", "com"+i);
-            // 返回这个序号
-            return i;
+            // 设置新 ID
+            jCom.attr("id",comId);
         }
-        // 返回已有序号
-        return jCom.attr("c_seq") * 1;
+        // 返回
+        return comId;
     },
     //...............................................................
     events : {
+        // 插入控件
         "click .hmpg-ibar li[ctype]" : function(e){
-            // 得到组件的类型
-            var ctype = $(e.currentTarget).attr("ctype");
-
-            // 插入控件
-            this.doInsertCom(ctype);
+            var jLi   = $(e.currentTarget);
+            this.doInsertCom(jLi.attr("ctype"), jLi.attr("tag-name"));
         }
     },
     //...............................................................
@@ -171,7 +181,7 @@ return ZUI.def("app.wn.hmaker_page", {
         jCom = jCom.closest(".hm-com");
         
         // 确保有组件序号
-        UI.assignComSequanceNumber(jCom);
+        UI.assignComId(jCom);
 
         // 看看是否之前就绑定过
         var uiId  = jCom.attr("ui-id");
@@ -202,13 +212,14 @@ return ZUI.def("app.wn.hmaker_page", {
         });
     },
     //...............................................................
-    doInsertCom : function(ctype) {
+    doInsertCom : function(ctype, tagName) {
         var UI = this;
         
         // 创建组件的 DOM
-        var jCom = $('<div class="hm-com">').attr({
-            "ctype"   : ctype
-        }).appendTo(UI._C.iedit.$body);
+        var eleCom = UI._C.iedit.doc.createElement(tagName || 'DIV');
+        var jCom = $(eleCom).addClass("hm-com")
+                        .attr("ctype", ctype)
+                            .appendTo(UI._C.iedit.$body);
         
         // 初始化 UI
         UI.bindComUI(jCom, function(uiCom){
@@ -218,6 +229,9 @@ return ZUI.def("app.wn.hmaker_page", {
             
             // 通知激活控件
             uiCom.notifyActived(null);
+
+            // 通知皮肤
+            this.invokeSkin("resize");
             
         });
     },
@@ -246,6 +260,10 @@ return ZUI.def("app.wn.hmaker_page", {
             $z.invoke(uiCom, "on_blur", [nextCom]);
             re.push(uiCom);
         });
+
+        // 应用皮肤
+        this.invokeSkin("resize");
+
         return re.length > 0 ? re[0] : null;
     },
     //...............................................................
@@ -266,14 +284,7 @@ return ZUI.def("app.wn.hmaker_page", {
             }));
     
         // 释放之前的皮肤 JS
-        if(UI._C.SkinJS){
-            $z.invoke(UI._C.SkinJS, "off", [], {
-                doc    : UI._C.iedit.doc,
-                win    : UI._C.iedit.doc.defaultView,
-                root   : UI._C.iedit.root,
-                jQuery : window.jQuery
-            });
-        }
+        UI.invokeSkin("off");
     
         // 加载皮肤声明了 JS
         if(skinInfo.js) {
@@ -282,15 +293,11 @@ return ZUI.def("app.wn.hmaker_page", {
                 skinName : skinName,
             });
             seajs.use(src, function(SkinJS){
-                // 应用
-                $z.invoke(SkinJS, "on", [], {
-                    doc    : UI._C.iedit.doc,
-                    win    : UI._C.iedit.doc.defaultView,
-                    root   : UI._C.iedit.root,
-                    jQuery : window.jQuery
-                });
                 // 记录这个皮肤JS
                 UI._C.SkinJS = SkinJS;
+                // 应用
+                UI.invokeSkin("on");
+                UI.invokeSkin("resize");
             });
         }
 
@@ -344,6 +351,9 @@ return ZUI.def("app.wn.hmaker_page", {
         if(uiCom) {
             uiCom.destroy();
             uiCom.$el.remove();
+
+            // 重新应用皮肤
+            this.invokeSkin("resize");
         }
     },
     //...............................................................
@@ -577,6 +587,7 @@ return ZUI.def("app.wn.hmaker_page", {
                     var uiCom = UI.getActivedCom();
                     if(uiCom){
                         uiCom.appendToArea(null);
+                        UI.invokeSkin("resize");
                     }
                 }
             },{
@@ -655,6 +666,10 @@ return ZUI.def("app.wn.hmaker_page", {
         this.arena.find(".hmpg-frame-load").unbind();
     },
     //...............................................................
+    resize : function() {
+        this.invokeSkin("resize");
+    },
+    //...............................................................
     update : function(o) {
         var UI = this;
 
@@ -704,26 +719,6 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 记录上下文
         UI._C = C;
-
-        // 分析序号表
-        UI._com_seq = [];
-        C.iedit.$body.find(".hm-com").each(function(){
-            var seq = $(this).attr("c_seq") * 1;
-            if(_.isNumber(seq)){
-                // 无效的或者已经存在的序号
-                if(isNaN(seq) || UI._com_seq[seq]) {
-                    $(this).removeAttr("c_seq");
-                }
-                // 记录序号
-                else {
-                    UI._com_seq[seq] = true;
-                }
-            }
-        })
-        // 为所有未分配序号的组件，分配
-        .not("[c_seq]").each(function(){
-            UI.assignComSequanceNumber($(this));
-        });
     },
     //...............................................................
     _reset_context_vars : function(selector) {
@@ -772,6 +767,7 @@ return ZUI.def("app.wn.hmaker_page", {
             var jCom = $(this).attr({
                 "style" : null,
                 "ui-id" : null,
+                "c_seq" : null,
                 "hm-actived" : null
             });
             var jW   = jCom.children(".hm-com-W");
@@ -833,7 +829,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 "::view_text",
                 "~",
                 "::hmaker/pub_site",
-                "::hmaker/pub_current_page",
+                "@::hmaker/pub_current_page",
                 "~",
                 "::hmaker/hm_site_conf",
                 "~",

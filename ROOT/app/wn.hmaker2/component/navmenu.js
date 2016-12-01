@@ -40,11 +40,11 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             this.paint(com);
         },
         // 取消高亮
-        'click .hmc-navmenu' : function(e) {
-            if($(e.target).closest('li').length == 0){
-                this.unselectItem();
-            }
-        },
+        // 'click .hmc-navmenu' : function(e) {
+        //     if($(e.target).closest('li').length == 0){
+        //         this.unselectItem();
+        //     }
+        // },
         // 编辑文字
         'click ul>li[current] a span' : function(e) {
             var UI = this;
@@ -193,7 +193,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     },
     //...............................................................
     updateItem : function(index, item, quiet) {
-        console.log(item)
+        //console.log(item)
         var UI  = this;
         var jLi = UI.$item(index);
         jLi.find("a>span").text(item.text);

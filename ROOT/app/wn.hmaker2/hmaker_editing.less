@@ -88,7 +88,7 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
             > .hmc-ai[m="H"] {
                 top:0; right:0; padding:0;
                 height:@aiH; line-height: @aiH;
-                background: rgba(0,0,0,0.4); color:#FF0;
+                background: rgba(0,0,0,0.6); color:#FF0;
                 cursor: hand; font-size: 8px; opacity: 0.6;
                 transition: 0.5s; overflow: hidden;
                 > i {
@@ -320,9 +320,9 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
 }
 //............................................................
 // columns
-.hm-layout[ctype="columns"] {
+.hm-com-columns {
     > .hm-com-W > .ui-arena {
-        @flex(); justify-content: flex-end;
+        @flex();
         > .hm-area {
             flex: 1 1 auto; @flex();
             min-height: 30px;
@@ -339,7 +339,7 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
         }
     }
 }
-.hm-layout[ctype="columns"][hm-actived] {
+.hm-com-columns[hm-actived] {
     > .hm-com-W > .ui-arena > .hm-area {
         > .hm-area-assist {
             .hma-ai[m="N"]{border-top-width    : 0;}
@@ -352,7 +352,7 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
         > .hm-area-assist > .hma-ai[m="E"]{border-right-width: 0;}
     }
 }
-.hm-layout[ctype="columns"][highlight-mode] {
+.hm-com-columns[highlight-mode] {
     > .hm-com-W .ui-arena > .hm-area[highlight] {
         .hma-ai[m="N"]{border-top-width   : @abW;}
         .hma-ai[m="W"]{border-left-width  : @abW;}
@@ -377,27 +377,25 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
 }
 //............................................................
 // image
-.hm-com[ctype="image"] {display: inline-block;}
-.hmc-image { @noselect();
-    position: relative; 
-    img {border:0;}
-    .hmc-image-link-tip { display: none;
+.hm-com-image {
+    display: inline-block;
+    .hmc-image { @noselect();
+        position: relative; overflow: hidden;
+        img {border:0;}
+        section {position: absolute;}
+    }
+    .hmc-image-link-tip {
         position: absolute; left: @d0; top:@d0;
-        color:#FFF; background: rgba(0,0,0,0.3);
+        color:#FFF; background: rgba(0,0,0,0.4);
         padding:@d2; border-radius: 50%; 
     }
-    .hmc-image-txt { display: none;
-        position: absolute; padding: @d2;
-    }
 }
-.hmc-image[image-href] .hmc-image-link-tip {display: block;}
-.hmc-image[show-txt]   .hmc-image-txt      {display: block;}
 //............................................................
 // Text
 .hm-com-text{
     cursor: pointer;
     .hmc-text-tipicon {
-        position: absolute; top:0; left: 0; padding:@d3;
+        position: absolute; top:0; left: 0; padding:@d0;
         background: rgba(0,0,0,0.3); color:#FFF;
         display: none;
         > i {margin: 0 @d2 0 0; font-size:@f4;}

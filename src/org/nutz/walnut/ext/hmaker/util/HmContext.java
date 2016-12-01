@@ -41,6 +41,7 @@ public class HmContext {
     /**
      * 站点皮肤
      */
+    public WnObj oSkinHome;
     public WnObj oSkinCss;
     public WnObj oSkinJs;
     public HmSkinInfo skinInfo;
@@ -78,6 +79,7 @@ public class HmContext {
         this.oHome = hpc.oHome;
         this.oDest = hpc.oDest;
         this.oConfHome = hpc.oConfHome;
+        this.oSkinHome = hpc.oSkinHome;
         this.oSkinCss = hpc.oSkinCss;
         this.oSkinJs = hpc.oSkinJs;
         this.skinInfo = hpc.skinInfo;
@@ -135,18 +137,22 @@ public class HmContext {
     }
 
     public boolean hasSkin() {
-        return null != skinInfo && null != oSkinCss;
+        return null != oSkinHome && null != skinInfo && null != oSkinCss;
     }
 
     public String getRelativePath(WnObj o) {
         return Disks.getRelativePath(oHome.path(), o.path());
     }
 
+    public String getRelativeDestPath(WnObj oTa) {
+        return Disks.getRelativePath(oDest.path(), oTa.path());
+    }
+
     public String getRelativePath(WnObj oBase, WnObj o) {
         String phBase = this.getTargetRelativePath(oBase);
         String phObj = this.getTargetRelativePath(o);
 
-        return Disks.getRelativePath(phBase, phObj);
+        return Disks.getRelativePath(phBase, phObj, o.isDIR() ? "" : o.name());
     }
 
     public String getTargetRelativePath(WnObj o) {

@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
@@ -21,15 +22,20 @@ public class hmc_objlist extends AbstractDynamicContentCom {
 
     @Override
     protected void _exec(HmPageTranslating ing) {
+        // 应用块 CSS
+        ing.addMyRule(null, ing.cssBlock);
+
         // JS 控件的配置项目
-        NutMap conf = ing.propPage;
+        NutMap conf = ing.propCom;
 
         // 确保页面输出是 wnml
         ing.markPageAsWnml();
 
         // 生成 DOM 结构
-        ing.eleCom.append("<div class=\"hmc-objlist hmc-dds\"><div class=\"hmc-objlist-list\"></div></div>");
+        Element eleW = ing.eleCom.child(0).empty();
+        eleW.append("<div class=\"hmc-objlist hmc-dds\"><div class=\"hmc-objlist-list\"></div></div>");
 
+        // 设置内容
         this._setup_dynamic_content(ing, conf);
 
         // 生成 JS 代码片段，并计入转换上下文

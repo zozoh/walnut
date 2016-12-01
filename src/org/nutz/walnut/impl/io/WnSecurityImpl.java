@@ -14,14 +14,17 @@ public class WnSecurityImpl extends AbstractWnSecurity {
 
     private WnUsrService usrs;
 
+    private WnEvalLink _eval_link;
+
     public WnSecurityImpl(WnIo io, WnUsrService usrs) {
         super(io);
         this.usrs = usrs;
+        this._eval_link = new WnEvalLink(io);
     }
 
     @Override
     public WnObj enter(WnObj nd, boolean asNull) {
-        return Wn.WC().security(null, new Proton<WnObj>() {
+        return Wn.WC().security(_eval_link, new Proton<WnObj>() {
             protected WnObj exec() {
                 WnObj o = __eval_obj(nd);
                 return __do_check(o, Wn.Io.RX, asNull);
@@ -31,7 +34,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
 
     @Override
     public WnObj access(WnObj nd, boolean asNull) {
-        return Wn.WC().security(null, new Proton<WnObj>() {
+        return Wn.WC().security(_eval_link, new Proton<WnObj>() {
             protected WnObj exec() {
                 return __do_check(nd, Wn.Io.R, asNull);
             }
@@ -40,7 +43,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
 
     @Override
     public WnObj read(WnObj nd, boolean asNull) {
-        return Wn.WC().security(null, new Proton<WnObj>() {
+        return Wn.WC().security(_eval_link, new Proton<WnObj>() {
             protected WnObj exec() {
                 WnObj o = __eval_obj(nd);
                 return __do_check(o, Wn.Io.R, asNull);
@@ -50,7 +53,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
 
     @Override
     public WnObj write(WnObj nd, boolean asNull) {
-        return Wn.WC().security(null, new Proton<WnObj>() {
+        return Wn.WC().security(_eval_link, new Proton<WnObj>() {
             protected WnObj exec() {
                 WnObj o = __eval_obj(nd);
                 return __do_check(o, Wn.Io.W, asNull);
@@ -60,7 +63,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
 
     @Override
     public WnObj meta(WnObj nd, boolean asNull) {
-        return Wn.WC().security(null, new Proton<WnObj>() {
+        return Wn.WC().security(_eval_link, new Proton<WnObj>() {
             protected WnObj exec() {
                 return __do_check(nd, Wn.Io.W, false);
             }
@@ -69,7 +72,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
 
     @Override
     public WnObj remove(WnObj nd, boolean asNull) {
-        return Wn.WC().security(null, new Proton<WnObj>() {
+        return Wn.WC().security(_eval_link, new Proton<WnObj>() {
             protected WnObj exec() {
                 // 父目录可写可访问
                 if (nd.hasParent())

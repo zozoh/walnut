@@ -32,7 +32,7 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
             $z.editIt(e.currentTarget, function(newval, oldval, jEle){
                 var comNewId = $.trim(newval);
                 if(comNewId != oldval) {
-                    console.log("change com ID", comNewId);
+                    //console.log("change com ID", comNewId);
                     // 修改接口
                     if(UI.uiCom.setComId(comNewId)){
                         // 通知更新

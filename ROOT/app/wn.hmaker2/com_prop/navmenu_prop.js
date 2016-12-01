@@ -83,6 +83,11 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
 
             UI.uiCom.selectItem(index);
         },
+        // 取消高亮
+        'click .cnavmp-item[current] [key="link-icon"]' : function(e) {
+            e.stopPropagation();
+            this.uiCom.unselectItem();
+        },
         // 区域显示: 默认高亮项目
         'click .cnavmp-item > span[key="toar-icon"]' : function(e) {
             e.stopPropagation();

@@ -4,54 +4,54 @@ import org.jsoup.nodes.Element;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
 public class hmc_image extends AbstractComHanlder {
 
     @Override
     protected void _exec(HmPageTranslating ing) {
-        // 区域属性
-        ing.eleCom.attr("style","position:relative;width:100%; height:100%;");
+
+        // 建立包裹的 DIV
+        Element eleDiv = ing.eleCom.child(0).addClass("hmc-image");
 
         // 图片属性
-        ing.eleCom.append("<div class=\"hmc-image-pic\"></div>");
-        NutMap css = __gen_img_css(ing);
-        ing.addMyCss(Lang.map("> .hmc-image-pic", css));
-        
-        // 图片样式
-
-        // 超链接
-        String tagName = "DIV";
-        if (ing.propPage.has("href")) {
-            String href = ing.propPage.getString("href");
-            Element eleA = ing.eleCom.ownerDocument()
-                                     .createElement("A")
-                                     .attr("href", href)
-                                     .text(" ");
-            ing.eleCom.appendChild(eleA);
-            ing.addMyCss(Lang.map(" > a",
-                                  Lang.map("top:0,left:0,right:0,bottom:0")
-                                      .setv("position", "absolute")
-                                      .setv("display", "block")));
+        NutMap cssImg = ing.cssBlock.pickAndRemove("width", "height", "border", "borderRadius");
+        String objectFit = ing.propCom.getString("objectFit");
+        if (!"fill".equals(objectFit)) {
+            cssImg.put("objectFit", objectFit);
         }
 
+        // 图片包裹
+        NutMap cssArena = ing.cssBlock.pickAndRemove("background", "boxShadow");
+        if (cssImg.has("borderRadius"))
+            cssArena.put("borderRadius", cssImg.get("borderRadius"));
+
+        // 增加规则
+        ing.addMyRule(null, ing.cssBlock);
+        ing.addMyRule(".hmc-image", cssArena);
+        ing.addMyRule("img", cssImg);
+
+        // 图片源
+        String src = ing.propCom.getString("src");
+        src = ing.explainLink(src, true);
+        eleDiv.appendElement("img").attr("src", src);
+
+        // 超链接
+        String href = ing.propCom.getString("href");
+        href = ing.explainLink(href, false);
+        if (!Strings.isBlank(href))
+            ing.eleCom.attr("href", href);
+
         // 文字属性
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // 准备更新文本样式
-        NutMap txt = ing.propPage.getAs("text", NutMap.class);
+        NutMap txt = ing.propCom.getAs("text", NutMap.class);
         String content = null == txt ? null : txt.getString("content");
         if (null != content) {
-            css = __gen_txt_css(txt);
+            // 设置文字
+            eleDiv.appendElement("section").text(content);
 
-            // 设置文本显示
-            Element eleTxt = ing.eleCom.ownerDocument()
-                                       .createElement(tagName)
-                                       .addClass("hmc-image-txt")
-                                       .text(content);
-            ing.eleCom.prependChild(eleTxt);
-            ing.addMyCss(Lang.map(" > .hmc-image-txt", css));
+            // 处理 css
+            NutMap cssTxt = __gen_txt_css(txt);
+            ing.addMyRule("section", cssTxt);
         }
     }
 
@@ -110,69 +110,6 @@ public class hmc_image extends AbstractComHanlder {
         css.put("textShadow", txt.getString("textShadow", ""));
 
         // 返回
-        return css;
-    }
-
-    private NutMap __gen_img_css(HmPageTranslating ing) {
-        // 得到属性
-        String src = ing.propPage.getString("src");
-
-        // 准备 CSS
-        NutMap css = ing.propPage.pick("width", "height");
-        css.putDefault("width", "100%");
-        css.putDefault("height", "100%");
-
-        // 处理图片路径
-        if (!Strings.isBlank(src)) {
-            // https?:// 开头的直接抄吧
-            if (src.matches("^https?://")) {
-                css.put("background-image", "url('" + src + "')");
-            }
-            // 其他指向某图片文件
-            else {
-                // 得到这个图片文件
-                WnObj oImg;
-
-                // 从站点根开始
-                if (src.startsWith("/")) {
-                    oImg = ing.io.fetch(ing.oHome, src.substring(1));
-                }
-                // 否则从当前网页的目录开始查找
-                else {
-                    oImg = ing.io.fetch(ing.oSrc, src);
-                }
-
-                // 没找到图片，那么抱歉，抛错
-                if (null == oImg) {
-                    if (ing.strict)
-                        throw Er.create("e.cmd.hmaker.publish.hmc_image.noexists", src);
-                }
-                // 找到了图片
-                else {
-                    String rph = ing.getRelativePath(ing.oSrc, oImg);
-                    css.put("background-image", "url('" + rph + "')");
-                    // 计入要 copy 的资源
-                    ing.resources.add(oImg);
-                }
-            }
-        }
-
-        // 处理缩放
-        String scale = ing.propPage.getString("scale", "");
-        switch (scale) {
-        case "contain":
-        case "cover":
-            css.put("background-repeat", "no-repeat");
-            css.put("background-size", scale);
-            css.put("background-position", "center center");
-            break;
-        case "tile":
-            css.put("background-repeat", "repeat");
-            break;
-        default:
-            css.put("background-repeat", "no-repeat");
-            css.put("background-size", "100% 100%");
-        }
         return css;
     }
 

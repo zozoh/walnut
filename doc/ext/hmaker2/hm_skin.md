@@ -47,6 +47,11 @@ tags:
      其中每个函数的 this 都是这样的上下文对象
      
     {
+        // 标示皮肤运行环境
+        // "IDE" 表示编辑器内，其他值就全当在真正的环境下好了
+        // ! 大小写敏感
+        mode   : "IDE",
+
         win    : window,           // 皮肤需要应用的 window 对象 
         doc    : document,         // 皮肤需要应用的文档对象
         root   : documentElement,  // 文档对象根节点
@@ -55,10 +60,11 @@ tags:
 
      * 在运行时，就是页面加载的时候，在编辑器里，就是每次皮肤被应用的时候
      * ! 注: skin 里面的 JS 应该自行判断当前的环境是否为编辑环境
-     * ! 判断的依据为  <html hmaker="2.0">
-     * ! 在运行时，这个 JS 可以使用 jQuery 库，其他的库暂不支持
+     * ! 判断的依据为  this.mode == "IDE" 
+     * ! 在运行时，这个 JS 可以使用 jQuery|zuitl|underscore 库，其他的库
+     * ! 必须在这个数组里声明，比如 "@alloy_finger" 手势库或者 "@vue" 等
      */
-    js : false,
+    js : ["@jquery", "@alloy_finger"],
     
     // 针对各个控件的可选样式，用户可以在界面上为控件附加上皮肤的类选择器
     // 因为各个控件的 DOM 结构已知，所以皮肤的 css 可以针对各个层级产生作用

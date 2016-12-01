@@ -72,6 +72,9 @@ var methods = {
         // 通知网页被加载
         UI.fire("active:page");
 
+        // 更新皮肤
+        UI.doChangeSkin();
+
         // 模拟第一个块被点击
         // window.setTimeout(function(){
         //     UI._C.iedit.$body.find(".hm-com").eq(1).click();
@@ -135,7 +138,7 @@ var methods = {
         // 首先所有元素的点击事件，全部禁止默认行为
         UI._C.iedit.$root.on("click", "*", function(e){
             e.preventDefault();
-            //console.log("hm_page.js: click", this.tagName, this.className, e.target);
+            // console.log("hm_page.js: click", this.tagName, this.className, e.target);
 
             var jq = $(this);
 
@@ -148,16 +151,18 @@ var methods = {
                     return;
                 
                 // 如果控件再一个 highlight-mode 的布局里面
-                // 那么应该激活这个布局，
                 var jHMLayout = jq.closest(".hm-layout[highlight-mode]");
                 if(jHMLayout.length > 0) {
-                    jq = jHMLayout;
+                    // 控件不在高亮区域内
+                    // 那么应该激活这个布局，
+                    if(jq.closest('.hm-area[highlight]').length == 0)
+                        jq = jHMLayout;
                 }
                 
                 // 得到组件的 UI
                 var uiCom = ZUI(jq);
                 
-                // console.log("uiCom", uiCom.uiName);
+                //console.log("uiCom", uiCom.uiName, uiCom.$el);
                 
                 // 快速切换页面的时候会出现异步的问题
                 // 防守一道
@@ -196,14 +201,20 @@ var methods = {
         if(!UI._C.iedit.doc.defaultView.hm_resize_binded){
             UI._C.iedit.doc.defaultView.hm_resize_binded = true;
             $(UI._C.iedit.doc.defaultView).resize(function(){
-                if(UI._C.SkinJS){
-                    $z.invoke(UI._C.SkinJS, "on_resize", [], {
-                        doc    : UI._C.iedit.doc,
-                        win    : UI._C.iedit.doc.defaultView,
-                        root   : UI._C.iedit.root,
-                        jQuery : window.jQuery
-                    });
-                }
+                UI.invokeSkin("resize");
+            });
+        }
+    },
+    //...............................................................
+    invokeSkin : function(method){
+        var UI = this;
+        if(UI._C && UI._C.SkinJS){
+            $z.invoke(UI._C.SkinJS, method, [], {
+                mode   : "IDE",
+                doc    : UI._C.iedit.doc,
+                win    : UI._C.iedit.doc.defaultView,
+                root   : UI._C.iedit.root,
+                jQuery : window.jQuery,
             });
         }
     },
@@ -386,10 +397,12 @@ var methods = {
                 if(!this.__is_for_drop) {
                     this.uiCom.setBlock(this.comBlock);
                 }
+                // 重新应用皮肤
+                UI.invokeSkin("resize");
             },
             // 拖拽到了一个目标，执行修改
             on_drop : function(jAreaCon) {
-                console.log("drop to ", jAreaCon);
+                //console.log("drop to ", jAreaCon);
                 this.uiCom.appendToArea(jAreaCon);
             }
         });

@@ -160,19 +160,16 @@ public final class Hms {
      * 
      * @see #genCssRuleText(Map)
      */
-    @SuppressWarnings("unchecked")
-    public static String genCssText(HmPageTranslating ing, NutMap css, String prefix) {
+    public static String genCssText(HmPageTranslating ing, Map<String, NutMap> css, String prefix) {
         prefix = Strings.isBlank(prefix) ? "" : prefix + " ";
         String re = "";
-        for (Map.Entry<String, Object> en : css.entrySet()) {
+        for (Map.Entry<String, NutMap> en : css.entrySet()) {
             String selector = en.getKey();
-            Object val = en.getValue();
-            if (val instanceof Map<?, ?>) {
-                NutMap rule = NutMap.WRAP((Map<String, Object>) val);
-                re += prefix + selector;
-                re += genCssRuleText(ing, rule);
-                re += "\n";
-            }
+            NutMap rule = en.getValue();
+
+            re += prefix + Strings.sNull(selector, "");
+            re += genCssRuleText(ing, rule);
+            re += "\n";
         }
         return re;
     }

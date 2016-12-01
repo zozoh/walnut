@@ -83,6 +83,13 @@ return ZUI.def("app.wn.hm_com_text", {
         UI.arena.css(com);
     },
     //...............................................................
+    getBlockPropFields : function(block) {
+        return [block.mode == 'inflow' ? "margin" : null,
+                "padding","border","borderRadius",
+                "color", "background",
+                "boxShadow","overflow"];
+    },
+    //...............................................................
     getDefaultData : function(){
         return {
             "lineHeight" : ".24rem",

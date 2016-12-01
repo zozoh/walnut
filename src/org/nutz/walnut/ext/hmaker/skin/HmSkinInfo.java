@@ -10,6 +10,8 @@ public class HmSkinInfo {
 
     public Map<String, String> template;
 
+    public String[] js;
+
     public String getSkin(String templateName) {
         if (null != template)
             return template.get(templateName);

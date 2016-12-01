@@ -343,7 +343,8 @@ public class WWWModule extends AbstractWnModule {
                     log.debugf(" - www.D (%s)@%s : %s", o.id(), usr, a_path);
             }
             // 输出吧
-            return new WnObjDownloadView(io, o, ua);
+            WnObj o2 = Wn.WC().whenRead(o, false);
+            return new WnObjDownloadView(io, o2, ua);
 
         }
         catch (Exception e) {

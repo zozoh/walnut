@@ -68,10 +68,10 @@ public class hmaker_publish implements JvmHdl {
         // 读取皮肤，如果有的话
         String skinName = hpc.oHome.getString("hm_site_skin");
         if (!Strings.isBlank(skinName)) {
-            WnObj oSkin = Wn.checkObj(sys, "~/.hmaker/skin/" + skinName);
-            hpc.oSkinJs = sys.io.fetch(oSkin, "skin.js");
-            hpc.oSkinCss = sys.io.check(oSkin, "skin.css");
-            WnObj oSkinInfo = sys.io.check(oSkin, "skin.info.json");
+            hpc.oSkinHome = Wn.checkObj(sys, "~/.hmaker/skin/" + skinName);
+            hpc.oSkinJs = sys.io.fetch(hpc.oSkinHome, "skin.js");
+            hpc.oSkinCss = sys.io.check(hpc.oSkinHome, "skin.css");
+            WnObj oSkinInfo = sys.io.check(hpc.oSkinHome, "skin.info.json");
             hpc.skinInfo = sys.io.readJson(oSkinInfo, HmSkinInfo.class);
         }
 
@@ -116,11 +116,13 @@ public class hmaker_publish implements JvmHdl {
         // ------------------------------------------------------------
         // 将站点用到的模板 copy 过去
         if (!hpc.templates.isEmpty()) {
+            log.info("copy template:");
             WnObj oTaTmpl = hpc.createTarget("template", WnRace.DIR);
             for (HmTemplate tmpl : hpc.templates.values()) {
                 WnObj oTaTmplJs = sys.io.createIfNoExists(oTaTmpl,
                                                           tmpl.info.name + ".js",
                                                           WnRace.FILE);
+                log.info(" + " + hpc.getRelativeDestPath(oTaTmplJs));
                 Wn.Io.copyFile(sys.io, tmpl.oJs, oTaTmplJs);
             }
         }
@@ -128,24 +130,49 @@ public class hmaker_publish implements JvmHdl {
         // ------------------------------------------------------------
         // 将皮肤目录关键文件 copy 过去
         if (hpc.hasSkin()) {
+            log.info("copy skin:");
             WnObj oTaSkin = hpc.createTarget("skin", WnRace.DIR);
 
-            // 如果没有 JS 删除
-            if (hpc.oSkinJs == null) {
-                // JS
-                WnObj oTaSkinJs = sys.io.fetch(oTaSkin, "skin.js");
-                if (null != oTaSkinJs)
-                    sys.io.delete(oTaSkinJs);
+            // 删除旧 JS
+            WnObj oTaSkinJs = sys.io.fetch(oTaSkin, "skin.js");
+            if (null != oTaSkinJs) {
+                log.info(" -  delete old: " + hpc.getRelativeDestPath(oTaSkinJs));
+                sys.io.delete(oTaSkinJs);
             }
-            // Copy JS
-            else {
-                WnObj oTaSkinJs = sys.io.createIfNoExists(oTaSkin, "skin.js", WnRace.FILE);
+
+            // 添加新 JS
+            if (null != hpc.oSkinJs) {
+                log.info(" +     add new: " + hpc.getRelativeDestPath(oTaSkinJs));
+                oTaSkinJs = sys.io.createIfNoExists(oTaSkin, "skin.js", WnRace.FILE);
                 Wn.Io.copyFile(sys.io, hpc.oSkinJs, oTaSkinJs);
             }
 
-            // Copy CSS
-            WnObj oTaSkinCss = sys.io.createIfNoExists(oTaSkin, "skin.css", WnRace.FILE);
+            // 删除旧 CSS
+            WnObj oTaSkinCss = sys.io.fetch(oTaSkin, "skin.css");
+            if (null != oTaSkinCss) {
+                log.info(" -  delete old: " + hpc.getRelativeDestPath(oTaSkinCss));
+                sys.io.delete(oTaSkinCss);
+            }
+
+            // 添加新 CSS
+            log.info(" +     add new: " + hpc.getRelativeDestPath(oTaSkinJs));
+            oTaSkinCss = sys.io.createIfNoExists(oTaSkin, "skin.css", WnRace.FILE);
             Wn.Io.copyFile(sys.io, hpc.oSkinCss, oTaSkinCss);
+
+            // Copy 其他资源
+            sys.io.walk(hpc.oSkinHome, new Callback<WnObj>() {
+                public void invoke(WnObj oki) {
+                    // 处理过了无视
+                    if (oki.name().matches("^(skin.(less|css|info.json|js))$")) {
+                        return;
+                    }
+                    // 来吧 ..
+                    String rph = hpc.getRelativePath(hpc.oSkinHome, oki);
+                    WnObj oTi = sys.io.createIfNoExists(oTaSkin, rph, WnRace.FILE);
+                    log.info(" ++ > " + hpc.getRelativeDestPath(oTi));
+                    Wn.Io.copyFile(sys.io, oki, oTi);
+                }
+            }, WalkMode.LEAF_ONLY);
         }
         // ------------------------------------------------------------
         // 最后处理所有依赖的资源: copy 它们
