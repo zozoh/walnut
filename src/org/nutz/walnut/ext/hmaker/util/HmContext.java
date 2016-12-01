@@ -104,7 +104,7 @@ public class HmContext {
                     Document doc = Jsoup.parse(html);
 
                     // 遍历全部控件
-                    Elements eleComs = doc.getElementsByClass(".hm-com");
+                    Elements eleComs = doc.getElementsByClass("hm-com");
                     for (Element eleCom : eleComs) {
                         // 得到控件类型
                         String ctype = eleCom.attr("ctype");
