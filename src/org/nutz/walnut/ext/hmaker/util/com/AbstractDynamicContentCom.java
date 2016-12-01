@@ -14,6 +14,8 @@ public abstract class AbstractDynamicContentCom extends AbstractComHanlder {
     private static final Pattern _P_D_PARAMS = Pattern.compile("^@([\\w\\d_-]+)(<(.+)>)?$");
 
     protected void _setup_dynamic_content(HmPageTranslating ing, NutMap conf) {
+        ing.markPageAsWnml();
+        
         // 得到 api 的URL
         String API = "/api/" + ing.oHome.d1();
         if (conf.has("api")) {
