@@ -103,16 +103,30 @@ return ZUI.def("app.wn.hmaker_resource", {
         // 记录根节点
         UI.rootId = o.id;
 
+        var _list = function(o, callback) {
+            Wn.exec('obj -match \'pid:"'+o.id+'"\' -sort "race:1,nm:1" -json -l',
+            function(re){
+                console.log(re)
+                var list = $z.fromJson(re);
+                callback(list);
+            })
+        };
+
         // 生成 TreeUI
         UI.uiTree = new TreeUI({
             parent     : UI,
             gasketName : "body",
             tops : function(callback){
                 var rootObj = Wn.getById(UI.rootId);
-                Wn.getChildren(rootObj, null, callback, true);
+                _list(o, callback);
             },
             children : function(o, callback){
-                Wn.getChildren(o, null, callback);
+                //Wn.getChildren(o, null, callback);
+                Wn.exec('obj -match \'pid:"'+o.id+'"\' -sort "race:1" -json -l', function(re){
+                    console.log(re)
+                    var list = $z.fromJson(re);
+                    callback(list);
+                })
             },
             idKey : "id",
             nmKey : "nm",
