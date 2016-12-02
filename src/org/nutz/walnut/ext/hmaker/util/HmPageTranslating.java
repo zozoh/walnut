@@ -379,6 +379,14 @@ public class HmPageTranslating extends HmContext {
             return link;
         }
 
+        // 分析链接是否包含参数
+        int pos = link.indexOf('?');
+        String params = null;
+        if (pos > 0) {
+            params = link.substring(pos);
+            link = link.substring(0, pos);
+        }
+
         // 就是指向一个文件咯
         WnObj oLink;
 
@@ -402,9 +410,11 @@ public class HmPageTranslating extends HmContext {
 
         // 返回相对链接对应的页面
         String pageName = this.pageOutputNames.get(rph);
-        if (Strings.isBlank(pageName))
-            return rph;
-        return Files.renamePath(rph, pageName);
+        if (!Strings.isBlank(pageName))
+            rph = Files.renamePath(rph, pageName);
+
+        // 返回
+        return null == params ? rph : rph + params;
     }
 
 }
