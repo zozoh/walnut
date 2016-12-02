@@ -169,6 +169,9 @@ public class HmPageTranslating extends HmContext {
         // 清空页面的头
         doc.head().empty();
         // ---------------------------------------------------
+        // 删除自己和下属所有节点的 style 属性
+        doc.body().getElementsByAttribute("style").removeAttr("style");
+        // ---------------------------------------------------
         // 添加必要的元数据
         doc.head().append("<meta charset=\"utf-8\">");
         doc.head()

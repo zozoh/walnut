@@ -12,5 +12,9 @@ $(function(){
         window.addEventListener("resize", function(){
             skin.resize.call(skinContext);
         });
+        
+        window.addEventListener("orientationchange", function(){
+            skin.resize.call(skinContext);
+        });
     });
 });

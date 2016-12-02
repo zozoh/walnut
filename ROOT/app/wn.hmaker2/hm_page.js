@@ -761,11 +761,13 @@ return ZUI.def("app.wn.hmaker_page", {
             "style" : null
         });
 
+        // 删除全部的 style 属性
+        C.iload.$body.find("[style]").removeAttr("style");
+
         // 处理所有的控件，删掉临时属性和辅助节点
         C.iload.$body.find(".hm-com").each(function(){
             // 删掉临时的 style 样式
             var jCom = $(this).attr({
-                "style" : null,
                 "ui-id" : null,
                 "c_seq" : null,
                 "hm-actived" : null

@@ -23,7 +23,7 @@ public abstract class AbstractComHanlder implements HmComHandler {
 
         // 分析控件属性
         ing.propCom = Hms.loadPropAndRemoveNode(ing.eleCom, "hm-prop-com");
-
+        
         // 记录当前控件的 ID
         ing.comId = ing.eleCom.attr("id");
 
