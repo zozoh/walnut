@@ -153,6 +153,10 @@ function set_event_XY(pmvContext, e) {
 }
 //...........................................................
 function stop_pmoving(pmvContext) {
+    // 调用结束事件
+    var opt = pmvContext.options;
+    $z.invoke(opt, "on_end", [], pmvContext);
+
     // 移除监听事件
     pmvContext.$scroll.off("scroll", on_viewport_scroll);
     
@@ -194,7 +198,6 @@ function on_mask_mouseup(e) {
 
         // 回调: 通知鼠标移动以及结束
         $z.invoke(opt, "on_ing", [], pmvContext);
-        $z.invoke(opt, "on_end", [], pmvContext);
 
         // 找到可被放置的对象，调用 on_drop 回调
         if(!pmvContext.$mask.attr("no-drag") && _.isArray(pmvContext.dropping)) {

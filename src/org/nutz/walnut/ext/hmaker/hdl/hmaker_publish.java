@@ -2,9 +2,13 @@ package org.nutz.walnut.ext.hmaker.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Each;
+import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WalkMode;
@@ -93,7 +97,7 @@ public class hmaker_publish implements JvmHdl {
                 if (Hms.isNeedTranslate(o)) {
                     log.debug(" read: " + o.name());
                     WnObj oTa = new HmPageTranslating(hpc).translate(o);
-                    log.info("   > trans ->: " + oTa.path());
+                    log.infof("   >%s trans ->: %s", hpc.getProcessInfoAndDoCount(), oTa.path());
                 }
                 // 其他: copy
                 else {
@@ -122,7 +126,9 @@ public class hmaker_publish implements JvmHdl {
                 WnObj oTaTmplJs = sys.io.createIfNoExists(oTaTmpl,
                                                           tmpl.info.name + ".js",
                                                           WnRace.FILE);
-                log.info(" + " + hpc.getRelativeDestPath(oTaTmplJs));
+                log.infof(" +%s %s",
+                          hpc.getProcessInfoAndDoCount(),
+                          hpc.getRelativeDestPath(oTaTmplJs));
                 Wn.Io.copyFile(sys.io, tmpl.oJs, oTaTmplJs);
             }
         }
@@ -186,7 +192,7 @@ public class hmaker_publish implements JvmHdl {
                 // 执行内容的 copy
                 Wn.Io.copyFile(sys.io, o, oTa);
 
-                log.infof("  ++ %s", oTa.path());
+                log.infof("  ++%s %s", hpc.getProcessInfoAndDoCount(), oTa.path());
             }
         }
         // 没有需要 copy 的资源，啥也不做
@@ -196,8 +202,49 @@ public class hmaker_publish implements JvmHdl {
         // ------------------------------------------------------------
         // 全部输出完成
         sw.stop();
-        log.infof("All done in %dms", sw.getDuration());
+        hpc.markPrcessDone();
+        log.infof("%s All done in %dms", hpc.getProcessInfo(false), sw.getDuration());
 
+        // ------------------------------------------------------------
+        // 输出目标发布地址
+        String page_rph = "";
+        // 只有一页 ...
+        if (oSrc.isFILE()) {
+            String rph = hpc.getRelativePath(oSrc);
+            String fnm = hpc.pageOutputNames.get(rph);
+            page_rph = "/" + Files.renamePath(rph, fnm);
+        }
+
+        // 开始输出吧
+        Object wwwObj = hpc.oDest.get("www");
+        final String protocol = "http";
+
+        // 目标不是发布目录
+        if (null == wwwObj) {
+            log.infof("%%[-1/0] ! not www dir: %s", hpc.oDest.path());
+        }
+        // 目标没有网址，那么采用默认的看看自己的 domain 是什么
+        else if ("ROOT".equals(wwwObj)) {
+            NutMap hmConf = hpc.getConf();
+            String host = hmConf.getString("defaultHost");
+            // 木有!
+            if (Strings.isBlank(host)) {
+                log.infof("%%[-1/0] ! www=ROOT but not host in hmaker.conf");
+            }
+            // 使用
+            else {
+                log.infof("%%[-1/0] %s://%s%s", protocol, host, page_rph);
+            }
+        }
+        // 那么一次输出目标地址
+        else {
+            final String pgurl = page_rph;
+            Lang.each(wwwObj, new Each<String>() {
+                public void invoke(int index, String host, int length) {
+                    log.infof("%%[-1/0] %s://%s%s", protocol, host, pgurl);
+                }
+            });
+        }
     }
 
 }

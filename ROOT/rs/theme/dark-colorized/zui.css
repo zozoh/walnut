@@ -87,19 +87,7 @@ h1,h2,h3,h4,h5,h6{margin:0;padding:0;}
     color: #FF0;
 }
 
-.ui-log {
-    padding:10px; margin:0;
-    width:100%; height:100%; overflow: auto; 
-    background: #000; 
-    font-family: Monaco, Consolas, Courier New;
-    font-size: 13px;
-    -webkit-font-smoothing: auto;
-    white-space: pre-wrap;
-}
-
-.ui-log-info {color:#CCC;}
-.ui-log-err {color:#F00;}
-
+/*--------------------------------------------------- 其他 --------*/
 .fa-combo-icon2 {
     position: relative;
 }

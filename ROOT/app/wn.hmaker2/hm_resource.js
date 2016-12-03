@@ -106,7 +106,6 @@ return ZUI.def("app.wn.hmaker_resource", {
         var _list = function(o, callback) {
             Wn.exec('obj -match \'pid:"'+o.id+'"\' -sort "race:1,nm:1" -json -l',
             function(re){
-                console.log(re)
                 var list = $z.fromJson(re);
                 callback(list);
             })

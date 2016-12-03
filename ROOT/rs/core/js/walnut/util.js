@@ -1,4 +1,7 @@
 define(function (require, exports, module) {
+// 链入的 cSS
+require("theme/ui/support/walnut.css");
+// 声明帮助方法
 var Wn = {
     //=======================================================================
     // 获取当前的 app 的通用方法，不建议 UI 们直接获取 window._app
@@ -202,7 +205,7 @@ var Wn = {
     /*...................................................................
     提供一个通用的文件上传界面
     */
-    uploadPanel: function (options) {
+    uploadPanel: function (opt) {
         var MaskUI    = require("ui/mask/mask");
         var UploadUI  = require("ui/upload/upload");
 
@@ -213,9 +216,9 @@ var Wn = {
             height: 500,
             setup : {
                 uiType : "ui/upload/upload",
-                uiConf : _.extend({}, options)
+                uiConf : _.extend({}, opt)
             }
-        }, options);
+        }, opt);
 
         new MaskUI(mask_options).render();
     },
@@ -265,12 +268,12 @@ var Wn = {
         });
     },
     /*................................................................
-    执行一个命令，并且在一个弹出的日志窗口显示命令的返回情况
+    格式化命令执行面板的参数
      - cmdText  : "xxxx"        # 命令文本
      - maskConf : {..}          # 可选，是弹出的遮罩层的配置信息
      - callback : {c}F(re)      # 可选，命令执行完毕后的回调，参数为命令的返回
     或者，你可以用更精细的方法来调用
-    logpanel({
+    xxxpanel({
        cmdText  : "xxxxx",
        maskConf : {...},
        // .. 下面的参数字段与 exec 相同
@@ -282,60 +285,180 @@ var Wn = {
        // msgShow,msgError,msgEnd 会被本函数覆盖，你设置了也木用
     });
     */
-    logpanel : function(cmdText, maskConf, callback){
-        var options;
+    __fmt_cmd_panel_opt : function(cmdText, maskConf, callback) {
+        var opt;
         // 给入命令文本 
         if(_.isString(cmdText)){
-            options = {cmdText: cmdText};
+            opt = {cmdText: cmdText};
             // 第二个参数是回调
             if(_.isFunction(maskConf)){
-                options.maskConf = {};
-                options.complete = maskConf;
+                opt.maskConf = {};
+                opt.complete = maskConf;
             }
             // 第二个参数就是预先显示的信息
             else if(_.isString(maskConf)) {
-                options.maskConf = {
+                opt.maskConf = {
                     welcome : maskConf
                 };
-                options.complete = callback;
+                opt.complete = callback;
             }
             // 第二个参数是弹出层配置
             else{
-                options.maskConf = maskConf || {};
-                options.complete = callback;
+                opt.maskConf = maskConf || {};
+                opt.complete = callback;
             }
         }
         // 直接就是配置项
         else{
-            options = cmdText;
+            opt = cmdText;
         }
+        // 返回
+        return opt;
+    },
+    //................................................................
+    // 执行一个命令，并且在一个弹出的日志窗口显示命令的返回情况
+    // 参数 See #__fmt_cmd_panel_opt
+    logpanel : function(cmdText, maskConf, callback){
+        // 格式化参数
+        var opt = Wn.__fmt_cmd_panel_opt(cmdText, maskConf, callback);
         // 显示遮罩
         var MaskUI = require('ui/mask/mask');
         new MaskUI(_.extend({
             width : "60%"
-        }, options.maskConf)).render(function(){
-            var jPre = $('<pre class="ui-log">').appendTo(this.$main);
+        }, opt.maskConf)).render(function(){
+            var jPre = $('<pre class="wn-log-panel">').appendTo(this.$main);
             // 预先显示信息
-            if(options.maskConf.welcome) {
-                $('<div>').html(options.maskConf.welcome).appendTo(jPre);
+            if(opt.maskConf.welcome) {
+                $('<div>').html(opt.maskConf.welcome).appendTo(jPre);
             }
             // 执行命令
-            Wn.exec(options.cmdText, _.extend(options, {
+            Wn.exec(opt.cmdText, _.extend(opt, {
                 msgShow : function(str){
-                    $('<div class="ui-log-info">')
+                    $('<div class="msg-info">')
                         .text(str)
                         .appendTo(jPre)[0].scrollIntoView({
                             block: "end", behavior: "smooth"
                         });
                 },
                 msgError : function(str){
-                    $('<div class="ui-log-err">')
+                    $('<div class="msg-err">')
                         .text(str)
                         .appendTo(jPre)[0].scrollIntoView({
                             block: "end", behavior: "smooth"
                         });
                 }
             }));
+        });
+    },
+    //................................................................
+    // 执行一个命令，并且在一个弹出的日志窗口显示命令的进度情况
+    // 参数 See #__fmt_cmd_panel_opt
+    // 所谓进度情况，会根据命令的输出，查看有没有 %[23/78] 这种格式的字符串
+    // 如果有，则表示进度更新
+    // 本面板不同于 logpanel，它显示仅仅是滚动显示单行日志
+    processPanel : function(cmdText, maskConf, callback){
+        // 格式化参数
+        var opt = Wn.__fmt_cmd_panel_opt(cmdText, maskConf, callback);
+        // 显示遮罩
+        var MaskUI = require('ui/mask/mask');
+        new MaskUI(_.extend({
+            width : "60%",
+            events : {
+                'click .wn-process-panel footer' : function(e){
+                    var jP = $(e.currentTarget).closest(".wn-process-panel");
+                    $z.toggleAttr(jP, "show-log");
+                }
+            }
+        }, opt.maskConf)).render(function(){
+            var uiMask = this;
+            // 准备 DOM
+            var jP = $(`<div class="wn-process-panel" st="ing">
+                <header>
+                    <h4>Processing ... </h4>
+                    <div st="ing"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
+                    <div st="ok"><i class="zmdi zmdi-check-circle"></i></div>
+                    <div st="fail"><i class="zmdi zmdi-alert-triangle"></i></div>
+                </header>
+                <section>
+                    <div class="wpp-bar"><em>0%</em><b><i style="width:0%;"></i></b></div>
+                    <div class="wpp-msg"></div>
+                </section>
+                <pre></pre>
+                <footer>
+                    <i class="zmdi zmdi-alert-circle"></i>
+                    <i class="zmdi zmdi-format-subject"></i>
+                </footer>
+            </div>`).appendTo(this.$main);
+
+            // 得到关键的 DOM 节点
+            var jStatus = jP.find("header");
+            var jSec    = jP.find("section");
+            var jMsg    = jP.find(".wpp-msg");
+            var jBar    = jP.find(".wpp-bar");
+            var jBarEm  = jP.find(".wpp-bar > em");
+            var jBarIn  = jP.find(".wpp-bar > b > i");
+            var jPre    = jP.find("pre");
+
+            // 收集 100% 后面的输出
+            var res = [];
+
+            // 预先显示信息
+            if(opt.maskConf.welcome) {
+                jStatus.find("h4").html(opt.maskConf.welcome);
+            }
+            
+            // 执行命令
+            Wn.exec(opt.cmdText, {
+                msgShow : function(str){
+                    var lines = str.split(/[\r\n]+/g);
+                    if(lines && lines.length > 0) {
+                        for(var line of lines) {
+                            // 分析有没进度
+                            var regex = /%\[[ ]*(-?\d+)\/(-?\d+)\]/g;
+                            var m = regex.exec(line);
+                            var msg = line;
+                            if(m) {
+                                var nb   = m[1] * 1;
+                                var sum  = m[2] * 1;
+                                // 更新进度
+                                if(sum > 0 && nb >= 0) {
+                                    var per  = parseInt(100 * nb / sum);
+                                    var perS = per + "%";
+                                    jBarEm.text(perS);
+                                    jBarIn.css("width", perS);
+                                    msg = $.trim(line.substring(regex.lastIndex+1));
+                                }
+                                // 收集后续输出
+                                else {
+                                    msg = $.trim(line.substring(regex.lastIndex+1));
+                                    res.push(msg);
+                                }
+                            }
+                            // 显示消息
+                            if(msg){
+                                jMsg.text(msg);
+                            }
+                        }
+                    }
+
+                    // 计入
+                    $('<div class="msg-info">')
+                        .text(str).appendTo(jPre);
+                },
+                msgError : function(str){
+                    $('<div class="msg-err">')
+                        .text(str).appendTo(jPre);
+                },
+                done : function(){
+                    jP.attr("st", "ok");
+                },
+                fail : function(){
+                    jP.attr("st", "fail");
+                },
+                complete : function(re){
+                    $z.invoke(opt, "complete", [res, jMsg, re], opt.context || uiMask);
+                }
+            });
         });
     },
     //................................................................

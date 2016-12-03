@@ -9,8 +9,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.nutz.lang.Nums;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Disks;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -66,11 +68,19 @@ public class HmContext {
      */
     public Map<String, String> pageOutputNames;
 
+    /**
+     * 一个由 getProcessCount 函数维护的已完成的文件个数计数
+     * <p>
+     * 因此为了维持引用，所以采用一个元素的数组
+     */
+    private int[] processCount;
+
     public HmContext(WnIo io) {
         this.io = io;
         this.templates = new HashMap<>();
         this.resources = new HashSet<>();
         this.pageOutputNames = new HashMap<>();
+        this.processCount = Nums.array(0);
     }
 
     public HmContext(HmContext hpc) {
@@ -86,12 +96,43 @@ public class HmContext {
         this.templates = hpc.templates;
         this.strict = hpc.strict;
         this.pageOutputNames = hpc.pageOutputNames;
+        this.processCount = hpc.processCount;
+    }
+
+    /**
+     * @param doCount
+     *            是否增加计数
+     * @return 返回已经处理的文件个数
+     */
+    public int getProcessCount(boolean doCount) {
+        if (doCount) {
+            this.processCount[0] = Math.min(this.processCount[0] + 1, __process_sum());
+        }
+        return this.processCount[0];
+    }
+
+    private int __process_sum() {
+        return this.templates.size() + this.resources.size() + this.pageOutputNames.size();
+    }
+
+    public String getProcessInfo(boolean doCount) {
+        int sum = __process_sum();
+        return String.format("%%[%3d/%s]", this.getProcessCount(doCount), sum);
+    }
+
+    public void markPrcessDone() {
+        this.processCount[0] = __process_sum();
+    }
+
+    public String getProcessInfoAndDoCount() {
+        return getProcessInfo(true);
     }
 
     /**
      * 遍历整个站点全部的页面，判断这些页面到底是动态还是静态的
      */
     public void preparePages() {
+        // 开始遍历
         io.walk(oHome, new Callback<WnObj>() {
             public void invoke(WnObj o) {
                 // 得到相对路径
@@ -134,6 +175,25 @@ public class HmContext {
             this.templates.put(templateName, tmpl);
         }
         return tmpl;
+    }
+
+    private NutMap __conf;
+
+    /**
+     * 读取配置目录下的配置文件 "~/.hmaker/hmaker.conf"
+     * 
+     * @return 配置内容
+     */
+    public NutMap getConf() {
+        if (null == __conf) {
+            WnObj oConf = io.fetch(oConfHome, "hmaker.conf");
+            if (null == oConf) {
+                __conf = new NutMap();
+            } else {
+                __conf = io.readJson(oConf, NutMap.class);
+            }
+        }
+        return __conf;
     }
 
     public boolean hasSkin() {
