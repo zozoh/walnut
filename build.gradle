@@ -12,6 +12,11 @@ targetCompatibility = 1.8
 
 def version_tag = getDate()
 
+configurations.all {
+    // Check for updates every build
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 sourceSets {
     main{
     	java {
@@ -40,7 +45,6 @@ tasks.withType(JavaCompile) {
 }
 
 repositories {
-    //maven { url "http://maven.nutz.cn/nexus/content/repositories/central"}
     //mavenLocal()
     maven { url "https://jfrog.nutz.cn/artifactory/jcenter"}
     maven { url "https://jfrog.nutz.cn/artifactory/snapshots"}
@@ -80,8 +84,7 @@ dependencies {
 
 buildscript {
     repositories {
-        mavenLocal()
-        mavenCentral()
+		maven { url "https://jfrog.nutz.cn/artifactory/jcenter"}
     }
 
     dependencies {
