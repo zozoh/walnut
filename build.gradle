@@ -44,7 +44,7 @@ tasks.withType(JavaCompile) {
 	  options.compilerArgs = ["-parameters"]
 }
 
-00 {
+{
     //mavenLocal()
     maven { url "https://jfrog.nutz.cn/artifactory/jcenter"}
     maven { url "https://jfrog.nutz.cn/artifactory/snapshots"}
