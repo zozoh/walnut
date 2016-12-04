@@ -121,8 +121,9 @@ return ZUI.def("ui.obrowser_sky", {
         var jCrumb = UI.arena.find(".obrowser-crumb");
 
         $z.editIt(jCrumb, {
-            text   : UI.getPath(),
-            after  : function(newval, oldval){
+            copyStyle : false,
+            text      : UI.getPath(),
+            after     : function(newval, oldval){
                 if(newval != oldval){
                     UI.browser().setData(newval);
                 }

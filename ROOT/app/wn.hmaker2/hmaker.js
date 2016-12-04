@@ -106,21 +106,17 @@ return ZUI.def("app.wn.hmaker2", {
         });
     },
     //...............................................................
-    doPublish : function(o) {
+    doPublish : function(oPage) {
         var UI = this;
 
         // 得到主目录
         var oHome = UI.getHomeObj();
 
-        // 得到当前页
-        var oPage = UI.getCurrentEditObj();
-        var rph = Wn.getRelativePath(oHome, oPage);
-
         // 准备命令字符串
         var cmdText = "hmaker publish id:" + this.getHomeObjId();
 
         // 指定了发布的页面
-        if(o) {
+        if(oPage) {
             var rph = Wn.getRelativePath(oHome, oPage);
             cmdText +=  " -src '"+rph+"'";
         }
@@ -182,17 +178,65 @@ return ZUI.def("app.wn.hmaker2", {
         }]);
     },
     //...............................................................
-    openNewSitePanel : function() {
-        var UI   = this;
-        
-        UI.browser().chuteUI().refresh(function(){
-            console.log(new Date())
-        });
+    openNewSitePanel : function(doCopy) {
+        var UI    = this;
+        var oHome = UI.getHomeObj();
+
+        // 确定站点的路径
+        new MaskUI({
+            width  : 600,
+            height : 500,
+            setup : {
+                uiType : "app/wn.hmaker2/support/ui_new_site",
+                uiConf : {
+                    copyFrom : doCopy ? oHOme : null,
+                    done : function(oNewHome) {
+                        // 刷新侧边栏后 ... 
+                        // UI.browser().chuteUI().refresh(function(){
+                        //     console.log(new Date())
+                        //     // 打开站点配置信息进一步编辑站点属性
+                        //     UI.openSiteConfPanel(oNewHome, function(){
+                        //         // 编辑完毕后切换到这个站点
+                        //         UI.browser().setData(oNewHome, "hmaker2");
+                        //     });
+                        // });
+                    }
+                }
+            }
+        }).render();
     },
     //...............................................................
-    openSiteConf : function() {
-        var UI = this;
+    doDeleteSite : function() {
+        var UI    = this;
         var oHome = UI.getHomeObj();
+
+        // 试图从侧边栏获取下一个要激活的 Path
+        var nextItem  = null;
+        var uiSidebar = UI.browser().chuteUI().gasket.sidebar;
+        if(uiSidebar) {
+            nextItem = uiSidebar.getNextItem();
+        }
+
+        // 向用户确认一下要删除
+        if(confirm(UI.msg("hmaker.site.del_confirm"))){
+            var cmdText = 'rm -rfv id:' + oHome.id;
+            Wn.logpanel(cmdText, function(){
+                // 关闭日志面板
+                this.close();
+
+                // 刷新侧边栏
+                UI.browser().chuteUI().refresh(function(){
+                    if(nextItem) {
+                        uiSidebar.clickItem(nextItem.ph, nextItem.editor);
+                    }
+                });
+            });
+        }
+    },
+    //...............................................................
+    openSiteConfPanel : function(oHome, callback) {
+        var UI = this;
+        var oHome = oHome || UI.getHomeObj();
 
         // 显示弹出层
         new MaskUI({
@@ -214,8 +258,8 @@ return ZUI.def("app.wn.hmaker2", {
                         // 关闭对话框
                         uiMask.close();
 
-                        // 更新皮肤
-                        UI.fire("change:site:skin");
+                        // 调用回调
+                        $z.doCallback(callback, [oHome], UI);
                     });
                 },
                 "click .pm-btn-cancel" : function(){
@@ -229,8 +273,8 @@ return ZUI.def("app.wn.hmaker2", {
                     exec : UI.exec,
                     uiWidth : "all",
                     fields  : [{
-                        key : "title",
-                        title : UI.msg("hmaker.site.title"),
+                        key : "nm",
+                        title : UI.msg("hmaker.site.nm"),
                         type : "string",
                         editAs : "input"
                     }, UI.__form_fld_pick_folder({
@@ -261,7 +305,14 @@ return ZUI.def("app.wn.hmaker2", {
             }
         }).render(function(){
             this.arena.find(".pm-title").html(UI.msg('hmaker.site.conf'));
-            this.body.setData(_.pick(oHome, "title", "hm_target_release", "hm_target_debug", "hm_site_skin"));
+            this.body.setData(_.pick(oHome, "nm", "hm_target_release", "hm_target_debug", "hm_site_skin"));
+        });
+    },
+    //...............................................................
+    doChangeSiteConf : function() {
+        var UI = this;
+        UI.openSiteConfPanel(null, function(){
+             UI.fire("change:site:skin");
         });
     },
     //...............................................................

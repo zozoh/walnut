@@ -51,6 +51,7 @@ return ZUI.def("ui.obrowser_chute", {
             UI.gasket.sidebar.refresh(function(){
                 UI.hideLoading();
                 UI.gasket.sidebar.update(UI.__obj, UI.__asetup);
+                $z.doCallback(callback, [this], UI);
             });
         }
         // 否则重新建立
@@ -61,8 +62,8 @@ return ZUI.def("ui.obrowser_chute", {
                     gasketName : "sidebar"
                 })).render(function(){
                     UI.hideLoading();
-                    UI.gasket.sidebar.update(UI.__obj, UI.__asetup);
-                    $z.doCallback(callback);
+                    this.update(UI.__obj, UI.__asetup);
+                    $z.doCallback(callback, [this], UI);
                 });
             });
         }

@@ -95,6 +95,11 @@ var methods = {
             else if(_.isNumber(arg)){
                 return UI.arena.find(".list-item:eq("+arg+")");
             }
+            // 如果是对象，那么试图获取 IDKey
+            else if(_.isObject(arg)) {
+                var id = arg[opt.idKey];
+                return UI.arena.find(".list-item[oid="+id+"]");
+            }
             // 靠不晓得了
             else {
                 throw "unknowns $item selector: " + arg;

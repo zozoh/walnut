@@ -2,7 +2,7 @@
 	title : "站点管理",
 	items : [ {
 		type : "objs",
-		cmd : "obj ~ -match \"tp:'hmaker_site'\" -json -l -sort 'nm:1'",
+		cmd : "obj -match \"d1:'$SIDEBAR_DOMAIN', tp:'hmaker_site', race:'DIR'\" -json -l -sort 'nm:1'",
 		icon : '<i class="fa fa-sitemap"></i>',
 		editor : "hmaker2"
 	} ]

@@ -2,9 +2,9 @@
 $z.declare([
     'zui', 
     'wn/util',
-    'ui/pop/pop_browser'
+    'ui/pop/pop'
 ], 
-function(ZUI, Wn, PopBrowser){
+function(ZUI, Wn, POP){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
@@ -24,15 +24,36 @@ return ZUI.def("ui.picker.opicker", {
     css  : "theme/ui/picker/picker.css",
     //...............................................................
     events : {
+        // 选择对象
         "click .picker-choose" : function(){
             var UI    = this;
-            var conf  = UI.options.setup || {};
-            new PopBrowser(_.extend({
+            var opt   = UI.options;
+            var conf  = opt.setup || {};
+
+            // 准备数据
+            var o = UI.getObj();
+
+            // 如果是站点的主目录
+            var base = opt.base;
+            if(o) {
+                // 主目录
+                if("./" == Wn.getRelativePathToHome(o)) {
+                    base = o;
+                }
+                // 其他目录显示上一级
+                else {
+                    base = "id:"+o.pid;
+                }
+            }
+
+            // 打开对话框
+            POP.browser(UI.text(opt.title) || "", _.extend({
                 checkable : false,
                 sidebar   : false,
                 objTagName : 'SPAN',
                 width  : "80%",
                 height : "80%",
+                base   : base || "~",
                 canOpen : function(o){
                     return o.race == 'DIR';
                 },
@@ -41,8 +62,13 @@ return ZUI.def("ui.picker.opicker", {
                         UI._update(objs);
                     }
                 }
-            }, conf)).render();
+            }, conf), function(){
+                console.log(this)
+                if(o)
+                    this.setActived(o);
+            });
         },
+        // 清除
         "click .picker-clear" : function(){
             this._update();
         }
@@ -126,26 +152,46 @@ return ZUI.def("ui.picker.opicker", {
     },
     //...............................................................
     __append_item : function(o, jBox){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
+
         jBox = jBox || UI.arena.find(".picker-box")
         var jq = UI.ccode("obj").data("@OBJ", o)
                     .prepend(Wn.objIconHtml(o));
-        jq.find("a")
-            .prop("href", "/a/open/wn.browser?ph=id:"+o.id)
-            .text(Wn.objDisplayName(UI, o));
+        var jA = jq.find("a").prop("href", "/a/open/wn.browser?ph=id:"+o.id);
+
+        // 显示名称
+        if(opt.showPath) {
+            jA.html(Wn.objDisplayPath(UI, o.ph, 
+                    opt.showPath.offset,
+                    opt.showPath.wrapper || null, 
+                    opt.showPath.sep || null));
+        } else {
+            jA.text(Wn.objDisplayName(UI, o));
+        }
+        
+        // 加入 DOM
         jBox.append(jq);
     },
     //...............................................................
+    getObj : function(opt){
+        var UI  = this;
+        var opt = opt || this.options;
+
+        var re  = [];
+        UI.arena.find(".picker-obj").each(function(){
+            re.push($(this).data("@OBJ"));
+        });
+        if(!opt.setup.checkable){
+            re = re.length > 0 ? re[0] : null;
+        }
+        return re;
+    },
+    //...............................................................
     getData : function(){
-        return this.ui_format_data(function(opt){
-            var re = [];
-            this.arena.find(".picker-obj").each(function(){
-                re.push($(this).data("@OBJ"));
-            });
-            if(!opt.setup.checkable){
-                re = re.length > 0 ? re[0] : null;
-            }
-            return re;
+        var UI = this;
+        return UI.ui_format_data(function(opt){
+            return UI.getObj(opt);
         });
     }
     //...............................................................

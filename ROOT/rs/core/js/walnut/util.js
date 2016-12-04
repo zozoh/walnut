@@ -326,13 +326,18 @@ var Wn = {
         new MaskUI(_.extend({
             width : "60%"
         }, opt.maskConf)).render(function(){
+            // 得到遮罩实例
+            var uiMask = this;
+
+            // 准备输出 DOM
             var jPre = $('<pre class="wn-log-panel">').appendTo(this.$main);
+            
             // 预先显示信息
             if(opt.maskConf.welcome) {
                 $('<div>').html(opt.maskConf.welcome).appendTo(jPre);
             }
             // 执行命令
-            Wn.exec(opt.cmdText, _.extend(opt, {
+            Wn.exec(opt.cmdText, {
                 msgShow : function(str){
                     $('<div class="msg-info">')
                         .text(str)
@@ -346,8 +351,17 @@ var Wn = {
                         .appendTo(jPre)[0].scrollIntoView({
                             block: "end", behavior: "smooth"
                         });
+                },
+                done : function(re){
+                    $z.invoke(opt, "done", [re], uiMask);
+                },
+                fail : function(re){
+                    $z.invoke(opt, "fail", [re], uiMask);
+                },
+                complete : function(re){
+                    $z.invoke(opt, "complete", [re], uiMask);
                 }
-            }));
+            });
         });
     },
     //................................................................
@@ -456,7 +470,7 @@ var Wn = {
                     jP.attr("st", "fail");
                 },
                 complete : function(re){
-                    $z.invoke(opt, "complete", [res, jMsg, re], opt.context || uiMask);
+                    $z.invoke(opt, "complete", [res, jMsg, re], uiMask);
                 }
             });
         });

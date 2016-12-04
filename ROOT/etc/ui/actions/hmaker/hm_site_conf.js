@@ -3,6 +3,6 @@
 	text : "i18n:hmaker.site_conf",
 	type : "button",
 	handler : function($ele, a) {
-		this.hmaker().openSiteConf();
+		this.hmaker().doChangeSiteConf();
 	}
 })

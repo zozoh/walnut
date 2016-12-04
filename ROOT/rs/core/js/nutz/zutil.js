@@ -2162,6 +2162,7 @@
             zUtil.setUndefined(opt, "extendWidth", true);
             zUtil.setUndefined(opt, "extendHeight", opt.multi);
             zUtil.setUndefined(opt, "selectOnFocus", true);
+            zUtil.setUndefined(opt, "copyStyle", true);
             //...............................................
             // 定义键盘处理函数
             var __on_keydown = function (e) {
@@ -2281,32 +2282,34 @@
 
             //...............................................
             // 取得宿主的显示模式
-            var eleStyle = window.getComputedStyle(jEle[0]);
+            if(opt.copyStyle) {
+                var eleStyle = window.getComputedStyle(jEle[0]);
 
-            var rKeys = ["display", "letter-spacing", "margin", "padding"
-                , "font-size", "font-family", "border"
-                , "line-height", "text-align"];
-            // 如果占位模式，才 copy 背景色和前景色
-            if (opt.takePlace) {
-                rKeys.push("background");
-                rKeys.push("color");
+                var rKeys = ["display", "letter-spacing", "margin", "padding"
+                    , "font-size", "font-family", "border"
+                    , "line-height", "text-align"];
+                // 如果占位模式，才 copy 背景色和前景色
+                if (opt.takePlace) {
+                    rKeys.push("background");
+                    rKeys.push("color");
+                }
+
+                var css = {};
+                for (var i = 0; i < rKeys.length; i++) {
+                    var rKey = rKeys[i];
+                    var pKey = $z.upperWord(rKey);
+                    css[rKey] = eleStyle[pKey];
+                    //console.log(rKey, " : ", eleStyle[pKey]);
+                }
+                //console.log(css);
+
+                // 将自身设置成和宿主一样的显示模式
+                jInput.css(_.extend(css, {
+                    "overflow": "hidden",
+                    "outline": "none",
+                    "resize": "none"
+                }));
             }
-
-            var css = {};
-            for (var i = 0; i < rKeys.length; i++) {
-                var rKey = rKeys[i];
-                var pKey = $z.upperWord(rKey);
-                css[rKey] = eleStyle[pKey];
-                //console.log(rKey, " : ", eleStyle[pKey]);
-            }
-            //console.log(css);
-
-            // 将自身设置成和宿主一样的显示模式
-            jInput.css(_.extend(css, {
-                "overflow": "hidden",
-                "outline": "none",
-                "resize": "none"
-            }));
             //...............................................
             // 替代宿主的位置
             if (opt.takePlace) {

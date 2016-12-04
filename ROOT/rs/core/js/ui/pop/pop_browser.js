@@ -60,6 +60,9 @@ return ZUI.def("ui.pop.browser", {
             this.body.setData(opt.base);
             UIPOP.destroy();
         });
+
+        // 返回延迟加载
+        return ["pop"];
     }
     //...............................................................
 });

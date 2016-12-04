@@ -14,8 +14,20 @@
     .picker-obj {
         display: inline-block; vertical-align: middle;
         > i {vertical-align: middle; margin-right: @d1;}
-        > a {display:inline-block; color: #08F; vertical-align: middle; font-size: @f1;}
-        > a:hover {color: #F80;}
+        > a {
+            display:inline-block; color: @clink; vertical-align: middle;
+            font-size: @f1; font-family: @f_fixed;
+            text-decoration: none;
+            b  {font-weight: normal;}
+            em {
+                font-style: normal; color:@c3;
+                display: inline-block; width:@d3; text-align: center;
+            }
+        }
+        > a:hover {
+            color: @clink_hover;
+            em {color: @clink_hover;}
+        }
     }
 }
 
@@ -75,8 +87,9 @@
 //------------------------------------------------------------------ Pick WnObj
 .picker-multi {
     .picker-obj {
-        border:1px solid @cborder1; padding:0 @d2; height: @f5 - 2; line-height: @f5 - 4;
-        border-radius: @d0; margin-right:@d1; 
+        border:1px solid @cborder1; padding:0 @d2; 
+        height: @f5 - 2; line-height: @f5 - 4;
+        border-radius: @d0; margin-right:@d1;
     }
 }
 

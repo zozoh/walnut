@@ -8,10 +8,13 @@ define({
         },
         "site" : {
             "conf"   : '<i class="fa fa-gear"></i> <b>站点设置</b>',
-            "title"  : "站点标题",
+            "nm"     : "站点名称",
             "hm_target_release" : "在线发布目标",
             "hm_target_debug"   : "调试发布目标",
             "skin" : "站点皮肤",
+            "del_confirm"  : "删除站点是不可撤销的操作，你现在取消还来得及！点击「确定」将会把这个站点彻底删除。（当然已经发布的内容不会受到影响）",
+            "new_site_dir" : "站点所在目录",
+            "newsite" : "我的新站点"
         },
         "prop" : {
             "title" : '属性',
