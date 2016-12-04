@@ -14,6 +14,8 @@
         // 得到要删除的对象
         var theObj = UI.getCurrentEditObj();
         var list;
+        
+        console.log(theObj)
 		
 		// 是目录
 		if("DIR" == theObj.race) {
@@ -44,10 +46,14 @@
 
 		// 执行
 		var cmdText = "rm -rf ";
-		for(var o of list) {
+		list.forEach(function(o) {
 			cmdText += " id:" + o.id;
-		}
+		});
+
 		Wn.exec(cmdText);
+		
+		// 刷新界面
+		UI.refresh();
 
 		// 调用在资源面板上移除
 		$z.invoke(UI.resourceUI(), "remove", [o.id]);

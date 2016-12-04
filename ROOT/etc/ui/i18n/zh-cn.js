@@ -1,6 +1,8 @@
 ({
 	"hmaker" : {
 		"create"       : "新建 ...",
+		"new_site"     : "新建站点...",
+		"del_site"     : "删除当前站点",
     	"pub_site"     : "整站发布",
     	"pub_site_tip" : "将站点全部内容发布你预先设置好的目录(可以在站点配置动设置)。",
     	"pub_current_page" : "发布当前页",

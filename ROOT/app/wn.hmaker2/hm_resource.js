@@ -122,7 +122,6 @@ return ZUI.def("app.wn.hmaker_resource", {
             children : function(o, callback){
                 //Wn.getChildren(o, null, callback);
                 Wn.exec('obj -match \'pid:"'+o.id+'"\' -sort "race:1" -json -l', function(re){
-                    console.log(re)
                     var list = $z.fromJson(re);
                     callback(list);
                 })

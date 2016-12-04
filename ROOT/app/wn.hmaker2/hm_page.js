@@ -823,60 +823,6 @@ return ZUI.def("app.wn.hmaker_page", {
         return '<!DOCTYPE html>\n<html>\n' + C.iload.$root.html() + '\n</html>\n';;
     },
     //...............................................................
-    doPublish : function(o) {
-        var UI = this;
-
-        // 得到主目录
-        var oHome = UI.getHomeObj();
-
-        // 得到当前页
-        var oPage = UI.getCurrentEditObj();
-        var rph = Wn.getRelativePath(oHome, oPage);
-
-        // 准备命令字符串
-        var cmdText = "hmaker publish id:" + this.getHomeObjId();
-
-        // 指定了发布的页面
-        if(o) {
-            var rph = Wn.getRelativePath(oHome, oPage);
-            cmdText +=  " -src '"+rph+"'";
-        }
-
-        // 执行命令
-        Wn.processPanel(cmdText, {
-            welcome    : UI.msg("hmaker.page.publish"),
-            arenaClass : "hm-publish-mask"
-        }, function(urls, jMsg) {
-            jMsg.attr("mode", "result").empty();
-            // 发布完毕后，显示一个访问链接以及二维码
-            for(var url of urls) {
-                url = $.trim(url);
-                // 出错了
-                if(/^!/.test(url)) {
-                    $(`<div class="hm-warn"><i class="zmdi zmdi-alert-octagon"></i><em></em></div>`)
-                        .appendTo(jMsg)
-                            .find("em").text(url);
-                }
-                // 显示网址
-                else {
-                    var jDiv = $(`<div class="hm-enter"></div>`).appendTo(jMsg);
-                    $('<img>')
-                        .attr("src", "/api/"+oHome.d1+"/qrcode?ts="
-                                + Date.now()
-                                + "&url=" + encodeURIComponent(url))
-                            .appendTo(jDiv);;
-                    $('<a>')
-                        .attr({
-                            "href" : url,
-                            "target" : "_blank"
-                        }).text(UI.msg("hmaker.page.enter"))
-                            .appendTo(jDiv);
-                }
-            }
-            
-        });
-    },
-    //...............................................................
     getActions : function(){
         return ["@::save_text",
                 "::hmaker/hm_create", 
@@ -884,8 +830,8 @@ return ZUI.def("app.wn.hmaker_page", {
                 "~",
                 "::view_text",
                 "~",
-                "@::hmaker/pub_site",
-                "@::hmaker/pub_current_page",
+                "::hmaker/pub_site",
+                "::hmaker/pub_current_page",
                 "~",
                 "::hmaker/hm_site_conf",
                 "~",
