@@ -47,7 +47,8 @@ public class cmd_setup extends JvmExecutor {
 
         // 如果操作的用户不是自己，必须是 root 组成员才能做
         if (!me.isSameId(sys.me)) {
-            if (!sys.usrService.isMemberOfGroup(sys.me, "root")) {
+            if (!sys.usrService.isMemberOfGroup(sys.me, "root")
+                && !sys.usrService.isMemberOfGroup(sys.me, "op")) {
                 throw Er.create("e.cmd.setup.nopvg");
             }
         }
