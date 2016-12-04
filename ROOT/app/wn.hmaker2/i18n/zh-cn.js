@@ -11,7 +11,7 @@ define({
             "title"  : "站点标题",
             "hm_target_release" : "在线发布目标",
             "hm_target_debug"   : "调试发布目标",
-            "skin" : "站点皮肤"
+            "skin" : "站点皮肤",
         },
         "prop" : {
             "title" : '属性',
@@ -67,7 +67,9 @@ define({
             "move_to_body" : "移出分栏",
             "move_before"  : "前移渲染顺位",
             "move_after"   : "后移渲染顺位",
-            "assisted_showhide" : "显示或者隐藏辅助线"
+            "assisted_showhide" : "显示或者隐藏辅助线",
+            "publish" : "正在发布站点",
+            "enter" : "点击预览"
         },
         "com" : {
             "_" : {

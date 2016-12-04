@@ -278,6 +278,7 @@ var methods = {
                 }
             },
             on_begin : function(e) {
+                //......................................
                 // 得到组件顶部节点元素
                 var jCom  = this.$trigger.closest(".hm-com");
                 var uiCom = ZUI(jCom);
@@ -332,6 +333,9 @@ var methods = {
                         
                         // 修改 trigger 的显示样式
                         this.$helper.html(uiCom.getIconHtml());
+
+                        // 标记页面其他元素的样式
+                        this.$mask.prevAll().addClass("hm-pmv-hide");
                     }
                     // 改变控件大小
                     else {
@@ -393,12 +397,18 @@ var methods = {
             },
             // 移动结束，保存 Block 信息
             on_end : function() {
-                // 这个拖动是修改位置，保存最后的位置
-                if(!this.__is_for_drop) {
-                    this.uiCom.setBlock(this.comBlock);
+                // 如果已经被认为是开始拖拽
+                if(this.uiCom) {
+                    // 这个拖动是修改位置，保存最后的位置
+                    if(!this.__is_for_drop) {
+                        this.uiCom.setBlock(this.comBlock);
+                    }
+                    // 重新应用皮肤
+                    UI.invokeSkin("resize");
                 }
-                // 重新应用皮肤
-                UI.invokeSkin("resize");
+
+                // 去掉其他元素的标识
+                this.$mask.prevAll().removeClass("hm-pmv-hide");
             },
             // 拖拽到了一个目标，执行修改
             on_drop : function(jAreaCon) {

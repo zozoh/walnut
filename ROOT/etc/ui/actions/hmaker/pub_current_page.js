@@ -10,16 +10,10 @@
         	return;
         }
         
-        // 得到主目录
-        var oHome = UI.getHomeObj();
-		
         // 得到当前页
 		var oPage = UI.getCurrentEditObj();
-		var rph = Wn.getRelativePath(oHome, oPage);
 		
-		// 执行命令
-		var cmdText = "hmaker publish id:" + this.getHomeObjId() + " -src '"+rph+"'";
-		console.log(cmdText)
-		Wn.logpanel(cmdText);
+		// 执行
+		UI.pageUI().doPublish(oPage);
 	}
 })

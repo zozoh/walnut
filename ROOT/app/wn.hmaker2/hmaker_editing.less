@@ -23,24 +23,26 @@
 body {margin:0; font-size:12px; overflow-y: scroll;}
 //............................................................
 // 拖拽相关
-.pmv-dropi {
-    padding:1px;
-    .hm-drag-tip {
-        width:100%; height:100%;
-        border:2px dashed #F0F;
-        text-align: center; padding:@d1; color:@c0;
-        font-size:@f2; line-height: 22px;
-        > * { display: none;}
-    }
-}
-.pmv-dropi[pmv-hover] {
-    .hm-drag-tip {
-        background: rgba(255,255,255,0.6);
-        > * { display: inline;}
-    }
-}
-.pmv-mask[no-drag] .pmv-drops {display: none;}
-
+// .pmv-dropi {
+//     padding:1px;
+//     .hm-drag-tip {
+//         width:100%; height:100%;
+//         border:2px dashed #F0F;
+//         text-align: center; padding:@d1; color:@c0;
+//         font-size:@f2; line-height: 22px;
+//         > * { display: none;}
+//     }
+// }
+// .pmv-dropi[pmv-hover] {
+//     .hm-drag-tip {
+//         background: rgba(255,255,255,0.3);
+//         > * { display: inline;}
+//     }
+// }
+// .pmv-mask[no-drag] .pmv-drops {display: none;}
+// .hm-pmv-hide {
+//     opacity: 0.3;
+// }
 //............................................................
 // 控件通用属性
 @hS  : 4px;
@@ -132,10 +134,12 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
 }
 
 // 激活块的辅助柄
-.hm-com[hm-actived] > .hm-com-W > .hm-com-assist > * {
-    display: block;
+.hm-com[hm-actived] {
+    opacity: 1.0;
+     > .hm-com-W > .hm-com-assist > * {
+        display: block;
+    }
 }
-
 //............................................................
 // 移动鼠标的遮罩
 .hm-page-move-mask {@noselect();
@@ -157,10 +161,10 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
     cursor: grabbing;
     cursor: -webkit-grabbing;
     cursor: -moz-grabbing;
-    background: rgba(0,0,0,0.3);
+    background: rgba(0,0,0,0.2);
     .pmv-helper {
         border:1px dotted #000;
-        background: rgba(255,255,255,0.6);
+        background: rgba(255,255,255,0.4);
         text-align: center; 
         font-size:@f4;
         > i {
@@ -171,17 +175,18 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
         .pmv-dropi {
             padding:1px;
             .di-area {
-                width:100%; height:100%;
-                background: rgba(255,255,255,0.6);
-                padding: @d2; text-shadow:1px 1px 0 rgba(0,0,0,0.3);
+                width:100%; height:100%; overflow: hidden;
+                background: rgba(255,255,255,0.2);
+                border: 1px solid rgba(255,0,255,0.4);
+                padding: @d2; 
                 font-size: @f2; font-family: @f_fixed;
-                color:#444; transition: 0.2s;
+                color:rgba(255,0,255,0.6); transition: 0.2s;
             }
         }
         .pmv-dropi[pmv-hover] {
             z-index: 1;
             .di-area {
-                background: rgba(255,255,0,0.6);
+                background: rgba(255,255,0,0.4);
                 //transform: translate(2px, 2px);
                 box-shadow: 2px 2px 4px rgba(0,0,0,0.6);
                 font-size: @f3; text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
@@ -191,11 +196,11 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
     }
 }
 .hm-page-move-mask[in-area] {
-    background: rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.4);
     .pmv-viewport {
         position: absolute;
-        background: rgba(255,255,255,0.6);
-        box-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+        background: rgba(255,255,255,0.8);
+        box-shadow: 0px 0px 10px #FFF;
         border:1px dashed #F0F;
     }
     .pmv-helper {
@@ -203,7 +208,13 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
         background: rgba(255,255,0,0.4);
     }
 }
-
+.hm-pmv-hide {
+    opacity: 0.6;
+    -webkit-filter: blur(4px); /* Chrome, Opera */
+    -moz-filter: blur(4px);
+    -ms-filter: blur(4px);    
+        filter: blur(4px);
+}
 //............................................................
 // 分栏控件通用
 //............................................................
@@ -212,7 +223,7 @@ body {margin:0; font-size:12px; overflow-y: scroll;}
     position: relative;
     > .hm-area-assist {
         .hma-ai {
-            position: absolute; border:0 dashed rgba(0,0,0,0.2); z-index:1;
+            position: absolute; border:0 dashed rgba(0,0,0,0.3); z-index:1;
         }
         .hma-ai[m="N"]{top:0;left:0;right:0;   border-top-width:@abW;}
         .hma-ai[m="W"]{top:0;bottom:0;left:0;  border-left-width:@abW;}
