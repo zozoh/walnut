@@ -58,9 +58,9 @@ return ZUI.def("app.wn.hmaker_other", {
     },
     //...............................................................
     getActions : function(){
-        return ["@::hmaker/hm_delete", "@::download",
-                "::hmaker/hm_create", 
-                "::hmaker/hm_delete",
+        return ["::hmaker/hm_create", 
+                "@::hmaker/hm_delete",
+                "@::download",
                 "~",
                 "::hmaker/pub_site",
                 "~",

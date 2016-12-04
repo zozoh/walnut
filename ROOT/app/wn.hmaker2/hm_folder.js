@@ -93,7 +93,10 @@ return ZUI.def("app.wn.hmaker_folder", {
     getActions : function(){
         return ["@::refresh",
                 "::hmaker/hm_create", 
-                "::delete",
+                "::hmaker/hm_delete",
+                "~",
+                "@::hmaker/hm_new_site",
+                "@::hmaker/hm_del_site",
                 "~",
                 "::hmaker/pub_site",
                 "~",

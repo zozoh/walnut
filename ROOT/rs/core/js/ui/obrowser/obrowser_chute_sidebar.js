@@ -109,19 +109,23 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
             jq = $(o).closest("item");
         }
         // 修改显示
-        UI.arena.find("item").removeClass("chute-actived");
+        UI.disHighlightItem();
         if(jq){
             jq.addClass("chute-actived");
         }
         return jq;
     },
     //..............................................
+    disHighlightItem : function(){
+        this.arena.find("item").removeClass("chute-actived");
+    },
+    //..............................................
     redraw : function() {
         var UI = this;
         UI.refresh(function(){
-            UI.defer_report("reload");
+            UI.defer_report("refresh");
         })
-        return ["reload"];
+        return ["refresh"];
     },
     //..............................................
     refresh : function(callback){
@@ -229,8 +233,13 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
         UI.__asetup = asetup;
 
         // 高亮项目
-        UI.highlightItem(o, asetup);
-        
+        if(o) {
+            UI.highlightItem(o, asetup);
+        }
+        // 取消高亮
+        else {
+            UI.disHighlightItem();
+        } 
     }
     //..............................................
 });

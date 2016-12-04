@@ -116,6 +116,20 @@ return ZUI.def("ui.obrowser_main", {
         //else {
         UI.$el.attr("ui-type", uiType);
         seajs.use(uiType, function(TheUI){
+            // 确保子 UI 有 browser 方法可以获取到 browser 实例
+            if(_.isFunction(uiConf.on_init)){
+                uiConf.__on_init = uiConf.on_init();
+            }
+            uiConf.on_init = function(opt) {
+                this.browser = UI.browser;
+
+                var opt = this.options;
+                if(opt.__on_init) {
+                    opt.__on_init.call(this, [opt]);
+                }
+            }
+
+            // 创建实例
             new TheUI(uiConf).render(function(){
                 // 绘制菜单
                 if(asetup)

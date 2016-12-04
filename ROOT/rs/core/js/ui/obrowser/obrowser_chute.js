@@ -32,19 +32,40 @@ return ZUI.def("ui.obrowser_chute", {
     },
     //..............................................
     redraw : function() {
-        var UI  = this;
-        var opt = UI.browser().options.sidebar;
-        UI.showLoading();
-        seajs.use(opt.uiType, function(SubUI){
-            new SubUI(_.extend({}, opt.uiConf, {
-                parent : UI,
-                gasketName : "sidebar"
-            })).render(function(){
-                UI.hideLoading();
-                UI.defer_report("sidebar");
-            });
+        var UI = this;
+        UI.refresh(function(){
+            UI.defer_report("sidebar");
         });
         return ["sidebar"];
+    },
+    //..............................................
+    refresh : function(callback) {
+        var UI  = this;
+        var opt = UI.browser().options.sidebar;
+
+        // 显示加载中
+        UI.showLoading();
+
+        // 已经有了 UI 那么就更新
+        if(UI.gasket.sidebar) {
+            UI.gasket.sidebar.refresh(function(){
+                UI.hideLoading();
+                UI.gasket.sidebar.update(UI.__obj, UI.__asetup);
+            });
+        }
+        // 否则重新建立
+        else {
+            seajs.use(opt.uiType, function(SubUI){
+                new SubUI(_.extend({}, opt.uiConf, {
+                    parent : UI,
+                    gasketName : "sidebar"
+                })).render(function(){
+                    UI.hideLoading();
+                    UI.gasket.sidebar.update(UI.__obj, UI.__asetup);
+                    $z.doCallback(callback);
+                });
+            });
+        }
     },
     //..............................................
     showOutline : function(){
@@ -62,6 +83,8 @@ return ZUI.def("ui.obrowser_chute", {
     },
     //..............................................
     update : function(o, asetup){
+        this.__obj    = o;
+        this.__asetup = asetup;
         this.gasket.sidebar.update(o, asetup);        
     },
     //..............................................

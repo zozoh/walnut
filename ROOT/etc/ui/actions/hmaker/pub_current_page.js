@@ -14,6 +14,6 @@
 		var oPage = UI.getCurrentEditObj();
 		
 		// 执行
-		UI.pageUI().doPublish(oPage);
+		UI.hmaker().doPublish(oPage);
 	}
 })
