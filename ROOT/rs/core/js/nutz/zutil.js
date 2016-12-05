@@ -2018,7 +2018,8 @@
                 };
             }
             // 得到文档中的
-            var off = jq.offset();
+            var off  = jq.offset();
+            var jDoc = $(jq[0].ownerDocument);
             // 样式
             var css = {
                 "width": jq.outerWidth(),
@@ -2027,8 +2028,8 @@
                 "background": "#FFA",
                 "opacity": 0.8,
                 "position": "fixed",
-                "top": off.top,
-                "left": off.left,
+                "top": off.top - jDoc.scrollTop(),
+                "left": off.left - jDoc.scrollLeft(),
                 "z-index": 9999999
             };
             // 建立闪烁层
