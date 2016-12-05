@@ -1,6 +1,7 @@
 //-----------------------------------------
 // 先来几个帮助方法
 load("nashorn:mozilla_compat.js");
+importPackage(java.util);
 importPackage(org.nutz.lang.util);
 importPackage(org.nutz.lang);
 importPackage(org.nutz.walnut.api.io);
