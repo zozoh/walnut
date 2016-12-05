@@ -9,13 +9,15 @@ $z.declare([
     'app/wn.hmaker2/hm_page',
     'app/wn.hmaker2/hm_prop',
     'app/wn.hmaker2/hm_folder',
+    'app/wn.hmaker2/hm_code',
     'app/wn.hmaker2/hm_other',
 ], function(ZUI, Wn, MaskUI,
     HmMethods, HmPanelMethods, 
     HmResourceUI, 
     HmPageUI, 
     HmPropUI,
-    HmFolderUI, 
+    HmFolderUI,
+    HmCodeUI,
     HmOtherUI){
 //==============================================
 var html = function(){/*
@@ -84,7 +86,14 @@ return ZUI.def("app.wn.hmaker2", {
         }
         // 如果是网页，显示 PageUI
         else if(/^text\/html$/.test(o.mime)){
-            MainUI = HmPageUI;
+            // 无后缀的用编辑器编辑
+            if(!$z.getSuffixName(o.nm)) {
+                MainUI = HmPageUI;
+            }
+            // 其他的用文本编辑
+            else {
+                MainUI = HmCodeUI;
+            }
         }
         // 其他的显示错误的 UI
         else {

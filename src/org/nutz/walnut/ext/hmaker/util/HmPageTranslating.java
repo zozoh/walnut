@@ -397,6 +397,10 @@ public class HmPageTranslating extends HmContext {
         if (link.startsWith("id:")) {
             oLink = io.checkById(link.substring(3));
         }
+        // 相对于站点的绝对链接
+        else if (link.startsWith("/")) {
+            oLink = io.check(this.oHome, link.substring(1));
+        }
         // 被认为是相对链接，那么试图找到这个文件
         else {
             oLink = io.check(this.oSrc, link);

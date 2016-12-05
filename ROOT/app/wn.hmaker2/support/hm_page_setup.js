@@ -42,6 +42,10 @@ var methods = {
         // 设置辅助线模式
         UI.syncAssistedMark();
 
+        // 清理不必要的元素
+        UI._C.iedit.$root.find(".hm-del-save, .ui-code-template, .ui-debug-mark, .ui-mask, .ui-loading")
+            .remove();
+
         //.......................... 下面的方法来自 support/hm_page_setup.js
         // 设置编辑区页面的 <head> 部分
         UI.__setup_page_head();
@@ -414,6 +418,7 @@ var methods = {
             on_drop : function(jAreaCon) {
                 //console.log("drop to ", jAreaCon);
                 this.uiCom.appendToArea(jAreaCon);
+                this.uiCom.$el.removeClass("hm-pmv-hide");
             }
         });
         

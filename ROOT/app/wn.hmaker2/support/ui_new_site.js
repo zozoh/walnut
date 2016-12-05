@@ -8,9 +8,12 @@ $z.declare([
 //==============================================
 var html = `
 <div class="ui-arena hm-ui-new-site">
-    <header></header>
+    <header><%=hmaker.site.newsite_tt%></header>
     <section ui-gasket="form"></section>
-    <footer></footer>
+    <footer>
+        <b><i class="zmdi zmdi-plus"></i>{{hmaker.site.newsite_do}}</b>
+        <div class="warn"></div>
+    </footer>
 </div>
 `;
 //==============================================
@@ -20,6 +23,26 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
+    },
+    //...............................................................
+    events : {
+        'click footer b' : function(){
+            var UI  = this;
+            var opt = UI.options;
+            var si  = UI.gasket.form.getData();
+            
+            // 判读是佛存在
+            Wn.exec("obj -noexists null '" + si.siteDir + "/" + si.siteName + "'", function(re){
+                // 已经存在 ...
+                if("null" != re) {
+                    // 执行创建
+
+
+                    // 调用回调
+
+                }
+            });
+        }
     },
     //...............................................................
     redraw : function(){
@@ -32,7 +55,7 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
             gasketName : "form",
             fitparent  : false,
             uiWidth : "all",
-            dfields : [{
+            fields : [{
                 key    : "siteDir",
                 title  : "i18n:hmaker.site.new_site_dir",
                 type   : "string",
@@ -56,6 +79,9 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
                         return null;
                     },
                     formatData : function(o){
+                        var ph = Wn.getRelativePathToHome(o);
+                        if("./" == ph)
+                            return "~";
                         return o ? "~/" + Wn.getRelativePathToHome(o) : null;
                     }
                 }
@@ -63,7 +89,7 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
                 key    : "siteName",
                 title  : UI.msg("hmaker.site.nm"),
                 type   : "string",
-                dft    : UI.msg("hmaker.site.newsite"),
+                dft    : UI.msg("hmaker.site.newsite_nm"),
                 editAs : "input"
             }]
         }).render(function(){

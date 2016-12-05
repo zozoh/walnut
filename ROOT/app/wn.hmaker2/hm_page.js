@@ -767,7 +767,7 @@ return ZUI.def("app.wn.hmaker_page", {
         // 处理所有的控件，删掉临时属性和辅助节点
         C.iload.$body.find(".hm-com").each(function(){
             // 删掉临时的 style 样式
-            var jCom = $(this).attr({
+            var jCom = $(this).removeClass("hm-pmv-hide").attr({
                 "ui-id" : null,
                 "c_seq" : null,
                 "hm-actived" : null
@@ -778,10 +778,22 @@ return ZUI.def("app.wn.hmaker_page", {
             
             // 删掉辅助节点
             jW.children(".hm-com-assist").remove();
+
+            // !!! 兼容老版本
+            // 如果是 Image 控件，将 id:xxx 的 src 切换成相对站点的路径
+            if("image" == jCom.attr("ctype")) {
+                var com = $z.getJsonFromSubScriptEle(jCom, "hm-prop-com", {});
+                if(/^id:[\w\d]+/.test(com.src)) {
+                    var oImg  = Wn.getById(com.src.substring(3));
+                    var oHome = UI.getHomeObj();
+                    com.src   = "/" + Wn.getRelativePath(oHome, oImg);
+                    $z.setJsonToSubScriptEle(jCom, "hm-prop-com", com, true);
+                }
+            }
         });
         
         // 所有标识删除的节点也要删除
-        C.iload.$root.find(".hm-del-save, .ui-code-template, .ui-debug-mark")
+        C.iload.$root.find(".hm-del-save, .ui-code-template, .ui-debug-mark, .ui-mask, .ui-loading")
             .remove();
         
         // 删除所有临时属性

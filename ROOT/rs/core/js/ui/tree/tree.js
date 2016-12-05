@@ -374,6 +374,18 @@ return ZUI.def("ui.tree", {
         // 返回自身以便链式赋值
         return this;
     },
+    updateNode : function(nd, obj) {
+        var jNode = this.$node(nd);
+
+        if(jNode.length > 0) {
+            var isA = this.isActived(jNode);
+            var jN2 = this.__gen_node(obj);
+            jNode.replaceWith(jN2);
+            if(isA) {
+                this.setActived(jN2);
+            }
+        }
+    },
     //...............................................................
     _draw_nodes : function(list, jP){
         var UI  = this;

@@ -184,8 +184,14 @@ var methods = {
             return  '<i class="fa fa-folder-o"></i>';
         
         // 网页 / XML
-        if(/^text\/(xml|html)$/.test(o.mime))
+        if(/^text\/(xml|html)$/.test(o.mime)) {
+            // 无后缀的用编辑器编辑
+            if(!$z.getSuffixName(o.nm)) {
+                return  '<i class="fa fa-file"></i>';
+            }
+            // 其他的用文本编辑
             return  '<i class="fa fa-file-code-o"></i>';
+        }
 
         // 文本
         if(/^text\//.test(o.mime))

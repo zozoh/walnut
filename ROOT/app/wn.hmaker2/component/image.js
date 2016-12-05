@@ -40,6 +40,8 @@ return ZUI.def("app.wn.hm_com_image", {
         var UI   = this;
         var jW   = UI.$el.children(".hm-com-W");
         var jImg = UI.arena.children("img");
+
+        var BLANK_IMG = '/a/load/wn.hmaker2/img_blank.jpg';
                 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 指定链接
@@ -67,16 +69,63 @@ return ZUI.def("app.wn.hm_com_image", {
             }
             // 指定了文件对象
             else if(/^id:[\w\d]+/.test(com.src)) {
-                src = '/o/read/' + com.src;
+                // 试图检查一下这个对象是否存在
+                var re = Wn.exec('obj ' + com.src);
+                // 不存在
+                if(/^e./.test(re)) {
+                    src = BLANK_IMG;
+                    com.src = null;
+                }
+                // 读取 src
+                else {
+                    src = '/o/read/' + com.src;
+                }
             }
+            // 指定了相对站点的路径
+            else if(/^\//.test(com.src)){
+                var oHome = this.getHomeObj();
+                var src = "id:" + oHome.id + com.src;
+                // 试图检查一下这个对象是否存在
+                var re = Wn.exec('obj ' + src);
+                // 不存在
+                if(/^e./.test(re)) {
+                    src = BLANK_IMG;
+                    com.src = null;
+                }
+                // 读取 src
+                else {
+                    src = '/o/read/' + src;
+                }
+            }
+            // 默认是指定了相对页面的路径
+            else {
+                var oPage = this.pageUI().getCurrentEditObj();
+                var src = "id:" + oPage.pid + com.src;
+                // 试图检查一下这个对象是否存在
+                var re = Wn.exec('obj ' + src);
+                // 不存在
+                if(/^e./.test(re)) {
+                    src = BLANK_IMG;
+                    com.src = null;
+                }
+                // 读取 src
+                else {
+                    src = '/o/read/' + src;
+                }
+            }
+            //  如果归零了 com.src 更新一下
+            if(!com.src)
+                this.setData(com);
         }
         //console.log(jImg.attr("src"), src)
         // 如果 src 发生变更，重新加载图片后，应该重新设置图片控件宽高
         if(src != jImg.attr("src")) {
             // 开始加载图片
-            UI.showLoading();
-            // 隐藏图片
-            jImg.css("visibility","hidden");
+            if(src) {
+                UI.showLoading();
+                // 隐藏图片
+                jImg.css("visibility","hidden");
+            }
             // 附加 load 事件
             jImg.one("load", function(){
                 //console.log("reset img w/h")
@@ -86,7 +135,7 @@ return ZUI.def("app.wn.hm_com_image", {
                 UI.applyBlock();
             });
             // 触发图片的内容改动
-            jImg.attr("src", src || '/a/load/wn.hmaker2/img_blank.jpg');
+            jImg.attr("src", src || BLANK_IMG);
         }
 
         // 图片拉伸方式

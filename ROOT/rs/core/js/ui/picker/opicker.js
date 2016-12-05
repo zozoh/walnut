@@ -35,6 +35,10 @@ return ZUI.def("ui.picker.opicker", {
 
             // 如果是站点的主目录
             var base = opt.base;
+            if(opt.lastObjKey) {
+                base = UI.local(opt.lastObjKey) || base;
+                console.log(base)
+            }
             if(o) {
                 // 主目录
                 if("./" == Wn.getRelativePathToHome(o)) {
@@ -59,6 +63,11 @@ return ZUI.def("ui.picker.opicker", {
                 },
                 on_ok : function(objs){
                     if(objs && objs.length > 0){
+                        // 记录第一个对象为上次打开对象
+                        if(opt.lastObjKey) {
+                            UI.local(opt.lastObjKey, "id:"+ objs[0].pid);
+                        }
+                        // 执行更新
                         UI._update(objs);
                     }
                 }
@@ -107,6 +116,7 @@ return ZUI.def("ui.picker.opicker", {
         var UI  = this;
         var opt = UI.options;
         var jBox = UI.arena.find(".picker-box");
+
         // 清除数据
         if(!o){
             jBox.empty();
@@ -167,7 +177,7 @@ return ZUI.def("ui.picker.opicker", {
                     opt.showPath.wrapper || null, 
                     opt.showPath.sep || null));
         } else {
-            jA.text(Wn.objDisplayName(UI, o));
+            jA.text(Wn.objDisplayName(UI, o, 18));
         }
         
         // 加入 DOM

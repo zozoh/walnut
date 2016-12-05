@@ -14,7 +14,7 @@ public class cmd_cp extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        ZParams params = ZParams.parse(args, "p|v|r");
+        ZParams params = ZParams.parse(args, "pvr");
         if (params.vals.length != 2) {
             throw Err.create("e.cmds.cp.not_enugh_args");
         }

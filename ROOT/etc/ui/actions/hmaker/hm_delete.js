@@ -14,9 +14,7 @@
         // 得到要删除的对象
         var theObj = UI.getCurrentEditObj();
         var list;
-        
-        console.log(theObj)
-		
+        		
 		// 是目录
 		if("DIR" == theObj.race) {
 			// 看看是否有选择的内容
@@ -53,7 +51,7 @@
 		Wn.exec(cmdText);
 		
 		// 刷新界面
-		UI.refresh();
+		$z.invoke(UI, "refresh");
 
 		// 调用在资源面板上移除
 		$z.invoke(UI.resourceUI(), "remove", [o.id]);

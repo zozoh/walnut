@@ -174,7 +174,8 @@ return ZUI.def("app.wn.hmaker_resource", {
                                 else{
                                     var obj = $z.fromJson(re);
                                     Wn.saveToCache(obj);
-                                    jText.text(obj.nm);
+                                    //jText.text(obj.nm);
+                                    UI.updateNode(obj.id, obj);
                                 }
                             });
                         }

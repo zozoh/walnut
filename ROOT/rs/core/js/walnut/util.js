@@ -129,7 +129,7 @@ var Wn = {
 
         // 加入省略号
         if(maxLen > 0)
-            return $z.ellipsisCenter(text, 20);
+            return $z.ellipsisCenter(text, maxLen);
         return text;
     },
     //...................................................................
