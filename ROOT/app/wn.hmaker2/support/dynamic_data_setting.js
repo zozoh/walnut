@@ -108,7 +108,7 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
         // 更新了 API -> 更新参数表
         if("api" == key) {
             var params = UI._eval_api_params(val);
-            console.log(params)
+            //console.log(params)
             UI.gasket.form.update("params", params);
         }
         // 更新了模板 -> 模板映射

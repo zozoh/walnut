@@ -11,8 +11,19 @@ public class hmc_image extends AbstractComHanlder {
     @Override
     protected void _exec(HmPageTranslating ing) {
 
+        // 图片源
+        String src = ing.propCom.getString("src");
+        src = ing.explainLink(src, true);
+
+        // 图片不存在，那么删除整个控件
+        if (Strings.isBlank(src)) {
+            ing.eleCom.remove();
+            return;
+        }
+
         // 建立包裹的 DIV
         Element eleDiv = ing.eleCom.child(0).addClass("hmc-image");
+        eleDiv.appendElement("img").attr("src", src);
 
         // 图片属性
         NutMap cssImg = ing.cssBlock.pickAndRemove("width", "height", "border", "borderRadius");
@@ -30,11 +41,6 @@ public class hmc_image extends AbstractComHanlder {
         ing.addMyRule(null, ing.cssBlock);
         ing.addMyRule(".hmc-image", cssArena);
         ing.addMyRule("img", cssImg);
-
-        // 图片源
-        String src = ing.propCom.getString("src");
-        src = ing.explainLink(src, true);
-        eleDiv.appendElement("img").attr("src", src);
 
         // 超链接
         String href = ing.propCom.getString("href");

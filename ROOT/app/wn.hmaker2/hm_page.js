@@ -389,7 +389,7 @@ return ZUI.def("app.wn.hmaker_page", {
         // 菜单们都关联了哪些区域
         var layoutMap = UI.getToggleAreaMap();
 
-        console.log(layoutMap)
+        //console.log(layoutMap)
 
         // 找到所有的布局控件
         UI._C.iedit.$body.find('.hm-layout').each(function(){

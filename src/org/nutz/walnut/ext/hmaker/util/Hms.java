@@ -60,11 +60,14 @@ public final class Hms {
      * @see #RULE_MULTILINE
      */
     public static String genCssRule(HmPageTranslating ing, Map<String, Object> rule, int mode) {
+        if (rule.isEmpty())
+            return null;
         boolean autoLower = Maths.isMask(mode, AUTO_LOWER);
         boolean wrapBrace = Maths.isMask(mode, WRAP_BRACE);
         boolean multiline = Maths.isMask(mode, RULE_MULTILINE);
 
         String re = wrapBrace ? "{" : "";
+
         for (Map.Entry<String, Object> en : rule.entrySet()) {
             String key = en.getKey();
             Object val = en.getValue();
@@ -115,9 +118,15 @@ public final class Hms {
             re += ":" + str + ";";
         }
 
+        // 判断空内容
+        if (Strings.isBlank(re) || (wrapBrace && "{".equals(re)))
+            return null;
+
         // 结尾
-        if (multiline)
+        if (multiline) {
             re += '\n';
+        }
+
         if (wrapBrace)
             re += '}';
 
@@ -167,8 +176,13 @@ public final class Hms {
             String selector = en.getKey();
             NutMap rule = en.getValue();
 
+            String ruleText = genCssRuleText(ing, rule);
+
+            if (null == ruleText)
+                continue;
+
             re += prefix + Strings.sNull(selector, "");
-            re += genCssRuleText(ing, rule);
+            re += ruleText;
             re += "\n";
         }
         return re;

@@ -25,7 +25,7 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 
-@JvmHdlParamArgs("^(quiet|debug|info|warn)$")
+@JvmHdlParamArgs("^(quiet|debug|info|warn|keep)$")
 public class hmaker_publish implements JvmHdl {
 
     @Override
@@ -107,9 +107,25 @@ public class hmaker_publish implements JvmHdl {
         };
 
         // ------------------------------------------------------------
+        // 清除源目录
+        if (!hc.params.is("keep")) {
+            String cmdText = String.format("rm -rfv id:%s/*", hpc.oDest.id());
+            log.info("clean dest: " + cmdText);
+            sys.exec(cmdText);
+        }
+
+        // ------------------------------------------------------------
         // 仅仅处理的是一个文件
         if (oSrc.isFILE()) {
             log.info("do file:");
+
+            // 确保自己被清除
+            String rph = hpc.getRelativePath(oSrc);
+            String cmdText = String.format("rm -v id:%s/%s*", hpc.oDest.id(), rph);
+            log.info("clean dest for file: " + cmdText);
+            sys.exec(cmdText);
+
+            // 执行转换
             callback.invoke(oSrc);
         }
         // 要处理的是一个目录
@@ -148,7 +164,7 @@ public class hmaker_publish implements JvmHdl {
 
             // 添加新 JS
             if (null != hpc.oSkinJs) {
-                log.info(" +     add new: " + hpc.getRelativeDestPath(oTaSkinJs));
+                log.info(" +     add new: " + hpc.getRelativePath(hpc.oSkinJs));
                 oTaSkinJs = sys.io.createIfNoExists(oTaSkin, "skin.js", WnRace.FILE);
                 Wn.Io.copyFile(sys.io, hpc.oSkinJs, oTaSkinJs);
             }
@@ -161,7 +177,7 @@ public class hmaker_publish implements JvmHdl {
             }
 
             // 添加新 CSS
-            log.info(" +     add new: " + hpc.getRelativeDestPath(oTaSkinJs));
+            log.info(" +     add new: " + hpc.getRelativePath(hpc.oSkinCss));
             oTaSkinCss = sys.io.createIfNoExists(oTaSkin, "skin.css", WnRace.FILE);
             Wn.Io.copyFile(sys.io, hpc.oSkinCss, oTaSkinCss);
 

@@ -8,7 +8,7 @@ $.fn.extend({ "navmenuToggleArea" : function(opt){
     // 找到自己对应的区域
     var jLayout = $(opt.target);
     
-    console.log("hahaha")
+    //console.log("hahaha")
     
     // 如果找到了，就启用
     if(jLayout.length > 0) {

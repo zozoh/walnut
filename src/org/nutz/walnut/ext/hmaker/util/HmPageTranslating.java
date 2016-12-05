@@ -220,7 +220,10 @@ public class HmPageTranslating extends HmContext {
         this.propPage = Hms.loadPropAndRemoveNode(doc.body(), "hm-page-attr");
 
         String css = Hms.genCssRuleStyle(this, propPage);
-        doc.body().attr("style", css).removeAttr("assisted-off").removeAttr("assisted-on");
+        if (null != css) {
+            doc.body().attr("style", css);
+        }
+        doc.body().removeAttr("assisted-off").removeAttr("assisted-on");
         // ---------------------------------------------------
         // 添加页面皮肤过滤器
         if (this.hasSkin()) {
@@ -269,7 +272,8 @@ public class HmPageTranslating extends HmContext {
             String prefix = "#" + en.getKey();
             Map<String, NutMap> rules = en.getValue();
             String cssText = Hms.genCssText(this, rules, prefix);
-            sb.append(cssText);
+            if (!Strings.isBlank(cssText))
+                sb.append(cssText);
         }
         if (!Strings.isBlank(sb)) {
             Element eleStyle = doc.head().appendElement("style");
@@ -371,7 +375,7 @@ public class HmPageTranslating extends HmContext {
      *            链接
      * @param asResource
      *            表示本链接为资源，需要加入资源列表（比如 image.src 就是这个情况）
-     * @return 转换后的 link
+     * @return 转换后的 link， null 表示链接目标不存在
      */
     public String explainLink(String link, boolean asResource) {
         if (Strings.isBlank(link))
@@ -395,16 +399,20 @@ public class HmPageTranslating extends HmContext {
 
         // 指向特殊文件
         if (link.startsWith("id:")) {
-            oLink = io.checkById(link.substring(3));
+            oLink = io.get(link.substring(3));
         }
         // 相对于站点的绝对链接
         else if (link.startsWith("/")) {
-            oLink = io.check(this.oHome, link.substring(1));
+            oLink = io.fetch(this.oHome, link.substring(1));
         }
         // 被认为是相对链接，那么试图找到这个文件
         else {
-            oLink = io.check(this.oSrc, link);
+            oLink = io.fetch(this.oSrc, link);
         }
+
+        // 如果链接目标不存在，返回空
+        if (null == oLink)
+            return null;
 
         // 计算相对路径
         String rph = this.getRelativePath(this.oSrc, oLink);

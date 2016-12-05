@@ -127,7 +127,7 @@ return ZUI.def("app.wn.hmaker2", {
         // 指定了发布的页面
         if(oPage) {
             var rph = Wn.getRelativePath(oHome, oPage);
-            cmdText +=  " -src '"+rph+"'";
+            cmdText +=  " -src '"+rph+"' -keep";
         }
 
         // 执行命令
