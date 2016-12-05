@@ -92,8 +92,8 @@ return ZUI.def("app.wn.hm_com_text", {
     //...............................................................
     getDefaultData : function(){
         return {
-            "lineHeight" : ".24rem",
-            "fontSize"   : ".14rem",
+            // "lineHeight" : ".24rem",
+            // "fontSize"   : ".14rem",
         };
     },
     //...............................................................

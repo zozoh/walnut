@@ -29,7 +29,7 @@ return ZUI.def("ui.otiles", {
     events : {
         // 点击激活或者选中项目 
         "click .list-item .wnobj-thumbnail, .list-item .wnobj-nm" : function(e){
-            this._do_click_list_item(e);
+            this._do_click_list_item(e, false);
         },
         // 点击空白区域
         "click .ui-arena" : function(e){
@@ -43,7 +43,9 @@ return ZUI.def("ui.otiles", {
             }
 
             // 否则取消所有项目选中
-            UI.setAllBlur();
+            if($(e.target).closest(".list-item").length == 0) {
+                this.setAllBlur();
+            }
         },
         // 改名
         "click .list-item[li-actived] .wnobj-nm" : function(e) {

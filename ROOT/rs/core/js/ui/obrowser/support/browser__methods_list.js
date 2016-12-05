@@ -23,7 +23,7 @@ var methods = {
         var opt = UI.opt();
         var uiList = UI.gasket.list;
 
-        console.log(opt)
+        //console.log(opt)
 
         // 显示正在加载
         uiList.showLoading();

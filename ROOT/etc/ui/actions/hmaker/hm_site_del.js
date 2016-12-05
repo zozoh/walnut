@@ -1,5 +1,5 @@
 ({
-	text : "i18n:hmaker.del_site",
+	text : "i18n:hmaker.site_del",
 	type : "button",
 	handler : function($ele, a) {
 		this.hmaker().doDeleteSite();

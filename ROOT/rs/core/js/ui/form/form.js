@@ -42,7 +42,8 @@ return ZUI.def("ui.form", {
         $z.setUndefined(options, "fields", []);
         $z.setUndefined(options, "prompts", {
             spinning : '<i class="fa fa-spinner fa-spin"></i>',
-            warning  : '<i class="fa fa-warning"></i>'
+            warn     : '<i class="zmdi zmdi-alert-triangle"></i>',
+            ok       : '<i class="zmdi zmdi-check-circle"></i>',
         });
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 整理 fields 字段
@@ -248,9 +249,11 @@ return ZUI.def("ui.form", {
 
         // 绘制补充说明
         if(fld.tip){
-            jTip.html(UI.text(fld.tip));
-        }else{
-            jTip.remove();
+            jTip.show().html(UI.text(fld.tip));
+        }
+        // 清空
+        else {
+            jTip.hide();
         }
     },
     //...............................................................
@@ -689,7 +692,7 @@ return ZUI.def("ui.form", {
     },
     //...............................................................
     // 在字段上显示提示，比如错误警告之类的
-    showPrompt : function(key, prompt) {
+    showPrompt : function(key, prompt, tip) {
         var UI  = this;
         var opt = UI.options;
 
@@ -701,9 +704,10 @@ return ZUI.def("ui.form", {
             html = prompt;
         }
 
-        // 设置
+        // 得到字段
         var jF = UI.$fld(key);
 
+        // 设置提示图标
         jF.attr("form-prompt", pKey).find(".ff-prompt").html(html);
     },
     //...............................................................
@@ -711,6 +715,24 @@ return ZUI.def("ui.form", {
         var keys = Array.from(arguments);
         for(var key of keys)
             this.$fld(key).removeAttr("form-prompt");
+    },
+    //...............................................................
+    setTip : function(key, tip) {
+        var UI  = this;
+        var opt = UI.options;
+
+        // 得到字段
+        var jF  = UI.$fld(key);
+        var fld = jF.data("@FLD");
+
+        // 设置提示文字
+        var str = tip || fld.tip;
+        if(str) {
+            jF.find(".ffv-tip").show().html(str);
+        } else {
+            jF.find(".ffv-tip").hide();
+        }
+        
     },
     //...............................................................
     getObjId : function(obj){

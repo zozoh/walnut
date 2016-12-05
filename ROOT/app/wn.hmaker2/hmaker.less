@@ -211,21 +211,33 @@
             padding: @d5+@d0 @d2 @d5 @d8;
             width: @ftW;
         }
+        .ff-prompt {
+            padding: @d5 + @d0;
+        }
         .com-input input {
             font-size:@f3; padding:@d4;
+        }
+        .com-droplist {
+            padding:@d2 0;
         }
     }
     footer {
         border-top: 1px solid @cborder1;
         padding:@d4 0 @d4 @ftW + @d3;
-        > b {
+        > b { opacity: .4;
             @btn(); padding:@d4 @d6 @d4 @d5; 
             > i {margin: 0 @d2;}
         }
-        > b:hover {@btn_hover();}
+        > b[enable] {
+            opacity: 1.0;
+        }
+        > b[enable]:hover {@btn_hover();}
+        .ing {display: none;}
     }
 }
-
+.hm-ui-new-site[ing] {
+    footer > .ing {display: inline-block;}
+}
 
 
 

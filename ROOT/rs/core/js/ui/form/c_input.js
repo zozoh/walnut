@@ -27,9 +27,11 @@ return ZUI.def("ui.form_com_input", {
     },
     //...............................................................
     redraw : function(){
-        var UI    = this;
-        var opt   = UI.options;
-        var jUnit = UI.arena.find(".unit");
+        var UI     = this;
+        var opt    = UI.options;
+        var jUnit  = UI.arena.find(".unit");
+        var jInput = UI.arena.find("input");
+
         // 声明了单位，显示一下
         if(opt.unit) {
             jUnit.text(UI.text(opt.unit));
@@ -38,6 +40,12 @@ return ZUI.def("ui.form_com_input", {
         else{
             jUnit.remove();
         }
+
+        // 占位符显示
+        if(opt.placeholder) {
+            jInput.attr("placeholder", opt.placeholder);
+        }
+
         // ComboBox 列表
         if(_.isArray(opt.list) && opt.list.length > 0 ) {
             var comboId = "combo_id_ui_" + UI.cid;
@@ -48,7 +56,7 @@ return ZUI.def("ui.form_com_input", {
             html += '</datalist>';
             $(html).appendTo(UI.arena);
             
-            UI.arena.find("input").attr("list", comboId);
+            jInput.attr("list", comboId);
         }
     },
     //...............................................................

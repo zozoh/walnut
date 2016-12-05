@@ -17,14 +17,6 @@ return ZUI.def("ui.obrowser_vmd_table", {
         BrowserMethods(this);
     },
     //..............................................
-    events : {
-        "dblclick .wnobj" : function(e){
-            var UI = this;
-            var o  = UI.getData(e.currentTarget);
-            UI.browser.setData("id:"+o.id);
-        }
-    },
-    //..............................................
     redraw : function(){
         var UI  = this;
         var opt = UI.opt();
@@ -55,6 +47,9 @@ return ZUI.def("ui.obrowser_vmd_table", {
             },
             on_blur : function(){
                 UI.__do_notify();
+            },
+            on_open : function(o) {
+                UI.browser().setData("id:"+o.id);
             },
             fields : [ {
                 key   : "nm",

@@ -45,6 +45,9 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
             $z.setUndefined(opt.emptyItem, "value", "");
         }
 
+        // 其他设置
+        $z.setUndefined(opt, "escapeHtml", true);
+
         // 注册全局关闭
         UI.watchMouse("click", do_close_all);
         UI.watchKey(27, do_close_all);
@@ -213,6 +216,8 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
     // it - 接受标准的 {icon,text,value} 格式对象，绘制一个项目
     __append_item : function(index, it, multi, jUl) {
         var UI  = this;
+        var opt = UI.options;
+
         jUl = jUl || UI.arena.find("ul");
 
         var jLi = $('<li>').appendTo(jUl)
@@ -236,8 +241,14 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
         }
 
         // 文字
-        if(it.text)
-            $('<b it="text">').text(UI.text(it.text)).appendTo(jLi);
+        if(it.text) {
+            var jText = $('<b it="text">').appendTo(jLi);
+            if(opt.escapeHtml) {
+                jText.text(UI.text(it.text));
+            }else {
+                jText.html(UI.text(it.text));
+            }
+        }
     },
     //...............................................................
     // limit 参数表示是否为限定数量的多选

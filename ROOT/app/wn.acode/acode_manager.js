@@ -235,7 +235,7 @@ return ZUI.def("app.wn.acode_manager", {
 
             // 错误
             if(/^e./.test(json)) {
-                UI.gasket.form.showPrompt(key, "warning");
+                UI.gasket.form.showPrompt(key, "warn");
             }
             // 执行更新
             else {
@@ -245,7 +245,7 @@ return ZUI.def("app.wn.acode_manager", {
                 //console.log(usr)
                 Wn.execf('obj id:'+obj.id+' -u \'buyer_id:"{{id}}", buyer_nm:"{{name}}"\' -o', usr, function(re){
                     if(/^e./.test(re)) {
-                        UI.gasket.form.showPrompt(key, "warning");
+                        UI.gasket.form.showPrompt(key, "warn");
                     }
                     else{
                         var o = $z.fromJson(re);

@@ -522,7 +522,7 @@ var methods = {
         if(UI.options.multi){
             // 仅仅表示单击选中
             if(($z.os.mac && e.metaKey) || (!$z.os.mac && e.ctrlKey)){
-                UI.check(e.currentTarget);
+                UI.toggle(e.currentTarget);
                 return;
             }
             // shift 键表示多选

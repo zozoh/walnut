@@ -118,6 +118,17 @@ return ZUI.def("ui.table", {
             else{
                 UI.uncheck();
             }
+        },
+        // 打开
+        "dblclick .tbl-row .tbl-row-td0" : function(e){
+            var UI  = this;
+            var opt = UI.options;
+            var context = opt.context || UI;
+
+            var jq  = $(e.currentTarget);
+            var obj = this.getData(jq);
+
+            $z.invoke(opt, "on_open", [obj, context]);
         }
     },
     //...............................................................

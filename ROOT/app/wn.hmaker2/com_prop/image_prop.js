@@ -55,9 +55,9 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             uiType : "ui/picker/opicker",
             uiConf : {
                 base : oHome,
-                defaultByCurrent : false,
                 lastObjKey : "hmaker_pick_image",
                 setup : {
+                    defaultByCurrent : false,
                     multi : false,
                     filter    : function(o) {
                         if('DIR' == o.race)

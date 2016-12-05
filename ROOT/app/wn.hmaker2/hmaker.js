@@ -187,7 +187,7 @@ return ZUI.def("app.wn.hmaker2", {
         }]);
     },
     //...............................................................
-    openNewSitePanel : function(doCopy) {
+    openNewSitePanel : function(copySite) {
         var UI    = this;
         var oHome = UI.getHomeObj();
 
@@ -198,17 +198,20 @@ return ZUI.def("app.wn.hmaker2", {
             setup : {
                 uiType : "app/wn.hmaker2/support/ui_new_site",
                 uiConf : {
-                    copyFrom : doCopy ? oHOme : null,
+                    oSiteHome : oHome,
+                    copySite  : copySite,
                     done : function(oNewHome) {
-                        // 刷新侧边栏后 ... 
-                        // UI.browser().chuteUI().refresh(function(){
-                        //     console.log(new Date())
-                        //     // 打开站点配置信息进一步编辑站点属性
-                        //     UI.openSiteConfPanel(oNewHome, function(){
-                        //         // 编辑完毕后切换到这个站点
-                        //         UI.browser().setData(oNewHome, "hmaker2");
-                        //     });
-                        // });
+                        // 关闭遮罩
+                        this.parent.close();
+                        
+                        // 打开站点配置信息进一步编辑站点属性
+                        UI.openSiteConfPanel(oNewHome, function(){
+                            // 刷新侧边栏后 ... 
+                            UI.browser().chuteUI().refresh(function(){
+                                // 编辑完毕后切换到这个站点
+                                UI.browser().setData(oNewHome, "hmaker2");
+                            });
+                        });
                     }
                 }
             }
@@ -268,7 +271,7 @@ return ZUI.def("app.wn.hmaker2", {
                         uiMask.close();
 
                         // 调用回调
-                        $z.doCallback(callback, [oHome], UI);
+                        $z.doCallback(callback, [obj], UI);
                     });
                 },
                 "click .pm-btn-cancel" : function(){
@@ -320,8 +323,13 @@ return ZUI.def("app.wn.hmaker2", {
     //...............................................................
     doChangeSiteConf : function() {
         var UI = this;
-        UI.openSiteConfPanel(null, function(){
-             UI.fire("change:site:skin");
+        UI.openSiteConfPanel(null, function(oHome){
+            UI.fire("change:site:skin");
+
+            // 刷新侧边栏后 ... 
+            UI.browser().chuteUI().refresh(function(){
+                this.gasket.sidebar.highlightItem(oHome.ph, "hmaker2");
+            });
         });
     },
     //...............................................................
