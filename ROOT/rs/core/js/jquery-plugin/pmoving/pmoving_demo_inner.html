@@ -20,6 +20,7 @@
 
     .pmv-mask .pmv-helper {
         background: rgba(255,0,0,0.2); padding:2px;
+        border:1px dashed #000;
     }
 
     .item {
@@ -33,6 +34,9 @@
         background:#CCC; border:1px dashed #AAA;
         
     }
+
+    .pmv-mask .pmv-si[axis="Y"]{ background: rgba(0,255,255,0.3);}
+    .pmv-mask .pmv-si[axis="X"]{ background: rgba(255,0,255,0.3);}
         
     .pmv-mask .pmv-dropi {
         border:1px dashed red;
@@ -51,9 +55,11 @@
     $(function(){
         $(".item").click(function(){
             var jq = $(this);
-            console.log(jq.offset(), jq.position());
+            console.log("inner:", jq.offset(), jq.position());
+            console.log(document.body.scrollTop, document.body.scrollLeft);
         });
-        console.log($z.winsz(window))
+        // console.log("win:", $z.winsz(window));
+        // console.log(document.body.scrollTop, document.body.scrollLeft);
         
         // $(document).scroll(function(){
         //     var ele = this.body;
@@ -66,11 +72,14 @@
     });
     </script>
 </head>
-<body>
-    <div class="viewport">
+<body style="margin:20px;">
+    <div style="height:300px; border:1px solid #000;">占位</div>
+    <div class="item item0" style="top:300px; left:10px;">ObjA</div>
+    <div class="item item1" style="top:300px; left:200px;">ObjB</div>
+    <!--div class="viewport">
         <div class="item item0" style="top:10px; left:10px;">ObjA</div>
         <div class="item item1" style="top:10px; left:200px;">ObjB</div>
-    </div>
+    </div-->
     <div class="drop-ta" dt="A"></div>
     <div class="drop-ta" dt="B"></div>
     <div class="drop-ta" dt="C"></div>

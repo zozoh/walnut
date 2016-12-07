@@ -234,7 +234,7 @@
             throw  "fail to dimension : " + v;
         },
         //.............................................
-        toPixel: function (str, dft, base) {
+        toPixel: function (str, base, dft) {
             var re;
             var m = /^([\d.]+)(px)?(%)?$/.exec(str);
             if (m){
@@ -324,30 +324,43 @@
             }
         },
         //.............................................
-        // 获取一个元素的矩形信息，包括 top,left,right,bottom,width,height,x,y
+        // 获取一个元素相对于页面的矩形信息，包括 top,left,right,bottom,width,height,x,y
         // 其中 x,y 表示中央点
-        rect: function (ele, includeMargin) {
+        //  - ele : 要计算的元素， body 被认为是窗体
+        //  - invludeMargin : 矩形信息是否包括外边距，默认不包含
+        //  - toScreen      : 指明矩形是相对于窗口的，所以要考虑到文档的 scrollTop/Left
+        rect: function (ele, includeMargin, toScreen) {
             var jEle = $(ele);
             
             // 如果计算 body 或者 document 或者 window
             if(jEle[0].tagName == 'BODY')
                 return $z.winsz(jEle[0].ownerDocument.defaultView);
             
-            // 开始计算
+            // 开始计算，得到相对于 document 的坐标
             var rect = jEle.offset();
+
+            // 切换到 screen 坐标系
+            if(toScreen) {
+                var body = jEle[0].ownerDocument.body;
+                rect.top  -= body.scrollTop;
+                rect.left -= body.scrollLeft;
+            }
+
             // 包括外边距，有点麻烦
             if (includeMargin && jEle.size() > 0) {
-                rect.width = jEle.outerWidth(true);
+                rect.width  = jEle.outerWidth(true);
                 rect.height = jEle.outerHeight(true);
-                var style = window.getComputedStyle(jEle[0]);
-                rect.top -= this.toPixel(style.marginTop);
-                rect.left -= this.toPixel(style.marginLeft);
+                var style   = window.getComputedStyle(jEle[0]);
+                rect.top   -= this.toPixel(style.marginTop);
+                rect.left  -= this.toPixel(style.marginLeft);
             }
             // 否则就简单了
             else {
-                rect.width = jEle.outerWidth();
+                rect.width  = jEle.outerWidth();
                 rect.height = jEle.outerHeight();
             }
+
+            // 计算其他值
             return this.rect_count_tlwh(rect);
         },
         //.............................................
@@ -425,18 +438,46 @@
         //.............................................
         // 得到一个新 Rect，左上顶点坐标系相对于 base
         // 如果给定 forCss=true，则将坐标系统换成 CSS 描述
-        rect_relative : function(rect, base, forCss) {
+        // baseScroll 是描述 base 的滚动，可以是 Element/jQuery
+        // 也可以是 {scrollTop,scrollLeft} 格式的对象
+        // 默认为 {scrollTop:0,scrollLeft:0} 
+        rect_relative : function(rect, base, forCss, baseScroll) {
+            // 计算 base 的滚动
+            if(_.isElement(baseScroll) || $z.isjQuery(baseScroll)){
+                var jBase = $(baseScroll);
+                baseScroll = {
+                    scrollTop  : jBase.scrollTop(),
+                    scrollLeft : jBase.scrollLeft(),
+                }
+            }
+            // 默认
+            else if(!baseScroll) {
+                baseScroll = {scrollTop:0,scrollLeft:0};
+            }
+
+            // 计算相对位置
             var r2 = {
                 width  : rect.width,
                 height : rect.height,
-                top    : rect.top    - base.top,
-                left   : rect.left   - base.left
+                top    : rect.top  - base.top  + baseScroll.scrollTop,
+                left   : rect.left - base.left + baseScroll.scrollLeft,
             };
             // 计算其余
             this.rect_count_tlwh(r2);
 
             // 返回 
             return forCss ? this.rectCss(r2, base) : r2;
+        },
+        //.............................................
+        // 缩放矩形
+        // 如果不给定 scaleY 则等比缩放
+        rect_zoom : function(rect, zoomX, zoomY) {
+            zoomY = zoomY || zoomX;
+            rect.top    *= zoomY;
+            rect.left   *= zoomX;
+            rect.width  *= zoomX;
+            rect.height *= zoomY;
+            return this.rect_count_tlwh(rect);
         },
         //.............................................
         // 将一个矩形转换为得到一个 CSS 的矩形描述

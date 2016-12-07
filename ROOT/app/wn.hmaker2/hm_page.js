@@ -793,7 +793,7 @@ return ZUI.def("app.wn.hmaker_page", {
         });
         
         // 所有标识删除的节点也要删除
-        C.iload.$root.find(".hm-del-save, .ui-code-template, .ui-debug-mark, .ui-mask, .ui-loading")
+        C.iload.$root.find(".hm-del-save, .ui-code-template, .ui-debug-mark, .ui-mask, .ui-loading, .pmv-mask")
             .remove();
         
         // 删除所有临时属性

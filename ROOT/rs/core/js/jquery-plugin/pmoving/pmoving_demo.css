@@ -42,8 +42,12 @@ pre {
 
 .pmv-mask {background: rgba(0,0,0,0.4);}
 
+.pmv-mask .pmv-si[axis="Y"]{ background: rgba(0,255,255,0.3);}
+.pmv-mask .pmv-si[axis="X"]{ background: rgba(255,0,255,0.3);}
+
 .pmv-mask .pmv-helper {
     background: rgba(255,0,0,0.2); padding:2px;
+    border:1px dashed #000;
 }
 
 .pmv-mask .pmv-dropi {

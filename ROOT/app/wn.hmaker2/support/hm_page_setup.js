@@ -80,9 +80,9 @@ var methods = {
         UI.doChangeSkin();
 
         // 模拟第一个块被点击
-        // window.setTimeout(function(){
-        //     UI._C.iedit.$body.find(".hm-com").eq(1).click();
-        // }, 500);
+        window.setTimeout(function(){
+            UI._C.iedit.$body.find(".hm-com").last().click();
+        }, 500);
     },
     //...............................................................
     // 添加 JS
@@ -230,6 +230,8 @@ var methods = {
             trigger    : '.hm-com',
             maskClass  : 'hm-page-move-mask',
             autoUpdateTriggerBy : null,
+            sensorSize : 30,
+            //fixDrop    : true,
             findTrigger : function(e) {
                 var jq    = $(e.target);
                 // 辅助节点
@@ -253,26 +255,24 @@ var methods = {
                 var jAi  = this.$trigger;
                 
                 if("H" == jAi.attr("m")) {
-                    var jAreaCons = UI._C.iedit.$body.find(".hm-area-con");
-                                        
                     // 当前控件所在的区域
-                    var jMyArea = jAi.closest(".hm-area-con");
+                    var jMyArea = jAi.closest(".hm-area");
                     var eMyArea = jMyArea.length > 0 ? jMyArea[0] : null;
                     
                     // 当前控件（如果是布局控件）包含的区域先找一下
                     // 这些区域也要过滤到
                     var jCom = jAi.closest(".hm-com");
-                    var jSubAreas = jCom.find(".hm-area-con");
+                    var jSubAreas = jCom.find(".hm-area");
                     var eSubs = Array.from(jSubAreas);
                     
                     // 准备要返回的区域列表
                     var eles = [];
                     
                     // 挨个查找：叶子区域，且不包含当前控件的，统统列出来
-                    UI._C.iedit.$body.find(".hm-area-con").each(function(){
+                    UI._C.iedit.$body.find(".hm-area").each(function(){
                         if(eMyArea != this
                            && eSubs.indexOf(this) < 0
-                           && $(this).find(".hm-area-con").length == 0) {
+                           && $(this).find(".hm-area").length == 0) {
                             eles.push(this);
                         }
                     });
@@ -319,7 +319,7 @@ var methods = {
                     this.$mask.attr("mmode", m);
                     
                     // 移动控件的树的层级
-                    if("H" == m && this.$drops) {
+                    if("H" == m && this.drops) {
                         this.__is_for_drop = true;
                         this.__do_ing = function(pmvc) {
                             //console.log("drag", pmvc.rect.inview)
@@ -327,12 +327,16 @@ var methods = {
                         
                         // 处理每个拖放的目标的内容显示
                         var pmvc = this;
-                        this.$drops.children().each(function(index){
-                            var di = pmvc.dropping[index];
-                            var jArea  = di.$ele.parents(".hm-area");
+                        this.$mask.find(".pmv-dropi").each(function(index){
+                            var jDrop = $(this);
+                            var as    = jDrop.attr("d-as");
+                            var index = jDrop.attr("d-index") * 1;
+                            var di    = pmvc.drops[as][index];
+                            var jArea  = di.$ele;
                             var areaId = jArea.attr("area-id");
+                            //console.log(areaId)
                             $(`<div class="di-area"></div>`)
-                                .text(areaId).appendTo(this);
+                                .text(areaId).appendTo(jDrop);
                         });
                         
                         // 修改 trigger 的显示样式
@@ -376,7 +380,7 @@ var methods = {
                 //......................................
                 this.uiCom = uiCom;
                 this.comBlock = this.uiCom.getBlock();
-                this.rect.com = $z.rect(jCom);
+                this.rect.com = $z.rect(jCom, false, true);
                 //......................................
                 // 确保这个控件是激活的
                 if(!jCom.attr("hm-actived")){    
@@ -387,13 +391,14 @@ var methods = {
                 // 计算，如果返回 true 表示不要更新块的位置大小
                 if(_.isFunction(this.__do_ing)
                    && !this.__do_ing(this)){
-                    // 得到改变
-                    var rect = $z.rect_relative(this.rect.com, 
+                    // 计算控件相对于 viewport 的全本 CSS
+                    var comCss = $z.rect_relative(this.rect.com,
                                                 this.rect.viewport,
-                                                true);
+                                                true,
+                                                this.$viewport);
                     _.extend(this.comBlock, {
                         top:"",left:"",bottom:"",right:"",width:"",height:""
-                    }, UI.pickCssForMode(rect, this.comBlock.posBy))
+                    }, UI.pickCssForMode(comCss, this.comBlock.posBy))
                     
                     // 通知修改，在 on_end 的时候会保存位置的
                     this.uiCom.notifyBlockChange(null, this.comBlock);

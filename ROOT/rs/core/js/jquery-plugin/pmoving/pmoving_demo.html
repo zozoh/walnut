@@ -27,7 +27,9 @@
         log($(btn).text());
     }
     function demo_normal(btn) {
-        $('.viewport').pmoving();
+        $('.viewport').pmoving({
+            sensorSize : 10
+        });
         log($(btn).text());
     }
     function demo_grid(btn) {
@@ -88,10 +90,10 @@
         $('.viewport').pmoving({
             findDropTarget : ".drop>div",
             on_dragenter : function(jq){
-                jq.attr("old-txt",jq.text()).text("ININ");
+                jq.css("background","#FF0").attr("old-txt",jq.text()).text("ININ");
             },
             on_dragleave : function(jq){
-                jq.text(jq.attr("old-txt"));
+                jq.css("background","").text(jq.attr("old-txt"));
             },
             on_drop : function(jq) {
                 console.log("drop in", jq.text());
@@ -110,9 +112,11 @@
 <body>
 <!--.........................................................-->
 <div class="main">
-    <div class="viewport">
+    <div class="viewport" style="overflow:auto;">
+        <div style="height:300px;">上部占位</div>
         <div class="item item0" style="top:10px; left:10px;">ObjA</div>
         <div class="item item1" style="top:10px; left:200px;">ObjB</div>
+        <div style="height:300px;">下部占位</div>
     </div>
 </div>
 <div class="panel">

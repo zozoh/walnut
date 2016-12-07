@@ -91,14 +91,15 @@
     }
     function demo_dragdrop(btn) {
         $VP().pmoving({
+            trigger : ".item",
             findDropTarget : function(){
                 return this.$docBody.find(".drop-ta");
             },
             on_dragenter : function(jq){
-                jq.attr("old-txt",jq.text()).text("ININ");
+                jq.css("background","#FF0").attr("old-txt",jq.text()).text("ININ");
             },
             on_dragleave : function(jq){
-                jq.text(jq.attr("old-txt"));
+                jq.css("background","").text(jq.attr("old-txt"));
             },
             on_drop : function(jq) {
                 console.log("drop in", jq.text());
