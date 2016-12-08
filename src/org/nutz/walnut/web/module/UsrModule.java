@@ -68,7 +68,8 @@ public class UsrModule extends AbstractWnModule {
                            @Param("nm") String nm,
                            @Param("passwd") String passwd,
                            @Param("email") String email,
-                           @Param("phone") String phone) {
+                           @Param("phone") String phone,
+                           @Param("mode") String mode) {
         if (Strings.isBlank(str)
             && Strings.isBlank(nm)
             && Strings.isBlank(email)
@@ -100,7 +101,11 @@ public class UsrModule extends AbstractWnModule {
         WnUsr u = usrs.create(info);
 
         // 执行创建后初始化脚本
-        this.exec("do_signup", u.name(), "setup -quiet -u '" + u.name() + "' usr/create");
+        String cmd = "setup -quiet -u '" + u.name() + "' usr/create";
+        if (!Strings.isBlank(mode) && mode.matches("[a-zA-Z0-9_]+")) {
+            cmd += " -m " + mode;
+        }
+        this.exec("do_signup", u.name(), cmd);
 
         // 返回
         return u;
@@ -114,8 +119,9 @@ public class UsrModule extends AbstractWnModule {
                                 @Param("nm") String nm,
                                 @Param("passwd") String passwd,
                                 @Param("email") String email,
-                                @Param("phone") String phone) {
-        return do_signup(str, nm, passwd, email, phone);
+                                @Param("phone") String phone,
+                                @Param("mode") String mode) {
+        return do_signup(str, nm, passwd, email, phone, mode);
     }
 
     @Inject("java:$conf.get('page-login','login')")

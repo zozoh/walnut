@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.app;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
@@ -17,6 +18,7 @@ import org.nutz.walnut.ext.app.bean.AppWxhookItem;
 import org.nutz.walnut.ext.weixin.WxConf;
 import org.nutz.walnut.ext.weixin.WxMsgHandler;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 
 class DoAppInit {
@@ -77,6 +79,11 @@ class DoAppInit {
         String pnb = c.getString("pnb");
         if (!Strings.isBlank(pnb) && ai.wxhookItems.size() > 0) {
             _do_wxhooks(pnb);
+        }
+        
+        // 处理环境变量
+        if (ai.envs != null) {
+            _do_envs();
         }
 
         sw.stop();
@@ -189,6 +196,19 @@ class DoAppInit {
 
             _Ln("OK");
         }
+        _Ln(Strings.dup('-', 44));
+    }
+    
+    private void _do_envs() {
+        _Ln("init env : ");
+        for (Entry<String, Object> en : ai.envs.entrySet()) {
+            _Lf("  - %10s = %s\n", en.getKey(), en.getValue());
+        }
+        Wn.WC().security(new WnEvalLink(sys.io), () -> {
+            final String path = "/sys/usr/" + sys.me.name();
+            WnObj usr = sys.io.check(null, path);
+            sys.io.appendMeta(usr, ai.envs);
+        });
         _Ln(Strings.dup('-', 44));
     }
 }
