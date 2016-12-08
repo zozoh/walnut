@@ -35,6 +35,8 @@ public class AppInfo {
     public List<AppApiItem> apiItems;
 
     public List<AppWxhookItem> wxhookItems;
+    
+    public NutMap envs;
 
     public void parseAndClose(Reader reader, Context c) {
         try {
@@ -88,6 +90,12 @@ public class AppInfo {
             __parse_wxhook(sWxhook, c);
         }
 
+        // 处理环境变量
+        String sEnvs = mp.get("env");
+        if (!Strings.isBlank(sEnvs)) {
+            sEnvs = Segments.replace(sEnvs, c);
+            this.envs = Json.fromJson(NutMap.class, sEnvs);
+        }
     }
 
     private final static Pattern P_WXHOOK_BEGIN = Pattern.compile("^@([^:]+)(:(true|false))?$");
