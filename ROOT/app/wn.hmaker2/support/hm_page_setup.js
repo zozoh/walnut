@@ -231,7 +231,7 @@ var methods = {
             maskClass  : 'hm-page-move-mask',
             autoUpdateTriggerBy : null,
             sensorSize : 30,
-            //fixDrop    : true,
+            compactViewportDropsRect : "NE",
             findTrigger : function(e) {
                 var jq    = $(e.target);
                 // 辅助节点

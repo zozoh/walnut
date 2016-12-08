@@ -280,6 +280,16 @@
             return key;
         },
         //.............................................
+        // 处理函数的参数表，将其变成普通数组
+        //  - flatten : 表示展平嵌套数组
+        //  - deeply  : 表示深层展开，否则只展开一层
+        toArgs : function(list, flatten, deeply) {
+            var args = Array.from(list);
+            if(flatten)
+                return _.flatten(args, !deeply);
+            return args;
+        },
+        //.............................................
         // 挑选属性，正则表达式如果以 ! 开头表示取反
         pick : function(obj, regex) {
             if(!regex)
@@ -376,6 +386,10 @@
             return re;
         },
         //.............................................
+        rectDump : function(rect) {
+            return this.tmpl("[{{left}},{{top}}]w={{width}},h={{height}}")(rect);
+        },
+        //.............................................
         // 自动根据矩形对象的值进行判断
         rect_count_auto : function(rect, quiet) {
             // 有 width, height
@@ -470,11 +484,15 @@
         },
         //.............................................
         // 缩放矩形
-        // 如果不给定 scaleY 则等比缩放
-        rect_zoom : function(rect, zoomX, zoomY) {
+        // - rect  : 缩放的矩形
+        // - vp    : 相对的顶点 {x,y}，默认取自己的中心点
+        // - zoomX : X 轴缩放
+        // - zoomY : Y 轴缩放，默认与 zoomX 相等
+        rect_zoom : function(rect, vp, zoomX, zoomY) {
+            vp    = vp || rect;
             zoomY = zoomY || zoomX;
-            rect.top    *= zoomY;
-            rect.left   *= zoomX;
+            rect.top    = (rect.top  - vp.y) * zoomY + vp.top;
+            rect.left   = (rect.left - vp.x) * zoomX + vp.left;
             rect.width  *= zoomX;
             rect.height *= zoomY;
             return this.rect_count_tlwh(rect);
@@ -504,21 +522,155 @@
             };
         },
         //.............................................
-        // 计算相交
+        // 针对一组矩形，建立矩形调整线对象
+        // 该对象是一个数组，每个元素字段为
+        /*
+        {
+            offset : 0,   // 线的位移
+            refers : [{   // 关联的矩形对象字段
+                rect : Rect   // 关联的矩形对象
+                key  : "top"  // 字段
+            }]
+        }
+        */
+        // 其中参数
+        //  - rects : 矩阵对象数组
+        //  - axis  : 可以是 "X" 或者 "Y" 表示建立的是哪个轴的参考线
+        //  - offsetFunc : F(v):Number 表示如何计算 offset 的
+        //                  > "int"   : 执行 parseInt
+        //                  > "round" : 执行 Math.round
+        //                  > "ceil"  : 执行 Math.ceil
+        //                  > "floor" : 执行 Math.floor
+        //                  > Func    : 执行自定义
+        //                  > 默认不做任何修改
+        // 本函数就是将矩形们的边进行统计，生成一条条的线对象，以备后续操作
+        // 同样位移的矩形边会被归纳到同样的线对象里面，以便统一调整
+        // @return 从小到大排序过的线对象
+        rect_adjustlines_create : function(rects, axis, offsetFunc) {
+            // 准备 offsetFunc
+            if(!_.isFunction(offsetFunc)) {
+                switch(offsetFunc) {
+                    case "int" : 
+                        offsetFunc = function(v){
+                            return parseInt(v);
+                        };
+                        break;
+                    case "round" : 
+                        offsetFunc = function(v){
+                            return Math.round(v);
+                        };
+                        break;
+                    case "ceil" : 
+                        offsetFunc = function(v){
+                            return Math.ceil(v);
+                        };
+                        break;
+                    case "floor" : 
+                        offsetFunc = function(v){
+                            return Math.floor(v);
+                        };
+                        break;
+                }
+            }
+            // 准备字段
+            var keys = "X" == axis ? ["left", "right"] : ["top", "bottom"];
+
+            // 准备归纳的表
+            var map = {};
+
+            // 循环查找
+            for(var r of rects) {
+                for(var key of keys) {
+                    var v   = offsetFunc ? offsetFunc(r[key]) : r[key];
+                    var lo  = map[v];
+                    var ref = {rect: r, key: key};
+                    // 新建
+                    if(!lo) {
+                        map[v] = {offset : v,  refers : [ref]};
+                    }
+                    // 插入
+                    else {
+                        lo.refers.push(ref);
+                    }
+                }
+            }
+
+            // 对于数组排序
+            var list = _.values(map).sort(function(a, b){
+                return a.offset == b.offset ? 0 :
+                            a.offset > b.offset ? 1 : -1;
+            });
+
+            // 返回结果
+            return list;
+        },
+        //.............................................
+        // 调试打印
+        rect_adjustlines_dump : function(lines){
+            // 调试打印
+            for(var lo of lines){
+                console.log(lo.offset, lo.refers.length, lo.refers);
+            }
+        },
+        //.............................................
+        // 计算矩形面积
+        rect_area : function(rect) {
+            return rect.width * rect.height;
+        },
+        //.............................................
+        // 计算多个矩形的最小相并矩形
+        rect_union : function(){
+            var rects = this.toArgs(arguments, true);
+            // 空
+            if(!rects || rects.length == 0)
+                return null;
+            // 只有一个
+            if(rects.length == 1)
+                return _.extend({}, rects[0]);
+            // 多个
+            var r2 = rects[0];
+            for(var i=1; i<rects.length; i++) {
+                var r = rects[i];
+                r2.top    = Math.min(r2.top    , r.top);
+                r2.left   = Math.min(r2.left   , r.left);
+                r2.right  = Math.max(r2.right  , r.right);
+                r2.bottom = Math.max(r2.bottom , r.bottom);
+            }
+            // 返回
+            return this.rect_count_tlbr(r2);
+        },
+        //.............................................
+        // 相并面积
+        rect_union_area : function() {
+            var rects = this.toArgs(arguments, true);
+            var r2    = this.rect_union(rects);
+            return this.rect_area(r2);
+        },
+        //.............................................
+        // 计算多个矩形的最大相交矩形，只有一个参数的话，永远返回 null
         rect_overlap : function(rectA, rectB) {
-            var r2 = {
-                top    : Math.max(rectA.top,    rectB.top),
-                left   : Math.max(rectA.left,   rectB.left),
-                right  : Math.min(rectA.right,  rectB.right),
-                bottom : Math.min(rectA.bottom, rectB.bottom),
-            };
+            var rects = this.toArgs(arguments, true);
+            // 少于1个
+            if(!rects || rects.length <= 1)
+                return null;
+            // 多个
+            var r2 = rects[0];
+            for(var i=1; i<rects.length; i++) {
+                var r = rects[i];
+                r2.top    = Math.max(r2.top    , r.top);
+                r2.left   = Math.max(r2.left   , r.left);
+                r2.right  = Math.min(r2.right  , r.right);
+                r2.bottom = Math.min(r2.bottom , r.bottom);
+            }
+            // 返回
             return this.rect_count_tlbr(r2);
         },
         //.............................................
         // 相交面积
         rect_overlap_area : function(rectA, rectB) {
-            var r2 = this.rect_overlap(rectA, rectB);
-            return r2.width * r2.height;
+            var rects = this.toArgs(arguments, true);
+            var r2    = this.rect_overlap(rects);
+            return this.rect_area(r2);
         },
         //.............................................
         // A 是否全部包含 B

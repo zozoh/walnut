@@ -499,23 +499,6 @@ function setup_viewport(pmvc) {
                             .hide().appendTo(pmvc.$mask),
 
         };
-        // 记录 viewport 外部的拖拽目标们的整体矩形
-        // 以备进行拖拽缩放
-        var bigDropRect = {
-            top:-1, bottom:0, left:-1, right:0,
-            updateMin : function(key, val) {
-                var v0 = this[key];
-                this[key] = v0 < 0 ? val : Math.min(v0, val);
-            },
-            updateMax : function(key, val) {
-                this[key] = Math.max(this[key], val);
-            },
-        };
-        var minW = $z.dimension(opt.minDropZoom.X, pmvc.rect.win.width);
-        var minH = $z.dimension(opt.minDropZoom.Y, pmvc.rect.win.height);
-        console.log("min:", minW, minH)
-        var minZoomX = 0;
-        var minZoomY = 0;
         // 初始化各个拖拽目标
         jDrops.each(function(){
             var di = {
@@ -526,7 +509,7 @@ function setup_viewport(pmvc) {
             if((di.rect.width * di.rect.height) > 0 ){
                 di.$helper = $('<div class="pmv-dropi">');
                 // 在 viewport 内部: 计算相对视口的位置
-                if(!opt.fixDrop && di.$ele.closest(pmvc.$viewport).length > 0) {
+                if(di.$ele.closest(pmvc.$viewport).length > 0) {
                     di.$helper.attr({
                         "d-as"    : "insides",
                         "d-index" : pmvc.drops.insides.length
@@ -544,63 +527,32 @@ function setup_viewport(pmvc) {
                         "d-index" : pmvc.drops.outsides.length
                     }).appendTo(pmvc.drops.$outside);
                     pmvc.drops.outsides.push(di);
-                    // 计算到大矩形里面
-                    bigDropRect.updateMin("left"  , di.rect.left);
-                    bigDropRect.updateMin("top"   , di.rect.top);
-                    bigDropRect.updateMax("right" , di.rect.right);
-                    bigDropRect.updateMax("bottom", di.rect.bottom);
-                    
-                    // 对于最小 30x30 的区域，本区域最小能 zoom 到多少比例
-                    if(di.rect.width > minW)
-                        minZoomX = Math.max(minZoomX, minW / di.rect.width);
-                    
-                    if(di.rect.height > minH)
-                        minZoomY = Math.max(minZoomY, minH / di.rect.height);
-
-                    console.log($z.tmpl("W({{W}})H({{H}})zX({{zX}})zY({{zY}})")({
-                        "zX" : minZoomX,
-                        "zY" : minZoomY,
-                        "W"  : di.rect.width,
-                        "H"  : di.rect.height
-                    }));
                 }
             }
         });
-        // 看看是否需要缩放
-        if(opt.fixDrop) {
-            // 计算大矩形完整数据
-            $z.rect_count_tlbr(bigDropRect);
-            console.log("scrollWidth", pmvc.$viewport[0].scrollWidth);
-            console.log("scrollHeight", pmvc.$viewport[0].scrollHeight);
-
-            // 看看有木有缩放的必要
-            if(pmvc.drops.outsides.length > 0
-                && !$z.rect_contains(pmvc.rect.win, bigDropRect))
-            {
-                // 首先得到要位移的量（大矩形的左上角)
-                var offset = {
-                    x : 0 - bigDropRect.left,
-                    y : 0 - bigDropRect.top,
-                }
-                // 其次得到宽高的缩放比例
-                console.log("minZoomX", minZoomX, "minZoomY", minZoomY);
-                var zoomX = Math.min(1, pmvc.rect.win.width  / bigDropRect.width);
-                var zoomY = Math.min(1, pmvc.rect.win.height / bigDropRect.height);
-                var zoom  = Math.min(zoomX, zoomY);
-
-                console.log("before: zoomX", zoomX, "zoomY", zoomY, " || zoom", zoom);
-                zoomX = Math.max(minZoomX, zoom);
-                zoomY = Math.max(minZoomY, zoom);
-                console.log("after:  zoomX", zoomX, "zoomY", zoomY, " || zoom", zoom);
-                
-                // 依次处理各个矩形
-                for(var di of pmvc.drops.outsides) {
-                    console.log(di.rect.top, offset.y, di.rect.top+offset.y)
-                    di.rect.top  -= offset.y;
-                    di.rect.left -= offset.x;
-                    $z.rect_zoom(di.rect, zoomX, zoomY);
-                }
+        // 看看是否需要缩放视口内的拖拽目标
+        if(opt.compactViewportDropsRect && pmvc.drops.insides.length > 0) {
+            // 得到矩形列表
+            var rects = [];
+            for(var di of pmvc.drops.insides) {
+                rects.push(di.rect);
             }
+
+            // TODO : 统一补偿滚动
+
+            // 计算大矩形
+            var RU = $z.rect_union(rects);
+            console.log($z.rectDump(RU));
+
+            // 建立调整的辅助线
+            var alines = $z.rect_adjustlines_create(rects, "Y", "round");
+
+            // 显示调试信息
+            $z.rect_adjustlines_dump(alines);
+
+            // TODO : 寻找最小线段间隔，作为调整的单位
+
+            // TODO : 将线调整到最小间隔的倍数，最大 3 倍
         }
         // 处理所有视口内相对 drops 显示
         for(var di of pmvc.drops.insides) {
@@ -748,8 +700,38 @@ $.fn.extend({ "pmoving" : function(opt){
         $z.rect_move_tl(this.rect.trigger, this, this.posAt);
     });
 
-    // 默认不缩放拖拽
-    $z.setUndefined(opt, "fixDrop", false);
+    // 默认的拖拽压缩
+    var dft_compact_drops = {
+        paddingX  : 10,
+        paddingY  : 10,
+        width     : "50%",       // 宽度压缩比例
+        height    : "auto",      // 高度压缩比例
+    };
+    if("NE" == opt.compactViewportDropsRect) {
+        opt.compactViewportDropsRect = _.extend(dft_compact_drops, {
+            positionX : "right",
+            positionY : "top",
+        });
+    }
+    else if("NW" == opt.compactViewportDropsRect) {
+        opt.compactViewportDropsRect = _.extend(dft_compact_drops, {
+            positionX : "left",
+            positionY : "top",
+        });
+    }
+    else if("SE" == opt.compactViewportDropsRect) {
+        opt.compactViewportDropsRect = _.extend(dft_compact_drops, {
+            positionX : "right",
+            positionY : "bottom",
+        });
+    }
+    else if("SW" == opt.compactViewportDropsRect) {
+        opt.compactViewportDropsRect = _.extend(dft_compact_drops, {
+            positionX : "left",
+            positionY : "bottom",
+        });
+    }
+    
 
     // 如果是 fixDrop 那么最小缩放区域是多少
     $z.setUndefined(opt, "minDropZoom", {});
