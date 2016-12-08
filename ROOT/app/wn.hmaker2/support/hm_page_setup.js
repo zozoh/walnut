@@ -231,7 +231,7 @@ var methods = {
             maskClass  : 'hm-page-move-mask',
             autoUpdateTriggerBy : null,
             sensorSize : 30,
-            compactViewportDropsRect : "NE",
+            compactDropsRect : "NE",
             findTrigger : function(e) {
                 var jq    = $(e.target);
                 // 辅助节点
@@ -424,6 +424,7 @@ var methods = {
                 //console.log("drop to ", jAreaCon);
                 this.uiCom.appendToArea(jAreaCon);
                 this.uiCom.$el.removeClass("hm-pmv-hide");
+                this.uiCom.el.scrollIntoView();
             }
         });
         

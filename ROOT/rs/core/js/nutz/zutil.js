@@ -484,17 +484,35 @@
         },
         //.............................................
         // 缩放矩形
-        // - rect  : 缩放的矩形
+        // - rect  : 要被缩放的矩形
         // - vp    : 相对的顶点 {x,y}，默认取自己的中心点
         // - zoomX : X 轴缩放
         // - zoomY : Y 轴缩放，默认与 zoomX 相等
-        rect_zoom : function(rect, vp, zoomX, zoomY) {
-            vp    = vp || rect;
+        // 返回矩形自身
+        rect_zoom_tlwh : function(rect, vp, zoomX, zoomY) {
+            vp    = vp    || rect;
             zoomY = zoomY || zoomX;
-            rect.top    = (rect.top  - vp.y) * zoomY + vp.top;
-            rect.left   = (rect.left - vp.x) * zoomX + vp.left;
+            rect.top    = (rect.top  - vp.y) * zoomY + vp.y;
+            rect.left   = (rect.left - vp.x) * zoomX + vp.x;
             rect.width  *= zoomX;
             rect.height *= zoomY;
+            return this.rect_count_tlwh(rect);
+        },
+        //.............................................
+        // 移动矩形
+        // - rect : 要被移动的矩形
+        // - tX   : X 轴位移
+        // - tY   : Y 周位移
+        // 返回矩形自身
+        rect_translate : function(rect, tX, tY) {
+            // 支持对象作为数据参数
+            if(_.isObject(tX) && _.isNumber(tX.x) && _.isNumber(tX.y)) {
+                tY = tX.y;
+                tX = tX.x;
+            }
+            // 执行位移
+            rect.top  += tY || 0;
+            rect.left += tX || 0;
             return this.rect_count_tlwh(rect);
         },
         //.............................................
@@ -522,10 +540,151 @@
             };
         },
         //.............................................
+        // 将给定矩形停靠到目标矩形的内边上
+        //  - rect   : 执行停靠的矩形
+        //  - target : 停靠的目标
+        rect_dockIn : function(rect, target, axis, padding) {
+            axis    = axis    || {X:"left", Y:"top"};
+            padding = padding || {X:0,Y:0};
+            console.log(rect)
+            console.log(target)
+            // X:轴将这个大矩形移动到目标区域指定位置
+            if("left" == axis.X) {
+                rect.left = target.left + padding.X;
+                $z.rect_count_tlwh(rect);
+            }
+            // 右侧
+            else if("right" == axis.X) {
+                rect.right = target.right - padding.X;
+                $z.rect_count_brwh(rect);
+            }
+            // 中部
+            else if("center" == axis.X) {
+                rect.x = target.x;
+                $z.rect_count_xywh(rect);
+            }
+            // 靠什么鬼
+            else {
+                throw "rect_dockIn invaid axis.X : " + axis.X;
+            }
+            // Y:轴将这个大矩形移动到目标区域指定位置
+            if("top" == axis.Y) {
+                rect.top = target.top + padding.Y;
+                $z.rect_count_tlwh(rect);
+            }
+            // 底部
+            else if("bottom" == axis.Y) {
+                rect.bottom = target.bottom - padding.Y;
+                $z.rect_count_brwh(rect);
+            }
+            // 中部
+            else if("center" == axis.Y) {
+                rect.y = target.y;
+                $z.rect_count_xywh(rect);
+            }
+            // 不支持啊
+            else {
+                throw "rect_dockIn invaid axis.Y : " + axis.Y;
+            }
+        },
+        //.............................................
+        // 处理一组矩形，保留其相对位置，并将其尽量缩小
+        // 试图浮动在当前页面上
+        //  - rects  : 矩形数组 
+        //  - opt    : 配置参数 {
+        //     target     : Rect,    // 要放置的目标区域矩形，默认整个窗口
+        //     scrollTop  : 0,       // 目标区域顶部滚动
+        //     scrollLeft : 0,       // 目标区域左侧滚动
+        //     positionX  : "left",  // X 轴的放置位置
+        //     positionY  : "top",   // Y 轴的放置位置
+        //     paddingX   : 10,      // X 轴边距
+        //     paddingY   : 10       // Y 轴边距
+        //     width      : "50%",   // 宽度压缩比例
+        //     maxTimes   : 3,       // Y 轴最大区域的倍数
+        //     stickRadius: 10,      // 辅助线吸附半径
+        // }
+        rect_compact : function(rects, opt) {
+            // 无需处理
+            if(!_.isArray(rects) || rects.length == 0) {
+                return;
+            }
+
+            // TODO： 好像效果不好，暂时注释掉 ...
+            // // 设置默认参数
+            opt.target      = opt.target      || this.winsz();
+            opt.scrollTop   = opt.scrollTop   || 0;
+            opt.scrollLeft  = opt.scrollLeft  || 0;
+            opt.positionX   = opt.positionX   || "left";
+            opt.positionY   = opt.positionY   || "top";
+            opt.paddingX    = opt.paddingX    || 10;
+            opt.paddingY    = opt.paddingY    || 10;
+            opt.width       = opt.width       || "50%";
+            opt.maxTimes    = opt.maxTimes    || 3;
+            opt.stickRadius = opt.stickRadius || 10;
+
+            // // 得到一个大矩形
+            // var BigRect = $z.rect_union(rects);
+
+            // // 停靠在给定区域里面
+            // this.rect_dockIn(BigRect, opt.target, {
+            //     X : opt.positionX, Y : opt.positionY
+            // }, {
+            //     X : opt.paddingX,  Y : opt.paddingY
+            // });
+
+            // // 缩放宽度比例
+            // var scaleX = $z.dimension(opt.width, 1);
+            // if(scaleX != 1) {
+            //     // 缩放大矩形的宽度
+            //     BigRect.width *= scaleX;
+            //     this.rect_count_tlwh(BigRect);
+            //     // 得到缩放操作的相对顶点 
+            //     var vp = {
+            //         x : BigRect.left,
+            //         y : BigRect.right,
+            //     };
+            //     // 依次处理矩形缩放
+            //     for(var r of rects) {
+            //         console.log("before:", this.rectDump(r), vp, scaleX);
+            //         this.rect_zoom_tlwh(r, vp, scaleX, 1);
+            //         console.log(" after:", this.rectDump(r));
+            //     }
+            // }
+            
+
+            // 建立调整的辅助线
+            var lines = this.rect_adjustlines_create(rects, "Y", "round");
+            //this.rect_adjustlines_dump(lines, "after create");
+
+            // 消除微小的线段间隔
+            lines = this.rect_adjustlines_stickBy(lines, opt.stickRadius);
+            //this.rect_adjustlines_dump(lines, "after stickBy");
+
+            // 补偿滚动
+            this.rect_adjustlines_scroll(lines, opt.scrollTop);
+
+            // 寻找最小线段间隔，作为调整的单位
+            var unit = this.rect_adjustlines_minSpace(lines);
+            //console.log("UNIT:", unit);
+
+            // 将线调整到最小间隔的倍数，最大 3 倍
+            this.rect_adjustlines_compact(lines, unit, opt.maxTimes);
+            //this.rect_adjustlines_dump(lines, "after compact");
+
+            // 应用修改到矩形的对应字段
+            this.rect_adjustlines_apply(lines);
+
+            // 重新设置矩形们其他的尺寸
+            for(var r of rects) {
+                this.rect_count_tlbr(r);
+            }
+        },
+        //.............................................
         // 针对一组矩形，建立矩形调整线对象
         // 该对象是一个数组，每个元素字段为
         /*
         {
+            space  : 0,   // 与上一根线的距离，第一根线永远是 -1
             offset : 0,   // 线的位移
             refers : [{   // 关联的矩形对象字段
                 rect : Rect   // 关联的矩形对象
@@ -601,15 +760,137 @@
                             a.offset > b.offset ? 1 : -1;
             });
 
+            // 计算线与线之间的距离
+            if(list.length > 0) {
+                list[0].space = -1;
+                for(var i=1; i<list.length; i++) {
+                    var l0 = list[i - 1];
+                    var l1 = list[i];
+                    l1.space = l1.offset - l0.offset;
+                }
+            }
+
             // 返回结果
             return list;
         },
         //.............................................
         // 调试打印
-        rect_adjustlines_dump : function(lines){
+        rect_adjustlines_dump : function(lines, title){
+            console.log("::::::::::: DUMP", lines.length, "lines:", title || "");
+            // 应用一下先
+            //this.rect_adjustlines_apply(lines);
             // 调试打印
             for(var lo of lines){
-                console.log(lo.offset, lo.refers.length, lo.refers);
+                var str = "{";
+                for(var ref of lo.refers) {
+                    str += "@" + ref.key;
+                    // 仅显示高度
+                    if(/^(top|bottom)$/.test(ref.key)){
+                        str += '[' + ref.rect.top + "," + ref.rect.bottom + ']';
+                    }
+                    // 仅显示宽度
+                    else {
+                        str += '[' + ref.rect.left + "," + ref.rect.right + ']';
+                    }
+                    str += " | ";
+                }
+                str += "}";
+                console.log(lo.offset, lo.space, str);
+            }
+        },
+        //.............................................
+        // 在排序后的线段组归纳线，将所有的线，在指定半径内的都归纳到一条线上
+        // 并返回新的线数组
+        rect_adjustlines_stickBy : function(lines, radius) {
+            var list = [];
+            if(lines.length > 0) {
+                // 准备第一个对象
+                var lo   = lines[0];
+                var last = {
+                    space  : lo.space,
+                    offset : lo.offset,
+                    refers : [].concat(lo.refers),
+                };
+                // 循环加入后面的
+                for(var i = 1; i<lines.length; i++) {
+                    lo = lines[i];
+                    // 加入
+                    if(lo.space <= radius) {
+                        last.refers.push.apply(last.refers, lo.refers);
+                    }
+                    // 创建一个新的
+                    else {
+                        list.push(last);
+                        last = {
+                            space  : lo.space,
+                            offset : lo.offset,
+                            refers : [].concat(lo.refers),
+                        };
+                    }
+                }
+                // 最后一个加入返回列表
+                list.push(last);
+            }
+            return list;
+        },
+        //.............................................
+        // 统一移动各条线
+        rect_adjustlines_scroll : function(lines, offset) {
+            if(lines.length > 0) {
+                for(var i = 0; i<lines.length; i++) {
+                    lines[i].offset += offset;
+                }
+            }
+        },
+        //.............................................
+        // 在排序后的线段组寻找调整线之间小的间距
+        // @return -1 表示线段组不足两条
+        rect_adjustlines_minSpace : function(lines) {
+            var re   = -1;
+            if(lines.length > 1) {
+                re = lines[1].space;
+                for(var i = 2; i<lines.length; i++) {
+                    re = Math.min(re, lines[i].space);
+                }
+            }
+            return re;
+        },
+        //.............................................
+        // 依次处理排序后的线段组的 offset，令其与前一个线段间隔为
+        // 指定单位的倍数
+        //  - lines    : 排序后的调整线数组
+        //  - unit     : 线段间隔单位
+        //  - maxTimes :「选」最大倍数，默认不限制
+        rect_adjustlines_compact : function(lines, unit, maxTimes) {
+            if(lines.length > 1) {
+                for(var i=1; i<lines.length; i++) {
+                    var lo   = lines[i];
+
+                    var times = Math.ceil(lo.space / unit);
+                    if(maxTimes) {
+                        times = Math.min(times, maxTimes);
+                    }
+                    lo.space  = Math.round(times * unit);
+                    lo.offset = lines[i-1].offset + lo.space;
+                }
+            }
+        },
+        //.............................................
+        // 将调整线的 offset 重新应用到对应矩形的边
+        rect_adjustlines_apply : function(lines) {
+            if(lines.length > 0) {
+                // 更新顶点
+                for(var lo of lines) {
+                    for(var ref of lo.refers) {
+                        ref.rect[ref.key] = lo.offset;
+                    }
+                }
+                // 重新设置矩形们其他的尺寸
+                for(var lo of lines) {
+                    for(var ref of lo.refers) {
+                        this.rect_count_tlbr(ref.rect);
+                    }
+                }
             }
         },
         //.............................................
@@ -624,11 +905,14 @@
             // 空
             if(!rects || rects.length == 0)
                 return null;
+
+            // 以第一个为基础
+            var r2 = _.extend({}, rects[0]);
+
             // 只有一个
             if(rects.length == 1)
-                return _.extend({}, rects[0]);
+                return r2;
             // 多个
-            var r2 = rects[0];
             for(var i=1; i<rects.length; i++) {
                 var r = rects[i];
                 r2.top    = Math.min(r2.top    , r.top);

@@ -130,6 +130,8 @@ function set_event_XY(pmvc, e) {
     pmvc.posDelta.y = e.clientY - pmvc.y;
     pmvc.x = e.clientX;
     pmvc.y = e.clientY;
+    pmvc.posPage.x = e.pageX;
+    pmvc.posPage.y = e.pageY;
     pmvc.posViewport.x = pmvc.x - pmvc.rect.viewport.left
                             + pmvc.$viewport.scrollLeft();
     pmvc.posViewport.y = pmvc.y - pmvc.rect.viewport.top
@@ -368,6 +370,7 @@ function on_mousedown(e) {
         posBegin    : { x : mX , y : mY },
         posDelta    : { x : 0  , y : 0  },
         posViewport : { x : -1 , y : -1 },
+        posPage     : { x : -1 , y : -1 },
         x : mX,
         y : mY,
         rect : {
@@ -492,11 +495,9 @@ function setup_viewport(pmvc) {
         // 在上下文中进行准备
         pmvc.drops = {
             insides  : [],
-            $inside  : $('<div class="pmv-drops" inside="yes">')
-                            .hide().appendTo(pmvc.$MVPw),
+            $inside  : $('<div class="pmv-drops" inside="yes">'),
             outsides : [],
-            $outside : $('<div class="pmv-drops" outside="yes">')
-                            .hide().appendTo(pmvc.$mask),
+            $outside : $('<div class="pmv-drops" outside="yes">'),
 
         };
         // 初始化各个拖拽目标
@@ -526,46 +527,70 @@ function setup_viewport(pmvc) {
                         "d-as"    : "outsides",
                         "d-index" : pmvc.drops.outsides.length
                     }).appendTo(pmvc.drops.$outside);
+                    di.rect = $z.rect_relative(
+                        di.rect, pmvc.rect.win, false, pmvc.$docBody
+                    );
                     pmvc.drops.outsides.push(di);
                 }
             }
         });
+
         // 看看是否需要缩放视口内的拖拽目标
-        if(opt.compactViewportDropsRect && pmvc.drops.insides.length > 0) {
-            // 得到矩形列表
+        if(opt.compactDropsRect) {
+            // 得到视口内矩形列表
             var rects = [];
             for(var di of pmvc.drops.insides) {
                 rects.push(di.rect);
             }
 
-            // TODO : 统一补偿滚动
+            // 缩放视口内矩形
+            $z.rect_compact(rects, _.extend({}, opt.compactDropsRect, {
+                scrollTop  : pmvc.$docBody.scrollTop(),
+                scrollLeft : pmvc.$docBody.scrollLeft(),
+            }))
 
-            // 计算大矩形
-            var RU = $z.rect_union(rects);
-            console.log($z.rectDump(RU));
+            // 得到视口外矩形列表
+            var rects = [];
+            for(var di of pmvc.drops.outsides) {
+                rects.push(di.rect);
+            }
 
-            // 建立调整的辅助线
-            var alines = $z.rect_adjustlines_create(rects, "Y", "round");
+            // 缩放视口外矩形
+            $z.rect_compact(rects, _.extend({}, opt.compactDropsRect, {
+                scrollTop  : pmvc.$docBody.scrollTop(),
+                scrollLeft : pmvc.$docBody.scrollLeft(),
+            }))
 
-            // 显示调试信息
-            $z.rect_adjustlines_dump(alines);
-
-            // TODO : 寻找最小线段间隔，作为调整的单位
-
-            // TODO : 将线调整到最小间隔的倍数，最大 3 倍
         }
         // 处理所有视口内相对 drops 显示
-        for(var di of pmvc.drops.insides) {
-            var css_di = $z.rectCss(di.rect, pmvc.rect.viewport);
-            di.$helper
-                .css("position", "absolute")
-                .css($z.rectObj(css_di, "top,left,width,height"));
+        if(pmvc.drops.insides.length > 0 ) {
+            // 计入 DOM
+            pmvc.drops.$inside.hide().appendTo(pmvc.$MVPw);
+            // 修正各项 CSS
+            for(var di of pmvc.drops.insides) {
+                var css_di = $z.rectCss(di.rect, pmvc.rect.viewport);
+                di.$helper
+                    .css("position", "absolute")
+                    .css($z.rectObj(css_di, "top,left,width,height"));
+            }
         }
         // 处理所有视口外绝对 drops 显示
-        for(var di of pmvc.drops.outsides) {
-            di.$helper
-                .css("position", "fixed")
-                .css($z.rectObj(di.rect, "top,left,width,height"));
+        if(pmvc.drops.outsides.length > 0 ) {
+            // 准备一个包裹 outside drops 的元素补偿页面的滚动
+            var jDropOut = $('<div>').css({
+                "margin-left" : 0 - pmvc.$docBody.scrollLeft(),
+                "margin-top"  : 0 - pmvc.$docBody.scrollTop(),
+            }).appendTo(pmvc.$mask);
+            // 计入 DOM
+            pmvc.drops.$outside.hide().css({
+                "position" : "relative",
+            }).appendTo(jDropOut);
+            // 修正各项 CSS
+            for(var di of pmvc.drops.outsides) {
+                di.$helper
+                    .css("position", "absolute")
+                    .css($z.rectObj(di.rect, "top,left,width,height"));
+            }
         }
 
     }
@@ -599,7 +624,7 @@ function do_drag_and_drop(pmvc) {
             }
             // 视口外部
             else if('outsides' == as) {
-                if($z.rect_in(di.rect, pmvc)){
+                if($z.rect_in(di.rect, pmvc.posPage)){
                     return;
                 }
             }
@@ -617,7 +642,7 @@ function do_drag_and_drop(pmvc) {
         //........................................
         // 先看看外部的
         for(var di of pmvc.drops.outsides) {
-            if($z.rect_in(di.rect, pmvc)) {
+            if($z.rect_in(di.rect, pmvc.posPage)) {
                 di.$helper.attr("pmv-hover", "yes");
                 $z.invoke(opt, "on_dragenter", [di.$ele, di.$helper], pmvc);
                 return;
@@ -707,26 +732,26 @@ $.fn.extend({ "pmoving" : function(opt){
         width     : "50%",       // 宽度压缩比例
         height    : "auto",      // 高度压缩比例
     };
-    if("NE" == opt.compactViewportDropsRect) {
-        opt.compactViewportDropsRect = _.extend(dft_compact_drops, {
+    if("NE" == opt.compactDropsRect) {
+        opt.compactDropsRect = _.extend(dft_compact_drops, {
             positionX : "right",
             positionY : "top",
         });
     }
-    else if("NW" == opt.compactViewportDropsRect) {
-        opt.compactViewportDropsRect = _.extend(dft_compact_drops, {
+    else if("NW" == opt.compactDropsRect) {
+        opt.compactDropsRect = _.extend(dft_compact_drops, {
             positionX : "left",
             positionY : "top",
         });
     }
-    else if("SE" == opt.compactViewportDropsRect) {
-        opt.compactViewportDropsRect = _.extend(dft_compact_drops, {
+    else if("SE" == opt.compactDropsRect) {
+        opt.compactDropsRect = _.extend(dft_compact_drops, {
             positionX : "right",
             positionY : "bottom",
         });
     }
-    else if("SW" == opt.compactViewportDropsRect) {
-        opt.compactViewportDropsRect = _.extend(dft_compact_drops, {
+    else if("SW" == opt.compactDropsRect) {
+        opt.compactDropsRect = _.extend(dft_compact_drops, {
             positionX : "left",
             positionY : "bottom",
         });
