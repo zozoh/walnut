@@ -9,6 +9,10 @@ define(function (require, exports, module) {
             exec: Wn.exec,
             app: Wn.app(),
             menu: [{
+                text: "进入命令行", handler: function () {
+                    window.open(window.location.origin + "/a/open/console");
+                }
+            }, {
                 text: "登陆",
                 handler: function () {
                     var sUI = this;
