@@ -6,6 +6,8 @@ package org.nutz.walnut.ext.alipay;
 
 public class AlipayConfig {
 
+    public static final String ALIPAY_GATEWAY_NEW = "https://mapi.alipay.com/gateway.do?";
+
     // 合作身份者ID，签约账号
     public String partner = "";
 
@@ -22,5 +24,8 @@ public class AlipayConfig {
 
     // 支付类型 ，无需修改
     public String payment_type = "1";
+    
+    public String pay_notify_url;
 
+    public String pay_return_url;
 }

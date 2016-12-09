@@ -29,8 +29,6 @@ import org.nutz.walnut.util.Wn;
 @JvmHdlParamArgs("^(json|c|n|q)$")
 public class alipay_pay implements JvmHdl {
 
-    public static final String ALIPAY_GATEWAY_NEW = "https://mapi.alipay.com/gateway.do?";
-
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 读取支付宝配置信息
@@ -65,14 +63,22 @@ public class alipay_pay implements JvmHdl {
         sParaTemp.put("seller_id", alipayConfig.partner);
         sParaTemp.put("_input_charset", "UTF-8");
         sParaTemp.put("payment_type", alipayConfig.payment_type);
-        sParaTemp.put("notify_url",
-                      payMap.getString("notify_url",
-                                       hc.params.get("notify_url",
-                                                     "http://wendal.ngrok.wendal.cn/api/root/alipay/payre")));
-        if (payMap.has("return_url"))
-            sParaTemp.put("return_url", payMap.getString("return_url"));
+        
+        // 回调地址
+        if (hc.params.has("pay_notify_url"))
+            sParaTemp.put("notify_url", hc.params.getString("pay_notify_url"));
+        else if (alipayConfig.pay_notify_url != null)
+            sParaTemp.put("notify_url", alipayConfig.pay_notify_url);
+        else
+            sParaTemp.put("notify_url", "http://wendal.ngrok.wendal.cn/api/root/alipay/payre");
+        // 支付完成(成功或失败均未知)时的回调
+        if (payMap.has("pay_return_url"))
+            sParaTemp.put("return_url", payMap.getString("pay_return_url"));
         else if (hc.params.has("return_url"))
             sParaTemp.put("return_url", hc.params.get("return_url"));
+        else if (alipayConfig.pay_return_url != null)
+            sParaTemp.put("return_url", alipayConfig.pay_return_url);
+        
         sParaTemp.put("anti_phishing_key", "");
         sParaTemp.put("exter_invoke_ip", "");
         sParaTemp.put("out_trade_no", payMap.getString("out_trade_no", R.UU32()));
@@ -94,7 +100,7 @@ public class alipay_pay implements JvmHdl {
         // 按 重定向Http 输出
         else {
             try {
-                StringBuilder sb = new StringBuilder(ALIPAY_GATEWAY_NEW);
+                StringBuilder sb = new StringBuilder(AlipayConfig.ALIPAY_GATEWAY_NEW);
                 for (Entry<String, String> en : sParaTemp.entrySet()) {
                     sb.append(en.getKey())
                       .append("=")
