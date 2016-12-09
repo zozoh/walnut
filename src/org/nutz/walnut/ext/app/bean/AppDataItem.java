@@ -7,6 +7,8 @@ public class AppDataItem {
 
     public String path;
 
+    public String cppath;
+
     public WnRace race;
 
     public NutMap metas;

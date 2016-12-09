@@ -80,7 +80,7 @@ class DoAppInit {
         if (!Strings.isBlank(pnb) && ai.wxhookItems.size() > 0) {
             _do_wxhooks(pnb);
         }
-        
+
         // 处理环境变量
         if (ai.envs != null) {
             _do_envs();
@@ -149,13 +149,14 @@ class DoAppInit {
         String phApiHome = Wn.normalizeFullPath("~/.regapi/api", sys);
         WnObj apiHome = sys.io.createIfNoExists(null, phApiHome, WnRace.DIR);
         for (AppApiItem item : ai.apiItems) {
-            
+
             if (!Strings.isBlank(item.when)) {
-                if (item.when.startsWith("user:") && !item.when.equals("user:"+c.getString("usr"))) {
+                if (item.when.startsWith("user:")
+                    && !item.when.equals("user:" + c.getString("usr"))) {
                     continue;
                 }
             }
-            
+
             _Lf("  - %-38s", item.path);
 
             WnObj oApi = sys.io.createIfNoExists(apiHome, item.path, WnRace.FILE);
@@ -189,16 +190,24 @@ class DoAppInit {
                                             : sys.io.createIfNoExists(taHome, item.path, item.race);
             _set_metas(o, item.metas);
 
-            // 空文件，将用默认内容写入
-            if (o.isFILE() && !Strings.isBlank(item.content) && o.len() == 0) {
-                sys.io.writeText(o, item.content);
+            // 空文件
+            if (o.isFILE() && o.len() == 0) {
+                // 直接写内容
+                if (!Strings.isBlank(item.content)) {
+                    sys.io.writeText(o, item.content);
+                }
+                // 写入copy内容
+                else if (!Strings.isBlank(item.cppath)) {
+                    WnObj cpSource = sys.io.fetch(taHome, item.cppath);
+                    sys.io.copyData(cpSource, o);
+                }
             }
 
             _Ln("OK");
         }
         _Ln(Strings.dup('-', 44));
     }
-    
+
     private void _do_envs() {
         _Ln("init env : ");
         for (Entry<String, Object> en : ai.envs.entrySet()) {

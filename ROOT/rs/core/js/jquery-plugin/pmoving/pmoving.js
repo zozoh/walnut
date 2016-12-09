@@ -490,6 +490,11 @@ function setup_viewport(pmvc) {
 
     // 创建要 drop 的目标
     var jDrops = $z.invoke(opt, "findDropTarget", [], pmvc);
+
+    // 过滤掉所有不可见的元素
+    if(jDrops)
+        jDrops = jDrops.filter(":visible");
+
     // console.log(jDrops.size())
     if(jDrops && jDrops.length > 0) {
         // 在上下文中进行准备

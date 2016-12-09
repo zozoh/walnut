@@ -776,27 +776,37 @@
         //.............................................
         // 调试打印
         rect_adjustlines_dump : function(lines, title){
-            console.log("::::::::::: DUMP", lines.length, "lines:", title || "");
             // 应用一下先
             //this.rect_adjustlines_apply(lines);
-            // 调试打印
-            for(var lo of lines){
-                var str = "{";
-                for(var ref of lo.refers) {
-                    str += "@" + ref.key;
-                    // 仅显示高度
-                    if(/^(top|bottom)$/.test(ref.key)){
-                        str += '[' + ref.rect.top + "," + ref.rect.bottom + ']';
-                    }
-                    // 仅显示宽度
-                    else {
-                        str += '[' + ref.rect.left + "," + ref.rect.right + ']';
-                    }
-                    str += " | ";
+            // 打印一组线
+            if(_.isArray(lines)) {
+                console.log("~~~~~ DUMP", lines.length, "lines:", title || "");
+                for(var i=0; i<lines.length; i++){
+                    var lo = lines[i];
+                    this.rect_adjustlines_dump(lo, i);
                 }
-                str += "}";
-                console.log(lo.offset, lo.space, str);
+                return;
             }
+            // 打印一条线
+            var lo  = lines;
+            var str = _.isUndefined(title) ? "" : title;
+            str += "  "  + this.alignRight(lo.offset, 4, ' ');
+            str += " / " + this.alignLeft(lo.space,  4, ' ');
+            str += " {";
+            for(var ref of lo.refers) {
+                str += "@" + ref.key;
+                // 仅显示高度
+                if(/^(top|bottom)$/.test(ref.key)){
+                    str += '[' + ref.rect.top + "," + ref.rect.bottom + ']';
+                }
+                // 仅显示宽度
+                else {
+                    str += '[' + ref.rect.left + "," + ref.rect.right + ']';
+                }
+                str += " | ";
+            }
+            str += "}";
+            console.log(str);
         },
         //.............................................
         // 在排序后的线段组归纳线，将所有的线，在指定半径内的都归纳到一条线上
@@ -862,16 +872,20 @@
         //  - unit     : 线段间隔单位
         //  - maxTimes :「选」最大倍数，默认不限制
         rect_adjustlines_compact : function(lines, unit, maxTimes) {
+            //console.log("-> rect_adjustlines_compact:");
             if(lines.length > 1) {
                 for(var i=1; i<lines.length; i++) {
                     var lo   = lines[i];
-
-                    var times = Math.ceil(lo.space / unit);
+                    //this.rect_adjustlines_dump(lo, i);
+                    var times = Math.round(lo.space / unit);
+                    //console.log("times_org:", times);
                     if(maxTimes) {
                         times = Math.min(times, maxTimes);
                     }
+                    //console.log("times_max:", times);
                     lo.space  = Math.round(times * unit);
                     lo.offset = lines[i-1].offset + lo.space;
+                    //this.rect_adjustlines_dump(lo, i);
                 }
             }
         },

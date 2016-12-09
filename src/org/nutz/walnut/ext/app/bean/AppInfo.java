@@ -35,7 +35,7 @@ public class AppInfo {
     public List<AppApiItem> apiItems;
 
     public List<AppWxhookItem> wxhookItems;
-    
+
     public NutMap envs;
 
     public void parseAndClose(Reader reader, Context c) {
@@ -315,10 +315,11 @@ public class AppInfo {
 
                 continue;
             }
-            // 遇到copy数据 TODO
-            // if(line.matches(regex)){
-            //
-            // }
+            // 遇到copy数据
+            m = Pattern.compile("^([-]{6,})[ ]*copy[ ]+(.+)*$").matcher(line);
+            if (m.find()) {
+                item.cppath = Segments.replace(m.group(2), c);
+            }
             // 遇到元数据行
             m = P_DATA_META.matcher(line);
             if (m.find()) {
