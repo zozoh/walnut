@@ -209,30 +209,33 @@ public class WnRun {
         }
     }
     
-    public void runWithHook(WnSession se, WnUsr usr, String grp, NutMap env, Callback<WnSession> callback) {
-        
-        WnBoxContext bc = new WnBoxContext(new NutMap());
-        bc.io = io;
-        bc.me = usr;
-        bc.session = se;
-        bc.usrService = usrs;
-        bc.sessionService = sess;
-        WnHookContext hc = new WnHookContext(boxes, bc);
-        hc.service = hooks;
+    public void runWithHook(WnUsr usr, String grp, NutMap env, Callback<WnSession> callback) {
+        WnSession se = sess.create(usr);
+        try {
+            WnBoxContext bc = new WnBoxContext(new NutMap());
+            bc.io = io;
+            bc.me = usr;
+            bc.session = se;
+            bc.usrService = usrs;
+            bc.sessionService = sess;
+            WnHookContext hc = new WnHookContext(boxes, bc);
+            hc.service = hooks;
 
-        if (env != null) {
-            for (Entry<String, Object> en : env.entrySet()) {
-                se.var(en.getKey(), en.getValue());
+            if (env != null) {
+                for (Entry<String, Object> en : env.entrySet()) {
+                    se.var(en.getKey(), en.getValue());
+                }
             }
+
+            WnContext ctx = Wn.WC();
+            ctx.me(usr.name(), Strings.sBlank(grp, usr.name()));
+            ctx.hooking(hc, ()->{
+                ctx.security(new WnSecurityImpl(io, usrs), ()->callback.invoke(se));
+                });
+            }
+        finally {
+            sess.logout(se.id());
         }
-
-        Wn.WC().me(usr.name(), Strings.sBlank(grp, usr.name()));
-        Wn.WC().hooking(hc, new Atom() {
-            public void run() {
-                callback.invoke(se);
-            }
-        });
-        
     }
 
     public static <T> void sudo(WnSystem sys, Atom atom) {

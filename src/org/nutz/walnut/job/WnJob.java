@@ -14,7 +14,6 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
-import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -179,32 +178,27 @@ public class WnJob extends WnRun implements Callable<Object> {
         public Object call() throws Exception {
             try {
                 io.appendMeta(jobDir,
-                              new NutMap().setv("job_start", System.currentTimeMillis())
-                                          .setv("job_st", "run"));
+                              new NutMap("job_start", now()).setv("job_st", "run"));
                 WnObj cmdFile = io.fetch(jobDir, "cmd");
                 if (cmdFile != null) {
                     String cmdText = io.readText(cmdFile);
                     WnUsr usr = usrs.fetch(jobDir.getString("job_user"));
                     if (usr != null) {
-                       WnSession se = sess.create(usr);
-                       WnJob.this.runWithHook(se, usr, jobDir.getString("job_group"), 
-                                              jobDir.getAs("job_env", NutMap.class), new Callback<WnSession>() {
-                            
-                            public void invoke(WnSession se) {
-                                exec("job-" + jobDir.getString("job_name", "_") + " ", se, "", cmdText);
-                            }
-                        });
-                       sess.logout(se.id());
+                       WnJob.this.runWithHook(usr, jobDir.getString("job_group"), 
+                                              jobDir.getAs("job_env", NutMap.class), 
+                                              (se) -> exec("job-" + jobDir.getString("job_name", "_") + " ", se, "", cmdText));
                     }
                 }
             }
             finally {
-                io.appendMeta(jobDir,
-                              new NutMap().setv("job_end", System.currentTimeMillis())
-                                          .setv("job_st", "done"));
+                io.appendMeta(jobDir, new NutMap("job_end", now()).setv("job_st", "done"));
             }
             return null;
         }
 
+    }
+    
+    public long now() {
+        return System.currentTimeMillis();
     }
 }

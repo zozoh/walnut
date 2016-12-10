@@ -94,25 +94,22 @@ public class alipay_pay implements JvmHdl {
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 输出
-        if (hc.params.is("json")) {
-            sys.out.println(Json.toJson(sParaTemp, hc.jfmt));
-        }
-        // 按 重定向Http 输出
-        else {
-            try {
-                StringBuilder sb = new StringBuilder(AlipayConfig.ALIPAY_GATEWAY_NEW);
-                for (Entry<String, String> en : sParaTemp.entrySet()) {
-                    sb.append(en.getKey())
-                      .append("=")
-                      .append(URLEncoder.encode(en.getValue(), "UTF-8"))
-                      .append("&");
-                }
-                sb.setLength(sb.length() - 1);
-                sys.out.println("HTTP/1.1 302 Found");
-                sys.out.println("Location: " + sb);
+        try {
+            StringBuilder sb = new StringBuilder(AlipayConfig.ALIPAY_GATEWAY_NEW);
+            for (Entry<String, String> en : sParaTemp.entrySet()) {
+                sb.append(en.getKey())
+                  .append("=")
+                  .append(URLEncoder.encode(en.getValue(), "UTF-8"))
+                  .append("&");
             }
-            catch (UnsupportedEncodingException e) {}
+            sb.setLength(sb.length() - 1);
+            if (hc.params.is("json")) {
+                sys.out.println(Json.toJson(new NutMap("url", sb.toString()), hc.jfmt));
+            } else {
+                sys.out.print(sb.toString());
+            }
         }
+        catch (UnsupportedEncodingException e) {}
     }
 
 }
