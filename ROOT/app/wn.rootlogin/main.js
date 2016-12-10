@@ -9,7 +9,16 @@ define(function (require, exports, module) {
             exec: Wn.exec,
             app: Wn.app(),
             menu: [{
-                text: "进入命令行", handler: function () {
+                text: "登陆(命令行)", handler: function () {
+                    var sUI = this;
+                    var objs = sUI.uiList.getChecked();
+                    if (!objs || objs.length == 0) {
+                        alert(sUI.msg("srh.e.nochecked"));
+                        return;
+                    }
+                    var bobj = objs[0];
+                    // 执行登陆命令，然后打开新的窗口
+                    Wn.exec("login " + bobj.nm);
                     window.open(window.location.origin + "/a/open/console");
                 }
             }, {
