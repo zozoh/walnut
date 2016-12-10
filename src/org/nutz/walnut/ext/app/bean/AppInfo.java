@@ -319,6 +319,7 @@ public class AppInfo {
             m = Pattern.compile("^([-]{6,})[ ]*copy[ ]+(.+)*$").matcher(line);
             if (m.find()) {
                 item.cppath = Segments.replace(m.group(2), c);
+                continue;
             }
             // 遇到元数据行
             m = P_DATA_META.matcher(line);
