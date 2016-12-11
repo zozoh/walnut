@@ -2,11 +2,14 @@ package org.nutz.walnut.ext.app;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
+import org.nutz.lang.segment.CharSegment;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -194,6 +197,23 @@ class DoAppInit {
             if (o.isFILE() && o.len() == 0) {
                 // 直接写内容
                 if (!Strings.isBlank(item.content)) {
+                    // 如果写入的内容还存在动态模板的话，需要先处理一下
+                    // ${id:xxxxx}
+                    Matcher idMatcher = Pattern.compile("\\$\\{id:(.+)\\}").matcher(item.content);
+                    Context c = Lang.context();
+                    while (idMatcher.find()) {
+                        String idPath = idMatcher.group(1);
+                        WnObj pobj = sys.io.fetch(taHome, idPath);
+                        if (pobj == null) {
+                            throw new RuntimeException(String.format("check out %s, it is must create before current file [%s]",
+                                                                     "${id:" + idPath + "}",
+                                                                     item.path));
+                        }
+                        c.set("id:" + idPath, pobj.id());
+                    }
+                    if (!c.isEmpty()) {
+                        item.content = new StringBuilder(new CharSegment(item.content.toString()).render(c));
+                    }
                     sys.io.writeText(o, item.content);
                 }
                 // 写入copy内容
