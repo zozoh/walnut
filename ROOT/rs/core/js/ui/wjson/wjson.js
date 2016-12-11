@@ -4,6 +4,7 @@
             pkg: "wjson",
             css: "ui/wedit/wedit.css", // 依赖wedit的css
             $vm: null,
+            _obj: null,
             events: {
                 "click .ui-wjson-save": function () {
                     this.write_obj();
@@ -46,7 +47,7 @@
                         },
                         ready: function () {
                             // 读取对象
-                            UI.read_obj();
+                            // UI.read_obj();
                         }
                     });
                 });
@@ -54,11 +55,11 @@
             // 读写方法
             write_obj: function () {
                 var UI = this;
-                Wn.writeObj(UI, null, UI.$vm.getContent());
+                Wn.writeObj(UI, UI._obj, UI.$vm.getContent());
             },
             read_obj: function () {
                 var UI = this;
-                Wn.readObj(UI, null, UI.update_content); // TODO 改成funciton 不要直接放UI中的方法
+                Wn.readObj(UI, UI._obj, UI.update_content); // TODO 改成funciton 不要直接放UI中的方法
             },
             // 更新内容
             update_content: function (content) {
@@ -73,8 +74,8 @@
                 this.update_obj();
             },
             // 更新对象信息
-            update_obj: function () {
-                var obj = this.app.obj;
+            update_obj: function (obj) {
+                var obj = this._obj || this.app.obj;
                 this.arena.find('.ui-wedit-title .ui-tt').text(obj.nm);
                 this.arena.find('.ui-wedit-footer').text(obj.ph);
             },
@@ -82,6 +83,13 @@
             load_fail: function (errMsg) {
                 // TODO 更友好的提示方式
                 alert(errMsg);
+            },
+            update: function (o) {
+                this._obj = o;
+                this.read_obj();
+            },
+            getCurrentTextContent: function () {
+                return UI.$vm.getContent();
             }
         });
     });
