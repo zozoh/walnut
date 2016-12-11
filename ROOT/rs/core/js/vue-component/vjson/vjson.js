@@ -1,4 +1,9 @@
 (function () {
+
+    function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
     // treenode
     var tmpl_treenode = `
     <li class="ui-wjson-treenode" :class="{'no-root' : !showTn}">
@@ -446,9 +451,11 @@
                 this.hideMenu();
             },
             addChildren: function (i, child) {
+                var self = this;
+                var cnm = (self.model.type == "array" ? ("arr" + randomInt(1, 100000)) : "");
                 console.log("parent [" + this.model.name + "] add children [" + i + "]");
-                this.model.children.splice(i, 0, child || {
-                        name: "",
+                self.model.children.splice(i, 0, child || {
+                        name: cnm,
                         value: "",
                         type: "string",
                         open: true,
@@ -744,8 +751,6 @@
             tn2jsAsStr: function (path, depth, parent, isObj, tn) {
                 var self = this;
                 var name = tn.name;
-                var tval = tn.value;
-                var value = this.tabStr(depth) + (isObj ? ('"' + name + '": ') : "");
                 if (tn.dupkey) {
                     alert("对象路径：" + path + "下有重复的键[" + tn.name + "]，请检查");
                     return false;
@@ -754,6 +759,8 @@
                     alert("对象路径：" + path + "下有空键，请检查");
                     return false;
                 }
+                var tval = tn.value;
+                var value = this.tabStr(depth) + (isObj ? ('"' + name + '": ') : "");
                 // 根据类型转换
                 if (tn.type == "object" || tn.type == "array") {
                     if (tn.type == "object") {
