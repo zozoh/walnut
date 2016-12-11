@@ -351,7 +351,7 @@ public class AppModule extends AbstractWnModule {
         InputStream ins = Strings.isEmpty(in) ? null : Lang.ins(in);
         final Writer w = new OutputStreamWriter(out);
 
-        // FIXME sudo临时解决方案，方式有人知道sudo，特将命令改为wndo
+        // FIXME sudo临时解决方案，防止有人知道sudo，特将命令改为wndo
         cmdText = cmdText.trim();
         Matcher sudoM = Pattern.compile("^wndo[ ]+(.+)$").matcher(cmdText);
         boolean isSudo = sudoM.find();
@@ -361,10 +361,8 @@ public class AppModule extends AbstractWnModule {
                 isSudo = false;
             }
         }
-        final WnSession seMe = Wn.WC().checkSE();
-        seMe.var("PWD", PWD);
-        seMe.var("APP_HOME", oAppHome.path());
-        final WnSession seSu = isSudo ? sess().create(usrs().check("root")) : null;
+        final WnSession seMe = Wn.WC().checkSE().var("PWD", PWD).var("APP_HOME", oAppHome.path());
+        WnSession seSu = isSudo ? sess().create(usrs().check("root")) : null;
 
         // 运行
         WnSession se = isSudo ? seSu : seMe;

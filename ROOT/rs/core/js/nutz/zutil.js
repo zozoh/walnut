@@ -10,7 +10,7 @@
 
     var zUtil = {
         // 全屏幕
-        toggleFullScreen : function() {
+        toggleFullScreen: function () {
             if (!document.fullscreenElement &&    // alternative standard method
                 !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {  // current working methods
                 if (document.documentElement.requestFullscreen) {
@@ -36,7 +36,7 @@
         },
         //.............................................
         // 提供 AMD/CMD 支持功能
-        defineModule : function(mdName, mdObj){
+        defineModule: function (mdName, mdObj) {
             if (typeof define === "function") {
                 // CMD
                 if (define.cmd) {
@@ -56,7 +56,7 @@
         // 安全的调用回调
         doCallback: function (callback, args, context, dftFunc) {
             // 支持 context 为函数的形式
-            if(_.isFunction(context)){
+            if (_.isFunction(context)) {
                 dftFunc = context;
                 context = undefined;
             }
@@ -75,8 +75,8 @@
         // 处理 underscore 的模板
         tmpl: function (str, settings) {
             return _.template(str, settings || {
-                escape: /\{\{([\s\S]+?)\}\}/g
-            });
+                    escape: /\{\{([\s\S]+?)\}\}/g
+                });
         },
         //.............................................
         // 本地存储保存某用户的某个界面的设置
@@ -152,8 +152,8 @@
                         try {
                             return zUtil.fromJson(v);
                         }
-                        // 嗯，好像不行，变字符串吧
-                        catch(E) {
+                            // 嗯，好像不行，变字符串吧
+                        catch (E) {
                             return v;
                         }
                     case 'boolean':
@@ -237,9 +237,9 @@
         toPixel: function (str, base, dft) {
             var re;
             var m = /^([\d.]+)(px)?(%)?$/.exec(str);
-            if (m){
+            if (m) {
                 // %
-                if(m[3])
+                if (m[3])
                     return m[1] * base;
                 // 要不是 px 要不直接就是数字
                 return m[1] * 1;
@@ -250,32 +250,32 @@
         //.............................................
         // 将一个数值变成 css 表示的带单位的数值属性
         // 如果不合法，就返回 dft 默认为 undefined
-        toCssDimension : function(val, dft) {
+        toCssDimension: function (val, dft) {
             // 数字的话，一律是 px
-            if(_.isNumber(val))
+            if (_.isNumber(val))
                 return val + "px";
-            
+
             // 看看值是否合法，合法就进行后续处理
             var m = /^(([\d.]+)(px)?(%)?|auto|unset|inherit|initial)$/.exec(val);
-            if(m) {
+            if (m) {
                 // 如果没有单位自动补上 px
-                if(m[2] && !m[3] && !m[4]){
+                if (m[2] && !m[3] && !m[4]) {
                     val += "px";
                 }
-                
+
                 // 返回
                 return val;
             }
-            
+
             return dft;
         },
         //.............................................
-        obj : function(key, val) {
-            if(_.isString(key)){
+        obj: function (key, val) {
+            if (_.isString(key)) {
                 var re = {};
                 //re[key] = val;
                 zUtil.setValue(re, key, val);
-                return re;    
+                return re;
             }
             return key;
         },
@@ -283,53 +283,53 @@
         // 处理函数的参数表，将其变成普通数组
         //  - flatten : 表示展平嵌套数组
         //  - deeply  : 表示深层展开，否则只展开一层
-        toArgs : function(list, flatten, deeply) {
+        toArgs: function (list, flatten, deeply) {
             var args = Array.from(list);
-            if(flatten)
+            if (flatten)
                 return _.flatten(args, !deeply);
             return args;
         },
         //.............................................
         // 挑选属性，正则表达式如果以 ! 开头表示取反
-        pick : function(obj, regex) {
-            if(!regex)
+        pick: function (obj, regex) {
+            if (!regex)
                 return obj;
-            
+
             // 解析正则表达式
             var not = false;
             var REG = _.isRegExp(regex) ? regex : null;
-            if(!REG) {
+            if (!REG) {
                 var str = regex.toString();
-                if(/^!/.test(str)){
+                if (/^!/.test(str)) {
                     not = true;
                     str = str.substring(1);
                 }
                 REG = new RegExp(str);
             }
-            
+
             // 准备返回值
             var re = {};
-            
+
             // 开始过滤字段
-            for(var key in obj) {
-                if(REG.test(key)){
-                    if(not)
+            for (var key in obj) {
+                if (REG.test(key)) {
+                    if (not)
                         continue;
                     re[key] = obj[key];
-                } else if(not){
+                } else if (not) {
                     re[key] = obj[key];
                 }
             }
-            
+
             // 返回
             return re;
         },
         //.............................................
-        dump : {
-            rectV : function(rect) {
+        dump: {
+            rectV: function (rect) {
                 return $z.tmpl("l:{{left}},r:{{right}},t:{{top}},b:{{bottom}},x:{{x}},y:{{y}}")(rect);
             },
-            pos : function(pos) {
+            pos: function (pos) {
                 return $z.tmpl("x:{{x}},y:{{y}}")(pos);
             }
         },
@@ -341,32 +341,32 @@
         //  - toScreen      : 指明矩形是相对于窗口的，所以要考虑到文档的 scrollTop/Left
         rect: function (ele, includeMargin, toScreen) {
             var jEle = $(ele);
-            
+
             // 如果计算 body 或者 document 或者 window
-            if(jEle[0].tagName == 'BODY')
+            if (jEle[0].tagName == 'BODY')
                 return $z.winsz(jEle[0].ownerDocument.defaultView);
-            
+
             // 开始计算，得到相对于 document 的坐标
             var rect = jEle.offset();
 
             // 切换到 screen 坐标系
-            if(toScreen) {
+            if (toScreen) {
                 var body = jEle[0].ownerDocument.body;
-                rect.top  -= body.scrollTop;
+                rect.top -= body.scrollTop;
                 rect.left -= body.scrollLeft;
             }
 
             // 包括外边距，有点麻烦
             if (includeMargin && jEle.size() > 0) {
-                rect.width  = jEle.outerWidth(true);
+                rect.width = jEle.outerWidth(true);
                 rect.height = jEle.outerHeight(true);
-                var style   = window.getComputedStyle(jEle[0]);
-                rect.top   -= this.toPixel(style.marginTop);
-                rect.left  -= this.toPixel(style.marginLeft);
+                var style = window.getComputedStyle(jEle[0]);
+                rect.top -= this.toPixel(style.marginTop);
+                rect.left -= this.toPixel(style.marginLeft);
             }
             // 否则就简单了
             else {
-                rect.width  = jEle.outerWidth();
+                rect.width = jEle.outerWidth();
                 rect.height = jEle.outerHeight();
             }
 
@@ -374,46 +374,46 @@
             return this.rect_count_tlwh(rect);
         },
         //.............................................
-        rectObj : function(rect, keys) {
-            if(_.isString(keys)) {
+        rectObj: function (rect, keys) {
+            if (_.isString(keys)) {
                 keys = keys.split(/[ \t]*,[ \t]*/);
             }
             var re = {};
-            for(var i=0;i<keys.length;i++){
+            for (var i = 0; i < keys.length; i++) {
                 var key = keys[i];
                 re[key] = rect[key];
             }
             return re;
         },
         //.............................................
-        rectDump : function(rect) {
+        rectDump: function (rect) {
             return this.tmpl("[{{left}},{{top}}]w={{width}},h={{height}}")(rect);
         },
         //.............................................
         // 自动根据矩形对象的值进行判断
-        rect_count_auto : function(rect, quiet) {
+        rect_count_auto: function (rect, quiet) {
             // 有 width, height
-            if(_.isNumber(rect.width) && _.isNumber(rect.height)) {
-                if(_.isNumber(rect.top) && _.isNumber(rect.left))
+            if (_.isNumber(rect.width) && _.isNumber(rect.height)) {
+                if (_.isNumber(rect.top) && _.isNumber(rect.left))
                     return this.rect_count_tlwh(rect);
-                if(_.isNumber(rect.bottom) && _.isNumber(rect.right))
+                if (_.isNumber(rect.bottom) && _.isNumber(rect.right))
                     return this.rect_count_brwh(rect);
-                if(_.isNumber(rect.x) && _.isNumber(rect.x))
+                if (_.isNumber(rect.x) && _.isNumber(rect.x))
                     return this.rect_count_xywh(rect);
             }
             // 有 top,left
-            else if(_.isNumber(rect.top) && _.isNumber(rect.left)) {
-                if(_.isNumber(rect.bottom) && _.isNumber(rect.right))
+            else if (_.isNumber(rect.top) && _.isNumber(rect.left)) {
+                if (_.isNumber(rect.bottom) && _.isNumber(rect.right))
                     return this.rect_count_tlbr(rect);
             }
             // 不知道咋弄了
-            if(!quiet)
+            if (!quiet)
                 throw "Don't know how to count rect:" + this.toJson(rect);
             return rect;
         },
         //.............................................
         // 根据 top,left,width,height 计算剩下的信息
-        rect_count_tlwh : function(rect) {
+        rect_count_tlwh: function (rect) {
             rect.right = rect.left + rect.width;
             rect.bottom = rect.top + rect.height;
             rect.x = rect.left + rect.width / 2;
@@ -422,7 +422,7 @@
         },
         //.............................................
         // 根据 top,left,bottom,right 计算剩下的信息
-        rect_count_tlbr : function(rect) {
+        rect_count_tlbr: function (rect) {
             rect.width = rect.right - rect.left;
             rect.height = rect.bottom - rect.top;
             rect.x = rect.left + rect.width / 2;
@@ -431,7 +431,7 @@
         },
         //.............................................
         // 根据 bottom,right,width,height 计算剩下的信息
-        rect_count_brwh : function(rect) {
+        rect_count_brwh: function (rect) {
             rect.top = rect.bottom - rect.height;
             rect.left = rect.right - rect.width;
             rect.x = rect.left + rect.width / 2;
@@ -440,13 +440,13 @@
         },
         //.............................................
         // 根据 x,y,width,height 计算剩下的信息
-        rect_count_xywh : function(rect) {
-            var W2 = rect.width  / 2;
+        rect_count_xywh: function (rect) {
+            var W2 = rect.width / 2;
             var H2 = rect.height / 2;
-            rect.top    = rect.y - H2;
+            rect.top = rect.y - H2;
             rect.bottom = rect.y + H2;
-            rect.left   = rect.x - W2;
-            rect.right  = rect.x + W2;
+            rect.left = rect.x - W2;
+            rect.right = rect.x + W2;
             return rect;
         },
         //.............................................
@@ -455,26 +455,26 @@
         // baseScroll 是描述 base 的滚动，可以是 Element/jQuery
         // 也可以是 {scrollTop,scrollLeft} 格式的对象
         // 默认为 {scrollTop:0,scrollLeft:0} 
-        rect_relative : function(rect, base, forCss, baseScroll) {
+        rect_relative: function (rect, base, forCss, baseScroll) {
             // 计算 base 的滚动
-            if(_.isElement(baseScroll) || $z.isjQuery(baseScroll)){
+            if (_.isElement(baseScroll) || $z.isjQuery(baseScroll)) {
                 var jBase = $(baseScroll);
                 baseScroll = {
-                    scrollTop  : jBase.scrollTop(),
-                    scrollLeft : jBase.scrollLeft(),
+                    scrollTop: jBase.scrollTop(),
+                    scrollLeft: jBase.scrollLeft(),
                 }
             }
             // 默认
-            else if(!baseScroll) {
-                baseScroll = {scrollTop:0,scrollLeft:0};
+            else if (!baseScroll) {
+                baseScroll = {scrollTop: 0, scrollLeft: 0};
             }
 
             // 计算相对位置
             var r2 = {
-                width  : rect.width,
-                height : rect.height,
-                top    : rect.top  - base.top  + baseScroll.scrollTop,
-                left   : rect.left - base.left + baseScroll.scrollLeft,
+                width: rect.width,
+                height: rect.height,
+                top: rect.top - base.top + baseScroll.scrollTop,
+                left: rect.left - base.left + baseScroll.scrollLeft,
             };
             // 计算其余
             this.rect_count_tlwh(r2);
@@ -489,12 +489,12 @@
         // - zoomX : X 轴缩放
         // - zoomY : Y 轴缩放，默认与 zoomX 相等
         // 返回矩形自身
-        rect_zoom_tlwh : function(rect, vp, zoomX, zoomY) {
-            vp    = vp    || rect;
+        rect_zoom_tlwh: function (rect, vp, zoomX, zoomY) {
+            vp = vp || rect;
             zoomY = zoomY || zoomX;
-            rect.top    = (rect.top  - vp.y) * zoomY + vp.y;
-            rect.left   = (rect.left - vp.x) * zoomX + vp.x;
-            rect.width  *= zoomX;
+            rect.top = (rect.top - vp.y) * zoomY + vp.y;
+            rect.left = (rect.left - vp.x) * zoomX + vp.x;
+            rect.width *= zoomX;
             rect.height *= zoomY;
             return this.rect_count_tlwh(rect);
         },
@@ -504,62 +504,62 @@
         // - tX   : X 轴位移
         // - tY   : Y 周位移
         // 返回矩形自身
-        rect_translate : function(rect, tX, tY) {
+        rect_translate: function (rect, tX, tY) {
             // 支持对象作为数据参数
-            if(_.isObject(tX) && _.isNumber(tX.x) && _.isNumber(tX.y)) {
+            if (_.isObject(tX) && _.isNumber(tX.x) && _.isNumber(tX.y)) {
                 tY = tX.y;
                 tX = tX.x;
             }
             // 执行位移
-            rect.top  += tY || 0;
+            rect.top += tY || 0;
             rect.left += tX || 0;
             return this.rect_count_tlwh(rect);
         },
         //.............................................
         // 将一个矩形转换为得到一个 CSS 的矩形描述
         // 即 right,bottom 是相对于视口的右边和底边的
-        rectCss : function(rect, vpWidth, vpHeight) {
+        rectCss: function (rect, vpWidth, vpHeight) {
             // 支持 {width:xxx, height:xxx} 形式的参数
             var vp;
-            if(_.isObject(vpWidth)){
+            if (_.isObject(vpWidth)) {
                 vp = vpWidth
-            }else {
+            } else {
                 vp = {
-                    width  : vpWidth,
-                    height : vpHeight
+                    width: vpWidth,
+                    height: vpHeight
                 }
             }
             // 计算
             return {
-                top    : rect.top,
-                left   : rect.left,
-                width  : rect.width,
-                height : rect.height,
-                right  : vp.width  - rect.right,
-                bottom : vp.height - rect.bottom
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height,
+                right: vp.width - rect.right,
+                bottom: vp.height - rect.bottom
             };
         },
         //.............................................
         // 将给定矩形停靠到目标矩形的内边上
         //  - rect   : 执行停靠的矩形
         //  - target : 停靠的目标
-        rect_dockIn : function(rect, target, axis, padding) {
-            axis    = axis    || {X:"left", Y:"top"};
-            padding = padding || {X:0,Y:0};
+        rect_dockIn: function (rect, target, axis, padding) {
+            axis = axis || {X: "left", Y: "top"};
+            padding = padding || {X: 0, Y: 0};
             console.log(rect)
             console.log(target)
             // X:轴将这个大矩形移动到目标区域指定位置
-            if("left" == axis.X) {
+            if ("left" == axis.X) {
                 rect.left = target.left + padding.X;
                 $z.rect_count_tlwh(rect);
             }
             // 右侧
-            else if("right" == axis.X) {
+            else if ("right" == axis.X) {
                 rect.right = target.right - padding.X;
                 $z.rect_count_brwh(rect);
             }
             // 中部
-            else if("center" == axis.X) {
+            else if ("center" == axis.X) {
                 rect.x = target.x;
                 $z.rect_count_xywh(rect);
             }
@@ -568,17 +568,17 @@
                 throw "rect_dockIn invaid axis.X : " + axis.X;
             }
             // Y:轴将这个大矩形移动到目标区域指定位置
-            if("top" == axis.Y) {
+            if ("top" == axis.Y) {
                 rect.top = target.top + padding.Y;
                 $z.rect_count_tlwh(rect);
             }
             // 底部
-            else if("bottom" == axis.Y) {
+            else if ("bottom" == axis.Y) {
                 rect.bottom = target.bottom - padding.Y;
                 $z.rect_count_brwh(rect);
             }
             // 中部
-            else if("center" == axis.Y) {
+            else if ("center" == axis.Y) {
                 rect.y = target.y;
                 $z.rect_count_xywh(rect);
             }
@@ -603,23 +603,23 @@
         //     maxTimes   : 3,       // Y 轴最大区域的倍数
         //     stickRadius: 10,      // 辅助线吸附半径
         // }
-        rect_compact : function(rects, opt) {
+        rect_compact: function (rects, opt) {
             // 无需处理
-            if(!_.isArray(rects) || rects.length == 0) {
+            if (!_.isArray(rects) || rects.length == 0) {
                 return;
             }
 
             // TODO： 好像效果不好，暂时注释掉 ...
             // // 设置默认参数
-            opt.target      = opt.target      || this.winsz();
-            opt.scrollTop   = opt.scrollTop   || 0;
-            opt.scrollLeft  = opt.scrollLeft  || 0;
-            opt.positionX   = opt.positionX   || "left";
-            opt.positionY   = opt.positionY   || "top";
-            opt.paddingX    = opt.paddingX    || 10;
-            opt.paddingY    = opt.paddingY    || 10;
-            opt.width       = opt.width       || "50%";
-            opt.maxTimes    = opt.maxTimes    || 3;
+            opt.target = opt.target || this.winsz();
+            opt.scrollTop = opt.scrollTop || 0;
+            opt.scrollLeft = opt.scrollLeft || 0;
+            opt.positionX = opt.positionX || "left";
+            opt.positionY = opt.positionY || "top";
+            opt.paddingX = opt.paddingX || 10;
+            opt.paddingY = opt.paddingY || 10;
+            opt.width = opt.width || "50%";
+            opt.maxTimes = opt.maxTimes || 3;
             opt.stickRadius = opt.stickRadius || 10;
 
             // // 得到一个大矩形
@@ -650,7 +650,7 @@
             //         console.log(" after:", this.rectDump(r));
             //     }
             // }
-            
+
 
             // 建立调整的辅助线
             var lines = this.rect_adjustlines_create(rects, "Y", "round");
@@ -675,7 +675,7 @@
             this.rect_adjustlines_apply(lines);
 
             // 重新设置矩形们其他的尺寸
-            for(var r of rects) {
+            for (var r of rects) {
                 this.rect_count_tlbr(r);
             }
         },
@@ -683,15 +683,15 @@
         // 针对一组矩形，建立矩形调整线对象
         // 该对象是一个数组，每个元素字段为
         /*
-        {
-            space  : 0,   // 与上一根线的距离，第一根线永远是 -1
-            offset : 0,   // 线的位移
-            refers : [{   // 关联的矩形对象字段
-                rect : Rect   // 关联的矩形对象
-                key  : "top"  // 字段
-            }]
-        }
-        */
+         {
+         space  : 0,   // 与上一根线的距离，第一根线永远是 -1
+         offset : 0,   // 线的位移
+         refers : [{   // 关联的矩形对象字段
+         rect : Rect   // 关联的矩形对象
+         key  : "top"  // 字段
+         }]
+         }
+         */
         // 其中参数
         //  - rects : 矩阵对象数组
         //  - axis  : 可以是 "X" 或者 "Y" 表示建立的是哪个轴的参考线
@@ -705,27 +705,27 @@
         // 本函数就是将矩形们的边进行统计，生成一条条的线对象，以备后续操作
         // 同样位移的矩形边会被归纳到同样的线对象里面，以便统一调整
         // @return 从小到大排序过的线对象
-        rect_adjustlines_create : function(rects, axis, offsetFunc) {
+        rect_adjustlines_create: function (rects, axis, offsetFunc) {
             // 准备 offsetFunc
-            if(!_.isFunction(offsetFunc)) {
-                switch(offsetFunc) {
-                    case "int" : 
-                        offsetFunc = function(v){
+            if (!_.isFunction(offsetFunc)) {
+                switch (offsetFunc) {
+                    case "int" :
+                        offsetFunc = function (v) {
                             return parseInt(v);
                         };
                         break;
-                    case "round" : 
-                        offsetFunc = function(v){
+                    case "round" :
+                        offsetFunc = function (v) {
                             return Math.round(v);
                         };
                         break;
-                    case "ceil" : 
-                        offsetFunc = function(v){
+                    case "ceil" :
+                        offsetFunc = function (v) {
                             return Math.ceil(v);
                         };
                         break;
-                    case "floor" : 
-                        offsetFunc = function(v){
+                    case "floor" :
+                        offsetFunc = function (v) {
                             return Math.floor(v);
                         };
                         break;
@@ -738,14 +738,14 @@
             var map = {};
 
             // 循环查找
-            for(var r of rects) {
-                for(var key of keys) {
-                    var v   = offsetFunc ? offsetFunc(r[key]) : r[key];
-                    var lo  = map[v];
+            for (var r of rects) {
+                for (var key of keys) {
+                    var v = offsetFunc ? offsetFunc(r[key]) : r[key];
+                    var lo = map[v];
                     var ref = {rect: r, key: key};
                     // 新建
-                    if(!lo) {
-                        map[v] = {offset : v,  refers : [ref]};
+                    if (!lo) {
+                        map[v] = {offset: v, refers: [ref]};
                     }
                     // 插入
                     else {
@@ -755,15 +755,15 @@
             }
 
             // 对于数组排序
-            var list = _.values(map).sort(function(a, b){
+            var list = _.values(map).sort(function (a, b) {
                 return a.offset == b.offset ? 0 :
-                            a.offset > b.offset ? 1 : -1;
+                    a.offset > b.offset ? 1 : -1;
             });
 
             // 计算线与线之间的距离
-            if(list.length > 0) {
+            if (list.length > 0) {
                 list[0].space = -1;
-                for(var i=1; i<list.length; i++) {
+                for (var i = 1; i < list.length; i++) {
                     var l0 = list[i - 1];
                     var l1 = list[i];
                     l1.space = l1.offset - l0.offset;
@@ -775,28 +775,28 @@
         },
         //.............................................
         // 调试打印
-        rect_adjustlines_dump : function(lines, title){
+        rect_adjustlines_dump: function (lines, title) {
             // 应用一下先
             //this.rect_adjustlines_apply(lines);
             // 打印一组线
-            if(_.isArray(lines)) {
+            if (_.isArray(lines)) {
                 console.log("~~~~~ DUMP", lines.length, "lines:", title || "");
-                for(var i=0; i<lines.length; i++){
+                for (var i = 0; i < lines.length; i++) {
                     var lo = lines[i];
                     this.rect_adjustlines_dump(lo, i);
                 }
                 return;
             }
             // 打印一条线
-            var lo  = lines;
+            var lo = lines;
             var str = _.isUndefined(title) ? "" : title;
-            str += "  "  + this.alignRight(lo.offset, 4, ' ');
-            str += " / " + this.alignLeft(lo.space,  4, ' ');
+            str += "  " + this.alignRight(lo.offset, 4, ' ');
+            str += " / " + this.alignLeft(lo.space, 4, ' ');
             str += " {";
-            for(var ref of lo.refers) {
+            for (var ref of lo.refers) {
                 str += "@" + ref.key;
                 // 仅显示高度
-                if(/^(top|bottom)$/.test(ref.key)){
+                if (/^(top|bottom)$/.test(ref.key)) {
                     str += '[' + ref.rect.top + "," + ref.rect.bottom + ']';
                 }
                 // 仅显示宽度
@@ -811,30 +811,30 @@
         //.............................................
         // 在排序后的线段组归纳线，将所有的线，在指定半径内的都归纳到一条线上
         // 并返回新的线数组
-        rect_adjustlines_stickBy : function(lines, radius) {
+        rect_adjustlines_stickBy: function (lines, radius) {
             var list = [];
-            if(lines.length > 0) {
+            if (lines.length > 0) {
                 // 准备第一个对象
-                var lo   = lines[0];
+                var lo = lines[0];
                 var last = {
-                    space  : lo.space,
-                    offset : lo.offset,
-                    refers : [].concat(lo.refers),
+                    space: lo.space,
+                    offset: lo.offset,
+                    refers: [].concat(lo.refers),
                 };
                 // 循环加入后面的
-                for(var i = 1; i<lines.length; i++) {
+                for (var i = 1; i < lines.length; i++) {
                     lo = lines[i];
                     // 加入
-                    if(lo.space <= radius) {
+                    if (lo.space <= radius) {
                         last.refers.push.apply(last.refers, lo.refers);
                     }
                     // 创建一个新的
                     else {
                         list.push(last);
                         last = {
-                            space  : lo.space,
-                            offset : lo.offset,
-                            refers : [].concat(lo.refers),
+                            space: lo.space,
+                            offset: lo.offset,
+                            refers: [].concat(lo.refers),
                         };
                     }
                 }
@@ -845,9 +845,9 @@
         },
         //.............................................
         // 统一移动各条线
-        rect_adjustlines_scroll : function(lines, offset) {
-            if(lines.length > 0) {
-                for(var i = 0; i<lines.length; i++) {
+        rect_adjustlines_scroll: function (lines, offset) {
+            if (lines.length > 0) {
+                for (var i = 0; i < lines.length; i++) {
                     lines[i].offset += offset;
                 }
             }
@@ -855,11 +855,11 @@
         //.............................................
         // 在排序后的线段组寻找调整线之间小的间距
         // @return -1 表示线段组不足两条
-        rect_adjustlines_minSpace : function(lines) {
-            var re   = -1;
-            if(lines.length > 1) {
+        rect_adjustlines_minSpace: function (lines) {
+            var re = -1;
+            if (lines.length > 1) {
                 re = lines[1].space;
-                for(var i = 2; i<lines.length; i++) {
+                for (var i = 2; i < lines.length; i++) {
                     re = Math.min(re, lines[i].space);
                 }
             }
@@ -871,37 +871,37 @@
         //  - lines    : 排序后的调整线数组
         //  - unit     : 线段间隔单位
         //  - maxTimes :「选」最大倍数，默认不限制
-        rect_adjustlines_compact : function(lines, unit, maxTimes) {
+        rect_adjustlines_compact: function (lines, unit, maxTimes) {
             //console.log("-> rect_adjustlines_compact:");
-            if(lines.length > 1) {
-                for(var i=1; i<lines.length; i++) {
-                    var lo   = lines[i];
+            if (lines.length > 1) {
+                for (var i = 1; i < lines.length; i++) {
+                    var lo = lines[i];
                     //this.rect_adjustlines_dump(lo, i);
                     var times = Math.round(lo.space / unit);
                     //console.log("times_org:", times);
-                    if(maxTimes) {
+                    if (maxTimes) {
                         times = Math.min(times, maxTimes);
                     }
                     //console.log("times_max:", times);
-                    lo.space  = Math.round(times * unit);
-                    lo.offset = lines[i-1].offset + lo.space;
+                    lo.space = Math.round(times * unit);
+                    lo.offset = lines[i - 1].offset + lo.space;
                     //this.rect_adjustlines_dump(lo, i);
                 }
             }
         },
         //.............................................
         // 将调整线的 offset 重新应用到对应矩形的边
-        rect_adjustlines_apply : function(lines) {
-            if(lines.length > 0) {
+        rect_adjustlines_apply: function (lines) {
+            if (lines.length > 0) {
                 // 更新顶点
-                for(var lo of lines) {
-                    for(var ref of lo.refers) {
+                for (var lo of lines) {
+                    for (var ref of lo.refers) {
                         ref.rect[ref.key] = lo.offset;
                     }
                 }
                 // 重新设置矩形们其他的尺寸
-                for(var lo of lines) {
-                    for(var ref of lo.refers) {
+                for (var lo of lines) {
+                    for (var ref of lo.refers) {
                         this.rect_count_tlbr(ref.rect);
                     }
                 }
@@ -909,102 +909,102 @@
         },
         //.............................................
         // 计算矩形面积
-        rect_area : function(rect) {
+        rect_area: function (rect) {
             return rect.width * rect.height;
         },
         //.............................................
         // 计算多个矩形的最小相并矩形
-        rect_union : function(){
+        rect_union: function () {
             var rects = this.toArgs(arguments, true);
             // 空
-            if(!rects || rects.length == 0)
+            if (!rects || rects.length == 0)
                 return null;
 
             // 以第一个为基础
             var r2 = _.extend({}, rects[0]);
 
             // 只有一个
-            if(rects.length == 1)
+            if (rects.length == 1)
                 return r2;
             // 多个
-            for(var i=1; i<rects.length; i++) {
+            for (var i = 1; i < rects.length; i++) {
                 var r = rects[i];
-                r2.top    = Math.min(r2.top    , r.top);
-                r2.left   = Math.min(r2.left   , r.left);
-                r2.right  = Math.max(r2.right  , r.right);
-                r2.bottom = Math.max(r2.bottom , r.bottom);
+                r2.top = Math.min(r2.top, r.top);
+                r2.left = Math.min(r2.left, r.left);
+                r2.right = Math.max(r2.right, r.right);
+                r2.bottom = Math.max(r2.bottom, r.bottom);
             }
             // 返回
             return this.rect_count_tlbr(r2);
         },
         //.............................................
         // 相并面积
-        rect_union_area : function() {
+        rect_union_area: function () {
             var rects = this.toArgs(arguments, true);
-            var r2    = this.rect_union(rects);
+            var r2 = this.rect_union(rects);
             return this.rect_area(r2);
         },
         //.............................................
         // 计算多个矩形的最大相交矩形，只有一个参数的话，永远返回 null
-        rect_overlap : function(rectA, rectB) {
+        rect_overlap: function (rectA, rectB) {
             var rects = this.toArgs(arguments, true);
             // 少于1个
-            if(!rects || rects.length <= 1)
+            if (!rects || rects.length <= 1)
                 return null;
             // 多个
             var r2 = rects[0];
-            for(var i=1; i<rects.length; i++) {
+            for (var i = 1; i < rects.length; i++) {
                 var r = rects[i];
-                r2.top    = Math.max(r2.top    , r.top);
-                r2.left   = Math.max(r2.left   , r.left);
-                r2.right  = Math.min(r2.right  , r.right);
-                r2.bottom = Math.min(r2.bottom , r.bottom);
+                r2.top = Math.max(r2.top, r.top);
+                r2.left = Math.max(r2.left, r.left);
+                r2.right = Math.min(r2.right, r.right);
+                r2.bottom = Math.min(r2.bottom, r.bottom);
             }
             // 返回
             return this.rect_count_tlbr(r2);
         },
         //.............................................
         // 相交面积
-        rect_overlap_area : function(rectA, rectB) {
+        rect_overlap_area: function (rectA, rectB) {
             var rects = this.toArgs(arguments, true);
-            var r2    = this.rect_overlap(rects);
+            var r2 = this.rect_overlap(rects);
             return this.rect_area(r2);
         },
         //.............................................
         // A 是否全部包含 B
-        rect_contains : function(rectA, rectB) {
+        rect_contains: function (rectA, rectB) {
             return rectA.top <= rectB.top
-                   && rectA.bottom >= rectB.bottom
-                   && rectA.left <= rectB.left
-                   && rectA.right >= rectB.right;
+                && rectA.bottom >= rectB.bottom
+                && rectA.left <= rectB.left
+                && rectA.right >= rectB.right;
         },
         //.............................................
         // 一个点是否在矩形之中，是否算上边
-        rect_in : function(rect, pos, countBorder) {
-            if(countBorder) {
-                return rect.left   <= pos.x
-                    && rect.right  >= pos.x
-                    && rect.top    <= pos.y
+        rect_in: function (rect, pos, countBorder) {
+            if (countBorder) {
+                return rect.left <= pos.x
+                    && rect.right >= pos.x
+                    && rect.top <= pos.y
                     && rect.bottom >= pos.y;
             }
-            return rect.left   < pos.x
-                && rect.right  > pos.x
-                && rect.top    < pos.y
+            return rect.left < pos.x
+                && rect.right > pos.x
+                && rect.top < pos.y
                 && rect.bottom > pos.y;
         },
         //.............................................
         // A 是否与 B 相交
-        rect_is_overlap : function(rectA, rectB) {
+        rect_is_overlap: function (rectA, rectB) {
             return this.rect_overlap_area(rectA, rectB) > 0;
         },
         //.............................................
         // 生成一个新的矩形
         // 用 B 限制 A，会保证 A 完全在 B 中，实在放不下了，就剪裁
-        rect_clip_boundary : function(rectA, rectB) {
+        rect_clip_boundary: function (rectA, rectB) {
             var re = {};
             // @移动上下边
             // 在上面，先修改 top
-            if(rectA.y < rectB.y) {
+            if (rectA.y < rectB.y) {
                 re.top = Math.max(rectA.top, rectB.top);
                 re.bottom = re.top + rectA.height;
             }
@@ -1016,14 +1016,14 @@
 
             // @移动左右边
             // 在左边，先修改 left
-            if(rectA.x < rectB.x) {
+            if (rectA.x < rectB.x) {
                 re.left = Math.max(rectA.left, rectB.left);
                 re.right = re.left + rectA.width;
             }
             // 否则修改 right
             else {
                 re.right = Math.min(rectA.right, rectB.right);
-                re.left  = re.right - rectA.width;
+                re.left = re.right - rectA.width;
             }
 
             // 最后取一下重叠部分
@@ -1032,7 +1032,7 @@
         //.............................................
         // 修改 A ，将其中点移动到某个位置
         // 第二个参数对象只要有 x,y 就好了，因此也可以是另外一个 Rect
-        rect_move_xy : function(rect, pos) {
+        rect_move_xy: function (rect, pos) {
             rect.x = pos.x;
             rect.y = pos.y;
             return this.rect_count_xywh(rect);
@@ -1041,8 +1041,8 @@
         // 修改 ，将其左上顶点移动到某个位置
         // 第二个参数对象只要有 x,y 就好了，因此也可以是另外一个 Rect
         // offset 表示一个偏移量，可选。通用用来计算移动时，鼠标与左上顶点的偏移
-        rect_move_tl : function(rect, pos, offset) {
-            rect.top  = pos.y - (offset ? offset.y : 0);
+        rect_move_tl: function (rect, pos, offset) {
+            rect.top = pos.y - (offset ? offset.y : 0);
             rect.left = pos.x - (offset ? offset.x : 0);
             return this.rect_count_tlwh(rect);
         },
@@ -1186,13 +1186,13 @@
             }
             else if (win.document.documentElement) {
                 rect = {
-                    width : win.document.documentElement.clientWidth,
+                    width: win.document.documentElement.clientWidth,
                     height: win.document.documentElement.clientHeight
                 };
             }
             else {
                 rect = {
-                    width : win.document.body.clientWidth,
+                    width: win.document.body.clientWidth,
                     height: win.document.body.clientHeight
                 };
             }
@@ -1207,7 +1207,7 @@
             // rect.y = rect.top + rect.height / 2;
             rect.top = 0;
             rect.left = 0;
-            
+
             return zUtil.rect_count_tlwh(rect);
         },
         //.............................................
@@ -1262,21 +1262,21 @@
         // 生成一个新数组，移除指定下标元素
         //   arr   : 数组
         //   index : 要移除元素下标，如果是个数组，表示多个
-        removeItemAt : function(arr, index){
+        removeItemAt: function (arr, index) {
             // 一个下标
-            if(_.isNumber(index)){
+            if (_.isNumber(index)) {
                 var list = [];
-                for(var i=0; i<arr.length; i++){
-                    if(i!=index)
+                for (var i = 0; i < arr.length; i++) {
+                    if (i != index)
                         list.push(arr[i]);
                 }
                 return list;
             }
             // 多个下标
-            else if(_.isArray(index)){
+            else if (_.isArray(index)) {
                 var list = [];
-                for(var i=0; i<arr.length; i++){
-                    if(index.indexOf(i) < 0)
+                for (var i = 0; i < arr.length; i++) {
+                    if (index.indexOf(i) < 0)
                         list.push(arr[i]);
                 }
                 return list;
@@ -1347,20 +1347,20 @@
         },
         //.............................................
         // 向普通对象里设置值，如果值是无效的，那么无视
-        setMeaningful : function(obj, key, val) {
-            if(_.isObject(obj) && $z.isMeaningful(val)) {
+        setMeaningful: function (obj, key, val) {
+            if (_.isObject(obj) && $z.isMeaningful(val)) {
                 obj[key] = val;
             }
         },
         //.............................................
         // 判断一个值是否是有意义的
         // undefined, null, NaN, 空串 都是没意义的
-        isMeaningful : function(v) {
-            if(_.isUndefined(v) || _.isNull(v))
+        isMeaningful: function (v) {
+            if (_.isUndefined(v) || _.isNull(v))
                 return false;
-            if(_.isNumber(v) && isNaN(v))
+            if (_.isNumber(v) && isNaN(v))
                 return false;
-            if(_.isString(v) && v.length == 0)
+            if (_.isString(v) && v.length == 0)
                 return false;
             return true;
         },
@@ -1629,7 +1629,7 @@
                     }
                 }
             }
-            
+
             // 添加到配置信息里
             fld.__dis_obj = func;
         },
@@ -1703,8 +1703,8 @@
         // callback - 解析完数据调用的回调
         // context  - 指明特殊的回调的 this 参数，如果未定义，则采用本函数的 this
         evalData: function (data, params, callback, context) {
-            if(!data){
-                $z.doCallback(callback,[],context);
+            if (!data) {
+                $z.doCallback(callback, [], context);
                 return;
             }
 
@@ -1953,19 +1953,19 @@
             _t.key = _t.key_min + ":" + _t.ss;
 
             // 自动显示
-            _t.T = _t.H +(_t.m == 0 ? "" : ":" + _t.m );
-            _t.TT = _t.HH +(_t.m == 0 ? "" : ":" + _t.mm);
+            _t.T = _t.H + (_t.m == 0 ? "" : ":" + _t.m );
+            _t.TT = _t.HH + (_t.m == 0 ? "" : ":" + _t.mm);
 
             // 12小时制支持
-            _t.H12   = _t.H > 12 ? _t.H % 12 : _t.H;
-            _t.HH12  = (_t.H12 > 9 ? "" : "0") + _t.H12;
-            _t.XM    = (_t.H == _t.H12 ? "A" : "P");
-            _t.xm    = (_t.H == _t.H12 ? "a" : "p");
-            _t.PM    = (_t.H == _t.H12 ? "" : "P");
-            _t.pm    = (_t.H == _t.H12 ? "" : "p");
+            _t.H12 = _t.H > 12 ? _t.H % 12 : _t.H;
+            _t.HH12 = (_t.H12 > 9 ? "" : "0") + _t.H12;
+            _t.XM = (_t.H == _t.H12 ? "A" : "P");
+            _t.xm = (_t.H == _t.H12 ? "a" : "p");
+            _t.PM = (_t.H == _t.H12 ? "" : "P");
+            _t.pm = (_t.H == _t.H12 ? "" : "p");
 
             // 12小时制自动显示
-            _t.T12 = _t.H12   + (_t.m == 0 ? "" : ":" + _t.m);
+            _t.T12 = _t.H12 + (_t.m == 0 ? "" : ":" + _t.m);
             _t.TT12 = _t.HH12 + (_t.m == 0 ? "" : ":" + _t.mm);
 
             // 返回
@@ -1985,9 +1985,9 @@
         //  24Hs - 24小时制，精确到秒
         //  12Hm - 12小时制，精确到分钟
         //  12Hs - 12小时制，精确到秒
-        timeText : function(t, mode) {
+        timeText: function (t, mode) {
             var str = mode || "24H";
-            switch(mode) {
+            switch (mode) {
                 case "24H" :
                     str = "{{T}}";
                     break;
@@ -2018,7 +2018,7 @@
         //.............................................
         // 根据颜色对象的 red,green,blue,alpha ，更新其他字段的值
         updateColor: function (color) {
-            if(!_.isNumber(color.alpha))
+            if (!_.isNumber(color.alpha))
                 color.alpha = 1;
             color.AA = parseInt(color.alpha * 255).toString(16).toUpperCase();
             color.RR = color.red.toString(16).toUpperCase();
@@ -2213,19 +2213,19 @@
         // 递归迭代给定元素下面所有的文本节点
         // jq 给定元素的 jQuery 对象
         // callback 回调 F(TextNode)
-        eachTextNode : function(jq, callback) {
+        eachTextNode: function (jq, callback) {
             jq = $(jq);
-            for(var i=0; i<jq.size(); i++) {
+            for (var i = 0; i < jq.size(); i++) {
                 var ele = jq[i];
                 var ndList = ele.childNodes;
-                for(var x=0; x<ndList.length; x++) {
+                for (var x = 0; x < ndList.length; x++) {
                     var nd = ndList[x];
                     // 文本节点
-                    if(3 == nd.nodeType) {
+                    if (3 == nd.nodeType) {
                         callback.call(nd);
                     }
                     // 元素的话，递归
-                    else if(1 == nd.nodeType) {
+                    else if (1 == nd.nodeType) {
                         this.eachTextNode(nd, callback);
                     }
                 }
@@ -2315,6 +2315,9 @@
                 str += chars[Math.floor(Math.random() * chars.length)];
             }
             return str;
+        },
+        randomInt: function (min, max) {
+            return Math.floor(Math.random() * (max - min + 1) + min);
         },
         //.............................................
         // 将一个对象的原型，链接到指定的父对象上
@@ -2414,40 +2417,40 @@
             return _.isObject(obj);
         },
         //.............................................
-        isEmptyString : function(str) {
+        isEmptyString: function (str) {
             return "" === str;
         },
-        isBlankString : function(str) {
+        isBlankString: function (str) {
             return "" === $.trim(str);
         },
         //.............................................
         // 对 HTML 去掉空格等多余内容，并进行多国语言替换
-        compactHTML : function(html, msgMap, settings) {
-            html = (html||"").replace(/[ ]*\r?\n[ ]*/g, "");
-            if(_.isObject(msgMap)){
+        compactHTML: function (html, msgMap, settings) {
+            html = (html || "").replace(/[ ]*\r?\n[ ]*/g, "");
+            if (_.isObject(msgMap)) {
                 return zUtil.tmpl(html, settings)(msgMap);
             }
             return html;
         },
         //.............................................
         // 将属性设置到控件的 DOM 上
-        setJsonToSubScriptEle : function(jq, className, prop, needFormatJson) {
-            var jPropEle = jq.children("script."+className);
-            if(jPropEle.length == 0) {
-                jPropEle = $('<script type="text/x-template" class="'+className+'">').prependTo(jq);
+        setJsonToSubScriptEle: function (jq, className, prop, needFormatJson) {
+            var jPropEle = jq.children("script." + className);
+            if (jPropEle.length == 0) {
+                jPropEle = $('<script type="text/x-template" class="' + className + '">').prependTo(jq);
             }
-            var RP = function(key, val){
-                if(/^__/.test(key))
+            var RP = function (key, val) {
+                if (/^__/.test(key))
                     return undefined;
                 return val;
             };
-            var json = needFormatJson ? "\n"+$z.toJson(prop, RP, '    ')+"\n" : $z.toJson(prop, RP);
+            var json = needFormatJson ? "\n" + $z.toJson(prop, RP, '    ') + "\n" : $z.toJson(prop, RP);
             jPropEle.html(json);
         },
         // 从控件的 DOM 上获取控件的属性
-        getJsonFromSubScriptEle : function(jq, className, dft){
+        getJsonFromSubScriptEle: function (jq, className, dft) {
             var jPropEle = jq.children("script." + className);
-            if(jPropEle.length > 0){
+            if (jPropEle.length > 0) {
                 var json = jPropEle.html();
                 return $z.fromJson(json);
             }
@@ -2457,14 +2460,14 @@
         //.............................................
         /**
          * 将两个路径比较，得出相对路径
-         * 
+         *
          * @param base
          *            基础路径，以 '/' 结束，表示目录
          * @param path
          *            相对文件路径，以 '/' 结束，表示目录
          * @return 相对于基础路径对象的相对路径
          */
-        getRelativePath : function(base, path) {
+        getRelativePath: function (base, path) {
             var bb = base.split(/[\\\//]+/g);
             var ff = path.split(/[\\\//]+/g);
             var len = Math.min(bb.length, ff.length);
@@ -2495,7 +2498,7 @@
             // 格式化参数
             jq = $(jq);
 
-            if(jq.size() == 0)
+            if (jq.size() == 0)
                 return;
 
             opt = opt || {};
@@ -2509,7 +2512,7 @@
                 };
             }
             // 得到文档中的
-            var off  = jq.offset();
+            var off = jq.offset();
             var jDoc = $(jq[0].ownerDocument);
             // 样式
             var css = {
@@ -2761,20 +2764,20 @@
             // 给输入框设值
             var jInput = jDiv.children();
             jInput.val(val).attr("spellcheck", "false").css({
-                "width"   : "100%", 
-                "height"  : "100%",
-                "outline" : "none",
+                "width": "100%",
+                "height": "100%",
+                "outline": "none",
             });
             // 单行输入框，设一下行高
             if (!opt.multi) {
                 jInput.css("line-height", boxH);
-                if(opt.selectOnFocus)
+                if (opt.selectOnFocus)
                     jInput[0].select();
             }
 
             //...............................................
             // 取得宿主的显示模式
-            if(opt.copyStyle) {
+            if (opt.copyStyle) {
                 var eleStyle = window.getComputedStyle(jEle[0]);
 
                 var rKeys = ["display", "letter-spacing", "margin", "padding"
@@ -2930,7 +2933,7 @@
             if (str.length >= length) {
                 return str;
             }
-            return str + zUtil.dupString(char||' ', length - str.length);
+            return str + zUtil.dupString(char || ' ', length - str.length);
         },
         // 补全左边
         alignRight: function (str, length, char) {
@@ -2938,7 +2941,7 @@
             if (str.length >= length) {
                 return str;
             }
-            return zUtil.dupString(char||' ', length - str.length) + str;
+            return zUtil.dupString(char || ' ', length - str.length) + str;
         },
         // 重复字符
         dupString: function (char, num) {
@@ -3069,13 +3072,13 @@
         },
         /**
          * 获取文件主名。 即去掉后缀的名称
-         * 
+         *
          * @param path
          *            文件路径
          * @return 文件主名
          */
-        getMajorName: function(path) {
-            if(!path)
+        getMajorName: function (path) {
+            if (!path)
                 return "";
             var len = path.length;
             var l = 0;
@@ -3094,12 +3097,12 @@
         },
         /**
          * 获取文件后缀名，不包括 '.'，如 'abc.gif','，则返回 'gif'
-         * 
+         *
          * @param path
          *            文件路径
          * @return 文件后缀名
          */
-        getSuffixName : function(path) {
+        getSuffixName: function (path) {
             if (!path)
                 return "";
             var p0 = path.lastIndexOf('.');
@@ -3110,12 +3113,12 @@
         },
         /**
          * 获取文件后缀名，包括 '.'，如 'abc.gif','，则返回 '.gif'
-         * 
+         *
          * @param path
          *            文件路径
          * @return 文件后缀
          */
-        getSuffix : function(path) {
+        getSuffix: function (path) {
             if (!path)
                 return "";
             var p0 = path.lastIndexOf('.');
@@ -3231,7 +3234,7 @@
             // return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
             //     s4() + '-' + s4() + s4() + s4();
             sep = _.isString(sep) ? sep : "-";
-            return [s4()+s4(), s4(), s4(), s4(), s4() + s4() + s4()].join(sep);
+            return [s4() + s4(), s4(), s4(), s4(), s4() + s4() + s4()].join(sep);
         }
     };
 

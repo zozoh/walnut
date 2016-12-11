@@ -12,6 +12,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.lang.segment.CharSegment;
 import org.nutz.lang.segment.Segments;
 import org.nutz.lang.util.Context;
@@ -310,6 +311,8 @@ public class AppInfo {
                     line = line.replaceAll("(\\\\)([*@\\\\])", "$2");
                     if (line.contains("${img}")) // TODO 先临时解决一下
                         line = new CharSegment(line).render(c).toString();
+                    if (line.contains("${uuid}")) //
+                        line = new CharSegment(line).set("uuid", R.UU64()).render().toString();
                     item.content.append(line).append('\n');
                 }
 
