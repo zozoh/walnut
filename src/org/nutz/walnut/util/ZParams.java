@@ -2,9 +2,11 @@ package org.nutz.walnut.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
@@ -239,6 +241,22 @@ public class ZParams {
 
     public <T> T getAs(String key, Class<T> classOfT, T dft) {
         return map.getAs(key, classOfT, dft);
+    }
+
+    public NutMap getMap(String key) {
+        return getMap(key, null);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public NutMap getMap(String key, NutMap dft) {
+        Object val = map.get(key);
+        if (null == val)
+            return null;
+
+        if (val instanceof Map)
+            return NutMap.WRAP((Map) val);
+
+        return Lang.map(val.toString());
     }
 
     public <T> List<T> getList(String key, Class<T> eleType) {

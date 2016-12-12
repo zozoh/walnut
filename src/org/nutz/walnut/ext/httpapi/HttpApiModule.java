@@ -1,4 +1,4 @@
-package org.nutz.walnut.web.module;
+package org.nutz.walnut.ext.httpapi;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +37,9 @@ import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.web.filter.WnAsUsr;
+import org.nutz.walnut.web.module.AbstractWnModule;
+import org.nutz.walnut.web.module.AppRespOutputStreamWrapper;
+import org.nutz.walnut.web.module.HttpRespStatusSetter;
 import org.nutz.walnut.web.util.WnWeb;
 
 @IocBean
@@ -176,7 +179,7 @@ public class HttpApiModule extends AbstractWnModule {
         // 保存 http 参数
         map.setv("http-usr", u.name()).setv("http-api", oApi.name());
 
-        map.setv("http-protocol", req.getProtocol().toLowerCase());
+        map.setv("http-protocol", req.getProtocol().toUpperCase());
         map.setv("http-method", req.getMethod().toUpperCase());
         map.setv("http-uri", req.getRequestURI());
         map.setv("http-url", req.getRequestURL());
