@@ -24,6 +24,7 @@ public class cmd_setup extends JvmExecutor {
 
         // 得到要操作的帐号
         Wn.WC().security(new WnEvalLink(sys.io), new Atom() {
+            @Override
             public void run() {
                 __exec_without_security(sys, params);
             }
@@ -35,7 +36,8 @@ public class cmd_setup extends JvmExecutor {
         String path = params.val_check(0);
         boolean verb = params.is("v");
         boolean quiet = params.is("quiet");
-
+        boolean hasMode = params.has("m") || params.has("om");
+        boolean onlyMode = params.has("om");
         // 得到运行器
         WnRun wr = this.ioc.get(WnRun.class);
 
@@ -63,6 +65,7 @@ public class cmd_setup extends JvmExecutor {
             // 得到脚本所在目录
             WnObj oSetupHome = sys.io.fetch(null, "/sys/setup");
             WnObj oDir = sys.io.fetch(oSetupHome, path);
+            WnObj oMd = null;
 
             // 检查脚本目录是否存在
             if (null == oDir) {
@@ -71,16 +74,25 @@ public class cmd_setup extends JvmExecutor {
                 throw Er.create("e.cmd.setup.nofound", path);
             }
 
-            // 执行吧，少年，首先执行目录下所有的可执行文件
-            __run_dir(sys, oDir, wr, se, verb);
-
-            // 如果有特殊模式
-            if (params.has("m")) {
-                String md = params.get("m");
-                WnObj oMd = sys.io.fetch(oDir, md);
-                if (null != oMd && oMd.isDIR()) {
-                    __run_dir(sys, oMd, wr, se, verb);
+            // 检查特殊模式脚本
+            if (hasMode) {
+                String md = onlyMode ? params.get("om") : params.get("m");
+                oMd = sys.io.fetch(oDir, md);
+                if (null == oMd || !oMd.isDIR()) {
+                    throw Er.create("e.cmd.setup.nofound", path + "/" + md);
                 }
+            }
+
+            // 是否执行mode
+            if (hasMode) {
+                if (!onlyMode) {
+                    // 父目录脚本
+                    __run_dir(sys, oDir, wr, se, verb);
+                }
+                __run_dir(sys, oMd, wr, se, verb);
+            } else {
+                // 父目录脚本
+                __run_dir(sys, oDir, wr, se, verb);
             }
 
             // 结束

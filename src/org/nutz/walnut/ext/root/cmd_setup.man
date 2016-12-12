@@ -7,11 +7,12 @@
 
 # 用法
 
-    setup [-u USR] [-m MODE] path
+    setup [-u USR] [-m|-om MODE] path
     
      path  如果为相对路径，则用 /sys/setup 补全
      -u    指定用户
-     -m    特殊初始化模式
+     -m    先执行父目录中初始化，再执行特殊初始化模式
+     -om   跳过父目录脚本，只执行特殊初始化模式
 
 # 脚本目录的存放规则
 
