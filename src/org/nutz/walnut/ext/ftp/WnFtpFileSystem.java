@@ -9,8 +9,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
-import org.nutz.walnut.impl.io.WnSecurityImpl;
-import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnRun;
 
 public class WnFtpFileSystem implements FileSystemView {
     
@@ -19,14 +18,16 @@ public class WnFtpFileSystem implements FileSystemView {
     protected WnObj currentDir;
     protected WnUsr u;
     protected WnUsrService usrs;
-
-    public WnFtpFileSystem(WnIo io, WnUsrService usrs, WnUsr u, WnObj home) {
+    protected WnRun run;
+    
+    public WnFtpFileSystem(WnRun run, WnUsr u, WnObj home) {
         super();
-        this.io = io;
+        this.run = run;
+        this.io = run.io();
+        this.usrs = run.usrs();
         this.u = u;
         homeDir = home;
         currentDir = homeDir;
-        this.usrs = usrs;
     }
 
     @Override
@@ -71,15 +72,12 @@ public class WnFtpFileSystem implements FileSystemView {
     public void dispose() {}
 
     protected void su(Atom atom) {
-        Wn.WC().security(new WnSecurityImpl(io, usrs), ()->Wn.WC().su(u, atom));
+        run.runWithHook(u, u.group(), null, (session) -> atom.run());
     }
     
     protected <T> T su2(Proton<T> proton) {
-        return Wn.WC().security(new WnSecurityImpl(io, usrs), new Proton<T>() {
-            protected T exec() {
-                return Wn.WC().su(u, proton);
-            }
-        });
+        run.runWithHook(u, u.group(), null, (session) -> proton.run());
+        return proton.get();
     }
 
 }

@@ -271,13 +271,13 @@ public class AppModule extends AbstractWnModule {
             WnObj oAppHome = this._check_app_home(appName);
 
             if (log.isDebugEnabled())
-                sw.tag("appHome "+rsName);
+                sw.tag("appHome " + rsName);
 
             // 读取资源对象
             WnObj o = io.check(oAppHome, rsName);
             String text = null;
             if (log.isDebugEnabled())
-                sw.tag("check_rs "+rsName);
+                sw.tag("check_rs " + rsName);
 
             // TODO 这个木用，应该删掉，先去掉界面上那坨 var xxx = 就好
             if (auto_unwrap) {
@@ -351,15 +351,29 @@ public class AppModule extends AbstractWnModule {
         InputStream ins = Strings.isEmpty(in) ? null : Lang.ins(in);
         final Writer w = new OutputStreamWriter(out);
 
+        // FIXME sudo临时解决方案，防止有人知道sudo，特将命令改为wndo
+        cmdText = cmdText.trim();
+        Matcher sudoM = Pattern.compile("^wndo[ ]+(.+)$").matcher(cmdText);
+        boolean isSudo = sudoM.find();
+        if (isSudo) {
+            cmdText = sudoM.group(1);
+            if ("root".equals(Wn.WC().checkMe())) { // root还干啥sudo
+                isSudo = false;
+            }
+        }
+        final WnSession seMe = Wn.WC().checkSE().var("PWD", PWD).var("APP_HOME", oAppHome.path());
+        WnSession seSu = isSudo ? sess().create(usrs().check("root")) : null;
+
         // 运行
-        WnSession se = Wn.WC().checkSE();
+        WnSession se = isSudo ? seSu : seMe;
         se.var("PWD", PWD);
         se.var("APP_HOME", oAppHome.path());
 
         // 执行命令
         exec("", se, cmdText, out, err, ins, new Callback<WnBoxContext>() {
+            @Override
             public void invoke(WnBoxContext bc) {
-                WnSession se = bc.session;
+                WnSession se = seMe; // 强制使用原来的se
                 // 有宏的分隔符，表示客户端可以接受更多的宏命令
                 if (!Strings.isBlank(metaOutputSeparator)) {
                     try {
@@ -387,6 +401,9 @@ public class AppModule extends AbstractWnModule {
                     catch (IOException e) {
                         throw Lang.wrapThrow(e);
                     }
+                }
+                if (seSu != null) {
+                    sess().logout(seSu.id());
                 }
             }
         });

@@ -12,6 +12,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.lang.segment.CharSegment;
 import org.nutz.lang.segment.Segments;
 import org.nutz.lang.util.Context;
@@ -35,7 +36,7 @@ public class AppInfo {
     public List<AppApiItem> apiItems;
 
     public List<AppWxhookItem> wxhookItems;
-    
+
     public NutMap envs;
 
     public void parseAndClose(Reader reader, Context c) {
@@ -310,15 +311,19 @@ public class AppInfo {
                     line = line.replaceAll("(\\\\)([*@\\\\])", "$2");
                     if (line.contains("${img}")) // TODO 先临时解决一下
                         line = new CharSegment(line).render(c).toString();
+                    if (line.contains("${uuid}")) //
+                        line = new CharSegment(line).set("uuid", R.UU64()).render().toString();
                     item.content.append(line).append('\n');
                 }
 
                 continue;
             }
-            // 遇到copy数据 TODO
-            // if(line.matches(regex)){
-            //
-            // }
+            // 遇到copy数据
+            m = Pattern.compile("^([-]{6,})[ ]*copy[ ]+(.+)*$").matcher(line);
+            if (m.find()) {
+                item.cppath = Segments.replace(m.group(2), c);
+                continue;
+            }
             // 遇到元数据行
             m = P_DATA_META.matcher(line);
             if (m.find()) {

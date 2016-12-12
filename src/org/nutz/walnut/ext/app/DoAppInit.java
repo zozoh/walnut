@@ -2,11 +2,14 @@ package org.nutz.walnut.ext.app;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
+import org.nutz.lang.segment.CharSegment;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -80,7 +83,7 @@ class DoAppInit {
         if (!Strings.isBlank(pnb) && ai.wxhookItems.size() > 0) {
             _do_wxhooks(pnb);
         }
-        
+
         // 处理环境变量
         if (ai.envs != null) {
             _do_envs();
@@ -149,13 +152,14 @@ class DoAppInit {
         String phApiHome = Wn.normalizeFullPath("~/.regapi/api", sys);
         WnObj apiHome = sys.io.createIfNoExists(null, phApiHome, WnRace.DIR);
         for (AppApiItem item : ai.apiItems) {
-            
+
             if (!Strings.isBlank(item.when)) {
-                if (item.when.startsWith("user:") && !item.when.equals("user:"+c.getString("usr"))) {
+                if (item.when.startsWith("user:")
+                    && !item.when.equals("user:" + c.getString("usr"))) {
                     continue;
                 }
             }
-            
+
             _Lf("  - %-38s", item.path);
 
             WnObj oApi = sys.io.createIfNoExists(apiHome, item.path, WnRace.FILE);
@@ -189,16 +193,41 @@ class DoAppInit {
                                             : sys.io.createIfNoExists(taHome, item.path, item.race);
             _set_metas(o, item.metas);
 
-            // 空文件，将用默认内容写入
-            if (o.isFILE() && !Strings.isBlank(item.content) && o.len() == 0) {
-                sys.io.writeText(o, item.content);
+            // 空文件
+            if (o.isFILE() && o.len() == 0) {
+                // 直接写内容
+                if (!Strings.isBlank(item.content)) {
+                    // 如果写入的内容还存在动态模板的话，需要先处理一下
+                    // ${id:xxxxx}
+                    Matcher idMatcher = Pattern.compile("\\$\\{id:(.+)\\}").matcher(item.content);
+                    Context c = Lang.context();
+                    while (idMatcher.find()) {
+                        String idPath = idMatcher.group(1);
+                        WnObj pobj = sys.io.fetch(taHome, idPath);
+                        if (pobj == null) {
+                            throw new RuntimeException(String.format("check out %s, it is must create before current file [%s]",
+                                                                     "${id:" + idPath + "}",
+                                                                     item.path));
+                        }
+                        c.set("id:" + idPath, pobj.id());
+                    }
+                    if (!c.isEmpty()) {
+                        item.content = new StringBuilder(new CharSegment(item.content.toString()).render(c));
+                    }
+                    sys.io.writeText(o, item.content);
+                }
+                // 写入copy内容
+                else if (!Strings.isBlank(item.cppath)) {
+                    WnObj cpSource = sys.io.fetch(taHome, item.cppath);
+                    sys.io.copyData(cpSource, o);
+                }
             }
 
             _Ln("OK");
         }
         _Ln(Strings.dup('-', 44));
     }
-    
+
     private void _do_envs() {
         _Ln("init env : ");
         for (Entry<String, Object> en : ai.envs.entrySet()) {

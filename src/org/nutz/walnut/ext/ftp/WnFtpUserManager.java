@@ -16,10 +16,15 @@ import org.apache.ftpserver.usermanager.impl.TransferRatePermission;
 import org.apache.ftpserver.usermanager.impl.WritePermission;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.WnRun;
 
 @IocBean
 public class WnFtpUserManager extends AbstractUserManager {
+    
+    private static final Log log = Logs.get();
     
     @Inject
     protected WnRun wnRun;
@@ -90,10 +95,20 @@ public class WnFtpUserManager extends AbstractUserManager {
             if (password == null) {
                 throw new AuthenticationFailedException("Authentication failed");
             }
-            if (!wnRun.usrs().checkPassword(user, password)) {
+            String home = "/" + ("root".equals(user) ? "root" : "/home/" + user);
+            WnObj token = wnRun.io().fetch(null, (home + "/.ftp/token"));
+            if (token == null || !token.isFILE()) {
+                throw new AuthenticationFailedException("Authentication failed. Need ~/.ftp/token");
+            }
+            if (token.len() < 8) {
+                throw new AuthenticationFailedException("Authentication failed. ~/.ftp/token aleast 8 characters.");
+            }
+            String t = wnRun.io().readText(token);
+            if (!password.equalsIgnoreCase(t)) {
+                if (log.isTraceEnabled())
+                    log.tracef("expect [%s] but [%s]", t, password);
                 throw new AuthenticationFailedException("Authentication failed");
             }
-
             try {
                 return getUserByName(user);
             }

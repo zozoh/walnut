@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.ftp;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
+import org.nutz.lang.Lang;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -153,7 +155,22 @@ public class WnFtpFile implements FtpFile {
             protected OutputStream exec() {
                 if (wobj == null)
                     wobj = fs.io.create(null, path, WnRace.FILE);
-                return fs.io.getOutputStream(wobj, offset);
+                final OutputStream out = fs.io.getOutputStream(wobj, offset);
+                return new FilterOutputStream(out) {
+                    public void close() throws IOException {
+                        fs.su2(new Proton<Object>() {
+                            protected Object exec() {
+                                try {
+                                    out.close();
+                                }
+                                catch (IOException e) {
+                                    throw Lang.wrapThrow(e);
+                                }
+                                return null;
+                            }
+                        });
+                    }
+                };
             }
         });
     }
