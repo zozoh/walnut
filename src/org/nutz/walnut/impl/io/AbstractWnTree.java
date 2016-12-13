@@ -1,6 +1,5 @@
 package org.nutz.walnut.impl.io;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,8 +21,6 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.io.WnTree;
-import org.nutz.walnut.ext.qiniu.QiniuMounter;
-import org.nutz.walnut.impl.io.mnt.LocalFileMounter;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
@@ -39,9 +36,6 @@ public abstract class AbstractWnTree implements WnTree {
     private Map<String, WnMounter> mounters;
 
     public AbstractWnTree() {
-        mounters = new HashMap<String, WnMounter>();
-        mounters.put("file", new LocalFileMounter());
-        mounters.put("qiniu", new QiniuMounter());
     }
 
     @Override
@@ -155,11 +149,6 @@ public abstract class AbstractWnTree implements WnTree {
         if (p.isFILE()) {
             throw Er.create("e.io.tree.nd.file_as_parent", p);
         }
-
-        // 如果是映射节点，只读
-        if (p.isMount()) {
-            throw Er.create("e.io.tree.c.readonly.mnt", p);
-        }
     }
 
     @Override
@@ -212,9 +201,8 @@ public abstract class AbstractWnTree implements WnTree {
 
         // 处理挂载节点
         if (p.isMount()) {
-            Matcher m = regex_id_mnt2.matcher(p.mount());
-            if (m.find()) {
-                String mntType = m.group(1);
+            String mntType = getMntType(p.mount());
+            if (mntType != null) {
                 return this.__eval_mnt_obj(p, mntType, paths, fromIndex, toIndex);
             } else {
                 throw Er.create("e.io.mnt.invalid", p.mount());
@@ -432,7 +420,8 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 检查一下重名
-        __assert_duplicate_name(p, name);
+        if (!p.isMount())
+            __assert_duplicate_name(p, name);
 
         // 创建自己
         // 创建子节点
@@ -494,7 +483,12 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 执行保存
-        _create_node(o);
+        if (p.isMount()) {
+            mounters.get(getMntType(p.mount())).create(p, o);
+        } else {
+            _create_node(o);
+        }
+        
 
         // 触发同步时间修改
         Wn.Io.update_ancestor_synctime(this, o, false);
@@ -659,11 +653,20 @@ public abstract class AbstractWnTree implements WnTree {
         o = Wn.WC().whenMeta(o, false);
 
         // 修改元数据
-        _set(o.id(), map);
+        if (o.isMount() && !Strings.isBlank(o.data())) {
+            mounters.get(getMntType(o.mount())).set(o.id(), map);
+        } else {
+            _set(o.id(), map);
+        }
     }
 
     protected void _set_quiet(WnObj o, String regex) {
-        _set(o.id(), o.toMap4Update(regex));
+        NutMap map = o.toMap4Update(regex);
+        if (o.isMount()) {
+            mounters.get(getMntType(o.mount())).set(o.id(), map);
+        } else {
+            _set(o.id(), map);
+        }
     }
 
     protected abstract void _set(String id, NutMap map);
@@ -812,6 +815,10 @@ public abstract class AbstractWnTree implements WnTree {
 
     @Override
     public void delete(WnObj nd) {
+        if (nd.isMount() && !Strings.isBlank(nd.data())) {
+            __check_mounter(getMntType(nd.mount())).remove(nd);
+            return;
+        }
         // 递归删除所有的子孙
         if (nd.isDIR()) {
             this.each(Wn.Q.pid(nd), new Each<WnObj>() {
@@ -951,4 +958,11 @@ public abstract class AbstractWnTree implements WnTree {
         return null != getOne(Wn.Q.pid(p.id()));
     }
 
+    public String getMntType(String mount) {
+        Matcher m = regex_id_mnt2.matcher(mount);
+        if (m.find()) {
+            return m.group(1);
+        }
+        return null;
+    }
 }

@@ -16,7 +16,14 @@ var ioc = {
 			java : '$conf.rootTreeNode'
 		}, {
 			refer : 'mimes'
-		} ]
+		} ],
+		fields : {
+			mounters : {
+				file : {type:"org.nutz.walnut.impl.io.mnt.LocalFileMounter"},
+				qiniu : {type:"org.nutz.walnut.ext.qiniu.QiniuMounter"},
+				memory : {type:"org.nutz.walnut.impl.io.mnt.MemoryMounter"}
+			}
+		}
 	},
 	store : {
 		type : 'org.nutz.walnut.impl.io.WnStoreImpl',

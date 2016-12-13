@@ -19,6 +19,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnStore;
 import org.nutz.walnut.impl.io.bucket.LocalFileBucket;
 import org.nutz.walnut.impl.io.bucket.MemoryBucket;
+import org.nutz.walnut.impl.io.mnt.WnMemoryTree;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
@@ -163,6 +164,9 @@ public class WnStoreImpl implements WnStore {
             if (null == f)
                 throw Er.create("e.io.local.noexists", ph);
             hdl.bucket = new LocalFileBucket(f, DFT_BUCKET_BLOCK_SIZE);
+        }
+        else if (null != data && data.startsWith("memory://")) {
+            hdl.bucket = WnMemoryTree.tree().datas.get(o.data());
         }
         // 否则就是默认的桶实现
         else {
@@ -309,7 +313,8 @@ public class WnStoreImpl implements WnStore {
             hdl.obj.lastModified(hdl.bucket.getLastModified());
 
             // 引用桶
-            __refer_to_bucket(hdl);
+            if (!hdl.obj.isMount())
+                __refer_to_bucket(hdl);
 
             // 标记要修改的元数据
             hdl.obj.setRWMetaKeys("^(data|sha1|len|lm)$");
@@ -410,11 +415,6 @@ public class WnStoreImpl implements WnStore {
 
         // 分析文件数据
         String data = o.data();
-
-        // 如果是映射到本地文件，只读
-        if (null != data && data.startsWith("file://")) {
-            throw Er.create("e.io.local.readonly", o);
-        }
 
         // 如果是映射到本地文件，只读
         if (null != data && data.startsWith("file://")) {
