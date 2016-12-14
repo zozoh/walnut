@@ -926,6 +926,8 @@ public abstract class AbstractWnTree implements WnTree {
 
     @Override
     public List<WnObj> getChildren(WnObj o, String name) {
+        if (o == null)
+            o = root.clone();
         // 确保解开了链接
         o = Wn.WC().whenEnter(o, false);
 
