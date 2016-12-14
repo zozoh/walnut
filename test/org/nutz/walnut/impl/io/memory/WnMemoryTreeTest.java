@@ -32,7 +32,7 @@ public class WnMemoryTreeTest extends BaseIoTest {
             }
         }, WalkMode.DEPTH_LEAF_FIRST);
         
-        // 新增100个文件夹和文件
+        // 逐一删除
         for (int i = 0; i < 100; i++) {
             io.delete(io.check(tmpDir, "abc_dir_"+i), true);
         }
@@ -50,9 +50,32 @@ public class WnMemoryTreeTest extends BaseIoTest {
             io.writeText(tmp3, "ABC" + i);
         }
         
-        // 新增100个文件夹和文件
+        // 检查每个文件的内容
         for (int i = 0; i < 100; i++) {
             assertEquals("ABC"+i, io.readText(io.check(tmpDir, "abc_dir_" + i + "/data")));
+        }
+    }
+    
+
+    @Test
+    public void test_rename() {
+        WnObj tmpDir = io.createIfNoExists(null, "/tmp", WnRace.DIR);
+        io.setMount(tmpDir, "memory://_");
+
+        // 新增100个文件夹和文件
+        for (int i = 0; i < 100; i++) {
+            WnObj tmp3 = io.createIfNoExists(tmpDir, "abc_dir_" + i + "/data", WnRace.FILE);
+            io.writeText(tmp3, "ABC" + i);
+        }
+        
+        // 全部改名
+        for (int i = 0; i < 100; i++) {
+            io.rename(io.check(tmpDir, "abc_dir_" + i + "/data"), "data2");
+        }
+        
+        // 全部check一下
+        for (int i = 0; i < 100; i++) {
+            io.check(tmpDir, "abc_dir_" + i + "/data2");
         }
     }
 }
