@@ -5,9 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.lang.util.Node;
 import org.nutz.lang.util.Nodes;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -15,6 +19,9 @@ import org.nutz.walnut.impl.io.WnMounter;
 import org.nutz.walnut.impl.io.bucket.MemoryBucket;
 
 public class MemoryMounter implements WnMounter {
+    
+    private static final Log log = Logs.get();
+    public static boolean DEBUG = false;
     
     public WnObj get(MimeMap mimes, WnObj mo, String[] paths, int fromIndex, int toIndex) {
         Node<WnObj> p = WnMemoryTree.tree().root;
@@ -25,6 +32,8 @@ public class MemoryMounter implements WnMounter {
                     continue OUT;
                 }
             }
+            if (DEBUG)
+                log.warnf("not such file > /%s : %s", Strings.join("/", paths), paths[i]);
             // 遍历child还是找不到,那就没有咯
             return null;
         }
@@ -80,8 +89,8 @@ public class MemoryMounter implements WnMounter {
         o.put("mount_root_path", mount_root_path);
 
         String id = o.path().substring(mount_root_path.length() + 1);
-        o.data("memory://_");
-        o.id(mount_root_id+":memory:%%"+id);
+        o.data("memory://"+R.UU32());
+        o.id(mount_root_id+":memory:%%"+id.replace('/', '%'));
         MemoryBucket bucket = new MemoryBucket(8192);
         
         WnMemoryTree.tree().datas.put(o.data(), bucket);
@@ -91,13 +100,20 @@ public class MemoryMounter implements WnMounter {
     }
     
     public void remove(WnObj obj) {
-        Node<WnObj> node = WnMemoryTree.tree().maps.get(obj.id());
+        WnMemoryTree tree = WnMemoryTree.tree();
+        
+        Node<WnObj> node = tree.maps.get(obj.id());
         if (node != null) {
             if (node.hasChild()) {
                 node.getChildren().forEach((n)-> remove(n.get()));
             }
         }
-        WnMemoryTree.tree().maps.remove(obj.id());
+        // 从 id -> data 映射中移除
+        tree.datas.remove(obj.id());
+        // 找到父节点,然后删除自己
+        node.remove();
+        // 从 id -> Node 映射中移除
+        tree.maps.remove(obj.id());
     }
     
     public void set(String id, NutMap map){
