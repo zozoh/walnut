@@ -815,10 +815,6 @@ public abstract class AbstractWnTree implements WnTree {
 
     @Override
     public void delete(WnObj nd) {
-        if (nd.isMount() && !Strings.isBlank(nd.data())) {
-            __check_mounter(getMntType(nd.mount())).remove(nd);
-            return;
-        }
         // 递归删除所有的子孙
         if (nd.isDIR()) {
             this.each(Wn.Q.pid(nd), new Each<WnObj>() {
@@ -829,7 +825,12 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 删除自身
-        _delete_self(nd);
+        if (nd.isMount() && !Strings.isBlank(nd.data())) {
+            __check_mounter(getMntType(nd.mount())).remove(nd);
+            return;
+        } else {
+            _delete_self(nd);
+        }
     }
 
     protected abstract void _delete_self(WnObj nd);

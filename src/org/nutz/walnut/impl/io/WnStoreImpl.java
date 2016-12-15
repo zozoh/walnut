@@ -330,6 +330,10 @@ public class WnStoreImpl implements WnStore {
             hdl.obj.data(hdl.bucket.getId());
             hdl.bucket.refer();
         }
+        // 这是mount的桶,不用动!!
+        else if (data.contains("://")) {
+            return;
+        }
         // 切换桶
         else if (!data.equals(hdl.bucket.getId())) {
             // 需要释放原桶

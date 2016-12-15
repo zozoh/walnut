@@ -3,17 +3,32 @@ package org.nutz.walnut.impl.io.memory;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.lang.random.R;
 import org.nutz.lang.util.Callback;
 import org.nutz.walnut.BaseIoTest;
 import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.util.Wn;
 
 public class WnMemoryTreeTest extends BaseIoTest {
+    
+    @Override
+    protected void on_before(PropertiesProxy pp) {
+        super.on_before(pp);
+        Wn.WC().remove("_memory_tree");
+    }
+    
+    @Override
+    protected void on_after(PropertiesProxy pp) {
+        super.on_after(pp);
+        Wn.WC().remove("_memory_tree");
+    }
 
     @Test
     public void test_create_delete() {
-        WnObj tmpDir = io.createIfNoExists(null, "/tmp", WnRace.DIR);
+        WnObj tmpDir = io.createIfNoExists(null, "/tmp_" + R.UU32(), WnRace.DIR);
         io.setMount(tmpDir, "memory://_");
 
         // 新增100个文件夹和文件
@@ -41,7 +56,7 @@ public class WnMemoryTreeTest extends BaseIoTest {
     
     @Test
     public void test_write_read() {
-        WnObj tmpDir = io.createIfNoExists(null, "/tmp", WnRace.DIR);
+        WnObj tmpDir = io.createIfNoExists(null, "/tmp_" + R.UU32(), WnRace.DIR);
         io.setMount(tmpDir, "memory://_");
 
         // 新增100个文件夹和文件
@@ -59,11 +74,12 @@ public class WnMemoryTreeTest extends BaseIoTest {
 
     @Test
     public void test_rename() {
-        WnObj tmpDir = io.createIfNoExists(null, "/tmp", WnRace.DIR);
+        WnObj tmpDir = io.createIfNoExists(null, "/tmp_" + R.UU32(), WnRace.DIR);
         io.setMount(tmpDir, "memory://_");
 
         // 新增100个文件夹和文件
         for (int i = 0; i < 100; i++) {
+            //System.out.println(">> i=" + i);
             WnObj tmp3 = io.createIfNoExists(tmpDir, "abc_dir_" + i + "/data", WnRace.FILE);
             io.writeText(tmp3, "ABC" + i);
         }

@@ -1,8 +1,6 @@
 package org.nutz.walnut.impl.hook;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.nutz.lang.Lang;
@@ -292,4 +290,28 @@ public class IoHookTest extends BaseHookTest {
         assertEquals(Lang.sha1(txt), o.sha1());
     }
 
+    
+    @Test
+    public void test_create_memory_mount() {
+        // 准备钩子
+        WnObj oHook = io.createIfNoExists(oHookHome, "create/show_ph", WnRace.FILE);
+        io.writeText(oHook, "echo '${ph}' > id:${id}\n");
+
+        WnObj tmpDir = io.createIfNoExists(oHome, "tmp", WnRace.DIR);
+        io.setMount(tmpDir, "memory://_");
+        // 执行创建
+        WnObj o = Wn.WC().hooking(hc, new Proton<WnObj>() {
+            protected WnObj exec() {
+                return io.create(tmpDir, "abc.txt", WnRace.FILE);
+            }
+        });
+        assertNotNull(o);
+        System.out.println(o.path());
+        System.out.println(o.size());
+        // 验证
+        String txt = io.readText(o);
+        assertNotNull(txt);
+        assertEquals(tmpDir.path() + "/abc.txt\n", txt);
+        assertEquals(Lang.sha1(txt), o.sha1());
+    }
 }
