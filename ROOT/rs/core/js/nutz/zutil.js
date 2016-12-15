@@ -675,8 +675,8 @@
             this.rect_adjustlines_apply(lines);
 
             // 重新设置矩形们其他的尺寸
-            for (var r of rects) {
-                this.rect_count_tlbr(r);
+            for (var i in rects) {
+                this.rect_count_tlbr(rects[i]);
             }
         },
         //.............................................
@@ -738,8 +738,10 @@
             var map = {};
 
             // 循环查找
-            for (var r of rects) {
-                for (var key of keys) {
+            for (var i in rects) {
+                var r = rects[i];
+                for (var ki in keys) {
+                    var key = keys[ki];
                     var v = offsetFunc ? offsetFunc(r[key]) : r[key];
                     var lo = map[v];
                     var ref = {rect: r, key: key};
@@ -793,7 +795,8 @@
             str += "  " + this.alignRight(lo.offset, 4, ' ');
             str += " / " + this.alignLeft(lo.space, 4, ' ');
             str += " {";
-            for (var ref of lo.refers) {
+            for (var ri in lo.refers) {
+                var ref = lo.refers[ri];
                 str += "@" + ref.key;
                 // 仅显示高度
                 if (/^(top|bottom)$/.test(ref.key)) {
@@ -894,14 +897,18 @@
         rect_adjustlines_apply: function (lines) {
             if (lines.length > 0) {
                 // 更新顶点
-                for (var lo of lines) {
-                    for (var ref of lo.refers) {
+                for (var fi in lines) {
+                    var lo = lines[fi];
+                    for (var si in lo.refers) {
+                        var ref = lo.refers[si];
                         ref.rect[ref.key] = lo.offset;
                     }
                 }
                 // 重新设置矩形们其他的尺寸
-                for (var lo of lines) {
-                    for (var ref of lo.refers) {
+                for (var fi in lines) {
+                    var lo = lines[fi];
+                    for (var si in lo.refers) {
+                        var ref = lo.refers[si];
                         this.rect_count_tlbr(ref.rect);
                     }
                 }
@@ -1087,11 +1094,11 @@
             // 分析一下视口所在网页的区域
             var area = (m ? m[2] : null) || (
                     viewport.x >= rect.x && viewport.y >= rect.y ? "A" : (
-                        viewport.x <= rect.x && viewport.y >= rect.y ? "B" : (
-                            viewport.x >= rect.x && viewport.y <= rect.y ? "C"
-                                : "D"
+                            viewport.x <= rect.x && viewport.y >= rect.y ? "B" : (
+                                    viewport.x >= rect.x && viewport.y <= rect.y ? "C"
+                                        : "D"
+                                )
                         )
-                    )
                 );
 
             // 停靠在垂直边
@@ -1298,8 +1305,8 @@
             var ks = _.isArray(key)
                 ? key
                 : _.isString(key)
-                ? key.split(".")
-                : ["" + key];
+                    ? key.split(".")
+                    : ["" + key];
             var o = obj;
             if (ks.length > 1) {
                 var lastIndex = ks.length - 1;
@@ -1326,8 +1333,8 @@
             var ks = _.isArray(key)
                 ? key
                 : _.isString(key)
-                ? key.split(".")
-                : ["" + key];
+                    ? key.split(".")
+                    : ["" + key];
             var o = obj;
             if (ks.length > 1) {
                 var lastIndex = ks.length - 1;
