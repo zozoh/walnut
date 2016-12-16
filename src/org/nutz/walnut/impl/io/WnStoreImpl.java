@@ -166,7 +166,7 @@ public class WnStoreImpl implements WnStore {
             hdl.bucket = new LocalFileBucket(f, DFT_BUCKET_BLOCK_SIZE);
         }
         else if (null != data && data.startsWith("memory://")) {
-            hdl.bucket = WnMemoryTree.tree().datas.get(o.data());
+            hdl.bucket = WnMemoryTree.tree(o).datas.get(o.data());
         }
         // 否则就是默认的桶实现
         else {

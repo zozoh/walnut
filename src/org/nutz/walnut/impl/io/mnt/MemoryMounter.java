@@ -24,7 +24,7 @@ public class MemoryMounter implements WnMounter {
     public static boolean DEBUG = false;
     
     public WnObj get(MimeMap mimes, WnObj mo, String[] paths, int fromIndex, int toIndex) {
-        Node<WnObj> p = WnMemoryTree.tree().root;
+        Node<WnObj> p = WnMemoryTree.tree(mo).root;
         OUT: for (int i = fromIndex; i < paths.length && i < toIndex; i++) {
             for (Node<WnObj> node : p.getChildren()) {
                 if (paths[i].equals(node.get().name())) {
@@ -53,9 +53,10 @@ public class MemoryMounter implements WnMounter {
                 pattern = Pattern.compile(name);
             }
         }
-        Node<WnObj> pnode = WnMemoryTree.tree().maps.get(mo.id());
+        WnMemoryTree tree = WnMemoryTree.tree(mo);
+        Node<WnObj> pnode = tree.maps.get(mo.id());
         if (pnode == null)
-            pnode = WnMemoryTree.tree().root;
+            pnode = tree.root;
         for (Node<WnObj> node : pnode.getChildren()) {
             if (pattern != null && !pattern.matcher(node.get().name()).find()) {
                 continue;
@@ -66,10 +67,11 @@ public class MemoryMounter implements WnMounter {
     }
 
     public void create(WnObj p, WnObj o) {
-        Map<String, Node<WnObj>> nodemap = WnMemoryTree.tree().maps;
+        WnMemoryTree tree = WnMemoryTree.tree(p);
+        Map<String, Node<WnObj>> nodemap = tree.maps;
         Node<WnObj> pnode = nodemap.get(p.id());
         if (pnode == null)
-            pnode = WnMemoryTree.tree().root;
+            pnode = tree.root;
         for (Node<WnObj> node : pnode.getChildren()) {
             if (node.get().name().equals(o.name())) {
                 throw Er.createf("e.io.obj.exists", "%s/%s", p.path(), o.name());
@@ -93,14 +95,14 @@ public class MemoryMounter implements WnMounter {
         o.id(mount_root_id+":memory:%%"+id.replace('/', '%'));
         MemoryBucket bucket = new MemoryBucket(8192);
         
-        WnMemoryTree.tree().datas.put(o.data(), bucket);
+        tree.datas.put(o.data(), bucket);
         Node<WnObj> node = Nodes.create(o.clone());
         pnode.add(node);
         nodemap.put(o.id(), node);
     }
     
     public void remove(WnObj obj) {
-        WnMemoryTree tree = WnMemoryTree.tree();
+        WnMemoryTree tree = WnMemoryTree.tree(obj);
         
         Node<WnObj> node = tree.maps.get(obj.id());
         if (node != null) {
@@ -117,7 +119,7 @@ public class MemoryMounter implements WnMounter {
     }
     
     public void set(String id, NutMap map){
-        Node<WnObj> node = WnMemoryTree.tree().maps.get(id);
+        Node<WnObj> node = WnMemoryTree.tree(id.substring(0, id.indexOf(':'))).maps.get(id);
         if (node != null)
             node.get().putAll(map);
     }
