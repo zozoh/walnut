@@ -41,7 +41,7 @@ public class cmd_wget extends JvmExecutor {
 			sys.out.println("!only support download to current dir");
 			return;
 		}
-		WnObj p = getCurrentObj(sys); 
+		WnObj p = sys.getCurrentObj(); 
 		Response resp = Http.get(url);
 		if (!resp.isOK()) {
 			throw Er.create("e.cmd.badargs");

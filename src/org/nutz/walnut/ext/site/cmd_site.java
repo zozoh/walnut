@@ -51,7 +51,7 @@ public class cmd_site extends JvmExecutor {
         }
 
         // 找到主目录
-        sc.oCurrent = this.getCurrentObj(sys);
+        sc.oCurrent = sys.getCurrentObj();
         sc.oHome = sc.oCurrent;
         if (null != sc.homePath)
             sc.oHome = sys.io.check(sc.oHome, sc.homePath);

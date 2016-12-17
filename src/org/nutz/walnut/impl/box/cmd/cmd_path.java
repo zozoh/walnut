@@ -10,7 +10,7 @@ public class cmd_path extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         if (args.length == 0) {
-            sys.out.println(this.getCurrentObj(sys).path());
+            sys.out.println(sys.getCurrentObj().path());
             return;
         }
 

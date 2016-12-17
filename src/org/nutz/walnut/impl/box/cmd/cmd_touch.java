@@ -21,7 +21,7 @@ public class cmd_touch extends JvmExecutor {
             throw Err.create("e.touch.cmd.no_args");
         }
 
-        WnObj p = this.getCurrentObj(sys);
+        WnObj p = sys.getCurrentObj();
 
         List<WnObj> list = new LinkedList<WnObj>();
 

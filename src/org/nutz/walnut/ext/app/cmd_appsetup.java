@@ -27,7 +27,7 @@ public class cmd_appsetup extends JvmExecutor {
         }
         // 默认获取当前路径
         else {
-            o = this.getCurrentObj(sys);
+            o = sys.getCurrentObj();
         }
 
         // 根据对象类型获取菜单

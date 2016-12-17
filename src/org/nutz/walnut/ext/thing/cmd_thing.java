@@ -29,7 +29,7 @@ public class cmd_thing extends JvmHdlExecutor {
         // 第一个参数就是 hdl，那么当前目录就作为 oHome
         // :> thing hdlName xxx
         else if (null != this.getHdl(hc.args[0])) {
-            hc.oRefer = this.getCurrentObj(sys);
+            hc.oRefer = sys.getCurrentObj();
             hc.hdlName = hc.args[0];
             pos = 1;
         }

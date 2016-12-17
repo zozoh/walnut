@@ -49,7 +49,7 @@ public class cmd_unzip extends JvmExecutor {
                 if (name.startsWith("/"))
                     name = name.substring(1);
                 // 输出文件内容
-                WnObj tmp = sys.io.createIfNoExists(this.getCurrentObj(sys), name, WnRace.FILE);
+                WnObj tmp = sys.io.createIfNoExists(sys.getCurrentObj(), name, WnRace.FILE);
                 try (OutputStream out = sys.io.getOutputStream(tmp, 0)) {
                     while (true) {
                         int len = zis.read(buf);

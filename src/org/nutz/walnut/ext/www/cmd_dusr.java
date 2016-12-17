@@ -109,7 +109,7 @@ public class cmd_dusr extends JvmExecutor {
             if (Strings.isBlank(dseid))
                 return null;
 
-            WnObj oHome = this.getHome(sys);
+            WnObj oHome = sys.getHome();
             WnObj oSe = sys.io.fetch(oHome, ".session/" + dseid);
 
             if (null == oSe)
@@ -138,7 +138,7 @@ public class cmd_dusr extends JvmExecutor {
             dseid = Wn.WC().getString(WWW.AT_SEID);
         }
         // 获取
-        WnObj oHome = this.getHome(sys);
+        WnObj oHome = sys.getHome();
         return sys.io.fetch(oHome, ".session/" + dseid);
     }
 
@@ -153,7 +153,7 @@ public class cmd_dusr extends JvmExecutor {
             throw Er.create("e.cmd.dusr.logout.noexist");
         }
 
-        WnObj oHome = this.getHome(sys);
+        WnObj oHome = sys.getHome();
         WnObj oSe = sys.io.fetch(oHome, ".session/" + dseid);
 
         if (null == oSe) {
@@ -167,7 +167,7 @@ public class cmd_dusr extends JvmExecutor {
     private void _do_login(WnSystem sys, ZParams params) {
 
         // 得到主目录
-        WnObj oHome = this.getHome(sys);
+        WnObj oHome = sys.getHome();
         WnObj oHU = sys.io.createIfNoExists(oHome, ".usr", WnRace.DIR);
 
         WnObj oU = null;
@@ -271,7 +271,7 @@ public class cmd_dusr extends JvmExecutor {
         NutMap umap = readJsonInput(sys, params, "create");
 
         // 得到主目录
-        WnObj oHome = this.getHome(sys);
+        WnObj oHome = sys.getHome();
         WnObj oHU = sys.io.createIfNoExists(oHome, ".usr", WnRace.DIR);
 
         // 看看用户是否存在

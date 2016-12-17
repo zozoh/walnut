@@ -30,7 +30,7 @@ public class cmd_rm extends JvmExecutor {
         }
 
         // 得到当前的目录
-        WnObj oCurrent = this.getCurrentObj(sys);
+        WnObj oCurrent = sys.getCurrentObj();
         String base = oCurrent.path();
 
         // 准备计数

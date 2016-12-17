@@ -47,7 +47,7 @@ public class cmd_task extends JvmExecutor {
         sc.args = Arrays.copyOfRange(args, pos + 1, args.length);
 
         // 找到主目录
-        sc.oCurrent = this.getCurrentObj(sys);
+        sc.oCurrent = sys.getCurrentObj();
         sc.oTaskHome = sys.io.createIfNoExists(null,
                                                Wn.normalizeFullPath("~/.task", sys.se),
                                                WnRace.DIR);
