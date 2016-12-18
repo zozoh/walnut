@@ -90,12 +90,19 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         if (null == o)
             return null;
 
-        // 我是谁？
-        String me = Wn.WC().checkMe();
-        WnUsr u = usrs.check(me);
+        // 当前的线程上下文
+        WnContext wc = Wn.WC();
 
-        // 对于 root 用户，啥都不检查
-        if ("root".equals(u.name()))
+        // 我是谁？
+        WnUsr u = wc.getMyUsr(usrs);
+
+        // // 对于 root 用户，啥都不检查
+        // if ("root".equals(u.name()))
+        // return o;
+        //
+
+        // 对于 root 组成员，啥都不检查
+        if (wc.isMemberOf(usrs, "root"))
             return o;
 
         // 如果对象过期了，抛错
