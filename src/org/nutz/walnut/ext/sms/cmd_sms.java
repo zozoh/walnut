@@ -26,7 +26,7 @@ public class cmd_sms extends JvmExecutor {
         sc.debug = params.is("debug");
         sc.provider = params.get("provider", "Yunpian");
         sc.mobiles = params.get("r");
-        sc.header = params.get("header");
+        sc.header = params.has("header") ? params.get("header") : "";
         sc.conf = params.get("config");
 
         if (Strings.isBlank(sc.mobiles)) {
@@ -58,7 +58,7 @@ public class cmd_sms extends JvmExecutor {
         WnObj oConf = Wn.checkObj(sys, sc.conf);
         NutMap conf = sys.io.readJson(oConf, NutMap.class);
 
-        // 手动设置header
+        // 强制设置header，覆盖默认配置中的
         if (!Strings.isBlank(sc.header)) {
             conf.setv("header", sc.header);
         }
