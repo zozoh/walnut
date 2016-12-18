@@ -324,7 +324,7 @@ return ZUI.def("ui.menu", {
         var jStatus = $('<span class="menu-item-status">').appendTo(jq);
         mi.status.forEach(function(si){
             var jSi = $('<span class="menu-item-si">').appendTo(jStatus);
-            jSi.attr("val", si.val);
+            jSi.attr("val", si.value || si.val);
             if(si.icon){
                 $('<span class="menu-item-si-icon">').appendTo(jSi).html(si.icon);
             }

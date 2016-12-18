@@ -97,8 +97,51 @@ new UIMenu({
 ```
 {
     type   : "status"          // 类型
+    
+    // 初始化布尔选项，一般用来动态设置 mi.status[i].on = true
     init    : {context}F(mi)   // 初始化枚举选项 
-    status   : [..]            // 枚举选项
+    
+    // 枚举选项
+    status   : [{
+        icon  : '<i class="xxxx"></i>',  // 选项的图标
+        text  : 'i18n:xxxx',             // 选项的文字
+        value : xxx,                     // 选项的值
+        on    : false,                   // 是否选中
+    }],
+    
+    // 当选项改变的回调
+    on_change : {C}F(val, mi)
+
+    // 当选项改变会发送事件
+    // 如果声明了 key:"abc" 会发送 "menu:abc"(val)
+    // 否则发送 "menu:status"(val)
+    "menu:???"
+}
+```
+
+# 菜单项:布尔
+
+```
+{
+    type : "boolean"         // 类型
+    
+    // 初始化布尔选项，一般用来动态设置 mi.on 的
+    init : {context}F(mi)
+    
+    // 默认是什么状态
+    on   : false 
+    
+    // 声明两种状态的图标
+    icon_on  : '<i class="xxxx"></i>',
+    icon_off : '<i class="xxxx"></i>',
+    
+    // 当选项改变的回调
+    on_change : {C}F(true|false, mi)
+
+    // 当选项改变会发送事件
+    // 如果声明了 key:"abc" 会发送 "menu:abc"(val)
+    // 否则发送 "menu:boolean"(true|false)
+    "menu:???"
 }
 ```
 
