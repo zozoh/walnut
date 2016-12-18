@@ -13,7 +13,7 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.io.WnBean;
-import org.nutz.walnut.impl.io.WnMounter;
+import org.nutz.walnut.impl.io.mnt.AbstractWnMounter;
 import org.nutz.walnut.util.Wn;
 
 import com.qiniu.common.QiniuException;
@@ -21,7 +21,7 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.storage.model.FileListing;
 
-public class QiniuMounter implements WnMounter {
+public class QiniuMounter extends AbstractWnMounter {
 
     public WnObj get(MimeMap mimes, WnObj mo, String[] paths, int fromIndex, int toIndex) {
         QiniuWnObj top = new QiniuWnObj(mo);
@@ -152,4 +152,5 @@ public class QiniuMounter implements WnMounter {
         o.setv("qiniu_path", info.key);
         return o;
     }
+    
 }

@@ -57,8 +57,10 @@ public class WnIoOutputStreamWrapper extends OutputStream {
         // 文件:触发同步时间修改
         if (o.isFILE()) {
             WnObj tmp = io.getDirect(o.id());
-            if (null == tmp)
+            if (null == tmp) {
+                new Throwable().printStackTrace();
                 throw Er.create("e.io.noexists", "id:" + o.id());
+            }
             String sha1 = tmp.sha1();
             if (null == old_sha1 || !old_sha1.equals(sha1)) {
                 Wn.Io.update_ancestor_synctime(io, o, false);

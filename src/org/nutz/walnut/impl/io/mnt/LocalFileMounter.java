@@ -13,10 +13,9 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.io.WnBean;
-import org.nutz.walnut.impl.io.WnMounter;
 import org.nutz.walnut.util.Wn;
 
-public class LocalFileMounter implements WnMounter {
+public class LocalFileMounter extends AbstractWnMounter {
 
     private static final Pattern regex_id_mnt2 = Pattern.compile("^([\\d\\w]+)://(.+)$");
 
@@ -141,5 +140,4 @@ public class LocalFileMounter implements WnMounter {
         reList.sort((from, to)-> from.name().compareTo(to.name()));
         return reList;
     }
-
 }

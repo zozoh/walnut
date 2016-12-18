@@ -14,7 +14,6 @@ public class MemoryBucket extends AbstractBucket {
 
     private static final byte B0 = (byte) 0;
 
-    private String id;
     private boolean sealed;
     private long createTime;
     private long lastModified;
@@ -202,10 +201,6 @@ public class MemoryBucket extends AbstractBucket {
     @Override
     public long free() {
         return 1;
-    }
-
-    public String getId() {
-        return id;
     }
 
     public boolean isSealed() {

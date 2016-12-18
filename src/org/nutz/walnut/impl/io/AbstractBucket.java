@@ -10,6 +10,8 @@ import org.nutz.walnut.api.io.WnBucket;
 import org.nutz.walnut.api.io.WnBucketBlockInfo;
 
 public abstract class AbstractBucket implements WnBucket {
+    
+    protected String _id;
 
     @Override
     public String getString() {
@@ -112,5 +114,13 @@ public abstract class AbstractBucket implements WnBucket {
     protected void _assert_no_sealed() {
         if (isSealed())
             throw Er.create("e.bucket.sealed");
+    }
+
+    public String getId() {
+        return _id;
+    }
+    
+    public void setId(String id) {
+        this._id = id;
     }
 }

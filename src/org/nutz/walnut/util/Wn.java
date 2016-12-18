@@ -205,6 +205,10 @@ public abstract class Wn {
 
         // 如果 ph 以 id:xxx 开头，将其搞一下
         if (ph.startsWith("id:")) {
+            // 啊啊啊,这是mount挂载的id啊
+            if (ph.contains("id:") && ph.contains(":%%")) {
+                return sys.io.checkById(ph.substring(3)).path();
+            }
             pos = ph.indexOf('/');
             if (pos > 0) {
                 String id = ph.substring(3, pos);

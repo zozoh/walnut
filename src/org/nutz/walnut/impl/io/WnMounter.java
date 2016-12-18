@@ -2,6 +2,7 @@ package org.nutz.walnut.impl.io;
 
 import java.util.List;
 
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 
@@ -38,4 +39,7 @@ public interface WnMounter {
      */
     List<WnObj> getChildren(MimeMap mimes, WnObj mo, String name);
 
+    public void create(WnObj p, WnObj o);
+    public void remove(WnObj obj);
+    public void set(String id, NutMap map);
 }
