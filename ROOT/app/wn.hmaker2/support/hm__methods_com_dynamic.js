@@ -95,11 +95,24 @@ var methods = {
         var m;
         var dynamicKeys  = [];     // 参数是否有动态参数
         var isLackParams = false;  // 是否所有的动态参数都有默认值
+
+        // 得到站点名称等动态值的上下文
+        var pc = {
+            siteName : UI.getHomeObjName(),
+        };
+
+        // 循环处理 ...
         for(var key in pm_org) {
             var val = $.trim(pm_org[key]);
 
+            // 进行标准替换
+            var v2 = $z.tmpl(val, {
+                escape: /\$\{([\s\S]+?)\}/g
+            })(pc);
+            console.log(key, val, v2);
+
             // 请求参数
-            m = /^@([\w\d_-]+)(<(.+)>)?$/.exec(val);
+            m = /^@([\w\d_-]+)(<(.+)>)?$/.exec(v2);
             if(m) {
                 dynamicKeys.push(key);
                 isLackParams = isLackParams || !m[3];
@@ -108,7 +121,9 @@ var methods = {
             }
             // TODO Session 变量
             // TODO Cookie 的值
-            params[key] = val;
+
+            // 记录参数
+            params[key] = v2;
         }
         // 保存这个分析状态
         UI.__dynamicKeys  = dynamicKeys;

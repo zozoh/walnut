@@ -62,6 +62,10 @@ var methods = {
     getHomeObjId : function() {
         return this.hmaker().__home_id;
     },
+    // 得到站点主目录名称
+    getHomeObjName : function() {
+        return this.getHomeObj().nm;
+    },
     //=========================================================
     // 得到站点的皮肤设定， null 表示没有设定皮肤
     getSkinInfo : function() {

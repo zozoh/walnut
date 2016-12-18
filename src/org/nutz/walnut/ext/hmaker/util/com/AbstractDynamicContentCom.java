@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.template.HmTemplate;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
@@ -15,7 +16,7 @@ public abstract class AbstractDynamicContentCom extends AbstractComHanlder {
 
     protected void _setup_dynamic_content(HmPageTranslating ing, NutMap conf) {
         ing.markPageAsWnml();
-        
+
         // 得到 api 的URL
         String API = "/api/" + ing.oHome.d1();
         if (conf.has("api")) {
@@ -23,20 +24,36 @@ public abstract class AbstractDynamicContentCom extends AbstractComHanlder {
             conf.put("apiUrl", apiUrl);
         }
 
-        // 格式化参数表 @xx<xxxx> 格式的数据替换成 ${params.xx} 的动态语法
+        // 格式化参数表
         NutMap params = conf.getAs("params", NutMap.class);
         if (null != params && params.size() > 0) {
+            // 静态替换的上下文
+            NutMap pc = Lang.map("siteName", ing.oHome.name());
+
+            // 处理每个参数
             for (String key : params.keySet()) {
                 Object val = params.get(key);
                 if (null != val && val instanceof CharSequence) {
                     String str = Strings.trim(val.toString());
+                    // 所有 ${xxx} 进行静态替换
+                    str = Tmpl.exec(str, pc);
+
+                    // @xx<xxxx> 格式的数据替换成 ${params.xx} 的动态语法
                     Matcher m = _P_D_PARAMS.matcher(str);
                     if (m.find()) {
                         String str2 = "${params." + m.group(1) + "?" + m.group(3) + "}";
                         params.put(key, str2);
+                        continue;
                     }
+
+                    // TODO Session 变量
+                    // TODO Cookie 的值
+
+                    // 其他的默认加入参数表
+                    params.put(key, str);
                 }
             }
+            // 计入参数
             conf.put("params", params);
         }
 
