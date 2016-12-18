@@ -19,7 +19,7 @@
     // - id   : obj.id
     // - idph : "id:" + obj.id
     dataType : "obj|path|id|idph"
-    
+
     // 检查上传文件的合法性，默认会动态的根据 target 来判断
     validate : {c}F(file, UI):Boolean
 
@@ -61,6 +61,13 @@ return ZUI.def("ui.form_com_image", {
     init : function(opt){
         FormCMethods(this);
 
+        function fixJPG(suffix) {
+            if(suffix == "jpeg"){
+                return "jpg";
+            }
+            return suffix;
+        }
+
         // 默认根据 target 来检查上传的文件类型
         $z.setUndefined(opt, "validate", function(file, UI){
             var opt = UI.options;
@@ -68,8 +75,8 @@ return ZUI.def("ui.form_com_image", {
                 var o = Wn.get(opt.target, true);
                 // 根据路径判断
                 if(!o) {
-                    var sn_o = $z.getSuffixName(opt.target);
-                    var sn_f = $z.getSuffixName(file.name);
+                    var sn_o = fixJPG(($z.getSuffixName(opt.target) || "").toLowerCase());
+                    var sn_f = fixJPG(($z.getSuffixName(file.name) || "").toLowerCase());
                     return sn_o == sn_f;
                 }
                 // 根据文件对象判断
@@ -237,7 +244,7 @@ return ZUI.def("ui.form_com_image", {
                 $z.invoke(opt, "complete", [re, status], context);
             }
         });
-        
+
     },
     //...............................................................
     __update_progress : function (jq, loaded, total) {
@@ -282,7 +289,7 @@ return ZUI.def("ui.form_com_image", {
         // 修改显示（如果是通知方式，则加入时间戳更新缓存)
         UI.arena.find("img").attr({
             "src" : o ? "/o/read/id:" + o.id + "?_t="+$z.timestamp()
-                      : dft_src 
+                      : dft_src
         });
 
         // 通知回调
