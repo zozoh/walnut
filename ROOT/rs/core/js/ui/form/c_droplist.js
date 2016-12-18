@@ -168,15 +168,21 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
         var context = opt.context || UI.parent;
         var multi   = UI.isMulti();
 
-        if(!_.isArray(items))
-            return;
-
         // 是否绘制空对象
         var offset = 0;
         if(!multi && opt.emptyItem) {
             UI.__append_item(offset++, opt.emptyItem, multi, jUl);
         }
 
+        // 默认添加一些固定的 items
+        if(_.isArray(opt.fixItems)) {
+            items = [].concat(opt.fixItems, items);
+        }
+
+        if(!_.isArray(items))
+            return;
+
+        // 逐个绘制
         var hasIcon = false;
         for(var i=0; i<items.length; i++){
             var item = items[i];
