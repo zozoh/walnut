@@ -62,7 +62,7 @@ return ZUI.def("ui.form_com_image", {
         FormCMethods(this);
 
         function fixJPG(suffix) {
-            if(suffix == "jpeg"){
+            if (suffix == "jpeg") {
                 return "jpg";
             }
             return suffix;
