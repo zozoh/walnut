@@ -5,10 +5,11 @@ import org.nutz.walnut.impl.box.WnSystem;
 
 public class SmsCtx {
 
-    @JsonField(ignore=true)
+    @JsonField(ignore = true)
     public WnSystem sys;
     public String conf;
     public String provider;
+    public String header;
     public String msg;
     public String mobiles;
     public boolean debug;
