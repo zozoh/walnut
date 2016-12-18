@@ -10,6 +10,7 @@ import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
@@ -53,6 +54,29 @@ public class WnSystem {
     public JvmExecutorFactory jef;
 
     JvmAtomRunner _runner;
+
+    /**
+     * 获取当前用户的 HOME 对象
+     *
+     * @return HOME 对象
+     */
+    public WnObj getHome() {
+        String pwd = this.se.vars().getString("HOME");
+        String path = Wn.normalizePath(pwd, this);
+        return this.io.check(null, path);
+    }
+
+    /**
+     * 获取当前用户的当前所在路径对象
+     * 
+     * @return 对象
+     */
+    public WnObj getCurrentObj() {
+        String pwd = this.se.vars().getString("PWD");
+        String path = Wn.normalizePath(pwd, this);
+        WnObj re = this.io.check(null, path);
+        return Wn.WC().whenEnter(re, false);
+    }
 
     public NutMap attrs() {
         return _runner.bc.attrs;

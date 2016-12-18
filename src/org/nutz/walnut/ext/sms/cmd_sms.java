@@ -19,12 +19,14 @@ import org.nutz.walnut.util.ZParams;
  */
 public class cmd_sms extends JvmExecutor {
 
+    @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         SmsCtx sc = new SmsCtx();
         ZParams params = ZParams.parse(args, "^(debug)$");
         sc.debug = params.is("debug");
         sc.provider = params.get("provider", "Yunpian");
         sc.mobiles = params.get("r");
+        sc.header = params.get("header");
         sc.conf = params.get("config");
 
         if (Strings.isBlank(sc.mobiles)) {
@@ -55,6 +57,11 @@ public class cmd_sms extends JvmExecutor {
 
         WnObj oConf = Wn.checkObj(sys, sc.conf);
         NutMap conf = sys.io.readJson(oConf, NutMap.class);
+
+        // 手动设置header
+        if (!Strings.isBlank(sc.header)) {
+            conf.setv("header", sc.header);
+        }
 
         // TODO 适应各种提供商
         SmsProvider provider = new YunPianSmsProvider();

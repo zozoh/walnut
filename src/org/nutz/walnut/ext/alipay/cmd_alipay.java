@@ -36,7 +36,7 @@ public class cmd_alipay extends JvmHdlExecutor {
 
             // 表示当前目录为主目录
             if (".".equals(pnb)) {
-                hc.oRefer = this.getCurrentObj(sys);
+                hc.oRefer = sys.getCurrentObj();
             }
             // 获取主目录
             else {

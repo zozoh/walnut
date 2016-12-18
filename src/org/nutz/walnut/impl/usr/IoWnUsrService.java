@@ -359,15 +359,23 @@ public class IoWnUsrService implements WnUsrService {
     }
 
     @Override
-    public boolean isMemberOfGroup(WnUsr u, String grp) {
-        int role = this.getRoleInGroup(u, grp);
-        return Wn.ROLE.ADMIN == role || Wn.ROLE.MEMBER == role;
+    public boolean isMemberOfGroup(WnUsr u, String... grps) {
+        for (String grp : grps) {
+            int role = this.getRoleInGroup(u, grp);
+            if (Wn.ROLE.ADMIN == role || Wn.ROLE.MEMBER == role)
+                return true;
+        }
+        return false;
     }
 
     @Override
-    public boolean isAdminOfGroup(WnUsr u, String grp) {
-        int role = this.getRoleInGroup(u, grp);
-        return Wn.ROLE.ADMIN == role;
+    public boolean isAdminOfGroup(WnUsr u, String... grps) {
+        for (String grp : grps) {
+            int role = this.getRoleInGroup(u, grp);
+            if (Wn.ROLE.ADMIN == role)
+                return true;
+        }
+        return false;
     }
 
     @Override

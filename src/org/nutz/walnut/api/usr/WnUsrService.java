@@ -73,10 +73,10 @@ public interface WnUsrService {
     WnUsr checkBy(WnUsrInfo info);
 
     int getRoleInGroup(WnUsr u, String grp);
-    
-    boolean isMemberOfGroup(WnUsr u, String grp);
-    
-    boolean isAdminOfGroup(WnUsr u, String grp);
+
+    boolean isMemberOfGroup(WnUsr u, String... grps);
+
+    boolean isAdminOfGroup(WnUsr u, String... grps);
 
     void setRoleInGroup(WnUsr u, String grp, int role);
 

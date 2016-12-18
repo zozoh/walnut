@@ -22,7 +22,7 @@ public class cmd_hmaker extends JvmHdlExecutor {
         // 第一个参数就是 hdl，那么主目录被认为是当前目录
         if (null != this.getHdl(hc.args[0])) {
             hc.hdlName = hc.args[0];
-            hc.oRefer = this.getCurrentObj(sys);
+            hc.oRefer = sys.getCurrentObj();
             pos = 1;
         }
         // 第一个参数必须为主目录

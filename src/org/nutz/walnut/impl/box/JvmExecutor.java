@@ -22,9 +22,17 @@ public abstract class JvmExecutor {
     public abstract void exec(WnSystem sys, String[] args) throws Exception;
 
     public String getManual() {
+        return this.getManual(null);
+    }
+
+    public String getManual(String hdlName) {
         Class<?> klass = this.getClass();
         String ph = klass.getPackage().getName().replace('.', '/');
-        ph += "/" + klass.getSimpleName() + ".man";
+        ph += "/" + klass.getSimpleName();
+        if (!Strings.isBlank(hdlName)) {
+            ph += "_" + hdlName;
+        }
+        ph += ".man";
 
         File f = Files.findFile(ph);
         if (null == f) {
@@ -41,6 +49,12 @@ public abstract class JvmExecutor {
         return Strings.lowerWord(nm, '-');
     }
 
+    /**
+     * 这个在未来的某个版本，将会被删除，<code>WnSystem</code> 提供了代替方法
+     * 
+     * @see org.nutz.walnut.impl.box.WnSystem#getCurrentObj()
+     */
+    @Deprecated
     protected WnObj getCurrentObj(WnSystem sys) {
         String pwd = sys.se.vars().getString("PWD");
         String path = Wn.normalizePath(pwd, sys);
@@ -48,6 +62,12 @@ public abstract class JvmExecutor {
         return Wn.WC().whenEnter(re, false);
     }
 
+    /**
+     * 这个在未来的某个版本，将会被删除，<code>WnSystem</code> 提供了代替方法
+     * 
+     * @see org.nutz.walnut.impl.box.WnSystem#getHome()
+     */
+    @Deprecated
     protected WnObj getHome(WnSystem sys) {
         String pwd = sys.se.vars().getString("HOME");
         String path = Wn.normalizePath(pwd, sys);

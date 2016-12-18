@@ -22,7 +22,7 @@ $.fn.extend({ "objshow" : function(opt){
     // TODO 处理参数
 
     // 请求
-    $.post(opt.apiUrl, opt.params||{}, function(re){
+    $.get(opt.apiUrl, opt.params||{}, function(re){
 
         // api 返回错误
         if(/^e[.]/.test(re)){

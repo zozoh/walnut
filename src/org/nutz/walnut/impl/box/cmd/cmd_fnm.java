@@ -24,7 +24,7 @@ public class cmd_fnm extends JvmExecutor {
         String tmplStr = params.check("tmpl");
 
         Tmpl tmpl = Tmpl.parse(tmplStr, _P, 2, 4);
-        WnObj current = Strings.isBlank(str) ? this.getCurrentObj(sys) : Wn.checkObj(sys, str);
+        WnObj current = Strings.isBlank(str) ? sys.getCurrentObj() : Wn.checkObj(sys, str);
 
         int i = 1;
         NutMap context = Lang.map("n", i);

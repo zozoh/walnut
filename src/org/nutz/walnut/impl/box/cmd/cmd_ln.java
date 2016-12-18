@@ -25,7 +25,7 @@ public class cmd_ln extends JvmExecutor {
         // 确保源存才
         WnObj oSrc = sys.io.check(null, src);
 
-        WnObj p = this.getCurrentObj(sys);
+        WnObj p = sys.getCurrentObj();
 
         // 查看目标
         WnObj oDst = sys.io.fetch(p, dst);

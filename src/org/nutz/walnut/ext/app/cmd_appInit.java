@@ -52,7 +52,7 @@ public class cmd_appInit extends JvmExecutor {
         }
         // 默认当前路径
         else {
-            taHome = this.getCurrentObj(sys);
+            taHome = sys.getCurrentObj();
         }
 
         // 执行处理

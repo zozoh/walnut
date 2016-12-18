@@ -130,7 +130,7 @@ public class cmd_obj extends JvmExecutor {
         }
         // 啥都木有，那就用当前路径吧
         else {
-            list.add(this.getCurrentObj(sys));
+            list.add(sys.getCurrentObj());
         }
 
         // 如果是按组查询
@@ -643,7 +643,7 @@ public class cmd_obj extends JvmExecutor {
         }
         // 采用当前路径
         else {
-            oP = this.getCurrentObj(sys);
+            oP = sys.getCurrentObj();
         }
 
         // 创建对象

@@ -12,7 +12,7 @@ public class cmd_find extends JvmExecutor {
 
     @Override
     public void exec(final WnSystem sys, String[] args) {
-        WnObj p = this.getCurrentObj(sys);
+        WnObj p = sys.getCurrentObj();
 
         String ph = args.length > 0 ? args[0] : ".";
 
