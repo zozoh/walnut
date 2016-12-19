@@ -1,7 +1,9 @@
 package org.nutz.walnut.util;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +24,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.impl.io.WnEvalLink;
 
 /**
@@ -48,6 +51,51 @@ public class WnContext extends NutMap {
     private WnHookContext hookContext;
 
     public long _timestamp;
+
+    // 缓存对应各个组的权限
+    private Map<String, Integer> roles;
+
+    // 缓存当前用户对象
+    private WnUsr oMe;
+    
+    public WnContext(){
+        roles = new HashMap<>();
+    }
+
+    public WnUsr getMyUsr(WnUsrService usrs) {
+        if (null == oMe || !oMe.name().equals(me)) {
+            oMe = usrs.check(me);
+        }
+        return oMe;
+    }
+
+    public int getMyRoleOf(WnUsrService usrs, String grp) {
+        Integer r = roles.get(grp);
+        if (null == r) {
+            WnUsr u = this.getMyUsr(usrs);
+            r = usrs.getRoleInGroup(u, grp);
+            roles.put(grp, r);
+        }
+        return r;
+    }
+
+    public boolean isMemberOf(WnUsrService usrs, String... grps) {
+        for (String grp : grps) {
+            int r = this.getMyRoleOf(usrs, grp);
+            if (Wn.ROLE.ADMIN == r || Wn.ROLE.MEMBER == r)
+                return true;
+        }
+        return false;
+    }
+
+    public boolean isAdminOf(WnUsrService usrs, String... grps) {
+        for (String grp : grps) {
+            int r = this.getMyRoleOf(usrs, grp);
+            if (Wn.ROLE.ADMIN == r)
+                return true;
+        }
+        return false;
+    }
 
     /**
      * query|each 的时候，是否自动加载全路径，默认应该是 false

@@ -323,6 +323,7 @@ var methods = {
                         this.__is_for_drop = true;
                         this.__do_ing = function(pmvc) {
                             //console.log("drag", pmvc.rect.inview)
+                            return true;
                         };
                         
                         // 处理每个拖放的目标的内容显示

@@ -258,11 +258,11 @@ public abstract class WnMongos {
         // 多个值，看看是 “与” 还是 “或”
         else if (ss.length > 0) {
             // 指明 in
-            if (ss[0].equals("in")) {
+            if (ss[0].equals("%in")) {
                 q.in(key, Arrays.copyOfRange(ss, 1, ss.length));
             }
             // 指明 all
-            else if (ss[0].equals("all")) {
+            else if (ss[0].equals("%all")) {
                 q.all(key, Arrays.copyOfRange(ss, 1, ss.length));
             }
             // 默认用 in

@@ -20,6 +20,7 @@ define({
             "th_ow" : "所有者",
             "th_nm" : "名称",
             "th_brief" : "摘要",
+            "th_site" : "所属站点",
             "th_live" : "存活",
             "th_cate" : "分类",
             "th_c_cmt" : "评论数",
@@ -27,6 +28,7 @@ define({
             "th_c_agree" : "赞同数",
             "brief_and_content" : "内容及摘要"
         },
+        "th_site_all" : "全部站点",
         "live_a" : "有效",
         "live_d" : "已删除",
         "err" : {
