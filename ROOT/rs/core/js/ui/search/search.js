@@ -1,6 +1,6 @@
 (function($z){
 $z.declare([
-    'zui', 
+    'zui',
     'ui/mask/mask',
     'ui/menu/menu'
 ], function(ZUI, MaskUI, MenuUI){
@@ -71,7 +71,7 @@ function _pop_form_mask(UI, title, obj, cmdTmpl, callback){
             uiConf : _.extend({
                 uiWidth : "all"
             }, opt.formConf, {
-                title  : title, 
+                title  : title,
                 fields : opt.list.uiConf.fields
             })
         }
@@ -149,7 +149,7 @@ return ZUI.def("ui.srh", {
         __fmt_subUIs(opt, "filter", 'ui/search/filter');
         __fmt_subUIs(opt, "list",   'ui/table/table');
         __fmt_subUIs(opt, "pager",  'ui/search/pager');
-        
+
         //...........................................
         // 检查菜单, string 表示的为快捷菜单项
         if(_.isArray(opt.menu)){
@@ -204,7 +204,7 @@ return ZUI.def("ui.srh", {
             if(opt.menu){
                 var menu_setup = isNarrow ? [{
                     icon  : '<i class="fa fa-ellipsis-v"></i>',
-                    items : opt.menu 
+                    items : opt.menu
                 }] : opt.menu;
                 UI.uiMenu = new MenuUI({
                     parent     : UI,
@@ -214,7 +214,7 @@ return ZUI.def("ui.srh", {
                 // 返回 true 表示有菜单
                 return true;
             }
-            // 删除菜单 
+            // 删除菜单
             else{
                 jActions.remove();
             }
@@ -264,7 +264,7 @@ return ZUI.def("ui.srh", {
                 UI.defer_report("pgr");
             });
         });
-        
+
         // 返回延迟加载列表
         return uiTypes;
     },
@@ -304,13 +304,16 @@ return ZUI.def("ui.srh", {
         });
     },
     //...............................................................
-    // 弹出创建对象的表单 
+    // 弹出创建对象的表单
     openCreateMask : function(){
         var UI   = this;
         var opt  = UI.options;
         _pop_form_mask(UI, "i18n:new",{},opt.edtCmdTmpl["create"],function(newObj){
             UI.uiList.add(newObj).setActived(UI.uiList.getObjId(newObj));
             UI.uiList.resize();
+
+            UI.trigger("search:create", newObj);
+            $z.invoke(UI.options, "on_create", [newObj], UI);
         });
     },
     //...............................................................
@@ -370,7 +373,7 @@ return ZUI.def("ui.srh", {
             // 得到 filter 宽度的参考值
             var fltWidthHint  = $z.dimension(opt.filterWidthHint || "50%", w_sky);
             var fltWidthCount = w_sky - w_action;
-            
+
             // filter 计算值小于参考值，那么变成窄模式，试图收缩 action
             if(fltWidthCount < fltWidthHint){
                 // 原来不是窄的，那么现在要绘制成窄的
@@ -391,7 +394,7 @@ return ZUI.def("ui.srh", {
             jFilter.css("width", jSky.width() - jActions.outerWidth(true));
             jSky.css("height", jFilter.outerHeight(true));
         }
-        
+
 
         // 计算中间部分的高度
         var jPager = UI.arena.children(".srh-pager");
@@ -417,12 +420,12 @@ return ZUI.def("ui.srh", {
             match : flt.match ? $z.toJson(flt.match) : '',
             sort  : flt.sort  ? $z.toJson(flt.sort)  : ''
         });
-        
+
         //console.log("do_search",qc)
 
         // 记录一下之前激活的项目
         var activedId = UI.uiList.getActivedId();
-        
+
         // 显示正在加载数据
         UI.uiList.showLoading();
 
