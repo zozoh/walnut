@@ -20,7 +20,7 @@ public class cmd_man extends JvmExecutor {
             }
             // 试图寻找子参数
             else if (args.length > 1) {
-                sys.out.println(args[1]);
+                sys.out.println(cmd.getManual(args[1]));
             }
             // 采用默认的命令帮助文件
             else {

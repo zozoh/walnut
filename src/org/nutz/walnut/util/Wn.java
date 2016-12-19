@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -138,6 +139,44 @@ public abstract class Wn {
         return o;
     }
 
+    /**
+     * 得到当前系统环境变量声明的 UI 目录列表
+     * 
+     * @param sys
+     *            系统上下文
+     * @param varName
+     *            环境变量
+     * @param dftPh
+     *            默认的值
+     * 
+     * @return 列表
+     */
+    public static List<WnObj> getPathObjList(WnSystem sys, String varName, String dftPh) {
+        String paths = Strings.sBlank(sys.se.varString(varName), dftPh);
+        String[] phs = Strings.splitIgnoreBlank(paths, ":");
+
+        if (null == phs)
+            return new LinkedList<WnObj>();
+
+        List<WnObj> list = new ArrayList<>(phs.length);
+        for (String ph : phs) {
+            WnObj o = getObj(sys, ph);
+            if (null != o)
+                list.add(o);
+        }
+
+        return list;
+    }
+
+    public static WnObj getObjIn(WnSystem sys, String rph, List<WnObj> oList) {
+        for (WnObj oP : oList) {
+            WnObj o = sys.io.fetch(oP, rph);
+            if (null != o)
+                return o;
+        }
+        return null;
+    }
+
     public static String appendPath(String... phs) {
         String[] paths = Lang.without(phs, null);
         if (null != paths && paths.length > 0) {
@@ -252,6 +291,14 @@ public abstract class Wn {
         }
 
         return re;
+    }
+
+    public static String normalizeStr(String str, WnSystem sys) {
+        return normalizeStr(str, sys.se);
+    }
+
+    public static String normalizeStr(String str, WnSession se) {
+        return normalizeStr(str, se.vars());
     }
 
     public static String normalizeStr(String str, NutMap env) {
@@ -854,4 +901,5 @@ public abstract class Wn {
         }
         return o;
     }
+
 }

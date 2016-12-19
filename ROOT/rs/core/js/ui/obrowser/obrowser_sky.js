@@ -353,7 +353,14 @@ return ZUI.def("ui.obrowser_sky", {
         else{
             jq.attr("onm", o.nm);
             $(Wn.objIconHtml(o)).attr("mime",o.mime).prependTo(jq);
-            jq.find("b").text(Wn.objDisplayName(UI, o.nm));
+            // 指定了标题
+            if(o.title) {
+                jq.find("b").text(o.title);
+            }
+            // 显示名称
+            else {
+                jq.find("b").text(Wn.objDisplayName(UI, o.nm));
+            }
         }
 
         // 移除最后的展开符

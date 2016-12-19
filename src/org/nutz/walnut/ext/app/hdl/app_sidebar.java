@@ -1,35 +1,39 @@
-package org.nutz.walnut.ext.app;
+package org.nutz.walnut.ext.app.hdl;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.app.WnApps;
 import org.nutz.walnut.ext.app.bean.SidebarGroup;
 import org.nutz.walnut.ext.app.bean.SidebarItem;
-import org.nutz.walnut.impl.box.JvmExecutor;
+import org.nutz.walnut.impl.box.JvmHdl;
+import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnBean;
-import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.ZParams;
 
-public class cmd_appSidebar extends JvmExecutor {
+@JvmHdlParamArgs(regex = "^html$", value = "cqnH")
+public class app_sidebar implements JvmHdl {
 
     @Override
-    public void exec(WnSystem sys, String[] args) throws Exception {
-        // 解析参数
-        ZParams params = ZParams.parse(args, "cqnH", "^html$");
+    public void invoke(WnSystem sys, JvmHdlContext hc) {
 
         // 确保会话有关键变量,自己的域名
         if (!sys.se.hasVar("SIDEBAR_DOMAIN"))
             sys.se.var("SIDEBAR_DOMAIN", sys.se.var("MY_GRP"));
 
+        // 得到所有的 UI 主目录
+        List<WnObj> oUIHomes = WnApps.getUIHomes(sys);
+
         // 读取配置文件
-        WnObj oConf = __find_conf(sys, params);
+        WnObj oConf = __find_conf(sys, hc.params, oUIHomes);
         SidebarGroup[] sgs = sys.io.readJson(oConf, SidebarGroup[].class);
 
         // 获取线程上下文
@@ -82,18 +86,15 @@ public class cmd_appSidebar extends JvmExecutor {
         }
 
         // 作为 HTML 输出
-        if (params.is("html")) {
+        if (hc.params.is("html")) {
             for (SidebarGroup sg : sgs) {
                 sys.out.println(sg.toHtml());
             }
         }
         // 输出 JSON 结果
         else {
-            JsonFormat jfmt = Cmds.gen_json_format(params);
-            jfmt.setIgnoreNull(true);
-            sys.out.println(Json.toJson(sgs, jfmt));
+            sys.out.println(Json.toJson(sgs, hc.jfmt));
         }
-
     }
 
     /**
@@ -115,7 +116,7 @@ public class cmd_appSidebar extends JvmExecutor {
         return false;
     }
 
-    private WnObj __find_conf(WnSystem sys, ZParams params) {
+    private WnObj __find_conf(WnSystem sys, ZParams params, List<WnObj> oUIHomes) {
         // 环境变量里最优先
         String phConf = sys.se.varString("SIDEBAR");
 
@@ -123,12 +124,17 @@ public class cmd_appSidebar extends JvmExecutor {
         if (Strings.isBlank(phConf))
             phConf = params.val(0);
 
-        // 还是木有，那么采用系统的默认位置
-        if (Strings.isBlank(phConf))
-            phConf = "/etc/ui/sidebar.js";
+        // 还是木有，那么一次查找各个 UI 主目录
+        if (Strings.isBlank(phConf)) {
+            for (WnObj oUIHome : oUIHomes) {
+                WnObj oSidebar = sys.io.fetch(oUIHome, "sidebar.js");
+                if (null != oSidebar)
+                    return oSidebar;
+            }
+            throw Er.create("e.cmd.app.sidebar.noexists");
+        }
 
         // 得到配置文件对象
         return Wn.checkObj(sys, phConf);
     }
-
 }

@@ -30,7 +30,7 @@
 		}
 
 		// 查询移动到的限制
-		var cmdText = "app-move-to type:" + tps.join(" type:");
+		var cmdText = "app mvto type:" + tps.join(" type:");
 		//console.log(cmdText);
 
 		Wn.exec(cmdText, function(re) {

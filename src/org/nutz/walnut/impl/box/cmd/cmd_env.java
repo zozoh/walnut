@@ -38,7 +38,8 @@ public class cmd_env extends JvmExecutor {
             if (pos > 0) {
                 String key = str.substring(0, pos);
                 String val = str.substring(pos + 1);
-                sys.se.var(key, val);
+                String v2 = Wn.normalizeStr(val, sys);
+                sys.se.var(key, v2);
             }
             // 列出变量的值
             else {

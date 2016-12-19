@@ -136,9 +136,11 @@ return ZUI.def("ui.obrowser_main", {
                     UIBrowser.updateMenu(asetup.menu, menuContext || this);
 
                 // 更新编辑器内容
-                this.update(o, function(){
-                    $z.doCallback(callback, [], UIBrowser);
-                });
+                if(_.isFunction(this.update)){
+                    this.update(o, function(){
+                        $z.doCallback(callback, [], UIBrowser);
+                    });
+                }
                 this.parent.trigger("browser:show", o);
                 UI.resize();
             });
