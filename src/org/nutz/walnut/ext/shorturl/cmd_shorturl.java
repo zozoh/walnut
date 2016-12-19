@@ -19,11 +19,11 @@ public class cmd_shorturl extends JvmExecutor {
             sys.out.println(getManual());
             return;
         }
-        String apiurl = "http://urlc.cn/api.php?turl=" + URLEncoder.encode(params.val_check(0), Encoding.UTF8);
+        String apiurl = "http://api.t.sina.com.cn/short_url/shorten.json?source=1681459862&url_long=" + URLEncoder.encode(params.val_check(0), Encoding.UTF8);
         Response resp = Http.get(apiurl);
         if (resp.isOK()) {
-            NutMap re = Json.fromJson(NutMap.class, resp.getReader());
-            sys.out.print(re.getString("value"));
+            NutMap re = Json.fromJsonAsList(NutMap.class, resp.getContent()).get(0);
+            sys.out.print(re.getString("url_short"));
         } else {
             sys.err.println(resp.getContent());
         }
