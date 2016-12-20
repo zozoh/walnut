@@ -177,7 +177,7 @@ var Wn = {
     },
     /*...................................................................
     提供一个通用的创建界面，可以在给定的目录对象下面创建一个对象
-    appclist 命令会提供数据方面的帮助
+    app clist 命令会提供数据方面的帮助
     */
     createPanel: function(o, callback, clist){
         var context = this;
@@ -801,7 +801,7 @@ var Wn = {
 
         // 开始从服务器获取数据
         var Wn = this;
-        var cmdText = "appsetup id:"+o.id;
+        var cmdText = "app setup id:"+o.id;
         if(opt.tp)
             cmdText += " -tp " + opt.tp;
         Wn.exec(cmdText, function(json){
@@ -832,8 +832,15 @@ var Wn = {
         if(isInEditor){
             // 得到默认编辑器
             var edtnm = asetup.editors[0];
-            var oedt = Wn.fetch("~/.ui/editors/"+edtnm+".js");
-            var json = Wn.read(oedt);
+            var json = Wn.exec('app editor -cq ' + edtnm);
+
+            // 出错了
+            if(/^e./.test(json)) {
+                alert(json);
+                throw json;
+            }
+
+            // 分析
             var ace  = $z.fromJson(json);
             asetup.currentEditor = ace;
                 
@@ -851,9 +858,9 @@ var Wn = {
         // 分析菜单项，生成各个命令的读取路径
         // actions 的格式类似 ["@:r:new", ":w:tree", "::search", "~", "::properties"]
         // @ 开头的项表示固定显示
-        var ac_phs     = [];
-        var menu_setup = [];
-        var menu_items = [];
+        var ac_nms     = [];  // 收集动作名称
+        var menu_setup = [];  // 顶级菜单的下标
+        var menu_items = [];  // 折叠的项目的下标
         actions.forEach(function(str, index){
             // 分隔符，特殊处理
             if(str == "~"){
@@ -876,14 +883,15 @@ var Wn = {
             }
 
             // 生成命令的读取路径
-            menu_items.push(ac_phs.length);
-            ac_phs.push("~/.ui/actions/"+ss[2]+".js");
+            menu_items.push(ac_nms.length);
+            ac_nms.push(ss[2]);
             // 记录固定显示的项目下标
             if(forceTop || ss[0].indexOf("@")>=0)
                 menu_setup.push(index);
         });
         // 逐次得到菜单的动作命令
-        var alist = UI.batchRead(ac_phs);
+        var re = Wn.exec("app actions " + ac_nms.join(" "));
+        var alist = eval('(' + re + ')');
         for(var i=0; i<menu_items.length; i++){
             var index = menu_items[i];
             if(_.isNumber(index)){

@@ -203,8 +203,8 @@ return ZUI.def("ui.o_create", {
         }
         // 查询一下对象可以被创建的列表
         else {
-            var cmdText = o.tp ? "appclist type:"+o.tp
-                               : "appclist id:"+o.id;
+            var cmdText = o.tp ? "app clist type:"+o.tp
+                               : "app clist id:"+o.id;
             Wn.exec(cmdText, function(re){
                 var clist = re ? $z.fromJson(re) : [];
                 __after(clist);

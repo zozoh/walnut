@@ -52,13 +52,19 @@
 .form-fld[first-row]{border:0;}
 
 .ff-prompt {
-    position: absolute; top:0; bottom:0; left:0;  font-size:1.2em;
-    padding:@d5; display: none;
+    position: absolute; top:0; bottom:0; left:0; 
+    padding:@d5; display: none; font-size:@f4;
 }
 
-.form-fld[form-prompt] .ff-prompt{
-    display: block;
+.form-fld[form-prompt] .ff-prompt{display: block;}
+.form-fld[form-prompt="ok"] .ff-prompt{color:@c3;}
+.form-fld[form-prompt="warn"] {
+    color:@c6;
+    .ff-txt {color:@c6;}
+    .ffv-tip {color:@c6;}
 }
+.form-fld[form-prompt="spinning"] .ff-prompt{color:@c1;}
+
 
 .ff-txt, .ff-val {
     display: inline-block; vertical-align: top; 

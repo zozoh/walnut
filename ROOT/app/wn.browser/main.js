@@ -4,7 +4,7 @@ define(function(require, exports, module) {
 	var Wn = require("wn/util");
 
 	// 看看是不是要加载自定义的多国语言字符串
-	var i18nStr = Wn.exec("appi18n " + window.$zui_i18n);
+	var i18nStr = Wn.exec("app i18n -merge " + window.$zui_i18n);
 	if (!/^e[.]io/.test(i18nStr)) {
 		i18n = $z.fromJson(i18nStr);
 		_.extend(ZUI.g_msg_map, i18n);

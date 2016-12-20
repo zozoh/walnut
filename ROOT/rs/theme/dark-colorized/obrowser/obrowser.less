@@ -1,7 +1,7 @@
 @import (reference) "../ui";
 
 body > .ui-obrowser {
-    background: url(main_bg.jpg);
+    background: @cb;
 }
 
 @skyH    : 40px;
@@ -12,6 +12,7 @@ body > .ui-obrowser {
     > div {position: absolute; left: 0; right: 0;}
     .obw-sky { 
         top:0; height:@skyH;
+
     }
     .obw-con {
         top:@skyH; bottom:@footerH;
@@ -109,7 +110,7 @@ body > .ui-obrowser {
                 }
                 item {
                     display: block; padding:@d2 @d0 @d2 @d4; cursor: pointer;
-                    line-height: @d5; color: @cf1;
+                    line-height: @d5; color: @cf1; @flex();
                     i {
                         width:@d5; height: @d5; text-align: center;
                         font-size: @d5;
@@ -234,6 +235,6 @@ body > .ui-obrowser {
 // 隐藏对象
 .obrowser[hidden-obj-visibility=hidden] {
     .wnobj-hide {display: none;}
-    .obw-sky .obrowser-crumb > .wnobj-hide {display: inline-block;}
+    //.obw-sky .obrowser-crumb > .wnobj-hide {display: inline-block;}
 }
 

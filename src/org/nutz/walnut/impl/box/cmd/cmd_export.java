@@ -23,7 +23,8 @@ public class cmd_export extends JvmExecutor {
                 if (pos >= 0) {
                     String key = Strings.trim(s.substring(0, pos));
                     String val = s.substring(pos + 1);
-                    sys.se.var(key, val);
+                    String v2 = Wn.normalizeStr(val, sys);
+                    sys.se.var(key, v2);
                 }
             }
             // 强制写入
