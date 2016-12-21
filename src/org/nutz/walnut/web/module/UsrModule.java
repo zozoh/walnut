@@ -6,11 +6,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
+import org.nutz.mvc.annotation.Attr;
 import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
@@ -29,6 +31,7 @@ import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.filter.WnCheckSession;
+import org.nutz.walnut.web.view.WnObjDownloadView;
 import org.nutz.web.WebException;
 import org.nutz.web.ajax.Ajax;
 
@@ -45,9 +48,76 @@ public class UsrModule extends AbstractWnModule {
     @Inject("java:$conf.get('usr-passwd','^\\p{Print}{6,}$')")
     private Pattern regexPasswd;
 
+    @Inject("java:$conf.get('page-login','login')")
+    private String page_login;
+
     @At("/signup")
     @Ok("jsp:jsp.signup")
-    public void signup() {}
+    public void show_signup() {}
+
+    @At("/login")
+    @Fail(">>:/")
+    public View show_login(String rph, @Attr("wn_www_host") String host) {
+        // 确保没有登录过
+        String seid = Wn.WC().SEID();
+        if (null != seid) {
+            try {
+                sess.check(seid, true);
+                throw Lang.makeThrow("already login, go to /");
+            }
+            catch (WebException e) {}
+        }
+
+        // 实在木有，用系统默认的吧
+        return new ViewWrapper(new JspView("jsp." + page_login), null);
+    }
+
+    @At("/h/**")
+    @Fail(">>:/")
+    public View show_host(String rph, @Attr("wn_www_host") String host) {
+        // 确保没有登录过
+        String seid = Wn.WC().SEID();
+        if (null != seid) {
+            try {
+                sess.check(seid, true);
+                throw Lang.makeThrow("already login, go to /");
+            }
+            catch (WebException e) {}
+        }
+
+        // 嗯开始找一下登录界面
+        WnObj oPageHome = null;
+
+        // 看看有没有配置目录
+        WnObj oHosts = io.fetch(null, "/etc/hosts.d");
+        if (null != oHosts) {
+            if (!Strings.isBlank(host)) {
+                oPageHome = io.fetch(oHosts, host + "/pages");
+            }
+            // 默认的域名为 default
+            if (null == oPageHome)
+                oPageHome = io.fetch(oHosts, "default/pages");
+        }
+
+        // 有配置目录，那么就要确保有内容哦
+        if (null != oPageHome) {
+            try {
+                WnObj o = io.check(oPageHome, rph);
+                return new WnObjDownloadView(io, o);
+            }
+            catch (Exception e) {
+                if (!"login.html".equals(rph))
+                    return new HttpStatusView(404);
+            }
+        }
+
+        // 实在木有，用系统默认的吧
+        String jsp_nm = Files.getMajorName(rph);
+        if (jsp_nm.equals("login")) {
+            jsp_nm = page_login;
+        }
+        return new ViewWrapper(new JspView("jsp." + jsp_nm), null);
+    }
 
     /**
      * 处理用户注册
@@ -122,23 +192,6 @@ public class UsrModule extends AbstractWnModule {
                                 @Param("phone") String phone,
                                 @Param("mode") String mode) {
         return do_signup(str, nm, passwd, email, phone, mode);
-    }
-
-    @Inject("java:$conf.get('page-login','login')")
-    private String page_login;
-
-    @At("/login")
-    @Fail(">>:/")
-    public View show_login() {
-        String seid = Wn.WC().SEID();
-        if (null != seid) {
-            try {
-                sess.check(seid, true);
-                throw Lang.makeThrow("already login, go to /");
-            }
-            catch (WebException e) {}
-        }
-        return new ViewWrapper(new JspView("jsp." + page_login), null);
     }
 
     /**

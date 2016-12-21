@@ -1,6 +1,5 @@
 package org.nutz.walnut.web;
 
-import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -33,17 +32,18 @@ public class WnMainModule extends AbstractWnModule {
 
     private static Log log = Logs.get();
 
+    // zozoh 删除吧，木有用了，有定制化的登录界面机制了
     // 跳转到homePage吗?还是loginPage
-    @Inject("java:$conf.getBoolean('use-homepage','false')")
-    private boolean useHomePage;
-
-    @Inject("java:$conf.get('page-home','home')")
-    private String page_home;
+    // @Inject("java:$conf.getBoolean('use-homepage','false')")
+    // private boolean useHomePage;
+    //
+    // @Inject("java:$conf.get('page-home','home')")
+    // private String page_home;
 
     @At("/version")
     @Ok("jsp:jsp.show_text")
     public String version() {
-        return "1.0" + io.toString();
+        return "1.8" + io.toString();
     }
 
     @At("/")
@@ -51,10 +51,7 @@ public class WnMainModule extends AbstractWnModule {
     public String doCheck() {
         String seid = Wn.WC().SEID();
         if (null == seid) {
-            if (useHomePage) {
-                return page_home;
-            }
-            return "/u/login";
+            return "/u/h/login.html";
         }
 
         try {
@@ -73,10 +70,7 @@ public class WnMainModule extends AbstractWnModule {
         catch (WebException e) {
             if (log.isInfoEnabled())
                 log.info(e.toString());
-            if (useHomePage) {
-                return page_home;
-            }
-            return "/u/login";
+            return "/u/h/login.html";
         }
 
     }

@@ -48,9 +48,18 @@ public class cmd_rm extends JvmExecutor {
             // 如果有路径
             if (str.contains("/")) {
                 int pos = str.lastIndexOf('/');
-                String pPath = str.substring(0, pos);
-                String apPh = Wn.normalizeFullPath(pPath, sys);
-                oP = sys.io.check(oCurrent, apPh);
+                // 不是从根目录开始
+                if (pos > 0) {
+                    String pPath = str.substring(0, pos);
+                    String apPh = Wn.normalizeFullPath(pPath, sys);
+                    oP = sys.io.check(oCurrent, apPh);
+                }
+                // 否则从根目录开始
+                else {
+                    oP = sys.io.getRoot();
+                }
+
+                // 得到名字
                 str = str.substring(pos + 1);
             }
             // 否则就是当前目录

@@ -92,12 +92,15 @@ Walnut 的系统登录界面为了能实现多个看起来完全不同的应用�
 
 ```
 /etc/hosts.d
-    mysite.com          # 某一个域
-        pages           # 自定义的页面
-            login.html  # 登录页面
-            login.css
-            login.js
+    default               # 默认的
+    mysite.com            # 某一个域
+        pages             # 自定义的页面
+            login.html    # 登录页面
+            login.css     # 随便放各种 CSS
+            login.js      # 以及 js
+            signup.html   # 注册页面
+            signup.css    # 反正就是 login.html
+            signup.js     # 和 signup.html 名字是固定的
 ```
-
 
 

@@ -69,12 +69,6 @@ public class WalnutFilter implements Filter {
         String host = req.getHeader("Host");
         int port = req.getLocalPort();
 
-        // 一定记录属性到请求对象
-        req.setAttribute("wn_www_path_org", path);
-        req.setAttribute("wn_www_host", host);
-        req.setAttribute("wn_www_ip", usrip);
-        req.setAttribute("wn_www_port", port);
-
         // 容忍 HEADER 里没有 Host 字段的情况
         if (null == host) {
             host = req.getLocalName();
@@ -89,6 +83,12 @@ public class WalnutFilter implements Filter {
         if (log.isInfoEnabled()) {
             log.infof("HTTP(%s)%s>%s:%d", path, usrip, host, port);
         }
+
+        // 一定记录属性到请求对象
+        req.setAttribute("wn_www_path_org", path);
+        req.setAttribute("wn_www_host", host);
+        req.setAttribute("wn_www_ip", usrip);
+        req.setAttribute("wn_www_port", port);
 
         // 确保有 Io 接口等
         __setup();
@@ -107,16 +107,22 @@ public class WalnutFilter implements Filter {
         if (null != rMainHost && !rMainHost.matcher(host).find()) {
             WnObj oDmn = null;
 
-            // 首先试图找到对应的组
+            // 首先试图找到对应的映射记录
             if (null != oDmnHome) {
                 WnQuery q = Wn.Q.pid(oDmnHome);
                 q.setv("dmn_host", host);
-                q.setv("dmn_expi", "[" + System.currentTimeMillis() + ",]");
+                // q.setv("dmn_expi", "[" + System.currentTimeMillis() + ",]");
                 oDmn = io.getOne(q);
             }
 
-            // 找不到记录
+            // 找不到记录，全当没有
             if (null == oDmn) {
+                chain.doFilter(req, resp);
+                return;
+            }
+
+            // 找到了记录，但是过期了，显示错误页
+            if (oDmn.isExpired()) {
                 Mvcs.updateRequestAttributes(req);
                 req.setAttribute("obj", Lang.map("host", host).setv("path", path));
                 req.getRequestDispatcher(errorPage).forward(req, resp);
