@@ -9,6 +9,7 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.ImageHtmlEmail;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
@@ -184,6 +185,7 @@ public class cmd_email extends JvmExecutor {
             ihe.setAuthentication(hostCnf.account, hostCnf.password);
             ihe.setSSLOnConnect(hostCnf.ssl);
             ihe.setSubject(mc.subject);
+            ihe.setCharset(Encoding.UTF8);
             try {
                 ihe.setFrom(hostCnf.from == null ? hostCnf.account : hostCnf.from,
                             mc.sys.me.name());
@@ -194,12 +196,13 @@ public class cmd_email extends JvmExecutor {
                 for (MailReceiver mailReceiver : cc) {
                     ihe.addCc(mailReceiver.email, mailReceiver.name);
                 }
-                ihe.send();
+                ihe.buildMimeMessage();
+                ihe.sendMimeMessage();
             }
             catch (EmailException e) {
                 e.printStackTrace(new PrintWriter(mc.sys.err.getWriter()));
-                if (log.isDebugEnabled())
-                    log.debug("send mail fail", e);
+                if (log.isWarnEnabled())
+                    log.warn("send mail fail", e);
             }
         }
     }

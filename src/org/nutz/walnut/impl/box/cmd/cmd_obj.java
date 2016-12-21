@@ -317,6 +317,7 @@ public class cmd_obj extends JvmExecutor {
             this.index = index;
         }
 
+        @Override
         public void invoke(int i, Object ele, int length) {
             // 下标从前面数
             if (index >= 0) {
@@ -352,6 +353,7 @@ public class cmd_obj extends JvmExecutor {
             this.n = n;
         }
 
+        @Override
         public void invoke(int i, Object ele, int length) {
             // 从后面弹
             if (n >= 0) {
@@ -393,6 +395,7 @@ public class cmd_obj extends JvmExecutor {
             this.match_for_remove = match_for_remove;
         }
 
+        @Override
         public void invoke(int i, Object ele, int length) {
             if (Lang.equals(ele, v) ^ match_for_remove) {
                 vList.add(ele);
@@ -426,6 +429,7 @@ public class cmd_obj extends JvmExecutor {
             this.match_for_remove = match_for_remove;
         }
 
+        @Override
         public void invoke(int i, Object ele, int length) {
             if ((null != ele && set.contains(ele.toString())) ^ match_for_remove) {
                 vList.add(ele);
@@ -456,6 +460,7 @@ public class cmd_obj extends JvmExecutor {
             this.match_for_remove = match_for_remove;
         }
 
+        @Override
         public void invoke(int i, Object ele, int length) {
             if ((null != ele && ptn.matcher(ele.toString()).find()) ^ match_for_remove) {
                 vList.add(ele);
@@ -472,6 +477,7 @@ public class cmd_obj extends JvmExecutor {
             return null;
         }
 
+        @Override
         public void invoke(int i, Object ele, int length) {
             if (null != ele && !Strings.isBlank(ele.toString())) {
                 vList.add(ele);
@@ -597,6 +603,7 @@ public class cmd_obj extends JvmExecutor {
 
                 // 准备回调函数
                 Each<Object> callback = new Each<Object>() {
+                    @Override
                     public void invoke(int index, Object v, int len) {
                         // 唯一值的过滤
                         if (null != memo) {
@@ -660,6 +667,9 @@ public class cmd_obj extends JvmExecutor {
         meta.remove("nm");
         meta.remove("ct");
         meta.remove("lm");
+        // TODO 临时remove掉，因为wn.io.eval_dn冲突
+        meta.remove("d1");
+        meta.remove("d0");
         return o;
     }
 
@@ -753,6 +763,7 @@ public class cmd_obj extends JvmExecutor {
     private void __do_sort(NutMap sort, List<WnObj> list) {
         final NutMap smap = sort;
         Collections.sort(list, new Comparator<WnObj>() {
+            @Override
             public int compare(WnObj o1, WnObj o2) {
                 for (String key : smap.keySet()) {
                     Object v1 = o1.get(key);

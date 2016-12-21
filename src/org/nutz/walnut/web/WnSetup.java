@@ -18,7 +18,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.ftp.WnFtpServer;
 import org.nutz.walnut.ext.sshd.SshdServer;
-import org.nutz.walnut.job.WnJob;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZType;
 
@@ -98,7 +97,7 @@ public class WnSetup implements Setup {
             setup.init(nc);
         }
 
-        ioc.get(WnJob.class);
+        // ioc.get(WnJob.class);
         ioc.get(SshdServer.class);
         ioc.get(WnFtpServer.class);
     }
