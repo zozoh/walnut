@@ -69,6 +69,12 @@ public class WalnutFilter implements Filter {
         String host = req.getHeader("Host");
         int port = req.getLocalPort();
 
+        // 一定记录属性到请求对象
+        req.setAttribute("wn_www_path_org", path);
+        req.setAttribute("wn_www_host", host);
+        req.setAttribute("wn_www_ip", usrip);
+        req.setAttribute("wn_www_port", port);
+
         // 容忍 HEADER 里没有 Host 字段的情况
         if (null == host) {
             host = req.getLocalName();
@@ -140,12 +146,8 @@ public class WalnutFilter implements Filter {
             // 正常情况得到修订的 URL，那么 ...
             if (null != newPath) {
                 // 将一些必要的信息都记录到 req 对象里，便于 WWW 模块处理
-                req.setAttribute("wn_www_path_org", path);
                 req.setAttribute("wn_www_path_new", newPath);
-                req.setAttribute("wn_www_host", host);
                 req.setAttribute("wn_www_grp", grp);
-                req.setAttribute("wn_www_ip", usrip);
-                req.setAttribute("wn_www_port", port);
 
                 // 这个通常还是要记录一下日志的
                 if (log.isDebugEnabled()) {
