@@ -20,7 +20,10 @@ header {
 }
 header img {transition: 0.8s;}
 section {padding:20px;}
-section > div {padding: 8px; position:relative; transition: 0.3s;}
+section > div {padding: 8px; position:relative;}
+section > .login-name {transition: 0.3s;}
+section > .login-passwd {transition: 0.8s;}
+section > .login-btn {transition: 1.2s;}
 section > div > span {
 	position:absolute; display:block; padding:12px;
 	font-size:24px; color:#888;
