@@ -18,6 +18,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.ftp.WnFtpServer;
 import org.nutz.walnut.ext.sshd.SshdServer;
+import org.nutz.walnut.job.WnJob;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZType;
 
@@ -26,10 +27,6 @@ public class WnSetup implements Setup {
     private static final Log log = Logs.get();
 
     private WnBoxService boxes;
-
-    // private WnSessionService sess;
-
-    // private WnRun wnRun;
 
     private List<Setup> setups;
 
@@ -84,17 +81,8 @@ public class WnSetup implements Setup {
             }
         }
 
-        // 获得session服务
-        // sess = ioc.get(WnSessionService.class, "sessionService");
-
         // 获取沙箱服务
         boxes = ioc.get(WnBoxService.class, "boxService");
-
-        // 获得wnRun
-        // wnRun = ioc.get(WnRun.class, "wnRun");
-
-        // etc/thumbnail
-        // initThumbnail();
 
         // 最后加载所有的扩展 Setup
         __load_init_setups(conf);
@@ -107,29 +95,10 @@ public class WnSetup implements Setup {
             setup.init(nc);
         }
 
-        // ioc.get(WnJob.class);
+        ioc.get(WnJob.class);
         ioc.get(SshdServer.class);
         ioc.get(WnFtpServer.class);
     }
-
-    // zozoh: 嗯，下面的也没用了吧，过段时间删掉
-    // private void initThumbnail() {
-    // MimeMap mimes = ioc.get(MimeMap.class, "mimes");
-    // boolean resetTB = conf.getBoolean("reset-thumbnail", false);
-    // // mime中的类型
-    // for (String tp : mimes.keys()) {
-    // createThumbnail(tp, resetTB);
-    // }
-    // // 非mime类型
-    // createThumbnail("folder", resetTB);
-    // createThumbnail("unknow", resetTB);
-    // }
-
-    // private void createThumbnail(String tp, boolean reset) {
-    // wnRun.exec("init-thumbnail",
-    // "root",
-    // String.format("defthumbnail -tp %s %s", tp, (reset ? "-r" : "")));
-    // }
 
     private void __load_init_setups(WnConfig conf) {
         setups = new ArrayList<Setup>();
