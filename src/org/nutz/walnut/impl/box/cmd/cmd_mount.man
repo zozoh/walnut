@@ -20,4 +20,11 @@
     
     mount qiniu://walnut-wendal
     
+    // 列出所有挂载点
+    
+    mount
+    
+    // 重新挂载配置文件中的挂载点
+    
+    mount -a
     

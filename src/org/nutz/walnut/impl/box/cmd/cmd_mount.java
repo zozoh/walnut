@@ -59,6 +59,9 @@ public class cmd_mount extends JvmExecutor {
 
         String mnt = params.vals[0];
         String val = params.vals[1];
+        if (mnt.contains(":")) {
+            throw Er.create("e.cmd.invalidargs", args);
+        }
 
         // 目标必须是一个目录
         String ph = Wn.normalizePath(val, sys);
