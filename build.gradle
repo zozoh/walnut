@@ -137,7 +137,15 @@ task wbuild(dependsOn: classes) << {
 		from configurations.runtime
 		into "build/wzip/libs"
 	}
+	
+   	def web_props = Files.read(file('build/wzip/classes/web.properties'))
+   	web_props = web_props.replaceAll("~/workspace/git/github/walnut", ".")
+   	Files.write(file('build/wzip/classes/web.properties'), web_props)
+   	
+   	tasks.wruns.execute()
+}
 
+task wruns << {
 	Files.write(file('build/wzip/build.properties'), "walnut.version="+version_tag)
 
    	def tmpWin32 = '''java -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -cp "classes;libs/*"'''
@@ -154,9 +162,6 @@ task wbuild(dependsOn: classes) << {
 	''')
    	file('build/wzip/stop.sh').setExecutable(true, false)
 
-   	def web_props = Files.read(file('build/wzip/classes/web.properties'))
-   	web_props = web_props.replaceAll("~/workspace/git/github/walnut", ".")
-   	Files.write(file('build/wzip/classes/web.properties'), web_props)
 
    	Files.write(file('build/wzip/run.sh'), '''
 cd "$(dirname "$0")"
@@ -174,6 +179,7 @@ export PATH=$JAVA_HOME/bin:$PATH
    		mv $WUPROOT/$APPNAME $WUPROOT/$APPNAME.old
    		mkdir $WUPROOT/$APPNAME/
    		tar -C $WUPROOT/$APPNAME/ -x -f $APPNAME.tar
+   		rm -rf $WUPROOT/$APPNAME.old &
    	''')
    	file('build/update').setExecutable(true, false)
 }
@@ -206,4 +212,28 @@ def getDate() {
     def date = new Date()
     def formattedDate = date.format('yyyyMMddHHmmss')
     return formattedDate
+}
+
+task wnapp << {
+	def appdir = project.appdir
+	def appname = file(project.appdir).getName()
+	println appdir
+	println appname
+	print appdir + "/ROOT/" + appname
+	
+	tasks.wruns.execute()
+	
+   	task (_wtar, type: Tar) {
+   		from appdir + "/ROOT/" + appname
+   		archiveName appname+'.tar'
+   		destinationDir buildDir
+   	}.execute()
+	
+	task (_wtar2, type: Tar) {
+   		from "build/update"
+   		from "build/"+appname+'.tar'
+   		archiveName appname+'-'+version_tag+'.tgz'
+   		destinationDir buildDir
+   		compression Compression.GZIP
+   	}.execute()
 }
