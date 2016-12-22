@@ -109,11 +109,11 @@ public class MemoryMounter implements WnMounter {
             if (node.hasChild()) {
                 node.getChildren().forEach((n)-> remove(n.get()));
             }
+            // 找到父节点,然后删除自己
+            node.remove();
         }
         // 从 id -> data 映射中移除
         tree.datas.remove(obj.id());
-        // 找到父节点,然后删除自己
-        node.remove();
         // 从 id -> Node 映射中移除
         tree.maps.remove(obj.id());
     }
