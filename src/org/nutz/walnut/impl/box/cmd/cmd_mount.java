@@ -59,7 +59,7 @@ public class cmd_mount extends JvmExecutor {
 
         String mnt = params.vals[0];
         String val = params.vals[1];
-        if (mnt.contains(":")) {
+        if (val.contains(":")) {
             throw Er.create("e.cmd.invalidargs", args);
         }
 
