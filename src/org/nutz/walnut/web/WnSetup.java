@@ -55,22 +55,32 @@ public class WnSetup implements Setup {
         // 下面所有的操作都是 root 权限的
         Wn.WC().me("root", "root");
 
+        // 检查一下/etc是否合法
+        WnObj etc = io.fetch(null, "/etc");
+        if (etc != null && etc.isMount()) {
+            io.setMount(etc, null);
+        }
         // 看看初始的 mount 是否被加载
         for (WnInitMount wim : conf.getInitMount()) {
-            WnObj o = io.createIfNoExists(null, wim.path, WnRace.DIR);
-            // 添加
-            if (Strings.isBlank(o.mount())) {
-                io.setMount(o, wim.mount);
-                log.infof("++ mount : %s > %s", wim.path, wim.mount);
+            try {
+                WnObj o = io.createIfNoExists(null, wim.path, WnRace.DIR);
+                // 添加
+                if (Strings.isBlank(o.mount())) {
+                    io.setMount(o, wim.mount);
+                    log.infof("++ mount : %s > %s", wim.path, wim.mount);
+                }
+                // 修改
+                else if (!wim.mount.equals(o.mount())) {
+                    io.setMount(o, wim.mount);
+                    log.infof(">> mount : %s > %s", wim.path, wim.mount);
+                }
+                // 维持不变
+                else {
+                    log.infof("== mount : %s > %s", wim.path, wim.mount);
+                }
             }
-            // 修改
-            else if (!wim.mount.equals(o.mount())) {
-                io.setMount(o, wim.mount);
-                log.infof(">> mount : %s > %s", wim.path, wim.mount);
-            }
-            // 维持不变
-            else {
-                log.infof("== mount : %s > %s", wim.path, wim.mount);
+            catch (Exception e) {
+                log.warnf("!! mount : %s > %s", wim.path, wim.mount);
             }
         }
 

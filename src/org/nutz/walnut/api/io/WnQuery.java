@@ -144,6 +144,10 @@ public class WnQuery {
     public WnQuery desc(String nm) {
         return sortBy(nm, -1);
     }
+    
+    public WnQuery exists(String nm, boolean isExist) {
+        return setv(nm, new NutMap("$exists", isExist));
+    }
 
     public String toString() {
         return String.format("+%d : %d @ %s: %s",
