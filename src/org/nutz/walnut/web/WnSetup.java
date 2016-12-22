@@ -7,6 +7,7 @@ import org.nutz.ioc.Ioc;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
@@ -54,8 +55,8 @@ public class WnSetup implements Setup {
 
         // 检查一下/etc是否合法
         WnObj etc = io.fetch(null, "/etc");
-        if (etc != null && etc.isMount()) {
-            io.setMount(etc, null);
+        if (etc != null && etc.has("mnt")) {
+            io.setBy(etc.id(), new NutMap("!mnt", ""), false);
         }
         // 看看初始的 mount 是否被加载
         for (WnInitMount wim : conf.getInitMount()) {
