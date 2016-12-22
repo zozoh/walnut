@@ -58,6 +58,10 @@ public class WnSetup implements Setup {
         if (etc != null && etc.has("mnt")) {
             io.setBy(etc.id(), new NutMap("!mnt", ""), false);
         }
+        WnObj hostsd = io.fetch(null, "/etc/hosts.d");
+        if (hostsd != null && hostsd.has("mnt")) {
+            io.setBy(hostsd.id(), new NutMap("!mnt", ""), false);
+        }
         // 看看初始的 mount 是否被加载
         for (WnInitMount wim : conf.getInitMount()) {
             try {
