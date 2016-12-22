@@ -41,7 +41,7 @@ processResources {
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
-	  options.compilerArgs = ["-parameters"]
+	options.compilerArgs = ["-parameters"]
 }
 
 repositories {
@@ -97,14 +97,24 @@ import org.nutz.lang.Files
 import org.apache.tools.ant.taskdefs.condition.Os
 
 task lessc() << {
-	FileTree tree = fileTree('ROOT') {
+	def lesscDir = 'ROOT'
+	try {
+		if (project.appdir != null) {
+			lesscDir = project.appdir
+		}
+	} catch(e){}
+	FileTree tree = fileTree(lesscDir) {
 		include "**/*.less"
 		exclude "**/font-awesome*/**/*.*"
 	}
-	tree.each {File file ->
-    	def _src = file.path
+	tree.each {File _file ->
+    	def _src = _file.path
     	def _dst = _src.substring(0, _src.length() - 4) + 'css'
-    	println _src
+    	if (file(_dst).exists() && file(_src.toString()).lastModified() <= file(_dst).lastModified()) {
+    		println "skip >> " + _src
+    		return
+    	}
+    	println "lessc>> " + _src
     	if (Os.isFamily(Os.FAMILY_WINDOWS)) {
     		exec {
     			commandLine "cmd.exe", "/c", "lessc" , _src, _dst
@@ -217,10 +227,11 @@ def getDate() {
 task wnapp << {
 	def appdir = project.appdir
 	def appname = file(project.appdir).getName()
-	println appdir
-	println appname
-	print appdir + "/ROOT/" + appname
+	//println appdir
+	//println appname
+	//println appdir + "/ROOT/" + appname
 	
+	tasks.lessc.execute()
 	tasks.wruns.execute()
 	
    	task (_wtar, type: Tar) {
