@@ -251,8 +251,12 @@ public abstract class WnMongos {
     }
 
     private static void _set_enum_to_doc(ZMoDoc q, String key, Object[] ss) {
+        // 指明了 in/all/nin
+        if (key.matches("^[$](n?in|all)$")) {
+            q.put(key, ss);
+        }
         // 单个值
-        if (ss.length == 1) {
+        else if (ss.length == 1) {
             q.put(key, ss[0]);
         }
         // 多个值，看看是 “与” 还是 “或”
@@ -264,6 +268,10 @@ public abstract class WnMongos {
             // 指明 all
             else if (ss[0].equals("%all")) {
                 q.all(key, Arrays.copyOfRange(ss, 1, ss.length));
+            }
+            // 指明 nin
+            else if (ss[0].equals("%nin")) {
+                q.nin(key, Arrays.copyOfRange(ss, 1, ss.length));
             }
             // 默认用 in
             else {

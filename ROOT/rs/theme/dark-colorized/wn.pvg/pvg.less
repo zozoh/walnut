@@ -28,7 +28,11 @@
         padding:@d4;
         .lst-item {
             > * {display: inline-block; vertical-align: middle;}
-            > i {width:24px; text-align: center;}
+            > span.icon {
+                display: inline-block;
+                width:24px; text-align: center; 
+                vertical-align: middle;
+            }
             b {margin:0 @d0; min-width: 100px;}
             > span.pvg-edit {
                 display:none; margin: 0 @d2; font-size: @f1;
@@ -91,6 +95,7 @@
 //.........................................................
 @MH1 : 48px;
 @MbtnW : 80px;
+@MbtnH : 36px;
 .pvgau-mask {
     width:100%; height:100%; position: relative; overflow: auto;
     padding-top: @MH1 * 2;
@@ -110,15 +115,66 @@
         }
     }
     footer {
-        padding:@d2 @MbtnW+@d2*2 @d2 @d2; position: relative;
+        padding:@d2 @d2; 
+        @flex(); 
         input{@input();
-            width:100%; padding:@d3; font-size: @f4;
+            padding:0 @d3; font-size: @f4;
+            flex: 1 1 auto;
         }
         input:focus{@input_focus();}
         b {@btn();
-            position: absolute; top:@d2; right:@d2; bottom:@d2; width:@MbtnW;
             text-align: center; padding: @d3+@d0 0; 
+            flex: 0 0 @MbtnW;
         }
         b:hover {@btn_hover();}
     }
+    div.cans {
+        padding: @d3; 
+        > .can-u { @noselect();
+            padding:@d2; border-bottom:1px dashed @cborder1;
+            cursor: pointer;
+            i {
+                display: inline-block; vertical-align: middle;
+                width:24px; height:24px; 
+                background-repeat: no-repeat;
+                background-size: cover;
+                border-radius: 50%; border:2px solid @cborder0;
+            }
+            b {
+                display: inline-block; font-weight: normal;
+                padding:0 @d2;
+            }
+        }
+        > .can-u:hover {
+            background: @ch0_b; color:@ch0_f;
+        }
+    }
 }
+
+//.........................................................
+// 增加侧边栏项目界面
+//.........................................................
+.pvg-sideitem-mask {
+    .ui-mask-main { @noselect();
+        padding:@d3; color:@cf2; overflow: auto;
+        > section {
+            padding:@d2;
+            > h1 {
+                margin:0; padding:@d3; font-weight: normal;
+                font-size: @f4; color:@c2;
+            }
+            > item { 
+                display: block; padding:@d3; cursor: pointer;
+                > i {margin:0 @d3;}
+            }
+            > item:hover {
+                background: @ch1_b; color:@ch1_f;
+            }
+        }
+    }
+}
+
+
+
+
+

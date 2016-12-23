@@ -77,7 +77,7 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
         var opt = UI.options;
 
         // 准备命令
-        var cmdText = 'app-sidebar -html';
+        var cmdText = 'app sidebar -html';
         if(opt.path){
             cmdText += ' "' + opt.path + '"';
         }

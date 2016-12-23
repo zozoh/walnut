@@ -427,6 +427,28 @@ return ZUI.def("ui.obrowser", {
         this.setData("id:"+oid, callback);
     },
     //..............................................
+    getSidebar : function(callback){
+        var UI = this;
+
+        var UI  = this;
+        var opt = UI.options;
+
+        // 准备命令
+        var cmdText = 'app sidebar';
+        if(opt.path){
+            cmdText += ' "' + opt.path + '"';
+        }
+
+        // 准备回调
+        var after = callback ? function(re){
+            var reo = $z.fromJson(re);
+            callback(reo);
+        } : undefined;
+
+        // 执行
+        Wn.exec(cmdText, after);
+    },
+    //..............................................
     showUploader: function(options){
         var UI = this;
         var ta =  this.getCurrentObj();

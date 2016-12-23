@@ -145,6 +145,7 @@ var Wn = {
         if(!_.isArray(ph)){
             nms = _.without(ph.split("/"), "");
         }
+        
         // 默认包裹函数
         wrapper = wrapper || function(nms, index){
             return '<b>' + Wn.objDisplayName(UI, nms[index], 0) + '</b>';
@@ -167,8 +168,17 @@ var Wn = {
             offset = Math.max(beginIndex, nms.length + offset);
         }
 
+        var thePath = offset > 0 ? "/" + nms.slice(0, offset).join("/") : "";
         var ary = [];
         for(var i=(offset||0); i<nms.length; i++){
+            // 得到对象的 title
+            thePath += "/" + nms[i];
+            var o = Wn.fetch(thePath, true);
+            if(o && o.title) {
+                nms[i] = o.title;
+            }
+
+            // 得到显示的 HTML
             var html = wrapper(nms, i);
             if(html)
                 ary.push(html);
@@ -1574,6 +1584,11 @@ var Wn = {
         var json = $z.toJson(o);
         store.setItem(key, json);
         Wn._index.ph[o.ph] = o.id;
+    },
+    //..............................................
+    removeFromCache : function(o) {
+        var key = "oid:"+o.id;
+        Wn.cleanCache(key);
     },
     //..............................................
     cleanCache : function(key){

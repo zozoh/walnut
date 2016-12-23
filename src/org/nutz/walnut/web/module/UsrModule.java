@@ -1,5 +1,7 @@
 package org.nutz.walnut.web.module;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,6 +11,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
@@ -23,11 +26,14 @@ import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.ViewWrapper;
+import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrInfo;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.filter.WnCheckSession;
@@ -376,6 +382,66 @@ public class UsrModule extends AbstractWnModule {
         } else {
             return this.getClass().getResourceAsStream("/avatar.png");
         }
+    }
+
+    /**
+     * 根据给定的条件列出一定数量的用户信息
+     * 
+     * @param p
+     *            用户名前缀，如果为空，则随便列出用户
+     * @param nb
+     *            最多列出多少用户
+     * @param ignoreNames
+     *            忽略的名字
+     * @return 用户列表
+     */
+    @At("/ajax/list")
+    @Ok("ajax")
+    @Fail("ajax")
+    public List<NutBean> ajax_list_users(@Param("p") String prefix,
+                                         @Param("nb") int nb,
+                                         @Param("ignore") String[] ignoreNames) {
+
+        // 不能太多也不能太少
+        if (nb <= 0)
+            nb = 1;
+        if (nb > 100)
+            nb = 100;
+
+        // 准备返回值列表
+        List<NutBean> list = new ArrayList<>(nb);
+
+        // 准备查询条件
+        WnQuery q = new WnQuery();
+        // 限制数量和排序
+        q.limit(nb);
+        q.sort(Lang.map("nm:1"));
+
+        // 限制条件
+        if (!Strings.isBlank(prefix)) {
+            Pattern p = Pattern.compile(prefix.startsWith("^") ? prefix : "^" + prefix);
+            q.setv("$or", Lang.list(Lang.map("nm", p), Lang.map("phone", p), Lang.map("email", p)));
+        }
+
+        // 忽略的名字
+        if (null != ignoreNames && ignoreNames.length > 0) {
+            q.setv("nm", Lang.map("$nin", ignoreNames));
+        }
+
+        // 执行查询
+        Wn.WC().security(new WnEvalLink(io), new Atom() {
+            public void run() {
+                // 查询
+                List<WnUsr> us = usrs.query(q);
+                // 提取内容
+                for (WnUsr u : us) {
+                    list.add(u.pick("nm", "nickname"));
+                }
+            }
+        });
+
+        // 返回结果
+        return list;
     }
 
     /**

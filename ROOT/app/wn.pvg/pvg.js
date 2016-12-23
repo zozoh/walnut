@@ -18,6 +18,7 @@ var html = `
             <input placeholder="{{pvg.user_add_tipI}}">
             <b><i class="fa fa-plus"></i> {{add}}</b>
         </footer>
+        <div class="cans"></div>
     </div>
 </div>
 <div class="ui-arena pvg" ui-fitparent="yes" mode="inside">
@@ -61,10 +62,11 @@ return ZUI.def("app.wn.pvg", {
                 handler : function(){
                     // 定义执行添加的函数
                     var on_add_user = function(e){
+                        var uiMask = this;
                         var jInput = $(e.target).closest(".pvgau-mask footer").find("input");
                         var jMM    = jInput.closest(".pvgau-mask");
                         var jTip   = jMM.find(".pvgau-tip");
-                        if(jInput.size()>0) {
+                        if(jInput.length > 0) {
                             var unm = $.trim(jInput.val()).replace(/"/g,"\\\"");
                             if(unm){
                                 var cmdText = 'grp ' + Wn.app().session.grp + ' -a "'+unm+'" -role 10';
@@ -87,10 +89,60 @@ return ZUI.def("app.wn.pvg", {
                                         $z.blinkIt(jUsr);
                                         // 去掉原来的文字
                                         jInput.val("");
+                                        // 记录临时数据
+                                        uiMask._unms = (uiMask._unms || []).concat(unm);
+                                        // 移除对应的列表项
+                                        $z.removeIt(uiMask.$main.find(".cans .can-u[unm="+unm+"]"));
                                     }
                                 });
                             }
                         }
+                    };
+                    // 定义读取提示
+                    var do_keyup_input = function(jInput){
+                        var uiMask = this;
+                        var jCans  = uiMask.$main.find(".cans");
+                        var val = $.trim(jInput.val());
+                        console.log(val)
+
+                        var usrs = UI.gasket.usersList.getData();
+                        var unms = [].concat(uiMask._unms || []);
+                        for(var i=0; i<usrs.length; i++)
+                            unms.push(usrs[i].nm);
+                        console.log(unms);
+
+                        // 准备请求数据
+                        var params = {
+                            nb : 10,
+                            p  : val,
+                            ignore : unms.join(",")
+                        };
+
+                        // 发送请求
+                        $[params.ignore.length<512?"get":"post"]("/u/ajax/list", params, function(re){
+                            var reo = $z.fromJson(re);
+                            console.log(reo)
+                            // 清空
+                            jCans.empty();
+
+                            // 显示
+                            if(reo && reo.ok && reo.data.length > 0) {
+                                for(var i=0; i<reo.data.length; i++) {
+                                    var ci  = reo.data[i];
+                                    var jCi = $('<div class="can-u">')
+                                        .attr("unm", ci.nm)
+                                            .appendTo(jCans);
+                                    $('<i>').css('background-image', 'url(/u/avatar/usr?nm='+ci.nm+')')
+                                            .appendTo(jCi);
+                                    $('<b>').text(ci.nm)
+                                            .appendTo(jCi);
+                                }
+                            }
+                            // 显示空
+                            else {
+                                jCans.text(UI.msg("pvg.user_nofound"));
+                            }
+                        });
                     };
                     // 打开遮罩
                     new MaskUI({
@@ -102,8 +154,38 @@ return ZUI.def("app.wn.pvg", {
                         on_init : function(){
                             this.watchKey(13, on_add_user);
                         },
-                        dom_events : {
-                            "click footer b" : on_add_user
+                        events : {
+                            "click footer b"     : on_add_user,
+                            "keyup footer input" : function(e) {
+                                var uiMask  = this;
+                                var jInput  = $(e.currentTarget);
+
+                                var old_v   = jInput.attr("old-v");
+                                var new_v   = $.trim(jInput.val());
+                                if(new_v == old_v)
+                                    return;
+                                
+                                var lastMs  = jInput.attr("last-ms") * 1 || -1;
+                                var nowInMs = Date.now();
+                                var duInMs  = nowInMs - lastMs;
+
+                                console.log(lastMs, nowInMs, duInMs);
+
+                                if(duInMs > 800) {
+                                    window.setTimeout(function(){
+                                        jInput.attr("old-v", $.trim(jInput.val()))
+                                                .removeAttr("last-ms");
+                                        do_keyup_input.call(uiMask, jInput);
+                                    }, 1000);
+                                }
+
+                                jInput.attr("last-ms", nowInMs);
+                            },
+                            "click .cans .can-u" : function(e){
+                                var uiMask = this;
+                                var unm    = $(e.currentTarget).find("b").text();
+                                uiMask.$main.find("footer input").val(unm);
+                            }
                         }
                     }).render(function(){
                         UI.ccode("adduser").appendTo(this.$main);
@@ -116,6 +198,12 @@ return ZUI.def("app.wn.pvg", {
                     var u = UI.gasket.usersList.getActived();
                     if(!u){
                         alert(UI.msg("pvg.user_del_none"));
+                        return;
+                    }
+
+                    // 不能删除管理员
+                    if(1 == u.role) {
+                        alert(UI.msg("pvg.user_del_admin"));
                         return;
                     }
 
@@ -161,7 +249,7 @@ return ZUI.def("app.wn.pvg", {
             checkable  : false,
             escapeHtml : false,
             display : function(u){
-                var html = '<i class="uicon fa"></i>';
+                var html = '<span class="icon"><i class="uicon fa"></i></span>';
                 html += '<b>' + u.nm + '</b>';
                 html += '<em>' + UI.msg("pvg.role_"+u.roleName) + '</em>';
                 html += UI.pvgHTML;
@@ -190,7 +278,7 @@ return ZUI.def("app.wn.pvg", {
                 }
             },
             on_actived : function(u){
-                UI.gasket.pathsList.blur();
+                UI.gasket.pathsList.setAllBlur();
                 // 成员，定制 
                 if(u.role == 10) {
                     UI.arena.find(".pvg-paths-list").attr("pvg-edit-on", "yes");
@@ -238,6 +326,51 @@ return ZUI.def("app.wn.pvg", {
             parent : UI,
             gasketName : "pathsMenu",
             setup : [{
+                text : "i18n:pvg.items_add",
+                handler : function(){
+                    // 打开遮罩
+                    new MaskUI({
+                        width  : 400,
+                        height : "80%",
+                        arenaClass : "pvg-sideitem-mask",
+                        events : {
+                            "click .ui-mask-main item" : function(e) {
+                                var uiMask = this;
+
+                                // 执行添加
+                                var jItem = $(e.currentTarget);
+                                var o = Wn.fetch(jItem.attr("ph"));
+                                var cmdText = 'obj id:'+o.id+" -u 'pvg:{}';\n";
+                                Wn.exec(cmdText);
+
+                                // 关闭弹出层
+                                uiMask.close();
+
+                                // 增加
+                                if(!UI.gasket.pathsList.has(o.id)) {
+                                    UI.gasket.pathsList.add(o);
+                                    // 闪一下
+                                    $z.blinkIt(UI.gasket.pathsList.$item(-1))
+                                }
+                            }
+                        }
+                    }).render(function(){
+                        // 得到全部侧边栏项目
+                        this.$main.addClass('ui-oicon-16')
+                            .html($('.obrowser-chute-sidebar .chute-wrapper').html());
+
+                        // 移除那些已经添加过的
+                        var dels = [];
+                        this.$main.find("item").each(function(){
+                            var o = Wn.fetch($(this).attr("ph"));
+                            if(o.pvg){
+                                dels.push(this);
+                            }
+                        });
+                        $(dels).remove();
+                    });
+                }
+            }, {
                 text : "i18n:pvg.paths_add",
                 handler : function(){
                     new PopBrowser({
@@ -314,13 +447,13 @@ return ZUI.def("app.wn.pvg", {
             gasketName : "pathsList",
             escapeHtml : false,
             display : function(o){
-                var html = Wn.objIconHtml(o);
-                html += '<span>' + Wn.objDisplayPath(UI, o.ph, 1) + '</span>';
+                var html = '<span class="icon">' + Wn.objIconHtml(o) + '</span>';
+                html += '<span>' + Wn.objDisplayPath(UI, o.ph, 2) + '</span>';
                 html += UI.pvgHTML;
                 return html;
             },
             on_actived : function(o){
-                UI.gasket.usersList.blur();
+                UI.gasket.usersList.setAllBlur();
                 UI.arena.find(".pvg-users-list").attr("pvg-edit-on", "yes");
                 UI.updateUsersPvgSetting(o.id);
             },
@@ -525,6 +658,9 @@ return ZUI.def("app.wn.pvg", {
             UI.gasket.usersList.hideLoading();
             var list = $z.fromJson(re);
             UI.gasket.usersList.setData(list);
+            UI.gasket.usersList.setAllBlur();
+            UI.gasket.pathsList.setAllBlur();
+            UI.arena.find("[pvg-edit-on]").removeAttr("pvg-edit-on");
             $z.doCallback(callback, [], UI);
         });
     },
@@ -539,6 +675,10 @@ return ZUI.def("app.wn.pvg", {
             UI.gasket.pathsList.hideLoading();
             var list = $z.fromJson(re);
             UI.gasket.pathsList.setData(list);
+            UI.gasket.usersList.setAllBlur();
+            UI.gasket.pathsList.setAllBlur();
+            UI.arena.find("[pvg-edit-on]").removeAttr("pvg-edit-on");
+            UI.gasket.usersList.setAllBlur();
             $z.doCallback(callback, [], UI);
         });
     },

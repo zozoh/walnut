@@ -17,9 +17,12 @@ define({
         "user_add_ok"    : '<i class="fa fa-check"></i> 添加成功',
         "user_add_fail"  : '<i class="fa fa-warning"></i> 添加失败: {{msg}}',
         "user_del_none"  : "请从用户列表中选择一个用户删除",
+        "user_del_admin" : "不能删除管理员!!",
         "user_del" : "移除账号",
+        "user_nofound" : "没有合适的账号!",
         "paths_title" : "路径列表",
-        "paths_add" : "添加路径",
+        "items_add" : "添加项目",
+        "paths_add" : "添加目录",
         "paths_del" : "移除路径",
         "path_del_none"  : "请从路径列表中选择一个路径删除",
     }
