@@ -103,13 +103,13 @@ return ZUI.def("app.wn.pvg", {
                         var uiMask = this;
                         var jCans  = uiMask.$main.find(".cans");
                         var val = $.trim(jInput.val());
-                        console.log(val)
+                        //console.log(val)
 
                         var usrs = UI.gasket.usersList.getData();
                         var unms = [].concat(uiMask._unms || []);
                         for(var i=0; i<usrs.length; i++)
                             unms.push(usrs[i].nm);
-                        console.log(unms);
+                        //console.log(unms);
 
                         // 准备请求数据
                         var params = {
@@ -121,7 +121,7 @@ return ZUI.def("app.wn.pvg", {
                         // 发送请求
                         $[params.ignore.length<512?"get":"post"]("/u/ajax/list", params, function(re){
                             var reo = $z.fromJson(re);
-                            console.log(reo)
+                            //console.log(reo)
                             // 清空
                             jCans.empty();
 
@@ -169,7 +169,7 @@ return ZUI.def("app.wn.pvg", {
                                 var nowInMs = Date.now();
                                 var duInMs  = nowInMs - lastMs;
 
-                                console.log(lastMs, nowInMs, duInMs);
+                                //console.log(lastMs, nowInMs, duInMs);
 
                                 if(duInMs > 800) {
                                     window.setTimeout(function(){
@@ -348,7 +348,9 @@ return ZUI.def("app.wn.pvg", {
 
                                 // 增加
                                 if(!UI.gasket.pathsList.has(o.id)) {
-                                    UI.gasket.pathsList.add(o);
+                                    UI.gasket.pathsList.add(o, -1);
+                                    // 清除缓存
+                                    Wn.removeFromCache(o);
                                     // 闪一下
                                     $z.blinkIt(UI.gasket.pathsList.$item(-1))
                                 }
@@ -390,7 +392,9 @@ return ZUI.def("app.wn.pvg", {
                                 for(var i=0;i<objs.length;i++){
                                     var obj = objs[i];
                                     if(!UI.gasket.pathsList.has(obj.id)) {
-                                        UI.gasket.pathsList.add(obj);
+                                        UI.gasket.pathsList.add(obj, -1);
+                                        // 清除缓存
+                                        Wn.removeFromCache(obj);
                                         cmdText += 'obj id:'+obj.id+" -u 'pvg:{}';\n";
                                     }
                                 }
@@ -413,7 +417,7 @@ return ZUI.def("app.wn.pvg", {
 
                     // 从组中移除选定用户
                     var cmdText = 'obj "id:'+oid+'" -u "pvg:null" -o';
-                    console.log(cmdText)
+                    //console.log(cmdText)
                     Wn.exec(cmdText, function(re){
                         // 失败
                         if(/^e./.test(re)){
