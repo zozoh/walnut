@@ -1,14 +1,15 @@
 package org.nutz.walnut.impl.io.bucket;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.walnut.api.io.WnBucket;
 import org.nutz.walnut.api.io.WnBucketBlockInfo;
 import org.nutz.walnut.impl.io.AbstractBucket;
-import org.nutz.walnut.util.Bus;
+import org.nutz.web.Webs.Err;
 
 public class MemoryBucket extends AbstractBucket {
 
@@ -25,14 +26,13 @@ public class MemoryBucket extends AbstractBucket {
     private long countRead;
     private int blockSize;
     private int blockNumber;
-    private long size;
+    private int size;
     private String sha1;
-
-    private List<byte[]> list;
+    private byte[] membuf;
+    private File f;
 
     public MemoryBucket(int blockSize) {
         this.blockSize = blockSize;
-        this.list = new ArrayList<byte[]>(5);
     }
 
     @Override
@@ -45,55 +45,70 @@ public class MemoryBucket extends AbstractBucket {
 
     @Override
     public int read(int index, byte[] bs, WnBucketBlockInfo bi) {
-        _assert_index_not_out_of_range(index);
+        // 防御一下,难道想反向读吗?
+        if (index < 0)
+            return 0;
+        // 超过边界了没?
+        if (getBlockNumber() < index + 1)
+            return 0;
+        int sz;
+        // 读内存
+        if (index == 0) {
+            if (membuf == null) {
+                sz = 0;
+            }
+            else {
+                int len = Math.min(bs.length, membuf.length);
+                System.arraycopy(membuf, 0, bs, 0, Math.min(bs.length, membuf.length));
+                sz = len;
+            }
+        } else { // 读文件
+            if (f == null) {
+                sz = 0;
+            } else {
+                sz = Files.readRange(f, index*blockSize, bs, 0, bs.length);
+            }
+        }
+        int pl = 0;
+        int pr = bs.length - sz;
 
-        byte[] block = index >= list.size() ? null : list.get(index);
-        if (null == block)
-            Arrays.fill(bs, B0);
-        else
-            System.arraycopy(block, 0, bs, 0, block.length);
-
-        // 计数
-        this.countRead++;
-
-        // 获得信息并返回
-        return Bus.evalInfo(block, bi);
-
+        if (null != bi)
+            bi.set(pl, sz, pr);
+        return sz;
     }
 
     @Override
-    public int read(long pos, byte[] bs, int off, int len) {
+    public int read(long _pos, byte[] bs, int off, int len) {
+        // 暂不允许读取太大的文件
+        if (_pos > Integer.MAX_VALUE)
+            throw Err.create("e.memory.bucket.read_too_big");
+        
         int re = 0;
-        WnBucketBlockInfo bi = new WnBucketBlockInfo();
-        while (pos < size && len > 0) {
-            // 找到块
-            int index = (int) (pos / blockSize);
-
-            // 找到偏移
-            int from = (int) (pos - index * blockSize);
-
-            // 读取
-            byte[] block = list.get(index);
-
-            int n;
-            // 空块
-            if (null == block) {
-                n = Math.min(blockSize - from, len);
+        int pos = (int)_pos;
+        if (pos + len > size)
+            len = size - pos;
+        if (len < 1)
+            return 0;
+        // 从内存读
+        if (pos < blockSize) {
+            int mem_read_size = blockSize - pos;
+            if (membuf != null) {
+                System.arraycopy(membuf, pos, bs, off, mem_read_size);
+            } else {
+                Arrays.fill(bs, off, mem_read_size, B0);
             }
-            // 有内容，分析一下
-            else {
-                Bus.evalInfo(block, bi);
-                int pos0 = Math.max(from, bi.paddingLeft);
-                n = Math.min(len, blockSize - bi.paddingRight - pos0);
-                System.arraycopy(block, pos0, bs, off, n);
+            // 读完内存,还需要继续吗?
+            if (mem_read_size != len) {
+                re += mem_read_size;
+                off += mem_read_size;
+                len += mem_read_size;
+                pos = blockSize;
             }
-            // 计数
-            re += n;
-            len -= n;
-            off += n;
-            pos += n;
-
         }
+        // 从文件读
+        int file_read_count = Files.readRange(f, pos, bs, off, len);
+        if (file_read_count > 0)
+            re += file_read_count;
 
         // 计数
         this.countRead++;
@@ -104,51 +119,41 @@ public class MemoryBucket extends AbstractBucket {
 
     @Override
     public int write(int index, int padding, byte[] bs, int off, int len) {
-        _assert_no_sealed();
-
-        int n;
-
-        // 添加新的桶块
-        if (index >= blockNumber) {
-            // 补充空余的桶块
-            for (int i = list.size(); i < index; i++) {
-                list.add(null);
-            }
-
-            // 追加一个桶块
-            byte[] block = new byte[blockSize];
-            list.add(block);
-
-            // 最多填充多少字节
-            n = Math.min(blockSize - padding, len);
-
-            // 填充
-            System.arraycopy(bs, off, block, padding, n);
-
-            // 计算结果
-            blockNumber = index + 1;
-            size = index * blockSize + n;
+        int n = 0;
+        // 想干嘛? index还想负数?
+        if (index < 0)
+            return 0;
+        // 写内存
+        if (index == 0) {
+            len = Math.min(blockSize - padding, Math.min(bs.length, len));
+            if (membuf == null)
+                membuf = new byte[blockSize];
+            System.arraycopy(bs, off, membuf, padding, len);
         }
-        // 修改已有的桶块
+        // 写文件
         else {
-            byte[] block = list.get(index);
-            // 确保桶块不为 null
-            if (null == block) {
-                block = new byte[blockSize];
-                list.set(index, block);
+            if (f == null) {
+                try {
+                    f = File.createTempFile("membuf", ".dat");
+                }
+                catch (IOException e) {
+                }
             }
-            // 最多填充多少字节
-            n = Math.min(blockSize - padding, len);
-
-            // 填充
-            System.arraycopy(bs, off, block, padding, n);
-
-            // 如果是最后一个桶块 ...
-            if (index == blockNumber - 1) {
-                WnBucketBlockInfo bi = Bus.getInfo(block);
-                size = index * blockSize - bi.paddingRight;
+            Files.writeRange(f, index*blockSize+padding, bs, off, Math.min(bs.length, len));
+        }
+        
+        // 算一下当前大小
+        if (f != null) {
+            size = (int) f.length();
+        } else {
+            if (membuf != null) {
+                if (size < padding + len)
+                    size = padding + len;
             }
         }
+        
+        // 再算一下blockNumber
+        blockNumber = (int) Math.ceil(((double) size) / ((double) blockSize));
 
         // 删除指纹缓冲
         sha1 = null;
@@ -162,15 +167,15 @@ public class MemoryBucket extends AbstractBucket {
         if (nb == blockNumber) {
             return;
         }
-
         // 清零
         if (nb == 0) {
-            list.clear();
+            membuf = null;
+            clearFile();
             blockNumber = 0;
         }
         // 剪裁
-        else if (nb < list.size()) {
-            list = list.subList(0, (int) nb);
+        else if (nb == 1) {
+            clearFile();
             blockNumber = nb;
         }
         // 清除指纹
@@ -268,22 +273,26 @@ public class MemoryBucket extends AbstractBucket {
             return;
 
         // 应该有多少块
-        long b_nb = (long) Math.ceil(((double) size) / ((double) blockSize));
-
-        // 补充空块
-        for (long i = blockNumber; i < b_nb; i++)
-            list.add(null);
-
-        // 裁剪
-        if (b_nb < blockNumber) {
-            list = list.subList(0, (int) blockNumber);
-        }
+        int b_nb = (int) Math.ceil(((double) size) / ((double) blockSize));
+        trancateBlock(b_nb);
 
         // 保存有效尺寸
-        this.size = size;
+        this.size = (int)size;
 
         // 清除指纹
         this.sha1 = null;
     }
 
+    public void clearFile() {
+        if (f != null) {
+            f.delete();
+            f = null;
+        }
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+        clearFile();
+        super.finalize();
+    }
 }
