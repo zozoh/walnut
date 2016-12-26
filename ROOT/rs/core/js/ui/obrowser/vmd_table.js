@@ -32,7 +32,7 @@ return ZUI.def("ui.obrowser_vmd_table", {
                 sizeHint : '*'
             },
             // 标记一下标准属性
-            on_draw_row : function(jRow, o){
+            on_draw_item : function(jRow, o){
                 jRow.addClass("wnobj");
                 if(/^[.].+/.test(o.nm)){
                     jRow.addClass("wnobj-hide");
