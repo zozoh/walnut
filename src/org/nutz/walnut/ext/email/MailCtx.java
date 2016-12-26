@@ -8,7 +8,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 
 public class MailCtx {
 
-    @JsonField(ignore=true)
+    @JsonField(ignore = true)
     public WnSystem sys;
     public String config;
     public String receivers;
@@ -21,4 +21,5 @@ public class MailCtx {
     public boolean debug;
     public boolean local;
     public String sender;
+    public String dataSourceResolver;
 }
