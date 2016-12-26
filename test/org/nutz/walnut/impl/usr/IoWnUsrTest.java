@@ -15,6 +15,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrInfo;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
@@ -53,7 +54,7 @@ public class IoWnUsrTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
-                assertEquals("e.io.forbidden : /home/userA/aaa.txt", e.toString());
+                assertEquals("e.io.forbidden : /home/userA", e.toString());
             }
 
             // 将文件改成变成同组能写
@@ -65,7 +66,12 @@ public class IoWnUsrTest extends BaseUsrTest {
             });
 
             // 把 B 用户加入到组里就能写
-            usrs.setRoleInGroup(ub, ua.mainGroup(), Wn.ROLE.MEMBER);
+            wc.security(new WnEvalLink(io), new Atom() {
+                public void run() {
+                    usrs.setRoleInGroup(ub, ua.mainGroup(), Wn.ROLE.MEMBER);
+                }
+            });
+
             String str = wc.su(ub, new Proton<String>() {
                 protected String exec() {
                     WnObj o = io.check(null, path);
@@ -95,7 +101,7 @@ public class IoWnUsrTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
-                assertEquals("e.io.forbidden : /home/userA/aaa.txt", e.toString());
+                assertEquals("e.io.forbidden : /home/userA", e.toString());
             }
 
             // 只有变成管理员
@@ -166,7 +172,12 @@ public class IoWnUsrTest extends BaseUsrTest {
             }
 
             // 把 B 用户加入到组里就能读
-            usrs.setRoleInGroup(ub, ua.mainGroup(), Wn.ROLE.MEMBER);
+            wc.security(new WnEvalLink(io), new Atom() {
+                public void run() {
+                    usrs.setRoleInGroup(ub, ua.mainGroup(), Wn.ROLE.MEMBER);
+                }
+            });
+
             str = wc.su(ub, new Proton<String>() {
                 protected String exec() {
                     WnObj o = io.check(null, path);
@@ -194,7 +205,7 @@ public class IoWnUsrTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
-                assertEquals("e.io.forbidden : /home/userA/aaa.txt", e.toString());
+                assertEquals("e.io.forbidden : /home/userA", e.toString());
             }
 
             // 只有变成管理员

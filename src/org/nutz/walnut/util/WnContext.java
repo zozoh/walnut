@@ -57,9 +57,17 @@ public class WnContext extends NutMap {
 
     // 缓存当前用户对象
     private WnUsr oMe;
-    
-    public WnContext(){
+
+    public WnContext() {
         roles = new HashMap<>();
+    }
+
+    /**
+     * 默认的，会在线程上下文里缓存 me 对应的用户对象。但是当进行 JUnit 的时候 每次都要创建一个新用户，这时候缓存的用户 ID
+     * 已经不对了。所以提供这个函数，用来清除缓存
+     */
+    public void cleanMe() {
+        oMe = null;
     }
 
     public WnUsr getMyUsr(WnUsrService usrs) {

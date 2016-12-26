@@ -10,6 +10,7 @@ import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
 import org.nutz.walnut.impl.usr.IoWnSessionService;
 import org.nutz.walnut.impl.usr.IoWnUsrService;
+import org.nutz.walnut.util.Wn;
 
 public abstract class BaseUsrTest extends BaseIoTest {
 
@@ -55,6 +56,9 @@ public abstract class BaseUsrTest extends BaseIoTest {
 
         root = usrs.create(new WnUsrInfo("root"));
         usrs.setPassword(root, "123456");
+
+        // 为了 JUnit 测试，每次都要清空线程的用户缓存
+        Wn.WC().cleanMe();
     }
 
 }
