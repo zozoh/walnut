@@ -46,10 +46,12 @@ return ZUI.def("app.wn.pvg", {
         UI.pvgHTML = '<span class="pvg-edit">';
         UI.pvgHTML += '<span class="pvg-cus">'+UI.msg("pvg.mode_cus")+'</span>';
         UI.pvgHTML += '<span class="pvg-mode">';
-        UI.pvgHTML += '<u mode="r" val="4">'+UI.msg("pvg.mode_r")+'</u>';
-        UI.pvgHTML += '<u mode="w" val="2">'+UI.msg("pvg.mode_w")+'</u>';
-        UI.pvgHTML += '<u mode="x" val="1">'+UI.msg("pvg.mode_x")+'</u>';
-        UI.pvgHTML += '<u class="pvg-auto" data-balloon="'+UI.msg("pvg.mode_auto")+'" data-balloon-pos="down"><i class="zmdi zmdi-close"></i></u>';
+        // UI.pvgHTML += '<u mode="r" val="4">'+UI.msg("pvg.mode_r")+'</u>';
+        // UI.pvgHTML += '<u mode="w" val="2">'+UI.msg("pvg.mode_w")+'</u>';
+        // UI.pvgHTML += '<u mode="x" val="1">'+UI.msg("pvg.mode_x")+'</u>';
+        UI.pvgHTML += '<u mode="read"  val="4">'+UI.msg("pvg.mode_read")+'</u>';
+        UI.pvgHTML += '<u mode="write" val="6">'+UI.msg("pvg.mode_write")+'</u>';
+        UI.pvgHTML += '<u class="pvg-auto"><i class="zmdi zmdi-close"></i></u>';
         UI.pvgHTML += '</span>';
         UI.pvgHTML += '</span>';
 
@@ -251,10 +253,14 @@ return ZUI.def("app.wn.pvg", {
             checkable  : false,
             escapeHtml : false,
             display : function(u){
-                var html = '<span class="icon"><i class="uicon fa"></i></span>';
-                html += '<b>' + u.nm + '</b>';
-                html += '<em>' + UI.msg("pvg.role_"+u.roleName) + '</em>';
+                var html = '';
                 html += UI.pvgHTML;
+                html += '<span class="icon"';
+                html += ' data-balloon="'+UI.msg("pvg.role_"+u.roleName)+'"';
+                html += ' data-balloon-pos="right"';
+                html += '><i class="uicon fa"></i></span>';
+                //html += '<em>' + UI.msg("pvg.role_"+u.roleName) + '</em>';
+                html += '<b>' + u.nm + '</b>';
                 return html;
             },
             on_draw_item : function(jItem, u){
@@ -453,9 +459,10 @@ return ZUI.def("app.wn.pvg", {
             gasketName : "pathsList",
             escapeHtml : false,
             display : function(o){
-                var html = '<span class="icon">' + Wn.objIconHtml(o) + '</span>';
-                html += '<span>' + Wn.objDisplayPath(UI, o.ph, 2) + '</span>';
+                var html = '';
                 html += UI.pvgHTML;
+                html += '<span class="icon">' + Wn.objIconHtml(o) + '</span>';
+                html += '<span>' + (Wn.objDisplayPath(UI, o.ph, 2) || UI.msg("home")) + '</span>';
                 return html;
             },
             on_actived : function(o){
@@ -528,6 +535,7 @@ return ZUI.def("app.wn.pvg", {
     },
     //...............................................................
     __updatePvgSetting : function(jSpan, mode) {
+        jSpan = jSpan.closest(".pvg-edit");
         // 木定义了权限
         if(_.isUndefined(mode)) {
             jSpan.removeAttr("pvg").find("u[mode]").removeClass("checked");
@@ -535,13 +543,19 @@ return ZUI.def("app.wn.pvg", {
         // 定义了权限，分析权限码
         else {
             jSpan.attr("pvg", mode).find("u[mode]").each(function(){
-                var jU   = $(this);
-                var mask = jU.attr("val") * 1;
-                if((mode & mask) > 0) {
+                var jU  = $(this);
+                var val = jU.attr("val") * 1;
+                if(mode >= val) {
                     jU.addClass("checked");
-                }else{
+                }else {
                     jU.removeClass("checked");
                 }
+                // var mask = jU.attr("val") * 1;
+                // if((mode & mask) > 0) {
+                //     jU.addClass("checked");
+                // }else{
+                //     jU.removeClass("checked");
+                // }
             });
         }
     },
@@ -559,13 +573,23 @@ return ZUI.def("app.wn.pvg", {
 
         // 标记模式
         jq.toggleClass("checked");
+        jq.nextAll().removeClass("checked");
 
         // 计算权限码
         var jMode = jq.closest(".pvg-mode");
-        var md = 0;
-        jMode.find("u.checked").each(function(){
-            md |= $(this).attr("val") * 1;
-        });
+        // var md = 0;
+        // jMode.find("u.checked").each(function(){
+        //     md |= $(this).attr("val") * 1;
+        // });
+        var md = jMode.find("u.checked").last().attr("val") * 1 || 0;
+
+        // 如果是目录的话，可读，则一定增加 X
+        if('DIR' == o.race && md > 0) {
+            md += 1;
+        }
+
+        // 确保统一显示
+        UI.__updatePvgSetting(jMode, md);
 
         var pvg = {};
         pvg[u.id] = md;

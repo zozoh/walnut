@@ -33,10 +33,11 @@
                 width:24px; text-align: center; 
                 vertical-align: middle;
             }
-            b {margin:0 @d0; min-width: 100px;}
+            b {margin:0 @d0;}
             > span.pvg-edit {
                 display:none; margin: 0 @d2; font-size: @f1;
                 color:@cf0; white-space: nowrap;
+                min-width: 100px; 
                 .pvg-cus {
                     color:@clink; 
                 }
@@ -44,14 +45,37 @@
                     color:@clink_hover; text-decoration: underline;
                 }
                 .pvg-mode {
-                    padding: @d2 0; background: @ch1_b; color:@ch1_f;
-                    u {text-decoration: none; padding:@d2;}
-                    u.checked {background:@chx_b; color:@chx_f;}
+                    padding: @d2 0; 
+                    u {
+                        text-decoration: none; padding:@d2;
+                        margin-right:1px; 
+                        border:1px dashed @chx_b; color:@chx_b;
+                        border-radius: @d0; background: rgba(255,255,255,0.4);
+                    }
+                    u.checked {
+                        background:@chx_b; color:@chx_f;
+                        border:1px solid @chx_b;
+                    }
+                    u.pvg-auto {
+                        border:0; background: transparent; 
+                        > i {
+                            transition: 0.3s;
+                        }
+                    }
                     u.pvg-auto:hover {
-                        background: @ch0_b; color:@ch0_f;
+                        > i {
+                            transform: rotate(360deg) scale(1.8);
+                            font-weight: bold; color: @c0;
+                        }
                     }
                 }
             }
+        }
+        .lst-item:nth-child(2n) {
+            background: @cb2; color:@cf2;
+        }
+        .lst-item[li-actived] {
+            background: @ch0_b; color:@ch0_f; 
         }
         .lst-item[role="ADMIN"]{color:@c0;}
         .lst-item[role="REQUEST"]{opacity: 0.5;}
@@ -95,6 +119,7 @@
 //.........................................................
 @MH1 : 48px;
 @MbtnW : 80px;
+@MbtnH : 36px;
 .pvgau-mask {
     width:100%; height:100%; position: relative; overflow: auto;
     padding-top: @MH1 * 2;
@@ -114,15 +139,62 @@
         }
     }
     footer {
-        padding:@d2 @MbtnW+@d2*2 @d2 @d2; position: relative;
+        padding:@d2 @d2; 
+        @flex(); 
         input{@input();
-            width:100%; padding:@d3; font-size: @f4;
+            padding:0 @d3; font-size: @f4;
+            flex: 1 1 auto;
         }
         input:focus{@input_focus();}
         b {@btn();
-            position: absolute; top:@d2; right:@d2; bottom:@d2; width:@MbtnW;
             text-align: center; padding: @d3+@d0 0; 
+            flex: 0 0 @MbtnW;
         }
         b:hover {@btn_hover();}
     }
+    div.cans {
+        padding: @d3; 
+        > .can-u { @noselect();
+            padding:@d2; border-bottom:1px dashed @cborder1;
+            cursor: pointer;
+            i {
+                display: inline-block; vertical-align: middle;
+                width:24px; height:24px; 
+                background-repeat: no-repeat;
+                background-size: cover;
+                border-radius: 50%; border:2px solid @cborder0;
+            }
+            b {
+                display: inline-block; font-weight: normal;
+                padding:0 @d2;
+            }
+        }
+        > .can-u:hover {
+            background: @ch0_b; color:@ch0_f;
+        }
+    }
 }
+
+//.........................................................
+// 增加侧边栏项目界面
+//.........................................................
+.pvg-sideitem-mask {
+    .ui-mask-main { @noselect();
+        padding:@d3; color:@cf2; overflow: auto;
+        > section {
+            padding:@d2;
+            > h1 {
+                margin:0; padding:@d3; font-weight: normal;
+                font-size: @f4; color:@c2;
+            }
+            > item { 
+                display: block; padding:@d3; cursor: pointer;
+                > i {margin:0 @d3;}
+            }
+            > item:hover {
+                background: @ch1_b; color:@ch1_f;
+            }
+        }
+    }
+}
+

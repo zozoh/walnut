@@ -168,14 +168,17 @@ return ZUI.def("ui.picker.opicker", {
         jBox = jBox || UI.arena.find(".picker-box")
         var jq = UI.ccode("obj").data("@OBJ", o)
                     .prepend(Wn.objIconHtml(o));
-        var jA = jq.find("a").prop("href", "/a/open/wn.browser?ph=id:"+o.id);
+        var jA = jq.find("a").prop("href", "/a/open/"
+                                    + (window.wn_browser_appName||"wn.browser")
+                                    + "?ph=id:"+o.id);
 
         // 显示名称
         if(opt.showPath) {
-            jA.html(Wn.objDisplayPath(UI, o.ph, 
+            var html = Wn.objDisplayPath(UI, o.ph, 
                     opt.showPath.offset,
                     opt.showPath.wrapper || null, 
-                    opt.showPath.sep || null));
+                    opt.showPath.sep || null);
+            jA.html( html || UI.msg("home"));
         } else {
             jA.text(Wn.objDisplayName(UI, o, 18));
         }

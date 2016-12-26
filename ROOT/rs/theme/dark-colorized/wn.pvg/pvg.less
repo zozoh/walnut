@@ -33,10 +33,11 @@
                 width:24px; text-align: center; 
                 vertical-align: middle;
             }
-            b {margin:0 @d0; min-width: 100px;}
+            b {margin:0 @d0;}
             > span.pvg-edit {
                 display:none; margin: 0 @d2; font-size: @f1;
                 color:@cf0; white-space: nowrap;
+                min-width: 100px; 
                 .pvg-cus {
                     color:@clink; 
                 }
@@ -44,14 +45,37 @@
                     color:@clink_hover; text-decoration: underline;
                 }
                 .pvg-mode {
-                    padding: @d2 0; background: @ch1_b; color:@ch1_f;
-                    u {text-decoration: none; padding:@d2;}
-                    u.checked {background:@chx_b; color:@chx_f;}
+                    padding: @d2 0; 
+                    u {
+                        text-decoration: none; padding:@d2;
+                        margin-right:1px; 
+                        border:1px dashed @chx_b; color:@chx_b;
+                        border-radius: @d0; background: rgba(255,255,255,0.4);
+                    }
+                    u.checked {
+                        background:@chx_b; color:@chx_f;
+                        border:1px solid @chx_b;
+                    }
+                    u.pvg-auto {
+                        border:0; background: transparent; 
+                        > i {
+                            transition: 0.3s;
+                        }
+                    }
                     u.pvg-auto:hover {
-                        background: @ch0_b; color:@ch0_f;
+                        > i {
+                            transform: rotate(360deg) scale(1.8);
+                            font-weight: bold; color: @c0;
+                        }
                     }
                 }
             }
+        }
+        .lst-item:nth-child(2n) {
+            background: @cb2; color:@cf2;
+        }
+        .lst-item[li-actived] {
+            background: @ch0_b; color:@ch0_f; 
         }
         .lst-item[role="ADMIN"]{color:@c0;}
         .lst-item[role="REQUEST"]{opacity: 0.5;}
@@ -173,8 +197,4 @@
         }
     }
 }
-
-
-
-
 

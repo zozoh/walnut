@@ -8,6 +8,8 @@ define({
         "mode_r"       : "读",
         "mode_w"       : "写",
         "mode_x"       : "用",
+        "mode_read"    : "读取",
+        "mode_write"   : "修改",
         "mode_auto"    : "删除定制权限",
         "users_title"  : "账号列表",
         "user_add"     : "添加账号",
