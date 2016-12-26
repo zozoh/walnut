@@ -1,12 +1,15 @@
 package org.nutz.walnut.ext.email;
 
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.ImageHtmlEmail;
+import org.apache.commons.mail.resolver.DataSourceUrlResolver;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
@@ -20,6 +23,7 @@ import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -40,6 +44,7 @@ public class cmd_email extends JvmExecutor {
 
     private static final Log log = Logs.get();
 
+    @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         MailCtx mc = new MailCtx();
         mc.sys = sys;
@@ -51,6 +56,7 @@ public class cmd_email extends JvmExecutor {
         mc.msg = params.get("m");
         mc.subject = params.get("s");
         mc.tmpl = params.get("tmpl");
+        mc.dataSourceResolver = params.get("dsr");
         mc.local = params.is("local");
         mc.vars = params.get("vars");
         mc.attachs.add(params.get("attach"));
@@ -127,14 +133,26 @@ public class cmd_email extends JvmExecutor {
             mc.sys.out.printf("/*\n%s\n*/", Json.toJson(mc));
         }
         WnIo io = mc.sys.io;
+        WnObj econf = null;
         // 加载配置
         if (mc.config == null) {
-            mc.config = userHome(mc.sys.me) + "/.mail_send_conf";
+            // 新版
+            mc.config = userHome(mc.sys.me) + "/.email/config_default";
+            econf = io.fetch(null, mc.config);
+            if (econf == null) {
+                mc.config = userHome(mc.sys.me) + "/.mail_send_conf";
+                econf = io.fetch(null, mc.config);
+            }
+        } else {
+            econf = io.fetch(null, mc.config);
         }
-        WnObj tmp = io.check(null, mc.config);
-        EmailServerConf hostCnf = io.readJson(tmp, EmailServerConf.class);
+        if (econf == null) {
+            throw Er.create("e.email.config.notfind", mc.config);
+        }
+        EmailServerConf hostCnf = io.readJson(econf, EmailServerConf.class);
 
         // 处理模板,如果指定了的话
+        WnObj tmp = null;
         if (mc.tmpl != null) {
             tmp = io.check(null, mc.tmpl);
             Segment seg = new CharSegment(io.readText(tmp));
@@ -187,8 +205,11 @@ public class cmd_email extends JvmExecutor {
             ihe.setSubject(mc.subject);
             ihe.setCharset(Encoding.UTF8);
             try {
-                ihe.setFrom(hostCnf.from == null ? hostCnf.account : hostCnf.from,
-                            mc.sys.me.name());
+                if (mc.dataSourceResolver != null) {
+                    ihe.setDataSourceResolver(new DataSourceUrlResolver(new URL(mc.dataSourceResolver)));
+                }
+                String fnm = hostCnf.from == null ? mc.sys.me.name() : hostCnf.from;
+                ihe.setFrom(hostCnf.account, fnm);
                 ihe.setHtmlMsg(mc.msg);
                 for (MailReceiver mailReceiver : rc) {
                     ihe.addTo(mailReceiver.email, mailReceiver.name);
@@ -199,7 +220,7 @@ public class cmd_email extends JvmExecutor {
                 ihe.buildMimeMessage();
                 ihe.sendMimeMessage();
             }
-            catch (EmailException e) {
+            catch (EmailException | MalformedURLException e) {
                 e.printStackTrace(new PrintWriter(mc.sys.err.getWriter()));
                 if (log.isWarnEnabled())
                     log.warn("send mail fail", e);

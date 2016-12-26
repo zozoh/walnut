@@ -2,15 +2,15 @@
 
     `email` 用来发送邮件
     
-    默认读取当前用户下的发送配置进行邮件发送 $HOME/.mail_send_conf, 格式如下:
+    默认读取当前用户下的发送配置进行邮件发送 $HOME/.email/config_default, 格式如下:
     
     {
 		host 	: "smtp.qq.com",
 		port 	: 25,
 		account : 'root@walnut.com',
+		from    : "nutzcn论坛",         
 		alias	: 'root',
 		password: '123456',
-		from    : "root@walnut.com", // 当account不是email地址时需要填写
 		ssl     : true
     }
 
