@@ -12,10 +12,10 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.ZParams;
 
 /**
  * 添加一个更新包
+ * 
  * @author wendal
  *
  */
@@ -36,8 +36,8 @@ public class wup_pkg_add implements JvmHdl {
                     return;
                 String name = tmp[0];
                 String version = tmp[1].substring(0, tmp[1].length() - 4);
-                
-                String dst = Wn.normalizePath("~/wup/pkgs/"+name+"/"+version+".tgz", sys);
+
+                String dst = Wn.normalizePath("~/wup/pkgs/" + name + "/" + version + ".tgz", sys);
                 WnObj obj = sys.io.createIfNoExists(null, dst, WnRace.FILE);
                 sys.io.writeAndClose(obj, sys.io.getInputStream(wobj, 0));
                 NutMap re = new NutMap("name", name).setv("version", version);
@@ -50,7 +50,7 @@ public class wup_pkg_add implements JvmHdl {
             for (NutMap re : list) {
                 for (String update : updates) {
                     if (update.equals(re.get("name"))) {
-                        
+
                     }
                 }
             }
