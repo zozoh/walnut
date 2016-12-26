@@ -159,27 +159,29 @@ return ZUI.def("app.wn.pvg", {
                             "keyup footer input" : function(e) {
                                 var uiMask  = this;
                                 var jInput  = $(e.currentTarget);
+                                var _do_prompt = function(){
+                                    var lastMs = jInput.attr("last-ms") * 1;
+                                    var duInMs = Date.now() - lastMs;
 
-                                var old_v   = jInput.attr("old-v");
-                                var new_v   = $.trim(jInput.val());
-                                if(new_v == old_v)
-                                    return;
-                                
-                                var lastMs  = jInput.attr("last-ms") * 1 || -1;
-                                var nowInMs = Date.now();
-                                var duInMs  = nowInMs - lastMs;
+                                    console.log("_do_prompt", duInMs);
 
-                                //console.log(lastMs, nowInMs, duInMs);
-
-                                if(duInMs > 800) {
-                                    window.setTimeout(function(){
-                                        jInput.attr("old-v", $.trim(jInput.val()))
-                                                .removeAttr("last-ms");
+                                    if(duInMs > 800) {
+                                        console.log("fire!!!!");
                                         do_keyup_input.call(uiMask, jInput);
-                                    }, 1000);
+                                        jInput.removeAttr("last-ms");
+                                    }
+                                    else {
+                                        console.log("wait!!!!");
+                                        jInput.attr("last-ms", Date.now());
+                                        window.setTimeout(_do_prompt, 800);
+                                    }
+                                };
+                                // 确保有一个回调
+                                if(!jInput.attr("last-ms")) {
+                                    window.setTimeout(_do_prompt, 800);
                                 }
-
-                                jInput.attr("last-ms", nowInMs);
+                                // 一定会更新当前时间戳
+                                jInput.attr("last-ms", Date.now());
                             },
                             "click .cans .can-u" : function(e){
                                 var uiMask = this;
@@ -497,6 +499,53 @@ return ZUI.def("app.wn.pvg", {
         return ["usersList", "usersMenu", "pathsList", "pathsMenu"];
     },
     //...............................................................
+    updateUsersPvgSetting : function(oid) {
+        var UI  = this;
+        var obj = Wn.getById(oid);
+        var pvg = obj.pvg || {};
+
+        UI.arena.find(".pvg-users-list .lst-item").each(function(){
+            var jItem = $(this);
+            var jSpan = jItem.find("span.pvg-edit");
+            var uid   = jItem.attr("oid");
+            var mode  = pvg[uid];
+            UI.__updatePvgSetting(jSpan, mode);
+        });
+    },
+    //...............................................................
+    updatePathsPvgSetting : function(uid) {
+        var UI  = this;
+
+        UI.arena.find(".pvg-paths-list .lst-item").each(function(){
+            var jItem = $(this);
+            var jSpan = jItem.find("span.pvg-edit");
+            var oid   = jItem.attr("oid");
+            var obj   = Wn.getById(oid);
+            var pvg   = obj.pvg || {};
+            var mode  = pvg[uid];
+            UI.__updatePvgSetting(jSpan, mode);
+        });
+    },
+    //...............................................................
+    __updatePvgSetting : function(jSpan, mode) {
+        // 木定义了权限
+        if(_.isUndefined(mode)) {
+            jSpan.removeAttr("pvg").find("u[mode]").removeClass("checked");
+        }
+        // 定义了权限，分析权限码
+        else {
+            jSpan.attr("pvg", mode).find("u[mode]").each(function(){
+                var jU   = $(this);
+                var mask = jU.attr("val") * 1;
+                if((mode & mask) > 0) {
+                    jU.addClass("checked");
+                }else{
+                    jU.removeClass("checked");
+                }
+            });
+        }
+    },
+    //...............................................................
     setPvg : function(oid, u, jq){
         var UI = this;
 
@@ -603,53 +652,6 @@ return ZUI.def("app.wn.pvg", {
                 jSpan.removeAttr("pvg").find("u[mode]").removeClass("checked");
             }
         });
-    },
-    //...............................................................
-    updateUsersPvgSetting : function(oid) {
-        var UI  = this;
-        var obj = Wn.getById(oid);
-        var pvg = obj.pvg || {};
-
-        UI.arena.find(".pvg-users-list .lst-item").each(function(){
-            var jItem = $(this);
-            var jSpan = jItem.find("span.pvg-edit");
-            var uid   = jItem.attr("oid");
-            var mode  = pvg[uid];
-            UI.__updatePvgSetting(jSpan, mode);
-        });
-    },
-    //...............................................................
-    updatePathsPvgSetting : function(uid) {
-        var UI  = this;
-
-        UI.arena.find(".pvg-paths-list .lst-item").each(function(){
-            var jItem = $(this);
-            var jSpan = jItem.find("span.pvg-edit");
-            var oid   = jItem.attr("oid");
-            var obj   = Wn.getById(oid);
-            var pvg   = obj.pvg || {};
-            var mode  = pvg[uid];
-            UI.__updatePvgSetting(jSpan, mode);
-        });
-    },
-    //...............................................................
-    __updatePvgSetting : function(jSpan, mode) {
-        // 木定义了权限
-        if(_.isUndefined(mode)) {
-            jSpan.removeAttr("pvg").find("u[mode]").removeClass("checked");
-        }
-        // 定义了权限，分析权限码
-        else {
-            jSpan.attr("pvg", mode).find("u[mode]").each(function(){
-                var jU   = $(this);
-                var mask = jU.attr("val") * 1;
-                if((mode & mask) > 0) {
-                    jU.addClass("checked");
-                }else{
-                    jU.removeClass("checked");
-                }
-            });
-        }
     },
     //...............................................................
     reloadUsers : function(callback){
