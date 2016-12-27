@@ -4,16 +4,31 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.nutz.filepool.FilePool;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnBucket;
 import org.nutz.walnut.api.io.WnBucketBlockInfo;
 import org.nutz.walnut.impl.io.AbstractBucket;
 import org.nutz.web.Webs.Err;
 
+/**
+ * 内存存储块, 第一个块在内存中,其余的在临时文件中
+ * @author wendal
+ *
+ */
 public class MemoryBucket extends AbstractBucket {
+    
+    private static final Log log = Logs.get();
 
     private static final byte B0 = (byte) 0;
+    
+    /**
+     * 临时文件池
+     */
+    public static FilePool pool;
 
     private boolean sealed;
     private long createTime;
@@ -35,7 +50,6 @@ public class MemoryBucket extends AbstractBucket {
         this.blockSize = blockSize;
     }
 
-    @Override
     public String getSha1() {
         if (null == sha1)
             sha1 = _gen_sha1();
@@ -43,7 +57,6 @@ public class MemoryBucket extends AbstractBucket {
         return sha1;
     }
 
-    @Override
     public int read(int index, byte[] bs, WnBucketBlockInfo bi) {
         // 防御一下,难道想反向读吗?
         if (index < 0)
@@ -58,7 +71,9 @@ public class MemoryBucket extends AbstractBucket {
                 sz = 0;
             }
             else {
+                // 算出可以读取的部分
                 int len = Math.min(bs.length, membuf.length);
+                len = Math.min(len, size);
                 System.arraycopy(membuf, 0, bs, 0, Math.min(bs.length, membuf.length));
                 sz = len;
             }
@@ -69,43 +84,47 @@ public class MemoryBucket extends AbstractBucket {
                 sz = Files.readRange(f, index*blockSize, bs, 0, bs.length);
             }
         }
-        int pl = 0;
-        int pr = bs.length - sz;
 
-        if (null != bi)
+        if (null != bi) {
+            // 啊啊啊, 必须填充对
+            int pl = 0;
+            int pr = bs.length - sz;
             bi.set(pl, sz, pr);
+        }
         return sz;
     }
 
     @Override
     public int read(long _pos, byte[] bs, int off, int len) {
-        // 暂不允许读取太大的文件
+        // 暂不允许读取太大的文件, int long各种强转不靠谱
         if (_pos > Integer.MAX_VALUE)
             throw Err.create("e.memory.bucket.read_too_big");
         
         int re = 0;
         int pos = (int)_pos;
+        // 不能越界读取
         if (pos + len > size)
             len = size - pos;
+        // 呵呵, 0字节也想读?
         if (len < 1)
             return 0;
-        // 从内存读
+        // 从内存读, 因为pos落在第0块上
         if (pos < blockSize) {
-            int mem_read_size = blockSize - pos;
+            int mem_read_size = Math.min(blockSize - pos, len);
             if (membuf != null) {
                 System.arraycopy(membuf, pos, bs, off, mem_read_size);
             } else {
                 Arrays.fill(bs, off, mem_read_size, B0);
             }
+            re += mem_read_size;
             // 读完内存,还需要继续吗?
             if (mem_read_size != len) {
-                re += mem_read_size;
                 off += mem_read_size;
                 len += mem_read_size;
                 pos = blockSize;
             }
         }
-        // 从文件读
+        // 剩余的数据从文件读,如果有的话
         int file_read_count = Files.readRange(f, pos, bs, off, len);
         if (file_read_count > 0)
             re += file_read_count;
@@ -119,7 +138,6 @@ public class MemoryBucket extends AbstractBucket {
 
     @Override
     public int write(int index, int padding, byte[] bs, int off, int len) {
-        int n = 0;
         // 想干嘛? index还想负数?
         if (index < 0)
             return 0;
@@ -134,12 +152,18 @@ public class MemoryBucket extends AbstractBucket {
         else {
             if (f == null) {
                 try {
-                    f = File.createTempFile("membuf", ".dat");
+                    if (pool == null)
+                        f = File.createTempFile("membuf", ".dat");
+                    else
+                        f = pool.createFile("dat");
+                    log.info("buffer to " + f.getPath());
                 }
                 catch (IOException e) {
+                    log.warn("create membuf fail", e);
                 }
             }
-            Files.writeRange(f, index*blockSize+padding, bs, off, Math.min(bs.length, len));
+            if (f != null)
+                Files.writeRange(f, index*blockSize+padding, bs, off, Math.min(bs.length, len));
         }
         
         // 算一下当前大小
@@ -159,7 +183,7 @@ public class MemoryBucket extends AbstractBucket {
         sha1 = null;
 
         // 返回实际写入的字节数
-        return n;
+        return len;
     }
 
     @Override

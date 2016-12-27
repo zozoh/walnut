@@ -96,7 +96,7 @@ import org.nutz.lang.Files
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
-task lessc() << {
+task lessc << {
 	def lesscDir = 'ROOT'
 	try {
 		if (project.appdir != null) {

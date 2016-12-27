@@ -3,6 +3,7 @@ package org.nutz.walnut.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.nutz.filepool.UU32FilePool;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Mirror;
@@ -19,6 +20,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.ftp.WnFtpServer;
 import org.nutz.walnut.ext.sshd.SshdServer;
+import org.nutz.walnut.impl.io.bucket.MemoryBucket;
 import org.nutz.walnut.job.WnJob;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZType;
@@ -46,6 +48,9 @@ public class WnSetup implements Setup {
         // 获取 app 资源，并记录一下以便页面使用
         conf = ioc.get(WnConfig.class, "conf");
         nc.setAttribute("rs", conf.getAppRs());
+        
+        // 设置一下MemoryBucket的临时文件池
+        MemoryBucket.pool = new UU32FilePool(conf.get("memory-bucket-home", System.getProperty("java.io.tmpdir")));
 
         // 尝试看看组装的结果
         WnIo io = ioc.get(WnIo.class, "io");

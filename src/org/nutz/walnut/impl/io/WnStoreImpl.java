@@ -148,7 +148,7 @@ public class WnStoreImpl implements WnStore {
 
         // 对象元数据句柄
         if (o.isRWMeta()) {
-            hdl.bucket = new MemoryBucket(DFT_BUCKET_BLOCK_SIZE);
+            hdl.bucket = new MemoryBucket(64*1024);
             if (Wn.S.isRead(mode)) {
                 String json = Json.toJson(o, JsonFormat.full());
                 hdl.bucket.write(json);

@@ -93,7 +93,7 @@ public class MemoryMounter implements WnMounter {
         String id = o.path().substring(mount_root_path.length() + 1);
         o.data("memory://"+R.UU32());
         o.id(mount_root_id+":memory:%%"+id.replace('/', '%'));
-        MemoryBucket bucket = new MemoryBucket(1024*1024);
+        MemoryBucket bucket = new MemoryBucket(64*1024);
         
         tree.datas.put(o.data(), bucket);
         Node<WnObj> node = Nodes.create(o.clone());
