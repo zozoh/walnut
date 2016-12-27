@@ -496,7 +496,7 @@ function setup_viewport(pmvc) {
         jDrops = jDrops.filter(":visible");
 
     // console.log(jDrops.size())
-    if(jDrops && jDrops.length > 0) {
+    if(jDrops) {
         // 在上下文中进行准备
         pmvc.drops = {
             insides  : [],

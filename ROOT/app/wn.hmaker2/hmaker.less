@@ -1,7 +1,7 @@
 @import (reference) "../ui";
 
 @lW : 180px;
-@rW : 400px;
+@rW : 320px;
 @panTH : 32px;
 
 .hmaker {
@@ -27,8 +27,13 @@
                 .hmpn-pin {
                     right:0; cursor: pointer;
                 }
-                .hmpn-tt {
-                    left: 0;
+                .hmpn-tt { @noselect();
+                    left: 0; font-family: @f_fixed;
+                    > * {display:inline-block;vertical-align: middle;}
+                    > span {}
+                    > b    {margin:0 @d1;}
+                    > em   {color:@c3; font-style: normal;}
+                    > em:before {display:inline; content:"#";}
                 }
                 .hmpn-opt {
                     right: @d6;

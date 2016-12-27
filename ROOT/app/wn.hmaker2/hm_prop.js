@@ -40,10 +40,10 @@ return ZUI.def("app.wn.hm_prop", {
     init : function() {
         var UI = HmPanelMethods(this);
         
-        UI.listenBus("active:com",    function(){UI.showProp("edit");});
-        UI.listenBus("active:page",   function(){UI.showProp("page");});
-        UI.listenBus("active:folder", function(){UI.showProp("folder");});
-        UI.listenBus("active:other",  function(){UI.showProp("other");});
+        UI.listenBus("active:com",    UI.onActiveCom);
+        UI.listenBus("active:page",   UI.onActivePage);
+        UI.listenBus("active:folder", UI.onActiveFolder);
+        UI.listenBus("active:other",  UI.onActiveOther);
     },
     //...............................................................
     redraw : function() {
@@ -83,6 +83,40 @@ return ZUI.def("app.wn.hm_prop", {
 
         // 返回延迟加载
         return ["folder", "page", "edit", "other"];
+    },
+    //...............................................................
+    onActiveCom : function(uiCom) {
+        var UI = this;
+
+        // 切换标签
+        UI.showProp("edit");
+
+        // 得到组件信息
+        var comId = uiCom.getComId();
+        var ctype = uiCom.getComType();
+
+        // 准备显示的 HTML
+        var html = '<span>' + UI.msg("hmaker.com."+ctype+".icon") + '</span>';
+        html += '<b>' + UI.msg("hmaker.com."+ctype+".name") + '</b>';
+        html += '<em>' + comId + '</em>';
+
+        // 设置标题
+        UI.setTitle(html);
+    },
+    //...............................................................
+    onActivePage : function(){
+        this.showProp("page");
+        this.setTitle("hmaker.prop.tt_page");
+    },
+    //...............................................................
+    onActiveFolder : function(){
+        this.showProp("folder");
+        this.setTitle("hmaker.prop.tt_folder");
+    },
+    //...............................................................
+    onActiveOther : function(){
+        this.showProp("other");
+        this.setTitle("hmaker.prop.tt_other");
     },
     //...............................................................
     showProp : function(key) {

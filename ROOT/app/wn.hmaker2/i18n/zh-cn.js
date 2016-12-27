@@ -24,6 +24,9 @@ define({
         },
         "prop" : {
             "title" : '属性',
+            "tt_page"   : '<i class="fa fa-gears"></i><b>页面属性</b>',
+            "tt_folder" : '<i class="fa fa-gear"></i><b>属性</b>',
+            "tt_other"  : '<i class="fa fa-gear"></i><b>属性</b>',
             "tab_block" : '<b>布局</b>',
             "tab_com"   : '<b>控件</b>',
             "margin"    : "外边距",
