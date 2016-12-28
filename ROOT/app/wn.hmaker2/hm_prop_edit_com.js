@@ -8,12 +8,6 @@ $z.declare([
 //==============================================
 var html = `
 <div class="ui-arena hm-prop-com">
-    <div class="hmpc-info">
-        <span></span><b></b><em></em>
-    </div>
-    <div class="hmpc-skin hm-skin-box" 
-        balloon="left:{{hmaker.prop.skin_tip}}"
-        box-enabled="yes"></div>
     <div class="hmpc-form" ui-gasket="prop"></div>
 </div>`;
 //==============================================
@@ -22,40 +16,6 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
-    },
-    //...............................................................
-    events:{
-        // TODO com 可以修改 ID
-        "click .hmpc-info em" : function(e){
-            //alert($(e.currentTarget).text())
-            var UI = this;
-            $z.editIt(e.currentTarget, function(newval, oldval, jEle){
-                var comNewId = $.trim(newval);
-                if(comNewId != oldval) {
-                    //console.log("change com ID", comNewId);
-                    // 修改接口
-                    if(UI.uiCom.setComId(comNewId)){
-                        // 通知更新
-                        UI.uiCom.notifyActived();
-                        // 修改显示
-                        jEle.text(comNewId);
-                    }
-                }
-            });
-        },
-        // 显示皮肤选择器
-        "click .hmpc-skin" : function(e) {
-            e.stopPropagation();
-            var UI   = this;
-            var jBox = $(e.currentTarget);
-
-            // 得到可用皮肤列表
-            var skinList = UI.getSkinListForCom(UI.__com_type);
-
-            UI.showSkinList(jBox, skinList, function(skin){
-                UI.uiCom.setComSkin(skin);
-            });
-        }
     },
     //...............................................................
     redraw : function() {
@@ -68,16 +28,6 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
         
         var comId = uiCom.getComId();
         var ctype = uiCom.getComType();
-
-        // 处理 info 区域
-        UI.__update_com_info(comId, ctype);
-
-        // 处理皮肤选择区
-        //console.log(uiCom.uiName, uiCom.getComSkin())
-        var jSkinBox = UI.arena.children(".hm-skin-box");
-        UI.updateSkinBox(jSkinBox, uiCom.getComSkin(), function(skin){
-            return this.getSkinTextForCom(ctype, skin);
-        });
         
         // 如果控件类型发生了变化更新编辑区显示
         if (UI.__com_type != ctype) {

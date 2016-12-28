@@ -29,6 +29,12 @@ var html = `
             </label>
         </div>
     </div>
+    <div class="hmpb-skin">
+        <em>{{hmaker.prop.skin}}</em>
+        <div class="hm-skin-box"
+            balloon="left:{{hmaker.prop.skin_tip}}"
+            box-enabled="yes"></div>
+    </div>
     <div class="hmpb-form" ui-gasket="form"></div>
 </div>`;
 //==============================================
@@ -144,9 +150,17 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
     },
     //...............................................................
     update : function(uiCom, block) {
-        this.uiCom = uiCom;
-        this.__update_pos(block);
-        this.__update_form(block);
+        var UI = this;
+        UI.uiCom = uiCom;
+        UI.__update_pos(block);
+        // 处理皮肤选择区
+        //console.log(uiCom.uiName, uiCom.getComSkin())
+        var jSkinBox = UI.arena.find(".hm-skin-box");
+        UI.updateSkinBox(jSkinBox, uiCom.getComSkin(), function(skin){
+            var ctype = UI.uiCom.getComType();
+            return UI.getSkinTextForCom(ctype, skin);
+        });
+        UI.__update_form(block);
     },
     //...............................................................
     __update_pos : function(block) {
@@ -213,6 +227,9 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
 
         // 测试用代码
         UI.arena.find(".hmpb-pos-d em").text("unset");
+
+        // 启用提示
+        //this.balloon();
 
         // // margin 
         // new SwitchUI({
@@ -332,11 +349,12 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
     },
     //...............................................................
     resize : function() {
-        var UI = this;
-        var jPos  = UI.arena.find(".hmpb-pos");
-        var jForm = UI.arena.find(".hmpb-form");
+        // var UI = this;
+        // var jPos     = UI.arena.find(".hmpb-pos");
+        // var jSkinBox = UI.arena.find(".hm-skin-box");
+        // var jForm    = UI.arena.find(".hmpb-form");
 
-        jForm.css("top", jPos.outerHeight(true));
+        // jForm.css("top", jPos.outerHeight(true) + jSkinBox.outerHeight(true));
     }
     //...............................................................
 });

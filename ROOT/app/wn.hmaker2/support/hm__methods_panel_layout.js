@@ -47,10 +47,19 @@ var methods = {
             });
         },
         // 显示可选皮肤
-        'click .clp-layout li[highlight] > [key="skin"]' : function(e) {
+        'click .clp-layout li > [key="skin"]' : function(e) {
             e.stopPropagation();
-            var UI       = this;
-            var jBox     = $(e.currentTarget);
+            var UI   = this;
+            var jBox = $(e.currentTarget);
+            var jLi  = jBox.closest("li");
+
+            // 高亮区域才能修改，非高亮区域，模拟区域的点击
+            if(!jLi.attr("highlight")){
+                jLi.click();
+                return;
+            }
+            
+            // 得到对应皮肤列表
             var skinList = this.getSkinListForArea();
             var aid = jBox.closest("li").find('[key="areaId"]').text();
             

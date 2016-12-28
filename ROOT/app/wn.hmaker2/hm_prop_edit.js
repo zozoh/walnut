@@ -3,7 +3,7 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/menu/menu',
-    'app/wn.hmaker2/support/hm__methods',
+    'app/wn.hmaker2/support/hm__methods_panel',
     'app/wn.hmaker2/hm_prop_edit_block',
     'app/wn.hmaker2/hm_prop_edit_com',
 ], function(ZUI, Wn, MenuUI, 
@@ -13,6 +13,9 @@ $z.declare([
 //==============================================
 var html = `
 <div class="ui-arena hm-prop-edit" ui-fitparent="yes">
+    <div class="hm-prop-head">
+        <div class="hm-com-info"></div>
+    </div>
     <div class="hm-prop-tabs">
         <ul class="hm-W">
             <li ptype="block"><%=hmaker.prop.tab_block%></li>
@@ -44,8 +47,41 @@ return ZUI.def("app.wn.hm_prop_edit", {
     },
     //...............................................................
     events : {
+        // 切换标签
         'click .hm-prop-tabs li[ptype]' : function(e) {
             this.switchTab($(e.currentTarget).attr("ptype"));
+        },
+        // 修改 comID
+        "click .hm-prop-head .hm-com-info em" : function(e){
+            //alert($(e.currentTarget).text())
+            var UI = this;
+            $z.editIt(e.currentTarget, function(newval, oldval, jEle){
+                var comNewId = $.trim(newval);
+                if(comNewId != oldval) {
+                    //console.log("change com ID", comNewId);
+                    // 修改接口
+                    if(UI.uiCom.setComId(comNewId)){
+                        // 通知更新
+                        UI.uiCom.notifyActived();
+                        // 修改显示
+                        jEle.text(comNewId);
+                    }
+                }
+            });
+        },
+        // 显示皮肤选择器
+        "click .hm-skin-box" : function(e) {
+            e.stopPropagation();
+            var UI   = this;
+            var jBox = $(e.currentTarget);
+
+            // 得到可用皮肤列表
+            var ctype = UI.uiCom.getComType();
+            var skinList = UI.getSkinListForCom(ctype);
+
+            UI.showSkinList(jBox, skinList, function(skin){
+                UI.uiCom.setComSkin(skin);
+            });
         }
     },
     //...............................................................
@@ -97,7 +133,22 @@ return ZUI.def("app.wn.hm_prop_edit", {
     },
     //...............................................................
     doActiveCom : function(uiCom) {
-        //console.log("hm_prop_edit->doActiveCom:", uiCom.uiName);
+        var UI = this;
+
+        // 保存实例
+        UI.uiCom = uiCom;
+
+        // 得到组件信息
+        var comId = uiCom.getComId();
+        var ctype = uiCom.getComType();
+
+        // 准备显示的 HTML
+        var html = '<span>' + UI.msg("hmaker.com."+ctype+".icon") + '</span>';
+        html += '<b>' + UI.msg("hmaker.com."+ctype+".name") + '</b>';
+        html += '<em>' + comId + '</em>';
+
+        // 设置标题
+        UI.arena.find('>.hm-prop-head>.hm-com-info').html(html);
     },
     //...............................................................
     doChangeBlock : function(mode, uiCom, block) {

@@ -1,11 +1,27 @@
 @import (reference) "../ui";
 
 // 编辑属性面板
-@ppTabH : 28px;
+@ppCInfo : 32px;
+@ppTabH  : 28px;
 .hmaker .hm-prop-edit {
-    position:relative; padding:@ppTabH/2 + @d2 @d2 @d2 @d2;
+    position:relative; padding: @ppCInfo + @ppTabH/2 + @d2 @d2 @d2 @d2;
+    .hm-prop-head {
+        position: absolute; top:0; left:0; right:0;
+        padding:@d3; font-family: @f_fixed; font-size:@f2;
+        color:@cf2; background: @cb2; border-top:1px solid @cborder1;
+        > .hm-com-info { @noselect();
+            float: left;
+            > * {display:inline-block;vertical-align: middle;}
+            > span {}
+            > b    {margin:0 @d1;}
+            > em   {color:@c3; font-style: normal;}
+            > em:before {display:inline; content:"#";}
+            > em:hover {border:1px solid @c4;}
+        }
+    }
+    .hm-prop-head:after{@clr();}
     .hm-prop-tabs {
-        position: absolute; top:@d2; left:0; right:0; height:@ppTabH; 
+        position: absolute; top:@ppCInfo + @d2; left:0; right:0; height:@ppTabH; 
         ul {
             @flex(); justify-content: center;
             li {
@@ -34,13 +50,33 @@
         .hm-prop-con[current] {display: block;}
         //....................................................
         // 块属性
+        @bPosH  : 148px;
+        @bSkinH : 32px;
         @boxW : 200px;
-        @boxH : 120px;
+        @boxH : 100px;
         @vS : 12px;
         @dH : 24px;
         .hm-prop-block {
             position: relative; width:100%; height:100%;
+            > div {position: absolute; left:0; right:0;}
+            // 皮肤
+            .hmpb-skin {
+                top:@bPosH; height:@bSkinH; line-height: @bSkinH;
+                padding:0 @d3; 
+                margin:0 @d3; background: @cb2; color:@cf2;
+                > em {
+                    float:left; display: block; font-style: normal;
+                }
+                > .hm-skin-box {
+                    float:right;
+                }
+            }
+            // 块的 form
+            .hmpb-form {
+                top:@bPosH + @bSkinH + @d2; bottom:0;
+            }
             .hmpb-pos {
+                top:0; height:@bPosH;
                 .hmpb-pos-abs {
                     padding:@d2; text-align: center;
                     > label {cursor: pointer;}
@@ -79,7 +115,7 @@
             }
             // 位置信息编辑区
             .hmpb-pos-box { @noselect();
-                margin:@d5 auto; width:@boxW; height:@boxH;
+                margin:@d3 auto; width:@boxW; height:@boxH;
                 border:1px dashed @cborder0;
                 position: relative;
                 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -175,34 +211,11 @@
                 .hmpb-pos-d[key="right"],
                 .hmpb-pos-d[key="height"]{display:block;}
             }
-            // 块的 form
-            .hmpb-form {
-                position: absolute; left:0; right:0; bottom:0;
-            }
         } // ~ 块属性
         //....................................................
         // 控件属性
-        @hmpcH : 32px;
         .hm-prop-com {
-            width:100%; height:100%; position: relative; padding:@hmpcH 0 0 0;
-            > .hmpc-info {@noselect();
-                position: absolute; top:0; left:0; height: @hmpcH; line-height: @hmpcH;
-                padding:0 @d4; font-family: @f_fixed; color:@cf1;
-                > * {display:inline-block;vertical-align: middle;}
-                > span {}
-                > b    {margin:0 @d1;}
-                > em   {color:@c3; font-style: normal;}
-                > em:before {display:inline; content:"#";}
-            }
-            > .hmpc-skin {
-                position: absolute; top:0; right:0;
-                height: @hmpcH; line-height: @hmpcH; 
-                padding:0 @d4; 
-            }
-            .hmpc-skin[skin-list-show] {
-                .hmpc-skin-mask {display: block;}
-                .hmpc-skin-list {display: block;}
-            }
+            width:100%; height:100%; 
             .hmpc-form {
                 width: 100%; height:100%;
 
@@ -223,48 +236,6 @@
                 }
             }
         } // ~ 控件属性
-        //....................................................
-        // 控件内元素属性
-        .hm-prop-com-ele { background:@cb2; color:@cf4;
-            position: absolute; top:0; bottom:0;left:10000px;
-            transition:0.2s; opacity: 0.3;
-        }
-        .hm-prop-com-ele[show] {
-            left:0; opacity: 1.0;
-        }
-        .hm-prop-ele {
-            width:100%; height:100%; position: relative; padding:@hmpcH 0 0 0;
-            .hmpe-info {
-                position: absolute; top:0; left:0; right:0; height: @hmpcH; line-height: @hmpcH;
-                padding:0 @d4; font-family: @f_fixed; font-size:@f3; color:@cf1;  
-                border-top: 1px solid @cborder0;
-                border-bottom: 1px solid @cborder0;
-                > * {margin-right: @d2; }
-                > em {color:@c3; font-style: normal;}
-            }
-            .hmpe-form {
-                width: 100%; height:100%;
-            }
-            .hmpe-hide {
-                position: absolute; top:@d2; right:@d2;
-                font-size:@f3; font-family: 'Material-Design-Iconic-Font';
-                cursor:pointer; 
-                color:@cbtn_f; background-color: @cbtn_b; 
-                border-radius: 100px; border:2px solid @cbtn_l;
-                line-height: @d5; width:@d5 + 4px; text-align: center;
-                transition:0.2s;
-            }
-            .hmpe-hide:before {
-                display: "inline";
-                content: "\f136";
-            }
-
-            .hmpe-hide:hover {
-                background-color: @ch0_b; color:@ch0_f; border-color:@cborder1;
-                font-size:1.2em; font-weight: bold;
-                transform: scale(1.2) rotate(360deg);
-            }
-        } 
         //....................................................
 
     } // ~ .hm-prop-body

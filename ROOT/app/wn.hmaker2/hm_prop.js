@@ -86,37 +86,23 @@ return ZUI.def("app.wn.hm_prop", {
     },
     //...............................................................
     onActiveCom : function(uiCom) {
-        var UI = this;
-
-        // 切换标签
-        UI.showProp("edit");
-
-        // 得到组件信息
-        var comId = uiCom.getComId();
-        var ctype = uiCom.getComType();
-
-        // 准备显示的 HTML
-        var html = '<span>' + UI.msg("hmaker.com."+ctype+".icon") + '</span>';
-        html += '<b>' + UI.msg("hmaker.com."+ctype+".name") + '</b>';
-        html += '<em>' + comId + '</em>';
-
-        // 设置标题
-        UI.setTitle(html);
+        this.showProp("edit");
+        //this.setTitle("hmaker.prop.tt_edit");
     },
     //...............................................................
     onActivePage : function(){
         this.showProp("page");
-        this.setTitle("hmaker.prop.tt_page");
+        //this.setTitle("hmaker.prop.tt_page");
     },
     //...............................................................
     onActiveFolder : function(){
         this.showProp("folder");
-        this.setTitle("hmaker.prop.tt_folder");
+        //this.setTitle("hmaker.prop.tt_folder");
     },
     //...............................................................
     onActiveOther : function(){
         this.showProp("other");
-        this.setTitle("hmaker.prop.tt_other");
+        //this.setTitle("hmaker.prop.tt_other");
     },
     //...............................................................
     showProp : function(key) {
