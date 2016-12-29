@@ -106,7 +106,8 @@ var methods = {
     // 通常由 hm_page::doChangeCom 调用
     setBlock : function(block) {
         // 合并数据
-        var block2 = _.extend(this.getBlock(), block);
+        //var block2 = _.extend(this.getBlock(), block);
+        var block2 = block;
         
         // 保存属性
         $z.setJsonToSubScriptEle(this.$el, "hm-prop-block", block2, true);
@@ -126,14 +127,24 @@ var methods = {
     saveBlock : function(mode, block, base) {
         if(!base)
             base = this.getBlock();
+        // 挑选必要属性出来
+        base = _.pick(base, "mode", "posBy", "width", "height", "top", "left", "right", "bottom");
+
+        // 融合
         block = _.extend(base, block);
+
+        // 保存
         this.setBlock(block);
+
+        // 通知修改
         this.notifyBlockChange(mode, block);
+
+        // 返回
         return block;
     },
     //........................................................
     applyBlock : function(block) {
-        //console.log(block)
+        console.log("applyBlock", block);
         var UI     = this;
         var jCom   = UI.$el;
         var jW     = jCom.children(".hm-com-W");

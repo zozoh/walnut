@@ -107,15 +107,20 @@ var methods = {
             return skinInfo.area || [];
         return null;
     },
-    // 针对一个组件，根据选择器获取其样式名
-    getSkinTextForCom : function(comType, selector) {
+    // 针对一个组件，根据选择器获取其皮肤的配置对象，没找到返回 null
+    getSkinItemForCom : function(comType, selector) {
         var sList = this.getSkinListForCom(comType);
         if(_.isArray(sList))
             for(var si of sList){
                 if(si.selector == selector)
-                    return si.text;
+                    return si;
             }
         return null;
+    },
+    // 针对一个组件，根据选择器获取其样式名
+    getSkinTextForCom : function(comType, selector) {
+        var si = this.getSkinItemForCom(comType, selector);
+        return si ? si.text : null;
     },
     // 针对一个分栏区域，根据选择器获取其样式名
     getSkinTextForArea : function(selector) {

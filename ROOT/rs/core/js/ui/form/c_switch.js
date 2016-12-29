@@ -27,11 +27,15 @@ return ZUI.def("ui.form_com_switch", EnumListSupport({
             val   : true,
             text  : "i18n:yes"
         }]);
+
+        // 默认单选开关是必须要选择一项的
+        $z.setUndefined(opt, "singleKeepOne", true);
     },
     //...............................................................
     events : {
         "click li" : function(e){
-            var UI = this;
+            var UI  = this;
+            var opt = UI.options;
             var jq = $(e.currentTarget);
             // 有限多选的话 ...
             if(UI.isMulti(true)){
@@ -58,7 +62,8 @@ return ZUI.def("ui.form_com_switch", EnumListSupport({
             else {
                 // 如果选中那么就取消选中
                 if(jq.hasClass("checked")){
-                    jq.removeClass("checked");
+                    if(!opt.singleKeepOne)
+                        jq.removeClass("checked");
                 }
                 // 选中
                 else {

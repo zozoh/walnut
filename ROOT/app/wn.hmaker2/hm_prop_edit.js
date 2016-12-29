@@ -80,7 +80,11 @@ return ZUI.def("app.wn.hm_prop_edit", {
             var skinList = UI.getSkinListForCom(ctype);
 
             UI.showSkinList(jBox, skinList, function(skin){
+                // 保存皮肤信息
                 UI.uiCom.setComSkin(skin);
+
+                // 通知相关改动（不要让组件重绘）
+                UI.uiCom.notifyBlockChange("com");
             });
         }
     },

@@ -152,7 +152,12 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
     update : function(uiCom, block) {
         var UI = this;
         UI.uiCom = uiCom;
+
+        console.log("edit_block_update", block);
+
+        // 更新位置信息
         UI.__update_pos(block);
+
         // 处理皮肤选择区
         //console.log(uiCom.uiName, uiCom.getComSkin())
         var jSkinBox = UI.arena.find(".hm-skin-box");
@@ -160,7 +165,17 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             var ctype = UI.uiCom.getComType();
             return UI.getSkinTextForCom(ctype, skin);
         });
-        UI.__update_form(block);
+
+        // 更新表单
+        UI.__update_form(block, function(){
+            // 如果表单内容有变，则触发控件重绘
+            var b2 = this.getData();
+            if(!_.isEqual(b2, block)) {
+                console.log("b2", b2)
+                console.log("block", block)
+                UI.uiCom.saveBlock("panel", b2, block);
+            }
+        });
     },
     //...............................................................
     __update_pos : function(block) {
@@ -191,11 +206,20 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         }
     },
     //...............................................................
-    __update_form : function(block) {
+    __update_form : function(block, callback) {
         var UI = this;
                 
-        // 得到块属性列表
+        // 得到块的默认属性列表
         var blockFields = UI.uiCom.getBlockPropFields(block);
+
+        // 如果当前的 UI 使用了皮肤，看看皮肤里有木有声明特殊的属性列表
+        var skinName = UI.uiCom.getComSkin();
+        if(skinName) {
+            var ctype    = UI.uiCom.getComType();
+            var skinItem = UI.getSkinItemForCom(ctype, skinName);
+            blockFields  = skinItem.blockFields || blockFields;
+        }
+
         
         // 看看是否需要重绘字段
         var bf_finger = blockFields.join(",");
@@ -204,9 +228,11 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             new FormUI({
                 parent : UI,
                 gasketName : "form",
+                mergeData : false,
                 uiWidth: "all",
                 on_change : function(key, val) {
-                    UI.uiCom.saveBlock("panel", $z.obj(key, val||""));
+                    var block = this.getData();
+                    UI.uiCom.saveBlock("panel", block);
                 },
                 fields : UI.__gen_block_fields(blockFields)
             }).render(function(){
@@ -214,11 +240,14 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 UI.gasket.form.setData(block);
                 // 记录最后的修改
                 UI.__current_block_fields = bf_finger;
+                // 调用回调
+                $z.doCallback(callback, [], this);
             });
         }
         // 直接设置数据
         else {
             UI.gasket.form.setData(block);
+            $z.doCallback(callback, [], UI.gasket.form);
         }
     },
     //...............................................................
@@ -324,9 +353,13 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                     key    : "overflow",
                     title  : "i18n:hmaker.prop.overflow",
                     type   : "string",
+                    dft    : "unset",
                     editAs : "switch", 
                     uiConf : {
                         items : [{
+                            text : 'i18n:hmaker.prop.overflow_dft',
+                            val  : 'unset',
+                        }, {
                             text : 'i18n:hmaker.prop.overflow_visible',
                             val  : 'visible',
                         }, {
@@ -339,7 +372,48 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                     }
                 });
             }
+            // 看看是否是自定义属性
             else {
+                // 布尔模式
+                var m = /^@([\d\w]+)(:([^\()]+))?([\()]yes(\/no)?[\))])(=(yes|no))?/
+                            .exec(key);
+                if(m) {
+                    //console.log(m)
+                    var a_key = m[1];
+                    var a_txt = m[3];
+                    var a_dft = m[7] || "no";
+                    // 属性指明了 yes/no
+                    if(m[5] == "/no"){
+                        re.push({
+                            key    : "skin-attr-" + a_key,
+                            title  : a_txt,
+                            type   : "string",
+                            dft    : a_dft,
+                            editAs : "switch",
+                            uiConf : {
+                                items : [{
+                                    value : "no",
+                                    text  : "i18n:no"
+                                },{
+                                    value : "yes",
+                                    text  : "i18n:yes"
+                                }]
+                            }
+                        });
+                    }
+                    // 仅仅是属性开关
+                    else {
+                        re.push({
+                            key    : "skin-attr-" + a_key,
+                            title  : a_txt,
+                            type   : "boolean",
+                            dft    : a_dft == "yes",
+                            editAs : "toggle", 
+                        });
+                    }
+                    continue;
+                }
+                // 还是搞不定，那么打印一个警告无视它
                 console.warn("unsupport blockField:", key, UI.uiCom);
             }
         }

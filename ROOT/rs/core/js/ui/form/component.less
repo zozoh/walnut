@@ -602,19 +602,49 @@
   li {
     float: left;
     padding: @d1;
-    background: #CCC;
-    color: #888;
+    background: @cb2;
+    color: @cf2;
     margin-left: 1px;
     min-width: @d7;
     text-align: center;
     cursor: pointer;
   }
   li.checked {
-    color: #FFF;
-    background: #080;
+    color: @chx_f;
+    background: @chx_b;
   }
 }
 
+//----------------------------------------------------------------
+@cToggleS : 20px;
+.com-toggle {
+  cursor: pointer; display: inline-block;
+  position: relative;
+  border:1px solid @cf3; 
+  width:@cToggleS * 2; height: @cToggleS + 2;
+  border-radius: @cToggleS;
+  margin:@d1;
+  > b {
+    display: block; 
+    position: absolute; top:0; bottom:0;
+    height:@cToggleS; width:@cToggleS;
+    background: @cb0; border:1px solid @cf3;
+    border-radius: 50%;  box-shadow: 1px 1px 2px @cshadow;
+  }
+}
+.com-toggle[animat-on] b {transition:0.2s;}
+.com-toggle[toggle-on="yes"] {
+  > b {left:@cToggleS;}
+}
+.com-toggle[toggle-on="yes"]:before {
+  display: block; content: "";
+  width:@cToggleS/2; height:@cToggleS/2;
+  background: @chx_b; border-radius: 50%;
+  margin:@cToggleS/4;
+}
+.com-toggle[toggle-on="no"] {
+  > b {left:-1px;}
+}
 //----------------------------------------------------------------
 .com-text {
   width: 100%;

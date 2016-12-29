@@ -42,6 +42,7 @@ define({
             "width"     : "宽度",
             "height"    : "高度",
             "overflow"  : "内容溢出",
+            "overflow_dft"     : "默认",
             "overflow_visible" : "可见",
             "overflow_auto"    : "滚动",
             "overflow_hidden"  : "剪裁",

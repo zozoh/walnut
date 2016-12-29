@@ -73,6 +73,17 @@ tags:
         "image" : [{
             selector : "AAAA",          // 类选择器，不加 "."
             text     : "i18n:xxxx",     // 显示文字
+            // 对于组件来说，skin 可以定制 Block 面板的属性
+            // 如果没有用控件默认的
+            // 内置 CSS 可以支持:
+            // margin|padding|border|borderRadius|color|background
+            // boxShadow|overflow 
+            blockFields : [
+                "padding",          // 字符串是内置 CSS
+                "@att1(yes/no)",    // 显示 yes/no 的属性开关
+                "@att2(yes)",       // 显示 yes 或者不存在的属性开关
+                "@att3[text:value,text:value]" // 显示枚举型属性开关
+            ]
         },{
             ..
         }],
