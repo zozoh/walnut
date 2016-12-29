@@ -37,6 +37,7 @@ return ZUI.def("app.wn.hm_com_image", {
     },
     //...............................................................
     paint : function(com) {
+        console.log("image.paint", com);
         var UI   = this;
         var jW   = UI.$el.children(".hm-com-W");
         var jImg = UI.arena.children("img");

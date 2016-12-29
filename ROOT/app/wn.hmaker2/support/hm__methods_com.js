@@ -73,7 +73,7 @@ var methods = {
         var com2 = shallow 
                     ? _.extend(this.getData(), com)
                     : $z.extend(this.getData(), com);
-        
+        console.log("setData", com2);
         // 保存属性
         $z.setJsonToSubScriptEle(this.$el, "hm-prop-com", com2, true);
         
@@ -144,7 +144,7 @@ var methods = {
     },
     //........................................................
     applyBlock : function(block) {
-        console.log("applyBlock", block);
+        //console.log("applyBlock", block);
         var UI     = this;
         var jCom   = UI.$el;
         var jW     = jCom.children(".hm-com-W");

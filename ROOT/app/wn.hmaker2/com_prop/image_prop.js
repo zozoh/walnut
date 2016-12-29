@@ -26,6 +26,7 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             gasketName : "form",
             uiWidth : "all",
             on_update : function(com) {
+                console.log(com)
                 UI.uiCom.saveData("panel", com);
             },
             autoLineHeight : true,

@@ -113,7 +113,7 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.listenBus("change:com", function(mode, uiCom, com){
             if("page" == mode)
                 return;
-            //console.log("hm_page::on_change:com:", mode, uiCom.uiName, com);        
+            console.log("hm_page::on_change:com:", mode, uiCom.uiName, com);        
             // 绘制控件
             uiCom.paint(com);
 

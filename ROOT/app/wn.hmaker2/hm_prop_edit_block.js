@@ -153,7 +153,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         var UI = this;
         UI.uiCom = uiCom;
 
-        console.log("edit_block_update", block);
+        // console.log("edit_block_update", block);
 
         // 更新位置信息
         UI.__update_pos(block);
@@ -171,8 +171,8 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             // 如果表单内容有变，则触发控件重绘
             var b2 = this.getData();
             if(!_.isEqual(b2, block)) {
-                console.log("b2", b2)
-                console.log("block", block)
+                // console.log("b2", b2)
+                // console.log("block", block)
                 UI.uiCom.saveBlock("panel", b2, block);
             }
         });
