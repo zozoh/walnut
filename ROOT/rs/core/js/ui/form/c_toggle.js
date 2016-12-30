@@ -4,7 +4,7 @@ $z.declare([
     'ui/form/support/form_c_methods',
 ], function(ZUI, FormCtrlMethods){
 //==============================================
-var html = '<div class="ui-arena com-toggle" toggle-on="no"><b></b></div>';
+var html = '<div class="ui-arena com-toggle" toggle-on="no"><div><b></b></div></div>';
 //===================================================================
 return ZUI.def("ui.form_com_toggle", FormCtrlMethods({
     //...............................................................

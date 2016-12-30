@@ -602,19 +602,48 @@
   li {
     float: left;
     padding: @d1;
-    background: #CCC;
-    color: #888;
+    background: @cb2;
+    color: @cf2;
     margin-left: 1px;
     min-width: @d7;
     text-align: center;
     cursor: pointer;
   }
   li.checked {
-    color: #FFF;
-    background: #080;
+    color: @chx_f;
+    background: @chx_b;
   }
 }
 
+//----------------------------------------------------------------
+@cToggleS : 12px;
+.com-toggle {
+  cursor: pointer; display: inline-block;
+  position: relative;
+  border:1px solid @cborder1; 
+  padding:@d1;
+  border-radius: @cToggleS;
+  background: rgba(255,255,255,0.4);
+  margin:@d0;
+  div {
+    width:@cToggleS * 2;
+    b {
+      display: block; 
+      height:@cToggleS; width:@cToggleS;
+      border-radius: 50%;
+    }
+  }
+}
+.com-toggle[animat-on] b {transition:0.2s;}
+.com-toggle[toggle-on="yes"] {
+  b {
+    margin-left:@cToggleS; background: @chx_b;
+    border-color:@chx_b;
+  }
+}
+.com-toggle[toggle-on="no"] {
+  b {margin-left:0; background: rgba(0,0,0,0.3);}
+}
 //----------------------------------------------------------------
 .com-text {
   width: 100%;
