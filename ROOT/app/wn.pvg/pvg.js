@@ -261,6 +261,9 @@ return ZUI.def("app.wn.pvg", {
                 html += '><i class="uicon fa"></i></span>';
                 //html += '<em>' + UI.msg("pvg.role_"+u.roleName) + '</em>';
                 html += '<b>' + u.nm + '</b>';
+                if(u.realname){
+                	html += '<span> (' + u.realname + ')</span>';
+                }
                 return html;
             },
             on_draw_item : function(jItem, u){
