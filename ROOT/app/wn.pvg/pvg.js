@@ -158,22 +158,23 @@ return ZUI.def("app.wn.pvg", {
                         },
                         events : {
                             "click footer b"     : on_add_user,
-                            "keyup footer input" : function(e) {
+                            "input footer input" : function(e) {
                                 var uiMask  = this;
                                 var jInput  = $(e.currentTarget);
+                                uiMask.$main.find(".cans").empty();
                                 var _do_prompt = function(){
                                     var lastMs = jInput.attr("last-ms") * 1;
                                     var duInMs = Date.now() - lastMs;
 
-                                    console.log("_do_prompt", duInMs);
+                                    //console.log("_do_prompt", duInMs);
 
                                     if(duInMs > 800) {
-                                        console.log("fire!!!!");
+                                        //console.log("fire!!!!");
                                         do_keyup_input.call(uiMask, jInput);
                                         jInput.removeAttr("last-ms");
                                     }
                                     else {
-                                        console.log("wait!!!!");
+                                        //console.log("wait!!!!");
                                         jInput.attr("last-ms", Date.now());
                                         window.setTimeout(_do_prompt, 800);
                                     }
