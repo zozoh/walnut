@@ -287,7 +287,8 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
     __gen_block_fields : function(blockFields) {
         var UI = this;
         var re = [];
-        for(var key of blockFields) {
+        for(var i=0; i<blockFields.length; i++) {
+            var key = blockFields[i];
             if(!key)
                 continue;
             if("padding" == key) {
@@ -375,12 +376,12 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             // 看看是否是自定义属性
             else {
                 // 布尔模式
-                var m = /^@([\d\w]+)(:([^\()]+))?([\()]yes(\/no)?[\))])(=(yes|no))?/
+                var m = /^@([\d\w]+)(:([^\()]+))?(\(yes(\/no)?\))(=(yes|no))?/
                             .exec(key);
                 if(m) {
                     //console.log(m)
                     var a_key = m[1];
-                    var a_txt = m[3];
+                    var a_txt = m[3] || a_key;
                     var a_dft = m[7] || "no";
                     // 属性指明了 yes/no
                     if(m[5] == "/no"){
@@ -413,6 +414,52 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                     }
                     continue;
                 }
+
+                // 列表模式
+                m = /^@([\d\w]+)(:([^\()]+))?(\[([^\]]+)\])(=(.+))?/
+                            .exec(key);
+                if(m) {
+                    // console.log(m)
+                    var a_key = m[1];
+                    var a_txt = m[3] || a_key;
+                    var a_val = m[5];
+                    var a_dft = m[7];
+
+                    // 解析值列表
+                    var items = [];
+                    var ss = a_val.split(/[ ,\n\r\t]+/);
+                    for(var x=0; x<ss.length; x++) {
+                        var s = $.trim(ss[x]);
+                        var pos = s.indexOf('=');
+                        if(pos > 0) {
+                            items.push({
+                                text  : $.trim(s.substring(0, pos)),
+                                value : $.trim(s.substring(pos+1))
+                            });
+                        } else {
+                            items.push({
+                                text  : s,
+                                value : s
+                            });
+                        }
+                    }
+
+                    // 默认值
+                    a_dft = a_dft || items[0].value;
+
+                    // 加入字段
+                    re.push({
+                        key    : "skin-attr-" + a_key,
+                        title  : a_txt,
+                        type   : "string",
+                        dft    : a_dft,
+                        editAs : items.length > 3 ? "droplist" : "switch",
+                        uiConf : {items:items} 
+                    });
+
+                    continue;
+                }
+
                 // 还是搞不定，那么打印一个警告无视它
                 console.warn("unsupport blockField:", key, UI.uiCom);
             }

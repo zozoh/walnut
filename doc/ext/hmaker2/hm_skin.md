@@ -80,9 +80,9 @@ tags:
             // boxShadow|overflow 
             blockFields : [
                 "padding",          // 字符串是内置 CSS
-                "@att1(yes/no)",    // 显示 yes/no 的属性开关
-                "@att2(yes)",       // 显示 yes 或者不存在的属性开关
-                "@att3[text:value,text:value]" // 显示枚举型属性开关
+                "@att1:文字(yes/no)",    // 显示 yes/no 的属性开关
+                "@att2:文字(yes)",       // 显示 yes 或者不存在的属性开关
+                "@att3:文字[text=value,text=value]" // 显示枚举型属性开关
             ]
         },{
             ..

@@ -165,17 +165,36 @@ var methods = {
         // 对于绝对位置，绝对位置的话，应该忽略 margin
         if("abs" == block.mode) {
             _.extend(css, 
-                $z.pick(block, "!^(mode|posBy)$"),{
+                $z.pick(block, "!^(mode|posBy|skin-.+)$"),{
                 "position" : "absolute"
             });
         }
         // 相对位置
         else {
             _.extend(css, 
-                $z.pick(block, "!^(mode|posBy|top|left|right|bottom)$"),{
+                $z.pick(block, "!^(mode|posBy|top|left|right|bottom|skin-.+)$"),{
                 "position" : ""
             });
         }
+
+        // 确保移除皮肤的特殊属性
+        var attrs = {};
+        for(var i=0; i<UI.el.attributes.length; i++) {
+            var anm = UI.el.attributes[i].name;
+            if(/^skin-.+/.test(anm)) {
+                attrs[anm] = null;
+            }
+        }
+
+        // 皮肤属性的 boolean 字段，要变成存在或者不存在
+        _.extend(attrs, $z.pick(block, "^skin-.+$"));
+        for(var key in attrs) {
+            var val = attrs[key];
+            if(_.isBoolean(val))
+                attrs[key] = val ? "yes" : null;
+        }
+        // 应用皮肤属性
+        UI.$el.attr(attrs);
         
         // 修正 css 的宽高
         if("unset" == css.width)
