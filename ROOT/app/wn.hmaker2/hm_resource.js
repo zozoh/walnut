@@ -84,7 +84,7 @@ return ZUI.def("app.wn.hmaker_resource", {
         var UI = this;
         
         // 执行创建
-        var re = Wn.exec("hmaker id:"+UI.rootId+" newpage '"+UI.msg("hmaker.nav.new_page")+"'")
+        var re = Wn.exec("hmaker id:"+UI.getHomeObjId()+" newpage '"+UI.msg("hmaker.nav.new_page")+"'")
         // 执行错误 
         if(/^e.cmd/.test(re)){
             alert(re);
@@ -100,9 +100,6 @@ return ZUI.def("app.wn.hmaker_resource", {
     update : function(o, callback) {
         var UI = this;
 
-        // 记录根节点
-        UI.rootId = o.id;
-
         var _list = function(o, callback) {
             Wn.exec('obj -match \'pid:"'+o.id+'"\' -sort "race:1,nm:1" -json -l',
             function(re){
@@ -116,8 +113,8 @@ return ZUI.def("app.wn.hmaker_resource", {
             parent     : UI,
             gasketName : "body",
             tops : function(callback){
-                var rootObj = Wn.getById(UI.rootId);
-                _list(o, callback);
+                var rootObj = UI.getHomeObj();
+                _list(rootObj, callback);
             },
             children : function(o, callback){
                 //Wn.getChildren(o, null, callback);
@@ -128,11 +125,18 @@ return ZUI.def("app.wn.hmaker_resource", {
             },
             idKey : "id",
             nmKey : "nm",
-            icon  : UI.getObjIcon,
+            icon  : function(o){
+                return UI.getObjIcon(o);
+            },
             text  : function(o){
                 return o.nm;
             },
             isLeaf : function(o){
+                // 特殊的目录: lib
+                if(o.pid == UI.getHomeObjId()) {
+                    if('lib' == o.nm)
+                        return true;
+                }
                 return 'DIR' != o.race;
             },
             openWhenActived : false,

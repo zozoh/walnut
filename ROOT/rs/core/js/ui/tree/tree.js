@@ -176,7 +176,7 @@ return ZUI.def("ui.tree", {
         "click .tnd-self" : function(e){
             this.setActived(e.currentTarget);
         },
-        "click .tree-node-actived .tnd-text" : function(e){
+        "click .tree-node-actived > .tnd-self > .tnd-text" : function(e){
             var UI    = this;
             var opt   = UI.options;
             var jText = $(e.currentTarget);

@@ -115,6 +115,7 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
     highlightItem : function(arg, arg1){
         // 得到目标项
         var jItem = this.$item(arg, arg1); 
+        //console.log("jItem.size() :-> ", jItem.size())
         
         // 修改显示
         this.disHighlightItem();
@@ -211,6 +212,8 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
         var UI = this;
         var jq = null;
 
+        //console.log(o, asetup)
+
         // 那么要自动寻找匹配项 ...
         // 根据路径和编辑器给各个项目打分
         var currentWeight = 0;
@@ -246,11 +249,13 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
                 else if(!itemEditor){
                     weight += 1;
                 }
-            }
 
-            // 匹配编辑器再得10分
-            if(asetup && asetup.editors.length>0 && asetup.editors[0] == itemEditor){
-                weight += 10;
+                // 匹配编辑器再得10分
+                if(asetup 
+                    && asetup.editors.length>0 
+                    && asetup.editors[0] == itemEditor){
+                    weight += 10;
+                }
             }
 
             // 如果具备更高的权重，计入候选

@@ -2667,10 +2667,28 @@
             zUtil.setUndefined(opt, "copyStyle", true);
             //...............................................
             // 定义键盘处理函数
-            var __on_keydown = function (e) {
+            var __on_input = function (e) {
                 var jInput = $(this);
                 var jDiv = jInput.parent();
                 var opt = jDiv.data("@OPT");
+                // 如果是自动延伸 ...
+                if (opt.extendWidth) {
+                    var orgW = jDiv.attr("org-width") * 1;
+                    var newW = jInput[0].scrollWidth + jInput[0].scrollLeft;
+                    jDiv.css("width", Math.max(orgW, newW));
+                }
+                if (opt.extendHeight) {
+                    var orgH = jDiv.attr("org-height") * 1;
+                    var newH = jInput[0].scrollHeight + jInput[0].scrollTop;
+                    jDiv.css("height", Math.max(orgH, newH));
+                }
+
+            };
+            var __on_keydown = function(e) {
+                var jInput = $(this);
+                var jDiv = jInput.parent();
+                var opt = jDiv.data("@OPT");
+                //console.log(e.which)
                 // Esc
                 if (27 == e.which) {
                     e.stopPropagation();
@@ -2693,14 +2711,6 @@
                         return;
                     }
                 }
-                // 如果是自动延伸 ...
-                if (opt.extendWidth) {
-                    jDiv.css("width", jInput[0].scrollWidth + jInput[0].scrollLeft);
-                }
-                if (opt.extendHeight) {
-                    jDiv.css("height", jInput[0].scrollHeight + jInput[0].scrollTop);
-                }
-
             };
             //...............................................
             // 定义确认后的处理
@@ -2762,6 +2772,10 @@
                 .data("@OPT", opt)
                 .data("@ELE", jEle)
                 .data("@OLD", val)
+                .attr({
+                    "org-width"  : boxW,
+                    "org-height" : boxH
+                })
                 .css({
                     "width": boxW,
                     "height": boxH,
@@ -2853,6 +2867,7 @@
             // 绑定事件
             jInput.one("blur", __on_ok);
             jInput.one("change", __on_ok);
+            jInput.on("input", __on_input);
             jInput.on("keydown", __on_keydown);
             // jInput.on("click", function(e){
             //     console.log(e.isPropagationStopped());

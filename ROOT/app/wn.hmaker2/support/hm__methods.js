@@ -187,6 +187,13 @@ var methods = {
         // 有了自定义
         if(o.icon)
             return o.icon;
+
+        // 特殊的目录: lib
+        if(o.pid == this.getHomeObjId()) {
+            if('lib' == o.nm) {
+                return '<i class="fa fa-diamond" aria-hidden="true"></i>';
+            }
+        }
         
         // 文件夹
         if('DIR' == o.race)

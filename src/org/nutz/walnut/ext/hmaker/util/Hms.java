@@ -11,7 +11,10 @@ import org.nutz.lang.Maths;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 
 /**
  * 帮助函数集
@@ -257,6 +260,26 @@ public final class Hms {
     public static boolean isNeedTranslate(WnObj o) {
         String suffixName = Strings.sNull(Files.getSuffixName(o.path()), "");
         return Strings.isBlank(suffixName) && o.isType("html");
+    }
+
+    /**
+     * 给定一个站点目录的路径，或者其内任意的文件或者目录。本函数会向上查找，直到找到 tp:"hmaker_site" 的目录为止
+     * 
+     * @param sys
+     *            运行上下文
+     * @param str
+     *            站点目录路径（或者是其内文件）
+     * @return 站点目录对象
+     * @throws "e.cmd.hmaker.noSiteHome"
+     */
+    public static WnObj checkSiteHome(WnSystem sys, String str) {
+        WnObj o = Wn.checkObj(sys, str);
+        while (!o.isType("hmaker_site") && o.hasParent()) {
+            o = o.parent();
+        }
+        if (null == o || !o.isType("hmaker_site"))
+            throw Er.create("e.cmd.hmaker.noSiteHome", str);
+        return o;
     }
 
     // =================================================================

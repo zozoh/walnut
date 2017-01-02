@@ -103,7 +103,12 @@ var Wn = {
             return '<i class="fa fa-home" style="font-size:1.2em;"></i>';
         }
         // 采用自身的文件类型
-        return o.icon || '<i class="oicon" otp="'+this.objTypeName(o)+'"></i>';;
+        return o.icon 
+            || '<i class="oicon '
+                + ('DIR'== o.race ? 'oicon-folder' : '')
+                + '" otp="'
+                + this.objTypeName(o)
+                + '"></i>';;
     },
     //...................................................................
     objTypeName : function(o){
