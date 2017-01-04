@@ -1,5 +1,5 @@
 ---
-title:订单支付流程
+title:支付流程
 author:pw
 tags:
 - 系统
@@ -8,78 +8,66 @@ tags:
 
 # 支付完整流程
 
-// TODO 
+![支付流程图](media/%E6%94%AF%E4%BB%98%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
+
 
 # 商户（域）
 
-1. 任何一个域都可以变成商户(具有贩卖商品的能力)
-2. 商户需遵守一定的规约
-
-在域信息添加商户信息：
+域根目录下只要包含.store目录与对应配置即被当做是一个商户
 
 ```
-{
-    .....             # 域本身信息
-    store_nm          # 商户名称
-    store_desp        # 商户描述
-    
-}
+$HOME/.store
+    store_info.json             # 商户相关基本信息
+    store_logo.jpg              # 商户默认logo
+    /default_home               # 默认商户登陆页面，该目录需link到www相关目录下
+        ....
 ```
 
 # 商品
 
 1. 任何域都可以提供商品
-2. 商品被选中后可以生成一条订单，然后进入订单流程
-3. 商品可以被分享给其他渠道商（域）以供销售
-4. 多个商品可以加入到一个商品包中，然后商品包控制覆盖部分属性
+2. 商品可以包含一样东西或多样东西
+3. 商品可以具有包含已有其他商品，但仅限一层嵌套关系
+4. 商户采用个walnut中thing对象进行管理与存储
 
+商品thing.js定义如下：
 
 ```
 {
-    id    : ID,              # 商品唯一标示
-    tp    : "goods"          # 类型一定是 goods
-    race  : "FILE"           # 一定是文件
-    thumb : ID               # 商品缩略图
-    //...........................................
-    w_th  : ID               # 商品所对应的 thing ID，可以得到更详细的介绍
     w_nm  : "xxxx"           # 商品名称，支持 i18n:xxx 格式
     w_price    : 34.50       # 商品价格，单位元
     w_currency : "RMB"       # 货币单位，默认 RMB
-    //............................................ 以下可以被商品包覆盖
     w_expi : AMS             # 销售过期时间, 之后无法购买
     w_buy_min: 1             # 最少购买件数 不能小于1
-    w_buy_max: 5             # 最多购买件数 小于min表示无限制
-    .....
+    w_buy_max: 5             # 最多购买件数 小于等于min表示无限制
+    w_pkg: [{                # 商品包含其他商品
+        w_id: $THING_ID,
+        num: 1
+    }, {
+        w_id: $THING_ID,
+        num: 1
+    }]
 }
 ```
 
-# 商品包
+w_pkg默认为空，则该商品为单一商品
+w_pkg不为空时，w_price根据商品包内价格自动计算，但如果强制设置了w_price，则使用w_price价格（类似设定折后价）
 
-1. 多个商品放在一个商品包内，会有专门的页面对包内商品进行展示
-2. 商品包的属性可以影响包内的商品，比如整体打折等，打包销售等
-3. 商品包部分属性会覆盖包内商品
+# 折扣策略与优惠券
+
+1. 商户可以主动发放优惠券，或者设定整体折扣策略
+2. 折扣策略与优惠券类似商品，都是采用thing结构
+
+折扣策略thing.js定义 (discount)
 
 ```
 {
-    tp    : "d-goods"        # 类型一定是 d-goods
-    race  : "DIR"            # 一定是目录
-    thumb : ID               # 商品包缩略图
-    //...........................................
-    w_nm  : "xxxx"           # 商品名称，支持 i18n:xxx 格式
-    w_price    : 34.50       # 商品包价格，没有设置的话则根据包内商品自动计算
-    w_price_off: 0.5         # 价格折扣，没有设置包价格的话，自动计算包内总值 * 折扣
-    w_currency : "RMB"       # 货币单位，默认 RMB
-    w_bundle   : false       # 是否打包销售，false可以单独选择，true则必须一起销售
-    w_bundle_min: 1          # 打包销售，最少选择数量 不能小于1
-    w_bundle_max: 0          # 打包销售，最多选择数量 小于min表示无限制
-    //............................................ 以下可以覆盖包内商品
-    w_expi : AMS             # 销售过期时间, 之后无法购买
-    .....
+    dis_id ： ID
+    dis_nm :  "xxxx"           # 名称，支持 i18n:xxx 格式
+    dis_mode: ""               # 折扣模式
 }
-
-PS：w_price，w_price_off 相互影响，设置一个两一个自动计算，以w_price为主
-
 ```
+
 
 # 订单
 
@@ -87,15 +75,13 @@ PS：w_price，w_price_off 相互影响，设置一个两一个自动计算，�
 
 ```
 /sys/order/
-    /商户1(域)
-        order_xxxxxx
-        order_yyyyyy
-    /商户2(域)
-        order_xxxxxx
-        order_yyyyyy  
+        ord_$dmn1_xxxxxx
+        ord_$dmn1_yyyyyy
+        ord_$dmn2_xxxxxx
+        ord_$dmn2_yyyyyy
 ```
 
-订单生成，查询等命令有 *cmd_order* 实现
+订单生成，查询等命令有 *cmd_pay* 实现
 
 
 1. n件(n>0)商品可以组成一个订单
@@ -108,36 +94,42 @@ PS：w_price，w_price_off 相互影响，设置一个两一个自动计算，�
 {
     tp    : "order"           # 类型一定是 order
     race  : "FILE"            # 一定是目录
-    //........................................... 商品信息
-    order_goods : [{              # 可以是商品，可以是商品包
-        id: ID
-        tp: "goods"
+    //........................................... 购买的商品
+    ord_ws : [{                  #  商品列表
+        id: w_id
         w_nm  : "xxxx"            # 商品名称
         w_price    : 34.50        # 商品价格
         w_buy_num  : 1            # 购买数量
     },
     {
-        id: ID
-        tp: "d-goods"
+        id: w_id
         w_nm  : "xxxx"            # 商品名称
         w_price    : 34.50        # 商品价格
-        w_buy_num  : 1            # 购买数量
-        items: [{
-          ....                    # 商品
+        w_num      : 1            # 购买数量
+        w_pkg: [{                 # 商品包含其他商品
+            w_nm  : "xxxx"        # 商品名称
+            w_price    : 34.50    # 商品价格            
+            w_num: 1              # 购买数量
+        }, {
+           w_nm  : "xxxx"         # 商品名称
+           w_price    : 34.50     # 商品价格            
+           w_num: 1               # 购买数量        
         }]
     }],
-    order_price    : 34.50       # 订单价格
-    order_currency : "RMB"       # 订单货币单位
-    store_id       : ID          # 商户域ID
-    store_nm       : "xxxxx"     # 商户域名称
+    ord_ds: [{                    # 折扣列表
+        id: dis_id,
+        dis_nm: "xxx",            # 折扣名称
+    }],
+    ord_price      : 34.50       # 订单价格， （商品价格-折扣价格）
+    ord_currency   : "RMB"       # 订单货币单位
+    ord_status     : "xxxx"      # 订单状态 未支付->支付->消费
+    ord_expi       : AMS         # 订单过期时间
     //........................................... 购买人信息
-    purchaser:     : ID          # 购买人
-    purchaser_nm   : "xxxxx"     # 购买人名称
+    sto_id         : ID          # 商户域ID
+    sto_nm         : "xxxxx"     # 商户域名称
     //........................................... 支付信息
-    order_status   : "xxxx"      # 订单状态 未支付->支付->消费
-    order_expi     : AMS         # 订单过期时间
+    // TODO    
     
-    // TODO
 }
 ```
 
@@ -149,7 +141,36 @@ PS：w_price，w_price_off 相互影响，设置一个两一个自动计算，�
 3. 订单状态修改，通知商户，购买者
 
 
-// TODO
 
 
+# 命令
+
+cmd_payment支持以下几个子命令
+
+1. 商品命令，查看修改当前域下商品信息
+2. 折扣命令，查看修改当前域下折扣信息
+3. 订单命令，查看系统中关于本域的订单信息
+4. 支付命令，完成订单的支付与回调
+
+
+
+## 商品命令(payment w)
+
+```
+# 查看当前商品
+payment w list
+
+```
+
+## 折扣命令(payment d)
+
+```
+# 查看当前优惠策略
+payment d list
+
+```
+
+## 订单命令(payment o)
+
+## 支付命令(payment p)
 
