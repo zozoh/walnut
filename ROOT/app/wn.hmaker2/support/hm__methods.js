@@ -182,6 +182,22 @@ var methods = {
         var oHome = this.getHomeObj();
         return Wn.getRelativePath(oHome, o);
     },
+    // 得到一个对象在 HMaker 里表示的 Text
+    getObjText : function(o) {
+        // 有了自定义
+        if(o.title)
+            return o.title;
+
+        // 特殊的目录: lib
+        if(o.pid == this.getHomeObjId()) {
+            if('lib' == o.nm) {
+                return this.msg("hmaker.lib.title");
+            }
+        }
+
+        // 其他
+        return o.nm;
+    },
     // 得到一个对象在 HMaker 里表示的 Icon HTML
     getObjIcon : function(o) {
         // 有了自定义

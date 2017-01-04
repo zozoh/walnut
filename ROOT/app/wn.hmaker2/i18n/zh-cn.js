@@ -22,6 +22,10 @@ define({
             "newsite_warn_tip" : "站点名称已经被使用，请重新输入一个名字",
             "newsite_nocopy" : "空",
         },
+        "lib" : {
+            "title" : "共享库",
+            "blank" : "请选择一个组件显示其内容",
+        },
         "prop" : {
             "title" : '属性',
             "tt_edit"   : '<i class="zmdi zmdi-puzzle-piece"></i><b>控件属性</b>',

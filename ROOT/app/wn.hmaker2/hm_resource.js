@@ -129,7 +129,7 @@ return ZUI.def("app.wn.hmaker_resource", {
                 return UI.getObjIcon(o);
             },
             text  : function(o){
-                return o.nm;
+                return UI.getObjText(o);
             },
             isLeaf : function(o){
                 // 特殊的目录: lib

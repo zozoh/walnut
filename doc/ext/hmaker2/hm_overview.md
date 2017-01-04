@@ -20,14 +20,17 @@ active:page      |               | 页面被激活
 active:block     | jBlock        | 块被激活
 active:area      | jArea         | 栏被激活
 active:com       | jCom          | 组件被激活
-change:block     | {..}          | 块被修改
+hange:block     | {..}          | 块被修改
 change:area      | {..}          | 栏被修改
 change:com       | {..}          | 组件被修改
 change:com:ele   | {..}          | 组件内元素被修改后
 show:com:ele     | --            | 需要显示控件的扩展属性面板
 hide:com:ele     | --            | 需要隐藏控件的扩展属性面板
 active:file      | o             | 文件夹视图里文件被激活
-blur:file        |               | 文件夹视图里文件被取消激活
+blur:file        | nextObj       | 文件夹视图里文件被取消激活
+active:lib       |               | 库文件夹被激活
+active:libItem   | o             | 库对象被激活
+blur:libItem     | nextObj       | 库对象被取消激活
 reload:folder    |               | 通知文件夹视图重新刷新自己的子节点
 change:site:skin |               | 站点的皮肤发生改变
 

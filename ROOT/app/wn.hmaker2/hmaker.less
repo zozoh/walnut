@@ -174,6 +174,40 @@
         background: @cb0; color:@cf0; font-size:@f2;
     }
     //.............................................................
+    // 库管界面
+    @libH : 32px;
+    @libW : 180px;
+    .hm-lib {
+        position: relative;
+        > * {
+            position: absolute;
+        }
+        > header {
+            top:0;left:0;right:0; height: @libH; line-height: @libH;
+            background: @cb2; color:@cf2;
+            border:1px solid @cborder1;
+            border-top:0;
+            padding:0 @d4;
+            > span b {margin:0 @d1; font-weight: normal;}
+        }
+        > nav {
+            top:@libH;bottom:0;left:0;width:@libW;
+            background: @cb3; color:@cf3;
+            padding:0; border-left:1px solid @cborder1;
+            .list-item b {margin:0 @d1; font-weight: normal;}
+        }
+        > section {
+            top:@libH;bottom:0;left:@libW;right:0;
+            border:1px solid @cborder1;
+            border-top:0; border-bottom:0;
+            background: @cb1; color:@c2;
+            .blank-tip {
+                font-size:@f4; padding:@d8; 
+                em {font-style: normal; margin: 0 @d2;}
+            }
+        }
+    }
+    //.............................................................
 }
 //.............................................................
 // 发布面板

@@ -9,6 +9,7 @@ $z.declare([
     'app/wn.hmaker2/hm_page',
     'app/wn.hmaker2/hm_prop',
     'app/wn.hmaker2/hm_folder',
+    'app/wn.hmaker2/hm_lib',
     'app/wn.hmaker2/hm_code',
     'app/wn.hmaker2/hm_other',
 ], function(ZUI, Wn, MaskUI,
@@ -17,6 +18,7 @@ $z.declare([
     HmPageUI, 
     HmPropUI,
     HmFolderUI,
+    HmLibUI,
     HmCodeUI,
     HmOtherUI){
 //==============================================
@@ -82,7 +84,13 @@ return ZUI.def("app.wn.hmaker2", {
 
         // 如果是文件夹，那么显示 FolderUI
         if('DIR' == o.race) {
-            MainUI = HmFolderUI;
+            // 特殊的目录: lib
+            if(o.pid == UI.getHomeObjId()) {
+                if('lib' == o.nm)
+                    MainUI = HmLibUI
+            }
+            // 默认采用文件夹方式浏览
+            MainUI = MainUI || HmFolderUI;
         }
         // 如果是网页，显示 PageUI
         else if(/^text\/html$/.test(o.mime)){

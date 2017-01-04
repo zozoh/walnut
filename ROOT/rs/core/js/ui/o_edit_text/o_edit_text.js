@@ -15,11 +15,21 @@ return ZUI.def("ui.o_edit_text", {
     css  : "theme/ui/o_edit_text/o_edit_text.css",
     //...............................................................
     update : function(o) {
-        var UI = this;
-        UI.$el.data("@OBJ", o);
-        Wn.read(o, function(content){
-            UI.arena.find("textarea").val(content);
-        });
+        var UI  = this;
+        var opt = UI.options;
+
+        // 清除值
+        if(!o) {
+            UI.$el.removeData("@OBJ");
+            UI.arena.find('textarea').val('');
+        }
+        // 显示内容
+        else {
+            UI.$el.data("@OBJ", o);
+            Wn.read(o, function(content){
+                UI.arena.find("textarea").val(content);
+            }, !opt.useCache);
+        }
     },
     //...............................................................
     getCurrentEditObj : function(){
