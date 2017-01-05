@@ -14,8 +14,18 @@ var parse_dom = function (html) {
     
     // 找到要加入 HTML 的位置并替换 HTML
     var jCon = UI.findDomParent();
-    if(jCon && jCon.length > 0)
+    if(jCon && jCon.length > 0) {
         jCon.html(html);
+
+        // 展开内嵌的 DOM 节点
+        jCon.find('[hm-inner-html]').each(function(){
+            var jq = $(this);
+            var ph = jq.attr("hm-inner-html");
+            seajs.use(ph, function(re){
+                jq.html(re);
+            });
+        });
+    }
 
     // 分析代码模板
     var map = UI._code_templates;
@@ -1312,9 +1322,10 @@ ZUI.checkByKey = function(uiKey){
 
 // 异步读取全局的消息字符串
 ZUI.loadi18n = function (path, callback) {
-    path = $z.tmpl(path)({lang: window.$zui_i18n || "zh-cn"});
+    var base = {lang: window.$zui_i18n || "zh-cn"};
+    path = $z.tmpl(path)(base);
     require.async(path, function (mm) {
-        ZUI.g_msg_map = mm || {};
+        ZUI.g_msg_map = _.extend(mm || {}, base);
         callback();
     });
 };

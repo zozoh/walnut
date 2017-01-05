@@ -5,12 +5,14 @@ $z.declare([
     'ui/menu/menu',
     'app/wn.hmaker2/support/hm__methods_panel',
     'app/wn.hmaker2/hm_prop_folder',
+    'app/wn.hmaker2/hm_prop_lib',
     'app/wn.hmaker2/hm_prop_page',
     'app/wn.hmaker2/hm_prop_edit',
     'app/wn.hmaker2/hm_prop_other',
 ], function(ZUI, Wn, MenuUI, 
     HmPanelMethods,
     PropFolderUI,
+    PropLibUI,
     PropPageUI,
     PropEditUI,
     PropOtherUI){
@@ -26,6 +28,7 @@ var html = function(){/*
     </header>
     <section>
         <div class="hmpp-con hmpp-con-folder"  ui-gasket="folder"></div>
+        <div class="hmpp-con hmpp-con-lib"     ui-gasket="lib"></div>
         <div class="hmpp-con hmpp-con-page"    ui-gasket="page"></div>
         <div class="hmpp-con hmpp-con-edit"    ui-gasket="edit"></div>
         <div class="hmpp-con hmpp-con-other"   ui-gasket="other"></div>
@@ -40,9 +43,11 @@ return ZUI.def("app.wn.hm_prop", {
     init : function() {
         var UI = HmPanelMethods(this);
         
-        UI.listenBus("active:com",    UI.onActiveCom);
-        UI.listenBus("active:page",   UI.onActivePage);
+        
         UI.listenBus("active:folder", UI.onActiveFolder);
+        UI.listenBus("active:lib",    UI.onActiveLib);
+        UI.listenBus("active:page",   UI.onActivePage);
+        UI.listenBus("active:com",    UI.onActiveCom);
         UI.listenBus("active:other",  UI.onActiveOther);
     },
     //...............................................................
@@ -56,7 +61,15 @@ return ZUI.def("app.wn.hm_prop", {
         }).render(function(){
             UI.defer_report("folder");
         });
-        
+
+        // 库
+        new PropLibUI({
+            parent : UI,
+            gasketName : "lib"
+        }).render(function(){
+            UI.defer_report("lib");
+        });
+
         // 页
         new PropPageUI({
             parent : UI,
@@ -82,7 +95,17 @@ return ZUI.def("app.wn.hm_prop", {
         });
 
         // 返回延迟加载
-        return ["folder", "page", "edit", "other"];
+        return ["folder", "page", "lib", "edit", "other"];
+    },
+    //...............................................................
+    onActiveFolder : function(){
+        this.showProp("folder");
+        //this.setTitle("hmaker.prop.tt_folder");
+    },
+    //...............................................................
+    onActiveLib : function(){
+        this.showProp("lib");
+        //this.setTitle("hmaker.prop.tt_folder");
     },
     //...............................................................
     onActiveCom : function(uiCom) {
@@ -93,11 +116,6 @@ return ZUI.def("app.wn.hm_prop", {
     onActivePage : function(){
         this.showProp("page");
         //this.setTitle("hmaker.prop.tt_page");
-    },
-    //...............................................................
-    onActiveFolder : function(){
-        this.showProp("folder");
-        //this.setTitle("hmaker.prop.tt_folder");
     },
     //...............................................................
     onActiveOther : function(){

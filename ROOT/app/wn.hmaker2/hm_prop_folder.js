@@ -13,8 +13,7 @@ var html = `
     <section class="pf-preview" ui-gasket="preview"></section>
     <section class="pf-meta"    ui-gasket="meta"></section>
     <section class="pf-upload"  ui-gasket="upload"></section>
-</div>
-`;
+</div>`;
 //==============================================
 return ZUI.def("app.wn.hm_prop_folder", {
     dom  : html,

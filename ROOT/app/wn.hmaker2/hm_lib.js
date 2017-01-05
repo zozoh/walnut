@@ -46,9 +46,11 @@ return ZUI.def("app.wn.hmaker_lib", {
                 UI.fire("active:libItem", o);
             },
             on_blur : function(jItems, nextObj, nextItem){
-                UI._show_blank();
-                UI.arena.find(">header>.item").empty();
-                UI.fire("blur:libItem", nextObj);
+                if(!nextObj){
+                    UI._show_blank();
+                    UI.arena.find(">header>.item").empty();
+                    UI.fire("blur:libItem", nextObj);
+                }
             }
         }).render(function(){
             UI.defer_report("list");
@@ -63,15 +65,22 @@ return ZUI.def("app.wn.hmaker_lib", {
     //...............................................................
     _show_libItem : function(o) {
         var UI = this;
-        // 显示代码编辑器
-        new EditTextUI({
-            parent : UI,
-            gasketName : "code",
-            showMeta : false,
-        }).render(function(){
-            this.update(o);
-        });
+        // 加载代码编辑器
+        if("ui.o_edit_text" != UI.gasket.code.uiName) {
+            new EditTextUI({
+                parent : UI,
+                gasketName : "code",
+                showMeta : false,
+            }).render(function(){
+                this.update(o);
+            });
+        }
+        // 直接更新代码编辑器
+        else {
+            UI.gasket.code.update(o);
+        }
     },
+    //...............................................................
     _show_blank : function(){
         var UI = this;
         // 显示代码编辑器
@@ -100,7 +109,7 @@ return ZUI.def("app.wn.hmaker_lib", {
         
         // 准备命令
         var cmdText = 'hmaker lib id:'+UI.getHomeObjId()+' -list obj';
-        console.log(cmdText);
+        //console.log(cmdText);
 
         // 更新显示对象 
         UI.showLoading();
@@ -108,17 +117,17 @@ return ZUI.def("app.wn.hmaker_lib", {
             UI.hideLoading();
 
             var list = $z.fromJson(re);
-            console.log(list)
+            //console.log(list)
             UI.gasket.list.setData(list);
         });
     },
     //...............................................................
     getCurrentEditObj : function(){
-        return this.gasket.code.getCurrentEditObj();
+        return $z.invoke(this.gasket.code, "getCurrentEditObj", []);
     },
     //...............................................................
     getCurrentTextContent : function(){
-        return this.gasket.code.getCurrentTextContent();
+        return $z.invoke(this.gasket.code, "getCurrentTextContent", []);
     },
     //...............................................................
     getActions : function(){

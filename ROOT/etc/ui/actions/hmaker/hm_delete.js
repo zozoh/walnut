@@ -14,6 +14,18 @@
         // 得到要删除的对象
         var theObj = UI.getCurrentEditObj();
         var list;
+        
+        // 没有数据
+        if(!theObj) {
+        	alert("e.act.noapi_obj");
+        	return;
+        }
+        
+        // 警告信息
+        if(_.isString(theObj)) {
+        	alert(UI.msg(theObj));
+        	return;
+        }
         		
 		// 是目录
 		if("DIR" == theObj.race) {

@@ -109,7 +109,7 @@ var methods = {
             var v2 = $z.tmpl(val, {
                 escape: /\$\{([\s\S]+?)\}/g
             })(pc);
-            console.log(key, val, v2);
+            //console.log(key, val, v2);
 
             // 请求参数
             m = /^@([\w\d_-]+)(<(.+)>)?$/.exec(v2);
