@@ -38,6 +38,15 @@ var methods = {
         this.$el.attr("skin", skin||null).addClass(skin);
     },
     //........................................................
+    // 获取组件的库
+    getComLibName : function(){
+        return this.$el.attr("lib");
+    },
+    // 设置或者移除（null）一个控件的共享库组件关联
+    setComLibName : function(lib) {
+        this.$el.attr("lib", lib || null);
+    },
+    //........................................................
     getIconHtml : function() {
         return this.msg('hmaker.com.' + this.getComType() + '.icon');
     },

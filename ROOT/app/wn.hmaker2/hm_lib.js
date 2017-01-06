@@ -11,7 +11,7 @@ $z.declare([
 var html = `
 <div class="ui-arena hm-lib" ui-fitparent="yes">
     <header>
-        <span class="lib"><i class="fa fa-diamond"></i><b>{{hmaker.lib.title}}</b></span>
+        <span class="lib"><%=hmaker.lib.icon%><b>{{hmaker.lib.title}}</b></span>
         <span class="item"></span>
     </header>
     <nav ui-gasket="list"></nav>
@@ -34,14 +34,14 @@ return ZUI.def("app.wn.hmaker_lib", {
             parent : UI,
             gasketName : "list",
             escapeHtml : false,
-            icon : '<i class="zmdi zmdi-shape"></i>',
+            icon : UI.msg("hmaker.lib.icon_item"),
             text : function(o) {
                 return '<b>' + o.nm + '</b>';
             },
             on_actived : function(o){
                 UI._show_libItem(o);
                 UI.arena.find(">header>.item").html(
-                    '<i class="zmdi zmdi-shape"></i><b>'+o.nm+'</b>'
+                    UI.msg("hmaker.lib.icon_item") + '<b>' + o.nm + '</b>'
                 );
                 UI.fire("active:libItem", o);
             },

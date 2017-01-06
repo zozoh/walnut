@@ -23,8 +23,12 @@ define({
             "newsite_nocopy" : "空",
         },
         "lib" : {
-            "title" : "共享库",
-            "blank" : "请选择一个组件显示其内容",
+            "icon"      : '<i class="fa fa-diamond"></i>',
+            "icon_item" : '<i class="zmdi zmdi-shape"></i>',
+            "title"     : "共享库",
+            "item"      : "组件",
+            "blank"     : "请选择一个组件显示其内容",
+            "create"    : "加为组件",
         },
         "prop" : {
             "title" : '属性',

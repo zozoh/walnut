@@ -10,12 +10,16 @@ var html = `
     <div class="hpl-info">
         <header>
             <h5>{{hmaker.lib.title}}</h5>
-            <div><i class="fa fa-diamond"></i></div>
+            <div><%=hmaker.lib.icon%></div>
         </header>
         <section hm-inner-html="app/wn.hmaker2/i18n/{{lang}}/help_lib.html"></section>
     </div>
-    <section class="hpl-item">
-    </section>
+    <div class="hpl-item">
+        <header>
+            <h5><em>{{hmaker.lib.item}}</em><b></b></h5>
+            <div><%=hmaker.lib.icon_item%></div>
+        </header>
+    </div>
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_prop_lib", {
@@ -31,20 +35,28 @@ return ZUI.def("app.wn.hm_prop_lib", {
     //...............................................................
     redraw : function() {
         var UI = this;
-
-        
     },
     //...............................................................
     showLibItem : function(o) {
         var UI = this;
+        //console.log("showLibItem", o);
 
-        console.log("showLibItem", o);
+        // 显示对应区块
+        var jDiv = UI.arena.children('div').removeAttr("show")
+            .filter(".hpl-item").attr("show","yes");
+        
+        // 显示组件信息
+        jDiv.find(">header>h5>b").text(o.nm);
     },
     //...............................................................
     showHelp : function() {
         var UI = this;
-
         console.log("showHelp");
+
+        // 显示对应区块
+        UI.arena.children('div').removeAttr("show")
+            .filter(".hpl-info").attr("show","yes");
+        
     },
     //...............................................................
 });

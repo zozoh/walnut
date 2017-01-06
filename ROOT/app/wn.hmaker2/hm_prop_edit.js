@@ -15,6 +15,7 @@ var html = `
 <div class="ui-arena hm-prop-edit" ui-fitparent="yes">
     <div class="hm-prop-head">
         <div class="hm-com-info"></div>
+        <div class="hm-com-lib"></div>
     </div>
     <div class="hm-prop-tabs">
         <ul class="hm-W">
@@ -145,14 +146,33 @@ return ZUI.def("app.wn.hm_prop_edit", {
         // 得到组件信息
         var comId = uiCom.getComId();
         var ctype = uiCom.getComType();
+        var libNm = uiCom.getComLibName();
 
-        // 准备显示的 HTML
+        // 准备信息显示的 HTML
         var html = '<span>' + UI.msg("hmaker.com."+ctype+".icon") + '</span>';
         html += '<b>' + UI.msg("hmaker.com."+ctype+".name") + '</b>';
         html += '<em>' + comId + '</em>';
 
-        // 设置标题
+        // 设置信息
         UI.arena.find('>.hm-prop-head>.hm-com-info').html(html);
+
+        // 准备组件看的 HTML
+        var jLib = UI.arena.find('>.hm-prop-head>.hm-com-lib');
+        html = '';
+        if(libNm) {
+            html += '<span>' + UI.msg("hmaker.lib.icon_item") + '</span>';
+            html += '<b>' + libNm + '</b>';
+            jLib.attr("link-lib", "yes");
+        }
+        else {
+            html += '<span>' + UI.msg("hmaker.lib.icon") + '</span>';
+            html += '<em>' + UI.msg("hmaker.lib.create") + '</em>';
+            jLib.attr("link-lib", "no");
+        }
+
+        // 设置
+        jLib.html(html);
+
     },
     //...............................................................
     doChangeBlock : function(mode, uiCom, block) {

@@ -207,7 +207,7 @@ var methods = {
         // 特殊的目录: lib
         if(o.pid == this.getHomeObjId()) {
             if('lib' == o.nm) {
-                return '<i class="fa fa-diamond" aria-hidden="true"></i>';
+                return this.msg('hmaker.lib.icon');
             }
         }
         
