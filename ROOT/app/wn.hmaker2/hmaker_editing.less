@@ -138,10 +138,23 @@ body {
 // 激活块的辅助柄
 .hm-com[hm-actived] {
     opacity: 1.0;
-     > .hm-com-W > .hm-com-assist > * {
+    > .hm-com-W > .hm-com-assist > * {
         display: block;
     }
 }
+
+// 错误的组件
+.hm-com[invalid-lib]{
+    .invalid-lib-tip {
+        padding:12px; font-size:@f3; color:#F00;
+        border:2px dashed @c6; background: #FFF;
+        b  {margin:0 4px;}
+        em {color: #080; margin-right:6px;}
+        u  {color:#08F;  cursor: pointer;}
+        u:hover {color:#00F;}
+    }
+}
+
 //............................................................
 // 移动鼠标的遮罩
 .hm-page-move-mask {@noselect();
@@ -406,6 +419,7 @@ body {
 // Text
 .hm-com-text{
     cursor: pointer;
+    .hmc-text {min-height: 24px;}
     .hmc-text-tipicon {
         position: absolute; top:0; left: 0; padding:@d0;
         background: rgba(0,0,0,0.3); color:#FFF;
@@ -415,13 +429,6 @@ body {
     }
 }
 .hm-com-text[hm-actived]:hover {
-    > .hm-com-W {
-        > .hm-com-assist {
-            >.rsz-hdl1{
-                border-color: #080;
-            }
-        }
-    }
     .hmc-text-tipicon {display: block;}
 }
 //............................................................

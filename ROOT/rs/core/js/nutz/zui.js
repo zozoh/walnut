@@ -1145,6 +1145,112 @@ ZUIObj.prototype = {
                     }).render();
                 });
         });
+    },
+    //...................................................................
+    // 提供一个通用的确认对话框
+    confirm: function(msgKey, opt, onOk, onCancel) {
+        var UI = this;
+
+        // 分析参数
+        if(_.isFunction(opt)) {
+            onCancel = onOk;
+            onOk     = opt;
+            opt      = {};
+        }
+        opt = opt || {};
+        $z.setUndefined(opt, "width",  400);
+        $z.setUndefined(opt, "height", 240);
+        $z.setUndefined(opt, "title", UI.msg("confirm"));
+        $z.setUndefined(opt, "btnYes", "yes");
+        $z.setUndefined(opt, "btnNo",  "no");
+        $z.setUndefined(opt, "icon",  '<i class="zmdi zmdi-help-outline"></i>');
+
+        // 显示遮罩层
+        seajs.use("ui/mask/mask", function(MaskUI){
+            new MaskUI(_.extend({}, opt, {
+                css  : "theme/ui/pop/pop.css",
+                dom  : "ui/pop/pop.html",
+                arenaClass : "pop-msg pop-confirm",
+                events : {
+                    "click .pm-btn-ok" : function(){
+                        this.close();
+                        $z.doCallback(onOk, [], UI);
+                    },
+                    "click .pm-btn-cancel" : function(){
+                        this.close();
+                        $z.doCallback(onCancel, [], UI);
+                    }
+                }
+            })).render(function(){
+                // 设置标题
+                if(opt.title)
+                    this.$main.find(".pm-title").html(opt.title);
+                else
+                    this.$main.find(".pm-title").remove();
+
+                // 设置按钮文字
+                this.$main.find(".pm-btn-ok").html(UI.msg(opt.btnYes));
+                this.$main.find(".pm-btn-cancel").html(UI.msg(opt.btnNo));
+
+                // 设置显示内容
+                var html = '';
+                if(opt.icon) {
+                    html += '<div class="pop-msg-icon">'+opt.icon+'</div>';
+                }
+                html += '<div class="pop-msg-text">' + UI.msg(msgKey) + '</div>';
+                this.$main.find(".pm-body").html(html);
+            })
+        });
+    },
+    //...................................................................
+    // 提供一个通用的确认对话框
+    alert: function(msgKey, opt, callback) {
+        var UI = this;
+
+        // 分析参数
+        if(_.isFunction(opt)) {
+            callback = opt;
+            opt      = {};
+        }
+        opt = opt || {};
+        $z.setUndefined(opt, "width",  400);
+        $z.setUndefined(opt, "height", 240);
+        $z.setUndefined(opt, "title", UI.msg("info"));
+        $z.setUndefined(opt, "btnOk", "ok");
+        $z.setUndefined(opt, "icon",  '<i class="zmdi zmdi-info"></i>');
+
+        // 显示遮罩层
+        seajs.use("ui/mask/mask", function(MaskUI){
+            new MaskUI(_.extend({}, opt, {
+                css  : "theme/ui/pop/pop.css",
+                dom  : "ui/pop/pop.html",
+                arenaClass : "pop-msg pop-info",
+                events : {
+                    "click .pm-btn-ok" : function(){
+                        this.close();
+                        $z.doCallback(callback, [], UI);
+                    }
+                }
+            })).render(function(){
+                // 设置标题
+                if(opt.title)
+                    this.$main.find(".pm-title").html(opt.title);
+                else
+                    this.$main.find(".pm-title").remove();
+
+                // 设置按钮文字
+                this.$main.find(".pm-btn-ok").html(UI.msg(opt.btnOk));
+                this.$main.find(".pm-btn-cancel").remove();
+
+                // 设置显示内容
+                var html = '';
+                if(opt.icon) {
+                    html += '<div class="pop-msg-icon">'+opt.icon+'</div>';
+                }
+                html += '<div class="pop-msg-text">' + UI.msg(msgKey) + '</div>';
+                this.$main.find(".pm-body").html(html);
+            })
+        });
     }
 };
 

@@ -32,9 +32,6 @@ var methods = {
     //...............................................................
     setup_page_editing : function(){
         var UI = this;
-
-        // 建立上下文: 这个过程，会把 load 的 iframe 内容弄到 edit 里
-        UI._rebuild_context();
         
         // 表示网页的编辑器模式
         UI._C.iedit.$root.attr("hmaker", "2.0")
@@ -81,7 +78,7 @@ var methods = {
 
         // 模拟第一个块被点击
         window.setTimeout(function(){
-            UI._C.iedit.$body.find(".hm-com").last().click();
+            UI._C.iedit.$body.find(".hm-com").first().click();
         }, 500);
     },
     //...............................................................
@@ -142,13 +139,34 @@ var methods = {
         // 首先所有元素的点击事件，全部禁止默认行为
         UI._C.iedit.$root.on("click", "*", function(e){
             e.preventDefault();
-            // console.log("hm_page.js: click", this.tagName, this.className, e.target);
+            //console.log("hm_page.js: click", this.tagName, this.className, e.target);
 
             var jq = $(this);
 
-            // 如果点在了块里，激活块，然后就不要冒泡了
-            if(jq.hasClass("hm-com")){
+            // 如果是删除错误组件的 ...
+            if(jq.hasClass("invalid-lib-del")){
                 e.stopPropagation();
+
+                // 得到组件 ID
+                var jCom    = jq.closest(".hm-com");
+                var comId   = jCom.attr("id");
+                var libName = jCom.attr("lib");
+                var msg = UI.msg("hmaker.lib.confirm_del_invalid") 
+                            + ':<em>' + libName + '</em>'
+                            + ' <b>(#' + comId + ')</b>'
+
+                // 询问用户
+                UI.confirm(msg, function(){
+                    jCom.remove();
+                })
+            }
+            // 如果点在了块里，激活块，然后就不要冒泡了
+            else if(jq.hasClass("hm-com")){
+                e.stopPropagation();
+
+                // 无视错误的组件
+                if(jq.attr("invalid-lib"))
+                    return;
                 
                 // 已经激活就不再激活了
                 if(jq.attr("hm-actived"))
@@ -234,6 +252,11 @@ var methods = {
             compactDropsRect : "NE",
             findTrigger : function(e) {
                 var jq    = $(e.target);
+                
+                // 无视错误的组件
+                if(jq.closest(".hm-com").attr("invalid-lib"))
+                    return null;
+
                 // 辅助节点
                 var jAi   = jq.closest(".hmc-ai");
                 if(jAi.length > 0)

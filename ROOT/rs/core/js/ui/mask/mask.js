@@ -61,6 +61,8 @@ return ZUI.def("ui.mask", {
         if(opt.closer === false) {
             this.arena.find(".ui-mask-closer").hide();
         }
+        if(opt.mainClass)
+            UI.$main.addClass(opt.mainClass);
 
         // 监控 esc 事件
         if(!(opt.escape === false)) {
@@ -70,6 +72,10 @@ return ZUI.def("ui.mask", {
                     this.close();
             });
         }
+        
+        // 最后确保窗口聚焦
+        window.focus();
+
         // 如果声明了主体 UI
         var uiType = (opt.setup||{}).uiType;
         if(uiType){

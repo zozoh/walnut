@@ -1,5 +1,27 @@
 @import (reference) "../ui";
 
+.hmaker .hm-prop-edit[link-lib="yes"] {
+    .hm-prop-head {
+        background:@c0; color:#FFF;
+        > .hm-com-info {
+            float: left;
+            > em   {color:rgba(255,255,255,0.8);}
+            > em:hover {border:1px solid rgba(255,255,255,0.2);}
+        }
+        > .hm-com-lib:hover {
+            > b {text-decoration: underline;}
+        }
+    }
+}
+
+.hmaker .hm-prop-edit[link-lib="no"] .hm-prop-head {
+    > .hm-com-lib {color:@clink;}
+    > .hm-com-lib:hover {
+        color:@clink_hover;
+        > em {text-decoration: underline;}
+    }
+}
+
 // 编辑属性面板
 @ppCInfo : 32px;
 @ppTabH  : 28px;
@@ -11,10 +33,10 @@
         color:@cf2; background: @cb2; border-top:1px solid @cborder1;
         > div {  @noselect();
             > *  {display:inline-block;vertical-align: middle;}
-            > b  {margin:0 @d1;}
         }
         > .hm-com-info {
             float: left;
+            > b  {margin:0 @d1;}
             > em   {color:@c3; font-style: normal;}
             > em:before {display:inline; content:"#";}
             > em:hover {border:1px solid rgba(0,0,0,0.2);}
@@ -23,12 +45,6 @@
             float:right; cursor: pointer;
             > span {margin-right:@d1;}
             > em   {font-style: normal;}
-        }
-        > .hm-com-lib[link-lib="yes"] {background:@clink; color:#FFF;}
-        > .hm-com-lib[link-lib="no"] {color:@clink;}
-        > .hm-com-lib[link-lib="no"]:hover {
-            color:@clink_hover;
-            > em {text-decoration: underline;}
         }
     }
     .hm-prop-head:after{@clr();}
@@ -348,6 +364,35 @@
             }
         }
     }
+}
+// 创建属性的界面
+.hm-prop-lib-create {
+    padding:@d4;
+    > header {
+        padding:@d4 0; font-size:@f2; color:@c2;
+    }
+    > section {
+        input {@input();padding:@d3; font-size:@f3; width:100%;}
+        input:focus {@input_focus();}
+        input[readonly]{opacity: 0.4; @input();}
+    }
+    > footer {
+        padding:@d3 0; 
+        .tip {float:left;}
+        .tip[mode="ok"]   {color:@c7;}
+        .tip[mode="warn"] {color:@c6;}
+        .ado {
+            float:right;
+            > span { margin-right:@d2;}
+            > b { opacity: .4; @btn(); padding:@d3 @d5;}
+            > b[enable] {opacity: 1.0;}
+            > b[enable]:hover {@btn_hover();}
+            .ing {display: none;}
+        }
+    }
+}
+.hm-prop-lib-create[ing] {
+    footer > .ado > .ing {display: inline-block;}
 }
 //............................................................
 // 面板上的皮肤选择器对象

@@ -179,6 +179,10 @@ return ZUI.def("app.wn.hmaker_page", {
         
         // 确保控件内任意一个元素均等效
         jCom = jCom.closest(".hm-com");
+
+        // 如果是无效控件，无视
+        if(jCom.attr("invalid-lib"))
+            return;
         
         // 确保有组件序号
         UI.assignComId(jCom);
@@ -307,12 +311,41 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     __after_iframe_loaded : function(name) {
         var UI = this;
+        var homeId = UI.getHomeObjId();
 
         // 移除加载完毕的项目
         UI._need_load = _.without(UI._need_load, name);
 
         // 全部加载完毕了
         if(UI._need_load.length == 0){
+            // 建立上下文: 这个过程，会把 load 的 iframe 内容弄到 edit 里
+            UI._rebuild_context();
+
+            // 加载所有的组件
+            UI._C.iedit.$body.find('.hm-com[lib]').each(function(){
+                var jCom    = $(this);
+                var libName = jCom.attr('lib');
+                var comId   = UI.assignComId(jCom);
+                // 得到组件的代码内容
+                var html = Wn.exec("hmaker lib id:"+homeId+" -read '"+libName+"'");
+                // 替换现有组件
+                if(html && !/^e./.test(html)){
+                    $(html).attr("id", comId).insertBefore(jCom);
+                    jCom.remove();
+                } 
+                // 肯定有什么错误
+                else {
+                    jCom.attr("invalid-lib", "yes")
+                        .html('<div class="invalid-lib-tip">'
+                            + '<i class="zmdi zmdi-alert-polygon"></i>'
+                            + "<b>" + UI.msg("hmaker.lib.e_load") + ":</b>"
+                            + "<em>" + html + '</em>'
+                            + '<u class="invalid-lib-del">'  + UI.msg("del") + '</u>'
+                            + '</div>');
+                }
+            });
+
+            // 设置可编辑
             UI.setup_page_editing();
             
             // 显示 iFrame
@@ -742,8 +775,15 @@ return ZUI.def("app.wn.hmaker_page", {
     getCurrentEditObj : function() {
         return this._page_obj;
     },
-    //...............................................................
     getCurrentTextContent : function() {
+        return this.getHtml();
+    },
+    //...............................................................
+    // comId 如果给定，表示获取指定控件的 outerHTML
+    // 否则将返回整个网页的 HTML
+    // forLib 如果为 true （仅在 comId 生效的情况下）
+    // 将去掉 com 的 ID 等特殊属性
+    getHtml : function(comId, forLib) {
         var UI = this;
         var C  = UI._C;
 
@@ -830,9 +870,52 @@ return ZUI.def("app.wn.hmaker_page", {
                 }
             }
         });
+
+        // 处理组件的逻辑
+        var _get_com_code = function(jCom, forLib) {
+            if(jCom.length == 0)
+                return "";
+            // 准备返回的 HTML
+            var reHtml;
+            // 移除作为组件时不必要的属性
+            if(forLib){
+                var comId = jCom.attr("id");
+                jCom.removeAttr("id").find(".hm-com").removeAttr("id");
+                reHtml = jCom[0].outerHTML;
+                jCom.attr("id", comId);
+            }else{
+                reHtml = jCom[0].outerHTML;
+            }
+            // 返回自己的 HTML
+            return reHtml;
+        };
+
+        // 返回某组件的 HTML
+        if(comId) {
+            return _get_com_code(C.iload.$body.find("#"+comId), forLib);
+        }
         
+        // 保存全部组件，并将组件内容置空
+        var oHomeId = UI.getHomeObjId();
+        C.iload.$body.find('.hm-com[lib]').each(function(){
+            var jCom = $(this);
+
+            // 保存到共享库, 无视错误的组件
+            if(!jCom.attr("invalid-lib")) {
+                var libName = jCom.attr('lib');
+                var html    = _get_com_code(jCom, true);
+                Wn.execf("hmaker lib id:{{homeId}} -write {{libName}}", html, {
+                    homeId  : oHomeId,
+                    libName : libName
+                });
+            }
+
+            // 清空自己的内容
+            jCom.html("loading...");
+        });
+
         // 返回 HTML
-        return '<!DOCTYPE html>\n<html>\n' + C.iload.$root.html() + '\n</html>\n';;
+        return '<!DOCTYPE html>\n<html>\n' + C.iload.$root.html() + '\n</html>\n';;;
     },
     //...............................................................
     getActions : function(){

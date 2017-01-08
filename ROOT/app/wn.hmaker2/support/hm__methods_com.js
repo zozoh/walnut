@@ -40,10 +40,16 @@ var methods = {
     //........................................................
     // 获取组件的库
     getComLibName : function(){
-        return this.$el.attr("lib");
+        return this.$el.closest('.hm-com[lib]').attr("lib");
     },
     // 设置或者移除（null）一个控件的共享库组件关联
     setComLibName : function(lib) {
+        var libName = this.getComLibName();
+        // 已经关联的组件，不能再设置了
+        if(libName) {
+            alert(this.msg("hmaker.lib.e_set_lib"));
+            return;
+        }
         this.$el.attr("lib", lib || null);
     },
     //........................................................

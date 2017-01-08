@@ -14,6 +14,8 @@ define({
     "edit"       : "编辑",
     "clear"      : "清除",
     "close"      : "关闭",
+    "confirm"    : "询问",
+    "info"       : "信息",
     "ok"         : "确定",
     "cancel"     : "取消",
     "yes"        : "是",
