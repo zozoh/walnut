@@ -434,8 +434,8 @@ return ZUI.def("ui.srh", {
             UI.uiList.hideLoading();
 
             // 将查询的结果分别设置到列表以及分页器里
-            UI.uiList.setData(re ? re.list : []);
             UI.uiPager.setData(re.pager);
+            UI.uiList.setData(re ? re.list : []);
 
             // 如果之前有高亮内容，重新高亮
             if(activedId){

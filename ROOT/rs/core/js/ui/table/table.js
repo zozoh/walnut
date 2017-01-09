@@ -251,14 +251,13 @@ return ZUI.def("ui.table", {
         var opt = UI.options;
         
         // 循环输出每一列
-        var colIndex = 0;
-        opt.__jsos.forEach(function(jso){
+        opt.__jsos.forEach(function(jso, colIndex){
             if(jso.type().hide)
                 return;
             var jTd = $('<td>');
             UI._draw_cell(jTd, jso, obj);
             // 标记第一列
-            if((colIndex++) == 0){
+            if(colIndex == 0){
                 jTd.addClass("tbl-row-td0");
             }
             jTd.appendTo(jRow);
