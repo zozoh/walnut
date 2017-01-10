@@ -9,7 +9,7 @@
 
 		// 没有对象被选中
 		if (objs.length == 0) {
-			alert(UI.msg("noselected"));
+			UI.alert(UI.msg("noselected"));
 			return;
 		}
 

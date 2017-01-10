@@ -8,9 +8,9 @@
 =======
 
 ```
-hmaker init          # 初始化一个站点目录
 hmaker newpage       # 新建一个页面
 hmaker newsite       # 新建一个站点（可支持 copy）
+hmaker savepage      # 保存一个页面（同时会更新页面文件的索引元数据等)
 hmaker publish       # 发布一个站点
 hmaker lib           # 库相关的操作
 ```

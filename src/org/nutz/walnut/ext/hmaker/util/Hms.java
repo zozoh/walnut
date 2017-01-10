@@ -282,6 +282,26 @@ public final class Hms {
         return o;
     }
 
+    /**
+     * 给定一个站点内文件对象。本函数会向上查找，直到找到 tp:"hmaker_site" 的目录为止
+     * 
+     * @param sys
+     *            运行上下文
+     * @param str
+     *            站点目录路径（或者是其内文件）
+     * @return 站点目录对象，null 表示不在任何站点中
+     */
+    public static WnObj getSiteHome(WnSystem sys, WnObj oPage) {
+        if (null != oPage) {
+            WnObj o = oPage;
+            while (!o.isType("hmaker_site") && o.hasParent()) {
+                o = o.parent();
+            }
+            return o;
+        }
+        return null;
+    }
+
     // =================================================================
     // 不许实例化
     private Hms() {}

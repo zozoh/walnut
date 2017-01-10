@@ -13,7 +13,7 @@
 		}
 		
 		if(!o){
-			alert(UI.msg("e.act.noapi_obj") + " :-> getCurrentObj");
+			UI.alert(UI.msg("e.act.noapi_obj") + " :-> getCurrentObj");
 			return;
 		}
 		

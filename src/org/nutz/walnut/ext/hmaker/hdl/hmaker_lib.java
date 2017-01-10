@@ -4,23 +4,31 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Disks;
+import org.nutz.log.Log;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.hmaker.util.Hms;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 
-@JvmHdlParamArgs("ocqn")
+@JvmHdlParamArgs("ocqnl")
 public class hmaker_lib implements JvmHdl {
 
     @Override
@@ -42,35 +50,123 @@ public class hmaker_lib implements JvmHdl {
             __do_read(sys, hc, oLibHome);
             return;
         }
-        // ................................................
-        // 总之处理某个库文件
-        WnObj oLib = null;
+
         // ................................................
         // 删除某个库文件
         if (hc.params.has("del")) {
-            if (null != oLibHome) {
-                oLib = sys.io.check(oLibHome, hc.params.get("del"));
-                sys.io.delete(oLib);
-            }
+            __do_del(sys, hc, oLibHome);
+            return;
         }
         // ................................................
         // 输出某个库文件元数据
-        else if (hc.params.has("get")) {
+        if (hc.params.has("get")) {
+            __do_get(sys, hc, oLibHome);
+            return;
+        }
+        // ................................................
+        // 列出关联的页面
+        if (hc.params.has("pages")) {
+            __do_pages(sys, hc, oSiteHome);
+            return;
+        }
+        // ................................................
+        // 库改名
+        if (hc.params.has("rename")) {
+            // 准备日志输出接口
+            Log log = sys.getLog(hc.params);
+            Stopwatch sw = Stopwatch.begin();
+
+            log.infof("%%[0/5] rename lib for site : %s", oSiteHome.name());
+
+            // 进行改名
             if (null != oLibHome) {
-                oLib = sys.io.check(oLibHome, hc.params.get("get"));
+                // 得到库对象
+                String libName = hc.params.get("rename");
+                WnObj oLib = sys.io.check(oLibHome, libName);
+
+                // 得到新名称
+                String newnm = hc.params.val_check(1);
+
+                // 两个名称如果不相等，则改名
+                if (!libName.equals(newnm)) {
+                    // 首先改动库对象的新名称
+                    sys.io.rename(oLib, newnm);
+                    log.infof("%%[1/5] rename '%s' -> '%s'", libName, newnm);
+
+                    // 查到关联页面的列表
+                    List<WnObj> oPageList = this.__query_refer_pages(sys, oSiteHome, libName);
+
+                    // 开始循环处理
+                    int sum = oPageList.size() + 1;
+                    int n = 0;
+                    for (WnObj oPage : oPageList) {
+                        // 计数
+                        n++;
+
+                        // 打印日志
+                        String rph = Disks.getRelativePath(oSiteHome.path(), oPage.path());
+                        log.infof("%%[%d/%d] - %s", n, sum, rph);
+
+                        // 解析页面
+                        String html = sys.io.readText(oPage);
+                        Document doc = Jsoup.parse(html);
+
+                        // 处理对应的 lib
+                        Elements eleLibs = doc.body().select(".hm-com[lib=\"" + libName + "\"]");
+                        for (Element ele : eleLibs) {
+                            ele.attr("lib", newnm);
+                        }
+
+                        // 写入页面
+                        html = doc.html();
+                        sys.io.writeText(oPage, html);
+                    }
+                }
             }
-            hc.params.setv("o", true);
+            // 结束
+            sw.stop();
+            log.infof("%%[-1/0] All done in %dms", sw.getDuration());
+            return;
         }
         // ................................................
         // 默认列库名
-        else {
-            __do_list(sys, hc, oLibHome);
-            return;
-        }
+        __do_list(sys, hc, oLibHome);
+    }
 
-        // 是否输出这个库文件
-        if (hc.params.is("o")) {
+    private void __do_pages(WnSystem sys, JvmHdlContext hc, WnObj oSiteHome) {
+        if (null != oSiteHome) {
+            List<WnObj> list = __query_refer_pages(sys, oSiteHome, hc.params.get("pages"));
+            // 输出
+            Cmds.output_objs(sys, hc.params, null, list, false);
+        }
+    }
+
+    private List<WnObj> __query_refer_pages(WnSystem sys, WnObj oSiteHome, String libName) {
+        WnQuery q = new WnQuery();
+        q.setv("d0", oSiteHome.d0());
+        q.setv("d1", oSiteHome.d1());
+        q.setv("hm_site_id", oSiteHome.id());
+        q.setv("hm_libs", libName);
+        List<WnObj> list = sys.io.query(q);
+        return list;
+    }
+
+    private void __do_get(WnSystem sys, JvmHdlContext hc, WnObj oLibHome) {
+        if (null != oLibHome) {
+            WnObj oLib = sys.io.check(oLibHome, hc.params.get("get"));
+            // 输出
             sys.out.println(Json.toJson(oLib, hc.jfmt));
+        }
+    }
+
+    private void __do_del(WnSystem sys, JvmHdlContext hc, WnObj oLibHome) {
+        if (null != oLibHome) {
+            WnObj oLib = sys.io.check(oLibHome, hc.params.get("del"));
+            sys.io.delete(oLib);
+            // 输出
+            if (hc.params.is("o")) {
+                sys.out.println(Json.toJson(oLib, hc.jfmt));
+            }
         }
     }
 

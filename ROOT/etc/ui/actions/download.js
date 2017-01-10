@@ -6,7 +6,7 @@
     	var UI = this;
         var o  = $z.invoke(UI, "getCurrentEditObj");
         if(!o){
-        	alert(UI.msg("e.act.noapi_obj"));
+        	UI.alert(UI.msg("e.act.noapi_obj"));
         	return;
         }
         

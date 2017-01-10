@@ -3,6 +3,6 @@
 	text : "i18n:search",
 	type : "button",
 	handler : function($ele, a) {
-		alert("I am delete")
+		UI.alert("I am search and I am not be implement yet!")
 	}
 })

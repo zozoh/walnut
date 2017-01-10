@@ -19,6 +19,8 @@ hmaker lib /path/to/site
            [-file /path/to]  # 写入时，库文件的内容拷贝自哪个文件
            [-del libName]    # 删除某个库文件，如果 -o 表示还要输出其元数据
            [-get libName]    # 输出某个库文件的元数据
+           [-rename libName newName]  # 将某个库改名，同时涉及到的页面也会被修改
+           [-pages libName]  # 列出所有引用某个库的页面列表
            [-ocqn]           # 输出库文件元数据据 c,q,n 为 JSON 的格式化信息 
 ```
     

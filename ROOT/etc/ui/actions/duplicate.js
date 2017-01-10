@@ -7,7 +7,7 @@
 		var list = UIBrowser.getChecked();
 		// 没内容
 		if (list.length == 0) {
-			alert(UIBrowser.msg("obrowser.warn.empty"));
+			UIBrowser.alert(UIBrowser.msg("obrowser.warn.empty"));
 			return;
 		}
 		// 有目录

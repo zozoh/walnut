@@ -17,7 +17,7 @@
 			UI.parent.refresh();
 		}
 		else {
-			alert(UI.msg("e.act.noapi_obj") + " :-> refresh");
+			UI.alert(UI.msg("e.act.noapi_obj") + " :-> refresh");
 		}
 
 	}

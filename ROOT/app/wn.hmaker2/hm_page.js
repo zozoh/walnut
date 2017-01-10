@@ -919,7 +919,7 @@ return ZUI.def("app.wn.hmaker_page", {
     },
     //...............................................................
     getActions : function(){
-        return ["@::save_text",
+        return ["@::hmaker/hm_save_page",
                 "::hmaker/hm_create", 
                 "::hmaker/hm_delete",
                 "~",

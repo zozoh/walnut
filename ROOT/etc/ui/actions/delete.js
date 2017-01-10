@@ -10,7 +10,7 @@
 		var list = UI.getChecked();
 		// 没内容
 		if (list.length == 0) {
-			alert(UI.msg("obrowser.warn.empty"));
+			UI.alert(UI.msg("obrowser.warn.empty"));
 			return;
 		}
 		// 有目录

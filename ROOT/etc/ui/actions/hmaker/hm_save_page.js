@@ -29,7 +29,12 @@
 		
 		// 准备提交
 		window.setTimeout(function(){
-			Wn.write(o, content, function(o2){
+			Wn.exec("hmaker savepage -o id:" + o.id, content, function(re){
+				if(/^e./.test(re)) {
+					UI.alert(re);
+					return;
+				}
+				var o2 = $z.fromJson(re);
 				// 更新缓存
 				Wn.saveToCache(o2);
 				// 恢复图标
