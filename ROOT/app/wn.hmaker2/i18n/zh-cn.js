@@ -24,7 +24,7 @@ define({
         },
         "lib" : {
             "icon"      : '<i class="fa fa-diamond"></i>',
-            "icon_item" : '<i class="zmdi zmdi-shape"></i>',
+            "icon_item" : '<i class="zmdi zmdi-pizza"></i>',
             "title"     : "共享库",
             "item"      : "组件",
             "blank"     : "请选择一个组件显示其内容",
@@ -37,7 +37,7 @@ define({
             "e_set_lib"   : "已经是组件了，只能先取消关联再设置",
             "e_load"      : '组件加载错误',
             "confirm_del_invalid" : "是否移除无效组件",
-            "e_create_nest" : "组件不能嵌套组件",
+            // "e_create_nest" : "组件不能嵌套组件",
         },
         "prop" : {
             "title" : '属性',

@@ -1,12 +1,5 @@
 package org.nutz.walnut.ext.hmaker.hdl;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnObj;
@@ -18,7 +11,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 
 @JvmHdlParamArgs("ocqn")
-public class hmaker_savepage implements JvmHdl {
+public class hmaker_save implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
@@ -46,23 +39,7 @@ public class hmaker_savepage implements JvmHdl {
 
         // .................................................
         // 分析页面内容看看都使用了哪些组件
-        Set<String> libNames = new HashSet<>();
-        if (!Strings.isBlank(content)) {
-            Document doc = Jsoup.parse(content);
-            Elements eleLibs = doc.body().select(".hm-com[lib]");
-            for (Element ele : eleLibs) {
-                libNames.add(ele.attr("lib"));
-            }
-        }
-
-        // 得到站点
-        WnObj oSiteHome = Hms.getSiteHome(sys, oPage);
-        oPage.setv("hm_site_id", oSiteHome == null ? null : oSiteHome.id());
-
-        // .................................................
-        // 保存元数据索引
-        oPage.setv("hm_libs", libNames);
-        sys.io.set(oPage, "^(hm_.+)$");
+        Hms.syncPageMeta(sys, oPage, content);
 
         // .................................................
         // 最后输出内容

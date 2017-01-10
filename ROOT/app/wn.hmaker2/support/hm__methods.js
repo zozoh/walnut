@@ -210,6 +210,11 @@ var methods = {
                 return this.msg('hmaker.lib.icon');
             }
         }
+
+        // 库组件
+        if('hm_lib' == o.tp) {
+            return this.msg('hmaker.lib.icon_item');
+        }
         
         // 文件夹
         if('DIR' == o.race)

@@ -29,7 +29,7 @@
 		
 		// 准备提交
 		window.setTimeout(function(){
-			Wn.exec("hmaker savepage -o id:" + o.id, content, function(re){
+			Wn.exec("hmaker save -o id:" + o.id, content, function(re){
 				if(/^e./.test(re)) {
 					UI.alert(re);
 					return;

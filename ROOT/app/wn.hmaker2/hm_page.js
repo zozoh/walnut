@@ -322,28 +322,7 @@ return ZUI.def("app.wn.hmaker_page", {
             UI._rebuild_context();
 
             // 加载所有的组件
-            UI._C.iedit.$body.find('.hm-com[lib]').each(function(){
-                var jCom    = $(this);
-                var libName = jCom.attr('lib');
-                var comId   = UI.assignComId(jCom);
-                // 得到组件的代码内容
-                var html = Wn.exec("hmaker lib id:"+homeId+" -read '"+libName+"'");
-                // 替换现有组件
-                if(html && !/^e./.test(html)){
-                    $(html).attr("id", comId).insertBefore(jCom);
-                    jCom.remove();
-                } 
-                // 肯定有什么错误
-                else {
-                    jCom.attr("invalid-lib", "yes")
-                        .html('<div class="invalid-lib-tip">'
-                            + '<i class="zmdi zmdi-alert-polygon"></i>'
-                            + "<b>" + UI.msg("hmaker.lib.e_load") + ":</b>"
-                            + "<em>" + html + '</em>'
-                            + '<u class="invalid-lib-del">'  + UI.msg("del") + '</u>'
-                            + '</div>');
-                }
-            });
+            UI.__load_lib(UI._C.iedit.$body, homeId);
 
             // 设置可编辑
             UI.setup_page_editing();
@@ -351,6 +330,45 @@ return ZUI.def("app.wn.hmaker_page", {
             // 显示 iFrame
             UI.arena.find(".hmpg-frame-edit").css("visibility", "");
         }
+    },
+    //...............................................................
+    // 在给定的范围内加载组件
+    __load_lib : function(jq, homeId, cache) {
+        var UI = this;
+
+        // 缓存组件
+        cache = cache || {};
+
+        // 在给定范围内查找所有的组件节点
+        jq.find('.hm-com[lib]').each(function(){
+            var jCom    = $(this);
+            var libName = jCom.attr('lib');
+            var comId   = UI.assignComId(jCom);
+            // 得到组件的代码内容
+            var html = cache[libName] || Wn.exec("hmaker lib id:"+homeId+" -read '"+libName+"'");
+            cache[libName] = html;
+
+            // 替换现有组件
+            if(html && !/^e./.test(html)){
+                var jCom2 = $(html).attr({
+                    "id"  : comId,
+                    "lib" : libName
+                }).insertBefore(jCom);
+                jCom.remove();
+                // 递归
+                UI.__load_lib(jCom2, homeId, cache);
+            } 
+            // 肯定有什么错误
+            else {
+                jCom.attr("invalid-lib", "yes")
+                    .html('<div class="invalid-lib-tip">'
+                        + '<i class="zmdi zmdi-alert-polygon"></i>'
+                        + "<b>" + UI.msg("hmaker.lib.e_load") + ":</b>"
+                        + "<em>" + html + '</em>'
+                        + '<u class="invalid-lib-del">'  + UI.msg("del") + '</u>'
+                        + '</div>');
+            }
+        });
     },
     //...............................................................
     getActivedCom : function() {
@@ -879,11 +897,22 @@ return ZUI.def("app.wn.hmaker_page", {
             var reHtml;
             // 移除作为组件时不必要的属性
             if(forLib){
-                var comId = jCom.attr("id");
-                jCom.removeAttr("id").find(".hm-com").removeAttr("id");
+                var comId   = jCom.attr("id")  || null;
+                var libName = jCom.attr("lib") || null;
+                jCom.attr({
+                    "id"  : null,
+                    "lib" : null,
+                }).find(".hm-com")
+                    .removeAttr("id");
                 reHtml = jCom[0].outerHTML;
-                jCom.attr("id", comId);
-            }else{
+                // 恢复
+                jCom.attr({
+                    "id"  : comId,
+                    "lib" : libName,
+                });
+            }
+            // 直接使用
+            else{
                 reHtml = jCom[0].outerHTML;
             }
             // 返回自己的 HTML
@@ -919,7 +948,7 @@ return ZUI.def("app.wn.hmaker_page", {
     },
     //...............................................................
     getActions : function(){
-        return ["@::hmaker/hm_save_page",
+        return ["@::hmaker/hm_save",
                 "::hmaker/hm_create", 
                 "::hmaker/hm_delete",
                 "~",

@@ -141,33 +141,34 @@ public abstract class Cmds {
             outs.add(_obj_to_outmap(o, params));
         }
 
-        // 指定按照 JSON 的方式输出
-        if (params.has("json")) {
+        // // 指定按照 JSON 的方式输出
+        // if (params.has("json")) {
+        // output_objs_as_json(sys, params, wp, outs);
+        // }
+        // // 当没有更新，或者强制输出的时候，执行输出
+        // else if (outs.size() > 0) {
+        // 仅输出值
+        if (params.is("V")) {
+            output_objs_as_value(sys, params, outs);
+        }
+        // 按表格输出
+        else if (params.has("t")) {
+            output_objs_as_table(sys, params, wp, outs);
+        }
+        // 按照模板输出
+        else if (params.has("tmpl")) {
+            output_objs_by_tmpl(sys, params, wp, outs, "tmpl");
+        }
+        // 默认用 Json 的方法输出
+        else {
             output_objs_as_json(sys, params, wp, outs);
         }
-        // 当没有更新，或者强制输出的时候，执行输出
-        else if (outs.size() > 0) {
-            // 仅输出值
-            if (params.is("V")) {
-                output_objs_as_value(sys, params, outs);
-            }
-            // 按表格输出
-            else if (params.has("t")) {
-                output_objs_as_table(sys, params, wp, outs);
-            }
-            // 按照模板输出
-            else if (params.has("tmpl")) {
-                output_objs_by_tmpl(sys, params, wp, outs, "tmpl");
-            }
-            // 默认用 Json 的方法输出
-            else {
-                output_objs_as_json(sys, params, wp, outs);
-            }
-        }
-        // 如果值为空
-        else if (params.is("l") && params.is("json")) {
-            sys.out.println("[]");
-        }
+        // }
+        // // 如果值为空
+        //
+        // else if (params.is("l") && params.is("json")) {
+        // sys.out.println("[]");
+        // }
     }
 
     public static void output_objs_by_tmpl(WnSystem sys,
@@ -330,7 +331,8 @@ public abstract class Cmds {
                                            List<NutMap> outs) {
         JsonFormat fmt = Cmds.gen_json_format(params);
 
-        String json;
+        // 要输出的 JSON 字符串
+        String json = null;
 
         // 打印分页信息的 JSON 对象
         if (null != wp && wp.countPage) {
@@ -351,7 +353,7 @@ public abstract class Cmds {
             json = Json.toJson(outs, fmt);
         }
         // 显示一个单独对象
-        else {
+        else if (outs.size() == 1) {
             json = Json.toJson(outs.get(0), fmt);
         }
 

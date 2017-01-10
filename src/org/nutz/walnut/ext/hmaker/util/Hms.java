@@ -1,10 +1,15 @@
 package org.nutz.walnut.ext.hmaker.util;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Maths;
@@ -305,4 +310,34 @@ public final class Hms {
     // =================================================================
     // 不许实例化
     private Hms() {}
+
+    /**
+     * 根据给定的内容给页面对象设置元数据
+     * 
+     * @param sys
+     *            系统上下文
+     * @param oPage
+     *            页面对象
+     * @param content
+     *            内容
+     */
+    public static void syncPageMeta(WnSystem sys, WnObj oPage, String content) {
+        Set<String> libNames = new HashSet<>();
+        if (!Strings.isBlank(content)) {
+            Document doc = Jsoup.parse(content);
+            Elements eleLibs = doc.body().select(".hm-com[lib]");
+            for (Element ele : eleLibs) {
+                libNames.add(ele.attr("lib"));
+            }
+        }
+
+        // 得到站点
+        WnObj oSiteHome = getSiteHome(sys, oPage);
+        oPage.setv("hm_site_id", oSiteHome == null ? null : oSiteHome.id());
+
+        // .................................................
+        // 保存元数据索引
+        oPage.setv("hm_libs", libNames);
+        sys.io.set(oPage, "^hm_(site_id|libs)$");
+    }
 }

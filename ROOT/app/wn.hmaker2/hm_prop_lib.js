@@ -16,7 +16,7 @@ var html = `
     </div>
     <div class="hpl-item">
         <header>
-            <h5><em>{{hmaker.lib.item}}</em><b></b></h5>
+            <h5>{{hmaker.lib.item}}</h5>
             <div><%=hmaker.lib.icon_item%></div>
         </header>
     </div>
@@ -46,7 +46,7 @@ return ZUI.def("app.wn.hm_prop_lib", {
             .filter(".hpl-item").attr("show","yes");
         
         // 显示组件信息
-        jDiv.find(">header>h5>b").text(o.nm);
+        jDiv.find(">header>h5").text(o.nm);
     },
     //...............................................................
     showHelp : function() {

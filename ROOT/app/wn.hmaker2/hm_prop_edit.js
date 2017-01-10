@@ -94,11 +94,11 @@ return ZUI.def("app.wn.hm_prop_edit", {
             var UI    = this;
             var oHome = UI.getHomeObj();
 
-            // 组件不能嵌套组件
-            if(UI.uiCom.$el.find(".hm-com[lib]")) {
-                UI.alert("hmaker.lib.e_create_nest");
-                return;
-            }
+            // // 组件不能嵌套组件
+            // if(UI.uiCom.$el.find(".hm-com[lib]").length > 0) {
+            //     UI.alert("hmaker.lib.e_create_nest");
+            //     return;
+            // }
 
             // 显示一个遮罩层，
             new MaskUI({

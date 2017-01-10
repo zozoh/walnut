@@ -28,7 +28,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 
-@JvmHdlParamArgs("ocqnl")
+@JvmHdlParamArgs("ocqnlbish")
 public class hmaker_lib implements JvmHdl {
 
     @Override
@@ -72,65 +72,72 @@ public class hmaker_lib implements JvmHdl {
         // ................................................
         // 库改名
         if (hc.params.has("rename")) {
-            // 准备日志输出接口
-            Log log = sys.getLog(hc.params);
-            Stopwatch sw = Stopwatch.begin();
-
-            log.infof("%%[0/5] rename lib for site : %s", oSiteHome.name());
-
-            // 进行改名
-            if (null != oLibHome) {
-                // 得到库对象
-                String libName = hc.params.get("rename");
-                WnObj oLib = sys.io.check(oLibHome, libName);
-
-                // 得到新名称
-                String newnm = hc.params.val_check(1);
-
-                // 两个名称如果不相等，则改名
-                if (!libName.equals(newnm)) {
-                    // 首先改动库对象的新名称
-                    sys.io.rename(oLib, newnm);
-                    log.infof("%%[1/5] rename '%s' -> '%s'", libName, newnm);
-
-                    // 查到关联页面的列表
-                    List<WnObj> oPageList = this.__query_refer_pages(sys, oSiteHome, libName);
-
-                    // 开始循环处理
-                    int sum = oPageList.size() + 1;
-                    int n = 0;
-                    for (WnObj oPage : oPageList) {
-                        // 计数
-                        n++;
-
-                        // 打印日志
-                        String rph = Disks.getRelativePath(oSiteHome.path(), oPage.path());
-                        log.infof("%%[%d/%d] - %s", n, sum, rph);
-
-                        // 解析页面
-                        String html = sys.io.readText(oPage);
-                        Document doc = Jsoup.parse(html);
-
-                        // 处理对应的 lib
-                        Elements eleLibs = doc.body().select(".hm-com[lib=\"" + libName + "\"]");
-                        for (Element ele : eleLibs) {
-                            ele.attr("lib", newnm);
-                        }
-
-                        // 写入页面
-                        html = doc.html();
-                        sys.io.writeText(oPage, html);
-                    }
-                }
-            }
-            // 结束
-            sw.stop();
-            log.infof("%%[-1/0] All done in %dms", sw.getDuration());
+            __do_rename(sys, hc, oSiteHome, oLibHome);
             return;
         }
         // ................................................
         // 默认列库名
         __do_list(sys, hc, oLibHome);
+    }
+
+    private void __do_rename(WnSystem sys, JvmHdlContext hc, WnObj oSiteHome, WnObj oLibHome) {
+        // 准备日志输出接口
+        Log log = sys.getLog(hc.params);
+        Stopwatch sw = Stopwatch.begin();
+
+        log.infof("%%[0/5] rename lib for site : %s", oSiteHome.name());
+
+        // 进行改名
+        if (null != oLibHome) {
+            // 得到库对象
+            String libName = hc.params.get("rename");
+            WnObj oLib = sys.io.check(oLibHome, libName);
+
+            // 得到新名称
+            String newnm = hc.params.val_check(1);
+
+            // 两个名称如果不相等，则改名
+            if (!libName.equals(newnm)) {
+                // 首先改动库对象的新名称
+                sys.io.rename(oLib, newnm);
+                log.infof("%%[1/5] rename '%s' -> '%s'", libName, newnm);
+
+                // 查到关联页面的列表
+                List<WnObj> oPageList = this.__query_refer_pages(sys, oSiteHome, libName);
+
+                // 开始循环处理
+                int sum = oPageList.size() + 1;
+                int n = 0;
+                for (WnObj oPage : oPageList) {
+                    // 计数
+                    n++;
+
+                    // 打印日志
+                    String rph = Disks.getRelativePath(oSiteHome.path(), oPage.path());
+                    log.infof("%%[%d/%d] - %s", n, sum, rph);
+
+                    // 解析页面
+                    String html = sys.io.readText(oPage);
+                    Document doc = Jsoup.parse(html);
+
+                    // 处理对应的 lib
+                    Elements eleLibs = doc.body().select(".hm-com[lib=\"" + libName + "\"]");
+                    for (Element ele : eleLibs) {
+                        ele.attr("lib", newnm);
+                    }
+
+                    // 写入页面
+                    html = doc.html();
+                    sys.io.writeText(oPage, html);
+
+                    // 同步元数据
+                    Hms.syncPageMeta(sys, oPage, html);
+                }
+            }
+        }
+        // 结束
+        sw.stop();
+        log.infof("%%[-1/0] All done in %dms", sw.getDuration());
     }
 
     private void __do_pages(WnSystem sys, JvmHdlContext hc, WnObj oSiteHome) {
@@ -224,6 +231,13 @@ public class hmaker_lib implements JvmHdl {
         WnObj oLib;
         String libName = hc.params.get("write");
         oLib = sys.io.createIfNoExists(oSiteHome, "lib/" + libName, WnRace.FILE);
+
+        // 确保类型为指定类型
+        if (!oLib.isType("hm_lib")) {
+            oLib.type("hm_lib");
+            sys.io.set(oLib, "^tp$");
+        }
+
         // 得到内容
         String content = hc.params.get("content");
         // 从标准输入得到内容
@@ -241,6 +255,10 @@ public class hmaker_lib implements JvmHdl {
         }
         // 写入内容
         sys.io.writeText(oLib, content);
+
+        // .................................................
+        // 分析页面内容看看都使用了哪些组件
+        Hms.syncPageMeta(sys, oLib, content);
 
         // 是否输出?
         if (hc.params.is("o")) {

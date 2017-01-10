@@ -131,9 +131,9 @@ return ZUI.def("app.wn.hmaker_lib", {
     },
     //...............................................................
     getActions : function(){
-        return ["@::refresh",
-                "@::hmaker/hm_delete",
-                "@::save_text", 
+        return ["@::hmaker/hm_save", 
+                "@::refresh",
+                "::hmaker/hm_delete",
                 "~",
                 "::hmaker/hm_site_new",
                 "::hmaker/hm_site_dup",
