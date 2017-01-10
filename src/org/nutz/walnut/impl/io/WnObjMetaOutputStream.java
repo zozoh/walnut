@@ -39,10 +39,10 @@ public class WnObjMetaOutputStream extends OutputStream {
 
         if (!Strings.isBlank(json)) {
             NutMap newObj = Json.fromJson(NutMap.class, json);
-            
+
             // 计入最后修改时间
             newObj.put("lm", System.currentTimeMillis());
-            
+
             // 准备统计要修改的 keys
             List<String> keys = new ArrayList<String>(newObj.size() + o.size());
             // 追加模式，必须得给咱点啥才能追加呀
@@ -51,7 +51,7 @@ public class WnObjMetaOutputStream extends OutputStream {
                 if (append) {
                     for (String key : newObj.keySet()) {
                         // id 等是绝对不可以改的
-                        if (key.matches("^(ph|id|race|ct)$")) {
+                        if (key.matches("^(ph|id|race|ct|d[0-9])$")) {
                             continue;
                         }
                         // 获取值
@@ -71,7 +71,7 @@ public class WnObjMetaOutputStream extends OutputStream {
                     // 循环对象
                     for (String key : o.keySet()) {
                         // id 等是绝对不可以改的
-                        if (key.matches("^(ph|id|race|ct)$")) {
+                        if (key.matches("^(ph|id|race|ct|d[0-9])$")) {
                             continue;
                         }
                         // 获取值
@@ -87,6 +87,11 @@ public class WnObjMetaOutputStream extends OutputStream {
                     }
                     // 添加更多的字段
                     for (String key : newObj.keySet()) {
+                        // id 等是绝对不可以改的
+                        if (key.matches("^(ph|id|race|ct|d[0-9])$")) {
+                            continue;
+                        }
+                        // 如果原始对象不包括这个字段，追加
                         if (!o.containsKey(key)) {
                             Object v = newObj.get(key);
                             keys.add(key);
