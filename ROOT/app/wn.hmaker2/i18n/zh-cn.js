@@ -37,6 +37,8 @@ define({
             "e_set_lib"   : "已经是组件了，只能先取消关联再设置",
             "e_load"      : '组件加载错误',
             "confirm_del_invalid" : "是否移除无效组件",
+            "pages"       : "本组件的使用情况",
+            "pages_none"  : "没有被使用"
             // "e_create_nest" : "组件不能嵌套组件",
         },
         "prop" : {

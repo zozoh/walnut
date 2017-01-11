@@ -338,17 +338,20 @@
 // 库属性面板
 //............................................................
 .hm-prop-lib {
+    overflow: auto;
     > div {
         width:100%; height:100%; padding:@d2; display: none;
         > header {
-            text-align: center; padding:@d2 @d2 @d5 @d2; color:@c2;
-            border-bottom:1px dashed @cborder1;
+            text-align: center; padding:@d2; color:@c2;
             h5 {padding:@d1; margin:0; font-size:@f3;}
             div {font-size:@f7;}
         }
     }
     > div[show] {display: block;}
     .hpl-info {
+        > header {
+            border-bottom:1px dashed @cborder1;
+        }
         > section {
             padding:@d3; overflow: auto;
             h1 {font-size:@f3; padding:@d3 0; margin:0;}
@@ -358,9 +361,38 @@
     }
     .hpl-item {
         > header {
-            h5 {
+            > h5 {
                 em {font-style:normal; color:@c4;}
                 em:after{display:inline;content:": ";}
+            }
+            > h6 {
+                padding:@d3;margin:0;font-size:@f2;
+                background: @cb2; color:@cf2;
+            }
+        }
+        > section {
+            padding: @d2;
+            ul {
+                list-style: none; padding:@d3; margin: 0;
+                background: @cb0; color:@cf0;
+                border:1px solid @cborder0;
+                > li {
+                    padding:@d3; border-top:1px dashed @cborder1;
+                    font-family: @f_fixed;
+                    > * {
+                        display: inline-block; visibility: middle;
+                    }
+                    > em {
+                        font-style: normal; color:@c2;
+                        min-width:26px; 
+                    }
+                    > i {
+                        width: 16px; text-align: center;
+                    }
+                    > em:after {display: inline; content: ".";}
+                    > b {font-weight: normal;margin:0 @d2;}
+                }
+                > li:first-child {border-top:0;}
             }
         }
     }
