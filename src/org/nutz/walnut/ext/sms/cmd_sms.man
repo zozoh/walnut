@@ -5,7 +5,7 @@
         默认读取当前用户下的发送配置进行邮件发送 $HOME/.sms/config_${provider}, 格式如下:
     
 	{
-		apikey : "2bec078d2f51f5fccdda7b4619fea147", // 提供商的apikey
+		apikey : "abc1234567890", // 提供商的apikey
 		header : "【德纳科技】" //强制添加头部
 	}
     
@@ -15,5 +15,5 @@
 	
 # 示例
 	
-	sms -debug -r 13416121384,18506419566 机器AABBCCDDEEFF流量异常500mb
+	sms -debug -r 12345678901 机器AABBCCDDEEFF流量异常500mb
 	
