@@ -109,6 +109,11 @@ active:file      | o             | 文件夹视图里文件被激活
 blur:file        |               | 文件夹视图里文件被取消激活
 reload:folder    |               | 通知文件夹视图重新刷新自己的子节点
 change:site:skin |               | 站点的皮肤发生改变
+active:lib       |               | 激活共享库
+active:libItem   | o             | 选中一个组件对象
+blur:libItem     |               | 取消选中一个组件对象
+rename:libItem   |               | 显示当前组件的改名界面
+
 
 
 # 页面保存时的逻辑

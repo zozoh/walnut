@@ -38,7 +38,12 @@ define({
             "e_load"      : '组件加载错误',
             "confirm_del_invalid" : "是否移除无效组件",
             "pages"       : "本组件的使用情况",
-            "pages_none"  : "没有被使用"
+            "pages_none"  : "没有被使用",
+            "rename"      : "改名",
+            "rename_tip"  : "请输入新的组件名称",
+            "rename_ok"   : "组件改名成功",
+            "nm_exists"   : "这个组件名称已被使用",
+            "e_noselect"  : "请选择一个组件",
             // "e_create_nest" : "组件不能嵌套组件",
         },
         "prop" : {

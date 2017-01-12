@@ -16,14 +16,15 @@ var html = `
     </header>
     <nav ui-gasket="list"></nav>
     <section ui-gasket="code"></section>
-</div>
-`;
+</div>`;
 //==============================================
 return ZUI.def("app.wn.hmaker_lib", {
     dom : html,
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
+
+        UI.listenBus("rename:libItem", UI.doRename);
     },
     //...............................................................
     redraw : function(){
@@ -40,16 +41,13 @@ return ZUI.def("app.wn.hmaker_lib", {
             },
             on_actived : function(o){
                 UI._show_libItem(o);
-                UI.arena.find(">header>.item").html(
-                    UI.msg("hmaker.lib.icon_item") + '<b>' + o.nm + '</b>'
-                );
                 UI.fire("active:libItem", o);
             },
             on_blur : function(jItems, nextObj, nextItem){
                 if(!nextObj){
                     UI._show_blank();
                     UI.arena.find(">header>.item").empty();
-                    UI.fire("blur:libItem", nextObj);
+                    UI.fire("blur:libItem");
                 }
             }
         }).render(function(){
@@ -94,6 +92,50 @@ return ZUI.def("app.wn.hmaker_lib", {
         }).render();
     },
     //...............................................................
+    doRename : function(){
+        var UI = this;
+        // 得到当前组件对象
+        var oLib = UI.gasket.list.getActived();
+
+        // 防错，但是其实没啥必要
+        if(!oLib) {
+            UI.alert("hmaker.lib.e_noselect");
+            return;
+        }
+
+        // 获取新名字
+        UI.prompt("hmaker.lib.rename_tip", {
+            placeholder : oLib.nm,
+            ok : function(str, callback) {
+                console.log(str)
+                Wn.execf('hmaker lib id:{{homeId}} -get "{{libName}}" | json -out @{id}', {
+                    homeId  : UI.getHomeObjId(),
+                    libName : str
+                }, function(re) {
+                    var err = /^e./.test(re) ? null : "hmaker.lib.nm_exists";
+                    //console.log(re);
+                    // 处理回调的显示
+                    callback(err);
+                    // 如果没错误，继续处理
+                    if(!err) {
+                        // 准备命令
+                        var cmdText = $z.tmpl('hmaker lib id:{{homeId}} -rename "{{libName}}" "{{newName}}"')({
+                            homeId  : UI.getHomeObjId(),
+                            libName : oLib.nm,
+                            newName : str,
+                        });
+                        // 执行命令
+                        Wn.processPanel(cmdText, function(res, jMsg){
+                            jMsg.text(UI.msg("hmaker.lib.rename_ok"));
+                            // 后台敲敲刷新页面
+                            UI.refresh();
+                        });
+                    }
+                });
+            }
+        });
+    },
+    //...............................................................
     update : function(o) {
         var UI = this;
 
@@ -134,6 +176,7 @@ return ZUI.def("app.wn.hmaker_lib", {
         return ["@::hmaker/hm_save", 
                 "@::refresh",
                 "::hmaker/hm_delete",
+                "::hmaker/hm_rename_lib",
                 "~",
                 "::hmaker/hm_site_new",
                 "::hmaker/hm_site_dup",

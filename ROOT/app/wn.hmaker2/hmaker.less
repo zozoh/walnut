@@ -193,8 +193,11 @@
         > nav {
             top:@libH;bottom:0;left:0;width:@libW;
             background: @cb3; color:@cf3;
-            padding:0; border-left:1px solid @cborder1;
-            .list-item b {margin:0 @d1; font-weight: normal;}
+            padding:@d2 0; border-left:1px solid @cborder1;
+            .list-item{
+                padding:@d3 @d4; line-height: unset;
+                b {margin:0 @d1; font-weight: normal;}
+            }
         }
         > section {
             top:@libH;bottom:0;left:@libW;right:0;

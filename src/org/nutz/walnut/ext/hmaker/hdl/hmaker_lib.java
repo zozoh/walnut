@@ -133,6 +133,9 @@ public class hmaker_lib implements JvmHdl {
                     // 同步元数据
                     Hms.syncPageMeta(sys, oPage, html);
                 }
+
+                // 最后更新
+                log.infof("%%[%d/%d] - %d items be updated", sum, sum, oPageList.size());
             }
         }
         // 结束

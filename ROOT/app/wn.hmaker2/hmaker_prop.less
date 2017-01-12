@@ -362,8 +362,19 @@
     .hpl-item {
         > header {
             > h5 {
-                em {font-style:normal; color:@c4;}
-                em:after{display:inline;content:": ";}
+                position: relative;
+                a {
+                    position: absolute; right: @d2;
+                    font-weight: normal; visibility: sub;
+                    cursor: pointer; color: @clink;
+                    font-size:@f1;
+                    text-decoration: none;
+                    margin:0 @d2;
+                }
+                a:hover {
+                    text-decoration: underline;
+                    color:@clink_hover;
+                }
             }
             > h6 {
                 padding:@d3;margin:0;font-size:@f2;

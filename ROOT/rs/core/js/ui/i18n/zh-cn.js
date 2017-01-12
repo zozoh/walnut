@@ -16,6 +16,7 @@ define({
     "close"      : "关闭",
     "confirm"    : "询问",
     "info"       : "信息",
+    "prompt"     : "输入",
     "ok"         : "确定",
     "cancel"     : "取消",
     "yes"        : "是",

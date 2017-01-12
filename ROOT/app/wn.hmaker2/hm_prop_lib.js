@@ -16,7 +16,7 @@ var html = `
     </div>
     <div class="hpl-item">
         <header>
-            <h5>{{hmaker.lib.item}}</h5>
+            <h5><b>{{hmaker.lib.item}}</b><a>{{hmaker.lib.rename}}</a></h5>
             <div><%=hmaker.lib.icon_item%></div>
             <h6>{{hmaker.lib.pages}}</h6>
         </header>
@@ -35,6 +35,12 @@ return ZUI.def("app.wn.hm_prop_lib", {
         UI.listenBus("blur:libItem",   UI.showHelp);
     },
     //...............................................................
+    events : {
+        "click .hpl-item > header > h5 > a" : function(){
+            this.fire("rename:libItem");
+        }
+    },
+    //...............................................................
     redraw : function() {
         var UI = this;
     },
@@ -48,7 +54,7 @@ return ZUI.def("app.wn.hm_prop_lib", {
             .filter(".hpl-item").attr("show","yes");
         
         // 显示组件信息
-        jPart.find(">header>h5").text(o.nm);
+        jPart.find(">header>h5>b").text(o.nm);
 
         // 查询组件被使用的情况
         var oHome = UI.getHomeObj();
@@ -79,7 +85,7 @@ return ZUI.def("app.wn.hm_prop_lib", {
     //...............................................................
     showHelp : function() {
         var UI = this;
-        console.log("showHelp");
+        //console.log("showHelp");
 
         // 显示对应区块
         UI.arena.children('div').removeAttr("show")

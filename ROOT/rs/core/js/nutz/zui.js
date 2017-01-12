@@ -1160,7 +1160,7 @@ ZUIObj.prototype = {
         opt = opt || {};
         $z.setUndefined(opt, "width",  400);
         $z.setUndefined(opt, "height", 240);
-        $z.setUndefined(opt, "title", UI.msg("confirm"));
+        $z.setUndefined(opt, "title", "confirm");
         $z.setUndefined(opt, "btnYes", "yes");
         $z.setUndefined(opt, "btnNo",  "no");
         $z.setUndefined(opt, "icon",  '<i class="zmdi zmdi-help-outline"></i>');
@@ -1184,7 +1184,7 @@ ZUIObj.prototype = {
             })).render(function(){
                 // 设置标题
                 if(opt.title)
-                    this.$main.find(".pm-title").html(opt.title);
+                    this.$main.find(".pm-title").html(UI.msg(opt.title));
                 else
                     this.$main.find(".pm-title").remove();
 
@@ -1215,7 +1215,7 @@ ZUIObj.prototype = {
         opt = opt || {};
         $z.setUndefined(opt, "width",  400);
         $z.setUndefined(opt, "height", 240);
-        $z.setUndefined(opt, "title", UI.msg("info"));
+        $z.setUndefined(opt, "title", "info");
         $z.setUndefined(opt, "btnOk", "ok");
         $z.setUndefined(opt, "icon",  '<i class="zmdi zmdi-info"></i>');
 
@@ -1234,7 +1234,7 @@ ZUIObj.prototype = {
             })).render(function(){
                 // 设置标题
                 if(opt.title)
-                    this.$main.find(".pm-title").html(opt.title);
+                    this.$main.find(".pm-title").html(UI.msg(opt.title));
                 else
                     this.$main.find(".pm-title").remove();
 
@@ -1251,7 +1251,127 @@ ZUIObj.prototype = {
                 this.$main.find(".pm-body").html(html);
             })
         });
+    },
+    //...................................................................
+    // 一个提示输入框
+    // opt.ok     : {c}F(str, callback(ErrMsg))
+    // opt.cancel : {c}F()
+    // opt.check  : {c}F(str, callback(ErrMsg))
+    prompt: function(msgKey, opt) {
+        var UI = this;
+
+        // 分析参数
+        opt = opt || {};
+        $z.setUndefined(opt, "width",  400);
+        $z.setUndefined(opt, "height", 240);
+        $z.setUndefined(opt, "title", "prompt");
+        $z.setUndefined(opt, "placeholder", "");
+        $z.setUndefined(opt, "btnOk", "ok");
+        $z.setUndefined(opt, "btnCancel", "cancel");
+        $z.setUndefined(opt, "icon",     '<i class="zmdi zmdi-keyboard"></i>');
+        $z.setUndefined(opt, "iconWarn", '<i class="zmdi zmdi-alert-triangle"></i>');
+        $z.setUndefined(opt, "iconOk",   '<i class="zmdi zmdi-check-circle"></i>');
+        $z.setUndefined(opt, "iconIng",  '<i class="fa fa-spinner fa-pulse"></i>');
+
+        // 准备确认的逻辑
+        var on_ok = function(){
+            var uiMask  = this;
+            var context = opt.context || this;
+            var str = $.trim(this.$main.find(".pmp-input input").val());
+            if(_.isFunction(opt.ok)){
+                opt.ok.call(context, str, function(err){
+                    // 显示错误信息
+                    if(err) {
+                        uiMask.$main.find(".pm-body").attr("mode", "warn")
+                            .find(".pop-msg-icon")
+                                .html(opt.iconWarn);
+                        uiMask.$main.find(".pmp-warn").text(UI.msg(err));
+                    }
+                    // 正常则关闭
+                    else {
+                        uiMask.close();
+                    }
+                });
+            }
+            // 否则关闭对话框
+            else{
+                uiMask.close();
+            }
+        };
+
+        // 显示遮罩层
+        seajs.use("ui/mask/mask", function(MaskUI){
+            new MaskUI(_.extend({}, opt, {
+                css  : "theme/ui/pop/pop.css",
+                dom  : "ui/pop/pop.html",
+                arenaClass : "pop-msg pop-info",
+                events : {
+                    "change .pmp-input input" : on_ok,
+                    "click .pm-btn-ok" : on_ok,
+                    "click .pm-btn-cancel" : function(){
+                        var context = opt.context || this;
+                        this.close();
+                        $z.invoke(opt, "cancel", [], context);
+                    },
+                    "input .pmp-input input" : function(){
+                        var uiMask  = this;
+                        var context = opt.context || this;
+                        var str = $.trim(this.$main.find(".pmp-input input").val());
+                        if(_.isFunction(opt.check)){
+                            this.$main.find(".pop-msg-icon").html(opt.iconIng);
+                            opt.check.call(context, str, function(err){
+                                // 显示错误信息
+                                if(err) {
+                                    uiMask.$main.find(".pm-body").attr("mode", "warn")
+                                        .find(".pop-msg-icon")
+                                            .html(opt.iconWarn);
+                                    uiMask.$main.find(".pmp-warn").text(UI.msg(err));
+                                }
+                                // 正常回复默认 ICON
+                                else {
+                                    uiMask.$main.find(".pm-body").attr("mode", "ok")
+                                        .find(".pop-msg-icon")
+                                            .html(opt.iconOk);
+                                    uiMask.$main.find(".pmp-warn").empty();
+                                }
+                            });
+                        }
+                    }
+                }
+            })).render(function(){
+                // 设置标题
+                if(opt.title)
+                    this.$main.find(".pm-title").html(UI.msg(opt.title));
+                else
+                    this.$main.find(".pm-title").remove();
+
+                // 设置按钮文字
+                this.$main.find(".pm-btn-ok").html(UI.msg(opt.btnOk));
+                this.$main.find(".pm-btn-cancel").html(UI.msg(opt.btnCancel));;
+
+                // 设置显示内容
+                var html = '';
+                if(opt.icon) {
+                    html += '<div class="pop-msg-icon">'+opt.icon+'</div>';
+                }
+                html += '<div class="pop-msg-prompt">' 
+                html += '<div class="pmp-text">' + UI.msg(msgKey) + '</div>';
+                html += '<div class="pmp-input"><input></div>';
+                html += '<div class="pmp-warn"></div>';
+                html += '</div>';
+                this.$main.find(".pm-body").html(html);
+
+                if(opt.placeholder){
+                    this.$main.find(".pmp-input input").attr({
+                        "placeholder" : UI.msg(opt.placeholder)
+                    });
+                }
+
+                this.$main.find(".pmp-input input").focus();
+            })
+        });
     }
+    //...................................................................
 };
 
 // ZUI 就是一个处理方法 
