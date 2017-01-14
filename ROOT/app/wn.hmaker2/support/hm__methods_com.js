@@ -46,8 +46,8 @@ var methods = {
     setComLibName : function(lib) {
         var libName = this.getComLibName();
         // 已经关联的组件，不能再设置了
-        if(libName) {
-            alert(this.msg("hmaker.lib.e_set_lib"));
+        if(libName && lib) {
+            this.alert(this.msg("hmaker.lib.e_set_lib"));
             return;
         }
         this.$el.attr("lib", lib || null);

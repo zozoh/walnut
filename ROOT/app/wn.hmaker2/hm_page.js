@@ -113,7 +113,7 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.listenBus("change:com", function(mode, uiCom, com){
             if("page" == mode)
                 return;
-            console.log("hm_page::on_change:com:", mode, uiCom.uiName, com);        
+            //console.log("hm_page::on_change:com:", mode, uiCom.uiName, com);        
             // 绘制控件
             uiCom.paint(com);
 
@@ -215,7 +215,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 var jPCom  = jCom.parents(".hm-com");
                 if(jPCom.length > 0) {
                     pUI = ZUI(jPCom);
-                    console.log(pUI, jPCom.attr("id"))
+                    //console.log(pUI, jPCom.attr("id"))
                     this.appendTo(pUI);
                 }
 
@@ -357,11 +357,19 @@ return ZUI.def("app.wn.hmaker_page", {
         });
     },
     //...............................................................
-    reloadLibCode : function(jCom, homeId, cache) {
+    reloadLibCode : function(jCom, homeId, cache, callback) {
         var UI = this;
+
+        // 接受快捷参数形式
+        if(_.isFunction(homeId)){
+            callback = homeId;
+            homeId   = undefined;
+            cache    = undefined;
+        }
+
         homeId = homeId || UI.getHomeObjId(),
         cache  = cache  || {};
-        console.log(UI.parent.uiName)
+        //console.log(UI.parent.uiName)
 
         var libName = jCom.attr('lib');
         var comId   = UI.assignComId(jCom);
@@ -383,12 +391,14 @@ return ZUI.def("app.wn.hmaker_page", {
 
             // 移除老的: 如果已经绑定了组件，注销组件
             if(comUIbinded){
-                console.log("destroy com:", jCom.attr('ui-id'));
-                ZUI(jCom).destroy();
+                //console.log("destroy com:", jCom.attr('ui-id'));
+                UI.deleteCom(ZUI(jCom));
             }
             // 否则直接移除就好
-            console.log("remove old");
-            jCom.remove();
+            else {
+                //console.log("remove old");
+                jCom.remove();
+            }
 
             // 递归所有子组件
             jCom2.find('.hm-com[lib]').each(function(){
@@ -397,11 +407,14 @@ return ZUI.def("app.wn.hmaker_page", {
 
             // 是否需要再次绑定控件
             if(comUIbinded) {
-                UI.pageUI().bindComUI(jCom2, function(uiCom){
-                    // 是否需要重新刷新激活显示
-                    if(comIsActived) {
-                        uiCom.notifyActived(null);
-                    }
+                var pageUI = UI.pageUI();
+                pageUI.bindComUI(jCom2, function(uiCom){
+                    // 绑定所有子控件
+                    uiCom.$el.find(".hm-com").each(function(){
+                        pageUI.bindComUI($(this));
+                    });
+                    // 调用回调
+                    $z.doCallback(callback, [uiCom, comIsActived], UI);
                 });
             }
         } 
@@ -444,13 +457,14 @@ return ZUI.def("app.wn.hmaker_page", {
         }
     },
     //...............................................................
-    deleteCom : function(uiCom) {
+    deleteCom : function(uiCom, noResizeSkin) {
         if(uiCom) {
             uiCom.destroy();
             uiCom.$el.remove();
 
             // 重新应用皮肤
-            this.invokeSkin("resize");
+            if(!noResizeSkin)
+                this.invokeSkin("resize");
         }
     },
     //...............................................................

@@ -244,13 +244,23 @@ return ZUI.def("app.wn.hm_prop_edit", {
     },
     //...............................................................
     doReloadLibItem : function(){
-        this.pageUI().reloadLibCode(this.uiCom.$el);
+        var UI = this;
+        UI.uiCom.showLoading();
+        UI.pageUI().reloadLibCode(this.uiCom.$el, function(uiCom){
+            uiCom.notifyActived(null);
+            UI.pageUI().invokeSkin("resize");
+        });
     },
     //...............................................................
     doDetachLibItem : function(){
         var UI = this;
         UI.confirm("hmaker.lib.detach_tip", function(){
-            console.log("do_detach!!!")
+            UI.uiCom.showLoading();
+            UI.pageUI().reloadLibCode(this.uiCom.$el, function(uiCom){
+                uiCom.setComLibName(null);
+                uiCom.notifyActived(null);
+                UI.pageUI().invokeSkin("resize");
+            });
         });
     },
     //...............................................................

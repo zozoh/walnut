@@ -73,8 +73,6 @@ var methods = {
         };
         do_bind_com(0);
 
-
-
         // 应用网页显示样式
         UI.applyPageAttr();
 
