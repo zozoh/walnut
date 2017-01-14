@@ -317,6 +317,10 @@ ZUIObj.prototype = {
         // 然后加入到 pui 的子列表
         if(pui)
             pui.__append_child(UI);
+
+        // 没有指定 target ...
+        if(!target)
+            return this;
         
         // 直接移动到某指定的元素下面
         var gasketName;
@@ -344,9 +348,9 @@ ZUIObj.prototype = {
             
             UI.pel  = UI.$pel[0];
         }
-        // 必须指定一个 target
+        // 指定 target 非法
         else {
-            throw "UI.appendTo() need target!!!";
+            throw "UI.appendTo() invalid target!!!";
         }
         
         // 确保自己移动到新的 pel 下面
@@ -1578,6 +1582,9 @@ ZUI.debug = function() {
         var cid   = jSelf.children('b').text();
         var UI    = ZUI(cid);
 
+        if(!UI)
+            return;
+
         var jMark = $('.ui-debug-mark', UI.el.ownerDocument);
         if(jMark.length == 0) {
             jMark = $('<div class="ui-debug-mark">').appendTo(UI.el.ownerDocument.body);
@@ -1595,8 +1602,8 @@ ZUI.debug = function() {
     var _hide_mark = function(jSelf){
         var cid   = jSelf.children('b').text();
         var UI    = ZUI(cid);
-
-        $('.ui-debug-mark', UI.el.ownerDocument).remove();
+        if(UI)
+            $('.ui-debug-mark', UI.el.ownerDocument).remove();
     };
 
     // 加载处理函数

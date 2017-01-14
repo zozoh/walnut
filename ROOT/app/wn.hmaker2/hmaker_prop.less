@@ -8,9 +8,6 @@
             > em   {color:rgba(255,255,255,0.8);}
             > em:hover {border:1px solid rgba(255,255,255,0.2);}
         }
-        > .hm-com-lib:hover {
-            > b {text-decoration: underline;}
-        }
     }
 }
 
@@ -18,12 +15,11 @@
     > .hm-com-lib {color:@clink;}
     > .hm-com-lib:hover {
         color:@clink_hover;
-        > em {text-decoration: underline;}
     }
 }
 
 // 编辑属性面板
-@ppCInfo : 32px;
+@ppCInfo : 40px;
 @ppTabH  : 28px;
 .hmaker .hm-prop-edit {
     position:relative; padding: @ppCInfo + @ppTabH/2 + @d2 @d2 @d2 @d2;
@@ -35,16 +31,15 @@
             > *  {display:inline-block;vertical-align: middle;}
         }
         > .hm-com-info {
-            float: left;
+            float: left; line-height: 24px; padding-left:@d2;
             > b  {margin:0 @d1;}
             > em   {color:@c3; font-style: normal;}
             > em:before {display:inline; content:"#";}
             > em:hover {border:1px solid rgba(0,0,0,0.2);}
         }
         > .hm-com-lib {
-            float:right; cursor: pointer;
-            > span {margin-right:@d1;}
-            > em   {font-style: normal;}
+            float:right; 
+            .menu {padding:0;}
         }
     }
     .hm-prop-head:after{@clr();}

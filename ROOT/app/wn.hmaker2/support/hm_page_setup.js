@@ -55,17 +55,25 @@ var methods = {
         //.......................... 上面的方法来自 support/hm_page_setup.js
 
         // 处理所有的块显示
-        UI._C.iedit.$body.find(".hm-com").each(function(){
-            // 处理块中的组件
-            var jCom = $(this);
-
-            if(jCom.size()==0) {
-                console.log("no jCom", jBlock.html());
+        // UI._C.iedit.$body.find(".hm-com").each(function(){
+        //     // 处理块中的组件
+        //     var jCom = $(this);
+        //     // 绑定 UI，并显示
+        //     UI.bindComUI(jCom);
+        // });
+        var jComs = UI._C.iedit.$body.find(".hm-com").css("visibility", "hidden");
+        var i = 0;
+        var do_bind_com = function(index) {
+            if(index < jComs.length) {
+                var jCom = $(jComs[index]);
+                UI.bindComUI(jCom, function(){
+                    do_bind_com(index + 1);
+                });
             }
+        };
+        do_bind_com(0);
 
-            // 绑定 UI，并显示
-            UI.bindComUI(jCom);
-        });
+
 
         // 应用网页显示样式
         UI.applyPageAttr();

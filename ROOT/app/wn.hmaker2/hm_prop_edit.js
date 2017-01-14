@@ -16,7 +16,7 @@ var html = `
 <div class="ui-arena hm-prop-edit" ui-fitparent="yes">
     <div class="hm-prop-head">
         <div class="hm-com-info"></div>
-        <div class="hm-com-lib"></div>
+        <div class="hm-com-lib" ui-gasket="libmenu"></div>
     </div>
     <div class="hm-prop-tabs">
         <ul class="hm-W">
@@ -91,116 +91,8 @@ return ZUI.def("app.wn.hm_prop_edit", {
         },
         // 创建组件
         'click [link-lib="no"] .hm-prop-head .hm-com-lib' : function(e){
-            var UI    = this;
-            var oHome = UI.getHomeObj();
-
-            // // 组件不能嵌套组件
-            // if(UI.uiCom.$el.find(".hm-com[lib]").length > 0) {
-            //     UI.alert("hmaker.lib.e_create_nest");
-            //     return;
-            // }
-
-            // 显示一个遮罩层，
-            new MaskUI({
-                width  : 500,
-                height : 200,
-                mainClass : "hm-prop-lib-create",
-                i18n : UI._msg_map,
-                events : {
-                    // 创建组件
-                    "click footer b[enable]" : function(){
-                        var uiMask = this;
-                        var jMain  = this.$main;
-
-                        // 得到组件名称
-                        var libName = $.trim(jMain.find("input").val());
-                        //console.log("create:", libName)
-
-                        // 修改显示状态
-                        jMain.attr("ing", "yes")
-                            .find("input").prop("readonly", true);
-
-                        // 得到组件的内容
-                        var comId = UI.uiCom.getComId();
-                        var html  = UI.pageUI().getHtml(comId, true);
-                        //console.log(html)
-
-                        // 执行创建
-                        Wn.execf("hmaker lib id:{{id}} -write '{{libName}}'", html, {
-                            id      : oHome.id,
-                            libName : libName,
-                        }, function(re){
-                            // console.log("re:", re);
-                            // 没有返回就是正常
-                            if(re) {
-                                alert(re);
-                                return;
-                            }
-                            // 设置控件的 libName
-                            UI.uiCom.setComLibName(libName);
-                            // 通知更新
-                            UI.uiCom.notifyActived();
-                            // 关闭
-                            uiMask.close();
-                        });                      
-                    },
-                    // 输入组件名称
-                    "change input" : function(e) {
-                        var jMain = this.$main;
-                        var jTip  = jMain.find("footer .tip");
-
-                        // 得到组件名称
-                        var libName = $.trim($(e.currentTarget).val());
-
-                        // 确保有输入名称
-                        if(!libName) {
-                            jMain.find("footer .tip")
-                                .attr("mode", "warn")
-                                .html(UI.msg("hmaker.lib.e_nm_blank"));
-                            jMain.find("footer b").attr("enable", null);
-                            return;
-                        }
-
-                        // 检查结果
-                        jTip.html(UI.msg("hmaker.lib.nm_checking"));
-                        Wn.execf("hmaker lib id:{{id}} -get '{{libName}}'", {
-                            id      : oHome.id,
-                            libName : libName,
-                        }, function(re){
-                            console.log(re)
-                            // 不存在的话则可以创建
-                            if(/^e./.test(re)) {
-                                jTip.attr("mode", "ok")
-                                    .html(UI.msg("hmaker.lib.nm_valid"));
-                                jMain.find("footer b").attr("enable", "yes");
-                            }
-                            // 否则不能创建
-                            else {
-                                jTip.attr("mode", "warn")
-                                    .html(UI.msg("hmaker.lib.e_nm_exists"));
-                                jMain.find("footer b").attr("enable", null);
-                            }
-                        });
-                    }
-                }
-            }).render(function(){
-                var uiMask = this;
-                uiMask.$main.html($z.compactHTML(`
-                    <header>{{hmaker.lib.create_tip}}</header>
-                    <section><input></section>
-                    <footer>
-                        <div class="tip"></div>
-                        <div class="ado">
-                            <span class="ing">
-                                <i class="fa fa-spinner fa-spin"></i>
-                            </span>
-                            <b>{{hmaker.lib.create}}</b>
-                        </div>
-                    </footer>
-                `, UI._msg_map));
-                uiMask.$main.find("input").focus();
-            });
-        }
+            this.doCreateLibItem();
+        },
     },
     //...............................................................
     redraw : function() {
@@ -245,6 +137,123 @@ return ZUI.def("app.wn.hm_prop_edit", {
         UI.resize(true);
     },
     //...............................................................
+    doCreateLibItem : function(){
+        var UI    = this;
+        var oHome = UI.getHomeObj();
+
+        // 显示一个遮罩层，
+        new MaskUI({
+            width  : 500,
+            height : 200,
+            mainClass : "hm-prop-lib-create",
+            i18n : UI._msg_map,
+            events : {
+                // 创建组件
+                "click footer b[enable]" : function(){
+                    var uiMask = this;
+                    var jMain  = this.$main;
+
+                    // 得到组件名称
+                    var libName = $.trim(jMain.find("input").val());
+                    //console.log("create:", libName)
+
+                    // 修改显示状态
+                    jMain.attr("ing", "yes")
+                        .find("input").prop("readonly", true);
+
+                    // 得到组件的内容
+                    var comId = UI.uiCom.getComId();
+                    var html  = UI.pageUI().getHtml(comId, true);
+                    //console.log(html)
+
+                    // 执行创建
+                    Wn.execf("hmaker lib id:{{id}} -write '{{libName}}'", html, {
+                        id      : oHome.id,
+                        libName : libName,
+                    }, function(re){
+                        // console.log("re:", re);
+                        // 没有返回就是正常
+                        if(re) {
+                            alert(re);
+                            return;
+                        }
+                        // 设置控件的 libName
+                        UI.uiCom.setComLibName(libName);
+                        // 通知更新
+                        UI.uiCom.notifyActived();
+                        // 关闭
+                        uiMask.close();
+                    });                      
+                },
+                // 输入组件名称
+                "change input" : function(e) {
+                    var jMain = this.$main;
+                    var jTip  = jMain.find("footer .tip");
+
+                    // 得到组件名称
+                    var libName = $.trim($(e.currentTarget).val());
+
+                    // 确保有输入名称
+                    if(!libName) {
+                        jMain.find("footer .tip")
+                            .attr("mode", "warn")
+                            .html(UI.msg("hmaker.lib.e_nm_blank"));
+                        jMain.find("footer b").attr("enable", null);
+                        return;
+                    }
+
+                    // 检查结果
+                    jTip.html(UI.msg("hmaker.lib.nm_checking"));
+                    Wn.execf("hmaker lib id:{{id}} -get '{{libName}}'", {
+                        id      : oHome.id,
+                        libName : libName,
+                    }, function(re){
+                        console.log(re)
+                        // 不存在的话则可以创建
+                        if(/^e./.test(re)) {
+                            jTip.attr("mode", "ok")
+                                .html(UI.msg("hmaker.lib.nm_valid"));
+                            jMain.find("footer b").attr("enable", "yes");
+                        }
+                        // 否则不能创建
+                        else {
+                            jTip.attr("mode", "warn")
+                                .html(UI.msg("hmaker.lib.e_nm_exists"));
+                            jMain.find("footer b").attr("enable", null);
+                        }
+                    });
+                }
+            }
+        }).render(function(){
+            var uiMask = this;
+            uiMask.$main.html($z.compactHTML(`
+                <header>{{hmaker.lib.create_tip}}</header>
+                <section><input></section>
+                <footer>
+                    <div class="tip"></div>
+                    <div class="ado">
+                        <span class="ing">
+                            <i class="fa fa-spinner fa-spin"></i>
+                        </span>
+                        <b>{{hmaker.lib.create}}</b>
+                    </div>
+                </footer>
+            `, UI._msg_map));
+            uiMask.$main.find("input").focus();
+        });
+    },
+    //...............................................................
+    doReloadLibItem : function(){
+        this.pageUI().reloadLibCode(this.uiCom.$el);
+    },
+    //...............................................................
+    doDetachLibItem : function(){
+        var UI = this;
+        UI.confirm("hmaker.lib.detach_tip", function(){
+            console.log("do_detach!!!")
+        });
+    },
+    //...............................................................
     doActiveOther : function(){
         //console.log("hm_prop_edit->doActiveOther:");
         // this.gasket.com.showBlank();
@@ -270,19 +279,53 @@ return ZUI.def("app.wn.hm_prop_edit", {
         UI.arena.find('>.hm-prop-head>.hm-com-info').html(html);
 
         // 准备组件看的 HTML
-        var jLib = UI.arena.find('>.hm-prop-head>.hm-com-lib');
-        html = '<span>' + UI.msg("hmaker.lib.icon") + '</span>';
-        if(libNm) {
-            html += '<b>' + libNm + '</b>';
-            UI.arena.attr("link-lib", "yes");
-        }
-        else {            
-            html += '<em>' + UI.msg("hmaker.lib.create") + '</em>';
-            UI.arena.attr("link-lib", "no");
-        }
-
+        // var jLib = UI.arena.find('>.hm-prop-head>.hm-com-lib');
+        // html = '<span>' + UI.msg("hmaker.lib.icon") + '</span>';
+        // if(libNm) {
+        //     html += '<b>' + libNm + '</b>';
+        //     UI.arena.attr("link-lib", "yes");
+        // }
+        // else {            
+        //     html += '<em>' + UI.msg("hmaker.lib.create") + '</em>';
+        //     UI.arena.attr("link-lib", "no");
+        // }
         // 设置
-        jLib.html(html);
+        // jLib.html(html);
+
+        // 有组件，显示组件的操作菜单
+        if(libNm) {
+            UI.arena.attr("link-lib", "yes");
+            new MenuUI({
+                parent : UI,
+                gasketName : "libmenu",
+                setup : [{
+                    icon : UI.msg("hmaker.lib.icon"),
+                    text : libNm,
+                    items : [{
+                        icon : '<i class="fa fa-chain-broken"></i>',
+                        text : 'i18n:hmaker.lib.detach',
+                        handler : UI.doDetachLibItem
+                    }, {
+                        icon : '<i class="zmdi zmdi-refresh-sync"></i>',
+                        text : 'i18n:hmaker.lib.reload',
+                        handler : UI.doReloadLibItem
+                    }]
+                }]
+            }).render();
+        }
+        // 显示创建组件的按钮
+        else {
+            UI.arena.attr("link-lib", "no");
+            new MenuUI({
+                parent : UI,
+                gasketName : "libmenu",
+                setup : [{
+                    icon : UI.msg("hmaker.lib.icon"),
+                    text : 'i18n:hmaker.lib.create',
+                    handler : UI.doCreateLibItem
+                }]
+            }).render();
+        }
 
     },
     //...............................................................

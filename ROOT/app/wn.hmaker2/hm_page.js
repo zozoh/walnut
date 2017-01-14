@@ -206,11 +206,23 @@ return ZUI.def("app.wn.hmaker_page", {
         // 执行加载
         seajs.use("app/wn.hmaker2/component/"+ctype, function(ComUI){
             jCom.css("visibility", "hidden");
+
             new ComUI({
                 parent  : UI,
                 $el     : jCom,
             }).render(function(){
+                // 看看是否有父控件
+                var jPCom  = jCom.parents(".hm-com");
+                if(jPCom.length > 0) {
+                    pUI = ZUI(jPCom);
+                    console.log(pUI, jPCom.attr("id"))
+                    this.appendTo(pUI);
+                }
+
+                // 回调
                 $z.doCallback(callback, [this], UI);
+
+                // 显示
                 jCom.css("visibility", "");
             })
         });
@@ -311,7 +323,6 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     __after_iframe_loaded : function(name) {
         var UI = this;
-        var homeId = UI.getHomeObjId();
 
         // 移除加载完毕的项目
         UI._need_load = _.without(UI._need_load, name);
@@ -322,7 +333,7 @@ return ZUI.def("app.wn.hmaker_page", {
             UI._rebuild_context();
 
             // 加载所有的组件
-            UI.__load_lib(UI._C.iedit.$body, homeId);
+            UI.__load_lib(UI._C.iedit.$body);
 
             // 设置可编辑
             UI.setup_page_editing();
@@ -333,42 +344,77 @@ return ZUI.def("app.wn.hmaker_page", {
     },
     //...............................................................
     // 在给定的范围内加载组件
-    __load_lib : function(jq, homeId, cache) {
+    __load_lib : function(jq) {
         var UI = this;
 
         // 缓存组件
-        cache = cache || {};
+        var cache  = {};
+        var homeId = UI.getHomeObjId();
 
         // 在给定范围内查找所有的组件节点
         jq.find('.hm-com[lib]').each(function(){
-            var jCom    = $(this);
-            var libName = jCom.attr('lib');
-            var comId   = UI.assignComId(jCom);
-            // 得到组件的代码内容
-            var html = cache[libName] || Wn.exec("hmaker lib id:"+homeId+" -read '"+libName+"'");
-            cache[libName] = html;
-
-            // 替换现有组件
-            if(html && !/^e./.test(html)){
-                var jCom2 = $(html).attr({
-                    "id"  : comId,
-                    "lib" : libName
-                }).insertBefore(jCom);
-                jCom.remove();
-                // 递归
-                UI.__load_lib(jCom2, homeId, cache);
-            } 
-            // 肯定有什么错误
-            else {
-                jCom.attr("invalid-lib", "yes")
-                    .html('<div class="invalid-lib-tip">'
-                        + '<i class="zmdi zmdi-alert-polygon"></i>'
-                        + "<b>" + UI.msg("hmaker.lib.e_load") + ":</b>"
-                        + "<em>" + html + '</em>'
-                        + '<u class="invalid-lib-del">'  + UI.msg("del") + '</u>'
-                        + '</div>');
-            }
+            UI.reloadLibCode($(this), homeId, cache);
         });
+    },
+    //...............................................................
+    reloadLibCode : function(jCom, homeId, cache) {
+        var UI = this;
+        homeId = homeId || UI.getHomeObjId(),
+        cache  = cache  || {};
+        console.log(UI.parent.uiName)
+
+        var libName = jCom.attr('lib');
+        var comId   = UI.assignComId(jCom);
+        // 得到组件的代码内容
+        var html = cache[libName] || Wn.exec("hmaker lib id:"+homeId+" -read '"+libName+"'");
+        cache[libName] = html;
+
+        // 替换现有组件
+        if(html && !/^e./.test(html)){
+            // 老控件是否需要激活
+            var comIsActived = jCom.attr("hm-actived") == "yes";
+            var comUIbinded  = jCom.attr('ui-id') ? true : false;
+
+            // 得到新的 COM DOM 结构
+            var jCom2 = $(html).attr({
+                "id"  : comId,
+                "lib" : libName
+            }).insertBefore(jCom);
+
+            // 移除老的: 如果已经绑定了组件，注销组件
+            if(comUIbinded){
+                console.log("destroy com:", jCom.attr('ui-id'));
+                ZUI(jCom).destroy();
+            }
+            // 否则直接移除就好
+            console.log("remove old");
+            jCom.remove();
+
+            // 递归所有子组件
+            jCom2.find('.hm-com[lib]').each(function(){
+                UI.reloadLibCode($(this), homeId, cache);
+            });
+
+            // 是否需要再次绑定控件
+            if(comUIbinded) {
+                UI.pageUI().bindComUI(jCom2, function(uiCom){
+                    // 是否需要重新刷新激活显示
+                    if(comIsActived) {
+                        uiCom.notifyActived(null);
+                    }
+                });
+            }
+        } 
+        // 肯定有什么错误
+        else {
+            jCom.attr("invalid-lib", "yes")
+                .html('<div class="invalid-lib-tip">'
+                    + '<i class="zmdi zmdi-alert-polygon"></i>'
+                    + "<b>" + UI.msg("hmaker.lib.e_load") + ":</b>"
+                    + "<em>" + html + '</em>'
+                    + '<u class="invalid-lib-del">'  + UI.msg("del") + '</u>'
+                    + '</div>');
+        }
     },
     //...............................................................
     getActivedCom : function() {
@@ -890,7 +936,7 @@ return ZUI.def("app.wn.hmaker_page", {
         });
 
         // 处理组件的逻辑
-        var _get_com_code = function(jCom, forLib) {
+        var _get_lib_code = function(jCom, forLib) {
             if(jCom.length == 0)
                 return "";
             // 准备返回的 HTML
@@ -921,27 +967,44 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 返回某组件的 HTML
         if(comId) {
-            return _get_com_code(C.iload.$body.find("#"+comId), forLib);
+            return _get_lib_code(C.iload.$body.find("#"+comId), forLib);
         }
+
+        // 定义存储组件的逻辑
+        var _save_lib = function(jCom) {
+            // 无视错误的组件
+            if(jCom.attr("invalid-lib"))
+                return;
+
+            // 已经处理过了
+            if(jCom.attr("lib-saved"))
+                return;
+
+            // 看看自己有木有子组件，如果有就先处理
+            jCom.find(".hm-com[lib]").each(function(){
+                _save_lib($(this));
+            });
+
+            // 保存到共享库, 无视错误的组件
+            var libName = jCom.attr('lib');
+            var html    = _get_lib_code(jCom, true);
+            Wn.execf("hmaker lib id:{{homeId}} -write {{libName}}", html, {
+                homeId  : oHomeId,
+                libName : libName
+            });
+
+            // 然后标识一下,以便阻止重复保存 
+            jCom.attr("lib-saved", "yes").html("loading...");
+        };
         
         // 保存全部组件，并将组件内容置空
         var oHomeId = UI.getHomeObjId();
         C.iload.$body.find('.hm-com[lib]').each(function(){
-            var jCom = $(this);
-
-            // 保存到共享库, 无视错误的组件
-            if(!jCom.attr("invalid-lib")) {
-                var libName = jCom.attr('lib');
-                var html    = _get_com_code(jCom, true);
-                Wn.execf("hmaker lib id:{{homeId}} -write {{libName}}", html, {
-                    homeId  : oHomeId,
-                    libName : libName
-                });
-            }
-
-            // 清空自己的内容
-            jCom.html("loading...");
+            _save_lib($(this));
         });
+
+        // 移除组件保存时的临时标记
+        C.iload.$body.find('.hm-com[lib-saved]').removeAttr("lib-saved");
 
         // 返回 HTML
         return '<!DOCTYPE html>\n<html>\n' + C.iload.$root.html() + '\n</html>\n';;;
