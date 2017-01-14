@@ -41,13 +41,11 @@ return ZUI.def("app.wn.hmaker_lib", {
             },
             on_actived : function(o){
                 UI._show_libItem(o);
-                UI.fire("active:libItem", o);
             },
             on_blur : function(jItems, nextObj, nextItem){
                 if(!nextObj){
                     UI._show_blank();
                     UI.arena.find(">header>.item").empty();
-                    UI.fire("blur:libItem");
                 }
             }
         }).render(function(){
@@ -77,6 +75,8 @@ return ZUI.def("app.wn.hmaker_lib", {
         else {
             UI.gasket.code.update(o);
         }
+        // 通知
+        UI.fire("active:libItem", o);
     },
     //...............................................................
     _show_blank : function(){
@@ -90,6 +90,8 @@ return ZUI.def("app.wn.hmaker_lib", {
                 <em>{{hmaker.lib.blank}}</em>
             </div>`
         }).render();
+        // 通知
+        UI.fire("blur:libItem");
     },
     //...............................................................
     doRename : function(){
@@ -107,7 +109,7 @@ return ZUI.def("app.wn.hmaker_lib", {
         UI.prompt("hmaker.lib.rename_tip", {
             placeholder : oLib.nm,
             ok : function(str, callback) {
-                console.log(str)
+                //console.log(str)
                 Wn.execf('hmaker lib id:{{homeId}} -get "{{libName}}" | json -out @{id}', {
                     homeId  : UI.getHomeObjId(),
                     libName : str
@@ -136,6 +138,30 @@ return ZUI.def("app.wn.hmaker_lib", {
         });
     },
     //...............................................................
+    doDelete : function(){
+        var UI = this;
+        // 得到当前组件对象
+        var oLib = UI.gasket.list.getActived();
+
+        // 防错，但是其实没啥必要
+        if(!oLib) {
+            UI.alert("hmaker.lib.e_noselect");
+            return;
+        }
+
+        // 获取新名字
+        UI.confirm("hmaker.lib.delete_tip", function(str, callback) {
+            UI.showLoading();
+            Wn.execf('hmaker lib id:{{homeId}} -del "{{libName}}"', {
+                homeId  : UI.getHomeObjId(),
+                libName : oLib.nm
+            }, function(re) {
+                UI.hideLoading();
+                UI.refresh();
+            });
+        });
+    },
+    //...............................................................
     update : function(o) {
         var UI = this;
 
@@ -161,6 +187,10 @@ return ZUI.def("app.wn.hmaker_lib", {
             var list = $z.fromJson(re);
             //console.log(list)
             UI.gasket.list.setData(list);
+
+            if(!UI.gasket.list.hasActived()) {
+                UI._show_blank();
+            }
         });
     },
     //...............................................................
@@ -175,7 +205,7 @@ return ZUI.def("app.wn.hmaker_lib", {
     getActions : function(){
         return ["@::hmaker/hm_save", 
                 "@::refresh",
-                "::hmaker/hm_delete",
+                "::hmaker/hm_delete_lib",
                 "::hmaker/hm_rename_lib",
                 "~",
                 "::hmaker/hm_site_new",

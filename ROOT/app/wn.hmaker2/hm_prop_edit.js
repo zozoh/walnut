@@ -88,11 +88,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
                 // 通知相关改动（不要让组件重绘）
                 UI.uiCom.notifyBlockChange("com");
             });
-        },
-        // 创建组件
-        'click [link-lib="no"] .hm-prop-head .hm-com-lib' : function(e){
-            this.doCreateLibItem();
-        },
+        }
     },
     //...............................................................
     redraw : function() {
@@ -171,16 +167,16 @@ return ZUI.def("app.wn.hm_prop_edit", {
                         id      : oHome.id,
                         libName : libName,
                     }, function(re){
-                        // console.log("re:", re);
+                        //console.log("re:", re);
                         // 没有返回就是正常
                         if(re) {
-                            alert(re);
+                            UI.alert(re);
                             return;
                         }
                         // 设置控件的 libName
                         UI.uiCom.setComLibName(libName);
                         // 通知更新
-                        UI.uiCom.notifyActived();
+                        UI.uiCom.notifyActived(null);
                         // 关闭
                         uiMask.close();
                     });                      
@@ -208,7 +204,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
                         id      : oHome.id,
                         libName : libName,
                     }, function(re){
-                        console.log(re)
+                        //console.log(re)
                         // 不存在的话则可以创建
                         if(/^e./.test(re)) {
                             jTip.attr("mode", "ok")
