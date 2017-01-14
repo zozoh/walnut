@@ -379,12 +379,15 @@ return ZUI.def("ui.obrowser_sky", {
     resize : function(){
         var UI = this;
         var jCrumb = UI.arena.find(".obrowser-crumb");
-        // var jMe = UI.arena.find(".obrowser-me");
-        // var jMenu  = UI.arena.find(".obrowser-menu:visible");
-        // jCrumb.css({
-        //     "width"  : UI.arena.width() -  jMe.outerWidth(true) -jMenu.outerWidth(true),
-        //     "height" : UI.arena.height()
-        // });
+        var jMe = UI.arena.find(".obrowser-me");
+        var jMenu  = UI.arena.find(".obrowser-menu:visible");
+
+        var W_menu = jMenu.length > 0 ? jMenu.outerWidth() : 0;
+        var W_me   = jMe.outerWidth();
+
+        jMe.css("right", W_menu);
+        jCrumb.css("right", W_menu + W_me);
+
         jCrumb.folder({
             dmode : "tail",
             keep : 1

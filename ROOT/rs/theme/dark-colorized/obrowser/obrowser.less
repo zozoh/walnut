@@ -141,13 +141,15 @@ body > .ui-obrowser {
     //---------------------------------------------- BEGIN Sky
     .obrowser-sky {
         position: relative; border-bottom:1px solid @cborder0;
-        @flex();
+        > div {
+            position: absolute; top:0; bottom:0;
+        }
     }
 
     .obrowser-crumb { @noselect(); cursor: default;
         background: @cb1;
         padding:@d2; white-space: nowrap;
-        flex: 1 1 auto;
+        left:0;
         .z-edit-it input {
             background: @cb0; color:@cf0;
             padding-left:@d4; outline: none;
@@ -210,6 +212,7 @@ body > .ui-obrowser {
     }
     .obrowser-me {
         background: @cb2;padding:@d3 @d2; border-left:1px solid @cborder1;
+        white-space: nowrap;
         > div {
             line-height:@d6; 
             > * {margin:0 @d1;}
@@ -217,6 +220,7 @@ body > .ui-obrowser {
     }
     .obrowser-menu {
         background: @cb2;padding-left:@d2; border-left:1px solid @cborder1;
+        right: 0;
         .menu {
             padding:@d2 @d2; line-height:@d6; 
         }

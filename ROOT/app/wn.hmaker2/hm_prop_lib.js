@@ -72,7 +72,7 @@ return ZUI.def("app.wn.hm_prop_lib", {
             else {
                 var jUl = $('<ul>').appendTo(jList);
                 for(var i=0; i<list.length; i++) {
-                    var oRefer = list[0];
+                    var oRefer = list[i];
                     var jLi    = $('<li>').appendTo(jUl);
                     $('<em>').text(i+1).appendTo(jLi);
                     $(UI.getObjIcon(oRefer)).appendTo(jLi);
