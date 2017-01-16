@@ -19,7 +19,7 @@
 		}
 		
 		// 获取当前的文本内容
-		var content = $z.invoke(this, "getCurrentTextContent");
+		var content = $z.invoke(this, "getCurrentTextContent", [true]);
 		// 未定义，那么就表示 context 不提供这个方法
 		if(_.isUndefined(content)){
 			UI.alert(UI.msg("e.act.noapi_content") + " :-> getCurrentTextContent");

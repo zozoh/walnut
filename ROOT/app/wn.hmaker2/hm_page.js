@@ -987,15 +987,15 @@ return ZUI.def("app.wn.hmaker_page", {
     getCurrentEditObj : function() {
         return this._page_obj;
     },
-    getCurrentTextContent : function() {
-        return this.getHtml();
+    getCurrentTextContent : function(forSave) {
+        return this.getHtml(null, null, forSave);
     },
     //...............................................................
     // comId 如果给定，表示获取指定控件的 outerHTML
     // 否则将返回整个网页的 HTML
     // forLib 如果为 true （仅在 comId 生效的情况下）
     // 将去掉 com 的 ID 等特殊属性
-    getHtml : function(comId, forLib) {
+    getHtml : function(comId, forLib, forSave) {
         var UI = this;
         var C  = UI._C;
 
@@ -1075,11 +1075,20 @@ return ZUI.def("app.wn.hmaker_page", {
                 // 如果之前的节点是个文本节点的话，那么自己就变成空字符串吧
                 if(this.previousSibling && this.previousSibling.nodeType == 3) {
                     this.nodeValue = "";
+                    return;
+                }
+                // 如果在两个 INLINE 的COM之间，也变成空串
+                if(this.previousSibling
+                    && this.previousSibling.nodeType == 1 
+                    && /^(A|B|SPAN)$/.test(this.previousSibling.tagName)
+                    && this.nextSibling
+                    && this.nextSibling.nodeType == 1
+                    && /^(A|B|SPAN)$/.test(this.nextSibling.tagName)) {
+                    this.nodeValue = "";
+                    return;
                 }
                 // 否则输出个回车
-                else {
-                    this.nodeValue = "\n";
-                }
+                this.nodeValue = "\n";
             }
         });
 
@@ -1134,12 +1143,14 @@ return ZUI.def("app.wn.hmaker_page", {
             });
 
             // 保存到共享库, 无视错误的组件
-            var libName = jCom.attr('lib');
-            var html    = _get_lib_code(jCom, true);
-            Wn.execf("hmaker lib id:{{homeId}} -write {{libName}}", html, {
-                homeId  : oHomeId,
-                libName : libName
-            });
+            if(forSave) {
+                var libName = jCom.attr('lib');
+                var html    = _get_lib_code(jCom, true);
+                Wn.execf("hmaker lib id:{{homeId}} -write {{libName}}", html, {
+                    homeId  : oHomeId,
+                    libName : libName
+                });
+            }
 
             // 然后标识一下,以便阻止重复保存 
             jCom.attr("lib-saved", "yes").html("loading...");
