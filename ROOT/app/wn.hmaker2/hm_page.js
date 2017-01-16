@@ -127,7 +127,6 @@ return ZUI.def("app.wn.hmaker_page", {
         },
         // 强制刷新 ibar 子项目
         "click .hmpg-ibar-ibox header .hm-ireload" : function(e){
-            console.log("aaaaa")
             this.doReloadIBarItem($(e.currentTarget).parents("li"), true);
         },
         // 插入控件

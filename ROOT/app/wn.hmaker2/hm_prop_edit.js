@@ -241,8 +241,14 @@ return ZUI.def("app.wn.hm_prop_edit", {
     //...............................................................
     doReloadLibItem : function(){
         var UI = this;
-        UI.uiCom.showLoading();
-        UI.pageUI().reloadLibCode(this.uiCom.$el, function(uiCom){
+
+        // 找到最近的一个组件
+        var jLibCom  = UI.uiCom.$el.closest(".hm-com[lib]");
+        var uiLibCom = ZUI(jLibCom);
+
+        // 重新加载
+        uiLibCom.showLoading();
+        UI.pageUI().reloadLibCode(uiLibCom.$el, function(uiCom){
             uiCom.notifyActived(null);
             UI.pageUI().invokeSkin("resize");
         });
@@ -251,8 +257,13 @@ return ZUI.def("app.wn.hm_prop_edit", {
     doDetachLibItem : function(){
         var UI = this;
         UI.confirm("hmaker.lib.detach_tip", function(){
-            UI.uiCom.showLoading();
-            UI.pageUI().reloadLibCode(this.uiCom.$el, function(uiCom){
+            // 找到最近的一个组件
+            var jLibCom  = UI.uiCom.$el.closest(".hm-com[lib]");
+            var uiLibCom = ZUI(jLibCom);
+
+            // 重新加载
+            uiLibCom.showLoading();
+            UI.pageUI().reloadLibCode(uiLibCom.$el, function(uiCom){
                 uiCom.setComLibName(null);
                 uiCom.notifyActived(null);
                 UI.pageUI().invokeSkin("resize");
