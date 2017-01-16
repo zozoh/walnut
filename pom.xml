@@ -4,7 +4,7 @@
 	<groupId>org.nutz</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>1.r.60-SNAPSHOT</version>
+	<version>1.r.61-SNAPSHOT</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -71,7 +71,7 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz</artifactId>
-			<version>1.r.60-SNAPSHOT</version>
+			<version>1.r.61-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz-web</artifactId>
-			<version>1.r.60-SNAPSHOT</version>
+			<version>1.r.61-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jetty-all-server</artifactId>
@@ -106,12 +106,12 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutzmongo</artifactId>
-			<version>1.r.60-SNAPSHOT</version>
+			<version>1.r.61-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutzwx</artifactId>
-			<version>1.r.60-SNAPSHOT</version>
+			<version>1.r.61-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
@@ -136,7 +136,7 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz-quartz</artifactId>
-			<version>1.r.60-SNAPSHOT</version>
+			<version>1.r.61-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.qiniu</groupId>
