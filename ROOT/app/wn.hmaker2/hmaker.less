@@ -3,6 +3,8 @@
 @lW : 180px;
 @rW : 320px;
 @panTH : 32px;
+@ibarW : 120px;
+@iboxW : 360px;
 
 .hmaker {
     position: relative; background: @cb0; 
@@ -61,7 +63,7 @@
         border-right:1px solid @cborder1;
         //.........................................................
         > .hm-W > div {position: absolute;}
-        .hmpg-stage {
+        .hmpg-stage { transition:left 0.3s;
             top:@panTH; left:@panTH; right:0; bottom:0; 
             background:#AAB;
             .hmpg-screen {
@@ -86,23 +88,79 @@
             border:3px solid red; z-index: 1000; background: rgba(255,255,255,0.8);
         }
         //.........................................................
-        .hmpg-ibar {@noselect();
+        // 插入条
+        .hmpg-ibar {@noselect(); transition:width 0.3s;
             top:0;bottom:0;left:0;width:@panTH;
             border:1px solid @cborder1;
             border-top: 0; border-bottom: 0;
             background:@cb2; text-align: center;
-            h4 {
-                line-height: @panTH; border-bottom:1px solid @cborder1;
-            }
-            ul {
-                line-height: @panTH; font-size: @f3; 
-                li {cursor: pointer;}
-                li:hover {color: @ch1_f; background: @ch1_b;}
-                li:before{line-height: @f5; font-size:@f3;}
+            > .hm-W {
+                > h4.hm-ibtn {
+                    line-height: @panTH; border-bottom:1px solid @cborder1;
+                    cursor: pointer; text-align: center;
+                    span {display: none; margin-left:@d2;}
+                }
+                > h4.hm-ibtn:hover {background: @ch1_b; color:@ch1_f;}
+                > ul {
+                    line-height: @panTH; font-size: @f3; 
+                    > li {
+                        cursor: pointer; position: relative;
+                        .hmpg-ibar-thumb {
+                            white-space: nowrap;
+                            i {vertical-align: middle;}
+                            span {display: none; margin-left:@d2; font-size:@f2;}
+                        }
+                        .hmpg-ibar-ibox { display: none;
+                            position: absolute; left:@panTH - @d1;
+                            z-index: 100; border-radius: 0 @d2 @d2 0;
+                            max-width: @iboxW; line-height: @f4;
+                            background: @cpop_b; color:@cpop_f;
+                            box-shadow: 1px 1px 2px @cshadow;
+                            text-align: left;
+                            header {
+                                position: relative; padding:@d4 32px @d4 @d4;  
+                                border-bottom:1px solid @cborder1; font-size:@f1;
+                                b {color:@c5; margin-right:@d2;}
+                                b:after{display: inline; content: ":";}
+                                em {font-style: normal; color:@c2;}
+                                span.hm-ireload { transition:0.3s;
+                                    position: absolute; right:0; top:0;
+                                    padding:@d3; cursor: pointer;
+                                }
+                                span.hm-ireload:hover {
+                                    transform:rotate(90deg) scale(1.2);
+                                    color:@c0;
+                                }
+                            }
+                            section {
+                                padding:0; background: @cb1; color:@cf1;
+                                font-size:@f2;
+                                > .loading {
+                                    padding:@d4; color:@c2;
+                                    i {margin: 0 @d2;}
+                                }
+                                > .ibar-item {
+                                    cursor: pointer;
+                                    padding:@d3 @d4;
+                                    i {vertical-align: middle;}
+                                    b {font-weight: normal; margin-left: @d2;}
+                                }
+                                > .ibar-item:hover {
+                                    background: @ch0_b; color:@ch0_f;
+                                }
+                            }
+                        }
+                    }
+                    > li:hover {
+                        color: @ch0_f; background: @ch0_b;
+                        .hmpg-ibar-ibox { display: block; }
+                    }
+                    > li:before{line-height: @f5; font-size:@f3;}
+                }
             }
         }
         //.........................................................
-        .hmpg-sbar {
+        .hmpg-sbar { transition:left 0.3s;
             top:0;left:@panTH;right:0; height:@panTH;
             background:@cb2; padding:0;
             > .hm-W > div {position: absolute; top:0;bottom:0;}
@@ -152,6 +210,29 @@
             }
         }
         //.........................................................
+    }
+    // 插入条宽模式
+    .hm-page[full-ibar] {
+        .hmpg-ibar {
+            width: @ibarW; text-align: left;
+            > .hm-W {
+                > h4 {
+                    span {display: inline;}
+                }
+                > ul > li {
+                    padding-left:@d3;
+                    .hmpg-ibar-thumb {
+                        span {display: inline;}
+                    }
+                    .hmpg-ibar-ibox {
+                        left:@ibarW - @d1;
+                        header b {display:none;}
+                    }
+                }
+            }
+        }
+        .hmpg-sbar  {left:@ibarW;}
+        .hmpg-stage {left:@ibarW;}
     }
     // ~End of 主区域
     //.............................................................

@@ -1310,13 +1310,20 @@ ZUIObj.prototype = {
                 dom  : "ui/pop/pop.html",
                 arenaClass : "pop-msg pop-info",
                 events : {
-                    "change .pmp-input input" : on_ok,
+                    // 确认
+                    "keydown .pmp-input input" : function(e){
+                        if(13 == e.which) {
+                            on_ok.call(this);
+                        }
+                    },
                     "click .pm-btn-ok" : on_ok,
+                    // 取消
                     "click .pm-btn-cancel" : function(){
                         var context = opt.context || this;
                         this.close();
                         $z.invoke(opt, "cancel", [], context);
                     },
+                    // 执行检查
                     "input .pmp-input input" : function(){
                         var uiMask  = this;
                         var context = opt.context || this;

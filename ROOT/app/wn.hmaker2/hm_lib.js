@@ -110,31 +110,44 @@ return ZUI.def("app.wn.hmaker_lib", {
             placeholder : oLib.nm,
             ok : function(str, callback) {
                 //console.log(str)
-                Wn.execf('hmaker lib id:{{homeId}} -get "{{libName}}" | json -out @{id}', {
-                    homeId  : UI.getHomeObjId(),
-                    libName : str
-                }, function(re) {
-                    var err = /^e./.test(re) ? null : "hmaker.lib.nm_exists";
-                    //console.log(re);
-                    // 处理回调的显示
-                    callback(err);
-                    // 如果没错误，继续处理
-                    if(!err) {
-                        // 准备命令
-                        var cmdText = $z.tmpl('hmaker lib id:{{homeId}} -rename "{{libName}}" "{{newName}}"')({
-                            homeId  : UI.getHomeObjId(),
-                            libName : oLib.nm,
-                            newName : str,
-                        });
-                        // 执行命令
-                        Wn.processPanel(cmdText, function(res, jMsg){
-                            jMsg.text(UI.msg("hmaker.lib.rename_ok"));
-                            // 后台敲敲刷新页面
-                            UI.refresh();
-                        });
-                    }
-                });
-            }
+                // var re = Wn.execf('hmaker lib id:{{homeId}} -get "{{libName}}" | json -out @{id}', {
+                //     homeId  : UI.getHomeObjId(),
+                //     libName : str
+                // });
+                var re = Wn.exec('hmaker lib id:'+UI.getHomeObjId()+' -get "'+str+'" | json -out @{id}');
+
+                var err = $.trim(re);
+                // 返回了 ID，那么说明存在 
+                if(/^[0-9a-v]{26}$/.test(err)){
+                    err = "hmaker.lib.nm_exists";
+                }
+                // 不存在，可以改
+                else if(/^e.io.noexists/.test(err)){
+                    err = null;
+                }
+                // 其他错误
+                //console.log(re, err);
+                // 处理回调的显示
+                callback(err);
+                // 如果没错误，继续处理
+                if(!err) {
+                    // 准备命令
+                    var cmdText = $z.tmpl('hmaker lib id:{{homeId}} -rename "{{libName}}" "{{newName}}"')({
+                        homeId  : UI.getHomeObjId(),
+                        libName : oLib.nm,
+                        newName : str,
+                    });
+                    // 执行命令
+                    Wn.processPanel(cmdText, {
+                        width  : 500,
+                        height : 480,
+                    }, function(res, jMsg){
+                        jMsg.text(UI.msg("hmaker.lib.rename_ok"));
+                        // 后台敲敲刷新页面
+                        UI.refresh();
+                    });
+                }
+            } // ~ end of ok
         });
     },
     //...............................................................

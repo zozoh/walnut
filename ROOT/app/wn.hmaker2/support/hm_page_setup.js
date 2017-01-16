@@ -61,14 +61,27 @@ var methods = {
         //     // 绑定 UI，并显示
         //     UI.bindComUI(jCom);
         // });
+        // 缓存组件
+        var cache  = {};
+        var homeId = UI.getHomeObjId();
+        // 寻找组件列表
         var jComs = UI._C.iedit.$body.find(".hm-com").css("visibility", "hidden");
         var i = 0;
         var do_bind_com = function(index) {
             if(index < jComs.length) {
                 var jCom = $(jComs[index]);
-                UI.bindComUI(jCom, function(){
-                    do_bind_com(index + 1);
-                });
+                // 加载共享库组件
+                if(jCom.attr("lib")){
+                    UI.reloadLibCode(jCom, homeId, cache, function(uiCom){
+                        do_bind_com(index + 1);
+                    });
+                } 
+                // 普通控件
+                else {
+                    UI.bindComUI(jCom, function(){
+                        do_bind_com(index + 1);
+                    });
+                }
             }
         };
         do_bind_com(0);

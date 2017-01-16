@@ -88,7 +88,7 @@ var methods = {
         var com2 = shallow 
                     ? _.extend(this.getData(), com)
                     : $z.extend(this.getData(), com);
-        console.log("setData", com2);
+        //console.log("setData", com2);
         // 保存属性
         $z.setJsonToSubScriptEle(this.$el, "hm-prop-com", com2, true);
         

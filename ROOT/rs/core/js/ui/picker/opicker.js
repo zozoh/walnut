@@ -72,7 +72,6 @@ return ZUI.def("ui.picker.opicker", {
                     }
                 }
             }, conf), function(){
-                console.log(this)
                 if(o)
                     this.setActived(o);
             });

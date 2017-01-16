@@ -66,7 +66,7 @@ return ZUI.def("app.wn.hm_dynamic_data_setting", {
                 editAs : "droplist",
                 uiConf : {
                     emptyItem : {},
-                    icon  : '<i class="fa fa-puzzle-piece"></i>',
+                    icon  : '<i class="fa fa-html5"></i>',
                     items : function(params, callback){
                         // 得到站点皮肤
                         var skinInfo = UI.getSkinInfo();
