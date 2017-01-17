@@ -64,7 +64,7 @@ public class HttpApiModule extends AbstractWnModule {
         // 找到用户和对应的命令
         try {
             if (log.isInfoEnabled())
-                log.infof("httpAPI(%s): /%s/%s", req.getRemoteAddr(), usr, api);
+                log.infof("httpAPI(%s): /%s/%s", Lang.getIP(req), usr, api);
 
             // 得到用户和主目录
             u = usrs.check(usr);
