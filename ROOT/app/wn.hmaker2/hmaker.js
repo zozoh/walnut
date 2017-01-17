@@ -108,19 +108,26 @@ return ZUI.def("app.wn.hmaker2", {
             MainUI = HmOtherUI;
         }
 
-        // 加载主界面
-        HmMethods(new MainUI({
-            parent : UI,
-            gasketName : "main"
-        })).render(function(){
-            // 更新菜单
-            var actions = $z.invoke(this, "getActions") || [];
-            var menuSetup = Wn.extendActions(actions, false, true);
-            UI.parent.browser().updateMenu(menuSetup, this);
+        // TODO 这里要搞一下 hm_page 的 update，好像有问题，暂时先注掉
+        // 直接更新主界面
+        // if(UI.gasket.main && (MainUI.uiName == UI.gasket.main.uiName)) {
+        //     UI.gasket.main.update(o);
+        // }
+        // 重新加载主界面
+        //else {
+            HmMethods(new MainUI({
+                parent : UI,
+                gasketName : "main"
+            })).render(function(){
+                // 更新菜单
+                var actions = $z.invoke(this, "getActions") || [];
+                var menuSetup = Wn.extendActions(actions, false, true);
+                UI.parent.browser().updateMenu(menuSetup, this);
 
-            // 更新主界面
-            this.update(o);
-        });
+                // 更新主界面
+                this.update(o);
+            });
+        //}
     },
     //...............................................................
     doPublish : function(oPage) {

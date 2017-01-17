@@ -99,7 +99,7 @@ public class hmaker_lib implements JvmHdl {
             // 两个名称如果不相等，则改名
             if (!libName.equals(newnm)) {
                 // 首先改动库对象的新名称
-                sys.io.rename(oLib, newnm);
+                sys.io.rename(oLib, newnm, true);
                 log.infof("%%[1/5] rename '%s' -> '%s'", libName, newnm);
 
                 // 查到关联页面的列表
@@ -127,7 +127,7 @@ public class hmaker_lib implements JvmHdl {
                     }
 
                     // 写入页面
-                    html = doc.html();
+                    html = doc.body().html();
                     sys.io.writeText(oPage, html);
 
                     // 同步元数据

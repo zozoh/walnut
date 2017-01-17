@@ -29,6 +29,10 @@ public interface WnTree extends UnitTestable {
 
     WnObj rename(WnObj o, String nm);
 
+    WnObj rename(WnObj o, String nm, boolean keepType);
+    
+    WnObj rename(WnObj o, String nm, int mode);
+
     void set(WnObj o, String regex);
 
     /**

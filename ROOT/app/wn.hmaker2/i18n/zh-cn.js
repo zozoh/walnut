@@ -23,10 +23,12 @@ define({
             "newsite_nocopy" : "空",
         },
         "lib" : {
-            "icon"      : '<i class="fa fa-diamond"></i>',
-            "icon_item" : '<i class="zmdi zmdi-pizza"></i>',
             "title"     : "共享库",
-            "item"      : "组件",
+            "item"      : "共享组件",
+            "tip"       : "可以让多个网页复用相同的控件设定",
+            "icon"      : '<i class="fa fa-diamond"></i>',
+            "icon_item" : '<i class="zmdi zmdi-puzzle-piece"></i>',
+            "empty"     : "共享组件库为空",
             "blank"     : "请选择一个组件显示其内容",
             "create"    : "创建组件",
             "reload"    : "重新加载组件",
@@ -112,7 +114,10 @@ define({
             "move_after"   : "后移渲染顺位",
             "assisted_showhide" : "显示或者隐藏辅助线",
             "publish" : "正在发布站点",
-            "enter" : "点击预览"
+            "enter" : "点击预览",
+            "insert" : "插入项",
+            "ibarloading" : '<i class="fa fa-spinner fa-pulse"></i> 正在取得 ..',
+            "noLibName" : "组件名称为空，咋插入啊大哥 -_-!",
         },
         "com" : {
             "_" : {
@@ -122,6 +127,7 @@ define({
                 "move_down"   : "下移",
                 "create"      : "新建",
                 "del"         : "删除",
+                "dft"         : "默认",
                 "existsID" : "这个组件ID已经存在"
             },
             "_area" : {
@@ -131,7 +137,7 @@ define({
             "rows" : {
                 "name"  : "水平分栏",
                 "tip"   : "对于所在区域进行水平分隔，可以容纳更多控件",
-                "icon"  : '<i class="zmdi zmdi-view-day"></i>',
+                "icon"  : '<i class="zmdi zmdi-view-agenda" style="font-size:1.2em;"></i>',
                 "fixwidth"  : "固定宽度",
                 "fixwidth_tip" : "单位是 px 或者 %",
                 "padding"   : "栏内边距",
@@ -139,7 +145,7 @@ define({
             "columns" : {
                 "name"  : "垂直分栏",
                 "tip"   : "对于所在区域进行垂直分隔，可以容纳更多控件",
-                "icon"  : '<i class="zmdi zmdi-view-array"></i>',
+                "icon"  : '<i class="zmdi zmdi-view-column" style="font-size:1.4em;"></i>',
                 "fixwidth"  : "固定宽度",
                 "fixwidth_tip" : "单位是 px 或者 %",
                 "padding"   : "栏内边距",
@@ -147,7 +153,7 @@ define({
             "navmenu" : {
                 "name"  : "菜单条",
                 "tip"   : "可垂直或水平放置，支持超链接或者显示隐藏某个区域的客户端动作",
-                "icon"  : '<i class="zmdi zmdi-dns"></i>',
+                "icon"  : '<i class="fa fa-navicon"></i>',
                 "item_dft_text" : "菜单项文字",
                 "add"   : "添加菜单项",
                 "newtab" : "新窗口",
@@ -200,11 +206,6 @@ define({
                 "text_size"    : "文本区大小",
                 "text_color"   : "文本颜色",
                 "text_background"  : "文本背景",
-            },
-            "imgslider" : {
-                "name"  : "图片幻灯",
-                "tip"   : "选择一组图片或者一个文件夹，进行图片幻灯播放",
-                "icon"  : '<i class="zmdi zmdi-slideshow"></i>',
             },
             "objlist" : {
                 "name"  : "动态数据列表",

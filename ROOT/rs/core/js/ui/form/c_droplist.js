@@ -237,7 +237,7 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
         }
         // 否则显示一个选中指示器
         else{
-            $('<span it="check"><i class="zmdi zmdi-check"></i></span>')
+            $('<span it="check"><i class="fa fa-check"></i></span>')
                 .appendTo(jLi);
         }
 

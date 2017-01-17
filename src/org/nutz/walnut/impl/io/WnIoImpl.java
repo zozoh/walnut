@@ -64,6 +64,16 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public WnObj rename(WnObj o, String nm, boolean keepType) {
+        return tree.rename(o, nm, keepType);
+    }
+
+    @Override
+    public WnObj rename(WnObj o, String nm, int mode) {
+        return tree.rename(o, nm, mode);
+    }
+
+    @Override
     public WnObj move(WnObj src, String destPath) {
         return tree.move(src, destPath);
     }

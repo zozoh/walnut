@@ -35,9 +35,9 @@ var methods = {
         // 如果还在以内范围，那么一个一个退回去看看效果
         if(is_in_viewport(jq, jLast)){
             jFolder = jq.children("."+opt.itemClass);
-            if(jFolder.size()>0){
+            if(jFolder.length>0){
                 jDrop   = jFolder.children().eq(1);
-                while(jDrop.children().size()>0){
+                while(jDrop.children().length>0){
                     var jItem = jDrop.children().first();
                     jItem.insertAfter(jFolder);
                     if(!is_in_viewport(jq, jLast)){
@@ -46,7 +46,7 @@ var methods = {
                     }
                 }
                 // 空了的话，就移除
-                if(jDrop.children().size()==0){
+                if(jDrop.children().length==0){
                     jFolder.remove();
                 }
             }
@@ -55,7 +55,7 @@ var methods = {
 
         // 超出了，需要创建一个折叠元素
         var jItem = jChildren.eq(opt.keep);
-        if(jItem.size()==0)
+        if(jItem.length==0)
             return;
 
         // 在这个位置放置一个折叠元素
@@ -76,8 +76,11 @@ var methods = {
         // 逐次向菜单里加入元素，看看会不会让右边缩进视口
         do{
             var jNext = jItem.next();
+            if(jNext.length == 0)
+                break;
             jDrop.prepend(jItem);
             jItem = jNext;
+            console.log("[" + jItem.text() + "]", jItem.length);
             // 无论如何都要保留最后一个
             if(jItem[0] == jLast[0])
                 break;
@@ -96,9 +99,9 @@ var methods = {
         // 如果还在以内范围，那么一个一个退回去看看效果
         if(is_in_viewport(jq, jLast)){
             jFolder = jq.children("."+opt.itemClass);
-            if(jFolder.size()>0){
+            if(jFolder.length>0){
                 jDrop   = jFolder.children().eq(1);
-                while(jDrop.children().size()>0){
+                while(jDrop.children().length>0){
                     var jItem = jDrop.children().first();
                     jItem.insertBefore(jFolder);
                     if(!is_in_viewport(jq, jLast)){
@@ -107,7 +110,7 @@ var methods = {
                     }
                 }
                 // 空了的话，就移除
-                if(jDrop.children().size()==0){
+                if(jDrop.children().length==0){
                     jFolder.remove();
                 }
             }
@@ -115,8 +118,8 @@ var methods = {
         }
 
         // 超出了，需要创建一个折叠元素
-        var jItem = jChildren.eq(jChildren.size() - opt.keep -1);
-        if(jItem.size()==0)
+        var jItem = jChildren.eq(jChildren.length - opt.keep -1);
+        if(jItem.length==0)
             return;
 
         // 在这个位置放置一个折叠元素
@@ -160,7 +163,7 @@ $.fn.extend({ "folder" : function(opt){
     }, opt);
 
     // 没必要折叠
-    if(this.children().size() == 0)
+    if(this.children().length == 0)
         return;
 
     // 调用对应的折叠方法

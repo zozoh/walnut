@@ -393,8 +393,8 @@ return ZUI.def("ui.obrowser", {
         // 字符串
         if(_.isString(obj)){
             var o;
-            if(/^id:\w{6.}$/.test(obj)){
-                var oid = obj.substring(0,3);
+            if(/^id:[0-9a-zA-Z]{6,}$/.test(obj)){
+                var oid = obj.substring(3);
                 o = UI.getById(oid);
             }else{
                 o = UI.fetch(obj);

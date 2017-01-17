@@ -35,8 +35,7 @@ public abstract class AbstractWnTree implements WnTree {
 
     private Map<String, WnMounter> mounters;
 
-    public AbstractWnTree() {
-    }
+    public AbstractWnTree() {}
 
     @Override
     public void _clean_for_unit_test() {}
@@ -93,7 +92,7 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 如果是不完整的 ID
-        if (!id.matches("[0-9a-v]{26}")) {
+        if (!id.matches("^[0-9a-v]{26}$")) {
             WnQuery q = new WnQuery().limit(2);
             q.setv("id", Pattern.compile("^" + id));
             q.limit(2);
@@ -488,7 +487,6 @@ public abstract class AbstractWnTree implements WnTree {
         } else {
             _create_node(o);
         }
-        
 
         // 触发同步时间修改
         Wn.Io.update_ancestor_synctime(this, o, false);
@@ -504,9 +502,22 @@ public abstract class AbstractWnTree implements WnTree {
 
     @Override
     public WnObj rename(WnObj o, String nm) {
+        return rename(o, nm, false);
+    }
+
+    @Override
+    public WnObj rename(WnObj o, String nm, boolean keepType) {
+        int mode = Wn.MV.SYNC;
+        if (!keepType)
+            mode |= Wn.MV.TP;
+        return rename(o, nm, mode);
+    }
+
+    @Override
+    public WnObj rename(WnObj o, String nm, int mode) {
         String ph = o.path();
         ph = Files.renamePath(ph, nm);
-        return move(o, ph);
+        return move(o, ph, mode);
     }
 
     @Override

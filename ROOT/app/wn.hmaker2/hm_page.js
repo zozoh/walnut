@@ -35,6 +35,13 @@ var html = `
     <div code-id="drag_tip" class="hm-drag-tip">
         <i class="zmdi zmdi-arrows"></i> <b>{{hmaker.drag.hover}}</b>
     </div>
+    <div code-id="ibar.ibox" class="hmpg-ibar-ibox">
+        <header>
+            <b></b><em></em>
+            <span class="hm-ireload"><i class="fa fa-refresh"></i></span>
+        </header>
+        <section></section>
+    </div>
 </div>
 <div class="ui-arena hm-page" ui-fitparent="yes"><div class="hm-W">
     <iframe class="hmpg-frame-load"></iframe>
@@ -46,48 +53,24 @@ var html = `
         <div class="hmpg-sbar-page" ui-gasket="pagebar"></div>
     </div></div>
     <div class="hmpg-ibar"><div class="hm-W">
-        <h4>插</h4>
+        <h4 class="hm-ibtn"><i class="zmdi zmdi-plus"></i><span>{{hmaker.page.insert}}</span></h4>
         <ul>
-            <li ctype="rows"
-                data-balloon="{{hmaker.com.rows.name}} : {{hmaker.com.rows.tip}}" 
-                data-balloon-pos="left" data-balloon-length="medium">
-                <%=hmaker.com.rows.icon%>
-            </li>
-            <li ctype="columns"
-                data-balloon="{{hmaker.com.columns.name}} : {{hmaker.com.columns.tip}}" 
-                data-balloon-pos="left" data-balloon-length="medium">
-                <%=hmaker.com.columns.icon%>
-            </li>
-            <li ctype="navmenu"
-                data-balloon="{{hmaker.com.navmenu.name}} : {{hmaker.com.navmenu.tip}}" 
-                data-balloon-pos="left" data-balloon-length="medium">
-                <%=hmaker.com.navmenu.icon%>
-            </li>
-            <li ctype="text"
-                data-balloon="{{hmaker.com.text.name}} : {{hmaker.com.text.tip}}" 
-                data-balloon-pos="left" data-balloon-length="medium">
-                <%=hmaker.com.text.icon%>
-            </li>
-            <li ctype="image" tag-name="A"
-                data-balloon="{{hmaker.com.image.name}} : {{hmaker.com.image.tip}}" 
-                data-balloon-pos="left" data-balloon-length="medium">
-                <%=hmaker.com.image.icon%>
-            </li>
-            <!--li ctype="imgslider"
-                data-balloon="{{hmaker.com.imgslider.name}} : {{hmaker.com.imgslider.tip}}" 
-                data-balloon-pos="left" data-balloon-length="medium">
-                <%=hmaker.com.imgslider.icon%>
-            </li-->
-            <li ctype="objlist"
-                data-balloon="{{hmaker.com.objlist.name}} : {{hmaker.com.objlist.tip}}" 
-                data-balloon-pos="left" data-balloon-length="medium">
-                <%=hmaker.com.objlist.icon%>
-            </li>
-            <li ctype="objshow"
-                data-balloon="{{hmaker.com.objshow.name}} : {{hmaker.com.objshow.tip}}" 
-                data-balloon-pos="left" data-balloon-length="medium">
-                <%=hmaker.com.objshow.icon%>
-            </li>
+            <li ctype="rows" icon="hmaker.com.rows.icon" 
+                text="hmaker.com.rows.name" tip="hmaker.com.rows.tip"></li>
+            <li ctype="columns" icon="hmaker.com.columns.icon" 
+                text="hmaker.com.columns.name" tip="hmaker.com.columns.tip"></li>
+            <li ctype="navmenu" icon="hmaker.com.navmenu.icon" 
+                text="hmaker.com.navmenu.name" tip="hmaker.com.navmenu.tip"></li>
+            <li ctype="text" icon="hmaker.com.text.icon" 
+                text="hmaker.com.text.name" tip="hmaker.com.text.tip"></li>
+            <li ctype="image" icon="hmaker.com.image.icon" tag-name="A"
+                text="hmaker.com.image.name" tip="hmaker.com.image.tip"></li>
+            <li ctype="objlist" icon="hmaker.com.objlist.icon" 
+                text="hmaker.com.objlist.name" tip="hmaker.com.objlist.tip"></li>
+            <li ctype="objshow" icon="hmaker.com.objshow.icon" 
+                text="hmaker.com.objshow.name" tip="hmaker.com.objshow.tip"></li>
+            <li ctype="libitem" icon="hmaker.lib.icon" 
+                text="hmaker.lib.item" tip="hmaker.lib.tip"></li>
         </ul>
     </div></div>
 </div></div>`;
@@ -125,6 +108,119 @@ return ZUI.def("app.wn.hmaker_page", {
         UI._com_seq = [];
     },
     //...............................................................
+    events : {
+        // 修改插入条的宽高
+        "click .hmpg-ibar .hm-ibtn" : function(){
+            var UI = this;
+            $z.toggleAttr(UI.arena, "full-ibar");
+            UI.arena.one("transitionend", function(){
+                UI.resize(true);
+            });
+        },
+        // 鼠标激活 ibar.ibox
+        "mouseover .hmpg-ibar .hmpg-ibar-thumb" : function(e){
+            var jq    = $(e.currentTarget);
+            var jLi   = jq.closest("li");
+            var jiBox = jLi.children(".hmpg-ibar-ibox");
+            $z.dock(jq, jiBox, "V");
+            this.doReloadIBarItem(jLi);
+        },
+        // 强制刷新 ibar 子项目
+        "click .hmpg-ibar-ibox header .hm-ireload" : function(e){
+            this.doReloadIBarItem($(e.currentTarget).parents("li"), true);
+        },
+        // 插入控件
+        "click .hmpg-ibar .ibar-item" : function(e){
+            var jItem   = $(e.currentTarget);
+            var jLi     = jItem.parents("li");
+            var ctype   = jLi.attr("ctype");
+            var tagName = jLi.attr("tag-name") || 'DIV';
+            this.doInsertCom(ctype, tagName, jItem.attr("val"));
+        }
+        // "click .hmpg-ibar li[ctype]" : function(e){
+        //     var jLi   = $(e.currentTarget);
+        //     this.doInsertCom(jLi.attr("ctype"), jLi.attr("tag-name"));
+        // }
+    },
+    //...............................................................
+    getPageAttr : function(){
+        return $z.getJsonFromSubScriptEle(this._C.iedit.$body, "hm-page-attr");
+    },
+    setPageAttr : function(attr){
+        $z.setJsonToSubScriptEle(this._C.iedit.$body, "hm-page-attr", attr, true);
+        this.applyPageAttr(attr);
+    },
+    applyPageAttr : function(attr){
+        var UI = this;
+        attr = attr || UI.getPageAttr() || {};
+        UI._C.iedit.$body.css(attr);
+    },
+    //...............................................................
+    doReloadIBarItem : function(jLi, force) {
+        var UI    = this;
+        var jiBox = jLi.children(".hmpg-ibar-ibox");
+        var jiSec = jiBox.find("section");
+
+        // 开始读取
+        if(force || jiSec.children().length == 0) {
+            var ctype = jLi.attr("ctype");
+
+            // 显示读取
+            jiSec.html('<div class="loading">'+UI.msg("hmaker.page.ibarloading")+'</div>');
+
+            // 组件库
+            if("libitem" == ctype) {
+                Wn.execf("hmaker lib id:{{homeId}} -list", {
+                    homeId : UI.getHomeObjId()
+                }, function(re) {
+                    var libNames = $z.fromJson(re);
+                    // 空
+                    if(libNames.length == 0) {
+                        jiSec.find(".loading")
+                            .html('<i class="zmdi zmdi-alert-circle-o"></i>'
+                                 + UI.msg("hmaker.lib.empty"));
+                    }
+                    // 输出内容
+                    else {
+                        jiSec.empty();
+                        for(var i=0; i<libNames.length; i++) {
+                            var jDiv = $('<div class="ibar-item">');
+                            jDiv.attr("val", libNames[i]);
+                            jDiv.html(UI.msg("hmaker.lib.icon_item"));
+                            jDiv.append($('<b>').text(libNames[i]));
+                            jDiv.appendTo(jiSec);
+                        }
+                    }
+                });
+            }
+            // 控件
+            else {
+                window.setTimeout(function(){
+                    var skinList = UI.getSkinListForCom(ctype);
+                    var icon = UI.msg(jLi.attr("icon"));
+                    var text = UI.msg(jLi.attr("text"));
+
+                    // 输出第一个项目
+                    var list = [{
+                        text : UI.msg("hmaker.com._.dft")+text,
+                        selector : null
+                    }].concat(skinList);
+
+                    // 循环输出
+                    jiSec.empty();
+                    for(var i=0; i<list.length; i++) {
+                        var li = list[i];
+                        var jDiv = $('<div class="ibar-item">');
+                        jDiv.attr("val", li.selector);
+                        jDiv.html(icon);
+                        jDiv.append($('<b>').text(li.text));
+                        jDiv.appendTo(jiSec);
+                    }
+                }, 200);
+            }
+        }
+    },
+    //...............................................................
     // 分配一个组件需要，并做记录
     assignComId : function(jCom) {
         var comId = jCom.attr("id");
@@ -153,36 +249,23 @@ return ZUI.def("app.wn.hmaker_page", {
         return comId;
     },
     //...............................................................
-    events : {
-        // 插入控件
-        "click .hmpg-ibar li[ctype]" : function(e){
-            var jLi   = $(e.currentTarget);
-            this.doInsertCom(jLi.attr("ctype"), jLi.attr("tag-name"));
-        }
-    },
-    //...............................................................
-    getPageAttr : function(){
-        return $z.getJsonFromSubScriptEle(this._C.iedit.$body, "hm-page-attr");
-    },
-    setPageAttr : function(attr){
-        $z.setJsonToSubScriptEle(this._C.iedit.$body, "hm-page-attr", attr, true);
-        this.applyPageAttr(attr);
-    },
-    applyPageAttr : function(attr){
-        var UI = this;
-        attr = attr || UI.getPageAttr() || {};
-        UI._C.iedit.$body.css(attr);
-    },
-    //...............................................................
     bindComUI : function(jCom, callback) {
         var UI = this;
         
         // 确保控件内任意一个元素均等效
         jCom = jCom.closest(".hm-com");
 
+        // console.log(jCom[0])
+
         // 如果是无效控件，无视
-        if(jCom.attr("invalid-lib"))
+        if(jCom.attr("invalid-lib")){
+            // 显示
+            jCom.css("visibility", "");
+            // 回调
+            $z.doCallback(callback, [this], UI);
+            // 不在继续了
             return;
+        }
         
         // 确保有组件序号
         UI.assignComId(jCom);
@@ -218,38 +301,53 @@ return ZUI.def("app.wn.hmaker_page", {
                     //console.log(pUI, jPCom.attr("id"))
                     this.appendTo(pUI);
                 }
-
-                // 回调
-                $z.doCallback(callback, [this], UI);
-
                 // 显示
                 jCom.css("visibility", "");
+                // 回调
+                $z.doCallback(callback, [this], UI);
             })
         });
     },
     //...............................................................
-    doInsertCom : function(ctype, tagName) {
+    // ctype   : 控件类型，"libitem" 表示组件
+    // tagName : 插入的元素名，默认 DIV
+    // val     : 控件皮肤或者组件名
+    doInsertCom : function(ctype, tagName, val) {
         var UI = this;
-        
-        // 创建组件的 DOM
-        var eleCom = UI._C.iedit.doc.createElement(tagName || 'DIV');
-        var jCom = $(eleCom).addClass("hm-com")
-                        .attr("ctype", ctype)
-                            .appendTo(UI._C.iedit.$body);
-        
-        // 初始化 UI
-        UI.bindComUI(jCom, function(uiCom){
-            // 设置初始化数据
-            var com   = uiCom.setData({}, true);
-            var block = uiCom.setBlock({});
-            
-            // 通知激活控件
-            uiCom.notifyActived(null);
 
-            // 通知皮肤
-            this.invokeSkin("resize");
-            
-        });
+        // 创建新元素
+        var eleCom = UI._C.iedit.doc.createElement(tagName || 'DIV');
+        var jCom = $(eleCom).addClass("hm-com").appendTo(UI._C.iedit.$body);
+
+        // 共享库组件
+        if("libitem" == ctype) {
+            if(!val) {
+                UI.alert("hmaker.page.noLibName");
+                return;
+            }
+            jCom.attr({"ctype":ctype, "lib":val});
+            UI.reloadLibCode(jCom, function(uiCom){
+                uiCom.notifyActived(null);
+                UI.pageUI().invokeSkin("resize");
+            });
+        }
+        // 普通控件
+        else {
+            jCom.attr({"ctype":ctype, "skin":val||null});
+            // 初始化 UI
+            UI.bindComUI(jCom, function(uiCom){
+                // 设置初始化数据
+                var com   = uiCom.setData({}, true);
+                var block = uiCom.setBlock({});
+                
+                // 通知激活控件
+                uiCom.notifyActived(null);
+
+                // 通知皮肤
+                this.invokeSkin("resize");
+                
+            });
+        }
     },
     //...............................................................
     doActiveCom : function(uiCom) {
@@ -290,6 +388,9 @@ return ZUI.def("app.wn.hmaker_page", {
         var oHome    = UI.getHomeObj();
         var skinName = oHome.hm_site_skin;
         var skinInfo = UI.getSkinInfo() || {};
+
+        // 移除所有的 ibar 项目
+        UI.arena.find(".hmpg-ibar-ibox section").empty();
 
         // 更新样式
         var jHead = UI._C.iedit.$head;
@@ -333,7 +434,7 @@ return ZUI.def("app.wn.hmaker_page", {
             UI._rebuild_context();
 
             // 加载所有的组件
-            UI.__load_lib(UI._C.iedit.$body);
+            //UI.__load_lib(UI._C.iedit.$body);
 
             // 设置可编辑
             UI.setup_page_editing();
@@ -344,18 +445,19 @@ return ZUI.def("app.wn.hmaker_page", {
     },
     //...............................................................
     // 在给定的范围内加载组件
-    __load_lib : function(jq) {
-        var UI = this;
+    // __load_lib : function(jq) {
+    //     var UI = this;
 
-        // 缓存组件
-        var cache  = {};
-        var homeId = UI.getHomeObjId();
+    //     // 缓存组件
+    //     var cache  = {};
+    //     var homeId = UI.getHomeObjId();
 
-        // 在给定范围内查找所有的组件节点
-        jq.find('.hm-com[lib]').each(function(){
-            UI.reloadLibCode($(this), homeId, cache);
-        });
-    },
+    //     // 在给定范围内查找所有的组件节点
+    //     jq.find('.hm-com[lib]').each(function(){
+    //         console.log(this)
+    //         UI.reloadLibCode($(this), homeId, cache);
+    //     });
+    // },
     //...............................................................
     reloadLibCode : function(jCom, homeId, cache, callback) {
         var UI = this;
@@ -400,23 +502,24 @@ return ZUI.def("app.wn.hmaker_page", {
                 jCom.remove();
             }
 
-            // 递归所有子组件
-            jCom2.find('.hm-com[lib]').each(function(){
-                UI.reloadLibCode($(this), homeId, cache);
-            });
-
-            // 是否需要再次绑定控件
-            if(comUIbinded) {
-                var pageUI = UI.pageUI();
-                pageUI.bindComUI(jCom2, function(uiCom){
-                    // 绑定所有子控件
-                    uiCom.$el.find(".hm-com").each(function(){
-                        pageUI.bindComUI($(this));
-                    });
-                    // 调用回调
-                    $z.doCallback(callback, [uiCom, comIsActived], UI);
+            // 绑定控件
+            var pageUI = UI.pageUI();
+            pageUI.bindComUI(jCom2, function(uiCom){
+                // 绑定所有子控件
+                uiCom.$el.find(".hm-com").each(function(){
+                    var jSubCom = $(this);
+                    // 子组件
+                    if(jSubCom.attr("lib")) {
+                        UI.reloadLibCode(jSubCom, homeId, cache);
+                    }
+                    // 普通控件 
+                    else {
+                        pageUI.bindComUI(jSubCom);
+                    }
                 });
-            }
+                // 调用回调
+                $z.doCallback(callback, [uiCom, comIsActived], UI);
+            });
         } 
         // 肯定有什么错误
         else {
@@ -634,6 +737,26 @@ return ZUI.def("app.wn.hmaker_page", {
     redraw : function(){
         var UI  = this;
 
+        // 更新 ibar
+        var jiBar = UI.arena.find(".hmpg-ibar");
+        var jiUl  = jiBar.find(">.hm-W>ul");
+        jiUl.children("li").each(function(){
+            var jLi  = $(this).empty();
+            var icon = UI.msg(jLi.attr("icon"));
+            var text = UI.msg(jLi.attr("text"));
+            var tip  = UI.msg(jLi.attr("tip"));
+            // 插入 ibox
+            var jiBox = UI.ccode("ibar.ibox");
+            jiBox.find(">header>b").text(text);
+            jiBox.find(">header>em").text(tip);
+            jiBox.appendTo(jLi);
+
+            // 插入 thumb
+            var jThumb = $('<div class="hmpg-ibar-thumb">').appendTo(jLi);
+            jThumb.html(icon);
+            $('<span>').text(text).appendTo(jThumb);
+        });
+
         // 确保屏幕的模式
         UI.arena.find(".hmpg-screen").attr("mode", this.getScreenMode());
         window.setTimeout(function(){
@@ -778,7 +901,18 @@ return ZUI.def("app.wn.hmaker_page", {
     },
     //...............................................................
     resize : function() {
-        this.invokeSkin("resize");
+        var UI = this;
+        // 重新计算布局
+        // var jiBar  = UI.arena.find(".hmpg-ibar");
+        // var jsBar  = UI.arena.find(".hmpg-sbar");
+        // var jStage = UI.arena.find(".hmpg-stage");
+
+        // var iW = jiBar.outerWidth();
+        // jsBar.css("left", iW);
+        // jsBar.css("left", iW);
+
+        // 调用皮肤的 resize
+        UI.invokeSkin("resize");
     },
     //...............................................................
     update : function(o) {
@@ -853,15 +987,15 @@ return ZUI.def("app.wn.hmaker_page", {
     getCurrentEditObj : function() {
         return this._page_obj;
     },
-    getCurrentTextContent : function() {
-        return this.getHtml();
+    getCurrentTextContent : function(forSave) {
+        return this.getHtml(null, null, forSave);
     },
     //...............................................................
     // comId 如果给定，表示获取指定控件的 outerHTML
     // 否则将返回整个网页的 HTML
     // forLib 如果为 true （仅在 comId 生效的情况下）
     // 将去掉 com 的 ID 等特殊属性
-    getHtml : function(comId, forLib) {
+    getHtml : function(comId, forLib, forSave) {
         var UI = this;
         var C  = UI._C;
 
@@ -941,11 +1075,20 @@ return ZUI.def("app.wn.hmaker_page", {
                 // 如果之前的节点是个文本节点的话，那么自己就变成空字符串吧
                 if(this.previousSibling && this.previousSibling.nodeType == 3) {
                     this.nodeValue = "";
+                    return;
+                }
+                // 如果在两个 INLINE 的COM之间，也变成空串
+                if(this.previousSibling
+                    && this.previousSibling.nodeType == 1 
+                    && /^(A|B|SPAN)$/.test(this.previousSibling.tagName)
+                    && this.nextSibling
+                    && this.nextSibling.nodeType == 1
+                    && /^(A|B|SPAN)$/.test(this.nextSibling.tagName)) {
+                    this.nodeValue = "";
+                    return;
                 }
                 // 否则输出个回车
-                else {
-                    this.nodeValue = "\n";
-                }
+                this.nodeValue = "\n";
             }
         });
 
@@ -1000,12 +1143,14 @@ return ZUI.def("app.wn.hmaker_page", {
             });
 
             // 保存到共享库, 无视错误的组件
-            var libName = jCom.attr('lib');
-            var html    = _get_lib_code(jCom, true);
-            Wn.execf("hmaker lib id:{{homeId}} -write {{libName}}", html, {
-                homeId  : oHomeId,
-                libName : libName
-            });
+            if(forSave) {
+                var libName = jCom.attr('lib');
+                var html    = _get_lib_code(jCom, true);
+                Wn.execf("hmaker lib id:{{homeId}} -write {{libName}}", html, {
+                    homeId  : oHomeId,
+                    libName : libName
+                });
+            }
 
             // 然后标识一下,以便阻止重复保存 
             jCom.attr("lib-saved", "yes").html("loading...");
