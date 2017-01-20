@@ -35,13 +35,13 @@ var html = `
     <div code-id="drag_tip" class="hm-drag-tip">
         <i class="zmdi zmdi-arrows"></i> <b>{{hmaker.drag.hover}}</b>
     </div>
-    <div code-id="ibar.ibox" class="hmpg-ibar-ibox">
+    <div code-id="ibar.ibox" class="hmpg-ibar-ibox"><div>
         <header>
             <b></b><em></em>
-            <span class="hm-ireload"><i class="fa fa-refresh"></i></span>
+            <a class="hm-ireload">{{hmaker.page.ireload}}</a>
         </header>
         <section></section>
-    </div>
+    </div></div>
 </div>
 <div class="ui-arena hm-page" ui-fitparent="yes"><div class="hm-W">
     <iframe class="hmpg-frame-load"></iframe>
@@ -59,12 +59,12 @@ var html = `
                 text="hmaker.com.rows.name" tip="hmaker.com.rows.tip"></li>
             <li ctype="columns" icon="hmaker.com.columns.icon" 
                 text="hmaker.com.columns.name" tip="hmaker.com.columns.tip"></li>
-            <li ctype="navmenu" icon="hmaker.com.navmenu.icon" 
-                text="hmaker.com.navmenu.name" tip="hmaker.com.navmenu.tip"></li>
             <li ctype="text" icon="hmaker.com.text.icon" 
                 text="hmaker.com.text.name" tip="hmaker.com.text.tip"></li>
             <li ctype="image" icon="hmaker.com.image.icon" tag-name="A"
                 text="hmaker.com.image.name" tip="hmaker.com.image.tip"></li>
+            <li ctype="navmenu" icon="hmaker.com.navmenu.icon" 
+                text="hmaker.com.navmenu.name" tip="hmaker.com.navmenu.tip"></li>
             <li ctype="objlist" icon="hmaker.com.objlist.icon" 
                 text="hmaker.com.objlist.name" tip="hmaker.com.objlist.tip"></li>
             <li ctype="objshow" icon="hmaker.com.objshow.icon" 
@@ -112,7 +112,14 @@ return ZUI.def("app.wn.hmaker_page", {
         // 修改插入条的宽高
         "click .hmpg-ibar .hm-ibtn" : function(){
             var UI = this;
+
+            // 设置开关
             $z.toggleAttr(UI.arena, "full-ibar");
+
+            // 本地记录状态
+            UI.local("hm_ibar_full", UI.arena.attr("full-ibar") ? true : false);
+
+            // 动画结束，确保 resize
             UI.arena.one("transitionend", function(){
                 UI.resize(true);
             });
@@ -737,6 +744,11 @@ return ZUI.def("app.wn.hmaker_page", {
     redraw : function(){
         var UI  = this;
 
+        // 更新 ibar 状态
+        if(UI.local("hm_ibar_full")) {
+            UI.arena.attr("full-ibar", true);
+        }
+
         // 更新 ibar
         var jiBar = UI.arena.find(".hmpg-ibar");
         var jiUl  = jiBar.find(">.hm-W>ul");
@@ -747,8 +759,8 @@ return ZUI.def("app.wn.hmaker_page", {
             var tip  = UI.msg(jLi.attr("tip"));
             // 插入 ibox
             var jiBox = UI.ccode("ibar.ibox");
-            jiBox.find(">header>b").text(text);
-            jiBox.find(">header>em").text(tip);
+            jiBox.find("header b").text(text);
+            jiBox.find("header em").text(tip);
             jiBox.appendTo(jLi);
 
             // 插入 thumb
@@ -759,8 +771,11 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 确保屏幕的模式
         UI.arena.find(".hmpg-screen").attr("mode", this.getScreenMode());
+
+        // 开启动画
         window.setTimeout(function(){
             UI.arena.find(".hmpg-screen").attr("animat-on", "yes");
+            UI.arena.attr("animat-on", "yes");
         }, 0);
         
         // 绑定隐藏 iframe onload 事件，这个 iframe 专门用来与服务器做数据交换的
@@ -825,8 +840,6 @@ return ZUI.def("app.wn.hmaker_page", {
                     }
                 }
             },{
-                type : "separator"
-            },{
                 icon : '<i class="zmdi zmdi-long-arrow-up"></i>',
                 tip  : 'i18n:hmaker.page.move_before',
                 handler : function() {
@@ -853,8 +866,6 @@ return ZUI.def("app.wn.hmaker_page", {
                     }
                 }
             },{
-                type : "separator"
-            },{
                 key      : 'assisted_showhide',
                 tip      : "i18n:hmaker.page.assisted_showhide",
                 type     : "boolean",
@@ -866,8 +877,6 @@ return ZUI.def("app.wn.hmaker_page", {
                 init : function(mi){
                     mi.on = !UI.isAssistedOff();
                 }
-            },{
-                type : "separator"
             },{
                 key  : 'screen_mode',
                 type : "status",

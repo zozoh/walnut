@@ -96,9 +96,9 @@ var methods = {
         UI.doChangeSkin();
 
         // 模拟第一个块被点击
-        window.setTimeout(function(){
-            UI._C.iedit.$body.find(".hm-com").first().click();
-        }, 500);
+        // window.setTimeout(function(){
+        //     UI._C.iedit.$body.find(".hm-com").last().click();
+        // }, 500);
     },
     //...............................................................
     // 添加 JS

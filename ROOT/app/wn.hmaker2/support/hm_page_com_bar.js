@@ -18,12 +18,29 @@ return ZUI.def("app.wn.hmpg_combar", {
     },
     //...............................................................
     events : {
-        'click .hm-combar-item[parent]' : function(e){
-            var UI = this;
-            var comId  = $(e.currentTarget).attr("com-id");
-            // 组件
-            if(comId) {
+        'click .hm-combar-item' : function(e){
+            var UI  = this;
+            var jPi = $(e.currentTarget);
+
+            // 忽略当前
+            if("current" == jPi.attr("mode"))
+                return;
+
+            // 得到关键信息
+            var comId  = jPi.attr("com-id");
+            var areaId = jPi.attr("area-id");
+
+            // 区域
+            if(areaId) {
                 var uiCom = UI.pageUI().getCom(comId);
+                uiCom.notifyActived(null, areaId);
+            }
+            // 组件
+            else if(comId) {
+                var uiCom = UI.pageUI().getCom(comId);
+                // 确保取消高亮
+                $z.invoke(uiCom, "highlightArea", [false]);
+                // 通知
                 uiCom.notifyActived(null);
             }
             // 页面
@@ -41,55 +58,90 @@ return ZUI.def("app.wn.hmpg_combar", {
         var UI = this;
         UI.arena.empty().prepend(UI.compactHTML(`<div class="hm-combar-item" current="yes">
             <b>{{hmaker.page.body}}</b>
+            <i class="zmdi zmdi-chevron-right pi-sep"></i>
         </div>`));
-    },
-    //...............................................................
-    __gen_com_html : function(jCom, current) {
-        var UI = this;
-        var jq = $(jCom);
-        var comId = jq.attr("id");
-        var ctype = jq.attr("ctype");
-
-        var html = '<div class="hm-combar-item" com-id="'+comId+'"';
-        if(current)
-            html += ' current="yes">';
-        else
-            html += ' parent="yes">';
-        html += UI.msg("hmaker.com."+ctype+".icon");
-        html += `<b data-balloon="`+UI.msg("hmaker.com."+ctype+".name")+`"
-                data-balloon-pos="down">`+comId+`</b>`;
-        if(!current)
-            html += '<i class="zmdi zmdi-chevron-right"></i>';
-        //html += '<em>('+comId+')</em>';
-        html += '</div>';
-
-        return html;
     },
     //...............................................................
     updateComPath : function(uiCom) {
         var UI = this;
         jCom = uiCom.$el;
 
-        // 清空
-        this.arena.empty();
+        // 看看是否可以复用当前路径
+        UI.__current_com_path = UI.__current_com_path || [];
+        var my_com_ph = uiCom.getComPath(true);
+        var can_reuse = (UI.__current_com_path.length > my_com_ph.length);
+        // 仔细判断一下，必须全部匹配才可以复用
+        if(can_reuse) {
+            for(var i=0; i<my_com_ph.length; i++) {
+                if(!_.isEqual(my_com_ph[i], UI.__current_com_path[i])){
+                    can_reuse = false;
+                    break;
+                }
+            }
+        }
 
-        // 根据组件路径绘制
-        jCom.parents(".hm-com").each(function(){
-            var html = UI.__gen_com_html(this);
-            UI.arena.prepend(html);
+        // 更新高亮项目的下标
+        UI.__current_index = my_com_ph.length - 1;
+
+        // 如果不能复用，则刷新显示
+        if(!can_reuse) {
+            // 首先更新记录
+            UI.__current_com_path = my_com_ph;
+
+            // 清空
+            UI.emptyComPath();
+
+            // 重新绘制
+            for(var i=0; i<UI.__current_com_path.length; i++) {
+                var pi = UI.__current_com_path[i];
+                var html = '<div class="hm-combar-item">';
+                // 控件的话，绘制 Icon
+                if("_area" != pi.ctype){
+                    // 组件
+                    if(pi.lib) {
+                        html += '<span class="pi-icon">' + UI.msg("hmaker.lib.icon") + '</span>';
+                    }
+                    // 普通控件
+                    else {
+                        html += '<span class="pi-icon">' + UI.msg("hmaker.com." + pi.ctype + ".icon") + '</span>';
+                    }
+                }
+                html += '<b>' + (pi.areaId || pi.comId) + '</b>';
+                html += '<i class="zmdi zmdi-chevron-right pi-sep"></i>';
+                html += '</div>';
+                $(html).attr({
+                    "ctype"        : pi.ctype,
+                    "com-id"       : pi.comId,
+                    "area-id"      : pi.areaId,
+                    "lib-name"     : pi.lib || null,
+                    "data-balloon" : UI.msg("hmaker.com." + pi.ctype + ".name"),
+                    "data-balloon-pos" : "down"
+                }).appendTo(UI.arena);
+            }
+        }
+
+        // 更新一下显示
+        UI.arena.children().each(function(index){
+            var n = index - 1;
+            // 祖先项
+            if(n < UI.__current_index){
+                $(this).attr("mode", "parent");
+            }
+            // 当前项
+            else if(n == UI.__current_index) {
+                $(this).attr("mode", "current");
+            }
+            // 子项
+            else {
+                $(this).attr("mode", "child");
+            }
         });
-
-        // 绘制页面节点
-        UI.arena.prepend(UI.compactHTML(`<div class="hm-combar-item" parent="yes">
-            <b>{{hmaker.page.body}}</b>
-            <i class="zmdi zmdi-chevron-right"></i>
-        </div>`));
-
-        // 最后绘制自己
-        var html = UI.__gen_com_html(jCom, true);     
-        UI.arena.append(html);
         
     },
+    //...............................................................
+    __update_path_display : function(){
+
+    }
     //...............................................................
 });
 //===================================================================

@@ -118,6 +118,7 @@ define({
             "insert" : "插入项",
             "ibarloading" : '<i class="fa fa-spinner fa-pulse"></i> 正在取得 ..',
             "noLibName" : "组件名称为空，咋插入啊大哥 -_-!",
+            "ireload" : "重新加载插入项",
         },
         "com" : {
             "_" : {
@@ -131,6 +132,7 @@ define({
                 "existsID" : "这个组件ID已经存在"
             },
             "_area" : {
+                "name"  : "布局区域",
                 "add"   : "添加分栏",
                 "id"    : "分栏ID",
             },

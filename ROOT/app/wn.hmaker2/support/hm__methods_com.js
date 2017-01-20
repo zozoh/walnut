@@ -53,6 +53,58 @@ var methods = {
         this.$el.attr("lib", lib || null);
     },
     //........................................................
+    // 获取一个组件的路径数组，每个元素为
+    // {
+    //     ctype  : 组件类型  (@area) 表示布局控件的区域
+    //     comId  : 组件ID
+    //     areaId : 区域ID  
+    // }
+    // - includeSelf : 是否包括自己
+    // - ignoreArea  : 是否忽略区域
+    getComPath : function(includSelf, ignoreArea) {
+        var re = [];
+        // 处理自己
+        if(includSelf) {
+            // 自己的高亮区域
+            var areaId = $z.invoke(this, "getHighlightAreaId");
+            if(areaId) {
+                re.push({
+                    ctype  : "_area",
+                    comId  : this.getComId(),
+                    areaId : areaId
+                });
+            }
+            // 自己的组件
+            re.push({
+                ctype : this.getComType(),
+                comId : this.getComId(),
+                lib   : this.$el.attr("lib")
+            });
+        }
+        // 处理自己的父组件和区域
+        this.$el.parents(ignoreArea ? ".hm-com" : ".hm-com,.hm-area").each(function(){
+            var jq = $(this);
+            // 区域
+            if(jq.hasClass("hm-area")) {
+                re.push({
+                    ctype  : "_area",
+                    comId  : jq.closest(".hm-com").attr("id"),
+                    areaId : jq.attr("area-id")
+                });
+            }
+            // 组件
+            else {
+                re.push({
+                    ctype : jq.attr("ctype"),
+                    comId : jq.attr("id"),
+                    lib   : jq.attr("lib")
+                });
+            }
+        });
+        // 返回
+        return re.reverse();
+    },
+    //........................................................
     getIconHtml : function() {
         return this.msg('hmaker.com.' + this.getComType() + '.icon');
     },
@@ -66,8 +118,16 @@ var methods = {
         return $(jq).closest(".hm-com[hm-actived]").length > 0;
     },
     //........................................................
-    notifyActived : function(mode){
+    notifyActived : function(mode, areaId){
+        // 高亮指定区域
+        if(areaId) {
+            $z.invoke(this, "highlightArea", [areaId]);
+        }
+
+        // 激活
         this.fire("active:com", this);
+
+        // 通知更新
         if(!_.isUndefined(mode)){
             this.notifyBlockChange(mode, this.getBlock());
             this.notifyDataChange(mode,  this.getData());
