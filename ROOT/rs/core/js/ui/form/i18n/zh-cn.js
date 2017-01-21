@@ -10,13 +10,6 @@ define({
             "reverse" : "反",
             "none"    : "无",
         },
-        "color" : {
-            "red"   : "红",
-            "green" : "绿",
-            "blue"  : "蓝",
-            "alpha" : "透明度",
-            "enum"  : "色板"
-        },
         "background" : {
             "color"      : "背景颜色",
             "origin"     : "背景范围",

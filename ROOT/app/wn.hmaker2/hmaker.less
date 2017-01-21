@@ -181,7 +181,9 @@
                     .hm-combar-item { 
                         display: inline-block; padding:0 @d2;
                         color:@c2; font-size:@f0; opacity: 0.8;
-                        > * {vertical-align: middle; display: inline-block;}
+                        > * {
+                            vertical-align: middle; display: inline-block;
+                        }
                         span.pi-icon {
                             margin-right:@d1; 
                             i {transition:0.3s;}
@@ -204,6 +206,7 @@
                     }
                     .hm-combar-item[mode="parent"]:hover,
                     .hm-combar-item[mode="child"]:hover {
+                        opacity: 1.0;
                         span.pi-icon i{
                             transform:scale(1.2);
                         }

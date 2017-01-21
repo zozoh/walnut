@@ -227,7 +227,7 @@ return ZUI.def("ui.form", {
                     UI.__on_change(this, v);
                 }
             })).render(function(){
-                // console.log("UI.defer_report:", fld.uiType, fld._form_key);
+                //console.log("UI.defer_report:", fld.uiType, fld._form_key);
                 UI.defer_report(fld._form_key);
                 // 记录字段对应的 UI 对象
                 fld.UI = this;
@@ -354,6 +354,7 @@ return ZUI.def("ui.form", {
         UI.$el.css("visibility", "hidden");
 
         // 返回延迟加载
+        //console.log(UI._fld_form_keys)
         return UI._fld_form_keys;
     },
     //...............................................................

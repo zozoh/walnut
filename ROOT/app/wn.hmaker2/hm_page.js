@@ -177,28 +177,30 @@ return ZUI.def("app.wn.hmaker_page", {
 
             // 组件库
             if("libitem" == ctype) {
-                Wn.execf("hmaker lib id:{{homeId}} -list", {
-                    homeId : UI.getHomeObjId()
-                }, function(re) {
-                    var libNames = $z.fromJson(re);
-                    // 空
-                    if(libNames.length == 0) {
-                        jiSec.find(".loading")
-                            .html('<i class="zmdi zmdi-alert-circle-o"></i>'
-                                 + UI.msg("hmaker.lib.empty"));
-                    }
-                    // 输出内容
-                    else {
-                        jiSec.empty();
-                        for(var i=0; i<libNames.length; i++) {
-                            var jDiv = $('<div class="ibar-item">');
-                            jDiv.attr("val", libNames[i]);
-                            jDiv.html(UI.msg("hmaker.lib.icon_item"));
-                            jDiv.append($('<b>').text(libNames[i]));
-                            jDiv.appendTo(jiSec);
+                window.setTimeout(function(){
+                    Wn.execf("hmaker lib id:{{homeId}} -list", {
+                        homeId : UI.getHomeObjId()
+                    }, function(re) {
+                        var libNames = $z.fromJson(re);
+                        // 空
+                        if(libNames.length == 0) {
+                            jiSec.find(".loading")
+                                .html('<i class="zmdi zmdi-alert-circle-o"></i>'
+                                     + UI.msg("hmaker.lib.empty"));
                         }
-                    }
-                });
+                        // 输出内容
+                        else {
+                            jiSec.empty();
+                            for(var i=0; i<libNames.length; i++) {
+                                var jDiv = $('<div class="ibar-item">');
+                                jDiv.attr("val", libNames[i]);
+                                jDiv.html(UI.msg("hmaker.lib.icon_item"));
+                                jDiv.append($('<b>').text(libNames[i]));
+                                jDiv.appendTo(jiSec);
+                            }
+                        }
+                    });
+                }, 200);
             }
             // 控件
             else {
@@ -831,7 +833,7 @@ return ZUI.def("app.wn.hmaker_page", {
             gasketName : "pagebar",
             setup : [{
                 icon : '<i class="zmdi zmdi-upload"></i>',
-                text : 'i18n:hmaker.page.move_to_body',
+                tip  : 'i18n:hmaker.page.move_to_body',
                 handler : function() {
                     var uiCom = UI.getActivedCom();
                     if(uiCom){
@@ -840,7 +842,7 @@ return ZUI.def("app.wn.hmaker_page", {
                     }
                 }
             },{
-                icon : '<i class="zmdi zmdi-long-arrow-up"></i>',
+                icon : '<i class="zmdi zmdi-long-arrow-left"></i>',
                 tip  : 'i18n:hmaker.page.move_before',
                 handler : function() {
                     var uiCom = UI.getActivedCom();
@@ -853,7 +855,7 @@ return ZUI.def("app.wn.hmaker_page", {
                     }
                 }
             },{
-                icon : '<i class="zmdi zmdi-long-arrow-down"></i>',
+                icon : '<i class="zmdi zmdi-long-arrow-right"></i>',
                 tip  : 'i18n:hmaker.page.move_after',
                 handler : function() {
                     var uiCom = UI.getActivedCom();
