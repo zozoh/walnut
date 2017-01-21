@@ -80,7 +80,7 @@ var methods = {
                 break;
             jDrop.prepend(jItem);
             jItem = jNext;
-            console.log("[" + jItem.text() + "]", jItem.length);
+            //console.log("[" + jItem.text() + "]", jItem.length);
             // 无论如何都要保留最后一个
             if(jItem[0] == jLast[0])
                 break;

@@ -98,7 +98,8 @@
 .com-square-drop {
   // 预览
   > .cc-box {
-    display: inline-block;
+    display: inline-block; 
+    vertical-align: middle;
     width: @CCH;
     height: @CCH;
     padding: 1px;
@@ -130,6 +131,13 @@
       right: -100px;
       transform: rotate(-45deg);
     }
+  }
+  // 动作区
+  > .cc-opt {
+    display: inline-block;
+    vertical-align: middle;
+    white-space: nowrap;
+
   }
   // 编辑区
   > .cc-edit {
@@ -165,16 +173,34 @@
 .com-square-drop[show] > .cc-edit {
   display: block;
 }
-
+//----------------------------------------------------------------
+// 颜色
+.com-color {
+  > .cc-edit {
+    > .cce-con {
+      width: 340px;
+      height: 200px;
+    }
+  }
+}
 //----------------------------------------------------------------
 // 背景
 .com-background {
+  > .cc-opt {
+    padding:0 @d2; font-size:@f2;
+    a {
+      color:@clink; cursor: pointer; margin: 0 @d1;
+    }
+    a:hover {color:@clink_hover;}
+  }
   > .cc-edit {
-    > .cce-con {
-      height: 330px;
+    > .cce-con[for="bgimg"] {
       width: 430px;
-      border: 1px solid @cborder1;
-      border-radius: @d3;
+      height: 340px;
+    }
+    > .cce-con[for="color"] {
+      width: 340px;
+      height: 200px;
     }
   }
 }

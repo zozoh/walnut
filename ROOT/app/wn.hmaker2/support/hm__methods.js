@@ -353,45 +353,43 @@ var methods = {
     //=========================================================
     // 获取背景属性编辑控件的关于 image 编辑的配置信息
     getBackgroundImageEditConf : function(){
+        var UI    = this;
+        var oHome = UI.getHomeObj();
         return {
             imageBy : {
-                editAs : "link",
+                uiType : "ui/picker/opicker",
                 uiConf : {
-                    body : {
-                        setup : {
-                            defaultPath : this.getHomeObj(),
-                            lastObjId : "hmaker_pick_media",
-                            filter    : function(o) {
-                                if('DIR' == o.race)
-                                    return true;
-                                return /^image/.test(o.mime);
-                            }
+                    base : oHome,
+                    lastObjKey : "hmaker_pick_image",
+                    setup : {
+                        defaultByCurrent : false,
+                        multi  : false,
+                        filter : function(o) {
+                            if('DIR' == o.race)
+                                return true;
+                            return /^image/.test(o.mime);
                         }
                     },
                     // 解析对象，如果是 url(/o/read/id:xxx) 那么就认为是对象
                     parseData : function(str){
+                        //console.log(str)
                         // 看看是不是对象
-                        var m = /^url\("?\/o\/read\/(id:\w+)"?\)$/i.exec(str);
-                        if(m)
-                            return m[1];
-                        // 外部链接 
-                        m = /^url\("?(https?:\/\/[^"\)]+)"?\)$/i.exec(str);
-                        if(m)
-                            return m[1];
+                        var m = /^url\("?\/o\/read\/id:\w+\/([^"']+)"?\)$/i.exec(str);
+                        if(m) {
+                            var oHome = UI.getHomeObj();
+                            var rph   = m[1];
+                            return Wn.fetch(Wn.appendPath(oHome.ph, rph));
+                        }
                         return null;
                     },
                     // 把 link 搞出来的东西用 url() 包裹
-                    formatData : function(link){
-                        // 内部对象
-                        if(/^id:.+/.test(link)) {
-                            return 'url("/o/read/' + link + '")';
-                        }
-                        // 外部链接
-                        if(/^https?:\/\/.+/i.test(link)) {
-                            return 'url("' + link + '")';
-                        }
-                        // 其他
-                        return null;
+                    formatData : function(o){
+                        if(!o)
+                            return null;
+                        // 得到相对路径
+                        var oHome = UI.getHomeObj();
+                        var rph   = Wn.getRelativePath(oHome, o);
+                        return 'url("/o/read/id:' + oHome.id + '/' + rph + '")';
                     }
                 }
             }

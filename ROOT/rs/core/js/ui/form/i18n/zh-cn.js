@@ -11,6 +11,7 @@ define({
             "none"    : "无",
         },
         "background" : {
+            "clean"      : "清除背景",
             "color"      : "背景颜色",
             "origin"     : "背景范围",
             "origin_padding" : "边距",

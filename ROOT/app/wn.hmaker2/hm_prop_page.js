@@ -21,8 +21,9 @@ return ZUI.def("app.wn.hm_prop_page", {
         UI.listenBus("active:page",  UI.refreshData);
     },
     //...............................................................
-    redraw : function(){
+    refreshData : function(){
         var UI = this;
+        var attr = UI.pageUI().getPageAttr();
 
         new FormUI({
             parent : UI,
@@ -35,26 +36,21 @@ return ZUI.def("app.wn.hm_prop_page", {
                 key    : "color",
                 title  : "i18n:hmaker.prop.color",
                 type   : "string",
+                dft    : "",
+                emptyAsNull : false,
                 editAs : "color",
             }, {
                 key    : "background",
                 title  : "i18n:hmaker.prop.background",
                 type   : "string",
-                nullAsUndefined : true,
+                dft    : "",
+                emptyAsNull : false,
                 editAs : "background",
                 uiConf : UI.getBackgroundImageEditConf()
             }]
         }).render(function(){
-            UI.defer_report("attr");
+            this.setData(attr);
         });
-
-        return ["attr"];
-    },
-    //...............................................................
-    refreshData : function(){
-        var UI = this;
-        var attr = UI.pageUI().getPageAttr();
-        UI.gasket.attr.setData(attr);
     },
     //...............................................................
 });

@@ -403,6 +403,7 @@ return ZUI.def("ui.support.edit_color", {
         var UI = this;
         return this.ui_format_data(function(opt){
             var color = UI.__get_color();
+            // console.log(color)
             if(color && "string" == opt.dataType){
                 switch(opt.colorFormat) {
                     case "HEX":
