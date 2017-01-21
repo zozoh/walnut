@@ -14,7 +14,7 @@ var html = `
         <a action="bgimg">{{com.background.image}}</a>
         <a action="clean"
             data-balloon="{{com.background.clean}}"
-            data-balloon-pos="up"><i class="fa fa-trash"></i></a>
+            data-balloon-pos="up"><i class="zmdi zmdi-close"></i></a>
     </div>
     <div class="cc-edit">
         <div class="cce-mask"></div>
@@ -62,6 +62,7 @@ return ZUI.def("ui.form_com_background", {
             key    : "backgroundImage",
             title  : "i18n:com.background.image",
             type   : "string",
+            dft    : "",
         }, opt.imageBy), {
             key    : "backgroundPosition",
             title  : "i18n:com.background.position",
@@ -197,6 +198,7 @@ return ZUI.def("ui.form_com_background", {
                     gasketName : "edit",
                     mergeData : true,
                     on_change : function(){
+                        console.log("haha")
                         UI.__update(this.getData(), true);
                         UI.__on_change();
                     },

@@ -33,6 +33,13 @@ return ZUI.def("app.wn.hm_prop_page", {
                 UI.pageUI().setPageAttr(attr);
             },
             fields : [{
+                key    : "margin",
+                title  : "i18n:hmaker.page.margin",
+                type   : "string",
+                dft    : "",
+                emptyAsNull : false,
+                editAs : "input"
+            }, {
                 key    : "color",
                 title  : "i18n:hmaker.prop.color",
                 type   : "string",

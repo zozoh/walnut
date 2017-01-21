@@ -103,7 +103,11 @@ return ZUI.def("app.wn.hmaker2", {
                 MainUI = HmCodeUI;
             }
         }
-        // 其他的显示错误的 UI
+        // 如果是 css 或者 js 也是用代码视图
+        else if(/^(css|js)$/.test(o.tp)) {
+            MainUI = HmCodeUI;
+        }
+        // 其他的显示预览界面
         else {
             MainUI = HmOtherUI;
         }
@@ -199,7 +203,38 @@ return ZUI.def("app.wn.hmaker2", {
             tp   : "folder",
             text : "i18n:hmaker.folder",
             tip  : "i18n:hmaker.folder_tip",
-        }]);
+        }, {
+            race : "FILE",
+            tp   : "css",
+            text : "i18n:hmaker.css",
+            tip  : "i18n:hmaker.css_tip",
+        }, {
+            race : "FILE",
+            tp   : "js",
+            text : "i18n:hmaker.js",
+            tip  : "i18n:hmaker.js_tip",
+        }], {
+            create : function(obj, callback) {
+                // 确保 css/js 在正确的目录里
+                if(/^(css|js)$/.test(obj.tp)) {
+                    var re = Wn.exec('obj -o -race DIR -check id:'+oHome.id+"/"+obj.tp);
+                    if(/^e./.test(re)){
+                        UI.alert(re);
+                        return;
+                    }
+                    var oDir = $z.fromJson(re);
+                    obj.pid = oDir.id;
+                    // 确保文件名以正确的后缀结尾
+                    if(obj.tp != $z.getSuffixName(obj.nm)){
+                        obj.nm += "." + obj.tp;
+                    }
+                }
+
+                // 执行创建
+                var cmdText = $z.tmpl("obj -o -new \'<%=obj%>\'")($z.toJson(obj));
+                Wn.exec(cmdText, callback);
+            }
+        });
     },
     //...............................................................
     openNewSitePanel : function(copySite) {
@@ -245,7 +280,7 @@ return ZUI.def("app.wn.hmaker2", {
         }
 
         // 向用户确认一下要删除
-        if(confirm(UI.msg("hmaker.site.del_confirm"))){
+        UI.confirm("hmaker.site.del_confirm", function(){
             var cmdText = 'rm -rfv id:' + oHome.id;
             Wn.logpanel(cmdText, function(){
                 // 关闭日志面板
@@ -258,7 +293,7 @@ return ZUI.def("app.wn.hmaker2", {
                     }
                 });
             });
-        }
+        });
     },
     //...............................................................
     openSiteConfPanel : function(oHome, callback) {

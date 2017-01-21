@@ -109,6 +109,7 @@ define({
         },
         "page" : {
             "body"         : "页面",
+            "margin"       : "页边距",
             "move_to_body" : "移出分栏",
             "move_before"  : "前移渲染顺位",
             "move_after"   : "后移渲染顺位",

@@ -48,6 +48,11 @@ return ZUI.def("ui.o_create", {
             }
             return true;
         });
+        $z.setUndefined(opt, "create", function(obj, callback){
+            var cmdText = $z.tmpl("obj -o -new \'<%=obj%>\'")($z.toJson(obj));
+            // console.log(cmdText)
+            Wn.exec(cmdText, callback);
+        });
     },
     //...............................................................
     events : {
@@ -116,7 +121,7 @@ return ZUI.def("ui.o_create", {
             return;
         }
 
-        // 执行并返回
+        // 准备数据
         var jLi  = UI.arena.find(".ocreate-list li.highlight");
         var obj = {
             pid  : UI.$el.attr("pid"),
@@ -124,9 +129,9 @@ return ZUI.def("ui.o_create", {
             race : jLi.attr("race"),
             nm   : nm
         };
-        var cmdText = $z.tmpl("obj -o -new \'<%=obj%>\'")($z.toJson(obj));
-        // console.log(cmdText)
-        Wn.exec(cmdText, function(re){
+
+        // 执行 
+        opt.create(obj, function(re){
             UI.arena.removeAttr("ing");
             // 如果出错了
             if(/^e./.test(re)){
@@ -152,7 +157,14 @@ return ZUI.def("ui.o_create", {
         for(var i=0; i<clist.length; i++){
             var cl  = clist[i];
             var jLi = UI.ccode("li").appendTo(jUl);
-            jLi.find(".oicon").attr("otp", cl.tp);
+            // 指定图标
+            if(cl.icon){
+                jLi.find(".oicon").replaceWith($(cl.icon))
+            }
+            // 用文件类型
+            else{
+                jLi.find(".oicon").attr("otp", cl.tp);
+            }
             jLi.find("b").text(UI.str(cl.text, cl.tp));
             jLi.attr("race", cl.race);
             if(cl.tip)

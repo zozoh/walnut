@@ -209,11 +209,26 @@ var methods = {
             if('lib' == o.nm) {
                 return this.msg('hmaker.lib.icon');
             }
+            if('image' == o.nm){
+                return '<i class="zmdi zmdi-collection-image-o"></i>';
+            }
+            if('css' == o.nm) {
+                return '<i class="zmdi zmdi-language-css3"></i>';
+            }
+            if('js' == o.nm) {
+                return '<i class="zmdi zmdi-collection-text"></i>';
+            }
         }
 
         // 库组件
         if('hm_lib' == o.tp) {
             return this.msg('hmaker.lib.icon_item');
+        }
+
+        // CSS 文件
+        // JS
+        if(/^(css|js)$/.test(o.tp)) {
+            return '<i class="fa fa-file-text-o"></i>';
         }
         
         // 文件夹
@@ -259,7 +274,7 @@ var methods = {
             return  '<i class="fa fa-file-word-o"></i>';
 
         // 其他
-        return  '<i class="fa fa-file"></i>';
+        return  '<i class="fa fa-file-o"></i>';
     },
     //=========================================================
     // 根据控件的块定位模式，从 css 集合里提取出相关的熟悉
@@ -361,6 +376,7 @@ var methods = {
                 uiConf : {
                     base : oHome,
                     lastObjKey : "hmaker_pick_image",
+                    clearable  : false,
                     setup : {
                         defaultByCurrent : false,
                         multi  : false,

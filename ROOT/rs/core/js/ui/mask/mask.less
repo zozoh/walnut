@@ -16,17 +16,17 @@
         position: relative; width:100%; height:100%;
     
         > .ui-mask-bg {
-            width:100%; height:100%; background: #000; opacity: 0.3;
+            width:100%; height:100%; background: rgba(0,0,0,0.0); 
         }
 
         > .ui-mask-closer {
-            position: absolute;
+            position: absolute; z-index: 100;
             font-size:@f4; font-family: 'Material-Design-Iconic-Font';
             cursor:pointer; 
             color:@cbtn_f; background-color: @cbtn_b; 
             border-radius: 100px; border:2px solid @cbtn_l;
             line-height: @d6; width:@d6 + 4px; text-align: center;
-            transition:transform 0.2s; overflow: hidden;
+            transition: 0.3s; overflow: hidden;
         }
         > .ui-mask-closer:before {
             display: "inline";

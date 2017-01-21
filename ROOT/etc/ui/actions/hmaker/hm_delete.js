@@ -7,7 +7,7 @@
 		
 		// 没有数据接口 
         if(!_.isFunction(UI.getCurrentEditObj)){
-        	alert(UI.msg("e.act.noapi_obj"));
+        	UI.alert("e.act.noapi_obj");
         	return;
         }
         
@@ -17,13 +17,13 @@
         
         // 没有数据
         if(!theObj) {
-        	alert("e.act.noapi_obj");
+        	UI.alert("e.act.noapi_obj");
         	return;
         }
         
         // 警告信息
         if(_.isString(theObj)) {
-        	alert(UI.msg(theObj));
+        	UI.alert(UI.msg(theObj));
         	return;
         }
         		
@@ -34,6 +34,8 @@
 				list = UI.getChecked();
 			}
 		}
+		
+		console.log(list)
 		
 		// 默认删除当前编辑的项目
 		if (!list || list.length == 0) {

@@ -189,9 +189,14 @@
   > .cc-opt {
     padding:0 @d2; font-size:@f2;
     a {
-      color:@clink; cursor: pointer; margin: 0 @d1;
+      color:@clink; cursor: pointer; margin: 0 @d0;
     }
     a:hover {color:@clink_hover;}
+    a[action="bgimg"] i {font-size:@f3;}
+    a[action="clean"] i {transition:0.3s;}
+    a[action="clean"]:hover i {
+      transform:rotate(720deg) scale(1.4);
+    }
   }
   > .cc-edit {
     > .cce-con[for="bgimg"] {

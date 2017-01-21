@@ -194,7 +194,7 @@ var Wn = {
     提供一个通用的创建界面，可以在给定的目录对象下面创建一个对象
     app clist 命令会提供数据方面的帮助
     */
-    createPanel: function(o, callback, clist){
+    createPanel: function(o, callback, clist, opt){
         var context = this;
         // 打开遮罩
         var MaskUI    = require("ui/mask/mask");
@@ -203,7 +203,7 @@ var Wn = {
             height: 480,
             setup : {
                 uiType : "ui/o_create/o_create",
-                uiConf : {
+                uiConf : _.extend({
                     on_ok : function(o){
                         $z.doCallback(callback, [o], context);
                         this.parent.close();
@@ -211,7 +211,7 @@ var Wn = {
                     on_cancel : function(){
                         this.parent.close();
                     }
-                }
+                }, opt)
             }
         }).render(function(){
             this.body.update(o, clist);

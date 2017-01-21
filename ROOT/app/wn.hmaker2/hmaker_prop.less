@@ -307,17 +307,23 @@
             img {box-shadow: 1px 1px 3px @cshadow; background:#000;}
         }
     }
-    > .pf-meta    {top:@pfH0; bottom:@pfH1;
+    > .pf-meta {
+        top:@pfH0; bottom:@pfH1;
         padding:@d4 @d4 0 @d4;
         // 表单项的特殊属性
         .ui-form {
             border:1px solid @cborder1; border-radius: @d0;
-            background: @cb2; color:@cf2;
+            background: @cb2; color:@cf2; padding:@d3 0;
             .form-fld{
-                padding:@d2 @d0; font-size:@f1;
-                .ff-txt {padding:@d2 @d0 @d2 @d7; border-right:1px solid @cborder1;}
-                
-                .ff-val {padding:0; color:@c3;}
+                padding:@d1 @d0; font-size:@f2;
+                .ff-txt {
+                    padding:@d1 @d2 @d1 @d4;
+                    .fft-text:after{display: inline; content: ": ";}
+                }                
+                .ff-val {
+                    padding:0; color:@c3;
+                    .com-label {padding:@d0;}
+                }
                 b {font-weight: normal;}
             }
         }
