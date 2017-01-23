@@ -150,17 +150,57 @@ return ZUI.def("app.wn.hmaker_page", {
         // }
     },
     //...............................................................
-    getPageAttr : function(){
-        return $z.getJsonFromSubScriptEle(this._C.iedit.$body, "hm-page-attr");
+    getPageAttr : function(includePageMeta){
+        var UI   = this;
+        var attr = $z.getJsonFromSubScriptEle(this._C.iedit.$body, "hm-page-attr");
+        // 还要读取 page 的 title 属性
+        if(includePageMeta) {
+            attr.title = UI.getCurrentEditObj().title || null;
+        }
+        // 返回
+        return attr;
     },
     setPageAttr : function(attr){
-        $z.setJsonToSubScriptEle(this._C.iedit.$body, "hm-page-attr", attr, true);
+        var UI = this;
+        // 更新一下 page 的 title 属性
+        var oPg = UI.getCurrentEditObj();
+        if(oPg.title != attr.title) {
+            Wn.execf('obj id:{{id}} -u \'title:"{{title}}"\' -o', {
+                id    : oPg.id,
+                title : attr.title || null
+            }, function(re) {
+                // 处理错误
+                if(/^e./.test(re)) {
+                    UI.alert(re);
+                    return;
+                }
+                // 将最新结果计入缓存
+                oPg = $z.fromJson(re);
+                Wn.saveToCache(oPg);
+                // 最后刷新一下资源
+                UI.resourceUI().refresh();
+            });
+        }
+
+        // 应用
         this.applyPageAttr(attr);
+
+        // 保存
+        $z.setJsonToSubScriptEle(this._C.iedit.$body, 
+            "hm-page-attr", 
+            attr, 
+            true);
     },
     applyPageAttr : function(attr){
         var UI = this;
-        attr = attr || UI.getPageAttr() || {};
-        UI._C.iedit.$body.css(attr);
+        // 指定要设置的 attr
+        if(attr) {
+            UI._C.iedit.$body.css(attr);    
+        }
+        // 否则重新应用一下
+        else {
+            UI._C.iedit.$body.css(UI.getPageAttr());
+        }
     },
     //...............................................................
     doReloadIBarItem : function(jLi, force) {

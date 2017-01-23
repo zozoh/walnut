@@ -34,8 +34,7 @@ return ZUI.def("app.wn.hmaker_resource", {
         // 重新加载 
         UI.uiTree.showLoading();
         UI.uiTree.reload(function(){
-            if(aid)
-                UI.uiTree.setActived(aid);
+            UI.uiTree.hideLoading();
         });
     },
     //...............................................................
@@ -128,8 +127,12 @@ return ZUI.def("app.wn.hmaker_resource", {
             icon  : function(o){
                 return UI.getObjIcon(o);
             },
+            escapeHtml : false,
             text  : function(o){
-                return UI.getObjText(o);
+                var html = '<b>' + UI.getObjText(o) + '</b>';
+                if(o.title)
+                    html += '<em>' + o.title + '</em>';
+                return html;
             },
             isLeaf : function(o){
                 // 特殊的目录: lib
@@ -159,9 +162,12 @@ return ZUI.def("app.wn.hmaker_resource", {
             // },
             on_click_actived_text : function(o, jText, jNode){
                 var UI = this;
+                jNode.attr("edit-text-on", "yes");
                 $z.editIt(jText.parent(), {
                     text : o.nm,
+                    copyStyle : false,
                     after : function(newval, oldval) {
+                        jNode.removeAttr("edit-text-on");
                         // 去掉空白
                         newval = $.trim(newval);
                         // 如果有效就执行改名看看
@@ -179,7 +185,7 @@ return ZUI.def("app.wn.hmaker_resource", {
                                     var obj = $z.fromJson(re);
                                     Wn.saveToCache(obj);
                                     //jText.text(obj.nm);
-                                    UI.updateNode(obj.id, obj);
+                                    UI.updateNode(obj.id, obj, true);
                                 }
                             });
                         }
@@ -212,8 +218,10 @@ return ZUI.def("app.wn.hmaker_resource", {
     //...............................................................
     refresh : function(callback){
         var UI = this;
+        UI.uiTree.showLoading();
         UI.uiTree.reload(function(){
-            callback.apply(UI);
+            UI.uiTree.hideLoading();
+            $z.doCallback(callback,[],UI);
         });
     }
     //...............................................................

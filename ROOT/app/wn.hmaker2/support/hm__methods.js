@@ -184,10 +184,6 @@ var methods = {
     },
     // 得到一个对象在 HMaker 里表示的 Text
     getObjText : function(o) {
-        // 有了自定义
-        if(o.title)
-            return o.title;
-
         // 特殊的目录: lib
         if(o.pid == this.getHomeObjId()) {
             if('lib' == o.nm) {

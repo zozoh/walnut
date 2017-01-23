@@ -23,7 +23,7 @@ return ZUI.def("app.wn.hm_prop_page", {
     //...............................................................
     refreshData : function(){
         var UI = this;
-        var attr = UI.pageUI().getPageAttr();
+        var attr = UI.pageUI().getPageAttr(true);
 
         new FormUI({
             parent : UI,
@@ -32,7 +32,13 @@ return ZUI.def("app.wn.hm_prop_page", {
                 var attr = this.getData();
                 UI.pageUI().setPageAttr(attr);
             },
+            uiWidth : "all",
             fields : [{
+                key    : "title",
+                title  : "i18n:hmaker.page.title",
+                type   : "string",
+                editAs : "input"
+            }, {
                 key    : "margin",
                 title  : "i18n:hmaker.page.margin",
                 type   : "string",

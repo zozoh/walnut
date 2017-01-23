@@ -641,14 +641,19 @@ return ZUI.def("ui.form", {
                 // if(jF.attr("fld-disabled"))
                 //     return;
 
-                var fld = jF.data("@FLD");
-
                 // 模板的话，判断一下是否选项开启
                 if(opt.asTemplate && "yes" != jF.attr("tmpl-on"))
                     return;
 
-                // 得到字段的控件
+                // 得到字段
                 //var fui = jF.data("@UI");
+                var fld = jF.data("@FLD");
+                
+                // TODO 有时候异步加载有问题，先防守一下
+                if(!fld || !fld.UI)
+                    return;
+
+                // 得到字段的控件
                 var fui = fld.UI;
 
                 // 虚拟字段，合并到输出

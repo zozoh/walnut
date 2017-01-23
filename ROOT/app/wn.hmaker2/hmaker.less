@@ -59,6 +59,34 @@
         }
     }
     //.............................................................
+    // 资源面板
+    .hm-con-resource {
+        .hm-resource {
+            .ui-tree {
+                .tree-node > .tnd-self {
+                    line-height: 28px; padding: 0 @d2;
+                    > .tnd-text {
+                        b {font-weight: normal; font-size:@f3;}
+                        em {
+                            font-style: italic; margin-left:@d2;
+                            font-size:@f1; color:@c2;
+                        }
+                    }
+                    .z-edit-it {
+                        input {@input();}
+                        input:focus {@input_focus();}
+                    }
+                }
+                .tree-node-actived > .tnd-self > .tnd-text {
+                    em {color:@ch0_f; opacity: 0.6;}
+                }
+                .tree-node[edit-text-on] > .tnd-self {
+                    background: transparent;
+                }
+            }
+        }
+    }
+    //.............................................................
     // 主区域
     .hm-page {
         border-right:1px solid @cborder1;

@@ -21,18 +21,19 @@ return ZUI.def("ui.tree", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "theme/ui/tree/tree.css",
     //...............................................................
-    init : function(options){
+    init : function(opt){
         var UI = this;
-        $z.setUndefined(options, "idKey", "id");
-        $z.setUndefined(options, "context", UI);
-        if(_.isString(options.idKey)){
+        $z.setUndefined(opt, "idKey", "id");
+        $z.setUndefined(opt, "context", UI);
+        $z.setUndefined(opt, "escapeHtml", true);
+        if(_.isString(opt.idKey)){
             UI.getId = function(obj){
-                return obj[options.idKey];
+                return obj[opt.idKey];
             };
         }
         // 就是函数
-        else if(_.isFunction(options.idKey)){
-            UI.getId = options.idKey;
+        else if(_.isFunction(opt.idKey)){
+            UI.getId = opt.idKey;
         }
         // 必须得有 idKey 的获取方式
         else{
@@ -40,18 +41,18 @@ return ZUI.def("ui.tree", {
         }
 
         // 声明名称
-        if(_.isString(options.nmKey)){
+        if(_.isString(opt.nmKey)){
             UI.getName = function(obj){
-                return obj[options.nmKey]
+                return obj[opt.nmKey]
             }
         }
         // 函数 
-        else if(_.isFunction(options.nmKey)){
-            UI.getName = options.nmKey;
+        else if(_.isFunction(opt.nmKey)){
+            UI.getName = opt.nmKey;
         }
 
         // 默认获取数据的方法
-        $z.setUndefined(options, "data", function(jNode, obj){
+        $z.setUndefined(opt, "data", function(jNode, obj){
             if(obj){
                 jNode.data("@DATA", obj);
                 return this;
@@ -60,12 +61,12 @@ return ZUI.def("ui.tree", {
         });
 
         // 默认的手柄
-        $z.setUndefined(options, "handle", 
+        $z.setUndefined(opt, "handle", 
             '<i class="fa fa-caret-right"></i><i class="fa fa-caret-down"></i>');
 
         // 默认的选择框
-        if(options.checkable){
-            $z.setUndefined(options, "checkbox", 
+        if(opt.checkable){
+            $z.setUndefined(opt, "checkbox", 
                 '<i class="fa fa-square-o"></i><i class="fa fa-check-square-o"></i>');
         }
     },
@@ -286,6 +287,10 @@ return ZUI.def("ui.tree", {
             UI.reload(jNode, callback);
     },
     //...............................................................
+    refresh : function(callback) {
+        return this.reload(callback);
+    },
+    //...............................................................
     reload : function(nd, callback) {
         var UI = this;
         var opt = UI.options;
@@ -297,9 +302,19 @@ return ZUI.def("ui.tree", {
             nd = undefined;
         }
 
+        // 保持激活: 先得到原始激活节点的 ID
+        var aid = UI.getActivedId();
+
         // 没有指定节点，那么就加载 tops
         if(!nd){
-            UI.__reload_tops(callback);
+            UI.__reload_tops(function(list){
+                // 保持激活
+                if(aid)
+                    UI.setActived(aid, true);
+
+                // 调用回调
+                $z.doCallback(callback, [list], context);
+            });
         }
         // 否则加载指定节点
         else{
@@ -307,11 +322,17 @@ return ZUI.def("ui.tree", {
             var jSub = jNode.children(".tnd-children");
             jSub.text(UI.msg("loadding"));
             var obj = opt.data.call(context, jNode);
+            // 重新加载
             opt.children.call(context, obj, function(list){
+                // 绘制
                 UI._draw_nodes(list, jSub);
-                if(_.isFunction(callback)){
-                    callback.call(context, list, jNode);
-                }
+
+                // 保持激活
+                if(aid)
+                    UI.setActived(aid, true);
+
+                // 调用回调
+                $z.doCallback(callback, [list, jNode], context);
             });
         }
     },
@@ -374,7 +395,7 @@ return ZUI.def("ui.tree", {
         // 返回自身以便链式赋值
         return this;
     },
-    updateNode : function(nd, obj) {
+    updateNode : function(nd, obj, quiet) {
         var jNode = this.$node(nd);
 
         if(jNode.length > 0) {
@@ -382,7 +403,7 @@ return ZUI.def("ui.tree", {
             var jN2 = this.__gen_node(obj);
             jNode.replaceWith(jN2);
             if(isA) {
-                this.setActived(jN2);
+                this.setActived(jN2, quiet);
             }
         }
     },
@@ -418,8 +439,10 @@ return ZUI.def("ui.tree", {
           .attr("collapse", "yes");
 
         // 补充上名称
+        var nm;
         if(UI.getName){
-            jNode.attr("onm", UI.getName.call(context, obj));
+            nm = UI.getName.call(context, obj);
+            jNode.attr("onm", nm);
         }
 
         // 节点添加手柄
@@ -436,11 +459,20 @@ return ZUI.def("ui.tree", {
             jNode.find(".tnd-icon").html(opt.icon.call(context, obj));
         else
             jNode.find(".tnd-icon").remove();
+
         // 显示文字
-        if(_.isFunction(opt.text))
-            jNode.find(".tnd-text").text(opt.text.call(context, obj));
-        else
-            jNode.find(".tnd-text").text(id);
+        var txt = nm || id;
+        if(_.isFunction(opt.text)){
+            txt = opt.text.call(context, obj);
+        }
+        // 简单文字
+        if(opt.escapeHtml) {
+            jNode.find(".tnd-text").text(txt);
+        }
+        // 复杂的 HTML
+        else{
+            jNode.find(".tnd-text").html(txt);
+        }
 
         // 记录数据
         //jNode.data("@DATA", obj);

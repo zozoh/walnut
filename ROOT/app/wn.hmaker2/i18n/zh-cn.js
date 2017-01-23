@@ -108,6 +108,7 @@ define({
             "height" : "高",            
         },
         "page" : {
+            "title"        : "页面标题",
             "body"         : "页面",
             "margin"       : "页边距",
             "move_to_body" : "移出分栏",
