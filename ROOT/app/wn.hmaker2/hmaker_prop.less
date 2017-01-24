@@ -286,8 +286,41 @@
 // 页面编辑面板
 //............................................................
 .hm-prop-page {
-    > section {
-        width:100%; height:100%;
+    overflow: auto; padding:@d2;
+    > div > header {
+        margin:1px; padding:@d2; background: @cb2; color:@cf2;
+        border:0; font-weight: bold;
+        text-align: left; font-size: @f2;
+        > i {margin-right: @d1;}
+    }
+    > .pp-attr {
+        padding:0;
+        .page-form {
+            padding:@d2 0;
+            > .form-body > .form-body-wrapper > .form-group > .fg-fields > .form-fld {
+                padding:@d1;
+                > .ff-txt {padding:@d2; min-width: 80px;}
+                > .ff-val {padding:0;}
+            }
+        }
+    }
+    > .pp-links {
+        position: relative;
+        > aside {
+            padding:0 1px; 
+            .menu {
+                background: @cb2; color:@cf2;
+                padding:@d0; text-align: right;
+            }
+        }
+        > section {
+            position: absolute; left:0; right:0; bottom:0;
+            padding: 0 1px;
+            > div {
+                width: 100%; height: 100%; overflow:auto;
+                border:1px solid @cborder0; 
+            }
+        }
     }
 }
 //............................................................

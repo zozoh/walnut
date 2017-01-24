@@ -200,8 +200,16 @@
   }
   > .cc-edit {
     > .cce-con[for="bgimg"] {
-      width: 430px;
-      height: 340px;
+      width  : 430px;
+      height : 240px;
+      .form {
+        padding:@d3;
+        .form-fld  {
+          padding:@d1;
+          > .ff-txt {padding:@d3; min-width: 80px;}
+          > .ff-val {padding:0;}
+        }
+      }
     }
     > .cce-con[for="color"] {
       width: 340px;

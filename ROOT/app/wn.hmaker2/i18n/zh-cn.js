@@ -108,6 +108,8 @@ define({
             "height" : "高",            
         },
         "page" : {
+            "attr"         : "页面设置",
+            "links"        : "链接资源",
             "title"        : "页面标题",
             "body"         : "页面",
             "margin"       : "页边距",
@@ -121,6 +123,9 @@ define({
             "ibarloading" : '<i class="fa fa-spinner fa-pulse"></i> 正在取得 ..',
             "noLibName" : "组件名称为空，咋插入啊大哥 -_-!",
             "ireload" : "重新加载插入项",
+            "links_add"     : "添加",
+            "links_del"     : "删除",
+            "links_refresh" : "刷新",
         },
         "com" : {
             "_" : {

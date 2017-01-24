@@ -212,7 +212,7 @@ var methods = {
                 return '<i class="zmdi zmdi-language-css3"></i>';
             }
             if('js' == o.nm) {
-                return '<i class="zmdi zmdi-collection-text"></i>';
+                return '<i class="fa fa-flash"></i>';
             }
         }
 
