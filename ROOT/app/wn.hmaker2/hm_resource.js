@@ -96,8 +96,11 @@ return ZUI.def("app.wn.hmaker_resource", {
         UI.uiTree.addNode(oNP).setActived(oNP.id);
     },
     //...............................................................
-    update : function(o, callback) {
+    update : function(o, callback, args) {
         var UI = this;
+        var oHome  = UI.getHomeObj();
+        var homeId = oHome.id;
+        console.log(args)
 
         var _list = function(o, callback) {
             Wn.exec('obj -match \'pid:"'+o.id+'"\' -sort "race:1,nm:1" -json -l',
@@ -129,10 +132,21 @@ return ZUI.def("app.wn.hmaker_resource", {
             },
             escapeHtml : false,
             text  : function(o){
-                var html = '<b>' + UI.getObjText(o) + '</b>';
+                var html = '<a href="/a/open/';
+                html += window.wn_browser_appName;
+                html += '?ph=id:'+homeId;
+                html += '#hmaker2::' + o.id;
+                html += '">';
+                html += UI.getObjText(o);
+                html += '</a>';
                 if(o.title)
                     html += '<em>' + o.title + '</em>';
                 return html;
+            },
+            events : {
+                'click a[href]' : function(e) {
+                    e.preventDefault();
+                }
             },
             isLeaf : function(o){
                 // 特殊的目录: lib
@@ -151,6 +165,9 @@ return ZUI.def("app.wn.hmaker_resource", {
                 //console.log("nav actived", o, this);
                 // 记录一下上次激活的 ID
                 UI.local("last_open_obj_id", o.id);
+
+                // 修改地址栏
+                UI.hmaker().browser().pushHistory(oHome, "hmaker2::"+o.id);
 
                 // 激活
                 UI.fire("active:rs", o);
@@ -193,7 +210,7 @@ return ZUI.def("app.wn.hmaker_resource", {
                 });
             }
         }).render(function(){
-            var lastOpenId = UI.local("last_open_obj_id");
+            var lastOpenId = args || UI.local("last_open_obj_id");
             if(lastOpenId)
                 this.setActived(lastOpenId);
             //this.setActived(2);

@@ -69,12 +69,13 @@ return ZUI.def("app.wn.hmaker2", {
         return ["resource", "prop"];
     },
     //...............................................................
-    update : function(o) {
+    update : function(o, callback, args) {
         var UI = this;
         UI.__home_id = o.id;
         UI.gasket.resource.update(o, function(){
             UI.hideLoading();
-        });
+            $z.doCallback(callback, []);
+        }, args);
     },
     //...............................................................
     changeMain : function(o) {

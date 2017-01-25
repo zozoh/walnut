@@ -139,7 +139,8 @@ return ZUI.def("ui.obrowser_main", {
                 if(_.isFunction(this.update)){
                     this.update(o, function(){
                         $z.doCallback(callback, [], UIBrowser);
-                    });
+                        UI.resize();
+                    }, asetup ? asetup.args : null);
                 }
                 this.parent.trigger("browser:show", o);
                 UI.resize();

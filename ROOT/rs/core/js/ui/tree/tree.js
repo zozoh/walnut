@@ -168,6 +168,7 @@ return ZUI.def("ui.tree", {
     events : {
         "click .tnd-handle" : function(e){
             e.stopPropagation();
+
             var jNode = $(e.currentTarget).closest(".tree-node");
             if(jNode.attr("collapse") == "yes")
                 this.openNode(jNode);
@@ -185,12 +186,11 @@ return ZUI.def("ui.tree", {
             var obj   = UI.getNodeData(jNode);
             var context = opt.context || UI;
             $z.invoke(opt, "on_click_actived_text", [obj, jText, jNode], context);
-
         },
-        "contextmenu .tnd-self" : function(e){
+        "contextmenu .tree-node-actived > .tnd-self" : function(e){
             var jSelf = $(e.currentTarget);
             var jNode = jSelf.closest(".tree-node");
-            this.setActived(jNode);
+            //this.setActived(jNode);
 
             // 如果声明了 on_contextmenu， 则接管右键菜单 
             var UI = this;

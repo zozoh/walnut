@@ -44,6 +44,10 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
         },
         "click .chute-show-outline" : function(e){
             this.showOutline();
+        },
+        // 禁止侧边栏默认的链接点击行为
+        "dclick a[href]" : function(e) {
+            e.preventDefault();
         }
     },
     //..............................................
@@ -296,8 +300,10 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
         jq.find("item").each(function(){
             var jItem  = $(this);
             var jIcon  = jItem.children("i");
-            var jText  = jItem.children("b");
+            var jText  = jItem.children("a");
+            var oid    = jItem.attr("oid");
             var ph     = jItem.attr("ph");
+            var editor = jItem.attr("editor");
 
             // 如果没有 ph 那么就标记一下
             if(!ph){
@@ -307,7 +313,7 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
 
             // 如果没有文字
             if(jText.length == 0){
-                jText = $('<b>').appendTo(jItem);
+                jText = $('<a>').appendTo(jItem);
             }
 
             // 如果没有文字内容，默认用对象的名称，否则用路径
@@ -320,6 +326,11 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
                 jText.text(Wn.objDisplayName(UI, text));
             }
 
+            // 最后补充上 Href
+            var href = "/a/open/" + window.wn_browser_appName + "?ph=" + (oid ? "id:"+oid : ph);
+            if(editor)
+                href += '#' + editor;
+            jText.prop("href", href);
 
         });
 

@@ -9,6 +9,8 @@ public class SidebarItem {
 
     private String cmd;
 
+    private String oid;
+
     private String ph;
 
     private String icon;
@@ -24,6 +26,7 @@ public class SidebarItem {
     public SidebarItem() {}
 
     public SidebarItem(SidebarItem siTmpl) {
+        this.oid = siTmpl.oid;
         this.ph = siTmpl.ph;
         this.icon = siTmpl.icon;
         this.text = siTmpl.text;
@@ -33,6 +36,7 @@ public class SidebarItem {
     }
 
     public SidebarItem updateBy(WnObj o) {
+        this.oid = o.id();
         this.ph = o.path();
         // 图标
         this.icon = o.getString("icon", this.icon);
@@ -152,11 +156,13 @@ public class SidebarItem {
         sb.append("<item ph=\"").append(Strings.escapeHtml(ph)).append('"');
         if (!Strings.isBlank(editor))
             sb.append(" editor=\"").append(Strings.escapeHtml(editor)).append('"');
+        if (!Strings.isBlank(oid))
+            sb.append(" oid=\"").append(oid).append('"');
         sb.append('>');
         if (!Strings.isBlank(icon))
             sb.append(icon);
         if (!Strings.isBlank(text))
-            sb.append("<b>").append(Strings.escapeHtml(text)).append("</b>");
+            sb.append("<a>").append(Strings.escapeHtml(text)).append("</a>");
         sb.append("</item>");
     }
 

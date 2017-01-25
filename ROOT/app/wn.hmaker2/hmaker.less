@@ -66,7 +66,10 @@
                 .tree-node > .tnd-self {
                     line-height: 28px; padding: 0 @d2;
                     > .tnd-text {
-                        b {font-weight: normal; font-size:@f3;}
+                        a {
+                            font-weight: normal; font-size:@f2;
+                            color: @cf0; 
+                        }
                         em {
                             font-style: italic; margin-left:@d2;
                             font-size:@f1; color:@c2;
@@ -78,6 +81,7 @@
                     }
                 }
                 .tree-node-actived > .tnd-self > .tnd-text {
+                    a {color:@ch0_f;}
                     em {color:@ch0_f; opacity: 0.6;}
                 }
                 .tree-node[edit-text-on] > .tnd-self {

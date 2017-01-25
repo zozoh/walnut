@@ -126,8 +126,12 @@ return ZUI.def("ui.obrowser", {
         }
     },
     //..............................................
+    pushHistory : function(o, theEditor) {
+        this._update_history(o, theEditor);
+    },
+    //..............................................
     _update_history : function(o, theEditor){
-        // 当前的路径
+        // 新的路径
         var nwSt = {
             opath : "?ph=id:" + encodeURIComponent(o.id),
             hash  : theEditor ? "#" + theEditor : ""
@@ -141,7 +145,7 @@ return ZUI.def("ui.obrowser", {
 
         //console.log($z.toJson(nwSt), $z.toJson(cuSt))
 
-        // 那么 URL 应该是
+        // 那么新的 URL 应该是
         var url = nwSt.opath + nwSt.hash
         //console.log("url", url)
 
@@ -201,6 +205,14 @@ return ZUI.def("ui.obrowser", {
         }
         //console.log("the editor", theEditor, location);
 
+        // 分析一下 theEditor，支持 hmaker:args 形式的参数
+        var pos = theEditor.indexOf("::");
+        var theArgs = null;
+        if(pos > 0) {
+            theArgs   = theEditor.substring(pos+2);
+            theEditor = theEditor.substring(0, pos);
+        }
+
         // 临时记录当前的对象
         UI.setCurrentObjId(o.id);
 
@@ -208,10 +220,22 @@ return ZUI.def("ui.obrowser", {
         if("auto" == opt.appSetup){
             var UI = this;
 
+            /*
+            将生成 asetup 对象，格式参见 ftype 里面的 JS 定义:
+            {
+                actions : ["@E:r:refresh", ...],  // 动作菜单
+                editors : [ "edit_text" ],        // 可用编辑器列表
+                args    : "xxxx"                  // 编辑器参数，默认 null
+            }
+            */
             Wn.loadAppSetup(o, {
                 context : UI,
                 editor  : theEditor
             }, function(o, asetup){
+                // 记录参数
+                asetup.args = theArgs;
+
+                // 调用子界面
                 UI.__call_subUI_update(o, asetup, callback);
             });  
         }

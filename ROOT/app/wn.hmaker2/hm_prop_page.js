@@ -93,13 +93,7 @@ return ZUI.def("app.wn.hm_prop_page", {
                     UI.alert("add");
                 }
             }, {
-                icon : '<i class="fa fa-trash"></i>',
-                text : "i18n:hmaker.page.links_del",
-                handler : function(){
-                    UI.alert("del");
-                }
-            }, {
-                icon : '<i class="fa fa-refresh"></i>',
+                icon : '<i class="zmdi zmdi-refresh"></i>',
                 text : "i18n:hmaker.page.links_refresh",
                 handler : function(){
                     UI.alert("refresh");
