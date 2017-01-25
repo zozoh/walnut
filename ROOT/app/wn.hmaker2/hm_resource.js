@@ -100,7 +100,6 @@ return ZUI.def("app.wn.hmaker_resource", {
         var UI = this;
         var oHome  = UI.getHomeObj();
         var homeId = oHome.id;
-        console.log(args)
 
         var _list = function(o, callback) {
             Wn.exec('obj -match \'pid:"'+o.id+'"\' -sort "race:1,nm:1" -json -l',
