@@ -110,11 +110,11 @@ return ZUI.def("app.wn.hmaker_lib", {
             placeholder : oLib.nm,
             ok : function(str, callback) {
                 //console.log(str)
-                // var re = Wn.execf('hmaker lib id:{{homeId}} -get "{{libName}}" | json -out @{id}', {
+                // var re = Wn.execf('hmaker id:{{homeId}} lib -get "{{libName}}" | json -out @{id}', {
                 //     homeId  : UI.getHomeObjId(),
                 //     libName : str
                 // });
-                var re = Wn.exec('hmaker lib id:'+UI.getHomeObjId()+' -get "'+str+'" | json -out @{id}');
+                var re = Wn.exec('hmaker id:'+UI.getHomeObjId()+' lib  -get "'+str+'" | json -out @{id}');
 
                 var err = $.trim(re);
                 // 返回了 ID，那么说明存在 
@@ -132,7 +132,7 @@ return ZUI.def("app.wn.hmaker_lib", {
                 // 如果没错误，继续处理
                 if(!err) {
                     // 准备命令
-                    var cmdText = $z.tmpl('hmaker lib id:{{homeId}} -rename "{{libName}}" "{{newName}}"')({
+                    var cmdText = $z.tmpl('hmaker id:{{homeId}} lib -rename "{{libName}}" "{{newName}}"')({
                         homeId  : UI.getHomeObjId(),
                         libName : oLib.nm,
                         newName : str,
@@ -165,7 +165,7 @@ return ZUI.def("app.wn.hmaker_lib", {
         // 获取新名字
         UI.confirm("hmaker.lib.delete_tip", function(str, callback) {
             UI.showLoading();
-            Wn.execf('hmaker lib id:{{homeId}} -del "{{libName}}"', {
+            Wn.execf('hmaker id:{{homeId}} lib -del "{{libName}}"', {
                 homeId  : UI.getHomeObjId(),
                 libName : oLib.nm
             }, function(re) {
@@ -189,7 +189,7 @@ return ZUI.def("app.wn.hmaker_lib", {
         var UI = this;
         
         // 准备命令
-        var cmdText = 'hmaker lib id:'+UI.getHomeObjId()+' -list obj';
+        var cmdText = 'hmaker id:'+UI.getHomeObjId()+' lib -list obj';
         //console.log(cmdText);
 
         // 更新显示对象 

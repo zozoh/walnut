@@ -126,6 +126,7 @@ define({
             "links_add"     : "添加",
             "links_del"     : "删除",
             "links_refresh" : "刷新",
+            "pick_rs" : "选择资源",
         },
         "com" : {
             "_" : {

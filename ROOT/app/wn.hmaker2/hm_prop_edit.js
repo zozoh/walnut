@@ -163,7 +163,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
                     //console.log(html)
 
                     // 执行创建
-                    Wn.execf("hmaker lib id:{{id}} -write '{{libName}}'", html, {
+                    Wn.execf("hmaker id:{{id}} lib -write '{{libName}}'", html, {
                         id      : oHome.id,
                         libName : libName,
                     }, function(re){
@@ -200,7 +200,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
 
                     // 检查结果
                     jTip.html(UI.msg("hmaker.lib.nm_checking"));
-                    Wn.execf("hmaker lib id:{{id}} -get '{{libName}}'", {
+                    Wn.execf("hmaker id:{{id}} lib -get '{{libName}}'", {
                         id      : oHome.id,
                         libName : libName,
                     }, function(re){

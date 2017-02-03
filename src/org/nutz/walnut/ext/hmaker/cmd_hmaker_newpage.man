@@ -8,7 +8,7 @@
 =======
 
 ```    
-hmaker newpage [网页名称]
+hmaker /path/to/site newpage [网页名称]
 ```
 
  * 默认的，如果不给定网页名称，则认为是 "NewPage"。

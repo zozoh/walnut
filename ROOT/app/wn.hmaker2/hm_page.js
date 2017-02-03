@@ -218,7 +218,7 @@ return ZUI.def("app.wn.hmaker_page", {
             // 组件库
             if("libitem" == ctype) {
                 window.setTimeout(function(){
-                    Wn.execf("hmaker lib id:{{homeId}} -list", {
+                    Wn.execf("hmaker id:{{homeId}} lib -list", {
                         homeId : UI.getHomeObjId()
                     }, function(re) {
                         var libNames = $z.fromJson(re);
@@ -525,7 +525,7 @@ return ZUI.def("app.wn.hmaker_page", {
         var libName = jCom.attr('lib');
         var comId   = UI.assignComId(jCom);
         // 得到组件的代码内容
-        var html = cache[libName] || Wn.exec("hmaker lib id:"+homeId+" -read '"+libName+"'");
+        var html = cache[libName] || Wn.exec("hmaker id:"+homeId+" lib -read '"+libName+"'");
         cache[libName] = html;
 
         // 替换现有组件
@@ -1197,7 +1197,7 @@ return ZUI.def("app.wn.hmaker_page", {
             if(forSave) {
                 var libName = jCom.attr('lib');
                 var html    = _get_lib_code(jCom, true);
-                Wn.execf("hmaker lib id:{{homeId}} -write {{libName}}", html, {
+                Wn.execf("hmaker id:{{homeId}} lib -write {{libName}}", html, {
                     homeId  : oHomeId,
                     libName : libName
                 });

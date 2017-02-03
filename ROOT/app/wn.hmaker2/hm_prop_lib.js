@@ -59,7 +59,7 @@ return ZUI.def("app.wn.hm_prop_lib", {
         // 查询组件被使用的情况
         var oHome = UI.getHomeObj();
         var jList = jPart.find(">section").empty();
-        Wn.execf("hmaker lib id:{{homeId}} -pages '{{libName}}' -l -e '^(id|nm|ph|tp|mime)$'", {
+        Wn.execf("hmaker id:{{homeId}} lib -pages '{{libName}}' -l -e '^(id|nm|ph|tp|mime)$'", {
             homeId  : oHome.id,
             libName : o.nm
         }, function(re){

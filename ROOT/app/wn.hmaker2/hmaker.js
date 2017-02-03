@@ -142,7 +142,7 @@ return ZUI.def("app.wn.hmaker2", {
         var oHome = UI.getHomeObj();
 
         // 准备命令字符串
-        var cmdText = "hmaker publish id:" + this.getHomeObjId();
+        var cmdText = "hmaker id:" + this.getHomeObjId() + " publish";
 
         // 指定了发布的页面
         if(oPage) {

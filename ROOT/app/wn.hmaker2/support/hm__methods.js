@@ -223,9 +223,10 @@ var methods = {
 
         // CSS 文件
         // JS
-        if(/^(css|js)$/.test(o.tp)) {
-            return '<i class="fa fa-file-text-o"></i>';
-        }
+        // if(/^(css|js)$/.test(o.tp)) {
+        //     //return '<i class="fa fa-file-text-o"></i>';
+        //     return Wn.objIconHtml(o);
+        // }
         
         // 文件夹
         if('DIR' == o.race)
@@ -238,9 +239,13 @@ var methods = {
                 return  '<i class="fa fa-file"></i>';
             }
             // 其他的用文本编辑
-            return  '<i class="fa fa-file-code-o"></i>';
+            //return  '<i class="fa fa-file-code-o"></i>';
         }
 
+        // 默认图标
+        return Wn.objIconHtml(o);
+
+        /*
         // 文本
         if(/^text\//.test(o.mime))
             return  '<i class="fa fa-file-text"></i>';
@@ -270,7 +275,7 @@ var methods = {
             return  '<i class="fa fa-file-word-o"></i>';
 
         // 其他
-        return  '<i class="fa fa-file-o"></i>';
+        return  '<i class="fa fa-file-o"></i>';*/
     },
     //=========================================================
     // 根据控件的块定位模式，从 css 集合里提取出相关的熟悉

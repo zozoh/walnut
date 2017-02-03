@@ -34,7 +34,8 @@ public class hmaker_lib implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 得到站点主目录
-        WnObj oSiteHome = Hms.checkSiteHome(sys, hc.params.val_check(0));
+        // WnObj oSiteHome = Hms.checkSiteHome(sys, hc.params.val_check(0));
+        WnObj oSiteHome = hc.oRefer;
         // ................................................
         // 如果是写入的话，会自动创建库目录
         if (hc.params.has("write")) {

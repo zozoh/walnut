@@ -38,7 +38,8 @@ public class hmaker_publish implements JvmHdl {
 
         // ------------------------------------------------------------
         // 得到源
-        hpc.oHome = Wn.checkObj(sys, hc.params.val_check(0));
+        // hpc.oHome = Wn.checkObj(sys, hc.params.val_check(0));
+        hpc.oHome = hc.oRefer;
 
         // ------------------------------------------------------------
         // 得到目标
