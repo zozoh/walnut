@@ -14,7 +14,9 @@ return ZUI.def("app.wn.hmpg_combar", {
         var UI = HmPanelMethods(this);
         
         UI.listenBus("active:com",  UI.updateComPath);
-        UI.listenBus("active:page", UI.emptyComPath);
+        UI.listenBus("active:page", function(){
+            UI.emptyComPath();   
+        });
     },
     //...............................................................
     events : {
@@ -54,8 +56,11 @@ return ZUI.def("app.wn.hmpg_combar", {
         this.emptyComPath();
     },
     //...............................................................
-    emptyComPath : function() {
+    emptyComPath : function(notCleanCache) {
         var UI = this;
+        if(!notCleanCache) {
+            UI.__current_com_path = [];
+        }
         UI.arena.empty().prepend(UI.compactHTML(`<div class="hm-combar-item" current="yes">
             <b>{{hmaker.page.body}}</b>
             <i class="zmdi zmdi-chevron-right pi-sep"></i>
@@ -89,7 +94,7 @@ return ZUI.def("app.wn.hmpg_combar", {
             UI.__current_com_path = my_com_ph;
 
             // 清空
-            UI.emptyComPath();
+            UI.emptyComPath(true);
 
             // 重新绘制
             for(var i=0; i<UI.__current_com_path.length; i++) {

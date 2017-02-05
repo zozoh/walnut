@@ -429,6 +429,12 @@ return ZUI.def("app.wn.hmaker_page", {
                 // 通知激活控件
                 uiCom.notifyActived(null);
 
+                // 通知控件更改
+                uiCom.notifyBlockChange("panel");
+
+                // 确保切换了皮肤
+                uiCom.setComSkin(uiCom.getComSkin());
+
                 // 通知皮肤
                 this.invokeSkin("resize");
                 
