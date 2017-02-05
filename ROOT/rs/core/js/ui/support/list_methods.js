@@ -28,6 +28,7 @@
  - $listBody()             // 返回承载列表项的 jQuery 对象
  - $crateItem()            // 创建一个列表项的 jQuery 对象（未加入DOM)
  - _draw_item(jItem, obj)  // 根据数据和列表项修改列表项的显示方式
+ - _draw_empty             // 没有数据时显示什么
 
 提供给子类强烈推荐调用的方法
 
@@ -85,7 +86,7 @@ var methods = {
             }
             // 如果是字符串表示 ID
             else if(_.isString(arg)){
-                return UI.arena.find(".list-item[oid="+arg+"]");
+                return UI.arena.find('.list-item[oid="'+arg+'"]');
             }
             // 本身就是 dom
             else if(_.isElement(arg) || $z.isjQuery(arg)){
@@ -108,6 +109,14 @@ var methods = {
         // $checked
         $z.setUndefined(UI, "$checked", function() {
             return this.arena.find('.list-item[li-checked]');
+        });
+        // _draw_empty
+        $z.setUndefined(UI, "_draw_empty", function() {
+            var jBody = UI.$listBody().empty();
+            jBody.html(UI.compactHTML(`<div class="list-empty">
+                <i class="zmdi zmdi-alert-circle-o"></i>
+                <span>{{empty}}</span>
+            </div>`));
         });
     },
     //...............................................................
@@ -386,6 +395,12 @@ var methods = {
         if(!_.isArray(objs))
             objs = [];
 
+        // 绘制空数组
+        if(objs.length == 0) {
+            $z.invoke(UI, "_draw_empty");
+            return;
+        }
+
         // 得到上次激活对象的 ID
         var aiid = UI.getActivedId();
 
@@ -511,17 +526,25 @@ var methods = {
     // 点击项目的时候，需要考虑 ctrl/shift 等单选多选问题
     // 子 UI 截获事件后调用这个函数处理即可
     _do_click_list_item : function(e, stopPropagation){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         var jItem = UI.$item(e.currentTarget);
         
         // 不要冒泡了
         if(stopPropagation)
             e.stopPropagation();
 
+        // console.log("haha", opt.multi)
+
         // 如果支持多选 ...
-        if(UI.options.multi){
+        if(opt.multi){
             // 仅仅表示单击选中
-            if(($z.os.mac && e.metaKey) || (!$z.os.mac && e.ctrlKey)){
+            if(($z.os.mac && e.metaKey) 
+                || (!$z.os.mac && e.ctrlKey)
+                || !opt.activable){
+                // 防止冒泡
+                e.stopPropagation();
+                // 切换状态
                 UI.toggle(e.currentTarget);
                 return;
             }
@@ -551,13 +574,10 @@ var methods = {
                 else{
                     jItems = jItem;
                 }
-
-                // 选中这些项目
-                UI.check(jItems);
-
                 // 防止冒泡
                 e.stopPropagation();
-
+                // 选中这些项目
+                UI.check(jItems);
                 // 返回吧
                 return;
             }

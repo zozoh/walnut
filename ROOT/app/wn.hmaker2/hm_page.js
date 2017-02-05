@@ -144,10 +144,6 @@ return ZUI.def("app.wn.hmaker_page", {
             var tagName = jLi.attr("tag-name") || 'DIV';
             this.doInsertCom(ctype, tagName, jItem.attr("val"));
         }
-        // "click .hmpg-ibar li[ctype]" : function(e){
-        //     var jLi   = $(e.currentTarget);
-        //     this.doInsertCom(jLi.attr("ctype"), jLi.attr("tag-name"));
-        // }
     },
     //...............................................................
     getPageAttr : function(includePageMeta){
@@ -160,8 +156,14 @@ return ZUI.def("app.wn.hmaker_page", {
         // 返回
         return attr;
     },
-    setPageAttr : function(attr){
+    setPageAttr : function(attr, merge){
         var UI = this;
+        
+        // 是不是与旧属性合并
+        if(merge) {
+            attr = _.extend(UI.getPageAttr(true), attr);
+        }
+
         // 更新一下 page 的 title 属性
         var oPg = UI.getCurrentEditObj();
         if(oPg.title != attr.title) {
@@ -182,24 +184,59 @@ return ZUI.def("app.wn.hmaker_page", {
             });
         }
 
-        // 应用
+        // 应用样式
         this.applyPageAttr(attr);
 
-        // 保存
+        // 保存到 DOM
         $z.setJsonToSubScriptEle(this._C.iedit.$body, 
             "hm-page-attr", 
-            attr, 
+            $z.pick(attr, "!^title$"), 
             true);
     },
     applyPageAttr : function(attr){
         var UI = this;
-        // 指定要设置的 attr
-        if(attr) {
-            UI._C.iedit.$body.css(attr);    
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 没指定 attr 就表示重新应用一下样式
+        attr = attr || UI.getPageAttr();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 挑选出 css 设置到 body 里
+        var css = $z.pick(attr, "!^(title|links)$");
+        UI._C.iedit.$body.css(css);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~        
+        // 最后同步一下页面的链接
+        var links = attr.links || [];
+        // 首先归纳
+        var map = {};
+        for(var i=0; i<links.length; i++) {
+            var lnk = links[i];
+            // 无视 js，因为编辑时不能加入
+            if("js" == lnk.tp)
+                continue;
+            var aph = "/o/read"+lnk.ph+"?aph=true";
+            map[aph] = lnk;
         }
-        // 否则重新应用一下
-        else {
-            UI._C.iedit.$body.css(UI.getPageAttr());
+        // 查看已有链接项目看看是否需要删除
+        UI._C.iedit.$head.find('[page-link]').each(function(){
+            var jq   = $(this);
+            var href = jq.attr("href");
+            // 不在需要链接这个资源
+            if(!map[href]){
+                jq.remove();
+            }
+            // 标记已存在
+            else {
+                map[href] = null;
+            }
+        });
+        // 将剩余的项目添入 <head>
+        for(var href in map) {
+            if(map[href]) {
+                $('<link page-link="yes">').attr({
+                    "rel"  : "stylesheet",
+                    "type" : "text/css",
+                    "href" : href
+                }).appendTo(UI._C.iedit.$head);
+            }
         }
     },
     //...............................................................
@@ -1109,8 +1146,8 @@ return ZUI.def("app.wn.hmaker_page", {
             }
         });
         
-        // 删除所有的皮肤动态添加的节点
-        C.iload.$head.find('[skin]').remove();
+        // 删除所有的皮肤以及页面动态添加的 css/js 节点
+        C.iload.$head.find('[skin],[page-link]').remove();
         
         // 所有的分栏和组件前面都加入一个回车
         C.iload.$root.find(".hm-com, .hm-area, meta, link, body").each(function(){

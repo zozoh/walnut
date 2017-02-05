@@ -5,8 +5,9 @@ $z.declare([
     'ui/form/form',
     'ui/menu/menu',
     'ui/mask/mask',
+    'ui/list/list',
     'app/wn.hmaker2/support/hm__methods_panel',
-], function(ZUI, Wn, FormUI, MenuUI, MaskUI, HmMethods, HmPickResourceUI){
+], function(ZUI, Wn, FormUI, MenuUI, MaskUI, ListUI, HmMethods, HmPickResourceUI){
 //==============================================
 var html = `
 <div class="ui-arena hm-prop-page" ui-fitparent="yes">
@@ -23,7 +24,7 @@ var html = `
             <b>{{hmaker.page.links}}</b>
         </header>
         <aside ui-gasket="menu"></aside>
-        <section><div></div></section>
+        <section><div ui-gasket="links"></div></section>
     </div>
 </div>
 `;
@@ -88,27 +89,40 @@ return ZUI.def("app.wn.hm_prop_page", {
             parent : UI,
             gasketName : "menu",
             setup : [{
-                icon : '<i class="zmdi zmdi-plus"></i>',
-                text : "i18n:hmaker.page.links_add",
+                icon : '<i class="fa fa-edit"></i>',
+                text : "i18n:hmaker.page.links_edit",
                 handler : function(){
-                    UI.doAddResource();
-                }
-            }, {
-                icon : '<i class="zmdi zmdi-refresh"></i>',
-                text : "i18n:hmaker.page.links_refresh",
-                handler : function(){
-                    UI.alert("refresh");
+                    UI.doEditResources();
                 }
             }]
         }).render(function(){
             UI.defer_report("menu");
         });
 
+        // 链接资源列表
+        new ListUI({
+            parent : UI,
+            gasketName : "links",
+            activable  : false,
+            checkable  : false,
+            escapeHtml : false,
+            arenaClass : "hm-pg-links",
+            idKey : "ph",
+            icon : function(o) {
+                return UI.getObjIcon(o);
+            },
+            text : function(o) {
+                return o.rph || o.ph;
+            }
+        }).render(function(){
+            UI.defer_report("links");
+        });
+
         // 返回延迟加载
-        return ["form", "menu"];
+        return ["form", "menu", "links"];
     },
     //...............................................................
-    doAddResource : function(){
+    doEditResources : function(){
         var UI = this;
         var homeId = UI.getHomeObjId();
 
@@ -125,6 +139,7 @@ return ZUI.def("app.wn.hm_prop_page", {
                     checkable  : true,
                     escapeHtml : false,
                     arenaClass : "hm-rs-list",
+                    idKey : "ph",
                     icon : function(o) {
                         return UI.getObjIcon(o);
                     },
@@ -138,9 +153,14 @@ return ZUI.def("app.wn.hm_prop_page", {
                     var uiMask = this;
                     // 得到数据
                     var objs   = uiMask.body.getChecked();
-                    
+                    //console.log(objs)
                     // 设置
-                    console.log(objs)
+                    UI.pageUI().setPageAttr({
+                        links : objs
+                    }, true);
+
+                    // 刷新列表
+                    UI.gasket.links.setData(objs);
 
                     // 关闭对话框
                     uiMask.close();
@@ -163,7 +183,7 @@ return ZUI.def("app.wn.hm_prop_page", {
             Wn.execf('hmaker id:{{homeId}} rs -match "{{match}}" -path "css,js" -key "{{key}}"',{
                 homeId : homeId,
                 match  : "[.](css|js)$",
-                key    : "id,nm,tp,mime,ph,rph"
+                key    : "nm,tp,mime,ph,rph"
             }, function(re){
                 // 隐藏加载提示
                 uiMask.body.hideLoading();
@@ -177,13 +197,20 @@ return ZUI.def("app.wn.hm_prop_page", {
                 // 显示
                 var list = $z.fromJson(re);
                 uiMask.body.setData(list);
+
+                // 标识已经选中的
+                var links = (UI.pageUI().getPageAttr().links || []);
+                for(var i=0; i<links.length; i++) {
+                    uiMask.body.check(links[i].ph);
+                }
             });
         });
     },
     //...............................................................
     refresh : function(){
         var attr = this.pageUI().getPageAttr(true);
-        this.gasket.form.setData(attr);       
+        this.gasket.form.setData(attr);
+        this.gasket.links.setData(attr.links);
     },
     //...............................................................
     resize : function(){

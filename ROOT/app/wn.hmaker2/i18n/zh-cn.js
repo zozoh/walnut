@@ -121,12 +121,10 @@ define({
             "enter" : "点击预览",
             "insert" : "插入项",
             "ibarloading" : '<i class="fa fa-spinner fa-pulse"></i> 正在取得 ..',
-            "noLibName" : "组件名称为空，咋插入啊大哥 -_-!",
-            "ireload" : "重新加载插入项",
-            "links_add"     : "添加",
-            "links_del"     : "删除",
-            "links_refresh" : "刷新",
-            "pick_rs" : "选择资源",
+            "noLibName"   : "组件名称为空，咋插入啊大哥 -_-!",
+            "ireload"     : "重新加载插入项",
+            "links_edit"  : "编辑资源列表",
+            "pick_rs"     : "选择资源",
         },
         "com" : {
             "_" : {

@@ -182,6 +182,11 @@ return ZUI.def("ui.table", {
         return this.arena.find(".tbl-body-t tbody");
     },
     //...............................................................
+    _draw_empty : function() {
+        var UI = this;
+        UI.arena.append(UI.ccode("empty"));
+    },
+    //...............................................................
     __before_draw_data : function(objs) {
         var UI  = this;
 
@@ -192,13 +197,7 @@ return ZUI.def("ui.table", {
         UI.arena.empty();
 
         // 有内容
-        if(objs.length > 0) {
-            UI.arena.append(UI.ccode("data.table"));
-        }
-        // 内容为空
-        else {
-            UI.arena.append(UI.ccode("empty"));
-        }
+        UI.arena.append(UI.ccode("data.table"));
     },
     __after_draw_data : function(objs) {
         // 如果没有内容，也没必要做什么后续处理了
