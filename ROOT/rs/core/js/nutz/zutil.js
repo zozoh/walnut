@@ -1055,6 +1055,9 @@
         },
         //.............................................
         // 将一个元素停靠再另外一个元素上，根据目标元素在文档的位置来自动决定最佳的停靠方案
+        // 
+        // !前提: 浮动元素将作为 position:fixed 来停靠
+        //
         // @ele  - 被停靠元素
         // @ta   - 浮动元素
         // @mode - H | V 表示是停靠在水平边还是垂直边，默认 H
@@ -1177,6 +1180,138 @@
             else if (_.isNumber(off.bottom) && off.bottom > viewport.bottom) {
                 off.top = viewport.bottom - sub.height;
             }
+            // 设置属性
+            jTa.css(off);
+        },
+        //.............................................
+        // 将一个元素停靠再另外一个元素上，根据目标元素在文档的位置来自动决定最佳的停靠方案
+        // 
+        // !前提: 浮动元素将作为 position:absolute 来停靠。并且假设被停靠元素包含浮动元素
+        //        且其会被设置成 posoition:relative
+        //
+        // @ele  - 被停靠元素
+        // @ta   - 浮动元素
+        // @mode - H | V 表示是停靠在水平边还是垂直边，默认 H
+        //         或者可以通过 "VA|VB|VC|VD|HA|HB|HC|HD" 来直接指定停靠的区域
+        dockAt: function (ele, ta, mode) {
+            var jq  = $(ele).css("position", "relative");
+            var jTa = $(ta).css("position", "absolute");
+            // 得到浮动元素大小
+            var sub = {
+                width: jTa.outerWidth(true),
+                height: jTa.outerHeight(true)
+            };
+            // 得到被停靠元素的矩形信息
+            var rect = $z.rect(jq);
+            //console.log(" rect  :", rect);
+            // 计算页面的中点
+            var viewport = $z.winsz();
+            //console.log("viewport:", viewport);
+            /*
+             看看这个位置在页面的那个区域
+             +---+---+
+             | A | B |
+             +---+---+
+             | C | D |
+             +---+---+
+             */
+            var off = {
+                "top": "",
+                "left": "",
+                "right": "",
+                "bottom": ""
+            };
+
+            // 分析模式
+            var m = /^([VH])([ABCD])?$/.exec((mode || "H").toUpperCase());
+            var mode = m ? m[1] : "H";
+            // 分析一下视口所在网页的区域
+            var area = (m ? m[2] : null) || (
+                    viewport.x >= rect.x && viewport.y >= rect.y ? "A" : (
+                            viewport.x <= rect.x && viewport.y >= rect.y ? "B" : (
+                                    viewport.x >= rect.x && viewport.y <= rect.y ? "C"
+                                        : "D"
+                                )
+                        )
+                );
+
+            // 停靠在垂直边
+            if ("V" == mode) {
+                // A : 右上角对齐
+                if ("A" == area) {
+                    _.extend(off, {
+                        "left": rect.width,
+                        "top": 0,
+                    });
+                }
+                // B : 左上角对齐
+                else if ("B" == area) {
+                    _.extend(off, {
+                        "right": 0 - rect.width,
+                        "top": 0
+                    });
+                }
+                // C : 右下角对齐
+                else if ("C" == area) {
+                    _.extend(off, {
+                        "left": rect.width,
+                        "bottom": 0
+                    });
+                }
+                // D : 左下角对齐
+                else {
+                    _.extend(off, {
+                        "left": 0 - rect.width,
+                        "bottom": 0
+                    });
+                }
+            }
+            // 停靠在上水平边
+            /*
+             +---+---+
+             | A | B |
+             +---+---+
+             | C | D |
+             +---+---+
+             */
+            else {
+                // A : 左下角对齐
+                if ("A" == area) {
+                    _.extend(off, {
+                        "left": 0,
+                        "top": rect.height
+                    });
+                }
+                // B : 右下角对齐
+                else if ("B" == area) {
+                    _.extend(off, {
+                        "right": 0,
+                        "top": rect.height
+                    });
+                }
+                // C : 左上角对齐
+                else if ("C" == area) {
+                    _.extend(off, {
+                        "left": 0,
+                        "bottom": 0 - rect.height
+                    });
+                }
+                // D : 右上角对齐
+                else {
+                    _.extend(off, {
+                        "right": 0,
+                        "bottom": 0 - rect.height
+                    });
+                }
+            }
+            // TODO 暂时先不调整
+            // 调整上下边缘
+            // if (_.isNumber(off.top) && off.top < viewport.top) {
+            //     off.top = viewport.top;
+            // }
+            // else if (_.isNumber(off.bottom) && off.bottom > viewport.bottom) {
+            //     off.top = viewport.bottom - sub.height;
+            // }
             // 设置属性
             jTa.css(off);
         },
@@ -2546,10 +2681,11 @@
         //----------------------------------------------------
         /**
          * jq - 要移除的对象
-         * opt.after - 当移除完成后的操作, this 为 jq 对象
-         * opt.holder - 占位符的 HTML，默认是 DIV.z_remove_holder
-         * opt.speed - 移除的速度，默认为  300
-         * opt.appendTo - (优先)一个目标，如果声明，则不会 remove jq，而是 append 到这个地方
+         * opt.before    - 当移除执行前的操作, this 为 jq 对象
+         * opt.after     - 当移除完成后的操作, this 为 jq 对象
+         * opt.holder    - 占位符的 HTML，默认是 DIV.z_remove_holder
+         * opt.speed     - 移除的速度，默认为  300
+         * opt.appendTo  - (优先)一个目标，如果声明，则不会 remove jq，而是 append 到这个地方
          * opt.prependTo - 一个目标，如果声明，则不会 remove jq，而是 preppend 到这个地方
          */
         removeIt: function (jq, opt) {
@@ -2582,20 +2718,34 @@
                 "width": w,
                 "height": h,
             }).insertAfter(jq);
-            // 删除元素
-            if (opt.appendTo)
+
+            // 移动执行前的操作
+            if (_.isFunction(opt.before)) {
+                opt.before.apply(jq);
+            }
+            
+            // 附加元素
+            if (opt.appendTo){
                 jq.appendTo(opt.appendTo);
-            else if (opt.prependTo)
+            }
+            // 附件元素
+            else if (opt.prependTo) {
                 jq.prependTo(opt.prependTo);
-            else
+            }
+            // 删除元素
+            else {
                 jq.remove();
-            // 显示动画
+            }
+
+            // 执行动画删除占位元素，动画执行完毕后，调用回调
             holder.animate({
                 width: 0,
                 height: 0
             }, opt.speed || 300, function () {
                 $(this).remove();
-                if (typeof opt.after == "function") opt.after.apply(jq);
+                if (_.isFunction(opt.after)) {
+                    opt.after.apply(jq);
+                }
             });
         },
         //---------------------------------------------------------------------------------------

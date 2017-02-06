@@ -164,7 +164,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         UI.updateSkinBox(jSkinBox, uiCom.getComSkin(), function(skin){
             var ctype = UI.uiCom.getComType();
             return UI.getSkinTextForCom(ctype, skin);
-        });
+        }, uiCom.getComSelectors());
 
         // 更新表单
         UI.__update_form(block, function(){
