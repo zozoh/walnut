@@ -12,7 +12,7 @@ public class cmd_os extends JvmExecutor {
         ZParams params = ZParams.parse(args, null);
         // 获取font列表
         if (params.is("fonts")) {
-            String[] fonts = OS.fonts();
+            String[] fonts = OS.fontsRefresh();
             for (String fnm : fonts) {
                 sys.out.println(fnm);
             }
