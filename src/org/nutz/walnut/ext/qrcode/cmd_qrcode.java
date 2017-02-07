@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import javax.imageio.ImageIO;
 
 import org.nutz.lang.Streams;
+import org.nutz.lang.Strings;
 import org.nutz.qrcode.QRCode;
 import org.nutz.qrcode.QRCodeFormat;
 import org.nutz.walnut.api.err.Er;
@@ -51,11 +52,19 @@ public class cmd_qrcode extends JvmExecutor {
         // 生成的图片格式
         String fmt = params.get("fmt", "png");
 
+        // icon
+        String icon = params.get("icon");
+        BufferedImage iconImg = null;
+        if (!Strings.isBlank(icon)) {
+            String iconPath = Wn.normalizeFullPath(icon, sys.se);
+            iconImg = sys.io.readImage(sys.io.fetch(null, iconPath));
+        }
         // 生成二维码
         QRCodeFormat qrcf = QRCodeFormat.NEW();
         qrcf.setErrorCorrectionLevel('M');
         qrcf.setSize(params.getInt("size", 256));
         qrcf.setImageFormat(fmt);
+        qrcf.setIcon(iconImg);
         qrcf.setMargin(params.getInt("margin", 0));
 
         // 输出
