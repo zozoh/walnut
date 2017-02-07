@@ -249,7 +249,7 @@
             }
             // 重置菜单控件属性
             .menu {
-                background:@cborder1; padding:@d2; text-align: right;
+                background:@cborder1; padding:@d2; text-align: left;
                 .menu-item[tp="button"]>.menu-item-wrapper{
                     transition: 0.2s;
                 }
@@ -695,7 +695,7 @@
                 > div[key="areaId"] {float: left;}
                 > div[key="skin"] {float:right;}
             }
-            li:after {@clr();}
+            > li:after {@clr();}
         }
     }
 }
@@ -726,20 +726,20 @@
         padding: @d2; margin-bottom:@d3; 
         border:1px solid @cborder1; background: @cb0; color:@cf0;
         .cnavmp-item {
-            border:1px solid rgba(0,0,0,0); cursor: pointer;
-            padding:@d2; margin-bottom:1px;
-            > span {float:left; padding:@d1; display: none;}
-            > span[key="toar-icon"] {
-                padding:@d1 @d0;
-                >i {font-style: normal;}
+            border:1px dotted rgba(0,0,0,0.1); cursor: pointer;
+            padding:@d1 @d2; margin-bottom:1px;
+            > span {float:left; padding:@d1; display: block;}
+            > span.bullet{
+                width:20px; padding:@d2 0 @d2 @d1;
+                > [for="link"] i{
+                    opacity: .4; color:@c2; 
+                }
             }
-            > span[key="text"]{display: block;}
-            > span[key="toar-bid"]{
-                > i {margin:0 @d2;}
-            }
+            > span[key="text"]{}
             > span[key="href"]{ 
                 color:@c2; font-family: @f_fixed; font-size:@f1; width: 180px; 
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                opacity: 0.7;
             }
             > span[key="href"]:before {
                 font-family: 'FontAwesome'; display: inline; content: "\f0c1";
@@ -751,49 +751,22 @@
             > span[key="href"][nohref]:before {
                 content: "\f127"; 
             }
-            > span[key="newtab"]{
-                float:right;
-                u {text-decoration: none; margin-right:@d1;}
-                em {font-style: normal;}
-                i:first-child {display: none;}
-                i:last-child {display: inline;}
-            }
-            > span[key="newtab"][open-newtab]{
-                i:first-child {display: inline;}
-                i:last-child {display: none;}
-            }
-            // 区域显示的遮罩
-            .toar-drop-mask {
-                position: fixed; top:0; left:0; right:0; bottom:0; z-index: 99999;
-                background: rgba(0,0,0,0);
-            }
-            .toar-drop {
-                position: fixed; z-index: 100000;
-                border:1px solid @cborder1; padding:@d0;
-                background: @cpop_b; color:@cpop_f; 
-                box-shadow: 2px 2px 3px @cshadow;
-                border-radius: @d1;
-                ul {
-                    li {
-                        padding: @d2 @d4 @d2 @d2; border-radius: @d0;
-                        > i {display: inline-block; width: 20px; text-align: center; margin-right:@d1;}
-                        > em {font-size: @f1;}
-                        > b {font-weight: normal;}
-                    }
-                    li:hover {
-                        background: @ch0_b; color:@ch0_f;
-                    }
-                }
-            }
         }
         .cnavmp-item:after {@clr();}
         .cnavmp-item[current] {
-            background:@cb0; color:@c0; border-color:@c0; 
+            background:@cb0; color:@c0; border-color:@c0; border-style:solid;
             > span[key="href"] {
-                text-decoration: underline; color:@clink; opacity: 0.7;
+                text-decoration: underline; color:@clink; 
             }
             > span[key="href"]:hover {
-                opacity: 1.0;
+                opacity: 1.0; 
+            }
+        }
+        .cnavmp-item[newtab] {
+            > span.bullet {
+                > [for="link"] i{
+                    opacity: 1.0; color:@c4; transform: scale(1.2);
+                }
             }
         }
         .cnavmp-empty {
@@ -803,36 +776,18 @@
     // 显示隐藏区域模式下的菜单项样式
     .cnavmp-item-list[atype="toggleArea"] {
         .cnavmp-item {
-            > span[key="toar-icon"] {display:block;}
-            > span[key="toar-bid"]  {display:block;}
+            > span.bullet {
+                > [for="link"] {display: none;}
+                > [for="toggleArea"] {display: inline;}
+            }
         }
     }
     // 超链接模式下的菜单项样式
     .cnavmp-item-list[atype="link"] {
         .cnavmp-item {
-            > span[key="link-icon"] {display:block;}
-            > span[key="href"]      {display:block;}
-            > span[key="newtab"]    {display:block;}
-        }
-    }
-    .cnavmp-item-list[atype="link"] {
-        .cnavmp-item[current] {
-            > span[key="link-icon"]:hover {color:#888;}
-        }
-    }
-    .cnavmp-actions {@noselect();
-        ul {
-            background: @cborder1; padding:@d2;
-            @flex(); 
-            justify-content: flex-end; 
-            align-items:flex-start;
-            li {
-                padding:@d2; transition: 0.2s; 
-                cursor: pointer; font-size: @f1;
-            }
-            li:hover {
-                color:@c0; background: rgba(255,255,255,0.4);
-                transform: translateY(-2px);
+            > span.bullet {
+                > [for="link"] {display: inline;}
+                > [for="toggleArea"] {display: none;}
             }
         }
     }

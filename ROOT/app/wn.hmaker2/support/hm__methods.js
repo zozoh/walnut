@@ -1,4 +1,6 @@
 define(function (require, exports, module) {
+// 依赖
+var MaskUI = require("ui/mask/mask");
 // ....................................
 // 块的 CSS 属性基础对象
 var CSS_BASE = {
@@ -411,7 +413,98 @@ var methods = {
                 }
             }
         };
-    } // ~ getBackgroundImageEditConf()
+    }, // ~ getBackgroundImageEditConf()
+    //=========================================================
+    // 打开超链接编辑界面，接受的参数格式为:
+    /*
+    {
+        title     : "i18n:xxx"    // 对话框标题
+        tip       : "i18n:xxx"    // 提示字符串
+        width     : 480           // 对话框宽度
+        height    : 260           // 对话框高度
+        items     : Cmd|F()|[..]  // 辅助选项的内容
+        icon      : 如何获取项目的图标
+        text      : 如何获取项目的文本
+        value     : 如何获取项目的值
+        emptyItem : {..}          // 空白提示项的内容 
+        data      : 要编辑的值
+        callback  : 回调函数接受 callback(href)
+    }
+    */
+    openEditLinkPanel : function(opt) {
+        var UI = this;
+        opt = opt || {};
+        
+        // 填充默认值
+        $z.setUndefined(opt, "width", 480);
+        $z.setUndefined(opt, "height", 260);
+        $z.setUndefined(opt, "title", 'i18n:hmaker.link.edit');
+        $z.setUndefined(opt, "tip", "i18n:hmaker.link.edit_tip");
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if(_.isUndefined(opt.items)) {
+            var oPage = UI.pageUI().getCurrentEditObj();
+            opt.items = 'hmaker id:'+oPage.id+' links -key "rph,nm,tp"';
+        }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        $z.setUndefined(opt, "icon", function(o) {
+            // 页面
+            if('html' == o.tp && !$z.getSuffixName(o.nm)) {
+                return  '<i class="fa fa-file"></i>';
+            }
+            // 其他遵守 walnut 的图标规范
+            return Wn.objIconHtml(o);
+        });
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        $z.setUndefined(opt, "text", function(o) {
+            return o.rph;
+        });
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        $z.setUndefined(opt, "value", function(o) {
+            return o.rph;
+        });
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        $z.setUndefined(opt, "emptyItem", {
+            text  : "i18n:hmaker.link.select",
+            value : ""
+        });
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 弹出遮罩层
+        new MaskUI({
+            app : UI.app,
+            dom : 'ui/pop/pop.html',
+            css : 'ui/pop/pop.css',
+            i18n : UI._msg_map,
+            width  : opt.width,
+            height : opt.height,
+            events : {
+                "click .pm-btn-ok" : function(){
+                    var href = (this.body.getData()||"").replace(
+                        /[\r\n]/g, "");
+                    $z.invoke(opt, "callback", [href]);
+                    this.close();
+                },
+                "click .pm-btn-cancel" : function(){
+                    this.close();
+                }
+            }, 
+            setup : {
+                uiType : 'app/wn.hmaker2/support/edit_link',
+                uiConf : {
+                    exec  : UI.exec,
+                    app   : Wn.app(),
+                    tip   : opt.tip,
+                    items : opt.items,
+                    icon  : opt.icon,
+                    text  : opt.text,
+                    value : opt.value,
+                    emptyItem : opt.emptyItem,
+                }
+            }
+        }).render(function(){
+            this.$main.find('.pm-title').html(UI.text(opt.title));
+            this.body.setData(opt.data);
+        });
+    }
     //=========================================================
 }; // ~End methods
 //====================================================================

@@ -101,12 +101,10 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     getItemData : function(index) {
         var jLi = this.$item(index);
         return {
-            text : jLi.find("span").text(),
-            href : jLi.attr("href") || "",
-            newtab : jLi.attr("newtab") == "yes",
+            text    : jLi.find("span").text(),
+            href    : jLi.attr("href") || "",
+            newtab  : jLi.attr("newtab") == "yes",
             current : jLi.attr("current") == "yes",
-            toarChecked : jLi.attr("toar-checked") == "yes",
-            toarId : jLi.attr("toar-id")
         };
     },
     //...............................................................
@@ -200,8 +198,6 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         jLi.attr({
             "newtab" : !item.newtab ? null : "yes",
             "href"   : item.href || null,
-            "toar-checked" : item.toarChecked ? "yes" : null,
-            "toar-id"      : item.toarId || null,
         });
 
         if(!quiet)

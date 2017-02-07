@@ -1,6 +1,8 @@
 package org.nutz.walnut.ext.hmaker.util;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -18,6 +20,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 
@@ -339,5 +342,52 @@ public final class Hms {
         // 保存元数据索引
         oPage.setv("hm_libs", libNames);
         sys.io.set(oPage, "^hm_(site_id|libs)$");
+    }
+
+    /**
+     * 按照一定格式输出给定的对象列表，函数假想你的命令支持下面的参数:
+     * 
+     * <pre>
+     * [-key id,nm..]    # 指定输出的文件元数据字段，这里 `rph` 是特殊元数据，表示相对路径
+     * [-obj]            # 如果只有一个字段，强制为对象输出，否则会输出字符串
+     * [-cqn]            # 输出库文件元数据据 c,q,n 为 JSON 的格式化信息
+     * </pre>
+     * 
+     * @param sys
+     *            系统上下文
+     * @param hc
+     *            子命令上下文
+     * @param list
+     *            要输出的对象列表
+     */
+    public static void output_resource_objs(WnSystem sys, JvmHdlContext hc, List<WnObj> list) {
+        // 输出结果
+        if (hc.params.has("key")) {
+            String[] keys = Strings.splitIgnoreBlank(hc.params.get("key"));
+    
+            // 如果只有一个字段，默认会输出字符串，除非强制为对象
+            if (keys.length == 1 && !hc.params.is("obj")) {
+                List<Object> outs = new ArrayList<>(list.size());
+                String key = keys[0];
+                for (WnObj o : list) {
+                    Object v = o.get(key);
+                    outs.add(v);
+                }
+                sys.out.print(Json.toJson(outs, hc.jfmt));
+            }
+            // 过滤字段
+            else {
+                List<NutMap> outs = new ArrayList<>(list.size());
+                for (WnObj o : list) {
+                    NutMap map = NutMap.WRAP(o).pick(keys);
+                    outs.add(map);
+                }
+                sys.out.print(Json.toJson(outs, hc.jfmt));
+            }
+        }
+        // 默认的输出全部的 JSON
+        else {
+            sys.out.print(Json.toJson(list, hc.jfmt));
+        }
     }
 }

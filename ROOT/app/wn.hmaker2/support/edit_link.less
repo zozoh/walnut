@@ -1,0 +1,21 @@
+@import (reference) "../../ui";
+
+.edit-link {
+    padding:@d3;
+    > header {
+        padding: @d4 @d3 @d0 @d3;
+    }
+    > section {
+        padding: @d0 @d3;
+        input {
+            @input(); padding:@d3; width:100%;
+            font-family: @f_fixed;
+        }
+        input:focus {
+            @input_focus();
+        }
+    }
+    > aside {
+        padding:@d2 @d4; color:@c3;
+    }
+}

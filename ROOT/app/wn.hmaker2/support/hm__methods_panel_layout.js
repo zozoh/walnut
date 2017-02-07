@@ -82,6 +82,7 @@ var methods = {
         new MenuUI({
             parent : UI,
             gasketName : "actions",
+            tipDirection : "up",
             setup : [{
                 icon : '<i class="zmdi zmdi-plus"></i>',
                 text : 'i18n:hmaker.com._area.add',
@@ -91,6 +92,7 @@ var methods = {
                 }
             }, {
                 icon : '<i class="zmdi zmdi-delete"></i>',
+                tip  : 'i18n:hmaker.com._area.del',
                 handler : function(){
                     var aid = UI.uiCom.getHighlightAreaId();
                     if(!aid){
@@ -102,6 +104,7 @@ var methods = {
                 }
             }, {
                 icon : iconMoveBefore,
+                tip  : 'i18n:hmaker.com._area.mv_prev',
                 handler : function(){
                     var aid = UI.uiCom.getHighlightAreaId();
                     if(!aid){
@@ -113,6 +116,7 @@ var methods = {
                 }
             }, {
                 icon : iconMoveAfter,
+                tip  : 'i18n:hmaker.com._area.mv_next',
                 handler : function(){
                     var aid = UI.uiCom.getHighlightAreaId();
                     if(!aid){

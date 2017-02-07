@@ -394,9 +394,13 @@ body {
     li{cursor: pointer; position: relative;}
     li[current] {color:@c0;}
     li[newtab] a:after {
-        font-family: 'FontAwesome'; display: inline; content: "\f08e";
-        font-size: @f0; color:@c2; 
-        position: absolute; right:0; top:0;
+        display: block; content: "";
+        position: absolute; right:-3px; top:-3px;
+        width:5px; height:5px; border-radius: 50%;
+        background: rgba(0,0,255,0.4); border:1px solid rgba(255,255,255,0.8);
+    }
+    li[current][newtab] a:after {
+        background: #00F; border-color:#FFF; box-shadow: 0 0 3px #FFF;
     }
     li[toar-checked] {background: rgba(0,0,0,0.2);}
 }

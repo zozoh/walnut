@@ -6,6 +6,11 @@ define({
         "res" : {
             "title" : '资源库',
         },
+        "link" : {
+            "edit"   : '<i class="zmdi zmdi-link"></i> 编辑超链接',
+            "select" : "站内链接快速选择",
+            "edit_tip" : "如果想编辑站外链接，请用 http:// 或者 https:// 开头"
+        },
         "site" : {
             "conf"   : '<i class="fa fa-gear"></i> <b>站点设置</b>',
             "nm"     : "站点名称",
@@ -147,6 +152,9 @@ define({
                 "name"  : "布局区域",
                 "add"   : "添加分栏",
                 "id"    : "分栏ID",
+                "del"   : "删除当前分栏",
+                "mv_prev" : "前移当前分栏",
+                "mv_next" : "后移当前分栏",
             },
             "rows" : {
                 "name"  : "水平分栏",
@@ -170,7 +178,12 @@ define({
                 "icon"  : '<i class="fa fa-navicon"></i>',
                 "item_dft_text" : "菜单项文字",
                 "add"   : "添加菜单项",
-                "newtab" : "新窗口",
+                "del"   : "删除当前菜单项",
+                "mv_prev" : "前移当前菜单项",
+                "mv_next" : "后移当前菜单项",
+                "mv_parent"  : "升级当前菜单项",
+                "mv_sub"     : "降级当前菜单项(成为子菜单)",
+                "newtab" : "新窗口打开",
                 "nohref" : "无链接",
                 "nocurrent" : "抱歉，您执行这个操作前，必须要选择一个菜单项",
                 "empty" : "菜单无任何项目",
@@ -187,7 +200,6 @@ define({
                 "toar_check_tip" : "标识当前项对应的区域为默认显示区域",
                 "toar_area_none" : "选择一个区域",
                 "toar_no_bar"    : "请选择菜单条对应的分栏控件",
-                "edit_href" : "编辑菜单项链接"
             },
             "text" : {
                 "name"  : "文本",
