@@ -8,7 +8,7 @@ var MenuUI = require('ui/menu/menu');
 var methods = {
     events : {
         // 高亮区域
-        'click .clp-layout li' : function(e){
+        'click .clp-layout>ul>li' : function(e){
             var UI  = this;
             var jLi = $(e.currentTarget);
             var aid = jLi.find('[key="areaId"]').text();
@@ -150,6 +150,8 @@ var methods = {
     },
     //...............................................................
     _update_area_item : function(jLi, ao) {
+        var UI = this;
+
         // 更新属性
         jLi.attr({
             "highlight" : ao.highlight ? "yes" : null
@@ -160,8 +162,10 @@ var methods = {
         
         // 显示皮肤
         var jBox = $('<div key="skin" class="hm-skin-box">').appendTo(jLi);
-        this.updateSkinBox(jBox, ao.skin, function(skin){
+        UI.updateSkinBox(jBox, ao.skin, function(skin){
             return this.getSkinTextForArea(skin);
+        }, ao.selectors, function(selectors) {
+            UI.uiCom.setAreaCssSelectors(ao.areaId, selectors);
         });
             
         // 返回以便链式赋值

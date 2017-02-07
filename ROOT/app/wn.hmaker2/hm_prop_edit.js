@@ -95,7 +95,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
             UI.showCssSelectorList(e.currentTarget);
         },
         // 隐藏已经加载的 css 类选择器
-        "dmouseleave .hm-skin-box > .page-css" : function(e) {
+        "mouseleave .hm-skin-box > .page-css" : function(e) {
             this.hideCssSelectorList(e.currentTarget);
         },
     },

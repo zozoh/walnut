@@ -510,6 +510,13 @@
         // 重置弹出体的一些 CSS
         > div {
             line-height: @f3;
+            ul > li:after {
+                display: inline-block; content: attr(fnm);
+                padding:@d0 @d2; border-radius:@d1;
+                color:@c6; border:1px dotted @c6;
+                font-size:@f1; font-family: @f_fixed;
+                margin: 0 @d2; opacity: 0.4;
+            }
         }
         // 显示列表
         > div.css-current { @noselect(); 
@@ -521,11 +528,11 @@
                 text-align: center;
             }
             > section {
-                padding: @d4; color:@cf1; background: @cb1;
+                padding: @d3 @d2; color:@cf1; background: @cb1;
                 border-top:1px solid @cborder1;
                 border-bottom:1px solid @cborder1;
                 ul {
-                    padding:@d4; 
+                    padding:@d2; 
                     li { transition:.3s;
                         white-space: nowrap;
                         padding:@d2 @d4; 
@@ -534,9 +541,6 @@
                         }
                         b:before {display: inline; content: ".";}
                         em {color:@c2; margin-left: @d3;}
-                    }
-                    li:hover {
-                        transform: translateX(-8px);
                     }
                 }
                 ul[empty] {
@@ -559,6 +563,12 @@
             box-shadow: 3px 3px 6px @cshadow;
             > section {
                 color:@cf0; background: @cb0;
+                ul {
+                    li:hover {
+                        transform: translateX(-8px);
+                        opacity: 0.3;
+                    }
+                }
             }
             > footer {
                 b[a="edit"] {display: none;}
@@ -570,7 +580,7 @@
             z-index:100; box-shadow: 3px 3px 6px @cshadow;
             padding:1px; margin:0 @d3; border:1px solid @cborder1; 
             background: @cpop_b; color:@cpop_f; font-family: @f_fixed;
-            min-width: 300px; min-height: 200px;
+            min-width: 300px; min-height: 200px; overflow: auto;
             h4 {
                 padding: @d2; color:@c2; font-size: @f2;
                 background: @cb2; color: @cf2; 
@@ -589,6 +599,7 @@
                 }
                 li:hover {
                     transform: translateX(8px);
+                    opacity: 0.3;
                 }
             }
             ul[empty] {

@@ -5,7 +5,7 @@ var methods = {
         this.arena.find(">header .hmpn-tt").html(this.msg(titleKey));
     },
     // 更新皮肤选择框
-    updateSkinBox : function(jBox, skin, getSkinText, cssSelectors){
+    updateSkinBox : function(jBox, skin, getSkinText, cssSelectors, setSelectors){
         var UI = this;
         jBox = $(jBox).closest(".hm-skin-box");
         // 确保有回调
@@ -36,16 +36,24 @@ var methods = {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 还要更新显示页面的样式
         if(!_.isUndefined(cssSelectors)) {
-            var jSpan   = jBox.find(">.page-css");
-            var jCssTxt = jSpan.find(">b");
-            // 必须是 Array
-            if(!_.isArray(cssSelectors)){
-                cssSelectors = $z.splitIgnoreEmpty(cssSelectors, /[ \t]+/);
-            }
-            jCssTxt.text(cssSelectors.length||"");
-            jBox.attr("css-selectors", cssSelectors.join(" "));
+            UI.updateSkinBoxCssSelector(jBox, cssSelectors);
         }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 记录设置选择器的回调
+        if(_.isFunction(setSelectors))
+            jBox.data("setSelectors", setSelectors);
         
+    },
+    // 更新 jBox 的 cssSelector
+    updateSkinBoxCssSelector : function(jBox, cssSelectors) {
+        var jSpan   = jBox.find(">.page-css");
+        var jCssTxt = jSpan.find(">b");
+        // 必须是 Array
+        if(!_.isArray(cssSelectors)){
+            cssSelectors = $z.splitIgnoreEmpty(cssSelectors, /[ \t]+/);
+        }
+        jCssTxt.text(cssSelectors.length||"");
+        jBox.attr("css-selectors", cssSelectors.join(" "));
     },
     // 显示皮肤下拉列表
     showSkinList : function(jBox, skinList, callback){
@@ -123,7 +131,7 @@ var methods = {
         var UI = this;
         jBox = $(jBox).closest(".hm-skin-box");
         var jSpan = jBox.find(">.page-css");
-        var selectors = jBox.attr("css-selector") || "";
+        var selectors = jBox.attr("css-selectors") || "";
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 不要重复创建
         if(jSpan.children(".css-current").length > 0)
@@ -148,6 +156,9 @@ var methods = {
             if(text) {
                 $('<em>').text(text).appendTo(jLi);
             }
+            var pos = path.lastIndexOf('/');
+            var fnm = pos > 0 ? path.substring(pos+1) : path;
+            jLi.attr("fnm", fnm);
             // $('<span class="del"><i class="zmdi zmdi-close"></i></span>')
             //     .appendTo(jLi);
             return jLi;
@@ -197,9 +208,19 @@ var methods = {
                     // 列表
                     var list = map[key];
                     var jUl = $('<ul>').attr("key", key).appendTo(jAll);
+                    var count = 0;
                     for(var i=0; i<list.length; i++ ) {
                         var so = list[i];
-                        gen_LI(so.selector, so.text, key).appendTo(jUl);
+                        // 没有被使用的选择器会被加入
+                        if(selectors.indexOf(so.selector)<0) {
+                            gen_LI(so.selector, so.text, key).appendTo(jUl);
+                            count ++;
+                        }
+                    }
+                    // 如果为空的话
+                    if(count == 0) {
+                        jUl.attr("empty", "yes")
+                            .text(UI.msg("hmaker.prop.css_none"));
                     }
                 }
             }
@@ -207,11 +228,19 @@ var methods = {
             // 加入 DOM
             jAll.insertBefore(jCurrent);
 
-            // 确保 jCurrent 与 jAll 等宽
-            jCurrent.css("width", jAll.outerWidth());
+            // 确保 jCurrent 不比 jAll 窄
+            if(jCurrent.outerWidth() < jAll.outerWidth())
+                jCurrent.css("width", jAll.outerWidth());
 
             // 停靠
             $z.dock(jCurrent, jAll, "V");
+
+            // 确保不超过边界
+            var viewport = $z.winsz();
+            var rect = $z.rect(jAll, true);
+            var rect2 = $z.rect_clip_boundary(rect, viewport);
+            jAll.css($z.rectObj(rect2, "top,left,height"));
+
         });
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 放弃
@@ -230,46 +259,72 @@ var methods = {
             var jLi = $(e.currentTarget);
             var jMyUl = jLi.parent();
             $z.removeIt(jLi, {
+                appendTo : jUl,
                 before : function(){
                     if(jUl.attr("empty")){
                         jUl.removeAttr("empty").empty();
                     }
                 },
-                appendTo : jUl,
-                after : function(){
-                    // 如果源没有内容了，标识一下
+                // 闪烁一下目标对象
+                remove : function(){
+                    $z.blinkIt(jLi);
+                },
+                // 如果源没有内容了，标识一下
+                after : function() {
                     if(jMyUl.children().length == 0) {
                         jMyUl.attr("empty", "yes")
                             .text(UI.msg("hmaker.prop.css_none"));
                     }
-                    // 闪烁一下目标对象
-                    $z.blinkIt(jLi);
                 }
             });
         });
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 移除
-        jSpan.on("click", '>.css-current section li', function(e){
+        jSpan.on("click", '>.css-current[edit] section li', function(e){
+            console.log("hahah")
             var jLi   = $(e.currentTarget);
             var path  = jLi.attr("path");
             var jTaUl = jSpan.find('>.css-all ul[key="'+path+'"]');
             $z.removeIt(jLi, {
+                appendTo : jTaUl,
                 before : function(){
                     if(jTaUl.attr("empty")){
                         jTaUl.removeAttr("empty").empty();
                     }
                 },
-                appendTo : jTaUl,
+                // 闪烁一下目标对象
+                remove : function(){
+                    $z.blinkIt(jLi);
+                },
+                // 如果源没有内容了，标识一下
                 after : function(){
-                    // 如果源没有内容了，标识一下
                     if(jUl.children().length == 0) {
                         jUl.attr("empty", "yes")
                             .text(UI.msg("hmaker.prop.css_none"));
                     }
-                    // 闪烁一下目标对象
-                    $z.blinkIt(jLi);
                 }
             });
+        });
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 确定修改
+        jSpan.on("click", '>.css-current[edit]>footer>b[a="ok"]', function(e){
+            // 得到全部选择器
+            var list = [];
+            jCurrent.find("section li").each(function(){
+                var jLi = $(this);
+                list.push(jLi.find("b").text());
+            });
+            // 得到类选择器字符串 
+            var cssSelectors = list.join(" ");
+            console.log(cssSelectors);
+            // 隐藏
+            do_hide(e);
+            // 更新属性面板的 css 选择器缓存
+            UI.updateSkinBoxCssSelector(jBox, cssSelectors);
+            // 调用回调
+            var setSelectors = jBox.data("setSelectors");
+            $z.doCallback(setSelectors, [cssSelectors]);
+            
         });
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 停靠

@@ -94,6 +94,9 @@ public class hmaker_css implements JvmHdl {
         // 准备返回值
         List<NutMap> list = new LinkedList<>();
 
+        // 记录已经添加过的 selector
+        NutMap memo = new NutMap();
+
         // 读取全部内容，并按行切割
         String cssText = sys.io.readText(oCss);
         String[] lines = Strings.splitIgnoreBlank(cssText, "(\r?\n)+");
@@ -122,7 +125,11 @@ public class hmaker_css implements JvmHdl {
                 String str = Strings.trim(sb);
                 // 看看是不是有必要加入
                 if (str.startsWith(".") && !P_NOT.matcher(str).find()) {
-                    list.add(Lang.map("selector", str.substring(1)).setv("text", lastComment));
+                    String selector = str.substring(1);
+                    if (!memo.containsKey(selector)) {
+                        list.add(Lang.map("selector", selector).setv("text", lastComment));
+                        memo.put(selector, true);
+                    }
                 }
             }
             // 否则记录到

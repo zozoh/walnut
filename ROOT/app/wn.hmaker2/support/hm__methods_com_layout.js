@@ -96,6 +96,18 @@ var methods = {
         jArea.addClass(skin).attr("skin", skin);
     },
     //...............................................................
+    setAreaCssSelectors : function(aid, selectors) {
+        var jArea = this.getArea(aid);
+        var ao = this.getAreaObj(jArea);
+        
+        // 移除老皮肤
+        if(ao.selectors)
+            jArea.removeClass(ao.selectors);
+        
+        // 设置新皮肤
+        jArea.addClass(selectors).attr("selectors", selectors);
+    },
+    //...............................................................
     // 增加一个区域
     addArea : function() {
         var jArea = $('<div class="hm-area"><div class="hm-area-con"></div></div>')
@@ -120,6 +132,7 @@ var methods = {
             areaId    : jArea.attr("area-id"),
             highlight : jArea.attr("highlight") == "yes",
             skin      : jArea.attr("skin"),
+            selectors : jArea.attr("selectors") || "",
         };
     },
     //...............................................................

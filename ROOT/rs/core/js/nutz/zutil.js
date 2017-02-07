@@ -2670,7 +2670,7 @@
             };
             // 建立闪烁层
             var lg = $(opt.html || '<div class="z_blink_light">&nbsp;</div>');
-            lg.css(css).appendTo(jq[0].ownerDocument.body);
+            lg.css(css).appendTo(jq);
             lg.animate({
                 opacity: 0.1
             }, opt.speed || 500, function () {
@@ -2682,7 +2682,8 @@
         /**
          * jq - 要移除的对象
          * opt.before    - 当移除执行前的操作, this 为 jq 对象
-         * opt.after     - 当移除完成后的操作, this 为 jq 对象
+         * opt.remove    - 当移除完成后的操作, this 为 jq 对象
+         * opt.after     - 当移除动画完成后的操作, this 为 jq 对象
          * opt.holder    - 占位符的 HTML，默认是 DIV.z_remove_holder
          * opt.speed     - 移除的速度，默认为  300
          * opt.appendTo  - (优先)一个目标，如果声明，则不会 remove jq，而是 append 到这个地方
@@ -2735,6 +2736,11 @@
             // 删除元素
             else {
                 jq.remove();
+            }
+
+            // 移动删除/移动后的操作
+            if (_.isFunction(opt.remove)) {
+                opt.remove.apply(jq);
             }
 
             // 执行动画删除占位元素，动画执行完毕后，调用回调
