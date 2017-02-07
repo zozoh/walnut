@@ -6,12 +6,12 @@
 
 	qrcode [-dn] [/path/to/obj] [options]
 	
-	-d              # 指明操作是解码，否则是编码，即生成二维码
-	-n              # 解析二维码的时候，在内容后加上回车
-	-size   : 256   # 生成二维码的大小
-	-fmt    : png   # 生成二维码图片的格式
-	-margin : 0     # 边距
-	
+	-d              		# 指明操作是解码，否则是编码，即生成二维码
+	-n              		# 解析二维码的时候，在内容后加上回车
+	-size   : 256   		# 生成二维码的大小
+	-fmt    : png   		# 生成二维码图片的格式
+	-margin : 0     		# 边距
+	-icon   : id:28e8s.. 	# icon图片的id或者path
 	
 	
 # 示例
@@ -27,5 +27,6 @@
 	$:> qrcode -d ~/myqrcode.jpg
 	I feel food 
 	
-	
-	
+	# 生成带有icon的二维码
+	$:> qrcode 哈哈 -icon id:xxxxxx
+	00 09 87 ...	
