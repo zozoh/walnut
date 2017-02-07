@@ -5,33 +5,52 @@ var methods = {
         this.arena.find(">header .hmpn-tt").html(this.msg(titleKey));
     },
     // 更新皮肤选择框
-    updateSkinBox : function(jBox, skin, getSkinText){
+    updateSkinBox : function(jBox, skin, getSkinText, cssSelectors){
+        var UI = this;
+        jBox = $(jBox).closest(".hm-skin-box");
         // 确保有回调
         getSkinText = getSkinText || jBox.data("getSkinText");
-        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 清空选区
         jBox.attr("skin-selector", skin||"")
-            .html('<span><i class="zmdi zmdi-texture"></i></span>');
+            .html(UI.compactHTML(`<span class="com-skin">
+                <i class="zmdi zmdi-texture"></i><b></b>
+            </span><span class="page-css">
+                <i class="fa fa-css3"></i><b>0</b>
+            </span>`));
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 显示文字
-        var jB = $('<b>').attr("skin-none", skin ? null : "yes");
+        var jSkinTxt = jBox.find(">.com-skin>b").attr("skin-none", skin ? null : "yes");
         // 选择皮肤样式名
         if(skin){
-            jB.text(getSkinText.call(this, skin));
+            jSkinTxt.text(getSkinText.call(this, skin));
         }
         // 显示默认
         else{
-            jB.text(this.msg("hmaker.prop.skin_none"));
+            jSkinTxt.text(this.msg("hmaker.prop.skin_none"));
         }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 记录获取 Text 的回调
-        jBox.data("getSkinText", getSkinText);
+        if(_.isFunction(getSkinText))
+            jBox.data("getSkinText", getSkinText);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 还要更新显示页面的样式
+        if(!_.isUndefined(cssSelectors)) {
+            var jSpan   = jBox.find(">.page-css");
+            var jCssTxt = jSpan.find(">b");
+            // 必须是 Array
+            if(!_.isArray(cssSelectors)){
+                cssSelectors = $z.splitIgnoreEmpty(cssSelectors, /[ \t]+/);
+            }
+            jCssTxt.text(cssSelectors.length||"");
+            jBox.attr("css-selectors", cssSelectors.join(" "));
+        }
         
-        // 加入 DOM
-        jB.appendTo(jBox);
     },
     // 显示皮肤下拉列表
     showSkinList : function(jBox, skinList, callback){
-        var UI   = this;
-        var jBox = $(jBox);
+        var UI = this;
+        jBox = $(jBox).closest(".hm-skin-box");
         var skin = jBox.attr("skin-selector") || "";
         
         // 准备绘制
@@ -99,6 +118,170 @@ var methods = {
         });
         
     },
+    // 显示 cssSelector 的列表
+    showCssSelectorList : function(jBox) {
+        var UI = this;
+        jBox = $(jBox).closest(".hm-skin-box");
+        var jSpan = jBox.find(">.page-css");
+        var selectors = jBox.attr("css-selector") || "";
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 不要重复创建
+        if(jSpan.children(".css-current").length > 0)
+            return;
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 初始化 DOM 结构
+        var jCurrent = $(UI.compactHTML(`<div class="css-current">
+            <header>{{hmaker.prop.css_tt}} <i class="fa fa-css3"></i></header>
+            <section><ul></ul></section>
+            <footer>
+                <b a="edit">{{hmaker.prop.css_edit}}</b>
+                <b a="ok">{{hmaker.prop.css_edit_ok}}</b>
+                <b a="cancel">{{hmaker.prop.css_edit_cancel}}</b>
+            </footer>
+        </div>`));
+        var jUl = jCurrent.find("section>ul");
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 声明创建 LI 的函数
+        var gen_LI = function(selector, text, path) {
+            var jLi = $('<li>').attr("path", path);
+            $('<b>').text(selector).appendTo(jLi);
+            if(text) {
+                $('<em>').text(text).appendTo(jLi);
+            }
+            // $('<span class="del"><i class="zmdi zmdi-close"></i></span>')
+            //     .appendTo(jLi);
+            return jLi;
+        };
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 循环添加
+        var pageUI = UI.pageUI();
+        selectors = $z.splitIgnoreEmpty(selectors, /[ \t]+/);
+        if(selectors.length > 0) {
+            for(var i=0; i<selectors.length; i++) {
+                var s = selectors[i];
+                var t = pageUI.getCssSelectorText(s);
+                var p = pageUI.getCssSelectorPath(s);
+                gen_LI(s,t,p).appendTo(jUl);
+            }
+        }
+        // 显示没有内容
+        else {
+            jUl.attr("empty","yes").html(UI.msg("hmaker.prop.css_none"));
+        }
+
+        // 记入 DOM
+        jCurrent.appendTo(jSpan);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 进入编辑模式
+        jSpan.on("click", '>.css-current>footer>b[a="edit"]', function(){
+            // 标识编辑模式
+            jCurrent.attr("edit", "yes");
+
+            // 绘制遮罩
+            $('<div class="hm-skin-mask">').insertBefore(jCurrent);
+
+            // 绘制全部选择框
+            var jAll = $('<div class="css-all"></div>');
+            var map = UI.pageUI().getCssSelectors();
+
+            // 没有可选规则
+            if(_.isEmpty(map)) {
+                jAll.attr("nolinks", "yes").text(UI.msg("hmaker.prop.css_nolinks"));
+            }
+            // 有可选规则 
+            else {
+                for(var key in map) {
+                    // 标题
+                    var jH4 = $('<h4>').appendTo(jAll);
+                    jH4.text(key);
+                    // 列表
+                    var list = map[key];
+                    var jUl = $('<ul>').attr("key", key).appendTo(jAll);
+                    for(var i=0; i<list.length; i++ ) {
+                        var so = list[i];
+                        gen_LI(so.selector, so.text, key).appendTo(jUl);
+                    }
+                }
+            }
+
+            // 加入 DOM
+            jAll.insertBefore(jCurrent);
+
+            // 确保 jCurrent 与 jAll 等宽
+            jCurrent.css("width", jAll.outerWidth());
+
+            // 停靠
+            $z.dock(jCurrent, jAll, "V");
+        });
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 放弃
+        var do_hide = function(e){
+            e.stopPropagation();
+            $(document).off("keyup", do_hide);
+            UI.hideCssSelectorList(jBox);
+        };
+        jSpan.on("click", '>.css-current>footer>b[a="cancel"]', do_hide);
+        jSpan.on("click", '>.hm-skin-mask', do_hide);
+        // 响应事件: 取消（键盘)
+        $(document).on("keyup", do_hide);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 添加到
+        jSpan.on("click", '>.css-all li', function(e){
+            var jLi = $(e.currentTarget);
+            var jMyUl = jLi.parent();
+            $z.removeIt(jLi, {
+                before : function(){
+                    if(jUl.attr("empty")){
+                        jUl.removeAttr("empty").empty();
+                    }
+                },
+                appendTo : jUl,
+                after : function(){
+                    // 如果源没有内容了，标识一下
+                    if(jMyUl.children().length == 0) {
+                        jMyUl.attr("empty", "yes")
+                            .text(UI.msg("hmaker.prop.css_none"));
+                    }
+                    // 闪烁一下目标对象
+                    $z.blinkIt(jLi);
+                }
+            });
+        });
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 移除
+        jSpan.on("click", '>.css-current section li', function(e){
+            var jLi   = $(e.currentTarget);
+            var path  = jLi.attr("path");
+            var jTaUl = jSpan.find('>.css-all ul[key="'+path+'"]');
+            $z.removeIt(jLi, {
+                before : function(){
+                    if(jTaUl.attr("empty")){
+                        jTaUl.removeAttr("empty").empty();
+                    }
+                },
+                appendTo : jTaUl,
+                after : function(){
+                    // 如果源没有内容了，标识一下
+                    if(jUl.children().length == 0) {
+                        jUl.attr("empty", "yes")
+                            .text(UI.msg("hmaker.prop.css_none"));
+                    }
+                    // 闪烁一下目标对象
+                    $z.blinkIt(jLi);
+                }
+            });
+        });
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 停靠
+        $z.dockAt(jSpan, jCurrent, "H");
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    },
+    // 消除 cssSelector 的列表
+    hideCssSelectorList : function(jBox) {
+        jBox = $(jBox).closest(".hm-skin-box");
+        var jSpan = jBox.find(">.page-css");
+        jSpan.off().find(">div").remove();
+    }
 }; // ~End methods
 //====================================================================
 // 得到 HMaker 所有 UI 对象的方法

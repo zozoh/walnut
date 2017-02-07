@@ -47,7 +47,7 @@ var methods = {
             });
         },
         // 显示可选皮肤
-        'click .clp-layout li > [key="skin"]' : function(e) {
+        'click .clp-layout li > [key="skin"] > .com-skin' : function(e) {
             e.stopPropagation();
             var UI   = this;
             var jBox = $(e.currentTarget);
@@ -67,7 +67,12 @@ var methods = {
             this.showSkinList(jBox, skinList, function(skin){
                 UI.uiCom.setAreaSkin(aid, skin);
             });
-        }
+        },
+        // 阻止 cssSelector 的弹出体冒泡事件，否则就会导致点弹出体切换高亮区域
+        // 这个比较超出预期的现象
+        "click .hm-skin-box > .page-css > div" : function(e) {
+            e.stopPropagation();
+        },
     },
     //...............................................................
     _do_redraw : function(iconMoveBefore, iconMoveAfter){

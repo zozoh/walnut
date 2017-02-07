@@ -159,6 +159,9 @@ return ZUI.def("app.wn.hm_prop_page", {
                         links : objs
                     }, true);
 
+                    // 清空一下缓存
+                    UI.pageUI().cleanCssSelectors();
+
                     // 刷新列表
                     UI.gasket.links.setData(objs);
 

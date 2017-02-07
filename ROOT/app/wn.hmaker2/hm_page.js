@@ -240,6 +240,109 @@ return ZUI.def("app.wn.hmaker_page", {
         }
     },
     //...............................................................
+    // 获取当前页面关联的所有 css 的可用选择器集合
+    // 本函数会自动缓存，除非被调用 cleanCssSelectors
+    // 否则在整个 PageUI 生命周期内，不会再次向服务器发送请求
+    //
+    // - flatThem 参数如果为 true 则会抚平集合，生成一个纯数组
+    //
+    // [{
+    //    selector: "uuyytt",
+    //    text: "哈哈哈",
+    // }, {
+    //    selector: "mmn-23-j_w",
+    //    text: null,
+    // }]
+    //
+    // 否则返回的格式为: 
+    //
+    //
+    // {
+    //     "css/abc.css" : [{
+    //            selector: "uuyytt",
+    //            text: "哈哈哈",
+    //         }, {
+    //            selector: "mmn-23-j_w",
+    //            text: null,
+    //         }],
+    //     "css/bbb.css" : [..]
+    // }
+    //
+    //
+    getCssSelectors : function(flatThem){
+        var UI = this;
+        if(!UI.__css_selectors) {
+            // 准备命令
+            var cmdText = 'hmaker id:'+UI.getHomeObjId() + ' css';
+
+            // 得到页面所有 css 的链接
+            var attr = UI.getPageAttr();
+            var lnks = attr.links || [];
+            for(var i=0; i<lnks.length; i++){
+                var lnk = lnks[i];
+                if('css' == lnk.tp) {
+                    cmdText += ' "' + lnk.rph + '"';
+                }
+            }
+            
+            // 执行命令
+            var re = Wn.exec(cmdText);
+
+            // 分析返回值
+            UI.__css_selectors = $z.fromJson(re) || [];
+        }
+
+        // 抚平集合
+        if(flatThem) {
+            var re = [];
+            for(var key in UI.__css_selectors) {
+                var list = UI.__css_selectors[key];
+                for(var i=0; i<list.length; i++){
+                    re.push(_.extend({path:key}, list[i]));
+                }
+            }
+            return re;
+        }
+
+        // 返回 
+        return UI.__css_selectors;
+    },
+    //...............................................................
+    // 获取当前页面关联的所有 css 的可用选择器集合
+    // 得到的对象格式为:
+    // {
+    //      selector : Text
+    // }
+    // 本函数会缓存集合分析的结构，cleanCssSelectors 函数会清除这个缓存
+    getCssSelectorMap : function() {
+        var UI = this;
+        // 分析
+        if(!UI.__css_selector_map) {
+            var ss = UI.getCssSelectors(true);
+            UI.__css_selector_map = {};
+            for(var i=0; i<ss.length; i++) {
+                var so = ss[i];
+                UI.__css_selector_map[so.selector] = so;
+            }
+        }
+        // 返回 
+        return UI.__css_selector_map;
+    },
+    // 根据一个 selector 返回其 text，
+    // null 表示没声明，undefined 表示没有这个选择器
+    getCssSelectorText : function(selector) {
+        return (this.getCssSelectorMap()[selector] || {}).text;
+    },
+    // 根据一个 selector 返回其所在 css 文件路径,
+    // null 或者 undefined 表示没有这个选择器的定义
+    getCssSelectorPath : function(selector) {
+        return (this.getCssSelectorMap()[selector] || {}).path;
+    },
+    cleanCssSelectors : function() {
+        this.__css_selectors = null;
+        this.__css_selector_map = null;
+    },
+    //...............................................................
     doReloadIBarItem : function(jLi, force) {
         var UI    = this;
         var jiBox = jLi.children(".hmpg-ibar-ibox");

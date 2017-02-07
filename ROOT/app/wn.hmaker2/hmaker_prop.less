@@ -491,12 +491,118 @@
 // 面板上的皮肤选择器对象
 // TODO 将 com 上的那个改成用这个
 //............................................................
-.hm-skin-box {
-    white-space: nowrap; font-family: @f_fixed; color:@cf1; cursor: pointer;
+.hm-skin-box {@noselect();
+    white-space: nowrap; font-family: @f_fixed; color:@cf1; 
     > * {display:inline-block;vertical-align: middle;}
-    > b   { font-weight: normal; font-size:@f1; margin-left:@d1;}
-    > b[skin-none] {font-style: italic; opacity: 0.4;}
-    > span {cursor: pointer; transition:0.2s;}
+    > span.com-skin {cursor: pointer;
+        > i {transition:0.2s;}
+        > b {font-weight: normal; font-size:@f1; margin-left:@d1;}
+        > b[skin-none] {font-style: italic; opacity: 0.4;}
+    }
+    > span.page-css {
+        cursor: pointer; display: inline-block; vertical-align: middle;
+        padding:0 @d2;
+        > i, >b {transition:0.2s;}
+        > b {display: inline-block; vertical-align: middle;
+            font-weight: normal; font-size:@f2; margin-left:@d1;
+        }
+        > b[css-none] {font-style: italic; opacity: 0.4;}
+        // 重置弹出体的一些 CSS
+        > div {
+            line-height: @f3;
+        }
+        // 显示列表
+        > div.css-current { @noselect(); 
+            z-index:100;
+            padding:1px; border:1px solid @cborder1; 
+            background: @cpop_b; color:@cpop_f;
+            > header {
+                padding:@d3; color:@cf2; background: @cb2;
+                text-align: center;
+            }
+            > section {
+                padding: @d4; color:@cf1; background: @cb1;
+                border-top:1px solid @cborder1;
+                border-bottom:1px solid @cborder1;
+                ul {
+                    padding:@d4; 
+                    li { transition:.3s;
+                        white-space: nowrap;
+                        padding:@d2 @d4; 
+                        b {
+                            font-weight: normal; color:@c4;
+                        }
+                        b:before {display: inline; content: ".";}
+                        em {color:@c2; margin-left: @d3;}
+                    }
+                    li:hover {
+                        transform: translateX(-8px);
+                    }
+                }
+                ul[empty] {
+                    color:@c2; font-style: italic;
+                }
+            }
+            > footer { 
+                padding: @d3; text-align: right;
+                b[a="edit"], b[a="cancel"] {color:@clink; cursor: pointer; font-weight: normal;}
+                b[a="edit"]:hover, b[a="cancel"]:hover{
+                    color:@clink_hover; text-decoration: underline;
+                }
+                b[a="ok"] {@btn(); padding:@d2 @d4; margin:0 @d3;}
+                b[a="ok"]:hover {@btn_hover();}
+
+                b[a="ok"], b[a="cancel"] {display: none;}
+            }
+        }
+        > div.css-current[edit] {
+            box-shadow: 3px 3px 6px @cshadow;
+            > section {
+                color:@cf0; background: @cb0;
+            }
+            > footer {
+                b[a="edit"] {display: none;}
+                b[a="ok"], b[a="cancel"] {display: inline-block;}
+            }
+        }
+        // 显示全集列表
+        div.css-all {
+            z-index:100; box-shadow: 3px 3px 6px @cshadow;
+            padding:1px; margin:0 @d3; border:1px solid @cborder1; 
+            background: @cpop_b; color:@cpop_f; font-family: @f_fixed;
+            min-width: 300px; min-height: 200px;
+            h4 {
+                padding: @d2; color:@c2; font-size: @f2;
+                background: @cb2; color: @cf2; 
+                border:1px solid @cborder1;
+            }
+            ul {
+                padding:@d4; color:@cf1; background: @cb1;
+                li { transition:.3s;
+                    white-space: nowrap;
+                    padding:@d2 @d4; 
+                    b {
+                        font-weight: normal; color:@c4;
+                    }
+                    b:before {display: inline; content: ".";}
+                    em {color:@c2; margin-left: @d3;}
+                }
+                li:hover {
+                    transform: translateX(8px);
+                }
+            }
+            ul[empty] {
+                color:@c2; font-style: italic;
+            }
+        }
+        div.css-all[nolinks] {
+            padding:@d6; color:@c6; text-align: center;
+        }
+    }
+    > span.page-css:hover {
+        color:@c1; 
+        > i, > b {transform: translateY(-2px) scale(1.4);}
+    }
     // 选择列表
     .hm-skin-list {
         position: fixed; 
@@ -539,9 +645,11 @@
         background: rgba(0,0,0,0.3);  z-index: 99;
     }
 }
-.hm-skin-box[box-enabled]:hover {
-    color:@c0; 
-    > span {transform: translateX(-4px) scale(1.3);}
+.hm-skin-box[box-enabled] {
+    > span.com-skin:hover {
+        color:@c0; 
+        > i {transform: translateX(-4px) scale(1.3);}
+    }
 }
 
 //............................................................

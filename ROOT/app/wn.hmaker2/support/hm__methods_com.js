@@ -38,6 +38,19 @@ var methods = {
         this.$el.attr("skin", skin||null).addClass(skin);
     },
     //........................................................
+    // 获取组件的皮肤
+    getComSelectors : function() {
+        return this.$el.attr("selectors") || "";
+    },
+    // 设置组件的皮肤，这里会取消掉老的皮肤
+    setComSelectors : function(selectors) {
+        var old_selectors = this.getComSelectors();
+        if(old_selectors) {
+            this.$el.removeClass(old_selectors);
+        }
+        this.$el.attr("selectors", selectors||null).addClass(selectors);
+    },
+    //........................................................
     // 获取组件的库
     getComLibName : function(){
         return this.$el.closest('.hm-com[lib]').attr("lib");

@@ -120,7 +120,7 @@ var methods = {
     // 针对一个组件，根据选择器获取其样式名
     getSkinTextForCom : function(comType, selector) {
         var si = this.getSkinItemForCom(comType, selector);
-        return si ? si.text : null;
+        return si ? (si.text || si.selector) : null;
     },
     // 针对一个分栏区域，根据选择器获取其样式名
     getSkinTextForArea : function(selector) {
@@ -128,7 +128,7 @@ var methods = {
         if(_.isArray(sList))
             for(var si of sList){
                 if(si.selector == selector)
-                    return si.text;
+                    return si.text || si.selector;
             }
         return null;
     },

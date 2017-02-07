@@ -72,23 +72,32 @@ return ZUI.def("app.wn.hm_prop_edit", {
             });
         },
         // 显示皮肤选择器
-        "click .hm-skin-box" : function(e) {
+        "click .hm-skin-box > .com-skin" : function(e) {
             e.stopPropagation();
-            var UI   = this;
-            var jBox = $(e.currentTarget);
+            var UI    = this;
+            var jSpan = $(e.currentTarget);
 
             // 得到可用皮肤列表
             var ctype = UI.uiCom.getComType();
-            var skinList = UI.getSkinListForCom(ctype);
+            var skinList  = UI.getSkinListForCom(ctype);
 
-            UI.showSkinList(jBox, skinList, function(skin){
+            UI.showSkinList(jSpan, skinList, function(skin){
                 // 保存皮肤信息
                 UI.uiCom.setComSkin(skin);
 
                 // 通知相关改动（不要让组件重绘）
                 UI.uiCom.notifyBlockChange("com");
             });
-        }
+        },
+        // 显示已经加载的 css 类选择器
+        "mouseenter .hm-skin-box > .page-css" : function(e) {
+            var UI = this;
+            UI.showCssSelectorList(e.currentTarget);
+        },
+        // 隐藏已经加载的 css 类选择器
+        "dmouseleave .hm-skin-box > .page-css" : function(e) {
+            this.hideCssSelectorList(e.currentTarget);
+        },
     },
     //...............................................................
     redraw : function() {
