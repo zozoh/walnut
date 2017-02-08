@@ -23,73 +23,78 @@ tags:
 
 # 导出
 
-数据分成2部分, WnObj(元数据)和bucket数据(文件数据)
+数据分成3部分, 
 
-其中objs目录存放WnObj数据, 根据walnut中的真实目录结构进行存放
+* objs.txt 目录树文件
+* objs 元数据的文件夹
+* bucket 裸数据的文件夹
 
-但目录对象需要特殊命名 *_dir_$name.wobj*
+objs.txt 目录树文件, 一行一条记录
+
+```
+// 格式
+$id:$path:$obj_sha1:$data_sha1
+// 示例
+vvabc..dbad:/home/wendal/logo.png:df23er...dfdf:ss32..f34
+```
+
+元数据的文件夹和裸数据数据文件夹,均以sha1命名存储
 
 ```
 objs
-	- _dir_root.wobj
-	- root
-		- _dir_www.obj
-		- www
-			- index.html
-			- login.html
-```
-
-而存放文件数据的bucket目录, 与LocalFileBucket实现的目录结构一致, 即
-
-$sha1[0:2]/$sha1[2:]/$part
-
-例如 sha1=vv3hb5m0t8ionrai3di3eh98s2, 然后它有3个分片,那么数据存储如下
-
-```
+	- vv 
+		- abcd...efg
 bucket
 	- vv
 		- 3hb5m0t8ionrai3di3eh98s2
-			- 0 
-			- 1
-			- 2
 ```
 
-上述2个文件夹,打包压缩之后,就是一个数据导出包(或者叫备份包)
+上述3个文件和文件夹夹,打包压缩之后,就是一个数据导出包(或者叫备份包)
 
 ### 增量备份
 
 在第一次完整导出后(基线备份包/完整备份包), 后续导出使用增量方式(增量备份包)
 
-增量更新需要解决的问题:
+与基线更新包的异同:
 
-* 文件新增
-* 文件删除
-* 文件夹变文件,或文件变文件夹
-
-逐一解决:
-
-* 文件新增 , 那么wobj数据肯定新增, 然后bucket数据可能新增, 所以, 合并文件夹时没有冲突
-* 文件删除, 需要一个标示文件 *_deleted_$name.wobj*, 然而bucket数据不一定也删除,存在与其他文件共用sha1的情况
-* 文件夹变文件,或文件变文件夹, 这种情况似乎判断一下就好了.
-
-还有一种, 文件移动, 视为新增+删除的组合.
+* objs.txt 是完整的
+* objs 元数据文件夹,只包含新增/修改过的数据
+* bucket 裸文件数据文件夹, 只包含新增/修改过的数据
 
 ### 增量备份的生成过程
 
 以基线备份包及后续的N个增量备份包为蓝本, 生成当前系统的增量备份包
 
-* 第一轮, 根据历史备份数据,生成最后一个备份的目录树
-* 第二轮, 根据当前目录树与备份目录的差异,生成增量备份目录树(objs目录)
-* 第三轮, 根据增量备份目录树, 生成sha1列表,从而导出bucket目录
+* 第一轮, 生成完整的objs.txt
+* 第二轮, 根据当前的objs.txt与前一次备份的objs.txt,差分出objs目录
+* 第三轮, 根据当前的objs.txt与前一次备份的objs.txt,差分出bucket目录
 
 ### 增量备份的合并执行过程
 
 以基线备份包及后续的N个增量备份包为蓝本, 合成一个新的基线备份包(完整备份包)
 
-* 第一轮, 合并wobj和bucket目录, 通过删除冲突文件的方式, 解决*文件夹变文件,或文件变文件夹*的问题
-* 第二轮, 遍历*_deleted_$name.wobj*文件,删除指定wobj文件
-* 第三轮, 遍历wobj目录,记录sha1, 然后清理bucket文件夹
+因为objs.txt总是包含完整的目录树,所以仅需要递归查找该目录下的文件所对应的objs文件
 
-# 导入
+* 第一轮, 递归查找objs下的原数据文件
+* 第二轮, 根据objs.txt, 递归查找bucket下数据文件
+* 第三轮, 将上述objs和bucket文件夹,连同objs.txt,压缩生成新的基线备份包
 
-TODO 继续想...
+## 导入
+
+导入的过程, 与"增量备份的合并执行过程"的类似,只是数据最终落地到walnut的目录树中
+
+### id是否需要保持原本的id
+
+若保持原id, 必然会出现id重复的可能性:
+
+```
+touch /home/wendal/logo.png
+doExport /home/wendal # 输出备份
+mv /home/wendal/logo.png /home/zozoh/logo.png
+doImport dump_xxx.tgz /home/wendal
+```
+
+所以, 导入功能应具备下列配置项:
+
+* 保留id与否
+* 遇到id冲突时, 是自动创建新id还是报错
