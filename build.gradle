@@ -67,7 +67,7 @@ dependencies {
     compile group: 'org.jsoup', name: 'jsoup', version:'1.8.3'
     compile group: 'org.nutz', name: 'nutzmongo', version:'1.r.61-SNAPSHOT'
     compile group: 'org.nutz', name: 'nutzwx', version:'1.r.59'
-    compile group: 'org.nutz', name: 'nutz-plugins-qrcode', version:'1.r.58'
+    compile group: 'org.nutz', name: 'nutz-plugins-qrcode', version:'1.r.61-SNAPSHOT'
     compile (group: 'net.sourceforge.htmlunit', name: 'htmlunit', version:'2.19') {
 		exclude(module: 'websocket-client')
     }
