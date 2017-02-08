@@ -832,7 +832,7 @@ return ZUI.def("app.wn.hmaker_page", {
             var jArea = $(this);
             var aid   = jArea.attr("area-id");
             var mode  = areaMap[aid];
-            // console.log(aid, mode)
+            //console.log(aid, mode)
             // 关联区域: 显示
             if("yes" == mode) {
                 jArea.attr("toggle-mode", "show")

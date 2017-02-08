@@ -721,13 +721,12 @@
 //............................................................
 // navmenu
 .hmc-navmenu-prop {
-    overflow: auto;
     .cnavmp-item-list { @noselect();
-        padding: @d2; margin-bottom:@d3; 
+        padding: @d2; margin-bottom:@d3; overflow: auto; 
         border:1px solid @cborder1; background: @cb0; color:@cf0;
         .cnavmp-item {
             border:1px dotted rgba(0,0,0,0.1); cursor: pointer;
-            padding:@d1 @d2; margin-bottom:1px;
+            padding:@d1 @d2; margin-bottom:1px; 
             > span {float:left; padding:@d1; display: block;}
             > span.bullet{
                 width:20px; padding:@d2 0 @d2 @d1;
@@ -735,11 +734,12 @@
                     opacity: .4; color:@c2; 
                 }
             }
-            > span[key="text"]{}
-            > span[key="href"]{ 
-                color:@c2; font-family: @f_fixed; font-size:@f1; width: 180px; 
+            > span[key="text"]{
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-                opacity: 0.7;
+            }
+            > span[key="href"]{ opacity: 0.7;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                color:@c2; font-family: @f_fixed; font-size:@f1; 
             }
             > span[key="href"]:before {
                 font-family: 'FontAwesome'; display: inline; content: "\f0c1";
@@ -769,6 +769,10 @@
                 }
             }
         }
+        .cnavmp-item[sub] {
+            border-left-width: 3px;
+            border-left-style: solid;
+        }
         .cnavmp-empty {
             text-align: center; padding:@d5 0; font-size: @f3; color:@c6;
         }
@@ -792,7 +796,18 @@
         }
     }
     .cnavmp-form {
-        padding: @d3; 
+        padding: @d2 @d0 @d3 @d3; 
+        .form {
+            .form-fld {
+                padding:0;
+                .ff-txt {
+                    padding: @d2;
+                }
+                .ff-val {
+                    .com-switch {padding:0;}
+                }
+            }
+        }
     }
 }
 // 弹出的 href 编辑界面

@@ -29,15 +29,9 @@ return ZUI.def("app.wn.hm_com_navmenu", {
 
             // 如果当前模式是区域选择，还需要同时高亮当前区域
             var com = this.getData();
-            if(com.atype == "toggleArea"){
-                this.checkToggleAreaItem(jq);
-            }
 
             // 激活当前项目
             this.selectItem(jq);
-
-            // 触发一下重绘
-            this.paint(com);
         },
         // 取消高亮
         // 'click .hmc-navmenu' : function(e) {
@@ -90,21 +84,29 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         throw "navmenu $item Don't known how to found item by : " + arg;
     },
     //...............................................................
-    getActivedItemIndex : function() {
+    getActivedItem : function() {
         var UI = this;
         var jItem = UI.arena.find('li[current]');
         if(jItem.length > 0)
-            return jItem.prevAll().length;
+            return jItem;
+    },
+    //...............................................................
+    getActivedItemIndex : function() {
+        for(var i=0; i<jItems.length; i++){
+            if(jItems.eq(i).attr("current"))
+                return i;
+        }
         return -1;
     },
     //...............................................................
     getItemData : function(index) {
         var jLi = this.$item(index);
         return {
-            text    : jLi.find("span").text(),
+            text    : jLi.find(">a>span").text(),
             href    : jLi.attr("href") || "",
             newtab  : jLi.attr("newtab") == "yes",
             current : jLi.attr("current") == "yes",
+            depth   : jLi.parentsUntil(".hmc-navmenu", "ul").length - 1
         };
     },
     //...............................................................
@@ -118,8 +120,15 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         };
 
         // 用 A 包裹文字是因为考虑到以后可能增加 icon 之类的前缀修饰元素
-        var jUl = UI.arena.find("ul");
-        var jLi = $('<li><a><i></i><span></span></a></li>').appendTo(jUl);
+        var jLi = $('<li><a><i></i><span></span></a></li>');
+        var jCurrentItem = UI.getActivedItem();
+        if(jCurrentItem) {
+            jLi.insertAfter(jCurrentItem);
+        }else{
+            var jUl = UI.arena.find("ul").last();
+            jUl.appendTo(jUl);
+        }
+
         UI.updateItem(jLi, item, true);
 
         // 选中新增项目(顺便通知修改)
@@ -140,6 +149,9 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         UI.arena.find('li[current]').removeAttr("current");
         jLi.attr("current", "yes");
 
+        // 同步区域修改（只有 atype=="toggleArea" 才会生效)
+        UI.syncToggleArea();
+
         // 通知修改
         UI.notifyDataChange("page");
     },
@@ -149,24 +161,6 @@ return ZUI.def("app.wn.hm_com_navmenu", {
 
         // 通知修改
         this.notifyDataChange("page");  
-    },
-    //...............................................................
-    checkToggleAreaItem : function(index) {
-        var UI  = this;
-        var jLi = UI.$item(index);
-
-        // 已经激活了 ...
-        if(jLi.attr("toar-checked")){
-            return;
-        }
-
-        // 选中了
-        UI.arena.find('li[toar-checked]').removeAttr("toar-checked");
-        jLi.attr("toar-checked", "yes");
-    },
-    //...............................................................
-    uncheckToggleAreaItem : function() {
-        this.arena.find('li[toar-checked]').removeAttr("toar-checked");
     },
     //...............................................................
     // 将自身对于 ToggleArea 的设定加入一个 Map
@@ -181,10 +175,10 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         // 关联的某个布局 ...
         if(com.layoutComId) {
             // 找一下，具体的布局设置
-            this.arena.find('li[toar-id]').each(function(){
+            this.arena.find('li').each(function(){
                 var jLi = $(this);
-                var aid = jLi.attr("toar-id");
-                map[aid] = jLi.attr("toar-checked") || "no";
+                var aid = jLi.attr("href");
+                map[aid] = jLi.attr("current") || "no";
             });
         }
         return map;
@@ -244,10 +238,10 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         var jLi = UI.$item(index);
 
         var jTa = jLi.prev();
-        if(jTa.length > 0) {
-            jLi.insertBefore(jTa);
-        }
+        if(jTa.length == 0)
+            return;
 
+        jLi.insertBefore(jTa);
         UI.notifyDataChange("page");
     },
     //...............................................................
@@ -256,10 +250,29 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         var jLi = UI.$item(index);
 
         var jTa = jLi.next();
-        if(jTa.length > 0) {
-            jLi.insertAfter(jTa);
-        }
+        if(jTa.length == 0)
+            return;
 
+        jLi.insertAfter(jTa);
+        UI.notifyDataChange("page");
+    },
+    //...............................................................
+    moveSub : function(index) {
+        var UI = this;
+        var jLi = UI.$item(index);
+
+        var jTa = jLi.prev();
+        if(jTa.length == 0)
+            return;
+
+        // 试图成为它的子
+        var jTaUl = jTa.children('ul');
+        if(jTaUl.length == 0) {
+            jTaUl = $('<ul>').appendTo(jTa);
+        }
+        jLi.appendTo(jTaUl);
+
+        // 通知修改
         UI.notifyDataChange("page");
     },
     //...............................................................
@@ -284,39 +297,36 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     paint : function(com) {
         var UI  = this;
 
-        // console.log("paint", com);
+        console.log("paint", com);
 
         // 标识自己的类型
         UI.$el.attr("navmenu-atype", com.atype);
         
+        // 同步区域
+        UI.syncToggleArea(com);
+    },
+    //...............................................................
+    // 如果自己的 atype 是 'toggleArea' 
+    // 本函数将根据菜单的自身状态，同步设置对应的分栏
+    syncToggleArea : function(com) {
+        var UI = this;
+        com = com || UI.getData();
+
         // 如果是区域显示，则找到对应分栏，设置属性
         if("toggleArea" == com.atype) {
-            // 设置了区域
+            // 去掉自己所有的 newtab 设定
+            UI.arena.find('li[newtab]').removeAttr("newtab");
+            // 设置了关联的分栏控件，那么对其进行显示或者隐藏
             if(com.layoutComId) {
-                // 标识区域
+                // 归纳区域
                 var map = UI.joinToggleAreaMap(null, com);
+                //console.log(map)
+                // 更新区域的显示和隐藏
                 UI.pageUI().toggleLayout(com.layoutComId, map);
-
-                // 找到高亮的显示项目
-                var jLi = UI.arena.find('li[toar-checked]');
-
-                // 触发页面区域修改
-                var aid = jLi.attr("toar-id");
-                UI.pageUI().setToggleArea(com.layoutComId, aid);
             }
-            // 取消全部区域
+            // 没设置的话，确保清除了页面上所有的 toggle 区域
             else {
-                // 菜单上的项目全部取消
-                UI.arena.find('li').attr({
-                    "toar-id" : null,
-                    "toar-checked" : null
-                });
-
-                // 页面上清理一下
                 UI.pageUI().cleanToggleArea();
-
-                // 更新一下属性面板
-                UI.notifyDataChange("page");
             }
         }
         // 否则查找所有的分栏，如果没有任何菜单关联它，则取消
@@ -335,7 +345,6 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         if(UI.isActived()) {
             this.pageUI().setToggleCurrent(com.layoutComId);
         }
-
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性

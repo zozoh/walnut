@@ -443,7 +443,7 @@ var methods = {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if(_.isUndefined(opt.items)) {
             var oPage = UI.pageUI().getCurrentEditObj();
-            opt.items = 'hmaker id:'+oPage.id+' links -key "rph,nm,tp"';
+            opt.items = 'hmaker id:'+oPage.id+' links -key "rph,nm,tp" -site';
         }
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         $z.setUndefined(opt, "icon", function(o) {
