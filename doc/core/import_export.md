@@ -41,12 +41,12 @@ vvabc..dbad:/home/wendal/logo.png:df23er...dfdf:ss32..f34
 元数据的文件夹和裸数据数据文件夹,均以sha1命名存储
 
 ```
-objs
+meta
 	- vv 
-		- abcd...efg
-bucket
+		- abcd...aefg
+data
 	- vv
-		- 3hb5m0t8ionrai3di3eh98s2
+		- 3hb5...98s2
 ```
 
 上述3个文件和文件夹夹,打包压缩之后,就是一个数据导出包(或者叫备份包)
@@ -58,26 +58,26 @@ bucket
 与基线更新包的异同:
 
 * objs.txt 是完整的
-* objs 元数据文件夹,只包含新增/修改过的数据
-* bucket 裸文件数据文件夹, 只包含新增/修改过的数据
+* meta 元数据文件夹,只包含新增/修改过的数据
+* data 裸文件数据文件夹, 只包含新增/修改过的数据
 
 ### 增量备份的生成过程
 
 以基线备份包及后续的N个增量备份包为蓝本, 生成当前系统的增量备份包
 
 * 第一轮, 生成完整的objs.txt
-* 第二轮, 根据当前的objs.txt与前一次备份的objs.txt,差分出objs目录
-* 第三轮, 根据当前的objs.txt与前一次备份的objs.txt,差分出bucket目录
+* 第二轮, 根据当前的objs.txt与前一次备份的objs.txt,差分出meta目录
+* 第三轮, 根据当前的objs.txt与前一次备份的objs.txt,差分出data目录
 
 ### 增量备份的合并执行过程
 
 以基线备份包及后续的N个增量备份包为蓝本, 合成一个新的基线备份包(完整备份包)
 
-因为objs.txt总是包含完整的目录树,所以仅需要递归查找该目录下的文件所对应的objs文件
+因为objs.txt总是包含完整的目录树,所以仅需要递归查找该目录下的文件所对应的meta文件
 
-* 第一轮, 递归查找objs下的原数据文件
-* 第二轮, 根据objs.txt, 递归查找bucket下数据文件
-* 第三轮, 将上述objs和bucket文件夹,连同objs.txt,压缩生成新的基线备份包
+* 第一轮, 递归查找meta下的元数据文件
+* 第二轮, 根据objs.txt, 递归查找data下数据文件
+* 第三轮, 将上述meta和data文件夹,连同objs.txt,压缩生成新的基线备份包
 
 ## 导入
 
