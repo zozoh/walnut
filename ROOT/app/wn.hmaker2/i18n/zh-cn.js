@@ -245,7 +245,8 @@ define({
                 "icon"  : '<i class="fa fa-code"></i>',
                 "tt"    : "编辑HTML代码",
                 "open"  : "打开代码编辑器",
-                "edit_tip" : "CTRL(Command)+Enter 快速应用修改"
+                "edit_tip" : "CTRL(Command)+Enter 快速应用修改",
+                "edit_tt"  : "HTML 代码编辑器",
             },
             "objlist" : {
                 "name"  : "动态数据列表",

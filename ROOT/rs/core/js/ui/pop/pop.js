@@ -106,6 +106,59 @@ module.exports = {
         });
     },
     //...............................................................
+    // 弹出一个浏览器界面
+    // 打开一个文本编辑器（弹出），接受的参数格式为:
+    /*
+    {
+        title       : "i18n:xxx"    // 对话框标题
+        width       : 900           // 对话框宽度
+        height      : "90%"         // 对话框高度
+        i18n        : i18n          // 对话框控件组的 i18n 设定
+        contentType : "text"        // 编辑内容类型
+        data        : 要编辑的值
+        callback    : 回调函数接受 callback(href)
+        context     : MaskUI        // 回调的上下文，默认是 MaskUI
+    }
+    */
+    openEditTextPanel : function(opt){
+        opt = opt || {};
+
+        // 填充默认值
+        $z.setUndefined(opt, "width", 900);
+        $z.setUndefined(opt, "height", "90%");
+        $z.setUndefined(opt, "title", 'i18n:edit');
+        $z.setUndefined(opt, "contentType", "text");
+
+        // 打开编辑器
+        new MaskUI({
+            dom : 'ui/pop/pop.html',
+            css : 'ui/pop/pop.css',
+            i18n : opt.i18n,
+            width  : opt.width,
+            height : opt.height,
+            events : {
+                "click .pm-btn-ok" : function(){
+                    var context = opt.context || this;
+                    var html = this.body.getData();
+                    $z.invoke(opt, "callback", [html], context);
+                    this.close();
+                },
+                "click .pm-btn-cancel" : function(){
+                    this.close();
+                }
+            }, 
+            setup : {
+                uiType : 'ui/zeditor/zeditor',
+                uiConf : {
+                    contentType : opt.contentType
+                }
+            }
+        }).render(function(){
+            this.arena.find(".pm-title").html(this.text(opt.title));
+            this.body.setData(opt.data);                
+        });
+    },
+    //...............................................................
 }; // ~End methods
 //=======================================================================
 });

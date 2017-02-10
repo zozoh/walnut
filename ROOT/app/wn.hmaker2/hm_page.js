@@ -59,12 +59,12 @@ var html = `
                 text="hmaker.com.rows.name" tip="hmaker.com.rows.tip"></li>
             <li ctype="columns" icon="hmaker.com.columns.icon" 
                 text="hmaker.com.columns.name" tip="hmaker.com.columns.tip"></li>
-            <li ctype="text" icon="hmaker.com.text.icon" 
-                text="hmaker.com.text.name" tip="hmaker.com.text.tip"></li>
             <li ctype="image" icon="hmaker.com.image.icon" tag-name="A"
                 text="hmaker.com.image.name" tip="hmaker.com.image.tip"></li>
             <li ctype="navmenu" icon="hmaker.com.navmenu.icon" 
                 text="hmaker.com.navmenu.name" tip="hmaker.com.navmenu.tip"></li>
+            <li ctype="text" icon="hmaker.com.text.icon" 
+                text="hmaker.com.text.name" tip="hmaker.com.text.tip"></li>
             <li ctype="htmlcode" icon="hmaker.com.htmlcode.icon"
                 text="hmaker.com.htmlcode.name" tip="hmaker.com.htmlcode.tip"></li>
             <li ctype="objlist" icon="hmaker.com.objlist.icon" 

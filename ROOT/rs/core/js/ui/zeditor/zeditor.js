@@ -9,33 +9,11 @@ var TYPES = {
     "text" : {
         type : 'text',
         icon : '<i class="fa fa-file-text-o"></i>',
-        htmlToData : function(html){
-            var jDiv = $("<div>");
-            html = html.replace(/<\/p>/g, '')
-                    .replace(/<p>/g, '\n\n')
-                    .replace(/<br>/g, '\n');
-            html = jDiv.text(html).text();
-            jDiv.remove();
-            return html;
-        },
-        dataToHtml : function(text){
-           return text
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/(\r?\n){2,}/g, "<p>")
-                    .replace(/\r?\n/g, '<br>'); 
-        }
     },
     // HTML
     "html" : {
         type : 'html',
         icon : '<i class="fa fa-html5"></i>',
-        htmlToData : function(html){
-            return html;
-        },
-        dataToHtml : function(text){
-           return text; 
-        }
     }
 };
 //==============================================
@@ -78,55 +56,17 @@ return ZUI.def("ui.zeditor", {
 
         var titleHtml =  opt.title || UI._HD.icon + UI.msg("zeditor.type." + UI._HD.type);
         UI.arena.children("header").html(titleHtml);
-
-        UI.arena.find("textarea")[0].focus();
     },
     //...............................................................
     setData : function(content) {
-        this.arena.find("> section > textarea").val(content || "");
+        this.arena.find("> section > textarea")
+            .val(content || "")
+                .focus();
     },
     //...............................................................
     getData : function() {
         return this.arena.find("> section > textarea").val();
     },
-    //...............................................................
-    __html_to_data : function(html) {
-        // 不是字符串的话
-        if(!_.isString(html)) {
-            // 元素
-            if(_.isElement(html))
-                html = html.innerHTML;
-
-            // jQuery
-            else if($z.isjQuery(html))
-                html = html.html();
-
-            // 函数
-            else if(_.isFunction(html))
-                html = html();
-
-            // 其他统统 toString
-            else
-                html = (html || "").toString();
-
-        }
-        // 设置
-        return this._HD.htmlToData(escape_html_evil(html));
-    },
-    //...............................................................
-    __data_to_html : function(data) {
-        return this._HD.dataToHtml(escape_html_evil(data));
-    },
-    //...............................................................
-    setHtml : function(html) {
-        var data = this.__html_to_data(html);
-        this.setData(data);
-    },
-    //...............................................................
-    getHtml : function() {
-        var data = this.getData();
-        return this.__data_to_html(data);
-    }
     //...............................................................
 });
 //===================================================================

@@ -526,7 +526,7 @@ var methods = {
             this.$main.find('.pm-title').html(UI.text(opt.title));
             this.body.setData(opt.data);
         });
-    }
+    },
     //=========================================================
 }; // ~End methods
 //====================================================================

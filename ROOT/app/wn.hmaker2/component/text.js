@@ -2,9 +2,10 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/support/hm__methods_com',
+    'ui/pop/pop',
     'ui/mask/mask',
-], function(ZUI, Wn, HmComMethods, MaskUI){
+    'app/wn.hmaker2/support/hm__methods_com',
+], function(ZUI, Wn, POP, MaskUI, HmComMethods){
 //==============================================
 var html = '<div class="ui-arena hmc-text">{{hmaker.com.text.blank_content}}</div>';
 //==============================================
@@ -25,31 +26,28 @@ return ZUI.def("app.wn.hm_com_text", {
             if(!UI.isActived())
                 return;
 
+            // 得到文本内容
+            var html = UI.arena.html();
+            var text = html.replace(/<\/p>/g, '')
+                    .replace(/<p>/g, '\n\n')
+                    .replace(/<br>/g, '\n');
+            var jDiv = $("<div>");
+            text = jDiv.text(text).text();
+            jDiv.remove();
+
             // 打开编辑器
-            new MaskUI({
-                width  : 900,
-                height : "90%",
-                dom : 'ui/pop/pop.html',
-                css : 'ui/pop/pop.css',
-                events : {
-                    "click .pm-btn-ok" : function(){
-                        var html = this.body.getHtml();
-                        UI.arena.html(html);
-                        this.close();
-                    },
-                    "click .pm-btn-cancel" : function(){
-                        this.close();
-                    }
-                }, 
-                setup : {
-                    uiType : 'ui/zeditor/zeditor',
-                    uiConf : {
-                        contentType : "text"
-                    }
+            POP.openEditTextPanel({
+                i18n        : UI._msg_map,
+                title       : "i18n:hmaker.com.text.tt_editor",
+                contentType : "text",
+                data : text,
+                callback : function(data){
+                    var html = data.replace(/</g, "&lt;")
+                                    .replace(/>/g, "&gt;")
+                                    .replace(/(\r?\n){2,}/g, "<p>")
+                                    .replace(/\r?\n/g, '<br>'); 
+                    UI.arena.html(html);
                 }
-            }).render(function(){
-                this.arena.find(".pm-title").html(UI.msg('hmaker.com.text.tt_editor'));
-                this.body.setHtml(UI.arena);                
             });
         }
     },

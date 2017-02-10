@@ -79,8 +79,11 @@
   input {
     padding: @d2;
     width: 100%; @input();
+    color:@c2; 
   }
-  input:focus {@input_focus();
+  input:focus {
+    @input_focus();
+    color:@c5;
   }
   .unit {
     display: block;

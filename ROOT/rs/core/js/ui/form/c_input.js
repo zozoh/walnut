@@ -4,7 +4,9 @@ $z.declare([
 ], function(ZUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena com-input"><input spellcheck="false"><span class="unit">?</span></div>
+<div class="ui-arena com-input">
+    <input type="text" spellcheck="false"><span class="unit">?</span>
+</div>
 */};
 //===================================================================
 return ZUI.def("ui.form_com_input", {
