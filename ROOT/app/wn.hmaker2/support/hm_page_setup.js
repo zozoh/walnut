@@ -239,6 +239,13 @@ var methods = {
                 }
             }
         });
+
+        // 阻止页面的 form 提交
+        UI._C.iedit.$body.on("submit", "form", function(e){
+            e.preventDefault();
+        });
+
+        // 绑定 resize 事件
         if(!UI._C.iedit.doc.defaultView.hm_resize_binded){
             UI._C.iedit.doc.defaultView.hm_resize_binded = true;
             $(UI._C.iedit.doc.defaultView).resize(function(){

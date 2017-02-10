@@ -24,12 +24,19 @@ return ZUI.def("app.wn.hm_com_htmlcode_prop", HmMethods({
     events : {
         // CTRL(Command)+Enter 快速应用修改
         "keydown textarea" : function(e) {
-            var UI = this;
             if(13 == e.which && (e.metaKey || e.ctrlKey)) {
-                var code = UI.arena.find("textarea").val();
-                UI.uiCom.saveData("panel", {code : code}, true);
+                this.applyHtmlCode();
             }
+        },
+        // 应用修改
+        "change textarea" : function(e) {
+            this.applyHtmlCode();
         }
+    },
+    //...............................................................
+    applyHtmlCode : function() {
+        var code = this.arena.find("textarea").val();
+        this.uiCom.saveData("panel", {code : code}, true);
     },
     //...............................................................
     update : function(com) {
