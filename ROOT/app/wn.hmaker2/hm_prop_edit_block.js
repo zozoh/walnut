@@ -31,9 +31,7 @@ var html = `
     </div>
     <div class="hmpb-skin">
         <em>{{hmaker.prop.skin}}</em>
-        <div class="hm-skin-box"
-            balloon="left:{{hmaker.prop.skin_tip}}"
-            box-enabled="yes"></div>
+        <div class="hm-skin-box" box-enabled="yes"></div>
     </div>
     <div class="hmpb-form" ui-gasket="form"></div>
 </div>`;

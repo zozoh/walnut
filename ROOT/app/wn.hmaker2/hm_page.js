@@ -65,6 +65,8 @@ var html = `
                 text="hmaker.com.image.name" tip="hmaker.com.image.tip"></li>
             <li ctype="navmenu" icon="hmaker.com.navmenu.icon" 
                 text="hmaker.com.navmenu.name" tip="hmaker.com.navmenu.tip"></li>
+            <li ctype="htmlcode" icon="hmaker.com.htmlcode.icon"
+                text="hmaker.com.htmlcode.name" tip="hmaker.com.htmlcode.tip"></li>
             <li ctype="objlist" icon="hmaker.com.objlist.icon" 
                 text="hmaker.com.objlist.name" tip="hmaker.com.objlist.tip"></li>
             <li ctype="objshow" icon="hmaker.com.objshow.icon" 

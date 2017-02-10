@@ -1,0 +1,66 @@
+({
+	"name" : "default",
+    "js"   : [],
+	"com"  : {
+        "rows" : [{
+                "text" : "居中多行布局",
+                "selector" : "skin-rows-centered",
+                "blockFields" : [
+                    "padding", "margin", "border",
+                    "@demo:演示模式(yes/no)",
+                    "@xyz:布尔测试(yes)=yes",
+                    "@mmm:自定义属性[属性A=aa,属性B=bb,MM=mm,qq=q]=aa"
+                ]
+            }, {
+                "text" : "测测布局",
+                "selector" : "skin-rows-test",
+                "blockFields" : [
+                    "padding", 
+                    "@abc:随便的属性(yes/no)=no",
+                ]
+            }],
+        "navmenu" : [{
+                "text" : "水平菜单(子菜单弹出)",
+                "selector" : "skin-navmenu-h-subpop",
+                "blockFields" : [
+                    "padding", "margin", "border",
+                    "color", "background", "boxShadow",
+                    "@align:水平排列[居左=left,居中=center,居右=right]=left",
+                    "@autosub:自动子菜单(yes)=no",
+                    
+                ]
+            }, {
+                "text" : "垂直菜单(子菜单弹出)",
+                "selector" : "skin-navmenu-v-subpop",
+                "blockFields" : [
+                    "padding", "margin", "border",
+                    "color", "background", "boxShadow",
+                    "@align:水平排列[居左=left,居中=center,居右=right]=left",
+                    "@autosub:自动子菜单(yes)=no",
+                    
+                ]
+            }]
+	},
+    "area" : [{
+            "text"     : "红背景",
+            "selector" : "skin-bg-red"
+        }, {
+            "text"     : "绿背景",
+            "selector" : "skin-bg-green"
+        }, {
+            "text"     : "蓝背景",
+            "selector" : "skin-bg-blue"
+        }],
+    "menuItem" : [{
+            "text"     : "红背景",
+            "selector" : "skin-bg-red"
+        }, {
+            "text"     : "绿背景",
+            "selector" : "skin-bg-green"
+        }, {
+            "text"     : "蓝背景",
+            "selector" : "skin-bg-blue"
+        }],
+	"template" : {
+	}
+})

@@ -95,10 +95,8 @@ return ZUI.def("app.wn.hm_prop_edit", {
             UI.showCssSelectorList(e.currentTarget);
         },
         // 隐藏已经加载的 css 类选择器
-        "mouseleave .cnavmp-item" : function(e) {
-            var jItem = $(e.currentTarget);
-            var jBox  = jItem.find(".hm-skin-box > .page-css");
-            this.hideCssSelectorList(jBox);
+        "mouseleave .hm-skin-box" : function(e) {
+            this.hideCssSelectorList(e.currentTarget);
         },
     },
     //...............................................................

@@ -1,0 +1,155 @@
+/***************************************************
+ * 定义变量
+ */
+* {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+@clr : {
+    content:"";
+    display:block;
+    height:0;
+    clear:both;
+};
+
+
+@flex : {
+    display: -webkit-flex;
+    display: flex;
+};
+
+/***************************************************
+ * 自适应布局
+ */
+html {
+    font-size: 100px;
+}
+
+/***************************************************
+ * 开始 BODY 的设置
+ */
+body {
+    background: #FFF; font-size:.14rem;
+}
+
+// 重置导航菜单里面的 UL 样式
+.hmc-navmenu {
+    ul {list-style:none; margin:0; padding:0;}
+}
+
+///////////////////////////////////////////////
+// 针对控件的样式
+//............................................
+// com.rows:居中多行布局
+.skin-rows-centered {
+    background: red;
+}
+
+.skin-rows-test {
+    background: yellow;
+}
+
+//............................................
+// com.navmenu:水平菜单
+.skin-navmenu-h-subpop {
+    //font-size:.18rem;
+    li[href] > a {text-decoration: underline;}
+    li[open-sub]{
+        background: #FFF;
+        > a {color: #888;}
+    }
+    ul li[current]{
+        background: rgba(0,0,0,0.8);
+        > a { color:#FF0; }
+    }
+    .hmc-navmenu {
+        padding: .08rem;
+    }
+    .ul-top {@flex();}
+    .li-top {
+        flex: 0 0 auto;
+        margin:0 .04rem; padding: .08rem .14rem;
+    }
+    .ul-sub { display: none;
+        position: absolute; min-width: 1.8rem;
+        padding: .08rem; 
+        border-radius: .03rem;
+        background: #FFF; border:1px solid #CDE;
+        box-shadow: .06rem .06rem .12rem rgba(0,0,0,0.6);
+    }
+    .ul-sub-0 {margin: .1rem 0 0 -0.1rem;}
+    .ul-sub-n {margin: -.1rem 0 0 0.2rem;}
+    .li-sub {padding:.08rem .12rem;}
+}
+.skin-navmenu-h-subpop[skin-attr-align=center] {
+    .ul-top{justify-content:center;}
+}
+.skin-navmenu-h-subpop[skin-attr-align=right] {
+    .ul-top{justify-content:flex-end;}
+}
+.skin-navmenu-h-subpop[hm-actived] {
+    li[open-sub]{
+        > .ul-sub-0 {display: block;}
+        > .ul-sub-n {display: inline-block;}
+    }
+}
+
+//............................................
+// com.navmenu:垂直菜单
+.skin-navmenu-v-subpop {
+    li[href] > a {text-decoration: underline;}
+    li[open-sub]{
+        background: #FFF;
+        > a {color: #888;}
+    }
+    ul li[current]{
+        background: rgba(0,0,0,0.8);
+        > a { color:#FF0; }
+    }
+    .hmc-navmenu {
+        padding: .08rem;
+    }
+    .ul-top {}
+    .li-top {
+        margin:0 .04rem; padding: .08rem .14rem;
+    }
+    .ul-sub { display: none;
+        position: absolute; min-width: 1.8rem;
+        padding: .08rem; margin: -.1rem 0 0 0.2rem;
+        border-radius: .03rem;
+        background: #FFF; border:1px solid #CDE;
+        box-shadow: .06rem .06rem .12rem rgba(0,0,0,0.6);
+    }
+    .li-sub {padding:.08rem .12rem;}
+}
+.skin-navmenu-v[skin-attr-align=center] {
+    .hmc-navmenu ul{text-align:center;}
+}
+.skin-navmenu-v[skin-attr-align=right] {
+    .hmc-navmenu ul{text-align:right;}
+}
+.skin-navmenu-v-subpop[hm-actived] {
+    li[open-sub]{
+        > .ul-sub {display: inline-block;}
+    }
+}
+
+//............................................
+.skin-bg-red {background: red; color:#F0F;}
+.skin-bg-green {background: green; color:#F0F;}
+.skin-bg-blue {background: blue; color:#F0F;}
+
+
+
+
+
+
+
+
+
+
+
+
+

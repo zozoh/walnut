@@ -13,8 +13,10 @@ var methods = {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 清空选区
         jBox.attr("skin-selector", skin||"")
-            .html(UI.compactHTML(`<span class="com-skin">
-                <i class="zmdi zmdi-texture"></i><b></b>
+            .html(UI.compactHTML(`<span class="com-skin"
+                data-balloon="{{hmaker.prop.skin_tip}}"
+                data-balloon-pos="left"
+                ><i class="zmdi zmdi-texture"></i><b></b>
             </span><span class="page-css">
                 <i class="fa fa-css3"></i><b></b>
             </span>`));

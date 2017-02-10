@@ -237,6 +237,14 @@ define({
                 "text_color"   : "文本颜色",
                 "text_background"  : "文本背景",
             },
+            "htmlcode" : {
+                "name"  : "HTML代码片段",
+                "tip"   : "你可以添加任意HTML片段，甚至包括 script 和 style",
+                "icon"  : '<i class="fa fa-code"></i>',
+                "tt"    : "编辑HTML代码",
+                "open"  : "打开代码编辑器",
+                "edit_tip" : "CTRL(Command)+Enter 快速应用修改"
+            },
             "objlist" : {
                 "name"  : "动态数据列表",
                 "tip"   : "为你的数据集合设置列表模式的显示版式。支持翻页，海量数据也没问题哦",
