@@ -19,10 +19,12 @@ var methods = {
     hmaker : function(){
         var reUI = this;
         //console.log(reUI.uiName, reUI.__hmaker__);
-        if(reUI.__hmaker__)
-            return reUI;
-        if(reUI.parent)
-            return reUI.parent.hmaker();
+        while(!reUI.__hmaker__) {
+            reUI = reUI.parent;
+            if(!reUI)
+                return;
+        }
+        return reUI;
     },
     // 得到 HmPageUI，如果不是，则抛错
     pageUI : function(quiet) {

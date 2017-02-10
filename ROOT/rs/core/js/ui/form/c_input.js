@@ -14,6 +14,11 @@ return ZUI.def("ui.form_com_input", {
     events : {
         "change input" : function(){
             this.__on_change();
+        },
+        "keydown textarea" : function(e){
+            if(13 == e.which && (e.metaKey || e.ctrlKey)) {
+                this.__on_change();
+            }
         }
     },
     //...............................................................

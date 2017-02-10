@@ -26,8 +26,10 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             gasketName : "form",
             uiWidth : "all",
             on_update : function(com) {
-                console.log(com)
+                //console.log(com)
                 UI.uiCom.saveData("panel", com);
+
+                UI.__sync_form_status(com);
             },
             autoLineHeight : true,
             fields : [{
@@ -99,6 +101,7 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             title  : "i18n:hmaker.prop.href",
             type   : "string",
             uiWidth : "all",
+            uiType  : "app/wn.hmaker2/support/c_edit_link",
             // editAs : "link",
             // uiConf : {
             //     body : {
@@ -107,6 +110,11 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             //         }
             //     }
             // }
+        }, {
+            key    : "newtab",
+            title  : "i18n:hmaker.com.image.newtab",
+            type   : "boolean",
+            editAs : "toggle",
         }, {
             key    : "objectFit",
             title  : "i18n:hmaker.prop.objectFit",
@@ -220,8 +228,22 @@ return ZUI.def("app.wn.hm_com_image_prop", {
         }];
     },
     //...............................................................
+    __sync_form_status : function(com) {
+        // 开启新窗口选项
+        if(!_.isUndefined(com.href)){
+            if(com.href) {
+                this.gasket.form.enableField("newtab");
+            }
+            // 关闭新窗口选项
+            else{
+                this.gasket.form.disableField("newtab");
+            }
+        }
+    },
+    //...............................................................
     update : function(com) {
         this.gasket.form.setData(com);
+        this.__sync_form_status(com);
     },
     //...............................................................
 });
