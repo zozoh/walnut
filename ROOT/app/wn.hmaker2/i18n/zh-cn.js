@@ -7,6 +7,7 @@ define({
             "title" : '资源库',
         },
         "link" : {
+            "none"   : "无链接",
             "edit"   : '<i class="zmdi zmdi-link"></i> 编辑超链接',
             "select" : "站内链接快速选择",
             "edit_tip" : "如果想编辑站外链接，请用 http:// 或者 https:// 开头"
@@ -183,7 +184,7 @@ define({
                 "mv_next" : "后移当前菜单项",
                 "mv_parent"  : "升级当前菜单项",
                 "mv_sub"     : "降级当前菜单项(成为子菜单)",
-                "newtab" : "新窗口打开",
+                "newtab" : "在新窗口打开",
                 "nohref" : "未设置",
                 "nocurrent" : "抱歉，您执行这个操作前，必须要选择一个菜单项",
                 "empty" : "菜单无任何项目",
@@ -225,6 +226,7 @@ define({
                 "tip"   : "不解释你懂的",
                 "icon"  : '<i class="fa fa-image"></i>',
                 "tt_image" : "图片属性",
+                "newtab"   : "新窗口",
                 "tt_text"  : "文本属性",
                 "text"  : "图片文本",
                 "text_pos" : "文字位置",

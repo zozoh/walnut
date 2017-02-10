@@ -37,7 +37,7 @@ return ZUI.def("ui.picker.opicker", {
             var base = opt.base;
             if(opt.lastObjKey) {
                 base = UI.local(opt.lastObjKey) || base;
-                console.log(base)
+                //console.log(base)
             }
             if(o) {
                 // 主目录

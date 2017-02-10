@@ -268,16 +268,31 @@
 //............................................................
 .hm-prop-edit {
     .form {
-        padding:0 @d2;
+        padding:0 @d2; font-size: @f2;
         .fg-title {
-            border-radius: @d0; font-size:@f2; 
+            border-radius: @d0; font-size:@f2; border-style:dotted;
         }
-        .form-fld {
-            padding:@d1;
-            .ff-txt {padding:@d3 @d3 @d3 @d4;}
-            .ff-val {
-                padding:@d0;
-                input {font-family: @f_fixed;}
+        // .form-fld {
+        //     padding:@d1;
+        //     .ff-txt {padding:@d3 @d3 @d3 @d4;}
+        //     .ff-val {
+        //         padding:@d0;
+        //         input {font-family: @f_fixed;}
+        //     }
+        // }
+        > .form-body > .form-body-wrapper > .form-group > .fg-fields {
+            padding : @d2 @d0;
+            > .form-fld {
+                padding:1px;
+                > .ff-txt {padding:@d2 @d2; min-width: 60px;}
+                // > .ff-txt .fft-text:after {
+                //     content:":"; display: "inline";
+                // }
+                > .ff-val {
+                    padding:0;
+                    input {font-family: @f_fixed;}
+                    .com-square-drop {padding:@d1 0;}
+                }
             }
         }
     }
@@ -804,13 +819,16 @@
     .cnavmp-form {
         padding: @d2 @d0 @d3 @d3; 
         .form {
-            .form-fld {
+            > .form-body > .form-body-wrapper > .form-group > .fg-fields {
                 padding:0;
-                .ff-txt {
-                    padding: @d2;
-                }
-                .ff-val {
-                    .com-switch {padding:0;}
+                > .form-fld {
+                    padding:0;
+                    .ff-txt {
+                        padding: @d2;
+                    }
+                    .ff-val {
+                        .com-switch {padding:0;}
+                    }
                 }
             }
         }

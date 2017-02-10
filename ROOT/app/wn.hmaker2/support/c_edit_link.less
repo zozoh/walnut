@@ -1,0 +1,24 @@
+@import (reference) "../../ui";
+
+.com-edit-link {
+    width:100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color:@clink; cursor: pointer; font-family: @f_fixed; font-size: @f2;
+    line-height: 29px;
+}
+
+.com-edit-link[nohref]{
+    font-style: italic; color:@c2;
+}
+
+.com-edit-link:hover{
+    color:@clink_hover; text-decoration: underline;
+}
+
+.com-edit-link:before {
+    font-family: 'FontAwesome'; display: inline; 
+    margin-right: @d1; content: "\f0c1";
+}
+
+.com-edit-link[nohref]:before {
+    content: "\f127";
+}
