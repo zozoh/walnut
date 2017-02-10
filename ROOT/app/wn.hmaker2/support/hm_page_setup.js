@@ -249,6 +249,7 @@ var methods = {
     //...............................................................
     invokeSkin : function(method){
         var UI = this;
+        //console.log("invokeSkin", method, UI._C ? UI._C.SkinJS : "!No UI._C");
         if(UI._C && UI._C.SkinJS){
             $z.invoke(UI._C.SkinJS, method, [], {
                 mode   : "IDE",

@@ -131,7 +131,7 @@ var methods = {
         return {
             areaId    : jArea.attr("area-id"),
             highlight : jArea.attr("highlight") == "yes",
-            skin      : jArea.attr("skin"),
+            skin      : jArea.attr("skin") || "",
             selectors : jArea.attr("selectors") || "",
         };
     },

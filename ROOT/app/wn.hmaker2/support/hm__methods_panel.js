@@ -16,7 +16,7 @@ var methods = {
             .html(UI.compactHTML(`<span class="com-skin">
                 <i class="zmdi zmdi-texture"></i><b></b>
             </span><span class="page-css">
-                <i class="fa fa-css3"></i><b>0</b>
+                <i class="fa fa-css3"></i><b></b>
             </span>`));
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 显示文字
@@ -191,6 +191,13 @@ var methods = {
             // 绘制遮罩
             $('<div class="hm-skin-mask">').insertBefore(jCurrent);
 
+            // 将原来的列表对象变成 fix 模式浮动
+            var cu_css = $z.rect_relative($z.rect(jCurrent,false,true), $z.winsz(), true);
+            jCurrent.css(_.extend(_.pick(cu_css, "top","right"), {
+                "position" : "fixed",
+                "left":"", "bottom":"", "width":"", "height":"",
+            }));
+
             // 绘制全部选择框
             var jAll = $('<div class="css-all"></div>');
             var map = UI.pageUI().getCssSelectors();
@@ -316,19 +323,19 @@ var methods = {
             });
             // 得到类选择器字符串 
             var cssSelectors = list.join(" ");
-            console.log(cssSelectors);
+            //console.log(cssSelectors);
             // 隐藏
             do_hide(e);
             // 更新属性面板的 css 选择器缓存
             UI.updateSkinBoxCssSelector(jBox, cssSelectors);
             // 调用回调
             var setSelectors = jBox.data("setSelectors");
-            $z.doCallback(setSelectors, [cssSelectors]);
+            $z.doCallback(setSelectors, [cssSelectors], jBox);
             
         });
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 停靠
-        $z.dockAt(jSpan, jCurrent, "H");
+        $z.dock(jSpan, jCurrent, "V");
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     },
     // 消除 cssSelector 的列表

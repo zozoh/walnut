@@ -6,7 +6,7 @@ $z.declare([
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
 var html = `
-<div class="ui-arena hmc-navmenu"><ul></ul></div>
+<div class="ui-arena hmc-navmenu"><ul class="mic-top"></ul></div>
 `;
 //==============================================
 return ZUI.def("app.wn.hm_com_navmenu", {
@@ -27,6 +27,9 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             if(!this.isActived())
                 return;
 
+            // 本控件激活，那么就不要向上冒泡了，自己处理
+            e.stopPropagation();
+
             // 如果当前模式是区域选择，还需要同时高亮当前区域
             var com = this.getData();
 
@@ -40,7 +43,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         //     }
         // },
         // 编辑文字
-        'click ul>li[current] a span' : function(e) {
+        'click ul>li[current]>a span' : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
             
@@ -74,20 +77,23 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         return re;
     },
     //...............................................................
-    $item : function(arg) {
+    $item : function(arg, quiet) {
         if(_.isNumber(arg))
             return this.arena.find("li").eq(arg);
         
         if($z.isjQuery(arg) || _.isElement(arg))
             return $(arg);
+        
+        if(quiet)
+            return null;
 
         throw "navmenu $item Don't known how to found item by : " + arg;
     },
     //...............................................................
-    getActivedItem : function() {
+    getActivedItem : function(alwaysReturnjQuery) {
         var UI = this;
         var jItem = UI.arena.find('li[current]');
-        if(jItem.length > 0)
+        if(alwaysReturnjQuery || jItem.length > 0)
             return jItem;
     },
     //...............................................................
@@ -96,17 +102,24 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             if(jItems.eq(i).attr("current"))
                 return i;
         }
-        return -1;
+        return this.getActivedItem(true).attr("index") * 1;
+    },
+    //...............................................................
+    getItemIndex : function(index) {
+        return this.$item(index).attr("index") * 1;
     },
     //...............................................................
     getItemData : function(index) {
         var jLi = this.$item(index);
         return {
-            text    : jLi.find(">a>span").text(),
-            href    : jLi.attr("href") || "",
-            newtab  : jLi.attr("newtab") == "yes",
-            current : jLi.attr("current") == "yes",
-            depth   : jLi.parentsUntil(".hmc-navmenu", "ul").length - 1
+            index     : jLi.attr("index") * 1,
+            text      : jLi.find(">a>span").text(),
+            href      : jLi.attr("href") || "",
+            newtab    : jLi.attr("newtab") == "yes",
+            current   : jLi.attr("current") == "yes",
+            skin      : jLi.attr("skin") || "",
+            selectors : jLi.attr("selectors") || "",
+            depth     : jLi.parentsUntil(".hmc-navmenu", "ul").length - 1
         };
     },
     //...............................................................
@@ -139,15 +152,30 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     //...............................................................
     selectItem : function(index) {
         var UI  = this;
-        var jLi = UI.$item(index);
+        var jLi = UI.$item(index, true);
 
-        // 已经激活了 ...
-        if(jLi.attr("current")){
-            return;
+        if(jLi){
+            // 已经激活了 ...
+            if(jLi.attr("current")){
+                return;
+            }
+            // 确保 jLi 有效
+            if(jLi.length == 0)
+                jLi = null;
         }
 
+        // 移除其他的激活
         UI.arena.find('li[current]').removeAttr("current");
-        jLi.attr("current", "yes");
+
+        // 标识自己的激活
+        if(jLi)
+            jLi.attr("current", "yes");
+
+        // 确保自己顶级的 UL 和子 UL 的属性
+        UI.__mark_hierarchy_class();
+
+        // 标识自己以及自己的祖先 LI 都是 open-sub
+        UI.__mark_ancestor_open(jLi);
 
         // 同步区域修改（只有 atype=="toggleArea" 才会生效)
         UI.syncToggleArea();
@@ -188,12 +216,24 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         //console.log(item)
         var UI  = this;
         var jLi = UI.$item(index);
-        jLi.find("a>span").text(item.text);
+        var old = UI.getItemData(jLi);
+
+        // 更新属性
+        jLi.find(">a>span").text(item.text);
         jLi.attr({
             "newtab" : !item.newtab ? null : "yes",
             "href"   : item.href || null,
+            "skin"   : item.skin || null,
+            "selectors" : item.selectors || null,
         });
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 更新皮肤和选择器
+        jLi.removeClass(old.skin)
+           .removeClass(old.selectors)
+              .addClass(item.skin)
+              .addClass(item.selectors);
 
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if(!quiet)
             UI.notifyDataChange("page");
     },
@@ -210,6 +250,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     deleteItem : function(index) {
         var UI = this;
         var jLi = UI.$item(index);
+        var jMyParentUl = jLi.parent();
 
         // 如果删除的是高亮东东，试图高亮下一个
         var jNext;
@@ -219,9 +260,17 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         if(jNext && jNext.length == 0) {
             jNext = jLi.prev();
         }
+        if(jNext && jNext.length == 0) {
+            jNext = jMyParentUl.closest("li");
+        }
 
         // 删除
         jLi.remove();
+
+        //console.log(jMyParentUl.children().length, jMyParentUl.is(':empty'));
+        // 删掉空 UL
+        if(jMyParentUl.is(':empty') && !jMyParentUl.hasClass("ul-top"))
+            jMyParentUl.remove();
 
         // 高亮下一个
         if(jNext && jNext.length > 0) {
@@ -241,7 +290,13 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         if(jTa.length == 0)
             return;
 
+        // 修改 DOM
         jLi.insertBefore(jTa);
+
+        // 重新标定层级的类
+        UI.__mark_hierarchy_class();
+
+        // 通知
         UI.notifyDataChange("page");
     },
     //...............................................................
@@ -249,11 +304,20 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         var UI = this;
         var jLi = UI.$item(index);
 
+        // 后面没了，就试图升级
         var jTa = jLi.next();
-        if(jTa.length == 0)
+        if(jTa.length == 0){
+            UI.moveParent(jLi);
             return;
+        }
 
+        // 修改 DOM
         jLi.insertAfter(jTa);
+
+        // 重新标定层级的类
+        UI.__mark_hierarchy_class();
+
+        // 通知
         UI.notifyDataChange("page");
     },
     //...............................................................
@@ -272,8 +336,60 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         }
         jLi.appendTo(jTaUl);
 
+        // 重新标定层级的类
+        UI.__mark_hierarchy_class();
+
+        // 重新标记子菜单打开状态
+        UI.__mark_ancestor_open(jLi);
+
         // 通知修改
         UI.notifyDataChange("page");
+    },
+    //...............................................................
+    moveParent : function(index) {
+        var UI   = this;
+        var jLi  = UI.$item(index);
+        var item = UI.getItemData(jLi);
+
+        // 如果本身就是顶级菜单，则啥也不干
+        if(item.depth == 0)
+            return;
+
+        // 如果自己有后续节点，移动成为自己的子
+        var jNexts = jLi.nextAll();
+        if(jNexts.length > 0) {
+            var jMyUl = jLi.children("ul");
+            if(jMyUl.length == 0) {
+                jMyUl = $('<ul>').appendTo(jLi);
+            }
+            jMyUl.append(jNexts);
+        }
+
+        // 得到自己所在的 ul，移动完如果其没内容了就删掉
+        var jMyParentUl = jLi.parent();
+
+        // 将自己成为自己父的平级节点
+        var jParentLi = jLi.parent().closest("li");
+        jLi.insertAfter(jParentLi);
+
+        // 删掉空 UL
+        if(jMyParentUl.is(':empty'))
+            jMyParentUl.remove();
+
+        // 重新标定层级的类
+        UI.__mark_hierarchy_class();
+
+        // 重新标记子菜单打开状态
+        UI.__mark_ancestor_open(jLi);
+        
+        // 通知修改
+        UI.notifyDataChange("page");
+    },
+    //...............................................................
+    isTopItem : function(index) {
+        var UI   = this;
+        var jLi  = UI.$item(index);
+        return jLi.parent().hasClass("mic-top");
     },
     //...............................................................
     _redraw_com : function() {
@@ -296,14 +412,64 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     //...............................................................
     paint : function(com) {
         var UI  = this;
-
-        console.log("paint", com);
+        //console.log("paint", com);
 
         // 标识自己的类型
         UI.$el.attr("navmenu-atype", com.atype);
+
+        // 确保自己顶级的 UL 和子 UL 的属性
+        UI.__mark_hierarchy_class();
+
+        // 重新标记子菜单打开状态
+        var jLi = UI.getActivedItem();
+        if(jLi)
+            UI.__mark_ancestor_open(jLi);
         
         // 同步区域
         UI.syncToggleArea(com);
+    },
+    //...............................................................
+    // 根据菜单的 DOM 标记各个层级的 class
+    __mark_hierarchy_class : function(){
+        var jUl = this.arena.children("ul");
+        // 顶级
+        jUl.addClass("ul-top");
+        jUl.find(">li")
+            .removeClass("li-sub")
+            .addClass("li-top");
+        // 次级
+        jUl.find(">li>ul")
+            .prop("className", "ul-sub ul-sub-0");
+        jUl.find(">li>ul>li")
+            .prop("className", "li-sub li-sub-0");
+
+        // 更多子
+        jUl.find(">li>ul>li ul")
+            .prop("className", "ul-sub ul-sub-n");
+        jUl.find(">li>ul>li li")
+            .prop("className", "li-sub li-sub-n");
+
+        // 最后重新标记每个项目的 index
+        jUl.find("li").each(function(index){
+            $(this).attr("index", index);
+        });
+    },
+    //...............................................................
+    __mark_ancestor_open : function(index) {
+        var UI  = this;
+
+        // 移除其他的打开菜单
+        UI.arena.find('li[open-sub]').removeAttr("open-sub");
+
+        // 标识自己
+        if(!_.isNull(index) && !_.isUndefined(index)) {
+            var jLi = UI.$item(index);
+
+            // 标识自己以及自己的祖先 LI 都是 open-sub
+            jLi.parentsUntil(".ul-top", "li")
+                .andSelf()
+                    .attr("open-sub", "yes");
+        }
     },
     //...............................................................
     // 如果自己的 atype 是 'toggleArea' 

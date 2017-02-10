@@ -927,6 +927,7 @@ return ZUI.def("app.wn.hmaker_page", {
     setScreenMode : function(mode) {
         this.local("screen_mode", mode);
         this.arena.find(".hmpg-screen").attr("mode", mode);
+        this.invokeSkin("resize");
     },
     //...............................................................
     redraw : function(){

@@ -351,8 +351,7 @@
     }
     > .pf-preview {top:0; height:@pfH0;
         .opreview {
-            // background:rgba(0,0,0,0.1);
-            padding:@d2;
+            padding:@d2; background: @cb2; color:@cf2;
             img {box-shadow: 1px 1px 3px @cshadow; background:#000;}
         }
     }
@@ -361,17 +360,17 @@
         padding:@d4 @d4 0 @d4;
         // 表单项的特殊属性
         .ui-form {
-            border:1px solid @cborder1; border-radius: @d0;
-            background: @cb2; color:@cf2; padding:@d3 0;
+            padding:@d3 0;
             .form-fld{
-                padding:@d1 @d0; font-size:@f2;
+                padding:@d1; font-size:@f2;
+                border-bottom:1px dashed @cborder0;
                 .ff-txt {
-                    padding:@d1 @d2 @d1 @d4;
+                    padding:0 @d2;
                     .fft-text:after{display: inline; content: ": ";}
                 }                
                 .ff-val {
                     padding:0; color:@c3;
-                    .com-label {padding:@d0;}
+                    .com-label {padding:0;}
                 }
                 b {font-weight: normal;}
             }
@@ -496,8 +495,13 @@
     > * {display:inline-block;vertical-align: middle;}
     > span.com-skin {cursor: pointer;
         > i {transition:0.2s;}
-        > b {font-weight: normal; font-size:@f1; margin-left:@d1;}
-        > b[skin-none] {font-style: italic; opacity: 0.4;}
+        > b {
+            font-weight: normal; font-size:@f1; margin-left:@d1; 
+            color: @c0; font-weight: normal;
+        }
+        > b[skin-none] {
+            font-style: italic; opacity: 0.4; color:@c2;
+        }
     }
     > span.page-css {
         cursor: pointer; display: inline-block; vertical-align: middle;
@@ -751,6 +755,7 @@
             > span[key="href"][nohref]:before {
                 content: "\f127"; 
             }
+            > span[key="skin"]{float: right;}
         }
         .cnavmp-item:after {@clr();}
         .cnavmp-item[current] {
@@ -770,8 +775,9 @@
             }
         }
         .cnavmp-item[sub] {
-            border-left-width: 3px;
+            border-left-width: 5px;
             border-left-style: solid;
+            padding:0 @d2;
         }
         .cnavmp-empty {
             text-align: center; padding:@d5 0; font-size: @f3; color:@c6;

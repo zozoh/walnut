@@ -21,7 +21,7 @@
 }
 
 body {
-    margin:0; font-size:12px; overflow-y: scroll;
+    margin:0; overflow-y: scroll;
 }
 //............................................................
 // 拖拽相关
@@ -391,17 +391,28 @@ body {
 //............................................................
 // navmenu
 .hmc-navmenu {
-    li{cursor: pointer; position: relative;}
-    li[current] {color:@c0;}
-    li[newtab] a:after {
-        display: block; content: "";
-        position: absolute; right:-3px; top:-3px;
-        width:5px; height:5px; border-radius: 50%;
-        background: rgba(0,0,255,0.4); border:1px solid rgba(255,255,255,0.8);
+    ul {
+        li{
+            cursor: pointer; position: relative;
+            a {
+                display: inline-block; vertical-align: middle;
+                position: relative;
+            }
+        }
+        li[current] {}
+        li[newtab] a:after {
+            display: block; content: "";
+            position: absolute; left:-8px; top:-3px;
+            width:5px; height:5px; border-radius: 50%;
+            background: rgba(0,0,255,0.4); border:1px solid rgba(255,255,255,0.8);
+        }
+        li[current][newtab] a:after {
+            background: #00F; border-color:#FFF; box-shadow: 0 0 3px #FFF;
+        }
     }
-    li[current][newtab] a:after {
-        background: #00F; border-color:#FFF; box-shadow: 0 0 3px #FFF;
-    }
+    .ul-sub {z-index: 9;}
+    // .ul-sub {position: absolute; display: none;}
+    // li[open-sub]>.ul-sub {display: block;}
 }
 //............................................................
 // image

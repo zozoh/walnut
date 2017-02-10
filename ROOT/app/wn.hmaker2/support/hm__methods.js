@@ -109,6 +109,16 @@ var methods = {
             return skinInfo.area || [];
         return null;
     },
+    // 返回皮肤支持的菜单项列表
+    // {text,selector} 格式的对象
+    // 返回 null 表示站点没设置皮肤
+    // 返回 [] 表示皮肤中没有规定分栏的样式
+    getSkinListForMenuItem : function() {
+        var skinInfo = this.getSkinInfo();
+        if(skinInfo)
+            return skinInfo.menuItem || [];
+        return null;
+    },
     // 针对一个组件，根据选择器获取其皮肤的配置对象，没找到返回 null
     getSkinItemForCom : function(comType, selector) {
         var sList = this.getSkinListForCom(comType);
@@ -127,6 +137,16 @@ var methods = {
     // 针对一个分栏区域，根据选择器获取其样式名
     getSkinTextForArea : function(selector) {
         var sList = this.getSkinListForArea();
+        if(_.isArray(sList))
+            for(var si of sList){
+                if(si.selector == selector)
+                    return si.text || si.selector;
+            }
+        return null;
+    },
+    // 针对一个菜单项目，根据选择器获取其样式名
+    getSkinTextForMenuItem : function(selector) {
+        var sList = this.getSkinListForMenuItem();
         if(_.isArray(sList))
             for(var si of sList){
                 if(si.selector == selector)

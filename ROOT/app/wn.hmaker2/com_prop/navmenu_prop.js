@@ -17,6 +17,7 @@ var html = `
         </span>
         <span key="text"></span>
         <span key="href"></span>
+        <span key="skin" class="hm-skin-box" box-enabled="yes"></span>
     </div>
     <div code-id="empty" class="cnavmp-empty">
         <i class="fa fa-warning"></i> {{hmaker.com.navmenu.empty}}
@@ -43,6 +44,19 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             var index = jItem.prevAll().length;
 
             UI.uiCom.selectItem(index);
+        },
+        // 取消当前项目的高亮
+        'click .cnavmp-item-list, .cnavmp-actions' : function(e){
+            var UI = this;
+            var jq = $(e.target);
+
+            // 点在有效区域不能取消
+            if(jq.closest(".menu").length > 0 
+                || jq.closest(".cnavmp-item").length > 0) {
+                return;
+            }
+            // 取消高亮
+            UI.uiCom.selectItem(false);
         },
         // 编辑文字
         'click .cnavmp-item[current] span[key="text"]' : function(e) {
@@ -167,6 +181,28 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
 
             UI.uiCom.updateItemField(index, "newtab", !item.newtab);
         },
+        // 显示可选皮肤
+        'click .cnavmp-item > [key="skin"] > .com-skin' : function(e) {
+            e.stopPropagation();
+            var UI    = this;
+            var jBox  = $(e.currentTarget);
+            var jItem = jBox.closest(".cnavmp-item");
+            var index = jItem.attr("index") * 1;
+            var item  = UI.uiCom.getItemData(index);
+            
+            // 得到对应皮肤列表
+            var skinList = this.getSkinListForMenuItem();
+            
+            // 显示列表
+            this.showSkinList(jBox, skinList, function(skin){
+                UI.uiCom.updateItemField(index, "skin", skin);
+            });
+        },
+        // 阻止 cssSelector 的弹出体冒泡事件，否则就会导致点弹出体切换高亮区域
+        // 这个比较超出预期的现象
+        "click .hm-skin-box > .page-css > div" : function(e) {
+            e.stopPropagation();
+        },
     },
     //...............................................................
     currentItem : function() {
@@ -270,8 +306,10 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             }, {
                 key   : "autoCurrent",
                 title : "i18n:hmaker.com.navmenu.autoCurrent",
+                tip   : "i18n:hmaker.com.navmenu.autoCurrent_tip",
                 type  : "boolean",
                 disabled : false,
+                uiWidth : "auto",
                 editAs : "toggle",
             }]
         }).render(function(){
@@ -305,7 +343,9 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                 icon : '<i class="zmdi zmdi-long-arrow-return"></i>',
                 tip  : 'i18n:hmaker.com.navmenu.mv_parent',
                 handler : function(){
-                    
+                    var index = UI.checkCurrentItemIndex();
+                    if(index >= 0)
+                        UI.uiCom.moveParent(index);
                 }
             }, {
                 icon : '<i class="zmdi zmdi-long-arrow-tab"></i>',
@@ -420,6 +460,7 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
 
                 // 绘制项目
                 jItem.attr({
+                    "index"   : item.index,
                     "current" : item.current ? "yes" : null,
                     "newtab"  : item.newtab ? "yes"  : null,
                 });
@@ -427,6 +468,15 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                 jItem.children('[key="href"]')
                     .text(item.href || this.msg("hmaker.com.navmenu.nohref"))
                     .attr("nohref", item.href ? null : "yes");
+
+                // 显示皮肤
+                var jBox = jItem.children('[key="skin"]');
+                UI.updateSkinBox(jBox, item.skin, function(skin){
+                    return this.getSkinTextForMenuItem(skin);
+                }, item.selectors, function(selectors) {
+                    var index = this.closest(".cnavmp-item").attr("index") * 1;
+                    UI.uiCom.updateItemField(index, "selectors", selectors);
+                });
 
                 // 缩进
                 if(item.depth > 0) {
@@ -457,9 +507,10 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
 
         // 确保每个项目的链接不超过
         var jItems = jList.find('>.cnavmp-item');
-        var W = jItems.first().width();
         jItems.each(function(){
-            $(this).children('[key="text"], [key="href"]').each(function(){
+            var jItem = $(this);
+            var W     = jItem.width();
+            jItem.children('[key="text"], [key="href"]').each(function(){
                 var jSpan = $(this);
                 var my_w  = jSpan.outerWidth();
                 if(my_w >= W) {

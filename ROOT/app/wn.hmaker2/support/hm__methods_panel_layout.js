@@ -15,8 +15,8 @@ var methods = {
             
             // 先取消自己的高亮
             UI.arena.find(".clp-layout li").removeAttr("highlight");
-            UI.arena.find(".clp-layout li > .hm-skin-box")
-                .removeAttr("box-enabled");
+            UI.arena.find(".clp-layout li > .hm-skin-box");
+                //.removeAttr("box-enabled");
             
             // 取消高亮
             if(UI.uiCom.isHighlightArea(aid)){
@@ -26,8 +26,8 @@ var methods = {
             else {
                 this.uiCom.highlightArea(aid);
                 jLi.attr("highlight","yes")
-                    .find(".hm-skin-box")
-                        .attr("box-enabled", "yes");
+                    .find(".hm-skin-box");
+                        //.attr("box-enabled", "yes");
             }
         },
         // 修改 Area 的 ID
@@ -51,14 +51,7 @@ var methods = {
             e.stopPropagation();
             var UI   = this;
             var jBox = $(e.currentTarget);
-            var jLi  = jBox.closest("li");
-
-            // 高亮区域才能修改，非高亮区域，模拟区域的点击
-            if(!jLi.attr("highlight")){
-                jLi.click();
-                return;
-            }
-            
+           
             // 得到对应皮肤列表
             var skinList = this.getSkinListForArea();
             var aid = jBox.closest("li").find('[key="areaId"]').text();
@@ -165,7 +158,7 @@ var methods = {
         $('<div key="areaId">').text(ao.areaId).appendTo(jLi);
         
         // 显示皮肤
-        var jBox = $('<div key="skin" class="hm-skin-box">').appendTo(jLi);
+        var jBox = $('<div key="skin" class="hm-skin-box" box-enabled="yes">').appendTo(jLi);
         UI.updateSkinBox(jBox, ao.skin, function(skin){
             return this.getSkinTextForArea(skin);
         }, ao.selectors, function(selectors) {
