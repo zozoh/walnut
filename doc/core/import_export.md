@@ -66,8 +66,7 @@ data
 以基线备份包及后续的N个增量备份包为蓝本, 生成当前系统的增量备份包
 
 * 第一轮, 生成完整的objs.txt
-* 第二轮, 根据当前的objs.txt与前一次备份的objs.txt,差分出meta目录
-* 第三轮, 根据当前的objs.txt与前一次备份的objs.txt,差分出data目录
+* 第二轮, 根据当前的objs.txt与前一次备份的objs.txt,差分出meta目录和差分出data目录
 
 ### 增量备份的合并执行过程
 
@@ -75,9 +74,8 @@ data
 
 因为objs.txt总是包含完整的目录树,所以仅需要递归查找该目录下的文件所对应的meta文件
 
-* 第一轮, 递归查找meta下的元数据文件
-* 第二轮, 根据objs.txt, 递归查找data下数据文件
-* 第三轮, 将上述meta和data文件夹,连同objs.txt,压缩生成新的基线备份包
+* 第一轮, 根据objs.txt, 递归查找meta下的元数据文件和data目录下的数据文件
+* 第二轮, 将上述meta和data文件夹,连同objs.txt,压缩生成新的基线备份包
 
 ## 导入
 
