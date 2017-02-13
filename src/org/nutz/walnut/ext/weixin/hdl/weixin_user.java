@@ -2,7 +2,6 @@ package org.nutz.walnut.ext.weixin.hdl;
 
 import org.nutz.http.Http;
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
@@ -30,7 +29,7 @@ import org.nutz.weixin.spi.WxResp;
  * # 根据 code 获取用户信息(仅关注者)
  * weixin xxx user -code xxx -infol follower
  * 
- * # 根据 code 获取用户信息(任何人) ! 未实现
+ * # 根据 code 获取用户信息(任何人)
  * weixin xxx user -code xxx -infol others
  * </pre>
  * 
@@ -78,18 +77,27 @@ public class weixin_user implements JvmHdl {
             // - follower: 根据 openid 获取信息
             // - others: 认为本次授权是 "snsapi_userinfo"，则试图根据 refresh_token 获取更多信息
             String infoLevel = hc.params.get("infol", "openid");
-
+            String openid = map.getString("openid");
+            String lang = hc.params.get("lang", "zh_CN");
+            System.out.println(Json.toJson(map));
             // follower: 根据 openid 获取信息
             if ("follower".equals(infoLevel)) {
-                String openid = map.getString("openid");
-                String lang = hc.params.get("lang", "zh_CN");
-
                 WxResp resp = wxApi.user_info(openid, lang);
                 map = resp;
             }
             // others
             else if ("others".equals(infoLevel)) {
-                throw Lang.noImplement();
+                // 根据网页授权access_token获取用户信息
+                String web_access_token = map.getString("access_token");
+                // String web_refresh_token = map.getString("refresh_token");
+                // int web_expires_in = map.getInt("expires_in");
+                String uinfoUrl = String.format("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=%s",
+                                                web_access_token,
+                                                openid,
+                                                lang);
+                String uinfoJson = Http.get(uinfoUrl).getContent();
+                NutMap uinfo = Json.fromJson(NutMap.class, uinfoJson);
+                map = uinfo;
             }
 
             // 最后打印结果
