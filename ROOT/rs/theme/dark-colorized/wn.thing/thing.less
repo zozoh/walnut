@@ -1,0 +1,98 @@
+@import (reference) "../ui";
+
+//......................................... 定义变量
+@thH : 32px;
+//......................................... 主要样式:Begin
+.thing {
+    position: relative; background:@cb0; color:@cf0;
+    > header {
+        position: absolute; top:0; left: 0; right: 0;
+        height: @thH; line-height: @thH;
+        border-bottom: 1px solid @cborder1;
+        padding:0 @d4; font-family: @f_fixed;
+        > * {display: inline-block; vertical-align: middle;}
+        b {@noselect(); font-weight: bold; margin:0 4px;}
+        b:after{display: inline; content: ": ";}
+        em {font-style: normal; color:@c3;}
+    }
+    > section {
+        position: absolute; top:@thH; bottom:0; left:0; right:0;
+        > .th-con {
+            width: 100%; height:100%;
+        }
+    }
+    section.th-search {right:40%;}
+    section.th-form   {left:60%; border-left:1px solid @cborder1;}
+
+    .th-err {
+        padding:@d8; font-size:@f6; color:@c6;
+    }
+
+    .th-blank {
+        padding:@d8; font-size:@f5; color:@c2;
+    }
+    //......................................... 左右通用样式
+    .th-form .th-con{
+        padding-left: @d2;
+    }
+    //......................................... 左侧搜索列表
+    .th-search {
+        [key="th_nm"] {
+            i.th_thumb {
+                display:inline-block; vertical-align: middle; width: 16px; text-align: center;
+                margin-right:@d2;
+            }
+            img {
+                height:16px; vertical-align: middle;border-radius: @d0; border:1px solid @cborder1;
+                margin-right:@d2;
+            }
+            span {
+                margin-left:@d3; color:@c4;
+                em {margin-left:@d1; color:@c3;}
+            }
+        }
+        .th-lbl, .th-site {
+            display: inline-block; padding:0 @d2; vertical-align: middle;
+            margin: 0 1px; border:1px solid @cborder1; font-size:@f1;
+            border-radius: @d0;
+        }
+        .th-lbl {
+            background: @cb1; color:@cf1;
+        }
+        .th-site {
+            background: @chx_b; color:@chx_f;
+        }
+        .th-pub[pub="yes"] {color:@c3; font-size:@f3;}
+        .th-pub[pub="no"]  {color:@c2;}
+        .th_file_none {
+            font-size:@f1; font-style: italic; color:@c2;
+        }
+        .th_file_nb {
+            font-size:@f1; 
+            > i {color:@c4;}
+            > em {font-style: normal; font-weight: bold; color:@c3; margin-left: @d0;}
+        }
+        .tbl-row[li-actived] {
+            [key="th_nm"] {
+                span {
+                    color:@ch0_f;
+                    em {color:@ch0_f;}
+                }
+            }
+            .th_file_none {color:@ch0_f;}
+            .th_file_nb {
+                > i {color:@ch0_f;}
+                > em {color:@ch0_f;}
+            }
+        }
+    }
+    //......................................... 右侧表单
+    .th-form {
+        input[type="text"] {
+            font-family: @f_fixed; font-size: @f3;
+        }
+    }
+
+    //.........................................
+}
+//......................................... 主要样式:End
