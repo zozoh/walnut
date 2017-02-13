@@ -101,7 +101,7 @@
     # 根据 code 获取用户信息(仅关注者)
     demo@~$ weixin xxx user -code xxx -infol follower
     
-    # 根据 code 获取用户信息(任何人) ! 未实现
+    # 根据 code 获取用户信息(任何人)
     demo@~$ weixin xxx user -code xxx -infol others
 
 # 获取 JS-SDK 配置信息

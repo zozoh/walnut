@@ -13,17 +13,21 @@ author: wendal
 创建回收站功能
 =========================================
 
-使用 ~/.Trash作为回收站的目录, 移入该文件夹时,自动添加*old_pid/old_path*
+使用 ~/.Trash作为回收站的目录, 移入该文件夹时,自动添加*old_pid/old_path/old_nm*
 
 所有, 通过定义一个hook来实现比较合适, 对应的事件是move, 目标路径是~/.Trash
 
 其文本内容如下:
 
 ```
-obj id:${id} -u 'old_pid:"${pid}",old_path:"${path}"'
+obj id:${id} -u 'old_pid:"${pid}",old_path:"${path}",old_nm:${nm},nm:`uuid`'
 ```
 
-含义是设置2个属性,old_pid代表原本的pid, old_path代表原本的路径
+含义是设置4个属性
+* old_pid 原本的pid
+* old_path 原本的路径
+* old_nm 原本的名称
+* nm 设置为新的唯一名称
 
 然后,这个hook的作用域: 移入目录是~/.Trash, 且原始路径不在~/.Trash
 
