@@ -16,6 +16,7 @@
         [-limit 1]
         [-skip 0]
         [-match {..}]
+        [-mine]
         [-GrpupCount $Tmpl]
         [-noexists null|ignore]
         [-ExtendBy {..}]
@@ -54,7 +55,9 @@
             在指定路径模式下，本参数无效
             在 limit 小于等于 0 时，本参数依然无效
             
-    -match  对输出的对象过滤, 在指定路径模式下，本参数无效
+    -match  对输出的对象过滤, 在指定路径模式下，相当于为本参数增加了 pid 选项
+    
+    -mine   在 -match 条件下，为条件添加 d0:"home", d1:"主组" 两条约束
     
     -push   将名值对中的内容追加到对象对应字段中，确保会生成数组形式的值
     -push_uniq  当进行 push 操作的时候，是否确保已有的内容就不追加了, 默认 true

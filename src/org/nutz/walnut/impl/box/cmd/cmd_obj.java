@@ -33,7 +33,7 @@ public class cmd_obj extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        ZParams params = ZParams.parse(args, "iocnqhbslAVNPHQ", "^(pager|ExtendDeeply|hide)$");
+        ZParams params = ZParams.parse(args, "iocnqhbslAVNPHQ", "^(mine|pager|ExtendDeeply|hide)$");
 
         WnPager wp = new WnPager(params);
 
@@ -722,6 +722,10 @@ public class cmd_obj extends JvmExecutor {
         // 如果指定了父对象 ...
         if (null != oP)
             q.setv("pid", oP.id());
+
+        // 如果指明了本域查询
+        if (params.is("mine"))
+            q.setv("d0", "home").setv("d1", sys.me.group());
 
         // 添加更多条件
         // if (!"root".equals(sys.se.group()))

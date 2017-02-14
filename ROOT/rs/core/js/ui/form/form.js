@@ -568,7 +568,7 @@ return ZUI.def("ui.form", {
     //...............................................................
     setData : function(obj){
         var UI = this;
-        UI.ui_parse_data(obj, function(o){
+        UI.ui_parse_data(obj||{}, function(o){
             // 记录当前数据
             UI.$el.data("@DATA", o);
 

@@ -249,6 +249,9 @@ define({
                 "edit_tt"  : "HTML 代码编辑器",
             },
             "dynamic" : {
+                "name"  : "动态数据",
+                "tip"   : "指定从某 [数据接口] 获取数据，并可以定制显示方式",
+                "icon"  : '<i class="zmdi zmdi-hourglass"></i>',
                 "api"          : "数据接口",
                 "api_refresh"  : "刷新数据接口列表",
                 "params"       : "接口参数",

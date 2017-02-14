@@ -968,6 +968,12 @@ var Wn = {
     getChildren : function(o, filter, callback, forceReload){
         var Wn = this;
 
+        // 支持同步方式
+        if(_.isBoolean(callback)) {
+            forceReload = callback;
+            callback = undefined;
+        }
+
         // 确保有路径
         if(!o.ph){
             o = Wn.getById(o.id);
@@ -1027,6 +1033,14 @@ var Wn = {
             // 更新到缓存
             Wn.saveToCache(o);
         };
+
+        // 无对象
+        if(!o) {
+            if(_.isFunction(callback)){
+                callback([]);
+            }
+            return [];
+        }
 
         // 重新从服务器读取
         if(forceReload || !o.children || o.children.length==0 ){
@@ -1126,8 +1140,14 @@ var Wn = {
         var Wn = this;
         var store = Wn._storeAPI;
 
+        // 支持同步
+        if(_.isBoolean(callback)){
+            forceReload = callback;
+            callback = undefined;
+            context  = undefined;
+        } 
         // 支持匿名 context 模式
-        if(_.isBoolean(context)) {
+        else if(_.isBoolean(context)) {
             forceReload = context;
             context = undefined;
         }

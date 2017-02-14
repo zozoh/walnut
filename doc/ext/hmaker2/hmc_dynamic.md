@@ -25,9 +25,11 @@ tags:
     
     // HttpAPI 接口的请求方式，默认为 GET
     // 你也可以声明成 POST
+    // 来自 oApi.api_method
     "api_method" : "GET",
     
     // 接口参数表 @see 参数表规范
+    // 来自 oApi.params
     "params": {
         "pid": "输入数据集合的ID",
         "c": "输入分类标签",
@@ -35,12 +37,14 @@ tags:
     },
     
     // 声明了 HttpApi 返回数据的格式 @see HttpApi 返回类型
+    // 来自 oApi.api_return
     "api_return" : "list",
     
     // 模板名称
     "template": "列表项_应用",
     
     // 模板参数表 @see 参数表规范
+    // 来自 template.info.json > "options"
     "options": {
         "href": "目标页面"
     }
@@ -57,7 +61,8 @@ tags:
     pid:  "@thing",
     
     // 普通单行文本输出框
-    c:    "@input",
+    // 参数 '#' 后面的部分作为参数的说明
+    c:    "@input#文本标签",
     
     // 站点名称列表，默认是 ${siteName} 表当前站点
     site: "@sites"
@@ -66,7 +71,7 @@ tags:
     // ':' 后面表示指定的类型（半角逗号分隔）
     // 如果没有指定类型，则可以是除自己之外的任意控件
     // 运行时，控件获取的数据，将会作为 GET/POST 参数融合到本控件的参数表里
-    com : "@com:pager"
+    com : "@com:page"
 },
 ```
 

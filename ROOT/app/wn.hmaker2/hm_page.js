@@ -67,6 +67,8 @@ var html = `
                 text="hmaker.com.text.name" tip="hmaker.com.text.tip"></li>
             <li ctype="htmlcode" icon="hmaker.com.htmlcode.icon"
                 text="hmaker.com.htmlcode.name" tip="hmaker.com.htmlcode.tip"></li>
+            <li ctype="dynamic" icon="hmaker.com.dynamic.icon"
+                text="hmaker.com.dynamic.name" tip="hmaker.com.dynamic.tip"></li>
             <li ctype="objlist" icon="hmaker.com.objlist.icon" 
                 text="hmaker.com.objlist.name" tip="hmaker.com.objlist.tip"></li>
             <li ctype="objshow" icon="hmaker.com.objshow.icon" 
@@ -738,10 +740,13 @@ return ZUI.def("app.wn.hmaker_page", {
         }
     },
     //...............................................................
-    getCom : function(comId) {
+    // comId : 指定的控件 ID
+    // returnType : "com|jQuery|Element" 默认是 "com" !大小写敏感
+    getCom : function(comId, returnType) {
+        var UI = this;
         var jCom;
         if(_.isString(comId)){
-            jCom = this._C.iedit.$body.find("#" + comId);
+            jCom = UI._C.iedit.$body.find("#" + comId);
         }
         // 直接就是 DOM
         else if(_.isElement(comId) || $z.isjQuery(comId)){
@@ -753,9 +758,53 @@ return ZUI.def("app.wn.hmaker_page", {
         }
         // 得到组件
         if(jCom.length > 0) {
-            return ZUI(jCom.closest(".hm-com"));
+            jCom = jCom.closest(".hm-com");
+            if("jQuery" == returnType)
+                return jCom;
+            if("Element" == returnType)
+                return jCom[0];
+            return ZUI(jCom);
         }
     },
+    //...............................................................
+    // 返回指定的类型的一组 COM 数组
+    // filter : 过滤函数，则将参数为 F(Element):Boolean，返回true表示选中
+    //          如果给定的是一个字符串，则表示指定控件的类型
+    // returnType : "com|jQuery|Element" 默认是 "com" !大小写敏感
+    getComList : function(filter, returnType) {
+        var UI = this;
+        var jComs;
+        // 指定了类型
+        if(_.isString(filter)){
+            jComs = UI._C.iedit.$body.find('.hm-com[ctype="'+filter+'"]');
+        }
+        // 指定了过滤器
+        else if(_.isFunction(filter)){
+            var eles = [];
+            UI._C.iedit.$body.find('.hm-com').each(function(){
+                if(filter(this)){
+                    eles.push(this);
+                }
+            });
+            jComs = $(eles);
+        }
+        // 返回全部控件
+        else {
+            jComs = UI._C.iedit.$body.find('.hm-com');
+        }
+        // 返回
+        var re = [];
+        jComs.each(function(){
+            if("jQuery" == returnType)
+                re.push($(this));
+            else if("Element" == returnType)
+                re.push(this);
+            else 
+                re.push(ZUI(this));
+        });
+        return re;
+    },
+    //...............................................................
     //...............................................................
     deleteCom : function(uiCom, noResizeSkin) {
         if(uiCom) {

@@ -2,14 +2,14 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/support/hm__methods_com_dynamic'
+    'app/wn.hmaker2/support/hm__methods_com'
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
 var html = `<div class="hmc-dynamic ui-arena hm-del-save">
     <section></section>
 </div>`;
 //==============================================
-return ZUI.def("app.wn.hm_com_objlist", {
+return ZUI.def("app.wn.hm_com_dynamic", {
     dom     : html,
     keepDom : false,
     //...............................................................

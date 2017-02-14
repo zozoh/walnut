@@ -9,7 +9,16 @@ $z.declare([
 //==============================================
 var html = `
 <div class="ui-arena hmc-dynamic-prop" ui-fitparent="yes">
-    
+    <h4>{{hmaker.com.dynamic.api}}</h4>
+    <header  class="api" ui-gasket="api"></header>
+    <aside class="api-info">
+        <span>{{hmaker.com.dynamic.params}}</span>
+        <b></b>
+    </aside>
+    <section class="api-params" ui-gasket="params"></section>
+    <h4>{{hmaker.com.dynamic.template}}</h4>
+    <header  class="tmpl" ui-gasket="template"></header>
+    <section class="tmpl-options" ui-gasket="options"></section>
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_dynamic_prop", {
@@ -22,14 +31,264 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
     redraw : function() {
         var UI = this;
 
+        // 得到 API 的主目录
+        var oApiHome = Wn.fetch("~/.regapi/api");
+
+        // 数据接口列表
+        new DroplistUI({
+            parent : UI,
+            gasketName : "api",
+            emptyItem : {},
+            items : "obj -mine -match \"api_return:'^(obj|list|page)$'\" -json -l",
+            icon  : '<i class="fa fa-plug"></i>',
+            text  : null,
+            value : function(o){
+                return "/" + Wn.getRelativePath(oApiHome, o);
+            },
+            on_change : function(v){
+                UI.uiCom.saveData(null, {api : v}, true);
+            }
+        }).render(function(){
+            UI.defer_report("api");
+        });
+
+        // 模板列表
+        new DroplistUI({
+            parent : UI,
+            gasketName : "template",
+            emptyItem : {},
+            items : [],
+            icon  : '<i class="fa fa-html5"></i>',
+        }).render(function(){
+            UI.defer_report("template");
+        });
         
+        // 返回延迟加载
+        return ["api", "template"];
     },
     //...............................................................
     update : function(com) {
         var UI = this;
+        var jApiInfo = UI.arena.find(">.api-info");
+        var jParams  = UI.arena.find(">.api-params");
+        var jOptions = UI.arena.find(">.tmpl-options");
+
+        // 如果发现属性有不正确的，会标记这个变量，以便通知组件重绘
+        var raw_com_json = $z.toJson(com);
         
-        
+        // 首先试图寻找 API 对应的信息
+        // 得到 api 对象
+        var oApi = com.api ? Wn.fetch("~/.regapi/api" + com.api)
+                           : null;
+
+        // 根据 API 里面的设定设置 params
+        if(oApi) {
+            oApi.params    = oApi.params || {};
+            com.api_method = oApi.api_method || "GET";
+            com.api_return = oApi.api_return || "obj";
+        }
+        // 如果没找到，将 api 值空
+        else {
+            com.api = "";
+            com.template = "";
+        }
+
+        // 更新 api
+        UI.gasket.api.setData(com.api);
+
+        // 显示 API
+        var jB = jApiInfo.children("b");
+        if(oApi) {
+            // 更新 api info 部分
+            jApiInfo.show();
+            jB.empty();
+            $('<u>').text(com.api_method).appendTo(jB);
+            $('<em>').text(com.api_return).appendTo(jB);
+
+            // 更新 params 的 form
+            // 并设置 data
+            jParams.show();
+            var fields = UI.__eval_form_fields_by(oApi.params);
+            UI.__draw_form({
+                cacheKey : "_finger_api_form",
+                finger   : $z.toJson(oApi.params),
+                gasketName : "params",
+                fields : fields,
+                data   : com.params
+            });
+
+            // 更新可用模板列表
+            var tmplList = UI.getTemplateList(com.api_return);
+            var items = [];
+            for(var i=0; i<tmplList.length; i++) {
+                var tmpl = tmplList[i];
+                items.push({
+                    text  : tmpl.value,
+                    value : tmpl.value
+                });
+            }
+            UI.gasket.template.setItems(items);
+
+        }
+        // 没有参数，清空显示
+        else {
+            jApiInfo.hide();
+            jParams.hide();
+        }
+
+        // 试图寻找 template 对应的信息
+        var tmplInfo = com.template ? UI.evalTemplate(com.template, true)
+                                    : null;
+
+        // 如果没有将 template 置空
+        if(!tmplInfo || (tmplInfo.dataType||[]).indexOf(com.api_return)<0) {
+            com.template = "";
+            jOptions.hide();
+        }
+        // 更新 options 的 form
+        // 并设置 data
+        else {
+            jOptions.show();
+            var fields = UI.__eval_form_fields_by(tmplInfo.options);
+            UI.__draw_form({
+                cacheKey : "_finger_tmpl_options",
+                finger   : $z.toJson(tmplInfo.options),
+                gasketName : "options",
+                fields : fields,
+                data   : com.options
+            });
+        }
+
+        // 看看是否需要通知控件重绘
+        if(raw_com_json != $z.toJson(com)) {
+            UI.uiCom.saveData("panel", com, true);
+        }
+
     },
+    /*...............................................................
+    {
+        cacheKey : "_finger_api_form",
+        finger   : JSON String 
+        gasketName : "params",
+        fields : [..]
+        data   : com.params
+    }
+    */
+    __draw_form : function(setting) {
+        var UI = this;
+        new FormUI({
+            parent     : UI,
+            gasketName : setting.gasketName,
+            fitparent  : false,
+            uiWidth    : "all",
+            fields     : setting.fields,
+            on_update  : function(data){
+                UI.uiCom.saveData("panel", $z.obj(setting.gasketName, data));
+            }
+        }).render(function(){
+            this.setData(setting.data);
+        });
+    },
+    //...............................................................
+    // 根据一个 JSON 对象，来生成一个 form 控件的字段配置信息
+    // 具体支持什么格式的参数，文档上有描述 hmc_dynamic.md
+    __eval_form_fields_by : function(setting) {
+        var UI = this;
+        var re = [];
+
+        // 循环
+        for(var key in setting) {
+            var val = setting[key];
+
+            // 默认的字段
+            var fld_type = "input";
+            var fld_arg  = undefined;
+            var fld_tip  = undefined;
+
+            // 分析一下
+            var m = /^@(input|thing|sites|com)(:([0-9a-zA-Z]*))?(#(.*))?$/.exec(val);
+            // 指定了类型
+            if(m) {
+                fld_type = m[1];
+                fld_arg  = m[3];
+                fld_tip  = m[5];
+            }
+
+            // 准备字段
+            var fld = {
+                key   : key,
+                title : key,
+                tip   : fld_tip
+            };
+
+            // 字段: thing
+            if("thing" == fld_type) {
+                fld.editAs = "droplist";
+                fld.uiConf = {
+                    emptyItem : {},
+                    items : "obj -mine -match \"tp:'thing_set'\" -json -l -sort 'nm:1' -e '^(id|nm|title)'",
+                    icon  : '<i class="fa fa-cubes"></i>',
+                    text  : function(o){
+                        return o.title || o.nm;
+                    },
+                    value : function(o){
+                        return o.id;
+                    }
+                };
+            }
+            // 字段: sites
+            else if("sites" == fld_type) {
+                fld.editAs = "droplist";
+                fld.valueKey = fld_arg,
+                fld.uiConf = {
+                    emptyItem : {
+                        icon  : '<i class="zmdi zmdi-flash"></i>',
+                        text  : "i18n:auto",
+                        value : "${siteName}",
+                    },
+                    items : "obj -mine -match \"tp:'hmaker_site', race:'DIR'\" -json -l -sort 'nm:1'",
+                    icon  : '<i class="fa fa-sitemap"></i>',
+                    text  : function(o){
+                        return o.title || o.nm;
+                    },
+                    value : function(o){
+                        return o[this.valueKey || "nm"];
+                    }
+                };
+            }
+            // 字段: com
+            else if("com" == fld_type) {
+                fld.editAs = "droplist";
+                fld.uiConf = {
+                    emptyItem : {},
+                    itemArgs  : fld_arg,
+                    items : function(ctype, callback){
+                        console.log(arguments)
+                        callback(UI.pageUI().getComList(ctype));
+                    },
+                    icon  : function(uiCom){
+                        return uiCom.getIconHtml();
+                    },
+                    text  : function(uiCom){
+                        return uiCom.getComDisplayText();
+                    },
+                    value : function(uiCom){
+                        return uiCom.getComId();
+                    }
+                };
+            }
+            // 字段: input 作为默认选项
+            else {
+                fld.editAs = "input";
+            }
+
+            // 计入结果
+            re.push(fld);
+        }
+
+        // 返回
+        return re;
+    }
     //...............................................................
 });
 //===================================================================

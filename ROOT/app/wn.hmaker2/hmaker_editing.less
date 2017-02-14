@@ -451,6 +451,19 @@ body {
     min-height: 32px; padding:1px;
 }
 //............................................................
+// 动态数据对象
+.hmc-dynamic {
+
+}
+.hmc-dynamic[display-mode="warn"] {
+    > section {
+        padding:@d6 @d1; text-align: center;
+        color:@c6; font-size: @f3;
+        > i {font-size:@f8; display: block; padding-bottom:@d2;}
+    }
+}
+
+//............................................................
 // 动态对象的通用属性
 .hmc-dds {
     .dds-warn {

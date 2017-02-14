@@ -1,6 +1,7 @@
 define(function (require, exports, module) {
 // 依赖
 var MaskUI = require("ui/mask/mask");
+var Wn = require('wn/util');
 // ....................................
 // 块的 CSS 属性基础对象
 var CSS_BASE = {
@@ -175,17 +176,48 @@ var methods = {
     //=========================================================
     // 站点的模板
     // 让模板的JS生效，并返回模板的信息对象
-    evalTemplate : function(templateName) {
+    // ignoreJS : 是否不 eval 模板的 JS 文件（即不让 jQuery 插件生效）
+    // forceReload : 是否强制从服务器读取
+    evalTemplate : function(templateName, ignoreJS, forceReload) {
         var oHome = this.getHomeObj();
         var phTmplHome = "/home/" + oHome.d1 + "/.hmaker/template/" + templateName;
 
         // 加载 jQuery 控件
-        var jsContent = Wn.read(phTmplHome + "/jquery.fn.js");
-        eval(jsContent);
+        if(!ignoreJS) {
+            var jsContent = Wn.read(phTmplHome + "/jquery.fn.js", forceReload);
+            eval(jsContent);
+        }
 
         // 返回模板信息
-        var jsonInfo = Wn.read(phTmplHome + "/template.info.json");
+        var jsonInfo = Wn.read(phTmplHome + "/template.info.json", forceReload);
         return $z.fromJson(jsonInfo);
+    },
+    //=========================================================
+    // 得到本站点可用的模板列表
+    // dataType : 字符串，表示只显示支持此种数据类型的模板
+    //            可能的值为 obj|list|page
+    // forceReload : 是否强制从服务器读取
+    getTemplateList : function(dataType, forceReload) {
+        var UI = this;
+        var oHome = this.getHomeObj();
+        // 得到模板列表
+        var oTmplHome = Wn.fetch("/home/" + oHome.d1 + "/.hmaker/template");
+        var oTmplList = Wn.getChildren(oTmplHome, forceReload);
+        console.log(oTmplList)
+
+        // 依次解析 ..
+        var list = [];
+        for(var i=0; i<oTmplList.length; i++) {
+            var oTmpl = oTmplList[i];
+            var tmpl  = UI.evalTemplate(oTmpl.nm, true, forceReload);
+            if(!dataType || (tmpl.dataType||[]).indexOf(dataType) >= 0) {
+                tmpl.value = oTmpl.nm;
+                list.push(tmpl);
+            }
+        }
+
+        // 返回
+        return list;
     },
     //=========================================================
     // 监听消息

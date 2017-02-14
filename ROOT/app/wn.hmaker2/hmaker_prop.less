@@ -878,6 +878,60 @@
 }
 
 //............................................................
+// 控件: dynamic
+.hmc-dynamic-prop {
+    > h4 {
+        font-size:@f2; font-weight: normal;
+        background: @cb2; color:@cf2;
+        border:1px solid @cborder1;
+        padding:@d2; margin:0;
+    }
+    > aside {
+        padding:@d2; color:@c3; font-family: @f_fixed;
+        background: @cb3; color:@cf3;
+        > span {float: left;}
+        > b {
+            float: right;
+            > u {text-decoration: none;}
+            > em:before {display: inline; content: "(";}
+            > em {font-style: normal; margin-left:@d1;}
+            > em:after {display: inline; content: ")";}
+        }
+    }
+    > aside:after{@clr();}
+    > header {
+        padding: @d1 0;
+    }
+    > section {
+        padding-bottom:@d4;
+        .form {
+            padding: 1px 0; 
+            > .form-body {
+                overflow: auto;
+                > .form-body-wrapper > .form-group > .fg-fields {
+                    border:1px solid @cborder1; padding:0;
+                    > .form-fld {
+                        border-bottom:1px solid @cborder1; padding:0;
+                        background: @cb2; color:@cf2;
+                        > .ff-txt {
+                            font-family: @f_fixed; font-size: @f2; min-width: unset;
+                        }
+                        > .ff-val {
+                            border-left:1px solid @cborder1;
+                            padding:0; background: @cb1; color:@cf1;
+                            > .ffv-ui {
+                                padding:@d1;
+                            }
+                        }
+                    }
+                    > .form-fld:last-child {border:0;}
+                }
+            }
+        }
+    }
+}
+
+//............................................................
 // 通用的动态数据对象属性
 //............................................................
 .hm-dynamic-data-setting {
