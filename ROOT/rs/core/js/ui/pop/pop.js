@@ -155,7 +155,7 @@ module.exports = {
             }
         }).render(function(){
             this.arena.find(".pm-title").html(this.text(opt.title));
-            this.body.setData(opt.data);                
+            this.body.setData(opt.data);
         });
     },
     //...............................................................
