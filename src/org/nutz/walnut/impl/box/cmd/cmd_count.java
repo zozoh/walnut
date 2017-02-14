@@ -3,6 +3,7 @@ package org.nutz.walnut.impl.box.cmd;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -47,6 +48,10 @@ public class cmd_count extends JvmExecutor {
         }
         if (!Strings.isBlank(tp)) {
             q.setv("tp", tp);
+        }
+        if (params.has("match")) {
+            String json = params.get("match", "{}");
+            q.setAll(Lang.map(json));
         }
         long childrenNum = sys.io.count(q);
         sys.out.print("" + childrenNum);
