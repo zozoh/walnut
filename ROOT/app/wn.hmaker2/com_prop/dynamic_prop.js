@@ -46,7 +46,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 return "/" + Wn.getRelativePath(oApiHome, o);
             },
             on_change : function(v){
-                UI.uiCom.saveData(null, {api : v}, true);
+                UI.uiCom.saveData(null, {api:v, params:{}}, true);
             }
         }).render(function(){
             UI.defer_report("api");
@@ -60,7 +60,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             items : [],
             icon  : '<i class="fa fa-html5"></i>',
             on_change : function(v) {
-                UI.uiCom.saveData(null, {template : v}, true);
+                UI.uiCom.saveData(null, {template:v, options:{}}, true);
             }
         }).render(function(){
             UI.defer_report("template");
@@ -87,8 +87,8 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         // 根据 API 里面的设定设置 params
         if(oApi) {
             oApi.params    = oApi.params || {};
-            com.api_method = oApi.api_method || "GET";
-            com.api_return = oApi.api_return || "obj";
+            com.api_method = (oApi.api_method || "GET").toUpperCase();
+            com.api_return = (oApi.api_return || "obj").toLowerCase();
         }
         // 如果没找到，将 api 值空
         else {

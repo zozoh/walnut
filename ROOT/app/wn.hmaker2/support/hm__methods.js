@@ -203,7 +203,7 @@ var methods = {
         // 得到模板列表
         var oTmplHome = Wn.fetch("/home/" + oHome.d1 + "/.hmaker/template");
         var oTmplList = Wn.getChildren(oTmplHome, forceReload);
-        console.log(oTmplList)
+        //console.log(oTmplList)
 
         // 依次解析 ..
         var list = [];

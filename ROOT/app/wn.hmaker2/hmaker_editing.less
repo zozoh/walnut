@@ -453,14 +453,51 @@ body {
 //............................................................
 // 动态数据对象
 .hmc-dynamic {
-
-}
-.hmc-dynamic[display-mode="warn"] {
-    > section {
-        padding:@d6 @d1; text-align: center;
-        color:@c6; font-size: @f3;
-        > i {font-size:@f8; display: block; padding-bottom:@d2;}
+    .dynamic-msg {
+        text-align: center; padding:@d4; 
+        font-family: @f_fixed; font-size: @f2;
+        > i {display: block; font-size:@f8; padding:@d3;}
     }
+    .dynamic-msg[m="warn"] {color:@c0;}
+    .dynamic-msg[m="api-loading"] {color:@c2;}
+    .dynamic-msg[m="api-no-data"] {color:@c3;}
+    .dynamic-msg[m="api-error"] {color:@c6;}
+    .dynamic-msg[m="api-lack-params"] {color:@c4;}
+}
+.hm-com[ctype="dynamic"] > .hm-com-W {
+    > .dynamic-keys {
+        position: absolute; top:@ddsP; left:@ddsP;
+        padding:1px @d3; background: rgba(255,255,0,0.5); color:#000;
+        font-family: @f_fixed; font-size:@f0; border-radius: @d1;
+        font-weight: normal; border:1px solid rgba(0,0,0,0.2);
+        ul {
+            list-style: none; padding: 0; margin: 0;
+            > li {float:left; padding:@d0;}
+        }
+        ul:after{@clr();}
+    }
+    > .dynamic-reload { @noselect(); display: none;
+        position: absolute; bottom:@ddsP; right:@ddsP;
+        z-index: 1;
+        b {
+            display: block;
+            padding:@d3; background: #000; color: #FFF; opacity: 0.4;
+            font-size:@f2; cursor: pointer; transition:0.3s;
+        }
+    }
+    > .dynamic-reload:hover {
+        z-index: 999;
+        b {
+            opacity: 1.0; color:#FF0; border-radius: 50%;
+            transform: rotate(360deg); 
+        }
+    }
+    > .dynamic-reload:before {
+        line-height: 24px;
+    }
+}
+.hm-com[ctype="dynamic"][hm-actived] > .hm-com-W {
+    > .dynamic-reload {display: block;}
 }
 
 //............................................................
