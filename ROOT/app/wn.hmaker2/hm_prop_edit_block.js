@@ -208,6 +208,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
     //...............................................................
     __update_form : function(block, callback) {
         var UI = this;
+        var jForm = UI.arena.find(".hmpb-form");
                 
         // 得到块的默认属性列表
         var blockFields = UI.uiCom.getBlockPropFields(block);
@@ -220,10 +221,34 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             blockFields  = skinItem.blockFields || blockFields;
         }
 
+        // 如果没有可用编辑字段
+        if(blockFields.length == 0) {
+            UI.__current_block_fields = "";
+            // 注销 form 控件
+            if(UI.gasket.form) {
+                UI.gasket.form.destroy();
+            }
+            // 显示空消息
+            jForm.attr("no-setting","yes").html(UI.msg('hmaker.com._.no_setting'));
+
+            // 不需要进行后续逻辑了
+            return;
+        }
         
         // 看看是否需要重绘字段
         var bf_finger = blockFields.join(",");
-        if(UI.__current_block_fields != bf_finger) {
+
+        // 无需重绘 form, 直接设置数据
+        if(UI.gasket.form && UI.__current_block_fields == bf_finger) {
+            UI.gasket.form.setData(block);
+            $z.doCallback(callback, [], UI.gasket.form);
+        }
+        // 创建编辑表单
+        else {
+            // 确保移除消息
+            if(!UI.gasket.form)
+                jForm.removeAttr("no-setting").empty();
+            
             // 创建其他属性
             new FormUI({
                 parent : UI,
@@ -243,11 +268,6 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 // 调用回调
                 $z.doCallback(callback, [], this);
             });
-        }
-        // 直接设置数据
-        else {
-            UI.gasket.form.setData(block);
-            $z.doCallback(callback, [], UI.gasket.form);
         }
     },
     //...............................................................

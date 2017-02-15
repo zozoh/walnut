@@ -5,12 +5,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Maths;
@@ -21,6 +24,7 @@ import org.nutz.lang.random.R;
 import org.nutz.lang.segment.Segment;
 import org.nutz.lang.segment.Segments;
 import org.nutz.lang.util.Context;
+import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
@@ -517,6 +521,15 @@ public abstract class Wn {
             });
         }
 
+        // copy 时标志位： 递归
+        public static final int RECUR = 1;
+
+        // copy 时标志位： 同时 copy 元数据
+        public static final int PROP = 1 << 1;
+
+        // copy 时标志位： 显示日志
+        public static final int VERBOSE = 1 << 2;
+
         /**
          * 两个文件内容对拷的帮助方法。 如果可以，本函数会自动调用快速 copy
          * 
@@ -530,7 +543,7 @@ public abstract class Wn {
         public static void copyFile(WnIo io, WnObj src, WnObj dst) {
             // 两个必须是文件
             if (!src.isFILE() || !dst.isFILE()) {
-                throw Er.create("");
+                throw Er.create("e.copy.nofile", src.path() + " ->> " + dst.path());
             }
 
             // 如果是 Mount 就傻傻的写流
@@ -542,6 +555,58 @@ public abstract class Wn {
                 io.copyData(src, dst);
                 WnContext wc = Wn.WC();
                 wc.doHook("write", dst);
+            }
+        }
+
+        /**
+         * @param base
+         *            基础对象
+         * @param o
+         *            对象
+         * @return 给定对象相对于基础对象的路径
+         */
+        public static String getRelativePath(WnObj base, WnObj o) {
+            if (null == base || null == o)
+                return null;
+            String ph_base = base.getRegularPath();
+            String ph_o = o.getRegularPath();
+            return Disks.getRelativePath(ph_base, ph_o);
+        }
+
+        /**
+         * 迭代某个对象所有的子对象，考虑了链接目录和映射
+         * 
+         * @param io
+         *            IO 接口
+         * @param o
+         *            对象
+         * @param callback
+         *            回调
+         */
+        public static void eachChildren(WnIo io, WnObj o, final Each<WnObj> callback) {
+            // 没有回调，没必要执行
+            if (null == callback)
+                return;
+
+            // 展开链接对象
+            o = Wn.real(o, io, new HashMap<>());
+
+            // 目录才会被迭代
+            if (null != o && o.isDIR()) {
+                o = Wn.real(o, io);
+                // 挂载对象，则使用 getChildren
+                if (o.isMount()) {
+                    List<WnObj> children = io.getChildren(o, null);
+                    int i = 0;
+                    int len = children.size();
+                    for (WnObj child : children) {
+                        callback.invoke(i++, child, len);
+                    }
+                }
+                // 否则直接查询
+                else {
+                    io.each(Wn.Q.pid(o), callback);
+                }
             }
         }
 
@@ -868,10 +933,12 @@ public abstract class Wn {
     }
 
     /**
-     * 处理链接文件，如果是链接对象，返回原始对象
+     * 处理链接文件，如果是链接对象，则返回其链接的目标对象（仅一层）
      * 
      * @param o
      *            原始对象
+     * @param io
+     *            IO 读写接口
      * 
      * @return 真实文件对象
      */
@@ -900,6 +967,36 @@ public abstract class Wn {
             // o.path(oldPath);
         }
         return o;
+    }
+
+    /**
+     * 递归处理链接文件，直到找到原始对象。如果有无穷循环，则返回 null
+     * 
+     * @param o
+     *            原始对象
+     * @param io
+     *            IO 读写接口
+     * @param memo
+     *            记录增加展开链接的对象，以防止无穷递归
+     * 
+     * @return 真实文件对象
+     */
+    public static WnObj real(WnObj o, WnIo io, Map<String, WnObj> memo) {
+        // 无需展开链接
+        if (null == o || !o.isLink())
+            return o;
+
+        // 如果之前解析过，那么一定会发生无限循环，直接返回 null
+        if (memo.containsKey(o.id()))
+            return null;
+        // 记录
+        memo.put(o.id(), o);
+
+        // 解析
+        WnObj o2 = real(o, io);
+
+        // 返回递归
+        return real(o2, io, memo);
     }
 
 }

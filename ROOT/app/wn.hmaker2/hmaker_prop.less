@@ -43,7 +43,7 @@
         }
     }
     .hm-prop-head:after{@clr();}
-    .hm-prop-tabs {
+    .hm-prop-tabs { @noselect();
         position: absolute; top:@ppCInfo + @d2; left:0; right:0; height:@ppTabH; 
         ul {
             @flex(); justify-content: center;
@@ -52,6 +52,7 @@
                 border:1px solid @cborder1; border-left:0;
                 min-width: 80px; text-align: center; padding:0 @d2; font-size:@f2;
                 background: @cb1; color:@cf1; cursor: pointer; 
+                > b {font-weight: normal;}
             }
             li:first-child {
                 border-left:1px solid @cborder1;
@@ -86,7 +87,7 @@
             .hmpb-skin {
                 top:@bPosH; height:@bSkinH; line-height: @bSkinH;
                 padding:0 @d3; 
-                margin:0 @d3; background: @cb2; color:@cf2;
+                margin:0; background: @cb2; color:@cf2;
                 > em {
                     float:left; display: block; font-style: normal;
                 }
@@ -96,7 +97,13 @@
             }
             // 块的 form
             .hmpb-form {
-                top:@bPosH + @bSkinH + @d2; bottom:0;
+                top:@bPosH + @bSkinH; bottom:0; margin:1px 0;
+            }
+            .hmpb-form[no-setting] {
+                margin:1px 0; border:1px dashed @cborder1;
+                padding:@d4; text-align: center; color: @c2;
+                font-style: italic; font-weight: normal;
+                > i {font-size: @f3;}
             }
             .hmpb-pos {
                 top:0; height:@bPosH;
@@ -902,6 +909,12 @@
     > header {
         padding: @d1 0;
     }
+    > section[no-setting] {
+        padding:@d3; text-align: center; color:@c2;
+        font-style: italic; border:1px dashed @cborder1;
+        margin:1px 0;
+        > i {font-size: @f3;}
+    }
     > section {
         padding-bottom:@d4;
         .form {
@@ -912,13 +925,14 @@
                     border:1px solid @cborder1; padding:0;
                     > .form-fld {
                         border-bottom:1px solid @cborder1; padding:0;
-                        background: @cb2; color:@cf2;
+                        background: @cb1; color:@cf1;
                         > .ff-txt {
                             font-family: @f_fixed; font-size: @f2; min-width: unset;
+                            padding:@d3;
                         }
                         > .ff-val {
                             border-left:1px solid @cborder1;
-                            padding:0; background: @cb1; color:@cf1;
+                            padding:0; 
                             > .ffv-ui {
                                 padding:@d1;
                             }

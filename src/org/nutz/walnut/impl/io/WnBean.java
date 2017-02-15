@@ -479,6 +479,14 @@ public class WnBean extends NutMap implements WnObj {
         return this;
     }
 
+    @Override
+    public String getRegularPath() {
+        String aph = this.path();
+        if (this.isDIR())
+            return aph + "/";
+        return aph;
+    }
+
     public WnObj appendPath(String path) {
         path(Wn.appendPath(path(), path));
         return this;

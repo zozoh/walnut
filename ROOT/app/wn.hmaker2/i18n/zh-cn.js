@@ -147,7 +147,8 @@ define({
                 "create"      : "新建",
                 "del"         : "删除",
                 "dft"         : "默认",
-                "existsID" : "这个组件ID已经存在"
+                "existsID" : "这个组件ID已经存在",
+                "no_setting"  : '<i class="zmdi zmdi-alert-octagon"></i> 无需设置',
             },
             "_area" : {
                 "name"  : "布局区域",
