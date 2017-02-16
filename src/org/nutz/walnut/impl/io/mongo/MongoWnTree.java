@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.io.mongo;
 
 import java.util.Map;
+
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
@@ -84,6 +85,7 @@ public class MongoWnTree extends AbstractWnTree {
                 // 获取对象
                 DBObject dbobj = cu.next();
                 WnObj o = WnMongos.toWnObj(dbobj);
+                o.setTree(this);
                 try {
                     callback.invoke(i++, o, n);
                     n++;

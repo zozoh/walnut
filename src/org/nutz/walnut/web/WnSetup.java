@@ -48,9 +48,10 @@ public class WnSetup implements Setup {
         // 获取 app 资源，并记录一下以便页面使用
         conf = ioc.get(WnConfig.class, "conf");
         nc.setAttribute("rs", conf.getAppRs());
-        
+
         // 设置一下MemoryBucket的临时文件池
-        MemoryBucket.pool = new UU32FilePool(conf.get("memory-bucket-home", System.getProperty("java.io.tmpdir")));
+        MemoryBucket.pool = new UU32FilePool(conf.get("memory-bucket-home",
+                                                      System.getProperty("java.io.tmpdir")));
 
         // 尝试看看组装的结果
         WnIo io = ioc.get(WnIo.class, "io");
@@ -105,7 +106,9 @@ public class WnSetup implements Setup {
             setup.init(nc);
         }
 
-        ioc.get(WnJob.class);
+        if (conf.getBoolean("service-wnjob", true)) {
+            ioc.get(WnJob.class);
+        }
         ioc.get(SshdServer.class);
         ioc.get(WnFtpServer.class);
     }
