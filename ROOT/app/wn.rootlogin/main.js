@@ -4,11 +4,30 @@ define(function (require, exports, module) {
     var SearchUI = require("ui/search/search");
 
     function init() {
-        new SearchUI({
+        var mainUI = new SearchUI({
             $pel: $(document.body),
             exec: Wn.exec,
             app: Wn.app(),
             menu: [{
+                text: "仅显示有别名",
+                type: "boolean",
+                on: false,
+                icon_on: '<i class="fa fa-toggle-on"></i>',
+                icon_off: '<i class="fa fa-toggle-off"></i>',
+                on_change: function (val, mi) {
+                    console.log('别名开关，' + val);
+                    var match = {d0: "sys", d1: "usr"};
+                    if (val) {
+                        var k = "\\" + "$ne";
+                        match.alias = {};
+                        match.alias[k] = null;
+                    }
+                    mainUI.uiFilter.setData({
+                        match: match
+                    });
+                    mainUI.refresh();
+                }
+            }, {
                 text: "登陆(命令行)", handler: function () {
                     var sUI = this;
                     var objs = sUI.uiList.getChecked();
@@ -82,6 +101,10 @@ define(function (require, exports, module) {
             });
             this.uiPager.setData();
             this.refresh();
+
+            // 加载css
+
+            require("app/wn.rootlogin/main.css");
         });
     }
 
