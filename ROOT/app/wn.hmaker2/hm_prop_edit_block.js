@@ -218,7 +218,8 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         if(skinName) {
             var ctype    = UI.uiCom.getComType();
             var skinItem = UI.getSkinItemForCom(ctype, skinName);
-            blockFields  = skinItem.blockFields || blockFields;
+            if(skinItem)
+                blockFields  = skinItem.blockFields || blockFields;
         }
 
         // 如果没有可用编辑字段

@@ -273,11 +273,16 @@
 //............................................................
 // 重新设置 form 表单的间距
 //............................................................
-.hm-prop-edit {
+.hm-prop {
     .form {
         padding:0 @d2; font-size: @f2;
         .fg-title {
-            border-radius: @d0; font-size:@f2; border-style:dotted;
+            border-radius: @d0; font-size:@f2; 
+            border:1px dotted @cborder0;
+            margin-right: @d2;
+        }
+        .form-group-hide .fg-title {
+            border-style: dotted;
         }
         // .form-fld {
         //     padding:@d1;
@@ -291,13 +296,16 @@
             padding : @d2 @d0;
             > .form-fld {
                 padding:1px;
-                > .ff-txt {padding:@d2 @d2; min-width: 60px;}
+                > .ff-txt {
+                    padding:@d2+1px @d2; min-width: 60px;
+                    .fft-text {font-size:@f2; opacity: 0.8;}
+                }
                 // > .ff-txt .fft-text:after {
                 //     content:":"; display: "inline";
                 // }
                 > .ff-val {
                     padding:0;
-                    input {font-family: @f_fixed;}
+                    input,textarea {font-family: @f_fixed;}
                     .com-square-drop {padding:@d1 0;}
                 }
             }
@@ -317,14 +325,7 @@
     }
     > .pp-attr {
         padding:0;
-        .page-form {
-            padding:@d2 0;
-            > .form-body > .form-body-wrapper > .form-group > .fg-fields > .form-fld {
-                padding:@d1;
-                > .ff-txt {padding:@d2; min-width: 80px;}
-                > .ff-val {padding:0;}
-            }
-        }
+        .page-form {padding:@d0 0;}
     }
     > .pp-links {
         position: relative;

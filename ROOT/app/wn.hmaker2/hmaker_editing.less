@@ -21,7 +21,7 @@
 }
 
 body {
-    margin:0; overflow-y: scroll;
+    margin:0; overflow-y: scroll; 
 }
 //............................................................
 // 拖拽相关
@@ -500,7 +500,59 @@ body {
 .hm-com[ctype="dynamic"][hm-actived] > .hm-com-W {
     > .dynamic-reload {display: block;}
 }
-
+//............................................................
+// 关键字对象
+.hmc-searcher {
+    @flex(); padding:@d1; position: relative;
+    .kwd-input {
+        flex:1 1 auto;
+        input {width:100%; outline: none; font-size: @f3; padding:@d2}
+    }
+    .kwd-btn {
+        flex:0 0 auto; padding:1px;
+        b {
+            display: block; cursor: pointer;
+            padding:@d2 @d4; font-size:@f3; border:1px solid @cborder1;
+        }
+    }
+}
+.hmc-searcher:after {
+    display: block; content: ""; background: rgba(0,0,0,0);
+    position: absolute; top:0; left: 0; right: 0; bottom: 0;
+    cursor: default;
+}
+//............................................................
+// 分页条对象
+.hmc-pager {
+    cursor: default; padding: @d1;
+    > div {
+        display: inline-block; padding:@d2 0; vertical-align: middle;
+    }
+    .pg_brief {display: none;}
+    a, b {
+        display: inline-block; padding:@d2; vertical-align: middle;
+        margin:0 1px;
+    }
+    a { border:1px solid rgba(0,0,0,0.3); }
+    a[key="first"], a[key="last"] {
+        display: none;
+    }
+}
+.hmc-pager[pager-type="button"]{}
+.hmc-pager[pager-type="jumper"] .pg_nbs a { 
+    display: none;
+}
+.hmc-pager[pager-type="jumper"][free-jump] .pg_nbs b { 
+    border:1px dotted rgba(0,0,0,0.6);
+}
+.hmc-pager[show-brief] .pg_brief { 
+    display: inline-block;
+}
+.hmc-pager[show-first-last] .pg_btn { 
+    a[key="first"], a[key="last"] {
+        display: inline-block;
+    }
+}
 //............................................................
 // 动态对象的通用属性
 .hmc-dds {

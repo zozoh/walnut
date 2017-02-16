@@ -71,8 +71,8 @@ var html = `
             <li class="sep"></li>
             <li ctype="dynamic" icon="hmaker.com.dynamic.icon"
                 text="hmaker.com.dynamic.name" tip="hmaker.com.dynamic.tip"></li>
-            <li ctype="keyword" icon="hmaker.com.keyword.icon"
-                text="hmaker.com.keyword.name" tip="hmaker.com.keyword.tip"></li>
+            <li ctype="searcher" icon="hmaker.com.searcher.icon"
+                text="hmaker.com.searcher.name" tip="hmaker.com.searcher.tip"></li>
             <li ctype="filter" icon="hmaker.com.filter.icon"
                 text="hmaker.com.filter.name" tip="hmaker.com.filter.tip"></li>
             <li ctype="sorter" icon="hmaker.com.sorter.icon"

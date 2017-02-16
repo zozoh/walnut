@@ -494,18 +494,15 @@
 
 //----------------------------------------------------------------
 .com-switch {@noselect();
-  padding: @d0;
+  padding: @d0; display: inline-block;
   ul {
+    @flex(); flex-wrap: nowrap;
     list-style: none;
     padding: 1px 1px 1px 0;
-    margin: 0;
-    background: @cborder1;
-    display: inline-block;
-  }
-  ul:after {@clr();
+    margin: 0; background: @cborder1;
   }
   li {
-    float: left;
+    flex:0 0 auto; 
     padding: @d1;
     background: @cb2;
     color: @cf2;
@@ -513,6 +510,8 @@
     min-width: @d7;
     text-align: center;
     cursor: pointer;
+    b {font-weight: normal;}
+    @flex(); justify-content:center; align-items:center;
   }
   li.checked {
     color: @chx_f;
@@ -521,15 +520,14 @@
 }
 
 //----------------------------------------------------------------
-@cToggleS : 12px;
+@cToggleS : 10px;
 .com-toggle {
   cursor: pointer; display: inline-block;
   position: relative;
   border:1px solid @cborder1; 
-  padding:@d1;
+  padding:@d1; margin:@d1;
   border-radius: @cToggleS;
   background: rgba(255,255,255,0.4);
-  margin:@d0;
   div {
     width:@cToggleS * 2;
     b {
@@ -539,7 +537,7 @@
     }
   }
 }
-.com-toggle[animat-on] b {transition:0.2s;}
+.com-toggle[animat-on] b {transition:0.1s;}
 .com-toggle[toggle-on="yes"] {
   b {
     margin-left:@cToggleS; background: @chx_b;

@@ -1,7 +1,8 @@
 (function($z){
 $z.declare([
-    'zui'
-], function(ZUI){
+    'zui',
+    'ui/form/support/form_c_methods'
+], function(ZUI, FormMethods){
 //==============================================
 var html = function(){/*
 <div class="ui-arena com-text"><textarea spellcheck="false"></textarea></div>
@@ -10,6 +11,12 @@ var html = function(){/*
 return ZUI.def("ui.form_com_text", {
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
+    //...............................................................
+    init : function(opt){
+        FormMethods(this);
+
+        $z.setUndefined(opt, "trimData", true);
+    },
     //...............................................................
     events : {
         "change textarea" : function(){
@@ -22,25 +29,33 @@ return ZUI.def("ui.form_com_text", {
         }
     },
     //...............................................................
-    __on_change : function(){
-        var UI  = this;
-        var opt = UI.options;
-        var context = opt.context || UI.parent;
-        var v = UI.getData();
-        $z.invoke(opt, "on_change", [v], context);
-        UI.trigger("change", v);
+    redraw : function(){
+        var UI    = this;
+        var opt   = UI.options;
+        var jText = UI.arena.find("textarea");
+        
+        // 占位符显示
+        if(opt.placeholder) {
+            jText.attr("placeholder", opt.placeholder);
+        }
     },
     //...............................................................
     getData : function(){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         return UI.ui_format_data(function(opt){
-            return UI.arena.find("textarea").val();
+            var val = UI.arena.find("textarea").val();
+            if(opt.trimData)
+                val = $.trim(val);
+            return val || null;
         });
     },
     //...............................................................
     setData : function(val, jso){
         var UI = this;
         this.ui_parse_data(val, function(s){
+            if((_.isNumber(s) && isNaN(s)) || _.isUndefined(s) || _.isNull(s))
+                s = "";
             UI.arena.find("textarea").val(s);
         });
     },
