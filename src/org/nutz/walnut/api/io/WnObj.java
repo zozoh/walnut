@@ -51,6 +51,11 @@ public interface WnObj extends NutBean {
 
     WnObj path(String path);
 
+    /**
+     * @return 对象全路径，如果是目录，则一定为 "/" 结尾
+     */
+    String getRegularPath();
+
     WnObj appendPath(String path);
 
     String name();
@@ -72,7 +77,7 @@ public interface WnObj extends NutBean {
     boolean hasParent();
 
     WnObj parent();
-    
+
     int getCustomizedPrivilege(WnUsr u);
 
     WnObj loadParents(List<WnObj> list, boolean force);

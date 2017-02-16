@@ -147,7 +147,8 @@ define({
                 "create"      : "新建",
                 "del"         : "删除",
                 "dft"         : "默认",
-                "existsID" : "这个组件ID已经存在"
+                "existsID" : "这个组件ID已经存在",
+                "no_setting"  : '<i class="zmdi zmdi-alert-octagon"></i> 无需设置',
             },
             "_area" : {
                 "name"  : "布局区域",
@@ -249,6 +250,9 @@ define({
                 "edit_tt"  : "HTML 代码编辑器",
             },
             "dynamic" : {
+                "name"  : "动态数据",
+                "tip"   : "指定从某 [数据接口] 获取数据，并可以定制显示方式",
+                "icon"  : '<i class="zmdi zmdi-hourglass"></i>',
                 "api"          : "数据接口",
                 "api_refresh"  : "刷新数据接口列表",
                 "params"       : "接口参数",
@@ -263,8 +267,8 @@ define({
                 "noapi"        : '<i class="zmdi zmdi-alert-polygon"></i> 没设定数据接口',
                 "notemplate"   : '<i class="zmdi zmdi-alert-polygon"></i> 未设定显示模板',
                 "api_loading"  : '<i class="zmdi zmdi-rotate-right zmdi-hc-spin"></i> 正在从接口加载数据 ...',
-                "api_empty"    : "厄...没有数据",
-                "api_lack_params" : '<i class="zmdi zmdi-alert-circle-o"></i> 动态参数没有提供默认数据，不能预览显示，只能发布以后查看效果',
+                "api_empty"    : '<i class="zmdi zmdi-alert-circle-o"></i> 厄...没有数据',
+                "api_lack_params" : '<i class="zmdi zmdi-alert-circle"></i> 动态参数没有提供默认数据，不能预览显示，只能发布以后查看效果',
                 "reload" : "重新从接口加载数据，以便查看显示效果",
             },
             "objlist" : {

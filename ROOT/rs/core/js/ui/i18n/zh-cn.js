@@ -4,6 +4,7 @@ define({
     "refresh"    : "刷新",
     "exit"       : "退出",
     "add"        : "添加",
+    "auto"       : "自动",
     "new"        : "新建 ...",
     "delete"     : "删除",
     "create"     : "新建",

@@ -122,6 +122,12 @@ var methods = {
         return this.msg('hmaker.com.' + this.getComType() + '.icon');
     },
     //........................................................
+    getComDisplayText : function() {
+        return this.getComId() + "(" + 
+            this.msg('hmaker.com.' + this.getComType() + '.name')
+            + ")";
+    },
+    //........................................................
     // 判断组件是否是激活的
     isActived : function() {
         return this.$el.attr("hm-actived") == "yes";

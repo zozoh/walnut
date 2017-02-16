@@ -124,10 +124,17 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
             }
             // 单选，就简单了
             else {
+                // 记旧值
+                var old_val = UI._get_data();
                 UI.arena.find(".com-box-show").empty();
                 UI._append_val(jq);
+
+                // 得到新值
+                var new_val = UI._get_data();
+
                 // 触发事件
-                UI.__on_change();
+                if(new_val != old_val)
+                    UI.__on_change();
             }
         },
         "click .com-multi-apply" : function(){
@@ -265,7 +272,7 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
         return this.options.multi ? true : false;
     },
     //...............................................................
-    getData : function(){
+    _get_data : function(){
         var UI = this;
         var jShow = UI.arena.find(".com-box-show");
 
@@ -282,7 +289,7 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
         return jShow.find(".cbsi").first().data("@VAL");
     },
     //...............................................................
-    setData : function(val){
+    _set_data : function(val){
         var UI  = this;
         var opt = UI.options;
 
@@ -325,6 +332,20 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
         }
         // 触发事件
         //UI.__on_change();
+    },
+    //...............................................................
+    getData : function(){
+        var UI = this;
+        return this.ui_format_data(function(opt){
+            return UI._get_data();
+        });
+    },
+    //...............................................................
+    setData : function(obj, jso){
+        var UI = this;
+        this.ui_parse_data(obj, function(o){
+            UI._set_data(o);
+        });
     },
     //...............................................................
     resize : function() {

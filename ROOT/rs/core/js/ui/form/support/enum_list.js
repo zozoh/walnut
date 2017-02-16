@@ -48,12 +48,12 @@ var methods = {
     setItems : function(items, callback){
         var UI  = this;
         var opt = UI.options;
-        var context = _.extend({}, opt.context || UI.parent, {
+        var context = _.extend({}, opt.context || UI, {
             app  : UI.app,
             exec : UI.exec
         });
 
-        $z.evalData(items, null, function(items){
+        $z.evalData(items, opt.itemArgs, function(items){
             UI._draw_items(items);
             UI.setData();
             $z.doCallback(callback, [items], UI);
