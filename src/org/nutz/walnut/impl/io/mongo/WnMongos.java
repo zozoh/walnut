@@ -127,6 +127,17 @@ public abstract class WnMongos {
                 else if (s.startsWith("!^")) {
                     q.put(key, Lang.map("$not", Pattern.compile(s.substring(1))));
                 }
+                // 表示不等于
+                else if (s.startsWith("!")) {
+                    // 直接是 "!" 表示不等于 null
+                    if ("!".equals(s)) {
+                        q.put(key, Lang.map("$ne", null));
+                    }
+                    // 否则取值
+                    else {
+                        q.put(key, Lang.map("$ne", s.substring(1)));
+                    }
+                }
                 // 通配符
                 else if (s.contains("*")) {
                     String regex = "^" + s.replace("*", ".*");

@@ -5,6 +5,7 @@ define(function (require, exports, module) {
 
     function init() {
         var mainUI = new SearchUI({
+            css : "theme/app/wn.rootlogin/main.css",
             $pel: $(document.body),
             exec: Wn.exec,
             app: Wn.app(),
@@ -97,14 +98,10 @@ define(function (require, exports, module) {
             }
         }).render(function () {
             this.uiFilter.setData({
-                match: {d0: "sys", d1: "usr"}
+                match: {d0: "sys", d1: "usr", alias:"!"}
             });
             this.uiPager.setData();
             this.refresh();
-
-            // 加载css
-
-            require("app/wn.rootlogin/main.css");
         });
     }
 
