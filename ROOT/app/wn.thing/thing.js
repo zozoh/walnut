@@ -347,10 +347,19 @@ return ZUI.def("app.wn.thing", {
     },
     //...............................................................
     __format_theConf_field : function(fld) {
-        // th_nm
-        if("th_nm" == fld.key) {
+        // id
+        if("id" == fld.key) {
+            $z.setUndefined(fld, "title", "i18n:thing.key.id");
+            $z.setUndefined(fld, "hide", true);
             $z.extend(fld, {
-                title : "i18n:thing.key.th_nm",
+                type   : "string",
+                editAs : "label"
+            });
+        }
+        // th_nm
+        else if("th_nm" == fld.key) {
+            $z.setUndefined(fld, "title", "i18n:thing.key.th_nm");
+            $z.extend(fld, {
                 type : "string",
                 editAs : "input",
                 escapeHtml : false,
@@ -369,8 +378,19 @@ return ZUI.def("app.wn.thing", {
                 }
             });
         }
+        // th_ow
+        else if("th_ow" == fld.key) {
+            $z.setUndefined(fld, "title", "i18n:thing.key.th_ow");
+            $z.setUndefined(fld, "hide", true);
+            $z.extend(fld, {
+                type   : "string",
+                editAs : "input"
+            });
+        }
         // __brief_and_content__
         else if("__brief_and_content__" == fld.key){
+            $z.setUndefined(fld, "title", "i18n:thing.key.brief_and_content");
+            $z.setUndefined(fld, "hide", true);
             $z.extend(fld, {
                 virtual : true,
                 editAs  : "content",
@@ -387,9 +407,9 @@ return ZUI.def("app.wn.thing", {
         }
         // lbls
         else if("lbls" == fld.key) {
+            $z.setUndefined(fld, "title", "i18n:thing.key.lbls");
+            $z.setUndefined(fld, "tip", "i18n:thing.key.lbls_tip");
             $z.extend(fld, {
-                title : "i18n:thing.key.lbls",
-                tip   : "i18n:thing.key.lbls_tip",
                 type : "object",
                 virtual : false,
                 editAs : "input",
@@ -418,8 +438,8 @@ return ZUI.def("app.wn.thing", {
         }
         // thumb
         else if("thumb" == fld.key) {
+            $z.setUndefined(fld, "title", "i18n:thing.key.thumb");
             $z.extend(fld, {
-                title : "i18n:thing.key.thumb",
                 hide : true,
                 type : "string",
                 beforeSetData : function(o){
@@ -428,6 +448,62 @@ return ZUI.def("app.wn.thing", {
                 editAs : "image",
                 uiConf : {
                     dataType : "idph"
+                }
+            });
+        }
+        // th_site
+        else if("th_site" == fld.key) {
+            $z.setUndefined(fld, "title", "i18n:thing.key.th_site");
+            $z.extend(fld, {
+                hide : true,
+                type   : "object",
+                editAs : "droplist",
+                uiConf : {
+                    multi : true,
+                    items : 'hmaker sites -key nm',
+                    icon  : '<i class="fa fa-sitemap"></i>',
+                    text  : function(it, i, UI) {
+                        return "all" == it
+                                    ? UI.msg("thing.th_site_all")
+                                    : it;
+                    },
+                    value : function(it) {return it;},
+                    fixItems : ["all"]
+                },
+                escapeHtml : false,
+                display : function(o) {
+                    var html = "";
+                    if(o.th_site && o.th_site.length > 0) {
+                        for(var i=0;i<o.th_site.length;i++){
+                            var it = o.th_site[i];
+                            html += '<span class="th-site">';
+                            html += "all" == it
+                                        ? this.msg("thing.th_site_all")
+                                        : it;
+                            html += '</span>';
+                        }
+                        return html;
+                    }else{
+                        html = '<em>{{none}}</em>';
+                    }
+                    return this.compactHTML(html);
+                }
+            });
+        }
+        // th_pub
+        else if("th_pub" == fld.key) {
+            $z.setUndefined(fld, "title", "i18n:thing.key.th_pub");
+            $z.setUndefined(fld, "dft", false);
+            $z.extend(fld, {
+                title : "发布",
+                type  : "boolean",
+                editAs : "toggle",
+                escapeHtml : false,
+                display : function(o){
+                    if(o.th_pub){
+                        return '<span class="th-pub" pub="yes"><i class="zmdi zmdi-badge-check"></i></span>';
+                    }
+                    return '<span class="th-pub" pub="no"><i class="zmdi zmdi-edit"></i></span>';
                 }
             });
         }

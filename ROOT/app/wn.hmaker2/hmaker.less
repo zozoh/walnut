@@ -133,7 +133,12 @@
                 > h4.hm-ibtn:hover {background: @ch1_b; color:@ch1_f;}
                 > ul {
                     line-height: @panTH; font-size: @f3; 
-                    > li {
+                    > li.sep {
+                        height: 1px; line-height: 1px;
+                        overflow: hidden; background: @cborder1;
+                        margin:@d2 0;
+                    }
+                    > li[ctype] {
                         cursor: pointer; position: relative;
                         .hmpg-ibar-thumb {
                             white-space: nowrap;
@@ -151,7 +156,7 @@
                             > div {
                                 @flex(); flex-direction:row-reverse;
                                 header {
-                                    font-size:@f1; padding:@d3;  
+                                    font-size:@f2; padding:@d3;  
                                     max-width:@iboxWh;
                                     b {
                                         color:@c3; display:block;
@@ -212,7 +217,7 @@
                     white-space: nowrap; line-height: @panTH - 1; 
                     .hm-combar-item { 
                         display: inline-block; padding:0 @d2;
-                        color:@c2; font-size:@f0; opacity: 0.8;
+                        color:@c2; font-size:@f2; opacity: 0.8;
                         > * {
                             vertical-align: middle; display: inline-block;
                         }

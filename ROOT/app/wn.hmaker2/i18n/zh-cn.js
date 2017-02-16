@@ -252,7 +252,7 @@ define({
             "dynamic" : {
                 "name"  : "动态数据",
                 "tip"   : "指定从某 [数据接口] 获取数据，并可以定制显示方式",
-                "icon"  : '<i class="zmdi zmdi-hourglass"></i>',
+                "icon"  : '<i class="fa fa-cube"></i>',
                 "api"          : "数据接口",
                 "api_refresh"  : "刷新数据接口列表",
                 "params"       : "接口参数",
@@ -269,7 +269,28 @@ define({
                 "api_loading"  : '<i class="zmdi zmdi-rotate-right zmdi-hc-spin"></i> 正在从接口加载数据 ...',
                 "api_empty"    : '<i class="zmdi zmdi-alert-circle-o"></i> 厄...没有数据',
                 "api_lack_params" : '<i class="zmdi zmdi-alert-circle"></i> 动态参数没有提供默认数据，不能预览显示，只能发布以后查看效果',
+                "need_params"  : '<i class="zmdi zmdi-alert-triangle"></i> 您还有参数未设值',
                 "reload" : "重新从接口加载数据，以便查看显示效果",
+            },
+            "keyword" : {
+                "name"  : "关键字",
+                "tip"   : "与 '动态数据' 控件联合使用，可以为数据接口提供关键字过滤参数",
+                "icon"  : '<i class="zmdi zmdi-keyboard"></i>',
+            },
+            "filter" : {
+                "name"  : "过滤器",
+                "tip"   : "与 '动态数据' 控件联合使用，可以为数据接口提供高级条件过滤参数",
+                "icon"  : '<i class="fa fa-filter"></i>',
+            },
+            "sorter" : {
+                "name"  : "排序器",
+                "tip"   : "与 '动态数据' 控件联合使用，可以为数据接口提供排序参数",
+                "icon"  : '<i class="zmdi zmdi-sort-asc"></i>',
+            },
+            "pager" : {
+                "name"  : "分页器",
+                "tip"   : "与 '动态数据' 控件联合使用，可以为数据接口提供分页参数",
+                "icon"  : '<i class="zmdi zmdi-n-3-square"></i>',
             },
             "objlist" : {
                 "name"  : "动态数据列表",

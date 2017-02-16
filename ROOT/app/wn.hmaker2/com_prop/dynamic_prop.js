@@ -39,7 +39,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             parent : UI,
             gasketName : "api",
             emptyItem : {},
-            items : "obj -mine -match \"api_return:'^(obj|list|page)$'\" -json -l",
+            items : "obj -mine -match \"api_return:'^(obj|list|page)$'\" -json -l -sort 'pid:1,nm:1'",
             icon  : '<i class="fa fa-plug"></i>',
             text  : null,
             value : function(o){
@@ -243,28 +243,33 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             var val = setting[key];
 
             // 默认的字段
+            var fld_required = false;
             var fld_type = "input";
             var fld_arg  = undefined;
             var fld_tip  = undefined;
 
             // 分析一下
-            var m = /^@(input|thing|sites|com)(:([0-9a-zA-Z]*))?(#(.*))?$/.exec(val);
+            var m = /^([*])?@(input|thingset|sites|com)(:([0-9a-zA-Z]*))?(#(.*))?$/.exec(val);
             // 指定了类型
             if(m) {
-                fld_type = m[1];
-                fld_arg  = m[3];
-                fld_tip  = m[5];
+                fld_required = m[1] ? true : false;
+                fld_type = m[2];
+                fld_arg  = m[4];
+                fld_tip  = m[6];
             }
 
             // 准备字段
             var fld = {
                 key   : key,
                 title : key,
-                tip   : fld_tip
+                tip   : fld_tip,
+                required : fld_required
             };
 
-            // 字段: thing
-            if("thing" == fld_type) {
+            console.log(fld)
+
+            // 字段: thingset
+            if("thingset" == fld_type) {
                 fld.editAs = "droplist";
                 fld.uiConf = {
                     emptyItem : {},

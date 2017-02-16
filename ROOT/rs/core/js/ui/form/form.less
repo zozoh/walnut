@@ -75,10 +75,13 @@
     .fft-icon {margin-right:@d2;}
     .fft-text {}
 }
-.ff-txt[required] {color:@cf0; font-weight: bolder;}
-.ff-txt[required]:before {
-    display: inline; content: "*"; font-weight: bolder;
-    position: absolute; margin-left:-@d3; color:@c6;
+.ff-txt[required] {
+    .fft-text {
+        color:@c6; font-weight: bold;
+    }
+    .fft-text:before {
+        display: inline; content: "*"; margin:0 @d0 0 0;
+    }
 }
 
 .ff-val {padding:@d2;}

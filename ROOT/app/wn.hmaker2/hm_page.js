@@ -59,6 +59,7 @@ var html = `
                 text="hmaker.com.rows.name" tip="hmaker.com.rows.tip"></li>
             <li ctype="columns" icon="hmaker.com.columns.icon" 
                 text="hmaker.com.columns.name" tip="hmaker.com.columns.tip"></li>
+            <li class="sep"></li>
             <li ctype="image" icon="hmaker.com.image.icon" tag-name="A"
                 text="hmaker.com.image.name" tip="hmaker.com.image.tip"></li>
             <li ctype="navmenu" icon="hmaker.com.navmenu.icon" 
@@ -67,12 +68,22 @@ var html = `
                 text="hmaker.com.text.name" tip="hmaker.com.text.tip"></li>
             <li ctype="htmlcode" icon="hmaker.com.htmlcode.icon"
                 text="hmaker.com.htmlcode.name" tip="hmaker.com.htmlcode.tip"></li>
+            <li class="sep"></li>
             <li ctype="dynamic" icon="hmaker.com.dynamic.icon"
                 text="hmaker.com.dynamic.name" tip="hmaker.com.dynamic.tip"></li>
+            <li ctype="keyword" icon="hmaker.com.keyword.icon"
+                text="hmaker.com.keyword.name" tip="hmaker.com.keyword.tip"></li>
+            <li ctype="filter" icon="hmaker.com.filter.icon"
+                text="hmaker.com.filter.name" tip="hmaker.com.filter.tip"></li>
+            <li ctype="sorter" icon="hmaker.com.sorter.icon"
+                text="hmaker.com.sorter.name" tip="hmaker.com.sorter.tip"></li>
+            <li ctype="pager" icon="hmaker.com.pager.icon"
+                text="hmaker.com.pager.name" tip="hmaker.com.pager.tip"></li>
+            <li class="sep"></li>
             <li ctype="objlist" icon="hmaker.com.objlist.icon" 
                 text="hmaker.com.objlist.name" tip="hmaker.com.objlist.tip"></li>
-            <li ctype="objshow" icon="hmaker.com.objshow.icon" 
-                text="hmaker.com.objshow.name" tip="hmaker.com.objshow.tip"></li>
+            <!--li ctype="objshow" icon="hmaker.com.objshow.icon" 
+                text="hmaker.com.objshow.name" tip="hmaker.com.objshow.tip"></li-->
             <li ctype="libitem" icon="hmaker.lib.icon" 
                 text="hmaker.lib.item" tip="hmaker.lib.tip"></li>
         </ul>
@@ -992,7 +1003,7 @@ return ZUI.def("app.wn.hmaker_page", {
         // 更新 ibar
         var jiBar = UI.arena.find(".hmpg-ibar");
         var jiUl  = jiBar.find(">.hm-W>ul");
-        jiUl.children("li").each(function(){
+        jiUl.children("li[ctype]").each(function(){
             var jLi  = $(this).empty();
             var icon = UI.msg(jLi.attr("icon"));
             var text = UI.msg(jLi.attr("text"));

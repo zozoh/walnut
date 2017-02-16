@@ -19,16 +19,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
     //...............................................................
     events : {
         "click > .hm-com-W > .dynamic-reload" : function(){
-            var UI = this;
-            var jW = UI.$el.find(".hm-com-W");
-
-            // 加载前固定高度
-            jW.css("height", jW.outerHeight());
-
-            // 加载后移除固定的高度
-            UI.__reload_data(function(){
-                jW.css("height", "");
-            });
+            this.__reload_data();
         }
     },
     //...............................................................
@@ -41,7 +32,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
     //...............................................................
     paint : function(com) {
         var UI = this;
-        var jW = UI.$el.find(".hm-com-W")
+        var jW = UI.$el.find(">.hm-com-W")
 
         // 得到数据
         com = com || UI.getData();
@@ -56,6 +47,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
         // 采用旧数据
         if(UI.__data_cache && api_finger == UI.__api_finger) {
+            UI.__clean_assists();
             UI.__draw_data(UI.__data_cache, com);
         }
         // 重新加载
@@ -67,7 +59,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
     //...............................................................
     __reload_data : function(com, callback){
         var UI = this;
-        var jData = UI.arena.children("section");
+        var jData = UI.arena.children("section").empty();
 
         // 支持直接给入 callback 的方式
         if(_.isFunction(com)) {
@@ -77,6 +69,44 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
         // 确保有数据
         com = com || UI.getData();
+
+        // 清除动态标志
+        UI.__clean_assists();
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 确保有数据接口        
+        var oApi = com.api ? Wn.fetch("~/.regapi/api" + com.api)
+                           : null;
+        if(!oApi) {
+            $('<aside class="dynamic-msg" m="warn">')
+                .html(UI.msg("hmaker.com.dynamic.noapi"))
+                    .appendTo(jData);
+            return;
+        }
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 检查一下是否 required 的字段都已经被设置了
+        if(!_.isEmpty(oApi.params)) {
+            var need_params = [];
+            for(var key in oApi.params) {
+                var pa = oApi.params[key];
+                if(/^[*]/.test(pa)){
+                    var val = com.params ? com.params[key] : undefined;
+                    if(_.isUndefined(val)
+                        || _.isNull(val)
+                        || (_.isString(val) && $.trim(val).length == 0)){
+                        need_params.push(key);
+                    }
+                }
+            }
+            if(need_params.length > 0) {
+                $('<aside class="dynamic-msg" m="warn">')
+                    .html(UI.msg("hmaker.com.dynamic.need_params")
+                           + " : " + need_params.join(', '))
+                        .appendTo(jData);
+                return;
+            }
+        }
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 记录一下接口的特征，以防止重复加载
@@ -110,7 +140,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
             //console.log(key, val, v2);
 
             // 请求参数
-            m = /^@([\w\d_-]+)(<(.+)>)?$/.exec(v2);
+            m = /^@([\w\d_-]+)[ \t]*(<[ \t]*([^ \t]*)[ \t]*>)?[ \t]*$/.exec(v2);
             if(m) {
                 dynamicKeys.push(key);
                 isLackParams = isLackParams || !m[3];
@@ -135,22 +165,25 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 显示正在加载
-        $('<div class="dynamic-msg" m="api-loading">')
+        $('<aside class="dynamic-msg" m="api-loading">')
             .html(UI.msg("hmaker.com.dynamic.api_loading"))
-                .appendTo(jData.empty());
+                .appendTo(jData);
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 向服务器请求
         var method = com.api_method == "POST" ? "post" : "get";
         $[method](apiUrl, params, function(re){
+            // 清除正在加载的显示
+            jData.empty();
+            
             // 请求成功后记录接口特征
             UI.__api_finger = api_finger;
 
             // api 返回错误
             if(/^e[.]/.test(re)){
-                $('<div class="dynamic-msg" m="api-error">')
+                $('<aside class="dynamic-msg" m="api-error">')
                     .html('<i class="zmdi zmdi-alert-triangle"></i>' + re)
-                        .appendTo(jData.empty());
+                        .appendTo(jData);
                 return;
             }
 
@@ -166,9 +199,9 @@ return ZUI.def("app.wn.hm_com_dynamic", {
             }
             // 接口调用错误
             catch (errMsg) {
-                $('<div class="dynamic-msg" m="api-error">')
+                $('<aside class="dynamic-msg" m="api-error">')
                     .html('<i class="zmdi zmdi-alert-circle"></i>' + errMsg)
-                        .appendTo(jData.empty());
+                        .appendTo(jData);
                 throw errMsg;
             }
             // 最后要调用回调
@@ -183,7 +216,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
     //...............................................................
     __draw_data : function(obj, com) {
         var UI = this;
-        var jW = UI.$el.find(".hm-com-W");
+        var jW = UI.$el.find(">.hm-com-W");
         var jData = UI.arena.children("section").empty();
 
         // 确保有可绘制的数据
@@ -197,7 +230,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
         // 动态参数，但是缺少默认值，那么就没有足够的数据绘制了，显示一个信息吧
         if(UI.isDynamicButLackParams()) {
-            $('<div class="dynamic-msg" m="api-lack-params">')
+            $('<aside class="dynamic-msg" m="api-lack-params">')
                 .html(UI.msg("hmaker.com.dynamic.api_lack_params"))
                     .appendTo(jData);
             return;
@@ -207,7 +240,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
         // 如果木有数据，就显示空
         if(!obj || (_.isArray(obj) && obj.length == 0)) {
-            $('<div class="dynamic-msg" m="api-no-data">')
+            $('<aside class="dynamic-msg" m="api-no-data">')
                 .html(UI.msg("hmaker.com.dynamic.api_empty"))
                     .appendTo(jData);
             return;
@@ -229,7 +262,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
         // 确保设置模板皮肤
         if(skinSelector)
-            jData.addClass(skinSelector);
+            jData.prop("className", skinSelector);
 
         // 调用模板的 jQuery 插件进行绘制
         jData[tmplInfo.name](obj, tmplOptions);
@@ -242,22 +275,22 @@ return ZUI.def("app.wn.hm_com_dynamic", {
     },
     //...............................................................
     __draw_dynamic_keys : function(jW) {
-        if(jW.find(">.dynamic-keys").length > 0)
+        var dkeys = this.__dynamicKeys;
+
+        if(!_.isArray(dkeys) || dkeys.length == 0)
             return;
-            
-        var dynamicKeys = this.__dynamicKeys;
-        
-        if(_.isArray(dynamicKeys) && dynamicKeys.length > 0) {
-            var jUl = $('<div class="dynamic-keys"><ul></ul></div>')
-                        .appendTo(jW)
-                            .find(">ul");
-            for(var dKey of dynamicKeys)
-                $('<li>').text(dKey).appendTo(jUl);
+
+        var jUl = $('<div class="dynamic-keys"><ul></ul></div>')
+                    .appendTo(jW)
+                        .find(">ul");
+        for(var i=0; i<dkeys.length; i++) {
+            $('<li>').text(dkeys[i]).appendTo(jUl);
         }
     },
     //...............................................................
     __draw_dynamic_reload : function(jW) {
-        if(jW.find("> .dynamic-reload").length > 0)
+        // 有未设置默认值的动态参数，则没必要绘制重载按钮
+        if(this.isDynamicButLackParams())
             return;
             
         $('<div class="dynamic-reload"><b><i class="fa fa-refresh"></i></b></div>')
@@ -269,13 +302,20 @@ return ZUI.def("app.wn.hm_com_dynamic", {
             .appendTo(jW);
     },
     //...............................................................
+    // 清除 reload 按钮和动态参数标志
+    __clean_assists : function() {
+        var UI = this;
+        var jW = UI.$el.find(">.hm-com-W");
+        jW.find(">.dynamic-keys, >.dynamic-reload").remove();
+    },
+    //...............................................................
     __check_mode : function(com) {
         var UI = this;
         var jData = UI.arena.find(">section").empty();
 
         // 确保有数据接口
         if(!com.api) {
-            $('<div class="dynamic-msg" m="warn">')
+            $('<aside class="dynamic-msg" m="warn">')
                 .html(UI.msg("hmaker.com.dynamic.noapi"))
                     .appendTo(jData);
             return false;
@@ -283,7 +323,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
         // 确保有显示模板
         if(!com.template) {
-            $('<div class="dynamic-msg" m="warn">')
+            $('<aside class="dynamic-msg" m="warn">')
                 .html(UI.msg("hmaker.com.dynamic.notemplate"))
                     .appendTo(jData);
             return false;
