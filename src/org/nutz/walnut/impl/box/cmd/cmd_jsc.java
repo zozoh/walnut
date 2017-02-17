@@ -34,11 +34,12 @@ public class cmd_jsc extends JvmExecutor {
     private static ScriptEngineManager engineManager = new ScriptEngineManager();
 
     private static String dft_engine_nm = null;
-    
+
     protected Map<String, ScriptEngine> engines = new HashMap<>();
-    
+
     private static final Log log = Logs.get();
 
+    @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         log.info("init exec");
         // 分析参数
@@ -106,8 +107,7 @@ public class cmd_jsc extends JvmExecutor {
             String str = params.get("f");
             WnObj o = Wn.checkObj(sys, str);
             jsStr = sys.io.readText(o);
-        }
-        else if (params.has("cmd")) {
+        } else if (params.has("cmd")) {
             jsStr = params.get("cmd");
         }
         // 用输入的参数吧
@@ -143,6 +143,7 @@ public class cmd_jsc extends JvmExecutor {
         for (Entry<String, Object> en : vars.entrySet()) {
             bindings.put(en.getKey(), en.getValue());
         }
+        bindings.put("wc", Wn.WC());
         bindings.put("sys", new cmd_jsc_api(sys));
         bindings.put("args", params.vals);
         bindings.put("log", log);
