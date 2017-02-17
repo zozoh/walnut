@@ -5,23 +5,21 @@ define(function (require, exports, module) {
 
     function init() {
         var mainUI = new SearchUI({
-            css : "theme/app/wn.rootlogin/main.css",
+            css: "theme/app/wn.rootlogin/main.css",
             $pel: $(document.body),
             exec: Wn.exec,
             app: Wn.app(),
             menu: [{
                 text: "仅显示有别名",
                 type: "boolean",
-                on: false,
+                on: true,
                 icon_on: '<i class="fa fa-toggle-on"></i>',
                 icon_off: '<i class="fa fa-toggle-off"></i>',
                 on_change: function (val, mi) {
                     console.log('别名开关，' + val);
                     var match = {d0: "sys", d1: "usr"};
                     if (val) {
-                        var k = "\\" + "$ne";
-                        match.alias = {};
-                        match.alias[k] = null;
+                        match.alias = "!";
                     }
                     mainUI.uiFilter.setData({
                         match: match
@@ -98,7 +96,7 @@ define(function (require, exports, module) {
             }
         }).render(function () {
             this.uiFilter.setData({
-                match: {d0: "sys", d1: "usr", alias:"!"}
+                match: {d0: "sys", d1: "usr", alias: "!"}
             });
             this.uiPager.setData();
             this.refresh();
