@@ -12,6 +12,9 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.Stopwatch;
+import org.nutz.lang.Strings;
+import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -148,12 +151,30 @@ public class cmd_jsc extends JvmExecutor {
         bindings.put("args", params.vals);
         bindings.put("log", log);
         bindings.put("walnut_js", "classpath:org/nutz/walnut/impl/box/cmd/jsc/jsc_walnut.js");
+        bindings.put("lodash_js", "classpath:org/nutz/walnut/impl/box/cmd/jsc/lodash.core.min.js");
 
+        // 默认加载的几个js
+        // TODO 需要测试加载默认js的时间，是否影响性能等问题
+        Stopwatch stopwatch = null;
+        if (debug) {
+            stopwatch = Stopwatch.begin();
+        }
+        String jsPreload = "";
+        jsPreload += "load(walnut_js);\n";
+        // jsPreload += "load(lodash_js);\n";
+        if (!Strings.isBlank(jsPreload)) {
+            jsStr = jsPreload + jsStr;
+        }
         // 执行
         if (debug)
-            sys.out.println("js=" + jsStr + "\n");
+            sys.out.println("js=\n" + jsStr + "\n");
         Object obj = ((Compilable) engine).compile(jsStr).eval(bindings);
-        if (debug)
+        if (debug) {
+            stopwatch.stop();
+            sys.out.printlnf("runTime=%dms(%s)",
+                             stopwatch.getDuration(),
+                             Times.fromMillis(stopwatch.getDuration()));
             sys.out.println("re=" + obj);
+        }
     }
 }
