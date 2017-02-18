@@ -522,6 +522,50 @@ body {
     cursor: default;
 }
 //............................................................
+// 过滤器对象
+.hmc-filter {
+    padding:@d3;
+    > .empty {
+        padding:@d3; color:@c2; font-size:@f3; text-align: center;
+        > i {margin-right: @d2;}
+    }
+    .hmcf-fld {
+        @flex(); border-bottom:1px dashed #DDD;
+        > * {padding:@d2; margin: 0;}
+        .fld-info {
+            flex:0 0 auto; min-width: 1rem; 
+            em {
+                cursor: pointer; font-style: normal; color:#AAA; 
+                margin:@d2 0; display: inline-block;
+            }
+            em:after {display: inline; content: ":";}
+        }
+        ul {
+            flex:1 1 auto; list-style: none;
+            li {
+                float: left; padding:@d2; margin:0 @d0; cursor: pointer;
+            }
+        }
+        ul:after {@clr();}
+        .fld-multi {
+            flex:0 0 auto; cursor: pointer;
+            b {font-weight: normal;}
+        }
+    }
+    .hmcf-fld:last-child {border:0;}
+    .hmcf-folder {
+        border-top:1px dashed #DDD;
+    }
+    .hmcf-exts {
+        text-align: center;
+        b {
+            display: inline-block; padding:@d0 @d4; cursor: pointer;
+            border:1px solid #CCC; 
+        }
+    }
+
+}
+//............................................................
 // 分页条对象
 .hmc-pager {
     cursor: default; padding: @d1;

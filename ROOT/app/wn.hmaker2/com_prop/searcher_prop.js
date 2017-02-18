@@ -6,9 +6,7 @@ $z.declare([
     'ui/form/form',
 ], function(ZUI, Wn, HmMethods, FormUI){
 //==============================================
-var html = `
-<div class="ui-arena hmc-searcher-prop" ui-fitparent="yes" ui-gasket="form">
-</div>`;
+var html = '<div class="ui-arena hmc-searcher-prop" ui-fitparent="yes" ui-gasket="form"></div>';
 //==============================================
 return ZUI.def("app.wn.hm_com_searcher_prop", HmMethods({
     dom  : html,

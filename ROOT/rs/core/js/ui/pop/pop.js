@@ -106,11 +106,11 @@ module.exports = {
         });
     },
     //...............................................................
-    // 弹出一个浏览器界面
     // 打开一个文本编辑器（弹出），接受的参数格式为:
     /*
     {
         title       : "i18n:xxx"    // 对话框标题
+        arenaClass  : "xxx",        // 对话框主题的类选择器
         width       : 900           // 对话框宽度
         height      : "90%"         // 对话框高度
         i18n        : i18n          // 对话框控件组的 i18n 设定
@@ -134,6 +134,7 @@ module.exports = {
             dom : 'ui/pop/pop.html',
             css : 'ui/pop/pop.css',
             i18n : opt.i18n,
+            arenaClass : opt.arenaClass,
             width  : opt.width,
             height : opt.height,
             events : {
@@ -156,6 +157,67 @@ module.exports = {
         }).render(function(){
             this.arena.find(".pm-title").html(this.text(opt.title));
             this.body.setData(opt.data);
+        });
+    },
+    //...............................................................
+    // 打开一个表单器（弹出），接受的参数格式为:
+    /*
+    {
+        title       : "i18n:xxx"    // 对话框标题
+        arenaClass  : "xxx",        // 对话框主题的类选择器
+        width       : 900           // 对话框宽度
+        height      : "90%"         // 对话框高度
+        escape      : false         // 对话框支持 Esc 关闭，默认 false
+        i18n        : i18n          // 对话框控件组的 i18n 设定
+        form        : {..}          // 表单配置项
+        data        : 要编辑的值
+        after       : 回调函数, 设置完数据会调用 {uiForm}after(data)
+        callback    : 回调函数, 按确认键 {uiForm}callback(data)
+        context     : MaskUI    // 回调的上下文，默认是 FormUI
+    }
+    */
+    openFormPanel : function(opt){
+        opt = opt || {};
+        opt.form = opt.form || {};
+
+        // 填充默认值
+        $z.setUndefined(opt, "width", 640);
+        $z.setUndefined(opt, "height", "80%");
+        $z.setUndefined(opt, "escape", false);
+        $z.setUndefined(opt, "title", 'i18n:edit');
+        $z.setUndefined(opt.form, "uiWidth", 'all');
+
+        // 打开编辑器
+        new MaskUI({
+            dom : 'ui/pop/pop.html',
+            css : 'ui/pop/pop.css',
+            i18n : opt.i18n,
+            arenaClass : opt.arenaClass,
+            width  : opt.width,
+            height : opt.height,
+            escape : opt.escape,
+            events : {
+                "click .pm-btn-ok" : function(){
+                    var context = opt.context || this.body;
+                    var data = this.body.getData();
+                    $z.invoke(opt, "callback", [data], context);
+                    this.close();
+                },
+                "click .pm-btn-cancel" : function(){
+                    this.close();
+                }
+            }, 
+            setup : {
+                uiType : 'ui/form/form',
+                uiConf : opt.form
+            }
+        }).render(function(){
+            this.arena.find(".pm-title").html(this.text(opt.title));
+            this.body.setData(opt.data || {});
+
+            // 调用回调
+            var context = opt.context || this.body;
+            $z.invoke(opt, "after", [opt.data || {}], context);
         });
     },
     //...............................................................

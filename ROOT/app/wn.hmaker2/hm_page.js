@@ -1081,7 +1081,7 @@ return ZUI.def("app.wn.hmaker_page", {
             parent : UI,
             gasketName : "pagebar",
             setup : [{
-                icon : '<i class="zmdi zmdi-upload"></i>',
+                icon : '<i class="fa fa-sign-out"></i>',
                 tip  : 'i18n:hmaker.page.move_to_body',
                 handler : function() {
                     var uiCom = UI.getActivedCom();
@@ -1091,7 +1091,7 @@ return ZUI.def("app.wn.hmaker_page", {
                     }
                 }
             },{
-                icon : '<i class="zmdi zmdi-long-arrow-left"></i>',
+                icon : '<i class="zmdi zmdi-arrow-right-top zmdi-hc-rotate-270"></i>',
                 tip  : 'i18n:hmaker.page.move_before',
                 handler : function() {
                     var uiCom = UI.getActivedCom();
@@ -1104,7 +1104,7 @@ return ZUI.def("app.wn.hmaker_page", {
                     }
                 }
             },{
-                icon : '<i class="zmdi zmdi-long-arrow-right"></i>',
+                icon : '<i class="zmdi zmdi-arrow-left-bottom zmdi-hc-rotate-270"></i>',
                 tip  : 'i18n:hmaker.page.move_after',
                 handler : function() {
                     var uiCom = UI.getActivedCom();

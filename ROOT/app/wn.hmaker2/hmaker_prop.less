@@ -273,7 +273,7 @@
 //............................................................
 // 重新设置 form 表单的间距
 //............................................................
-.hm-prop {
+.hm-prop-form {
     .form {
         padding:0 @d2; font-size: @f2;
         .fg-title {
@@ -943,6 +943,143 @@
                     > .form-fld:last-child {border:0;}
                 }
             }
+        }
+    }
+}
+
+//............................................................
+// 控件: filter
+@fltPad : @d0;
+@fltHH  : 32px;
+.hmc-filter-prop {
+    position: relative; padding:@fltPad+@fltHH 0 0 0;
+    > aside {
+        position: absolute; top:@fltPad; left:0; right:0;
+        height: @fltHH;
+    }
+    > section {
+        width:100%; height:100%; overflow: auto; 
+        padding: @d2 0; font-size:@f2; font-family: @f_fixed;
+        > div.empty {
+            padding: @d4; text-align: center; color:@c2;
+            > i {display: block; padding:@d3; font-size:@f6;}
+        }
+        > div.flt-fld {
+            padding:@d2; border:1px dotted @cborder1; 
+            cursor: default; position: relative; margin-bottom:@d0;
+            > ul.fld-info {
+                padding:@d1 40px @d1 @d1;
+                > li {float:left; padding:0 @d1;}
+                > [key="name"]:after {display: inline; content: ":";}
+                > [key="name"] {color:@c5;}
+                > [key="text"] {flex: 1 1 auto; color:@c7;}
+                > [key="multi"], > [key="hide"]{ @noselect();
+                    float:right;
+                    padding:0 1px 0 0; opacity: 0.6;
+                    b {
+                        display: block; opacity: 0.6; color:@c2; cursor: pointer;
+                        font-weight: normal; font-size:@f1; padding:@d0 @d2;
+                        border-radius: @d0; background: @ch1_b; color:@ch1_f;
+                    }
+                }
+            }
+            > ul.fld-info:after{@clr();}
+            > ul.fld-info[is-multi] > [key="multi"] b,
+            > ul.fld-info[is-hide]  > [key="hide"]  b
+            {
+                opacity: 1; background: @chx_b; color:@chx_f;
+            }
+            > .fld-edit {
+                position: absolute; top:0; right: 0; padding:@d2; display: none;
+                a {color:@clink; text-decoration: none; cursor: pointer;}
+                a:hover {color:@clink_hover; text-decoration: underline;}
+            }
+            > .fld-itnb {
+                position: absolute; top:0; right: 0; padding:@d1; margin:@d1;
+                border-radius: @d0; border:2px solid @cborder0; color:@c2;
+            }
+            > ul.fld-items {
+                padding:@d1 0 @d1 @d3; display: none;
+                > li { @noselect();
+                    position: relative; transition:0.2s;
+                    padding:@d1 50px @d1 @d1; margin-bottom:@d0; 
+                    border:1px dotted @cborder1; border-left:@d2 solid @cborder1;
+                    > dl {
+                        padding:@d0; margin:1px; font-size: @f1; cursor: pointer;
+                        > * {padding:@d0; margin:0; float: left;}
+                        > dt {color:@c5; margin-right: @d1; font-size: @f1;}
+                        > dt:after {display:inline; content:":";}
+                        > dd {color:@c4; }
+                    }
+                    > dl:after {@clr();}
+                    > span {
+                        display: none; padding:@d2 @d2 @d2 0; width: 48px;
+                        position: absolute; right:0; top:0;
+                        > b {
+                            display: block; flex:1 1 auto; cursor: pointer;
+                            padding:@d1; font-weight: normal;
+                            @flex(); justify-content:center; align-items: center;
+                            i {transition: 0.2s;}
+                        }
+                    }
+                }
+                > aside {@noselect();
+                    border:1px dotted @cborder0; 
+                    cursor: pointer; padding:@d2; text-align: center;
+                    margin:@d2 @d5 0 @d5; font-size: @f1;
+                    > i {margin-right: @d1; transition:0.3s;}
+                }
+            }
+        }
+        > div.flt-fld[current] {
+            border:1px solid @c0; background: @cb0;
+            > ul.fld-info {
+                > [key="multi"], > [key="hide"]{
+                    opacity: 1;
+                    b {opacity: 1;}
+                }
+            }
+            > .fld-edit { display: block; }
+            > .fld-itnb { display: none; }
+            > ul.fld-items {
+                display: block;
+                > li {
+                    border-color:@c0;
+                    > dl:hover > *{text-decoration: underline; color:@clink_hover;}
+                    > span {
+                        @flex();
+                        > b:hover {
+                            color:@ch0_f; background: @ch0_b;
+                        }
+                        > b[a="del"]:hover  i{transform: rotate(360deg) scale(1.2);}
+                    }
+                }
+                > aside:hover {
+                    color: @c0; border:1px dashed @c0;
+                    > i {margin-right: @d4; transform:scale(1.2);}
+                }
+            }
+        }
+    }
+}
+.hmc-filter-pop-form {
+    .form {
+        padding:0; background: @cb1; 
+        > .form-body > .form-body-wrapper > .form-group > .fg-fields {
+            padding : @d2 @d0; 
+            > .form-fld {
+                padding:@d2 0; border-bottom:1px dotted @cborder1;
+                > .ff-txt {
+                    padding:@d2+1px @d2 @d2 @d4;
+                    .fft-text:after{display:inline; content:":"}
+                }
+                > .ff-val {
+                    padding:0;
+                    input,textarea {font-family: @f_fixed;}
+                    .com-square-drop {padding:@d1 0;}
+                }
+            }
+            > .form-fld:last-child {border:0;}
         }
     }
 }

@@ -26,7 +26,7 @@ var html = function(){/*
             <li class="hmpn-pin"><i class="fa fa-thumb-tack"></i></li>
         </ul>
     </header>
-    <section>
+    <section class="hm-prop-form">
         <div class="hmpp-con hmpp-con-folder"  ui-gasket="folder"></div>
         <div class="hmpp-con hmpp-con-lib"     ui-gasket="lib"></div>
         <div class="hmpp-con hmpp-con-page"    ui-gasket="page"></div>

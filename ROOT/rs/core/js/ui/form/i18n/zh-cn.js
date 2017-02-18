@@ -5,6 +5,16 @@ define({
             "noexists" : "不存在的对象",
             "edit_link_tt" : "编辑链接行为",
         },
+        "input" : {
+            "assist" : '设置',
+        },
+        "range" : {
+            "involve" : "包括",
+            "left"  : "左值",
+            "right" : "右值",
+            "empty" : "未设置范围",
+            "number" : "输入数字",
+        },
         "checklist" : {
             "all"     : "全",
             "reverse" : "反",

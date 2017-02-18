@@ -1,7 +1,7 @@
 (function($z){
 $z.declare([
     'zui',
-    'ui/form/support/form_c_methods'
+    'ui/form/support/form_ctrl'
 ], function(ZUI, FormMethods){
 //==============================================
 var html = function(){/*
@@ -19,9 +19,11 @@ return ZUI.def("ui.form_com_text", {
     },
     //...............................................................
     events : {
+        // 输入内容修改
         "change textarea" : function(){
             this.__on_change();
         },
+        // 回车确认修改
         "keydown textarea" : function(e){
             if(13 == e.which && (e.metaKey || e.ctrlKey)) {
                 this.__on_change();
@@ -40,24 +42,19 @@ return ZUI.def("ui.form_com_text", {
         }
     },
     //...............................................................
-    getData : function(){
+    _get_data : function(){
         var UI  = this;
         var opt = UI.options;
-        return UI.ui_format_data(function(opt){
-            var val = UI.arena.find("textarea").val();
-            if(opt.trimData)
-                val = $.trim(val);
-            return val || null;
-        });
+        var val = UI.arena.find("textarea").val();
+        if(opt.trimData)
+            val = $.trim(val);
+        return val || null;
     },
     //...............................................................
-    setData : function(val, jso){
-        var UI = this;
-        this.ui_parse_data(val, function(s){
-            if((_.isNumber(s) && isNaN(s)) || _.isUndefined(s) || _.isNull(s))
-                s = "";
-            UI.arena.find("textarea").val(s);
-        });
+    _set_data : function(s, jso){
+        if((_.isNumber(s) && isNaN(s)) || _.isUndefined(s) || _.isNull(s))
+            s = "";
+        this.arena.find("textarea").val(s);
     },
     //...............................................................
     resize : function(){

@@ -131,7 +131,7 @@ var commands = {
     },
     active : function(d){
         if(d){
-            var d2 = new Date(d);
+            var d2 = $z.parseDate(d);
             d2.setHours(0,0,0,0);
             do_active($root(this), d2);
         }
