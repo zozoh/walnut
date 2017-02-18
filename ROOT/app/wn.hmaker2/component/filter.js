@@ -18,6 +18,12 @@ return ZUI.def("app.wn.hm_com_filter", {
     events : {
         "click .hmcf-exts b" : function(){
             var UI = this;
+
+            // 在激活的组件内容才生效
+            if(!UI.isActived())
+                return;
+
+            // 切换折叠状态
             UI.__is_folder_show = !UI.__is_folder_show;
             UI.__sync_folder();
         }

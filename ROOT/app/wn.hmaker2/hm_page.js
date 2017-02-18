@@ -1081,7 +1081,7 @@ return ZUI.def("app.wn.hmaker_page", {
             parent : UI,
             gasketName : "pagebar",
             setup : [{
-                icon : '<i class="fa fa-sign-out"></i>',
+                icon : '<i class="fa fa-sign-out zmdi-hc-rotate-180"></i>',
                 tip  : 'i18n:hmaker.page.move_to_body',
                 handler : function() {
                     var uiCom = UI.getActivedCom();
