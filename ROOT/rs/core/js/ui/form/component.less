@@ -381,10 +381,12 @@
         padding: 1px 1px 1px 0; margin: 0; background: @cborder1;
     }
     li {
-        flex:0 0 auto; padding: @d1; background: @cb2; color: @cf2; margin-left: 1px;
+        flex:0 0 auto; padding: @d1 @d2; background: @cb2; color: @cf2; margin-left: 1px;
         @flex(); justify-content:center; align-items:center;
         min-width: @d7; text-align: center; cursor: pointer;
-        b {font-weight: normal;}
+        [it] {flex:0 0 auto; @flex(); justify-content:center; align-items:center;}
+        [it="icon"] {margin:0 @d1 0 0; font-size: @f3;}
+        [it="text"] {font-weight: normal; font-style: normal; font-size: @f1;}
     }
     li.checked {color: @chx_f;background: @chx_b;}
 }

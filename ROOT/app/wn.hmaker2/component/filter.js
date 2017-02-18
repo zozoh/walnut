@@ -5,7 +5,7 @@ $z.declare([
     'app/wn.hmaker2/support/hm__methods_com',
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
-var html = '<div class="ui-arena hmc-filter">hahahaha</div>';
+var html = '<div class="ui-arena hmc-filter hmc-cnd">hahahaha</div>';
 //==============================================
 return ZUI.def("app.wn.hm_com_filter", {
     dom     : html,
@@ -25,6 +25,8 @@ return ZUI.def("app.wn.hm_com_filter", {
     //...............................................................
     paint : function(com) {
         var UI = this;
+
+        // 清空绘制区
         UI.arena.empty();
 
         // 绘制

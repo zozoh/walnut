@@ -7,7 +7,7 @@ $z.declare([
     'ui/pop/pop',
 ], function(ZUI, Wn, HmMethods, MenuUI, POP){
 //==============================================
-var html = `<div class="ui-arena hmc-filter-prop" ui-fitparent="yes">
+var html = `<div class="ui-arena hmc-filter-prop hmc-cnd-prop" ui-fitparent="yes">
     <aside ui-gasket="menu"></aside>
     <section></section>
 </div>`;
@@ -18,16 +18,16 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
     init : function(opt) {
         // 定义字段信息修改的表单
         this.FORM_FIELDS_field = [{
-            key    : "name",
-            title  : 'i18n:hmaker.com._.fld_name',
-            tip    : 'i18n:hmaker.com.filter.fld_name_tip',
+            key    : "text",
+            title  : 'i18n:hmaker.com._.fld_text',
+            tip  : 'i18n:hmaker.com.filter.fld_text_tip',
             type   : "string",
             required : true,
             dft    : "",
         }, {
-            key    : "text",
-            title  : 'i18n:hmaker.com._.fld_text',
-            tip  : 'i18n:hmaker.com.filter.fld_text_tip',
+            key    : "name",
+            title  : 'i18n:hmaker.com._.fld_name',
+            tip    : 'i18n:hmaker.com.filter.fld_name_tip',
             type   : "string",
             required : true,
             dft    : "",
@@ -77,22 +77,22 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
     //...............................................................
     events : {
         // 取消高亮： 点在菜单项里面的情况无视
-        "click .hmc-filter-prop" : function(e){
+        "click .hmc-cnd-prop" : function(e){
             if($(e.target).closest(".menu-item").length == 0)
                 this.arena.find("section > div").removeAttr("current");
         },
         // 切换当前字段
-        "click section > div.flt-fld" : function(e) {
+        "click section > div.cnd-fld" : function(e) {
             e.stopPropagation();
             this.setCurrent($(e.currentTarget).prevAll().length);
         },
         // 快速修改字段属性
-        'click div[current] .fld-info li[key="multi"], div[current] .fld-info li[key="hide"]' : function(e){
+        'click div[current] .fld-info .fi-box' : function(e){
             var UI  = this;
             var jLi = $(e.currentTarget);
             var key = jLi.attr("key");
             var jInfo = $(e.currentTarget).closest(".fld-info");
-            var jFld  = jInfo.closest("div.flt-fld");
+            var jFld  = jInfo.closest("div.cnd-fld");
             var index = jFld.prevAll().length;
 
             // 不要冒泡了
@@ -111,7 +111,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
         // 编辑字段信息
         "click div[current] .fld-edit a" : function(e) {
             var UI = this;
-            var jFld  = $(e.currentTarget).closest("div.flt-fld");
+            var jFld  = $(e.currentTarget).closest("div.cnd-fld");
             var index = jFld.prevAll().length;
 
             // 打开编辑对话框
@@ -120,7 +120,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
         // 添加字段选项
         "click div[current] .fld-items aside" : function(e){
             var UI = this;
-            var jFld  = $(e.currentTarget).closest("div.flt-fld");
+            var jFld  = $(e.currentTarget).closest("div.cnd-fld");
             var index = jFld.prevAll().length;
 
             // 打开编辑对话框
@@ -130,7 +130,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
         "click div[current] .fld-items > li > dl" : function(e){
             var UI = this;
             var jq = $(e.currentTarget);
-            var fldIndex  = jq.closest("div.flt-fld").prevAll().length;
+            var fldIndex  = jq.closest("div.cnd-fld").prevAll().length;
             var itemIndex = jq.closest("li").prevAll().length;
 
             // 打开编辑对话框
@@ -140,7 +140,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
         'click div[current] .fld-items > li > span b[a="del"]' : function(e){
             var UI = this;
             var jq = $(e.currentTarget);
-            var fldIndex  = jq.closest("div.flt-fld").prevAll().length;
+            var fldIndex  = jq.closest("div.cnd-fld").prevAll().length;
             var itemIndex = jq.closest("li").prevAll().length;
 
             // 执行删除
@@ -150,7 +150,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
         'click div[current] .fld-items > li > span b[a="up"]' : function(e){
             var UI = this;
             var jq = $(e.currentTarget);
-            var fldIndex  = jq.closest("div.flt-fld").prevAll().length;
+            var fldIndex  = jq.closest("div.cnd-fld").prevAll().length;
             var itemIndex = jq.closest("li").prevAll().length;
 
             // 执行删除
@@ -160,7 +160,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
         'click div[current] .fld-items > li > span b[a="down"]' : function(e){
             var UI = this;
             var jq = $(e.currentTarget);
-            var fldIndex  = jq.closest("div.flt-fld").prevAll().length;
+            var fldIndex  = jq.closest("div.cnd-fld").prevAll().length;
             var itemIndex = jq.closest("li").prevAll().length;
 
             // 执行删除
@@ -232,7 +232,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
     },
     //...............................................................
     setCurrent : function(index) {
-        var jFlds = this.arena.find("section > div.flt-fld").removeAttr("current");
+        var jFlds = this.arena.find("section > div.cnd-fld").removeAttr("current");
         if(index >= 0)
             jFlds.eq(index).attr("current", "yes");
     },
@@ -382,7 +382,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
         POP.openFormPanel({
             title : title,
             i18n  : UI._msg_map,
-            arenaClass : "hm-prop-form hmc-filter-pop-form",
+            arenaClass : "hm-prop-form hmc-cnd-pop-form",
             width : 400,
             height: 300,
             form  : {
@@ -484,7 +484,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
             title : title,
             i18n  : UI._msg_map,
             escape : true,
-            arenaClass : "hm-prop-form hmc-filter-pop-form",
+            arenaClass : "hm-prop-form hmc-cnd-pop-form",
             width : 400,
             height: 480,
             form  : {
@@ -541,7 +541,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
 
 
         for(var i=0; i<fields.length; i++) {
-            var jFld = UI.__update_field($('<div class="flt-fld">'), i, com);
+            var jFld = UI.__update_field($('<div class="cnd-fld">'), i, com);
             jSec.append(jFld);
         }
 
@@ -563,10 +563,10 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
 
         // 绘制本身信息
         var jInfo = $(UI.compactHTML(`<ul class="fld-info">
-            <li key="multi"><b>{{hmaker.com.filter.fld_multi}}</b></li>
-            <li key="hide" ><b>{{hmaker.com.filter.fld_hide}}</b></li>
-            <li key="name"></li>
+            <li key="multi" class="fi-box"><b>{{hmaker.com.filter.fld_multi}}</b></li>
+            <li key="hide"  class="fi-box"><b>{{hmaker.com.filter.fld_hide}}</b></li>
             <li key="text"></li>
+            <li key="name"></li>
         </ul>`)).attr({
             "is-multi" : fld.multi ? "yes" : null,
             "is-hide"  : fld.hide  ? "yes" : null,
