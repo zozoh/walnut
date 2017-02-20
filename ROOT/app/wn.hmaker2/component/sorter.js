@@ -15,6 +15,17 @@ return ZUI.def("app.wn.hm_com_sorter", {
         HmComMethods(this);
     },
     //...............................................................
+    events : {
+        // 设置默认值
+        "click ul li" : function(e) {
+            if(this.isActived()) {
+                var jLi = $(e.currentTarget);
+                var index = jLi.prevAll().length;
+                this.setEnabled(jLi.attr("enabled") ? -1 : index);
+            }
+        }
+    },
+    //...............................................................
     redraw : function(){
         this.arena.addClass("hmc-cnd");
     },
@@ -42,6 +53,28 @@ return ZUI.def("app.wn.hm_com_sorter", {
         }
     },
     //...............................................................
+    setEnabled : function(index, com) {
+        var UI  = this;
+        com = com || UI.getData();
+
+        if(_.isArray(com.fields)) {
+            for(var i=0; i<com.fields.length; i++) {
+                com.fields[i].enabled = (index == i);
+            }
+            UI.saveData(null, com, true);
+        }
+    },
+    //...............................................................
+    getComValue : function() {
+        var jLi = this.arena.find('li[enabled]');
+        if(jLi.length > 0) {
+            var re = jLi.attr("key") + ":" + (jLi.attr("or-val")||1); 
+            var or_fixed = jLi.attr("or-fixed");
+            return re + (or_fixed ? "," + or_fixed : "");
+        }
+        return null;
+    },
+    //...............................................................
     // 绘制项目
     __draw_fld : function(fld, jUl) {
         var UI  = this;
@@ -54,6 +87,7 @@ return ZUI.def("app.wn.hm_com_sorter", {
             "modify" : fld.modify ? "yes" : null,
             "or-val" : fld.order,
             "or-nm"  : orKey,
+            "enabled" : fld.enabled ? "yes" : null,
         });
         
         // 绘制字段标题

@@ -1211,16 +1211,33 @@ return ZUI.def("app.wn.hmaker_page", {
             $screen : UI.arena.find(".hmpg-screen"),
             $pginfo : UI.arena.find(".hmpg-sbar .hmpg-pginfo"),
         };
+
+        // 首先建立加载区的上下文对象
+        C.iload = UI._reset_context_vars(".hmpg-frame-load");
         
         // 清空编辑区
-        $(rootEdit).empty();
+        $(rootEdit).empty().attr("hm-page-preparing", "yes");
 
         // 设置 HTML 到编辑区
-        rootEdit.innerHTML = rootLoad.innerHTML;
+        rootEdit.innerHTML = UI.compactHTML(`<head>
+            <link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker2/hmaker_editing.css">
+            <link rel="stylesheet" type="text/css" href="/theme/r/jqp/moveresizing/moveresizing.css">
+            <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">
+            <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">
+            <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">
+            <link rel="stylesheet" type="text/css" d="" href="/gu/rs/core/css/balloon.min.css">
+        </head><body>
+            <div class="hm-page-preparing">
+                <span><i class="zmdi zmdi-settings zmdi-hc-spin"></i></span>
+                <em>{{hmaker.page.preparing}}</em>
+            </div>
+        </body>`);
 
-        // 重新索引快捷标记
-        C.iload = UI._reset_context_vars(".hmpg-frame-load");
+        // 加载编辑区的上下文对象
         C.iedit = UI._reset_context_vars(".hmpg-frame-edit");
+
+        // 在编辑区加载内容
+        C.iedit.$body.append(C.iload.$body.html());
 
         // 记录上下文
         UI._C = C;
@@ -1265,7 +1282,7 @@ return ZUI.def("app.wn.hmaker_page", {
         C.iload = UI._reset_context_vars(".hmpg-frame-load");
 
         // 清空 iload 的头部
-        // C.iload.$head.empty();
+        C.iload.$head.empty();
 
         // 移除 body 的一些属性
         C.iload.$body.attr({
@@ -1319,7 +1336,7 @@ return ZUI.def("app.wn.hmaker_page", {
         });
         
         // 删除所有的皮肤以及页面动态添加的 css/js 节点
-        C.iload.$head.find('[skin],[page-link]').remove();
+        //C.iload.$head.find('[skin],[page-link]').remove();
         
         // 所有的分栏和组件前面都加入一个回车
         C.iload.$root.find(".hm-com, .hm-area, meta, link, body").each(function(){

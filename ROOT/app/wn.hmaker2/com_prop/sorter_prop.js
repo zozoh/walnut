@@ -168,6 +168,16 @@ return ZUI.def("app.wn.hm_com_sorter_prop", HmMethods({
             // 执行删除
             UI.moveDownItemOfField(fldIndex, itemIndex);
         },
+        // 切换当前字段启用状态
+        'click div.cnd-fld > ul.fld-info > li[key="enabled"]' : function(e) {
+            e.stopPropagation();
+            var UI = this;
+            var jq = $(e.currentTarget);
+            var jFld = jq.closest("div.cnd-fld");
+            var fldIndex = jFld.prevAll().length;
+
+            UI.uiCom.setEnabled(jFld.attr("enabled") ? -1 : fldIndex); 
+        }
     },
     //...............................................................
     redraw : function() {
@@ -471,7 +481,8 @@ return ZUI.def("app.wn.hm_com_sorter_prop", HmMethods({
             name   : "xxx",
             text   : "xxx",
             modify : false,   // 用户可以修改排序 order
-            order  : 1
+            order  : 1,       // 排序值, 1:ASC, -1:DESC
+            enabled : false,  // 是否为当前排序项，默认 false
             items  : [{
                 name  : "ASC:从小到大",
                 order : 1
@@ -522,10 +533,17 @@ return ZUI.def("app.wn.hm_com_sorter_prop", HmMethods({
         var fld = com.fields[index];
 
         // 更新属性
-        jFld.attr("index", index);
+        jFld.attr({
+            "index" : index,
+            "enabled" : fld.enabled ? "yes" : null
+        });
 
         // 绘制本身信息
         var jInfo = $(UI.compactHTML(`<ul class="fld-info">
+            <li key="enabled">
+                <i class="zmdi zmdi-circle-o"></i>
+                <i class="zmdi zmdi-check-circle"></i>
+            </li>
             <li key="modify" class="fi-box"><b>{{hmaker.com.sorter.fld_modify}}</b></li>
             <li key="order"  class="fi-box"><b>{{hmaker.com.sorter.fld_hide}}</b></li>
             <li key="text"></li>

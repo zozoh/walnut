@@ -59,6 +59,9 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             emptyItem : {},
             items : [],
             icon  : '<i class="fa fa-html5"></i>',
+            text  : function(o){
+                return o.title || o.value;
+            },
             on_change : function(v) {
                 UI.uiCom.saveData(null, {template:v, options:{}}, true);
             }
@@ -122,15 +125,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
 
             // 更新可用模板列表
             var tmplList = UI.getTemplateList(com.api_return);
-            var items = [];
-            for(var i=0; i<tmplList.length; i++) {
-                var tmpl = tmplList[i];
-                items.push({
-                    text  : tmpl.value,
-                    value : tmpl.value
-                });
-            }
-            UI.gasket.template.setItems(items);
+            UI.gasket.template.setItems(tmplList);
 
         }
         // 没有参数，清空显示
@@ -217,11 +212,13 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 //parent     : UI,
                 //gasketName : setting.gasketName,
                 $pel       : setting.$pel,
+                mergeData  : false,
                 fitparent  : false,
                 uiWidth    : "all",
                 fields     : setting.fields,
-                on_update  : function(data){
-                    UI.uiCom.saveData("panel", $z.obj(setting.gasketName, data));
+                on_update  : function(){
+                    var data = this.getData();
+                    UI.uiCom.saveData("panel", $z.obj(setting.gasketName, data), true);
                 }
             }).render(function(){
                 this.setData(data);

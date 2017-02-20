@@ -290,7 +290,6 @@ var methods = {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 移除
         jSpan.on("click", '>.css-current[edit] section li', function(e){
-            console.log("hahah")
             var jLi   = $(e.currentTarget);
             var path  = jLi.attr("path");
             var jTaUl = jSpan.find('>.css-all ul[key="'+path+'"]');

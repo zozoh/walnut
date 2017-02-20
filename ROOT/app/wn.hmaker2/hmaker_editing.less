@@ -23,6 +23,21 @@
 body {
     margin:0; overflow-y: scroll; 
 }
+
+html[hm-page-preparing] {
+    > body {
+        margin:0; background: #EEE;
+        > * {display: none;}
+        > .hm-page-preparing {
+            display:block; padding: 26px 20px; color:#CCC;
+            font-size: 16px;
+            > * {display: inline-block; vertical-align: middle;}
+            > span {padding:0 @d2; font-size: 32px;}
+            > em {font-style: normal;}
+        }
+    }
+}
+
 //............................................................
 // 拖拽相关
 // .pmv-dropi {
@@ -490,7 +505,7 @@ body {
         z-index: 999;
         b {
             opacity: 1.0; color:#FF0; border-radius: 50%;
-            transform: rotate(360deg); 
+            transform: rotate(180deg); 
         }
     }
     > .dynamic-reload:before {
@@ -576,6 +591,9 @@ body {
     li {
         display: inline-block; padding:@d0 @d3; margin:0 1px;
         border:1px solid #CCC; cursor: pointer;
+    }
+    li[enabled] {
+        background: @chx_b; color:@chx_f;
     }
     em {font-style: normal;}
     span[or-icon] {font-family:'FontAwesome'; margin:0 0 0 @d1; display: none;}

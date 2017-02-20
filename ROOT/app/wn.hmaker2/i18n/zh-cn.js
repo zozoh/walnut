@@ -137,6 +137,7 @@ define({
             "ireload"     : "重新加载插入项",
             "links_edit"  : "编辑资源列表",
             "pick_rs"     : "选择资源",
+            "preparing"   : "正在准备页面组件...",
         },
         "com" : {
             "_" : {
@@ -276,6 +277,8 @@ define({
                 "api_lack_params" : '<i class="zmdi zmdi-alert-circle"></i> 动态参数没有提供默认数据，不能预览显示，只能发布以后查看效果',
                 "need_params"  : '<i class="zmdi zmdi-alert-triangle"></i> 您还有参数未设值',
                 "reload" : "重新从接口加载数据，以便查看显示效果",
+                "e_nocom" : '<i class="zmdi zmdi-alert-triangle"></i>  控件不存在',
+                "e_p_mapping" : '<i class="zmdi zmdi-alert-octagon"></i>  映射参数必须是一个JSON对象',
             },
             "searcher" : {
                 "name"  : "搜索框",

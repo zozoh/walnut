@@ -1,0 +1,10 @@
+{
+    "name"     : "wn_plst_th_video",
+    "title"    : "默认视频列表",
+    "dataType" : ["page", "list"],
+    "options"  : {
+        "href" : "<目标页面>",
+        "paramName"  : "<请求参数名>",
+        "objKey"     : "<对应数据键>",
+    }
+}

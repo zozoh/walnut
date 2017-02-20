@@ -40,6 +40,10 @@ return ZUI.def("app.wn.hm_com_searcher", {
         
     },
     //...............................................................
+    getComValue : function() {
+        return this.arena.find("input").val();
+    },
+    //...............................................................
     getBlockPropFields : function(block) {
         return [block.mode == 'inflow' ? "margin" : null,
                 "padding","border","borderRadius",

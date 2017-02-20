@@ -45,6 +45,15 @@ return ZUI.def("app.wn.hm_com_pager", {
         UI.arena.find(".pg_brief").html(brief);
     },
     //...............................................................
+    getComValue : function() {
+        var com = this.getData();
+        return {
+            pn   : 1,
+            pgsz : com.dftPageSize,
+            skip : 0,
+        };
+    },
+    //...............................................................
     getBlockPropFields : function(block) {
         return [block.mode == 'inflow' ? "margin" : null,
                 "padding","border","borderRadius",

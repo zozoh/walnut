@@ -32,6 +32,9 @@ var methods = {
     //...............................................................
     setup_page_editing : function(){
         var UI = this;
+
+        // 标识编辑加载状态
+        UI.markReadyForEdit(false);
         
         // 标识网页的编辑器模式
         UI._C.iedit.$root.attr({
@@ -51,6 +54,9 @@ var methods = {
         // 设置编辑区页面的 <head> 部分
         UI.__setup_page_head();
 
+        // 应用网页显示样式
+        UI.applyPageAttr();
+
         // 设置编辑区的移动
         UI.__setup_page_moveresizing();
 
@@ -69,7 +75,7 @@ var methods = {
         var cache  = {};
         var homeId = UI.getHomeObjId();
         // 寻找组件列表
-        var jComs = UI._C.iedit.$body.find(".hm-com").css("visibility", "hidden");
+        var jComs = UI._C.iedit.$body.find(".hm-com");
         var i = 0;
         var do_bind_com = function(index) {
             if(index < jComs.length) {
@@ -87,11 +93,16 @@ var methods = {
                     });
                 }
             }
+            // 如果全部的控件都加载完毕了，做一下标识，会自动执行延迟的处理
+            else {
+                UI.markReadyForEdit(true);
+                // 对所有的组件，重新应用一遍 block
+                jComs.each(function(){
+                    ZUI(this).applyBlock();
+                });
+            }
         };
         do_bind_com(0);
-
-        // 应用网页显示样式
-        UI.applyPageAttr();
 
         // 通知网页被加载
         UI.fire("active:page");
@@ -103,6 +114,50 @@ var methods = {
         window.setTimeout(function(){
             UI._C.iedit.$body.find(".hm-com").first().click();
         }, 500);
+    },
+    //...............................................................
+    // 标识自己是否可以被编辑（即所有的组件都加载完毕）
+    markReadyForEdit : function(is_ready_for_edit) {
+        var UI = this;
+        UI.__is_ready_for_edit = is_ready_for_edit ? true : false;
+
+        // 标识完成了的话 ...
+        if(is_ready_for_edit) {
+            //console.log("done!!!!");
+            // 执行后续
+            if(_.isArray(UI.__delay_queue))
+                for(var i=0; i<UI.__delay_queue.length; i++) {
+                    UI.__delay_queue[i]();
+                }
+            // 最后移除页面的标志
+            window.setTimeout(function(){
+                UI._C.iedit.$root.removeAttr("hm-page-preparing")
+                    .find(" > body > .hm-page-preparing").remove();
+            }, 1000);
+        }
+        // 标识正在准备页面控件
+        else {
+            //console.log("begin!!!!");
+            UI._C.iedit.$root.attr("hm-page-preparing", "yes");    
+        }
+    },
+    isReadyForEdit : function(){
+        return this.__is_ready_for_edit;
+    },
+    //...............................................................
+    // 给入一个函数，如果当前页面已经准备完成了，就立即执行，否则推入暂存堆栈
+    // 等页面预处理完毕后再执行
+    delayWhenReadyForEdit : function(callback) {
+        var UI = this;
+        if(UI.isReadyForEdit()){
+            callback();
+        }
+        // 记入读取延迟队列
+        else {
+            UI.__delay_queue = UI.__delay_queue || [];
+            UI.__delay_queue.push(callback);
+        }
+
     },
     //...............................................................
     // 添加 JS
@@ -120,7 +175,7 @@ var methods = {
         var UI = this;
 
         // 首先清空
-        var jHead = UI._C.iedit.$head.empty();
+        var jHead = UI._C.iedit.$head;
 
         // 头部元数据
         UI._H(jHead, 'meta[charset="utf-8"]',
@@ -162,16 +217,16 @@ var methods = {
         // 首先所有元素的点击事件，全部禁止默认行为
         UI._C.iedit.$root.on("click", "*", function(e){
             e.preventDefault();
-            //console.log("hm_page.js: click", this.tagName, this.className, e.target);
-
-            var jq = $(this);
-
-            // 如果是删除错误组件的 ...
-            if(jq.hasClass("invalid-lib-del")){
-                e.stopPropagation();
-
-                // 得到组件 ID
-                var jCom    = jq.closest(".hm-com");
+        })
+        // 如果点在了控件里，激活
+        .on("click", ".hm-com", function(e){
+            e.stopPropagation();
+            var jCom = $(this);
+            // 如果点在了控件里，激活
+            //console.log("isCom!!!", jCom)
+            // !!!
+            // 错误的组件
+            if(jCom.attr("invalid-lib")) {
                 var comId   = jCom.attr("id");
                 var libName = jCom.attr("lib");
                 var msg = UI.msg("hmaker.lib.confirm_del_invalid") 
@@ -182,43 +237,39 @@ var methods = {
                 UI.confirm(msg, function(){
                     jCom.remove();
                 })
+                return;
             }
-            // 如果点在了块里，激活块，然后就不要冒泡了
-            else if(jq.hasClass("hm-com")){
-                e.stopPropagation();
-
-                // 无视错误的组件
-                if(jq.attr("invalid-lib"))
-                    return;
-                
-                // 已经激活就不再激活了
-                if(jq.attr("hm-actived"))
-                    return;
-                
-                // 如果控件再一个 highlight-mode 的布局里面
-                var jHMLayout = jq.closest(".hm-layout[highlight-mode]");
-                if(jHMLayout.length > 0) {
-                    // 控件不在高亮区域内
-                    // 那么应该激活这个布局，
-                    if(jq.closest('.hm-area[highlight]').length == 0)
-                        jq = jHMLayout;
-                }
-                
-                // 得到组件的 UI
-                var uiCom = ZUI(jq);
-                
-                //console.log("uiCom", uiCom.uiName, uiCom.$el);
-                
-                // 快速切换页面的时候会出现异步的问题
-                // 防守一道
-                if(!uiCom)
-                    return;
-                            
-                // 通知激活控件
-                uiCom.notifyActived("page");
+            
+            // 已经激活就不再激活了
+            if(jCom.attr("hm-actived"))
+                return;
+            
+            // 如果控件再一个 highlight-mode 的布局里面
+            var jHMLayout = jCom.closest(".hm-layout[highlight-mode]");
+            if(jHMLayout.length > 0) {
+                // 控件不在高亮区域内
+                // 那么应该激活这个布局，
+                if(jCom.closest('.hm-area[highlight]').length == 0)
+                    jCom = jHMLayout;
             }
-            // 如果点到了 body，那么激活页
-            else if('BODY' == this.tagName){
+            
+            // 得到组件的 UI
+            var uiCom = ZUI(jCom);
+            
+            //console.log("uiCom", uiCom.uiName, uiCom.$el);
+            
+            // 快速切换页面的时候会出现异步的问题
+            // 防守一道
+            if(!uiCom)
+                return;
+                        
+            // 通知激活控件
+            uiCom.notifyActived("page");
+        })
+        // 激活页面
+        .on("click", function(e){
+            if(e.target === UI._C.iedit.body 
+                || e.target === UI._C.iedit.root) {
                 UI.fire("active:page", UI._page_obj);
             }
 

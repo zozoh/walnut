@@ -483,8 +483,9 @@ module.exports = function(uiCom){
     
     // 重定义控件的 redraw
     var com_redraw = function(){
+        var ME = this;
         // 弱弱的检查一下基础结构
-        var jW   = this.$el.children(".hm-com-W");
+        var jW   = ME.$el.children(".hm-com-W");
         if(jW.length == 0)
             throw "com without .hm-com-W : " + uiCom.cid;
         
@@ -493,7 +494,7 @@ module.exports = function(uiCom){
         if(jAss.length == 0) {
             jAss = $(`<div class="hm-com-assist">
                 <div class="hmc-ai" m="H" data-balloon-pos="left" data-balloon="`
-                + this.msg("hmaker.drag.com_tip")
+                + ME.msg("hmaker.drag.com_tip")
                 + `"><i class="zmdi zmdi-arrows"></i></div>
                 <div class="hmc-ai rsz-hdl1" m="N"></div>
                 <div class="hmc-ai rsz-hdl1" m="W"></div>
@@ -507,13 +508,13 @@ module.exports = function(uiCom){
         }
         
         // 试图调用一下组件自定义的 redraw
-        $z.invoke(this, "_redraw_com", []);
+        $z.invoke(ME, "_redraw_com", []);
         
         // 绘制布局
-        this.applyBlock(this.getBlock());
+        ME.applyBlock(ME.getBlock());
         
         // 绘制外观
-        this.paint(this.getData());
+        ME.paint(ME.getData());
     };
     // 判断一下是针对 Com 实例还是 Com 的定义
     if(uiCom.$ui) {

@@ -114,7 +114,7 @@ ${siteId}   :  站点主目录对象ID
 ## 来自请求参数
 
 ```
-@<c>:ade329913
+@<c>ade329913
 ```
 
 - 本值在运行时会被 HTTP 参数（无论GET/POST) `c` 填充
@@ -123,7 +123,7 @@ ${siteId}   :  站点主目录对象ID
 ## 来自控件的参数
 
 ```
-#<pager_1>:{limit:'pgsz',skip:'skip'}
+#<pager_1>{limit:'pgsz',skip:'skip'}
 ```
 
 - 本值会在运行时被控件 `pager_1` 的值所代替

@@ -890,15 +890,30 @@ ZUIObj.prototype = {
         return $z.compactHTML(html, msgMap || this._msg_map, this.tmplSettings);
     },
     // 得到多国语言字符串
-    msg: function (key, ctx, msgMap) {
-        var re = $z.getValue(msgMap || this._msg_map, key);
+    msg: function (str, ctx, msgMap) {
+        if(!str)
+            return;
+        // 消息字符串是 "e.com.xxx : some reasone" 格式的
+        var key = str;
+        var reason = "";
+        var pos = key.indexOf(':');
+        if(pos > 0){
+            key = $.trim(str.substring(0,pos));
+            reason = str.substring(pos);
+        }
+        var re = $z.getValue( (msgMap||this._msg_map), key);
         if(!re){
-            return key;
+            return str;
         }
-        // 需要解析
-        if (re && ctx && _.isObject(ctx)) {
-            re = ($z.tmpl(re))(ctx);
+        // 得到了字符串
+        if(_.isString(re)){
+            // 需要解析
+            if (re && ctx && _.isObject(ctx)) {
+                re = ($z.tmpl(re))(ctx);
+            }
+            return re + reason;
         }
+        // 否则可能是个对象，表示一个子 MsgMap
         return re;
     },
     // 得到多国语言字符串，如果没有返回默认值，如果没指定默认值，返回空串 ("")
@@ -1216,6 +1231,18 @@ ZUIObj.prototype = {
             callback = opt;
             opt      = {};
         }
+        // 快捷图标
+        else if(_.isString(opt)) {
+            var opt2 = {};
+            if("warn" == opt) 
+                opt2.icon = '<i class="zmdi zmdi-alert-triangle"></i>';
+            else if("error" == opt)
+                opt2.icon = '<i class="zmdi zmdi-alert-polygon"></i>';
+            else if("notify" == opt)
+                opt2.icon = '<i class="zmdi zmdi-notifications-active"></i>';
+            opt = opt2;
+        }
+
         opt = opt || {};
         $z.setUndefined(opt, "width",  400);
         $z.setUndefined(opt, "height", 240);

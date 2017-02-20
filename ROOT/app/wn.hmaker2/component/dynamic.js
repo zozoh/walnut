@@ -18,7 +18,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
     },
     //...............................................................
     events : {
-        "click > .hm-com-W > .dynamic-reload" : function(){
+        "click > .hm-com-W > .dynamic-reload" : function(e){
             this.__reload_data();
         }
     },
@@ -33,6 +33,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
     paint : function(com) {
         var UI = this;
         var jW = UI.$el.find(">.hm-com-W")
+        //console.log("I am dynamic paint");
 
         // 得到数据
         com = com || UI.getData();
@@ -52,7 +53,9 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         }
         // 重新加载
         else {
-            UI.__reload_data(com);
+            UI.pageUI().delayWhenReadyForEdit(function(){
+                UI.__reload_data(com);
+            });
         }
 
     },
@@ -78,9 +81,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         var oApi = com.api ? Wn.fetch("~/.regapi/api" + com.api)
                            : null;
         if(!oApi) {
-            $('<aside class="dynamic-msg" m="warn">')
-                .html(UI.msg("hmaker.com.dynamic.noapi"))
-                    .appendTo(jData);
+            UI.__tip("noapi", "warn", jData);
             return;
         }
 
@@ -100,10 +101,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
                 }
             }
             if(need_params.length > 0) {
-                $('<aside class="dynamic-msg" m="warn">')
-                    .html(UI.msg("hmaker.com.dynamic.need_params")
-                           + " : " + need_params.join(', '))
-                        .appendTo(jData);
+                UI.__tip("need_params : " + need_params.join(', '), "warn", jData);
                 return;
             }
         }
@@ -115,49 +113,20 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 得到 api 的相关信息
         var apiUrl = UI.getHttpApiUrl(com.api);
-        var pm_org = _.extend({}, com.params);
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 处理动态参数 (来自请求参数，Session变量，Cookies 里面的值等)
+        var pm_org = _.extend({}, com.params);
         var params = {};
-        var m;
-        var dynamicKeys  = [];     // 参数是否有动态参数
-        var isLackParams = false;  // 是否所有的动态参数都有默认值
-        var oHome = getHomeObjName();
-
-        // 得到站点名称等动态值的上下文
-        var pc = {
-            siteName : oHome.nm,
-            siteId   : oHome.id,
-        };
-
-        // 循环处理 ...
-        for(var key in pm_org) {
-            var val = $.trim(pm_org[key]);
-
-            // 进行标准替换
-            var v2 = $z.tmpl(val, {
-                escape: /\$\{([\s\S]+?)\}/g
-            })(pc);
-            //console.log(key, val, v2);
-
-            // 请求参数
-            m = /^@([\w\d_-]+)[ \t]*(<[ \t]*([^ \t]*)[ \t]*>)?[ \t]*$/.exec(v2);
-            if(m) {
-                dynamicKeys.push(key);
-                isLackParams = isLackParams || !m[3];
-                params[key]  = m[3];
-                continue;
-            }
-            // TODO Session 变量
-            // TODO Cookie 的值
-
-            // 记录参数
-            params[key] = v2;
+        try{
+            params = UI.__parse_params(pm_org);
         }
-        // 保存这个分析状态
-        UI.__dynamicKeys  = dynamicKeys;
-        UI.__isLackParams = isLackParams;
+        // 处理参数解析的错误
+        catch(errMsg){
+            UI.__tip(errMsg, "api-error", jData);
+            return;
+        }
+        //console.log(params)
 
         // 如果有动态参数，且缺少足够的默认参数，那么会直接让组件绘制 null
         if(UI.isDynamicButLackParams()) {
@@ -167,9 +136,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 显示正在加载
-        $('<aside class="dynamic-msg" m="api-loading">')
-            .html(UI.msg("hmaker.com.dynamic.api_loading"))
-                .appendTo(jData);
+        UI.__tip("api_loading", "api-loading", jData);
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 向服务器请求
@@ -183,9 +150,8 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
             // api 返回错误
             if(/^e[.]/.test(re)){
-                $('<aside class="dynamic-msg" m="api-error">')
-                    .html('<i class="zmdi zmdi-alert-triangle"></i>' + re)
-                        .appendTo(jData);
+                UI.__tip('<i class="zmdi zmdi-alert-triangle"></i>' + re, 
+                    "api-error", jData);
                 return;
             }
 
@@ -201,9 +167,8 @@ return ZUI.def("app.wn.hm_com_dynamic", {
             }
             // 接口调用错误
             catch (errMsg) {
-                $('<aside class="dynamic-msg" m="api-error">')
-                    .html('<i class="zmdi zmdi-alert-circle"></i>' + errMsg)
-                        .appendTo(jData);
+                UI.__tip('<i class="zmdi zmdi-alert-triangle"></i>' + errMsg, 
+                    "api-error", jData);
                 throw errMsg;
             }
             // 最后要调用回调
@@ -214,6 +179,100 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         });
         // 这个请求，显然是异步的
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    },
+    //...............................................................
+    __parse_params : function(pm_org){
+        var UI = this;
+        var params = {};
+        var m;
+        var dynamicKeys  = [];     // 参数是否有动态参数
+        var isLackParams = false;  // 是否所有的动态参数都有默认值
+        var oHome  = UI.getHomeObj();
+        var PageUI = UI.pageUI();
+
+        // 得到站点名称等动态值的上下文
+        var pc = {
+            siteName : oHome.nm,
+            siteId   : oHome.id,
+        };
+
+        // 循环处理 ...
+        for(var key in pm_org) {
+            var val = $.trim(pm_org[key]);
+
+            // 进行标准占位符替换
+            var v2 = $z.tmpl(val, {
+                escape: /\$\{([\s\S]+?)\}/g
+            })(pc);
+            //console.log(key, val, v2);
+
+            // 特殊类型的值
+            // TODO Session 变量
+            // TODO Cookie 的值
+            m = /^([@#])(<(.+)>)?(.*)$/.exec(v2);
+            if(m && m[2]) {
+                var p_tp  = m[1];
+                var p_val = m[3];
+                var p_arg = $.trim(m[4]);
+                //console.log(m, p_tp, p_val, p_arg);
+                // 动态参数: 这里就直接取默认值了
+                if("@" == p_tp) {
+                    dynamicKeys.push(key);
+                    isLackParams |= !p_arg;
+                    params[key] = p_val;
+                    continue;
+                }
+                // 来自控件
+                else if("#" == p_tp) {
+                    // 得到控件
+                    var uiComTa = PageUI.getCom(p_val);
+                    if(!uiComTa) {
+                        throw "e_nocom : " + p_val; 
+                    }
+
+                    // 得到控件的值，如果有值就填充到参数表
+                    var comVal = $z.invoke(uiComTa, "getComValue", []);
+                    if(comVal) {
+                        // 得到映射表
+                        if(p_arg) {
+                            // 融合到参数表同时进行映射
+                            try {
+                                var p_mapping = $z.fromJson(p_arg);
+                                for(var key in p_mapping) {
+                                    params[key] = comVal[p_mapping[key]];
+                                }
+                            }
+                            // 出错了
+                            catch(E){
+                                throw "e_p_mapping : " + p_arg; 
+                            }
+                        }
+                        // 直接将控件返回值融合到参数表
+                        else {
+                            // 对象
+                            if(_.isObject(comVal)) {
+                                _.extend(params, comVal);
+                            }
+                            // 普通值，直接填充
+                            else {
+                                params[key] = comVal;
+                            }
+                        }
+                    }
+                    // 继续下一个参数
+                    continue;
+                }
+            }
+            // 普通值
+            params[key] = v2;
+        }
+        
+        // 保存这个分析状态
+        UI.__dynamicKeys  = dynamicKeys;
+        UI.__isLackParams = isLackParams;
+
+        // 返回参数
+        return params;
     },
     //...............................................................
     __draw_data : function(obj, com) {
@@ -232,19 +291,15 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
         // 动态参数，但是缺少默认值，那么就没有足够的数据绘制了，显示一个信息吧
         if(UI.isDynamicButLackParams()) {
-            $('<aside class="dynamic-msg" m="api-lack-params">')
-                .html(UI.msg("hmaker.com.dynamic.api_lack_params"))
-                    .appendTo(jData);
+            UI.__tip("api_lack_params", "api-lack-params", jData);
             return;
         }
 
-        console.log("dynamic draw", obj);
+        //console.log("dynamic draw", obj);
 
         // 如果木有数据，就显示空
         if(!obj || (_.isArray(obj) && obj.length == 0)) {
-            $('<aside class="dynamic-msg" m="api-no-data">')
-                .html(UI.msg("hmaker.com.dynamic.api_empty"))
-                    .appendTo(jData);
+            UI.__tip("api_empty", "api-no-data", jData);
             return;
         }
 
@@ -317,17 +372,13 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
         // 确保有数据接口
         if(!com.api) {
-            $('<aside class="dynamic-msg" m="warn">')
-                .html(UI.msg("hmaker.com.dynamic.noapi"))
-                    .appendTo(jData);
+            UI.__tip("noapi", "warn", jData);
             return false;
         }
 
         // 确保有显示模板
         if(!com.template) {
-            $('<aside class="dynamic-msg" m="warn">')
-                .html(UI.msg("hmaker.com.dynamic.notemplate"))
-                    .appendTo(jData);
+            UI.__tip("notemplate", "warn", jData);
             return false;
         }
         
@@ -335,6 +386,15 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         return true;
         
     },
+    //...............................................................
+    __tip : function(key, mode, jData) {
+        var UI = this;
+        jData = jData || UI.arena.find(">section").empty();
+
+        $('<aside class="dynamic-msg" m="'+mode+'">')
+                .html(UI.msg("hmaker.com.dynamic." + key))
+                    .appendTo(jData);
+    }
     //...............................................................
 });
 //===================================================================
