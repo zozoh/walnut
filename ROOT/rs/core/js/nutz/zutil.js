@@ -9,6 +9,14 @@
     var INDENT_BY = "    ";
 
     var zUtil = {
+        bodyToTop: function () {
+            var $mybody = document.body;
+            $mybody.scrollTop = 0;
+        },
+        bodyToBottom: function () {
+            var $mybody = document.body;
+            $mybody.scrollTop = $mybody.scrollHeight;
+        },
         // 全屏幕
         toggleFullScreen: function () {
             if (!document.fullscreenElement &&    // alternative standard method
@@ -2725,9 +2733,9 @@
             if (_.isFunction(opt.before)) {
                 opt.before.apply(jq);
             }
-            
+
             // 附加元素
-            if (opt.appendTo){
+            if (opt.appendTo) {
                 jq.appendTo(opt.appendTo);
             }
             // 附件元素
@@ -2841,7 +2849,7 @@
                 }
 
             };
-            var __on_keydown = function(e) {
+            var __on_keydown = function (e) {
                 var jInput = $(this);
                 var jDiv = jInput.parent();
                 var opt = jDiv.data("@OPT");
@@ -2930,8 +2938,8 @@
                 .data("@ELE", jEle)
                 .data("@OLD", val)
                 .attr({
-                    "org-width"  : boxW,
-                    "org-height" : boxH
+                    "org-width": boxW,
+                    "org-height": boxH
                 })
                 .css({
                     "width": boxW,
