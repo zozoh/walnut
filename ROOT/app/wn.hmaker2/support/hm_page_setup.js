@@ -33,15 +33,19 @@ var methods = {
     setup_page_editing : function(){
         var UI = this;
         
-        // 表示网页的编辑器模式
-        UI._C.iedit.$root.attr("hmaker", "2.0")
+        // 标识网页的编辑器模式
+        UI._C.iedit.$root.attr({
+            "hmaker"     : "2.0",
+            "hmaker-ide" : "yes",
+        });
 
         // 设置辅助线模式
         UI.syncAssistedMark();
 
         // 清理不必要的元素
-        UI._C.iedit.$root.find(".hm-del-save, .ui-code-template, .ui-debug-mark, .ui-mask, .ui-loading")
-            .remove();
+        UI._C.iedit.$root
+            .find(".hm-del-save, .ui-code-template, .ui-debug-mark, .ui-mask, .ui-loading")
+                .remove();
 
         //.......................... 下面的方法来自 support/hm_page_setup.js
         // 设置编辑区页面的 <head> 部分

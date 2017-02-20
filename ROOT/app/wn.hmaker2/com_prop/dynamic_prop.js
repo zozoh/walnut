@@ -244,29 +244,33 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
 
             // 默认的字段
             var fld_required = false;
-            var fld_type = "input";
-            var fld_arg  = undefined;
-            var fld_tip  = undefined;
+            var fld_type  = "input";
+            var fld_arg   = undefined;
+            var fld_tip   = undefined;
+            var fld_title = undefined;
 
             // 分析一下
-            var m = /^([*])?@(input|thingset|sites|com)(:([0-9a-zA-Z]*))?(#(.*))?$/.exec(val);
+            var m = /^([*])?(\(([^\)]+)\))?@(input|thingset|sites|com)(:([0-9a-zA-Z]*))?(#(.*))?$/.exec(val);
             // 指定了类型
             if(m) {
                 fld_required = m[1] ? true : false;
-                fld_type = m[2];
-                fld_arg  = m[4];
-                fld_tip  = m[6];
+                fld_title = m[3];
+                fld_type  = m[4];
+                fld_arg   = m[6];
+                fld_tip   = m[8];
             }
+
+            // 默认用字段名作为字段标题
+            fld_title = fld_title || key;
 
             // 准备字段
             var fld = {
-                key   : key,
-                title : key,
-                tip   : fld_tip,
-                required : fld_required
+                key      : key,
+                title    : fld_title || key,
+                tip      : fld_tip,
+                required : fld_required,
+                key_tip  : key == fld_title ? null : key,
             };
-
-            console.log(fld)
 
             // 字段: thingset
             if("thingset" == fld_type) {
@@ -310,7 +314,6 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                     emptyItem : {},
                     itemArgs  : fld_arg,
                     items : function(ctype, callback){
-                        console.log(arguments)
                         callback(UI.pageUI().getComList(ctype));
                     },
                     icon  : function(uiCom){
@@ -320,7 +323,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                         return uiCom.getComDisplayText();
                     },
                     value : function(uiCom){
-                        return uiCom.getComId();
+                        return "#<" + uiCom.getComId() + ">";
                     }
                 };
             }

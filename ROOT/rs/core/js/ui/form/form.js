@@ -190,12 +190,22 @@ return ZUI.def("ui.form", {
         var jTip = jF.find(".ffv-tip");
         // 绘制标题
         if(fld.required || fld.icon || fld.title){
+            // 是否字段是必须的
             if(fld.required)
                 jTxt.attr("required","yes");
+            
+            // 字段图标
             if(fld.icon)
                 $('<span class="fft-icon">').html(fld.icon).appendTo(jTxt);
-            if(fld.title)
-                $('<span class="fft-text">').html(UI.text(fld.title)).appendTo(jTxt);
+            
+            // 字段标题
+            if(fld.title) {
+                var jTT = $('<span class="fft-text">')
+                            .html(UI.text(fld.title)).appendTo(jTxt);
+                if(fld.key_tip) {
+                    jTT.attr("title", UI.msg(fld.key_tip));
+                }
+            }
         }
         // 靠，啥都木有，搞掉标题区
         else {

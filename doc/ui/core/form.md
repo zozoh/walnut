@@ -74,12 +74,18 @@ new FormUI({
 ```
 {
    // 有 key 就是普通字段
-   key      : "nm"          // 字段对应的对象键
-   icon     : HTML          // 字段的图标
-   title    : "i18n:xxx"    // 字段的标题
-   tip      : "i18n:xxx"    // 字段的提示说明
-   required : Boolean       // 字段是否必须
-   className : "XXXX"       // 指定特殊的类选择器
+   key       : "nm"          // 字段键名
+   icon      : HTML          // 字段的图标
+   title     : "i18n:xxx"    // 字段的标题
+   tip       : "i18n:xxx"    // 字段的提示说明
+   required  : Boolean       // 字段是否必须
+   className : "XXXX"        // 指定特殊的类选择器
+   
+   // 字段键名的提示信息
+   key_tip     : "i18n:xxx"
+   
+   // 提示信息的方向，默认是 right， 可选值是 left|right|up|down
+   key_tip_pos : "right"
 
    // 字段是否为无效，disableField/enableField 方法可以动态控制
    disabled  : Boolean

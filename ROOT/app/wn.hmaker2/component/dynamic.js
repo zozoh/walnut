@@ -123,10 +123,12 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         var m;
         var dynamicKeys  = [];     // 参数是否有动态参数
         var isLackParams = false;  // 是否所有的动态参数都有默认值
+        var oHome = getHomeObjName();
 
         // 得到站点名称等动态值的上下文
         var pc = {
-            siteName : UI.getHomeObjName(),
+            siteName : oHome.nm,
+            siteId   : oHome.id,
         };
 
         // 循环处理 ...

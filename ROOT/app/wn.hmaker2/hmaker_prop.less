@@ -948,10 +948,10 @@
 }
 
 //............................................................
-// 控件: filter
+// 控件: cnd: filter/sorter 通用
 @fltPad : @d0;
 @fltHH  : 32px;
-.hmc-filter-prop {
+.hmc-cnd-prop {
     position: relative; padding:@fltPad+@fltHH 0 0 0;
     > aside {
         position: absolute; top:@fltPad; left:0; right:0;
@@ -964,16 +964,16 @@
             padding: @d4; text-align: center; color:@c2;
             > i {display: block; padding:@d3; font-size:@f6;}
         }
-        > div.flt-fld {
+        > div.cnd-fld {
             padding:@d2; border:1px dotted @cborder1; 
             cursor: default; position: relative; margin-bottom:@d0;
             > ul.fld-info {
                 padding:@d1 40px @d1 @d1;
-                > li {float:left; padding:0 @d1;}
-                > [key="name"]:after {display: inline; content: ":";}
-                > [key="name"] {color:@c5;}
-                > [key="text"] {flex: 1 1 auto; color:@c7;}
-                > [key="multi"], > [key="hide"]{ @noselect();
+                > li {float:left; padding:0 @d0;}
+                > [key="text"]:after {display: inline; content: ":";}
+                > [key="text"] {color:@c5;}
+                > [key="name"] {flex: 1 1 auto; color:@c7;}
+                > .fi-box{ @noselect();
                     float:right;
                     padding:0 1px 0 0; opacity: 0.6;
                     b {
@@ -982,12 +982,20 @@
                         border-radius: @d0; background: @ch1_b; color:@ch1_f;
                     }
                 }
+                > [key="order"] b {
+                    background: #08F; color: #FFF;
+                    > i {margin-right: @d1;}
+                }
             }
             > ul.fld-info:after{@clr();}
-            > ul.fld-info[is-multi] > [key="multi"] b,
-            > ul.fld-info[is-hide]  > [key="hide"]  b
+            > ul.fld-info[is-multi]  > [key="multi"]  b,
+            > ul.fld-info[is-hide]   > [key="hide"]   b,
+            > ul.fld-info[is-modify] > [key="modify"] b,
             {
                 opacity: 1; background: @chx_b; color:@chx_f;
+            }
+            > ul.fld-info[is-or-desc] > [key="order"] b {
+                background: #F80;
             }
             > .fld-edit {
                 position: absolute; top:0; right: 0; padding:@d2; display: none;
@@ -1009,7 +1017,10 @@
                         > * {padding:@d0; margin:0; float: left;}
                         > dt {color:@c5; margin-right: @d1; font-size: @f1;}
                         > dt:after {display:inline; content:":";}
-                        > dd {color:@c4; }
+                        > dd {
+                            color:@c4;
+                            > i {margin-right: @d1;}
+                        }
                     }
                     > dl:after {@clr();}
                     > span {
@@ -1031,10 +1042,10 @@
                 }
             }
         }
-        > div.flt-fld[current] {
+        > div.cnd-fld[current] {
             border:1px solid @c0; background: @cb0;
             > ul.fld-info {
-                > [key="multi"], > [key="hide"]{
+                > .fi-box{
                     opacity: 1;
                     b {opacity: 1;}
                 }
@@ -1049,7 +1060,7 @@
                     > span {
                         @flex();
                         > b:hover {
-                            color:@ch0_f; background: @ch0_b;
+                            color:@ch1_f; background: @ch1_b;
                         }
                         > b[a="del"]:hover  i{transform: rotate(360deg) scale(1.2);}
                     }
@@ -1062,7 +1073,7 @@
         }
     }
 }
-.hmc-filter-pop-form {
+.hmc-cnd-pop-form {
     .form {
         padding:0; background: @cb1; 
         > .form-body > .form-body-wrapper > .form-group > .fg-fields {

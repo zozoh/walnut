@@ -522,13 +522,18 @@ body {
     cursor: default;
 }
 //............................................................
+// 控件: cnd: filter/sorter 通用
+.hmc-cnd {
+    > .empty {
+        padding:@d3; color:@c2; font-size:@f3;
+        text-align: center; cursor: default;
+        > i {margin-right: @d2;}
+    }
+}
+//............................................................
 // 过滤器对象
 .hmc-filter {
     padding:@d3;
-    > .empty {
-        padding:@d3; color:@c2; font-size:@f3; text-align: center;
-        > i {margin-right: @d2;}
-    }
     .hmcf-fld {
         @flex(); border-bottom:1px dashed #DDD;
         > * {padding:@d2; margin: 0;}
@@ -557,13 +562,27 @@ body {
         border-top:1px dashed #DDD;
     }
     .hmcf-exts {
-        text-align: center;
+        text-align: center; border-top:1px solid #DDD; padding:@d0 0;
         b {
             display: inline-block; padding:@d0 @d4; cursor: pointer;
             border:1px solid #CCC; 
         }
     }
-
+}
+//............................................................
+// 排序器对象
+.hmc-sorter {
+    ul {padding:@d1; margin: 0; list-style: none;}
+    li {
+        display: inline-block; padding:@d0 @d3; margin:0 1px;
+        border:1px solid #CCC; cursor: pointer;
+    }
+    em {font-style: normal;}
+    span[or-icon] {font-family:'FontAwesome'; margin:0 0 0 @d1; display: none;}
+    span[or-icon]:before {display: inline;}
+    span[or-icon="asc"]:before  {content:"\f176";}
+    span[or-icon="desc"]:before {content:"\f175";}
+    li[modify] span {display: inline;}
 }
 //............................................................
 // 分页条对象
