@@ -139,7 +139,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             jLi.insertAfter(jCurrentItem);
         }else{
             var jUl = UI.arena.find("ul").last();
-            jUl.appendTo(jUl);
+            jLi.appendTo(jUl);
         }
 
         UI.updateItem(jLi, item, true);
@@ -412,6 +412,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     //...............................................................
     paint : function(com) {
         var UI  = this;
+        var jUl = this.arena.children("ul");
         //console.log("paint", com);
 
         // 标识自己的类型
@@ -427,6 +428,11 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         
         // 同步区域
         UI.syncToggleArea(com);
+
+        // 确保自己的至少有一个项目
+        if(jUl.children().length == 0) {
+            UI.createItem();
+        }
     },
     //...............................................................
     // 根据菜单的 DOM 标记各个层级的 class

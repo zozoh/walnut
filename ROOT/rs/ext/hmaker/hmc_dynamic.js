@@ -1,6 +1,6 @@
 (function($, $z){
 //...........................................................
-function 
+
 //...........................................................
 $.fn.extend({ "hmc_dynamic" : function(opt){
 
@@ -11,13 +11,13 @@ $.fn.extend({ "hmc_dynamic" : function(opt){
 
     // 检查 api
     if(!opt.apiUrl){
-        $('<div class="api-none">').text("No Api!").appendTo(jq);
+        $('<div class="msg-error">').text("No Api!").appendTo(jq);
         return jq;
     }
 
     // 检查模板
     if(!opt.tmplInfo){
-        $('<div class="template-none">').text("No Template!").appendTo(jq);
+        $('<div class="msg-error">').text("No Template!").appendTo(jq);
         return jq;
     }
 
@@ -30,7 +30,7 @@ $.fn.extend({ "hmc_dynamic" : function(opt){
 
         // api 返回错误
         if(/^e[.]/.test(re)){
-            $('<div class="api-error">').text(re).appendTo(jq);
+            $('<div class="msg-error">').text(re).appendTo(jq);
             return jq;
         }
         // 试图解析数据
@@ -40,7 +40,7 @@ $.fn.extend({ "hmc_dynamic" : function(opt){
 
             // 没数据
             if(!_.isArray(list) || list.length == 0) {
-                $('<div class="api-empty">').text("No Data").appendTo(jq);
+                $('<div class="msg-info">').text("No Data").appendTo(jq);
                 return jq;
             }
 
@@ -56,7 +56,7 @@ $.fn.extend({ "hmc_dynamic" : function(opt){
         }
         // 接口调用错误
         catch (errMsg) {
-            $('<div class="api-error">').text(errMsg).appendTo(jq);
+            $('<div class="msg-error">').text(errMsg).appendTo(jq);
         }
     });
 

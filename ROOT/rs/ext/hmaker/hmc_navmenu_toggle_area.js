@@ -1,6 +1,6 @@
 (function($, $z){
 //...........................................................
-$.fn.extend({ "navmenuToggleArea" : function(opt){
+$.fn.extend({ "hmc_navmenu_toggle_area" : function(opt){
 
     // 记录自己
     var jq = this;

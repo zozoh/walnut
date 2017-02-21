@@ -793,7 +793,14 @@
         .cnavmp-item[newtab] {
             > span.bullet {
                 > [for="link"] i{
-                    opacity: 1.0; color:@c4; transform: scale(1.2);
+                    opacity: 0.6; color:@c5;
+                }
+            }
+        }
+        .cnavmp-item[newtab][current] {
+            > span.bullet {
+                > [for="link"] i{
+                    opacity: 1.0; color:@c0;
                 }
             }
         }
