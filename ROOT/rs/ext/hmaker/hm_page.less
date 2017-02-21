@@ -19,6 +19,34 @@
     display: flex;
 };
 
+@d0 : .02rem;
+@d1 : .04rem;
+@d2 : .06rem;
+@d3 : .08rem;
+@d4 : .12rem;
+@d5 : .16rem;
+@d6 : .24rem;
+@d7 : .32rem;
+@d8 : .48rem;
+@d9 : .64rem;
+@da : .96rem;
+@db : 1.28rem;
+
+@f0 : .08rem;
+@f1 : .10rem;
+@f2 : .12rem;
+@f3 : .14rem;
+@f4 : .16rem;
+@f5 : .24rem;
+@f6 : .32rem;
+@f7 : .48rem;
+@f8 : .64rem;
+
+@cborder0      : #CCC;        // 主要边框颜色
+@cborder1      : #D0D0D0;     // 次要边框颜色
+@chx_b         : #080;        // 补充高亮元素背景色
+@chx_f         : #FFF;        // 补充高亮元素前景色
+
 * {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -43,7 +71,7 @@ html {
 }
 
 /* 默认的 body 属性 */
-body{margin: 0; font-size:.14rem;}
+body{margin: 0; font-size:@f3;}
 
 /**
  * 控件: image
@@ -83,4 +111,115 @@ body{margin: 0; font-size:.14rem;}
  * 控件: Text
  */
 
+/**
+ * 控件: Searcher
+ */
+.hm-com-searcher {
+    @flex(); padding:@d1; position: relative;
+    .kwd-input {
+        flex:1 1 auto;
+        input {width:100%; outline: none; font-size: @f3; padding:@d2}
+    }
+    .kwd-btn {
+        flex:0 0 auto; padding:1px;
+        b {
+            display: block; cursor: pointer;
+            padding:@d2 @d4; font-size:@f3; border:1px solid @cborder1;
+        }
+    }
+}
 
+/**
+ * 控件: Filter
+ */
+.hm-com-filter {
+    padding:@d3;
+    .hmcf-fld {
+        @flex(); border-bottom:1px dashed #DDD;
+        > * {padding:@d2; margin: 0;}
+        .fld-info {
+            flex:0 0 auto; min-width: 1rem; 
+            em {
+                cursor: pointer; font-style: normal; color:#AAA; 
+                margin:@d2 0; display: inline-block;
+            }
+            em:after {display: inline; content: ":";}
+        }
+        ul {
+            flex:1 1 auto; list-style: none;
+            li {
+                float: left; padding:@d2; margin:0 @d0; cursor: pointer;
+            }
+        }
+        ul:after {@clr();}
+        .fld-multi {
+            flex:0 0 auto; cursor: pointer;
+            b {font-weight: normal;}
+        }
+    }
+    .hmcf-fld:last-child {border:0;}
+    .hmcf-folder {
+        border-top:1px dashed #DDD;
+    }
+    .hmcf-exts {
+        text-align: center; border-top:1px solid #DDD; padding:@d0 0;
+        b {
+            display: inline-block; padding:@d0 @d4; cursor: pointer;
+            border:1px solid #CCC; 
+        }
+    }
+}
+
+/**
+ * 控件: Sorter
+ */
+.hm-com-sorter {
+    ul {padding:@d1; margin: 0; list-style: none;}
+    li {
+        display: inline-block; padding:@d0 @d3; margin:0 1px;
+        border:1px solid #CCC; cursor: pointer;
+    }
+    li[enabled] {
+        background: @chx_b; color:@chx_f;
+    }
+    em {font-style: normal;}
+    span[or-icon] {font-family:'FontAwesome'; margin:0 0 0 @d1; display: none;}
+    span[or-icon]:before {display: inline;}
+    span[or-icon="asc"]:before  {content:"\f176";}
+    span[or-icon="desc"]:before {content:"\f175";}
+    li[modify] span {display: inline;}
+}
+
+/**
+ * 控件: Pager
+ */
+.hm-com-pager {
+    cursor: default; padding: @d1;
+    .pg_ele {
+        display: inline-block; padding:@d2 0; vertical-align: middle;
+    }
+    .pg_brief {display: none;}
+    a, b {
+        display: inline-block; padding:@d2; vertical-align: middle;
+        margin:0 1px;
+    }
+    a { border:1px solid rgba(0,0,0,0.3); }
+    a[key="first"], a[key="last"] {
+        display: none;
+    }
+}
+.hm-com-pager[pager-type="button"]{}
+.hm-com-pager[pager-type="jumper"] .pg_nbs a { 
+    display: none;
+}
+.hm-com-pager[pager-type="jumper"][free-jump] .pg_nbs b { 
+    border:1px dotted rgba(0,0,0,0.6);
+}
+.hm-com-pager[show-brief] .pg_brief { 
+    display: inline-block;
+}
+.hm-com-pager[show-first-last] .pg_btn { 
+    a[key="first"], a[key="last"] {
+        display: inline-block;
+    }
+}

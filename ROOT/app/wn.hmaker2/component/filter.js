@@ -10,6 +10,7 @@ var html = '<div class="ui-arena hmc-filter hmc-cnd">hahahaha</div>';
 return ZUI.def("app.wn.hm_com_filter", {
     dom     : html,
     keepDom   : true,
+    className : "!hm-com-filter",
     //...............................................................
     init : function(){
         HmComMethods(this);

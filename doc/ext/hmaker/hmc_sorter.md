@@ -6,9 +6,39 @@ tags:
 - hmaker
 ---
 
-# 排序器控件概述
+# 编辑时 DOM 结构
 
-提供排序条件参数
+```
+<div class="hm-com hm-com-sorter" id="排序条件"> 
+<div class="hm-com-W">
+<div class="hmc-sorter hmc-cnd">
+    <ul> 
+        <li key="price" or-val="1" or-nm="asc">
+            <em>价格</em><span or-icon="asc"></span>
+        </li> 
+        <li key="lm" modify="yes" or-val="-1" or-nm="desc">
+            <em>最后修改时间</em><span or-icon="desc"></span>
+        </li> 
+    </ul>
+</div>
+</div>
+</div> 
+```
+
+# 输出时 DOM 结构
+
+```
+<div class="hm-com hm-com-sorter hmc-sorter" id="sorter_1"> 
+    <ul> 
+        <li key="price" or-val="1" or-nm="asc">
+            <em>价格</em><span or-icon="asc"></span>
+        </li> 
+        <li key="lm" modify="yes" or-val="-1" or-nm="desc">
+            <em>最后修改时间</em><span or-icon="desc"></span>
+        </li> 
+    </ul> 
+</div>
+```
 
 # getComValue 返回
 

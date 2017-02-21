@@ -14,6 +14,26 @@ tags:
 - `.hmaker/template` 提供数据渲染的 DOM 模板
 - `/rs/ext/hmaker/hmc_dynamic.js` 提供运行时逻辑
 
+# 编辑时 DOM 结构
+
+```
+<div class="hm-com hm-com-dynamic" ctype="dynamic" id="数据列表" hm-actived="yes">
+    <div class="hm-com-W">
+        <div class="hmc-dynamic">
+            <!--// 这里是模板控制的范围 -->
+        </div>
+    </div>
+</div>
+```
+
+# 输出时 DOM 结构
+
+```
+<div class="hm-com hm-com-dynamic hmc-dynamic" id="数据列表">
+    <!--// 这里是模板控制的范围 -->
+</div>
+```
+
 # 配置信息
 
 通过 *hmaker* 编辑出来的属性信息格式如下:

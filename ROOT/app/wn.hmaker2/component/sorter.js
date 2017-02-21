@@ -10,6 +10,7 @@ var html = '<div class="ui-arena hmc-sorter hmc-cnd">hahahahaha</div>';
 return ZUI.def("app.wn.hm_com_sorter", {
     dom     : html,
     keepDom   : true,
+    className : "!hm-com-sorter",
     //...............................................................
     init : function(){
         HmComMethods(this);
@@ -48,7 +49,7 @@ return ZUI.def("app.wn.hm_com_sorter", {
         else {
             UI.arena.html(UI.compactHTML(`<div class="empty">
                 <i class="zmdi zmdi-alert-circle-o"></i>
-                {{hmaker.com.filter.empty}}
+                {{hmaker.com.sorter.empty}}
             </div>`));
         }
     },

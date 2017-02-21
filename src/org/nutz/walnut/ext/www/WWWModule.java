@@ -317,8 +317,8 @@ public class WWWModule extends AbstractWnModule {
 
                 // 执行命令
                 String json = Json.toJson(context, JsonFormat.compact());
-                String cmdText = "www -c '" + json + "' -in id:" + o.id();
-                String html = this.exec("www", usr, cmdText);
+                String cmdText = "www -c -in id:" + o.id();
+                String html = this.exec("www", usr, json, cmdText);
 
                 // 如果以 HTTP/1.x 开头，则认为是要输出 HTTP 头
                 if (html.startsWith("HTTP/1.")) {

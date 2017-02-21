@@ -7,15 +7,16 @@ $z.declare([
 //==============================================
 //==============================================
 var html = `<div class="ui-arena hmc-pager">
-    <div class="pg_btn"><a key="first"></a><a key="prev"></a></div>
-    <div class="pg_nbs"><a>1</a><a>2</a><b>3</b><a>4</a><a>5</a><a>6</a></div>
-    <div class="pg_btn"><a key="next"></a><a key="last"></a></div>
-    <div class="pg_brief"></div>
+    <div class="pg_ele pg_btn"><a key="first"></a><a key="prev"></a></div>
+    <div class="pg_ele pg_nbs"><a>1</a><a>2</a><b>3</b><a>4</a><a>5</a><a>6</a></div>
+    <div class="pg_ele pg_btn"><a key="next"></a><a key="last"></a></div>
+    <div class="pg_ele pg_brief"></div>
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_pager", {
     dom     : html,
     keepDom : true,
+    className : "!hm-com-pager",
     //...............................................................
     init : function(){
         HmComMethods(this);
@@ -25,7 +26,7 @@ return ZUI.def("app.wn.hm_com_pager", {
         var UI = this;
         
         // 设置属性开关
-        UI.arena.attr({
+        UI.$el.attr({
             "pager-type" : com.pagerType || "button",
             "free-jump"  : com.freeJump  ?  "yes" : null,
             "show-brief" : com.showBrief ?  "yes" : null,

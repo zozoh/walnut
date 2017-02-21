@@ -236,6 +236,12 @@ public class HmPageTranslating extends HmContext {
             this.__do_com(eleCom);
         }
         // ---------------------------------------------------
+        // 如果控件们决定当前页是一个 wnml，那么增加一个动态占位符，用来为 JS 脚本们
+        // 输出本页的请求参数
+        if (this.isWnml) {
+            this.scripts.add("window.__REQUEST = ${params<json:cqn>?-obj-};");
+        }
+        // ---------------------------------------------------
         // 展开链接资源
         __extend_link_and_style();
 
@@ -289,11 +295,11 @@ public class HmPageTranslating extends HmContext {
             if (m.find()) {
                 String scriptId = m.group(1);
                 String scriptSrc = m.group(2);
-                eleScript = doc.appendElement("script").attr("src", scriptSrc).attr("id", scriptId);
+                eleScript = doc.head().appendElement("script").attr("src", scriptSrc).attr("id", scriptId);
             }
             // 其他脚本
             else {
-                eleScript = doc.appendElement("script");
+                eleScript = doc.head().appendElement("script");
                 eleScript.attr("src", src);
             }
             // 设定脚本类型

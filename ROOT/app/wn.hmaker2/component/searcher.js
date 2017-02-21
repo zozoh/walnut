@@ -13,6 +13,7 @@ var html = `<div class="ui-arena hmc-searcher">
 return ZUI.def("app.wn.hm_com_searcher", {
     dom     : html,
     keepDom   : true,
+    className : "!hm-com-searcher",
     //...............................................................
     init : function(){
         HmComMethods(this);

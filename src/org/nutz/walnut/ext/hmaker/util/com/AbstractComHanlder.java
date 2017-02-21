@@ -29,6 +29,10 @@ public abstract class AbstractComHanlder implements HmComHandler {
 
         // 调用子类
         this._exec(ing);
+        
+        // 最后统一清除一些属性
+        ing.eleCom.getElementsByAttribute("del-attrs").removeAttr("del-attrs");
+        ing.eleCom.getElementsByClass("ui-arena").removeClass("ui-arena");
 
     }
 

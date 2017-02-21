@@ -12,6 +12,7 @@ var html = `<div class="hmc-dynamic ui-arena hm-del-save">
 return ZUI.def("app.wn.hm_com_dynamic", {
     dom     : html,
     keepDom : false,
+    className : "!hm-com-dynamic",
     //...............................................................
     init : function(){
         var UI = HmComMethods(this);

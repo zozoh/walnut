@@ -467,7 +467,7 @@ html[hm-page-preparing] {
 }
 //............................................................
 // 动态数据对象
-.hmc-dynamic {
+.hm-com-dynamic {
     .dynamic-msg {
         display: block;
         text-align: center; padding:@d4; 
@@ -479,62 +479,64 @@ html[hm-page-preparing] {
     .dynamic-msg[m="api-no-data"] {color:@c3;}
     .dynamic-msg[m="api-error"] {color:@c6;}
     .dynamic-msg[m="api-lack-params"] {color:@c4;}
+    > .hm-com-W {
+        > .dynamic-keys {
+            position: absolute; top:@ddsP; left:@ddsP;
+            padding:1px @d3; background: rgba(255,255,0,0.5); color:#000;
+            font-family: @f_fixed; font-size:@f0; border-radius: @d1;
+            font-weight: normal; border:1px solid rgba(0,0,0,0.2);
+            ul {
+                list-style: none; padding: 0; margin: 0;
+                > li {float:left; padding:@d0;}
+            }
+            ul:after{@clr();}
+        }
+        > .dynamic-reload { @noselect(); display: none;
+            position: absolute; bottom:@ddsP; right:@ddsP;
+            z-index: 1;
+            b {
+                display: block;
+                padding:@d3; background: #000; color: #FFF; opacity: 0.4;
+                font-size:@f2; cursor: pointer; transition:0.3s;
+            }
+        }
+        > .dynamic-reload:hover {
+            z-index: 999;
+            b {
+                opacity: 1.0; color:#FF0; border-radius: 50%;
+                transform: rotate(180deg); 
+            }
+        }
+        > .dynamic-reload:before {
+            line-height: 24px;
+        }
+    }
 }
-.hm-com[ctype="dynamic"] > .hm-com-W {
-    > .dynamic-keys {
-        position: absolute; top:@ddsP; left:@ddsP;
-        padding:1px @d3; background: rgba(255,255,0,0.5); color:#000;
-        font-family: @f_fixed; font-size:@f0; border-radius: @d1;
-        font-weight: normal; border:1px solid rgba(0,0,0,0.2);
-        ul {
-            list-style: none; padding: 0; margin: 0;
-            > li {float:left; padding:@d0;}
-        }
-        ul:after{@clr();}
-    }
-    > .dynamic-reload { @noselect(); display: none;
-        position: absolute; bottom:@ddsP; right:@ddsP;
-        z-index: 1;
-        b {
-            display: block;
-            padding:@d3; background: #000; color: #FFF; opacity: 0.4;
-            font-size:@f2; cursor: pointer; transition:0.3s;
-        }
-    }
-    > .dynamic-reload:hover {
-        z-index: 999;
-        b {
-            opacity: 1.0; color:#FF0; border-radius: 50%;
-            transform: rotate(180deg); 
-        }
-    }
-    > .dynamic-reload:before {
-        line-height: 24px;
-    }
-}
-.hm-com[ctype="dynamic"][hm-actived] > .hm-com-W {
+.hm-com-dynamic[hm-actived] > .hm-com-W {
     > .dynamic-reload {display: block;}
 }
 //............................................................
 // 关键字对象
-.hmc-searcher {
-    @flex(); padding:@d1; position: relative;
-    .kwd-input {
-        flex:1 1 auto;
-        input {width:100%; outline: none; font-size: @f3; padding:@d2}
-    }
-    .kwd-btn {
-        flex:0 0 auto; padding:1px;
-        b {
-            display: block; cursor: pointer;
-            padding:@d2 @d4; font-size:@f3; border:1px solid @cborder1;
+.hm-com-searcher {
+    .ui-arena {
+        @flex(); padding:@d1; position: relative;
+        .kwd-input {
+            flex:1 1 auto;
+            input {width:100%; outline: none; font-size: @f3; padding:@d2}
+        }
+        .kwd-btn {
+            flex:0 0 auto; padding:1px;
+            b {
+                display: block; cursor: pointer;
+                padding:@d2 @d4; font-size:@f3; border:1px solid @cborder1;
+            }
         }
     }
-}
-.hmc-searcher:after {
-    display: block; content: ""; background: rgba(0,0,0,0);
-    position: absolute; top:0; left: 0; right: 0; bottom: 0;
-    cursor: default;
+    .ui-arena:after {
+        display: block; content: ""; background: rgba(0,0,0,0);
+        position: absolute; top:0; left: 0; right: 0; bottom: 0;
+        cursor: default;    
+    }
 }
 //............................................................
 // 控件: cnd: filter/sorter 通用
@@ -547,8 +549,8 @@ html[hm-page-preparing] {
 }
 //............................................................
 // 过滤器对象
-.hmc-filter {
-    padding:@d3;
+.hm-com-filter {
+    .ui-arena {padding:@d3;}
     .hmcf-fld {
         @flex(); border-bottom:1px dashed #DDD;
         > * {padding:@d2; margin: 0;}
@@ -586,7 +588,7 @@ html[hm-page-preparing] {
 }
 //............................................................
 // 排序器对象
-.hmc-sorter {
+.hm-com-sorter {
     ul {padding:@d1; margin: 0; list-style: none;}
     li {
         display: inline-block; padding:@d0 @d3; margin:0 1px;
@@ -604,9 +606,9 @@ html[hm-page-preparing] {
 }
 //............................................................
 // 分页条对象
-.hmc-pager {
+.hm-com-pager {
     cursor: default; padding: @d1;
-    > div {
+    .pg_ele {
         display: inline-block; padding:@d2 0; vertical-align: middle;
     }
     .pg_brief {display: none;}
@@ -619,17 +621,17 @@ html[hm-page-preparing] {
         display: none;
     }
 }
-.hmc-pager[pager-type="button"]{}
-.hmc-pager[pager-type="jumper"] .pg_nbs a { 
+.hm-com-pager[pager-type="button"]{}
+.hm-com-pager[pager-type="jumper"] .pg_nbs a { 
     display: none;
 }
-.hmc-pager[pager-type="jumper"][free-jump] .pg_nbs b { 
+.hm-com-pager[pager-type="jumper"][free-jump] .pg_nbs b { 
     border:1px dotted rgba(0,0,0,0.6);
 }
-.hmc-pager[show-brief] .pg_brief { 
+.hm-com-pager[show-brief] .pg_brief { 
     display: inline-block;
 }
-.hmc-pager[show-first-last] .pg_btn { 
+.hm-com-pager[show-first-last] .pg_btn { 
     a[key="first"], a[key="last"] {
         display: inline-block;
     }

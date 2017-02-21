@@ -85,8 +85,11 @@ public class www_wnml implements WWWHdl {
         if (nd instanceof TextNode) {
             TextNode tnd = (TextNode) nd;
             String txt = tnd.text();
-            String str = Tmpl.exec(txt, c);
-            tnd.text(str);
+            // 只有大于 3 个字符，才有可能是占位符
+            if (null != txt && txt.length() > 3 && txt.indexOf("${") >= 0) {
+                String str = Tmpl.exec(txt, c);
+                tnd.text(str);
+            }
         }
         // 元素
         else if (nd instanceof Element) {
@@ -135,14 +138,20 @@ public class www_wnml implements WWWHdl {
 
     private void __do_data_node_text(DataNode dnd, NutMap c) {
         String txt = dnd.getWholeData();
-        String str = Tmpl.exec(txt, c);
-        dnd.setWholeData(str);
+        // 只有大于 3 个字符，才有可能是占位符
+        if (null != txt && txt.length() > 3 && txt.indexOf("${") > 3) {
+            String str = Tmpl.exec(txt, c);
+            dnd.setWholeData(str);
+        }
     }
 
     private void __do_element_text(Element ele, NutMap c) {
         String txt = ele.text();
-        String str = Tmpl.exec(txt, c);
-        ele.text(str);
+        // 只有大于 3 个字符，才有可能是占位符
+        if (null != txt && txt.length() > 3 && txt.indexOf("${") > 3) {
+            String str = Tmpl.exec(txt, c);
+            ele.text(str);
+        }
     }
 
     private void __do_each(final WnSystem sys, final Element ele, NutMap c) {
@@ -233,8 +242,11 @@ public class www_wnml implements WWWHdl {
     private void __do_node_attr(Node nd, NutMap c) {
         for (Attribute attr : nd.attributes()) {
             String val = attr.getValue();
-            String str = Tmpl.exec(val, c);
-            attr.setValue(str);
+            // 只有长度大于 3 才有可能是占位符
+            if (null != val && val.length() > 3 && val.indexOf("${") >= 0) {
+                String str = Tmpl.exec(val, c);
+                attr.setValue(str);
+            }
         }
     }
 
