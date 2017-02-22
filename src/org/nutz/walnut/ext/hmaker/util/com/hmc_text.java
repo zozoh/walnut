@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.hmaker.util.com;
 
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
-public class hmc_text extends AbstractComHanlder {
+public class hmc_text extends AbstractCom {
 
     @Override
     protected void _exec(HmPageTranslating ing) {

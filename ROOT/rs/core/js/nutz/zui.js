@@ -1167,14 +1167,14 @@ ZUIObj.prototype = {
     },
     //...................................................................
     // 提供一个通用的确认对话框
-    confirm: function(msgKey, opt, onOk, onCancel) {
+    // opt.ok     : {c}F(str)
+    // opt.cancel : {c}F()
+    confirm: function(msgKey, opt) {
         var UI = this;
 
         // 分析参数
         if(_.isFunction(opt)) {
-            onCancel = onOk;
-            onOk     = opt;
-            opt      = {};
+            opt = {ok: opt};
         }
         opt = opt || {};
         $z.setUndefined(opt, "width",  400);
@@ -1193,11 +1193,11 @@ ZUIObj.prototype = {
                 events : {
                     "click .pm-btn-ok" : function(){
                         this.close();
-                        $z.doCallback(onOk, [], UI);
+                        $z.invoke(opt, "ok", [], opt.context||this);
                     },
                     "click .pm-btn-cancel" : function(){
                         this.close();
-                        $z.doCallback(onCancel, [], UI);
+                        $z.invoke(opt, "cancel", [], opt.context||this);
                     }
                 }
             })).render(function(){
@@ -1209,7 +1209,7 @@ ZUIObj.prototype = {
 
                 // 设置按钮文字
                 this.$main.find(".pm-btn-ok").html(UI.msg(opt.btnYes));
-                this.$main.find(".pm-btn-cancel").html(UI.msg(opt.btnNo));
+                this.$main.find(".pm-btn-cancel").html(UI.msg(opt.btnNo)).focus();
 
                 // 设置显示内容
                 var html = '';
@@ -1223,7 +1223,8 @@ ZUIObj.prototype = {
     },
     //...................................................................
     // 提供一个通用的确认对话框
-    alert: function(msgKey, opt, callback) {
+    // opt.callback : {c}F(str)
+    alert: function(msgKey, opt) {
         var UI = this;
 
         // 分析参数
@@ -1259,7 +1260,7 @@ ZUIObj.prototype = {
                 events : {
                     "click .pm-btn-ok" : function(){
                         this.close();
-                        $z.doCallback(callback, [], UI);
+                        $z.invoke(opt, "callback", [], opt.context||this);
                     }
                 }
             })).render(function(){
@@ -1270,7 +1271,7 @@ ZUIObj.prototype = {
                     this.$main.find(".pm-title").remove();
 
                 // 设置按钮文字
-                this.$main.find(".pm-btn-ok").html(UI.msg(opt.btnOk));
+                this.$main.find(".pm-btn-ok").html(UI.msg(opt.btnOk)).focus();
                 this.$main.find(".pm-btn-cancel").remove();
 
                 // 设置显示内容
@@ -1285,11 +1286,16 @@ ZUIObj.prototype = {
     },
     //...................................................................
     // 一个提示输入框
-    // opt.ok     : {c}F(str, callback(ErrMsg))
+    // opt.ok     : {c}F(str)
     // opt.cancel : {c}F()
     // opt.check  : {c}F(str, callback(ErrMsg))
     prompt: function(msgKey, opt) {
         var UI = this;
+
+        // 支持直接给定 ok 的回调
+        if(_.isFunction(opt)) {
+            opt = {ok : opt};
+        }
 
         // 分析参数
         opt = opt || {};
@@ -1309,25 +1315,10 @@ ZUIObj.prototype = {
             var uiMask  = this;
             var context = opt.context || this;
             var str = $.trim(this.$main.find(".pmp-input input").val());
-            if(_.isFunction(opt.ok)){
-                opt.ok.call(context, str, function(err){
-                    // 显示错误信息
-                    if(err) {
-                        uiMask.$main.find(".pm-body").attr("mode", "warn")
-                            .find(".pop-msg-icon")
-                                .html(opt.iconWarn);
-                        uiMask.$main.find(".pmp-warn").text(UI.msg(err));
-                    }
-                    // 正常则关闭
-                    else {
-                        uiMask.close();
-                    }
-                });
-            }
-            // 否则关闭对话框
-            else{
-                uiMask.close();
-            }
+            // 关闭对话框
+            uiMask.close();
+            // 调用回调
+            $z.invoke(opt, "ok", [], opt.context||this);
         };
 
         // 显示遮罩层
@@ -1346,9 +1337,8 @@ ZUIObj.prototype = {
                     "click .pm-btn-ok" : on_ok,
                     // 取消
                     "click .pm-btn-cancel" : function(){
-                        var context = opt.context || this;
                         this.close();
-                        $z.invoke(opt, "cancel", [], context);
+                        $z.invoke(opt, "cancel", [], opt.context||this);
                     },
                     // 执行检查
                     "input .pmp-input input" : function(){

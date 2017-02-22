@@ -411,18 +411,18 @@ html[hm-page-preparing] {
             cursor: pointer; position: relative;
             a {
                 display: inline-block; vertical-align: middle;
-                position: relative;
+                position: relative; white-space: nowrap;
             }
         }
         li[current] {}
-        li[newtab] a:after {
+        li[newtab] > a:after {
             display: block; content: "";
             position: absolute; left:-8px; top:-3px;
             width:3px; height:3px; border-radius: 50%;
             background: rgba(255,255,255,0.2); 
             border:1px solid rgba(0,0,0,0.2);
         }
-        li[current][newtab] a:after {
+        li[current][newtab] > a:after {
             background: rgba(0,0,0,0.4); 
             border-color:rgba(255,255,0,0.4);
         }
@@ -519,26 +519,24 @@ html[hm-page-preparing] {
 }
 //............................................................
 // 关键字对象
-.hm-com-searcher {
-    .ui-arena {
-        @flex(); padding:@d1; position: relative;
-        .kwd-input {
-            flex:1 1 auto;
-            input {width:100%; outline: none; font-size: @f3; padding:@d2}
-        }
-        .kwd-btn {
-            flex:0 0 auto; padding:1px;
-            b {
-                display: block; cursor: pointer;
-                padding:@d2 @d4; font-size:@f3; border:1px solid @cborder1;
-            }
+.hmc-searcher {
+    @flex(); padding:@d1; position: relative;
+    .kwd-input {
+        flex:1 1 auto;
+        input {width:100%; outline: none; font-size: @f3; padding:@d2}
+    }
+    .kwd-btn {
+        flex:0 0 auto; padding:1px;
+        b {
+            display: block; cursor: pointer;
+            padding:@d2 @d4; font-size:@f3; border:1px solid @cborder1;
         }
     }
-    .ui-arena:after {
-        display: block; content: ""; background: rgba(0,0,0,0);
-        position: absolute; top:0; left: 0; right: 0; bottom: 0;
-        cursor: default;    
-    }
+}
+.hmc-searcher:after {
+    display: block; content: ""; background: rgba(0,0,0,0);
+    position: absolute; top:0; left: 0; right: 0; bottom: 0;
+    cursor: default;    
 }
 //............................................................
 // 控件: cnd: filter/sorter 通用
@@ -551,8 +549,8 @@ html[hm-page-preparing] {
 }
 //............................................................
 // 过滤器对象
-.hm-com-filter {
-    .ui-arena {padding:@d3;}
+.hmc-filter {
+    padding:@d3;
     .hmcf-fld {
         @flex(); border-bottom:1px dashed #DDD;
         > * {padding:@d2; margin: 0;}
@@ -577,9 +575,7 @@ html[hm-page-preparing] {
         }
     }
     .hmcf-fld:last-child {border:0;}
-    .hmcf-folder {
-        border-top:1px dashed #DDD;
-    }
+    .hmcf-folder {display: none; border-top:1px dashed #DDD;}
     .hmcf-exts {
         text-align: center; border-top:1px solid #DDD; padding:@d0 0;
         b {
@@ -588,9 +584,10 @@ html[hm-page-preparing] {
         }
     }
 }
+.hmc-filter[folder-show] .hmcf-folder {display: block;}
 //............................................................
 // 排序器对象
-.hm-com-sorter {
+.hmc-sorter {
     ul {padding:@d1; margin: 0; list-style: none;}
     li {
         display: inline-block; padding:@d0 @d3; margin:0 1px;
@@ -608,12 +605,12 @@ html[hm-page-preparing] {
 }
 //............................................................
 // 分页条对象
-.hm-com-pager {
+.hmc-pager {
     cursor: default; padding: @d1;
     .pg_ele {
         display: inline-block; padding:@d2 0; vertical-align: middle;
     }
-    .pg_brief {display: none;}
+    .pg_brief {display: none; padding:0 @d2;}
     a, b {
         display: inline-block; padding:@d2; vertical-align: middle;
         margin:0 1px;

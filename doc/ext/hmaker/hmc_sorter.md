@@ -40,7 +40,7 @@ tags:
 </div>
 ```
 
-# getComValue 返回
+# getComValue
 
 永远返回字符串:
 
@@ -49,5 +49,21 @@ tags:
 "ct:1,lm:-1"     // 多个排序条件用半角逗号分隔
 }
 ```
+
+# 运行时获取值
+
+```
+var re = $(xxx).hmc_sorter("value");
+```
+
+> 这里返回值 re 的对象结构与 [getComValue的返回值](#getComValue) 相同
+
+# 运行时设置值
+
+```
+$(xxx).hmc_sorter("value", "ct:1,lm:-1");
+```
+
+> 这里新值的的对象结构与 [getComValue的返回值](#getComValue) 相同
 
 

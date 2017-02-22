@@ -10,7 +10,7 @@ define({
             "none"   : "无链接",
             "edit"   : '<i class="zmdi zmdi-link"></i> 编辑超链接',
             "select" : "站内链接快速选择",
-            "edit_tip" : "如果想编辑站外链接，请用 http:// 或者 https:// 开头"
+            "edit_tip" : '如果想编辑站外链接，请用 <code>http://</code> 或者 <code>https://</code> 开头。站内链接一律相对于站点主目录，并以 <code>/</code> 开头',
         },
         "site" : {
             "conf"   : '<i class="fa fa-gear"></i> <b>站点设置</b>',
@@ -167,7 +167,7 @@ define({
             "rows" : {
                 "name"  : "水平分栏",
                 "tip"   : "对于所在区域进行水平分隔，可以容纳更多控件",
-                "icon"  : '<i class="zmdi zmdi-view-agenda" style="font-size:1.2em;"></i>',
+                "icon"  : '<i class="zmdi zmdi-view-agenda"></i>',
                 "fixwidth"  : "固定宽度",
                 "fixwidth_tip" : "单位是 px 或者 %",
                 "padding"   : "栏内边距",
@@ -175,7 +175,7 @@ define({
             "columns" : {
                 "name"  : "垂直分栏",
                 "tip"   : "对于所在区域进行垂直分隔，可以容纳更多控件",
-                "icon"  : '<i class="zmdi zmdi-view-column" style="font-size:1.4em;"></i>',
+                "icon"  : '<i class="zmdi zmdi-view-column"></i>',
                 "fixwidth"  : "固定宽度",
                 "fixwidth_tip" : "单位是 px 或者 %",
                 "padding"   : "栏内边距",
@@ -211,7 +211,9 @@ define({
                 "toar_edit_title" : "选择对应的分栏区域",
                 "toar_edit_tip"   : "建议你直接选择，写的话可能会出错哦",
                 "autoCurrent" : "自动高亮",
-                "autoCurrent_tip" : "根据页面自动决定",
+                "autoCurrent_tip" : "根据页面自动设置高亮项",
+                "autoShowSub"     : "自动展开",
+                "autoShowSub_tip" : "鼠标停留自动展开子菜单",
             },
             "text" : {
                 "name"  : "文本",
@@ -300,6 +302,9 @@ define({
                 "del"   : "移除当前过滤字段",
                 "empty" : "过滤器没有设置内容",
                 "multi" : "多选",
+                "btnMultiText"   : "多选按钮文字",
+                "btnExtTextShow" : "展开按钮文字",
+                "btnExtTextHide" : "收起按钮文字",
                 "ext_show" : "展开",
                 "ext_hide" : "收起",
                 "fld_name_tip" : "过滤字段名即参数名，主要是看你要访问的数据接口能接受什么样的参数，如果你实在搞不清要写什么，请联系你的数据接口提供者，他/她应该会告诉你一切",

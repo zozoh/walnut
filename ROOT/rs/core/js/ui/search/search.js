@@ -277,30 +277,29 @@ return ZUI.def("ui.srh", {
     // 删除选中的项目
     deleteChecked : function(){
         var UI   = this;
+        var opt  = UI.options;
         var objs = UI.uiList.getChecked();
         if(!objs || objs.length == 0){
-            alert(UI.msg("srh.e.nochecked"));
+            UI.alert(UI.msg("srh.e.nochecked"));
             return;
         }
-        // 警告
-        if(!confirm(UI.msg("delwarn"))){
-            return;
-        }
-        // 开始执行 ...
-        var opt  = UI.options;
-        var tmpl = $z.tmpl(opt.edtCmdTmpl["delete"]);
-        var str = "";
-        objs.forEach(function(obj){
-            str += tmpl(obj) + ";\n";
-        });
-        UI.exec(str, function(){
-            var jN2 = null;
-            for(var i=0; i<objs.length; i++){
-                jN2 = UI.uiList.remove(objs[i].id);
-            }
-            if(jN2){
-                UI.uiList.setActived(jN2);
-            }
+
+        // 开始删除
+        UI.confirm("delwarn", function(){
+            var tmpl = $z.tmpl(opt.edtCmdTmpl["delete"]);
+            var str = "";
+            objs.forEach(function(obj){
+                str += tmpl(obj) + ";\n";
+            });
+            UI.exec(str, function(){
+                var jN2 = null;
+                for(var i=0; i<objs.length; i++){
+                    jN2 = UI.uiList.remove(objs[i].id);
+                }
+                if(jN2){
+                    UI.uiList.setActived(jN2);
+                }
+            });
         });
     },
     //...............................................................
@@ -324,7 +323,7 @@ return ZUI.def("ui.srh", {
                     ? UI.uiList.getActived()
                     : UI.uiList.getData(str);
         if(!obj){
-            alert(UI.msg("srh.e.noactived"));
+            UI.alert(UI.msg("srh.e.noactived"));
             return;
         }
         // 开始执行 ...

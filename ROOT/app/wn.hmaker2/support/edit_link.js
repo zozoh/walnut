@@ -8,7 +8,7 @@ $z.declare([
 var html = `
 <div class="ui-arena edit-link">
     <header ui-gasket="drop"></header>
-    <section><input></section>
+    <section><input spellcheck="false"></section>
     <aside></aside>
 </div>`;
 //==============================================
@@ -40,7 +40,7 @@ return ZUI.def("ui.edit_link", {
         // 更新提示信息
         var jTip = UI.arena.find(">aside");
         if(opt.tip) {
-            jTip.text(UI.text(opt.tip));
+            jTip.html(UI.text(opt.tip));
         }
         // 移除提示信息
         else {

@@ -311,6 +311,14 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                 disabled : false,
                 uiWidth : "auto",
                 editAs : "toggle",
+            }, {
+                key   : "autoShowSub",
+                title : "i18n:hmaker.com.navmenu.autoShowSub",
+                tip   : "i18n:hmaker.com.navmenu.autoShowSub_tip",
+                type  : "boolean",
+                disabled : false,
+                uiWidth : "auto",
+                editAs : "toggle",
             }]
         }).render(function(){
             // console.log("after render: UI.parent", UI.parent);

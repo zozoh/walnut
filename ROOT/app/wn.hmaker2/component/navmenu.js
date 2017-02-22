@@ -12,7 +12,7 @@ var html = `
 return ZUI.def("app.wn.hm_com_navmenu", {
     keepDom   : true,
     dom       : html,
-    className : "!",
+    className : '!hm-com-navmenu',
     //...............................................................
     init : function(){
         HmComMethods(this);
@@ -455,9 +455,14 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         jUl.find(">li>ul>li li")
             .prop("className", "li-sub li-sub-n");
 
-        // 最后重新标记每个项目的 index
+        // 最后重新标记每个项目的 index 以及子菜单个数
         jUl.find("li").each(function(index){
-            $(this).attr("index", index);
+            var jLi = $(this);
+            var jUl = jLi.children("ul");
+            jLi.attr({
+                "index"       : index,
+                "sub-item-nb" : jUl.length>0?jUl.children().length:null,
+            });
         });
     },
     //...............................................................

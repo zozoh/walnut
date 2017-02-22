@@ -6,7 +6,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
-public class hmc_image extends AbstractComHanlder {
+public class hmc_image extends AbstractCom {
 
     @Override
     protected void _exec(HmPageTranslating ing) {

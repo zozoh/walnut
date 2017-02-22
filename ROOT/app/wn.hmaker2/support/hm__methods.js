@@ -496,8 +496,8 @@ var methods = {
         $z.setUndefined(opt, "tip", "i18n:hmaker.link.edit_tip");
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if(_.isUndefined(opt.items)) {
-            var oPage = UI.pageUI().getCurrentEditObj();
-            opt.items = 'hmaker id:'+oPage.id+' links -key "rph,nm,tp" -site';
+            var homeId = UI.pageUI().getHomeObjId();
+            opt.items = 'hmaker id:'+homeId+' links -key "rph,nm,tp" -site';
         }
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         $z.setUndefined(opt, "icon", function(o) {
@@ -509,12 +509,10 @@ var methods = {
             return Wn.objIconHtml(o);
         });
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        $z.setUndefined(opt, "text", function(o) {
-            return o.rph;
-        });
+        $z.setUndefined(opt, "text", null);
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         $z.setUndefined(opt, "value", function(o) {
-            return o.rph;
+            return "/" + o.rph;
         });
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         $z.setUndefined(opt, "emptyItem", {

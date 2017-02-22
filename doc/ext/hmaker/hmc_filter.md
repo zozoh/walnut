@@ -71,7 +71,7 @@ tags:
 </div> 
 ```
 
-# getComValue 返回
+# getComValue
 
 永远返回 JSON 对象
 
@@ -83,5 +83,22 @@ tags:
     "字段名" : ["24", "78"]     // 数组则表示用户的多选
 }
 ```
+
+# 运行时获取值
+
+```
+var re = $(xxx).hmc_filter("value");
+```
+
+> 这里返回值 re 的对象结构与 [getComValue的返回值](#getComValue) 相同
+
+# 运行时设置值
+
+```
+$(xxx).hmc_pager("value", {...});
+```
+
+> 这里新值的的对象结构与 [getComValue的返回值](#getComValue) 相同
+
 
 

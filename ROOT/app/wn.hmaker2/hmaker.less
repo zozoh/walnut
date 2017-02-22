@@ -132,11 +132,11 @@
                 }
                 > h4.hm-ibtn:hover {background: @ch1_b; color:@ch1_f;}
                 > ul {
-                    line-height: @panTH; font-size: @f3; 
+                    line-height: 28px; font-size: @f3; 
                     > li.sep {
                         height: 1px; line-height: 1px;
-                        overflow: hidden; background: @cborder1;
-                        margin:@d2 0;
+                        overflow: hidden; background: @cborder0;
+                        margin:@d3 0;
                     }
                     > li[ctype] {
                         cursor: pointer; position: relative;
@@ -172,7 +172,7 @@
                                     a.hm-ireload { 
                                         padding:@d3; cursor: pointer;
                                         color:@clink; display: block;
-                                        white-space: nowrap;
+                                        white-space: nowrap; font-size: @f1;
                                     }
                                     a.hm-ireload:hover {color:@clink_hover;}
                                 }
@@ -196,13 +196,12 @@
                             }
                         }
                     }
-                    > li:hover {
+                    > li[ctype]:hover {
                         color: @ch0_f; background: @ch0_b;
                         .hmpg-ibar-ibox { 
                             width:unset; opacity: 1.0;
                         }
                     }
-                    > li:before{line-height: @f5; font-size:@f3;}
                 }
             }
         }
@@ -393,12 +392,13 @@
         }
         .hm-enter {
             img {
-                width : 128px;
+                width : 128px; height: 128px; background: @c2;
             }
             a {
                 display: block; text-align: center;
-                font-size: @f4; padding:@d3 0;
+                font-size: @f2; padding:@d3 0; color:@clink;
             }
+            a:hover {color:@clink_hover;}
         }
     }
 }

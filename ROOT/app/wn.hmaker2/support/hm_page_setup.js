@@ -97,7 +97,7 @@ var methods = {
             else {
                 UI.markReadyForEdit(true);
                 // 对所有的组件，重新应用一遍 block
-                jComs.each(function(){
+                UI._C.iedit.$body.find(".hm-com").each(function(){
                     ZUI(this).applyBlock();
                 });
             }
@@ -111,9 +111,9 @@ var methods = {
         UI.doChangeSkin();
 
         // 模拟点击
-        window.setTimeout(function(){
-            UI._C.iedit.$body.find(".hm-com").first().click();
-        }, 500);
+        // window.setTimeout(function(){
+        //     UI._C.iedit.$body.find(".hm-com").first().click();
+        // }, 500);
     },
     //...............................................................
     // 标识自己是否可以被编辑（即所有的组件都加载完毕）

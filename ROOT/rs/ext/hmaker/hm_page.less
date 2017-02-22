@@ -105,7 +105,19 @@ body{margin: 0; font-size:@f3;}
 /**
  * 控件: navmenu
  */
-
+.hmc-navmenu {
+    ul {
+        li{
+            cursor: pointer; position: relative;
+            a {
+                display: inline-block; vertical-align: middle;
+                position: relative; white-space: nowrap;
+            }
+        }
+        li[current] {}
+    }
+    .ul-sub {z-index: 9;}
+}
 
 /**
  * 控件: Text
@@ -127,7 +139,7 @@ body{margin: 0; font-size:@f3;}
 /**
  * 控件: Searcher
  */
-.hm-com-searcher {
+.hmc-searcher {
     @flex(); padding:@d1; position: relative;
     .kwd-input {
         flex:1 1 auto;
@@ -145,7 +157,7 @@ body{margin: 0; font-size:@f3;}
 /**
  * 控件: Filter
  */
-.hm-com-filter {
+.hmc-filter {
     padding:@d3;
     .hmcf-fld {
         @flex(); border-bottom:1px dashed #DDD;
@@ -171,9 +183,7 @@ body{margin: 0; font-size:@f3;}
         }
     }
     .hmcf-fld:last-child {border:0;}
-    .hmcf-folder {
-        border-top:1px dashed #DDD;
-    }
+    .hmcf-folder {display: none; border-top:1px dashed #DDD;}
     .hmcf-exts {
         text-align: center; border-top:1px solid #DDD; padding:@d0 0;
         b {
@@ -182,11 +192,12 @@ body{margin: 0; font-size:@f3;}
         }
     }
 }
+.hmc-filter[folder-show] .hmcf-folder {display: block;}
 
 /**
  * 控件: Sorter
  */
-.hm-com-sorter {
+.hmc-sorter {
     ul {padding:@d1; margin: 0; list-style: none;}
     li {
         display: inline-block; padding:@d0 @d3; margin:0 1px;
@@ -206,7 +217,7 @@ body{margin: 0; font-size:@f3;}
 /**
  * 控件: Pager
  */
-.hm-com-pager {
+.hmc-pager {
     cursor: default; padding: @d1;
     .pg_ele {
         display: inline-block; padding:@d2 0; vertical-align: middle;

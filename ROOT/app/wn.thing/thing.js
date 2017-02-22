@@ -539,16 +539,23 @@ return ZUI.def("app.wn.thing", {
                 text  : "i18n:thing.create",
                 icon  : '<i class="zmdi zmdi-flare"></i>',
                 handler : function() {
-                    var objName = window.prompt(UI.msg("thing.create_tip"));
-                    if(objName){
-                        var cmdText = UI.__cmd(thConf.createBy, oTS.id, objName);
-                        Wn.exec(cmdText, function(re){
-                            var newObj = $z.fromJson(re);
-                            UI.gasket.search.refresh(function(){
-                                UI.subUI("search/list").setActived(newObj.id);
-                            });
-                        });
-                    }
+                    UI.prompt("thing.create_tip", {
+                        icon  : oTS.icon || '<i class="fa fa-cube"></i>',
+                        btnOk : "thing.create_do",
+                        // 用户点击了确定
+                        ok : function(objName){
+                            // 创建对象
+                            if(objName){
+                                var cmdText = UI.__cmd(thConf.createBy, oTS.id, objName);
+                                Wn.exec(cmdText, function(re){
+                                    var newObj = $z.fromJson(re);
+                                    UI.gasket.search.refresh(function(){
+                                        UI.subUI("search/list").setActived(newObj.id);
+                                    });
+                                });
+                            }
+                        }
+                    });
                 }
             }, {
                 qkey  : "delete",

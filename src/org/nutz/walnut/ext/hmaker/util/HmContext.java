@@ -81,9 +81,10 @@ public class HmContext {
         this.resources = new HashSet<>();
         this.pageOutputNames = new HashMap<>();
         this.processCount = Nums.array(0);
+        this.__lib_codes = new HashMap<>();
     }
 
-    public HmContext(HmContext hpc) {
+    protected HmContext(HmContext hpc) {
         this.io = hpc.io;
         this.resources = hpc.resources;
         this.oHome = hpc.oHome;
@@ -97,6 +98,8 @@ public class HmContext {
         this.strict = hpc.strict;
         this.pageOutputNames = hpc.pageOutputNames;
         this.processCount = hpc.processCount;
+        this.__conf = hpc.__conf;
+        this.__lib_codes = hpc.__lib_codes;
     }
 
     /**
@@ -175,6 +178,28 @@ public class HmContext {
             this.templates.put(templateName, tmpl);
         }
         return tmpl;
+    }
+
+    /**
+     * 缓存组件的代码
+     */
+    private Map<String, String> __lib_codes;
+
+    /**
+     * 获取组件内容（懒加载）
+     * 
+     * @param libName
+     *            组件名称
+     * @return 组件内容代码
+     */
+    public String getLibCode(String libName) {
+        String re = __lib_codes.get(libName);
+        if (null == re) {
+            WnObj oLib = io.check(oHome, "lib/" + libName);
+            re = io.readText(oLib);
+            __lib_codes.put(libName, re);
+        }
+        return re;
     }
 
     private NutMap __conf;

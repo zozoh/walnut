@@ -55,6 +55,7 @@ body {
 // com.navmenu:水平菜单
 .skin-navmenu-h-subpop {
     //font-size:.18rem;
+    li {position: relative;}
     li[href] > a {text-decoration: underline;}
     li[open-sub]{
         background: #FFF;
@@ -63,6 +64,18 @@ body {
     ul li[current]{
         background: rgba(0,0,0,0.8);
         > a { color:#FF0; }
+    }
+    .li-sub {
+        line-height: .36rem; height: .36rem;
+        padding:0 .08rem;
+    }
+    .li-sub[sub-item-nb] {
+        padding-right: .24rem;
+    }
+    .li-sub[sub-item-nb]:after {
+        position: absolute; right:0; top:0;
+        font-family:'Material-Design-Iconic-Font';
+        display:inline; content:"\f2f6";
     }
     .hmc-navmenu {
         padding: .08rem;
@@ -73,15 +86,12 @@ body {
         margin:0 .04rem; padding: .08rem .14rem;
     }
     .ul-sub { display: none;
-        position: absolute; min-width: 1.8rem;
-        padding: .08rem; 
+        position: absolute; 
+        padding: .08rem;
         border-radius: .03rem;
         background: #FFF; border:1px solid #CDE;
         box-shadow: .06rem .06rem .12rem rgba(0,0,0,0.6);
     }
-    .ul-sub-0 {margin: .1rem 0 0 -0.1rem;}
-    .ul-sub-n {margin: -.1rem 0 0 0.2rem;}
-    .li-sub {padding:.08rem .12rem;}
 }
 .skin-navmenu-h-subpop[skin-attr-align=center] {
     .ul-top{justify-content:center;}
@@ -89,7 +99,8 @@ body {
 .skin-navmenu-h-subpop[skin-attr-align=right] {
     .ul-top{justify-content:flex-end;}
 }
-.skin-navmenu-h-subpop[hm-actived] {
+.skin-navmenu-h-subpop[hm-actived],
+.skin-navmenu-h-subpop[hmaker-rt] {
     li[open-sub]{
         > .ul-sub-0 {display: block;}
         > .ul-sub-n {display: inline-block;}

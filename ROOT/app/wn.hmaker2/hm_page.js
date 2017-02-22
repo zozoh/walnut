@@ -80,9 +80,9 @@ var html = `
             <li ctype="pager" icon="hmaker.com.pager.icon"
                 text="hmaker.com.pager.name" tip="hmaker.com.pager.tip"></li>
             <li class="sep"></li>
-            <li ctype="objlist" icon="hmaker.com.objlist.icon" 
+            <!--li ctype="objlist" icon="hmaker.com.objlist.icon" 
                 text="hmaker.com.objlist.name" tip="hmaker.com.objlist.tip"></li>
-            <!--li ctype="objshow" icon="hmaker.com.objshow.icon" 
+            <li ctype="objshow" icon="hmaker.com.objshow.icon" 
                 text="hmaker.com.objshow.name" tip="hmaker.com.objshow.tip"></li-->
             <li ctype="libitem" icon="hmaker.lib.icon" 
                 text="hmaker.lib.item" tip="hmaker.lib.tip"></li>
@@ -425,7 +425,7 @@ return ZUI.def("app.wn.hmaker_page", {
         }
     },
     //...............................................................
-    // 分配一个组件需要，并做记录
+    // 分配的一个控件 ID
     assignComId : function(jCom) {
         var comId = jCom.attr("id");
         if(!comId){
@@ -1324,6 +1324,7 @@ return ZUI.def("app.wn.hmaker_page", {
         // 所有标识删除的节点也要删除
         C.iload.$root.find(".hm-del-save, .ui-code-template, .ui-debug-mark, .ui-mask, .ui-loading, .pmv-mask")
             .remove();
+        C.iload.$body.find(".hm-empty-save").empty().removeClass("hm-empty-save");
         
         // 删除所有临时属性
         C.iload.$root.find('[del-attrs]').each(function(){

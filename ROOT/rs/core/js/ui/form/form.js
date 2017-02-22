@@ -278,6 +278,10 @@ return ZUI.def("ui.form", {
         // 非虚拟字段
         if(!fld.virtual) {
             var val = fld.JsObjType.parse(v).toNative();
+            // 看看有木有必要重新设置一下值
+            if(val != v) {
+                fld.UI.setData(val);
+            }            
             $z.invoke(opt, "on_change", [fld.key, val, fld], context);
             UI.trigger("form:change"  , fld.key, val, fld);
             obj = $z.obj(fld.key, val);
@@ -632,7 +636,11 @@ return ZUI.def("ui.form", {
             //var jso = jF.data("@jOBJ");
             var jso = fld.JsObjType;
             var v   = fui.getData();
-            return jso.parse(v).toNative();
+            var v2  = jso.parse(v).toNative();
+            // 看看是否有必要重设一下值
+            if(v != v2)
+                fui.setData(v2);
+            return v2;
         }
 
         // 获得全部控件的值，合并成一个对象
@@ -676,7 +684,10 @@ return ZUI.def("ui.form", {
                     //var jso = jF.data("@jOBJ");
                     var jso = fld.JsObjType;
                     var v   = fui.getData();
-                    jso.parse(v).setToObj(re);
+                    var v2  = jso.parse(v).setToObj(re);
+                    // 看看是否有必要重设一下值
+                    if(v != v2)
+                        fui.setData(v2);
                 }
             });
 

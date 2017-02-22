@@ -136,7 +136,55 @@ public class HmPageTranslating extends HmContext {
         jsLinks = new LinkedHashSet<String>();
     }
 
+    /**
+     * @return 一个新分配的一个控件 ID
+     */
+    private String __assignComId(Element eleCom) {
+        String comId = eleCom.id();
+        if (Strings.isBlank(comId)) {
+            String ctype = eleCom.attr("ctype");
+            // 遍历所有同类控件，找到最大的那个 ID 序号
+            int seq = 0;
+            Pattern regex = Pattern.compile("^" + ctype + "_([\\d]+)$");
+            Elements eles = doc.body().select(".hm-com[ctype=\"" + ctype + "\"]");
+            for (Element ele : eles) {
+                String theId = ele.id();
+                Matcher m = regex.matcher(theId);
+                if (m.find()) {
+                    seq = Math.max(seq, Integer.parseInt(m.group(1)));
+                }
+            }
+            // 嗯，这应该就是新控件的序号
+            comId = ctype + "_" + (++seq);
+            // 为了保险，再做个判断
+            while (null != doc.getElementById(comId)) {
+                comId = ctype + '_' + (++seq);
+            }
+            // 设置新 ID
+            eleCom.attr("id", comId);
+        }
+        // 返回
+        return comId;
+    }
+
     private void __do_com(Element eleCom) {
+        // 确保组件的 ID 被分配
+        String comId = this.__assignComId(eleCom);
+
+        // 判断是否是个组件
+        String libName = eleCom.attr("lib");
+        if (!Strings.isBlank(libName)) {
+            // 读取组件源代码
+            String libHtml = this.getLibCode(libName);
+
+            // 将组件内容替换现有元素
+            Element eleCom2 = eleCom.before(libHtml).previousElementSibling();
+            eleCom.remove();
+            eleCom = eleCom2;
+            eleCom.attr("id", comId).attr("lib", libName);
+        }
+
+        // 将元素记录到上下文
         this.eleCom = eleCom;
 
         // 得到控件类型
@@ -233,7 +281,11 @@ public class HmPageTranslating extends HmContext {
         // 处理控件
         Elements eleComs = doc.body().getElementsByClass("hm-com");
         for (Element eleCom : eleComs) {
+            // 执行自己的控件渲染逻辑
             this.__do_com(eleCom);
+            // ---------------------------------------------------
+            // 标识自己是运行时
+            eleCom.attr("hmaker-rt", "yes");
         }
         // ---------------------------------------------------
         // 如果控件们决定当前页是一个 wnml，那么增加一个动态占位符，用来为 JS 脚本们
@@ -295,7 +347,10 @@ public class HmPageTranslating extends HmContext {
             if (m.find()) {
                 String scriptId = m.group(1);
                 String scriptSrc = m.group(2);
-                eleScript = doc.head().appendElement("script").attr("src", scriptSrc).attr("id", scriptId);
+                eleScript = doc.head()
+                               .appendElement("script")
+                               .attr("src", scriptSrc)
+                               .attr("id", scriptId);
             }
             // 其他脚本
             else {

@@ -76,21 +76,18 @@ JsObj.prototype = {
     getValueFrom : function(obj) {
         return $z.getValue(obj, this.__fld.key);
     },
-    // 检查一个值是否合法，如果失败，返回错误对象
+    // 检查一个值是否合法，如果失败，抛出错误对象
     // 错误对象由 invalid 函数定义
     // 如果成功，设置到对象的对应的键里
+    // 同时将设置的值返回
     setToObj : function(obj) {
-        try{
-            var val = this.toNative();
-            // 如果是 undefined 就无视
-            // 因此各个类型的实现类可以返回 undefined 来跳过自己的设置
-            if(!_.isUndefined(val))
-                $z.setValue(obj, this.__fld.key, val);
-        }
-        // 错误对象的定义参见 invalid 函数
-        catch(E){
-            return E;
-        }
+        var val = this.toNative();
+        // 如果是 undefined 就无视
+        // 因此各个类型的实现类可以返回 undefined 来跳过自己的设置
+        if(!_.isUndefined(val))
+            $z.setValue(obj, this.__fld.key, val);
+        // 来个返回
+        return val;
     },
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 子类将覆盖实现方法 _parse_and_return

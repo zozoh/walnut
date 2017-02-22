@@ -66,7 +66,7 @@ tags:
 </div>  
 ```
 
-# getComValue 返回
+# getComValue
 
 永远返回 JSON 对象
 
@@ -78,4 +78,22 @@ tags:
 }
 ```
 
+# 运行时获取值
+
+```
+var re = $(xxx).hmc_pager("value");
+```
+
+> 这里返回值 re 的对象结构与 [getComValue的返回值](#getComValue) 相同
+
+# 运行时设置值
+
+```
+$(xxx).hmc_pager("value", {
+    pn   : 1,    // 当前的页数
+    pgsz : 50,   // 页大小
+    pgnb : 5,    // 总共的页大小
+    sum  : 239,  // 一共有多少数据
+});
+```
 

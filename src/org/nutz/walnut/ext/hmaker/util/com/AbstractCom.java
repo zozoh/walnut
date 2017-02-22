@@ -11,7 +11,7 @@ import org.nutz.walnut.ext.hmaker.util.Hms;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public abstract class AbstractComHanlder implements HmComHandler {
+public abstract class AbstractCom implements HmComHandler {
 
     @Override
     public void invoke(HmPageTranslating ing) {

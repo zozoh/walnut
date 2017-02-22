@@ -11,33 +11,33 @@ import org.nutz.walnut.ext.hmaker.template.HmTemplate;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
 
-public class hmc_dynamic extends AbstractComHanlder {
+public class hmc_dynamic extends AbstractCom {
 
     @Override
     protected void _exec(HmPageTranslating ing) {
+        // ...........................................
+        // 处理 DOM
+        // ...........................................
         // 应用块 CSS
         ing.addMyRule(null, ing.cssBlock);
-
-        // JS 控件的配置项目
-        NutMap conf = ing.propCom;
-
-        // 确保页面输出是 wnml
-        ing.markPageAsWnml();
 
         // 清除 DOM 结构
         ing.eleCom.addClass("hmc-dynamic").empty();
 
         // 设置内容
-        this._setup_dynamic_content(ing, conf);
-
-        // 生成 JS 代码片段，并计入转换上下文
+        this._setup_dynamic_content(ing, ing.propCom);
+        // ...........................................
+        // 确保页面输出是 wnml
+        ing.markPageAsWnml();
+        
+        // ...........................................
+        // 链入控件的 jQuery 插件
+        ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_dynamic.js");
         String script = String.format("$('#%s').hmc_dynamic(%s);",
                                       ing.comId,
-                                      Json.toJson(conf, JsonFormat.forLook().setIgnoreNull(false)));
+                                      Json.toJson(ing.propCom,
+                                                  JsonFormat.forLook().setIgnoreNull(false)));
         ing.scripts.add(Hms.wrapjQueryDocumentOnLoad(script));
-
-        // 链接必要的外部文件
-        ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_dynamic.js");
     }
 
     private void _setup_dynamic_content(HmPageTranslating ing, NutMap conf) {

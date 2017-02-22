@@ -3,9 +3,10 @@ $z.declare([
     'zui',
     'wn/util',
     'app/wn.hmaker2/support/hm__methods_com',
+    '/gu/rs/ext/hmaker/hmc_searcher.js'
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
-var html = `<div class="ui-arena hmc-searcher">
+var html = `<div class="ui-arena hmc-searcher hm-empty-save">
     <div class="kwd-input"><input></div>
     <div class="kwd-btn"><b></b></div>
 </div>`;
@@ -21,23 +22,12 @@ return ZUI.def("app.wn.hm_com_searcher", {
     //...............................................................
     paint : function(com) {
         var UI = this;
-        var jInput = UI.arena.find("input");
-        var jBtnW  = UI.arena.find(".kwd-btn");
+        
+        // 标识保存时属性
+        UI.arena.addClass("hm-empty-save");
 
-        // 输入框属性
-        jInput.attr({
-            "placeholder" : com.placeholder || null,
-            "maxlength"   : com.maxLen > 0 ? com.maxLen : null
-        }).val(com.defaultValue || "");
-
-        // 按钮文字
-        if(com.btnText){
-            jBtnW.show().children("b").text(com.btnText);
-        }
-        // 隐藏文字
-        else {
-            jBtnW.hide();
-        }
+        // 绘制
+        UI.arena.hmc_searcher(com);
         
     },
     //...............................................................

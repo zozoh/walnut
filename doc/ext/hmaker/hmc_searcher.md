@@ -28,7 +28,24 @@ tags:
 </div>
 ```
 
-# getComValue 返回
+# getComValue
 
 永远返回字符串表示搜索关键字
+
+# 运行时获取值
+
+```
+var re = $(xxx).hmc_sorter("value");
+```
+
+> 这里返回值 re 的对象结构与 [getComValue的返回值](#getComValue) 相同
+
+# 运行时设置值
+
+```
+$(xxx).hmc_sorter("value", "搜索关键字");
+```
+
+> 这里新值的的对象结构与 [getComValue的返回值](#getComValue) 相同
+
 

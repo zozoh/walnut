@@ -26,7 +26,6 @@
                     "padding", "margin", "border",
                     "color", "background", "boxShadow",
                     "@align:水平排列[居左=left,居中=center,居右=right]=left",
-                    "@autosub:自动子菜单(yes)=no",
                     
                 ]
             }, {
@@ -36,7 +35,6 @@
                     "padding", "margin", "border",
                     "color", "background", "boxShadow",
                     "@align:水平排列[居左=left,居中=center,居右=right]=left",
-                    "@autosub:自动子菜单(yes)=no",
                     
                 ]
             }]

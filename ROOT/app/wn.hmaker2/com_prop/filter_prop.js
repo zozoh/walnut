@@ -3,11 +3,13 @@ $z.declare([
     'zui',
     'wn/util',
     'app/wn.hmaker2/support/hm__methods_panel',
+    'ui/form/form',
     'ui/menu/menu',
     'ui/pop/pop',
-], function(ZUI, Wn, HmMethods, MenuUI, POP){
+], function(ZUI, Wn, HmMethods, FormUI, MenuUI, POP){
 //==============================================
 var html = `<div class="ui-arena hmc-filter-prop hmc-cnd-prop" ui-fitparent="yes">
+    <header ui-gasket="form"></header>
     <aside ui-gasket="menu"></aside>
     <section></section>
 </div>`;
@@ -106,7 +108,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
             com.fields[index][key] = jInfo.attr(attnm) ? true : false;
 
             // 通知修改
-            UI.uiCom.saveData(null, com);
+            UI.uiCom.saveData(null, com, true);
         },
         // 编辑字段信息
         "click div[current] .fld-edit a" : function(e) {
@@ -171,6 +173,33 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
     redraw : function() {
         var UI  = this;
 
+        // 创建基本信息
+        new FormUI({
+            parent : UI,
+            gasketName : "form",
+            uiWidth    : "all",
+            fitparent  : false,
+            mergeData  : false,
+            on_change : function(key, val) {
+                UI.uiCom.saveData("panel", $z.obj(key, val), true);
+            },
+            fields  : [{
+                key : "btnExtTextShow",
+                title : "i18n:hmaker.com.filter.btnExtTextShow",
+                dft   : UI.msg("hmaker.com.filter.ext_show"),
+            }, {
+                key : "btnExtTextHide",
+                title : "i18n:hmaker.com.filter.btnExtTextHide",
+                dft   : UI.msg("hmaker.com.filter.ext_hide"),
+            }, {
+                key : "btnMultiText",
+                title : "i18n:hmaker.com.filter.btnMultiText",
+                dft   : UI.msg("hmaker.com.filter.multi"),
+            }]
+        }).render(function(){
+            UI.defer_report("form");
+        });
+
         // 创建动作菜单
         new MenuUI({
             parent : UI,
@@ -215,7 +244,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
         });
 
         // 返回延迟加载
-        return ["menu"];
+        return ["form", "menu"];
     },
     //...............................................................
     getComData : function(){
@@ -253,7 +282,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
         }
 
         // 通知修改
-        UI.uiCom.saveData(null, com);
+        UI.uiCom.saveData(null, com, true);
     },
     //...............................................................
     saveField : function(index, fld, com) {
@@ -271,7 +300,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
         }
 
         // 通知修改
-        UI.uiCom.saveData(null, com);
+        UI.uiCom.saveData(null, com, true);
     },
     //...............................................................
     createItemOfField : function(fldIndex, com){
@@ -522,6 +551,9 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
     update : function(com) {
         var UI   = this;
 
+        // 更新表单
+        UI.gasket.form.setData(com);
+
         // 得到当前的高亮下标
         var currentIndex = UI.getCurrentIndex();
 
@@ -614,6 +646,15 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
         // 返回构建的项目
         return jFld;
     },
+    //...............................................................
+    resize : function(){
+        var UI = this;
+        var jF = UI.arena.find(">header");
+        var jA = UI.arena.find(">aside");
+        var jS = UI.arena.find(">section");
+
+        jS.css("height", UI.arena.height() - jF.outerHeight(true) - jA.outerHeight(true));
+    }
     //...............................................................
 }));
 //===================================================================

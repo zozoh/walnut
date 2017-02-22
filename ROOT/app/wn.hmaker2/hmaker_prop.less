@@ -748,15 +748,17 @@
 //............................................................
 // navmenu
 .hmc-navmenu-prop {
+    @itemH : 32px;
     .cnavmp-item-list { @noselect();
         padding: @d2; margin-bottom:@d3; overflow: auto; 
         border:1px solid @cborder1; background: @cb0; color:@cf0;
         .cnavmp-item {
             border:1px dotted rgba(0,0,0,0.1); cursor: pointer;
-            padding:@d1 @d2; margin-bottom:1px; 
-            > span {float:left; padding:@d1; display: block;}
+            padding:0 @d2; margin-bottom:1px;
+            line-height: @itemH; height: @itemH;
+            > span {float:left; padding:0 @d1; display: block;}
             > span.bullet{
-                width:20px; padding:@d2 0 @d2 @d1;
+                width:20px; padding-left:@d1;
                 > [for="link"] i{
                     opacity: .4; color:@c2; 
                 }
@@ -956,140 +958,131 @@
 
 //............................................................
 // 控件: cnd: filter/sorter 通用
-@fltPad : @d0;
-@fltHH  : 32px;
-.hmc-cnd-prop {
-    position: relative; padding:@fltPad+@fltHH 0 0 0;
-    > aside {
-        position: absolute; top:@fltPad; left:0; right:0;
-        height: @fltHH;
+.hmc-cnd-prop > section {
+    overflow: auto; padding: @d2 0; font-size:@f2; font-family: @f_fixed;
+    > div.empty {
+        padding: @d4; text-align: center; color:@c2;
+        > i {display: block; padding:@d3; font-size:@f6;}
     }
-    > section {
-        width:100%; height:100%; overflow: auto; 
-        padding: @d2 0; font-size:@f2; font-family: @f_fixed;
-        > div.empty {
-            padding: @d4; text-align: center; color:@c2;
-            > i {display: block; padding:@d3; font-size:@f6;}
-        }
-        > div.cnd-fld {
-            padding:@d2; border:1px dotted @cborder1; 
-            cursor: default; position: relative; margin-bottom:@d0;
-            > ul.fld-info {
-                padding:@d1 40px @d1 @d1;
-                > li {float:left; padding:0 @d0;}
-                > [key="enabled"] {
-                    padding: 1px @d1 1px 0;
-                    > i:first-child {display: inline;}
-                    > i:last-child {display: none;}
-                }
-                > [key="text"]:after {display: inline; content: ":";}
-                > [key="text"] {color:@c5;}
-                > [key="name"] {flex: 1 1 auto; color:@c7;}
-                > .fi-box{ @noselect();
-                    float:right;
-                    padding:0 1px 0 0; opacity: 0.6;
-                    b {
-                        display: block; opacity: 0.6; color:@c2; cursor: pointer;
-                        font-weight: normal; font-size:@f1; padding:@d0 @d2;
-                        border-radius: @d0; background: @ch1_b; color:@ch1_f;
-                    }
-                }
-                > [key="order"] b {
-                    background: #08F; color: #FFF;
-                    > i {margin-right: @d1;}
+    > div.cnd-fld {
+        padding:@d2; border:1px dotted @cborder1; 
+        cursor: default; position: relative; margin-bottom:@d0;
+        > ul.fld-info {
+            padding:@d1 40px @d1 @d1;
+            > li {float:left; padding:0 @d0;}
+            > [key="enabled"] {
+                padding: 1px @d1 1px 0;
+                > i:first-child {display: inline;}
+                > i:last-child {display: none;}
+            }
+            > [key="text"]:after {display: inline; content: ":";}
+            > [key="text"] {color:@c5;}
+            > [key="name"] {flex: 1 1 auto; color:@c7;}
+            > .fi-box{ @noselect();
+                float:right;
+                padding:0 1px 0 0; opacity: 0.6;
+                b {
+                    display: block; opacity: 0.6; color:@c2; cursor: pointer;
+                    font-weight: normal; font-size:@f1; padding:@d0 @d2;
+                    border-radius: @d0; background: @ch1_b; color:@ch1_f;
                 }
             }
-            > ul.fld-info:after{@clr();}
-            > ul.fld-info[is-multi]  > [key="multi"]  b,
-            > ul.fld-info[is-hide]   > [key="hide"]   b,
-            > ul.fld-info[is-modify] > [key="modify"] b,
-            {
-                opacity: 1; background: @chx_b; color:@chx_f;
-            }
-            > ul.fld-info[is-or-desc] > [key="order"] b {
-                background: #F80;
-            }
-            > .fld-edit {
-                position: absolute; top:0; right: 0; padding:@d2; display: none;
-                a {color:@clink; text-decoration: none; cursor: pointer;}
-                a:hover {color:@clink_hover; text-decoration: underline;}
-            }
-            > .fld-itnb {
-                position: absolute; top:0; right: 0; padding:@d1; margin:@d1;
-                border-radius: @d0; border:2px solid @cborder0; color:@c2;
-            }
-            > ul.fld-items {
-                padding:@d1 0 @d1 @d3; display: none;
-                > li { @noselect();
-                    position: relative; transition:0.2s;
-                    padding:@d1 50px @d1 @d1; margin-bottom:@d0; 
-                    border:1px dotted @cborder1; border-left:@d2 solid @cborder1;
-                    > dl {
-                        padding:@d0; margin:1px; font-size: @f1; cursor: pointer;
-                        > * {padding:@d0; margin:0; float: left;}
-                        > dt {color:@c5; margin-right: @d1; font-size: @f1;}
-                        > dt:after {display:inline; content:":";}
-                        > dd {
-                            color:@c4;
-                            > i {margin-right: @d1;}
-                        }
-                    }
-                    > dl:after {@clr();}
-                    > span {
-                        display: none; padding:@d2 @d2 @d2 0; width: 48px;
-                        position: absolute; right:0; top:0;
-                        > b {
-                            display: block; flex:1 1 auto; cursor: pointer;
-                            padding:@d1; font-weight: normal;
-                            @flex(); justify-content:center; align-items: center;
-                            i {transition: 0.2s;}
-                        }
-                    }
-                }
-                > aside {@noselect();
-                    border:1px dotted @cborder0; 
-                    cursor: pointer; padding:@d2; text-align: center;
-                    margin:@d2 @d5 0 @d5; font-size: @f1;
-                    > i {margin-right: @d1; transition:0.3s;}
-                }
+            > [key="order"] b {
+                background: #08F; color: #FFF;
+                > i {margin-right: @d1;}
             }
         }
-        > div.cnd-fld[enabled]{
-            > ul.fld-info {
-                > [key="enabled"] {
-                    > i:first-child {display: none;}
-                    > i:last-child {display: inline;}
-                }
-            }
+        > ul.fld-info:after{@clr();}
+        > ul.fld-info[is-multi]  > [key="multi"]  b,
+        > ul.fld-info[is-hide]   > [key="hide"]   b,
+        > ul.fld-info[is-modify] > [key="modify"] b,
+        {
+            opacity: 1; background: @chx_b; color:@chx_f;
         }
-        > div.cnd-fld[current] {
-            border:1px solid @c0; background: @cb0;
-            > ul.fld-info {
-                > .fi-box{
-                    opacity: 1;
-                    b {opacity: 1;}
-                }
-                > [key="enabled"] {color:@c0;}
-            }
-            > .fld-edit { display: block; }
-            > .fld-itnb { display: none; }
-            > ul.fld-items {
-                display: block;
-                > li {
-                    border-color:@c0;
-                    > dl:hover > *{text-decoration: underline; color:@clink_hover;}
-                    > span {
-                        @flex();
-                        > b:hover {
-                            color:@ch1_f; background: @ch1_b;
-                        }
-                        > b[a="del"]:hover  i{transform: rotate(360deg) scale(1.2);}
+        > ul.fld-info[is-or-desc] > [key="order"] b {
+            background: #F80;
+        }
+        > .fld-edit {
+            position: absolute; top:0; right: 0; padding:@d2; display: none;
+            a {color:@clink; text-decoration: none; cursor: pointer;}
+            a:hover {color:@clink_hover; text-decoration: underline;}
+        }
+        > .fld-itnb {
+            position: absolute; top:0; right: 0; padding:@d0; margin:@d1;
+            border-radius: @d1; border:1px solid @cborder1; color:@cborder0;
+            font-size:@f1;
+        }
+        > ul.fld-items {
+            padding:@d1 0 @d1 @d3; display: none;
+            > li { @noselect();
+                position: relative; transition:0.2s;
+                padding:@d1 50px @d1 @d1; margin-bottom:@d0; 
+                border:1px dotted @cborder1; border-left:@d2 solid @cborder1;
+                > dl {
+                    padding:@d0; margin:1px; font-size: @f1; cursor: pointer;
+                    > * {padding:@d0; margin:0; float: left;}
+                    > dt {color:@c5; margin-right: @d1; font-size: @f1;}
+                    > dt:after {display:inline; content:":";}
+                    > dd {
+                        color:@c4;
+                        > i {margin-right: @d1;}
                     }
                 }
-                > aside:hover {
-                    color: @c0; border:1px dashed @c0;
-                    > i {margin-right: @d4; transform:scale(1.2);}
+                > dl:after {@clr();}
+                > span {
+                    display: none; padding:@d2 @d2 @d2 0; width: 48px;
+                    position: absolute; right:0; top:0;
+                    > b {
+                        display: block; flex:1 1 auto; cursor: pointer;
+                        padding:@d1; font-weight: normal;
+                        @flex(); justify-content:center; align-items: center;
+                        i {transition: 0.2s;}
+                    }
                 }
+            }
+            > aside {@noselect();
+                border:1px dotted @cborder0; 
+                cursor: pointer; padding:@d2; text-align: center;
+                margin:@d2 @d5 0 @d5; font-size: @f1;
+                > i {margin-right: @d1; transition:0.3s;}
+            }
+        }
+    }
+    > div.cnd-fld[enabled]{
+        > ul.fld-info {
+            > [key="enabled"] {
+                > i:first-child {display: none;}
+                > i:last-child {display: inline;}
+            }
+        }
+    }
+    > div.cnd-fld[current] {
+        border:1px solid @c0; background: @cb0;
+        > ul.fld-info {
+            > .fi-box{
+                opacity: 1;
+                b {opacity: 1;}
+            }
+            > [key="enabled"] {color:@c0;}
+        }
+        > .fld-edit { display: block; }
+        > .fld-itnb { display: none; }
+        > ul.fld-items {
+            display: block;
+            > li {
+                border-color:@c0;
+                > dl:hover > *{text-decoration: underline; color:@clink_hover;}
+                > span {
+                    @flex();
+                    > b:hover {
+                        color:@ch1_f; background: @ch1_b;
+                    }
+                    > b[a="del"]:hover  i{transform: rotate(360deg) scale(1.2);}
+                }
+            }
+            > aside:hover {
+                color: @c0; border:1px dashed @c0;
+                > i {margin-right: @d4; transform:scale(1.2);}
             }
         }
     }
@@ -1115,7 +1108,30 @@
         }
     }
 }
-
+//............................................................
+// 控件: filter
+@fltHH  : 32px;
+.hmc-filter-prop {
+    > aside {
+        height: @fltHH;
+    }
+    > section {
+        padding: @d2 0; 
+    }
+}
+//............................................................
+// 控件: sorter
+@fltPad : @d0;
+.hmc-sorter-prop {
+    position: relative; padding:@fltPad+@fltHH 0 0 0;
+    > aside {
+        position: absolute; top:@fltPad; left:0; right:0;
+        height: @fltHH;
+    }
+    > section {
+        width:100%; height:100%; 
+    }
+}
 //............................................................
 // 通用的动态数据对象属性
 //............................................................
