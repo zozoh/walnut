@@ -312,36 +312,87 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             var key = blockFields[i];
             if(!key)
                 continue;
-            if("padding" == key) {
+            // 显示简单输入框的
+            if(/^(padding|margin|border|borderRadius|boxShadow|textShadow|letterSpacing|fontSize|lineHeight)$/.test(key)) {
                 re.push({
-                    key    : "padding",
-                    title  : "i18n:hmaker.prop.padding",
+                    key    : key,
+                    title  : "i18n:hmaker.prop." + key,
                     type   : "string",
                     editAs : "input"
                 });
             }
-            else if("margin" == key) {
+            // 字体选择
+            else if("fontFamily" == key) {
                 re.push({
-                    key    : "margin",
-                    title  : "i18n:hmaker.prop.margin",
+                    key    : "fontFamily",
+                    title  : "i18n:hmaker.prop.fontFamily",
                     type   : "string",
-                    editAs : "input"
+                    dft    : "",
+                    editAs : "droplist",
+                    uiConf : {
+                        value : function(it){return it;},
+                        emptyItem : {},
+                        items:[
+                            "Verdana",
+                            "Arial",
+                            "Consolas",
+                            "Times New Roman",
+                            "Comic Sans MS",
+                            "Courier New",
+                        ]}
                 });
             }
-            else if("border" == key) {
+            // 字体风格
+            else if("_font" == key) {
                 re.push({
-                    key    : "border",
-                    title  : "i18n:hmaker.prop.border",
-                    type   : "string",
-                    editAs : "input"
+                    key    : "_font",
+                    title  : "i18n:hmaker.prop._font",
+                    type   : "object",
+                    dft    : "",
+                    editAs : "switch",
+                    uiConf : {
+                        multi : true,
+                        singleKeepOne : false,
+                        items:[
+                            {icon:'<i class="fa fa-bold"></i>',value:"bold"},
+                            {icon:'<i class="fa fa-italic"></i>',value:"italic"},
+                            {icon:'<i class="fa fa-underline"></i>',value:"underline"},
+                        ]}
                 });
             }
-            else if("borderRadius" == key) {
+            // 不带 justify 的 textAlign
+            else if("_align" == key) {
                 re.push({
-                    key    : "borderRadius",
-                    title  : "i18n:hmaker.prop.borderRadius",
+                    key    : "textAlign",
+                    title  : "i18n:hmaker.prop._align",
                     type   : "string",
-                    editAs : "input"
+                    dft    : "",
+                    editAs : "switch",
+                    uiConf : {
+                        singleKeepOne : false,
+                        items:[
+                            {tip:"i18n:hmaker.prop.ta_left",    value:"left",    icon:'<i class="zmdi zmdi-format-align-left"></i>'},
+                            {tip:"i18n:hmaker.prop.ta_center",  value:"center",  icon:'<i class="zmdi zmdi-format-align-center"></i>'},
+                            {tip:"i18n:hmaker.prop.ta_right",   value:"right",   icon:'<i class="zmdi zmdi-format-align-right"></i>'},
+                        ]}
+                });
+            }
+            // 全本 textAlign
+            else if("textAlign" == key) {
+                re.push({
+                    key    : "textAlign",
+                    title  : "i18n:hmaker.prop.textAlign",
+                    type   : "string",
+                    dft    : "",
+                    editAs : "switch",
+                    uiConf : {
+                        singleKeepOne : false,
+                        items:[
+                            {tip:"i18n:hmaker.prop.ta_left",    value:"left",    icon:'<i class="zmdi zmdi-format-align-left"></i>'},
+                            {tip:"i18n:hmaker.prop.ta_center",  value:"center",  icon:'<i class="zmdi zmdi-format-align-center"></i>'},
+                            {tip:"i18n:hmaker.prop.ta_right",   value:"right",   icon:'<i class="zmdi zmdi-format-align-right"></i>'},
+                            {tip:"i18n:hmaker.prop.ta_justify", value:"justify", icon:'<i class="zmdi zmdi-format-align-justify"></i>'},
+                        ]}
                 });
             }
             else if("color" == key) {
@@ -362,26 +413,16 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                     uiConf : UI.getBackgroundImageEditConf()
                 });
             }
-            else if("boxShadow" == key) {
-                re.push({
-                    key    : "boxShadow",
-                    title  : "i18n:hmaker.prop.boxShadow",
-                    type   : "string",
-                    editAs : "input"
-                });
-            }
             else if("overflow" == key) {
                 re.push({
                     key    : "overflow",
                     title  : "i18n:hmaker.prop.overflow",
                     type   : "string",
-                    dft    : "unset",
+                    dft    : "",
                     editAs : "switch", 
                     uiConf : {
+                        singleKeepOne : false,
                         items : [{
-                            text : 'i18n:hmaker.prop.overflow_dft',
-                            val  : 'unset',
-                        }, {
                             text : 'i18n:hmaker.prop.overflow_visible',
                             val  : 'visible',
                         }, {

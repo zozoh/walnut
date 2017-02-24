@@ -9,9 +9,9 @@ $z.declare([
 ], function(ZUI, Wn, HmMethods, FormUI, MenuUI, POP){
 //==============================================
 var html = `<div class="ui-arena hmc-filter-prop hmc-cnd-prop" ui-fitparent="yes">
-    <header ui-gasket="form"></header>
     <aside ui-gasket="menu"></aside>
     <section></section>
+    <footer ui-gasket="form"></footer>
 </div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
@@ -145,6 +145,9 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
             var fldIndex  = jq.closest("div.cnd-fld").prevAll().length;
             var itemIndex = jq.closest("li").prevAll().length;
 
+            // 停止冒泡
+            e.stopPropagation();
+
             // 执行删除
             UI.removeItemOfField(fldIndex, itemIndex);
         },
@@ -155,6 +158,9 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
             var fldIndex  = jq.closest("div.cnd-fld").prevAll().length;
             var itemIndex = jq.closest("li").prevAll().length;
 
+            // 停止冒泡
+            e.stopPropagation();
+
             // 执行删除
             UI.moveUpItemOfField(fldIndex, itemIndex);
         },
@@ -164,6 +170,9 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
             var jq = $(e.currentTarget);
             var fldIndex  = jq.closest("div.cnd-fld").prevAll().length;
             var itemIndex = jq.closest("li").prevAll().length;
+
+            // 停止冒泡
+            e.stopPropagation();
 
             // 执行删除
             UI.moveDownItemOfField(fldIndex, itemIndex);
@@ -195,6 +204,32 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
                 key : "btnMultiText",
                 title : "i18n:hmaker.com.filter.btnMultiText",
                 dft   : UI.msg("hmaker.com.filter.multi"),
+            }, {
+                key : "btnMultiOkText",
+                title : "i18n:hmaker.com.filter.btnMultiOkText",
+                dft   : UI.msg("hmaker.com.filter.multi_ok_txt"),
+            }, {
+                key : "btnMultiCancelText",
+                title : "i18n:hmaker.com.filter.btnMultiCancelText",
+                dft   : UI.msg("hmaker.com.filter.multi_cancel_txt"),
+            }, {
+                key : "moreItemsMode",
+                title : "i18n:hmaker.com.filter.moreItemsMode",
+                dft   : "auto",
+                editAs : "switch",
+                uiConf : {items:[
+                    {text:"i18n:hmaker.com.filter.fim_auto",   value:"auto"},
+                    {text:"i18n:hmaker.com.filter.fim_always", value:"always"},
+                    {text:"i18n:hmaker.com.filter.fim_never",  value:"never"},
+                ]}
+            }, {
+                key : "btnFldMoreText",
+                title : "i18n:hmaker.com.filter.btnFldMoreText",
+                dft   : UI.msg("hmaker.com.filter.fld_more_txt"),
+            }, {
+                key : "btnFldLessText",
+                title : "i18n:hmaker.com.filter.btnFldLessText",
+                dft   : UI.msg("hmaker.com.filter.fld_less_txt"),
             }]
         }).render(function(){
             UI.defer_report("form");
@@ -649,7 +684,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
     //...............................................................
     resize : function(){
         var UI = this;
-        var jF = UI.arena.find(">header");
+        var jF = UI.arena.find(">footer");
         var jA = UI.arena.find(">aside");
         var jS = UI.arena.find(">section");
 

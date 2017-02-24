@@ -1464,9 +1464,8 @@
                     }
                 }
                 key = ks[lastIndex];
-                ;
+                re  = o[key];
             }
-            re = o[key];
             return _.isUndefined(re) ? dft : re;
         },
         //.............................................

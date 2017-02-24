@@ -1,7 +1,7 @@
 define({
     "zeditor" : {
         "type" : {
-            "text" : '纯文本',
+            "text" : '文本',
             "html" : 'HTML',
             "markdown" : 'Markdown'
         }

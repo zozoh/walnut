@@ -27,12 +27,14 @@ return ZUI.def("app.wn.hm_com_searcher", {
         UI.arena.addClass("hm-empty-save");
 
         // 绘制
-        UI.arena.hmc_searcher(com);
+        UI.arena.hmc_searcher(_.extend({
+            forIDE : true
+        }, com));
         
     },
     //...............................................................
     getComValue : function() {
-        return this.arena.find("input").val();
+        return this.arena.hmc_searcher("value");
     },
     //...............................................................
     getBlockPropFields : function(block) {
@@ -44,8 +46,11 @@ return ZUI.def("app.wn.hm_com_searcher", {
     //...............................................................
     getDefaultData : function(){
         return {
-            // "lineHeight" : ".24rem",
-            // "fontSize"   : ".14rem",
+            "placeholder"  : this.msg("hmaker.com.searcher.plhd_dft"),
+            "btnText"      : this.msg("search"),
+            "defaultValue" : "",
+            "maxLen"       : 0,
+            "trimSpace"    : true,
         };
     },
     //...............................................................

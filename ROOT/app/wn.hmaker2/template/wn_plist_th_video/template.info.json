@@ -3,8 +3,8 @@
     "title"    : "默认视频列表",
     "dataType" : ["page", "list"],
     "options"  : {
-        "href" : "<目标页面>",
-        "paramName"  : "<请求参数名>",
-        "objKey"     : "<对应数据键>",
+        "emptyText"   : "(空数据文本)@input#当接口没有返回数据的时候显示的文字",
+        "invalidText" : "(数据错误文本)@input#当接口返回的数据不符合规定（不是list也不是page），显示什么文字呢？",
+        "href" : "(详情页面)@link#给出显示视频详情的页面吧 ^_^"
     }
 }

@@ -284,6 +284,16 @@ public abstract class WnMongos {
             else if (ss[0].equals("%nin")) {
                 q.nin(key, Arrays.copyOfRange(ss, 1, ss.length));
             }
+            // 指明了 or 那么全部变成条件
+            else if (ss[0].equals("%or")) {
+                BasicDBList list = new BasicDBList();
+                for (int i = 1; i < ss.length; i++) {
+                    ZMoDoc doc = ZMoDoc.NEW();
+                    _set_to_doc(doc, key, ss[i]);
+                    list.add(doc);
+                }
+                q.put("$or", list);
+            }
             // 默认用 in
             else {
                 q.in(key, ss);

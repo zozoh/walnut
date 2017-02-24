@@ -5,7 +5,7 @@ $z.declare([
 ], function(ZUI, Wn){
 //==============================================
 var TYPES = {
-    // 纯文本
+    // 纯文本(markdown支持)
     "text" : {
         type : 'text',
         icon : '<i class="fa fa-file-text-o"></i>',

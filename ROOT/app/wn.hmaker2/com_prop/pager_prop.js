@@ -43,6 +43,11 @@ return ZUI.def("app.wn.hm_com_pager_prop", HmMethods({
                 dft    : true,
                 editAs : "toggle",
             }, {
+                key    : "maxBarNb",
+                title  : 'i18n:hmaker.com.pager.max_bar_nb',
+                type   : "int",
+                dft    : 9,
+            }, {
                 key    : "dftPageSize",
                 title  : 'i18n:hmaker.com.pager.dft_pgsz',
                 tip  : 'i18n:hmaker.com.pager.dft_pgsz_tip',
@@ -116,9 +121,11 @@ return ZUI.def("app.wn.hm_com_pager_prop", HmMethods({
 
         // 分页类型
         if("jumper" == com.pagerType) {
+            this.gasket.form.disableField("maxBarNb");
             this.gasket.form.enableField("freeJump");
         } else {
             this.gasket.form.disableField("freeJump");
+            this.gasket.form.enableField("maxBarNb");
         }
 
         // 信息文字

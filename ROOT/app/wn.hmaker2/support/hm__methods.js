@@ -9,9 +9,9 @@ var CSS_BASE = {
     margin:"",padding:"",border:"",borderRadius:"",
     color:"",background:"",
     overflow:"",boxShadow:"",
-    // textShadow:"",
-    // font:"", fontSize:"", fontWeight:"", letterSpacing:"",
-    // lineHeight:"", textAlign:""
+    textShadow:"",textAlign:"",
+    font:"", fontFamily:"", fontSize:"", fontWeight:"", 
+    letterSpacing:"", lineHeight:"", textAlign:"",
 };
 // ....................................
 // 方法表

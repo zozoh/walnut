@@ -12,7 +12,7 @@ var html = `
         <span>{{hmaker.com.htmlcode.tt}}</span>
         <a>
             <i class="zmdi zmdi-window-maximize"></i> 
-            {{hmaker.com.htmlcode.open}}
+            <em>{{hmaker.com.htmlcode.open}}</em>
         </a>
     </header>
     <section><textarea spellcheck="false"></textarea></section>
@@ -34,14 +34,15 @@ return ZUI.def("app.wn.hm_com_htmlcode_prop", HmMethods({
             this.applyHtmlCode();
         },
         "click header a" : function(){
-            var UI = this;
-            var jT = UI.arena.find("textarea");
+            var UI  = this;
+            var opt = UI.options;
+            var jT  = UI.arena.find("textarea");
 
             // 打开编辑器
             POP.openEditTextPanel({
                 i18n        : UI._msg_map,
-                title       : "i18n:hmaker.com.htmlcode.edit_tt",
-                contentType : "html",
+                title       : opt.editorTitle || "i18n:hmaker.com.htmlcode.edit_tt",
+                contentType : opt.contentType || "html",
                 data : jT.val() || "",
                 callback : function(data){
                     UI.applyHtmlCode(data);
@@ -68,7 +69,17 @@ return ZUI.def("app.wn.hm_com_htmlcode_prop", HmMethods({
     },
     //...............................................................
     update : function(com) {
-        this.arena.find("textarea").val(com.code || "");
+        var UI  = this;
+        var opt = UI.options;
+
+        // 显示文本
+        UI.arena.find("textarea").val(com.code || "");
+
+        // 更新标题
+        UI.arena.find("header span").text(UI.text(opt.title||"i18n:hmaker.com.htmlcode.tt"));
+
+        // 更新打开链接
+        UI.arena.find("header a em").text(UI.text(opt.openText||"i18m:hmaker.com.htmlcode.open"));
     }
     //...............................................................
 }));

@@ -247,7 +247,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             var fld_title = undefined;
 
             // 分析一下
-            var m = /^([*])?(\(([^\)]+)\))?@(input|thingset|sites|com)(:([0-9a-zA-Z]*))?(#(.*))?$/.exec(val);
+            var m = /^([*])?(\(([^\)]+)\))?@(input|thingset|sites|com|link)(:([0-9a-zA-Z]*))?(#(.*))?$/.exec(val);
             // 指定了类型
             if(m) {
                 fld_required = m[1] ? true : false;
@@ -323,6 +323,10 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                         return "#<" + uiCom.getComId() + ">";
                     }
                 };
+            }
+            // 字段: link
+            else if("link" == fld_type) {
+                fld.uiType = "app/wn.hmaker2/support/c_edit_link";
             }
             // 字段: input 作为默认选项
             else {

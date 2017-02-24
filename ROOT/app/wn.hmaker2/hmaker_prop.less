@@ -874,6 +874,7 @@
         > a {
             float: right; color:@clink; cursor: pointer;
             > i {margin-right: @d2;}
+            > em {font-style: normal;}
         }
         > a:hover {color:@clink_hover;}
     }
@@ -945,8 +946,10 @@
                             border-left:1px solid @cborder1;
                             padding:0; 
                             > .ffv-ui {
-                                padding:@d1;
+                                padding:@d0;
+                                .com-edit-link {padding:1px @d2;}
                             }
+                            > .ffv-tip {padding-top:0;}
                         }
                     }
                     > .form-fld:last-child {border:0;}

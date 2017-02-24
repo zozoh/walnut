@@ -448,20 +448,7 @@ html[hm-page-preparing] {
 }
 //............................................................
 // Text
-.hm-com-text{
-    cursor: pointer;
-    .hmc-text {min-height: 24px;}
-    .hmc-text-tipicon {
-        position: absolute; top:0; left: 0; padding:@d0;
-        background: rgba(0,0,0,0.3); color:#FFF;
-        display: none;
-        > i {margin: 0 @d2 0 0; font-size:@f4;}
-        > em {font-style: normal; font-size:@f2;}
-    }
-}
-.hm-com-text[hm-actived]:hover {
-    .hmc-text-tipicon {display: block;}
-}
+.hmc-text {padding: @d4;}
 //............................................................
 // htmlcode
 .hmc-htmlcode {
@@ -554,28 +541,64 @@ html[hm-page-preparing] {
     .hmcf-fld {
         @flex(); border-bottom:1px dashed #DDD;
         > * {padding:@d2; margin: 0;}
-        .fld-info {
-            flex:0 0 auto; min-width: 1rem; 
-            em {
-                cursor: pointer; font-style: normal; color:#AAA; 
-                margin:@d2 0; display: inline-block;
-            }
-            em:after {display: inline; content: ":";}
-        }
-        ul {
-            flex:1 1 auto; list-style: none;
-            li {
-                float: left; padding:@d2; margin:0 @d0; cursor: pointer;
-            }
-        }
-        ul:after {@clr();}
-        .fld-multi {
-            flex:0 0 auto; cursor: pointer;
-            b {font-weight: normal;}
-        }
     }
     .hmcf-fld:last-child {border:0;}
     .hmcf-folder {display: none; border-top:1px dashed #DDD;}
+    .fld-info {
+        flex:0 0 auto; min-width: 1rem; 
+        em {
+            cursor: pointer; font-style: normal; color:#AAA; 
+            margin:@d2 0; display: inline-block;
+        }
+        em:after {display: inline; content: ":";}
+    }
+    .fld-items {flex:1 1 auto;}
+    ul {list-style: none; padding:0; margin:0;}
+    ul:after {@clr();}
+    li {float: left; padding:@d1; margin:@d0; cursor: pointer;}
+    li[it-checked] {background: @chx_b; color:@chx_f;}
+    li em {display: none; vertical-align: middle; padding:0 4px;}
+    li em i{
+        display: inline-block; cursor: pointer;
+        font-family:'Material-Design-Iconic-Font'; font-style: normal;
+    }
+    li em i:before {display:inline; content:"\f279";}
+    li:hover em i:before {content:"\f26b";}
+    li[auto-hide] {display: none;}
+    .fld-it-check {
+        display:none; text-align: center; padding:@d2;
+        span {display: inline-block; padding:@d1 @d2; margin:1px; cursor: pointer;}
+        b {font-weight: normal;}
+        .fld-it-check-ok {border:1px solid #DDD;}
+    }
+    // 启用了多选
+    .hmcf-fld[enable-multi] {
+        .fld-multi    {display: none;}
+        .fld-it-check {display: block;}
+        li em {display: inline-block;}
+        li[multi-checked] em i:before {content:"\f26a";}
+    }
+    .fld-multi {
+        flex:0 0 auto;
+        b {
+            font-weight: normal; display:inline-block; cursor: pointer;
+            border:1px solid #DDD; padding: 0 4px;
+        }
+    }
+    .fld-more {
+        flex:0 0 auto; 
+        b {
+            font-weight: normal; display:inline-block; cursor: pointer;
+            border:1px solid #DDD; padding: 0 4px;
+        }
+        em {font-style: normal; margin-right: 4px;}
+        i {
+            display: inline-block; cursor: pointer;
+            font-family:'Material-Design-Iconic-Font'; font-style: normal;
+        }
+        b[mode="more"] i:before {content:"\f2f9";}
+        b[mode="less"] i:before {content:"\f2fc";}
+    }
     .hmcf-exts {
         text-align: center; border-top:1px solid #DDD; padding:@d0 0;
         b {
@@ -585,6 +608,8 @@ html[hm-page-preparing] {
     }
 }
 .hmc-filter[folder-show] .hmcf-folder {display: block;}
+.hmc-filter[more-items-mode="auto"] .hmcf-fld[more-useless] .fld-more {visibility: hidden;}
+.hmc-filter[more-items-mode="never"] .fld-more {display:none;}
 //............................................................
 // 排序器对象
 .hmc-sorter {
@@ -615,22 +640,22 @@ html[hm-page-preparing] {
         display: inline-block; padding:@d2; vertical-align: middle;
         margin:0 1px;
     }
-    a { border:1px solid rgba(0,0,0,0.3); }
+    a { border:1px solid rgba(0,0,0,0.3); cursor: pointer;}
     a[key="first"], a[key="last"] {
         display: none;
     }
 }
-.hm-com-pager[pager-type="button"]{}
-.hm-com-pager[pager-type="jumper"] .pg_nbs a { 
+.hmc-pager[pager-type="button"]{}
+.hmc-pager[pager-type="jumper"] .pg_nbs a { 
     display: none;
 }
-.hm-com-pager[pager-type="jumper"][free-jump] .pg_nbs b { 
+.hmc-pager[pager-type="jumper"][free-jump] .pg_nbs b { 
     border:1px dotted rgba(0,0,0,0.6);
 }
-.hm-com-pager[show-brief] .pg_brief { 
+.hmc-pager[show-brief] .pg_brief { 
     display: inline-block;
 }
-.hm-com-pager[show-first-last] .pg_btn { 
+.hmc-pager[show-first-last] .pg_btn { 
     a[key="first"], a[key="last"] {
         display: inline-block;
     }

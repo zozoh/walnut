@@ -6,7 +6,7 @@ $z.declare([
     '/gu/rs/ext/hmaker/hmc_filter.js'
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
-var html = '<div class="ui-arena hmc-filter hmc-cnd"></div>';
+var html = '<div class="ui-arena hmc-filter hmc-cnd hm-empty-save"></div>';
 //==============================================
 return ZUI.def("app.wn.hm_com_filter", {
     dom     : html,
@@ -18,6 +18,7 @@ return ZUI.def("app.wn.hm_com_filter", {
     },
     //...............................................................
     events : {
+        // 展开收起折叠项
         "click .hmcf-exts b" : function(){
             var UI = this;
 
@@ -28,7 +29,71 @@ return ZUI.def("app.wn.hm_com_filter", {
             // 切换折叠状态
             UI.__is_folder_show = !UI.__is_folder_show;
             UI.__sync_folder();
-        }
+        },
+        // 选择选项
+        "click li[it-type]" : function(e){
+            var UI = this;
+
+            // 在激活的组件内容才生效
+            if(!UI.isActived())
+                return;
+
+            // 切换开关
+            var jLi = $(e.currentTarget);
+            UI.arena.hmc_filter("selectItem", jLi);
+        },
+        // 清除全部选项
+        "click .fld-info em" : function(e){
+            var UI = this;
+
+            // 在激活的组件内容才生效
+            if(!UI.isActived())
+                return;
+            // 切换开关
+            UI.arena.hmc_filter("selectItem", e.currentTarget);
+        },
+        // 多选开关: 启用
+        "click .fld-multi b" : function(e){
+            var UI = this;
+
+            // 在激活的组件内容才生效
+            if(!UI.isActived())
+                return;
+            // 切换开关
+            UI.arena.hmc_filter("enableMulti", e.currentTarget);
+        },
+        // 多选开关: 关闭
+        "click .fld-it-check-cancel" : function(e){
+            var UI = this;
+
+            // 在激活的组件内容才生效
+            if(!UI.isActived())
+                return;
+            // 切换开关
+            UI.arena.hmc_filter("disableMulti", e.currentTarget);
+        },
+        // 多选开关: 确认
+        "click .fld-it-check-ok" : function(e){
+            var UI = this;
+
+            // 在激活的组件内容才生效
+            if(!UI.isActived())
+                return;
+            // 切换开关
+            UI.arena.hmc_filter("applyMulti", e.currentTarget);
+        },
+        // 切换选项的更多/更少的开关
+        "click .fld-more b" : function(e){
+            var UI = this;
+
+            // 在激活的组件内容才生效
+            if(!UI.isActived())
+                return;
+
+            // 切换开关
+            var jB = $(e.currentTarget);
+            UI.arena.hmc_filter("toggleItems", jB);
+        },
     },
     //...............................................................
     paint : function(com) {
@@ -37,12 +102,26 @@ return ZUI.def("app.wn.hm_com_filter", {
         // 标识保存时属性
         UI.arena.addClass("hm-empty-save");
 
+        // 得到之前的值
+        var flt = UI.arena.hmc_filter("value");
+
         // 绘制
-        UI.arena.hmc_filter(_.extend({ignoreShowHideEvent:true}, com));
+        UI.arena.hmc_filter(_.extend({
+            forIDE    : true,
+            emptyHtml : '<i class="zmdi zmdi-alert-circle-o"></i> ' 
+                        + UI.msg("hmaker.com.filter.empty")
+        }, com));
+
+        // 将值设置回去
+        UI.arena.hmc_filter("value", flt);
 
         // 同步折叠项的状态
         UI.__sync_folder();
         
+    },
+    //...............................................................
+    getComValue : function() {
+        return this.arena.hmc_filter("value");
     },
     //...............................................................
     __sync_folder : function(){
@@ -65,11 +144,17 @@ return ZUI.def("app.wn.hm_com_filter", {
     },
     //...............................................................
     getDefaultData : function(){
+        var UI = this;
         return {
             fields : [],
-            btnExtTextShow : UI.msg("com.hmaker.filter.btnExtTextShow"),
-            btnExtTextHide : UI.msg("com.hmaker.filter.btnExtTextHide"),
+            btnExtTextShow : UI.msg("hmaker.com.filter.ext_show"),
+            btnExtTextHide : UI.msg("hmaker.com.filter.ext_hide"),
             btnMultiText   : UI.msg("hmaker.com.filter.multi"),
+            btnMultiOkText : UI.msg("hmaker.com.filter.multi_ok_txt"),
+            btnMultiCancelText : UI.msg("hmaker.com.filter.multi_cancel_txt"),
+            moreItemsMode      : "auto",
+            btnFldMoreText     : UI.msg("hmaker.com.filter.fld_more_txt"),
+            btnFldLessText     : UI.msg("hmaker.com.filter.fld_less_txt"),
         };
     },
     //...............................................................
@@ -79,6 +164,10 @@ return ZUI.def("app.wn.hm_com_filter", {
             uiType : 'app/wn.hmaker2/com_prop/filter_prop',
             uiConf : {}
         };
+    },
+    //...............................................................
+    resize : function(){
+        this.arena.hmc_filter("moreAllItem");
     }
 });
 //===================================================================

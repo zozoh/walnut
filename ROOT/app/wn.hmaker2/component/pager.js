@@ -3,15 +3,11 @@ $z.declare([
     'zui',
     'wn/util',
     'app/wn.hmaker2/support/hm__methods_com',
+    '/gu/rs/ext/hmaker/hmc_pager.js'
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
 //==============================================
-var html = `<div class="ui-arena hmc-pager">
-    <div class="pg_ele pg_btn"><a key="first"></a><a key="prev"></a></div>
-    <div class="pg_ele pg_nbs"><a>1</a><a>2</a><b>3</b><a>4</a><a>5</a><a>6</a></div>
-    <div class="pg_ele pg_btn"><a key="next"></a><a key="last"></a></div>
-    <div class="pg_ele pg_brief"></div>
-</div>`;
+var html = '<div class="ui-arena hmc-pager hm-empty-save"></div>';
 //==============================================
 return ZUI.def("app.wn.hm_com_pager", {
     dom     : html,
@@ -22,42 +18,69 @@ return ZUI.def("app.wn.hm_com_pager", {
         HmComMethods(this);
     },
     //...............................................................
+    events : {
+        // 跳转页面
+        "click .pg_nbs a" : function(e) {
+            var UI = this;
+
+            // 在激活的组件内容才生效
+            if(!UI.isActived())
+                return;
+
+            // 跳转页码
+            var pn = $(e.currentTarget).text() * 1;
+            UI.arena.hmc_pager("jumpTo", pn);
+        },
+        // 首/尾页
+        "click .pg_btn [jump-to]" : function(e){
+            var UI = this;
+
+            // 在激活的组件内容才生效
+            if(!UI.isActived())
+                return;
+
+            // 跳转页码
+            var pn = $(e.currentTarget).attr("jump-to") * 1;
+            UI.arena.hmc_pager("jumpTo", pn);
+        },
+        // 前/后页
+        "click .pg_btn [jump-off]" : function(e){
+            var UI = this;
+
+            // 在激活的组件内容才生效
+            if(!UI.isActived())
+                return;
+
+            // 跳转页码
+            var off = $(e.currentTarget).attr("jump-off") * 1;
+            UI.arena.hmc_pager("jumpOff", off);
+        }
+    },
+    //...............................................................
     paint : function(com) {
         var UI = this;
+
+        // 标识保存时属性
+        UI.arena.addClass("hm-empty-save");
         
-        // 设置属性开关
-        UI.$el.attr({
-            "pager-type" : com.pagerType || "button",
-            "free-jump"  : com.freeJump  ?  "yes" : null,
-            "show-brief" : com.showBrief ?  "yes" : null,
-            "show-first-last" : com.showFirstLast ?  "yes" : null,
-        });
+        // 绘制
+        UI.arena.hmc_pager(_.extend({forIDE:true}, com));
+        UI.arena.hmc_pager("value", {
+            pn   : 1, 
+            pgnb : 24, 
+            sum  : com.dftPageSize * 24, 
+            pgsz : com.dftPageSize,
 
-        // 设置按钮文本
-        UI.arena.find('.pg_btn a[key="first"]').text(com.btnFirst);
-        UI.arena.find('.pg_btn a[key="prev"]').text(com.btnPrev);
-        UI.arena.find('.pg_btn a[key="next"]').text(com.btnNext);
-        UI.arena.find('.pg_btn a[key="last"]').text(com.btnLast);
-
-        // 设置消息文本
-        var brief = $z.tmpl(com.briefText||"No Brief")({
-            pn:3, pgnb:6, sum: com.dftPageSize * 6, pgsz: com.dftPageSize
         });
-        UI.arena.find(".pg_brief").html(brief);
     },
     //...............................................................
     getComValue : function() {
-        var com = this.getData();
-        return {
-            pn   : 1,
-            pgsz : com.dftPageSize,
-            skip : 0,
-        };
+        return this.arena.hmc_pager("value");
     },
     //...............................................................
     getBlockPropFields : function(block) {
         return [block.mode == 'inflow' ? "margin" : null,
-                "padding","border","borderRadius",
+                "padding","border","borderRadius","_align",
                 "color", "background",
                 "boxShadow","overflow"];
     },

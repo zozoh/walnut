@@ -9,16 +9,16 @@ $.fn.extend({ "wn_plst_th_video" : function(obj, opt){
     // 检查数据结构
     if(!_.isArray(list)){
         $('<div class="dynamic-msg" m="api-error">')
-            .html('<i class="zmdi zmdi-alert-triangle"></i> Data should be Array!')
-                .appendTo(jq);
+            .html('<i class="zmdi zmdi-alert-circle-o"></i>'
+                    + (opt.invalidText||"Data Invalid!")).appendTo(jq);
         return;
     }
     
     // 空数组
     if(list.length == 0){
-        $('<div class="dynamic-msg" m="api-error">')
-            .html('<i class="zmdi zmdi-alert-circle-o"></i> No data')
-                .appendTo(jq);
+        $('<div class="dynamic-msg" m="api-no-data">')
+            .html('<i class="zmdi zmdi-alert-circle-o"></i>'
+                    + (opt.emptyText||"No Data")).appendTo(jq);
         return;
     }
     

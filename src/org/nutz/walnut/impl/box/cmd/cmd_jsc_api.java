@@ -104,7 +104,7 @@ public class cmd_jsc_api {
     }
 
     public String json(Object obj) {
-        return Json.toJson(obj, JsonFormat.compact());
+        return Json.toJson(obj, JsonFormat.compact().setQuoteName(true).setIgnoreNull(false));
     }
 
     public Object exec2map(String cmdText) {

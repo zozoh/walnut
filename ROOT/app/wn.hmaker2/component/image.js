@@ -258,7 +258,11 @@ return ZUI.def("app.wn.hm_com_image", {
     //...............................................................
     getBlockPropFields : function(block) {
         return [block.mode == 'inflow' ? "margin" : null,
-                "border","borderRadius","background","boxShadow"];
+                "padding","border","borderRadius",
+                "boxShadow","overflow",
+                "textAlign", "fontFamily","_font","fontSize",
+                "lineHeight","letterSpacing","textShadow",
+                "color", "background"];
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性

@@ -295,6 +295,16 @@ var methods = {
             css.width = "";
         if("unset" == css.height)
             css.height = "";
+
+        // 修正 font 的 css
+        if(_.isArray(css._font)){
+            if(css._font.indexOf("bold")>=0)
+                css.fontWeight = "bold";
+            if(css._font.indexOf("underline")>=0)
+                css.textDecoration = "underline";
+            if(css._font.indexOf("italic")>=0)
+                css.fontStyle = "italic";
+        }
                 
         // 应用这个修改
         //console.log("css:", css);
@@ -464,6 +474,7 @@ module.exports = function(uiCom){
     
     // 定默认控件应用布局块属性的方法
     $z.setUndefined(uiCom, "applyBlockCss", function(css){
+        //console.log(css)
         // 对于相对位置，最重要的是要保证 jW 与块是同样尺寸的
         // 主要是高度
         if(/^[\d.]+(px)?(%)?$/.test(css.height)){

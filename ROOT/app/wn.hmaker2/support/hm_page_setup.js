@@ -131,9 +131,13 @@ var methods = {
                 }
             // 最后移除页面的标志
             window.setTimeout(function(){
+                // 移除标志
                 UI._C.iedit.$root.removeAttr("hm-page-preparing")
                     .find(" > body > .hm-page-preparing").remove();
-            }, 1000);
+
+                // 确保通知一遍所有控件的 resize
+                UI.resize(true);
+            }, 100);
         }
         // 标识正在准备页面控件
         else {

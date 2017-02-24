@@ -138,13 +138,6 @@ return ZUI.def("app.wn.hm_com_image_prop", {
     //...............................................................
     TXT_FIELDS : function(){
         return [{
-            key    : "text.content",
-            title  : "i18n:hmaker.com.image.text",
-            type   : "string",
-            dft    : null,
-            emptyAsNull : true,
-            editAs : "text",
-        }, {
             key    : "text.pos",
             title  : "i18n:hmaker.com.image.text_pos",
             type   : "string",
@@ -157,74 +150,19 @@ return ZUI.def("app.wn.hm_com_image_prop", {
                     text  : "i18n:hmaker.com.image.text_pos_S",
                     value : "S"
                 }, {
-                    text  : "i18n:hmaker.com.image.text_pos_W",
-                    value : "W"
-                }, {
-                    text  : "i18n:hmaker.com.image.text_pos_E",
-                    value : "E"
+                    text  : "i18n:hmaker.com.image.text_pos_P",
+                    value : "P"
                 }]
             }
         }, {
-            key   : "text.textAlign",
-            title : 'i18n:hmaker.com.text.textAlign',
-            type  : "string",
-            editAs : "switch",
-            uiConf : {
-                items : [{
-                    icon : '<i class="fa fa-align-left">',
-                    val  : 'left',
-                }, {
-                    icon : '<i class="fa fa-align-center">',
-                    val  : 'center',
-                }, {
-                    icon : '<i class="fa fa-align-right">',
-                    val  : 'right',
-                }]
-            }
-        }, {
-            key    : "text.size",
-            title  : "i18n:hmaker.com.image.text_size",
+            key    : "text.content",
+            title  : "i18n:hmaker.com.image.text",
+            tip    : "i18n:hmaker.com.image.text_tip",
             type   : "string",
-            uiWidth : 80, 
-            editAs : "input",
-        }, {
-            key    : "text.padding",
-            title  : "i18n:hmaker.com.image.text_padding",
-            type   : "string",
-            uiWidth : 80, 
-            editAs : "input",
-        }, {
-            key    : "text.color",
-            title  : "i18n:hmaker.com.image.text_color",
-            type   : "string",
-            editAs : "color",
-        }, {
-            key    : "text.background",
-            title  : "i18n:hmaker.com.image.text_background",
-            type   : "string",
-            nullAsUndefined : true,
-            editAs : "background",
-            uiConf : this.getBackgroundImageEditConf()
-        }, {
-            key   : "text.lineHeight",
-            title : 'i18n:hmaker.com.text.lineHeight',
-            type  : "string",
-            editAs : "input",
-        }, {
-            key   : "text.letterSpacing",
-            title : 'i18n:hmaker.com.text.letterSpacing',
-            type  : "string",
-            editAs : "input",
-        }, {
-            key   : "text.fontSize",
-            title : 'i18n:hmaker.com.text.fontSize',
-            type  : "string",
-            editAs : "input",
-        }, {
-            key   : "text.textShadow",
-            title : 'i18n:hmaker.com.text.textShadow',
-            type  : "string",
-            editAs : "input",
+            dft    : null,
+            emptyAsNull : true,
+            editAs : "text",
+            uiConf : {height:100}
         }];
     },
     //...............................................................

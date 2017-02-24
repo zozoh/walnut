@@ -33,7 +33,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
     //...............................................................
     paint : function(com) {
         var UI = this;
-        var jW = UI.$el.find(">.hm-com-W")
+        var jW = UI.$el.find(">.hm-com-W");
         //console.log("I am dynamic paint");
 
         // 得到数据
@@ -125,7 +125,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         // 处理参数解析的错误
         catch(errMsg){
             UI.__tip(errMsg, "api-error", jData);
-            return;
+            throw errMsg;
         }
         //console.log(params)
 
@@ -168,8 +168,12 @@ return ZUI.def("app.wn.hm_com_dynamic", {
             }
             // 接口调用错误
             catch (errMsg) {
+                // 显示错误
                 UI.__tip('<i class="zmdi zmdi-alert-triangle"></i>' + errMsg, 
                     "api-error", jData);
+                // 绘制重新加载按钮
+                UI.__draw_dynamic_reload();
+                // 抛出错误，不要继续了
                 throw errMsg;
             }
             // 最后要调用回调
@@ -296,7 +300,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
             return;
         }
 
-        //console.log("dynamic draw", obj);
+        console.log("dynamic draw", obj);
 
         // 如果木有数据，就显示空
         if(!obj || (_.isArray(obj) && obj.length == 0)) {
@@ -347,13 +351,16 @@ return ZUI.def("app.wn.hm_com_dynamic", {
     },
     //...............................................................
     __draw_dynamic_reload : function(jW) {
+        var UI = this;
+        jW = jW || UI.$el.find(">.hm-com-W");
+
         // 有未设置默认值的动态参数，则没必要绘制重载按钮
-        if(this.isDynamicButLackParams())
+        if(UI.isDynamicButLackParams())
             return;
             
         $('<div class="dynamic-reload"><b><i class="fa fa-refresh"></i></b></div>')
             .attr({
-                "data-balloon" : this.msg("hmaker.dds.reload"),
+                "data-balloon" : UI.msg("hmaker.dds.reload"),
                 "data-balloon-pos"    : "left",
                 "data-balloon-length" : "medium"
             })
