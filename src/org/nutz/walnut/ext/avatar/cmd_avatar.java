@@ -6,7 +6,7 @@ import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
 
-import org.nutz.lang.Avatar;
+import org.nutz.img.Avatar;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
