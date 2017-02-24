@@ -45,9 +45,13 @@ var html = `
 </div>
 <div class="ui-arena hm-page" ui-fitparent="yes"><div class="hm-W">
     <iframe class="hmpg-frame-load"></iframe>
-    <div class="hmpg-stage">
-        <div class="hmpg-screen" mode="pc"><iframe class="hmpg-frame-edit"></iframe></div>
-    </div>
+    <div class="hmpg-stage" mode="pc"><div>
+        <div class="hmpg-screen"><iframe class="hmpg-frame-edit"></iframe></div>
+        <div class="hmpg-loading-mask"><div class="hmpg-loading">
+            <span><i class="zmdi zmdi-settings zmdi-hc-spin"></i></span>
+            <em>{{hmaker.page.preparing}}</em>
+        </div></div>
+    </div></div>
     <div class="hmpg-sbar"><div class="hm-W">
         <div class="hmpg-sbar-com"  ui-gasket="combar"></div>
         <div class="hmpg-sbar-page" ui-gasket="pagebar"></div>
@@ -988,7 +992,7 @@ return ZUI.def("app.wn.hmaker_page", {
     },
     setScreenMode : function(mode) {
         this.local("screen_mode", mode);
-        this.arena.find(".hmpg-screen").attr("mode", mode);
+        this.arena.find(".hmpg-stage").attr("mode", mode);
         this.invokeSkin("resize");
     },
     //...............................................................
@@ -1021,7 +1025,7 @@ return ZUI.def("app.wn.hmaker_page", {
         });
 
         // 确保屏幕的模式
-        UI.arena.find(".hmpg-screen").attr("mode", this.getScreenMode());
+        UI.arena.find(".hmpg-stage").attr("mode", this.getScreenMode());
 
         // 开启动画
         window.setTimeout(function(){
@@ -1181,10 +1185,15 @@ return ZUI.def("app.wn.hmaker_page", {
         // 记录
         UI._page_obj = o;
 
+        // 标识编辑加载状态
+        UI.markReadyForEdit(false);
+
+        // 开始加载初始页面
         var jIfmEdit = UI.arena.find(".hmpg-frame-edit");
         jIfmEdit.css("visibility", "hidden");
         jIfmEdit.prop("src", "/a/load/wn.hmaker2/page_loading.html");
 
+        // 加载真正的页面，然后等待着两个 iframe 都加载完毕的事件
         var jIfmLoad = UI.arena.find(".hmpg-frame-load");
         jIfmLoad.prop("src", "/o/read/id:"+o.id);
     },
@@ -1216,7 +1225,7 @@ return ZUI.def("app.wn.hmaker_page", {
         C.iload = UI._reset_context_vars(".hmpg-frame-load");
         
         // 清空编辑区
-        $(rootEdit).empty().attr("hm-page-preparing", "yes");
+        $(rootEdit).empty();
 
         // 设置 HTML 到编辑区
         rootEdit.innerHTML = UI.compactHTML(`<head>
@@ -1226,12 +1235,7 @@ return ZUI.def("app.wn.hmaker_page", {
             <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">
             <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">
             <link rel="stylesheet" type="text/css" d="" href="/gu/rs/core/css/balloon.min.css">
-        </head><body>
-            <div class="hm-page-preparing">
-                <span><i class="zmdi zmdi-settings zmdi-hc-spin"></i></span>
-                <em>{{hmaker.page.preparing}}</em>
-            </div>
-        </body>`);
+        </head><body></body>`);
 
         // 加载编辑区的上下文对象
         C.iedit = UI._reset_context_vars(".hmpg-frame-edit");

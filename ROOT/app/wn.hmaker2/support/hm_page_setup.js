@@ -32,9 +32,6 @@ var methods = {
     //...............................................................
     setup_page_editing : function(){
         var UI = this;
-
-        // 标识编辑加载状态
-        UI.markReadyForEdit(false);
         
         // 标识网页的编辑器模式
         UI._C.iedit.$root.attr({
@@ -117,6 +114,10 @@ var methods = {
     },
     //...............................................................
     // 标识自己是否可以被编辑（即所有的组件都加载完毕）
+    // 一般来说，是加载一个网页前，要标识 false
+    // 所有组件预处理完毕后，标识 true
+    // 标识 false 的时候，会显示一个罩罩，把网页遮住，这样可以掩盖一些丑丑的中间过程
+    // 嗯，就是这样
     markReadyForEdit : function(is_ready_for_edit) {
         var UI = this;
         UI.__is_ready_for_edit = is_ready_for_edit ? true : false;
@@ -132,17 +133,15 @@ var methods = {
             // 最后移除页面的标志
             window.setTimeout(function(){
                 // 移除标志
-                UI._C.iedit.$root.removeAttr("hm-page-preparing")
-                    .find(" > body > .hm-page-preparing").remove();
+                UI.arena.find(".hmpg-stage").removeAttr("hm-page-preparing");
 
                 // 确保通知一遍所有控件的 resize
                 UI.resize(true);
-            }, 100);
+            }, 0);
         }
         // 标识正在准备页面控件
         else {
-            //console.log("begin!!!!");
-            UI._C.iedit.$root.attr("hm-page-preparing", "yes");    
+            UI.arena.find(".hmpg-stage").attr("hm-page-preparing", true);
         }
     },
     isReadyForEdit : function(){

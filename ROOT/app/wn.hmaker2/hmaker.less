@@ -99,18 +99,42 @@
         .hmpg-stage {
             top:@panTH; left:@panTH; right:0; bottom:0; 
             background:#AAB;
+            > div {
+                width:100%; height:100%; position: relative;
+            }
             .hmpg-screen {
-                background: #FFF;
+                background: #FFF; margin:0 auto;
                 > iframe {width:100%; height:100%; border:0;}
             }
-            .hmpg-screen[mode="pc"] {
-                width: 100%; height:100%; margin:0px auto;
-            }
-            .hmpg-screen[mode="phone"] {
-                width: 400px; height:96%; margin:10px auto;
-                box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+            .hmpg-loading-mask { display: none;
+                position: absolute; top:0; left:0; bottom:0; right:0;
+                .hmpg-loading {
+                    background: #FFF; color:#DDD;
+                    padding: 26px 20px; color:#CCC;
+                    font-size: 16px;
+                    > * {display: inline-block; vertical-align: middle;}
+                    > span {padding:0 @d2; font-size: 32px;}
+                    > em {font-style: normal;}
+                }
             }
         }
+        .hmpg-stage[mode="pc"] > div {
+            .hmpg-screen, .hmpg-loading {
+                width: 100%; height:100%;
+            }
+        }
+        .hmpg-stage[mode="phone"] > div {
+            padding: 10px 0;
+            .hmpg-screen {
+                width: 400px; height:96%; 
+                box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+            }
+            .hmpg-loading-mask {
+                padding: 10px 0;
+                .hmpg-loading {width: 400px; height:96%; margin:0 auto;}
+            }
+        }
+        .hmpg-stage[hm-page-preparing] .hmpg-loading-mask {display: block;}
         //.........................................................
         // 隐藏的 .iload <iframe>
         .hmpg-frame-load { display: none;
