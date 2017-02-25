@@ -79,7 +79,7 @@ return ZUI.def("app.wn.hm_com_htmlcode_prop", HmMethods({
         UI.arena.find("header span").text(UI.text(opt.title||"i18n:hmaker.com.htmlcode.tt"));
 
         // 更新打开链接
-        UI.arena.find("header a em").text(UI.text(opt.openText||"i18m:hmaker.com.htmlcode.open"));
+        UI.arena.find("header a em").text(UI.text(opt.openText||"i18n:hmaker.com.htmlcode.open"));
     }
     //...............................................................
 }));

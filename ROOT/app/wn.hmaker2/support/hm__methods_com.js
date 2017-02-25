@@ -34,8 +34,15 @@ var methods = {
         var old_skin = this.getComSkin();
         if(old_skin) {
             this.$el.removeClass(old_skin);
+            this.arena.removeClass(old_skin);
         }
-        this.$el.attr("skin", skin||null).addClass(skin);
+        this.$el.attr("skin", skin||null);
+        this.arena.addClass(skin);
+    },
+    // 确保皮肤被应用
+    useComSkin : function(){
+        var skin = this.getComSkin();
+        this.arena.addClass(skin);  
     },
     //........................................................
     // 获取组件的皮肤
@@ -251,7 +258,8 @@ var methods = {
             "hmc-pos-by"  : block.posBy,
         });
         
-        // console.log(block)
+        // 确保更新了皮肤
+        UI.useComSkin();
         
         // 准备 css 对象
         var css = {};
@@ -259,14 +267,14 @@ var methods = {
         // 对于绝对位置，绝对位置的话，应该忽略 margin
         if("abs" == block.mode) {
             _.extend(css, 
-                $z.pick(block, "!^(mode|posBy|skin-.+)$"),{
+                $z.pick(block, "!^(mode|posBy|sa-.+)$"),{
                 "position" : "absolute"
             });
         }
         // 相对位置
         else {
             _.extend(css, 
-                $z.pick(block, "!^(mode|posBy|top|left|right|bottom|skin-.+)$"),{
+                $z.pick(block, "!^(mode|posBy|top|left|right|bottom|sa-.+)$"),{
                 "position" : ""
             });
         }
@@ -275,20 +283,20 @@ var methods = {
         var attrs = {};
         for(var i=0; i<UI.el.attributes.length; i++) {
             var anm = UI.el.attributes[i].name;
-            if(/^skin-.+/.test(anm)) {
+            if(/^sa-.+/.test(anm)) {
                 attrs[anm] = null;
             }
         }
 
         // 皮肤属性的 boolean 字段，要变成存在或者不存在
-        _.extend(attrs, $z.pick(block, "^skin-.+$"));
+        _.extend(attrs, $z.pick(block, "^sa-.+$"));
         for(var key in attrs) {
             var val = attrs[key];
             if(_.isBoolean(val))
                 attrs[key] = val ? "yes" : null;
         }
         // 应用皮肤属性
-        UI.$el.attr(attrs);
+        UI.arena.attr(attrs);
         
         // 修正 css 的宽高
         if("unset" == css.width)

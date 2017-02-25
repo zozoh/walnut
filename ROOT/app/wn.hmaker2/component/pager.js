@@ -77,6 +77,9 @@ return ZUI.def("app.wn.hm_com_pager", {
     getComValue : function() {
         return this.arena.hmc_pager("value");
     },
+    setComValue : function(pg) {
+        this.arena.hmc_pager("value", pg);
+    },
     //...............................................................
     getBlockPropFields : function(block) {
         return [block.mode == 'inflow' ? "margin" : null,

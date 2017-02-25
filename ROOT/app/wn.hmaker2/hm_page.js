@@ -784,14 +784,20 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     // 返回指定的类型的一组 COM 数组
     // filter : 过滤函数，则将参数为 F(Element):Boolean，返回true表示选中
-    //          如果给定的是一个字符串，则表示指定控件的类型
+    //          如果给定的是一个字符串，则表示指定控件的类型，多个的话，用半角逗号分隔
     // returnType : "com|jQuery|Element" 默认是 "com" !大小写敏感
     getComList : function(filter, returnType) {
         var UI = this;
         var jComs;
-        // 指定了类型
+        // 指定了类型: 字符串的话，根据半角逗号做拆分
         if(_.isString(filter)){
-            jComs = UI._C.iedit.$body.find('.hm-com[ctype="'+filter+'"]');
+            var ctypes = filter.split(/ *[^a-zA-Z0-9_-] */g);
+            var selector = [];
+            for(var i=0; i<ctypes.length; i++) {
+                selector.push('.hm-com[ctype="'+ctypes[i]+'"]');
+            }
+            //console.log(filter, selector)
+            jComs = UI._C.iedit.$body.find(selector.join(", "));
         }
         // 指定了过滤器
         else if(_.isFunction(filter)){

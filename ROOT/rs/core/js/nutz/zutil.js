@@ -1551,6 +1551,26 @@
             arr.push(val);
         },
         //.............................................
+        // 根据一个映射对象，从源对象中生成一个新对象
+        // 映射对象值的格式有两种:
+        //  =key  表示从源对象中取对应键值
+        //  xxx   直接就是静态值
+        // 如果传入的 obj 为假，则直接返回 null
+        mappingObj : function(mapping, obj) {
+            if(!obj)
+                return null;
+            var re = {};
+            for(var key in mapping){
+                var val = mapping[key];
+                var m = /^=(.+)$/.exec(val);
+                if(m)
+                    re[key] = obj[m[1]];
+                else
+                    re[key] = val;
+            }
+            return re;
+        },
+        //.............................................
         // 执行一个 HTML5 的文件上传操作，函数接受一个配置对象：
         //
         // {

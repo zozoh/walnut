@@ -5,6 +5,7 @@ $z.declare([
     'app/wn.hmaker2/support/hm__methods_panel',
     'ui/form/form',
     'ui/form/c_droplist',
+    '/gu/rs/ext/hmaker/hm_runtime.js'
 ], function(ZUI, Wn, HmMethods, FormUI, DroplistUI){
 //==============================================
 var html = `
@@ -93,9 +94,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
 
         // 根据 API 里面的设定设置 params
         if(oApi) {
-            oApi.params    = oApi.params || {};
-            com.api_method = (oApi.api_method || "GET").toUpperCase();
-            com.api_return = (oApi.api_return || "obj").toLowerCase();
+            oApi.params = oApi.params || {};
         }
         // 如果没找到，将 api 值空
         else {
@@ -112,8 +111,8 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             // 更新 api info 部分
             jApiInfo.show();
             jB.empty();
-            $('<u>').text(com.api_method).appendTo(jB);
-            $('<em>').text(com.api_return).appendTo(jB);
+            $('<u>').text(oApi.api_method  || "GET").appendTo(jB);
+            $('<em>').text(oApi.api_return || "obj").appendTo(jB);
 
             // 更新 params 的 form
             // 并设置 data
@@ -128,7 +127,8 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             }, com.params);
 
             // 更新可用模板列表
-            var tmplList = UI.getTemplateList(com.api_return);
+            console.log(oApi.api_return);
+            var tmplList = UI.getTemplateList(oApi.api_return);
             UI.gasket.template.setItems(tmplList);
 
         }
@@ -149,7 +149,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                                     : null;
 
         // 如果没有将 template 置空
-        if(!tmplInfo || (tmplInfo.dataType||[]).indexOf(com.api_return)<0) {
+        if(!tmplInfo || !HmRT.isMatchDataType(oApi.api_return, tmplInfo.dataType)) {
             com.template = "";
             jOptions.hide();
         }
@@ -241,42 +241,24 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         var UI = this;
         var re = [];
 
-        // 循环
-        for(var key in setting) {
-            var val = setting[key];
+        // 解析参数
+        var flds = HmRT.parseSetting(setting || {});
 
-            // 默认的字段
-            var fld_required = false;
-            var fld_type  = "input";
-            var fld_arg   = undefined;
-            var fld_tip   = undefined;
-            var fld_title = undefined;
-
-            // 分析一下
-            var m = /^([*])?(\(([^\)]+)\))?@(input|thingset|sites|com|link)(:([0-9a-zA-Z]*))?(#(.*))?$/.exec(val);
-            // 指定了类型
-            if(m) {
-                fld_required = m[1] ? true : false;
-                fld_title = m[3];
-                fld_type  = m[4];
-                fld_arg   = m[6];
-                fld_tip   = m[8];
-            }
-
-            // 默认用字段名作为字段标题
-            fld_title = fld_title || key;
-
+        // 循环输出表单字段配置信息
+        for(var i=0; i<flds.length; i++) {
+            var F = flds[i];
             // 准备字段
             var fld = {
-                key      : key,
-                title    : fld_title || key,
-                tip      : fld_tip,
-                required : fld_required,
-                key_tip  : key == fld_title ? null : key,
+                key      : F.key,
+                title    : F.title || F.key,
+                tip      : F.tip,
+                dft      : F.dft,
+                required : F.required,
+                key_tip  : F.key == F.title ? null : F.key,
             };
 
             // 字段: thingset
-            if("thingset" == fld_type) {
+            if("thingset" == F.type) {
                 fld.editAs = "droplist";
                 fld.uiConf = {
                     emptyItem : {},
@@ -291,14 +273,14 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 };
             }
             // 字段: sites
-            else if("sites" == fld_type) {
+            else if("site" == F.type) {
                 fld.editAs = "droplist";
-                fld.valueKey = fld_arg,
+                fld.valueKey = F.arg,
                 fld.uiConf = {
                     emptyItem : {
                         icon  : '<i class="zmdi zmdi-flash"></i>',
                         text  : "i18n:auto",
-                        value : "${siteName}",
+                        value : "id" == F.arg ? "${siteId}" : "${siteName}",
                     },
                     items : "obj -mine -match \"tp:'hmaker_site', race:'DIR'\" -json -l -sort 'nm:1'",
                     icon  : '<i class="fa fa-sitemap"></i>',
@@ -311,28 +293,41 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 };
             }
             // 字段: com
-            else if("com" == fld_type) {
+            else if("com" == F.type) {
                 fld.editAs = "droplist";
                 fld.uiConf = {
                     emptyItem : {},
-                    itemArgs  : fld_arg,
+                    itemArgs  : F.arg,
                     items : function(ctype, callback){
                         callback(UI.pageUI().getComList(ctype));
                     },
                     icon  : function(uiCom){
-                        return uiCom.getIconHtml();
+                        if(uiCom)
+                            return uiCom.getIconHtml();
                     },
                     text  : function(uiCom){
-                        return uiCom.getComDisplayText();
+                        if(uiCom)
+                            return uiCom.getComDisplayText();
                     },
                     value : function(uiCom){
-                        return "#<" + uiCom.getComId() + ">";
+                        if(uiCom)
+                            return "#<" + uiCom.getComId() + ">";
                     }
                 };
             }
             // 字段: link
-            else if("link" == fld_type) {
+            else if("link" == F.type) {
                 fld.uiType = "app/wn.hmaker2/support/c_edit_link";
+            }
+            // 字段: 映射表
+            else if("mapping" == F.type) {
+                console.log(F)
+                fld.type = "object";
+                fld.editAs = "pair";
+                fld.uiConf = {
+                    mergeWith   : true,
+                    objTemplate : F.mapping || {}
+                };
             }
             // 字段: input 作为默认选项
             else {

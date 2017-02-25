@@ -2,7 +2,7 @@
 $z.declare([
     'zui',
     'ui/form/support/form_c_methods',
-], function(ZUI, ComMethods){
+], function(ZUI, FormMethods){
 //==============================================
 var html = `<div class="ui-arena com-pair">
     <section class="pairs">
@@ -15,7 +15,10 @@ return ZUI.def("ui.form_com_pair", {
     dom  : html,
     //...............................................................
     init : function(opt){
-        ComMethods(this);
+        FormMethods(this);
+
+        $z.setUndefined(opt, "trimSpace", true);
+        $z.setUndefined(opt, "mergeWith", false);
     },
     //...............................................................
     events : {
@@ -24,35 +27,90 @@ return ZUI.def("ui.form_com_pair", {
         }
     },
     //...............................................................
-    __draw_data : function(obj) {
+    redraw : function(){
         var UI  = this;
         var opt = UI.options;
+
+        // 清空内容
+        var jTBody = UI.arena.find(".pairs tbody").empty();
+
+        // 如果已经指明对象模板
+        if(opt.objTemplate) {
+            console.log("dhaha", opt.objTemplate);
+            UI.__redraw_table(opt.objTemplate);
+        }
+    },
+    //...............................................................
+    _V : function(obj, key) {
+        if(!obj)
+            return undefined;
+        var re = obj[key];
+        if(this.options.trimSpace)
+            return $.trim(re);
+        return re;
+    },
+    //...............................................................
+    __redraw_table : function(obj){
+        var UI = this;
+        var opt = UI.options;
+
+        // 清空内容
+        var jTBody = UI.arena.find(".pairs tbody").empty();
 
         // 如果没内容显示空
         if(!obj || _.isEmpty(obj)){
             UI.arena.attr("show", "empty");
             return;
         }
-        // 有内容，直接更新
-        UI.arena.attr("show", "pairs");
-        var jTBody = UI.arena.find(".pairs tbody").empty();
 
         // 开始循环设置内容
         for(var key in obj) {
-            var jTr = $('<tr><td class="cp-key"></td><td class="cp-val"><input spellcheck="false"></td></tr>').appendTo(jTBody);
-            jTr.children(".cp-key").text(key);
-            jTr.find(".cp-val input").val(obj[key]);
+            var jTr = $(`<tr>
+                <td class="cp-key"></td>
+                <td class="cp-val"><input spellcheck="false"></td>
+            </tr>`).appendTo(jTBody);
+            jTr.attr("o-key",key).children(".cp-key").text(key);
+            jTr.find(".cp-val input").val(UI._V(obj, key));
+        }
+    },
+    //...............................................................
+    __draw_data : function(obj) {
+        var UI  = this;
+        var opt = UI.options;
+
+        // 有内容，直接更新
+        UI.arena.attr("show", "pairs");
+
+        console.log("draw", obj);
+        
+        // 已经有模板了
+        if(opt.objTemplate) {
+            UI.arena.find(".pairs tr").each(function(){
+                var jTr = $(this);
+                var key = jTr.attr("o-key");
+                var val = UI._V(obj, key);
+                if(!opt.mergeWith || val)
+                    jTr.find("input").val(val);
+            });
+        }
+        // 重新绘制
+        else {
+            UI.__redraw_table(obj);
         }
     },
     //...............................................................
     getData : function() {
         var UI = this;
-        var re = {};
+        var opt = UI.options;
 
-        if(!UI.arena.attr("empty-obj")){
+        var re = {};
+        if(UI.arena.attr("show") != "empty"){
             UI.arena.find(".pairs tr").each(function(){
-                var key = $('.cp-key', this).text();
-                var val = $('.cp-val input', this).val();
+                var jTr = $(this);
+                var key = jTr.attr("o-key");
+                var val = jTr.find('input').val();
+                if(opt.trimSpace)
+                    val = $.trim(val);
                 re[key] = val;
             });
         }

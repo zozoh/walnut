@@ -96,6 +96,8 @@ return ZUI.def("ui.form_com_switch", EnumListSupport({
             if(_.isString(icon)){
                 jIcon.html(icon);
                 hasIcon = true;
+            }else{
+                jIcon.remove();
             }
 
             // 文字

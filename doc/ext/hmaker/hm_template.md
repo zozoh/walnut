@@ -28,13 +28,15 @@ tags:
     "title"    : "默认视频列表",
     
     // 可以匹配什么样的数据接口返回类型
-    // 可选值为: page | list | obj
-    "dataType" : ["page", "list"],
+    // 可选值为: list | obj
+    "dataType" : "list",
     
-    // 模板选项表，格式与 dynamic 控件的 API 参数表相同
+    // 模板选项表，格式参见 《动态设置》
     "options"  : { ... }
 }
 ```
+
+> [《动态设置》](hm_setting.md)
 
 # jquery.fn.js
 

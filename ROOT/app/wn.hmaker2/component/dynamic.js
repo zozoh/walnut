@@ -2,7 +2,8 @@
 $z.declare([
     'zui',
     'wn/util',
-    'app/wn.hmaker2/support/hm__methods_com'
+    'app/wn.hmaker2/support/hm__methods_com',
+    '/gu/rs/ext/hmaker/hm_runtime.js'
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
 var html = `<div class="hmc-dynamic ui-arena hm-del-save">
@@ -40,7 +41,8 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         com = com || UI.getData();
 
         // 检查显示模式
-        if(!UI.__check_mode(com)){
+        var oApi = UI.__check_mode(com);
+        if(!oApi){
             return ;
         }
 
@@ -50,41 +52,35 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         // 采用旧数据
         if(UI.__data_cache && api_finger == UI.__api_finger) {
             UI.__clean_assists();
-            UI.__draw_data(UI.__data_cache, com);
+            UI.__draw_data(UI.__data_cache, com, oApi);
         }
         // 重新加载
         else {
             UI.pageUI().delayWhenReadyForEdit(function(){
-                UI.__reload_data(com);
+                UI.__reload_data(com, oApi);
             });
         }
 
     },
     //...............................................................
-    __reload_data : function(com, callback){
+    __reload_data : function(com, oApi){
         var UI = this;
         var jData = UI.arena.children("section").empty();
 
-        // 支持直接给入 callback 的方式
-        if(_.isFunction(com)) {
-            callback = com;
-            com = undefined;
-        }
-
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 确保有数据
         com = com || UI.getData();
 
-        // 清除动态标志
-        UI.__clean_assists();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 确保有数据接口
+        oApi = oApi || UI.__check_mode(com);
+        if(!oApi){
+            return ;
+        }
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // 确保有数据接口        
-        var oApi = com.api ? Wn.fetch("~/.regapi/api" + com.api)
-                           : null;
-        if(!oApi) {
-            UI.__tip("noapi", "warn", jData);
-            return;
-        }
+        // 清除动态标志
+        UI.__clean_assists();
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 检查一下是否 required 的字段都已经被设置了
@@ -116,11 +112,10 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         var apiUrl = UI.getHttpApiUrl(com.api);
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // 处理动态参数 (来自请求参数，Session变量，Cookies 里面的值等)
-        var pm_org = _.extend({}, com.params);
-        var params = {};
+        // 将参数处理成可向数据接口提交的形式
+        var params;
         try{
-            params = UI.__parse_params(pm_org);
+            params = UI.__parse_params(com, oApi);
         }
         // 处理参数解析的错误
         catch(errMsg){
@@ -131,7 +126,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
         // 如果有动态参数，且缺少足够的默认参数，那么会直接让组件绘制 null
         if(UI.isDynamicButLackParams()) {
-            UI.__draw_data(null, com);
+            UI.__draw_data(null, com, oApi);
             return;
         }
 
@@ -164,7 +159,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
                 UI.__data_cache = reo;
 
                 // 重绘项目
-                UI.__draw_data(UI.__data_cache, com);
+                UI.__draw_data(UI.__data_cache, com, oApi);
             }
             // 接口调用错误
             catch (errMsg) {
@@ -176,115 +171,55 @@ return ZUI.def("app.wn.hm_com_dynamic", {
                 // 抛出错误，不要继续了
                 throw errMsg;
             }
-            // 最后要调用回调
-            finally {
-                //console.log("do Callback");
-                $z.doCallback(callback, [re, reo], UI);
-            }
         });
         // 这个请求，显然是异步的
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     },
     //...............................................................
-    __parse_params : function(pm_org){
+    __parse_params : function(com, oApi){
         var UI = this;
-        var params = {};
-        var m;
-        var dynamicKeys  = [];     // 参数是否有动态参数
-        var isLackParams = false;  // 是否所有的动态参数都有默认值
-        var oHome  = UI.getHomeObj();
         var PageUI = UI.pageUI();
+        var oHome  = UI.getHomeObj();
 
-        // 得到站点名称等动态值的上下文
-        var pc = {
-            siteName : oHome.nm,
-            siteId   : oHome.id,
-        };
+        //console.log("before:", com.params);
 
-        // 循环处理 ...
-        for(var key in pm_org) {
-            var val = $.trim(pm_org[key]);
-
-            // 进行标准占位符替换
-            var v2 = $z.tmpl(val, {
-                escape: /\$\{([\s\S]+?)\}/g
-            })(pc);
-            //console.log(key, val, v2);
-
-            // 特殊类型的值
-            // TODO Session 变量
-            // TODO Cookie 的值
-            m = /^([@#])(<(.+)>)?(.*)$/.exec(v2);
-            if(m && m[2]) {
-                var p_tp  = m[1];
-                var p_val = m[3];
-                var p_arg = $.trim(m[4]);
-                //console.log(m, p_tp, p_val, p_arg);
-                // 动态参数: 这里就直接取默认值了
-                if("@" == p_tp) {
-                    dynamicKeys.push(key);
-                    isLackParams |= !p_arg;
-                    params[key] = p_val;
-                    continue;
+        // 解析 result
+        var re = HmRT.evalResult(com.params, {
+            context : {
+                siteName : oHome.nm,
+                siteId   : oHome.id,
+            },
+            setting : HmRT.parseSetting(oApi.params || {}, true),
+            getComValue : function(comId) {
+                var uiComTa = PageUI.getCom(comId);
+                if(!uiComTa) {
+                    throw "e_nocom : " + comId; 
                 }
-                // 来自控件
-                else if("#" == p_tp) {
-                    // 得到控件
-                    var uiComTa = PageUI.getCom(p_val);
-                    if(!uiComTa) {
-                        throw "e_nocom : " + p_val; 
-                    }
-
-                    // 得到控件的值，如果有值就填充到参数表
-                    var comVal = $z.invoke(uiComTa, "getComValue", []);
-                    if(comVal) {
-                        // 得到映射表
-                        if(p_arg) {
-                            // 融合到参数表同时进行映射
-                            try {
-                                var p_mapping = $z.fromJson(p_arg);
-                                for(var key in p_mapping) {
-                                    params[key] = comVal[p_mapping[key]];
-                                }
-                            }
-                            // 出错了
-                            catch(E){
-                                throw "e_p_mapping : " + p_arg; 
-                            }
-                        }
-                        // 直接将控件返回值融合到参数表
-                        else {
-                            // 对象
-                            if(_.isObject(comVal)) {
-                                _.extend(params, comVal);
-                            }
-                            // 普通值，直接填充
-                            else {
-                                params[key] = comVal;
-                            }
-                        }
-                    }
-                    // 继续下一个参数
-                    continue;
-                }
+                return $z.invoke(uiComTa, "getComValue", []);
             }
-            // 普通值
-            params[key] = v2;
-        }
-        
+        });
+
+        //console.log("re:", re);
+
         // 保存这个分析状态
-        UI.__dynamicKeys  = dynamicKeys;
-        UI.__isLackParams = isLackParams;
+        UI.__dynamicKeys = re.dynamicKeys;
+        UI.__lackKeys    = re.lackKeys;
 
         // 返回参数
-        return params;
+        return re.data;
     },
     //...............................................................
-    __draw_data : function(obj, com) {
+    __draw_data : function(data, com, oApi) {
         var UI = this;
         var jW = UI.$el.find(">.hm-com-W");
         var jData = UI.arena.children("section").empty();
-
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 确保有数据接口
+        oApi = oApi || UI.__check_mode(com);
+        if(!oApi){
+            return ;
+        }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 确保有可绘制的数据
         com = com || UI.getData();
         
@@ -293,47 +228,76 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
         // 绘制重新加载按钮
         UI.__draw_dynamic_reload(jW);
-
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 动态参数，但是缺少默认值，那么就没有足够的数据绘制了，显示一个信息吧
         if(UI.isDynamicButLackParams()) {
             UI.__tip("api_lack_params", "api-lack-params", jData);
             return;
         }
-
-        console.log("dynamic draw", obj);
-
-        // 如果木有数据，就显示空
-        if(!obj || (_.isArray(obj) && obj.length == 0)) {
-            UI.__tip("api_empty", "api-no-data", jData);
-            return;
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 如果数据是翻页信息，那么还需要找到翻页控件，并更新它的值
+        var PageUI = UI.pageUI();
+        if("page" == oApi.api_return && data.pager && data.list) {
+            //console.log(data.pager)
+            // 先解析一下 API 的设置参数
+            var setting = HmRT.parseSetting(oApi.params);
+            for(var i=0; i<setting.length; i++) {
+                // 寻找可以选用翻页条的项目: @com || @com:pager 
+                var conf = setting[i];
+                if(conf.type == "com" &&
+                    (!conf.arg || conf.arg.indexOf("pager") >= 0)) {
+                    // 在 com 中找到对应的翻页条并设置数据
+                    var ta = $.trim((com.params||{})[conf.key]);
+                    var m  = /^#<([^>]+)>$/.exec(ta);
+                    if(m) {
+                        var uiComTa = PageUI.getCom(m[1]);
+                        if(uiComTa) {
+                            $z.invoke(uiComTa, "setComValue", [data.pager]);
+                        }
+                    }
+                }
+            }
         }
-
-        // console.log(list)
-
+        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 加载模板
         var tmplInfo = UI.evalTemplate(com.template);
 
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 转换数据
+        //console.log("dynamic draw", data);
+        var d2 = HmRT.convertDataForTmpl(data, tmplInfo.dataType);
+        if(HmRT.isDataEmptyForTmpl(d2, tmplInfo.dataType)) {
+            UI.__tip("api_empty", "api-no-data", jData);
+            return;
+        }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 得到皮肤选择器
         var skinSelector = UI.getSkinForTemplate(com.template);
 
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 准备绘制模板参数
         var tmplOptions = _.extend({}, com.options, {
             API : UI.getHttpApiUrl(),
-            OBJ_TYPE : com.api_return,
         });
-
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 确保设置模板皮肤
         if(skinSelector)
             jData.prop("className", skinSelector);
-
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 调用模板的 jQuery 插件进行绘制
-        jData[tmplInfo.name](obj, tmplOptions);
+        jData[tmplInfo.name](d2, tmplOptions);
     },
     //...............................................................
     isDynamicButLackParams : function(){
-        return this.__dynamicKeys 
-                && this.__dynamicKeys.length > 0
-                && this.__isLackParams;
+        if(this.__dynamicKeys.length > 0){
+            for(var i=0; i<this.__dynamicKeys.length; i++) {
+                var dkey = this.__dynamicKeys[i];
+                if(this.__lackKeys.indexOf(dkey)>=0)
+                    return true;
+            }
+        }
+        return false;
     },
     //...............................................................
     __draw_dynamic_keys : function(jW) {
@@ -384,6 +348,13 @@ return ZUI.def("app.wn.hm_com_dynamic", {
             return false;
         }
 
+        // 确保有数据接口定义文件
+        var oApi = Wn.fetch("~/.regapi/api" + com.api);
+        if(!oApi) {
+            UI.__tip("api_gone", "warn", jData);
+            return;
+        }
+
         // 确保有显示模板
         if(!com.template) {
             UI.__tip("notemplate", "warn", jData);
@@ -391,7 +362,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         }
         
         // 通过检查
-        return true;
+        return oApi;
         
     },
     //...............................................................

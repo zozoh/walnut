@@ -1,5 +1,6 @@
 define(function (require, exports, module) {
 // 依赖
+require("/gu/rs/ext/hmaker/hm_runtime.js");
 var MaskUI = require("ui/mask/mask");
 var Wn = require('wn/util');
 // ....................................
@@ -194,10 +195,11 @@ var methods = {
     },
     //=========================================================
     // 得到本站点可用的模板列表
-    // dataType : 字符串，表示只显示支持此种数据类型的模板
-    //            可能的值为 obj|list|page
+    // apiReType : 字符串，表示只显示支持此种数据类型的模板
+    //             可能的值为 obj|list|page
+    //             null 表示全部模板
     // forceReload : 是否强制从服务器读取
-    getTemplateList : function(dataType, forceReload) {
+    getTemplateList : function(apiReType, forceReload) {
         var UI = this;
         var oHome = this.getHomeObj();
         // 得到模板列表
@@ -210,7 +212,7 @@ var methods = {
         for(var i=0; i<oTmplList.length; i++) {
             var oTmpl = oTmplList[i];
             var tmpl  = UI.evalTemplate(oTmpl.nm, true, forceReload);
-            if(!dataType || (tmpl.dataType||[]).indexOf(dataType) >= 0) {
+            if(!apiReType || HmRT.isMatchDataType(apiReType, tmpl.dataType)) {
                 tmpl.value = oTmpl.nm;
                 list.push(tmpl);
             }

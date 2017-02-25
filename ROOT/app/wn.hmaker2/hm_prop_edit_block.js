@@ -448,7 +448,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                     // 属性指明了 yes/no
                     if(m[5] == "/no"){
                         re.push({
-                            key    : "skin-attr-" + a_key,
+                            key    : "sa-" + a_key,
                             title  : a_txt,
                             type   : "string",
                             dft    : a_dft,
@@ -467,7 +467,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                     // 仅仅是属性开关
                     else {
                         re.push({
-                            key    : "skin-attr-" + a_key,
+                            key    : "sa-" + a_key,
                             title  : a_txt,
                             type   : "boolean",
                             dft    : a_dft == "yes",
@@ -478,8 +478,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 }
 
                 // 列表模式
-                m = /^@([\d\w]+)(:([^\()]+))?(\[([^\]]+)\])(=(.+))?/
-                            .exec(key);
+                m = /^@([0-9a-zA-Z_-]+)(:([^\()]+))?(\[([^\]]+)\])(=(.+))?/.exec(key);
                 if(m) {
                     // console.log(m)
                     var a_key = m[1];
@@ -511,7 +510,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
 
                     // 加入字段
                     re.push({
-                        key    : "skin-attr-" + a_key,
+                        key    : "sa-" + a_key,
                         title  : a_txt,
                         type   : "string",
                         dft    : a_dft,

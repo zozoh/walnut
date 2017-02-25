@@ -108,9 +108,9 @@ var methods = {
         UI.doChangeSkin();
 
         // 模拟点击
-        // window.setTimeout(function(){
-        //     UI._C.iedit.$body.find(".hm-com").first().click();
-        // }, 500);
+        window.setTimeout(function(){
+            UI._C.iedit.$body.find(".hm-com").first().click();
+        }, 1000);
     },
     //...............................................................
     // 标识自己是否可以被编辑（即所有的组件都加载完毕）

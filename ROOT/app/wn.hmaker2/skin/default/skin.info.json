@@ -37,6 +37,18 @@
                     "@align:水平排列[居左=left,居中=center,居右=right]=left",
                     
                 ]
+            }],
+        "dynamic" : [{
+                "text" : "横屏媒体列表",
+                "selector" : "skin-dynamic-media-hlist",
+                "blockFields" : [
+                    "@li-mode:显示模式[图文=pt,仅图=p]=pt",
+                    "@li-scale:预览图比例[16x9,4x3,1x1,3x4,9x16]=16x9",
+                    "@li-size:列表项尺寸[大=b,中=m,小=s]=m",
+                    "padding", "border",
+                    "color", "background", "boxShadow",
+                    "borderRadius"
+                ]
             }]
 	},
     "area" : [{
