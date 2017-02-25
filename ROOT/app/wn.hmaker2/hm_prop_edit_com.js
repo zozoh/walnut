@@ -33,6 +33,14 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
         if (UI.__com_type != ctype) {
             // 先销毁
             UI.release();
+
+            // 显示正在加载
+            UI.arena.find(".hmpc-form").html(UI.compactHTML(`
+                <div class="hmpc-form-loading">
+                    <span><i class="zmdi zmdi-settings zmdi-hc-spin"></i></span>
+                    <em>{{hmaker.prop.loading}}</em>
+                </div>
+            `));
             
             // 得到扩展属性定义
             var uiDef = uiCom.getDataProp();
@@ -46,9 +54,19 @@ return ZUI.def("app.wn.hm_prop_edit_com", {
                         this.uiCom.saveData("panel", com);
                     }
                 })).render(function(){
+                    // 保存一些必要的信息
                     UI.__com_type = ctype;
-                    UI.gasket.prop.uiCom = uiCom;
-                    UI.gasket.prop.update(com);
+                    this.uiCom = uiCom;
+
+                    // 调用更新，这里传入回调，期望控件更新完毕后，会调用
+                    // 这样 "加载中" 的可以显示久一点
+                    this.update(com, function(){
+                        UI.arena.find(">.hmpc-form>.hmpc-form-loading").remove();
+                    });
+                    // 如果不是异步更新，则立即清除加载中
+                    if(!$z.invoke(this, "isAsyncUpdate")) {
+                        UI.arena.find(">.hmpc-form>.hmpc-form-loading").remove();
+                    }
                 });
             });
         }

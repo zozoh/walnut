@@ -66,6 +66,7 @@ define({
             "tt_other"  : '<i class="fa fa-gear"></i><b>属性</b>',
             "tab_block" : '<b>外观</b>',
             "tab_com"   : '<b>控件</b>',
+            "loading"   : "正在加载属性面板",
             "margin"    : "外边距",
             "padding"   : "内边距",
             "border"    : "边框",

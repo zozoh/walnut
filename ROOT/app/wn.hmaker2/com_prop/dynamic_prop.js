@@ -73,7 +73,11 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         return ["api", "template"];
     },
     //...............................................................
-    update : function(com) {
+    isAsyncUpdate : function(){
+        return true;
+    },
+    //...............................................................
+    update : function(com, callback) {
         var UI = this;
         var jApiInfo = UI.arena.find(">.api-info");
         var jParams  = UI.arena.find(">.api-params");
@@ -168,6 +172,8 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             UI.uiCom.saveData("panel", com, true);
         }
 
+        // 最后调用回调
+        $z.doCallback(callback, []);
     },
     /*...............................................................
     setting : {  // 表单配置信息
