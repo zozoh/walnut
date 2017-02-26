@@ -76,12 +76,17 @@ body{margin: 0; font-size:@f3;}
 /**
  * 控件: image
  */
-.hm-com-image {
-  display: inline-block;
+.hmc-image { @noselect(); color:#FFF; display: inline-block;
+    position: relative; overflow: hidden; text-decoration: none;
+    img {border:0;}
+    section {position: absolute;padding:.08rem;}
 }
-.hmc-image {
-  position: relative; overflow: hidden;
+.hmc-image[sa-t-pos="center"] section{
+    top:0;bottom:0;left:0;right:0;
+    @flex(); justify-content:center; align-items:center;
 }
+.hmc-image[sa-t-pos="top"]  section{top:0;left:0;right:0;}
+.hmc-image[sa-t-pos="bottom"]  section{bottom:0;left:0;right:0;}
 
 /**
  * 控件: text

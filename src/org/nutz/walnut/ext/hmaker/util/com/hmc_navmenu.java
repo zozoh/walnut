@@ -12,7 +12,7 @@ public class hmc_navmenu extends AbstractCom {
     @Override
     protected void _exec(HmPageTranslating ing) {
         // 设置块熟悉
-        ing.addMyRule(null, ing.cssBlock);
+        ing.addMyRule(null, ing.cssArena);
 
         // 解包
         ing.eleCom.child(0).child(0).unwrap();

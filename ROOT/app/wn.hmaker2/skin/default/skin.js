@@ -2,7 +2,7 @@ define(function (require, exports, module) {
 //=======================================================================
 function do_change_root_font_size(context, designWidth, maxNb, minNb){
     var size = (context.win.innerWidth / designWidth) * maxNb;
-    console.log(size, Math.max(size, minNb), Math.min(Math.max(size, minNb), maxNb))
+    //console.log(size, Math.max(size, minNb), Math.min(Math.max(size, minNb), maxNb))
     var px = Math.min(Math.max(size, minNb), maxNb);
     //context.root.style.fontSize = px + 'px' ;
 }

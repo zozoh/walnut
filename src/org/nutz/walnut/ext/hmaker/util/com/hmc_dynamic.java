@@ -19,7 +19,7 @@ public class hmc_dynamic extends AbstractCom {
         // 处理 DOM
         // ...........................................
         // 应用块 CSS
-        ing.addMyRule(null, ing.cssBlock);
+        ing.addMyRule(null, ing.cssArena);
 
         // 清除 DOM 结构
         ing.eleCom.addClass("hmc-dynamic").empty();

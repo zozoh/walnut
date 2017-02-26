@@ -306,12 +306,13 @@ var methods = {
 
         // 修正 font 的 css
         if(_.isArray(css._font)){
-            if(css._font.indexOf("bold")>=0)
-                css.fontWeight = "bold";
-            if(css._font.indexOf("underline")>=0)
-                css.textDecoration = "underline";
-            if(css._font.indexOf("italic")>=0)
-                css.fontStyle = "italic";
+            css.fontWeight = css._font.indexOf("bold")>=0 ? "bold" : "";
+            css.textDecoration = css._font.indexOf("underline")>=0 ? "underline" : "";
+            css.fontStyle = css._font.indexOf("italic")>=0 ? "italic" : "";
+        }else{
+            css.fontWeight = "";
+            css.textDecoration = "";
+            css.fontStyle = "";
         }
                 
         // 应用这个修改

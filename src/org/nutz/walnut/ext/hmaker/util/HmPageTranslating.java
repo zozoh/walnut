@@ -76,10 +76,19 @@ public class HmPageTranslating extends HmContext {
     public NutMap propBlock;
 
     /**
-     * 抽象控件处理器预先分析的一个块的 CSS 规则<br>
-     * 各个控件需要将这些规则分组并设置对应的类选择器
+     * 当前控件顶级块的 CSS
      */
-    public NutMap cssBlock;
+    public NutMap cssEle;
+
+    /**
+     * 当前控件 Arena 的 CSS
+     */
+    public NutMap cssArena;
+
+    /**
+     * 从 propBlock 得出的皮肤属性
+     */
+    public NutMap skinAttributes;
 
     /**
      * 当前处理的组件内容属性

@@ -42,10 +42,11 @@ return ZUI.def("app.wn.hm_com_image", {
         var jW   = UI.$el.children(".hm-com-W");
         var jImg = UI.arena.children("img");
 
+        // 这个是空白图片
         var BLANK_IMG = '/a/load/wn.hmaker2/img_blank.jpg';
                 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // 指定链接
+        // 指定链接: 要显示链接提示图标
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         var jLinkTip = jW.children('.hmc-image-link-tip');
         if(com.href) {
@@ -149,67 +150,13 @@ return ZUI.def("app.wn.hm_com_image", {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 准备更新文本样式
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        var txt  = com.text || {};
-        if(txt.content) {
-            //console.log(txt)
-            // 计算文本的 CSS
-            css = {};
-
-            // 文本位置极其宽高，根据顶底左右不同，选择 txt.size 表示的是宽还是高
-            switch(txt.pos) {
-                // N: North 顶
-                case "N":
-                    css.top    = 0;
-                    css.left   = 0;
-                    css.right  = 0;
-                    css.bottom = "";
-                    css.width  = "";
-                    css.height = txt.size || "";
-                    break;
-                // E: Weat 左
-                case "W":
-                    css.top    = 0;
-                    css.left   = 0;
-                    css.right  = "";
-                    css.bottom = 0;
-                    css.width  = txt.size || "";
-                    css.height = "";
-                    break;
-                // E: East 右
-                case "E":
-                    css.top    = 0;
-                    css.left   = "";
-                    css.right  = 0;
-                    css.bottom = 0;
-                    css.width  = txt.size || "";
-                    css.height = "";
-                    break;
-                // 默认 S: South 底
-                default:
-                    css.top    = "";
-                    css.left   = 0;
-                    css.right  = 0;
-                    css.bottom = 0;
-                    css.width  = "";
-                    css.height = txt.size || "";
-            }
-
-            // 边距等其他属性
-            css.padding    = txt.padding    || "";
-            css.color      = txt.color      || "";
-            css.background = txt.background || "";
-            css.textAlign  = txt.textAlign  || "";
-            css.lineHeight = txt.lineHeight  || "";
-            css.letterSpacing  = txt.letterSpacing  || "";
-            css.fontSize   = txt.fontSize   || "";
-            css.textShadow = txt.textShadow || "";
-
+        if(com.text) {
             // 设置文本显示
             var jTxt = UI.arena.children("section");
             if(jTxt.length == 0) {
                 jTxt = $('<section>').appendTo(UI.arena);
             }
-            jTxt.text(txt.content).css(css);
+            jTxt.text(com.text);
         }
         // 标记不显示文本
         else {
@@ -226,10 +173,13 @@ return ZUI.def("app.wn.hm_com_image", {
         var cssCom   = $z.pick(css, /^(position|top|left|right|bottom|margin)$/);
         var cssArena = $z.pick(css, /^(borderRadius|background|boxShadow)$/);
         var cssImg   = $z.pick(css, /^(border|borderRadius|width|height)$/);
+        var cssTxt   = $z.pick(css, "!^(position|top|left|right|bottom|margin|border|borderRadius|width|height)$");
+        console.log(cssTxt);
 
         this.$el.css(this.formatCss(cssCom, true));
         this.arena.css(this.formatCss(cssArena, true))
             .find("img").css(this.formatCss(cssImg, true));
+        this.arena.find("section").css(this.formatCss(cssTxt, true));
     },
     //...............................................................
     checkBlockMode : function(block) {
@@ -258,11 +208,16 @@ return ZUI.def("app.wn.hm_com_image", {
     //...............................................................
     getBlockPropFields : function(block) {
         return [block.mode == 'inflow' ? "margin" : null,
-                "padding","border","borderRadius",
-                "boxShadow","overflow",
-                "textAlign", "fontFamily","_font","fontSize",
-                "lineHeight","letterSpacing","textShadow",
-                "color", "background"];
+                "padding","border","borderRadius", "boxShadow",
+                $z.tmpl("@t-pos:{{tt}}[{{N}}=top,{{P}}=center,{{S}}=bottom]=bottom")({
+                    tt : this.msg("hmaker.com.image.text_pos"),
+                    N  : this.msg("hmaker.com.image.text_pos_N"),
+                    P  : this.msg("hmaker.com.image.text_pos_P"),
+                    S  : this.msg("hmaker.com.image.text_pos_S"),
+                }),
+                "_align", "fontFamily","_font","fontSize",
+                "color", "background",
+                "lineHeight","letterSpacing","textShadow"];
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性

@@ -419,19 +419,23 @@ body {
 }
 //............................................................
 // image
-.hm-com-image {
-    display: inline-block;
-    .hmc-image { @noselect();
-        position: relative; overflow: hidden;
-        img {border:0;}
-        section {position: absolute;}
-    }
-    .hmc-image-link-tip {
-        position: absolute; left: @d0; top:@d0;
-        color:#FFF; background: rgba(0,0,0,0.4);
-        padding:@d2; border-radius: 50%; 
-    }
+.hm-com-image {display: inline-block;}
+.hmc-image-link-tip {
+    position: absolute; left: @d0; top:@d0;
+    color:#FFF; background: rgba(0,0,0,0.4);
+    padding:@d2; border-radius: 50%; 
 }
+.hmc-image { @noselect(); color:#FFF; 
+    position: relative; overflow: hidden; text-decoration: none;
+    img {border:0;}
+    section {position: absolute;padding:.08rem;}
+}
+.hmc-image[sa-t-pos="center"] section{
+    top:0;bottom:0;left:0;right:0;
+    @flex(); justify-content:center; align-items:center;
+}
+.hmc-image[sa-t-pos="top"]  section{top:0;left:0;right:0;}
+.hmc-image[sa-t-pos="bottom"]  section{bottom:0;left:0;right:0;}
 //............................................................
 // Text
 .hmc-text {padding: @d4;}

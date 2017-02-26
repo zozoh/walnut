@@ -35,9 +35,9 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             fields : [{
                 title  : "i18n:hmaker.com.image.tt_image",
                 fields : UI.IMG_FIELDS()
-            }, {
-                title  : "i18n:hmaker.com.image.tt_text",
-                fields : UI.TXT_FIELDS()
+            // }, {
+            //     title  : "i18n:hmaker.com.image.tt_text",
+            //     fields : UI.TXT_FIELDS()
             }]
         }).render(function(){
             UI.defer_report("form");
@@ -102,14 +102,6 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             type   : "string",
             uiWidth : "all",
             uiType  : "app/wn.hmaker2/support/c_edit_link",
-            // editAs : "link",
-            // uiConf : {
-            //     body : {
-            //         setup : {
-            //             defaultPath : oHome
-            //         }
-            //     }
-            // }
         }, {
             key    : "newtab",
             title  : "i18n:hmaker.com.image.newtab",
@@ -119,6 +111,7 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             key    : "objectFit",
             title  : "i18n:hmaker.prop.objectFit",
             type   : "string",
+            dft    : "fill",
             editAs : "link",
             editAs : "switch", 
             uiConf : {
@@ -133,29 +126,39 @@ return ZUI.def("app.wn.hm_com_image_prop", {
                     val  : 'cover',
                 }]
             }
+        }, {
+            key    : "text",
+            title  : "i18n:hmaker.com.image.text",
+            tip    : "i18n:hmaker.com.image.text_tip",
+            type   : "string",
+            dft    : null,
+            emptyAsNull : true,
+            editAs : "text",
+            uiConf : {height:100}
         }];
     },
     //...............................................................
     TXT_FIELDS : function(){
         return [{
-            key    : "text.pos",
+            key    : "textPos",
             title  : "i18n:hmaker.com.image.text_pos",
             type   : "string",
+            dft    : "bottom",
             editAs : "switch",
             uiConf : {
                 items : [{
                     text  : "i18n:hmaker.com.image.text_pos_N",
-                    value : "N"
+                    value : "top"
                 }, {
                     text  : "i18n:hmaker.com.image.text_pos_S",
-                    value : "S"
+                    value : "bottom"
                 }, {
                     text  : "i18n:hmaker.com.image.text_pos_P",
-                    value : "P"
+                    value : "center"
                 }]
             }
         }, {
-            key    : "text.content",
+            key    : "text",
             title  : "i18n:hmaker.com.image.text",
             tip    : "i18n:hmaker.com.image.text_tip",
             type   : "string",
