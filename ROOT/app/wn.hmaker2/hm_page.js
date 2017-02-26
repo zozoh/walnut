@@ -1111,6 +1111,9 @@ return ZUI.def("app.wn.hmaker_page", {
                             uiCom.$el.insertBefore(jPrev);
                         }
                         $z.blinkIt(uiCom.$el);
+                        // 确保 script.hm-page-attr 是第一位
+                        var jPA = UI._C.iedit.$body.children("script.hm-page-attr");
+                        jPA.insertBefore(UI._C.iedit.$body.children().first());
                     }
                 }
             },{
@@ -1124,6 +1127,9 @@ return ZUI.def("app.wn.hmaker_page", {
                             uiCom.$el.insertAfter(jNext);
                         }
                         $z.blinkIt(uiCom.$el);
+                        // 确保 script.hm-page-attr 是第一位
+                        var jPA = UI._C.iedit.$body.children("script.hm-page-attr");
+                        jPA.insertBefore(UI._C.iedit.$body.children().first());
                     }
                 }
             },{

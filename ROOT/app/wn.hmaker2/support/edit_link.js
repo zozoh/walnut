@@ -56,7 +56,7 @@ return ZUI.def("ui.edit_link", {
     },
     //...............................................................
     setData : function(str) {
-        this.arena.find("section input").val(str).focus();
+        this.arena.find("section input").val($.trim(str)).focus();
     }
     //...............................................................
 });

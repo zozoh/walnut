@@ -35,6 +35,7 @@ public class hmaker_publish implements JvmHdl {
         final HmContext hpc = new HmContext(sys.io);
         hpc.strict = !hc.params.is("quiet");
         hpc.oConfHome = Wn.checkObj(sys, "~/.hmaker");
+        hpc.oApiHome = Wn.getObj(sys, "~/.regapi/api");
 
         // ------------------------------------------------------------
         // 得到源

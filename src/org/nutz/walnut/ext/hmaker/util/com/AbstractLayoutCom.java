@@ -6,7 +6,8 @@ public abstract class AbstractLayoutCom extends AbstractCom {
 
     @Override
     protected void _exec(HmPageTranslating ing) {
-        ing.addMyRule(null, ing.cssArena);
+        ing.addMyRule(null, ing.cssEle);
+        ing.addMyRule("." + this.getArenaClassName(), ing.cssArena);
     }
 
 }

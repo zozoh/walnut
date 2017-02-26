@@ -1,29 +1,32 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
-import java.util.Map;
+import org.jsoup.nodes.Element;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
-public class hmc_image extends AbstractCom {
+public class hmc_image extends AbstractSimpleCom {
 
     @Override
-    protected void _exec(HmPageTranslating ing) {
-        // ...........................................
-        // 处理 DOM
-        ing.eleCom.empty().addClass("hmc-image");
+    protected String getArenaClassName() {
+        return "hmc-image";
+    }
 
-        // 图片源
+    @Override
+    protected boolean doArena(HmPageTranslating ing, Element eleArena) {
+        // ...........................................
+        // 处理 DOM: 图片源
         String src = ing.propCom.getString("src");
-        src = ing.explainLink(src, true);
 
         // 图片不存在，那么删除整个控件
         if (Strings.isBlank(src)) {
-            ing.eleCom.remove();
-            return;
+            return false;
         }
 
-        ing.eleCom.appendElement("img").attr("src", src);
+        // 展开链接
+        src = ing.explainLink(src, true);
+
+        eleArena.appendElement("img").attr("src", src);
 
         // 超链接
         String href = ing.propCom.getString("href");
@@ -34,41 +37,31 @@ public class hmc_image extends AbstractCom {
         // 文字属性
         String text = ing.propCom.getString("text");
         if (!Strings.isBlank(text)) {
-            ing.eleCom.appendElement("section").text(text);
+            eleArena.appendElement("section").text(text);
         }
 
         // ..........................................
         // 处理 CSS
         // 图片属性
-        NutMap cssImg = ing.cssArena.pickAndRemove("width", "height", "border", "borderRadius");
+        NutMap cssImg = ing.cssArena.pickAndRemove("border", "borderRadius", "width", "height");
         String objectFit = ing.propCom.getString("objectFit");
         if (!"fill".equals(objectFit)) {
             cssImg.put("objectFit", objectFit);
         }
 
-        // 如果图片有了圆角，那么也应该为顶级元素增加圆角
+        // 文本属性
+        NutMap cssTxt = ing.cssArena.pickAndRemove("color", "background", "padding");
+
+        // 如果图片有了圆角，那么考虑到文字，要为圆角属性加回去
         if (cssImg.has("borderRadius"))
             ing.cssArena.put("borderRadius", cssImg.get("borderRadius"));
 
-        // 处理所有的皮肤属性，同时生成纯 css
-        NutMap cssArena = new NutMap();
-        for (Map.Entry<String, Object> en : ing.cssArena.entrySet()) {
-            String key = en.getKey();
-            Object val = en.getValue();
-            // 增加属性
-            if (key.startsWith("sa-") && null != val) {
-                ing.eleCom.attr(key, val.toString());
-            }
-            // 记录成 css
-            else {
-                cssArena.put(key, val);
-            }
-        }
-
-        // 增加规则
-        ing.addMyRule(null, cssArena);
+        // 增加图片的规则
         ing.addMyRule("img", cssImg);
+        ing.addMyRule("section", cssTxt);
 
+        // 返回成功吧
+        return true;
     }
 
 }

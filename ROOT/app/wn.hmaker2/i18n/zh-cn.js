@@ -234,6 +234,7 @@ define({
                 "tt"       : "编辑文本内容",
                 "open"     : "打开文本编辑器",
                 "edit_tt"  : "HTML 代码编辑器",
+                "blank_content" : "文本内容",
             },
             "image" : {
                 "name"  : "图片",

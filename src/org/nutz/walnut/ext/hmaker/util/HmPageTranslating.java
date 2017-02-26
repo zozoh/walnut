@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.hmaker.util;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -226,6 +227,9 @@ public class HmPageTranslating extends HmContext {
         // 清空页面的头
         doc.head().empty();
         // ---------------------------------------------------
+        // 添加页面标题
+        doc.head().appendElement("title").text(this.oSrc.getString("title", this.oSrc.name()));
+        // ---------------------------------------------------
         // 删除自己和下属所有节点的 style 属性
         doc.body().getElementsByAttribute("style").removeAttr("style");
         // ---------------------------------------------------
@@ -275,11 +279,6 @@ public class HmPageTranslating extends HmContext {
         // ---------------------------------------------------
         // TODO 处理整个页面的 body
         this.propPage = Hms.loadPropAndRemoveNode(doc.body(), "hm-page-attr");
-
-        String css = Hms.genCssRuleStyle(this, propPage);
-        if (null != css) {
-            doc.body().attr("style", css);
-        }
         doc.body().removeAttr("assisted-off").removeAttr("assisted-on");
         // ---------------------------------------------------
         // 添加页面皮肤过滤器
@@ -305,6 +304,27 @@ public class HmPageTranslating extends HmContext {
         // ---------------------------------------------------
         // 展开链接资源
         __extend_link_and_style();
+
+        // ---------------------------------------------------
+        // 最后把页面直接链接的资源也加入 head
+        List<NutMap> list = this.propPage.getList("links", NutMap.class);
+        this.propPage.remove("links");
+        if (null != list && list.size() > 0) {
+            for (NutMap link : list) {
+                WnObj oLink = this.io.fetch(null, link.getString("ph"));
+                if (null != oLink) {
+                    String rph = this.getRelativePath(oSrc, oLink);
+                    Element eleLink = doc.head().appendElement("link");
+                    eleLink.attr("rel", "stylesheet").attr("type", "text/css").attr("href", rph);
+                }
+            }
+        }
+
+        // Body 的 style
+        String css = Hms.genCssRuleStyle(this, propPage);
+        if (null != css) {
+            doc.body().attr("style", css);
+        }
 
         // ---------------------------------------------------
         // 准备目标

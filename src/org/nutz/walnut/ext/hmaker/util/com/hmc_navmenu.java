@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import java.util.Map;
+
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.nutz.json.Json;
@@ -7,17 +9,22 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
-public class hmc_navmenu extends AbstractCom {
+public class hmc_navmenu extends AbstractSimpleCom {
 
     @Override
-    protected void _exec(HmPageTranslating ing) {
-        // 设置块熟悉
-        ing.addMyRule(null, ing.cssArena);
+    protected String getArenaClassName() {
+        return "hmc-navmenu";
+    }
 
-        // 解包
-        ing.eleCom.child(0).child(0).unwrap();
-        ing.eleCom.child(0).unwrap();
-        ing.eleCom.addClass("hmc-navmenu");
+    protected Element genArenaElement(HmPageTranslating ing, String arenaClassName) {
+        return ing.eleCom.child(0).child(0).addClass("hmc-navmenu");
+    }
+
+    protected boolean doArena(HmPageTranslating ing, Element eleArena) {
+        // 添加皮肤属性
+        for (Map.Entry<String, Object> en : ing.skinAttributes.entrySet()) {
+            eleArena.attr(en.getKey(), en.getValue().toString());
+        }
 
         // 得到当前页面的链接，已经页面的名称，记录到配置信息里
         ing.propCom.put("srcPath", "/" + ing.getRelativePath(ing.oSrc));
@@ -61,6 +68,7 @@ public class hmc_navmenu extends AbstractCom {
                                                    .setQuoteName(false)
                                                    .setIgnoreNull(true)));
 
+        return true;
     }
 
 }

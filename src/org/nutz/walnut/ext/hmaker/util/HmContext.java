@@ -26,6 +26,11 @@ public class HmContext {
     public WnIo io;
 
     /**
+     * 数据接口的主目录 ~/.regapi，!!! 这个必须由创建来赋值
+     */
+    public WnObj oApiHome;
+
+    /**
      * hmaker 的配置目录，!!! 这个必须由创建来赋值
      */
     public WnObj oConfHome;
@@ -54,6 +59,11 @@ public class HmContext {
     public Map<String, HmTemplate> templates;
 
     /**
+     * 缓存所有的 dynamic 控件使用的 API 对象
+     */
+    private Map<String, WnObj> APIs;
+
+    /**
      * 站点除了转换还要 copy 的资源
      */
     public Set<WnObj> resources;
@@ -78,6 +88,7 @@ public class HmContext {
     public HmContext(WnIo io) {
         this.io = io;
         this.templates = new HashMap<>();
+        this.APIs = new HashMap<>();
         this.resources = new HashSet<>();
         this.pageOutputNames = new HashMap<>();
         this.processCount = Nums.array(0);
@@ -89,12 +100,14 @@ public class HmContext {
         this.resources = hpc.resources;
         this.oHome = hpc.oHome;
         this.oDest = hpc.oDest;
+        this.oApiHome = hpc.oApiHome;
         this.oConfHome = hpc.oConfHome;
         this.oSkinHome = hpc.oSkinHome;
         this.oSkinCss = hpc.oSkinCss;
         this.oSkinJs = hpc.oSkinJs;
         this.skinInfo = hpc.skinInfo;
         this.templates = hpc.templates;
+        this.APIs = hpc.APIs;
         this.strict = hpc.strict;
         this.pageOutputNames = hpc.pageOutputNames;
         this.processCount = hpc.processCount;
@@ -165,6 +178,19 @@ public class HmContext {
                 }
             }
         }, WalkMode.LEAF_ONLY);
+    }
+
+    public WnObj getApiObj(String api) {
+        WnObj oApi = APIs.get(api);
+        if (null == oApi) {
+            if (null != oApiHome) {
+                if (api.startsWith("/"))
+                    api = api.substring(1);
+                oApi = io.check(oApiHome, api);
+                APIs.put(api, oApi);
+            }
+        }
+        return oApi;
     }
 
     public HmTemplate getTemplate(String templateName) {

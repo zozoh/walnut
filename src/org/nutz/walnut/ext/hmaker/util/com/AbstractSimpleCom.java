@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import java.util.Map;
+
 import org.jsoup.nodes.Element;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
@@ -17,33 +19,42 @@ import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
  */
 public abstract class AbstractSimpleCom extends AbstractCom {
 
-    protected abstract String getArenaClassName();
+    /**
+     * 子类进行处理
+     * 
+     * @param ing
+     *            上下文
+     * @param eleArena
+     *            要处理的 arena 元素
+     * @return true 处理完毕。 false 这个控件有问题，需要删除
+     */
+    protected abstract boolean doArena(HmPageTranslating ing, Element eleArena);
 
-    protected abstract void doArena(HmPageTranslating ing, Element eleArena);
-
-    protected String blockCssPropNames;
-
-    protected AbstractSimpleCom() {
-        this.blockCssPropNames = "^(position|top|left|right|bottom|width|height|margin)";
+    protected Element genArenaElement(HmPageTranslating ing, String arenaClassName) {
+        return ing.eleCom.empty().appendElement("DIV").addClass(arenaClassName);
     }
 
     @Override
     protected void _exec(HmPageTranslating ing) {
         // ...........................................
         // 处理 DOM
-        ing.eleCom.empty();
-        Element eleArena = ing.eleCom.appendElement("DIV").addClass(this.getArenaClassName());
+        String arenaClassName = this.getArenaClassName();
+        Element eleArena = this.genArenaElement(ing, arenaClassName);
 
-        // 子类的处理
-        this.doArena(ing, eleArena);
+        // 添加皮肤属性
+        for (Map.Entry<String, Object> en : ing.skinAttributes.entrySet()) {
+            eleArena.attr(en.getKey(), en.getValue().toString());
+        }
 
-        // ...........................................
-        // 处理 CSS: 挑选整体的属性先
-        
-
-        // 挑选 ELE 的 CSS
-
-        // 挑选 Arena 的 CSS
+        // 子类的处理成功: 设置 css
+        if (this.doArena(ing, eleArena)) {
+            ing.addMyRule(null, ing.cssEle);
+            ing.addMyRule("." + arenaClassName, ing.cssArena);
+        }
+        // 否则删除控件
+        else {
+            ing.eleCom.remove();
+        }
 
     }
 

@@ -1,12 +1,19 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import org.jsoup.nodes.Element;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
-public class hmc_htmlcode extends AbstractCom {
+public class hmc_htmlcode extends AbstractSimpleCom {
 
     @Override
-    protected void _exec(HmPageTranslating ing) {
-        ing.eleCom.empty().html(ing.propCom.getString("code"));
+    protected String getArenaClassName() {
+        return "hmc-htmlcode";
+    }
+
+    @Override
+    protected boolean doArena(HmPageTranslating ing, Element eleArena) {
+        eleArena.html(ing.propCom.getString("code"));
+        return true;
     }
 
 }

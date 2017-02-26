@@ -66,7 +66,7 @@ return ZUI.def("ui.form_com_edit-link", {
     },
     //...............................................................
     _get_data : function(){
-        return this.arena.attr("nohref") ? "" : this.arena.text();
+        return this.arena.attr("nohref") ? "" : $.trim(this.arena.text());
     }
     //...............................................................
 });

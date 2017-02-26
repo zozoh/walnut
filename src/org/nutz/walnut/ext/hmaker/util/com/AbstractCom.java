@@ -1,9 +1,13 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Element;
+import org.nutz.castor.Castors;
+import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.hmaker.util.HmComHandler;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
@@ -15,13 +19,15 @@ import org.nutz.walnut.ext.hmaker.util.Hms;
  */
 public abstract class AbstractCom implements HmComHandler {
 
+    protected abstract String getArenaClassName();
+
     @Override
     public void invoke(HmPageTranslating ing) {
         // 分析布局属性
         ing.propBlock = Hms.loadPropAndRemoveNode(ing.eleCom, "hm-prop-block");
 
         // 分析布局属性
-        this.__prepare_block_css(ing);
+        this.__prepare_block_css_and_skin_attributes(ing);
 
         // 分析控件属性
         ing.propCom = Hms.loadPropAndRemoveNode(ing.eleCom, "hm-prop-com");
@@ -38,47 +44,121 @@ public abstract class AbstractCom implements HmComHandler {
 
     }
 
-    private void __prepare_block_css(HmPageTranslating ing) {
+    private void __prepare_block_css_and_skin_attributes(HmPageTranslating ing) {
+        // 生成顶级元素的 CSS: 这个逻辑会顺便移除位置相关的属性
+        ing.cssEle = __gen_cssEle_for_mode(ing);
+
         // 准备 css 对象
-        ing.cssEle = new NutMap();
-        ing.cssArena = new NutMap();
+        ing.cssArena = ing.cssEle.pick("width", "height");
         ing.skinAttributes = new NutMap();
 
         for (Map.Entry<String, Object> en : ing.propBlock.entrySet()) {
             String key = en.getKey();
             Object val = en.getValue();
 
+            // 空值忽略
+            if (null == val)
+                continue;
+
             // 皮肤属性
             if (key.startsWith("sa-")) {
                 ing.skinAttributes.put(key, val);
             }
-            // 位置也是属于顶级块的
-            else if ("mode".equals(key)) {
-                if ("abs".equals(val)) {
-                    ing.cssEle.put("position", "absolute");
+            // _font
+            else if ("_font".equals(key)) {
+                String[] ff = Castors.me().castTo(val, String[].class);
+                if (Lang.contains(ff, "underline")) {
+                    ing.cssArena.put("textDecoration", "underline");
+                } else if (Lang.contains(ff, "bold")) {
+                    ing.cssArena.put("fontWeight", "bold");
+                } else if (Lang.contains(ff, "italic")) {
+                    ing.cssArena.put("fontStyle", "italic");
                 }
             }
-            // 顶级块的 css
-            else if (key.matches("^(mode|posBy|top|left|right|bottom|width|height|margin)")) {
-                ing.cssEle.put(key, val);
-            }
             // 其他的就属于内容区域的 CSS
-            else if (!key.equals("posBy")) {
+            else if (!key.startsWith("_")) {
                 ing.cssArena.put(key, val);
             }
         }
 
+    }
+
+    private NutMap __gen_cssEle_for_mode(HmPageTranslating ing) {
+        NutMap re;
+
+        // 首先取得要处理的相关的位置属性
+        NutMap prop = ing.propBlock.pickAndRemove("mode",
+                                                  "posBy",
+                                                  "top",
+                                                  "left",
+                                                  "bottom",
+                                                  "right",
+                                                  "width",
+                                                  "height",
+                                                  "margin");
+
+        // 处理顶级块的 CSS
+        String mode = prop.getString("mode");
         // 对于绝对位置，绝对位置的话，应该忽略 margin
-        if ("absolute".equals(ing.cssEle.getString("position"))) {
-            // TODO 这里弄一下位置 posBy : "TLWH"
+        if ("abs".equals(mode)) {
+            // 绝对位置的话，就不要 margin 了
+            ing.propBlock.remove("margin");
+
+            // 看看需要挑选什么样的尺寸属性
+            String regex;
+            String posBy = prop.getString("posBy", "TLWH");
+            switch (posBy) {
+            case "TLWH":
+                regex = "^(top|left|width|height)$";
+                break;
+            case "TRWH":
+                regex = "^(top|right|width|height)$";
+                break;
+            case "LBWH":
+                regex = "^(left|bottom|width|height)$";
+                break;
+            case "BRWH":
+                regex = "^(bottom|right|width|height)$";
+                break;
+            case "TLBR":
+                regex = "^(top|left|bottom|right)$";
+                break;
+            case "TLBW":
+                regex = "^(top|left|bottom|width)$";
+                break;
+            case "TBRW":
+                regex = "^(top|bottom|right|width)$";
+                break;
+            case "TLRH":
+                regex = "^(top|left|right|height)$";
+                break;
+            case "LBRH":
+                regex = "^(left|bottom|right|height)$";
+                break;
+            default:
+                throw Er.createf("e.cmd.hmaker.posBy",
+                                 "'%s' @ #%s(%s): %s",
+                                 posBy,
+                                 ing.eleCom.attr("id"),
+                                 ing.eleCom.attr("ctype"),
+                                 ing.oSrc.path());
+            }
+            re = prop.pickBy(Pattern.compile(regex), false);
+            re.put("position", "absolute");
+        }
+        // 相对位置
+        else {
+            re = prop.pick("width", "height", "margin");
         }
 
         // 修正 css 的宽高
-        if (ing.cssEle.is("width", "unset"))
-            ing.cssEle.remove("width");
-        if (ing.cssEle.is("height", "unset"))
-            ing.cssEle.remove("height");
+        if (re.is("width", "unset"))
+            re.remove("width");
+        if (re.is("height", "unset"))
+            re.remove("height");
 
+        // 返回
+        return re;
     }
 
     // protected void applyBlockCss(HmPageTranslating ing) {
