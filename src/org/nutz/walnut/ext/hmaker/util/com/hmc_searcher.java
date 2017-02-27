@@ -15,7 +15,8 @@ public class hmc_searcher extends AbstractSimpleCom {
 
     @Override
     protected boolean doArena(HmPageTranslating ing, Element eleArena) {
-        ing.eleCom.attr("wn-runtime-jq-fn", "hmc_searcher");
+        ing.eleCom.attr("wn-rt-jq-fn", "hmc_searcher");
+        ing.eleCom.attr("wn-rt-jq-selector", ">.hmc-searcher");
         // ...........................................
         // 确保页面输出是 wnml
         ing.markPageAsWnml();

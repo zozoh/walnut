@@ -16,7 +16,8 @@ public class hmc_sorter extends AbstractSimpleCom {
     @Override
     protected boolean doArena(HmPageTranslating ing, Element eleArena) {
         eleArena.addClass("hmc-cnd");
-        ing.eleCom.attr("wn-runtime-jq-fn", "hmc_sorter");
+        ing.eleCom.attr("wn-rt-jq-fn", "hmc_sorter");
+        ing.eleCom.attr("wn-rt-jq-selector", ">.hmc-sorter");
         // ...........................................
         // 确保页面输出是 wnml
         ing.markPageAsWnml();

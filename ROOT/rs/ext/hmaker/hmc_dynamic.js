@@ -1,6 +1,7 @@
 (function($, $z){
 //...........................................................
 function do_reload(jData, opt){
+    console.log("dynamic do_reload")
     // 检查 api
     if(!opt.apiUrl){
         $('<div class="msg-error">').text("No Api!").appendTo(jData);
@@ -15,23 +16,31 @@ function do_reload(jData, opt){
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 将参数处理成可向数据接口提交的形式
-    
     var params;
     try{
         console.log(opt.apiInfo.params);
-        var setting = HmRT.parseSetting(opt.apiInfo.params || {}, true),
-        params = HmRT.evalResult(opt.params, {
+        var setting = HmRT.parseSetting(opt.apiInfo.params || {}, true);
+        var re  = HmRT.evalResult(opt.params, {
             context : opt.paramContext,
             setting : setting,
             request : window.__REQUEST,
             getComValue : function(comId) {
                 var jTa  = $("#" + comId);
-                var jqfn = jTa.attr("wn-runtime-jq-fn");
+                var jqfn = jTa.attr("wn-rt-jq-fn");
+                var selector = jTa.attr("wn-rt-jq-selector");
                 if(jqfn) {
-                    return jTa[jqfn]("value");
+                    var re;
+                    if(selector){
+                        var jTa2 = jTa.find(selector);
+                        re = jTa2[jqfn]("value");
+                    }else{
+                        re = jTa[jqfn]("value");
+                    }
+                    return re;
                 }
             }
         });
+        params = re.data;
     }
     // 处理参数解析的错误
     catch(errMsg){
@@ -67,7 +76,7 @@ function do_reload(jData, opt){
             }
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // 准备绘制模板参数
-            var tmplOptions = _.extend({}, com.options, {
+            var tmplOptions = _.extend({}, opt.options, {
                 API : opt.API,
             });
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,7 +105,7 @@ $.fn.extend({ "hmc_dynamic" : function(opt){
     // 因为要等待其他插件先加载，自己先延迟执行
     window.setTimeout(function(){
         do_reload(jData, opt);
-    }, 100);
+    }, 0);
 }});
 //...........................................................
 })(window.jQuery, window.NutzUtil);

@@ -15,7 +15,8 @@ public class hmc_pager extends AbstractSimpleCom {
 
     @Override
     protected boolean doArena(HmPageTranslating ing, Element eleArena) {
-        ing.eleCom.attr("wn-runtime-jq-fn", "hmc_pager");
+        ing.eleCom.attr("wn-rt-jq-fn", "hmc_pager");
+        ing.eleCom.attr("wn-rt-jq-selector", ">.hmc-pager");
         // ...........................................
         // 确保页面输出是 wnml
         ing.markPageAsWnml();

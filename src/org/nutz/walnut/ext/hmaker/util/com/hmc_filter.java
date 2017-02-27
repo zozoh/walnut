@@ -16,7 +16,8 @@ public class hmc_filter extends AbstractSimpleCom {
     @Override
     protected boolean doArena(HmPageTranslating ing, Element eleArena) {
         eleArena.addClass("hmc-cnd");
-        ing.eleCom.attr("wn-runtime-jq-fn", "hmc_filter");
+        ing.eleCom.attr("wn-rt-jq-fn", "hmc_filter");
+        ing.eleCom.attr("wn-rt-jq-selector", ">.hmc-filter");
         // ...........................................
         // 确保页面输出是 wnml
         ing.markPageAsWnml();
