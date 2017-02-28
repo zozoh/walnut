@@ -201,6 +201,7 @@ public class HmContext {
             tmpl.oJs = io.check(oTmplHome, "jquery.fn.js");
             WnObj oInfo = io.check(oTmplHome, "template.info.json");
             tmpl.info = io.readJson(oInfo, HmTemplateInfo.class);
+            tmpl.info.evalOptions();
             this.templates.put(templateName, tmpl);
         }
         return tmpl;

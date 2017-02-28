@@ -45,6 +45,7 @@ window.HmRT = {
     [{
         type     : "thingset",  // 项目类型
         arg      : "xxx",       // 项目参数
+        dft      : "xxx",       // 项目默认值
         mapping  : {..}         // 映射表（基本只有@com类型才会有用）
         required : true,        // 字段是否必须
         key      : "xxx",       // 字段名
@@ -63,6 +64,7 @@ window.HmRT = {
             var fld = {
                 type     : "input",
                 arg      : undefined,
+                dft      : undefined,
                 key      : key,
                 title    : undefined,
                 required : false,

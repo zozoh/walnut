@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import java.util.List;
+
 import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -42,9 +44,9 @@ public class hmc_dynamic extends AbstractSimpleCom {
         return true;
     }
 
-    private boolean _setup_dynamic_content(HmPageTranslating ing, NutMap conf) {
+    private boolean _setup_dynamic_content(HmPageTranslating ing, NutMap com) {
         // 没模板，删掉
-        String templateName = conf.getString("template");
+        String templateName = com.getString("template");
         if (Strings.isBlank(templateName))
             return false;
 
@@ -55,24 +57,33 @@ public class hmc_dynamic extends AbstractSimpleCom {
 
         // 得到 API 信息
         WnObj oApi = ing.getApiObj(api);
-        if(null==oApi)
+        if (null == oApi)
             return false;
         // 记入 API 信息
-        conf.put("apiInfo", oApi.pick("params", "api_method", "api_return"));
+        com.put("apiInfo", oApi.pick("params", "api_method", "api_return"));
 
         // 得到 api 的URL
         String API = "/api/" + ing.oHome.d1();
-        if (conf.has("api")) {
-            String apiUrl = API + conf.getString("api");
-            conf.put("apiUrl", apiUrl);
+        if (com.has("api")) {
+            String apiUrl = API + com.getString("api");
+            com.put("apiUrl", apiUrl);
         }
 
         // 得到 api 提交时的参数上下文
-        conf.put("paramContext",
-                 Lang.map("siteName", ing.oHome.name()).setv("siteId", ing.oHome.id()));
+        com.put("paramContext",
+                Lang.map("siteName", ing.oHome.name()).setv("siteId", ing.oHome.id()));
+
+        // 得到模板信息
+        HmTemplate tmpl = ing.getTemplate(templateName);
+
+        // 链接模板文件
+        ing.jsLinks.add(ing.rootPath + "template/" + tmpl.info.name + ".js");
+
+        // 读取模板信息
+        com.put("tmplInfo", tmpl.info);
 
         // 格式化参数表
-        NutMap params = conf.getAs("params", NutMap.class);
+        NutMap params = com.getAs("params", NutMap.class);
         if (null != params && params.size() > 0) {
             // 静态替换的上下文
             NutMap pc = Lang.map("siteName", ing.oHome.name());
@@ -89,30 +100,37 @@ public class hmc_dynamic extends AbstractSimpleCom {
                     params.put(key, str);
                 }
             }
+
             // 计入参数
-            conf.put("params", params);
+            com.put("params", params);
         }
 
-        // 得到模板信息
-        HmTemplate tmpl = ing.getTemplate(templateName);
-
-        // 链接模板文件
-        ing.jsLinks.add(ing.rootPath + "template/" + tmpl.info.name + ".js");
-
-        // 读取模板信息
-        conf.put("tmplInfo", tmpl.info);
-
         // 模板的配置信息
-        NutMap options = conf.getAs("options", NutMap.class);
-        if (null != options)
+        NutMap options = com.getAs("options", NutMap.class);
+        // 处理一下用户填写的 options ...
+        if (null != options) {
+            // 根据模板信息进行分析，找到所有的 link 类型的字段
+            // 然后修改对应的参数
+            List<String> linkKeys = tmpl.info.getFieldByType("link");
+            for (String linkKey : linkKeys) {
+                String link = options.getString(linkKey);
+                if (!Strings.isBlank(link)) {
+                    String lnk2 = ing.explainLink(link, false);
+                    options.put(linkKey, lnk2);
+                }
+            }
+            // 增加 API 选项
             options.put("API", API);
-        else
+        }
+        // 总之要加一个 API 选项
+        else {
             options = Lang.map("API", API);
-        conf.put("options", options);
+        }
+        com.put("options", options);
 
         // 模板的类选择器
         if (ing.hasSkin())
-            conf.put("skinSelector", ing.skinInfo.getSkin(templateName));
+            com.put("skinSelector", ing.skinInfo.getSkin(templateName));
 
         // 返回成功
         return true;

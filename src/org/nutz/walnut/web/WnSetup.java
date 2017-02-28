@@ -116,9 +116,14 @@ public class WnSetup implements Setup {
         ioc.get(WnFtpServer.class);
         try {
             log.warn("manual setup websocket ... ");
-            ServerContainer sc = (ServerContainer) nc.getServletContext().getAttribute(ServerContainer.class.getName());
-            sc.addEndpoint(WnWebSocket.class);
-        } catch (Throwable e) {
+            ServerContainer sc = (ServerContainer) nc.getServletContext()
+                                                     .getAttribute(ServerContainer.class.getName());
+            if (null != sc)
+                sc.addEndpoint(WnWebSocket.class);
+            else
+                log.warn("null ServerContainer");
+        }
+        catch (Throwable e) {
             log.warn("主动设置websocket失败, 已经设置过了? 如果是,无视这个日志", e);
         }
     }

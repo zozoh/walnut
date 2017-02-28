@@ -1,7 +1,7 @@
 (function($, $z){
 //...........................................................
 function do_reload(jData, opt){
-    console.log("dynamic do_reload")
+    //console.log("dynamic do_reload")
     // 检查 api
     if(!opt.apiUrl){
         $('<div class="msg-error">').text("No Api!").appendTo(jData);
@@ -18,7 +18,7 @@ function do_reload(jData, opt){
     // 将参数处理成可向数据接口提交的形式
     var params;
     try{
-        console.log(opt.apiInfo.params);
+        //console.log(opt.apiInfo.params);
         var setting = HmRT.parseSetting(opt.apiInfo.params || {}, true);
         var re  = HmRT.evalResult(opt.params, {
             context : opt.paramContext,

@@ -36,7 +36,6 @@ return ZUI.def("ui.form_com_pair", {
 
         // 如果已经指明对象模板
         if(opt.objTemplate) {
-            console.log("dhaha", opt.objTemplate);
             UI.__redraw_table(opt.objTemplate);
         }
     },
@@ -80,8 +79,6 @@ return ZUI.def("ui.form_com_pair", {
 
         // 有内容，直接更新
         UI.arena.attr("show", "pairs");
-
-        console.log("draw", obj);
         
         // 已经有模板了
         if(opt.objTemplate) {
