@@ -55,7 +55,9 @@ return ZUI.def("app.wn.hm_com_sorter_prop", HmMethods({
         }, {
             key    : "modify",
             title  : 'i18n:hmaker.com.sorter.fld_modify',
+            tip    : 'i18n:hmaker.com.sorter.fld_modify_tip',
             type   : "boolean",
+            uiWidth : "auto",
             dft    : false,
             editAs : "toggle"
         }, FLD_order];
@@ -384,6 +386,8 @@ return ZUI.def("app.wn.hm_com_sorter_prop", HmMethods({
         var UI  = this;
         UI.openFieldEditor("i18n:hmaker.com.sorter.add", {}, function(obj){
             UI.saveField(-1, obj, com);
+            com = UI.getComData();
+            UI.setCurrent(com.fields.length-1);
         });
     },
     //...............................................................

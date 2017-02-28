@@ -295,7 +295,9 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             else if("com" == F.type) {
                 fld.editAs = "droplist";
                 fld.uiConf = {
-                    emptyItem : {},
+                    emptyItem : {
+                        text : "i18n:hmaker.com.dynamic.com_none",
+                    },
                     itemArgs  : F.arg,
                     items : function(ctype, callback){
                         callback(UI.pageUI().getComList(ctype));

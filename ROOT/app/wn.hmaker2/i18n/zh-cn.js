@@ -233,8 +233,8 @@ define({
                 "icon"  : '<i class="fa fa-text-width"></i>',
                 "tt"       : "编辑文本内容",
                 "open"     : "打开文本编辑器",
-                "edit_tt"  : "HTML 代码编辑器",
-                "blank_content" : "文本内容",
+                "edit_tt"  : "文本编辑器",
+                "blank_content" : "没有任何文本内容",
             },
             "image" : {
                 "name"  : "图片",
@@ -258,6 +258,7 @@ define({
                 "open"  : "打开代码编辑器",
                 "edit_tip" : "CTRL(Command)+Enter 快速应用修改",
                 "edit_tt"  : "HTML 代码编辑器",
+                "blank_content" : "没有任何 HTML 代码",
             },
             "dynamic" : {
                 "name"  : "动态数据",
@@ -279,6 +280,7 @@ define({
                 "api_data_nomatch" : '<i class="zmdi zmdi-alert-triangle"></i> API返回值数据与模板不匹配',
                 "need_params"  : '<i class="zmdi zmdi-alert-triangle"></i> 您还有参数未设值',
                 "reload" : "重新从接口加载数据，以便查看显示效果",
+                "com_none" : "请选择页面上的控件",
                 "e_nocom" : '<i class="zmdi zmdi-alert-triangle"></i>  控件不存在',
                 "e_p_mapping" : '<i class="zmdi zmdi-alert-octagon"></i>  映射参数必须是一个JSON对象',
             },
@@ -295,8 +297,8 @@ define({
                 "maxLen_tip" : "负数或者 0 表示不限制。超过这个长度，内容将被截断"
             },
             "filter" : {
-                "name"  : "过滤器",
-                "tip"   : "与 '动态数据' 控件联合使用，可以为数据接口提供高级条件过滤参数",
+                "name"  : "筛选条件",
+                "tip"   : "与 '动态数据' 控件联合使用，可以让用户为数据接口提供筛选条件",
                 "icon"  : '<i class="fa fa-filter"></i>',
                 "add"   : "添加新过滤字段",
                 "edit"  : "编辑过滤字段",
@@ -348,6 +350,7 @@ define({
                 "fld_name_tip" : "排序字段名即参数名，主要是看你要访问的数据接口能接受什么样的参数，如果你实在搞不清要写什么，请联系你的数据接口提供者，他/她应该会告诉你一切",
                 "fld_text_tip" : "本排序字段显示给用户看的文字，起的帅一点哦 ^_^",
                 "fld_modify"    : "可修改",
+                "fld_modify_tip"  : "最终用户是否能修改排序方向",
                 "fld_order"     : "顺序",                
                 "fld_or_asc"    : "升序",
                 "fld_or_desc"   : "降序",
@@ -361,7 +364,7 @@ define({
                 "fld_item_name_tip" : "当用户选择了本排序项后，您还可以添加一些固定的排序项与本字段一起生效。这里你需要给出您的固定排序项字段名，用户不会看到这个名字，请符合您的数据接口的参数规范",
             },
             "pager" : {
-                "name"  : "分页器",
+                "name"  : "分页条",
                 "tip"   : "与 '动态数据' 控件联合使用，可以为数据接口提供分页参数",
                 "icon"  : '<i class="zmdi zmdi-n-3-square"></i>',
                 "t_button"  : '<i class="zmdi zmdi-n-1-square"></i> 按钮',

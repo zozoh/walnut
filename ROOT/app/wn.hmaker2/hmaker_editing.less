@@ -413,9 +413,16 @@ body {
             border-color:rgba(255,255,0,0.4);
         }
     }
-    .ul-sub {z-index: 9;}
+    .ul-sub {z-index: 9; display: none;}
     // .ul-sub {position: absolute; display: none;}
     // li[open-sub]>.ul-sub {display: block;}
+}
+.hm-com-navmenu[hm-actived],
+.hm-com-navmenu[hmaker-rt] {
+    li[open-sub]{
+        > .ul-sub-0 {display: block;}
+        > .ul-sub-n {display: inline-block;}
+    }
 }
 //............................................................
 // image
@@ -443,6 +450,11 @@ body {
 // htmlcode
 .hmc-htmlcode {
     min-height: 32px; padding:1px;
+}
+.empty-content {
+    padding:@d3; color:@c2; font-size:@f3;
+    text-align: center; cursor: default;
+    > i {margin-right: @d2;}
 }
 //............................................................
 // 动态数据对象

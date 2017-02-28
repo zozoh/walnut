@@ -22,13 +22,13 @@ return ZUI.def("app.wn.hm_com_text", {
         var UI = this;
 
         // 得到编辑的文本，并将文本转义成 HTML (markdown) 模式
-        var code = com.code || UI.msg("hmaker.com.text.blank_content");
+        var code = com.code || "";
         var html = code.replace(/</g, "&lt;").replace(/>/g, "&gt;")
                        .replace(/(\r?\n){2,}/g, "<p>")
                        .replace(/\r?\n/g, '<br>'); 
 
         // 更新 HTML
-        UI.arena.html(html);
+        UI.arena.html(html || '<div class="empty-content"><i class="zmdi zmdi-info-outline"></i>' + UI.msg("hmaker.com.text.blank_content") + "</div>");
     },
     //...............................................................
     getBlockPropFields : function(block) {

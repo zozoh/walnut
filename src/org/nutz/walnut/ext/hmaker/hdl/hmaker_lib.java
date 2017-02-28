@@ -168,6 +168,10 @@ public class hmaker_lib implements JvmHdl {
             // 输出
             sys.out.println(Json.toJson(oLib, hc.jfmt));
         }
+        // 否则直接输出错误
+        else {
+            throw Er.create("e.cmd.hmaker.lib.noexists", "/lib");
+        }
     }
 
     private void __do_del(WnSystem sys, JvmHdlContext hc, WnObj oLibHome) {

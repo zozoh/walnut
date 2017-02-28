@@ -469,6 +469,8 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
         var UI  = this;
         UI.openFieldEditor("i18n:hmaker.com.filter.add", {}, function(obj){
             UI.saveField(-1, obj, com);
+            com = UI.getComData();
+            UI.setCurrent(com.fields.length-1);
         });
     },
     //...............................................................

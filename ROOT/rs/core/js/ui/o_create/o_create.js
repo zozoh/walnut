@@ -27,7 +27,7 @@ var html = function(){/*
         <div class="ocreate-view">
             <div class="ocreate-thumb"><img></div>
             <div class="ocreate-text"></div>
-            <div class="ocreate-input"><input placeholder="{{ocreate.newtip}}"></div>
+            <div class="ocreate-input"><input spellcheck="false" placeholder="{{ocreate.newtip}}"></div>
             <div class="ocreate-tip"></div>
         </div>
         <div class="ocreate-actions"><b md="ok">{{ok}}</b><b md="cancel">{{cancel}}</b></div>
@@ -88,8 +88,10 @@ return ZUI.def("ui.o_create", {
             var opt  = UI.options;
             $z.invoke(opt, "on_cancel", [], UI);
         },
-        'change .ocreate-input input' : function(){
-            this.__do_create();
+        'keydown .ocreate-input input' : function(e){
+            if(13 == e.which) {
+                this.__do_create();
+            }
         }     
     },
     __do_create : function(on_error){

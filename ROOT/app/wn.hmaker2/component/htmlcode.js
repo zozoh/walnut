@@ -24,7 +24,7 @@ return ZUI.def("app.wn.hm_com_htmlcode", {
         html = html.replace(/<script/g, '<script type="text/x-template"');
 
         // 应用 HTML
-        UI.arena.html(html);
+        UI.arena.html(html || '<div class="empty-content"><i class="zmdi zmdi-info-outline"></i>' + UI.msg("hmaker.com.htmlcode.blank_content") + "</div>");
     },
     //...............................................................
     getBlockPropFields : function(block) {
