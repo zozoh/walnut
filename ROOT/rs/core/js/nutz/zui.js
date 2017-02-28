@@ -1318,7 +1318,7 @@ ZUIObj.prototype = {
             // 关闭对话框
             uiMask.close();
             // 调用回调
-            $z.invoke(opt, "ok", [], opt.context||this);
+            $z.invoke(opt, "ok", [str], opt.context||this);
         };
 
         // 显示遮罩层
