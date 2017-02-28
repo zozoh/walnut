@@ -6,7 +6,9 @@ public class HmTemplateInfo {
 
     public String name;
 
-    public String tagName;
+    public String title;
+
+    public String dataType;
 
     public NutMap options;
 

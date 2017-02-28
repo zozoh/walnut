@@ -127,7 +127,6 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             }, com.params);
 
             // 更新可用模板列表
-            console.log(oApi.api_return);
             var tmplList = UI.getTemplateList(oApi.api_return);
             UI.gasket.template.setItems(tmplList);
 
@@ -321,7 +320,6 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             }
             // 字段: 映射表
             else if("mapping" == F.type) {
-                console.log(F)
                 fld.type = "object";
                 fld.editAs = "pair";
                 fld.uiConf = {

@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.hmaker.util.com;
 import java.util.Map;
 
 import org.jsoup.nodes.Element;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
 /**
@@ -40,6 +41,12 @@ public abstract class AbstractSimpleCom extends AbstractCom {
         // 处理 DOM
         String arenaClassName = this.getArenaClassName();
         Element eleArena = this.genArenaElement(ing, arenaClassName);
+
+        // 设置皮肤
+        String skin = ing.eleCom.attr("skin");
+        if (!Strings.isBlank(skin)) {
+            eleArena.addClass(skin);
+        }
 
         // 添加皮肤属性
         for (Map.Entry<String, Object> en : ing.skinAttributes.entrySet()) {

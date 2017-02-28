@@ -28,7 +28,6 @@ html += '<div class="pg_ele pg_btn"><a key="next"></a><a key="last"></a></div>';
 html += '<div class="pg_ele pg_brief"></div>';
 //...........................................................
 function __redraw(jq, opt) {
-    console.log("I am pager __redraw")
     // 重置 DOM
     jq.html(html);
 
@@ -90,7 +89,7 @@ var CMD = {
     value : function(pg) {
         // 设置模式
         if(pg) {
-            console.log("pager setValue", pg);
+            //console.log("pager setValue", pg);
             // 计算按钮个数
             var maxBarNb = this.attr("max-btn-nb") * 1;
             var nb_l = 1;
@@ -128,9 +127,6 @@ var CMD = {
         }
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 获取值
-        console.log("pager: getValue", this.html());
-        console.log("pager: getValue:pn", this.attr("pn"));
-        console.log("pager: getValue:pgsz", this.attr("pgsz"));
         var pn = this.attr("pn") * 1;
         var pgsz = this.attr("pgsz") * 1;
         return {

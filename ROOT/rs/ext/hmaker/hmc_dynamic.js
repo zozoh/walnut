@@ -76,9 +76,7 @@ function do_reload(jData, opt){
             }
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // 准备绘制模板参数
-            var tmplOptions = _.extend({}, opt.options, {
-                API : opt.API,
-            });
+            var tmplOptions = _.extend(opt.options);
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // 确保设置模板皮肤
             if(opt.skinSelector)

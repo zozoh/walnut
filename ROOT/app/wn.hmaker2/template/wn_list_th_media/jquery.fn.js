@@ -21,8 +21,6 @@ function w_info(jMe, selector, val){
 $.fn.extend({ "wn_lst_th_media" : function(list, opt){
     var jList = this;
     
-    console.log(opt)
-    
     // 首先得到字段映射
     var mapping = opt.displayText || {
         title : "=th_nm",
