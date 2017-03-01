@@ -1,5 +1,8 @@
 package org.nutz.walnut.web.module;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
@@ -44,7 +47,11 @@ public class ThemeModule extends AbstractWnModule {
     @At("/r/?/**")
     @Ok("void")
     @Fail("http:404")
-    public View getUiTheme(String themeCate, String rsName, @ReqHeader("User-Agent") String ua) {
+    public View getUiTheme(String themeCate, 
+                           String rsName, 
+                           @ReqHeader("User-Agent") String ua,
+                           HttpServletRequest req,
+                           HttpServletResponse resp) {
         WnObj oCss = null;
 
         // 分析
@@ -116,6 +123,8 @@ public class ThemeModule extends AbstractWnModule {
         if (null == oCss) {
             throw Er.create("e.theme.noexists", uiName);
         }
+        if (checkEtag(oCss, req, resp))
+            return HTTP_304;
 
         // 读取 CSS 内容返回以便输出
         return new WnObjDownloadView(io, oCss, null);
