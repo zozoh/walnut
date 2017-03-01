@@ -82,7 +82,9 @@ tags:
                 "padding",          // 字符串是内置 CSS
                 "@att1:文字(yes/no)",    // 显示 yes/no 的属性开关
                 "@att2:文字(yes)",       // 显示 yes 或者不存在的属性开关
-                "@att3:文字[text=value,text=value]" // 显示枚举型属性开关
+                "@att3:文字[text=value,text=value]", // 显示枚举型属性开关
+                "#C> li[open-sub] > a:高亮项前景=",   // 颜色自定义选择器
+                "#B> li[open-sub]:高亮项背景=#000",      // 背景自定义选择器 
             ]
         },{
             ..

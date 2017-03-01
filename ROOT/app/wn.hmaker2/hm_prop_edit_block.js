@@ -437,9 +437,46 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             }
             // 看看是否是自定义属性
             else {
+                // 颜色选择模式
+                m = /^(#([BC])> *[^:]+)(:([^=]+))(=(.*))?/
+                        .exec(key);
+                if(m) {
+                    var a_key = m[1];
+                    var a_tp  = m[2];
+                    var a_txt = m[4] || m[1];
+                    var a_dft = m[6] || null;
+                    // 背景
+                    if("B" == a_tp) {
+                        re.push({
+                            key    : a_key,
+                            title  : a_txt,
+                            type   : "string",
+                            dft    : a_dft,
+                            nullAsUndefined : true,
+                            editAs : "background",
+                            uiConf : UI.getBackgroundImageEditConf()
+                        });
+                    }
+                    // 前景
+                    else  if("C" == a_tp) {
+                        re.push({
+                            key    : a_key,
+                            title  : a_txt,
+                            type   : "string",
+                            dft    : a_dft,
+                            editAs : "color",
+                        });
+                    }
+                    // 错误
+                    else {
+                        console.warn("unsupport blockField:", key, UI.uiCom);
+                    }
+                    continue;
+                }
+                
                 // 布尔模式
-                var m = /^@([\d\w]+)(:([^\()]+))?(\(yes(\/no)?\))(=(yes|no))?/
-                            .exec(key);
+                m = /^@([\d\w]+)(:([^\()]+))?(\(yes(\/no)?\))(=(yes|no))?/
+                        .exec(key);
                 if(m) {
                     //console.log(m)
                     var a_key = m[1];

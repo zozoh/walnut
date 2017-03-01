@@ -1,4 +1,5 @@
 define(function (require, exports, module) {
+var CssP = require("ui/support/cssp");
 var methods = {
     //........................................................
     // 获取组件的 ID
@@ -54,8 +55,10 @@ var methods = {
         var old_selectors = this.getComSelectors();
         if(old_selectors) {
             this.$el.removeClass(old_selectors);
+            this.arena.removeClass(old_selectors);
         }
-        this.$el.attr("selectors", selectors||null).addClass(selectors);
+        this.$el.attr("selectors", selectors||null);
+        this.arena.addClass(selectors);
     },
     //........................................................
     // 获取组件的库
@@ -279,14 +282,19 @@ var methods = {
             });
         }
 
+        // 得到组件的 ID 和皮肤
+        var comId = this.getComId();
+        var skin  = this.getComSkin();
+
         // 确保移除皮肤的特殊属性
         var attrs = {};
         for(var i=0; i<UI.el.attributes.length; i++) {
             var anm = UI.el.attributes[i].name;
+            // 自定义属性
             if(/^sa-.+/.test(anm)) {
                 attrs[anm] = null;
             }
-        }
+        }   
 
         // 皮肤属性的 boolean 字段，要变成存在或者不存在
         _.extend(attrs, $z.pick(block, "^sa-.+$"));
@@ -297,6 +305,31 @@ var methods = {
         }
         // 应用皮肤属性
         UI.arena.attr(attrs);
+
+        // 自定义的皮肤样式选择器
+        var style = {};
+        for(var key in block){
+            var v = block[key];
+            if(!v)
+                continue;
+            var m = /^#([BC])>(.+)$/.exec(key);
+            if(m) {
+                var selector = m[2];
+                var propName = m[1]=="B"?"background":"color";
+                style[selector] = $z.obj(propName, block[key]);
+                block[key] = null;
+            }
+        }
+        var jStyle = UI.$el.children("style.from-skin");
+        if(_.isEmpty(style)){
+            jStyle.remove();
+        }else{
+            if(jStyle.length == 0){
+                jStyle = $('<style class="from-skin hm-del-save">').appendTo(UI.$el);
+            }
+            var cssTxt = CssP.genCss(style, "#"+comId+(skin?" ."+skin:""));
+            jStyle.html(cssTxt);
+        }
         
         // 修正 css 的宽高
         if("unset" == css.width)
@@ -354,7 +387,8 @@ var methods = {
             this.appendTo(comArea, jAreaCon);
             
             // 切换到相对定位
-            var block = {mode : "inflow"};
+            var block = this.getBlock();
+            block.mode = "inflow";
         }
         
         // 修改块属性

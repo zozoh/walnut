@@ -174,7 +174,7 @@ return ZUI.def("app.wn.hm_com_image", {
         var cssArena = $z.pick(css, /^(borderRadius|boxShadow)$/);
         var cssImg   = $z.pick(css, /^(border|borderRadius|width|height)$/);
         var cssTxt   = $z.pick(css, "!^(position|top|left|right|bottom|margin|border|borderRadius|boxShadow|width|height)$");
-        console.log(cssTxt);
+        //console.log(cssTxt);
 
         this.$el.css(this.formatCss(cssCom, true));
         this.arena.css(this.formatCss(cssArena, true))

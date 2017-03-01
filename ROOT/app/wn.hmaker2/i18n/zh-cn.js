@@ -340,7 +340,7 @@ define({
 
             },
             "sorter" : {
-                "name"  : "排序器",
+                "name"  : "排序条件",
                 "tip"   : "与 '动态数据' 控件联合使用，可以为数据接口提供排序参数",
                 "icon"  : '<i class="zmdi zmdi-sort-asc"></i>',
                 "add"   : "添加新排序字段",

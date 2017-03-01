@@ -409,10 +409,10 @@ return ZUI.def("app.wn.hmaker_page", {
                     var text = UI.msg(jLi.attr("text"));
 
                     // 输出第一个项目
-                    var list = [{
+                    var list = $z.concat([{
                         text : UI.msg("hmaker.com._.dft")+text,
                         selector : null
-                    }].concat(skinList);
+                    }], skinList);
 
                     // 循环输出
                     jiSec.empty();
@@ -1474,10 +1474,10 @@ return ZUI.def("app.wn.hmaker_page", {
                 "~",
                 "::view_text",
                 "~",
-                "::hmaker/pub_site",
+                "@::hmaker/pub_site",
                 "::hmaker/pub_current_page",
                 "~",
-                "::hmaker/hm_site_conf",
+                "@::hmaker/hm_site_conf",
                 "~",
                 "::zui_debug",
                 "::open_console"];

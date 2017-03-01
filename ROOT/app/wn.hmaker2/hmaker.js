@@ -256,7 +256,7 @@ return ZUI.def("app.wn.hmaker2", {
                         this.parent.close();
                         
                         // 打开站点配置信息进一步编辑站点属性
-                        UI.openSiteConfPanel(oNewHome, function(){
+                        UI.openSiteConfPanel(oNewHome, function(oNewHome){
                             // 刷新侧边栏后 ... 
                             UI.browser().chuteUI().refresh(function(){
                                 // 编辑完毕后切换到这个站点

@@ -42,14 +42,7 @@ body {
 ///////////////////////////////////////////////
 // 针对控件的样式
 //............................................
-// com.rows:居中多行布局
-.skin-rows-centered {
-    background: red;
-}
 
-.skin-rows-test {
-    background: yellow;
-}
 
 //............................................
 // com.navmenu:水平菜单
@@ -58,7 +51,7 @@ body {
     li {position: relative;}
     li[href] > a {text-decoration: underline;}
     li[open-sub]{
-        background: #FFF;
+        background: #FFF; position: relative;
         > a {color: #888;}
     }
     ul li[current]{
@@ -99,13 +92,57 @@ body {
 .skin-navmenu-h-subpop[sa-align=right] {
     .ul-top{justify-content:flex-end;}
 }
-
+.hm-com-navmenu[hm-actived],
+.hm-com-navmenu[hmaker-rt] {
+    .skin-navmenu-h-subpop li[open-sub]{
+        > .ul-sub-0 {display: block;}
+        > .ul-sub-n {display: inline-block;}
+    }
+}
+//............................................
+// com.navmenu:水平二级菜单
+.skin-navmenu-h-l2 {
+    line-height: .24rem;
+    li[href] > a {text-decoration: underline;}
+    li[open-sub]{
+        background: #FFF;
+        > a {color: #888;}
+    }
+    ul {@flex(); }
+    ul li {padding:0 .08rem;}
+    ul li[current]{
+        background: rgba(0,0,0,0.8);
+        flex: 0 0 auto;
+        margin:0 .04rem; padding: .08rem .14rem;
+        > a { color:#FF0; }
+    }
+    .li-sub {
+        line-height: .36rem; height: .36rem;
+        padding:0 .08rem;
+    }
+    .hmc-navmenu {padding: .08rem;}
+    .ul-top {padding-bottom: .6rem; position: relative;}
+    .ul-sub { 
+        position: absolute; bottom:0;left:0; right:0;
+        padding: .08rem; 
+    }
+}
+.skin-navmenu-h-l2[sa-align=center] {
+    .ul-top{justify-content:center;}
+}
+.skin-navmenu-h-l2[sa-align=right] {
+    .ul-top{justify-content:flex-end;}
+}
+.hm-com-navmenu[hm-actived],
+.hm-com-navmenu[hmaker-rt] {
+    .skin-navmenu-h-l2 li[open-sub] > .ul-sub {@flex();}
+}
 //............................................
 // com.navmenu:垂直菜单
 .skin-navmenu-v-subpop {
     li[href] > a {text-decoration: underline;}
     li[open-sub]{
-        background: #FFF;
+        background: #FFF; position: relative;
         > a {color: #888;}
     }
     ul li[current]{
@@ -139,9 +176,15 @@ body {
         > .ul-sub {display: inline-block;}
     }
 }
-
+.hm-com-navmenu[hm-actived],
+.hm-com-navmenu[hmaker-rt] {
+    .skin-navmenu-h-subpop li[open-sub]{
+        > .ul-sub-0 {display: block;}
+        > .ul-sub-n {display: inline-block;}
+    }
+}
 //............................................
-// com.dynamic:横屏媒体列表
+// com.dynamic:媒体列表
 @dmhlPad : .08rem;
 .skin-dynamic-media-hlist {
     padding: @dmhlPad;

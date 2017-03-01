@@ -315,7 +315,7 @@ var methods = {
     invokeSkin : function(method){
         var UI = this;
         //console.log("invokeSkin", method, UI._C ? UI._C.SkinJS : "!No UI._C");
-        if(UI._C && UI._C.SkinJS){
+        if(UI._C && UI._C.SkinJS && UI._C.iedit.doc && UI._C.iedit.doc.defaultView){
             $z.invoke(UI._C.SkinJS, method, [], {
                 mode   : "IDE",
                 doc    : UI._C.iedit.doc,
@@ -531,7 +531,9 @@ var methods = {
             // 拖拽到了一个目标，执行修改
             on_drop : function(jAreaCon) {
                 //console.log("drop to ", jAreaCon);
+                //console.log("before drop", this.uiCom.getBlock().background);
                 this.uiCom.appendToArea(jAreaCon);
+                //console.log("after drop", this.uiCom.getBlock().background);
                 this.uiCom.$el.removeClass("hm-pmv-hide");
                 this.uiCom.el.scrollIntoView();
             }

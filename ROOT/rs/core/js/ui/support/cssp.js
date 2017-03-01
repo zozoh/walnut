@@ -5,7 +5,34 @@ define(function (require, exports, module) {
 // ....................................
 // 方法表
 var CssP = {
-    /*
+    //.........................................................
+    // 根据一个 Map 描述的CSS规则集合，生成 CSS 文本，
+    // cssObj 的键就是选择器，值是一个 Map 为规则表
+    // prefix 表示是否为所有的选择器添加统一前缀
+    genCss : function(cssObj, prefix){
+        var re = "";
+        for(var selector in cssObj) {
+            re += (prefix||"")+" "+selector+"{\n";
+            re += this.genCssRule(cssObj[selector]);
+            re += "}\n";
+        }
+        return re;
+    },
+    //.........................................................
+    // 根据一个 Map 描述的CSS规则，生成 CSS 文本，
+    // cssRule 为一组规则的集合，键为css属性，比如 background,color 等
+    genCssRule : function(cssRule) {
+        var re = "";
+        for(var key in cssRule) {
+            var v = cssRule[key];
+            re += key + ":" + v;
+            if(_.isNumber(v))
+                re += "px";
+            re += ";\n";
+        }
+        return re;
+    },
+    /*.........................................................
     解析 background 属性
     输入字符串格式类似:
     
@@ -83,6 +110,7 @@ var CssP = {
         // 搞定收工
         return bg;
     },
+    //.........................................................
     // 将背景字符串变成一行字符串表示
     strBackground : function(bg) {
         var re = [];
@@ -109,6 +137,7 @@ var CssP = {
         // 返回
         return re.join(" ");
     },
+    //.........................................................
     // 背景的解析和渲染的测试
     __test_background : function(){
         // 定义测试函数
@@ -144,7 +173,7 @@ var CssP = {
         _T("#FFF url(a.png) no-repeat 0% 0%/cover");
         _T("rgba(255,255,32, 0.5) url(a.png) repeat top/100% auto border-box fixed");
     },
-
+    //.........................................................
 }; // ~End methods
 //====================================================================
 // 输出

@@ -2,23 +2,6 @@
 	"name" : "default",
     "js"   : [],
 	"com"  : {
-        "rows" : [{
-                "text" : "居中多行布局",
-                "selector" : "skin-rows-centered",
-                "blockFields" : [
-                    "padding", "margin", "border",
-                    "@demo:演示模式(yes/no)",
-                    "@xyz:布尔测试(yes)=yes",
-                    "@mmm:自定义属性[属性A=aa,属性B=bb,MM=mm,qq=q]=aa"
-                ]
-            }, {
-                "text" : "测测布局",
-                "selector" : "skin-rows-test",
-                "blockFields" : [
-                    "padding", 
-                    "@abc:随便的属性(yes/no)=no",
-                ]
-            }],
         "navmenu" : [{
                 "text" : "水平菜单(子菜单弹出)",
                 "selector" : "skin-navmenu-h-subpop",
@@ -26,6 +9,17 @@
                     "padding", "margin", "border",
                     "color", "background", "boxShadow",
                     "@align:水平排列[居左=left,居中=center,居右=right]=left",
+                    
+                ]
+            }, {
+                "text" : "水平二级菜单",
+                "selector" : "skin-navmenu-h-l2",
+                "blockFields" : [
+                    "padding", "margin", "border",
+                    "color", "background", "boxShadow",
+                    "@align:水平排列[居左=left,居中=center,居右=right]=left",
+                    "#C> li[open-sub] > a:高亮项前景=",
+                    "#B> li[open-sub]:高亮项背景=",
                     
                 ]
             }, {
@@ -39,7 +33,7 @@
                 ]
             }],
         "dynamic" : [{
-                "text" : "横屏媒体列表",
+                "text" : "媒体列表",
                 "selector" : "skin-dynamic-media-hlist",
                 "blockFields" : [
                     "@li-mode:显示模式[图文=pt,仅图=p]=pt",

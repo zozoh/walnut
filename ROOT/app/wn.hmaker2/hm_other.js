@@ -66,9 +66,9 @@ return ZUI.def("app.wn.hmaker_other", {
                 "::hmaker/hm_site_dup",
                 "::hmaker/hm_site_del",
                 "~",
-                "::hmaker/pub_site",
+                "@::hmaker/pub_site",
                 "~",
-                "::hmaker/hm_site_conf",
+                "@::hmaker/hm_site_conf",
                 "~",
                 "::zui_debug",
                 "::open_console"];
