@@ -20,7 +20,6 @@ import org.nutz.mvc.annotation.POST;
 import org.nutz.mvc.annotation.PUT;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
-import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -37,8 +36,6 @@ import org.nutz.walnut.web.view.WnObjDownloadView;
 @Filters(@By(type = WnAsUsr.class, args = {"guest", "guest"}))
 public class GuestModule extends AbstractWnModule {
 
-    public static View HTTP_304 = new HttpStatusView(304);
-
     @At("/**")
     @Fail("http:404")
     public View read(String str,
@@ -46,27 +43,8 @@ public class GuestModule extends AbstractWnModule {
                      HttpServletResponse resp,
                      @ReqHeader("User-Agent") String ua) {
         WnObj o = Wn.checkObj(io, str);
-        // resp.setDateHeader("Last-Modified", o.lastModified());
-        // String sha1 = o.sha1();
-        //
-        // // zozoh: Chrome 缓存太讨厌了，因为 /gu 模块，都是没有 sha1 也就没有 ETag
-        // if (!Strings.isBlank(sha1)) {
-        // resp.setHeader("ETag", sha1);
-        // }
-        //
-        // // TODO zozoh 这段代码得看看。 为啥这样做涅？ 还有，这段逻辑应该弄到 WnObjDownloadView 里比较好
-        // // 这样 /a/load/xxx 等也都能使用浏览器缓存了
-        // if (o.lastModified() / 1000 == req.getDateHeader("If-Modified-Since")
-        // / 1000) {
-        // if (Strings.isBlank(sha1) ||
-        // sha1.equals(req.getAttribute("If-None-Match")))
-        // return HTTP_304;
-        // }
-        // // 返回输入流
-        // String contentType = o.mime();
-        //
-        // InputStream in = io.getInputStream(o, 0);
-        // return new RawView2(contentType, in, (int) o.len());
+        if (checkEtag(o, req, resp))
+            return HTTP_304;
 
         // 特殊的类型，将不生成下载目标
         ua = WnWeb.autoUserAgent(o, ua, false);

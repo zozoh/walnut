@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.nutz.img.Colors;
 import org.nutz.img.Images;
 import org.nutz.ioc.loader.annotation.Inject;
@@ -326,7 +329,9 @@ public class ObjModule extends AbstractWnModule {
                      @Param("sha1") String sha1,
                      @Param("d") boolean isDownload,
                      @Param("aph") boolean isAbsolutePath,
-                     @ReqHeader("User-Agent") String ua) {
+                     @ReqHeader("User-Agent") String ua,
+                     HttpServletRequest req,
+                     HttpServletResponse resp) {
         // 确保 str 的形式正确
         str = __format_str(str, isAbsolutePath);
 
@@ -341,6 +346,8 @@ public class ObjModule extends AbstractWnModule {
             if (!o.isSameSha1(sha1))
                 return new HttpStatusView(400);
         }
+        if (checkEtag(o, req, resp))
+            return HTTP_304;
 
         // 读取对象的值
         return new WnObjDownloadView(io, o, isDownload ? ua : null);
