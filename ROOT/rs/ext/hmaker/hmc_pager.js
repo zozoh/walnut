@@ -36,7 +36,8 @@ function __redraw(jq, opt) {
         "pager-type" : opt.pagerType || "button",
         "free-jump"  : opt.freeJump  ?  "yes" : null,
         "show-brief" : opt.showBrief ?  "yes" : null,
-        "show-first-last" : opt.showFirstLast ?  "yes" : null,
+        "show-first-last" : opt.showFirstLast || "auto",
+        "show-prev-next"  : opt.showPrevNext  || "auto",
         "brief-text" : opt.briefText,
         "max-btn-nb" : opt.maxBarNb || 9,
         "pgsz"  : opt.dftPageSize,
@@ -64,14 +65,17 @@ var CMD = {
     },
     // 根据偏移量跳转, -1 表示向前一页，1 表示向后一页
     // 0 表示还是当前页，不过相当于重新刷新了一下
-    jumpOff : function(off) {
+    jumpOff : function(off, reloadDynamic) {
         var pg = CMD.getData.call(this);
         pg.pn  = Math.min(pg.pgnb, Math.max(1, pg.pn + off));
         CMD.value.call(this, pg);
+
+        if(reloadDynamic)
+            HmRT.invokeDynamicReload(this);
     },
     // 跳转到固定页码, -1 表示最后一页, -2 表示倒数第二页。
     // 0 表示还是当前页，不过相当于重新刷新了一下
-    jumpTo : function(pn) {
+    jumpTo : function(pn, reloadDynamic) {
         var pg = CMD.getData.call(this);
         // 直接刷新
         if(0 == pn) {}
@@ -84,6 +88,9 @@ var CMD = {
             pg.pn = Math.min(pg.pgnb, Math.max(1, pn));
         }
         CMD.value.call(this, pg);
+
+        if(reloadDynamic)
+            HmRT.invokeDynamicReload(this);
     },
     // 获取值
     value : function(pg) {
@@ -119,6 +126,8 @@ var CMD = {
                 "pn"   : pg.pn,
                 "pgnb" : pg.pgnb,
                 "sum"  : pg.sum,
+                "is-first-page" : pg.pn == 1 ? "yes" : null,
+                "is-last-page"  : pg.pn == pg.pgnb ? "yes" : null,
             });
             // 设置消息文本
             var brief = $z.tmpl(this.attr("brief-text")||"No Brief")(pg);
@@ -145,21 +154,35 @@ $.fn.extend({ "hmc_pager" : function(opt){
     }
     
     // 得到自己所在控件
-    var jq = this.empty();
+    var jPager = this.empty();
     
     ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 开始绘制
-    __redraw(jq, opt);
+    __redraw(jPager, opt);
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 监控事件
     if(!opt.forIDE) {
-        
+        // 跳转页码
+        jPager.on("click", ".pg_nbs a", function(e){
+            var pn = $(e.currentTarget).text() * 1;
+            CMD.jumpTo.call(jPager, pn, true);
+        });
+        // 首/尾页
+        jPager.on("click", ".pg_btn [jump-to]", function(e){
+            var pn = $(e.currentTarget).attr("jump-to") * 1;
+            CMD.jumpTo.call(jPager, pn, true);
+        });
+        // 前/后页
+        jPager.on("click", ".pg_btn [jump-off]", function(e){
+            var off = $(e.currentTarget).attr("jump-off") * 1;
+            CMD.jumpOff.call(jPager, off, true);
+        });
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 返回自身以便链式赋值
-    return jq;
+    return jPager;
 }});
 //...........................................................
 })(window.jQuery, window.NutzUtil);

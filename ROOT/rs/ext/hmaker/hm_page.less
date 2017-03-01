@@ -277,9 +277,6 @@ body{margin: 0; font-size:@f3;}
         margin:0 1px;
     }
     a { border:1px solid rgba(0,0,0,0.3); cursor: pointer;}
-    a[key="first"], a[key="last"] {
-        display: none;
-    }
 }
 .hmc-pager[pager-type="button"]{}
 .hmc-pager[pager-type="jumper"] .pg_nbs a { 
@@ -291,8 +288,14 @@ body{margin: 0; font-size:@f3;}
 .hmc-pager[show-brief] .pg_brief { 
     display: inline-block;
 }
-.hmc-pager[show-first-last] .pg_btn { 
-    a[key="first"], a[key="last"] {
-        display: inline-block;
-    }
-}
+.hmc-pager[show-first-last="auto"][is-first-page] .pg_btn a[key="first"],
+.hmc-pager[show-first-last="auto"][is-last-page]  .pg_btn a[key="last"],
+.hmc-pager[show-first-last="hide"] .pg_btn a[key="first"],
+.hmc-pager[show-first-last="hide"] .pg_btn a[key="last"],
+{display: none;}
+
+.hmc-pager[show-prev-next="auto"][is-first-page] .pg_btn a[key="prev"],
+.hmc-pager[show-prev-next="auto"][is-last-page]  .pg_btn a[key="next"],
+.hmc-pager[show-prev-next="hide"] .pg_btn a[key="prev"],
+.hmc-pager[show-prev-next="hide"] .pg_btn a[key="next"],
+{display: none;}

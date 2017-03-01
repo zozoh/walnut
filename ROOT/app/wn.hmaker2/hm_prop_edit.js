@@ -188,6 +188,8 @@ return ZUI.def("app.wn.hm_prop_edit", {
                         UI.uiCom.notifyActived(null);
                         // 关闭
                         uiMask.close();
+                        // 刷新资源树
+                        UI.resourceUI().refresh();
                     });                      
                 },
                 // 输入组件名称

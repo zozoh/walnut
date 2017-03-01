@@ -19,7 +19,7 @@ return ZUI.def("app.wn.hm_com_pager", {
     },
     //...............................................................
     events : {
-        // 跳转页面
+        // 跳转页码
         "click .pg_nbs a" : function(e) {
             var UI = this;
 
@@ -62,16 +62,20 @@ return ZUI.def("app.wn.hm_com_pager", {
 
         // 标识保存时属性
         UI.arena.addClass("hm-empty-save");
-        
+
+        // 得到旧值
+        var pg  = UI.arena.hmc_pager("getData");
+        pg.pgsz = com.dftPageSize;
+        pg.pn   = pg.pn   || 1;
+        pg.pgnb = pg.pgnb || 24;
+        pg.sum  = pg.sum  || pg.pgsz * pg.pgnb;
+        pg.pgnb = Math.ceil(pg.sum / pg.pgsz);
+        console.log(pg)
+                
+
         // 绘制
         UI.arena.hmc_pager(_.extend({forIDE:true}, com));
-        UI.arena.hmc_pager("value", {
-            pn   : 1, 
-            pgnb : 24, 
-            sum  : com.dftPageSize * 24, 
-            pgsz : com.dftPageSize,
-
-        });
+        UI.arena.hmc_pager("value", pg);
     },
     //...............................................................
     getComValue : function() {
@@ -93,7 +97,8 @@ return ZUI.def("app.wn.hm_com_pager", {
             pagerType    : "button",
             freeJump     : true,
             dftPageSize  : 50,
-            showFirstLast: true,
+            showFirstLast: "auto",
+            showPrevNext : "auto",
             btnFirst     : "|<<",
             btnPrev      : "<",
             btnNext      : ">",

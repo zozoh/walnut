@@ -136,7 +136,7 @@ function getValue(jLi) {
 // 命令模式
 var CMD = {
     // 启用一个或者多个项目
-    selectItem : function(ele) {
+    selectItem : function(ele, reloadDynamic) {
         var jFld = $(ele).closest(".hmcf-fld");
         var jUl  = jFld.find(".fld-items ul");
         var jLi  = ele ? $(ele).closest('li[it-type]') : null;
@@ -152,6 +152,8 @@ var CMD = {
         else {
             jUl.find("li[it-type]").removeAttr("it-checked");
             jLi.attr("it-checked", "yes");
+            if(reloadDynamic)
+                HmRT.invokeDynamicReload(this);
         }
     },
     // 切换折叠项的显示
@@ -198,7 +200,7 @@ var CMD = {
         CMD.lessItems.call(this, jFld);
     },
     // 确认多选 
-    applyMulti : function(ele) {
+    applyMulti : function(ele, reloadDynamic) {
         var jFld = $(ele).closest(".hmcf-fld");
 
         // 恢复多选样式
@@ -212,6 +214,9 @@ var CMD = {
 
         // 显示更少选项
         CMD.lessItems.call(this, jFld);
+
+        if(reloadDynamic)
+            HmRT.invokeDynamicReload(this);
     },
     // 重新计算选项们的行号
     recountItemsRowNb : function(ele) {
@@ -408,11 +413,11 @@ $.fn.extend({ "hmc_filter" : function(opt){
         });
         // 选择选项
         jq.on("click", "li[it-type]", function(){
-            CMD.selectItem.call(jq, $(this));
+            CMD.selectItem.call(jq, $(this), true);
         });
         // 清除全部选项
         jq.on("click", ".fld-info em", function(){
-            CMD.selectItem.call(jq, this);
+            CMD.selectItem.call(jq, this, true);
         });
         // 多选开关: 启用
         jq.on("click", ".fld-multi b", function(){
@@ -424,7 +429,7 @@ $.fn.extend({ "hmc_filter" : function(opt){
         });
         // 多选开关: 确认
         jq.on("click", ".fld-it-check-ok", function(){
-            CMD.applyMulti.call(jq, this);
+            CMD.applyMulti.call(jq, this, true);
         });
         // 切换选项的更多/更少的开关
         jq.on("click", ".fld-more b", function(){

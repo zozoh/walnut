@@ -124,7 +124,34 @@ $.fn.extend({ "hmc_sorter" : function(opt){
     // 监控事件
     if(!opt.forIDE) {
         jq.on("click", "li", function(){
-            CMD.active.apply(jq, [this]);
+            var jLi = $(this);
+            // 如果是当前选项，且是可修改的，那么切换一下值
+            if(jLi.attr("enabled")) {
+                // 直接返回以便跳过重新加载的语句
+                if(!jLi.attr("modify"))
+                    return;
+                // 切换值
+                if("asc" == jLi.attr("or-nm")) {
+                    jLi.attr({
+                        "or-nm"  : "desc",
+                        "or-val" : -1
+                    }).find("span[or-icon]")
+                        .attr("or-icon","desc");
+                }else{
+                    jLi.attr({
+                        "or-nm"  : "asc",
+                        "or-val" : 1
+                    }).find("span[or-icon]")
+                        .attr("or-icon","asc");
+                }
+            }
+            // 激活当前项目
+            else {
+                CMD.active.apply(jq, [this]);
+            }
+
+            // 重新加载
+            HmRT.invokeDynamicReload(jq, true);
         });
     }
 

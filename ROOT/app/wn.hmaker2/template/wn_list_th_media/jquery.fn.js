@@ -40,7 +40,7 @@ $.fn.extend({ "wn_lst_th_media" : function(list, opt){
         
         // 指定显示图片
         jMe.find('.wlm-thumb').css({
-            "background-image" : "url(" + opt.API + "/gbox/thumb?"+obj.thumb+")"
+            "background-image" : "url(" + opt.API + "/thumb?"+obj.thumb+")"
         });
         // 指定链接
         if(opt.href){

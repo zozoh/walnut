@@ -375,6 +375,7 @@ define({
                 "free_jump"   : "自由跳转",
                 "max_bar_nb"  : "最多按钮个数",
                 "show_first_last" : "首尾按钮",
+                "show_prev_next"  : "前后按钮",
                 "dft_pgsz" : "页大小",
                 "dft_pgsz_tip" : "一页最多显示多少数据。必须大于 1",
                 "btn_first" : "首页文字",

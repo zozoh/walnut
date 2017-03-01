@@ -29,6 +29,15 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         HmMethods(this);
     },
     //...............................................................
+    events : {
+        "click .hmc-dynamic-prop > h4" : function(e){
+            var jH4 = $(e.currentTarget);
+            var jPart = jH4.nextUntil("h4");
+            $z.toggleAttr(jH4, "hide-part", "yes");
+            jPart.attr("hide-me", jH4.attr("hide-part") || null);
+        }
+    },
+    //...............................................................
     redraw : function() {
         var UI = this;
 

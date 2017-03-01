@@ -73,7 +73,10 @@ $.fn.extend({ "hmc_searcher" : function(opt){
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 监控事件
     if(!opt.forIDE) {
-        
+        // 修改输入框内容
+        jq.on("change", ".kwd-input input", function(){
+            HmRT.invokeDynamicReload($(this), true);
+        });
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

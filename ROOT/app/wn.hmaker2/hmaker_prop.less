@@ -904,11 +904,19 @@
 .hmc-dynamic-prop {
     overflow-y: scroll;
     > h4 {
-        font-size:@f2; font-weight: normal;
-        background: @cb2; color:@cf2;
-        border:1px solid @cborder1;
-        padding:@d2; margin:0;
+        font-size:@f2; font-weight: normal; cursor: pointer;
+        background: @cb2; color:@cf2; border:1px solid @cborder1;
+        padding:@d2 @d3; margin:0;
     }
+    > h4[hide-part] {color:@c0; border-color:@c0; border-style:dotted;}
+    > [hide-me] {display: none;}
+    > section[hide-me] {
+        display: block; width:64px; margin:@d0 auto @d2 auto;
+        border:1px dotted @cborder1; padding:0; text-align: center;
+        color:@c0;
+        > * {display: none;}
+    }
+    > section[hide-me]:after {display: inline;content: "...";}
     > aside {
         padding:@d2; color:@c3; font-family: @f_fixed;
         background: @cb3; color:@cf3;

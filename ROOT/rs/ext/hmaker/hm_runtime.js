@@ -243,5 +243,14 @@ window.HmRT = {
         return re;
     },
     //...............................................................
+    // 触发本 jQuery 插件对应的 dynamic 控件的重新加载行为
+    invokeDynamicReload : function(jq, jumpToHead) {
+        var jCom = jq.closest("[hm-dynamic-id]");
+        var dyId = jCom.attr("hm-dynamic-id");
+        if(dyId) {
+            $("#"+dyId+" > .hmc-dynamic").hmc_dynamic("reload", jumpToHead);
+        }
+    }
+    //...............................................................
 };  // ~ window.HmRT =
 })();

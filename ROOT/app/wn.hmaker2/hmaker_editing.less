@@ -7,18 +7,23 @@
 }
 
 ::-webkit-scrollbar {
-    width: 8px; height: 8px; background: #CCC;
-    border-left:1px solid #888;
+    width: 8px; height: 8px; background: #AAB;
+}
+::-webkit-scrollbar-corner {background: #CCD;}
+::-webkit-scrollbar-button {
+    height: 18px; color:@c0;  background: red;
+
 }
 ::-webkit-scrollbar-track {
-    background-color: rgba(255,255,255,0.2);
+    background: #AAB; 
 }
 ::-webkit-scrollbar-thumb {
-    background-color: rgba(0,0,0,0.1);
-}
-::-webkit-scrollbar-thumb:hover {
     background-color: rgba(0,0,0,0.3);
 }
+::-webkit-scrollbar-thumb:hover {
+    background-color: @c0;
+}
+
 
 body {
     margin:0; overflow-y: scroll; 
@@ -643,9 +648,6 @@ body {
         margin:0 1px;
     }
     a { border:1px solid rgba(0,0,0,0.3); cursor: pointer;}
-    a[key="first"], a[key="last"] {
-        display: none;
-    }
 }
 .hmc-pager[pager-type="button"]{}
 .hmc-pager[pager-type="jumper"] .pg_nbs a { 
@@ -657,11 +659,18 @@ body {
 .hmc-pager[show-brief] .pg_brief { 
     display: inline-block;
 }
-.hmc-pager[show-first-last] .pg_btn { 
-    a[key="first"], a[key="last"] {
-        display: inline-block;
-    }
-}
+.hmc-pager[show-first-last="auto"][is-first-page] .pg_btn a[key="first"],
+.hmc-pager[show-first-last="auto"][is-last-page]  .pg_btn a[key="last"],
+.hmc-pager[show-first-last="hide"] .pg_btn a[key="first"],
+.hmc-pager[show-first-last="hide"] .pg_btn a[key="last"],
+{display: none;}
+
+.hmc-pager[show-prev-next="auto"][is-first-page] .pg_btn a[key="prev"],
+.hmc-pager[show-prev-next="auto"][is-last-page]  .pg_btn a[key="next"],
+.hmc-pager[show-prev-next="hide"] .pg_btn a[key="prev"],
+.hmc-pager[show-prev-next="hide"] .pg_btn a[key="next"],
+{display: none;}
+
 //............................................................
 // 动态对象的通用属性
 .hmc-dds {

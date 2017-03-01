@@ -58,9 +58,33 @@ return ZUI.def("app.wn.hm_com_pager_prop", HmMethods({
                 fields : [{
                     key    : "showFirstLast",
                     title  : 'i18n:hmaker.com.pager.show_first_last',
-                    type   : "boolean",
-                    dft    : true,
-                    editAs : "toggle",
+                    type   : "string",
+                    dft    : "auto",
+                    editAs : "switch",
+                    uiConf : {
+                        items : [{
+                            text:"i18n:auto", value:"auto"
+                        },{
+                            text:"i18n:show", value:"show"
+                        },{
+                            text:"i18n:hide", value:"hide"
+                        }]
+                    }
+                }, {
+                    key    : "showPrevNext",
+                    title  : 'i18n:hmaker.com.pager.show_prev_next',
+                    type   : "string",
+                    dft    : "auto",
+                    editAs : "switch",
+                    uiConf : {
+                        items : [{
+                            text:"i18n:auto", value:"auto"
+                        },{
+                            text:"i18n:show", value:"show"
+                        },{
+                            text:"i18n:hide", value:"hide"
+                        }]
+                    }
                 }, {
                     key    : "btnFirst",
                     title  : 'i18n:hmaker.com.pager.btn_first',
