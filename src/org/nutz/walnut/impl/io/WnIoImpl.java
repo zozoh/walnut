@@ -733,4 +733,20 @@ public class WnIoImpl implements WnIo {
         store.trancate(o, len);
     }
 
+    public WnObj push(String id, String key, Object val, boolean returnNew) {
+        return tree.push(id, key, val, returnNew);
+    }
+
+    public void push(WnQuery query, String key, Object val) {
+        tree.push(query, key, val);
+    }
+
+    public WnObj pull(String id, String key, Object val, boolean returnNew) {
+        return tree.pull(id, key, val, returnNew);
+    }
+
+    public void pull(WnQuery query, String key, Object val) {
+        tree.pull(query, key, val);
+    }
+
 }

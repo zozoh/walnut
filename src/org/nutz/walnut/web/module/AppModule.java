@@ -68,6 +68,8 @@ public class AppModule extends AbstractWnModule {
 
     @Inject("refer:licenceService")
     private WnLicenceService licences;
+    
+    public static final Pattern P_APP_LOAD = Pattern.compile("^var +\\w+ += *([\\[{].+[\\]}]);$", Pattern.DOTALL);
 
     @Filters(@By(type = WnCheckSession.class))
     @At("/open/**")
@@ -258,7 +260,9 @@ public class AppModule extends AbstractWnModule {
                      String rsName,
                      @Param("mime") String mimeType,
                      @Param("auto_unwrap") boolean auto_unwrap,
-                     @ReqHeader("User-Agent") String ua) {
+                     @ReqHeader("User-Agent") String ua,
+                     HttpServletRequest req,
+                     HttpServletResponse resp) {
         // 准备计时
         Stopwatch sw = null;
         if (log.isDebugEnabled()) {
@@ -282,8 +286,7 @@ public class AppModule extends AbstractWnModule {
             // TODO 这个木用，应该删掉，先去掉界面上那坨 var xxx = 就好
             if (auto_unwrap) {
                 text = io.readText(o);
-                Matcher m = Pattern.compile("^var +\\w+ += *([\\[{].+[\\]}]);$", Pattern.DOTALL)
-                                   .matcher(text);
+                Matcher m = P_APP_LOAD.matcher(text);
                 if (m.find()) {
                     text = m.group(1);
                 }
@@ -305,8 +308,12 @@ public class AppModule extends AbstractWnModule {
                 StringInputStream ins = new StringInputStream(text);
                 return new WnObjDownloadView(ins, ins.available(), mimeType);
             }
+            
+            if (checkEtag(o, req, resp))
+                return HTTP_304;
+            
             // 指定了 mimeType
-            else if (!Strings.isBlank(mimeType)) {
+            if (!Strings.isBlank(mimeType)) {
                 return new WnObjDownloadView(io, o, mimeType, ua);
             }
             // 其他就默认咯

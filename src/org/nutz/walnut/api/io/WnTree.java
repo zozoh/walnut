@@ -124,4 +124,12 @@ public interface WnTree extends UnitTestable {
     boolean hasChild(WnObj p);
 
     WnObj getDirect(String id);
+    
+    WnObj push(String id, String key, Object val, boolean returnNew);
+    
+    void push(WnQuery query, String key, Object val);
+
+    WnObj pull(String id, String key, Object val, boolean returnNew);
+    
+    void pull(WnQuery query, String key, Object val);
 }
