@@ -4,11 +4,15 @@
 
 # 用法
 
-    websocket [操作] [wsid] [参数]
+    websocket [操作] [wsid|id:$id] [参数]
     
 # 发送一个文本信息
     
     demo@~$ websocket text 4tqpgk7u0ch3jovd9fhvg0cg5i  "{method:'snapshot'}"
+    
+# 发送一个文本信息给监听某个文件的全部websocket
+    
+    demo@~$ websocket text id:xxx  "{method:'snapshot'}"
     
 # 发送一个事件,事实上是文本信息的封装
     

@@ -41,6 +41,8 @@ public class WnWebSocket extends Endpoint {
     
     protected static Map<String, Session> peers = Collections.synchronizedMap(new HashMap<>());
     
+    public static String KEY = "websocket_watch";
+    
     @Inject
     protected WnRun wnRun;
     
@@ -87,7 +89,7 @@ public class WnWebSocket extends Endpoint {
                 if (tmp.isEmpty())
                     return;
                 WnObj obj = tmp.get(0);
-                wnRun.io().appendMeta(obj, new NutMap("websocket_watch", session.getId()));
+                wnRun.io().push(obj.id(), KEY, session.getId(), false);
                 if (doReturn)
                     session.getAsyncRemote().sendText(Json.toJson(new NutMap("event", "watched").setv("obj", obj.id()), JsonFormat.compact()));
                 break;
@@ -131,11 +133,17 @@ public class WnWebSocket extends Endpoint {
     @OnError
     public void onError(Session session, Throwable thr) {
         peers.remove(session.getId());
+        WnQuery query = new WnQuery();
+        query.setv(KEY, session.getId());
+        wnRun.io().pull(query, KEY, session.getId());
     }
     
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
         peers.remove(session.getId());
+        WnQuery query = new WnQuery();
+        query.setv(KEY, session.getId());
+        wnRun.io().pull(query, KEY, session.getId());
     }
     
     public static Session get(String id) {

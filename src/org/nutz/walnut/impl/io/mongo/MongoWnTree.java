@@ -236,20 +236,40 @@ public class MongoWnTree extends AbstractWnTree {
         return get(id);
     }
 
-    // @Override
-    // protected WnObj _do_append(WnObj p, WnObj nd, String newName) {
-    // // 开始移动
-    // ZMoDoc q = WnMongos.qID(nd.id());
-    // ZMoDoc doc = ZMoDoc.SET("pid", p.id()).set("nm", newName);
-    // co.update(q, doc);
-    //
-    // // 更新内存
-    // nd.path(Wn.appendPath(p.path(), newName));
-    // nd.name(newName);
-    // nd.setParent(p);
-    //
-    // // 返回
-    // return nd;
-    // }
+    @Override
+    public WnObj push(String id, String key, Object val, boolean returnNew) {
+        ZMoDoc qDoc = ZMoDoc.NEW("id", id);
+        ZMoDoc fields = ZMoDoc.NEW(key, 1);
+        ZMoDoc update = ZMoDoc.NEW().m("$addToSet", key, val);
 
+        ZMoDoc doc = co.findAndModify(qDoc, fields, null, false, update, returnNew, false);
+
+        return WnMongos.toWnObj(doc);
+    }
+
+    @Override
+    public void push(WnQuery query, String key, Object val) {
+        ZMoDoc qDoc = WnMongos.toQueryDoc(query);
+        ZMoDoc update = ZMoDoc.NEW().m("$addToSet", key, val);
+        co.updateMulti(qDoc, update);
+    }
+
+    @Override
+    public WnObj pull(String id, String key, Object val, boolean returnNew) {
+        ZMoDoc qDoc = ZMoDoc.NEW("id", id);
+        ZMoDoc fields = ZMoDoc.NEW(key, 1);
+        ZMoDoc update = ZMoDoc.NEW().m("$pull", key, val);
+
+        ZMoDoc doc = co.findAndModify(qDoc, fields, null, false, update, returnNew, false);
+
+        return WnMongos.toWnObj(doc);
+    }
+
+    @Override
+    public void pull(WnQuery query, String key, Object val) {
+        ZMoDoc qDoc = WnMongos.toQueryDoc(query);
+        ZMoDoc update = ZMoDoc.NEW().m("$pull", key, val);
+        co.updateMulti(qDoc, update);
+    }
+    
 }

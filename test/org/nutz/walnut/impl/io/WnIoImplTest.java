@@ -1,9 +1,6 @@
 package org.nutz.walnut.impl.io;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +11,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.nutz.json.Json;
+import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
@@ -1028,5 +1026,93 @@ public class WnIoImplTest extends BaseIoTest {
         io.close(hid);
 
         assertEquals("azc", io.readText(o));
+    }
+    
+    @Test
+    public void test_array_push_pull() throws IOException {
+        WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
+        String id = o.id();
+
+        assertEquals("/a/b/c", o.path());
+
+        // 新增
+        io.push(id, "pets", "wendal", false);
+        io.push(id, "pets", "zozoh", false);
+        io.push(id, "pets", "pangwu", false);
+        
+        o = io.get(id);
+        assertNotNull(o);
+        assertNotNull(o.get("pets"));
+        assertEquals(3, Lang.length(o.get("pets")));
+        Lang.each(o.get("pets"), new Each<Object>() {
+            public void invoke(int index, Object ele, int length){
+                assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
+            }
+        });
+        
+        // 减少
+        io.pull(id, "pets", "zozoh", false);
+        o = io.get(id);
+        assertNotNull(o);
+        assertNotNull(o.get("pets"));
+        assertEquals(2, Lang.length(o.get("pets")));
+        Lang.each(o.get("pets"), new Each<Object>() {
+            public void invoke(int index, Object ele, int length){
+                assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
+            }
+        });
+        
+        io.pull(id, "pets", "wendal", false);
+        io.pull(id, "pets", "pangwu", false);
+
+        o = io.get(id);
+        assertNotNull(o);
+        assertEquals(0, Lang.length(o.get("pets")));
+        
+    }
+    
+    @Test
+    public void test_array_push_pull_by_query() throws IOException {
+        io.create(null, "/a/b/z", WnRace.FILE);
+        WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
+        String id = o.id();
+        String pid = o.parentId();
+
+        assertEquals("/a/b/c", o.path());
+
+        // 新增
+        io.push(Wn.Q.id(id), "pets", "wendal");
+        io.push(Wn.Q.pid(pid), "pets", "zozoh");
+        io.push(Wn.Q.pid(pid), "pets", "pangwu");
+        
+        o = io.get(id);
+        assertNotNull(o);
+        assertNotNull(o.get("pets"));
+        assertEquals(3, Lang.length(o.get("pets")));
+        Lang.each(o.get("pets"), new Each<Object>() {
+            public void invoke(int index, Object ele, int length){
+                assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
+            }
+        });
+        
+        // 减少
+        io.pull(Wn.Q.pid(pid), "pets", "zozoh");
+        o = io.get(id);
+        assertNotNull(o);
+        assertNotNull(o.get("pets"));
+        assertEquals(2, Lang.length(o.get("pets")));
+        Lang.each(o.get("pets"), new Each<Object>() {
+            public void invoke(int index, Object ele, int length){
+                assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
+            }
+        });
+        
+        io.pull(Wn.Q.pid(pid), "pets", "wendal");
+        io.pull(Wn.Q.pid(pid), "pets", "pangwu");
+
+        o = io.get(id);
+        assertNotNull(o);
+        assertEquals(0, Lang.length(o.get("pets")));
+        
     }
 }
