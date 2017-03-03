@@ -177,25 +177,43 @@ public class HmPageTranslating extends HmContext {
         return comId;
     }
 
-    private void __do_com(Element eleCom) {
+    /**
+     * 如果控件元素代表一个组件，则将其递归展开
+     * 
+     * @param eleLib
+     *            当前控件元素
+     * 
+     * @return 返回展开后的新元素。如果不是组件，返回输入
+     */
+    private void __load_lib_and_ensure_comId(Element eleLib) {
         // 确保组件的 ID 被分配
-        String comId = this.__assignComId(eleCom);
+        String theComId = this.__assignComId(eleLib);
 
         // 判断是否是个组件
-        String libName = eleCom.attr("lib");
+        String libName = eleLib.attr("lib");
         if (!Strings.isBlank(libName)) {
             // 读取组件源代码
             String libHtml = this.getLibCode(libName);
 
             // 将组件内容替换现有元素
-            Element eleCom2 = eleCom.before(libHtml).previousElementSibling();
-            eleCom.remove();
-            eleCom = eleCom2;
-            eleCom.attr("id", comId).attr("lib", libName);
-        }
+            Element eleCom = eleLib.before(libHtml).previousElementSibling();
+            eleLib.remove();
 
+            // 设置一下自己的属性
+            eleCom.attr("id", theComId).removeAttr("lib");
+
+            // 进行递归
+            Elements eleSubLibs = eleCom.select(".hm-com[lib]");
+            for (Element eleSubLib : eleSubLibs) {
+                this.__load_lib_and_ensure_comId(eleSubLib);
+            }
+        }
+    }
+
+    private void __do_com(Element eleCom) {
         // 将元素记录到上下文
         this.eleCom = eleCom;
+        this.comId = eleCom.attr("id");
 
         // 得到控件类型
         String ctype = eleCom.attr("ctype");
@@ -286,7 +304,13 @@ public class HmPageTranslating extends HmContext {
             doc.body().attr("skin", this.skinInfo.name);
         }
         // ---------------------------------------------------
-        // 处理控件
+        // 首先递归展开全部组件
+        Elements eleLibs = doc.body().select(".hm-com[lib]");
+        for (Element eleLib : eleLibs) {
+            this.__load_lib_and_ensure_comId(eleLib);
+        }
+        // ---------------------------------------------------
+        // 依次处理控件
         Elements eleComs = doc.body().getElementsByClass("hm-com");
         for (Element eleCom : eleComs) {
             // 执行自己的控件渲染逻辑

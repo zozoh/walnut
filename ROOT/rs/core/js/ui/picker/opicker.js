@@ -23,6 +23,13 @@ return ZUI.def("ui.picker.opicker", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "theme/ui/picker/picker.css",
     //...............................................................
+    init : function(opt) {
+        $z.setUndefined(opt, "mustInBase", true);
+        $z.setUndefined(opt, "setup", {});
+        $z.setUndefined(opt, "clearable", true);
+        $z.setUndefined(opt, "keeyAppend", true);
+    },
+    //...............................................................
     events : {
         // 选择对象
         "click .picker-choose" : function(){
@@ -30,15 +37,25 @@ return ZUI.def("ui.picker.opicker", {
             var opt   = UI.options;
             var conf  = opt.setup || {};
 
-            // 准备数据
-            var o = UI.getObj();
+            // 确定基础目录
+            var base = opt.base || Wn.fetch("~");
 
-            // 如果是站点的主目录
-            var base = opt.base;
-            if(opt.lastObjKey) {
-                base = UI.local(opt.lastObjKey) || base;
-                //console.log(base)
+            // 准备数据，没有的话，采用上一次本对话框选择的数据
+            var o = UI.getObj();
+            //console.log(o)
+
+            if(!o && opt.lastObjKey) {
+                var lastObjPath = UI.local(opt.lastObjKey);
+                if(lastObjPath)
+                    o = Wn.fetch(lastObjPath);
             }
+            // 如果要求选择的对象在不给定目录内，相当于 null
+            if(opt.mustInBase && o) {
+                var rph = Wn.getRelativePath(base, o);
+                if(!Wn.isInDir(base, o))
+                    o = null;
+            }
+            // 根据对象重新定义 base
             if(o) {
                 // 主目录
                 if("./" == Wn.getRelativePathToHome(o)) {
@@ -57,15 +74,16 @@ return ZUI.def("ui.picker.opicker", {
                 objTagName : 'SPAN',
                 width  : "80%",
                 height : "80%",
-                base   : base || "~",
+                base   : base,
                 canOpen : function(o){
                     return o.race == 'DIR';
                 },
                 on_ok : function(objs){
                     if(objs && objs.length > 0){
+                        //console.log(objs)
                         // 记录第一个对象为上次打开对象
                         if(opt.lastObjKey) {
-                            UI.local(opt.lastObjKey, "id:"+ objs[0].pid);
+                            UI.local(opt.lastObjKey, objs[0].ph);
                         }
                         // 执行更新
                         UI._update(objs);
@@ -80,12 +98,6 @@ return ZUI.def("ui.picker.opicker", {
         "click .picker-clear" : function(){
             this._update();
         }
-    },
-    //...............................................................
-    init : function(options) {
-        $z.setUndefined(options, "setup", {});
-        $z.setUndefined(options, "clearable", true);
-        $z.setUndefined(options, "keeyAppend", true);
     },
     //...............................................................
     redraw : function(){

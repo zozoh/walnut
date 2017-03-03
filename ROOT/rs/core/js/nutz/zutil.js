@@ -2651,13 +2651,39 @@
             if (len == pos && bb.length == ff.length)
                 return "./";
 
-            var dir = 1;
-            if (/\/$/.test(base))
-                dir = 0;
+            // 如果 base 表示一个 DIR，那么相对路径应该从它计算
+            // 否则从它的父计算
+            var off = /\/$/.test(base) ? 0 : 1;
 
-            var sb = zUtil.dupString("../", bb.length - pos - dir);
-            ff.splice(0, pos);
+
+            var sb = zUtil.dupString("../", bb.length - pos - 1);
+            ff.splice(0, pos-off);
             return sb + ff.join("/");
+        },
+        //.............................................
+        /**
+         * 判断某路径是否在给定基础路径之下
+         *
+         * @param base
+         *            基础路径，以 '/' 结束，表示目录
+         * @param path
+         *            相对文件路径，以 '/' 结束，表示目录
+         * @return 文件路径是否在基础路径之下
+         */
+        isInPath : function(base, path) {
+            if(path.length<=base.length)
+                return false;
+            // 截取前面一段，必须完全相等
+            var len = base.length;
+            if(/\/$/.test(base)){
+                len --;
+                base = base.substring(0,len);
+            }
+            if(base != path.substring(0, len))
+                return false;
+
+            // 剩下的部分， path 必须以 '/' 开头
+            return '/' == path.charAt(len);
         },
         //----------------------------------------------------
         /**

@@ -269,7 +269,7 @@ public abstract class JvmExecutor {
                                       final List<WnObj> list,
                                       int mode) {
         // 得到当前目录
-        WnObj p = getCurrentObj(sys);
+        WnObj p = sys.getCurrentObj();
 
         // 计算要列出的目录
         // 没参数认为是当前目录

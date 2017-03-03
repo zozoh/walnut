@@ -97,8 +97,8 @@ $.fn.extend({ "hmc_navmenu" : function(opt){
     if("toggleArea" == opt.atype) {
         setup_toggle.call(jq, opt);
     }
-    // 链接模式，则看看是否需要自动高亮
-    else  if("link" == opt.atype) {
+    // 默认是链接模式，则看看是否需要自动高亮
+    else {
         if(opt.autoCurrent) {
             jq.find('li[current]').removeAttr("current");
             jq.find('li[href="'+opt.srcPath+'"]').attr("current", "yes");

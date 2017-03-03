@@ -1468,13 +1468,30 @@ var Wn = {
         return o2;
     },
     //..............................................
+    // 返回一个对象的路径，如果是目录，一定会以 "/" 结尾
+    getRegularPath : function(o){
+        if('DIR' == o.race)
+            return o.ph + "/";
+        return o.ph;
+    },
+    //..............................................
+    isInDir : function(oDir, o) {
+        var ph_dir = oDir.ph;
+        var ph_obj = o.ph;
+        return $z.isInPath(ph_dir, ph_obj);
+    },
+    //..............................................
     getRelativePath : function(oBase, o) {
-        return $z.getRelativePath(oBase.ph, o.ph);
+        var ph_base = Wn.getRegularPath(oBase);
+        var ph_obj  = Wn.getRegularPath(o);   
+        return $z.getRelativePath(ph_base, ph_obj);
     },
     //..............................................
     getRelativePathToHome : function(o) {
         var oHome = Wn.getHome();
-        return $z.getRelativePath(oHome.ph, o.ph);
+        var ph_home = Wn.getRegularPath(oHome);
+        var ph_obj  = Wn.getRegularPath(o);   
+        return $z.getRelativePath(ph_home, ph_obj);
     },
     //..............................................
     getHome : function(){

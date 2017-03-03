@@ -59,6 +59,7 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             uiConf : {
                 base : oHome,
                 lastObjKey : "hmaker_pick_image",
+                mustInBase : true,
                 setup : {
                     defaultByCurrent : false,
                     multi : false,
@@ -69,6 +70,7 @@ return ZUI.def("app.wn.hm_com_image_prop", {
                     }
                 },
                 parseData : function(str){
+                    //console.log("parseData", str);
                     if(!str)
                         return null;
                     // 指定了 ID
@@ -93,6 +95,7 @@ return ZUI.def("app.wn.hm_com_image_prop", {
                     if(!o)
                         return null;
                     var oHome = UI.getHomeObj();
+                    //console.log("formatData:", o)
                     return "/" + Wn.getRelativePath(oHome, o);
                 }
             }

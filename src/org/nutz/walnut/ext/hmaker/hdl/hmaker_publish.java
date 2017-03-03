@@ -121,12 +121,6 @@ public class hmaker_publish implements JvmHdl {
         if (oSrc.isFILE()) {
             log.info("do file:");
 
-            // 确保自己被清除
-            String rph = hpc.getRelativePath(oSrc);
-            String cmdText = String.format("rm -v id:%s/%s*", hpc.oDest.id(), rph);
-            log.info("clean dest for file: " + cmdText);
-            sys.exec(cmdText);
-
             // 执行转换
             callback.invoke(oSrc);
         }

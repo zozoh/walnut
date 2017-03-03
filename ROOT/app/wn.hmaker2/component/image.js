@@ -44,6 +44,7 @@ return ZUI.def("app.wn.hm_com_image", {
 
         // 这个是空白图片
         var BLANK_IMG = '/a/load/wn.hmaker2/img_blank.jpg';
+        //console.log(com)
                 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 指定链接: 要显示链接提示图标
