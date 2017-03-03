@@ -5,10 +5,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.nutz.lang.Nums;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Disks;
@@ -154,26 +150,8 @@ public class HmContext {
                 // 得到相对路径
                 String rph = getRelativePath(o);
 
-                // 如果需要转换，则深入分析一下
+                // 如果需要转换，转换出来都是 html 文件，只不过动态的在真正转换的时候会打上 "as_wnml:true" 的元数据
                 if (Hms.isNeedTranslate(o)) {
-                    // 解析页面
-                    String html = io.readText(o);
-                    Document doc = Jsoup.parse(html);
-
-                    // 遍历全部控件
-                    Elements eleComs = doc.getElementsByClass("hm-com");
-                    for (Element eleCom : eleComs) {
-                        // 得到控件类型
-                        String ctype = eleCom.attr("ctype");
-
-                        // 判断
-                        if (Hms.COMs.check(ctype).isDynamic(eleCom)) {
-                            pageOutputNames.put(rph, o.name() + ".wnml");
-                            return;
-                        }
-                    }
-
-                    // 走到这里，说明是一个静态页面
                     pageOutputNames.put(rph, o.name() + ".html");
                 }
             }

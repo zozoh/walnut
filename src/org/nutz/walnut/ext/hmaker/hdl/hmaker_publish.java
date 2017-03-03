@@ -87,7 +87,7 @@ public class hmaker_publish implements JvmHdl {
         Stopwatch sw = Stopwatch.begin();
 
         // ------------------------------------------------------------
-        // 预先分析整个站点，看看哪些页面是动态网页，哪些是静态的
+        // 预先分析整个站点，得到页面转换后的扩展名
         hpc.preparePages();
         log.info("preparePages:" + Json.toJson(hpc.pageOutputNames, JsonFormat.full()));
 
@@ -237,29 +237,30 @@ public class hmaker_publish implements JvmHdl {
         Object wwwObj = hpc.oDest.get("www");
         final String protocol = "http";
 
+        // 分析配置文件
+        NutMap hmConf = hpc.getConf();
+        String dftHost = "localhost";
+        int port = 80;
+        if (null != hmConf) {
+            dftHost = hmConf.getString("www_host", "localhost");
+            port = hmConf.getInt("www_port", 80);
+        }
+        String portS = port == 80 ? "" : ":" + port;
+
         // 目标不是发布目录
         if (null == wwwObj) {
             log.infof("%%[-1/0] ! not www dir: %s", hpc.oDest.path());
         }
         // 目标没有网址，那么采用默认的看看自己的 domain 是什么
         else if ("ROOT".equals(wwwObj)) {
-            NutMap hmConf = hpc.getConf();
-            String host = hmConf.getString("defaultHost");
-            // 木有!
-            if (Strings.isBlank(host)) {
-                log.infof("%%[-1/0] ! www=ROOT but not host in hmaker.conf");
-            }
-            // 使用
-            else {
-                log.infof("%%[-1/0] %s://%s%s", protocol, host, page_rph);
-            }
+            log.infof("%%[-1/0] %s://%s%s%s", protocol, dftHost, portS, page_rph);
         }
         // 那么一次输出目标地址
         else {
             final String pgurl = page_rph;
             Lang.each(wwwObj, new Each<String>() {
                 public void invoke(int index, String host, int length) {
-                    log.infof("%%[-1/0] %s://%s%s", protocol, host, pgurl);
+                    log.infof("%%[-1/0] %s://%s%s%s", protocol, host, portS, pgurl);
                 }
             });
         }

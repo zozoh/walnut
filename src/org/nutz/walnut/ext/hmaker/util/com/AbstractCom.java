@@ -35,6 +35,10 @@ public abstract class AbstractCom implements HmComHandler {
         // 记录当前控件的 ID
         ing.comId = ing.eleCom.attr("id");
 
+        // 确保标记本页为动态
+        if (this.isDynamic(ing.eleCom))
+            ing.markPageAsWnml();
+
         // 调用子类
         this._exec(ing);
 

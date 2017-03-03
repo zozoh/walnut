@@ -329,14 +329,16 @@ public class HmPageTranslating extends HmContext {
         // ---------------------------------------------------
         // 准备目标
         // 得到资源的相对路径
-        String rph = this.getTargetRelativePath(o);
-
-        // 修改后缀
-        rph += isWnml ? ".wnml" : ".html";
+        String rph = this.getTargetRelativePath(o) + ".html";
 
         // 在目标处创建
         this.oTa = createTarget(rph, o.race());
 
+        // 标识目标为动态处理
+        if (this.isWnml) {
+            this.oTa.setv("as_wnml", true);
+            io.set(this.oTa, "^as_wnml$");
+        }
         // ---------------------------------------------------
         // 将处理后的文档写入目标
         html = Hms.unescapeJsoupHtml(doc.html());

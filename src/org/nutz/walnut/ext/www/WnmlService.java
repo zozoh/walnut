@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.www.hdl;
+package org.nutz.walnut.ext.www;
 
 import java.util.List;
 import java.util.Map;
@@ -23,38 +23,43 @@ import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.www.WWWContext;
-import org.nutz.walnut.ext.www.WWWHdl;
-import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
 
-public class www_wnml implements WWWHdl {
+/**
+ * 提供了 Wnml 的转换逻辑
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
+public class WnmlService {
 
-    @Override
-    public void invoke(WnSystem sys, WWWContext wwc) {
+    /**
+     * @param wrt
+     * @param context
+     *            上下文，必须包括变量:
+     *            <ul>
+     *            <li><code>SITE_HOME</code> : 整个转换站点的根目录，include 如果是绝对路径，会从这里找
+     *            <li><code>CURRENT_DIR</code> : 当前页所在目录的路径，include 是相对路径，会从这里找
+     *            <li><code>CURRENT_PATH</code> : 当前页的完整路径
+     *            </ul>
+     * @param input
+     *            输入的 wnml 代码
+     * 
+     */
+    public String invoke(WnmlRuntime wrt, NutMap context, String input) {
         // 解析输入的文件
-        Document doc = Jsoup.parse(wwc.input);
+        Document doc = Jsoup.parse(input);
 
         // 首先处理静态引入
         Elements eles = doc.select("include");
         for (Element ele : eles) {
-            __do_include(sys, wwc, ele, wwc.context);
+            __do_include(wrt, ele, context);
         }
-
-        // System.out.println(doc);
-
-        // 然后处理数据源
-        // eles = doc.select("script.wn-datasource");
-        // for (Element ele : eles) {
-        // __do_datasource(sys, ele, wwc.context);
-        // }
 
         // 处理所有的节点的属性和文本的占位符
         try {
-            __do_node(sys, doc, wwc.context);
-            sys.out.println(doc.toString());
+            __do_node(wrt, doc, context);
+            return doc.toString();
         }
         // 看看是否会有 redirect 的错误
         catch (WebException e) {
@@ -63,9 +68,7 @@ public class www_wnml implements WWWHdl {
                 int code = Integer.parseInt(Strings.sBlank(eRe.attr("code"), "302"));
                 String text = Strings.sBlank(eRe.attr("text"), Http.getStatusText(code));
                 String url = Strings.sBlank(eRe.text(), "/");
-                sys.out.printlnf("HTTP/1.1 %d %s", code, text);
-                sys.out.printlnf("Location: %s", url);
-                sys.out.println();
+                return String.format("HTTP/1.1 %d %s\nLocation: %s\n", code, text, url);
             }
             // 其他的错误，抛出去吧
             else {
@@ -75,12 +78,12 @@ public class www_wnml implements WWWHdl {
 
     }
 
-    private void __do_redirect(WnSystem sys, Element ele, NutMap c) {
+    private void __do_redirect(WnmlRuntime wrt, Element ele, NutMap c) {
         __do_element_text(ele, c);
         throw Er.create("redirect.www.wnml", ele);
     }
 
-    private void __do_node(WnSystem sys, Node nd, NutMap c) {
+    private void __do_node(WnmlRuntime wrt, Node nd, NutMap c) {
         // 文本
         if (nd instanceof TextNode) {
             TextNode tnd = (TextNode) nd;
@@ -98,23 +101,23 @@ public class www_wnml implements WWWHdl {
 
             // 处理重定向，仅仅抛出错误，中断后续处理例程
             if ("redirect".equals(tagName)) {
-                __do_redirect(sys, ele, c);
+                __do_redirect(wrt, ele, c);
             }
             // 处理数据源
             else if ("script".equals(tagName) && ele.hasClass("wn-datasource")) {
-                __do_datasource(sys, ele, c);
+                __do_datasource(wrt, ele, c);
             }
             // <if>
             else if ("if".equals(tagName)) {
-                __do_if(sys, ele, c);
+                __do_if(wrt, ele, c);
             }
             // <each>
             else if ("each".equals(tagName)) {
-                __do_each(sys, ele, c);
+                __do_each(wrt, ele, c);
             }
             // <choose>
             else if ("choose".equals(tagName)) {
-                __do_choose(sys, ele, c);
+                __do_choose(wrt, ele, c);
             }
             // 普通的元素
             else {
@@ -124,7 +127,7 @@ public class www_wnml implements WWWHdl {
                 // 子
                 Node[] children = this.__get_children_array(ele);
                 for (Node child : children) {
-                    __do_node(sys, child, c);
+                    __do_node(wrt, child, c);
                 }
             }
         }
@@ -154,7 +157,7 @@ public class www_wnml implements WWWHdl {
         }
     }
 
-    private void __do_each(final WnSystem sys, final Element ele, NutMap c) {
+    private void __do_each(final WnmlRuntime wrt, final Element ele, NutMap c) {
         final String varName = Strings.sBlank(ele.attr("var"), "_obj");
         String itemsKey = ele.attr("items");
 
@@ -173,7 +176,7 @@ public class www_wnml implements WWWHdl {
                     for (Node child : children) {
                         Node newNode = child.clone();
                         ele.after(newNode);
-                        __do_node(sys, newNode, loopC);
+                        __do_node(wrt, newNode, loopC);
                     }
                 }
             });
@@ -183,7 +186,7 @@ public class www_wnml implements WWWHdl {
         ele.remove();
     }
 
-    private boolean __do_if(WnSystem sys, Element ele, NutMap c) {
+    private boolean __do_if(WnmlRuntime wrt, Element ele, NutMap c) {
         String test = ele.attr("test");
         Object re = El.eval(Lang.context(c), test);
         boolean b = null == re ? false : Castors.me().castTo(re, Boolean.class);
@@ -191,7 +194,7 @@ public class www_wnml implements WWWHdl {
         if (b) {
             // 处理自己所有的子
             for (Node nd : ele.childNodes()) {
-                __do_node(sys, nd, c);
+                __do_node(wrt, nd, c);
             }
 
             // 删除自身
@@ -205,7 +208,7 @@ public class www_wnml implements WWWHdl {
         return b;
     }
 
-    private void __do_choose(WnSystem sys, Element ele, NutMap c) {
+    private void __do_choose(WnmlRuntime wrt, Element ele, NutMap c) {
         boolean matched = false;
         // 依次判断
         for (Element child : ele.children()) {
@@ -220,13 +223,13 @@ public class www_wnml implements WWWHdl {
             // 到了默认值
             if ("otherwise".equals(tagName)) {
                 for (Node nd : child.childNodes())
-                    __do_node(sys, nd, c);
+                    __do_node(wrt, nd, c);
                 child.unwrap();
                 matched = true;
             }
             // 如果是 when
             else if ("when".equals(tagName)) {
-                matched = __do_if(sys, child, c);
+                matched = __do_if(wrt, child, c);
             }
             // 其他的移除
             else {
@@ -250,17 +253,20 @@ public class www_wnml implements WWWHdl {
         }
     }
 
-    private void __do_include(WnSystem sys, WWWContext wwc, Element ele, NutMap c) {
+    private void __do_include(WnmlRuntime wrt, Element ele, NutMap c) {
         String path = Tmpl.exec(ele.attr("path"), c);
 
         // 如果是绝对路径
         if (path.startsWith("/")) {
             path = Wn.appendPath(c.getString("SITE_HOME"), path);
         }
+        // 相对路径的话
+        else {
+            path = Wn.appendPath(c.getString("CURRENT_PATH"), path);
+        }
 
         // 读取目标
-        WnObj o = sys.io.check(wwc.oCurrent, path);
-        String str = sys.io.readText(o);
+        String str = wrt.readPath(path);
         Document doc = Jsoup.parse(str);
 
         // 复制Head所有的内容到自己的 head
@@ -290,7 +296,7 @@ public class www_wnml implements WWWHdl {
     }
 
     @SuppressWarnings("unchecked")
-    private void __do_datasource(WnSystem sys, Element ele, NutMap c) {
+    private void __do_datasource(WnmlRuntime wrt, Element ele, NutMap c) {
         String name = Strings.trim(ele.attr("name"));
         String type = Strings.trim(Strings.sBlank(ele.attr("type"), "json"));
 
@@ -302,7 +308,7 @@ public class www_wnml implements WWWHdl {
         String cmdTmpl = Strings.trim(ele.data());
         String cmdText = Tmpl.exec(cmdTmpl, c, false);
 
-        String str = sys.exec2(cmdText);
+        String str = wrt.exeCommand(cmdText);
 
         // JSON
         if ("json".equalsIgnoreCase(type)) {

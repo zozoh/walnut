@@ -33,6 +33,7 @@ import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.module.AbstractWnModule;
@@ -309,16 +310,32 @@ public class WWWModule extends AbstractWnModule {
         // 渲染这个文件对象
         try {
             // 动态网页
+            boolean isDynamic = o.is("as_wnml", true);
+            if(!isDynamic)
+                isDynamic = o.isType("wnml");
             // 执行命令
-            if (o.isType("wnml")) {
+            if (isDynamic) {
+                // 首先创建一个会话
+                WnSession se = this.creatSession(usr);
+                
+                // 得到文件内容
+                String input = io.readText(o);
+
                 // 从请求对象得到上下文
                 NutMap context = _gen_context_by_req(req);
                 context.put("SITE_HOME", oROOT.path());
-
-                // 执行命令
-                String json = Json.toJson(context, JsonFormat.compact());
-                String cmdText = "www -c -in id:" + o.id();
-                String html = this.exec("www", usr, json, cmdText);
+                context.put("CURRENT_PATH", o.path());
+                context.put("CURRENT_DIR", o.parent().path());
+                context.put("grp", se.group());
+                context.put("fnm", o.name());
+                context.put("rs", "/gu/rs");
+                
+                // 创建一下解析服务
+                WnmlModuleRuntime wrt = new WnmlModuleRuntime(this,se);
+                WnmlService ws = new WnmlService();
+                
+                // 执行转换
+                String html = ws.invoke(wrt, context, input);
 
                 // 如果以 HTTP/1.x 开头，则认为是要输出 HTTP 头
                 if (html.startsWith("HTTP/1.")) {
@@ -331,7 +348,7 @@ public class WWWModule extends AbstractWnModule {
                 // 返回网页
                 return new ViewWrapper(new RawView("text/html"), html);
             }
-            // 网页图片等，直接显示，清空 UA 后会去掉 CONTENT_DISPOSITION
+            // 静态网页网页图片等，直接显示，清空 UA 后会去掉 CONTENT_DISPOSITION
             else if (o.isType("^(html|htm|css|js|txt|gif|png|jpe?g|webp)$")) {
                 if (log.isDebugEnabled())
                     log.debugf(" - www.S (%s)@%s : %s", o.id(), usr, a_path);
