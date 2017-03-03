@@ -107,8 +107,17 @@ return ZUI.def("app.wn.hm_com_sorter", {
     //...............................................................
     getDefaultData : function(){
         return {
-            // "lineHeight" : ".24rem",
-            // "fontSize"   : ".14rem",
+            "fields": [{
+                    "text": "按发布日期",
+                    "name": "lm",
+                    "modify": false,
+                    "order": -1
+                }, {
+                    "text": "按价格",
+                    "name": "price",
+                    "modify": true,
+                    "order": 1
+                }]
         };
     },
     //...............................................................

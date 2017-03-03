@@ -146,7 +146,6 @@ return ZUI.def("app.wn.hm_com_filter", {
     getDefaultData : function(){
         var UI = this;
         return {
-            fields : [],
             btnExtTextShow : UI.msg("hmaker.com.filter.ext_show"),
             btnExtTextHide : UI.msg("hmaker.com.filter.ext_hide"),
             btnMultiText   : UI.msg("hmaker.com.filter.multi"),
@@ -155,6 +154,25 @@ return ZUI.def("app.wn.hm_com_filter", {
             moreItemsMode      : "auto",
             btnFldMoreText     : UI.msg("hmaker.com.filter.fld_more_txt"),
             btnFldLessText     : UI.msg("hmaker.com.filter.fld_less_txt"),
+            fields: [{
+                    text: "价格", name: "price", multi: false, hide: false,
+                    items: [
+                        {text: "小于10元", type: "number_range", value: "(,10)"},
+                        {text: "不超过100元", type: "number_range",value: "(,100)"},
+                        {text: "不超过500元",type: "number_range",value: "(,500)"},
+                        {text: "500以上",type: "number_range",value: "[500,)"}
+                    ]
+                }, {
+                    text: "品牌", name: "brand", multi: true, hide: false,
+                    items: [
+                        {text: "苹果",type: "string",value: "apple"},
+                        {text: "三星",type: "string",value: "samsung"},
+                        {text: "小米",type: "string",value: "xiaomi"},
+                        {text: "华为",type: "string",value: "huawi"},
+                        {text: "其他",type: "string",value: "other"}
+                    ]
+                }
+            ],
         };
     },
     //...............................................................
