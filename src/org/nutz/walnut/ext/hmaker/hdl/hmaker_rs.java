@@ -30,8 +30,9 @@ public class hmaker_rs implements JvmHdl {
         if (hc.params.has("path")) {
             String[] phs = Strings.splitIgnoreBlank(hc.params.getString("path"));
             for (String ph : phs) {
-                WnObj oDir = sys.io.check(oSiteHome, ph);
-                tops.add(oDir);
+                WnObj oDir = sys.io.fetch(oSiteHome, ph);
+                if (null != oDir)
+                    tops.add(oDir);
             }
         }
         // 整站搜索

@@ -34,4 +34,9 @@ public class hmc_sorter extends AbstractSimpleCom {
         return true;
     }
 
+    @Override
+    public boolean isDynamic(Element eleCom) {
+        return true;
+    }
+
 }

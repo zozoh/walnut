@@ -3,7 +3,6 @@ package org.nutz.walnut.ext.hmaker.util.com;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.jsoup.nodes.Element;
 import org.nutz.castor.Castors;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
@@ -176,10 +175,5 @@ public abstract class AbstractCom implements HmComHandler {
     // }
 
     protected abstract void _exec(HmPageTranslating ing);
-
-    @Override
-    public boolean isDynamic(Element eleCom) {
-        return false;
-    }
 
 }

@@ -16,4 +16,8 @@ public class hmc_htmlcode extends AbstractSimpleCom {
         return true;
     }
 
+    @Override
+    public boolean isDynamic(Element eleCom) {
+        return false;
+    }
 }

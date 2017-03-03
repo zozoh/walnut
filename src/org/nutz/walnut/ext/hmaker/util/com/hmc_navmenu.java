@@ -71,4 +71,8 @@ public class hmc_navmenu extends AbstractSimpleCom {
         return true;
     }
 
+    @Override
+    public boolean isDynamic(Element eleCom) {
+        return false;
+    }
 }

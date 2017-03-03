@@ -64,4 +64,8 @@ public class hmc_image extends AbstractSimpleCom {
         return true;
     }
 
+    @Override
+    public boolean isDynamic(Element eleCom) {
+        return false;
+    }
 }

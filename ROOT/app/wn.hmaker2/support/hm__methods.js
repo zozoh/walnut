@@ -232,7 +232,8 @@ var methods = {
         var args = Array.from(arguments);
         var uiHMaker = this.hmaker();
         // console.log("fire", args)
-        uiHMaker.trigger.apply(uiHMaker, args);
+        if(uiHMaker)
+            uiHMaker.trigger.apply(uiHMaker, args);
     },
     //=========================================================
     // 得到某个对象相对于 HOME 的路径

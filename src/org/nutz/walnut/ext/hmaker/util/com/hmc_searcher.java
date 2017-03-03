@@ -33,4 +33,8 @@ public class hmc_searcher extends AbstractSimpleCom {
         return true;
     }
 
+    @Override
+    public boolean isDynamic(Element eleCom) {
+        return true;
+    }
 }
