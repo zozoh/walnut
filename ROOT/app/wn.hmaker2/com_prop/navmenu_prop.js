@@ -11,11 +11,13 @@ $z.declare([
 var html = `
 <div class="ui-code-template">
     <div code-id="item" class="cnavmp-item">
-        <span class="bullet">
-            <span for="link" balloon="right:hmaker.com.navmenu.newtab"><i class="zmdi zmdi-open-in-new"></i></span>
-            <span for="toggleArea"><i class="zmdi zmdi-label-alt"></i></span>
+        <span class="info">
+            <span class="bullet">
+                <span for="link" balloon="right:hmaker.com.navmenu.newtab"><i class="zmdi zmdi-open-in-new"></i></span>
+                <span for="toggleArea"><i class="zmdi zmdi-label-alt"></i></span>
+            </span>
+            <span key="text"></span>
         </span>
-        <span key="text"></span>
         <span key="href"></span>
         <span key="skin" class="hm-skin-box" box-enabled="yes"></span>
     </div>
@@ -472,7 +474,7 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                     "current" : item.current ? "yes" : null,
                     "newtab"  : item.newtab ? "yes"  : null,
                 });
-                jItem.children('[key="text"]').text(item.text);
+                jItem.find('[key="text"]').text(item.text);
                 jItem.children('[key="href"]')
                     .text(item.href || this.msg("hmaker.com.navmenu.nohref"))
                     .attr("nohref", item.href ? null : "yes");

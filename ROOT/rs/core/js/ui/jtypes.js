@@ -84,8 +84,12 @@ JsObj.prototype = {
         var val = this.toNative();
         // 如果是 undefined 就无视
         // 因此各个类型的实现类可以返回 undefined 来跳过自己的设置
-        if(!_.isUndefined(val))
-            $z.setValue(obj, this.__fld.key, val);
+        if(!_.isUndefined(val)){
+            if(this.__fld.simpleKey)
+                obj[this.__fld.key] = val;
+            else    
+                $z.setValue(obj, this.__fld.key, val);
+        }
         // 来个返回
         return val;
     },

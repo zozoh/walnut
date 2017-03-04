@@ -141,7 +141,7 @@ define({
             "move_before"  : "前移渲染顺位",
             "move_after"   : "后移渲染顺位",
             "assisted_showhide" : "显示或者隐藏辅助线",
-            "publish" : "正在发布站点",
+            "publish" : "发布站点",
             "enter" : "点击预览",
             "insert" : "插入项",
             "ibarloading" : '<i class="fa fa-spinner fa-pulse"></i> 正在取得 ..',

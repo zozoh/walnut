@@ -82,8 +82,15 @@ public abstract class AbstractCom implements HmComHandler {
         ing.cssEle = __gen_cssEle_for_mode(ing);
 
         // 准备 css 对象
-        ing.cssArena = ing.cssEle.pick("width", "height");
+        // ing.cssArena = ing.cssEle.pick("width", "height");
+        ing.cssArena = new NutMap();
         ing.skinAttributes = new NutMap();
+
+        // 如果控件设置了宽高，那么 arena 要用 100% 适应
+        if (ing.cssEle.has("width"))
+            ing.cssArena.put("width", "100%");
+        if (ing.cssEle.has("height"))
+            ing.cssArena.put("height", "100%");
 
         for (Map.Entry<String, Object> en : ing.propBlock.entrySet()) {
             String key = en.getKey();

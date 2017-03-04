@@ -171,9 +171,9 @@ return ZUI.def("app.wn.hm_com_image", {
         var UI   = this;
         //console.log(css)
         
-        var cssCom   = $z.pick(css, /^(position|top|left|right|bottom|margin)$/);
+        var cssCom   = $z.pick(css, /^(position|top|left|right|bottom|margin|width|height)$/);
         var cssArena = $z.pick(css, /^(borderRadius|boxShadow)$/);
-        var cssImg   = $z.pick(css, /^(border|borderRadius|width|height)$/);
+        var cssImg   = $z.pick(css, /^(border|borderRadius)$/);
         var cssTxt   = $z.pick(css, "!^(position|top|left|right|bottom|margin|border|borderRadius|boxShadow|width|height)$");
         //console.log(cssTxt);
 
@@ -181,6 +181,7 @@ return ZUI.def("app.wn.hm_com_image", {
         this.arena.css(this.formatCss(cssArena, true))
             .find("img").css(this.formatCss(cssImg, true));
         this.arena.find("section").css(this.formatCss(cssTxt, true));
+
     },
     //...............................................................
     checkBlockMode : function(block) {
@@ -210,7 +211,7 @@ return ZUI.def("app.wn.hm_com_image", {
     getBlockPropFields : function(block) {
         return [block.mode == 'inflow' ? "margin" : null,
                 "padding","border","borderRadius", "boxShadow",
-                $z.tmpl("@t-pos:{{tt}}[{{N}}=top,{{P}}=center,{{S}}=bottom]=bottom")({
+                $z.tmpl("@t-pos({{tt}})[{{N}}=top,{{P}}=center,{{S}}=bottom]=bottom")({
                     tt : this.msg("hmaker.com.image.text_pos"),
                     N  : this.msg("hmaker.com.image.text_pos_N"),
                     P  : this.msg("hmaker.com.image.text_pos_P"),

@@ -402,18 +402,19 @@ body {
             cursor: pointer; 
             a {
                 display: inline-block; vertical-align: middle;
-                position: relative; white-space: nowrap;
+                white-space: nowrap;
             }
         }
         li[current] {}
-        li[newtab] > a:after {
+        li[newtab] > a span{position: relative;}
+        li[newtab] > a span:after {
             display: block; content: "";
             position: absolute; left:-8px; top:-3px;
             width:3px; height:3px; border-radius: 50%;
             background: rgba(255,255,255,0.2); 
             border:1px solid rgba(0,0,0,0.2);
         }
-        li[current][newtab] > a:after {
+        li[current][newtab] > a span:after {
             background: rgba(0,0,0,0.4); 
             border-color:rgba(255,255,0,0.4);
         }
@@ -432,7 +433,7 @@ body {
 }
 .hmc-image { @noselect(); color:#FFF; 
     position: relative; overflow: hidden; text-decoration: none;
-    img {border:0; display:block;}
+    img {border:0; display:block; width: 100%; height:100%;}
     section {position: absolute;padding:.08rem;}
 }
 .hmc-image[sa-t-pos="center"] section{

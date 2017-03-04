@@ -57,37 +57,48 @@ function setup_toggle(opt) {
     });
 }
 //...........................................................
-function show_sub(jLi){
-    // 移除其他菜单项的显示
-    jLi.closest(".hm-com-navmenu").find("li[open-sub]").removeAttr("open-sub");
+// 命令模式
+var CMD = {
+    show_sub : function(jLi){
+        // 得到菜单条顶级元素
+        var jq = jLi.closest(".hmc-navmenu");
+        var autoDock = jq.attr("auto-dock");
 
-    // 显示自己
-    var jAns = jLi.parentsUntil(".ul-top", "li").andSelf();
-    jAns.attr("open-sub", "yes");
+        // 移除其他菜单项的显示
+        jq.find("li[open-sub]").not("[is-mouse-in]").removeAttr("open-sub");
 
-    // 得到菜单条顶级元素
-    var jq = jLi.closest(".hmc-navmenu");
+        // 显示自己
+        var jAns = jLi.parentsUntil(".ul-top", "li").andSelf();
+        jAns.attr("open-sub", "yes");
 
-    // 得到子菜单项
-    var jUl = jLi.children("ul");
+        // 标识自己的父为高亮
+        // jq.find("li[current]").removeAttr("current");
+        // jLi.closest(".li-top").attr("current", "yes");
 
-    // 除非明确指定，否则默认顶级菜单停靠在水平边
-    if(jLi.hasClass("li-top") && !jq.attr("top-dock-v")){
-        $z.dock(jLi, jUl, "H");
-    }
-    // 其他子菜单一律停靠在垂直边
-    else {
-        $z.dock(jLi, jUl, "V");
-    }
-}
-function hide_sub(jLi){
-    // 延迟 500 毫秒再做判断
-    window.setTimeout(function(){
-        if(!jLi.attr("is-mouse-in")){
-            jLi.removeAttr("open-sub");
+        // 自动停靠
+        if(autoDock){
+            // 得到子菜单项
+            var jUl = jLi.children("ul");
+
+            // 除非明确指定，否则默认顶级菜单停靠在水平边
+            if(jLi.hasClass("li-top") && "H" == autoDock){
+                $z.dockIn(jLi, jUl, "H");
+            }
+            // 其他子菜单一律停靠在垂直边
+            else {
+                $z.dockIn(jLi, jUl, "V");
+            }
         }
-    }, 100);
-}
+    },
+    hide_sub : function(jLi){
+        // 延迟 500 毫秒再做判断
+        window.setTimeout(function(){
+            if(!jLi.attr("is-mouse-in")){
+                jLi.removeAttr("open-sub");
+            }
+        }, 100);
+    }
+};
 //...........................................................
 $.fn.extend({ "hmc_navmenu" : function(opt){
     // 得到自己所在控件
@@ -101,7 +112,8 @@ $.fn.extend({ "hmc_navmenu" : function(opt){
     else {
         if(opt.autoCurrent) {
             jq.find('li[current]').removeAttr("current");
-            jq.find('li[href="'+opt.srcPath+'"]').attr("current", "yes");
+            jq.find('li[href="'+opt.srcPath+'"]')
+                .closest(".li-top").attr("current", "yes");
         }
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -111,13 +123,13 @@ $.fn.extend({ "hmc_navmenu" : function(opt){
             // 标识自己
             $(this).attr("is-mouse-in", "yes");
             // 执行显示
-            show_sub($(this));
+            CMD.show_sub($(this));
         });
         jq.on("mouseleave", "li[sub-item-nb]", function(e){
             // 标识自己
             $(this).removeAttr("is-mouse-in");
             // 执行隐藏
-            hide_sub($(this));
+            CMD.hide_sub($(this));
         });
     }
     // 点击切换子菜单显示隐藏
@@ -125,7 +137,7 @@ $.fn.extend({ "hmc_navmenu" : function(opt){
         jq.on("click", "li[sub-item-nb]", function(e){
             if(!$(this).attr("open-sub")){
                 e.stopPropagation();
-                show_sub($(this));
+                CMD.show_sub($(this));
             }
         });
         // 如果点击事件冒到了页面上, 关闭自己所有的菜单项

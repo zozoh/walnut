@@ -218,7 +218,7 @@ var methods = {
         var UI = this;
 
         // 首先所有元素的点击事件，全部禁止默认行为
-        UI._C.iedit.$root.on("click", "*", function(e){
+        UI._C.iedit.$body.on("click", "*", function(e){
             e.preventDefault();
         })
         // 如果点在了控件里，激活
@@ -268,6 +268,9 @@ var methods = {
                         
             // 通知激活控件
             uiCom.notifyActived("page");
+
+            // 调用控件的激活事件
+            $z.invoke(uiCom, "on_actived");
         })
         // 激活页面
         .on("click", function(e){

@@ -43,7 +43,7 @@ public class hmc_image extends AbstractSimpleCom {
         // ..........................................
         // 处理 CSS
         // 图片属性
-        NutMap cssImg = ing.cssArena.pickAndRemove("border", "borderRadius", "width", "height");
+        NutMap cssImg = ing.cssArena.pickAndRemove("border", "borderRadius");
         String objectFit = ing.propCom.getString("objectFit");
         if (!"fill".equals(objectFit)) {
             cssImg.put("objectFit", objectFit);

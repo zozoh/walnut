@@ -438,7 +438,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             // 看看是否是自定义属性
             else {
                 // 颜色选择模式
-                m = /^(#([BC])> *[^:]+)(:([^=]+))(=(.*))?/
+                m = /^(#([BCL])> *[^:]+)(\(([^\)]+)\))(=(.*))?/
                         .exec(key);
                 if(m) {
                     var a_key = m[1];
@@ -451,6 +451,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                             key    : a_key,
                             title  : a_txt,
                             type   : "string",
+                            simpleKey : true,
                             dft    : a_dft,
                             nullAsUndefined : true,
                             editAs : "background",
@@ -463,6 +464,18 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                             key    : a_key,
                             title  : a_txt,
                             type   : "string",
+                            simpleKey : true,
+                            dft    : a_dft,
+                            editAs : "color",
+                        });
+                    }
+                    // 边框颜色
+                    else if("L" == a_tp) {
+                        re.push({
+                            key    : a_key,
+                            title  : a_txt,
+                            type   : "string",
+                            simpleKey : true,
                             dft    : a_dft,
                             editAs : "color",
                         });
@@ -475,7 +488,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 }
                 
                 // 布尔模式
-                m = /^@([\d\w]+)(:([^\()]+))?(\(yes(\/no)?\))(=(yes|no))?/
+                m = /^@([\d\w]+)(\(([^\)]+)\))?(\{yes(\/no)?\})(=(yes|no))?/
                         .exec(key);
                 if(m) {
                     //console.log(m)
@@ -515,13 +528,14 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 }
 
                 // 列表模式
-                m = /^@([0-9a-zA-Z_-]+)(:([^\()]+))?(\[([^\]]+)\])(=(.+))?/.exec(key);
+                m = /^([@-])([0-9a-zA-Z_-]+)(\(([^\)]+)\))?(\[([^\]]+)\])(=(.+))?/.exec(key);
                 if(m) {
                     // console.log(m)
-                    var a_key = m[1];
-                    var a_txt = m[3] || a_key;
-                    var a_val = m[5];
-                    var a_dft = m[7];
+                    var a_etp = m[1];
+                    var a_key = m[2];
+                    var a_txt = m[4] || a_key;
+                    var a_val = m[6];
+                    var a_dft = m[8];
 
                     // 解析值列表
                     var items = [];
@@ -551,7 +565,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                         title  : a_txt,
                         type   : "string",
                         dft    : a_dft,
-                        editAs : items.length > 3 ? "droplist" : "switch",
+                        editAs : a_etp == "-" ? "droplist" : "switch",
                         uiConf : {items:items} 
                     });
 

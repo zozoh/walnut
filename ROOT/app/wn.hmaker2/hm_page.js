@@ -634,6 +634,11 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 确保样式加入到 body
         UI._C.iedit.$root.attr("skin", skinInfo.name || null);
+
+        // 如果有激活的控件，重新调用它的激活行为
+        var uiCom = UI.getActivedCom();
+        if(uiCom)
+            $z.invoke(uiCom, "on_actived");
     },
     //...............................................................
     __after_iframe_loaded : function(name) {

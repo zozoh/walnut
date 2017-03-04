@@ -29,6 +29,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
 
             // 本控件激活，那么就不要向上冒泡了，自己处理
             e.stopPropagation();
+            e.preventDefault();
 
             // 如果当前模式是区域选择，还需要同时高亮当前区域
             var com = this.getData();
@@ -175,7 +176,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         UI.__mark_hierarchy_class();
 
         // 标识自己以及自己的祖先 LI 都是 open-sub
-        UI.__mark_ancestor_open(jLi);
+        UI.__mark_ancestor_and_self_open(jLi);
 
         // 同步区域修改（只有 atype=="toggleArea" 才会生效)
         UI.syncToggleArea();
@@ -226,6 +227,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             "skin"   : item.skin || null,
             "selectors" : item.selectors || null,
         });
+        jLi.children("a").attr("href", item.href || null);
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 更新皮肤和选择器
         jLi.removeClass(old.skin)
@@ -340,7 +342,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         UI.__mark_hierarchy_class();
 
         // 重新标记子菜单打开状态
-        UI.__mark_ancestor_open(jLi);
+        UI.__mark_ancestor_and_self_open(jLi);
 
         // 通知修改
         UI.notifyDataChange("page");
@@ -380,7 +382,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         UI.__mark_hierarchy_class();
 
         // 重新标记子菜单打开状态
-        UI.__mark_ancestor_open(jLi);
+        UI.__mark_ancestor_and_self_open(jLi);
         
         // 通知修改
         UI.notifyDataChange("page");
@@ -418,13 +420,20 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         // 标识自己的类型
         UI.$el.attr("navmenu-atype", com.atype);
 
+        // 重新设置链接
+        UI.arena.find("li").each(function(){
+            var jLi  = $(this);
+            var href = jLi.attr("href");
+            jLi.children("a").attr("href", href || null);
+        });
+
         // 确保自己顶级的 UL 和子 UL 的属性
         UI.__mark_hierarchy_class();
 
         // 重新标记子菜单打开状态
         var jLi = UI.getActivedItem();
         if(jLi)
-            UI.__mark_ancestor_open(jLi);
+            UI.__mark_ancestor_and_self_open(jLi);
         
         // 同步区域
         UI.syncToggleArea(com);
@@ -433,6 +442,13 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         if(jUl.children().length == 0) {
             UI.createItem();
         }
+    },
+    //...............................................................
+    on_actived : function(){
+        // 重新标记子菜单打开状态
+        var jLi = this.getActivedItem();
+        if(jLi)
+            this.__mark_ancestor_and_self_open(jLi);
     },
     //...............................................................
     // 根据菜单的 DOM 标记各个层级的 class
@@ -466,7 +482,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         });
     },
     //...............................................................
-    __mark_ancestor_open : function(index) {
+    __mark_ancestor_and_self_open : function(index) {
         var UI  = this;
 
         // 移除其他的打开菜单
@@ -475,12 +491,40 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         // 标识自己
         if(!_.isNull(index) && !_.isUndefined(index)) {
             var jLi = UI.$item(index);
-
-            // 标识自己以及自己的祖先 LI 都是 open-sub
-            jLi.parentsUntil(".ul-top", "li")
-                .andSelf()
-                    .attr("open-sub", "yes");
+            UI.__open_my_ul(jLi);
         }
+    },
+    //...............................................................
+    // 让自己所在的 ul 以及所有祖先的 ul 都被打开（标记ul所在 li的 open-sub)
+    __open_my_ul : function(jLi) {
+        var UI = this;
+        var autoDock = UI.arena.attr("auto-dock");
+        jLi.parentsUntil(".ul-top", "li").andSelf()
+            .attr("open-sub", "yes")
+                .each(function(){
+                    var jMe = $(this);
+                    var jUl = jMe.children("ul");
+                    if(autoDock) {
+                        if(jMe.hasClass("li-top") && "H" == autoDock){
+                            $z.dockIn(jMe, jUl, "H");
+                        }
+                        // 其他子菜单一律停靠在垂直边
+                        else {
+                            $z.dockIn(jMe, jUl, "V");
+                        }
+                    }
+                    // 否则移除自己的和子 ul 的位置 css 属性
+                    else {
+                        jMe.css("position", "");
+                        jUl.css({
+                            "position": "",
+                            "top": "",
+                            "left": "",
+                            "right": "",
+                            "bottom": "",
+                        });
+                    }
+                });
     },
     //...............................................................
     // 如果自己的 atype 是 'toggleArea' 

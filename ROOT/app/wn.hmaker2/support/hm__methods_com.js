@@ -40,6 +40,9 @@ var methods = {
         this.$el.attr("skin", skin||null);
         this.arena.addClass(skin);
         this.syncComSkinAttributes(skin);
+
+        // 重新调用一下激活
+        $z.invoke(this, "on_actived");
     },
     // 确保皮肤被应用
     useComSkin : function(){
@@ -330,10 +333,17 @@ var methods = {
             var v = block[key];
             if(!v)
                 continue;
-            var m = /^#([BC])>(.+)$/.exec(key);
+            var m = /^#([BCL])>(.+)$/.exec(key);
             if(m) {
                 var selector = m[2];
-                var propName = m[1]=="B"?"background":"color";
+                var propName;
+                if("B" == m[1]){
+                    propName = "background";
+                }else if("C" == m[1]){
+                    propName = "color";
+                }else {
+                    propName = "border-color";
+                }
                 style[selector] = $z.obj(propName, block[key]);
                 block[key] = null;
             }

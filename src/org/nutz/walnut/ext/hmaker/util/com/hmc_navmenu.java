@@ -67,7 +67,7 @@ public class hmc_navmenu extends AbstractSimpleCom {
 
         // 链接控件的运行时行为
         ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_navmenu.js");
-        ing.addScriptOnLoadf("$('#%s').hmc_navmenu(%s);",
+        ing.addScriptOnLoadf("$('#%s .hmc-navmenu').hmc_navmenu(%s);",
                              ing.comId,
                              Json.toJson(ing.propCom,
                                          JsonFormat.compact()

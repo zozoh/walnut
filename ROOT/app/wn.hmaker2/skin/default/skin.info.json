@@ -9,20 +9,27 @@
                     "auto-dock" : "H"
                 },
                 "blockFields" : [
-                    "padding", "margin", "border",
+                    "margin", "padding", "border",
                     "color", "background", "boxShadow",
-                    "@align:水平排列[居左=left,居中=center,居右=right]=left",                    
+                    "@align(水平排列)[居左=left,居中=center,居右=right]=left",
+                    "@sep(分隔线)[隐藏=none,仅顶级=top,仅子菜单=sub,全部=all]=none",
+                    "@sep-style(分隔线样式)[实线=solid,虚线=dashed,点线=dotted]=dotted",
+                    "#L> li (分割线颜色)",
+                    "#C> li[current] > a (高亮项前景)=",
+                    "#B> li[current] (高亮项背景)",
+                    "#B> .ul-sub (弹出菜单背景)",
                 ]
             }, {
                 "text" : "水平排列式菜单",
                 "selector" : "skin-navmenu-h-l2",
                 "blockFields" : [
-                    "padding", "margin", "border",
+                    "margin", "padding", "border",
                     "color", "background", "boxShadow",
-                    "@align:水平排列[居左=left,居中=center,居右=right]=left",
-                    "#C> li[open-sub] > a:高亮项前景=",
-                    "#B> li[open-sub]:高亮项背景=",
-                    
+                    "@align(水平排列)[居左=left,居中=center,居右=right]=left",
+                    "@sep(分隔线)[隐藏=none,仅顶级=top,仅子菜单=sub,全部=all]=none",
+                    "@sep-style(分隔线样式)[实线=solid,虚线=dashed,点线=dotted]=dotted",
+                    "#C> li[current] > a (高亮项前景)=",
+                    "#B> li[current] (高亮项背景)",
                 ]
             }, {
                 "text" : "垂直弹出式菜单",
@@ -31,9 +38,9 @@
                     "auto-dock" : "V"
                 },
                 "blockFields" : [
-                    "padding", "margin", "border",
+                    "margin", "padding", "border",
                     "color", "background", "boxShadow",
-                    "@align:水平排列[居左=left,居中=center,居右=right]=left",
+                    "@align(水平排列)[居左=left,居中=center,居右=right]=left",
                     
                 ]
             }],
@@ -41,9 +48,9 @@
                 "text" : "媒体列表",
                 "selector" : "skin-dynamic-media-hlist",
                 "blockFields" : [
-                    "@li-mode:显示模式[图文=pt,仅图=p]=pt",
-                    "@li-scale:预览图比例[16x9,4x3,1x1,3x4,9x16]=16x9",
-                    "@li-size:列表项尺寸[大=b,中=m,小=s]=m",
+                    "@li-mode(显示模式)[图文=pt,仅图=p]=pt",
+                    "@li-scale(预览图比例)[16x9,4x3,1x1,3x4,9x16]=16x9",
+                    "@li-size(列表项尺寸)[大=b,中=m,小=s]=m",
                     "padding", "border",
                     "color", "background", "boxShadow",
                     "borderRadius"

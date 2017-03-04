@@ -47,58 +47,95 @@ body {
 //............................................
 // com.navmenu:水平菜单
 .skin-navmenu-h-subpop {
-    //font-size:.18rem;
+    .hmc-navmenu {padding: .08rem;}
     li {position: relative;}
-    li[href] > a {text-decoration: underline;}
-    li[open-sub]{
-        background: #FFF; position: relative;
-        > a {color: #888;}
-    }
+    a[href] {text-decoration: none; color:#08F;}
+    a[href]:hover {text-decoration: underline; color:#F80;}
+    li[open-sub]{position: relative;}
     ul li[current]{
-        background: rgba(0,0,0,0.8);
-        > a { color:#FF0; }
+        background: #08F;
+        > a { color:#FFF;}
     }
-    .li-sub {
-        line-height: .36rem; height: .36rem;
-        padding:0 .08rem;
-    }
-    .li-sub[sub-item-nb] {
-        padding-right: .24rem;
-    }
-    .li-sub[sub-item-nb]:after {
-        position: absolute; right:0; top:0;
-        font-family:'Material-Design-Iconic-Font';
-        display:inline; content:"\f2f6";
-    }
-    .hmc-navmenu {
-        padding: .08rem;
-    }
+    li[open-sub]{background: rgba(0,0,0,0.1);}
     .ul-top {@flex();}
     .li-top {
-        flex: 0 0 auto;
-        margin:0 .04rem; padding: .08rem .14rem;
+        flex: 0 0 auto; margin:0; padding: .08rem .14rem;
     }
+    .li-top[sub-item-nb] > a:after {
+        color:rgba(0,0,0,0.2);
+        margin:0 0 0 .06rem; 
+        font-family:'Material-Design-Iconic-Font';
+        display:inline; content:"\f2f2";
+    }
+    .li-top[sub-item-nb][open-sub] > a:after{color:rgba(0,0,0,0.4);}
     .ul-sub { 
-        position: absolute; 
-        padding: .08rem;
-        border-radius: .03rem;
+        position: absolute; display:none; padding: 0;
+        border-radius: .03rem; min-width: 1.4rem;
         background: #FFF; border:1px solid #CDE;
         box-shadow: .06rem .06rem .12rem rgba(0,0,0,0.6);
     }
+    .ul-sub-0 {margin:.02rem 0;}
+    .ul-sub-n {margin:0 .02rem;}
+    .li-sub {
+        line-height: .42rem; height: .42rem;
+        padding:0 .12rem; 
+    }
+    .li-sub[sub-item-nb] {
+        padding-right: .18rem; 
+    }
+    .li-sub[sub-item-nb]:after {
+        position: absolute; right:0; top:0; font-size:.24rem;
+        color:rgba(0,0,0,0.2);
+        padding:0 .12rem 0 .08rem;
+        font-family:'Material-Design-Iconic-Font';
+        display:inline; content:"\f2f6";
+    }
+    .li-sub[sub-item-nb][open-sub]:after{color:rgba(0,0,0,0.4);}
 }
+// 排列: sa-align
 .skin-navmenu-h-subpop[sa-align=center] {
     .ul-top{justify-content:center;}
 }
 .skin-navmenu-h-subpop[sa-align=right] {
     .ul-top{justify-content:flex-end;}
 }
-.hm-com-navmenu[hm-actived],
-.hm-com-navmenu[hmaker-rt] {
-    .skin-navmenu-h-subpop li[open-sub]{
-        > .ul-sub-0 {display: block;}
-        > .ul-sub-n {display: inline-block;}
-    }
+// 分割线: sa-sep
+.skin-navmenu-h-subpop[sa-sep="none"] ul li,
+.skin-navmenu-h-subpop[sa-sep="top"] ul .li-sub,
+.skin-navmenu-h-subpop[sa-sep="sub"] ul .li-top{
+    border:0;
 }
+.skin-navmenu-h-subpop[sa-sep="all"],
+.skin-navmenu-h-subpop[sa-sep="top"] {
+    .li-top {border-left:1px dotted #DDD;}
+    .li-top:first-child{border:0;}
+}
+.skin-navmenu-h-subpop[sa-sep="all"],
+.skin-navmenu-h-subpop[sa-sep="sub"] {
+    .li-sub {border-top:1px dotted #DDD;}
+    .li-sub:first-child{border:0;}
+}
+// 分割线样式: sa-sep-style
+.skin-navmenu-h-subpop[sa-sep-style="solid"] {
+    .li-top {border-left-style:solid;}
+    .li-sub {border-top-style:solid;}
+}
+.skin-navmenu-h-subpop[sa-sep-style="dashed"] {
+    .li-top {border-left-style:dashed;}
+    .li-sub {border-top-style:dashed;}
+}
+.skin-navmenu-h-subpop[sa-sep-style="dotted"] {
+    .li-top {border-left-style:dotted;}
+    .li-sub {border-top-style:dotted;}
+}
+// 给 IDE 用的属性
+// .hm-com-navmenu[hm-actived],
+// .hm-com-navmenu[hmaker-rt] {
+//     .skin-navmenu-h-subpop li[open-sub]{
+//         > .ul-sub-0 {display: block;}
+//         > .ul-sub-n {display: inline-block;}
+//     }
+// }
 //............................................
 // com.navmenu:水平二级菜单
 .skin-navmenu-h-l2 {

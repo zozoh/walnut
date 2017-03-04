@@ -153,7 +153,9 @@ return ZUI.def("app.wn.hmaker2", {
         // 执行命令
         Wn.processPanel(cmdText, {
             welcome    : UI.msg("hmaker.page.publish"),
-            arenaClass : "hm-publish-mask"
+            arenaClass : "hm-publish-mask",
+            width  : 640,
+            height : 480,
         }, function(urls, jMsg) {
             jMsg.attr("mode", "result").empty();
             // 发布完毕后，显示一个访问链接以及二维码

@@ -533,7 +533,7 @@
     }
     > span.page-css {
         cursor: pointer; display: inline-block; vertical-align: middle;
-        padding:0 @d2;
+        padding:0 0 0 @d2;
         > i, >b {transition:0.2s;}
         > b {display: inline-block; vertical-align: middle;
             font-weight: normal; font-size:@f2; margin-left:@d1;
@@ -753,25 +753,31 @@
 //............................................................
 // navmenu
 .hmc-navmenu-prop {
-    @itemH : 32px;
+    @itemH : 24px;
     .cnavmp-item-list { @noselect();
         padding: @d2; margin-bottom:@d3; overflow: auto; 
         border:1px solid @cborder1; background: @cb0; color:@cf0;
         .cnavmp-item {
             border:1px dotted rgba(0,0,0,0.1); cursor: pointer;
-            padding:0 @d2; margin-bottom:1px;
-            line-height: @itemH; height: @itemH;
-            > span {float:left; padding:0 @d1; display: block;}
-            > span.bullet{
-                width:20px; padding-left:@d1;
-                > [for="link"] i{
-                    opacity: .4; color:@c2; 
+            padding:@d0 0 @d0 @d2; margin-bottom:1px;
+            @flex(); flex-wrap:wrap; justify-content:flex-end;
+            > span {flex: 0 0 auto; padding:0 @d1; display: block;
+                line-height: @itemH; height: @itemH;
+            }
+            > span.info {
+                @flex(); padding:0; flex:1 1 auto;
+                > span.bullet{
+                    width:20px; padding-left:@d1; flex:0 0 auto;
+                    > [for="link"] i{
+                        opacity: .4; color:@c2; 
+                    }
+                }
+                > span[key="text"]{
+                    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                    flex:1 1 auto;
                 }
             }
-            > span[key="text"]{
-                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            }
-            > span[key="href"]{ opacity: 0.7;
+            > span[key="href"]{ opacity: 0.7; flex:1 1 auto;
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
                 color:@c2; font-family: @f_fixed; font-size:@f1; 
             }
@@ -785,7 +791,7 @@
             > span[key="href"][nohref]:before {
                 content: "\f127"; 
             }
-            > span[key="skin"]{float: right;}
+            > span[key="skin"]{}
         }
         .cnavmp-item:after {@clr();}
         .cnavmp-item[current] {
@@ -798,14 +804,14 @@
             }
         }
         .cnavmp-item[newtab] {
-            > span.bullet {
+            > span.info > span.bullet {
                 > [for="link"] i{
                     opacity: 0.6; color:@c5;
                 }
             }
         }
         .cnavmp-item[newtab][current] {
-            > span.bullet {
+            > span.info > span.bullet {
                 > [for="link"] i{
                     opacity: 1.0; color:@c0;
                 }
@@ -814,7 +820,7 @@
         .cnavmp-item[sub] {
             border-left-width: 5px;
             border-left-style: solid;
-            padding:0 @d2;
+            padding:0 0 0 @d2;
         }
         .cnavmp-empty {
             text-align: center; padding:@d5 0; font-size: @f3; color:@c6;
@@ -823,7 +829,7 @@
     // 显示隐藏区域模式下的菜单项样式
     .cnavmp-item-list[atype="toggleArea"] {
         .cnavmp-item {
-            > span.bullet {
+            > span.info > span.bullet {
                 > [for="link"] {display: none;}
                 > [for="toggleArea"] {display: inline;}
             }
@@ -832,7 +838,7 @@
     // 超链接模式下的菜单项样式
     .cnavmp-item-list[atype="link"] {
         .cnavmp-item {
-            > span.bullet {
+            > span.info > span.bullet {
                 > [for="link"] {display: inline;}
                 > [for="toggleArea"] {display: none;}
             }
