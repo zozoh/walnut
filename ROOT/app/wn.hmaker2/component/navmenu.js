@@ -532,6 +532,10 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         }
     },
     //...............................................................
+    getSkinAttributes : function(){
+        return ["auto-dock"]
+    }
+    //...............................................................
     // formatSize : function(prop, com, fromMode) {
         
     // }

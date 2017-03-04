@@ -6,10 +6,16 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
 public class hmc_navmenu extends AbstractSimpleCom {
+
+    public hmc_navmenu() {
+        super();
+        this.skinAttributes = Lang.array("auto-dock");
+    }
 
     @Override
     protected String getArenaClassName() {

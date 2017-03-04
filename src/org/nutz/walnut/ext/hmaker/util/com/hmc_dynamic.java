@@ -130,7 +130,7 @@ public class hmc_dynamic extends AbstractSimpleCom {
 
         // 模板的类选择器
         if (ing.hasSkin())
-            com.put("skinSelector", ing.skinInfo.getSkin(templateName));
+            com.put("skinSelector", ing.skinInfo.getSkinForTemplate(templateName));
 
         // 返回成功
         return true;

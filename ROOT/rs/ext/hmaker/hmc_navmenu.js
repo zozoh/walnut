@@ -66,7 +66,7 @@ function show_sub(jLi){
     jAns.attr("open-sub", "yes");
 
     // 得到菜单条顶级元素
-    var jq = jLi.closest(".hm-com-navmenu");
+    var jq = jLi.closest(".hmc-navmenu");
 
     // 得到子菜单项
     var jUl = jLi.children("ul");

@@ -3,10 +3,13 @@ package org.nutz.walnut.ext.hmaker.util.com;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.jsoup.nodes.Element;
 import org.nutz.castor.Castors;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.ext.hmaker.skin.HmSkinInfoCom;
 import org.nutz.walnut.ext.hmaker.util.HmComHandler;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
@@ -33,6 +36,7 @@ public abstract class AbstractCom implements HmComHandler {
 
         // 记录当前控件的 ID
         ing.comId = ing.eleCom.attr("id");
+        ing.comType = ing.eleCom.attr("ctype");
 
         // 确保标记本页为动态
         if (this.isDynamic(ing.eleCom))
@@ -45,6 +49,32 @@ public abstract class AbstractCom implements HmComHandler {
         ing.eleCom.getElementsByAttribute("del-attrs").removeAttr("del-attrs");
         ing.eleCom.getElementsByClass("ui-arena").removeClass("ui-arena");
 
+    }
+
+    protected String[] skinAttributes;
+
+    protected void syncComSkinAttributes(HmPageTranslating ing, Element eleArena, String skin) {
+        if (null != this.skinAttributes && this.skinAttributes.length > 0) {
+            String ctype = ing.comType;
+            HmSkinInfoCom sic = ing.skinInfo != null ? ing.skinInfo.getSkinForCom(ctype, skin)
+                                                     : null;
+            // 直接都移除
+            if (null == sic || null == sic.attributes || sic.attributes.isEmpty()) {
+                for (String sa : skinAttributes) {
+                    eleArena.removeAttr(sa);
+                }
+            }
+            // 挨个判断一下
+            else {
+                for (String sa : skinAttributes) {
+                    String val = sic.attributes.getString(sa);
+                    if (Strings.isBlank(val))
+                        eleArena.removeAttr(sa);
+                    else
+                        eleArena.attr(sa, val);
+                }
+            }
+        }
     }
 
     private void __prepare_block_css_and_skin_attributes(HmPageTranslating ing) {

@@ -298,10 +298,10 @@
         > .form-body > .form-body-wrapper > .form-group > .fg-fields {
             padding : @d2 @d0;
             > .form-fld {
-                padding:1px;
+                padding:1px; font-size:@f2; 
                 > .ff-txt {
                     padding:@d2+1px @d2; min-width: 60px;
-                    .fft-text {font-size:@f2; opacity: 0.8;}
+                    .fft-text {opacity: 0.8;}
                 }
                 // > .ff-txt .fft-text:after {
                 //     content:":"; display: "inline";
@@ -388,15 +388,16 @@
         // 表单项的特殊属性
         .ui-form {
             padding:@d3 0;
-            .form-fld{
-                padding:@d1; font-size:@f2;
+            .form > .form-body > .form-body-wrapper > .form-group 
+            > .fg-fields > .form-fld {
+                padding:@d1; font-size: @f1;
                 border-bottom:1px dashed @cborder0;
                 .ff-txt {
-                    padding:0 @d2;
+                    padding:0 @d2; 
                     .fft-text:after{display: inline; content: ": ";}
                 }                
                 .ff-val {
-                    padding:0; color:@c3;
+                    padding:0; color:@c3; 
                     .com-label {padding:0;}
                 }
                 b {font-weight: normal;}

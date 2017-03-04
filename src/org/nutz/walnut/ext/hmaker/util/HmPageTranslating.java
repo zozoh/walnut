@@ -72,6 +72,11 @@ public class HmPageTranslating extends HmContext {
     public String comId;
 
     /**
+     * 当前处理的 COM 的类型
+     */
+    public String comType;
+
+    /**
      * 当前处理的组件的布局属性
      */
     public NutMap propBlock;

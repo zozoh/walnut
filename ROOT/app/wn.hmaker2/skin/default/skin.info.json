@@ -3,16 +3,18 @@
     "js"   : [],
 	"com"  : {
         "navmenu" : [{
-                "text" : "水平菜单(子菜单弹出)",
+                "text" : "水平弹出式菜单",
                 "selector" : "skin-navmenu-h-subpop",
+                "attributes" : {
+                    "auto-dock" : "H"
+                },
                 "blockFields" : [
                     "padding", "margin", "border",
                     "color", "background", "boxShadow",
-                    "@align:水平排列[居左=left,居中=center,居右=right]=left",
-                    
+                    "@align:水平排列[居左=left,居中=center,居右=right]=left",                    
                 ]
             }, {
-                "text" : "水平二级菜单",
+                "text" : "水平排列式菜单",
                 "selector" : "skin-navmenu-h-l2",
                 "blockFields" : [
                     "padding", "margin", "border",
@@ -23,8 +25,11 @@
                     
                 ]
             }, {
-                "text" : "垂直菜单(子菜单弹出)",
+                "text" : "垂直弹出式菜单",
                 "selector" : "skin-navmenu-v-subpop",
+                "attributes" : {
+                    "auto-dock" : "V"
+                },
                 "blockFields" : [
                     "padding", "margin", "border",
                     "color", "background", "boxShadow",

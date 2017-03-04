@@ -48,6 +48,9 @@ public abstract class AbstractSimpleCom extends AbstractCom {
             eleArena.addClass(skin);
         }
 
+        // 同步皮肤属性开关
+        this.syncComSkinAttributes(ing, eleArena, skin);
+
         // 添加皮肤属性
         for (Map.Entry<String, Object> en : ing.skinAttributes.entrySet()) {
             eleArena.attr(en.getKey(), en.getValue().toString());

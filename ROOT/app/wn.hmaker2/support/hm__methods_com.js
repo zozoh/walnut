@@ -39,11 +39,29 @@ var methods = {
         }
         this.$el.attr("skin", skin||null);
         this.arena.addClass(skin);
+        this.syncComSkinAttributes(skin);
     },
     // 确保皮肤被应用
     useComSkin : function(){
         var skin = this.getComSkin();
-        this.arena.addClass(skin);  
+        this.arena.addClass(skin);
+        this.syncComSkinAttributes(skin);
+    },
+    // 绘制皮肤内置开关
+    syncComSkinAttributes : function(skin){
+        var UI = this;
+        var sattrs = $z.invoke(UI, "getSkinAttributes");
+        if(_.isArray(sattrs) && sattrs.length > 0) {
+            var ctype = UI.getComType();
+            skin  = skin || UI.getComSkin();
+            var skinItem = UI.getSkinItemForCom(ctype, skin);
+            var saMap = (skinItem ? skinItem.attributes : null) || {};
+            for(var i=0; i<sattrs.length; i++) {
+                var saKey = sattrs[i];
+                var saVal = saMap[saKey] || null;
+                UI.arena.attr(saKey, saVal);
+            }
+        }
     },
     //........................................................
     // 获取组件的皮肤

@@ -125,12 +125,14 @@ var methods = {
     },
     // 针对一个组件，根据选择器获取其皮肤的配置对象，没找到返回 null
     getSkinItemForCom : function(comType, selector) {
-        var sList = this.getSkinListForCom(comType);
-        if(_.isArray(sList))
-            for(var si of sList){
-                if(si.selector == selector)
-                    return si;
-            }
+        if(selector){
+            var sList = this.getSkinListForCom(comType);
+            if(_.isArray(sList))
+                for(var si of sList){
+                    if(si.selector == selector)
+                        return si;
+                }
+        }
         return null;
     },
     // 针对一个组件，根据选择器获取其样式名
