@@ -481,8 +481,13 @@ public class HmPageTranslating extends HmContext {
      */
     public void addMySkinRule(String selector, NutMap rule) {
         String skin = this.eleCom.attr("skin");
-        if (!Strings.isBlank(skin))
-            selector = "." + skin + " " + selector;
+        if (!Strings.isBlank(skin) && null != selector) {
+            String[] ss = Strings.splitIgnoreBlank(selector);
+            for (int i = 0; i < ss.length; i++) {
+                ss[i] = "." + skin + " " + ss[i];
+            }
+            selector = Lang.concat(",", ss).toString();
+        }
         this.addMyRule(selector, rule);
     }
 

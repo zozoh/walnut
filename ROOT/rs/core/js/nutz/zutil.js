@@ -1210,7 +1210,7 @@
             var rect = $z.rect(jq);
             //console.log(" rect  :", rect);
             // 计算页面的中点
-            var viewport = $z.winsz();
+            var viewport = $z.rect(jq.closest("body"));
             //console.log("viewport:", viewport);
             /*
              看看这个位置在页面的那个区域
@@ -1239,7 +1239,6 @@
                                 )
                         )
                 );
-
             // 停靠在垂直边
             if ("V" == mode) {
                 // A : 右上角对齐

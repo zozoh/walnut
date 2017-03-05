@@ -14,6 +14,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Maths;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
@@ -192,6 +193,19 @@ public final class Hms {
             if (null == ruleText)
                 continue;
 
+            // 没有前缀，直接来
+            if (Strings.isBlank(prefix)) {
+                re += Strings.sNull(selector, "");
+            }
+            // 循环增加前缀
+            else {
+                String[] ss = Strings.splitIgnoreBlank(selector);
+                for (int i = 0; i < ss.length; i++) {
+                    ss[i] = prefix + " " + ss[i];
+                }
+                re += Lang.concat(", ", ss);
+            }
+
             re += prefix + Strings.sNull(selector, "");
             re += ruleText;
             re += "\n";
@@ -364,7 +378,7 @@ public final class Hms {
         // 输出结果
         if (hc.params.has("key")) {
             String[] keys = Strings.splitIgnoreBlank(hc.params.get("key"));
-    
+
             // 如果只有一个字段，默认会输出字符串，除非强制为对象
             if (keys.length == 1 && !hc.params.is("obj")) {
                 List<Object> outs = new ArrayList<>(list.size());

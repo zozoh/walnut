@@ -42,21 +42,28 @@ body {
 ///////////////////////////////////////////////
 // 针对控件的样式
 //............................................
-
-
+// 通用的 navmnu 扩展皮肤属性
 //............................................
-// com.navmenu:水平菜单
+// 排列: sa-align
+.hmc-navmenu[sa-align=center] {
+    .ul-top{justify-content:center;}
+}
+.hmc-navmenu[sa-align=right] {
+    .ul-top{justify-content:flex-end;}
+}
+//............................................
+// com.navmenu:水平弹出式菜单
 .skin-navmenu-h-subpop {
-    .hmc-navmenu {padding: .08rem;}
-    li {position: relative;}
     a[href] {text-decoration: none; color:#08F;}
     a[href]:hover {text-decoration: underline; color:#F80;}
-    li[open-sub]{position: relative;}
     ul li[current]{
         background: #08F;
         > a { color:#FFF;}
     }
-    li[open-sub]{background: rgba(0,0,0,0.1);}
+    li {position: relative;}
+    li[open-sub]{background: rgba(0,0,0,0.1);
+        > .ul-sub {z-index: 9; display: block;}
+    }
     .ul-top {@flex();}
     .li-top {
         flex: 0 0 auto; margin:0; padding: .08rem .14rem;
@@ -67,7 +74,9 @@ body {
         font-family:'Material-Design-Iconic-Font';
         display:inline; content:"\f2f2";
     }
-    .li-top[sub-item-nb][open-sub] > a:after{color:rgba(0,0,0,0.4);}
+    .li-top[sub-item-nb][open-sub] {
+        > a:after{color:rgba(0,0,0,0.4);}
+    }
     .ul-sub { 
         position: absolute; display:none; padding: 0;
         border-radius: .03rem; min-width: 1.4rem;
@@ -92,12 +101,9 @@ body {
     }
     .li-sub[sub-item-nb][open-sub]:after{color:rgba(0,0,0,0.4);}
 }
-// 排列: sa-align
-.skin-navmenu-h-subpop[sa-align=center] {
-    .ul-top{justify-content:center;}
-}
-.skin-navmenu-h-subpop[sa-align=right] {
-    .ul-top{justify-content:flex-end;}
+// for IDE:
+.hm-com-navmenu[hm-blur] ul li[open-sub] > .ul-sub {
+    display: none;
 }
 // 分割线: sa-sep
 .skin-navmenu-h-subpop[sa-sep="none"] ul li,
@@ -128,97 +134,80 @@ body {
     .li-top {border-left-style:dotted;}
     .li-sub {border-top-style:dotted;}
 }
-// 给 IDE 用的属性
-// .hm-com-navmenu[hm-actived],
-// .hm-com-navmenu[hmaker-rt] {
-//     .skin-navmenu-h-subpop li[open-sub]{
-//         > .ul-sub-0 {display: block;}
-//         > .ul-sub-n {display: inline-block;}
-//     }
-// }
 //............................................
 // com.navmenu:水平二级菜单
+@menuHL2 : 48px;
 .skin-navmenu-h-l2 {
-    line-height: .24rem;
-    li[href] > a {text-decoration: underline;}
-    li[open-sub]{
-        background: #FFF;
-        > a {color: #888;}
-    }
-    ul {@flex(); }
-    ul li {padding:0 .08rem;}
+    position: relative; padding: 0 0 @menuHL2 0;
+    a[href] {text-decoration: none; color:#08F;}
+    a[href]:hover {text-decoration: underline; color:#F80;}
     ul li[current]{
-        background: rgba(0,0,0,0.8);
-        flex: 0 0 auto;
-        margin:0 .04rem; padding: .08rem .14rem;
-        > a { color:#FF0; }
+        background: #08F;
+        > a { color:#FFF;}
     }
-    .li-sub {
-        line-height: .36rem; height: .36rem;
-        padding:0 .08rem;
+    li[open-sub]{background: #08F;
+        > a { color:#FFF;}
     }
-    .hmc-navmenu {padding: .08rem;}
-    .ul-top {padding-bottom: .6rem; position: relative;}
-    .ul-sub { 
-        position: absolute; bottom:0;left:0; right:0;
-        padding: .08rem; 
+    .ul-top {@flex();}
+    .li-top {flex: 0 0 auto; margin:0; padding: .08rem .14rem;}
+    .ul-sub {display: none; z-index: 9;}
+    .ul-sub-0 {
+        position: absolute; left:0; right:0; bottom:0;
+        height:@menuHL2; line-height: @menuHL2;
+    }
+    .li-top[open-sub] .ul-sub-0 {
+        @flex(); width: 100%; overflow: hidden;
+        a {color:#FFF;}
+        > li[current] {background: rgba(0,0,0,0.2);}
+        > li {flex: 0 0 auto; margin:0; padding: 0 .12rem;}
+    }
+    .ul-top:after {
+        position: absolute; left:0; right:0; bottom:0; 
+        background: #08F; height:@menuHL2; 
+        display: block; content: "";
     }
 }
+//............................................
+// 排列: sa-align
 .skin-navmenu-h-l2[sa-align=center] {
-    .ul-top{justify-content:center;}
+    .ul-sub-0{justify-content:center;}
 }
 .skin-navmenu-h-l2[sa-align=right] {
-    .ul-top{justify-content:flex-end;}
+    .ul-sub-0{justify-content:flex-end;}
 }
-.hm-com-navmenu[hm-actived],
-.hm-com-navmenu[hmaker-rt] {
-    .skin-navmenu-h-l2 li[open-sub] > .ul-sub {@flex();}
+// 分割线: sa-sep
+.skin-navmenu-h-l2[sa-sep="none"] ul li,
+.skin-navmenu-h-l2[sa-sep="top"] ul li,
+.skin-navmenu-h-l2[sa-sep="sub"] ul li{
+    border:0;
+}
+.skin-navmenu-h-l2[sa-sep="all"],
+.skin-navmenu-h-l2[sa-sep="top"] {
+    .li-top {border-left:1px dotted #DDD;}
+    .li-top:first-child{border:0;}
+}
+.skin-navmenu-h-l2[sa-sep="all"],
+.skin-navmenu-h-l2[sa-sep="sub"] {
+    .li-sub {border-left:1px dotted #DDD;}
+    .li-sub:first-child{border:0;}
+}
+// 分割线样式: sa-sep-style
+.skin-navmenu-h-l2[sa-sep-style="solid"] {
+    .li-top {border-left-style:solid;}
+    .li-sub {border-left-style:solid;}
+}
+.skin-navmenu-h-l2[sa-sep-style="dashed"] {
+    .li-top {border-left-style:dashed;}
+    .li-sub {border-left-style:dashed;}
+}
+.skin-navmenu-h-l2[sa-sep-style="dotted"] {
+    .li-top {border-left-style:dotted;}
+    .li-sub {border-left-style:dotted;}
 }
 //............................................
 // com.navmenu:垂直菜单
 .skin-navmenu-v-subpop {
-    li[href] > a {text-decoration: underline;}
-    li[open-sub]{
-        background: #FFF; position: relative;
-        > a {color: #888;}
-    }
-    ul li[current]{
-        background: rgba(0,0,0,0.8);
-        > a { color:#FF0; }
-    }
-    .hmc-navmenu {
-        padding: .08rem;
-    }
-    .ul-top {}
-    .li-top {
-        margin:0 .04rem; padding: .08rem .14rem;
-    }
-    .ul-sub { display: none;
-        position: absolute; min-width: 1.8rem;
-        padding: .08rem; margin: -.1rem 0 0 0.2rem;
-        border-radius: .03rem;
-        background: #FFF; border:1px solid #CDE;
-        box-shadow: .06rem .06rem .12rem rgba(0,0,0,0.6);
-    }
-    .li-sub {padding:.08rem .12rem;}
-}
-.skin-navmenu-v[sa-align=center] {
-    .hmc-navmenu ul{text-align:center;}
-}
-.skin-navmenu-v[sa-align=right] {
-    .hmc-navmenu ul{text-align:right;}
-}
-.skin-navmenu-v-subpop[hm-actived] {
-    li[open-sub]{
-        > .ul-sub {display: inline-block;}
-    }
-}
-.hm-com-navmenu[hm-actived],
-.hm-com-navmenu[hmaker-rt] {
-    .skin-navmenu-h-subpop li[open-sub]{
-        > .ul-sub-0 {display: block;}
-        > .ul-sub-n {display: inline-block;}
-    }
+    
 }
 //............................................
 // com.dynamic:媒体列表

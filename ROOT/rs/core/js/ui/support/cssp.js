@@ -14,7 +14,18 @@ var CssP = {
         for(var selector in cssObj) {
             if(!prefix && !selector)
                 continue;
-            re += (prefix||"") + " " + (selector||"") + "{\n";
+            // 不需要增加前缀
+            if(!prefix) {
+                re += (prefix||"") + " " + (selector||"") + "{\n";
+            }
+            // 逐次增加前缀
+            else if(selector){
+                var ss = selector.split(/ *, */g);
+                for(var i=0; i<ss.length; i++){
+                    ss[i] = prefix + " " + ss[i];
+                }
+                re += ss.join(", ") + "{\n";
+            }
             re += this.genCssRule(cssObj[selector]);
             re += "}\n";
         }

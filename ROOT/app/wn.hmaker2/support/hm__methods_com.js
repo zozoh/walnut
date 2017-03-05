@@ -272,8 +272,12 @@ var methods = {
         var UI = this;
         UI.css_style = UI.css_style || {};
         skin = skin || UI.getComSkin();
-        if(skin) {
-            selector = "." + skin + " " + selector;
+        if(skin && selector) {
+            var ss = selector.split(/ *, */g);
+            for(var i=0; i<ss.length; i++){
+                ss[i] = "." + skin + " " + ss[i];
+            }
+            selector = ss.join(", ");
         }
         UI.css_style[selector] = rule;
     },
@@ -576,8 +580,8 @@ module.exports = function(uiCom){
         // 最后分别应用属性到对应的元素上
         var cssCom   = $z.pick(css, "^(position|top|left|right|bottom|margin|width|height)$");
         var cssArena = $z.pick(css, "!^(position|top|left|right|bottom|margin)$");
-        cssCom = this.formatCss(cssCom);
-        cssArena = this.formatCss(cssArena);
+        cssCom = this.formatCss(cssCom,true);
+        cssArena = this.formatCss(cssArena,true);
 
         $z.invoke(this, "onBeforeApplyBlockCss", [cssCom, cssArena]);
 

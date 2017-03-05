@@ -398,14 +398,11 @@ body {
 // navmenu
 .hmc-navmenu {
     ul {
-        li{
-            cursor: pointer; 
-            a {
-                display: inline-block; vertical-align: middle;
-                white-space: nowrap;
-            }
+        li{cursor: pointer;}
+        li a {
+            display: inline-block; vertical-align: middle;
+            white-space: nowrap;
         }
-        li[current] {}
         li[newtab] > a span{position: relative;}
         li[newtab] > a span:after {
             display: block; content: "";
@@ -419,9 +416,6 @@ body {
             border-color:rgba(255,255,0,0.4);
         }
     }
-    .ul-sub {z-index: 9; display: none;}
-    // .ul-sub {position: absolute; display: none;}
-    // li[open-sub]>.ul-sub {display: block;}
 }
 //............................................................
 // image

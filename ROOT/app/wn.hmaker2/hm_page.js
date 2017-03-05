@@ -576,14 +576,20 @@ return ZUI.def("app.wn.hmaker_page", {
         var prevCom = UI.doBlurActivedCom(uiCom);
         
         // 激活自己
-        jCom.attr("hm-actived", "yes");
+        jCom.attr({
+            "hm-actived": "yes",
+            "hm-blur" : null,
+        });
         $z.invoke(uiCom, "on_actived", [prevCom]);
     },
     //...............................................................
     doBlurActivedCom : function(nextCom) {
         var re = [];
         this._C.iedit.$body.find("[hm-actived]").each(function(){
-            var jCom  = $(this).removeAttr("hm-actived");
+            var jCom  = $(this).attr({
+                "hm-actived" : null,
+                "hm-blur" : "yes",
+            });
             var uiCom = ZUI(jCom);
             $z.invoke(uiCom, "on_blur", [nextCom]);
             re.push(uiCom);

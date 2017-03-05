@@ -9,8 +9,7 @@
                     "auto-dock" : "H"
                 },
                 "blockFields" : [
-                    "margin", "padding", "border",
-                    "color", "background", "boxShadow",
+                    "margin", "color", "background", "boxShadow",
                     "@align(水平排列)[居左=left,居中=center,居右=right]=left",
                     "@sep(分隔线)[隐藏=none,仅顶级=top,仅子菜单=sub,全部=all]=none",
                     "@sep-style(分隔线样式)[实线=solid,虚线=dashed,点线=dotted]=dotted",
@@ -23,13 +22,12 @@
                 "text" : "水平排列式菜单",
                 "selector" : "skin-navmenu-h-l2",
                 "blockFields" : [
-                    "margin", "padding", "border",
-                    "color", "background", "boxShadow",
+                    "margin", "color", "background", "boxShadow",
                     "@align(水平排列)[居左=left,居中=center,居右=right]=left",
                     "@sep(分隔线)[隐藏=none,仅顶级=top,仅子菜单=sub,全部=all]=none",
                     "@sep-style(分隔线样式)[实线=solid,虚线=dashed,点线=dotted]=dotted",
-                    "#C> li[current] > a (高亮项前景)=",
-                    "#B> li[current] (高亮项背景)",
+                    "#C> li[open-sub] a span (高亮项前景)=",
+                    "#B> li[current], .ul-top:after (高亮项背景)",
                 ]
             }, {
                 "text" : "垂直弹出式菜单",
@@ -38,7 +36,7 @@
                     "auto-dock" : "V"
                 },
                 "blockFields" : [
-                    "margin", "padding", "border",
+                    "padding", "margin", "border",
                     "color", "background", "boxShadow",
                     "@align(水平排列)[居左=left,居中=center,居右=right]=left",
                     
