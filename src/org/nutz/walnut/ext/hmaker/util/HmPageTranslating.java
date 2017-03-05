@@ -470,6 +470,23 @@ public class HmPageTranslating extends HmContext {
     }
 
     /**
+     * 为当前控件添加一个规则，如果当前组件有皮肤，则附加皮肤类选择器的前缀
+     * 
+     * @param selector
+     *            选择器（会被添加 #comdId)
+     * @param rule
+     *            规则
+     * 
+     * @see #addMyRule(String, NutMap)
+     */
+    public void addMySkinRule(String selector, NutMap rule) {
+        String skin = this.eleCom.attr("skin");
+        if (!Strings.isBlank(skin))
+            selector = "." + skin + " " + selector;
+        this.addMyRule(selector, rule);
+    }
+
+    /**
      * 增加一段 Javascript
      * 
      * @param script

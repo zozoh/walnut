@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Element;
@@ -53,6 +54,16 @@ public abstract class AbstractCom implements HmComHandler {
 
     protected String[] skinAttributes;
 
+    /**
+     * 同步皮肤的自定义属性
+     * 
+     * @param ing
+     *            运行时
+     * @param eleArena
+     *            Arena 元素
+     * @param skin
+     *            皮肤选择器
+     */
     protected void syncComSkinAttributes(HmPageTranslating ing, Element eleArena, String skin) {
         if (null != this.skinAttributes && this.skinAttributes.length > 0) {
             String ctype = ing.comType;
@@ -92,6 +103,8 @@ public abstract class AbstractCom implements HmComHandler {
         if (ing.cssEle.has("height"))
             ing.cssArena.put("height", "100%");
 
+        // 处理块属性
+        Pattern p = Pattern.compile("^#([BCL])>(.+)$");
         for (Map.Entry<String, Object> en : ing.propBlock.entrySet()) {
             String key = en.getKey();
             Object val = en.getValue();
@@ -115,9 +128,27 @@ public abstract class AbstractCom implements HmComHandler {
                     ing.cssArena.put("fontStyle", "italic");
                 }
             }
-            // 其他的就属于内容区域的 CSS
+            // 那么必然是样式
             else if (!key.startsWith("_")) {
-                ing.cssArena.put(key, val);
+                // 自定义样式
+                Matcher m = p.matcher(key);
+                if (m.find()) {
+                    String propType = m.group(1);
+                    String selector = m.group(2);
+                    String propName;
+                    if ("B".equals(propType)) {
+                        propName = "background";
+                    } else if ("C".equals(propType)) {
+                        propName = "color";
+                    } else {
+                        propName = "border-color";
+                    }
+                    ing.addMySkinRule(selector, Lang.map(propName, val));
+                }
+                // 其他的就属于内容区域的 CSS
+                else {
+                    ing.cssArena.put(key, val);
+                }
             }
         }
 

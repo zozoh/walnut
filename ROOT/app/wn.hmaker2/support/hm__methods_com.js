@@ -268,6 +268,16 @@ var methods = {
         return block;
     },
     //........................................................
+    addMySkinRule : function(selector, rule, skin) {
+        var UI = this;
+        UI.css_style = UI.css_style || {};
+        skin = skin || UI.getComSkin();
+        if(skin) {
+            selector = "." + skin + " " + selector;
+        }
+        UI.css_style[selector] = rule;
+    },
+    //........................................................
     applyBlock : function(block) {
         //console.log("applyBlock", block);
         var UI     = this;
@@ -327,36 +337,28 @@ var methods = {
         // 应用皮肤属性
         UI.arena.attr(attrs);
 
-        // 自定义的皮肤样式选择器
-        var style = {};
+        // 自定义的皮肤样式选择器，子控件可以重载 applyBlockCss 函数添加更多
+        UI.css_style = {};      // 重置一下自定义 CSS
         for(var key in block){
             var v = block[key];
             if(!v)
                 continue;
             var m = /^#([BCL])>(.+)$/.exec(key);
             if(m) {
+                var propType = m[1];
                 var selector = m[2];
                 var propName;
-                if("B" == m[1]){
+                if("B" == propType){
                     propName = "background";
-                }else if("C" == m[1]){
+                }else if("C" == propType){
                     propName = "color";
                 }else {
                     propName = "border-color";
                 }
-                style[selector] = $z.obj(propName, block[key]);
+                // 添加到自定义规则里
+                UI.addMySkinRule(selector, $z.obj(propName, v))
                 block[key] = null;
             }
-        }
-        var jStyle = UI.$el.children("style.from-skin");
-        if(_.isEmpty(style)){
-            jStyle.remove();
-        }else{
-            if(jStyle.length == 0){
-                jStyle = $('<style class="from-skin hm-del-save">').appendTo(UI.$el);
-            }
-            var cssTxt = CssP.genCss(style, "#"+comId+(skin?" ."+skin:""));
-            jStyle.html(cssTxt);
         }
         
         // 修正 css 的宽高
@@ -379,6 +381,21 @@ var methods = {
         // 应用这个修改
         //console.log("css:", css);
         UI.applyBlockCss(css);
+
+        // 应用修改
+        var jStyle = UI.$el.children("style.from-skin");
+        // 空的话，移除
+        if(_.isEmpty(UI.css_style)){
+            jStyle.remove();
+        }
+        // 设置自定义 css 内容
+        else{
+            if(jStyle.length == 0){
+                jStyle = $('<style class="from-skin hm-del-save">').appendTo(UI.$el);
+            }
+            var cssTxt = CssP.genCss(UI.css_style, "#" + comId);
+            jStyle.html(cssTxt);
+        }
         
         // 判断区域是否过小
         var comW = jCom.outerWidth();
@@ -559,8 +576,13 @@ module.exports = function(uiCom){
         // 最后分别应用属性到对应的元素上
         var cssCom   = $z.pick(css, "^(position|top|left|right|bottom|margin|width|height)$");
         var cssArena = $z.pick(css, "!^(position|top|left|right|bottom|margin)$");
-        this.$el.css(this.formatCss(cssCom, true));
-        this.arena.css(this.formatCss(cssArena, true));
+        cssCom = this.formatCss(cssCom);
+        cssArena = this.formatCss(cssArena);
+
+        $z.invoke(this, "onBeforeApplyBlockCss", [cssCom, cssArena]);
+
+        this.$el.css(cssCom);
+        this.arena.css(cssArena);
     });
     
     // 重定义控件的 redraw

@@ -12,7 +12,9 @@ var CssP = {
     genCss : function(cssObj, prefix){
         var re = "";
         for(var selector in cssObj) {
-            re += (prefix||"")+" "+selector+"{\n";
+            if(!prefix && !selector)
+                continue;
+            re += (prefix||"") + " " + (selector||"") + "{\n";
             re += this.genCssRule(cssObj[selector]);
             re += "}\n";
         }
@@ -25,10 +27,12 @@ var CssP = {
         var re = "";
         for(var key in cssRule) {
             var v = cssRule[key];
-            re += key + ":" + v;
-            if(_.isNumber(v))
-                re += "px";
-            re += ";\n";
+            if(v){
+                re += key + ":" + v;
+                if(_.isNumber(v))
+                    re += "px";
+                re += ";\n";
+            }
         }
         return re;
     },

@@ -65,6 +65,12 @@ public class hmc_navmenu extends AbstractSimpleCom {
             }
         }
 
+        // 如果有声明 color，则作为链接的前景色
+        Object color = ing.cssArena.remove("color");
+        if (null != color) {
+            ing.addMySkinRule("ul li a", Lang.map("color", color));
+        }
+
         // 链接控件的运行时行为
         ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_navmenu.js");
         ing.addScriptOnLoadf("$('#%s .hmc-navmenu').hmc_navmenu(%s);",
