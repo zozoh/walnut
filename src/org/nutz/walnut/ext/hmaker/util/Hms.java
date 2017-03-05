@@ -198,15 +198,17 @@ public final class Hms {
                 re += Strings.sNull(selector, "");
             }
             // 循环增加前缀
-            else {
+            else if (!Strings.isBlank(selector)) {
                 String[] ss = Strings.splitIgnoreBlank(selector);
                 for (int i = 0; i < ss.length; i++) {
                     ss[i] = prefix + " " + ss[i];
                 }
                 re += Lang.concat(", ", ss);
             }
-
-            re += prefix + Strings.sNull(selector, "");
+            // 直接就是前缀
+            else {
+                re += prefix;
+            }
             re += ruleText;
             re += "\n";
         }

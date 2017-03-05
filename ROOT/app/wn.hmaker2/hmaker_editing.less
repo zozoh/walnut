@@ -397,12 +397,11 @@ body {
 //............................................................
 // navmenu
 .hmc-navmenu {
+    li.icon-hide > a i {display: none;}
+    li.icon-show > a i {display: inline;}
+    li.text-hide > a span {display: none;}
+    li.text-show > a span {display: inline;}
     ul {
-        li{cursor: pointer;}
-        li a {
-            display: inline-block; vertical-align: middle;
-            white-space: nowrap;
-        }
         li[newtab] > a span{position: relative;}
         li[newtab] > a span:after {
             display: block; content: "";
@@ -427,7 +426,7 @@ body {
 }
 .hmc-image { @noselect(); color:#FFF; 
     position: relative; overflow: hidden; text-decoration: none;
-    img {border:0; display:block; width: 100%; height:100%;}
+    img {border:0; display:block;}
     section {position: absolute;padding:.08rem;}
 }
 .hmc-image[sa-t-pos="center"] section{

@@ -98,10 +98,10 @@ public abstract class AbstractCom implements HmComHandler {
         ing.skinAttributes = new NutMap();
 
         // 如果控件设置了宽高，那么 arena 要用 100% 适应
-        if (ing.cssEle.has("width"))
-            ing.cssArena.put("width", "100%");
-        if (ing.cssEle.has("height"))
-            ing.cssArena.put("height", "100%");
+        // if (ing.cssEle.has("width"))
+        // ing.cssArena.put("width", "100%");
+        // if (ing.cssEle.has("height"))
+        // ing.cssArena.put("height", "100%");
 
         // 处理块属性
         Pattern p = Pattern.compile("^#([BCL])>(.+)$");

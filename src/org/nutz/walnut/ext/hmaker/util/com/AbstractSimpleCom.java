@@ -53,7 +53,14 @@ public abstract class AbstractSimpleCom extends AbstractCom {
 
         // 添加皮肤属性
         for (Map.Entry<String, Object> en : ing.skinAttributes.entrySet()) {
-            eleArena.attr(en.getKey(), en.getValue().toString());
+            Object val = en.getValue();
+            if (null != val) {
+                if (val instanceof Boolean) {
+                    if (!(Boolean) val)
+                        continue;
+                }
+                eleArena.attr(en.getKey(), en.getValue().toString());
+            }
         }
 
         // 子类的处理成功: 设置 css

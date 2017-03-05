@@ -1072,9 +1072,13 @@
         // @ta   - 浮动元素
         // @mode - H | V 表示是停靠在水平边还是垂直边，默认 H
         //         或者可以通过 "VA|VB|VC|VD|HA|HB|HC|HD" 来直接指定停靠的区域
-        dock: function (ele, ta, mode) {
+        // @ignoreSetCss - true 表示不强制设置 position
+        dock: function (ele, ta, mode, ignoreSetCss) {
             var jq = $(ele);
-            var jTa = $(ta).css("position", "fixed");
+            var jTa = $(ta);
+            if(!ignoreSetCss) {
+                jTa.css("position", "fixed");
+            }
             // 得到浮动元素大小
             var sub = {
                 width: jTa.outerWidth(true),
@@ -1203,9 +1207,14 @@
         // @ta   - 浮动元素
         // @mode - H | V 表示是停靠在水平边还是垂直边，默认 H
         //         或者可以通过 "VA|VB|VC|VD|HA|HB|HC|HD" 来直接指定停靠的区域
-        dockIn: function (ele, ta, mode) {
-            var jq  = $(ele).css("position", "relative");
-            var jTa = $(ta).css("position", "absolute");
+        // @ignoreSetCss - true 表示不强制设置 position
+        dockIn: function (ele, ta, mode, ignoreSetCss) {
+            var jq  = $(ele);
+            var jTa = $(ta);
+            if(!ignoreSetCss) {
+                jq.css("position", "relative");
+                jTa.css("position", "absolute");
+            }
             // 得到被停靠元素的矩形信息
             var rect = $z.rect(jq);
             //console.log(" rect  :", rect);

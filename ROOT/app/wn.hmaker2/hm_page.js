@@ -1326,7 +1326,8 @@ return ZUI.def("app.wn.hmaker_page", {
             var jCom = $(this).removeClass("hm-pmv-hide").attr({
                 "ui-id" : null,
                 "c_seq" : null,
-                "hm-actived" : null
+                "hm-actived" : null,
+                "hm-blur" : null,
             });
             var jW   = jCom.children(".hm-com-W");
             

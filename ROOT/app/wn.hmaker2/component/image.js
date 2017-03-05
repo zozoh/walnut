@@ -169,11 +169,10 @@ return ZUI.def("app.wn.hm_com_image", {
     // 自定义修改块布局的逻辑
     applyBlockCss : function(css) {
         var UI   = this;
-        //console.log(css)
         
-        var cssCom   = $z.pick(css, /^(position|top|left|right|bottom|margin|width|height)$/);
+        var cssCom   = $z.pick(css, /^(position|top|left|right|bottom|margin)$/);
         var cssArena = $z.pick(css, /^(borderRadius|boxShadow)$/);
-        var cssImg   = $z.pick(css, /^(border|borderRadius)$/);
+        var cssImg   = $z.pick(css, /^(border|borderRadius|width|height)$/);
         var cssTxt   = $z.pick(css, "!^(position|top|left|right|bottom|margin|border|borderRadius|boxShadow|width|height)$");
         //console.log(cssTxt);
 

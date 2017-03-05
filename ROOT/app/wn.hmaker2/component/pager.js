@@ -70,8 +70,6 @@ return ZUI.def("app.wn.hm_com_pager", {
         pg.pgnb = pg.pgnb || 24;
         pg.sum  = pg.sum  || pg.pgsz * pg.pgnb;
         pg.pgnb = Math.ceil(pg.sum / pg.pgsz);
-        console.log(pg)
-                
 
         // 绘制
         UI.arena.hmc_pager(_.extend({forIDE:true}, com));

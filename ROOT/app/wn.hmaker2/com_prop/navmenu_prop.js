@@ -66,10 +66,14 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             var jq = $(e.currentTarget);
             var jItem = jq.closest(".cnavmp-item");
             var index = jItem.prevAll().length;
+            var item  = UI.uiCom.getItemData(index);
 
-            $z.editIt(jq, function(newval, oldval) {
-                if(newval && newval!=oldval) {
-                    UI.uiCom.updateItemField(index, "text", newval);
+            $z.editIt(jq, {
+                text  : item.text,
+                after : function(newval, oldval) {
+                    if(newval && newval!=oldval) {
+                        UI.uiCom.updateItemField(index, "text", newval);
+                    }
                 }
             });
         },

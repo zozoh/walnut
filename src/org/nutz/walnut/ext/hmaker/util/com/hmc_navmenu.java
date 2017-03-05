@@ -1,7 +1,5 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
-import java.util.Map;
-
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.nutz.json.Json;
@@ -28,9 +26,9 @@ public class hmc_navmenu extends AbstractSimpleCom {
 
     protected boolean doArena(HmPageTranslating ing, Element eleArena) {
         // 添加皮肤属性
-        for (Map.Entry<String, Object> en : ing.skinAttributes.entrySet()) {
-            eleArena.attr(en.getKey(), en.getValue().toString());
-        }
+        // for (Map.Entry<String, Object> en : ing.skinAttributes.entrySet()) {
+        // eleArena.attr(en.getKey(), en.getValue().toString());
+        // }
 
         // 得到当前页面的链接，已经页面的名称，记录到配置信息里
         ing.propCom.put("srcPath", "/" + ing.getRelativePath(ing.oSrc));

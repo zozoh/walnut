@@ -72,8 +72,8 @@ var CMD = {
         jAns.attr("open-sub", "yes");
 
         // 标识自己的父为高亮
-        // jq.find("li[current]").removeAttr("current");
-        // jLi.closest(".li-top").attr("current", "yes");
+        jq.find("li[current]").removeAttr("current");
+        jLi.closest(".li-top").attr("current", "yes");
 
         // 自动停靠
         if(autoDock){
@@ -82,11 +82,11 @@ var CMD = {
 
             // 除非明确指定，否则默认顶级菜单停靠在水平边
             if(jLi.hasClass("li-top") && "H" == autoDock){
-                $z.dockIn(jLi, jUl, "H");
+                $z.dockIn(jLi, jUl, "H", true);
             }
             // 其他子菜单一律停靠在垂直边
             else {
-                $z.dockIn(jLi, jUl, "V");
+                $z.dockIn(jLi, jUl, "V", true);
             }
         }
     },

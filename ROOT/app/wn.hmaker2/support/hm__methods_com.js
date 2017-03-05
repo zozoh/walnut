@@ -279,7 +279,11 @@ var methods = {
             }
             selector = ss.join(", ");
         }
-        UI.css_style[selector] = rule;
+        if(UI.css_style[selector]){
+            _.extend(UI.css_style[selector], rule);
+        } else {
+            UI.css_style[selector] = rule;
+        }
     },
     //........................................................
     applyBlock : function(block) {

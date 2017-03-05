@@ -44,7 +44,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         //     }
         // },
         // 编辑文字
-        'click ul>li[current]>a span' : function(e) {
+        'click ul>li[current]>a' : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
             
@@ -54,10 +54,14 @@ return ZUI.def("app.wn.hm_com_navmenu", {
 
             var jItem = jq.closest("li");
             var index = jItem.prevAll().length;
+            var item  = UI.getItemData(index);
 
-            $z.editIt(jq, function(newval, oldval) {
-                if(newval && newval!=oldval) {
-                    UI.updateItemField(index, "text", newval);
+            $z.editIt(jq, {
+                text  : item.text,
+                after : function(newval, oldval) {
+                    if(newval && newval!=oldval) {
+                        UI.updateItemField(index, "text", newval);
+                    }
                 }
             });
         },
@@ -112,9 +116,17 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     //...............................................................
     getItemData : function(index) {
         var jLi = this.$item(index);
+        // 把 ICON 变成文字形式
+        var icon = jLi.find(">a>i").prop("className");
+        var text = jLi.find(">a>span").text();
+        var m = /^(fa|zmdi) +((fa|zmdi)-.+)$/.exec(icon);
+        if(m) {
+            text = '<' + m[2] + '>' + text;
+        }
+        // 返回对象
         return {
             index     : jLi.attr("index") * 1,
-            text      : jLi.find(">a>span").text(),
+            text      : text,
             href      : jLi.attr("href") || "",
             newtab    : jLi.attr("newtab") == "yes",
             current   : jLi.attr("current") == "yes",
@@ -219,8 +231,30 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         var jLi = UI.$item(index);
         var old = UI.getItemData(jLi);
 
+        // 格式化文字图标
+        var m = /^<((fa|zmdi)-([a-z-]+))>(.*)$/.exec(item.text);
+        console.log(m, item)
+        if(m){
+            item.icon = m[1];
+            item.text = m[4];
+        }
+        if(!item.icon) {
+            jLi.addClass("icon-hide").removeClass("icon-show")
+                .find(">a>i").prop("className", "");
+        }else{
+            jLi.addClass("icon-show").removeClass("icon-hide")
+                .find(">a>i").prop("className", m[2] + " " + item.icon);
+        }
+        // 更新文字
+        if(item.text) {
+            jLi.addClass("text-show").removeClass("text-hide")
+                .find(">a>span").text(item.text);
+        } else {
+            jLi.addClass("text-hide").removeClass("text-show")
+                .find(">a>span").text("");
+        }
+
         // 更新属性
-        jLi.find(">a>span").text(item.text);
         jLi.attr({
             "newtab" : !item.newtab ? null : "yes",
             "href"   : item.href || null,
@@ -514,11 +548,11 @@ return ZUI.def("app.wn.hm_com_navmenu", {
                     var jUl = jMe.children("ul");
                     if(autoDock) {
                         if(jMe.hasClass("li-top") && "H" == autoDock){
-                            $z.dockIn(jMe, jUl, "H");
+                            $z.dockIn(jMe, jUl, "H", true);
                         }
                         // 其他子菜单一律停靠在垂直边
                         else {
-                            $z.dockIn(jMe, jUl, "V");
+                            $z.dockIn(jMe, jUl, "V", true);
                         }
                     }
                     // 否则移除自己的和子 ul 的位置 css 属性
