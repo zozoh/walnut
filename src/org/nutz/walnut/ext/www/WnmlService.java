@@ -298,6 +298,7 @@ public class WnmlService {
     @SuppressWarnings("unchecked")
     private void __do_datasource(WnmlRuntime wrt, Element ele, NutMap c) {
         String name = Strings.trim(ele.attr("name"));
+        String erresult = ele.hasAttr("erresult") ? Strings.trim(ele.attr("erresult")) : null;
         String type = Strings.trim(Strings.sBlank(ele.attr("type"), "json"));
 
         // 字符串必须要有 name，否则加不到上下文里呀
@@ -308,7 +309,17 @@ public class WnmlService {
         String cmdTmpl = Strings.trim(ele.data());
         String cmdText = Tmpl.exec(cmdTmpl, c, false);
 
-        String str = wrt.exeCommand(cmdText);
+        String str = null;
+        try {
+            str = wrt.exeCommand(cmdText);
+        }
+        catch (WebException e) {
+            if (null != erresult) {
+                str = erresult;
+            } else {
+                throw e;
+            }
+        }
 
         // JSON
         if ("json".equalsIgnoreCase(type)) {

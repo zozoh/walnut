@@ -89,6 +89,8 @@ public class WnWebSocket extends Endpoint {
                 if (tmp.isEmpty())
                     return;
                 WnObj obj = tmp.get(0);
+                if (obj.has(KEY) && obj.get(KEY) != null && obj.get(KEY) instanceof String)
+                    wnRun.io().appendMeta(obj, "{"+KEY+":[]}");//移除老数据
                 wnRun.io().push(obj.id(), KEY, session.getId(), false);
                 if (doReturn)
                     session.getAsyncRemote().sendText(Json.toJson(new NutMap("event", "watched").setv("obj", obj.id()), JsonFormat.compact()));
