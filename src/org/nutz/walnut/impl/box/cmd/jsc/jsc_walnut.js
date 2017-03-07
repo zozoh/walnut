@@ -57,3 +57,11 @@ function ajax_error(errCode, reason) {
 		data : reason
 	});
 }
+
+// js转换为json字符串
+function toJsonStr(jsobj) {
+    if (typeof jsobj == "string") {
+        return jsobj;
+    }
+    return JSON.stringify(jsobj, null, '');
+}
