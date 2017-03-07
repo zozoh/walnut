@@ -75,17 +75,21 @@
     .fft-icon {margin-right:@d2;}
     .fft-text {}
 }
-.ff-txt[required] {color:@cf0; font-weight: bolder;}
-.ff-txt[required]:before {
-    display: inline; content: "*"; font-weight: bolder;
-    position: absolute; margin-left:-@d3; color:@c6;
+.ff-txt[required] {
+    .fft-text {color:@c5;}
+    .fft-text:before {
+        display: inline; content: "*"; margin:0 @d0 0 0; color:@c6; 
+    }
 }
 
 .ff-val {padding:@d2;}
 
-.ffv-ui {display: inline-block; vertical-align: middle; padding-right:@d2;}
+.ffv-ui {display: inline-block; vertical-align: middle;}
 .ffv-ui[fill="all"]{width:100%;}
-.ffv-tip {display: inline-block; color:@c3; padding: @d1; font-size:@f2;}
+.ffv-tip {
+    display: inline-block; color:@c3; padding: @d1; 
+    font-size:@f1; font-family: @f_fixed;
+}
 
 .ff-tmpl {
     position: absolute; top:0; left:0; bottom:0; padding:@d5 0; display: none;
@@ -122,7 +126,7 @@
 
 .form-group{
     [ui-width="auto"], [ui-fixed-width] {
-        .ffv-ui {display: inline-block; vertical-align: middle; padding-right:@d2;}
+        .ffv-ui {display: inline-block; vertical-align: middle; }
     }
     [ui-width="all"] {
         .ffv-ui {width:100%;}
