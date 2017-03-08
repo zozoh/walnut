@@ -1,6 +1,6 @@
 # 命令简介 
 
-    `weixin` 用来处理微信业务逻辑。
+    `weixin` 用来处理微信公众号平台的业务逻辑。
     它的输入就是 httpapi 的数据文件输入
     如果处理成功了，就会标识 'clean_after' 以便 objclean 命令清除
     
@@ -13,158 +13,24 @@
     	token      : 'TOKEN'
     }
 
-# 用法
+用法
+=======
 
-    weixin [操作] [..参数]
-    
-# 显示配置信息
-
-    # 显示全部配置信息
-    demo@~$ weixin xxx info
-    
-    # 显示被正则表达式约束的配置信息
-    demo@~$ weixin xxx info "^pay_.+$"
-	
-# 普通消息
-
-    # 执行微信业务逻辑处理的响应
-    demo@~$ weixin in id:xxxx
-    
-    # 输出一段简单文本
-    demo@~$ weixin xxx out "text:Hello world" -openid xxxx
-    
-    # 输出一段链接
-    demo@~$ weixin xxx out "article:Hello;;brief;;http://xxxxx" -openid xxx
-    
-    # 输出更复杂的消息
-    demo@~$ weixin xxx out "{..}" -openid xxx
-    
-    # 根据直接回复消息
-    demo@~$ weixin out "text:xxxxx" -inmsg id:xxxx
-    
-
-# 自定义菜单
-
-    # 获取
-    demo@~$ weixin xxx menu -get
-    
-    # 删除
-    demo@~$ weixin xxx menu -del
-    
-    # 设置
-    demo@~$ weixin xxx menu -set id:xxx
-
-# 二维码
-
-    # 显示二维码地址
-    demo@~$ weixin xxx qrcode url -qrticket xxxxxxx
-    
-    # 显示二维码图片内容
-    demo@~$ weixin xxx qrcode img -qrticket xxxxxxx
-    
-    # 临时二维码
-    # qrsid 整数，场景 ID,若传入0,代表自增
-    # qrexpi 过期秒数
-    # cmd 扫描后执行的命令,同时接受从标准输入流获取
-    demo@~$ weixin xxx qrcode QR_SCENE -qrsid 2 -qrexpi 3600 -cmd "weixin xxx out xxxx"
-    
-    # 永久二维码
-    # qrsid 整数，场景 ID
-    demo@~$ weixin xxx qrcode QR_LIMIT_SCENE -qrsid 2
-    
-    # 永久字符串二维码
-    # qrsid 字符串，场景 ID
-    demo@~$ weixin xxx qrcode QR_LIMIT_STR_SCENE -qrsid "hahaID"
-    
-# OAuth2
-
-    # 生成重定向请求的 URL
-    demo@~$ weixin xxx oauth2 "http://redirect.com"
-    
-    # 指定信息获取的级别
-    demo@~$ weixin xxx oauth2 "http://xxx" -scope snsapi_base
-    
-    # 指定一个状态码
-    demo@~$ weixin xxx oauth2 "http://xxx" -state ANY
-
-# 获取用户信息
-
-    # 根据 OpenID 获取用户信息
-    demo@~$ weixin xxx user -openid xxx
-    
-    # 指定语言
-    demo@~$ weixin xxx user -openid xxx -lang zh_CN
-    
-    # 根据 code 获取用户信息(仅OpenId)
-    demo@~$ weixin xxx user -code xxx
-    
-    # 根据 code 获取用户信息(仅关注者)
-    demo@~$ weixin xxx user -code xxx -infol follower
-    
-    # 根据 code 获取用户信息(任何人)
-    demo@~$ weixin xxx user -code xxx -infol others
-
-# 获取 JS-SDK 配置信息
-
-    # 采用默认的 JS-SDK 的配置信息
-    # 默认 URL 存在 wxconf.jsSdkUrl
-    # 默认的 api_list 存放在 wxconf.jsApiList 
-    demo@~$ weixin xxx jssdk
-    
-    # 指定一个 URL 的 JS-SDK 配置信息
-    demo@~$ weixin xxx jssdk http://xxxx
-    
-    # 指定了 api_list
-    demo@~$ weixin xxx jssdk -apilist ":aa,bb,cc,dd"
-    
-    # 指定了 api_list (JSON)
-    demo@~$ weixin xxx jssdk -apilist "['aa','bb','cc','dd']
-    
-    # 指定了 api_list (文件对象)
-    demo@~$ weixin xxx jssdk -apilist id:xxxx
-    
-# 模板消息
-
-    # 列出所有模板
-    demo@~$ weixin xxx tmpl -get
-    [{
-        "template_id": "iPk5sOIt5X_flOVKn5GrTFpncEYTojx6ddbt8WYoV5s",
-        "title": "领取奖金提醒",
-        "primary_industry": "IT科技",
-        "deputy_industry": "互联网|电子商务",
-        "content": "{{first.DATA}}\n\n..\n{{remark.DATA}}",
-        "example": "您已提交领奖申请.."
-    }, {
-        ...
-    }]
-    
-    # 获取行业信息
-    demo@~$ weixin xxx tmpl -get industry
-    {
-        "primary_industry":{"first_class":"运输与仓储","second_class":"快递"},
-        "secondary_industry":{"first_class":"IT科技","second_class":"互联网|电子商务"}
-    }
-    
-    # 添加一个模板得到模板的 ID
-    demo@~$ weixin xxx tmpl -add TM00015
-    Doclyl5uP7Aciu-qZ7mJNPtWkbkYnWBWVja26EGbNyk
-    
-    # 删除一个模板
-    demo@~$ weixin xxx tmpl -del iPk5sOIt5X_flOVKn5GrTFpncEYTojx6ddbt8WYoV5s
-    
-    # 设置行业
-    demo@~$ weixin xxx tmpl -industry 2,5
-    
-    # 发送模板消息
-    demo@~$ weixin xxx tmpl -content "{..}" 
-                -url http:xxx 
-                -tid iPk5sOIt5X_flOVKn5GrTFpncEYTojx6ddbt8WYoV5s
-                -to  OPENID
-    
-# 接受扫描事件
-
-    # 处理一个扫描事件,执行对应的命令文件 ~/.weixin/xxx/scene/12345678
-    demo@~$ weixin xxx scan -openid yyy -eventkey '12345678' -dft 'default'
-    
-    
-     
+```
+weixin in           # 处理微信服务器发来的信息
+weixin info         # 获取微信公众号的配置信息
+weixin jssdk        # JS-SDK相关参数
+weixin media        # 素材上传下载
+weixin menu         # 自定义菜单
+weixin oauth2       # 公众号授权
+weixin order        # 订单生成
+weixin out          # 生成符合微信要求的响应
+weixin pay          # 发起支付
+weixin payre        # 校验支付结果
+weixin qrcode       # 二维码相关
+weixin scan         # 处理扫码
+weixin shake        # 摇一摇相关
+weixin text         # 快捷生成文本响应
+weixin tmpl         # 模板消息
+weixin user         # 用户信息获取
+```
