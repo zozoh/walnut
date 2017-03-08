@@ -1,5 +1,5 @@
 ---
-title:微信命令
+title:微信工作平台命令
 author:zozoh
 tags:
 - 系统
