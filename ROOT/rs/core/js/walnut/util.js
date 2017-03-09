@@ -634,7 +634,7 @@ var Wn = {
             }
 
             // 看看内容是否包含宏
-            oReq._macro_begin_pos = content.indexOf(mosHead, oReq._last);
+            oReq._macro_begin_pos = content.indexOf(mosHead, oReq._last > 128 ? (oReq._last - 128) : oReq._last);
 
             // 定义本次要处理的字符串
             var str;
