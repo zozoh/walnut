@@ -63,7 +63,7 @@ return ZUI.def("app.wn.hmpg_combar", {
         }
         UI.arena.empty().prepend(UI.compactHTML(`<div class="hm-combar-item" current="yes">
             <b>{{hmaker.page.body}}</b>
-            <i class="zmdi zmdi-chevron-right pi-sep"></i>
+            <i class="zmdi zmdi-chevron-right"></i>
         </div>`));
     },
     //...............................................................
@@ -112,7 +112,7 @@ return ZUI.def("app.wn.hmpg_combar", {
                     }
                 }
                 html += '<b>' + (pi.areaId || pi.comId) + '</b>';
-                html += '<i class="zmdi zmdi-chevron-right pi-sep"></i>';
+                html += '<i class="zmdi zmdi-chevron-right"></i>';
                 html += '</div>';
                 $(html).attr({
                     "ctype"        : pi.ctype,
