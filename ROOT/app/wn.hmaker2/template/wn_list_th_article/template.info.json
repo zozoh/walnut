@@ -1,0 +1,23 @@
+{
+    "name"     : "wn_lst_th_article",
+    "title"    : "默认文章列表",
+    "dataType" : "list",
+    "options"  : {
+        "href" : "(详情页面)@link",
+        "paramName" : "(详情页面参数)@input=id#详情页面接受什么参数来指明媒体",
+        "objKey" : "(参数值字段)@input=id#参数的值来自数据接口返回数据的哪个字段",
+        "displayText" : {
+            "title"    : "显示字段",
+            "tip"      : "用 '=th_nm' 表示这个值来自 th_nm 字段。否则就相当于是填写固定文本",
+            "type"     : "mapping",
+            "required" : true,
+            "mapping"  : {
+                "title" : "=th_nm",
+                "brief" : "=brief",
+                "info_em"  : "A",
+                "info_u"   : "B",
+                "info_b"   : "C",
+            },
+        }
+    }
+}

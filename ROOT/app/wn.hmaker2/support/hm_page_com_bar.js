@@ -62,8 +62,8 @@ return ZUI.def("app.wn.hmpg_combar", {
             UI.__current_com_path = [];
         }
         UI.arena.empty().prepend(UI.compactHTML(`<div class="hm-combar-item" current="yes">
+            <i class="zmdi zmdi-chevron-right pi-sep"></i>
             <b>{{hmaker.page.body}}</b>
-            <i class="zmdi zmdi-chevron-right"></i>
         </div>`));
     },
     //...............................................................
@@ -100,6 +100,7 @@ return ZUI.def("app.wn.hmpg_combar", {
             for(var i=0; i<UI.__current_com_path.length; i++) {
                 var pi = UI.__current_com_path[i];
                 var html = '<div class="hm-combar-item">';
+                html += '<i class="zmdi zmdi-chevron-right pi-sep"></i>';
                 // 控件的话，绘制 Icon
                 if("_area" != pi.ctype){
                     // 组件
@@ -112,7 +113,6 @@ return ZUI.def("app.wn.hmpg_combar", {
                     }
                 }
                 html += '<b>' + (pi.areaId || pi.comId) + '</b>';
-                html += '<i class="zmdi zmdi-chevron-right"></i>';
                 html += '</div>';
                 $(html).attr({
                     "ctype"        : pi.ctype,
