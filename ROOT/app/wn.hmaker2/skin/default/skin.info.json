@@ -120,6 +120,17 @@
                     "background", "boxShadow",
                     "borderRadius"
                 ]
+            }, {
+                "text" : "超文本(Markdown)",
+                "selector" : "skin-markdown",
+                "blockFields" : [
+                    "fontSize",
+                    "#C> h1,h2,h3,h4,h5,h6 (标题文字颜色)",
+                    "#C> p a (链接颜色)",
+                    "padding", "border",
+                    "background", "boxShadow",
+                    "borderRadius"
+                ]
             }]
 	},
     "area" : [{

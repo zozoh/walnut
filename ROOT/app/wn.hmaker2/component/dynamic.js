@@ -6,9 +6,7 @@ $z.declare([
     '/gu/rs/ext/hmaker/hm_runtime.js'
 ], function(ZUI, Wn, HmComMethods){
 //==============================================
-var html = `<div class="hmc-dynamic ui-arena hm-del-save">
-    <section></section>
-</div>`;
+var html = `<div class="hmc-dynamic ui-arena hm-del-save"></div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_dynamic", {
     dom     : html,
@@ -65,7 +63,8 @@ return ZUI.def("app.wn.hm_com_dynamic", {
     //...............................................................
     __reload_data : function(com, oApi){
         var UI = this;
-        var jData = UI.arena.children("section").empty();
+        //var jData = UI.arena.children("section").empty();
+        var jData = UI.arena.empty();
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 确保有数据
@@ -212,7 +211,8 @@ return ZUI.def("app.wn.hm_com_dynamic", {
     __draw_data : function(data, com, oApi) {
         var UI = this;
         var jW = UI.$el.find(">.hm-com-W");
-        var jData = UI.arena.children("section").empty();
+        //var jData = UI.arena.children("section").empty();
+        var jData = UI.arena.empty();
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 确保有数据接口
         oApi = oApi || UI.__check_mode(com);
@@ -340,7 +340,8 @@ return ZUI.def("app.wn.hm_com_dynamic", {
     //...............................................................
     __check_mode : function(com) {
         var UI = this;
-        var jData = UI.arena.find(">section").empty();
+        //var jData = UI.arena.find(">section").empty();
+        var jData = UI.arena.empty();
 
         // 确保有数据接口
         if(!com.api) {

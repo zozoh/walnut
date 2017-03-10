@@ -3122,6 +3122,417 @@
                 }
             }
         },
+        //............................................
+        // 计算一个字符串开头有几个缩进，
+        // str : 给定字符串
+        // tabWidth : 一个 \t 相当于几个空格，默认 4
+        countStrHeadIndent : function(str, tabWidth) {
+            var n = 0;
+            tabWidth = tabWidth || 4;
+            if(str) {
+                for(var i=0;i<str.length;i++){
+                    var c = str.charAt(i);
+                    if(' ' == c)
+                        n ++;
+                    else if('\t' == c)
+                        n += tabWidth;
+                    else
+                        break;
+                }
+            }
+            return Math.floor(n / tabWidth);
+        },
+        //............................................
+        // 计算一个字符串开头有几个重复的字符
+        // str : 给定字符串
+        // c : 指定重复字符
+        countStrHeadChar : function(str, c) {
+            var re = 0;
+            if(str)
+                for(;re<str.length;re++){
+                    if(str.charAt(re) != c)
+                        return re;
+                }
+            return re;
+        },
+        //............................................
+        // 对字符串反向缩进
+        // str : 给定字符串
+        // indent : 反向 indent 几次，默认 1
+        // tabWidth : 一个 \t 相当于几个空格，默认 4
+        shiftIndent : function(str, indent, tabWidth){
+            if(!str)
+                return str;
+            indent   = indent > 0 ? indent : 1;
+            tabWidth = tabWidth || 4;
+            var n = 0;
+            var i = 0;
+            for(; i<str.length; i++){
+                if(n > 0 && Math.floor(n / tabWidth) >= indent)
+                    break;
+                var c = str.charAt(i);
+                if(' ' == c)
+                    n ++;
+                else if('\t' == c)
+                    n += tabWidth;
+                else
+                    break;
+            }
+            if(i > 0)
+                return str.substring(i);
+            return str;
+        },
+        //............................................
+        // 将给定的 Markdown 文本，转换成 HTML 代码
+        markdownToHtml : function(str) {
+            /* 首先将文本拆分成段落： 
+            {
+                type  : "H|P|code|OL|UL|hr|Th|Tr|quote|empty",
+                indent : 1,
+                content:["line1","line2"],
+                codeType : null,
+                cellAligns : ["left", "center", "right"]
+            }
+            */
+            var blocks = [];
+            var lines  = str.split(/\r?\n/g);
+            // 增加一个帮助函数
+            blocks.tryPush = function(B) {
+                if(B.type) {
+                    this.push(B);
+                    return {type:null, level:0, content:[]};
+                }
+                return B;
+            };
+            // 准备第一段
+            var B = {type:null, level:0, content:[]};
+            for(var i=0; i<lines.length; i++){
+                var line  = lines[i];
+                var trim  = $.trim(line);
+                var indent = zUtil.countStrHeadIndent(line);
+
+                // 来吧，判断类型
+                // 空段落
+                if(trim.length == 0) {
+                    // 之前如果是 code，那么增加进去
+                    if(/^(code|UL|OL)$/.test(B.type)) {
+                        B.content.push("");
+                    }
+                    // 否则如果有段落，就结束它
+                    else {
+                        B = blocks.tryPush(B);
+                    }
+                }
+                // 标题: H
+                else if(/^#+/.test(line)){
+                    B = blocks.tryPush(B);
+                    B.type = "H";
+                    B.level = zUtil.countStrHeadChar(line, '#');
+                    B.content.push($.trim(line.substring(B.level)));
+                }
+                // 有序列表: OL
+                else if(/^[0-9a-z][.]/.test(trim)){
+                    B = blocks.tryPush(B);
+                    B.type = "OL";
+                    B.level = indent;
+                    B.content.push($.trim(trim.substring(trim.indexOf('.')+1)));
+                }
+                // 无序列表: UL
+                else if(/^[*+-][ ]/.test(trim)){
+                    B = blocks.tryPush(B);
+                    B.type = "UL";
+                    B.level = indent;
+                    B.content.push($.trim(trim.substring(1)));
+                }
+                // 缩进表示的代码 
+                else if(indent > 0){
+                    // 只有空段落，才表示开始 code
+                    if(!B.type) {
+                        B.type = "code";
+                        B.content.push(zUtil.shiftIndent(line));
+                    }
+                    // 否则就要加入进去
+                    else {
+                        B.content.push(trim);
+                    }
+                }
+                // 代码: code
+                else if(/^```/.test(line)){
+                    B = blocks.tryPush(B);
+                    B.type = "code";
+                    B.codeType = $.trim(trim.substring(3)) || null;
+                    for(i++;i<lines.length;i++){
+                        line = lines[i];
+                        if(/^```/.test(line)){
+                            break;
+                        }
+                        B.content.push(line);
+                    }
+                    B = blocks.tryPush(B);
+                }
+                // 水平线: hr
+                else if(/^ *[=-]{3,} *$/.test(line)){
+                    B = blocks.tryPush(B);
+                    B.type = "hr";
+                }
+                // 表格分隔符: T
+                else if("P" == B.type 
+                        && B.content.length==1 
+                        && B.content.indexOf("|")>0
+                        && /^[ |:-]{6,}$/.test(line)){
+                    // 修改之前段落的属性
+                    B.type = "Th";
+                    B.content = zUtil.splitIgnoreEmpty(B.content[0], "|");
+                    
+                    // 解析自己，分析单元格的 align
+                    B.cellAligns = zUtil.splitIgnoreEmpty(trim, "|");
+                    for(var x=0; x<B.cellAligns.length; x++){
+                        var algin = B.cellAligns[x].replace(/ +/g,"");
+                        var m = /^(:)?([-]+)(:)?$/.exec(align);
+                        if(m[1] && m[3]){
+                            B.cellAligns[x] = "center";
+                        } else {
+                            B.cellAligns[x] = m[3] ? "right" : "left";
+                        }
+                    }
+
+                    // 推入
+                    blocks.tryPush(B);
+
+                    // 标识后续类型为 Tr
+                    B.type = "Tr";
+                }
+                // 引用: quote
+                else if(/^>/.test(trim)){
+                    B = blocks.tryPush(B);
+                    B.type = "quote";
+                    B.level = zUtil.countStrHeadChar(trim, ">");
+                    B.content.push($.trim(trim.substring(B.level)));
+                }
+                // 普通段落融合到之前的块
+                else if(/^(OL|UL|quote|P)$/.test(B.type)){
+                    B.content.push(trim);
+                }
+                // 将自己作为表格行
+                else if("Tr" == B.type) {
+                    B.content = zUtil.splitIgnoreEmpty(trim, "|");
+                    blocks.tryPush(B);
+                    B.type = "Tr";
+                }
+                // 默认是普通段落 : P
+                else {
+                    B = blocks.tryPush(B);
+                    B.type = "P";
+                    B.content.push(trim);
+                }
+            }
+
+            // 处理最后一段
+            blocks.tryPush(B);
+
+            //console.log(blocks)
+
+            // 定义内容输出函数
+            var __B_to_html = function(B){
+                var html = "";
+                for(var i=0; i<B.content.length; i++) {
+                    var line = B.content[i];
+                    if(line){
+                        if(i>0){
+                            html += '<br>\n';
+                        }
+                        html += __line_to_html(line);
+                    }
+                }
+                return html;
+            };
+
+            var __line_to_html = function(str){
+                var reg = '(\\*(.+)\\*)'
+                         + '|(\\*\\*(.+)\\*\\*)'
+                         + '|(__(.+)__)'
+                         + '|(~~(.+)~~)'
+                         + '|(`(.+)`)'
+                         + '|(!\\[(.*)\\]\\((.+)\\))'
+                         + '|(\\[(.*)\\]\\((.+)\\))'
+                         + '|(https?:\\/\\/[^ ]+)';
+                var REG = new RegExp(reg, "g");
+                var m;
+                var pos = 0
+                var html = "";
+                while(m = REG.exec(str)){
+                    console.log(m)
+                    if(pos<m.index){
+                        html += str.substring(pos,m.index);
+                    }
+                    // EM: *xxx*
+                    if(m[1]){
+                        html += '<em>' + m[2] + '</em>';
+                    }
+                    // B: **xxx**
+                    else if(m[3]){
+                        html += '<b>' + m[4] + '</b>';
+                    }
+                    // B: __xxx__
+                    else if(m[5]){
+                        html += '<b>' + m[6] + '</b>';
+                    }
+                    // DEL: ~~xxx~~
+                    else if(m[7]){
+                        html += '<del>' + m[8] + '</del>';
+                    }
+                    // CODE: `xxx`
+                    else if(m[9]){
+                        html += '<code>' + m[10] + '</code>';
+                    }
+                    // IMG: ![](xxxx)
+                    else if(m[11]){
+                        console.log("haha",m[13])
+                        html += '<img alt="'+m[12]+'" src="'+m[13]+'">';
+                    }
+                    // A: [](xxxx)
+                    else if(m[14]){
+                        html += '<a href="'+m[16]+'">'+(m[15]||m[16])+'</a>';
+                    }
+                    // A: http://xxxx
+                    else if(m[17]){
+                        html += '<a href="'+m[17]+'">'+m[17]+'</a>';
+                    }
+
+                    // 唯一下标
+                    pos = m.index + m[0].length;
+                }
+                if(pos<str.length){
+                    html += str.substring(pos);
+                }
+                return html;
+            };
+
+            var __B_to_blockquote = function(B, c) {
+                c.html += '\n<blockquote>';
+                c.html += __B_to_html(B);
+                // 循环查找后续的嵌套块
+                for(c.index++; c.index<c.blocks.length; c.index++){
+                    var B2 = c.blocks[c.index];
+                    if("quote" == B2.type && B2.level>B.level){
+                        __B_to_blockquote(B2, c);
+                    }else{
+                        break;
+                    }
+                }
+                c.html += '\n</blockquote>';
+                c.index --;
+            };
+
+            var __B_to_list = function(B, c) {
+                c.html += '\n<'+B.type+'>';
+                c.html += '\n<li>' + __B_to_html(B);
+                // 循环查找后续的列表项，或者是嵌套
+                for(c.index++; c.index<c.blocks.length; c.index++){
+                    var B2 = c.blocks[c.index];
+                    // 继续增加
+                    if(B.type == B2.type && B2.level == B.level){
+                        c.html += '</li>\n<li>' + __B_to_html(B2);
+                    }
+                    // 嵌套
+                    else if(B2.level > B.level && /^(OL|UL)$/.test(B2.type)) {
+                        __B_to_list(B2, c);
+                    }
+                    // 不属于本列表，退出吧
+                    else {
+                        break;
+                    }
+                }
+                c.html += '</li>';
+                c.html += '\n</'+B.type+'>';
+                c.index --;
+            };
+
+            // 准备上下文
+            var re = {
+                html   : "",
+                index  : 0,
+                blocks : blocks,
+            };
+
+            // 逐个输出段落
+            for(; re.index<re.blocks.length; re.index++) {
+                B = re.blocks[re.index];
+
+                // 标题: H
+                if("H" == B.type){
+                    re.html += '\n<h'+B.level+'>' + __line_to_html(B.content[0]) + '</h'+B.level+'>\n';
+                }
+                // 代码: code
+                else if("code" == B.type){
+                    re.html += '\n<pre' + (B.codeType?' code-type="'+B.codeType+'">':'>');
+                    re.html += B.content.join("\n").replace(/</g, "&lt;");
+                    re.html += '</pre>';
+                }
+                // 列表: OL | UL
+                else if("OL" == B.type || "UL" == B.type){
+                    __B_to_list(B, re);
+                }
+                // 水平线: hr
+                else if("hr" == B.type){
+                    re.html += '\n<hr>';
+                }
+                // 表格
+                else if("Th" == B.type){
+                    re.html += '\n<table>';
+                    // 输出列
+                    re.html += '\n<colgroup>';
+                    for(var x=0; x<B.cellAligns.length; x++){
+                        re.html += '\n<col align="' + B.cellAligns[x] + '"></col>';
+                    }
+                    re.html += '\n</colgroup>';
+                    
+                    // 输出表头
+                    re.html += '\n<thead>\n<tr>';
+                    for(var x=0; x<B.content.length; x++){
+                        re.html += '\n<th>'+__line_to_html(B.content[i])+'</th>';
+                    }
+                    re.html += '\n</tr>\n</thead>';
+                    
+                    // 输出表体
+                    re.html += '\n<tbody>';
+                    for(re.index++; re.index<re.blocks.length; re.index++){
+                        B = re.blocks[re.index];
+                        if("Tr" == B.type) {
+                            re.html += '\n<tr>';
+                            for(var x=0; x<B.content.length; x++){
+                                re.html += '\n<td>'+__line_to_html(B.content[i])+'</td>';
+                            }
+                            re.html += '\n</tr>';
+                        }
+                        // 否则退出表格模式
+                        else {
+                            break;
+                        }
+                    }
+                    re.html += '\n</tbody>';
+
+                    // 退回一个块
+                    re.index --;
+
+                    // 结束表格
+                    re.html += '\n</table>';
+                }
+                // 引用: quote
+                else if("quote" == B.type){
+                    __B_to_blockquote(B, re);
+                }
+                // 默认是普通段落 : P
+                else {
+                    re.html += '\n<p>';
+                    re.html += __B_to_html(B);
+                    re.html += '\n</p>';
+                }
+            }
+
+            // 最后返回
+            return re.html;
+        },
         //.............................................
         // 返回当前时间
         currentTime: function (date) {
