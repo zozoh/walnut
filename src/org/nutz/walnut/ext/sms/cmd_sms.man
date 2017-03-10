@@ -11,9 +11,9 @@
     
 # 用法
 
-	sms [-debug] [-config 配置文件路径] [-provider 提供商(当前仅Yunpian)] [-r 接收者的手机]+ <msg>
+	sms [-debug] [-config 配置文件路径] [-provider 提供商(当前仅Yunpian)] [-header 【德纳科技】] [-r 接收者的手机]+ <msg>
 	
 # 示例
 	
-	sms -debug -r 12345678901 机器AABBCCDDEEFF流量异常500mb
+	sms -debug -header 【nutz科技】-r 12345678901 机器AABBCCDDEEFF流量异常500mb
 	
