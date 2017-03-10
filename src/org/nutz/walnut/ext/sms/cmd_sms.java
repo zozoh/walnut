@@ -63,6 +63,16 @@ public class cmd_sms extends JvmExecutor {
             conf.setv("header", sc.header);
         }
 
+        // 检查header是否带有前后缀
+        String hstr = conf.getString("header");
+        if (!hstr.startsWith("【")) {
+            hstr = "【" + hstr;
+        }
+        if (!hstr.endsWith("】")) {
+            hstr = hstr + "】";
+        }
+        conf.setv("header", hstr);
+
         // TODO 适应各种提供商
         SmsProvider provider = new YunPianSmsProvider();
         for (String mobile : Strings.splitIgnoreBlank(sc.mobiles, ",")) {
