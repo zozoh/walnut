@@ -12,8 +12,8 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
-import org.eclipse.jetty.server.Request;
 import org.nutz.ioc.Ioc;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
@@ -58,10 +58,11 @@ public class WalnutFilter implements Filter {
     private ArrayList<DmnMatcher> _dms;
 
     @Override
-    public void doFilter(ServletRequest arg0, ServletResponse resp, FilterChain chain)
+    public void doFilter(ServletRequest request, ServletResponse resp, FilterChain chain)
             throws IOException, ServletException {
         // 用 Jettry 的 Request 对象接口
-        Request req = (Request) arg0;
+        //Request req = (Request) arg0;
+        HttpServletRequest req = (HttpServletRequest)request;
 
         // 分析路径
         String path = Wn.appendPath(req.getServletPath(), req.getPathInfo());
