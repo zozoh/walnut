@@ -5,8 +5,8 @@ import java.net.URLEncoder;
 import java.util.Map.Entry;
 
 import org.nutz.http.Http;
-import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -28,18 +28,18 @@ public class cmd_httpout extends JvmExecutor {
         if (body == null) {
             if (params.vals.length > 0)
                 buf = params.val(0).getBytes(Encoding.CHARSET_UTF8);
-            else if (sys.pipeId > 0)
+            // 从管道读取，或者从指定的标准输入读取
+            else {
                 buf = Streams.readBytes(sys.in.getInputStream());
-        }
-        else {
+            }
+        } else {
             ByteArrayOutputStream ops = new ByteArrayOutputStream();
             sys.io.readAndClose(sys.io.check(null, Wn.normalizeFullPath(body, sys)), ops);
             buf = ops.toByteArray();
         }
-        NutMap headers = new NutMap();
-        if (!Strings.isBlank(headers_str)) {
-            headers.putAll(Json.fromJsonAsMap(Object.class, headers_str));
-        }
+
+        NutMap headers = Strings.isBlank(headers_str) ? new NutMap() : Lang.map(headers_str);
+
         if (status / 100 == 3) {
             buf = null;
             headers.remove("Content-Length");
@@ -56,8 +56,8 @@ public class cmd_httpout extends JvmExecutor {
         for (Entry<String, Object> en : headers.entrySet()) {
             sys.out.print(URLEncoder.encode(en.getKey(), "UTF-8"));
             sys.out.print(": ");
-            //sys.out.println(URLEncoder.encode(""+en.getValue(), "UTF-8"));
-            sys.out.println(""+en.getValue());
+            // sys.out.println(URLEncoder.encode(""+en.getValue(), "UTF-8"));
+            sys.out.println("" + en.getValue());
         }
         sys.out.println();
         if (buf != null)
