@@ -44,6 +44,10 @@ tasks.withType(JavaCompile) {
 	options.compilerArgs = ["-parameters"]
 }
 
+tasks.withType(War) {
+	webAppDirName = "WebContent"
+}
+
 repositories {
     //mavenLocal()
     maven { url "https://jfrog.nutz.cn/artifactory/jcenter"}
@@ -55,13 +59,7 @@ dependencies {
 		exclude(module: 'jetty-all-server')
 		exclude(module: 'javax.servlet.jsp')
     }
-    //compile group: 'org.eclipse.jetty', name: 'jetty-server', version:'9.2.19.v20160908'
     compile group: 'org.eclipse.jetty', name: 'jetty-jsp', version:'9.2.19.v20160908'
-    //compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version:'9.2.19.v20160908'
-    //compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version:'9.2.19.v20160908'
-    //compile group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version:'9.2.19.v20160908'
-    //compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version:'9.2.19.v20160908'
-    //compile group: 'org.eclipse.jetty.websocket', name: 'javax-websocket-server-impl', version:'9.2.19.v20160908'
     
     compile group: 'org.apache.commons', name: 'commons-email', version:'1.4'
     compile group: 'org.jsoup', name: 'jsoup', version:'1.8.3'
@@ -93,7 +91,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.nutz:nutz:1.r.59'
+        classpath 'org.nutz:nutz:1.r.60'
     }
 }
 
@@ -223,33 +221,13 @@ task wtar(dependsOn: wbuild) << {
    	}.execute()
 }
 
+war {
+    rootSpec.exclude("**/jetty-*.jar")
+    rootSpec.exclude("**/org.eclipse.jdt*.jar")
+}
+
 def getDate() {
     def date = new Date()
     def formattedDate = date.format('yyyyMMddHHmmss')
     return formattedDate
-}
-
-task wnapp << {
-	def appdir = project.appdir
-	def appname = file(project.appdir).getName()
-	//println appdir
-	//println appname
-	//println appdir + "/ROOT/" + appname
-	
-	tasks.lessc.execute()
-	tasks.wruns.execute()
-	
-   	task (_wtar, type: Tar) {
-   		from appdir + "/ROOT/" + appname
-   		archiveName appname+'.tar'
-   		destinationDir buildDir
-   	}.execute()
-	
-	task (_wtar2, type: Tar) {
-   		from "build/update"
-   		from "build/"+appname+'.tar'
-   		archiveName appname+'-'+version_tag+'.tgz'
-   		destinationDir buildDir
-   		compression Compression.GZIP
-   	}.execute()
 }
