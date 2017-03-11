@@ -568,7 +568,35 @@ a.hm-com-image[skin="skin-image-big"] {
 //............................................
 // markdown 文本内容
 .skin-markdown {
-    background: red;
+    // 重定义字体大小
+    table, thead, tbody, tr, th, td {font-size:1em;}
+    
+    // 链接
+    a {color:#08F; text-decoration: none;}
+    a:hover {text-decoration: underline;}
+    
+    // 表格
+    table {
+        border-spacing: 0; border-collapse: collapse;
+    }
+    td, th {
+        border:1px solid #dfe2e5; padding:.08rem .16rem;
+        font-family: -apple-system, BlinkMacSystemFont, 
+                    "Segoe UI", Helvetica, Arial, 
+                    sans-serif, "Apple Color Emoji", 
+                    "Segoe UI Emoji", "Segoe UI Symbol";
+    }
+    th {font-weight: bold;}
+    
+    // 代码
+    pre {
+        padding: .16rem; overflow: auto;
+        font-size: 85%; line-height: 1.45;
+        background-color: #F0F0F0; border-radius: 3px;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", 
+                     Menlo, Courier, monospace;
+    }
+    
 }
 
 //............................................

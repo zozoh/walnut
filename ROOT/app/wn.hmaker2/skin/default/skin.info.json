@@ -89,6 +89,18 @@
                     "#L> li (分割线颜色)",
                 ]
             }],
+        "text" : [{
+                "text" : "超文本(Markdown)",
+                "selector" : "skin-markdown",
+                "blockFields" : [
+                    "fontSize",
+                    "#C> h1,h2,h3,h4,h5,h6 (标题文字颜色)",
+                    "#C> p a (链接颜色)",
+                    "padding", "border",
+                    "color", "background", "boxShadow",
+                    "borderRadius"
+                ],
+            }],
         "dynamic" : [{
                 "text" : "媒体列表",
                 "selector" : "skin-dynamic-media-hlist",
