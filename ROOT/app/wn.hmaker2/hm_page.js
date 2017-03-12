@@ -84,10 +84,6 @@ var html = `
             <li ctype="pager" icon="hmaker.com.pager.icon"
                 text="hmaker.com.pager.name" tip="hmaker.com.pager.tip"></li>
             <li class="sep"></li>
-            <!--li ctype="objlist" icon="hmaker.com.objlist.icon" 
-                text="hmaker.com.objlist.name" tip="hmaker.com.objlist.tip"></li>
-            <li ctype="objshow" icon="hmaker.com.objshow.icon" 
-                text="hmaker.com.objshow.name" tip="hmaker.com.objshow.tip"></li-->
             <li ctype="libitem" icon="hmaker.lib.icon" 
                 text="hmaker.lib.item" tip="hmaker.lib.tip"></li>
         </ul>
