@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.www;
 
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -311,13 +310,13 @@ public class WWWModule extends AbstractWnModule {
         try {
             // 动态网页
             boolean isDynamic = o.is("as_wnml", true);
-            if(!isDynamic)
+            if (!isDynamic)
                 isDynamic = o.isType("wnml");
             // 执行命令
             if (isDynamic) {
                 // 首先创建一个会话
                 WnSession se = this.creatSession(usr);
-                
+
                 // 得到文件内容
                 String input = io.readText(o);
 
@@ -329,11 +328,11 @@ public class WWWModule extends AbstractWnModule {
                 context.put("grp", se.group());
                 context.put("fnm", o.name());
                 context.put("rs", "/gu/rs");
-                
+
                 // 创建一下解析服务
-                WnmlModuleRuntime wrt = new WnmlModuleRuntime(this,se);
+                WnmlModuleRuntime wrt = new WnmlModuleRuntime(this, se);
                 WnmlService ws = new WnmlService();
-                
+
                 // 执行转换
                 String html = ws.invoke(wrt, context, input);
 
@@ -368,34 +367,6 @@ public class WWWModule extends AbstractWnModule {
             return gen_errpage(tmpl_500, a_path, e.toString());
         }
 
-    }
-
-    private NutMap _gen_context_by_req(HttpServletRequest req) {
-        NutMap context = new NutMap();
-        // 生成上下文
-        NutMap params = new NutMap();
-
-        // 寻找一个请求里的所有参数
-        Map<String, String[]> paramMap = req.getParameterMap();
-        for (Map.Entry<String, String[]> en : paramMap.entrySet()) {
-            String key = en.getKey();
-            String[] val = en.getValue();
-
-            if (null == val || val.length == 0)
-                continue;
-
-            if (val.length == 1)
-                params.put(key, val[0]);
-            else
-                params.put(key, val);
-        }
-        context.put("params", params);
-
-        // 得到会话 ID
-        context.put("sessionId", Wn.WC().getString(WWW.AT_SEID));
-
-        // 返回
-        return context;
     }
 
     private View gen_errpage(Tmpl tmpl, String path) {

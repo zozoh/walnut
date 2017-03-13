@@ -11,8 +11,6 @@ $z.declare([
     'app/wn.hmaker2/component/columns.js',
     'app/wn.hmaker2/component/image.js',
     'app/wn.hmaker2/component/text.js',
-    'app/wn.hmaker2/component/objlist.js',
-    'app/wn.hmaker2/component/objshow.js',
 ], function(ZUI, Wn, MenuUI, HmMethods, PageComBarUI, PageSetup){
 //==============================================
 var JS_LIB = { 

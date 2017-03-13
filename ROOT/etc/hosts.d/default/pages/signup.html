@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js"></script>
+    <script src="/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js"></script>
+    <script src="/gu/rs/core/js/nutz/zutil.js"></script>
+    <script src="signup.js"></script>
+    <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">
+    <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="form.css">
+    <script>
+    var on_load = function(){
+        window.setTimeout(function(){
+            document.body.removeAttribute("mode");          
+        }, 100);
+    };
+    window.onload = on_load;
+    document.onload = on_load;
+    </script>
+</head>
+<body mode="begin">
+<form method="POST" action="/u/do/signup">
+    <header><img src="/gu/rs/core/img/logo_walnut_b.png"></header>
+    <section>
+        <div class="form-name">
+            <span><i class="zmdi zmdi-account-add"></i></span>
+            <input name="str" placeholder="输入新用户名，手机号或者邮箱" spellcheck="false"/>
+            <div class="form-tip">
+            如果直接输入新用户名，只能是数字，字母（区分大小写），下划线，一旦注册不能更改
+            </div>
+        </div>
+        <div class="form-checkre">
+            <span class="re-icon re-ok"><i class="fa fa-check"></i></span>
+            <span class="re-icon re-warn"><i class="fa fa-warning"></i></span>
+            <span class="re-info">您的用户名可用</span>
+        </div>
+        <div class="form-vcode">
+            <div class="vcode-tip"></div>
+            <span class="vcode-tt"></span>
+            <input name="vcode"/>
+            <b><em></em><span>秒后</span>重新获取验证码</b>
+        </div>
+        <div class="form-passwd">
+            <span><i class="zmdi zmdi-key"></i></span>
+            <input name="passwd" type="password" placeholder="输入您登录用的密码"/>
+        </div>
+        <div class="form-passwd-re">
+            <span><i class="zmdi zmdi-key"></i></span>
+            <input name="passwd" type="password" placeholder="再次输入密码"/>
+        </div>
+        <div class="form-btn"><button disabled>立即生成我的新账号</button></div>
+        <div class="form-signup">
+           <a href="login.html"><i class="zmdi zmdi-account-o"></i><span>我已经有了账号，去登录</span></a>
+        </div>
+    </section>
+</form>
+</body>
+</html>
