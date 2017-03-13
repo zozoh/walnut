@@ -131,7 +131,7 @@ return ZUI.def("ui.mask", {
             "left"  : mL,
             "top"   : mT,
         });
-        var jCloser = UI.arena.find(".ui-mask-closer");
+        var jCloser = UI.arena.children(".ui-mask-closer");
         var iR = Math.max(0, mL - jCloser.width()/2);
         var iT = Math.max(0, mT - jCloser.height()/2);
         jCloser.css({
