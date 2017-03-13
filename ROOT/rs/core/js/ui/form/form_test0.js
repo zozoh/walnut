@@ -350,7 +350,7 @@ return ZUI.def("ui.form_test0", {
     update : function(o){
         var UI = this;
         UI.$el.attr("obj-id", o.id);
-        UI.do_t1();
+        UI.do_t2();
     }
     //...............................................................
 });

@@ -25,14 +25,18 @@ import org.nutz.mvc.annotation.POST;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.JspView;
+import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.trans.Atom;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrInfo;
+import org.nutz.walnut.ext.www.WnmlModuleRuntime;
+import org.nutz.walnut.ext.www.WnmlService;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -80,7 +84,7 @@ public class UsrModule extends AbstractWnModule {
 
     @At("/h/**")
     @Fail(">>:/")
-    public View show_host(String rph, @Attr("wn_www_host") String host) {
+    public View show_host(String rph, @Attr("wn_www_host") String host, HttpServletRequest req) {
         // 确保没有登录过
         String seid = Wn.WC().SEID();
         if (null != seid) {
@@ -109,7 +113,34 @@ public class UsrModule extends AbstractWnModule {
         if (null != oPageHome) {
             try {
                 WnObj o = io.check(oPageHome, rph);
-                return new WnObjDownloadView(io, o);
+                // 如果是改名页面，动态渲染，以便得到用户原有信息
+                if ("rename.html".equals(o.name())) {
+                    // 得到文件内容
+                    String input = io.readText(o);
+
+                    // 得到会话信息，并创建转换上下文
+                    WnSession se = Wn.WC().checkSE();
+                    WnUsr me = Wn.WC().getMyUsr(usrs);
+                    NutMap context = _gen_context_by_req(req);
+                    context.put("grp", se.group());
+                    context.put("fnm", o.name());
+                    context.put("me", me);
+                    context.put("rs", "/gu/rs");
+
+                    // 创建一下解析服务
+                    WnmlModuleRuntime wrt = new WnmlModuleRuntime(this, se);
+                    WnmlService ws = new WnmlService();
+
+                    // 执行转换
+                    String html = ws.invoke(wrt, context, input);
+
+                    // 返回网页
+                    return new ViewWrapper(new RawView("text/html"), html);
+                }
+                // 其他页面，直接输出
+                else {
+                    return new WnObjDownloadView(io, o);
+                }
             }
             catch (Exception e) {
                 if (!"login.html".equals(rph))
@@ -125,6 +156,22 @@ public class UsrModule extends AbstractWnModule {
         return new ViewWrapper(new JspView("jsp." + jsp_nm), null);
     }
 
+    @At("/vcode/phone/get")
+    @Ok("ajax")
+    @Fail("ajax")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public void vcode_phone_get(@Param("phone") String phone) {
+
+    }
+
+    @At("/vcode/email/get")
+    @Ok("ajax")
+    @Fail("ajax")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public void vcode_email_get(@Param("email") String phone) {
+
+    }
+
     /**
      * 处理用户注册
      * 
@@ -132,8 +179,8 @@ public class UsrModule extends AbstractWnModule {
      *            用户名
      * @param passwd
      *            密码
-     * @param email
-     *            邮箱
+     * @param mode
+     *            指定创建后的逻辑
      * @return 新的用户对象
      */
     @At("/do/signup")
@@ -141,15 +188,10 @@ public class UsrModule extends AbstractWnModule {
     @Fail("jsp:jsp.show_text")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
     public WnUsr do_signup(@Param("str") String str,
-                           @Param("nm") String nm,
+                           @Param("vcode") String vcode,
                            @Param("passwd") String passwd,
-                           @Param("email") String email,
-                           @Param("phone") String phone,
                            @Param("mode") String mode) {
-        if (Strings.isBlank(str)
-            && Strings.isBlank(nm)
-            && Strings.isBlank(email)
-            && Strings.isBlank(phone)) {
+        if (Strings.isBlank(str)) {
             throw Er.create("e.usr.signup.blank");
         }
         if (Strings.isBlank(passwd)) {
@@ -159,21 +201,16 @@ public class UsrModule extends AbstractWnModule {
             throw Er.create("e.usr.pwd.invalid");
         }
 
-        WnUsrInfo info = new WnUsrInfo();
-        // 肯定是指定了特殊的字段
-        // TODO zozoh 这段逻辑应该删掉，没用了，用自动判断就好
-        if (Strings.isBlank(str)) {
-            info.setName(nm);
-            info.setEmail(email);
-            info.setPhone(phone);
-        }
-        // 自动判断
-        else {
-            info.setLoginStr(str);
+        // 分析注册信息
+        WnUsrInfo info = new WnUsrInfo(str);
+
+        // 如果是手机，需要校验验证码
+        if (info.isByPhone()) {
+            // TODO 验证
         }
 
+        // 创建账户
         info.setLoginPassword(passwd);
-
         WnUsr u = usrs.create(info);
 
         // 执行创建后初始化脚本
@@ -192,12 +229,10 @@ public class UsrModule extends AbstractWnModule {
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
     public WnUsr do_signup_ajax(@Param("str") String str,
-                                @Param("nm") String nm,
+                                @Param("vcode") String vcode,
                                 @Param("passwd") String passwd,
-                                @Param("email") String email,
-                                @Param("phone") String phone,
                                 @Param("mode") String mode) {
-        return do_signup(str, nm, passwd, email, phone, mode);
+        return do_signup(str, vcode, passwd, mode);
     }
 
     /**
@@ -382,6 +417,18 @@ public class UsrModule extends AbstractWnModule {
         } else {
             return this.getClass().getResourceAsStream("/avatar.png");
         }
+    }
+
+    @At("/exists")
+    @Ok("ajax")
+    @Fail("ajax")
+    public boolean usrExists(@Param("str") String str) {
+        WnUsr u = Wn.WC().security(new WnEvalLink(io), new Proton<WnUsr>() {
+            protected WnUsr exec() {
+                return usrs.fetch(str);
+            }
+        });
+        return u == null ? false : true;
     }
 
     /**

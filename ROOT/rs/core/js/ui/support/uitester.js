@@ -5,7 +5,7 @@ return ZUI.def("ui.support.uitester", {
     dom  : '<div class="ui-arena" ui-fitparent="yes" ui-gasket="main" style="padding:10px;"></div>',
     //...............................................................
     events : {
-        "click button" : function(){
+        "click > .ui-arena > button" : function(){
             // 得到 uiType/uiConf
             var uiType = $.trim(this.arena.find("input").val());
             var uiConf = $z.fromJson($.trim(this.arena.find("textarea").val())||"{}");

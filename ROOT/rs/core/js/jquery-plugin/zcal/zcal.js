@@ -308,7 +308,7 @@ function redraw($ele, opt){
 }
 //...........................................................
 function update(jRoot, opt, d){
-    opt.current = d || opt.current || new Date();
+    opt.current = $z.parseDate(d || opt.current || new Date());
     d = opt.current;
     var ms = d.getTime()
     d = new Date();

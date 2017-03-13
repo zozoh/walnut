@@ -116,7 +116,7 @@
                 "text" : "文章列表",
                 "selector" : "skin-dynamic-article-list",
                 "blockFields" : [
-                    "@li-mode(显示模式)[图文=ptb,标题=t,标题+摘要=tb]=ptb",
+                    "@li-mode(显示模式哈哈)[图文=ptb,标题=t,标题+摘要=tb]=ptb",
                     "@li-scale(题图比例)[16x9,4x3,1x1,3x4,9x16]=16x9",
                     "@li-thumb-sz(题图尺寸)[大=b,中=m,小=s]=m",
                     "@li-thumb-border(题图边框)[粗=b,细=t,无=n]=t",
