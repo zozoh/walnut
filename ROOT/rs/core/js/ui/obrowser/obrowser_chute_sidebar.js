@@ -46,7 +46,7 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
             this.showOutline();
         },
         // 禁止侧边栏默认的链接点击行为
-        "dclick a[href]" : function(e) {
+        "click a[href]" : function(e) {
             e.preventDefault();
         }
     },
