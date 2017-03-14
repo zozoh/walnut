@@ -396,6 +396,17 @@
             return re;
         },
         //.............................................
+        rectValues : function(rect, keys) {
+            if (_.isString(keys)) {
+                keys = keys.split(/[ \t]*,[ \t]*/);
+            }
+            var re = [];
+            for (var i = 0; i < keys.length; i++) {
+                re.push(rect[keys[i]]);
+            }
+            return re;
+        },
+        //.............................................
         rectDump: function (rect) {
             return this.tmpl("[{{left}},{{top}}]w={{width}},h={{height}}")(rect);
         },
@@ -928,6 +939,15 @@
         // 计算矩形面积
         rect_area: function (rect) {
             return rect.width * rect.height;
+        },
+        //.............................................
+        // 根据指定的 jQuery 集合，计算所有元素的最小矩形
+        rect_union_by : function(jq) {
+            var rects = [];
+            jq.each(function(){
+                rects.push(zUtil.rect(this));
+            });
+            return zUtil.rect_union.apply(this, rects);
         },
         //.............................................
         // 计算多个矩形的最小相并矩形
@@ -2812,7 +2832,7 @@
                 }
             });
         },
-        //---------------------------------------------------------------------------------------
+        //----------------------------------------------------
         /**
          编辑任何元素的内容
          ele - 为任何可以有子元素的 DOM 或者 jq，本函数在该元素的位置绘制一个 input 框，让用户输入新值
@@ -3090,6 +3110,95 @@
 
             // 返回最新的 DIV
             return jDiv;
+        },
+        /*----------------------------------------------------
+        对指定元素进行高亮标注，主要用于界面的初始使用提示
+        opt - 配置项目
+        {
+            items : [{
+                target : jQuery   // 指定一组要标注的文字
+                text   : "xxxx"   // 标注文字的内容
+            }, {
+                // 同时进行的下一组标注
+            }],
+            done : F()    // 所有标注显示完毕后的回调
+        }
+        */
+        markIt : function(opt) {
+            // 必须得有绘制项目
+            if(!_.isArray(opt.items) || opt.items.length == 0)
+                return;
+
+            // 绘制遮罩层
+            var jMark = $('<div>').appendTo(document.body).css({
+                "position" : "fixed",
+                "top"    : 0,
+                "left"   : 0,
+                "right"  : 0,
+                "bottom" : 0,
+                "zIndex" : 99,
+            });
+            // 得到遮罩层的大小并生成画布
+            var R_VP = $z.rect(jMark);
+            var jCanv = $('<canvas>').appendTo(jMark).attr({
+                "width"   : R_VP.width,
+                "height"  : R_VP.height,
+            });
+            var canvas = jCanv[0];
+
+            // 准备绘制项目的方法
+            var __draw_item = function(it){
+                if(!it.target)
+                    return;
+                var jTa = $(it.target);
+                if(jTa.length == 0)
+                    return;
+                // 得到画笔，并绘制初始背景色
+                var g2d = canvas.getContext("2d");
+                g2d.save();
+                g2d.clearRect(0,0,canvas.width,canvas.height);
+                g2d.restore();
+                g2d.fillStyle = "rgba(0,0,0,0.6)";
+                g2d.fillRect(0,0,canvas.width,canvas.height);
+                // 重置画笔
+                g2d.fillStyle = "#F80";
+                g2d.strokeStyle = "#F80";
+                g2d.lineWidth = 2;
+                // 计算矩形
+                var rect = zUtil.rect_union_by(jTa);
+                var args = zUtil.rectValues(rect, "left,top,width,height");
+                // 绘制提示区域高亮矩形
+                g2d.clearRect.apply(g2d, args);
+                g2d.strokeRect.apply(g2d, args);
+                // 绘制指示线
+                g2d.beginPath();
+                g2d.moveTo(rect.right+4, rect.y);
+                g2d.lineTo(rect.right+30, rect.y);
+                g2d.stroke();
+                // 绘制文字
+                g2d.font="14px Georgia";
+                g2d.fillText(it.text,rect.right+40, rect.y);
+            }
+            
+            // 记录绘制的项目
+            var index = 0;
+
+            // 绘制第一个对象
+            __draw_item(opt.items[index++]);
+
+            //  监控鼠标
+            jMark.on("click", "canvas", function(){
+                // 结束
+                if(index >= opt.items.length){
+                    jMark.remove();
+                    zUtil.invoke(opt, "done", []);
+                }
+                // 继续绘制
+                else {
+                    __draw_item(opt.items[index++]);
+                }
+            });
+
         },
         //.............................................
         // json : function(obj, fltFunc, tab){

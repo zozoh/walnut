@@ -183,7 +183,6 @@ return ZUI.def("ui.table", {
     },
     //...............................................................
     _draw_empty : function() {
-        console.log("hahaha")
         this.arena.empty().append(this.ccode("empty"));
     },
     //...............................................................

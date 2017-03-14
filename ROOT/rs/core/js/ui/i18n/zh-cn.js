@@ -47,6 +47,9 @@ define({
     "console"    : "控制台",
     "acode_manager" : "激活码管理",
     "licence"    : "许可证",
+    "help"       : "帮助",
+    "quick_help" : "快速帮助",
+    "quick_tip_already" : "如果下次打开本界面，仍想自动播放帮助提示，请点击「是」，否则请点击「否」",
     "e_ajax"     : "靠，有问题啦， 错误码:{{errCode}}  细节:{{msg}} : {{data}}",
     "editing"    : {
         "multiselectbox" : {

@@ -124,13 +124,21 @@ var Wn = {
     //...................................................................
     objDisplayName : function(UI, nm, maxLen){
         var text = _.isString(nm) ? nm : nm.nm;
+        if(!text)
+            return "??";
         // 默认大小
         if(!_.isNumber(maxLen)){
             maxLen = 20;
         }
         // 翻译多国语言
-        var nms = UI.msg("fnm") || {};
-        text = nms[text] || text;
+        if(/^i18n:.+$/g.test(text)){
+            text = UI.msg(text.substring(5));
+        }
+        // _key_xxx 格式
+        else {
+            var nms = UI.msg("fnm") || {};
+            text = nms[text] || text;
+        }
 
         // 加入省略号
         if(maxLen > 0)

@@ -521,6 +521,35 @@ ZUIObj.prototype = {
                         afterRender.call(UI);
                     }
 
+                    // 准备绘制快速帮助
+                    if(UI.options.quickTip && UI.options.quickTip.items.length>0){
+                        var qtip = {items:[]};
+                        var alreadyPlayed = UI.local("quick_tip_played");
+                        for(var i=0; i<UI.options.quickTip.items.length; i++) {
+                            var it = UI.options.quickTip.items[i];
+                            qtip.items.push({
+                                target : UI.arena.find(it.target),
+                                text : UI.text(it.text),
+                            });
+                        }
+                        // 默认回调
+                        qtip.done = function(){
+                            UI.confirm("quick_tip_already", {
+                                ok : function(){
+                                    UI.local("quick_tip_played", false)
+                                },
+                                cancel : function(){
+                                    UI.local("quick_tip_played", true)
+                                }
+                            });
+                        }
+                        UI.__quick_tip = qtip;
+                        // 从来没播放过，来一遍
+                        if(!alreadyPlayed) {
+                            UI.showQuickTip();
+                        }
+                    }
+
                     // 触发显示事件
                     $z.invoke(UI.options, "on_display", [], UI);
                     UI.trigger("ui:display", UI);
@@ -928,7 +957,8 @@ ZUIObj.prototype = {
     text: function(str, ctx, msgMap){
         // 多国语言
         if(/^i18n:.+$/g.test(str)){
-            return this.msg(str.substring(5), ctx, msgMap);
+            var key = str.substring(5);
+            return this.msg(key, ctx, msgMap);
         }
         // 字符串模板
         if(str && ctx && _.isObject(ctx)){
@@ -1164,6 +1194,15 @@ ZUIObj.prototype = {
                     }).render();
                 });
         });
+    },
+    //...................................................................
+    showQuickTip : function(showParentAsDefault){
+        if(this.__quick_tip){
+            $z.markIt(this.__quick_tip);
+        }
+        else if(showParentAsDefault && this.parent){
+            this.parent.showQuickTip(showParentAsDefault);
+        }
     },
     //...................................................................
     // 提供一个通用的确认对话框
