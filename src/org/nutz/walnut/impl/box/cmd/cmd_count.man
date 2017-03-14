@@ -4,7 +4,7 @@
 
 # 用法
 
-	count [-A] [-tp txt] [/path/to/dir]..
+	count [-A] [-tp txt] [-match '{...}'][/path/to/dir]..
 	
 # 示例
 
@@ -21,6 +21,8 @@
 	count -A
 	
 	计算txt类型的对象数量
-	disk .. -tp txt
+	count .. -tp txt
 	
+	计算符合match的对象数量
+	count -match 'tp:"txt"'
 	
