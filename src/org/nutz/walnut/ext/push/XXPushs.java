@@ -142,8 +142,6 @@ public class XXPushs {
             Result re = xmpush.sendToAlias(msg, alias, 3);
             if (re.getErrorCode() == ErrorCode.Success)
                 return "msgid="+re.getMessageId();
-            System.out.println(re.getReason());
-            System.out.println(msg);
             throw Err.create("e.cmd.push.xmpush_fail", re);
         }
         catch (Exception e) {
