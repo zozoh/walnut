@@ -9,6 +9,7 @@ import org.nutz.img.Colors;
 import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Strings;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
@@ -48,6 +49,7 @@ public class cmd_iimg extends JvmExecutor {
             q.setv("width", "[1,]");
             q.setv("height", "[1,]");
             o_old = sys.nosecurity(new Proton<WnObj>() {
+                @Override
                 protected WnObj exec() {
                     return sys.io.getOne(q);
                 }
@@ -72,6 +74,7 @@ public class cmd_iimg extends JvmExecutor {
             if (params.has("thumb")) {
                 final WnObj o_old2 = o_old;
                 WnObj o_old_thumb = sys.nosecurity(new Proton<WnObj>() {
+                    @Override
                     protected WnObj exec() {
                         return Wn.checkObj(sys, o_old2.thumbnail());
                     }
@@ -155,6 +158,7 @@ public class cmd_iimg extends JvmExecutor {
                 if (!o_old_thumb.isSameId(oThumb)) {
                     WnObj oThumb2 = oThumb;
                     sys.nosecurity(new Atom() {
+                        @Override
                         public void run() {
                             sys.io.copyData(o_old_thumb, oThumb2);
                         }
@@ -180,7 +184,18 @@ public class cmd_iimg extends JvmExecutor {
                 }
                 // 剪裁
                 else {
-                    im2 = Images.clipScale(im, w, h);
+                    String cpoints = params.getString("points");
+                    if (Strings.isBlank(cpoints)) {
+                        im2 = Images.clipScale(im, w, h);
+                    } else {
+                        String[] parr = Strings.splitIgnoreBlank(cpoints, ",");
+                        int[] startPoint = new int[]{Integer.parseInt(parr[0]),
+                                                     Integer.parseInt(parr[1])};
+                        int[] endPoint = new int[]{startPoint[0]
+                                                   + Integer.parseInt(parr[2]),
+                                                   startPoint[1] + Integer.parseInt(parr[3])};
+                        im2 = Images.clipScale(im, startPoint, endPoint);
+                    }
                 }
 
                 // 最后写入
