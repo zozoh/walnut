@@ -83,6 +83,32 @@ public class cmd_iimg extends JvmExecutor {
             }
         }
 
+        if (params.has("clip")) {
+            String cpoints = params.getString("clip");
+            String[] parr = Strings.splitIgnoreBlank(cpoints, ",");
+            if (parr.length == 4) {
+                int[] startPoint = new int[]{Integer.parseInt(parr[0]), Integer.parseInt(parr[1])};
+                int[] endPoint = new int[]{startPoint[0]
+                                           + Integer.parseInt(parr[2]),
+                                           startPoint[1] + Integer.parseInt(parr[3])};
+                BufferedImage im = sys.io.readImage(oim);
+                BufferedImage im2 = Images.clipScale(im, startPoint, endPoint);
+                WnObj outObj = oim;
+                if (params.has("out")) {
+                    String outPath = Wn.normalizeFullPath(params.get("out"), sys);
+                    WnObj onew = sys.io.check(null, outPath);
+                    if (onew != null) {
+                        outObj = onew;
+                    } else {
+                        outObj = sys.io.createIfNoExists(null, outPath, WnRace.FILE);
+                    }
+                }
+                sys.io.writeImage(outObj, Images.redraw(im2, Color.white));
+            } else {
+                sys.err.print("err clip params, must be num like 0,0,100,100");
+            }
+        }
+
         // 最后输出
         if (!params.is("Q")) {
             JsonFormat fmt = Cmds.gen_json_format(params);
@@ -184,7 +210,7 @@ public class cmd_iimg extends JvmExecutor {
                 }
                 // 剪裁
                 else {
-                    String cpoints = params.getString("points");
+                    String cpoints = params.getString("clip");
                     if (Strings.isBlank(cpoints)) {
                         im2 = Images.clipScale(im, w, h);
                     } else {
