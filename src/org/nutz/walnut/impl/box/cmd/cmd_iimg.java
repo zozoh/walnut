@@ -96,7 +96,7 @@ public class cmd_iimg extends JvmExecutor {
                 WnObj outObj = oim;
                 if (params.has("out")) {
                     String outPath = Wn.normalizeFullPath(params.get("out"), sys);
-                    WnObj onew = sys.io.check(null, outPath);
+                    WnObj onew = sys.io.fetch(null, outPath);
                     if (onew != null) {
                         outObj = onew;
                     } else {
