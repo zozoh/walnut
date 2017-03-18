@@ -14,6 +14,11 @@ new FormUI({
     // 默认的，控件将调用者通过 setData(o) 传入的对象 o 存储，当 getData 的时候
     // 控件将 o 与最新的编辑信息合并，返回给调用者
     // 如果希望 getData 返回一个新对象，那么将这个属性设置为 false
+    // !!! 这里需要注意的是: 如果控件返回的字段值为 undefined，合并的时候会被无视
+    // 字段属性 nullAsUndefined :true 则标识了该字段，如果为 null 则当做 undefined 处理
+    // 字段属性 emptyAsNull : true 标识了该字段（仅对 type=string有效) 如果为空串，当做null
+    // 来出来，因此对于一个 type=string 的字段，如果标识了 nullAsUndefined 则，空串会被无视
+    // （因为，emptyAsNull 默认为 true）
     mergeData  : true
     
     // setData 前的预处理
@@ -113,7 +118,26 @@ new FormUI({
    beforeSetData : {fld}F(o),
    afterSetData  : {fld}F(o),
    
-   type     : "string"      // @see jtypes.js
+   //.................................................
+   // 字段类型: 
+   //  - string : 字符串
+   //  - object : JS对象，可以是空白对象或者数组
+   //  - daterange : 日期范围，一个数组 [Date, Date]
+   //  - datetime  : 日期时间, Date()
+   //  - time      : 时间, $z.parseTime() 输出的格式
+   //  - int       : 整数
+   //  - float     : 浮点
+   //  - boolean   : 布尔 
+   type     : "string",
+   
+   // 如果控件的值为 null，是否当做 undefined 来处理
+   // 默认为 false
+   nullAsUndefined : false,
+   
+   // 当 type==string 时，支持属性。即如果是空字符串，会被当做 null
+   emptyAsNull : true,
+   
+   //.................................................
    editAs   : "input"       // 快捷的编辑控件类型
    uiType   : "xxxx"        // 编辑控件类型，比 editAs 优先
    uiConf   : {..}          // 编辑控件的配置信息
@@ -168,7 +192,37 @@ new FormUI({
 ```
 // 返回控件正在编辑的表单数据
 var o = uiForm.getData();
+
+// 返回某个指定键的数据
+var v = uiForm.getData("someKey");
 ```
+
+form 控件获取数据的行为被下面几个配置项影响:
+
+- form 配置项 `mergeData`，默认 true
+- 字段配置项 `nullAsUndefined`，默认 false
+- 字段配置项 `emptyAsNull`，默认 true
+
+通过这几个配置项的组合，你基本让你的表单符合绝大多数使用场景。关于这几个选项的描述，请详细参见字段选项描述。这里有个例子:
+
+```
+var obj = {txt: "Hello"};
+
+// 对于 form, setData 后
+{
+     mergeData : true,
+     fields : [{
+         key : "txt",
+         type : "string",
+         emptyAsNull : true,
+         nullAsUndefined : true
+     }]
+}
+
+// 如果用户删掉了 input 框内容，那么 form.getData() 将返回:
+{txt: "Hello"}
+```
+
 
 ## setData
 
