@@ -354,7 +354,8 @@ var JsInt = function(fld){
 };
 JsInt.prototype = new JsObj();
 JsInt.prototype._parse_and_return = function(v){
-    return parseInt(v);
+    var val = parseInt(v);
+    return isNaN(val) ? null : val;
 };
 JsInt.prototype.toText = function(){
      return _eval_enum_text(this.__fld, this.__val) || this.toStr();

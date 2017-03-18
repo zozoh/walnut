@@ -189,7 +189,7 @@ return ZUI.def("ui.form_com_input", {
         var val = UI.arena.find(">.box>input").val();
         if(opt.trimData)
             val = $.trim(val);
-        return val || null;
+        return val;
     },
     //...............................................................
     _set_data : function(s, jso){
