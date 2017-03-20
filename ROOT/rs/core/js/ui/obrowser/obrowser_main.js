@@ -48,7 +48,7 @@ return ZUI.def("ui.obrowser_main", {
         if(asetup && asetup.currentEditor){
             var ed = asetup.currentEditor;
 
-            console.log(ed);
+            //console.log(ed);
 
             // 准备通知消息
             var msg = ed.icon || "";
