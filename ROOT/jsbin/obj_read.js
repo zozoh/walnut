@@ -10,10 +10,12 @@ var m = m == "true";
 
 function _main(ph, m) {
     var obj = null;
-    if (ph.indexOf("/") == -1) {
-        obj = sys.exec2("obj id:" + ph);
-    } else {
+    if (ph.indexOf("id:") == 0) {
         obj = sys.exec2("obj " + ph);
+    } else if (ph.indexOf("/") > -1) {
+        obj = sys.exec2("obj " + ph);
+    } else {
+        obj = sys.exec2("obj id:" + ph);
     }
     obj = eval('(' + obj + ')');
     if (m) {
