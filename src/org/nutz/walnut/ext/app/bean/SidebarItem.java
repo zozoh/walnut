@@ -39,16 +39,21 @@ public class SidebarItem {
         this.oid = o.id();
         this.ph = o.path();
         // 图标
-        this.icon = o.getString("icon", this.icon);
-        if (!this.hasIcon())
+        if (!this.hasIcon()) {
+            this.icon = o.getString("icon");
+        }
+        if (!this.hasIcon()) {
             this.icon = String.format("<i class=\"oicon\" otp=\"%s\"></i>",
                                       Strings.sBlank(o.type(), "folder"));
+        }
         // 文本
-        this.text = o.getString("title", this.text);
-        if (!this.hasText())
-            this.text = o.name();
+        if (!this.hasText()) {
+            this.text = o.getString("title", o.name());
+        }
         // 编辑器
-        this.editor = o.getString("editor", this.editor);
+        if (!this.hasEditor()) {
+            this.editor = o.getString("editor");
+        }
 
         // 其他
         this.dynamic = true;
