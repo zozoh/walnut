@@ -429,8 +429,17 @@ var methods = {
         objs = _.isArray(objs) ? objs : [objs];
 
         var jListBody = UI.$listBody();
-        for(var obj of objs) {
-            UI._upsert_item(obj, jListBody, UI.$item(it), direction);
+
+        // 如果为空，则表示重绘数据
+        if(jListBody.length == 0) {
+            UI._draw_data(objs);
+        }
+        // 否则依次追加数据
+        else {
+            var jItem = UI.$item(it);
+            for(var obj of objs) {
+                jItem = UI._upsert_item(obj, jListBody, jItem, direction);
+            }
         }
 
         // 子类后续处理

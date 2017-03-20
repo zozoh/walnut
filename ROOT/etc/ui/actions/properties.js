@@ -4,6 +4,7 @@
 	type : "button",
 	handler : function($ele, a) {
 		var UI = this.browser();
+		console.log("haha")
 		
 		// 获取当前的对象
 		var o = $z.invoke(UI, "getActived");

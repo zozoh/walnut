@@ -47,6 +47,9 @@ return ZUI.def("ui.obrowser_main", {
         // 如果有编辑器，就用编辑器处理
         if(asetup && asetup.currentEditor){
             var ed = asetup.currentEditor;
+
+            //console.log(ed);
+
             // 准备通知消息
             var msg = ed.icon || "";
             msg += " " + UI.text(ed.text) || ed.key;
