@@ -22,17 +22,23 @@ function printJson(obj) {
 	print(sys.json(obj));
 }
 
-/**
- * AJAX 输出的函数
- */
-function ajax_re(obj) {
-	// 处理返回对象
+
+function _toObj(obj) {
 	if (typeof obj == "string") {
 		obj = obj.trim();
 		if (/^\{.+\}$/.test(obj)) {
 			obj = eval('(' + obj + ')');
 		}
 	}
+	return obj;
+}
+
+/**
+ * AJAX 输出的函数
+ */
+function ajax_re(obj) {
+	// 处理返回对象
+	obj = _toObj(obj);
 	// 响应体
 	sys.out.println(JSON.stringify(obj, null, '    '));
 }
@@ -45,6 +51,21 @@ function ajax_ok(data) {
 		ok : true,
 		data : data
 	});
+}
+
+/**
+ * 带着session信息
+ */
+function ajax_se(obj, session) {
+	session = _toObj(session);
+	// 响应头
+    sys.out.println("HTTP/1.1 200 OK");
+    sys.out.println("Content-Type: text/html;charset=UTF-8");
+    sys.out.printlnf("SET-COOKIE:DSEID=%s; Path=/;", session.id);
+    sys.out.println("Server: Walnut HTTPAPI");
+    sys.out.println("");
+
+    ajax_re(obj);
 }
 
 /**
