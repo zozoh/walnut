@@ -3,7 +3,7 @@
 	items : [ {
 		type : "objs",
 		cmd : "obj -mine -match \"tp:'hmaker_site', race:'DIR'\" -json -l -sort 'nm:1'",
-		icon : '<i class="fa fa-sitemap"></i>',
+		defaultIcon : '<i class="fa fa-sitemap"></i>',
 		editor : "hmaker2"
 	} ]
 }, {
@@ -11,7 +11,7 @@
 	items : [ {
 		type : "objs",
 		cmd : "obj -mine -match \"tp:'thing_set'\" -json -l -sort 'nm:1'",
-		icon : '<i class="fa fa-cubes"></i>',
+		defaultIcon : '<i class="fa fa-cubes"></i>',
 		editor : "thing_set"
 	} ]
 } ])
