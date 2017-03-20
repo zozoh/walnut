@@ -15,9 +15,13 @@ public class SidebarItem {
 
     private String icon;
 
+    private String defaultIcon;
+
     private String text;
 
     private String editor;
+
+    private String defaultEditor;
 
     private boolean dynamic;
 
@@ -29,8 +33,10 @@ public class SidebarItem {
         this.oid = siTmpl.oid;
         this.ph = siTmpl.ph;
         this.icon = siTmpl.icon;
+        this.defaultIcon = siTmpl.defaultIcon;
         this.text = siTmpl.text;
         this.editor = siTmpl.editor;
+        this.defaultEditor = siTmpl.defaultEditor;
         this.dynamic = siTmpl.dynamic;
         this.roles = siTmpl.roles;
     }
@@ -43,8 +49,9 @@ public class SidebarItem {
             this.icon = o.getString("icon");
         }
         if (!this.hasIcon()) {
-            this.icon = String.format("<i class=\"oicon\" otp=\"%s\"></i>",
-                                      Strings.sBlank(o.type(), "folder"));
+            this.icon = Strings.sBlank(this.defaultIcon,
+                                       String.format("<i class=\"oicon\" otp=\"%s\"></i>",
+                                                     Strings.sBlank(o.type(), "folder")));
         }
         // 文本
         if (!this.hasText()) {
@@ -52,7 +59,7 @@ public class SidebarItem {
         }
         // 编辑器
         if (!this.hasEditor()) {
-            this.editor = o.getString("editor");
+            this.editor = o.getString("editor", this.defaultEditor);
         }
 
         // 其他
@@ -112,6 +119,14 @@ public class SidebarItem {
         return !Strings.isBlank(this.icon);
     }
 
+    public String getDefaultIcon() {
+        return defaultIcon;
+    }
+
+    public void setDefaultIcon(String defaultIcon) {
+        this.defaultIcon = defaultIcon;
+    }
+
     public String getText() {
         return text;
     }
@@ -134,6 +149,14 @@ public class SidebarItem {
 
     public boolean hasEditor() {
         return !Strings.isBlank(this.editor);
+    }
+
+    public String getDefaultEditor() {
+        return defaultEditor;
+    }
+
+    public void setDefaultEditor(String defaultEditor) {
+        this.defaultEditor = defaultEditor;
     }
 
     public boolean isDynamic() {
