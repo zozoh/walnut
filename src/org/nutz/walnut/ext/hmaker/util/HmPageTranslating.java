@@ -328,7 +328,7 @@ public class HmPageTranslating extends HmContext {
         // 如果控件们决定当前页是一个 wnml，那么增加一个动态占位符，用来为 JS 脚本们
         // 输出本页的请求参数
         if (this.isWnml) {
-            this.scripts.add("window.__REQUEST = ${params<json:cqn>?-obj-};");
+            this.scripts.add("window.__REQUEST = ${params(json:cqn)?-obj-};");
         }
         // ---------------------------------------------------
         // 展开链接资源

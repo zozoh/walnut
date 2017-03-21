@@ -20,9 +20,6 @@ params: {
 > httpparam -in id:${id} -vint "pn,pgsz,skip" -map params | jsc /jsbin/thing_query.js -vars 
 */
 //........................................
-// 导入帮助方法
-load(walnut_js);
-//........................................
 // 处理请求参数
 var paramStr = sys.json(params) || "{}";
 var paramObj = JSON.parse(paramStr);

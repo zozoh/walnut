@@ -1,19 +1,9 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.script.Bindings;
-import javax.script.Compilable;
-import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
-
 import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
-import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -22,6 +12,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.JsExec;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.web.WnConfig;
@@ -34,17 +25,17 @@ import org.nutz.walnut.web.WnConfig;
  */
 public class cmd_jsc extends JvmExecutor {
 
-    private static ScriptEngineManager engineManager = new ScriptEngineManager();
-
     private static String dft_engine_nm = null;
-
-    protected Map<String, ScriptEngine> engines = new HashMap<>();
 
     private static final Log log = Logs.get();
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         log.info("init exec");
+
+        // 得到运行器
+        JsExec JE = JsExec.me();
+
         // 分析参数
         ZParams params = ZParams.parse(args, "^debug$");
         boolean debug = params.is("debug");
@@ -62,7 +53,7 @@ public class cmd_jsc extends JvmExecutor {
         // 查看所有可用引擎
         if (params.has("lsengine")) {
             sys.out.printlnf("*%s", dft_engine_nm);
-            for (ScriptEngineFactory ef : engineManager.getEngineFactories()) {
+            for (ScriptEngineFactory ef : JE.getEngineFactories()) {
                 sys.out.printlnf("%s(%s) %s(%s) : [%s]",
                                  ef.getEngineName(),
                                  ef.getEngineVersion(),
@@ -75,17 +66,6 @@ public class cmd_jsc extends JvmExecutor {
 
         // 得到引擎
         String engineName = params.get("engine", dft_engine_nm);
-
-        ScriptEngine engine = engines.get(engineName);
-        if (engine == null) {
-            engine = engineManager.getEngineByName(engineName);
-            if (engine == null) {
-                sys.err.println("no such engine name=" + engineName);
-                return;
-            } else {
-                engines.put(engineName, engine);
-            }
-        }
 
         // 分析输入变量
         NutMap vars = new NutMap();
@@ -141,17 +121,9 @@ public class cmd_jsc extends JvmExecutor {
             throw Er.create("e.cmd.jsc.noinput");
         }
 
-        // 准备运行，首先设置上下文
-        Bindings bindings = engine.createBindings();
-        for (Entry<String, Object> en : vars.entrySet()) {
-            bindings.put(en.getKey(), en.getValue());
-        }
-        bindings.put("wc", Wn.WC());
-        bindings.put("sys", new cmd_jsc_api(sys));
-        bindings.put("args", params.vals);
-        bindings.put("log", log);
-        bindings.put("walnut_js", "classpath:org/nutz/walnut/impl/box/cmd/jsc/jsc_walnut.js");
-        bindings.put("lodash_js", "classpath:org/nutz/walnut/impl/box/cmd/jsc/lodash.core.min.js");
+        // 添加固定上下文变量
+        vars.put("args", params.vals);
+        vars.put("log", log);
 
         // 默认加载的几个js
         // TODO 需要测试加载默认js的时间，是否影响性能等问题
@@ -159,16 +131,10 @@ public class cmd_jsc extends JvmExecutor {
         if (debug) {
             stopwatch = Stopwatch.begin();
         }
-        String jsPreload = "";
-        jsPreload += "load(walnut_js);\n";
-        // jsPreload += "load(lodash_js);\n";
-        if (!Strings.isBlank(jsPreload)) {
-            jsStr = jsPreload + jsStr;
-        }
         // 执行
         if (debug)
             sys.out.println("js=\n" + jsStr + "\n");
-        Object obj = ((Compilable) engine).compile(jsStr).eval(bindings);
+        Object obj = JE.exec(sys, engineName, vars, jsStr);
         if (debug) {
             stopwatch.stop();
             sys.out.printlnf("runTime=%dms(%s)",
