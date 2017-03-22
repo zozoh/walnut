@@ -569,6 +569,7 @@ return ZUI.def("app.wn.thing", {
                 keyField : "th_nm"
             },
             list : {
+                layout : thConf.layout,
                 fields : thConf.fields,
                 on_actived : function(th,jRow,prevTh) {
                     // console.log("AA", prevTh);
