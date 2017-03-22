@@ -33,11 +33,29 @@ obj ~/abc/*
 
 * 数据源通过 `<script>` 标签，申明一段命令
 * 如果 *type=json* 那么会认为命令的输出是一段 JSON 字符串，可以是对象也可以是列表
+* 在 `wnml` 的另外节点里，用占位符 `${xyz(json:n)?-obj-}` 即可直接输出 JSON 内容
 * 还支持的类型 *type=string* 表示输出的就是字符串
 * 这个对象将根据 *name* 属性记录在上下文中
 * 在输出到浏览器时，数据源节点将被移除
 * 数据源按照声明的先后顺序逐次执行，后面的数据源会覆盖前面的数据内容
 * 全局上下文的内容是最优先的，会覆盖数据源输出的上下文（如果重名的话）
+
+数据源还可以直接执行 jsc 支持的代码
+
+```
+<script class="wn-datasource" name="xyz" type="json" run="jsc">
+var str = sys.exec2('obj ~/www');
+sys.out.println(str);
+</script>
+<html>
+<body>
+<pre>
+${xyz(json:n)?-obj-}
+</pre>
+```
+
+* 在 `<script>` 标签内的 JS 脚本，如果想要输出内容，则用 `sys.out` 即可
+* 如果是 `type=json` 所有的输出内容将会被做 JSON 转换
 
 ## 静态引入 `<include>`
 
@@ -57,7 +75,16 @@ obj ~/abc/*
 ```
 
 * 只有属性和文本节点支持占位符
-* 占位符支持 `${obj.type<类型:格式>?默认值}` 的写法
+* 占位符支持 `${obj.type(类型:格式)?默认值}` 的写法
+* 占位符的类型包括:
+    - `string` : `%s 格式化字符串` **默认**
+    - `int` : `%d 格式化字符串`
+    - `long` : `%d 格式化字符串`
+    - `float` : `%f 格式化字符串`
+    - `double` : `%f 格式化字符串`
+    - `boolean` : `否/是 格式化字符串`
+    - `date`  : `yyyyMMdd 格式化字符串`
+    - `json` : `cqn 输出一段 JSON 文本,c紧凑，q输出引号,n忽略null`
 
 ## 判断 `<if>`
 

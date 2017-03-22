@@ -7,6 +7,14 @@ public class EscapeCloseOutputStream extends OutputStream {
 
     private OutputStream ops;
 
+    public static EscapeCloseOutputStream WRAP(OutputStream ops) {
+        if (null == ops)
+            return null;
+        if (ops instanceof EscapeCloseOutputStream)
+            return (EscapeCloseOutputStream) ops;
+        return new EscapeCloseOutputStream(ops);
+    }
+
     public EscapeCloseOutputStream(OutputStream ops) {
         this.ops = ops;
     }

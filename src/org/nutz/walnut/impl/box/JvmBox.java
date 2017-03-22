@@ -72,8 +72,9 @@ public class JvmBox implements WnBox {
             if (Strings.isBlank(cmdLine))
                 continue;
             if (Strings.trim(cmdLine).endsWith("&")) {
-                cmdLine = cmdLine.substring(0, cmdLine.length() -1);
-                cmdLine = "job add -base64 true " + Base64.encodeToString(cmdLine.getBytes(Encoding.CHARSET_UTF8), false);
+                cmdLine = cmdLine.substring(0, cmdLine.length() - 1);
+                cmdLine = "job add -base64 true "
+                          + Base64.encodeToString(cmdLine.getBytes(Encoding.CHARSET_UTF8), false);
             }
             runner.run(cmdLine);
             runner.wait_for_idle();
@@ -106,19 +107,19 @@ public class JvmBox implements WnBox {
     @Override
     public void setStdout(OutputStream out) {
         this.out = out;
-        runner.out = new EscapeCloseOutputStream(out);
+        runner.out = EscapeCloseOutputStream.WRAP(out);
     }
 
     @Override
     public void setStderr(OutputStream err) {
         this.err = err;
-        runner.err = new EscapeCloseOutputStream(err);
+        runner.err = EscapeCloseOutputStream.WRAP(err);
     }
 
     @Override
     public void setStdin(InputStream in) {
         this.in = in;
-        runner.in = new EscapeCloseInputStream(in);
+        runner.in = EscapeCloseInputStream.WRAP(in);
     }
 
 }

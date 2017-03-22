@@ -15,6 +15,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.JsExec;
+import org.nutz.walnut.util.JvmJsExecContext;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -25,8 +26,6 @@ import org.nutz.walnut.util.ZParams;
  *
  */
 public class cmd_jsc extends JvmExecutor {
-
-    private static String dft_engine_nm = "nashorn";
 
     private static final Log log = Logs.get();
 
@@ -43,7 +42,7 @@ public class cmd_jsc extends JvmExecutor {
 
         // 查看所有可用引擎
         if (params.has("lsengine")) {
-            sys.out.printlnf("*%s", dft_engine_nm);
+            sys.out.printlnf("*%s", JsExec.dft_engine_nm);
             for (ScriptEngineFactory ef : JE.getEngineFactories()) {
                 sys.out.printlnf("%s(%s) %s(%s) : [%s]",
                                  ef.getEngineName(),
@@ -56,7 +55,7 @@ public class cmd_jsc extends JvmExecutor {
         }
 
         // 得到引擎
-        String engineName = params.get("engine", dft_engine_nm);
+        String engineName = params.get("engine", JsExec.dft_engine_nm);
 
         // 分析输入变量
         NutMap vars = new NutMap();
@@ -125,7 +124,7 @@ public class cmd_jsc extends JvmExecutor {
         // 执行
         if (debug)
             sys.out.println("js=\n" + jsStr + "\n");
-        Object obj = JE.exec(sys, engineName, vars, jsStr);
+        Object obj = JE.exec(new JvmJsExecContext(sys, sys.out), engineName, vars, jsStr);
         if (debug) {
             stopwatch.stop();
             sys.out.printlnf("runTime=%dms(%s)",

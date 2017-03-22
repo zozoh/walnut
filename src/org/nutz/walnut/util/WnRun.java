@@ -27,6 +27,7 @@ import org.nutz.walnut.api.usr.WnSessionService;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.ext.job.hdl.job_abstract;
+import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
 
@@ -44,9 +45,12 @@ public class WnRun {
     @Inject("refer:usrService")
     protected WnUsrService usrs;
 
+    @Inject("refer:jvmExecutorFactory")
+    protected JvmExecutorFactory jef;
+
     @Inject("refer:boxService")
     protected WnBoxService boxes;
-    
+
     @Inject("refer:hookService")
     protected WnHookService hooks;
 
@@ -56,19 +60,19 @@ public class WnRun {
     public WnIo io() {
         return io;
     }
-    
+
     public WnSessionService sess() {
         return sess;
     }
-    
+
     public WnUsrService usrs() {
         return usrs;
     }
-    
+
     public WnBoxService boxes() {
         return boxes;
     }
-    
+
     public WnHookService hooks() {
         return hooks;
     }
@@ -172,12 +176,7 @@ public class WnRun {
         // req.setAttribute(WnBox.class.getName(), box);
 
         // 设置沙箱
-        WnBoxContext bc = new WnBoxContext(new NutMap());
-        bc.io = io;
-        bc.me = usrs.check(se.me());
-        bc.session = se;
-        bc.usrService = usrs;
-        bc.sessionService = sess;
+        WnBoxContext bc = createBoxContext(se);
 
         if (log.isTraceEnabled())
             log.tracef("%sbox:setup: %s", logPrefix, bc);
@@ -208,7 +207,17 @@ public class WnRun {
             log.debugf("%sbox:done : %dms", logPrefix, sw.getDuration());
         }
     }
-    
+
+    protected WnBoxContext createBoxContext(WnSession se) {
+        WnBoxContext bc = new WnBoxContext(new NutMap());
+        bc.io = io;
+        bc.me = usrs.check(se.me());
+        bc.session = se;
+        bc.usrService = usrs;
+        bc.sessionService = sess;
+        return bc;
+    }
+
     public void runWithHook(WnUsr usr, String grp, NutMap env, Callback<WnSession> callback) {
         WnSession se = sess.create(usr);
         try {
@@ -229,10 +238,10 @@ public class WnRun {
 
             WnContext ctx = Wn.WC();
             ctx.me(usr.name(), Strings.sBlank(grp, usr.name()));
-            ctx.hooking(hc, ()->{
-                ctx.security(new WnSecurityImpl(io, usrs), ()->callback.invoke(se));
-                });
-            }
+            ctx.hooking(hc, () -> {
+                ctx.security(new WnSecurityImpl(io, usrs), () -> callback.invoke(se));
+            });
+        }
         finally {
             sess.logout(se.id());
         }
