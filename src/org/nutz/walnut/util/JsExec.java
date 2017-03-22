@@ -1,9 +1,13 @@
 package org.nutz.walnut.util;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -118,7 +122,23 @@ public class JsExec {
         ScriptEngine engine = engines.get(engineName);
         if (engine == null) {
             // 真正的生成引擎
-            engine = engineManager.getEngineByName(engineName);
+            if ("nashorn".equals(engineName)) {
+                try {
+                    engine = getNashornEngineSafe((name)->{
+                       // 不允许加载java.lang下的类,尤其是Runtime
+                       if (name.startsWith("java.lang"))
+                           return false;
+                       // 不允许使用io库
+                       if (name.startsWith("java.io"))
+                           return false;
+                       return true;
+                    });
+                }
+                catch (Exception e) {
+                }
+            }
+            if (engine == null)
+                engine = engineManager.getEngineByName(engineName);
             if (engine == null) {
                 throw Er.create("e.jsc.engin.noexists", engineName);
             }
@@ -126,5 +146,21 @@ public class JsExec {
             engines.put(engineName, engine);
         }
         return engine;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public ScriptEngine getNashornEngineSafe(Function<String, Boolean> func) throws Exception {
+        for (ScriptEngineFactory factory : getEngineFactories()) {
+            if (factory.getClass().getName().equals("jdk.nashorn.api.scripting.NashornScriptEngineFactory")) {
+                Class<Object> klass = (Class<Object>) Class.forName("jdk.nashorn.api.scripting.ClassFilter");
+                Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[]{klass}, new InvocationHandler() {
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        return func == null || func.apply((String)args[0]);
+                    }
+                });
+                return (ScriptEngine) factory.getClass().getMethod("getScriptEngine", klass).invoke(factory, proxy);
+            }
+        }
+        return null;
     }
 }
