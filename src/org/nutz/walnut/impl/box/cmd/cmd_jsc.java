@@ -1,7 +1,9 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import java.util.Arrays;
+
 import javax.script.ScriptEngineFactory;
+
 import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Times;
@@ -15,7 +17,6 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.JsExec;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
-import org.nutz.walnut.web.WnConfig;
 
 /**
  * 执行js文件
@@ -25,7 +26,7 @@ import org.nutz.walnut.web.WnConfig;
  */
 public class cmd_jsc extends JvmExecutor {
 
-    private static String dft_engine_nm = null;
+    private static String dft_engine_nm = "nashorn";
 
     private static final Log log = Logs.get();
 
@@ -39,16 +40,6 @@ public class cmd_jsc extends JvmExecutor {
         // 分析参数
         ZParams params = ZParams.parse(args, "^debug$");
         boolean debug = params.is("debug");
-
-        // 首先，确保得到默认的引擎名称
-        if (null == dft_engine_nm) {
-            synchronized (cmd_jsc.class) {
-                if (null == dft_engine_nm) {
-                    WnConfig conf = ioc.get(WnConfig.class, "conf");
-                    dft_engine_nm = conf.get("jsc-dft-engine", "nashorn");
-                }
-            }
-        }
 
         // 查看所有可用引擎
         if (params.has("lsengine")) {

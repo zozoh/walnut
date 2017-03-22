@@ -79,7 +79,6 @@ public class weixin_user implements JvmHdl {
             String infoLevel = hc.params.get("infol", "openid");
             String openid = map.getString("openid");
             String lang = hc.params.get("lang", "zh_CN");
-            System.out.println(Json.toJson(map));
             // follower: 根据 openid 获取信息
             if ("follower".equals(infoLevel)) {
                 WxResp resp = wxApi.user_info(openid, lang);
