@@ -29,11 +29,14 @@ import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
+import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.impl.box.Jvms;
+import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.module.AbstractWnModule;
 import org.nutz.walnut.web.view.WnObjDownloadView;
@@ -330,7 +333,12 @@ public class WWWModule extends AbstractWnModule {
                 context.put("rs", "/gu/rs");
 
                 // 创建一下解析服务
-                WnmlModuleRuntime wrt = new WnmlModuleRuntime(this, se);
+                // WnmlModuleRuntime wrt = new WnmlModuleRuntime(this, se);
+                WnBoxContext bc = createBoxContext(se);
+                StringBuilder sbOut = new StringBuilder();
+                StringBuilder sbErr = new StringBuilder();
+                WnSystem sys = Jvms.createWnSystem(this, jef, bc, sbOut, sbErr, null);
+                WnmlRuntime wrt = new JvmWnmlRuntime(sys);
                 WnmlService ws = new WnmlService();
 
                 // 执行转换

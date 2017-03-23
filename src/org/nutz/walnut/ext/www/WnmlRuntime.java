@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.www;
 
+import org.nutz.walnut.util.JsExecContext;
+
 public interface WnmlRuntime {
 
     /**
@@ -14,6 +16,11 @@ public interface WnmlRuntime {
      *            命令内容
      * @return 命令的输出结果
      */
-    String exeCommand(String cmdText);
+    String exec2(String cmdText);
+
+    /**
+     * @return jsc 运行时上下文
+     */
+    JsExecContext createJsExecApiContext(StringBuilder sb);
 
 }

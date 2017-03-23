@@ -7,6 +7,14 @@ public class EscapeCloseInputStream extends InputStream {
 
     private InputStream ins;
 
+    public static EscapeCloseInputStream WRAP(InputStream ins) {
+        if (null == ins)
+            return null;
+        if (ins instanceof EscapeCloseInputStream)
+            return (EscapeCloseInputStream) ins;
+        return new EscapeCloseInputStream(ins);
+    }
+
     public EscapeCloseInputStream(InputStream ins) {
         this.ins = ins;
     }
