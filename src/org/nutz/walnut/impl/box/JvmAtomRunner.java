@@ -234,7 +234,7 @@ public class JvmAtomRunner {
             a.sys.pipeId = i;
             a.sys.nextId = i + 1;
             a.sys.cmdOriginal = cmds[i];
-            a.sys.cmdOriginal = cmds[i];
+            //a.sys.cmdOriginal = cmds[i];
             a.sys.se = se;
             a.sys.me = me;
             a.sys.err = boxErr;

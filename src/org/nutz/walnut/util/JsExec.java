@@ -19,10 +19,10 @@ import javax.script.ScriptException;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.impl.box.cmd.cmd_jsc_api;
 
 public class JsExec {
+    
+    public static String dft_engine_nm = "nashorn";
 
     private ScriptEngineManager engineManager;
 
@@ -35,7 +35,10 @@ public class JsExec {
         engineManager = new ScriptEngineManager();
         engines = new HashMap<>();
         try {
-            globalVars.put("_", pre_eval(getEngine("nashorn"), "classpath:org/nutz/walnut/impl/box/cmd/jsc/lodash.min.js", "_"));
+            globalVars.put("_",
+                           pre_eval(getEngine("nashorn"),
+                                    "classpath:org/nutz/walnut/impl/box/cmd/jsc/lodash.min.js",
+                                    "_"));
         }
         catch (ScriptException e) {
             throw new RuntimeException(e);
@@ -50,7 +53,7 @@ public class JsExec {
         return engineManager.getEngineFactories();
     }
 
-    public Object exec(WnSystem sys, String engineName, NutMap vars, String jsStr)
+    public Object exec(JsExecContext jsc, String engineName, NutMap vars, String jsStr)
             throws Exception {
         // 首先，确保有引擎名称
         if (Strings.isBlank(engineName)) {
@@ -59,7 +62,6 @@ public class JsExec {
 
         // 试图从缓存中获取引擎
         ScriptEngine engine = getEngine(engineName);
-
 
         // 准备运行，首先设置上下文
         Bindings bindings = engine.createBindings();
@@ -74,7 +76,7 @@ public class JsExec {
             }
         }
         bindings.put("wc", Wn.WC());
-        bindings.put("sys", new cmd_jsc_api(sys));
+        bindings.put("sys", jsc);
         // bindings.put("args", params.vals);
         // bindings.put("log", log);
         bindings.put("walnut_js", "classpath:org/nutz/walnut/impl/box/cmd/jsc/jsc_walnut.js");
@@ -97,17 +99,25 @@ public class JsExec {
 
     /**
      * 加载一个资源,然后返回某个变量
-     * @param engine 脚本引擎
-     * @param from 加载来源,通常是classpath:.........
-     * @param name 需要返回的变量名
+     * 
+     * @param engine
+     *            脚本引擎
+     * @param from
+     *            加载来源,通常是classpath:.........
+     * @param name
+     *            需要返回的变量名
      * @return 你需要的那个对象...
-     * @throws ScriptException 加载失败的时候抛出
+     * @throws ScriptException
+     *             加载失败的时候抛出
      */
-    public static Object pre_eval(ScriptEngine engine, String from, String name) throws ScriptException {
-        String jsStr = String.format("load(\"%s\");function _eget(){return %s;};_eget();", from, name);
+    public static Object pre_eval(ScriptEngine engine, String from, String name)
+            throws ScriptException {
+        String jsStr = String.format("load(\"%s\");function _eget(){return %s;};_eget();",
+                                     from,
+                                     name);
         return ((Compilable) engine).compile(jsStr).eval(engine.createBindings());
     }
-    
+
     public ScriptEngine getEngine(String engineName) {
         ScriptEngine engine = engines.get(engineName);
         if (engine == null) {

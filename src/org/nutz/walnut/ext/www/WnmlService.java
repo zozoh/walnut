@@ -23,6 +23,8 @@ import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.util.JsExec;
+import org.nutz.walnut.util.JsExecContext;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
 
@@ -306,18 +308,47 @@ public class WnmlService {
             return;
         }
 
+        // 准备脚本的输出
+        String str = null;
+
+        // 解析命令模板
         String cmdTmpl = Strings.trim(ele.data());
         String cmdText = Tmpl.exec(cmdTmpl, c, false);
 
-        String str = null;
-        try {
-            str = wrt.exeCommand(cmdText);
+        // 按照 JSC 方式执行
+        if ("jsc".equals(ele.attr("run"))) {
+            // 得到运行器
+            JsExec JE = JsExec.me();
+
+            // 得到引擎
+            String engineName = Strings.sBlank(ele.attr("js-engine"), JsExec.dft_engine_nm);
+
+            // 准备上下文
+            StringBuilder sb = new StringBuilder();
+            JsExecContext jsc = wrt.createJsExecApiContext(sb);
+
+            // 执行
+            try {
+                JE.exec(jsc, engineName, c, cmdText);
+            }
+            catch (Exception e) {
+                throw Lang.wrapThrow(e);
+            }
+
+            // 得到结果
+            str = sb.toString();
         }
-        catch (WebException e) {
-            if (null != erresult) {
-                str = erresult;
-            } else {
-                throw e;
+        // 普通脚本方式执行
+        else {
+            try {
+                str = wrt.exec2(cmdText);
+            }
+            catch (WebException e) {
+                if (null != erresult) {
+                    str = erresult;
+                } else {
+                    throw e;
+                }
             }
         }
 

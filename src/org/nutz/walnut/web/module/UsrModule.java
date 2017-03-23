@@ -29,14 +29,18 @@ import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
+import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrInfo;
-import org.nutz.walnut.ext.www.WnmlModuleRuntime;
+import org.nutz.walnut.ext.www.JvmWnmlRuntime;
+import org.nutz.walnut.ext.www.WnmlRuntime;
 import org.nutz.walnut.ext.www.WnmlService;
+import org.nutz.walnut.impl.box.Jvms;
+import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -128,7 +132,11 @@ public class UsrModule extends AbstractWnModule {
                     context.put("rs", "/gu/rs");
 
                     // 创建一下解析服务
-                    WnmlModuleRuntime wrt = new WnmlModuleRuntime(this, se);
+                    WnBoxContext bc = createBoxContext(se);
+                    StringBuilder sbOut = new StringBuilder();
+                    StringBuilder sbErr = new StringBuilder();
+                    WnSystem sys = Jvms.createWnSystem(this, jef, bc, sbOut, sbErr, null);
+                    WnmlRuntime wrt = new JvmWnmlRuntime(sys);
                     WnmlService ws = new WnmlService();
 
                     // 执行转换

@@ -57,7 +57,7 @@ public class cmd_wnml extends JvmExecutor {
         WnmlService ws = new WnmlService();
 
         // 准备运行时对象
-        WnmlRuntime wrt = new WnSystemWnmlRuntime(sys);
+        WnmlRuntime wrt = new JvmWnmlRuntime(sys);
 
         // 执行
         String re = ws.invoke(wrt, context, input);

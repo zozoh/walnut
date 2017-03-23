@@ -30,18 +30,21 @@ var ioc = {
 			}
 		}
 	},
+	jvmExecutorFactory : {
+		type : 'org.nutz.walnut.impl.box.JvmExecutorFactory',
+		fields : {
+			scanPkgs : {
+				java : '$conf.jvmboxPkgs'
+			},
+			ioc : {
+				refer : '$Ioc'
+			}
+		}
+	},
 	boxService : {
 		type : 'org.nutz.walnut.impl.box.JvmBoxService',
 		args : [ {
-			type : 'org.nutz.walnut.impl.box.JvmExecutorFactory',
-			fields : {
-				scanPkgs : {
-					java : '$conf.jvmboxPkgs'
-				},
-				ioc : {
-					refer : '$Ioc'
-				}
-			}
+			refer : "jvmExecutorFactory"
 		} ]
 	},
 	hookService : {
