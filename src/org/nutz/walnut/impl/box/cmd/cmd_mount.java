@@ -19,7 +19,10 @@ public class cmd_mount extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, "a");
-        
+        if (!sys.usrService.isMemberOfGroup(sys.me, "root")) {
+            sys.err.println("permission denied");
+            return;
+        }
         if (params.vals.length == 0) {
             // TODO 检查root/op权限怎么写来着?
             if (params.is("a")) {

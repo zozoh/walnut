@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -305,5 +307,12 @@ public class ZParams {
 
     public NutMap map() {
         return map;
+    }
+    
+    public String toJson(JsonFormat jf) {
+        NutMap re = new NutMap();
+        re.put("vals", vals);
+        re.put("params", map);
+        return Json.toJson(re, jf);
     }
 }
