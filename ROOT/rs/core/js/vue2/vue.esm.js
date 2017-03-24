@@ -3,8 +3,6 @@
  * (c) 2014-2017 Evan You
  * Released under the MIT License.
  */
-'use strict';
-
 /*  */
 
 /**
@@ -9242,4 +9240,4 @@ function getOuterHTML (el) {
 
 Vue$3.compile = compileToFunctions;
 
-module.exports = Vue$3;
+export default Vue$3;
