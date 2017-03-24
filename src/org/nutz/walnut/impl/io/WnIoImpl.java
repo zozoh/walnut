@@ -433,6 +433,7 @@ public class WnIoImpl implements WnIo {
         // 如果是 unmount，则恢复到父节点的 mount
         if (mnt == null) {
             appendMeta(o, new NutMap("!mnt", ""));
+            o.remove("mnt");
         } else {
             o.setv("mnt", mnt);
             set(o, "^mnt$");
