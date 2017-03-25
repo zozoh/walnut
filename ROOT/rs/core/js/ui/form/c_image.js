@@ -182,6 +182,17 @@ return ZUI.def("ui.form_com_image", {
 
         // 准备上传的 URL
         var ta = opt.target;
+
+        // 如果是动态决定的
+        if(_.isFunction(ta)) {
+            var myFormData = {};
+            if(UI.parent) {
+                myFormData = $z.invoke(UI.parent, "getData", []) || {};
+            }
+            ta.call(UI, myFormData);
+        }
+
+        // 分析 URL
         var url = "/o/upload/";
         // 如果已经有了指向的图片，则
         if (UI.__OBJ) {
