@@ -396,7 +396,7 @@
             return re;
         },
         //.............................................
-        rectValues : function(rect, keys) {
+        rectValues: function (rect, keys) {
             if (_.isString(keys)) {
                 keys = keys.split(/[ \t]*,[ \t]*/);
             }
@@ -942,9 +942,9 @@
         },
         //.............................................
         // 根据指定的 jQuery 集合，计算所有元素的最小矩形
-        rect_union_by : function(jq) {
+        rect_union_by: function (jq) {
             var rects = [];
-            jq.each(function(){
+            jq.each(function () {
                 rects.push(zUtil.rect(this));
             });
             return zUtil.rect_union.apply(this, rects);
@@ -1096,7 +1096,7 @@
         dock: function (ele, ta, mode, ignoreSetCss) {
             var jq = $(ele);
             var jTa = $(ta);
-            if(!ignoreSetCss) {
+            if (!ignoreSetCss) {
                 jTa.css("position", "fixed");
             }
             // 得到浮动元素大小
@@ -1229,9 +1229,9 @@
         //         或者可以通过 "VA|VB|VC|VD|HA|HB|HC|HD" 来直接指定停靠的区域
         // @ignoreSetCss - true 表示不强制设置 position
         dockIn: function (ele, ta, mode, ignoreSetCss) {
-            var jq  = $(ele);
+            var jq = $(ele);
             var jTa = $(ta);
-            if(!ignoreSetCss) {
+            if (!ignoreSetCss) {
                 jq.css("position", "relative");
                 jTa.css("position", "absolute");
             }
@@ -1486,7 +1486,7 @@
                     }
                 }
                 key = ks[lastIndex];
-                re  = o[key];
+                re = o[key];
             }
             return _.isUndefined(re) ? dft : re;
         },
@@ -1578,14 +1578,14 @@
         //  =key  表示从源对象中取对应键值
         //  xxx   直接就是静态值
         // 如果传入的 obj 为假，则直接返回 null
-        mappingObj : function(mapping, obj) {
-            if(!obj)
+        mappingObj: function (mapping, obj) {
+            if (!obj)
                 return null;
             var re = {};
-            for(var key in mapping){
+            for (var key in mapping) {
                 var val = mapping[key];
                 var m = /^=(.+)$/.exec(val);
-                if(m)
+                if (m)
                     re[key] = obj[m[1]];
                 else
                     re[key] = val;
@@ -2510,8 +2510,17 @@
             }
             return str;
         },
+        // 返回一个介于min，max的数字 包含2头
         randomInt: function (min, max) {
             return Math.floor(Math.random() * (max - min + 1) + min);
+        },
+        // 返回列表中随机一个对象
+        randomListObj: function (list) {
+            if (_.isArray(list)) {
+                if (list.length > 0) {
+                    return list[zUtil.randomInt(0, list.length - 1)];
+                }
+            }
         },
         //.............................................
         // 将一个对象的原型，链接到指定的父对象上
@@ -2679,7 +2688,7 @@
 
 
             var sb = zUtil.dupString("../", bb.length - pos - 1);
-            ff.splice(0, pos-off);
+            ff.splice(0, pos - off);
             return sb + ff.join("/");
         },
         //.............................................
@@ -2692,16 +2701,16 @@
          *            相对文件路径，以 '/' 结束，表示目录
          * @return 文件路径是否在基础路径之下
          */
-        isInPath : function(base, path) {
-            if(path.length<=base.length)
+        isInPath: function (base, path) {
+            if (path.length <= base.length)
                 return false;
             // 截取前面一段，必须完全相等
             var len = base.length;
-            if(/\/$/.test(base)){
-                len --;
-                base = base.substring(0,len);
+            if (/\/$/.test(base)) {
+                len--;
+                base = base.substring(0, len);
             }
-            if(base != path.substring(0, len))
+            if (base != path.substring(0, len))
                 return false;
 
             // 剩下的部分， path 必须以 '/' 开头
@@ -3112,54 +3121,54 @@
             return jDiv;
         },
         /*----------------------------------------------------
-        对指定元素进行高亮标注，主要用于界面的初始使用提示
-        opt - 配置项目
-        {
-            items : [{
-                target : jQuery   // 指定一组要标注的文字
-                text   : "xxxx"   // 标注文字的内容
-            }, {
-                // 同时进行的下一组标注
-            }],
-            done : F()    // 所有标注显示完毕后的回调
-        }
-        */
-        markIt : function(opt) {
+         对指定元素进行高亮标注，主要用于界面的初始使用提示
+         opt - 配置项目
+         {
+         items : [{
+         target : jQuery   // 指定一组要标注的文字
+         text   : "xxxx"   // 标注文字的内容
+         }, {
+         // 同时进行的下一组标注
+         }],
+         done : F()    // 所有标注显示完毕后的回调
+         }
+         */
+        markIt: function (opt) {
             // 必须得有绘制项目
-            if(!_.isArray(opt.items) || opt.items.length == 0)
+            if (!_.isArray(opt.items) || opt.items.length == 0)
                 return;
 
             // 绘制遮罩层
             var jMark = $('<div>').appendTo(document.body).css({
-                "position" : "fixed",
-                "top"    : 0,
-                "left"   : 0,
-                "right"  : 0,
-                "bottom" : 0,
-                "zIndex" : 99,
+                "position": "fixed",
+                "top": 0,
+                "left": 0,
+                "right": 0,
+                "bottom": 0,
+                "zIndex": 99,
             });
             // 得到遮罩层的大小并生成画布
             var R_VP = $z.rect(jMark);
             var jCanv = $('<canvas>').appendTo(jMark).attr({
-                "width"   : R_VP.width,
-                "height"  : R_VP.height,
+                "width": R_VP.width,
+                "height": R_VP.height,
             });
             var canvas = jCanv[0];
 
             // 准备绘制项目的方法
-            var __draw_item = function(it){
-                if(!it.target)
+            var __draw_item = function (it) {
+                if (!it.target)
                     return;
                 var jTa = $(it.target);
-                if(jTa.length == 0)
+                if (jTa.length == 0)
                     return;
                 // 得到画笔，并绘制初始背景色
                 var g2d = canvas.getContext("2d");
                 g2d.save();
-                g2d.clearRect(0,0,canvas.width,canvas.height);
+                g2d.clearRect(0, 0, canvas.width, canvas.height);
                 g2d.restore();
                 g2d.fillStyle = "rgba(0,0,0,0.6)";
-                g2d.fillRect(0,0,canvas.width,canvas.height);
+                g2d.fillRect(0, 0, canvas.width, canvas.height);
                 // 重置画笔
                 g2d.fillStyle = "#F80";
                 g2d.strokeStyle = "#F80";
@@ -3172,14 +3181,14 @@
                 g2d.strokeRect.apply(g2d, args);
                 // 绘制指示线
                 g2d.beginPath();
-                g2d.moveTo(rect.right+4, rect.y);
-                g2d.lineTo(rect.right+30, rect.y);
+                g2d.moveTo(rect.right + 4, rect.y);
+                g2d.lineTo(rect.right + 30, rect.y);
                 g2d.stroke();
                 // 绘制文字
-                g2d.font="14px Georgia";
-                g2d.fillText(it.text,rect.right+40, rect.y);
+                g2d.font = "14px Georgia";
+                g2d.fillText(it.text, rect.right + 40, rect.y);
             }
-            
+
             // 记录绘制的项目
             var index = 0;
 
@@ -3187,9 +3196,9 @@
             __draw_item(opt.items[index++]);
 
             //  监控鼠标
-            jMark.on("click", "canvas", function(){
+            jMark.on("click", "canvas", function () {
                 // 结束
-                if(index >= opt.items.length){
+                if (index >= opt.items.length) {
                     jMark.remove();
                     zUtil.invoke(opt, "done", []);
                 }
@@ -3235,15 +3244,15 @@
         // 计算一个字符串开头有几个缩进，
         // str : 给定字符串
         // tabWidth : 一个 \t 相当于几个空格，默认 4
-        countStrHeadIndent : function(str, tabWidth) {
+        countStrHeadIndent: function (str, tabWidth) {
             var n = 0;
             tabWidth = tabWidth || 4;
-            if(str) {
-                for(var i=0;i<str.length;i++){
+            if (str) {
+                for (var i = 0; i < str.length; i++) {
                     var c = str.charAt(i);
-                    if(' ' == c)
-                        n ++;
-                    else if('\t' == c)
+                    if (' ' == c)
+                        n++;
+                    else if ('\t' == c)
                         n += tabWidth;
                     else
                         break;
@@ -3255,11 +3264,11 @@
         // 计算一个字符串开头有几个重复的字符
         // str : 给定字符串
         // c : 指定重复字符
-        countStrHeadChar : function(str, c) {
+        countStrHeadChar: function (str, c) {
             var re = 0;
-            if(str)
-                for(;re<str.length;re++){
-                    if(str.charAt(re) != c)
+            if (str)
+                for (; re < str.length; re++) {
+                    if (str.charAt(re) != c)
                         return re;
                 }
             return re;
@@ -3269,63 +3278,63 @@
         // str : 给定字符串
         // indent : 反向 indent 几次，默认 1
         // tabWidth : 一个 \t 相当于几个空格，默认 4
-        shiftIndent : function(str, indent, tabWidth){
-            if(!str)
+        shiftIndent: function (str, indent, tabWidth) {
+            if (!str)
                 return str;
-            indent   = indent > 0 ? indent : 1;
+            indent = indent > 0 ? indent : 1;
             tabWidth = tabWidth || 4;
             var n = 0;
             var i = 0;
-            for(; i<str.length; i++){
-                if(n > 0 && Math.floor(n / tabWidth) >= indent)
+            for (; i < str.length; i++) {
+                if (n > 0 && Math.floor(n / tabWidth) >= indent)
                     break;
                 var c = str.charAt(i);
-                if(' ' == c)
-                    n ++;
-                else if('\t' == c)
+                if (' ' == c)
+                    n++;
+                else if ('\t' == c)
                     n += tabWidth;
                 else
                     break;
             }
-            if(i > 0)
+            if (i > 0)
                 return str.substring(i);
             return str;
         },
         //............................................
         // 将给定的 Markdown 文本，转换成 HTML 代码
-        markdownToHtml : function(str) {
+        markdownToHtml: function (str) {
             /* 首先将文本拆分成段落： 
-            {
-                type  : "H|P|code|OL|UL|hr|Th|Tr|quote|empty",
-                indent : 1,
-                content:["line1","line2"],
-                codeType : null,
-                cellAligns : ["left", "center", "right"]
-            }
-            */
+             {
+             type  : "H|P|code|OL|UL|hr|Th|Tr|quote|empty",
+             indent : 1,
+             content:["line1","line2"],
+             codeType : null,
+             cellAligns : ["left", "center", "right"]
+             }
+             */
             var blocks = [];
-            var lines  = str.split(/\r?\n/g);
+            var lines = str.split(/\r?\n/g);
             // 增加一个帮助函数
-            blocks.tryPush = function(B) {
-                if(B.type) {
+            blocks.tryPush = function (B) {
+                if (B.type) {
                     this.push(B);
-                    return {type:null, level:0, content:[]};
+                    return {type: null, level: 0, content: []};
                 }
                 return B;
             };
             // 准备第一段
-            var B = {type:null, level:0, content:[]};
+            var B = {type: null, level: 0, content: []};
             var lastLineIsBlankLink = false;
-            for(var i=0; i<lines.length; i++){
-                var line  = lines[i];
-                var trim  = $.trim(line);
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                var trim = $.trim(line);
                 var indent = zUtil.countStrHeadIndent(line);
 
                 // 来吧，判断类型
                 // 空段落
-                if(trim.length == 0) {
+                if (trim.length == 0) {
                     // 之前如果是 code，那么增加进去
-                    if(/^(code|UL|OL)$/.test(B.type)) {
+                    if (/^(code|UL|OL)$/.test(B.type)) {
                         B.content.push("");
                     }
                     // 否则如果有段落，就结束它
@@ -3334,20 +3343,20 @@
                     }
                 }
                 // 标题: H
-                else if(/^#+ .+/.test(line)){
+                else if (/^#+ .+/.test(line)) {
                     B = blocks.tryPush(B);
                     B.type = "H";
                     B.level = zUtil.countStrHeadChar(line, '#');
                     B.content.push($.trim(line.substring(B.level)));
                 }
                 // 代码: code
-                else if(/^```/.test(line)){
+                else if (/^```/.test(line)) {
                     B = blocks.tryPush(B);
                     B.type = "code";
                     B.codeType = $.trim(trim.substring(3)) || null;
-                    for(i++;i<lines.length;i++){
+                    for (i++; i < lines.length; i++) {
                         line = lines[i];
-                        if(/^```/.test(line)){
+                        if (/^```/.test(line)) {
                             break;
                         }
                         B.content.push(line);
@@ -3355,26 +3364,26 @@
                     B = blocks.tryPush(B);
                 }
                 // 水平线: hr
-                else if(/^ *[=-]{3,} *$/.test(line)){
+                else if (/^ *[=-]{3,} *$/.test(line)) {
                     B = blocks.tryPush(B);
                     B.type = "hr";
                     B = blocks.tryPush(B);
                 }
                 // 表格分隔符: T
-                else if("P" == B.type 
-                        && B.content.length==1 
-                        && B.content[0].indexOf("|")>0
-                        && /^[ |:-]{6,}$/.test(line)){
+                else if ("P" == B.type
+                    && B.content.length == 1
+                    && B.content[0].indexOf("|") > 0
+                    && /^[ |:-]{6,}$/.test(line)) {
                     // 修改之前段落的属性
                     B.type = "Th";
                     B.content = zUtil.splitIgnoreEmpty(B.content[0], "|");
-                    
+
                     // 解析自己，分析单元格的 align
                     B.cellAligns = zUtil.splitIgnoreEmpty(trim, "|");
-                    for(var x=0; x<B.cellAligns.length; x++){
-                        var align = B.cellAligns[x].replace(/ +/g,"");
+                    for (var x = 0; x < B.cellAligns.length; x++) {
+                        var align = B.cellAligns[x].replace(/ +/g, "");
                         var m = /^(:)?([-]+)(:)?$/.exec(align);
-                        if(m[1] && m[3]){
+                        if (m[1] && m[3]) {
                             B.cellAligns[x] = "center";
                         } else {
                             B.cellAligns[x] = m[3] ? "right" : "left";
@@ -3388,25 +3397,25 @@
                     B.type = "Tr";
                 }
                 // 有序列表: OL
-                else if((!B.type || /^(OL|UL)$/.test(B.type))
-                        && /^[0-9a-z][.]/.test(trim)){
+                else if ((!B.type || /^(OL|UL)$/.test(B.type))
+                    && /^[0-9a-z][.]/.test(trim)) {
                     B = blocks.tryPush(B);
                     B.type = "OL";
                     B.level = indent;
-                    B.content.push($.trim(trim.substring(trim.indexOf('.')+1)));
+                    B.content.push($.trim(trim.substring(trim.indexOf('.') + 1)));
                 }
                 // 无序列表: UL
-                else if((!B.type || /^(OL|UL)$/.test(B.type))
-                        && /^[*+-][ ]/.test(trim)){
+                else if ((!B.type || /^(OL|UL)$/.test(B.type))
+                    && /^[*+-][ ]/.test(trim)) {
                     B = blocks.tryPush(B);
                     B.type = "UL";
                     B.level = indent;
                     B.content.push($.trim(trim.substring(1)));
                 }
                 // 缩进表示的代码 
-                else if(indent > 0){
+                else if (indent > 0) {
                     // 只有空段落，才表示开始 code
-                    if(!B.type) {
+                    if (!B.type) {
                         B.type = "code";
                         B.content.push(zUtil.shiftIndent(line));
                     }
@@ -3416,19 +3425,19 @@
                     }
                 }
                 // 引用: quote
-                else if(/^>/.test(trim)){
+                else if (/^>/.test(trim)) {
                     B = blocks.tryPush(B);
                     B.type = "quote";
                     B.level = zUtil.countStrHeadChar(trim, ">");
                     B.content.push($.trim(trim.substring(B.level)));
                 }
                 // 普通段落融合到之前的块
-                else if(/^(OL|UL|quote|P)$/.test(B.type) 
-                        && (!lastLineIsBlankLink || indent>B.level)){
+                else if (/^(OL|UL|quote|P)$/.test(B.type)
+                    && (!lastLineIsBlankLink || indent > B.level)) {
                     B.content.push(trim);
                 }
                 // 将自己作为表格行
-                else if("Tr" == B.type) {
+                else if ("Tr" == B.type) {
                     B.content = zUtil.splitIgnoreEmpty(trim, "|");
                     B = blocks.tryPush(B);
                     B.type = "Tr";
@@ -3449,11 +3458,11 @@
             console.log(blocks)
 
             // 定义内容输出函数
-            var __B_to_html = function(B){
+            var __B_to_html = function (B) {
                 var html = "";
-                for(var i=0; i<B.content.length; i++) {
+                for (var i = 0; i < B.content.length; i++) {
                     var line = B.content[i];
-                    if(i>0){
+                    if (i > 0) {
                         html += '<br>\n';
                     }
                     html += __line_to_html(line);
@@ -3461,95 +3470,95 @@
                 return html;
             };
 
-            var __line_to_html = function(str){
+            var __line_to_html = function (str) {
                 var reg = '(\\*(.+)\\*)'
-                         + '|(\\*\\*(.+)\\*\\*)'
-                         + '|(__(.+)__)'
-                         + '|(~~(.+)~~)'
-                         + '|(`(.+)`)'
-                         + '|(!\\[(.*)\\]\\((.+)\\))'
-                         + '|(\\[(.*)\\]\\((.+)\\))'
-                         + '|(https?:\\/\\/[^ ]+)';
+                    + '|(\\*\\*(.+)\\*\\*)'
+                    + '|(__(.+)__)'
+                    + '|(~~(.+)~~)'
+                    + '|(`(.+)`)'
+                    + '|(!\\[(.*)\\]\\((.+)\\))'
+                    + '|(\\[(.*)\\]\\((.+)\\))'
+                    + '|(https?:\\/\\/[^ ]+)';
                 var REG = new RegExp(reg, "g");
                 var m;
                 var pos = 0
                 var html = "";
-                while(m = REG.exec(str)){
+                while (m = REG.exec(str)) {
                     //console.log(m)
-                    if(pos<m.index){
-                        html += str.substring(pos,m.index);
+                    if (pos < m.index) {
+                        html += str.substring(pos, m.index);
                     }
                     // EM: *xxx*
-                    if(m[1]){
+                    if (m[1]) {
                         html += '<em>' + m[2] + '</em>';
                     }
                     // B: **xxx**
-                    else if(m[3]){
+                    else if (m[3]) {
                         html += '<b>' + m[4] + '</b>';
                     }
                     // B: __xxx__
-                    else if(m[5]){
+                    else if (m[5]) {
                         html += '<b>' + m[6] + '</b>';
                     }
                     // DEL: ~~xxx~~
-                    else if(m[7]){
+                    else if (m[7]) {
                         html += '<del>' + m[8] + '</del>';
                     }
                     // CODE: `xxx`
-                    else if(m[9]){
+                    else if (m[9]) {
                         html += '<code>' + m[10] + '</code>';
                     }
                     // IMG: ![](xxxx)
-                    else if(m[11]){
-                        console.log("haha",m[13])
-                        html += '<img alt="'+m[12]+'" src="'+m[13]+'">';
+                    else if (m[11]) {
+                        console.log("haha", m[13])
+                        html += '<img alt="' + m[12] + '" src="' + m[13] + '">';
                     }
                     // A: [](xxxx)
-                    else if(m[14]){
-                        html += '<a href="'+m[16]+'">'+(m[15]||m[16])+'</a>';
+                    else if (m[14]) {
+                        html += '<a href="' + m[16] + '">' + (m[15] || m[16]) + '</a>';
                     }
                     // A: http://xxxx
-                    else if(m[17]){
-                        html += '<a href="'+m[17]+'">'+m[17]+'</a>';
+                    else if (m[17]) {
+                        html += '<a href="' + m[17] + '">' + m[17] + '</a>';
                     }
 
                     // 唯一下标
                     pos = m.index + m[0].length;
                 }
-                if(pos<str.length){
+                if (pos < str.length) {
                     html += str.substring(pos);
                 }
                 return html;
             };
 
-            var __B_to_blockquote = function(B, c) {
+            var __B_to_blockquote = function (B, c) {
                 c.html += '\n<blockquote>';
                 c.html += __B_to_html(B);
                 // 循环查找后续的嵌套块
-                for(c.index++; c.index<c.blocks.length; c.index++){
+                for (c.index++; c.index < c.blocks.length; c.index++) {
                     var B2 = c.blocks[c.index];
-                    if("quote" == B2.type && B2.level>B.level){
+                    if ("quote" == B2.type && B2.level > B.level) {
                         __B_to_blockquote(B2, c);
-                    }else{
+                    } else {
                         break;
                     }
                 }
                 c.html += '\n</blockquote>';
-                c.index --;
+                c.index--;
             };
 
-            var __B_to_list = function(B, c) {
-                c.html += '\n<'+B.type+'>';
+            var __B_to_list = function (B, c) {
+                c.html += '\n<' + B.type + '>';
                 c.html += '\n<li>' + __B_to_html(B);
                 // 循环查找后续的列表项，或者是嵌套
-                for(c.index++; c.index<c.blocks.length; c.index++){
+                for (c.index++; c.index < c.blocks.length; c.index++) {
                     var B2 = c.blocks[c.index];
                     // 继续增加
-                    if(B.type == B2.type && B2.level == B.level){
+                    if (B.type == B2.type && B2.level == B.level) {
                         c.html += '</li>\n<li>' + __B_to_html(B2);
                     }
                     // 嵌套
-                    else if(B2.level > B.level && /^(OL|UL)$/.test(B2.type)) {
+                    else if (B2.level > B.level && /^(OL|UL)$/.test(B2.type)) {
                         __B_to_list(B2, c);
                     }
                     // 不属于本列表，退出吧
@@ -3558,70 +3567,70 @@
                     }
                 }
                 c.html += '</li>';
-                c.html += '\n</'+B.type+'>';
-                c.index --;
+                c.html += '\n</' + B.type + '>';
+                c.index--;
             };
 
             // 准备上下文
             var re = {
-                html   : "",
-                index  : 0,
-                blocks : blocks,
+                html: "",
+                index: 0,
+                blocks: blocks,
             };
 
             // 逐个输出段落
-            for(; re.index<re.blocks.length; re.index++) {
+            for (; re.index < re.blocks.length; re.index++) {
                 B = re.blocks[re.index];
 
                 // 标题: H
-                if("H" == B.type){
-                    re.html += '\n<h'+B.level+'>' + __line_to_html(B.content[0]) + '</h'+B.level+'>\n';
+                if ("H" == B.type) {
+                    re.html += '\n<h' + B.level + '>' + __line_to_html(B.content[0]) + '</h' + B.level + '>\n';
                 }
                 // 代码: code
-                else if("code" == B.type){
-                    re.html += '\n<pre' + (B.codeType?' code-type="'+B.codeType+'">':'>');
+                else if ("code" == B.type) {
+                    re.html += '\n<pre' + (B.codeType ? ' code-type="' + B.codeType + '">' : '>');
                     re.html += B.content.join("\n").replace(/</g, "&lt;");
                     re.html += '</pre>';
                 }
                 // 列表: OL | UL
-                else if("OL" == B.type || "UL" == B.type){
+                else if ("OL" == B.type || "UL" == B.type) {
                     __B_to_list(B, re);
                 }
                 // 水平线: hr
-                else if("hr" == B.type){
+                else if ("hr" == B.type) {
                     re.html += '\n<hr>';
                 }
                 // 表格
-                else if("Th" == B.type){
+                else if ("Th" == B.type) {
                     re.html += '\n<table>';
-                    
+
                     // 记录表头
-                    var THead  = B;
+                    var THead = B;
                     var aligns = THead.cellAligns || [];
-                    
+
                     // 输出表头
                     re.html += '\n<thead>\n<tr>';
-                    for(var x=0; x<B.content.length; x++){
+                    for (var x = 0; x < B.content.length; x++) {
                         var align = "left";
-                        if(x<aligns.length)
+                        if (x < aligns.length)
                             align = aligns[x];
-                        re.html += '\n<th' + ("left" != align ? ' align="'+align+'">' : '>');
+                        re.html += '\n<th' + ("left" != align ? ' align="' + align + '">' : '>');
                         re.html += __line_to_html(B.content[x]);
                         re.html += '</th>';
                     }
                     re.html += '\n</tr>\n</thead>';
-                    
+
                     // 输出表体
                     re.html += '\n<tbody>';
-                    for(re.index++; re.index<re.blocks.length; re.index++){
+                    for (re.index++; re.index < re.blocks.length; re.index++) {
                         B = re.blocks[re.index];
-                        if("Tr" == B.type) {
+                        if ("Tr" == B.type) {
                             re.html += '\n<tr>';
-                            for(var x=0; x<B.content.length; x++){
+                            for (var x = 0; x < B.content.length; x++) {
                                 var align = "left";
-                                if(x<aligns.length)
+                                if (x < aligns.length)
                                     align = aligns[x];
-                                re.html += '\n<td' + ("left" != align ? ' align="'+align+'">' : '>');
+                                re.html += '\n<td' + ("left" != align ? ' align="' + align + '">' : '>');
                                 re.html += __line_to_html(B.content[x]);
                                 re.html += '</td>';
                             }
@@ -3635,13 +3644,13 @@
                     re.html += '\n</tbody>';
 
                     // 退回一个块
-                    re.index --;
+                    re.index--;
 
                     // 结束表格
                     re.html += '\n</table>';
                 }
                 // 引用: quote
-                else if("quote" == B.type){
+                else if ("quote" == B.type) {
                     __B_to_blockquote(B, re);
                 }
                 // 默认是普通段落 : P
@@ -3658,6 +3667,9 @@
         //.............................................
         // 返回当前时间
         currentTime: function (date) {
+            if (typeof date == "number") {
+                date = new Date(date);
+            }
             date = date || new Date();
             return zUtil.dateToYYMMDD(date) + " " + zUtil.dateToHHMMSS(date);
         },

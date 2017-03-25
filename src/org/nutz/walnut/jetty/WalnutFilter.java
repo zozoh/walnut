@@ -79,6 +79,10 @@ public class WalnutFilter implements Filter {
             int pos = host.lastIndexOf(':');
             if (pos > 0)
                 host = host.substring(0, pos);
+            // 把 www.nutz.cn 当 nutz.cn 看待
+            if (host.startsWith("www.")) {
+                host = host.substring(4);
+            }
         }
 
         if (log.isInfoEnabled()) {

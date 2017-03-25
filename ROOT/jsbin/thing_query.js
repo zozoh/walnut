@@ -75,7 +75,7 @@ function _main(params){
     if(cnd != "{}")
         cmdText += " '" + cnd.replace(/'/g, "\\'");
 
-    log.warn(cmdText);
+    //log.warn(cmdText);
 
     // 运行命令，并输出返回值
     var reJson = sys.exec2(cmdText);
