@@ -71,11 +71,12 @@ return ZUI.def("ui.form_com_image", {
         // 默认根据 target 来检查上传的文件类型
         $z.setUndefined(opt, "validate", function(file, UI){
             var opt = UI.options;
-            if(opt.target) {
-                var o = Wn.get(opt.target, true);
+            var ta  = UI.__eval_target();
+            if(ta) {
+                var o = Wn.get(ta, true);
                 // 根据路径判断
                 if(!o) {
-                    var sn_o = fixJPG(($z.getSuffixName(opt.target) || "").toLowerCase());
+                    var sn_o = fixJPG(($z.getSuffixName(ta) || "").toLowerCase());
                     var sn_f = fixJPG(($z.getSuffixName(file.name) || "").toLowerCase());
                     return sn_o == sn_f;
                 }
@@ -163,6 +164,22 @@ return ZUI.def("ui.form_com_image", {
         this.options.target = ta;
     },
     //...............................................................
+    __eval_target : function(){
+        var UI = this;
+        var ta = UI.options.target;
+
+        // 如果是动态决定的
+        if(_.isFunction(ta)) {
+            var myFormData = {};
+            if(UI.parent) {
+                myFormData = $z.invoke(UI.parent, "getData", []) || {};
+            }
+            return ta.call(UI, myFormData);
+        }
+
+        return ta;
+    },
+    //...............................................................
     __do_upload : function(f) {
         var UI  = this;
         var opt = UI.options;
@@ -181,16 +198,7 @@ return ZUI.def("ui.form_com_image", {
         }
 
         // 准备上传的 URL
-        var ta = opt.target;
-
-        // 如果是动态决定的
-        if(_.isFunction(ta)) {
-            var myFormData = {};
-            if(UI.parent) {
-                myFormData = $z.invoke(UI.parent, "getData", []) || {};
-            }
-            ta.call(UI, myFormData);
-        }
+        var ta = UI.__eval_target();
 
         // 分析 URL
         var url = "/o/upload/";
@@ -199,10 +207,10 @@ return ZUI.def("ui.form_com_image", {
             url += "id:" + UI.__OBJ.id + "?";
         }
         // 否则可以自动创建
-        else if(_.isString(opt.target)){
-            url += opt.target + "?race=FILE&cie=true&";
+        else if(_.isString(ta)){
+            url += ta + "?race=FILE&cie=true&";
             // FIXME 绝对目录
-            if (opt.target.substr(0, 1) == '/') {
+            if (ta.substr(0, 1) == '/') {
                 url += "aph=true&"
             } else {
                 url += "aph=false&"
