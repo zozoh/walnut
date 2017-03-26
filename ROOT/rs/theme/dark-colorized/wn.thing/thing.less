@@ -12,17 +12,38 @@
         padding:0 @d4; font-family: @f_fixed;
         > * {display: inline-block; vertical-align: middle;}
         b {@noselect(); font-weight: bold; margin:0 4px;}
-        b:after{display: inline; content: ": ";}
+        em:before{display: inline; content: ": ";}
         em {font-style: normal; color:@c3;}
     }
+    //......................................... 底部表单动作条
+    > footer {
+        position: absolute; bottom: 0; right: 0; left:60%;
+        padding:@d2;
+        .th-form-menu {
+            @flex(); justify-content:center;
+            border-top:1px solid @cborder1;
+            .menu-item {margin:0 @d0;}
+            .menu-item[md="top"] {
+                .menu-item-wrapper {
+                    background: @cbtn_b; color:@cbtn_f; border-color:@cbtn_l;
+                    border-radius: @d0; padding:0 @d6;
+                    height: 42px; line-height: 42px;
+                }
+                .menu-item-wrapper:hover {color:@ch0_f; background: @ch0_b;}
+            }
+            .menu-item-icon {font-size:@f4; width:@f4;}
+            .menu-item-text {font-size:@f4;}
+        }
+    }
+    //......................................... 
     > section {
         position: absolute; top:@thH; bottom:0; left:0; right:0;
         > .th-con {
             width: 100%; height:100%;
         }
     }
-    section.th-search {right:40%;}
-    section.th-form   {left:60%; border-left:1px solid @cborder1;}
+    section.th-search {right:40%; border-right:1px solid @cborder1;}
+    section.th-form   {left:60%;}
 
     .th-err {
         padding:@d8; font-size:@f6; color:@c6;
@@ -104,7 +125,6 @@
             font-family: @f_fixed; font-size: @f3;
         }
     }
-
     //.........................................
 }
 //......................................... 主要样式:End

@@ -38,8 +38,8 @@ public class app_init implements JvmHdl {
         // 优先处理文件结构
         WnObj oFileS = sys.io.fetch(oTmpl, "_files");
         if (null != oFileS) {
-            String text = sys.io.readText(oFileS);
-            String[] lines = Strings.splitIgnoreBlank(text, "(\r?\n)+");
+            String text = Strings.sBlank(sys.io.readText(oFileS), "");
+            String[] lines = text.split("(\r?\n)+");
 
             sys.out.println("init files:");
 
@@ -53,12 +53,13 @@ public class app_init implements JvmHdl {
             // 处理每一行
             for (int i = 0; i < lines.length; i++) {
                 String line = lines[i];
-                // 忽略注释
-                if (line.startsWith("#"))
+                String trim = Strings.trim(line);
+                // 忽略注释和空行
+                if (trim.startsWith("#") || Strings.isEmpty(trim))
                     continue;
 
                 // 处理模板行
-                String str = Tmpl.exec(line, c, true);
+                String str = Tmpl.exec(trim, c, true);
 
                 // 一直寻找到正确的开始,看看是否开始一个对象
                 if (fp.is(FpSt.BLANK, FpSt.WAIT_META, FpSt.END_META, FpSt.DONE)) {
@@ -91,7 +92,7 @@ public class app_init implements JvmHdl {
                     if (m.find()) {
                         String md = m.group(1);
                         String tp = m.group(2);
-                        String s = Strings.sBlank(m.group(3), fp.rph);
+                        String s = Strings.sBlank(m.group(3), "");
 
                         // 类型
                         fp.asFile = tp.equals(">");
@@ -105,7 +106,7 @@ public class app_init implements JvmHdl {
                                     break;
                                 }
                                 // 累计
-                                s += l2;
+                                s += l2 + "\n";
                             }
                         }
 

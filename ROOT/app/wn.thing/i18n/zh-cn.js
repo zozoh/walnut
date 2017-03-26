@@ -37,6 +37,6 @@ define({
         "err" : {
             "nothingjs" : "没有找到 thing.js!"
         },
-        "blank" : '请从左侧列表中选择一个项目查看详情和编辑',
+        "blank" : '<i class="fa fa-hand-o-left"></i> 请从左侧列表中选择一个项目查看详情和编辑',
     }
 });

@@ -303,6 +303,8 @@ ZUIObj.prototype = {
         for (var i=0; i<__children.length; i++) {
             __children[i].destroy(forceRemoveDom, true);
         }
+        // 置空
+        UI.children = [];
     },
     //............................................
     // 将自己加入另外一个 UI
@@ -408,7 +410,6 @@ ZUIObj.prototype = {
 
         // 释放掉自己所有的子
         UI.releaseAllChildren(forceRemoveDom);
-        UI.children = [];
 
         // 移除自己在父节点的记录
         if(UI.parent && !dontNeedRemoveFromParent){

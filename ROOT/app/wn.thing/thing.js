@@ -3,9 +3,10 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/search/search',
+    'ui/menu/menu',
     'ui/form/form',
     'ui/support/dom'
-], function(ZUI, Wn, SearchUI, FormUI, DomUI){
+], function(ZUI, Wn, SearchUI, MenuUI, FormUI, DomUI){
 //==============================================
 var THING_DETAIL = function(){
     return {
@@ -199,20 +200,11 @@ var THING_FILE = function(fld, subhdl, validate) {
 };
 //==============================================
 var html = function(){/*
-<div class="ui-code-template">
-    <div code-id="err.nothingjs" class="th-err">
-        <i class="fa fa-warning"></i> <span>{{thing.err.nothingjs}}</span>
-    </div>
-    <div code-id="tip.blank">
-        <div class="th-blank">
-            <i class="fa fa-hand-o-left"></i> <span>{{thing.blank}}</span>
-        </div>
-    </div>
-</div>
 <div class="ui-arena thing" ui-fitparent="yes">
     <header>heading</header>
     <section class="th-search"><div class="th-con" ui-gasket="search"></div></section>
     <section class="th-form"><div class="th-con" ui-gasket="form"></div></section>
+    <footer ui-gasket="formMenu"></footer>
 </div>
 */};
 //==============================================
@@ -221,13 +213,20 @@ return ZUI.def("app.wn.thing", {
     css  : "theme/app/wn.thing/thing.css",
     i18n : "app/wn.thing/i18n/{{lang}}.js",
     //...............................................................
+    init : function(opt) {
+        $z.setUndefined(opt, "showThingSetId", true);
+        $z.setUndefined(opt, "dynamic", true);
+    },
+    //...............................................................
     update : function(o) {
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         UI.$el.attr("thing-set-id", o.id);
 
         // 更新标题
         var html = Wn.objIconHtml(o) + '<b>' + (o.title || o.nm) + '</b>';
-        html += '<em>' + o.id +'</em>';
+        if(opt.showThingSetId)
+            html += '<em>' + o.id +'</em>';
         UI.arena.children("header").html(html);
 
         // 重新加载数据 
@@ -238,46 +237,67 @@ return ZUI.def("app.wn.thing", {
     //...............................................................
     reload : function(callback){
         var UI  = this;
+        var opt = UI.options;
         var oid = UI.$el.attr("thing-set-id");
 
+        // 得到配置对象
+        var conf = _.extend({}, $z.pick(opt, "!^(parent|gasketName|dynamic|editor|on_init)$"));
+
         // 读取所有的字段
-        UI.showLoading();
-        $z.loadResource("jso:///o/read/id:"+oid+"/thing.js", function(thConf){
-            UI.hideLoading();
-            // 加载 thing.js 失败，显示错误信息
-            if(!thConf || (false === thConf.ok)){
-                UI.ccode("err.nothingjs").appendTo(UI.arena.empty());
-            }
-            else if(thConf) {
-                UI.__draw(thConf, callback);
-            }
-        });
+        if(opt.dynamic){
+            UI.showLoading();
+            $z.loadResource("jso:///o/read/id:"+oid+"/thing.js", function(thConf){
+                UI.hideLoading();
+                // 加载 thing.js 失败，显示错误信息
+                if(!thConf || (false === thConf.ok)){
+                    UI.releaseAllChildren(true);
+                    UI.arena.html('<div class="th-err"><i class="fa fa-warning"></i>'
+                            + UI.msg('thing.err.nothingjs') + '</div>');
+                }
+                else if(thConf) {
+                    _.extend(conf, thConf);
+                    UI.__draw(conf, callback);
+                }
+            });
+        }
+        // 静态字段
+        else {
+            UI.__draw(conf, callback);
+        }
 
     },
     //...............................................................
     showBlank : function(){
+        var UI  = this;
+        var opt = UI.options;
+
+        var blankTip = opt.blankTip || UI.msg('thing.blank');
+
         new DomUI({
-            parent : this,
+            parent : UI,
             gasketName : "form",
-            dom : this.ccode("tip.blank").html()
+            dom : '<div class="th-blank">' + blankTip + '</div>'
         }).render();
     },
     //...............................................................
     showThing : function(th) {
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         var thConf = UI.thConf;
 
         th = th || UI.gasket.search.uiList.getActived();
-
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 没东西，那么久显示空
         if(!th) {
             UI.showBlank();
             return;
         }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 已经是表单了，更新
         else if(UI.gasket.form.uiName == "ui.form") {
             UI.gasket.form.setData(th);
         }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 重新显示表单
         else {
             new FormUI({
@@ -315,6 +335,34 @@ return ZUI.def("app.wn.thing", {
                 this.setData(th);
             });
         }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 更新表单快捷命令菜单
+        var jForm   = UI.arena.find(">.th-form");
+        var jFooter = UI.arena.find(">footer");
+        var formActions = opt.formActions;
+        if(_.isFunction(formActions)){
+            formActions = formActions.apply(UI, [th]);
+        }
+        // 显示
+        if(formActions) {
+            jFooter.show();
+            new MenuUI({
+                parent : UI,
+                gasketName : "formMenu",
+                arenaClass : "th-form-menu",
+                setup : formActions
+            }).render(function(){
+                jForm.css("bottom", jFooter.outerHeight(true));
+            });
+        }
+        // 隐藏
+        else {
+            jForm.css("bottom", "");
+            jFooter.hide();
+            if(UI.gasket.formMenu)
+                UI.gasket.formMenu.destroy();
+        }
+
     },
     //...............................................................
     getThingSetObj : function(){
@@ -600,6 +648,10 @@ return ZUI.def("app.wn.thing", {
 
         // 右侧显示空
         UI.showBlank();
+    },
+    //...............................................................
+    getActived : function(){
+        return this.gasket.search.uiList.getActived();
     }
     //...............................................................
 });
