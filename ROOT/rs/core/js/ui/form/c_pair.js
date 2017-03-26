@@ -69,7 +69,8 @@ return ZUI.def("ui.form_com_pair", {
                 <td class="cp-val"><input spellcheck="false"></td>
             </tr>`).appendTo(jTBody);
             jTr.attr("o-key",key).children(".cp-key").text(key);
-            jTr.find(".cp-val input").val(UI._V(obj, key));
+            var val = UI._V(obj, key);
+            jTr.find(".cp-val input").val(val).attr("placeholder", val);
         }
     },
     //...............................................................
@@ -85,9 +86,10 @@ return ZUI.def("ui.form_com_pair", {
             UI.arena.find(".pairs tr").each(function(){
                 var jTr = $(this);
                 var key = jTr.attr("o-key");
-                var val = UI._V(obj, key);
-                if(!opt.mergeWith || val)
+                var val = UI._V(obj, key) || "";
+                if(!opt.mergeWith || val){
                     jTr.find("input").val(val);
+                }
             });
         }
         // 重新绘制
@@ -104,8 +106,9 @@ return ZUI.def("ui.form_com_pair", {
         if(UI.arena.attr("show") != "empty"){
             UI.arena.find(".pairs tr").each(function(){
                 var jTr = $(this);
+                var jInput = jTr.find('input');
                 var key = jTr.attr("o-key");
-                var val = jTr.find('input').val();
+                var val = jInput.val() || jInput.attr("placeholder");
                 if(opt.trimSpace)
                     val = $.trim(val);
                 re[key] = val;
