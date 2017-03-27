@@ -163,4 +163,12 @@ public class JsExec {
         }
         return null;
     }
+    
+    public void addGlobalVar(String key, Object value) {
+        globalVars.put(key, value);
+    }
+    
+    public void removeGlobalVar(String key) {
+        globalVars.remove(key);
+    }
 }
