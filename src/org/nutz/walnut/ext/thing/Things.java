@@ -95,8 +95,16 @@ public abstract class Things {
         return oTS;
     }
 
-    public static WnObj checkThingSet(WnIo io, String id) {
-        WnObj o = io.checkById(id);
+    public static WnObj checkThingSet(WnSystem sys, String id) {
+        WnObj o;
+        // 用 ID
+        if (Wn.isFullObjId(id)) {
+            o = sys.io.checkById(id);
+        }
+        // 用路径
+        else {
+            o = Wn.checkObj(sys, id);
+        }
         WnObj oTS = getThingSet(o);
         if (null == oTS)
             throw Er.create("e.cmd.thing.notInThingSet", o);

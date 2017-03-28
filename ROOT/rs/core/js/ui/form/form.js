@@ -162,6 +162,9 @@ return ZUI.def("ui.form", {
                     .data("@FLD", fld)
                     .appendTo(jG);
 
+        // 记录 jQuery 对象
+        fld.$fld = jF;
+
         // 非虚拟字段，找到类型处理器
         if(!fld.virtual){
             fld.JsObjType = jType(fld);
@@ -185,86 +188,101 @@ return ZUI.def("ui.form", {
         if(opt.asTemplate)
             jF.attr("tmpl-on", "no");
 
-        var jTxt = jF.children(".ff-txt");
-        var jFui = jF.find(".ffv-ui");
-        var jTip = jF.find(".ffv-tip");
+        fld.$txt = jF.children(".ff-txt");
+        fld.$tip = jF.find(".ffv-tip");
+        fld.$ui  = jF.find(".ffv-ui");
         // 绘制标题
         if(fld.required || fld.icon || fld.title){
             // 是否字段是必须的
             if(fld.required)
-                jTxt.attr("required","yes");
+                fld.$txt.attr("required","yes");
             
             // 字段图标
             if(fld.icon)
-                $('<span class="fft-icon">').html(fld.icon).appendTo(jTxt);
+                fld.$icon = $('<span class="fft-icon">')
+                                .html(fld.icon)
+                                    .appendTo(fld.$txt);
             
             // 字段标题
             if(fld.title) {
-                var jTT = $('<span class="fft-text">')
-                            .html(UI.text(fld.title)).appendTo(jTxt);
+                fld.$title = $('<span class="fft-text">')
+                                .html(UI.text(fld.title))
+                                    .appendTo(fld.$txt);
                 if(fld.key_tip) {
-                    jTT.attr("title", UI.msg(fld.key_tip));
+                    fld.$title.attr("title", UI.msg(fld.key_tip));
                 }
             }
         }
         // 靠，啥都木有，搞掉标题区
         else {
-            jTxt.remove();
+            fld.$txt.remove();
+            fld.$txt = null;
         }
 
+        // 动态控件的话，不绘制
+        if(_.isFunction(fld.uiConf)) {
+            UI.defer_report(fld._form_key);
+        }
+        // 静态控件的话，绘制
+        else {
+            UI.__draw_field_UI(fld.uiType, fld.uiConf, fld, function(fld){
+                UI.defer_report(fld._form_key);
+            });
+        }
 
-        // 绘制值
-        seajs.use(fld.uiType, function(TheUI){
+        // 绘制补充说明
+        if(fld.tip){
+            fld.$tip.show().html(UI.text(fld.tip));
+        }
+        // 清空
+        else {
+            fld.$tip.hide();
+        }
+    },
+    //...............................................................
+    __draw_field_UI : function(uiType, uiConf, fld, callback){
+        var UI = this;
+        seajs.use(uiType, function(TheUI){
             // 默认根据字段类型给出控件的数据类型
             var theConf = {
                 dataType : fld.type || "string"
             };
             // 如果用户定义了 display 函数，则自动应用到控件 UI 里
-            if(!fld.uiConf.display && _.isFunction(fld.display)){
+            if(!uiConf.display && _.isFunction(fld.display)){
                 theConf.display = fld.display;
             }
             // 如果用户没有定义控件的 title 属性，将字段的弄过去
-            if(!fld.uiConf.title && fld.title){
+            if(!uiConf.title && fld.title){
                 theConf.title = fld.title;
             }
 
-            // 渲染 UI 控件
-            var theUI = new TheUI(_.extend(theConf, fld.uiConf, {
+            // 渲染 UI 控件: 每个控件都要监控 on_change 事件
+            var theUI = new TheUI(_.extend(theConf, uiConf, {
                 gasketName : fld.key,
-                $pel       : jFui,
+                $pel       : fld.$ui,
                 context    : fld,
                 on_change  : function(v){
                     UI.__on_change(this, v);
                 }
             })).render(function(){
                 //console.log("UI.defer_report:", fld.uiType, fld._form_key);
-                UI.defer_report(fld._form_key);
                 // 记录字段对应的 UI 对象
                 fld.UI = this;
                 // 这里做一下额外检查，如果发现自己的 parent 已经不对了，自杀
-                if(fld.UI .parent !== UI){
+                if(fld.UI.parent !== UI){
                     window.setTimeout(function(){
                         fld.UI.destroy();
                     }, 0);
                 }
+                // 调用回到
+                $z.doCallback(callback, [fld], UI);
             });
             // 检查 UI 控件的合法性
             if(!_.isFunction(theUI.setData) || !_.isFunction(theUI.getData)){
                 alert("field '" + fld.key + "' has invalid UIComponent : " + fld.uiType + " : without get/setData()");
                 throw "field '" + fld.key + "' has invalid UIComponent : " + fld.uiType + " : without get/setData()";
             }
-            // 记录实例的引用
-            //jF.data("@UI", theUI);
         });
-
-        // 绘制补充说明
-        if(fld.tip){
-            jTip.show().html(UI.text(fld.tip));
-        }
-        // 清空
-        else {
-            jTip.hide();
-        }
     },
     //...............................................................
     __on_change : function(fld, v){
@@ -541,6 +559,7 @@ return ZUI.def("ui.form", {
     },
     //...............................................................
     __set_fld_data : function(jF, o, forUpdate) {
+        var UI  = this;
         var jF  = $(jF);
         var fld = jF.data("@FLD");
 
@@ -548,18 +567,49 @@ return ZUI.def("ui.form", {
         if(!fld)
             return;
 
-        var fui = fld.UI;
-        var jso = fld.JsObjType;
-
-        // 更新的时候，检查是否接受
-        if(forUpdate && !jso.type().acceptForFormUpdate(o)){
-            return;
+        // 如果是动态值，则每次都要动态生成一个新 UI
+        if(_.isFunction(fld.uiConf)){
+            // 已经有了 UI，那么释放
+            if(fld.UI) {
+                fld.UI.destroy();
+                fld.UI = null;
+            }
+            //console.log(fld)
+            // uiConf 如果是个函数，返回内容，表示是同步函数
+            // 没返回有效内容，则表示异步函数，这个异步函数，必须处理传入的 callback
+            // 否则不会绘制
+            var uiConf = fld.uiConf.apply(fld, [o, function(uiConf){
+                UI.__draw_field_UI(fld.uiType, uiConf, fld, function(fld){
+                    UI.__set_fld_data_to_ui(fld, o, forUpdate);
+                    UI.triggerChange(fld.key);
+                });
+            }]);
+            // 同步函数，那么就绘制吧
+            if(uiConf) {
+                UI.__draw_field_UI(fld.uiType, uiConf, fld, function(fld){
+                    UI.__set_fld_data_to_ui(fld, o, forUpdate);
+                    UI.triggerChange(fld.key);
+                });
+            }
         }
-
+        // 静态字段，就直接设置
+        else {
+            UI.__set_fld_data_to_ui(fld, o, forUpdate);
+        }
+    },
+    //...............................................................
+    __set_fld_data_to_ui : function(fld, o, forUpdate) {
         // TODO 这里有诡异的问题，有时候 fld 会为 undefined
         // 可能这个 form 还没设置完 data 内容就被在另外一个回调里面的过程清空了？
         // 有时间要查查，基本上是快速在一个 gasketName 上切换 formUI 和另外的 UI 造成的
-        if(!fld || !fui) {
+        var fui = fld.UI;
+        if(!fui) {
+            return;
+        }
+
+        // 更新的时候，检查是否接受
+        var jso = fld.JsObjType;
+        if(forUpdate && !jso.type().acceptForFormUpdate(o)){
             return;
         }
 
@@ -694,6 +744,37 @@ return ZUI.def("ui.form", {
             // 返回值
             return re;
         });
+    },
+    //...............................................................
+    // 为字段重新设置值，可以输入多个字段
+    // 实际上 setData(getData()) 相当于为所有字段重新设置值
+    resetField : function() {
+        var UI  = this;
+        var obj = UI.getData();
+
+        // 逐个处理字段
+        var keys = Array.from(arguments);
+        for(var key of keys) {
+            var jF = UI.$fld(key);
+            UI.__set_fld_data(jF, obj);
+        }
+    },
+    //...............................................................
+    // 主动触发字段的 change 行为，可以输入多个字段
+    triggerChange : function() {
+        var UI  = this;
+        var obj = UI.getData();
+
+        // 逐个处理字段
+        var keys = Array.from(arguments);
+        for(var key of keys) {
+            var jF  = UI.$fld(key);
+            var fld = jF.data("@FLD");
+            if(fld.UI) {
+                var v = fld.UI.getData();
+                UI.__on_change(fld, v);
+            }
+        }
     },
     //...............................................................
     // 指定忽略字段，可以输入多个字段

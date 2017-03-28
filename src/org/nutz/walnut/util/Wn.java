@@ -95,6 +95,10 @@ public abstract class Wn {
 
     }
 
+    public static boolean isFullObjId(final String id) {
+        return id.matches("^[0-9a-v]{26}$");
+    }
+
     public static WnObj getObj(WnSystem sys, String str) {
         return getObj(sys.io, sys.se, str);
 

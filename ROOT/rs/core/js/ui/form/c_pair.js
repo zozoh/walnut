@@ -1,7 +1,7 @@
 (function($z){
 $z.declare([
     'zui',
-    'ui/form/support/form_c_methods',
+    'ui/form/support/form_ctrl',
 ], function(ZUI, FormMethods){
 //==============================================
 var html = `<div class="ui-arena com-pair">
@@ -98,7 +98,22 @@ return ZUI.def("ui.form_com_pair", {
         }
     },
     //...............................................................
-    getData : function() {
+    setObjTemplate : function(ot, cleanData) {
+        var UI   = this;
+        var opt  = UI.options;
+        var data = UI._get_data();
+
+        opt.objTemplate = ot;
+
+        // 重绘模板
+        if(opt.objTemplate) {
+            UI.__redraw_table(opt.objTemplate);
+        }
+        // 重绘数据
+        UI.__draw_data(cleanData ? {} : data);
+    },
+    //...............................................................
+    _get_data : function() {
         var UI = this;
         var opt = UI.options;
 
@@ -118,7 +133,7 @@ return ZUI.def("ui.form_com_pair", {
         return re;
     },
     //...............................................................
-    setData : function(obj) {
+    _set_data : function(obj) {
         // 如果是字符串，可能是 JSON
         if(_.isString(obj))
             obj = $z.fromJson(obj);

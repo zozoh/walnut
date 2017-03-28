@@ -36,7 +36,7 @@ public class cmd_thing extends JvmHdlExecutor {
         // 第一个参数表示一个 TsID 并且有多余一个的参数
         // :> thing ID hdlName xxx
         else if(hc.args.length >= 2){
-            hc.oRefer = Things.checkThingSet(sys.io, hc.args[0]);
+            hc.oRefer = Things.checkThingSet(sys, hc.args[0]);
             hc.hdlName = hc.args[1];
             pos = 2;
         }

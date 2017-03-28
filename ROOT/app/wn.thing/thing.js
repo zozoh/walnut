@@ -305,6 +305,9 @@ return ZUI.def("app.wn.thing", {
                 gasketName : "form",
                 uiWidth : "all",
                 fields : UI.thConf.fields,
+                on_change : function(key, val, fld) {
+                    $z.invoke(opt, "form_change", [key, val, fld], UI);
+                },
                 on_update : function(data, fld) {
                     var th      = this.getData();
                     var oTS     = UI.getThingSetObj();
@@ -323,13 +326,10 @@ return ZUI.def("app.wn.thing", {
                         UI.gasket.search.uiList.update(newTh);
                         // 隐藏提示
                         uiForm.hidePrompt(fld.key);
+
+                        // 调用回调
+                        $z.invoke(opt, "form_update", [data, newTh, fld], UI);
                     });
-                    // var th = this.getData();
-                    // UI.gasket.search.uiList.update(th);
-                    // this.showPrompt(key, "spinning");
-                    // window.setTimeout(function(){
-                    //     UI.gasket.form.hidePrompt(key);
-                    // }, 500);
                 }
             }).render(function(){
                 this.setData(th);

@@ -92,7 +92,7 @@ public abstract class AbstractWnTree implements WnTree {
         }
 
         // 如果是不完整的 ID
-        if (!id.matches("^[0-9a-v]{26}$")) {
+        if (!Wn.isFullObjId(id)) {
             WnQuery q = new WnQuery().limit(2);
             q.setv("id", Pattern.compile("^" + id));
             q.limit(2);
