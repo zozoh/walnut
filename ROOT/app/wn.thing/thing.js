@@ -60,7 +60,7 @@ var THING_DETAIL = function(){
 //==============================================
 var THING_FILE = function(fld, subhdl, validate) {
     return {
-        title : "i18n:thing.key." + subhdl,
+        title : fld.title || "i18n:thing.key." + subhdl,
         escapeHtml : false,
         display : function(o, jso, UI) {
             var nb = o["th_" + subhdl + "_nb"] || 0;

@@ -49,7 +49,7 @@ module.exports = {
         // 设置遮罩属性
         var mask_options = _.extend({
             css  : "theme/ui/pop/pop.css",
-            dom  : "ui/pop/pop.html",
+            css : 'theme/ui/pop/pop.css',
             closer: true,
             escape: true,
             width : 800,
@@ -132,7 +132,7 @@ module.exports = {
         // 打开编辑器
         new MaskUI({
             dom : 'ui/pop/pop.html',
-            css : 'ui/pop/pop.css',
+            css : 'theme/ui/pop/pop.css',
             i18n : opt.i18n,
             arenaClass : opt.arenaClass,
             width  : opt.width,
@@ -168,6 +168,7 @@ module.exports = {
         width       : 900           // 对话框宽度
         height      : "90%"         // 对话框高度
         escape      : false         // 对话框支持 Esc 关闭，默认 false
+        closer      : false         // 对话框显示关闭按钮
         i18n        : i18n          // 对话框控件组的 i18n 设定
         form        : {..}          // 表单配置项
         data        : 要编辑的值
@@ -184,18 +185,20 @@ module.exports = {
         $z.setUndefined(opt, "width", 640);
         $z.setUndefined(opt, "height", "80%");
         $z.setUndefined(opt, "escape", false);
+        $z.setUndefined(opt, "closer", true);
         $z.setUndefined(opt, "title", 'i18n:edit');
         $z.setUndefined(opt.form, "uiWidth", 'all');
 
         // 打开编辑器
         new MaskUI({
             dom : 'ui/pop/pop.html',
-            css : 'ui/pop/pop.css',
+            css : 'theme/ui/pop/pop.css',
             i18n : opt.i18n,
             arenaClass : opt.arenaClass,
             width  : opt.width,
             height : opt.height,
             escape : opt.escape,
+            closer : opt.closer,
             events : {
                 "click .pm-btn-ok" : function(){
                     var context = opt.context || this.body;
@@ -218,6 +221,86 @@ module.exports = {
             // 调用回调
             var context = opt.context || this.body;
             $z.invoke(opt, "after", [opt.data || {}], context);
+        });
+    },
+    //...............................................................
+    // 打开一个表单器（弹出），接受的参数格式为:
+    /*
+    {
+        title       : "i18n:xxx"    // 对话框标题
+        arenaClass  : "xxx",        // 对话框主题的类选择器
+        width       : 900           // 对话框宽度
+        height      : "90%"         // 对话框高度
+        escape      : true          // 对话框支持 Esc 关闭，默认 true
+        closer      : true          // 对话框显示关闭按钮，默认 true
+        i18n        : i18n          // 对话框控件组的 i18n 设定
+        setup       : {             // UI 配置项
+            uiType : "xxxx"         // UI 的类型
+            uiConf : {..}           // UI 的具体配置项目
+        }          
+        ready       : 回调函数, body加载完会调用 {c}F(uiMask.body)
+        context     : MaskUI    // 回调的上下文，默认是 uiMask.body
+        ok     : {c}F(uiMask.body)
+        cancel : {c}F(uiMask.body)
+        btnOk     : "i18n:ok"        // 默认 "i18n:ok", null 表示隐藏该按钮
+        btnCancel : "i18n:cancel"    // 默认 "i18n:cancel", null 表示隐藏该按钮
+    }
+    */
+    openUIPanel : function(opt){
+        opt = opt || {};
+        opt.form = opt.form || {};
+
+        // 填充默认值
+        $z.setUndefined(opt, "width", 640);
+        $z.setUndefined(opt, "height", "80%");
+        $z.setUndefined(opt, "escape", true);
+        $z.setUndefined(opt, "closer", true);
+        $z.setUndefined(opt, "btnOk", "i18n:ok");
+        $z.setUndefined(opt, "btnCancel",  "i18n:cancel");
+        $z.setUndefined(opt, "title", 'i18n:edit');
+
+        // 打开编辑器
+        new MaskUI({
+            dom : 'ui/pop/pop.html',
+            css : 'theme/ui/pop/pop.css',
+            i18n : opt.i18n,
+            arenaClass : opt.arenaClass,
+            width  : opt.width,
+            height : opt.height,
+            escape : opt.escape,
+            closer : opt.closer,
+            events : {
+                "click .pm-btn-ok" : function(){
+                    var context = opt.context || this.body;
+                    $z.invoke(opt, "ok", [this.body], context);
+                    this.close();
+                },
+                "click .pm-btn-cancel" : function(){
+                    var context = opt.context || this.body;
+                    $z.invoke(opt, "cancel", [this.body], context);
+                    this.close();
+                }
+            }, 
+            setup : opt.setup
+        }).render(function(){
+            // 设置标题
+            this.arena.find(".pm-title").html(this.text(opt.title));
+            
+            // 设置按钮文字: OK
+            if(opt.btnOk)
+                this.$main.find(".pm-btn-ok").html(this.text(opt.btnOk));
+            else
+                this.$main.find(".pm-btn-ok").remove();
+
+            // 设置按钮文字: Cancel
+            if(opt.btnCancel)
+                this.$main.find(".pm-btn-cancel").html(this.text(opt.btnCancel));
+            else
+                this.$main.find(".pm-btn-cancel").remove();
+
+            // 调用回调
+            var context = opt.context || this.body;
+            $z.invoke(opt, "ready", [this.body], context);
         });
     },
     //...............................................................
