@@ -5,9 +5,10 @@ var html = function(){/*
 <div class="ui-arena srh-pgr">
     <b class="pgr-btn" first>{{srh.pager.first}}</b>
     <b class="pgr-btn" prev >{{srh.pager.prev}}</b>
+    <span><input></span>
     <b class="pgr-btn" next >{{srh.pager.next}}</b>
     <b class="pgr-btn" last >{{srh.pager.last}}</b>
-    <em class="pgr-tip"></em>
+    <em class="pgr-tip" balloon="up:srh.pager.modify_pgnb"></em>
 </div>
 */};
 //==============================================
@@ -17,6 +18,7 @@ return ZUI.def("ui.srh_pgr", {
     },
     //..............................................
     events : {
+        // 按钮调整页数
         "click .pgr-btn" : function(e){
             var UI   = this;
             var jBtn = $(e.currentTarget);
@@ -29,10 +31,84 @@ return ZUI.def("ui.srh_pgr", {
             // console.log(pg);
             // console.log(UI.getData(pg))
             UI.trigger("pager:change", UI.getData(pg));
+        },
+        // 手动调整页数
+        "change span > input" : function(e) {
+            console.log("hahah")
+            var UI = this;
+            var jInput = $(e.currentTarget);
+            var val = jInput.val();
+            var pn  = parseInt(val);
+
+            // 得到数据
+            var pg = UI._parse_pager(UI.$el.data("@DATA"));
+
+            // 必须是数字
+            if(isNaN(pn)) {
+                jInput.val(pg.pn);
+                return;
+            }
+
+            // 确保在有效范围
+            pn = Math.max(1, Math.min(pg.pgnb, val));
+
+            // 修正值
+            if(pn != val) {
+                jInput.val(pn);
+            }
+
+            // 跳转
+            if(pn != pg.pn) {
+                pg.pg = pn;
+                UI.trigger("pager:change", UI.getData(pg));
+            }
+        },
+        // 手动调整页大小
+        "click .pgr-tip" : function(){
+            var UI = this;
+
+            // 得到数据
+            var pg = UI._parse_pager(UI.$el.data("@DATA"));
+
+            // 修改
+            UI.prompt(UI.msg("srh.pager.modify_tip", pg), function(str){
+                str = $.trim(str);
+                var pgsz = parseInt(str);
+                // 必须为数字
+                if(isNaN(pgsz)){
+                    UI.alert("srh.e.pgsz_must_int");
+                    return;
+                }
+                // 不能为负数
+                if(pgsz < 1) {
+                    UI.alert("srh.e.pgsz_less_then_zero");
+                    return;
+                }
+                // 超过 10000 暂时禁止吧
+                if(pgsz > 10000) {
+                    UI.alert("srh.e.pgsz_too_big");
+                    return;
+                }
+                // 超过 1000 要让用户确认
+                if(pgsz > 1000) {
+                    UI.confirm("srh.e.pgsz_is_big", function(){
+                        pg.pgsz = pgsz;
+                        pg.pn = 1;
+                        UI.trigger("pager:change", UI.getData(pg));
+                    });
+                    return;
+                }
+                // 直接通知
+                pg.pgsz = pgsz;
+                pg.pn = 1;
+                UI.trigger("pager:change", UI.getData(pg));
+            });
+
         }
     },
     //..............................................
     redraw : function(callback){
+        this.balloon();
     },
     //..............................................
     resize : function(){
@@ -52,6 +128,7 @@ return ZUI.def("ui.srh_pgr", {
         UI.arena.find("[prev]" ).attr("pn", Math.max(1, pg.pn-1));
         UI.arena.find("[next]" ).attr("pn", Math.min(last, pg.pn+1));
         UI.arena.find("[last]" ).attr("pn", last);
+        UI.arena.find(">span>input").val(pg.pn);
         // 看看能不能向前翻页
         if(pg.pn <= 1){
             UI.arena.find("[first],[prev]")
