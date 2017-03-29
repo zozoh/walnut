@@ -24,6 +24,7 @@ define({
         "user_nofound" : "没有合适的账号!",
         "paths_title" : "路径列表",
         "items_add" : "添加项目",
+        "items_empty" : "没有可添加项目了",
         "paths_add" : "添加目录",
         "paths_del" : "移除路径",
         "path_del_none"  : "请从路径列表中选择一个路径删除",

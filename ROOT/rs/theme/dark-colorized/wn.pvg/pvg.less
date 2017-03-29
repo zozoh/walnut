@@ -186,6 +186,10 @@
 .pvg-sideitem-mask {
     .ui-mask-main { @noselect();
         padding:@d3; color:@cf2; overflow: auto;
+        > .empty {
+            padding:@d3; font-size:@f3;
+            > i {margin-right:@d2;}
+        }
         > section {
             padding:@d2;
             > h1 {

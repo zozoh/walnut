@@ -373,15 +373,43 @@ return ZUI.def("app.wn.pvg", {
                         this.$main.addClass('ui-oicon-16')
                             .html($('.obrowser-chute-sidebar .chute-wrapper').html());
 
-                        // 移除那些已经添加过的
+                        // 准备收集要删除的项目
                         var dels = [];
+
+                        // 移除那些已经添加过的
                         this.$main.find("item").each(function(){
+                            // 将 A 替换成 SPAN
+                            var jA = $(this).find("a");
+                            if(jA.length > 0) {
+                                $('<span>').text(jA.text()).appendTo(this);
+                                jA.remove();
+                            }
+                            // 寻找一下，看看哪些已经添加过了
                             var o = Wn.fetch($(this).attr("ph"));
                             if(o.pvg){
                                 dels.push(this);
                             }
                         });
                         $(dels).remove();
+
+                        // 没有内容的分类，整体被移除
+                        dels = [];
+                        this.$main.find(">section").each(function(){
+                            if($(this).find("item").length == 0){
+                                dels.push(this);
+                            }
+                        });
+                        $(dels).remove();
+
+                        // 如果为空，显示内容
+                        if(this.$main.children().length == 0) {
+                            this.$main.html(UI.compactHTML(`
+                                <div class="empty">
+                                    <i class="zmdi zmdi-alert-circle-o"></i>
+                                    {{pvg.items_empty}}
+                                </div>
+                            `));
+                        }
                     });
                 }
             }, {
