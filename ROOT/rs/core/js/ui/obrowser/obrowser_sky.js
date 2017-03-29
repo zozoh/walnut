@@ -17,6 +17,7 @@ var html = function(){/*
     </div>
 </div>
 <div class="ui-arena obrowser-sky ui-clr" ui-fitparent="true">
+    <div class="obrowser-logo"></div>
     <div class="obrowser-crumb"></div>
     <div class="obrowser-me"></div>
     <div class="obrowser-menu" ui-gasket="menu"></div>
@@ -113,6 +114,21 @@ return ZUI.def("ui.obrowser_sky", {
                 //console.log("::", ph);
                 UI.browser().setData(ph);
             }
+        }
+    },
+    //..............................................
+    redraw : function() {
+        var UI  = this;
+        var opt = UI.opt();
+
+        // 隐藏面包屑
+        if(!opt.crumbBar) {
+            UI.arena.find(".obrowser-crumb").hide();
+        }
+
+        // 显示 LOGO 区
+        if(opt.logoArea) {
+            UI.arena.find(".obrowser-logo").html(UI.compactHTML(opt.logoArea));
         }
     },
     //..............................................
@@ -217,7 +233,7 @@ return ZUI.def("ui.obrowser_sky", {
     //..............................................
     update : function(o, asetup){
         var UI  = this;
-        var opt = UI.browser().options;
+        var opt = UI.opt();
 
         // 标识禁止主目录点击
         if(opt.forbidClickHomeInCrumb){
@@ -377,21 +393,37 @@ return ZUI.def("ui.obrowser_sky", {
     },
     //..............................................
     resize : function(){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.opt();
+
+        var jLogo  = UI.arena.find(".obrowser-logo");
         var jCrumb = UI.arena.find(".obrowser-crumb");
         var jMe = UI.arena.find(".obrowser-me");
         var jMenu  = UI.arena.find(".obrowser-menu:visible");
 
+        var W_logo = jLogo.outerWidth();
         var W_menu = jMenu.length > 0 ? jMenu.outerWidth() : 0;
         var W_me   = jMe.outerWidth();
 
+        // 信息区
         jMe.css("right", W_menu);
-        jCrumb.css("right", W_menu + W_me);
 
-        jCrumb.folder({
-            dmode : "tail",
-            keep : 1
-        });
+        // 面包屑，占满
+        if(opt.crumbBar) {
+            jCrumb.css({
+                "left"  : W_logo,
+                "right" : W_menu + W_me
+            });
+
+            jCrumb.folder({
+                dmode : "tail",
+                keep : 1
+            });
+        }
+        // 否则，让Logo 区占满
+        else {
+            jLogo.css("right", W_menu + W_me);
+        }
     }
     //..............................................
 });

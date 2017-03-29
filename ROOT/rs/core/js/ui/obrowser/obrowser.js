@@ -96,6 +96,7 @@ return ZUI.def("ui.obrowser", {
         //$z.setUndefined(opt, "editable", false);
         $z.setUndefined(opt, "skybar", true);
         $z.setUndefined(opt, "footbar", true);
+        $z.setUndefined(opt, "crumbBar", true);
 
         // 控制打开 
         UI.__eval_canOpen(opt);
