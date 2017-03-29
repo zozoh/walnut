@@ -78,17 +78,25 @@
     .pgr-tip {
         color:#888; font-style: normal; margin-right:10px;
         display: inline-block; vertical-align: middle;
-        padding:5px 8px; font-size: @f1;
+        padding:5px 8px; font-size: @f1; cursor: pointer;
     }
-    .pgr-btn {
-        display: inline-block; vertical-align: middle;
-        border:1px solid #CCC; color:#08F; padding:4px 8px;
-        border-radius: 2px; margin: 1px; cursor: default;
-        font-size:12px;
+    .pgr-tip:hover {
+        text-decoration: underline; color:@clink_hover;
+    }
+    > span {
+        display: inline-block; padding:0 @d1;
+        > input {@input();
+            width:40px; padding:@d2; text-align: center;
+            font-family: @f_fixed; font-size:@f1;
+        }
+        > input:focus {@input_focus();}
+    }
+    .pgr-btn {@btn();
+        padding:@d1 @d3; cursor: default; font-size:@f1;
     }
 
     .pgr-enable:hover {
-        background: @ch1_b; color:@ch1_f; cursor: pointer;
+        @btn_hover(); cursor: pointer;
     }
 
     .pgr-disable, .pgrr-disable:hover {
