@@ -19,7 +19,7 @@ body,
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background: #CCC;
+  background: url(main_bg.jpg);
 }
 html {
   font-size: 100px;
@@ -68,20 +68,20 @@ h6 {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(255, 255, 255, 0.4);
 }
 .ui-body a {
-  color: #0457ad;
+  color: #aabbff;
   text-decoration: none;
 }
 .ui-body a:hover {
-  color: #ff3300;
+  color: #ccddff;
   text-decoration: underline;
 }
 /* 所有的 ui-code-template 都是隐藏的 */
@@ -90,30 +90,26 @@ h6 {
 }
 /* 所有的 UI 中的通用组件 */
 .ui-btn {
-  color: #FFF;
-  background-color: #08F;
-  cursor: pointer;
   display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  margin: 0 2px;
+  padding: 6px 32px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
   border-radius: 4px;
-  font-weight: normal;
-  font-size: 14px;
-  height: 32px;
-  line-height: 32px;
-  padding: 0 16px 0 12px;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
+  text-align: center;
+}
+.ui-btn:hover {
+  color: #ffffff;
+  background: rgba(0, 64, 255, 0.6);
 }
 .ui-noselect {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-}
-.ui-btn:hover {
-  background-color: #4AF;
-  color: #FF0;
 }
 /*--------------------------------------------------- 其他 --------*/
 .fa-combo-icon2 {
@@ -194,9 +190,9 @@ h6 {
   opacity: 0;
   pointer-events: none;
   transition: all 0.18s ease-out;
-  background: rgba(17, 17, 17, 0.9);
+  background: rgba(255, 255, 20, 0.9);
   border-radius: 4px;
-  color: #fff;
+  color: #000000;
   content: attr(data-balloon);
   font-size: 12px;
   padding: .5em 1em;

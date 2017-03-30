@@ -115,6 +115,7 @@ task lessc << {
     File fHome = Files.findFile(".");
     String phHome = fHome.getCanonicalPath();
     println "do lessc in HOME: " + phHome
+    String phLess = Files.getParent(phHome)+"/walnut/ROOT/rs/theme/less"
 	tree.each {File _file ->
     	def _src = _file.path
     	def _dst = _src.substring(0, _src.length() - 4) + 'css'
@@ -127,15 +128,15 @@ task lessc << {
     		println "~ skip >> " + _rph
             return;
         }
-    	println "lessc>> "  + Files.getName(_src) + " : "  + _src
+    	println "lessc>> "  + Files.getName(_src) + " : "  + _rph
     	if (Os.isFamily(Os.FAMILY_WINDOWS)) {
     		exec {
-    			commandLine "cmd.exe", "/c", "lessc", "--include-path="+phHome+"/ROOT/rs/theme/less", _src, _dst
+    			commandLine "cmd.exe", "/c", "lessc", "--include-path="+phLess, _src, _dst
     			ignoreExitValue true
     		}
     	} else {
     		exec {
-    			commandLine "lessc", "--include-path="+phHome+"/ROOT/rs/theme/less", _src, _dst
+    			commandLine "lessc", "--include-path="+phLess, _src, _dst
     			ignoreExitValue true
     		}
     	}

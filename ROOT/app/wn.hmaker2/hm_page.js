@@ -1245,13 +1245,14 @@ return ZUI.def("app.wn.hmaker_page", {
         $(rootEdit).empty();
 
         // 设置 HTML 到编辑区
-        rootEdit.innerHTML = UI.compactHTML(`<head>
-            <link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker2/hmaker_editing.css">
-            <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">
-            <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">
-            <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">
-            <link rel="stylesheet" type="text/css" d="" href="/gu/rs/core/css/balloon.min.css">
-        </head><body></body>`);
+        var headHtml = '<head>';
+        headHtml += UI.getCssTheme('<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker2/theme/hmaker_editing-{{theme}}.css">');
+        headHtml += '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">';
+        headHtml += '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">';
+        headHtml += '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">';
+        headHtml += '<link rel="stylesheet" type="text/css" d="" href="/gu/rs/core/css/balloon.min.css">';
+        headHtml += '</head>';
+        rootEdit.innerHTML = headHtml;
 
         // 加载编辑区的上下文对象
         C.iedit = UI._reset_context_vars(".hmpg-frame-edit");

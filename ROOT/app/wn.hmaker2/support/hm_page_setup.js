@@ -200,8 +200,8 @@ var methods = {
             '<link rel="stylesheet" type="text/css" class="hm-del-save" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">');
         UI._H(jHead, 'link[href*="material-design-iconic-font.css"]',
             '<link rel="stylesheet" type="text/css" class="hm-del-save" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">');
-        UI._H(jHead, 'link[href*="hmaker_editing.css"]',
-            '<link rel="stylesheet" type="text/css" class="hm-del-save" href="/a/load/wn.hmaker2/hmaker_editing.css">');
+        UI._H(jHead, 'link[href*="hmaker_editing"]',
+            UI.getCssTheme('<link rel="stylesheet" type="text/css" class="hm-del-save" href="/a/load/wn.hmaker2/theme/hmaker_editing-{{theme}}.css">'));
 
         // _H(jHead, 'script[src*="zutil.js"]',
         //     '<script src="/gu/rs/core/js/nutz/zutil.js"></script>');

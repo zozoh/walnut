@@ -686,9 +686,7 @@ ZUIObj.prototype = {
         // 有 CSS 的话，需要对每个项目替换 theme
         if (uiCSS.length > 0) {
             for(var i=0; i<uiCSS.length; i++) {
-                uiCSS[i] = $z.tmpl(uiCSS[i])({
-                    theme : UI.theme
-                });
+                uiCSS[i] = UI.getCssTheme(uiCSS[i]);
             }
             seajs.use(uiCSS, do_i18n);
         }
@@ -756,6 +754,13 @@ ZUIObj.prototype = {
                 //}, 0);
             }
         }
+    },
+    //............................................
+    // 替换 css 路径中的 {{theme}} 占位符 
+    getCssTheme : function(cssPath) {
+        return $z.tmpl(cssPath)({
+            theme : this.theme
+        });
     },
     //............................................
     isFitParent : function(){

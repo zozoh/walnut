@@ -37,16 +37,22 @@ public class ModifyUICssTheme {
                         Matcher m = Pattern.compile(regex).matcher(line);
 
                         if (m.find()) {
+                            String cssName = m.group(3);
+                            int pos = cssName.lastIndexOf('/');
+                            String cssName2 = cssName.substring(0, pos + 1)
+                                              + "theme"
+                                              + cssName.substring(pos);
                             // System.out.println(Dumps.matcherFound(m));
                             String line2 = String.format("%s%s-{{theme}}%s",
                                                          m.group(1),
-                                                         m.group(3),
+                                                         cssName2,
                                                          m.group(4));
                             System.out.printf("> %s:\n", Disks.getRelativePath(dHome, f));
                             System.out.printf("%s\n%s\n", line, line2);
-                            lines[i] = line2;
-                            String str2 = Lang.concat("\n", lines).toString();
-                            Files.write(f, str2);
+                             lines[i] = line2;
+                             String str2 = Lang.concat("\n",
+                             lines).toString();
+                             Files.write(f, str2);
                             return;
                         }
                     }
