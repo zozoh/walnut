@@ -1,0 +1,84 @@
+
+@cceTabH: 24px;
+@cceBorderColor: #CCC;
+//----------------------------------------------------------------
+// 颜色拾取
+.edit-color {
+    position: relative;
+    > div {
+        position: absolute;
+    }
+    .ec-colors {
+        top: 0; left: 0; bottom: 0; right: 40%; padding: @d4;
+        > div {
+            position: relative; width:100%; height:100%;
+            > div { position: absolute; left: 0; right: 0;}
+        }
+        .ecc-head { @noselect();
+            top: 0; height: @cceTabH; padding-bottom: @d4;
+            span {
+                height: 100%;
+                border: 1px solid @cceBorderColor;
+            }
+            u { cursor: pointer; }
+        }
+        .ecc-body { @noselect();
+            top: @cceTabH; bottom: @cceTabH;
+            border: 1px solid @cceBorderColor;
+            span:first-child {border: 0;}
+            u {overflow: hidden;}
+            u:hover {
+                transform: scale(1.8);
+                border: 0; z-index: 200; width: 80px;
+                box-shadow: 1px 1px 3px @cshadow;
+                b {color: #FFF;text-shadow: 0 0 2px #000;}
+            }
+        }
+        .ecc-foot {
+            bottom: 0; height: @cceTabH; line-height: @cceTabH;
+            .ecc-ctip {
+                float: right; color: @cf0; font: @f2 @f_fixed;
+            }
+            .ecc-clean {
+                float: left; cursor: pointer; color:@clink;
+                transition:0.3s;
+            }
+            .ecc-clean:hover {
+                color:@clink_hover; transform:translateY(2px);
+                text-decoration: underline;
+            }
+        }
+        span {
+            display: block; width: 100%;
+            border-top: 1px solid @cceBorderColor;
+            u {
+                display: block; float: left; height: 100%;
+                border-left: 1px solid @cceBorderColor;
+            }
+            u:first-child {border: 0;}
+        }
+        span:after {@clr();}
+    }
+    .ec-values {
+        top: 0; right: 0; bottom: 0; left: 60%; padding: 0; text-align: right;
+        b {
+            display: inline-block; width: 60px; 
+            vertical-align: middle; text-align: left;
+        }
+        input { @input();
+            padding: @d1;border-radius: @d0; width: 50px;
+            border-radius: 1px; font: @f1 @f_fixed;
+        }
+        input:focus {@input_focus();}
+        em {
+            display: inline-block; padding: 0 @d2; vertical-align: middle;
+        }
+        > div {padding: @d3 0;}
+        .ecv-rgb {
+            > div {padding: @d0 0;}
+        }
+        .ecv-hex {
+            input {width: 91px;}
+        }
+    }
+}

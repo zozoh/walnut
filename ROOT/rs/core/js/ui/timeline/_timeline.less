@@ -1,0 +1,72 @@
+
+@rulerW : 60px;
+@objFH  : 6px;
+
+.tmln > .tmln-con { @noselect();
+    position:relative; overflow: auto; width:100%; height:100%;
+    .tmln-bg {
+        width:100%; height:100%;
+        @flex(); flex-flow:column nowrap;
+        .tmln-hour {
+            flex: 1 1 auto;
+            border-top:1px solid @cborder0;
+        }
+        .tmln-hour:first-child {
+            border:0;
+        }
+    }
+
+    .tmln-ruler { background: rgba(0,0,0,0.4);
+        position: absolute; top:0; left:0; height:100%; width: @rulerW;
+        border-right:1px solid @cborder0;
+        @flex(); flex-flow:column nowrap;
+        .tmln-rui {
+            flex: 1 1 auto; overflow: hidden; text-align: right;
+            padding:@d0; color:rgba(255,255,255,0.2); font-size: @f1; font-family: @f_fixed;
+        }
+    }
+
+    .tmln-layer {
+        > .tmln-obj {
+            position: absolute; top:0; left:@rulerW + 1px; right:@d2; height:4%;
+            background-color: rgba(88,88,255,0.8); 
+            border:1px solid rgba(66,66,200,0.8);
+            overflow: hidden;
+            > .tmln-objw {
+                width: 100%; height:100%; position: relative;
+                font-size: @f1; padding-bottom: @objFH;
+                > header {
+                    font-weight: bold; padding:@d0 @d6 @d0 @d2;
+                    dt {float:left;}
+                    em {float:right;}
+                }
+                > section {
+                    padding:@d2;
+                }
+                > footer {
+                    text-align: center; font-size: @f0;
+                    position: absolute;bottom: 0; left:0; right:0;  
+                    cursor: ns-resize; height:@objFH; line-height: @objFH;
+                    > * {display: none;}
+                }
+                > footer:hover > * {display: inline;}
+                > .tmln-obj-del {
+                    position: absolute; top:0; right:0; padding:@d0 @d1;
+                    cursor: pointer; transition:0.3s;
+                    font-size: @f4;
+                }
+                > .tmln-obj-del:hover {
+                    font-size: @f5; font-weight: bolder; color:@c1; transform: scale(1.2) rotate(360deg);
+                }
+            }
+        } 
+    }
+    
+}
+
+//...................................... 遮罩层特殊定义
+.tmln-obj-resize {cursor: ns-resize;}
+.tmln-obj-move   {cursor: default;}
+.tmln-mask {@noselect();
+    .pmv-helper {dbackground-color: rgba(255,0,0,0.4);}
+}

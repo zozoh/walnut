@@ -1,0 +1,42 @@
+@noselect : {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+};
+
+@clr : {
+  content:"";
+  display:block;
+  height:0;
+  clear:both;
+};
+
+@f_fixed : Monaco, Consolas, Courier New;
+
+@flex : {
+  display: -webkit-flex;
+  display: flex;
+};
+
+@btn : {
+  display:inline-block; vertical-align: middle; cursor: pointer;
+  margin: 0 @d0;
+  padding: @d2 @d7;
+  border:1px solid @cbtn_l;
+  background: @cbtn_b;  color:@cbtn_f;
+  border-radius: @d1;  text-align: center;
+};
+@btn_hover : {color:@ch0_f; background: @ch0_b;};
+@btn_focus : {
+  text-decoration: underline;
+  border-style:dotted;
+  border-color:@c0;
+};
+
+@input : {
+  outline:none; border:1px solid @cinput_l;
+  border-radius: @d1; color:@cinput_f; background: @cinput_b;
+};
+
+@input_focus:{color:@cinput_fF; background: @cinput_bF; border-color:@cinput_lF;};

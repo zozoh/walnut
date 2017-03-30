@@ -1,0 +1,108 @@
+
+@fH : 32px;
+.select-file {
+    position: relative;
+    > * {position: absolute; left: 0; right: 0;}
+    //.........................................
+    // 标签
+    > header {@noselect();
+        top:0; background: @cb2; color:@cf2; padding:@d2;
+        border-bottom:1px solid @cborder1;
+        > ul {
+            @flex();
+            li {
+                cursor: pointer; margin: 0 @d3;
+                border:1px solid @cborder1;
+                padding:@d2; margin:0 @d2 0 0;
+                min-width: 80px; text-align: center;
+            }
+            li.highlight {
+                background: @ch0_b; color:@ch0_f; font-weight: bold;
+            }
+        }
+    }
+    //.........................................
+    // 主体
+    > section {
+        bottom: @fH;
+    }
+    //.........................................
+    // 底部对象选择提示器
+    > footer { @noselect();
+        bottom: 0; height: @fH;
+        line-height:@fH; padding:0 @d3;
+        border-top:1px solid @cborder1;
+        background: @cb3; color:@cf3;
+        .sf-shelf[has-items]{
+            cursor: pointer; color: @clink;
+        }
+        .sf-shelf[has-items]:hover {
+            color:@clink_hover;
+        }
+    }
+    //.........................................
+    // 详细的选择内容弹出框 
+    .sf-selected-con[show] {
+        opacity: 1; 
+    }
+    .sf-selected-con {
+        transition: all .3s ease-in; opacity: 0; 
+        bottom: @fH; right:auto; 
+        padding:1px; 
+        > div {
+            position: relative; background: @cb0; color:@cf0; border:1px solid @cborder1;
+            > h5 {
+                padding:@d3; border-bottom:1px solid @cborder1;
+                background: @cb3; color:@cf3;
+            }
+            > .sf-selected-close {@noselect();
+                position: absolute; top:0; right:0; padding:@d1;
+                background: @cb3; color:@cf3;
+                font-size:@f1; cursor: pointer;
+            }
+            > .sf-selected-close:hover {
+                color:@ch0_f; background: @ch0_b;
+            }
+            > .sf-selected {
+                padding:@d2;
+                min-height: 80px; min-width: 240px; overflow: auto;
+                .empty {
+                    padding:@d6 @d2; text-align: center;
+                }
+                .ss-item {
+                    @flex(); padding: @d1; border-bottom:1px dashed @cborder1;
+                    opacity: 0.6;
+                    > * {flex:0 0 auto;}
+                    > .ssi-thumb {
+                        width:32px; height:32px;
+                        background-repeat: no-repeat;
+                        background-size: contain;
+                        background-position: center center;
+                        transition:0.2s;
+                    }
+                    > .ssi-thumb[jpg] {
+                        border-radius: @d1; border:1px solid @cborder1;
+                    }
+                    > .ssi-name {
+                        flex:1 1 auto;
+                        padding:@d1 @d3;
+                    }
+                    > .ssi-remove {
+                        cursor: pointer;
+                        > i {transition:0.2s;}
+                    }
+                    > .ssi-remove:hover {
+                        > i {transform: scale(1.3) rotate(360deg); color:@c0; font-weight: bold;}
+                    }
+                } // ~ .ss-item
+                .ss-item:last-child {border:0;}
+                .ss-item:hover {
+                    opacity: 1.0;
+                    > .ssi-thumb {
+                        transform: scale(1.1) translateX(-2px);
+                    }
+                }
+            } // .ss-selected
+        } // > div
+    } // ~ .sf-selected-con
+}

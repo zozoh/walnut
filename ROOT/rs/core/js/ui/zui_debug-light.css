@@ -1,0 +1,161 @@
+.ui-debug-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  padding: 20px;
+}
+.ui-debug-mask .ui-debug {
+  width: 600px;
+  height: 100%;
+  margin: 0 auto;
+  display: block;
+}
+.ui-debug {
+  color: #CCC;
+  background: #000;
+  font-size: 12px;
+  font-family: Monaco, Consolas, Courier New;
+  line-height: 20px;
+  position: relative;
+}
+.ui-debug > .uid-closer {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  font-size: 18px;
+  font-family: 'Material-Design-Iconic-Font';
+  cursor: pointer;
+  color: #FFF;
+  background-color: #888;
+  border-radius: 100px;
+  border: 2px solid #CCC;
+  line-height: 24px;
+  width: 28px;
+  text-align: center;
+  transition: 0.2s;
+}
+.ui-debug > .uid-closer:before {
+  display: "inline";
+  content: "\f136";
+}
+.ui-debug > .uid-closer:hover {
+  background-color: #00F;
+  color: #FFF;
+  border-color: #DDD;
+  font-size: 1.2em;
+  font-weight: bold;
+  transform: scale(1.2) rotate(360deg);
+}
+.ui-debug > section {
+  width: 100%;
+  overflow: auto;
+}
+.ui-debug .uid-detail {
+  height: 10%;
+  border-bottom: 1px dashed rgba(255, 255, 0, 0.3);
+  white-space: pre-wrap;
+  padding: 10px;
+  overflow: auto;
+}
+.ui-debug .uid-tree {
+  height: 90%;
+  padding: 10px;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self {
+  color: rgba(255, 255, 0, 0.6);
+  cursor: pointer;
+  position: relative;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self > * {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 2px;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self > span.tnd-handle {
+  font-family: FontAwesome;
+  display: inline-block;
+  color: #888;
+  width: 16px;
+  text-align: center;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self > span.tnd-handle:before {
+  content: '\f0d7';
+}
+.ui-debug .uid-tree .uid-tnode .uid-self > span.tnd-handle:hover {
+  color: #FFF;
+  text-shadow: 0 0 4px #FFF;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self > b {
+  font-weight: normal;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self > u {
+  text-decoration: none;
+  color: #888;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self em {
+  font-style: normal;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self > em.index {
+  color: #F0F;
+  font-size: 10px;
+  margin: 0 6px;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self > span.gasket {
+  color: #0AA;
+  width: 100px;
+  border-right: 1px solid #0AA;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self > span.gasket > em.gasket {
+  font-size: 11px;
+  margin: 0 2px;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self > div {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  padding: 0 4px;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self > div:hover {
+  color: #FFF;
+  font-size: 16px;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self:hover {
+  color: #ffff00;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self[show-in-live] {
+  background: #36A;
+  color: #FFF;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self[no-area] {
+  opacity: 0.4;
+  color: #F00;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self[no-area] > span.gasket {
+  color: #F00;
+}
+.ui-debug .uid-tree .uid-tnode .uid-self[no-area]:hover {
+  opacity: 1.0;
+}
+.ui-debug .uid-tree .uid-tnode .uid-tsub {
+  border-left: 1px dotted rgba(255, 255, 255, 0.2);
+  padding-left: 12px;
+  margin-left: 8px;
+}
+.ui-debug .uid-tree .uid-tnode[collapse] .uid-self > span.tnd-handle:before {
+  content: '\f0da';
+  color: #FF0;
+  text-shadow: 0 0 2px #FF0;
+}
+.ui-debug .uid-tree .uid-tnode[collapse] .uid-tsub {
+  display: none;
+}
+.ui-debug .uid-tree .uid-tnode[no-children] .uid-self > span.tnd-handle {
+  visibility: hidden;
+}
+.ui-debug .uid-tree .uid-tnode[no-children] .uid-self > div {
+  display: none;
+}
