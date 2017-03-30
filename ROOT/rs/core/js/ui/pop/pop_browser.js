@@ -7,7 +7,7 @@ $z.declare(['zui',
 function(ZUI, Wn, MaskUI, BrowserUI){
 //==============================================
 return ZUI.def("ui.pop.browser", {
-    css  : "theme/ui/pop/pop.css",
+    css  : "ui/pop/theme/pop-{{theme}}.css",
     //...............................................................
     init : function(opt) {
         $z.setUndefined(opt, "defaultByCurrent", true);

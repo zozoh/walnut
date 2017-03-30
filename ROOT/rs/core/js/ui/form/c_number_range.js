@@ -25,7 +25,7 @@ var html = `<div class="ui-arena com-number-range com-range">
 return ZUI.def("ui.form_com_number_range", {
     //...............................................................
     dom  : html,
-    css  : "theme/ui/form/component.css",
+    css  : "ui/form/theme/component-{{theme}}.css",
     i18n : "ui/form/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt){

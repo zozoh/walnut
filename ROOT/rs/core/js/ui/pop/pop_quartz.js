@@ -6,7 +6,7 @@ $z.declare(['zui',
 function(ZUI, MaskUI, QuartzUI){
 //==============================================
 return ZUI.def("ui.pop.quartz", {
-    css  : "theme/ui/pop/pop.css",
+    css  : "ui/pop/theme/pop-{{theme}}.css",
     //...............................................................
     redraw : function(){
         var UIPOP = this;

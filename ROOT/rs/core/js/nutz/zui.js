@@ -2,7 +2,7 @@ define(function (require, exports, module) {
 //====================================================
 // 采用统一的 ZUI.css
 require("ui/dateformat.js");
-require("theme/ui/zui.css");
+seajs.use("nutz/theme/zui-" + window.$zui_theme + ".css");
 //====================================================
 var parse_dom = function (html) {
     var UI = this;
@@ -478,7 +478,8 @@ ZUIObj.prototype = {
         var UI = this;
 
         // 确定语言
-        UI.lang = (UI.parent||{}).lang || window.$zui_i18n || "zh-cn";
+        UI.lang  = (UI.parent||{}).lang || window.$zui_i18n || "zh-cn";
+        UI.theme = window.$zui_theme || "light"; 
 
         //============================================== i18n读完后的回调
         // 看看是否需要异步加载多国语言字符串
@@ -682,9 +683,17 @@ ZUIObj.prototype = {
         //============================================== 从处理CSS开始
         // 加载 CSS
         var uiCSS = $z.concat(UI.$ui.css, UI.options.css);
+        // 有 CSS 的话，需要对每个项目替换 theme
         if (uiCSS.length > 0) {
+            for(var i=0; i<uiCSS.length; i++) {
+                uiCSS[i] = $z.tmpl(uiCSS[i])({
+                    theme : UI.theme
+                });
+            }
             seajs.use(uiCSS, do_i18n);
-        }else{
+        }
+        // 无 CSS
+        else{
             do_i18n();
         }
         // 返回自身
@@ -1227,7 +1236,7 @@ ZUIObj.prototype = {
         // 显示遮罩层
         seajs.use("ui/mask/mask", function(MaskUI){
             new MaskUI(_.extend({}, opt, {
-                css  : "theme/ui/pop/pop.css",
+                css  : 'ui/pop/theme/pop-{{theme}}.css',
                 dom  : "ui/pop/pop.html",
                 arenaClass : "pop-msg pop-confirm",
                 events : {
@@ -1294,7 +1303,7 @@ ZUIObj.prototype = {
         // 显示遮罩层
         seajs.use("ui/mask/mask", function(MaskUI){
             new MaskUI(_.extend({}, opt, {
-                css  : "theme/ui/pop/pop.css",
+                css  : 'ui/pop/theme/pop-{{theme}}.css',
                 dom  : "ui/pop/pop.html",
                 arenaClass : "pop-msg pop-info",
                 events : {
@@ -1366,7 +1375,7 @@ ZUIObj.prototype = {
         // 显示遮罩层
         seajs.use("ui/mask/mask", function(MaskUI){
             new MaskUI(_.extend({}, opt, {
-                css  : "theme/ui/pop/pop.css",
+                css  : 'ui/pop/theme/pop-{{theme}}.css',
                 dom  : "ui/pop/pop.html",
                 arenaClass : "pop-msg pop-info",
                 events : {
@@ -1638,7 +1647,7 @@ ZUI.debug = function() {
     }
 
     // 确保调试样式 CSS 被加载
-    seajs.use("theme/ui/zui_debug.css");
+    //seajs.use("theme/ui/zui_debug.css");
 
     // 预先声明闭包要用到的变量
     var info = {count:0};

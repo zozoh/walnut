@@ -2,7 +2,7 @@
     $z.declare(['zui', 'wn/util'], function (ZUI, Wn) {
         return ZUI.def("ui.wjson", {
             pkg: "wjson",
-            css: "ui/wedit/wedit.css", // 依赖wedit的css
+            css: "ui/wedit/theme/wedit-{{theme}}.css", 
             $vm: null,
             _obj: null,
             events: {

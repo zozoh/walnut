@@ -33,7 +33,7 @@ var html = function(){/*
 return ZUI.def("app.wn.hmaker2", {
     __hmaker__ : "1.0",
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/app/wn.hmaker2/hmaker.css",
+    css  : "app/wn.hmaker2/theme/hmaker-{{theme}}.css",
     i18n : "app/wn.hmaker2/i18n/{{lang}}.js",
     //...............................................................
     init : function() {
@@ -306,7 +306,7 @@ return ZUI.def("app.wn.hmaker2", {
         // 显示弹出层
         new MaskUI({
             dom : 'ui/pop/pop.html',
-            css : 'ui/pop/pop.css',
+            css : 'ui/pop/theme/pop-{{theme}}.css',
             width  : 600,
             height : 500,
             events : {

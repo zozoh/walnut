@@ -35,7 +35,7 @@ var html = `
 //==============================================
 return ZUI.def("ui.support.select_file", {
     dom  : html,
-    css  : "theme/ui/support/select_file.css",
+    css  : "ui/support/theme/select_file-{{theme}}.css",
     i18n : "ui/support/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt) {

@@ -38,7 +38,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.o_create", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/ui/o_create/o_create.css",
+    css  : "ui/o_create/theme/o_create-{{theme}}.css",
     i18n : "ui/o_create/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt){

@@ -30,7 +30,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.menu", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/ui/menu/menu.css",
+    css  : "ui/menu/theme/menu-{{theme}}.css",
     //..............................................
     init : function(options){
         var UI  = this;

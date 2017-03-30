@@ -23,7 +23,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.timeline", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/ui/timeline/timeline.css",
+    css  : "ui/timeline/timeline-{{theme}}.css",
     //..............................................
     events : {
         "click .tmln-hour" : function(e) {

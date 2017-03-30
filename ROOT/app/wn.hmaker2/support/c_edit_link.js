@@ -13,7 +13,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.form_com_edit-link", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : 'theme/app/wn.hmaker2/support/c_edit_link.css',
+    css  : 'app/wn.hmaker2/support/theme/c_edit_link-{{theme}}.css',
     //...............................................................
     init : function(opt) {
         FormCtrlMethods(HmMethods(this));

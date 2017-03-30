@@ -1,6 +1,6 @@
 define(function (require, exports, module) {
 // 链入的 cSS
-require("theme/ui/support/walnut.css");
+seajs.use("ui/support/theme/walnut-" + window.$zui_theme + ".css");
 // 声明帮助方法
 var Wn = {
     //=======================================================================

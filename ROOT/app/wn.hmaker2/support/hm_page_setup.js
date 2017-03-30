@@ -202,8 +202,6 @@ var methods = {
             '<link rel="stylesheet" type="text/css" class="hm-del-save" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">');
         UI._H(jHead, 'link[href*="hmaker_editing.css"]',
             '<link rel="stylesheet" type="text/css" class="hm-del-save" href="/a/load/wn.hmaker2/hmaker_editing.css">');
-        UI._H(jHead, 'link[href*="moveresizing.css"]',
-            '<link rel="stylesheet" type="text/css" class="hm-del-save" href="/theme/r/jqp/moveresizing/moveresizing.css">');
 
         // _H(jHead, 'script[src*="zutil.js"]',
         //     '<script src="/gu/rs/core/js/nutz/zutil.js"></script>');

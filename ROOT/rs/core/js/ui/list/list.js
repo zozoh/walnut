@@ -17,7 +17,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.list", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/ui/list/list.css",
+    css  : "ui/list/theme/list-{{theme}}.css",
     //..............................................
     init : function(opt){
         var UI  = ListMethods(this);

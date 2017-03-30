@@ -30,7 +30,7 @@ var ZUI = require("zui");
 module.exports = ZUI.def("ui.upload", {
     //...............................................................
     dom: "ui/upload/upload.html",
-    css: "theme/ui/upload/upload.css",
+    css: "ui/upload/theme/upload-{{theme}}.css",
     i18n: "ui/upload/i18n/{{lang}}.js",
     //...............................................................
     init: function (options) {

@@ -22,9 +22,9 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.obrowser", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : ["theme/ui/obrowser/obrowser.css",
-            "theme/ui/support/thumbnail.css", 
-            "theme/ui/support/oicons.css"],
+    css  : ["ui/obrowser/theme/obrowser-{{theme}}.css",
+            "ui/support/theme/thumbnail-{{theme}}.css", 
+            "ui/support/theme/oicons-{{theme}}.css"],
     i18n : "ui/obrowser/i18n/{{lang}}.js",
     //..............................................
     __browser__ : true,

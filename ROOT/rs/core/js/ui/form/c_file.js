@@ -34,7 +34,7 @@ var do_on_preview = function(e) {
 return ZUI.def("ui.form_com_file", {
     //...............................................................
     dom  : html,
-    css  : "theme/ui/form/component.css",
+    css  : "ui/form/theme/component-{{theme}}.css",
     //...............................................................
     init : function(opt) {
         var UI = ParentMethods(this);

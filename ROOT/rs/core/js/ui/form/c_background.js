@@ -26,7 +26,7 @@ var html = `
 return ZUI.def("ui.form_com_background", {
     //...............................................................
     dom  : html,
-    css  : "theme/ui/form/component.css",
+    css  : "ui/form/theme/component-{{theme}}.css",
     i18n : "ui/form/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt) {

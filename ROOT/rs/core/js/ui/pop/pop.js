@@ -48,8 +48,7 @@ module.exports = {
 
         // 设置遮罩属性
         var mask_options = _.extend({
-            css  : "theme/ui/pop/pop.css",
-            css : 'theme/ui/pop/pop.css',
+            css  : "ui/pop/theme/pop-{{theme}}.css",
             closer: true,
             escape: true,
             width : 800,
@@ -132,7 +131,7 @@ module.exports = {
         // 打开编辑器
         new MaskUI({
             dom : 'ui/pop/pop.html',
-            css : 'theme/ui/pop/pop.css',
+            css : 'ui/pop/theme/pop-{{theme}}.css',
             i18n : opt.i18n,
             arenaClass : opt.arenaClass,
             width  : opt.width,
@@ -192,7 +191,7 @@ module.exports = {
         // 打开编辑器
         new MaskUI({
             dom : 'ui/pop/pop.html',
-            css : 'theme/ui/pop/pop.css',
+            css : 'ui/pop/theme/pop-{{theme}}.css',
             i18n : opt.i18n,
             arenaClass : opt.arenaClass,
             width  : opt.width,
@@ -262,7 +261,7 @@ module.exports = {
         // 打开编辑器
         new MaskUI({
             dom : 'ui/pop/pop.html',
-            css : 'theme/ui/pop/pop.css',
+            css : 'ui/pop/theme/pop-{{theme}}.css',
             i18n : opt.i18n,
             arenaClass : opt.arenaClass,
             width  : opt.width,

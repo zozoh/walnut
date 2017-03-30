@@ -12,7 +12,7 @@ var html = function(){/*
 return ZUI.def("ui.mask", {
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/ui/mask/mask.css",
+    css  : "ui/mask/theme/mask-{{theme}}.css",
     //...............................................................
     init : function(options){
         $z.setUndefined(options, "width", 0.618);

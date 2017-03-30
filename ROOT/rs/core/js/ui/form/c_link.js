@@ -19,7 +19,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.form_com_link", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/ui/picker/picker.css",
+    css  : "ui/picker/picker-{{theme}}.css",
     i18n : "ui/picker/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt) {
@@ -41,7 +41,7 @@ return ZUI.def("ui.form_com_link", {
             new MaskUI(_.extend({
                 app : UI.app,
                 dom : 'ui/pop/pop.html',
-                css : 'theme/ui/pop/pop.css',
+                css : 'ui/pop/theme/pop-{{theme}}.css',
                 events : {
                     "click .pm-btn-ok" : function(){
                         UI._update(this.body.getData(), true);

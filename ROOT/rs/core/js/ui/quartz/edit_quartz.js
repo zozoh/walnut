@@ -23,7 +23,8 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.quartz", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : ["theme/ui/quartz/quartz.css", "theme/jqp/timelist/timelist.css"],
+    css  : ["ui/quartz/theme/quartz-{{theme}}.css", 
+            "jquery-plugin/timelist/timelist/theme/timelist-{{theme}}.css"],
     i18n : "ui/quartz/i18n/{{lang}}.js",
     //...............................................................
     events : {

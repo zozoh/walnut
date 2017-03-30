@@ -19,7 +19,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.tree", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/ui/tree/tree.css",
+    css  : "ui/tree/theme/tree-{{theme}}.css",
     //...............................................................
     init : function(opt){
         var UI = this;

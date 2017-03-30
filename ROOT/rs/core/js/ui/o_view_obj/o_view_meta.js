@@ -9,7 +9,7 @@ var html = '<div class="ui-arena opreview" ui-fitparent="yes" ui-gasket="form"><
 //==============================================
 return ZUI.def("ui.o_view_meta", {
     dom  : html,
-    css  : "theme/ui/o_view_obj/o_view_obj.css",
+    css  : "ui/o_view_obj/theme/o_view_obj-{{theme}}.css",
     i18n : "ui/o_view_obj/i18n/{{lang}}.js",
     //...............................................................
     __show_info : function(o, fields, callback) {

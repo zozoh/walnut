@@ -36,7 +36,7 @@ var html = `
 //==============================================
 return ZUI.def("app.wn.pvg", {
     dom  : html,
-    css  : "theme/app/wn.pvg/pvg.css",
+    css  : "app/wn.pvg/theme/pvg-{{theme}}.css",
     i18n : "app/wn.pvg/i18n/{{lang}}.js",
     //...............................................................
     redraw : function(){

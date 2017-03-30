@@ -26,7 +26,8 @@ var html = `<div class="ui-arena com-date-range com-range">
 return ZUI.def("ui.form_com_date_range", {
     //...............................................................
     dom  : html,
-    css  : ["theme/ui/form/component.css", "theme/jqp/zcal/zcal.css"],
+    css  : ["ui/form/theme/component-{{theme}}.css",
+            "jquery-plugin/zcal/theme/zcal-{{theme}}.css"],
     i18n : "ui/form/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt){

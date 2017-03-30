@@ -16,7 +16,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("app.wn.weixin.mp", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/app/wn.weixin.mp/weixin_mp.css",
+    css  : "app/wn.weixin.mp/theme/weixin_mp-{{theme}}.css",
     i18n : "app/wn.weixin.mp/i18n/{{lang}}.js",
     //...............................................................
     init : function(){

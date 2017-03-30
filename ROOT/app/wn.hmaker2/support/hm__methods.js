@@ -529,7 +529,7 @@ var methods = {
         new MaskUI({
             app : UI.app,
             dom : 'ui/pop/pop.html',
-            css : 'ui/pop/pop.css',
+            css : 'ui/pop/theme/pop-{{theme}}.css',
             i18n : UI._msg_map,
             width  : opt.width,
             height : opt.height,

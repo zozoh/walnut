@@ -37,7 +37,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.table", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/ui/table/table.css",
+    css  : "ui/table/theme/table-{{theme}}.css",
     //...............................................................
     init : function(options){
         var UI  = ListMethods(this);

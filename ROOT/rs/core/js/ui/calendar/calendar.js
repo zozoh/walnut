@@ -20,7 +20,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.calendar", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/jqp/zcal/zcal.css",
+    css  : "jqp/theme/zcal/zcal-{{theme}}.css",
     init : function(options){
         var UI = this;
         //$z.setUndefined(options, "blurable", true);

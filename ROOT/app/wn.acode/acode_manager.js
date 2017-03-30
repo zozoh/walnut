@@ -15,7 +15,7 @@ var html = `
 //==============================================
 return ZUI.def("app.wn.acode_manager", {
     dom  : html,
-    css  : "theme/app/wn.acode/acode_manager.css",
+    css  : "app/wn.acode/theme/acode_manager-{{theme}}.css",
     i18n : "app/wn.acode/i18n/{{lang}}.js",
     //...............................................................
     init : function(){

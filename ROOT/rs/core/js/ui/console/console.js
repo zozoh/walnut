@@ -70,7 +70,7 @@ var on_click_arena = function () {
 //=======================================================================
 return ZUI.def("ui.console", {
     dom: "ui/console/console.html",
-    css: "ui/console/console.css",
+    css: "ui/console/theme/console-{{theme}}.css",
     i18n : "ui/console/i18n/{{lang}}.js",
     init: function (opt) {
         var UI  = this;

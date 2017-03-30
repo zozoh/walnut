@@ -97,6 +97,7 @@ buildscript {
 }
 
 import org.nutz.lang.Files
+import org.nutz.lang.util.Disks
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
@@ -111,22 +112,30 @@ task lessc << {
 		include "**/*.less"
 		exclude "**/font-awesome*/**/*.*"
 	}
+    File fHome = Files.findFile(".");
+    String phHome = fHome.getCanonicalPath();
+    println "do lessc in HOME: " + phHome
 	tree.each {File _file ->
     	def _src = _file.path
     	def _dst = _src.substring(0, _src.length() - 4) + 'css'
+        def _rph = Disks.getRelativePath(phHome, _src);
     	if (file(_dst).exists() && file(_src.toString()).lastModified() <= file(_dst).lastModified()) {
-    		println "skip >> " + _src
+    		println "- no change >> " + _rph
     		return
     	}
-    	println "lessc>> " + _src
+        if(Files.getName(_src).startsWith("_")){
+    		println "~ skip >> " + _rph
+            return;
+        }
+    	println "lessc>> "  + Files.getName(_src) + " : "  + _src
     	if (Os.isFamily(Os.FAMILY_WINDOWS)) {
     		exec {
-    			commandLine "cmd.exe", "/c", "lessc" , _src, _dst
+    			commandLine "cmd.exe", "/c", "lessc", "--include-path="+phHome+"/ROOT/rs/theme/less", _src, _dst
     			ignoreExitValue true
     		}
     	} else {
     		exec {
-    			commandLine "lessc" , _src, _dst
+    			commandLine "lessc", "--include-path="+phHome+"/ROOT/rs/theme/less", _src, _dst
     			ignoreExitValue true
     		}
     	}

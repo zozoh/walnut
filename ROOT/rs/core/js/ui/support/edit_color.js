@@ -163,7 +163,7 @@ var html = `
 //===================================================================
 return ZUI.def("ui.support.edit_color", {
     dom  : html,
-    css  : "theme/ui/support/edit_color.css",
+    css  : "ui/support/theme/edit_color-{{theme}}.css",
     i18n : "ui/support/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt) {

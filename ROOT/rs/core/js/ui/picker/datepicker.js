@@ -32,7 +32,8 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.picker.datepicker", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : ["theme/ui/picker/picker.css", "theme/jqp/zcal/zcal.css"],
+    css  : ["ui/picker/theme/picker-{{theme}}.css", 
+            "jquery-plugin/zcal/theme/zcal-{{theme}}.css"],
     i18n : "ui/picker/i18n/{{lang}}.js",
     //...............................................................
     events : {

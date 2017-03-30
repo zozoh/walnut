@@ -1247,7 +1247,6 @@ return ZUI.def("app.wn.hmaker_page", {
         // 设置 HTML 到编辑区
         rootEdit.innerHTML = UI.compactHTML(`<head>
             <link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker2/hmaker_editing.css">
-            <link rel="stylesheet" type="text/css" href="/theme/r/jqp/moveresizing/moveresizing.css">
             <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">
             <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">
             <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">

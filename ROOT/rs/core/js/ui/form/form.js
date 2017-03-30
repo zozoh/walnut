@@ -30,7 +30,8 @@ var html = function(){/*
 return ZUI.def("ui.form", {
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : ["theme/ui/form/form.css", "theme/ui/form/component.css"],
+    css  : ["ui/form/theme/form-{{theme}}.css",
+            "ui/form/theme/component-{{theme}}.css"],
     i18n : "ui/form/i18n/{{lang}}.js",
     //...............................................................
     init : function(options){

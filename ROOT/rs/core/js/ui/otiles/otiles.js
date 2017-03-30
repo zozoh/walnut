@@ -9,8 +9,8 @@ var html = '<div class="ui-arena otiles wn-thumbnail" ui-fitparent="true"></div>
 //==============================================
 return ZUI.def("ui.otiles", {
     dom  : html,
-    css  : ["theme/ui/otiles/otiles.css",
-            "theme/ui/support/thumbnail.css"],
+    css  : ["ui/otiles/theme/otiles-{{theme}}.css",
+            "ui/support/theme/thumbnail-{{theme}}.css"],
     //..............................................
     init : function(opt){
         var UI  = ListMethods(this);

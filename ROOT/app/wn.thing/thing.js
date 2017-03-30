@@ -210,7 +210,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("app.wn.thing", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/app/wn.thing/thing.css",
+    css  : "app/wn.thing/theme/thing-{{theme}}.css",
     i18n : "app/wn.thing/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt) {

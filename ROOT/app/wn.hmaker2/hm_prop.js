@@ -38,7 +38,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("app.wn.hm_prop", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/app/wn.hmaker2/hmaker_prop.css",
+    css  : "app/wn.hmaker2/theme/hmaker_prop-{{theme}}.css",
     //...............................................................
     init : function() {
         var UI = HmPanelMethods(this);

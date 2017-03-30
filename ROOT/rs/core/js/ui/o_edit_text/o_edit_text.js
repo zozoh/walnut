@@ -12,7 +12,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.o_edit_text", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/ui/o_edit_text/o_edit_text.css",
+    css  : "ui/o_edit_text/theme/o_edit_text-{{theme}}.css",
     //...............................................................
     update : function(o) {
         var UI  = this;

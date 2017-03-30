@@ -31,7 +31,7 @@ return ZUI.def("ui.zeditor", {
         </section>
     </div>`,
     //...............................................................
-    css  : ['theme/ui/zeditor/zeditor.css'],
+    css  : 'ui/zeditor/theme/zeditor-{{theme}}.css',
     i18n : "ui/zeditor/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt) {

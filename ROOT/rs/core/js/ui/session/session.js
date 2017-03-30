@@ -9,7 +9,7 @@ var html = function(){/*
 //=======================================================================
 return ZUI.def("ui.session", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "ui/session/session.css",
+    css  : "ui/session/theme/session-{{theme}}.css",
     //...............................................................
     redraw : function(){
         var UI = this;

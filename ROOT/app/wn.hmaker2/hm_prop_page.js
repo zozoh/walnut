@@ -128,7 +128,7 @@ return ZUI.def("app.wn.hm_prop_page", {
 
         // 打开遮罩
         new MaskUI({
-            css  : "theme/ui/pop/pop.css",
+            css  : "ui/pop/theme/pop-{{theme}}.css",
             dom  : "ui/pop/pop.html",
             width : 400,
             height: "80%",

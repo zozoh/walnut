@@ -5,7 +5,7 @@ define(function (require, exports, module) {
 
     function init() {
         var mainUI = new SearchUI({
-            css: "theme/app/wn.rootlogin/main.css",
+            css: "app/wn.rootlogin/theme/main-{{theme}}.css",
             $pel: $(document.body),
             exec: Wn.exec,
             app: Wn.app(),

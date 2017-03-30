@@ -27,7 +27,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.support.edit_link", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/ui/support/edit_link.css",
+    css  : "ui/support/theme/edit_link-{{theme}}.css",
     i18n : "ui/support/i18n/{{lang}}.js",
     //...............................................................
     events : {

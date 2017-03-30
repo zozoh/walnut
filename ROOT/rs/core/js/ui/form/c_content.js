@@ -20,7 +20,7 @@ var html = `
 return ZUI.def("ui.form_com_obj_detail", {
     //...............................................................
     dom  : html,
-    css  : "theme/ui/form/component.css",
+    css  : "ui/form/theme/component-{{theme}}.css",
     i18n : "ui/form/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt) {
@@ -45,7 +45,7 @@ return ZUI.def("ui.form_com_obj_detail", {
             width  : 900,
             height : "90%",
             dom : 'ui/pop/pop.html',
-            css : 'ui/pop/pop.css',
+            css : 'ui/pop/theme/pop-{{theme}}.css',
         });
 
         // 默认编辑器配置

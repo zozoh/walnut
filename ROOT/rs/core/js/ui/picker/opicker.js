@@ -21,7 +21,7 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.picker.opicker", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "theme/ui/picker/picker.css",
+    css  : "ui/picker/theme/picker-{{theme}}.css",
     //...............................................................
     init : function(opt) {
         $z.setUndefined(opt, "mustInBase", true);

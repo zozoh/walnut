@@ -14,7 +14,7 @@ var html = `
 //==============================================
 return ZUI.def("ui.edit_link", {
     dom  : html,
-    css  : 'theme/app/wn.hmaker2/support/edit_link.css',
+    css  : 'app/wn.hmaker2/support/theme/edit_link-{{theme}}.css',
     //...............................................................
     redraw : function() {
         var UI  = this;
