@@ -21,7 +21,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 
 public class JsExec {
-    
+
     public static String dft_engine_nm = "nashorn";
 
     private ScriptEngineManager engineManager;
@@ -39,6 +39,10 @@ public class JsExec {
                            pre_eval(getEngine("nashorn"),
                                     "classpath:org/nutz/walnut/impl/box/cmd/jsc/lodash.min.js",
                                     "_"));
+            globalVars.put("$wn",
+                           pre_eval(getEngine("nashorn"),
+                                    "classpath:org/nutz/walnut/impl/box/cmd/jsc/jsc_walnut.js",
+                                    "$wn"));
         }
         catch (ScriptException e) {
             throw new RuntimeException(e);
@@ -79,16 +83,18 @@ public class JsExec {
         bindings.put("sys", jsc);
         // bindings.put("args", params.vals);
         // bindings.put("log", log);
-        bindings.put("walnut_js", "classpath:org/nutz/walnut/impl/box/cmd/jsc/jsc_walnut.js");
-        bindings.put("lodash_js", "classpath:org/nutz/walnut/impl/box/cmd/jsc/lodash.core.min.js");
+        // bindings.put("walnut_js",
+        // "classpath:org/nutz/walnut/impl/box/cmd/jsc/jsc_walnut.js");
+        // bindings.put("lodash_js",
+        // "classpath:org/nutz/walnut/impl/box/cmd/jsc/lodash.core.min.js");
         // 默认加载的几个js
         // TODO 需要测试加载默认js的时间，是否影响性能等问题
-        String jsPreload = "";
-        jsPreload += "load(walnut_js);\n";
-        // jsPreload += "load(lodash_js);\n";
-        if (!Strings.isBlank(jsPreload)) {
-            jsStr = jsPreload + jsStr;
-        }
+        // String jsPreload = "";
+        // jsPreload += "load(walnut_js);\n";
+        // // jsPreload += "load(lodash_js);\n";
+        // if (!Strings.isBlank(jsPreload)) {
+        // jsStr = jsPreload + jsStr;
+        // }
 
         // 执行
         Object obj = ((Compilable) engine).compile(jsStr).eval(bindings);
@@ -124,18 +130,17 @@ public class JsExec {
             // 真正的生成引擎
             if ("nashorn".equals(engineName)) {
                 try {
-                    engine = getNashornEngineSafe((name)->{
-                       // 不允许加载java.lang下的类,尤其是Runtime
-                       if (name.startsWith("java.lang"))
-                           return false;
-                       // 不允许使用io库
-                       if (name.startsWith("java.io"))
-                           return false;
-                       return true;
+                    engine = getNashornEngineSafe((name) -> {
+                        // 不允许加载java.lang下的类,尤其是Runtime
+                        if (name.startsWith("java.lang"))
+                            return false;
+                        // 不允许使用io库
+                        if (name.startsWith("java.io"))
+                            return false;
+                        return true;
                     });
                 }
-                catch (Exception e) {
-                }
+                catch (Exception e) {}
             }
             if (engine == null)
                 engine = engineManager.getEngineByName(engineName);
@@ -147,27 +152,37 @@ public class JsExec {
         }
         return engine;
     }
-    
+
     @SuppressWarnings("unchecked")
     public ScriptEngine getNashornEngineSafe(Function<String, Boolean> func) throws Exception {
         for (ScriptEngineFactory factory : getEngineFactories()) {
-            if (factory.getClass().getName().equals("jdk.nashorn.api.scripting.NashornScriptEngineFactory")) {
+            if (factory.getClass()
+                       .getName()
+                       .equals("jdk.nashorn.api.scripting.NashornScriptEngineFactory")) {
                 Class<Object> klass = (Class<Object>) Class.forName("jdk.nashorn.api.scripting.ClassFilter");
-                Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[]{klass}, new InvocationHandler() {
-                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        return func == null || func.apply((String)args[0]);
-                    }
-                });
-                return (ScriptEngine) factory.getClass().getMethod("getScriptEngine", klass).invoke(factory, proxy);
+                Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(),
+                                                      new Class<?>[]{klass},
+                                                      new InvocationHandler() {
+                                                          public Object invoke(Object proxy,
+                                                                               Method method,
+                                                                               Object[] args)
+                                                                  throws Throwable {
+                                                              return func == null
+                                                                     || func.apply((String) args[0]);
+                                                          }
+                                                      });
+                return (ScriptEngine) factory.getClass()
+                                             .getMethod("getScriptEngine", klass)
+                                             .invoke(factory, proxy);
             }
         }
         return null;
     }
-    
+
     public void addGlobalVar(String key, Object value) {
         globalVars.put(key, value);
     }
-    
+
     public void removeGlobalVar(String key) {
         globalVars.remove(key);
     }
