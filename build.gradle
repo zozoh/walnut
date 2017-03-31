@@ -3,6 +3,8 @@ apply plugin: 'maven'
 apply plugin: "war"
 apply from: "common.gradle"
 
+import org.nutz.lang.Files
+
 group = 'org.nutz'
 version = '1.r.61-SNAPSHOT'
 
