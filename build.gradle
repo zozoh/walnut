@@ -1,6 +1,9 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: "war"
+apply from: "common.gradle"
+
+import org.nutz.lang.Files
 
 group = 'org.nutz'
 version = '1.r.61-SNAPSHOT'
@@ -94,53 +97,6 @@ buildscript {
     dependencies {
         classpath 'org.nutz:nutz:1.r.60'
     }
-}
-
-import org.nutz.lang.Files
-import org.nutz.lang.util.Disks
-
-import org.apache.tools.ant.taskdefs.condition.Os
-
-task lessc << {
-	def lesscDir = 'ROOT'
-	try {
-		if (project.appdir != null) {
-			lesscDir = project.appdir
-		}
-	} catch(e){}
-	FileTree tree = fileTree(lesscDir) {
-		include "**/*.less"
-		exclude "**/font-awesome*/**/*.*"
-	}
-    File fHome = Files.findFile(".");
-    String phHome = fHome.getCanonicalPath();
-    println "do lessc in HOME: " + phHome
-    String phLess = Files.getParent(phHome)+"/walnut/ROOT/rs/theme/less"
-	tree.each {File _file ->
-    	def _src = _file.path
-    	def _dst = _src.substring(0, _src.length() - 4) + 'css'
-        def _rph = Disks.getRelativePath(phHome, _src);
-    	if (file(_dst).exists() && file(_src.toString()).lastModified() <= file(_dst).lastModified()) {
-    		println "- no change >> " + _rph
-    		return
-    	}
-        if(Files.getName(_src).startsWith("_")){
-    		println "~ skip >> " + _rph
-            return;
-        }
-    	println "lessc>> "  + Files.getName(_src) + " : "  + _rph
-    	if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-    		exec {
-    			commandLine "cmd.exe", "/c", "lessc", "--include-path="+phLess, _src, _dst
-    			ignoreExitValue true
-    		}
-    	} else {
-    		exec {
-    			commandLine "lessc", "--include-path="+phLess, _src, _dst
-    			ignoreExitValue true
-    		}
-    	}
-	}
 }
 
 task wbuild(dependsOn: classes) << {
