@@ -262,7 +262,7 @@ var Wn = {
 
         new MaskUI(_.extend({
             dom    : "ui/pop/pop.html",
-            css    : "theme/ui/pop/pop.css",
+            css    : "ui/pop/theme/pop-{{theme}}.css",
             exec   : Wn.exec,
             app    : Wn.app(),
             closer : true,
