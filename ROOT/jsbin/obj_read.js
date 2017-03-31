@@ -19,7 +19,7 @@ function _main(ph, m) {
     }
     obj = eval('(' + obj + ')');
     if (m) {
-        ajax_ok(obj);
+        $wn.ajax_ok(obj);
     } else {
         sys.io().readAndClose(sys.io().get(obj.id), sys.out.getOutputStream());
     }
