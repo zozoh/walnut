@@ -30,6 +30,7 @@ import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
 @ServerEndpoint(value="/websocket", configurator=WnWebSocketConfigurator.class)
@@ -77,6 +78,8 @@ public class WnWebSocket extends Endpoint {
             if (Strings.isBlank(methodName))
                 return;
             String user = map.getString("user");
+            if (Strings.isBlank(user))
+                user = Wn.Ctx.get().SE().me();
             boolean doReturn = map.getBoolean("return", true);
             switch (methodName) {
             case "watch":
