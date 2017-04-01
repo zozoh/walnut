@@ -17,5 +17,11 @@ Walnut 是一台可承载海量账号网络计算机，每个账号都有自己�
 * 我们帮你处理海量的数据
 * 我们保证服务的无间断运转
 
+软件下载
+===
 
+http://cdn.nutz.cn/jdk-8u121-windows-x64.exe
 
+http://cdn.nutz.cn/mongodb-win32-x86_64-2008plus-ssl-3.4.3-signed.msi
+
+http://cdn.nutz.cn/torture_1.0.beta.zip

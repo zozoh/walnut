@@ -29,6 +29,12 @@ autostart=true
 autorestart=true
 ```
 
+## 初始化wup启动
+
+```
+python /opt/wup.py --type strato
+```
+
 ## 安装监控
 
 ```
