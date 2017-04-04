@@ -11,7 +11,7 @@ var parse_dom = function (html) {
     // html = html.replace(/[ ]*\r?\n[ ]*/g, "");
     // html = $z.tmpl(html)(UI._msg_map);
     html = UI.compactHTML(html);
-    
+
     // 找到要加入 HTML 的位置并替换 HTML
     var jCon = UI.findDomParent();
     if(jCon && jCon.length > 0) {
@@ -95,7 +95,7 @@ var register = function(UI) {
                         : opt.keepDom;
         // if(UI.keepDom)
         //     console.log("keepDom", UI.uiName)
-        
+
         // 试图正确的获取 Arena
         // UI.arena = UI.$el.children('.ui-arena');
         // if(UI.arena.size() == 0)
@@ -275,7 +275,7 @@ ZUIObj.prototype = {
                 });
             }
         }
-        
+
         // 确保自己设置了自定义的 className
         var isOptResetClassName = /^!/.test(opt.className);
         if(!isOptResetClassName && UI.className) {
@@ -315,7 +315,7 @@ ZUIObj.prototype = {
         // 首先，将自己从父中去掉
         if(UI.parent != pui)
             UI.__remove_from_parent();
-        
+
         // 然后加入到 pui 的子列表
         if(pui)
             pui.__append_child(UI);
@@ -323,7 +323,7 @@ ZUIObj.prototype = {
         // 没有指定 target ...
         if(!target)
             return this;
-        
+
         // 直接移动到某指定的元素下面
         var gasketName;
         if(_.isElement(target) || $z.isjQuery(target)) {
@@ -338,7 +338,7 @@ ZUIObj.prototype = {
             gasketName = target;
             var selector = '[ui-gasket="'+pui.cid+"@"+gasketName+'"]';
             UI.$pel = pui.$el.find(selector);
-            
+
             // 没找到是不能忍受的哦
             if(UI.$pel.length == 0){
                 throw $z.tmpl("fail to match gasket[{{gas}}] in {{pnm}}({{pid}})")({
@@ -347,17 +347,17 @@ ZUIObj.prototype = {
                     pid : UI.parent.cid
                 });
             }
-            
+
             UI.pel  = UI.$pel[0];
         }
         // 指定 target 非法
         else {
             throw "UI.appendTo() invalid target!!!";
         }
-        
+
         // 确保自己移动到新的 pel 下面
         UI.$el.appendTo(UI.$pel);
-        
+
         // 指定了 gasketName
         if(gasketName) {
             opt.gasketName = gasketName;
@@ -366,7 +366,7 @@ ZUIObj.prototype = {
                 oldUI.destroy();
             pui.gasket[opt.gasketName] = UI;
         }
-        
+
         // 返回自身以便链式赋值
         return this;
     },
@@ -479,7 +479,7 @@ ZUIObj.prototype = {
 
         // 确定语言
         UI.lang  = (UI.parent||{}).lang || window.$zui_i18n || "zh-cn";
-        UI.theme = window.$zui_theme || "light"; 
+        UI.theme = window.$zui_theme || "light";
 
         //============================================== i18n读完后的回调
         // 看看是否需要异步加载多国语言字符串
@@ -703,12 +703,12 @@ ZUIObj.prototype = {
         var UI = this;
         if(!UI._loaded_uiTypes)
             UI._loaded_uiTypes = [];
-        
+
         // 因为是延迟，所以放到执行队列最后执行
         window.setTimeout(function(){
             // console.log(" - defer", UI.uiName, i, uiType)
-            if(UI._loaded_uiTypes 
-                && UI._defer_uiTypes 
+            if(UI._loaded_uiTypes
+                && UI._defer_uiTypes
                 && UI._defer_do_after_redraw){
                 // 如果仅仅给了个 uiType，那么自动寻找 i
                 if(_.isString(i)){
@@ -731,8 +731,8 @@ ZUIObj.prototype = {
     },
     _check_defer_done : function(){
         var UI = this;
-        if(UI._loaded_uiTypes 
-            && UI._defer_uiTypes 
+        if(UI._loaded_uiTypes
+            && UI._defer_uiTypes
             && UI._defer_do_after_redraw){
             if(UI._loaded_uiTypes.length == UI._defer_uiTypes.length){
                 for(var i=0; i<UI._loaded_uiTypes.length; i++){
@@ -742,8 +742,8 @@ ZUIObj.prototype = {
                 }
                 // 延迟调用
                 //window.setTimeout(function(){
-                    if(UI._loaded_uiTypes 
-                        && UI._defer_uiTypes 
+                    if(UI._loaded_uiTypes
+                        && UI._defer_uiTypes
                         && UI._defer_do_after_redraw){
                         // console.log(" - defer done", UI.uiName)
                         UI._defer_do_after_redraw.call(UI);
@@ -756,7 +756,7 @@ ZUIObj.prototype = {
         }
     },
     //............................................
-    // 替换 css 路径中的 {{theme}} 占位符 
+    // 替换 css 路径中的 {{theme}} 占位符
     getCssTheme : function(cssPath) {
         return $z.tmpl(cssPath)({
             theme : this.theme
@@ -1282,14 +1282,16 @@ ZUIObj.prototype = {
         var UI = this;
 
         // 分析参数
-        if(_.isFunction(opt)) {
+        if (_.isFunction(opt)) {
             callback = opt;
-            opt      = {};
+            opt = {
+                callback: callback
+            };
         }
         // 快捷图标
         else if(_.isString(opt)) {
             var opt2 = {};
-            if("warn" == opt) 
+            if("warn" == opt)
                 opt2.icon = '<i class="zmdi zmdi-alert-triangle"></i>';
             else if("error" == opt)
                 opt2.icon = '<i class="zmdi zmdi-alert-polygon"></i>';
@@ -1335,6 +1337,72 @@ ZUIObj.prototype = {
                 }
                 html += '<div class="pop-msg-text">' + UI.msg(msgKey) + '</div>';
                 this.$main.find(".pm-body").html(html);
+            })
+        });
+    },
+    //...................................................................
+    // 短暂时间提示
+    // opt.callback : {c}F(str)
+    toast: function(msgKey, opt) {
+        var UI = this;
+
+        // 分析参数
+        if (_.isFunction(opt)) {
+            callback = opt;
+            opt = {
+                callback: callback
+            };
+        }
+        // 快捷图标
+        else if(_.isString(opt)) {
+            var opt2 = {};
+            if("warn" == opt)
+                opt2.icon = '<i class="zmdi zmdi-alert-triangle"></i>';
+            else if("error" == opt)
+                opt2.icon = '<i class="zmdi zmdi-alert-polygon"></i>';
+            else if("notify" == opt)
+                opt2.icon = '<i class="zmdi zmdi-notifications-active"></i>';
+            opt = opt2;
+        }
+
+        opt = opt || {};
+        $z.setUndefined(opt, "time",  1000);
+        $z.setUndefined(opt, "width",  400);
+        $z.setUndefined(opt, "height", 240);
+        $z.setUndefined(opt, "title", "info");
+        $z.setUndefined(opt, "btnOk", "ok");
+        $z.setUndefined(opt, "icon",  '<i class="zmdi zmdi-info"></i>');
+
+        // 显示遮罩层
+        seajs.use("ui/mask/mask", function(MaskUI){
+            new MaskUI(_.extend({}, opt, {
+                css  : 'ui/pop/theme/pop-{{theme}}.css',
+                dom  : "ui/pop/pop.html",
+                arenaClass : "pop-msg pop-info"
+            })).render(function(){
+                var self = this;
+                // 设置标题
+                if(opt.title)
+                    this.$main.find(".pm-title").html(UI.msg(opt.title));
+                else
+                    this.$main.find(".pm-title").remove();
+
+                // 设置按钮文字
+                this.$main.find(".pm-btn-ok").remove();
+                this.$main.find(".pm-btn-cancel").remove();
+
+                // 设置显示内容
+                var html = '';
+                if(opt.icon) {
+                    html += '<div class="pop-msg-icon">'+opt.icon+'</div>';
+                }
+                html += '<div class="pop-msg-text">' + UI.msg(msgKey) + '</div>';
+                this.$main.find(".pm-body").html(html);
+
+                setTimeout(function () {
+                    self.close();
+                    $z.invoke(opt, "callback", [], opt.context||self);
+                }, opt.time);
             })
         });
     },
@@ -1438,7 +1506,7 @@ ZUIObj.prototype = {
                 if(opt.icon) {
                     html += '<div class="pop-msg-icon">'+opt.icon+'</div>';
                 }
-                html += '<div class="pop-msg-prompt">' 
+                html += '<div class="pop-msg-prompt">'
                 html += '<div class="pmp-text">' + UI.msg(msgKey) + '</div>';
                 html += '<div class="pmp-input"><input></div>';
                 html += '<div class="pmp-warn"></div>';
