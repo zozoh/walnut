@@ -12,7 +12,8 @@ var html = function(){/*
         <i tp="checkbox" class="fa fa-check-square"></i>
     </div>
 </div>
-<div class="ui-arena lst" ui-fitparent="true"></div>
+<div class="ui-arena lst" ui-fitparent="true">
+</div>
 */};
 //==============================================
 return ZUI.def("ui.list", {

@@ -476,7 +476,7 @@ return ZUI.def("ui.obrowser", {
     //..............................................
     showUploader: function(options){
         var UI = this;
-        var ta =  this.getCurrentObj();
+        var ta =  options.ta ? options.ta : this.getCurrentObj();
         Wn.uploadPanel(_.extend({
             target : ta,
             finish : function(doneList, failList){
