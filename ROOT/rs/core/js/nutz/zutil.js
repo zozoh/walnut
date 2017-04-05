@@ -10,6 +10,9 @@
 
     var KEY_CODE = {
         // 特殊字符
+        SHIFT: 16,
+        CTRL: 17,
+        ALT: 18,
         ESCAPE: 27,
         HOME: 36,
         SPACE: 32,

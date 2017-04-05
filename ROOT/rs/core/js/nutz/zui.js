@@ -1915,10 +1915,10 @@ ZUI.on_keydown = function(e) {
     //console.log(e.which);
     var keys = [];
     // 顺序添加，所以不用再次排序了
-    if (e.altKey)   keys.push("alt");
-    if (e.ctrlKey)  keys.push("ctrl");
-    if (e.metaKey)  keys.push("meta");
-    if (e.shiftKey) keys.push("shift");
+    if (e.altKey && e.keyCode != 18) keys.push("alt");
+    if (e.ctrlKey && e.keyCode != 17) keys.push("ctrl");
+    if (e.metaKey && (e.keyCode != 91 || e.keyCode != 93)) keys.push("meta");
+    if (e.shiftKey && e.keyCode != 16) keys.push("shift");
     var key;
     if (keys.length > 0) {
         key = keys.join("+") + "+" + e.which;
