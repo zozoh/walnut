@@ -95,10 +95,10 @@ task lessc << {
     	def _src = _file.path
     	def _dst = _src.substring(0, _src.length() - 4) + 'css'
         def _rph = Disks.getRelativePath(phHome, _src);
-    	if (file(_dst).exists() && file(_src.toString()).lastModified() <= file(_dst).lastModified()) {
-    		println "- no change >> " + _rph
-    		return
-    	}
+    	//if (file(_dst).exists() && file(_src.toString()).lastModified() <= file(_dst).lastModified()) {
+    	//	println "- no change >> " + _rph
+    	//	return
+    	//}
         if(Files.getName(_src).startsWith("_")){
     		println "~ skip >> " + _rph
             return;
