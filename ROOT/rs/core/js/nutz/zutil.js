@@ -12,7 +12,9 @@
         // 特殊字符
         SHIFT: 16,
         CTRL: 17,
+        CONTROL: 17,
         ALT: 18,
+        CAPE_LOCK: 20,
         ESCAPE: 27,
         HOME: 36,
         SPACE: 32,
