@@ -29,7 +29,7 @@ return ZUI.def("ui.otiles", {
     events : {
         // 点击激活或者选中项目 
         "click .list-item .wnobj-thumbnail, .list-item .wnobj-nm" : function(e){
-            this._do_click_list_item(e, false);
+            this._do_click_list_item(e);
         },
         // 点击空白区域
         "click .ui-arena" : function(e){

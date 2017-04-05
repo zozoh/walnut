@@ -40,16 +40,15 @@ return ZUI.def("ui.list", {
     //..............................................
     events : {
         "click .lst-item" : function(e){
-            this._do_click_list_item(e, false);
+            this._do_click_list_item(e);
         },
         "click .lst-item-checker" : function(e){
             e.stopPropagation();
             this.toggle(e.currentTarget);
         },
         "click .ui-arena" : function(e){
-            var jq = $(e.target);
-            var jRow = jq.closest(".lst-item");
-            if(this.options.blurable && !jRow.hasClass("lst-item-actived"))
+            // 只有点击空白区域，才会失去焦点
+            if($(e.target).closest(".lst-item").length == 0)
                 this.setAllBlur();
         },
         "click .tbl-checker" : function(e){

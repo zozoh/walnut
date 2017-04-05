@@ -65,6 +65,8 @@ var methods = {
         $z.setUndefined(opt, "blurable", true);
         $z.setUndefined(opt, "checkable", true);
         $z.setUndefined(opt, "multi",  opt.checkable);
+        $z.setUndefined(opt, "stopPropagation", false);
+        $z.setUndefined(opt, "rowToggle", true);
 
         // options.get/setItemData
         $z.setUndefined(opt, "getItemData", function(jItem){
@@ -534,27 +536,26 @@ var methods = {
     //...............................................................
     // 点击项目的时候，需要考虑 ctrl/shift 等单选多选问题
     // 子 UI 截获事件后调用这个函数处理即可
-    _do_click_list_item : function(e, stopPropagation){
+    _do_click_list_item : function(e){
         var UI  = this;
         var opt = UI.options;
         var jItem = UI.$item(e.currentTarget);
         
         // 不要冒泡了
-        if(stopPropagation)
+        if(opt.stopPropagation)
             e.stopPropagation();
 
-        // console.log("haha", opt.multi)
+        console.log("haha", opt.stopPropagation)
 
         // 如果支持多选 ...
         if(opt.multi){
             // 仅仅表示单击选中
             if(($z.os.mac && e.metaKey) 
-                || (!$z.os.mac && e.ctrlKey)
-                || !opt.activable){
+                || (!$z.os.mac && e.ctrlKey)){
                 // 防止冒泡
                 e.stopPropagation();
                 // 切换状态
-                UI.toggle(e.currentTarget);
+                UI.toggle(jItem);
                 return;
             }
             // shift 键表示多选
@@ -591,8 +592,14 @@ var methods = {
                 return;
             }
         }
-        // 否则就是激活
-        UI.setActived(jItem);
+        // 激活
+        if(opt.activable) {
+            UI.setActived(jItem);
+        }
+        // 否则就是纯粹选中
+        else if(opt.rowToggle){
+            UI.toggle(jItem);
+        }
     },
     //...............................................................
 }; // ~End methods

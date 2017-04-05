@@ -93,7 +93,7 @@ return ZUI.def("ui.table", {
     //...............................................................
     events : {
         "click .tbl-row" : function(e){
-            this._do_click_list_item(e, false);
+            this._do_click_list_item(e);
         },
         "click .tbl-row-checker" : function(e){
             e.stopPropagation();
