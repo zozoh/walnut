@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
@@ -12,6 +13,7 @@ import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -55,26 +57,26 @@ public class app_init implements JvmHdl {
             __exec_init(sys, hc);
         } else {
             // // 为其创建会话, 切换到对应用户
-            // WnSession se = sys.sessionService.create(me);
-            // WnSession ose = sys.se;
-            // WnUsr ome = sys.me;
-            // sys.se = se;
-            // sys.me = me;
-            // try {
-            Wn.WC().su(me, new Atom() {
-                @Override
-                public void run() {
-                    __exec_init(sys, hc);
-                }
-            });
-            // }
-            // // 释放 session
-            // finally {
-            // sys.se = ose;
-            // sys.me = ome;
-            // sys.sessionService.logout(se.id());
-            //
-            // }
+            WnSession se = sys.sessionService.create(me);
+            WnSession ose = sys.se;
+            WnUsr ome = sys.me;
+            sys.se = se;
+            sys.me = me;
+            try {
+                Wn.WC().su(me, new Atom() {
+                    @Override
+                    public void run() {
+                        __exec_init(sys, hc);
+                    }
+                });
+            }
+            // 释放 session
+            finally {
+                sys.se = ose;
+                sys.me = ome;
+                sys.sessionService.logout(se.id());
+
+            }
         }
     }
 
@@ -89,9 +91,16 @@ public class app_init implements JvmHdl {
         // 得到上下文
         NutMap c;
         String json = hc.params.get("c");
+        // 从 pipe 里读
         if (null != json && "true".equals(json)) {
-            c = Json.fromJson(NutMap.class, json);
-        } else {
+            json = sys.in.readAll();
+        }
+        // 直接格式化
+        if (!Strings.isBlank(json)) {
+            c = Lang.map(json);
+        }
+        // 就来一个空的吧
+        else {
             c = new NutMap();
         }
 
@@ -209,8 +218,9 @@ public class app_init implements JvmHdl {
         // 最后处理脚本
         WnObj oScript = sys.io.fetch(oTmpl, "_script");
         if (null != oScript) {
-            sys.out.println("run script:");
             String script = sys.io.readText(oScript);
+            script = Tmpl.exec(script, c);
+            sys.out.printlnf("run script:\n%s", script);
             sys.exec(script);
         }
     }
