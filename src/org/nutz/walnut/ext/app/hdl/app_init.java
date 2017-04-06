@@ -5,20 +5,82 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
+import org.nutz.trans.Atom;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 
 public class app_init implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
+
+        // 得到要操作的帐号
+        Wn.WC().security(new WnEvalLink(sys.io), new Atom() {
+            @Override
+            public void run() {
+                __exec_without_security(sys, hc);
+            }
+        });
+
+    }
+
+    private void __exec_without_security(WnSystem sys, JvmHdlContext hc) {
+        // 得到要操作的用户
+        WnUsr me = sys.me;
+        if (hc.params.has("u")) {
+            me = sys.usrService.check(hc.params.get("u"));
+        }
+
+        boolean isME = me.isSameId(sys.me);
+
+        // 如果操作的用户不是自己，必须是 root 或者 op 组成员才能做
+        if (!isME) {
+            if (!sys.usrService.isMemberOfGroup(sys.me, "root")
+                && !sys.usrService.isMemberOfGroup(sys.me, "op")) {
+                throw Er.create("e.cmd.app_init.nopvg");
+            }
+        }
+
+        if (isME) {
+            __exec_init(sys, hc);
+        } else {
+            // // 为其创建会话, 切换到对应用户
+            WnSession se = sys.sessionService.create(me);
+            WnSession ose = sys.se;
+            WnUsr ome = sys.me;
+            sys.se = se;
+            sys.me = me;
+            try {
+                Wn.WC().su(me, new Atom() {
+                    @Override
+                    public void run() {
+                        __exec_init(sys, hc);
+                    }
+                });
+            }
+            // 释放 session
+            finally {
+                sys.se = ose;
+                sys.me = ome;
+                sys.sessionService.logout(se.id());
+
+            }
+        }
+    }
+
+    private void __exec_init(WnSystem sys, JvmHdlContext hc) {
         // 得到关键目录
         String ph_tmpl = hc.params.val_check(0);
         String ph_dest = Strings.sBlank(hc.params.val(1), "~");
@@ -29,9 +91,16 @@ public class app_init implements JvmHdl {
         // 得到上下文
         NutMap c;
         String json = hc.params.get("c");
+        // 从 pipe 里读
         if (null != json && "true".equals(json)) {
-            c = Json.fromJson(NutMap.class, json);
-        } else {
+            json = sys.in.readAll();
+        }
+        // 直接格式化
+        if (!Strings.isBlank(json)) {
+            c = Lang.map(json);
+        }
+        // 就来一个空的吧
+        else {
             c = new NutMap();
         }
 
@@ -149,8 +218,9 @@ public class app_init implements JvmHdl {
         // 最后处理脚本
         WnObj oScript = sys.io.fetch(oTmpl, "_script");
         if (null != oScript) {
-            sys.out.println("run script:");
             String script = sys.io.readText(oScript);
+            script = Tmpl.exec(script, c);
+            sys.out.printlnf("run script:\n%s", script);
             sys.exec(script);
         }
     }
