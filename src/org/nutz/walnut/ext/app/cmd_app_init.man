@@ -43,11 +43,12 @@
     
 # 使用方法
 
-    app init DIR [DEST] [-c JSON]
+    app init DIR [DEST] [-c JSON] [-u xxx]
     
     DIR   # 模板目录的路径
     DEST  # 目标目录路径，默认为 ~
     -c    # JSON，模板文件的占位符填充的上下文，如果为空从 pipe 里读
+    -u    # 指定用户，生成的文件所属为改用户, 需root权限
     
 # 实例
     
@@ -59,4 +60,7 @@
     
     # 根据模板设置自己的主目录，并指定了占位符
     app init /etc/myapp/init -c  'pnb:"gh_4b091ca219a2",host:"www.mysite.com"'
+    
+    # root用户为用户xiaobai初始化
+    app init /etc/myapp/init /home/xiaobai -u xiaobai
     
