@@ -130,6 +130,10 @@ return ZUI.def("ui.obrowser_sky", {
         if(opt.logoArea) {
             UI.arena.find(".obrowser-logo").html(UI.compactHTML(opt.logoArea));
         }
+        // 隐藏 LOGO 区
+        else {
+            UI.arena.find(".obrowser-logo").remove();
+        }
     },
     //..............................................
     editPath : function(){
@@ -371,7 +375,7 @@ return ZUI.def("ui.obrowser_sky", {
             $(Wn.objIconHtml(o)).attr("mime",o.mime).prependTo(jq);
             // 指定了标题
             if(o.title) {
-                jq.find("b").text(o.title);
+                jq.find("b").text(UI.text(o.title));
             }
             // 显示名称
             else {

@@ -142,7 +142,11 @@
 
     .obrowser-logo { @noselect(); cursor: default;
         background: @cb2; color:@cf2;
-        left:0; line-height: @skyH;
+        left:0; line-height: @skyH; padding:0 @d3;
+        border-right:1px solid @cborder1;
+        img {
+            height: 24px; vertical-align: middle;
+        }
     }
 
     .obrowser-crumb { @noselect(); cursor: default;

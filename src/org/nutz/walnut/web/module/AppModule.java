@@ -68,8 +68,9 @@ public class AppModule extends AbstractWnModule {
 
     @Inject("refer:licenceService")
     private WnLicenceService licences;
-    
-    public static final Pattern P_APP_LOAD = Pattern.compile("^var +\\w+ += *([\\[{].+[\\]}]);$", Pattern.DOTALL);
+
+    public static final Pattern P_APP_LOAD = Pattern.compile("^var +\\w+ += *([\\[{].+[\\]}]);$",
+                                                             Pattern.DOTALL);
 
     @Filters(@By(type = WnCheckSession.class))
     @At("/open/**")
@@ -233,16 +234,27 @@ public class AppModule extends AbstractWnModule {
         // 找到主界面模板
         String tt = "pc"; // 可以是 "pc" 或者 "mobile"
 
+        // 首先看看有木有自定义的模板
         WnObj oTmpl = io.fetch(oAppHome, tt + "_tmpl.html");
 
-        // 没有模板则一层层向上寻找
+        // 没有模板，那么从所有的 APP_PATH 里寻找
         if (null == oTmpl) {
-            String nm = "dft_app_" + tt + "_tmpl.html";
-            WnObj p = oAppHome;
-            while (null == oTmpl && null != p && !p.isRootNode()) {
-                p = p.parent();
-                oTmpl = io.fetch(p, nm);
+            // 一层层向上寻找
+            String nmTmpl = "dft_app_" + tt + "_tmpl.html";
+
+            // 在所有的 APP_PATH 里寻找
+            if (null == oTmpl) {
+                String appPaths = Wn.WC().checkSE().vars().getString("APP_PATH");
+                String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
+                for (String base : bases) {
+                    String phTmpl = Wn.appendPath(base, nmTmpl);
+                    oTmpl = io.fetch(null, phTmpl);
+                    if (null != oTmpl)
+                        break;
+                }
             }
+
+            // 还是没有，就抛错
             if (null == oTmpl) {
                 throw Er.create("e.app.notemplate", appName);
             }
@@ -308,10 +320,10 @@ public class AppModule extends AbstractWnModule {
                 StringInputStream ins = new StringInputStream(text);
                 return new WnObjDownloadView(ins, ins.available(), mimeType);
             }
-            
+
             if (checkEtag(o, req, resp))
                 return HTTP_304;
-            
+
             // 指定了 mimeType
             if (!Strings.isBlank(mimeType)) {
                 return new WnObjDownloadView(io, o, mimeType, ua);
