@@ -12,7 +12,6 @@ import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -55,22 +54,27 @@ public class app_init implements JvmHdl {
         if (isME) {
             __exec_init(sys, hc);
         } else {
-            // 为其创建会话, 切换到对应用户
-            WnSession se = sys.sessionService.create(me);
-            WnSession ose = sys.se;
-            WnUsr ome = sys.me;
-            sys.se = se;
-            sys.me = me;
-            try {
-                __exec_init(sys, hc);
-            }
-            // 释放 session
-            finally {
-                sys.se = ose;
-                sys.me = ome;
-                sys.sessionService.logout(se.id());
-
-            }
+            // // 为其创建会话, 切换到对应用户
+            // WnSession se = sys.sessionService.create(me);
+            // WnSession ose = sys.se;
+            // WnUsr ome = sys.me;
+            // sys.se = se;
+            // sys.me = me;
+            // try {
+            Wn.WC().su(me, new Atom() {
+                @Override
+                public void run() {
+                    __exec_init(sys, hc);
+                }
+            });
+            // }
+            // // 释放 session
+            // finally {
+            // sys.se = ose;
+            // sys.me = ome;
+            // sys.sessionService.logout(se.id());
+            //
+            // }
         }
     }
 
