@@ -1370,16 +1370,17 @@ var Wn = {
             if(json){
                 try{
                     objs = $z.fromJson(json);
-                    // 数组的话，循环处理对象
-                    if(_.isArray(objs)){
-                        objs.forEach(function(obj){
-                            _cache_obj(obj);
-                        });
-                    }
-                    // 单个对象
-                    else{
-                        _cache_obj(objs);
-                    }
+                    // for issue #224 这种随意查询的对象，先不要缓存吧，否则会爆
+                    // // 数组的话，循环处理对象
+                    // if(_.isArray(objs)){
+                    //     objs.forEach(function(obj){
+                    //         _cache_obj(obj);
+                    //     });
+                    // }
+                    // // 单个对象
+                    // else{
+                    //     _cache_obj(objs);
+                    // }
                 }
                 // 处理错误 
                 catch(E){

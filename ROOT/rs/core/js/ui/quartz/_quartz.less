@@ -104,11 +104,11 @@
     .qz-adv {
         section{
             padding:@d3 0; position: relative;
-            input {
-                border:1px solid @cborder0; padding:@d4 @d4 @d4 @d8;
-                outline:none; font-family: @f_fixed; font-size:@f3;
-                width:100%;
+            input {@input();
+                padding:@d4 @d4 @d4 @d8; width:100%; 
+                font-family: @f_fixed; font-size:@f3;
             }
+            input:focus {@input_focus();}
             .qz-adv-st {@flex(); justify-content: center; align-items: center;
                 dbackground: #CCC;
                 position: absolute;top:@d3; left:0; bottom:@d3; width: @d7;
