@@ -31,13 +31,20 @@ module.exports = {
         // 参数 popBrowser("Title", {..}, F())
 
         // 兼容旧模式
-        title    = title    || opt.title;
+        title  = title || opt.title;
 
         // 确保配置非空
         opt = opt || {};
 
         // 设置默认值
+        // 填充默认值
+        $z.setUndefined(opt, "width", 800);
+        $z.setUndefined(opt, "height", 600);
+        $z.setUndefined(opt, "escape", true);
+        $z.setUndefined(opt, "closer", true);
+        $z.setUndefined(opt, "objTagName", 'SPAN');
         $z.setUndefined(opt, "defaultByCurrent", true);
+
 
         // 设置主体控件属性
         var uiConf = _.extend({
@@ -48,11 +55,12 @@ module.exports = {
 
         // 设置遮罩属性
         var mask_options = _.extend({
+            dom  : 'ui/pop/pop.html',
             css  : "ui/pop/theme/pop-{{theme}}.css",
             closer: true,
             escape: true,
-            width : 800,
-            height: 600,
+            width  : opt.width,
+            height : opt.height,
             exec  : Wn.exec,
             app   : Wn.app(),
             setup : {
@@ -105,6 +113,68 @@ module.exports = {
         });
     },
     //...............................................................
+    // 弹出一个 Quartz 编辑器
+    quartz : function(opt) {
+        // 确保配置非空
+        opt = opt || {};
+
+        // 填充默认值
+        $z.setUndefined(opt, "width", 480);
+        $z.setUndefined(opt, "height", 540);
+        $z.setUndefined(opt, "escape", true);
+        $z.setUndefined(opt, "closer", true);
+        $z.setUndefined(opt, "title", "i18n:quartz.title");
+
+        // 设置遮罩属性
+        var mask_options = _.extend({
+            dom  : 'ui/pop/pop.html',
+            css  : "ui/pop/theme/pop-{{theme}}.css",
+            i18n : "ui/quartz/i18n/{{lang}}.js",
+            closer: true,
+            escape: true,
+            arenaClass : opt.arenaClass,
+            width  : opt.width,
+            height : opt.height,
+            exec  : Wn.exec,
+            app   : Wn.app(),
+            setup : {
+                uiType : "ui/quartz/edit_quartz",
+                uiConf : {}
+            },
+            events : {
+                "click .pm-btn-ok" : function(){
+                    var uiMask  = this;
+                    var opt     = uiMask.options;
+                    var qz      = uiMask.body.getData();
+                    var context = opt.context || uiMask.body;
+                    $z.invoke(opt, "on_ok", [qz], context);
+                    uiMask.close();
+                },
+                "click .pm-btn-cancel" : function(){
+                    var uiMask  = this;
+                    var opt     = uiMask.options;
+                    var context = opt.context || uiMask.body;
+                    $z.invoke(opt, "on_cancel", [], context);
+                    uiMask.close();
+                }
+            }
+        }, opt);
+
+        // 打开遮罩
+        new MaskUI(mask_options).render(function(){
+            // 设置标题
+            if(opt.title)
+                this.arena.find(".pm-title").html(this.text(opt.title));
+            else
+                this.arena.find(".pm-title").remove();
+
+            // 设置数据
+            if(opt.data) {
+                this.body.setData(opt.data);
+            }
+        });
+    },
+    //...............................................................
     // 打开一个文本编辑器（弹出），接受的参数格式为:
     /*
     {
@@ -125,6 +195,8 @@ module.exports = {
         // 填充默认值
         $z.setUndefined(opt, "width", 900);
         $z.setUndefined(opt, "height", "90%");
+        $z.setUndefined(opt, "escape", false);
+        $z.setUndefined(opt, "closer", true);
         $z.setUndefined(opt, "title", 'i18n:edit');
         $z.setUndefined(opt, "contentType", "text");
 
@@ -136,6 +208,8 @@ module.exports = {
             arenaClass : opt.arenaClass,
             width  : opt.width,
             height : opt.height,
+            escape : opt.escape,
+            closer : opt.closer,
             events : {
                 "click .pm-btn-ok" : function(){
                     var context = opt.context || this;
