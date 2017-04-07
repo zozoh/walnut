@@ -40,8 +40,12 @@ public class cmd_login extends JvmExecutor {
         if (me.isSameId(ta))
             throw Er.create("e.cmd.login.self", me.name());
 
+        // root 用户可以登录到任何用户
+        if (me.name().equals("root")) {
+            // 嗯，可以登录
+        }
         // root 组管理员能登录到除了 root 组管理员之外任何账户
-        if (us.isAdminOfGroup(me, "root") && !us.isAdminOfGroup(ta, "root")) {
+        else if (us.isAdminOfGroup(me, "root") && !us.isAdminOfGroup(ta, "root")) {
             // 嗯，可以登录
         }
         // 否则执行操作的用户必须为 root|op 组成员
