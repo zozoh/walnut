@@ -268,8 +268,9 @@ public class app_init implements JvmHdl {
                 return this;
 
             // 创建对象
-            WnObj o = sys.io.createIfNoExists(oDest, rph, race);
-            sys.out.printlnf(" + %4s : %s", race, rph);
+            String the_rph = Tmpl.exec(rph, c);
+            WnObj o = sys.io.createIfNoExists(oDest, the_rph, race);
+            sys.out.printlnf(" + %4s : %s", race, the_rph);
 
             // 元数据
             if (null != meta && meta.size() > 0) {
