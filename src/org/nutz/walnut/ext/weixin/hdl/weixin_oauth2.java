@@ -39,8 +39,19 @@ public class weixin_oauth2 implements JvmHdl {
             String state = hc.params.get("state");
             String scope = hc.params.get("scope", "snsapi_base");
 
-            String fmt = "https://open.weixin.qq.com/connect/oauth2/authorize?"
-                         + "appid=%s"
+            // 得到转发的 url
+            String wx_url;
+            // 开放平台
+            if (hc.params.is("wxopen")) {
+                wx_url = "https://open.weixin.qq.com/connect/qrconnect";
+            }
+            // 公众号平台
+            else {
+                wx_url = "https://open.weixin.qq.com/connect/oauth2/authorize";
+            }
+
+            String fmt = wx_url
+                         + "?appid=%s"
                          + "&redirect_uri=%s"
                          + "&response_type=code"
                          + "&scope=%s"

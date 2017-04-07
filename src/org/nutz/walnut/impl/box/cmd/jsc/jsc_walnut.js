@@ -16,14 +16,14 @@ var $wn = {
 	print : function(msg) {
 		if (msg == null)
 			return;
-		sys.out.print(msg.toString());
+		this.sys.out.print(msg.toString());
 	},
 
 	/**
 	 * 输出一个json文本，一般 Java 的 Map 类用这个输出，否则输出不了
 	 */
 	printJson : function(obj) {
-		print(sys.json(obj));
+		print(this.sys.json(obj));
 	},
 
 	_toObj : function(obj) {
@@ -43,7 +43,7 @@ var $wn = {
 		// 处理返回对象
 		obj = this._toObj(obj);
 		// 响应体
-		sys.out.println(JSON.stringify(obj, null, '    '));
+		this.sys.out.println(JSON.stringify(obj, null, '    '));
 	},
 
 	/**
@@ -62,11 +62,11 @@ var $wn = {
 	ajax_se : function(obj, session) {
 		session = this._toObj(session);
 		// 响应头
-		sys.out.println("HTTP/1.1 200 OK");
-		sys.out.println("Content-Type: text/html;charset=UTF-8");
-		sys.out.printlnf("SET-COOKIE:DSEID=%s; Path=/;", session.id);
-		sys.out.println("Server: Walnut HTTPAPI");
-		sys.out.println("");
+		this.sys.out.println("HTTP/1.1 200 OK");
+		this.sys.out.println("Content-Type: text/html;charset=UTF-8");
+		this.sys.out.printlnf("SET-COOKIE:DSEID=%s; Path=/;", session.id);
+		this.sys.out.println("Server: Walnut HTTPAPI");
+		this.sys.out.println("");
 
 		this.ajax_re(obj);
 	},

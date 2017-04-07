@@ -39,7 +39,7 @@ public class JsExec {
                            pre_eval(getEngine("nashorn"),
                                     "classpath:org/nutz/walnut/impl/box/cmd/jsc/lodash.min.js",
                                     "_"));
-            globalVars.put("$wn",
+            globalVars.put("__wn",
                            pre_eval(getEngine("nashorn"),
                                     "classpath:org/nutz/walnut/impl/box/cmd/jsc/jsc_walnut.js",
                                     "$wn"));
@@ -81,6 +81,10 @@ public class JsExec {
         }
         bindings.put("wc", Wn.WC());
         bindings.put("sys", jsc);
+        
+        // 生成动态访问的 $wn
+        jsStr = "var $wn = _.extend({}, __wn); $wn.sys = sys;\n" + jsStr;
+        
         // bindings.put("args", params.vals);
         // bindings.put("log", log);
         // bindings.put("walnut_js",
