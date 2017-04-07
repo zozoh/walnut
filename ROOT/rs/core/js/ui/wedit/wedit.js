@@ -1,7 +1,9 @@
 (function ($z) {
     $z.declare(['zui', 'wn/util'], function (ZUI, Wn) {
         return ZUI.def("ui.wedit", {
-            pkg: "wedit",
+            dom  : "ui/wedit/wedit.html",
+            css  : "ui/wedit/theme/wedit-{{theme}}.css",
+            i18n : "ui/wedit/i18n/{{lang}}.js",
             events: {
                 "click .ui-wedit-save": function () {
                     var UI = this;

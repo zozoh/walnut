@@ -341,7 +341,7 @@ return ZUI.def("ui.console", {
                 return;
             }
             // 打开
-            var m = cmdText.match(/(open)([ \t]+)([0-9a-zA-Z_.-]{1,})(([ \t]+)(.+))?/);
+            var m = cmdText.match(/^(open)([ \t]+)([0-9a-zA-Z_.-]{1,})(([ \t]+)(.+))?/);
             if (m) {
                 var path = m[6];
                 var params = undefined;
