@@ -20,6 +20,7 @@ import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.email.WnMailServer;
 import org.nutz.walnut.ext.ftp.WnFtpServer;
 import org.nutz.walnut.ext.sshd.SshdServer;
 import org.nutz.walnut.ext.websocket.WnWebSocket;
@@ -114,6 +115,7 @@ public class WnSetup implements Setup {
         }
         ioc.get(SshdServer.class);
         ioc.get(WnFtpServer.class);
+        ioc.get(WnMailServer.class);
         try {
             log.warn("manual setup websocket ... ");
             ServerContainer sc = (ServerContainer) nc.getServletContext()
