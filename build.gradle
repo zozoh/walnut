@@ -80,6 +80,7 @@ dependencies {
     compile group: 'javax.servlet', name: 'javax.servlet-api', version:'3.1.0'
     compile group: 'org.apache.ftpserver', name: 'ftpserver-core', version:'1.1.0'
     compile group: 'cn.apiclub.tool', name: 'simplecaptcha', version: '1.2.2'
+    compile group: 'org.subethamail', name: 'subethasmtp', version: '3.1.7'
 }
 
 buildscript {
