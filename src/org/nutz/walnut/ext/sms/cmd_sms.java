@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.sms;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -37,6 +38,9 @@ public class cmd_sms extends JvmExecutor {
             throw Er.create("e.cmd.sms.provider.unsupport", sc.provider);
         }
 
+        // 得到配置主目录
+        WnObj oSmsHome = Wn.checkObj(sys, "~/.sms");
+
         // 从参数里读取
         if (params.vals.length > 0) {
             sc.msg = Lang.concat(" ", params.vals).toString();
@@ -50,12 +54,16 @@ public class cmd_sms extends JvmExecutor {
             throw Er.create("e.cmd.sms.nomsg");
         }
 
-        // 默认配置文件
-        if (sc.conf == null) {
-            sc.conf = "~/.sms/config_" + sc.provider;
+        // 看看是否是模板消息
+        if (params.has("t")) {
+            WnObj oTmpl = sys.io.check(oSmsHome, params.get("t"));
+            String str = sys.io.readText(oTmpl);
+            NutMap map = Lang.map(sc.msg);
+            sc.msg = Tmpl.exec(str, map, false);
         }
 
-        WnObj oConf = Wn.checkObj(sys, sc.conf);
+        // 默认配置文件
+        WnObj oConf = sys.io.check(oSmsHome, Strings.sBlank(sc.conf, "config_" + sc.provider));
         NutMap conf = sys.io.readJson(oConf, NutMap.class);
 
         // 强制设置header，覆盖默认配置中的

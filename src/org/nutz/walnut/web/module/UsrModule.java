@@ -11,6 +11,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
@@ -36,6 +37,9 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrInfo;
+import org.nutz.walnut.ext.captcha.Captchas;
+import org.nutz.walnut.ext.vcode.VCodes;
+import org.nutz.walnut.ext.vcode.WnVCodeService;
 import org.nutz.walnut.ext.www.JvmWnmlRuntime;
 import org.nutz.walnut.ext.www.WnmlRuntime;
 import org.nutz.walnut.ext.www.WnmlService;
@@ -58,12 +62,27 @@ import org.nutz.web.ajax.Ajax;
 @At("/u")
 public class UsrModule extends AbstractWnModule {
 
+    @Inject
+    private WnVCodeService vcodes;
+
     // 可打印字符：[\p{Graph}\x20]
     @Inject("java:$conf.get('usr-passwd','^\\p{Print}{6,}$')")
     private Pattern regexPasswd;
 
     @Inject("java:$conf.get('page-login','login')")
     private String page_login;
+
+    /**
+     * 手机验证码的有效期(分钟）默认 10 分钟
+     */
+    @Inject("java:$conf.getInt('vcode-du-phone',10)")
+    private int vcodeDuPhone;
+
+    /**
+     * 邮件验证码的有效期(分钟）默认 2 天 60*24*2 = 2880
+     */
+    @Inject("java:$conf.getInt('vcode-du-email',2880)")
+    private int vcodeDuEmail;
 
     @At("/signup")
     @Ok("jsp:jsp.signup")
@@ -164,19 +183,65 @@ public class UsrModule extends AbstractWnModule {
         return new ViewWrapper(new JspView("jsp." + jsp_nm), null);
     }
 
+    @At("/vcode/captcha/get")
+    @Ok("raw:image/png")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public byte[] vcode_captcha_get(@Param("d") String domain, @Param("a") String accountName) {
+        String vcodePath = VCodes.getCaptchaPath(domain, accountName);
+        String code = R.captchaNumber(4);
+
+        // 保存:图形验证码只有一次机会
+        vcodes.save(vcodePath, code, this.vcodeDuPhone, 1);
+
+        // 返回成功
+        return Captchas.genPng(code, 100, 50, Captchas.NOISE);
+    }
+
     @At("/vcode/phone/get")
     @Ok("ajax")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public void vcode_phone_get(@Param("phone") String phone) {
+    public boolean vcode_phone_get(@Param("d") String domain,
+                                   @Param("a") String phone,
+                                   @Param("s") String scene,
+                                   @Param("t") String token) {
+        // 首先验证一下图片验证码
+        String vcodePath = VCodes.getCaptchaPath(domain, phone);
+        if (!vcodes.checkAndRemove(vcodePath, token)) {
+            throw Er.create("e.vcode.token.invalid");
+        }
 
+        // 生成手机验证码
+        vcodePath = VCodes.getSignupPath(domain, phone);
+        String code = R.captchaNumber(6);
+
+        // 手机短信验证码最多重试 5 次
+        vcodes.save(vcodePath, code, this.vcodeDuPhone, 5);
+
+        // 发送短信
+        String cmdText = String.format("sms -r '%s' -t 'msg_%s' 'min:%d,code:\"%s\"'",
+                                       phone,
+                                       scene,
+                                       this.vcodeDuPhone,
+                                       code);
+        String re = this.exec("vcode_phone_get", domain, cmdText);
+
+        // 出现意外
+        if (!Strings.isBlank(re))
+            throw Er.create("e.vcode.phone.get", re);
+
+        // 成功
+        return true;
     }
 
     @At("/vcode/email/get")
     @Ok("ajax")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public void vcode_email_get(@Param("email") String phone) {
+    public void vcode_email_get(@Param("d") String domain,
+                                @Param("a") String email,
+                                @Param("s") String scene,
+                                @Param("t") String token) {
 
     }
 
@@ -196,6 +261,7 @@ public class UsrModule extends AbstractWnModule {
     @Fail("jsp:jsp.show_text")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
     public WnUsr do_signup(@Param("str") String str,
+                           @Param("domain") String domain,
                            @Param("vcode") String vcode,
                            @Param("passwd") String passwd,
                            @Param("mode") String mode) {
@@ -214,7 +280,20 @@ public class UsrModule extends AbstractWnModule {
 
         // 如果是手机，需要校验验证码
         if (info.isByPhone()) {
-            // TODO 验证
+            domain = Strings.sBlank(domain, "walnut");
+            String vcodePath = VCodes.getSignupPath(domain, info.getPhone());
+            if (!vcodes.checkAndRemove(vcodePath, vcode)) {
+                throw Er.create("e.usr.vcode.phone.invalid");
+            }
+        }
+
+        // 如果是邮箱，则输入校验验证码
+        if (info.isByEmail()) {
+            domain = Strings.sBlank(domain, "walnut");
+            String vcodePath = VCodes.getSignupPath(domain, info.getEmail());
+            if (!vcodes.checkAndRemove(vcodePath, vcode)) {
+                throw Er.create("e.usr.vcode.email.invalid");
+            }
         }
 
         // 创建账户
@@ -237,10 +316,11 @@ public class UsrModule extends AbstractWnModule {
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
     public WnUsr do_signup_ajax(@Param("str") String str,
+                                @Param("domain") String domain,
                                 @Param("vcode") String vcode,
                                 @Param("passwd") String passwd,
                                 @Param("mode") String mode) {
-        return do_signup(str, vcode, passwd, mode);
+        return do_signup(str, domain, vcode, passwd, mode);
     }
 
     /**

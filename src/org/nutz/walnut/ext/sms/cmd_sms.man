@@ -11,9 +11,20 @@
     
 # 用法
 
-	sms [-debug] [-config 配置文件路径] [-provider 提供商(当前仅Yunpian)] [-header 【德纳科技】] [-r 接收者的手机]+ <msg>
+	sms [-r 接收者的手机]             # 接受者手机
+	    [-t 模板文件名称]             # 短信模板文件名，模板文件必须存放在 ~/.sms 下
+	    <msg|json>                  # 消息正文，如果 -t 模式，则为一个 JSON，表示填充上下文
+	                                # 如果不填写，则从管道读取
+	    [-config /path/to/conf]     # 「选」配置文件路径 
+        [-provider Yunpian]         # 「选」提供商(当前仅Yunpian)
+        [-header xxxx]              # 「选」指定消息头部
+        [-debug]                    # 开启调试模式
 	
 # 示例
 	
-	sms -debug -header 【nutz科技】-r 12345678901 机器AABBCCDDEEFF流量异常500mb
+	# 发送一条自定义消息
+	sms -debug -header 【nutz科技】-r 13920038765 机器AABBCCDDEEFF流量异常500mb
+	
+	# 发送模板消息
+	sms -r 13920038765 -t signup "code:8976"
 	

@@ -81,6 +81,10 @@ public class IoWnSessionService implements WnSessionService {
             else if (key.toUpperCase().equals(key)) {
                 envs.setv(key, en.getValue());
             }
+            // 如果是 my_ 开头变量，仅仅是变大写
+            else if (key.startsWith("my_")) {
+                envs.setv(key.toUpperCase(), en.getValue());
+            }
             // 其他加前缀
             else {
                 envs.setv("MY_" + key.toUpperCase(), en.getValue());
