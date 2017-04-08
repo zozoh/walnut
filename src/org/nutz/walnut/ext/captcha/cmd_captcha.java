@@ -17,9 +17,10 @@ import cn.apiclub.captcha.gimpy.FishEyeGimpyRenderer;
 public class cmd_captcha extends JvmExecutor {
 
     public void exec(WnSystem sys, String[] args) throws Exception {
-        final ZParams params = ZParams.parse(args, "bg|noise|border|fisheye");
-        Captcha.Builder builder = new Captcha.Builder(params.getInt("w", 120),
-                                                      params.getInt("h", 30));
+        final ZParams params = ZParams.parse(args, "^(bg|noise|border|fisheye)$");
+        int w = params.getInt("w", 120);
+        int h = params.getInt("h", 30);
+        Captcha.Builder builder = new Captcha.Builder(w, h);
         builder.addText(() -> {
             if (params.has("text"))
                 return params.get("text");
