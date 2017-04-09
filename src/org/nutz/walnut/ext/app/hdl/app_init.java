@@ -92,7 +92,7 @@ public class app_init implements JvmHdl {
         NutMap c;
         String json = hc.params.get("c");
         // 从 pipe 里读
-        if (null != json && "true".equals(json)) {
+        if (null == json || "true".equals(json)) {
             json = sys.in.readAll();
         }
         // 直接格式化

@@ -23,25 +23,41 @@ public class cmd_sms extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         SmsCtx sc = new SmsCtx();
+        // ............................................
+        // 分析参数
         ZParams params = ZParams.parse(args, "^(debug)$");
         sc.debug = params.is("debug");
         sc.provider = params.get("provider", "Yunpian");
         sc.mobiles = params.get("r");
         sc.header = params.has("header") ? params.get("header") : "";
         sc.conf = params.get("config");
-
+        sc.lang = params.get("lang");
+        // ............................................
+        // 检查一下参数
         if (Strings.isBlank(sc.mobiles)) {
             throw Er.create("e.cmd.sms.nophone");
         }
-
         if (!sc.provider.equals("Yunpian")) {
             throw Er.create("e.cmd.sms.provider.unsupport", sc.provider);
         }
-
+        // ............................................
         // 得到配置主目录
         WnObj oSmsHome = Wn.checkObj(sys, "~/.sms");
-
-        // 从参数里读取
+        // 默认配置文件
+        WnObj oConf = sys.io.check(oSmsHome, Strings.sBlank(sc.conf, "config_" + sc.provider));
+        NutMap conf = sys.io.readJson(oConf, NutMap.class);
+        // ............................................
+        // 强制设置header，覆盖默认配置中的
+        if (!Strings.isBlank(sc.header)) {
+            conf.setv("header", sc.header);
+        }
+        // ............................................
+        // 确定语言
+        if (Strings.isBlank(sc.lang)) {
+            sc.lang = conf.getString("lang", "zh-cn");
+        }
+        // ............................................
+        // 分析消息: 从参数里读取
         if (params.vals.length > 0) {
             sc.msg = Lang.concat(" ", params.vals).toString();
         }
@@ -53,24 +69,26 @@ public class cmd_sms extends JvmExecutor {
         if (Strings.isBlank(sc.msg)) {
             throw Er.create("e.cmd.sms.nomsg");
         }
-
-        // 看看是否是模板消息
+        // ............................................
+        // 处理模板消息
         if (params.has("t")) {
-            WnObj oTmpl = sys.io.check(oSmsHome, params.get("t"));
+            String tmpl = params.get("t");
+            WnObj oTmpl;
+            // 多国语言
+            if (tmpl.startsWith("i18n:")) {
+                String tmplKey = Strings.trim(tmpl.substring("i18n:".length()));
+                oTmpl = sys.io.check(oSmsHome, "i18n/" + sc.lang + "/" + tmplKey);
+            }
+            // 普通模板
+            else {
+                oTmpl = sys.io.check(oSmsHome, tmpl);
+            }
+            // 渲染消息
             String str = sys.io.readText(oTmpl);
             NutMap map = Lang.map(sc.msg);
             sc.msg = Tmpl.exec(str, map, false);
         }
-
-        // 默认配置文件
-        WnObj oConf = sys.io.check(oSmsHome, Strings.sBlank(sc.conf, "config_" + sc.provider));
-        NutMap conf = sys.io.readJson(oConf, NutMap.class);
-
-        // 强制设置header，覆盖默认配置中的
-        if (!Strings.isBlank(sc.header)) {
-            conf.setv("header", sc.header);
-        }
-
+        // ............................................
         // 检查header是否带有前后缀
         String hstr = conf.getString("header");
         if (!hstr.startsWith("【")) {
@@ -80,7 +98,7 @@ public class cmd_sms extends JvmExecutor {
             hstr = hstr + "】";
         }
         conf.setv("header", hstr);
-
+        // ............................................
         // TODO 适应各种提供商
         SmsProvider provider = new YunPianSmsProvider();
         for (String mobile : Strings.splitIgnoreBlank(sc.mobiles, ",")) {

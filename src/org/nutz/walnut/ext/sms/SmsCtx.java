@@ -8,6 +8,7 @@ public class SmsCtx {
     @JsonField(ignore = true)
     public WnSystem sys;
     public String conf;
+    public String lang;
     public String provider;
     public String header;
     public String msg;

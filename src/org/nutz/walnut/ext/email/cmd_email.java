@@ -17,13 +17,10 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
-import org.nutz.lang.segment.CharSegment;
-import org.nutz.lang.segment.Segment;
-import org.nutz.lang.util.Context;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
-import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -31,6 +28,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 /**
@@ -50,6 +48,7 @@ public class cmd_email extends JvmExecutor {
         mc.sys = sys;
         ZParams params = ZParams.parse(args, "^(debug|local)$");
         mc.debug = params.is("debug");
+        mc.lang = params.get("lang");
         mc.config = params.get("config");
         mc.receivers = params.get("r");
         mc.ccs = params.get("cc");
@@ -132,43 +131,65 @@ public class cmd_email extends JvmExecutor {
         if (mc.debug) {
             mc.sys.out.printf("/*\n%s\n*/", Json.toJson(mc));
         }
+        // ............................................
+        // 配置文件
         WnIo io = mc.sys.io;
-        WnObj econf = null;
-        // 加载配置
-        if (mc.config == null) {
-            // 新版
-            mc.config = userHome(mc.sys.me) + "/.email/config_default";
-            econf = io.fetch(null, mc.config);
-            if (econf == null) {
-                mc.config = userHome(mc.sys.me) + "/.mail_send_conf";
-                econf = io.fetch(null, mc.config);
-            }
-        } else {
-            econf = io.fetch(null, mc.config);
-        }
-        if (econf == null) {
-            throw Er.create("e.email.config.notfind", mc.config);
-        }
-        EmailServerConf hostCnf = io.readJson(econf, EmailServerConf.class);
-
-        // 处理模板,如果指定了的话
-        WnObj tmp = null;
-        if (mc.tmpl != null) {
-            tmp = io.check(null, mc.tmpl);
-            Segment seg = new CharSegment(io.readText(tmp));
-            Context _c;
-            if (mc.vars != null) {
-                _c = Lang.context(Json.fromJson(NutMap.class, mc.vars));
-            } else {
-                _c = Lang.context();
-            }
-            mc.msg = seg.render(_c).toString();
+        WnObj oEmailHome = Wn.checkObj(mc.sys, "~/.email");
+        WnObj oConf = io.fetch(oEmailHome, Strings.sBlank(mc.config, "config_default"));
+        // TODO 删掉?? 兼容老版本版: 加载配置默认配置
+        if (null == oConf) {
+            oConf = Wn.checkObj(mc.sys, "~/.mail_send_conf");
         }
 
+        // 解析配置文件
+        EmailServerConf hostCnf = io.readJson(oConf, EmailServerConf.class);
+
+        // ............................................
+        // 确定语言
+        if (Strings.isBlank(mc.lang)) {
+            mc.lang = Strings.sBlank(hostCnf.lang, "zh-cn");
+        }
+        // ............................................
+        // 读取并解析变量
+        if (Strings.isBlank(mc.vars) || "true".equals(mc.vars)) {
+            mc.vars = mc.sys.in.readAll();
+        }
+        NutMap _c = Lang.map(Strings.sBlank(mc.vars, "{}"));
+        // ............................................
+        // 处理标题: 多国语言
+        if (!Strings.isBlank(mc.subject) && mc.subject.startsWith("i18n:")) {
+            String subjKey = Strings.trim(mc.subject.substring("i18n:".length()));
+            WnObj oSubjects = io.check(oEmailHome, "i18n/" + mc.lang + "/_subjects");
+            NutMap subjectMap = io.readJson(oSubjects, NutMap.class);
+            mc.subject = subjectMap.getString(subjKey);
+        }
+        // 渲染标题
+        if (!Strings.isBlank(mc.subject)) {
+            mc.subject = Tmpl.exec(mc.subject, _c, false);
+        }
+        // ............................................
+        // 处理模板:多国语言
+        if (!Strings.isBlank(mc.tmpl)) {
+            WnObj oTmpl = null;
+            // 多国语言
+            if (mc.tmpl.startsWith("i18n:")) {
+                String tmplName = Strings.trim(mc.tmpl.substring("i18n:".length()));
+                oTmpl = io.check(oEmailHome, "i18n/" + mc.lang + "/" + tmplName);
+            }
+            // 兼容老版本
+            else {
+                oTmpl = io.check(oEmailHome, mc.tmpl);
+            }
+
+            // 渲染消息正文
+            String tmpl = io.readText(oTmpl);
+            mc.msg = Tmpl.exec(tmpl, _c, false);
+        }
+        // ............................................
         // 解析收件人及抄送
         List<MailReceiver> rc = parse(mc, mc.receivers);
         List<MailReceiver> cc = parse(mc, mc.ccs);
-
+        // ............................................
         // 加载附件,如果有的话, TODO 实现发附件
         if (mc.local) {
             // TODO 切换到root,否则没法往其他用户的文件夹写文件吧
@@ -183,16 +204,16 @@ public class cmd_email extends JvmExecutor {
                 String localMailHome = userHome(u) + "/.mail/";
                 if (!io.exists(null, localMailHome))
                     io.create(null, localMailHome, WnRace.DIR);
-                tmp = io.create(null, userHome(u) + "/.mail/" + mailName, WnRace.FILE);
-                io.writeJson(tmp, mc, JsonFormat.full());
+                WnObj oTmpl = io.create(null, userHome(u) + "/.mail/" + mailName, WnRace.FILE);
+                io.writeJson(oTmpl, mc, JsonFormat.full());
             }
             for (MailReceiver mailReceiver : cc) {
                 WnUsr u = mc.sys.usrService.check(mailReceiver.name);
                 String localMailHome = userHome(u) + "/.mail/";
                 if (!io.exists(null, localMailHome))
                     io.create(null, localMailHome, WnRace.DIR);
-                tmp = io.create(null, localMailHome + mailName, WnRace.FILE);
-                io.writeJson(tmp, mc, JsonFormat.full());
+                WnObj oTmpl = io.create(null, localMailHome + mailName, WnRace.FILE);
+                io.writeJson(oTmpl, mc, JsonFormat.full());
             }
         } else {
             ImageHtmlEmail ihe = new ImageHtmlEmail();

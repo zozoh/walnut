@@ -208,7 +208,7 @@ public class UsrModule extends AbstractWnModule {
         // 首先验证一下图片验证码
         String vcodePath = VCodes.getCaptchaPath(domain, phone);
         if (!vcodes.checkAndRemove(vcodePath, token)) {
-            throw Er.create("e.vcode.token.invalid");
+            return false;
         }
 
         // 生成手机验证码
@@ -219,7 +219,7 @@ public class UsrModule extends AbstractWnModule {
         vcodes.save(vcodePath, code, this.vcodeDuPhone, 5);
 
         // 发送短信
-        String cmdText = String.format("sms -r '%s' -t 'msg_%s' 'min:%d,code:\"%s\"'",
+        String cmdText = String.format("sms -r '%s' -t 'i18n:%s' 'min:%d,code:\"%s\"'",
                                        phone,
                                        scene,
                                        this.vcodeDuPhone,
@@ -238,11 +238,39 @@ public class UsrModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public void vcode_email_get(@Param("d") String domain,
-                                @Param("a") String email,
-                                @Param("s") String scene,
-                                @Param("t") String token) {
+    public boolean vcode_email_get(@Param("d") String domain,
+                                   @Param("a") String email,
+                                   @Param("s") String scene,
+                                   @Param("t") String token) {
 
+        // 首先验证一下图片验证码
+        String vcodePath = VCodes.getCaptchaPath(domain, email);
+        if (!vcodes.checkAndRemove(vcodePath, token)) {
+            return false;
+        }
+
+        // 生成手机验证码
+        vcodePath = VCodes.getSignupPath(domain, email);
+        String code = R.captchaChar(8, false);
+
+        // 邮件验证码最多重试 3 次
+        vcodes.save(vcodePath, code, this.vcodeDuEmail, 3);
+
+        // 发送短信
+        String cmdText = String.format("email -r '%s' -s 'i18n:%s' -tmpl 'i18n:%s' -vars 'day:%d,code:\"%s\"'",
+                                       email,
+                                       scene,
+                                       scene,
+                                       this.vcodeDuEmail / (60 * 24),
+                                       code);
+        String re = this.exec("vcode_email_get", domain, cmdText);
+
+        // 出现意外
+        if (!Strings.isBlank(re))
+            throw Er.create("e.vcode.email.get", re);
+
+        // 成功
+        return true;
     }
 
     /**

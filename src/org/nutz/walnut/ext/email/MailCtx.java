@@ -10,6 +10,7 @@ public class MailCtx {
 
     @JsonField(ignore = true)
     public WnSystem sys;
+    public String lang;
     public String config;
     public String receivers;
     public String ccs;

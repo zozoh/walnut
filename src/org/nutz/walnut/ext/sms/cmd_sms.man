@@ -5,16 +5,19 @@
         默认读取当前用户下的发送配置进行邮件发送 $HOME/.sms/config_${provider}, 格式如下:
     
 	{
-		apikey : "abc1234567890", // 提供商的apikey
-		header : "【德纳科技】" //强制添加头部
+		apikey : "abc1234567890",  // 提供商的apikey
+		header : "xxx"             // 强制添加头部，比如 【文尔科技】
+		lang  : "zh-cn"            // 默认模板语言
 	}
     
 # 用法
 
 	sms [-r 接收者的手机]             # 接受者手机
 	    [-t 模板文件名称]             # 短信模板文件名，模板文件必须存放在 ~/.sms 下
+	                                # 如果是 i18n:xxx 格式，则在 ~/.sms/i18n/$lang/ 下读取
 	    <msg|json>                  # 消息正文，如果 -t 模式，则为一个 JSON，表示填充上下文
 	                                # 如果不填写，则从管道读取
+	    [-lang zh-cn]               # 「选」指定模板语言，默认为从 conf 里读取，还是没有的话用 zh-cn
 	    [-config /path/to/conf]     # 「选」配置文件路径 
         [-provider Yunpian]         # 「选」提供商(当前仅Yunpian)
         [-header xxxx]              # 「选」指定消息头部

@@ -21,4 +21,6 @@ public class EmailServerConf {
     public boolean ssl;
     
     public String from;
+    
+    public String lang;
 }

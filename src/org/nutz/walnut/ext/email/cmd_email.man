@@ -11,12 +11,30 @@
 		from    : "nutzcn论坛",         
 		alias	: 'root',
 		password: '123456',
+		lang    : "zh-cn",
 		ssl     : true
     }
 
 # 用法
 
-    email [-c 指定发送配置文件] [-r 接收者] [-cc 抄送者] [-s 指定标题] [-m 发送内容] [-a 附件] [-debug] [-tmpl 模板文件] [-vars map变量json字符串] [list|clear] [limit]
+    email [-c /path/to/conf]  # 「选」指定发送配置文件，默认用 ~/.email/config_default
+          [-r xxx]            # 接收者 xxx@xx.com 半角逗号分隔
+          [-cc xxx]           # 抄送者 xxx@xx.com 半角逗号分隔
+          [-s xxx]            # 指定标题。如果是 i18n:xxx 格式，
+                              # 则从 ~/.email/i18n/$lang/_subjects 读取标题
+                              # 标题也会被 -vars 执行
+          [-m xxxx]           # 发送内容，如果开启了 -tmpl 则被无视
+          [-tmpl tmplName]    # 模板文件名，通常在  ~/.email 目录下
+                              # 绝对路径的话，就可以不在 ~/.email 目录下
+                              # 如果是 i18n:xxxx 则表示在 ~/.email/i18n/$lang/ 目录下
+          [-lang zh-cn]       # 指定模板语言，默认为从 conf 里读取，还是没有的话用 zh-cn
+          [-vars {}]          # 占位符变量，提供给 -tmpl 和 -s 用的
+                              # 如果没声明，则从标准输入读取 
+          [-a 附件] 
+          [-debug]            # 开启调试模式
+                    [-vars map变量json字符串] 
+          [list|clear] 
+          [limit]
 	
 # 示例
 	
