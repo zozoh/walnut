@@ -311,7 +311,7 @@ public class UsrModule extends AbstractWnModule {
             domain = Strings.sBlank(domain, "walnut");
             String vcodePath = VCodes.getSignupPath(domain, info.getPhone());
             if (!vcodes.checkAndRemove(vcodePath, vcode)) {
-                throw Er.create("e.usr.vcode.phone.invalid");
+                throw Er.create("e.usr.vcode.invalid");
             }
         }
 
@@ -320,7 +320,7 @@ public class UsrModule extends AbstractWnModule {
             domain = Strings.sBlank(domain, "walnut");
             String vcodePath = VCodes.getSignupPath(domain, info.getEmail());
             if (!vcodes.checkAndRemove(vcodePath, vcode)) {
-                throw Er.create("e.usr.vcode.email.invalid");
+                throw Er.create("e.usr.vcode.invalid");
             }
         }
 

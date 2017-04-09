@@ -65,10 +65,11 @@ public class WnVCodeService implements VCodeService {
         __assert_vcode_path(vcodePath);
 
         WnObj oCode = io.fetch(null, vcodePath);
-        int retry = oCode.getInt("v_retry");
-        int remax = oCode.getInt("v_remax");
 
         if (null != oCode) {
+            int retry = oCode.getInt("v_retry");
+            int remax = oCode.getInt("v_remax");
+            
             // zozoh: 这里做一下冗余防守: 超过最大重试次数，删除验证码，返回空
             if (retry >= remax) {
                 io.delete(oCode);
