@@ -853,6 +853,12 @@ ZUIObj.prototype = {
     }
     */
     watchKey: function (which, keys, handler) {
+        this.__watch_key_event(ZUI.keymap, which, keys, handler);
+    },
+    watchKeyUp: function (which, keys, handler) {
+        this.__watch_key_event(ZUI.keyUpmap, which, keys, handler);
+    },
+    __watch_key_event: function (kmap, which, keys, handler) {
         // 没有特殊 key
         if (typeof keys == "function") {
             handler = keys;
@@ -861,7 +867,7 @@ ZUIObj.prototype = {
 
         var key = this.__keyboard_watch_key(which, keys);
         //console.log("watchKey : '" + key + "' : " + this.cid);
-        $z.pushValue(ZUI.keymap, [key, this.cid], handler);
+        $z.pushValue(kmap, [key, this.cid], handler);
 
         // 记录到自身以便可以快速索引
         this._watch_keys[key] = true;
@@ -1552,6 +1558,11 @@ ZUI.keymap = {/*
         "c2" : [F(e), F(e)..]
     }
 */};
+ZUI.keyUpmap = {/*
+     "alt+shift+28" : {
+     "c2" : [F(e), F(e)..]
+     }
+ */};
 ZUI.mousemap = {/*
     click: {
        "c2" : [F(e), F(e)..]
@@ -1910,9 +1921,8 @@ ZUI.debug = function() {
 window.ZUI = ZUI;
 module.exports = ZUI;
 //===================================================================
-// 处理键盘事件的函数
-ZUI.on_keydown = function(e) {
-    //console.log(e.which);
+
+ZUI._on_keyevent = function (e, kmap) {
     var keys = [];
     // 顺序添加，所以不用再次排序了
     if (e.altKey && e.keyCode != 18) keys.push("alt");
@@ -1925,7 +1935,7 @@ ZUI.on_keydown = function(e) {
     } else {
         key = "" + e.which;
     }
-    var wkm = ZUI.keymap[key];
+    var wkm = kmap[key];
     if (wkm) {
         for(var cid in wkm){
             var ui = ZUI(cid);
@@ -1937,7 +1947,18 @@ ZUI.on_keydown = function(e) {
             }
         }
     }
+}
+
+// 处理键盘事件的函数
+ZUI.on_keydown = function(e) {
+    ZUI._on_keyevent(e, ZUI.keymap);
 };
+
+// 处理键盘事件的函数
+ZUI.on_keyup = function(e) {
+    ZUI._on_keyevent(e, ZUI.keyUpmap);
+};
+
 //===================================================================
 // 注册 window 的 resize 和键盘事件
 // 以便统一处理所有 UI 的 resize 行为和快捷键行为 
@@ -1951,6 +1972,7 @@ if (!window._zui_events_binding) {
     });
     // 键盘快捷键
     $(document.body).on("keydown", ZUI.on_keydown);
+    $(document.body).on("keyup", ZUI.on_keyup);
     // 全局鼠标事件
     var on_g_mouse_event = function(e){
         var wmm = ZUI.mousemap[e.type];
