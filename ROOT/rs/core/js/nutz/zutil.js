@@ -1625,7 +1625,6 @@
                     }
                 }
                 key = ks[lastIndex];
-                ;
             }
 
             var arr = o[key];
