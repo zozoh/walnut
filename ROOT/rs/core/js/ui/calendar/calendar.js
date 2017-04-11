@@ -91,6 +91,13 @@ return ZUI.def("ui.calendar", {
         this.arena.zcal("range", rg);
         return this;
     },
+    getMulti : function(mode){
+        return this.arena.zcal("multi", mode);
+    },
+    setMulti : function(list){
+        this.arena.zcal("multi", list);
+        return this;
+    },
     blur : function(){
         this.arena.zcal("blur");
         return this;
