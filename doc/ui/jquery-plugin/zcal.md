@@ -18,9 +18,10 @@ jQuery.zcal({
     className : "skin-light",
     
     // 指定了日历的模式，是日期范围选择模式，还是单选模式
-    // 默认是单选模式 "default"
+    // 默认是单选模式 "single"
     // "none" 表示日历将不像样点击等默认事件
-    mode : "range",
+    // "multi" 多选模式，则可以 toggle 选择日期
+    mode : "range | multi",
     
     // 如果开启了范围选择模式，是否 shift 键表示选择
     // 默认 false 表示只有按下 shift 键才是选择，
@@ -28,6 +29,7 @@ jQuery.zcal({
     autoSelect : false,
     
     // 当激活项被点击的时候，是否取消激活，默认 true
+    // 仅在 mode="signle" 时候有效
     toggleBlur : true,
     
     // 要绘制几个日历块
@@ -229,6 +231,22 @@ jQuery.zcal("range", [new Date(), (new Date()).getTime() + 3 * 86400000]);
 * 如果当前是单选模式，数组的两个元素是相同的，都是当前被激活的日期
 * 但是时间，一个是 `00:00:00` 一个是 `23:59:59`
 * 如果是多选模式，`dateRange[0]` 时间一定是 `00:00:00`，而 `dateRange[1]` 时间一定是 `23:59:59`
+
+## multi : 获取/设置多选日期
+
+```
+var list = jQuery.zcal("multi");
+console.log(list);  // logs [Mon Sep 28 1998..., Mon Oct 16 1998..] 
+
+// 仅仅获取绝对毫秒
+var list = jQuery.zcal("multi", "ms");
+console.log(msRange);  // logs [1447287120000, 1447538190000, 1447689240000] 
+
+// 传入数组，表示设置一组日期选中
+jQuery.zcal("multi", [new Date(), Date.now() + 3 * 86400000]);
+```
+
+
 
 
 

@@ -105,6 +105,31 @@ function get_range(ele, selector) {
     return [from, to];
 }
 //...........................................................
+function __format_array(list, mode) {
+    if(!_.isArray(list) && list.length > 0)
+        return list;
+
+    if(mode && _.isString(mode)){
+        for(var i=0; i<list.length; i++) {
+            // 仅输出毫秒
+            if("ms" == mode){
+                list[i] = list[i].getTime();
+            }
+            // 输出日期
+            else if("date" == mode){
+                list[i] = list[i].format("yyyy-mm-dd");
+            }
+            // 自定义输出格式
+            else if(_.isString(mode)){
+                list[i] = list[i].format(mode);
+            }
+        }
+    }
+
+    // 输出日期对象
+    return list;
+}
+//...........................................................
 var commands = {
     blur : function(){
         var jRoot = $root(this);
@@ -162,23 +187,21 @@ var commands = {
             }
         }
 
-        if(!re)
-            return null;
+        // 返回
+        return __format_array(re, mode);
+    },
+    multi : function(mode) {
+        // 设置
+        if(_.isArray(mode)){
+            do_set_multi(this, mode);
+            return this;
+        }
 
-        // 仅输出毫秒
-        if("ms" == mode){
-            return [re[0].getTime(), re[1].getTime()];
-        }
-        // 输出日期
-        else if("date" == mode){
-            return [re[0].format("yyyy-mm-dd"), re[1].format("yyyy-mm-dd")];
-        }
-        // 自定义输出格式
-        else if(_.isString(mode)){
-            return [re[0].format(mode), re[1].format(mode)];
-        }
-        // 输出日期对象
-        return re;
+        // 获取
+        var msChecked = $root(this).data(NM_CHECKED);
+        
+        // 返回
+        return __format_array(msChecked, mode);
     },
     resize : function(){
         do_resize($root(this));
@@ -285,7 +308,9 @@ function redraw($ele, opt){
     // jRoot.addClass(opt.fitparent && opt.blockNumber==1
     //                 ? "zcal-fit-parent"
     //                 : "zcal-fixed");
-    jRoot
+    jRoot.attr({
+            "mode" : opt.mode || "single"
+        })
         .addClass(opt.simpleCell 
                     ? "zcal-simple" 
                     : "zcal-customized")
@@ -480,6 +505,9 @@ function draw_block(jWrapper, opt, d){
     var msActived = jRoot.data(NM_ACTIVED);
     var msChecked = jRoot.data(NM_CHECKED);
 
+    // 如果是范围模式，则生成一个日期的散列，以便快速判断
+    var msMap = __gen_checked_map(jRoot, opt, msChecked);
+
     // 表体
     var jTBody = $('<tbody class="zcal-table-body">').appendTo(jTable);
     for(var i=0;i<row_n;i++){
@@ -526,8 +554,16 @@ function draw_block(jWrapper, opt, d){
                     jTd.addClass("zcal-cell-actived");
                 }
                 //console.log(_cell_ms, msChecked)
-                if(msChecked && _cell_ms>=msChecked[0] && _cell_ms<=msChecked[1]){
-                    jTd.addClass("zcal-cell-checked");   
+                // 多选模式
+                if( "multi" == opt.mode && msMap && msMap[theKey]) {
+                    jTd.addClass("zcal-cell-checked");
+                }
+                // 范围模式
+                else if( "range" == opt.mode
+                    && msChecked 
+                    && _cell_ms>=msChecked[0] 
+                    && _cell_ms<=msChecked[1]){
+                    jTd.addClass("zcal-cell-checked");
                 }
             }
             // 移动到下一天
@@ -539,6 +575,17 @@ function draw_block(jWrapper, opt, d){
     to = _d_cell;
     to.setHours(23,59,59,999);
     return [from, to];
+}
+//...........................................................
+function __gen_checked_map(jRoot, opt, msChecked){
+    opt = opt || options(jRoot);
+    msChecked = msChecked || jRoot.data(NM_CHECKED) || [];
+    var msMap = {};
+    for(var i=0; i<msChecked.length; i++){
+        var d = $z.parseDate(msChecked[i]);
+        msMap[d.format("yyyy-mm-dd")] = d;
+    }
+    return msMap;
 }
 //...........................................................
 function do_blur(jRoot, opt, quit){
@@ -558,13 +605,7 @@ function do_blur(jRoot, opt, quit){
     return dLast;
 }
 //...........................................................
-function do_active(jRoot, obj, autoSelect){
-    var opt = options(jRoot);
-    // 不响应点击等默认事件
-    if("none" == opt.mode)
-        return;
-
-    // 从传入的对象，获取日期
+function __parse_date (obj, forceZero) {
     var d;
     if(_.isElement(obj) || $z.isjQuery(obj)){
         d = $z.parseDate($(obj).attr("key"));
@@ -573,7 +614,19 @@ function do_active(jRoot, obj, autoSelect){
     else{
         d = $z.parseDate(obj);
     }
-    d.setHours(0,0,0,0);
+    if(forceZero)
+        d.setHours(0,0,0,0);
+    return d;
+}
+//...........................................................
+function do_active(jRoot, obj, shiftOn){
+    var opt = options(jRoot);
+    // 不响应点击等默认事件
+    if("none" == opt.mode)
+        return;
+
+    // 从传入的对象，获取日期
+    var d = __parse_date(obj, true);
 
     // 找到上一个被激活的日期，并取消激活
     var dLast = do_blur(jRoot, opt, true);
@@ -586,7 +639,7 @@ function do_active(jRoot, obj, autoSelect){
     // 然后再激活
     if(jCell.size() == 0) {
         update(jRoot, opt, d);
-        do_active(jRoot, d, autoSelect);
+        do_active(jRoot, d, shiftOn);
         return;
     }
 
@@ -595,14 +648,16 @@ function do_active(jRoot, obj, autoSelect){
     // 存储这个激活的日期
     jRoot.data(NM_ACTIVED, d.getTime());
 
-    // 先取消所有的选择
-    jRoot.find(".zcal-cell-checked").removeClass("zcal-cell-checked");
-    jRoot.data(NM_CHECKED, null);
     // 如果是范围模式
-    if("range" == opt.mode && (opt.autoSelect || autoSelect)){
-        do_set_range(jRoot, d, dLast, opt);
+    if("range" == opt.mode){
+        var dTo =  (opt.autoSelect || shiftOn) ? dLast : null;
+        do_set_range(jRoot, d, dTo, opt);
     }
-    // 否则就主动调用一下回调
+    // 如果是多选模式
+    else if("multi" == opt.mode) {
+        do_set_multi(jRoot, d, dLast, shiftOn, opt);
+    }
+    // 默认是单选模式，就主动调用一下回调
     else{
         var ds = [d, new Date(d)];
         ds[1].setHours(23,59,59,999);
@@ -614,6 +669,86 @@ function do_active(jRoot, obj, autoSelect){
 
     // 返回激活的日期
     return d;
+}
+//...........................................................
+function do_set_multi(jRoot, d, dLast, shiftOn, opt) {
+    opt = opt || options(jRoot);
+
+    // 如果 d 直接是数组，则表示给定的激活范围
+    var msChecked, msMap;
+    if(_.isArray(d)){
+        msChecked = [];
+        for(var i=0;i<d.length;i++){
+            msChecked.push($z.parseDate(d[i]));
+        }
+        msMap = __gen_checked_map(jRoot, opt, msChecked);
+    }
+    // 得到之前的激活以及范围，
+    else {
+        msChecked = jRoot.data(NM_CHECKED);
+
+        // 如果是范围模式，则生成一个日期的散列，以便快速判断
+        msMap = __gen_checked_map(jRoot, opt, msChecked);
+
+        // 得到 yyyy-mm-dd
+        var theKey = dkey(d);
+
+        // 首先整理数据
+        if(shiftOn) {
+            // 确保有 dLast
+            if(!dLast){
+                dLast = $z.parseDate(jRoot.find(".zcal-cell-show").first().attr("key"));
+            }
+            // 确保顺序是对的
+            var dFrom = d.getTime() > dLast.getTime() ? dLast : d;
+            var dTo   = d.getTime() < dLast.getTime() ? dLast : d;
+            // 增加到数据散列里
+            for(var ams = dFrom.getTime(); ams<=dTo.getTime(); ams+=86400000){
+                var theD = new Date();
+                theD.setTime(ams);
+                d.setHours(0,0,0,0);
+                var theKey = dkey(theD);
+                msMap[theKey] = theD;
+            }
+        }
+        // 直接 Toggle
+        else {
+            msMap[theKey] = msMap[theKey] ? null : d;
+        }
+
+        // 排序并重新整理出 msChecked
+        msChecked = [];
+        for(var key in msMap) {
+            var theD = msMap[key];
+            if(theD)
+                msChecked.push(theD);
+        }
+        msChecked.sort(function(a,b){
+            var ams = a.getTime();
+            var bms = b.getTime();
+            if(ams == bms)
+                return 0;
+            if(ams < bms)
+                return -1;
+            return 1;
+        });
+    }
+
+    // 保存
+    jRoot.data(NM_CHECKED, msChecked);
+
+    // 修正当前视图的显示
+    jRoot.find(".zcal-cell-checked").removeClass("zcal-cell-checked");
+    jRoot.find(".zcal-cell-show").each(function(){
+        var jq = $(this);
+        var theKey = jq.attr("key");
+        if(msMap[theKey]) {
+            jq.addClass("zcal-cell-checked");
+        }
+    });
+
+    // 调用回调
+    $z.invoke(opt, "on_multi_change", msChecked, jRoot);
 }
 //...........................................................
 function do_set_range(jRoot, dFrom, dTo, opt){
@@ -648,6 +783,7 @@ function do_set_range(jRoot, dFrom, dTo, opt){
     var ms_begin = ds[0].getTime();
     var ms_end   = ds[1].getTime();
 
+    jRoot.find(".zcal-cell-checked").removeClass("zcal-cell-checked");
     jRoot.find(".zcal-cell-show").each(function(){
         var jq   = $(this);
         var theD = $z.parseDate(jq.attr("key")+"T00:00:00");

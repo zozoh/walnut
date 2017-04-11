@@ -12,7 +12,7 @@
     <script src="/gu/rs/core/js/ui/dateformat.js"></script>
     <script src="/gu/rs/core/js/jquery-plugin/zcal/zcal.js"></script>
     <link  href="/gu/rs/core/js/jquery-plugin/demo.css" rel="stylesheet" type="text/css">
-    <link  href="/gu/rs/core/js/jquery-plugin/zcal/zcal.css" rel="stylesheet" type="text/css">
+    <link  href="/gu/rs/core/js/jquery-plugin/zcal/theme/zcal-light.css" rel="stylesheet" type="text/css">
 </head>
 <body>
 <!--.........................................................-->
@@ -100,8 +100,25 @@ $("#demo2").zcal({
 });
 </script>
 <!--.........................................................-->
-<h1>定制日历每天的内容</h1>
-<div id="demoa"></div>
+<h1>Shift 选择范围，单击 Toggle 选择</h1>
+<div id="demo4"></div>
+<div id="demo4_tip"></div>
+<div id="demo4_tip2"></div>
+<script>
+ $("#demo4").zcal({
+    mode  : "multi",
+    blockNumber : 2,
+    byWeek  : 3,
+    on_actived : function(){
+        var d = this.zcal("actived");
+        $("#demo4_tip2").html("选择日期：" + d.format("yyyy-mm-dd HH:MM:ss"));
+    },
+    on_multi_change : function(){
+        var dr = this.zcal("multi");
+        $("#demo4_tip").text("日期项：" + $z.toJson(dr));
+    }
+});
+</script>
 <!--.........................................................-->
 </body>
 </html>
