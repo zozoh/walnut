@@ -351,6 +351,29 @@ public abstract class Things {
             // 最后计入输出
             hc.output = oM;
         }
+        // 获取某指定文件
+        else if (hc.params.has("get")) {
+            String fnm = hc.params.get("get");
+            WnObj oM = sys.io.fetch(oDir, fnm);
+            if (null == oM && !isQ) {
+                throw Er.create("e.cmd.thing." + key + ".noexists", oDir.path() + "/" + fnm);
+            }
+
+            // 最后计入输出
+            hc.output = oM;
+        }
+        // 获取某指定文件内容
+        else if (hc.params.has("cat")) {
+            String fnm = hc.params.get("cat");
+            WnObj oM = sys.io.fetch(oDir, fnm);
+            if (null == oM && !isQ) {
+                throw Er.create("e.cmd.thing." + key + ".noexists", oDir.path() + "/" + fnm);
+            }
+
+            // 最后计入输出
+            if (null != oM)
+                hc.output = sys.io.readText(oM);
+        }
         // 那么就是查询咯
         else {
             if (hc.params.has("sort")) {

@@ -3199,10 +3199,18 @@
          done : F()    // 所有标注显示完毕后的回调
          }
          */
-        markIt: function (opt) {
+        markIt: function (opt, callback) {
+            // 支持快捷方式 ({..}, callback)
+            if(opt && opt.target && opt.text) {
+                opt = {items : [opt]};
+            }
+
             // 必须得有绘制项目
             if (!_.isArray(opt.items) || opt.items.length == 0)
                 return;
+
+            // 支持设置回调
+            this.setUndefined(opt, "done", callback);
 
             // 绘制遮罩层
             var jMark = $('<div>').appendTo(document.body).css({
@@ -3211,7 +3219,7 @@
                 "left": 0,
                 "right": 0,
                 "bottom": 0,
-                "zIndex": 99,
+                "zIndex": 99999,
             });
             // 得到遮罩层的大小并生成画布
             var R_VP = $z.rect(jMark);

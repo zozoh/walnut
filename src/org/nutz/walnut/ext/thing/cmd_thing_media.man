@@ -8,8 +8,10 @@
                [-add xxx.jpg]
                [-dupp '@{major}(@{nb})@{suffix}']
                [-overwrite]
-               [-read]
+               [-read /path/to/src]    # 指定写入文件的内容，如果没给参数从标准输入读取内容
                [-del xxx.jpg]
+               [-get xxx.jpg]          # 获取指定文件的元数据
+               [-cat abc.txt]          # 输出指定文件的内容
                [-quiet]
 
 # 示例

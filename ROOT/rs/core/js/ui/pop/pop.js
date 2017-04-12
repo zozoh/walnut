@@ -297,7 +297,7 @@ module.exports = {
         });
     },
     //...............................................................
-    // 打开一个表单器（弹出），接受的参数格式为:
+    // 打开一个自定义界面（弹出），接受的参数格式为:
     /*
     {
         title       : "i18n:xxx"    // 对话框标题
@@ -313,8 +313,8 @@ module.exports = {
         }          
         ready       : 回调函数, body加载完会调用 {c}F(uiMask.body)
         context     : MaskUI    // 回调的上下文，默认是 uiMask.body
-        ok     : {c}F(uiMask.body)
-        cancel : {c}F(uiMask.body)
+        ok     : {c}F(uiMask.body):Boolean   // 返回 false 将阻止对话框关闭
+        cancel : {c}F(uiMask.body):Boolean   // 返回 false 将阻止对话框关闭
         btnOk     : "i18n:ok"        // 默认 "i18n:ok", null 表示隐藏该按钮
         btnCancel : "i18n:cancel"    // 默认 "i18n:cancel", null 表示隐藏该按钮
     }
@@ -343,15 +343,19 @@ module.exports = {
             escape : opt.escape,
             closer : opt.closer,
             events : {
-                "click .pm-btn-ok" : function(){
+                "click .pm-btn-ok" : function(e){
+                    var jBtn = $(e.currentTarget);
                     var context = opt.context || this.body;
-                    $z.invoke(opt, "ok", [this.body], context);
-                    this.close();
+                    if(false !== $z.invoke(opt, "ok", [this.body, jBtn], context)){
+                        this.close();
+                    }
                 },
-                "click .pm-btn-cancel" : function(){
+                "click .pm-btn-cancel" : function(e){
+                    var jBtn = $(e.currentTarget);
                     var context = opt.context || this.body;
-                    $z.invoke(opt, "cancel", [this.body], context);
-                    this.close();
+                    if(false !== $z.invoke(opt, "cancel", [this.body, jBtn], context)){
+                        this.close();
+                    }
                 }
             }, 
             setup : opt.setup
