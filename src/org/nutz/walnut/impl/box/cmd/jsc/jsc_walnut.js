@@ -22,8 +22,8 @@ var $wn = {
 	/**
 	 * 输出一个json文本，一般 Java 的 Map 类用这个输出，否则输出不了
 	 */
-	printJson : function(obj) {
-		print(this.sys.json(obj));
+	printJson : function(javaObj) {
+		print(this.sys.json(javaObj));
 	},
 
 	_toObj : function(obj) {
@@ -40,10 +40,8 @@ var $wn = {
 	 * AJAX 输出的函数
 	 */
 	ajax_re : function(obj) {
-		// 处理返回对象
-		obj = this._toObj(obj);
 		// 响应体
-		this.sys.out.println(JSON.stringify(obj, null, '    '));
+		this.sys.out.println(this.toJsonStr(obj));
 	},
 
 	/**
@@ -89,6 +87,6 @@ var $wn = {
 		if (typeof jsobj == "string") {
 			return jsobj;
 		}
-		return JSON.stringify(jsobj, null, '');
-	},
+		return this.sys.json(jsobj);
+	}
 };
