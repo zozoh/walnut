@@ -60,9 +60,9 @@ public class cmd_zip extends JvmExecutor {
                 BufferedInputStream bis = new BufferedInputStream(sys.io.getInputStream(srcObj, 0));
 
                 byte[] b = new byte[1024];
-
-                while (bis.read(b, 0, 1024) != -1) {
-                    zipOut.write(b, 0, 1024);
+                int count = 0;
+                while ((count = bis.read(b, 0, 1024)) != -1) {
+                    zipOut.write(b, 0, count);
                 }
                 bis.close();
                 zipOut.closeEntry();
