@@ -222,7 +222,7 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 生成手机验证码
-        vcodePath = VCodes.getSignupPath(domain, phone);
+        vcodePath = VCodes.getPathBy(domain, scene, phone);
         String code = R.captchaNumber(6);
 
         // 手机短信验证码最多重试 5 次
@@ -260,7 +260,7 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 生成手机验证码
-        vcodePath = VCodes.getSignupPath(domain, email);
+        vcodePath = VCodes.getPathBy(domain, scene, email);
         String code = R.captchaChar(8, false);
 
         // 邮件验证码最多重试 3 次
@@ -466,29 +466,80 @@ public class UsrModule extends AbstractWnModule {
         return Ajax.ok();
     }
 
-    @POST
-    @At("/reset/password")
+    // zozoh@2017-04-14: 由于增加了找回密码功能，这个函数先去掉了吧
+    // @POST
+    // @At("/reset/password")
+    // @Ok("ajax")
+    // @Fail("ajax")
+    // @Filters(@By(type = WnCheckSession.class))
+    // public Object do_reset_password(@Param("nm") String nm) {
+    // String seid = Wn.WC().SEID();
+    // String me = sess.check(seid, true).me();
+    // WnUsr uMe = usrs.check(me);
+    //
+    // // 只有root组管理员能修改别人密码
+    // int role = usrs.getRoleInGroup(uMe, "root");
+    // if (Wn.ROLE.ADMIN != role)
+    // throw Er.create("e.usr.not.root");
+    //
+    // // 得到用户
+    // WnUsr u = usrs.check(nm);
+    //
+    // // 修改密码
+    // usrs.setPassword(u, "123456");
+    //
+    // // 返回
+    // return Ajax.ok();
+    // }
+
+    @At("/do/passwd/reset/ajax")
     @Ok("ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnCheckSession.class))
-    public Object do_reset_password(@Param("nm") String nm) {
-        String seid = Wn.WC().SEID();
-        String me = sess.check(seid, true).me();
-        WnUsr uMe = usrs.check(me);
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public boolean do_passwd_reset_ajax(@Param("str") String str,
+                                        @Param("domain") String domain,
+                                        @Param("vcode") String vcode,
+                                        @Param("passwd") String passwd,
+                                        @Param("mode") String mode) {
+        if (Strings.isBlank(str)) {
+            throw Er.create("e.usr.passwd.reset.blank");
+        }
+        if (Strings.isBlank(passwd)) {
+            throw Er.create("e.usr.passwd.reset.blank");
+        }
+        if (!regexPasswd.matcher(passwd).find()) {
+            throw Er.create("e.usr.passwd.reset.invalid");
+        }
 
-        // 只有root组管理员能修改别人密码
-        int role = usrs.getRoleInGroup(uMe, "root");
-        if (Wn.ROLE.ADMIN != role)
-            throw Er.create("e.usr.not.root");
+        // 分析注册信息
+        WnUsrInfo info = new WnUsrInfo(str);
+
+        // 如果是手机，需要校验验证码
+        if (info.isByPhone()) {
+            domain = Strings.sBlank(domain, "walnut");
+            String vcodePath = VCodes.getPasswdBackPath(domain, info.getPhone());
+            if (!vcodes.checkAndRemove(vcodePath, vcode)) {
+                throw Er.create("e.usr.passwd.reset.vcode.invalid");
+            }
+        }
+
+        // 如果是邮箱，则输入校验验证码
+        if (info.isByEmail()) {
+            domain = Strings.sBlank(domain, "walnut");
+            String vcodePath = VCodes.getPasswdBackPath(domain, info.getEmail());
+            if (!vcodes.checkAndRemove(vcodePath, vcode)) {
+                throw Er.create("e.usr.passwd.reset.vcode.invalid");
+            }
+        }
 
         // 得到用户
-        WnUsr u = usrs.check(nm);
+        WnUsr u = usrs.check(str);
 
         // 修改密码
-        usrs.setPassword(u, "123456");
+        usrs.setPassword(u, passwd);
 
         // 返回
-        return Ajax.ok();
+        return true;
     }
 
     @At("/do/rename/ajax")

@@ -42,6 +42,7 @@ public abstract class AbstractWnSession implements WnSession {
     @Override
     public NutMap putUsrVars(WnUsr u) {
         NutMap vars = this.vars();
+        vars.put("PWD", u.home());
         for (Map.Entry<String, Object> en : u.entrySet()) {
             String key = en.getKey();
             // 双下划线开始的元数据无视
