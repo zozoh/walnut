@@ -81,10 +81,11 @@ public class JsExec {
         }
         bindings.put("wc", Wn.WC());
         bindings.put("sys", jsc);
-        
+
         // 生成动态访问的 $wn
-        jsStr = "var $wn = _.extend({}, __wn); $wn.sys = sys;\n" + jsStr;
-        
+        jsStr = "var $wn = _.extend({}, __wn); $wn.sys = sys; $wn.toJsonStr = function(jsobj) { if (typeof jsobj == 'string') {return jsobj;} return JSON.stringify(jsobj, null, '');}\n"
+                + jsStr;
+
         // bindings.put("args", params.vals);
         // bindings.put("log", log);
         // bindings.put("walnut_js",
@@ -167,6 +168,7 @@ public class JsExec {
                 Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(),
                                                       new Class<?>[]{klass},
                                                       new InvocationHandler() {
+                                                          @Override
                                                           public Object invoke(Object proxy,
                                                                                Method method,
                                                                                Object[] args)
