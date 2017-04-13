@@ -35,11 +35,13 @@ import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.JspView;
+import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.srv.WnActiveCode;
 import org.nutz.walnut.impl.srv.WnAppLicenceInfo;
 import org.nutz.walnut.impl.srv.WnLicence;
@@ -81,6 +83,15 @@ public class AppModule extends AbstractWnModule {
         if (Strings.isBlank(appName))
             return HttpStatusView.HTTP_404;
 
+        // 得到会话对象，以及对应的用户
+        WnSession se = Wn.WC().checkSE();
+        WnUsr me = Wn.WC().getMyUsr(usrs);
+
+        // 如果当前用户的 ID 和名字相等，则必须强迫其改个名字
+        if (me.isNameSameAsId()) {
+            return new ServerRedirectView("/u/h/rename.html");
+        }
+
         // 如果 appName 没有名称空间，补上 "wn"
         if (appName.indexOf('.') < 0) {
             appName = "wn." + appName;
@@ -88,9 +99,6 @@ public class AppModule extends AbstractWnModule {
 
         // 找到应用
         WnObj oAppHome = this._check_app_home(appName);
-
-        // 得到会话对象
-        WnSession se = Wn.WC().checkSE();
 
         // 得到要处理的对象
         WnObj o = null;

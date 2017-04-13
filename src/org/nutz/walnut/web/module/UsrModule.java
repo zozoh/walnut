@@ -27,6 +27,7 @@ import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.RawView;
+import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
@@ -110,7 +111,7 @@ public class UsrModule extends AbstractWnModule {
     public View show_host(String rph, @Attr("wn_www_host") String host, HttpServletRequest req) {
         // 确保没有登录过
         String seid = Wn.WC().SEID();
-        if (null != seid) {
+        if (null != seid && "login.html".equals(rph)) {
             try {
                 sess.check(seid, true);
                 throw Lang.makeThrow("already login, go to /");
@@ -141,9 +142,13 @@ public class UsrModule extends AbstractWnModule {
                     // 得到文件内容
                     String input = io.readText(o);
 
-                    // 得到会话信息，并创建转换上下文
-                    WnSession se = Wn.WC().checkSE();
+                    // 得到会话信息
+                    WnSession se = sess.check(seid, false);
+                    Wn.WC().SE(se);
+                    Wn.WC().me(se.me(), se.group());
                     WnUsr me = Wn.WC().getMyUsr(usrs);
+
+                    // 创建转换上下文
                     NutMap context = _gen_context_by_req(req);
                     context.put("grp", se.group());
                     context.put("fnm", o.name());
@@ -170,6 +175,11 @@ public class UsrModule extends AbstractWnModule {
                 }
             }
             catch (Exception e) {
+                if (e instanceof WebException) {
+                    if ("e.sess.noexists".equals(((WebException) e).getKey())) {
+                        return new ServerRedirectView("/u/h/login.html");
+                    }
+                }
                 if (!"login.html".equals(rph))
                     return new HttpStatusView(404);
             }
@@ -479,6 +489,42 @@ public class UsrModule extends AbstractWnModule {
 
         // 返回
         return Ajax.ok();
+    }
+
+    @At("/do/rename/ajax")
+    @Ok("ajax")
+    @Fail("ajax")
+    @Filters(@By(type = WnCheckSession.class))
+    public boolean do_rename(@Param("nm") String newName) {
+        WnSession se = Wn.WC().checkSE();
+        WnUsr me = Wn.WC().getMyUsr(usrs);
+
+        // 先检查一下有没有必要改名
+        if (me.name().equals(newName)) {
+            throw Er.create("e.u.rename.same");
+        }
+        // 再检查一下名字是否合法
+        if (!WnUsrInfo.isValidUserName(newName)) {
+            throw Er.create("e.u.rename.invalid", newName);
+        }
+        // 看看是否存在
+        WnUsr u = Wn.WC().security(new WnEvalLink(io), new Proton<WnUsr>() {
+            protected WnUsr exec() {
+                return usrs.fetch(newName);
+            }
+        });
+        if (null != u) {
+            throw Er.create("e.u.rename.exists", newName);
+        }
+
+        // 正式执行改名
+        usrs.rename(me, newName);
+
+        // 更新 Session
+        se.putUsrVars(me);
+        se.save();
+
+        return true;
     }
 
     /**
