@@ -185,7 +185,7 @@ public class WnUsrInfo {
             email = str;
         }
         // 登录名
-        else if (str.matches("^[0-9a-z._-]{4,}$")) {
+        else if (str.matches("^[0-9a-zA-Z._-]{4,}$")) {
             name = str;
         }
         // 错误的登录字符串
