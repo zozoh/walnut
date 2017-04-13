@@ -43,7 +43,7 @@ var $wn = {
 		// 处理返回对象
 		obj = this._toObj(obj);
 		// 响应体
-		this.sys.out.println(JSON.stringify(obj, null, '    '));
+		this.sys.out.println(this.sys.json(obj));
 	},
 
 	/**
@@ -89,6 +89,6 @@ var $wn = {
 		if (typeof jsobj == "string") {
 			return jsobj;
 		}
-		return JSON.stringify(jsobj, null, '');
-	},
+		return JSON.stringify(this.sys.json(obj));
+	}
 };
