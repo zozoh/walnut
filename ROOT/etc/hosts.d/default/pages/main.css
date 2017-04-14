@@ -1,0 +1,519 @@
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+html {
+  font-size: 100px;
+}
+body {
+  margin: 0;
+  font-size: .14rem;
+}
+a {
+  color: #000000;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+a i {
+  margin-right: 3px;
+}
+input {
+  outline: none;
+  padding: .14rem .14rem .14rem .48rem;
+  font-size: .16rem;
+  width: 100%;
+  border: 1px solid #000;
+  font-family: Monaco, Consolas, Courier New;
+}
+input:focus {
+  background: #FFD;
+}
+::-webkit-input-placeholder {
+  color: #AAA;
+  font-size: .11rem;
+}
+:-moz-placeholder {
+  color: #AAA;
+  font-size: .11rem;
+}
+::-moz-placeholder {
+  color: #AAA;
+  font-size: .11rem;
+}
+:-ms-input-placeholder {
+  color: #AAA;
+  font-size: .11rem;
+}
+button {
+  width: 100%;
+  padding: .12rem;
+  border: 0;
+  border-radius: .04rem;
+  background: #000000;
+  color: #ffffff;
+  font-size: .16rem;
+  cursor: pointer;
+  outline: none;
+}
+button[disabled] {
+  opacity: 0.2;
+  cursor: default;
+}
+.main {
+  margin: 10% auto 0 auto;
+  max-width: 3.5rem;
+  min-width: 3rem;
+  transition: 0.3s;
+}
+@media screen and (max-device-width: 480px) {
+  .main {
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+header.big-icon {
+  padding: .2rem .2rem 0 .2rem;
+  text-align: center;
+  height: 1.1rem;
+  color: #aaaaaa;
+}
+header.big-icon .about {
+  font-size: .12rem;
+  text-align: right;
+}
+header.small-icon {
+  padding: .1rem .2rem;
+  color: #aaaaaa;
+  border-bottom: 1px dashed #cccccc;
+}
+header.small-icon > img {
+  height: .32rem;
+  float: left;
+}
+header.small-icon > h4 {
+  line-height: .32rem;
+  padding: 0 .1rem;
+  margin: 0;
+  float: right;
+  font-size: .18rem;
+  font-weight: normal;
+}
+header.small-icon:after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+}
+header[an] img {
+  transition: 0.8s;
+}
+header[an] > div {
+  transition: 1.3s;
+}
+header[an="slide-down"] img {
+  transition: 1.2s;
+}
+header[an="slide-down"] .slogon {
+  transition: 0.8s;
+}
+body[mode="begin"] header[an] > * {
+  opacity: 0;
+}
+body[mode="begin"] header[an="zoom-in"] img {
+  transform: translateY(60px) scale(0.1);
+}
+body[mode="begin"] header[an="zoom-in"] .slogon {
+  transform: scale(0.1);
+}
+body[mode="begin"] header[an="slide-down"] img {
+  transform: translateY(-80px);
+}
+body[mode="begin"] header[an="slide-down"] .slogon {
+  transform: translateY(-120px);
+}
+body[mode="begin"] header[an="slide-up"] img {
+  transform: translateY(80px);
+}
+body[mode="begin"] header[an="slide-up"] .slogon {
+  transform: translateY(120px);
+}
+section {
+  padding: 20px;
+}
+section > div {
+  transition: 0.5s;
+  padding: .08rem;
+  position: relative;
+}
+section > div > span.fld-icon {
+  position: absolute;
+  display: block;
+  padding: .08rem .08rem .08rem .14rem;
+  font-size: .24rem;
+  color: #cccccc;
+}
+section > div[mode="invalid"] > span {
+  color: #ff0000;
+}
+section > div[mode="invalid"] > input {
+  border-color: #ff0000;
+  color: #ff0000;
+}
+section > div[mode="ok"] > span {
+  color: #000000;
+}
+section > div[mode="ok"] > input {
+  border-color: #000000;
+}
+section .fld-tip {
+  font-size: .12rem;
+  padding: .06rem;
+  color: #aaaaaa;
+}
+section > .form-name {
+  transition: 0.3s;
+}
+section > .form-passwd {
+  transition: 0.8s;
+}
+section > .form-passre {
+  transition: 1.2s;
+}
+section > .form-btn {
+  transition: .5s;
+}
+section > .form-others {
+  transition: 1.2s;
+}
+section > .form-links {
+  transition: 1s;
+}
+section > .form-signup {
+  transition: 1.4s;
+}
+section > .form-title {
+  font-size: .14rem;
+  color: #aaaaaa;
+  line-height: .24rem;
+  font-family: Monaco, Consolas, Courier New;
+}
+section > .form-title em {
+  color: #000000;
+  font-style: normal;
+}
+section > .form-title u {
+  text-decoration: none;
+  font-size: .12rem;
+}
+section .form-tip {
+  display: none;
+}
+section .form-tip .re-icon {
+  display: none;
+}
+section .form-tip span {
+  font-size: .12rem;
+  margin-left: .02rem;
+}
+section .form-tip > div {
+  padding: .04rem .08rem;
+  background: #ffffaa;
+  border: 1px solid #aaaa88;
+}
+section .form-tip[mode] {
+  display: block;
+}
+section .form-tip[mode="warn"] .re-warn {
+  display: inline-block;
+}
+section .form-tip[mode="warn"] span {
+  color: #ff0000;
+}
+section .form-tip[mode="ok"] .re-ok {
+  display: inline-block;
+}
+section .form-tip[mode="ok"] span {
+  color: #000000;
+}
+section .form-vcode[show] {
+  position: relative;
+  opacity: 1;
+  height: unset;
+  padding: .08rem;
+}
+section .form-vcode {
+  transition: .3s;
+  opacity: 0;
+  overflow: hidden;
+  height: 1px;
+  padding: 0;
+}
+section .form-vcode .vcode-tt {
+  font-size: .14rem;
+  padding: .14rem;
+  color: #000000;
+}
+section .form-vcode input {
+  padding-left: 1.6rem;
+}
+section .form-vcode b {
+  display: block;
+  background: #888888;
+  color: #ffffff;
+  text-align: center;
+  font-size: .12rem;
+  padding: .06rem;
+  cursor: default;
+  margin: .02rem 0;
+  font-weight: normal;
+  user-select: none;
+  font-style: italic;
+  font-family: Monaco, Consolas, Courier New;
+}
+section .form-vcode b em {
+  font-style: normal;
+  color: #ffff00;
+  margin-right: .04rem;
+  display: inline;
+}
+section .form-vcode b span {
+  display: inline;
+}
+section .form-vcode b[enabled] {
+  background: #000000;
+  cursor: pointer;
+  font-style: normal;
+}
+section .form-vcode b[enabled]:hover {
+  background: #444444;
+}
+section .form-vcode b[enabled] em {
+  display: none;
+}
+section .form-passwd > span {
+  cursor: pointer;
+  color: #cccccc;
+}
+section .form-passwd > span i:first-child {
+  display: none;
+}
+section .form-passwd > span i:last-child {
+  display: inline-block;
+}
+section .form-passwd .fpwd-level {
+  display: none;
+}
+section .form-passwd .fpwd-level ul {
+  display: -webkit-flex;
+  display: flex;
+  list-style: none;
+  margin: .04rem;
+  padding: 0;
+  border: 1px solid #cccccc;
+}
+section .form-passwd .fpwd-level ul li {
+  flex: 1 1 auto;
+  padding: .02rem;
+  text-align: center;
+  font-size: .10rem;
+  color: #cccccc;
+  border-left: 1px solid #cccccc;
+}
+section .form-passwd .fpwd-level ul li > i {
+  margin: 0 .02rem;
+}
+section .form-passwd .fpwd-level ul li:first-child {
+  border-left: 0;
+}
+section .form-passwd .fpwd-level ul li[on] {
+  background: #000000;
+  color: #666666;
+}
+section .form-passwd .fpwd-level ul li[on-mark] {
+  color: #ffffff;
+}
+section .form-passwd .fpwd-tip {
+  display: none;
+}
+section .form-passwd[mode="short"] .fpwd-tip {
+  display: block;
+}
+section .form-passwd[mode="invalid"] .fpwd-tip {
+  display: block;
+  color: #ff0000;
+  font-size: .16rem;
+}
+section .form-passwd[mode="ok"] .fpwd-level {
+  display: block;
+}
+section .form-passwd[eye-on] > span {
+  color: #000000;
+}
+section .form-passwd[eye-on] > span i:first-child {
+  display: inline-block;
+}
+section .form-passwd[eye-on] > span i:last-child {
+  display: none;
+}
+section .form-passwd[mode="hide"] {
+  display: none;
+}
+section .form-passre > span i {
+  display: none;
+}
+section .form-passre[mode="invalid"] > span i:first-child {
+  display: inline-block;
+  color: #ff0000;
+}
+section .form-passre[mode="ok"] > span i:last-child {
+  display: inline-block;
+  color: #000000;
+}
+section .form-passre[mode="hide"] {
+  display: none;
+}
+section .form-btn .form-submit-error {
+  display: none;
+  color: #ff0000;
+  font-size: .12rem;
+  padding: .06rem;
+}
+section .form-btn[mode="invalid"] .form-submit-error {
+  display: block;
+}
+section .form-others {
+  padding: 0 .16rem;
+  height: .36rem;
+  text-align: right;
+}
+section .form-others > * {
+  display: inline-block;
+  vertical-align: top;
+}
+section .form-others b {
+  color: #aaaaaa;
+  font-size: .12rem;
+  font-weight: normal;
+  margin-right: .08rem;
+  vertical-align: middle;
+}
+section .form-others a {
+  color: #000000;
+  font-size: .18rem;
+  margin: 0 .02rem;
+  opacity: 0.6;
+  transition: 0.3s;
+}
+section .form-others a:hover {
+  opacity: 1.0;
+  transform: scale(1.4);
+  color: #0088ff;
+}
+section .form-links {
+  padding: 0 .16rem;
+  font-size: .12rem;
+  line-height: .20rem;
+}
+section .form-links a {
+  color: #000000;
+  text-decoration: none;
+}
+section .form-links a:hover {
+  text-decoration: underline;
+}
+section .form-links a i {
+  width: .16rem;
+}
+.vcode-captcha {
+  display: -webkit-flex;
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 31.8%;
+}
+.vcode-captcha a {
+  font-size: .12rem;
+}
+.vcode-captcha .vc-main {
+  width: 3.5rem;
+  background: #ffffff;
+  padding: .2rem;
+  border-radius: .06rem;
+  box-shadow: 0.04rem 0.04rem 0.1rem rgba(0, 0, 0, 0.6);
+}
+.vcode-captcha .vc-main > div {
+  padding: .02rem 0;
+}
+.vcode-captcha .vc-main .vcm-img {
+  text-align: center;
+  padding: .04rem;
+}
+.vcode-captcha .vc-main .vcm-img img {
+  height: 50px;
+}
+.vcode-captcha .vc-main .vcm-reload {
+  text-align: right;
+}
+.vcode-captcha .vc-main .vcm-input {
+  padding-bottom: .06rem;
+}
+.vcode-captcha .vc-main .vcm-input input {
+  padding: .06rem .1rem;
+  border-color: #000000;
+}
+.vcode-captcha .vc-main .vcm-do {
+  float: right;
+  display: block;
+  padding: .06rem .3rem;
+  border: 0;
+  border-radius: .04rem;
+  font-weight: normal;
+  background: #000000;
+  color: #ffffff;
+  font-size: .12rem;
+  cursor: pointer;
+}
+.vcode-captcha .vc-main .vcm-do:hover {
+  background: #444444;
+}
+.vcode-captcha .vc-main .vcm-cancel {
+  float: left;
+  display: block;
+  padding: .04rem;
+}
+.vcode-captcha .vc-main:after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+}
+body[mode="begin"] section > div {
+  opacity: 0;
+}
+body[mode="begin"] section > .form-name {
+  transform: translateX(300px);
+}
+body[mode="begin"] section > .form-passwd {
+  transform: translateX(-300px);
+}
+body[mode="begin"] section > .form-passre {
+  transform: translateX(-300px);
+}
+body[mode="begin"] section > .form-btn {
+  transform: translateY(50px);
+}
+body[mode="begin"] section > .form-others {
+  transform: translateY(50px);
+}
+body[mode="begin"] section > .form-links {
+  transform: translateY(100px);
+}

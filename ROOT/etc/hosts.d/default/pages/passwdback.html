@@ -9,33 +9,37 @@
     <script src="/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js"></script>
     <script src="/gu/rs/core/js/nutz/zutil.js"></script>
     <script src="/gu/rs/core/js/jquery-plugin/passwdform/jq.passwdform.js"></script>
-    <script src="/gu/rs/core/js/jquery-plugin/passwdform/signup.js"></script>
+    <script src="/gu/rs/core/js/jquery-plugin/passwdform/passwdback.js"></script>
     <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">
     <link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.7.0/css/font-awesome.css">
     <link rel="stylesheet" type="text/css" href="main.css">
 </head>
 <body mode="begin" domain="walnut">
 <div class="main">
-    <header an="slide-up" class="big-icon">
-        <img src="logo.png">
+    <header an="fade-in" class="small-icon">
+        <img src="logo_32.png">
+        <h4>找回密码</h4>
     </header>
     <section>
+        <div class="form-title">
+            如果您既没关联手机，也没关联邮箱，请联系我们的客服人员，他们会人工为您解决这个问题。
+        </div>
         <div class="form-name">
-            <span class="fld-icon"><i class="zmdi zmdi-account-add"></i></span>
-            <input name="str" placeholder="输入新用户名，手机号或者邮箱" spellcheck="false"/>
+            <span class="fld-icon"><i class="zmdi zmdi-account"></i></span>
+            <input name="str" placeholder="输入手机号或者邮箱" spellcheck="false"/>
         </div>
         <div class="form-tip"><div>
             <span class="re-icon re-ok"><i class="fa fa-check"></i></span>
             <span class="re-icon re-warn"><i class="fa fa-warning"></i></span>
-            <span class="re-info">您的用户名可用</span>
+            <span class="re-info"></span>
         </div></div>
         <div class="form-vcode"></div>
-        <div class="form-passwd">
+        <div class="form-passwd" mode="hide">
             <span class="fld-icon">
                 <i class="zmdi zmdi-eye"></i>
                 <i class="zmdi zmdi-eye-off"></i>
             </span>
-            <input name="passwd" type="password" placeholder="输入您登录用的密码"/>
+            <input name="passwd" type="password" placeholder="输入您的新密码"/>
             <div class="fpwd-level">
                 <ul>
                     <li><i class="zmdi zmdi-thumb-down"></i>弱</li>
@@ -49,22 +53,16 @@
             密码不能包含空格，只能是数字，字母，特殊字符，且不能小于6位
             </div>
         </div>
-        <div class="form-passre">
+        <div class="form-passre" mode="hide">
             <span class="fld-icon">
                 <i class="fa fa-warning"></i>
                 <i class="zmdi zmdi-check"></i>
             </span>
-            <input name="pwd_re" type="password" placeholder="再次输入密码"/>
+            <input name="pwd_re" type="password" placeholder="再次输入新密码"/>
         </div>
-        <div class="form-btn">
-            <button disabled>立即生成我的新账号</button>
-            <div class="form-submit-error">
-                <i class="fa fa-warning"></i>
-                <span>提交错误</span>
-            </div>
-        </div>
+        <div class="form-btn"><button disabled>立即重置成新密码</button></div>
         <div class="form-links">
-           <a href="login.html"><i class="zmdi zmdi-account-o"></i><span>我已经有了账号，去登录</span></a>
+           <a href="/u/h/login.html">我又想起密码了，带我去登录界面</span></a>
         </div>
     </section>
 </div>

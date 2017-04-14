@@ -389,15 +389,26 @@ public class UsrModule extends AbstractWnModule {
     @Ok("++cookie->ajax")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    @Deprecated
     public NutMap do_login_ajax(@Param("nm") String nm, @Param("passwd") String passwd) {
-        WnSession se = sess.login(nm, passwd);
-        Wn.WC().SE(se);
+        return do_login(nm, passwd);
+    }
 
-        // 执行登录后初始化脚本
-        this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
-
-        return se.toMapForClient();
+    /**
+     * 销毁用户的当前会话，如果有父会话，则退出到父会话。否则完全退出登录
+     * 
+     * @return 父会话
+     */
+    @At("/do/logout")
+    @Ok("++cookie>>:/")
+    @Fail("--cookie>>:/")
+    public NutMap do_logout() {
+        String seid = Wn.WC().SEID();
+        if (null != seid) {
+            WnSession pse = sess.logout(seid);
+            if (null != pse)
+                return pse.toMapForClient();
+        }
+        throw Lang.makeThrow("logout delete cookie");
     }
 
     @POST
@@ -405,7 +416,6 @@ public class UsrModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     @Filters(@By(type = WnCheckSession.class))
-    @Deprecated
     public boolean do_logout_ajax() {
         String seid = Wn.WC().SEID();
         if (null != seid) {
@@ -576,24 +586,6 @@ public class UsrModule extends AbstractWnModule {
         se.save();
 
         return true;
-    }
-
-    /**
-     * 销毁用户的当前会话，如果有父会话，则退出到父会话。否则完全退出登录
-     * 
-     * @return 父会话
-     */
-    @At("/do/logout")
-    @Ok("++cookie>>:/")
-    @Fail("--cookie>>:/")
-    public NutMap do_logout() {
-        String seid = Wn.WC().SEID();
-        if (null != seid) {
-            WnSession pse = sess.logout(seid);
-            if (null != pse)
-                return pse.toMapForClient();
-        }
-        throw Lang.makeThrow("logout delete cookie");
     }
 
     // --------- 用户头像
