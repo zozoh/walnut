@@ -19,6 +19,7 @@ import org.nutz.web.Webs.Err;
 
 public class cmd_wordt extends JvmExecutor {
 
+    @SuppressWarnings("resource")
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, "c");
@@ -33,7 +34,7 @@ public class cmd_wordt extends JvmExecutor {
                                        : sys.io.check(null, destPath);
         // 替换参数
         String vars = params.get("vars");
-        if (Strings.isBlank(vars)) {
+        if (Strings.isBlank(vars) || "true".equals(vars)) {
             vars = sys.in.readAll();
         }
         if (Strings.isBlank(vars)) {
@@ -71,16 +72,20 @@ public class cmd_wordt extends JvmExecutor {
         outdoc.close();
     }
 
-    private String CHARACTER_NL = "\r\n";
-    private String CHARACTER_NL_WORD = "\013";
+    // ennprivate String CHARACTER_NL = "\r\n";
+    // private String CHARACTER_NL_WORD = "\013";
 
     public void replaceRN(NutMap varMap) {
         for (String k : varMap.keySet()) {
             Object val = varMap.get(k);
             if (val instanceof String) {
                 String valStr = (String) val;
-                if (valStr.indexOf(CHARACTER_NL) > -1) {
-                    valStr = valStr.replaceAll(CHARACTER_NL, CHARACTER_NL_WORD);
+                // if (valStr.indexOf(CHARACTER_NL) > -1) {
+                // valStr = valStr.replaceAll(CHARACTER_NL, CHARACTER_NL_WORD);
+                // varMap.setv(k, valStr);
+                // }
+                if (!Strings.isBlank(valStr)) {
+                    valStr = valStr.replaceAll("(\r?\n)", "\013");
                     varMap.setv(k, valStr);
                 }
             } else if (val instanceof NutMap) {

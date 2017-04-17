@@ -28,6 +28,7 @@ mysrc
 
 # .................................
 /ROOT/app/**/*.css
+/ROOT/etc/hosts.d/**/*.css
 
 /ROOT/rs/core/js/jquery-plugin/**/*.css
 

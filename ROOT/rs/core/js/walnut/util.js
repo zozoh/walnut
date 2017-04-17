@@ -443,7 +443,7 @@ var Wn = {
             if(opt.maskConf.welcome) {
                 jStatus.find("h4").html(opt.maskConf.welcome);
             }
-            
+
             // 执行命令
             Wn.exec(opt.cmdText, {
                 msgShow : function(str){
@@ -487,12 +487,19 @@ var Wn = {
                         .text(str).appendTo(jPre);
                 },
                 done : function(){
+                    jStatus.find("h4").html(
+                        opt.maskConf.titleDone || "Done"
+                    );
                     jP.attr("st", "ok");
                 },
                 fail : function(){
+                    jStatus.find("h4").html(
+                        opt.maskConf.titleDone || "Fail"
+                    );
                     jP.attr("st", "fail");
                 },
                 complete : function(re){
+                    jBarIn.css("width", "100%");
                     $z.invoke(opt, "complete", [res, jMsg, re], uiMask);
                 }
             });

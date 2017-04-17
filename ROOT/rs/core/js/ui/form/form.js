@@ -243,6 +243,12 @@ return ZUI.def("ui.form", {
     //...............................................................
     __draw_field_UI : function(uiType, uiConf, fld, callback){
         var UI = this;
+        // 移除原先的 UI
+        if(fld.UI) {
+            fld.UI.destroy();
+            fld.UI = null;
+        }
+        // 重新加载新 UI
         seajs.use(uiType, function(TheUI){
             // 默认根据字段类型给出控件的数据类型
             var theConf = {
@@ -756,6 +762,7 @@ return ZUI.def("ui.form", {
         // 逐个处理字段
         var keys = Array.from(arguments);
         for(var key of keys) {
+            //console.log(key)
             var jF = UI.$fld(key);
             UI.__set_fld_data(jF, obj);
         }

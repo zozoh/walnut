@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.thing;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
@@ -229,6 +230,16 @@ public abstract class Things {
             meta.remove("tp");
             String mime = sys.io.mimes().getMime(tp, "text/plain");
             meta.put("mime", mime);
+        }
+
+        // 将日期的字符串，搞一下
+        for (Map.Entry<String, Object> en : meta.entrySet()) {
+            Object v = en.getValue();
+            if (null != v && v instanceof String) {
+                String s = v.toString();
+                Object v2 = Wn.fmt_str_macro(s);
+                en.setValue(v2);
+            }
         }
 
         // 返回传入的元数据

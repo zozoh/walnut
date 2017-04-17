@@ -22,7 +22,7 @@ public class WnObjDownloadView extends RawView2 {
 
     public WnObjDownloadView(WnIo io, WnObj o, String mimeType, String ua) {
         this(o.len() == 0 ? Lang.ins("") : io.getInputStream(o, 0), (int) o.len(), mimeType);
-        String nm = o.name();
+        String nm = o.getString("title", o.name());
         if (o.hasType() && !nm.endsWith("." + o.type())) {
             nm += "." + o.type();
         }
