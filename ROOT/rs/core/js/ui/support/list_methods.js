@@ -545,7 +545,7 @@ var methods = {
         if(opt.stopPropagation)
             e.stopPropagation();
 
-        console.log("haha", opt.stopPropagation)
+        //console.log("haha", opt.stopPropagation)
 
         // 如果支持多选 ...
         if(opt.multi){
