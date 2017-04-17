@@ -14,7 +14,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 def version_tag = getDate()
-def nutz_version = "1.r.61-SNAPSHOT"
+def nutz_version = "1.r.62-SNAPSHOT"
 
 configurations.all {
     // Check for updates every build
