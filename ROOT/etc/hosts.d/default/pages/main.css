@@ -11,7 +11,7 @@ body {
   font-size: .14rem;
 }
 a {
-  color: #000000;
+  color: #000;
   text-decoration: none;
 }
 a:hover {
@@ -52,8 +52,8 @@ button {
   padding: .12rem;
   border: 0;
   border-radius: .04rem;
-  background: #000000;
-  color: #ffffff;
+  background: #000;
+  color: #FFF;
   font-size: .16rem;
   cursor: pointer;
   outline: none;
@@ -78,7 +78,7 @@ header.big-icon {
   padding: .2rem .2rem 0 .2rem;
   text-align: center;
   height: 1.1rem;
-  color: #aaaaaa;
+  color: #AAA;
 }
 header.big-icon .about {
   font-size: .12rem;
@@ -86,8 +86,8 @@ header.big-icon .about {
 }
 header.small-icon {
   padding: .1rem .2rem;
-  color: #aaaaaa;
-  border-bottom: 1px dashed #cccccc;
+  color: #AAA;
+  border-bottom: 1px dashed #CCC;
 }
 header.small-icon > img {
   height: .32rem;
@@ -153,25 +153,25 @@ section > div > span.fld-icon {
   display: block;
   padding: .08rem .08rem .08rem .14rem;
   font-size: .24rem;
-  color: #cccccc;
+  color: #CCC;
 }
 section > div[mode="invalid"] > span {
-  color: #ff0000;
+  color: #F00;
 }
 section > div[mode="invalid"] > input {
-  border-color: #ff0000;
-  color: #ff0000;
+  border-color: #F00;
+  color: #F00;
 }
 section > div[mode="ok"] > span {
-  color: #000000;
+  color: #000;
 }
 section > div[mode="ok"] > input {
-  border-color: #000000;
+  border-color: #000;
 }
 section .fld-tip {
   font-size: .12rem;
   padding: .06rem;
-  color: #aaaaaa;
+  color: #AAA;
 }
 section > .form-name {
   transition: 0.3s;
@@ -196,12 +196,12 @@ section > .form-signup {
 }
 section > .form-title {
   font-size: .14rem;
-  color: #aaaaaa;
+  color: #AAA;
   line-height: .24rem;
   font-family: Monaco, Consolas, Courier New;
 }
 section > .form-title em {
-  color: #000000;
+  color: #000;
   font-style: normal;
 }
 section > .form-title u {
@@ -220,8 +220,8 @@ section .form-tip span {
 }
 section .form-tip > div {
   padding: .04rem .08rem;
-  background: #ffffaa;
-  border: 1px solid #aaaa88;
+  background: #FFA;
+  border: 1px solid #AA8;
 }
 section .form-tip[mode] {
   display: block;
@@ -230,13 +230,13 @@ section .form-tip[mode="warn"] .re-warn {
   display: inline-block;
 }
 section .form-tip[mode="warn"] span {
-  color: #ff0000;
+  color: #F00;
 }
 section .form-tip[mode="ok"] .re-ok {
   display: inline-block;
 }
 section .form-tip[mode="ok"] span {
-  color: #000000;
+  color: #000;
 }
 section .form-vcode[show] {
   position: relative;
@@ -254,15 +254,15 @@ section .form-vcode {
 section .form-vcode .vcode-tt {
   font-size: .14rem;
   padding: .14rem;
-  color: #000000;
+  color: #000;
 }
 section .form-vcode input {
   padding-left: 1.6rem;
 }
 section .form-vcode b {
   display: block;
-  background: #888888;
-  color: #ffffff;
+  background: #888;
+  color: #fff;
   text-align: center;
   font-size: .12rem;
   padding: .06rem;
@@ -275,7 +275,7 @@ section .form-vcode b {
 }
 section .form-vcode b em {
   font-style: normal;
-  color: #ffff00;
+  color: #FF0;
   margin-right: .04rem;
   display: inline;
 }
@@ -283,19 +283,19 @@ section .form-vcode b span {
   display: inline;
 }
 section .form-vcode b[enabled] {
-  background: #000000;
+  background: #000;
   cursor: pointer;
   font-style: normal;
 }
 section .form-vcode b[enabled]:hover {
-  background: #444444;
+  background: #444;
 }
 section .form-vcode b[enabled] em {
   display: none;
 }
 section .form-passwd > span {
   cursor: pointer;
-  color: #cccccc;
+  color: #CCC;
 }
 section .form-passwd > span i:first-child {
   display: none;
@@ -312,15 +312,15 @@ section .form-passwd .fpwd-level ul {
   list-style: none;
   margin: .04rem;
   padding: 0;
-  border: 1px solid #cccccc;
+  border: 1px solid #CCC;
 }
 section .form-passwd .fpwd-level ul li {
   flex: 1 1 auto;
   padding: .02rem;
   text-align: center;
   font-size: .10rem;
-  color: #cccccc;
-  border-left: 1px solid #cccccc;
+  color: #CCC;
+  border-left: 1px solid #CCC;
 }
 section .form-passwd .fpwd-level ul li > i {
   margin: 0 .02rem;
@@ -329,11 +329,11 @@ section .form-passwd .fpwd-level ul li:first-child {
   border-left: 0;
 }
 section .form-passwd .fpwd-level ul li[on] {
-  background: #000000;
-  color: #666666;
+  background: #000;
+  color: #666;
 }
 section .form-passwd .fpwd-level ul li[on-mark] {
-  color: #ffffff;
+  color: #FFF;
 }
 section .form-passwd .fpwd-tip {
   display: none;
@@ -343,14 +343,14 @@ section .form-passwd[mode="short"] .fpwd-tip {
 }
 section .form-passwd[mode="invalid"] .fpwd-tip {
   display: block;
-  color: #ff0000;
+  color: #F00;
   font-size: .16rem;
 }
 section .form-passwd[mode="ok"] .fpwd-level {
   display: block;
 }
 section .form-passwd[eye-on] > span {
-  color: #000000;
+  color: #000;
 }
 section .form-passwd[eye-on] > span i:first-child {
   display: inline-block;
@@ -366,18 +366,18 @@ section .form-passre > span i {
 }
 section .form-passre[mode="invalid"] > span i:first-child {
   display: inline-block;
-  color: #ff0000;
+  color: #F00;
 }
 section .form-passre[mode="ok"] > span i:last-child {
   display: inline-block;
-  color: #000000;
+  color: #000;
 }
 section .form-passre[mode="hide"] {
   display: none;
 }
 section .form-btn .form-submit-error {
   display: none;
-  color: #ff0000;
+  color: #F00;
   font-size: .12rem;
   padding: .06rem;
 }
@@ -394,14 +394,14 @@ section .form-others > * {
   vertical-align: top;
 }
 section .form-others b {
-  color: #aaaaaa;
+  color: #AAA;
   font-size: .12rem;
   font-weight: normal;
   margin-right: .08rem;
   vertical-align: middle;
 }
 section .form-others a {
-  color: #000000;
+  color: #000;
   font-size: .18rem;
   margin: 0 .02rem;
   opacity: 0.6;
@@ -410,7 +410,7 @@ section .form-others a {
 section .form-others a:hover {
   opacity: 1.0;
   transform: scale(1.4);
-  color: #0088ff;
+  color: #08F;
 }
 section .form-links {
   padding: 0 .16rem;
@@ -418,7 +418,7 @@ section .form-links {
   line-height: .20rem;
 }
 section .form-links a {
-  color: #000000;
+  color: #000;
   text-decoration: none;
 }
 section .form-links a:hover {
@@ -445,7 +445,7 @@ section .form-links a i {
 }
 .vcode-captcha .vc-main {
   width: 3.5rem;
-  background: #ffffff;
+  background: #FFF;
   padding: .2rem;
   border-radius: .06rem;
   box-shadow: 0.04rem 0.04rem 0.1rem rgba(0, 0, 0, 0.6);
@@ -468,7 +468,7 @@ section .form-links a i {
 }
 .vcode-captcha .vc-main .vcm-input input {
   padding: .06rem .1rem;
-  border-color: #000000;
+  border-color: #000;
 }
 .vcode-captcha .vc-main .vcm-do {
   float: right;
@@ -477,13 +477,13 @@ section .form-links a i {
   border: 0;
   border-radius: .04rem;
   font-weight: normal;
-  background: #000000;
-  color: #ffffff;
+  background: #000;
+  color: #FFF;
   font-size: .12rem;
   cursor: pointer;
 }
 .vcode-captcha .vc-main .vcm-do:hover {
-  background: #444444;
+  background: #444;
 }
 .vcode-captcha .vc-main .vcm-cancel {
   float: left;
