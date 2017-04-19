@@ -14,7 +14,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 def version_tag = getDate()
-def nutz_version = "1.r.61-SNAPSHOT"
+def nutz_version = "1.r.62-SNAPSHOT"
 
 configurations.all {
     // Check for updates every build
@@ -58,7 +58,7 @@ repositories {
     maven { url "https://jfrog.nutz.cn/artifactory/snapshots"}
 }
 dependencies {
-    compile group: 'org.nutz', name: 'nutz', version: "1.r.62-SNAPSHOT"
+    compile group: 'org.nutz', name: 'nutz', version: nutz_version
     compile(group: 'org.nutz', name: 'nutz-web', version: nutz_version)
     
     compile group: 'org.apache.commons', name: 'commons-email', version:'1.4'
@@ -94,7 +94,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.nutz:nutz:1.r.60'
+        classpath 'org.nutz:nutz:1.r.61.r2'
     }
 }
 
