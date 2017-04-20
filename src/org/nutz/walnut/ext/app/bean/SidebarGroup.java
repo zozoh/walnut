@@ -32,8 +32,16 @@ public class SidebarGroup {
         if (!Strings.isBlank(title)) {
             sb.append("\n    <h1>").append(Strings.escapeHtml(title)).append("</h1>");
         }
-        for (SidebarItem si : items)
-            si.joinHtml(sb);
+        // 添加项目
+        if (items.size() > 0) {
+            for (SidebarItem si : items)
+                si.joinHtml(sb);
+        }
+        // 设置一个空项目
+        else {
+            sb.append("<div class=\"chute-empty\">{{empty}}</div>");
+        }
+
         sb.append("\n</section>");
         return sb.toString();
     }
