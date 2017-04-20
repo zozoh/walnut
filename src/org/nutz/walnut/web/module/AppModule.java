@@ -35,6 +35,7 @@ import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.JspView;
+import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
@@ -87,9 +88,9 @@ public class AppModule extends AbstractWnModule {
         WnUsr me = Wn.WC().getMyUsr(usrs);
 
         // 如果当前用户的 ID 和名字相等，则必须强迫其改个名字
-        // if (me.isNameSameAsId()) {
-        // return new ServerRedirectView("/u/h/rename.html");
-        // }
+        if (me.isNameSameAsId()) {
+            return new ServerRedirectView("/u/h/rename.html");
+        }
 
         // 如果 appName 没有名称空间，补上 "wn"
         if (appName.indexOf('.') < 0) {
