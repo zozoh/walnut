@@ -62,9 +62,9 @@ public class WnMainModule extends AbstractWnModule {
             WnUsr me = Wn.WC().getMyUsr(usrs);
 
             // 如果当前用户的 ID 和名字相等，则必须强迫其改个名字
-            if (me.isNameSameAsId()) {
-                return "/u/h/rename.html";
-            }
+            // if (me.isNameSameAsId()) {
+            // return "/u/h/rename.html";
+            // }
 
             // 查看会话环境变量，看看需要转到哪个应用
             String appPath = se.vars().getString("OPEN");
