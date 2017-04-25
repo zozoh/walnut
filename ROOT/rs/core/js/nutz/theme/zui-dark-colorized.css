@@ -77,11 +77,11 @@ h6 {
   background-color: rgba(255, 255, 255, 0.4);
 }
 .ui-body a {
-  color: #aabbff;
+  color: #ABF;
   text-decoration: none;
 }
 .ui-body a:hover {
-  color: #ccddff;
+  color: #CDF;
   text-decoration: underline;
 }
 /* 所有的 ui-code-template 都是隐藏的 */
@@ -102,7 +102,7 @@ h6 {
   text-align: center;
 }
 .ui-btn:hover {
-  color: #ffffff;
+  color: #FFF;
   background: rgba(0, 64, 255, 0.6);
 }
 .ui-noselect {
@@ -192,7 +192,7 @@ h6 {
   transition: all 0.18s ease-out;
   background: rgba(255, 255, 20, 0.9);
   border-radius: 4px;
-  color: #000000;
+  color: #000;
   content: attr(data-balloon);
   font-size: 12px;
   padding: .5em 1em;
