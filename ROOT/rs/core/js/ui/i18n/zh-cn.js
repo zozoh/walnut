@@ -5,6 +5,7 @@ define({
     "exit"       : "退出",
     "add"        : "添加",
     "auto"       : "自动",
+    "default"    : "默认",
     "new"        : "新建 ...",
     "delete"     : "删除",
     "create"     : "新建",
@@ -73,6 +74,11 @@ define({
         "fnm" : {
             "blank"   : "文件名不能为空",
             "invalid" : "文件名包含非法字符"
+        },
+        "io" : {
+            "obj" : {
+                "exists" : "对象已存在",
+            }
         }
     },
     "frace" : {

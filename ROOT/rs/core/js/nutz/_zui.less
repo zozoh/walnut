@@ -42,6 +42,19 @@ h1,h2,h3,h4,h5,h6{margin:0;padding:0;}
     background-color: @cscroll-thumb_hover;
 }
 
+::-webkit-input-placeholder { /* WebKit browsers */
+    @cplaceholder();
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    @cplaceholder();
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+    @cplaceholder();
+}
+:-ms-input-placeholder { /* Internet Explorer 10+ */
+    @cplaceholder();
+}
+
 .ui-body a {
     color: @clink;
     text-decoration: none;

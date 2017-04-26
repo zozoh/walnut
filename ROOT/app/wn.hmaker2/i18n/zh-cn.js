@@ -27,6 +27,7 @@ define({
             "newsite_ok_tip" : "请点击下方按钮，创建站点",
             "newsite_warn_tip" : "站点名称已经被使用，请重新输入一个名字",
             "newsite_nocopy" : "空",
+            "save" : "保存设置",
         },
         "lib" : {
             "title"     : "共享库",

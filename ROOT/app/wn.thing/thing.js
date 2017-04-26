@@ -565,6 +565,7 @@ return ZUI.def("app.wn.thing", {
     //...............................................................
     __draw : function(thConf, callback) {
         var UI  = this;
+        var opt = UI.options;
         var oTS = UI.getThingSetObj();
         //console.log(thConf)
         // 保存 thConf (thing.js) 定义
@@ -617,7 +618,7 @@ return ZUI.def("app.wn.thing", {
                 keyField : "th_nm"
             },
             list : {
-                layout : thConf.layout,
+                layout : thConf.layout || opt.layout,
                 fields : thConf.fields,
                 on_actived : function(th,jRow,prevTh) {
                     // console.log("AA", prevTh);

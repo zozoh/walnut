@@ -1514,7 +1514,7 @@ ZUIObj.prototype = {
                 }
                 html += '<div class="pop-msg-prompt">'
                 html += '<div class="pmp-text">' + UI.msg(msgKey) + '</div>';
-                html += '<div class="pmp-input"><input></div>';
+                html += '<div class="pmp-input"><input spellcheck="false"></div>';
                 html += '<div class="pmp-warn"></div>';
                 html += '</div>';
                 this.$main.find(".pm-body").html(html);

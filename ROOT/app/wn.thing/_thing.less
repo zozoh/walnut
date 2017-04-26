@@ -1,4 +1,3 @@
-
 //......................................... 定义变量
 @thH : 32px;
 //......................................... 主要样式:Begin
@@ -127,3 +126,66 @@
     //.........................................
 }
 //......................................... 主要样式:End
+
+
+//......................................... 配置样式:Begin
+@thcFldMH : 48px;
+@thcFldLW : 40%;
+.thconf {
+    .thc-info {
+
+    }
+    .thc-flds {
+        overflow: auto; position: relative;
+        background: @cb2;
+        > div {position: absolute;}
+        > .thc-menu { 
+            left: 0; top:0; height:@thcFldMH; padding:@d2;
+            .menu {padding:@d1 @d3;}
+        }
+        > .thc-btns { 
+            right: 0; top:0; height:@thcFldMH; padding:@d2;
+            a {cursor: pointer; margin-right: @d2;}
+            b {@btn();}
+            b:hover {@btn_hover();}
+        }
+        > .thc-fld-list { 
+            left:0; top:@thcFldMH; bottom:0; width:@thcFldLW;
+            padding:0 0 @d2 @d2;
+            .lst { @noselect();
+                .list-item {
+                    font-size: @f2; font-family: @f_fixed;
+                    border:0; opacity: 0.6;
+                    i {width:24px;}
+                    b {font-weight: normal;}
+                    em {
+                        font-style: normal; color:@c2;
+                        margin-left:@d2; font-size: @f1;
+                    }
+                }
+                .lst-item-checked {background: @cb1; color:unset;}
+                .lst-item-actived {opacity: 1.0;
+                    b  {color:@c4;}
+                    em {color:@c3;}
+                }
+            }
+        }
+        > .thc-fld-conf { 
+            right:0; top:@thcFldMH; bottom:0; left:@thcFldLW;
+            padding:0 @d2 @d2 0;
+            .thc-blank {
+                padding:@d4; font-size: @f3;
+            }
+            .thc-fld-form {
+                background: @cb1;
+                .form-fld {
+                    padding:0;
+                    .ff-txt {padding-left:@d4; padding-right:@d0;}
+                    .ff-val {padding-right:0;}
+                }
+            }
+        }
+    }
+}
+//......................................... 配置样式:End
+
