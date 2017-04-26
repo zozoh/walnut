@@ -19,7 +19,7 @@ body,
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background: #ffffff;
+  background: #FFF;
 }
 html {
   font-size: 100px;
@@ -93,11 +93,11 @@ h6 {
   color: rgba(0, 0, 0, 0.2);
 }
 .ui-body a {
-  color: #0088ff;
+  color: #08F;
   text-decoration: none;
 }
 .ui-body a:hover {
-  color: #ff0000;
+  color: #F00;
   text-decoration: underline;
 }
 /* 所有的 ui-code-template 都是隐藏的 */
@@ -111,15 +111,15 @@ h6 {
   cursor: pointer;
   margin: 0 2px;
   padding: 6px 32px;
-  border: 1px solid #bbbbbb;
-  background: #d0d0d0;
-  color: #000000;
+  border: 1px solid #BBB;
+  background: #D0D0D0;
+  color: #000;
   border-radius: 4px;
   text-align: center;
 }
 .ui-btn:hover {
-  color: #ffffff;
-  background: #0044bb;
+  color: #FFF;
+  background: #04B;
 }
 .ui-noselect {
   -moz-user-select: none;
@@ -208,7 +208,7 @@ h6 {
   transition: all 0.18s ease-out;
   background: rgba(17, 17, 17, 0.9);
   border-radius: 4px;
-  color: #ffffff;
+  color: #FFF;
   content: attr(data-balloon);
   font-size: 12px;
   padding: .5em 1em;
