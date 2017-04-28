@@ -49,7 +49,9 @@ return ZUI.def("app.wn.thconf", {
             jB.parent().attr("mode", "ing");
             Wn.exec(cmdText, json, function(re){
                 jB.parent().attr("mode", "loaded");
-                console.log("re:", re);
+                //console.log("re:", re);
+                // 记入缓存
+                UI.__old_conf = json;
             });
         },
         // 放弃修改
@@ -58,7 +60,9 @@ return ZUI.def("app.wn.thconf", {
             var jA = $(e.currentTarget);
             
             // 生成命令
+            var it = UI.gasket.list.getActivedId();
             UI.__updat_thConf_json(UI.__old_conf);
+            UI.gasket.list.setActived(it);
 
             // 修改按钮状态
             jA.parent().attr("mode", "loaded");
@@ -77,7 +81,7 @@ return ZUI.def("app.wn.thconf", {
             on_change : function(icon) {
                 var iconHtml = icon.replace(/"/g, "\\\\\"");
                 var cmdText = 'obj id:' + UI.__oTS.id + ' -u \'icon:"'+iconHtml+'"\' -o';
-                console.log(cmdText)
+                //console.log(cmdText)
                 Wn.exec(cmdText, function(re) {
                     // 处理错误 
                     if(/^e./.test(re)) {
