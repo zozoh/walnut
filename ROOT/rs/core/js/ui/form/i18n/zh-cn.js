@@ -5,6 +5,10 @@ define({
             "noexists" : "不存在的对象",
             "edit_link_tt" : "编辑链接行为",
         },
+        "icon" : {
+            "html_tip" : "图标的 HTML",
+            "more"     : "更多图标"
+        },
         "input" : {
             "assist" : '设置',
         },

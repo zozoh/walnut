@@ -8,6 +8,7 @@ define({
     "default"    : "默认",
     "new"        : "新建 ...",
     "delete"     : "删除",
+    "modify"     : "修改",
     "create"     : "新建",
     "duplicate"  : "制作副本",
     "del"        : "删除",

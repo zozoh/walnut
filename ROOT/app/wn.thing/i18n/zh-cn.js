@@ -4,6 +4,7 @@ define({
         "create_tip" : "请输入对象的名称",
         "create_do"  : "立即创建",
         "conf" : {
+            "icon_modify" : "修改数据集的图标",
             "fnm" : {
                 "id"      : 'ID',
                 "thumb"   : '缩略图',
@@ -29,8 +30,6 @@ define({
                 "__brief_and_content__"  : '<i class="zmdi zmdi-collection-text"></i>',
             },
             "key" : {
-                "nm"     : "数据集名称",
-                "icon"   : "数据集图标",
                 "key"    : "字段名",
                 "title"  : "显示名",
                 "type"   : "字段类型",
@@ -70,7 +69,7 @@ define({
             "cicon" : {
                 "input"        : '<i class="fa fa-square-o"></i>',
                 "text"         : '<i class="zmdi zmdi-format-subject"></i>',
-                "label"        : '<i class="zmdi zmdi-label-alt-outline"></i>',
+                "label"        : '<i class="zmdi zmdi-label-alt"></i>',
                 "color"        : '<i class="zmdi zmdi-palette"></i>',
                 "background"   : '<i class="zmdi zmdi-format-color-fill"></i>',
                 "switch"       : '<i class="zmdi zmdi-view-column"></i>',
@@ -86,15 +85,17 @@ define({
             },
             "blank"          : "请选择一个字段进行设置",
             "saveflds"       : "保存字段修改",
+            "saving"         : "正在保存字段设置 ... ",
             "cancel"         : "放弃",
             "addfld"         : "添加字段",
+            "addfld_tip"     : "请输入新字段的键值",
             "delfld"         : "删除字段",
+            "mv_up"          : "上移",
+            "mv_down"        : "下移",
             "e_no_thingjs"   : "没有找到数据集配置文件",
-        },
-        "fld" : {
-            "general"   : "基本信息",
-            "content"   : "内容信息",
-            "numerical" : "统计信息",
+            "e_fld_nkey"     : "字段键值不能为空",
+            "e_fld_invalid"  : "字段键值非法，只能是数字，小写字母，和下划线的组合",
+            "e_fld_exists"   : "字段键值已存在",
         },
         "key" : {
             "id" : "ID",

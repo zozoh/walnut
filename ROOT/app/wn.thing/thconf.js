@@ -2,21 +2,28 @@
 $z.declare([
     'zui',
     'wn/util',
+    'ui/form/c_icon',
+    'ui/form/c_name',
     'ui/form/form',
     'ui/menu/menu',
     'ui/list/list',
     'ui/support/dom',
-], function(ZUI, Wn, FormUI, MenuUI, ListUI, DomUI){
+], function(ZUI, Wn, CIconUI, CNameUI, FormUI, MenuUI, ListUI, DomUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena thconf" ui-fitparent="yes">
-    <div class="thc-info" ui-gasket="info"></div>
+    <div class="thc-info">
+        <div class="thc-icon" ui-gasket="icon"></div>
+        <div class="thc-name" ui-gasket="name"></div>
+        <div class="thc-id"></div>
+        <div class="thc-btns" mode="loaded">
+            <a>{{thing.conf.cancel}}</a>
+            <b><i class="fa fa-save"></i> {{thing.conf.saveflds}}</b>
+            <em><i class="fa fa-cog fa-spin"></i> {{thing.conf.saving}}</em>
+        </div>
+    </div>
     <div class="thc-flds">
         <div class="thc-menu" ui-gasket="menu"></div>
-        <div class="thc-btns">
-            <a>{{thing.conf.cancel}}</a>
-            <b>{{thing.conf.saveflds}}</b>
-        </div>
         <div class="thc-fld-list" ui-gasket="list"></div>
         <div class="thc-fld-conf" ui-gasket="fld"></div>
     </div>
@@ -28,43 +35,161 @@ return ZUI.def("app.wn.thconf", {
     css  : "app/wn.thing/theme/thing-{{theme}}.css",
     i18n : "app/wn.thing/i18n/{{lang}}.js",
     //...............................................................
-    init : function(opt) {
-        
+    events : {
+        // 保存修改
+        "click .thc-btns b" : function(e){
+            var UI = this;
+            var jB = $(e.currentTarget);
+            var json = UI.getThConfJson();
+
+            // 生成命令
+            var cmdText = 'json > "' + UI.__oTS.ph + '/thing.js"';
+
+            // 执行命令
+            jB.parent().attr("mode", "ing");
+            Wn.exec(cmdText, json, function(re){
+                jB.parent().attr("mode", "loaded");
+                console.log("re:", re);
+            });
+        },
+        // 放弃修改
+        "click .thc-btns a" : function(e){
+            var UI = this;
+            var jA = $(e.currentTarget);
+            
+            // 生成命令
+            UI.__updat_thConf_json(UI.__old_conf);
+
+            // 修改按钮状态
+            jA.parent().attr("mode", "loaded");
+        },
     },
     //...............................................................
     redraw : function() {
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
 
-        new FormUI({
+        new CIconUI({
             parent : UI,
-            gasketName : "info",
-            fitparent : false,
-            fields : [{
-                key   : "nm",
-                title : "i18n:thing.conf.key.nm",
-            }, {
-                key   : "icon",
-                title : "i18n:thing.conf.key.icon",
-                uiWidth : "all"
-            }]
+            gasketName : "icon",
+            dftIcon : '<i class="fa fa-cubes"></i>',
+            balloon : 'up:thing.conf.icon_modify',
+            on_change : function(icon) {
+                var iconHtml = icon.replace(/"/g, "\\\\\"");
+                var cmdText = 'obj id:' + UI.__oTS.id + ' -u \'icon:"'+iconHtml+'"\' -o';
+                console.log(cmdText)
+                Wn.exec(cmdText, function(re) {
+                    // 处理错误 
+                    if(/^e./.test(re)) {
+                        UI.alert(re, "warn");
+                        return;
+                    }
+
+                    // 得到新的对象，并存入缓存
+                    var oTS2 = $z.fromJson(re);
+                    Wn.saveToCache(oTS2);
+
+                    // 成功后调用回调
+                    $z.invoke(opt, "on_change", [oTS2], UI);
+                });
+            }
         }).render(function(){
-            UI.defer_report("info");
+            UI.defer_report("icon");
+        });
+
+        new CNameUI({
+            parent : UI,
+            gasketName : "name",
+            on_change : function(nm) {
+                var str = nm.replace(/[ \t"'$]/g, '');
+                var cmdText = 'obj id:' + UI.__oTS.id + ' -u \'nm:"'+nm+'"\' -o';
+                Wn.exec(cmdText, function(re) {
+                    // 处理错误 
+                    if(/^e./.test(re)) {
+                        UI.alert(re, "warn");
+                        return;
+                    }
+
+                    // 得到新的对象，并存入缓存
+                    var oTS2 = $z.fromJson(re);
+                    Wn.saveToCache(oTS2);
+
+                    // 成功后调用回调
+                    $z.invoke(opt, "on_change", [oTS2], UI);
+                });
+            }
+        }).render(function(){
+            UI.defer_report("name");
         });
 
         new MenuUI({
             parent : UI,
             gasketName : "menu",
+            tipDirection : "up",
             setup : [{
                 icon : '<i class="fa fa-plus"></i>',
                 text : "i18n:thing.conf.addfld",
                 handler : function(){
-                    alert("add");
+                    // 获取字段名
+                    UI.prompt("thing.conf.addfld_tip", {
+                        check : function(str, callback) {
+                            var fldName = $.trim(str);
+                            if(fldName) {
+                                // 字段名不能非法
+                                if(!/^[0-9a-z_]+$/.test(fldName)) {
+                                    return callback(UI.msg("thing.conf.e_fld_invalid"));
+                                }
+                                // 字段已存在
+                                if(UI.gasket.list.has(fldName)){
+                                    return callback(UI.msg("thing.conf.e_fld_exists"));
+                                }
+                            }
+                            // 恢复成功的状态
+                            callback();
+                        },
+                        ok : function(str){
+                            var fldName = $.trim(str);
+                            // 字段名不能为空
+                            if(!fldName) {
+                                UI.alert("thing.conf.e_fld_nkey", "warn");
+                                return;
+                            }
+
+                            // 添加到列表
+                            UI.gasket.list.add({key:fldName}, -1);
+                            UI.gasket.list.setActived(fldName);
+
+                            // 同步按钮状态
+                            UI.__check_btn_status();
+                        }
+                    });
                 }
             }, {
                 icon : '<i class="fa fa-trash"></i>',
                 text : "i18n:thing.conf.delfld",
                 handler : function(){
-                    alert("del");
+                    var it = UI.gasket.list.remove();
+                    if(it) {
+                        UI.gasket.list.setActived(it);
+                    }
+                    // 同步按钮状态
+                    UI.__check_btn_status();
+                }
+            }, {
+                icon : '<i class="zmdi zmdi-long-arrow-up"></i>',
+                tip  : "i18n:thing.conf.mv_up",
+                handler : function(){
+                    UI.gasket.list.moveUp();
+                    // 同步按钮状态
+                    UI.__check_btn_status();
+                }
+            }, {
+                icon : '<i class="zmdi zmdi-long-arrow-down"></i>',
+                tip  : "i18n:thing.conf.mv_down",
+                handler : function(){
+                    UI.gasket.list.moveDown();
+                    // 同步按钮状态
+                    UI.__check_btn_status();
                 }
             }]
         }).render(function(){
@@ -114,7 +239,7 @@ return ZUI.def("app.wn.thconf", {
         });
 
         // 返回延迟加载
-        return ["info", "menu", "list"];
+        return ["icon", "name", "menu", "list"];
     },
     //...............................................................
     showBlank : function(callback){
@@ -171,6 +296,7 @@ return ZUI.def("app.wn.thconf", {
                     var newFo = this.getData();
                     var jFo = UI.gasket.list.$item();
                     UI.gasket.list.update(newFo, jFo);
+                    UI.__check_btn_status();
                 }
             }).render(function(){
                 UI.__fld_form_set_data(fo, dis_flds);
@@ -266,11 +392,14 @@ return ZUI.def("app.wn.thconf", {
     },
     //...............................................................
     update : function(oThSet) {
-        var UI  = this;
-        var opt = UI.options;
+        var UI   = this;
+        var opt  = UI.options;
+        UI.__oTS = oThSet;
 
-        // 更新一下表单
-        UI.gasket.info.setData(oThSet);
+        // 更新一下 ThingSet 设置
+        UI.gasket.icon.setData(oThSet.icon);
+        UI.gasket.name.setData(oThSet.nm);
+        UI.arena.find(".thc-info .thc-id").text(oThSet.id);
 
         // 读取配置文件
         var oThConf = Wn.fetch(oThSet.ph + "/thing.js", true);
@@ -281,7 +410,18 @@ return ZUI.def("app.wn.thconf", {
 
         // 读取并解析
         var json = Wn.read(oThConf);
+        UI.__updat_thConf_json(json);
+
+        // 同步按钮状态
+        UI.__check_btn_status();
+    },
+    //...............................................................
+    __updat_thConf_json : function(json) {
+        var UI = this;
         var thConf = $z.fromJson(json);
+
+        // 记录旧的配置
+        UI.__old_conf = $z.toJson(thConf);
 
         // 找到字段列表
         var fields = thConf.fields || [];
@@ -295,7 +435,27 @@ return ZUI.def("app.wn.thconf", {
         else {
             UI.gasket.list.setActived(0);
         }
-        
+    },
+    //...............................................................
+    __check_btn_status : function(){
+        var UI = this;
+        var jBtns = UI.arena.find(".thc-btns");
+        var json = UI.getThConfJson();
+        if(json == UI.__old_conf) {
+            jBtns.attr("mode", "loaded");
+        }else{
+            jBtns.attr("mode", "changed");
+            $z.blinkIt(jBtns);
+        }
+    },
+    //...............................................................
+    isChanged : function(){
+        return this.arena.find(".thc-btns").attr("mode") == "changed";
+    },
+    //...............................................................
+    getThConfJson : function(){
+        var fields = this.gasket.list.getData();
+        return $z.toJson({fields:fields});
     },
     //...............................................................
     setData : function(oThSet) {
