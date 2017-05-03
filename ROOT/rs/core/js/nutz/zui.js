@@ -1440,15 +1440,21 @@ ZUIObj.prototype = {
 
         // 准备确认的逻辑
         var on_ok = function(){
-            var uiMask  = this;
-            var context = opt.context || this;
-            var str = $.trim(this.$main.find(".pmp-input input").val());
-            // 关闭对话框
-            uiMask.close();
-            // 调用回调
-            window.setTimeout(function(){
-                $z.invoke(opt, "ok", [str], opt.context||this);
-            }, 100);
+            var uiMask = this;
+            if("warn" != uiMask.$main.find(".pm-body").attr("mode")) {
+                var context = opt.context || this;
+                var str = $.trim(this.$main.find(".pmp-input input").val());
+                // 关闭对话框
+                uiMask.close();
+                // 调用回调
+                window.setTimeout(function(){
+                    $z.invoke(opt, "ok", [str], opt.context||this);
+                }, 100);
+            }
+            // 直接关闭
+            else {
+                uiMask.close();
+            }
         };
 
         // 显示遮罩层
@@ -1487,9 +1493,9 @@ ZUIObj.prototype = {
                                 }
                                 // 正常回复默认 ICON
                                 else {
-                                    uiMask.$main.find(".pm-body").attr("mode", "ok")
+                                    uiMask.$main.find(".pm-body").attr("mode", null)
                                         .find(".pop-msg-icon")
-                                            .html(opt.iconOk);
+                                            .html(opt.icon);
                                     uiMask.$main.find(".pmp-warn").empty();
                                 }
                             });
@@ -1514,7 +1520,7 @@ ZUIObj.prototype = {
                 }
                 html += '<div class="pop-msg-prompt">'
                 html += '<div class="pmp-text">' + UI.msg(msgKey) + '</div>';
-                html += '<div class="pmp-input"><input></div>';
+                html += '<div class="pmp-input"><input spellcheck="false"></div>';
                 html += '<div class="pmp-warn"></div>';
                 html += '</div>';
                 this.$main.find(".pm-body").html(html);

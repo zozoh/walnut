@@ -19,7 +19,7 @@ body,
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background: #FFF;
+  background: #ffffff;
 }
 html {
   font-size: 100px;
@@ -76,12 +76,28 @@ h6 {
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(0, 0, 0, 0.3);
 }
+::-webkit-input-placeholder {
+  /* WebKit browsers */
+  color: rgba(0, 0, 0, 0.2);
+}
+:-moz-placeholder {
+  /* Mozilla Firefox 4 to 18 */
+  color: rgba(0, 0, 0, 0.2);
+}
+::-moz-placeholder {
+  /* Mozilla Firefox 19+ */
+  color: rgba(0, 0, 0, 0.2);
+}
+:-ms-input-placeholder {
+  /* Internet Explorer 10+ */
+  color: rgba(0, 0, 0, 0.2);
+}
 .ui-body a {
-  color: #08F;
+  color: #0088ff;
   text-decoration: none;
 }
 .ui-body a:hover {
-  color: #F00;
+  color: #ff0000;
   text-decoration: underline;
 }
 /* 所有的 ui-code-template 都是隐藏的 */
@@ -95,15 +111,15 @@ h6 {
   cursor: pointer;
   margin: 0 2px;
   padding: 6px 32px;
-  border: 1px solid #BBB;
-  background: #D0D0D0;
-  color: #000;
+  border: 1px solid #bbbbbb;
+  background: #d0d0d0;
+  color: #000000;
   border-radius: 4px;
   text-align: center;
 }
 .ui-btn:hover {
-  color: #FFF;
-  background: #04B;
+  color: #ffffff;
+  background: #0044bb;
 }
 .ui-noselect {
   -moz-user-select: none;
@@ -192,7 +208,7 @@ h6 {
   transition: all 0.18s ease-out;
   background: rgba(17, 17, 17, 0.9);
   border-radius: 4px;
-  color: #FFF;
+  color: #ffffff;
   content: attr(data-balloon);
   font-size: 12px;
   padding: .5em 1em;

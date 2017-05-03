@@ -36,7 +36,7 @@
         .pop-msg-icon {
             flex:0 0 auto; padding:@d6 0 0 @d7;
             > i {
-                font-size:@f7;
+                font-size:@f7; width:@f7 + @d2;
             }    
         }
         .pop-msg-text {
@@ -50,6 +50,7 @@
                 padding:@d2 0; 
                 input {@input();
                     width:100%; padding:@d4; font-size: @f3;
+                    font-family: @f_fixed;
                 }
                 input:focus {@input_focus();}
             }

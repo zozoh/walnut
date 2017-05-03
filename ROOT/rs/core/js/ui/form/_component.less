@@ -18,7 +18,62 @@
 //----------------------------------------------------------------
 // 标签
 .com-label {
-    font-family: @f_fixed;padding: @d1;
+    font-family: @f_fixed;padding: @d2 @d1;
+}
+
+//----------------------------------------------------------------
+// 图标选择器
+.com-icon {
+    > span {
+        display:inline-block; border-radius: @d0;
+        font-size:22px; padding:@d1;
+        width:32px; text-align: center;
+        cursor: pointer;
+    }
+    > span:hover {
+        color:@ch0_f; background: @ch0_b;
+    }
+}
+
+.com-icon-pop {
+    .cil-con {
+        @flex();  flex-direction:column;
+    }
+    .cil-list {
+        background: @cb1; flex:1 1 auto; overflow: auto;
+        ul {
+            list-style: none; padding: @d3; margin:0;
+            @flex(); flex-wrap:wrap;
+        }
+        li {
+            font-size:@f6; color:@cf1; 
+            width: @f6 + @d4 * 2; 
+            height: @f6 + @d4 * 2;
+            @flex(); align-items: center; justify-content:center;
+            cursor: pointer;
+        }
+        li:hover {color:@ch0_f; background: @ch0_b;}
+    }
+    .cil-input {
+        flex: 0 0 auto; padding:@d3; background: @cb2;
+        input {
+            @input(); padding:@d3; width:100%;
+            font-size:@f3; font-family: @f_fixed;
+        }
+        input:focus {@input_focus();}
+        .cil-more {
+            b:after {content:": "; display: "inline";}
+            padding:@d2; font-size:@f1; font-family: @f_fixed;
+        }
+    }
+}
+
+//----------------------------------------------------------------
+// 名称编辑控件
+.com-name {
+    padding:@d2;
+    > span {font-size:@f3; font-family: @f_fixed;}
+    > a {cursor: pointer; margin-left:@d2; font-size: @f1;}
 }
 
 //----------------------------------------------------------------
@@ -417,7 +472,8 @@
     width: 100%; height: 100%;
     textarea {
         @input(); width: 100%; height: 100%; padding: @f0; 
-        border-radius: @d1; resize: none;
+        border-radius: @d1; resize: none; 
+        font-family: @f_fixed;
     }
     textarea:focus {@input_focus();}
 }

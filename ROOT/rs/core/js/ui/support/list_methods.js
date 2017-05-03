@@ -426,6 +426,40 @@ var methods = {
         UI.resize();
     },
     //...............................................................
+    moveUp : function(it) {
+        var jItem = this.$item(it);
+
+        // 如果没有匹配的行，啥也不做
+        if(jItem.length == 0)
+            return;
+
+        // 寻找移动目标
+        var jTa = jItem.prev(".list-item");
+        if(jTa.length > 0) {
+            jItem.insertBefore(jTa);
+        }
+
+        // 返回被移动项
+        return jItem;
+    },
+    //...............................................................
+    moveDown : function(it) {
+        var jItem = this.$item(it);
+
+        // 如果没有匹配的行，啥也不做
+        if(jItem.length == 0)
+            return;
+
+        // 寻找移动目标
+        var jTa = jItem.next(".list-item");
+        if(jTa.length > 0) {
+            jItem.insertAfter(jTa);
+        }
+
+        // 返回被移动项
+        return jItem;
+    },
+    //...............................................................
     add : function(objs, it, direction) {
         var UI = this;
         objs = _.isArray(objs) ? objs : [objs];

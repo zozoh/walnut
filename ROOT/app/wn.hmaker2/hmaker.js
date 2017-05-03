@@ -394,37 +394,6 @@ return ZUI.def("app.wn.hmaker2", {
         return $z.invoke(this.gasket.main, "getCurrentTextContent", []);
     },
     //...............................................................
-    __form_fld_pick_folder : function(fld) {
-        var UI = this;
-        return {
-            key    : fld.key,
-            title  : UI.text(fld.title),
-            type   : "string",
-            dft    : null,
-            uiType : "ui/picker/opicker",
-            uiConf : {
-                setup : {
-                    lastObjId : fld.lastObjId,
-                    filter    : function(o) {
-                        return 'DIR' == o.race;
-                    },
-                    objTagName : 'SPAN',
-                },
-                parseData : function(str){
-                    var m = /id:(\w+)/.exec(str);
-                    if(m)
-                        return Wn.getById(m[1], true);
-                    if(str)
-                        return Wn.fetch(str, true);
-                    return null;
-                },
-                formatData : function(o){
-                    return o ? "~/" + Wn.getRelativePathToHome(o) : null;
-                }
-            }
-        };
-    },
-    //...............................................................
 });
 //===================================================================
 });

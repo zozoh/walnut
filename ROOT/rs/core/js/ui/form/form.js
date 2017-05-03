@@ -367,6 +367,11 @@ return ZUI.def("ui.form", {
         var jBodyW = jBody.children(".form-body-wrapper");
         jBodyW.empty();
 
+        // 标记 hideDisabled
+        if(opt.hideDisabled) {
+            UI.arena.attr("hide-disabled", "yes");
+        }
+
         // 标记模板
         if(opt.asTemplate){
             UI.arena.attr("as-template", "yes");
@@ -651,7 +656,7 @@ return ZUI.def("ui.form", {
     },
     //...............................................................
     $fld : function(key) {
-        return this.arena.find('.form-fld[fld-key="'+key+'"]');
+        return this.arena.find('>.form-body>div>.form-group>.fg-fields>.form-fld[fld-key="'+key+'"]');
     },
     //...............................................................
     getFormCtrl : function(key) {
@@ -789,22 +794,46 @@ return ZUI.def("ui.form", {
     disableField : function() {
         var UI  = this;
 
-        // 逐个处理字段
+        // 得到处理字段
         var keys = Array.from(arguments);
-        for(var key of keys) {
-            UI.$fld(key).attr("fld-disabled", "yes");
+
+        // 全部
+        if(keys.length == 0) {
+            this.arena.find('>.form-body>div>.form-group>.fg-fields>.form-fld')
+                .attr("fld-disabled", "yes");
         }
+        // 逐个
+        else {
+            for(var key of keys) {
+                UI.$fld(key).attr("fld-disabled", "yes");
+            }
+        }
+
+        // 返回自身以便链式赋值
+        return this;
     },
     //...............................................................
     // 指定启用字段，可以输入多个字段
     enableField : function() {
         var UI  = this;
 
-        // 逐个处理字段
+        // 得到处理字段
         var keys = Array.from(arguments);
-        for(var key of keys) {
-            UI.$fld(key).removeAttr("fld-disabled");
+
+        // 全部
+        if(keys.length == 0) {
+            this.arena.find('>.form-body>div>.form-group>.fg-fields>.form-fld')
+                .removeAttr("fld-disabled");
         }
+        // 逐个
+        else {
+            for(var key of keys) {
+                UI.$fld(key).removeAttr("fld-disabled");
+            }
+        }
+
+        // 返回自身以便链式赋值
+        return this;
     },
     //...............................................................
     // 在字段上显示提示，比如错误警告之类的
@@ -829,8 +858,15 @@ return ZUI.def("ui.form", {
     //...............................................................
     hidePrompt : function() {
         var keys = Array.from(arguments);
-        for(var key of keys)
-            this.$fld(key).removeAttr("form-prompt");
+        // 指定的字段
+        if(keys.length > 0) {
+            for(var key of keys)
+                this.$fld(key).removeAttr("form-prompt");
+        }
+        // 全部字段
+        else {
+            this.arena.find('[form-prompt]').removeAttr("form-prompt");
+        }
     },
     //...............................................................
     setTip : function(key, tip) {
