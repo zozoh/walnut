@@ -43,6 +43,8 @@ mysrc
 /ROOT/rs/theme/*/ui.css
 /ROOT/rs/theme/*/*/*.css
 
-ROOT/rs/core/js/nutz/theme/*.css
+/ROOT/rs/core/js/nutz/theme/*.css
+
+
 
 
