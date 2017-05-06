@@ -82,7 +82,13 @@ public class www_add implements JvmHdl {
                 wwwList.add("www." + host);
             }
             // 添加元数据并记录到列表
-            oWWW.setv("www", wwwList);
+            if (wwwList.size() == 1) {
+                oWWW.setv("www", wwwList.get(0));
+            }
+            // 否则增加为数组
+            else {
+                oWWW.setv("www", wwwList);
+            }
             sys.io.set(oWWW, "^www$");
             list.add(oWWW);
         }

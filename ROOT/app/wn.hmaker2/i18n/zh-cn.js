@@ -1,7 +1,8 @@
 define({
     "hmaker" : {
         "icon" : {
-            "skin" : '<i class="zmdi zmdi-texture"></i>'
+            "skin"       : '<i class="zmdi zmdi-texture"></i>',
+            "ta_release" : '<i class="zmdi zmdi-globe-alt"></i>',
         },
         "res" : {
             "title" : '资源库',

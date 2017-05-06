@@ -1,8 +1,12 @@
 package org.nutz.walnut.web.module;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.URLDecoder;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,6 +24,8 @@ import org.nutz.mvc.annotation.POST;
 import org.nutz.mvc.annotation.PUT;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
+import org.nutz.qrcode.QRCode;
+import org.nutz.qrcode.QRCodeFormat;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -50,6 +56,53 @@ public class GuestModule extends AbstractWnModule {
         ua = WnWeb.autoUserAgent(o, ua, false);
 
         return new WnObjDownloadView(io, o, ua);
+    }
+
+    @At("/qrcode")
+    @Ok("void")
+    @Fail("void")
+    public void qrcode(@Param("d") String data,
+                       @Param("s") int size,
+                       @Param("f") String fmt,
+                       @Param("m") int margin,
+                       HttpServletResponse resp)
+            throws IOException {
+        // 得到二维码内容
+        data = Strings.sBlank(data, "NoData");
+        data = URLDecoder.decode(data, "UTF-8");
+
+        // 默认
+        size = size < 50 ? 256 : size;
+        fmt = Strings.sBlank(fmt, "png");
+        if ("jpg".equals(fmt)) {
+            fmt = "jpeg";
+        }
+        margin = margin < 0 ? 1 : margin;
+
+        // 写入 Header
+        resp.setContentType("image/" + fmt);
+
+        // 得到输出流
+        OutputStream ops = resp.getOutputStream();
+
+        try {
+            // 生成二维码
+            QRCodeFormat qrcf = QRCodeFormat.NEW();
+            qrcf.setErrorCorrectionLevel('M');
+            qrcf.setSize(size);
+            qrcf.setImageFormat(fmt);
+            qrcf.setMargin(margin);
+
+            // 输出
+            BufferedImage im = QRCode.toQRCode(data, qrcf);
+            ImageIO.write(im, fmt, ops);
+        }
+        catch (Exception e) {
+            throw Lang.wrapThrow(e);
+        }
+        finally {
+            Streams.safeClose(ops);
+        }
     }
 
     /**

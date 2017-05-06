@@ -7,7 +7,6 @@ import java.util.Set;
 import org.nutz.lang.Stopwatch;
 import org.nutz.log.Log;
 import org.nutz.trans.Atom;
-import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;

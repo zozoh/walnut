@@ -18,7 +18,7 @@ public abstract class WWW {
     public static final String AT_SEID = "DSEID";
 
     public static NutMap read_conf(WnIo io, String grp) {
-        String phConf = Wn.appendPath(Wn.getUsrHome(grp), ".wwwrc");
+        String phConf = Wn.appendPath(Wn.getUsrHome(grp), ".www/www.conf");
         WnObj oConf = io.fetch(null, phConf);
 
         NutMap conf;

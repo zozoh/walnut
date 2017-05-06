@@ -36,15 +36,24 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
                 title : UI.msg("hmaker.site.nm"),
                 type : "string",
                 editAs : "input"
-            }, UI.__form_fld_pick_folder({
-                key       : "hm_target_release",
-                title     : "i18n:hmaker.site.hm_target_release",
-                lastObjId : "hmaker_pick_hm_target_publish",
-            // }), UI.__form_fld_pick_folder({
-            //     key       : "hm_target_debug",
-            //     title     : "i18n:hmaker.site.hm_target_debug",
-            //     lastObjId : "hmaker_pick_hm_target_publish",
-            }), {
+            }, {
+                key   : "hm_target_release",
+                title : "i18n:hmaker.site.hm_target_release",
+                icon  : UI.msg("hmaker.icon.ta_release"),
+                type  : "string",
+                uiWidth : "auto",
+                editAs : "droplist",
+                uiConf : {
+                    emptyItem : {},
+                    items : "www query -ava",
+                    text  : function(o){
+                        return o.nm;
+                    },
+                    value : function(o){
+                        return "~/" + Wn.getRelativePathToHome(o);
+                    },
+                }
+            }, {
                 key   : "hm_site_skin",
                 title : UI.msg("hmaker.site.skin"),
                 icon  : UI.msg("hmaker.icon.skin"),

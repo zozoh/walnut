@@ -5,6 +5,7 @@
 # 用法
 
     www query 
+        [-ava]              # 表示返回所有可用的域名
         [-u userName]       # 指定的用户，如果不是自己，必须是 op/root 组成员才有权限 
         [-tmpl|-t|-json]    # 支持通用的 obj 格式化输出函数         
 
