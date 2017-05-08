@@ -92,7 +92,7 @@ public class cmd_unzip extends JvmExecutor {
                 }
                 // 输出文件内容
                 WnObj tmp = sys.io.createIfNoExists(destDirObj, name, WnRace.FILE);
-                if (tmp.size() > 0 && !forceWrite) {
+                if (tmp.len() > 0 && !forceWrite) {
                     continue;
                 }
                 try (OutputStream out = sys.io.getOutputStream(tmp, 0)) {
