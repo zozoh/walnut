@@ -37,13 +37,13 @@ public interface WnPay3x {
 
     /**
      * 对支付单进行后续处理
-     * 
-     * @param req
-     *            第三方平台返回的支付结果参数表
      * @param po
      *            支付单对象
+     * @param req
+     *            第三方平台返回的支付结果参数表
+     * 
      * @return 支付单处理结果
      */
-    WnPay3xRe complete(NutMap req, WnPayObj po);
+    WnPay3xRe complete(WnPayObj po, NutMap req);
 
 }

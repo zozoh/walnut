@@ -18,7 +18,7 @@ public class ZfbQrcodePay3x implements WnPay3x {
     }
 
     @Override
-    public WnPay3xRe complete(NutMap req, WnPayObj po) {
+    public WnPay3xRe complete(WnPayObj po, NutMap req) {
         return null;
     }
 
