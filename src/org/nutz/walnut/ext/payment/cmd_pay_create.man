@@ -1,0 +1,32 @@
+命令简介
+======= 
+
+`pay create` 命令将创建一个支付单
+
+    
+用法
+=======
+
+```    
+pay create [brief]        # 「选」第一个参数为简介，如果没有则会根据字段生成
+    [-bu @wn:xx:xxxx]     # 「必」买家： 类型:ID:名称， 类型为 @wn 表示Walnut用户
+                          # 「必」否则是个域名，表示 dusr
+    [-se xx:xxxx]         # 「必」服务商: ID:名称
+    [-fee 23.6[RMB]]      # 「必」支付金额，结尾三个大写字母表示货币单位，默认为 RMB
+    [-meta JSON]          # 「选」更多元数据
+    [-callback xxx]       # 「选」支付成功后的后续操作脚本，如果声明且为空，则从标准输入读取
+```
+
+示例
+=======
+
+```
+# 创建一个支付单
+demo@~$ pay create 测试支付 -bu @wn:34..23:site0 -se c5..2e:xiaobai -fee 99
+
+# 创建一个美元支付单
+demo@~$ pay create 测试支付 -bu @wn:34..23:site0 -se c5..2e:xiaobai -fee 1.99USD
+
+# 创建一个带后续任务的支付单
+demo@~$ cat ~/myscript | pay create 测试支付 -bu @wn:34..23:site0 -se c5..2e:xiaobai -fee 99 -callback
+```

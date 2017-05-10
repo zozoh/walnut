@@ -13,27 +13,27 @@ public class WnPayInfo {
      * 用 `@wn` 表示walnut用户 <br>
      * 否则用一个域名来表示买家所在域
      */
-    public String buyerType;
+    public String buyer_tp;
 
     /**
      * 买家ID
      */
-    public String buyerId;
+    public String buyer_id;
 
     /**
      * 买家名称
      */
-    public String buyterName;
+    public String buyer_nm;
 
     /**
      * 卖家信息（域ID）
      */
-    public String sellerId;
+    public String seller_id;
 
     /**
      * 卖家信息（域名）
      */
-    public String sellerName;
+    public String seller_nm;
 
     /**
      * 支付的金额，单位是元
@@ -43,7 +43,7 @@ public class WnPayInfo {
     /**
      * 默认是 RMB，表示货币
      */
-    public String currency;
+    public String cur;
 
     /**
      * 支付单简要描述
@@ -53,21 +53,6 @@ public class WnPayInfo {
     /**
      * 更多的自定义支付单元数据
      */
-    private NutMap meta;
-
-    public boolean hasMeta() {
-        return null != meta && meta.size() > 0;
-    }
-
-    public NutMap meta() {
-        if (null == meta) {
-            synchronized (this) {
-                if (null == meta) {
-                    meta = new NutMap();
-                }
-            }
-        }
-        return meta;
-    }
+    public NutMap meta;
 
 }

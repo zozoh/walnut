@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.box;
 
+import org.nutz.ioc.Ioc;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -8,6 +9,8 @@ import org.nutz.walnut.util.WnPager;
 import org.nutz.walnut.util.ZParams;
 
 public class JvmHdlContext extends NutMap {
+
+    public Ioc ioc;
 
     public WnSystem sys;
 

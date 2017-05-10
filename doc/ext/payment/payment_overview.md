@@ -16,7 +16,7 @@ tags:
  - `pay get` 将获取某个支付单的详情
  - `pay re` 统一处理支付单的回调
 
-系统所有的支付单都存在 `/var/payment/$DOMAIN` 目录下
+系统所有的支付单都存在 `/var/payment` 目录下
 
 # 支付单的数据结构
 
@@ -24,7 +24,7 @@ tags:
 
 ```
 id : UUID          # 一个支付单的标识
-nm : "xxx"         # $buyerId_$buyerNm_AMS
+nm : $ID           # 与 ID 相同
 tp : "wn_payment"  # 支付单的类型
 ct : AMS           # 支付单创建时间
 lm : AMS           # 支付单最后修改时间
@@ -32,7 +32,7 @@ lm : AMS           # 支付单最后修改时间
 // 支付的描述是不可更改的
 brief : "xxx"      # 支付单简要描述
 fee   : 23.34      # 支付的金额，单位是元
-currency : "RMB"   # 默认是 RMB，表示货币
+cur   : "RMB"      # 货币，默认是 RMB
 
 ...
 可以在 create 的时候追加更多的元数据
@@ -41,10 +41,10 @@ currency : "RMB"   # 默认是 RMB，表示货币
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // 交易类型决定了系统将采用哪种流程
 // 这个是在 pay send 的时候决定的
-//  - wx.qrcode : 微信主动扫付款码
-//  - wx.jsapi  : 微信公众号支付
-//  - wx.scan   : 微信被物理码枪扫码支付
-//  - zfb.scan  : 支付宝主动扫付款码
+//  - wx.qrcode  : 微信主动扫付款码
+//  - wx.jsapi   : 微信公众号支付
+//  - wx.scan    : 微信被物理码枪扫码支付
+//  - zfb.qrcode : 支付宝主动扫付款码
 pay_tp   : "wx.qrcode"
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // 买家可能是 walnut 用户，或者 dusr 
@@ -69,7 +69,6 @@ close_at : AMS  # 0 表示未关闭，否则为一个绝对毫秒数，表示支
 
 # 支付的流程
 
-
 ## 普通的手机扫码流程
 
 ```
@@ -77,9 +76,10 @@ U : 用户
 W : 系统
 X : 第三方支付平台
 
-U -> W : /pay/do/create           # 提交创建订单请求
+U -> W : /pay/ajax/create         # 提交创建订单请求
           - `WnPayment.create` 实现了订单创建逻辑
-W -> U : >>: /u/h/payment.html    # 重定向到通用收款台
+          - 返回可用付款方式，以及支付单详情的 JSON 数据
+W -> U : 显示可用付款方式，让用户选择
 U -> W : /pay/ajax/send           # 选择付款方式
 W -> X :  - 通过 `WnPayment.send` 接口在第三方平台创建订单
 X -> W :  - 分析接口函数返回结果，进行后续处理
@@ -123,7 +123,7 @@ X : 第三方支付平台
 X -> W : /pay/re     # 所有第三方平台都发向这个统一的地址
          - 得到订单信息
          - 根据订单的付款类型找到 `WnPay3X` 的实现类
-         - 调用 `WnPay3X.doResult` 方法
+         - 调用 `WnPay3X.complete` 方法
          - 返回 HTTP 响应给第三方平台 
 ```
 

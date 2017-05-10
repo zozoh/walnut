@@ -5,6 +5,7 @@ import java.util.List;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.util.WnRun;
 
 /**
  * 通用的付款流程逻辑封装接口
@@ -12,7 +13,7 @@ import org.nutz.walnut.api.io.WnQuery;
  * @author zozoh(zozohtnt@gmail.com)
  */
 @IocBean
-public class WnPayment {
+public class WnPayment extends WnRun {
 
     /**
      * 创建一个支付单
@@ -22,7 +23,7 @@ public class WnPayment {
      * 
      * @return 支付单对象
      */
-    public WnPayObj create(WnPayInfo pi) {
+    public WnPayObj create(WnPayInfo wpi) {
         return null;
     };
 
@@ -52,7 +53,7 @@ public class WnPayment {
      * @param po
      * @return 支付单处理结果
      */
-    public WnPayRe send(String payType, WnPayObj po) {
+    public WnPay3xRe send(String payType, WnPayObj po) {
         return null;
     };
 
@@ -61,9 +62,14 @@ public class WnPayment {
      * 
      * @param poId
      *            支付单 ID
+     * @param quiet
+     *            true 如果订单不存在，返回null； false 不存在抛错
+     * 
      * @return 支付单对象
+     * 
+     * @throws "e.pay.noexist"
      */
-    public WnPayObj get(String poId) {
+    public WnPayObj get(String poId, boolean quiet) {
         return null;
     };
 
@@ -87,7 +93,7 @@ public class WnPayment {
      *            支付单对象
      * @return 支付单处理结果
      */
-    public WnPayRe doResult(NutMap req, WnPayObj po) {
+    public WnPay3xRe complete(NutMap req, WnPayObj po) {
         return null;
     };
 
