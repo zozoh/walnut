@@ -3,6 +3,7 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/mask/mask',
+    'ui/pop/pop',
     'app/wn.hmaker2/support/hm__methods',
     'app/wn.hmaker2/support/hm__methods_panel',
     'app/wn.hmaker2/hm_resource',
@@ -12,7 +13,7 @@ $z.declare([
     'app/wn.hmaker2/hm_lib',
     'app/wn.hmaker2/hm_code',
     'app/wn.hmaker2/hm_other',
-], function(ZUI, Wn, MaskUI,
+], function(ZUI, Wn, MaskUI, POP,
     HmMethods, HmPanelMethods, 
     HmResourceUI, 
     HmPageUI, 
@@ -171,9 +172,10 @@ return ZUI.def("app.wn.hmaker2", {
                 else {
                     var jDiv = $(`<div class="hm-enter"></div>`).appendTo(jMsg);
                     $('<img>')
-                        .attr("src", "/api/"+oHome.d1+"/qrcode?ts="
+                        .attr("src", "/gu/qrcode/?ts="
                                 + Date.now()
-                                + "&url=" + encodeURIComponent(url))
+                                + "&d=" + encodeURIComponent(url)
+                                + "&s=128")
                             .appendTo(jDiv);;
                     $('<a>')
                         .attr({
@@ -302,76 +304,27 @@ return ZUI.def("app.wn.hmaker2", {
     openSiteConfPanel : function(oHome, callback) {
         var UI = this;
         var oHome = oHome || UI.getHomeObj();
-
-        // 显示弹出层
-        new MaskUI({
-            dom : 'ui/pop/pop.html',
-            css : 'ui/pop/theme/pop-{{theme}}.css',
-            width  : 600,
-            height : 500,
-            events : {
-                "click .pm-btn-ok" : function(){
-                    var uiMask  = this;
-                    var conf = uiMask.body.getData();
-                    //console.log(conf)
-                    // 更新配置信息
-                    Wn.exec("obj id:"+oHome.id+" -u -o", $z.toJson(conf), function(re){
-                        // 保存站点对象
-                        var obj  = $z.fromJson(re);
-                        Wn.saveToCache(obj);
-
-                        // 关闭对话框
-                        uiMask.close();
-
-                        // 调用回调
-                        $z.doCallback(callback, [obj], UI);
-                    });
-                },
-                "click .pm-btn-cancel" : function(){
-                    this.close();
-                }
-            }, 
+        console.log(UI.exec)
+        POP.openUIPanel({
+            title  : 'i18n:hmaker.site.conf',
+            width  : 640,
+            height : 480,
+            escape : false,
+            closer : false,
             setup : {
-                uiType : "ui/form/form",
-                uiConf : {
-                    app  : UI.app,
-                    exec : UI.exec,
-                    uiWidth : "all",
-                    fields  : [{
-                        key : "nm",
-                        title : UI.msg("hmaker.site.nm"),
-                        type : "string",
-                        editAs : "input"
-                    }, UI.__form_fld_pick_folder({
-                        key       : "hm_target_release",
-                        title     : "i18n:hmaker.site.hm_target_release",
-                        lastObjId : "hmaker_pick_hm_target_publish",
-                    // }), UI.__form_fld_pick_folder({
-                    //     key       : "hm_target_debug",
-                    //     title     : "i18n:hmaker.site.hm_target_debug",
-                    //     lastObjId : "hmaker_pick_hm_target_publish",
-                    }), {
-                        key   : "hm_site_skin",
-                        title : UI.msg("hmaker.site.skin"),
-                        icon  : UI.msg("hmaker.icon.skin"),
-                        type  : "string",
-                        editAs : "droplist",
-                        uiConf : {
-                            items : "obj ~/.hmaker/skin/* -json -l",
-                            icon  : UI.msg("hmaker.icon.skin"),
-                            text  : null,
-                            value : function(o){
-                                return o.nm;
-                            },
-                            emptyItem : {}
-                        }
-                    }]
-                }
-            }
-        }).render(function(){
-            this.arena.find(".pm-title").html(UI.msg('hmaker.site.conf'));
-            this.body.setData(_.pick(oHome, "nm", "hm_target_release", "hm_target_debug", "hm_site_skin"));
-        });
+                uiType : 'app/wn.hmaker2/support/ui_site_conf',
+                uiConf : {}
+            },
+            ready : function(){
+                this.setData(oHome);
+            },
+            btnOk : 'i18n:ok',
+            ok : function() {
+                var obj = this.getData();
+                $z.doCallback(callback, [obj], UI);
+            },
+            btnCancel : null
+        }, UI);
     },
     //...............................................................
     doChangeSiteConf : function() {

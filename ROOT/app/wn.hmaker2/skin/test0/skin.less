@@ -1,0 +1,235 @@
+/***************************************************
+ * 定义变量
+ */
+* {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+@clr : {
+    content:"";
+    display:block;
+    height:0;
+    clear:both;
+};
+
+
+@flex : {
+    display: -webkit-flex;
+    display: flex;
+};
+
+/***************************************************
+ * 自适应布局
+ */
+html {
+    font-size: 100px;
+}
+
+/***************************************************
+ * 开始 BODY 的设置
+ */
+body {
+    background: #FFF; font-size:.12rem;
+}
+
+// 重置导航菜单里面的 UL 样式
+.hmc-navmenu {
+    ul {list-style:none; margin:0; padding:0;}
+}
+
+/***************************************************
+ * 定义关键的变量
+ */
+@c_lnk     : #08F;       // 链接颜色
+@c_lnk_ho  : #F80;       // 链接颜色(hover)
+@c_t0      : #444;       // 文字颜色
+@c_0       : #f9c320;    // 主要颜色
+@c_0r      : #FFF;       // 主要颜色的反色
+@c_1       : #e93029;    // 辅助颜色
+@c_1r      : #FFF;       // 辅助颜色的反色
+@c_2       : #34373e;    // 第三颜色
+@c_2r      : #FFF;       // 第三颜色的反色
+@c_light0   : rgba(255,255,255,0.2);
+@c_light1   : rgba(255,255,255,0.4);
+
+/***************************************************
+ * 针对控件的样式
+ */
+
+//............................................
+// com.rows:主体布局
+.hm-com[skin="skin-rows-main"] {
+    width: 8rem; margin:.1rem auto;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+    border-radius: 2px;
+}
+.skin-rows-main {
+    
+}
+
+//............................................
+// com.columns:顶栏
+.skin-columns-sky {
+    
+}
+
+//............................................
+// com.rows:幻灯片
+.skin-rows-slider {
+    
+}
+
+//............................................
+// com.image:全块图片
+.hm-com[skin="skin-image-full"] { display: block;}
+.skin-image-full {
+    
+}
+
+//............................................
+// com.navmenu:水平菜单
+.skin-navmenu-h {
+    a[href] {text-decoration: none; color:@c_lnk;}
+    a[href]:hover {text-decoration: underline; color:@c_lnk_ho;}
+    a {
+        display: inline-block; vertical-align: middle; 
+        white-space: nowrap; cursor: pointer;
+    }
+    ul li[current]{
+        background: @c_0;
+        > a { color:@c_0r;}
+    }
+    .ul-top {@flex(); justify-content:flex-end;}
+    .li-top {
+        flex: 0 0 auto; margin:0; padding: .08rem .14rem;
+    }
+    .li-top[sub-item-nb] > a:after {
+        color:rgba(0,0,0,0.2);
+        margin:0 0 0 .06rem; 
+        font-family:'Material-Design-Iconic-Font';
+        display:inline; content:"\f2f2";
+    }
+    .li-top[sub-item-nb][open-sub] {
+        > a:after{color:rgba(0,0,0,0.4);}
+    }
+    .ul-sub {display: none;}
+}
+
+//............................................
+// com.navmenu:垂直纵列菜单
+.skin-navmenu-cols {
+    a[href] {text-decoration: none; color:@c_2r; cursor: pointer;}
+    a[href]:hover {text-decoration: underline;}
+    a {cursor: default;}
+    li {margin:0; text-align: center;}
+    li[open-sub]{
+        > .ul-sub {display: block;}
+    }
+    .ul-top {@flex();}
+    .li-top {flex:1 1 auto; padding:.08rem .12rem;
+        > a {font-weight: bold;}
+    }
+    .li-sub {padding:.04rem 0;}
+    .ul-sub {padding-top:.08rem;}
+    .ul-sub-n {display: none;}
+}
+// for IDE:
+.hm-com-navmenu[hm-actived] .skin-navmenu-cols {
+    ul li[current]{
+        > a {background: #FF0; color:#000;}
+    }
+}
+
+//............................................
+// com.text:底栏口号
+.skin-text-slogon {
+    background: @c_2; color:@c_2r;
+    padding:.05rem; text-align: center;
+}
+
+//............................................
+// markdown 文本内容
+.skin-markdown {
+    // 重定义字体大小
+    table, thead, tbody, tr, th, td {font-size:1em;}
+    
+    // 链接
+    a {color:#08F; text-decoration: none;}
+    a:hover {text-decoration: underline;}
+    
+    // 表格
+    table {
+        border-spacing: 0; border-collapse: collapse;
+    }
+    td, th {
+        border:1px solid #dfe2e5; padding:.08rem .16rem;
+        font-family: -apple-system, BlinkMacSystemFont, 
+                    "Segoe UI", Helvetica, Arial, 
+                    sans-serif, "Apple Color Emoji", 
+                    "Segoe UI Emoji", "Segoe UI Symbol";
+    }
+    th {font-weight: bold;}
+    
+    // 代码
+    pre {
+        padding: .16rem; overflow: auto;
+        font-size: 85%; line-height: 1.45;
+        background-color: #F0F0F0; border-radius: 3px;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", 
+                     Menlo, Courier, monospace;
+    }
+    
+}
+
+//............................................
+// 分栏区域的样式
+.skin-sky-logo {
+    padding:.1rem;
+}
+
+.skin-sky-menu {
+    @flex(); align-items:flex-end;
+    text-align: right;
+    padding:.1rem 0;
+    border-top:1px solid @c_2r;
+}
+
+.skin-main-slider {
+    border-top:1px solid @c_1;
+    border-bottom:2px solid @c_0;
+}
+
+.skin-footer-slogon {
+    border-top:2px solid @c_0; background: @c_2; color:@c_2r;
+    text-align: center;
+}
+
+.skin-footer-logo {
+    text-align: center; padding:.1rem;
+    background: @c_2;
+}
+
+.skin-footer-menu {
+    padding:.1rem 0; font-size: .12rem; 
+    background: @c_2; color:@c_light1;
+    border-top:1px solid @c_light0;
+    border-bottom:1px solid @c_light0;
+}
+
+.skin-footer-copyright {
+    text-align: center; background: @c_2; color:@c_light1;
+    font-size: .11rem;
+}
+
+
+
+
+
+
+
+
+
+
+

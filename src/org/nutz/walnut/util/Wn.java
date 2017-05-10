@@ -860,13 +860,15 @@ public abstract class Wn {
      * 
      * <pre>
      * %date:now
-     * %date:now+5m
+     * %date:now+3d
      * %date:now-12h
+     * %date:now+5m
      * %date:now+12s
      * %date:2019-02-13T23:34:12
      * %ms:now
-     * %ms:now+5m
+     * %ms:now+3d
      * %ms:now-12h
+     * %ms:now+5m
      * %ms:now+12s
      * %ms:2019-02-13T23:34:12
      * </pre>
@@ -899,7 +901,8 @@ public abstract class Wn {
         long ms = -1;
 
         // 判断到操作符
-        Matcher m = Pattern.compile("^now[ \t]*(([+-])[ \t]*([0-9]+)([smh])[ \t]*)?$").matcher(str);
+        Matcher m = Pattern.compile("^now[ \t]*(([+-])[ \t]*([0-9]+)([smhd])[ \t]*)?$")
+                           .matcher(str);
 
         // 当前时间
         if (m.find()) {
@@ -907,23 +910,27 @@ public abstract class Wn {
 
             // 嗯要加点偏移量
             if (!Strings.isBlank(m.group(1))) {
-                int off = Integer.parseInt(m.group(3));
+                long off = Long.parseLong(m.group(3));
                 String unit = m.group(4);
                 // s 秒
                 if ("s".equals(unit)) {
-                    off = off * 1000;
+                    off = off * 1000L;
                 }
                 // m 分
                 else if ("m".equals(unit)) {
-                    off = off * 60000;
+                    off = off * 60000L;
                 }
                 // h 小时
+                else if ("h".equals(unit)) {
+                    off = off * 3600000L;
+                }
+                // d 天
                 else {
-                    off = off * 60000 * 24;
+                    off = off * 86400000L;
                 }
                 // 看是加还是减
                 if ("-".equals(m.group(2))) {
-                    off = off * -1;
+                    off = off * -1L;
                 }
                 // 偏移
                 ms += off;

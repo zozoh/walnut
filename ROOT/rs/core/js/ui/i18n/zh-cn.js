@@ -78,7 +78,8 @@ define({
         },
         "io" : {
             "obj" : {
-                "exists" : "对象已存在",
+                "exists"   : "对象已存在",
+                "noexists" : "对象不存在",
             }
         }
     },

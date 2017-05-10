@@ -27,7 +27,14 @@ return ZUI.def("app.wn.hm_com_text", {
 
         // 解析 Markdown
         if(code){
-            html = $z.markdownToHtml(com.code);
+            // 如果包括换行，则表示是 markdown 文本
+            if(code.indexOf('\n') >=0 ){
+                html = $z.markdownToHtml(com.code);    
+            }
+            // 否则就是纯文本
+            else {
+                html = $z.escapeText(com.code);
+            }
         }
         // 显示空文本
         else {

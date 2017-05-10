@@ -82,7 +82,7 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
                 Wn.exec("obj id:"+oHomeId+" -u -o", $z.toJson(obj), function(re){
                     // 隐藏提示信息
                     uiForm.hidePrompt();
-                    console.log(re)
+                    //console.log(re)
 
                     // 出错
                     if(/^e./.test(re)) {
@@ -93,6 +93,9 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
                     // 保存站点对象
                     var obj  = $z.fromJson(re);
                     Wn.saveToCache(obj);
+
+                    // 存储回表单
+                    uiForm.setData(obj);
 
                     // 调用回调
                     $z.invoke(opt, "on_update", [obj], UI);

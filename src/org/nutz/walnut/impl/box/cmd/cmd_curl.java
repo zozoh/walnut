@@ -4,7 +4,6 @@ import org.nutz.http.Request;
 import org.nutz.http.Sender;
 import org.nutz.http.Request.METHOD;
 import org.nutz.http.Response;
-import org.nutz.lang.Strings;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -16,7 +15,7 @@ public class cmd_curl extends JvmExecutor {
         ZParams params = ZParams.parse(args, "^(v|debug)$");
         String url = params.val_check(0);
         Request req = Request.create(url, METHOD.GET);
-        
+
         // 处理data参数
         if (params.has("data")) {
             req.setMethod(METHOD.POST);
@@ -26,13 +25,14 @@ public class cmd_curl extends JvmExecutor {
         String fbody = params.get("f");
         if (params.has("f")) {
             req.setMethod(METHOD.POST);
-            req.setInputStream(sys.io.getInputStream(sys.io.check(null, Wn.normalizeFullPath(fbody, sys)), 0));
+            req.setInputStream(sys.io.getInputStream(sys.io.check(null,
+                                                                  Wn.normalizeFullPath(fbody, sys)),
+                                                     0));
         }
         // 处理 X 和 request参数
         if (params.has("X")) {
             req.setMethod(METHOD.valueOf(params.get("X").toUpperCase()));
-        }
-        else if (params.has("request")) {
+        } else if (params.has("request")) {
             req.setMethod(METHOD.valueOf(params.get("request").toUpperCase()));
         }
         // 处理header

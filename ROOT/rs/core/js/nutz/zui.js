@@ -1437,6 +1437,9 @@ ZUIObj.prototype = {
         $z.setUndefined(opt, "iconWarn", '<i class="zmdi zmdi-alert-triangle"></i>');
         $z.setUndefined(opt, "iconOk",   '<i class="zmdi zmdi-check-circle"></i>');
         $z.setUndefined(opt, "iconIng",  '<i class="fa fa-spinner fa-pulse"></i>');
+        $z.setUndefined(opt, "format", function(str){
+            return str;
+        });
 
         // 准备确认的逻辑
         var on_ok = function(){
@@ -1444,6 +1447,8 @@ ZUIObj.prototype = {
             if("warn" != uiMask.$main.find(".pm-body").attr("mode")) {
                 var context = opt.context || this;
                 var str = $.trim(this.$main.find(".pmp-input input").val());
+                if(str)
+                    str = opt.format(str);
                 // 关闭对话框
                 uiMask.close();
                 // 调用回调
@@ -1480,8 +1485,10 @@ ZUIObj.prototype = {
                     "input .pmp-input input" : function(){
                         var uiMask  = this;
                         var context = opt.context || this;
-                        var str = $.trim(this.$main.find(".pmp-input input").val());
                         if(_.isFunction(opt.check)){
+                            var str = $.trim(this.$main.find(".pmp-input input").val());
+                            if(str)
+                                str = opt.format(str);
                             this.$main.find(".pop-msg-icon").html(opt.iconIng);
                             opt.check.call(context, str, function(err){
                                 // 显示错误信息

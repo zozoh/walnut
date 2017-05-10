@@ -177,7 +177,7 @@ module.exports = {
     //...............................................................
     // 打开一个文本编辑器（弹出），接受的参数格式为:
     /*
-    {
+    opt : {
         title       : "i18n:xxx"    // 对话框标题
         arenaClass  : "xxx",        // 对话框主题的类选择器
         width       : 900           // 对话框宽度
@@ -188,23 +188,27 @@ module.exports = {
         callback    : 回调函数接受 callback(href)
         context     : MaskUI        // 回调的上下文，默认是 MaskUI
     }
+    referUI : 为一个 UI 的引用，弹出框将复用它的 _msg_map | app | exec 设定
     */
-    openEditTextPanel : function(opt){
+    openEditTextPanel : function(opt, referUI){
         opt = opt || {};
+        referUI  = referUI  || {};
 
         // 填充默认值
         $z.setUndefined(opt, "width", 900);
         $z.setUndefined(opt, "height", "90%");
-        $z.setUndefined(opt, "escape", false);
+        $z.setUndefined(opt, "escape", true);
         $z.setUndefined(opt, "closer", true);
         $z.setUndefined(opt, "title", 'i18n:edit');
         $z.setUndefined(opt, "contentType", "text");
 
         // 打开编辑器
         new MaskUI({
+            i18n : referUI._msg_map,
+            exec : referUI.exec,
+            app  : referUI.app,
             dom : 'ui/pop/pop.html',
             css : 'ui/pop/theme/pop-{{theme}}.css',
-            i18n : opt.i18n,
             arenaClass : opt.arenaClass,
             width  : opt.width,
             height : opt.height,
@@ -299,7 +303,7 @@ module.exports = {
     //...............................................................
     // 打开一个自定义界面（弹出），接受的参数格式为:
     /*
-    {
+    opt : {
         title       : "i18n:xxx"    // 对话框标题
         arenaClass  : "xxx",        // 对话框主题的类选择器
         width       : 900           // 对话框宽度
@@ -318,10 +322,11 @@ module.exports = {
         btnOk     : "i18n:ok"        // 默认 "i18n:ok", null 表示隐藏该按钮
         btnCancel : "i18n:cancel"    // 默认 "i18n:cancel", null 表示隐藏该按钮
     }
+    referUI : 为一个 UI 的引用，弹出框将复用它的 _msg_map | app | exec 设定
     */
-    openUIPanel : function(opt){
+    openUIPanel : function(opt, referUI){
         opt = opt || {};
-        opt.form = opt.form || {};
+        referUI  = referUI  || {};
 
         // 填充默认值
         $z.setUndefined(opt, "width", 640);
@@ -334,9 +339,11 @@ module.exports = {
 
         // 打开编辑器
         new MaskUI({
+            i18n : referUI._msg_map,
+            exec : referUI.exec,
+            app  : referUI.app,
             dom : 'ui/pop/pop.html',
             css : 'ui/pop/theme/pop-{{theme}}.css',
-            i18n : opt.i18n,
             arenaClass : opt.arenaClass,
             width  : opt.width,
             height : opt.height,

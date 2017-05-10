@@ -56,7 +56,7 @@ return ZUI.def("ui.form_com_icon", {
             '<i class="fa fa-paper-plane-o"></i>',
             '<i class="fa fa-life-ring"></i>',
             '<i class="fa fa-rocket"></i>',
-            '<i class="fa fa-plane"></i>',
+            '<i class="fa fa-user"></i>',
             '<i class="fa fa-calculator"></i>',
             '<i class="fa fa-pie-chart"></i>',
             '<i class="fa fa-area-chart"></i>',

@@ -3529,7 +3529,7 @@
             // 处理最后一段
             B = blocks.tryPush(B);
 
-            console.log(blocks)
+            //console.log(blocks)
 
             // 定义内容输出函数
             var __B_to_html = function (B) {
@@ -3555,7 +3555,7 @@
                     + '|(https?:\\/\\/[^ ]+)';
                 var REG = new RegExp(reg, "g");
                 var m;
-                var pos = 0
+                var pos = 0;
                 var html = "";
                 while (m = REG.exec(str)) {
                     //console.log(m)
@@ -3584,7 +3584,7 @@
                     }
                     // IMG: ![](xxxx)
                     else if (m[11]) {
-                        console.log("haha", m[13])
+                        //console.log("haha", m[13])
                         html += '<img alt="' + m[12] + '" src="' + m[13] + '">';
                     }
                     // A: [](xxxx)
