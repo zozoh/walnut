@@ -1405,10 +1405,15 @@ ZUIObj.prototype = {
                 html += '<div class="pop-msg-text">' + UI.msg(msgKey) + '</div>';
                 this.$main.find(".pm-body").html(html);
 
-                setTimeout(function () {
-                    self.close();
+                // 不限时间
+                if(opt.time < 0){
                     $z.invoke(opt, "callback", [], opt.context||self);
-                }, opt.time);
+                } else {
+                    setTimeout(function () {
+                        self.close();
+                        $z.invoke(opt, "callback", [], opt.context||self);
+                    }, opt.time);
+                }
             })
         });
     },
