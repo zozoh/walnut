@@ -944,6 +944,28 @@ public abstract class Wn {
     }
 
     /**
+     * 将一个字符串格式化成可以被 WnQuery 接受的正则查询字符串
+     * 
+     * <ul>
+     * <li>如果以 <code>^</code> 开头，保留原样
+     * <li>否则前面增加 <code>.*</code>
+     * </ul>
+     * 
+     * @param str
+     *            查询关键字
+     * @return 正则表达式字符串
+     */
+    public static String toQueryRegex(String str) {
+        if (Strings.isBlank(str)) {
+            return null;
+        }
+        if (str.startsWith("^"))
+            return str;
+
+        return "^.*" + str;
+    }
+
+    /**
      * 处理链接文件，如果是链接对象，则返回其链接的目标对象（仅一层）
      * 
      * @param o

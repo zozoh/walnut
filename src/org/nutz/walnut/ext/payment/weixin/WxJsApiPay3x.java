@@ -1,12 +1,12 @@
-package org.nutz.walnut.ext.payment.alipay;
+package org.nutz.walnut.ext.payment.weixin;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.payment.WnPay3x;
-import org.nutz.walnut.ext.payment.WnPayObj;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
+import org.nutz.walnut.ext.payment.WnPayObj;
 
-public class ZfbQrcodePay3x implements WnPay3x {
+public class WxJsApiPay3x implements WnPay3x {
 
     @Override
     public WnPay3xRe send(WnPayObj po, String... args) {

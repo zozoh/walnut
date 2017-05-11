@@ -30,7 +30,7 @@ pay query [brief]       # brief 段的过滤关键字
     # 但是一定会有 limit，默认为 10
     [-e $REGEX] 
     [-t fld0,fld1..]
-    [-bishcqn]
+    [-bishcqnl]
     [-ibase 1 or 0]
     [-pager]
     [-limit 1]

@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.payment.weixin;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.payment.WnPay3x;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
@@ -8,18 +9,18 @@ import org.nutz.walnut.ext.payment.WnPayObj;
 public class WxScanPay3x implements WnPay3x {
 
     @Override
-    public WnPay3xRe send(WnPayObj po) {
-        return null;
+    public WnPay3xRe send(WnPayObj po, String... args) {
+        throw Lang.noImplement();
     }
 
     @Override
     public WnPay3xRe check(WnPayObj po) {
-        return null;
+        throw Lang.noImplement();
     }
 
     @Override
     public WnPay3xRe complete(WnPayObj po, NutMap req) {
-        return null;
+        throw Lang.noImplement();
     }
 
 }

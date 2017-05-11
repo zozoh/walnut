@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.payment;
 
+import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.io.WnBean;
 
 /**
@@ -48,20 +49,13 @@ public class IoWnPayObj extends WnBean implements WnPayObj {
     }
 
     @Override
-    public boolean isBuyerType(String buyerType) {
-        String bt = this.getString(KEY_BUYER_TP);
-        if (null == bt)
-            return false;
-
-        if (null == buyerType)
-            return "@wn".equals(bt);
-
-        return buyerType.equals(bt);
+    public boolean isBuyerWn() {
+        return BUYTER_WN == this.getInt(KEY_BUYER_TP, -1);
     }
 
     @Override
-    public boolean isBuyerTypeWalnut() {
-        return this.isBuyerType(null);
+    public boolean isBuyerDusr() {
+        return BUYTER_DUSR == this.getInt(KEY_BUYER_TP, -1);
     }
 
     @Override
@@ -77,6 +71,16 @@ public class IoWnPayObj extends WnBean implements WnPayObj {
     @Override
     public boolean isSended() {
         return this.getLong(KEY_SEND_AT) > 0;
+    }
+
+    @Override
+    public boolean isTheSeller(WnUsr u) {
+        return u.isSameId(this.getString(KEY_SELLER_ID));
+    }
+
+    @Override
+    public boolean isTheBuyer(WnUsr u) {
+        return u.isSameId(this.getString(KEY_BUYER_ID));
     }
 
 }

@@ -26,19 +26,36 @@ public abstract class WnPays {
         if (Strings.isBlank(bu))
             return;
 
-        String[] ss = bu.split(":");
-        wpi.buyer_tp = Strings.trim(Strings.sBlank(ss[0], null));
-        wpi.buyer_id = Strings.trim(Strings.sBlank(ss[1], null));
-        wpi.buyer_nm = Strings.trim(Strings.sBlank(ss[2], null));
+        // 买家类型
+        if (bu.startsWith("%")) {
+            wpi.asDusr();
+            bu = Strings.trim(bu.substring(1));
+        } else {
+            wpi.asWnUsr();
+        }
+
+        // 填充 ID
+        if (bu.startsWith("id:")) {
+            wpi.buyer_id = bu.substring(3);
+        }
+        // 填充名称或其他可登陆信息
+        else {
+            wpi.buyer_nm = bu;
+        }
     }
 
     public static void fillSeller(WnPayInfo wpi, String se) {
         if (Strings.isBlank(se))
             return;
 
-        String[] ss = se.split(":");
-        wpi.seller_id = Strings.trim(Strings.sBlank(ss[0], null));
-        wpi.seller_nm = Strings.trim(Strings.sBlank(ss[1], null));
+        // 填充 ID
+        if (se.startsWith("id:")) {
+            wpi.seller_id = se.substring(3);
+        }
+        // 填充名称或其他可登陆信息
+        else {
+            wpi.seller_nm = se;
+        }
     }
 
     public static void fillFee(WnPayInfo wpi, String fee) {

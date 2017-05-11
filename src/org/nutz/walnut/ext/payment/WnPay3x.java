@@ -17,10 +17,12 @@ public interface WnPay3x {
      * 
      * @param po
      *            支付单对象
+     * @param args
+     *            更多发送请求时需要的参数，是不用持久化的
      * 
      * @return 支付单状态
      */
-    WnPay3xRe send(WnPayObj po);
+    WnPay3xRe send(WnPayObj po, String... args);
 
     /**
      * 查询第三方平台订单状态。
@@ -37,6 +39,7 @@ public interface WnPay3x {
 
     /**
      * 对支付单进行后续处理
+     * 
      * @param po
      *            支付单对象
      * @param req

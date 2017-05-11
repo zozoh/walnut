@@ -1,10 +1,27 @@
 package org.nutz.walnut.ext.payment;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.Each;
+import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
+import org.nutz.trans.Atom;
+import org.nutz.trans.Proton;
+import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.ext.payment.alipay.ZfbQrcodePay3x;
+import org.nutz.walnut.ext.payment.weixin.WxJsApiPay3x;
+import org.nutz.walnut.ext.payment.weixin.WxQrcodePay3x;
+import org.nutz.walnut.ext.payment.weixin.WxScanPay3x;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
 /**
@@ -13,7 +30,43 @@ import org.nutz.walnut.util.WnRun;
  * @author zozoh(zozohtnt@gmail.com)
  */
 @IocBean
-public class WnPayment extends WnRun {
+public class WnPayment {
+
+    @Inject
+    private WnRun run;
+
+    private Map<String, WnPay3x> _3xes;
+
+    public WnPayment() {
+        _3xes = new HashMap<>();
+        _3xes.put(WnPayObj.PT_WX_JSAPI, new WxJsApiPay3x());
+        _3xes.put(WnPayObj.PT_WX_QRCODE, new WxQrcodePay3x());
+        _3xes.put(WnPayObj.PT_WX_SCAN, new WxScanPay3x());
+        _3xes.put(WnPayObj.PT_ZFB_QRCODE, new ZfbQrcodePay3x());
+    }
+
+    private WnPay3x _3X(WnPayObj po) {
+        String payType = po.getString(WnPayObj.KEY_PAY_TP);
+        WnPay3x pay = _3xes.get(payType);
+        if (null == pay) {
+            throw Er.create("e.pay.no3x", po.id() + " -> " + payType);
+        }
+        return pay;
+    }
+
+    private void __assert_the_seller(WnPayObj po) {
+        // 得到当前操作用户
+        WnUsr me = Wn.WC().getMyUsr(run.usrs());
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // 权限检查
+        // 如果不是 root/op 组成员只能设置自己域的支付单
+        if (!po.isTheSeller(me)) {
+            if (!Wn.WC().isMemberOf(run.usrs(), "root", "op")) {
+                throw Er.create("e.pay.nopvg");
+            }
+        }
+    }
 
     /**
      * 创建一个支付单
@@ -24,8 +77,13 @@ public class WnPayment extends WnRun {
      * @return 支付单对象
      */
     public WnPayObj create(WnPayInfo wpi) {
-        return null;
-    };
+        // 执行操作
+        return run.nosecurity(new Proton<WnPayObj>() {
+            protected WnPayObj exec() {
+                return __do_create(wpi);
+            }
+        });
+    }
 
     /**
      * 为支付单设置回调脚本
@@ -36,26 +94,12 @@ public class WnPayment extends WnRun {
      *            回调脚本
      */
     public void setupCallbak(WnPayObj po, String cmdText) {
-
-    };
-
-    /**
-     * 在第三方平台创建订单
-     * 
-     * @param payType
-     *            第三方平台类型，支持
-     *            <ul>
-     *            <li>wx.qrcode : 微信主动扫付款码
-     *            <li>wx.jsapi : 微信公众号支付
-     *            <li>wx.scan : 微信被物理码枪扫码支付
-     *            <li>zfb.scan : 支付宝主动扫付款码
-     *            </ul>
-     * @param po
-     * @return 支付单处理结果
-     */
-    public WnPay3xRe send(String payType, WnPayObj po) {
-        return null;
-    };
+        run.nosecurity(new Atom() {
+            public void run() {
+                __do_setup_callback(po, cmdText);
+            }
+        });
+    }
 
     /**
      * 获取一个支付单
@@ -68,10 +112,18 @@ public class WnPayment extends WnRun {
      * @return 支付单对象
      * 
      * @throws "e.pay.noexist"
+     *             不存在
+     * @throws "e.pay.outOfHome"
+     *             不在指定 Home 中
+     * 
      */
     public WnPayObj get(String poId, boolean quiet) {
-        return null;
-    };
+        return run.nosecurity(new Proton<WnPayObj>() {
+            protected WnPayObj exec() {
+                return __do_get(poId, quiet);
+            }
+        });
+    }
 
     /**
      * 查询一组支付单
@@ -81,20 +133,231 @@ public class WnPayment extends WnRun {
      * @return 支付单列表
      */
     public List<WnPayObj> query(WnQuery q) {
-        return null;
-    };
+        return run.nosecurity(new Proton<List<WnPayObj>>() {
+            protected List<WnPayObj> exec() {
+                return __do_query(q);
+            }
+        });
+    }
+
+    /**
+     * 在第三方平台创建订单
+     * 
+     * @param po
+     *            支付单对象
+     * @param payType
+     *            第三方平台类型，支持
+     *            <ul>
+     *            <li>wx.qrcode : 微信主动扫付款码
+     *            <li>wx.jsapi : 微信公众号支付
+     *            <li>wx.scan : 微信被物理码枪扫码支付
+     *            <li>zfb.scan : 支付宝主动扫付款码
+     *            </ul>
+     * 
+     * @param args
+     *            更多发送请求时需要的参数，是不用持久化的
+     * 
+     * @return 支付单处理结果
+     */
+    public WnPay3xRe send(WnPayObj po, String payType, String... args) {
+        return run.nosecurity(new Proton<WnPay3xRe>() {
+            protected WnPay3xRe exec() {
+                return __do_send(po, args);
+            }
+        });
+    }
+
+    /**
+     * 在第三方平台检查支付单状态
+     * 
+     * @param po
+     *            支付单对象
+     * 
+     * @return 支付单处理结果
+     */
+    public WnPay3xRe check(WnPayObj po) {
+        return run.nosecurity(new Proton<WnPay3xRe>() {
+            protected WnPay3xRe exec() {
+                return __do_check(po);
+            }
+        });
+    }
 
     /**
      * 对支付单进行后续处理
      * 
-     * @param req
-     *            第三方平台返回的支付结果参数表
      * @param po
      *            支付单对象
+     * @param req
+     *            第三方平台返回的支付结果参数表
+     * 
      * @return 支付单处理结果
      */
-    public WnPay3xRe complete(NutMap req, WnPayObj po) {
-        return null;
-    };
+    public WnPay3xRe complete(WnPayObj po, NutMap req) {
+        return run.nosecurity(new Proton<WnPay3xRe>() {
+            protected WnPay3xRe exec() {
+                return __do_complete(po, req);
+            }
+        });
+    }
+
+    private WnPayObj __do_create(WnPayInfo wpi) {
+        // 得到当前操作用户
+        WnUsr me = Wn.WC().getMyUsr(run.usrs());
+
+        // 确保一定有买家和卖家的信息
+        wpi.checkBuyer(run.usrs());
+        wpi.checkSeller(run.usrs(), me);
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // 权限检查
+        // 执行操作的如果不是 root 组管理员，那么标定的卖家必须是自己
+        if (!me.isSameId(wpi.seller_id)) {
+            if (!Wn.WC().isAdminOf(run.usrs(), "root")) {
+                throw Er.create("e.pay.nopvg");
+            }
+        }
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        // 得到主目录
+        WnObj oPayHome = WnPays.getPayHome(run.io());
+
+        // 创建对象
+        WnObj oPayObj = run.io().create(oPayHome, "${id}", WnRace.FILE);
+
+        // 设置元数据
+        NutMap meta = Lang.obj2map(wpi, NutMap.class);
+        meta.remove("meta");
+        if (null != wpi.meta && wpi.meta.size() > 0) {
+            meta.putAll(wpi.meta);
+        }
+
+        // 固定的初始化值
+        meta.put("tp", "wn_payment");
+        meta.put(WnPayObj.KEY_CUR, WnPay3xStatus.NEW);
+        meta.setnx(WnPayObj.KEY_ST, "RMB");
+        meta.setnx(WnPayObj.KEY_SEND_AT, 0);
+        meta.setnx(WnPayObj.KEY_CLOSE_AT, 0);
+
+        // 持久化
+        run.io().appendMeta(oPayObj, meta);
+
+        // 返回
+        WnPayObj po = new IoWnPayObj();
+        po.update2(oPayObj);
+        return po;
+    }
+
+    private void __do_setup_callback(WnPayObj po, String cmdText) {
+        // 检查权限
+        __assert_the_seller(po);
+
+        // 写入支付单回调
+        run.io().writeText(po, cmdText);
+    }
+
+    private WnPayObj __do_get(String poId, boolean quiet) {
+        // 得到当前操作用户
+        WnUsr me = Wn.WC().getMyUsr(run.usrs());
+
+        // 执行获取
+        WnObj o = run.io().get(poId);
+        if (null == o) {
+            if (quiet)
+                return null;
+            throw Er.create("e.pay.noexists", poId);
+        }
+
+        WnObj oPayHome = WnPays.getPayHome(run.io());
+        if (!o.isMyParent(oPayHome)) {
+            if (quiet)
+                return null;
+            throw Er.create("e.pay.outOfHome", poId);
+        }
+
+        // 转换为支付单对象
+        WnPayObj po = new IoWnPayObj();
+        po.update2(o);
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // 权限检查
+        // 如果不是 root/op 组成员只能获取自己域的支付单
+        if (!po.isTheSeller(me)) {
+            if (!Wn.WC().isMemberOf(run.usrs(), "root", "op")) {
+                if (quiet)
+                    return null;
+                throw Er.create("e.pay.nopvg");
+            }
+        }
+
+        // 返回对象
+        return po;
+    }
+
+    private List<WnPayObj> __do_query(WnQuery q) {
+        // 得到当前操作用户
+        WnUsr me = Wn.WC().getMyUsr(run.usrs());
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // 权限检查
+        // 如果不是 root/op 组成员只能查询自己的域
+        if (!Wn.WC().isMemberOf(run.usrs(), "root", "op")) {
+            q.setv(WnPayObj.KEY_SELLER_ID, me.id());
+            q.unset(WnPayObj.KEY_SELLER_NM);
+        }
+
+        // 确保 pid 是付款目录
+        WnObj oPayHome = WnPays.getPayHome(run.io());
+        q.setv("pid", oPayHome.id());
+
+        // 必须限制一下大小
+        if (q.limit() <= 0) {
+            q.limit(10);
+        }
+
+        // 得到返回值
+        List<WnPayObj> list = new LinkedList<>();
+        run.io().each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj o, int length) {
+                WnPayObj po = new IoWnPayObj();
+                po.update2(o);
+                list.add(po);
+            }
+        });
+        return list;
+    }
+
+    private WnPay3xRe __do_send(WnPayObj po, String... args) {
+        // 检查权限
+        __assert_the_seller(po);
+
+        // 得到接口
+        WnPay3x pay = _3X(po);
+
+        // 执行
+        return pay.send(po, args);
+    }
+
+    private WnPay3xRe __do_check(WnPayObj po) {
+        // 检查权限
+        __assert_the_seller(po);
+
+        // 得到接口
+        WnPay3x pay = _3X(po);
+
+        // 执行
+        return pay.check(po);
+    }
+
+    private WnPay3xRe __do_complete(WnPayObj po, NutMap req) {
+        // 检查权限
+        __assert_the_seller(po);
+
+        // 得到接口
+        WnPay3x pay = _3X(po);
+
+        // 执行
+        return pay.complete(po, req);
+    }
 
 }

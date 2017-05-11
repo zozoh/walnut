@@ -29,6 +29,7 @@ import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.ext.job.hdl.job_abstract;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
 
 @IocBean
@@ -252,5 +253,27 @@ public class WnRun {
         wc.security(new WnSecurityImpl(sys.io, sys.usrService), () -> {
             wc.su(job_abstract.rootUser(sys), atom);
         });
+    }
+
+    /**
+     * 进入内核态执行操作
+     * 
+     * @param atom
+     *            操作
+     */
+    public void nosecurity(Atom atom) {
+        Wn.WC().security(new WnEvalLink(io), atom);
+    }
+
+    /**
+     * 进入内核态执行带返回的操作
+     * 
+     * @param protom
+     *            操作
+     * 
+     * @return 返回结果
+     */
+    public <T> T nosecurity(Proton<T> proton) {
+        return Wn.WC().security(new WnEvalLink(io), proton);
     }
 }

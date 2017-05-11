@@ -20,6 +20,9 @@ public class pay_create implements JvmHdl {
         // 准备创建支付单的信息
         WnPayInfo wpi = WnPays.genPayInfo(hc.params.check("bu"), hc.params.check("se"));
 
+        // 填充简介
+        wpi.brief = hc.params.val(0);
+
         // 填充费用
         WnPays.fillFee(wpi, hc.params.check("fee"));
 
@@ -29,7 +32,7 @@ public class pay_create implements JvmHdl {
         }
 
         // 创建支付单
-        WnPayObj oPayObj = pay.create(wpi);
+        WnPayObj po = pay.create(wpi);
 
         // 回调
         if (hc.params.has("callback")) {
@@ -41,11 +44,11 @@ public class pay_create implements JvmHdl {
             }
 
             // 写入支付单
-            sys.io.writeText(oPayObj, callback);
+            pay.setupCallbak(po, callback);
         }
 
         // 输出
-        sys.out.println(Json.toJson(oPayObj));
+        sys.out.println(Json.toJson(po));
     }
 
 }
