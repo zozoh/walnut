@@ -19,6 +19,7 @@ public interface WnPayObj extends WnObj {
     static final String KEY_BUYER_ID = "buyer_id";
     static final String KEY_BUYER_TP = "buyer_tp";
     static final String KEY_PAY_TP = "pay_tp";
+    static final String KEY_PAY_TARGET = "pay_target";
     static final String KEY_CUR = "cur";
     static final String KEY_FEE = "fee";
     static final String KEY_ST = "st"; // @see WnPay3xStatus
@@ -69,6 +70,8 @@ public interface WnPayObj extends WnObj {
     boolean isBuyerDusr();
 
     boolean hasScript();
+    
+    boolean hasPayTarget();
 
     boolean isClosed();
 

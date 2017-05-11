@@ -24,11 +24,14 @@ public class pay_send implements JvmHdl {
         // 得到支付类型
         String payType = hc.params.val_check(1);
 
+        // 得到支付目标s
+        String payTarget = hc.params.val_check(2);
+
         // 得到参数
-        String[] args = Arrays.copyOfRange(hc.args, 2, hc.args.length);
+        String[] args = Arrays.copyOfRange(hc.args, 3, hc.args.length);
 
         // 发送支付单
-        WnPay3xRe re = pay.send(po, payType, args);
+        WnPay3xRe re = pay.send(po, payType, payTarget, args);
 
         // 输出
         sys.out.println(Json.toJson(re));

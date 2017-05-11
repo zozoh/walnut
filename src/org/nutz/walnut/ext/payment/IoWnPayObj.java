@@ -64,6 +64,11 @@ public class IoWnPayObj extends WnBean implements WnPayObj {
     }
 
     @Override
+    public boolean hasPayTarget() {
+        return this.has(WnPayObj.KEY_PAY_TARGET);
+    }
+
+    @Override
     public boolean isClosed() {
         return this.getLong(KEY_CLOSE_AT) > 0;
     }

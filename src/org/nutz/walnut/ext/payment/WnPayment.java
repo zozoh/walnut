@@ -9,6 +9,7 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
@@ -66,6 +67,14 @@ public class WnPayment {
                 throw Er.create("e.pay.nopvg");
             }
         }
+    }
+
+    private WnPay3xRe __re(WnPayObj po, WnPay3xRe re) {
+        if (re.hasChangedKeys()) {
+            String regex = "^(" + Strings.join("|", re.getChangedKeys()) + ")$";
+            run.io().set(po, regex);
+        }
+        return re;
     }
 
     /**
@@ -154,15 +163,18 @@ public class WnPayment {
      *            <li>zfb.scan : 支付宝主动扫付款码
      *            </ul>
      * 
+     * @param target
+     *            付款目标（比如商户号）
+     * 
      * @param args
      *            更多发送请求时需要的参数，是不用持久化的
      * 
      * @return 支付单处理结果
      */
-    public WnPay3xRe send(WnPayObj po, String payType, String... args) {
+    public WnPay3xRe send(WnPayObj po, String payType, String target, String... args) {
         return run.nosecurity(new Proton<WnPay3xRe>() {
             protected WnPay3xRe exec() {
-                return __do_send(po, args);
+                return __do_send(po, target, args);
             }
         });
     }
@@ -327,15 +339,29 @@ public class WnPayment {
         return list;
     }
 
-    private WnPay3xRe __do_send(WnPayObj po, String... args) {
+    private WnPay3xRe __do_send(WnPayObj po, String target, String... args) {
         // 检查权限
         __assert_the_seller(po);
 
         // 得到接口
         WnPay3x pay = _3X(po);
 
+        // 如果商户号未设置
+        String poTa = po.getString(WnPayObj.KEY_PAY_TARGET);
+        if (Strings.isBlank(poTa)) {
+            po.setv(WnPayObj.KEY_PAY_TARGET, target);
+            run.io().set(po, "^(" + WnPayObj.KEY_PAY_TARGET + ")$");
+        }
+        // 商户号不匹配
+        else if (!poTa.equals(target)) {
+            throw Er.create("e.pay.send.target_no_match");
+        }
+
         // 执行
-        return pay.send(po, args);
+        WnPay3xRe re = pay.send(po, args);
+
+        // 持久化中间的执行步骤并返回
+        return __re(po, re);
     }
 
     private WnPay3xRe __do_check(WnPayObj po) {
@@ -346,7 +372,10 @@ public class WnPayment {
         WnPay3x pay = _3X(po);
 
         // 执行
-        return pay.check(po);
+        WnPay3xRe re = pay.check(po);
+
+        // 持久化中间的执行步骤并返回
+        return __re(po, re);
     }
 
     private WnPay3xRe __do_complete(WnPayObj po, NutMap req) {
@@ -357,7 +386,10 @@ public class WnPayment {
         WnPay3x pay = _3X(po);
 
         // 执行
-        return pay.complete(po, req);
+        WnPay3xRe re = pay.complete(po, req);
+
+        // 持久化中间的执行步骤并返回
+        return __re(po, re);
     }
 
 }

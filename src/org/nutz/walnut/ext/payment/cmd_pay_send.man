@@ -10,6 +10,7 @@
 ```    
 pay send [poId]          # 「必」支付单的ID
          [wx.qrcode]     # 「必」支付类型
+         [xxx]           # 「必」支付商户号
          [235..]         # 「选」更多参数，比如 wx.scan 需要的付款码
 ```
 
@@ -41,15 +42,15 @@ pay send [poId]          # 「必」支付单的ID
 
 ```
 # 发起微信主动扫码支付
-demo@~$ pay send 4g..3a wx.qrcode
+demo@~$ pay send 4g..3a wx.qrcode xxx
 
 # 发起微信公众号支付
-demo@~$ pay send 4g..3a wx.jsapi
+demo@~$ pay send 4g..3a wx.jsapi xxx
 
 # 发起微信被物理码枪扫码支付
-demo@~$ pay send 4g..3a wx.scan 238..871
+demo@~$ pay send 4g..3a wx.scan xxx 238..871
 
 # 发起支付宝主动扫码支付
-demo@~$ pay send 4g..3a zfb.qrcode
+demo@~$ pay send 4g..3a zfb.qrcode xxx
 
 ```

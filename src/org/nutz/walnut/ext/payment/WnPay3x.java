@@ -17,6 +17,7 @@ public interface WnPay3x {
      * 
      * @param po
      *            支付单对象
+     * 
      * @param args
      *            更多发送请求时需要的参数，是不用持久化的
      * 

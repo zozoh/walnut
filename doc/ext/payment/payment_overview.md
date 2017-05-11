@@ -49,6 +49,9 @@ st : "NEW"
 //  - wx.scan    : 微信被物理码枪扫付款码支付
 //  - zfb.qrcode : 支付宝主动扫码付款
 pay_tp   : "wx.qrcode"
+
+// 付款的目标商户号
+pay_target : "xxx"
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // 买家/卖家信息
 buyer_tp   : 0          # 1 walnut 用户，2 域的 dusr 用户
