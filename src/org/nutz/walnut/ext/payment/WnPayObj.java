@@ -35,7 +35,7 @@ public interface WnPayObj extends WnObj {
     static final int BUYTER_DUSR = 2;
     // ..............................................................
     /**
-     * "pay_tp" 段值（KEY_PAY_TP）：微信主动扫码付款
+     * "pay_tp" 段值（KEY_PAY_TP）：微信主动扫二维码付款
      */
     static final String PT_WX_QRCODE = "wx.qrcode";
     /**
@@ -47,12 +47,16 @@ public interface WnPayObj extends WnObj {
      */
     static final String PT_WX_SCAN = "wx.scan";
     /**
-     * "pay_tp" 段值（KEY_PAY_TP）：支付宝主动扫码付款
+     * "pay_tp" 段值（KEY_PAY_TP）：支付宝主动扫二维码付款
      */
     static final String PT_ZFB_QRCODE = "zfb.qrcode";
+    /**
+     * "pay_tp" 段值（KEY_PAY_TP）：支付宝被物理码枪扫付款码支付
+     */
+    static final String PT_ZFB_SCAN = "zfb.scan";
 
     // ..............................................................
-    
+
     WnPay3xStatus status();
 
     boolean isStatusOk();
@@ -70,7 +74,7 @@ public interface WnPayObj extends WnObj {
     boolean isBuyerDusr();
 
     boolean hasScript();
-    
+
     boolean hasPayTarget();
 
     boolean isClosed();

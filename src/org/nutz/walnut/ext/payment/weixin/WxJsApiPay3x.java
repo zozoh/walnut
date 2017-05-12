@@ -6,6 +6,11 @@ import org.nutz.walnut.ext.payment.WnPay3x;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
 import org.nutz.walnut.ext.payment.WnPayObj;
 
+/**
+ * 微信公众号内支付
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
 public class WxJsApiPay3x implements WnPay3x {
 
     @Override

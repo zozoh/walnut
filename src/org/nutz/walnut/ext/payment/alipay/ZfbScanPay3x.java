@@ -1,31 +1,32 @@
-package org.nutz.walnut.ext.payment.weixin;
+package org.nutz.walnut.ext.payment.alipay;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.payment.WnPay3x;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
 import org.nutz.walnut.ext.payment.WnPayObj;
 
 /**
- * 微信被物理码枪扫付款码支付
+ * 支付宝被物理码枪扫付款码支付
+ * <p>
+ * !!! 这个先不搞
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WxScanPay3x implements WnPay3x {
+public class ZfbScanPay3x implements WnPay3x {
 
     @Override
     public WnPay3xRe send(WnPayObj po, String... args) {
-        throw Lang.noImplement();
+        return null;
     }
 
     @Override
     public WnPay3xRe check(WnPayObj po) {
-        throw Lang.noImplement();
+        return null;
     }
 
     @Override
     public WnPay3xRe complete(WnPayObj po, NutMap req) {
-        throw Lang.noImplement();
+        return null;
     }
 
 }

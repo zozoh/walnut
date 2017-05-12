@@ -6,6 +6,11 @@ import org.nutz.walnut.ext.payment.WnPay3x;
 import org.nutz.walnut.ext.payment.WnPayObj;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
 
+/**
+ * 支付宝主动扫二维码付款
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
 public class ZfbQrcodePay3x implements WnPay3x {
 
     @Override
