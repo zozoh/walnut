@@ -11,7 +11,7 @@ import org.nutz.walnut.ext.payment.WnPay3xRe;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class ZfbQrcodePay3x implements WnPay3x {
+public class ZfbQrcodePay3x extends WnPay3x {
 
     @Override
     public WnPay3xRe send(WnPayObj po, String... args) {

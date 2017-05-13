@@ -1,13 +1,19 @@
 package org.nutz.walnut.ext.payment;
 
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.util.WnRun;
 
 /**
  * 第三方支付平台逻辑的封装接口
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public interface WnPay3x {
+public abstract class WnPay3x {
+
+    // WnPayment 类会为其设置，以便子类使用
+    protected WnRun run;
+    protected WnIo io;
 
     /**
      * 在第三方平台创建订单的具体实现逻辑。
@@ -23,7 +29,7 @@ public interface WnPay3x {
      * 
      * @return 支付单状态
      */
-    WnPay3xRe send(WnPayObj po, String... args);
+    public abstract WnPay3xRe send(WnPayObj po, String... args);
 
     /**
      * 查询第三方平台订单状态。
@@ -36,7 +42,7 @@ public interface WnPay3x {
      * 
      * @return 支付单状态
      */
-    WnPay3xRe check(WnPayObj po);
+    public abstract WnPay3xRe check(WnPayObj po);
 
     /**
      * 对支付单进行后续处理
@@ -48,6 +54,6 @@ public interface WnPay3x {
      * 
      * @return 支付单处理结果
      */
-    WnPay3xRe complete(WnPayObj po, NutMap req);
+    public abstract WnPay3xRe complete(WnPayObj po, NutMap req);
 
 }

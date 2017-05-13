@@ -11,7 +11,7 @@ import org.nutz.walnut.ext.payment.WnPayObj;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WxQrcodePay3x implements WnPay3x {
+public class WxQrcodePay3x extends WnPay3x {
 
     @Override
     public WnPay3xRe send(WnPayObj po, String... args) {

@@ -19,6 +19,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.ext.payment.alipay.ZfbQrcodePay3x;
+import org.nutz.walnut.ext.payment.alipay.ZfbScanPay3x;
 import org.nutz.walnut.ext.payment.weixin.WxJsApiPay3x;
 import org.nutz.walnut.ext.payment.weixin.WxQrcodePay3x;
 import org.nutz.walnut.ext.payment.weixin.WxScanPay3x;
@@ -30,7 +31,7 @@ import org.nutz.walnut.util.WnRun;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-@IocBean
+@IocBean(create = "on_create")
 public class WnPayment {
 
     @Inject
@@ -44,6 +45,15 @@ public class WnPayment {
         _3xes.put(WnPayObj.PT_WX_QRCODE, new WxQrcodePay3x());
         _3xes.put(WnPayObj.PT_WX_SCAN, new WxScanPay3x());
         _3xes.put(WnPayObj.PT_ZFB_QRCODE, new ZfbQrcodePay3x());
+        _3xes.put(WnPayObj.PT_ZFB_SCAN, new ZfbScanPay3x());
+    }
+
+    public void on_create() {
+        for (Map.Entry<String, WnPay3x> en : _3xes.entrySet()) {
+            WnPay3x v = en.getValue();
+            v.run = this.run;
+            v.io = this.run.io();
+        }
     }
 
     private WnPay3x _3X(WnPayObj po) {
