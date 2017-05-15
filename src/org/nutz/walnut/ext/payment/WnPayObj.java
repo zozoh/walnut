@@ -23,6 +23,7 @@ public interface WnPayObj extends WnObj {
     static final String KEY_CUR = "cur";
     static final String KEY_FEE = "fee";
     static final String KEY_ST = "st"; // @see WnPay3xStatus
+    static final String KEY_RETURN_URL = "pay_return_url";
     // ..............................................................
     /**
      * "buyer_tp" 段值（KEY_BUYER_TP）：表示 Walnut 用户，即系统用户
