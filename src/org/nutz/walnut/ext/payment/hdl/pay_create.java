@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.payment.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.payment.WnPayInfo;
 import org.nutz.walnut.ext.payment.WnPayObj;
 import org.nutz.walnut.ext.payment.WnPayment;
@@ -9,6 +10,7 @@ import org.nutz.walnut.ext.payment.WnPays;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 
 public class pay_create implements JvmHdl {
 
@@ -26,26 +28,19 @@ public class pay_create implements JvmHdl {
         // 填充费用
         WnPays.fillFee(wpi, hc.params.check("fee"));
 
+        // 回调
+        if (hc.params.has("callback")) {
+            wpi.callbackName = hc.params.get("callback");
+        }
+
         // 更多元数据
-        if (hc.params.has("meta")) {
-            wpi.meta = Lang.map(hc.params.check("meta"));
+        String json = Cmds.getParamOrPipe(sys, hc.params, "meta", false);
+        if (!Strings.isBlank(json)) {
+            wpi.meta = Lang.map(json);
         }
 
         // 创建支付单
         WnPayObj po = pay.create(wpi);
-
-        // 回调
-        if (hc.params.has("callback")) {
-            String callback = hc.params.get("callback");
-
-            // 读取标准输入
-            if ("true".equals(callback)) {
-                callback = sys.in.readAll();
-            }
-
-            // 写入支付单
-            pay.setupCallbak(po, callback);
-        }
 
         // 输出
         sys.out.println(Json.toJson(po));

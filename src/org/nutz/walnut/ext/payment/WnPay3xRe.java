@@ -1,6 +1,9 @@
 package org.nutz.walnut.ext.payment;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 支付接口的返回
@@ -11,7 +14,7 @@ public class WnPay3xRe {
 
     private WnPay3xStatus status;
 
-    private List<String> changedKeys;
+    private Set<String> changedKeys;
 
     private WnPay3xDataType dataType;
 
@@ -29,13 +32,16 @@ public class WnPay3xRe {
         return WnPay3xStatus.WAIT == this.status;
     }
 
+    public boolean isDone() {
+        return WnPay3xStatus.FAIL == this.status || WnPay3xStatus.OK == this.status;
+    }
+
     public WnPay3xStatus getStatus() {
         return status;
     }
 
-    public WnPay3xRe setStatus(WnPay3xStatus status) {
+    public void setStatus(WnPay3xStatus status) {
         this.status = status;
-        return this;
     }
 
     public boolean isDataTypeLink() {
@@ -54,9 +60,8 @@ public class WnPay3xRe {
         return dataType;
     }
 
-    public WnPay3xRe setDataType(WnPay3xDataType type) {
+    public void setDataType(WnPay3xDataType type) {
         this.dataType = type;
-        return this;
     }
 
     public Object getData() {
@@ -79,12 +84,23 @@ public class WnPay3xRe {
         return null != this.changedKeys && this.changedKeys.size() > 0;
     }
 
-    public List<String> getChangedKeys() {
+    public Collection<String> getChangedKeys() {
         return changedKeys;
     }
 
     public void setChangedKeys(List<String> changedKeys) {
-        this.changedKeys = changedKeys;
+        if (null == this.changedKeys) {
+            this.changedKeys = new HashSet<>();
+        }
+        this.changedKeys.addAll(changedKeys);
+    }
+
+    public void addChangeKeys(String... keys) {
+        if (null == this.changedKeys) {
+            this.changedKeys = new HashSet<>();
+        }
+        for (String key : keys)
+            this.changedKeys.add(key);
     }
 
 }

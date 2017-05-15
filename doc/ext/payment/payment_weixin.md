@@ -71,3 +71,9 @@ wxpay_result : {..}
 wxpay_time : MS
 ```
 
+# 参考资料
+
+- [微信支付](https://pay.weixin.qq.com/wiki/doc/api/index.html)
+- [微信JS-SDK说明文档#发起一个微信支付请求](http://mp.weixin.qq.com/wiki/11/74ad127cc054f6b80759c40f77ec03db.html#.E5.8F.91.E8.B5.B7.E4.B8.80.E4.B8.AA.E5.BE.AE.E4.BF.A1.E6.94.AF.E4.BB.98.E8.AF.B7.E6.B1.82)
+
+

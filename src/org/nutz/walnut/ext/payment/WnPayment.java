@@ -10,8 +10,8 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
-import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -105,22 +105,6 @@ public class WnPayment {
     }
 
     /**
-     * 为支付单设置回调脚本
-     * 
-     * @param po
-     *            支付单
-     * @param cmdText
-     *            回调脚本
-     */
-    public void setupCallbak(WnPayObj po, String cmdText) {
-        run.nosecurity(new Atom() {
-            public void run() {
-                __do_setup_callback(po, cmdText);
-            }
-        });
-    }
-
-    /**
      * 获取一个支付单
      * 
      * @param poId
@@ -182,6 +166,9 @@ public class WnPayment {
      * @return 支付单处理结果
      */
     public WnPay3xRe send(WnPayObj po, String payType, String target, String... args) {
+        if (po.isSended()) {
+            return po.getPayReturn();
+        }
         return run.nosecurity(new Proton<WnPay3xRe>() {
             protected WnPay3xRe exec() {
                 return __do_send(po, target, args);
@@ -198,6 +185,9 @@ public class WnPayment {
      * @return 支付单处理结果
      */
     public WnPay3xRe check(WnPayObj po) {
+        if (po.isDone()) {
+            return po.getPayReturn();
+        }
         return run.nosecurity(new Proton<WnPay3xRe>() {
             protected WnPay3xRe exec() {
                 return __do_check(po);
@@ -216,6 +206,9 @@ public class WnPayment {
      * @return 支付单处理结果
      */
     public WnPay3xRe complete(WnPayObj po, NutMap req) {
+        if (po.isDone()) {
+            return po.getPayReturn();
+        }
         return run.nosecurity(new Proton<WnPay3xRe>() {
             protected WnPay3xRe exec() {
                 return __do_complete(po, req);
@@ -229,7 +222,7 @@ public class WnPayment {
 
         // 确保一定有买家和卖家的信息
         wpi.checkBuyer(run.usrs());
-        wpi.checkSeller(run.usrs(), me);
+        WnUsr seller = wpi.checkSeller(run.usrs(), me);
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查
@@ -240,6 +233,12 @@ public class WnPayment {
             }
         }
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        // 查看后续回调脚本
+        String callback = null;
+        if (wpi.hasCallback()) {
+            callback = wpi.readCallback(run.io(), seller);
+        }
 
         // 得到主目录
         WnObj oPayHome = WnPays.getPayHome(run.io());
@@ -264,18 +263,16 @@ public class WnPayment {
         // 持久化
         run.io().appendMeta(oPayObj, meta);
 
+        // 根据模板写入回调脚本
+        if (!Strings.isBlank(callback)) {
+            String text = Tmpl.exec(callback, oPayObj, false);
+            run.io().writeText(oPayObj, text);
+        }
+
         // 返回
         WnPayObj po = new IoWnPayObj();
         po.update2(oPayObj);
         return po;
-    }
-
-    private void __do_setup_callback(WnPayObj po, String cmdText) {
-        // 检查权限
-        __assert_the_seller(po);
-
-        // 写入支付单回调
-        run.io().writeText(po, cmdText);
     }
 
     private WnPayObj __do_get(String poId, boolean quiet) {
@@ -370,6 +367,16 @@ public class WnPayment {
         // 执行
         WnPay3xRe re = pay.send(po, args);
 
+        // 记录结果
+        po.setv(WnPayObj.KEY_ST, re.getStatus());
+        po.setv(WnPayObj.KEY_RE_TP, re.getDataType());
+        po.setv(WnPayObj.KEY_RE_OBJ, re.getData());
+        po.setv(WnPayObj.KEY_SEND_AT, System.currentTimeMillis());
+        re.addChangeKeys(WnPayObj.KEY_ST,
+                         WnPayObj.KEY_RE_TP,
+                         WnPayObj.KEY_RE_OBJ,
+                         WnPayObj.KEY_SEND_AT);
+
         // 持久化中间的执行步骤并返回
         return __re(po, re);
     }
@@ -378,11 +385,22 @@ public class WnPayment {
         // 检查权限
         __assert_the_seller(po);
 
+        // 得到原先的状态
+        WnPay3xStatus oldSt = po.status();
+
         // 得到接口
         WnPay3x pay = _3X(po);
 
         // 执行
         WnPay3xRe re = pay.check(po);
+
+        // 记录结果
+        if (oldSt != re.getStatus()) {
+            po.setv(WnPayObj.KEY_ST, re.getStatus());
+            po.setv(WnPayObj.KEY_RE_TP, re.getDataType());
+            po.setv(WnPayObj.KEY_RE_OBJ, re.getData());
+            re.addChangeKeys(WnPayObj.KEY_ST, WnPayObj.KEY_RE_TP, WnPayObj.KEY_RE_OBJ);
+        }
 
         // 持久化中间的执行步骤并返回
         return __re(po, re);
@@ -397,6 +415,18 @@ public class WnPayment {
 
         // 执行
         WnPay3xRe re = pay.complete(po, req);
+
+        // 记录结果
+        if (re.isDone()) {
+            po.setv(WnPayObj.KEY_ST, re.getStatus());
+            po.setv(WnPayObj.KEY_RE_TP, re.getDataType());
+            po.setv(WnPayObj.KEY_RE_OBJ, re.getData());
+            po.setv(WnPayObj.KEY_CLOSE_AT, System.currentTimeMillis());
+            re.addChangeKeys(WnPayObj.KEY_ST,
+                             WnPayObj.KEY_RE_TP,
+                             WnPayObj.KEY_RE_OBJ,
+                             WnPayObj.KEY_CLOSE_AT);
+        }
 
         // 持久化中间的执行步骤并返回
         return __re(po, re);

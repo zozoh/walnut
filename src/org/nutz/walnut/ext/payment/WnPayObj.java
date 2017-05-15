@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.payment;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnUsr;
 
@@ -24,6 +25,8 @@ public interface WnPayObj extends WnObj {
     static final String KEY_FEE = "fee";
     static final String KEY_ST = "st"; // @see WnPay3xStatus
     static final String KEY_RETURN_URL = "pay_return_url";
+    static final String KEY_RE_TP = "re_tp";
+    static final String KEY_RE_OBJ = "re_obj";
     // ..............................................................
     /**
      * "buyer_tp" 段值（KEY_BUYER_TP）：表示 Walnut 用户，即系统用户
@@ -65,6 +68,8 @@ public interface WnPayObj extends WnObj {
     boolean isStatusFail();
 
     boolean isStatusWait();
+    
+    boolean isDone();
 
     WnPayObj status(WnPay3xStatus status);
 
@@ -85,5 +90,9 @@ public interface WnPayObj extends WnObj {
     boolean isTheSeller(WnUsr u);
 
     boolean isTheBuyer(WnUsr u);
+    
+    WnPay3xRe getPayReturn();
+    
+    NutBean toBean();
 
 }

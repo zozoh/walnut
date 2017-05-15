@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.payment;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.io.WnBean;
 
@@ -23,6 +24,12 @@ public class IoWnPayObj extends WnBean implements WnPayObj {
     @Override
     public boolean isStatusWait() {
         return WnPay3xStatus.WAIT == this.status();
+    }
+
+    @Override
+    public boolean isDone() {
+        WnPay3xStatus st = this.status();
+        return WnPay3xStatus.FAIL == st || WnPay3xStatus.OK == st;
     }
 
     @Override
@@ -86,6 +93,20 @@ public class IoWnPayObj extends WnBean implements WnPayObj {
     @Override
     public boolean isTheBuyer(WnUsr u) {
         return u.isSameId(this.getString(KEY_BUYER_ID));
+    }
+
+    @Override
+    public WnPay3xRe getPayReturn() {
+        WnPay3xRe re = new WnPay3xRe();
+        re.setStatus(this.status());
+        re.setData(this.get(KEY_RE_OBJ));
+        re.setDataType(this.getEnum(KEY_RE_TP, WnPay3xDataType.class));
+        return re;
+    }
+
+    @Override
+    public NutBean toBean() {
+        return this.pickBy("^(id|nm|tp|ct|lm|brief|fee|cur|st|re_.+|pay_.+|buyer_.+|seller_.+|len|send_at|close_at)$");
     }
 
 }

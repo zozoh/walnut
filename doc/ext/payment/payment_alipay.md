@@ -33,3 +33,8 @@ rsa_private : "yyyyyyyyy"            # RSA密钥
 alipay_result : {..}
 ```
 
+# dd
+
+- [蚂蚁金服.即时到账](https://doc.open.alipay.com/doc2/detail?treeId=62&articleId=103566&docType=1)
+
+

@@ -3,8 +3,11 @@ package org.nutz.walnut.ext.payment;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
+import org.nutz.walnut.util.Wn;
 
 /**
  * 用来创建支付单的信息
@@ -58,7 +61,7 @@ public class WnPayInfo {
      */
     public String buyer_nm;
 
-    public void checkBuyer(WnUsrService usrs) {
+    public WnUsr checkBuyer(WnUsrService usrs) {
         boolean noBuId = Strings.isBlank(buyer_id);
         boolean noBuNm = Strings.isBlank(buyer_nm);
 
@@ -73,11 +76,13 @@ public class WnPayInfo {
                 WnUsr u = usrs.check(buyer_nm);
                 buyer_id = u.id();
                 buyer_nm = u.name();
+                return u;
             }
             // 补足名称
             else {
                 WnUsr u = usrs.check("id:" + buyer_id);
                 buyer_nm = u.name();
+                return u;
             }
         }
         // 如果两个都有，则比较一下是否匹配
@@ -86,6 +91,7 @@ public class WnPayInfo {
             if (!u.isSameId(buyer_id)) {
                 throw Er.create("e.pay.noMatchBuyer", seller_id + " not " + seller_nm);
             }
+            return u;
         }
     }
 
@@ -99,7 +105,7 @@ public class WnPayInfo {
      */
     public String seller_nm;
 
-    public void checkSeller(WnUsrService usrs, WnUsr me) {
+    public WnUsr checkSeller(WnUsrService usrs, WnUsr me) {
         boolean noSeId = Strings.isBlank(seller_id);
         boolean noSeNm = Strings.isBlank(seller_nm);
 
@@ -109,17 +115,20 @@ public class WnPayInfo {
             if (noSeId && noSeNm) {
                 seller_id = me.id();
                 seller_nm = me.name();
+                return me;
             }
             // 补足 ID
             else if (noSeId) {
                 WnUsr u = usrs.check(seller_nm);
                 seller_id = u.id();
                 seller_nm = u.name();
+                return u;
             }
             // 补足名称
             else {
                 WnUsr u = usrs.check("id:" + seller_id);
                 seller_nm = u.name();
+                return u;
             }
         }
         // 如果两个都有，则比较一下是否匹配
@@ -128,6 +137,7 @@ public class WnPayInfo {
             if (!u.isSameId(seller_id)) {
                 throw Er.create("e.pay.noMatchSeller", seller_id + " not " + seller_nm);
             }
+            return u;
         }
     }
 
@@ -150,5 +160,20 @@ public class WnPayInfo {
      * 更多的自定义支付单元数据
      */
     public NutMap meta;
+
+    /**
+     * 回调脚本名称
+     */
+    public String callbackName;
+
+    public boolean hasCallback() {
+        return !Strings.isBlank(callbackName);
+    }
+
+    public String readCallback(WnIo io, WnUsr seller) {
+        WnObj oCallback = io.check(null,
+                                   Wn.appendPath(seller.home(), ".payment/callback", callbackName));
+        return io.readText(oCallback);
+    }
 
 }

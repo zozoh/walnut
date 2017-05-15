@@ -15,8 +15,8 @@ public enum WnPay3xDataType {
     /**
      * data 段是Map对象，表示一段付款相关配置信息
      */
-    JSON
-    ,
+    JSON,
+
     /**
      * data 段是纯文本
      */
