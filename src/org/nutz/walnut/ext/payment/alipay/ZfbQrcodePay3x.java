@@ -119,7 +119,7 @@ public class ZfbQrcodePay3x extends WnPay3x {
     
     public AlipayConfig getConfig(WnPayObj po) {
         WnUsr seller = run.usrs().check("id:" + po.getString(WnPayObj.KEY_SELLER_ID));
-        WnObj conf = io.check(null, seller.home() + "/.alipay/alipayconf");
+        WnObj conf = io.check(null, seller.home() + "/.alipay/"+seller.name()+"/alipayconf");
         return io.readJson(conf, AlipayConfig.class);
     }
 
