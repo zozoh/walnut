@@ -4,13 +4,20 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Filters;
+import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.module.AbstractWnModule;
@@ -23,6 +30,8 @@ import org.nutz.walnut.web.module.AbstractWnModule;
 @IocBean
 @At("/pay")
 public class PaymentModule extends AbstractWnModule {
+
+    private static final Log log = Logs.get();
 
     @Inject
     private WnPayment pay;
@@ -53,7 +62,7 @@ public class PaymentModule extends AbstractWnModule {
     @Filters(@By(type = WnCheckSession.class))
     @At("/ajax/do")
     public NutBean ajax_do(@Param("br") String brief,
-                           @Param("fe") float fee,
+                           @Param("fe") int fee,
                            @Param("cu") String cur,
                            @Param("pt") String pay_tp,
                            @Param("ta") String pay_target,
@@ -119,8 +128,22 @@ public class PaymentModule extends AbstractWnModule {
      * @param req
      *            请求对象
      */
-    public void noti_by_alipay_sync(HttpServletRequest req) {
-        
+    @At("/noti/alipay")
+    @Ok("raw")
+    public String noti_by_alipay(@Param("..") NutMap params) {
+        if (log.isInfoEnabled())
+            log.infof("@-noti-by-alipay: %s", Json.toJson(params, JsonFormat.nice()));
+        // 根据参数找到支付单
+        String poId = params.getString("out_trade_no");
+        if (Strings.isBlank(poId))
+            throw Er.create("e.pay.out_trade_no.noexist");
+        WnPayObj po = pay.get(poId, false);
+
+        // 调用结束
+        pay.complete(po, params);
+
+        // 告诉支付宝，表再调了
+        return "success";
     }
 
     /**
@@ -130,7 +153,7 @@ public class PaymentModule extends AbstractWnModule {
      *            请求对象
      */
     public void retn_by_alipay(HttpServletRequest req) {
-        
+
     }
 
 }

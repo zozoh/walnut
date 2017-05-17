@@ -341,7 +341,7 @@ module.exports = {
             width  : opt.width,
             height : opt.height,
             escape : false,
-            closer : false,
+            closer : true,
             setup : {
                 uiType : 'ui/wizard/wizard',
                 uiConf : wzConf

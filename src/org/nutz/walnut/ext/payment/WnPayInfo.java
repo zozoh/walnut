@@ -142,9 +142,9 @@ public class WnPayInfo {
     }
 
     /**
-     * 支付的金额，单位是元
+     * 支付的金额，单位是分
      */
-    public float fee;
+    public int fee;
 
     /**
      * 默认是 RMB，表示货币
@@ -155,6 +155,12 @@ public class WnPayInfo {
      * 支付单简要描述
      */
     public String brief;
+
+    public void checkBrief() {
+        if (Strings.isBlank(brief)) {
+            brief = String.format("Pay to %s", seller_nm);
+        }
+    }
 
     /**
      * 更多的自定义支付单元数据

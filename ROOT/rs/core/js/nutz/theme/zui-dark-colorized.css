@@ -93,11 +93,11 @@ h6 {
   color: rgba(255, 255, 255, 0.6);
 }
 .ui-body a {
-  color: #aabbff;
+  color: #ABF;
   text-decoration: none;
 }
 .ui-body a:hover {
-  color: #ccddff;
+  color: #CDF;
   text-decoration: underline;
 }
 /* 所有的 ui-code-template 都是隐藏的 */
@@ -106,6 +106,10 @@ h6 {
 }
 /* 所有的 UI 中的通用组件 */
 .ui-btn {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
   display: inline-block;
   vertical-align: middle;
   cursor: pointer;
@@ -116,10 +120,12 @@ h6 {
   color: rgba(255, 255, 255, 0.6);
   border-radius: 4px;
   text-align: center;
+  text-decoration: none;
 }
 .ui-btn:hover {
-  color: #ffffff;
+  color: #FFF;
   background: rgba(0, 64, 255, 0.6);
+  text-decoration: none;
 }
 .ui-noselect {
   -moz-user-select: none;
@@ -208,7 +214,7 @@ h6 {
   transition: all 0.18s ease-out;
   background: rgba(255, 255, 20, 0.9);
   border-radius: 4px;
-  color: #000000;
+  color: #000;
   content: attr(data-balloon);
   font-size: 12px;
   padding: .5em 1em;

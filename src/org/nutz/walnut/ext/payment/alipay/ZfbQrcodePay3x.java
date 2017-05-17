@@ -51,9 +51,9 @@ public class ZfbQrcodePay3x extends WnPay3x {
 
             // 支付完成(成功或失败均未知)时的回调 TODO
             if (!Strings.isBlank(alipayConf.pay_notify_url))
-                sParaTemp.put("pay_notify_url", alipayConf.pay_notify_url);
+                sParaTemp.put("notify_url", alipayConf.pay_notify_url);
             else if (!Strings.isBlank(alipayConf.pay_return_url))
-                sParaTemp.put("pay_return_url", alipayConf.pay_return_url);
+                sParaTemp.put("return_url", alipayConf.pay_return_url);
 
             String total_fee = "" + (((float) po.getInt(WnPayObj.KEY_FEE)) / 100.0f);
 
@@ -121,7 +121,11 @@ public class ZfbQrcodePay3x extends WnPay3x {
 
     public AlipayConfig getConfig(WnPayObj po) {
         WnUsr seller = run.usrs().check("id:" + po.getString(WnPayObj.KEY_SELLER_ID));
-        WnObj conf = io.check(null, seller.home() + "/.alipay/" + seller.name() + "/alipayconf");
+        WnObj conf = io.check(null,
+                              seller.home()
+                                    + "/.alipay/"
+                                    + po.getString(WnPayObj.KEY_PAY_TARGET)
+                                    + "/alipayconf");
         return io.readJson(conf, AlipayConfig.class);
     }
 

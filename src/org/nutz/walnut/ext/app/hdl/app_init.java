@@ -104,6 +104,14 @@ public class app_init implements JvmHdl {
             c = new NutMap();
         }
 
+        // 上下文一定要增加的键
+        NutMap sysconf = sys.getSysConf();
+        String hostAndPort = sysconf.getString("mainHost", "localhost");
+        int port = sysconf.getInt("mainPort", 80);
+        if (port > 80)
+            hostAndPort += ":" + port;
+        c.put("hostAndPort", hostAndPort);
+
         // 优先处理文件结构
         WnObj oFileS = sys.io.fetch(oTmpl, "_files");
         if (null != oFileS) {

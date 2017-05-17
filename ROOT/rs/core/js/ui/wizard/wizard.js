@@ -40,11 +40,11 @@ return ZUI.def("ui.wizard", {
     //...............................................................
     events : {
         // 点击上一步
-        'click .wizard > footer > a[md="prev"]' : function(e){
+        'click .wizard > footer > b[m="prev"]' : function(e){
             this.gotoStep(-1);
         },
         // 点击下一步
-        'click .wizard > footer > a[md="next"]' : function(e){
+        'click .wizard > footer > b[enabled][m="next"]' : function(e){
             var UI   = this;
             var opt  = UI.options;
             var step = UI.getCurrentStep();
@@ -74,7 +74,7 @@ return ZUI.def("ui.wizard", {
             UI.gotoStep(stepKey);
         },
         // 点击完成
-        'click .wizard > footer > a[md="done"]' : function(e){
+        'click .wizard > footer > b[m="done"]' : function(e){
             var UI   = this;
             var opt  = UI.options;
             var data = UI.getData();
@@ -109,22 +109,26 @@ return ZUI.def("ui.wizard", {
         }
 
         // 预先处理所有步骤
+        var i = 1;
         for(var key in opt.steps) {
             var step = opt.steps[key];
 
+            // 记录本身的 Key
+            step.key   = key;
+            step.index = i++;
+
             // 为步骤设置标题
             var jLi  = $('<li>').attr("w-key", key);
-            if(step.icon) {
-                $('<span class="wzh-icon">').html(step.icon)
-                    .appendTo(jLi);
-            }
-            if(step.text) {
-                $('<span class="wzh-text">').text(UI.text(step.text))
-                    .appendTo(jLi);
-            }
-            if(!step.icon && !step.text) {
-                $('<span class="wzh-text">').text(key).appendTo(jLi);
-            }
+            
+            // 步骤图标
+            $('<span class="wzh-icon">').html(step.icon || step.index)
+                .appendTo(jLi);
+            
+            // 步骤文字
+            $('<span class="wzh-text">').text(UI.text(step.text || step.key))
+                .appendTo(jLi);
+            
+            // 加入列表
             jLi.appendTo(jUl);
         }
         
@@ -174,8 +178,12 @@ return ZUI.def("ui.wizard", {
         }
 
         // 标记头部
-        jUl.children().removeAttr("current")
-            .filter('[w-key="'+stepKey+'"]').attr("current", "yes");
+        jUl.children().removeAttr("md");
+        for(var i=0; i<UI.__steps.length-1; i++) {
+            var s0 = UI.__steps[i];
+            jUl.find('li[w-key="'+s0.key+'"]').attr("md", "done");
+        }
+        jUl.find('li[w-key="'+step.key+'"]').attr("md", "current");
 
         // 准备标记按钮
         jFooter.empty();
@@ -184,21 +192,21 @@ return ZUI.def("ui.wizard", {
         if(step.action) {
             // 是最后一步
             if(step.action.done) {
-                var jBtn = $('<a m="done">').appendTo(jFooter);
+                var jBtn = $('<b m="done">').appendTo(jFooter);
                 $('<span>').text(UI.text("i18n:done")).appendTo(jBtn);
             }
             // 中间步骤的话 ...
             else if(step.action.jumpTo){
                 // 显示上一步的按钮
                 if(UI.__last_step) {
-                    $('<a m="prev">')
+                    $('<b m="prev">')
                         .append('<i class="zmdi zmdi-chevron-left"></i>')
                         .append($('<span>').text(UI.text("i18n:prev")))
                             .appendTo(jFooter);
                 }
 
                 // 显示下一步
-                var jBtn = $('<a m="next">').appendTo(jFooter);
+                var jBtn = $('<b m="next">').appendTo(jFooter);
                 if(step.action.icon) {
                     jBtn.html(step.action.icon);
                 }
@@ -230,6 +238,16 @@ return ZUI.def("ui.wizard", {
     //...............................................................
     checkNextBtnStatus : function(){
         var UI = this;
+        var jB = UI.arena.find('> footer > b[m="next"]');
+
+        // 看看按钮状态
+        if(jB.length > 0 && UI.gasket.main && $z.invoke(UI.gasket.main, "isDataReady",[])) {
+            jB.attr("enabled", "yes");
+        }
+        // 按钮灰掉
+        else {
+            jB.removeAttr("enabled");
+        }
     },
     //...............................................................
     getCurrentStep : function(){

@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.json.Json;
 import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
@@ -27,6 +28,7 @@ import org.nutz.lang.util.Context;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
@@ -1030,6 +1032,21 @@ public abstract class Wn {
 
         // 返回递归
         return real(o2, io, memo);
+    }
+
+    /**
+     * @param io
+     *            IO 接口
+     * @return 系统配置对象
+     */
+    public static NutMap getSysConf(WnIo io) {
+        return Wn.WC().nosecurity(io, new Proton<NutMap>() {
+            protected NutMap exec() {
+                WnObj oSysConf = io.check(null, "/etc/sysconf");
+                String json = io.readText(oSysConf);
+                return Json.fromJson(NutMap.class, json);
+            }
+        });
     }
 
 }

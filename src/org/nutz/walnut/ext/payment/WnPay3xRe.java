@@ -12,6 +12,8 @@ import java.util.Set;
  */
 public class WnPay3xRe {
 
+    private String payObjId;
+
     private WnPay3xStatus status;
 
     private Set<String> changedKeys;
@@ -19,6 +21,14 @@ public class WnPay3xRe {
     private WnPay3xDataType dataType;
 
     private Object data;
+
+    public String getPayObjId() {
+        return payObjId;
+    }
+
+    public void setPayObjId(String payObjId) {
+        this.payObjId = payObjId;
+    }
 
     public boolean isStatusOk() {
         return WnPay3xStatus.OK == this.status;
