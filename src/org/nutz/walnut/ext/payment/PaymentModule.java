@@ -120,7 +120,7 @@ public class PaymentModule extends AbstractWnModule {
      *            请求对象
      */
     public void noti_by_alipay_sync(HttpServletRequest req) {
-
+        
     }
 
     /**

@@ -1,5 +1,5 @@
 ---
-title: 遮罩控件
+title: 向导控件
 author:zozoh
 ---
 
@@ -38,17 +38,24 @@ new WizardUI({
             text : 'i18n:xxx',  // 「选」文字描述
             
             // 界面控件(必须支持getData/setData)
+            // 可选方法为 isDataReady(data)，
+            // 向导通过这个函数来判断是否显示 "下一步"
             uiType : "name/to/ui",  
             uiConf : {..}
             
-            // 当前步骤支持的操作，如果为空，则不显示
-            actions : [{
+            // 下一步的操作按钮行为
+            // 如果没有这个属性，则表示向导结束了
+            next : {
                 icon : '<..>'      // 按钮图标
                 text : 'i18n:xxx'  // 按钮文字
                 
                 // 执行后进入哪一步，可以是字符串或者函数
-                jumpTo : 'step2' | {c}F(data):step
-            }]
+                jumpTo : 'step2' | {c}F(data, uiWizard):step
+                
+                // 如果是最后一步，那么声明这个属性
+                // 如果是 true 不是一个函数的话，就不会调用，仅仅作为最后一步显示
+                done : {c}F(data, uiWizard):step
+            }
         },
         "step2" : {
             // 另一个步骤的配置
@@ -58,12 +65,15 @@ new WizardUI({
     // 各个回调函数的上下文，默认为 WizardUI 实例自身
     context : UI
     //..........................................
+    // 当向导被完成时的回调
+    on_done : {c}F(data, uiWizard)
+    //..........................................
 }).render(function(){
     // 这里你可以更灵活的设置初始数据
     this.setData({..});
     
     // 也可以更灵活的设置初始步骤
-    this.setStartPoint("step1");
+    this.gotoStep("step1");
 });
 ```
 
