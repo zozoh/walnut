@@ -36,7 +36,7 @@ public class ZfbQrcodePay3x extends WnPay3x {
         WnPay3xRe re = new WnPay3xRe();
         re.setDataType(WnPay3xDataType.LINK);
         AlipayConfig alipayConf = getConfig(po);
-        
+
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 填充 map 的字段
         // 把请求参数打包成数组
@@ -49,21 +49,23 @@ public class ZfbQrcodePay3x extends WnPay3x {
             sParaTemp.put("_input_charset", "UTF-8");
             sParaTemp.put("payment_type", alipayConf.payment_type);
 
-            // 支付完成(成功或失败均未知)时的回调  TODO 
+            // 支付完成(成功或失败均未知)时的回调 TODO
             if (!Strings.isBlank(alipayConf.pay_notify_url))
                 sParaTemp.put("pay_notify_url", alipayConf.pay_notify_url);
             else if (!Strings.isBlank(alipayConf.pay_return_url))
                 sParaTemp.put("pay_return_url", alipayConf.pay_return_url);
-            
+
+            String total_fee = "" + (((float) po.getInt(WnPayObj.KEY_FEE)) / 100.0f);
+
             sParaTemp.put("anti_phishing_key", "");
             sParaTemp.put("exter_invoke_ip", "");
             sParaTemp.put("out_trade_no", po.id());
             sParaTemp.put("subject", po.getString(WnPayObj.KEY_BRIEF, "测试商品"));
-            sParaTemp.put("total_fee", po.getString(WnPayObj.KEY_FEE));
+            sParaTemp.put("total_fee", total_fee);
             sParaTemp.put("body", po.getString(WnPayObj.KEY_BRIEF, "测试商品"));
             // 其他业务参数根据在线开发文档，添加参数.文档地址:https://doc.open.alipay.com/doc2/detail.htm?spm=a219a.7629140.0.0.O9yorI&treeId=62&articleId=103740&docType=1
             // 如sParaTemp.put("参数名","参数值");
-            //sParaTemp.put("extra_common_param", po.id());
+            // sParaTemp.put("extra_common_param", po.id());
 
             // 签名
             sParaTemp = AlipaySubmit.buildRequestPara(sParaTemp, alipayConf);
@@ -90,7 +92,7 @@ public class ZfbQrcodePay3x extends WnPay3x {
 
     @Override
     public WnPay3xRe check(WnPayObj po) {
-        //AlipayConfig alipayConfig = this.getConfig(po);
+        // AlipayConfig alipayConfig = this.getConfig(po);
         // 暂不实现
         WnPay3xRe re = new WnPay3xRe();
         re.setDataType(WnPay3xDataType.TEXT);
@@ -102,7 +104,7 @@ public class ZfbQrcodePay3x extends WnPay3x {
     @Override
     public WnPay3xRe complete(WnPayObj po, NutMap req) {
         AlipayConfig alipayConfig = this.getConfig(po);
-        Map<String, String> params = (Map<String, String>)(Map)req;
+        Map<String, String> params = (Map<String, String>) (Map) req;
         WnPay3xRe re = new WnPay3xRe();
         if (AlipayNotify.verify(params, alipayConfig)) {
             String trade_status = params.get("trade_status");
@@ -116,10 +118,10 @@ public class ZfbQrcodePay3x extends WnPay3x {
         }
         return re;
     }
-    
+
     public AlipayConfig getConfig(WnPayObj po) {
         WnUsr seller = run.usrs().check("id:" + po.getString(WnPayObj.KEY_SELLER_ID));
-        WnObj conf = io.check(null, seller.home() + "/.alipay/"+seller.name()+"/alipayconf");
+        WnObj conf = io.check(null, seller.home() + "/.alipay/" + seller.name() + "/alipayconf");
         return io.readJson(conf, AlipayConfig.class);
     }
 
