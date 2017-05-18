@@ -20,7 +20,7 @@ public class ml_image999 implements JvmHdl {
         int block_h = hc.params.getInt("block_h", 32);
         int x = hc.params.getInt("x", 0);
         int y = hc.params.getInt("y", 0);
-        int gray_min = hc.params.getInt("gray_min", 248);
+        int gray_min = hc.params.getInt("gray_min", 238);
         String label = hc.params.getString("label", "999");
         BufferedImage image = null;
         if (hc.params.vals.length > 0) {
@@ -28,8 +28,7 @@ public class ml_image999 implements JvmHdl {
             try (InputStream ins = sys.io.getInputStream(wobj, 0)) {
                 image = Images.read(ins);
             }
-            catch (IOException e) {
-            }
+            catch (IOException e) {}
         } else {
             image = Images.read(sys.in.getInputStream());
         }
@@ -37,7 +36,7 @@ public class ml_image999 implements JvmHdl {
             sys.err.println("bad image");
             return;
         }
-        
+
         // 全图转灰度
         int[][] gray = MlImages.toGray(image, x, y, image.getWidth(), image.getHeight());
         // 按块大小计算块内的平均灰度
