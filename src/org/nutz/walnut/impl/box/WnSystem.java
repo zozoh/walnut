@@ -159,7 +159,7 @@ public class WnSystem {
      *            操作
      */
     public void nosecurity(Atom atom) {
-        Wn.WC().security(new WnEvalLink(io), atom);
+        Wn.WC().nosecurity(io, atom);
     }
 
     /**
@@ -171,7 +171,7 @@ public class WnSystem {
      * @return 返回结果
      */
     public <T> T nosecurity(Proton<T> proton) {
-        return Wn.WC().security(new WnEvalLink(io), proton);
+        return Wn.WC().nosecurity(io, proton);
     }
 
     /**
@@ -198,5 +198,12 @@ public class WnSystem {
      */
     public <T> T core(boolean synctimeOff, Proton<T> proton) {
         return Wn.WC().core(new WnEvalLink(io), synctimeOff, null, proton);
+    }
+
+    /**
+     * @return 系统配置对象
+     */
+    public NutMap getSysConf() {
+        return Wn.getSysConf(io);
     }
 }

@@ -80,10 +80,16 @@ public class WnPayment {
     }
 
     private WnPay3xRe __re(WnPayObj po, WnPay3xRe re) {
+        // 持久化改动
         if (re.hasChangedKeys()) {
             String regex = "^(" + Strings.join("|", re.getChangedKeys()) + ")$";
             run.io().set(po, regex);
         }
+
+        // 确保设置了 poId
+        re.setPayObjId(po.id());
+
+        // 返回
         return re;
     }
 
@@ -171,7 +177,7 @@ public class WnPayment {
         }
         return run.nosecurity(new Proton<WnPay3xRe>() {
             protected WnPay3xRe exec() {
-                return __do_send(po, target, args);
+                return __do_send(po, payType, target, args);
             }
         });
     }
@@ -224,6 +230,9 @@ public class WnPayment {
         wpi.checkBuyer(run.usrs());
         WnUsr seller = wpi.checkSeller(run.usrs(), me);
 
+        // 确保有简介
+        wpi.checkBrief();
+
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查
         // 执行操作的如果不是 root 组管理员，那么标定的卖家必须是自己
@@ -255,8 +264,8 @@ public class WnPayment {
 
         // 固定的初始化值
         meta.put("tp", "wn_payment");
-        meta.put(WnPayObj.KEY_CUR, WnPay3xStatus.NEW);
-        meta.setnx(WnPayObj.KEY_ST, "RMB");
+        meta.put(WnPayObj.KEY_CUR, "RMB");
+        meta.setnx(WnPayObj.KEY_ST, WnPay3xStatus.NEW);
         meta.setnx(WnPayObj.KEY_SEND_AT, 0);
         meta.setnx(WnPayObj.KEY_CLOSE_AT, 0);
 
@@ -346,23 +355,18 @@ public class WnPayment {
         return list;
     }
 
-    private WnPay3xRe __do_send(WnPayObj po, String target, String... args) {
+    private WnPay3xRe __do_send(WnPayObj po, String payType, String target, String... args) {
         // 检查权限
         __assert_the_seller(po);
+
+        // 首先保存一下支付类型
+        po.setv(WnPayObj.KEY_PAY_TP, payType);
 
         // 得到接口
         WnPay3x pay = _3X(po);
 
-        // 如果商户号未设置
-        String poTa = po.getString(WnPayObj.KEY_PAY_TARGET);
-        if (Strings.isBlank(poTa)) {
-            po.setv(WnPayObj.KEY_PAY_TARGET, target);
-            run.io().set(po, "^(" + WnPayObj.KEY_PAY_TARGET + ")$");
-        }
-        // 商户号不匹配
-        else if (!poTa.equals(target)) {
-            throw Er.create("e.pay.send.target_no_match");
-        }
+        // 设置商户号
+        po.setv(WnPayObj.KEY_PAY_TARGET, target);
 
         // 执行
         WnPay3xRe re = pay.send(po, args);
@@ -372,7 +376,9 @@ public class WnPayment {
         po.setv(WnPayObj.KEY_RE_TP, re.getDataType());
         po.setv(WnPayObj.KEY_RE_OBJ, re.getData());
         po.setv(WnPayObj.KEY_SEND_AT, System.currentTimeMillis());
-        re.addChangeKeys(WnPayObj.KEY_ST,
+        re.addChangeKeys(WnPayObj.KEY_PAY_TP,
+                         WnPayObj.KEY_PAY_TARGET,
+                         WnPayObj.KEY_ST,
                          WnPayObj.KEY_RE_TP,
                          WnPayObj.KEY_RE_OBJ,
                          WnPayObj.KEY_SEND_AT);

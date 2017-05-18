@@ -44,7 +44,7 @@ public class WxScanPay3x extends WnPay3x {
             throw Lang.impossible();
         }
         
-        int total_fee = (int)(po.getDouble(WnPayObj.KEY_FEE) * 100);
+        int total_fee = po.getInt(WnPayObj.KEY_FEE);
         
         NutMap params = po.getAs(KEY_wxpay_send, NutMap.class);
         if (params == null) {

@@ -1,0 +1,73 @@
+.wizard {
+    @flex(); flex-direction:column;
+    font-size: @f3; font-family: @f_fixed;
+
+    // 全局标题
+    > .wz-title { flex:0 0 auto;
+        padding:@d3 @d4; background: @cb3; color:@cf3;
+        font-size: @f2;
+    }
+
+    // 步骤标题 
+    > header { flex:0 0 auto;
+        padding:@d3; background: @cb0;
+        > ul {@flex(); 
+            padding:@d4; border-bottom:1px solid @cborder1;
+            li {
+                margin-right:@d4;
+                > span {display: block; float: left;}
+                span.wzh-icon {
+                    border-radius:50%; height:32px; width:32px;
+                    line-height: 30px; text-align: center;
+                    background: @cb3; color:@cf3;
+                    border:1px solid @cborder1;
+                }
+                span.wzh-text {
+                    height:32px; line-height: 32px;
+                    padding:0 @d2;
+                }
+            }
+            li:after{@clr();}
+        }
+    }
+
+    // 步骤内容
+    > section { flex:1 1 auto;
+        padding:@d3; background: @cb0;
+    }
+
+    // 底部按钮区
+    > footer { flex:0 0 auto;
+        padding:@d3; background: @cb1; color:@cf1;
+        @flex(); justify-content: flex-end;
+        > b {@btn(); padding:@d3 @d5; font-size:@f3; 
+            opacity: 0.3; cursor: default;
+        }
+        > b[enabled]{opacity: 1; cursor: pointer;}
+        > b[enabled]:hover{@btn_hover();}
+    }
+}
+
+.wizard[head-mode="single"] {
+    > header > ul {
+        li {display: none;}
+        li[md="current"]{display: block;}
+    }
+}
+
+.wizard[head-mode="all"] {
+    > header > ul {
+        > li {opacity: 0.5;}
+        > li[md="done"]{opacity: 1;
+            color:@c7; 
+        }
+        > li[md="current"]{opacity: 1;
+            color:@c5; font-weight: bold;
+            span.wzh-icon {
+                color:@chy_f; background: @chy_b; border-color:@chy_b;
+                box-shadow: 1px 1px 3px @cshadow;
+            }
+        }
+        
+    }
+}

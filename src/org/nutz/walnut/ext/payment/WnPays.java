@@ -18,7 +18,7 @@ public abstract class WnPays {
     public static WnPayInfo genPayInfo(String bu, String se) {
         WnPayInfo wpi = new WnPayInfo();
         fillBuyer(wpi, bu);
-        fillBuyer(wpi, se);
+        fillSeller(wpi, se);
         return wpi;
     }
 
@@ -68,7 +68,7 @@ public abstract class WnPays {
 
         // 合法
         if (m.find()) {
-            wpi.fee = Float.parseFloat(m.group(1));
+            wpi.fee = Integer.parseInt(m.group(1));
             wpi.cur = Strings.sBlank(m.group(4), null);
         }
         // 非法

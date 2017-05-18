@@ -29,7 +29,6 @@ import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.ext.job.hdl.job_abstract;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
 
 @IocBean
@@ -262,7 +261,7 @@ public class WnRun {
      *            操作
      */
     public void nosecurity(Atom atom) {
-        Wn.WC().security(new WnEvalLink(io), atom);
+        Wn.WC().nosecurity(io, atom);
     }
 
     /**
@@ -274,6 +273,10 @@ public class WnRun {
      * @return 返回结果
      */
     public <T> T nosecurity(Proton<T> proton) {
-        return Wn.WC().security(new WnEvalLink(io), proton);
+        return Wn.WC().nosecurity(io, proton);
+    }
+    
+    public NutMap getSysConf() {
+        return Wn.getSysConf(io);
     }
 }

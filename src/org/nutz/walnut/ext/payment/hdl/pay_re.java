@@ -4,13 +4,16 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
 import org.nutz.walnut.ext.payment.WnPayObj;
 import org.nutz.walnut.ext.payment.WnPayment;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
+@JvmHdlParamArgs("s")
 public class pay_re implements JvmHdl {
 
     @Override
@@ -18,25 +21,32 @@ public class pay_re implements JvmHdl {
         // 得到支付接口
         WnPayment pay = hc.ioc.get(WnPayment.class);
 
-        // 得到支付单对象
-        String poId = hc.params.val_check(0);
-        WnPayObj po = pay.get(poId, false);
-
         // 得到回调请求参数
-        NutMap req;
         String json = hc.params.val(1);
 
         if (Strings.isBlank(json)) {
-            req = Lang.map(json);
-        } else {
-            req = new NutMap();
+            json = sys.in.readAll();
         }
+        NutMap req = Lang.map(json);
+
+        // 得到支付单对象
+        String poIdKey = hc.params.check("idkey");
+        String poId = req.getString(poIdKey);
+        WnPayObj po = null;
+        if (Strings.isBlank(poId))
+            throw Er.create("e.cmd.pay.re.noPoId");
+
+        // 强制获取支付单
+        po = pay.get(poId, false);
 
         // 完成支付单
         WnPay3xRe re = pay.complete(po, req);
 
         // 输出
-        sys.out.println(Json.toJson(re));
+        if (hc.params.is("s"))
+            sys.out.println("success");
+        else
+            sys.out.println(Json.toJson(re));
     }
 
 }

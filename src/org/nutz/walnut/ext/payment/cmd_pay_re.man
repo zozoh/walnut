@@ -10,8 +10,9 @@
 =======
 
 ```    
-pay re [poId]     # 「必」支付单 ID
-       [JSON]     # 「选」回调发送的请求，如果没有，则从标准输入读取
+pay re [JSON]        # 「选」回调发送的请求，如果没有，则从标准输入读取
+       [-idkey xxx]  # 「必」在请求参数里面哪个键表示的是支付单 ID
+       [-s]          # 输出成功字符串 success
 ```
 
 命令输出与 `pay send` 格式相同
@@ -21,5 +22,5 @@ pay re [poId]     # 「必」支付单 ID
 
 ```
 # 处理某支付单的后续回调
-demo@~$ httpparam 5g..9a | pay re 45..e3 
+demo@~$ httpparam -in id:xxx | pay re 45..e3 -s
 ```

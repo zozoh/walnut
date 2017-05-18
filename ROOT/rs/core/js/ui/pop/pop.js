@@ -82,7 +82,7 @@ module.exports = {
                     // 调用回调
                     $z.invoke(opt, "on_ok", [objs], context);
 
-                    // 关闭对话框
+                    // 关闭弹出框
                     uiMask.close();
                 },
                 "click .pm-btn-cancel" : function(){
@@ -94,7 +94,7 @@ module.exports = {
                     // 调用回调
                     $z.invoke(uiMask.options, "on_cancel", [], context);
 
-                    // 关闭对话框
+                    // 关闭弹出框
                     uiMask.close();
                 }
             }
@@ -178,11 +178,11 @@ module.exports = {
     // 打开一个文本编辑器（弹出），接受的参数格式为:
     /*
     opt : {
-        title       : "i18n:xxx"    // 对话框标题
-        arenaClass  : "xxx",        // 对话框主题的类选择器
-        width       : 900           // 对话框宽度
-        height      : "90%"         // 对话框高度
-        i18n        : i18n          // 对话框控件组的 i18n 设定
+        title       : "i18n:xxx"    // 弹出框标题
+        arenaClass  : "xxx",        // 弹出框主题的类选择器
+        width       : 900           // 弹出框宽度
+        height      : "90%"         // 弹出框高度
+        i18n        : i18n          // 弹出框控件组的 i18n 设定
         contentType : "text"        // 编辑内容类型
         data        : 要编辑的值
         callback    : 回调函数接受 callback(href)
@@ -240,13 +240,13 @@ module.exports = {
     // 打开一个表单器（弹出），接受的参数格式为:
     /*
     {
-        title       : "i18n:xxx"    // 对话框标题
-        arenaClass  : "xxx",        // 对话框主题的类选择器
-        width       : 900           // 对话框宽度
-        height      : "90%"         // 对话框高度
-        escape      : false         // 对话框支持 Esc 关闭，默认 false
-        closer      : false         // 对话框显示关闭按钮
-        i18n        : i18n          // 对话框控件组的 i18n 设定
+        title       : "i18n:xxx"    // 弹出框标题
+        arenaClass  : "xxx",        // 弹出框主题的类选择器
+        width       : 900           // 弹出框宽度
+        height      : "90%"         // 弹出框高度
+        escape      : false         // 弹出框支持 Esc 关闭，默认 false
+        closer      : false         // 弹出框显示关闭按钮
+        i18n        : i18n          // 弹出框控件组的 i18n 设定
         form        : {..}          // 表单配置项
         data        : 要编辑的值
         after       : 回调函数, 设置完数据会调用 {uiForm}after(data)
@@ -301,24 +301,75 @@ module.exports = {
         });
     },
     //...............................................................
+    // 打开一个向导界面（弹出），它接受的参数格式为:
+    /*
+    {
+        width       : 900           // 弹出框宽度
+        height      : "90%"         // 弹出框高度
+        i18n        : i18n          // 弹出框控件组的 i18n 设定
+        ready       : 回调函数, body加载完会调用 {c}F(uiMask.body)
+        context     : MaskUI    // 回调的上下文，默认是 uiMask.body
+        // 下面是所有向导控件支持的属性
+        title, headMode, data, startPoint, steps, on_done ...
+    }
+    */
+    openWizard : function(opt, referUI) {
+        opt = opt || {};
+        referUI  = referUI  || {};
+
+        // 填充默认值
+        $z.setUndefined(opt, "width", 640);
+        $z.setUndefined(opt, "height", 480);
+
+        // 准备向导界面配置项 
+        var wzConf = $z.pick(opt, "!^(width|height|ready)$");
+        var usr_on_done = null;
+        if(_.isFunction(wzConf.on_done)){
+            usr_on_done = wzConf.on_done; 
+        }
+        // 完成就关闭弹出框
+        wzConf.on_done = function(data, uiWizard){
+            uiWizard.parent().close();
+            $z.doCallback(usr_on_done, [data, uiWizard], this);
+        };
+
+        // 打开编辑器
+        new MaskUI({
+            i18n : referUI._msg_map,
+            exec : referUI.exec,
+            app  : referUI.app,
+            width  : opt.width,
+            height : opt.height,
+            escape : false,
+            closer : true,
+            setup : {
+                uiType : 'ui/wizard/wizard',
+                uiConf : wzConf
+            }
+        }).render(function(){
+            var context = opt.context || this.body;
+            $z.invoke(opt, "ready", [this.body], context);
+        });
+    },
+    //...............................................................
     // 打开一个自定义界面（弹出），接受的参数格式为:
     /*
     opt : {
-        title       : "i18n:xxx"    // 对话框标题
-        arenaClass  : "xxx",        // 对话框主题的类选择器
-        width       : 900           // 对话框宽度
-        height      : "90%"         // 对话框高度
-        escape      : true          // 对话框支持 Esc 关闭，默认 true
-        closer      : true          // 对话框显示关闭按钮，默认 true
-        i18n        : i18n          // 对话框控件组的 i18n 设定
+        title       : "i18n:xxx"    // 弹出框标题
+        arenaClass  : "xxx",        // 弹出框主题的类选择器
+        width       : 900           // 弹出框宽度
+        height      : "90%"         // 弹出框高度
+        escape      : true          // 弹出框支持 Esc 关闭，默认 true
+        closer      : true          // 弹出框显示关闭按钮，默认 true
+        i18n        : i18n          // 弹出框控件组的 i18n 设定
         setup       : {             // UI 配置项
             uiType : "xxxx"         // UI 的类型
             uiConf : {..}           // UI 的具体配置项目
         }          
         ready       : 回调函数, body加载完会调用 {c}F(uiMask.body)
         context     : MaskUI    // 回调的上下文，默认是 uiMask.body
-        ok     : {c}F(uiMask.body):Boolean   // 返回 false 将阻止对话框关闭
-        cancel : {c}F(uiMask.body):Boolean   // 返回 false 将阻止对话框关闭
+        ok     : {c}F(uiMask.body):Boolean   // 返回 false 将阻止弹出框关闭
+        cancel : {c}F(uiMask.body):Boolean   // 返回 false 将阻止弹出框关闭
         btnOk     : "i18n:ok"        // 默认 "i18n:ok", null 表示隐藏该按钮
         btnCancel : "i18n:cancel"    // 默认 "i18n:cancel", null 表示隐藏该按钮
     }
