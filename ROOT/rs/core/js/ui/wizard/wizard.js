@@ -30,73 +30,99 @@ return ZUI.def("ui.wizard", {
             }
         }
 
-        // 准备步骤的堆栈
+        // 预先处理所有步骤
         UI.__steps = [];
+        var i = 0;
+        for(var key in opt.steps) {
+            var step = opt.steps[key];
+
+            // 记录本身的 Key
+            step.key   = key;
+            step.index = i++;
+
+            // 格式三个按钮
+            UI.__normalize_step_btn(step, "prev", true);
+            UI.__normalize_step_btn(step, "next");
+            UI.__normalize_step_btn(step, "done");
+
+            // 加入列表
+            UI.__steps.push(step);
+        }
+
+        // 标记当前步骤 
+        UI.__index = -1;
 
         // 设置默认数据
         UI.setData(opt.data);
 
     },
     //...............................................................
+    __normalize_step_btn : function(step, btnKey, dft) {
+        var btn = step[btnKey];
+        if(_.isUndefined(btn))
+            btn = dft;
+        if(!_.isUndefined(btn)) {
+            if(!_.isObject(btn)){
+                step[btnKey] = $z.obj("action", btn);
+            }
+            console.log(btnKey, dft, step)
+        }
+    },
+    //...............................................................
     events : {
-        // 点击上一步
-        'click .wizard > footer > b[m="prev"]' : function(e){
-            this.gotoStep(-1);
-        },
-        // 点击下一步
-        'click .wizard > footer > b[enabled][m="next"]' : function(e){
+        // 点击上底部按钮
+        'click .wizard > footer > b[enabled]' : function(e){
             var UI   = this;
             var opt  = UI.options;
+            var jB   = $(e.currentTarget);
             var step = UI.getCurrentStep();
             var data = UI.getData();
             var context = opt.context || UI;
-            var stepKey;
+            var btnMode = jB.attr("m");
 
-            // 直接跳转到下一步
-            if(_.isString(step.jumpTo)){
-                stepKey = step.jumpTo;
+            // 下一步
+            if("next" == btnMode) {
+                var stepKey;
+
+                // 直接跳转到某一步
+                if(_.isString(step.next.action)){
+                    stepKey = step.next.action;
+                }
+                // 计算下一步
+                else if(_.isFunction(step.next.action)){
+                    stepKey = step.next.action.call(context, data, UI);
+                }
+                // 直接跳转到下一步
+                else {
+                    stepKey = 1;
+                }
+
+                // 保存数据
+                UI.saveData();
+
+                // 执行跳转
+                UI.gotoStep(stepKey);
             }
-            // 计算下一步
-            else if(_.isFunction(step.jumpTo)){
-                stepKey = step.jumpTo.call(context, data, UI);
+            // 上一步
+            else if("prev" == btnMode) {
+                UI.gotoStep(-1);
             }
+            // 完成
+            else if("done" == btnMode) {
+                // 保存数据
+                UI.saveData();
 
-            // 报错
-            if(!stepKey) {
-                alert("no nextStep in step: " + $z.toJson(step));
-                return;
+                // 执行回调
+                $z.invoke(step, "done",    [data, UI], context);
+                $z.invoke(opt,  "on_done", [data, UI], context);
             }
-
-            // 保存数据
-            UI.saveData();
-
-            // 执行跳转
-            UI.gotoStep(stepKey);
-        },
-        // 点击完成
-        'click .wizard > footer > b[m="done"]' : function(e){
-            var UI   = this;
-            var opt  = UI.options;
-            var data = UI.getData();
-            var context = opt.context || UI;
-            var step = UI.getCurrentStep();
-
-            // 保存数据
-            UI.saveData();
-            
-            // 执行回调
-            $z.invoke(step, "done",    [data, UI], context);
-            $z.invoke(opt,  "on_done", [data, UI], context);
         },
     },
     //...............................................................
     redraw : function() {
         var UI  = this;
         var opt = this.options;
-        var jUl = UI.arena.find(">header>ul");
-
-        // 设置数据
-        UI.setData(opt.data);
+        var jUl = UI.arena.find(">header>ul").empty();
 
         // 标记模式
         UI.arena.attr("head-mode", opt.headMode);
@@ -109,19 +135,14 @@ return ZUI.def("ui.wizard", {
         }
 
         // 预先处理所有步骤
-        var i = 1;
-        for(var key in opt.steps) {
-            var step = opt.steps[key];
-
-            // 记录本身的 Key
-            step.key   = key;
-            step.index = i++;
+        for(var i=0; i<UI.__steps.length; i++) {
+            var step = UI.__steps[i];
 
             // 为步骤设置标题
-            var jLi  = $('<li>').attr("w-key", key);
+            var jLi  = $('<li>').attr("w-key", step.key);
             
             // 步骤图标
-            $('<span class="wzh-icon">').html(step.icon || step.index)
+            $('<span class="wzh-icon">').html(step.icon || (step.index+1))
                 .appendTo(jLi);
             
             // 步骤文字
@@ -151,7 +172,8 @@ return ZUI.def("ui.wizard", {
         }
     },
     //...............................................................
-    // stepKey 为 -1 表示弹出
+    // stepKey : 1 表示下一步，-1 表示上一步，字符串表示跳转到某步骤的键值
+    // 
     gotoStep : function(stepKey, callback) {
         var UI  = this;
         var opt = this.options;
@@ -160,61 +182,108 @@ return ZUI.def("ui.wizard", {
         var context = opt.context || UI;
         var data = UI.getData();
 
-        // 得到操作步骤
-        var step;
-        // 弹出
-        if(-1 == stepKey) {
-            step = UI.__steps.pop();
+        //console.log("goto", stepKey, data);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
+        // 切换当前步骤下标
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
+        // 非零数字表示偏移量
+        if(stepKey && _.isNumber(stepKey)) {
+            UI.__index += stepKey;
         }
-        // 压入堆栈
-        else {
-            step = opt.steps[stepKey];
-            if(!step) {
-                alert("!no step in wizard: " + stepKey);
-                $z.doCallback(callback, [data, UI], context);
-                return;
+        // 字符串表示直接跳转的步骤
+        else if(_.isString(stepKey)){
+            UI.__index = -1;
+            for(var i=0; i<UI.__steps.length; i++) {
+                var sp = UI.__steps[i];
+                if(sp.key == stepKey){
+                    UI.__index = sp.index;
+                    break;
+                }
             }
-            UI.__steps.push(step);
         }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
+        // 得到当前操作步骤对象
+        var step = UI.getCurrentStep();
 
+        //console.log("get step", step);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
         // 标记头部
-        jUl.children().removeAttr("md");
-        for(var i=0; i<UI.__steps.length-1; i++) {
-            var s0 = UI.__steps[i];
-            jUl.find('li[w-key="'+s0.key+'"]').attr("md", "done");
+        var jLis = jUl.children().removeAttr("md");
+        for(var i=0; i<UI.__steps.length; i++) {
+            var jLi = jLis.eq(i);
+            if(i < UI.__index)
+                jLi.attr("md", "done");
+            else if(i == UI.__index)
+                jLi.attr("md", "current");
+            else
+                break;
         }
-        jUl.find('li[w-key="'+step.key+'"]').attr("md", "current");
-
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
         // 准备标记按钮
         jFooter.empty();
-
-        // 不是最后一步的话，就有上一步/下一步的按钮
-        if(step.action) {
-            // 是最后一步
-            if(step.action.done) {
-                var jBtn = $('<b m="done">').appendTo(jFooter);
-                $('<span>').text(UI.text("i18n:done")).appendTo(jBtn);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
+        // 弄一下按钮
+        var noDoneBtn = true;
+        var noPrevBtn = true;
+        var noNextBtn = true;
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
+        // 是最后一步
+        if(step.done) {
+            noDoneBtn = false;
+            var jBtn = $('<b m="done" enabled="yes">').appendTo(jFooter);
+            $('<span>').text(UI.text("i18n:done")).appendTo(jBtn);
+        }
+        // 中间步骤的话 ...
+        else {
+            // 显示上一步的按钮
+            console.log(step)
+            if(step.index > 0 && step.prev.action) {
+                noPrevBtn = false;
+                var jBtn = $('<b m="prev" enabled="yes">').appendTo(jFooter);
+                // 指示符
+                $('<span class="btn-di">')
+                    .html('<i class="zmdi zmdi-chevron-left"></i>')
+                        .appendTo(jBtn);
+                // 图标
+                if(step.prev.icon) {
+                    $('<span class="btn-icon">')
+                        .html(step.prev.icon)
+                            .appendTo(jBtn);
+                }
+                // 文字
+                var btnText  = UI.text(step.next.text || "i18n:prev");
+                $('<span class="btn-text">')
+                    .text(btnText)
+                        .appendTo(jBtn);
             }
-            // 中间步骤的话 ...
-            else if(step.action.jumpTo){
-                // 显示上一步的按钮
-                if(UI.__last_step) {
-                    $('<b m="prev">')
-                        .append('<i class="zmdi zmdi-chevron-left"></i>')
-                        .append($('<span>').text(UI.text("i18n:prev")))
-                            .appendTo(jFooter);
-                }
-
-                // 显示下一步
+            // 显示下一步的按钮
+            if(step.next.action){
+                noNextBtn = false;
                 var jBtn = $('<b m="next">').appendTo(jFooter);
-                if(step.action.icon) {
-                    jBtn.html(step.action.icon);
+                // 图标
+                if(step.next.icon) {
+                    $('<span class="btn-icon">')
+                        .html(step.next.icon)
+                            .appendTo(jBtn);
                 }
-                var btnText  = UI.text(step.action.text || "i18n:next");
-                $('<span>').text(btnText).appendTo(jBtn);
+                // 文字
+                var btnText  = UI.text(step.next.text || "i18n:next");
+                $('<span class="btn-text">')
+                    .text(btnText)
+                        .appendTo(jBtn);
+                // 指示符
+                $('<span class="btn-di">')
+                    .html('<i class="zmdi zmdi-chevron-right"></i>')
+                        .appendTo(jBtn);
             }
         }
-
+        // 如果没有按钮，隐藏底栏
+        if(noPrevBtn && noNextBtn && noDoneBtn){
+            jFooter.hide();
+        }else{
+            jFooter.show();
+        }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
         // 显示界面
         seajs.use(step.uiType, function(TheUI){
             new TheUI(_.extend({}, step.uiConf, {
@@ -223,12 +292,15 @@ return ZUI.def("ui.wizard", {
                 context : context,
             })).render(function(){
                 // 设置数据
-                this.setData(data);
+                $z.invoke(this, "setData", [data]);
 
                 // 确保重新调整尺寸
                 window.setTimeout(function(){
                     UI.gasket.main.resize();
                 }, 0);
+
+                // 确保下一步按钮状态被更新
+                UI.checkNextBtnStatus();
 
                 // 调用回调
                 $z.doCallback(callback, [data, UI], context);
@@ -251,9 +323,26 @@ return ZUI.def("ui.wizard", {
     },
     //...............................................................
     getCurrentStep : function(){
-        if(this.__steps.length > 0)
-            return this.__steps[this.__steps.length - 1];
+        if(this.__index < 0) {
+            alert("!no step in wizard: " + this.__index);
+            return;
+        }
+        return this.getStep(this.__index);
+    },
+    //...............................................................
+    // index 下标。 -1 表示最后一个，-2 表示倒数第二个，以此类推。
+    //       大于等于 0 的，直接就是下标
+    getStep : function(index){
+        if(index < 0)
+            index += this.__steps.length;
+        if(index >= 0){
+            return index<this.__steps.length ? this.__steps[index] : null;
+        }
         return null;
+    },
+    //...............................................................
+    getStepByOffset : function(off){
+        return this.getStep(this.__index + off);
     },
     //...............................................................
     getData : function() {

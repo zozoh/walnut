@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.hmaker.util.com;
 
 import org.jsoup.nodes.Element;
 import org.nutz.lang.Strings;
-import org.nutz.markdown.Markdown;
+import org.nutz.plugins.zdoc.markdown.Markdown;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
 public class hmc_text extends AbstractSimpleCom {

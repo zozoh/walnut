@@ -14,8 +14,8 @@
         > ul {@flex(); 
             padding:@d4; border-bottom:1px solid @cborder1;
             li {
-                margin-right:@d4;
-                > span {display: block; float: left;}
+                margin-right:@d4; text-align: center;
+                > span {display: inline-block;}
                 span.wzh-icon {
                     border-radius:50%; height:32px; width:32px;
                     line-height: 30px; text-align: center;
@@ -58,13 +58,11 @@
 .wizard[head-mode="all"] {
     > header > ul {
         > li {opacity: 0.5;}
-        > li[md="done"]{opacity: 1;
-            color:@c7; 
-        }
+        > li[md="done"]{opacity: 1;}
         > li[md="current"]{opacity: 1;
-            color:@c5; font-weight: bold;
+            color:@c7; 
             span.wzh-icon {
-                color:@chy_f; background: @chy_b; border-color:@chy_b;
+                color:@c7; background: @cb0; border-color:@c7;
                 box-shadow: 1px 1px 3px @cshadow;
             }
         }

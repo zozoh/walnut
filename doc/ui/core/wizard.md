@@ -42,20 +42,26 @@ new WizardUI({
             // 向导通过这个函数来判断是否显示 "下一步"
             uiType : "name/to/ui",  
             uiConf : {..}
-            
-            // 下一步的操作按钮行为
+           
+            // 下一步按钮的行为
             // 如果没有这个属性，则表示向导结束了
+            // 如果不是一个对象，那么则表示直接是 action
             next : {
                 icon : '<..>'      // 按钮图标
                 text : 'i18n:xxx'  // 按钮文字
                 
                 // 执行后进入哪一步，可以是字符串或者函数
-                jumpTo : 'step2' | {c}F(data, uiWizard):step
-                
-                // 如果是最后一步，那么声明这个属性
-                // 如果是 true 不是一个函数的话，就不会调用，仅仅作为最后一步显示
-                done : {c}F(data, uiWizard):step
-            }
+                // true 表示一定是下一步
+                action : 'step2' | {c}F(data, uiWizard):step | true
+            },
+            
+            // 上一步按钮的行为
+            // 默认的话，会回到上一步
+            prev : {}
+            
+            // 完成按钮的行为，如果声明了这个端，表示本步骤为最后一步
+            // 那么 next 段会被无视
+            done : {}
         },
         "step2" : {
             // 另一个步骤的配置
