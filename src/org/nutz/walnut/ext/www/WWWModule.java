@@ -181,6 +181,7 @@ public class WWWModule extends AbstractWnModule {
     public View show_page(String usr,
                           String a_path,
                           HttpServletRequest req,
+                          HttpServletResponse resp,
                           @ReqHeader("User-Agent") String ua) {
         // 如果有的话，去掉开头的绝对路径符
         if (null == a_path) {
@@ -368,6 +369,8 @@ public class WWWModule extends AbstractWnModule {
             }
             // 输出吧
             WnObj o2 = Wn.WC().whenRead(o, false);
+            if (checkEtag(o2, req, resp))
+                return HTTP_304;
             return new WnObjDownloadView(io, o2, ua);
 
         }
