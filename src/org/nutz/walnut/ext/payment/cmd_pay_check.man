@@ -21,5 +21,5 @@ pay check [poId]     # 「必」支付单的ID
 
 ```
 # 检查某支付单状态
-demo@~$ pay check 4g..3a wx.qrcode
+demo@~$ pay check 4g..3a
 ```

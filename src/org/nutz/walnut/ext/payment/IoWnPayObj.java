@@ -98,6 +98,7 @@ public class IoWnPayObj extends WnBean implements WnPayObj {
     @Override
     public WnPay3xRe getPayReturn() {
         WnPay3xRe re = new WnPay3xRe();
+        re.setPayObjId(this.id());
         re.setStatus(this.status());
         re.setData(this.get(KEY_RE_OBJ));
         re.setDataType(this.getEnum(KEY_RE_TP, WnPay3xDataType.class));
