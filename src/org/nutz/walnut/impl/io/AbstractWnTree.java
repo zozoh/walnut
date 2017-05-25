@@ -575,12 +575,12 @@ public abstract class AbstractWnTree implements WnTree {
         }
         // 如果存在的是一个文件
         else if (ta.isFILE()) {
-            throw Er.create("e.io.exists", destPath);
+            throw Er.create("e.io.obj.exists", destPath);
         }
 
         // 还不存在不能忍啊
         if (null == ta) {
-            throw Er.create("e.io.noexists", taPath);
+            throw Er.create("e.io.obj.noexists", taPath);
         }
 
         // 确认目标能写入
@@ -860,7 +860,7 @@ public abstract class AbstractWnTree implements WnTree {
     public WnObj checkById(String id) {
         WnObj o = get(id);
         if (null == o)
-            throw Er.create("e.io.noexists", "id:" + id);
+            throw Er.create("e.io.obj.noexists", "id:" + id);
         return o;
     }
 
@@ -868,7 +868,7 @@ public abstract class AbstractWnTree implements WnTree {
     public WnObj check(WnObj p, String path) {
         WnObj o = fetch(p, path);
         if (null == o)
-            throw Er.create("e.io.noexists", path);
+            throw Er.create("e.io.obj.noexists", path);
         return o;
     }
 

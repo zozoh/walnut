@@ -108,7 +108,7 @@ public abstract class JvmExecutor {
                 catch (WebException e) {
                     // 没找到，那么后面的路径接表找了
                     // 根据配置，看看是忽略呢，还是抛错
-                    if (e.isKey("e.io.noexists")) {
+                    if (e.isKey("e.io.obj.noexists")) {
                         // 输出 null
                         if (Wn.Cmd.isNoExistsNull(mode)) {
                             list.add(null);
@@ -165,7 +165,7 @@ public abstract class JvmExecutor {
             catch (WebException e) {
                 // 没找到，那么后面的路径接表找了
                 // 根据配置，看看是忽略呢，还是抛错
-                if (e.isKey("e.io.noexists")) {
+                if (e.isKey("e.io.obj.noexists")) {
                     // 输出 null
                     if (Wn.Cmd.isNoExistsNull(mode)) {
                         list.add(null);

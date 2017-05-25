@@ -65,7 +65,7 @@ return ZUI.def("ui.wizard", {
             if(!_.isObject(btn)){
                 step[btnKey] = $z.obj("action", btn);
             }
-            console.log(btnKey, dft, step)
+            //console.log(btnKey, dft, step)
         }
     },
     //...............................................................
@@ -236,7 +236,7 @@ return ZUI.def("ui.wizard", {
         // 中间步骤的话 ...
         else {
             // 显示上一步的按钮
-            console.log(step)
+            //console.log(step)
             if(step.index > 0 && step.prev.action) {
                 noPrevBtn = false;
                 var jBtn = $('<b m="prev" enabled="yes">').appendTo(jFooter);

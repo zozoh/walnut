@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.payment.hdl;
 
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
@@ -58,7 +59,11 @@ public class pay_create implements JvmHdl {
             WnPay3xRe re = pay.send(po, payType, payTarget, args);
 
             // 输出发送结果
-            sys.out.println(Json.toJson(re));
+            sys.out.println(Json.toJson(re,
+                                        JsonFormat.nice()
+                                                  .setQuoteName(true)
+                                                  .setIgnoreNull(false)
+                                                  .setLocked("^(changedKeys)$")));
         }
         // 输出
         else {

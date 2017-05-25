@@ -44,6 +44,34 @@ class JvmAtom extends JvmCmd implements Atom {
                 throw new RuntimeException(e);
             }
         }
+        catch (Throwable e) {
+            // 如果不是被 InterruptedException， 记录错误
+            if (!Lang.isCauseBy(e, InterruptedException.class)) {
+                // 拆包 ...
+                Throwable ue = Er.unwrap(e);
+
+                // 如果仅仅显示警告，则日志记录警告信息
+                if (log.isWarnEnabled()) {
+                    log.warnf("Atom[%d] ERROR: %s", id, ue.toString());
+                }
+
+                // 有必要的话，显示错误堆栈
+                if (!(ue instanceof WebException)) {
+                    log.warn(String.format("Atom[%d] ERROR: %s", id, ue.toString()), ue);
+                }
+
+                // 将错误输出到标准输出
+                if (this.redirectErrToStd) {
+                    sys.out.println(ue.toString());
+                    Streams.safeFlush(sys.out);
+                }
+                // 输出到错误输出
+                else {
+                    sys.err.println(ue.toString());
+                    Streams.safeFlush(sys.err);
+                }
+            }
+        }
         finally {
             if (log.isDebugEnabled())
                 log.debugf("Atom[%s] DONE", id);
@@ -75,42 +103,20 @@ class JvmAtom extends JvmCmd implements Atom {
         }
 
         // 设置钩子，安全接口，等，然后运行
-        try {
-            wc.hooking(hc, new Atom() {
-                public void run() {
-                    wc.security(secu, new Atom() {
-                        public void run() {
-                            wc.su(sys.me, new Atom() {
-                                public void run() {
-                                    __run();
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        }
-        catch (Throwable e) {
-            // 如果不是被 InterruptedException， 记录错误
-            if (!Lang.isCauseBy(e, InterruptedException.class)) {
-                // 拆包 ...
-                Throwable ue = Er.unwrap(e);
-
-                // 如果仅仅显示警告，则日志记录警告信息
-                if (log.isWarnEnabled()) {
-                    log.warnf("Atom[%d] ERROR: %s", id, ue.toString());
-                }
-
-                // 有必要的话，显示错误堆栈
-                if (!(ue instanceof WebException)) {
-                    log.warn(String.format("Atom[%d] ERROR: %s", id, ue.toString()), ue);
-                }
-
-                // 输出到错误输出
-                sys.err.println(ue.toString());
-                Streams.safeFlush(sys.err);
+        wc.hooking(hc, new Atom() {
+            public void run() {
+                wc.security(secu, new Atom() {
+                    public void run() {
+                        wc.su(sys.me, new Atom() {
+                            public void run() {
+                                __run();
+                            }
+                        });
+                    }
+                });
             }
-        }
+        });
+
     }
 
 }

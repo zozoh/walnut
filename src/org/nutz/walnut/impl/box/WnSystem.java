@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -64,6 +65,24 @@ public class WnSystem {
         String pwd = this.se.vars().getString("HOME");
         String path = Wn.normalizePath(pwd, this);
         return this.io.check(null, path);
+    }
+
+    /**
+     * @param dft
+     *            默认语言
+     * @return 当前的语言
+     */
+    public String getLang(String dft) {
+        String lang = this.se.varString("LANG");
+        return Strings.sBlank(lang, dft);
+    }
+
+    /**
+     * @return 当前的语言（默认zh-cn）
+     * @see #getLang(String)
+     */
+    public String getLang() {
+        return getLang("zh-cn");
     }
 
     /**
