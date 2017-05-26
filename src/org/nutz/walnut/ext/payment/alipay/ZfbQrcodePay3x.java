@@ -34,6 +34,7 @@ public class ZfbQrcodePay3x extends WnPay3x {
     @Override
     public WnPay3xRe send(WnPayObj po, String... args) {
         WnPay3xRe re = new WnPay3xRe();
+        re.setStatus(WnPay3xStatus.WAIT);
         re.setDataType(WnPay3xDataType.LINK);
         AlipayConfig alipayConf = getConfig(po);
 
