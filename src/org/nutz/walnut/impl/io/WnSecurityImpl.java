@@ -85,10 +85,16 @@ public class WnSecurityImpl extends AbstractWnSecurity {
     }
 
     protected WnObj __do_check(WnObj o, int mask, boolean asNull) {
-
         // 防止空指针
         if (null == o)
             return null;
+
+        // 如果对象过期了，抛错
+        if (o.isExpired()) {
+            if (asNull)
+                return null;
+            throw Er.create("e.io.obj.expired", o);
+        }
 
         // 当前的线程上下文
         WnContext wc = Wn.WC();
@@ -105,11 +111,18 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         if (wc.isMemberOf(usrs, "root"))
             return o;
 
-        // 如果对象过期了，抛错
-        if (o.isExpired()) {
-            if (asNull)
-                return null;
-            throw Er.create("e.io.obj.expired", o);
+        // 自定义权限优先
+        int md = o.getCustomizedPrivilege(u);
+
+        // 采用默认的权限码
+        if (md == Wn.Io.NO_PVG) {
+            md = o.mode();
+        }
+
+        // 本身就是创建者，那么看看 u 部分的权限
+        if (o.creator().equals(u.name())) {
+            if (((md >> 6) & mask) == mask)
+                return o;
         }
 
         // 对象组给我啥权限
@@ -120,14 +133,6 @@ public class WnSecurityImpl extends AbstractWnSecurity {
             if (asNull)
                 return null;
             throw Er.create("e.io.forbidden");
-        }
-
-        // 自定义权限优先
-        int md = o.getCustomizedPrivilege(u);
-
-        // 采用默认的权限码
-        if (md == Wn.Io.NO_PVG) {
-            md = o.mode();
         }
 
         // o 允许进入

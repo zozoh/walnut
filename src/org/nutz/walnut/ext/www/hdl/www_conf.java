@@ -26,8 +26,15 @@ public class www_conf implements JvmHdl {
             conf = new NutMap();
         }
 
-        // 设定默认值
-        conf.putDefault("dns_r_A", "127.0.0.1");
+        // 设置 DNS 转接地址
+        if (!conf.has("dns_record")) {
+            // 读取系统配置文件
+            NutMap sysConf = Wn.getSysConf(sys.io);
+            String dftHost = sysConf.getString("mainHost", "127.0.0.1");
+            conf.put("dns_record", dftHost);
+        }
+
+        // 设定其他默认值
         conf.putDefault("login_ok", "/");
         conf.putDefault("login_fail", "/login_fail.wnml");
         conf.putDefault("logout", "/");

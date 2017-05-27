@@ -329,7 +329,7 @@ module.exports = {
         }
         // 完成就关闭弹出框
         wzConf.on_done = function(data, uiWizard){
-            uiWizard.parent().close();
+            uiWizard.parent.close();
             $z.doCallback(usr_on_done, [data, uiWizard], this);
         };
 

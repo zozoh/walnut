@@ -153,6 +153,12 @@ X -> W : /pay/re     # 所有第三方平台都发向这个统一的地址
          - 返回 HTTP 响应给第三方平台 
 ```
 
+# 相关命令
 
+## 查看支付单
+
+```
+obj /var/payment -match "{tp:'wn_payment'}" -bish -t 'id,buyer_nm,seller_nm,fee,cur,st,pay_tp,pay_target,re_tp,ct,lm,brief' -sort lm:-1 -limit 10
+```
 
 

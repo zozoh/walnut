@@ -70,7 +70,7 @@ return ZUI.def("ui.wizard", {
     },
     //...............................................................
     events : {
-        // 点击上底部按钮
+        // 点击底部按钮
         'click .wizard > footer > b[enabled]' : function(e){
             var UI   = this;
             var opt  = UI.options;

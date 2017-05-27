@@ -84,6 +84,9 @@ define({
                 "exists"   : "对象已存在",
                 "noexists" : "对象不存在",
             }
+        },
+        "pay" : {
+            "outOfHome" : "支付单对象路径非法",
         }
     },
     "frace" : {

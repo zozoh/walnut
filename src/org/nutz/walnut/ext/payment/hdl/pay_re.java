@@ -42,6 +42,9 @@ public class pay_re implements JvmHdl {
         // 完成支付单
         WnPay3xRe re = pay.complete(po, req);
 
+        // 试图通过 websocket 通知一下
+        sys.execf("websocket event id:%s done", poId);
+
         // 输出
         if (hc.params.is("s"))
             sys.out.println("success");

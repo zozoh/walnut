@@ -4,7 +4,6 @@ import java.io.Reader;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.websocket.CloseReason;
@@ -33,22 +32,21 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
-@ServerEndpoint(value="/websocket", configurator=WnWebSocketConfigurator.class)
-@SuppressWarnings("unchecked")
-@IocBean(create="init")
+@ServerEndpoint(value = "/websocket", configurator = WnWebSocketConfigurator.class)
+@IocBean(create = "init")
 public class WnWebSocket extends Endpoint {
-    
+
     private static final Log log = Logs.get();
-    
+
     protected static Map<String, Session> peers = Collections.synchronizedMap(new HashMap<>());
-    
+
     public static String KEY = "websocket_watch";
-    
+
     @Inject
     protected WnRun wnRun;
-    
+
     protected Field idField;
-    
+
     protected WnObj root;
 
     @OnOpen
@@ -64,9 +62,9 @@ public class WnWebSocket extends Endpoint {
             e.printStackTrace();
         }
         peers.put(session.getId(), session);
-        session.getAsyncRemote().sendText("{event:'hi','wsid':'"+session.getId()+"'}");
+        session.getAsyncRemote().sendText("{event:'hi','wsid':'" + session.getId() + "'}");
     }
-    
+
     @OnMessage
     public void onMessage(Session session, Reader r) {
         try {
@@ -80,23 +78,38 @@ public class WnWebSocket extends Endpoint {
             String user = map.getString("user");
             if (Strings.isBlank(user))
                 user = Wn.Ctx.get().SE().me();
+
+            // 默认需要返回内容
             boolean doReturn = map.getBoolean("return", true);
+
+            // 来吧 ...
             switch (methodName) {
             case "watch":
+                NutMap match = map.getAs("match", NutMap.class);
                 WnQuery query = new WnQuery();
-                query.setAll(map.getAs("match", Map.class));
-                query.setv("d0", "home").setv("d1", user);
-                query.limit(1);
-                
-                List<WnObj> tmp = wnRun.io().query(query);
-                if (tmp.isEmpty())
+                query.setAll(match);
+                // 没有指定 ID 的话，则需要添加一下 d0/d1 约束，以防止数据集过多
+                if (!match.has("id"))
+                    query.setv("d0", "home").setv("d1", user);
+
+                // 找一下对象
+                WnObj obj = wnRun.io().getOne(query);
+
+                // 木有
+                if (null == obj)
                     return;
-                WnObj obj = tmp.get(0);
+
+                // 记录监视的 ws 句柄
                 if (obj.has(KEY) && obj.get(KEY) != null && obj.get(KEY) instanceof String)
-                    wnRun.io().appendMeta(obj, "{"+KEY+":[]}");//移除老数据
+                    wnRun.io().appendMeta(obj, "{" + KEY + ":[]}");// 移除老数据
                 wnRun.io().push(obj.id(), KEY, session.getId(), false);
-                if (doReturn)
-                    session.getAsyncRemote().sendText(Json.toJson(new NutMap("event", "watched").setv("obj", obj.id()), JsonFormat.compact()));
+
+                // 返回内容
+                if (doReturn) {
+                    NutMap eventData = new NutMap("event", "watched").setv("obj", obj.id());
+                    String eventJson = Json.toJson(eventData, JsonFormat.compact());
+                    session.getAsyncRemote().sendText(eventJson);
+                }
                 break;
             case "resp":
                 String id = map.getString("id");
@@ -126,7 +139,7 @@ public class WnWebSocket extends Endpoint {
                 wnRun.exec("websocket", ws_usr, cmd);
                 break;
             default:
-                log.info("unknown method="+methodName);
+                log.info("unknown method=" + methodName);
                 break;
             }
         }
@@ -134,7 +147,7 @@ public class WnWebSocket extends Endpoint {
             e.printStackTrace();
         }
     }
-    
+
     @OnError
     public void onError(Session session, Throwable thr) {
         peers.remove(session.getId());
@@ -142,7 +155,7 @@ public class WnWebSocket extends Endpoint {
         query.setv(KEY, session.getId());
         wnRun.io().pull(query, KEY, session.getId());
     }
-    
+
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
         peers.remove(session.getId());
@@ -150,11 +163,11 @@ public class WnWebSocket extends Endpoint {
         query.setv(KEY, session.getId());
         wnRun.io().pull(query, KEY, session.getId());
     }
-    
+
     public static Session get(String id) {
         return peers.get(id);
     }
-    
+
     public void init() {
         root = wnRun.io().createIfNoExists(null, "/sys/ws", WnRace.DIR);
     }

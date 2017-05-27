@@ -1758,6 +1758,25 @@ var Wn = {
                 throw "fail to save!";
             });
         }
+    },
+    // 得到系统的配置信息
+    getSysConf : function(forceReload){
+        var Wn = this;
+        var store = Wn._storeAPI;
+
+        // 看看缓存里有木有
+        var json = forceReload ? null : store.getItem(key);
+        
+        // 从服务器读取
+        if(!json)
+            json = Wn.exec("sys");
+        
+        // 存入缓存
+        if(json)
+            store.setItem("_WN_SYS_CONF", json);
+
+        // 返回
+        return $z.fromJson(json);
     }
 }; // ~End wn
 //====================================================================
