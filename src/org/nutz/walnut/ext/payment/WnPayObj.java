@@ -14,6 +14,7 @@ public interface WnPayObj extends WnObj {
     static final String KEY_BRIEF = "brief";
     static final String KEY_SEND_AT = "send_at";
     static final String KEY_CLOSE_AT = "close_at";
+    static final String KEY_APPLY_AT = "apply_at";
     static final String KEY_SELLER_NM = "seller_nm";
     static final String KEY_SELLER_ID = "seller_id";
     static final String KEY_BUYER_NM = "buyer_nm";

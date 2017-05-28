@@ -433,6 +433,7 @@ public class WnPayment {
                              WnPayObj.KEY_RE_TP,
                              WnPayObj.KEY_RE_OBJ,
                              WnPayObj.KEY_CLOSE_AT);
+
         }
 
         // 持久化中间的执行步骤并返回

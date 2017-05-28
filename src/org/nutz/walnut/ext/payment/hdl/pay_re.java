@@ -42,6 +42,15 @@ public class pay_re implements JvmHdl {
         // 完成支付单
         WnPay3xRe re = pay.complete(po, req);
 
+        // 如果支付单成功，且没执行过回调的话，执行回调
+        if (po.isStatusOk() && po.getLong(WnPayObj.KEY_APPLY_AT, 0) <= 0) {
+            String cmdText = sys.io.readText(po);
+            // 有效的回调
+            if (!Strings.isBlank(cmdText)) {
+                sys.exec(cmdText);
+            }
+        }
+
         // 试图通过 websocket 通知一下
         sys.execf("websocket event id:%s done", poId);
 

@@ -30,6 +30,22 @@ public abstract class WWW {
         return conf;
     }
 
+    /**
+     * 判断一个域名是否为主域名。
+     * <p>
+     * <code>xx.xx</code> 形式的域名为主域名
+     * 
+     * @param host
+     *            域名
+     * @return 是否为主域名。
+     */
+    public static boolean isMainHost(String host) {
+        if (host.matches("^[a-zA-Z0-9_-]+[.][a-z]+$")) {
+            return true;
+        }
+        return false;
+    }
+
     private WWW() {}
 
     public static Set<String> pickHosts(JvmHdlContext hc) {
@@ -39,7 +55,7 @@ public abstract class WWW {
             if (host.startsWith("www.")) {
                 host = host.substring("www.".length());
             }
-    
+
             // 记录
             hosts.add(host);
         }

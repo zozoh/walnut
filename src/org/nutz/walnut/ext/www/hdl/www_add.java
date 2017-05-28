@@ -78,7 +78,7 @@ public class www_add implements JvmHdl {
             List<String> wwwList = new ArrayList<>(2);
             wwwList.add(host);
             // 如果是 xx.xx 形式的域名，那么要自动添加 www.xx.xx 映射
-            if (host.matches("^[a-zA-Z0-9_-]+[.][a-z]+$")) {
+            if (WWW.isMainHost(host)) {
                 wwwList.add("www." + host);
             }
             // 添加元数据并记录到列表
