@@ -100,7 +100,6 @@ return ZUI.def("ui.form_com_icon", {
             // 显示一个遮罩
             POP.openUIPanel({
                 title  : UI.text(opt.pop_title),
-                i18n   : UI._msg_map,
                 width  : opt.pop_width,
                 height : opt.pop_height,
                 arenaClass : "com-icon-pop",
@@ -122,7 +121,7 @@ return ZUI.def("ui.form_com_icon", {
                     UI._set_data(icon);
                     UI.__on_change();
                 }
-            });
+            }, UI);
         }
     },
     //...............................................................
