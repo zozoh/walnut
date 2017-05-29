@@ -267,6 +267,16 @@ public class IoWnUsrService implements WnUsrService {
     }
 
     @Override
+    public void set(WnUsr u, NutMap meta) {
+        // 不能改动密码
+        meta.remove("passwd");
+        meta.remove("salt");
+
+        // 更新
+        io.appendMeta(u, meta);
+    }
+
+    @Override
     public void delete(WnUsr u) {
         io.delete(u);
     }

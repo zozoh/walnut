@@ -556,7 +556,7 @@ public class UsrModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     @Filters(@By(type = WnCheckSession.class))
-    public boolean do_rename(@Param("nm") String newName) {
+    public void do_rename(@Param("nm") String newName, @Param("passwd") String passwd) {
         WnSession se = Wn.WC().checkSE();
         WnUsr me = Wn.WC().getMyUsr(usrs);
 
@@ -569,23 +569,42 @@ public class UsrModule extends AbstractWnModule {
             throw Er.create("e.u.rename.invalid", newName);
         }
         // 看看是否存在
-        WnUsr u = Wn.WC().security(new WnEvalLink(io), new Proton<WnUsr>() {
+        WnUsr u = this.nosecurity(new Proton<WnUsr>() {
             protected WnUsr exec() {
                 return usrs.fetch(newName);
             }
         });
+        // 如果用户存在，那么则必须要检查一下密码
         if (null != u) {
-            throw Er.create("e.u.rename.exists", newName);
+            if (null == passwd || !usrs.checkPassword(u, passwd)) {
+                throw Er.create("e.usr.invalid.login");
+            }
+
+            // 进入内核态
+            this.nosecurity(new Atom() {
+                public void run() {
+                    // 更新一下用户的登录信息
+                    NutMap meta = NutMap.WRAP(me.pickBy("^(email|phone|oauth_.+)$"));
+                    usrs.set(u, meta);
+
+                    // 切换当前会话到新用户
+                    se.putUsrVars(u);
+                    se.save();
+
+                    // 原来那个用户就不要了
+                    exec("Urnm", "root", "jsc /jsbin/delete_user.js " + me.id());
+                }
+            });
         }
+        // 不存在，则搞一下
+        else {
+            // 正式执行改名
+            usrs.rename(me, newName);
 
-        // 正式执行改名
-        usrs.rename(me, newName);
-
-        // 更新 Session
-        se.putUsrVars(me);
-        se.save();
-
-        return true;
+            // 更新 Session
+            se.putUsrVars(me);
+            se.save();
+        }
     }
 
     // --------- 用户头像

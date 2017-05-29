@@ -25,11 +25,6 @@
             每个坚核用户都将有一个唯一登录名，显然您当前这个登录名过于复杂，是系统随机生成的。
             为了便于您记忆，你可以现在就指定一个自己偏爱的用户名，以后就用它来登录吧 ^_^
         </div>
-        <div class="form-tip"><div>
-            <span class="re-icon re-ok"><i class="fa fa-check"></i></span>
-            <span class="re-icon re-warn"><i class="fa fa-warning"></i></span>
-            <span class="re-info"></span>
-        </div></div>
         <div class="form-renm">
             <span class="fld-icon"><i class="zmdi zmdi-account"></i></span>
             <input name="nm" placeholder="新用户名" spellcheck="false"/>
@@ -37,7 +32,16 @@
             您的用户名只能由数字，小写字母以及下划线组成,且不能小于四位。
             </div>
         </div>
-        <div class="form-btn"><button>继续</button></div>
+        <div class="form-tip"><div>
+            <span class="re-icon re-ok"><i class="fa fa-check"></i></span>
+            <span class="re-icon re-warn"><i class="fa fa-warning"></i></span>
+            <span class="re-info"></span>
+        </div></div>
+        <div class="form-passwd" mode="hide">
+            <span class="fld-icon"><i class="zmdi zmdi-key"></i></span>
+            <input name="passwd" type="password" placeholder="登录密码"/>
+        </div>
+        <div class="form-btn"><button disabled>继续</button></div>
         <div class="form-links">
            <a href="/u/do/logout">退出登录</a>
         </div>
