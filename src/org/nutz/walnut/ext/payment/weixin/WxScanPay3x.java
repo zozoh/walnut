@@ -51,13 +51,9 @@ public class WxScanPay3x extends AbstractWeixinPay3x {
         params.put("mch_id", conf.pay_mch_id);
         params.put("nonce_str", R.UU32());
         params.put("body", po.getString(WnPayObj.KEY_BRIEF));
-        params.put("attach", po.id());
         params.put("out_trade_no", po.id());
         params.put("total_fee", total_fee);
-        if (Mvcs.getReq() == null)
-            params.put("spbill_create_ip", "8.8.8.8");
-        else
-            params.put("spbill_create_ip", Lang.getIP(Mvcs.getReq()));
+        _fill_client_ip(params);
         params.put("auth_code", auth_code);
         Wxs.fillPayMap(params, conf.pay_key);
 

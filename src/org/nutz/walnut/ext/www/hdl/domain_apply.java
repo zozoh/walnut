@@ -1,8 +1,6 @@
 package org.nutz.walnut.ext.www.hdl;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,7 +14,6 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.ext.payment.WnPayObj;
 import org.nutz.walnut.ext.payment.WnPayment;
-import org.nutz.walnut.ext.www.WWW;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -69,24 +66,22 @@ public class domain_apply implements JvmHdl {
         WnObj oDmnHome = sys.io.check(null, "/domain");
 
         // 找到对应记录
-        List<WnObj> oDmns = new ArrayList<>(2);
-        WnObj oD = __join_host(sys, bu, oDmns, oDmnHome, host);
-        oDmns.add(oD);
+        // List<WnObj> oDmns = new ArrayList<>(2);
+        WnObj oD = __get_host_obj(sys, bu, oDmnHome, host);
+        // oDmns.add(oD);
 
         // 计算最终的过期时间
         long expiInMs = __count_dmn_expi(M, Y, oD);
 
-        // 还需要顺便修改 www.xxx.xx 的域名映射
-        if (WWW.isMainHost(host)) {
-            oD = __join_host(sys, bu, oDmns, oDmnHome, "www." + host);
-            oDmns.add(oD);
-        }
+        // // 还需要顺便修改 www.xxx.xx 的域名映射
+        // if (WWW.isMainHost(host)) {
+        // oD = __join_host(sys, bu, oDmns, oDmnHome, "www." + host);
+        // oDmns.add(oD);
+        // }
 
         // 应用修改
-        for (WnObj o_dmn : oDmns) {
-            o_dmn.setv("dmn_expi", expiInMs);
-            sys.io.set(o_dmn, "^(dmn_expi)$");
-        }
+        oD.setv("dmn_expi", expiInMs);
+        sys.io.set(oD, "^(dmn_expi)$");
 
         // 标识一下支付单已经被应用过了
         po.setv(WnPayObj.KEY_APPLY_AT, System.currentTimeMillis());
@@ -123,11 +118,7 @@ public class domain_apply implements JvmHdl {
         return expiInMs;
     }
 
-    protected WnObj __join_host(WnSystem sys,
-                                WnUsr bu,
-                                List<WnObj> oDmns,
-                                WnObj oDmnHome,
-                                String host) {
+    private WnObj __get_host_obj(WnSystem sys, WnUsr bu, WnObj oDmnHome, String host) {
         WnQuery q = Wn.Q.pid(oDmnHome);
         WnObj oD = sys.io.getOne(q.setv("dmn_host", host));
         if (null == oD) {

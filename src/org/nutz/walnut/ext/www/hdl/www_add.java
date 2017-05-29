@@ -74,21 +74,22 @@ public class www_add implements JvmHdl {
         // 嗯，所有的检查通过，开始逐个创建吧
         for (String host : hosts) {
             WnObj oWWW = sys.io.create(oWWWHome, host, WnRace.DIR);
-            // 准备元数据
-            List<String> wwwList = new ArrayList<>(2);
-            wwwList.add(host);
-            // 如果是 xx.xx 形式的域名，那么要自动添加 www.xx.xx 映射
-            if (WWW.isMainHost(host)) {
-                wwwList.add("www." + host);
-            }
-            // 添加元数据并记录到列表
-            if (wwwList.size() == 1) {
-                oWWW.setv("www", wwwList.get(0));
-            }
-            // 否则增加为数组
-            else {
-                oWWW.setv("www", wwwList);
-            }
+            // // 准备元数据
+            // List<String> wwwList = new ArrayList<>(2);
+            // wwwList.add(host);
+            // // 如果是 xx.xx 形式的域名，那么要自动添加 www.xx.xx 映射
+            // if (WWW.isMainHost(host)) {
+            // wwwList.add("www." + host);
+            // }
+            // // 添加元数据并记录到列表
+            // if (wwwList.size() == 1) {
+            // oWWW.setv("www", wwwList.get(0));
+            // }
+            // // 否则增加为数组
+            // else {
+            // oWWW.setv("www", wwwList);
+            // }
+            oWWW.setv("www", host);
             sys.io.set(oWWW, "^www$");
             list.add(oWWW);
         }

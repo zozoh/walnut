@@ -35,7 +35,7 @@ public class ZfbQrcodePay3x extends WnPay3x {
     public WnPay3xRe send(WnPayObj po, String... args) {
         WnPay3xRe re = new WnPay3xRe();
         re.setStatus(WnPay3xStatus.WAIT);
-        re.setDataType(WnPay3xDataType.LINK);
+        re.setDataType(WnPay3xDataType.IFRAME);
         AlipayConfig alipayConf = getConfig(po);
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,6 +64,10 @@ public class ZfbQrcodePay3x extends WnPay3x {
             sParaTemp.put("subject", po.getString(WnPayObj.KEY_BRIEF, "测试商品"));
             sParaTemp.put("total_fee", total_fee);
             sParaTemp.put("body", po.getString(WnPayObj.KEY_BRIEF, "测试商品"));
+
+            // 自定义前置付款二维码的宽度
+            sParaTemp.put("qr_pay_mode", "4");
+            sParaTemp.put("qrcode_width", "200");
             // 其他业务参数根据在线开发文档，添加参数.文档地址:https://doc.open.alipay.com/doc2/detail.htm?spm=a219a.7629140.0.0.O9yorI&treeId=62&articleId=103740&docType=1
             // 如sParaTemp.put("参数名","参数值");
             // sParaTemp.put("extra_common_param", po.id());

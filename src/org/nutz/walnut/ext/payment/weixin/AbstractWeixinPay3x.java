@@ -4,12 +4,13 @@ import java.util.Date;
 
 import org.nutz.http.Http;
 import org.nutz.http.Response;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.Xmls;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.err.Er;
+import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.ext.payment.WnPay3x;
@@ -45,23 +46,21 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
         // 读取微信配置信息
         WxConf conf = this.getConfig(po);
 
-        // 得到客户端的 IP
-        String clientIp = po.getString(WnPayObj.KEY_CLIENT_IP);
-        if (Strings.isBlank(clientIp))
-            throw Er.create("e.pay.weixin.noip");
-
         // 准备订单标题
         String brief = po.getString(WnPayObj.KEY_BRIEF, "测试商品");
 
         // 准备一个 Map
         NutMap map = new NutMap();
         map.setv("body", brief);
-        map.put("attach", po.id());
         map.setv("out_trade_no", po.id());
         map.setv("total_fee", po.getInt(WnPayObj.KEY_FEE));
+
+        // 填充用户 openid
         if (null != openid)
             map.setv("openid", openid);
-        map.setv("spbill_create_ip", clientIp);
+
+        // 填充客户端 IP
+        this._fill_client_ip(map);
 
         // 过期时间（增加 1 分钟作为通讯补偿）
         long pay_expired = Math.max(conf.pay_time_expire, 10) * 60 * 1000 + 60000;
@@ -70,6 +69,8 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
         map.setv("time_expire", ds);
 
         // 填充这个 Map 其他字段
+        map.setv("appid", conf.appID);
+        map.setv("mch_id", conf.pay_mch_id);
         map.setv("device_info", "WEB");
         map.setv("notify_url", conf.pay_notify_url);
         map.setv("trade_type", "NATIVE");
@@ -250,6 +251,13 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
     protected WnIoWeixinApi getWeixinApi(WnPayObj po) {
         WnObj oConf = __get_weixin_conf_obj(po);
         return new WnIoWeixinApi(run.io(), oConf);
+    }
+
+    protected void _fill_client_ip(NutMap params) {
+        if (Mvcs.getReq() == null)
+            params.put("spbill_create_ip", "8.8.8.8");
+        else
+            params.put("spbill_create_ip", Lang.getIP(Mvcs.getReq()));
     }
 
     private WnObj __get_weixin_conf_obj(WnPayObj po) {
