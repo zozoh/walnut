@@ -28,6 +28,7 @@ public interface WnPayObj extends WnObj {
     static final String KEY_RETURN_URL = "pay_return_url";
     static final String KEY_RE_TP = "re_tp";
     static final String KEY_RE_OBJ = "re_obj";
+    static final String KEY_CLIENT_IP = "client_ip";
     // ..............................................................
     /**
      * "buyer_tp" 段值（KEY_BUYER_TP）：表示 Walnut 用户，即系统用户
