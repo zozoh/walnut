@@ -6,7 +6,7 @@ import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
 
-import org.nutz.img.Avatar;
+import org.nutz.img.Images;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
@@ -31,7 +31,7 @@ public class cmd_avatar extends JvmExecutor {
         String bgColor = params.getString("bg", "#000");
         String fontName = params.getString("font", "");
         // 生成头像
-        BufferedImage avImage = Avatar.createAvatar(name,
+        BufferedImage avImage = Images.createAvatar(name,
                                                     size,
                                                     fontColor,
                                                     bgColor,
