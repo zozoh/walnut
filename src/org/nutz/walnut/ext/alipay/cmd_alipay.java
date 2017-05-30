@@ -29,7 +29,7 @@ public class cmd_alipay extends JvmHdlExecutor {
         // 第一个参数
         else {
             if (hc.args.length < 2) {
-                throw Er.create("e.cmd.hmaker.lackArgs", hc.args);
+                throw Er.create("e.cmd.alipay.lackArgs", hc.args);
             }
             // 得到别名
             String pnb = hc.args[0];
