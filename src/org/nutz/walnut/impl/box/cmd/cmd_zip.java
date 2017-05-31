@@ -77,6 +77,9 @@ public class cmd_zip extends JvmExecutor {
                 String entryName = null;
                 for (int i = 0; i < srclist.size(); i++) {
                     WnObj srcObj = srclist.get(i);
+                    if (srcObj.isDIR()) {
+                        continue;
+                    }
                     if (destObj.id().equals(srcObj.id())) {
                         continue;
                     }
@@ -100,8 +103,7 @@ public class cmd_zip extends JvmExecutor {
                 zipOut.close();
             }
             catch (Exception e) {
-                e.printStackTrace();
-                log.warn(e);
+                log.error(e);
                 throw Err.create(e, "e.cmd.zip.withzip");
             }
         }
