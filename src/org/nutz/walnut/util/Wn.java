@@ -499,6 +499,7 @@ public abstract class Wn {
             o.loadParents(list, false);
             final long synctime = System.currentTimeMillis();
             wc.synctimeOff(new Atom() {
+                @Override
                 public void run() {
                     for (WnObj an : list) {
                         if (an.syncTime() > 0) {
@@ -1028,8 +1029,13 @@ public abstract class Wn {
      */
     public static NutMap getSysConf(WnIo io) {
         return Wn.WC().nosecurity(io, new Proton<NutMap>() {
+            @Override
             protected NutMap exec() {
-                WnObj oSysConf = io.check(null, "/etc/sysconf");
+                // TODO @peter确认下这个/etc/sysconf是干什么的 默认好像没有这个文件
+                WnObj oSysConf = io.fetch(null, "/etc/sysconf");
+                if (oSysConf == null) {
+                    return NutMap.NEW();
+                }
                 String json = io.readText(oSysConf);
                 return Json.fromJson(NutMap.class, json);
             }

@@ -11,6 +11,8 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -22,6 +24,8 @@ import org.nutz.walnut.util.ZParams;
 import org.nutz.web.Webs.Err;
 
 public class cmd_zip extends JvmExecutor {
+
+    private Log log = Logs.get();
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
@@ -96,7 +100,9 @@ public class cmd_zip extends JvmExecutor {
                 zipOut.close();
             }
             catch (Exception e) {
-                throw Err.create(e, "e.cmd.zip.err");
+                e.printStackTrace();
+                log.warn(e);
+                throw Err.create(e, "e.cmd.zip.withzip");
             }
         }
     }
