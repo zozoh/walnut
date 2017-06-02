@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Encoding;
+import org.nutz.castor.Castors;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
@@ -28,6 +28,12 @@ public class httpapi_invoke implements JvmHdl {
             public void invoke(HttpApiContext c) {
                 // 得到请求文件
                 String rph = hc.params.val_check(0);
+
+                // 确保是相对路径
+                while (rph.startsWith("/"))
+                    rph = rph.substring(1);
+
+                // 获取 API 对象
                 WnObj oApi = sys.io.check(c.oApiDir, rph);
 
                 // 得到可执行命令模板
@@ -84,10 +90,10 @@ public class httpapi_invoke implements JvmHdl {
                         for (Map.Entry<String, Object> en : postMap.entrySet()) {
                             String key = en.getKey();
                             Object val = en.getValue();
-                            list.add(key + "=" + val);
+                            String vs = Castors.me().castToString(val);
+                            list.add(key + "=" + vs);
                         }
                         String postStr = Lang.concat("&", list).toString();
-                        postStr = Encoding.encodeURIComponent(postStr);
                         sys.io.writeText(oReq, postStr);
                     }
                 }

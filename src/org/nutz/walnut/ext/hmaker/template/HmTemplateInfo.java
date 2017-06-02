@@ -16,6 +16,20 @@ public class HmTemplateInfo {
 
     public NutMap options;
 
+    public NutMap dom;
+
+    public String getDomFileName(String dft) {
+        if (null != dom)
+            dom.getString("fileName", dft);
+        return dft;
+    }
+
+    public String getDomVarName(String dft) {
+        if (null != dom)
+            return dom.getString("varName", dft);
+        return dft;
+    }
+
     public HmTemplateInfo evalOptions() {
         if (null == options || options.size() == 0)
             return this;

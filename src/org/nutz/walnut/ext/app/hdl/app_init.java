@@ -206,7 +206,7 @@ public class app_init implements JvmHdl {
                 // 在元数据中
                 if (fp.is(FpSt.IN_META)) {
                     // 遇到元数据结束
-                    if ("}".equals(str)) {
+                    if ("}".equals(str) && line.startsWith("}")) {
                         fp.json.append(str);
                         fp.meta = Json.fromJson(NutMap.class, fp.json);
                         fp.st = FpSt.END_META;

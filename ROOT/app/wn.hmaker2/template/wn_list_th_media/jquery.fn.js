@@ -25,7 +25,6 @@ $.fn.extend({ "wn_lst_th_media" : function(list, opt){
     var mapping = opt.displayText || {
         title : "=th_nm",
         brief : "=brief",
-        linkText : "查看",
         info_em  : "A",
         info_u   : "B",
         info_b   : "C",
