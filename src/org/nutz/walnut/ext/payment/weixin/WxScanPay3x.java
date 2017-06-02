@@ -8,7 +8,6 @@ import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
-import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.ext.payment.WnPay3xDataType;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
 import org.nutz.walnut.ext.payment.WnPay3xStatus;
