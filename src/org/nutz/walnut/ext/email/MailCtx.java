@@ -23,4 +23,5 @@ public class MailCtx {
     public boolean local;
     public String sender;
     public String dataSourceResolver;
+    public String from;
 }
