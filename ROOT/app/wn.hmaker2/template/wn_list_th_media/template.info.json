@@ -19,5 +19,9 @@
                 "info_b"   : "C",
             },
         }
+    },
+    "dom" : {
+        "fileName" : "dom.wnml",
+        "varName"  : "mo"
     }
 }

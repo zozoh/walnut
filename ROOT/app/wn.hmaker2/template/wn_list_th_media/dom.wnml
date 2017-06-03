@@ -1,0 +1,16 @@
+<each var="${@@}" items="${comId}.list">
+    <div class="wn-li-media">
+        <div class="wlm-thumb">
+            <em>${@displayText.info_em}</em>
+            <u>${@displayText.info_u}</u>
+            <b>${@displayText.info_b}</b>
+            <a class="wlm-ta"><span></span></a>
+        </div>
+        <ul class="wlm-info">
+            <li class="wlm-ih">
+                <a href="${href?}?${paramName}=${@@objKey}">${@displayText.title}</a>
+            </li>
+            <li class="wlm-is">${@displayText.brief}</li>
+        </ul>
+    </div>
+</each>i

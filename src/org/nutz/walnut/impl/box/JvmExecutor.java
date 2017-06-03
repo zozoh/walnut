@@ -35,6 +35,13 @@ public abstract class JvmExecutor {
         ph += ".man";
 
         File f = Files.findFile(ph);
+        
+        // 兼容 "markdown"
+        if (null == f) {
+            ph = Files.renameSuffix(ph, ".md");
+        }
+        
+        // 没 manual，抛错
         if (null == f) {
             return klass.getSimpleName() + " ??? no manual";
         }

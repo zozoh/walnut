@@ -39,7 +39,49 @@
                 "selector" : "skin-text-slogon",
                 "blockFields" : [],
             }],
-        "dynamic" : []
+        "dynamic" : [{
+                "text" : "媒体列表",
+                "selector" : "skin-dynamic-media-hlist",
+                "blockFields" : [
+                    "@li-mode(显示模式)[图文=pt,仅图=p]=pt",
+                    "@li-scale(预览图比例)[16x9,4x3,1x1,3x4,9x16]=16x9",
+                    "@li-size(列表项尺寸)[大=b,中=m,小=s]=m",
+                    "padding", "border",
+                    "color", "background", "boxShadow",
+                    "borderRadius"
+                ]
+            }, {
+                "text" : "文章列表",
+                "selector" : "skin-dynamic-article-list",
+                "blockFields" : [
+                    "@li-mode(显示模式哈哈)[图文=ptb,标题=t,标题+摘要=tb]=ptb",
+                    "@li-scale(题图比例)[16x9,4x3,1x1,3x4,9x16]=16x9",
+                    "@li-thumb-sz(题图尺寸)[大=b,中=m,小=s]=m",
+                    "@li-thumb-border(题图边框)[粗=b,细=t,无=n]=t",
+                    "@li-thumb-radius(题图圆角)[大=b,小=s,无=n]=s",
+                    "#L> .wn-li-article .wla-thumb (题图边框颜色)",
+                    "@sep(分隔线){yes}=yes",
+                    "@sep-style(分隔线样式)[实线=solid,虚线=dashed,点线=dotted]=solid",
+                    "#L> .wn-li-article (分割线颜色)",
+                    "padding", "border", "fontSize",
+                    "#C> .wn-li-article .wla-ih a(标题文字颜色)",
+                    "#C> .wn-li-article .wla-is (摘要文字颜色)",
+                    "#C> .wn-li-article .wla-ii (补充信息颜色)",
+                    "background", "boxShadow",
+                    "borderRadius"
+                ]
+            }, {
+                "text" : "超文本(Markdown)",
+                "selector" : "skin-markdown",
+                "blockFields" : [
+                    "fontSize",
+                    "#C> h1,h2,h3,h4,h5,h6 (标题文字颜色)",
+                    "#C> p a (链接颜色)",
+                    "padding", "border",
+                    "background", "boxShadow",
+                    "borderRadius"
+                ]
+            }]
     },
     "area" : [{
             "text"     : "顶栏LOGO区",

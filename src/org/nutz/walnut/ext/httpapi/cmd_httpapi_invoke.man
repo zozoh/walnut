@@ -20,6 +20,3 @@
     
     # 用 POST 方式执行某个 api
     demo@~$ httpapi invoke demo/get -post "id:'12345'"
-    
-
-    
