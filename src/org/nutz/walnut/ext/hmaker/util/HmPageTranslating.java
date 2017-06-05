@@ -274,6 +274,7 @@ public class HmPageTranslating extends HmContext {
         this.jsLinks.add("/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js");
         this.jsLinks.add("/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js");
         this.jsLinks.add("#seajsnode!/gu/rs/core/js/seajs/seajs-2.3.0/sea.js");
+        this.jsLinks.add("/gu/rs/core/js/ui/dateformat.js");
         this.jsLinks.add("/gu/rs/core/js/nutz/zutil.js");
         // ---------------------------------------------------
         // 加入皮肤

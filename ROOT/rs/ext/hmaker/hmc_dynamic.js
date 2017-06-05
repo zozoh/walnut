@@ -45,10 +45,10 @@ function each_pager(opt, callback){
     }
 }
 //...........................................................
-function update_pager(opt, data) {
-    if(data && data.pager && data.list){
+function do_update_pager(opt, pager) {
+    if(pager){
         each_pager(opt, function(jPager){
-            jPager.hmc_pager("value", data.pager);
+            jPager.hmc_pager("value", pager);
         });
     }
 }
@@ -120,47 +120,59 @@ function do_reload(jData, jumpToHead){
     // 请求
     var method = opt.apiInfo.api_method == "POST" ? "post" : "get";
     $[method](opt.apiUrl, params||{}, function(re){
-        // 清除正在加载的显示
-        jData.empty();
-
-        // api 返回错误
-        if(/^e[.]/.test(re)){
-            $('<div class="msg-error">').text(re).appendTo(jData);
-            return jData;
-        }
-        // 试图解析数据
-        try {
-            // 记录数据
-            var data = $z.fromJson(re);
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            // 如果数据是翻页信息，那么还需要找到翻页控件，并更新它的值
-            update_pager(opt, data);
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            // 绘制数据
-            draw_data(jData, opt, data);
-
-        }
-        // 接口调用错误
-        catch (errMsg) {
-            $('<div class="msg-error">').text(errMsg).appendTo(jData);
-            throw errMsg;
-        }
+        draw_api_result(jData, re, opt);
     });
 
     // 返回自身以便链式赋值
     return this;
 }
 //...........................................................
+function draw_api_result(jData, re, opt) {
+    opt = opt || jData.data("@OPT") || {};
+
+    // 清除正在加载的显示
+    jData.empty();
+
+    // api 返回错误
+    if(/^e[.]/.test(re)){
+        $('<div class="msg-error">').text(re).appendTo(jData);
+        return jData;
+    }
+    // 试图解析数据
+    try {
+        // 记录数据
+        var data = $z.fromJson(re);
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 如果数据是翻页信息，那么还需要找到翻页控件，并更新它的值
+        do_update_pager(opt, data.pager);
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 绘制数据
+        draw_data(jData, opt, data);
+
+    }
+    // 接口调用错误
+    catch (errMsg) {
+        $('<div class="msg-error">').text(errMsg).appendTo(jData);
+        throw errMsg;
+    }
+}
+//...........................................................
 // 命令模式
 var CMD = {
     reload : function(jumpToHead){
         do_reload(this, jumpToHead);
+    },
+    update_pager : function(pager){
+        var jData = this;
+        var opt = jData.data("@OPT") || {};
+
+        do_update_pager(opt, pager);
     }
 }
 //...........................................................
-$.fn.extend({ "hmc_dynamic" : function(opt){
+$.fn.extend({ "hmc_dynamic" : function(opt, arg){
     // 命令模式
     if(_.isString(opt)) {
         var args = Array.from(arguments);
@@ -193,8 +205,28 @@ $.fn.extend({ "hmc_dynamic" : function(opt){
 
     // 因为要等待其他插件先加载，自己先延迟执行
     window.setTimeout(function(){
-        do_reload(jData);
+        // 采用裸数据首次绘制
+        var json = $.trim(jData.children(".dynamic-raw-data").html());
+        if(json) {
+            draw_api_result(jData, json, opt);
+        }
+        // 自己啥内容都木有，那么动态请求一下
+        else if(jData.children().length == 0){
+            do_reload(jData);
+        }
+        // 否则，看看有木有数据
+        else if(arg) {
+            // 本身就是一个翻页信息
+            if(arg.pn && arg.pgsz) {
+                do_update_pager(opt, arg);
+            }
+            // 是一个返回对象
+            else if(arg.list && arg.pager) {
+                do_update_pager(opt, arg.pager);
+            }
+        }
     }, 0);
+    
 }});
 //...........................................................
 })(window.jQuery, window.NutzUtil);

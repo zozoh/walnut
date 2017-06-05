@@ -20,7 +20,7 @@ public class HmTemplateInfo {
 
     public String getDomFileName(String dft) {
         if (null != dom)
-            dom.getString("fileName", dft);
+            return dom.getString("fileName", dft);
         return dft;
     }
 
@@ -28,6 +28,18 @@ public class HmTemplateInfo {
         if (null != dom)
             return dom.getString("varName", dft);
         return dft;
+    }
+
+    public String getDomDataKey(String dft) {
+        if (null != dom)
+            return dom.getString("dataKey", dft);
+        return dft;
+    }
+
+    public boolean hasDomDataKey() {
+        if (null != dom)
+            return dom.has("dataKey");
+        return false;
     }
 
     public HmTemplateInfo evalOptions() {

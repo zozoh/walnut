@@ -1,6 +1,9 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
@@ -14,6 +17,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.hmaker.template.HmTemplate;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
+import org.nutz.walnut.ext.hmaker.util.bean.HmApiParamField;
 
 public class hmc_dynamic extends AbstractSimpleCom {
 
@@ -25,11 +29,12 @@ public class hmc_dynamic extends AbstractSimpleCom {
     @Override
     protected boolean doArena(HmPageTranslating ing, Element eleArena) {
         // 设置内容
-        if (!this._setup_dynamic_content(ing))
+        NutMap reMap = this.__setup_dynamic_content(ing);
+        if (null == reMap)
             return false;
 
         // 初始化服务器端数据
-        __add_data_script(ing, eleArena);
+        __add_data_script(ing, eleArena, reMap);
 
         // 得到模板的信息
         String templateName = ing.propCom.getString("template");
@@ -40,8 +45,12 @@ public class hmc_dynamic extends AbstractSimpleCom {
             String html = __gen_customized_dom_rendering(ing, tmpl);
             eleArena.append(html);
         }
-
         // 直接输出裸数据
+        else {
+            Element eleRaw = eleArena.appendElement("script");
+            eleRaw.attr("type", "text/x-template").addClass("dynamic-raw-data");
+            eleRaw.append("${" + ing.comId + "(json:cqn)?-obj-}");
+        }
 
         // ...........................................
         // 确保页面输出是 wnml
@@ -51,10 +60,21 @@ public class hmc_dynamic extends AbstractSimpleCom {
         // 链入控件的 jQuery 插件
         ing.jsLinks.add("/gu/rs/ext/hmaker/hm_runtime.js");
         ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_dynamic.js");
-        String script = String.format("$('#%s > .hmc-dynamic').hmc_dynamic(%s);",
+
+        String dataKey = tmpl.info.getDomDataKey(null);
+        String dataArgs = "";
+        if (null != dataKey) {
+            if ("@".equals(dataKey))
+                dataArgs = ", ${" + ing.comId + "(json:cqn)?-obj-}";
+            else
+                dataArgs = ", ${" + ing.comId + "." + dataKey + "(json:cqn)?-obj-}";
+        }
+
+        String script = String.format("$('#%s > .hmc-dynamic').hmc_dynamic(%s%s);",
                                       ing.comId,
                                       Json.toJson(ing.propCom,
-                                                  JsonFormat.forLook().setIgnoreNull(false)));
+                                                  JsonFormat.forLook().setIgnoreNull(false)),
+                                      dataArgs);
         ing.scripts.add(Hms.wrapjQueryDocumentOnLoad(script));
 
         return true;
@@ -81,11 +101,16 @@ public class hmc_dynamic extends AbstractSimpleCom {
             if ("@@".equals(key)) {
                 v = varName;
             }
+            // 从变量里取值
+            else if (key.startsWith("@@=")) {
+                String vk = key.substring(3);
+                String vph = options.getString(vk, "_");
+                v = "${" + varName + "." + vph + "?}";
+            }
             // 固定从变量里取值
             else if (key.startsWith("@@")) {
                 String vk = key.substring(2);
-                String vph = options.getString(vk, "_");
-                v = "${" + varName + "." + vph + "}";
+                v = "${" + varName + "." + vk + "?}";
             }
             // 选项里面的键（支持 =xxx 模式）
             else if (key.startsWith("@")) {
@@ -121,29 +146,39 @@ public class hmc_dynamic extends AbstractSimpleCom {
         return html;
     }
 
-    private void __add_data_script(HmPageTranslating ing, Element eleArena) {
+    private void __add_data_script(HmPageTranslating ing, Element eleArena, NutMap reMap) {
         String api = ing.propCom.getString("api");
         Element eleDscript = eleArena.appendElement("script");
         eleDscript.addClass("wn-datasource").attr("name", ing.comId).attr("type", "json");
-        eleDscript.text("httpapi invoke '" + api + "' -get 'pid:\"sf33grk0uiiqgq0g4r1c3akjdf\"'");
+
+        // 生成命令
+        JsonFormat jfmt = JsonFormat.compact().setQuoteName(false).setIgnoreNull(false);
+        String paramJson = Json.toJson(reMap, jfmt);
+        eleDscript.text("httpapi invoke '" + api + "' -get '" + paramJson + "'");
     }
 
-    private boolean _setup_dynamic_content(HmPageTranslating ing) {
+    /**
+     * @param ing
+     *            运行时上下文
+     * @return 格式化后用来生成服务器运行脚本的参数表, null 表示本控件内容无效
+     */
+    @SuppressWarnings("unchecked")
+    private NutMap __setup_dynamic_content(HmPageTranslating ing) {
         NutMap com = ing.propCom;
         // 没模板，删掉
         String templateName = com.getString("template");
         if (Strings.isBlank(templateName))
-            return false;
+            return null;
 
         // 没 API，删掉
         String api = ing.propCom.getString("api");
         if (null == api)
-            return false;
+            return null;
 
         // 得到 API 信息
         WnObj oApi = ing.getApiObj(api);
         if (null == oApi)
-            return false;
+            return null;
 
         // 记入 API 信息
         com.put("apiInfo", oApi.pick("params", "api_method", "api_return"));
@@ -168,7 +203,11 @@ public class hmc_dynamic extends AbstractSimpleCom {
         // 读取模板信息
         com.put("tmplInfo", tmpl.info);
 
+        // 准备返回的参数表
+        NutMap reMap = new NutMap();
+
         // 格式化参数表
+        NutMap apiParams = oApi.getAs("params", NutMap.class);
         NutMap params = com.getAs("params", NutMap.class);
         if (null != params && params.size() > 0) {
             // 静态替换的上下文
@@ -182,8 +221,67 @@ public class hmc_dynamic extends AbstractSimpleCom {
                     String str = Strings.trim(val.toString());
                     // 所有 ${xxx} 进行静态替换
                     str = Tmpl.exec(str, pc);
+
                     // 加入参数表
                     params.put(key, str);
+
+                    // 解析参数表，生成服务器端 httpapi invoke 调用参数
+                    Matcher m = Pattern.compile("^([@#])(<(.+)>)?(.*)$").matcher(str);
+
+                    // 特殊格式的参数
+                    if (m.find()) {
+                        String p_tp = m.group(1);
+                        String p_val = m.group(3);
+                        String p_arg = Strings.trim(m.group(4));
+
+                        // 动态参数: "@<id>qcpb4e7l72h09p9na2hpo8vcue"
+                        if ("@".equals(p_tp)) {
+                            reMap.put(key, "${" + p_val + "?" + p_arg + "}");
+                        }
+                        // 来自控件 "#<filter_1>"
+                        else if ("#".equals(p_tp)) {
+                            // TODO 得到控件的值
+                            Object comVal = this.__get_com_val(p_val);
+
+                            // 合并到输出参数表里
+                            if (null != comVal) {
+                                // 控件生成一组参数，要合并
+                                if (comVal instanceof Map) {
+                                    Map<String, Object> map = (Map<String, Object>) comVal;
+
+                                    // 解析参数，得到映射信息
+                                    if (null != apiParams) {
+                                        Object apiParamField = apiParams.get(key);
+                                        HmApiParamField fld = this.parseParamFieldSetting(apiParamField);
+                                        if (null != fld.mapping) {
+                                            NutMap map2 = new NutMap();
+                                            for (Map.Entry<String, Object> en : fld.mapping.entrySet()) {
+                                                Object v2 = map.get(en.getValue());
+                                                map2.put(en.getKey(), v2);
+                                            }
+                                            reMap.putAll(map2);
+                                        }
+                                        // 没有映射就不映射
+                                        else {
+                                            reMap.putAll(map);
+                                        }
+                                    }
+                                    // 直接加入
+                                    else {
+                                        reMap.putAll(map);
+                                    }
+                                }
+                                // 控件只是返回一个字符串作为数据
+                                else {
+                                    reMap.put(key, comVal);
+                                }
+                            }
+                        }
+                    }
+                    // 其他就是静态参数
+                    else {
+                        reMap.put(key, str);
+                    }
                 }
             }
 
@@ -219,7 +317,64 @@ public class hmc_dynamic extends AbstractSimpleCom {
             com.put("skinSelector", ing.skinInfo.getSkinForTemplate(templateName));
 
         // 返回成功
-        return true;
+        return reMap;
+    }
+
+    private Object __get_com_val(String comId) {
+        return null;
+    }
+
+    /**
+     * 解析动态设置的 setting 对象，
+     * 
+     * @param value
+     *            参数格式为 <code>[*][(参数显示名)]@类型[=默认值][:参数[{映射表}][#注释]]</code>
+     * 
+     * @return 函数返回（基本符合 form 控件的field定义）:
+     * 
+     *         <pre>
+     {
+         type     : "thingset",  // 项目类型
+         arg      : "xxx",       // 项目参数
+         dft      : "xxx",       // 项目默认值
+         mapping  : {..}         // 映射表（基本只有@com类型才会有用）
+         required : true,        // 字段是否必须
+         key      : "xxx",       // 字段名
+         title    : "xxx",       // 字段显示名
+         tip      : "xxx",       // 提示信息
+     }
+     *         </pre>
+     */
+    @SuppressWarnings({"unused", "unchecked"})
+    private HmApiParamField parseParamFieldSetting(Object value) {
+        HmApiParamField fld;
+
+        // 本来就是 Map
+        if (value instanceof Map) {
+            NutMap map = NutMap.WRAP((Map<String, Object>) value);
+            fld = Lang.map2Object(map, HmApiParamField.class);
+        }
+        // 从字符串构建
+        else {
+            fld = new HmApiParamField();
+
+            Pattern p = Pattern.compile("^([*])?(\\(([^\\)]+)\\))?@(input|thingset|site|com|link)(=([^:#{]*))?(:([^#{]*))?(\\{[^}]*\\})?(#(.*))?$");
+            Matcher m = p.matcher(value.toString());
+
+            if (m.find()) {
+                fld.required = !Strings.isBlank(m.group(1));
+                fld.title = m.group(3);
+                fld.type = m.group(4);
+                fld.dft = m.group(6);
+                fld.arg = m.group(8);
+                fld.tip = m.group(11);
+
+                String json = m.group(9);
+                if (!Strings.isBlank(json))
+                    fld.mapping = Json.fromJson(NutMap.class, json);
+            }
+        }
+        return fld;
     }
 
     @Override
