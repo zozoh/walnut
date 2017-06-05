@@ -20,11 +20,18 @@ return ZUI.def("app.wn.hm_com_sorter", {
     events : {
         // 设置默认值
         "click ul li" : function(e) {
-            if(this.isActived()) {
-                var jLi = $(e.currentTarget);
-                var index = jLi.prevAll().length;
-                this.setEnabled(jLi.attr("enabled") ? -1 : index);
-            }
+            var UI = this;
+
+            // 在激活的组件内容才生效
+            if(!UI.isActived())
+                return;
+            
+            var jLi = $(e.currentTarget);
+            var index = jLi.prevAll().length;
+            UI.setEnabled(jLi.attr("enabled") ? -1 : index);
+
+            // 保存默认值
+            UI.__save_defaultValue();
         }
     },
     //...............................................................
@@ -60,6 +67,12 @@ return ZUI.def("app.wn.hm_com_sorter", {
     //...............................................................
     getComValue : function() {
         return this.arena.hmc_sorter("value");
+    },
+    //...............................................................
+    __save_defaultValue : function(){
+        this.saveData("page", {
+            defaultValue : this.getComValue()
+        }, true);
     },
     //...............................................................
     // 绘制项目

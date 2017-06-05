@@ -19,4 +19,13 @@ public interface HmComHandler {
      */
     boolean isDynamic(Element eleCom);
 
+    /**
+     * 根据当前控件的信息，获取控件的值（主要给 hmc_dynamic用）
+     * 
+     * @param eleCom 控件对应的元素
+     * 
+     * @return 控件的值
+     */
+    Object getValue(Element eleCom);
+
 }

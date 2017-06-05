@@ -5,7 +5,7 @@ import org.nutz.lang.Strings;
 import org.nutz.plugins.zdoc.markdown.Markdown;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
-public class hmc_text extends AbstractSimpleCom {
+public class hmc_text extends AbstractNoneValueCom {
 
     @Override
     protected String getArenaClassName() {

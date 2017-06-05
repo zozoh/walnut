@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.hmaker.util.com;
 import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
 
@@ -22,6 +23,11 @@ public class hmc_sorter extends AbstractSimpleCom {
         // 确保页面输出是 wnml
         ing.markPageAsWnml();
 
+        // 存储默认值
+        String dfv = ing.propCom.getString("defaultValue");
+        if (!Strings.isBlank(dfv))
+            ing.eleCom.attr("default-value", dfv);
+
         // ...........................................
         // 链入控件的 jQuery 插件
         ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_sorter.js");
@@ -37,6 +43,11 @@ public class hmc_sorter extends AbstractSimpleCom {
     @Override
     public boolean isDynamic(Element eleCom) {
         return true;
+    }
+
+    @Override
+    public Object getValue(Element eleCom) {
+        return eleCom.attr("default-value");
     }
 
 }

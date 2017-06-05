@@ -3,7 +3,7 @@ package org.nutz.walnut.ext.hmaker.util.com;
 import org.jsoup.nodes.Element;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
-public class hmc_htmlcode extends AbstractSimpleCom {
+public class hmc_htmlcode extends AbstractNoneValueCom {
 
     @Override
     protected String getArenaClassName() {

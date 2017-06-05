@@ -41,6 +41,9 @@ return ZUI.def("app.wn.hm_com_filter", {
             // 切换开关
             var jLi = $(e.currentTarget);
             UI.arena.hmc_filter("selectItem", jLi);
+
+            // 保存默认值
+            UI.__save_defaultValue();
         },
         // 清除全部选项
         "click .fld-info em" : function(e){
@@ -49,8 +52,12 @@ return ZUI.def("app.wn.hm_com_filter", {
             // 在激活的组件内容才生效
             if(!UI.isActived())
                 return;
+            
             // 切换开关
             UI.arena.hmc_filter("selectItem", e.currentTarget);
+            
+            // 保存默认值
+            UI.__save_defaultValue();
         },
         // 多选开关: 启用
         "click .fld-multi b" : function(e){
@@ -59,6 +66,7 @@ return ZUI.def("app.wn.hm_com_filter", {
             // 在激活的组件内容才生效
             if(!UI.isActived())
                 return;
+            
             // 切换开关
             UI.arena.hmc_filter("enableMulti", e.currentTarget);
         },
@@ -69,8 +77,12 @@ return ZUI.def("app.wn.hm_com_filter", {
             // 在激活的组件内容才生效
             if(!UI.isActived())
                 return;
+            
             // 切换开关
             UI.arena.hmc_filter("disableMulti", e.currentTarget);
+
+            // 保存默认值
+            UI.__save_defaultValue();
         },
         // 多选开关: 确认
         "click .fld-it-check-ok" : function(e){
@@ -79,8 +91,12 @@ return ZUI.def("app.wn.hm_com_filter", {
             // 在激活的组件内容才生效
             if(!UI.isActived())
                 return;
+            
             // 切换开关
             UI.arena.hmc_filter("applyMulti", e.currentTarget);
+
+            // 保存默认值
+            UI.__save_defaultValue();
         },
         // 切换选项的更多/更少的开关
         "click .fld-more b" : function(e){
@@ -103,7 +119,7 @@ return ZUI.def("app.wn.hm_com_filter", {
         UI.arena.addClass("hm-empty-save");
 
         // 得到之前的值
-        var flt = UI.arena.hmc_filter("value");
+        var flt = com.defaultValue || UI.arena.hmc_filter("value");
 
         // 绘制
         UI.arena.hmc_filter(_.extend({
@@ -122,6 +138,12 @@ return ZUI.def("app.wn.hm_com_filter", {
     //...............................................................
     getComValue : function() {
         return this.arena.hmc_filter("value");
+    },
+    //...............................................................
+    __save_defaultValue : function(){
+        this.saveData("page", {
+            defaultValue : this.getComValue()
+        }, true);
     },
     //...............................................................
     __sync_folder : function(){

@@ -21,4 +21,9 @@ public abstract class AbstractLayoutCom extends AbstractCom {
         return false;
     }
 
+    @Override
+    public Object getValue(Element eleCom) {
+        return null;
+    }
+
 }

@@ -600,7 +600,7 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 得到皮肤的信息
         var oHome    = UI.getHomeObj();
-        console.log("doChangeSkin", oHome);
+        //console.log("doChangeSkin", oHome);
         var skinName = oHome.hm_site_skin;
         var skinInfo = UI.getSkinInfo() || {};
 

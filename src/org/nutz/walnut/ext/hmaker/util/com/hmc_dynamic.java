@@ -15,11 +15,12 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.hmaker.template.HmTemplate;
+import org.nutz.walnut.ext.hmaker.util.HmComHandler;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
 import org.nutz.walnut.ext.hmaker.util.bean.HmApiParamField;
 
-public class hmc_dynamic extends AbstractSimpleCom {
+public class hmc_dynamic extends AbstractNoneValueCom {
 
     @Override
     protected String getArenaClassName() {
@@ -241,7 +242,7 @@ public class hmc_dynamic extends AbstractSimpleCom {
                         // 来自控件 "#<filter_1>"
                         else if ("#".equals(p_tp)) {
                             // TODO 得到控件的值
-                            Object comVal = this.__get_com_val(p_val);
+                            Object comVal = this.__get_com_val(ing, p_val);
 
                             // 合并到输出参数表里
                             if (null != comVal) {
@@ -252,7 +253,7 @@ public class hmc_dynamic extends AbstractSimpleCom {
                                     // 解析参数，得到映射信息
                                     if (null != apiParams) {
                                         Object apiParamField = apiParams.get(key);
-                                        HmApiParamField fld = this.parseParamFieldSetting(apiParamField);
+                                        HmApiParamField fld = parseParamFieldSetting(apiParamField);
                                         if (null != fld.mapping) {
                                             NutMap map2 = new NutMap();
                                             for (Map.Entry<String, Object> en : fld.mapping.entrySet()) {
@@ -320,8 +321,30 @@ public class hmc_dynamic extends AbstractSimpleCom {
         return reMap;
     }
 
-    private Object __get_com_val(String comId) {
-        return null;
+    private Object __get_com_val(HmPageTranslating ing, String comId) {
+        Element taCom = ing.doc.getElementById(comId);
+
+        if (null == taCom)
+            return null;
+
+        // 根据组件类型得到实例
+        String ctype = taCom.attr("ctype");
+        HmComHandler com = Hms.COMs.check(ctype);
+
+        // 返回控件的值
+        Object val = com.getValue(taCom);
+
+        // 空值
+        if (null == val)
+            return null;
+
+        // 空字符串当做 null 来看
+        if (val instanceof CharSequence) {
+            return Strings.sBlank(val.toString(), null);
+        }
+
+        // 嗯，那么就应该是一个 Map 咯
+        return val;
     }
 
     /**
@@ -345,8 +368,8 @@ public class hmc_dynamic extends AbstractSimpleCom {
      }
      *         </pre>
      */
-    @SuppressWarnings({"unused", "unchecked"})
-    private HmApiParamField parseParamFieldSetting(Object value) {
+    @SuppressWarnings({"unchecked"})
+    private static HmApiParamField parseParamFieldSetting(Object value) {
         HmApiParamField fld;
 
         // 本来就是 Map
