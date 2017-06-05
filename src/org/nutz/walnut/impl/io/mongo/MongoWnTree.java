@@ -58,8 +58,7 @@ public class MongoWnTree extends AbstractWnTree {
 
     @Override
     public boolean hasChild(WnObj nd) {
-        ZMoDoc doc = co.findOne(ZMoDoc.NEW("pid", nd.id()));
-        return null != doc;
+        return co.count(ZMoDoc.NEW("pid", nd.id())) != 0;
     }
 
     @Override
