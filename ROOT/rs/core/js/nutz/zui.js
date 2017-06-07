@@ -1227,7 +1227,7 @@ define(function (require, exports, module) {
                 this.parent.showQuickTip(showParentAsDefault);
             }
         },
-        // html的通知系统
+        // 使用HTML5中的Web Notification桌面通知
         notification: function (opt) {
             if (window.Notification) {
                 var popNotice = function () {
