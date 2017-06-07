@@ -1227,6 +1227,32 @@ define(function (require, exports, module) {
                 this.parent.showQuickTip(showParentAsDefault);
             }
         },
+        // html的通知系统
+        notification: function (opt) {
+            if (window.Notification) {
+                var popNotice = function () {
+                    if (Notification.permission == "granted") {
+                        var notification = new Notification(opt.title, {
+                            body: opt.body,
+                            icon: opt.icon
+                        });
+                        // onclick
+                        if (opt.onclick) {
+                            notification.onclick = opt.onclick;
+                        }
+                    }
+                };
+                if (Notification.permission == "granted") {
+                    popNotice();
+                } else if (Notification.permission != "denied") {
+                    Notification.requestPermission(function (permission) {
+                        popNotice();
+                    });
+                }
+            } else {
+                alert('浏览器不支持Notification');
+            }
+        },
         //...................................................................
         // 提供一个通用的确认对话框
         // opt.ok     : {c}F(str)
