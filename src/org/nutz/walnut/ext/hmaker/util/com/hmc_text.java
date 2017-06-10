@@ -29,7 +29,7 @@ public class hmc_text extends AbstractNoneValueCom {
         }
 
         // 更新 HTML
-        eleArena.html(html);
+        eleArena.appendElement("article").addClass("md-content").html(html);
 
         return true;
     }

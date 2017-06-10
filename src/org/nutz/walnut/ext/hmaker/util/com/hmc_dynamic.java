@@ -15,6 +15,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.hmaker.template.HmTemplate;
+import org.nutz.walnut.ext.hmaker.template.HmTmplField;
 import org.nutz.walnut.ext.hmaker.util.HmComHandler;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
@@ -98,30 +99,39 @@ public class hmc_dynamic extends AbstractNoneValueCom {
         // 循环判断占位符
         for (String key : tmpl.dom.keys()) {
             Object v = null;
+            String k = key;
+
+            // 判断是否标识不要输出成动态占位符
+            boolean asTmpl = true;
+            if (k.startsWith("-")) {
+                asTmpl = false;
+                k = k.substring(1);
+            }
+
             // 变量名
-            if ("@@".equals(key)) {
+            if ("@@".equals(k)) {
                 v = varName;
             }
             // 从变量里取值
-            else if (key.startsWith("@@=")) {
-                String vk = key.substring(3);
+            else if (k.startsWith("@@=")) {
+                String vk = k.substring(3);
                 String vph = options.getString(vk, "_");
-                v = "${" + varName + "." + vph + "?}";
+                v = __gen_val(varName, vph, asTmpl);
             }
             // 固定从变量里取值
-            else if (key.startsWith("@@")) {
-                String vk = key.substring(2);
-                v = "${" + varName + "." + vk + "?}";
+            else if (k.startsWith("@@")) {
+                String vk = k.substring(2);
+                v = __gen_val(varName, vk, asTmpl);
             }
             // 选项里面的键（支持 =xxx 模式）
-            else if (key.startsWith("@")) {
-                String vph = key.substring(1);
+            else if (k.startsWith("@")) {
+                String vph = k.substring(1);
                 Object o_v = Mapl.cell(options, vph);
                 if (null != o_v) {
                     String str = o_v.toString();
                     // =th_nm : 动态从对象里取值
                     if (str.startsWith("=")) {
-                        v = "${" + varName + "." + str.substring(1) + "?}";
+                        v = __gen_val(varName, str.substring(1), asTmpl);
                     }
                     // 就是一个静态的值
                     else {
@@ -135,7 +145,7 @@ public class hmc_dynamic extends AbstractNoneValueCom {
             }
             // 嗯，其他就直接从选项里面取
             else {
-                v = options.getString(key);
+                v = options.getString(k);
             }
 
             // 计入到上下文
@@ -143,8 +153,15 @@ public class hmc_dynamic extends AbstractNoneValueCom {
                 c.put(key, v);
         }
         // 输出
-        String html = tmpl.dom.render(c, true);
-        return html;
+        return tmpl.dom.render(c, true);
+    }
+
+    private Object __gen_val(String varName, String vph, boolean asTmpl) {
+        Object v;
+        v = varName + "." + vph;
+        if (asTmpl)
+            v = "${" + v + "?}";
+        return v;
     }
 
     private void __add_data_script(HmPageTranslating ing, Element eleArena, NutMap reMap) {
@@ -302,6 +319,15 @@ public class hmc_dynamic extends AbstractNoneValueCom {
                 if (!Strings.isBlank(link)) {
                     String lnk2 = ing.explainLink(link, false);
                     options.put(linkKey, lnk2);
+                }
+            }
+            // 找到所有 mapping 类型字段，试图填充默认值
+            List<String> mappingKeys = tmpl.info.getFieldByType("mapping");
+            for (String mappingKey : mappingKeys) {
+                Object mapping = options.get(mappingKey);
+                if (null == mapping) {
+                    HmTmplField fld = tmpl.info.getField(mappingKey);
+                    options.put(mappingKey, fld.mapping);
                 }
             }
             // 增加 API 选项

@@ -24,6 +24,7 @@ import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
 import org.nutz.lang.segment.Segment;
 import org.nutz.lang.segment.Segments;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
@@ -602,6 +603,36 @@ public abstract class Wn {
                     io.each(Wn.Q.pid(o), callback);
                 }
             }
+        }
+
+        /**
+         * @param io
+         *            IO 接口
+         * @param o
+         *            要删除的文件或者目录
+         * @param isR
+         *            是否递归
+         * 
+         * @param 删除前回调
+         */
+        public static void doDelete(final WnIo io,
+                                    WnObj o,
+                                    final boolean isR,
+                                    Callback<WnObj> callback) {
+            // 调用回调
+            if (null != callback)
+                callback.invoke(o);
+
+            // 递归
+            if (!o.isFILE() && isR) {
+                io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
+                    public void invoke(int index, WnObj child, int length) {
+                        doDelete(io, child, isR, callback);
+                    }
+                });
+            }
+            // 删除自己
+            io.delete(o);
         }
 
     }

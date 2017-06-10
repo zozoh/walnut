@@ -73,4 +73,13 @@ public class HmTemplateInfo {
         return list;
     }
 
+    public HmTmplField getField(String key) {
+        Object val = options.get(key);
+        if (null != val) {
+            HmTmplField v2 = HmTmplField.eval(val);
+            return v2;
+        }
+        return null;
+    }
+
 }

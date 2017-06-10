@@ -22,6 +22,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
+import org.nutz.plugins.zdoc.markdown.Markdown;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.util.JsExec;
 import org.nutz.walnut.util.JsExecContext;
@@ -121,6 +122,10 @@ public class WnmlService {
             else if ("choose".equals(tagName)) {
                 __do_choose(wrt, ele, c);
             }
+            // <markdown>
+            else if ("markdown".equals(tagName)) {
+                __do_markdown(wrt, ele, c);
+            }
             // 普通的元素
             else {
                 // 属性
@@ -157,6 +162,21 @@ public class WnmlService {
             String str = Tmpl.exec(txt, c);
             ele.text(str);
         }
+    }
+
+    private void __do_markdown(final WnmlRuntime wrt, final Element ele, NutMap c) {
+        // 获取内容
+        String itemsKey = ele.attr("content");
+        Object content = Mapl.cell(c, itemsKey);
+
+        // 如果有内容，那么就开始迭代
+        if (null != content) {
+            String html = Markdown.toHtml(content.toString());
+            ele.html(html);
+        }
+
+        // 最后移除模板
+        ele.unwrap();
     }
 
     private void __do_each(final WnmlRuntime wrt, final Element ele, NutMap c) {
