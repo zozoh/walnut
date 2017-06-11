@@ -381,9 +381,14 @@ public abstract class Things {
                 throw Er.create("e.cmd.thing." + key + ".noexists", oDir.path() + "/" + fnm);
             }
 
-            // 最后计入输出
-            if (null != oM)
+            // 输出文本
+            if (oM.isMime("^text/.+$")) {
                 hc.output = sys.io.readText(oM);
+            }
+            // 输出二进制内容
+            else {
+                hc.output = sys.io.getInputStream(oM, 0);
+            }
         }
         // 那么就是查询咯
         else {

@@ -14,5 +14,8 @@
     <div class="md-brief">${@displayText.brief}</div>
 </if>
 <article class="md-content">
-<markdown content="${-@displayText.content}"/>
+<markdown content="${-@displayText.content}" obj="${comId}" api="${API}">
+    <media regex="^media/(.+)$" 
+    replace="$[API]/thing/media?pid=$[obj.th_set]&amp;id=$[obj.id]&amp;fnm=$[1]"/>
+</markdown>
 </article>

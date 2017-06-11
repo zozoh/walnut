@@ -3374,9 +3374,23 @@
                 return str.substring(i);
             return str;
         },
-        //............................................
-        // 将给定的 Markdown 文本，转换成 HTML 代码
-        markdownToHtml: function (str) {
+        /*............................................
+        将给定的 Markdown 文本，转换成 HTML 代码
+        opt : {
+            media   : {c}F(src)   // 计算媒体文件加载的真实 URL
+            context : undefined  // 所有回调的上下文
+        }
+        */
+        markdownToHtml: function (str, opt) {
+            // 确保有选项对象
+            opt = opt || {};
+            context = opt.context || this;
+
+            // 设置默认值
+            zUtil.setUndefined(opt, "media", function(src){
+                return src;
+            });
+
             /* 首先将文本拆分成段落： 
              {
              type  : "H|P|code|OL|UL|hr|Th|Tr|quote|empty",
@@ -3545,13 +3559,13 @@
             };
 
             var __line_to_html = function (str) {
-                var reg = '(\\*(.+)\\*)'
-                    + '|(\\*\\*(.+)\\*\\*)'
-                    + '|(__(.+)__)'
-                    + '|(~~(.+)~~)'
-                    + '|(`(.+)`)'
-                    + '|(!\\[(.*)\\]\\((.+)\\))'
-                    + '|(\\[(.*)\\]\\((.+)\\))'
+                var reg = '(\\*([^*]+)\\*)'
+                    + '|(\\*\\*([^*]+)\\*\\*)'
+                    + '|(__([^_]+)__)'
+                    + '|(~~([^~]+)~~)'
+                    + '|(`([^`]+)`)'
+                    + '|(!\\[([^\\]]*)\\]\\(([^\\)]+)\\))'
+                    + '|(\\[([^\\]]*)\\]\\(([^\\)]+)\\))'
                     + '|(https?:\\/\\/[^ ]+)';
                 var REG = new RegExp(reg, "g");
                 var m;
@@ -3585,7 +3599,8 @@
                     // IMG: ![](xxxx)
                     else if (m[11]) {
                         //console.log("haha", m[13])
-                        html += '<img alt="' + m[12] + '" src="' + m[13] + '">';
+                        var src = opt.media.apply(context, [m[13]]);
+                        html += '<img alt="' + m[12] + '" src="' + src + '">';
                     }
                     // A: [](xxxx)
                     else if (m[14]) {

@@ -20,6 +20,10 @@
     display: flex;
 };
 
+@f_fixed : Monaco, Menlo, Consolas, Courier New, Courier, monospace;
+
+// "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace
+
 /***************************************************
  * 自适应布局
  */
@@ -147,40 +151,6 @@ body {
 .skin-text-slogon {
     background: @c_2; color:@c_2r;
     padding:.05rem; text-align: center;
-}
-
-//............................................
-// markdown 文本内容
-.skin-markdown {
-    // 重定义字体大小
-    table, thead, tbody, tr, th, td {font-size:1em;}
-    
-    // 链接
-    a {color:#08F; text-decoration: none;}
-    a:hover {text-decoration: underline;}
-    
-    // 表格
-    table {
-        border-spacing: 0; border-collapse: collapse;
-    }
-    td, th {
-        border:1px solid #dfe2e5; padding:.08rem .16rem;
-        font-family: -apple-system, BlinkMacSystemFont, 
-                    "Segoe UI", Helvetica, Arial, 
-                    sans-serif, "Apple Color Emoji", 
-                    "Segoe UI Emoji", "Segoe UI Symbol";
-    }
-    th {font-weight: bold;}
-    
-    // 代码
-    pre {
-        padding: .16rem; overflow: auto;
-        font-size: 85%; line-height: 1.45;
-        background-color: #F0F0F0; border-radius: 3px;
-        font-family: "SFMono-Regular", Consolas, "Liberation Mono", 
-                     Menlo, Courier, monospace;
-    }
-    
 }
 
 //............................................
@@ -415,6 +385,73 @@ body {
     .wla-thumb {width:1rem; height:1rem;}
 
 
+//............................................
+// com.dynamic:超文本(Markdown)
+// com.text:超文本(Markdown)
+.skin-markdown {
+    padding: .2rem;
+
+    // 正文内容
+    article {
+        font-size:.14rem;
+        // 重定义字体大小
+        table, thead, tbody, tr, th, td {font-size:1em;}
+        
+        // 链接
+        a {color:#08F; text-decoration: none;}
+        a:hover {text-decoration: underline;}
+        
+        // ------------------------- 标题
+        h1 {margin:.20rem 0; padding:.08rem 0; font-size:.24rem;}
+        h2 {margin:.16rem 0; padding:.06rem 0; font-size:.22rem;}
+        h3 {margin:.12rem 0; padding:.04rem 0; font-size:.20rem;}
+        h4 {margin:.10rem 0; padding:.02rem 0; font-size:.18rem;}
+        h5 {margin:.08rem 0; padding:.02rem 0; font-size:.16rem;}
+        h6 {margin:.04rem 0; padding:.02rem 0; font-size:.14rem;}
+        // ------------------------- 段落及正文
+        p {margin:.16rem 0; padding:.06rem; line-height: .28rem;}
+        em {font-style: italic; color:#88A;}
+        b {color:#89B; font-weight: bold;}
+        del {color:#F88;}
+        code {
+            border:1px solid #CCC; background: #FFC; color:#666;
+            display: inline-block; vertical-align: middle;
+            margin:.02rem; font-size:.11rem; line-height: .20rem;
+            padding:0 .04rem; font-family: @f_fixed;
+        }
+        // ------------------------- 引用
+        blockquote {
+            border-left:4px solid rgba(0,0,0,0.1); 
+            margin:.1rem; padding:.1rem;
+            color:#666; background: rgba(0,0,0,0.05);
+        }
+        // ------------------------- 无序列表
+        ul, ol {
+            margin:.05rem .2rem; padding:0 .14rem;
+        }
+        // ------------------------- 表格
+        table {
+            border-spacing: 0; border-collapse: collapse;
+        }
+        td, th {
+            border:1px solid #dfe2e5; padding:.08rem .16rem;
+            font-family: -apple-system, BlinkMacSystemFont, 
+                        "Segoe UI", Helvetica, Arial, 
+                        sans-serif, "Apple Color Emoji", 
+                        "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+        th {font-weight: bold;}
+        
+        // ------------------------- 代码
+        pre {
+            padding: .16rem; overflow: auto;
+            font-size: 85%; line-height: 1.45;
+            background-color: #F0F0F0; border-radius: 3px;
+            font-family: @f_fixed;
+        }
+
+    } // ~ 结束正文 article
+}
 
 
 

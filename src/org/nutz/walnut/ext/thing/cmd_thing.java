@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.thing;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class cmd_thing extends JvmHdlExecutor {
         }
         // 第一个参数表示一个 TsID 并且有多余一个的参数
         // :> thing ID hdlName xxx
-        else if(hc.args.length >= 2){
+        else if (hc.args.length >= 2) {
             hc.oRefer = Things.checkThingSet(sys, hc.args[0]);
             hc.hdlName = hc.args[1];
             pos = 2;
@@ -101,6 +102,11 @@ public class cmd_thing extends JvmHdlExecutor {
                     else {
                         sys.out.println(Json.toJson(hc.output, hc.jfmt));
                     }
+                }
+                // 如果是个输入流
+                else if (hc.output instanceof InputStream) {
+                    InputStream ins = (InputStream) hc.output;
+                    sys.out.writeAndClose(ins);
                 }
                 // 其他的情况，就直接 toString 输出咯
                 else {

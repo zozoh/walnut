@@ -2,6 +2,8 @@ package org.nutz.walnut.ext.hmaker.util.com;
 
 import org.jsoup.nodes.Element;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.Tag;
 import org.nutz.plugins.zdoc.markdown.Markdown;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
@@ -21,7 +23,9 @@ public class hmc_text extends AbstractNoneValueCom {
 
         // 如果包括换行，则表示是 markdown 文本
         if (code.contains("\n")) {
-            html = Markdown.toHtml(code);
+            html = Markdown.toHtml(code, new Callback<Tag>() {
+                public void invoke(Tag tag) {}
+            });
         }
         // 否则就是纯文本
         else {

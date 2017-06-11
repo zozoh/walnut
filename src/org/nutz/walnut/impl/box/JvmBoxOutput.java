@@ -58,6 +58,19 @@ public class JvmBoxOutput implements Flushable, Closeable {
         }
     }
 
+    public void writeAndClose(InputStream ins) {
+        try {
+            Streams.write(ops, ins);
+            ops.flush();
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
+        finally {
+            Streams.safeClose(ins);
+        }
+    }
+
     public void write(byte[] b) {
         write(b, 0, b.length);
     }

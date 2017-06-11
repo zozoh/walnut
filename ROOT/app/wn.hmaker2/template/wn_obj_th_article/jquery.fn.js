@@ -2,6 +2,8 @@
 //..........................................................
 $.fn.extend({ "wn_obj_th_article" : function(obj, opt){
     var jData = this;
+
+    console.log(obj, opt)
     
     // 首先得到字段映射
     var mapping = opt.displayText || {
@@ -14,7 +16,7 @@ $.fn.extend({ "wn_obj_th_article" : function(obj, opt){
     };
     
     // 映射数据
-    var o2  = $z.mappingObj(mapping, obj);
+    var o2 = $z.mappingObj(mapping, obj);
     
     // 渲染: 标题
     var jHeader = $('<header class="md-title">').appendTo(jData);
@@ -41,7 +43,20 @@ $.fn.extend({ "wn_obj_th_article" : function(obj, opt){
     // 正文
     var jArticle = $('<article class="md-content">').appendTo(jData);
     if(o2.content)
-        jArticle.html($z.markdownToHtml(o2.content));
+        jArticle.html($z.markdownToHtml(o2.content, {
+            media : function(src){
+                // 看看是否是媒体
+                var m = /^media\/(.+)$/.exec(src);
+                if(m){
+                    return opt.API + "/thing/media"
+                            + "?pid=" + obj.th_set
+                            + "&id="  + obj.id
+                            + "&fnm=" + m[1];
+                }
+                // 原样返回
+                return src;
+            }
+        }));
     
     // 返回自身以便链式赋值
     return this;
