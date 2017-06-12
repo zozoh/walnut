@@ -1,4 +1,4 @@
-package org.nutz.walnut.impl.io;
+package org.nutz.walnut.ext.backup;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -29,9 +29,10 @@ import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.FileVisitor;
 import org.nutz.log.Log;
 import org.nutz.walnut.api.io.WalkMode;
-import org.nutz.walnut.api.io.WnImpExp;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 @IocBean(name="wnImpExp")
@@ -42,7 +43,7 @@ public class WnImpExpImpl implements WnImpExp {
 
     @SuppressWarnings("resource")
     @Override
-    public void exp(String root, ZParams params, Log log) {
+    public void exp(String root, ZParams params, Log log, WnSession se) {
         File tmpDir = new File(System.getProperty("java.io.tmpdir")  + "/walnut/dump/" + R.UU32());
         log.info("exp tmp dir : " + tmpDir.getAbsolutePath());
         log.info(">> " + Json.toJson(params));
@@ -61,6 +62,9 @@ public class WnImpExpImpl implements WnImpExp {
             io.walk(io.check(null, root), wobj -> {
                 try {
                     // 过滤一下肯定不需要的文件
+                	if (wobj.path().contains("/.dump/")) {
+                		return;
+                	}
                     if (wobj.mount() != null && wobj.data() != null) {
                         log.debug("skip >> " + wobj.path());
                         return;
@@ -118,11 +122,11 @@ public class WnImpExpImpl implements WnImpExp {
             log.info("fdata sum=" + fdata_sum[0] / 1024  + "kb");
             
             // 压缩之
-            String zippath = params.get("zippath");
-            if (Strings.isBlank(zippath) || !(zippath.startsWith("/opt") || zippath.startsWith("/data"))) {
-                zippath = tmpDir.getParent() + "/" + tmpDir.getName() + ".zip";
-            } else if(!zippath.endsWith(".zip")){
-                zippath += ".zip";
+            String zippath = params.get("dst");
+            if (Strings.isBlank(zippath)) {
+                zippath = Wn.normalizeFullPath("~/.dump/" + R.UU32() + ".zip", se);
+            } else {
+            	zippath = Wn.normalizeFullPath(zippath, se);
             }
             log.info("zippath = " + zippath);
             Files.createFileIfNoExists(zippath);
@@ -173,7 +177,7 @@ public class WnImpExpImpl implements WnImpExp {
     }
 
     @Override
-    public void imp(String imppath, String root, ZParams params, Log log) throws IOException {
+    public void imp(String imppath, String root, ZParams params, Log log) {
         // 首先,创建一个ZipFile的列表,用于持有所有已经创建的Zip对象
         List<ZipFile> zipHolder = new ArrayList<>();
         try {
@@ -235,6 +239,9 @@ public class WnImpExpImpl implements WnImpExp {
             // 全部ok? 读取WnObj对象,逐个还原
             
         }
+        catch (Exception e) {
+			log.warn("something happen", e);
+		}
         finally {
             for (ZipFile zip : zipHolder) {
                 Streams.safeClose(zip);
@@ -277,7 +284,7 @@ public class WnImpExpImpl implements WnImpExp {
         return secondaryZips;
     }
     
-    public class WobjLine {
+    public static class WobjLine {
         public String id;
         public String path;
         public String obj_sha1;
