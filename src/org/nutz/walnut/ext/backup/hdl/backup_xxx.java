@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.backup;
+package org.nutz.walnut.ext.backup.hdl;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,8 +17,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-import org.nutz.ioc.loader.annotation.Inject;
-import org.nutz.ioc.loader.annotation.IocBean;
+import org.apache.sshd.common.util.io.NullOutputStream;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
@@ -33,85 +33,46 @@ import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.ext.backup.BackupDumpContext;
+import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
-@IocBean(name="wnImpExp")
-public class WnImpExpImpl implements WnImpExp {
-    
-    @Inject
-    protected WnIo io;
+public abstract class backup_xxx {
 
-    @SuppressWarnings("resource")
-    @Override
-    public void exp(String root, ZParams params, Log log, WnSession se) {
+    public void dump(BackupDumpContext ctx, WnSystem sys, ZParams _params) {
+    	Log log = sys.getLog(_params);
+    	WnIo io = sys.io;
+		
+    	// 输出一下上下文,如果是debug的话
+		if (ctx.debug) {
+			sys.out.writeJson(ctx); // 这东西没带换行
+			sys.out.println("");
+		}
+        // 创建临时文件夹
         File tmpDir = new File(System.getProperty("java.io.tmpdir")  + "/walnut/dump/" + R.UU32());
-        log.info("exp tmp dir : " + tmpDir.getAbsolutePath());
-        log.info(">> " + Json.toJson(params));
+        log.info("tmp dir : " + tmpDir.getAbsolutePath());
         tmpDir.mkdirs();
+        ctx.tmpdir = tmpDir;
+        // objs.txt文件的写句柄
         final FileWriter fw_objs;
+        // 记录文件数量
         int[] count = new int[1];
+        // 记录数据总量
         long[] fdata_sum = new long[1];
         List<ZipFile> zipHolder = new ArrayList<>();
         try {
             // 如果指定了老的更新包路径/文件夹, 加载之,用于检索sha1
-            List<ZipFile> oldZips = getSecondaryZips(params.get("zips"), zipHolder);
+            ctx.prevZips = getSecondaryZips(ctx.prevs, zipHolder);
             // 首先,准备一个临时文件,用于存放对象列表
             fw_objs = new FileWriter(new File(tmpDir, "objs.txt"));
             // 缓存sha1列表
             Set<String> sha1Set = new HashSet<>();
-            io.walk(io.check(null, root), wobj -> {
-                try {
-                    // 过滤一下肯定不需要的文件
-                	if (wobj.path().contains("/.dump/")) {
-                		return;
-                	}
-                    if (wobj.mount() != null && wobj.data() != null) {
-                        log.debug("skip >> " + wobj.path());
-                        return;
-                    }
-                    log.debug("export >> " + wobj.path());
-                    count[0] ++;
-                    // TODO 过滤已过期/快过期的文件?
-                    if (wobj.isFILE() && wobj.sha1() != null) {
-                        // 只有文件的sha1是有用的
-                        boolean re = sha1Set.add(wobj.sha1());
-                        if (re) {
-                            ZipFile szip = searchSha1(wobj.sha1(), null, oldZips);
-                            if (null == szip) {
-                                String path = wobj.sha1().substring(0, 2) + "/" + wobj.sha1().substring(2);
-                                File tmp = new File(tmpDir, "bucket/" + path);
-                                Files.createFileIfNoExists(tmp);
-                                try (FileOutputStream out = new FileOutputStream(tmp)) {
-                                    io.readAndClose(wobj, out);
-                                }
-                                catch (Exception e) {
-                                    log.warn("write bucket failed", e);
-                                }
-                                fdata_sum[0] += tmp.length();
-                            } else {
-                                log.debugf("sha1[%s] exists in Secondary Zips", wobj.sha1());
-                            }
-                        }
-                    }
-                    // 算出sha1
-                    String obj_str = Json.toJson(wobj, JsonFormat.full());
-                    String o_sha1 = Lang.sha1(obj_str);
-                    File f = new File(tmpDir, "objs/" + o_sha1.substring(0, 2) + "/" + o_sha1.substring(2));
-                    if (f.exists() && f.length() > 0) {
-                        // nop
-                    } else {
-                        Files.write(f, obj_str);
-                    }
-                    // 格式 $id:$path:$obj_sha1:$data_sha1
-                    String line = String.format("%s:%s:%s:%s\r\n", wobj.id(), wobj.path(), o_sha1, Strings.sBlank(wobj.sha1()));
-                    fw_objs.write(line);
-                }
-                catch (IOException e) {
-                    log.warn("write something fail", e);
-                }
-            }, WalkMode.DEPTH_LEAF_FIRST);
+            for (String path : ctx.includes) {
+                io.walk(io.check(null, Wn.normalizeFullPath(path, ctx.sys)), wobj -> {
+                    dump_walk(count, fdata_sum, wobj, fw_objs, ctx);
+                }, WalkMode.DEPTH_LEAF_FIRST);
+			}
             // 刷新缓存并关闭objs.txt文件
             fw_objs.flush();
             fw_objs.close();
@@ -124,52 +85,31 @@ public class WnImpExpImpl implements WnImpExp {
             log.info("fdata sum=" + fdata_sum[0] / 1024  + "kb");
             
             // 压缩之
-            String zippath = params.get("dst");
-            if (Strings.isBlank(zippath)) {
-                zippath = Wn.normalizeFullPath("~/.dump/" + R.UU32() + ".zip", se);
-            } else {
-            	zippath = Wn.normalizeFullPath(zippath, se);
-            }
-            log.info("zippath = " + zippath);
+            String zippath = Wn.normalizeFullPath(ctx.dst, ctx.sys);
+            log.info("dst path = " + zippath);
             Files.createFileIfNoExists(zippath);
-            try (OutputStream fos = io.getOutputStream(io.createIfNoExists(null, zippath, WnRace.FILE), 0)) {
-                ZipOutputStream zos = new ZipOutputStream(fos, Encoding.CHARSET_UTF8);
-                Disks.visitFile(tmpDir, new FileVisitor() {
-                    public void visit(File file) {
-                        if (file.isDirectory())
-                            return;
-                        String name = Disks.getRelativePath(tmpDir, file);
-                        log.debug("add to zip >> " + name);
-                        try {
-                            ZipEntry en = new ZipEntry(name);
-                            zos.putNextEntry(en);
-                            try (FileInputStream fis = new FileInputStream(file)){
-                                Streams.write(zos, fis);
-                            }
-                            zos.closeEntry();
-                        }
-                        catch (IOException e) {
-                            log.warn("fail at " + name, e);
-                        }
-                    }
-                }, null);
-                zos.flush();
-                zos.finish();
-                zos.close();
+            if (ctx.dry) {
+            	try (OutputStream out = new NullOutputStream();) {
+                    dump_write_zip(out, tmpDir, log);
+                }
+            } else {
+                try (OutputStream out = io.getOutputStream(io.createIfNoExists(null, zippath, WnRace.FILE), 0)) {
+                    dump_write_zip(out, tmpDir, log);
+                }
             }
             // 然后输出校验值
-            String sha1 = Lang.sha1(zippath);
-            String sha256 = Lang.sha256(zippath);
-            Files.write(zippath + ".sha1", sha1);
-            Files.write(zippath + ".sha256", sha256);
-            log.debug("sha1   : " + sha1);
-            log.debug("sha256 : " + sha256);
+            //String sha1 = Lang.sha1(zippath);
+            //String sha256 = Lang.sha256(zippath);
+            //Files.write(zippath + ".sha1", sha1);
+            //Files.write(zippath + ".sha256", sha256);
+            //log.debug("sha1   : " + sha1);
+            //log.debug("sha256 : " + sha256);
         }
         catch (IOException e) {
             log.warn("write something fail", e);
         }
         finally {
-            if (!params.is("keep"))
+            if (!ctx.keepTemp)
                 Files.deleteDir(tmpDir);
             for (ZipFile zip : zipHolder) {
                 Streams.safeClose(zip);
@@ -177,9 +117,86 @@ public class WnImpExpImpl implements WnImpExp {
         }
         
     }
+    
+    public void dump_walk(int[] count, long[] fdata_sum, WnObj wobj, FileWriter fw_objs, BackupDumpContext ctx) {
+    	try {
+            // 过滤一下肯定不需要的文件
+        	if (wobj.path().contains("/.dump/")) {
+        		return;
+        	}
+            if (wobj.mount() != null && wobj.data() != null) {
+                ctx.log.debug("skip >> " + wobj.path());
+                return;
+            }
+            ctx.log.debug("export >> " + wobj.path());
+            count[0] ++;
+            // TODO 过滤已过期/快过期的文件?
+            if (wobj.isFILE() && wobj.sha1() != null) {
+                // 只有文件的sha1是有用的
+                boolean re = ctx.sha1Set.add(wobj.sha1());
+                if (re) {
+                    ZipFile szip = searchSha1(wobj.sha1(), null, ctx.prevZips);
+                    if (null == szip) {
+                        String path = wobj.sha1().substring(0, 2) + "/" + wobj.sha1().substring(2);
+                        File tmp = new File(ctx.tmpdir, "bucket/" + path);
+                        Files.createFileIfNoExists(tmp);
+                        try (FileOutputStream out = new FileOutputStream(tmp)) {
+                        	ctx.sys.io.readAndClose(wobj, out);
+                        }
+                        catch (Exception e) {
+                            ctx.log.warn("write bucket failed", e);
+                        }
+                        fdata_sum[0] += tmp.length();
+                    } else {
+                    	ctx.log.debugf("sha1[%s] exists in Secondary Zips", wobj.sha1());
+                    }
+                }
+            }
+            // 算出sha1
+            String obj_str = Json.toJson(wobj, JsonFormat.full());
+            String o_sha1 = Lang.sha1(obj_str);
+            File f = new File(ctx.tmpdir, "objs/" + o_sha1.substring(0, 2) + "/" + o_sha1.substring(2));
+            if (f.exists() && f.length() > 0) {
+                // nop
+            } else {
+                Files.write(f, obj_str);
+            }
+            // 格式 $id:$path:$obj_sha1:$data_sha1
+            String line = String.format("%s:%s:%s:%s\r\n", wobj.id(), wobj.path(), o_sha1, Strings.sBlank(wobj.sha1()));
+            fw_objs.write(line);
+        }
+        catch (IOException e) {
+            ctx.log.warn("write something fail", e);
+        }
+    }
+    
+    public void dump_write_zip(OutputStream out, File tmpDir, Log log) throws IOException {
+    	ZipOutputStream zos = new ZipOutputStream(out, Encoding.CHARSET_UTF8);
+        Disks.visitFile(tmpDir, new FileVisitor() {
+            public void visit(File file) {
+                if (file.isDirectory())
+                    return;
+                String name = Disks.getRelativePath(tmpDir, file);
+                log.debug("add to zip >> " + name);
+                try {
+                    ZipEntry en = new ZipEntry(name);
+                    zos.putNextEntry(en);
+                    try (FileInputStream fis = new FileInputStream(file)){
+                        Streams.write(zos, fis);
+                    }
+                    zos.closeEntry();
+                }
+                catch (IOException e) {
+                    log.warn("fail at " + name, e);
+                }
+            }
+        }, null);
+        zos.flush();
+        zos.finish();
+        zos.close();
+    }
 
-    @Override
-    public void imp(String imppath, String root, ZParams params, Log log) {
+    public void imp(String imppath, String root, ZParams params, Log log, WnIo io) {
         // 首先,创建一个ZipFile的列表,用于持有所有已经创建的Zip对象
         List<ZipFile> zipHolder = new ArrayList<>();
         try {
@@ -218,7 +235,7 @@ public class WnImpExpImpl implements WnImpExp {
             }
             // 然后, 检查一下是不是所有sha1都能找到.
             // 因为要支持增量备份,所有需要把历史备份包也加载一下
-            List<ZipFile> oldZips = getSecondaryZips(zips, zipHolder);
+            List<ZipFile> oldZips = getSecondaryZips(Arrays.asList(zips.split(",")), zipHolder);
             boolean flag = false;
             for (WobjLine wobjLine : objs) {
                 if (wobjLine.fdata_sha1 == null)
@@ -262,11 +279,10 @@ public class WnImpExpImpl implements WnImpExp {
         return null;
     }
 
-    public static List<ZipFile> getSecondaryZips(String paths, List<ZipFile> zipHolder) throws IOException {
+    public static List<ZipFile> getSecondaryZips(List<String> paths, List<ZipFile> zipHolder) throws IOException {
         List<ZipFile> secondaryZips = new ArrayList<>();
         if (paths != null) {
-            String[] tmp = Strings.splitIgnoreBlank(paths);
-            for (String path : tmp) {
+            for (String path : paths) {
                 File f = new File(path);
                 if (f.isDirectory()) {
                     for (File f2 : f.listFiles()) {
