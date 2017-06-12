@@ -174,7 +174,7 @@ public class weixin_order implements JvmHdl {
             NutMap map = new NutMap();
             map.setv("body", brief);
             map.setv("out_trade_no", this.__gen_out_trade_no(sys, oOrder));
-            map.setv("total_fee", oOrder.getInt("pay_val"));
+            map.setv("total_fee", oOrder.getInt("pay_val") * 100);
             map.setv("openid", or_openid);
             map.setv("spbill_create_ip", clientIp);
 

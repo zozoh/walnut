@@ -21,20 +21,58 @@ return ZUI.def("app.wn.hm_com_text", {
     paint : function(com) {
         var UI = this;
 
+        // 确保 empty-save
+        UI.arena.addClass("hm-empty-save");
+
         // 得到编辑的文本，并将文本转义成 HTML (markdown) 模式
         var code = com.code || "";
         var html;
 
         // 解析 Markdown
         if(code){
+            // 得到站点 HOME 路径
+            var oSiteHome  = UI.getHomeObj();
+            var phSiteHome = oSiteHome.ph;
+
+            // 得到当前网页路径
+            var oPage  = UI.pageUI().getCurrentEditObj();
+            var phPageDir = $z.getParentPath(oPage.ph);
+
+            console.log(phSiteHome, phPageDir);
+
             // 如果包括换行，则表示是 markdown 文本
             if(code.indexOf('\n') >=0 ){
-                html = $z.markdownToHtml(com.code);    
+                html = $z.markdownToHtml(com.code, {
+                    media : function(src) {
+                        // 找到对应的媒体文件
+                        var phMedia;
+
+                        // 绝对路径是相对于站点的根
+                        if(/^\//.test(src)){
+                            phMedia = Wn.appendPath(oSiteHome, src);
+                        }
+                        // 相对路径的话
+                        else {
+                            phMedia = Wn.appendPath(phPageDir, src);
+                        }
+
+                        // 合并路径中的 ..
+                        phMedia = $z.getCanonicalPath(phMedia);
+
+                        // 如果存在这个文件，则转换为 /o/read 的形式
+                        var oMedia = Wn.fetch(phMedia, true);
+                        if(oMedia){
+                            return "/o/read/id:" + oMedia.id;
+                        }
+                        return src;
+                    }
+                });    
             }
             // 否则就是纯文本
             else {
                 html = $z.escapeText(com.code);
             }
+            console.log(html)
         }
         // 显示空文本
         else {

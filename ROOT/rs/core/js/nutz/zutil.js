@@ -2759,6 +2759,53 @@
         },
         //.............................................
         /**
+         * 得到一个路径的父路径
+         *
+         * @param ph
+         *            某路径
+         * @return 父路径，且一定以 / 结尾
+         */
+        //.............................................
+        getParentPath : function(ph, regular) {
+            var pos = ph.lastIndexOf('/');
+            if(pos <= 0)
+                return null;
+            return ph.substring(0, pos+1);
+        },
+        //.............................................
+        /**
+         * 整理路径。 将会合并路径中的 ".."
+         * 
+         * @param path
+         *            路径
+         * @return 整理后的路径
+         */
+        getCanonicalPath : function(path) {
+            if (!path)
+                return path;
+            var pa = this.splitIgnoreEmpty(path, /[\\\\/]/g);
+            var paths = [];
+            for (var i=0; i<pa.length; i++) {
+                var s = pa[i];
+                if (".." == s) {
+                    if (paths.length > 0)
+                        paths.pop();
+                    continue;
+                }
+                if ("." == s) {
+                    // pass
+                } else {
+                    paths.push(s);
+                }
+            }
+            var reph = paths.join("/");
+            if (/^\//.test(path))
+                reph = "/" + reph;
+            if (/\/$/.test(path))
+                reph = reph + "/";
+            return reph;
+        },
+        /**
          * 判断某路径是否在给定基础路径之下
          *
          * @param base
