@@ -38,7 +38,7 @@ return ZUI.def("app.wn.hm_com_text", {
             var oPage  = UI.pageUI().getCurrentEditObj();
             var phPageDir = $z.getParentPath(oPage.ph);
 
-            console.log(phSiteHome, phPageDir);
+            //console.log(phSiteHome, phPageDir);
 
             // 如果包括换行，则表示是 markdown 文本
             if(code.indexOf('\n') >=0 ){
@@ -66,13 +66,14 @@ return ZUI.def("app.wn.hm_com_text", {
                         }
                         return src;
                     }
-                });    
+                });
+                html = '<article class="md-content">' + html + '</article>';
             }
             // 否则就是纯文本
             else {
                 html = $z.escapeText(com.code);
             }
-            console.log(html)
+            //console.log(html)
         }
         // 显示空文本
         else {
