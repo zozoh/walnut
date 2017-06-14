@@ -28,6 +28,7 @@ build
 # .................................
 /ROOT/app/**/*.css
 
+/ROOT/rs/core/js/nutz/**/*.css
 /ROOT/rs/core/js/jquery-plugin/**/*.css
 
 /ROOT/rs/core/js/ui/*/**/*.css
@@ -40,5 +41,6 @@ build
 
 /ROOT/rs/theme/*/ui.css
 /ROOT/rs/theme/*/*/*.css
+/ROOT/rs/theme/*.css
 
 
