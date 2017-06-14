@@ -15,6 +15,11 @@ import org.nutz.walnut.impl.io.WnBean;
 public class IoWnUsr extends WnBean implements WnUsr {
 
     @Override
+    public boolean isNameSameAsId() {
+        return this.isSameId(this.name());
+    }
+
+    @Override
     public String mainGroup() {
         return getString("grp");
     }

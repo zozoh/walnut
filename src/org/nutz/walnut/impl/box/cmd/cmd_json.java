@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -133,7 +132,7 @@ public class cmd_json extends JvmExecutor {
         // 模板方式输出
         if (params.has("out")) {
             String out = params.get("out");
-            Tmpl tmpl = Tmpl.parse(out, _P, 2, 4);
+            Tmpl tmpl = Tmpl.parse(out, "@");
             // 如果是 Map 则直接渲染
             if (obj instanceof Map<?, ?>) {
                 __output(sys, tmpl, obj);
@@ -168,5 +167,4 @@ public class cmd_json extends JvmExecutor {
         }
     }
 
-    private static final Pattern _P = Pattern.compile("((?<![@])[@][{]([^}]+)[}])|([@]([@][{][^}]+[}]))");
 }

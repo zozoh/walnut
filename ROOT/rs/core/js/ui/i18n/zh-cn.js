@@ -5,8 +5,10 @@ define({
     "exit"       : "退出",
     "add"        : "添加",
     "auto"       : "自动",
+    "default"    : "默认",
     "new"        : "新建 ...",
     "delete"     : "删除",
+    "modify"     : "修改",
     "create"     : "新建",
     "duplicate"  : "制作副本",
     "del"        : "删除",
@@ -34,6 +36,9 @@ define({
     "choose"     : "选择",
     "empty"      : "没有内容",
     "none"       : "无",
+    "prev"       : "上一步",
+    "next"       : "下一步",
+    "done"       : "完成",
     "noselected" : "没有对象被选中",
     "loading"    : "正在加载 ...",
     "doing"      : "执行中 ...",
@@ -73,6 +78,15 @@ define({
         "fnm" : {
             "blank"   : "文件名不能为空",
             "invalid" : "文件名包含非法字符"
+        },
+        "io" : {
+            "obj" : {
+                "exists"   : "对象已存在",
+                "noexists" : "对象不存在",
+            }
+        },
+        "pay" : {
+            "outOfHome" : "支付单对象路径非法",
         }
     },
     "frace" : {

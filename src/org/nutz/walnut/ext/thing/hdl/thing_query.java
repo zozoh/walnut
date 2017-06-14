@@ -85,8 +85,22 @@ public class thing_query implements JvmHdl {
         // 执行查询并返回结果
         List<WnObj> list = sys.io.query(q);
 
-        hc.pager = wp;
-        hc.output = list;
+        // 如果只输出一个对象
+        if (hc.params.is("obj")) {
+            // 空
+            if (null == list || list.isEmpty()) {
+                hc.output = null;
+            }
+            // 选择一个元素
+            else {
+                hc.output = list.get(0);
+            }
+        }
+        // 输出列表
+        else {
+            hc.pager = wp;
+            hc.output = list;
+        }
     }
 
 }

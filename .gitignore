@@ -20,6 +20,7 @@ hs_err_pid*
 /target/
 /conf/web_local.properties
 build
+mysrc
 
 .classpath
 .project
@@ -27,6 +28,7 @@ build
 
 # .................................
 /ROOT/app/**/*.css
+/ROOT/etc/hosts.d/**/*.css
 
 /ROOT/rs/core/js/nutz/**/*.css
 /ROOT/rs/core/js/jquery-plugin/**/*.css
@@ -42,5 +44,9 @@ build
 /ROOT/rs/theme/*/ui.css
 /ROOT/rs/theme/*/*/*.css
 /ROOT/rs/theme/*.css
+
+/ROOT/rs/core/js/nutz/theme/*.css
+
+
 
 

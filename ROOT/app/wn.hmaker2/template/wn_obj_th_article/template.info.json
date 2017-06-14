@@ -17,5 +17,8 @@
                 "source"  : "=th_cate",
             },
         }
+    },
+    "dom" : {
+        "fileName" : "dom.wnml",
     }
 }

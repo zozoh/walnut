@@ -2,6 +2,8 @@ package org.nutz.walnut.ext.www;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
@@ -20,8 +22,11 @@ import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Tag;
 import org.nutz.mapl.Mapl;
+import org.nutz.plugins.zdoc.markdown.Markdown;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.util.JsExec;
 import org.nutz.walnut.util.JsExecContext;
@@ -121,6 +126,10 @@ public class WnmlService {
             else if ("choose".equals(tagName)) {
                 __do_choose(wrt, ele, c);
             }
+            // <markdown>
+            else if ("markdown".equals(tagName)) {
+                __do_markdown(wrt, ele, c);
+            }
             // 普通的元素
             else {
                 // 属性
@@ -157,6 +166,64 @@ public class WnmlService {
             String str = Tmpl.exec(txt, c);
             ele.text(str);
         }
+    }
+
+    private void __do_markdown(final WnmlRuntime wrt, final Element ele, NutMap c) {
+        // 获取内容
+        String itemsKey = ele.attr("content");
+        Object content = Mapl.cell(c, itemsKey);
+
+        // 如果有内容，那么就开始迭代
+        if (null != content) {
+            String markdown = content.toString();
+            String html;
+
+            // 得到处理媒体路径的方式
+            Elements eleMedias = ele.getElementsByTag("media");
+            if (eleMedias.size() > 0) {
+                // 分析媒体处理方式
+                Element eleMedia = eleMedias.first();
+                String regex = eleMedia.attr("regex");
+                String repla = eleMedia.attr("replace");
+                Pattern P = Pattern.compile(regex);
+                Tmpl tmpl = Tmpl.parse(repla, "$", "[", "]");
+
+                // 准备上下文
+                NutMap cMap = new NutMap();
+                cMap.put("API", ele.attr("api"));
+                cMap.put("obj", c.get(ele.attr("obj")));
+
+                // 执行转换
+                html = Markdown.toHtml(markdown, new Callback<Tag>() {
+                    public void invoke(Tag tag) {
+                        if (tag.is("img")) {
+                            String src = tag.attr("src");
+                            Matcher m = P.matcher(src);
+                            if (m.find()) {
+                                // 更新上下文
+                                int gc = m.groupCount() + 1;
+                                for (int i = 1; i < gc; i++) {
+                                    cMap.put("" + i, m.group(i));
+                                }
+                                // 得到新路径
+                                String src2 = tmpl.render(cMap);
+                                tag.attr("src", src2);
+                            }
+                        }
+                    }
+                });
+            }
+            // 没有指定处理方式
+            else {
+                html = Markdown.toHtml(markdown, null);
+            }
+
+            // 重新写入内容
+            ele.empty().html(html);
+        }
+
+        // 最后移除模板
+        ele.unwrap();
     }
 
     private void __do_each(final WnmlRuntime wrt, final Element ele, NutMap c) {

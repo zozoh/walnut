@@ -1,11 +1,11 @@
 package org.nutz.walnut.ext.httpapi.hdl;
 
-import org.nutz.json.Json;
-import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Nums;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Disks;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.httpapi.HttpApiContext;
@@ -26,38 +26,36 @@ public class httpapi_list implements JvmHdl {
                 tt.setShowBorder(true);
                 // tt.setCellSpacing(2);
 
-                tt.addRow(Lang.array(" ", "Path", "Ct", "Re", "Params"));
+                tt.addRow(Lang.array("M", "ContentType", "Path", "Return", "Params"));
                 tt.addHr();
 
                 // 依次循环 api 并输出
                 final int[] re = Nums.array(0);
                 sys.io.walk(c.oApiDir, new Callback<WnObj>() {
                     public void invoke(WnObj oApi) {
-                        // 路径
+                        // M:方法
+                        String method = oApi.getString("api_method", "GET");
+
+                        // Path:路径
                         String rph = Disks.getRelativePath(c.oApiDir.path(), oApi.path());
 
-                        // 前缀
-                        String prefix = oApi.getBoolean("noapi") ? "-" : "@";
+                        // Re:返回值类型
+                        String reType = oApi.getString("api_return", "?");
 
-                        // 返回值类型
-                        String reType = oApi.getString("retype", "~");
+                        // Params:参数
+                        NutMap params = oApi.getAs("params", NutMap.class);
+                        String paKeys = "-none-";
+                        if (null != params && params.size() > 0) {
+                            paKeys = Strings.join(", ", params.keySet());
+                        }
 
-                        // 参数
-                        Object params = oApi.get("params");
-                        String json = "";
-                        if (null != params)
-                            json = Json.toJson(params,
-                                               JsonFormat.compact()
-                                                         .setQuoteName(false)
-                                                         .setIgnoreNull(false));
-
-                        // HTTP 返回类型
-                        String httpRe = oApi.getBoolean("http-dynamic-header") ? "Dynamic"
-                                                                               : oApi.getString("http-header-Content-Type",
-                                                                                                "~");
+                        // CT: 内容类型
+                        String contentType = oApi.getBoolean("http-dynamic-header") ? "Dynamic"
+                                                                                    : oApi.getString("http-header-Content-Type",
+                                                                                                     "text/html");
 
                         // 输出
-                        tt.addRow(Lang.array(prefix, rph, httpRe, reType, json));
+                        tt.addRow(Lang.array(method, contentType, rph, reType, paKeys));
 
                         // 计数
                         re[0]++;

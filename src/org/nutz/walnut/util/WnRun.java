@@ -253,4 +253,30 @@ public class WnRun {
             wc.su(job_abstract.rootUser(sys), atom);
         });
     }
+
+    /**
+     * 进入内核态执行操作
+     * 
+     * @param atom
+     *            操作
+     */
+    public void nosecurity(Atom atom) {
+        Wn.WC().nosecurity(io, atom);
+    }
+
+    /**
+     * 进入内核态执行带返回的操作
+     * 
+     * @param protom
+     *            操作
+     * 
+     * @return 返回结果
+     */
+    public <T> T nosecurity(Proton<T> proton) {
+        return Wn.WC().nosecurity(io, proton);
+    }
+    
+    public NutMap getSysConf() {
+        return Wn.getSysConf(io);
+    }
 }

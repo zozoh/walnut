@@ -5,6 +5,8 @@ import java.util.List;
 import org.nutz.walnut.api.io.WnObj;
 
 public interface WnUsr extends WnObj {
+    
+    boolean isNameSameAsId();
 
     String mainGroup();
 

@@ -175,6 +175,10 @@ new FormUI({
    
    // 如果为 true，那么每个字段都有一个开关，显示表示自己在 getData 的时候是否要被忽略
    asTemplate : false,
+   
+   // 被标注 disabled 字段，将不是灰掉，而是隐藏
+   // 默认 false
+   hideDisabled : false,
 
    // 本组内的字段 
    fields   : [..]

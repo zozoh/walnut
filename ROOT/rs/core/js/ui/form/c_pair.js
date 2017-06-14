@@ -56,30 +56,28 @@ return ZUI.def("ui.form_com_pair", {
         // 清空内容
         var jTBody = UI.arena.find(".pairs tbody").empty();
 
-        // 如果没内容显示空
-        if(!obj || _.isEmpty(obj)){
-            UI.arena.attr("show", "empty");
-            return;
+        // 开始循环设置内容
+        var isEmpty = true;
+        if(obj) {
+            for(var key in obj) {
+                isEmpty = false;
+                var jTr = $(`<tr>
+                    <td class="cp-key"></td>
+                    <td class="cp-val"><input spellcheck="false"></td>
+                </tr>`).appendTo(jTBody);
+                jTr.attr("o-key",key).children(".cp-key").text(key);
+                var val = UI._V(obj, key);
+                jTr.find(".cp-val input").val(val).attr("placeholder", val);
+            }
         }
 
-        // 开始循环设置内容
-        for(var key in obj) {
-            var jTr = $(`<tr>
-                <td class="cp-key"></td>
-                <td class="cp-val"><input spellcheck="false"></td>
-            </tr>`).appendTo(jTBody);
-            jTr.attr("o-key",key).children(".cp-key").text(key);
-            var val = UI._V(obj, key);
-            jTr.find(".cp-val input").val(val).attr("placeholder", val);
-        }
+        // 标识空对象
+        UI.arena.attr("show", isEmpty ? "empty" : "pairs");
     },
     //...............................................................
     __draw_data : function(obj) {
         var UI  = this;
         var opt = UI.options;
-
-        // 有内容，直接更新
-        UI.arena.attr("show", "pairs");
         
         // 已经有模板了
         if(opt.objTemplate) {

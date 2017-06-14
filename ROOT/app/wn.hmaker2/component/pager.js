@@ -30,6 +30,9 @@ return ZUI.def("app.wn.hm_com_pager", {
             // 跳转页码
             var pn = $(e.currentTarget).text() * 1;
             UI.arena.hmc_pager("jumpTo", pn);
+
+            // 保存默认值
+            UI.__save_defaultValue();
         },
         // 首/尾页
         "click .pg_btn [jump-to]" : function(e){
@@ -42,6 +45,9 @@ return ZUI.def("app.wn.hm_com_pager", {
             // 跳转页码
             var pn = $(e.currentTarget).attr("jump-to") * 1;
             UI.arena.hmc_pager("jumpTo", pn);
+
+            // 保存默认值
+            UI.__save_defaultValue();
         },
         // 前/后页
         "click .pg_btn [jump-off]" : function(e){
@@ -54,6 +60,9 @@ return ZUI.def("app.wn.hm_com_pager", {
             // 跳转页码
             var off = $(e.currentTarget).attr("jump-off") * 1;
             UI.arena.hmc_pager("jumpOff", off);
+
+            // 保存默认值
+            UI.__save_defaultValue();
         }
     },
     //...............................................................
@@ -81,6 +90,12 @@ return ZUI.def("app.wn.hm_com_pager", {
     },
     setComValue : function(pg) {
         this.arena.hmc_pager("value", pg);
+    },
+    //...............................................................
+    __save_defaultValue : function(){
+        this.saveData("page", {
+            defaultValue : this.getComValue()
+        }, true);
     },
     //...............................................................
     getBlockPropFields : function(block) {

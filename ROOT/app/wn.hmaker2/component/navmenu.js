@@ -20,8 +20,9 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     //...............................................................
     events : {
         // 高亮项目
-        'click ul>li' : function(e) {
-            var jq = $(e.currentTarget);
+        'click ul>li>a' : function(e) {
+            var jA  = $(e.currentTarget);
+            var jLi = jA.closest("li");
 
             // 仅针对激活控件有效
             if(!this.isActived())
@@ -35,14 +36,18 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             var com = this.getData();
 
             // 激活当前项目
-            this.selectItem(jq);
+            this.selectItem(jLi);
         },
         // 取消高亮
-        // 'click .hmc-navmenu' : function(e) {
-        //     if($(e.target).closest('li').length == 0){
-        //         this.unselectItem();
-        //     }
-        // },
+        'click .hmc-navmenu' : function(e) {
+            // 仅针对激活控件有效
+            if(!this.isActived())
+                return;
+
+            if($(e.target).closest('a').length == 0){
+                this.unselectItem();
+            }
+        },
         // 编辑文字
         'click ul>li[current]>a' : function(e) {
             var UI = this;

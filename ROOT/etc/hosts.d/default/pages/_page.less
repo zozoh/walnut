@@ -1,0 +1,82 @@
+* {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+@noselect : {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+};
+
+@clr : {
+  content:"";
+  display:block;
+  height:0;
+  clear:both;
+};
+
+@flex : {
+  display: -webkit-flex;
+  display: flex;
+};
+
+@f_fixed : Monaco, Consolas, Courier New;
+
+//......................................................................
+@c_link               : #000;
+@c_btn_b              : #000;
+@c_btn_f              : #FFF;
+@c_tip                : #AAA;
+@c_icon_t             : #CCC;
+@c_icon_e             : #000;
+@c_icon_oauth2        : #000;
+@c_icon_oauth2_hover  : #08F;
+@c_box1               : #CCC;
+@c_box1_on_b          : #000;
+@c_box1_on_f          : #666;
+@c_box1_on_fF         : #FFF;
+@c_invalid            : #F00;
+@c_ok                 : #000;
+@c_btn_enable         : #000;
+@c_btn_enable_hover   : #444;
+@c_disabled_b         : #888;
+@c_disabled_f         : #fff;
+@c_disabled_e         : #FF0;
+@c_tip_b              : #FFA;
+@c_tip_l              : #AA8;
+@c_vc_b               : #FFF;
+@c_vc_f               : #000;
+@c_vc_f_hover         : #444;
+
+//......................................................................
+html {font-size:100px;}
+body {margin:0; font-size:.14rem;}
+
+//......................................................................
+a {color:@c_link; text-decoration:none;}
+a:hover {text-decoration:underline;}
+a i {margin-right: 3px;}
+//......................................................................
+input {
+    outline:none; padding:.14rem .14rem .14rem .48rem; font-size:.16rem;
+    width:100%; border:1px solid #000; font-family: Monaco, Consolas, Courier New;
+}
+input:focus{background:#FFD;}
+@placeholder : {
+    color:#AAA; font-size:.11rem;
+};
+::-webkit-input-placeholder {@placeholder();}
+:-moz-placeholder      {@placeholder();}
+::-moz-placeholder     {@placeholder();}
+:-ms-input-placeholder {@placeholder();}
+button {
+    width:100%; padding:.12rem; border:0; border-radius: .04rem;
+    background:@c_btn_b; color:@c_btn_f; font-size:.16rem;
+    cursor: pointer; outline:none;
+}
+button[disabled] {
+    opacity:0.2; cursor: default;
+}

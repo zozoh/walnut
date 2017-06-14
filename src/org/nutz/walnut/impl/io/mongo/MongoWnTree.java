@@ -14,6 +14,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.io.AbstractWnTree;
 
+import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
@@ -58,8 +59,7 @@ public class MongoWnTree extends AbstractWnTree {
 
     @Override
     public boolean hasChild(WnObj nd) {
-        ZMoDoc doc = co.findOne(ZMoDoc.NEW("pid", nd.id()));
-        return null != doc;
+        return co.count(ZMoDoc.NEW("pid", nd.id())) != 0;
     }
 
     @Override
@@ -70,6 +70,7 @@ public class MongoWnTree extends AbstractWnTree {
         DBCursor cu = co.find(qDoc);
 
         try {
+            cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
             int i = 0;
             int n = 0;
             WnMongos.setup_paging(cu, q);

@@ -16,6 +16,32 @@ public class HmTemplateInfo {
 
     public NutMap options;
 
+    public NutMap dom;
+
+    public String getDomFileName(String dft) {
+        if (null != dom)
+            return dom.getString("fileName", dft);
+        return dft;
+    }
+
+    public String getDomVarName(String dft) {
+        if (null != dom)
+            return dom.getString("varName", dft);
+        return dft;
+    }
+
+    public String getDomDataKey(String dft) {
+        if (null != dom)
+            return dom.getString("dataKey", dft);
+        return dft;
+    }
+
+    public boolean hasDomDataKey() {
+        if (null != dom)
+            return dom.has("dataKey");
+        return false;
+    }
+
     public HmTemplateInfo evalOptions() {
         if (null == options || options.size() == 0)
             return this;
@@ -45,6 +71,15 @@ public class HmTemplateInfo {
             }
         }
         return list;
+    }
+
+    public HmTmplField getField(String key) {
+        Object val = options.get(key);
+        if (null != val) {
+            HmTmplField v2 = HmTmplField.eval(val);
+            return v2;
+        }
+        return null;
     }
 
 }

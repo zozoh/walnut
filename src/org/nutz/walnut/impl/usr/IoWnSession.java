@@ -65,6 +65,19 @@ public class IoWnSession extends AbstractWnSession {
     public void save() {
         NutMap map = vars();
         io.writeJson(obj, map, JsonFormat.nice().setIgnoreNull(true).setQuoteName(false));
+
+        // 看看有没有必要更新名称
+        String nmInObj = obj.getString("me");
+        String grpInObj = obj.getString("grp");
+        String nmInVar = map.getString("MY_NM");
+        String grpInVar = map.getString("MY_GRP");
+
+        // TODO 这样直接改会不会有安全隐患呢 ....
+        if (!nmInObj.equals(nmInVar) || !grpInObj.equals(grpInVar)) {
+            obj.put("me", nmInVar);
+            obj.put("grp", grpInVar);
+            io.set(obj, "^(me|grp)$");
+        }
     }
 
     @Override

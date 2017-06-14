@@ -19,9 +19,15 @@ var ioc = {
 		} ],
 		fields : {
 			mounters : {
-				file : {type:"org.nutz.walnut.impl.io.mnt.LocalFileMounter"},
-				qiniu : {type:"org.nutz.walnut.ext.qiniu.QiniuMounter"},
-				memory : {type:"org.nutz.walnut.impl.io.mnt.MemoryMounter"}
+				file : {
+					type : "org.nutz.walnut.impl.io.mnt.LocalFileMounter"
+				},
+				qiniu : {
+					type : "org.nutz.walnut.ext.qiniu.QiniuMounter"
+				},
+				memory : {
+					type : "org.nutz.walnut.impl.io.mnt.MemoryMounter"
+				}
 			}
 		}
 	},
@@ -40,9 +46,9 @@ var ioc = {
 				type : 'org.nutz.walnut.impl.io.handle.WnHandleManagerImpl'
 			},
 			mapping : {
-				"baidu://" : {
-					type : 'org.nutz.walnut.ext.baidu.BaiduYunPanBucketFactory'
-				},
+				//"baidu://" : {
+				//	type : 'org.nutz.walnut.ext.baidu.BaiduYunPanBucketFactory'
+				//},
 				"qiniu://" : {
 					type : 'org.nutz.walnut.ext.qiniu.QiniuBucketFactory'
 				}

@@ -443,7 +443,7 @@ var Wn = {
             if(opt.maskConf.welcome) {
                 jStatus.find("h4").html(opt.maskConf.welcome);
             }
-            
+
             // 执行命令
             Wn.exec(opt.cmdText, {
                 msgShow : function(str){
@@ -487,12 +487,19 @@ var Wn = {
                         .text(str).appendTo(jPre);
                 },
                 done : function(){
+                    jStatus.find("h4").html(
+                        opt.maskConf.titleDone || "Done"
+                    );
                     jP.attr("st", "ok");
                 },
                 fail : function(){
+                    jStatus.find("h4").html(
+                        opt.maskConf.titleDone || "Fail"
+                    );
                     jP.attr("st", "fail");
                 },
                 complete : function(re){
+                    jBarIn.css("width", "100%");
                     $z.invoke(opt, "complete", [res, jMsg, re], uiMask);
                 }
             });
@@ -1751,6 +1758,25 @@ var Wn = {
                 throw "fail to save!";
             });
         }
+    },
+    // 得到系统的配置信息
+    getSysConf : function(forceReload){
+        var Wn = this;
+        var store = Wn._storeAPI;
+
+        // 看看缓存里有木有
+        var json = forceReload ? null : store.getItem(key);
+        
+        // 从服务器读取
+        if(!json)
+            json = Wn.exec("sys");
+        
+        // 存入缓存
+        if(json)
+            store.setItem("_WN_SYS_CONF", json);
+
+        // 返回
+        return $z.fromJson(json);
     }
 }; // ~End wn
 //====================================================================

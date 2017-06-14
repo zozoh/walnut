@@ -14,6 +14,3 @@
     
     # 列出 xiaobai 域所有的 httpapi（需要 root 或者 op 组成员权限)
     demo@~$ httpapi list -u xiaobai
-    
-
-    

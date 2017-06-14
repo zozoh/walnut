@@ -27,6 +27,7 @@ import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.RawView;
+import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
@@ -110,7 +111,7 @@ public class UsrModule extends AbstractWnModule {
     public View show_host(String rph, @Attr("wn_www_host") String host, HttpServletRequest req) {
         // 确保没有登录过
         String seid = Wn.WC().SEID();
-        if (null != seid) {
+        if (null != seid && "login.html".equals(rph)) {
             try {
                 sess.check(seid, true);
                 throw Lang.makeThrow("already login, go to /");
@@ -141,9 +142,13 @@ public class UsrModule extends AbstractWnModule {
                     // 得到文件内容
                     String input = io.readText(o);
 
-                    // 得到会话信息，并创建转换上下文
-                    WnSession se = Wn.WC().checkSE();
+                    // 得到会话信息
+                    WnSession se = sess.check(seid, false);
+                    Wn.WC().SE(se);
+                    Wn.WC().me(se.me(), se.group());
                     WnUsr me = Wn.WC().getMyUsr(usrs);
+
+                    // 创建转换上下文
                     NutMap context = _gen_context_by_req(req);
                     context.put("grp", se.group());
                     context.put("fnm", o.name());
@@ -170,6 +175,11 @@ public class UsrModule extends AbstractWnModule {
                 }
             }
             catch (Exception e) {
+                if (e instanceof WebException) {
+                    if ("e.sess.noexists".equals(((WebException) e).getKey())) {
+                        return new ServerRedirectView("/u/h/login.html");
+                    }
+                }
                 if (!"login.html".equals(rph))
                     return new HttpStatusView(404);
             }
@@ -212,7 +222,7 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 生成手机验证码
-        vcodePath = VCodes.getSignupPath(domain, phone);
+        vcodePath = VCodes.getPathBy(domain, scene, phone);
         String code = R.captchaNumber(6);
 
         // 手机短信验证码最多重试 5 次
@@ -250,7 +260,7 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 生成手机验证码
-        vcodePath = VCodes.getSignupPath(domain, email);
+        vcodePath = VCodes.getPathBy(domain, scene, email);
         String code = R.captchaChar(8, false);
 
         // 邮件验证码最多重试 3 次
@@ -379,15 +389,26 @@ public class UsrModule extends AbstractWnModule {
     @Ok("++cookie->ajax")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    @Deprecated
     public NutMap do_login_ajax(@Param("nm") String nm, @Param("passwd") String passwd) {
-        WnSession se = sess.login(nm, passwd);
-        Wn.WC().SE(se);
+        return do_login(nm, passwd);
+    }
 
-        // 执行登录后初始化脚本
-        this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
-
-        return se.toMapForClient();
+    /**
+     * 销毁用户的当前会话，如果有父会话，则退出到父会话。否则完全退出登录
+     * 
+     * @return 父会话
+     */
+    @At("/do/logout")
+    @Ok("++cookie>>:/")
+    @Fail("--cookie>>:/")
+    public NutMap do_logout() {
+        String seid = Wn.WC().SEID();
+        if (null != seid) {
+            WnSession pse = sess.logout(seid);
+            if (null != pse)
+                return pse.toMapForClient();
+        }
+        throw Lang.makeThrow("logout delete cookie");
     }
 
     @POST
@@ -395,7 +416,6 @@ public class UsrModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     @Filters(@By(type = WnCheckSession.class))
-    @Deprecated
     public boolean do_logout_ajax() {
         String seid = Wn.WC().SEID();
         if (null != seid) {
@@ -456,47 +476,135 @@ public class UsrModule extends AbstractWnModule {
         return Ajax.ok();
     }
 
-    @POST
-    @At("/reset/password")
+    // zozoh@2017-04-14: 由于增加了找回密码功能，这个函数先去掉了吧
+    // @POST
+    // @At("/reset/password")
+    // @Ok("ajax")
+    // @Fail("ajax")
+    // @Filters(@By(type = WnCheckSession.class))
+    // public Object do_reset_password(@Param("nm") String nm) {
+    // String seid = Wn.WC().SEID();
+    // String me = sess.check(seid, true).me();
+    // WnUsr uMe = usrs.check(me);
+    //
+    // // 只有root组管理员能修改别人密码
+    // int role = usrs.getRoleInGroup(uMe, "root");
+    // if (Wn.ROLE.ADMIN != role)
+    // throw Er.create("e.usr.not.root");
+    //
+    // // 得到用户
+    // WnUsr u = usrs.check(nm);
+    //
+    // // 修改密码
+    // usrs.setPassword(u, "123456");
+    //
+    // // 返回
+    // return Ajax.ok();
+    // }
+
+    @At("/do/passwd/reset/ajax")
+    @Ok("ajax")
+    @Fail("ajax")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public boolean do_passwd_reset_ajax(@Param("str") String str,
+                                        @Param("domain") String domain,
+                                        @Param("vcode") String vcode,
+                                        @Param("passwd") String passwd,
+                                        @Param("mode") String mode) {
+        if (Strings.isBlank(str)) {
+            throw Er.create("e.usr.passwd.reset.blank");
+        }
+        if (Strings.isBlank(passwd)) {
+            throw Er.create("e.usr.passwd.reset.blank");
+        }
+        if (!regexPasswd.matcher(passwd).find()) {
+            throw Er.create("e.usr.passwd.reset.invalid");
+        }
+
+        // 分析注册信息
+        WnUsrInfo info = new WnUsrInfo(str);
+
+        // 如果是手机，需要校验验证码
+        if (info.isByPhone()) {
+            domain = Strings.sBlank(domain, "walnut");
+            String vcodePath = VCodes.getPasswdBackPath(domain, info.getPhone());
+            if (!vcodes.checkAndRemove(vcodePath, vcode)) {
+                throw Er.create("e.usr.passwd.reset.vcode.invalid");
+            }
+        }
+
+        // 如果是邮箱，则输入校验验证码
+        if (info.isByEmail()) {
+            domain = Strings.sBlank(domain, "walnut");
+            String vcodePath = VCodes.getPasswdBackPath(domain, info.getEmail());
+            if (!vcodes.checkAndRemove(vcodePath, vcode)) {
+                throw Er.create("e.usr.passwd.reset.vcode.invalid");
+            }
+        }
+
+        // 得到用户
+        WnUsr u = usrs.check(str);
+
+        // 修改密码
+        usrs.setPassword(u, passwd);
+
+        // 返回
+        return true;
+    }
+
+    @At("/do/rename/ajax")
     @Ok("ajax")
     @Fail("ajax")
     @Filters(@By(type = WnCheckSession.class))
-    public Object do_reset_password(@Param("nm") String nm) {
-        String seid = Wn.WC().SEID();
-        String me = sess.check(seid, true).me();
-        WnUsr uMe = usrs.check(me);
+    public void do_rename(@Param("nm") String newName, @Param("passwd") String passwd) {
+        WnSession se = Wn.WC().checkSE();
+        WnUsr me = Wn.WC().getMyUsr(usrs);
 
-        // 只有root组管理员能修改别人密码
-        int role = usrs.getRoleInGroup(uMe, "root");
-        if (Wn.ROLE.ADMIN != role)
-            throw Er.create("e.usr.not.root");
-
-        // 得到用户
-        WnUsr u = usrs.check(nm);
-
-        // 修改密码
-        usrs.setPassword(u, "123456");
-
-        // 返回
-        return Ajax.ok();
-    }
-
-    /**
-     * 销毁用户的当前会话，如果有父会话，则退出到父会话。否则完全退出登录
-     * 
-     * @return 父会话
-     */
-    @At("/do/logout")
-    @Ok("++cookie>>:/")
-    @Fail("--cookie>>:/")
-    public NutMap do_logout() {
-        String seid = Wn.WC().SEID();
-        if (null != seid) {
-            WnSession pse = sess.logout(seid);
-            if (null != pse)
-                return pse.toMapForClient();
+        // 先检查一下有没有必要改名
+        if (me.name().equals(newName)) {
+            throw Er.create("e.u.rename.same");
         }
-        throw Lang.makeThrow("logout delete cookie");
+        // 再检查一下名字是否合法
+        if (!WnUsrInfo.isValidUserName(newName)) {
+            throw Er.create("e.u.rename.invalid", newName);
+        }
+        // 看看是否存在
+        WnUsr u = this.nosecurity(new Proton<WnUsr>() {
+            protected WnUsr exec() {
+                return usrs.fetch(newName);
+            }
+        });
+        // 如果用户存在，那么则必须要检查一下密码
+        if (null != u) {
+            if (null == passwd || !usrs.checkPassword(u, passwd)) {
+                throw Er.create("e.usr.invalid.login");
+            }
+
+            // 进入内核态
+            this.nosecurity(new Atom() {
+                public void run() {
+                    // 更新一下用户的登录信息
+                    NutMap meta = NutMap.WRAP(me.pickBy("^(email|phone|oauth_.+)$"));
+                    usrs.set(u, meta);
+
+                    // 切换当前会话到新用户
+                    se.putUsrVars(u);
+                    se.save();
+
+                    // 原来那个用户就不要了
+                    exec("Urnm", "root", "jsc /jsbin/delete_user.js " + me.id());
+                }
+            });
+        }
+        // 不存在，则搞一下
+        else {
+            // 正式执行改名
+            usrs.rename(me, newName);
+
+            // 更新 Session
+            se.putUsrVars(me);
+            se.save();
+        }
     }
 
     // --------- 用户头像

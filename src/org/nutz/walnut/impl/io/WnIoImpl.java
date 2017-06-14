@@ -253,7 +253,7 @@ public class WnIoImpl implements WnIo {
     public WnObj checkById(String id) {
         WnObj o = get(id);
         if (null == o)
-            throw Er.create("e.io.noexists", "id:" + id);
+            throw Er.create("e.io.obj.noexists", "id:" + id);
         return o;
     }
 
@@ -261,7 +261,7 @@ public class WnIoImpl implements WnIo {
     public WnObj check(WnObj p, String path) {
         WnObj o = fetch(p, path);
         if (null == o)
-            throw Er.create("e.io.noexists", path);
+            throw Er.create("e.io.obj.noexists", path);
         return o;
     }
 

@@ -5,7 +5,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
-public class hmc_image extends AbstractSimpleCom {
+public class hmc_image extends AbstractNoneValueCom {
 
     @Override
     protected String getArenaClassName() {

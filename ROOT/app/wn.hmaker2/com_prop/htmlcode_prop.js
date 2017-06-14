@@ -47,7 +47,7 @@ return ZUI.def("app.wn.hm_com_htmlcode_prop", HmMethods({
                 callback : function(data){
                     UI.applyHtmlCode(data);
                 }
-            });
+            }, UI);
         }
     },
     //...............................................................

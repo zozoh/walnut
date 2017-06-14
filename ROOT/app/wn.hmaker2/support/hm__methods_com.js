@@ -425,9 +425,10 @@ var methods = {
             var uiPage = this.pageUI();
             this.appendTo(uiPage, uiPage.$editBody());
             
+            // zozoh: 嗯，什么都不要做了
             // 切换到相对定位
-            // var block = {mode : "abs"};
-            var block = {mode : this.$el.attr("hmc-mode")};
+            // var block = this.getBlock();
+            // block.mode = this.$el.attr("hmc-mode");
         }
         // 移动到分栏
         else {
@@ -442,14 +443,14 @@ var methods = {
             // 切换到相对定位
             var block = this.getBlock();
             block.mode = "inflow";
-        }
-        
-        // 修改块属性
-        this.checkBlockMode(block);
 
-        // 保存块属性
-        this.saveBlock(null, block);
-        
+            // 修改块属性
+            this.checkBlockMode(block);
+
+            // 保存块属性
+            this.saveBlock(null, block);
+        }
+                
         // 通知一下
         if(!quiet)
             this.notifyActived();

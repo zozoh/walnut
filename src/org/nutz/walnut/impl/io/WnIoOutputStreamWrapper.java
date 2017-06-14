@@ -59,7 +59,7 @@ public class WnIoOutputStreamWrapper extends OutputStream {
             WnObj tmp = io.getDirect(o.id());
             if (null == tmp) {
                 new Throwable().printStackTrace();
-                throw Er.create("e.io.noexists", "id:" + o.id());
+                throw Er.create("e.io.obj.noexists", "id:" + o.id());
             }
             String sha1 = tmp.sha1();
             if (null == old_sha1 || !old_sha1.equals(sha1)) {

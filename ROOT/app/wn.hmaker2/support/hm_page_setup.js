@@ -77,6 +77,7 @@ var methods = {
         var do_bind_com = function(index) {
             if(index < jComs.length) {
                 var jCom = $(jComs[index]);
+                //console.log(index, jCom.attr("id"));
                 // 初始化属性
                 jCom.removeAttr("hm-actived").attr("hm-blur", "yes");
                 // 加载共享库组件

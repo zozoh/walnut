@@ -16,21 +16,21 @@ public class HmTmplField {
         return new HmTmplField().valueBy(obj);
     }
 
-    String type;
+    public String type;
 
-    String arg;
+    public String arg;
 
-    String dft;
+    public String dft;
 
-    NutMap mapping;
+    public NutMap mapping;
 
-    boolean required;
+    public boolean required;
 
-    String key;
+    public String key;
 
-    String title;
+    public String title;
 
-    String tip;
+    public String tip;
 
     public HmTmplField valueOf(NutMap map) {
         type = map.getString("type", "input");

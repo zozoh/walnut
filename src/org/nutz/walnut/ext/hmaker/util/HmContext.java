@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.nutz.lang.Nums;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
@@ -176,10 +177,23 @@ public class HmContext {
         if (null == tmpl) {
             tmpl = new HmTemplate();
             WnObj oTmplHome = io.check(oConfHome, "template/" + templateName);
+
+            // jQuery 插件
             tmpl.oJs = io.check(oTmplHome, "jquery.fn.js");
+
+            // 解析模板信息
             WnObj oInfo = io.check(oTmplHome, "template.info.json");
             tmpl.info = io.readJson(oInfo, HmTemplateInfo.class);
             tmpl.info.evalOptions();
+
+            // 得到模板的服务器模板
+            String dfnm = tmpl.info.getDomFileName("dom.wnml");
+            WnObj oDomNm = io.fetch(oTmplHome, dfnm);
+            if (null != oDomNm) {
+                tmpl.dom = Tmpl.parse(io.readText(oDomNm));
+            }
+
+            // 计入
             this.templates.put(templateName, tmpl);
         }
         return tmpl;

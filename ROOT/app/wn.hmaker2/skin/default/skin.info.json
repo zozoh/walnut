@@ -146,7 +146,7 @@
             }]
 	},
     "area" : [{
-            "text"     : "红背景",
+            "text"     : "水平居右",
             "selector" : "skin-bg-red"
         }, {
             "text"     : "绿背景",

@@ -3,6 +3,7 @@ package org.nutz.walnut.api.usr;
 import java.util.List;
 
 import org.nutz.lang.Each;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnQuery;
 
 public interface WnUsrService {
@@ -55,6 +56,8 @@ public interface WnUsrService {
     void setPassword(WnUsr u, String passwd);
 
     void set(WnUsr u, String key, Object val);
+
+    void set(WnUsr u, NutMap meta);
 
     /**
      * 删除一个用户

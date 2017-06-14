@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.thing;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
@@ -231,6 +232,16 @@ public abstract class Things {
             meta.put("mime", mime);
         }
 
+        // 将日期的字符串，搞一下
+        for (Map.Entry<String, Object> en : meta.entrySet()) {
+            Object v = en.getValue();
+            if (null != v && v instanceof String) {
+                String s = v.toString();
+                Object v2 = Wn.fmt_str_macro(s);
+                en.setValue(v2);
+            }
+        }
+
         // 返回传入的元数据
         return meta;
     }
@@ -350,6 +361,34 @@ public abstract class Things {
 
             // 最后计入输出
             hc.output = oM;
+        }
+        // 获取某指定文件
+        else if (hc.params.has("get")) {
+            String fnm = hc.params.get("get");
+            WnObj oM = sys.io.fetch(oDir, fnm);
+            if (null == oM && !isQ) {
+                throw Er.create("e.cmd.thing." + key + ".noexists", oDir.path() + "/" + fnm);
+            }
+
+            // 最后计入输出
+            hc.output = oM;
+        }
+        // 获取某指定文件内容
+        else if (hc.params.has("cat")) {
+            String fnm = hc.params.get("cat");
+            WnObj oM = sys.io.fetch(oDir, fnm);
+            if (null == oM && !isQ) {
+                throw Er.create("e.cmd.thing." + key + ".noexists", oDir.path() + "/" + fnm);
+            }
+
+            // 输出文本
+            if (oM.isMime("^text/.+$")) {
+                hc.output = sys.io.readText(oM);
+            }
+            // 输出二进制内容
+            else {
+                hc.output = sys.io.getInputStream(oM, 0);
+            }
         }
         // 那么就是查询咯
         else {

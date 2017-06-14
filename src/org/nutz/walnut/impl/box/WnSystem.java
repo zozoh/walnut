@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -64,6 +65,24 @@ public class WnSystem {
         String pwd = this.se.vars().getString("HOME");
         String path = Wn.normalizePath(pwd, this);
         return this.io.check(null, path);
+    }
+
+    /**
+     * @param dft
+     *            默认语言
+     * @return 当前的语言
+     */
+    public String getLang(String dft) {
+        String lang = this.se.varString("LANG");
+        return Strings.sBlank(lang, dft);
+    }
+
+    /**
+     * @return 当前的语言（默认zh-cn）
+     * @see #getLang(String)
+     */
+    public String getLang() {
+        return getLang("zh-cn");
     }
 
     /**
@@ -159,7 +178,7 @@ public class WnSystem {
      *            操作
      */
     public void nosecurity(Atom atom) {
-        Wn.WC().security(new WnEvalLink(io), atom);
+        Wn.WC().nosecurity(io, atom);
     }
 
     /**
@@ -171,7 +190,7 @@ public class WnSystem {
      * @return 返回结果
      */
     public <T> T nosecurity(Proton<T> proton) {
-        return Wn.WC().security(new WnEvalLink(io), proton);
+        return Wn.WC().nosecurity(io, proton);
     }
 
     /**
@@ -198,5 +217,12 @@ public class WnSystem {
      */
     public <T> T core(boolean synctimeOff, Proton<T> proton) {
         return Wn.WC().core(new WnEvalLink(io), synctimeOff, null, proton);
+    }
+
+    /**
+     * @return 系统配置对象
+     */
+    public NutMap getSysConf() {
+        return Wn.getSysConf(io);
     }
 }

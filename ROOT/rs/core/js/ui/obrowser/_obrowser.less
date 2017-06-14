@@ -102,17 +102,22 @@
                     font-size:@f1; cursor: pointer;
                     font-weight: bold; line-height: @d5; margin:@d3;
                 }
+                div.chute-empty {
+                    margin:@d0 @d3; padding: @d1; text-align: center;
+                    font-size:@f1; font-family: @f_fixed; font-style: italic;
+                    border:1px dashed @cborder0;
+                }
                 item {
                     display: block; padding:@d2 @d0 @d2 @d4; cursor: pointer;
                     line-height: @d5; color: @cf1; @flex();
                     i {
-                        width:@d5; height: @d5; text-align: center;
-                        font-size: @d5;
+                        width:16px; height:16px;
+                        text-align: center; font-size: @d5;
                         display: inline-block; float:left;vertical-align: middle;
                     }
                     a {
                         display: inline-block; float:left; vertical-align: middle;
-                        margin-left: @d2; color:@cf2;
+                        margin-left: @d3; color:@cf2;
                     }
                 }
                 item:after{@clr();}

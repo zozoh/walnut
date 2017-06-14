@@ -1,9 +1,11 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
 import org.jsoup.nodes.Element;
+import org.nutz.lang.Strings;
+import org.nutz.plugins.zdoc.markdown.Markdown;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
-public class hmc_text extends AbstractSimpleCom {
+public class hmc_text extends AbstractNoneValueCom {
 
     @Override
     protected String getArenaClassName() {
@@ -13,14 +15,21 @@ public class hmc_text extends AbstractSimpleCom {
     @Override
     protected boolean doArena(HmPageTranslating ing, Element eleArena) {
         // 得到编辑的文本，并将文本转义成 HTML (markdown) 模式
-        String code = ing.propCom.getString("code");
-        String html = code.replace("<", "&lt;")
-                          .replace(">", "&gt;")
-                          .replaceAll("(\r?\n){2,}", "<p>")
-                          .replaceAll("\r?\n", "<br>");
+        String code = ing.propCom.getString("code", "");
+
+        String html;
+
+        // 如果包括换行，则表示是 markdown 文本
+        if (code.contains("\n")) {
+            html = Markdown.toHtml(code, null);
+        }
+        // 否则就是纯文本
+        else {
+            html = Strings.escapeHtml(code);
+        }
 
         // 更新 HTML
-        eleArena.html(html);
+        eleArena.appendElement("article").addClass("md-content").html(html);
 
         return true;
     }

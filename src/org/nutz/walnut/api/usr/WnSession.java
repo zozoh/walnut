@@ -54,6 +54,15 @@ public interface WnSession {
     NutMap vars();
 
     /**
+     * 将用户对象的信息加载到会话环境变量中
+     * 
+     * @param u
+     *            用户对象
+     * @return 环境变量集合
+     */
+    NutMap putUsrVars(WnUsr u);
+
+    /**
      * 设置某一个环境变量（并不持久化）即，重新读取会话的话，会看不见这个更改，除非执行 save
      * 
      * @param nm

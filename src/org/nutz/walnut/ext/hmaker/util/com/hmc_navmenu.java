@@ -8,7 +8,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
-public class hmc_navmenu extends AbstractSimpleCom {
+public class hmc_navmenu extends AbstractNoneValueCom {
 
     public hmc_navmenu() {
         super();

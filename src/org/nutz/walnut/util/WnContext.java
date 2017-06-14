@@ -20,6 +20,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.hook.WnHook;
 import org.nutz.walnut.api.hook.WnHookBreak;
 import org.nutz.walnut.api.hook.WnHookContext;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.usr.WnSession;
@@ -282,6 +283,15 @@ public class WnContext extends NutMap {
 
     public <T> T security(WnSecurity secu, Proton<T> proton) {
         security(secu, (Atom) proton);
+        return proton.get();
+    }
+
+    public void nosecurity(WnIo io, Atom atom) {
+        Wn.WC().security(new WnEvalLink(io), atom);
+    }
+
+    public <T> T nosecurity(WnIo io, Proton<T> proton) {
+        security(new WnEvalLink(io), (Atom) proton);
         return proton.get();
     }
 

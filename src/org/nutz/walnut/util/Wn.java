@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.json.Json;
 import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
@@ -23,10 +24,12 @@ import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
 import org.nutz.lang.segment.Segment;
 import org.nutz.lang.segment.Segments;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
@@ -186,20 +189,7 @@ public abstract class Wn {
     }
 
     public static String appendPath(String... phs) {
-        String[] paths = Lang.without(phs, null);
-        if (null != paths && paths.length > 0) {
-            // zozoh: 嗯下面的逻辑木有必要了吧
-            // if (null == paths[0])
-            // paths[0] = "/";
-            String str = Lang.concat("/", paths).toString();
-            String[] ss = Strings.splitIgnoreBlank(str, "/");
-            str = Lang.concat("/", ss).toString();
-            if (paths[0].startsWith("/")) {
-                return "/" + str;
-            }
-            return str;
-        }
-        return null;
+        return Disks.appendPath(phs);
     }
 
     public static Pattern wildcardToRegex(String wildcard) {
@@ -510,6 +500,7 @@ public abstract class Wn {
             o.loadParents(list, false);
             final long synctime = System.currentTimeMillis();
             wc.synctimeOff(new Atom() {
+                @Override
                 public void run() {
                     for (WnObj an : list) {
                         if (an.syncTime() > 0) {
@@ -612,6 +603,36 @@ public abstract class Wn {
                     io.each(Wn.Q.pid(o), callback);
                 }
             }
+        }
+
+        /**
+         * @param io
+         *            IO 接口
+         * @param o
+         *            要删除的文件或者目录
+         * @param isR
+         *            是否递归
+         * 
+         * @param 删除前回调
+         */
+        public static void doDelete(final WnIo io,
+                                    WnObj o,
+                                    final boolean isR,
+                                    Callback<WnObj> callback) {
+            // 调用回调
+            if (null != callback)
+                callback.invoke(o);
+
+            // 递归
+            if (!o.isFILE() && isR) {
+                io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
+                    public void invoke(int index, WnObj child, int length) {
+                        doDelete(io, child, isR, callback);
+                    }
+                });
+            }
+            // 删除自己
+            io.delete(o);
         }
 
     }
@@ -860,13 +881,15 @@ public abstract class Wn {
      * 
      * <pre>
      * %date:now
-     * %date:now+5m
+     * %date:now+3d
      * %date:now-12h
+     * %date:now+5m
      * %date:now+12s
      * %date:2019-02-13T23:34:12
      * %ms:now
-     * %ms:now+5m
+     * %ms:now+3d
      * %ms:now-12h
+     * %ms:now+5m
      * %ms:now+12s
      * %ms:2019-02-13T23:34:12
      * </pre>
@@ -899,7 +922,8 @@ public abstract class Wn {
         long ms = -1;
 
         // 判断到操作符
-        Matcher m = Pattern.compile("^now[ \t]*(([+-])[ \t]*([0-9]+)([smh])[ \t]*)?$").matcher(str);
+        Matcher m = Pattern.compile("^now[ \t]*(([+-])[ \t]*([0-9]+)([smhd])[ \t]*)?$")
+                           .matcher(str);
 
         // 当前时间
         if (m.find()) {
@@ -907,23 +931,27 @@ public abstract class Wn {
 
             // 嗯要加点偏移量
             if (!Strings.isBlank(m.group(1))) {
-                int off = Integer.parseInt(m.group(3));
+                long off = Long.parseLong(m.group(3));
                 String unit = m.group(4);
                 // s 秒
                 if ("s".equals(unit)) {
-                    off = off * 1000;
+                    off = off * 1000L;
                 }
                 // m 分
                 else if ("m".equals(unit)) {
-                    off = off * 60000;
+                    off = off * 60000L;
                 }
                 // h 小时
+                else if ("h".equals(unit)) {
+                    off = off * 3600000L;
+                }
+                // d 天
                 else {
-                    off = off * 60000 * 24;
+                    off = off * 86400000L;
                 }
                 // 看是加还是减
                 if ("-".equals(m.group(2))) {
-                    off = off * -1;
+                    off = off * -1L;
                 }
                 // 偏移
                 ms += off;
@@ -934,6 +962,28 @@ public abstract class Wn {
             ms = Times.D(str).getTime();
         }
         return ms;
+    }
+
+    /**
+     * 将一个字符串格式化成可以被 WnQuery 接受的正则查询字符串
+     * 
+     * <ul>
+     * <li>如果以 <code>^</code> 开头，保留原样
+     * <li>否则前面增加 <code>.*</code>
+     * </ul>
+     * 
+     * @param str
+     *            查询关键字
+     * @return 正则表达式字符串
+     */
+    public static String toQueryRegex(String str) {
+        if (Strings.isBlank(str)) {
+            return null;
+        }
+        if (str.startsWith("^"))
+            return str;
+
+        return "^.*" + str;
     }
 
     /**
@@ -1001,6 +1051,26 @@ public abstract class Wn {
 
         // 返回递归
         return real(o2, io, memo);
+    }
+
+    /**
+     * @param io
+     *            IO 接口
+     * @return 系统配置对象
+     */
+    public static NutMap getSysConf(WnIo io) {
+        return Wn.WC().nosecurity(io, new Proton<NutMap>() {
+            @Override
+            protected NutMap exec() {
+                // TODO @peter确认下这个/etc/sysconf是干什么的 默认好像没有这个文件
+                WnObj oSysConf = io.fetch(null, "/etc/sysconf");
+                if (oSysConf == null) {
+                    return NutMap.NEW();
+                }
+                String json = io.readText(oSysConf);
+                return Json.fromJson(NutMap.class, json);
+            }
+        });
     }
 
 }

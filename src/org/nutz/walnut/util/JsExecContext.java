@@ -38,6 +38,8 @@ public interface JsExecContext {
     void exec(String cmdText, OutputStream stdOut, OutputStream stdErr, InputStream stdIn);
 
     void exec(String cmdText, StringBuilder stdOut, StringBuilder stdErr, CharSequence stdIn);
+    
+    void exec(String cmdText, CharSequence input);
 
     String exec2(String cmdText);
 

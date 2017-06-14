@@ -497,7 +497,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 $el     : jCom,
             }).render(function(){
                 // 看看是否有父控件
-                var jPCom  = jCom.parents(".hm-com");
+                var jPCom  = jCom.parent().closest(".hm-com");
                 if(jPCom.length > 0) {
                     pUI = ZUI(jPCom);
                     //console.log(pUI, jPCom.attr("id"))
@@ -600,6 +600,7 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 得到皮肤的信息
         var oHome    = UI.getHomeObj();
+        //console.log("doChangeSkin", oHome);
         var skinName = oHome.hm_site_skin;
         var skinInfo = UI.getSkinInfo() || {};
 
@@ -608,11 +609,27 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 更新样式
         var jHead = UI._C.iedit.$head;
-        UI._H(jHead, 'link[skin]', !skinName ? null
-            : $z.tmpl('<link skin="yes" rel="stylesheet" type="text/css" href="/o/read/home/{{d1}}/.hmaker/skin/{{skinName}}/skin.css?aph=true">')({
+        var jLink = jHead.children('link[skin]');
+        var sHref = !skinName ? null
+            : $z.tmpl('/o/read/home/{{d1}}/.hmaker/skin/{{skinName}}/skin.css?aph=true')({
                 d1       : oHome.d1,
                 skinName : skinName,
-            }));
+            })
+        // 增加一个样式链接
+        if(sHref && jLink.length == 0) {
+            jLink = $('<link skin="yes" rel="stylesheet" type="text/css">');
+            jHead.append(jLink.attr("href", sHref));
+        }
+        // 删除样式
+        else if(!sHref) {
+            jLink.remove();
+        }
+        // 替换样式
+        else {
+            jLink.attr("href", sHref);
+        }
+
+
     
         // 释放之前的皮肤 JS
         UI.invokeSkin("off");
@@ -1473,10 +1490,6 @@ return ZUI.def("app.wn.hmaker_page", {
         return ["@::hmaker/hm_save",
                 "::hmaker/hm_create", 
                 "::hmaker/hm_delete",
-                "~",
-                "::hmaker/hm_site_new",
-                "::hmaker/hm_site_dup",
-                "::hmaker/hm_site_del",
                 "~",
                 "::view_text",
                 "~",

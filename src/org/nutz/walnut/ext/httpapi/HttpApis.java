@@ -31,7 +31,7 @@ public abstract class HttpApis {
             // 进入内核态检查权限
             Wn.WC().security(new WnEvalLink(sys.io), new Atom() {
                 public void run() {
-                    // 首先确保当前的用户必须为 root 或者 op 组成员
+                    // 首先确保当前的用户必须为指定用户组，或者 root 或者 op 组成员
                     if (!sys.usrService.isMemberOfGroup(sys.me, "op", "root")) {
                         throw Er.create("e.cmd.httapi.nopvg");
                     }
@@ -89,19 +89,19 @@ public abstract class HttpApis {
         }
 
         // 得到 tmp 的目录
-        c.oApiTmp = sys.io.fetch(c.oApiHome, "tmp");
+        c.oApiTmp = sys.io.createIfNoExists(c.oApiHome, "tmp", WnRace.DIR);
 
-        // 检查
-        if (null == c.oApiTmp) {
-            // 确保有
-            if (createTmpIfNoExists) {
-                c.oApiTmp = sys.io.create(c.oApiHome, "tmp", WnRace.DIR);
-            }
-            // 抛错
-            else {
-                throw Er.create("e.cmd.httpapi.noApiTmp", c.oApiHome);
-            }
-        }
+        // // 检查
+        // if (null == c.oApiTmp) {
+        // // 确保有
+        // if (createTmpIfNoExists) {
+        // c.oApiTmp = sys.io.create(c.oApiHome, "tmp", WnRace.DIR);
+        // }
+        // // 抛错
+        // else {
+        // throw Er.create("e.cmd.httpapi.noApiTmp", c.oApiHome);
+        // }
+        // }
 
         // 执行回调
         callback.invoke(c);

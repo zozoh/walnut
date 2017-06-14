@@ -138,4 +138,12 @@ ${xyz(json:n)?-obj-}
 * 307 Temporary Redirect (since HTTP/1.1)
 * 308 Permanent Redirect
 
+## Markdown `<markdown>`
+
+```
+<markdown>${obj.content}</markdown>
+```
+
+
+
 

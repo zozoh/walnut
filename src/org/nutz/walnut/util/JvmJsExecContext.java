@@ -103,6 +103,11 @@ public class JvmJsExecContext implements JsExecContext {
     }
 
     @Override
+    public void exec(String cmdText, CharSequence input) {
+        sys.exec(cmdText, input);
+    }
+
+    @Override
     public String exec2(String cmdText) {
         return sys.exec2(cmdText);
     }

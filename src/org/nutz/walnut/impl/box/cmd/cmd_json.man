@@ -19,47 +19,47 @@
 	              # 指明保留到 :  ^(a|b|c)$
 	              # 指明不保留 :  !^(a|b|c)$
 	
-	-get          # 从一个 JSON 文本中取值，键值支持 . 的路径操作
-	              # 如果是列表，则参数是下标
-	              
+    -get          # 从一个 JSON 文本中取值，键值支持 . 的路径操作
+                  # 如果是列表，则参数是下标
+                  
     -put          # 将这段 JSON 加入到一个新到 map，并指定 key
-	              
-	-u            # 更新 map，如果是子 Map，则融合
-	
-	-out          # 采用模板方式输出，模板占位符格式化为 "@{xxx}" 
+                  
+    -u            # 更新 map，如果是子 Map，则融合
+    
+    -out          # 采用模板方式输出，模板占位符格式化为 "@{xxx}" 
 	
 	
 # 示例
 
     # 格式化输出
-	$:> echo '{x:100,y:80}' | json
-	{
-	   "x" : 100,
-	   "y" : 80
-	}
-	
-	# 增加前缀
-	$:> echo '{x:100,y:80}' | json -prefix "pos_"
-	{
-	   "pos_x" : 100,
-	   "pos_y" : 80
-	}
-	
-	# 为指定字段增加前缀
-	$:> echo '{x:100,y:80}' | json -prefix "pos_" -prefix_key "^x$"
-	{
-	   "pos_x" : 100,
-	   "y" : 80
-	}
-	
-	$:> echo '{x:100,y:80}' | json -prefix "pos_" -prefix_key "!^x$"
-	{
-	   "x" : 100,
-	   "pos_y" : 80
-	}
-	
-	# 形成新到 map
-	$:> echo '{x:100,y:80}' | json -put "pos"
+    $:> echo '{x:100,y:80}' | json
+    {
+       "x" : 100,
+       "y" : 80
+    }
+    
+    # 增加前缀
+    $:> echo '{x:100,y:80}' | json -prefix "pos_"
+    {
+       "pos_x" : 100,
+       "pos_y" : 80
+    }
+    
+    # 为指定字段增加前缀
+    $:> echo '{x:100,y:80}' | json -prefix "pos_" -prefix_key "^x$"
+    {
+       "pos_x" : 100,
+       "y" : 80
+    }
+    
+    $:> echo '{x:100,y:80}' | json -prefix "pos_" -prefix_key "!^x$"
+    {
+       "x" : 100,
+       "pos_y" : 80
+    }
+    
+    # 形成新到 map
+    $:> echo '{x:100,y:80}' | json -put "pos"
     {
         pos : {
            "x" : 100,
@@ -88,16 +88,16 @@
         "x" : 100
         "y" : 80
     }
-	
-	# 从复杂对象里取值
-	$:> echo '{pos : {x:100,y:80}}' | json -get "pos.x"
-	100
-	
-	# 从复杂列表里取值
-	$:> echo '[{pos : {x:100,y:80}},{}]' | json -get "0.pos.x"
-	100
-	
-	# 从复杂列表里取值
+    
+    # 从复杂对象里取值
+    $:> echo '{pos : {x:100,y:80}}' | json -get "pos.x"
+    100
+    
+    # 从复杂列表里取值
+    $:> echo '[{pos : {x:100,y:80}},{}]' | json -get "0.pos.x"
+    100
+    
+    # 从复杂列表里取值
     $:> echo '{obj: [{pos : {x:100,y:80}},{}]}' | json -get "obj[0].pos.x"
     100
 	

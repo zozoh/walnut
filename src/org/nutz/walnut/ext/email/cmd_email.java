@@ -52,6 +52,7 @@ public class cmd_email extends JvmExecutor {
         mc.config = params.get("config");
         mc.receivers = params.get("r");
         mc.ccs = params.get("cc");
+        mc.from = params.get("from");
         mc.msg = params.get("m");
         mc.subject = params.get("s");
         mc.tmpl = params.get("tmpl");
@@ -229,7 +230,10 @@ public class cmd_email extends JvmExecutor {
                 if (mc.dataSourceResolver != null) {
                     ihe.setDataSourceResolver(new DataSourceUrlResolver(new URL(mc.dataSourceResolver)));
                 }
-                String fnm = hostCnf.from == null ? mc.sys.me.name() : hostCnf.from;
+                String fnm = mc.from;
+                if (Strings.isBlank(fnm)) {
+                    fnm = hostCnf.from == null ? mc.sys.me.name() : hostCnf.from;
+                }
                 ihe.setFrom(hostCnf.account, fnm);
                 ihe.setHtmlMsg(mc.msg);
                 for (MailReceiver mailReceiver : rc) {

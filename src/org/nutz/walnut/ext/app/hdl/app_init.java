@@ -104,6 +104,14 @@ public class app_init implements JvmHdl {
             c = new NutMap();
         }
 
+        // 上下文一定要增加的键
+        NutMap sysconf = sys.getSysConf();
+        String hostAndPort = sysconf.getString("mainHost", "localhost");
+        int port = sysconf.getInt("mainPort", 80);
+        if (port > 80)
+            hostAndPort += ":" + port;
+        c.put("hostAndPort", hostAndPort);
+
         // 优先处理文件结构
         WnObj oFileS = sys.io.fetch(oTmpl, "_files");
         if (null != oFileS) {
@@ -198,7 +206,7 @@ public class app_init implements JvmHdl {
                 // 在元数据中
                 if (fp.is(FpSt.IN_META)) {
                     // 遇到元数据结束
-                    if ("}".equals(str)) {
+                    if ("}".equals(str) && line.startsWith("}")) {
                         fp.json.append(str);
                         fp.meta = Json.fromJson(NutMap.class, fp.json);
                         fp.st = FpSt.END_META;

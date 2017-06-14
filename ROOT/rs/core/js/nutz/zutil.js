@@ -2759,6 +2759,53 @@
         },
         //.............................................
         /**
+         * 得到一个路径的父路径
+         *
+         * @param ph
+         *            某路径
+         * @return 父路径，且一定以 / 结尾
+         */
+        //.............................................
+        getParentPath : function(ph, regular) {
+            var pos = ph.lastIndexOf('/');
+            if(pos <= 0)
+                return null;
+            return ph.substring(0, pos+1);
+        },
+        //.............................................
+        /**
+         * 整理路径。 将会合并路径中的 ".."
+         * 
+         * @param path
+         *            路径
+         * @return 整理后的路径
+         */
+        getCanonicalPath : function(path) {
+            if (!path)
+                return path;
+            var pa = this.splitIgnoreEmpty(path, /[\\\\/]/g);
+            var paths = [];
+            for (var i=0; i<pa.length; i++) {
+                var s = pa[i];
+                if (".." == s) {
+                    if (paths.length > 0)
+                        paths.pop();
+                    continue;
+                }
+                if ("." == s) {
+                    // pass
+                } else {
+                    paths.push(s);
+                }
+            }
+            var reph = paths.join("/");
+            if (/^\//.test(path))
+                reph = "/" + reph;
+            if (/\/$/.test(path))
+                reph = reph + "/";
+            return reph;
+        },
+        /**
          * 判断某路径是否在给定基础路径之下
          *
          * @param base
@@ -3199,10 +3246,18 @@
          done : F()    // 所有标注显示完毕后的回调
          }
          */
-        markIt: function (opt) {
+        markIt: function (opt, callback) {
+            // 支持快捷方式 ({..}, callback)
+            if(opt && opt.target && opt.text) {
+                opt = {items : [opt]};
+            }
+
             // 必须得有绘制项目
             if (!_.isArray(opt.items) || opt.items.length == 0)
                 return;
+
+            // 支持设置回调
+            this.setUndefined(opt, "done", callback);
 
             // 绘制遮罩层
             var jMark = $('<div>').appendTo(document.body).css({
@@ -3211,7 +3266,7 @@
                 "left": 0,
                 "right": 0,
                 "bottom": 0,
-                "zIndex": 99,
+                "zIndex": 99999,
             });
             // 得到遮罩层的大小并生成画布
             var R_VP = $z.rect(jMark);
@@ -3366,9 +3421,23 @@
                 return str.substring(i);
             return str;
         },
-        //............................................
-        // 将给定的 Markdown 文本，转换成 HTML 代码
-        markdownToHtml: function (str) {
+        /*............................................
+        将给定的 Markdown 文本，转换成 HTML 代码
+        opt : {
+            media   : {c}F(src)   // 计算媒体文件加载的真实 URL
+            context : undefined  // 所有回调的上下文
+        }
+        */
+        markdownToHtml: function (str, opt) {
+            // 确保有选项对象
+            opt = opt || {};
+            context = opt.context || this;
+
+            // 设置默认值
+            zUtil.setUndefined(opt, "media", function(src){
+                return src;
+            });
+
             /* 首先将文本拆分成段落： 
              {
              type  : "H|P|code|OL|UL|hr|Th|Tr|quote|empty",
@@ -3521,7 +3590,7 @@
             // 处理最后一段
             B = blocks.tryPush(B);
 
-            console.log(blocks)
+            //console.log(blocks)
 
             // 定义内容输出函数
             var __B_to_html = function (B) {
@@ -3537,17 +3606,17 @@
             };
 
             var __line_to_html = function (str) {
-                var reg = '(\\*(.+)\\*)'
-                    + '|(\\*\\*(.+)\\*\\*)'
-                    + '|(__(.+)__)'
-                    + '|(~~(.+)~~)'
-                    + '|(`(.+)`)'
-                    + '|(!\\[(.*)\\]\\((.+)\\))'
-                    + '|(\\[(.*)\\]\\((.+)\\))'
+                var reg = '(\\*([^*]+)\\*)'
+                    + '|(\\*\\*([^*]+)\\*\\*)'
+                    + '|(__([^_]+)__)'
+                    + '|(~~([^~]+)~~)'
+                    + '|(`([^`]+)`)'
+                    + '|(!\\[([^\\]]*)\\]\\(([^\\)]+)\\))'
+                    + '|(\\[([^\\]]*)\\]\\(([^\\)]+)\\))'
                     + '|(https?:\\/\\/[^ ]+)';
                 var REG = new RegExp(reg, "g");
                 var m;
-                var pos = 0
+                var pos = 0;
                 var html = "";
                 while (m = REG.exec(str)) {
                     //console.log(m)
@@ -3576,8 +3645,9 @@
                     }
                     // IMG: ![](xxxx)
                     else if (m[11]) {
-                        console.log("haha", m[13])
-                        html += '<img alt="' + m[12] + '" src="' + m[13] + '">';
+                        //console.log("haha", m[13])
+                        var src = opt.media.apply(context, [m[13]]);
+                        html += '<img alt="' + m[12] + '" src="' + src + '">';
                     }
                     // A: [](xxxx)
                     else if (m[14]) {

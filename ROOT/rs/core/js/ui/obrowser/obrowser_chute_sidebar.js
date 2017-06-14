@@ -272,7 +272,7 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
         // 返回
         return jq;  
     },
-    //...................z...........................
+    //..............................................
     __format_sideHTML : function(jq) {
         var UI = this;
 

@@ -47,7 +47,7 @@ return ZUI.def("ui.picker.opicker", {
             if(!o && opt.lastObjKey) {
                 var lastObjPath = UI.local(opt.lastObjKey);
                 if(lastObjPath)
-                    o = Wn.fetch(lastObjPath);
+                    o = Wn.fetch(lastObjPath, true);
             }
             // 如果要求选择的对象在不给定目录内，相当于 null
             if(opt.mustInBase && o) {

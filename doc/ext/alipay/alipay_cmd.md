@@ -17,11 +17,8 @@ tags:
 支付宝服务器与第三方服务器的加密信息存放在目录 `~/.alipay/` 下。
 
     ~/.alipay/
-        nutzcn       # 某个微信公众号的配置存放目录
+        nutzcn             # 某个支付宝账号的配置存放目录
             alipayconf     # 存放应用信息
-            context        # 存放与用户会话的上下文
-                78a5gg..   # 每个 openid 一个目录
-                           # 后面的章节有详细描述
         another_商家                      # 每个商家一个目录
 
 ## alipayconf 的文件格式 

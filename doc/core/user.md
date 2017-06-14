@@ -21,7 +21,7 @@ tags:
     
     my_grps  : ["a","b","c"]  // ［冗余］自己所在组的名称列表
 
-    //................................ 采用 oauth 认证
+    //................................ 扩展信息
     aa     : "小白",           // 「唯一」用户昵称
     headimgurl : "http://xxx"
     country    : "xx"
@@ -30,41 +30,21 @@ tags:
     //................................ 采用密码登录
     passwd : SHA1             // 加盐密码
     salt   : Random           // 盐值
+
+    //................................ 其他可登录字段
+    phone  : "18501211985",          // 手机号码
+    email     : "zozoh@nutzam.com",  // 邮箱
     
     //................................ 采用 oauth 认证
-    oauth_github : "xxxxxxx",
+    // 字段以 oauth_ 开头
+    oauth_github  : "xxxxxxx",
+    oauth_wxlogin : "oSQW..cYq"
     
     //................................ 采用微信公众号的 openid
     // 键的格式为 wx_公众号ID
     // 值为 OpenID
     wxgh_xxxx : OpenId
     
-    //................................ 采用手机号登录
-    phone  : "18501211985",       // 手机号码
-    phone_checked : false         // 手机号是否经过验证
-   
-    // 短信验证
-    sms_vcode  : "xxxx"        # 短信验证码
-    sms_vnext  : 1433..        # 过了这个时间，才能再次取得验证码
-    sms_vexpi  : 14339..       # 短信验证码有效期至（绝对毫秒数）
-    sms_retry  : {             # 验证码重试次数
-        retry : 2   // 已经验证的次数
-        maxre : 5   // 最多验证多少次 
-    }
-    
-    //................................ 采用Email登录
-    email     : "zozoh@nutzam.com",  // 邮箱
-    email_checked : false            // 邮箱是否经过验证
-   
-    // 短信验证
-    email_vcode  : "xxxx"        # 邮件验证码
-    email_vnext  : 1433..        # 过了这个时间，才能再次取得验证码
-    email_vexpi  : 14339..       # 邮件验证码有效期至（绝对毫秒数）
-    email_retry  : {             # 验证码重试次数
-        retry : 2   // 已经验证的次数
-        maxre : 5   // 最多验证多少次 
-    }
-
     //................................ 其他信息
     home : "/home/xiaobai"      // 用户的登录主目录
     open : "wn.console"         // 登录后打开的应用

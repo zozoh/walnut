@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
 public class WnQuery {
@@ -19,7 +21,6 @@ public class WnQuery {
     private List<NutMap> list;
 
     public WnQuery() {
-        this.sort = new NutMap();
         this.list = new ArrayList<NutMap>(5);
     }
 
@@ -68,6 +69,35 @@ public class WnQuery {
         return this;
     }
 
+    public WnQuery unset(String... keys) {
+        NutMap ele = first();
+        for (String key : keys) {
+            ele.remove(key);
+        }
+        return this;
+    }
+
+    public WnQuery setvIfNoBlank(String key, String value) {
+        if (!Strings.isBlank(value)) {
+            this.setv(key, value);
+        }
+        return this;
+    }
+
+    public WnQuery setLongRegion(String key, String tm) {
+        if (!Strings.isBlank(tm)) {
+            // 不存在
+            if ("0".equals(tm)) {
+                this.setv(key, Lang.map("$exists", false));
+            }
+            // 区间
+            else {
+                this.setv(key, tm);
+            }
+        }
+        return this;
+    }
+
     public WnQuery setvToList(String key, Object value) {
         for (NutMap ele : list) {
             ele.setv(key, value);
@@ -78,6 +108,16 @@ public class WnQuery {
     public WnQuery setAll(Map<String, Object> map) {
         NutMap ele = first();
         ele.setAll(map);
+        return this;
+    }
+
+    public WnQuery unsetAll(String... keys) {
+        if (null != list) {
+            for (NutMap ele : list)
+                for (String key : keys) {
+                    ele.remove(key);
+                }
+        }
         return this;
     }
 
@@ -114,6 +154,13 @@ public class WnQuery {
     }
 
     public NutMap sort() {
+        if (null == sort) {
+            synchronized (this) {
+                if (null == sort) {
+                    sort = new NutMap();
+                }
+            }
+        }
         return sort;
     }
 
@@ -144,7 +191,7 @@ public class WnQuery {
     public WnQuery desc(String nm) {
         return sortBy(nm, -1);
     }
-    
+
     public WnQuery exists(String nm, boolean isExist) {
         return setv(nm, new NutMap("$exists", isExist));
     }

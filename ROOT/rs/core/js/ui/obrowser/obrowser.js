@@ -209,7 +209,7 @@ return ZUI.def("ui.obrowser", {
         // 分析一下 theEditor，支持 hmaker:args 形式的参数
         var pos = theEditor ? theEditor.indexOf("::") : -1;
         var theArgs = null;
-        if(pos > 0) {
+        if(pos >= 0) {
             theArgs   = theEditor.substring(pos+2);
             theEditor = theEditor.substring(0, pos);
         }

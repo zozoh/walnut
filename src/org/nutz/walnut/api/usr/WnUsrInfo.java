@@ -185,7 +185,7 @@ public class WnUsrInfo {
             email = str;
         }
         // 登录名
-        else if (str.matches("^[0-9a-z._-]{4,}$")) {
+        else if (isValidUserName(str)) {
             name = str;
         }
         // 错误的登录字符串
@@ -195,6 +195,10 @@ public class WnUsrInfo {
 
         // 记录原始字符串
         this.loginStr = loginStr;
+    }
+
+    public static boolean isValidUserName(String nm) {
+        return null != nm && nm.matches("^[0-9a-zA-Z_]{4,}$");
     }
 
     public String getUserId() {

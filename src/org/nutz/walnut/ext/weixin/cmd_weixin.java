@@ -29,7 +29,7 @@ public class cmd_weixin extends JvmHdlExecutor {
         // 第一个参数必须为微信公众号目录名
         else {
             if (hc.args.length < 2) {
-                throw Er.create("e.cmd.hmaker.lackArgs", hc.args);
+                throw Er.create("e.cmd.weixin.lackArgs", hc.args);
             }
             // 得到公众号
             String pnb = hc.args[0];

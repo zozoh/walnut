@@ -18,6 +18,10 @@ public abstract class VCodes {
         return getPathBy(domain, "signup", accountName);
     }
 
+    public static String getPasswdBackPath(String domain, String accountName) {
+        return getPathBy(domain, "passwdback", accountName);
+    }
+
     public static String getCaptchaPath(String domain, String accountName) {
         return getPathBy(domain, "captcha", accountName);
     }

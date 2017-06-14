@@ -402,6 +402,11 @@ $.fn.extend({ "hmc_filter" : function(opt){
     // 开始绘制
     __redraw(jq, opt);
 
+    // 设置默认值
+    if(opt.defaultValue){
+        CMD.value.apply(this, [opt.defaultValue]);
+    }
+
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 监控事件
     if(!opt.forIDE) {

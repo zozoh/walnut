@@ -38,7 +38,7 @@ return ZUI.def("ui.form_com_text", {
         
         // 占位符显示
         if(opt.placeholder) {
-            jText.attr("placeholder", opt.placeholder);
+            jText.attr("placeholder", UI.text(opt.placeholder));
         }
     },
     //...............................................................

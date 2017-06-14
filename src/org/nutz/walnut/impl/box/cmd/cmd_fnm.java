@@ -1,7 +1,5 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import java.util.regex.Pattern;
-
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
@@ -14,8 +12,6 @@ import org.nutz.walnut.util.ZParams;
 
 public class cmd_fnm extends JvmExecutor {
 
-    private static final Pattern _P = Pattern.compile("((?<![@])[@][{]([^}]+)[}])|([@]([@][{][^}]+[}]))");
-
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, null);
@@ -23,7 +19,7 @@ public class cmd_fnm extends JvmExecutor {
         String str = params.val(0);
         String tmplStr = params.check("tmpl");
 
-        Tmpl tmpl = Tmpl.parse(tmplStr, _P, 2, 4);
+        Tmpl tmpl = Tmpl.parse(tmplStr, "@");
         WnObj current = Strings.isBlank(str) ? sys.getCurrentObj() : Wn.checkObj(sys, str);
 
         int i = 1;

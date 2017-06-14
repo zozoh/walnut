@@ -141,6 +141,10 @@ public class ZParams {
         return this.vals[i];
     }
 
+    public String val(int index, String dft) {
+        return Strings.sBlank(val(index), dft);
+    }
+
     public String val_check(int index) {
         String v = val(index);
         if (null == v) {
@@ -308,7 +312,7 @@ public class ZParams {
     public NutMap map() {
         return map;
     }
-    
+
     public String toJson(JsonFormat jf) {
         NutMap re = new NutMap();
         re.put("vals", vals);

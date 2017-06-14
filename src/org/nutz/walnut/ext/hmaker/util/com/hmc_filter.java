@@ -1,8 +1,12 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import java.util.Map;
+
 import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
 
@@ -22,6 +26,11 @@ public class hmc_filter extends AbstractSimpleCom {
         // 确保页面输出是 wnml
         ing.markPageAsWnml();
 
+        // 存储默认值
+        Object dfv = ing.propCom.get("defaultValue");
+        if (null != dfv && (dfv instanceof Map<?, ?>))
+            ing.eleCom.attr("default-value", Json.toJson(dfv, JsonFormat.compact()));
+
         // ...........................................
         // 链入控件的 jQuery 插件
         ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_filter.js");
@@ -37,5 +46,13 @@ public class hmc_filter extends AbstractSimpleCom {
     @Override
     public boolean isDynamic(Element eleCom) {
         return true;
+    }
+
+    @Override
+    public Object getValue(Element eleCom) {
+        String json = eleCom.attr("default-value");
+        if (!Strings.isBlank(json))
+            return Json.fromJson(NutMap.class, json);
+        return null;
     }
 }

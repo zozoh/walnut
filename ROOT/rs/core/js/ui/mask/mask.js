@@ -66,6 +66,7 @@ return ZUI.def("ui.mask", {
 
         // 监控 esc 事件
         if(!(opt.escape === false)) {
+            //console.log(opt.escape)
             this.watchKey(27, function(e){
                 // 如果自己是最顶层的元素，才关闭自己
                 if(this.$el.next().length == 0)

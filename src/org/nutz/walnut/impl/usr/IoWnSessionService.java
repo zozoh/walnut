@@ -1,11 +1,6 @@
 package org.nutz.walnut.impl.usr;
 
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.err.Er;
@@ -32,7 +27,6 @@ public class IoWnSessionService implements WnSessionService {
     private WnUsrService usrs;
 
     private WnObj oSessions;
-    private static Pattern Session_Key_Reserved_Pattern = Pattern.compile("^(passwd|salt|pid|ct|lm|data|sha1|len|c|g|m|d0|d1|md|tp|mime|ph)$");
 
     public void on_create() {
         Wn.WC().me("root", "root");
@@ -62,35 +56,6 @@ public class IoWnSessionService implements WnSessionService {
         if (du < 0)
             du = this.duration;
 
-        // 准备环境变量
-        NutMap envs = Lang.map("PWD", u.home());
-        for (Map.Entry<String, Object> en : u.entrySet()) {
-            String key = en.getKey();
-            // 双下划线开始的元数据无视
-            if (key.startsWith("__"))
-                continue;
-            // 其他不显示的键
-            if (Session_Key_Reserved_Pattern.matcher(key).matches()) {
-                continue;
-            }
-            // HOME 特殊处理
-            if ("home".equals(key)) {
-                envs.setv("HOME", en.getValue());
-            }
-            // 如果是大写的变量，则全部保留，比如 "PATH" 或者 "APP-PATH"
-            else if (key.toUpperCase().equals(key)) {
-                envs.setv(key, en.getValue());
-            }
-            // 如果是 my_ 开头变量，仅仅是变大写
-            else if (key.startsWith("my_")) {
-                envs.setv(key.toUpperCase(), en.getValue());
-            }
-            // 其他加前缀
-            else {
-                envs.setv("MY_" + key.toUpperCase(), en.getValue());
-            }
-        }
-
         // 更新文件元数据
         o.type(SESSTP);
         o.mime("application/json");
@@ -109,7 +74,7 @@ public class IoWnSessionService implements WnSessionService {
         WnSession se = new IoWnSession(io, o);
 
         // 计入 session 并持久化
-        se.vars().putAll(envs);
+        se.putUsrVars(u);
         se.save();
 
         return se;
@@ -121,7 +86,7 @@ public class IoWnSessionService implements WnSessionService {
             throw Er.create("e.usr.blank.pwd");
 
         WnUsr u = usrs.check(nm);
-        if (!usrs.checkPassword(nm, pwd)) {
+        if (!usrs.checkPassword(u, pwd)) {
             throw Er.create("e.usr.invalid.login");
         }
 
