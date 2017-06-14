@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.backup;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -10,12 +9,15 @@ import org.nutz.log.Log;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.impl.box.WnSystem;
 
-public class BackupDumpContext {
+public class BackupRestoreContext {
 
     /**
      * 根路径
      */
     public String base;
+
+    public boolean force_id;
+    public boolean ignore_sha1_miss;
 
     /**
      * 需要包含的路径
@@ -40,7 +42,7 @@ public class BackupDumpContext {
     /**
      * 输出的格式,例如zip, tgz, 仅为最外层的压缩格式
      */
-    public String outputFormat;
+    public String main;
 
     /**
      * 是否详细输出
@@ -48,27 +50,15 @@ public class BackupDumpContext {
     public boolean debug;
 
     /**
-     * 是否保留临时文件,供调试用
-     */
-    public boolean keepTemp;
-
-    /**
      * 仅模拟运行,不输出最终的压缩包
      */
     public boolean dry;
-
-    /**
-     * 目标路径
-     */
-    public String dst;
 
     public List<String> prevs;
 
     // 支撑运行所需要的对象
     public transient WnSystem sys;
-
     public transient WnSession se;
-    public transient File tmpdir;
     public transient Log log;
     public transient List<BackupPackage> prevPackages;
     public transient Set<String> sha1Set;
