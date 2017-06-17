@@ -2,6 +2,7 @@ package org.nutz.walnut.impl.box.cmd;
 
 import java.net.URLDecoder;
 
+import org.nutz.lang.Strings;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
@@ -19,6 +20,10 @@ public class cmd_str extends JvmExecutor {
         if (params.has("decodeURI")) {
             String enc = params.getString("decodeURI", "UTF-8");
             sys.out.print(URLDecoder.decode(str, enc));
+        }
+        // 去掉空白
+        else if (params.has("trim")) {
+            sys.out.print(Strings.trim(str));
         }
         // 默认原样输出
         else {
