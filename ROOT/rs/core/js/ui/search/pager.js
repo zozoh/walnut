@@ -34,7 +34,7 @@ return ZUI.def("ui.srh_pgr", {
         },
         // 手动调整页数
         "change span > input" : function(e) {
-            console.log("hahah")
+            //console.log("hahah I am pager")
             var UI = this;
             var jInput = $(e.currentTarget);
             var val = jInput.val();
@@ -59,7 +59,7 @@ return ZUI.def("ui.srh_pgr", {
 
             // 跳转
             if(pn != pg.pn) {
-                pg.pg = pn;
+                pg.pn = pn;
                 UI.trigger("pager:change", UI.getData(pg));
             }
         },

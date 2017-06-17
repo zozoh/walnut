@@ -272,6 +272,10 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
         return this.options.multi ? true : false;
     },
     //...............................................................
+    setMulti : function(limit) {
+        this.options.multi = limit;
+    },
+    //...............................................................
     _get_data : function(){
         var UI = this;
         var jShow = UI.arena.find(".com-box-show");
