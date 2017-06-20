@@ -368,7 +368,7 @@
         },
         //.............................................
         // 挑选属性，正则表达式如果以 ! 开头表示取反
-        pick: function (obj, regex) {
+        pick: function (obj, regex, asValueArray) {
             if (!regex)
                 return obj;
 
@@ -376,25 +376,57 @@
             var not = false;
             var REG = _.isRegExp(regex) ? regex : null;
             if (!REG) {
-                var str = regex.toString();
-                if (/^!/.test(str)) {
-                    not = true;
-                    str = str.substring(1);
+                // 数组，表示值的列表
+                if(_.isArray(regex)) {
+                    REG = new RegExp("^(" + regex.join("|") + ")$");
                 }
-                REG = new RegExp(str);
+                // 其他的，当做字符串
+                else {
+                    var str = $.trim(regex.toString());
+                    // !^ 开头的正则表达式 
+                    var m = /^(!)?\^/.exec(str);
+                    if (m) {
+                        if(m[1]) {
+                            not = true;
+                            str = str.substring(1);
+                        }
+                        REG = new RegExp(str);
+                    }
+                    // 必须为半角逗号分隔的 key 列表
+                    else {
+                        var keys = str.split(/[ \t]*,[ \t]*/);
+                        REG = new RegExp("^(" + keys.join("|") + ")$");
+                    }
+                }
             }
 
             // 准备返回值
-            var re = {};
+            var re = asValueArray ? [] : {};
 
             // 开始过滤字段
             for (var key in obj) {
                 if (REG.test(key)) {
                     if (not)
                         continue;
-                    re[key] = obj[key];
-                } else if (not) {
-                    re[key] = obj[key];
+                    // 推入数组
+                    if(asValueArray){
+                        re.push(obj[key]);
+                    }
+                    // 计入对象
+                    else {
+                        re[key] = obj[key];
+                    }
+                }
+                // 取反的情况
+                else if (not) {
+                    // 推入数组
+                    if(asValueArray){
+                        re.push(obj[key]);
+                    }
+                    // 计入对象
+                    else {
+                        re[key] = obj[key];
+                    }
                 }
             }
 
@@ -1439,18 +1471,15 @@
                 };
             }
             ;
-            // 继续计算相对于文档的位置
-            // var jBody = $(win.document.body);
-            // rect.top = jBody.scrollTop();
-            // rect.left = jBody.scrollLeft();
-            // rect.right = rect.left + rect.width;
-            // rect.bottom = rect.top + rect.height;
-            // rect.x = rect.left + rect.width / 2;
-            // rect.y = rect.top + rect.height / 2;
+            // 继续剩余的值
             rect.top = 0;
             rect.left = 0;
+            rect.right = rect.left + rect.width;
+            rect.bottom = rect.top + rect.height;
+            rect.x = rect.left + rect.width / 2;
+            rect.y = rect.top + rect.height / 2;
 
-            return zUtil.rect_count_tlwh(rect);
+            return rect;
         },
         //.............................................
         // 得到一个元素的外边距

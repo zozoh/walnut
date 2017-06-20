@@ -1,0 +1,112 @@
+@noselect : {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+};
+
+@clr : {
+  content:"";
+  display:block;
+  height:0;
+  clear:both;
+};
+
+@f_fixed : Monaco, Consolas, Courier New;
+
+@flex : {
+  display: -webkit-flex;
+  display: flex;
+};
+
+* {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+html, body {
+    width:100%; height:100%; margin:0; background: #FFF;
+}
+
+body[outer] > main{
+    padding: 20px; width:100%; height:100%;
+    display:grid;  justify-items: stretch;
+    grid-template-columns: 50% auto;
+    grid-template-rows: 50px 1fr 1fr 100px;
+    grid-template-areas: "h1 h1"
+                         "pre    d-inner"
+                         "pre    d-top"
+                         "footer footer";
+    grid-gap: 10px;
+
+    > * {
+        box-shadow: 3px 3px 5px rgba(0,0,0,0.4);
+        border-radius:4px; 
+    }
+    > h1 {
+        grid-area: h1;   background: #DDD; color:#000;
+        padding:0 18px; margin:0; line-height: 50px;
+        font-size: 18px;
+    }
+    > pre {
+        grid-area: pre;  background: #444;
+        padding: 10px; margin:0; background: #000; color:#CCC;
+        font-family: @f_fixed; font-size:12px;
+        > div {
+            line-height: 20px;
+            > em {
+                display: inline-block; padding:0 6px;
+                border-radius: 50%; margin-right: 8px;
+                background: #AAA; color:#FFF; font-size: 10px;
+                font-family: @f_fixed;
+            }
+        }
+    }
+    > section.d-inner {
+        grid-area: d-inner; background: #EEE;
+        padding: 20px;
+        iframe {
+            border:4px solid #AAA; width:100%; height:100%;
+            margin:10px; padding:10px;
+        }
+    }
+    > section.d-top {
+        grid-area: d-top; background: #EEE;
+        padding: 20px;
+        > div.con {
+            border:4px solid #AAA; width:100%; height:100%;
+            position: relative; overflow: auto;
+        }
+    }
+    > section[mv-mode] {
+        background: #CC9;
+        > * {border-color:#F80;}
+    }
+    > footer {
+        grid-area: footer; background: #EEE;
+        padding: 18px;
+        > button {
+            font-size:12px; padding:8px 12px;
+        }
+    }
+}
+
+.mv-demo-item {@noselect();
+    font-size:12px; font-family: @f_fixed;
+    cursor: default; background: rgba(0,0,0,0.2);
+    border:1px solid #F00; position: absolute;
+    @flex(); justify-content:center; align-items:center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
