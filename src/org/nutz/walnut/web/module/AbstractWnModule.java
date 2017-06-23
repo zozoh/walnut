@@ -3,7 +3,6 @@ package org.nutz.walnut.web.module;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.lang.Strings;
@@ -73,20 +72,5 @@ public abstract class AbstractWnModule extends WnRun {
 
         // 返回
         return context;
-    }
-
-    public boolean checkEtag(WnObj wobj, HttpServletRequest req, HttpServletResponse resp) {
-        String etag = "";
-        if (Strings.isBlank(wobj.sha1())) {
-            etag = String.format("%s-%s-%s", "F", wobj.len(), wobj.lastModified());
-        } else {
-            etag = String.format("%s-%s-%s",
-                                 wobj.sha1().substring(0, 6),
-                                 wobj.len(),
-                                 wobj.lastModified());
-        }
-        if (resp != null)
-            resp.setHeader("ETag", etag);
-        return etag.equals(req.getHeader("If-None-Match"));
     }
 }

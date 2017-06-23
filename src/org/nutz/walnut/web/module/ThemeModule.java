@@ -123,7 +123,7 @@ public class ThemeModule extends AbstractWnModule {
         if (null == oCss) {
             throw Er.create("e.theme.noexists", uiName);
         }
-        if (checkEtag(oCss, req, resp))
+        if (Wn.checkEtag(oCss, req, resp))
             return HTTP_304;
 
         // 读取 CSS 内容返回以便输出

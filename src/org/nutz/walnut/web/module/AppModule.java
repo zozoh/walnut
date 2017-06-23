@@ -329,7 +329,7 @@ public class AppModule extends AbstractWnModule {
                 return new WnObjDownloadView(ins, ins.available(), mimeType);
             }
 
-            if (checkEtag(o, req, resp))
+            if (Wn.checkEtag(o, req, resp))
                 return HTTP_304;
 
             // 指定了 mimeType

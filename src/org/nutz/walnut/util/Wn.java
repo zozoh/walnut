@@ -13,6 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.nutz.json.Json;
 import org.nutz.lang.Each;
 import org.nutz.lang.Files;
@@ -1073,4 +1076,23 @@ public abstract class Wn {
         });
     }
 
+    public static boolean checkEtag(WnObj wobj, HttpServletRequest req, HttpServletResponse resp) {
+        String etag = getEtag(wobj);
+        if (resp != null)
+            resp.setHeader("ETag", etag);
+        return etag.equals(req.getHeader("If-None-Match"));
+    }
+
+    public static String getEtag(WnObj wobj) {
+        String etag = "";
+        if (Strings.isBlank(wobj.sha1())) {
+            etag = String.format("%s-%s-%s", "F", wobj.len(), wobj.lastModified());
+        } else {
+            etag = String.format("%s-%s-%s",
+                                 wobj.sha1().substring(0, 6),
+                                 wobj.len(),
+                                 wobj.lastModified());
+        }
+        return etag;
+    }
 }

@@ -369,7 +369,7 @@ public class WWWModule extends AbstractWnModule {
             }
             // 输出吧
             WnObj o2 = Wn.WC().whenRead(o, false);
-            if (checkEtag(o2, req, resp))
+            if (Wn.checkEtag(o2, req, resp))
                 return HTTP_304;
             return new WnObjDownloadView(io, o2, ua);
 
