@@ -211,6 +211,9 @@ task wtar(dependsOn: fatJar) << {
    		from "build/wzip/run.sh"
    		from "build/wzip/stop.sh"
    		from "build/libs/start.sh"
+   		from (".") {
+   			include "ROOT/"
+   		}
    		archiveName 'walnut.tar'
    		destinationDir buildDir
    	}.execute()
