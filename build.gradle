@@ -137,7 +137,8 @@ task wruns << {
 	Files.write(file('build/wzip/build.properties'), "walnut.version="+version_tag)
 
    	def tmpWin32 = '''java -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -cp "classes;libs/*"'''
-   	def tmpUnix = '''touch classes/web_local.properties; java -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -cp "classes:libs/*"'''
+   	def tmpUnix = '''touch classes/web_local.properties;
+   	java -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -cp "classes:libs/*"'''
    	tmpWin32 += " org.nutz.web.WebLauncher"
    	Files.write(file('build/wzip/start.bat'), tmpWin32)
 
@@ -154,7 +155,7 @@ task wruns << {
    	Files.write(file('build/wzip/run.sh'), '''
 cd "$(dirname "$0")"
 cp $WUPROOT/web_local.properties classes/web_local.properties
-touch classes/web_local.properties
+cp $WUPROOT/web_local.properties web_local.properties
 export JAVA_HOME=$WUPROOT/jdk
 export PATH=$JAVA_HOME/bin:$PATH
 ./start.sh
@@ -214,6 +215,7 @@ task wtar(dependsOn: fatJar) << {
    		from "build/libs/start.sh"
    		from (".") {
    			include "ROOT/"
+   			exclude "**/*.less"
    		}
    		archiveName 'walnut.tar'
    		destinationDir buildDir
