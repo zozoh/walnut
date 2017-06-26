@@ -179,9 +179,38 @@ task wzip(dependsOn: wbuild) << {
    	}.execute()
 }
 
-task wtar(dependsOn: wbuild) << {
+task fatJar(type: Jar, dependsOn: [':wbuild']) {
+    archiveName = project.name + ".jar"
+    from "build/wzip/classes"
+    from "WebContent"
+    from { configurations.runtime.collect { it.isDirectory() ? null : zipTree(it) } }
+    exclude "web_local.properties"
+    exclude "about.html"
+    exclude "ecj.1"
+    exclude "readme.txt"
+    exclude "overview.html"
+    exclude "LICENSE.txt"
+    exclude "javadoc-overview.html"
+    metadataCharset "UTF-8"
+    with jar
+    reproducibleFileOrder true
+    zip64 true
+    //entryCompression ZipEntryCompression.STORED
+    duplicatesStrategy = 'exclude'
+    manifest {
+        attributes 'Implementation-Title': 'Walnut', 'Implementation-Version': version
+        attributes 'Main-Class': 'org.nutz.walnut.web.WnLauncher'
+    }
+}
+
+task wtar(dependsOn: fatJar) << {
+    Files.write(file('build/libs/start.sh'), "java -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 \$JAVA_OPTS -jar walnut.jar")
+    file('build/libs/start.sh').setExecutable(true, false)
    	task (_wtar, type: Tar) {
-   		from "build/wzip/"
+   		from "build/libs/walnut.jar"
+   		from "build/wzip/run.sh"
+   		from "build/wzip/stop.sh"
+   		from "build/libs/start.sh"
    		archiveName 'walnut.tar'
    		destinationDir buildDir
    	}.execute()
@@ -193,13 +222,6 @@ task wtar(dependsOn: wbuild) << {
    		destinationDir buildDir
    		compression Compression.GZIP
    	}.execute()
-}
-
-war {
-    rootSpec.exclude("**/jetty-*.jar")
-    rootSpec.exclude("**/org.eclipse.jdt*.jar")
-    rootSpec.exclude("**/javax.servlet.jsp*.jar")
-    rootSpec.exclude("**/javax.servlet-*.jar")
 }
 
 def getDate() {
