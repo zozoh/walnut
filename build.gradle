@@ -125,6 +125,7 @@ task wbuild(dependsOn: classes) << {
    	
    	def jetty_websocket = '''org.eclipse.jetty.websocket.server.NativeWebSocketServletContainerInitializer
 org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer
+org.eclipse.jetty.apache.jsp.JettyJasperInitializer
    	'''
    	
    	Files.write(file('build/wzip/classes/META-INF/services/javax.servlet.ServletContainerInitializer'), jetty_websocket);
