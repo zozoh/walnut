@@ -118,7 +118,7 @@ task lessc << {
 
 
 
-task fatJar(type: Jar) {
+task fatJar(type: Jar, dependsOn: [':wbuild']) {
     archiveName = project.name + ".jar"
     destinationDir = file("build/wzip")
     from "build/wzip/classes"
