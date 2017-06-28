@@ -10,7 +10,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -39,23 +42,21 @@ import org.nutz.walnut.ext.backup.BackupPackage;
 import org.nutz.walnut.ext.backup.BackupRestoreContext;
 import org.nutz.walnut.ext.backup.WobjLine;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.impl.io.WnBean;
 import org.nutz.walnut.util.Wn;
 
 public abstract class backup_xxx {
 
     public void dump(BackupDumpContext ctx) {
-        WnSystem sys = ctx.sys;
         Log log = ctx.log;
         WnIo io = ctx.sys.io;
 
         // 输出一下上下文,如果是debug的话
-        if (ctx.debug) {
-            sys.out.writeJson(ctx); // 这东西没带换行
-            sys.out.println("");
-        }
+        if (log.isDebugEnabled())
+            log.debug(ctx);
         // 创建临时文件夹
         File tmpDir = new File(System.getProperty("java.io.tmpdir") + "/walnut/dump/" + R.UU32());
-        log.info("tmp dir : " + tmpDir.getAbsolutePath());
+        log.debugf("tmp dir : %s", tmpDir.getAbsolutePath());
         tmpDir.mkdirs();
         ctx.tmpdir = tmpDir;
         // 记录文件数量
@@ -74,12 +75,11 @@ public abstract class backup_xxx {
                 }
                 fw_objs.flush();
             }
-            ;
             // 前面刷屏了,这里再输出一下
-            log.info("exp tmp dir : " + tmpDir.getAbsolutePath());
-            log.info("wobj count=" + count[0]);
-            log.info("sha1 count=" + ctx.sha1Set.size());
-            log.info("fdata sum=" + fdata_sum[0] / 1024 + "kb");
+            log.debugf("exp tmp dir : %s", tmpDir.getAbsolutePath());
+            log.debugf("wobj count=%d", count[0]);
+            log.debugf("sha1 count=%d", ctx.sha1Set.size());
+            log.debugf("fdata  sum=%s", fdata_sum[0] / 1024 + "kb");
 
             // 压缩之
             String dst = Wn.normalizeFullPath(ctx.dst, ctx.sys);
@@ -187,11 +187,10 @@ public abstract class backup_xxx {
                 Files.write(f, obj_str);
             }
             // 格式 $id:$path:$obj_sha1:$data_sha1
-            String line = String.format("%s:%s:%s:%s\r\n",
-                                        wobj.id(),
-                                        wobj.path(),
+            String line = new WobjLine(wobj.id(),
+                                        wobj.path().substring(ctx.base.length()),
                                         o_sha1,
-                                        Strings.sBlank(wobj.sha1()));
+                                        Strings.sBlank(wobj.sha1())).toString() + "\r\n";
             fw_objs.write(line);
         }
         catch (IOException e) {
@@ -221,7 +220,7 @@ public abstract class backup_xxx {
         if (file.isDirectory())
             return;
         String name = Disks.getRelativePath(tmpDir, file);
-        log.debug("add to zip >> " + name);
+        log.debugf("add to zip : %s", name);
         try {
             ZipEntry en = new ZipEntry(name);
             zos.putNextEntry(en);
@@ -240,12 +239,9 @@ public abstract class backup_xxx {
         WnSystem sys = ctx.sys;
         Log log = ctx.log;
         WnIo io = sys.io;
-        List<ZipFile> zipHolder = new ArrayList<>();
         try {
-            BackupPackage main = null;
-            try (InputStream ins = ctx.sys.io.getInputStream(sys.io.check(null, ctx.main), 0)) {
-                main = readBackupZip(ins);
-            }
+            BackupPackage main = readBackupPackage(io, ctx.main, true);
+            WnObj pkgWobj = sys.io.check(null, ctx.main);
             // 现在, 如果id需要强制还原的话, 要先检查一下id是否合法
             if (ctx.force_id) {
                 boolean flag = false;
@@ -261,9 +257,11 @@ public abstract class backup_xxx {
                 }
                 if (flag) {
                     log.error("error found, exit");
+                    return;
                 }
             }
             // 然后, 检查一下是不是所有sha1都能找到.
+            Map<String, BackupPackage> sha1Map = new HashMap<>();
             // 因为要支持增量备份,所有需要把历史备份包也加载一下
             boolean flag = false;
             for (WobjLine wobjLine : main.lines) {
@@ -275,27 +273,80 @@ public abstract class backup_xxx {
                     flag = true;
                     log.error("miss content sha1= " + wobjLine.fdata_sha1);
                 } else {
-                    wobjLine.pkg = pkg;
+                    sha1Map.put(wobjLine.fdata_sha1, pkg);
                 }
             }
             if (flag) {
                 if (ctx.ignore_sha1_miss)
-                    log.warn("some sha1 is missing, but ignore it...");
+                    log.warn("some sha1 is missing, but ignore it.");
                 else {
                     log.error("some sha1 is missing, exit!!!");
                     return;
                 }
             }
-            // 全部ok? 读取WnObj对象,逐个还原
-
+            // 全部ok? 排序, 目录在前, 文件在后
+            main.objs.sort(new Comparator<WnObj>() {
+                public int compare(WnObj o1, WnObj o2) {
+                    if (o1.race() == o2.race())
+                        return o1.path().compareTo(o2.path());
+                    if (o1.isDIR()) // 那o2肯定不是DIR
+                        return -1;
+                    if (o2.isDIR())
+                        return 1;
+                    return 0; // 都是File或者Link, 无所谓了
+                }
+            });
+            // 遍历文件夹, 先把文件夹统统建起了
+            for (WnObj wobj : main.objs) {
+                String sha1 = wobj.sha1();
+                // 原本的路径
+                String originPath = wobj.path();
+                // 相对路径
+                String rpath = originPath.substring(pkgWobj.getAs("backup_config", NutMap.class).getString("base").length());
+                String dstPath = ctx.target + rpath;
+                WnObj dstWnObj = io.fetch(null, dstPath);
+                // 确保父文件夹存在
+                WnObj parent_wobj = null;
+                if (dstPath.lastIndexOf('/') != 0) {
+                    String ppath = dstPath.substring(0, dstPath.lastIndexOf('/'));
+                    parent_wobj = io.createIfNoExists(null, ppath, WnRace.DIR);
+                }
+                // 然后,看看id是否要恢复
+                if (ctx.force_id) {
+                    if (dstWnObj != null && !dstWnObj.isDIR()) {
+                        io.delete(dstWnObj);
+                        dstWnObj = null;
+                    }
+                    if (dstWnObj == null) {
+                        log.debugf("create by id   : %s -> %s", rpath, dstPath);
+                        dstWnObj = io.createById(parent_wobj, wobj.id(), wobj.name(), wobj.race());
+                    }
+                } else {
+                    if (dstWnObj == null) {
+                        log.debugf("create by path : %s -> %s", rpath, dstPath);
+                        dstWnObj = io.createIfNoExists(null, dstPath, wobj.race());
+                    }
+                }
+                if (wobj.isFILE()) {
+                    // 写入数据
+                    BackupPackage pkg = sha1Map.get(sha1);
+                    if (pkg == null) {
+                        log.warnf("miss data : %s  : %s", rpath, wobj.sha1());
+                    }
+                    else {
+                        log.debugf("restore data   : %s : %s", rpath, wobj.sha1());
+                        if (!readAndWrite(pkg, sha1, io, dstWnObj, log)) {
+                            log.warnf("miss data   : %s : %s", rpath, wobj.sha1());
+                        };
+                    }
+                }
+                log.debugf("restore meta   : %s -> %s", rpath, dstPath);
+                wobj.clearRWMetaKeys();
+                io.appendMeta(dstWnObj, Lang.filter(wobj, null, null, "^(id|race|d0|d1|nm|pid|ph|sha1|data)$", null));
+            }
         }
         catch (Exception e) {
             log.warn("something happen", e);
-        }
-        finally {
-            for (ZipFile zip : zipHolder) {
-                Streams.safeClose(zip);
-            }
         }
     }
 
@@ -310,8 +361,8 @@ public abstract class backup_xxx {
         }
         return null;
     }
-
-    public static BackupPackage readBackupZip(InputStream ins) throws IOException {
+    
+    public static BackupPackage _readBackupPackage(InputStream ins, boolean readObjs) throws IOException {
         ZipInputStream zis = new ZipInputStream(ins, Encoding.CHARSET_UTF8);
         BackupPackage bzip = new BackupPackage();
         ZipEntry en;
@@ -333,14 +384,45 @@ public abstract class backup_xxx {
                     if (wline.fdata_sha1 != null)
                         bzip.sha1Set.add(wline.fdata_sha1);
                 }
+            } else if (readObjs && en.getName().startsWith("objs/")) {
+                WnObj wobj = Json.fromJson(WnBean.class, new InputStreamReader(zis, Encoding.CHARSET_UTF8));
+                bzip.objs.add(wobj);
             }
         }
         return bzip;
     }
 
-    public static BackupPackage readBackupZip(WnIo io, String path) throws IOException {
-        try (InputStream ins = io.getInputStream(io.check(null, path), 0)) {
-            return readBackupZip(ins);
+    public static BackupPackage readBackupPackage(WnIo io, String path, boolean readObjs) {
+        WnObj self = io.check(null, path);
+        try (InputStream ins = io.getInputStream(self, 0)) {
+            BackupPackage pkg = _readBackupPackage(ins, readObjs);
+            pkg.self = self;
+            return pkg;
+        } catch (Exception e) {
+            throw Lang.wrapThrow(e);
         }
+    }
+    
+    public static boolean readAndWrite(BackupPackage pkg, String sha1, WnIo io, WnObj wobj, Log log) {
+        try (InputStream ins = io.getInputStream(pkg.self, 0)) {
+            ZipInputStream zis = new ZipInputStream(ins, Encoding.CHARSET_UTF8);
+            ZipEntry en;
+            String path = "bucket/" + sha1.substring(0, 2) + "/" + sha1.substring(2);
+            while (true) {
+                en = zis.getNextEntry();
+                if (en == null)
+                    break;
+                if (en.getName().equals(path)) {
+                    try (OutputStream out = io.getOutputStream(wobj, 0)) {
+                        Streams.write(out, zis);
+                        out.flush();
+                    }
+                    return true;
+                }
+            }
+        } catch (Throwable e) {
+            log.warn("something happen!!", e);
+        }
+        return false;
     }
 }

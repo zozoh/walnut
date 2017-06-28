@@ -1,7 +1,5 @@
 package org.nutz.walnut.ext.backup.hdl;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -45,11 +43,24 @@ public class backup_dump extends backup_xxx implements JvmHdl {
                 return;
             }
             // 先读取基准路径
-            conf.base = hc.params.get("base", "/");
+            if (sys.me.name().equals("root")) {
+                conf.base = hc.params.get("base", "/");
+            } else {
+                conf.base = hc.params.get("base", "/home/" + sys.me.name());
+            }
+            if (!conf.base.startsWith("/"))
+                conf.base = "/" + conf.base;
+            if (!conf.base.endsWith("/"))
+                conf.base += "/";
             // 然后就是需要备份导出的路径
             conf.includes = new ArrayList<>();
             for (String path : hc.params.vals) {
-                conf.includes.add(Wn.normalizeFullPath(path, sys));
+                path = Wn.normalizeFullPath(path, sys);
+                if (!path.startsWith(conf.base)) {
+                    sys.err.printlnf("base=%s but path=%s isn't inside it.", conf.base, path);
+                    return;
+                }
+                conf.includes.add(path);
             }
             // 是不是要精确匹配特定的路径模式呢??
             if (hc.params.has("includePatterns")) {
@@ -110,10 +121,10 @@ public class backup_dump extends backup_xxx implements JvmHdl {
         // 是否需要参考其他备份包呢?
         conf.prevPackages = new ArrayList<>();
         for (String path : conf.prevs) {
-            try (InputStream ins = sys.io.getInputStream(sys.io.check(null, path), 0)) {
-                conf.prevPackages.add(readBackupZip(ins));
+            try  {
+                conf.prevPackages.add(readBackupPackage(sys.io, path, false));
             }
-            catch (IOException e) {
+            catch (Throwable e) {
                 sys.err.print("bad package : " + path);
                 return;
             }
