@@ -144,7 +144,11 @@
                 return dftFunc.apply(context || this, args);
             }
             // 神马都木有
-            return args.length == 1 ? args[0] : args;
+            if(args.length == 0)
+                return null;
+            if(args.length == 1)
+                return args[0];
+            return args;
         },
         //.............................................
         // 处理 underscore 的模板
@@ -372,36 +376,46 @@
             if (!regex)
                 return obj;
 
+            // 准备返回值
+            var re = asValueArray ? [] : {};
+
+            // 数组，表示值的列表，直接读取
+            if(_.isArray(regex)) {
+                for(var i=0; i<regex.length; i++){
+                    var key = regex[i];
+                    // 推入数组
+                    if(asValueArray){
+                        re.push(obj[key]);
+                    }
+                    // 计入对象
+                    else {
+                        re[key] = obj[key];
+                    }
+                }
+                // 嗯，返回吧
+                return re;
+            }
+
             // 解析正则表达式
             var not = false;
             var REG = _.isRegExp(regex) ? regex : null;
             if (!REG) {
-                // 数组，表示值的列表
-                if(_.isArray(regex)) {
-                    REG = new RegExp("^(" + regex.join("|") + ")$");
+                var str = $.trim(regex.toString());
+                // !^ 开头的正则表达式 
+                var m = /^(!)?\^/.exec(str);
+                if (m) {
+                    if(m[1]) {
+                        not = true;
+                        str = str.substring(1);
+                    }
+                    REG = new RegExp(str);
                 }
-                // 其他的，当做字符串
+                // 必须为半角逗号分隔的 key 列表
                 else {
-                    var str = $.trim(regex.toString());
-                    // !^ 开头的正则表达式 
-                    var m = /^(!)?\^/.exec(str);
-                    if (m) {
-                        if(m[1]) {
-                            not = true;
-                            str = str.substring(1);
-                        }
-                        REG = new RegExp(str);
-                    }
-                    // 必须为半角逗号分隔的 key 列表
-                    else {
-                        var keys = str.split(/[ \t]*,[ \t]*/);
-                        REG = new RegExp("^(" + keys.join("|") + ")$");
-                    }
+                    var keys = str.split(/[ \t]*,[ \t]*/);
+                    REG = new RegExp("^(" + keys.join("|") + ")$");
                 }
             }
-
-            // 准备返回值
-            var re = asValueArray ? [] : {};
 
             // 开始过滤字段
             for (var key in obj) {
@@ -441,6 +455,19 @@
             pos: function (pos) {
                 return $z.tmpl("x:{{x}},y:{{y}}")(pos);
             }
+        },
+        //.............................................
+        // 判断一个给定对象是否是矩形对象
+        isRect : function(obj){
+            return obj
+                && _.isNumber(obj.top)
+                && _.isNumber(obj.left)
+                && _.isNumber(obj.width)
+                && _.isNumber(obj.height)
+                && _.isNumber(obj.bottom)
+                && _.isNumber(obj.right)
+                && _.isNumber(obj.x)
+                && _.isNumber(obj.y);
         },
         //.............................................
         // 获取一个元素相对于页面的矩形信息，包括 top,left,right,bottom,width,height,x,y
@@ -3325,7 +3352,7 @@
                 g2d.lineWidth = 2;
                 // 计算矩形
                 var rect = zUtil.rect_union_by(jTa);
-                var args = zUtil.rectValues(rect, "left,top,width,height");
+                var args = zUtil.pick(rect, "left,top,width,height", true);
                 // 绘制提示区域高亮矩形
                 g2d.clearRect.apply(g2d, args);
                 g2d.strokeRect.apply(g2d, args);

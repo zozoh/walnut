@@ -47,17 +47,34 @@ var zRect = {
         }
 
         // 如果计算 body 或者 document 或者 window
-        if (jEle[0].tagName == 'BODY')
+        var ele = jEle[0];
+        // 可能是 document 或 window
+        if(!ele.ownerDocument){
+            // document
+            if(ele.defaultView){
+                return $z.winsz(ele.defaultView);
+            }
+            // 那么就是 window 啦 
+            return $z.winsz(ele);
+        }
+        else if (ele.tagName == 'BODY'){
             return $z.winsz(jEle[0].ownerDocument.defaultView);
+        }
 
         // 开始计算，得到相对于 document 的坐标
         var rect = jEle.offset();
 
         // 进行窗口的滚动补偿
+        // Firefox/Chrome 对于 scrollTop/Left 元素不同
+        // FF 用的是 document.documentElement
+        // Chrome 用的是 document.body
+        // 这里用 jQuery 来做一下兼容
         if (opt.scroll_c) {
-            var body   = jEle[0].ownerDocument.body;
-            rect.top  -= body.scrollTop;
-            rect.left -= body.scrollLeft;
+            var $doc   = $(jEle[0].ownerDocument);
+            //console.log("scrollTop/Left", $doc.scrollTop(), $doc.scrollLeft());
+            rect.top  -= $doc.scrollTop();
+            rect.left -= $doc.scrollLeft();
+            //console.log("rect:", this.dumpValues(rect));
         }
 
         // 包括外边距
@@ -86,7 +103,7 @@ var zRect = {
 
         // 进行坐标系变换
         if(opt.viewport) {
-            return this.translate(rect, opt.viewport.left, opt.viewport.top);
+            return this.translate(rect, opt.viewport.left*-1, opt.viewport.top*-1);
         }
 
         // 计算其他值并返回
@@ -104,7 +121,7 @@ var zRect = {
     //.............................................
     // 根据四个数值，创建一个矩形
     //  - values : 包含四个数值的数组，如果是字符串，会被分隔
-    //  - mode   : 数值的意义 tlwh,tlbr,brwh
+    //  - mode   : 数值的意义 tlwh,tlbr,brwh,xywh
     create : function(values, mode) {
         // 没值就返回空
         if(!values)
@@ -148,6 +165,16 @@ var zRect = {
             });
         }
 
+        // 模式: xywh
+        if("xywh" == mode) {
+            return this.count_xywh({
+                x      : values[0],
+                y      : values[1],
+                width  : values[2],
+                height : values[3],
+            });
+        }
+
         // 「默认」模式: tlwh
         return this.count_tlwh({
             top    : values[0],
@@ -159,7 +186,24 @@ var zRect = {
     //.............................................
     // 快速精简的矩形信息，以便人类查看
     dumpValues : function(rect){
-        return $z.tmpl("l:{{left}},r:{{right}},t:{{top}},b:{{bottom}},x:{{x}},y:{{y}}")(rect);
+        var re = "";
+        if(rect.left)
+            re+= "l:" + rect.left;
+        if(rect.top)
+            re+= ", t:" + rect.top;
+        if(rect.width)
+            re+= ", w:" + rect.width;
+        if(rect.height)
+            re+= ", h:" + rect.height;
+        if(rect.bottom)
+            re+= ", b:" + rect.bottom;
+        if(rect.right)
+            re+= ", r:" + rect.right;
+        if(rect.x)
+            re+= ", x:" + rect.x;
+        if(rect.y)
+            re+= ", y:" + rect.y;
+        return re;
     },
     //.............................................
     // 快速精简的点信息，以便人类查看
@@ -268,31 +312,50 @@ var zRect = {
         return re;
     },
     //.............................................
+    // CCS (Change Coordinate System)
+    // 变换窗口坐标系： 返回一个点相对于某矩形左上顶点的坐标
+    //  - rect : 矩形
+    //  - x : 点 X 轴坐标 （也可以是一个点对象{x,y}，那么后一个参数将被无视
+    //  - y : 点 Y 周坐标
+    // 返回新的相对于矩形的点对象
+    ccs_point_tl : function (rect, x, y) {
+        // 支持对象作为数据参数
+        if (_.isObject(x) && _.isNumber(x.x) && _.isNumber(x.y)) {
+            y = x.y;
+            x = x.x;
+        }
+        // 变换新的点
+        return {
+            x : x - rect.left,
+            y : y - rect.top
+        };
+    },
+    //.............................................
     // 得到一个新 Rect，左上顶点坐标系相对于 base (Rect)
     // 如果给定 forCss=true，则将坐标系统换成 CSS 描述
     // baseScroll 是描述 base 的滚动，可以是 Element/jQuery
-    // 也可以是 {scrollTop,scrollLeft} 格式的对象
-    // 默认为 {scrollTop:0,scrollLeft:0} 
+    // 也可以是 {x,y} 格式的对象
+    // 默认为 {x:0,y:0} 
     relative: function (rect, base, forCss, baseScroll) {
         // 计算 base 的滚动
         if (_.isElement(baseScroll) || $z.isjQuery(baseScroll)) {
             var jBase = $(baseScroll);
             baseScroll = {
-                scrollTop: jBase.scrollTop(),
-                scrollLeft: jBase.scrollLeft(),
+                x: jBase.scrollLeft(),
+                y: jBase.scrollTop(),
             }
         }
         // 默认
         else if (!baseScroll) {
-            baseScroll = {scrollTop: 0, scrollLeft: 0};
+            baseScroll = {x: 0, y: 0};
         }
 
         // 计算相对位置
         var r2 = {
             width: rect.width,
             height: rect.height,
-            top: rect.top - base.top + baseScroll.scrollTop,
-            left: rect.left - base.left + baseScroll.scrollLeft,
+            top: rect.top - base.top + baseScroll.y,
+            left: rect.left - base.left + baseScroll.x,
         };
         // 计算其余
         this.count_tlwh(r2);
@@ -329,8 +392,8 @@ var zRect = {
             tX = tX.x;
         }
         // 执行位移
-        rect.top += tY || 0;
-        rect.left += tX || 0;
+        rect.top -= tY || 0;
+        rect.left -= tX || 0;
         return this.count_tlwh(rect);
     },
     /*.............................................
@@ -493,8 +556,11 @@ var zRect = {
     },
     //.............................................
     // 生成一个新的矩形
-    // 用 B 限制 A，会保证 A 完全在 B 中，实在放不下了，就剪裁
-    clip_boundary: function (rectA, rectB) {
+    // 用 B 限制 A，会保证 A 完全在 B 中
+    // rectA   : 原始矩形
+    // rectB   : 用来限制原始矩形的边界矩形
+    // overlap : 表示实在放不下了就剪裁
+    boundaryIn: function (rectA, rectB, overlap) {
         var re = {};
         // @移动上下边
         // 在上面，先修改 top
@@ -520,8 +586,14 @@ var zRect = {
             re.left = re.right - rectA.width;
         }
 
-        // 最后取一下重叠部分
-        return this.overlap(re, rectB);
+        // 取一下重叠部分
+        if(overlap)
+            return this.overlap(re, rectB);
+
+        // 直接返回
+        re.x = (re.left + re.right) / 2;
+        re.y = (re.top + re.bottom) / 2;
+        return re;
     },
     //.............................................
     // 修改 A ，将其中点移动到某个位置
