@@ -1,9 +1,12 @@
 package org.nutz.walnut.web.util;
 
+import java.io.PrintStream;
+
 import org.nutz.lang.Times;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.impl.AbstractLog;
+import org.nutz.walnut.impl.box.JvmBoxOutput;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 
@@ -52,36 +55,48 @@ public class WalnutLog extends AbstractLog {
         if (!isFatalEnabled())
             return;
         sys.err.println(__msg("FATAL", message));
+        printThrowable(sys.err, t);
     }
 
     public void error(Object message, Throwable t) {
         if (!isErrorEnabled())
             return;
         sys.err.println(__msg("ERROR", message));
+        printThrowable(sys.err, t);
     }
 
     public void warn(Object message, Throwable t) {
         if (!isWarnEnabled())
             return;
         sys.out.println(__msg("WARN", message));
+        printThrowable(sys.out, t);
     }
 
     public void info(Object message, Throwable t) {
         if (!isInfoEnabled())
             return;
         sys.out.println(__msg("INFO", message));
+        printThrowable(sys.out, t);
     }
 
     public void debug(Object message, Throwable t) {
         if (!isDebugEnabled())
             return;
         sys.out.println(__msg("DEBUG", message));
+        printThrowable(sys.out, t);
     }
 
     public void trace(Object message, Throwable t) {
         if (!isWarnEnabled())
             return;
         sys.out.println(__msg("TRACE", message));
+        printThrowable(sys.out, t);
+    }
+    
+    public void printThrowable(JvmBoxOutput out, Throwable t) {
+        if (t == null)
+            return;
+        t.printStackTrace(new PrintStream(out.getOutputStream(), true));
     }
 
     protected void log(int level, Object message, Throwable tx) {

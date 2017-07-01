@@ -49,7 +49,7 @@ public class GuestModule extends AbstractWnModule {
                      HttpServletResponse resp,
                      @ReqHeader("User-Agent") String ua) {
         WnObj o = Wn.checkObj(io, str);
-        if (checkEtag(o, req, resp))
+        if (Wn.checkEtag(o, req, resp))
             return HTTP_304;
 
         // 特殊的类型，将不生成下载目标

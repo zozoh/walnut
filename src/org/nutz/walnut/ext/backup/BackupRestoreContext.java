@@ -14,7 +14,7 @@ public class BackupRestoreContext {
     /**
      * 根路径
      */
-    public String base;
+    public String target;
 
     public boolean force_id;
     public boolean ignore_sha1_miss;
@@ -48,6 +48,8 @@ public class BackupRestoreContext {
      * 是否详细输出
      */
     public boolean debug;
+    
+    public boolean overwrite;
 
     /**
      * 仅模拟运行,不输出最终的压缩包

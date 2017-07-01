@@ -4,6 +4,7 @@ apply plugin: "war"
 apply from: "common.gradle"
 
 import org.nutz.lang.Files
+import groovy.io.FileType
 
 group = 'org.nutz'
 version = '1.r.61-SNAPSHOT'
@@ -119,87 +120,22 @@ task wbuild(dependsOn: classes) << {
 		into "build/wzip/libs"
 	}
 	
+	
+   	tasks.make_web_allows.execute()
+
+	
    	def web_props = Files.read(file('build/wzip/classes/web.properties'))
    	web_props = web_props.replaceAll("~/workspace/git/github/walnut", ".")
    	Files.write(file('build/wzip/classes/web.properties'), web_props)
    	
    	def jetty_websocket = '''org.eclipse.jetty.websocket.server.NativeWebSocketServletContainerInitializer
 org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer
+org.eclipse.jetty.apache.jsp.JettyJasperInitializer
    	'''
    	
    	Files.write(file('build/wzip/classes/META-INF/services/javax.servlet.ServletContainerInitializer'), jetty_websocket);
    	
    	tasks.wruns.execute()
-}
-
-task wruns << {
-	Files.write(file('build/wzip/build.properties'), "walnut.version="+version_tag)
-
-   	def tmpWin32 = '''java -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -cp "classes;libs/*"'''
-   	def tmpUnix = '''touch classes/web_local.properties; java -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -cp "classes:libs/*"'''
-   	tmpWin32 += " org.nutz.web.WebLauncher"
-   	Files.write(file('build/wzip/start.bat'), tmpWin32)
-
-   	tmpUnix += " org.nutz.web.WebLauncher"
-   	Files.write(file('build/wzip/start.sh'), tmpUnix)
-   	file('build/wzip/start.sh').setExecutable(true, false)
-
-   	Files.write(file('build/wzip/stop.sh'), '''#!/bin/bash
-		killall java
-	''')
-   	file('build/wzip/stop.sh').setExecutable(true, false)
-
-
-   	Files.write(file('build/wzip/run.sh'), '''
-cd "$(dirname "$0")"
-cp $WUPROOT/web_local.properties classes/web_local.properties
-touch classes/web_local.properties
-export JAVA_HOME=$WUPROOT/jdk
-export PATH=$JAVA_HOME/bin:$PATH
-./start.sh
-	''')
-	file('build/wzip/run.sh').setExecutable(true, false)
-
-   	Files.write(file('build/update'), '''#!/bin/bash
-   		killall java
-   		rm -r $WUPROOT/$APPNAME.old
-   		mv $WUPROOT/$APPNAME $WUPROOT/$APPNAME.old
-   		mkdir $WUPROOT/$APPNAME/
-   		tar -C $WUPROOT/$APPNAME/ -x -f $APPNAME.tar
-   		rm -rf $WUPROOT/$APPNAME.old &
-   	''')
-   	file('build/update').setExecutable(true, false)
-}
-
-task wzip(dependsOn: wbuild) << {
-   	task (_wzip, type: Zip) {
-   		from "build/wzip/"
-   		archiveName 'walnut-'+version_tag+'.zip'
-   		destinationDir buildDir
-   	}.execute()
-}
-
-task wtar(dependsOn: wbuild) << {
-   	task (_wtar, type: Tar) {
-   		from "build/wzip/"
-   		archiveName 'walnut.tar'
-   		destinationDir buildDir
-   	}.execute()
-
-   	task (_wtar2, type: Tar) {
-   		from "build/update"
-   		from "build/walnut.tar"
-   		archiveName 'walnut-'+version_tag+'.tgz'
-   		destinationDir buildDir
-   		compression Compression.GZIP
-   	}.execute()
-}
-
-war {
-    rootSpec.exclude("**/jetty-*.jar")
-    rootSpec.exclude("**/org.eclipse.jdt*.jar")
-    rootSpec.exclude("**/javax.servlet.jsp*.jar")
-    rootSpec.exclude("**/javax.servlet-*.jar")
 }
 
 def getDate() {

@@ -10,6 +10,8 @@ description = "一台神奇的计算机"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+import groovy.io.FileType
+
 def version_tag = getDate()
 def nutz_version = "1.r.61-SNAPSHOT"
 
@@ -45,10 +47,6 @@ tasks.withType(JavaCompile) {
 	options.compilerArgs = ["-parameters"]
 }
 
-tasks.withType(War) {
-	webAppDirName = "WebContent"
-}
-
 repositories {
     //mavenLocal()
     maven { url "https://jfrog.nutz.cn/artifactory/jcenter"}
@@ -61,7 +59,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.nutz:nutz:1.r.60'
+        classpath 'org.nutz:nutz:1.r.61.r2'
     }
 }
 
@@ -116,4 +114,109 @@ task lessc << {
     		}
     	}
 	}
+}
+
+
+
+task fatJar(type: Jar, dependsOn: [':wbuild']) {
+    archiveName = project.name + ".jar"
+    destinationDir = file("build/wzip")
+    from "build/wzip/classes"
+    from "build/wzip/WebContent"
+    from "build/wzip/web.allows"
+    from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
+    exclude "web_local.properties"
+    exclude "about.html"
+    exclude "ecj.1"
+    exclude "readme.txt"
+    exclude "overview.html"
+    exclude "LICENSE.txt"
+    exclude "javadoc-overview.html"
+    metadataCharset "UTF-8"
+    with jar
+    reproducibleFileOrder true
+    zip64 true
+    //entryCompression ZipEntryCompression.STORED
+    duplicatesStrategy = 'exclude'
+    manifest {
+        attributes 'Implementation-Title': 'Walnut', 'Implementation-Version': version
+        attributes 'Main-Class': 'org.nutz.walnut.web.WnLauncher'
+    }
+}
+
+task make_web_allows << { 
+    def web_allows = ""
+    file("build/wzip/WebContent").eachFileRecurse (FileType.FILES) { file ->
+        def tmp = relativePath(file).substring("build/wzip/WebContent/".length())
+        if (!tmp.startsWith("WEB-INF")) { 
+        	web_allows += tmp + "\r\n" 
+        }
+    }
+    Files.write(file('build/wzip/web.allows'), web_allows)
+}
+
+task wtar(dependsOn: [':wbuild', ':fatJar']) << {
+    Files.write(file('build/libs/start.sh'), "java -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 \$JAVA_OPTS -jar ${project.name}.jar")
+    file('build/libs/start.sh').setExecutable(true, false)
+    
+   	task (_wtar, type: Tar) {
+   		from "build/wzip/${project.name}.jar"
+   		from "build/wzip/run.sh"
+   		from "build/wzip/stop.sh"
+   		from "build/libs/start.sh"
+   		from (".") {
+   			include "ROOT/"
+   			exclude "**/*.less"
+   		}
+   		archiveName "${project.name}.tar"
+   		destinationDir buildDir
+   	}.execute()
+
+   	task (_wtar2, type: Tar) {
+   		from "build/update"
+   		from "build/${project.name}.tar"
+   		archiveName "${project.name}-${version_tag}.tgz"
+   		destinationDir buildDir
+   		compression Compression.GZIP
+   	}.execute()
+}
+
+task wruns << {
+	//Files.write(file('build/wzip/build.properties'), "walnut.version="+version_tag)
+
+   	def tmpWin32 = '''java -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -cp "classes;libs/*"'''
+   	def tmpUnix = '''touch classes/web_local.properties;
+   	java -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -cp "classes:libs/*"'''
+   	tmpWin32 += " org.nutz.web.WebLauncher"
+   	Files.write(file('build/wzip/start.bat'), tmpWin32)
+
+   	tmpUnix += " org.nutz.web.WebLauncher"
+   	Files.write(file('build/wzip/start.sh'), tmpUnix)
+   	file('build/wzip/start.sh').setExecutable(true, false)
+
+   	Files.write(file('build/wzip/stop.sh'), '''#!/bin/bash
+		killall java
+	''')
+   	file('build/wzip/stop.sh').setExecutable(true, false)
+
+
+   	Files.write(file('build/wzip/run.sh'), '''
+cd "$(dirname "$0")"
+cp $WUPROOT/web_local.properties classes/web_local.properties
+cp $WUPROOT/web_local.properties web_local.properties
+export JAVA_HOME=$WUPROOT/jdk
+export PATH=$JAVA_HOME/bin:$PATH
+./start.sh
+	''')
+	file('build/wzip/run.sh').setExecutable(true, false)
+
+   	Files.write(file('build/update'), '''#!/bin/bash
+   		killall java
+   		rm -r $WUPROOT/$APPNAME.old
+   		mv $WUPROOT/$APPNAME $WUPROOT/$APPNAME.old
+   		mkdir $WUPROOT/$APPNAME/
+   		tar -C $WUPROOT/$APPNAME/ -x -f $APPNAME.tar
+   		rm -rf $WUPROOT/$APPNAME.old &
+   	''')
+   	file('build/update').setExecutable(true, false)
 }

@@ -346,7 +346,7 @@ public class ObjModule extends AbstractWnModule {
             if (!o.isSameSha1(sha1))
                 return new HttpStatusView(400);
         }
-        if (checkEtag(o, req, resp))
+        if (Wn.checkEtag(o, req, resp))
             return HTTP_304;
 
         // 读取对象的值

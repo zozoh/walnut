@@ -61,12 +61,12 @@ return ZUI.def("ui.obrowser_main", {
                 editor : ed
             });
             // 支持外部 outline
-            if(UIBrowser.subUI("chute")){
-                if(ed.outline)
-                    uiConf.outline = UIBrowser.subUI("chute").showOutline();
-                else
-                    UIBrowser.subUI("chute").removeOutline();
-            }
+            // if(UIBrowser.subUI("chute")){
+            //     if(ed.outline)
+            //         uiConf.outline = UIBrowser.subUI("chute").showOutline();
+            //     else
+            //         UIBrowser.subUI("chute").removeOutline();
+            // }
 
             // 支持外部脚注
             if(ed.footer && UIBrowser.subUI("footer"))
@@ -87,8 +87,6 @@ return ZUI.def("ui.obrowser_main", {
         else if('DIR' == o.race){
             // 去掉 outline
             var uiChute = UI.chuteUI();
-            if(uiChute)
-                uiChute.removeOutline();
             // 得到显示模式
             var vmd = UIBrowser.getViewMode();
             uiType = "ui/obrowser/vmd_" + vmd;
