@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.ftp;
 
+import org.apache.ftpserver.DataConnectionConfigurationFactory;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.ftplet.FileSystemFactory;
@@ -27,8 +28,13 @@ public class WnFtpServer {
     @Inject
     protected PropertiesProxy conf;
     
+    protected int port;
+    
     public void init() throws Exception {
-        if (conf.getInt("ftp-port", -1) < 1)
+        if (port < 1) {
+            port = conf.getInt("ftp-port", -1);
+        }
+        if (port < 1)
             return;
         FtpServerFactory serverFactory = new FtpServerFactory();
         serverFactory.setFileSystem(new FileSystemFactory() {
@@ -39,7 +45,10 @@ public class WnFtpServer {
         });
         serverFactory.setUserManager(wnFtpUserManager);
         ListenerFactory lf = new ListenerFactory();
-        lf.setPort(conf.getInt("ftp-port", -1));
+        lf.setPort(port);
+        DataConnectionConfigurationFactory dccf = new DataConnectionConfigurationFactory();
+        dccf.setPassivePorts(conf.get("ftp-passive-port", ""+(port + 10000)));
+        lf.setDataConnectionConfiguration(dccf.createDataConnectionConfiguration());
         serverFactory.addListener("default", lf.createListener());
         server = serverFactory.createServer();
         // start the server
@@ -47,7 +56,9 @@ public class WnFtpServer {
     }
     
     public void depose() {
-        if (server != null)
+        if (server != null) {
             server.stop();
+            server = null;
+        }
     }
 }
