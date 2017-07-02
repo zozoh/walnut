@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.ftp;
+package org.nutz.walnut.ext.ftpd;
 
 import org.apache.ftpserver.DataConnectionConfigurationFactory;
 import org.apache.ftpserver.FtpServer;
@@ -14,7 +14,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.WnRun;
 
-@IocBean(create = "init", depose = "depose")
+@IocBean(create = "start", depose = "stop")
 public class WnFtpServer {
 
     protected FtpServer server;
@@ -30,12 +30,14 @@ public class WnFtpServer {
     
     protected int port;
     
-    public void init() throws Exception {
+    public boolean start() throws Exception {
+        if (isRunning())
+            return true;
         if (port < 1) {
             port = conf.getInt("ftp-port", -1);
         }
         if (port < 1)
-            return;
+            return false;
         FtpServerFactory serverFactory = new FtpServerFactory();
         serverFactory.setFileSystem(new FileSystemFactory() {
             public FileSystemView createFileSystemView(User user) throws FtpException {
@@ -53,12 +55,25 @@ public class WnFtpServer {
         server = serverFactory.createServer();
         // start the server
         server.start();
+        return true;
     }
     
-    public void depose() {
+    public void stop() {
         if (server != null) {
             server.stop();
             server = null;
         }
+    }
+    
+    public boolean isRunning() {
+        return server != null && !server.isStopped();
+    }
+    
+    public void setPort(int port) {
+        this.port = port;
+    }
+    
+    public int getPort() {
+        return port;
     }
 }

@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.ftp;
+package org.nutz.walnut.ext.ftpd;
 
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
