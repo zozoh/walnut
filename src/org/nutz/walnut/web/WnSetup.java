@@ -21,7 +21,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.email.WnMailServer;
-import org.nutz.walnut.ext.ftp.WnFtpServer;
+import org.nutz.walnut.ext.ftpd.WnFtpServer;
 import org.nutz.walnut.ext.sshd.SshdServer;
 import org.nutz.walnut.ext.websocket.WnWebSocket;
 import org.nutz.walnut.impl.io.bucket.MemoryBucket;

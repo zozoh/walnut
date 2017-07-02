@@ -1,5 +1,6 @@
-package org.nutz.walnut.ext.ftp;
+package org.nutz.walnut.ext.ftpd;
 
+import org.apache.ftpserver.DataConnectionConfigurationFactory;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.ftplet.FileSystemFactory;
@@ -13,7 +14,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.WnRun;
 
-@IocBean(create = "init", depose = "depose")
+@IocBean(create = "start", depose = "stop")
 public class WnFtpServer {
 
     protected FtpServer server;
@@ -27,9 +28,16 @@ public class WnFtpServer {
     @Inject
     protected PropertiesProxy conf;
     
-    public void init() throws Exception {
-        if (conf.getInt("ftp-port", -1) < 1)
-            return;
+    protected int port;
+    
+    public boolean start() throws Exception {
+        if (isRunning())
+            return true;
+        if (port < 1) {
+            port = conf.getInt("ftp-port", -1);
+        }
+        if (port < 1)
+            return false;
         FtpServerFactory serverFactory = new FtpServerFactory();
         serverFactory.setFileSystem(new FileSystemFactory() {
             public FileSystemView createFileSystemView(User user) throws FtpException {
@@ -39,15 +47,33 @@ public class WnFtpServer {
         });
         serverFactory.setUserManager(wnFtpUserManager);
         ListenerFactory lf = new ListenerFactory();
-        lf.setPort(conf.getInt("ftp-port", -1));
+        lf.setPort(port);
+        DataConnectionConfigurationFactory dccf = new DataConnectionConfigurationFactory();
+        dccf.setPassivePorts(conf.get("ftp-passive-port", ""+(port + 10000)));
+        lf.setDataConnectionConfiguration(dccf.createDataConnectionConfiguration());
         serverFactory.addListener("default", lf.createListener());
         server = serverFactory.createServer();
         // start the server
         server.start();
+        return true;
     }
     
-    public void depose() {
-        if (server != null)
+    public void stop() {
+        if (server != null) {
             server.stop();
+            server = null;
+        }
+    }
+    
+    public boolean isRunning() {
+        return server != null && !server.isStopped();
+    }
+    
+    public void setPort(int port) {
+        this.port = port;
+    }
+    
+    public int getPort() {
+        return port;
     }
 }

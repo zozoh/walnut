@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.ftp;
+package org.nutz.walnut.ext.ftpd;
 
 import java.util.ArrayList;
 import java.util.List;
