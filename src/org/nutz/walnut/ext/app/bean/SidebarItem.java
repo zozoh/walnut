@@ -187,20 +187,10 @@ public class SidebarItem {
         if (!Strings.isBlank(oid))
             sb.append(" oid=\"").append(oid).append('"');
         sb.append('>');
-        // mini
-        sb.append("<p class='sidebar-item-mode mini' data-balloon=\"")
-          .append(Strings.escapeHtml(text))
-          .append("\" data-balloon-pos=\"right\">");
-        sb.append("<a>").append(icon).append("</a>");
-        sb.append("</p>");
-        // normal
-        sb.append("<p class='sidebar-item-mode normal'>");
         if (!Strings.isBlank(icon))
             sb.append(icon);
         if (!Strings.isBlank(text))
             sb.append("<a>").append(Strings.escapeHtml(text)).append("</a>");
-        sb.append("</p>");
-
         sb.append("</item>");
     }
 
