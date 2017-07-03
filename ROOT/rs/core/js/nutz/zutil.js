@@ -3484,6 +3484,24 @@
             return re;
         },
         //............................................
+        // 计算一个子字符串在给定字符串出现的次数
+        //  - str : 给定字符串
+        //  - sub : 要计算重复的子字符串
+        // 返回出现的次数
+        countSubStr : function(str, sub) {
+            var re = 0;
+            if(str && sub){
+                var fromIndex = 0;
+                var pos = str.indexOf(sub, fromIndex);
+                while(pos >=0 ) {
+                    re ++;
+                    fromIndex = pos + sub.length;
+                    pos = str.indexOf(sub, fromIndex);
+                }
+            }
+            return re;
+        },
+        //............................................
         // 对字符串反向缩进
         // str : 给定字符串
         // indent : 反向 indent 几次，默认 1

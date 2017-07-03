@@ -63,7 +63,7 @@ return ZUI.def("ui.o_view_preview", {
             jM.attr("mode", "pic");
             var jDiv = UI.ccode("showImg").appendTo(jM);
             jImg = jDiv.find("img");
-            jImg.prop("src", "/o/read/id:"+o.id+"?_="+Date.now()).one("load", function(){
+            jImg.prop("src", "/o/read/id:"+encodeURIComponent(o.id)+"?_="+Date.now()).one("load", function(){
                 UI.hideLoading();
                 jImg.attr({
                     "old-width"  : this.width,

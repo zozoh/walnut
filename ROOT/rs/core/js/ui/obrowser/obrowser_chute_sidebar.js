@@ -214,7 +214,7 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
         var UI = this;
         var jq = null;
 
-        //console.log(o, asetup)
+        console.log(o, asetup)
 
         // 那么要自动寻找匹配项 ...
         // 根据路径和编辑器给各个项目打分
@@ -243,6 +243,9 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
 
             // 项目路径完全包含给定路径，得一分
             if(ph1 == iPh && (!ph2 || /^\//.test(ph2))) {
+                // 基础分为项目上的路径深度
+                weight = $z.countSubStr(iPh, "/");
+
                 // 完全匹配得10分
                 if(o.ph == iPh) {
                     weight += 10;
