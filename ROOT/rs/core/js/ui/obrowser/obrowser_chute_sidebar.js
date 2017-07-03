@@ -214,7 +214,7 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
         var UI = this;
         var jq = null;
 
-        console.log(o, asetup)
+        //console.log(o, asetup)
 
         // 那么要自动寻找匹配项 ...
         // 根据路径和编辑器给各个项目打分
