@@ -8,6 +8,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.log.impl.AbstractLog;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.io.WnIo;
@@ -157,17 +158,39 @@ public class WnSystem {
     }
 
     public Log getLog(ZParams params) {
-        WalnutLog log = new WalnutLog(this, params.is("v") ? 10 : 40);
+        String level = null;
+
         // 设置级别（默认info)
-        if (params.is("warn")) {
-            log.asWarn();
+        if (params.is("error")) {
+            level = "E";
+        } else if (params.is("warn")) {
+            level = "W";
         } else if (params.is("debug")) {
-            log.asDebug();
+            level = "D";
         } else if (params.is("v") || params.is("trace")) {
-            log.asTrace();
+            level = "T";
         } else {
-            log.asInfo();
+            level = "I";
         }
+
+        return getLog(level, params.get("logtmpl"));
+    }
+
+    /**
+     * @param level
+     *            级别，可以是 fatal|error|warn|info|debug|trace 或者是 F|E|W|I|D|T
+     * @param tmpl
+     *            日志输出模板，格式类似
+     *            <code>@{P} @{d<date:dd'T'HH:mm:ss.SSS>}: @{m}</code>
+     * @return 日志对象
+     */
+    public Log getLog(String level, String tmpl) {
+        int l = AbstractLog.level(level);
+
+        WalnutLog log = new WalnutLog(this, l);
+        if (!Strings.isBlank(tmpl))
+            log.setTmpl(tmpl);
+
         return log;
     }
 

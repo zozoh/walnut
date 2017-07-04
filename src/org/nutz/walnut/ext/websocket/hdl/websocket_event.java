@@ -11,13 +11,14 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.websocket.WsUtils;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.WnRun;
 import org.nutz.walnut.util.ZParams;
 
-public class websocket_event extends websocket_common implements JvmHdl {
+public class websocket_event implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         ZParams params = ZParams.parse(hc.args, null);
@@ -45,7 +46,9 @@ public class websocket_event extends websocket_common implements JvmHdl {
                 }
             });
         }
-        eachAsync(sys, params.val_check(0), (async)->async.sendText(Json.toJson(re, JsonFormat.compact())));
+        WsUtils.eachAsync(sys,
+                       params.val_check(0),
+                       (async) -> async.sendText(Json.toJson(re, JsonFormat.compact())));
     }
 
 }

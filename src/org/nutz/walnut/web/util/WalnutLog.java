@@ -92,7 +92,7 @@ public class WalnutLog extends AbstractLog {
         sys.out.println(__msg("TRACE", message));
         printThrowable(sys.out, t);
     }
-    
+
     public void printThrowable(JvmBoxOutput out, Throwable t) {
         if (t == null)
             return;
