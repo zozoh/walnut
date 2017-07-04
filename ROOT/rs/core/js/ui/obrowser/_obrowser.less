@@ -1,484 +1,282 @@
-@skyH: 40px;
-@footerH: 32px;
-@chuteW: 180px;
-@chuteW-mini: 36px;
-
-.obrowser {
-  color: @cf0;
-  position: relative;
-  > div {
-    position: absolute;
-    left: 0;
-    right: 0;
-  }
-  .obw-sky {
-    top: 0;
-    height: @skyH;
-
-  }
-  .obw-con {
-    top: @skyH;
-    bottom: @footerH;
-
-    .obw-con-wrapper {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      > div {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-      }
-      .obw-chute {
-        left: 0;
-        width: @chuteW;
-        z-index: 999;
-      }
-      .obw-main {
-        left: @chuteW;
-        right: 0;
-        z-index: 998;
-      }
-
-      // mini 模式
-      &.mini {
-        .obw-chute {
-          left: 0;
-          width: @chuteW-mini;
-        }
-        .obw-main {
-          left: @chuteW-mini;
-        }
-        .chute-wrapper {
-          padding: @d4 0;
-
-          h1 {
-            //-o-text-overflow: ellipsis; /*兼容opera*/
-            //text-overflow: ellipsis; /*这就是省略号喽*/
-            //overflow: hidden; /*设置超过的隐藏*/
-            //white-space: nowrap; /*设置不折行*/
-          }
-        }
-
-        .chute-menu {
-          text-align: center;
-          padding: 0;
-        }
-
-        .sidebar-item-mode.mini {
-          display: block;
-          width: 100%;
-          text-align: center;
-          cursor: pointer;
-
-          a {
-            float: none;
-            margin-left: 0;
-          }
-        }
-
-        .sidebar-item-mode.normal {
-          display: none;
-        }
-
-        section {
-          h1 {
-            display: none;
-          }
-
-          item {
-            padding: 6px 2px;
-
-            &.chute-actived {
-              color: #FFF;
-              background: rgba(255, 255, 255, 0.2);
-
-              a {
-                color: #FFF;
-              }
+@skyH    : 40px;
+@footerH : 32px;
+@chuteW  : 180px;
+@chuteWm : 32px;
+.obrowser{
+    color:@cf0;  position: relative;
+    > div {position: absolute; left: 0; right: 0;}
+    .obw-sky { 
+        top:0; height:@skyH;
+    }
+    .obw-con {
+        top:@skyH; bottom:@footerH;
+        .obw-con-wrapper {
+            width: 100%; height:100%; position: relative;
+            > div {position: absolute; top: 0; bottom: 0;}
+            .obw-chute {left:0; transition: width .5s;
+                div[ui-id] {width:100%; height:100%;}
             }
-          }
+            .obw-main {right:0; transition: left  .5s;}
         }
-      }
+    }
+    .obw-footer { 
+        bottom:0; height:@footerH;
     }
 
-    .chute-menu {
-      height: 32px;
-      line-height: 32px;
-      text-align: right;
-      padding: 0 12px;
-      cursor: pointer;
+    .wnobj-hide {opacity: 0.6;}
 
-      &:hover {
-        i {
-          color: rgba(255, 255, 20, 0.9);
+    .obrowser-main {
+        .wnobj {
+            @noselect();
+            * {cursor: default;}
         }
-      }
 
-      i {
-        width: 16px;
-        height: 16px;
-        text-align: center;
-        font-size: 16px;
-        display: inline-block;
-      }
-    }
-  }
-  .obw-footer {
-    bottom: 0;
-    height: @footerH;
-  }
+        .obrowser-vmd-table {
+            .tbl-row-td0 {
+                i {
+                    margin: 0 @d2; width:16px; text-align: center;
+                }
+            }
+        }
 
-  .wnobj-hide {
-    opacity: 0.6;
-  }
-
-  .obrowser-main {
-    .wnobj {
-      @noselect();
-      * {
-        cursor: default;
-      }
+        .obrowser-vmd-thumbnail {
+            overflow: auto;
+        }
     }
 
-    .obrowser-vmd-table {
-      .tbl-row-td0 {
-        i {
-          margin: 0 @d2;
-          width: 16px;
-          text-align: center;
+    //---------------------------------------------- BEGIN Footer
+    .obrowser-footer {
+        background: @cb1; border-top:1px solid @cborder0;
+        line-height: 32px; padding:0 @d2; font-size:@f1; color:@cf1;
+        font-family: @f_fixed;
+    }
+    //---------------------------------------------- END Footer
+
+    //---------------------------------------------- BEGIN Chute
+    .obrowser-chute { @noselect();
+        width:100%; height:100%; 
+        color:@cf2; background: @cb2; border-right:1px solid @cborder0;
+
+        .chute-nav {
+            width:100%; height:100%;
         }
-      }
+
+        .chute-btn {
+            position: absolute; right:0; top:0; padding:@d0;
+            b {@btn(); padding:0 @d1;}
+            b:hover{@btn_hover();}
+            b i:before {
+                font-family:FontAwesome; display: inline;
+            }
+        }
+
+        // sidebar 的 HTML 的包裹，由 js 自动生成
+        // 在 .chute-nav 之内
+        .chute-wrapper {
+            padding: @d3; font-size:@f2; 
+            section{
+                border:1px solid rgba(0,0,0,0);
+                margin-bottom: @d2; position: relative;
+                transition: 0.3s; 
+                h1 {
+                    font-size:@f1; cursor: pointer;
+                    font-weight: bold; line-height: @d4; margin:@d2 @d3;
+                }
+                div.chute-empty {
+                    margin:@d0 @d3; padding: @d1; text-align: center;
+                    font-size:@f1; font-family: @f_fixed; font-style: italic;
+                    border:1px dashed @cborder0;
+                }
+                item {@flex();
+                    padding:@d2 @d0 @d2 @d4; cursor: pointer;
+                    line-height: @d5; color: @cf1; 
+                    i {
+                        width:16px; height:16px;
+                        text-align: center; font-size: @d5;
+                        display: inline-block; float:left;vertical-align: middle;
+                    }
+                    a {
+                        display: inline-block; float:left; vertical-align: middle;
+                        margin-left: @d3; color:@cf2;
+                    }
+                }
+                item.chute-actived {
+                    color:@ch1_f; background: @ch1_b;
+                }
+            }
+            section.chute-sec-hide {
+                border-color:@cborder0; background: @cb1;
+                margin-right:@d5;
+                h1:after{
+                    content: "..."; display: block; position: absolute;
+                    top:@d1;right:@d3; 
+                }
+                item{opacity: 0;}
+            }
+        }
+    }
+    //---------------------------------------------- END Chute
+
+    //---------------------------------------------- BEGIN Sky
+    .obrowser-sky {
+        position: relative; border-bottom:1px solid @cborder0;
+        > div {
+            position: absolute; top:0; bottom:0;
+        }
     }
 
-    .obrowser-vmd-thumbnail {
-      overflow: auto;
-    }
-  }
-
-  //---------------------------------------------- BEGIN Footer
-  .obrowser-footer {
-    background: @cb1;
-    border-top: 1px solid @cborder0;
-    line-height: 32px;
-    padding: 0 @d2;
-    font-size: @f1;
-    color: @cf1;
-    font-family: @f_fixed;
-  }
-  //---------------------------------------------- END Footer
-
-  //---------------------------------------------- BEGIN Chute
-  .obrowser-chute { @noselect();
-    //overflow: hidden;
-    color: @cf2;
-    background: @cb2;
-    border-right: 1px solid @cborder0;
-
-    .chute-scroller {
-      transition: 0.3s;
-      width: 200%;
-      height: 100%;
-      position: relative;
-      .chute-nav {
-        position: absolute;
-        top: 0;
-        right: 50%;
-        left: 0;
-        bottom: 0;
-        overflow-y: auto;
-        overflow-x: hidden;
-      }
-      .chute-outline {
-        position: absolute;
-        top: 0;
-        right: 0;
-        left: 50%;
-        bottom: 0;
-      }
-      .chute-scroller-btn {
-        position: absolute;
-        top: 0;
-        width: @d5;
-        height: @d6;
-        border-radius: @d0;
-        font-size: @f1;
-        line-height: @d6 - 2;
-        text-align: center;
-        border: 1px solid @cbtn_l;
-        background: @cbtn_b;
-        color: @cshadow;
-        display: none;
-        margin: @d0;
-        cursor: pointer;
-        * {
-          cursor: pointer;
+    .obrowser-logo { @noselect(); cursor: default;
+        background: @cb2; color:@cf2;
+        left:0; line-height: @skyH; padding:0 @d3;
+        border-right:1px solid @cborder1;
+        img {
+            height: 24px; vertical-align: middle;
         }
-      }
-      .chute-scroller-btn:hover {
-        background: @ch1_b;
-        color: @ch1_f;
-      }
-    }
-    .chute-scroller[outline="yes"] {
-      margin-left: -100%;
-    }
-    .chute-scroller[outline] {
-      .chute-scroller-btn {
-        display: block;
-      }
     }
 
-    .chute-wrapper {
-      padding: @d4;
-      font-size: @f2;
-
-      section {
-        border: 1px solid rgba(0, 0, 0, 0);
-        border-radius: @d1;
-        //overflow: hidden;
-        margin-bottom: @d2;
-        position: relative;
-        transition: 0.3s;
-        h1 {
-          font-size: @f1;
-          cursor: pointer;
-          font-weight: bold;
-          line-height: @d5;
-          margin: @d3;
-        }
-        div.chute-empty {
-          margin: @d0 @d3;
-          padding: @d1;
-          text-align: center;
-          font-size: @f1;
-          font-family: @f_fixed;
-          font-style: italic;
-          border: 1px dashed @cborder0;
-        }
-        item {
-          display: block;
-          padding: @d2 @d0 @d2 @d4;
-          cursor: pointer;
-          line-height: @d5;
-          color: @cf1; @flex();
-          i {
-            width: 16px;
-            height: 16px;
-            text-align: center;
-            font-size: @d5;
-            display: inline-block;
-            float: left;
-            vertical-align: middle;
-          }
-          a {
-            display: inline-block;
-            float: left;
-            vertical-align: middle;
-            margin-left: @d3;
-            color: @cf2;
-          }
-        }
-        item:after {@clr();
-        }
-        item.chute-actived {
-          color: @ch1_f;
-          background: @ch1_b;
-        }
-      }
-      section.chute-sec-hide {
-        border-color: @cborder0;
+    .obrowser-crumb { @noselect(); cursor: default;
         background: @cb1;
-        h1:after {
-          content: "...";
-          display: block;
-          position: absolute;
-          top: @d1;
-          right: @d3;
+        padding:@d2; white-space: nowrap;
+        left:0;
+        .z-edit-it input {
+            background: @cb0; color:@cf0;
+            padding-left:@d4; outline: none;
+            font-size:@d5; font-family: @f_fixed; border:0; 
         }
-        item {
-          opacity: 0;
+        >div {
+            display: inline-block; 
+            vertical-align: middle;
         }
-      }
-    }
-  }
-  //---------------------------------------------- END Chute
-
-  //---------------------------------------------- BEGIN Sky
-  .obrowser-sky {
-    position: relative;
-    border-bottom: 1px solid @cborder0;
-    > div {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-    }
-  }
-
-  .obrowser-logo { @noselect();
-    cursor: default;
-    background: @cb2;
-    color: @cf2;
-    left: 0;
-    line-height: @skyH;
-    padding: 0 @d3;
-    border-right: 1px solid @cborder1;
-    img {
-      height: 24px;
-      vertical-align: middle;
-    }
-  }
-
-  .obrowser-crumb { @noselect();
-    cursor: default;
-    background: @cb1;
-    padding: @d2;
-    white-space: nowrap;
-    left: 0;
-    .z-edit-it input {
-      background: @cb0;
-      color: @cf0;
-      padding-left: @d4;
-      outline: none;
-      font-size: @d5;
-      font-family: @f_fixed;
-      border: 0;
-    }
-    > div {
-      display: inline-block;
-      vertical-align: middle;
-    }
-    .citem {
-      border: 1px solid rgba(0, 0, 0, 0);
-      padding: 0 0 0 @d1;
-      i {
-        display: inline-block;
-        vertical-align: middle;
-      }
-      b {
-        font-weight: normal;
-        display: inline-block;
-        vertical-align: middle;
-        line-height: @d6;
-        margin: 0 @d0 0 @d1;
-      }
-      .ochild {
-        display: inline-block;
-        vertical-align: middle;
-        padding: @d1 @d0 @d1 @d0;
-        cursor: pointer;
-      }
-      .ochild:hover {
-        background: @ch1_b;
-        color: @ch1_f;
-      }
-      .citem-drop {
-        position: fixed;
-        z-index: 1000;
-        min-width: @db;
-        border: 1px solid @cmenu_l;
-        min-width: @da;
-        padding: @d2;
-        background: @cmenu_b;
-        box-shadow: @d0 @d0 @d2 @cshadow;
-        .citem .ochild {
-          display: none;
+        .citem {
+            border:1px solid rgba(0,0,0,0);
+            padding: 0 0 0 @d1; 
+            i {
+                display: inline-block; vertical-align: middle;
+            }
+            b {
+                font-weight: normal;
+                display: inline-block; vertical-align: middle;
+                line-height:@d6; margin:0 @d0 0 @d1;
+            }
+            .ochild {
+                display: inline-block; vertical-align: middle;
+                padding:@d1 @d0 @d1 @d0; cursor:pointer; 
+            }
+            .ochild:hover{
+                background: @ch1_b; color: @ch1_f;
+            }
+            .citem-drop {
+                position: fixed; z-index: 1000; min-width: @db;
+                border:1px solid @cmenu_l;
+                min-width: @da; padding: @d2; background: @cmenu_b;
+                box-shadow: @d0 @d0 @d2 @cshadow;
+                .citem .ochild{display: none;}
+                .citem:hover{color:@ch0_f; background: @ch0_b;}
+            }
         }
         .citem:hover {
-          color: @ch0_f;
-          background: @ch0_b;
+            border-color:@cborder1;
         }
-      }
+        .citem-tail{
+            padding-right:@d0;
+            b {font-weight: bold;}
+            .ochild{display: none;}
+        }
+        .citem-tail:hover{border-color:rgba(0,0,0,0);}
+        .folder-btn {
+            cursor:pointer; border-radius: @d1;
+            line-height:@d6; padding:0 @d1;
+        }
+        .folder-btn:hover{
+            background: @ch0_b; color: @ch0_f;
+        }
+        .folder-drop {
+            z-index: 2000; border:1px solid @cmenu_l;
+            min-width: @db; padding: @d2; background: @cmenu_b;
+            box-shadow: @d0 @d0 @d2 @cshadow;
+            .citem .ochild{display: none;}
+            .citem:hover{color:@ch0_f; background: @ch0_b;}
+        }
     }
-    .citem:hover {
-      border-color: @cborder1;
+    .obrowser-me {
+        background: @cb2;padding:@d3 @d2; border-left:1px solid @cborder1;
+        white-space: nowrap;
+        > div {
+            line-height:@d6; 
+            > * {margin:0 @d1;}
+        }
     }
-    .citem-tail {
-      padding-right: @d0;
-      b {
-        font-weight: bold;
-      }
-      .ochild {
-        display: none;
-      }
+    .obrowser-menu {
+        background: @cb2;padding-left:@d2; border-left:1px solid @cborder1;
+        right: 0;
+        .menu {
+            padding:@d2 @d2; line-height:@d6; 
+        }
     }
-    .citem-tail:hover {
-      border-color: rgba(0, 0, 0, 0);
+    // 禁止主目录点击
+    .obrowser-sky .obrowser-crumb[forbid-click-home="yes"] .citem[home="yes"] {
+        border-color: rgba(0,0,0,0);
+        .ochild{
+            background: inherit; color: inherit;
+        }
     }
-    .folder-btn {
-      cursor: pointer;
-      border-radius: @d1;
-      line-height: @d6;
-      padding: 0 @d1;
-    }
-    .folder-btn:hover {
-      background: @ch0_b;
-      color: @ch0_f;
-    }
-    .folder-drop {
-      z-index: 2000;
-      border: 1px solid @cmenu_l;
-      min-width: @db;
-      padding: @d2;
-      background: @cmenu_b;
-      box-shadow: @d0 @d0 @d2 @cshadow;
-      .citem .ochild {
-        display: none;
-      }
-      .citem:hover {
-        color: @ch0_f;
-        background: @ch0_b;
-      }
-    }
-  }
-  .obrowser-me {
-    background: @cb2;
-    padding: @d3 @d2;
-    border-left: 1px solid @cborder1;
-    white-space: nowrap;
-    > div {
-      line-height: @d6;
-      > * {
-        margin: 0 @d1;
-      }
-    }
-  }
-  .obrowser-menu {
-    background: @cb2;
-    padding-left: @d2;
-    border-left: 1px solid @cborder1;
-    right: 0;
-    .menu {
-      padding: @d2 @d2;
-      line-height: @d6;
-    }
-  }
-  // 禁止主目录点击
-  .obrowser-sky .obrowser-crumb[forbid-click-home="yes"] .citem[home="yes"] {
-    border-color: rgba(0, 0, 0, 0);
-    .ochild {
-      background: inherit;
-      color: inherit;
-    }
-  }
-  //---------------------------------------------- END Sky
+    //---------------------------------------------- END Sky
 
-}
-
-// END .obrowser
+} // END .obrowser
 
 // 隐藏对象
 .obrowser[hidden-obj-visibility=hidden] {
-  .wnobj-hide {
-    display: none;
-  }
-  //.obw-sky .obrowser-crumb > .wnobj-hide {display: inline-block;}
+    .wnobj-hide {display: none;}
+    //.obw-sky .obrowser-crumb > .wnobj-hide {display: inline-block;}
 }
 
-.sidebar-item-mode {
-  display: none;
-
-  &.normal {
-    display: block;
-  }
+// 普通模式下的边栏样式
+.obrowser[chute-mode="normal"] {
+    // 布局大小
+    .obw-con {
+        .obw-con-wrapper {
+            .obw-chute {width:@chuteW;}
+            .obw-main {left:@chuteW;}
+        }
+    }
+    // 边栏具体内容隐藏
+    .obrowser-chute {
+        .chute-btn {
+            b i:before {content:"\f100";}
+        }
+    }
 }
+
+// 缩小模式下的边栏样式
+.obrowser[chute-mode="mini"] {
+    // 布局大小
+    .obw-con {
+        .obw-con-wrapper {
+            .obw-chute {width:@chuteWm;}
+            .obw-main {left:@chuteWm;}
+        }
+    }
+    // 边栏具体内容隐藏
+    .obrowser-chute {
+        .chute-btn {
+            position: absolute; left:0; text-align: center;
+            padding:@d3 @d0;
+            b {@btn(); padding:0 @d1;}
+            b:hover{@btn_hover();}
+            b i:before {content:"\f101";}
+        }
+        .chute-wrapper {
+            padding:@d7 @d0 @d0 @d0;
+            section {
+                h1, div.chute-empty {display: none;}
+                item {
+                    padding:@d2; justify-content:center;
+                    i{text-align: center;}
+                    a{display: none;}
+                }
+            }
+        }
+    }
+}
+
+

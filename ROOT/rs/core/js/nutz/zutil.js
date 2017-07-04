@@ -329,6 +329,39 @@
             return dft;
         },
         //.............................................
+        // 将一个浮点数变成百分比字符串
+        // 比如 toPercent(.23) => 23%
+        //  - n     : 浮点数
+        //  - prec  : 精确到小数点几位，默认 2
+        //  - fixed : 是否一定显示小数点后面的尾数，默认 false
+        toPercent: function(n, prec, fixed) {
+            prec = prec || 0;
+            var m = Math.round(n * Math.pow(10, 2 + prec));
+            if(prec > 0)
+                m = m / Math.pow(10, prec);
+
+            var str = m + "";
+
+            // 用零补足
+            if(fixed && prec > 0) {
+                var pos = str.indexOf('.');
+                // 全补
+                if(pos<0){
+                    str += "." + this.dupString('0', prec);
+                }
+                // 补足
+                else{
+                    var c = prec - str.length + pos + 1;
+                    if(c > 0){
+                        str += this.dupString('0',c);
+                    }
+                }
+            }
+
+            // 返回
+            return str + "%";
+        },
+        //.............................................
         // 将一个数值变成 css 表示的带单位的数值属性
         // 如果不合法，就返回 dft 默认为 undefined
         toCssDimension: function (val, dft) {
@@ -3448,6 +3481,24 @@
                     if (str.charAt(re) != c)
                         return re;
                 }
+            return re;
+        },
+        //............................................
+        // 计算一个子字符串在给定字符串出现的次数
+        //  - str : 给定字符串
+        //  - sub : 要计算重复的子字符串
+        // 返回出现的次数
+        countSubStr : function(str, sub) {
+            var re = 0;
+            if(str && sub){
+                var fromIndex = 0;
+                var pos = str.indexOf(sub, fromIndex);
+                while(pos >=0 ) {
+                    re ++;
+                    fromIndex = pos + sub.length;
+                    pos = str.indexOf(sub, fromIndex);
+                }
+            }
             return re;
         },
         //............................................

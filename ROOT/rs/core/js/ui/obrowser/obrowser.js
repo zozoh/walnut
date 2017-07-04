@@ -309,6 +309,9 @@
                 var UI = this;
                 var opt = UI.options;
 
+                // 获取边栏原始模式
+                UI.arena.attr("chute-mode", UI.local("chute-mode") || "normal");
+
                 // 初始化显示隐藏开关
                 UI.arena.attr("hidden-obj-visibility", UI.getHiddenObjVisibility());
 
@@ -465,11 +468,21 @@
             },
             //..............................................
             toogleChuteMode: function () {
-                var $conwrap = this.arena.find('.obw-con-wrapper');
-                Cookies.set('chute-mode', $conwrap.hasClass('mini') ? "normal" : "mini");
-                $conwrap.toggleClass('mini');
-                this.resize();
+                var UI = this;
+                var cm = UI.local("chute-mode");
+                cm = "mini" == cm ? "normal" : "mini";
+                UI.arena.attr("chute-mode", cm);
+                UI.local("chute-mode", cm);
+                // 动画完成后 resize
+                UI.arena.find(".obw-con").one("transitionend", function(e){
+                    UI.resize(true);
+                });
             },
+            //..............................................
+            isChuteModeMini : function(){
+                return "mini" == this.arena.attr("chute-mode");
+            },
+            //..............................................
             getSidebar: function (callback) {
                 var UI = this;
 

@@ -8,7 +8,6 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -221,30 +220,43 @@ public class WnRun {
     public void runWithHook(WnUsr usr, String grp, NutMap env, Callback<WnSession> callback) {
         WnSession se = sess.create(usr);
         try {
-            WnBoxContext bc = new WnBoxContext(new NutMap());
-            bc.io = io;
-            bc.me = usr;
-            bc.session = se;
-            bc.usrService = usrs;
-            bc.sessionService = sess;
-            WnHookContext hc = new WnHookContext(boxes, bc);
-            hc.service = hooks;
-
+            // 附加环境变量
             if (env != null) {
                 for (Entry<String, Object> en : env.entrySet()) {
                     se.var(en.getKey(), en.getValue());
                 }
             }
-
-            WnContext ctx = Wn.WC();
-            ctx.me(usr.name(), Strings.sBlank(grp, usr.name()));
-            ctx.hooking(hc, () -> {
-                ctx.security(new WnSecurityImpl(io, usrs), () -> callback.invoke(se));
-            });
+            // 执行
+            this.runWithHook(se, usr, callback);
         }
         finally {
             sess.logout(se.id());
         }
+    }
+
+    public void runWithHook(WnSession se, WnUsr usr, Callback<WnSession> callback) {
+        if (null == usr) {
+            usr = usrs.check(se.me());
+        }
+        if (!se.me().equals(usr.name())) {
+            throw Er.create("e.run.se.noMatchUsr", "SE:" + se.me() + " !U:" + usr.name());
+        }
+        WnBoxContext bc = new WnBoxContext(new NutMap());
+        bc.io = io;
+        bc.me = usr;
+        bc.session = se;
+        bc.usrService = usrs;
+        bc.sessionService = sess;
+        WnHookContext hc = new WnHookContext(boxes, bc);
+        hc.service = hooks;
+
+        WnContext ctx = Wn.WC();
+        ctx.me(usr.name(), se.group());
+        ctx.core(new WnSecurityImpl(io, usrs), false, hc, new Atom() {
+            public void run() {
+                ctx.security(new WnSecurityImpl(io, usrs), () -> callback.invoke(se));
+            }
+        });
     }
 
     public static <T> void sudo(WnSystem sys, Atom atom) {
@@ -275,7 +287,7 @@ public class WnRun {
     public <T> T nosecurity(Proton<T> proton) {
         return Wn.WC().nosecurity(io, proton);
     }
-    
+
     public NutMap getSysConf() {
         return Wn.getSysConf(io);
     }

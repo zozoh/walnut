@@ -17,6 +17,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -104,7 +105,23 @@ public class HttpApiModule extends AbstractWnModule {
 
             // 执行 API 文件
             try {
-                _do_api(oReq, resp, oHome, se, u, oApi);
+                // 带钩子方式的运行
+                if (oApi.getBoolean("run-with-hook")) {
+                    this.runWithHook(se, u, new Callback<WnSession>() {
+                        public void invoke(WnSession se) {
+                            try {
+                                _do_api(oReq, resp, oHome, se, u, oApi);
+                            }
+                            catch (IOException e) {
+                                throw Er.wrap(e);
+                            }
+                        }
+                    });
+                }
+                // 不带钩子
+                else {
+                    _do_api(oReq, resp, oHome, se, u, oApi);
+                }
             }
             // 确保退出登录
             finally {
