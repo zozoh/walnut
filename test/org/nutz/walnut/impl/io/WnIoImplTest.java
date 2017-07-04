@@ -1043,7 +1043,7 @@ public class WnIoImplTest extends BaseIoTest {
         o = io.get(id);
         assertNotNull(o);
         assertNotNull(o.get("pets"));
-        assertEquals(3, Lang.length(o.get("pets")));
+        assertEquals(3, Lang.eleSize(o.get("pets")));
         Lang.each(o.get("pets"), new Each<Object>() {
             public void invoke(int index, Object ele, int length){
                 assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
@@ -1055,7 +1055,7 @@ public class WnIoImplTest extends BaseIoTest {
         o = io.get(id);
         assertNotNull(o);
         assertNotNull(o.get("pets"));
-        assertEquals(2, Lang.length(o.get("pets")));
+        assertEquals(2, Lang.eleSize(o.get("pets")));
         Lang.each(o.get("pets"), new Each<Object>() {
             public void invoke(int index, Object ele, int length){
                 assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
@@ -1067,7 +1067,7 @@ public class WnIoImplTest extends BaseIoTest {
 
         o = io.get(id);
         assertNotNull(o);
-        assertEquals(0, Lang.length(o.get("pets")));
+        assertEquals(0, Lang.eleSize(o.get("pets")));
         
     }
     
@@ -1088,7 +1088,7 @@ public class WnIoImplTest extends BaseIoTest {
         o = io.get(id);
         assertNotNull(o);
         assertNotNull(o.get("pets"));
-        assertEquals(3, Lang.length(o.get("pets")));
+        assertEquals(3, Lang.eleSize(o.get("pets")));
         Lang.each(o.get("pets"), new Each<Object>() {
             public void invoke(int index, Object ele, int length){
                 assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
@@ -1100,7 +1100,7 @@ public class WnIoImplTest extends BaseIoTest {
         o = io.get(id);
         assertNotNull(o);
         assertNotNull(o.get("pets"));
-        assertEquals(2, Lang.length(o.get("pets")));
+        assertEquals(2, Lang.eleSize(o.get("pets")));
         Lang.each(o.get("pets"), new Each<Object>() {
             public void invoke(int index, Object ele, int length){
                 assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
@@ -1112,7 +1112,7 @@ public class WnIoImplTest extends BaseIoTest {
 
         o = io.get(id);
         assertNotNull(o);
-        assertEquals(0, Lang.length(o.get("pets")));
+        assertEquals(0, Lang.eleSize(o.get("pets")));
         
     }
 }

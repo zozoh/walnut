@@ -81,7 +81,7 @@ public class cmd_sheet extends JvmExecutor {
                         }
                         return Lang.concat(", ", (Collection<?>) v).toString();
                     }
-                    final String[] vals = new String[Lang.length(v)];
+                    final String[] vals = new String[Lang.eleSize(v)];
                     Lang.each(v, new Each<Map<String, Object>>() {
                         public void invoke(int index, Map<String, Object> ele, int length) {
                             NutMap map = NutMap.WRAP(ele);
