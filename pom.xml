@@ -208,6 +208,11 @@
 			<artifactId>nutz-plugins-ml</artifactId>
 			<version>1.r.62-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>commons-net</groupId>
+			<artifactId>commons-net</artifactId>
+			<version>3.6</version>
+		</dependency>
 	</dependencies>
 
 	<build>

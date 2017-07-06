@@ -1,0 +1,21 @@
+# 命令简介 
+
+    `ftp ls` 用来列举ftp服务器上的文件
+
+用法
+=======
+
+```
+ftp ls [path]
+```
+
+示例
+=======
+
+```
+#> ftp ls /home/wendal/www
+
+dir : xxx
+file: yyy 128
+file: zzz 256
+```
