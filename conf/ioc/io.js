@@ -23,7 +23,7 @@ var ioc = {
 					type : "org.nutz.walnut.impl.io.mnt.LocalFileMounter"
 				},
 				qiniu : {
-					type : "org.nutz.walnut.ext.qiniu.QiniuMounter"
+					type : "org.nutz.walnut.ext.qiniu.mount.QiniuMounter"
 				},
 				memory : {
 					type : "org.nutz.walnut.impl.io.mnt.MemoryMounter"
@@ -50,7 +50,7 @@ var ioc = {
 				//	type : 'org.nutz.walnut.ext.baidu.BaiduYunPanBucketFactory'
 				//},
 				"qiniu://" : {
-					type : 'org.nutz.walnut.ext.qiniu.QiniuBucketFactory'
+					type : 'org.nutz.walnut.ext.qiniu.mount.QiniuBucketFactory'
 				}
 			}
 		}
