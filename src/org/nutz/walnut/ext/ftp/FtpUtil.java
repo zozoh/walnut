@@ -21,15 +21,14 @@ public class FtpUtil {
 
     public static FTPClient client(FtpConfig conf) throws IOException {
         FTPClient client = new FTPClient();
-        client.setFileTransferMode(FTP.BINARY_FILE_TYPE);
         client.connect(conf.getHost(), conf.getPort());
         if (!Strings.isBlank(conf.getUsername())) {
             if (!client.login(conf.getUsername(), conf.getToken())) {
                 client.disconnect();
                 return null;
             }
-            ;
         }
+        client.setFileType(FTP.BINARY_FILE_TYPE);
         return client;
     }
 

@@ -27,6 +27,12 @@ var ioc = {
 				},
 				memory : {
 					type : "org.nutz.walnut.impl.io.mnt.MemoryMounter"
+				},
+				ftp : {
+					type : "org.nutz.walnut.ext.ftp.mount.FtpMounter",
+					fields : {
+						io : {refer:"io"}
+					}
 				}
 			}
 		}
@@ -51,6 +57,9 @@ var ioc = {
 				//},
 				"qiniu://" : {
 					type : 'org.nutz.walnut.ext.qiniu.mount.QiniuBucketFactory'
+				},
+				"ftp://" : {
+					type : 'org.nutz.walnut.ext.ftp.mount.FtpBucketFactory'
 				}
 			}
 		}

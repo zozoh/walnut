@@ -17,12 +17,8 @@ public class ftp_ls extends ftp_xxx {
             sys.err.print("not such dir " + path);
             return false;
         }
-        ;
-        for (FTPFile dir : client.listDirectories()) {
-            sys.out.printlnf("dir : %s", dir.getName());
-        }
         for (FTPFile file : client.listFiles()) {
-            sys.out.printlnf("file: %s %s", file.getName(), file.getSize());
+            sys.out.printlnf("%s : %s %s", file.isDirectory() ? "DIR " : "FILE", file.getName(), file.getSize());
         }
         return true;
     }
