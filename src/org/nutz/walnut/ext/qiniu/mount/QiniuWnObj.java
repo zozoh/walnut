@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.qiniu;
+package org.nutz.walnut.ext.qiniu.mount;
 
 import org.nutz.walnut.api.io.WnObj;
 

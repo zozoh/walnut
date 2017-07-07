@@ -6,7 +6,7 @@
 =======
 
 ```
-ftp rm [-r] [path]
+ftp [confName] rm [-r] [path]
 ```
 
 如果是目录,需要加-r参数
@@ -15,5 +15,5 @@ ftp rm [-r] [path]
 =======
 
 ```
-#> ftp -r /home/wendal/www2
+#> ftp hopeapp rm -r /home/wendal/www2
 ```

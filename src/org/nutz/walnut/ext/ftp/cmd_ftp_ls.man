@@ -6,14 +6,14 @@
 =======
 
 ```
-ftp ls [path]
+ftp [confName] ls [path]
 ```
 
 示例
 =======
 
 ```
-#> ftp ls /home/wendal/www
+#> ftp [confName] ls /home/wendal/www
 
 dir : xxx
 file: yyy 128

@@ -37,7 +37,7 @@ public abstract class ftp_xxx implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         FTPClient client = null;
         try {
-            FtpConfig conf = conf(hc.getAs("ftponf_obj", WnObj.class), sys.io);
+            FtpConfig conf = conf(hc.getAs("ftpconf_obj", WnObj.class), sys.io);
             client = client(conf);
             boolean re = _invoke(sys, hc, client, conf);
             if (!re) {

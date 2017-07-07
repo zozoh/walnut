@@ -9,7 +9,9 @@ import java.util.Map;
 import org.nutz.lang.Mirror;
 import org.nutz.resource.Scans;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Wn;
 
 public abstract class JvmHdlExecutor extends JvmExecutor {
 
@@ -52,6 +54,60 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
 
         // 后面的参数作为处理器参数
         hc.args = Arrays.copyOfRange(hc.args, 1, hc.args.length);
+    }
+    
+    protected void _find_hdl_name_with_conf(WnSystem sys, JvmHdlContext hc, String dirName, String confName) {
+        // 如果第一个参数就是处理器，那么，HOME 则自动寻找
+        if (hc.args.length < 1) {
+            throw Er.create("e.cmd."+dirName+".lackArgs", hc.args);
+        }
+
+        int pos;
+
+        // 第一个参数就是 hdl，那么就不设置 home，可能有的命令不需要 Home
+        if (null != this.getHdl(hc.args[0])) {
+            hc.hdlName = hc.args[0];
+            hc.oRefer = null;
+            pos = 1;
+        }
+        // 第一个参数必须为微信公众号目录名
+        else {
+            if (hc.args.length < 2) {
+                throw Er.create("e.cmd.ftp.lackArgs", hc.args);
+            }
+            // 得到公众号
+            String pnb = hc.args[0];
+
+            // 表示当前目录为主目录
+            if (".".equals(pnb)) {
+                hc.oRefer = sys.getCurrentObj();
+            }
+            // 获取主目录
+            else {
+                String aph = Wn.normalizeFullPath("~/."+dirName+"/" + hc.args[0], sys);
+                hc.oRefer = sys.io.check(null, aph);
+            }
+
+            if (hc.oRefer != null && hc.oRefer.isLink()) {
+                String aph = Wn.normalizeFullPath("~/."+dirName+"/" + hc.oRefer.link(), sys);
+                hc.oRefer = sys.io.check(null, aph);
+            }
+
+            // 获得处理器名称
+            hc.hdlName = hc.args[1];
+
+            // 处理参数的位置
+            pos = 2;
+        }
+
+        // 解析参数
+        hc.args = Arrays.copyOfRange(hc.args, pos, hc.args.length);
+
+        // 得到配置文件
+        if (null != hc.oRefer) {
+            WnObj oConf = sys.io.check(hc.oRefer, confName);
+            hc.setv(confName + "_obj", oConf);
+        }
     }
 
     protected void _parse_params(WnSystem sys, JvmHdlContext hc) {

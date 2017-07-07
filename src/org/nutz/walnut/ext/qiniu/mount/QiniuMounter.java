@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.qiniu;
+package org.nutz.walnut.ext.qiniu.mount;
 
 import java.util.ArrayList;
 import java.util.Arrays;

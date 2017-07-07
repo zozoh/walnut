@@ -6,7 +6,7 @@
 =======
 
 ```
-ftp downlaod [source] [target]
+ftp [confName] downlaod [source] [target]
 ```
 
 其中source是ftp服务器上的路径, target是walnut内的路径
@@ -15,5 +15,5 @@ ftp downlaod [source] [target]
 =======
 
 ```
-#> ftp download /home/wendal/www/backup.zip ~/what.zip
+#> ftp hopeweb download /home/wendal/www/backup.zip ~/what.zip
 ```
