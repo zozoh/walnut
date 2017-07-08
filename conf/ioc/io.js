@@ -23,10 +23,16 @@ var ioc = {
 					type : "org.nutz.walnut.impl.io.mnt.LocalFileMounter"
 				},
 				qiniu : {
-					type : "org.nutz.walnut.ext.qiniu.QiniuMounter"
+					type : "org.nutz.walnut.ext.qiniu.mount.QiniuMounter"
 				},
 				memory : {
 					type : "org.nutz.walnut.impl.io.mnt.MemoryMounter"
+				},
+				ftp : {
+					type : "org.nutz.walnut.ext.ftp.mount.FtpMounter",
+					fields : {
+						io : {refer:"io"}
+					}
 				}
 			}
 		}
@@ -50,7 +56,10 @@ var ioc = {
 				//	type : 'org.nutz.walnut.ext.baidu.BaiduYunPanBucketFactory'
 				//},
 				"qiniu://" : {
-					type : 'org.nutz.walnut.ext.qiniu.QiniuBucketFactory'
+					type : 'org.nutz.walnut.ext.qiniu.mount.QiniuBucketFactory'
+				},
+				"ftp://" : {
+					type : 'org.nutz.walnut.ext.ftp.mount.FtpBucketFactory'
 				}
 			}
 		}

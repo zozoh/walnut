@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.qiniu;
+package org.nutz.walnut.ext.qiniu.mount;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,18 +59,7 @@ public class QiniuMounter extends AbstractWnMounter {
         String marker = null;
         String prefix = Strings.isBlank(top.path) ? "" : top.path + "/";
 
-        Pattern ptn = null;
-
-        if (null != name) {
-            // 正则
-            if (name.startsWith("^")) {
-                ptn = Pattern.compile(name);
-            }
-            // 通配符
-            else if (name.contains("*")) {
-                ptn = Pattern.compile("^" + name.replace("*", ".*"));
-            }
-        }
+        Pattern ptn = namePatten(name);
         Set<String> dirNames = new HashSet<>();
         while (true) {
             try {

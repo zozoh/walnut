@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.qiniu;
+package org.nutz.walnut.ext.qiniu.mount;
 
 import java.io.IOException;
 import java.io.InputStream;

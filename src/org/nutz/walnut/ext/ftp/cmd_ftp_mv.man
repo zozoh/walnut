@@ -6,7 +6,7 @@
 =======
 
 ```
-ftp mv [source] [target]
+ftp [confName] mv [source] [target]
 ```
 
 source和target均为ftp服务器的完整路径
@@ -15,5 +15,5 @@ source和target均为ftp服务器的完整路径
 =======
 
 ```
-#> ftp mv /home/wendal/www/abc.zip /home/wendal/zzz.zip
+#> ftp site0 mv /home/wendal/www/abc.zip /home/wendal/zzz.zip
 ```
