@@ -61,8 +61,8 @@ var LOG = {
         str += "\n<u> - offset   : </u>" + $D.rect.dumpPos(MVing.cursor.offset);
 
         str += "\n<b>direction :</b>";
-        str += "<u> x: </u>" + MVing.direction.x;
-        str += "<u> y: </u>" + MVing.direction.y;
+        str += "\n<u> - delta    : </u>" + $D.rect.dumpPos(MVing.direction.delta);
+        str += "\n<u> - offset   : </u>" + $D.rect.dumpPos(MVing.direction.offset);
 
         str += "\n<b>rect :</b>";
         str += "\n<u> - viewport : </u>" + $D.rect.dumpValues(MVing.rect.viewport);
@@ -169,7 +169,11 @@ var A = {
                 //this.$target.css(this.css.current);
                 LOG.dumping(this);
             },
-            boundaryBy : "100%"
+            dboundaryBy : "100%",
+            assist : {
+                axis : ["right", "bottom"],
+                axisFullScreen : false
+            }
         });
     },
 };

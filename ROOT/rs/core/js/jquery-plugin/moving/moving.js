@@ -59,8 +59,10 @@ var MVs = {
             MVing.cursor.offset.y = y - MVing.posAt.client.y;
             MVing.cursor.client.x = x;
             MVing.cursor.client.y = y;
-            MVing.direction.x = direction(MVing.cursor.delta.x, "left", "right");
-            MVing.direction.y = direction(MVing.cursor.delta.y, "up", "down");
+            MVing.direction.delta.x = direction(MVing.cursor.delta.x, "left", "right");
+            MVing.direction.delta.y = direction(MVing.cursor.delta.y, "up", "down");
+            MVing.direction.offset.x = direction(MVing.cursor.offset.x, "left", "right");
+            MVing.direction.offset.y = direction(MVing.cursor.offset.y, "up", "down");
         }
         // 创建
         else {
@@ -71,7 +73,8 @@ var MVs = {
                 offset   : {x:0, y:0},
             };
             MVing.direction = {
-                x : null, y : null
+                delta  : {x : null, y : null},
+                offset : {x : null, y : null},
             };
         }
     },
@@ -150,11 +153,7 @@ var MVs = {
             $viewport : $('<div class="z-mvm-viewport">').appendTo(MVing.$mask),
             $sensors  : $('<div class="z-mvm-sensors">').appendTo(MVing.$mask),
             $target   : $('<div class="z-mvm-target">').appendTo(MVing.$mask),
-            $assline  : $('<canvas class="z-mvm-assline">').appendTo(MVing.$mask),
         }
-
-        // 获取绘制接口
-        MVing.mask.G2Dass = MVing.mask.$assline[0].getContext("2d");
 
         // 设置遮罩层的显示属性
         MVing.$mask.children().css({
@@ -174,13 +173,57 @@ var MVs = {
         MVing.mask.$target
             .css($z.pick(MVing.rect.target,
                         ["top","left","width","height"]));
+        
         // 辅助线绘制层
-        MVing.mask.$assline.css({
-            right:0, bottom:0
-        }).attr({
-            width  : MVing.$mask.width(),
-            height : MVing.$mask.height()
-        });
+        if(opt.assist) {
+            MVing.mask.assist = {
+                $root : $z.svg.createRoot({
+                    "position" : "fixed",
+                    "width"  : "100%",
+                    "height" : "100%",
+                    top:0, left:0
+                }).appendTo(MVing.$mask)
+            };
+
+            // 添加辅助线
+            var lineStyle = {
+                "stroke" : "#0FF",
+                "stroke-width" : .5
+            };
+            MVing.mask.assist.$lineX = $z.svg.create("line", null, lineStyle)
+                .appendTo(MVing.mask.assist.$root);
+            MVing.mask.assist.$lineY = $z.svg.create("line", null, lineStyle)
+                .appendTo(MVing.mask.assist.$root);
+        }
+    },
+    //.......................................................
+    __update_assist : function(MVing){
+        var opt  = MVing.options;
+        if(opt.assist) {
+            // 更新坐标轴
+            if(opt.assist.axis){
+                var key_x = opt.assist.axis[0];
+                var key_y = opt.assist.axis[1];
+                var aX  = MVing.rect.current[key_x];
+                var aY  = MVing.rect.current[key_y];
+                var aVP = MVing.rect.viewport;
+                if(opt.assist.axisFullScreen) {
+                    aVP = $D.rect.create([0,0,MVing.$mask.width(),MVing.$mask.height()]);
+                }
+
+                // 更新 X 轴方向
+                MVing.mask.assist.$lineX.attr({
+                    "x1" : aX,  "y1" : aVP.top,
+                    "x2" : aX,  "y2" : aVP.bottom,
+                });
+
+                // 更新 Y 轴方向
+                MVing.mask.assist.$lineY.attr({
+                    "x1" : aVP.left,   "y1" : aY,
+                    "x2" : aVP.right,  "y2" : aY,
+                });
+            }
+        }
     },
     //.......................................................
     __add_builtin_sensor : function(MVing, name, rectA, rectB, func) {
@@ -382,6 +425,7 @@ function on_mousemove(e) {
         $z.invoke(opt, "on_ing", [], MVing);
 
         // 绘制辅助线
+        MVs.__update_assist(MVing);
 
     }
     // 判断是否可以进入（移动超过了阀值即可）
@@ -389,7 +433,7 @@ function on_mousemove(e) {
             && (Math.abs(MVing.cursor.offset.x) > opt.fireRedius 
                 || Math.abs(MVing.cursor.offset.y) > opt.fireRedius)) {
         
-        console.log("enter moving", MVing)
+        //console.log("enter moving", MVing)
 
         // 标识进入移动时
         window.__nutz_moving = MVing;
@@ -417,7 +461,7 @@ function on_mousemove(e) {
         $z.invoke(opt, "on_ing", [], MVing);
 
         // 绘制辅助线 
-        
+        MVs.__update_assist(MVing);
     }
     // else{
     //     console.warn("weird!", MVing)
@@ -432,8 +476,6 @@ function on_mouseup(e){
     // 标识结束
     MVing.endInMs = Date.now();
 
-    console.log("I am up", MVing === window.__nutz_moving, MVing.$mask)
-
     // 去掉监听
     $(MVing.win)
         .off("mouseup", on_mouseup)
@@ -443,8 +485,6 @@ function on_mouseup(e){
     if(window.__nutz_moving) {
         // 回调: on_end
         $z.invoke(opt, "on_end", [], MVing);
-
-        console.log("remove IT")
 
         // 释放遮罩层
         MVing.$mask.remove();
@@ -459,7 +499,7 @@ function on_mousedown(e){
     // 从上下文原型中构建副本
     var MVing = _.extend({}, e.data);
     var opt   = MVing.options;
-    console.log("I am mousedown")
+    //console.log("I am mousedown")
     //...........................................
     // 确定触发者和开始时间
     MVing.$trigger  = $(e.currentTarget);
