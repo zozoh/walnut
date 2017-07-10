@@ -33,7 +33,9 @@ public class cmd_obj extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        ZParams params = ZParams.parse(args, "iocnqhbslAVNPHQ", "^(mine|pager|ExtendDeeply|hide)$");
+        ZParams params = ZParams.parse(args,
+                                       "iocnqhbslAVNPHQ",
+                                       "^(IfNoExists|mine|pager|ExtendDeeply|hide)$");
 
         WnPager wp = new WnPager(params);
 
@@ -654,7 +656,12 @@ public class cmd_obj extends JvmExecutor {
         }
 
         // 创建对象
-        WnObj o = sys.io.create(oP, meta.getString("nm", "${id}"), race);
+        WnObj o;
+        if (params.is("IfNoExists")) {
+            o = sys.io.createIfNoExists(oP, meta.getString("nm", "${id}"), race);
+        } else {
+            o = sys.io.create(oP, meta.getString("nm", "${id}"), race);
+        }
 
         // 如果定义了类型,自动获取 mime
         if (meta.has("tp") && !meta.has("mime"))

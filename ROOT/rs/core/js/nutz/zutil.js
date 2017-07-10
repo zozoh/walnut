@@ -2587,6 +2587,28 @@
             return str ? str.replace("<", "&lt;") : str;
         },
         //.............................................
+        // SVG 相关
+        svg : {
+            createRoot : function(styles) {
+                var jRoot = $('<svg version="1.1" xmlns="http://www.w3.org/2000/svg">');
+                if(styles) {
+                    jRoot.css(styles);
+                }
+                return jRoot;
+            },
+            create : function(type, attrs, styles) {
+                var it = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                var jIt = $(it);
+                if(attrs) {
+                    jIt.attr(attrs);
+                }
+                if(styles) {
+                    jIt.css(styles);
+                }
+                return jIt;
+            }
+        },
+        //.............................................
         // 调用某对象的方法，如果方法不存在或者不是函数，无视
         invoke: function (obj, funcName, args, me) {
             if (obj) {
