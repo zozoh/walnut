@@ -31,7 +31,7 @@ public class WnIoCleaner implements Atom {
                 try {
                     __in_loop();
                 }
-                catch (Exception e) {
+                catch (Throwable e) {
                     Throwable e2 = e.getCause();
                     if (e2 != null && e2 instanceof InterruptedException) {
                         throw (InterruptedException) e2;
