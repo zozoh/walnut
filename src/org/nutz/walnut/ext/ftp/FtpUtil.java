@@ -28,6 +28,7 @@ public class FtpUtil {
                 return null;
             }
         }
+        client.enterLocalPassiveMode();
         client.setFileType(FTP.BINARY_FILE_TYPE);
         return client;
     }
