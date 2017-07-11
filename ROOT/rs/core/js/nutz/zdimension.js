@@ -155,6 +155,16 @@ var zRect = {
             });
         }
 
+        // 模式: ltbr
+        if("ltwh" == mode) {
+            return this.count_tlwh({
+                left   : values[0],
+                top    : values[1],
+                width  : values[2],
+                height : values[3],
+            });
+        }
+
         // 模式: tlbr
         if("tlbr" == mode) {
             return this.count_tlbr({
@@ -509,7 +519,7 @@ var zRect = {
         if (!rects || rects.length <= 1)
             return null;
         // 多个
-        var r2 = rects[0];
+        var r2 = _.extend({}, rects[0]);
         for (var i = 1; i < rects.length; i++) {
             var r     = rects[i];
             r2.top    = Math.max(r2.top, r.top);
@@ -524,7 +534,7 @@ var zRect = {
     // 相交面积
     overlap_area: function () {
         var rects = $z.toArgs(arguments, true);
-        var r2 = this.overlap.apply(rects);
+        var r2 = this.overlap.apply(this, rects);
         return this.area(r2);
     },
     //.............................................

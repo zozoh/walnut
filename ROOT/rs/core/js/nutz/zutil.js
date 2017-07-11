@@ -2966,7 +2966,8 @@
             }
             // 得到文档中的
             var off = jq.offset();
-            var jDoc = $(jq[0].ownerDocument);
+            var owDoc = jq[0].ownerDocument;
+            var jDoc = $(owDoc);
             // 样式
             var css = {
                 "width": jq.outerWidth(),
@@ -2981,7 +2982,7 @@
             };
             // 建立闪烁层
             var lg = $(opt.html || '<div class="z_blink_light">&nbsp;</div>');
-            lg.css(css).appendTo(jq);
+            lg.css(css).appendTo(owDoc.body);
             lg.animate({
                 opacity: 0.1
             }, opt.speed || 500, function () {
