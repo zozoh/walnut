@@ -17,7 +17,7 @@ import org.nutz.walnut.util.WnRun;
 public class WnIoCleaner implements Atom {
 
     private static final Log log = Logs.get();
-    
+
     WnRun _run;
 
     public WnIoCleaner(WnRun _run) {
