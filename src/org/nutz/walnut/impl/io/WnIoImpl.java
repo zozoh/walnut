@@ -588,36 +588,26 @@ public class WnIoImpl implements WnIo {
 
     @Override
     public long writeText(WnObj o, CharSequence cs) {
-        OutputStream ops = this.getOutputStream(o, 0);
-        // Writer w = Streams.utf8w(ops);
-        // Streams.writeAndClose(w, cs);
         byte[] b = cs.toString().getBytes(Encoding.CHARSET_UTF8);
-        try {
+        try (OutputStream ops = this.getOutputStream(o, 0)) {
             ops.write(b);
         }
         catch (IOException e) {
             throw Lang.wrapThrow(e);
-        }
-        finally {
-            Streams.safeClose(ops);
         }
         return o.len();
     }
 
     @Override
     public long appendText(WnObj o, CharSequence cs) {
-        OutputStream ops = this.getOutputStream(o, -1);
         // Writer w = Streams.utf8w(ops);
         // Streams.writeAndClose(w, cs);
         byte[] b = cs.toString().getBytes(Encoding.CHARSET_UTF8);
-        try {
+        try (OutputStream ops = this.getOutputStream(o, -1)) {
             ops.write(b);
         }
         catch (IOException e) {
             throw Lang.wrapThrow(e);
-        }
-        finally {
-            Streams.safeClose(ops);
         }
         return o.len();
     }

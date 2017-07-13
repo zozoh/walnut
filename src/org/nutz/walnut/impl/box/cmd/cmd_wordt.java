@@ -66,10 +66,10 @@ public class cmd_wordt extends JvmExecutor {
         }
 
         // 输出
-        OutputStream outdoc = sys.io.getOutputStream(destObj, 0);
-        word.write(outdoc);
-        outdoc.flush();
-        outdoc.close();
+        try (OutputStream outdoc = sys.io.getOutputStream(destObj, 0)) {
+            word.write(outdoc);
+            outdoc.flush();
+        }
     }
 
     // ennprivate String CHARACTER_NL = "\r\n";
