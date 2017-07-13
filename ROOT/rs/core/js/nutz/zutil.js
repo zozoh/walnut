@@ -27,6 +27,7 @@
         PAGE_UP: 33,
         PERIOD: 190,
         TAB: 9,
+        '~': 192,
         // 方向
         LEFT: 37,
         UP: 38,
@@ -144,9 +145,9 @@
                 return dftFunc.apply(context || this, args);
             }
             // 神马都木有
-            if(args.length == 0)
+            if (args.length == 0)
                 return null;
-            if(args.length == 1)
+            if (args.length == 1)
                 return args[0];
             return args;
         },
@@ -334,26 +335,26 @@
         //  - n     : 浮点数
         //  - prec  : 精确到小数点几位，默认 2
         //  - fixed : 是否一定显示小数点后面的尾数，默认 false
-        toPercent: function(n, prec, fixed) {
+        toPercent: function (n, prec, fixed) {
             prec = prec || 0;
             var m = Math.round(n * Math.pow(10, 2 + prec));
-            if(prec > 0)
+            if (prec > 0)
                 m = m / Math.pow(10, prec);
 
             var str = m + "";
 
             // 用零补足
-            if(fixed && prec > 0) {
+            if (fixed && prec > 0) {
                 var pos = str.indexOf('.');
                 // 全补
-                if(pos<0){
+                if (pos < 0) {
                     str += "." + this.dupString('0', prec);
                 }
                 // 补足
-                else{
+                else {
                     var c = prec - str.length + pos + 1;
-                    if(c > 0){
-                        str += this.dupString('0',c);
+                    if (c > 0) {
+                        str += this.dupString('0', c);
                     }
                 }
             }
@@ -413,11 +414,11 @@
             var re = asValueArray ? [] : {};
 
             // 数组，表示值的列表，直接读取
-            if(_.isArray(regex)) {
-                for(var i=0; i<regex.length; i++){
+            if (_.isArray(regex)) {
+                for (var i = 0; i < regex.length; i++) {
                     var key = regex[i];
                     // 推入数组
-                    if(asValueArray){
+                    if (asValueArray) {
                         re.push(obj[key]);
                     }
                     // 计入对象
@@ -437,7 +438,7 @@
                 // !^ 开头的正则表达式 
                 var m = /^(!)?\^/.exec(str);
                 if (m) {
-                    if(m[1]) {
+                    if (m[1]) {
                         not = true;
                         str = str.substring(1);
                     }
@@ -456,7 +457,7 @@
                     if (not)
                         continue;
                     // 推入数组
-                    if(asValueArray){
+                    if (asValueArray) {
                         re.push(obj[key]);
                     }
                     // 计入对象
@@ -467,7 +468,7 @@
                 // 取反的情况
                 else if (not) {
                     // 推入数组
-                    if(asValueArray){
+                    if (asValueArray) {
                         re.push(obj[key]);
                     }
                     // 计入对象
@@ -491,7 +492,7 @@
         },
         //.............................................
         // 判断一个给定对象是否是矩形对象
-        isRect : function(obj){
+        isRect: function (obj) {
             return obj
                 && _.isNumber(obj.top)
                 && _.isNumber(obj.left)
@@ -2588,21 +2589,21 @@
         },
         //.............................................
         // SVG 相关
-        svg : {
-            createRoot : function(styles) {
+        svg: {
+            createRoot: function (styles) {
                 var jRoot = $('<svg version="1.1" xmlns="http://www.w3.org/2000/svg">');
-                if(styles) {
+                if (styles) {
                     jRoot.css(styles);
                 }
                 return jRoot;
             },
-            create : function(type, attrs, styles) {
+            create: function (type, attrs, styles) {
                 var it = document.createElementNS("http://www.w3.org/2000/svg", "line");
                 var jIt = $(it);
-                if(attrs) {
+                if (attrs) {
                     jIt.attr(attrs);
                 }
-                if(styles) {
+                if (styles) {
                     jIt.css(styles);
                 }
                 return jIt;
@@ -2877,26 +2878,26 @@
          * @return 父路径，且一定以 / 结尾
          */
         //.............................................
-        getParentPath : function(ph, regular) {
+        getParentPath: function (ph, regular) {
             var pos = ph.lastIndexOf('/');
-            if(pos <= 0)
+            if (pos <= 0)
                 return null;
-            return ph.substring(0, pos+1);
+            return ph.substring(0, pos + 1);
         },
         //.............................................
         /**
          * 整理路径。 将会合并路径中的 ".."
-         * 
+         *
          * @param path
          *            路径
          * @return 整理后的路径
          */
-        getCanonicalPath : function(path) {
+        getCanonicalPath: function (path) {
             if (!path)
                 return path;
             var pa = this.splitIgnoreEmpty(path, /[\\\\/]/g);
             var paths = [];
-            for (var i=0; i<pa.length; i++) {
+            for (var i = 0; i < pa.length; i++) {
                 var s = pa[i];
                 if (".." == s) {
                     if (paths.length > 0)
@@ -3360,8 +3361,8 @@
          */
         markIt: function (opt, callback) {
             // 支持快捷方式 ({..}, callback)
-            if(opt && opt.target && opt.text) {
-                opt = {items : [opt]};
+            if (opt && opt.target && opt.text) {
+                opt = {items: [opt]};
             }
 
             // 必须得有绘制项目
@@ -3511,13 +3512,13 @@
         //  - str : 给定字符串
         //  - sub : 要计算重复的子字符串
         // 返回出现的次数
-        countSubStr : function(str, sub) {
+        countSubStr: function (str, sub) {
             var re = 0;
-            if(str && sub){
+            if (str && sub) {
                 var fromIndex = 0;
                 var pos = str.indexOf(sub, fromIndex);
-                while(pos >=0 ) {
-                    re ++;
+                while (pos >= 0) {
+                    re++;
                     fromIndex = pos + sub.length;
                     pos = str.indexOf(sub, fromIndex);
                 }
@@ -3552,19 +3553,19 @@
             return str;
         },
         /*............................................
-        将给定的 Markdown 文本，转换成 HTML 代码
-        opt : {
-            media   : {c}F(src)   // 计算媒体文件加载的真实 URL
-            context : undefined  // 所有回调的上下文
-        }
-        */
+         将给定的 Markdown 文本，转换成 HTML 代码
+         opt : {
+         media   : {c}F(src)   // 计算媒体文件加载的真实 URL
+         context : undefined  // 所有回调的上下文
+         }
+         */
         markdownToHtml: function (str, opt) {
             // 确保有选项对象
             opt = opt || {};
             context = opt.context || this;
 
             // 设置默认值
-            zUtil.setUndefined(opt, "media", function(src){
+            zUtil.setUndefined(opt, "media", function (src) {
                 return src;
             });
 
@@ -4233,49 +4234,49 @@
         // 124: [|]
         // 125: [}]
         // 126: [~]
-        evalPassword : function(str, minLen) {
+        evalPassword: function (str, minLen) {
             // 空密码
-            if(!str)
+            if (!str)
                 return 0;
 
             // 密码长度不足
             minLen = minLen || 6;
-            if(str.length < minLen)
+            if (str.length < minLen)
                 return -1;
 
             var ss = [];
-            ss[0]  = 0;   // 数字
-            ss[1]  = 0;   // 大写字母
-            ss[2]  = 0;   // 小写字母
-            ss[3]  = 0;   // 特殊字符
+            ss[0] = 0;   // 数字
+            ss[1] = 0;   // 大写字母
+            ss[2] = 0;   // 小写字母
+            ss[3] = 0;   // 特殊字符
 
-            for(var i=0; i<str.length; i++) {
+            for (var i = 0; i < str.length; i++) {
                 var c = str.charCodeAt(i);
                 // 非法
-                if(c < 33 || c > 126)
+                if (c < 33 || c > 126)
                     return -2;
                 // 数字
-                if(c>=48 && c<=57){
+                if (c >= 48 && c <= 57) {
                     ss[0] = 1;
                 }
                 // 大写字母
-                else if(c>=65 && c<=90){
+                else if (c >= 65 && c <= 90) {
                     ss[1] = 1;
                 }
                 // 小写字母
-                else if(c>=97 && c<=122){
+                else if (c >= 97 && c <= 122) {
                     ss[2] = 1;
                 }
                 // 特殊字符
-                else{
+                else {
                     ss[3] = 1;
                 }
             }
 
             // 开始计分
-            var re = str.length >=8 ? 1 : 0;
+            var re = str.length >= 8 ? 1 : 0;
 
-            for(var i=0; i<ss.length; i++){
+            for (var i = 0; i < ss.length; i++) {
                 re += ss[i];
             }
 
