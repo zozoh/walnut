@@ -46,8 +46,8 @@ public class WnFtpUserManager extends AbstractUserManager {
 
         authorities.add(new WritePermission());
 
-        int maxLogin = 3;
-        int maxLoginPerIP = 3;
+        int maxLogin = 15;
+        int maxLoginPerIP = 15;
 
         authorities.add(new ConcurrentLoginPermission(maxLogin, maxLoginPerIP));
 

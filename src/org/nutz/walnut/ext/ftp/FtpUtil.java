@@ -4,12 +4,17 @@ import java.io.IOException;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.impl.io.WnBean;
+import org.nutz.walnut.util.Wn;
 
 public class FtpUtil {
     
@@ -68,5 +73,42 @@ public class FtpUtil {
                 }
             }
         }
+    }
+    
+
+
+    public static WnObj toWnObj(MimeMap mimes, FTPFile ftpFile, WnObj parent) {
+        WnObj wobj = new WnBean();
+        wobj.name(ftpFile.getName());
+        if (parent.id().contains(":ftp:")) {
+            wobj.id(parent.id() + "%" + wobj.name());
+        } else {
+            wobj.id(parent.id() + ":ftp:%%" + wobj.name());
+        }
+        wobj.mount(parent.mount() + "/" + wobj.name());
+        wobj.data(wobj.mount());
+        
+        if (ftpFile.isDirectory()) {
+            wobj.race(WnRace.DIR);
+        }
+        else {
+            wobj.race(WnRace.FILE);
+        }
+        if(ftpFile.isSymbolicLink()) {
+            wobj.link(ftpFile.getLink());
+        }
+        if (mimes != null)
+            Wn.set_type(mimes, wobj, null);
+        wobj.creator(parent.creator());
+        wobj.group(parent.group());
+        wobj.setParent(parent);
+        
+        wobj.mode(parent.mode());
+        
+        wobj.createTime(0);
+        wobj.lastModified(0);
+        wobj.len(ftpFile.getSize());
+        wobj.mountRootId(parent.mountRootId());
+        return wobj;
     }
 }
