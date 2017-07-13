@@ -9,6 +9,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -71,40 +72,39 @@ public class cmd_zip extends JvmExecutor {
                 sys.out.printlnf("%s", srcObj.name());
             }
         } else {
-            try {
-                OutputStream out = sys.io.getOutputStream(destObj, 0);
+            try (OutputStream out = sys.io.getOutputStream(destObj, 0);) {
                 ZipOutputStream zipOut = new ZipOutputStream(out);
                 String entryName = null;
-                for (int i = 0; i < srclist.size(); i++) {
-                    WnObj srcObj = srclist.get(i);
-                    if (srcObj.isDIR()) {
-                        continue;
-                    }
-                    if (destObj.id().equals(srcObj.id())) {
-                        continue;
-                    }
-                    entryName = srcObj.name();
-                    // 创建Zip条目
-                    ZipEntry entry = new ZipEntry(entryName);
-                    zipOut.putNextEntry(entry);
+                for (WnObj srcObj : srclist) {
+                    try {
+                        if (srcObj.isDIR()) {
+                            continue;
+                        }
+                        if (destObj.id().equals(srcObj.id())) {
+                            continue;
+                        }
+                        entryName = srcObj.name();
+                        // 创建Zip条目
+                        ZipEntry entry = new ZipEntry(entryName);
+                        zipOut.putNextEntry(entry);
 
-                    BufferedInputStream bis = new BufferedInputStream(sys.io.getInputStream(srcObj,
-                                                                                            0));
-
-                    byte[] b = new byte[1024];
-                    int count = 0;
-                    while ((count = bis.read(b, 0, 1024)) != -1) {
-                        zipOut.write(b, 0, count);
+                        try (BufferedInputStream bis = new BufferedInputStream(sys.io.getInputStream(srcObj,
+                                                                                                0))) {
+                            Streams.write(zipOut, bis);
+                        };
+                        zipOut.closeEntry();
                     }
-                    bis.close();
-                    zipOut.closeEntry();
+                    catch (Throwable e) {
+                        sys.out.print("error at " + srcObj.name());
+                    }
                 }
                 zipOut.flush();
-                zipOut.close();
+                zipOut.finish();
+                //zipOut.flush();
             }
-            catch (Exception e) {
-                log.error(e);
-                throw Err.create(e, "e.cmd.zip.withzip");
+            catch (Throwable e) {
+                log.error(e.getMessage(), e);
+                throw Err.create(e, "e.cmd.zip.error");
             }
         }
     }
