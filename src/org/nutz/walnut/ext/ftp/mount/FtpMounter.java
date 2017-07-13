@@ -15,12 +15,9 @@ import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.ftp.FtpConfig;
 import org.nutz.walnut.ext.ftp.FtpUtil;
-import org.nutz.walnut.impl.io.WnBean;
 import org.nutz.walnut.impl.io.mnt.AbstractWnMounter;
-import org.nutz.walnut.util.Wn;
 import org.nutz.web.Webs.Err;
 
 public class FtpMounter extends AbstractWnMounter {
@@ -47,7 +44,7 @@ public class FtpMounter extends AbstractWnMounter {
             try {
                 for (FTPFile f : client.listFiles(_path)) {
                     if (f.getName().equals(paths[toIndex - 1])) {
-                        re[0] = toWnObj(mimes, f, mo);
+                        re[0] = FtpUtil.toWnObj(mimes, f, mo);
                         String p = Strings.join("%", Arrays.copyOfRange(paths, fromIndex, toIndex));
                         re[0].id(mo.id() + ":ftp:%%" + p);
                         re[0].mount(mo.mount() + "/" + p);
@@ -83,7 +80,7 @@ public class FtpMounter extends AbstractWnMounter {
             try {
                 for (FTPFile f : client.listFiles(_path)) {
                     if (pattern == null || pattern.matcher(f.getName()).find())
-                        list.add(toWnObj(mimes, f, mo));
+                        list.add(FtpUtil.toWnObj(mimes, f, mo));
                 };
             }
             catch (IOException e) {
@@ -92,40 +89,5 @@ public class FtpMounter extends AbstractWnMounter {
         });
         
         return list;
-    }
-
-    public static WnObj toWnObj(MimeMap mimes, FTPFile ftpFile, WnObj parent) {
-        WnObj wobj = new WnBean();
-        wobj.name(ftpFile.getName());
-        if (parent.id().contains(":ftp:")) {
-            wobj.id(parent.id() + "%" + wobj.name());
-        } else {
-            wobj.id(parent.id() + ":ftp:%%" + wobj.name());
-        }
-        wobj.mount(parent.mount() + "/" + wobj.name());
-        wobj.data(wobj.mount());
-        
-        if (ftpFile.isDirectory()) {
-            wobj.race(WnRace.DIR);
-        }
-        else {
-            wobj.race(WnRace.FILE);
-        }
-        if(ftpFile.isSymbolicLink()) {
-            wobj.link(ftpFile.getLink());
-        }
-        if (mimes != null)
-            Wn.set_type(mimes, wobj, null);
-        wobj.creator(parent.creator());
-        wobj.group(parent.group());
-        wobj.setParent(parent);
-        
-        wobj.mode(parent.mode());
-        
-        wobj.createTime(0);
-        wobj.lastModified(0);
-        wobj.len(ftpFile.getSize());
-        wobj.mountRootId(parent.mountRootId());
-        return wobj;
     }
 }
