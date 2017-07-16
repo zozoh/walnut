@@ -1,0 +1,11 @@
+# 命令简介 
+
+    `mgadmin` 用来直接与mongodb进行交互,仅root可以使用
+
+用法
+=======
+
+```
+mgadmin profile           # 性能监视器的相关操作
+mgadmin index             # 索引的相关操作
+```

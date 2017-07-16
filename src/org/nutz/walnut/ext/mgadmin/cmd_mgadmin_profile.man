@@ -1,0 +1,45 @@
+# 命令简介 
+
+    `mgadmin profile` 用来管理性能监控器
+
+用法
+=======
+
+```
+mgadmin profile [enable|disable] [-level 1] [-slowms 100]
+```
+
+```
+level = 0 关闭状态
+level = 1 仅记录慢操作
+level = 2 记录所有操作,基本上用不上
+```
+示例
+=======
+
+查看状态, was的值对应level
+
+```
+#> mgadmin profile
+{ "was" : 0, "slowms" : 100, "ok" : 1.0 }
+```
+
+开启,默认level=1,slowms=100,仅记录超过100ms的慢操作
+
+```
+#> mgadmin profile enable -level 1 -slowms 100
+{ "was" : 0, "slowms" : 100, "ok" : 1.0 }
+```
+
+关闭
+
+```
+#> mgadmin profile disable
+{ "was" : 1, "slowms" : 100, "ok" : 1.0 }
+```
+
+列出记录
+
+```
+#> mgadmin profile list
+```

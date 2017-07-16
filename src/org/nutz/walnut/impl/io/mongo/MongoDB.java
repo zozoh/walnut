@@ -7,6 +7,7 @@ import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDB;
 import org.nutz.mongo.ZMongo;
 
+import com.mongodb.DB;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 
@@ -50,4 +51,7 @@ public class MongoDB {
         return _zdb.cc(coName, false);
     }
 
+    public DB getRaw() {
+        return _zdb.getNativeDB();
+    }
 }
