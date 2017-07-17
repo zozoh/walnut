@@ -1,10 +1,15 @@
 package org.nutz.walnut.ext.mgadmin.hdl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.nutz.ioc.Ioc;
 import org.nutz.json.Json;
+import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.mongo.MongoDB;
 
@@ -13,8 +18,10 @@ import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCursor;
 
+@JvmHdlParamArgs("cqn")
 public class mgadmin_profile implements JvmHdl {
 
+    @SuppressWarnings("unchecked")
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         Ioc ioc = Mvcs.getIoc();
@@ -36,17 +43,22 @@ public class mgadmin_profile implements JvmHdl {
                 sys.out.print(re.toJson());
                 break;
             case "list": // 列出最近的profile记录
-                DBCursor cur = db.getCollection("system.profile")
-                                 .find()
-                                 .limit(hc.params.getInt("limit", 10));
+                int lm = hc.params.getInt("limit", 10);
+                DBCursor cur = db.getCollection("system.profile").find().limit(lm);
+
+                // 得到结果集
+                List<NutMap> list = new ArrayList<>(lm);
                 try {
                     while (cur.hasNext()) {
-                        sys.out.println(Json.toJson(cur.next().toMap()));
+                        NutMap map = NutMap.WRAP(cur.next().toMap());
+                        list.add(map);
                     }
                 }
                 finally {
                     cur.close();
                 }
+                // 输出
+                sys.out.println(Json.toJson(list, hc.jfmt));
                 break;
             case "clear": // 清除profile记录
                 db.getCollection("system.profile").drop();

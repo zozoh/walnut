@@ -1,6 +1,7 @@
 # 命令简介 
 
-    `mgadmin` 用来直接与mongodb进行交互,仅root可以使用
+    `mgadmin` 用来直接与mongodb进行交互
+    !!! 仅root组管理员才可以使用
 
 用法
 =======

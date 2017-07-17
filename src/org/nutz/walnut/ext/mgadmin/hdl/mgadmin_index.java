@@ -23,6 +23,8 @@ public class mgadmin_index implements JvmHdl {
         DB db = mongoDB.getRaw();
         String colName = hc.params.get("co", "obj");
         DBCollection co = db.getCollection(colName);
+        
+        // 执行操作
         if (hc.params.vals.length > 0) {
             switch (hc.params.vals[0]) {
             case "create":
@@ -56,7 +58,9 @@ public class mgadmin_index implements JvmHdl {
                 sys.err.print("unkown cmd=" + hc.params.val(0));
                 break;
             }
-        } else {
+        }
+        // 仅查看
+        else {
             List<DBObject> indexes = co.getIndexInfo();
             for (DBObject dbo : indexes) {
                 sys.out.println(dbo.toString());
