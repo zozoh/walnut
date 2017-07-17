@@ -18,7 +18,7 @@ import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCursor;
 
-@JvmHdlParamArgs("cqn")
+@JvmHdlParamArgs(value = "cqn", regex = "^(quiet)$")
 public class mgadmin_profile implements JvmHdl {
 
     @SuppressWarnings("unchecked")
@@ -36,11 +36,13 @@ public class mgadmin_profile implements JvmHdl {
                 builder.add("profile", hc.params.getInt("level", 1));
                 builder.add("slowms", hc.params.getInt("slowms", 100));
                 re = db.command(builder.get());
-                sys.out.print(re.toJson());
+                if (!hc.params.is("quiet"))
+                    sys.out.print(re.toJson());
                 break;
             case "disable":// 关闭profile
                 re = db.command(BasicDBObjectBuilder.start().add("profile", 0).get());
-                sys.out.print(re.toJson());
+                if (!hc.params.is("quiet"))
+                    sys.out.print(re.toJson());
                 break;
             case "list": // 列出最近的profile记录
                 int lm = hc.params.getInt("limit", 10);
