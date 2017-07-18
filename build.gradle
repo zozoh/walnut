@@ -7,7 +7,7 @@ import org.nutz.lang.Files
 import groovy.io.FileType
 
 group = 'org.nutz'
-version = '1.r.61-SNAPSHOT'
+version = '1.r.63-SNAPSHOT'
 
 description = "一台神奇的计算机"
 
@@ -15,7 +15,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 def version_tag = getDate()
-def nutz_version = "1.r.62-SNAPSHOT"
+def nutz_version = "1.r.63-SNAPSHOT"
 
 configurations.all {
     // Check for updates every build
@@ -67,7 +67,7 @@ dependencies {
     compile group: 'org.nutz', name: 'nutzmongo', version:nutz_version
     compile group: 'org.nutz', name: 'nutzwx', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-qrcode', version:nutz_version
-    compile group: 'org.nutz', name: 'nutz-plugins-ml', version:nutz_version
+    compile group: 'org.nutz', name: 'nutz-plugins-ml', version:"1.r.62-SNAPSHOT"
     compile group: 'org.nutz', name: 'nutz-integration-json4excel', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-zdoc', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-quartz', version:'1.r.61-SNAPSHOT'
