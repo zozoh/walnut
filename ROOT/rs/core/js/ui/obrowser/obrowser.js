@@ -343,7 +343,7 @@
                         gasketName: "chute",
                         setup: opt.sidebar
                     }).render(function () {
-                        // 根据cookie设定显示模式
+                        // 恢复本地显示模式
                         var cmode = UI.local("chute-mode") || "normal";
                         if (cmode == 'mini') {
                             UI.arena.find('.obw-con-wrapper').addClass('mini');
