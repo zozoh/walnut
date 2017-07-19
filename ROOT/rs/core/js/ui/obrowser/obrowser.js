@@ -344,7 +344,7 @@
                         setup: opt.sidebar
                     }).render(function () {
                         // 根据cookie设定显示模式
-                        var cmode = Cookies.get('chute-mode') || "normal";
+                        var cmode = UI.local("chute-mode") || "normal";
                         if (cmode == 'mini') {
                             UI.arena.find('.obw-con-wrapper').addClass('mini');
                         }
@@ -474,12 +474,12 @@
                 UI.arena.attr("chute-mode", cm);
                 UI.local("chute-mode", cm);
                 // 动画完成后 resize
-                UI.arena.find(".obw-con").one("transitionend", function(e){
+                UI.arena.find(".obw-con").one("transitionend", function (e) {
                     UI.resize(true);
                 });
             },
             //..............................................
-            isChuteModeMini : function(){
+            isChuteModeMini: function () {
                 return "mini" == this.arena.attr("chute-mode");
             },
             //..............................................
