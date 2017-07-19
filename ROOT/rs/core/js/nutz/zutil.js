@@ -2598,7 +2598,7 @@
                 return jRoot;
             },
             create: function (type, attrs, styles) {
-                var it = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                var it = document.createElementNS("http://www.w3.org/2000/svg", type);
                 var jIt = $(it);
                 if (attrs) {
                     jIt.attr(attrs);
@@ -4374,7 +4374,7 @@
             sep = _.isString(sep) ? sep : "-";
             return [s4() + s4(), s4(), s4(), s4(), s4() + s4() + s4()].join(sep);
         }
-    };
+    };  // ~ End Of zUtil
 
 // 感知平台
     var platform = navigator.platform.toLowerCase();
@@ -4382,34 +4382,6 @@
         mac: /^mac/.test(platform)
     };
 
-// 暂时先去掉 ...
-// // log
-// zUtil.logConf = {
-//     enable: true,               // 是否启动log输出
-//     trace: false,               // 是否显示调用trace
-//     showTime: true,             // 是否打印时间,
-//     showMS: true                // 是否显示毫秒
-// };
-
-// zUtil.log = function (log) {
-//     if (zUtil.logConf.enable) {
-//         var logPrefix = "";
-//         // 显示时间点
-//         if (zUtil.logConf.showTime) {
-//             logPrefix += '---- ';
-//             var date = new Date();
-//             logPrefix += zUtil.currentTime(date);
-//             if (zUtil.logConf.showMS) {
-//                 logPrefix += "." + date.getMilliseconds();
-//             }
-//             logPrefix += ' ----\n';
-//         }
-//         console.debug(logPrefix + log);
-//         if (zUtil.logConf.trace) {
-//             console.trace();
-//         }
-//     }
-// };
 
 //..................................................
 // 挂载到 window 对象

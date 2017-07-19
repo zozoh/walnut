@@ -58,7 +58,7 @@ return ZUI.def("ui.obrowser_vmd_table", {
                 escapeHtml : false,
                 display : function(o){
                     var html = Wn.objIconHtml(o);
-                    html += '<span class="wnobj-nm">'+Wn.objDisplayName(UI, o)+'</span>';
+                    html += '<span class="wnobj-nm">'+Wn.objDisplayName(UI, o, -1)+'</span>';
                     return html;
                 }
             }, {
