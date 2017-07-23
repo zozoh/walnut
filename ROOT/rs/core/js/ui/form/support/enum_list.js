@@ -9,13 +9,15 @@ var methods = {
                 return o.icon;
         });
         $z.setUndefined(opt, "text", function(o){
-            if(_.isString(o))
+            if(_.isString(o) || _.isNumber(o))
                 return o;
             return o.text;
         });
         $z.setUndefined(opt, "value", function(o, index){
             if(_.isString(o))
                 return index;
+            if(_.isNumber(o))
+                return o;
             if(!_.isUndefined(o.value)) {
                 return o.value;
             }

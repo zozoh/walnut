@@ -1,0 +1,57 @@
+//...........................................................
+// 布局
+@W : 640px;
+@H : 480px;
+@h_header : @H * 0.1;
+@h_view   : @H * 0.6;
+@h_expr   : @H * 0.1;
+@h_text   : @H * 0.2;
+.zcron {
+    width:@W; height:@H; position: relative;
+    > * {position: absolute; left:0; right:0;}
+    > header {top:0; height:@h_header;}
+    > section.zcron-date {top:@h_header; right:50%; height:@h_view;}
+    > section.zcron-time {top:@h_header; left: 50%; height:@h_view;}
+    > section.zcron-expr {top:@h_header+@h_view; height: @h_expr;}
+    > footer.zcron-text {bottom:0; height:@h_text;}
+}
+
+//...........................................................
+// 头部: 日期范围
+.zcron {
+    // 头部: 日期范围
+    > header {
+        padding:@d3; line-height: @h_header - (@d3*2);
+        > * {float: left; margin:0 @d2;}
+        > em {font-style: normal; color:@c2;}
+        > div.zcron-dr {width:@W * 0.4;}
+        > a {cursor: pointer; font-size:@f1;}
+    }
+    > header:after{@clr();}
+    // 中间: 日期编辑界面
+    > section.zcron-date {
+        padding:@d0;
+    }
+    // 中间: 时间编辑界面
+    > section.zcron-time {
+        background: #FF0;
+        padding:@d0;
+    }
+    // 中间: 自由编辑界面 
+    > section.zcron-expr {
+        padding:@d0;
+        input {@input(); font-family: @f_fixed;
+            width:100%; height:100%; 
+            padding:0 @d3; font-size:@f3;
+        }
+        input:focus {@input_focus();}
+    }
+    // 尾部: 解释
+    > footer.zcron-text {
+        padding:@d3 0;
+        > div { overflow: auto;
+            width: 100%; height:100%; border:1px dashed @cborder1;
+            font-family: @f_fixed; font-size:@f1; color:@c2;
+        }
+    }
+}

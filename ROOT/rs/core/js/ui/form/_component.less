@@ -270,7 +270,7 @@
 }
 
 // 日期范围选择
-.com-date-range {width: 480px; height: 300px; }
+.com-date-range {width: 480px; height: 390px; }
 // 数字范围选择
 .com-number-range {
     width: 300px;
@@ -286,6 +286,24 @@
     }
 }
 //----------------------------------------------------------------
+// 数组控件
+.com-array {
+    ul { @noselect();
+        li {
+            float: left; border:1px solid @cborder0;
+            background: @cb1; color:@cf1; 
+            padding:0 @d1; line-height: 24px; min-width: 24px;
+            text-align: center; cursor: pointer; margin:0 1px 1px 0;
+            font-size:@f1;
+        }
+        li[current] {
+            background: @chx_b; color:@chx_f; border-color:@chx_b;
+        }
+    }
+    ul:after{@clr();}
+}
+//----------------------------------------------------------------
+// 下拉列表
 @cdlH: @f5;
 @cdlIW: @d6;
 .com-droplist { @noselect();

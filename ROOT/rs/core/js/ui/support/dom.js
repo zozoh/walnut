@@ -8,6 +8,11 @@ return ZUI.def("ui.dom", {
         var UI  = this;
         var opt = UI.options;
 
+        // 添入自己的 DOM
+        if(opt.html) {
+            UI.arena.html(opt.html);
+        }
+
         // 还要组合子 UI
         if(_.isArray(opt.setup)){
             // 记录每个子 UI 的类型

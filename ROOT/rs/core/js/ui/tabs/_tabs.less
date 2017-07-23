@@ -1,0 +1,83 @@
+// 布局
+@mP : @d2;
+.tabs {
+    position: relative; padding:@d2;
+    > header {position: absolute; @noselect();
+        li {cursor: pointer;}
+    }
+    > section {
+        width:100%; height:100%;
+        border:1px solid @cborder1; border-radius: @d1;
+        padding:@mP;
+        > div {
+            width:100%; height:100%;
+        }
+    }
+}
+//.............................................................
+// 水平布局
+@hW : 20%;
+.tabs[mode="left"], .tabs[mode="right"] {
+    > header {
+        top:0; bottom:0; width : @hW;
+        ul {
+            overflow: auto; padding:@d3 0;
+            li {padding:@d2 @d3;}
+            li[current] {background: @ch1_b; color:@ch1_f;}
+        }
+    }
+}
+// 左侧布局
+.tabs[mode="left"]{
+    padding: 0 0 0 @hW;
+    > header {
+        left:0;
+        ul {
+            li {text-align:right; border-radius: @d2 0 0 @d2;}
+        }
+    }
+}
+// 右侧布局
+.tabs[mode="right"]{
+    padding: 0 @hW 0 0;
+    > header {
+        right:0;
+        ul {
+            li {text-align:left; border-radius: 0 @d2 @d2 0;}
+        }
+    }
+}
+
+//.............................................................
+// 垂直布局
+@vH : 28px;
+.tabs[mode="top"], .tabs[mode="bottom"] {
+    > header {
+        left:0; right:0; @flex(); justify-content:center;
+        ul {
+            border:1px solid @cborder0; line-height: @vH - 2; 
+            background: @cb1; color:@cf1; border-radius: @d3; overflow: hidden;
+            li {
+                float: left; border-left:1px solid @cborder1;
+                padding:0 @d3; min-width: 80px; text-align: center;
+            }
+            li:first-child{border:0;}
+            li[current] {
+                background: @ch0_b; color:@ch0_f;
+            }
+        }
+        ul:after {@clr();}
+    }
+}
+// 顶部布局（默认）
+.tabs[mode="top"] {
+    padding: @vH/2 0 0 0;
+    > header {top:0;}
+    > section {padding:@vH/2+@mP @mP @mP @mP;}
+}
+// 底部布局（默认）
+.tabs[mode="bottom"] {
+    padding: 0 0 @vH/2 0;
+    > header {bottom:0;}
+    > section {padding:@mP @mP @vH/2+@mP @mP;}
+}

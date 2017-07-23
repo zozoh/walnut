@@ -2082,7 +2082,7 @@
             }
             // 函数
             else if (_.isFunction(data)) {
-                data.call(context, params, function (objs) {
+                eval_re = data.call(context, params, function (objs) {
                     callback.apply(context, [objs]);
                 });
             }
@@ -2130,6 +2130,14 @@
             }
             // 返回
             return eval_re;
+        },
+        //.............................................
+        // 传入的如果是一个函数，执行它，否则直接返回
+        evalObjValue : function(val, params, context) {
+            if(_.isFunction(val)){
+                return val.apply(context||this, params||[]);
+            }
+            return val;
         },
         //.............................................
         // 解析日期字符串为一个日期对象
