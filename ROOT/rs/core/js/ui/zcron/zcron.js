@@ -880,16 +880,6 @@ ZCronObj.prototype = {
         }
     },
     //............................................................
-    // 启动点精确到分,即不是 0分0秒的
-    // TODO zozoh: 这玩意没用了吧？
-    isTiny : function(){
-        if(this.iss.values[0] != "ONE" || this.iss.values[1] !=0)
-            return true;
-        if(this.imm.values[0] != "ONE" || this.imm.values[1] !=0)
-            return true;
-        return false;
-    },
-    //............................................................
     isWeekly : function(){
         return this.iww.values[0] != "ANY";
     },

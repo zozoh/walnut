@@ -55,9 +55,10 @@ public class cmd_ls extends JvmExecutor {
             }
             sys.out.print(tab.toString());
             if (tooMany) {
-                sys.out.printf("..\nmore than %s children exists, please use `obj` to query", maxN);
+                sys.out.printlnf("..\nmore than %s children exists, please use `obj` to query",
+                                 maxN);
             }
-            sys.out.println();
+            // sys.out.println();
         }
         // 多个内容
         else {
@@ -84,9 +85,9 @@ public class cmd_ls extends JvmExecutor {
                                                        o);
                     sys.out.print(tabDir.toString());
                     if (tooMany) {
-                        sys.out.printf("... more than %s children exists ...", maxN);
+                        sys.out.printlnf("... more than %s children exists ...", maxN);
                     }
-                    sys.out.println();
+                    // sys.out.println();
                 }
             }
         }

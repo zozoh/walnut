@@ -54,20 +54,12 @@ return ZUI.def("ui.zcron", {
         new TabsUI({
             parent : UI,
             gasketName : "date",
-            defaultKey : "monthly",
+            ddefaultKey : "monthly",
             setup : {
                 "weekly" : {
                     text : "周",
-                    uiType : 'ui/form/c_array',
-                    uiConf : {
-                        items : [1,2,3,4,5,6,7],
-                        text  : function(v) {
-                            return UI.msg("zcron.exp.week.dict")[v-1];
-                        },
-                        on_change : function(v){
-                            console.log(v);
-                        }
-                    }
+                    uiType : 'ui/zcron/support/zcr_weekly',
+                    uiConf : {}
                 },
                 "monthly" : {
                     text : "月",
@@ -123,6 +115,10 @@ return ZUI.def("ui.zcron", {
 
         // 返回延迟加载
         return ["drange", "date", "time"];
+    },
+    //...............................................................
+    getCron : function(){
+
     },
     //...............................................................
     _set_data : function(){

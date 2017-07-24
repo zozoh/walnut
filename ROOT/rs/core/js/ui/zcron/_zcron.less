@@ -1,11 +1,11 @@
 //...........................................................
 // 布局
-@W : 640px;
-@H : 480px;
+@W : 540px;
+@H : 400px;
 @h_header : @H * 0.1;
-@h_view   : @H * 0.6;
+@h_view   : @H * 0.5;
 @h_expr   : @H * 0.1;
-@h_text   : @H * 0.2;
+@h_text   : @H * 0.3;
 .zcron {
     width:@W; height:@H; position: relative;
     > * {position: absolute; left:0; right:0;}
@@ -20,8 +20,8 @@
 // 头部: 日期范围
 .zcron {
     // 头部: 日期范围
-    > header {
-        padding:@d3; line-height: @h_header - (@d3*2);
+    > header {@noselect();
+        padding:@d3; @flex(); align-items:center;
         > * {float: left; margin:0 @d2;}
         > em {font-style: normal; color:@c2;}
         > div.zcron-dr {width:@W * 0.4;}
@@ -29,11 +29,11 @@
     }
     > header:after{@clr();}
     // 中间: 日期编辑界面
-    > section.zcron-date {
+    > section.zcron-date {@noselect();
         padding:@d0;
     }
     // 中间: 时间编辑界面
-    > section.zcron-time {
+    > section.zcron-time {@noselect();
         background: #FF0;
         padding:@d0;
     }
@@ -55,3 +55,26 @@
         }
     }
 }
+
+//...........................................................
+// 周编辑视图
+.zcr-weekly {
+    padding:@d3;
+    .com-array-grp ul {
+        @flex(); justify-content:center; flex-warp:nowrap;
+        li {flex:1 1 auto;}
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
