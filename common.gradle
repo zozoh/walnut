@@ -156,7 +156,7 @@ task make_web_allows << {
 }
 
 task wtar(dependsOn: [':wbuild', ':fatJar']) << {
-    Files.write(file('build/libs/start.sh'), "java -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 \$JAVA_OPTS -jar ${project.name}.jar")
+    Files.write(file('build/libs/start.sh'), "java \$JAVA_OPTS -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 \$JAVA_OPTS -jar ${project.name}.jar")
     file('build/libs/start.sh').setExecutable(true, false)
     
    	task (_wtar, type: Tar) {
