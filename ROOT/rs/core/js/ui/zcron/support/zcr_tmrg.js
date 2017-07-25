@@ -53,7 +53,7 @@ return ZUI.def("ui.zcron_tmrg", {
     //...............................................................
     notifyChange : function(){
         var str = this.getData();
-        this.cronUI().setPart(0, str).setPart(1, null);
+        this.cronUI().setPart(0, str).setPart(1, "0 0 0");
     },
     //...............................................................
     update : function(ozc) {
