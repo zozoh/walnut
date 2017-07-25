@@ -69,7 +69,11 @@ return ZUI.def("ui.tabs", {
     },
     //..............................................
     getCurrentKey : function(){
-        return UI.arena.find('>header .tabs-li[current]').attr("key");
+        return this.arena.find('>header .tabs-li[current]').attr("key");
+    },
+    //..............................................
+    isCurrent : function(key) {
+        return (key||"") == this.getCurrentKey();
     },
     //..............................................
     changeUI : function(key, callback) {

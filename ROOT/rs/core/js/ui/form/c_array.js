@@ -36,10 +36,18 @@ return ZUI.def("ui.form_com_array", {
     events : {
         // 鼠标按下
         'mousedown li' : function(e) {
+            // 只对鼠标左键有效
+            if(1!=e.which)
+                return;
+
             var UI  = this;
             var opt = UI.options;
             var jLi = $(e.currentTarget);
             var old_val = UI._get_data();
+
+            // 如果单选，去掉之前的高亮
+            if(!opt.multi)
+                UI.arena.find('li[current]').removeAttr("current");
 
             // 首先 toggle 当前的值
             $z.toggleAttr(jLi, "current", "yes");
@@ -74,11 +82,20 @@ return ZUI.def("ui.form_com_array", {
     },
     //...............................................................
     redraw : function(){
+        this.setItems();
+    },
+    //...............................................................
+    setItems : function(items) {
         var UI  = this;
         var opt = UI.options;
 
+        // 清空选区
+        UI.arena.empty();
+
         // 得到侯选值数组，绘制侯选值
-        var items = $z.evalObjValue(opt.items) || [];
+        items = $z.evalObjValue(items || opt.items) || [];
+
+        // 循环绘制
         var jUl;
         for(var i=0; i<items.length; i++) {
             // 创建分组: 第一次 || 组大小为1 || 下标到了组大小
@@ -93,6 +110,17 @@ return ZUI.def("ui.form_com_array", {
             var txt = opt.text.call(UI, itv);
             $('<li>').attr("val", itv).text(txt).appendTo(jUl);
         }
+
+        // 记录
+        UI.__items = items;
+    },
+    //...............................................................
+    setMulti : function(mu) {
+        this.options.multi = mu ? true : false;
+    },
+    //...............................................................
+    getItems : function(){
+        return this.__items;
     },
     //...............................................................
     _get_data : function(){
@@ -107,7 +135,7 @@ return ZUI.def("ui.form_com_array", {
             }
         });
         // 单个值 
-        if(!opt.multi) {
+        if(!opt.multi && !opt.keepArray) {
             return lst.length > 0 ? lst[0] : null;
         }
         // 多个值
@@ -142,11 +170,20 @@ return ZUI.def("ui.form_com_array", {
                 lst.push(val);
             }
         }
+        //console.log("in array:", lst)
         // 处理选择
         UI.arena.find('li').each(function(){
             var jLi = $(this);
             var itv = jLi.attr("val");
-            jLi.attr("current", lst.indexOf(itv)>=0 ? "yes" : null);
+            // 查找值，为了考虑字符串的情况，就笨笨的找一下吧
+            for(var i=0; i<lst.length; i++){
+                if(lst[i] == itv){
+                    jLi.attr("current", "yes");
+                    return;
+                }
+            }
+            // 木有找到，取消高亮
+            jLi.removeAttr("current");
         });
     }
     //...............................................................

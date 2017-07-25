@@ -26,7 +26,7 @@ var formatDate = function(fmt, d) {
         yy   : yy,
         MM   : month > 9 ? month : "0"+month,
         M    : month,
-        dd   : date > 0 ? date : "0"+date,
+        dd   : date > 9 ? date : "0"+date,
         d    : date,
     });
 };
@@ -40,22 +40,33 @@ var AsDate = function(str) {
     }
     return new Date(str);
 };
-var AsTimeInObj = function(input) {
-    var sec = parseInt(input);
-    if(isNaN(sec) || sec !=input) {
+var AsTimeInObj = function(input, dft) {
+    var inType = (typeof input);
+    var sec = dft;
+    // 字符串
+    if("string" == inType) {
         var m = /^(\d{1,2}):(\d{1,2})(:?(\d{1,2}))?$/.exec(input);
         if(!m)
-            throw "Not a Time: '"+v+"'!!";
+            throw "Not a Time: '"+input+"'!!";
         sec = m[1]*3600  + m[2]*60  + (m[4]||0)*1;
     }
-    var HH = parseInt(sec/3600);
-    var mm = parseInt((sec - HH*3600)/60);
-    var ss = sec - HH*3600 - mm*60;
+    // 数字
+    else if("number" == inType) {
+        sec = parseInt(input);
+    }
+    // 其他
+    else if((typeof sec)!="number"){
+        throw "Not a Time: " + input;
+    }
+    // 计算时分秒
+    var HH = Math.min(23, parseInt(sec/3600));
+    var mm = Math.min(59, parseInt((sec - HH*3600)/60));
+    var ss = Math.min(59, sec - HH*3600 - mm*60);
     return {
         hour   : HH,
         minute : mm,
         second : ss,
-        value  : sec,
+        value  : HH*3600 + mm *60 + ss,
         toString : function(autoIgnoreZeroSecond){
             var re = (this.hour>9 ? this.hour : "0"+this.hour);
             re += ":" + (this.minute>9 ? this.minute : "0"+this.minute);
@@ -146,11 +157,23 @@ var Region = function(str, formatFunc){
         }
     }
     // 添加帮助函数
-    re.left  = function(){return this[1];}
-    re.right = function(){return this[this.length - 2];}
-    re.isLeftOpen  = function(){return this[0];}
-    re.isRightOpen = function(){return this[this.length-1];}
-    re.isRegion = function(){return this.length==4;}
+    re.left  = function(){
+        return this[1];
+    };
+    re.right = function(){
+        return this[this.length - 2];
+    };
+    re.leftAsStr  = function(fmt){
+        var v = this[1];
+        return v ? formatDate(fmt||"yyyy-MM-dd",v) : "";
+    };
+    re.rightAsStr = function(fmt){
+        var v = this[this.length - 2];
+        return v ? formatDate(fmt||"yyyy-MM-dd",v) : "";
+    };
+    re.isLeftOpen  = function(){return this[0];};
+    re.isRightOpen = function(){return this[this.length-1];};
+    re.isRegion = function(){return this.length==4;};
     re.match = function(v) {
         // 区间
         if(this.length == 4) {
@@ -170,6 +193,19 @@ var Region = function(str, formatFunc){
         // 等于
         return this[1] == v;
     };
+    re.valueOf = function(){
+        var s = this.isLeftOpen()?"(":"[";
+        if(this.isRegion()){
+            s += this.leftAsStr()  || "";
+            s += ",";
+            s += this.rightAsStr() || "";
+        }else{
+            s += this.leftAsStr();
+        }
+        s += this.isRightOpen()?")":"]";
+        return s;
+    };
+    re.toString = re.valueOf;
     // 返回
     return re;
 };
@@ -361,6 +397,9 @@ CrnItem.prototype = {
     },
     isSPAN : function() {
         return "SPAN" == this.values[0];
+    },
+    isONE : function() {
+        return "ONE" == this.values[0];
     },
     isPrevAllAny : function() {
         if (!this.prevItems || this.prevItems.length == 0)
@@ -554,7 +593,7 @@ CrnItem.prototype = {
 var CrnItem_dd = function(){
     CrnItem.apply(this, Array.from(arguments));
     this.supportLast = true;
-    this.supportMOD  = false;
+    this.supportMOD  = true;
 };
 CrnItem_dd.prototype = new CrnItem();
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -728,15 +767,6 @@ CrnItem_ww.prototype.matchDate = function(c){
 var ZCronObj = function(cron) {
     this.__zcron_version = "1.1";
 
-    this.iHH = new CrnItem();
-    this.imm = new CrnItem(this.iHH);
-    this.iss = new CrnItem(this.imm).setIgnoreZeroWhenPrevHasSpan(true);
-
-    this.idd = new CrnItem_dd();
-    this.iww = new CrnItem_ww(this.idd).setIgnoreAnyWhenPrevAllAny(true);
-    this.iMM = new CrnItem_MM(this.idd, this.iww).setIgnoreAnyWhenPrevAllAny(true);
-    this.iyy = new CrnItem_yy(this.iMM).setIgnoreAnyWhenPrevAllAny(true);
-
     // 字符串
     if(typeof cron == "string") {
         this.parse(cron);
@@ -756,6 +786,17 @@ ZCronObj.prototype = {
     //............................................................
     parse : function(cron){
         this.__str = cron;
+        this.parts = [null,null,null,null];
+
+        // 初始化
+        this.iHH = new CrnItem();
+        this.imm = new CrnItem(this.iHH);
+        this.iss = new CrnItem(this.imm).setIgnoreZeroWhenPrevHasSpan(true);
+
+        this.idd = new CrnItem_dd();
+        this.iww = new CrnItem_ww(this.idd).setIgnoreAnyWhenPrevAllAny(true);
+        this.iMM = new CrnItem_MM(this.idd, this.iww).setIgnoreAnyWhenPrevAllAny(true);
+        this.iyy = new CrnItem_yy(this.iMM).setIgnoreAnyWhenPrevAllAny(true);
 
         // 拆
         var items = cron.trim().split(/[ \t]+/g);
@@ -793,13 +834,13 @@ ZCronObj.prototype = {
             break;
         // 给了 `日 月 周` 必须还要给定 timePoints
         case 3:
-            if (!timePoints)
+            if (!this.timePoints)
                 throw "No TimePoints : " + cron;
             stdN = 1;
             break;
         // 给了 `日 月 周 年` 必须还要给定 timePoints
         case 4:
-            if (!timePoints)
+            if (!this.timePoints)
                 throw "No TimePoints : " + cron;
             stdN = 0;
             break;
@@ -829,6 +870,10 @@ ZCronObj.prototype = {
         this.iww.parse(stds[5]);
         this.iyy.parse(stds[6]);
 
+        // 记录成标准
+        this.parts[1] = stds.slice(0, 3).join(" ");
+        this.parts[2] = stds.slice(3, 7).join(" ");
+
         // 返回
         return this;
     },
@@ -838,9 +883,11 @@ ZCronObj.prototype = {
             // 为日期范围
             if (/^D/.test(s)) {
                 this.rgDate = Region(s.substring(1), "date");
+                this.parts[3] = s;
             }
             // 为时间范围
             else if (/^T/.test(s)) {
+                this.parts[0] = s;
                 // 是否声明了时间点
                 // Parse:  |           1        | |2 [  3  ]  |    
                 var m = /^T([\[\(][\d:,-]+[\]\)])?(\{([^}]+)\})?$/.exec(s);
@@ -880,6 +927,16 @@ ZCronObj.prototype = {
         }
     },
     //............................................................
+    // 启动点精确到分,即不是 0分0秒的
+    // TODO zozoh: 这玩意没用了吧？
+    isTiny : function(){
+        if(this.iss.values[0] != "ONE" || this.iss.values[1] !=0)
+            return true;
+        if(this.imm.values[0] != "ONE" || this.imm.values[1] !=0)
+            return true;
+        return false;
+    },
+    //............................................................
     isWeekly : function(){
         return this.iww.values[0] != "ANY";
     },
@@ -890,14 +947,24 @@ ZCronObj.prototype = {
     isWorkingDay : function(){
         return this.idd.workingDay;
     },
+    isFromLastDay : function(){
+        var dd = this.idd.values[1];
+        return this.idd.isONE()
+               && (dd < 0
+                  || (dd > 40 && dd<MOD_dd));
+    },
     //............................................................
     // day : [1,7] 表 [Sun, Sat]
     matchDayInWeek : function(day) {
         return this.iww._match_(day, this.iww.prepare(8));
     },
     matchDayInMonth : function(day) {
-        if(this.idd.workingDay)
+        //console.log("matchDayInMonth", day)
+        if(this.idd.workingDay){
             day += MOD_dd;
+            if(this.isFromLastDay())
+                day -= 32;
+        }
         return this.idd._match_(day, this.idd.prepare(32));
     },
     matchMonth : function(m) {
@@ -946,6 +1013,15 @@ ZCronObj.prototype = {
             return false;
 
         return true;
+    },
+    matchHour : function(HH) {
+        return this.iHH.matchTime(HH, 0, 24);
+    },
+    matchMinute : function(mm) {
+        return this.imm.matchTime(mm, 0, 60);
+    },
+    matchSecond : function(ss) {
+        return this.iss.matchTime(ss, 0, 60);
     },
     // callback : F(array, index)
     each : function(array, callback, c, off, len, unit) {
@@ -997,7 +1073,67 @@ ZCronObj.prototype = {
         return array;
     },
     //............................................................
-    toString : function(){
+    setPartExtTime : function(str) {
+        return this.__set_part(0, str);
+    },
+    setPartStdTime : function(str) {
+        return this.__set_part(1, str);
+    },
+    setPartStdDate : function(str) {
+        return this.__set_part(2, str);
+    },
+    setPartExtDate : function(str) {
+        return this.__set_part(3, str);
+    },
+    __set_part : function(index, str) {
+        var val = (str||"").trim() || null;
+        //console.log("__set_part", index, str);
+        this.parts[index] = val;
+        // 清除时间点
+        if (0 == index && !val) {
+            this.timePoints   = null;
+            this.timeRepeater = null;
+        }
+        // 清除日期范围
+        if (3 == index && !val) {
+            this.rgDate = null;
+        }
+        // 立即解析
+        var cron = this.toString();
+        return this.parse(cron);
+    },
+    //............................................................
+    toString : function() {
+        var list = [];
+        // 扩展: 时间部分
+        if (this.parts[0]) {
+            list.push(this.parts[0]);
+        }
+        // 标准: 时间部分
+        if (null == this.timePoints) {
+            list.push(this.parts[1]);
+        }
+        // 标准: 日期部分
+        if (!this.rgDate 
+            || "* * ? *" != this.parts[2] 
+            || !this.timePoints) {
+            list.push(/ [*]$/.test(this.parts[2]) 
+                ? this.parts[2].substring(0, this.parts[2].length - 2)
+                : this.parts[2]);
+        }
+        // 扩展: 日期部分
+        if (this.parts[3]) {
+            list.push(this.parts[3]);
+        }
+        // 返回结果
+        return list.join(" ");
+    },
+    //............................................................
+    // JS 默认对象变字符串的函数，相当于 Java 的 toString()
+    valueOf : function(){
+        return this.toString();
+    },
+    getPrimaryString : function(){
         return this.__str;
     },
     //............................................................
@@ -1068,8 +1204,8 @@ ZCronObj.prototype = {
     },
     //........................................................
     __join_time_region : function(i18n, ary) {
-        var tFrom = AsTimeInObj(this.rgTime.left());
-        var tTo   = AsTimeInObj(this.rgTime.right());
+        var tFrom = AsTimeInObj(this.rgTime.left(), 0);
+        var tTo   = AsTimeInObj(this.rgTime.right(), 86400);
 
         // 准备上下文
         var c = {};
@@ -1087,21 +1223,46 @@ ZCronObj.prototype = {
         var dFrom = this.rgDate.left();
         var dTo   = this.rgDate.right();
 
+        var yearFrom = !dFrom ? -1 : dFrom.getFullYear();
+        var yearTo   = !dTo   ? -2 : dTo.getFullYear();
+
+        // 准备模板
+        var tmpl;
+        // 没有开始
+        if (yearFrom < 0) {
+            tmpl = i18n.dates.no_from;
+        }
+        // 没有结束
+        else if (yearTo < 0) {
+            tmpl = i18n.dates.no_to;
+        }
+        // 完整区间
+        else {
+            tmpl = i18n.dates.region;
+        }
+
+
         // 准备上下文
         var c  = {};
-        c.ieF  = this.rgDate.isLeftOpen() ? i18n.EXC : i18n.INV;
-        c.ieT  = this.rgDate.isRightOpen() ? i18n.EXC : i18n.INV;
-        c.from = formatDate(i18n.dates.full, dFrom);
-        // 同年
-        if (dFrom.getYear() == dTo.getYear()) {
-            c.to = formatDate(i18n.dates.same, dTo);
+        // 开始
+        if (yearFrom > 0) {
+            c.from = formatDate(i18n.dates.full, dFrom);
+            c.ieF  = this.rgDate.isLeftOpen() ? i18n.EXC : i18n.INV;
         }
-        // 跨年
-        else {
-            c.to = formatDate(i18n.dates.full, dTo);
+        // 结束
+        if (yearTo > 0) {
+            // 同年
+            if (yearFrom == yearTo) {
+                c.to = formatDate(i18n.dates.same, dTo);
+            }
+            // 跨年
+            else {
+                c.to = formatDate(i18n.dates.full, dTo);
+            }
+            c.ieT  = this.rgDate.isRightOpen() ? i18n.EXC : i18n.INV;
         }
         // 渲染
-        var str = Tmpl(i18n.dates.region, c, "${", "}");
+        var str = Tmpl(tmpl, c, "${", "}");
         ary.push(str);
     },
     //........................................................

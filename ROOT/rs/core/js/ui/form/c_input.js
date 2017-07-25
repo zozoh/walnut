@@ -35,12 +35,6 @@ return ZUI.def("ui.form_com_input", {
         "change > .com-input > .box > input" : function(){
             this.__on_change();
         },
-        // 回车确认修改
-        "keydown > .com-input > .box > input" : function(e){
-            if(13 == e.which && (e.metaKey || e.ctrlKey)) {
-                this.__on_change();
-            }
-        },
         // 打开辅助框
         "click > .com-input > .ass" : function(){
             this.openAssist();
@@ -75,7 +69,7 @@ return ZUI.def("ui.form_com_input", {
             return;
 
         // 得到数据
-        var val = UI.getData();
+        var val = UI._get_data();
 
         // 计算助理的配置
         var uiType = UI._assist.uiType;
@@ -87,7 +81,12 @@ return ZUI.def("ui.form_com_input", {
 
         // 显示出辅助弹出遮罩
         $('<div class="ass-mask">').appendTo(UI.arena);
-        var jAssBox = $('<div class="ass-box">').appendTo(UI.arena);
+        var jAssBox = $('<div class="ass-box">').data({
+            "old-val" : val||""
+        }).css({
+            "visibility" : "hidden",
+            "position"   : "fixed",
+        }).appendTo(UI.arena);
         seajs.use(uiType, function(AssUI){
             new AssUI({
                 $pel : jAssBox,
@@ -95,6 +94,9 @@ return ZUI.def("ui.form_com_input", {
                     UI._set_data(v);
                 }
             }).render(function(){
+                // 显示
+                jAssBox.css("visibility", "");
+
                 // 设置值
                 this.setData(val);
 
@@ -110,11 +112,21 @@ return ZUI.def("ui.form_com_input", {
 
         // 已经打开了
         if(jAssBox.length > 0) {
+            // 得到新老值
+            var oldVal = jAssBox.data("old-val");
+            var newVal = UI._get_data();
+
+            // 移除遮罩
             var uiAss = ZUI(jAssBox.children().attr("ui-id"));
             if(uiAss)
                 uiAss.destroy();
             jAssBox.remove();
             UI.arena.find("> .ass-mask").remove();
+            
+            // 通知改动
+            if(oldVal != newVal) {
+                UI.__on_change();
+            }
         }
     },
     /*...............................................................

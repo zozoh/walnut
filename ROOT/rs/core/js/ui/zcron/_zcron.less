@@ -1,19 +1,22 @@
 //...........................................................
 // 布局
 @W : 540px;
-@H : 400px;
-@h_header : @H * 0.1;
-@h_view   : @H * 0.5;
-@h_expr   : @H * 0.1;
-@h_text   : @H * 0.3;
+@H : 500px;
+@h_dr     : @H * 0.07;
+@h_month  : @H * 0.07;
+@h_view   : @H * 0.6;
+@h_expr   : @H * 0.08;
+@h_text   : @H * 0.18;
+@t_view   : @h_dr + @h_month;
 .zcron {
     width:@W; height:@H; position: relative;
     > * {position: absolute; left:0; right:0;}
-    > header {top:0; height:@h_header;}
-    > section.zcron-date {top:@h_header; right:50%; height:@h_view;}
-    > section.zcron-time {top:@h_header; left: 50%; height:@h_view;}
-    > section.zcron-expr {top:@h_header+@h_view; height: @h_expr;}
-    > footer.zcron-text {bottom:0; height:@h_text;}
+    > header.zcron-dr    {top:0;     height:@h_dr ; }
+    > header.zcron-month {top:@h_dr; height:@h_month; }
+    > section.zcron-date {top:@t_view; right:60%; height:@h_view;}
+    > section.zcron-time {top:@t_view; left: 40%; height:@h_view;}
+    > section.zcron-expr {top:@t_view+@h_view; height: @h_expr;}
+    > footer.zcron-text  {bottom:0; height:@h_text;}
 }
 
 //...........................................................
@@ -21,20 +24,19 @@
 .zcron {
     // 头部: 日期范围
     > header {@noselect();
-        padding:@d3; @flex(); align-items:center;
-        > * {float: left; margin:0 @d2;}
-        > em {font-style: normal; color:@c2;}
-        > div.zcron-dr {width:@W * 0.4;}
-        > a {cursor: pointer; font-size:@f1;}
+        padding:@d1; @flex(); align-items:center;
+        > * {margin:0 @d2; display: block;}
+        > em {
+            font-style: normal; color:@c2; width:@W * 0.12;
+        }
     }
-    > header:after{@clr();}
+    > header.zcron-dr > div {width:@W * 0.5;}
     // 中间: 日期编辑界面
     > section.zcron-date {@noselect();
         padding:@d0;
     }
     // 中间: 时间编辑界面
     > section.zcron-time {@noselect();
-        background: #FF0;
         padding:@d0;
     }
     // 中间: 自由编辑界面 
@@ -51,7 +53,8 @@
         padding:@d3 0;
         > div { overflow: auto;
             width: 100%; height:100%; border:1px dashed @cborder1;
-            font-family: @f_fixed; font-size:@f1; color:@c2;
+            font-family: @f_fixed; font-size:@f2; color:@c2;
+            padding:@d3; word-break:break-all;
         }
     }
 }
@@ -61,8 +64,92 @@
 .zcr-weekly {
     padding:@d3;
     .com-array-grp ul {
-        @flex(); justify-content:center; flex-warp:nowrap;
-        li {flex:1 1 auto;}
+        li {float:unset; width:100px; margin:1px auto 0 auto;}
+    }
+}
+//...........................................................
+// 日期编辑视图
+.zcr-monthly {
+    padding:@d3;
+    .zm-days {
+        @flex(); justify-content:center;
+    }
+    .zm-bool { 
+        margin:0 auto; padding:@d2 @d2 0 @d2;
+        > * {
+            cursor: pointer; display: inline-block;
+            vertical-align: middle;
+        }
+        span.zmw-icon {
+            font-size:@f3; padding-right:@d1; 
+            i:first-child {display: inline-block;}
+            i:last-child  {display: none;}
+        }
+        em {font-style: normal;}
+    }
+    .zm-bool[enabled] { 
+        span.zmw-icon {
+            i:first-child {display: none;}
+            i:last-child  {display: inline-block;}
+        }
+    }
+}
+//...........................................................
+// 时分秒编辑视图
+.zcr-hms {
+    table {
+        width:100%;
+        td:first-child {padding:0 @d2;}
+    }
+    .com-array-grp {
+        ul li {
+            line-height: 16px; height: 18px;
+        }
+    }
+}
+//...........................................................
+// 时间范围编辑视图
+.zcr-tmrg {
+    padding:@d2;
+    table {
+        margin: 0 auto;
+        td {padding:@d2; white-space: nowrap;}
+    }
+    input {@input();
+        padding:@d3 @d4; outline: none;
+        font-family: @f_fixed; font-size: @f3;
+    }
+    input:focus{@input_focus();}
+    tr[key="step"] {
+        input {width : 60px;}
+        span {
+            display: inline-block; vertical-align: middle;
+            padding:0 0 0 @d2;
+            u {
+                text-decoration: none; display: block;
+                padding:@d1 @d2; float: left; cursor: pointer;
+                border: 1px solid @cborder1; margin-left:1px;
+                font-size: @f1; border-radius: @d0;
+                opacity: 0.3;
+            }
+            u[current] {
+                background: @chx_b; color:@chx_f; border-color:@chx_b;
+                opacity: 1;
+            }
+        }
+        span:after {@clr();}
+    }
+}
+//...........................................................
+// 时间点编辑视图
+.zcr-tps {
+    padding:@d2;
+    .com-array-grp {
+        ul{
+            width:100%;
+            @flex(); justify-content:center; flex-wrap: wrap;
+            li {padding:1px @d2;}
+        }
     }
 }
 

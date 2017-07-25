@@ -38,6 +38,24 @@ var ui = uiTabs.getCurrentUI();
 * 返回当前标签组正在显示的子 UI 实例
 * 如果没有任何子 UI 在显示，返回 null
 
+## getCurrentKey
+
+```
+var key = uiTabs.getCurrentKey();
+```
+
+* 返回当前标签组的键值
+
+## isCurrent
+
+```
+if(uiTabs.isCurrent("theKey")) {
+     // TODO 你的代码
+}
+```
+
+* 判断当前标签组的键是否为某个值
+
 ## changeUI
 
 ```

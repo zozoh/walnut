@@ -614,7 +614,8 @@ define(function (require, exports, module) {
                             if (!_.isFunction(handler)) {
                                 handler = UI[handler];
                             }
-                            UI.listenUI(m[1], m[2], handler);
+                            var taUI = "$parent" == m[1] ? UI.parent : m[1];
+                            UI.listenUI(taUI, m[2], handler);
                         }
                     }
                     //console.log("do_render:", UI.uiName, UI._defer_uiTypes)

@@ -2330,6 +2330,44 @@
             return _t;
         },
         //.............................................
+        // 解析时间字符串（替代 parseTime)
+        parseTimeInfo : function(input, dft) {
+            var inType = (typeof input);
+            var sec = dft;
+            // 字符串
+            if("string" == inType) {
+                var m = /^(\d{1,2}):(\d{1,2})(:?(\d{1,2}))?$/.exec(input);
+                if(!m)
+                    throw "Not a Time: '"+input+"'!!";
+                sec = m[1]*3600  + m[2]*60  + (m[4]||0)*1;
+            }
+            // 数字
+            else if("number" == inType) {
+                sec = parseInt(input);
+            }
+            // 其他
+            else if((typeof sec)!="number"){
+                throw "Not a Time: " + input;
+            }
+            // 计算时分秒
+            var HH = Math.min(23, parseInt(sec/3600));
+            var mm = Math.min(59, parseInt((sec - HH*3600)/60));
+            var ss = Math.min(59, sec - HH*3600 - mm*60);
+            return {
+                hour   : HH,
+                minute : mm,
+                second : ss,
+                value  : HH*3600 + mm *60 + ss,
+                toString : function(autoIgnoreZeroSecond){
+                    var re = (this.hour>9 ? this.hour : "0"+this.hour);
+                    re += ":" + (this.minute>9 ? this.minute : "0"+this.minute);
+                    if(!autoIgnoreZeroSecond || this.second > 0)
+                        re += ":" + (this.second>9 ? this.second : "0"+this.second);
+                    return re;
+                }
+            };
+        },
+        //.............................................
         // 得到一个时间对象的显示字符串
         // mode : 显示格式，是一个以 _t 为上下文的字符串模板 (@see $z.tmpl)
         //        也可是一个下面的快捷字符串，表示的模板

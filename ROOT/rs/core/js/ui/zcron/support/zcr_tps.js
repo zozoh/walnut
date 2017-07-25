@@ -6,11 +6,11 @@ $z.declare([
 ], function(ZUI, ZCronMethods, ArrayUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena zcr-weekly" ui-gasket="list">
+<div class="ui-arena zcr-tps" ui-gasket="list">
 </div>
 */};
 //==============================================
-return ZUI.def("ui.zcron_weekly", {
+return ZUI.def("ui.zcron_tps", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     // 监听父控件的消息
@@ -21,34 +21,52 @@ return ZUI.def("ui.zcron_weekly", {
     //...............................................................
     redraw : function(){
         var UI = this;
-
-        // 日期范围
         new ArrayUI({
             parent : UI,
             gasketName : "list",
-            items : [1,2,3,4,5,6,7],
-            text  : function(v) {
-                return UI.msg("zcron.exp.week.dict")[v-1];
+            items : function(){
+                var re = [];
+                for(var i=0;i<48;i++)
+                    re[i] = i * 1800;
+                return re;
+            },
+            text : function(v) {
+                return $z.parseTimeInfo(v).toString(true);
             },
             on_change : function(v){
-                UI.cronUI().notifyStdDatePartChange();
+                UI.notifyChange();
             }
             
         }).render(function(){
             UI.defer_report("list");
         });
-
+        //..............................................
         // 返回延迟加载
         return ["list"];
     },
     //...............................................................
+    notifyChange : function(){
+        var str = this.getData();
+        this.cronUI().setPart(0, str).setPart(1, null);
+    },
+    //...............................................................
     update : function(ozc) {
-        this.setCronToArrayUI(this.gasket.list, ozc, "matchDayInWeek");
+        this.setCronToArrayUI(this.gasket.list, ozc, "matchTime");
     },
     //...............................................................
     getData : function(){
-        return this.getStrFromArrayUI(this.gasket.list, "1-7", "?");
-    }
+        var tps = this.gasket.list.getData();
+        if(tps.length == 0)
+            tps.push(0);
+
+        for(var i=0;i<tps.length;i++) {
+            var sec = tps[i];
+            var ti  = $z.parseTimeInfo(sec);
+            tps[i]  = ti.toString(true);
+        }
+        
+        return "T{" + tps.join(",") + "}";
+    },
     //...............................................................
 });
 //===================================================================

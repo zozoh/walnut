@@ -25,9 +25,11 @@ define({
             "INV" : "",
             "EXC" : "（不包含）",
             "dates" : {
-                "region" : "${from}${ieF}至${to}${ieT}，",
-                "full"   : "yyyy年M月d日",
-                "same"   : "M月d日",
+                "full"     : "yyyy年M月d日",
+                "same"     : "M月d日",
+                "region"   : "${from}${ieF}至${to}${ieT}，",
+                "no_from"  : "截止至${to}${ieT}，",
+                "no_to"    : "从${from}${ieF}开始，",
             },
             "times" : {
                 "region" : "${from}${ieF}到${to}${ieT}，",
