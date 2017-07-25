@@ -200,12 +200,23 @@ return ZUI.def("ui.zcron", {
     //...............................................................
     _set_data : function(cron){
         var UI = this;
+        var jT = UI.arena.find(".zcron-text > div");
 
         // 解析
-        var ozc = ZCron(cron);
+        var ozc;
+
+        try{
+            ozc = ZCron(cron || "0 0 0 * * ?");
+        }
+        // 格式出错了
+        catch(E){
+            jT.attr("invalid", "yes").text("表达式格式错误：" + E);
+            return;
+        }
         //console.log("_set_data:", cron, ozc);
 
-        // 更新日期范围
+        // 恢复显示模式
+        jT.removeAttr("invalid");
 
         // 更新表达式
         this.__update_expr(ozc);
