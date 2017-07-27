@@ -3,7 +3,7 @@ package org.nutz.walnut.ext.sshd.hdl;
 import java.io.PrintStream;
 
 import org.nutz.mvc.Mvcs;
-import org.nutz.walnut.ext.sshd.WnSshdServer;
+import org.nutz.walnut.ext.sshd.srv.WnSshdServer;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;

@@ -1,18 +1,22 @@
-package org.nutz.walnut.ext.sshd;
+package org.nutz.walnut.ext.sshd.srv;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.sshd.common.NamedFactory;
 import org.apache.sshd.common.config.keys.PublicKeyEntryResolver;
+import org.apache.sshd.server.Command;
 import org.apache.sshd.server.ServerBuilder;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.config.keys.AuthorizedKeyEntry;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.session.ServerSession;
+import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
@@ -85,12 +89,13 @@ public class WnSshdServer extends WnRun {
         });
         sshd.setFileSystemFactory((session) -> {
             try {
-                return new WnJdkFileSystemProvider(session).getFileSystem(new URI("/"));
+                return new WnJdkFileSystemProvider(session, io).getFileSystem(new URI("/"));
             }
             catch (URISyntaxException e) {
                 throw Lang.impossible();
             }
         });
+        sshd.setSubsystemFactories(Arrays.<NamedFactory<Command>>asList(new SftpSubsystemFactory()));
         sshd.setPort(port);
         sshd.start();
     }

@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.sshd;
+package org.nutz.walnut.ext.sshd.srv;
 
 import java.io.IOException;
 import java.nio.file.LinkOption;
@@ -15,8 +15,7 @@ public class WnJdkPath extends BasePath<WnJdkPath, WnJdkFileSystem> {
 
     @Override
     public Path toRealPath(LinkOption... options) throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+        return this;
     }
 
 }

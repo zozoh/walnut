@@ -22,7 +22,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.email.WnMailServer;
 import org.nutz.walnut.ext.ftpd.WnFtpServer;
-import org.nutz.walnut.ext.sshd.WnSshdServer;
+import org.nutz.walnut.ext.sshd.srv.WnSshdServer;
 import org.nutz.walnut.ext.websocket.WnWebSocket;
 import org.nutz.walnut.impl.io.bucket.MemoryBucket;
 import org.nutz.walnut.job.WnJob;

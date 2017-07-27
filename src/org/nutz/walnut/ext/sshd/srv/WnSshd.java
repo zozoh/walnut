@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.sshd;
+package org.nutz.walnut.ext.sshd.srv;
 
 import org.apache.sshd.common.session.Session.AttributeKey;
 import org.nutz.walnut.api.usr.WnSession;

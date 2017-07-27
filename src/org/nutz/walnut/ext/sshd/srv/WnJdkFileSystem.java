@@ -1,8 +1,8 @@
-package org.nutz.walnut.ext.sshd;
+package org.nutz.walnut.ext.sshd.srv;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.nio.file.attribute.GroupPrincipal;
+import java.nio.file.attribute.UserPrincipal;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
@@ -10,8 +10,6 @@ import java.util.Set;
 
 import org.apache.sshd.common.file.util.BaseFileSystem;
 import org.apache.sshd.common.file.util.ImmutableList;
-import org.nutz.json.Json;
-import org.nutz.lang.Strings;
 
 public class WnJdkFileSystem extends BaseFileSystem<WnJdkPath> {
 
@@ -20,16 +18,16 @@ public class WnJdkFileSystem extends BaseFileSystem<WnJdkPath> {
     public WnJdkFileSystem(FileSystemProvider fileSystemProvider) {
         super(fileSystemProvider);
         supportedViews.add("basic");
+        supportedViews.add("posix");
+        supportedViews.add("owner");
     }
 
     protected WnJdkPath create(String root, ImmutableList<String> names) {
-        try {
-            return (WnJdkPath) provider().getPath(new URI(root
-                                                          + Strings.join("/", names.toArray())));
-        }
-        catch (URISyntaxException e) {
-            throw new RuntimeException("bad path root=" + root + ",names=" + Json.toJson(names));
-        }
+        if (root == null && names.size() == 1 && names.get(0).equals("."))
+            new WnJdkPath((WnJdkFileSystem) provider().getFileSystem(null),
+                          "/",
+                          new ImmutableList<>(new String[]{}));
+        return new WnJdkPath((WnJdkFileSystem) provider().getFileSystem(null), root, names);
     }
 
     public void close() throws IOException {}
@@ -43,7 +41,14 @@ public class WnJdkFileSystem extends BaseFileSystem<WnJdkPath> {
     }
 
     public UserPrincipalLookupService getUserPrincipalLookupService() {
-        return null;
+        return new UserPrincipalLookupService() {
+            public GroupPrincipal lookupPrincipalByGroupName(String group) throws IOException {
+                return new WnJdkGroupPrincipal(group);
+            }
+            public UserPrincipal lookupPrincipalByName(String name) throws IOException {
+                return new WnJdkUserPrincipal(name);
+            }
+        };
     }
 
 }

@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.sshd;
+package org.nutz.walnut.ext.sshd.srv;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
