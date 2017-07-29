@@ -11,14 +11,12 @@ import org.nutz.walnut.impl.box.WnSystem;
 public class ftpd_stop implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        if (sys.me.name().equals("root")) {
-            WnFtpServer ftpd = Mvcs.getIoc().get(WnFtpServer.class);
-            try {
-                ftpd.stop();
-            }
-            catch (Throwable e) {
-                e.printStackTrace(new PrintStream(sys.err.getOutputStream()));
-            }
+        WnFtpServer ftpd = Mvcs.getIoc().get(WnFtpServer.class);
+        try {
+            ftpd.stop();
+        }
+        catch (Throwable e) {
+            e.printStackTrace(new PrintStream(sys.err.getOutputStream()));
         }
     }
 

@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.sshd;
+package org.nutz.walnut.ext.sshd.srv;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
-public class WalnutSshdCommand implements Command, Runnable, SessionAware {
+public class WnSshdCommand implements Command, Runnable, SessionAware {
 
     private InputStream in;
     private OutputStream out;
@@ -25,12 +25,12 @@ public class WalnutSshdCommand implements Command, Runnable, SessionAware {
     protected WnSession se;
     protected WnRun run;
     protected String cmd;
-    
-    public WalnutSshdCommand(WnRun run) {
+
+    public WnSshdCommand(WnRun run) {
         this.run = run;
     }
-    
-    public WalnutSshdCommand(WnRun run, String cmd) {
+
+    public WnSshdCommand(WnRun run, String cmd) {
         this.run = run;
         this.cmd = cmd;
     }
@@ -102,7 +102,8 @@ public class WalnutSshdCommand implements Command, Runnable, SessionAware {
         }
         catch (Exception e) {
             e.printStackTrace();
-        } finally {
+        }
+        finally {
             if (this.callback != null)
                 this.callback.onExit(0);
         }
@@ -116,19 +117,19 @@ public class WalnutSshdCommand implements Command, Runnable, SessionAware {
 
     public void setSession(ServerSession session) {
         this.session = session;
-        this.se = session.getAttribute(SshdServer.KEY_WN_SESSION);
+        this.se = session.getAttribute(WnSshd.KEY_WN_SESSION);
     }
 
     public void execute(String cmdText) throws IOException {
         try {
             Wn.WC().SE(se);
             run.exec("",
-                 se,
-                 cmdText,
-                 new NoCloseOutputStream(out),
-                 new NoCloseOutputStream(err),
-                 null,
-                 null);
+                     se,
+                     cmdText,
+                     new NoCloseOutputStream(out),
+                     new NoCloseOutputStream(err),
+                     null,
+                     null);
         }
         catch (Exception e) {
             out.write(("\r\nSystem ERR : " + e.getMessage() + "\r\n").getBytes());
