@@ -48,7 +48,8 @@ return ZUI.def("ui.zcron_tmrg", {
         'click tfoot b' : function(){
             this.arena.find(".tr-empty").remove();
             this.__append_tr({
-                region : $z.region("[0:00,23:59]")
+                region : $z.region("[0:00,23:59]"),
+                stepValue : 30,
             });
             this.notifyChange();
         }
@@ -89,7 +90,7 @@ return ZUI.def("ui.zcron_tmrg", {
         var html = UI.compactHTML(`
         <tr class="tr-item">
             <td a="del">
-                <span data-balloon="删除" data-balloon-pos="left">
+                <span data-balloon="删除" data-balloon-pos="right">
                     <i class="zmdi zmdi-close"></i>
                 </span>
             </td>
@@ -132,6 +133,8 @@ return ZUI.def("ui.zcron_tmrg", {
             // 拼接字符串
             trStrs.push("T["+from+","+to+"]{0/"+step+unit+"}");
         });
+
+        console.log("getData", trStrs)
 
         // 返回
         return trStrs.join(" ") || null;

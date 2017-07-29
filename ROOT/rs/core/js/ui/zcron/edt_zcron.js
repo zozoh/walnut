@@ -101,7 +101,7 @@ return ZUI.def("ui.zcron", {
         new TabsUI({
             parent : UI,
             gasketName : "date",
-            defaultKey : "monthly",
+            defaultKey : "weekly",
             setup : {
                 "weekly" : {
                     text : "周",
@@ -165,8 +165,10 @@ return ZUI.def("ui.zcron", {
     //...............................................................
     setPart : function(index, str) {
         var UI  = this;
+        console.log("setPart", index, str);
         var ozc = UI._get_data();
         ozc.__set_part(index, str);
+        console.log("ozc", ozc);
         UI._set_data(ozc);
         return this;
     },
@@ -213,7 +215,7 @@ return ZUI.def("ui.zcron", {
             jT.attr("invalid", "yes").text("表达式格式错误：" + E);
             return;
         }
-        //console.log("_set_data:", cron, ozc);
+        console.log("_set_data:", ozc.toString());
 
         // 恢复显示模式
         jT.removeAttr("invalid");
