@@ -24,6 +24,7 @@ return ZUI.def("ui.zcron_tps", {
         new ArrayUI({
             parent : UI,
             gasketName : "list",
+            groupSize  : 6,
             items : function(){
                 var re = [];
                 for(var i=0;i<48;i++)

@@ -1,6 +1,6 @@
 //...........................................................
 // 布局
-@W : 540px;
+@W : 550px;
 @H : 500px;
 @h_dr     : @H * 0.07;
 @h_month  : @H * 0.07;
@@ -114,18 +114,19 @@
 //...........................................................
 // 时间范围编辑视图
 .zcr-tmrg {
-    padding:@d2;
+    padding:@d2; overflow: auto;
     table {
-        margin: 0 auto;
-        td {padding:@d2; white-space: nowrap;}
+        margin: 0 auto; border-spacing: 0px; width: 100%;
+        td {padding:@d1; white-space: nowrap;}
     }
     input {@input();
-        padding:@d3 @d4; outline: none;
-        font-family: @f_fixed; font-size: @f3;
+        padding:@d1; outline: none;
+        font-family: @f_fixed; font-size: @f2;
+        width:60px;
     }
     input:focus{@input_focus();}
-    tr[key="step"] {
-        input {width : 60px;}
+    td[key="step"] {
+        input {width : 30px;}
         span {
             display: inline-block; vertical-align: middle;
             padding:0 0 0 @d2;
@@ -142,6 +143,21 @@
             }
         }
         span:after {@clr();}
+    }
+    td[a="del"] {
+        i {transition:.3s; cursor: pointer; color:@c6; opacity: 0.6;}
+        span:hover i {
+            opacity:1.0; transform:rotate(180deg) scale(1.4);
+        }
+    }
+    tr.tr-empty td{
+        padding:@d3; text-align: center; color:@c2;
+        border:1px dashed @cborder0;
+    }
+    tfoot td {
+        padding:@d3; text-align: center;
+        b {@btn();}
+        b:hover {@btn_hover();}
     }
 }
 //...........................................................

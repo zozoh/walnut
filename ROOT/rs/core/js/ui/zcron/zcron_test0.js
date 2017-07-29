@@ -37,7 +37,7 @@ return ZUI.def("ui.zcron_test0", {
             parent : UI,
             gasketName : "mymain"
         }).render(function(){
-            this.setData("T[00:00,23:59]{0/30m} * * ?");
+            this.setData("T[03:00,08:59]{0/30m} T[13:00,18:59]{0/30m} * * ?");
         });
     }
     //...............................................................

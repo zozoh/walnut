@@ -2411,6 +2411,132 @@
             }
             return $z.tmpl(str)(t);
         },
+        /*
+        返回数组:
+            len==4 as Region:        [开/闭, 左值, 右值, 开/闭]
+            len==3 as Single value:  [开/闭, 值, 开/闭]
+            - true  : 开
+            - false : 闭
+        */
+        region : function(str, formatFunc){
+            // 处理格式化值的方式
+            if(formatFunc) {
+                var fft = (typeof formatFunc);
+                if("string" == fft) {
+                    // 日期
+                    if("date" == formatFunc) {
+                        formatFunc = function(v){
+                            return AsDate(v);
+                        };
+                    }
+                    // 时间
+                    else if("time" == formatFunc){
+                        formatFunc = function(v){
+                            return AsTimeInSec(v);
+                        };
+                    }
+                    // 数字
+                    else if("number" == formatFunc){
+                        formatFunc = function(v){
+                            return parseInt(v);
+                        };
+                    }
+                    // 不支持
+                    else {
+                        throw "Region formatFunc can not be a '"+fftp+"'";
+                    }
+                }
+                // 那么必须是函数了
+                else if("function" != fft) {
+                    throw "Region(.., formatFunc) can not be a " + fft;
+                }
+            }
+
+            // 整理字符串
+            var s = str.replace(/[ \t]/g, "");
+            // eval:  |   1  ||  2  || 3 || 4  ||  5   |
+            var m = /^([\[\(])([^,]*)(,)?([^,]*)([\)\]])$/.exec(str);
+            if(!m){
+                throw "invalid region: " + str;
+            }
+            // 范围
+            var re;
+            if(m[3]) {
+                re = [
+                    m[1] == '(' ? true : false,  // [0]
+                    m[2] || null,                // [1]
+                    m[4] || null,                // [2] 
+                    m[5] == ')' ? true : false,  // [3]
+                ];
+                if(formatFunc) {
+                    if(re[1]!=null)re[1] = formatFunc(re[1]);
+                    if(re[2]!=null)re[2] = formatFunc(re[2]);
+                }
+            }
+            // 单值
+            else {
+                re = [
+                    m[1] == '(' ? true : false,  // [0]
+                    m[2] || null,                // [1]
+                    m[5] == ')' ? true : false,  // [2]
+                ];
+                if(formatFunc) {
+                    if(re[1]!=null)re[1] = formatFunc(re[1]);
+                }
+            }
+            // 添加帮助函数
+            re.left  = function(){
+                return this[1];
+            };
+            re.right = function(){
+                return this[this.length - 2];
+            };
+            re.leftAsStr  = function(fmt){
+                var v = this[1];
+                return v ? formatDate(fmt||"yyyy-MM-dd",v) : "";
+            };
+            re.rightAsStr = function(fmt){
+                var v = this[this.length - 2];
+                return v ? formatDate(fmt||"yyyy-MM-dd",v) : "";
+            };
+            re.isLeftOpen  = function(){return this[0];};
+            re.isRightOpen = function(){return this[this.length-1];};
+            re.isRegion = function(){return this.length==4;};
+            re.match = function(v) {
+                // 区间
+                if(this.length == 4) {
+                    if(null!=this[1]){
+                        if((this[0] && this[1]>=v) || (!this[0] && this[1]>v))
+                            return false;
+                    }
+                    if(null!=this[2]){
+                        if((this[3] && this[2]<=v) || (!this[3] && this[2]<v))
+                            return false;
+                    }
+                    return true;
+                }
+                // 不等于
+                if(this[0] && this[2])
+                    return this[1] != v;
+                // 等于
+                return this[1] == v;
+            };
+            re.valueOf = function(){
+                var s = this.isLeftOpen()?"(":"[";
+                if(this.isRegion()){
+                    s += this.leftAsStr()  || "";
+                    s += ",";
+                    s += this.rightAsStr() || "";
+                }else{
+                    s += this.leftAsStr();
+                }
+                s += this.isRightOpen()?")":"]";
+                return s;
+            };
+            re.toString = re.valueOf;
+            // 返回
+            return re;
+        },
         //.............................................
         // 根据颜色对象的 red,green,blue,alpha ，更新其他字段的值
         updateColor: function (color) {
