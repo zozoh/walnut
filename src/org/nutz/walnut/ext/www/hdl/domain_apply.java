@@ -82,10 +82,6 @@ public class domain_apply implements JvmHdl {
         // 应用修改
         oD.setv("dmn_expi", expiInMs);
         sys.io.set(oD, "^(dmn_expi)$");
-
-        // 标识一下支付单已经被应用过了
-        po.setv(WnPayObj.KEY_APPLY_AT, System.currentTimeMillis());
-        sys.io.set(po, "^(" + WnPayObj.KEY_APPLY_AT + ")$");
     }
 
     protected long __count_dmn_expi(String M, String Y, WnObj oD) {

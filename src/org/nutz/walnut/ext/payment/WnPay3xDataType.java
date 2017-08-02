@@ -6,9 +6,11 @@ public enum WnPay3xDataType {
      * data 段是一个第三方付款页面的 URL
      */
     LINK,
-    
+
     /**
      * data 段是一个第三方付款页面的 URL，可以用 iframe 来嵌套显示
+     * <p>
+     * <em>其实呢，这个专门是给支付宝这个二货设计的返回类型 -_-!</em>
      */
     IFRAME,
 

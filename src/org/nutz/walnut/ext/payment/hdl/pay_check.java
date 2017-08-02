@@ -4,6 +4,7 @@ import org.nutz.json.Json;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
 import org.nutz.walnut.ext.payment.WnPayObj;
 import org.nutz.walnut.ext.payment.WnPayment;
+import org.nutz.walnut.ext.payment.WnPays;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -21,6 +22,9 @@ public class pay_check implements JvmHdl {
 
         // 执行状态检查
         WnPay3xRe re = pay.check(po);
+
+        // 看看有没有必要调用回调
+        WnPays.try_callback(sys, po);
 
         // 输出
         sys.out.println(Json.toJson(re));

@@ -8,6 +8,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.impl.box.WnSystem;
 
 public abstract class WnPays {
 
@@ -79,4 +80,18 @@ public abstract class WnPays {
 
     // 阻止实例化
     private WnPays() {}
+
+    public static void try_callback(WnSystem sys, WnPayObj po) {
+        // 如果支付单成功，且没执行过回调的话，执行回调
+        if (po.isStatusOk() && po.getLong(WnPayObj.KEY_APPLY_AT, 0) <= 0) {
+            String cmdText = sys.io.readText(po);
+            // 有效的回调
+            if (!Strings.isBlank(cmdText)) {
+                sys.exec(cmdText);
+            }
+            // 标识一下支付单已经被应用过了
+            po.setv(WnPayObj.KEY_APPLY_AT, System.currentTimeMillis());
+            sys.io.set(po, "^(" + WnPayObj.KEY_APPLY_AT + ")$");
+        }
+    }
 }
