@@ -226,8 +226,10 @@ public class WnPayment {
         // 得到当前操作用户
         WnUsr me = Wn.WC().getMyUsr(run.usrs());
 
-        // 确保一定有买家和卖家的信息
-        wpi.checkBuyer(run.usrs());
+        // 确保买家的信息完备
+        wpi.assertBuyerPerfect();
+
+        // 确保卖家的信息完备
         WnUsr seller = wpi.checkSeller(run.usrs(), me);
 
         // 确保有简介
@@ -264,7 +266,7 @@ public class WnPayment {
 
         // 固定的初始化值
         meta.put("tp", "wn_payment");
-        //meta.put("c", wpi.buyer_nm); // 将创建者设置成买家
+        // meta.put("c", wpi.buyer_nm); // 将创建者设置成买家
         meta.put(WnPayObj.KEY_CUR, "RMB");
         meta.setnx(WnPayObj.KEY_ST, WnPay3xStatus.NEW);
         meta.setnx(WnPayObj.KEY_SEND_AT, 0);

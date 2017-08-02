@@ -11,6 +11,7 @@ import org.nutz.lang.Xmls;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.Mvcs;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.ext.payment.WnPay3x;
@@ -262,7 +263,11 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
 
     private WnObj __get_weixin_conf_obj(WnPayObj po) {
         WnUsr seller = run.usrs().check("id:" + po.getString(WnPayObj.KEY_SELLER_ID));
-        WnObj oConf = io.check(null, seller.home() + "/.weixin/" + seller.name() + "/wxconf");
+        String ta = po.getString(WnPayObj.KEY_PAY_TARGET);
+        if (!Strings.isBlank(ta)) {
+            throw Er.create("e.pay.weixin.noTarget");
+        }
+        WnObj oConf = io.check(null, seller.home() + "/.weixin/" + ta + "/wxconf");
         return oConf;
     }
 

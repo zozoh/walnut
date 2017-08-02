@@ -2,12 +2,10 @@ package org.nutz.walnut.ext.payment.weixin;
 
 import org.nutz.http.Http;
 import org.nutz.http.Response;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Xmls;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.payment.WnPay3xDataType;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
 import org.nutz.walnut.ext.payment.WnPay3xStatus;
@@ -25,7 +23,7 @@ import org.nutz.weixin.util.Wxs;
  */
 public class WxScanPay3x extends AbstractWeixinPay3x {
 
-    private static final Log log = Logs.get();
+    //private static final Log log = Logs.get();
 
     @Override
     public WnPay3xRe send(WnPayObj po, String... args) {
@@ -36,8 +34,8 @@ public class WxScanPay3x extends AbstractWeixinPay3x {
         String dst = "https://api.mch.weixin.qq.com/pay/micropay";
         String auth_code = args[0].trim(); // 授权码. 即扫码枪读取到的18位数字
         if (!auth_code.matches("^(10|11|12|13|14|15)[0-9]{16}$")) {
-            log.info("非法的微信支付授权码 " + auth_code);
-            throw Lang.impossible();
+            // log.info("非法的微信支付授权码 " + auth_code);
+            throw Er.create("e.pay.send.invalid.payCode", auth_code);
         }
 
         int total_fee = po.getInt(WnPayObj.KEY_FEE);
@@ -62,7 +60,7 @@ public class WxScanPay3x extends AbstractWeixinPay3x {
 
         String reqXML = Xmls.mapToXml(params);
 
-        log.debug("reqXML = " + reqXML);
+        //log.debug("reqXML = " + reqXML);
 
         Response resp = Http.postXML(dst, reqXML, 15 * 1000);
         String tmp = resp.getContent();

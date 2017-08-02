@@ -61,37 +61,12 @@ public class WnPayInfo {
      */
     public String buyer_nm;
 
-    public WnUsr checkBuyer(WnUsrService usrs) {
-        boolean noBuId = Strings.isBlank(buyer_id);
-        boolean noBuNm = Strings.isBlank(buyer_nm);
-
-        // 补足
-        if (noBuId || noBuNm) {
-            // 没有设置买家
-            if (noBuId && noBuNm) {
-                throw Er.create("e.pay.nobuyer");
-            }
-            // 补足 ID
-            if (noBuId) {
-                WnUsr u = usrs.check(buyer_nm);
-                buyer_id = u.id();
-                buyer_nm = u.name();
-                return u;
-            }
-            // 补足名称
-            else {
-                WnUsr u = usrs.check("id:" + buyer_id);
-                buyer_nm = u.name();
-                return u;
-            }
-        }
-        // 如果两个都有，则比较一下是否匹配
-        else {
-            WnUsr u = usrs.check(buyer_nm);
-            if (!u.isSameId(buyer_id)) {
-                throw Er.create("e.pay.noMatchBuyer", seller_id + " not " + seller_nm);
-            }
-            return u;
+    /**
+     * 检查是否信息完毕
+     */
+    public void assertBuyerPerfect() {
+        if (Strings.isBlank(buyer_id) || Strings.isBlank(buyer_nm)) {
+            throw Er.createf("e.pay.buyer.imperfect", "id:<%s> / nm:<%s>", buyer_id, buyer_nm);
         }
     }
 
