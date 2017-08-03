@@ -46,9 +46,6 @@ public class pay_re implements JvmHdl {
         // 看看有没有必要调用回调
         WnPays.try_callback(sys, po);
 
-        // 试图通过 websocket 通知一下
-        sys.execf("websocket event id:%s done", po.id());
-
         // 输出
         if (hc.params.is("s"))
             sys.out.println("success");

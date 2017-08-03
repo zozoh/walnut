@@ -275,6 +275,7 @@ var MVs = {
         // 准备感应器
         MVing.sensors = [];
         MVing.sensorFunc = {};
+        MVing.currentSensor = [];
 
         // 内置滚动感应器
         if(opt.scrollSensor) {
@@ -322,6 +323,12 @@ var MVs = {
         var baSc = MVing.viewportScroll;
         for(var i=0; i<MVing.sensors.length; i++) {
             var sen = MVing.sensors[i];
+            // 记录感应器下标
+            sen.index = i;
+
+            // 设置默认值
+            $z.setUndefined(sen, "matchBreak", true);
+
             // 无视不可见的感应器
             if(!sen.visibility)
                 continue;
@@ -344,6 +351,11 @@ var MVs = {
 
             // 为感应器设置 css
             jSen.css(css);
+
+            // 为感应器设置文字
+            if(sen.text){
+                jSen.find("section").text(sen.text);
+            }
         }
 
         // 搞完，收工 ^_^
@@ -393,6 +405,55 @@ var MVs = {
             .css($z.pick(MVing.rect.current,
                         ["top","left","width","height"]));
     },
+    /*.......................................................
+    匹配感应器，返回一个这样的数据结构:
+    {
+        enter : [0],
+        leave : [2,4],
+        hover : [0,3,5,6]
+    }
+    同时它会更新 MVing.currentSensor 为 hover 的全部数据
+    */
+    matchedSensors : function(){
+        var MVing = this;
+        // 无感应器，呵呵吧
+        if(!MVing.sensors || MVing.sensors.length == 0)
+            return;
+
+        // 查一下当前都匹配上了谁 
+        var re = {
+            enter : [],
+            hover : [],
+        };
+        for(var i=0; i<MVing.sensors.length; i++) {
+            var sen = MVing.sensors[i];
+            // 目标中心点为准，看看是不是在感应区内
+            if($D.rect.is_in(sen.rect, MVing.rect.target)){
+                re.hover.push(sen.index);
+                if(sen.matchBreak)
+                    break;
+            }
+        }
+
+        // 根据匹配上的进行计算
+        var last  = MVing.currentSensor || [];
+        var hover = [];
+        for(var i=0; i<re.hover.length; i++) {
+            var senIndex = re.hover[i];
+            // 之前就已经有了，则去掉，余下的表示 leave
+            var x = last.indexOf(senIndex);
+            if(x >= 0){
+                last[x] = -1;
+            }
+            // 不在里面的，表示首次进入
+            else {
+                re.enter.push(senIndex);
+            }
+        }
+        // 填入 leave
+        re.leave = _.without(last, -1);
+        MVing.currentSensor = re.hover;
+    }
     //.......................................................
 };
 //...........................................................
@@ -411,6 +472,7 @@ function on_mousemove(e) {
     // 如果有上下文，那么必然进入了移动时
     if(window.__nutz_moving) {
         // console.log(MVing.cursor.client, MVing.cursor.viewport)
+        
 
         // 计算当前矩形 (考虑边界以及移动约束)
         // 并计算 css 段
@@ -487,7 +549,7 @@ function on_mouseup(e){
         $z.invoke(opt, "on_end", [], MVing);
 
         // 释放遮罩层
-        MVing.$mask.remove();
+        //MVing.$mask.remove();
 
         // 销毁上下文
         window.__nutz_moving = null;
@@ -519,27 +581,33 @@ function on_mousedown(e){
     //...........................................
     // 准备收集各种尺寸和位置
     MVing.rect = {};
+    MVing.targetIsRelative = false;
     // 指定了视口的尺寸
     if(_.isFunction(opt.viewportRect)){
         MVing.rect.viewport = opt.viewportRect.call(MVing);
     }
-    // 指定了元素
+    // 直接指定了矩形对象
     else if($z.isRect(opt.viewportRect)){
         MVing.rect.viewport = opt.viewportRect;
     }
     // 默认自行计算
-    else {
+    if(!MVing.rect.viewport) {
+        console.log("count default")
         MVing.rect.viewport = $D.rect.gen(MVing.$viewport,{
             boxing   : "content",
             scroll_c : true,
         });
+    }
+    // 否则标识一下目标计算矩形需要取视口相对坐标系
+    else {
+        MVing.targetIsRelative = true;
     }
     //...........................................
     // 目标尺寸
     MVing.rect.target = $D.rect.gen(MVing.$target, {
         boxing   : "border",
         scroll_c : true,
-        viewport : opt.viewportRect ? MVing.rect.viewport : null
+        viewport : MVing.targetIsRelative ? MVing.rect.viewport : null
     });
     MVing.rect.current = _.extend({}, MVing.rect.target);
     //...........................................

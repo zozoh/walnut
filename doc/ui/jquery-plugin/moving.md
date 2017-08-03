@@ -39,24 +39,6 @@ Safari:
  - Safari 的确傻逼
 ```
 
-# 遮罩层的逻辑
-
-```
-window
-    iframe
-        document.body
-            某拖拽目标
-    DIV.z-moving-mask
-        DIV.z-mvm-viewport      <!--// 视口副本-->
-            DIV.z-mvm-sit       <!--// 在视口内的可见感应器 -->
-                SECTION         <!--// 感应器的可见部分包裹容器 -->
-        DIV.z-mvm-sensors       <!--// 感应器绘制层-->
-            DIV.z-mvm-sit       <!--// 在视口外的可见感应器 -->
-                SECTION         <!--// 感应器的可见部分包裹容器 -->
-        DIV.z-mvm-target        <!--// 移动目标的显示副本-->
-        CANVAS.z-mvm-assline    <!--// 辅助线绘制层-->
-```
-
 # 几个概念
 
 *moving* 插件实际上是：在指定`选区(selection)`监控`触发器(trigger)`的*mousedown*事件。
@@ -78,6 +60,25 @@ window
 - 调用者可以自行添加更多的感应器，比如添加*drop*的目标等
 - `遮罩(mask)`为拖拽时动态绘制的元素的父元素，拥有比较高的*z-index*，它覆盖整个*可视区域(client)*
 
+# 遮罩层的DOM结构
+
+```
+window
+    iframe
+        document.body
+            某拖拽目标
+    DIV.z-moving-mask
+        DIV.z-mvm-viewport      <!--// 视口副本-->
+            DIV.z-mvm-sit       <!--// 在视口内的可见感应器 -->
+                SECTION         <!--// 感应器的可见部分包裹容器 -->
+        DIV.z-mvm-sensors       <!--// 感应器绘制层-->
+            DIV.z-mvm-sit       <!--// 在视口外的可见感应器 -->
+                SECTION         <!--// 感应器的可见部分包裹容器 -->
+        DIV.z-mvm-target        <!--// 移动目标的显示副本-->
+        SVG                     <!--// 辅助线绘制层-->
+            LINE                <!--// 水平辅助线-->
+            LINE                <!--// 垂直辅助线-->
+```
 
 # 运行时上下文
 
@@ -96,6 +97,11 @@ data : ..              // 来着 options.data
 //..................................................
 $viewport  : jQuery,   // 视口的 jQuery 对象
 $target    : jQuery,   // 移动目标的 jQuery 对象
+//..................................................
+// 在创建时指定了 "viewportRect"，则本项目为 true
+// 表示计算 target 初始矩形时，需要对 viewport 矩形转换坐标系
+// 通常，是在 <iframe> 嵌套的内联文档对象里，要启用这个选项
+targetIsRelative : false,
 //..................................................
 // 视口初始的滚动补偿
 // 这个会影响对于视口内感应器的匹配
@@ -168,13 +174,17 @@ mask : {
     $viewport : jQuery,    // 视口副本 
     $sensors  : jQuery,    // 视口外可见感应器绘制层
     $target   : jQuery,    // 移动目标副本
-    $assline  : jQuery,    // 辅助线绘制层
-    G2Dass    : Graphic2D  // 辅助线图形绘制接口
-}
+    assist : {             // 辅助绘制对象集合
+        $root  : jQuery    // 对应 <svg>
+        $lineX : jQuery    // 对应水平的 <line>
+        $lineY : jQuery    // 对应垂直的 <line>
+    }
+},
 //..................................................
 // 感应区，数组按顺序匹配。遇到匹配的感应区则停止
 // 因此靠前的感应区优先级比较高
 sensors : [{
+    index   : 0,         // 下标，0 base，作为唯一标识「这个会自动生成，你设置也没用」
     name    : "xxx",     // 感应器名称，插件会在 sensorFunc 里执行对应的匹配方法
     text    : "xxx",     // 可见感应器，显示文字
     rect    : Rect,      // 感应区范围
@@ -196,11 +206,14 @@ sensors : [{
 //  - index  : 为感应器下标
 sensorFunc : {
     "xxx" : {
-        "enter" : {c}F(sensor, index),
-        "leave" : {c}F(sensor, index),
+        "enter" : {c}F(sensor),   // 进入触发一次
+        "hover" : {c}F(sensor),   // 鼠标移动就触发
+        "leave" : {c}F(sensor),   // 离开触发一次
     }
     ...
-}
+},
+// 记录了当前的感应器下标，会根据这个来判断 enter/leave
+currentSensor : [0,3]
 ```
 
 > 这个上下文对象存放在 `window.__nutz_moving`，当移动完成后会被自动销毁
@@ -227,6 +240,11 @@ $(ele).moving({
     
     // 指定视口的矩形，如果有视口该选项生效
     // 默认的，插件会自动根据 viewport 来寻找视口
+    // 在创建时指定了 "viewportRect"，则运行时字段 `targetIsRelative` 为 true
+    // 表示计算 target 初始矩形时，需要对 viewport 矩形转换坐标系
+    // 通常，是在 <iframe> 嵌套的内联文档对象里，要启用这个选项
+    // !!! 注意，如果你给的是一个函数，那么每次初始化(mousedown时)都会被计算
+    // 如果计算的值为 null, 同样表示本项未生效。
     viewportRect : Rect | {c}F():Rect
     
     // 有可能是 trigger 选择器内部某个元素（比如修改大小的手柄）被作为触发对象

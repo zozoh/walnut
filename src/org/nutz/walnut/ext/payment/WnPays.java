@@ -92,6 +92,8 @@ public abstract class WnPays {
             // 标识一下支付单已经被应用过了
             po.setv(WnPayObj.KEY_APPLY_AT, System.currentTimeMillis());
             sys.io.set(po, "^(" + WnPayObj.KEY_APPLY_AT + ")$");
+            // 试图通过 websocket 通知一下
+            sys.execf("websocket event id:%s done", po.id());
         }
     }
 }

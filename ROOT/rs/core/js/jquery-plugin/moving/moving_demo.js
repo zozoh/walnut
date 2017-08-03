@@ -160,7 +160,11 @@ var A = {
     "default" : function(jCon){
         var vpa = jCon.attr("viewport");
         jCon.moving({
-            viewportRect : vpa ? $D.rect.create(vpa) : null,
+            //viewportRect : vpa ? $D.rect.create(vpa) : null,
+            viewportRect : function(){
+                var vpa = this.$viewport.attr("viewport");
+                return vpa ? $D.rect.create(vpa) : null;
+            },
             on_ing : function(){
                 this.$target.css(this.css.current);
                 LOG.dumping(this);
@@ -170,10 +174,14 @@ var A = {
                 LOG.dumping(this);
             },
             dboundaryBy : "100%",
-            assist : {
+            dassist : {
                 axis : ["right", "bottom"],
-                axisFullScreen : false
-            }
+                axisFullScreen : true
+            },
+            scrollSensor : {
+                x : "10%",
+                y : 30
+            },
         });
     },
 };
