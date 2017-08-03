@@ -116,6 +116,23 @@ return ZUI.def("ui.zcron", {
                 var ozc = UI._get_data();
                 if(ozc)
                     subUI.update(ozc);
+            },
+            do_ui_listen : {
+                "$parent data:change" : function(ozc){
+                    var uiTab = this;
+                    // 回调就是设置子控件的数据
+                    var callback = function(subUI){
+                        subUI.update(ozc);
+                    };
+                    // 切换当前的 UI
+                    if(ozc.isMonthly()){
+                        uiTab.changeUI("monthly", callback, false);
+                    }
+                    // 默认是周视图
+                    else {
+                        uiTab.changeUI("weekly", callback, false);
+                    }
+                }
             }
         }).render(function(){
             UI.defer_report("date");
@@ -144,6 +161,27 @@ return ZUI.def("ui.zcron", {
                 var ozc = UI._get_data();
                 if(ozc)
                     subUI.update(ozc);
+            },
+            do_ui_listen : {
+                "$parent data:change" : function(ozc){
+                    var uiTab = this;
+                    // 回调就是设置子控件的数据
+                    var callback = function(subUI){
+                        subUI.update(ozc);
+                    };
+                    // 事件范围
+                    if(ozc.isHasTimeSteps()){
+                        uiTab.changeUI("tmrg", callback, false);
+                    }
+                    // 时间点
+                    else if(ozc.isHasTimePoints()){
+                        uiTab.changeUI("tps", callback, false);
+                    }
+                    // 默认是时分秒
+                    else {
+                        uiTab.changeUI("hms", callback, false);
+                    }
+                }
             }
         }).render(function(){
             UI.defer_report("time");
@@ -165,10 +203,10 @@ return ZUI.def("ui.zcron", {
     //...............................................................
     setPart : function(index, str) {
         var UI  = this;
-        console.log("setPart", index, str);
+        //console.log("setPart", index, str);
         var ozc = UI._get_data();
         ozc.__set_part(index, str);
-        console.log("ozc", ozc);
+        //console.log("ozc", ozc);
         UI._set_data(ozc);
         return this;
     },
@@ -203,6 +241,7 @@ return ZUI.def("ui.zcron", {
     _set_data : function(cron){
         var UI = this;
         var jT = UI.arena.find(".zcron-text > div");
+        //console.log("haha", cron)
 
         // 解析
         var ozc;
@@ -215,7 +254,7 @@ return ZUI.def("ui.zcron", {
             jT.attr("invalid", "yes").text("表达式格式错误：" + E);
             return;
         }
-        console.log("_set_data:", ozc.toString());
+        //console.log("_set_data:", ozc.toString());
 
         // 恢复显示模式
         jT.removeAttr("invalid");
@@ -232,9 +271,7 @@ return ZUI.def("ui.zcron", {
     //...............................................................
     _get_data : function(){
         var cron = $.trim(this.arena.find(".zcron-expr input").val());
-        if(!cron)
-            return null;
-        return ZCron(cron);
+        return ZCron(cron || "0 0 0 * * ?");
     }
     //...............................................................
 });

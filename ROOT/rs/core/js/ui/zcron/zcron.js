@@ -1040,9 +1040,11 @@ ZCronObj.prototype = {
         }
 
         // 设置一下 part[0]
+        this.has_time_steps  = false;
         var trStrs = [];
         for (var i=0; i<this.timeRepeaters.length; i++) {
             var tr = this.timeRepeaters[i];
+            this.has_time_steps |= tr.isStep();
             trStrs.push(tr.getPrimaryString());
         }
         this.parts[0] = trStrs.length == 0 ? null : trStrs.join(" ");
@@ -1063,6 +1065,12 @@ ZCronObj.prototype = {
         return this.idd.isONE()
                && (dd < 0
                   || (dd > 40 && dd<MOD_dd));
+    },
+    isHasTimePoints : function() {
+        return this.has_time_points;
+    },
+    isHasTimeSteps : function() {
+        return this.has_time_steps;
     },
     //............................................................
     // day : [1,7] 表 [Sun, Sat]

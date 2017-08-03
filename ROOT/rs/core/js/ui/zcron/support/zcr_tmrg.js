@@ -28,8 +28,7 @@ return ZUI.def("ui.zcron_tmrg", {
     //...............................................................
     // 监听父控件的消息
     init : function(opt) {
-        var UI = ZCronMethods(this);
-        UI.listenUI(this.parent.parent, "data:change", this.update);
+        ZCronMethods(this);
     },
     //...............................................................
     events : {
@@ -104,8 +103,8 @@ return ZUI.def("ui.zcron_tmrg", {
         var jTr = $(html).appendTo(jT);
 
         // 填充字段
-        var sFrom  = tr.region.left();
-        var sTo    = tr.region.right();
+        var sFrom  = tr.region ? tr.region.left()  : "00:00";
+        var sTo    = tr.region ? tr.region.right() : "23:59:59";
         var tiFrom = $z.parseTimeInfo(sFrom);
         var tiTo   = $z.parseTimeInfo(sTo);
         jTr.find('[key="from"] input').val(tiFrom.toString(true));
@@ -134,7 +133,7 @@ return ZUI.def("ui.zcron_tmrg", {
             trStrs.push("T["+from+","+to+"]{0/"+step+unit+"}");
         });
 
-        console.log("getData", trStrs)
+        //console.log("getData", trStrs)
 
         // 返回
         return trStrs.join(" ") || null;

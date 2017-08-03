@@ -59,11 +59,20 @@ if(uiTabs.isCurrent("theKey")) {
 ## changeUI
 
 ```
+# 改动当前的标签，且会触发 on_changeUI 事件
 uiTabs.changeUI("theKey", function(subUI, prevUI){
     // this 为 tabsUI 实例本身
     // 这里的 subUI 为切换后的显示的 UI 实例
     // prevUI 为之前的当前子 UI，为空表示之前没有显示过 UI
 });
+
+# 改动当前的标签，且不会会触发 on_changeUI 事件
+uiTabs.changeUI("theKey", false);
+
+# 当然也可以
+uiTabs.changeUI("theKey", function(subUI, prevUI){
+    // .. TODO 你的逻辑
+}, false);
 ```
 
 ## setMode

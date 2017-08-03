@@ -30,8 +30,7 @@ return ZUI.def("ui.zcron_monthly", {
     //...............................................................
     // 监听父控件的消息
     init : function(opt) {
-        var UI = ZCronMethods(this);
-        UI.listenUI(this.parent.parent, "data:change", this.update);
+        ZCronMethods(this);
     },
     //...............................................................
     events : {

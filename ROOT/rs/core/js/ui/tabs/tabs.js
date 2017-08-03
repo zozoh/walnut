@@ -76,7 +76,12 @@ return ZUI.def("ui.tabs", {
         return (key||"") == this.getCurrentKey();
     },
     //..............................................
-    changeUI : function(key, callback) {
+    changeUI : function(key, callback, quiet) {
+        // 支持 changeUI(key, true) 这样的形式
+        if(_.isBoolean(callback)) {
+            quiet = callback;
+            callback = null;
+        }
         var UI  = this;
         var opt = UI.options;
         var tli = opt.setup[key];
@@ -105,7 +110,8 @@ return ZUI.def("ui.tabs", {
                 gasketName : "main"
             })).render(function(){
                 // 回调事件
-                $z.invoke(opt, "on_changeUI", [key, this, prevUI], UI);
+                if(!quiet)
+                    $z.invoke(opt, "on_changeUI", [key, this, prevUI], UI);
                 // 调用回调
                 $z.doCallback(callback, [this, prevUI]);
             });
