@@ -327,6 +327,7 @@ var MVs = {
                         this.mask.$viewport[0].scrollTop = this.$viewport[0].scrollTop;
                         // 重新计算目标位置
                         if(oldS != this.$viewport[0].scrollTop) {
+                            MVs.syncSensorInViewportByScroll.call(this);
                             MVs.calculateTarget.call(this);
                             MVs.updateTargetCss.call(this);
                             $z.invoke(opt, "on_ing", [], this);
@@ -352,6 +353,7 @@ var MVs = {
                         this.mask.$viewport[0].scrollLeft = this.$viewport[0].scrollLeft;
                         // 重新计算目标位置
                         if(oldS != this.$viewport[0].scrollLeft) {
+                            MVs.syncSensorInViewportByScroll.call(this);
                             MVs.calculateTarget.call(this);
                             MVs.updateTargetCss.call(this);
                             $z.invoke(opt, "on_ing", [], this);
@@ -388,6 +390,9 @@ var MVs = {
 
             // 感应器默认为不激活
             sen.actived = false;
+
+            // 记录感应器原始矩形
+            sen._org_rect = _.extend({}, sen.rect);
 
             //console.log("sen:", sen);
 
@@ -426,6 +431,30 @@ var MVs = {
         }
 
         // 搞完，收工 ^_^
+    },
+    //.......................................................
+    // 根据视口的滚动偏移量，修改所有的 inViewport 的传感器
+    syncSensorInViewportByScroll : function(){
+        var MVing = this;
+
+        // 计算视口滚动的偏移量
+        var offX = MVing.viewportScroll.x - MVing.$viewport[0].scrollLeft;
+        var offY = MVing.viewportScroll.y - MVing.$viewport[0].scrollTop;
+        //console.log("offX:", offX, "offY:", offY)
+
+        // 循环处理各个传感器
+        for(var i=0; i<MVing.sensors.length; i++) {
+            var sen = MVing.sensors[i];
+            // 只考虑 viewport 内的传感器
+            if(sen.inViewport){
+                sen.rect.top  = sen._org_rect.top  + offY;
+                sen.rect.left = sen._org_rect.left + offX;
+                $D.rect.count_tlwh(sen.rect);
+                // console.log("S"+sen.index,sen.text,
+                //     $D.rect.dumpValues(sen.rect, "tl"),
+                //     $D.rect.dumpValues(sen._org_rect, "tl"))
+            }
+        }
     },
     //.......................................................
     // 根据当前上下文的指针信息，计算目标矩形，考虑到边界等约束
@@ -686,6 +715,12 @@ function on_mousedown(e){
         return;
     if(!MVs.findElement.call(MVing, "viewport", "$selection"))
         return;
+    //...........................................
+    // 视口原始的滚动
+    MVing.viewportScroll = {
+        x : MVing.$viewport[0].scrollLeft,
+        y : MVing.$viewport[0].scrollTop,
+    },
     //...........................................
     // 准备收集各种尺寸和位置
     MVing.rect = {};

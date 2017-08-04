@@ -195,25 +195,23 @@ var zRect = {
     },
     //.............................................
     // 快速精简的矩形信息，以便人类查看
-    dumpValues : function(rect){
-        var re = "";
-        if(rect.left)
-            re+= "l:" + rect.left;
-        if(rect.top)
-            re+= ", t:" + rect.top;
-        if(rect.width)
-            re+= ", w:" + rect.width;
-        if(rect.height)
-            re+= ", h:" + rect.height;
-        if(rect.bottom)
-            re+= ", b:" + rect.bottom;
-        if(rect.right)
-            re+= ", r:" + rect.right;
-        if(rect.x)
-            re+= ", x:" + rect.x;
-        if(rect.y)
-            re+= ", y:" + rect.y;
-        return re;
+    dumpValues : function(rect, keys){
+        keys = keys || "tlwh";
+        var info = {
+            t : rect.top,
+            l : rect.left,
+            w : rect.width,
+            h : rect.height,
+            r : rect.right,
+            b : rect.bottom,
+            x : rect.x,
+            y : rect.y
+        };
+        var vs = [];
+        for(var i=0; i< keys.length; i++){
+            vs.push(info[keys.charAt(i)]);
+        }
+        return vs.join(",");
     },
     //.............................................
     // 快速精简的点信息，以便人类查看
