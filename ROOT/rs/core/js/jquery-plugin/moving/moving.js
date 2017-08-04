@@ -162,9 +162,18 @@ var MVs = {
             top:0, left:0, 
         });
         // 视口
-        MVing.mask.$viewport
-            .css($z.pick(MVing.rect.viewport,
-                        ["top","left","width","height"]));
+        MVing.mask.$viewport.css(_.extend({
+            "overflow" : "hidden"
+        }, $z.pick(MVing.rect.viewport, ["top","left","width","height"])));
+        MVing.mask.$viewportPlaceHolder
+            = $('<aside class="vp-placeholder">')
+                .appendTo(MVing.mask.$viewport).css({
+                    "width"  : MVing.$viewport[0].scrollWidth,
+                    "height" : MVing.$viewport[0].scrollHeight,
+                });
+        MVing.mask.$viewport[0].scrollTop  = MVing.$viewport[0].scrollTop;
+        MVing.mask.$viewport[0].scrollLeft = MVing.$viewport[0].scrollLeft;
+
         // 感应器
         MVing.mask.$sensors.css({
             right:0, bottom:0
@@ -251,17 +260,36 @@ var MVs = {
         });
         // 设置响应函数函数
         MVing.sensorFunc[name] = {
-            "enter" : function(sensor){
-                if(!sensor._S_HDL) {
-                    sensor._S_HDL = window.setInterval(function(sensor, MVing){
-                        sensor.handler.call(MVing);
-                    }, opt.scrollInterval, sensor, MVing);
+            "enter" : function(sen){
+                if(!sen._S_HDL) {
+                    sen._S_HDL = window.setInterval(function(sen, MVing){
+                        // 如果移动都结束了，那么这个也要停止
+                        if(MVing.endInMs || !sen.actived) {
+                            if(sen._S_HDL) {
+                                window.clearInterval(sen._S_HDL);
+                                sen._S_HDL = null;
+                            }
+                        }
+                        // 调用响应函数
+                        else{
+                            sen.handler.call(MVing, sen);
+                        }
+                    }, opt.scrollInterval, sen, MVing);
                 }
             },
-            "leave" : function(sensor){
-                if(sensor._S_HDL) {
-                    window.clearInterval(sensor._S_HDL);
-                    sensor._S_HDL = null;
+            "hover" : function(sen) {
+                // 如果移动都结束了，那么这个也要停止
+                if(MVing.endInMs || !sen.actived) {
+                    if(sen._S_HDL) {
+                        window.clearInterval(sen._S_HDL);
+                        sen._S_HDL = null;
+                    }
+                }
+            },
+            "leave" : function(sen){
+                if(sen._S_HDL) {
+                    window.clearInterval(sen._S_HDL);
+                    sen._S_HDL = null;
                 }
             }
         }
@@ -281,25 +309,54 @@ var MVs = {
         if(opt.scrollSensor) {
             var ss   = opt.scrollSensor;
             var rcVp = MVing.rect.viewport;
+            var win  = $z.winsz();
             // 垂直滚动感应器
             if(ss.y){
                 var sV = $z.dimension(ss.y, rcVp.height);
                 MVs.__add_builtin_sensor(MVing, "_scroll_v",
-                    $D.rect.create([0,0,rcVp.top-sV,0], "tlbr"),
-                    $D.rect.create([rcVp.bottom-sV,0,0,0], "tlbr"),
-                    function(sensor){
-                        console.log("move y:" + sensor.scrollStep);
+                    $D.rect.create([0,0,rcVp.top+sV,win.width], "tlbr"),
+                    $D.rect.create([rcVp.bottom-sV,0,win.height,win.width], "tlbr"),
+                    function(sen){
+                        // 滚动视口
+                        var oldS = this.$viewport[0].scrollTop;
+                        this.$viewport[0].scrollTop = oldS + sen.scrollStep;
+                        this.mask.$viewportPlaceHolder.css({
+                            "width"  : this.$viewport[0].scrollWidth,
+                            "height" : this.$viewport[0].scrollHeight,
+                        });
+                        this.mask.$viewport[0].scrollTop = this.$viewport[0].scrollTop;
+                        // 重新计算目标位置
+                        if(oldS != this.$viewport[0].scrollTop) {
+                            MVs.calculateTarget.call(this);
+                            MVs.updateTargetCss.call(this);
+                            $z.invoke(opt, "on_ing", [], this);
+                            MVs.__update_assist(this);
+                        }
                     }
                 );
             }
             // 水平滚动感应器
             if(ss.x){
                 var sV = $z.dimension(ss.y, rcVp.height);
-                MVs.__add_builtin_sensor(MVing, "_scroll_v",
-                    $D.rect.create([rcVp.top, 0, rcVp.bottom, rcVp.right + sV], "tlbr"),
-                    $D.rect.create([rcVp.top, rcVp.right - sV, rcVp.bottom, 0], "tlbr"),
-                    function(sensor){
-                        console.log("move x:" + sensor.scrollStep);
+                MVs.__add_builtin_sensor(MVing, "_scroll_h",
+                    $D.rect.create([rcVp.top, 0, rcVp.bottom, rcVp.left + sV], "tlbr"),
+                    $D.rect.create([rcVp.top, rcVp.right - sV, rcVp.bottom, win.width], "tlbr"),
+                    function(sen){
+                        // 滚动视口
+                        var oldS = this.$viewport[0].scrollLeft;
+                        this.$viewport[0].scrollLeft = oldS + sen.scrollStep;
+                        this.mask.$viewportPlaceHolder.css({
+                            "width"  : this.$viewport[0].scrollWidth,
+                            "height" : this.$viewport[0].scrollHeight,
+                        });
+                        this.mask.$viewport[0].scrollLeft = this.$viewport[0].scrollLeft;
+                        // 重新计算目标位置
+                        if(oldS != this.$viewport[0].scrollLeft) {
+                            MVs.calculateTarget.call(this);
+                            MVs.updateTargetCss.call(this);
+                            $z.invoke(opt, "on_ing", [], this);
+                            MVs.__update_assist(this);
+                        }
                     }
                 );
             }
@@ -320,20 +377,30 @@ var MVs = {
 
         // 循环绘制可见的感应器
         var rcVp = MVing.rect.viewport;
-        var baSc = MVing.viewportScroll;
+        var baSc = {
+            x : MVing.$viewport[0].scrollLeft,
+            y : MVing.$viewport[0].scrollTop,
+        };
         for(var i=0; i<MVing.sensors.length; i++) {
             var sen = MVing.sensors[i];
             // 记录感应器下标
             sen.index = i;
 
+            // 感应器默认为不激活
+            sen.actived = false;
+
+            //console.log("sen:", sen);
+
             // 设置默认值
+            $z.setUndefined(sen, "inViewport", true);
+            $z.setUndefined(sen, "visibility", true);
             $z.setUndefined(sen, "matchBreak", true);
 
             // 无视不可见的感应器
             if(!sen.visibility)
                 continue;
 
-            var jSen = $('<div class="z-mvm-sit"><section></section></div>');
+            var jSen = $('<div class="z-mvm-sit"><section><aside md="x"></aside><aside md="y"></aside></section></div>');
             var css;
 
             // 绘制视口内感应器
@@ -354,7 +421,7 @@ var MVs = {
 
             // 为感应器设置文字
             if(sen.text){
-                jSen.find("section").text(sen.text);
+                $('<span>').text(sen.text).appendTo(jSen.find("section"));
             }
         }
 
@@ -392,8 +459,12 @@ var MVs = {
             $D.rect.move_xy(rect, bRe2);
         }
 
+        // 计算视口的滚动补偿
+        var baSc = {
+            x : MVing.$viewport[0].scrollLeft,
+            y : MVing.$viewport[0].scrollTop,
+        };
         // 计算当前目标与视口关系
-        var baSc = MVing.viewportScroll;
         MVing.css.rect = $D.rect.relative(rect, rcVp, true, baSc);
         MVing.css.current = $z.pick(MVing.css.rect, opt.cssBy);
     },
@@ -428,16 +499,19 @@ var MVs = {
         for(var i=0; i<MVing.sensors.length; i++) {
             var sen = MVing.sensors[i];
             // 目标中心点为准，看看是不是在感应区内
-            if($D.rect.is_in(sen.rect, MVing.rect.target)){
+            if($D.rect.is_in(sen.rect, MVing.rect.current)){
                 re.hover.push(sen.index);
                 if(sen.matchBreak)
                     break;
             }
         }
 
+        // if(re.hover.length>0) {
+        //     console.log("match hover", re.hover);
+        // }
+
         // 根据匹配上的进行计算
         var last  = MVing.currentSensor || [];
-        var hover = [];
         for(var i=0; i<re.hover.length; i++) {
             var senIndex = re.hover[i];
             // 之前就已经有了，则去掉，余下的表示 leave
@@ -453,7 +527,42 @@ var MVs = {
         // 填入 leave
         re.leave = _.without(last, -1);
         MVing.currentSensor = re.hover;
-    }
+        // 返回
+        return re;
+    },
+    //.......................................................
+    // 调用感应器回调
+    invokeSensorFunc : function(eventName, senIndexes){
+        var MVing = this;
+        // 无感应器，呵呵吧
+        if(!MVing.sensors || MVing.sensors.length == 0 || senIndexes.length == 0)
+            return;
+        // 依次查找
+        for(var i=0; i<senIndexes.length; i++) {
+            var sen = MVing.sensors[senIndexes[i]];
+            var funcSet = MVing.sensorFunc[sen.name];
+            //console.log("invoke", eventName, sen);
+            if(funcSet) {
+                var func = funcSet[eventName];
+                if(_.isFunction(func)){
+                    //console.log("call", eventName, sen);
+                    func.call(MVing, sen);
+                }
+            }
+            // 如果进入感应器
+            if("enter" == eventName) {
+                sen.actived = true;
+                if(sen.$helper)
+                    sen.$helper.attr("se-actived", "yes");
+            }
+            // 如果离开感应器
+            else if("leave" == eventName) {
+                sen.actived = false;
+                if(sen.$helper)
+                    sen.$helper.removeAttr("se-actived");
+            }
+        }
+    },
     //.......................................................
 };
 //...........................................................
@@ -473,12 +582,17 @@ function on_mousemove(e) {
     if(window.__nutz_moving) {
         // console.log(MVing.cursor.client, MVing.cursor.viewport)
         
-
         // 计算当前矩形 (考虑边界以及移动约束)
         // 并计算 css 段
         MVs.calculateTarget.call(MVing);
 
-        //console.log(MVing.rect.viewport)
+        // 匹配感应器
+        var ms = MVs.matchedSensors.call(MVing);
+        //console.log(ms)
+        MVs.invokeSensorFunc.call(MVing, "enter", ms.enter);
+        MVs.invokeSensorFunc.call(MVing, "hover", ms.hover);
+        MVs.invokeSensorFunc.call(MVing, "leave", ms.leave);
+
 
         // 更新目标的遮罩替身 css 位置
         MVs.updateTargetCss.call(MVing);
@@ -549,7 +663,7 @@ function on_mouseup(e){
         $z.invoke(opt, "on_end", [], MVing);
 
         // 释放遮罩层
-        //MVing.$mask.remove();
+        MVing.$mask.remove();
 
         // 销毁上下文
         window.__nutz_moving = null;
@@ -573,12 +687,6 @@ function on_mousedown(e){
     if(!MVs.findElement.call(MVing, "viewport", "$selection"))
         return;
     //...........................................
-    // 计算视口的滚动补偿
-    MVing.viewportScroll = {
-        x : MVing.$viewport[0].scrollLeft,
-        y : MVing.$viewport[0].scrollTop,
-    };
-    //...........................................
     // 准备收集各种尺寸和位置
     MVing.rect = {};
     MVing.targetIsRelative = false;
@@ -592,7 +700,7 @@ function on_mousedown(e){
     }
     // 默认自行计算
     if(!MVing.rect.viewport) {
-        console.log("count default")
+        //console.log("count default")
         MVing.rect.viewport = $D.rect.gen(MVing.$viewport,{
             boxing   : "content",
             scroll_c : true,
@@ -637,6 +745,11 @@ $.fn.extend({ "moving" : function(opt){
     if(window.__nutz_moving)
         throw "NutzMoving: Already in moving!";
 
+    if("destroy" == opt) {
+        this.off("mousedown", on_mousedown);
+        return this;
+    }
+
     // 确保配置对象不为空
     opt = opt || {};
 
@@ -650,7 +763,7 @@ $.fn.extend({ "moving" : function(opt){
     });
 
     // 设置默认滚动步长，当然，没设 scrollSensor 的话，也没卵用 
-    $z.setUndefined(opt, "scrollStep", 10);
+    $z.setUndefined(opt, "scrollStep", 20);
     opt.scrollStep = Math.abs(opt.scrollStep) || 10;
     // 滚动的时间间隔默认为 50ms
     $z.setUndefined(opt, "scrollInterval", 50);
@@ -664,6 +777,13 @@ $.fn.extend({ "moving" : function(opt){
         body    : doc.body,
         $body   : $(doc.body),
         $selection : this,
+        getRectAtInnerDoc : function(jq) {
+            return $D.rect.gen(jq, {
+                boxing   : "border",
+                scroll_c : true,
+                viewport : this.rect.viewport
+            });
+        }
     };
 
     // 监控鼠标事件 mousedown 以便进入移动时

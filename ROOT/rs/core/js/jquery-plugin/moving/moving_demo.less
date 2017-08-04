@@ -30,23 +30,24 @@ html, body {
 }
 
 body[outer] > main{
-    padding: 20px; width:100%; height:100%;
-    display:grid;  justify-items: stretch;
-    grid-template-columns: 50% auto;
-    grid-template-rows: 50px 1fr 1fr 100px;
-    grid-template-areas: "h1 h1"
-                         "pre_sta  d-inner"
-                         "pre_log  d-top"
-                         "footer footer";
-    grid-gap: 10px;
-
-    > * {
-        box-shadow: 3px 3px 5px rgba(0,0,0,0.4);
-        border-radius:4px; 
-    }
-    > h1 {
-        grid-area: h1;   background: #DDD; color:#000;
-        padding:0 18px; margin:0; line-height: 50px;
+    width:100%; height:100%; position: relative;
+    //########################################################
+    // 布局
+    @hT : 50px;
+    @hF : 50px;
+    > * {position: absolute;}
+    > header {top:0; left:0; right:0; height:@hT;}
+    > div.LA {left:0; top:@hT; right:50%; bottom:50%;}
+    > div.LB {left:0; top:50%; right:50%; bottom:@hF;}
+    > div.RA {left:50%; top:@hT; right:0; bottom:50%;}
+    > div.RB {left:50%; top:50%; right:0; bottom:@hF;}
+    > footer {bottom:0; left:0; right:0; height:@hF;}
+    //########################################################
+    // 内容
+    //........................................................
+    > header > h1 {
+        background: #DDD; color:#000;
+        padding:0 18px; margin:0; line-height: @hT;
         font-size: 18px; position: relative;
         > div.mousetip {
             position: absolute; right: 0; top:0; bottom: 0;
@@ -60,62 +61,155 @@ body[outer] > main{
             }
         }
     }
-    > pre.sta {
-        grid-area: pre_sta; overflow: auto;
-        padding: 10px; margin:0; background: #CCC; color:#444;
-        font-family: @f_fixed; font-size:10px;
-        line-height: 16px;
-        b {color:#08F;}
-        u {opacity: 0.5; text-decoration: none;}
-    }
-    > pre.log {
-        grid-area: pre_log;  overflow: auto;
-        padding: 10px; margin:0; background: #000; color:#CCC;
-        font-family: @f_fixed; font-size:12px;
-        > div {
-            line-height: 20px;
-            > em {
-                display: inline-block; padding:0 6px;
-                border-radius: 50%; margin-right: 8px;
-                background: #AAA; color:#FFF; font-size: 10px;
-                font-family: @f_fixed;
+    //........................................................
+    > div {
+        padding:8px;
+        > * {
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.4);
+            border-radius:4px; width:100%; height:100%;
+        }
+        //....................................................
+        pre.sta {
+            overflow: auto;
+            padding: 10px; margin:0; background: #CCC; color:#444;
+            font-family: @f_fixed; font-size:10px;
+            line-height: 16px;
+            b {color:#08F;}
+            u {opacity: 0.5; text-decoration: none;}
+        }
+        //....................................................
+        pre.log {
+            overflow: auto;
+            padding: 10px; margin:0; background: #000; color:#CCC;
+            font-family: @f_fixed; font-size:12px;
+            > div {
+                line-height: 20px;
+                > em {
+                    display: inline-block; padding:0 6px;
+                    border-radius: 50%; margin-right: 8px;
+                    background: #AAA; color:#FFF; font-size: 10px;
+                    font-family: @f_fixed;
+                }
             }
         }
-    }
-    > section.d-inner {
-        grid-area: d-inner; background: #EEE;
-        padding: 20px;
-        iframe {
-            border:4px solid #AAA; width:100%; height:100%;
+        //....................................................
+        section.d-inner {
+            background: #EEE;
+            padding: 20px;
+            iframe {
+                border:4px solid #AAA; width:100%; height:100%;
+            }
+        }
+        //....................................................
+        section.d-top {
+            grid-area: d-top; background: #EEE;
+            padding: 20px;
+            > div.con {
+                border:4px solid #AAA; width:100%; height:100%;
+                position: relative; overflow: auto;
+            }
+        }
+        //....................................................
+        section[mv-mode] { @noselect();
+            background: #CC9; position: relative;
+            > * {border-color:#F80;}
+        }
+        section[mv-mode]:before {
+            position: absolute; display: block;
+            right: 0; top: -3px; padding: 4px;
+            font-size:10px; font-family: @f_fixed;
+            background: #FFF; color:#000; opacity: 0.3;
+            content: attr(mv-mode);
         }
     }
-    > section.d-top {
-        grid-area: d-top; background: #EEE;
-        padding: 20px;
-        > div.con {
-            border:4px solid #AAA; width:100%; height:100%;
-            position: relative; overflow: auto;
-        }
-    }
-    > section[mv-mode] {
-        background: #CC9; position: relative;
-        > * {border-color:#F80;}
-    }
-    > section[mv-mode]:before {
-        position: absolute; display: block;
-        right: 0; top: -3px; padding: 4px;
-        font-size:10px; font-family: @f_fixed;
-        background: #FFF; color:#000; opacity: 0.3;
-        content: attr(mv-mode);
-    }
+    //........................................................
     > footer {
-        grid-area: footer; background: #EEE;
-        padding: 18px;
+        background: #EEE;  padding: 10px;
         > button {
             font-size:12px; padding:8px 12px;
         }
     }
+    //........................................................
 }
+
+.sen-drop {
+    padding:20px; border:10px dashed #444; display: inline-block;
+    margin:30px;
+}
+
+@saS   : 5px;
+@saC   : rgba(0,0,0,0.3);
+@saT   : .2s ease;
+@saC_a : rgba(255,0,0,0.8);
+@saT_a : -2;
+@saW   : 3;
+.z-mvm-sit {
+    margin-left:-1px; margin-top:-1px;
+    section {
+        position:relative; width:100%; height:100%; border:1px solid transparent;
+        > aside {position: absolute; top:0;left:0;right:0;bottom:0;}
+        > aside[md="x"]:before {
+            transition:@saT;
+            display: block; content: ""; border:@saS solid @saC;
+            position: absolute; width:@saS * @saW; height:@saS * @saW;
+            top:@saS * -1; left:@saS * -1;
+            border-right-color:transparent;
+            border-bottom-color:transparent;
+        }
+        > aside[md="x"]:after {
+            transition:@saT;
+            display: block; content: ""; border:@saS solid @saC;
+            position: absolute; width:@saS * @saW; height:@saS * @saW;
+            top:@saS * -1; right:@saS * -1;
+            border-left-color:transparent;
+            border-bottom-color:transparent;
+        }
+        > aside[md="y"]:before {
+            transition:@saT;
+            display: block; content: ""; border:@saS solid @saC;
+            position: absolute; width:@saS * @saW; height:@saS * @saW;
+            bottom:@saS * -1; left:@saS * -1;
+            border-top-color:transparent;
+            border-right-color:transparent;
+        }
+        > aside[md="y"]:after {
+            transition:@saT;
+            display: block; content: ""; border:@saS solid @saC;
+            position: absolute; width:@saS * @saW; height:@saS * @saW;
+            bottom:@saS * -1; right:@saS * -1;
+            border-top-color:transparent;
+            border-left-color:transparent;
+        }
+        > span {display: none;}
+    }
+}
+
+.z-mvm-sit[se-actived] {
+    section {
+        background: rgba(255,0,0,0.6); border:1px solid @saC_a;
+        > aside[md="x"]:before {
+            border-left-color:@saC_a;
+            border-top-color:@saC_a;
+            top:@saS * @saT_a; left:@saS * @saT_a;
+        }
+        > aside[md="x"]:after {
+            border-right-color:@saC_a;
+            border-top-color:@saC_a;
+            top:@saS * @saT_a; right:@saS * @saT_a;
+        }
+        > aside[md="y"]:before {
+            border-left-color:@saC_a;
+            border-bottom-color:@saC_a;
+            bottom:@saS * @saT_a; left:@saS * @saT_a;
+        }
+        > aside[md="y"]:after {
+            border-right-color:@saC_a;
+            border-bottom-color:@saC_a;
+            bottom:@saS * @saT_a; right:@saS * @saT_a;
+        }
+    }
+}
+
 
 .mv-demo-item {@noselect();
     font-size:12px; font-family: @f_fixed;

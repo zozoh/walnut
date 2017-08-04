@@ -1,7 +1,7 @@
 (function($, $z, $D){
 //.............................................
 function mark_viewport_to_inner_body(){
-    var jIfm = $('section.d-inner > iframe');
+    var jIfm = $('.d-inner > iframe');
     var ifRe = $D.rect.gen(jIfm, {
         boxing   : "content",
         scroll_c : true,
@@ -48,6 +48,7 @@ var LOG = {
         var str = "<b>" + MVing.$target.attr("nm") + ":</b> ";
 
         str += "<u>start/endInMs: </u>" + MVing.startInMs + " / " + MVing.endInMs;
+        str += "\n<u>currentSensor: </u>" + $z.toJson(MVing.currentSensor);
 
         str += "\n<b>posAt :</b>";
         str += "\n<u> - target   : </u>" + $D.rect.dumpPos(MVing.posAt.target);
@@ -79,9 +80,9 @@ var LOG = {
 //.............................................
 // 得到 iframe 对应的文档对象，以及其他关键变量
 function getContainerList(){
-    var jIfm = $('section.d-inner > iframe');
+    var jIfm = $('.d-inner > iframe');
     var doc  = jIfm[0].contentDocument;
-    return [$(doc.body), $("section.d-top > .con")];
+    return [$(doc.body), $(".d-top > .con")];
 }
 //.............................................
 // 对容器执行操作
@@ -156,6 +157,11 @@ function bindMEV(jq, selector, funcMap){
 // 定义行为
 var A = {
     //.............................................
+    // 关闭拖拽
+    "none" : function(jCon){
+        jCon.moving("destroy");
+    },
+    //.............................................
     // 默认拖拽
     "default" : function(jCon){
         var vpa = jCon.attr("viewport");
@@ -176,14 +182,43 @@ var A = {
             dboundaryBy : "100%",
             dassist : {
                 axis : ["right", "bottom"],
-                axisFullScreen : true
+                axisFullScreen : false
             },
             scrollSensor : {
                 x : "10%",
                 y : 30
             },
+            sensors : function(){
+                var MVing = this;
+                var list  = [];
+                //console.log(this.$viewport.find(".sen-drop").length)
+                this.$viewport.find(".sen-drop").each(function(){
+                    var jq = $(this);
+                    list.push({
+                        name : "drop",
+                        text : jq.text(),
+                        rect : vpa ? MVing.getRectAtInnerDoc(jq) 
+                                   :$D.rect.gen(jq),
+                        inViewport : true,
+                        visibility : true,
+                        matchBreak : true,
+                    });
+                });
+                return list;
+            },
+            sensorFunc : {
+                "drop" : {
+                    enter : function(sen){
+                        console.log("enter", sen.index, sen.text, this);
+                    },
+                    leave : function(sen){
+                        console.log("leave", sen.index, sen.text, this);
+                    }
+                }
+            }
         });
     },
+    //.............................................
 };
 //.................................................
 // 监控文档加载

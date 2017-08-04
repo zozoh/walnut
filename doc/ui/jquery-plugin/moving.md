@@ -68,17 +68,23 @@ window
         document.body
             某拖拽目标
     DIV.z-moving-mask
-        DIV.z-mvm-viewport      <!--// 视口副本-->
-            DIV.z-mvm-sit       <!--// 在视口内的可见感应器 -->
-                SECTION         <!--// 感应器的可见部分包裹容器 -->
-        DIV.z-mvm-sensors       <!--// 感应器绘制层-->
-            DIV.z-mvm-sit       <!--// 在视口外的可见感应器 -->
-                SECTION         <!--// 感应器的可见部分包裹容器 -->
-        DIV.z-mvm-target        <!--// 移动目标的显示副本-->
-        SVG                     <!--// 辅助线绘制层-->
-            LINE                <!--// 水平辅助线-->
-            LINE                <!--// 垂直辅助线-->
+        DIV.z-mvm-viewport        <!--// 视口副本-->
+            ASIDE.vp-placeholder  <!--// 视口副本占位块，用来让视口内部大小与原本一致-->
+            DIV.z-mvm-sit         <!--// 在视口内的可见感应器 -->
+                SECTION           <!--// 感应器的可见部分包裹容器 -->
+                    ASIDE@md="x"  <!--// 辅助元素X -->
+                    ASIDE@md="y"  <!--// 辅助元素Y -->
+                    SPAN          <!--// 如果感应器有 text，写在这里，否则没有这个元素-->
+        DIV.z-mvm-sensors         <!--// 感应器绘制层-->
+            DIV.z-mvm-sit         <!--// 在视口外的可见感应器 -->
+                ...               <!--// @see 上面的感应器 DOM 结构 -->
+        DIV.z-mvm-target          <!--// 移动目标的显示副本-->
+        SVG                       <!--// 辅助线绘制层-->
+            LINE                  <!--// 水平辅助线-->
+            LINE                  <!--// 垂直辅助线-->
 ```
+
+- `DIV.z-mvm-sit` 表示可视的感应器的帮助元素，有属性 `se-actived="yes"` 表示激活的感应器
 
 # 运行时上下文
 
@@ -102,13 +108,6 @@ $target    : jQuery,   // 移动目标的 jQuery 对象
 // 表示计算 target 初始矩形时，需要对 viewport 矩形转换坐标系
 // 通常，是在 <iframe> 嵌套的内联文档对象里，要启用这个选项
 targetIsRelative : false,
-//..................................................
-// 视口初始的滚动补偿
-// 这个会影响对于视口内感应器的匹配
-viewportScroll : {
-    x : 0,       // x 轴，即 scrollLeft
-    y  : 0       // y 轴，即 scrollTop
-},
 //..................................................
 // 初始点击位置信息
 posAt : {
@@ -171,7 +170,8 @@ css : {
 // 遮罩层的其他绘制层
 $mask      : jQuery,   // 遮罩的 jQuery 对象
 mask : {
-    $viewport : jQuery,    // 视口副本 
+    $viewport : jQuery,    // 视口副本
+    $viewportPlaceHolder : jQuery, // 视口内的占位块，用来跟随视口 scroll 的
     $sensors  : jQuery,    // 视口外可见感应器绘制层
     $target   : jQuery,    // 移动目标副本
     assist : {             // 辅助绘制对象集合
@@ -191,9 +191,12 @@ sensors : [{
     $ele    : jQuery,    // 感应区对应的元素。可以为 null
     $helper : jQuery,    // 可见感应器对应的显示元素。即 DIV.z-mvm-sit
                          // 不可见的感应器，此项为 null
-    inViewport : false,  // 是否在视口内，且随视口一起滚动
-    visibility : false,  // 是否要在绘制层显示感应区
+                         // 「这个会自动生成，你设置也没用」
+    inViewport : true,   // 是否在视口内，且随视口一起滚动
+    visibility : true,   // 是否要在绘制层显示感应区
     matchBreak : true,   // 如果匹配上了，是否继续匹配后续感应器，默认 true
+    actived    : false   // 感应器状态，true 表示激活的感应器
+                         // 「这个会自动生成，你设置也没用」
 }],
 // 感应器如果匹配上了，根据名称，执行集合中的函数
 // 如果没有对应的函数，则会抛错

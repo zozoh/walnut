@@ -17,29 +17,41 @@
 </head>
 <body outer="yes">
 <main>
-    <h1>
-        测试拖拽 
-        <div class="mousetip">
-            <span class="mu-st"></span>
-            <span class="mu-pos"></span>
-        </div>
-    </h1>
+    <header>
+        <h1>
+            <b>测试拖拽</b>
+            <div class="mousetip">
+                <span class="mu-st"></span>
+                <span class="mu-pos"></span>
+            </div>
+        </h1>
+    </header>
     <!--.........................................................-->
-    <pre class="sta"></pre>
-    <pre class="log"></pre>
+    <div class="LA"><pre class="sta"></pre></div>
+    <div class="LB"><pre class="log"></pre></div>
     <!--.........................................................-->
-    <section class="d-inner">
-        <iframe src="moving_demo_inner.html"></iframe>
-    </section>
+    <div class="RA">
+        <section class="d-inner">
+            <iframe src="moving_demo_inner.html"></iframe>
+        </section>
+    </div>
     <!--.........................................................-->
-    <section class="d-top">
-        <div class="con">
-            <div class="mv-demo-item" nm="外部" style="width:100px;height:120px;top:175px;left:140px;">占位</div>
-        </div>
-    </section>
+    <div class="RB">
+        <section class="d-top">
+            <div class="con">
+                <div class="mv-demo-item" nm="外部" style="width:100px;height:120px;top:175px;left:140px;">占位</div>
+                <div style="height:2000px;width:1000px;">
+                    <div class="sen-drop">这里A</div>
+                    <div class="sen-drop">这里B</div>
+                    <div class="sen-drop">这里C</div>
+                </div>
+            </div>
+        </section>
+    </div>
     <!--.........................................................-->
     <footer>
         <button a="default">默认拖拽</button>
+        <button a="none">关闭拖拽</button>
     </footer>
 </main>
 </body>
