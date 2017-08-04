@@ -332,168 +332,29 @@ var methods = {
     //...............................................................
     __setup_page_moveresizing : function() {
         var UI = this;
-        
-        UI._C.iedit.$body.pmoving({
+        UI._C.iedit.$body.moving({
             trigger    : '.hm-com',
             maskClass  : 'hm-page-move-mask',
-            autoUpdateTriggerBy : null,
-            sensorSize : 30,
-            compactDropsRect : "NE",
-            findTrigger : function(e) {
-                var jq    = $(e.target);
-                
-                // 无视错误的组件
-                if(jq.closest(".hm-com").attr("invalid-lib"))
-                    return null;
-
-                // 辅助节点
-                var jAi   = jq.closest(".hmc-ai");
-                if(jAi.length > 0)
-                    return jAi;
-                // inflow 的不能移动
-                if('inflow' == jq.closest(".hm-com").attr("hmc-mode"))
-                    return null;
-                // 可以移动
-                return $(this);
+            viewportRect : function(){
+                return $D.rect.gen(UI.arena.find('.hmpg-frame-edit'), {
+                    boxing   : "content",
+                    scroll_c : true,
+                })
             },
-            findViewport : function($context, e) {
-                var jVP = this.closest(".hm-area-con");
-                if(jVP.length > 0)
-                    return jVP;
-                return $context;
+            scrollSensor : {x:"10%", y:30},
+            assist : {
+                axis : ["right", "bottom"],
+                axisFullScreen : false
             },
-            findDropTarget : function(e) {
-                // 只有拖动手柄的时候才会触发
-                var jAi  = this.$trigger;
-                
-                if("H" == jAi.attr("m")) {
-                    // 当前控件所在的区域
-                    var jMyArea = jAi.closest(".hm-area");
-                    var eMyArea = jMyArea.length > 0 ? jMyArea[0] : null;
-                    
-                    // 当前控件（如果是布局控件）包含的区域先找一下
-                    // 这些区域也要过滤到
-                    var jCom = jAi.closest(".hm-com");
-                    var jSubAreas = jCom.find(".hm-area");
-                    var eSubs = Array.from(jSubAreas);
-                    
-                    // 准备要返回的区域列表
-                    var eles = [];
-                    
-                    // 挨个查找：叶子区域，且不包含当前控件的，统统列出来
-                    UI._C.iedit.$body.find(".hm-area").each(function(){
-                        if(eMyArea != this
-                           && eSubs.indexOf(this) < 0
-                           && $(this).find(".hm-area").length == 0) {
-                            eles.push(this);
-                        }
-                    });
-                    
-                    // 返回
-                    return $(eles);
-                }
-            },
-            on_begin : function(e) {
+            on_begin : function(){
                 //......................................
                 // 得到组件顶部节点元素
                 var jCom  = this.$trigger.closest(".hm-com");
                 var uiCom = ZUI(jCom);
-                //...........................................................
-                this.__hm_check_viewport = function(){
-                    // 如果视口不是 body，那么在遮罩层做特殊标识
-                    if(this.$context[0] !== this.$viewport[0]) {
-                        var gRect = $z.rect(this.$context);
-                        var vpCss = $z.rect_relative(this.rect.viewport, gRect, true);
-                        $('<div class="pmv-viewport">')
-                            .css(vpCss)
-                            .appendTo(this.$mask.attr("in-area", "yes"));
-                    }
-                };
-                //...........................................................
-                // 这个对象描述了手柄模式的计算方式
-                var HDLc = {
-                    NW : ["left", "top"],
-                    W  : ["left"],
-                    SW : ["left", "bottom"],
-                    N  : ["top"],
-                    S  : ["bottom"],
-                    NE : ["right", "top"],
-                    E  : ["right"],
-                    SE : ["right", "bottom"]
-                };
                 //......................................
-                // 根据触发点类型不同，为上下文设置不同的处理函数
-                if(this.$trigger.hasClass("hmc-ai")) {
-                    var jAi = this.$trigger;
-                    
-                    // 得到辅助柄的类型
-                    var m   = jAi.attr("m");
-                    this.$mask.attr("mmode", m);
-                    
-                    // 移动控件的树的层级
-                    if("H" == m && this.drops) {
-                        this.__is_for_drop = true;
-                        this.__do_ing = function(pmvc) {
-                            //console.log("drag", pmvc.rect.inview)
-                            return true;
-                        };
-                        
-                        // 处理每个拖放的目标的内容显示
-                        var pmvc = this;
-                        this.$mask.find(".pmv-dropi").each(function(index){
-                            var jDrop = $(this);
-                            var as    = jDrop.attr("d-as");
-                            var index = jDrop.attr("d-index") * 1;
-                            var di    = pmvc.drops[as][index];
-                            var jArea  = di.$ele;
-                            var areaId = jArea.attr("area-id");
-                            //console.log(areaId)
-                            $(`<div class="di-area"></div>`)
-                                .text(areaId).appendTo(jDrop);
-                        });
-                        
-                        // 修改 trigger 的显示样式
-                        this.$helper.html(uiCom.getIconHtml());
-
-                        // 标记页面其他元素的样式
-                        this.$mask.prevAll().addClass("hm-pmv-hide");
-                    }
-                    // 改变控件大小
-                    else {
-                        // 得到模式
-                        var hdl_mode = HDLc[m];
-                    
-                        // 设置回调
-                        this.__do_ing = function(pmvc) {
-                            // 计算顶点
-                            _.extend(pmvc.rect.com, 
-                                $z.rectObj(pmvc.rect.trigger, hdl_mode));
-
-                            // 重新计算矩形其他尺寸
-                            $z.rect_count_tlbr(this.rect.com);
-                        };
-                        
-                        // 检查 viewport 的模式
-                        // this.__hm_check_viewport();
-                        
-                    }
-                }
-                //......................................
-                // 没有触发到特殊手柄，那么就表示移动自身
-                else {
-                    // 处理移动时回调
-                    this.__do_ing = function(pmvc){
-                        pmvc.$mask.attr("mmode", "move")
-                        pmvc.rect.com = pmvc.rect.trigger;
-                    };
-                    
-                    // 检查 viewport 的模式
-                    this.__hm_check_viewport();
-                }
-                //......................................
+                // 记录到上下文
                 this.uiCom = uiCom;
                 this.comBlock = this.uiCom.getBlock();
-                this.rect.com = $z.rect(jCom, false, true);
                 //......................................
                 // 确保这个控件是激活的
                 if(!jCom.attr("hm-actived")){    
@@ -501,21 +362,11 @@ var methods = {
                 }
             },
             on_ing : function() {
-                // 计算，如果返回 true 表示不要更新块的位置大小
-                if(_.isFunction(this.__do_ing)
-                   && !this.__do_ing(this)){
-                    // 计算控件相对于 viewport 的全本 CSS
-                    var comCss = $z.rect_relative(this.rect.com,
-                                                this.rect.viewport,
-                                                true,
-                                                this.$viewport);
-                    _.extend(this.comBlock, {
-                        top:"",left:"",bottom:"",right:"",width:"",height:""
-                    }, UI.pickCssForMode(comCss, this.comBlock.posBy))
-                    
-                    // 通知修改，在 on_end 的时候会保存位置的
-                    this.uiCom.notifyBlockChange(null, this.comBlock);
-                }
+                // 计算控件相对于 viewport 的全本 CSS
+                _.extend(this.comBlock, this.css.current);
+                
+                // 通知修改，在 on_end 的时候会保存位置的
+                this.uiCom.notifyBlockChange(null, this.comBlock);
             },
             // 移动结束，保存 Block 信息
             on_end : function() {
@@ -532,15 +383,6 @@ var methods = {
                 // 去掉其他元素的标识
                 this.$mask.prevAll().removeClass("hm-pmv-hide");
             },
-            // 拖拽到了一个目标，执行修改
-            on_drop : function(jAreaCon) {
-                //console.log("drop to ", jAreaCon);
-                //console.log("before drop", this.uiCom.getBlock().background);
-                this.uiCom.appendToArea(jAreaCon);
-                //console.log("after drop", this.uiCom.getBlock().background);
-                this.uiCom.$el.removeClass("hm-pmv-hide");
-                this.uiCom.el.scrollIntoView();
-            }
         });
         
     },

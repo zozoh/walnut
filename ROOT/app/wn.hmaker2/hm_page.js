@@ -6,7 +6,7 @@ $z.declare([
     'app/wn.hmaker2/support/hm__methods',
     'app/wn.hmaker2/support/hm_page_com_bar',
     'app/wn.hmaker2/support/hm_page_setup',
-    'jquery-plugin/pmoving/pmoving',
+    'jquery-plugin/moving/moving',
     // 预先加载
     'app/wn.hmaker2/component/columns.js',
     'app/wn.hmaker2/component/image.js',

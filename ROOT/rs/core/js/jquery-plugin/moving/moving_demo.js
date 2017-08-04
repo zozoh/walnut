@@ -184,10 +184,7 @@ var A = {
                 axis : ["right", "bottom"],
                 axisFullScreen : false
             },
-            scrollSensor : {
-                x : "10%",
-                y : 30
-            },
+            scrollSensor : {x:"10%", y:30},
             sensors : function(){
                 var MVing = this;
                 var list  = [];
