@@ -393,7 +393,6 @@ var methods = {
                 if(ing.$target.hasClass("hmc-ai")){
                     var jAi = ing.$target;
                     var m   = jAi.attr("m");
-                    ing.$mask.attr("mmode", m);
                     //..................................
                     // 改变组件层级关系的拖拽柄
                     if("H" == m) {
@@ -441,6 +440,8 @@ var methods = {
                 //......................................
                 // 那么就是移动组件本身
                 else {
+                    // 标识一下移动组件的 helper
+                    ing.mask.$target.attr("md", "target");
                     // 动态设置一下参考线
                     opt.assist = {
                         axis : [],

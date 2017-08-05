@@ -704,7 +704,9 @@ function on_mousedown(e){
     var MVing = _.extend({
         Event : e,
     }, e.data);
-    var opt   = MVing.options;
+    // 生成配置项的新副本
+    var opt   = _.extend({}, MVing.options);
+    MVing.options = opt;
     //console.log("I am mousedown")
     //...........................................
     // 确定触发者和开始时间

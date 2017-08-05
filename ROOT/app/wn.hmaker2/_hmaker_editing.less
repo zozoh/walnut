@@ -161,22 +161,16 @@ body {
 
 //............................................................
 // 移动鼠标的遮罩
-.hm-page-move-mask {@noselect();
-    //background: rgba(255,0,0,0.1);
-    .pmv-helper {
-        background: rgba(255,255,0,0.3);
-    }
-}
-.hm-page-move-mask[mmode="move"] {cursor: move;}
-.hm-page-move-mask[mmode="N"] {cursor:ns-resize;}
-.hm-page-move-mask[mmode="S"] {cursor:ns-resize;}
-.hm-page-move-mask[mmode="W"] {cursor:ew-resize;}
-.hm-page-move-mask[mmode="E"] {cursor:ew-resize;}
-.hm-page-move-mask[mmode="NW"] {cursor:nwse-resize;}
-.hm-page-move-mask[mmode="NE"] {cursor:nesw-resize;}
-.hm-page-move-mask[mmode="SW"] {cursor:nesw-resize;}
-.hm-page-move-mask[mmode="SE"] {cursor:nwse-resize;}
-.hm-page-move-mask[mmode="H"] {
+.hm-page-inner-moving-mask[moving-mode="move"] * {cursor: move;}
+.hm-page-inner-moving-mask[moving-mode="N"]    * {cursor:ns-resize;}
+.hm-page-inner-moving-mask[moving-mode="S"]    * {cursor:ns-resize;}
+.hm-page-inner-moving-mask[moving-mode="W"]    * {cursor:ew-resize;}
+.hm-page-inner-moving-mask[moving-mode="E"]    * {cursor:ew-resize;}
+.hm-page-inner-moving-mask[moving-mode="NW"]   * {cursor:nwse-resize;}
+.hm-page-inner-moving-mask[moving-mode="NE"]   * {cursor:nesw-resize;}
+.hm-page-inner-moving-mask[moving-mode="SW"]   * {cursor:nesw-resize;}
+.hm-page-inner-moving-mask[moving-mode="SE"]   * {cursor:nwse-resize;}
+.hm-page-inner-moving-mask[moving-mode="H"] {
     cursor: grabbing;
     cursor: -webkit-grabbing;
     cursor: -moz-grabbing;
