@@ -182,33 +182,32 @@ var MVs = {
         MVing.mask.$target
             .css($z.pick(MVing.rect.target,
                         ["top","left","width","height"]));
-        
-        // 辅助线绘制层
-        if(opt.assist) {
-            MVing.mask.assist = {
-                $root : $z.svg.createRoot({
-                    "position" : "fixed",
-                    "width"  : "100%",
-                    "height" : "100%",
-                    top:0, left:0
-                }).appendTo(MVing.$mask)
-            };
-
-            // 添加辅助线
-            var lineStyle = {
-                "stroke" : "#0FF",
-                "stroke-width" : .5
-            };
-            MVing.mask.assist.$lineX = $z.svg.create("line", null, lineStyle)
-                .appendTo(MVing.mask.assist.$root);
-            MVing.mask.assist.$lineY = $z.svg.create("line", null, lineStyle)
-                .appendTo(MVing.mask.assist.$root);
-        }
     },
     //.......................................................
     __update_assist : function(MVing){
         var opt  = MVing.options;
         if(opt.assist) {
+            // 如果没有创建辅助层，创建它
+            if(!MVing.mask.assist) {
+                MVing.mask.assist = {
+                    $root : $z.svg.createRoot({
+                        "position" : "fixed",
+                        "width"  : "100%",
+                        "height" : "100%",
+                        top:0, left:0
+                    }).appendTo(MVing.$mask)
+                };
+
+                // 添加辅助线
+                var lineStyle = {
+                    "stroke" : "#0FF",
+                    "stroke-width" : .5
+                };
+                MVing.mask.assist.$lineX = $z.svg.create("line", null, lineStyle)
+                    .appendTo(MVing.mask.assist.$root);
+                MVing.mask.assist.$lineY = $z.svg.create("line", null, lineStyle)
+                    .appendTo(MVing.mask.assist.$root);
+            }
             // 更新坐标轴
             if(opt.assist.axis){
                 var key_x = opt.assist.axis[0];
@@ -652,15 +651,15 @@ function on_mousemove(e) {
         // 附加感应器
         MVs.setupSensors.call(MVing);
 
+        // 回调: on_begin
+        $z.invoke(opt, "on_begin", [], MVing);
+
         // 计算当前矩形 (考虑边界以及移动约束)
         // 并计算 css 段
         MVs.calculateTarget.call(MVing);
 
         // 更新目标的遮罩替身 css 位置
         MVs.updateTargetCss.call(MVing);
-
-        // 回调: on_begin
-        $z.invoke(opt, "on_begin", [], MVing);
 
         // 回调: on_ing
         $z.invoke(opt, "on_ing", [], MVing);
@@ -702,7 +701,9 @@ function on_mouseup(e){
 // 进入移动时的入口函数
 function on_mousedown(e){
     // 从上下文原型中构建副本
-    var MVing = _.extend({}, e.data);
+    var MVing = _.extend({
+        Event : e,
+    }, e.data);
     var opt   = MVing.options;
     //console.log("I am mousedown")
     //...........................................

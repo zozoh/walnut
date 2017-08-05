@@ -458,11 +458,11 @@ var methods = {
     //...............................................................
     // 得到自己关于宽高位置的 css
     getMyRectCss : function() {
-        var rect = $z.rect(this.$el);
+        var rect = $D.rect.gen(this.$el);
         var viewport = this.getMyViewportRect();
         // console.log(rect);
         // console.log(viewport);
-        return $z.rect_relative(rect, viewport, true);
+        return $D.rect.relative(rect, viewport, true);
     },
     //...............................................................
     // 得到控件所属的视口 DOM，如果不在分栏里，那么就是 body
@@ -473,7 +473,17 @@ var methods = {
         return this.$el.closest("body");
     },
     getMyViewportRect : function(){
-        return $z.rect(this.getMyViewport());
+        // 用一个区域
+        var jArea = this.$el.closest(".hm-area-con");
+        if(jArea.length > 0) {
+            return $D.rect.gen(jArea, {
+                overflow : {x:"auto", y:"auto"}
+            });
+        }
+        // 用 body
+        return $D.rect.gen(this.$el.closest("body"), {
+            overflow : {x:"auto", y:"scroll"}
+        });
     },
     //...............................................................
     // 将一个 json 描述的 CSS 对象变成 CSS 文本

@@ -336,52 +336,145 @@ var methods = {
             trigger    : '.hm-com',
             maskClass  : 'hm-page-move-mask',
             viewportRect : function(){
-                return $D.rect.gen(UI.arena.find('.hmpg-frame-edit'), {
+                var rect = $D.rect.gen(UI.arena.find('.hmpg-frame-edit'), {
                     boxing   : "content",
                     scroll_c : true,
-                })
+                    overflow : {x:"auto", y:"scroll"},
+                    overflowEle : UI._C.iedit.$body,
+                });
+                return $D.rect.count_tlwh(rect);
             },
             scrollSensor : {x:"10%", y:30},
-            assist : {
-                axis : ["right", "bottom"],
-                axisFullScreen : false
-            },
-            on_begin : function(){
+            target : function(){
+                var ing = this;
+                var jq  = $(ing.Event.target);
                 //......................................
                 // 得到组件顶部节点元素
-                var jCom  = this.$trigger.closest(".hm-com");
+                var jCom  = ing.$trigger.closest(".hm-com");
                 var uiCom = ZUI(jCom);
                 //......................................
                 // 记录到上下文
-                this.uiCom = uiCom;
-                this.comBlock = this.uiCom.getBlock();
+                ing.uiCom = uiCom;
+                ing.comBlock = ing.uiCom.getBlock();
+                //console.log(ing.comBlock)
+
+                // 无视错误的组件
+                if(jCom.attr("invalid-lib"))
+                    return null;
+
+                // 辅助节点
+                var jAi = jq.closest(".hmc-ai");
+                if(jAi.length > 0)
+                    return jAi;
+
+                // 普通移动: inflow 的不能移动
+                if('inflow' == jCom.attr("hmc-mode")){
+                    return null;
+                }
+
+                // 默认移动组件本身
+                return jCom;
+            },
+            on_begin : function(){
+                var ing  = this;
+                var opt  = ing.options;
+                var jCom = ing.$target.closest(".hm-com");
                 //......................................
                 // 确保这个控件是激活的
                 if(!jCom.attr("hm-actived")){    
-                    this.uiCom.notifyActived("page");
+                    ing.uiCom.notifyActived("page");
                 }
-            },
-            on_ing : function() {
-                // 计算控件相对于 viewport 的全本 CSS
-                _.extend(this.comBlock, this.css.current);
-                
-                // 通知修改，在 on_end 的时候会保存位置的
-                this.uiCom.notifyBlockChange(null, this.comBlock);
+                //......................................
+                // 根据控件的定位顶点，设置移动组件的 cssBy
+                // 以便确定要更新哪四个属性
+                opt.cssBy = UI.comBlockModeToKeys(ing.comBlock.posBy);
+                //......................................
+                // 是控制柄
+                if(ing.$target.hasClass("hmc-ai")){
+                    var jAi = ing.$target;
+                    var m   = jAi.attr("m");
+                    ing.$mask.attr("mmode", m);
+                    //..................................
+                    // 改变组件层级关系的拖拽柄
+                    if("H" == m) {
+
+                    }
+                    //..................................
+                    // 改变控件大小的八个柄
+                    else {
+                        ing.rect.com = $D.rect.gen(jCom, {
+                            scroll_c : true,
+                            viewport : ing.rect.viewport
+                        });
+                        var keys = ({
+                            NW : ["left", "top"],
+                            W  : ["left"],
+                            SW : ["left", "bottom"],
+                            N  : ["top"],
+                            S  : ["bottom"],
+                            NE : ["right", "top"],
+                            E  : ["right"],
+                            SE : ["right", "bottom"]
+                        })[m];
+                        console.log("keys:", keys)
+                        opt.on_ing = function(){
+                            // 计算 com 的绝对矩形
+                            _.extend(this.rect.com, $z.pick(this.rect.current, keys));
+                            $D.rect.count_tlbr(this.rect.com);
+                            // 转换成 css
+                            var css = $D.rect.relative(
+                                this.rect.com, 
+                                this.rect.viewport, 
+                                true, {
+                                    x : this.$viewport[0].scrollLeft,
+                                    y : this.$viewport[0].scrollTop,
+                                });
+                            // 更新控件
+                            _.extend(this.comBlock, {
+                                top:"",left:"",right:"",bottom:"",width:"",height:""
+                            }, $z.pick(css, opt.cssBy));
+                            // 通知修改
+                            this.uiCom.notifyBlockChange(null, this.comBlock);
+                        }
+                    }
+                }
+                //......................................
+                // 那么就是移动组件本身
+                else {
+                    // 动态设置一下参考线
+                    opt.assist = {
+                        axis : [],
+                        axisFullScreen : false
+                    };
+                    opt.assist.axis[0] = opt.cssBy.indexOf("left")>=0?"left":"right";
+                    opt.assist.axis[1] = opt.cssBy.indexOf("top")>=0?"top":"bottom";
+                    // 准备执行函数
+                    opt.on_ing = function(){
+                        // 更新控件
+                        _.extend(this.comBlock, {
+                            top:"",left:"",right:"",bottom:"",width:"",height:""
+                        }, this.css.current);
+                        // 通知修改
+                        this.uiCom.notifyBlockChange(null, this.comBlock);
+                    }
+                }
             },
             // 移动结束，保存 Block 信息
             on_end : function() {
+                var ing = this;
+                //......................................
                 // 如果已经被认为是开始拖拽
-                if(this.uiCom) {
+                if(ing.uiCom) {
                     // 这个拖动是修改位置，保存最后的位置
-                    if(!this.__is_for_drop) {
-                        this.uiCom.setBlock(this.comBlock);
+                    if(!ing.__is_for_drop) {
+                        ing.uiCom.setBlock(ing.comBlock);
                     }
                     // 重新应用皮肤
                     UI.invokeSkin("resize");
                 }
 
                 // 去掉其他元素的标识
-                this.$mask.prevAll().removeClass("hm-pmv-hide");
+                ing.$mask.prevAll().removeClass("hm-pmv-hide");
             },
         });
         

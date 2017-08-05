@@ -26,6 +26,17 @@ var zRect = {
 
             // 窗口所在的矩形（要进行坐标系变换）
             viewport : Rect
+
+            // 计算矩形时，要去掉滚动条
+            //  - hidden 表示不考虑滚动条
+            //  - auto   表示滚动条会根据内容来出现
+            //  - scroll 表示滚动条铁定出现
+            overflow : {
+                x : "hidden|auto|scroll",
+                y : "hidden|auto|scroll",
+            }
+            // 判断 overflow 时用的元素，默认采用 ele 参数给定元素
+            overflowEle : jQuery || Element
         }
     */
     gen : function(ele, opt){
@@ -39,12 +50,15 @@ var zRect = {
 
         // 分析配置参数
         if(_.isBoolean(opt)) {
-            opt = {margin : opt};
+            opt = {scroll_c : opt};
         }
         // 总要有个配置参数的
         else {
             opt = opt || {};
         }
+
+        // 准备返回值
+        var rect;
 
         // 如果计算 body 或者 document 或者 window
         var ele = jEle[0];
@@ -52,53 +66,75 @@ var zRect = {
         if(!ele.ownerDocument){
             // document
             if(ele.defaultView){
-                return $z.winsz(ele.defaultView);
+                rect = $z.winsz(ele.defaultView);
             }
             // 那么就是 window 啦 
-            return $z.winsz(ele);
+            else {
+                rect = $z.winsz(ele);
+            }
         }
+        // <body> 的话，也是计算整个窗口宽度
         else if (ele.tagName == 'BODY'){
-            return $z.winsz(jEle[0].ownerDocument.defaultView);
+            rect = $z.winsz(jEle[0].ownerDocument.defaultView);
         }
-
         // 开始计算，得到相对于 document 的坐标
-        var rect = jEle.offset();
-
-        // 进行窗口的滚动补偿
-        // Firefox/Chrome 对于 scrollTop/Left 元素不同
-        // FF 用的是 document.documentElement
-        // Chrome 用的是 document.body
-        // 这里用 jQuery 来做一下兼容
-        if (opt.scroll_c) {
-            var $doc   = $(jEle[0].ownerDocument);
-            //console.log("scrollTop/Left", $doc.scrollTop(), $doc.scrollLeft());
-            rect.top  -= $doc.scrollTop();
-            rect.left -= $doc.scrollLeft();
-            //console.log("rect:", this.dumpValues(rect));
-        }
-
-        // 包括外边距
-        if ("margin" == opt.boxing) {
-            rect.width  = jEle.outerWidth(true);
-            rect.height = jEle.outerHeight(true);
-            var style   = window.getComputedStyle(jEle[0]);
-            rect.top   -= $z.toPixel(style.marginTop);
-            rect.left  -= $z.toPixel(style.marginLeft);
-        }
-        // 只包括内容
-        else if("content" == opt.boxing) {
-            rect.width  = jEle.width();
-            rect.height = jEle.height();
-            var style   = window.getComputedStyle(jEle[0]);
-            rect.top   += $z.toPixel(style.paddingTop)
-                          + $z.toPixel(style.borderTopWidth);
-            rect.left  += $z.toPixel(style.paddingLeft)
-                          + $z.toPixel(style.borderLeftWidth);;
-        }
-        // 默认就是 border-box
         else {
-            rect.width  = jEle.outerWidth();
-            rect.height = jEle.outerHeight();
+            rect = jEle.offset();
+
+            // 进行窗口的滚动补偿
+            // Firefox/Chrome 对于 scrollTop/Left 元素不同
+            // FF 用的是 document.documentElement
+            // Chrome 用的是 document.body
+            // 这里用 jQuery 来做一下兼容
+            if (opt.scroll_c) {
+                var $doc   = $(jEle[0].ownerDocument);
+                //console.log("scrollTop/Left", $doc.scrollTop(), $doc.scrollLeft());
+                rect.top  -= $doc.scrollTop();
+                rect.left -= $doc.scrollLeft();
+                //console.log("rect:", this.dumpValues(rect));
+            }
+
+            // 包括外边距
+            if ("margin" == opt.boxing) {
+                rect.width  = jEle.outerWidth(true);
+                rect.height = jEle.outerHeight(true);
+                var style   = window.getComputedStyle(jEle[0]);
+                rect.top   -= $z.toPixel(style.marginTop);
+                rect.left  -= $z.toPixel(style.marginLeft);
+            }
+            // 只包括内容
+            else if("content" == opt.boxing) {
+                rect.width  = jEle.width();
+                rect.height = jEle.height();
+                var style   = window.getComputedStyle(jEle[0]);
+                rect.top   += $z.toPixel(style.paddingTop)
+                              + $z.toPixel(style.borderTopWidth);
+                rect.left  += $z.toPixel(style.paddingLeft)
+                              + $z.toPixel(style.borderLeftWidth);;
+            }
+            // 默认就是 border-box
+            else {
+                rect.width  = jEle.outerWidth();
+                rect.height = jEle.outerHeight();
+            }
+        }
+        
+
+        // 去掉滚动条
+        if(opt.overflow){
+            var jOf = $(opt.overflowEle || jEle);
+            var eOf = jOf[0];
+            //console.log("haha")
+            // 水平滚动条导致高度减小
+            if("scroll" == opt.overflow.x 
+               || ("auto" == opt.overflow.x && (eOf.scrollWidth > jOf.width()))) {
+                rect.height -= $z.scrollBarHeight();
+            }
+            // 垂直滚动条导致宽度减小
+            if("scroll" == opt.overflow.y 
+               || ("auto" == opt.overflow.y && (eOf.scrollHeight > jOf.height()))) {
+                rect.width -= $z.scrollBarWidth();
+            }
         }
 
         // 进行坐标系变换

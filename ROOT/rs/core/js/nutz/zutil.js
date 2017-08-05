@@ -1578,6 +1578,25 @@
             return window.SCROLL_BAR_WIDTH;
         },
         //.............................................
+        // 获得当前系统当前浏览器中滚动条的宽度
+        // TODO 代码实现的太恶心，要重构!
+        scrollBarHeight: function () {
+            if (!window.SCROLL_BAR_HEIGHT) {
+                var newDivOut = "<div id='div_out' style='position:relative;width:100px;height:100px;overflow-y:scroll;overflow-x:scroll'></div>";
+                var newDivIn = "<div id='div_in' style='position:absolute;width:100%;height:100%;'></div>";
+                var scrollWidth = 0;
+                $('body').append(newDivOut);
+                $('#div_out').append(newDivIn);
+                var divOutS = $('#div_out');
+                var divInS = $('#div_in');
+                scrollHeight = divOutS.height() - divInS.height();
+                $('#div_out').remove();
+                $('#div_in').remove();
+                window.SCROLL_BAR_HEIGHT = scrollHeight;
+            }
+            return window.SCROLL_BAR_HEIGHT;
+        },
+        //.............................................
         // 从数组里获取值
         //   arr   : 数组
         //   index : 下标

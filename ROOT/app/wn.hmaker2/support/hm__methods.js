@@ -353,42 +353,24 @@ var methods = {
     //            - TLRH : 顶边定位
     //            - LBRH : 底边定位
     pickCssForMode : function(css, mode) {
-        var regex;
-        switch(mode) {
-        case "WH" :
-            regex = /^(width|height)$/;
-            break;
-        case "TLWH" : 
-            regex = /^(top|left|width|height)$/;
-            break;
-        case "TRWH" : 
-            regex = /^(top|right|width|height)$/;
-            break;
-        case "LBWH" : 
-            regex = /^(left|bottom|width|height)$/;
-            break;
-        case "BRWH" : 
-            regex = /^(bottom|right|width|height)$/;
-            break;
-        case "TLBR" : 
-            regex = /^(top|left|bottom|right)$/;
-            break;
-        case "TLBW" : 
-            regex = /^(top|left|bottom|width)$/;
-            break;
-        case "TBRW" : 
-            regex = /^(top|bottom|right|width)$/;
-            break;
-        case "TLRH" : 
-            regex = /^(top|left|right|height)$/;
-            break;
-        case "LBRH" : 
-            regex = /^(left|bottom|right|height)$/;
-            break;
-        default:
-            throw "unsupport mode: '" + mode + "'";
+        var keys = this.comBlockModeToKeys(mode);
+        return $z.pick(css, keys);
+    },
+    // 根据控件的块定位模式，转换成 css 通常的位置属性写法
+    //  - mode : 为字符串，可能是 "TLBRWH" 任意组合
+    //  - asString : true 表示返回半角逗号分隔字符串，否则是数组
+    comBlockModeToKeys : function(mode, asString) {
+        var re = [];
+        var cs = mode.toUpperCase();
+        for(var i=0; i<cs.length; i++) {
+            var key = ({
+                T:"top", L:"left", B:"bottom", R:"right", W:"width", H:"height"
+            })[cs[i]];
+            if(!key)
+                throw "unsupport mode: '" + mode + "' -> [" + cs[i] + "]";
+            re.push(key);
         }
-        return $z.pick(css, regex);
+        return asString ? re.join(",") : re ;
     },
     // 将 CSS 对象与 base 合并，并将内部所有的 undefined 和 null 都变成空串
     formatCss : function(css, mergeWithBase) {
