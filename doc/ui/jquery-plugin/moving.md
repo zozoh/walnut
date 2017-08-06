@@ -201,6 +201,8 @@ sensors : [{
     inViewport : true,   // 是否在视口内，且随视口一起滚动
     visibility : true,   // 是否要在绘制层显示感应区
     matchBreak : true,   // 如果匹配上了，是否继续匹配后续感应器，默认 true
+    disabled   : false,  // 如果设置，这个感应器将永远不被激活，只用来显示
+                         // 当然，如果都没有 visibility，这个感应器相当于没用
     actived    : false   // 感应器状态，true 表示激活的感应器
                          // 「这个会自动生成，你设置也没用」
 }],

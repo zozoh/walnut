@@ -1236,6 +1236,68 @@ return ZUI.def("app.wn.hmaker_page", {
         return this._C.iedit.$body;
     },
     //...............................................................
+    // 获取拖拽时，可放置在页面中的感知器
+    getDragAndDropSensors : function(jCom){
+        var UI = this;
+        // 四个关键变量
+        var jMyArea = null;     // 当前控件所属区域
+        var eMyArea = null;
+        var jSubAreas = null;   // 当前控件所包含区域（当然只有布局控件才有）
+        var eSubs = [];
+        // 如果给定了当前控件，设置一下
+        if(jCom) {
+            jMyArea = jCom.closest(".hm-area");
+            eMyArea = jMyArea.length > 0 ? jMyArea[0] : null;
+            jSubAreas = jCom.find(".hm-area");
+            eSubs = Array.from(jSubAreas);
+        }
+
+        // 得到视口矩形
+        var rcVp = $D.rect.gen(UI.arena.find('.hmpg-frame-edit'), {
+            boxing   : "content",
+            scroll_c : true,
+            overflow : {x:"auto", y:"scroll"},
+            overflowEle : UI._C.iedit.$body,
+        });
+        $D.rect.count_tlwh(rcVp);
+
+        // 准备要返回的感应器列表
+        var senList = [];
+        
+        // 挨个查找：叶子区域，且不包含当前控件的，统统列出来
+        UI._C.iedit.$body.find(".hm-area").each(function(){
+            var jArea = $(this);
+            // 子区域或嵌套区域，无视
+            if(eSubs.indexOf(this) >= 0 || jArea.find(".hm-area").length>0)
+                return;
+
+            // 计入返回列表
+            senList.push({
+                name : eMyArea != this ? "drop" : "",
+                text : jArea.attr("area-id"),
+                rect : $D.rect.gen(jArea, {
+                    viewport : rcVp,
+                    scroll_c : true,
+                    padding  : 2,
+                }),
+                $ele : jArea.find(">.hm-area-con"),
+                inViewport : true,
+                visibility : true,
+                matchBreak : true,
+                disabled   : eMyArea == this,
+            });
+        });
+
+        // 返回感应器设置
+        return {
+            sensors : senList,
+            sensorFunc : {
+                "drop" : {
+                    "enter" : function(sen){this.drop_in_area = sen.$ele;},
+                    "leave" : function(sen){this.drop_in_area = null;}
+            }}};
+    },
+    //...............................................................
     // 获取编辑操作时的上下文
     _rebuild_context : function() {
         var UI = this;

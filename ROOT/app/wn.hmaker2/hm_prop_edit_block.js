@@ -71,7 +71,9 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             var rect   = this.uiCom.getMyRectCss();
             var css    = this.uiCom.pickCssForMode(rect, posBy);
             block.posBy  = posBy;
-            _.extend(block, css);
+            _.extend(block, {
+                top:"",left:"",right:"",bottom:"",width:"",height:""
+            }, css);
 
             // 保存数据 
             this.uiCom.setBlock(block);

@@ -471,4 +471,38 @@
 // 拖拽的遮罩
 .hm-page-move-mask {@noselect(); 
     .z-mvm-target[md="target"] {background: rgba(255,255,0,0.4);}
+    .z-mvm-target[md="drag"] {
+        @flex(); justify-content:center; align-items:center;
+        border:1px solid @cborder1; background: @cb1;
+    }
+}
+
+// 拖拽感应器部分
+@sitPad : 6px;
+.z-mvm-sit {
+    margin-left:-1px; margin-top:-1px;
+    section {
+        position:relative; width:100%; height:100%; background: rgba(255,255,0,0.2);
+        > * {
+            transition:0.3s;
+            position: absolute; top:0;left:0;right:0;bottom:0;
+        }
+        > aside {border:1px solid #F0F;}
+        > span {
+            @flex(); justify-content:center; align-items:center;
+            font-family: @f_fixed; font-size:@f1; opacity: 0.6; color:#F0F;
+        }
+    }
+}
+
+// 激活的拖拽感应器
+.z-mvm-sit[se-actived] {
+    section {
+        > aside[md="x"]{
+            border-style:dashed;
+            top:@sitPad; left:@sitPad; right:@sitPad; bottom:@sitPad;
+            background: rgba(255,255,0,0.2);
+        }
+        > span {font-size:@f3; opacity: 1.0; color:#000;}
+    }
 }

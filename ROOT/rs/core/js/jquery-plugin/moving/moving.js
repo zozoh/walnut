@@ -243,7 +243,7 @@ var MVs = {
             rect : rectA,
             inViewport : false,
             visibility : false,
-            matchBreak : true,
+            matchBreak : false,
             scrollStep : opt.scrollStep * -1,
             handler : func,
         });
@@ -253,7 +253,7 @@ var MVs = {
             rect : rectB,
             inViewport : false,
             visibility : false,
-            matchBreak : true,
+            matchBreak : false,
             scrollStep : opt.scrollStep,
             handler : func,
         });
@@ -421,7 +421,7 @@ var MVs = {
             }
 
             // 为感应器设置 css
-            jSen.css(css);
+            jSen.css(css).attr("se-name", sen.name);
 
             // 为感应器设置文字
             if(sen.text){
@@ -526,6 +526,9 @@ var MVs = {
         };
         for(var i=0; i<MVing.sensors.length; i++) {
             var sen = MVing.sensors[i];
+            // 无视禁止的感应器
+            if(sen.disabled)
+                continue;
             // 目标中心点为准，看看是不是在感应区内
             if($D.rect.is_in(sen.rect, MVing.rect.current)){
                 re.hover.push(sen.index);
@@ -608,7 +611,7 @@ function on_mousemove(e) {
 
     // 如果有上下文，那么必然进入了移动时
     if(window.__nutz_moving) {
-        // console.log(MVing.cursor.client, MVing.cursor.viewport)
+        console.log("A", MVing.mask);
         
         // 计算当前矩形 (考虑边界以及移动约束)
         // 并计算 css 段
@@ -617,9 +620,11 @@ function on_mousemove(e) {
         // 匹配感应器
         var ms = MVs.matchedSensors.call(MVing);
         //console.log(ms)
-        MVs.invokeSensorFunc.call(MVing, "enter", ms.enter);
-        MVs.invokeSensorFunc.call(MVing, "hover", ms.hover);
-        MVs.invokeSensorFunc.call(MVing, "leave", ms.leave);
+        if(ms) {
+            MVs.invokeSensorFunc.call(MVing, "enter", ms.enter);
+            MVs.invokeSensorFunc.call(MVing, "hover", ms.hover);
+            MVs.invokeSensorFunc.call(MVing, "leave", ms.leave);
+        }
 
 
         // 更新目标的遮罩替身 css 位置
@@ -628,8 +633,11 @@ function on_mousemove(e) {
         // 回调: on_ing
         $z.invoke(opt, "on_ing", [], MVing);
 
+        console.log("B", MVing.mask);
+
         // 绘制辅助线
         MVs.__update_assist(MVing);
+        console.log("C", MVing.mask);
 
     }
     // 判断是否可以进入（移动超过了阀值即可）
@@ -637,7 +645,7 @@ function on_mousemove(e) {
             && (Math.abs(MVing.cursor.offset.x) > opt.fireRedius 
                 || Math.abs(MVing.cursor.offset.y) > opt.fireRedius)) {
         
-        //console.log("enter moving", MVing)
+        console.log("enter moving", MVing)
 
         // 标识进入移动时
         window.__nutz_moving = MVing;
@@ -648,11 +656,11 @@ function on_mousemove(e) {
         // 创建遮罩层
         MVs.setupMask.call(MVing);
 
-        // 附加感应器
-        MVs.setupSensors.call(MVing);
-
         // 回调: on_begin
         $z.invoke(opt, "on_begin", [], MVing);
+
+        // 附加感应器
+        MVs.setupSensors.call(MVing);
 
         // 计算当前矩形 (考虑边界以及移动约束)
         // 并计算 css 段
@@ -700,12 +708,16 @@ function on_mouseup(e){
 //...........................................................
 // 进入移动时的入口函数
 function on_mousedown(e){
+    // 必须鼠标左键才行
+    if(1 != e.which){
+        return;
+    }
     // 从上下文原型中构建副本
     var MVing = _.extend({
         Event : e,
     }, e.data);
     // 生成配置项的新副本
-    var opt   = _.extend({}, MVing.options);
+    var opt = _.extend({}, MVing.options);
     MVing.options = opt;
     //console.log("I am mousedown")
     //...........................................

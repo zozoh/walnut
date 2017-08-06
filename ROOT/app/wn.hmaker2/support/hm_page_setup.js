@@ -376,9 +376,10 @@ var methods = {
                 return jCom;
             },
             on_begin : function(){
-                var ing  = this;
-                var opt  = ing.options;
-                var jCom = ing.$target.closest(".hm-com");
+                var ing   = this;
+                var opt   = ing.options;
+                var jCom  = ing.$target.closest(".hm-com");
+                var uiCom = ing.uiCom;
                 //......................................
                 // 确保这个控件是激活的
                 if(!jCom.attr("hm-actived")){    
@@ -396,7 +397,24 @@ var methods = {
                     //..................................
                     // 改变组件层级关系的拖拽柄
                     if("H" == m) {
+                        // 标识移动是为了拖拽
+                        ing.__is_for_drop = true;
+                        // 标识一下移动组件的 helper
+                        ing.mask.$target.attr("md", "drag");
 
+                        // 拖拽期间，组件不显示
+                        jCom.css("visibility", "hidden");
+
+                        // 得到拖拽感应器设置
+                        var senSetup = UI.getDragAndDropSensors(jCom);
+                        opt.sensors    = senSetup.sensors;
+                        opt.sensorFunc = senSetup.sensorFunc;
+
+                        // 修改 trigger 的显示样式
+                        ing.mask.$target.html(uiCom.getIconHtml());
+
+                        // 标记页面其他元素的样式
+                        UI._C.iedit.$body.children().addClass("hm-pmv-hide");
                     }
                     //..................................
                     // 改变控件大小的八个柄
@@ -462,20 +480,34 @@ var methods = {
             },
             // 移动结束，保存 Block 信息
             on_end : function() {
-                var ing = this;
+                var ing  = this;
+                var jCom = ing.$target.closest(".hm-com");
                 //......................................
                 // 如果已经被认为是开始拖拽
                 if(ing.uiCom) {
-                    // 这个拖动是修改位置，保存最后的位置
-                    if(!ing.__is_for_drop) {
+                    // 拖拽的话，看看落在哪个感应器里了
+                    if(ing.__is_for_drop) {
+                        if(ing.drop_in_area) {
+                            var jAreaCon = ing.drop_in_area;
+                            //console.log("drop in", ing.drop_in_area);
+                            ing.uiCom.appendToArea(jAreaCon);
+                            ing.uiCom.el.scrollIntoView();
+                        }
+
+                        // 恢复组件显示
+                        jCom.css("visibility", "");
+                    }
+                    // 否则，是位置及大小的改动，那么最后再保存一下位置 
+                    else {
                         ing.uiCom.setBlock(ing.comBlock);
                     }
                     // 重新应用皮肤
                     UI.invokeSkin("resize");
                 }
-
+                //......................................
                 // 去掉其他元素的标识
-                ing.$mask.prevAll().removeClass("hm-pmv-hide");
+                UI._C.iedit.$body.find(".hm-pmv-hide")
+                    .removeClass("hm-pmv-hide");
             },
         });
         

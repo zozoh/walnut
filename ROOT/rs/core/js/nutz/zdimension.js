@@ -37,6 +37,9 @@ var zRect = {
             }
             // 判断 overflow 时用的元素，默认采用 ele 参数给定元素
             overflowEle : jQuery || Element
+            
+            // 人工为矩形增加一个边距，负数则表示扩大
+            padding: 0;
         }
     */
     gen : function(ele, opt){
@@ -136,6 +139,15 @@ var zRect = {
                 rect.width -= $z.scrollBarWidth();
             }
         }
+
+        // 增加边距
+        if(opt.padding) {
+            rect.width  -= opt.padding * 2;
+            rect.height -= opt.padding * 2;
+            rect.left   += opt.padding;
+            rect.top    += opt.padding;
+        }
+
 
         // 进行坐标系变换
         if(opt.viewport) {
