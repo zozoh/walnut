@@ -129,19 +129,47 @@ public class cmd_videoc extends JvmExecutor {
                 sys.io.appendMeta(t, tMap);
             }
             // 生成主文件
-            if (mode == null || mode.matcher("preview_video").find()) {
-                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
-                cmd = seg.render(new SimpleContext(vc_params)).toString();
-                log.debug("cmd: " + cmd);
-                Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
-                t = sys.io.createIfNoExists(tdir, "_1_1.mp4", WnRace.FILE);
-                String fmd5 = Lang.md5(mainTarget);
-                String smd5 = simpleMd5(mainTarget);
-                sys.io.writeAndClose(t, new FileInputStream(mainTarget));
+            if (mode == null || mode.matcher("main_video").find()) {
+                if (params.get("crop", "").equals("")) {
+                    seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
+                    cmd = seg.render(new SimpleContext(vc_params)).toString();
+                    log.debug("cmd: " + cmd);
+                    Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
+                    t = sys.io.createIfNoExists(tdir, "_1_1.mp4", WnRace.FILE);
+                    String fmd5 = Lang.md5(mainTarget);
+                    String smd5 = simpleMd5(mainTarget);
+                    sys.io.writeAndClose(t, new FileInputStream(mainTarget));
+                    sys.io.appendMeta(t, "fmd5:'" + fmd5 + "'");
+                    sys.io.appendMeta(t, "smd5:'" + smd5 + "'");
+                    sys.io.appendMeta(t, tMap);
+                } else {
+                    String[] tmp = params.get("crop").split(":");
+                    int crop_w = Integer.parseInt(tmp[0]);
+                    int crop_h = Integer.parseInt(tmp[1]);
+                    int crop_x = Integer.parseInt(tmp[2]);
+                    int crop_y = Integer.parseInt(tmp[3]);
+                    for (int i = 0; i < crop_x; i++) {
+                        for (int j = 0; j < crop_y; j++) {
+                            String crop = String.format("-vf crop=%s:%s:%s:%s", crop_w, crop_h, i*crop_w, j*crop_h);
+                            String crop_target = tmpDir + "/" + String.format("_%s_%s.mp4", i+1, j+1);
+                            vc_params.setv("crop", crop);
+                            vc_params.put("crop_target", crop_target);
+                            seg = Segments.create("ffmpeg -y -v quiet -i ${source} ${crop} -movflags faststart -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${crop_target}");
+                            cmd = seg.render(new SimpleContext(vc_params)).toString();
+                            log.debug("cmd: " + cmd);
+                            Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
+                            t = sys.io.createIfNoExists(tdir, String.format("_%s_%s.mp4", i+1, j+1), WnRace.FILE);
+                            String fmd5 = Lang.md5(crop_target);
+                            String smd5 = simpleMd5(new File(crop_target));
+                            sys.io.writeAndClose(t, new FileInputStream(crop_target));
+                            sys.io.appendMeta(t, "fmd5:'" + fmd5 + "'");
+                            sys.io.appendMeta(t, "smd5:'" + smd5 + "'");
+                            sys.io.appendMeta(t, tMap);
+                        }
+                    }
+                    
+                }
                 sys.io.appendMeta(obj, "videoc_dir:'" + tdir.id() + "'");
-                sys.io.appendMeta(t, "fmd5:'" + fmd5 + "'");
-                sys.io.appendMeta(t, "smd5:'" + smd5 + "'");
-                sys.io.appendMeta(t, tMap);
             }
             sys.io.appendMeta(obj, "videoc_dir:'id:" + tdir.id() + "'");
             sys.out.print(tdir.id());
