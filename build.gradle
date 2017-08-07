@@ -71,6 +71,7 @@ dependencies {
     compile group: 'org.nutz', name: 'nutz-integration-json4excel', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-zdoc', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-ip2region', version:nutz_version
+    compile group: 'org.nutz', name: 'nutz-plugins-zcron', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-quartz', version:'1.r.61-SNAPSHOT'
     compile group: 'com.qiniu', name: 'qiniu-java-sdk', version:'7.0.8'
     compile group: 'org.apache.sshd', name: 'sshd-core', version:'1.1.1'
