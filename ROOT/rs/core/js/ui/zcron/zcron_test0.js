@@ -19,15 +19,10 @@ return ZUI.def("ui.zcron_test0", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     events : {
-        "click .do-pop-qz" : function(){
+        "click .do-pop-zcron" : function(){
             var UI = this;
             var qz = UI.mymain.getData();
-            POP.openUIPanel({
-                setup : {
-                    uiType : 'ui/zcron/edt_zcron',
-                    uiConf : {}
-                }
-            }, this);
+            POP.zcron(null, null, this);
         },
     },
     //...............................................................

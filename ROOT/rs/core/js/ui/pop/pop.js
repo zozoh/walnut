@@ -175,6 +175,32 @@ module.exports = {
         });
     },
     //...............................................................
+    // 弹出一个 ZCron 编辑器
+    zcron : function(cron, callback, referUI) {
+        // 确保配置非空
+        var opt = {};
+
+        // 默认标题
+        $z.setUndefined(opt, "title", "i18n:edit");
+
+        // 固定宽高
+        opt.width  = 575;
+        opt.height = 610;
+        opt.arenaClass = "pop-zcron";
+
+        // 初始化数据的回调
+        opt.ready = function(uiCron){
+            uiCron.setData(cron || "0 0 0 * * ?");
+        };
+        
+        // 设置
+        opt.setup = {uiType : 'ui/zcron/edt_zcron'}
+        opt.ok = callback;
+
+        // 打开
+        this.openUIPanel(opt, referUI);
+    },
+    //...............................................................
     // 打开一个文本编辑器（弹出），接受的参数格式为:
     /*
     opt : {
