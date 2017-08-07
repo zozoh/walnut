@@ -1,15 +1,29 @@
 (function($, $z, $D){
 //.............................................
 function mark_viewport_to_inner_body(){
-    var jIfm = $('.d-inner > iframe');
-    var ifRe = $D.rect.gen(jIfm, {
-        boxing   : "content",
-        scroll_c : true,
+    $('iframe').each(function(){
+        var jIfm = $(this);
+        var ifRe = $D.rect.gen(jIfm, {
+            boxing   : "content",
+            scroll_c : true,
+        });
+        //console.log("iframe viewport:", $z.toJson(ifRe))
+        var doc = jIfm[0].contentDocument;
+        
+        // 看看是否有 main
+        var jBody = $(doc.body);
+        var jMain = jBody.find("main");
+        if(jMain.length > 0) {
+            var rect = $D.rect.gen(jMain, ifRe);
+            var vps = $z.pick(rect,"top,left,width,height", true).join(",");
+            jMain.attr("viewport", vps);
+        }
+        // 搞在 body 上
+        else {
+            var vps = $z.pick(ifRe,"top,left,width,height", true).join(",");
+            jBody.attr("viewport", vps);
+        }
     });
-    //console.log("iframe viewport:", $z.toJson(ifRe))
-    var doc = jIfm[0].contentDocument;
-    $(doc.body).attr("viewport", 
-        $z.pick(ifRe,"top,left,width,height", true).join(","));
 }
 //.............................................
 function watch_window_mouse_events(win, type){
@@ -48,12 +62,8 @@ var LOG = {
         var str = "<b>" + MVing.$target.attr("nm") + ":</b> ";
 
         str += "<u>start/endInMs: </u>" + MVing.startInMs + " / " + MVing.endInMs;
-        str += "\n<u>currentSensor: </u>" + $z.toJson(MVing.currentSensor);
-
-        str += "\n<b>posAt :</b>";
-        str += "\n<u> - target   : </u>" + $D.rect.dumpPos(MVing.posAt.target);
-        str += "\n<u> - client   : </u>" + $D.rect.dumpPos(MVing.posAt.client);
-        str += "\n<u> - viewport : </u>" + $D.rect.dumpPos(MVing.posAt.viewport);
+        str += "\n<u>currentSensor   : </u>" + $z.toJson(MVing.currentSensor);
+        str += "\n<u>targetIsRelative: </u>" + MVing.targetIsRelative;
 
         str += "\n<b>cursor :</b>";
         str += "\n<u> - client   : </u>" + $D.rect.dumpPos(MVing.cursor.client);
@@ -61,9 +71,10 @@ var LOG = {
         str += "\n<u> - delta    : </u>" + $D.rect.dumpPos(MVing.cursor.delta);
         str += "\n<u> - offset   : </u>" + $D.rect.dumpPos(MVing.cursor.offset);
 
-        str += "\n<b>direction :</b>";
-        str += "\n<u> - delta    : </u>" + $D.rect.dumpPos(MVing.direction.delta);
-        str += "\n<u> - offset   : </u>" + $D.rect.dumpPos(MVing.direction.offset);
+        str += "\n<b>posAt :</b>";
+        str += "\n<u> - target   : </u>" + $D.rect.dumpPos(MVing.posAt.target);
+        str += "\n<u> - client   : </u>" + $D.rect.dumpPos(MVing.posAt.client);
+        str += "\n<u> - viewport : </u>" + $D.rect.dumpPos(MVing.posAt.viewport);
 
         str += "\n<b>rect :</b>";
         str += "\n<u> - viewport : </u>" + $D.rect.dumpValues(MVing.rect.viewport);
@@ -74,20 +85,26 @@ var LOG = {
         str += "\n<u> - rect     : </u>" + $D.rect.dumpValues(MVing.css.rect);
         str += "\n<u> - current  : </u>" + $D.rect.dumpValues(MVing.css.current);
 
+        str += "\n<b>direction :</b>";
+        str += "\n<u> - delta    : </u>" + $D.rect.dumpPos(MVing.direction.delta);
+        str += "\n<u> - offset   : </u>" + $D.rect.dumpPos(MVing.direction.offset);
+
         $('pre.sta').html(str);
     }
 };
 //.............................................
 // 得到 iframe 对应的文档对象，以及其他关键变量
 function getContainerList(){
-    var jIfm = $('.d-inner > iframe');
-    var doc  = jIfm[0].contentDocument;
-    return [$(doc.body), $(".d-top > .con")];
+    var jIfm = $('iframe');
+    var doc   = $('.d-inner  > iframe')[0].contentDocument;
+    var doc2  = $('.d-inner2 > iframe')[0].contentDocument;
+    return [$(doc.body), $(doc2.body).find("main"), $(".d-top > .con")];
 }
 //.............................................
 // 对容器执行操作
 function do_con(callback) {
     var conList = getContainerList();
+    console.log(conList.length)
     for(var i=0; i < conList.length; i++){
         callback(conList[i]);
     }
@@ -167,6 +184,7 @@ var A = {
         var vpa = jCon.attr("viewport");
         jCon.moving({
             //viewportRect : vpa ? $D.rect.create(vpa) : null,
+            trigger : ".mv-demo-item",
             viewportRect : function(){
                 var vpa = this.$viewport.attr("viewport");
                 return vpa ? $D.rect.create(vpa) : null;

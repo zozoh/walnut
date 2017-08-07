@@ -336,13 +336,26 @@ var methods = {
             trigger    : '.hm-com',
             maskClass  : 'hm-page-move-mask',
             viewportRect : function(){
-                var rect = $D.rect.gen(UI.arena.find('.hmpg-frame-edit'), {
+                var jAreaCon = this.$trigger.closest(".hm-area-con");
+                var editBody = $D.rect.gen(UI.arena.find('.hmpg-frame-edit'), {
                     boxing   : "content",
                     scroll_c : true,
                     overflow : {x:"auto", y:"scroll"},
                     overflowEle : UI._C.iedit.$body,
                 });
-                return $D.rect.count_tlwh(rect);
+
+                // 在 hm-area 里，则用它
+                if(jAreaCon.length>0) {
+                    return $D.rect.gen(jAreaCon, {
+                        boxing   : "content",
+                        scroll_c : true,
+                        viewport : editBody,
+                        overflow : {x:"auto", y:"auto"},
+                        overflowEle : jAreaCon,
+                    });
+                }
+                // 否则用 body
+                return editBody;
             },
             scrollSensor : {x:"10%", y:30},
             target : function(){
@@ -463,7 +476,10 @@ var methods = {
                     // 动态设置一下参考线
                     opt.assist = {
                         axis : [],
-                        axisFullScreen : false
+                        axisFullScreen : $D.rect.gen(UI.arena.find('.hmpg-frame-edit'), {
+                            boxing   : "content",
+                            scroll_c : true,
+                        })
                     };
                     opt.assist.axis[0] = opt.cssBy.indexOf("left")>=0?"left":"right";
                     opt.assist.axis[1] = opt.cssBy.indexOf("top")>=0?"top":"bottom";
@@ -490,6 +506,9 @@ var methods = {
                         if(ing.drop_in_area) {
                             var jAreaCon = ing.drop_in_area;
                             //console.log("drop in", ing.drop_in_area);
+                            if(jAreaCon == UI._C.iedit.body){
+                                jAreaCon = null;
+                            }
                             ing.uiCom.appendToArea(jAreaCon);
                             ing.uiCom.el.scrollIntoView();
                         }

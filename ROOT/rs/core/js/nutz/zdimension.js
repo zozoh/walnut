@@ -21,8 +21,8 @@ var zRect = {
 
             // 窗口滚动补偿
             // true 要考虑到文档的 scrollTop/Left
-            // 默认 false
-            scroll_c : false,
+            // 默认 true
+            scroll_c : true,
 
             // 窗口所在的矩形（要进行坐标系变换）
             viewport : Rect
@@ -55,10 +55,19 @@ var zRect = {
         if(_.isBoolean(opt)) {
             opt = {scroll_c : opt};
         }
+        // 如果是矩形
+        else if(this.isRect(opt)) {
+            opt = {viewport : opt};
+        }
         // 总要有个配置参数的
         else {
             opt = opt || {};
         }
+
+        // 设置默认值 
+        $z.setUndefined(opt, "boxing", "border");
+        $z.setUndefined(opt, "scroll_c", "true");
+        $z.setUndefined(opt, "padding", 0);
 
         // 准备返回值
         var rect;
@@ -159,7 +168,8 @@ var zRect = {
     },
     //.............................................
     isRect : function(rect){
-        return _.isNumber(rect.top)
+        return rect 
+            && _.isNumber(rect.top)
             && _.isNumber(rect.left)
             && _.isNumber(rect.width)
             && _.isNumber(rect.height)
@@ -244,7 +254,7 @@ var zRect = {
     //.............................................
     // 快速精简的矩形信息，以便人类查看
     dumpValues : function(rect, keys){
-        keys = keys || "tlwh";
+        keys = keys || "ltwh";
         var info = {
             t : rect.top,
             l : rect.left,

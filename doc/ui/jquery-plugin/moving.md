@@ -198,6 +198,7 @@ sensors : [{
     $helper : jQuery,    // 可见感应器对应的显示元素。即 DIV.z-mvm-sit
                          // 不可见的感应器，此项为 null
                          // 「这个会自动生成，你设置也没用」
+    className : "xxx",   // 如果声明，则为 $helper 增加特殊的类选择器名称
     inViewport : true,   // 是否在视口内，且随视口一起滚动
     visibility : true,   // 是否要在绘制层显示感应区
     matchBreak : true,   // 如果匹配上了，是否继续匹配后续感应器，默认 true

@@ -78,22 +78,15 @@ body[outer] > main{
             u {opacity: 0.5; text-decoration: none;}
         }
         //....................................................
-        pre.log {
-            overflow: auto;
-            padding: 10px; margin:0; background: #000; color:#CCC;
-            font-family: @f_fixed; font-size:12px;
-            > div {
-                line-height: 20px;
-                > em {
-                    display: inline-block; padding:0 6px;
-                    border-radius: 50%; margin-right: 8px;
-                    background: #AAA; color:#FFF; font-size: 10px;
-                    font-family: @f_fixed;
-                }
+        section.d-inner {
+            background: #EEE;
+            padding: 20px;
+            iframe {
+                border:4px solid #AAA; width:100%; height:100%;
             }
         }
         //....................................................
-        section.d-inner {
+        section.d-inner2 {
             background: #EEE;
             padding: 20px;
             iframe {
@@ -130,6 +123,13 @@ body[outer] > main{
         }
     }
     //........................................................
+}
+
+body[inner="yes"] {
+    main {
+        width:400px; height:200px; background: #CCC;
+        margin:10px; position: relative;
+    }
 }
 
 .sen-drop {

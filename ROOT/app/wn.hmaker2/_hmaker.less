@@ -495,6 +495,25 @@
     }
 }
 
+// 拖拽到 body 的感应器
+.z-mvm-sensors .drop-to-body {
+    section {
+        background: rgba(255,255,255,0.8);
+    }
+}
+
+// 禁止的可视化感应器样式
+.z-mvm-sit[se-disabled] {
+    section {
+        background: rgba(0,0,0,0.1);
+        > aside {border:1px dashed rgba(255,0,255,0.3);}
+        > aside[md="y"] {display: none;}
+        > span {
+            color:#888; text-decoration: line-through;
+        }
+    }
+}
+
 // 激活的拖拽感应器
 .z-mvm-sit[se-actived] {
     section {

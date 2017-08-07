@@ -216,7 +216,11 @@ var MVs = {
                 var aY  = MVing.rect.current[key_y];
                 var aVP = MVing.rect.viewport;
                 if(opt.assist.axisFullScreen) {
-                    aVP = $D.rect.create([0,0,MVing.$mask.width(),MVing.$mask.height()]);
+                    if($D.rect.isRect(opt.assist.axisFullScreen)){
+                        aVP = opt.assist.axisFullScreen;
+                    }else{
+                        aVP = $D.rect.create([0,0,MVing.$mask.width(),MVing.$mask.height()]);
+                    }
                 }
 
                 // 更新 X 轴方向
@@ -423,9 +427,15 @@ var MVs = {
             // 为感应器设置 css
             jSen.css(css).attr("se-name", sen.name);
 
+            if(sen.className)
+                jSen.addClass(sen.className);
+
+            if(sen.disabled)
+                jSen.attr("se-disabled", "yes");
+
             // 为感应器设置文字
             if(sen.text){
-                $('<span>').text(sen.text).appendTo(jSen.find("section"));
+                $('<span>').html(sen.text).appendTo(jSen.find("section"));
             }
         }
 
@@ -600,8 +610,8 @@ var MVs = {
 // 根据鼠标的移动判断是否进入移动时
 function on_mousemove(e) {
     var MVing = e.data;
-    var opt   = MVing.options;
-
+    var opt = MVing.options;
+    
     // 更新指针
     MVs.updateCursor.call(MVing, e.clientX, e.clientY);
 
@@ -611,7 +621,11 @@ function on_mousemove(e) {
 
     // 如果有上下文，那么必然进入了移动时
     if(window.__nutz_moving) {
-        console.log("A", MVing.mask);
+        MVing = window.__nutz_moving;
+        opt   = MVing.options;
+
+        // console.log("A", typeof MVing.mask, MVing == window.__nutz_moving, 
+        //     window.__nutz_moving.mask);
         
         // 计算当前矩形 (考虑边界以及移动约束)
         // 并计算 css 段
@@ -633,19 +647,15 @@ function on_mousemove(e) {
         // 回调: on_ing
         $z.invoke(opt, "on_ing", [], MVing);
 
-        console.log("B", MVing.mask);
-
         // 绘制辅助线
         MVs.__update_assist(MVing);
-        console.log("C", MVing.mask);
-
     }
     // 判断是否可以进入（移动超过了阀值即可）
     else if( !MVing.endInMs 
             && (Math.abs(MVing.cursor.offset.x) > opt.fireRedius 
                 || Math.abs(MVing.cursor.offset.y) > opt.fireRedius)) {
         
-        console.log("enter moving", MVing)
+        //console.log("enter moving", MVing)
 
         // 标识进入移动时
         window.__nutz_moving = MVing;
@@ -770,8 +780,10 @@ function on_mousedown(e){
     MVing.rect.current = _.extend({}, MVing.rect.target);
     //...........................................
     // 确定位置/指针/方向
-    var mX = e.clientX;
-    var mY = e.clientY;
+    var mX = MVing.getClientX();
+    var mY = MVing.targetIsRelative 
+                ? e.clientY + MVing.rect.viewport.top
+                : e.clientY;
     // 位置
     MVing.posAt = {
         target   : $D.rect.ccs_point_tl(MVing.rect.target, mX, mY),
@@ -833,6 +845,16 @@ $.fn.extend({ "moving" : function(opt){
                 scroll_c : true,
                 viewport : this.rect.viewport
             });
+        },
+        getClientX : function(){
+            return this.targetIsRelative 
+                ? e.clientX + this.rect.viewport.left
+                : e.clientX;
+        },
+        getClientY : function(){
+            return this.targetIsRelative 
+                ? e.clientY + this.rect.viewport.top
+                : e.clientY;
         }
     };
 

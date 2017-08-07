@@ -1261,6 +1261,9 @@ return ZUI.def("app.wn.hmaker_page", {
         });
         $D.rect.count_tlwh(rcVp);
 
+        // 定义区域边界
+        var sitPad = 2;
+
         // 准备要返回的感应器列表
         var senList = [];
         
@@ -1278,7 +1281,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 rect : $D.rect.gen(jArea, {
                     viewport : rcVp,
                     scroll_c : true,
-                    padding  : 2,
+                    padding  : sitPad,
                 }),
                 $ele : jArea.find(">.hm-area-con"),
                 inViewport : true,
@@ -1287,6 +1290,22 @@ return ZUI.def("app.wn.hmaker_page", {
                 disabled   : eMyArea == this,
             });
         });
+
+        // 增加移除 body 的选项
+        if(jCom && eMyArea) {
+            var rcBody = $D.rect.gen(UI.arena.find(".hmpg-sbar"));
+            senList.push({
+                className : "drop-to-body",
+                name : "drop",
+                text : '<i class="fa fa-sign-out zmdi-hc-rotate-180"></i> '
+                        + UI.msg("hmaker.page.move_to_body"),
+                rect : rcBody,
+                $ele : UI._C.iedit.body,
+                inViewport : false,
+                visibility : true,
+                matchBreak : true,
+            });
+        }
 
         // 返回感应器设置
         return {

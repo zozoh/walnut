@@ -130,7 +130,7 @@ return ZUI.def("ui.zcron_tmrg", {
                 step = 30;
             var unit = jTr.find('[key="step"] u[current]').attr("v") || "m";
             // 拼接字符串
-            trStrs.push("T["+from+","+to+"]{0/"+step+unit+"}");
+            trStrs.push("T["+from+","+to+"){0/"+step+unit+"}");
         });
 
         //console.log("getData", trStrs)
