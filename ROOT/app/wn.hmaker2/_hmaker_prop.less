@@ -164,6 +164,8 @@
                     > span {
                         background: @cb1; color:@cf1; 
                         > * {display: inline-block; padding:@d0 @d1; vertical-align: middle;}
+                        em {color:@c4; font-style: normal; cursor: pointer;}
+                        em:hover {text-decoration: underline;}
                     }
                 }
                 .hmpb-pos-d[key="left"]  {top:@boxH/2 - @vS; left:@vS*-3;}
@@ -175,7 +177,7 @@
                     span > * {display: inline-block; padding:0 @d1; vertical-align: middle;}
                     b  {width: 30px; text-align: right;}
                     em {
-                        width: 60px; text-align: left; font-style: normal; font: @f1 @f_fixed;
+                        width: 60px; text-align: left; font: @f1 @f_fixed; 
                     }
                 }
                 .hmpb-pos-d[key="width"]{bottom:@boxH/2;}

@@ -9,18 +9,22 @@ function mark_viewport_to_inner_body(){
         });
         //console.log("iframe viewport:", $z.toJson(ifRe))
         var doc = jIfm[0].contentDocument;
+
+        // 文档所处矩形
+        var vps = $z.pick(ifRe,"top,left,width,height", true).join(",");
         
         // 看看是否有 main
         var jBody = $(doc.body);
         var jMain = jBody.find("main");
         if(jMain.length > 0) {
+            jMain.attr("client", vps);
+
             var rect = $D.rect.gen(jMain, ifRe);
-            var vps = $z.pick(rect,"top,left,width,height", true).join(",");
+            vps = $z.pick(rect,"top,left,width,height", true).join(",");
             jMain.attr("viewport", vps);
         }
         // 搞在 body 上
         else {
-            var vps = $z.pick(ifRe,"top,left,width,height", true).join(",");
             jBody.attr("viewport", vps);
         }
     });
@@ -66,17 +70,20 @@ var LOG = {
         str += "\n<u>targetIsRelative: </u>" + MVing.targetIsRelative;
 
         str += "\n<b>cursor :</b>";
+        str += "\n<u> - win      : </u>" + $D.rect.dumpPos(MVing.cursor.win);
         str += "\n<u> - client   : </u>" + $D.rect.dumpPos(MVing.cursor.client);
         str += "\n<u> - viewport : </u>" + $D.rect.dumpPos(MVing.cursor.viewport);
         str += "\n<u> - delta    : </u>" + $D.rect.dumpPos(MVing.cursor.delta);
         str += "\n<u> - offset   : </u>" + $D.rect.dumpPos(MVing.cursor.offset);
 
         str += "\n<b>posAt :</b>";
-        str += "\n<u> - target   : </u>" + $D.rect.dumpPos(MVing.posAt.target);
+        str += "\n<u> - win      : </u>" + $D.rect.dumpPos(MVing.posAt.win);
         str += "\n<u> - client   : </u>" + $D.rect.dumpPos(MVing.posAt.client);
         str += "\n<u> - viewport : </u>" + $D.rect.dumpPos(MVing.posAt.viewport);
+        str += "\n<u> - target   : </u>" + $D.rect.dumpPos(MVing.posAt.target);
 
         str += "\n<b>rect :</b>";
+        str += "\n<u> - client   : </u>" + $D.rect.dumpValues(MVing.rect.client);
         str += "\n<u> - viewport : </u>" + $D.rect.dumpValues(MVing.rect.viewport);
         str += "\n<u> - target   : </u>" + $D.rect.dumpValues(MVing.rect.target);
         str += "\n<u> - current  : </u>" + $D.rect.dumpValues(MVing.rect.current);
@@ -85,9 +92,9 @@ var LOG = {
         str += "\n<u> - rect     : </u>" + $D.rect.dumpValues(MVing.css.rect);
         str += "\n<u> - current  : </u>" + $D.rect.dumpValues(MVing.css.current);
 
-        str += "\n<b>direction :</b>";
-        str += "\n<u> - delta    : </u>" + $D.rect.dumpPos(MVing.direction.delta);
-        str += "\n<u> - offset   : </u>" + $D.rect.dumpPos(MVing.direction.offset);
+        // str += "\n<b>direction :</b>";
+        // str += "\n<u> - delta    : </u>" + $D.rect.dumpPos(MVing.direction.delta);
+        // str += "\n<u> - offset   : </u>" + $D.rect.dumpPos(MVing.direction.offset);
 
         $('pre.sta').html(str);
     }
@@ -189,6 +196,10 @@ var A = {
                 var vpa = this.$viewport.attr("viewport");
                 return vpa ? $D.rect.create(vpa) : null;
             },
+            clientRect : function(){
+                var vpa = this.$viewport.attr("client");
+                return vpa ? $D.rect.create(vpa) : null;
+            },
             on_ing : function(){
                 this.$target.css(this.css.current);
                 LOG.dumping(this);
@@ -207,14 +218,14 @@ var A = {
                 var MVing = this;
                 var list  = [];
                 //console.log(this.$viewport.find(".sen-drop").length)
-                this.$viewport.find(".sen-drop").each(function(){
+                this.$viewport.closest("body").find(".sen-drop").each(function(){
                     var jq = $(this);
                     list.push({
                         name : "drop",
                         text : jq.text(),
                         rect : vpa ? MVing.getRectAtInnerDoc(jq) 
                                    :$D.rect.gen(jq),
-                        inViewport : true,
+                        inViewport : jq.closest("[has-main]").length>0?false:true,
                         visibility : true,
                         matchBreak : true,
                     });

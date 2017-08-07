@@ -470,6 +470,9 @@
 //.............................................................
 // 拖拽的遮罩
 .hm-page-move-mask {@noselect(); 
+    .z-mvm-viewport[in-area] {
+        border:1px solid #0FF; box-shadow: 0 0 4px rgba(255,255,255,0.6);
+    }
     .z-mvm-target[md="target"] {background: rgba(255,255,0,0.4);}
     .z-mvm-target[md="drag"] {
         @flex(); justify-content:center; align-items:center;

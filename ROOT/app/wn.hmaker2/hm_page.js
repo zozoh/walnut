@@ -1236,8 +1236,17 @@ return ZUI.def("app.wn.hmaker_page", {
         return this._C.iedit.$body;
     },
     //...............................................................
+    get_edit_win_rect : function(){
+        return $D.rect.gen(this.arena.find('.hmpg-frame-edit'), {
+            boxing   : "content",
+            scroll_c : true,
+            overflow : true,
+            overflowEle : this._C.iedit.$body,
+        });
+    },
+    //...............................................................
     // 获取拖拽时，可放置在页面中的感知器
-    getDragAndDropSensors : function(jCom){
+    getDragAndDropSensors : function(jCom, jViewport){
         var UI = this;
         // 四个关键变量
         var jMyArea = null;     // 当前控件所属区域
@@ -1253,13 +1262,7 @@ return ZUI.def("app.wn.hmaker_page", {
         }
 
         // 得到视口矩形
-        var rcVp = $D.rect.gen(UI.arena.find('.hmpg-frame-edit'), {
-            boxing   : "content",
-            scroll_c : true,
-            overflow : {x:"auto", y:"scroll"},
-            overflowEle : UI._C.iedit.$body,
-        });
-        $D.rect.count_tlwh(rcVp);
+        var rcVp = UI.get_edit_win_rect();
 
         // 定义区域边界
         var sitPad = 2;
@@ -1268,26 +1271,30 @@ return ZUI.def("app.wn.hmaker_page", {
         var senList = [];
         
         // 挨个查找：叶子区域，且不包含当前控件的，统统列出来
-        UI._C.iedit.$body.find(".hm-area").each(function(){
-            var jArea = $(this);
+        UI._C.iedit.$body.find(".hm-area-con").each(function(){
+            var jAreaCon = $(this);
+            var jArea    = jAreaCon.closest(".hm-area");
+            var eArea    = jArea[0];
             // 子区域或嵌套区域，无视
-            if(eSubs.indexOf(this) >= 0 || jArea.find(".hm-area").length>0)
+            if(eSubs.indexOf(this) >= 0 || jAreaCon.find(".hm-area").length>0)
                 return;
 
             // 计入返回列表
             senList.push({
-                name : eMyArea != this ? "drop" : "",
+                name : eMyArea != eArea ? "drop" : "",
                 text : jArea.attr("area-id"),
                 rect : $D.rect.gen(jArea, {
                     viewport : rcVp,
                     scroll_c : true,
                     padding  : sitPad,
                 }),
-                $ele : jArea.find(">.hm-area-con"),
-                inViewport : true,
+                $ele : jAreaCon,
+                inViewport : jViewport
+                                ? jArea.closest(jViewport).length>0 
+                                : false,
                 visibility : true,
                 matchBreak : true,
-                disabled   : eMyArea == this,
+                disabled   : eMyArea == eArea,
             });
         });
 

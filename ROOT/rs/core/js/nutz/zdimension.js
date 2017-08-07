@@ -27,14 +27,9 @@ var zRect = {
             // 窗口所在的矩形（要进行坐标系变换）
             viewport : Rect
 
-            // 计算矩形时，要去掉滚动条
-            //  - hidden 表示不考虑滚动条
-            //  - auto   表示滚动条会根据内容来出现
-            //  - scroll 表示滚动条铁定出现
-            overflow : {
-                x : "hidden|auto|scroll",
-                y : "hidden|auto|scroll",
-            }
+            // 计算矩形时，要去掉滚动条，默认 false
+            overflow : false
+
             // 判断 overflow 时用的元素，默认采用 ele 参数给定元素
             overflowEle : jQuery || Element
             
@@ -134,17 +129,13 @@ var zRect = {
 
         // 去掉滚动条
         if(opt.overflow){
-            var jOf = $(opt.overflowEle || jEle);
-            var eOf = jOf[0];
-            //console.log("haha")
+            var scrollbar = $z.scrollbar(opt.overflowEle || jEle);
             // 水平滚动条导致高度减小
-            if("scroll" == opt.overflow.x 
-               || ("auto" == opt.overflow.x && (eOf.scrollWidth > jOf.width()))) {
+            if(scrollbar.x) {
                 rect.height -= $z.scrollBarHeight();
             }
             // 垂直滚动条导致宽度减小
-            if("scroll" == opt.overflow.y 
-               || ("auto" == opt.overflow.y && (eOf.scrollHeight > jOf.height()))) {
+            if(scrollbar.y) {
                 rect.width -= $z.scrollBarWidth();
             }
         }
@@ -254,6 +245,8 @@ var zRect = {
     //.............................................
     // 快速精简的矩形信息，以便人类查看
     dumpValues : function(rect, keys){
+        if(!rect)
+            return "-nil-";
         keys = keys || "ltwh";
         var info = {
             t : rect.top,
@@ -274,6 +267,8 @@ var zRect = {
     //.............................................
     // 快速精简的点信息，以便人类查看
     dumpPos : function(pos) {
+        if(!pos)
+            return "-nil-";
         return $z.tmpl("x:{{x}},y:{{y}}")(pos);
     },
     //.............................................

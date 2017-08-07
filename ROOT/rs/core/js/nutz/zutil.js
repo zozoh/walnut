@@ -1597,6 +1597,28 @@
             return window.SCROLL_BAR_HEIGHT;
         },
         //.............................................
+        // 查询给定元素是否有滚动条
+        // 返回 {x:false, y:true}
+        scrollbar: function(jq) {
+            var el  = $(jq)[0];
+            var cs  = window.getComputedStyle(el);
+            var re  = {x:false,y:false};
+            var ofX = cs.getPropertyValue("overflow-x");
+            var ofY = cs.getPropertyValue("overflow-y");
+            // 有横向滚动条
+            if("scroll" == ofX
+               || ("auto" == ofX && el.clientWidth < el.scrollWidth)) {
+                re.x = true;
+            }
+            // 有纵向滚动条
+            if("scroll" == ofY
+               || ("auto" == ofY && el.clientHeight < el.scrollHeight)) {
+                re.y = true;
+            }
+            // 返回
+            return re;
+        },
+        //.............................................
         // 从数组里获取值
         //   arr   : 数组
         //   index : 下标

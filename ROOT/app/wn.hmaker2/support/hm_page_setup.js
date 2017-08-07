@@ -225,6 +225,11 @@ var methods = {
         // 如果点在了控件里，激活
         .on("click", ".hm-com", function(e){
             e.stopPropagation();
+
+            // 被拖拽禁止了点击
+            if(window.__forbid_click)
+                return;
+
             var jCom = $(this);
             // 如果点在了控件里，激活
             //console.log("isCom!!!", jCom)
@@ -275,6 +280,10 @@ var methods = {
         })
         // 激活页面
         .on("click", function(e){
+            // 被拖拽禁止了点击
+            if(window.__forbid_click)
+                return;
+            // 点在 body 里面则激活页面属性面板
             if(e.target === UI._C.iedit.body 
                 || e.target === UI._C.iedit.root) {
                 UI.fire("active:page", UI._page_obj);
@@ -337,42 +346,39 @@ var methods = {
             maskClass  : 'hm-page-move-mask',
             viewportRect : function(){
                 var jAreaCon = this.$trigger.closest(".hm-area-con");
-                var editBody = $D.rect.gen(UI.arena.find('.hmpg-frame-edit'), {
-                    boxing   : "content",
-                    scroll_c : true,
-                    overflow : {x:"auto", y:"scroll"},
-                    overflowEle : UI._C.iedit.$body,
-                });
-
+                var editBody = UI.get_edit_win_rect();
                 // 在 hm-area 里，则用它
                 if(jAreaCon.length>0) {
                     return $D.rect.gen(jAreaCon, {
                         boxing   : "content",
                         scroll_c : true,
                         viewport : editBody,
-                        overflow : {x:"auto", y:"auto"},
+                        overflow : true,
                         overflowEle : jAreaCon,
                     });
                 }
                 // 否则用 body
                 return editBody;
             },
+            clientRect : function(){
+                return UI.get_edit_win_rect();
+            },
             scrollSensor : {x:"10%", y:30},
+            init : function(){
+                var ing = this;
+                var jq  = $(ing.Event.target);
+                //......................................
+                // 得到组件顶部节点元素，并记录到上下文
+                ing.jCom  = ing.$trigger.closest(".hm-com");
+                ing.uiCom = ZUI(ing.jCom);
+                ing.comBlock = ing.uiCom.getBlock();
+            },
             target : function(){
                 var ing = this;
                 var jq  = $(ing.Event.target);
                 //......................................
-                // 得到组件顶部节点元素
-                var jCom  = ing.$trigger.closest(".hm-com");
-                var uiCom = ZUI(jCom);
-                //......................................
-                // 记录到上下文
-                ing.uiCom = uiCom;
-                ing.comBlock = ing.uiCom.getBlock();
-                //console.log(ing.comBlock)
-
                 // 无视错误的组件
-                if(jCom.attr("invalid-lib"))
+                if(ing.jCom.attr("invalid-lib"))
                     return null;
 
                 // 辅助节点
@@ -381,12 +387,21 @@ var methods = {
                     return jAi;
 
                 // 普通移动: inflow 的不能移动
-                if('inflow' == jCom.attr("hmc-mode")){
+                if('inflow' == ing.jCom.attr("hmc-mode")){
                     return null;
                 }
 
                 // 默认移动组件本身
-                return jCom;
+                return ing.jCom;
+            },
+            viewport : function(){
+                var ing = this;
+                var jAreaCon = ing.jCom.closest(".hm-area-con");
+                if(jAreaCon.length>0){
+                    ing.is_in_area = true;
+                    return jAreaCon;
+                }
+                return ing.$selection;
             },
             on_begin : function(){
                 var ing   = this;
@@ -419,7 +434,7 @@ var methods = {
                         jCom.css("visibility", "hidden");
 
                         // 得到拖拽感应器设置
-                        var senSetup = UI.getDragAndDropSensors(jCom);
+                        var senSetup = UI.getDragAndDropSensors(jCom, ing.$viewport);
                         opt.sensors    = senSetup.sensors;
                         opt.sensorFunc = senSetup.sensorFunc;
 
@@ -432,10 +447,14 @@ var methods = {
                     //..................................
                     // 改变控件大小的八个柄
                     else {
+                        // 标识一下突出显示视口
+                        ing.mask.$viewport.attr("in-area", ing.is_in_area?"yes":null);
+                        // 得到组件的矩形信息
                         ing.rect.com = $D.rect.gen(jCom, {
                             scroll_c : true,
-                            viewport : ing.rect.viewport
+                            viewport : ing.rect.client
                         });
+                        // 准备计算函数
                         var keys = ({
                             NW : ["left", "top"],
                             W  : ["left"],
@@ -446,7 +465,7 @@ var methods = {
                             E  : ["right"],
                             SE : ["right", "bottom"]
                         })[m];
-                        console.log("keys:", keys)
+                        //console.log("keys:", keys)
                         opt.on_ing = function(){
                             // 计算 com 的绝对矩形
                             _.extend(this.rect.com, $z.pick(this.rect.current, keys));
@@ -471,6 +490,8 @@ var methods = {
                 //......................................
                 // 那么就是移动组件本身
                 else {
+                    // 标识一下突出显示视口
+                    ing.mask.$viewport.attr("in-area", ing.is_in_area?"yes":null);
                     // 标识一下移动组件的 helper
                     ing.mask.$target.attr("md", "target");
                     // 动态设置一下参考线
