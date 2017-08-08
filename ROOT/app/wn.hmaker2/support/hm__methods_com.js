@@ -229,16 +229,14 @@ var methods = {
         return block;
     },
     // 通常由 hm_page::doChangeCom 调用
-    setBlock : function(block) {
-        // 合并数据
-        //var block2 = _.extend(this.getBlock(), block);
-        var block2 = block;
-        
+    setBlock : function(block, returnNew) {
         // 保存属性
-        $z.setJsonToSubScriptEle(this.$el, "hm-prop-block", block2, true);
+        $z.setJsonToSubScriptEle(this.$el, "hm-prop-block", (block||{}), true);
 
         // 返回数据
-        return block2;
+        if(returnNew)
+            return this.getBlock();
+        return block;
     },
     // 发出属性修改通知，本函数自动合并其余未改动过的属性
     // mode 可能是:

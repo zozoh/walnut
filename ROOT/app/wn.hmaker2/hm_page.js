@@ -155,6 +155,7 @@ return ZUI.def("app.wn.hmaker_page", {
         },
         // 插入控件
         "click .hmpg-ibar .ibar-item" : function(e){
+            var UI = this;
             var jItem   = $(e.currentTarget);
             var jLi     = jItem.closest("li[ctype]");
             var ctype   = jLi.attr("ctype");
@@ -162,8 +163,11 @@ return ZUI.def("app.wn.hmaker_page", {
             var val     = jItem.attr("val");
             var jCom = this.doInsertCom(ctype, tagName, val);
             // 滚动到底
-            this._C.iedit.body.scrollTop = this._C.iedit.body.clientHeight;
-            // 闪一下
+            if(jCom.attr("hmc-mode") == "inflow"){
+                //UI._C.iedit.body.scrollTop = UI._C.iedit.$body.height();
+                jCom[0].scrollIntoView();
+            }
+            // 闪一下 ^_^
             $z.blinkIt(jCom);
         }
     },
@@ -551,8 +555,32 @@ return ZUI.def("app.wn.hmaker_page", {
             UI.bindComUI(jCom, function(uiCom){
                 // 设置初始化数据
                 var com   = uiCom.setData({}, true);
-                var block = uiCom.setBlock({});
-                
+                var block = uiCom.getDefaultBlock();
+
+                // 绝对定位的话
+                if("abs" == block.mode) {
+                    // 如果拖拽的是一个区域里，那么要强制变相对
+                    if(jCom.closest(".hm-area-con").length>0) {
+                        block.mode = "inflow",
+                        block.posBy  = "WH";
+                        block.left   = "";
+                        block.top    = "";
+                        block.right  = "";
+                        block.bottom = "";
+                    }
+                    // 修改一下位置，保证其可见
+                    else {
+                        var win = UI.get_edit_win_rect();
+                        var top  = $z.toPixel(block.top,  win.height, 10);
+                        var left = $z.toPixel(block.left, win.width, 10);
+                        block.top  = top + UI._C.iedit.body.scrollTop;
+                        block.left = top + UI._C.iedit.body.scrollLeft;
+                    }
+                }
+
+                // 设置块信息
+                uiCom.setBlock(block);
+               
                 // 通知激活控件
                 uiCom.notifyActived(null);
 
@@ -1298,9 +1326,7 @@ return ZUI.def("app.wn.hmaker_page", {
                         + UI.msg("hmaker.page.move_to_body"),
                 rect : rcBody,
                 $ele : UI._C.iedit.body,
-                inViewport : false,
-                visibility : true,
-                matchBreak : true,
+                scope : "client",
             });
         }
         
@@ -1317,32 +1343,21 @@ return ZUI.def("app.wn.hmaker_page", {
             senList.push({
                 name : eMyArea != eArea ? "drop" : "",
                 text : jArea.attr("area-id"),
-                rect : $D.rect.gen(jArea, {
-                    viewport : rcVp,
-                    scroll_c : true,
-                    padding  : sitPad,
-                }),
                 $ele : jAreaCon,
-                inViewport : jViewport
-                                ? jArea.closest(jViewport).length>0 
-                                : false,
-                visibility : true,
-                matchBreak : true,
                 disabled   : eMyArea == eArea,
+                scope : "client",
             });
         });
 
         // 增加 body 感应器
         if(_.isBoolean(jCom) && jCom) {
-            var rcBody = UI.get_edit_win_rect(-16);
+            var rcBody = UI.get_edit_win_rect(-10);
             senList.push({
                 className : "drop-to-body",
                 name : "drop",
                 rect : rcBody,
                 $ele : UI._C.iedit.body,
-                inViewport : false,
-                visibility : true,
-                matchBreak : true,
+                scope : "win",
             });
         }
 

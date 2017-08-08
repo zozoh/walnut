@@ -676,9 +676,39 @@ var zRect = {
     //.............................................
 };
 //.................................................
+// 所有与 DOM 相关的操作
+var zDom = {
+    //.............................................
+    // 滚动元素所在文档，让元素显示
+    // TODO 以后在弄吧 -_-!
+    // scrollDocToView : function(ele) {
+    //     var jq = $(ele);
+    //     // 得到元素的矩形
+    //     var r = zRect.gen(jq, false);
+    //     // 得到元素所在文档的各种尺度
+    //     var eBody = jq.closest("body")[0];
+    //     var sH = eBody.scrollHeight;
+    //     var sW = eBody.scrollWidth;
+    //     var sT = eBody.scrollTop;
+    //     var sL = eBody.scrollLeft;
+    //     var cH = eBody.clientHeight;
+    //     var cW = eBody.clientWidth;
+    //     // 计算滚动值
+    //     var sTop  = 0;
+    //     var sLeft = 0;
+
+    //     // 垂直方向:
+    //     if(sT > r.bottom || (sT+cH)<r.top){
+    //         eBody.scrollTop = r.top - sT
+    //     }
+
+    // },
+};
+//.................................................
 // 帮助函数集
 var zDimension = {
     rect : zRect,
+    dom  : zDom,
 };
 //..................................................
 // 挂载到 window 对象

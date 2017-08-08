@@ -49,7 +49,7 @@ var MVs = {
         // 转换一下，成为窗体绝对位置
         var winX = x;
         var winY = y;
-        if(this.targetIsRelative) {
+        if(MVing.isCusorRelativeClient) {
             winX += this.rect.client.left;
             winY += this.rect.client.top;
         }
@@ -70,7 +70,7 @@ var MVs = {
         else {
             MVing.posAt = {
                 win      : {x:winX, y:winY},
-                client   : {x:x, y:y},
+                client   : $D.rect.ccs_point_tl(MVing.rect.client, winX, winY),
                 viewport : $D.rect.ccs_point_tl(MVing.rect.viewport, winX, winY),
                 target   : $D.rect.ccs_point_tl(MVing.rect.target, winX, winY),
             };
@@ -78,15 +78,14 @@ var MVs = {
 
         // 更新
         if(MVing.cursor) {
-            MVing.cursor.viewport = $D.rect.ccs_point_tl(MVing.rect.viewport, winX, winY),
-            MVing.cursor.delta.x  = x - MVing.cursor.client.x;
-            MVing.cursor.delta.y  = y - MVing.cursor.client.y;
-            MVing.cursor.offset.x = x - MVing.posAt.client.x;
-            MVing.cursor.offset.y = y - MVing.posAt.client.y;
+            MVing.cursor.delta.x  = winX - MVing.cursor.win.x;
+            MVing.cursor.delta.y  = winY - MVing.cursor.win.y;
+            MVing.cursor.offset.x = winX - MVing.posAt.win.x;
+            MVing.cursor.offset.y = winY - MVing.posAt.win.y;
             MVing.cursor.win.x    = winX;
             MVing.cursor.win.y    = winY;
-            MVing.cursor.client.x = x;
-            MVing.cursor.client.y = y;
+            MVing.cursor.client   = $D.rect.ccs_point_tl(MVing.rect.client, winX, winY),
+            MVing.cursor.viewport = $D.rect.ccs_point_tl(MVing.rect.viewport, winX, winY),
             MVing.direction.delta.x = direction(MVing.cursor.delta.x, "left", "right");
             MVing.direction.delta.y = direction(MVing.cursor.delta.y, "up", "down");
             MVing.direction.offset.x = direction(MVing.cursor.offset.x, "left", "right");
@@ -97,8 +96,8 @@ var MVs = {
             // 鼠标
             MVing.cursor = {
                 win      : {x:winX, y:winY},
-                client   : {x:x, y:y},
-                viewport : $D.rect.ccs_point_tl(MVing.rect.viewport, x, y),
+                client   : $D.rect.ccs_point_tl(MVing.rect.client, winX, winY),
+                viewport : $D.rect.ccs_point_tl(MVing.rect.viewport, winX, winY),
                 delta    : {x:0, y:0},
                 offset   : {x:0, y:0},
             };
@@ -181,8 +180,8 @@ var MVs = {
 
         // 创建遮罩内部的元素
         MVing.mask = {
-            $client   : $('<div class="z-mvm-client">').appendTo(MVing.$mask),
             $sensors  : $('<div class="z-mvm-sensors">').appendTo(MVing.$mask),
+            $client   : $('<div class="z-mvm-client">').appendTo(MVing.$mask),
             $target   : $('<div class="z-mvm-target">').appendTo(MVing.$mask),
         }
         MVing.mask.$clientCon
@@ -190,7 +189,7 @@ var MVs = {
                 .appendTo(MVing.mask.$client);
 
         // 如果 client 和 viewport 是重合的
-        if(MVing.$viewport[0] == MVing.$client[0]){
+        if(MVing.isViewportSameWithClient){
             MVing.viewportIsClient  = true;
             MVing.mask.$viewport    = MVing.mask.$client.addClass("z-mvm-viewport");
             MVing.mask.$viewportCon = MVing.mask.$clientCon.addClass("z-mvm-viewport-con");
@@ -313,7 +312,7 @@ var MVs = {
             name : name,
             rect : rectA,
             scope : "win",
-            visibility : false,
+            visible : false,
             matchBreak : false,
             scrollStep : opt.scrollStep * -1,
             handler : func,
@@ -323,7 +322,7 @@ var MVs = {
             name : name,
             rect : rectB,
             scope : "win",
-            visibility : false,
+            visible : false,
             matchBreak : false,
             scrollStep : opt.scrollStep,
             handler : func,
@@ -460,39 +459,29 @@ var MVs = {
 
             // 感应器默认为不激活
             sen.actived = false;
+
+            // 确保是 jQuery 对象
+            if(_.isElement(sen.$ele)){
+                sen.$ele = $(sen.$ele);
+            }
             
             // 设置默认值
-            $z.setUndefined(sen, "visibility", true);
+            $z.setUndefined(sen, "visible", true);
             $z.setUndefined(sen, "matchBreak", true);
-
-            // 记录感应器原始矩形
-            sen._org_rect = _.extend({}, sen.rect);
-
-            if(sen.visibility)
-                console.log("haha", sen)
 
             // 计算感应器范围
             if(!sen.scope) {
                 // 视口
-                if(sen.$ele && sen.$ele.closest(MVing.$viewport).length>0){
+                if(sen.$ele && sen.$ele.parent().closest(MVing.$viewport).length>0){
                     sen.scope = "viewport";
-                    sen.__gen_rect = function(MVing, padding){
-                        return MVing.getRectInClient(this.$ele, padding);
-                    }
                 }
                 // 鼠标捕捉区
-                else if(sen.$ele && sen.$ele.closest(MVing.$client).length>0){
+                else if(sen.$ele && sen.$ele.parent().closest(MVing.$client).length>0){
                     sen.scope = "client";
-                    sen.__gen_rect = function(MVing, padding){
-                        return MVing.getRectInClient(this.$ele, padding);
-                    }
                 }
                 // 默认为顶级
                 else {
                     sen.scope = "win";
-                    sen.__gen_rect = function(MVing, padding){
-                        return $D.rect.gen(this.$ele, padding);
-                    }
                 }
             }
 
@@ -502,13 +491,23 @@ var MVs = {
                 if(!sen.$ele){
                     throw "sensor without rect and $ele "+$z.toJson(sen);
                 }
-                sen.rect = sen.__gen_rect(MVing, sen.rect);
+                var padding = sen.rect;
+                if("win"==sen.scope || !MVing.isCusorRelativeClient){
+                    sen.rect = $D.rect.gen(sen.$ele, padding);
+                }
+                // 否则取一下相对
+                else {
+                    sen.rect = MVing.getRectInClient(sen.$ele, padding);
+                }
+                //console.log(sen.text, sen.rect)
             }
 
-            //console.log("sen:", sen);
+            // 记录感应器原始矩形
+            sen._org_rect = _.extend({}, sen.rect);
+
             // 无视不可见的感应器
-            // if(!sen.visibility)
-            //     continue;
+            if(!sen.visible)
+                continue;
 
             var jSen = $('<div class="z-mvm-sit"><section><aside md="x"></aside><aside md="y"></aside></section></div>');
             var css;
@@ -517,12 +516,14 @@ var MVs = {
             if("client" == sen.scope) {
                 sen.$helper = jSen.appendTo(MVing.mask.$clientCon);
                 css = $D.rect.relative(sen.rect, MVing.rect.client, true, baSc);
+                css = $z.pick(css, ["top","left","width","height"]);
                 css.position = "absolute";
             }
             // 绘制视口内感应器
             else if("viewport" == sen.scope) {
                 sen.$helper = jSen.appendTo(MVing.mask.$viewportCon);
                 css = $D.rect.relative(sen.rect, MVing.rect.viewport, true, baSc);
+                css = $z.pick(css, ["top","left","width","height"]);
                 css.position = "absolute";
             }
             // 绘制窗体感应器
@@ -562,8 +563,8 @@ var MVs = {
         // 循环处理各个传感器
         for(var i=0; i<MVing.sensors.length; i++) {
             var sen = MVing.sensors[i];
-            // 只考虑 viewport 内的传感器
-            if(sen.inViewport){
+            // 只考虑 client 内的传感器
+            if("win" != sen.scope){
                 sen.rect.top  = sen._org_rect.top  + offY;
                 sen.rect.left = sen._org_rect.left + offX;
                 $D.rect.count_tlwh(sen.rect);
@@ -579,18 +580,14 @@ var MVs = {
         var MVing = this;
         var opt   = MVing.options;
 
-        // 关键变量
-        var rcTa = MVing.rect.target;
-        var rcVp = MVing.rect.viewport;
-        var cucl = MVing.cursor.win;
-        var post = MVing.posAt.target;
-
         // 要计算的矩形
-        var rect = $D.rect.create([0,0,rcTa.width, rcTa.height], "tlwh");
+        var rect = $D.rect.create([
+            0, 0, MVing.rect.target.width, MVing.rect.target.height]
+            ,"tlwh");
 
         // 根据鼠标指针当前位置，计算出目标矩形的新位置
-        rect.top  = cucl.y - post.y;
-        rect.left = cucl.x - post.x;
+        rect.top  = MVing.cursor.win.y - MVing.posAt.target.y;
+        rect.left = MVing.cursor.win.x - MVing.posAt.target.x;
 
         // 重算矩形其他属性，并更新上下文矩形信息
         MVing.rect.current = $D.rect.count_tlwh(rect);
@@ -598,20 +595,15 @@ var MVs = {
         // TODO 这里进行栅格的磁力辅助线约束
 
         // 约束边界
-        var bRe = $z.invoke(MVing, "boundaryBy", [rcTa], MVing);
-        if(bRe){
+        var bbTa = $z.invoke(MVing, "boundaryBy", [], MVing);
+        if(bbTa){
             //console.log($D.rect.dumpValues(bRe));
-            var bRe2 = $D.rect.boundaryIn(bRe, rcVp);
+            var bRe2 = $D.rect.boundaryIn(bbTa, MVing.rect.viewport);
             $D.rect.move_xy(rect, bRe2);
         }
 
-        // 计算视口的滚动补偿
-        var baSc = {
-            x : MVing.$client[0].scrollLeft,
-            y : MVing.$client[0].scrollTop,
-        };
         // 计算当前目标与视口关系
-        MVing.css.rect = $D.rect.relative(rect, rcVp, true, baSc);
+        MVing.css.rect = $D.rect.relative(rect, MVing.rect.viewport, true, MVing.$client);
         MVing.css.current = $z.pick(MVing.css.rect, opt.cssBy);
     },
     //.......................................................
@@ -816,7 +808,7 @@ function on_mouseup(e){
         $z.invoke(opt, "on_end", [], MVing);
 
         // 释放遮罩层
-        //MVing.$mask.remove();
+        MVing.$mask.remove();
 
         // 销毁上下文
         window.__nutz_moving = null;
@@ -854,21 +846,47 @@ function on_mousedown(e){
     // 找到目标和视口
     if(!MVs.findElement.call(MVing, "target", "$trigger"))
         return;
-    if(!MVs.findElement.call(MVing, "viewport", "$selection"))
+    if(!MVs.findElement.call(MVing, "client", "$selection"))
         return;
-    if(!MVs.findElement.call(MVing, "client", "$viewport", true))
+    if(!MVs.findElement.call(MVing, "viewport", "$client", true))
         return;
     //...........................................
     // 视口原始的滚动
     MVing.clientScroll = {
         x : MVing.$client[0].scrollLeft,
         y : MVing.$client[0].scrollTop,
-    },
+    };
+    // 判断拖拽目标是否在捕获区域内
+    MVing.isTargetInClient   = MVing.$target.parent().closest(MVing.$client).length>0;
+    MVing.isViewportInClient = MVing.$viewport.parent().closest(MVing.$client).length>0;
+    MVing.isViewportSameWithClient = MVing.$viewport[0] == MVing.$client[0];
+    MVing.isCusorRelativeClient = true;
     //...........................................
     // 准备收集各种尺寸和位置
     MVing.rect = {};
-    MVing.targetIsRelative = false;
+    //..........................................
     // 指定了视口的尺寸
+    if(_.isFunction(opt.clientRect)){
+        MVing.rect.client = opt.clientRect.call(MVing);
+    }
+    // 直接指定了矩形对象
+    else if($z.isRect(opt.clientRect)){
+        MVing.rect.client = opt.clientRect;
+    }
+    // 没指定对象，那么就 client 就表示整个屏幕
+    else {
+        MVing.isCusorRelativeClient = false;
+    }
+    // 默认自行计算
+    if(!MVing.rect.client) {
+        //console.log("count default")
+        MVing.rect.client = $D.rect.gen(MVing.$client, {
+            boxing   : "content",
+            scroll_c : true,
+        });
+    }
+    //...........................................
+    // 指定了鼠标事件的捕捉区域，会根据这个区域进行偏移
     if(_.isFunction(opt.viewportRect)){
         MVing.rect.viewport = opt.viewportRect.call(MVing);
     }
@@ -878,35 +896,24 @@ function on_mousedown(e){
     }
     // 默认自行计算
     if(!MVing.rect.viewport) {
-        //console.log("count default")
-        MVing.rect.viewport = $D.rect.gen(MVing.$viewport,{
-            boxing   : "content",
-            scroll_c : true,
-        });
-    }
-    // 标识目标获取矩形要相对于视口
-    else {
-        MVing.targetIsRelative = true;
-    }
-    //...........................................
-    // 指定了鼠标事件的捕捉区域，会根据这个区域进行偏移
-    if(_.isFunction(opt.clientRect)){
-        MVing.rect.client = opt.clientRect.call(MVing);
-    }
-    // 直接指定了矩形对象
-    else if($z.isRect(opt.clientRect)){
-        MVing.rect.client = opt.clientRect;
-    }
-    // 默认将视口作为捕捉区域
-    if(!MVing.rect.client) {
-        MVing.rect.client = _.extend({}, MVing.rect.viewport);
+        // 复用 client 的矩形
+        if(MVing.isViewportSameWithClient) {
+            MVing.rect.viewport = MVing.rect.client;
+        }
+        // 重新计算
+        else {
+            MVing.rect.viewport = $D.rect.gen(MVing.$viewport, 
+                MVing.isViewportInClient ? MVing.rect.client : null);
+        }
     }
     //...........................................
     // 目标尺寸
     MVing.rect.target = $D.rect.gen(MVing.$target, {
         boxing   : "border",
         scroll_c : true,
-        viewport : MVing.targetIsRelative ? MVing.rect.client : null
+        viewport : MVing.isTargetInClient && MVing.isCusorRelativeClient
+                        ? MVing.rect.client 
+                        : null
     });
     MVing.rect.current = _.extend({}, MVing.rect.target);
     //...........................................

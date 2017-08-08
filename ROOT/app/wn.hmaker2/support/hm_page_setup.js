@@ -350,8 +350,11 @@ var methods = {
             trigger    : '.ibar-item',
             maskClass  : 'hm-page-move-mask',
             scrollSensor : {x:"10%", y:30},
-            viewport : function(){
+            client : function(){
                 return UI._C.iedit.$body;
+            },
+            clientRect : function(){
+                return UI.get_edit_win_rect();
             },
             on_begin : function(){
                 var ing = this;
@@ -377,9 +380,9 @@ var methods = {
             // 移动结束，保存 Block 信息
             on_end : function() {
                 var ing = this;
-                //console.log(ing.drop_in_area);
+                //console.log(_.isElement(ing.drop_in_area), $z.isjQuery(ing.drop_in_area));
                 // 加入到页面
-                if(ing.drop_in_area){
+                if(ing.drop_in_area && ing.drop_in_area.length>0){
                     var jItem   = ing.$target;
                     var jLi     = jItem.closest("li[ctype]");
                     var ctype   = jLi.attr("ctype");
@@ -390,10 +393,13 @@ var methods = {
                     var jCom = UI.doInsertCom(ctype,tagName,val,ing.drop_in_area);
 
                     // 滚动到显示
-                    if(ing.drop_in_area == UI._C.iedit.body){
-                        UI._C.iedit.body.scrollTop = UI._C.iedit.body.clientHeight;
-                        $z.blinkIt(jCom);
+                    if(ing.drop_in_area[0] == UI._C.iedit.body
+                        && jCom.attr("hmc-mode") == "inflow"){
+                        //UI._C.iedit.body.scrollTop = UI._C.iedit.$body.height();
+                        jCom[0].scrollIntoView();
                     }
+                    // 闪一下 ^_^
+                    $z.blinkIt(jCom);
                 }
                 //......................................
                 // 去掉其他元素的标识
@@ -409,6 +415,18 @@ var methods = {
         UI._C.iedit.$body.moving({
             trigger    : '.hm-com',
             maskClass  : 'hm-page-move-mask',
+            clientRect : function(){
+                return UI.get_edit_win_rect();
+            },
+            viewport : function(){
+                var ing = this;
+                var jAreaCon = ing.jCom.closest(".hm-area-con");
+                if(jAreaCon.length>0){
+                    ing.is_in_area = true;
+                    return jAreaCon;
+                }
+                return ing.$selection;
+            },
             viewportRect : function(){
                 var jAreaCon = this.$trigger.closest(".hm-area-con");
                 var editBody = UI.get_edit_win_rect();
@@ -424,9 +442,6 @@ var methods = {
                 }
                 // 否则用 body
                 return editBody;
-            },
-            clientRect : function(){
-                return UI.get_edit_win_rect();
             },
             scrollSensor : {x:"10%", y:30},
             init : function(){
@@ -458,15 +473,6 @@ var methods = {
 
                 // 默认移动组件本身
                 return ing.jCom;
-            },
-            viewport : function(){
-                var ing = this;
-                var jAreaCon = ing.jCom.closest(".hm-area-con");
-                if(jAreaCon.length>0){
-                    ing.is_in_area = true;
-                    return jAreaCon;
-                }
-                return ing.$selection;
             },
             on_begin : function(){
                 var ing   = this;

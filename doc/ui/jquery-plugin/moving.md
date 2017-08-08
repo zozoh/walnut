@@ -1,35 +1,3 @@
-# 需要考虑的问题
-
-- 内部窗口拖动，能不能在外部窗口用遮罩捕获时间
-- 截获并模拟双击事件
-- 辅助线用 canvas 来绘制效率如何
-- 放置到拖拽目标里，应该用交集面积大于自己面积的一半(可配置)来决定
-- 配置对象给出生成拖拽目标的矩形数据
-    + 必须相对于全局 window
-    + 包括 jQuery 对象，以及一个 Rect
-    + 如果给出的是一个 jQuery，则会自动计算 Rect
-- 预处理鼠标位置方式
-    + 自由
-    + 仅横轴
-    + 仅纵轴
-    + 固定区域
-    + 网格
-    + 磁力网格
-- 移动回调函数，可以决定 mask.trigger 是否跟着移动 
-- 如果没有 findTarget，那么 this 就是 target
-
-# 已经确定了拖拽相关的问题
-
-## 启用
-
-- 考虑到绘制的自由度， *mask* 还是固定是加在顶级 *window* 比较好
-- 比较友好的还是用 `mousedown` 启用
-- 如果 `mousedown` 了，只能在同级窗口捕获 `mouseup`
-    - 即不要指望在 *mask* 截获 `mouseup` 事件
-
-## 注销
-
-- 在原对象所在的窗口上监听 *mouseup* 一定可以得到的
 
 # 浏览器兼容性
 
@@ -46,12 +14,13 @@ Safari:
 
 移动的时候，插件会在顶级窗口准备`遮罩(mask)`元素，并在其内监控`感应器(sensor)`对应的行为，并根据配置，动态的绘制辅助线。
 
-- `可视区域(client)`即浏览器窗口所在的区域，移动的所有位置计算都是相对这个区域的
 - `选区(selection)`就是插件的 *this*
+- `窗体(win)`整个窗体
+- `可视区域(client)`鼠标捕获区域，这个区域可能有 scrollBar
+- `视口(viewport)`得到*目标*后，查找自己的视口，默认为*选区*
 - `触发器(trigger)`声明了*选区*内可以被触发的元素选择器，默认为 `> *`
     - 插件会用`$(selection).on("mousedown", trigger, F())`来触发
 - `目标(target)`得到*触发器*后，会在触发器里查找真正的拖拽目标，默认为*触发器*本身
-- `视口(viewport)`得到*目标*后，查找自己的视口，默认为*选区*
 - `感应器(sensor)`会在鼠标经过后触发指定操作。默认感应器有
     - `scroll-N` :  向上滚动(优先)
     - `scroll-S` :  向下滚动(优先)
@@ -68,21 +37,21 @@ window
         document.body
             某拖拽目标
     DIV.z-moving-mask
+        DIV.z-mvm-sensors         <!--// 全局感应器绘制层-->
+            DIV.z-mvm-sit         <!--// 在视口外的可见感应器 -->
+               SECTION            <!--// 感应器的可见部分包裹容器 -->
+               ASIDE@md="x"       <!--// 辅助元素X -->
+               ASIDE@md="y"       <!--// 辅助元素Y -->
+               SPAN               <!--// 如果感应器有 text，写在这里-->
         DIV.z-mvm-client                <!--// 感应器副本-->
             DIV.z-mvm-client-con        <!--// 感应器副本包裹-->
                 ASIDE.cl-placeholder         <!--// 占位块，用来让视口内部大小与原本一致-->
                 DIV.z-mvm-viewport           <!--// 视口副本-->
                     DIV.z-mvm-viewport-con    <!--// 视口副本包裹-->
                         DIV.z-mvm-sit         <!--// 视口内感应器 -->
-                            ...               <!--// @see 下面的感应器 DOM 结构 -->
+                            ...               <!--// @see 上面的感应器 DOM 结构 -->
                 DIV.z-mvm-sit         <!--// 在视口内的可见感应器 -->
-                    SECTION           <!--// 感应器的可见部分包裹容器 -->
-                       ASIDE@md="x"   <!--// 辅助元素X -->
-                       ASIDE@md="y"   <!--// 辅助元素Y -->
-                       SPAN           <!--// 如果感应器有 text，写在这里-->
-        DIV.z-mvm-sensors         <!--// 感应器绘制层-->
-            DIV.z-mvm-sit         <!--// 在视口外的可见感应器 -->
-                ...               <!--// @see 上面的感应器 DOM 结构 -->
+                    ...               <!--// @see 上面的感应器 DOM 结构 -->
         DIV.z-mvm-target          <!--// 移动目标的显示副本-->
         SVG                       <!--// 辅助线绘制层-->
             LINE                  <!--// 水平辅助线-->
@@ -111,10 +80,9 @@ $viewport  : jQuery,   // 视口的 jQuery 对象
 $target    : jQuery,   // 移动目标的 jQuery 对象
 viewportIsClient : true, // 视口和鼠标捕捉区域是否重合
 //..................................................
-// 在创建时指定了 "viewportRect"，则本项目为 true
-// 表示计算 target 初始矩形时，需要对 viewport 矩形转换坐标系
+// 表示计算 target 初始矩形时，需要对 client 矩形转换坐标系
 // 通常，是在 <iframe> 嵌套的内联文档对象里，要启用这个选项
-targetIsRelative : false,
+isTargetInClient : false,
 //..................................................
 // 记录视口初始的滚动
 viewportScroll : {
