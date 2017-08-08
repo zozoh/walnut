@@ -57,6 +57,9 @@ var methods = {
         // 设置编辑区的移动
         UI.__setup_page_moveresizing();
 
+        // 启用插入条的拖拽
+        UI.__setup_ibar_drag_and_drop();
+
         // 监视编辑区，响应其他必要的事件处理
         UI.__setup_page_events();
         //.......................... 上面的方法来自 support/hm_page_setup.js
@@ -339,6 +342,68 @@ var methods = {
         }
     },
     //...............................................................
+    __setup_ibar_drag_and_drop : function() {
+        var UI = this;
+
+        // 启用拖拽
+        UI.arena.find(".hmpg-ibar").moving({
+            trigger    : '.ibar-item',
+            maskClass  : 'hm-page-move-mask',
+            scrollSensor : {x:"10%", y:30},
+            viewport : function(){
+                return UI._C.iedit.$body;
+            },
+            on_begin : function(){
+                var ing = this;
+                var opt = ing.options;
+
+                // 得到感应器的设定
+                var senSetup = UI.getDragAndDropSensors(true);
+                opt.sensors    = senSetup.sensors;
+                opt.sensorFunc = senSetup.sensorFunc;
+
+                // 去掉插入条的标识
+                ing.$trigger.closest('li[ctype]').removeAttr("enter");
+                
+                // 标识一下移动组件的 helper
+                ing.mask.$target.attr("md", "drag");
+
+                // 修改 target 副本的显示样式
+                ing.mask.$target.html(ing.$target.html());
+
+                // 标记页面其他元素的样式
+                UI._C.iedit.$body.children().addClass("hm-pmv-hide");
+            },
+            // 移动结束，保存 Block 信息
+            on_end : function() {
+                var ing = this;
+                //console.log(ing.drop_in_area);
+                // 加入到页面
+                if(ing.drop_in_area){
+                    var jItem   = ing.$target;
+                    var jLi     = jItem.closest("li[ctype]");
+                    var ctype   = jLi.attr("ctype");
+                    var tagName = jLi.attr("tag-name") || 'DIV';
+                    var val     = jItem.attr("val");
+                    
+                    // 插入
+                    var jCom = UI.doInsertCom(ctype,tagName,val,ing.drop_in_area);
+
+                    // 滚动到显示
+                    if(ing.drop_in_area == UI._C.iedit.body){
+                        UI._C.iedit.body.scrollTop = UI._C.iedit.body.clientHeight;
+                        $z.blinkIt(jCom);
+                    }
+                }
+                //......................................
+                // 去掉其他元素的标识
+                UI._C.iedit.$body.find(".hm-pmv-hide")
+                    .removeClass("hm-pmv-hide");
+            },
+        });
+        
+    },
+    //...............................................................
     __setup_page_moveresizing : function() {
         var UI = this;
         UI._C.iedit.$body.moving({
@@ -531,7 +596,12 @@ var methods = {
                                 jAreaCon = null;
                             }
                             ing.uiCom.appendToArea(jAreaCon);
-                            ing.uiCom.el.scrollIntoView();
+                            // 滚动到显示
+                            if(!jAreaCon){
+                                UI._C.iedit.body.scrollTop = 
+                                    UI._C.iedit.body.clientHeight;
+                                $z.blinkIt(jCom);
+                            }
                         }
 
                         // 恢复组件显示

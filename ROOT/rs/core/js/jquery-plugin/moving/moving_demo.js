@@ -111,7 +111,7 @@ function getContainerList(){
 // 对容器执行操作
 function do_con(callback) {
     var conList = getContainerList();
-    console.log(conList.length)
+    //console.log(conList.length)
     for(var i=0; i < conList.length; i++){
         callback(conList[i]);
     }
@@ -200,6 +200,11 @@ var A = {
                 var vpa = this.$viewport.attr("client");
                 return vpa ? $D.rect.create(vpa) : null;
             },
+            client : function(){
+                if(jCon[0].tagName == "MAIN"){
+                    return jCon.closest("body");
+                }
+            },
             on_ing : function(){
                 this.$target.css(this.css.current);
                 LOG.dumping(this);
@@ -223,11 +228,7 @@ var A = {
                     list.push({
                         name : "drop",
                         text : jq.text(),
-                        rect : vpa ? MVing.getRectAtInnerDoc(jq) 
-                                   :$D.rect.gen(jq),
-                        inViewport : jq.closest("[has-main]").length>0?false:true,
-                        visibility : true,
-                        matchBreak : true,
+                        $ele : jq,
                     });
                 });
                 return list;

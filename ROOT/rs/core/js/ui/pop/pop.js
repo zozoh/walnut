@@ -176,9 +176,15 @@ module.exports = {
     },
     //...............................................................
     // 弹出一个 ZCron 编辑器
-    zcron : function(cron, callback, referUI) {
+    zcron : function(cron, opt, referUI) {
+        // opt 直接就是一个回调
+        if(_.isFunction(opt)){
+            opt = {ok : opt};
+        }
         // 确保配置非空
-        var opt = {};
+        else {
+            opt = opt || {};
+        }
 
         // 默认标题
         $z.setUndefined(opt, "title", "i18n:edit");
@@ -194,8 +200,13 @@ module.exports = {
         };
         
         // 设置
-        opt.setup = {uiType : 'ui/zcron/edt_zcron'}
-        opt.ok = callback;
+        opt.setup = opt.setup || {};
+        if(!opt.setup.uiType) {
+            opt.setup = {
+                uiType : 'ui/zcron/edt_zcron',
+                uiConf : opt.setup
+            }
+        }
 
         // 打开
         this.openUIPanel(opt, referUI);

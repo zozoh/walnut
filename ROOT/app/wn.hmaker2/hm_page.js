@@ -138,12 +138,16 @@ return ZUI.def("app.wn.hmaker_page", {
             });
         },
         // 鼠标激活 ibar.ibox
-        "mouseover .hmpg-ibar .hmpg-ibar-thumb" : function(e){
+        "mouseenter .hmpg-ibar .hmpg-ibar-thumb" : function(e){
             var jq    = $(e.currentTarget);
-            var jLi   = jq.closest("li");
+            var jLi   = jq.closest("li").attr("enter", "yes");
             var jiBox = jLi.children(".hmpg-ibar-ibox");
             $z.dock(jq, jiBox, "V");
             this.doReloadIBarItem(jLi);
+        },
+        "mouseleave .hmpg-ibar li[ctype]" : function(e){
+            var jLi = $(e.currentTarget);
+            jLi.removeAttr("enter");
         },
         // 强制刷新 ibar 子项目
         "click .hmpg-ibar-ibox header .hm-ireload" : function(e){
@@ -152,10 +156,15 @@ return ZUI.def("app.wn.hmaker_page", {
         // 插入控件
         "click .hmpg-ibar .ibar-item" : function(e){
             var jItem   = $(e.currentTarget);
-            var jLi     = jItem.parents("li");
+            var jLi     = jItem.closest("li[ctype]");
             var ctype   = jLi.attr("ctype");
             var tagName = jLi.attr("tag-name") || 'DIV';
-            this.doInsertCom(ctype, tagName, jItem.attr("val"));
+            var val     = jItem.attr("val");
+            var jCom = this.doInsertCom(ctype, tagName, val);
+            // 滚动到底
+            this._C.iedit.body.scrollTop = this._C.iedit.body.clientHeight;
+            // 闪一下
+            $z.blinkIt(jCom);
         }
     },
     //...............................................................
@@ -514,12 +523,14 @@ return ZUI.def("app.wn.hmaker_page", {
     // ctype   : 控件类型，"libitem" 表示组件
     // tagName : 插入的元素名，默认 DIV
     // val     : 控件皮肤或者组件名
-    doInsertCom : function(ctype, tagName, val) {
+    // jCom    : 表示插入到哪里，空的话，插入到 body
+    doInsertCom : function(ctype, tagName, val, jCon) {
         var UI = this;
 
         // 创建新元素
         var eleCom = UI._C.iedit.doc.createElement(tagName || 'DIV');
-        var jCom = $(eleCom).addClass("hm-com").appendTo(UI._C.iedit.$body);
+        var jCom = $(eleCom).addClass("hm-com")
+                .appendTo(jCon || UI._C.iedit.$body);
 
         // 共享库组件
         if("libitem" == ctype) {
@@ -555,6 +566,9 @@ return ZUI.def("app.wn.hmaker_page", {
                 this.invokeSkin("resize");
                 
             });
+
+            // 返回
+            return jCom;
         }
     },
     //...............................................................
@@ -1196,6 +1210,8 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     depose : function() {
         this.arena.find(".hmpg-frame-load").unbind();
+        this._C.iedit.$body.moving("destroy");
+        this.find(".hmpg-ibar").moving("destroy");
     },
     //...............................................................
     resize : function() {
@@ -1236,12 +1252,13 @@ return ZUI.def("app.wn.hmaker_page", {
         return this._C.iedit.$body;
     },
     //...............................................................
-    get_edit_win_rect : function(){
+    get_edit_win_rect : function(padding){
         return $D.rect.gen(this.arena.find('.hmpg-frame-edit'), {
             boxing   : "content",
             scroll_c : true,
             overflow : true,
             overflowEle : this._C.iedit.$body,
+            padding : padding || 0,
         });
     },
     //...............................................................
@@ -1254,7 +1271,7 @@ return ZUI.def("app.wn.hmaker_page", {
         var jSubAreas = null;   // 当前控件所包含区域（当然只有布局控件才有）
         var eSubs = [];
         // 如果给定了当前控件，设置一下
-        if(jCom) {
+        if($z.isjQuery(jCom)) {
             jMyArea = jCom.closest(".hm-area");
             eMyArea = jMyArea.length > 0 ? jMyArea[0] : null;
             jSubAreas = jCom.find(".hm-area");
@@ -1263,12 +1280,29 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 得到视口矩形
         var rcVp = UI.get_edit_win_rect();
+        //console.log("视口矩形", $D.rect.dumpValues(rcVp));
 
         // 定义区域边界
         var sitPad = 2;
 
         // 准备要返回的感应器列表
         var senList = [];
+
+        // 增加移除 body 的选项
+        if(eMyArea) {
+            var rcBody = $D.rect.gen(UI.arena.find(".hmpg-sbar"));
+            senList.push({
+                className : "drop-to-body",
+                name : "drop",
+                text : '<i class="fa fa-sign-out zmdi-hc-rotate-180"></i> '
+                        + UI.msg("hmaker.page.move_to_body"),
+                rect : rcBody,
+                $ele : UI._C.iedit.body,
+                inViewport : false,
+                visibility : true,
+                matchBreak : true,
+            });
+        }
         
         // 挨个查找：叶子区域，且不包含当前控件的，统统列出来
         UI._C.iedit.$body.find(".hm-area-con").each(function(){
@@ -1298,14 +1332,12 @@ return ZUI.def("app.wn.hmaker_page", {
             });
         });
 
-        // 增加移除 body 的选项
-        if(jCom && eMyArea) {
-            var rcBody = $D.rect.gen(UI.arena.find(".hmpg-sbar"));
+        // 增加 body 感应器
+        if(_.isBoolean(jCom) && jCom) {
+            var rcBody = UI.get_edit_win_rect(-16);
             senList.push({
                 className : "drop-to-body",
                 name : "drop",
-                text : '<i class="fa fa-sign-out zmdi-hc-rotate-180"></i> '
-                        + UI.msg("hmaker.page.move_to_body"),
                 rect : rcBody,
                 $ele : UI._C.iedit.body,
                 inViewport : false,
@@ -1319,8 +1351,14 @@ return ZUI.def("app.wn.hmaker_page", {
             sensors : senList,
             sensorFunc : {
                 "drop" : {
-                    "enter" : function(sen){this.drop_in_area = sen.$ele;},
-                    "leave" : function(sen){this.drop_in_area = null;}
+                    "enter" : function(sen){
+                        //console.log("enter", sen.text || sen.className);
+                        this.drop_in_area = sen.$ele;
+                    },
+                    "leave" : function(sen){
+                        //console.log("leave", sen.text || sen.className);
+                        this.drop_in_area = null;
+                    }
             }}};
     },
     //...............................................................

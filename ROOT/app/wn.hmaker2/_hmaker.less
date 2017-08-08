@@ -219,7 +219,7 @@
                             }
                         }
                     }
-                    > li[ctype]:hover {
+                    > li[ctype][enter] {
                         color: @ch0_f; background: @ch0_b;
                         .hmpg-ibar-ibox { 
                             width:unset; opacity: 1.0;
@@ -477,6 +477,11 @@
     .z-mvm-target[md="drag"] {
         @flex(); justify-content:center; align-items:center;
         border:1px solid @cborder1; background: @cb1;
+        cursor: grabbing;
+        cursor: -webkit-grabbing;
+        cursor: -moz-grabbing;
+        i {vertical-align: middle;}
+        b {display: inline-block; vertical-align: middle;margin:0 @d2;}
     }
 }
 

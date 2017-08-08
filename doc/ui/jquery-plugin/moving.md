@@ -68,13 +68,18 @@ window
         document.body
             某拖拽目标
     DIV.z-moving-mask
-        DIV.z-mvm-viewport        <!--// 视口副本-->
-            ASIDE.vp-placeholder  <!--// 视口副本占位块，用来让视口内部大小与原本一致-->
-            DIV.z-mvm-sit         <!--// 在视口内的可见感应器 -->
-                SECTION           <!--// 感应器的可见部分包裹容器 -->
-                    ASIDE@md="x"  <!--// 辅助元素X -->
-                    ASIDE@md="y"  <!--// 辅助元素Y -->
-                    SPAN          <!--// 如果感应器有 text，写在这里，否则没有这个元素-->
+        DIV.z-mvm-client                <!--// 感应器副本-->
+            DIV.z-mvm-client-con        <!--// 感应器副本包裹-->
+                ASIDE.cl-placeholder         <!--// 占位块，用来让视口内部大小与原本一致-->
+                DIV.z-mvm-viewport           <!--// 视口副本-->
+                    DIV.z-mvm-viewport-con    <!--// 视口副本包裹-->
+                        DIV.z-mvm-sit         <!--// 视口内感应器 -->
+                            ...               <!--// @see 下面的感应器 DOM 结构 -->
+                DIV.z-mvm-sit         <!--// 在视口内的可见感应器 -->
+                    SECTION           <!--// 感应器的可见部分包裹容器 -->
+                       ASIDE@md="x"   <!--// 辅助元素X -->
+                       ASIDE@md="y"   <!--// 辅助元素Y -->
+                       SPAN           <!--// 如果感应器有 text，写在这里-->
         DIV.z-mvm-sensors         <!--// 感应器绘制层-->
             DIV.z-mvm-sit         <!--// 在视口外的可见感应器 -->
                 ...               <!--// @see 上面的感应器 DOM 结构 -->
@@ -101,8 +106,10 @@ $selection : jQuery,   // 选区的 jQuery 对象
 $trigger   : jQuery,   // 触发器的 jQuery 对象
 data : ..              // 来着 options.data
 //..................................................
+$client    : jQuery,   // 鼠标捕捉区
 $viewport  : jQuery,   // 视口的 jQuery 对象
 $target    : jQuery,   // 移动目标的 jQuery 对象
+viewportIsClient : true, // 视口和鼠标捕捉区域是否重合
 //..................................................
 // 在创建时指定了 "viewportRect"，则本项目为 true
 // 表示计算 target 初始矩形时，需要对 viewport 矩形转换坐标系
@@ -179,8 +186,11 @@ css : {
 // 遮罩层的其他绘制层
 $mask      : jQuery,   // 遮罩的 jQuery 对象
 mask : {
-    $viewport : jQuery,    // 视口副本
-    $viewportPlaceHolder : jQuery, // 视口内的占位块，用来跟随视口 scroll 的
+    $client    : jQuery,   // 鼠标捕捉区部分
+    $clientCon : jQuery,   // 鼠标捕捉区容器
+    $clientPlaceHolder : jQuery, // 来跟随视口 scroll 的
+    $viewport  : jQuery,   // 视口副本，如果与捕捉区重叠，则与mask.$client相等
+    $viewportCon : jQuery, // 视口容器，如果与捕捉区重叠，则与mask.$clientCon相等
     $sensors  : jQuery,    // 视口外可见感应器绘制层
     $target   : jQuery,    // 移动目标副本
     assist : {             // 辅助绘制对象集合
@@ -196,13 +206,16 @@ sensors : [{
     index   : 0,         // 下标，0 base，作为唯一标识「这个会自动生成，你设置也没用」
     name    : "xxx",     // 感应器名称，插件会在 sensorFunc 里执行对应的匹配方法
     text    : "xxx",     // 可见感应器，显示文字
-    rect    : Rect,      // 感应区范围
-    $ele    : jQuery,    // 感应区对应的元素。可以为 null
+    $ele    : jQuery,    // 感应区对应的元素。如果为 null 则必须指定 scope
+    rect    : Rect|10,   // 感应区范围，如果不指定，则默认根据 $ele 计算
+                         // 如果是一个数字，则表示根据 $ele 计算是增加的 padding 
     $helper : jQuery,    // 可见感应器对应的显示元素。即 DIV.z-mvm-sit
                          // 不可见的感应器，此项为 null
                          // 「这个会自动生成，你设置也没用」
     className : "xxx",   // 如果声明，则为 $helper 增加特殊的类选择器名称
-    inViewport : true,   // 是否在视口内，且随视口一起滚动
+    scope     : true,    // 范围，win|client|viewport，
+                         // 如果指定了 $ele 则自动计算
+                         // 默认为 win
     visibility : true,   // 是否要在绘制层显示感应区
     matchBreak : true,   // 如果匹配上了，是否继续匹配后续感应器，默认 true
     disabled   : false,  // 如果设置，这个感应器将永远不被激活，只用来显示
