@@ -71,14 +71,7 @@ var zRect = {
         var ele = jEle[0];
         // 可能是 document 或 window
         if(!ele.ownerDocument){
-            // document
-            if(ele.defaultView){
-                rect = $z.winsz(ele.defaultView);
-            }
-            // 那么就是 window 啦 
-            else {
-                rect = $z.winsz(ele);
-            }
+            rect = $z.winsz(ele);
         }
         // <body> 的话，也是计算整个窗口宽度
         else if (ele.tagName == 'BODY'){
@@ -679,6 +672,133 @@ var zRect = {
 // 所有与 DOM 相关的操作
 var zDom = {
     //.............................................
+    // 获得某元素的某真实属性
+    getProp : function(el, key) {
+        var sty = window.getComputedStyle($(el)[0]);
+        //console.log(sty);
+        // 一组属性
+        if(_.isArray(key)){
+            var re = {};
+            for(var i=0;i<key.length;i++) {
+                re[key[i]] = stl[key[i]];
+            }
+            return re;
+        }
+        // 某个属性
+        return sty[key];
+    },
+    //.............................................
+    // 获取根元素的 fontSize 属性，返回的一定是一个整形
+    // 因此，如果 fontSize 不是 "px" 我可以负责任的告诉你，这函数别用!
+    getRootFontSize : function(doc) {
+        doc = doc || document;
+        var val = this.getProp(doc.documentElement, "font-size");
+        return parseFloat(val);
+    },
+    //.............................................
+    // 将一个尺度值(px|rem|%)转换成一个表示像素的整数
+    // 这个 base 在同单位下表示不同含义:
+    //  "px"  : 没啥含义
+    //  "%"   : 100% 所代表的值
+    //  "rem" : 1rem 所代表的值
+    toPixel: function (str, base, dft) {
+        var re;
+        var m = /^([\d.]+)(px|rem|%)?$/.exec(str);
+        if (m) {
+            var n = parseFloat(m[1]);
+            var u = m[2];
+            // 百分比
+            if ("%" == u){
+                return n * base / 100;
+            }
+            // rem
+            else if("rem" == u) {
+                return n * base;
+            }
+            // 默认就是 px 啦
+            return n;
+        }
+        // 靠返回默认，没有的话，用 0
+        return dft || 0;
+    },
+    //.............................................
+    // 获取转换成 measure 用的配置对象
+    getMeasureConf: function(doc){
+        var conf = this.winsz(doc, true);
+        conf.baseSize = this.getRootFontSize(doc);
+        return conf;
+    },
+    /*.............................................
+    将一个表示尺度的字符串，变成一个表示像素的数值
+      - key : 一般为 top,left,width,height,right,bottom
+      - val : 可以支持 "rem|px|%"，默认就是 px
+      - conf : 转换成数值需要的更多配置项
+        {
+            width  : 640,      // 百分比计算用到的宽度
+            height : 800,      // 百分比计算用到的高度
+            baseSize : 100,    // rem计算要用到的基础尺寸
+                               // 也就是 <html> 元素的 fontSize
+        }
+    */
+    toMeasureNum: function (key, val, conf) {
+        // 首先分析一下值
+        var m = /^([\d.]+)(px|rem|%)?$/.exec(val);
+        if(m) {
+            var n = parseFloat(m[1]);
+            var u = m[2];
+            // 百分比
+            if ("%" == u){
+                // 用高度
+                if(/(top|height|bottom)/.test(key)){
+                    return n * conf.height / 100;
+                }
+                // 用宽度
+                return n * conf.width / 100;
+            }
+            // rem
+            else if("rem" == u) {
+                return n * conf.baseSize;
+            }
+            // 默认就是 px 啦
+            return n;
+        }
+        // 默认的呢，试图转成数字
+        return parseFloat(val);
+    },
+    /*.............................................
+    将一个表示尺度的数值，变成一个表示符合 CSS 表示字符串
+      - key : 一般为 top,left,width,height,right,bottom
+      - n : 数值
+      - conf : 转换需要的更多配置项
+        {
+            width  : 640,      // 百分比计算用到的宽度
+            height : 800,      // 百分比计算用到的高度
+            baseSize : 100,    // rem计算要用到的基础尺寸
+                               // 也就是 <html> 元素的 fontSize
+            unit : "px"        // 转换成什么单位，支持 "rem|px|%"，默认为 px
+            precision : -1     // 精度，如果>=0，则表示限制精度
+        }
+    */
+    toMeasureStr: function (key, n, conf) {
+        var p = conf.precision || -1;
+        var u = conf.unit;
+        // 百分比
+        if ("%" == u){
+            // 用高度
+            if(/(top|height|bottom)/.test(key)){
+                return $z.toPercent(n / conf.height, p);
+            }
+            // 用宽度
+            return $z.toPercent(n / conf.width, p);
+        }
+        // rem
+        else if("rem" == u) {
+            return $z.precise(n / conf.baseSize, p) + "rem";
+        }
+        // 默认就是 px 啦
+        return $z.precise(n, p) + "px";
+    },
+    //.............................................
     // 滚动元素所在文档，让元素显示
     // TODO 以后在弄吧 -_-!
     // scrollDocToView : function(ele) {
@@ -703,6 +823,45 @@ var zDom = {
     //     }
 
     // },
+    //.............................................
+    // 获得视口的矩形信息
+    winsz: function (win, onlyWidthHeight) {
+        win = win || window;
+        // 哦是 document 对象，转 window
+        if(win.defaultView)
+            win = win.defaultView;
+
+        // 来吧
+        var rect;
+        if (win.innerWidth) {
+            rect = {
+                width: win.innerWidth,
+                height: win.innerHeight
+            };
+        }
+        else if (win.document.documentElement) {
+            rect = {
+                width: win.document.documentElement.clientWidth,
+                height: win.document.documentElement.clientHeight
+            };
+        }
+        else {
+            rect = {
+                width: win.document.body.clientWidth,
+                height: win.document.body.clientHeight
+            };
+        }
+        // 只获取宽高的话...
+        if(onlyWidthHeight)
+            return rect;
+
+        // 继续剩余的值
+        rect.top = 0;
+        rect.left = 0;
+
+        return zRect.count_tlwh(rect);
+    },
+    //.............................................
 };
 //.................................................
 // 帮助函数集

@@ -336,10 +336,8 @@
         //  - prec  : 精确到小数点几位，默认 2
         //  - fixed : 是否一定显示小数点后面的尾数，默认 false
         toPercent: function (n, prec, fixed) {
-            prec = prec || 0;
-            var m = Math.round(n * Math.pow(10, 2 + prec));
-            if (prec > 0)
-                m = m / Math.pow(10, prec);
+            prec = _.isNumber(prec) && prec>=0 ? prec : 2;
+            var m = $z.precise(n*100, prec);
 
             var str = m + "";
 
@@ -348,13 +346,13 @@
                 var pos = str.indexOf('.');
                 // 全补
                 if (pos < 0) {
-                    str += "." + this.dupString('0', prec);
+                    str += "." + $z.dupString('0', prec);
                 }
                 // 补足
                 else {
                     var c = prec - str.length + pos + 1;
                     if (c > 0) {
-                        str += this.dupString('0', c);
+                        str += $z.dupString('0', c);
                     }
                 }
             }
@@ -363,26 +361,15 @@
             return str + "%";
         },
         //.............................................
-        // 将一个数值变成 css 表示的带单位的数值属性
-        // 如果不合法，就返回 dft 默认为 undefined
-        toCssDimension: function (val, dft) {
-            // 数字的话，一律是 px
-            if (_.isNumber(val))
-                return val + "px";
-
-            // 看看值是否合法，合法就进行后续处理
-            var m = /^(([\d.]+)(px)?(%)?|auto|unset|inherit|initial)$/.exec(val);
-            if (m) {
-                // 如果没有单位自动补上 px
-                if (m[2] && !m[3] && !m[4]) {
-                    val += "px";
-                }
-
-                // 返回
-                return val;
+        // 将是数字精确到小数点后制定位置
+        // 余下的四舍五入。 对于 p 默认为 0 即去掉小数部分
+        // 如果 p < 0，则表示不限制精度了
+        precise : function(n, p) {
+            if(p > 0) {
+                var y = Math.pow(10, p);
+                return Math.round(n * y) / y;
             }
-
-            return dft;
+            return n;
         },
         //.............................................
         obj: function (key, val) {

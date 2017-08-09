@@ -114,9 +114,9 @@ var methods = {
         UI.doChangeSkin();
 
         // 模拟点击
-        // window.setTimeout(function(){
-        //     UI._C.iedit.$body.find(".hm-com").first().click();
-        // }, 1000);
+        window.setTimeout(function(){
+            UI._C.iedit.$body.find(".hm-com").first().click();
+        }, 200);
     },
     //...............................................................
     // 标识自己是否可以被编辑（即所有的组件都加载完毕）
@@ -452,6 +452,8 @@ var methods = {
                 ing.jCom  = ing.$trigger.closest(".hm-com");
                 ing.uiCom = ZUI(ing.jCom);
                 ing.comBlock = ing.uiCom.getBlock();
+                ing.comMeasureConf = 
+                    ing.uiCom.getMeasureConf(ing.comBlock.measureBy);
             },
             target : function(){
                 var ing = this;
@@ -549,6 +551,7 @@ var methods = {
                                     x : this.$viewport[0].scrollLeft,
                                     y : this.$viewport[0].scrollTop,
                                 });
+                            ing.uiCom.formatBlockDimension(css, ing.comMeasureConf);
                             // 更新控件
                             _.extend(this.comBlock, {
                                 top:"",left:"",right:"",bottom:"",width:"",height:""
@@ -577,10 +580,13 @@ var methods = {
                     opt.assist.axis[1] = opt.cssBy.indexOf("top")>=0?"top":"bottom";
                     // 准备执行函数
                     opt.on_ing = function(){
+                        // 转换
+                        var css = _.extend({}, this.css.current);
+                        ing.uiCom.formatBlockDimension(css, ing.comMeasureConf);
                         // 更新控件
                         _.extend(this.comBlock, {
                             top:"",left:"",right:"",bottom:"",width:"",height:""
-                        }, this.css.current);
+                        }, css);
                         // 通知修改
                         this.uiCom.notifyBlockChange(null, this.comBlock);
                     }

@@ -578,6 +578,9 @@ return ZUI.def("app.wn.hmaker_page", {
                     }
                 }
 
+                // 格式化
+                uiCom.formatBlockDimension(block);
+
                 // 设置块信息
                 uiCom.setBlock(block);
                
@@ -619,7 +622,7 @@ return ZUI.def("app.wn.hmaker_page", {
         $z.invoke(uiCom, "on_actived", [prevCom]);
 
         // 确保编辑窗体是激活的
-        console.log(window.actived)
+        UI._C.iedit.win.focus();
     },
     //...............................................................
     doBlurActivedCom : function(nextCom) {

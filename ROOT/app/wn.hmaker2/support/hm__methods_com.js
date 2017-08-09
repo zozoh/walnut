@@ -230,6 +230,7 @@ var methods = {
     },
     // 通常由 hm_page::doChangeCom 调用
     setBlock : function(block, returnNew) {
+        //console.log("I am setBlock")
         // 保存属性
         $z.setJsonToSubScriptEle(this.$el, "hm-prop-block", (block||{}), true);
 
@@ -251,7 +252,7 @@ var methods = {
         if(!base)
             base = this.getBlock();
         // 挑选必要属性出来
-        base = _.pick(base, "mode", "posBy", "width", "height", "top", "left", "right", "bottom");
+        base = $z.pick(base, /^(mode|posBy|measureBy|width|height|top|left|right|bottom)$/);
 
         // 融合
         block = _.extend(base, block);
@@ -264,6 +265,50 @@ var methods = {
 
         // 返回
         return block;
+    },
+    //........................................................
+    getMeasureConf: function(mb){
+        var conf = $D.dom.getMeasureConf(this.el.ownerDocument);
+        conf.unit = mb || "px";   // 值的单位
+        conf.precision = 3;       // 精确到小数点三位
+        return conf;
+    },
+    //........................................................
+    // 格式化 block 的 top,left,right,bottom,width,height
+    // 根据 block.measureBy 属性("px|rem|%") 来进行格式化
+    // 默认的 block.measureBy 为 "px"
+    formatBlockDimension : function(block, conf) {
+        var UI  = this;
+        // 准备配置参数: 默认从 block 里取
+        if(!conf) {
+            conf = UI.getMeasureConf(block.measureBy);
+        }
+        // 如果给定了仅仅一个单位
+        else if(_.isString(conf)) {
+            conf = UI.getMeasureConf(conf);
+        }
+
+        // 准备片段表达式
+        var mbReg = new RegExp(conf.unit+"$");
+
+        // 循环处理
+        for(var key in block) {
+            if(/^(top|left|right|bottom|width|height)$/.test(key)) {
+                var val = block[key];
+                // 如果就是数字，被认为是像素
+                if(_.isNumber(val)) {
+                    var s = $D.dom.toMeasureStr(key, val, conf);
+                    block[key] = s;
+                }
+                // 参数不符合的，需要进行转换
+                else if(val && "unset"!=val && !mbReg.test(val)) {
+                    console.log(key)
+                    var n = $D.dom.toMeasureNum(key, val, conf);
+                    var s = $D.dom.toMeasureStr(key, n, conf);
+                    block[key] = s;
+                }
+            }
+        }
     },
     //........................................................
     addMySkinRule : function(selector, rule, skin) {
