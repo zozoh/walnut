@@ -617,6 +617,9 @@ return ZUI.def("app.wn.hmaker_page", {
             "hm-blur" : null,
         });
         $z.invoke(uiCom, "on_actived", [prevCom]);
+
+        // 确保编辑窗体是激活的
+        console.log(window.actived)
     },
     //...............................................................
     doBlurActivedCom : function(nextCom) {
@@ -1308,7 +1311,7 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 得到视口矩形
         var rcVp = UI.get_edit_win_rect();
-        //console.log("视口矩形", $D.rect.dumpValues(rcVp));
+        console.log("视口矩形", $D.rect.dumpValues(rcVp), eMyArea);
 
         // 定义区域边界
         var sitPad = 2;
@@ -1326,7 +1329,7 @@ return ZUI.def("app.wn.hmaker_page", {
                         + UI.msg("hmaker.page.move_to_body"),
                 rect : rcBody,
                 $ele : UI._C.iedit.body,
-                scope : "client",
+                scope : "win",
             });
         }
         
@@ -1344,6 +1347,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 name : eMyArea != eArea ? "drop" : "",
                 text : jArea.attr("area-id"),
                 $ele : jAreaCon,
+                rect : 1,
                 disabled   : eMyArea == eArea,
                 scope : "client",
             });
@@ -1429,6 +1433,7 @@ return ZUI.def("app.wn.hmaker_page", {
         var doc  = ifrm[0].contentDocument;
 
         var cobj = {
+            win  : doc.defaultView,
             doc  : doc,
             root : doc.documentElement,
             head : doc.head,

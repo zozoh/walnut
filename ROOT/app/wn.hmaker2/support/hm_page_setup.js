@@ -598,7 +598,7 @@ var methods = {
                         if(ing.drop_in_area) {
                             var jAreaCon = ing.drop_in_area;
                             //console.log("drop in", ing.drop_in_area);
-                            if(jAreaCon == UI._C.iedit.body){
+                            if(jAreaCon[0] == UI._C.iedit.body){
                                 jAreaCon = null;
                             }
                             ing.uiCom.appendToArea(jAreaCon);
