@@ -389,9 +389,11 @@ public class HmPageTranslating extends HmContext {
         for (Map.Entry<String, Map<String, NutMap>> en : cssRules.entrySet()) {
             String prefix = "#" + en.getKey();
             Map<String, NutMap> rules = en.getValue();
-            String cssText = Hms.genCssText(this, rules, prefix);
-            if (!Strings.isBlank(cssText))
-                sb.append(cssText);
+            if (rules.size() > 0) {
+                String cssText = Hms.genCssText(this, rules, prefix);
+                if (!Strings.isBlank(cssText))
+                    sb.append(cssText);
+            }
         }
         if (!Strings.isBlank(sb)) {
             Element eleStyle = doc.head().appendElement("style");

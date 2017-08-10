@@ -1,9 +1,12 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import java.util.regex.Pattern;
+
 import org.jsoup.nodes.Element;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
+import org.nutz.walnut.ext.hmaker.util.Hms;
 
 public class hmc_image extends AbstractNoneValueCom {
 
@@ -42,19 +45,22 @@ public class hmc_image extends AbstractNoneValueCom {
 
         // ..........................................
         // 处理 CSS
-        // 图片属性
-        NutMap cssImg = ing.cssEle.pickAndRemove("border", "borderRadius", "width", "height");
+        NutMap cssImg = new NutMap();
+        // 处理图像的宽高
         String objectFit = ing.propCom.getString("objectFit");
         if (!"fill".equals(objectFit)) {
             cssImg.put("objectFit", objectFit);
         }
-
-        // 文本属性
-        NutMap cssTxt = ing.cssArena.pickAndRemove("color", "background", "padding");
-
-        // 如果图片有了圆角，那么考虑到文字，要为圆角属性加回去
-        if (cssImg.has("borderRadius"))
-            ing.cssArena.put("borderRadius", cssImg.get("borderRadius"));
+        // 如果设置了宽高，则需要指定图片的自适应
+        if (!Hms.isUnset(ing.cssEle.getString("width"))) {
+            cssImg.put("width", "100%");
+        }
+        if (!Hms.isUnset(ing.cssEle.getString("height"))) {
+            cssImg.put("height", "100%");
+        }
+        // 提取出 arean 和 section 的属性
+        String arenaKeys = "^(border.*|boxShadow|background|width|height)$";
+        NutMap cssTxt = ing.cssArena.pickAndRemoveBy(Pattern.compile(arenaKeys), true);
 
         // 增加图片的规则
         ing.addMyRule("img", cssImg);

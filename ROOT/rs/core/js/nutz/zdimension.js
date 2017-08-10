@@ -722,10 +722,33 @@ var zDom = {
         return dft || 0;
     },
     //.............................................
-    // 获取转换成 measure 用的配置对象
-    getMeasureConf: function(doc){
-        var conf = this.winsz(doc, true);
-        conf.baseSize = this.getRootFontSize(doc);
+    // 获取转换成 measure 用的配置对象，
+    // 如果传入的是 document则获取窗口大小，
+    // 否则获取这个元素的大小
+    getMeasureConf: function(docOrEle){
+        var jq  = $(docOrEle);
+        var doc = jq[0];
+        var conf;
+        // 给的就是文档
+        if(doc.defaultView) {
+            conf = this.winsz(doc, true);
+            conf.baseSize = this.getRootFontSize(doc);
+        }
+        // 那么就是元素咯
+        else {
+            doc = jq[0].ownerDocument;
+            conf = this.winsz(doc, true);
+
+            // 准备给定元素的矩形
+            var rect = zRect.gen(jq, {
+                boxing   : "content",
+                overflow : true,
+            });
+            conf.width = rect.width;
+
+            // 附件 baseSize
+            conf.baseSize = this.getRootFontSize(doc);
+        }
         return conf;
     },
     /*.............................................
@@ -797,6 +820,10 @@ var zDom = {
         }
         // 默认就是 px 啦
         return $z.precise(n, p) + "px";
+    },
+    //.............................................
+    isUnset : function(val) {
+        return !val || "unset" == val;
     },
     //.............................................
     // 滚动元素所在文档，让元素显示

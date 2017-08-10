@@ -451,12 +451,15 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         this.pageUI().setToggleCurrent();
     },
     //...............................................................
-    onBeforeApplyBlockCss : function(cssCom, cssArena) {
+    applyBlockCss : function(cssCom, cssArena) {
         // 标识前景色为链接的颜色
         if(cssArena.color) {
             this.addMySkinRule("ul li a", {color:cssArena.color});
             cssArena.color = null;
         }
+        // 应用
+        this.$el.css(cssCom);
+        this.arena.css(cssArena);
     },
     //...............................................................
     paint : function(com) {

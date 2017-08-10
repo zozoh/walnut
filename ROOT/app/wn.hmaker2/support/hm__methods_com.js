@@ -41,6 +41,14 @@ var methods = {
         this.arena.addClass(skin);
         this.syncComSkinAttributes(skin);
 
+        // 由于皮肤的改动，需要去掉所有非 POS 相关的设定
+        if(skin != old_skin) {
+            var block = this.getBlock();
+            var block2 = $z.pick(block, 
+                /^(mode|posBy|measureBy|top|left|right|bottom|width|height)$/);
+            this.setBlock(block2);
+        }
+
         // 重新调用一下激活
         $z.invoke(this, "on_actived");
     },
@@ -268,7 +276,10 @@ var methods = {
     },
     //........................................................
     getMeasureConf: function(mb){
-        var conf = $D.dom.getMeasureConf(this.el.ownerDocument);
+        var jAreaCon = this.$el.closest(".hm-area-con");
+        var conf = $D.dom.getMeasureConf(jAreaCon.length > 0 
+            ? jAreaCon
+            : this.el.ownerDocument);
         conf.unit = mb || "px";   // 值的单位
         conf.precision = 3;       // 精确到小数点三位
         return conf;
@@ -335,7 +346,15 @@ var methods = {
         var jCom   = UI.$el;
         var jW     = jCom.children(".hm-com-W");
 
-        block = block || this.getBlock();
+        // 没有的话，主动获取一下
+        if(!block) {
+            block = UI.getBlock();
+        }
+        // 否则创建一个副本，因为在应用自定义 skin 选择器 
+        // 比如 "#B> xxx" 的时候，计算出了属性后，要把它删掉
+        else {
+            block = _.extend({}, block);
+        }
         
         // 更新控件的模式
         jCom.attr({
@@ -399,11 +418,16 @@ var methods = {
                 var propType = m[1];
                 var selector = m[2];
                 var propName;
+                // 背景
                 if("B" == propType){
                     propName = "background";
-                }else if("C" == propType){
+                }
+                // 颜色
+                else if("C" == propType){
                     propName = "color";
-                }else {
+                }
+                // 边框颜色
+                else {
                     propName = "border-color";
                 }
                 // 添加到自定义规则里
@@ -428,10 +452,23 @@ var methods = {
             css.textDecoration = "";
             css.fontStyle = "";
         }
+
+        // 是否需要将 jW 和 Arena 都设置成 100%
+        this.$el.attr("auto-wrap-width", 
+            !$D.dom.isUnset(css.width) ? "yes" : null);
+        this.$el.attr("auto-wrap-height", 
+            !$D.dom.isUnset(css.height) ? "yes" : null);
+            
+        // 最后分别应用属性到对应的元素上
+        var posKeys  = "^(position|top|left|right|bottom|margin|width|height)$";
+        var cssCom   = $z.pick(css, posKeys);
+        var cssArena = $z.pick(css, "!" + posKeys);
+        cssCom = this.formatCss(cssCom,true);
+        cssArena = this.formatCss(cssArena,true);
                 
         // 应用这个修改
         //console.log("css:", css);
-        UI.applyBlockCss(css);
+        UI.applyBlockCss(cssCom, cssArena);
 
         // 应用修改
         var jStyle = UI.$el.children("style.from-skin");
@@ -623,26 +660,7 @@ module.exports = function(uiCom){
     });
     
     // 定默认控件应用布局块属性的方法
-    $z.setUndefined(uiCom, "applyBlockCss", function(css){
-        //console.log(css)
-        // 对于相对位置，最重要的是要保证 jW 与块是同样尺寸的
-        // 主要是高度
-        if(/^[\d.]+(px)?(%)?$/.test(css.height)){
-            this.$el.attr("auto-wrap-height", "yes");
-        }
-        // 没设置高度，则清除
-        else {
-            this.$el.removeAttr("auto-wrap-height");
-        }
-            
-        // 最后分别应用属性到对应的元素上
-        var cssCom   = $z.pick(css, "^(position|top|left|right|bottom|margin|width|height)$");
-        var cssArena = $z.pick(css, "!^(position|top|left|right|bottom|margin)$");
-        cssCom = this.formatCss(cssCom,true);
-        cssArena = this.formatCss(cssArena,true);
-
-        $z.invoke(this, "onBeforeApplyBlockCss", [cssCom, cssArena]);
-
+    $z.setUndefined(uiCom, "applyBlockCss", function(cssCom, cssArena){
         this.$el.css(cssCom);
         this.arena.css(cssArena);
     });

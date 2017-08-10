@@ -104,7 +104,6 @@ return ZUI.def("app.wn.hmaker_page", {
                 return;
             //console.log("hm_page::on_change:block:", mode,uiCom.uiName, block);
             uiCom.applyBlock(block);
-
         });
         UI.listenBus("change:com", function(mode, uiCom, com){
             if("page" == mode)
@@ -606,7 +605,7 @@ return ZUI.def("app.wn.hmaker_page", {
     doActiveCom : function(uiCom) {
         var UI   = this;
         var jCom = uiCom.$el;
-        
+
         // 当前已经是激活
         if(jCom.attr("hm-actived"))
             return;
@@ -1244,8 +1243,8 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     depose : function() {
         this.arena.find(".hmpg-frame-load").unbind();
+        this.arena.find(".hmpg-ibar").moving("destroy");
         this._C.iedit.$body.moving("destroy");
-        this.find(".hmpg-ibar").moving("destroy");
     },
     //...............................................................
     resize : function() {

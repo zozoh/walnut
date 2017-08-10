@@ -85,8 +85,8 @@ return ZUI.def("app.wn.hm_prop_edit", {
                 // 保存皮肤信息
                 UI.uiCom.setComSkin(skin);
 
-                // 通知相关改动（不要让组件重绘）
-                UI.uiCom.notifyBlockChange("com");
+                // 通知相关改动
+                UI.uiCom.notifyBlockChange(null);
             });
         },
         // 显示已经加载的 css 类选择器

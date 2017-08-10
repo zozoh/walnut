@@ -14,7 +14,8 @@ return ZUI.def("app.wn.hm_com_image_prop", {
     dom  : html,
     //...............................................................
     init : function(){
-        HmMethods(this);
+        var UI = HmMethods(this);
+        UI.listenBus("change:com_img", UI.update);
     },
     //...............................................................
     redraw : function() {
@@ -26,19 +27,11 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             gasketName : "form",
             uiWidth : "all",
             on_update : function(com) {
-                //console.log(com)
                 UI.uiCom.saveData("panel", com);
-
                 UI.__sync_form_status(com);
             },
             autoLineHeight : true,
-            fields : [{
-                title  : "i18n:hmaker.com.image.tt_image",
-                fields : UI.IMG_FIELDS()
-            // }, {
-            //     title  : "i18n:hmaker.com.image.tt_text",
-            //     fields : UI.TXT_FIELDS()
-            }]
+            fields : UI.IMG_FIELDS()
         }).render(function(){
             UI.defer_report("form");
         });
@@ -111,6 +104,16 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             type   : "boolean",
             editAs : "toggle",
         }, {
+            key    : "naturalWidth",
+            title  : "i18n:hmaker.com.image.naturalWidth",
+            type   : "int",
+            editAs : "label",
+        }, {
+            key    : "naturalHeight",
+            title  : "i18n:hmaker.com.image.naturalHeight",
+            type   : "int",
+            editAs : "label",
+        }, {
             key    : "objectFit",
             title  : "i18n:hmaker.prop.objectFit",
             type   : "string",
@@ -141,37 +144,6 @@ return ZUI.def("app.wn.hm_com_image_prop", {
         }];
     },
     //...............................................................
-    TXT_FIELDS : function(){
-        return [{
-            key    : "textPos",
-            title  : "i18n:hmaker.com.image.text_pos",
-            type   : "string",
-            dft    : "bottom",
-            editAs : "switch",
-            uiConf : {
-                items : [{
-                    text  : "i18n:hmaker.com.image.text_pos_N",
-                    value : "top"
-                }, {
-                    text  : "i18n:hmaker.com.image.text_pos_S",
-                    value : "bottom"
-                }, {
-                    text  : "i18n:hmaker.com.image.text_pos_P",
-                    value : "center"
-                }]
-            }
-        }, {
-            key    : "text",
-            title  : "i18n:hmaker.com.image.text",
-            tip    : "i18n:hmaker.com.image.text_tip",
-            type   : "string",
-            dft    : null,
-            emptyAsNull : true,
-            editAs : "text",
-            uiConf : {height:100}
-        }];
-    },
-    //...............................................................
     __sync_form_status : function(com) {
         // 开启新窗口选项
         if(!_.isUndefined(com.href)){
@@ -186,6 +158,11 @@ return ZUI.def("app.wn.hm_com_image_prop", {
     },
     //...............................................................
     update : function(com) {
+        // 重新获取一下，因为控件的 paint 可能会改 com 的值
+        // console.log(com)
+        // com = this.uiCom.getData();
+        // console.log(com)
+        // 更新
         this.gasket.form.setData(com);
         this.__sync_form_status(com);
     },

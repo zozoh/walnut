@@ -114,9 +114,13 @@ body {
 }
 
 // 指定高度的组件，设置包裹区的高度与外层等高
-.hm-com[auto-wrap-height] > .hm-com-W {
-    height: 100%;
-    > .ui-arena {height:100%;}
+.hm-com[auto-wrap-width] {
+    > .hm-com-W {width: 100%;}
+    > .hm-com-W > .ui-arena {width:100%;}
+}
+.hm-com[auto-wrap-height] {
+    > .hm-com-W {height: 100%;}
+    > .hm-com-W > .ui-arena {height:100%;}
 }
 
 

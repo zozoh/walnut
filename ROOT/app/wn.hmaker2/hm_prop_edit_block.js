@@ -113,7 +113,11 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                     }
 
                     // 设置到 block
-                    block[key] = val + (m?"":u);
+                    if($D.dom.isUnset(val)){
+                        block[key] = val;
+                    } else {
+                        block[key] = val + (m ? "" : u);
+                    }
                     UI.uiCom.formatBlockDimension(block);
 
                     // 保存数据 

@@ -32,6 +32,8 @@ import org.nutz.walnut.util.Wn;
  */
 public final class Hms {
 
+    private static final Pattern P_BACKGROUND = Pattern.compile("^.*(url\\(\"?/o/read/id:([0-9a-z]+)(/([^)\"]*))?\"?\\)).*$");
+
     /**
      * 控件处理类工厂的单例
      */
@@ -102,24 +104,42 @@ public final class Hms {
             }
 
             // 对于背景的特殊处理 /o/read/id:xxxx 要改成相对路径
+            /**
+             * <pre>
+            0/106  Regin:0/106
+            0:[  0,106) rgba(255,191,0,0.6) url("/o/read/id:ua5mc772m4hhvov4ullptj2nla/image/H05.jpg") no-repeat scroll left/cover
+            1:[ 20, 78) url("/o/read/id:ua5mc772m4hhvov4ullptj2nla/image/H05.jpg")
+            2:[ 36, 62) ua5mc772m4hhvov4ullptj2nla
+            3:[ 62, 76) /image/H05.jpg
+            4:[ 63, 76) image/H05.jpg
+             * </pre>
+             */
             if ("background".equals(key)) {
-                Matcher m = Pattern.compile("url\\(\"?/o/read/id:([0-9a-z]+)\"?\\)").matcher(str);
+                Matcher m = P_BACKGROUND.matcher(str);
                 if (m.find()) {
-                    String bgImgId = m.group(1);
+                    String bgImgId = m.group(2);
+                    String bgImgPh = m.group(4);
 
                     // 确保图片对象会被加载
                     WnObj oBgImg = ing.io.checkById(bgImgId);
+
+                    // 是其内的图片
+                    if (!Strings.isBlank(bgImgPh)) {
+                        oBgImg = ing.io.check(oBgImg, bgImgPh);
+                    }
+
+                    // 计入资源
                     ing.resources.add(oBgImg);
 
                     // 得到相对路径
                     String rph = ing.getRelativePath(ing.oSrc, oBgImg);
 
                     // 替换
-                    str = str.substring(0, m.start())
-                          + " url(\""
+                    str = str.substring(0, m.start(1))
+                          + "url(\""
                           + rph
                           + "\")"
-                          + str.substring(m.end());
+                          + str.substring(m.end(1));
                 }
             }
 
@@ -326,9 +346,16 @@ public final class Hms {
         return null;
     }
 
-    // =================================================================
-    // 不许实例化
-    private Hms() {}
+    /**
+     * 判断给定 css 值是否是 unset，空值也会当做 unset
+     * 
+     * @param val
+     *            值
+     * @return 是否是 unset
+     */
+    public static boolean isUnset(String val) {
+        return Strings.isBlank(val) || "unset".equals(val);
+    }
 
     /**
      * 根据给定的内容给页面对象设置元数据
@@ -406,4 +433,8 @@ public final class Hms {
             sys.out.print(Json.toJson(list, hc.jfmt));
         }
     }
+
+    // =================================================================
+    // 不许实例化
+    private Hms() {}
 }
