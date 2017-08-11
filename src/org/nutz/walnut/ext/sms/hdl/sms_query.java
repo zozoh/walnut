@@ -10,7 +10,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Region;
 import org.nutz.walnut.ext.sms.SmsProvider;
 import org.nutz.walnut.ext.sms.SmsQuery;
-import org.nutz.walnut.ext.sms.cmd_sms2;
+import org.nutz.walnut.ext.sms.cmd_sms;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -19,13 +19,13 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
 
 @JvmHdlParamArgs("cqnl")
-public class sms2_query implements JvmHdl {
+public class sms_query implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws IOException {
         // 准备查询条件
         SmsQuery q = new SmsQuery();
-        NutMap conf = hc.attrs().getAs(cmd_sms2.KEY_CONFIG, NutMap.class);
+        NutMap conf = hc.attrs().getAs(cmd_sms.KEY_CONFIG, NutMap.class);
         // ............................................
         // 首先得到时间区间
         String str = hc.params.val(0, "10m");
@@ -46,10 +46,10 @@ public class sms2_query implements JvmHdl {
         // 得到分页信息
         q.pageSize = hc.params.getInt("pgsz", -1);
         q.pageNumber = hc.params.getInt("pn", -1);
-        q.vars = hc.attrs().getAs(cmd_sms2.KEY_VARS, NutMap.class);
+        q.vars = hc.attrs().getAs(cmd_sms.KEY_VARS, NutMap.class);
         // ............................................
         // 执行查询
-        SmsProvider provider = hc.attrs().getAs(cmd_sms2.KEY_PROVIDER, SmsProvider.class);
+        SmsProvider provider = hc.attrs().getAs(cmd_sms.KEY_PROVIDER, SmsProvider.class);
         String json = provider.query(conf, q);
 
         // 处理查询结果

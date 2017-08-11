@@ -1,10 +1,10 @@
 # 命令简介 
 
-`sms2 query` 用来查询短信发送状态
+`sms query` 用来查询短信发送状态
     
 # 用法
 
-    sms2 query
+    sms query
         [-r 13910223421             # 「选」接受者手机
         [-config /path/to/conf]     # 「选」配置文件路径 
         [-provider Yunpian]         # 「选」提供商(当前仅Yunpian)
@@ -24,11 +24,11 @@
 # 示例
     
     # 查询一组短信状态，默认 10分钟内
-    sms2 query
+    sms query
     
     # 查询 30分钟内某个接受者的短信状态
-    sms2 query 30m -r 13910223421
+    sms query 30m -r 13910223421
     
     # 查询某个指定接受者1小时内全部短信的状态（type 仅云片网支持）
-    sms2 query 1h -r 13910223421 -vars 'type:"all"'
+    sms query 1h -r 13910223421 -vars 'type:"all"'
     

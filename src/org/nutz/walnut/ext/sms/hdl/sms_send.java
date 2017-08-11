@@ -10,7 +10,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.sms.SmsProvider;
 import org.nutz.walnut.ext.sms.SmsSend;
-import org.nutz.walnut.ext.sms.cmd_sms2;
+import org.nutz.walnut.ext.sms.cmd_sms;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -18,7 +18,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
 
 @JvmHdlParamArgs("^debug$")
-public class sms2_send implements JvmHdl {
+public class sms_send implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws IOException {
@@ -28,7 +28,7 @@ public class sms2_send implements JvmHdl {
         String header = params.has("header") ? params.get("header") : "";
         String lang = params.get("lang");
         // ............................................
-        NutMap vars = hc.attrs().getAs(cmd_sms2.KEY_VARS, NutMap.class);
+        NutMap vars = hc.attrs().getAs(cmd_sms.KEY_VARS, NutMap.class);
         // ............................................
         // 检查一下参数
         if (Strings.isBlank(mobiles)) {
@@ -37,7 +37,7 @@ public class sms2_send implements JvmHdl {
         // ............................................
         // 得到配置信息
         WnObj oSmsHome = hc.oRefer;
-        NutMap conf = hc.attrs().getAs(cmd_sms2.KEY_CONFIG, NutMap.class);
+        NutMap conf = hc.attrs().getAs(cmd_sms.KEY_CONFIG, NutMap.class);
         // ............................................
         // 强制设置header，覆盖默认配置中的
         if (!Strings.isBlank(header)) {
@@ -93,7 +93,7 @@ public class sms2_send implements JvmHdl {
         conf.setv("header", hstr);
         // ............................................
         // 执行发送
-        SmsProvider provider = hc.attrs().getAs(cmd_sms2.KEY_PROVIDER, SmsProvider.class);
+        SmsProvider provider = hc.attrs().getAs(cmd_sms.KEY_PROVIDER, SmsProvider.class);
         SmsSend s = new SmsSend();
         s.vars = vars;
         s.message = msg;

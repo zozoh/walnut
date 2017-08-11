@@ -1,10 +1,10 @@
 # 命令简介 
 
-`sms2 send` 用来发送短信
+`sms send` 用来发送短信
     
 # 用法
 
-    sms2 send
+    sms [send]                      # 可以不写子命令 send，默认表示 send
         [-r 13910223421]            # 接受者手机
         [-config /path/to/conf]     # 「选」配置文件路径 
         [-provider Yunpian]         # 「选」提供商(当前仅Yunpian)
@@ -22,11 +22,11 @@
 # 示例
     
     # 发送一条自定义消息
-    sms2 send -debug -header 【nutz科技】-r 13910223421 机器AABBCCDDEEFF流量异常500mb
+    sms send -debug -header 【nutz科技】-r 13910223421 机器AABBCCDDEEFF流量异常500mb
     
     # 发送模板消息
-    sms2 send -r 13910223421 -t signup "code:8976"
+    sms send -r 13910223421 -t signup "code:8976"
     
     # 发送 i18n 模板消息
-    sms2 send -r 13910223421 -t i18n:signup "code:8976"
+    sms send -r 13910223421 -t i18n:signup "code:8976"
     
