@@ -32,15 +32,14 @@ public abstract class JvmExecutor {
         if (!Strings.isBlank(hdlName)) {
             ph += "_" + hdlName;
         }
-        ph += ".man";
+        // 优先找 .md
+        File f = Files.findFile(ph + ".md");
 
-        File f = Files.findFile(ph);
-        
-        // 兼容 "markdown"
+        // 没有的话，找 .man
         if (null == f) {
-            ph = Files.renameSuffix(ph, ".md");
+            f = Files.findFile(ph + ".man");
         }
-        
+
         // 没 manual，抛错
         if (null == f) {
             return klass.getSimpleName() + " ??? no manual";

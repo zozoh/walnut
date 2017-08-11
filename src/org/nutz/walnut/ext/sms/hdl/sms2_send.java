@@ -1,4 +1,6 @@
-package org.nutz.walnut.ext.sms;
+package org.nutz.walnut.ext.sms.hdl;
+
+import java.io.IOException;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -6,74 +8,58 @@ import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.sms.provider.YunPianSmsProvider;
-import org.nutz.walnut.impl.box.JvmExecutor;
+import org.nutz.walnut.ext.sms.SmsProvider;
+import org.nutz.walnut.ext.sms.SmsSend;
+import org.nutz.walnut.ext.sms.cmd_sms2;
+import org.nutz.walnut.impl.box.JvmHdl;
+import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
-/**
- * 发送短信
- * 
- * @author wendal
- *
- */
-public class cmd_sms extends JvmExecutor {
+@JvmHdlParamArgs("^debug$")
+public class sms2_send implements JvmHdl {
 
     @Override
-    public void exec(WnSystem sys, String[] args) throws Exception {
-        SmsCtx sc = new SmsCtx();
+    public void invoke(WnSystem sys, JvmHdlContext hc) throws IOException {
+        ZParams params = hc.params;
+        boolean isDebug = params.is("debug");
+        String mobiles = params.get("r");
+        String header = params.has("header") ? params.get("header") : "";
+        String lang = params.get("lang");
         // ............................................
-        // 分析参数
-        ZParams params = ZParams.parse(args, "^(debug)$");
-        sc.debug = params.is("debug");
-        sc.provider = params.get("provider", "Yunpian");
-        sc.mobiles = params.get("r");
-        sc.header = params.has("header") ? params.get("header") : "";
-        sc.conf = params.get("config");
-        sc.lang = params.get("lang");
-        // ............................................
-        NutMap vars;
-        if (params.has("vars")) {
-            vars = params.getMap("vars");
-        } else {
-            vars = new NutMap();
-        }
+        NutMap vars = hc.attrs().getAs(cmd_sms2.KEY_VARS, NutMap.class);
         // ............................................
         // 检查一下参数
-        if (Strings.isBlank(sc.mobiles)) {
+        if (Strings.isBlank(mobiles)) {
             throw Er.create("e.cmd.sms.nophone");
         }
-        if (!sc.provider.equals("Yunpian")) {
-            throw Er.create("e.cmd.sms.provider.unsupport", sc.provider);
-        }
         // ............................................
-        // 得到配置主目录
-        WnObj oSmsHome = Wn.checkObj(sys, "~/.sms");
-        // 默认配置文件
-        WnObj oConf = sys.io.check(oSmsHome, Strings.sBlank(sc.conf, "config_" + sc.provider));
-        NutMap conf = sys.io.readJson(oConf, NutMap.class);
+        // 得到配置信息
+        WnObj oSmsHome = hc.oRefer;
+        NutMap conf = hc.attrs().getAs(cmd_sms2.KEY_CONFIG, NutMap.class);
         // ............................................
         // 强制设置header，覆盖默认配置中的
-        if (!Strings.isBlank(sc.header)) {
-            conf.setv("header", sc.header);
+        if (!Strings.isBlank(header)) {
+            conf.setv("header", header);
         }
         // ............................................
         // 确定语言
-        if (Strings.isBlank(sc.lang)) {
-            sc.lang = conf.getString("lang", "zh-cn");
+        if (Strings.isBlank(lang)) {
+            lang = conf.getString("lang", "zh-cn");
         }
         // ............................................
         // 分析消息: 从参数里读取
+        String msg = null;
         if (params.vals.length > 0) {
-            sc.msg = Lang.concat(" ", params.vals).toString();
+            msg = Lang.concat(" ", params.vals).toString();
         }
         // 从管道里读取
         else if (null != sys.in) {
-            sc.msg = sys.in.readAll();
+            msg = sys.in.readAll();
         }
 
-        if (Strings.isBlank(sc.msg)) {
+        if (Strings.isBlank(msg)) {
             throw Er.create("e.cmd.sms.nomsg");
         }
         // ............................................
@@ -84,7 +70,7 @@ public class cmd_sms extends JvmExecutor {
             // 多国语言
             if (tmpl.startsWith("i18n:")) {
                 String tmplKey = Strings.trim(tmpl.substring("i18n:".length()));
-                oTmpl = sys.io.check(oSmsHome, "i18n/" + sc.lang + "/" + tmplKey);
+                oTmpl = sys.io.check(oSmsHome, "i18n/" + lang + "/" + tmplKey);
             }
             // 普通模板
             else {
@@ -92,8 +78,8 @@ public class cmd_sms extends JvmExecutor {
             }
             // 渲染消息
             String str = sys.io.readText(oTmpl);
-            NutMap map = Lang.map(sc.msg);
-            sc.msg = Tmpl.exec(str, map, false);
+            NutMap map = Lang.map(msg);
+            msg = Tmpl.exec(str, map, false);
         }
         // ............................................
         // 检查header是否带有前后缀
@@ -106,17 +92,18 @@ public class cmd_sms extends JvmExecutor {
         }
         conf.setv("header", hstr);
         // ............................................
-        // TODO 适应各种提供商
-        SmsProvider provider = new YunPianSmsProvider();
+        // 执行发送
+        SmsProvider provider = hc.attrs().getAs(cmd_sms2.KEY_PROVIDER, SmsProvider.class);
         SmsSend s = new SmsSend();
         s.vars = vars;
-        s.message = sc.msg;
-        for (String mobile : Strings.splitIgnoreBlank(sc.mobiles, ",")) {
+        s.message = msg;
+        for (String mobile : Strings.splitIgnoreBlank(mobiles, ",")) {
             s.receiver = mobile;
             String re = provider.send(conf, s);
-            if (sc.debug) {
+            if (isDebug) {
                 sys.out.printf("%s %s\n", mobile, re);
             }
         }
     }
+
 }

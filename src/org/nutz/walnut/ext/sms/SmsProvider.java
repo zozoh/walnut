@@ -6,5 +6,7 @@ import org.nutz.lang.util.NutMap;
 
 public interface SmsProvider {
 
-    String send(NutMap conf, String msg, String to) throws IOException;
+    String send(NutMap conf, SmsSend s) throws IOException;
+
+    String query(NutMap conf, SmsQuery q) throws IOException;
 }

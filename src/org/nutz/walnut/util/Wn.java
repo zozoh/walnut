@@ -61,6 +61,8 @@ public abstract class Wn {
     // }
     // }
 
+    private static final Pattern P_MS_STR = Pattern.compile("^([0-9]+)([smhd])?$");
+    private static final Pattern P_TM_MACRO = Pattern.compile("^now[ \t]*(([+-])[ \t]*([0-9]+[smhd]?)[ \t]*)?$");
     protected static final ConcurrentHashMap<String, Pattern> patterns = new ConcurrentHashMap<>();
 
     public static boolean matchs(String str, String pattern) {
@@ -925,8 +927,7 @@ public abstract class Wn {
         long ms = -1;
 
         // 判断到操作符
-        Matcher m = Pattern.compile("^now[ \t]*(([+-])[ \t]*([0-9]+)([smhd])[ \t]*)?$")
-                           .matcher(str);
+        Matcher m = P_TM_MACRO.matcher(str);
 
         // 当前时间
         if (m.find()) {
@@ -934,24 +935,8 @@ public abstract class Wn {
 
             // 嗯要加点偏移量
             if (!Strings.isBlank(m.group(1))) {
-                long off = Long.parseLong(m.group(3));
-                String unit = m.group(4);
-                // s 秒
-                if ("s".equals(unit)) {
-                    off = off * 1000L;
-                }
-                // m 分
-                else if ("m".equals(unit)) {
-                    off = off * 60000L;
-                }
-                // h 小时
-                else if ("h".equals(unit)) {
-                    off = off * 3600000L;
-                }
-                // d 天
-                else {
-                    off = off * 86400000L;
-                }
+                String mss = m.group(3);
+                long off = msValueOf(mss);
                 // 看是加还是减
                 if ("-".equals(m.group(2))) {
                     off = off * -1L;
@@ -964,6 +949,45 @@ public abstract class Wn {
         if (ms < 0) {
             ms = Times.D(str).getTime();
         }
+        return ms;
+    }
+
+    /**
+     * 将一个字符串变成毫秒数，如果就是数字，那么表示毫秒
+     * 
+     * <ul>
+     * <li><code>20m</code> 表示20分钟
+     * <li><code>1h</code> 表示1小时
+     * <li><code>1d</code> 表示一天
+     * <li><code>100s</code> 表示 100 秒</li>
+     * 
+     * @param str
+     *            描述时间的字符串
+     * @return 字符串表示的毫秒数
+     */
+    public static long msValueOf(String str) {
+        Matcher m = P_MS_STR.matcher(str);
+        if (!m.find())
+            throw Er.create("e.ms.invalid", str);
+        long ms = Long.parseLong(m.group(1));
+        String unit = m.group(2);
+        // s 秒
+        if ("s".equals(unit)) {
+            return ms * 1000L;
+        }
+        // m 分
+        else if ("m".equals(unit)) {
+            return ms * 60000L;
+        }
+        // h 小时
+        else if ("h".equals(unit)) {
+            return ms * 3600000L;
+        }
+        // d 天
+        else if ("d".equals(unit)) {
+            return ms * 86400000L;
+        }
+        // 默认就是毫秒
         return ms;
     }
 
