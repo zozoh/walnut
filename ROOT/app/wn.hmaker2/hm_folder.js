@@ -62,10 +62,16 @@ return ZUI.def("app.wn.hmaker_folder", {
         // 得到数据 
         var o = Wn.getById(UI.oFolderId);
 
+        if(!o)
+            return;
+
         // 更新显示对象 
         UI.showLoading();
         Wn.getChildren(o, null, function(children){
             UI.hideLoading();
+
+            if(!UI.hmaker())
+                return;
 
             // 显示对象路径
             var aph = UI.getRelativePath(o);

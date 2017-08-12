@@ -84,6 +84,17 @@ var methods = {
             }
         }
     },
+    setAreaSize : function(aid, asize) {
+        var jArea = this.getArea(aid);
+
+        // 标识属性
+        if("auto" == asize)
+            asize = null;
+        jArea.attr("area-size", asize || null);
+
+        // 修改 CSS
+        $z.invoke(this, "_apply_area_size", [jArea]);
+    },
     setAreaSkin : function(aid, skin) {
         var jArea = this.getArea(aid);
         var ao = this.getAreaObj(jArea);
@@ -130,6 +141,7 @@ var methods = {
         var jArea = this.getArea(aid);
         return {
             areaId    : jArea.attr("area-id"),
+            areaSize  : jArea.attr("area-size"),
             highlight : jArea.attr("highlight") == "yes",
             skin      : jArea.attr("skin") || "",
             selectors : jArea.attr("selectors") || "",
@@ -149,6 +161,17 @@ var methods = {
     // 删除这个区域
     deleteArea : function(aid) {
         var jArea = this.getArea(aid);
+
+        // 试图寻找下一个区域
+        var jA2 = jArea.next();
+        if(jA2.length == 0) {
+            jA2 = jArea.prev();
+        }
+
+        // 只有一个区域的话，不能删的!!!
+        if(jA2.length == 0) {
+            return false;
+        }
         
         // 找到这个区域包含的所有的组件
         jArea.children(".hm-com").each(function(){
@@ -156,13 +179,20 @@ var methods = {
             uiCom.destroy();
         });
         
-        // 如果自身是高亮区域，那么将修改控件区域显示模式
-        if(this.isHighlightArea(jArea)){
-            this.$el.removeAttr("highlight-mode");
-        }
+        // 如果自身是高亮区域，试图寻找下一个区域
+        // if(this.isHighlightArea(jArea)){
+
+        //     this.$el.removeAttr("highlight-mode");
+        // }
         
         // 移除自身
         jArea.remove();
+
+        // 高亮下一个区域
+        this.highlightArea(jA2);
+
+        // 删除成功
+        return true;
     },
     //...............................................................
     // 移动区域

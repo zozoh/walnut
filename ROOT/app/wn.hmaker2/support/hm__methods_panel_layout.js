@@ -30,6 +30,24 @@ var methods = {
                         //.attr("box-enabled", "yes");
             }
         },
+        // 取消高亮区域
+        'click .ui-arena' : function(e){
+            var jq = $(e.target);
+
+            // 点在了菜单上
+            if(jq.closest(".clp-actions").length > 0){
+                return;
+            }
+
+            // 点在了 Area 布局里
+            if(jq.closest(".clp-layout").length > 0) {
+                return;
+            }
+
+            // 嗯，取消吧
+            this.uiCom.highlightArea(false);
+            this.update(this.uiCom.getData());
+        },
         // 修改 Area 的 ID
         'click .clp-layout li[highlight] > [key="areaId"]' : function(e) {
             e.stopPropagation();
@@ -43,6 +61,36 @@ var methods = {
                 if(newId && newId != oldval) {
                     UI.uiCom.setAreaId(aid, newId);
                     jEle.text(newId);
+                }
+            });
+        },
+        // 修改 Area 的尺寸
+        'click .clp-layout li[highlight] > [key="areaSize"]' : function(e) {
+            e.stopPropagation();
+            var UI  = this;
+            var jq  = $(e.currentTarget);
+            var aid = jq.closest('li').find('[key="areaId"]').text();
+            
+            // 编辑文字
+            $z.editIt(jq, function(newval, oldval, jEle){
+                // 判断合法性
+                var str = $.trim(newval) || "auto";
+                if("auto" == str) {
+                    UI.uiCom.setAreaSize(aid, str);
+                    jEle.text(str);
+                }
+                // 看看给定的值是不是可接受的格式
+                else {
+                    var m = /^([\d.]+)(px|rem|%)?$/.exec(str);
+                    if(m) {
+                        // 默认用像素
+                        if(!m[2]){
+                            str += "px";
+                        }
+                        // 更新
+                        UI.uiCom.setAreaSize(aid, str);
+                        jEle.text(str);
+                    }
                 }
             });
         },
@@ -92,8 +140,9 @@ var methods = {
                         alert(UI.msg("hmaker.prop.noarea"));
                         return;
                     }
-                    UI.uiCom.deleteArea(aid);
-                    UI.update(UI.uiCom.getData());
+                    if(UI.uiCom.deleteArea(aid)) {
+                        UI.update(UI.uiCom.getData());
+                    }
                 }
             }, {
                 icon : iconMoveBefore,
@@ -155,10 +204,16 @@ var methods = {
         });
         
         // 显示 ID
-        $('<div key="areaId">').text(ao.areaId).appendTo(jLi);
+        $('<div key="areaId">').text(ao.areaId)
+            .appendTo(jLi);
+
+        // 显示尺寸
+        $('<div key="areaSize">').text(ao.areaSize||"auto")
+            .appendTo(jLi)
         
         // 显示皮肤
-        var jBox = $('<div key="skin" class="hm-skin-box" box-enabled="yes">').appendTo(jLi);
+        var jBox = $('<div key="skin" class="hm-skin-box" box-enabled="yes">')
+            .appendTo(jLi);
         UI.updateSkinBox(jBox, ao.skin, function(skin){
             return this.getSkinTextForArea(skin);
         }, ao.selectors, function(selectors) {

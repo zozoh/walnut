@@ -1033,7 +1033,7 @@ var Wn = {
         // 定制回调
         var do_after_load = function(o, re){
             o.children = [];
-            if(re){
+            if(re && !/^e./.test(re)){
                 var list  = $z.fromJson(re);
                 for(var i=0;i<list.length;i++){
                     var child = list[i];

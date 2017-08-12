@@ -12,6 +12,14 @@ return ZUI.def("app.wn.hm_com_columns", HmComMethods({
     dom     : html,
     className : "!hm-layout hm-com-columns",
     //...............................................................
+    _apply_area_size : function(jArea, asize) {
+        asize = asize || jArea.attr("area-size");
+        jArea.css({
+            "width" : asize || "",
+            "flex"  : asize ? "0 0 auto" : ""
+        });
+    },
+    //...............................................................
     // 返回属性菜单， null 表示没有属性
     getDataProp : function(){
         return {

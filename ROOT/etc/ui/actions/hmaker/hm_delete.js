@@ -35,7 +35,7 @@
 			}
 		}
 		
-		console.log(list)
+		//console.log(list)
 		
 		// 默认删除当前编辑的项目
 		if (!list || list.length == 0) {

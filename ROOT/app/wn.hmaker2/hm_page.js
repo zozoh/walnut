@@ -1341,7 +1341,7 @@ return ZUI.def("app.wn.hmaker_page", {
             var jArea    = jAreaCon.closest(".hm-area");
             var eArea    = jArea[0];
             // 子区域或嵌套区域，无视
-            if(eSubs.indexOf(this) >= 0 || jAreaCon.find(".hm-area").length>0)
+            if(jAreaCon.find(".hm-area").length>0)
                 return;
 
             // 计入返回列表
@@ -1350,7 +1350,8 @@ return ZUI.def("app.wn.hmaker_page", {
                 text : jArea.attr("area-id"),
                 $ele : jAreaCon,
                 rect : 1,
-                disabled   : eMyArea == eArea,
+                disabled : eMyArea == eArea
+                           || eSubs.indexOf(eArea) >= 0,
                 scope : "client",
             });
         });

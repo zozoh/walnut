@@ -712,7 +712,18 @@
                 padding:@d4; margin:1px; cursor: pointer;
                 background:rgba(255,255,255,0.4);
                 border:1px dashed @cborder1;
-                font-family: @f_fixed;
+                font-family: @f_fixed; position: relative;
+                > div[key="areaId"] {
+                    padding:@d1 0; word-break:break-all;
+                    width: 100%;
+                }
+                > div[key="areaSize"] {
+                    color:@clink; font-size:@f1; padding:@d0;
+                }
+                > div[key="areaSize"]:hover {
+                    color:@clink_hover;
+                    text-decoration: underline;
+                }
             }
             li[highlight] {
                 background: rgba(255,255,0,0.4);
@@ -726,7 +737,7 @@
     .clp-layout { @noselect();
         > ul {
             > li {
-                > div[key="areaId"] {float: left;}
+                > div[key="areaSize"]{float:left;}
                 > div[key="skin"] {float:right;}
             }
             > li:after {@clr();}
@@ -743,7 +754,10 @@
                 flex: 1 0 auto; 
                 min-height : 120px;
                 min-width  : 30%;
-                position: relative;
+                max-width  : 100%;
+                > div[key="areaSize"] {
+                    text-align: center; padding:@d2;
+                }
                 > div[key="skin"] {
                     position: absolute; right:0; bottom:0;
                     padding:@d2;

@@ -108,19 +108,25 @@ module.exports = ZUI.def("ui.upload", {
             jTitle.css("display", "none");
         }
 
+        // 清除
+        UI.$el.off("dragover");
+        UI.$el.off("dragleave");
+        UI.$el.off("drop");
+        var uArena = UI.arena.find(".ui-upload-arena").empty();
+
         // 多文件上传
         if (UI.is_multi) {
             UI.$el.on("dragover", ".ui-upload-arena", UI.multi.on_dragover);
             UI.$el.on("dragleave", ".ui-upload-arena", UI.multi.on_dragleave);
             UI.$el.on("drop", ".ui-upload-arena", UI.multi.on_drop);
-            UI.arena.find(".ui-upload-arena").append(UI.ccode("multi.main"));
+            uArena.append(UI.ccode("multi.main"));
         }
         // 单文件上传
         else {
             UI.$el.on("dragover", ".ui-upload-arena", UI.single.on_dragover);
             UI.$el.on("dragleave", ".ui-upload-arena", UI.single.on_dragleave);
             UI.$el.on("drop", ".ui-upload-arena", UI.single.on_drop);
-            UI.arena.find(".ui-upload-arena").append(UI.ccode("single.main"));
+            uArena.append(UI.ccode("single.main"));
             // 如果上传目标是图片
             if (opt.preview || /^image\//.test(ta.mime)) {
                 var bgurl = ta.id ? "/o/read/id:" + ta.id : opt.preview;
