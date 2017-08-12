@@ -29,6 +29,26 @@ var methods = {
         jAreas.each(function(){
             UI.checkAreaAssistDOM(this);
         });
+
+        // 特殊处理，如果只有一个区域，那么尽量将其撑满
+        UI.makeFullIfOnlyOneArea();
+    },
+    //...............................................................
+    makeFullIfOnlyOneArea : function(){
+        var UI = this;
+        var jAreas = UI.arena.children(".hm-area");
+
+        // 特殊处理，如果只有一个区域，那么尽量将其撑满
+        if(jAreas.length == 1) {
+            var jA0 = jAreas.eq(0);
+            UI._apply_area_size(jA0, "100%");
+        }
+        // 否则，重新应用一遍 AreaSize
+        else {
+            jAreas.each(function(){
+                UI._apply_area_size(this);
+            });
+        }
     },
     //...............................................................
     // 确保某个区域是否有辅助节点，如果没有就加上它
@@ -124,6 +144,10 @@ var methods = {
         var jArea = $('<div class="hm-area"><div class="hm-area-con"></div></div>')
             .appendTo(this.arena);
         jArea.attr("area-id", this.assignAreaId());
+
+        // 特殊处理，如果只有一个区域，那么尽量将其撑满
+        this.makeFullIfOnlyOneArea();
+
         return this.checkAreaAssistDOM(jArea);
     },
     //...............................................................
@@ -190,6 +214,9 @@ var methods = {
 
         // 高亮下一个区域
         this.highlightArea(jA2);
+
+        // 特殊处理，如果只有一个区域，那么尽量将其撑满
+        this.makeFullIfOnlyOneArea();
 
         // 删除成功
         return true;

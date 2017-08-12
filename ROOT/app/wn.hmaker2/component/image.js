@@ -179,13 +179,12 @@ return ZUI.def("app.wn.hm_com_image", {
     // 自定义修改块布局的逻辑
     applyBlockCss : function(cssCom, cssArena) {
         // 处理图像的宽高
+        //console.log(cssCom)
         var jImg = this.arena.find("img");
-        if(!$D.dom.isUnset(cssCom.width)) {
-            jImg.css("width", "100%");
-        }
-        if(!$D.dom.isUnset(cssCom.height)) {
-            jImg.css("height", "100%");
-        }
+        jImg.css({
+            "width"  : $D.dom.isUnset(cssCom.width)  ? "" : "100%",
+            "height" : $D.dom.isUnset(cssCom.height) ? "" : "100%",
+        })
         // 提取出 arean 和 section 的属性
         var arenaKeys = "^(border.*|boxShadow|background)$";
         var arenaCss  = $z.pick(cssArena, arenaKeys);

@@ -184,13 +184,18 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
 
         // 更新表单
         UI.__update_form(block, function(){
+            // TODO 这个会引起问题，因为 form callback 的问题
+            // 加载 form 时，子控件没加载完就触发 callback 了
+            // 所有导致 form.getData 返回的都是空值
+            // 所以，暂时先去掉这个逻辑，看看以后怎么办吧 -_-!
+            //...............................................
             // 如果表单内容有变，则触发控件重绘
-            var b2 = this.getData();
-            if(!_.isEqual(b2, block)) {
-                // console.log("b2", b2)
-                // console.log("block", block)
-                UI.uiCom.saveBlock("panel", b2, block);
-            }
+            // var b2 = this.getData();
+            // if(!_.isEqual(b2, block)) {
+            //     console.log("b2", b2)
+            //     console.log("block", block)
+            //     UI.uiCom.saveBlock("panel", b2, block);
+            // }
         });
     },
     //...............................................................

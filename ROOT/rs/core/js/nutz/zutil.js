@@ -3027,6 +3027,7 @@
             };
             var json = needFormatJson ? "\n" + $z.toJson(prop, RP, '    ') + "\n" : $z.toJson(prop, RP);
             jPropEle.text(json);
+            //console.log(jPropEle.text())
         },
         // 从控件的 DOM 上获取控件的属性
         getJsonFromSubScriptEle: function (jq, className, dft) {

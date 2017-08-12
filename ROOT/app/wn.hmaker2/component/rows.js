@@ -13,8 +13,10 @@ return ZUI.def("app.wn.hm_com_rows", HmComMethods({
     className : "!hm-layout hm-com-rows",
     //...............................................................
     _apply_area_size : function(jArea, asize) {
+        jArea = this.getArea(jArea);
         asize = asize || jArea.attr("area-size");
         jArea.css("height", asize || "");
+        jArea.find(">.hm-area-con").css("height", asize ? "100%" : "");
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性
