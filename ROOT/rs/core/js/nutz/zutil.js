@@ -28,6 +28,9 @@
         PERIOD: 190,
         TAB: 9,
         '~': 192,
+        '+': 187,
+        '=': 187,
+        EQUAL: 187,
         // 方向
         LEFT: 37,
         UP: 38,
@@ -155,8 +158,8 @@
         // 处理 underscore 的模板
         tmpl: function (str, settings) {
             return _.template(str, settings || {
-                    escape: /\{\{([\s\S]+?)\}\}/g
-                });
+                escape: /\{\{([\s\S]+?)\}\}/g
+            });
         },
         //.............................................
         // 本地存储保存某用户的某个界面的设置
@@ -336,8 +339,8 @@
         //  - prec  : 精确到小数点几位，默认 2
         //  - fixed : 是否一定显示小数点后面的尾数，默认 false
         toPercent: function (n, prec, fixed) {
-            prec = _.isNumber(prec) && prec>=0 ? prec : 2;
-            var m = $z.precise(n*100, prec);
+            prec = _.isNumber(prec) && prec >= 0 ? prec : 2;
+            var m = $z.precise(n * 100, prec);
 
             var str = m + "";
 
@@ -364,8 +367,8 @@
         // 将是数字精确到小数点后制定位置
         // 余下的四舍五入。 对于 p 默认为 0 即去掉小数部分
         // 如果 p < 0，则表示不限制精度了
-        precise : function(n, p) {
-            if(p > 0) {
+        precise: function (n, p) {
+            if (p > 0) {
                 var y = Math.pow(10, p);
                 return Math.round(n * y) / y;
             }
@@ -1277,13 +1280,13 @@
             var mode = m ? m[1] : "H";
             // 分析一下视口所在网页的区域
             var area = (m ? m[2] : null) || (
-                    viewport.x >= rect.x && viewport.y >= rect.y ? "A" : (
-                        viewport.x <= rect.x && viewport.y >= rect.y ? "B" : (
-                            viewport.x >= rect.x && viewport.y <= rect.y ? "C"
-                                : "D"
-                        )
+                viewport.x >= rect.x && viewport.y >= rect.y ? "A" : (
+                    viewport.x <= rect.x && viewport.y >= rect.y ? "B" : (
+                        viewport.x >= rect.x && viewport.y <= rect.y ? "C"
+                            : "D"
                     )
-                );
+                )
+            );
 
             // 停靠在垂直边
             if ("V" == mode) {
@@ -1408,13 +1411,13 @@
             var mode = m ? m[1] : "H";
             // 分析一下视口所在网页的区域
             var area = (m ? m[2] : null) || (
-                    viewport.x >= rect.x && viewport.y >= rect.y ? "A" : (
-                        viewport.x <= rect.x && viewport.y >= rect.y ? "B" : (
-                            viewport.x >= rect.x && viewport.y <= rect.y ? "C"
-                                : "D"
-                        )
+                viewport.x >= rect.x && viewport.y >= rect.y ? "A" : (
+                    viewport.x <= rect.x && viewport.y >= rect.y ? "B" : (
+                        viewport.x >= rect.x && viewport.y <= rect.y ? "C"
+                            : "D"
                     )
-                );
+                )
+            );
             // 停靠在垂直边
             if ("V" == mode) {
                 // A : 右上角对齐
@@ -1586,20 +1589,20 @@
         //.............................................
         // 查询给定元素是否有滚动条
         // 返回 {x:false, y:true}
-        scrollbar: function(jq) {
-            var el  = $(jq)[0];
-            var cs  = window.getComputedStyle(el);
-            var re  = {x:false,y:false};
+        scrollbar: function (jq) {
+            var el = $(jq)[0];
+            var cs = window.getComputedStyle(el);
+            var re = {x: false, y: false};
             var ofX = cs.getPropertyValue("overflow-x");
             var ofY = cs.getPropertyValue("overflow-y");
             // 有横向滚动条
-            if("scroll" == ofX
-               || ("auto" == ofX && el.clientWidth < el.scrollWidth)) {
+            if ("scroll" == ofX
+                || ("auto" == ofX && el.clientWidth < el.scrollWidth)) {
                 re.x = true;
             }
             // 有纵向滚动条
-            if("scroll" == ofY
-               || ("auto" == ofY && el.clientHeight < el.scrollHeight)) {
+            if ("scroll" == ofY
+                || ("auto" == ofY && el.clientHeight < el.scrollHeight)) {
                 re.y = true;
             }
             // 返回
@@ -2161,9 +2164,9 @@
         },
         //.............................................
         // 传入的如果是一个函数，执行它，否则直接返回
-        evalObjValue : function(val, params, context) {
-            if(_.isFunction(val)){
-                return val.apply(context||this, params||[]);
+        evalObjValue: function (val, params, context) {
+            if (_.isFunction(val)) {
+                return val.apply(context || this, params || []);
             }
             return val;
         },
@@ -2359,38 +2362,38 @@
         },
         //.............................................
         // 解析时间字符串（替代 parseTime)
-        parseTimeInfo : function(input, dft) {
+        parseTimeInfo: function (input, dft) {
             var inType = (typeof input);
             var sec = dft;
             // 字符串
-            if("string" == inType) {
+            if ("string" == inType) {
                 var m = /^(\d{1,2}):(\d{1,2})(:?(\d{1,2}))?$/.exec(input);
-                if(!m)
-                    throw "Not a Time: '"+input+"'!!";
-                sec = m[1]*3600  + m[2]*60  + (m[4]||0)*1;
+                if (!m)
+                    throw "Not a Time: '" + input + "'!!";
+                sec = m[1] * 3600 + m[2] * 60 + (m[4] || 0) * 1;
             }
             // 数字
-            else if("number" == inType) {
+            else if ("number" == inType) {
                 sec = parseInt(input);
             }
             // 其他
-            else if((typeof sec)!="number"){
+            else if ((typeof sec) != "number") {
                 throw "Not a Time: " + input;
             }
             // 计算时分秒
-            var HH = Math.min(23, parseInt(sec/3600));
-            var mm = Math.min(59, parseInt((sec - HH*3600)/60));
-            var ss = Math.min(59, sec - HH*3600 - mm*60);
+            var HH = Math.min(23, parseInt(sec / 3600));
+            var mm = Math.min(59, parseInt((sec - HH * 3600) / 60));
+            var ss = Math.min(59, sec - HH * 3600 - mm * 60);
             return {
-                hour   : HH,
-                minute : mm,
-                second : ss,
-                value  : HH*3600 + mm *60 + ss,
-                toString : function(autoIgnoreZeroSecond){
-                    var re = (this.hour>9 ? this.hour : "0"+this.hour);
-                    re += ":" + (this.minute>9 ? this.minute : "0"+this.minute);
-                    if(!autoIgnoreZeroSecond || this.second > 0)
-                        re += ":" + (this.second>9 ? this.second : "0"+this.second);
+                hour: HH,
+                minute: mm,
+                second: ss,
+                value: HH * 3600 + mm * 60 + ss,
+                toString: function (autoIgnoreZeroSecond) {
+                    var re = (this.hour > 9 ? this.hour : "0" + this.hour);
+                    re += ":" + (this.minute > 9 ? this.minute : "0" + this.minute);
+                    if (!autoIgnoreZeroSecond || this.second > 0)
+                        re += ":" + (this.second > 9 ? this.second : "0" + this.second);
                     return re;
                 }
             };
@@ -2446,36 +2449,36 @@
             - true  : 开
             - false : 闭
         */
-        region : function(str, formatFunc){
+        region: function (str, formatFunc) {
             // 处理格式化值的方式
-            if(formatFunc) {
+            if (formatFunc) {
                 var fft = (typeof formatFunc);
-                if("string" == fft) {
+                if ("string" == fft) {
                     // 日期
-                    if("date" == formatFunc) {
-                        formatFunc = function(v){
+                    if ("date" == formatFunc) {
+                        formatFunc = function (v) {
                             return AsDate(v);
                         };
                     }
                     // 时间
-                    else if("time" == formatFunc){
-                        formatFunc = function(v){
+                    else if ("time" == formatFunc) {
+                        formatFunc = function (v) {
                             return AsTimeInSec(v);
                         };
                     }
                     // 数字
-                    else if("number" == formatFunc){
-                        formatFunc = function(v){
+                    else if ("number" == formatFunc) {
+                        formatFunc = function (v) {
                             return parseInt(v);
                         };
                     }
                     // 不支持
                     else {
-                        throw "Region formatFunc can not be a '"+fftp+"'";
+                        throw "Region formatFunc can not be a '" + fftp + "'";
                     }
                 }
                 // 那么必须是函数了
-                else if("function" != fft) {
+                else if ("function" != fft) {
                     throw "Region(.., formatFunc) can not be a " + fft;
                 }
             }
@@ -2484,21 +2487,21 @@
             var s = str.replace(/[ \t]/g, "");
             // eval:  |   1  ||  2  || 3 || 4  ||  5   |
             var m = /^([\[\(])([^,]*)(,)?([^,]*)([\)\]])$/.exec(str);
-            if(!m){
+            if (!m) {
                 throw "invalid region: " + str;
             }
             // 范围
             var re;
-            if(m[3]) {
+            if (m[3]) {
                 re = [
                     m[1] == '(' ? true : false,  // [0]
                     m[2] || null,                // [1]
                     m[4] || null,                // [2] 
                     m[5] == ')' ? true : false,  // [3]
                 ];
-                if(formatFunc) {
-                    if(re[1]!=null)re[1] = formatFunc(re[1]);
-                    if(re[2]!=null)re[2] = formatFunc(re[2]);
+                if (formatFunc) {
+                    if (re[1] != null) re[1] = formatFunc(re[1]);
+                    if (re[2] != null) re[2] = formatFunc(re[2]);
                 }
             }
             // 单值
@@ -2508,57 +2511,63 @@
                     m[2] || null,                // [1]
                     m[5] == ')' ? true : false,  // [2]
                 ];
-                if(formatFunc) {
-                    if(re[1]!=null)re[1] = formatFunc(re[1]);
+                if (formatFunc) {
+                    if (re[1] != null) re[1] = formatFunc(re[1]);
                 }
             }
             // 添加帮助函数
-            re.left  = function(){
+            re.left = function () {
                 return this[1];
             };
-            re.right = function(){
+            re.right = function () {
                 return this[this.length - 2];
             };
-            re.leftAsStr  = function(fmt){
+            re.leftAsStr = function (fmt) {
                 var v = this[1];
-                return v ? formatDate(fmt||"yyyy-MM-dd",v) : "";
+                return v ? formatDate(fmt || "yyyy-MM-dd", v) : "";
             };
-            re.rightAsStr = function(fmt){
+            re.rightAsStr = function (fmt) {
                 var v = this[this.length - 2];
-                return v ? formatDate(fmt||"yyyy-MM-dd",v) : "";
+                return v ? formatDate(fmt || "yyyy-MM-dd", v) : "";
             };
-            re.isLeftOpen  = function(){return this[0];};
-            re.isRightOpen = function(){return this[this.length-1];};
-            re.isRegion = function(){return this.length==4;};
-            re.match = function(v) {
+            re.isLeftOpen = function () {
+                return this[0];
+            };
+            re.isRightOpen = function () {
+                return this[this.length - 1];
+            };
+            re.isRegion = function () {
+                return this.length == 4;
+            };
+            re.match = function (v) {
                 // 区间
-                if(this.length == 4) {
-                    if(null!=this[1]){
-                        if((this[0] && this[1]>=v) || (!this[0] && this[1]>v))
+                if (this.length == 4) {
+                    if (null != this[1]) {
+                        if ((this[0] && this[1] >= v) || (!this[0] && this[1] > v))
                             return false;
                     }
-                    if(null!=this[2]){
-                        if((this[3] && this[2]<=v) || (!this[3] && this[2]<v))
+                    if (null != this[2]) {
+                        if ((this[3] && this[2] <= v) || (!this[3] && this[2] < v))
                             return false;
                     }
                     return true;
                 }
                 // 不等于
-                if(this[0] && this[2])
+                if (this[0] && this[2])
                     return this[1] != v;
                 // 等于
                 return this[1] == v;
             };
-            re.valueOf = function(){
-                var s = this.isLeftOpen()?"(":"[";
-                if(this.isRegion()){
-                    s += this.leftAsStr()  || "";
+            re.valueOf = function () {
+                var s = this.isLeftOpen() ? "(" : "[";
+                if (this.isRegion()) {
+                    s += this.leftAsStr() || "";
                     s += ",";
                     s += this.rightAsStr() || "";
-                }else{
+                } else {
                     s += this.leftAsStr();
                 }
-                s += this.isRightOpen()?")":"]";
+                s += this.isRightOpen() ? ")" : "]";
                 return s;
             };
             re.toString = re.valueOf;
@@ -4500,9 +4509,9 @@
             if (null == obj && ("object" == type || 'undefined' == type || "unknown" == type)) return 'null';
             // 字符串
             if ("string" == type) return '"' + obj.replace(/(\\|\")/g, "\\$1").replace(/\n|\r|\t/g, function () {
-                    var a = arguments[0];
-                    return (a == '\n') ? '\\n' : (a == '\r') ? '\\r' : (a == '\t') ? '\\t' : "";
-                }) + '"';
+                var a = arguments[0];
+                return (a == '\n') ? '\\n' : (a == '\r') ? '\\r' : (a == '\t') ? '\\t' : "";
+            }) + '"';
             // 布尔
             if ("boolean" == type) return obj ? "true" : "false";
             // 数字
