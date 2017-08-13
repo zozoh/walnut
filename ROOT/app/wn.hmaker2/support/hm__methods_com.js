@@ -488,10 +488,15 @@ var methods = {
         // 判断区域是否过小
         var comW = jCom.outerWidth();
         var comH = jCom.outerHeight();
-        jCom.attr({
-            "hmc-small" : (comW < 300 && comH < 80) || (comW < 80)
-                          ? "yes" : null,
-        });
+
+        // 比较小
+        if(comH < 32 || comW < 32){
+            jCom.attr("hmc-small", "yes");
+        }
+        // 不小，移除标记
+        else{
+            jCom.removeAttr("hmc-small");
+        }
         
         // 调用控件特殊的设置
         $z.invoke(UI, "on_apply_block", [block]);

@@ -73,6 +73,8 @@ html {
 /* 默认的 body 属性 */
 body{margin: 0; font-size:@f3;}
 
+a[href]{cursor: pointer;}
+
 .hm-com[auto-wrap-width]  > * {width: 100%;}
 .hm-com[auto-wrap-height] > * {height:100%;}
 
@@ -126,6 +128,8 @@ body{margin: 0; font-size:@f3;}
     li.text-hide > a span {display: none;}
     li.text-show > a span {display: inline;}
 }
+.hm-com[ctype="navmenu"][auto-wrap-height] .ul-top{height:100%;}
+.hm-com[ctype="navmenu"][auto-wrap-width]  .ul-top{width:100%;}
 
 /**
  * 控件: Text

@@ -195,7 +195,7 @@ define({
                 "padding"   : "栏内边距",
             },
             "navmenu" : {
-                "name"  : "菜单条",
+                "name"  : "菜单",
                 "tip"   : "可垂直或水平放置，支持超链接或者显示隐藏某个区域的客户端动作",
                 "icon"  : '<i class="fa fa-navicon"></i>',
                 "item_dft_text" : "菜单项文字",

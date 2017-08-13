@@ -22,6 +22,7 @@
     background-color: @c0;
 }
 
+a[href]{cursor: pointer;}
 
 body {
     margin:0; overflow-y: scroll; 
@@ -53,7 +54,7 @@ body {
 // 控件通用属性
 @hS  : 4px;
 @hV  : 14px;
-@aS  : 1px;
+@aS  : 2px;
 @aiH : 24px;
 .hm-com { @noselect();
     .ui-loading {
@@ -165,34 +166,6 @@ body {
 
 //............................................................
 // 移动鼠标的遮罩
-.hm-page-inner-moving-mask[moving-mode="move"] * {cursor: move;}
-.hm-page-inner-moving-mask[moving-mode="N"]    * {cursor:ns-resize;}
-.hm-page-inner-moving-mask[moving-mode="S"]    * {cursor:ns-resize;}
-.hm-page-inner-moving-mask[moving-mode="W"]    * {cursor:ew-resize;}
-.hm-page-inner-moving-mask[moving-mode="E"]    * {cursor:ew-resize;}
-.hm-page-inner-moving-mask[moving-mode="NW"]   * {cursor:nwse-resize;}
-.hm-page-inner-moving-mask[moving-mode="NE"]   * {cursor:nesw-resize;}
-.hm-page-inner-moving-mask[moving-mode="SW"]   * {cursor:nesw-resize;}
-.hm-page-inner-moving-mask[moving-mode="SE"]   * {cursor:nwse-resize;}
-.hm-page-inner-moving-mask[moving-mode="H"] {
-    cursor: grabbing;
-    cursor: -webkit-grabbing;
-    cursor: -moz-grabbing;
-    background: rgba(0,0,0,0.2);
-}
-.hm-page-move-mask[in-area] {
-    background: rgba(0,0,0,0.4);
-    .pmv-viewport {
-        position: absolute;
-        background: rgba(255,255,255,0.8);
-        box-shadow: 0px 0px 10px #FFF;
-        border:1px dashed #F0F;
-    }
-    .pmv-helper {
-        border:1px dotted #000;
-        background: rgba(255,255,0,0.4);
-    }
-}
 .hm-pmv-hide {
     opacity: 0.6;
     -webkit-filter: blur(2px); /* Chrome, Opera */
@@ -367,6 +340,8 @@ body {
     li.text-hide > a span {display: none;}
     li.text-show > a span {display: inline;}
     ul {
+        li > a {cursor: default;}
+        li > a[href] {cursor: pointer;}
         li[newtab] > a span{position: relative;}
         li[newtab] > a span:after {
             display: block; content: "";
@@ -381,6 +356,8 @@ body {
         }
     }
 }
+.hm-com[ctype="navmenu"][auto-wrap-height] .ul-top{height:100%;}
+.hm-com[ctype="navmenu"][auto-wrap-width]  .ul-top{width:100%;}
 //............................................................
 // image
 .hm-com-image {display: inline-block;}

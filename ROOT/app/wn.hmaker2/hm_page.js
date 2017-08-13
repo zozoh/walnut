@@ -1160,16 +1160,6 @@ return ZUI.def("app.wn.hmaker_page", {
             parent : UI,
             gasketName : "pagebar",
             setup : [{
-                icon : '<i class="fa fa-sign-out zmdi-hc-rotate-180"></i>',
-                tip  : 'i18n:hmaker.page.move_to_body',
-                handler : function() {
-                    var uiCom = UI.getActivedCom();
-                    if(uiCom){
-                        uiCom.appendToArea(null);
-                        UI.invokeSkin("resize");
-                    }
-                }
-            },{
                 icon : '<i class="zmdi zmdi-arrow-right-top zmdi-hc-rotate-270"></i>',
                 tip  : 'i18n:hmaker.page.move_before',
                 handler : function() {
@@ -1202,18 +1192,6 @@ return ZUI.def("app.wn.hmaker_page", {
                     }
                 }
             },{
-                key      : 'assisted_showhide',
-                tip      : "i18n:hmaker.page.assisted_showhide",
-                type     : "boolean",
-                icon_on  : '<i class="zmdi zmdi-border-all"></i>',
-                icon_off : '<i class="zmdi zmdi-border-clear"></i>',
-                on_change : function(isOn) {
-                    UI.setAssistedOff(!isOn);
-                },
-                init : function(mi){
-                    mi.on = !UI.isAssistedOff();
-                }
-            },{
                 key  : 'screen_mode',
                 type : "status",
                 status : [{
@@ -1232,6 +1210,32 @@ return ZUI.def("app.wn.hmaker_page", {
                         si.on = (si.val == mode);
                     });
                 }
+            }, {
+                icon : '<i class="zmdi zmdi-more-vert"></i>',
+                type : "group",
+                items : [{
+                        icon : '<i class="fa fa-sign-out zmdi-hc-rotate-180"></i>',
+                        text : 'i18n:hmaker.page.move_to_body',
+                        handler : function() {
+                            var uiCom = UI.getActivedCom();
+                            if(uiCom){
+                                uiCom.appendToArea(null);
+                                UI.invokeSkin("resize");
+                            }
+                        }
+                    },{
+                        key      : 'assisted_showhide',
+                        text     : "i18n:hmaker.page.assisted_showhide",
+                        type     : "boolean",
+                        icon_on  : '<i class="zmdi zmdi-border-all"></i>',
+                        icon_off : '<i class="zmdi zmdi-border-clear"></i>',
+                        on_change : function(isOn) {
+                            UI.setAssistedOff(!isOn);
+                        },
+                        init : function(mi){
+                            mi.on = !UI.isAssistedOff();
+                        }
+                    }]
             }]
         }).render(function(){
             UI.defer_report("pagebar");
@@ -1322,18 +1326,18 @@ return ZUI.def("app.wn.hmaker_page", {
         var senList = [];
 
         // 增加移除 body 的选项
-        if(eMyArea) {
-            var rcBody = $D.rect.gen(UI.arena.find(".hmpg-sbar"));
-            senList.push({
-                className : "drop-to-body",
-                name : "drop",
-                text : '<i class="fa fa-sign-out zmdi-hc-rotate-180"></i> '
-                        + UI.msg("hmaker.page.move_to_body"),
-                rect : rcBody,
-                $ele : UI._C.iedit.body,
-                scope : "win",
-            });
-        }
+        // if(eMyArea) {
+        //     var rcBody = $D.rect.gen(UI.arena.find(".hmpg-sbar"));
+        //     senList.push({
+        //         className : "drop-to-body",
+        //         name : "drop",
+        //         text : '<i class="fa fa-sign-out zmdi-hc-rotate-180"></i> '
+        //                 + UI.msg("hmaker.page.move_to_body"),
+        //         rect : rcBody,
+        //         $ele : UI._C.iedit.body,
+        //         scope : "win",
+        //     });
+        // }
         
         // 挨个查找：叶子区域，且不包含当前控件的，统统列出来
         UI._C.iedit.$body.find(".hm-area-con").each(function(){
@@ -1357,8 +1361,8 @@ return ZUI.def("app.wn.hmaker_page", {
         });
 
         // 增加 body 感应器
-        if(_.isBoolean(jCom) && jCom) {
-            var rcBody = UI.get_edit_win_rect(-10);
+        if(eMyArea || (_.isBoolean(jCom) && jCom)) {
+            var rcBody = UI.get_edit_win_rect(-30);
             senList.push({
                 className : "drop-to-body",
                 name : "drop",
