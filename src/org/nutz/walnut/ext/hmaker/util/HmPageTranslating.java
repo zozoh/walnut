@@ -221,16 +221,15 @@ public class HmPageTranslating extends HmContext {
         this.comId = eleCom.attr("id");
 
         // 得到控件类型
-        String ctype = eleCom.attr("ctype");
+        this.comType = eleCom.attr("ctype");
 
         // 处理
-        Hms.COMs.check(ctype).invoke(this);
+        Hms.COMs.check(this.comType).invoke(this);
 
         // 移除没必要的属性
         eleCom.removeAttr("c_seq");
         eleCom.removeAttr("hmc-mode");
         eleCom.removeAttr("hmc-pos-by");
-        eleCom.removeAttr("auto-wrap-height");
         eleCom.removeAttr("hm-actived");
         eleCom.removeAttr("ui-id");
     }

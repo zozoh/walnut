@@ -28,17 +28,21 @@ public abstract class AbstractCom implements HmComHandler {
     public void invoke(HmPageTranslating ing) {
         // 分析布局属性
         ing.propBlock = Hms.loadPropAndRemoveNode(ing.eleCom, "hm-prop-block");
-        ing.propBlock.remove("measureBy");  // 这玩意木用了
+        ing.propBlock.remove("measureBy"); // 这玩意木用了
 
         // 分析布局属性
         this.__prepare_block_css_and_skin_attributes(ing);
 
+        // 标识一下宽高
+        if (!Hms.isUnset(ing.cssEle.getString("width"))) {
+            ing.eleCom.attr("auto-wrap-width", "yes");
+        }
+        if (!Hms.isUnset(ing.cssEle.getString("height"))) {
+            ing.eleCom.attr("auto-wrap-height", "yes");
+        }
+
         // 分析控件属性
         ing.propCom = Hms.loadPropAndRemoveNode(ing.eleCom, "hm-prop-com");
-
-        // 记录当前控件的 ID
-        ing.comId = ing.eleCom.attr("id");
-        ing.comType = ing.eleCom.attr("ctype");
 
         // 确保标记本页为动态
         if (this.isDynamic(ing.eleCom))

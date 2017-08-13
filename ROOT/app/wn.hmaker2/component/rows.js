@@ -12,6 +12,13 @@ return ZUI.def("app.wn.hm_com_rows", HmComMethods({
     dom     : html,
     className : "!hm-layout hm-com-rows",
     //...............................................................
+    applyBlockCss : function(cssCom, cssArena){
+        this.$el.css(cssCom);
+        this.arena.css(cssArena);
+        this._is_defined_size_max_value = !$D.dom.isUnset(cssCom.height);
+        this.makeFullIfOnlyOneArea();
+    },
+    //...............................................................
     _apply_area_size : function(jArea, asize) {
         jArea = this.getArea(jArea);
         asize = asize || jArea.attr("area-size");

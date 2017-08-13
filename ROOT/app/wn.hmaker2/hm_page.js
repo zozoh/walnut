@@ -1313,7 +1313,7 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 得到视口矩形
         var rcVp = UI.get_edit_win_rect();
-        console.log("视口矩形", $D.rect.dumpValues(rcVp), eMyArea);
+        //console.log("视口矩形", $D.rect.dumpValues(rcVp), eMyArea);
 
         // 定义区域边界
         var sitPad = 2;
@@ -1643,7 +1643,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 "::view_text",
                 "~",
                 "@::hmaker/pub_site",
-                "::hmaker/pub_current_page",
+                "@::hmaker/pub_current_page",
                 "~",
                 "@::hmaker/hm_site_conf",
                 "~",

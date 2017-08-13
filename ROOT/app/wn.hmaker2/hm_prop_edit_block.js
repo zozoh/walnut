@@ -68,7 +68,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
 
             // 得到块信息
             var block = this.uiCom.getBlock();
-            console.log("block", block);
+            //console.log("block", block);
 
             // 转换
             var posBy = jq.attr("val");

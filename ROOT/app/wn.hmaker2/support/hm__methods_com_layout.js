@@ -38,8 +38,10 @@ var methods = {
         var UI = this;
         var jAreas = UI.arena.children(".hm-area");
 
+        //console.log(UI._is_defined_size_max_value)
+
         // 特殊处理，如果只有一个区域，那么尽量将其撑满
-        if(jAreas.length == 1) {
+        if(jAreas.length == 1 && UI._is_defined_size_max_value) {
             var jA0 = jAreas.eq(0);
             UI._apply_area_size(jA0, "100%");
         }

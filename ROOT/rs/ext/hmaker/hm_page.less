@@ -73,6 +73,9 @@ html {
 /* 默认的 body 属性 */
 body{margin: 0; font-size:@f3;}
 
+.hm-com[auto-wrap-width]  > * {width: 100%;}
+.hm-com[auto-wrap-height] > * {height:100%;}
+
 /**
  * 控件: image
  */
@@ -109,7 +112,8 @@ body{margin: 0; font-size:@f3;}
 .hmc-columns {
     @flex();
     > .hm-area {
-        flex:1 1 auto;
+        flex:1 1 auto; @flex();
+        > .hm-area-con {flex: 1 1 auto; }
     }
 }
 
