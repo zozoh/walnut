@@ -485,11 +485,16 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
 
                 // 显示皮肤
                 var jBox = jItem.children('[key="skin"]');
-                UI.updateSkinBox(jBox, item.skin, function(skin){
-                    return this.getSkinTextForMenuItem(skin);
-                }, item.selectors, function(selectors) {
-                    var index = this.closest(".cnavmp-item").attr("index") * 1;
-                    UI.uiCom.updateItemField(index, "selectors", selectors);
+                UI.updateSkinBox(jBox, {
+                    skin : item.skin,
+                    getSkinText : function(skin){
+                        return this.getSkinTextForMenuItem(skin);
+                    },
+                    cssSelectors : item.selectors, 
+                    setSelectors : function(selectors) {
+                        var index = this.closest(".cnavmp-item").attr("index") * 1;
+                        UI.uiCom.updateItemField(index, "selectors", selectors);
+                    }
                 });
 
                 // 缩进

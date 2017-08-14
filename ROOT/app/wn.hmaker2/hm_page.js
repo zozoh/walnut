@@ -596,10 +596,10 @@ return ZUI.def("app.wn.hmaker_page", {
                 this.invokeSkin("resize");
                 
             });
-
-            // 返回
-            return jCom;
         }
+        
+        // 返回
+        return jCom;
     },
     //...............................................................
     doActiveCom : function(uiCom) {
@@ -635,6 +635,10 @@ return ZUI.def("app.wn.hmaker_page", {
             $z.invoke(uiCom, "on_blur", [nextCom]);
             re.push(uiCom);
         });
+
+        // 取消一切高亮的区域
+        this._C.iedit.$body.find(".hm-area[highlight]").removeAttr("highlight");
+        this._C.iedit.$body.find(".hm-com[highlight-mode]").removeAttr("highlight-mode");
 
         // 应用皮肤
         this.invokeSkin("resize");

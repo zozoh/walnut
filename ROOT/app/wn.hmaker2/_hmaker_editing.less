@@ -28,6 +28,19 @@ body {
     margin:0; overflow-y: scroll; 
 }
 
+@blur : {
+    -webkit-filter: blur(2px); /* Chrome, Opera */
+    -moz-filter: blur(2px);
+    -ms-filter: blur(2px);    
+        filter: blur(2px);
+};
+@unblur : {
+    -webkit-filter: unset; /* Chrome, Opera */
+    -moz-filter: unset;
+    -ms-filter: unset;
+        filter: unset;
+};
+
 //............................................................
 // 拖拽相关
 // .pmv-dropi {
@@ -167,11 +180,7 @@ body {
 //............................................................
 // 移动鼠标的遮罩
 .hm-pmv-hide {
-    opacity: 0.6;
-    -webkit-filter: blur(2px); /* Chrome, Opera */
-    -moz-filter: blur(2px);
-    -ms-filter: blur(2px);    
-        filter: blur(2px);
+    opacity: 0.6; @blur();
 }
 //............................................................
 // 分栏控件通用
@@ -198,9 +207,14 @@ body {
     > .hm-com-W {
         > .hm-com-assist {display: none;}
         > .ui-arena {
-            > .hm-area {opacity: 0.2;}
+            > .hm-area {dopacity: 0.2; @blur();}
+            > .hm-area:after {
+                display: block; content:""; position: absolute;
+                top:0;left:0;right:0;bottom:0; background: rgba(0,0,0,0.2);
+            }
+            > .hm-area[highlight]:after{display: none;}
             > .hm-area[highlight] {
-                opacity: 1.0; 
+                opacity: 1.0; @unblur();
                 > .hm-area-assist .hma-ai {border-color:#F0F;}
             }
             > .hm-area[highlight][toggle-mode="hide"] {

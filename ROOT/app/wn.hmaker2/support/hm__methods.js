@@ -224,6 +224,16 @@ var methods = {
         return list;
     },
     //=========================================================
+    get_com_display_text: function(ctype, comId, skin, showId){
+        var UI = this;
+        var re = skin ? UI.getSkinTextForCom(ctype, skin)
+                      : UI.msg("hmaker.com._.dft")
+                        + UI.msg("hmaker.com." + ctype + ".name");
+        if(showId)
+            return re + "#" + comId;
+        return re;
+    },
+    //=========================================================
     // 监听消息
     listenBus : function(event, handler){
         var uiHMaker = this.hmaker();

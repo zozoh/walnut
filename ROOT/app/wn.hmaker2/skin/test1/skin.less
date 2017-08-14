@@ -125,7 +125,7 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 .skin-navmenu-autofh {
     .ul-top {@flex();}
     .li-top {
-        > a {display: block;padding: .08rem;} 
+        > a {display: block;padding: .08rem; border-radius: .04rem; } 
     }
     .li-top[current] a {
         color:@c_h_f;background: @c_h_b; 
@@ -151,7 +151,9 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
         position: fixed; top:0; bottom:0; left:@w_C_menu * -1; width:@w_C_menu;
         background: @c_menu_b; color:@c_menu_f;
         z-index: 100; padding:.16rem 0; line-height: .48rem;
-        .li-top > a {color:@c_menu_f; display: block; text-align: center;}
+        .li-top > a {
+            color:@c_menu_f; display: block; text-align: center;
+        }
         .li-top > a:hover {color:@c_menu_f;}
         .li-top[current] a {
             color:@c_h_f;background: @c_h_b; 
@@ -183,10 +185,48 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 } // @media
 
 //............................................
+// com.navmenu:自适应竖排二级菜单
+@media screen and (min-width: @w_C_dev) {
+.skin-navmenu-autof2v {
+    font-size: @f_menu;
+    li {margin:0; text-align: center;}
+    li[open-sub]{
+        > .ul-sub {display: block;}
+    }
+    .ul-top {@flex();}
+    .li-top {flex:1 1 auto; padding:.08rem .12rem;
+        > a {font-weight: bold;}
+    }
+    .li-sub {padding:.04rem 0;}
+    .ul-sub {padding-top:.08rem;}
+    .ul-sub-n {display: none;}
+}
+} // @media
+@media screen and (max-width: @w_C_dev) {
+.skin-navmenu-autof2v {
+    .ul-top {padding:.1rem; display: inline-block;}
+    .li-top {padding:.1rem;}
+    .ul-sub {padding:.1rem;}
+    .li-sub {padding:.08rem;}
+    .ul-sub-n {display: none;}
+}
+} // @media
+// for IDE:
+// 给 IDE 做的
+[hmaker-ide] {
+    .skin-navmenu-autof2v {
+        ul li[current]{
+            > a {color:@c_h_f;background: @c_h_b; }
+        }
+    }
+}
+
+
+//............................................
 // com.image:自适应LOGO
 @media screen and (min-width: @w_C_dev) {
 .skin-image-smartlogo {
-    img {width: .6rem;}
+    img {height:.6rem;}
 }
 } // @media
 @media screen and (max-width: @w_C_dev) {

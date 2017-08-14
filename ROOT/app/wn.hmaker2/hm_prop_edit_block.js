@@ -30,8 +30,8 @@ var html = `
         </div>
     </div>
     <div class="hmpb-skin">
-        <em>{{hmaker.prop.skin}}</em>
-        <div class="hm-skin-box" box-enabled="yes"></div>
+        <em>{{hmaker.prop.block_skin}}</em>
+        <!--div class="hm-skin-box" box-enabled="yes"></div-->
     </div>
     <div class="hmpb-form" ui-gasket="form"></div>
 </div>`;
@@ -54,6 +54,9 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             
             // 如果切换到了绝对定位，需要默认设置其宽高
             this.uiCom.checkBlockMode(block);
+
+            // 格式化块信息
+            this.uiCom.formatBlockDimension(block);
 
             // 保存数据 
             this.uiCom.saveBlock(null, block);
@@ -171,16 +174,6 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
 
         // 更新位置信息
         UI.__update_pos(block);
-
-        // 处理皮肤选择区
-        //console.log(uiCom.uiName, uiCom.getComSkin())
-        var jSkinBox = UI.arena.find(".hm-skin-box");
-        UI.updateSkinBox(jSkinBox, uiCom.getComSkin(), function(skin){
-            var ctype = UI.uiCom.getComType();
-            return UI.getSkinTextForCom(ctype, skin);
-        }, uiCom.getComSelectors(), function(selectors){
-            uiCom.setComSelectors(selectors);
-        });
 
         // 更新表单
         UI.__update_form(block, function(){

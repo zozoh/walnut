@@ -3,12 +3,23 @@ var methods = {
     //...............................................................
     events : {
         // 单击取消高亮模式
-        "click .hm-com-W" : function(e){
+        "click > .hm-com-W" : function(e){
             if(this.isHighlightMode() 
                 && $(e.target).closest('.hm-area[highlight]').length == 0) {
                 e.stopPropagation();
                 this.highlightArea(false);
                 this.notifyDataChange("page");
+            }
+        },
+        // 高亮模式，切换高亮区
+        "click > .hm-com-W > .ui-arena > .hm-area" : function(e) {
+            var UI = this;
+            var jq = $(e.currentTarget);
+            if(UI.$el.attr("highlight-mode")) {
+                if(!jq.attr("highlight")) {
+                    UI.highlightArea(jq);
+                    this.notifyActived("page", jq.attr("area-id"));
+                }
             }
         }
     },
@@ -263,7 +274,7 @@ var methods = {
         return jArea && jArea.attr("highlight") == "yes";
     },
     // 高亮一个区域 
-    highlightArea : function(aid, quiet) {
+    highlightArea : function(aid) {
         var jArea = false === aid ? null : this.getArea(aid);
         
         // 反正要取消之前高亮的区域

@@ -4,37 +4,59 @@ var methods = {
     setTitle : function(titleKey) {
         this.arena.find(">header .hmpn-tt").html(this.msg(titleKey));
     },
-    // 更新皮肤选择框
-    updateSkinBox : function(jBox, skin, getSkinText, cssSelectors, setSelectors){
+    /*..............................................
+     更新皮肤选择框
+      - jBox : 选择器盒子
+      - opt : {
+            noneSkinText : null,                  // 「选」无皮肤时显示什么
+            skin         : "xxx",                 // 皮肤
+            getSkinText  : {this}F(skin):皮肤名称, // 如何获得皮肤显示名
+            cssSelectors : [..]                   // 现有的样式选择器
+            setSelectors : {jBox}F(newSelector)   // 如何修改样式选择器 
+        }
+    */
+    updateSkinBox : function(jBox, opt){
         var UI = this;
-        jBox = $(jBox).closest(".hm-skin-box");
-        // 确保有回调
-        getSkinText = getSkinText || jBox.data("getSkinText");
+        jBox = $(jBox).closest(".hm-skin-box").empty();
+        // 确保参数
+        opt = opt || {};
+        if(_.isString(opt)) {
+            opt = {skin : opt};
+        }
+        var skin         = opt.skin;
+        var noneSkinText = opt.noneSkinText 
+                            || jBox.data("noneSkinText")
+                            || UI.msg("hmaker.prop.skin_none");
+        var getSkinIcon  = opt.getSkinIcon || jBox.data("getSkinIcon");
+        var getSkinText  = opt.getSkinText || jBox.data("getSkinText");
+        var cssSelectors = opt.cssSelectors;
+        var setSelectors = opt.setSelectors;
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 记录 skin
+        jBox.attr("skin-selector", skin || null);
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 清空选区
-        jBox.attr("skin-selector", skin||"")
-            .html(UI.compactHTML(`<span class="com-skin"
-                data-balloon="{{hmaker.prop.skin_tip}}"
-                data-balloon-pos="left"
-                ><i class="zmdi zmdi-texture"></i><b></b>
-            </span><span class="page-css">
-                <i class="fa fa-css3"></i><b></b>
-            </span>`));
+        var jSkBox  = $('<span class="com-skin">')
+                        .html(_.isFunction(getSkinIcon) 
+                               ? getSkinIcon.call(this, skin)
+                               : '<i class="zmdi zmdi-texture"></i>')
+                            .appendTo(jBox);
+        var jCssBox = $('<span class="page-css">')
+                        .html('<i class="fa fa-css3"></i><b></b>')
+                            .appendTo(jBox);
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // 显示文字
-        var jSkinTxt = jBox.find(">.com-skin>b").attr("skin-none", skin ? null : "yes");
-        // 选择皮肤样式名
-        if(skin){
-            jSkinTxt.text(getSkinText.call(this, skin));
-        }
-        // 显示默认
-        else{
-            jSkinTxt.text(this.msg("hmaker.prop.skin_none"));
-        }
+        // 显示择皮肤样式文字
+        $('<b>').appendTo(jSkBox)
+            .attr("skin-none", skin ? null : "yes")
+            .text(skin ? getSkinText.call(this, skin)
+                       : noneSkinText);
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 记录获取 Text 的回调
+        jBox.data("noneSkinText", noneSkinText);
         if(_.isFunction(getSkinText))
             jBox.data("getSkinText", getSkinText);
+        if(_.isFunction(getSkinIcon))
+            jBox.data("getSkinIcon", getSkinIcon);
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 还要更新显示页面的样式
         if(!_.isUndefined(cssSelectors)) {
@@ -79,13 +101,15 @@ var methods = {
             var jUl = $('<ul>').appendTo(jList);
             
             // 绘制第一项
-            $('<li class="skin-none">').text(UI.msg("hmaker.prop.skin_none")).attr({
+            $('<li class="skin-none">').attr({
                 "value"   : "",
                 "checked" : !skin ? "yes" : null
-            }).appendTo(jUl);
+            }).text(jBox.data("noneSkinText"))
+                .appendTo(jUl);
 
             // 循环绘制其余项目
             for(var si of skinList) {
+                console.log(si.selector, "["+skin+"]")
                 $('<li>').text(si.text).attr({
                     "value"   : si.selector,
                     "checked" : si.selector == skin ? "yes" : null

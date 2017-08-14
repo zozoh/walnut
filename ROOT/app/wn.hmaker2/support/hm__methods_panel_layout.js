@@ -214,10 +214,15 @@ var methods = {
         // 显示皮肤
         var jBox = $('<div key="skin" class="hm-skin-box" box-enabled="yes">')
             .appendTo(jLi);
-        UI.updateSkinBox(jBox, ao.skin, function(skin){
-            return this.getSkinTextForArea(skin);
-        }, ao.selectors, function(selectors) {
-            UI.uiCom.setAreaCssSelectors(ao.areaId, selectors);
+        UI.updateSkinBox(jBox, {
+            skin : ao.skin,
+            getSkinText : function(skin){
+                return this.getSkinTextForArea(skin);
+            },
+            cssSelectors : ao.selectors, 
+            setSelectors : function(selectors) {
+                UI.uiCom.setAreaCssSelectors(ao.areaId, selectors);
+            }
         });
             
         // 返回以便链式赋值

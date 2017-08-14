@@ -113,13 +113,13 @@ var methods = {
     // }
     // - includeSelf : 是否包括自己
     // - ignoreArea  : 是否忽略区域
-    getComPath : function(includSelf, ignoreArea) {
+    // - areaId : 「选」路径中还需要增加一个指定的区域路径
+    getComPath : function(includSelf, ignoreArea, areaId) {
         var re = [];
         // 处理自己
         if(includSelf) {
             // 自己的高亮区域
-            var areaId = $z.invoke(this, "getHighlightAreaId");
-            if(areaId) {
+            if(areaId && this.$el.hasClass("hm-layout")) {
                 re.push({
                     ctype  : "_area",
                     comId  : this.getComId(),
@@ -130,7 +130,8 @@ var methods = {
             re.push({
                 ctype : this.getComType(),
                 comId : this.getComId(),
-                lib   : this.$el.attr("lib")
+                lib   : this.$el.attr("lib"),
+                skin  : this.getComSkin(),
             });
         }
         // 处理自己的父组件和区域
@@ -149,10 +150,12 @@ var methods = {
                 re.push({
                     ctype : jq.attr("ctype"),
                     comId : jq.attr("id"),
-                    lib   : jq.attr("lib")
+                    lib   : jq.attr("lib"),
+                    skin  : jq.attr("skin"),
                 });
             }
         });
+
         // 返回
         return re.reverse();
     },
@@ -161,10 +164,12 @@ var methods = {
         return this.msg('hmaker.com.' + this.getComType() + '.icon');
     },
     //........................................................
-    getComDisplayText : function() {
-        return this.getComId() + "(" + 
-            this.msg('hmaker.com.' + this.getComType() + '.name')
-            + ")";
+    getComDisplayText : function(showId) {
+        var UI = this;
+        var skin  = UI.getComSkin();
+        var comId = UI.getComId();
+        var ctype = UI.getComType();
+        return UI.get_com_display_text(ctype, comId, skin, showId);
     },
     //........................................................
     // 判断组件是否是激活的
@@ -177,13 +182,14 @@ var methods = {
     },
     //........................................................
     notifyActived : function(mode, areaId){
+        // 激活
+        this.fire("active:com", this, areaId);
+
         // 高亮指定区域
         if(areaId) {
+            console.log("haha")
             $z.invoke(this, "highlightArea", [areaId]);
         }
-
-        // 激活
-        this.fire("active:com", this);
 
         // 通知更新
         if(!_.isUndefined(mode)){

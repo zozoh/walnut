@@ -46,6 +46,8 @@ return ZUI.def("app.wn.hm_prop_edit", {
         
         UI.listenBus("change:block",  UI.doChangeBlock);
         UI.listenBus("change:com",    UI.doChangeCom);
+
+        UI.listenBus("show:prop",    UI.switchTab);
     },
     //...............................................................
     events : {
@@ -85,12 +87,15 @@ return ZUI.def("app.wn.hm_prop_edit", {
                 // 保存皮肤信息
                 UI.uiCom.setComSkin(skin);
 
+                // 重新激活组件
+                UI.uiCom.notifyActived();
+
                 // 通知相关改动
                 UI.uiCom.notifyBlockChange(null);
             });
         },
         // 显示已经加载的 css 类选择器
-        "mouseenter .hm-skin-box > .page-css" : function(e) {
+        "click .hm-skin-box > .page-css" : function(e) {
             var UI = this;
             UI.showCssSelectorList(e.currentTarget);
         },
@@ -294,31 +299,42 @@ return ZUI.def("app.wn.hm_prop_edit", {
         UI.uiCom = uiCom;
 
         // 得到组件信息
-        var comId = uiCom.getComId();
-        var ctype = uiCom.getComType();
-        var libNm = uiCom.getComLibName();
+        var comId  = uiCom.getComId();
+        var ctype  = uiCom.getComType();
+        var libNm  = uiCom.getComLibName();
+        var skin   = uiCom.getComSkin();
+        var comTxt = uiCom.getComDisplayText();
 
         // 准备信息显示的 HTML
-        var html = '<span>' + UI.msg("hmaker.com."+ctype+".icon") + '</span>';
-        html += '<b>' + UI.msg("hmaker.com."+ctype+".name") + '</b>';
-        html += '<em>' + comId + '</em>';
+        // var html = '<span>' + UI.msg("hmaker.com."+ctype+".icon") + '</span>';
+        // html += '<b>' + comTxt + '</b>';
+        // html += '<em>' + comId + '</em>';
+        // var html = '<span class="com-skin">';
+        // html += UI.msg("hmaker.com."+ctype+".icon");
+        // html += '<b>' + comTxt + '</b>';
+        // html += '</span>';
+        // html += '<em>' + comId + '</em>';
+        var jInfo  = UI.arena.find('>.hm-prop-head>.hm-com-info').empty();;
+        var jSkBox = $('<span class="hm-skin-box" box-enabled="yes">').appendTo(jInfo);
+        $('<em>' + comId + '</em>').appendTo(jInfo);
+        UI.updateSkinBox(jSkBox, {
+            noneSkinText : UI.get_com_display_text(ctype, comId),
+            skin : skin,
+            getSkinIcon : function(skin) {
+                return UI.msg("hmaker.com."+ctype+".icon");
+            },
+            getSkinText : function(skin){
+                return UI.get_com_display_text(ctype, comId, skin);
+            },
+            cssSelectors : UI.uiCom.getComSelectors(),
+            setSelectors : function(selectors){
+                UI.uiCom.setComSelectors(selectors);
+            }
+        });
+
 
         // 设置信息
-        UI.arena.find('>.hm-prop-head>.hm-com-info').html(html);
-
-        // 准备组件看的 HTML
-        // var jLib = UI.arena.find('>.hm-prop-head>.hm-com-lib');
-        // html = '<span>' + UI.msg("hmaker.lib.icon") + '</span>';
-        // if(libNm) {
-        //     html += '<b>' + libNm + '</b>';
-        //     UI.arena.attr("link-lib", "yes");
-        // }
-        // else {            
-        //     html += '<em>' + UI.msg("hmaker.lib.create") + '</em>';
-        //     UI.arena.attr("link-lib", "no");
-        // }
-        // 设置
-        // jLib.html(html);
+        //UI.arena.find('>.hm-prop-head>.hm-com-info').html(html);
 
         // 有组件，显示组件的操作菜单
         if(libNm) {

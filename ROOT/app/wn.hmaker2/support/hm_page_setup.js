@@ -520,6 +520,8 @@ var methods = {
                     //..................................
                     // 改变控件大小的八个柄
                     else {
+                        // 显示块面板
+                        UI.fire("show:prop", "block");
                         // 标识一下突出显示视口
                         ing.mask.$viewport.attr("in-area", ing.is_in_area?"yes":null);
                         // 得到组件的矩形信息
@@ -564,6 +566,8 @@ var methods = {
                 //......................................
                 // 那么就是移动组件本身
                 else {
+                    // 显示块面板
+                    UI.fire("show:prop", "block");
                     // 标识一下突出显示视口
                     ing.mask.$viewport.attr("in-area", ing.is_in_area?"yes":null);
                     // 标识一下移动组件的 helper

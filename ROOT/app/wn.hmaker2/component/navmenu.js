@@ -24,19 +24,22 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             var jA  = $(e.currentTarget);
             var jLi = jA.closest("li");
 
+            // 确保禁止默认行为
+            e.preventDefault();
+
             // 仅针对激活控件有效
             if(!this.isActived())
                 return;
 
             // 本控件激活，那么就不要向上冒泡了，自己处理
             e.stopPropagation();
-            e.preventDefault();
-
-            // 如果当前模式是区域选择，还需要同时高亮当前区域
-            var com = this.getData();
 
             // 激活当前项目
             this.selectItem(jLi);
+
+            // 如果当前模式是区域选择，还需要同时高亮当前区域
+            this.fire("show:prop", "com");
+
         },
         // 取消高亮
         'click .hmc-navmenu' : function(e) {
@@ -58,7 +61,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
                 return;
 
             var jItem = jq.closest("li");
-            var index = jItem.prevAll().length;
+            var index = jItem.attr("index") * 1;
             var item  = UI.getItemData(index);
 
             $z.editIt(jq, {

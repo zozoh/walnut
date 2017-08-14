@@ -317,7 +317,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                     },
                     text  : function(uiCom){
                         if(uiCom)
-                            return uiCom.getComDisplayText();
+                            return uiCom.getComDisplayText(true);
                     },
                     value : function(uiCom){
                         if(uiCom)

@@ -7,6 +7,14 @@
             > em   {color:rgba(255,255,255,0.8);}
             > em:hover {border:1px solid rgba(255,255,255,0.2);}
         }
+        > .hm-com-info {
+            > .hm-skin-box {
+                span.com-skin {
+                    i,b {color:@chy_f;}
+                }
+                .page-css {color:@chy_f;}
+            }
+        }
     }
 }
 
@@ -31,10 +39,21 @@
         }
         > .hm-com-info {
             float: left; line-height: 24px; padding-left:@d2;
-            > b  {margin:0 @d1;}
-            > em   {color:@c3; font-style: normal;}
+            > .hm-skin-box {
+                span.com-skin {
+                    b {
+                        font-size: @f2; color:@cf0; opacity: 1;
+                        font-style: normal;
+                    }
+                }
+            }
+            > em   {
+                color:@c3; font-style: normal;
+                display: inline-block; vertical-align: middle;
+                padding:0 @d1; border:1px solid transparent;
+            }
             > em:before {display:inline; content:"#";}
-            > em:hover {border:1px solid rgba(0,0,0,0.2);}
+            > em:hover {border-color:rgba(0,0,0,0.2);}
         }
         > .hm-com-lib {
             float:right; 
@@ -535,10 +554,10 @@
     }
     > span.page-css {
         cursor: pointer; display: inline-block; vertical-align: middle;
-        padding:0 0 0 @d2;
+        padding:0 0 0 @d2; font-size:@f2;
         > i, >b {transition:0.2s;}
         > b {display: inline-block; vertical-align: middle;
-            font-weight: normal; font-size:@f2; margin-left:@d1;
+            font-weight: normal; margin-left:@d1;
         }
         > b[css-none] {font-style: italic; opacity: 0.4;}
         // 重置弹出体的一些 CSS

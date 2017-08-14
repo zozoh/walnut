@@ -22,6 +22,12 @@
                     "padding",
                     "@align(对齐)[默认=NW,左下=SW,中下=S,右下=SE]=NW"
                 ]
+            }, {
+                "text" : "自适应竖排二级菜单",
+                "selector" : "skin-navmenu-autof2v",
+                "blockFields" : [
+                    
+                ]
             }],
         "image" : [{
                 "text" : "自适应菜单触发LOGO",

@@ -449,8 +449,8 @@ var MVs = {
 
         // 循环绘制可见的感应器
         var baSc = {
-            x : MVing.$viewport[0].scrollLeft,
-            y : MVing.$viewport[0].scrollTop,
+            x : MVing.$client[0].scrollLeft,
+            y : MVing.$client[0].scrollTop,
         };
         for(var i=MVing.sensors.length-1; i>=0; i--) {
             var sen = MVing.sensors[i];
@@ -499,7 +499,6 @@ var MVs = {
                 else {
                     sen.rect = MVing.getRectInClient(sen.$ele, padding);
                 }
-                //console.log(sen.text, sen.rect)
             }
 
             // 记录感应器原始矩形
@@ -518,6 +517,7 @@ var MVs = {
                 css = $D.rect.relative(sen.rect, MVing.rect.client, true, baSc);
                 css = $z.pick(css, ["top","left","width","height"]);
                 css.position = "absolute";
+                //console.log(sen.text, baSc, sen.rect, css)
             }
             // 绘制视口内感应器
             else if("viewport" == sen.scope) {
