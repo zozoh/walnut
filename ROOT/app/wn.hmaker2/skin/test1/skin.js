@@ -9,7 +9,7 @@ function do_change_root_font_size(context, designWidth, maxNb, minNb){
 //=======================================================================
 module.exports = {
     on : function(){
-        console.log("I am skin.on");
+        //console.log("I am skin.on");
         do_change_root_font_size(this, 640, 100, 80);
 
         // 绑定事件

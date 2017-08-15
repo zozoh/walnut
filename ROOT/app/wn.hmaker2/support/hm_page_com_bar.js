@@ -36,6 +36,8 @@ return ZUI.def("app.wn.hmpg_combar", {
             if(areaId) {
                 var uiCom = UI.pageUI().getCom(comId);
                 uiCom.notifyActived(null, areaId);
+                // 通知切换到控件面板
+                UI.fire("show:prop", "com");
             }
             // 组件
             else if(comId) {
@@ -103,7 +105,7 @@ return ZUI.def("app.wn.hmpg_combar", {
                 var pi = UI.__current_com_path[i];
 
                 // 得到关键文本
-                var tip = "#" + pi.comId + (pi.areaId ? " > " + pi.areaId : "");
+                var tip = (pi.lib || "") +"#" + pi.comId + (pi.areaId ? " > " + pi.areaId : "");
                 var txt = pi.areaId 
                             || this.get_com_display_text(pi.ctype, pi.comId, pi.skin);
 

@@ -2,12 +2,16 @@
 .hmaker .hm-prop-edit[link-lib="yes"] {
     .hm-prop-head {
         background:@chy_b; color:@chy_f;
-        > .hm-com-info {
+        .hm-com-info {
             float: left;
-            > em   {color:rgba(255,255,255,0.8);}
-            > em:hover {border:1px solid rgba(255,255,255,0.2);}
+            > em {color:rgba(255,255,255,0.8);}
+            > em:hover {border-color:rgba(255,255,255,0.2);}
+            em[in-lib], em[in-lib]:hover {
+                border-color:transparent; cursor: default;
+                font-style: italic; opacity: .6;
+            }
         }
-        > .hm-com-info {
+        .hm-com-info {
             > .hm-skin-box {
                 span.com-skin {
                     i,b {color:@chy_f;}
@@ -15,30 +19,26 @@
                 .page-css {color:@chy_f;}
             }
         }
+        .hm-com-lib {background: @chy_b;}
     }
 }
 
 .hmaker .hm-prop-edit[link-lib="no"] .hm-prop-head {
-    > .hm-com-lib {color:@clink;}
-    > .hm-com-lib:hover {
+    .hm-com-lib {color:@clink; background: @cb2;}
+    .hm-com-lib:hover {
         color:@clink_hover;
     }
 }
 
 // 编辑属性面板
-@ppCInfo : 40px;
 @ppTabH  : 28px;
 .hmaker .hm-prop-edit {
-    position:relative; padding: @ppCInfo + @ppTabH/2 + @d2 @d2 @d2 @d2;
-    .hm-prop-head {
-        position: absolute; top:0; left:0; right:0;
-        padding:@d3; font-family: @f_fixed; font-size:@f2;
+    padding:@d2;
+    .hm-prop-head { @noselect();
+        padding:@d2; font-family: @f_fixed; font-size:@f2;
         color:@cf2; background: @cb2; border-top:1px solid @cborder1;
-        > div {  @noselect();
-            > *  {display:inline-block;vertical-align: middle;}
-        }
-        > .hm-com-info {
-            float: left; line-height: 24px; padding-left:@d2;
+        .hm-com-info {
+            float:left; line-height: 24px; padding-left:@d1;
             > .hm-skin-box {
                 span.com-skin {
                     b {
@@ -48,21 +48,21 @@
                 }
             }
             > em   {
-                color:@c3; font-style: normal;
+                color:@c3; font-style: normal; font-size:@f1;
                 display: inline-block; vertical-align: middle;
                 padding:0 @d1; border:1px solid transparent;
             }
             > em:before {display:inline; content:"#";}
             > em:hover {border-color:rgba(0,0,0,0.2);}
         }
-        > .hm-com-lib {
-            float:right; 
+        .hm-com-lib {
+            float:right;
             .menu {padding:0;}
         }
     }
     .hm-prop-head:after{@clr();}
     .hm-prop-tabs { @noselect();
-        position: absolute; top:@ppCInfo + @d2; left:0; right:0; height:@ppTabH; 
+        height:(@ppTabH+@d2+@d2)/2; padding:@d2;
         ul {
             @flex(); justify-content: center;
             li {

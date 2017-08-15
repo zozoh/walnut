@@ -33,10 +33,16 @@ public class cmd_json extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
 
-        ZParams params = ZParams.parse(args, "cqnr");
+        ZParams params = ZParams.parse(args, "cqnr", "^(err)$");
 
         // 读取输入
         String json = Streams.read(sys.in.getReader()).toString();
+
+        // 容忍错误
+        if (params.is("err") && (Strings.isBlank(json) || json.startsWith("e."))) {
+            sys.out.println(json);
+            return;
+        }
 
         // 格式化
         Object obj = Json.fromJson(json);

@@ -202,12 +202,15 @@ body {
         min-height: 30px;
     }
 }
-[assisted-off] .hm-area-assist {display: none;}
+[assisted-off] {
+    .hm-area-assist {display: none;}
+    .hm-area[highlight] > .hm-area-assist {display: unset;}
+}
 .hm-layout[highlight-mode] {
     > .hm-com-W {
         > .hm-com-assist {display: none;}
         > .ui-arena {
-            > .hm-area {dopacity: 0.2; @blur();}
+            > .hm-area {@blur();}
             > .hm-area:after {
                 display: block; content:""; position: absolute;
                 top:0;left:0;right:0;bottom:0; background: rgba(0,0,0,0.2);

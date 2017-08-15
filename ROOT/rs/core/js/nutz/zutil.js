@@ -3440,7 +3440,7 @@
             var html = '<div class="z-edit-it">' + (opt.multi ? '<textarea></textarea>' : '<input>') + '</div>';
             //...............................................
             // 计算宿主尺寸
-            var rect = $z.rect(jEle);
+            var rect = $D.rect.gen(jEle, true);
             var el = jEle[0];
 
             //...............................................

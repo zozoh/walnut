@@ -438,8 +438,37 @@ return ZUI.def("app.wn.hmaker_page", {
     // 分配的一个控件 ID
     assignComId : function(jCom) {
         var comId = jCom.attr("id");
-        if(!comId){
-            var ctype = jCom.attr("ctype");
+        var jLib  = jCom.parent().closest(".hm-com[lib]");
+        var ctype = jCom.attr("ctype");
+
+        // 如果在某个组件内，则需要重新分配
+        if(jLib.length > 0) {
+            // 得到所在组件的 ID
+            var libId = jLib.attr("id");
+
+            // 得到自己同类型子控件的前缀
+            var regex = new RegExp("^"+libId+"_"+ctype+"([0-9]+)$");
+
+            // 寻找所有子控件 ID 的最大值
+            var maxId = 0;
+            jLib.find(".hm-com").each(function(){
+                var jSub  = $(this);
+                var subId = jSub.attr("id");
+                var m = regex.exec(subId);
+                if(m){
+                    maxId = Math.max(maxId, parseInt(m[1]));
+                }
+            });
+            //console.log(maxId)
+
+            // 拼合成新的组件 ID
+            comId = libId + "_" + ctype + (maxId+1);
+
+            // 设置新 ID
+            jCom.attr("id",comId);
+        }
+        // 否则如果没有 comId 就分配一个新的
+        else if(!comId){
             // 遍历所有同类控件，找到最大的那个 ID 序号
             var seq   = 0;
             var regex = new RegExp("^"+ctype+"_([\\d]+)$");
@@ -748,6 +777,8 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     reloadLibCode : function(jCom, homeId, cache, callback) {
         var UI = this;
+        var pageUI = UI.pageUI();
+        var comIsActived = jCom.attr("hm-actived") == "yes";
 
         // 接受快捷参数形式
         if(_.isFunction(homeId)){
@@ -769,13 +800,12 @@ return ZUI.def("app.wn.hmaker_page", {
         // 替换现有组件
         if(html && !/^e./.test(html)){
             // 老控件是否需要激活
-            var comIsActived = jCom.attr("hm-actived") == "yes";
             var comUIbinded  = jCom.attr('ui-id') ? true : false;
 
             // 得到新的 COM DOM 结构
             var jCom2 = $(html).attr({
                 "id"  : comId,
-                "lib" : libName
+                "lib" : libName,
             }).insertBefore(jCom);
 
             // 移除老的: 如果已经绑定了组件，注销组件
@@ -790,7 +820,6 @@ return ZUI.def("app.wn.hmaker_page", {
             }
 
             // 绑定控件
-            var pageUI = UI.pageUI();
             pageUI.bindComUI(jCom2, function(uiCom){
                 // 绑定所有子控件
                 uiCom.$el.find(".hm-com").each(function(){
@@ -817,6 +846,10 @@ return ZUI.def("app.wn.hmaker_page", {
                     + "<em>" + html + '</em>'
                     + '<u class="invalid-lib-del">'  + UI.msg("del") + '</u>'
                     + '</div>');
+            // 调用回调
+            pageUI.bindComUI(jCom, function(uiCom){
+                $z.doCallback(callback, [uiCom, comIsActived], UI);
+            });
         }
     },
     //...............................................................
@@ -898,7 +931,6 @@ return ZUI.def("app.wn.hmaker_page", {
         });
         return re;
     },
-    //...............................................................
     //...............................................................
     deleteCom : function(uiCom, noResizeSkin) {
         if(uiCom) {
@@ -1624,6 +1656,7 @@ return ZUI.def("app.wn.hmaker_page", {
                     homeId  : oHomeId,
                     libName : libName
                 });
+
             }
 
             // 然后标识一下,以便阻止重复保存 
@@ -1637,7 +1670,8 @@ return ZUI.def("app.wn.hmaker_page", {
         });
 
         // 移除组件保存时的临时标记
-        C.iload.$body.find('.hm-com[lib-saved]').removeAttr("lib-saved");
+        C.iload.$body.find('.hm-com[lib-saved]')
+            .removeAttr("lib-saved");
 
         // 返回 HTML
         return '<!DOCTYPE html>\n<html>\n' + C.iload.$root.html() + '\n</html>\n';;;

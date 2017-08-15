@@ -19,6 +19,8 @@ var methods = {
                 if(!jq.attr("highlight")) {
                     UI.highlightArea(jq);
                     this.notifyActived("page", jq.attr("area-id"));
+                    // 通知切换到控件面板
+                    UI.fire("show:prop", "com");
                 }
             }
         }

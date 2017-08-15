@@ -95,7 +95,7 @@ public class hmaker_lib implements JvmHdl {
             WnObj oLib = sys.io.check(oLibHome, libName);
 
             // 得到新名称
-            String newnm = hc.params.val_check(1);
+            String newnm = hc.params.val_check(0);
 
             // 两个名称如果不相等，则改名
             if (!libName.equals(newnm)) {

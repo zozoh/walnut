@@ -1,3 +1,5 @@
+@import "skin_vars";
+
 /***************************************************
  * 定义变量
  */
@@ -39,31 +41,6 @@ html {
 .hmc-navmenu {
     ul {list-style:none; margin:0; padding:0;}
 }
-
-/***************************************************
- * 定义关键的变量
- */
-//#全局设置
-@w_C_dev     : 640px;      // 紧凑模式屏幕宽度
-@c_title     : #444;       // 网站标题颜色
-@c_lnk       : #08F;       // 链接颜色
-@c_lnk_ho    : #F80;       // 链接悬浮颜色
-@c_h_f       : #000;       // 高亮区前景色
-@c_h_b       : #f9c320;    // 高亮区背景色
-@c_foot_f    : rgba(255, 255, 255, 0.4);    // 底栏文字颜色
-@c_foot_b    : #34373e;                     // 底栏背景颜色
-@c_t_f       : #444;       // 文字颜色
-@c_t_b       : #FFF;       // 文字区背景
-@f_0         : .18rem;     // 默认文字大小
-@f_menu      : .14rem;     // 导航菜单文字大小
-//#桌面版相关设置
-@w_N_pmax    : 800px;      // 页面最大宽度
-//#移动版相关设置
-@w_C_menu    : 180px;      // 菜单宽度
-@c_skybar_f  : #f9c320;    // 顶栏文字颜色
-@c_skybar_b  : #f9c320;    // 顶栏背景
-@c_menu_f    : #FFF;       // 菜单文字颜色
-@c_menu_b    : #34373e;    // 菜单背景
 
 body {
     background: #FFF; font-size:@f_0; min-height: 100%;
@@ -114,6 +91,35 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
     .hm-com-rows[skin="skin-rows-main"] {
         margin: 0 .08rem;
     }
+} // @media
+
+//............................................
+// com.rows:通用底栏
+.skin-rows-footer {
+    padding:.1rem 0 .1rem 0;
+    background: @c_foot_b; color:@c_foot_f;
+    border-top: 2px solid @c_h_b;
+    .skin-navmenu-autof2v {
+        ul li[current]{
+            > a {color:@c_foot_h_f;background: @c_foot_h_b; }
+        }
+    }
+    a[href]{color:@c_foot_lnk;}
+    a[href]:hover{color:@c_foot_lnk_ho;}
+}
+@media screen and (min-width: @w_C_dev) {
+.skin-rows-footer {
+    > .hm-area {
+        max-width: @w_N_pmax; margin:0 auto;
+    }
+}
+} // @media
+@media screen and (max-width: @w_C_dev) {
+.skin-rows-footer {
+    .skin-navmenu-autof2v {
+        @flex(); justify-content:center; text-align: center;
+    }
+}
 } // @media
 
 //............................................
@@ -186,9 +192,14 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 
 //............................................
 // com.navmenu:自适应竖排二级菜单
+.skin-navmenu-autof2v {
+    ul li[current]{
+        > a {color:@c_h_f;background: @c_h_b; }
+    }
+}
 @media screen and (min-width: @w_C_dev) {
 .skin-navmenu-autof2v {
-    font-size: @f_menu;
+    font-size: @f_menu; padding:.1rem 0;
     li {margin:0; text-align: center;}
     li[open-sub]{
         > .ul-sub {display: block;}
@@ -204,6 +215,7 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 } // @media
 @media screen and (max-width: @w_C_dev) {
 .skin-navmenu-autof2v {
+    padding:.1rem 0;
     .ul-top {padding:.1rem; display: inline-block;}
     .li-top {padding:.1rem;}
     .ul-sub {padding:.1rem;}
@@ -211,15 +223,6 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
     .ul-sub-n {display: none;}
 }
 } // @media
-// for IDE:
-// 给 IDE 做的
-[hmaker-ide] {
-    .skin-navmenu-autof2v {
-        ul li[current]{
-            > a {color:@c_h_f;background: @c_h_b; }
-        }
-    }
-}
 
 
 //............................................
@@ -233,7 +236,7 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 .skin-image-smartlogo {
     width:.5rem; height:.5rem; cursor: pointer; 
     @flex(); align-items:center; justify-content:center;
-    color:@c_t_f;
+    color:@c_title;
     img {display: none;}
 }
 .skin-image-smartlogo:before{
@@ -252,50 +255,60 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 // com.dynamic:超文本(Markdown)
 // com.text:超文本(Markdown)
 .skin-markdown {
-    padding: .2rem;
+    padding: .2rem .2rem .5rem .2rem;
 
     // 正文内容
     article {
+        letter-spacing:.03em; color:@c_txt;
         // 重定义字体大小
-        table, thead, tbody, tr, th, td {font-size:1em;}
+        table, thead, tbody, tr, th, td {
+            font-size:1em; color:@c_tab;
+        }
         
         // 链接
-        a {color:#08F; text-decoration: none;}
-        a:hover {text-decoration: underline;}
+        a {color:@c_lnk; text-decoration: none;}
+        a:hover {color:@c_lnk_ho; text-decoration: underline;}
         
         // ------------------------- 标题
-        h1 {margin:.20rem 0; padding:.08rem 0; font-size:.24rem;}
-        h2 {margin:.16rem 0; padding:.06rem 0; font-size:.22rem;}
-        h3 {margin:.12rem 0; padding:.04rem 0; font-size:.20rem;}
-        h4 {margin:.10rem 0; padding:.02rem 0; font-size:.18rem;}
-        h5 {margin:.08rem 0; padding:.02rem 0; font-size:.16rem;}
-        h6 {margin:.04rem 0; padding:.02rem 0; font-size:.14rem;}
+        h1 {margin:.20rem 0; padding:.08rem 0; font-size:2em;}
+        h2 {margin:.16rem 0; padding:.06rem 0; font-size:1.8em;}
+        h3 {margin:.12rem 0; padding:.04rem 0; font-size:1.6em;}
+        h4 {margin:.10rem 0; padding:.02rem 0; font-size:1.4em;}
+        h5 {margin:.08rem 0; padding:.02rem 0; font-size:1.2em;}
+        h6 {margin:.04rem 0; padding:.02rem 0; font-size:1.1em;}
         // ------------------------- 段落及正文
-        p {margin:.16rem 0; padding:.06rem; line-height: .28rem;}
-        em {font-style: italic; color:#88A;}
-        b {color:#89B; font-weight: bold;}
-        del {color:#F88;}
+        p {margin:.16rem 0; padding:.06rem; line-height: .32rem;}
+        em {font-style: italic; color:@c_italic;}
+        b {color:@c_bold; font-weight: bold;}
+        del {color:@c_del;}
         code {
             border:1px solid #CCC; background: #FFC; color:#666;
             display: inline-block; vertical-align: middle;
-            margin:.02rem; font-size:.11rem; line-height: .20rem;
+            margin:.02rem .02rem .06rem .02rem; font-size:.8em; line-height: .24rem;
             padding:0 .04rem; font-family: @f_fixed;
+            border-radius: .04rem;
         }
         // ------------------------- 图片
         img {max-width: 100%;}
         // ------------------------- 引用
         blockquote {
-            border-left:4px solid rgba(0,0,0,0.1); 
-            margin:.1rem; padding:.1rem;
+            border-left:4px solid rgba(0,0,0,0.1); line-height: 2em;
+            margin:.1rem; padding:.1rem; font-size:.8em;
             color:#666; background: rgba(0,0,0,0.05);
         }
         // ------------------------- 无序列表
         ul, ol {
-            margin:.05rem .2rem; padding:0 .14rem;
+            margin:.1rem .3rem; padding:.16rem;
+        }
+        ul, ol {
+            ul, ol {
+                padding:.05rem .16rem; margin:0 .24rem;
+            }
         }
         // ------------------------- 表格
         table {
             border-spacing: 0; border-collapse: collapse;
+            margin:.2rem .1rem;
         }
         td, th {
             border:1px solid #dfe2e5; padding:.08rem .16rem;
@@ -308,10 +321,11 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
         
         // ------------------------- 代码
         pre {
-            padding: .16rem; overflow: auto;
-            font-size: 85%; line-height: 1.45;
+            padding: .16rem; margin:.1rem;
+            overflow: auto; border: 1px dashed rgba(0,0,0,0.4);
+            font-size: .7em; line-height: 1.5em;
             background-color: #F0F0F0; border-radius: 3px;
-            font-family: @f_fixed;
+            font-family: @f_fixed; 
         }
 
     } // ~ 结束正文 article

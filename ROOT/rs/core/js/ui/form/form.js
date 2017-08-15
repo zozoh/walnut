@@ -472,6 +472,9 @@ return ZUI.def("ui.form", {
         jGrps.each(function(index){
             var jG    = $(this).css("width", col_widths[index % colNb]);
             var grp   = jG.data("@GRP");
+            // zozoh: 不知道为啥有时候会有错，防守一道先，反正这个方法以后也要被重构掉 ^_^!
+            if(!grp)
+                return;
             var colnb = Math.max(grp.cols || 1, 1);
             var fbW   = $(this).find(".fg-fields").width();
             var fldW = parseInt(fbW / Math.max(colnb, 1)) - (colnb>1?1:0);

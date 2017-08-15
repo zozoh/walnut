@@ -57,9 +57,15 @@ return ZUI.def("app.wn.hm_prop_edit", {
         },
         // 修改 comID
         "click .hm-prop-head .hm-com-info em" : function(e){
-            //alert($(e.currentTarget).text())
             var UI = this;
-            $z.editIt(e.currentTarget, function(newval, oldval, jEle){
+            var jq = $(e.currentTarget);
+
+            // 组件内控件 ID 不可编辑
+            if(jq.attr("in-lib"))
+                return;
+
+            // 进入编辑模式
+            $z.editIt(jq, function(newval, oldval, jEle){
                 var comNewId = $.trim(newval);
                 if(comNewId != oldval) {
                     //console.log("change com ID", comNewId);
@@ -316,7 +322,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
         // html += '<em>' + comId + '</em>';
         var jInfo  = UI.arena.find('>.hm-prop-head>.hm-com-info').empty();;
         var jSkBox = $('<span class="hm-skin-box" box-enabled="yes">').appendTo(jInfo);
-        $('<em>' + comId + '</em>').appendTo(jInfo);
+        var jEm = $('<em>' + comId + '</em>').appendTo(jInfo);
         UI.updateSkinBox(jSkBox, {
             noneSkinText : UI.get_com_display_text(ctype, comId),
             skin : skin,
@@ -336,9 +342,13 @@ return ZUI.def("app.wn.hm_prop_edit", {
         // 设置信息
         //UI.arena.find('>.hm-prop-head>.hm-com-info').html(html);
 
+        // 切换显示模式
+        UI.arena.attr("link-lib", libNm ? "yes" : "no");
+
         // 有组件，显示组件的操作菜单
         if(libNm) {
-            UI.arena.attr("link-lib", "yes");
+            var isInLib = UI.uiCom.isInLib();
+            jEm.attr("in-lib", isInLib ? "yes" : null);
             new MenuUI({
                 parent : UI,
                 gasketName : "libmenu",
@@ -359,7 +369,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
         }
         // 显示创建组件的按钮
         else {
-            UI.arena.attr("link-lib", "no");
+            jEm.removeAttr("in-lib");
             new MenuUI({
                 parent : UI,
                 gasketName : "libmenu",
@@ -370,6 +380,9 @@ return ZUI.def("app.wn.hm_prop_edit", {
                 }]
             }).render();
         }
+
+        // 总之最后重新设置一下尺寸
+        UI.resize();
 
     },
     //...............................................................
@@ -389,13 +402,12 @@ return ZUI.def("app.wn.hm_prop_edit", {
     },
     //...............................................................
     resize : function() {
-        var UI  = this;
-        var jCE = UI.arena.find('.hm-prop-com-ele');
-        var W   = UI.arena.outerWidth();
-        jCE.css({
-            "width" : W,
-            "left"  : jCE.attr("show") ? 0 : W
-        });
+        var UI = this;
+        var H  = UI.arena.height();
+        var jHead = UI.arena.find(".hm-prop-head");
+        var jTabs = UI.arena.find(".hm-prop-tabs");
+        var jBody = UI.arena.find(".hm-prop-body");
+        jBody.css("height", H - jHead.outerHeight() - jTabs.outerHeight());
     }
     //...............................................................
 });

@@ -14,6 +14,10 @@
                 "text" : "首页大图",
                 "selector" : "skin-rows-homebanner",
                 "blockFields" : ["background"]
+            }, {
+                "text" : "通用底栏",
+                "selector" : "skin-rows-footer",
+                "blockFields" : []
             }],
         "navmenu" : [{
                 "text" : "自适应水平菜单",
@@ -26,7 +30,7 @@
                 "text" : "自适应竖排二级菜单",
                 "selector" : "skin-navmenu-autof2v",
                 "blockFields" : [
-                    
+                    "padding"
                 ]
             }],
         "image" : [{

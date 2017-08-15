@@ -104,6 +104,15 @@ var methods = {
         }
         this.$el.attr("lib", lib || null);
     },
+    // 仅仅是获取自己（不包括父控件）的组件库名称
+    getMyLibName : function(){
+        return this.$el.attr("lib");
+    },
+    isInLib : function(){
+        var cLib = this.getComLibName();
+        var mLib = this.getMyLibName();
+        return cLib && !mLib;
+    },
     //........................................................
     // 获取一个组件的路径数组，每个元素为
     // {
@@ -187,7 +196,6 @@ var methods = {
 
         // 高亮指定区域
         if(areaId) {
-            console.log("haha")
             $z.invoke(this, "highlightArea", [areaId]);
         }
 

@@ -108,13 +108,14 @@ return ZUI.def("app.wn.hmaker_lib", {
         // 获取新名字
         UI.prompt("hmaker.lib.rename_tip", {
             placeholder : oLib.nm,
-            ok : function(str, callback) {
+            ok : function(str) {
                 //console.log(str)
                 // var re = Wn.execf('hmaker id:{{homeId}} lib -get "{{libName}}" | json -out @{id}', {
                 //     homeId  : UI.getHomeObjId(),
                 //     libName : str
                 // });
-                var re = Wn.exec('hmaker id:'+UI.getHomeObjId()+' lib  -get "'+str+'" | json -out @{id}');
+                var re = Wn.exec('hmaker id:'+UI.getHomeObjId()+' lib  -get "'+str+'" | json -out @{id} -err');
+                console.log("re:", re);
 
                 var err = $.trim(re);
                 // 返回了 ID，那么说明存在 
@@ -122,13 +123,11 @@ return ZUI.def("app.wn.hmaker_lib", {
                     err = "hmaker.lib.nm_exists";
                 }
                 // 不存在，可以改
-                else if(/^e.io.noexists/.test(err)){
+                else if(/^e.io.obj.noexists/.test(err)){
                     err = null;
                 }
                 // 其他错误
                 //console.log(re, err);
-                // 处理回调的显示
-                callback(err);
                 // 如果没错误，继续处理
                 if(!err) {
                     // 准备命令

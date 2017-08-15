@@ -156,8 +156,43 @@ public class HmPageTranslating extends HmContext {
      */
     private String __assignComId(Element eleCom) {
         String comId = eleCom.id();
-        if (Strings.isBlank(comId)) {
-            String ctype = eleCom.attr("ctype");
+        String ctype = eleCom.attr("ctype");
+
+        // 试图向上找到找到自己所在的组件
+        Element eleLib = eleCom.parent();
+        while (null != eleLib && Strings.isBlank(eleLib.attr("lib"))) {
+            eleLib = eleLib.parent();
+        }
+
+        // 如果在某个组件内，则需要重新分配
+        if (null != eleLib) {
+            // 得到所在组件的 ID
+            String libId = eleLib.attr("id");
+
+            // 得到自己同类型子控件的前缀
+            Pattern regex = Pattern.compile("^" + libId + "_" + ctype + "([0-9]+)$");
+
+            // 寻找所有子控件 ID 的最大值
+            int maxId = 0;
+            Elements eleSubs = eleLib.select(".hm-com");
+            // 二逼 jsoup，select 出来的东西自己先包括上，靠，从 1 开始吧
+            for (int i = 1; i < eleSubs.size(); i++) {
+                Element eleSub = eleSubs.get(i);
+                String subId = eleSub.attr("id");
+                Matcher m = regex.matcher(subId);
+                if (m.find()) {
+                    maxId = Math.max(maxId, Integer.parseInt(m.group(1)));
+                }
+            }
+
+            // 拼合成新的组件 ID
+            comId = libId + "_" + ctype + (maxId + 1);
+
+            // 设置新 ID
+            eleCom.attr("id", comId);
+        }
+        // 否则如果没有 comId 就分配一个新的
+        else if (Strings.isBlank(comId)) {
             // 遍历所有同类控件，找到最大的那个 ID 序号
             int seq = 0;
             Pattern regex = Pattern.compile("^" + ctype + "_([\\d]+)$");
@@ -205,12 +240,22 @@ public class HmPageTranslating extends HmContext {
             eleLib.remove();
 
             // 设置一下自己的属性
-            eleCom.attr("id", theComId).removeAttr("lib");
+            eleCom.attr("id", theComId).attr("lib", libName);
 
-            // 进行递归
-            Elements eleSubLibs = eleCom.select(".hm-com[lib]");
-            for (Element eleSubLib : eleSubLibs) {
-                this.__load_lib_and_ensure_comId(eleSubLib);
+            // 循环自己所有的子控件
+            Elements eleSubComs = eleCom.select(".hm-com");
+
+            // 二逼 jsoup，select 出来的东西自己先包括上，靠，从 1 开始吧
+            for (int i = 1; i < eleSubComs.size(); i++) {
+                Element eleSubCom = eleSubComs.get(i);
+                // 还是组件，嗯，递归解开个小丫挺的
+                if (!Strings.isBlank(eleSubCom.attr("lib"))) {
+                    this.__load_lib_and_ensure_comId(eleSubCom);
+                }
+                // 普通控件的话，确保有 ID
+                else {
+                    this.__assignComId(eleSubCom);
+                }
             }
         }
     }
