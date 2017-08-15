@@ -23,7 +23,7 @@ public class mgadmin_index implements JvmHdl {
         DB db = mongoDB.getRaw();
         String colName = hc.params.get("co", "obj");
         DBCollection co = db.getCollection(colName);
-        
+
         // 执行操作
         if (hc.params.vals.length > 0) {
             switch (hc.params.vals[0]) {
@@ -39,20 +39,32 @@ public class mgadmin_index implements JvmHdl {
                 co.dropIndex(hc.params.val(1));
                 break;
             case "cbasic":
-                db.getCollection("obj").createIndex(BasicDBObject.parse("{'id':1}"));
-                db.getCollection("obj").createIndex(BasicDBObject.parse("{'d0':1, 'd1':1}"));
-                db.getCollection("obj").createIndex(BasicDBObject.parse("{'pid':1, 'nm':1}"));
-                db.getCollection("obj").createIndex(BasicDBObject.parse("{'www':1}"),
-                                                    BasicDBObject.parse("{'sparse':true}"));
-                db.getCollection("obj").createIndex(BasicDBObject.parse("{'expi':1}"),
-                                                    BasicDBObject.parse("{'sparse':true}"));
-                db.getCollection("obj").createIndex(BasicDBObject.parse("{'d0':1, 'd1':1,'www':1}"),
-                                                    BasicDBObject.parse("{'sparse':true}"));
-                db.getCollection("obj").createIndex(BasicDBObject.parse("{'d0':1, 'd1':1,'websocket_watch':1}"),
-                                                    BasicDBObject.parse("{'sparse':true}"));
+                co = db.getCollection("obj");
+                List<DBObject> indexes = co.getIndexInfo();
+                for (DBObject dbo : indexes) {
+                    if ("id_1".equals(dbo.get("name")) && dbo.get("unique") != Boolean.TRUE) {
+                        sys.out.println("drop NOT unique id index for collection obj");
+                        co.dropIndex("id_1");
+                    }
+                }
+                co.createIndex(toDBO("{'id':1}"), toDBO("{'unique':true}"));
+                co.createIndex(toDBO("{'d0':1, 'd1':1}"));
+                co.createIndex(toDBO("{'pid':1, 'nm':1}"));
+                co.createIndex(toDBO("{'www':1}"), toDBO("{'sparse':true}"));
+                co.createIndex(toDBO("{'expi':1}"), toDBO("{'sparse':true}"));
+                co.createIndex(toDBO("{'d0':1, 'd1':1,'www':1}"), toDBO("{'sparse':true}"));
+                co.createIndex(toDBO("{'d0':1, 'd1':1,'websocket_watch':1}"),
+                               toDBO("{'sparse':true}"));
 
-                db.getCollection("bucket").createIndex(BasicDBObject.parse("{'id':1}"));
-                db.getCollection("bucket").createIndex(BasicDBObject.parse("{'sha1':1}"));
+                co = db.getCollection("bucket");
+                for (DBObject dbo : indexes) {
+                    if ("id_1".equals(dbo.get("name")) && dbo.get("unique") != Boolean.TRUE) {
+                        sys.out.println("drop NOT unique id index for collection bucket");
+                        co.dropIndex("id_1");
+                    }
+                }
+                co.createIndex(toDBO("{'id':1}"), toDBO("{'unique':true}"));
+                co.createIndex(toDBO("{'sha1':1}"));
                 break;
             default:
                 sys.err.print("unkown cmd=" + hc.params.val(0));
@@ -68,4 +80,7 @@ public class mgadmin_index implements JvmHdl {
         }
     }
 
+    protected static DBObject toDBO(String json) {
+        return BasicDBObject.parse(json);
+    }
 }
