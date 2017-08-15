@@ -177,7 +177,7 @@ task wtar(dependsOn: [':wbuild', ':fatJar']) << {
    		from "build/${project.name}.tar"
    		archiveName "${project.name}-${version_tag}.tgz"
    		destinationDir buildDir
-   		compression Compression.GZIP
+   		compression Compression.NONE
    	}.execute()
 }
 
