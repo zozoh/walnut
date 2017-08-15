@@ -1,6 +1,6 @@
 (function($z){
 $z.declare([
-    'zui', 
+    'zui',
     'wn/util',
     'ui/obrowser/support/browser__methods_list',
     'ui/otiles/otiles'
@@ -25,6 +25,7 @@ return ZUI.def("ui.obrowser_vmd_thumbnail", {
             parent : UI,
             gasketName : "list",
             renameable : opt.renameable,
+            evalThumb: opt.thumbnail,
             multi : opt.multi,
             objTagName : opt.objTagName,
             on_open : function(o) {

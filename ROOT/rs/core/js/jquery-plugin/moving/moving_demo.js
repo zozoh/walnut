@@ -25,7 +25,7 @@ function mark_viewport_to_inner_body(){
         }
         // 搞在 body 上
         else {
-            jBody.attr("viewport", vps);
+            jBody.attr("client", vps);
         }
     });
 }
@@ -63,40 +63,56 @@ var LOG = {
         }
     },
     dumping : function(MVing) {
-        var str = "<b>" + MVing.$target.attr("nm") + ":</b> ";
+        var str = "<b>startInMs : </b>" + MVing.startInMs;
+        str  += "\n<b>endInMs   : </b>" + MVing.endInMs;
+ 
+        str  += "\n<b>cursor :</b>";
+        str  += "\n<u> - win      : </u>" + $D.rect.dumpPos(MVing.cursor.win);
+        str  += "\n<u> - client   : </u>" + $D.rect.dumpPos(MVing.cursor.client);
+        str  += "\n<u> - viewport : </u>" + $D.rect.dumpPos(MVing.cursor.viewport);
+        str  += "\n<u> - delta    : </u>" + $D.rect.dumpPos(MVing.cursor.delta);
+        str  += "\n<u> - offset   : </u>" + $D.rect.dumpPos(MVing.cursor.offset);
+ 
+        str  += "\n<b>rect :</b>";
+        str  += "\n<u> - client   : </u>" + $D.rect.dumpValues(MVing.rect.client);
+        str  += "\n<u> - viewport : </u>" + $D.rect.dumpValues(MVing.rect.viewport);
+        str  += "\n<u> - target   : </u>" + $D.rect.dumpValues(MVing.rect.target);
+        str  += "\n<u> - current  : </u>" + $D.rect.dumpValues(MVing.rect.current);
+ 
+        str  += "\n<b>css :</b>";
+        str  += "\n<u> - rect     : </u>" + $D.rect.dumpValues(MVing.css.rect);
+        str  += "\n<u> - current  : </u>" + $D.rect.dumpValues(MVing.css.current);
+ 
+        str  += "\n<b>posAt :</b>";
+        str  += "\n<u> - win      : </u>" + $D.rect.dumpPos(MVing.posAt.win);
+        str  += "\n<u> - client   : </u>" + $D.rect.dumpPos(MVing.posAt.client);
+        str  += "\n<u> - viewport : </u>" + $D.rect.dumpPos(MVing.posAt.viewport);
+        str  += "\n<u> - target   : </u>" + $D.rect.dumpPos(MVing.posAt.target);
 
-        str += "<u>start/endInMs: </u>" + MVing.startInMs + " / " + MVing.endInMs;
-        str += "\n<u>currentSensor   : </u>" + $z.toJson(MVing.currentSensor);
-        str += "\n<u>targetIsRelative: </u>" + MVing.targetIsRelative;
-
-        str += "\n<b>cursor :</b>";
-        str += "\n<u> - win      : </u>" + $D.rect.dumpPos(MVing.cursor.win);
-        str += "\n<u> - client   : </u>" + $D.rect.dumpPos(MVing.cursor.client);
-        str += "\n<u> - viewport : </u>" + $D.rect.dumpPos(MVing.cursor.viewport);
-        str += "\n<u> - delta    : </u>" + $D.rect.dumpPos(MVing.cursor.delta);
-        str += "\n<u> - offset   : </u>" + $D.rect.dumpPos(MVing.cursor.offset);
-
-        str += "\n<b>posAt :</b>";
-        str += "\n<u> - win      : </u>" + $D.rect.dumpPos(MVing.posAt.win);
-        str += "\n<u> - client   : </u>" + $D.rect.dumpPos(MVing.posAt.client);
-        str += "\n<u> - viewport : </u>" + $D.rect.dumpPos(MVing.posAt.viewport);
-        str += "\n<u> - target   : </u>" + $D.rect.dumpPos(MVing.posAt.target);
-
-        str += "\n<b>rect :</b>";
-        str += "\n<u> - client   : </u>" + $D.rect.dumpValues(MVing.rect.client);
-        str += "\n<u> - viewport : </u>" + $D.rect.dumpValues(MVing.rect.viewport);
-        str += "\n<u> - target   : </u>" + $D.rect.dumpValues(MVing.rect.target);
-        str += "\n<u> - current  : </u>" + $D.rect.dumpValues(MVing.rect.current);
-
-        str += "\n<b>css :</b>";
-        str += "\n<u> - rect     : </u>" + $D.rect.dumpValues(MVing.css.rect);
-        str += "\n<u> - current  : </u>" + $D.rect.dumpValues(MVing.css.current);
+        $('pre.sta').html(str);
 
         // str += "\n<b>direction :</b>";
         // str += "\n<u> - delta    : </u>" + $D.rect.dumpPos(MVing.direction.delta);
         // str += "\n<u> - offset   : </u>" + $D.rect.dumpPos(MVing.direction.offset);
 
-        $('pre.sta').html(str);
+        // 显示所有的感应器
+        str = "<b>Sensors:</b>";
+        for(var i=0; i<MVing.sensors.length; i++) {
+            var sen = MVing.sensors[i];
+            str += "\n<u>["+sen.index+"]</u> ";
+            str += sen.visible ? "V" : "~";
+            str += $z.alignLeft(" {" + $D.rect.dumpValues(sen.rect) + "}", 25);
+            if(!sen.name)
+            console.log(sen)
+            str += $z.alignLeft("#" + (sen.name || "-nil-"), 14);
+            str += (sen.text || sen.className || "-nil-");
+        }
+        str  += "\n<u>currentSensor            : </u>" + $z.toJson(MVing.currentSensor);
+        str  += "\n<u>isTargetInClient         : </u>" + MVing.isTargetInClient;
+        str  += "\n<u>isViewportInClient       : </u>" + MVing.isViewportInClient;
+        str  += "\n<u>isViewportSameWithClient : </u>" + MVing.isViewportSameWithClient;
+        str  += "\n<u>isCusorRelativeClient    : </u>" + MVing.isCusorRelativeClient;
+        $('pre.sens').html(str);
     }
 };
 //.............................................
@@ -107,50 +123,6 @@ function getContainerList(){
     var doc2  = $('.d-inner2 > iframe')[0].contentDocument;
     return [$(doc.body), $(doc2.body).find("main"), $(".d-top > .con")];
 }
-//.............................................
-// 对容器执行操作
-function do_con(callback) {
-    var conList = getContainerList();
-    console.log(conList.length)
-    for(var i=0; i < conList.length; i++){
-        callback(conList[i]);
-    }
-}
-//.............................................
-/*
-bindMEV(jCon, ".mv-demo-item", {
-    "click" : function(e){
-        var jq = $(this);
-        console.log("haha")
-
-        // 得到自己的viewport
-        var opt = {
-            viewport : $D.rect.create(jCon.attr("viewport")),
-            scroll_c : true
-        };
-
-        // 得到自己的矩形坐标
-        var rect = $D.rect.gen(jq, opt);
-
-        // 转换成 css
-        var css = $z.pick(rect, "top,left,width,height");
-
-        // 在父窗口创建  Mask
-        var jMask = $('<div class="z-mv-mask">').css(_.extend(css,{
-            "background" : "rgba(0,0,0,0.5)",
-            "position"   : "fixed",
-        })).appendTo(document.body);
-
-        jMask.one("click", function(){
-            $(this).remove();
-        });
-    },
-    // "mouseleave" : function(e){
-    //     LOG.msg("I am mouseup in Item");
-    //     $(".z-mv-mask").remove();
-    // }
-});
-*/
 function bindMEV(jq, selector, funcMap){
     var MEVs = ["click",
         "mousedown",
@@ -177,6 +149,47 @@ function bindMEV(jq, selector, funcMap){
         }
     }
 }
+var mvCon = {
+    trigger : ".mv-demo-item",
+    on_ing : function(){
+        this.$target.css(this.css.current);
+        LOG.dumping(this);
+    },
+    on_end : function(){
+        //this.$target.css(this.css.current);
+        LOG.dumping(this);
+    },
+    dboundaryBy : "100%",
+    dassist : {
+        axis : ["right", "bottom"],
+        axisFullScreen : false
+    },
+    scrollSensor : {x:"10%", y:30},
+    sensors : function(){
+        var MVing = this;
+        var list  = [];
+        //console.log(this.$viewport.find(".sen-drop").length)
+        this.$viewport.closest("body").find(".sen-drop").each(function(){
+            var jq = $(this);
+            list.push({
+                name : "drop",
+                text : jq.text(),
+                $ele : jq,
+            });
+        });
+        return list;
+    },
+    sensorFunc : {
+        "drop" : {
+            enter : function(sen){
+                console.log("enter", sen.index, sen.text, this);
+            },
+            leave : function(sen){
+                console.log("leave", sen.index, sen.text, this);
+            }
+        }
+    }
+}
 //.................................................
 // 定义行为
 var A = {
@@ -187,62 +200,34 @@ var A = {
     },
     //.............................................
     // 默认拖拽
-    "default" : function(jCon){
-        var vpa = jCon.attr("viewport");
-        jCon.moving({
-            //viewportRect : vpa ? $D.rect.create(vpa) : null,
-            trigger : ".mv-demo-item",
-            viewportRect : function(){
-                var vpa = this.$viewport.attr("viewport");
-                return vpa ? $D.rect.create(vpa) : null;
+    "default" : function(frA, frB, jC){
+        // 内联文档
+        $(frA.contentDocument.body).moving(_.extend({}, mvCon, {
+            clientRect : function(){
+                return $D.rect.gen(frA, {
+                    boxing   : "content",
+                    scroll_c : true,
+                });
+            },
+        }));
+
+        // 内联文档：内部元素
+        $(frB.contentDocument.body).moving(_.extend({}, mvCon, {
+            viewport : function(){
+                return this.$client.find("main");
             },
             clientRect : function(){
-                var vpa = this.$viewport.attr("client");
-                return vpa ? $D.rect.create(vpa) : null;
-            },
-            on_ing : function(){
-                this.$target.css(this.css.current);
-                LOG.dumping(this);
-            },
-            on_end : function(){
-                //this.$target.css(this.css.current);
-                LOG.dumping(this);
-            },
-            dboundaryBy : "100%",
-            dassist : {
-                axis : ["right", "bottom"],
-                axisFullScreen : false
-            },
-            scrollSensor : {x:"10%", y:30},
-            sensors : function(){
-                var MVing = this;
-                var list  = [];
-                //console.log(this.$viewport.find(".sen-drop").length)
-                this.$viewport.closest("body").find(".sen-drop").each(function(){
-                    var jq = $(this);
-                    list.push({
-                        name : "drop",
-                        text : jq.text(),
-                        rect : vpa ? MVing.getRectAtInnerDoc(jq) 
-                                   :$D.rect.gen(jq),
-                        inViewport : jq.closest("[has-main]").length>0?false:true,
-                        visibility : true,
-                        matchBreak : true,
-                    });
+                return $D.rect.gen(frB, {
+                    boxing   : "content",
+                    scroll_c : true,
                 });
-                return list;
             },
-            sensorFunc : {
-                "drop" : {
-                    enter : function(sen){
-                        console.log("enter", sen.index, sen.text, this);
-                    },
-                    leave : function(sen){
-                        console.log("leave", sen.index, sen.text, this);
-                    }
-                }
-            }
-        });
+        }));
+
+        // 顶级文档
+        jC.moving(_.extend({}, mvCon, {
+            // 呵呵，啥都不用写
+        }));
     },
     //.............................................
 };
@@ -263,10 +248,13 @@ $(function(){
             "mv-mode": ac=="none" ? null : ac
         });
 
+        // 得到选区
+        var cl = getContainerList();
+
         // 执行行为
-        do_con(function(jCon){
-            A[ac](jCon);
-        });
+        A[ac]($('.d-inner  iframe')[0],
+              $('.d-inner2 iframe')[0],
+              $('.d-top > .con'));
     });
 
     // 等内文档加载完毕

@@ -22,10 +22,24 @@
     background-color: @c0;
 }
 
+a[href]{cursor: pointer;}
 
 body {
     margin:0; overflow-y: scroll; 
 }
+
+@blur : {
+    -webkit-filter: blur(2px); /* Chrome, Opera */
+    -moz-filter: blur(2px);
+    -ms-filter: blur(2px);    
+        filter: blur(2px);
+};
+@unblur : {
+    -webkit-filter: unset; /* Chrome, Opera */
+    -moz-filter: unset;
+    -ms-filter: unset;
+        filter: unset;
+};
 
 //............................................................
 // 拖拽相关
@@ -114,9 +128,13 @@ body {
 }
 
 // 指定高度的组件，设置包裹区的高度与外层等高
-.hm-com[auto-wrap-height] > .hm-com-W {
-    height: 100%;
-    > .ui-arena {height:100%;}
+.hm-com[auto-wrap-width] {
+    > .hm-com-W {width: 100%;}
+    > .hm-com-W > .ui-arena {width:100%;}
+}
+.hm-com[auto-wrap-height] {
+    > .hm-com-W {height: 100%;}
+    > .hm-com-W > .ui-arena {height:100%;}
 }
 
 
@@ -161,40 +179,8 @@ body {
 
 //............................................................
 // 移动鼠标的遮罩
-.hm-page-inner-moving-mask[moving-mode="move"] * {cursor: move;}
-.hm-page-inner-moving-mask[moving-mode="N"]    * {cursor:ns-resize;}
-.hm-page-inner-moving-mask[moving-mode="S"]    * {cursor:ns-resize;}
-.hm-page-inner-moving-mask[moving-mode="W"]    * {cursor:ew-resize;}
-.hm-page-inner-moving-mask[moving-mode="E"]    * {cursor:ew-resize;}
-.hm-page-inner-moving-mask[moving-mode="NW"]   * {cursor:nwse-resize;}
-.hm-page-inner-moving-mask[moving-mode="NE"]   * {cursor:nesw-resize;}
-.hm-page-inner-moving-mask[moving-mode="SW"]   * {cursor:nesw-resize;}
-.hm-page-inner-moving-mask[moving-mode="SE"]   * {cursor:nwse-resize;}
-.hm-page-inner-moving-mask[moving-mode="H"] {
-    cursor: grabbing;
-    cursor: -webkit-grabbing;
-    cursor: -moz-grabbing;
-    background: rgba(0,0,0,0.2);
-}
-.hm-page-move-mask[in-area] {
-    background: rgba(0,0,0,0.4);
-    .pmv-viewport {
-        position: absolute;
-        background: rgba(255,255,255,0.8);
-        box-shadow: 0px 0px 10px #FFF;
-        border:1px dashed #F0F;
-    }
-    .pmv-helper {
-        border:1px dotted #000;
-        background: rgba(255,255,0,0.4);
-    }
-}
 .hm-pmv-hide {
-    opacity: 0.6;
-    -webkit-filter: blur(2px); /* Chrome, Opera */
-    -moz-filter: blur(2px);
-    -ms-filter: blur(2px);    
-        filter: blur(2px);
+    opacity: 0.6; @blur();
 }
 //............................................................
 // 分栏控件通用
@@ -204,7 +190,7 @@ body {
     position: relative;
     > .hm-area-assist {
         .hma-ai {
-            position: absolute; border:0 dashed rgba(0,0,0,0.3); z-index:1;
+            position: absolute; border:0 dashed #AAA; z-index:1;
         }
         .hma-ai[m="N"]{top:0;left:0;right:0;   border-top-width:@abW;}
         .hma-ai[m="W"]{top:0;bottom:0;left:0;  border-left-width:@abW;}
@@ -221,9 +207,14 @@ body {
     > .hm-com-W {
         > .hm-com-assist {display: none;}
         > .ui-arena {
-            > .hm-area {opacity: 0.2;}
+            > .hm-area {dopacity: 0.2; @blur();}
+            > .hm-area:after {
+                display: block; content:""; position: absolute;
+                top:0;left:0;right:0;bottom:0; background: rgba(0,0,0,0.2);
+            }
+            > .hm-area[highlight]:after{display: none;}
             > .hm-area[highlight] {
-                opacity: 1.0; 
+                opacity: 1.0; @unblur();
                 > .hm-area-assist .hma-ai {border-color:#F0F;}
             }
             > .hm-area[highlight][toggle-mode="hide"] {
@@ -363,6 +354,8 @@ body {
     li.text-hide > a span {display: none;}
     li.text-show > a span {display: inline;}
     ul {
+        li > a {cursor: default;}
+        li > a[href] {cursor: pointer;}
         li[newtab] > a span{position: relative;}
         li[newtab] > a span:after {
             display: block; content: "";
@@ -377,6 +370,8 @@ body {
         }
     }
 }
+.hm-com[ctype="navmenu"][auto-wrap-height] .ul-top{height:100%;}
+.hm-com[ctype="navmenu"][auto-wrap-width]  .ul-top{width:100%;}
 //............................................................
 // image
 .hm-com-image {display: inline-block;}

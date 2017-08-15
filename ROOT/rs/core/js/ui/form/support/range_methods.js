@@ -52,7 +52,7 @@ var methods = {
         }
         // 否则清空
         else {
-            UI._set_value();
+            UI._set_value(true,null,null,true);
         }
 
     },

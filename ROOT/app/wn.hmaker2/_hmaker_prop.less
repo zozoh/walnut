@@ -7,6 +7,14 @@
             > em   {color:rgba(255,255,255,0.8);}
             > em:hover {border:1px solid rgba(255,255,255,0.2);}
         }
+        > .hm-com-info {
+            > .hm-skin-box {
+                span.com-skin {
+                    i,b {color:@chy_f;}
+                }
+                .page-css {color:@chy_f;}
+            }
+        }
     }
 }
 
@@ -31,10 +39,21 @@
         }
         > .hm-com-info {
             float: left; line-height: 24px; padding-left:@d2;
-            > b  {margin:0 @d1;}
-            > em   {color:@c3; font-style: normal;}
+            > .hm-skin-box {
+                span.com-skin {
+                    b {
+                        font-size: @f2; color:@cf0; opacity: 1;
+                        font-style: normal;
+                    }
+                }
+            }
+            > em   {
+                color:@c3; font-style: normal;
+                display: inline-block; vertical-align: middle;
+                padding:0 @d1; border:1px solid transparent;
+            }
             > em:before {display:inline; content:"#";}
-            > em:hover {border:1px solid rgba(0,0,0,0.2);}
+            > em:hover {border-color:rgba(0,0,0,0.2);}
         }
         > .hm-com-lib {
             float:right; 
@@ -167,9 +186,10 @@
                         em {color:@c4; font-style: normal; cursor: pointer;}
                         em:hover {text-decoration: underline;}
                     }
+                    .z-edit-it input{@input_focus(); font-family: @f_fixed;}
                 }
                 .hmpb-pos-d[key="left"]  {top:@boxH/2 - @vS; left:@vS*-3;}
-                .hmpb-pos-d[key="right"] {top:@boxH/2 - @vS; right:@vS*-3;}
+                .hmpb-pos-d[key="right"] {top:@boxH/2 - @vS; right:@vS*-2;}
                 .hmpb-pos-d[key="top"]   {top:@dH/-2;   left:@vS;right:@vS;}
                 .hmpb-pos-d[key="bottom"]{bottom:@dH/-2;left:@vS;right:@vS;}
                 .hmpb-pos-d[key="width"],
@@ -534,10 +554,10 @@
     }
     > span.page-css {
         cursor: pointer; display: inline-block; vertical-align: middle;
-        padding:0 0 0 @d2;
+        padding:0 0 0 @d2; font-size:@f2;
         > i, >b {transition:0.2s;}
         > b {display: inline-block; vertical-align: middle;
-            font-weight: normal; font-size:@f2; margin-left:@d1;
+            font-weight: normal; margin-left:@d1;
         }
         > b[css-none] {font-style: italic; opacity: 0.4;}
         // 重置弹出体的一些 CSS
@@ -711,7 +731,18 @@
                 padding:@d4; margin:1px; cursor: pointer;
                 background:rgba(255,255,255,0.4);
                 border:1px dashed @cborder1;
-                font-family: @f_fixed;
+                font-family: @f_fixed; position: relative;
+                > div[key="areaId"] {
+                    padding:@d1 0; word-break:break-all;
+                    width: 100%;
+                }
+                > div[key="areaSize"] {
+                    color:@clink; font-size:@f1; padding:@d0;
+                }
+                > div[key="areaSize"]:hover {
+                    color:@clink_hover;
+                    text-decoration: underline;
+                }
             }
             li[highlight] {
                 background: rgba(255,255,0,0.4);
@@ -725,7 +756,7 @@
     .clp-layout { @noselect();
         > ul {
             > li {
-                > div[key="areaId"] {float: left;}
+                > div[key="areaSize"]{float:left;}
                 > div[key="skin"] {float:right;}
             }
             > li:after {@clr();}
@@ -742,7 +773,10 @@
                 flex: 1 0 auto; 
                 min-height : 120px;
                 min-width  : 30%;
-                position: relative;
+                max-width  : 100%;
+                > div[key="areaSize"] {
+                    text-align: center; padding:@d2;
+                }
                 > div[key="skin"] {
                     position: absolute; right:0; bottom:0;
                     padding:@d2;

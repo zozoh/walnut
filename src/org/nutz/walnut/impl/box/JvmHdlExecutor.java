@@ -37,12 +37,17 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
             throw Er.create("e.cmd." + myName + ".unknown.hdl", hc.hdlName);
         }
 
+        // 调用之前
+        _before_invoke(sys, hc);
+
         // 调用执行器
         hc.hdl.invoke(sys, hc);
 
         // 最后执行
         _before_quit(sys, hc);
     }
+
+    protected void _before_invoke(WnSystem sys, JvmHdlContext hc) {}
 
     protected void _before_quit(WnSystem sys, JvmHdlContext hc) {}
 
@@ -55,11 +60,14 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
         // 后面的参数作为处理器参数
         hc.args = Arrays.copyOfRange(hc.args, 1, hc.args.length);
     }
-    
-    protected void _find_hdl_name_with_conf(WnSystem sys, JvmHdlContext hc, String dirName, String confName) {
+
+    protected void _find_hdl_name_with_conf(WnSystem sys,
+                                            JvmHdlContext hc,
+                                            String dirName,
+                                            String confName) {
         // 如果第一个参数就是处理器，那么，HOME 则自动寻找
         if (hc.args.length < 1) {
-            throw Er.create("e.cmd."+dirName+".lackArgs", hc.args);
+            throw Er.create("e.cmd." + dirName + ".lackArgs", hc.args);
         }
 
         int pos;
@@ -84,12 +92,12 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
             }
             // 获取主目录
             else {
-                String aph = Wn.normalizeFullPath("~/."+dirName+"/" + hc.args[0], sys);
+                String aph = Wn.normalizeFullPath("~/." + dirName + "/" + hc.args[0], sys);
                 hc.oRefer = sys.io.check(null, aph);
             }
 
             if (hc.oRefer != null && hc.oRefer.isLink()) {
-                String aph = Wn.normalizeFullPath("~/."+dirName+"/" + hc.oRefer.link(), sys);
+                String aph = Wn.normalizeFullPath("~/." + dirName + "/" + hc.oRefer.link(), sys);
                 hc.oRefer = sys.io.check(null, aph);
             }
 
@@ -115,7 +123,7 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
         hc.jfmt = Cmds.gen_json_format(hc.params);
     }
 
-    private String myName;
+    protected String myName;
 
     private Map<String, JvmHdl> hdls;
 

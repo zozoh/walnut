@@ -33,6 +33,18 @@ public class JvmHdlContext extends NutMap {
 
     public Object output;
 
+    /**
+     * 一些补充的信息可以放在这里
+     */
+    private NutMap _attrs;
+
+    public NutMap attrs() {
+        if (null == _attrs) {
+            _attrs = new NutMap();
+        }
+        return _attrs;
+    }
+
     public void parseParams(String[] args) {
         // 得到注解
         JvmHdlParamArgs jhpa = null;

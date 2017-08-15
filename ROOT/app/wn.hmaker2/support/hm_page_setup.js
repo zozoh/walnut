@@ -57,6 +57,9 @@ var methods = {
         // 设置编辑区的移动
         UI.__setup_page_moveresizing();
 
+        // 启用插入条的拖拽
+        UI.__setup_ibar_drag_and_drop();
+
         // 监视编辑区，响应其他必要的事件处理
         UI.__setup_page_events();
         //.......................... 上面的方法来自 support/hm_page_setup.js
@@ -111,9 +114,9 @@ var methods = {
         UI.doChangeSkin();
 
         // 模拟点击
-        // window.setTimeout(function(){
-        //     UI._C.iedit.$body.find(".hm-com").first().click();
-        // }, 1000);
+        window.setTimeout(function(){
+            UI._C.iedit.$body.find(".hm-com").first().click();
+        }, 200);
     },
     //...............................................................
     // 标识自己是否可以被编辑（即所有的组件都加载完毕）
@@ -339,11 +342,91 @@ var methods = {
         }
     },
     //...............................................................
+    __setup_ibar_drag_and_drop : function() {
+        var UI = this;
+
+        // 启用拖拽
+        UI.arena.find(".hmpg-ibar").moving({
+            trigger    : '.ibar-item',
+            maskClass  : 'hm-page-move-mask',
+            scrollSensor : {x:"10%", y:30},
+            client : function(){
+                return UI._C.iedit.$body;
+            },
+            clientRect : function(){
+                return UI.get_edit_win_rect();
+            },
+            on_begin : function(){
+                var ing = this;
+                var opt = ing.options;
+
+                // 得到感应器的设定
+                var senSetup = UI.getDragAndDropSensors(true);
+                opt.sensors    = senSetup.sensors;
+                opt.sensorFunc = senSetup.sensorFunc;
+
+                // 去掉插入条的标识
+                ing.$trigger.closest('li[ctype]').removeAttr("enter");
+                
+                // 标识一下移动组件的 helper
+                ing.mask.$target.attr("md", "drag");
+
+                // 修改 target 副本的显示样式
+                ing.mask.$target.html(ing.$target.html());
+
+                // 标记页面其他元素的样式
+                UI._C.iedit.$body.children().addClass("hm-pmv-hide");
+            },
+            // 移动结束，保存 Block 信息
+            on_end : function() {
+                var ing = this;
+                //console.log(_.isElement(ing.drop_in_area), $z.isjQuery(ing.drop_in_area));
+                // 加入到页面
+                if(ing.drop_in_area && ing.drop_in_area.length>0){
+                    var jItem   = ing.$target;
+                    var jLi     = jItem.closest("li[ctype]");
+                    var ctype   = jLi.attr("ctype");
+                    var tagName = jLi.attr("tag-name") || 'DIV';
+                    var val     = jItem.attr("val");
+                    
+                    // 插入
+                    var jCom = UI.doInsertCom(ctype,tagName,val,ing.drop_in_area);
+
+                    // 滚动到显示
+                    if(ing.drop_in_area[0] == UI._C.iedit.body
+                        && jCom.attr("hmc-mode") == "inflow"){
+                        //UI._C.iedit.body.scrollTop = UI._C.iedit.$body.height();
+                        jCom[0].scrollIntoView();
+                    }
+                    // 闪一下 ^_^
+                    $z.blinkIt(jCom);
+                }
+                //......................................
+                // 去掉其他元素的标识
+                UI._C.iedit.$body.find(".hm-pmv-hide")
+                    .removeClass("hm-pmv-hide");
+            },
+        });
+        
+    },
+    //...............................................................
     __setup_page_moveresizing : function() {
         var UI = this;
         UI._C.iedit.$body.moving({
             trigger    : '.hm-com',
             maskClass  : 'hm-page-move-mask',
+            clientRect : function(){
+                return UI.get_edit_win_rect();
+            },
+            viewport : function(){
+                var ing = this;
+                var jAreaCon = ing.jCom.closest(".hm-area-con");
+                if(jAreaCon.length>0){
+                    ing.is_in_area = true;
+                    return jAreaCon;
+                }
+                return ing.$selection;
+            },
             viewportRect : function(){
                 var jAreaCon = this.$trigger.closest(".hm-area-con");
                 var editBody = UI.get_edit_win_rect();
@@ -360,9 +443,6 @@ var methods = {
                 // 否则用 body
                 return editBody;
             },
-            clientRect : function(){
-                return UI.get_edit_win_rect();
-            },
             scrollSensor : {x:"10%", y:30},
             init : function(){
                 var ing = this;
@@ -372,6 +452,8 @@ var methods = {
                 ing.jCom  = ing.$trigger.closest(".hm-com");
                 ing.uiCom = ZUI(ing.jCom);
                 ing.comBlock = ing.uiCom.getBlock();
+                ing.comMeasureConf = 
+                    ing.uiCom.getMeasureConf(ing.comBlock.measureBy);
             },
             target : function(){
                 var ing = this;
@@ -393,15 +475,6 @@ var methods = {
 
                 // 默认移动组件本身
                 return ing.jCom;
-            },
-            viewport : function(){
-                var ing = this;
-                var jAreaCon = ing.jCom.closest(".hm-area-con");
-                if(jAreaCon.length>0){
-                    ing.is_in_area = true;
-                    return jAreaCon;
-                }
-                return ing.$selection;
             },
             on_begin : function(){
                 var ing   = this;
@@ -447,6 +520,8 @@ var methods = {
                     //..................................
                     // 改变控件大小的八个柄
                     else {
+                        // 显示块面板
+                        UI.fire("show:prop", "block");
                         // 标识一下突出显示视口
                         ing.mask.$viewport.attr("in-area", ing.is_in_area?"yes":null);
                         // 得到组件的矩形信息
@@ -478,6 +553,7 @@ var methods = {
                                     x : this.$viewport[0].scrollLeft,
                                     y : this.$viewport[0].scrollTop,
                                 });
+                            ing.uiCom.formatBlockDimension(css, ing.comMeasureConf);
                             // 更新控件
                             _.extend(this.comBlock, {
                                 top:"",left:"",right:"",bottom:"",width:"",height:""
@@ -490,6 +566,8 @@ var methods = {
                 //......................................
                 // 那么就是移动组件本身
                 else {
+                    // 显示块面板
+                    UI.fire("show:prop", "block");
                     // 标识一下突出显示视口
                     ing.mask.$viewport.attr("in-area", ing.is_in_area?"yes":null);
                     // 标识一下移动组件的 helper
@@ -506,10 +584,13 @@ var methods = {
                     opt.assist.axis[1] = opt.cssBy.indexOf("top")>=0?"top":"bottom";
                     // 准备执行函数
                     opt.on_ing = function(){
+                        // 转换
+                        var css = _.extend({}, this.css.current);
+                        ing.uiCom.formatBlockDimension(css, ing.comMeasureConf);
                         // 更新控件
                         _.extend(this.comBlock, {
                             top:"",left:"",right:"",bottom:"",width:"",height:""
-                        }, this.css.current);
+                        }, css);
                         // 通知修改
                         this.uiCom.notifyBlockChange(null, this.comBlock);
                     }
@@ -527,11 +608,16 @@ var methods = {
                         if(ing.drop_in_area) {
                             var jAreaCon = ing.drop_in_area;
                             //console.log("drop in", ing.drop_in_area);
-                            if(jAreaCon == UI._C.iedit.body){
+                            if(jAreaCon[0] == UI._C.iedit.body){
                                 jAreaCon = null;
                             }
                             ing.uiCom.appendToArea(jAreaCon);
-                            ing.uiCom.el.scrollIntoView();
+                            // 滚动到显示
+                            if(!jAreaCon){
+                                UI._C.iedit.body.scrollTop = 
+                                    UI._C.iedit.body.clientHeight;
+                                $z.blinkIt(jCom);
+                            }
                         }
 
                         // 恢复组件显示

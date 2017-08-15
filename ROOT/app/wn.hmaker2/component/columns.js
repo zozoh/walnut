@@ -12,6 +12,22 @@ return ZUI.def("app.wn.hm_com_columns", HmComMethods({
     dom     : html,
     className : "!hm-layout hm-com-columns",
     //...............................................................
+    applyBlockCss : function(cssCom, cssArena){
+        this.$el.css(cssCom);
+        this.arena.css(cssArena);
+        this._is_defined_size_max_value = !$D.dom.isUnset(cssCom.width);
+        this.makeFullIfOnlyOneArea();
+    },
+    //...............................................................
+    _apply_area_size : function(jArea, asize) {
+        jArea = this.getArea(jArea);
+        asize = asize || jArea.attr("area-size");
+        jArea.css({
+            "width" : asize || "",
+            "flex"  : asize ? "0 0 auto" : ""
+        });
+    },
+    //...............................................................
     // 返回属性菜单， null 表示没有属性
     getDataProp : function(){
         return {

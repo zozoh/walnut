@@ -219,7 +219,7 @@
                             }
                         }
                     }
-                    > li[ctype]:hover {
+                    > li[ctype][enter] {
                         color: @ch0_f; background: @ch0_b;
                         .hmpg-ibar-ibox { 
                             width:unset; opacity: 1.0;
@@ -261,7 +261,7 @@
                         background: @ch1_b; color:@ch1_f;
                     }
                     .hm-combar-item[mode="child"]{
-                        cursor: pointer; opacity: 0.4; font-style: italic;
+                        cursor: pointer; opacity: 0.4; 
                     }
                     .hm-combar-item[mode="parent"]:hover,
                     .hm-combar-item[mode="child"]:hover {
@@ -477,6 +477,11 @@
     .z-mvm-target[md="drag"] {
         @flex(); justify-content:center; align-items:center;
         border:1px solid @cborder1; background: @cb1;
+        cursor: grabbing;
+        cursor: -webkit-grabbing;
+        cursor: -moz-grabbing;
+        i {vertical-align: middle;}
+        b {display: inline-block; vertical-align: middle;margin:0 @d2;}
     }
 }
 
@@ -485,23 +490,27 @@
 .z-mvm-sit {
     margin-left:-1px; margin-top:-1px;
     section {
-        position:relative; width:100%; height:100%; background: rgba(255,255,0,0.2);
+        position:relative; width:100%; height:100%; background: rgba(255,255,0,0.4);
         > * {
             transition:0.3s;
             position: absolute; top:0;left:0;right:0;bottom:0;
         }
         > aside {border:1px solid #F0F;}
         > span {
-            @flex(); justify-content:center; align-items:center;
-            font-family: @f_fixed; font-size:@f1; opacity: 0.6; color:#F0F;
+            padding:@d1;
+            text-shadow: 0px  1px 0px #FFF,
+                         1px  0px 0px #FFF,
+                        -1px  0px 0px #FFF,
+                         0px -1px 0px #FFF;
+            font-family: @f_fixed; font-size:@f1; opacity: 0.6; color:#000;
         }
     }
 }
 
 // 拖拽到 body 的感应器
-.z-mvm-sensors .drop-to-body {
+.drop-to-body {
     section {
-        background: rgba(255,255,255,0.8);
+        background: rgba(255,255,255,0.3);
     }
 }
 
@@ -513,6 +522,7 @@
         > aside[md="y"] {display: none;}
         > span {
             color:#888; text-decoration: line-through;
+            text-shadow:unset;
         }
     }
 }
@@ -525,6 +535,9 @@
             top:@sitPad; left:@sitPad; right:@sitPad; bottom:@sitPad;
             background: rgba(255,255,0,0.2);
         }
-        > span {font-size:@f3; opacity: 1.0; color:#000;}
+        > span {
+            padding:@d2; text-shadow:unset;
+            opacity: 1.0; color:#000;
+        }
     }
 }

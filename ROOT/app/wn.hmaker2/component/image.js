@@ -134,6 +134,16 @@ return ZUI.def("app.wn.hm_com_image", {
                 //console.log("reset img w/h")
                 jImg.css("visibility","");
                 UI.hideLoading();
+                // 确保原始大小是正确的
+                var naW = jImg[0].naturalWidth;
+                var naH = jImg[0].naturalHeight;
+                if(naW != com.naturalWidth || naH != com.naturalHeight) {
+                    com = UI.setData({
+                        naturalWidth  : naW,
+                        naturalHeight : naH,
+                    }, true);
+                    UI.fire("change:com_img", com);
+                }
                 // 加载完毕，重新应用一下块属性
                 UI.applyBlock();
             });
@@ -167,20 +177,23 @@ return ZUI.def("app.wn.hm_com_image", {
     },
     //...............................................................
     // 自定义修改块布局的逻辑
-    applyBlockCss : function(css) {
-        var UI   = this;
-        
-        var cssCom   = $z.pick(css, /^(position|top|left|right|bottom|margin)$/);
-        var cssArena = $z.pick(css, /^(borderRadius|boxShadow)$/);
-        var cssImg   = $z.pick(css, /^(border|borderRadius|width|height)$/);
-        var cssTxt   = $z.pick(css, "!^(position|top|left|right|bottom|margin|border|borderRadius|boxShadow|width|height)$");
-        //console.log(cssTxt);
+    applyBlockCss : function(cssCom, cssArena) {
+        // 处理图像的宽高
+        //console.log(cssCom)
+        var jImg = this.arena.find("img");
+        jImg.css({
+            "width"  : $D.dom.isUnset(cssCom.width)  ? "" : "100%",
+            "height" : $D.dom.isUnset(cssCom.height) ? "" : "100%",
+        })
+        // 提取出 arean 和 section 的属性
+        var arenaKeys = "^(border.*|boxShadow|background)$";
+        var arenaCss  = $z.pick(cssArena, arenaKeys);
+        var textCss   = $z.pick(cssArena, "!" + arenaKeys);
 
-        this.$el.css(this.formatCss(cssCom, true));
-        this.arena.css(this.formatCss(cssArena, true))
-            .find("img").css(this.formatCss(cssImg, true));
-        this.arena.find("section").css(this.formatCss(cssTxt, true));
-
+        // 处理文字区域属性
+        this.$el.css(cssCom);
+        this.arena.css(arenaCss);
+        this.arena.find("section").css(textCss);
     },
     //...............................................................
     checkBlockMode : function(block) {
@@ -209,15 +222,17 @@ return ZUI.def("app.wn.hm_com_image", {
     //...............................................................
     getBlockPropFields : function(block) {
         return [block.mode == 'inflow' ? "margin" : null,
-                "padding","border","borderRadius", "boxShadow",
+                "border","borderRadius", 
+                "boxShadow", "background",
                 $z.tmpl("@t-pos({{tt}})[{{N}}=top,{{P}}=center,{{S}}=bottom]=bottom")({
                     tt : this.msg("hmaker.com.image.text_pos"),
                     N  : this.msg("hmaker.com.image.text_pos_N"),
                     P  : this.msg("hmaker.com.image.text_pos_P"),
                     S  : this.msg("hmaker.com.image.text_pos_S"),
                 }),
-                "_align", "fontFamily","_font","fontSize",
-                "color", "background",
+                "_align","_font",
+                "color", "#B> section(文字背景)=",
+                "padding", "fontFamily", "fontSize",
                 "lineHeight","letterSpacing","textShadow"];
     },
     //...............................................................

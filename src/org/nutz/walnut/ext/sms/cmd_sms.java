@@ -1,110 +1,107 @@
 package org.nutz.walnut.ext.sms;
 
-import org.nutz.lang.Lang;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
-import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
+import org.nutz.resource.Scans;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.sms.provider.YunPianSmsProvider;
-import org.nutz.walnut.impl.box.JvmExecutor;
+import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.ZParams;
 
-/**
- * 发送短信
- * 
- * @author wendal
- *
- */
-public class cmd_sms extends JvmExecutor {
+public class cmd_sms extends JvmHdlExecutor {
+
+    public static final String KEY_PROVIDER = "provider";
+    public static final String KEY_CONFIG = "config";
+    public static final String KEY_VARS = "vars";
+
+    private Map<String, SmsProvider> providers;
+
+    public cmd_sms() {
+        super();
+        this.__reload_providers();
+    }
 
     @Override
-    public void exec(WnSystem sys, String[] args) throws Exception {
-        SmsCtx sc = new SmsCtx();
-        // ............................................
-        // 分析参数
-        ZParams params = ZParams.parse(args, "^(debug)$");
-        sc.debug = params.is("debug");
-        sc.provider = params.get("provider", "Yunpian");
-        sc.mobiles = params.get("r");
-        sc.header = params.has("header") ? params.get("header") : "";
-        sc.conf = params.get("config");
-        sc.lang = params.get("lang");
-        // ............................................
-        // 检查一下参数
-        if (Strings.isBlank(sc.mobiles)) {
-            throw Er.create("e.cmd.sms.nophone");
+    protected void _find_hdl_name(WnSystem sys, JvmHdlContext hc) {
+        // 默认采用 send
+        if (hc.args.length == 0 || !hc.args[0].matches("^(send|query)$")) {
+            hc.hdlName = "send";
         }
-        if (!sc.provider.equals("Yunpian")) {
-            throw Er.create("e.cmd.sms.provider.unsupport", sc.provider);
+        // 第一个参数为处理器名称
+        else {
+            hc.hdlName = hc.args[0];
+            // 后面的参数作为处理器参数
+            hc.args = Arrays.copyOfRange(hc.args, 1, hc.args.length);
+        }
+    }
+
+    @Override
+    protected void _before_invoke(WnSystem sys, JvmHdlContext hc) {
+        // 这里，根据参数，加载 provider 的配置信息，以及对应的 provider
+        String provNm = hc.params.get(KEY_PROVIDER, "Yunpian");
+        SmsProvider provider = providers.get(provNm.toLowerCase());
+        if (null == provider) {
+            throw Er.create("e.cmd.sms.provider.unsupport", provNm);
         }
         // ............................................
         // 得到配置主目录
-        WnObj oSmsHome = Wn.checkObj(sys, "~/.sms");
+        hc.oRefer = Wn.checkObj(sys, "~/.sms");
         // 默认配置文件
-        WnObj oConf = sys.io.check(oSmsHome, Strings.sBlank(sc.conf, "config_" + sc.provider));
-        NutMap conf = sys.io.readJson(oConf, NutMap.class);
+        String confNm = hc.params.get(KEY_CONFIG);
+        WnObj oConf = sys.io.check(hc.oRefer, Strings.sBlank(confNm, "config_" + provNm));
+        NutMap config = sys.io.readJson(oConf, NutMap.class);
         // ............................................
-        // 强制设置header，覆盖默认配置中的
-        if (!Strings.isBlank(sc.header)) {
-            conf.setv("header", sc.header);
-        }
-        // ............................................
-        // 确定语言
-        if (Strings.isBlank(sc.lang)) {
-            sc.lang = conf.getString("lang", "zh-cn");
+        NutMap vars;
+        if (hc.params.has("vars")) {
+            vars = hc.params.getMap("vars");
+        } else {
+            vars = new NutMap();
         }
         // ............................................
-        // 分析消息: 从参数里读取
-        if (params.vals.length > 0) {
-            sc.msg = Lang.concat(" ", params.vals).toString();
-        }
-        // 从管道里读取
-        else if (null != sys.in) {
-            sc.msg = sys.in.readAll();
-        }
+        // 记录 provider 到属性里
+        hc.attrs().put(KEY_PROVIDER, provider);
+        hc.attrs().put(KEY_CONFIG, config);
+        hc.attrs().put(KEY_VARS, vars);
+    }
 
-        if (Strings.isBlank(sc.msg)) {
-            throw Er.create("e.cmd.sms.nomsg");
-        }
-        // ............................................
-        // 处理模板消息
-        if (params.has("t")) {
-            String tmpl = params.get("t");
-            WnObj oTmpl;
-            // 多国语言
-            if (tmpl.startsWith("i18n:")) {
-                String tmplKey = Strings.trim(tmpl.substring("i18n:".length()));
-                oTmpl = sys.io.check(oSmsHome, "i18n/" + sc.lang + "/" + tmplKey);
-            }
-            // 普通模板
-            else {
-                oTmpl = sys.io.check(oSmsHome, tmpl);
-            }
-            // 渲染消息
-            String str = sys.io.readText(oTmpl);
-            NutMap map = Lang.map(sc.msg);
-            sc.msg = Tmpl.exec(str, map, false);
-        }
-        // ............................................
-        // 检查header是否带有前后缀
-        String hstr = conf.getString("header");
-        if (!hstr.startsWith("【")) {
-            hstr = "【" + hstr;
-        }
-        if (!hstr.endsWith("】")) {
-            hstr = hstr + "】";
-        }
-        conf.setv("header", hstr);
-        // ............................................
-        // TODO 适应各种提供商
-        SmsProvider provider = new YunPianSmsProvider();
-        for (String mobile : Strings.splitIgnoreBlank(sc.mobiles, ",")) {
-            String re = provider.send(conf, sc.msg, mobile);
-            if (sc.debug) {
-                sys.out.printf("%s %s\n", mobile, re);
+    private void __reload_providers() {
+        // 开始扫描
+        providers = new HashMap<String, SmsProvider>();
+        // 扫描本包下的所有类
+        List<Class<?>> list = Scans.me().scanPackage(this.getClass());
+        for (Class<?> klass : list) {
+            // 跳过抽象类
+            int mod = klass.getModifiers();
+            if (Modifier.isAbstract(mod))
+                continue;
+
+            // 跳过非公共的类
+            if (!Modifier.isPublic(klass.getModifiers()))
+                continue;
+
+            // 跳过内部类
+            if (klass.getName().contains("$"))
+                continue;
+
+            // 如果是 HopeHdl 的实现类 ...
+            Mirror<?> mi = Mirror.me(klass);
+            if (mi.isOf(SmsProvider.class)) {
+                // 获取 Key
+                String nm = klass.getSimpleName().toLowerCase();
+                if (nm.endsWith("smsprovider")) {
+                    String key = nm.substring(0, nm.length() - "smsprovider".length());
+                    SmsProvider provider = (SmsProvider) mi.born();
+                    providers.put(key, provider);
+                }
             }
         }
     }

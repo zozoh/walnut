@@ -69,13 +69,16 @@ body[outer] > main{
             border-radius:4px; width:100%; height:100%;
         }
         //....................................................
-        pre.sta {
-            overflow: auto;
-            padding: 10px; margin:0; background: #CCC; color:#444;
-            font-family: @f_fixed; font-size:10px;
-            line-height: 16px;
-            b {color:#08F;}
-            u {opacity: 0.5; text-decoration: none;}
+        .LA-con {
+            @flex();
+            > pre {
+                overflow: auto; padding: 10px; margin:0; 
+                font-family: @f_fixed; font-size:10px; line-height: 16px;
+                b {color:#08F;}
+                u {opacity: 0.5; text-decoration: none;}
+            }
+            pre.sta  {width:40%; background: #CCC; color:#444;}
+            pre.sens {width:60%; background: #000; color:#CCC;}
         }
         //....................................................
         section.d-inner {
@@ -113,6 +116,15 @@ body[outer] > main{
             font-size:10px; font-family: @f_fixed;
             background: #FFF; color:#000; opacity: 0.3;
             content: attr(mv-mode);
+        }
+
+        section[mv-mode]:after {
+            position: absolute; display: block;
+            left: -10px; top: -10px; width:30px; height:30px;
+            border-radius: 50%; line-height: 30px; text-align: center;
+            font-size:14px; font-family: @f_fixed;
+            background: #000; color:#FFF;
+            content: attr(mv-area);
         }
     }
     //........................................................

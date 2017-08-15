@@ -1,0 +1,82 @@
+({
+    "name" : "default",
+    "js"   : [],
+    "com"  : {
+        "rows" : [{
+                "text" : "固定式顶栏",
+                "selector" : "skin-rows-sky",
+                "blockFields" : []
+            }, {
+                "text" : "页面主体",
+                "selector" : "skin-rows-main",
+                "blockFields" : []
+            }, {
+                "text" : "首页大图",
+                "selector" : "skin-rows-homebanner",
+                "blockFields" : ["background"]
+            }],
+        "navmenu" : [{
+                "text" : "自适应水平菜单",
+                "selector" : "skin-navmenu-autofh",
+                "blockFields" : [
+                    "padding",
+                    "@align(对齐)[默认=NW,左下=SW,中下=S,右下=SE]=NW"
+                ]
+            }, {
+                "text" : "自适应竖排二级菜单",
+                "selector" : "skin-navmenu-autof2v",
+                "blockFields" : [
+                    
+                ]
+            }],
+        "image" : [{
+                "text" : "自适应菜单触发LOGO",
+                "selector" : "skin-image-smartlogo",
+                "blockFields" : []
+            }],
+        "text" : [{
+                "text" : "网站主标题",
+                "selector" : "skin-text-mtitle",
+                "blockFields" : []
+            }, {
+                "text" : "长文章",
+                "selector" : "skin-text-article skin-markdown",
+                "blockFields" : []
+            }]
+        
+    },
+    "area" : [{
+            "text"     : "紧贴",
+            "selector" : "skin-area-nogrow"
+        }, {
+            "text"     : "左上",
+            "selector" : "skin-area-align-NW"
+        }, {
+            "text"     : "中上",
+            "selector" : "skin-area-align-N"
+        }, {
+            "text"     : "右上",
+            "selector" : "skin-area-align-NE"
+        }, {
+            "text"     : "中左",
+            "selector" : "skin-area-align-W"
+        }, {
+            "text"     : "中间",
+            "selector" : "skin-area-align-P"
+        }, {
+            "text"     : "中右",
+            "selector" : "skin-area-align-E"
+        }, {
+            "text"     : "左下",
+            "selector" : "skin-area-align-SW"
+        }, {
+            "text"     : "中下",
+            "selector" : "skin-area-align-S"
+        }, {
+            "text"     : "右下",
+            "selector" : "skin-area-align-SE"
+        }],
+    "menuItem" : [],
+    "template" : {
+    }
+})

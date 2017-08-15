@@ -104,7 +104,6 @@ return ZUI.def("app.wn.hmaker_page", {
                 return;
             //console.log("hm_page::on_change:block:", mode,uiCom.uiName, block);
             uiCom.applyBlock(block);
-
         });
         UI.listenBus("change:com", function(mode, uiCom, com){
             if("page" == mode)
@@ -138,12 +137,16 @@ return ZUI.def("app.wn.hmaker_page", {
             });
         },
         // 鼠标激活 ibar.ibox
-        "mouseover .hmpg-ibar .hmpg-ibar-thumb" : function(e){
+        "mouseenter .hmpg-ibar .hmpg-ibar-thumb" : function(e){
             var jq    = $(e.currentTarget);
-            var jLi   = jq.closest("li");
+            var jLi   = jq.closest("li").attr("enter", "yes");
             var jiBox = jLi.children(".hmpg-ibar-ibox");
             $z.dock(jq, jiBox, "V");
             this.doReloadIBarItem(jLi);
+        },
+        "mouseleave .hmpg-ibar li[ctype]" : function(e){
+            var jLi = $(e.currentTarget);
+            jLi.removeAttr("enter");
         },
         // 强制刷新 ibar 子项目
         "click .hmpg-ibar-ibox header .hm-ireload" : function(e){
@@ -151,11 +154,20 @@ return ZUI.def("app.wn.hmaker_page", {
         },
         // 插入控件
         "click .hmpg-ibar .ibar-item" : function(e){
+            var UI = this;
             var jItem   = $(e.currentTarget);
-            var jLi     = jItem.parents("li");
+            var jLi     = jItem.closest("li[ctype]");
             var ctype   = jLi.attr("ctype");
             var tagName = jLi.attr("tag-name") || 'DIV';
-            this.doInsertCom(ctype, tagName, jItem.attr("val"));
+            var val     = jItem.attr("val");
+            var jCom = this.doInsertCom(ctype, tagName, val);
+            // 滚动到底
+            if(jCom.attr("hmc-mode") == "inflow"){
+                //UI._C.iedit.body.scrollTop = UI._C.iedit.$body.height();
+                jCom[0].scrollIntoView();
+            }
+            // 闪一下 ^_^
+            $z.blinkIt(jCom);
         }
     },
     //...............................................................
@@ -514,12 +526,14 @@ return ZUI.def("app.wn.hmaker_page", {
     // ctype   : 控件类型，"libitem" 表示组件
     // tagName : 插入的元素名，默认 DIV
     // val     : 控件皮肤或者组件名
-    doInsertCom : function(ctype, tagName, val) {
+    // jCom    : 表示插入到哪里，空的话，插入到 body
+    doInsertCom : function(ctype, tagName, val, jCon) {
         var UI = this;
 
         // 创建新元素
         var eleCom = UI._C.iedit.doc.createElement(tagName || 'DIV');
-        var jCom = $(eleCom).addClass("hm-com").appendTo(UI._C.iedit.$body);
+        var jCom = $(eleCom).addClass("hm-com")
+                .appendTo(jCon || UI._C.iedit.$body);
 
         // 共享库组件
         if("libitem" == ctype) {
@@ -540,8 +554,35 @@ return ZUI.def("app.wn.hmaker_page", {
             UI.bindComUI(jCom, function(uiCom){
                 // 设置初始化数据
                 var com   = uiCom.setData({}, true);
-                var block = uiCom.setBlock({});
-                
+                var block = uiCom.getDefaultBlock();
+
+                // 绝对定位的话
+                if("abs" == block.mode) {
+                    // 如果拖拽的是一个区域里，那么要强制变相对
+                    if(jCom.closest(".hm-area-con").length>0) {
+                        block.mode = "inflow",
+                        block.posBy  = "WH";
+                        block.left   = "";
+                        block.top    = "";
+                        block.right  = "";
+                        block.bottom = "";
+                    }
+                    // 修改一下位置，保证其可见
+                    else {
+                        var win = UI.get_edit_win_rect();
+                        var top  = $z.toPixel(block.top,  win.height, 10);
+                        var left = $z.toPixel(block.left, win.width, 10);
+                        block.top  = top + UI._C.iedit.body.scrollTop;
+                        block.left = top + UI._C.iedit.body.scrollLeft;
+                    }
+                }
+
+                // 格式化
+                uiCom.formatBlockDimension(block);
+
+                // 设置块信息
+                uiCom.setBlock(block);
+               
                 // 通知激活控件
                 uiCom.notifyActived(null);
 
@@ -556,12 +597,15 @@ return ZUI.def("app.wn.hmaker_page", {
                 
             });
         }
+        
+        // 返回
+        return jCom;
     },
     //...............................................................
     doActiveCom : function(uiCom) {
         var UI   = this;
         var jCom = uiCom.$el;
-        
+
         // 当前已经是激活
         if(jCom.attr("hm-actived"))
             return;
@@ -575,6 +619,9 @@ return ZUI.def("app.wn.hmaker_page", {
             "hm-blur" : null,
         });
         $z.invoke(uiCom, "on_actived", [prevCom]);
+
+        // 确保编辑窗体是激活的
+        UI._C.iedit.win.focus();
     },
     //...............................................................
     doBlurActivedCom : function(nextCom) {
@@ -588,6 +635,10 @@ return ZUI.def("app.wn.hmaker_page", {
             $z.invoke(uiCom, "on_blur", [nextCom]);
             re.push(uiCom);
         });
+
+        // 取消一切高亮的区域
+        this._C.iedit.$body.find(".hm-area[highlight]").removeAttr("highlight");
+        this._C.iedit.$body.find(".hm-com[highlight-mode]").removeAttr("highlight-mode");
 
         // 应用皮肤
         this.invokeSkin("resize");
@@ -1113,16 +1164,6 @@ return ZUI.def("app.wn.hmaker_page", {
             parent : UI,
             gasketName : "pagebar",
             setup : [{
-                icon : '<i class="fa fa-sign-out zmdi-hc-rotate-180"></i>',
-                tip  : 'i18n:hmaker.page.move_to_body',
-                handler : function() {
-                    var uiCom = UI.getActivedCom();
-                    if(uiCom){
-                        uiCom.appendToArea(null);
-                        UI.invokeSkin("resize");
-                    }
-                }
-            },{
                 icon : '<i class="zmdi zmdi-arrow-right-top zmdi-hc-rotate-270"></i>',
                 tip  : 'i18n:hmaker.page.move_before',
                 handler : function() {
@@ -1155,18 +1196,6 @@ return ZUI.def("app.wn.hmaker_page", {
                     }
                 }
             },{
-                key      : 'assisted_showhide',
-                tip      : "i18n:hmaker.page.assisted_showhide",
-                type     : "boolean",
-                icon_on  : '<i class="zmdi zmdi-border-all"></i>',
-                icon_off : '<i class="zmdi zmdi-border-clear"></i>',
-                on_change : function(isOn) {
-                    UI.setAssistedOff(!isOn);
-                },
-                init : function(mi){
-                    mi.on = !UI.isAssistedOff();
-                }
-            },{
                 key  : 'screen_mode',
                 type : "status",
                 status : [{
@@ -1185,6 +1214,32 @@ return ZUI.def("app.wn.hmaker_page", {
                         si.on = (si.val == mode);
                     });
                 }
+            }, {
+                icon : '<i class="zmdi zmdi-more-vert"></i>',
+                type : "group",
+                items : [{
+                        icon : '<i class="fa fa-sign-out zmdi-hc-rotate-180"></i>',
+                        text : 'i18n:hmaker.page.move_to_body',
+                        handler : function() {
+                            var uiCom = UI.getActivedCom();
+                            if(uiCom){
+                                uiCom.appendToArea(null);
+                                UI.invokeSkin("resize");
+                            }
+                        }
+                    },{
+                        key      : 'assisted_showhide',
+                        text     : "i18n:hmaker.page.assisted_showhide",
+                        type     : "boolean",
+                        icon_on  : '<i class="zmdi zmdi-border-all"></i>',
+                        icon_off : '<i class="zmdi zmdi-border-clear"></i>',
+                        on_change : function(isOn) {
+                            UI.setAssistedOff(!isOn);
+                        },
+                        init : function(mi){
+                            mi.on = !UI.isAssistedOff();
+                        }
+                    }]
             }]
         }).render(function(){
             UI.defer_report("pagebar");
@@ -1196,6 +1251,8 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     depose : function() {
         this.arena.find(".hmpg-frame-load").unbind();
+        this.arena.find(".hmpg-ibar").moving("destroy");
+        this._C.iedit.$body.moving("destroy");
     },
     //...............................................................
     resize : function() {
@@ -1236,12 +1293,13 @@ return ZUI.def("app.wn.hmaker_page", {
         return this._C.iedit.$body;
     },
     //...............................................................
-    get_edit_win_rect : function(){
+    get_edit_win_rect : function(padding){
         return $D.rect.gen(this.arena.find('.hmpg-frame-edit'), {
             boxing   : "content",
             scroll_c : true,
             overflow : true,
             overflowEle : this._C.iedit.$body,
+            padding : padding || 0,
         });
     },
     //...............................................................
@@ -1254,7 +1312,7 @@ return ZUI.def("app.wn.hmaker_page", {
         var jSubAreas = null;   // 当前控件所包含区域（当然只有布局控件才有）
         var eSubs = [];
         // 如果给定了当前控件，设置一下
-        if(jCom) {
+        if($z.isjQuery(jCom)) {
             jMyArea = jCom.closest(".hm-area");
             eMyArea = jMyArea.length > 0 ? jMyArea[0] : null;
             jSubAreas = jCom.find(".hm-area");
@@ -1263,12 +1321,27 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 得到视口矩形
         var rcVp = UI.get_edit_win_rect();
+        //console.log("视口矩形", $D.rect.dumpValues(rcVp), eMyArea);
 
         // 定义区域边界
         var sitPad = 2;
 
         // 准备要返回的感应器列表
         var senList = [];
+
+        // 增加移除 body 的选项
+        // if(eMyArea) {
+        //     var rcBody = $D.rect.gen(UI.arena.find(".hmpg-sbar"));
+        //     senList.push({
+        //         className : "drop-to-body",
+        //         name : "drop",
+        //         text : '<i class="fa fa-sign-out zmdi-hc-rotate-180"></i> '
+        //                 + UI.msg("hmaker.page.move_to_body"),
+        //         rect : rcBody,
+        //         $ele : UI._C.iedit.body,
+        //         scope : "win",
+        //     });
+        // }
         
         // 挨个查找：叶子区域，且不包含当前控件的，统统列出来
         UI._C.iedit.$body.find(".hm-area-con").each(function(){
@@ -1276,41 +1349,30 @@ return ZUI.def("app.wn.hmaker_page", {
             var jArea    = jAreaCon.closest(".hm-area");
             var eArea    = jArea[0];
             // 子区域或嵌套区域，无视
-            if(eSubs.indexOf(this) >= 0 || jAreaCon.find(".hm-area").length>0)
+            if(jAreaCon.find(".hm-area").length>0)
                 return;
 
             // 计入返回列表
             senList.push({
                 name : eMyArea != eArea ? "drop" : "",
                 text : jArea.attr("area-id"),
-                rect : $D.rect.gen(jArea, {
-                    viewport : rcVp,
-                    scroll_c : true,
-                    padding  : sitPad,
-                }),
                 $ele : jAreaCon,
-                inViewport : jViewport
-                                ? jArea.closest(jViewport).length>0 
-                                : false,
-                visibility : true,
-                matchBreak : true,
-                disabled   : eMyArea == eArea,
+                rect : 1,
+                disabled : eMyArea == eArea
+                           || eSubs.indexOf(eArea) >= 0,
+                scope : "client",
             });
         });
 
-        // 增加移除 body 的选项
-        if(jCom && eMyArea) {
-            var rcBody = $D.rect.gen(UI.arena.find(".hmpg-sbar"));
+        // 增加 body 感应器
+        if(eMyArea || (_.isBoolean(jCom) && jCom)) {
+            var rcBody = UI.get_edit_win_rect(-30);
             senList.push({
                 className : "drop-to-body",
                 name : "drop",
-                text : '<i class="fa fa-sign-out zmdi-hc-rotate-180"></i> '
-                        + UI.msg("hmaker.page.move_to_body"),
                 rect : rcBody,
                 $ele : UI._C.iedit.body,
-                inViewport : false,
-                visibility : true,
-                matchBreak : true,
+                scope : "win",
             });
         }
 
@@ -1319,8 +1381,14 @@ return ZUI.def("app.wn.hmaker_page", {
             sensors : senList,
             sensorFunc : {
                 "drop" : {
-                    "enter" : function(sen){this.drop_in_area = sen.$ele;},
-                    "leave" : function(sen){this.drop_in_area = null;}
+                    "enter" : function(sen){
+                        //console.log("enter", sen.text || sen.className);
+                        this.drop_in_area = sen.$ele;
+                    },
+                    "leave" : function(sen){
+                        //console.log("leave", sen.text || sen.className);
+                        this.drop_in_area = null;
+                    }
             }}};
     },
     //...............................................................
@@ -1376,6 +1444,7 @@ return ZUI.def("app.wn.hmaker_page", {
         var doc  = ifrm[0].contentDocument;
 
         var cobj = {
+            win  : doc.defaultView,
             doc  : doc,
             root : doc.documentElement,
             head : doc.head,
@@ -1582,7 +1651,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 "::view_text",
                 "~",
                 "@::hmaker/pub_site",
-                "::hmaker/pub_current_page",
+                "@::hmaker/pub_current_page",
                 "~",
                 "@::hmaker/hm_site_conf",
                 "~",

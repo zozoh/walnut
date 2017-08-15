@@ -3,12 +3,23 @@ var methods = {
     //...............................................................
     events : {
         // 单击取消高亮模式
-        "click .hm-com-W" : function(e){
+        "click > .hm-com-W" : function(e){
             if(this.isHighlightMode() 
                 && $(e.target).closest('.hm-area[highlight]').length == 0) {
                 e.stopPropagation();
                 this.highlightArea(false);
                 this.notifyDataChange("page");
+            }
+        },
+        // 高亮模式，切换高亮区
+        "click > .hm-com-W > .ui-arena > .hm-area" : function(e) {
+            var UI = this;
+            var jq = $(e.currentTarget);
+            if(UI.$el.attr("highlight-mode")) {
+                if(!jq.attr("highlight")) {
+                    UI.highlightArea(jq);
+                    this.notifyActived("page", jq.attr("area-id"));
+                }
             }
         }
     },
@@ -29,6 +40,28 @@ var methods = {
         jAreas.each(function(){
             UI.checkAreaAssistDOM(this);
         });
+
+        // 特殊处理，如果只有一个区域，那么尽量将其撑满
+        UI.makeFullIfOnlyOneArea();
+    },
+    //...............................................................
+    makeFullIfOnlyOneArea : function(){
+        var UI = this;
+        var jAreas = UI.arena.children(".hm-area");
+
+        //console.log(UI._is_defined_size_max_value)
+
+        // 特殊处理，如果只有一个区域，那么尽量将其撑满
+        if(jAreas.length == 1 && UI._is_defined_size_max_value) {
+            var jA0 = jAreas.eq(0);
+            UI._apply_area_size(jA0, "100%");
+        }
+        // 否则，重新应用一遍 AreaSize
+        else {
+            jAreas.each(function(){
+                UI._apply_area_size(this);
+            });
+        }
     },
     //...............................................................
     // 确保某个区域是否有辅助节点，如果没有就加上它
@@ -84,6 +117,17 @@ var methods = {
             }
         }
     },
+    setAreaSize : function(aid, asize) {
+        var jArea = this.getArea(aid);
+
+        // 标识属性
+        if("auto" == asize)
+            asize = null;
+        jArea.attr("area-size", asize || null);
+
+        // 修改 CSS
+        $z.invoke(this, "_apply_area_size", [jArea]);
+    },
     setAreaSkin : function(aid, skin) {
         var jArea = this.getArea(aid);
         var ao = this.getAreaObj(jArea);
@@ -113,6 +157,10 @@ var methods = {
         var jArea = $('<div class="hm-area"><div class="hm-area-con"></div></div>')
             .appendTo(this.arena);
         jArea.attr("area-id", this.assignAreaId());
+
+        // 特殊处理，如果只有一个区域，那么尽量将其撑满
+        this.makeFullIfOnlyOneArea();
+
         return this.checkAreaAssistDOM(jArea);
     },
     //...............................................................
@@ -130,6 +178,7 @@ var methods = {
         var jArea = this.getArea(aid);
         return {
             areaId    : jArea.attr("area-id"),
+            areaSize  : jArea.attr("area-size"),
             highlight : jArea.attr("highlight") == "yes",
             skin      : jArea.attr("skin") || "",
             selectors : jArea.attr("selectors") || "",
@@ -149,6 +198,17 @@ var methods = {
     // 删除这个区域
     deleteArea : function(aid) {
         var jArea = this.getArea(aid);
+
+        // 试图寻找下一个区域
+        var jA2 = jArea.next();
+        if(jA2.length == 0) {
+            jA2 = jArea.prev();
+        }
+
+        // 只有一个区域的话，不能删的!!!
+        if(jA2.length == 0) {
+            return false;
+        }
         
         // 找到这个区域包含的所有的组件
         jArea.children(".hm-com").each(function(){
@@ -156,13 +216,23 @@ var methods = {
             uiCom.destroy();
         });
         
-        // 如果自身是高亮区域，那么将修改控件区域显示模式
-        if(this.isHighlightArea(jArea)){
-            this.$el.removeAttr("highlight-mode");
-        }
+        // 如果自身是高亮区域，试图寻找下一个区域
+        // if(this.isHighlightArea(jArea)){
+
+        //     this.$el.removeAttr("highlight-mode");
+        // }
         
         // 移除自身
         jArea.remove();
+
+        // 高亮下一个区域
+        this.highlightArea(jA2);
+
+        // 特殊处理，如果只有一个区域，那么尽量将其撑满
+        this.makeFullIfOnlyOneArea();
+
+        // 删除成功
+        return true;
     },
     //...............................................................
     // 移动区域
@@ -204,7 +274,7 @@ var methods = {
         return jArea && jArea.attr("highlight") == "yes";
     },
     // 高亮一个区域 
-    highlightArea : function(aid, quiet) {
+    highlightArea : function(aid) {
         var jArea = false === aid ? null : this.getArea(aid);
         
         // 反正要取消之前高亮的区域

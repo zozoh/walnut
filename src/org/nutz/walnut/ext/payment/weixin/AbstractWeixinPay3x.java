@@ -264,7 +264,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
     private WnObj __get_weixin_conf_obj(WnPayObj po) {
         WnUsr seller = run.usrs().check("id:" + po.getString(WnPayObj.KEY_SELLER_ID));
         String ta = po.getString(WnPayObj.KEY_PAY_TARGET);
-        if (!Strings.isBlank(ta)) {
+        if (Strings.isBlank(ta)) {
             throw Er.create("e.pay.weixin.noTarget");
         }
         WnObj oConf = io.check(null, seller.home() + "/.weixin/" + ta + "/wxconf");

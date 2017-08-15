@@ -67,13 +67,15 @@ return ZUI.def("app.wn.hmpg_combar", {
         </div>`));
     },
     //...............................................................
-    updateComPath : function(uiCom) {
+    updateComPath : function(uiCom, areaId) {
         var UI = this;
         jCom = uiCom.$el;
 
+        //console.log(uiCom, areaId)
+
         // 看看是否可以复用当前路径
         UI.__current_com_path = UI.__current_com_path || [];
-        var my_com_ph = uiCom.getComPath(true);
+        var my_com_ph = uiCom.getComPath(true, false, areaId);
         var can_reuse = (UI.__current_com_path.length > my_com_ph.length);
         // 仔细判断一下，必须全部匹配才可以复用
         if(can_reuse) {
@@ -99,6 +101,13 @@ return ZUI.def("app.wn.hmpg_combar", {
             // 重新绘制
             for(var i=0; i<UI.__current_com_path.length; i++) {
                 var pi = UI.__current_com_path[i];
+
+                // 得到关键文本
+                var tip = "#" + pi.comId + (pi.areaId ? " > " + pi.areaId : "");
+                var txt = pi.areaId 
+                            || this.get_com_display_text(pi.ctype, pi.comId, pi.skin);
+
+                // 生成 DOM
                 var html = '<div class="hm-combar-item">';
                 html += '<i class="zmdi zmdi-chevron-right pi-sep"></i>';
                 // 控件的话，绘制 Icon
@@ -112,14 +121,16 @@ return ZUI.def("app.wn.hmpg_combar", {
                         html += '<span class="pi-icon">' + UI.msg("hmaker.com." + pi.ctype + ".icon") + '</span>';
                     }
                 }
-                html += '<b>' + (pi.areaId || pi.comId) + '</b>';
+                html += '<b>' + txt + '</b>';
                 html += '</div>';
+
+                // 计入 DOM
                 $(html).attr({
                     "ctype"        : pi.ctype,
                     "com-id"       : pi.comId,
                     "area-id"      : pi.areaId,
                     "lib-name"     : pi.lib || null,
-                    "data-balloon" : UI.msg("hmaker.com." + pi.ctype + ".name"),
+                    "data-balloon" : tip,
                     "data-balloon-pos" : "down"
                 }).appendTo(UI.arena);
             }

@@ -28,16 +28,21 @@ public abstract class AbstractCom implements HmComHandler {
     public void invoke(HmPageTranslating ing) {
         // 分析布局属性
         ing.propBlock = Hms.loadPropAndRemoveNode(ing.eleCom, "hm-prop-block");
+        ing.propBlock.remove("measureBy"); // 这玩意木用了
 
         // 分析布局属性
         this.__prepare_block_css_and_skin_attributes(ing);
 
+        // 标识一下宽高
+        if (!Hms.isUnset(ing.cssEle.getString("width"))) {
+            ing.eleCom.attr("auto-wrap-width", "yes");
+        }
+        if (!Hms.isUnset(ing.cssEle.getString("height"))) {
+            ing.eleCom.attr("auto-wrap-height", "yes");
+        }
+
         // 分析控件属性
         ing.propCom = Hms.loadPropAndRemoveNode(ing.eleCom, "hm-prop-com");
-
-        // 记录当前控件的 ID
-        ing.comId = ing.eleCom.attr("id");
-        ing.comType = ing.eleCom.attr("ctype");
 
         // 确保标记本页为动态
         if (this.isDynamic(ing.eleCom))
@@ -98,10 +103,10 @@ public abstract class AbstractCom implements HmComHandler {
         ing.skinAttributes = new NutMap();
 
         // 如果控件设置了宽高，那么 arena 要用 100% 适应
-        // if (ing.cssEle.has("width"))
-        // ing.cssArena.put("width", "100%");
-        // if (ing.cssEle.has("height"))
-        // ing.cssArena.put("height", "100%");
+        if (!Hms.isUnset(ing.cssEle.getString("width")))
+            ing.cssArena.put("width", "100%");
+        if (!Hms.isUnset(ing.cssEle.getString("height")))
+            ing.cssArena.put("height", "100%");
 
         // 处理块属性
         Pattern p = Pattern.compile("^#([BCL])>(.+)$");

@@ -30,8 +30,8 @@ var html = `
         </div>
     </div>
     <div class="hmpb-skin">
-        <em>{{hmaker.prop.skin}}</em>
-        <div class="hm-skin-box" box-enabled="yes"></div>
+        <em>{{hmaker.prop.block_skin}}</em>
+        <!--div class="hm-skin-box" box-enabled="yes"></div-->
     </div>
     <div class="hmpb-form" ui-gasket="form"></div>
 </div>`;
@@ -55,27 +55,37 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             // 如果切换到了绝对定位，需要默认设置其宽高
             this.uiCom.checkBlockMode(block);
 
+            // 格式化块信息
+            this.uiCom.formatBlockDimension(block);
+
             // 保存数据 
             this.uiCom.saveBlock(null, block);
         },
         // 点击顶点
         "click .hmpb-pos[mode=abs] .hmpb-pos-v" : function(e) {
+            var UI = this;
             var jq = $(e.currentTarget);
             if(jq.attr("highlight")){
                 return;
             }
 
+            // 得到块信息
             var block = this.uiCom.getBlock();
+            //console.log("block", block);
 
-            var posBy  = jq.attr("val");
-            var rect   = this.uiCom.getMyRectCss();
-            var css    = this.uiCom.pickCssForMode(rect, posBy);
+            // 转换
+            var posBy = jq.attr("val");
+            var rect  = this.uiCom.getMyRectCss();
+            var css = this.uiCom.pickCssForMode(rect, posBy);
+
+            // 格式化
+            UI.uiCom.formatBlockDimension(css, block.measureBy);
+
+            // 保存数据 
             block.posBy  = posBy;
             _.extend(block, {
                 top:"",left:"",right:"",bottom:"",width:"",height:""
             }, css);
-
-            // 保存数据 
             this.uiCom.setBlock(block);
             
             // 通知
@@ -88,34 +98,41 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             var key = jq.parents(".hmpb-pos-d").attr("key");
             var block = UI.uiCom.getBlock();
 
-            // 得到模式
-            var md = UI.arena.find(".hmpb-pos").attr("mode");
-
-            // 声明后续处理方式
-            var __after_input_ok = function(val) {
-                
-                // 修改值
-                block[key] = val;
-                
-                // 保存数据 
-                UI.uiCom.setBlock(block);
-                
-                // 通知
-                UI.uiCom.notifyBlockChange("panel", block);
-            }
-
             // 监视编辑
             $z.editIt(jq, function(newval, oldval, jEle){
-                var val = $.trim(newval) || "unset";
-                if(val && val!=oldval) {
-                    var v2 = $z.toCssDimension(val);
-                    if(v2) {
-                        // 后续处理
-                        __after_input_ok(v2);
-                        
-                        // 显示修正后的值
-                        jEle.text(v2);
+                var val = $.trim(newval).toLowerCase() || "unset";
+                // 嗯，值有变动
+                if(val && val!=oldval) {                   
+                    // 得到单位
+                    var m = /^[\d.]+(px|rem|%)$/.exec(val);
+                    var u = m ? m[1] : (block.measureBy || "px");
+                    
+                    // 看看是否修改了单位，如果改了单位，
+                    // 那么需要整个面板都更新
+                    var mode = "panel";
+                    if(u != block.measureBy) {
+                        block.measureBy = u;
+                        mode = null;
                     }
+
+                    // 设置到 block
+                    if($D.dom.isUnset(val)){
+                        block[key] = val;
+                    } else {
+                        block[key] = val + (m ? "" : u);
+                    }
+                    UI.uiCom.formatBlockDimension(block);
+
+                    // 保存数据 
+                    UI.uiCom.setBlock(block);
+                    
+                    // 通知
+                    //console.log("mode", mode)
+                    UI.uiCom.notifyBlockChange(mode, block);
+
+                        
+                    // 显示修正后的值
+                    jEle.text(block[key]);
                 }
             });
 
@@ -143,7 +160,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         this.arena.find(".hmpb-pos-d").each(function(){
             var jD  = $(this);
             var key = jD.attr("key");
-            var val = $z.toCssDimension(block[key], "NaN");
+            var val = block[key];
             
             jD.find("em").text(val);
         });
@@ -158,25 +175,20 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         // 更新位置信息
         UI.__update_pos(block);
 
-        // 处理皮肤选择区
-        //console.log(uiCom.uiName, uiCom.getComSkin())
-        var jSkinBox = UI.arena.find(".hm-skin-box");
-        UI.updateSkinBox(jSkinBox, uiCom.getComSkin(), function(skin){
-            var ctype = UI.uiCom.getComType();
-            return UI.getSkinTextForCom(ctype, skin);
-        }, uiCom.getComSelectors(), function(selectors){
-            uiCom.setComSelectors(selectors);
-        });
-
         // 更新表单
         UI.__update_form(block, function(){
+            // TODO 这个会引起问题，因为 form callback 的问题
+            // 加载 form 时，子控件没加载完就触发 callback 了
+            // 所有导致 form.getData 返回的都是空值
+            // 所以，暂时先去掉这个逻辑，看看以后怎么办吧 -_-!
+            //...............................................
             // 如果表单内容有变，则触发控件重绘
-            var b2 = this.getData();
-            if(!_.isEqual(b2, block)) {
-                // console.log("b2", b2)
-                // console.log("block", block)
-                UI.uiCom.saveBlock("panel", b2, block);
-            }
+            // var b2 = this.getData();
+            // if(!_.isEqual(b2, block)) {
+            //     console.log("b2", b2)
+            //     console.log("block", block)
+            //     UI.uiCom.saveBlock("panel", b2, block);
+            // }
         });
     },
     //...............................................................

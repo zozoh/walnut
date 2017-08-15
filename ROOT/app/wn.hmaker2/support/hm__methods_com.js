@@ -41,6 +41,14 @@ var methods = {
         this.arena.addClass(skin);
         this.syncComSkinAttributes(skin);
 
+        // 由于皮肤的改动，需要去掉所有非 POS 相关的设定
+        if(skin != old_skin) {
+            var block = this.getBlock();
+            var block2 = $z.pick(block, 
+                /^(mode|posBy|measureBy|top|left|right|bottom|width|height)$/);
+            this.setBlock(block2);
+        }
+
         // 重新调用一下激活
         $z.invoke(this, "on_actived");
     },
@@ -105,13 +113,13 @@ var methods = {
     // }
     // - includeSelf : 是否包括自己
     // - ignoreArea  : 是否忽略区域
-    getComPath : function(includSelf, ignoreArea) {
+    // - areaId : 「选」路径中还需要增加一个指定的区域路径
+    getComPath : function(includSelf, ignoreArea, areaId) {
         var re = [];
         // 处理自己
         if(includSelf) {
             // 自己的高亮区域
-            var areaId = $z.invoke(this, "getHighlightAreaId");
-            if(areaId) {
+            if(areaId && this.$el.hasClass("hm-layout")) {
                 re.push({
                     ctype  : "_area",
                     comId  : this.getComId(),
@@ -122,7 +130,8 @@ var methods = {
             re.push({
                 ctype : this.getComType(),
                 comId : this.getComId(),
-                lib   : this.$el.attr("lib")
+                lib   : this.$el.attr("lib"),
+                skin  : this.getComSkin(),
             });
         }
         // 处理自己的父组件和区域
@@ -141,10 +150,12 @@ var methods = {
                 re.push({
                     ctype : jq.attr("ctype"),
                     comId : jq.attr("id"),
-                    lib   : jq.attr("lib")
+                    lib   : jq.attr("lib"),
+                    skin  : jq.attr("skin"),
                 });
             }
         });
+
         // 返回
         return re.reverse();
     },
@@ -153,10 +164,12 @@ var methods = {
         return this.msg('hmaker.com.' + this.getComType() + '.icon');
     },
     //........................................................
-    getComDisplayText : function() {
-        return this.getComId() + "(" + 
-            this.msg('hmaker.com.' + this.getComType() + '.name')
-            + ")";
+    getComDisplayText : function(showId) {
+        var UI = this;
+        var skin  = UI.getComSkin();
+        var comId = UI.getComId();
+        var ctype = UI.getComType();
+        return UI.get_com_display_text(ctype, comId, skin, showId);
     },
     //........................................................
     // 判断组件是否是激活的
@@ -169,13 +182,14 @@ var methods = {
     },
     //........................................................
     notifyActived : function(mode, areaId){
+        // 激活
+        this.fire("active:com", this, areaId);
+
         // 高亮指定区域
         if(areaId) {
+            console.log("haha")
             $z.invoke(this, "highlightArea", [areaId]);
         }
-
-        // 激活
-        this.fire("active:com", this);
 
         // 通知更新
         if(!_.isUndefined(mode)){
@@ -229,16 +243,15 @@ var methods = {
         return block;
     },
     // 通常由 hm_page::doChangeCom 调用
-    setBlock : function(block) {
-        // 合并数据
-        //var block2 = _.extend(this.getBlock(), block);
-        var block2 = block;
-        
+    setBlock : function(block, returnNew) {
+        //console.log("I am setBlock")
         // 保存属性
-        $z.setJsonToSubScriptEle(this.$el, "hm-prop-block", block2, true);
+        $z.setJsonToSubScriptEle(this.$el, "hm-prop-block", (block||{}), true);
 
         // 返回数据
-        return block2;
+        if(returnNew)
+            return this.getBlock();
+        return block;
     },
     // 发出属性修改通知，本函数自动合并其余未改动过的属性
     // mode 可能是:
@@ -253,7 +266,7 @@ var methods = {
         if(!base)
             base = this.getBlock();
         // 挑选必要属性出来
-        base = _.pick(base, "mode", "posBy", "width", "height", "top", "left", "right", "bottom");
+        base = $z.pick(base, /^(mode|posBy|measureBy|width|height|top|left|right|bottom)$/);
 
         // 融合
         block = _.extend(base, block);
@@ -266,6 +279,53 @@ var methods = {
 
         // 返回
         return block;
+    },
+    //........................................................
+    getMeasureConf: function(mb){
+        var jAreaCon = this.$el.closest(".hm-area-con");
+        var conf = $D.dom.getMeasureConf(jAreaCon.length > 0 
+            ? jAreaCon
+            : this.el.ownerDocument);
+        conf.unit = mb || "px";   // 值的单位
+        conf.precision = 3;       // 精确到小数点三位
+        return conf;
+    },
+    //........................................................
+    // 格式化 block 的 top,left,right,bottom,width,height
+    // 根据 block.measureBy 属性("px|rem|%") 来进行格式化
+    // 默认的 block.measureBy 为 "px"
+    formatBlockDimension : function(block, conf) {
+        var UI  = this;
+        // 准备配置参数: 默认从 block 里取
+        if(!conf) {
+            conf = UI.getMeasureConf(block.measureBy);
+        }
+        // 如果给定了仅仅一个单位
+        else if(_.isString(conf)) {
+            conf = UI.getMeasureConf(conf);
+        }
+
+        // 准备片段表达式
+        var mbReg = new RegExp(conf.unit+"$");
+
+        // 循环处理
+        for(var key in block) {
+            if(/^(top|left|right|bottom|width|height)$/.test(key)) {
+                var val = block[key];
+                // 如果就是数字，被认为是像素
+                if(_.isNumber(val)) {
+                    var s = $D.dom.toMeasureStr(key, val, conf);
+                    block[key] = s;
+                }
+                // 参数不符合的，需要进行转换
+                else if(val && "unset"!=val && !mbReg.test(val)) {
+                    console.log(key)
+                    var n = $D.dom.toMeasureNum(key, val, conf);
+                    var s = $D.dom.toMeasureStr(key, n, conf);
+                    block[key] = s;
+                }
+            }
+        }
     },
     //........................................................
     addMySkinRule : function(selector, rule, skin) {
@@ -292,7 +352,15 @@ var methods = {
         var jCom   = UI.$el;
         var jW     = jCom.children(".hm-com-W");
 
-        block = block || this.getBlock();
+        // 没有的话，主动获取一下
+        if(!block) {
+            block = UI.getBlock();
+        }
+        // 否则创建一个副本，因为在应用自定义 skin 选择器 
+        // 比如 "#B> xxx" 的时候，计算出了属性后，要把它删掉
+        else {
+            block = _.extend({}, block);
+        }
         
         // 更新控件的模式
         jCom.attr({
@@ -356,11 +424,16 @@ var methods = {
                 var propType = m[1];
                 var selector = m[2];
                 var propName;
+                // 背景
                 if("B" == propType){
                     propName = "background";
-                }else if("C" == propType){
+                }
+                // 颜色
+                else if("C" == propType){
                     propName = "color";
-                }else {
+                }
+                // 边框颜色
+                else {
                     propName = "border-color";
                 }
                 // 添加到自定义规则里
@@ -385,10 +458,23 @@ var methods = {
             css.textDecoration = "";
             css.fontStyle = "";
         }
+
+        // 是否需要将 jW 和 Arena 都设置成 100%
+        this.$el.attr("auto-wrap-width", 
+            !$D.dom.isUnset(css.width) ? "yes" : null);
+        this.$el.attr("auto-wrap-height", 
+            !$D.dom.isUnset(css.height) ? "yes" : null);
+            
+        // 最后分别应用属性到对应的元素上
+        var posKeys  = "^(position|top|left|right|bottom|margin|width|height)$";
+        var cssCom   = $z.pick(css, posKeys);
+        var cssArena = $z.pick(css, "!" + posKeys);
+        cssCom = this.formatCss(cssCom,true);
+        cssArena = this.formatCss(cssArena,true);
                 
         // 应用这个修改
         //console.log("css:", css);
-        UI.applyBlockCss(css);
+        UI.applyBlockCss(cssCom, cssArena);
 
         // 应用修改
         var jStyle = UI.$el.children("style.from-skin");
@@ -408,10 +494,15 @@ var methods = {
         // 判断区域是否过小
         var comW = jCom.outerWidth();
         var comH = jCom.outerHeight();
-        jCom.attr({
-            "hmc-small" : (comW < 300 && comH < 80) || (comW < 80)
-                          ? "yes" : null,
-        });
+
+        // 比较小
+        if(comH < 32 || comW < 32){
+            jCom.attr("hmc-small", "yes");
+        }
+        // 不小，移除标记
+        else{
+            jCom.removeAttr("hmc-small");
+        }
         
         // 调用控件特殊的设置
         $z.invoke(UI, "on_apply_block", [block]);
@@ -580,26 +671,7 @@ module.exports = function(uiCom){
     });
     
     // 定默认控件应用布局块属性的方法
-    $z.setUndefined(uiCom, "applyBlockCss", function(css){
-        //console.log(css)
-        // 对于相对位置，最重要的是要保证 jW 与块是同样尺寸的
-        // 主要是高度
-        if(/^[\d.]+(px)?(%)?$/.test(css.height)){
-            this.$el.attr("auto-wrap-height", "yes");
-        }
-        // 没设置高度，则清除
-        else {
-            this.$el.removeAttr("auto-wrap-height");
-        }
-            
-        // 最后分别应用属性到对应的元素上
-        var cssCom   = $z.pick(css, "^(position|top|left|right|bottom|margin|width|height)$");
-        var cssArena = $z.pick(css, "!^(position|top|left|right|bottom|margin)$");
-        cssCom = this.formatCss(cssCom,true);
-        cssArena = this.formatCss(cssArena,true);
-
-        $z.invoke(this, "onBeforeApplyBlockCss", [cssCom, cssArena]);
-
+    $z.setUndefined(uiCom, "applyBlockCss", function(cssCom, cssArena){
         this.$el.css(cssCom);
         this.arena.css(cssArena);
     });

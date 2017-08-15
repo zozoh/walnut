@@ -36,6 +36,11 @@ return ZUI.def("ui.zcron", {
     init : function(opt){
         FormMethods(this);
         ZCronMethods(this);
+
+        $z.setUndefined(opt, "timeBy", ["hms","tmrg","tps"]);
+        if(!_.isArray(opt.timeBy)){
+            opt.timeBy = [opt.timeBy];
+        }
     },
     //...............................................................
     events : {
@@ -48,7 +53,8 @@ return ZUI.def("ui.zcron", {
     },
     //...............................................................
     redraw : function(){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         //...................................................
         // 日期范围
         new InputUI({
@@ -139,11 +145,9 @@ return ZUI.def("ui.zcron", {
         });
         //...................................................
         // 时间视图
-        new TabsUI({
-            parent : UI,
-            gasketName : "time",
-            defaultKey : "tmrg",
-            setup : {
+        var timeSetup = [];
+        for(var i=0; i<opt.timeBy.length; i++) {
+            timeSetup[opt.timeBy[i]] = ({
                 "hms" : {
                     text : "小时/分钟",
                     uiType : 'ui/zcron/support/zcr_hms',
@@ -156,7 +160,14 @@ return ZUI.def("ui.zcron", {
                     text : "时间点",
                     uiType : 'ui/zcron/support/zcr_tps',
                 }
-            },
+            })[opt.timeBy[i]];
+        }
+        // 创建视图
+        new TabsUI({
+            parent : UI,
+            gasketName : "time",
+            defaultKey : "tmrg",
+            setup : timeSetup,
             on_changeUI : function(key, subUI) {
                 var ozc = UI._get_data();
                 if(ozc)
@@ -170,16 +181,20 @@ return ZUI.def("ui.zcron", {
                         subUI.update(ozc);
                     };
                     // 事件范围
-                    if(ozc.isHasTimeSteps()){
+                    if(uiTab.hasUIKey("tmrg") && ozc.isHasTimeSteps()){
                         uiTab.changeUI("tmrg", callback, false);
                     }
                     // 时间点
-                    else if(ozc.isHasTimePoints()){
+                    else if(uiTab.hasUIKey("tps") && ozc.isHasTimePoints()){
                         uiTab.changeUI("tps", callback, false);
                     }
-                    // 默认是时分秒
-                    else {
+                    // 时分秒
+                    else if(uiTab.hasUIKey("hms")){
                         uiTab.changeUI("hms", callback, false);
+                    }
+                    // 随便更新一个吧
+                    else {
+                        uiTab.getCurrentUI().update(ozc);
                     }
                 }
             }

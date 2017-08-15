@@ -76,6 +76,10 @@ return ZUI.def("ui.tabs", {
         return (key||"") == this.getCurrentKey();
     },
     //..............................................
+    hasUIKey : function(key) {
+        return this.options.setup[key] ? true : false;
+    },
+    //..............................................
     changeUI : function(key, callback, quiet) {
         // 支持 changeUI(key, true) 这样的形式
         if(_.isBoolean(callback)) {
