@@ -40,8 +40,17 @@ public class wup_pkg_add implements JvmHdl {
                 String dst = Wn.normalizePath("~/wup/pkgs/" + name + "/" + version + ".tgz", sys);
                 WnObj obj = sys.io.createIfNoExists(null, dst, WnRace.FILE);
                 sys.io.writeAndClose(obj, sys.io.getInputStream(wobj, 0));
-                NutMap re = new NutMap("name", name).setv("version", version);
-                list.add(re);
+                sys.io.appendMeta(obj, "md:" + 493); // 0755
+                list.add(new NutMap("name", name).setv("version", version));
+                
+                // 如果存在zsync文件,设置为可用呗
+                WnObj zsync = sys.io.fetch(null, wobj.path() + ".zsync");
+                if (zsync != null) {
+                    dst = Wn.normalizePath("~/wup/pkgs/" + name + "/" + version + ".tgz.zsync", sys);
+                    obj = sys.io.createIfNoExists(null, dst, WnRace.FILE);
+                    sys.io.writeAndClose(obj, sys.io.getInputStream(zsync, 0));
+                    sys.io.appendMeta(obj, "md:" + 493); // 0755
+                }
             }, WalkMode.LEAF_ONLY);
         }
         sys.out.println(Json.toJson(list));

@@ -27,7 +27,7 @@ public class wup_node_init implements JvmHdl {
         WnObj confObj = sys.io.createIfNoExists(confDir, macid + ".json", WnRace.FILE);
         if (!confObj.containsKey("vkey")) {
             confObj.setv("vkey", R.UU32());
-            sys.io.appendMeta(confObj, new NutMap("vkey", confObj.get("vkey")));
+            sys.io.appendMeta(confObj, new NutMap("vkey", confObj.get("vkey")).setv("macid", macid));
         }
         sys.io.writeText(confObj, sys.io.readText(sys.io.check(confDir, default_config)));
         sys.out.writeJson(new NutMap("key", confObj.get("vkey")), JsonFormat.full());

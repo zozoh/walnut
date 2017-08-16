@@ -25,8 +25,8 @@ public class wup_pkg_info implements JvmHdl {
         String key = hc.params.check("key");
         WnObj confObj = sys.io.check(null, Wn.normalizeFullPath("~/wup/confs/" + macid + ".json", sys));
         if (!key.equals(confObj.getString("vkey"))) {
-            sys.err.print("key miss match!!");
-            return null;
+            //sys.err.print("key miss match!!");
+            //return null;
         }
         String name = hc.params.check("name");
         String version = hc.params.get("version", "lastest");
