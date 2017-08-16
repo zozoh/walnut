@@ -58,7 +58,7 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
  * 针对控件的样式
  */
 //............................................
-// com.rows:固定式顶栏
+// com.rows:页眉
 @media screen and (min-width: @w_C_dev) {
 .skin-rows-sky {
     padding:.1rem 0 .1rem 0;
@@ -74,8 +74,8 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 } // @media
 
 //............................................
-// com.rows:首页大图
-.skin-rows-homebanner {
+// com.rows:展示区
+.skin-rows-bann {
     border-top:2px solid @c_h_b;
     border-bottom:2px solid @c_h_b;
 }
@@ -94,12 +94,12 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 } // @media
 
 //............................................
-// com.rows:通用底栏
+// com.rows:页脚
 .skin-rows-footer {
     padding:.1rem 0 .1rem 0;
     background: @c_foot_b; color:@c_foot_f;
     border-top: 2px solid @c_h_b;
-    .skin-navmenu-autof2v {
+    .skin-navmenu-mc {
         ul li[current]{
             > a {color:@c_foot_h_f;background: @c_foot_h_b; }
         }
@@ -116,19 +116,19 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 } // @media
 @media screen and (max-width: @w_C_dev) {
 .skin-rows-footer {
-    .skin-navmenu-autof2v {
+    .skin-navmenu-mc {
         @flex(); justify-content:center; text-align: center;
     }
 }
 } // @media
 
 //............................................
-// com.navmenu:自适应水平菜单
-.skin-navmenu-autofh {
+// com.navmenu:主菜单
+.skin-navmenu-0 {
     font-size: @f_menu;
 }
 @media screen and (min-width: @w_C_dev) {
-.skin-navmenu-autofh {
+.skin-navmenu-0 {
     .ul-top {@flex();}
     .li-top {
         > a {display: block;padding: .08rem; border-radius: .04rem; } 
@@ -137,22 +137,22 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
         color:@c_h_f;background: @c_h_b; 
     }
 }
-.skin-navmenu-autofh[sa-align="WS"] {
+.skin-navmenu-0[sa-align="WS"] {
     .ul-top {align-items:flex-end;}
 }
-.skin-navmenu-autofh[sa-align="S"] {
+.skin-navmenu-0[sa-align="S"] {
     .ul-top {align-items:flex-end; justify-content:center;}
 }
-.skin-navmenu-autofh[sa-align="ES"] {
+.skin-navmenu-0[sa-align="ES"] {
     .ul-top {align-items:flex-end; justify-content:flex-end;}
 }
-.skin-navmenu-autofh[sa-align="P"] {
+.skin-navmenu-0[sa-align="P"] {
     .ul-top {align-items:center; justify-content:center;}
 }
 } // @media
 @media screen and (max-width: @w_C_dev) {
 // 在线的
-.skin-navmenu-autofh {
+.skin-navmenu-0 {
     .ul-top { transition:.3s;
         position: fixed; top:0; bottom:0; left:@w_C_menu * -1; width:@w_C_menu;
         background: @c_menu_b; color:@c_menu_f;
@@ -166,16 +166,16 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
         }
     }
 }
-.skin-navmenu-autofh[show] {
+.skin-navmenu-0[show] {
     .ul-top {left:0; box-shadow: .06rem 0 .2rem rgba(0,0,0,0.4);}
 }
 // 给 IDE 做的
 [hmaker-ide] {
-    .skin-navmenu-autofh {
+    .skin-navmenu-0 {
         display: inline-block;
         .ul-top {display: none; left:0; box-shadow: .06rem 0 .2rem rgba(0,0,0,0.4);}
     }
-    .skin-navmenu-autofh:before {
+    .skin-navmenu-0:before {
         display: block; content:"Menu";
         width: .5rem; height:.4rem; line-height: .38rem;
         text-align: center;
@@ -191,14 +191,14 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 } // @media
 
 //............................................
-// com.navmenu:自适应竖排二级菜单
-.skin-navmenu-autof2v {
+// com.navmenu:多栏菜单
+.skin-navmenu-mc {
     ul li[current]{
         > a {color:@c_h_f;background: @c_h_b; }
     }
 }
 @media screen and (min-width: @w_C_dev) {
-.skin-navmenu-autof2v {
+.skin-navmenu-mc {
     font-size: @f_menu; padding:.1rem 0;
     li {margin:0; text-align: center;}
     li[open-sub]{
@@ -214,7 +214,7 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 }
 } // @media
 @media screen and (max-width: @w_C_dev) {
-.skin-navmenu-autof2v {
+.skin-navmenu-mc {
     padding:.1rem 0;
     .ul-top {padding:.1rem; display: inline-block;}
     .li-top {padding:.1rem;}
@@ -226,27 +226,27 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 
 
 //............................................
-// com.image:自适应LOGO
+// com.image:主菜单触发LOGO
 @media screen and (min-width: @w_C_dev) {
-.skin-image-smartlogo {
+.skin-image-mtlogo {
     img {height:.6rem;}
 }
 } // @media
 @media screen and (max-width: @w_C_dev) {
-.skin-image-smartlogo {
+.skin-image-mtlogo {
     width:.5rem; height:.5rem; cursor: pointer; 
     @flex(); align-items:center; justify-content:center;
     color:@c_title;
     img {display: none;}
 }
-.skin-image-smartlogo:before{
+.skin-image-mtlogo:before{
     font-family:'Material-Design-Iconic-Font'; display: inline; content:"\f197";
 }
 } // @media
 
 //............................................
-// com.text:网站主标题
-.skin-text-mtitle {
+// com.text:页眉标题
+.skin-text-skytitle {
     font-size:.22rem; font-weight: bold; color:@c_title;
     padding:0 .06rem;
 }

@@ -26,16 +26,14 @@ public class hmc_image extends AbstractNoneValueCom {
             return false;
         }
 
-        // 展开链接
-        src = ing.explainLink(src, true);
-
+        // zozoh: src 就不用展开了，因为所有控件输出的结果后，最后会被统一转换的
         eleArena.appendElement("img").attr("src", src);
 
-        // 超链接
-        String href = ing.propCom.getString("href");
-        href = ing.explainLink(href, false);
-        if (!Strings.isBlank(href))
-            ing.eleCom.attr("href", href);
+        // zozoh: href 就不用展开了，因为所有控件输出的结果后，最后会被统一转换的
+        // String href = ing.propCom.getString("href");
+        // href = ing.explainLink(href, false);
+        // if (!Strings.isBlank(href))
+        // ing.eleCom.attr("href", href);
 
         // 文字属性
         String text = ing.propCom.getString("text");

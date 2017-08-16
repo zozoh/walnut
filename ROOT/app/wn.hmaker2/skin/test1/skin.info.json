@@ -3,7 +3,7 @@
     "js"   : [],
     "com"  : {
         "rows" : [{
-                "text" : "固定式顶栏",
+                "text" : "页眉",
                 "selector" : "skin-rows-sky",
                 "blockFields" : []
             }, {
@@ -11,36 +11,36 @@
                 "selector" : "skin-rows-main",
                 "blockFields" : []
             }, {
-                "text" : "首页大图",
-                "selector" : "skin-rows-homebanner",
+                "text" : "展示区",
+                "selector" : "skin-rows-bann",
                 "blockFields" : ["background"]
             }, {
-                "text" : "通用底栏",
+                "text" : "页脚",
                 "selector" : "skin-rows-footer",
                 "blockFields" : []
             }],
         "navmenu" : [{
-                "text" : "自适应水平菜单",
-                "selector" : "skin-navmenu-autofh",
+                "text" : "主菜单",
+                "selector" : "skin-navmenu-0",
                 "blockFields" : [
                     "padding",
                     "@align(对齐)[默认=NW,左下=SW,中下=S,右下=SE]=NW"
                 ]
             }, {
-                "text" : "自适应竖排二级菜单",
-                "selector" : "skin-navmenu-autof2v",
+                "text" : "多栏菜单",
+                "selector" : "skin-navmenu-mc",
                 "blockFields" : [
                     "padding"
                 ]
             }],
         "image" : [{
-                "text" : "自适应菜单触发LOGO",
-                "selector" : "skin-image-smartlogo",
+                "text" : "主菜单触发LOGO",
+                "selector" : "skin-image-mtlogo",
                 "blockFields" : []
             }],
         "text" : [{
-                "text" : "网站主标题",
-                "selector" : "skin-text-mtitle",
+                "text" : "页眉标题",
+                "selector" : "skin-text-skytitle",
                 "blockFields" : []
             }, {
                 "text" : "长文章",

@@ -38,7 +38,7 @@ public class hmaker_newsite implements JvmHdl {
         }
         // 否则初始化
         else {
-            sys.io.create(oSite, "images", WnRace.DIR);
+            sys.io.create(oSite, "image", WnRace.DIR);
             WnObj oIndex = sys.io.create(oSite, "index", WnRace.FILE);
             oIndex.type("html").mime("text/html");
             sys.io.set(oIndex, "^(tp|mime)$");

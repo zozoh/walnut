@@ -48,7 +48,8 @@ public class hmc_navmenu extends AbstractNoneValueCom {
                 // 得到信息
                 String href = li.attr("href");
                 Element a = li.child(0);
-                href = ing.explainLink(href, false);
+                // zozoh: href 就不用展开了，因为所有控件输出的结果后，最后会被统一转换的
+                // href = ing.explainLink(href, false);
                 String newtab = li.attr("newtab");
 
                 // 链接

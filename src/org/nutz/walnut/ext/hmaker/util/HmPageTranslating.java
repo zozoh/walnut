@@ -369,6 +369,24 @@ public class HmPageTranslating extends HmContext {
             eleCom.attr("hmaker-rt", "yes");
         }
         // ---------------------------------------------------
+        // 对于所有的 <img> 标签，处理一遍 src
+        Elements eleImgs = doc.body().getElementsByTag("img");
+        for (Element eleImg : eleImgs) {
+            String src = eleImg.attr("src");
+            src = this.explainLink(src, true);
+            if (null != src)
+                eleImg.attr("src", src);
+        }
+        // ---------------------------------------------------
+        // 对于所有的 <a> 标签，处理一遍 href
+        Elements eleAnchors = doc.body().getElementsByTag("a");
+        for (Element eleAnchor : eleAnchors) {
+            String href = eleAnchor.attr("href");
+            href = this.explainLink(href, false);
+            if (null != href)
+                eleAnchor.attr("href", href);
+        }
+        // ---------------------------------------------------
         // 如果控件们决定当前页是一个 wnml，那么增加一个动态占位符，用来为 JS 脚本们
         // 输出本页的请求参数
         if (this.isWnml) {
