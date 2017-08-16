@@ -124,4 +124,10 @@ public interface WnStore extends UnitTestable {
      */
     void trancate(WnObj o, long len);
 
+    /**
+     * 获取当前句柄偏移量
+     * @param hid
+     * @return
+     */
+    long getPos(String hid);
 }

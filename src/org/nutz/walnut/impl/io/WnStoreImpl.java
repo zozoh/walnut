@@ -464,4 +464,9 @@ public class WnStoreImpl implements WnStore {
         }
         return hdl;
     }
+    
+    @Override
+    public long getPos(String hid) {
+        return __check_hdl(hid).pos;
+    }
 }

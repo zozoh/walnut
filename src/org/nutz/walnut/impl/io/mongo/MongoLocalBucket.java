@@ -160,7 +160,6 @@ public class MongoLocalBucket extends AbstractBucket {
 
             // 找到偏移
             long from = pos - index * blockSize;
-
             // 找到文件
             File f = Files.getFile(dir, "" + index);
             int n = -1;

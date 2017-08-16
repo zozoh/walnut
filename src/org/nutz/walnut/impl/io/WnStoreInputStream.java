@@ -94,5 +94,13 @@ public class WnStoreInputStream extends InputStream {
             hid = null;
         }
     }
+    
+    @Override
+    public long skip(long n) throws IOException {
+        if (n < 1)
+            return 0;
+        io.seek(hid, io.getPos(hid) + n);
+        return n;
+    }
 
 }

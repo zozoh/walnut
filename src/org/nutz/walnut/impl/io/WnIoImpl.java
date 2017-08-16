@@ -744,4 +744,7 @@ public class WnIoImpl implements WnIo {
         tree.pull(query, key, val);
     }
 
+    public long getPos(String hid) {
+        return store.getPos(hid);
+    }
 }
