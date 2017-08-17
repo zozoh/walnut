@@ -9,9 +9,16 @@ function _eval_enum_text (fld, v){
         var _val = _.isFunction(fld.uiConf.value)
                       ? fld.uiConf.value
                       : function(o, index){
-                            if(_.isString(o))
+                            if(_.isString(o)){
+                                if(fld.uiConf.textAsValue)
+                                    return o;
                                 return index;
-                            return _.isUndefined(o.val) ? index : o.val;
+                            }
+                            if(!_.isUndefined(o.value))
+                                return o.value;
+                            if(!_.isUndefined(o.val))
+                                return o.val;
+                            return index;
                         };
 
         // 解析文字

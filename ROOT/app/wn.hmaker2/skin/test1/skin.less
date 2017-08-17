@@ -17,10 +17,8 @@
 };
 
 
-@flex : {
-    display: -webkit-flex;
-    display: flex;
-};
+@flex   : {display: -webkit-flex; display: flex;};
+@flexWrap : {@flex(); flex-wrap:wrap;};
 
 @f_fixed : Monaco, Menlo, Consolas, Courier New, Courier, monospace;
 
@@ -50,8 +48,10 @@ a[href]{color:@c_lnk; text-decoration: none;}
 a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 
 @media screen and (min-width: @w_C_dev) {
+    .hmc-navmenu a > i {margin-right:.04rem;}
 } // @media
 @media screen and (max-width: @w_C_dev) {
+    .hmc-navmenu a > i {margin-right:.08rem; font-size: 1.2em;}
 } // @media
 
 /***************************************************
@@ -78,6 +78,7 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 .skin-rows-bann {
     border-top:2px solid @c_h_b;
     border-bottom:2px solid @c_h_b;
+    height:3.5rem;
 }
 
 //............................................
@@ -124,13 +125,12 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 
 //............................................
 // com.navmenu:主菜单
-.skin-navmenu-0 {
-    font-size: @f_menu;
-}
 @media screen and (min-width: @w_C_dev) {
 .skin-navmenu-0 {
+    font-size: @f_N_menu;
     .ul-top {@flex();}
     .li-top {
+        padding:0 .04rem;
         > a {display: block;padding: .08rem; border-radius: .04rem; } 
     }
     .li-top[current] a {
@@ -153,6 +153,7 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 @media screen and (max-width: @w_C_dev) {
 // 在线的
 .skin-navmenu-0 {
+    font-size: @f_C_menu;
     .ul-top { transition:.3s;
         position: fixed; top:0; bottom:0; left:@w_C_menu * -1; width:@w_C_menu;
         background: @c_menu_b; color:@c_menu_f;
@@ -199,7 +200,7 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 }
 @media screen and (min-width: @w_C_dev) {
 .skin-navmenu-mc {
-    font-size: @f_menu; padding:.1rem 0;
+    font-size: @f_N_menu; padding:.1rem 0;
     li {margin:0; text-align: center;}
     li[open-sub]{
         > .ul-sub {display: block;}
@@ -215,7 +216,7 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 } // @media
 @media screen and (max-width: @w_C_dev) {
 .skin-navmenu-mc {
-    padding:.1rem 0;
+    font-size: @f_C_menu; padding:.1rem 0;
     .ul-top {padding:.1rem; display: inline-block;}
     .li-top {padding:.1rem;}
     .ul-sub {padding:.1rem;}
@@ -245,6 +246,28 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 } // @media
 
 //............................................
+// com.image:缩略图
+.hm-com-image[skin="skin-image-thumb"]{
+    margin:.1rem;
+}
+.skin-image-thumb {
+    width:1.3rem; height:1.3rem; border-radius: .04rem;
+    border:@w_thumb solid @c_thumb; cursor: pointer;
+    img {width:100%; height:100%;}
+    section {
+        background: rgba(0,0,0,0.6); color:#FFF;
+        text-shadow: 1px 1px 1px #000; text-align: center;
+        bottom:0; left:0; right:0; font-size:.12rem;
+        line-height: .2rem; padding:0;
+    }
+}
+.hm-com-image[skin="skin-image-thumb"][href] {
+    section {opacity: 0.6;}
+}
+.hm-com-image[skin="skin-image-thumb"][href]:hover {
+    section {opacity: 1;}
+}
+//............................................
 // com.text:页眉标题
 .skin-text-skytitle {
     font-size:.22rem; font-weight: bold; color:@c_title;
@@ -255,7 +278,7 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 // com.dynamic:超文本(Markdown)
 // com.text:超文本(Markdown)
 .skin-markdown {
-    padding: .2rem .2rem .5rem .2rem;
+    padding: .2rem .2rem .3rem .2rem;
 
     // 正文内容
     article {
@@ -298,11 +321,13 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
         }
         // ------------------------- 无序列表
         ul, ol {
-            margin:.1rem .3rem; padding:.16rem;
+            margin:.1rem 0 .3rem .2rem; 
+            padding:.16rem .06rem .16rem .16rem;
+            line-height: .32rem;
         }
         ul, ol {
             ul, ol {
-                padding:.05rem .16rem; margin:0 .24rem;
+                padding:.05rem 0 .16rem .05; margin:0 .24rem;
             }
         }
         // ------------------------- 表格
@@ -334,14 +359,14 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 //............................................
 // 区域: 对齐方式
 .skin-area-align-NW > .hm-area-con{}
-.skin-area-align-N  > .hm-area-con{@flex(); justify-content:center}
-.skin-area-align-NE > .hm-area-con{@flex(); justify-content:flex-end;}
-.skin-area-align-W  > .hm-area-con{@flex(); align-items:center;}
-.skin-area-align-P  > .hm-area-con{@flex(); align-items:center; justify-content:center;}
-.skin-area-align-E  > .hm-area-con{@flex(); align-items:center; justify-content:flex-end;}
-.skin-area-align-SW > .hm-area-con{@flex(); align-items:flex-end;}
-.skin-area-align-S  > .hm-area-con{@flex(); align-items:flex-end; justify-content:center;}
-.skin-area-align-SE > .hm-area-con{@flex(); align-items:flex-end; justify-content:flex-end;}
+.skin-area-align-N  > .hm-area-con{@flexWrap(); justify-content:center}
+.skin-area-align-NE > .hm-area-con{@flexWrap(); justify-content:flex-end;}
+.skin-area-align-W  > .hm-area-con{@flexWrap(); align-items:center;}
+.skin-area-align-P  > .hm-area-con{@flexWrap(); align-items:center; justify-content:center;}
+.skin-area-align-E  > .hm-area-con{@flexWrap(); align-items:center; justify-content:flex-end;}
+.skin-area-align-SW > .hm-area-con{@flexWrap(); align-items:flex-end;}
+.skin-area-align-S  > .hm-area-con{@flexWrap(); align-items:flex-end; justify-content:center;}
+.skin-area-align-SE > .hm-area-con{@flexWrap(); align-items:flex-end; justify-content:flex-end;}
 //............................................
 // 区域: 紧贴
 .hm-com-columns > .hm-com-W > .hmc-columns > .skin-area-nogrow,

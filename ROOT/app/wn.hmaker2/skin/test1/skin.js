@@ -13,12 +13,12 @@ module.exports = {
         do_change_root_font_size(this, 640, 100, 80);
 
         // 绑定事件
-        $(".skin-image-smartlogo").click(function(e){
+        $(".skin-image-mtlogo").click(function(e){
             e.stopPropagation();
-            $z.toggleAttr(".skin-navmenu-autofh", "show");
+            $z.toggleAttr(".skin-navmenu-0", "show");
         });
         $(this.doc.body).click(function(){
-            $(".skin-navmenu-autofh").removeAttr("show");
+            $(".skin-navmenu-0").removeAttr("show");
         });
     },
     off : function(){

@@ -68,15 +68,15 @@ tags:
 
 # HttpApi 约定
 
-## 请求方法：api_method
+## 请求方法：`api_method`
 
 API 对象必须有元数据 `api_method`，可能的值是 `GET` 或者 `POST`。必须为全大写字母。如果非要写小写，不保证一定能工作正常。
 
-## 参数表：params
+## 参数表：`params`
 
 API 对象必须有元数据 `params`，格式参见[《动态设置》](hm_setting.md)
 
-## 返回类型：api_return
+## 返回类型：`api_return`
 
 API 对象必须有元数据 `api_return`, 这个值会被 IDE 记录到控件参数里。返回数据的格式可能有下面几种:
 

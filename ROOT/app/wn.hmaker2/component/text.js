@@ -18,6 +18,17 @@ return ZUI.def("app.wn.hm_com_text", {
         HmComMethods(this);
     },
     //...............................................................
+    events : {
+        "dblclick .ui-arena" : function(e){
+            // 仅针对激活控件有效
+            if(!this.isActived())
+                return;
+
+            // 如果当前模式是区域选择，还需要同时高亮当前区域
+            this.fire("show:prop", "com");
+        }
+    },
+    //...............................................................
     paint : function(com) {
         var UI = this;
 

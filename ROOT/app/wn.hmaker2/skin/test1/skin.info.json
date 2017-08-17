@@ -37,6 +37,10 @@
                 "text" : "主菜单触发LOGO",
                 "selector" : "skin-image-mtlogo",
                 "blockFields" : []
+            }, {
+                "text" : "缩略图",
+                "selector" : "skin-image-thumb",
+                "blockFields" : []
             }],
         "text" : [{
                 "text" : "页眉标题",

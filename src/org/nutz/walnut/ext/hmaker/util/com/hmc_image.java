@@ -30,10 +30,10 @@ public class hmc_image extends AbstractNoneValueCom {
         eleArena.appendElement("img").attr("src", src);
 
         // zozoh: href 就不用展开了，因为所有控件输出的结果后，最后会被统一转换的
-        // String href = ing.propCom.getString("href");
+        String href = ing.propCom.getString("href");
         // href = ing.explainLink(href, false);
-        // if (!Strings.isBlank(href))
-        // ing.eleCom.attr("href", href);
+        if (!Strings.isBlank(href))
+            ing.eleCom.attr("href", href);
 
         // 文字属性
         String text = ing.propCom.getString("text");

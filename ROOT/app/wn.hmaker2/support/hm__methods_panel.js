@@ -109,7 +109,7 @@ var methods = {
 
             // 循环绘制其余项目
             for(var si of skinList) {
-                console.log(si.selector, "["+skin+"]")
+                //console.log(si.selector, "["+skin+"]")
                 $('<li>').text(si.text).attr({
                     "value"   : si.selector,
                     "checked" : si.selector == skin ? "yes" : null

@@ -13,9 +13,12 @@ var methods = {
                 return o;
             return o.text;
         });
-        $z.setUndefined(opt, "value", function(o, index){
-            if(_.isString(o))
+        $z.setUndefined(opt, "value", function(o, index, UI){
+            if(_.isString(o)) {
+                if(UI.options.textAsValue)
+                    return o;
                 return index;
+            }
             if(_.isNumber(o))
                 return o;
             if(!_.isUndefined(o.value)) {

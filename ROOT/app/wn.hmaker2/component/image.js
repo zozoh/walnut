@@ -56,10 +56,12 @@ return ZUI.def("app.wn.hm_com_image", {
                     <i class="zmdi zmdi-link"></i>
                 </div>`).appendTo(jW);
             }
+            UI.$el.attr("href", com.href);
         }
         // 清除
         else {
             jLinkTip.remove();
+            UI.$el.removeAttr("href");
         }
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 更新图片的样式
