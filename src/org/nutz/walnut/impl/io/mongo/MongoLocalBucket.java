@@ -101,22 +101,22 @@ public class MongoLocalBucket extends AbstractBucket {
                                   index + 1 == blockNumber ? size - index * blockSize : blockSize);
 
         // 填充字节
-        byte[] buf = new byte[blockSize];
-        Arrays.fill(buf, B0);
+        //byte[] buf = new byte[blockSize];
+        //Arrays.fill(buf, B0);
         // TODO zozoh: 奇怪喔，按照上面的计算，fLen 不应该超过 blockSize 的。
         // 可能是 setSize 的时候有些什么问题，需要查一查
-        int re = __fill_buffer_by_file(f, 0, buf, 0, Math.min(fLen, blockSize));
+        int re = __fill_buffer_by_file(f, 0, bs, 0, Math.min(fLen, blockSize));
 
         // 分析左边距
         int pl = 0;
-        for (; pl < fLen; pl++)
-            if (buf[pl] != 0)
-                break;
+        //for (; pl < fLen; pl++)
+        //    if (buf[pl] != 0)
+        //        break;
 
         // 填充到输出数组，边距透明
         int sz = fLen - pl;
-        if (sz > 0)
-            System.arraycopy(buf, pl, bs, pl, sz);
+//        if (sz > 0)
+//            System.arraycopy(buf, pl, bs, pl, sz);
 
         // 分析布局
         if (null != bi) {
