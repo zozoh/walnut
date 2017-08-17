@@ -145,8 +145,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
 
             // api 返回错误
             if(/^e[.]/.test(re)){
-                UI.__tip('<i class="zmdi zmdi-alert-triangle"></i>' + re, 
-                    "api-error", jData);
+                UI.__tip('api_error : ' + UI.msg(re), "api-error", jData);
                 return;
             }
 
@@ -163,13 +162,21 @@ return ZUI.def("app.wn.hm_com_dynamic", {
             // 接口调用错误
             catch (errMsg) {
                 // 显示错误
-                UI.__tip('<i class="zmdi zmdi-alert-triangle"></i>' + errMsg, 
-                    "api-error", jData);
+                UI.__tip('api_error : ' + UI.msg(errMsg), "api-error", jData);
                 // 绘制重新加载按钮
                 UI.__draw_dynamic_reload();
                 // 抛出错误，不要继续了
                 throw errMsg;
             }
+        }).fail(function(re){
+            var errMsg = re.responseText;
+            //console.log(errMsg)
+            // 清除正在加载的显示
+            jData.empty();
+            // 显示错误
+            UI.__tip('api_error : ' + UI.msg(errMsg), "api-error", jData);
+            // 绘制重新加载按钮
+            UI.__draw_dynamic_reload();
         });
         // 这个请求，显然是异步的
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

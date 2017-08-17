@@ -22,6 +22,13 @@
 
 @f_fixed : Monaco, Menlo, Consolas, Courier New, Courier, monospace;
 
+@thumb_section: {
+    background: rgba(0,0,0,0.6); color:#FFF;
+    text-shadow: 1px 1px 1px #000; text-align: center;
+    bottom:0; left:0; right:0; font-size:.12rem;
+    line-height: .2rem; padding:0; position: absolute;
+};
+
 // "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace
 
 /***************************************************
@@ -44,13 +51,13 @@ body {
     background: #FFF; font-size:@f_0; min-height: 100%;
 }
 
-a[href]{color:@c_lnk; text-decoration: none;}
-a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
+a[href]{color:@lnk_c; text-decoration: none;}
+a[href]:hover{color:@lnk_ho_c; text-decoration: underline;}
 
-@media screen and (min-width: @w_C_dev) {
+@media screen and (min-width: @M_dev_w) {
     .hmc-navmenu a > i {margin-right:.04rem;}
 } // @media
-@media screen and (max-width: @w_C_dev) {
+@media screen and (max-width: @M_dev_w) {
     .hmc-navmenu a > i {margin-right:.08rem; font-size: 1.2em;}
 } // @media
 
@@ -59,36 +66,36 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
  */
 //............................................
 // com.rows:页眉
-@media screen and (min-width: @w_C_dev) {
+@media screen and (min-width: @M_dev_w) {
 .skin-rows-sky {
     padding:.1rem 0 .1rem 0;
     > .hm-area {
-        max-width: @w_N_pmax; margin:0 auto;
+        max-width: @D_page_maxW; margin:0 auto;
     }
 }
 } // @media
-@media screen and (max-width: @w_C_dev) {
+@media screen and (max-width: @M_dev_w) {
 .skin-rows-sky {
-    background: @c_skybar_b; color:@c_skybar_f;
+    background: @M_skybar_cb; color:@M_skybar_cf;
 }
 } // @media
 
 //............................................
 // com.rows:展示区
 .skin-rows-bann {
-    border-top:2px solid @c_h_b;
-    border-bottom:2px solid @c_h_b;
+    border-top:2px solid @h_b_c;
+    border-bottom:2px solid @h_b_c;
     height:3.5rem;
 }
 
 //............................................
 // com.rows:页面主体
-@media screen and (min-width: @w_C_dev) {
+@media screen and (min-width: @M_dev_w) {
 .hm-com-rows[skin="skin-rows-main"] {
-    max-width: @w_N_pmax; margin: 0 auto;
+    max-width: @D_page_maxW; margin: 0 auto;
 }
 } // @media
-@media screen and (max-width: @w_C_dev) {
+@media screen and (max-width: @M_dev_w) {
     .hm-com-rows[skin="skin-rows-main"] {
         margin: 0 .08rem;
     }
@@ -98,24 +105,24 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 // com.rows:页脚
 .skin-rows-footer {
     padding:.1rem 0 .1rem 0;
-    background: @c_foot_b; color:@c_foot_f;
-    border-top: 2px solid @c_h_b;
+    background: @foot_b_c; color:@foot_f_c;
+    border-top: 2px solid @h_b_c;
     .skin-navmenu-mc {
         ul li[current]{
-            > a {color:@c_foot_h_f;background: @c_foot_h_b; }
+            > a {color:@foot_h_f_c;background: @foot_h_b_c; }
         }
     }
-    a[href]{color:@c_foot_lnk;}
-    a[href]:hover{color:@c_foot_lnk_ho;}
+    a[href]{color:@foot_lnk_c;}
+    a[href]:hover{color:@foot_lnk_ho_c;}
 }
-@media screen and (min-width: @w_C_dev) {
+@media screen and (min-width: @M_dev_w) {
 .skin-rows-footer {
     > .hm-area {
-        max-width: @w_N_pmax; margin:0 auto;
+        max-width: @D_page_maxW; margin:0 auto;
     }
 }
 } // @media
-@media screen and (max-width: @w_C_dev) {
+@media screen and (max-width: @M_dev_w) {
 .skin-rows-footer {
     .skin-navmenu-mc {
         @flex(); justify-content:center; text-align: center;
@@ -125,16 +132,16 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 
 //............................................
 // com.navmenu:主菜单
-@media screen and (min-width: @w_C_dev) {
+@media screen and (min-width: @M_dev_w) {
 .skin-navmenu-0 {
-    font-size: @f_N_menu;
+    font-size: @D_menu_f;
     .ul-top {@flex();}
     .li-top {
         padding:0 .04rem;
         > a {display: block;padding: .08rem; border-radius: .04rem; } 
     }
     .li-top[current] a {
-        color:@c_h_f;background: @c_h_b; 
+        color:@h_f_c;background: @h_b_c; 
     }
 }
 .skin-navmenu-0[sa-align="WS"] {
@@ -150,20 +157,20 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
     .ul-top {align-items:center; justify-content:center;}
 }
 } // @media
-@media screen and (max-width: @w_C_dev) {
+@media screen and (max-width: @M_dev_w) {
 // 在线的
 .skin-navmenu-0 {
-    font-size: @f_C_menu;
+    font-size: @M_menu_f;
     .ul-top { transition:.3s;
-        position: fixed; top:0; bottom:0; left:@w_C_menu * -1; width:@w_C_menu;
-        background: @c_menu_b; color:@c_menu_f;
+        position: fixed; top:0; bottom:0; left:@M_menu_w * -1; width:@M_menu_w;
+        background: @M_menu_cb; color:@M_menu_cf;
         z-index: 100; padding:.16rem 0; line-height: .48rem;
         .li-top > a {
-            color:@c_menu_f; display: block; text-align: center;
+            color:@M_menu_cf; display: block; text-align: center;
         }
-        .li-top > a:hover {color:@c_menu_f;}
+        .li-top > a:hover {color:@M_menu_cf;}
         .li-top[current] a {
-            color:@c_h_f;background: @c_h_b; 
+            color:@h_f_c;background: @h_b_c; 
         }
     }
 }
@@ -195,12 +202,12 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 // com.navmenu:多栏菜单
 .skin-navmenu-mc {
     ul li[current]{
-        > a {color:@c_h_f;background: @c_h_b; }
+        > a {color:@h_f_c;background: @h_b_c; }
     }
 }
-@media screen and (min-width: @w_C_dev) {
+@media screen and (min-width: @M_dev_w) {
 .skin-navmenu-mc {
-    font-size: @f_N_menu; padding:.1rem 0;
+    font-size: @D_menu_f; padding:.1rem 0;
     li {margin:0; text-align: center;}
     li[open-sub]{
         > .ul-sub {display: block;}
@@ -214,9 +221,9 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
     .ul-sub-n {display: none;}
 }
 } // @media
-@media screen and (max-width: @w_C_dev) {
+@media screen and (max-width: @M_dev_w) {
 .skin-navmenu-mc {
-    font-size: @f_C_menu; padding:.1rem 0;
+    font-size: @M_menu_f; padding:.1rem 0;
     .ul-top {padding:.1rem; display: inline-block;}
     .li-top {padding:.1rem;}
     .ul-sub {padding:.1rem;}
@@ -228,16 +235,16 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 
 //............................................
 // com.image:主菜单触发LOGO
-@media screen and (min-width: @w_C_dev) {
+@media screen and (min-width: @M_dev_w) {
 .skin-image-mtlogo {
     img {height:.6rem;}
 }
 } // @media
-@media screen and (max-width: @w_C_dev) {
+@media screen and (max-width: @M_dev_w) {
 .skin-image-mtlogo {
     width:.5rem; height:.5rem; cursor: pointer; 
     @flex(); align-items:center; justify-content:center;
-    color:@c_title;
+    color:@sky_title_c;
     img {display: none;}
 }
 .skin-image-mtlogo:before{
@@ -248,18 +255,13 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 //............................................
 // com.image:缩略图
 .hm-com-image[skin="skin-image-thumb"]{
-    margin:.1rem;
+    margin:@thumb_margin; vertical-align: middle;
 }
 .skin-image-thumb {
-    width:1.3rem; height:1.3rem; border-radius: .04rem;
-    border:@w_thumb solid @c_thumb; cursor: pointer;
+    width:@thumb_w; height:@thumb_h; border-radius: @thumb_r;
+    border:@thumb_l solid @thumb_lc; cursor: pointer;
     img {width:100%; height:100%;}
-    section {
-        background: rgba(0,0,0,0.6); color:#FFF;
-        text-shadow: 1px 1px 1px #000; text-align: center;
-        bottom:0; left:0; right:0; font-size:.12rem;
-        line-height: .2rem; padding:0;
-    }
+    section {@thumb_section();}
 }
 .hm-com-image[skin="skin-image-thumb"][href] {
     section {opacity: 0.6;}
@@ -270,7 +272,7 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 //............................................
 // com.text:页眉标题
 .skin-text-skytitle {
-    font-size:.22rem; font-weight: bold; color:@c_title;
+    font-size:.22rem; font-weight: bold; color:@sky_title_c;
     padding:0 .06rem;
 }
 
@@ -282,15 +284,15 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 
     // 正文内容
     article {
-        letter-spacing:.03em; color:@c_txt;
+        letter-spacing:.03em; color:@ar_txt_c;
         // 重定义字体大小
         table, thead, tbody, tr, th, td {
-            font-size:1em; color:@c_tab;
+            font-size:1em; color:@ar_tab_c;
         }
         
         // 链接
-        a {color:@c_lnk; text-decoration: none;}
-        a:hover {color:@c_lnk_ho; text-decoration: underline;}
+        a {color:@lnk_c; text-decoration: none;}
+        a:hover {color:@lnk_ho_c; text-decoration: underline;}
         
         // ------------------------- 标题
         h1 {margin:.20rem 0; padding:.08rem 0; font-size:2em;}
@@ -301,9 +303,9 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
         h6 {margin:.04rem 0; padding:.02rem 0; font-size:1.1em;}
         // ------------------------- 段落及正文
         p {margin:.16rem 0; padding:.06rem; line-height: .32rem;}
-        em {font-style: italic; color:@c_italic;}
-        b {color:@c_bold; font-weight: bold;}
-        del {color:@c_del;}
+        em {font-style: italic; color:@ar_italic_c;}
+        b {color:@ar_bold_c; font-weight: bold;}
+        del {color:@ar_del_c;}
         code {
             border:1px solid #CCC; background: #FFC; color:#666;
             display: inline-block; vertical-align: middle;
@@ -372,8 +374,23 @@ a[href]:hover{color:@c_lnk_ho; text-decoration: underline;}
 .hm-com-columns > .hm-com-W > .hmc-columns > .skin-area-nogrow,
 .hm-com-rows > .hm-com-W > .hmc-columns > .skin-area-nogrow {flex:0 0 auto;}
 
-
-
-
-
-
+//............................................
+// 模板（wn_lst_th_thumb）
+.skin-list-th-thumb {
+    > a {
+        margin:@thumb_margin; display: inline-block; vertical-align: middle;
+        width:@thumb_w; height:@thumb_h; border-radius: @thumb_r;
+        border:@thumb_l solid @thumb_lc; position: relative;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: cover;
+        section {@thumb_section();}
+    }
+    a[href] {
+        cursor: pointer;
+        section {opacity: 0.6;}
+    }
+    a[href]:hover {
+        section {opacity: 1;}
+    }
+}

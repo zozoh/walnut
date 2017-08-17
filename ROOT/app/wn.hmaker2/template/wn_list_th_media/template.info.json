@@ -1,6 +1,6 @@
 {
-    "name"     : "wn_lst_th_media",
-    "title"    : "默认视频列表",
+    "name"     : "wn_list_th_media",
+    "title"    : "视频列表",
     "dataType" : "list",
     "options"  : {
         "href" : "(详情页面)@link",

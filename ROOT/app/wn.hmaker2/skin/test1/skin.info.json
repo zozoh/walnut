@@ -86,5 +86,9 @@
         }],
     "menuItem" : [],
     "template" : {
+        "wn_list_th_thumb"   : "skin-list-th-thumb",
+        "wn_list_th_article" : "skin-list-th-article",
+        "wn_list_th_media"   : "skin-list-th-media",
+        "wn_obj_th_article" : "skin-markdown",
     }
 })

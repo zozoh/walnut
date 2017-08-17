@@ -42,6 +42,13 @@ public class hmc_dynamic extends AbstractNoneValueCom {
         String templateName = ing.propCom.getString("template");
         HmTemplate tmpl = ing.getTemplate(templateName);
 
+        // 得到模板皮肤
+        // ing.skinInfo
+        if (ing.hasSkin()) {
+            String skinSelector = ing.skinInfo.getSkinForTemplate(templateName);
+            eleArena.addClass(skinSelector);
+        }
+
         // 采用指定的 wnml 代码模板
         if (tmpl.hasDom()) {
             String html = __gen_customized_dom_rendering(ing, tmpl);
@@ -254,7 +261,7 @@ public class hmc_dynamic extends AbstractNoneValueCom {
 
                         // 动态参数: "@<id>qcpb4e7l72h09p9na2hpo8vcue"
                         if ("@".equals(p_tp)) {
-                            reMap.put(key, "${" + p_val + "?" + p_arg + "}");
+                            reMap.put(key, "${params." + p_val + "?" + p_arg + "}");
                         }
                         // 来自控件 "#<filter_1>"
                         else if ("#".equals(p_tp)) {

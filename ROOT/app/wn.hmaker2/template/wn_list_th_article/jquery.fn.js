@@ -16,7 +16,7 @@ function w_info(jMe, selector, val){
         jMe.find(selector).text(val);
 }
 //..........................................................
-$.fn.extend({ "wn_lst_th_article" : function(list, opt){
+$.fn.extend({ "wn_list_th_article" : function(list, opt){
     var jList = this;
     
     // 首先得到字段映射

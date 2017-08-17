@@ -282,6 +282,7 @@ define({
                 "api_lack_params" : '<i class="zmdi zmdi-alert-circle"></i> 动态参数没有提供默认数据，不能预览显示，只能发布以后查看效果',
                 "api_data_nomatch" : '<i class="zmdi zmdi-alert-triangle"></i> API返回值数据与模板不匹配',
                 "need_params"  : '<i class="zmdi zmdi-alert-triangle"></i> 您还有参数未设值',
+                "api_error"    : '<i class="zmdi zmdi-alert-triangle"></i> 接口调用错误',
                 "reload" : "重新从接口加载数据，以便查看显示效果",
                 "com_none" : "请选择页面上的控件",
                 "e_nocom" : '<i class="zmdi zmdi-alert-triangle"></i>  控件不存在',

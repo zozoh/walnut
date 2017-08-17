@@ -1,15 +1,6 @@
 (function($, $z){
 //..........................................................
-var html = '<div class="wn-li-media">';
-html += '<div class="wlm-thumb">';                // 预览区
-html += '<em></em><u></u><b></b>';                 // 预览区信息部分，预留3个标签
-html += '<a class="wlm-ta"><span></span></a>';    // 预览区链接部分
-html += '</div>';
-html += '<ul class="wlm-info">';
-html += '<li class="wlm-ih"><a></a></li>';  // 标题
-html += '<li class="wlm-is"></li>';         // 子标题
-html += '</ul>';
-html += '</div>';
+var html = '<a><section></section></a>';
 //..........................................................
 function w_info(jMe, selector, val){
     if(!_.isNumber(val) && !val)
@@ -18,16 +9,12 @@ function w_info(jMe, selector, val){
         jMe.find(selector).text(val);
 }
 //..........................................................
-$.fn.extend({ "wn_list_th_media" : function(list, opt){
+$.fn.extend({ "wn_list_th_thumb" : function(list, opt){
     var jList = this;
     
     // 首先得到字段映射
     var mapping = opt.displayText || {
-        title : "=th_nm",
-        brief : "=brief",
-        info_em  : "A",
-        info_u   : "B",
-        info_b   : "C",
+        text : "=th_nm",
     };
 
     // 循环数据
@@ -36,24 +23,21 @@ $.fn.extend({ "wn_list_th_media" : function(list, opt){
         // 映射数据
         var obj = list[i];
         var o2  = $z.mappingObj(mapping, obj);
+        console.log(o2)
         
         // 指定显示图片
-        jMe.find('.wlm-thumb').css({
+        jMe.css({
             "background-image" : "url(" + opt.API + "/thumb?"+obj.thumb+")"
         });
         // 指定链接
         if(opt.href){
-            jMe.find("a").attr("href", $z.tmpl("{{h}}?{{k}}={{v}}")({
+            jMe.attr("href", $z.tmpl("{{h}}?{{k}}={{v}}")({
                 h : opt.href,
                 k : opt.paramName  || "id",
                 v : obj[opt.objKey || "id"],
             }));
         }
-        w_info(jMe, ".wlm-ih a", o2.title);
-        w_info(jMe, ".wlm-is", o2.brief);
-        w_info(jMe, ".wlm-thumb em", o2.info_em);
-        w_info(jMe, ".wlm-thumb u", o2.info_u);
-        w_info(jMe, ".wlm-thumb b", o2.info_b);
+        w_info(jMe, "section", o2.text);
     }
     
     // 返回自身以便链式赋值

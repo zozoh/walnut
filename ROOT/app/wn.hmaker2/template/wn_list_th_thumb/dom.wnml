@@ -1,0 +1,6 @@
+<each var="${@@}" items="${comId}">
+    <a  href="${href?}?${paramName}=${@@=objKey}"
+         style="background-image:url(${API}/thumb?${@@thumb})">
+        <section>${@displayText.text}</section>
+    </a>
+</each>
