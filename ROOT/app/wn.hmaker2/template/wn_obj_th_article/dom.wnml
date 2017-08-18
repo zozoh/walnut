@@ -1,20 +1,14 @@
-<header class="md-title">${@displayText.title}</header>
-<aside class="md-info">
-    <if test="${comId}.pubat">
-        <span class="mdi-pubat">$${${comId}.pubat(date:yyyy-MM-dd)?}</span>
-    </if>
-    <if test="${comId}.author">
-        <span class="mdi-pubat">$${${comId}.author?}</span>
-    </if>
-    <if test="${comId}.source">
-        <span class="mdi-source">$${${comId}.source?}</span>
-    </if>
+<header wn:drop="blank" class="md-title">${@displayText.title}</header>
+<aside wn:drop="blank" class="md-info">
+    <span wn:drop="blank" class="mdi-author">${@displayText.author?}</span>
+    <span wn:drop="blank" class="mdi-source">${@displayText.source?}</span>
+    <span wn:drop="blank" class="mdi-pubat">${@displayText.pubat%date:yyyy-MM-dd?}</span>
 </aside>
-<if test="${-@displayText.brief}">
-    <div class="md-brief">${@displayText.brief}</div>
-</if>
+<div wn:drop="blank" class="md-brief">${@displayText.brief}</div>
 <article class="md-content">
-<markdown content="${-@displayText.content}" obj="${comId}" api="${API}">
+<markdown content="${-@displayText.content}">
+    <var name="obj" value="${comId}" dynamic="true"/>
+    <var name="API" value="${API}"/>
     <media regex="^media/(.+)$" 
     replace="$[API]/thing/media?pid=$[obj.th_set]&amp;id=$[obj.id]&amp;fnm=$[1]"/>
 </markdown>

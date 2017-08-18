@@ -103,7 +103,10 @@ return ZUI.def("ui.form_com_obj_detail", {
         var UI   = this;
         var opt  = UI.options;
         var data = UI.__data;
-        data.brief = $.trim(UI.__content).substring(0, 50);
+        var str = UI.__content.replace(
+            /([>#*+!. \t\r\n-])|([\[<\(][^\]>\)]*[\]>\)])/g,"");
+        data.brief = $.trim(str).substring(0, 80);
+
         if(!data.brief){
             data.brief = UI.msg("com.content.nobrief");
         }

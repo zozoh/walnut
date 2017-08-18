@@ -280,10 +280,35 @@ a[href]:hover{color:@lnk_ho_c; text-decoration: underline;}
 // com.dynamic:超文本(Markdown)
 // com.text:超文本(Markdown)
 .skin-markdown {
-    padding: .2rem .2rem .3rem .2rem;
+    padding: 0 .2rem;
+    // 标题
+    > header.md-title {
+        font-size:@ar_title_f; color:@ar_title_c;
+        font-weight: bold;
+        padding:.1rem; text-align: center;
+        border-bottom:1px solid rgba(0,0,0,0.2);
+    }
+
+    // 文章信息
+    > aside.md-info {
+        margin:.2rem; font-size:@ar_brief_f; color:@ar_brief_c; text-align: center;
+        > span {margin:0 .04rem;}
+        > span.mdi-author {color:@ar_bold_c;}
+        > span.mdi-source {color:@ar_italic_c;}
+        > span.mdi-pubat {color:@ar_italic_c;}
+    }
+
+    // 文章摘要
+    > div.md-brief {
+        padding:.2rem; font-size:@ar_brief_f; color:@ar_brief_c;
+        margin:.2rem; background: @ar_brief_b;
+        border: @ar_brief_l;
+        text-align: left;
+    }
 
     // 正文内容
-    article {
+    > article.md-content {
+        padding: 0 0 .3rem 0; margin-top:.3rem;
         letter-spacing:.03em; color:@ar_txt_c;
         // 重定义字体大小
         table, thead, tbody, tr, th, td {
@@ -295,14 +320,22 @@ a[href]:hover{color:@lnk_ho_c; text-decoration: underline;}
         a:hover {color:@lnk_ho_c; text-decoration: underline;}
         
         // ------------------------- 标题
-        h1 {margin:.20rem 0; padding:.08rem 0; font-size:2em;}
-        h2 {margin:.16rem 0; padding:.06rem 0; font-size:1.8em;}
-        h3 {margin:.12rem 0; padding:.04rem 0; font-size:1.6em;}
-        h4 {margin:.10rem 0; padding:.02rem 0; font-size:1.4em;}
+        h1 {margin:.20rem 0; padding:.08rem 0; font-size:1.6em;}
+        h2 {margin:.16rem 0; padding:.06rem 0; font-size:1.5em;}
+        h3 {margin:.12rem 0; padding:.04rem 0; font-size:1.4em;}
+        h4 {margin:.10rem 0; padding:.02rem 0; font-size:1.3em;}
         h5 {margin:.08rem 0; padding:.02rem 0; font-size:1.2em;}
         h6 {margin:.04rem 0; padding:.02rem 0; font-size:1.1em;}
         // ------------------------- 段落及正文
-        p {margin:.16rem 0; padding:.06rem; line-height: .32rem;}
+        p {margin:.22rem 0; line-height: .32rem;}
+        p[md-img-only] {
+            text-align: center;
+            img{
+                border:1px solid rgba(0,0,0,0.2);
+                margin:.1rem 0;
+                box-shadow: .02rem .02rem .04rem rgba(0,0,0,0.4);
+            }
+        }
         em {font-style: italic; color:@ar_italic_c;}
         b {color:@ar_bold_c; font-weight: bold;}
         del {color:@ar_del_c;}
@@ -320,6 +353,7 @@ a[href]:hover{color:@lnk_ho_c; text-decoration: underline;}
             border-left:4px solid rgba(0,0,0,0.1); line-height: 2em;
             margin:.1rem; padding:.1rem; font-size:.8em;
             color:#666; background: rgba(0,0,0,0.05);
+            text-align: left;
         }
         // ------------------------- 无序列表
         ul, ol {
@@ -353,6 +387,7 @@ a[href]:hover{color:@lnk_ho_c; text-decoration: underline;}
             font-size: .7em; line-height: 1.5em;
             background-color: #F0F0F0; border-radius: 3px;
             font-family: @f_fixed; 
+            text-align: left;
         }
 
     } // ~ 结束正文 article
@@ -375,7 +410,7 @@ a[href]:hover{color:@lnk_ho_c; text-decoration: underline;}
 .hm-com-rows > .hm-com-W > .hmc-columns > .skin-area-nogrow {flex:0 0 auto;}
 
 //............................................
-// 模板（wn_lst_th_thumb）
+// 模板（wn_list_th_thumb）
 .skin-list-th-thumb {
     > a {
         margin:@thumb_margin; display: inline-block; vertical-align: middle;
@@ -393,4 +428,43 @@ a[href]:hover{color:@lnk_ho_c; text-decoration: underline;}
     a[href]:hover {
         section {opacity: 1;}
     }
+}
+
+//............................................
+// 模板（wn_list_th_article）
+.skin-list-th-article {
+    padding: .08rem; font-size:.16rem;
+    .wn-li-article {@flex(); border:0;}
+    .wla-thumb {
+        display: block; flex:0 0 auto; margin:0 .12rem 0 0; cursor: pointer;
+        background-repeat: no-repeat; background-position: center center;
+        background-size: cover; background-color:#000;
+    }
+    .wla-info {flex:1 1 auto; list-style: none; padding: 0; margin: 0;}
+    .wla-ih a {
+        text-decoration:none; color:#08F; cursor: pointer;
+        font-size:1.3em;
+    }
+    .wla-ih a:hover {text-decoration:underline;;}
+    .wla-is{font-size:.8em; color:#AAA;}
+    .wla-ii {
+        font-size:.8em; color:#888;
+        em {font-style:normal;}
+        u  {text-decoration:none;}
+        b  {font-weight: normal;}
+    }
+
+    // 默认显示模式
+    .wn-li-article {padding:.12rem .06rem;}
+    .wla-thumb {
+        border:3px solid #AAA; border-radius:.16rem;
+        width:1.2rem; height:1.2rem;
+    }
+    .wla-info {position: relative; padding-bottom:1em;}
+    .wla-is {padding:.08rem 0;}
+    .wla-ii {position: absolute; bottom:.02rem; left:0; right: 0;}
+
+    // 分隔线
+    .wn-li-article {border-top:1px dashed rgba(0,0,0,0.2);}
+    .wn-li-article:first-child {border:0;}
 }

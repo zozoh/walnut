@@ -3,7 +3,7 @@
 $.fn.extend({ "wn_obj_th_article" : function(obj, opt){
     var jData = this;
 
-    console.log(obj, opt)
+    //console.log(obj, opt)
     
     // 首先得到字段映射
     var mapping = opt.displayText || {
@@ -19,11 +19,16 @@ $.fn.extend({ "wn_obj_th_article" : function(obj, opt){
     var o2 = $z.mappingObj(mapping, obj);
     
     // 渲染: 标题
-    var jHeader = $('<header class="md-title">').appendTo(jData);
-    jHeader.text(o2.title)
+    if(o2.title){
+        $('<header class="md-title">').text(o2.title).appendTo(jData);
+    }
     
     // 补充信息:
     var jInfo = $('<aside class="md-info">').appendTo(jData);
+    if(o2.author)
+        $('<span class="mdi-author">').text(o2.author).appendTo(jInfo);
+    if(o2.source)
+        $('<span class="mdi-source">').text(o2.source).appendTo(jInfo);
     if(o2.pubat){
         if(_.isNumber(o2.pubat)){
             var d = $z.parseDate(o2.pubat);
@@ -31,14 +36,11 @@ $.fn.extend({ "wn_obj_th_article" : function(obj, opt){
         }
         $('<span class="mdi-pubat">').text(o2.pubat).appendTo(jInfo);
     }
-    if(o2.author)
-        $('<span class="mdi-author">').text(o2.author).appendTo(jInfo);
-    if(o2.source)
-        $('<span class="mdi-source">').text(o2.source).appendTo(jInfo);
     
     // 摘要
-    var jBrief = $('<div class="md-brief">').appendTo(jData);
-    jBrief.text(o2.brief);
+    if(o2.brief) {
+        $('<div class="md-brief">').text(o2.brief).appendTo(jData);
+    }
     
     // 正文
     var jArticle = $('<article class="md-content">').appendTo(jData);

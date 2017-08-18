@@ -140,9 +140,25 @@ ${xyz(json:n)?-obj-}
 
 ## Markdown `<markdown>`
 
+读取某个上下文对象的值，并将其内容作为 markdown 格式，转换成 HTML
+
 ```
-<markdown>${obj.content}</markdown>
+<markdown content="obj.content">
+    <var name="obj" value="${comId}" dynamic="true"/>
+    <var name="API" value="${API}"/>
+    <media regex="^media/(.+)$" 
+    replace="$[API]/thing/media?pid=$[obj.th_set]&amp;id=$[obj.id]&amp;fnm=$[1]"/>
+</markdown>
 ```
+
+## 特殊属性
+
+在所有元素上都支持如下特殊属性
+
+```
+wn:drop="blank"       # 只有空白文本节点的话，删除
+```
+
 
 
 

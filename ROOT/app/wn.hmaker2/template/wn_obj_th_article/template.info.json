@@ -14,7 +14,7 @@
                 "content" : "=th_detail",
                 "author"  : "=th_ow",
                 "pubat"   : "=lm",
-                "source"  : "=th_cate",
+                "source"  : "=th_source",
             },
         }
     },

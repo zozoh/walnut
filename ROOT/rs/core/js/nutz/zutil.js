@@ -3934,19 +3934,29 @@
             //console.log(blocks)
 
             // 定义内容输出函数
-            var __B_to_html = function (B) {
+            var __B_to_html = function (tagName, B) {
                 var html = "";
+                var tagNames = {};
                 for (var i = 0; i < B.content.length; i++) {
                     var line = B.content[i];
                     if (i > 0) {
                         html += '<br>\n';
                     }
-                    html += __line_to_html(line);
+                    html += __line_to_html(line, tagNames);
                 }
+                // 如果段落里只有 IMG，做一下特殊标识
+                if (_.keys(tagNames).length == 1 && tagNames["img"]) {
+                    html = '\n<' + tagName + ' md-img-only="yes">' + html;
+                }
+                // 否则仅仅输入标签内容
+                else {
+                    html = '\n<' + tagName + '>' + html;
+                }
+
                 return html;
             };
 
-            var __line_to_html = function (str) {
+            var __line_to_html = function (str, tagNames) {
                 var reg = '(\\*([^*]+)\\*)'
                     + '|(\\*\\*([^*]+)\\*\\*)'
                     + '|(__([^_]+)__)'
@@ -3962,41 +3972,70 @@
                 while (m = REG.exec(str)) {
                     //console.log(m)
                     if (pos < m.index) {
-                        html += str.substring(pos, m.index);
+                        var txt = str.substring(pos, m.index);
+                        html += txt;
+                        // 记录标签
+                        if (tagNames && $.trim(txt)) {
+                            tagNames["!TEXT"] = true;
+                        }
                     }
                     // EM: *xxx*
                     if (m[1]) {
                         html += '<em>' + m[2] + '</em>';
+                        // 记录标签
+                        if (tagNames)
+                            tagNames["em"] = true;
                     }
                     // B: **xxx**
                     else if (m[3]) {
                         html += '<b>' + m[4] + '</b>';
+                        // 记录标签
+                        if (tagNames)
+                            tagNames["b"] = true;
                     }
                     // B: __xxx__
                     else if (m[5]) {
                         html += '<b>' + m[6] + '</b>';
+                        // 记录标签
+                        if (tagNames)
+                            tagNames["b"] = true;
                     }
                     // DEL: ~~xxx~~
                     else if (m[7]) {
                         html += '<del>' + m[8] + '</del>';
+                        // 记录标签
+                        if (tagNames)
+                            tagNames["del"] = true;
                     }
                     // CODE: `xxx`
                     else if (m[9]) {
                         html += '<code>' + m[10] + '</code>';
+                        // 记录标签
+                        if (tagNames)
+                            tagNames["code"] = true;
                     }
                     // IMG: ![](xxxx)
                     else if (m[11]) {
                         //console.log("haha", m[13])
                         var src = opt.media.apply(context, [m[13]]);
                         html += '<img alt="' + m[12] + '" src="' + src + '">';
+                        // 记录标签
+                        if (tagNames)
+                            tagNames["img"] = true;
                     }
                     // A: [](xxxx)
                     else if (m[14]) {
                         html += '<a href="' + m[16] + '">' + (m[15] || m[16]) + '</a>';
+                        // 记录标签
+                        if (tagNames)
+                            tagNames["a"] = true;
                     }
                     // A: http://xxxx
                     else if (m[17]) {
                         html += '<a href="' + m[17] + '">' + m[17] + '</a>';
+                        // 记录标签
+                        if (tagNames)
+                            tagNames["a"] = true;
                     }
 
                     // 唯一下标
@@ -4009,8 +4048,7 @@
             };
 
             var __B_to_blockquote = function (B, c) {
-                c.html += '\n<blockquote>';
-                c.html += __B_to_html(B);
+                c.html += __B_to_html("blockquote", B);
                 // 循环查找后续的嵌套块
                 for (c.index++; c.index < c.blocks.length; c.index++) {
                     var B2 = c.blocks[c.index];
@@ -4026,13 +4064,13 @@
 
             var __B_to_list = function (B, c) {
                 c.html += '\n<' + B.type + '>';
-                c.html += '\n<li>' + __B_to_html(B);
+                c.html += __B_to_html("li", B);
                 // 循环查找后续的列表项，或者是嵌套
                 for (c.index++; c.index < c.blocks.length; c.index++) {
                     var B2 = c.blocks[c.index];
                     // 继续增加
                     if (B.type == B2.type && B2.level == B.level) {
-                        c.html += '</li>\n<li>' + __B_to_html(B2);
+                        c.html += '</li>' + __B_to_html("li", B2);
                     }
                     // 嵌套
                     else if (B2.level > B.level && /^(OL|UL)$/.test(B2.type)) {
@@ -4132,8 +4170,7 @@
                 }
                 // 默认是普通段落 : P
                 else {
-                    re.html += '\n<p>';
-                    re.html += __B_to_html(B);
+                    re.html += __B_to_html("p", B);
                     re.html += '\n</p>';
                 }
             }

@@ -30,6 +30,15 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         };
     },
     //...............................................................
+    getBlockPropFields : function(block) {
+        return [block.mode == 'inflow' ? "margin" : null,
+                "padding","border","borderRadius", "textAlign",
+                "fontFamily","_font","fontSize",
+                "lineHeight","letterSpacing","textShadow",
+                "color", "background",
+                "boxShadow","overflow"];
+    },
+    //...............................................................
     paint : function(com) {
         var UI = this;
         var jW = UI.$el.find(">.hm-com-W");

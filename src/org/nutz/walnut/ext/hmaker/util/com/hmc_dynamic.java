@@ -133,12 +133,27 @@ public class hmc_dynamic extends AbstractNoneValueCom {
             // 选项里面的键（支持 =xxx 模式）
             else if (k.startsWith("@")) {
                 String vph = k.substring(1);
+                String v_fmt = null;
+                // ${@displayText.pubat%date:yyyy-MM-dd?}
+                // 这种形式的占位符，需要被替换成
+                // ${xxx.lm(date:yyyy-MM-dd)?}
+                int pos = vph.indexOf('%');
+                if (pos > 0) {
+                    v_fmt = vph.substring(pos + 1, vph.length() - 1);
+                    vph = vph.substring(0, pos);
+                }
+                // 得到配置的值
                 Object o_v = Mapl.cell(options, vph);
                 if (null != o_v) {
                     String str = o_v.toString();
                     // =th_nm : 动态从对象里取值
                     if (str.startsWith("=")) {
-                        v = __gen_val(varName, str.substring(1), asTmpl);
+                        String vph2 = str.substring(1);
+                        if (null != v_fmt) {
+                            vph2 += "(" + v_fmt + ")";
+                        }
+                        // 嗯，生成动态值
+                        v = __gen_val(varName, vph2, asTmpl);
                     }
                     // 就是一个静态的值
                     else {

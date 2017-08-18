@@ -19,11 +19,20 @@ return ZUI.def("ui.form_com_pair", {
 
         $z.setUndefined(opt, "trimSpace", true);
         $z.setUndefined(opt, "mergeWith", false);
+        $z.setUndefined(opt, "templateAsDefault", true);
     },
     //...............................................................
     events : {
         "change .pairs input" : function(){
             this.__on_change();
+        },
+        "dblclick input[dft-val]" : function(e){
+            var jInput = $(e.currentTarget);
+            var val = $.trim(jInput.val());
+            if(!val && jInput.attr("dft-val")){
+                jInput.val(jInput.attr("dft-val"));
+                this.__on_change();
+            }
         }
     },
     //...............................................................
@@ -67,7 +76,11 @@ return ZUI.def("ui.form_com_pair", {
                 </tr>`).appendTo(jTBody);
                 jTr.attr("o-key",key).children(".cp-key").text(key);
                 var val = UI._V(obj, key);
-                jTr.find(".cp-val input").val(val).attr("placeholder", val);
+                var jInput = jTr.find(".cp-val input")
+                                .val(val)
+                                    .attr("dft-val", val);
+                if(opt.templateAsDefault)
+                    jInput.attr("placeholder", val);
             }
         }
 
@@ -84,9 +97,12 @@ return ZUI.def("ui.form_com_pair", {
             UI.arena.find(".pairs tr").each(function(){
                 var jTr = $(this);
                 var key = jTr.attr("o-key");
-                var val = UI._V(obj, key) || "";
-                if(!opt.mergeWith || val){
+                var val = UI._V(obj, key);
+                if(_.isString(val)){
                     jTr.find("input").val(val);
+                }
+                else if(!opt.mergeWith){
+                    jTr.find("input").val("");
                 }
             });
         }

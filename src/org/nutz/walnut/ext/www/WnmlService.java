@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.www;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -66,7 +67,6 @@ public class WnmlService {
         // 处理所有的节点的属性和文本的占位符
         try {
             __do_node(wrt, doc, context);
-            return doc.toString();
         }
         // 看看是否会有 redirect 的错误
         catch (WebException e) {
@@ -83,6 +83,25 @@ public class WnmlService {
             }
         }
 
+        // 处理特殊属性: wn:drop
+        eles = doc.getElementsByAttribute("wn:drop");
+        // 需要倒序，这样子节点会在父节点前被删除
+        Collections.reverse(eles);
+        for (Element ele : eles) {
+            __do_special_attr_wn_drop(ele);
+        }
+
+        // 返回 HTML
+        return doc.toString();
+    }
+
+    private void __do_special_attr_wn_drop(Element ele) {
+        if ("blank".equals(ele.attr("wn:drop"))) {
+            if (ele.children().size() == 0) {
+                if (!ele.hasText())
+                    ele.remove();
+            }
+        }
     }
 
     private void __do_redirect(WnmlRuntime wrt, Element ele, NutMap c) {
@@ -168,6 +187,11 @@ public class WnmlService {
         }
     }
 
+    private static class MD_Pair {
+        Pattern P;
+        Tmpl tmpl;
+    }
+
     private void __do_markdown(final WnmlRuntime wrt, final Element ele, NutMap c) {
         // 获取内容
         String itemsKey = ele.attr("content");
@@ -182,32 +206,49 @@ public class WnmlService {
             Elements eleMedias = ele.getElementsByTag("media");
             if (eleMedias.size() > 0) {
                 // 分析媒体处理方式
-                Element eleMedia = eleMedias.first();
-                String regex = eleMedia.attr("regex");
-                String repla = eleMedia.attr("replace");
-                Pattern P = Pattern.compile(regex);
-                Tmpl tmpl = Tmpl.parse(repla, "$", "[", "]");
+                MD_Pair[] mps = new MD_Pair[eleMedias.size()];
+                int i = 0;
+                for (Element eleMedia : eleMedias) {
+                    String regex = eleMedia.attr("regex");
+                    String repla = eleMedia.attr("replace");
+                    MD_Pair mp = new MD_Pair();
+                    mp.P = Pattern.compile(regex);
+                    mp.tmpl = Tmpl.parse(repla, "$", "[", "]");
+                    mps[i++] = mp;
+                }
 
                 // 准备上下文
                 NutMap cMap = new NutMap();
-                cMap.put("API", ele.attr("api"));
-                cMap.put("obj", c.get(ele.attr("obj")));
+                Elements eleVars = ele.getElementsByTag("var");
+                for (Element eleVar : eleVars) {
+                    String varName = eleVar.attr("name");
+                    String varValue = eleVar.attr("value");
+                    if (Castors.me().castTo(eleVar.attr("dynamic"), boolean.class)) {
+                        cMap.put(varName, c.get(varValue));
+                    } else {
+                        cMap.put(varName, varValue);
+                    }
+                }
 
                 // 执行转换
                 html = Markdown.toHtml(markdown, new Callback<Tag>() {
                     public void invoke(Tag tag) {
                         if (tag.is("img")) {
                             String src = tag.attr("src");
-                            Matcher m = P.matcher(src);
-                            if (m.find()) {
-                                // 更新上下文
-                                int gc = m.groupCount() + 1;
-                                for (int i = 1; i < gc; i++) {
-                                    cMap.put("" + i, m.group(i));
+                            for (MD_Pair mp : mps) {
+                                Matcher m = mp.P.matcher(src);
+                                if (m.find()) {
+                                    // 更新上下文
+                                    int gc = m.groupCount() + 1;
+                                    for (int i = 1; i < gc; i++) {
+                                        cMap.put("" + i, m.group(i));
+                                    }
+                                    // 得到新路径
+                                    String src2 = mp.tmpl.render(cMap);
+                                    tag.attr("src", src2);
+                                    // 碰到就截止
+                                    break;
                                 }
-                                // 得到新路径
-                                String src2 = tmpl.render(cMap);
-                                tag.attr("src", src2);
                             }
                         }
                     }

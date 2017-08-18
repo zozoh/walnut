@@ -166,6 +166,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         else {
             jOptions.show();
             var fields = UI.__eval_form_fields_by(tmplInfo.options);
+            //console.log(fields)
             UI.__draw_form({
                 cacheKey : "_finger_tmpl_options",
                 finger   : $z.toJson(tmplInfo.options),
@@ -335,6 +336,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 fld.editAs = "pair";
                 fld.uiConf = {
                     mergeWith   : true,
+                    templateAsDefault : false,
                     objTemplate : F.mapping || {}
                 };
             }

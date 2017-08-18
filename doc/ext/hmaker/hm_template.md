@@ -115,6 +115,9 @@ $(function(){
     + 这里的 *var* 为模板主变量
     + 结尾的 `?` 是占位符语法，表示没有就输出空
     + 其他形式的值，则表示一个静态值
+- 所有的特殊占位符，都支持 `-`。即
+    + 如果 `${@displayText.brief}` 输入的是 `${dynamic_1.brief}`
+    + 那么 `${-@displayText.brief}` 输入的是 `dynamic_1.brief`
 
 上述代码，在控件选项如下的时候：
 
