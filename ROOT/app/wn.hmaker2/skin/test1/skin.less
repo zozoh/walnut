@@ -158,9 +158,11 @@ a[href]:hover{color:@lnk_ho_c; text-decoration: underline;}
 }
 } // @media
 @media screen and (max-width: @M_dev_w) {
+// 重载通用规则
+.hm-com[ctype="navmenu"][skin="skin-navmenu-0"][auto-wrap-width] 
+.ul-top{width:@M_menu_w;}
 // 在线的
 .skin-navmenu-0 {
-    font-size: @M_menu_f;
     .ul-top { transition:.3s;
         position: fixed; top:0; bottom:0; left:@M_menu_w * -1; width:@M_menu_w;
         background: @M_menu_cb; color:@M_menu_cf;

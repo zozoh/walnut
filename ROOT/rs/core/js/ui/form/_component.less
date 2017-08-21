@@ -144,7 +144,7 @@
         background: rgba(0,0,0,0); z-index:10;
     }
     > .ass-box {
-        z-index: 10; background: @cb1; color:@cf1;
+        z-index: 10; background: @cmenu_b; color:@cmenu_f; 
         border:1px solid @cborder1; box-shadow: 4px 4px 6px @cshadow;
         padding:@d4; border-radius:@d2;
     }
@@ -235,7 +235,7 @@
         > dl {
             padding:0; margin:0; flex: 1 1 auto; width: 50%;
             > dt {
-                background: @cb2; color:@cf2; padding:@d3;
+                padding:@d3; border-bottom:1px solid @cborder1;
                 position: relative; text-align: center;
                 em {font-size:@f4; font-style: normal;}
                 b {
@@ -245,17 +245,17 @@
                 b:hover {color:@clink_hover; text-decoration: underline;}
             }
             > dd {
-                background: @cb1; color:@cf1;
+                
                 padding:@d2; margin: 0;
                 .zcal .zcal-head {
                     padding:1px; line-height: 22px;
                 }
             }
         }
-        > dl:first-child {border-right:1px solid @cb2;}
+        > dl:first-child {border-right:1px solid @cborder1;}
     }
     > footer { 
-        @flex(); padding:@d3; background: @cb2; color:@cf2;
+        @flex(); padding:@d3; border-top:1px solid @cborder1;
         > * {flex:0 0 auto; display: block; padding:@d2;}
         > span {
             flex: 1 1 auto; text-align: center; font-size:@f3; 
