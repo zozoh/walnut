@@ -72,7 +72,7 @@ return ZUI.def("ui.table", {
         // 预先编译每个字段的显示
         opt.__jsos = [];
         opt.__fields.forEach(function(fld){
-            console.log(fld)
+            //console.log(fld)
             $z.evalFldDisplay(fld);
             opt.__jsos.push(jType(fld));
         });

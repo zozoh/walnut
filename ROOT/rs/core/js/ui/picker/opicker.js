@@ -35,7 +35,6 @@ return ZUI.def("ui.picker.opicker", {
         "click .picker-choose" : function(){
             var UI    = this;
             var opt   = UI.options;
-            var conf  = opt.setup || {};
 
             // 确定基础目录
             var base = opt.base || Wn.fetch("~");
@@ -68,17 +67,31 @@ return ZUI.def("ui.picker.opicker", {
             }
 
             // 打开对话框
-            POP.browser(UI.text(opt.title) || "", _.extend({
-                checkable : false,
-                sidebar   : false,
-                objTagName : 'SPAN',
+            POP.browser({
+                title  : opt.title,
                 width  : "80%",
                 height : "80%",
                 base   : base,
-                canOpen : function(o){
-                    return o.race == 'DIR';
+                setup  : _.extend({
+                        checkable : false,
+                        sidebar   : false,
+                        objTagName : 'SPAN',
+                        canOpen : function(o){
+                            return o.race == 'DIR';
+                        }
+                    }, (opt.setup || {})),
+                on_ready : function(){
+                    if(o)
+                        this.setActived(o);
                 },
-                on_ok : function(objs){
+                ok : function(){
+                    // 得到数据
+                    var objs   = this.getChecked();
+                    // 支持当前目录作为默认
+                    if(objs.length == 0 && opt.defaultByCurrent){
+                        objs = [this.getCurrentObj()];
+                    }
+
                     if(objs && objs.length > 0){
                         //console.log(objs)
                         // 记录第一个对象为上次打开对象
@@ -89,10 +102,7 @@ return ZUI.def("ui.picker.opicker", {
                         UI._update(objs);
                     }
                 }
-            }, conf), function(){
-                if(o)
-                    this.setActived(o);
-            });
+            }, UI);
         },
         // 清除
         "click .picker-clear" : function(){

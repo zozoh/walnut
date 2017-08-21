@@ -8,172 +8,170 @@ var BrowserUI = require('ui/obrowser/obrowser');
 module.exports = {
     //...............................................................
     // 弹出一个浏览器界面
-    browser : function(title, opt, callback) {
-        // 参数 popBrowser({..})
-        // 参数 popBrowser({..}, F())
-        if(_.isObject(title)) {
-            callback = opt;
-            opt      = title;
-            title    = null;
-        }
-        // 参数 popBrowser(F())
-        else if(_.isFunction(title)) {
-            callback = title;
-            opt      = null;
-            title    = null;
-        }
-        // 参数 popBrowser("Title", F())
-        else if(_.isFunction(opt)) {
-            callback = opt;
-            opt      = null;
-        }
-        // 参数 popBrowser("Title", {..})
-        // 参数 popBrowser("Title", {..}, F())
-
-        // 兼容旧模式
-        title  = title || opt.title;
-
+    //  opt.base 是起始目录
+    browser : function(opt, referUI) {
         // 确保配置非空
         opt = opt || {};
+        //--------------------------------
+        // 设置默认宽高
+        $z.setUndefined(opt, "width", "80%");
+        $z.setUndefined(opt, "height", "80%");
+        //--------------------------------
+        // 修改配置信息
+        var setup = {
+            uiType : "ui/obrowser/obrowser",
+            uiConf : opt.setup || {}
+        };
+        opt.setup = setup;
+        //--------------------------------
+        // 确保不显示侧边栏
+        opt.setup.uiConf.sidebar = false;
+        $z.setUndefined(opt.setup.uiConf, "objTagName", "SPAN");
+        //--------------------------------
+        // 设定初始化函数
+        opt.ready = function(){
+            // 准备回调
+            var callback = function(){
+                // 为啥要有个移动动画啊
+                var uiBW = this;
+                window.setTimeout(function(){
+                    uiBW.resize(true);
+                }, 300);
+                $z.invoke(opt, "on_ready", [], this);
+            };
+            // 设置了基础目录
+            if(opt.base)
+                this.setData(opt.base, callback);
+            // 否则用默认
+            else 
+                this.setData(callback);
+        };
 
-        // 设置默认值
-        // 填充默认值
-        $z.setUndefined(opt, "width", 800);
-        $z.setUndefined(opt, "height", 600);
-        $z.setUndefined(opt, "escape", true);
-        $z.setUndefined(opt, "closer", true);
-        $z.setUndefined(opt, "objTagName", 'SPAN');
-        $z.setUndefined(opt, "defaultByCurrent", true);
+        // 打开界面面板
+        this.openUIPanel(opt, referUI);
+        
 
-
-        // 设置主体控件属性
-        var uiConf = _.extend({
-            sidebar : false
-        }, opt, {
-            gasketName: "body"
-        });
-
-        // 设置遮罩属性
-        var mask_options = _.extend({
-            dom  : 'ui/pop/pop.html',
-            css  : "ui/pop/theme/pop-{{theme}}.css",
-            closer: true,
-            escape: true,
-            width  : opt.width,
-            height : opt.height,
-            exec  : Wn.exec,
-            app   : Wn.app(),
-            setup : {
-                uiType : "ui/obrowser/obrowser",
-                uiConf : uiConf
-            },
-            events : {
-                "click .pm-btn-ok" : function(){
-                    var uiMask = this;
-                    // 得到数据
-                    var objs   = uiMask.body.getChecked();
-                    // 支持当前目录作为默认
-                    if(objs.length == 0 && opt.defaultByCurrent){
-                        objs = [uiMask.body.getCurrentObj()];
-                    }
-                    // 回调的上下文
-                    var context = opt.context || uiMask.body;
+        // // 设置遮罩属性
+        // var mask_options = _.extend({
+        //     dom  : 'ui/pop/pop.html',
+        //     css  : "ui/pop/theme/pop-{{theme}}.css",
+        //     closer: true,
+        //     escape: true,
+        //     width  : opt.width,
+        //     height : opt.height,
+        //     exec  : Wn.exec,
+        //     app   : Wn.app(),
+        //     setup : {
+        //         uiType : "ui/obrowser/obrowser",
+        //         uiConf : uiConf
+        //     },
+        //     events : {
+        //         "click .pm-btn-ok" : function(){
+        //             var uiMask = this;
+        //             // 得到数据
+        //             var objs   = uiMask.body.getChecked();
+        //             // 支持当前目录作为默认
+        //             if(objs.length == 0 && opt.defaultByCurrent){
+        //                 objs = [uiMask.body.getCurrentObj()];
+        //             }
+        //             // 回调的上下文
+        //             var context = opt.context || uiMask.body;
                     
-                    // 调用回调
-                    $z.invoke(opt, "on_ok", [objs], context);
+        //             // 调用回调
+        //             $z.invoke(opt, "on_ok", [objs], context);
 
-                    // 关闭弹出框
-                    uiMask.close();
-                },
-                "click .pm-btn-cancel" : function(){
-                    var uiMask = this;
+        //             // 关闭弹出框
+        //             uiMask.close();
+        //         },
+        //         "click .pm-btn-cancel" : function(){
+        //             var uiMask = this;
 
-                    // 回调的上下文
-                    var context = opt.context || uiMask.body;
+        //             // 回调的上下文
+        //             var context = opt.context || uiMask.body;
 
-                    // 调用回调
-                    $z.invoke(uiMask.options, "on_cancel", [], context);
+        //             // 调用回调
+        //             $z.invoke(uiMask.options, "on_cancel", [], context);
 
-                    // 关闭弹出框
-                    uiMask.close();
-                }
-            }
-        }, opt);
+        //             // 关闭弹出框
+        //             uiMask.close();
+        //         }
+        //     }
+        // }, opt);
 
-        // 打开遮罩
-        new MaskUI(mask_options).render(function(){
-            // 设置标题
-            if(title)
-                this.arena.find(".pm-title").html(title);
-            else
-                this.arena.find(".pm-title").remove();
+        // // 打开遮罩
+        // new MaskUI(mask_options).render(function(){
+        //     // 设置标题
+        //     if(title)
+        //         this.arena.find(".pm-title").html(title);
+        //     else
+        //         this.arena.find(".pm-title").remove();
 
-            // 设置数据
-            this.body.setData(opt.base, callback);
-        });
+        //     // 设置数据
+        //     this.body.setData(opt.base, callback);
+        // });
     },
     //...............................................................
     // 弹出一个 Quartz 编辑器
-    quartz : function(opt) {
-        // 确保配置非空
-        opt = opt || {};
+    // quartz : function(opt) {
+    //     // 确保配置非空
+    //     opt = opt || {};
 
-        // 填充默认值
-        $z.setUndefined(opt, "width", 480);
-        $z.setUndefined(opt, "height", 540);
-        $z.setUndefined(opt, "escape", true);
-        $z.setUndefined(opt, "closer", true);
-        $z.setUndefined(opt, "title", "i18n:quartz.title");
+    //     // 填充默认值
+    //     $z.setUndefined(opt, "width", 480);
+    //     $z.setUndefined(opt, "height", 540);
+    //     $z.setUndefined(opt, "escape", true);
+    //     $z.setUndefined(opt, "closer", true);
+    //     $z.setUndefined(opt, "title", "i18n:quartz.title");
 
-        // 设置遮罩属性
-        var mask_options = _.extend({
-            dom  : 'ui/pop/pop.html',
-            css  : "ui/pop/theme/pop-{{theme}}.css",
-            i18n : "ui/quartz/i18n/{{lang}}.js",
-            closer: true,
-            escape: true,
-            arenaClass : opt.arenaClass,
-            width  : opt.width,
-            height : opt.height,
-            exec  : Wn.exec,
-            app   : Wn.app(),
-            setup : {
-                uiType : "ui/quartz/edit_quartz",
-                uiConf : {}
-            },
-            events : {
-                "click .pm-btn-ok" : function(){
-                    var uiMask  = this;
-                    var opt     = uiMask.options;
-                    var qz      = uiMask.body.getData();
-                    var context = opt.context || uiMask.body;
-                    $z.invoke(opt, "on_ok", [qz], context);
-                    uiMask.close();
-                },
-                "click .pm-btn-cancel" : function(){
-                    var uiMask  = this;
-                    var opt     = uiMask.options;
-                    var context = opt.context || uiMask.body;
-                    $z.invoke(opt, "on_cancel", [], context);
-                    uiMask.close();
-                }
-            }
-        }, opt);
+    //     // 设置遮罩属性
+    //     var mask_options = _.extend({
+    //         dom  : 'ui/pop/pop.html',
+    //         css  : "ui/pop/theme/pop-{{theme}}.css",
+    //         i18n : "ui/quartz/i18n/{{lang}}.js",
+    //         closer: true,
+    //         escape: true,
+    //         arenaClass : opt.arenaClass,
+    //         width  : opt.width,
+    //         height : opt.height,
+    //         exec  : Wn.exec,
+    //         app   : Wn.app(),
+    //         setup : {
+    //             uiType : "ui/quartz/edit_quartz",
+    //             uiConf : {}
+    //         },
+    //         events : {
+    //             "click .pm-btn-ok" : function(){
+    //                 var uiMask  = this;
+    //                 var opt     = uiMask.options;
+    //                 var qz      = uiMask.body.getData();
+    //                 var context = opt.context || uiMask.body;
+    //                 $z.invoke(opt, "on_ok", [qz], context);
+    //                 uiMask.close();
+    //             },
+    //             "click .pm-btn-cancel" : function(){
+    //                 var uiMask  = this;
+    //                 var opt     = uiMask.options;
+    //                 var context = opt.context || uiMask.body;
+    //                 $z.invoke(opt, "on_cancel", [], context);
+    //                 uiMask.close();
+    //             }
+    //         }
+    //     }, opt);
 
-        // 打开遮罩
-        new MaskUI(mask_options).render(function(){
-            // 设置标题
-            if(opt.title)
-                this.arena.find(".pm-title").html(this.text(opt.title));
-            else
-                this.arena.find(".pm-title").remove();
+    //     // 打开遮罩
+    //     new MaskUI(mask_options).render(function(){
+    //         // 设置标题
+    //         if(opt.title)
+    //             this.arena.find(".pm-title").html(this.text(opt.title));
+    //         else
+    //             this.arena.find(".pm-title").remove();
 
-            // 设置数据
-            if(opt.data) {
-                this.body.setData(opt.data);
-            }
-        });
-    },
+    //         // 设置数据
+    //         if(opt.data) {
+    //             this.body.setData(opt.data);
+    //         }
+    //     });
+    // },
     //...............................................................
     // 弹出一个 ZCron 编辑器
     zcron : function(cron, opt, referUI) {

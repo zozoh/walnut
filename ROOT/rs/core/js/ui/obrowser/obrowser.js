@@ -239,6 +239,9 @@
 
                         // 调用子界面
                         UI.__call_subUI_update(o, asetup, callback);
+
+                        // 确保重新计算了尺寸
+                        UI.resize(true);
                     });
                 }
                 // 采用默认的策略，只有普通文件夹才能打开
@@ -260,8 +263,12 @@
                         };
                     }
                     Wn.extendAppSetup(asetup);
+
                     // 调用个个子 UI 的更新
                     UI.__call_subUI_update(o, asetup, callback);
+
+                    // 确保重新计算了尺寸
+                    UI.resize(true);
                 }
             },
             //..............................................
@@ -354,7 +361,9 @@
                 // 否则移除
                 else {
                     UI.arena.find(".obw-chute").remove();
-                    UI.arena.find(".obw-main").css("left", 0);
+                    UI.arena.find(".obw-main").attr({
+                        "animat-off" : "yes"
+                    }).css("left", 0);
                 }
                 //......................................
                 // Main
