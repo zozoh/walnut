@@ -43,28 +43,14 @@ return ZUI.def("ui.picker.opicker", {
             var o = UI.getObj();
             //console.log(o)
 
-            if(!o && opt.lastObjKey) {
-                var lastObjPath = UI.local(opt.lastObjKey);
-                if(lastObjPath)
-                    o = Wn.fetch(lastObjPath, true);
-            }
             // 如果要求选择的对象在不给定目录内，相当于 null
             if(opt.mustInBase && o) {
-                var rph = Wn.getRelativePath(base, o);
                 if(!Wn.isInDir(base, o))
                     o = null;
             }
-            // 根据对象重新定义 base
-            if(o) {
-                // 主目录
-                if("./" == Wn.getRelativePathToHome(o)) {
-                    base = o;
-                }
-                // 其他目录显示上一级
-                else {
-                    base = "id:"+o.pid;
-                }
-            }
+            
+            // 重新定义一下 base
+            base = Wn.getBaseDirPath(o, UI, opt.lastBaseKey) || base;
 
             // 打开对话框
             POP.browser({
@@ -94,9 +80,9 @@ return ZUI.def("ui.picker.opicker", {
 
                     if(objs && objs.length > 0){
                         //console.log(objs)
-                        // 记录第一个对象为上次打开对象
-                        if(opt.lastObjKey) {
-                            UI.local(opt.lastObjKey, objs[0].ph);
+                        // 记录第一个对象所在目录
+                        if(opt.lastBaseKey) {
+                            UI.local(opt.lastBaseKey, "id:" + objs[0].pid);
                         }
                         // 执行更新
                         UI._update(objs);

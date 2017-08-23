@@ -41,7 +41,7 @@
     demo@~$ grp nutz -a -role 1
     
     # 将指定用户添加到某组黑名单（必须需要对应组的管理员权限）
-    demo@~$ grp nutz -a xiaobai role -1
+    demo@~$ grp nutz -a xiaobai -role -1
     
     # 将自己从某组删除（必须需要对应组的管理员权限）
     demo@~$ grp nutz -d

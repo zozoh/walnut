@@ -32,11 +32,6 @@ module.exports = {
         opt.ready = function(){
             // 准备回调
             var callback = function(){
-                // 为啥要有个移动动画啊
-                var uiBW = this;
-                window.setTimeout(function(){
-                    uiBW.resize(true);
-                }, 300);
                 $z.invoke(opt, "on_ready", [], this);
             };
             // 设置了基础目录

@@ -59,11 +59,11 @@ public class cmd_date extends JvmExecutor {
         }
         // -dt
         else if (params.is("dt")) {
-            sys.out.print(Times.format("yyyy-MM-dd HH:mm:ss", Times.D(now)));
+            sys.out.print(Times.format("yyyy-MM-ddTHH:mm:ss", Times.D(now)));
         }
         // -dtms
         else if (params.is("dtms")) {
-            sys.out.print(Times.format("yyyy-MM-dd HH:mm:ss.SSS", Times.D(now)));
+            sys.out.print(Times.format("yyyy-MM-ddTHH:mm:ss.SSS", Times.D(now)));
         }
         // -time
         else if (params.is("time")) {

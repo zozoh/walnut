@@ -541,6 +541,11 @@ var methods = {
                             SE : ["right", "bottom"]
                         })[m];
                         //console.log("keys:", keys)
+                        // 四个方向限制一下移动
+                        if(m.length == 1) {
+                            opt.mode = /^[NS]$/.test(m) ? "y" : "x";
+                        }
+                        // 设置回调函数
                         opt.on_ing = function(){
                             // 计算 com 的绝对矩形
                             _.extend(this.rect.com, $z.pick(this.rect.current, keys));
@@ -553,7 +558,7 @@ var methods = {
                                     x : this.$viewport[0].scrollLeft,
                                     y : this.$viewport[0].scrollTop,
                                 });
-                            ing.uiCom.formatBlockDimension(css, ing.comMeasureConf);
+                            this.uiCom.formatBlockDimension(css, ing.comMeasureConf);
                             // 更新控件
                             _.extend(this.comBlock, {
                                 top:"",left:"",right:"",bottom:"",width:"",height:""

@@ -49,7 +49,7 @@ public class cmd_grp extends JvmExecutor {
         // 得到要操作的用户
         String myName = sys.se.me();
         WnUsr me = sys.usrService.check(myName);
-        String grp = params.vals.length > 0 ? params.vals[0] : me.mainGroup();
+        String grp = params.val(0);
 
         // 添加到组
         if (willAppend) {
@@ -73,20 +73,8 @@ public class cmd_grp extends JvmExecutor {
             WnUsr u = sys.usrService.check(unm);
             sys.usrService.removeRoleFromGroup(u, grp);
         }
-        // 显示指定用户所在的组
-        else if (params.has("get")) {
-            String unm = __get_unm(params, "get", myName);
-
-            // 检查权限
-            __check_right(sys, me, null, unm);
-
-            WnUsr u = sys.usrService.check(unm);
-
-            this.__show_usr_group(sys, params, u);
-
-        }
         // 显示指定组内部所有的用户
-        else {
+        else if (!Strings.isBlank(grp)) {
 
             // 检查权限
             __check_right(sys, me, grp, null);
@@ -115,6 +103,18 @@ public class cmd_grp extends JvmExecutor {
 
                 Cmds.output_objs_as_table(sys, params, null, outs);
             }
+        }
+        // 默认显示指定用户所在的组
+        else {
+            String unm = __get_unm(params, "get", myName);
+
+            // 检查权限
+            __check_right(sys, me, null, unm);
+
+            WnUsr u = sys.usrService.check(unm);
+
+            this.__show_usr_group(sys, params, u);
+
         }
 
     }

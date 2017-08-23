@@ -12,6 +12,7 @@
         "~",
         "E::test_group",
         "~",
-        ":r:properties"            
+        ":r:properties",
+        "::open_console"
     ]
 })

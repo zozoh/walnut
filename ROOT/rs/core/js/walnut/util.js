@@ -1491,7 +1491,42 @@ var Wn = {
         return o.ph;
     },
     //..............................................
+    // 本函数主要用在打开浏览对象的对话框，
+    // 总是要让弹出对话框路径是对象的父路径才好将对象高亮。
+    // 同时也要考虑到 localKey 的问题
+    //  - o  : 目标对象，如果为空，则会尝试用 localKey 来取得
+    //  - UI : 相关的 UI，主要使用 local 接口
+    //  - localKey : 如果给定对象为空，那么尝试读取 localKey 作为返回
+    getBaseDirPath : function(o, UI, localKey) {
+        // 支持字符串形式 
+        if(_.isString(o))
+            o = this.get(o, true);
+
+        // 试图从 local 获取上一次的记录
+        if(!o && localKey) {
+            return UI.local(localKey);
+        }
+
+        // 根据对象重新定义 base
+        if(o) {
+            // 主目录
+            if("./" == Wn.getRelativePathToHome(o)) {
+                return o.ph;
+            }
+            // 其他目录显示上一级
+            return "id:"+o.pid;
+        }
+        // 默认返回 null
+        return null;
+    },
+    //..............................................
     isInDir : function(oDir, o) {
+        if(_.isString(oDir))
+            oDir = this.get(oDir, true);
+        if(_.isString(o))
+            o = this.get(o, true);
+        if(!oDir || !o)
+            return false;
         var ph_dir = oDir.ph;
         var ph_obj = o.ph;
         return $z.isInPath(ph_dir, ph_obj);

@@ -76,6 +76,44 @@ h1,h2,h3,h4,h5,h6{margin:0;padding:0;}
 
 .ui-noselect {@noselect();}
 
+/*-------------------------------------------- resizable 的通用样式 ------*/
+@hS  : 4px;
+@hV  : 14px;
+@aS  : 2px;
+.ui-resize-assist {
+    display: none;
+    > * {position:absolute; z-index: 1;}
+    >.rsz-hdl1{
+        border-width: 0;
+        border-style: dotted;
+        border-color: #0FF;
+    }
+    >.rsz-hdl1:hover {
+        // background: rgba(255,255,0,0.6);
+        // border:1px solid rgba(0,0,0,0.2);
+    }
+    >.rsz-hdl2 {
+        width:@hV;height:@hV;
+    }
+    >.rsz-hdl2:hover {
+        // background: rgba(255,255,0,0.6);
+        // border:1px solid rgba(0,0,0,0.2);
+    }
+    > .uirz-ai[m="N"] {cursor:ns-resize; top:0;    left:0;right:0; height:@hS;}
+    > .uirz-ai[m="S"] {cursor:ns-resize; bottom:0; left:0;right:0; height:@hS;}
+    > .uirz-ai[m="W"] {cursor:ew-resize; left:0;   top:0;bottom:0; width:@hS;}
+    > .uirz-ai[m="E"] {cursor:ew-resize; right:0;  top:0;bottom:0; width:@hS;}
+    > .uirz-ai[m="NW"] {cursor:nwse-resize; top:0; left:0;}
+    > .uirz-ai[m="NE"] {cursor:nesw-resize; top:0; right:0;}
+    > .uirz-ai[m="SW"] {cursor:nesw-resize; bottom:0; left:0;}
+    > .uirz-ai[m="SE"] {cursor:nwse-resize; bottom:0; right:0;}
+    > .uirz-ai[m="N"] {border-top-width:@aS;}
+    > .uirz-ai[m="S"] {border-bottom-width:@aS;}
+    > .uirz-ai[m="W"] {border-left-width:@aS;}
+    > .uirz-ai[m="E"] {border-right-width:@aS;}
+    
+}
+
 /*--------------------------------------------------- 其他 --------*/
 .fa-combo-icon2 {
     position: relative;
