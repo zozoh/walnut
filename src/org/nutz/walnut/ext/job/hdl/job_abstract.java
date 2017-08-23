@@ -2,7 +2,6 @@ package org.nutz.walnut.ext.job.hdl;
 
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.job.WnJob;
@@ -19,16 +18,8 @@ public abstract class job_abstract implements JvmHdl {
         return query;
     }
     
-    public static void printJob(WnObj jobDir, WnSystem sys, String user) {
-        
-    }
-    
     public static WnObj jobRootDir(WnSystem sys) {
         return sys.io.check(null, WnJob.root);
-    }
-    
-    public static WnUsr rootUser(WnSystem sys) {
-        return sys.usrService.check("root");
     }
     
     public static String user(String me, String param) {
