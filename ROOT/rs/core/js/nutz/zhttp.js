@@ -45,8 +45,8 @@
     _ajaxDone = function (re, callback) {
         if (http.constant.ajax.useJson) {
             if (typeof re === 'string') {
-                re = $z.fromJson(re);
-            } else if (typeof form == "function") {
+                re = JSON.parse(re);
+            } else if (typeof re == "object") {
                 // TODO Nothing
             } else {
                 throw new Error("ajaxReturn is not a String, can't be use as JSON");
@@ -134,7 +134,7 @@
             dataType: "text",
             processData: true,
             success: function (text) {
-                re = $z.fromJson(text);
+                re = JSON.parse(text);
             }
         });
         return re;
@@ -154,7 +154,7 @@
             dataType: "text",
             processData: true,
             success: function (text) {
-                re = $z.fromJson(text);
+                re = JSON.parse(text);
             }
         });
         return re;
@@ -169,7 +169,7 @@
             type: http.constant.method.POST,
             url: url,
             contentType: "application/jsonrequest",
-            data: $z.toJson(form)
+            data: JSON.stringify(form)
         }).done(function (re) {
             _ajaxDone(re, callback);
         }).fail(_ajaxFail);
@@ -304,7 +304,7 @@
             if (xhr.readyState == 4) {
                 if (xhr.status == 200) {
                     if (opt.onFinish) {
-                        opt.onFinish($z.trim(xhr.responseText));
+                        opt.onFinish(xhr.responseText);
                     }
                 } else {
                     if (opt.onError) {
