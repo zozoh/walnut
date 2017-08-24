@@ -336,7 +336,7 @@ public class ObjModule extends AbstractWnModule {
         str = __format_str(str, isAbsolutePath);
 
         // 首先得到目标对象
-        WnObj o = Wn.checkObj(io, str);
+        WnObj o = Wn.checkObj(io, Wn.WC().checkSE(), str);
 
         // 确保可读，同时处理链接文件
         o = Wn.WC().whenRead(o, false);
