@@ -157,7 +157,7 @@ def downloadFile(uri, params, dst, sha1) :
                         subprocess.check_call(["mv", _tmp, dst])
                         return
                     else :
-                        log.debug("zsync done, but md5 not good?!")
+                        log.debug("zsync done, but sha1 not good?! fallback to simple download")
                 except:
                     log.debug("zsync FAIL!!!")
             else :

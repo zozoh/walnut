@@ -1,6 +1,8 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import java.io.BufferedInputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +13,11 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -30,7 +34,7 @@ public class cmd_zip extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, "f");
+        ZParams params = ZParams.parse(args, "frd");
         if (params.vals.length < 2) {
             throw Err.create("e.cmd.zip.miss_args");
         }
@@ -55,6 +59,7 @@ public class cmd_zip extends JvmExecutor {
         destObj = sys.io.createIfNoExists(null, destPath, WnRace.FILE);
 
         // 计算要列出的要处理的对象
+        List<WnZipEntry> ens = new ArrayList<>();
         List<WnObj> srclist = new ArrayList<WnObj>();
         if (params.has("match")) {
             WnPager wp = new WnPager(params);
@@ -64,7 +69,23 @@ public class cmd_zip extends JvmExecutor {
                 srclist.addAll(queryByMatch(sys, params, dirObj, wp));
             }
         } else {
-            srclist = evalCandidateObjsNoEmpty(sys, srcArr, 0);
+            if (params.is("r")) {
+                for (String path : srcArr) {
+                    String sourcePath = Wn.normalizeFullPath(path, sys);
+                    WnObj wobj = sys.io.check(null, sourcePath);
+                    if (wobj.isFILE()) {
+                        ens.add(new WnZipEntry(wobj, wobj));
+                    } else {
+                        sys.io.walk(wobj, new Callback<WnObj>() {
+                            public void invoke(WnObj obj) {
+                                ens.add(new WnZipEntry(obj, wobj));
+                            }
+                        }, WalkMode.DEPTH_LEAF_FIRST);
+                    }
+                }
+            } else {
+                srclist.addAll(evalCandidateObjsNoEmpty(sys, srcArr, 0));
+            }
         }
         if (params.is("list")) {
             for (int i = 0; i < srclist.size(); i++) {
@@ -75,6 +96,7 @@ public class cmd_zip extends JvmExecutor {
             try (OutputStream out = sys.io.getOutputStream(destObj, 0);) {
                 ZipOutputStream zipOut = new ZipOutputStream(out);
                 String entryName = null;
+                NoFlushOutputStream proxyOut = new NoFlushOutputStream(zipOut);
                 for (WnObj srcObj : srclist) {
                     try {
                         if (srcObj.isDIR()) {
@@ -88,9 +110,8 @@ public class cmd_zip extends JvmExecutor {
                         ZipEntry entry = new ZipEntry(entryName);
                         zipOut.putNextEntry(entry);
 
-                        try (BufferedInputStream bis = new BufferedInputStream(sys.io.getInputStream(srcObj,
-                                                                                                0))) {
-                            Streams.write(zipOut, bis);
+                        try (BufferedInputStream bis = new BufferedInputStream(sys.io.getInputStream(srcObj, 0))) {
+                            Streams.write(proxyOut, bis);
                         };
                         zipOut.closeEntry();
                     }
@@ -98,9 +119,20 @@ public class cmd_zip extends JvmExecutor {
                         sys.out.print("error at " + srcObj.name());
                     }
                 }
+                for (WnZipEntry wzen : ens) {
+                    if (params.is("d"))
+                        sys.out.printlnf("add: %s from %s", wzen.getName(), wzen.wobj.path());
+                    ZipEntry entry = new ZipEntry(wzen.getName());
+                    zipOut.putNextEntry(entry);
+                    if (!wzen.wobj.isDIR()) {
+                        try (BufferedInputStream bis = new BufferedInputStream(sys.io.getInputStream(wzen.wobj, 0))) {
+                            Streams.write(proxyOut, bis);
+                        };
+                    }
+                    zipOut.closeEntry();
+                }
                 zipOut.flush();
                 zipOut.finish();
-                //zipOut.flush();
             }
             catch (Throwable e) {
                 log.error(e.getMessage(), e);
@@ -139,4 +171,30 @@ public class cmd_zip extends JvmExecutor {
         return sys.io.query(q);
     }
 
+    public static class WnZipEntry {
+        public WnObj wobj;
+        public WnObj root;
+        public WnZipEntry() {
+        }
+        public WnZipEntry(WnObj wobj, WnObj root) {
+            this.wobj = wobj;
+            this.root = root;
+        }
+        public String getName() {
+            if (wobj == root)
+                return wobj.name();
+            return wobj.path().substring(root.path().length() + 1) + (wobj.isDIR() ? "/" : "");
+        }
+    }
+    
+    public static class NoFlushOutputStream extends FilterOutputStream {
+
+        public NoFlushOutputStream(OutputStream out) {
+            super(out);
+        }
+        
+        public void flush() throws IOException {
+            // nop
+        }
+    }
 }
