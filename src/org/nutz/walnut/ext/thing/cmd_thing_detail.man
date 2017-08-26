@@ -24,6 +24,9 @@
     
     # 为 thing 修改详细内容，并手动设置摘要
     thing xxx detail 45ad6823.. -content "哈哈哈" -brief "haha"
+    
+    # 从文件里读取一段文字，作为 thing 的详细内容
+    cat ~/abc.txt | thing xxx detail 45ad6823.. -content  
         
     # 为 thing 修改详细内容 HTML
     thing xxx detail 45ad6823.. -content "<b>哈哈哈</b>" -tp "html"

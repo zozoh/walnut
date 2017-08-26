@@ -278,6 +278,8 @@ return ZUI.def("app.wn.thing", {
             gasketName : "form",
             dom : '<div class="th-blank">' + blankTip + '</div>'
         }).render();
+
+        UI._hide_formMenu();
     },
     //...............................................................
     showThing : function(th) {
@@ -357,12 +359,19 @@ return ZUI.def("app.wn.thing", {
         }
         // 隐藏
         else {
-            jForm.css("bottom", "");
-            jFooter.hide();
-            if(UI.gasket.formMenu)
-                UI.gasket.formMenu.destroy();
+            UI._hide_formMenu();
         }
 
+    },
+    //...............................................................
+    _hide_formMenu : function(){
+        var UI = this;
+        var jForm   = UI.arena.find(">.th-form");
+        var jFooter = UI.arena.find(">footer");
+        jForm.css("bottom", "");
+        jFooter.hide();
+        if(UI.gasket.formMenu)
+            UI.gasket.formMenu.destroy();
     },
     //...............................................................
     getThingSetObj : function(){

@@ -1,0 +1,11 @@
+package org.nutz.walnut.ext.subtitle.impl;
+
+import org.nutz.walnut.ext.subtitle.bean.SubtitleItem;
+
+public class SrtSubtitleService extends AbstractSubtitleService {
+
+    protected SubtitleItem createItem() {
+        return new SrtSubtitleItem();
+    }
+
+}

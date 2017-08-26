@@ -2365,38 +2365,69 @@
         parseTimeInfo: function (input, dft) {
             var inType = (typeof input);
             var sec = dft;
+            var ms  = 0;
+            var ti  = {};
             // 字符串
             if ("string" == inType) {
-                var m = /^(\d{1,2}):(\d{1,2})(:?(\d{1,2}))?$/.exec(input);
+                var m = /^([0-9]{1,2}):([0-9]{1,2})(:([0-9]{1,2})([.,]([0-9]{1,3}))?)?$/
+                            .exec(input);
                 if (!m)
                     throw "Not a Time: '" + input + "'!!";
-                sec = m[1] * 3600 + m[2] * 60 + (m[4] || 0) * 1;
+                // 仅仅到分钟
+                if (!m[3]) {
+                    ti.hour = parseInt(m[1]);
+                    ti.minute = parseInt(m[2]);
+                    ti.second = 0;
+                    ti.millisecond = 0;
+                }
+                // 到秒
+                else if (!m[5]) {
+                    ti.hour = parseInt(m[1]);
+                    ti.minute = parseInt(m[2]);
+                    ti.second = parseInt(m[4]);
+                    ti.millisecond = 0;
+                }
+                // 到毫秒
+                else {
+                    ti.hour = parseInt(m[1]);
+                    ti.minute = parseInt(m[2]);
+                    ti.second = parseInt(m[4]);
+                    ti.millisecond = parseInt(m[6]);
+                }
             }
             // 数字
             else if ("number" == inType) {
                 sec = parseInt(input);
+                ti.hour   = Math.min(23, parseInt(sec / 3600));
+                ti.minute = Math.min(59, parseInt((sec - ti.hour * 3600) / 60));
+                ti.second = Math.min(59, sec - ti.hour * 3600 - ti.minute * 60);
+                ti.millisecond = ms;
             }
             // 其他
-            else if ((typeof sec) != "number") {
+            else{
                 throw "Not a Time: " + input;
             }
-            // 计算时分秒
-            var HH = Math.min(23, parseInt(sec / 3600));
-            var mm = Math.min(59, parseInt((sec - HH * 3600) / 60));
-            var ss = Math.min(59, sec - HH * 3600 - mm * 60);
-            return {
-                hour: HH,
-                minute: mm,
-                second: ss,
-                value: HH * 3600 + mm * 60 + ss,
-                toString: function (autoIgnoreZeroSecond) {
-                    var re = (this.hour > 9 ? this.hour : "0" + this.hour);
-                    re += ":" + (this.minute > 9 ? this.minute : "0" + this.minute);
-                    if (!autoIgnoreZeroSecond || this.second > 0)
-                        re += ":" + (this.second > 9 ? this.second : "0" + this.second);
+            // 计算其他的值
+            ti.value  = ti.hour * 3600 + ti.minute * 60 + ti.second;
+            ti.valueInMillisecond = ti.value * 1000 + ti.millisecond;
+            // 增加一个函数
+            ti.toString = function (ignoreZeroSecond, alwaysShowMillisecond) {
+                var re = zUtil.alignRight(this.hour, 2, '0');
+                re += ":" + zUtil.alignRight(this.minute, 2, '0');;
+                if (ignoreZeroSecond 
+                    && this.second == 0 
+                    && this.millisecond == 0) {
                     return re;
                 }
+                re += ":" + zUtil.alignRight(this.second, 2, '0');
+                if (!alwaysShowMillisecond && this.millisecond == 0) {
+                    return re;
+                }
+                return re + "," + zUtil.alignRight(this.millisecond, 3, '0');
             };
+            ti.valueOf = ti.toString;
+            // 嗯，返回吧
+            return ti;
         },
         //.............................................
         // 得到一个时间对象的显示字符串

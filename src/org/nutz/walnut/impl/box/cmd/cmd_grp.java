@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
@@ -91,16 +90,21 @@ public class cmd_grp extends JvmExecutor {
 
             // 输出 JSON
             if (params.is("json")) {
-                sys.out.println(Json.toJson(list, JsonFormat.nice()));
+                JsonFormat jfmt = Cmds.gen_json_format(params);
+                sys.out.println(Json.toJson(list, jfmt));
             }
             // 输出成表格
             else {
-                params.setv("t", "grp,usr,roleName,role");
+                params.setv("t", "usr,roleName,role");
 
                 List<NutMap> outs = new ArrayList<NutMap>(list.size());
-                for (WnRole r : list)
-                    outs.add(NutMap.WRAP(Lang.obj2map(r)));
-
+                for (WnRole r : list) {
+                    NutMap map = new NutMap();
+                    map.put("usr", r.usr);
+                    map.put("roleName", r.roleName);
+                    map.put("role", r.role);
+                    outs.add(map);
+                }
                 Cmds.output_objs_as_table(sys, params, null, outs);
             }
         }
@@ -146,15 +150,18 @@ public class cmd_grp extends JvmExecutor {
     }
 
     private void __show_usr_group(WnSystem sys, ZParams params, WnUsr u) {
+        String grp = params.val(0);
+        // 得到 JSON 格式化配置
+        JsonFormat jfmt = Cmds.gen_json_format(params);
         // 展示用户在组里的角色
-        if (params.vals.length > 0) {
+        if (null != grp) {
             WnRole r = new WnRole();
-            r.grp = params.vals[0];
+            r.grp = grp;
             r.usr = u.name();
             r.role = sys.usrService.getRoleInGroup(u, r.grp);
             r.roleName = Wn.ROLE.getRoleName(r.role);
             if (params.is("json")) {
-                sys.out.println(Json.toJson(r, JsonFormat.nice()));
+                sys.out.println(Json.toJson(r, jfmt));
             } else {
                 sys.out.printlnf("%s %s", r.role, r.roleName);
             }
@@ -162,10 +169,25 @@ public class cmd_grp extends JvmExecutor {
         // 显示用户都属于哪些组
         else {
             List<String> list = sys.usrService.findMyGroups(u);
+            // 查询角色
+            List<WnRole> list2 = new ArrayList<>(list.size());
+            for (String g : list) {
+                WnRole r = new WnRole();
+                r.grp = g;
+                r.usr = u.name();
+                r.role = sys.usrService.getRoleInGroup(u, r.grp);
+                r.roleName = Wn.ROLE.getRoleName(r.role);
+                list2.add(r);
+            }
+            // 输出
             if (params.is("json")) {
-                sys.out.println(Json.toJson(list, JsonFormat.compact()));
-            } else {
-                sys.out.println(Lang.concat(" ", list));
+                sys.out.println(Json.toJson(list2, jfmt));
+            }
+            // 输出格式化信息
+            else {
+                for (WnRole r : list2) {
+                    sys.out.printlnf("%-8s %2d %s", r.grp, r.role, r.roleName);
+                }
             }
         }
     }
