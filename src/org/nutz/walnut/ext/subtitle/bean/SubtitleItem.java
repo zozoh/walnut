@@ -47,7 +47,7 @@ public abstract class SubtitleItem implements Comparable<SubtitleItem> {
 
     @Override
     public int compareTo(SubtitleItem sto) {
-        return this.index - sto.index;
+        return this.beginTime.valueInMillisecond - sto.beginTime.valueInMillisecond;
     }
 
     public String toString() {

@@ -2397,7 +2397,13 @@
             }
             // 数字
             else if ("number" == inType) {
-                sec = parseInt(input);
+                if("ms" == dft) {
+                    sec = parseInt(input / 1000);
+                    ms  = input = sec * 1000;
+                }else{
+                    sec = parseInt(input);
+                    ms  = 0;
+                }
                 ti.hour   = Math.min(23, parseInt(sec / 3600));
                 ti.minute = Math.min(59, parseInt((sec - ti.hour * 3600) / 60));
                 ti.second = Math.min(59, sec - ti.hour * 3600 - ti.minute * 60);
