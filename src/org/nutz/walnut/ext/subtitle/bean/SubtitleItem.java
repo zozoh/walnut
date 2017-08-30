@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 
 public abstract class SubtitleItem implements Comparable<SubtitleItem> {
@@ -19,6 +20,12 @@ public abstract class SubtitleItem implements Comparable<SubtitleItem> {
 
     public SubtitleItem() {
         lines = new LinkedList<>();
+    }
+
+    public String getText() {
+        if (null == lines || lines.isEmpty())
+            return "";
+        return Strings.join("\n", lines);
     }
 
     public List<String> cloneStdLines() {
