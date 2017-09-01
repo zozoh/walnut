@@ -2399,7 +2399,7 @@
             else if ("number" == inType) {
                 if("ms" == dft) {
                     sec = parseInt(input / 1000);
-                    ms  = input - sec * 1000;
+                    ms  = Math.round(input - sec * 1000);
                 }else{
                     sec = parseInt(input);
                     ms  = 0;

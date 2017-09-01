@@ -43,7 +43,7 @@ return ZUI.def("ui.form_com_date_range", {
         // 开关左右区间
         "click > .com-range > footer b" : function(e){
             $z.toggleAttr(e.currentTarget, "on", "yes");
-            this.__show_data();
+            this.__show_data(true);
         }
     },
     //...............................................................
@@ -70,10 +70,10 @@ return ZUI.def("ui.form_com_date_range", {
             },
             i18n : UI.msg("dt"),
             on_actived : function(){
-                UI.__show_data();
+                UI.__show_data(true);
             },
             on_blur : function(){
-                UI.__show_data();
+                UI.__show_data(true);
             }
         };
 
@@ -111,6 +111,7 @@ return ZUI.def("ui.form_com_date_range", {
     },
     //...............................................................
     _set_value : function(l_on, l_val, r_val, r_on){
+        //console.log(l_on,l_val, r_val, r_on)
         this.arena.find('>footer>b[m="left"]').attr("on",  l_on ? "yes" : null);
         this.arena.find('>footer>b[m="right"]').attr("on", r_on ? "yes" : null);
         this.arena.find(">section>dl.rv-left>dd") .zcal("active", l_val);

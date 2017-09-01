@@ -17,6 +17,7 @@ var html = function(){/*
 return ZUI.def("ui.form_com_input", {
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
+    css  : "ui/form/theme/component-{{theme}}.css",
     //...............................................................
     init : function(opt){
         var UI = FormMethods(this);
@@ -33,7 +34,32 @@ return ZUI.def("ui.form_com_input", {
     events : {
         // 输入内容修改
         "change > .com-input > .box > input" : function(){
+            //console.log("!!! I am changed");
             this.__on_change();
+        },
+        // 下面三个时间，完美检测中文输入
+        "compositionstart > .com-input > .box > input" : function(e){
+            this.__compositionstart = true;
+        },
+        "compositionend > .com-input > .box > input" : function(e){
+            this.__compositionstart = false;
+            this.__do_when_input();
+        },
+        "input > .com-input > .box > input" : function(e){
+            if(this.__compositionstart)
+                return;
+            this.__do_when_input();
+        },
+        // 特殊键盘事件
+        "keydown > .com-input > .box > input" : function(e){
+            // 上箭头
+            if(38 == e.which) {
+                this.closeAssist();
+            }
+            // 下箭头
+            else if(40 == e.which) {
+                this.openAssist();
+            }
         },
         // 打开辅助框
         "click > .com-input > .ass" : function(){
@@ -51,6 +77,13 @@ return ZUI.def("ui.form_com_input", {
         var jUnit  = UI.arena.find(".unit");
         var jInput = UI.arena.find("input");
 
+        // 固定了宽度
+        if(opt.width) {
+            UI.arena.css({
+                "width" : opt.width
+            });
+        }
+
         // 声明了单位，显示一下
         UI.setUnit(opt.unit);
 
@@ -61,19 +94,37 @@ return ZUI.def("ui.form_com_input", {
         UI.setAssist(opt.assist);
     },
     //...............................................................
+    __do_when_input : function() {
+        var UI  = this;
+
+        // var jIn = UI.arena.find("> .box > input");
+        // console.log("in>>", jIn.val());
+        // 自动打开助理
+        if(UI._assist && UI._assist.autoOpen && !UI._ui_assist) {
+            UI.openAssist();
+        }
+
+        // 如果有助理，同步修改的值
+        if(UI._ui_assist) {
+            var v = UI.getData();
+            UI._ui_assist.setData(v);
+        }
+    },
+    //...............................................................
     openAssist : function(){
         var UI  = this;
         var opt = UI.options;
 
-        if(!UI._assist)
+        // 没设置助理，或者已经打开了，就不用打开了
+        if(!UI._assist || UI._ui_assist)
             return;
 
         // 得到数据
         var val = UI._get_data();
 
         // 计算助理的配置
-        var uiType = UI._assist.uiType;
-        var uiConf = UI._assist.uiConf || {};
+        var uiType = $z.evalObjValue(UI._assist.uiType, [], UI);
+        var uiConf = $z.evalObjValue(UI._assist.uiConf || {}, [], UI);
 
         // uiType 无效
         if(!uiType)
@@ -87,13 +138,21 @@ return ZUI.def("ui.form_com_input", {
             "visibility" : "hidden",
             "position"   : "fixed",
         }).appendTo(UI.arena);
+
+        // 加载辅助弹出控件
         seajs.use(uiType, function(AssUI){
-            new AssUI({
+            new AssUI(_.extend({}, uiConf, {
                 $pel : jAssBox,
+                on_init : function(){
+                    UI._ui_assist = this;
+                },
                 on_change : function(v) {
                     UI._set_data(v);
+                },
+                on_depose : function(){
+                    UI._ui_assist = undefined;
                 }
-            }).render(function(){
+            })).render(function(){
                 // 显示
                 jAssBox.css("visibility", "");
 
@@ -117,9 +176,7 @@ return ZUI.def("ui.form_com_input", {
             var newVal = UI._get_data();
 
             // 移除遮罩
-            var uiAss = ZUI(jAssBox.children().attr("ui-id"));
-            if(uiAss)
-                uiAss.destroy();
+            $z.invoke(UI._ui_assist, "destroy");
             jAssBox.remove();
             UI.arena.find("> .ass-mask").remove();
             
@@ -141,27 +198,33 @@ return ZUI.def("ui.form_com_input", {
         var UI   = this;
         var jAss = UI.arena.find(">.ass").empty();
 
+        // 清除之前的助理
+        if(!ass) {
+            UI.closeAssist();
+            UI._assist = undefined;
+            return;
+        }
+
         // 记录当前助理
-        UI._assist = ass;
+        UI._assist = _.extend({}, ass);
+
+        // 设置默认值
+        $z.setUndefined(UI._assist, "autoOpen", true);
 
         // 设置属性开关
         UI.arena.attr("show-ass", ass ? "yes" : null);
 
-        // 有助理
-        if(ass) {
-            // 有图标
-            if(ass.icon){
-                $(ass.icon).appendTo(jAss);
-                if(ass.text) {
-                    $('<b>').text(UI.text(ass.text)).appendTo(jAss);
-                }
-            }
-            // 没图标，必须要有文字
-            else {
-                $('<b>').text(UI.text(ass.text || "i18n:com.input.assist"))
-                    .appendTo(jAss);
-            }
+        // 有图标
+        if(ass.icon){
+            $(ass.icon).appendTo(jAss);
         }
+        // 有文字
+        if(ass.text) {
+            $('<b>').text(UI.text(ass.text)).appendTo(jAss);
+        }
+        // 什么都木有的话，呵呵，可能对方就不想显示吧，那就按下箭头好了
+        if(!jAss.html())
+            jAss.remove();
     },
     //...............................................................
     setUnit : function(unit){
@@ -187,7 +250,7 @@ return ZUI.def("ui.form_com_input", {
         var jUnit = this.arena.find(".unit");
         if(opt.unit) {
             UI.arena.find(".unit").css({
-                "line-height" : (jUnit.outerHeight() -1) + "px"
+                "line-height" : jUnit.height() + "px"
             });
             UI.arena.find("input").css({
                 "padding-right" : jUnit.outerWidth()

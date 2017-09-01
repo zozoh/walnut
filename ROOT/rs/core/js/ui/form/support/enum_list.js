@@ -38,6 +38,7 @@ var methods = {
 
         // 列表绘制前附加逻辑
         $z.invoke(UI, "_before_load", []);
+        //console.log("redraw enum_list")
 
         // 读取数据
         var re = ["loading"];

@@ -87,6 +87,12 @@ define({
         },
         "pay" : {
             "outOfHome" : "支付单对象路径非法",
+        },
+        "invalid" : {
+            "number" : "不是数字",
+            "range"  : "不是合法区间",
+            "date"   : "不是日期",
+            "time"   : "不是时间",
         }
     },
     "frace" : {

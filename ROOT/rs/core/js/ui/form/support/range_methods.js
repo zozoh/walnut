@@ -3,7 +3,7 @@ define(function (require, exports, module) {
 // 方法表
 var methods = {
     //...............................................................
-    __show_data : function() {
+    __show_data : function(triggerChange) {
         var jSpan = this.arena.find(">footer span");
 
         // 得到旧值
@@ -13,9 +13,12 @@ var methods = {
         jSpan.text(this.getData() || this.msg("com.range.empty"));
 
         // 如果新值有变化，触发事件
-        if(old_v != jSpan.text()) {
+        if(triggerChange && old_v != jSpan.text()) {
             this.__on_change();
         }
+
+        // 嗯，既然这样，就去掉错误标识吧
+        this.arena.removeAttr("invalid-range");
     },
     //...............................................................
     resize : function() {
@@ -39,20 +42,35 @@ var methods = {
     //...............................................................
     _set_data : function(s){
         var UI = this;
+        //console.log(s)
+        s = $.trim(s);
+        UI.arena.removeAttr("invalid-range");
+
         // 空值
         if(!s) {
             UI._set_value();
+            return;
         }
 
         // 分析
         var range = {};
         var m = /^[ ]*([\[\(])[ ]*([^,]*)[ ]*,[ ]*([^,]*)[ ]*([\)\]])[ ]*$/.exec(s);
+
+        // 只有是合法的范围才设置值
         if(m) {
-            UI._set_value(m[1]=="[", m[2], m[3], m[4]=="]");
+            try{
+                UI._set_value(m[1]=="[", m[2], m[3], m[4]=="]");
+            }
+            // 错误的值标识一下
+            catch(E) {
+                UI.arena.attr("invalid-range", "yes");
+                UI.arena.find(">footer span").text(UI.msg("e.invalid.number"));
+            }    
         }
-        // 否则清空
+        // 否则标识一下错误
         else {
-            UI._set_value(true,null,null,true);
+            UI.arena.attr("invalid-range", "yes");
+            UI.arena.find(">footer span").text(UI.msg("e.invalid.range"));
         }
 
     },

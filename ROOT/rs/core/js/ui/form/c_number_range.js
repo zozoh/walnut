@@ -36,12 +36,12 @@ return ZUI.def("ui.form_com_number_range", {
         // 删除输入框内容
         "click > .com-range > section > dl > dt b" : function(e){
             $(e.currentTarget).closest("dl").find(">dd input").val("");
-            this.__show_data();
+            this.__show_data(true);
         },
         // 开关左右区间
         "click > .com-range > footer b" : function(e){
             $z.toggleAttr(e.currentTarget, "on", "yes");
-            this.__show_data();
+            this.__show_data(true);
         },
         // 修改输入框
         "change > .com-range > section > dl > dd input" : function(e){
@@ -50,7 +50,7 @@ return ZUI.def("ui.form_com_number_range", {
             if(isNaN(v)){
                 jq.val("");
             }
-            this.__show_data();
+            this.__show_data(true);
         }
     },
     //...............................................................
@@ -88,10 +88,11 @@ return ZUI.def("ui.form_com_number_range", {
     //...............................................................
     _V : function(s) {
         s = $.trim(s);
-        if(s){
-            return s * 1 || "";
+        var n = s * 1;
+        if(n == s){
+            return n;
         }
-        return "";
+        throw "invalid number input: " + s;
     }
     //...............................................................
 });

@@ -113,7 +113,8 @@
         .unit {
             display: block; position: absolute;
             top: 0; bottom: 0; right: 0;
-            padding: 0 @d1 0 @d0; color: rgba(0, 0, 0, 0.2);
+            padding: 0 @d2; color: rgba(0, 0, 0, 0.2);
+            font-family: @f_fixed;
         }
     }
     > .ass {
@@ -126,9 +127,12 @@
     }
 }
 .com-input[show-ass] {
-    > .box input {
-        border-top-right-radius : 0;
-        border-bottom-right-radius : 0;
+    > .box {
+        z-index: 11;
+        input {
+            border-top-right-radius : 0;
+            border-bottom-right-radius : 0;
+        }
     }
     > .ass { @noselect();
         display: block; border-radius: 0 @d1 @d1 0;
@@ -268,6 +272,9 @@
         > b:hover {opacity: 1.0;}
         b[on] {background:@chx_b; color:@chx_f; border-style:solid;}
     }
+}
+.com-range[invalid-range] {
+    color:@cf6; background: @cb6;
 }
 
 // 日期范围选择

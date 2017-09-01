@@ -11,6 +11,9 @@ author:zozoh
 
 ```
 new CInputUI({
+    // 指定宽度，数字表示像素，如果带单位，用字符串，和css的一样
+    width : 89,
+    
     // 获取数据时，是否 trim 前后空白，默认为 true
     trimData : true,
     
@@ -26,6 +29,7 @@ new CInputUI({
     assist : {
         icon : '<..>',       // 按钮图标
         text : "i18n:xxx",   // 按钮文字
+        autoOpen : true,     // 输入时自动展开，默认 true
         uiType : "xxx",
         uiConf : {..}
     }
