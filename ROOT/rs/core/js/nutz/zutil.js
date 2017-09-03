@@ -80,6 +80,15 @@
         keyCode: function () {
             return $.extend({}, KEY_CODE);
         },
+        getKeyCodeValue : function(codeName) {
+            return KEY_CODE[codeName];
+        },
+        getKeyCodeName : function(codeValue) {
+            for(var key in KEY_CODE){
+                if(KEY_CODE[key] == codeValue)
+                    return key;
+            }
+        },
         bodyToTop: function () {
             var $mybody = document.body;
             $mybody.scrollTop = 0;

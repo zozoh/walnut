@@ -9,15 +9,12 @@ var html = function(){/*
 <div class="ui-arena" ui-fitparent="yes">
     <div style="position:absolute; padding:6px;">
     <button class="get_data">GET DATA</button>
-    | <button class="t0">T0</button>
-      <button class="t1">T1</button>
-      <button class="t2">T2</button>
     </div>
     <div class="myform" ui-gasket="myform" style="width:100%; height:100%; "></div>
 </div>
 */};
 //===================================================================
-return ZUI.def("ui.form_test0", {
+return ZUI.def("ui.test_form1", {
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
@@ -25,28 +22,6 @@ return ZUI.def("ui.form_test0", {
         "click .get_data" : function(){
             console.log(this.subUI("myform").getData());
         },
-        "click .t0" : function(){
-            this.do_t0();
-        },
-        "click .t1" : function(){
-            this.do_t1();
-        },
-        "click .t2" : function(){
-            this.do_t2();
-        }
-    },
-    //...............................................................
-    getObj : function(){
-        return {
-            id: this.$el.attr("obj-id"),
-            x:100, y:80, 
-            birthday : "1977-09-21",
-            name:'I am zozoh', 
-            favColor : null,
-            sex:"m",
-            live:true,
-            //myphoto : {fid:'4thoboi83khmdqmqqvf5arogki'}
-        };
     },
     //...............................................................
     fields_A : function(){
@@ -280,31 +255,14 @@ return ZUI.def("ui.form_test0", {
         }];
     },
     //...............................................................
-    formConf : function(){
+    update : function(o){
         var UI = this;
-        return {
+        new FormUI({
             parent : UI,
             gasketName : "myform",
             on_change : function(key, val){
                 console.log("form change:", key, val);
-            }
-        };
-    },
-    //...............................................................
-    do_t0 : function(){
-        var UI = this;
-        new FormUI(_.extend(UI.formConf(), {
-            title : "普通测试表单",
-            uiWidth : "auto",
-            fields : UI.fields_A()
-        })).render(function(){
-            this.setData(UI.getObj());
-        });
-    },
-    //...............................................................
-    do_t1 : function(){
-        var UI = this;
-        new FormUI(_.extend(UI.formConf(), {
+            },
             title : "分组表单",
             fields : [{
                 icon : '<i class="fa fa-tachometer"></i>',
@@ -321,36 +279,18 @@ return ZUI.def("ui.form_test0", {
                 title: '四个输入框',
                 fields : UI.fields_B()
             }]
-        })).render(function(){
-            this.setData(UI.getObj());
+        }).render(function(){
+            this.setData({
+                id: o.id,
+                x:100, y:80, 
+                birthday : "1977-09-21",
+                name:'I am zozoh', 
+                favColor : null,
+                sex:"m",
+                live:true,
+                //myphoto : {fid:'4thoboi83khmdqmqqvf5arogki'}
+            });
         });
-    },
-    //...............................................................
-    do_t2 : function(){
-        var UI = this;
-        new FormUI(_.extend(UI.formConf(), {
-            title : "组为多列的表单",
-            uiWidth : "all",
-            fields : [{
-                icon : '<i class="fa fa-rss"></i>',
-                text : '四个输入框',
-                cols : 3,
-                fields : UI.fields_B()
-            },{
-                icon : '<i class="fa fa-rss"></i>',
-                text : '各种属性',
-                cols : 2,
-                fields : UI.fields_A()
-            }]
-        })).render(function(){
-            this.setData(UI.getObj());
-        });
-    },
-    //...............................................................
-    update : function(o){
-        var UI = this;
-        UI.$el.attr("obj-id", o.id);
-        UI.do_t2();
     }
     //...............................................................
 });

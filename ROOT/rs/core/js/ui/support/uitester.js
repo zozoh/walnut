@@ -11,6 +11,9 @@ return ZUI.def("ui.support.uitester", {
             var uiConf = $z.fromJson($.trim(this.arena.find("textarea").val())||"{}");
 
             this.applyUI(uiType, uiConf);
+
+            // 如果为清除 UI，设置一下浏览器地址
+
         }
     },
     //...............................................................
@@ -68,7 +71,11 @@ return ZUI.def("ui.support.uitester", {
     //...............................................................
     __draw_ui_setup : function() {
         var UI = this;
-        $('<input placeholder="Please input uiType here" spellcheck="false">').css({
+        $('<input>').attr({
+            "placeholder" : "Please input uiType here",
+            "spellcheck"  : false,
+            "list" : "_ui_test_combo_list"
+        }).css({
             "width" : "100%",
             "outline" : "none",
             "border" : "3px solid #CCC",
@@ -77,6 +84,15 @@ return ZUI.def("ui.support.uitester", {
             "font-size" : "16px",
             "font-family" : "Monaco, Consolas, Courier New",
         }).appendTo(UI.arena);
+        var jList = $('<datalist id="_ui_test_combo_list"></datalist>')
+                        .appendTo(UI.arena);
+        $('<option>ui/form/test/test_form0</option>').appendTo(jList);
+        $('<option>ui/form/test/test_form1</option>').appendTo(jList);
+        $('<option>ui/form/test/test_form2</option>').appendTo(jList);
+        $('<option>ui/form/test/test_form3</option>').appendTo(jList);
+        $('<option>ui/form/test/test_form_range</option>').appendTo(jList);
+        $('<option>ui/form/test/test_c_input</option>').appendTo(jList);
+
         $('<textarea placeholder="uiConf as JSON string here" spellcheck="false">').css({
             "width" : "100%",
             "height" : "400px",

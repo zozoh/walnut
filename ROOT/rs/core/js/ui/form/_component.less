@@ -128,7 +128,6 @@
 }
 .com-input[show-ass] {
     > .box {
-        z-index: 11;
         input {
             border-top-right-radius : 0;
             border-bottom-right-radius : 0;
@@ -153,7 +152,9 @@
         padding:@d4; border-radius:@d2;
     }
 }
-
+.com-input[open-ass] {
+    > .box {z-index: 11;}
+}
 //----------------------------------------------------------------
 // 控件的下拉框
 @CCH: 24px;
@@ -310,6 +311,21 @@
     }
     ul:after{@clr();}
 }
+
+//----------------------------------------------------------------
+// 列表控件
+.com-list {
+    ul { @noselect();
+        li {
+            padding:@d2 @d3; cursor: pointer;
+            span[it="icon"]{margin-right:@d2;}
+        }
+        li[current] {
+            color:@ch0_f; background: @ch0_b;
+        }
+    }
+}
+
 //----------------------------------------------------------------
 // 下拉列表
 @cdlH: @f5;

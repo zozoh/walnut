@@ -8,7 +8,25 @@ var methods = {
         var opt = UI.options;
         var context = opt.context || UI.parent;
         var v = UI.getData();
+
+        // 和旧值比较一下，有更新才通知
+        if(_.isFunction(UI.__equals)){
+            if(UI.__equals(v, UI.__old_val))
+                return;
+        }
+        // 直接比较
+        else if(v == UI.__old_val){
+            return;
+        }
+
+        // 更新旧值
+        UI.__old_val = v;
+
+        // 通知
         $z.invoke(opt, "on_change", [v], context);
+
+        // 看看控件还有没有后续处理
+        $z.invoke(UI, "on_after_change", [v]);
         // UI.trigger("change", v);
     },
     //...............................................................

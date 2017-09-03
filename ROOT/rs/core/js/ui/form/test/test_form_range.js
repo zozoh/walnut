@@ -9,7 +9,7 @@ var html = function(){/*
 <div class="ui-arena" ui-fitparent="yes" ui-gasket="form"></div>
 */};
 //===================================================================
-return ZUI.def("ui.form_test0", {
+return ZUI.def("ui.test_form_range", {
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................

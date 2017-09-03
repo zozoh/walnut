@@ -131,7 +131,7 @@ return ZUI.def("ui.form_com_switch", EnumListSupport({
         return this.options.multi ? true : false;
     },
     //...............................................................
-    getData : function(){
+    _get_data : function(){
         var UI = this;
         // 多选返回的是数组
         if(UI.isMulti()){
@@ -146,7 +146,7 @@ return ZUI.def("ui.form_com_switch", EnumListSupport({
         return UI.arena.find("li.checked").first().data("@VAL");
     },
     //...............................................................
-    setData : function(val){
+    _set_data : function(val){
         var UI = this;
 
         // 所有的备选项

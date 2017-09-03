@@ -15,7 +15,7 @@ var methods = {
         });
         $z.setUndefined(opt, "value", function(o, index, UI){
             if(_.isString(o)) {
-                if(UI.options.textAsValue)
+                if(opt.textAsValue)
                     return o;
                 return index;
             }
@@ -40,6 +40,10 @@ var methods = {
         $z.invoke(UI, "_before_load", []);
         //console.log("redraw enum_list")
 
+        if(opt.drawOnSetData) {
+            return;
+        }
+
         // 读取数据
         var re = ["loading"];
         UI.setItems(UI.options.items, function(){
@@ -51,19 +55,17 @@ var methods = {
         return re;
     },
     //...............................................................
-    setItems : function(items, callback){
+    setItems : function(items, callback, params){
         var UI  = this;
         var opt = UI.options;
-        var context = _.extend({}, opt.context || UI, {
-            app  : UI.app,
-            exec : UI.exec
-        });
-
-        $z.evalData(items, opt.itemArgs, function(items){
+        // var context = _.extend({}, opt.context || UI, {
+        //     app  : UI.app,
+        //     exec : UI.exec
+        // });
+        $z.evalData(items, params || opt.itemArgs, function(items){
             UI._draw_items(items);
-            UI.setData();
             $z.doCallback(callback, [items], UI);
-        }, context);
+        }, UI);
     },
     //...............................................................
     refresh : function(callback) {
@@ -76,7 +78,7 @@ var methods = {
 }; // ~End methods
 //====================================================================
 // 得到枚举列表的顶级方法 
-var ParentMethods = require("ui/form/support/form_c_methods");
+var ParentMethods = require("ui/form/support/form_ctrl");
 
 //====================================================================
 // 输出

@@ -26,22 +26,33 @@ return ZUI.def("ui.form_test_input", {
             on_change : function(val) {
                 console.log("new value::", val);
             },
-            assist : {
-                uiType : "ui/form/c_number_range"
-            }
             // assist : {
-            //     text : "更多",
-            //     uiType : "ui/form/c_radiolist",
-            //     uiConf : {
-            //         items : [{
-            //             text  : "AAAAAA",
-            //             value : "我"
-            //         }, {
-            //             text  : "BBBBBB",
-            //             value : "你们"
-            //         }]
-            //     }
+            //     uiType : "ui/form/c_date_range"
             // }
+            assist : {
+                text : "更多",
+                padding : 0,
+                closeOnChange : true,
+                adaptEvents : {
+                    "UP"   : "selectPrev",
+                    "DOWN" : "selectNext",
+                },
+                uiType : "ui/form/c_list",
+                uiConf : {
+                    drawOnSetData : true,
+                    items : 'obj ~ -match \'race:"DIR", nm:"^{{val}}"\' -limit 10 -json -l -e "^(id|tp|race|nm)$"',
+                    itemArgs : {val : ".+"},
+                    icon : function(o){
+                        return Wn.objIconHtml(o);
+                    },
+                    text : function(o) {
+                        return Wn.objDisplayName(UI, o.nm, 0);
+                    },
+                    value : function(o) {
+                        return o.nm;
+                    }
+                }
+            }
         }).render(function(){
             UI.defer_report("t_combo");
         });

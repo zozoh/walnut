@@ -30,6 +30,13 @@ new CInputUI({
         icon : '<..>',       // 按钮图标
         text : "i18n:xxx",   // 按钮文字
         autoOpen : true,     // 输入时自动展开，默认 true
+        padding : 0,         // 助手悬浮窗的边距，默认为皮肤来指定
+        // 适配输入框的上下箭头到助理界面的指定方法
+        adaptEvents : {
+            "UP"   : "selectPrev",
+            "DOWN" : "selectNext",
+        },
+        // 下面是助手的 UI 定义
         uiType : "xxx",
         uiConf : {..}
     }

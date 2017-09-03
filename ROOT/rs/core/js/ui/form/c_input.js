@@ -35,7 +35,9 @@ return ZUI.def("ui.form_com_input", {
         // 输入内容修改
         "change > .com-input > .box > input" : function(){
             //console.log("!!! I am changed");
-            this.__on_change();
+            if(!this._ui_assist) {
+                this.__on_change();
+            }
         },
         // 下面三个时间，完美检测中文输入
         "compositionstart > .com-input > .box > input" : function(e){
@@ -52,13 +54,32 @@ return ZUI.def("ui.form_com_input", {
         },
         // 特殊键盘事件
         "keydown > .com-input > .box > input" : function(e){
+            var UI = this;
+            // 是否适配事件到助理，如果适配到助理
+            // 就不需要原始的打开关闭快捷功能了
+            if(UI._ui_assist && UI._assist.adaptEvents) {
+                for(var codeName in UI._assist.adaptEvents) {
+                    var codeValue = $z.getKeyCodeValue(codeName);
+                    if(codeValue == e.which) {
+                        // 调用助理的方法
+                        var methodName = UI._assist.adaptEvents[codeName];
+                        $z.invoke(UI._ui_assist, methodName);
+                        // 返回吧，以防止后面逻辑被调用
+                        return;
+                    }
+                }
+            }
+            // 回车
+            if(13 == e.which) {
+                UI.__on_change();
+            }
             // 上箭头
-            if(38 == e.which) {
-                this.closeAssist();
+            else if(38 == e.which) {
+                UI.closeAssist();
             }
             // 下箭头
             else if(40 == e.which) {
-                this.openAssist();
+                UI.openAssist();
             }
         },
         // 打开辅助框
@@ -92,6 +113,10 @@ return ZUI.def("ui.form_com_input", {
 
         // 助理
         UI.setAssist(opt.assist);
+    },
+    //...............................................................
+    on_after_change : function(){
+        this.closeAssist();
     },
     //...............................................................
     __do_when_input : function() {
@@ -132,11 +157,11 @@ return ZUI.def("ui.form_com_input", {
 
         // 显示出辅助弹出遮罩
         $('<div class="ass-mask">').appendTo(UI.arena);
-        var jAssBox = $('<div class="ass-box">').data({
-            "old-val" : val||""
-        }).css({
+        var jAssBox = $('<div class="ass-box">').css({
             "visibility" : "hidden",
             "position"   : "fixed",
+            "padding"    : _.isUndefined(UI._assist.padding) 
+                            ? "" : UI._assist.padding
         }).appendTo(UI.arena);
 
         // 加载辅助弹出控件
@@ -155,6 +180,8 @@ return ZUI.def("ui.form_com_input", {
             })).render(function(){
                 // 显示
                 jAssBox.css("visibility", "");
+                // 标识
+                UI.arena.attr("open-ass", "yes");
 
                 // 设置值
                 this.setData(val);
@@ -171,19 +198,16 @@ return ZUI.def("ui.form_com_input", {
 
         // 已经打开了
         if(jAssBox.length > 0) {
-            // 得到新老值
-            var oldVal = jAssBox.data("old-val");
-            var newVal = UI._get_data();
-
             // 移除遮罩
             $z.invoke(UI._ui_assist, "destroy");
             jAssBox.remove();
             UI.arena.find("> .ass-mask").remove();
+
+            // 移除标识
+            UI.arena.removeAttr("open-ass");
             
             // 通知改动
-            if(oldVal != newVal) {
-                UI.__on_change();
-            }
+            UI.__on_change();
         }
     },
     /*...............................................................

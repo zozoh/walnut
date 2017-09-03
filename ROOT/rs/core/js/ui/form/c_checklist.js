@@ -104,7 +104,7 @@ return ZUI.def("ui.form_com_checklist", BulletListSupport({
         }
     },
     //...............................................................
-    getData : function(){
+    _get_data : function(){
         var re = [];
         this.arena.find("li.checked").each(function(){
             re.push($(this).data("@VAL"));
@@ -112,7 +112,7 @@ return ZUI.def("ui.form_com_checklist", BulletListSupport({
         return re;
     },
     //...............................................................
-    setData : function(val){
+    _set_data : function(val){
         var UI = this;
 
         // 确保值是一个数组

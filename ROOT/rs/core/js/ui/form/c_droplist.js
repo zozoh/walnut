@@ -338,20 +338,6 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
         //UI.__on_change();
     },
     //...............................................................
-    getData : function(){
-        var UI = this;
-        return this.ui_format_data(function(opt){
-            return UI._get_data();
-        });
-    },
-    //...............................................................
-    setData : function(obj, jso){
-        var UI = this;
-        this.ui_parse_data(obj, function(o){
-            UI._set_data(o);
-        });
-    },
-    //...............................................................
     resize : function() {
         var UI = this;
         var opt = UI.options;

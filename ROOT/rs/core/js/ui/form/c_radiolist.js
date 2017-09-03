@@ -30,7 +30,7 @@ return ZUI.def("ui.form_com_radiolist", BulletListSupport({
     //...............................................................
     _list_item_icon : '<i class="fa fa-circle-thin"></i><i class="fa fa-chevron-circle-right"></i>',
     //...............................................................
-    getData : function(){
+    _get_data : function(){
         var UI  = this;
         var opt = UI.options;
         var jLi = this.arena.find("li.checked").first();
@@ -46,7 +46,7 @@ return ZUI.def("ui.form_com_radiolist", BulletListSupport({
         return val;
     },
     //...............................................................
-    setData : function(val){
+    _set_data : function(val){
         var UI = this;
 
         // 确保值是一个数组

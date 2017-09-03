@@ -13,6 +13,9 @@ var methods = {
     //...............................................................
     setData : function(val, jso){
         var UI = this;
+        // 存储旧值
+        UI.__old_val = val;
+        // 设置到控件
         this.ui_parse_data(val, function(v){
             UI._set_data(v);
         });
