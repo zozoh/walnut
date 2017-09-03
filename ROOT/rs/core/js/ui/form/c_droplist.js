@@ -25,7 +25,10 @@ var html = function(){/*
     <div class="com-mask"></div>
     <div class="com-drop"><div>
         <ul></ul>
-        <div class="com-multi-apply">{{ok}}</div>
+        <div class="com-multi-action">
+            <b a="ok">{{ok}}</b>
+            <b a="cancel">{{cancel}}</b>
+        </div>
     </div></div>
 </div>
 */};
@@ -54,10 +57,11 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
     },
     //...............................................................
     events : {
+        // 显示下拉框
         "click .com-box" : function(e){
             e.stopPropagation();
             var UI = this;
-            // 隐藏
+            // 隐藏: TODO 额，为啥有这个逻辑？
             if(UI.arena.attr("show")){
                 UI.arena.removeAttr("show");
             }
@@ -96,6 +100,7 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
                 UI.resize();
             }
         },
+        // 点击下拉框项目
         "click li" : function(e){
             var UI  = this;
             var jq = $(e.currentTarget);
@@ -137,18 +142,36 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
                     UI.__on_change();
             }
         },
-        "click .com-multi-apply" : function(){
+        // 点击 mask 隐藏
+        "click .com-mask" : function(e) {
+            this.__do_apply_multi();
+        },
+        "click .com-multi-action b" : function(e){
             var UI = this;
-            UI.arena.find(".com-box-show").empty();
-            UI._append_val(UI.arena.find(".com-drop li.checked"));
-            // 触发事件
-            UI.__on_change();
+            var jB = $(e.currentTarget);
+            if("ok" == jB.attr("a")) {
+                UI.__do_apply_multi();
+            }
+            // 直接关闭
+            else{
+                do_close_all();
+            }
         }
     },
     //...............................................................
     _before_load : function() {
         // 标记单/多选形态
         this.arena.attr("multi", this.isMulti() ? "yes" : "no");
+    },
+    //...............................................................
+    __do_apply_multi : function(){
+        var UI = this;
+        if(UI.isMulti()){
+            UI.arena.find(".com-box-show").empty();
+            UI._append_val(UI.arena.find(".com-drop li.checked"));
+            // 触发事件
+            UI.__on_change();
+        }
     },
     //...............................................................
     _append_val : function(jLis) {

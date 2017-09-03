@@ -392,7 +392,7 @@
         span[it="check"] {display: none;}
         .com-box-drop {line-height: @cdlH;}
     }
-    .com-multi-apply {display: none;}
+    .com-multi-action {display: none;}
 
     span[it="check"] * {display: none;}
     ul {
@@ -413,13 +413,16 @@
         span[it="check"] {display: none;}
     }
     .com-drop {
-        @cdmH: 30px;
-        .com-multi-apply {
-            border-top: 1px dotted @cborder0; text-align: center;
+        @cdmH: 38px;
+        .com-multi-action {
+            border-top: 1px solid @cborder0; text-align: center;
             height: @cdmH; line-height: @cdmH; background: @cmenu_b;
             position: absolute; left: 0; right: 0; bottom: 0;
+            @flex();
+            b {flex:1 1 auto; cursor: pointer;}
+            b:hover {background: @ch1_b; color: @ch1_f;}
+            b[a="ok"] {border-right:1px solid @cborder1;}
         }
-        .com-multi-apply:hover { background: @ch1_b; color: @ch1_f;}
         ul {
             padding-bottom: @cdmH; overflow: auto;
             li.checked {
