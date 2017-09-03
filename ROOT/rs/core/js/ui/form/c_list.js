@@ -18,6 +18,8 @@ return ZUI.def("ui.form_com_list", EnumListSupport({
     //...............................................................
     init : function(opt){
         this.__setup_dft_display_func(opt);
+
+        $z.setUndefined(opt, "drawOnSetData", true);
     },
     //...............................................................
     events : {
@@ -28,6 +30,18 @@ return ZUI.def("ui.form_com_list", EnumListSupport({
         "click li" : function(){
             this.__on_change();
         }
+    },
+    //...............................................................
+    _before_load : function() {
+        var pUI = this.parent;
+        $z.invoke(pUI, "mergeAssist", [{
+            padding : 0,
+            closeOnChange : true,
+            adaptEvents : {
+                "UP"   : "selectPrev",
+                "DOWN" : "selectNext",
+            }
+        }, true]);
     },
     //...............................................................
     selectPrev : function(){

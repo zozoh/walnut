@@ -30,13 +30,7 @@ return ZUI.def("ui.form_test_input", {
             //     uiType : "ui/form/c_date_range"
             // }
             assist : {
-                text : "更多",
-                padding : 0,
-                closeOnChange : true,
-                adaptEvents : {
-                    "UP"   : "selectPrev",
-                    "DOWN" : "selectNext",
-                },
+                //text : "更多",
                 uiType : "ui/form/c_list",
                 uiConf : {
                     drawOnSetData : true,

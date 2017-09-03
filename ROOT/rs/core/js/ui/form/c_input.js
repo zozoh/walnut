@@ -61,6 +61,8 @@ return ZUI.def("ui.form_com_input", {
                 for(var codeName in UI._assist.adaptEvents) {
                     var codeValue = $z.getKeyCodeValue(codeName);
                     if(codeValue == e.which) {
+                        // 给自己续一秒，这样上下箭头之类的不会导致助理关闭
+                        UI.__do_not_close_assist = true;
                         // 调用助理的方法
                         var methodName = UI._assist.adaptEvents[codeName];
                         $z.invoke(UI._ui_assist, methodName);
@@ -72,6 +74,7 @@ return ZUI.def("ui.form_com_input", {
             // 回车
             if(13 == e.which) {
                 UI.__on_change();
+                UI.closeAssist();
             }
             // 上箭头
             else if(38 == e.which) {
@@ -116,7 +119,15 @@ return ZUI.def("ui.form_com_input", {
     },
     //...............................................................
     on_after_change : function(){
-        this.closeAssist();
+        var UI = this;
+        // 被续了一秒
+        if(UI.__do_not_close_assist) {
+            UI.__do_not_close_assist = false;
+            return;
+        }
+        // 强制关闭
+        if(UI._assist.closeOnChange)
+            UI.closeAssist();
     },
     //...............................................................
     __do_when_input : function() {
@@ -173,6 +184,7 @@ return ZUI.def("ui.form_com_input", {
                 },
                 on_change : function(v) {
                     UI._set_data(v);
+                    UI.__on_change();
                 },
                 on_depose : function(){
                     UI._ui_assist = undefined;
@@ -249,6 +261,31 @@ return ZUI.def("ui.form_com_input", {
         // 什么都木有的话，呵呵，可能对方就不想显示吧，那就按下箭头好了
         if(!jAss.html())
             jAss.remove();
+    },
+    //...............................................................
+    mergeAssist : function(ass, isUndefined) {
+        var UI = this;
+        if(UI._assist) {
+            if(isUndefined) {
+                for(var key in ass) {
+                    if(_.isUndefined(UI._assist[key])) {
+                        UI._assist[key] = ass[key];
+                    }
+                }
+                // 重新应用一下 padding
+                if(UI._ui_assist) {
+                    UI.arena.find(".ass-box").css({
+                        "padding" : _.isUndefined(UI._assist.padding) 
+                                        ? ""
+                                        : UI._assist.padding
+                    });
+                }
+            }
+            // 直接替换
+            else {
+                _.extend(UI._assist, adaptEvents);
+            }
+        }
     },
     //...............................................................
     setUnit : function(unit){

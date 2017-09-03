@@ -45,6 +45,8 @@ new CInputUI({
 
 # 控件方法
 
+继承自 `form_ctrl`
+
 ## setUnit
 
 ```
