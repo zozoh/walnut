@@ -142,6 +142,9 @@
             padding:0 @d1;
         }
     }
+}
+.com-input[open-ass] {
+    > .box {z-index: 11;}
     > .ass-mask {
         position: fixed; top:0; left:0; right:0; bottom:0;
         background: rgba(0,0,0,0); z-index:10;
@@ -150,10 +153,8 @@
         z-index: 12; background: @cmenu_b; color:@cmenu_f; 
         border:1px solid @cborder1; box-shadow: 4px 4px 6px @cshadow;
         padding:@d4; border-radius:@d2;
+        overflow: auto;
     }
-}
-.com-input[open-ass] {
-    > .box {z-index: 11;}
 }
 //----------------------------------------------------------------
 // 控件的下拉框
@@ -369,6 +370,10 @@
         li[current] {
             color:@ch0_f; background: @ch0_b;
         }
+    }
+    ul[empty] {
+        padding:@d4; text-align: center;
+        font-size: @f3; color:@c2;
     }
 }
 

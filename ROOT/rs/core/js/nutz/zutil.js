@@ -377,7 +377,7 @@
         // 余下的四舍五入。 对于 p 默认为 0 即去掉小数部分
         // 如果 p < 0，则表示不限制精度了
         precise: function (n, p) {
-            if (p > 0) {
+            if (p >= 0) {
                 var y = Math.pow(10, p);
                 return Math.round(n * y) / y;
             }
@@ -2098,8 +2098,6 @@
                 return;
             }
 
-            params = params || {};
-
             // 异步的时候，返回值一定是 undefined
             var eval_re = undefined;
             var async = true;
@@ -2107,11 +2105,12 @@
             // 如果回调不是函数，那么将其视为 context，同时这必定是一个同步调用
             // 那么这里会设置返回值
             if (!_.isFunction(callback)) {
-                context = context || callback;
-                async = false;
-                callback = function (objs) {
-                    eval_re = objs;
-                };
+                context  = context || callback;
+                async    = false;
+                callback = null;
+                // callback = function (objs) {
+                //     eval_re = objs;
+                // };
             }
 
             // 确保有 context
@@ -2123,13 +2122,18 @@
             // 函数
             else if (_.isFunction(data)) {
                 eval_re = data.call(context, params, function (objs) {
-                    callback.apply(context, [objs]);
+                    //callback.apply(context, [objs]);
+                    zUtil.doCallback(callback, [objs], context);
                 });
+                // 如果有了有效的返回，那么说明函数是同步函数，不会处理 callback
+                if(!_.isUndefined(eval_re)){
+                    zUtil.doCallback(callback, [eval_re], context);
+                }
             }
             // 字符串，试图看看 context 里有没有 exec 方法
             else if (_.isString(data)) {
                 //console.log(data, params);
-                var str = ($z.tmpl(data))(params);
+                var str = ($z.tmpl(data))(params||{});
                 //console.log(">> exec: ", str)
                 var execFunc = context.exec || (context.options || {}).exec;
                 if (_.isFunction(execFunc)) {
@@ -2138,7 +2142,8 @@
                         dataType: "json",
                         processData: true,
                         complete: function (re) {
-                            callback.apply(context, [re]);
+                            //callback.apply(context, [re]);
+                            zUtil.doCallback(callback, [re], context);
                         }
                     });
                 } else {
@@ -2149,14 +2154,19 @@
             else if (data.url) {
                 $.ajax(_.extend({
                     method: "GET",
-                    data: params,
+                    data: params || {},
                     dataType: "json",
                     async: async,
                     sucess: function (re) {
+                        // 成功
                         if (_.isBoolean(re.ok) && re.data) {
-                            callback.apply(context, [re.data]);
-                        } else {
-                            callback.apply(context, re);
+                            // callback.apply(context, [re.data]);
+                            zUtil.doCallback(callback, [re.data], context);
+                        }
+                        // 失败
+                        else {
+                            // callback.apply(context, re);
+                            zUtil.doCallback(callback, [re], context);
                         }
                     },
                     error: function (xhr, textStatus, e) {
@@ -2165,8 +2175,10 @@
                 }, data));
             }
             // 厄，弱弱的直接返回一下吧
-            else if (callback) {
-                callback.apply(context, [data]);
+            else{
+                // callback.apply(context, [data]);
+                eval_re = data;
+                zUtil.doCallback(callback, [data], context);
             }
             // 返回
             return eval_re;

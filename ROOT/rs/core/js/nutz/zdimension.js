@@ -237,7 +237,7 @@ var zRect = {
     },
     //.............................................
     // 快速精简的矩形信息，以便人类查看
-    dumpValues : function(rect, keys){
+    dumpValues : function(rect, keys, precise){
         if(!rect)
             return "-nil-";
         keys = keys || "ltwh";
@@ -253,7 +253,8 @@ var zRect = {
         };
         var vs = [];
         for(var i=0; i< keys.length; i++){
-            vs.push(info[keys.charAt(i)]);
+            var v = info[keys.charAt(i)];
+            vs.push($z.precise(v, precise||0));
         }
         return vs.join(",");
     },

@@ -65,7 +65,28 @@ return ZUI.def("ui.form_com_input", {
                         UI.__do_not_close_assist = true;
                         // 调用助理的方法
                         var methodName = UI._assist.adaptEvents[codeName];
-                        $z.invoke(UI._ui_assist, methodName);
+                        var jq = $z.invoke(UI._ui_assist, methodName);
+                        // 如果返回了项目，那么看看这个项目是不是需要滚动才能看见
+                        if(jq) {
+                            var jAssBox = UI.arena.find(".ass-box");
+                            var rect = $D.rect.gen(jq);
+                            var view = $D.rect.gen(jAssBox);
+                            var over = $D.rect.overlap(rect,view);
+                            // console.log("rect:", $D.rect.dumpValues(rect,"tlwh"),
+                            //             "view:", $D.rect.dumpValues(view,"tlwh"),
+                            //             "over:", $D.rect.dumpValues(over,"tlwh"));
+                            if(over.height < rect.height) {
+                                // 在上面
+                                if(rect.top < view.top) {
+                                    jAssBox[0].scrollTop -= (rect.height - over.height);
+                                }
+                                // 在下面
+                                else {
+                                    jAssBox[0].scrollTop += (rect.height - over.height);
+                                }
+                            }
+                        }
+
                         // 返回吧，以防止后面逻辑被调用
                         return;
                     }
@@ -167,6 +188,9 @@ return ZUI.def("ui.form_com_input", {
         if(!uiType)
             return;
 
+        // 解析 uiType
+        uiType = UI.__get_fld_quick_uiType(uiType) || uiType;
+
         // 显示出辅助弹出遮罩
         $('<div class="ass-mask">').appendTo(UI.arena);
         var jAssBox = $('<div class="ass-box">').css({
@@ -200,7 +224,7 @@ return ZUI.def("ui.form_com_input", {
                 this.setData(val);
 
                 // 移动位置
-                $z.dock(UI.arena.find(">.box"), jAssBox, "H");
+                UI.redockAssist();
             });
         });
     },
@@ -212,6 +236,14 @@ return ZUI.def("ui.form_com_input", {
         if(UI._ui_assist) {
             var jAssBox = UI.arena.find(".ass-box");
             $z.dock(UI.arena.find(">.box"), jAssBox, "H");
+
+            // 剪裁，确保在屏幕内
+            var rect = $D.rect.gen(jAssBox);
+            var win  = $D.dom.winsz();
+            var over = $D.rect.overlap(rect, win);
+            if($D.rect.area(rect) > $D.rect.area(over)) {
+                jAssBox.css($z.pick(over, "width,height"));
+            }
         }
     },
     //...............................................................
@@ -270,8 +302,10 @@ return ZUI.def("ui.form_com_input", {
             $('<b>').text(UI.text(ass.text)).appendTo(jAss);
         }
         // 什么都木有的话，呵呵，可能对方就不想显示吧，那就按下箭头好了
-        if(!jAss.html())
+        if(!jAss.html()) {
+            UI.arena.removeAttr("show-ass");
             jAss.remove();
+        }
     },
     //...............................................................
     mergeAssist : function(ass, isUndefined) {

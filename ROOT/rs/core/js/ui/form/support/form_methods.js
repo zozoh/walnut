@@ -4,7 +4,12 @@ var jType = require('ui/jtypes');
 // 方法表
 var methods = {
     //...............................................................
+    // 接受 @xxx 形式的字符串，如果不是，返回 null
     __get_fld_quick_uiType : function(str) {
+        if(!str || !/^@/.test(str)) {
+            return null;
+        }
+        str = str.substring(1);
         // 各种 picker
         if(/picker$/.test(str)){
             return "ui/picker/" + str;
@@ -14,18 +19,18 @@ var methods = {
     },
     //...............................................................
     _get_fld_uiType : function(fld, dftUIType) {
-        var uiType = fld.uiType;
+        var uiType = this.__get_fld_quick_uiType(fld.uiType);
         // 快捷方式
-        if(/^@/.test(uiType)) {
-            return this.__get_fld_quick_uiType(uiType.substring(1));
+        if(uiType) {
+            return uiType;
         }
         // 有了明确定义直接返回
-        if(uiType)
-            return uiType;
+        if(fld.uiType)
+            return fld.uiType;
 
         // 之前老版本的快捷方式
         if(fld.editAs) {
-            return this.__get_fld_quick_uiType(fld.editAs);
+            return this.__get_fld_quick_uiType("@" + fld.editAs);
         }
 
         // 用默认值

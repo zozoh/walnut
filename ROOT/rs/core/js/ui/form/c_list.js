@@ -64,6 +64,7 @@ return ZUI.def("ui.form_com_list", EnumListSupport({
             this.arena.find("[current]").removeAttr("current");
             jLi.attr("current", "yes");
             this.__on_change();
+            return jLi;
         }
     },
     //...............................................................
@@ -81,17 +82,20 @@ return ZUI.def("ui.form_com_list", EnumListSupport({
             this.arena.find("[current]").removeAttr("current");
             jLi.attr("current", "yes");
             this.__on_change();
+            return jLi;
         }
     },
     //...............................................................
     _draw_items : function(items){
         var UI  = this;
         var opt = UI.options;
-        var jUl = UI.arena.find("ul").empty();
+        var jUl = UI.arena.find("ul").removeAttr("empty").empty();
         var context = opt.context || UI.parent;
 
-        if(!_.isArray(items))
+        if(!_.isArray(items) || items.length == 0) {
+            jUl.attr("empty", "yes").text(UI.msg("empty"));
             return;
+        }
 
         var hasIcon = false;
         for(var i=0; i<items.length; i++){
