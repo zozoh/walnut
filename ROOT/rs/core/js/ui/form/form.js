@@ -1,8 +1,9 @@
 (function($z){
 $z.declare([
     'zui',
-    'ui/jtypes'
-], function(ZUI, jType){
+    'ui/jtypes',
+    'ui/form/support/form_methods'
+], function(ZUI, jType, FormMethods){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
@@ -35,7 +36,7 @@ return ZUI.def("ui.form", {
     i18n : "ui/form/i18n/{{lang}}.js",
     //...............................................................
     init : function(options){
-        var UI = this;
+        var UI = FormMethods(this);
         //$z.evalFunctionField(options);
         $z.setUndefined(options, "mergeData", true);
         $z.setUndefined(options, "idKey", "id");
@@ -78,8 +79,7 @@ return ZUI.def("ui.form", {
         UI.groups = grpList;
 
         // 给每个字段做个编号
-        UI._fld_form_keys = [];
-        var _fld_form_keys_seq = 0;
+        UI._fld_defer_keys = [];
 
         // 重新分析所有的字段，确保都有 uiType/uiConf
         // 同时归纳需要加载的 UI 类型
@@ -89,38 +89,12 @@ return ZUI.def("ui.form", {
             for(var m=0;m<grp.fields.length;m++){
                 var fld = grp.fields[m];
 
-                // 给自己分配一个唯一的键值，这个键值基本是用来做 defer_report 的
-                fld._form_key = "_form_fld_" + (_fld_form_keys_seq++);
-                UI._fld_form_keys.push(fld._form_key);
+                // 初始化必要的字段控件配置信息
+                UI._normalize_fld_define(fld, "ui/form/c_input");
 
-                // 字段的类型默认为 string
-                fld.type = fld.type || "string";
-                // 做了自定义显示
-                if(fld.uiType){
-                    // 那就啥也不做了
-                }
-                // 有快捷定义 ..
-                else if(fld.editAs){
-                    // 内置
-                    if(/^(input|color|content|file|background|label|switch|toggle|text|link|(drop|check|radio)list|pair|image|button|date_range|number_range)$/.test(fld.editAs)){
-                        fld.uiType = "ui/form/c_" + fld.editAs;
-                    }
-                    // 各种 picker
-                    else if(/^(o|date|time)picker$/.test(fld.editAs)){
-                        fld.uiType = "ui/picker/" + fld.editAs;
-                    }
-                    // 靠，不支持
-                    else{
-                        alert("Unknown form component: " + fld.editAs);
-                        throw "Unknown form component: " + fld.editAs;
-                    }
-                }
-                // 采用默认的
-                else{
-                    fld.uiType = "ui/form/c_input";
-                }
-                // 确保 uiConf
-                fld.uiConf = fld.uiConf || {};
+                // 给自己分配一个唯一的键值，这个键值基本是用来做 defer_report 的
+                fld._defer_key = "_form_fld_" + i + "_" + m;
+                UI._fld_defer_keys.push(fld._defer_key);
 
                 // 记录自己所属的 form 控件
                 fld.uiForm = UI;
@@ -222,12 +196,12 @@ return ZUI.def("ui.form", {
 
         // 动态控件的话，不绘制
         if(_.isFunction(fld.uiConf)) {
-            UI.defer_report(fld._form_key);
+            UI.defer_report(fld._defer_key);
         }
         // 静态控件的话，绘制
         else {
             UI.__draw_field_UI(fld.uiType, fld.uiConf, fld, function(fld){
-                UI.defer_report(fld._form_key);
+                UI.defer_report(fld._defer_key);
             });
         }
 
@@ -272,7 +246,7 @@ return ZUI.def("ui.form", {
                     UI.__on_change(this, v);
                 }
             })).render(function(){
-                //console.log("UI.defer_report:", fld.uiType, fld._form_key);
+                //console.log("UI.defer_report:", fld.uiType, fld._defer_key);
                 // 记录字段对应的 UI 对象
                 fld.UI = this;
                 // 这里做一下额外检查，如果发现自己的 parent 已经不对了，自杀
@@ -393,13 +367,13 @@ return ZUI.def("ui.form", {
             }
         });
 
-        // console.log("form redraw defer:", UI._fld_form_keys);
+        // console.log("form redraw defer:", UI._fld_defer_keys);
         // 暂时隐藏，在 resize 里去掉这个开关
         UI.$el.css("visibility", "hidden");
 
         // 返回延迟加载
-        //console.log(UI._fld_form_keys)
-        return UI._fld_form_keys;
+        //console.log(UI._fld_defer_keys)
+        return UI._fld_defer_keys;
     },
     //...............................................................
     resize : function(){

@@ -73,6 +73,7 @@ return ZUI.def("ui.form_com_input", {
             }
             // 回车
             if(13 == e.which) {
+                e.preventDefault();
                 UI.__on_change();
                 UI.closeAssist();
             }
@@ -126,7 +127,7 @@ return ZUI.def("ui.form_com_input", {
             return;
         }
         // 强制关闭
-        if(UI._assist.closeOnChange)
+        if(UI._assist && UI._assist.closeOnChange)
             UI.closeAssist();
     },
     //...............................................................
@@ -171,6 +172,7 @@ return ZUI.def("ui.form_com_input", {
         var jAssBox = $('<div class="ass-box">').css({
             "visibility" : "hidden",
             "position"   : "fixed",
+            "min-width"  : UI.arena.find(">.box").width(),
             "padding"    : _.isUndefined(UI._assist.padding) 
                             ? "" : UI._assist.padding
         }).appendTo(UI.arena);
@@ -184,7 +186,6 @@ return ZUI.def("ui.form_com_input", {
                 },
                 on_change : function(v) {
                     UI._set_data(v);
-                    UI.__on_change();
                 },
                 on_depose : function(){
                     UI._ui_assist = undefined;
@@ -202,6 +203,16 @@ return ZUI.def("ui.form_com_input", {
                 $z.dock(UI.arena.find(">.box"), jAssBox, "H");
             });
         });
+    },
+    //...............................................................
+    // 像 c_list 如果是 drawOnSetData 模式，则需要在数据加载完重新 dock
+    // 否则会歪
+    redockAssist : function(){
+        var UI = this;
+        if(UI._ui_assist) {
+            var jAssBox = UI.arena.find(".ass-box");
+            $z.dock(UI.arena.find(">.box"), jAssBox, "H");
+        }
     },
     //...............................................................
     closeAssist : function() {
@@ -303,6 +314,10 @@ return ZUI.def("ui.form_com_input", {
     //...............................................................
     setPlaceholder : function(str) {
         this.arena.find("input").attr("placeholder", str ? this.text(str) : null);
+    },
+    //...............................................................
+    focus : function(){
+        this.arena.find("input").focus();
     },
     //...............................................................
     resize : function(){

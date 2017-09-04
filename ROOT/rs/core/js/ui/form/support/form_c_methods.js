@@ -31,11 +31,14 @@ var methods = {
     },
     //...............................................................
 }; // ~End methods
+//====================================================================
+// 得到顶级方法表
+var ParentMethods = require("ui/form/support/form_methods");
 
 //====================================================================
 // 输出
 module.exports = function(uiSub){
-    return _.extend(uiSub, methods);
+    return _.extend(ParentMethods(uiSub), methods);
 };
 //=======================================================================
 });

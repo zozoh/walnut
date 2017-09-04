@@ -979,17 +979,22 @@ define(function (require, exports, module) {
         },
         // 对一个字符串进行文本转移，如果是 i18n: 开头采用 i18n
         text: function (str, ctx, msgMap) {
-            // 多国语言
+            // // 多国语言
+            // if (/^i18n:.+$/g.test(str)) {
+            //     var key = str.substring(5);
+            //     return this.msg(key, ctx, msgMap);
+            // }
+            // // 字符串模板
+            // if (str && ctx && _.isObject(ctx)) {
+            //     return ($z.tmpl(str))(ctx);
+            // }
+            // // 普通字符串
+            // return str;
+            var key = str;
             if (/^i18n:.+$/g.test(str)) {
-                var key = str.substring(5);
-                return this.msg(key, ctx, msgMap);
+                key = str.substring(5);
             }
-            // 字符串模板
-            if (str && ctx && _.isObject(ctx)) {
-                return ($z.tmpl(str))(ctx);
-            }
-            // 普通字符串
-            return str;
+            return this.msg(key, ctx, msgMap);
         },
         // 对于控件 DOM 中所有的元素应用 data-balloon 的设定
         // 查找属性 "balloon" 格式是 "方向:msgKey"
@@ -1315,6 +1320,7 @@ define(function (require, exports, module) {
         // opt.callback : {c}F(str)
         alert: function (msgKey, opt) {
             var UI = this;
+            opt = opt || {};
 
             // 分析参数
             if (_.isFunction(opt)) {
@@ -1325,17 +1331,16 @@ define(function (require, exports, module) {
             }
             // 快捷图标
             else if (_.isString(opt)) {
-                var opt2 = {};
-                if ("warn" == opt)
-                    opt2.icon = '<i class="zmdi zmdi-alert-triangle"></i>';
-                else if ("error" == opt)
-                    opt2.icon = '<i class="zmdi zmdi-alert-polygon"></i>';
-                else if ("notify" == opt)
-                    opt2.icon = '<i class="zmdi zmdi-notifications-active"></i>';
-                opt = opt2;
+                opt = {icon: opt};
             }
-
-            opt = opt || {};
+            // 设置图标
+            if ("warn" == opt.icon)
+                opt.icon = '<i class="zmdi zmdi-alert-triangle"></i>';
+            else if ("error" == opt.icon)
+                opt.icon = '<i class="zmdi zmdi-alert-polygon"></i>';
+            else if ("notify" == opt.icon)
+                opt.icon = '<i class="zmdi zmdi-notifications-active"></i>';
+            
             $z.setUndefined(opt, "width", 400);
             $z.setUndefined(opt, "height", 240);
             $z.setUndefined(opt, "title", "info");
@@ -1357,12 +1362,12 @@ define(function (require, exports, module) {
                 })).render(function () {
                     // 设置标题
                     if (opt.title)
-                        this.$main.find(".pm-title").html(UI.msg(opt.title));
+                        this.$main.find(".pm-title").html(UI.text(opt.title));
                     else
                         this.$main.find(".pm-title").remove();
 
                     // 设置按钮文字
-                    this.$main.find(".pm-btn-ok").html(UI.msg(opt.btnOk)).focus();
+                    this.$main.find(".pm-btn-ok").html(UI.text(opt.btnOk)).focus();
                     this.$main.find(".pm-btn-cancel").remove();
 
                     // 设置显示内容
@@ -1370,7 +1375,7 @@ define(function (require, exports, module) {
                     if (opt.icon) {
                         html += '<div class="pop-msg-icon">' + opt.icon + '</div>';
                     }
-                    html += '<div class="pop-msg-text">' + UI.msg(msgKey) + '</div>';
+                    html += '<div class="pop-msg-text">' + UI.text(msgKey) + '</div>';
                     this.$main.find(".pm-body").html(html);
                 })
             });

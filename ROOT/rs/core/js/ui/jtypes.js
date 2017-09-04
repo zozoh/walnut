@@ -109,10 +109,7 @@ JsObj.prototype = {
         // 准备要解析的值
         var val = _.isUndefined(v)||_.isNull(v)?this.__fld.dft:v;
         // 调用子类的实现
-        var v0 = this._parse_and_return(val);
-        // 采用默认值
-        this.__val = v0;
-        
+        this.__val = this._parse_and_return(val);      
         // 返回自身以便链式复制
         return this;
     },
@@ -362,7 +359,7 @@ var JsInt = function(fld){
 JsInt.prototype = new JsObj();
 JsInt.prototype._parse_and_return = function(v){
     var val = parseInt(v);
-    return isNaN(val) ? null : val;
+    return isNaN(val) ? this.__fld.dft : val;
 };
 JsInt.prototype.toText = function(){
      return _eval_enum_text(this.__fld, this.__val) || this.toStr();

@@ -51,6 +51,9 @@ define({
             "attachment_scroll" : "随内容滚动",
             "attachment_fixed"  : "固定",
         },
+        "combotable" : {
+            "noneobj" : "没有相关的数据",
+        },
         "content" : {
             "nobrief"  : "没有摘要",
             "noloader" : "不知道如何加载对象的内容",

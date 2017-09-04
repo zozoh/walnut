@@ -58,13 +58,30 @@ var methods = {
     setItems : function(items, callback, params){
         var UI  = this;
         var opt = UI.options;
+        var context = opt.context || UI;
         // var context = _.extend({}, opt.context || UI, {
         //     app  : UI.app,
         //     exec : UI.exec
         // });
-        $z.evalData(items, params || opt.itemArgs, function(items){
-            UI._draw_items(items);
-            $z.doCallback(callback, [items], UI);
+        $z.evalData(items, params || opt.itemArgs, function(list){
+            var list2;
+            // 应用过滤器
+            if(_.isFunction(opt.filter)) {
+                list2 = [];
+                for(var i=0;i<list.length;i++) {
+                    var o = list[i];
+                    if(opt.filter.apply(context, [o]))
+                        list2.push(o);
+                }
+            }
+            // 直接使用
+            else {
+                list2 = list;
+            }
+            // 绘制
+            UI._draw_items(list2);
+            // 调用回调
+            $z.doCallback(callback, [list2], UI);
         }, UI);
     },
     //...............................................................

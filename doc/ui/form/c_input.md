@@ -97,3 +97,11 @@ uiInput.closeAssist();
 
 >  如果助理没有打开，则无效
 
+## focus
+
+让输入框聚焦
+
+```
+uiInput.focus();
+```
+

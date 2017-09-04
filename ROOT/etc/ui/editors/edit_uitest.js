@@ -1,7 +1,7 @@
 ({
 	key : "o_edit_test",
 	text : "TestEditor",
-	//actions : [ "@::new", "::properties" ],
+	actions : [ "@::zui_debug" ],
 	outline : false,
 	uiType : "ui/support/uitester",
 	uiConf : {}

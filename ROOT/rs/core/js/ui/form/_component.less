@@ -147,7 +147,7 @@
         background: rgba(0,0,0,0); z-index:10;
     }
     > .ass-box {
-        z-index: 10; background: @cmenu_b; color:@cmenu_f; 
+        z-index: 12; background: @cmenu_b; color:@cmenu_f; 
         border:1px solid @cborder1; box-shadow: 4px 4px 6px @cshadow;
         padding:@d4; border-radius:@d2;
     }
@@ -310,6 +310,52 @@
         }
     }
     ul:after{@clr();}
+}
+
+//----------------------------------------------------------------
+// 组合表格控件
+.com-combotable {
+    .cct-list {
+        > table {
+            width:100%; border-spacing: 1px; background: @cb1;
+            th {
+                color:@cf2; background: @cb2; padding:@d2;
+                font-size: @f1;
+            }
+            td {padding:@d0;}
+            td[opt] {
+                padding:0;
+                span { transition:.3s;
+                    text-align: center; opacity: .4;
+                    padding:@d2; cursor: pointer;
+                    display: block;
+                }
+                span:hover {opacity: 1.0;}
+            }
+            td[opt="del"] span:hover {
+                color:@c6; transform: scale(1.3) rotate(360deg);
+            }
+            td[opt="up"] span:hover {
+                transform: scale(1.2); 
+            }
+            td[opt="down"] span:hover {
+                transform: scale(1.2); 
+            }
+            tbody tr:nth-child(2n) {
+                background: @cb2;
+            }
+            tbody tr:first-child td[opt="up"]   span {visibility: hidden;}
+            tbody tr:last-child  td[opt="down"] span {visibility: hidden;}
+        }
+        > .cct-empty {
+            padding:@d3; text-align: center; font-size: @f3;
+            color:@c2;
+        }
+    }
+    > .cct-input {
+        padding:@d3 @d0 @d0 @d0;
+    }
+
 }
 
 //----------------------------------------------------------------

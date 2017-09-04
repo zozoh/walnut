@@ -17,18 +17,24 @@ return ZUI.def("ui.form_com_list", EnumListSupport({
     i18n : "ui/form/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt){
+        $z.setUndefined(opt, "value", opt.text);
+
         this.__setup_dft_display_func(opt);
 
         $z.setUndefined(opt, "drawOnSetData", true);
     },
     //...............................................................
     events : {
+        // 鼠标按下改变高亮 
         "mousedown li" : function(e){
             this.arena.find("[current]").removeAttr("current");
             $(e.currentTarget).attr("current", "yes");
         },
+        // 完成点击
         "click li" : function(){
             this.__on_change();
+            // 尝试让父控件（比如作为 c_input 的助理）也发出改变事件
+            $z.invoke(this.parent, "__on_change");
         }
     },
     //...............................................................
@@ -105,6 +111,7 @@ return ZUI.def("ui.form_com_list", EnumListSupport({
                 jIcon.html(icon);
                 hasIcon = true;
             }
+            //console.log(val)
 
             // 文字
             var text = val;
@@ -169,6 +176,8 @@ return ZUI.def("ui.form_com_list", EnumListSupport({
             // 重新解析项目
             UI.setItems(opt.items, function(){
                 UI.__set_current(val);
+                // 尝试调用父控件的 redock，通常是作为 c_input 的 combolist 会用到
+                $z.invoke(UI.parent, "redockAssist");
             }, params);
         }
         // 静态的，嗯，直接设置就好了

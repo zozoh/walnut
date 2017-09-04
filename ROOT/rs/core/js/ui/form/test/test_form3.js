@@ -32,135 +32,77 @@ return ZUI.def("ui.test_form3", {
             on_change : function(key, val){
                 console.log("form change:", key, val);
             },
-            title : "更多测试表单",
+            title : "测试高级控件",
             uiWidth : "all",
             fields : [{
-                key   : "poli",
-                title : "政治面貌",
-                tip   : "你就看着填吧",
-                type  : "int",
-                editAs : "droplist",
-                emptyArrayAsUndefined : true,
-                uiWidth : "auto",
-                dft : 1,
-                uiConf : {
-                    items : ["党员","团员","群众","敌特"]
-                }
-            },{
-                key   : "nationality",
-                title : "国籍",
+                key   : "abc_list",
+                title : "物品列表",
                 tip   : "你就看着填吧",
                 type  : "object",
-                editAs : "droplist",
-                emptyArrayAsUndefined : true,
                 uiWidth : "auto",
-                dft : 1,
+                uiType : "@combotable",
                 uiConf : {
-                    multi : 1,
-                    items : ["中国","美国","日本","天堂","地狱","!!!一个随便什么不知道特别名字的地方我很想去但是去不了的地方*","A","B","C","D","E"]
-                }
-            },{
-                key   : "FTF",
-                title : "饮食口味",
-                tip   : "你就看着填吧",
-                type  : "object",
-                editAs : "checklist",
-                dft   : 1,
-                uiConf : {
-                    items : [{
-                        icon:'<i class="fa fa-fire"></i>',
-                        text:"辣"
-                    },{
-                        text:"酸"
-                    },{
-                        text:"清淡再清淡"
-                    },{
-                        text:"卤味"
-                    }]
-                }
-            },{
-                key   : "Fleval",
-                title : "攻击能力级别",
-                tip   : "给你一拳看你是不是能受得了",
-                type  : "int",
-                editAs : "radiolist",
-                dft   : 1,
-                uiConf : {
-                    items : ["蠢萌","很厉害","靠无敌了","弗利萨"]
-                }
-            },{
-                key   : "yaoyao",
-                title : "抓药",
-                type  : "string",
-                editAs : "radiolist",
-                dft   : "全部抓药 全部代煎 等取",
-                uiConf : {
-                    items : [{val:"全部抓药 全部代煎 送",text:"全部抓药 全部代煎 送  "},{val:"全部抓药 全部代煎 等取",text:"全部抓药 全部代煎 等取 "},{val:"全部抓药 自煎",text:"全部抓药 自煎 "},{val:"全部抓药 自煎 （三七自备）",text:"全部抓药 自煎 （三七自备）"},{val:"全部抓药 自煎 顺丰",text:"全部抓药 自煎 顺丰"},{val:"7付代煎等取，7付自煎",text:"7付代煎等取，7付自煎 "},{val:"只拿7付代煎",text:"只拿7付代煎 "},{val:"不抓药",text:"不抓药"},{val:"待定",text:"待定"}]
-                }
-            },{
-                key   : "myphoto",
-                title : "我的图片",
-                tip   : "随便选个图片",
-                type  : "object",
-                uiWidth : "auto",
-                uiType : "ui/picker/opicker",
-                uiConf : {
-                    clearable : false,
-                    parseData : function(obj){
-                        if(obj)
-                            return Wn.getById(obj.fid);
-                    },
-                    formatData : function(o){
-                        return o ? {fid:o.id} : null;
-                    }
-                }
-            },{
-                key   : "myfiles",
-                title : "我的多个文件",
-                tip   : "随便选个一些文件和文件夹咯",
-                type  : "object",
-                //dft   : [{fid:'t6c2m2r5a0htep2rto785n588f'},{fid:'3d7gf4mdtghbqqrknp2snkpo3a'}],
-                uiType : "ui/picker/opicker",
-                uiConf : {
-                    setup : {
-                        checkable : true
-                    },
-                    parseData : function(objs){
-                        var re = [];
-                        if(objs){
-                            objs.forEach(function(o, index){
-                                re.push(Wn.getById(o.fid));
-                            });
+                    fields : [{
+                            title  : "ID",
+                            key    : "id",
+                            hide   : true,
+                        }, {
+                            title  : "名称",
+                            key    : "nm",
+                            width  : "60%",
+                            uiType : "@label",
+                        }, {
+                            title  : "价格",
+                            key    : "price",
+                            type   : "int",
+                            dft    : 3,
+                            width  : "20%",
+                            uiType : "@input",
+                        }, {
+                            title  : "数量",
+                            key    : "amont",
+                            type   : "int",
+                            dft    : 1,
+                            width  : "20%",
+                            uiType : "@input",
+                        }],
+                    combo : {
+                        items : 'obj ~ -match \'race:"DIR", nm:"^{{val}}"\' -limit 10 -json -l -e "^(id|tp|race|nm)$"',
+                        itemArgs : {val : ".+"},
+                        icon  : function(o){
+                            return Wn.objIconHtml(o);
+                        },
+                        text : function(o) {
+                            return o.nm;
+                        },
+                        filter : function(o, dataList) {
+                            for(var i=0; i<dataList.length; i++) {
+                                if(o.id == dataList[i].id)
+                                    return false;
+                            }
+                            return true;
                         }
-                        return re;
                     },
-                    formatData : function(os){
-                        var re = [];
-                        os.forEach(function(o, index){
-                            re.push({fid:o.id});
-                        });
-                        return re;
+                    getObj : function(val) {
+                        var nm = $.trim(val);
+                        if(!nm)
+                            return null;
+                        return Wn.fetch("~/" + nm, true);
                     }
-                }
-            },{            
-                key   : "comment",
-                title : "补充说明",
-                tip   : "随便写点什么咯",
-                type  : "string",
-                editAs : "text",
-                uiConf : {
-                    height: 120
                 }
             }]
         }).render(function(){
             this.setData({
-                id: o.id,
-                x:100, y:80, 
-                birthday : "1977-09-21",
-                name:'I am zozoh', 
-                favColor : null,
-                sex:"m",
-                live:true,
+                abc_list : [{
+                        "id":"vnt8bmelr4g9mp5tsus5hpsfts",
+                        "nm":".hmaker",
+                        "price":null,
+                        "amont":null
+                    },{
+                        "id":"7jtsk47i5ghbuqiggn9c8grgjf",
+                        "nm":".thumbnail",
+                        "price":null,
+                        "amont":null}]
                 //myphoto : {fid:'4thoboi83khmdqmqqvf5arogki'}
             });
         });
