@@ -944,8 +944,8 @@ define(function (require, exports, module) {
         },
         // 得到多国语言字符串
         msg: function (str, ctx, msgMap) {
-            if (!str)
-                return;
+            if (!str || !_.isString(str))
+                return str;
             // 消息字符串是 "e.com.xxx : some reasone" 格式的
             var key = str;
             var reason = "";
