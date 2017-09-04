@@ -397,13 +397,14 @@ public class WnIoImpl implements WnIo {
                     throw Er.create("e.io.rm.noemptynode", o);
                 }
 
-                // 删除树节点和索引
-                tree.delete(o);
-
-                // 文件删除
+                // 删除存储
                 if (!o.isDIR()) {
                     store.delete(o);
                 }
+
+                // 删除树节点和索引
+                tree.delete(o);
+
             }
 
             // 触发同步时间修改

@@ -399,7 +399,6 @@ public class WnStoreImpl implements WnStore {
         WnBucket bu = __check_bucket(o);
         if (null != bu)
             bu.free();
-
     }
 
     @Override
@@ -420,7 +419,7 @@ public class WnStoreImpl implements WnStore {
         // 分析文件数据
         String data = o.data();
 
-        // 如果是映射到本地文件，只读
+        // 如果是映射到本地文件，只读 
         if (null != data && data.startsWith("file://")) {
             throw Er.create("e.io.local.readonly", o);
         }

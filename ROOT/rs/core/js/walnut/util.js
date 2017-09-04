@@ -1366,11 +1366,11 @@ var Wn = {
         }
 
         // 定义对象的处理，只有符号标准的对象，才会存到缓存里
-        var _cache_obj = function(obj){
-            if(obj.id && obj.nm && obj.race && obj.ct && obj.lm && obj.c && obj.g){
-                Wn.saveToCache(obj);
-            }
-        };
+        // var _cache_obj = function(obj){
+        //     if(obj.id && obj.nm && obj.race && obj.ct && obj.lm && obj.c && obj.g){
+        //         Wn.saveToCache(obj);
+        //     }
+        // };
 
         // 定义处理函数
         var handler = function(json){

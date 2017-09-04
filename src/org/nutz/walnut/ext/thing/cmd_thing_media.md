@@ -19,27 +19,34 @@
 # 示例
 
     # 列出一个 thing 所有的媒体文件，空的返回空数组 []
-    thing xxx media 45ad6823..
+    thing xxx media xxx
         
     # 添加一个空图片，如果已存在则抛错
-    thing xxx media 45ad6823.. -add abc.jpg
+    thing xxx media xxx -add abc.jpg
         
     # 添加一个空图片，如果已存在则返回
-    thing xxx media 45ad6823.. -add abc.jpg -overwrite
+    thing xxx media xxx -add abc.jpg -overwrite
         
     # 添加一个空图片，如果已存在则根据模板创建新的
-    thing xxx media 45ad6823.. -add abc.jpg -dupp
+    thing xxx media xxx -add abc.jpg -dupp
         
     # 添加一个图片，内容来自另外一个文件，如果已存在则抛错
     # 如果想不抛错，参见上面创建空文件的例子，根据需要添加
     # -overwrite 或者 -dupp 参数
-    thing xxx media 45ad6823.. -add abc.jpg -read id:45vff..
+    thing xxx media xxx -add abc.jpg -read id:45vff..
+    
+    # 输出图片内容，将直接输出图片的二进制内容
+    thing xxx media xxx -cat abc.jpg
+    
+    # 同理，如果想输出一个附件内容，可以是
+    # 如果附件是文件会按照文本输出，否则输出二进制 
+    thing xxx attachment xxx -cat xyz.txt
         
     # 添加一个图片，内容来自标准输入，如果已存在则抛错
-    cat abc.jpg | thing xxx media 45ad6823.. -add abc.jpg -read  
+    cat abc.jpg | thing xxx media xxx -add abc.jpg -read  
     
     # 删除某个媒体，不存在抛错
-    thing xxx media 45ad6823.. -del abc.jpg
+    thing xxx media xxx -del abc.jpg
     
     # 删除某个媒体，不存在抛错也不报错
-    thing xxx media 45ad6823.. -del abc.jpg -quiet
+    thing xxx media xxx -del abc.jpg -quiet

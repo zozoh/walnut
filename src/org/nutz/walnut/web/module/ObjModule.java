@@ -332,6 +332,12 @@ public class ObjModule extends AbstractWnModule {
                      @ReqHeader("User-Agent") String ua,
                      HttpServletRequest req,
                      HttpServletResponse resp) {
+        // 截取参数
+        int pos = str.lastIndexOf('?');
+        if (pos > 0) {
+            str = str.substring(0, pos);
+        }
+
         // 确保 str 的形式正确
         str = __format_str(str, isAbsolutePath);
 
