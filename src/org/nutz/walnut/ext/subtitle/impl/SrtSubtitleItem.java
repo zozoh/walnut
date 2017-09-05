@@ -67,9 +67,9 @@ public class SrtSubtitleItem extends SubtitleItem {
         sb.append(index).append('\n');
 
         // 时间
-        sb.append(beginTime.toString(false, true));
+        sb.append(beginTime.toString("HH:mm:ss,SSS"));
         sb.append(" --> ");
-        sb.append(endTime.toString(false, true));
+        sb.append(endTime.toString("HH:mm:ss,SSS"));
         sb.append('\n');
 
         // 内容
