@@ -1,17 +1,24 @@
 (function($z){
 $z.declare([
     'zui',
-    'jquery-plugin/pmoving/pmoving',
+    'jquery-plugin/moving/moving',
 ], function(ZUI){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
-    <div code-id="timeline.obj" class="tmln-obj"><div class="tmln-objw">
-        <header class="ui-clr"><dt></dt><em></em></header>
-        <section></section>
-        <footer><span>==</span></footer>
-        <div class="tmln-obj-del"><i class="zmdi zmdi-close"></i></div>
-    </div></div>
+    <div code-id="timeline.obj" class="tmln-obj">
+        <div class="tmln-objw">
+            <div class="tmln-obj-con">
+                <header class="ui-clr"><dt></dt><em></em></header>
+                <section></section>
+                <footer><span>==</span></footer>
+            </div>
+            <div class="tmln-obj-del" data-balloon="{{del}}"
+                data-balloon-pos="left">
+                <i class="zmdi zmdi-close"></i>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="ui-arena tmln" ui-fitparent="yes"><div class="tmln-con">
     <div class="tmln-bg"></div>
@@ -146,8 +153,8 @@ return ZUI.def("ui.timeline", {
     __context : function(jBlock) {
         return {
             $block : jBlock,
-            $info  : jBlock.find(">.tmln-objw>header>em"),
-            $main  : jBlock.find(">.tmln-objw>section"),
+            $info  : jBlock.find("> .tmln-objw > .tmln-obj-con > header > em"),
+            $main  : jBlock.find("> .tmln-objw > .tmln-obj-con > section"),
             ui     : this
         };
     },
@@ -162,7 +169,7 @@ return ZUI.def("ui.timeline", {
 
         // 修改显示值
         var time_text = $z.timeText(tFrom, "12H") + " - " + $z.timeText(tTo, "12H");
-        jBlock.find("> .tmln-objw > header > dt").text(time_text);
+        jBlock.find("> .tmln-objw > .tmln-obj-con > header > dt").text(time_text);
 
         // 得到 top 和 height 的比例
         var scaleTop    = tFrom.sec / 86400;
@@ -225,7 +232,7 @@ return ZUI.def("ui.timeline", {
         }
 
         // 响应各层的鼠标拖拽事件
-        jCon.pmoving({
+        jCon.moving({
             trigger   : ".tmln-obj",
             mode      : "y",
             maskClass : "tmln-mask",
@@ -233,10 +240,12 @@ return ZUI.def("ui.timeline", {
                 var jq = $(this.Event.target);
                 // 得到 tmln-obj
                 this.$tmlnObj = jq.closest(".tmln-obj");
-                this.rect.tmlnObj = $z.rect(this.$tmlnObj);
+                this.rect.tmlnObj = $D.rect.gen(this.$tmlnObj);
 
                 // 确定最小高度
-                this.minHeight = this.$tmlnObj.find(">.tmln-objw>header").outerHeight(true);
+                this.minHeight = this.$tmlnObj
+                    .find("> .tmln-objw > .tmln-obj-con > header")
+                        .outerHeight(true);
 
                 // 标识遮罩层
                 if(jq.closest("footer").size() > 0){
@@ -249,7 +258,6 @@ return ZUI.def("ui.timeline", {
                     this.$mask.addClass("tmln-obj-move");
                 }
             },
-            autoUpdateTriggerBy : null,
             boundary : "100%",
             on_ing : function() {
                 var tlo  = this.$tmlnObj.data("@TLO");
@@ -259,7 +267,7 @@ return ZUI.def("ui.timeline", {
                 var css = {}
                 // 模式: move
                 if("obj-move" == this.aMode) {
-                    css.top = this.rect.inview.top;
+                    css.top = this.css.rect.top;
                     // 改变 from 和 to
                     var du = tTo.sec - tFrom.sec;
                     var fromSec = Math.round((css.top / this.rect.viewport.height) * 86400 / 1800) * 1800;
@@ -268,7 +276,7 @@ return ZUI.def("ui.timeline", {
                 }
                 // 模式: resize
                 else {
-                    css.height = Math.max(this.minHeight, this.rect.trigger.bottom - this.rect.tmlnObj.top);
+                    css.height = Math.max(this.minHeight, this.rect.current.bottom - this.rect.tmlnObj.top);
                     // 仅仅改变 to
                     var toSec = tFrom.sec + Math.round((css.height / this.rect.viewport.height) * 86400 / 1800) * 1800;
                     tlo.to = $z.parseTime(toSec).key;

@@ -412,6 +412,12 @@
             // 准备返回值
             var re = asValueArray ? [] : {};
 
+            // 如果是字符串，并且不是 ^ 开头的正则，作为半角
+            // 逗号分隔的 key 列表
+            if(_.isString(regex) && !/^(!)?\^/.test(regex)){
+                regex = regex.split(/[ \t]*,[ \t]*/);
+            }
+
             // 数组，表示值的列表，直接读取
             if (_.isArray(regex)) {
                 for (var i = 0; i < regex.length; i++) {
@@ -443,10 +449,9 @@
                     }
                     REG = new RegExp(str);
                 }
-                // 必须为半角逗号分隔的 key 列表
+                // 不可能啊
                 else {
-                    var keys = str.split(/[ \t]*,[ \t]*/);
-                    REG = new RegExp("^(" + keys.join("|") + ")$");
+                    throw "Impossible! " + regex;
                 }
             }
 
@@ -3738,7 +3743,8 @@
                 "zIndex": 99999,
             });
             // 得到遮罩层的大小并生成画布
-            var R_VP = $z.rect(jMark);
+            var R_VP = $D.rect.gen(jMark);
+            console.log(R_VP)
             var jCanv = $('<canvas>').appendTo(jMark).attr({
                 "width": R_VP.width,
                 "height": R_VP.height,
@@ -3764,7 +3770,7 @@
                 g2d.strokeStyle = "#F80";
                 g2d.lineWidth = 2;
                 // 计算矩形
-                var rect = zUtil.rect_union_by(jTa);
+                var rect = $D.rect.gen(jTa);
                 var args = zUtil.pick(rect, "left,top,width,height", true);
                 // 绘制提示区域高亮矩形
                 g2d.clearRect.apply(g2d, args);

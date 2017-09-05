@@ -218,7 +218,7 @@ var methods = {
             $('<div class="hm-skin-mask">').insertBefore(jCurrent);
 
             // 将原来的列表对象变成 fix 模式浮动
-            var cu_css = $z.rect_relative($z.rect(jCurrent,false,true), $z.winsz(), true);
+            var cu_css = $D.rect.relative($D.rect.gen(jCurrent,false,true), $z.winsz(), true);
             jCurrent.css(_.extend(_.pick(cu_css, "top","right"), {
                 "position" : "fixed",
                 "left":"", "bottom":"", "width":"", "height":"",
@@ -270,9 +270,9 @@ var methods = {
 
             // 确保不超过边界
             var viewport = $z.winsz();
-            var rect = $z.rect(jAll, true);
-            var rect2 = $z.rect_clip_boundary(rect, viewport);
-            jAll.css($z.rectObj(rect2, "top,left,height"));
+            var rect = $D.rect.gen(jAll, true);
+            var rect2 = $D.rect.boundaryIn(rect, viewport);
+            jAll.css($z.pick(rect2, "top,left,height"));
 
         });
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

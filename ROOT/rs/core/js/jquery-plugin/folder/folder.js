@@ -4,8 +4,8 @@
 (function($, $z){
 //...........................................................
 function is_in_viewport(jViewport, jLast){
-    var viewport = $z.rect(jViewport);
-    var rect     = $z.rect(jLast);
+    var viewport = $D.rect.gen(jViewport);
+    var rect     = $D.rect.gen(jLast);
     return rect.right <= viewport.right;
 }
 function create_folder_ele(opt){

@@ -1044,10 +1044,10 @@ define(function (require, exports, module) {
             var html = '<div class="ui-loading">';
             html += '<i class="fa fa-spinner fa-pulse"></i> <span>' + this.msg("loading") + '</span>';
             html += '</div>';
-            var rect = $z.rect(this.$el);
+            var rect = $D.rect.gen(this.$el);
             $(html).appendTo(this.$el).css(_.extend({
                 "position": "fixed",
-            }, $z.rectObj(rect, "top,left,width,height")));
+            }, $z.pick(rect, "top,left,width,height")));
         },
         hideLoading: function () {
             this.$el.find(".ui-loading").remove();
@@ -1810,9 +1810,9 @@ define(function (require, exports, module) {
             if (jMark.length == 0) {
                 jMark = $('<div class="ui-debug-mark">').appendTo(UI.el.ownerDocument.body);
             }
-            var rect = $z.rect(UI.$el);
+            var rect = $D.rect.gen(UI.$el);
 
-            jMark.css(_.extend($z.rectObj(rect, "top,left,width,height"), {
+            jMark.css(_.extend($z.pick(rect, "top,left,width,height"), {
                 "position": "fixed",
                 "z-index": 999,
                 "border": "1px dashed #F0F",
@@ -1936,7 +1936,7 @@ define(function (require, exports, module) {
                 }
 
                 // 计算自己的面积
-                var rect = $z.rect(UI.$el);
+                var rect = $D.rect.gen(UI.$el);
                 var area = rect.width * rect.height;
                 jSelf.attr("no-area", area ? null : "yes");
 

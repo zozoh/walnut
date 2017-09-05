@@ -103,10 +103,10 @@ return ZUI.def("ui.form_com_color", {
         $z.dock(jBox,jDrop,"HA");
 
         // 下面不要让下拉框超出窗口
-        var rect = $z.rect(jDrop);
+        var rect = $D.rect.gen(jDrop);
         var viewport = $z.winsz();
-        var rect2 = $z.rect_clip_boundary(rect, viewport);
-        jDrop.css($z.rectObj(rect2, "top,left"));
+        var rect2 = $D.rect.boundaryIn(rect, viewport);
+        jDrop.css($z.pick(rect2, "top,left"));
     },
     //...............................................................
     // 隐藏颜色提取器 

@@ -167,19 +167,19 @@ return ZUI.def("ui.obrowser_main", {
     },
     //..............................................
     isActived : function(){
-        return this.subUI("view").getActived();
+        return this.getActived() ? true : false;
     },
     //..............................................
     getActived : function(){
-        return this.subUI("view").getActived();
+        return $z.invoke(this.subUI("view"), "getActived");
     },
     //..............................................
     setActived : function(arg){
-        this.subUI("view").setActived(arg);
+        return $z.invoke(this.subUI("view"), "setActived", [arg]);
     },
     //..............................................
     getChecked : function(){
-        return this.subUI("view").getChecked();
+        return $z.invoke(this.subUI("view"), "getChecked");
     }
     //..............................................
 });

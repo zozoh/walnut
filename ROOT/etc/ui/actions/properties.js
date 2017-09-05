@@ -3,8 +3,15 @@
 	text : "i18n:properties",
 	type : "button",
 	handler : function($ele, a) {
-		var UI = this.browser();
-		console.log("haha")
+		var UI = $z.invoke(this, "browser");
+		
+		if(!UI)
+			UI = $z.invoke(this.parent, "browser");
+		
+		if(!UI) {
+			alert("No connect with browser!");
+			return;
+		}
 		
 		// 获取当前的对象
 		var o = $z.invoke(UI, "getActived");

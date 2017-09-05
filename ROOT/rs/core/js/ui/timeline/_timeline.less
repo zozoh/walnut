@@ -3,9 +3,11 @@
 @objFH  : 6px;
 
 .tmln > .tmln-con { @noselect();
-    position:relative; overflow: auto; width:100%; height:100%;
+    position:relative;
+    overflow-x: hidden; overflow-y: auto;
+    width:100%; height:100%;
     .tmln-bg {
-        width:100%; height:100%;
+        position: absolute; top:0; left:0; bottom:0; right:0;
         @flex(); flex-flow:column nowrap;
         .tmln-hour {
             flex: 1 1 auto;
@@ -17,7 +19,7 @@
     }
 
     .tmln-ruler { background: rgba(0,0,0,0.4);
-        position: absolute; top:0; left:0; height:100%; width: @rulerW;
+        position: absolute; top:0; left:0; bottom:0; width: @rulerW;
         border-right:1px solid @cborder0;
         @flex(); flex-flow:column nowrap;
         .tmln-rui {
@@ -28,35 +30,45 @@
 
     .tmln-layer {
         > .tmln-obj {
-            position: absolute; top:0; left:@rulerW + 1px; right:@d2; height:4%;
+            position: absolute; top:0; left:@rulerW + 1px; right:@d5; height:4%;
             background-color: rgba(88,88,255,0.8); 
             border:1px solid rgba(66,66,200,0.8);
-            overflow: hidden;
+            padding:1px;
             > .tmln-objw {
                 width: 100%; height:100%; position: relative;
-                font-size: @f1; padding-bottom: @objFH;
-                > header {
-                    font-weight: bold; padding:@d0 @d6 @d0 @d2;
-                    dt {float:left;}
-                    em {float:right;}
+                > .tmln-obj-con {
+                    width: 100%; height:100%;
+                    font-size: @f1; padding-bottom: @objFH;
+                    overflow: hidden;
+                    > header {
+                        font-weight: bold; padding:@d0 @d6 @d0 @d2;
+                        dt {float:left;}
+                        em {float:right;}
+                    }
+                    > section {
+                        padding:@d2;
+                    }
+                    > footer {
+                        text-align: center; font-size: @f0;
+                        position: absolute;bottom: 0; left:0; right:0;  
+                        cursor: ns-resize; height:@objFH; line-height: @objFH;
+                        > * {display: none;}
+                    }
+                    > footer:hover > * {display: inline;}
                 }
-                > section {
-                    padding:@d2;
-                }
-                > footer {
-                    text-align: center; font-size: @f0;
-                    position: absolute;bottom: 0; left:0; right:0;  
-                    cursor: ns-resize; height:@objFH; line-height: @objFH;
-                    > * {display: none;}
-                }
-                > footer:hover > * {display: inline;}
                 > .tmln-obj-del {
-                    position: absolute; top:0; right:0; padding:@d0 @d1;
-                    cursor: pointer; transition:0.3s;
+                    position: absolute; top:-12px; right:-12px;
+                    width:24px; height:24px;
+                    cursor: pointer; transition: transform 0.3s;
                     font-size: @f4;
+                    @flex(); justify-content:center; align-items:center;
+                    background: @cb1; color:@cf1;
+                    border:2px solid @cborder1;
+                    border-radius: 50%;
                 }
                 > .tmln-obj-del:hover {
-                    font-size: @f5; font-weight: bolder; color:@c1; transform: scale(1.2) rotate(360deg);
+                    color:#FFF; background:@c6;
+                    transform: rotate(360deg);
                 }
             }
         } 

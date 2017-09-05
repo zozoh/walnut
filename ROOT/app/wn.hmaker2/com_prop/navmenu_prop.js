@@ -415,9 +415,9 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
         // 让高亮的滚屏出来
         var jCurrentItem = jList.find('[current]');
         if(jCurrentItem.length > 0) {
-            var rectList = $z.rect(jList);
-            var rectItem = $z.rect(jCurrentItem);
-            // console.log($z.rectObj(rectList,"top,bottom"), $z.rectObj(rectItem, "top,height"))
+            var rectList = $D.rect.gen(jList);
+            var rectItem = $D.rect.gen(jCurrentItem);
+            // console.log($z.pick(rectList,"top,bottom"), $z.pick(rectItem, "top,height"))
             if(rectItem.bottom >= rectList.bottom || rectItem.top <= rectList.top){
                 jCurrentItem[0].scrollIntoView(false);
             }

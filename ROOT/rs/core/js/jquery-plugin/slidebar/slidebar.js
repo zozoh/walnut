@@ -29,7 +29,7 @@ function try_move_pointer(jSb){
     jSb.attr("pointer-moving", "yes");
 
     // 得到一下主体区域
-    var viewport = $z.rect(jSb);
+    var viewport = $D.rect.gen(jSb);
 
     //console.log($(jSb[0].ownerDocument.body).size());
 
@@ -73,8 +73,8 @@ function update_pointer_by_pos(ele, pos){
     var jSb = $root(ele);
     var opt = _opt(jSb);
     var jPo = jSb.find(".sb-pointer");
-    var viewport = $z.rect(jSb);
-    var rect     = $z.rect(jPo);
+    var viewport = $D.rect.gen(jSb);
+    var rect     = $D.rect.gen(jPo);
 
     // 水平
     if("horizontal" == opt.mode){
@@ -89,8 +89,8 @@ function update_pointer_by_pos(ele, pos){
 function get_pos_by_pointer(ele){
     var jSb = $root(ele);
     var opt = _opt(jSb);
-    var rect     = $z.rect(jSb.find(".sb-pointer"));
-    var viewport = $z.rect(jSb);
+    var rect     = $D.rect.gen(jSb.find(".sb-pointer"));
+    var viewport = $D.rect.gen(jSb);
 
     // 水平
     if("horizontal" == opt.mode){
