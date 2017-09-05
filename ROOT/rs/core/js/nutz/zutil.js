@@ -2423,7 +2423,7 @@
                     ms  = Math.round(input - sec * 1000);
                 }else{
                     sec = parseInt(input);
-                    ms  = 0;
+                    ms  = Math.round(input*1000 - sec*1000);
                 }
                 ti.hour   = Math.min(23, parseInt(sec / 3600));
                 ti.minute = Math.min(59, parseInt((sec - ti.hour * 3600) / 60));
@@ -2438,19 +2438,107 @@
             ti.value  = ti.hour * 3600 + ti.minute * 60 + ti.second;
             ti.valueInMillisecond = ti.value * 1000 + ti.millisecond;
             // 增加一个函数
-            ti.toString = function (ignoreZeroSecond, alwaysShowMillisecond) {
-                var re = zUtil.alignRight(this.hour, 2, '0');
-                re += ":" + zUtil.alignRight(this.minute, 2, '0');;
-                if (ignoreZeroSecond 
-                    && this.second == 0 
-                    && this.millisecond == 0) {
-                    return re;
+            ti.toString = function (fmt) {
+                // 默认的格式化方式
+                if(!fmt) {
+                    fmt = "HH:mm";
+                    // 到毫秒
+                    if (0 != this.millisecond) {
+                        fmt += ":ss.SSS";
+                    }
+                    // 到秒
+                    else if (0 != this.second) {
+                        fmt += ":ss";
+                    }
                 }
-                re += ":" + zUtil.alignRight(this.second, 2, '0');
-                if (!alwaysShowMillisecond && this.millisecond == 0) {
-                    return re;
+                // 进行格式化
+                var sb  = "";
+                var reg = /a|[HhKkms]{1,2}|S(SS)?/g;
+                var pos = 0;
+                var m;
+                while (m = reg.exec(fmt)) {
+                    //console.log(reg.lastIndex, m.index, m.input)
+                    var l = m.index;
+                    // 记录之前
+                    if (l > pos) {
+                        sb += fmt.substring(pos, l);
+                    }
+                    // 偏移
+                    pos = reg.lastIndex;
+
+                    // 替换
+                    var s = m[0];
+                    if ("a" == s) {
+                        sb += this.value > 43200 ? "PM" : "AM";
+                    }
+                    // H Hour in day (0-23)
+                    else if ("H" == s) {
+                        sb += this.hour;
+                    }
+                    // k Hour in day (1-24)
+                    else if ("k" == s) {
+                        sb += (this.hour + 1);
+                    }
+                    // K Hour in am/pm (0-11)
+                    else if ("K" == s) {
+                        sb += (this.hour % 12);
+                    }
+                    // h Hour in am/pm (1-12)
+                    else if ("h" == s) {
+                        sb += ((this.hour % 12) + 1);
+                    }
+                    // m Minute in hour
+                    else if ("m" == s) {
+                        sb += this.minute;
+                    }
+                    // s Second in minute
+                    else if ("s" == s) {
+                        sb += this.second;
+                    }
+                    // S Millisecond Number
+                    else if ("S" == s) {
+                        sb += this.millisecond;
+                    }
+                    // HH 补零的小时(0-23)
+                    else if ("HH" == s) {
+                        sb += zUtil.alignRight(this.hour, 2, '0');
+                    }
+                    // kk 补零的小时(1-24)
+                    else if ("kk" == s) {
+                        sb += zUtil.alignRight(this.hour + 1, 2, '0');
+                    }
+                    // KK 补零的半天小时(0-11)
+                    else if ("KK" == s) {
+                        sb += zUtil.alignRight(this.hour % 12, 2, '0');
+                    }
+                    // hh 补零的半天小时(1-12)
+                    else if ("hh" == s) {
+                        sb += zUtil.alignRight((this.hour % 12) + 1, 2, '0');
+                    }
+                    // mm 补零的分钟
+                    else if ("mm" == s) {
+                        sb += zUtil.alignRight(this.minute, 2, '0');
+                    }
+                    // ss 补零的秒
+                    else if ("ss" == s) {
+                        sb += zUtil.alignRight(this.second, 2, '0');
+                    }
+                    // SSS 补零的毫秒
+                    else if ("SSS" == s) {
+                        sb += zUtil.alignRight(this.millisecond, 3, '0');
+                    }
+                    // 不认识
+                    else {
+                        sb.append(s);
+                    }
                 }
-                return re + "," + zUtil.alignRight(this.millisecond, 3, '0');
+                // 结尾
+                if (pos < fmt.length) {
+                    sb.append(fmt.substring(pos));
+                }
+
+                // 返回
+                return sb.toString();
             };
             ti.valueOf = ti.toString;
             // 嗯，返回吧

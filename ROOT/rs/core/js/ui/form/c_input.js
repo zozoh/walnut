@@ -32,6 +32,13 @@ return ZUI.def("ui.form_com_input", {
     },
     //...............................................................
     events : {
+        // 标识输入框聚焦状态
+        "focus > .com-input > .box > input" : function(e){
+            $(e.currentTarget).attr("is-focus", "yes")
+        },
+        "blur > .com-input > .box > input" : function(e){
+            $(e.currentTarget).removeAttr("is-focus");
+        },
         // 输入内容修改
         "change > .com-input > .box > input" : function(){
             //console.log("!!! I am changed");
@@ -114,7 +121,7 @@ return ZUI.def("ui.form_com_input", {
         // 关闭辅助框
         "click > .com-input > .ass-mask" : function(){
             this.closeAssist();
-        }
+        },
     },
     //...............................................................
     redraw : function(){
@@ -351,7 +358,17 @@ return ZUI.def("ui.form_com_input", {
     },
     //...............................................................
     focus : function(){
-        this.arena.find("input").focus();
+        this.arena.find(" > .box > input").focus();
+    },
+    //...............................................................
+    isFocus : function(){
+        return this.arena.find(" > .box > input").attr("is-focus")
+                ? true : false;
+    },
+    //...............................................................
+    isBlur : function(){
+        return this.arena.find(" > .box > input").attr("is-focus")
+                ? false : true;
     },
     //...............................................................
     resize : function(){
