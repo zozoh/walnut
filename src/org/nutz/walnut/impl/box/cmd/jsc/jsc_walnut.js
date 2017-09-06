@@ -88,5 +88,10 @@ var $wn = {
 			return jsobj;
 		}
 		return this.sys.json(jsobj);
+	},
+	
+	getObjById: function(id) {
+		var objStr = this.sys.exec2("obj id:" + id);
+    	return eval('(' + objStr + ')');
 	}
 };
