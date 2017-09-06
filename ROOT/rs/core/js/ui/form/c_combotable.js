@@ -116,7 +116,9 @@ return ZUI.def("ui.form_com_combotable", {
 
         // 预先加载字段类型
         if(defer_ui_types.length > 0){
+            defer_keys.push("fld_ui");
             seajs.use(defer_ui_types, function(){
+                //console.log("hahah")
                 UI.defer_report("fld_ui");
             });
         }
@@ -154,6 +156,7 @@ return ZUI.def("ui.form_com_combotable", {
             defer_keys.push("combo");
         }
         // 延迟加载了
+        //console.log("return:", defer_keys)
         return defer_keys;
     },
     //...............................................................
