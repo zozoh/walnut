@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.RandomAccessFile;
 import java.security.MessageDigest;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
@@ -130,7 +131,16 @@ public class cmd_videoc extends JvmExecutor {
             }
             // 生成主文件
             if (mode == null || mode.matcher("main_video").find()) {
-                if (params.get("crop", "").equals("")) {
+                String _crop = params.get("crop", "");
+                if (Strings.isBlank(_crop)) {
+                    String tmp = obj.name();
+                    if (pattern.matcher(tmp).find()) {
+                        String cut = tmp.substring(0, tmp.indexOf('_'));
+                        String size = tmp.substring(tmp.indexOf('_')+1, tmp.indexOf('~'));
+                        _crop = size.replace('x', ':') + ":" + cut.replace('-', ':');
+                    }
+                }
+                if (Strings.isBlank(_crop)) {
                     seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
                     cmd = seg.render(new SimpleContext(vc_params)).toString();
                     log.debug("cmd: " + cmd);
@@ -143,7 +153,7 @@ public class cmd_videoc extends JvmExecutor {
                     sys.io.appendMeta(t, "smd5:'" + smd5 + "'");
                     sys.io.appendMeta(t, tMap);
                 } else {
-                    String[] tmp = params.get("crop").split(":");
+                    String[] tmp = _crop.split(":");
                     int crop_w = Integer.parseInt(tmp[0]);
                     int crop_h = Integer.parseInt(tmp[1]);
                     int crop_x = Integer.parseInt(tmp[2]);
@@ -209,5 +219,18 @@ public class cmd_videoc extends JvmExecutor {
         finally {
             Streams.safeClose(raf);
         }
+    }
+    
+    static Pattern pattern = Pattern.compile("^([0-9]{1,2}-[0-9]{1,2})(_[0-9]{3,4}x[0-9]{3,4})~.+$");
+    
+    public static void main(String[] args) {
+        String tmp = "3-1_640x1080~10空天猎.mp4";
+        System.out.println(tmp.matches("^([0-9]{1,2}-[0-9]{1,2})(_[0-9]{3,4}x[0-9]{3,4})~.+$"));
+        Matcher matcher = pattern.matcher(tmp);
+        System.out.println(matcher.find());
+        String cut = tmp.substring(0, tmp.indexOf('_'));
+        String size = tmp.substring(tmp.indexOf('_')+1, tmp.indexOf('~'));
+        String crop = size.replace('x', ':') + ":" + cut.replace('-', ':');
+        System.out.println(crop);
     }
 }
