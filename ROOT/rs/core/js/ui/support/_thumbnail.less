@@ -13,19 +13,21 @@
         display: inline-block;;
         .wnobj-wrapper {padding:@d1; position:relative;}
         .wnobj-wrapper:after{@clr();}
-        .wnobj-del {
-            position: absolute; top:0; right: 0; color:#000;
+        .wnobj-del { transition:.3s;
+            position: absolute; top:0; right: 0; color:@c6;
             width:16px; height:16px; line-height: 16px; text-align: center;
-            opacity: 0.2; cursor: pointer; display: none;
+            opacity: 0.4; cursor: pointer; display: none;
             * {cursor: pointer;}
         }
-        .wnobj-del:hover {color:#F00; opacity: 1.0;}
+        .wnobj-del:hover {opacity: 1.0;
+            transform:rotate(360deg) scale(1.4);
+        }
         .wnobj-seq {
             position: absolute; top:0; left: 0;
-            color:rgba(0,0,0,0.4);
-            background: rgba(0,0,0,0.1);
+            background: @cb3; color:@cf3;
             padding:@d1 @d2 @d1 @d1; border-radius: 0 0 @d3 0;
             font-size:@f0; display: none;
+            border-radius: @d1 0 @d2 0;
         }
         .wnobj-thumbnail {
             width: @thumb_w + @thumb_padding*2; 

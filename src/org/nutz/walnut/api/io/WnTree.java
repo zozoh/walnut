@@ -30,7 +30,7 @@ public interface WnTree extends UnitTestable {
     WnObj rename(WnObj o, String nm);
 
     WnObj rename(WnObj o, String nm, boolean keepType);
-    
+
     WnObj rename(WnObj o, String nm, int mode);
 
     void set(WnObj o, String regex);
@@ -123,13 +123,13 @@ public interface WnTree extends UnitTestable {
 
     boolean hasChild(WnObj p);
 
-    WnObj getDirect(String id);
-    
+    // WnObj getDirect(String id);
+
     WnObj push(String id, String key, Object val, boolean returnNew);
-    
+
     void push(WnQuery query, String key, Object val);
 
     WnObj pull(String id, String key, Object val, boolean returnNew);
-    
+
     void pull(WnQuery query, String key, Object val);
 }

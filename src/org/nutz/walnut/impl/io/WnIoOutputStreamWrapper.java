@@ -56,7 +56,7 @@ public class WnIoOutputStreamWrapper extends OutputStream {
 
         // 文件:触发同步时间修改
         if (o.isFILE()) {
-            WnObj tmp = io.getDirect(o.id());
+            WnObj tmp = io.get(o.id());
             if (null == tmp) {
                 new Throwable().printStackTrace();
                 throw Er.create("e.io.obj.noexists", "id:" + o.id());

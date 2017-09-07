@@ -110,7 +110,7 @@
 
   .list-item[li-actived] {
     .tbl-row-td0:before {
-      display: block;
+      display: block; position: relative;
       content: "";
       position: absolute;
       top: @d3;
@@ -129,12 +129,9 @@
     }
     .tbl-row-checker {
       position: absolute;
-      top: 0;
-      left: 0;
-      height: @d7;
-      width: @d7;
-      text-align: center;
-      line-height: @d7;
+      top: 0; left: 0; bottom:0; 
+      @flex(); justify-content:center; align-items:center;
+      padding:0 @d3;
       > *:first-child {
         display: inline;
       }

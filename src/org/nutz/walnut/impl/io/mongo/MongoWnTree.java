@@ -232,10 +232,10 @@ public class MongoWnTree extends AbstractWnTree {
         co.remove(WnMongos.qID(nd.id()));
     }
 
-    @Override
-    public WnObj getDirect(String id) {
-        return get(id);
-    }
+    // @Override
+    // public WnObj getDirect(String id) {
+    // return get(id);
+    // }
 
     @Override
     public WnObj push(String id, String key, Object val, boolean returnNew) {
@@ -272,5 +272,5 @@ public class MongoWnTree extends AbstractWnTree {
         ZMoDoc update = ZMoDoc.NEW().m("$pull", key, val);
         co.updateMulti(qDoc, update);
     }
-    
+
 }
