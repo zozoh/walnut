@@ -47,11 +47,21 @@ $(function(){
         if(!str) {
             sync_form_state();
         }
+        // 用户名是手机号
+        else if(/^[0-9+-]{11,20}$/.test(str)){
+            jq.$tip.attr("mode","warn");
+            jq.$tipInfo.text("我都说了，用户名不能是手机号，OK?");
+        }
+        // 用户名是邮箱
+        else if(/^[0-9a-zA-Z_.-]+@[0-9a-zA-Z_.-]+.[0-9a-zA-Z_.-]+$/.test(str)){
+            jq.$tip.attr("mode","warn");
+            jq.$tipInfo.text("我说过了，用户名不能是邮箱，谢谢");
+        }
         // 用户名非法
         else if(!/^[0-9a-zA-Z_]{4,}$/.test(str)){
             jq.$name.attr("mode", "invalid");
             jq.$tip.attr("mode", "warn");
-            jq.$tipInfo.text("用户名，只能是数字，字母，下划线，且不能小于四位，一旦注册不能更改");
+            jq.$tipInfo.text("用户名，只能是数字，字母，下划线，且不能小于四位，且不能是邮箱或者手机号，一旦注册不能更改");
             $z.blinkIt(jq.$tipInfo);
         }
         // 否则检查是否存在
@@ -110,10 +120,20 @@ $(function(){
             if(reo.ok) {
                 $z.openUrl("/", "_self");
             }
+            // 名称是手机号
+            else if("e.u.rename.byphone" == reo.errCode) {
+                jq.$tip.attr("mode","warn");
+                jq.$tipInfo.text("我都说了，用户名不能是手机号，OK?");
+            }
+            // 名称是邮箱
+            else if("e.u.rename.byemail" == reo.errCode) {
+                jq.$tip.attr("mode","warn");
+                jq.$tipInfo.text("我说过了，用户名不能是邮箱，谢谢");
+            }
             // 名称非法
             else if("e.u.rename.invalid" == reo.errCode) {
                 jq.$tip.attr("mode","warn");
-                jq.$tipInfo.text("用户名只能由数字，小写字母以及下划线组成,且不能小于四位");
+                jq.$tipInfo.text("你输入的用户名非法，你难道再测试我程序的健壮性不成？");
             }
             // 已经存在
             else if("e.u.rename.exists" == reo.errCode) {

@@ -565,13 +565,21 @@ public class UsrModule extends AbstractWnModule {
             throw Er.create("e.u.rename.same");
         }
         // 再检查一下名字是否合法
-        if (!WnUsrInfo.isValidUserName(newName)) {
-            throw Er.create("e.u.rename.invalid", newName);
+        WnUsrInfo ui = new WnUsrInfo(newName);
+        if (!ui.isByName()) {
+            if(ui.isByPhone()){
+                throw Er.create("e.u.rename.byphone");
+            }
+            if(ui.isByEmail()){
+                throw Er.create("e.u.rename.byemail");
+            }
+            throw Er.create("e.u.rename.invalid");
         }
+
         // 看看是否存在
         WnUsr u = this.nosecurity(new Proton<WnUsr>() {
             protected WnUsr exec() {
-                return usrs.fetch(newName);
+                return usrs.fetchBy(ui);
             }
         });
         // 如果用户存在，那么则必须要检查一下密码
