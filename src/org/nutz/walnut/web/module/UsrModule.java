@@ -266,7 +266,7 @@ public class UsrModule extends AbstractWnModule {
         // 邮件验证码最多重试 3 次
         vcodes.save(vcodePath, code, this.vcodeDuEmail, 3);
 
-        // 发送短信
+        // 发送邮件
         String cmdText = String.format("email -r '%s' -s 'i18n:%s' -tmpl 'i18n:%s' -vars 'day:%d,code:\"%s\"'",
                                        email,
                                        scene,
