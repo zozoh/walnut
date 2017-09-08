@@ -41,7 +41,7 @@ class JvmAtom extends JvmCmd implements Atom {
                 executor.exec(sys, args);
             }
             catch (Exception e) {
-                throw new RuntimeException(e);
+                throw Lang.wrapThrow(e);
             }
         }
         catch (Throwable e) {

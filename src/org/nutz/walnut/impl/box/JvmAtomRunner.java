@@ -17,6 +17,7 @@ import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.box.WnBoxStatus;
 import org.nutz.walnut.api.box.WnTunnel;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -79,7 +80,7 @@ public class JvmAtomRunner {
 
     private static final Pattern SSTT = Pattern.compile("`([^`]*)`");
 
-    private String __extend_substitution(String cmdLine) {
+    private String __extend_substitution(String cmdLine, JvmBoxOutput boxErr) {
         StringBuilder sb = new StringBuilder();
 
         // 首先先记录一下原始的输出流
@@ -115,7 +116,7 @@ public class JvmAtomRunner {
                 }
                 // 执行这个子命令
                 else {
-                    this.__run(sustitution);
+                    this.__run(sustitution, boxErr);
                     this.wait_for_idle();
 
                     // 如果出现错误，那么啥也别说了，写到错误输出里
@@ -163,9 +164,12 @@ public class JvmAtomRunner {
             return;
         }
 
+        // 准备错误输出
+        JvmBoxOutput boxErr = new JvmBoxOutput(err);
+
         // 首先对命令行进行预处理
         if (cmdLine.indexOf('`') >= 0)
-            cmdLine = __extend_substitution(cmdLine);
+            cmdLine = __extend_substitution(cmdLine, boxErr);
 
         // 预处理失败，就不向下执行了
         if (Strings.isBlank(cmdLine))
@@ -175,13 +179,35 @@ public class JvmAtomRunner {
         cmdLine = Wn.normalizeStr(cmdLine, bc.session.vars());
 
         // 执行处理后的命令行（不再处理预处理指令了）
-        __run(cmdLine);
+        try {
+            __run(cmdLine, boxErr);
+        }
+        catch (Throwable e) {
+            // 如果不是被 InterruptedException， 记录错误
+            if (!Lang.isCauseBy(e, InterruptedException.class)) {
+                // 拆包 ...
+                Throwable ue = Er.unwrap(e);
+
+                // 如果仅仅显示警告，则日志记录警告信息
+                if (log.isWarnEnabled()) {
+                    log.warnf("AR_ERROR: %s", ue.toString());
+                }
+
+                // 有必要的话，显示错误堆栈
+                if (!(ue instanceof WebException)) {
+                    log.warn(String.format("AR_ERROR: %s", ue.toString()), ue);
+                }
+
+                // 输出到错误输出
+                boxErr.println(ue.toString());
+                Streams.safeFlush(boxErr);
+            }
+        }
     }
 
     @SuppressWarnings("resource")
-    private void __run(String cmdLine) {
+    private void __run(String cmdLine, JvmBoxOutput boxErr) {
         // 准备标准输出输出
-        JvmBoxOutput boxErr = new JvmBoxOutput(err);
         WnSession se = bc.session;
         WnUsr me = bc.me.clone();
 
@@ -234,7 +260,7 @@ public class JvmAtomRunner {
             a.sys.pipeId = i;
             a.sys.nextId = i + 1;
             a.sys.cmdOriginal = cmds[i];
-            //a.sys.cmdOriginal = cmds[i];
+            // a.sys.cmdOriginal = cmds[i];
             a.sys.se = se;
             a.sys.me = me;
             a.sys.err = boxErr;
@@ -362,9 +388,10 @@ public class JvmAtomRunner {
     }
 
     private boolean __is_all_stopped() {
-        for (Thread t : threads)
-            if (t.isAlive())
-                return false;
+        if (null != threads)
+            for (Thread t : threads)
+                if (t.isAlive())
+                    return false;
         return true;
     }
 
