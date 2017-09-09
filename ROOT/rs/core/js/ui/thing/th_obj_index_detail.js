@@ -1,0 +1,1 @@
+th_obj_index_detail.js

@@ -241,14 +241,15 @@ define(function (require, exports, module) {
             }
 
             //............................... 控件的通用方法
-            $z.setUndefined(UI, "blur", function () {
-                this.$el.removeAttr("actived");
-                $z.invoke(this.$ui, "blur", [], this);
-            });
-            $z.setUndefined(UI, "active", function () {
-                this.$el.attr("actived", "yes");
-                $z.invoke(this.$ui, "active", [], this);
-            });
+            // TODO zozoh 这个暂时先去掉看看会不会有问题
+            // $z.setUndefined(UI, "blur", function () {
+            //     this.$el.removeAttr("actived");
+            //     $z.invoke(this.$ui, "blur", [], this);
+            // });
+            // $z.setUndefined(UI, "active", function () {
+            //     this.$el.attr("actived", "yes");
+            //     $z.invoke(this.$ui, "active", [], this);
+            // });
 
             // 默认先用父类的多国语言字符串顶个先
             UI._msg_map = UI.parent ? UI.parent._msg_map : ZUI.g_msg_map;
@@ -614,8 +615,7 @@ define(function (require, exports, module) {
                             if (!_.isFunction(handler)) {
                                 handler = UI[handler];
                             }
-                            var taUI = "$parent" == m[1] ? UI.parent : m[1];
-                            UI.listenUI(taUI, m[2], handler);
+                            UI.listenUI(m[1], m[2], handler);
                         }
                     }
                     //console.log("do_render:", UI.uiName, UI._defer_uiTypes)
@@ -1134,6 +1134,10 @@ define(function (require, exports, module) {
             // 给的就是一个 UI 实例，那么直接监听了
             if (uiKey.nutz_ui_version) {
                 this._listen_to(uiKey, event, handler);
+            }
+            // 监听自己
+            else if ("$self" == uiKey) {
+                this._listen_to(this, event, handler);
             }
             // 监听自己的父
             else if ("$parent" == uiKey) {
