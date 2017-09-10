@@ -701,6 +701,19 @@ define(function (require, exports, module) {
             return UI;
         },
         //............................................
+        // 设置一组延迟的 KEY，当所有的 KEY 都被 defer_report 处理完了
+        // 就调用 callback
+        // ! 注意，如果你重复调用这个函数，后一个函数会覆盖前一个函数的效果
+        // ! 所以最好是确保处理完了，才这样做
+        // 本函数利用了 redraw 的 defer 机制，所以只能在 redraw 完成后
+        // 调用，否则 redraw 会出现问题
+        defer : function(keys, callback) {
+            if(keys && _.isFunction(callback)) {
+                this._defer_uiTypes = [].concat(keys);
+                this._defer_do_after_redraw = callback;
+            }
+        },
+        //............................................
         // 汇报自己完成了哪个延迟加载的 UI
         defer_report: function (i, uiType) {
             var UI = this;

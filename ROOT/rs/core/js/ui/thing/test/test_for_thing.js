@@ -9,7 +9,7 @@ var html = function(){/*
 <div class="ui-arena th-manager" ui-fitparent="true" ui-gasket="main"></div>
 */};
 //==============================================
-return ZUI.def("ui.th_manager", {
+return ZUI.def("ui.test_for_thing", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //..............................................
     redraw : function() {
@@ -19,6 +19,14 @@ return ZUI.def("ui.th_manager", {
         new ThManagerUI({
             parent : UI,
             gasketName : "main",
+            dataMode : "thing",
+            fields : [{
+                key   : "id",
+                title : "ID",
+            }, {
+                key   : "nm",
+                title : "名称",
+            }]
         }).render(function(){
             UI.defer_report("main");
         });

@@ -32,7 +32,7 @@ return ZUI.def("ui.support.uitester", {
         else if(!args) {
             // 绘制上次的
             if(lastUiType) {
-                UI.applyUI(lastUiType, lastUiConf);
+                UI.applyUI(lastUiType, lastUiConf, o);
             }
             // 否则问用户
             else {
@@ -46,11 +46,11 @@ return ZUI.def("ui.support.uitester", {
             if(uiType != lastUiType) {
                 uiConf = {};
             }
-            UI.applyUI(uiType, uiConf);
+            UI.applyUI(uiType, uiConf, o);
         }
     },
     //...............................................................
-    applyUI : function(uiType, uiConf) {
+    applyUI : function(uiType, uiConf, o) {
         var UI = this;
 
         // 执行 UI 的加载 
@@ -64,7 +64,7 @@ return ZUI.def("ui.support.uitester", {
                 UI.local("uiType", uiType);
                 UI.local("uiConf", uiConf);
                 // 执行更新
-                $z.invoke(this, "update", [{}]);
+                $z.invoke(this, "update", [o || {}]);
             });
         });
     },

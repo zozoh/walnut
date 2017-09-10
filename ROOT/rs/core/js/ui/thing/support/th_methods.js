@@ -28,19 +28,33 @@ var methods = {
         }]);
     },
     //....................................................
-    // 每个 UI 都要调用的初始化配置的方法
-    __init_conf : function(opt) {
-
+    getBusConf : function(keys) {
+        return $z.pick(initBusConf(), keys);
+        // return $z.pick(this.options, 
+        //         ["bus",
+        //          "dataMode","actions",
+        //          "searchMenu","objMenu",
+        //          "fields","meta","detail",
+        //          "media","attachment"]);
     },
     //....................................................
-    getConf : function() {
-        return $z.pick(this.options, 
-                ["bus",
-                 "dataMode","actions",
-                 "searchMenu","objMenu",
-                 "fields","meta","detail",
-                 "media","attachment"]);
-    },
+    initBusConf : function() {
+        var bus  = this.bus();
+        var opt  = bus.options;
+        var conf = bus.__CONF;
+
+        // 首次的话，初始化配置信息
+        if(!conf){
+            conf = {};
+            // 处理各个字段
+
+            // 标识处理完成
+            bus.__CONF = conf;
+        }
+
+        // 返回配置对象
+        return conf;
+    }
     //....................................................
 }; // ~End methods
 

@@ -1,3 +1,11 @@
+@thSW : 40%;
+// ------------------------------- 
+// 管理器
 .th-manager {
-    background: red;
+    position: relative;
+    > * {position: absolute; top:0; bottom: 0;}
+    > .th-search-con {left: 0; width: @thSW;}
+    > .th-obj-con {right:0; left:@thSW;}
+    // 搜索
+    > .th-search-con {border-right:1px solid @cborder1;}
 }

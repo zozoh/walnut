@@ -17,14 +17,6 @@ return ZUI.def("ui.th_obj", {
     //..............................................
     init : function(opt){
         ThMethods(this);
-        this.__init_conf(opt);
-    },
-    //..............................................
-    redraw : function() {
-        var UI  = this;
-        var opt = UI.options;
-
-        
     },
     //..............................................
     update : function(o) {

@@ -20,40 +20,38 @@ return ZUI.def("ui.th_manager", {
     //..............................................
     init : function(opt){
         ThMethods(this);
-        this.__init_conf(opt);
     },
     //..............................................
-    redraw : function() {
+    update : function(o, callback) {
         var UI  = this;
         var opt = UI.options;
 
-        // 提出子控件需要的配置信息
-        var conf = UI.getConf();
+        // TODO 这里根据 o 来决定动态的配置信息
+
+        // 准备延迟加载项
+        UI.defer(["search","obj"], function(){
+            UI.gasket.search.update(o, function(){
+                $z.doCallback(callback, [o], UI);
+            });
+        });
 
         // 加载搜索器
-        new ThSearchUI(_.extend({}, conf, {
+        new ThSearchUI({
             parent : UI,
             gasketName : "search",
             bus : UI,
-        })).render(function(){
+        }).render(function(){
             UI.defer_report("search");
         });
 
         // 加载对象编辑器
-        new ThObjUI(_.extend({}, conf, {
+        new ThObjUI({
             parent : UI,
             gasketName : "obj",
             bus : UI,
-        })).render(function(){
+        }).render(function(){
             UI.defer_report("obj");
         });
-
-        // 返回延迟加载
-        return ["search", "obj"];
-    },
-    //..............................................
-    update : function(o) {
-        this.gasket.search.update(o);
     }
     //..............................................
 });

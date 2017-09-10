@@ -17,33 +17,22 @@ return ZUI.def("ui.th_search", {
     //..............................................
     init : function(opt){
         ThMethods(this);
-        this.__init_conf(opt);
     },
     //..............................................
-    redraw : function() {
+    update : function(o, callback) {
         var UI  = this;
         var opt = UI.options;
 
         // 提出子控件需要的配置信息
-        var conf = UI.getConf().search || {};
-
-        // 开始分析设置配置项
-        conf.fields = opt.fields;
+        var conf = UI.getBusConf("bus,search,fields,searchMenu,actions");
 
         // 加载搜索器
-        new SearchUI(_.extend({}, conf, {
+        new SearchUI(_.extend(conf, {
             parent : UI,
             gasketName : "main",
         })).render(function(){
-            UI.defer_report("main");
+            $z.doCallback(callback, [], UI.bus());
         });
-
-        // 返回延迟加载
-        return ["main"];
-    },
-    //..............................................
-    update : function(o) {
-        
     }
     //..............................................
 });
