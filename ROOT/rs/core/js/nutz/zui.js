@@ -1578,7 +1578,6 @@ define(function (require, exports, module) {
                     // 设置按钮文字
                     this.$main.find(".pm-btn-ok").html(UI.msg(opt.btnOk));
                     this.$main.find(".pm-btn-cancel").html(UI.msg(opt.btnCancel));
-                    ;
 
                     // 设置显示内容
                     var html = '';
@@ -1598,6 +1597,10 @@ define(function (require, exports, module) {
                         });
                     }
 
+
+                    if (opt.dfttext) {
+                        this.$main.find(".pmp-input input").val(opt.dfttext);
+                    }
                     this.$main.find(".pmp-input input").focus();
                 })
             });
