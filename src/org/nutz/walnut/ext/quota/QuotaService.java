@@ -106,4 +106,8 @@ public class QuotaService {
             return null;
         return webs.get(0);
     }
+    
+    public void incrNetworkUsage(String hostname, long income, long outgo) {
+        
+    }
 }
