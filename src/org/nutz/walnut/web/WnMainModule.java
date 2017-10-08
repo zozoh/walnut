@@ -16,7 +16,6 @@ import org.nutz.mvc.ioc.provider.ComboIocProvider;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnSysRuntime;
 import org.nutz.walnut.web.module.AbstractWnModule;
 import org.nutz.walnut.web.view.WnViewMaker;
 import org.nutz.web.WebException;
