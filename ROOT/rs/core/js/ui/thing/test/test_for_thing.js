@@ -23,8 +23,9 @@ return ZUI.def("ui.test_for_thing", {
             fields : [{
                 key   : "id",
                 title : "ID",
+                hide : true,
             }, {
-                key   : "nm",
+                key   : "th_nm",
                 title : "名称",
             }]
         }).render(function(){

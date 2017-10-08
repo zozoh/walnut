@@ -46,36 +46,40 @@ th_manager    # 顶级管理器
     // 下面列出所有的内置操作，
     // 除非明确设置成  null ,false 等假值，
     // 控件会会根据 dataMode 设置值自行设置的
-    // 所有的函数都是异步的，接受 callback，
-    // 函数处理完毕后，必须主动调用  callback 并传递返回数据
-    // 以便后续处理
+    //  - 所有的函数都是异步的，接受 callback，
+    //  - 函数的 this 为 bus 对象
+    //  - callback 函数接受一个参数表示异步函数的返回
+    //  - 所有 callback 的 {c} 为 th_search UI 
     actions : {
-        // 查询，返回的必须是带 pager 的数据集
-        query  : Cmd | {c}F(params, callback),
+        /* 查询，返回的必须是带 pager 的数据集
+        其中 params 的格式为:
+        {
+            pid   : ID         // 父目录对象 ID
+            match : "{..}"     // 一个 JSON 字符串表查询条件
+            sort  : "{..}"     // 一个 JSON 字符串表排序条件
+            skip  : 0          // 跳过多少数据
+            limit : 50         // 每页数据大小
+        }
+        */
+        query  : {c}F(params, callback),
         
         // 创建
-        create : Cmd | {c}F(obj, callback),
+        create : {c}F(obj, callback),
         
         // 更新
-        update : Cmd | {c}F(obj, callback),
+        update : {c}F(obj, callback),
         
         // 移除
-        remove : Cmd | {c}(obj, callback),
+        remove : {c}(obj, callback),
     },
 
     // 对于搜索部分菜单的设定
     // 如果为空，则会默认从 actions 里面找
     //  query | create | update | remove 
     // 四个命令的执行方法
+    // 所有的菜单项目回调函数，this 均为 bus
     searchMenu : [{
-        icon : '<..>'        // 图标
-        text : 'i18n:xxx'    // 文字
-        // 动作名，这个是与 menu 控件不同
-        // 如果声明了这个段 handler 段被忽略，执行的时候，是通过
-        // 本字段找到相应的操作方法的
-        actionName : "query"
-        // 自定义操作方法，和 menu 控件的配置项意义相同
-        handler : {c}F()
+        // @see 菜单控件配置
     }]
     
     // 对于对象部分的菜单设定
@@ -86,9 +90,15 @@ th_manager    # 顶级管理器
     // 元数据字段定义，与表单控件的配置项相同
     // th_search | th_obj | th_obj_index 需要这个字段
     fields : []
+
+    // 对于搜索过滤器部分的设置
+    searchFilter : {}
     
-    // 对于搜索部分的设置
-    search : {}
+    // 对于搜索列表部分的设置
+    searchList : {}
+    
+    // 对于搜索翻页部分的设置
+    searchPager : {}
     
     // 对于元数据显示表单的配置
     meta : {}
@@ -121,13 +131,13 @@ th_manager    # 顶级管理器
         filter : {c}F(fnm, mime, size):Boolean
     
         // 如何列出对象所有的媒体
-        list  : Cmd | {c}F(obj, callback),
+        list  : {c}F(obj, callback),
                     
         // 移除一个媒体
-        del : Cmd | {c}(obj, callback),
+        del : {c}(obj, callback),
         
         // 上传成功后，要执行什么后续处理
-        done : Cmd | {c}F(obj, oMedia, callback),
+        done : {c}F(obj, oMedia, callback),
     }
     
     // 对于附件的配置信息
@@ -171,6 +181,7 @@ th_manager    # 顶级管理器
 
 ```
 {
+    UI          : ZUI,   // 当前 UI
     uiManager   : ZUI,
     uiSearch    : ZUI,
     uiObj       : ZUI,

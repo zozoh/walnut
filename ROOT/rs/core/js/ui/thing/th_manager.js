@@ -17,14 +17,23 @@ var html = function(){/*
 return ZUI.def("ui.th_manager", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/thing/theme/thing-{{theme}}.css",
+    i18n : "ui/thing/i18n/{{lang}}.js",
     //..............................................
     init : function(opt){
         ThMethods(this);
     },
     //..............................................
+    _fill_context : function(uiSet) {
+        uiSet.manager = this;
+        this.gasket.search._fill_context(uiSet);
+        this.gasket.obj._fill_context(uiSet);
+    },
+    //..............................................
     update : function(o, callback) {
         var UI  = this;
         var opt = UI.options;
+
+        console.log(opt)
 
         // TODO 这里根据 o 来决定动态的配置信息
 

@@ -132,8 +132,38 @@ return ZUI.def("ui.menu", {
         var jq = $(ele);
         var mi = jq.data("@DATA");
         var context = UI.options.context || UI.parent || UI;
-        if(_.isFunction(mi.handler)){
-            mi.handler.apply(context, [jq, mi]);
+
+        // 异步..
+        if(_.isFunction(mi.asyncHandler)) {
+            // 正在执行，无视
+            if(jq.attr("is-ing"))
+                return;
+            // 设置按钮状态
+            jq.attr("is-ing", "yes");
+            // 设置异步按钮文字
+            if(mi.asyncText)
+                jq.find(".menu-item-text").html(UI.text(mi.asyncText));
+            // 设置异步按钮图标
+            if(mi.asyncIcon)
+                jq.find(".menu-item-icon").html(mi.asyncIcon);
+            // 试图重新更新一下父UI的尺寸
+            if(UI.parent)
+                UI.parent.resize(true);
+            // 调用异步函数
+            mi.asyncHandler.apply(context, [jq, mi, function(){
+                jq.removeAttr("is-ing");
+                if(mi.text)
+                    jq.find(".menu-item-text").html(UI.text(mi.text));
+                if(mi.icon)
+                    jq.find(".menu-item-icon").html(mi.icon);
+                // 试图重新更新一下父UI的尺寸
+                if(UI.parent)
+                    UI.parent.resize(true);
+            }]);
+        }
+        // 同步
+        else {
+            $z.invoke(mi, "handler", [jq, mi], context);
         }
     },
     //..............................................
@@ -261,7 +291,9 @@ return ZUI.def("ui.menu", {
             jItem.data("@DATA", mi);
 
             // 按钮
-            if(mi.type == "button" || _.isFunction(mi.handler)){
+            if(mi.type == "button" 
+                || _.isFunction(mi.asyncHandler)
+                || _.isFunction(mi.handler)){
                 UI.__draw_button(mi, jq, jItem);
             }
             // 子菜单 

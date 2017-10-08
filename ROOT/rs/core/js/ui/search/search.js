@@ -134,7 +134,7 @@ return ZUI.def("ui.srh", {
             else if(_.isObject(ud)){
                 // 标准声明的
                 if(ud.uiType) {
-                    ud.uiConf = ud.conf || {};
+                    ud.uiConf = ud.uiConf || {};
                 }
                 // 那么就当做是配置信息
                 else{
@@ -209,7 +209,8 @@ return ZUI.def("ui.srh", {
                 UI.uiMenu = new MenuUI({
                     parent     : UI,
                     gasketName : "menu",
-                    setup : menu_setup
+                    setup : menu_setup,
+                    context : opt.menuContext || UI
                 }).render(callback);
                 // 返回 true 表示有菜单
                 return true;
@@ -426,11 +427,11 @@ return ZUI.def("ui.srh", {
         var activedId = UI.uiList.getActivedId();
 
         // 显示正在加载数据
-        UI.uiList.showLoading();
+        UI.showLoading();
 
         // 组合成查询条件，执行查询
         $z.evalData(UI.options.data, qc, function(re){
-            UI.uiList.hideLoading();
+            UI.hideLoading();
 
             // 将查询的结果分别设置到列表以及分页器里
             UI.uiPager.setData(re.pager);
@@ -449,9 +450,7 @@ return ZUI.def("ui.srh", {
             UI.resize();
 
             // 回调
-            if(_.isFunction(callback)){
-                callback.call(UI, re.list, re.pager);
-            }
+            $z.doCallback(callback, [re.list,re.pager], UI);
         }, UI);
         //}, 0);
 

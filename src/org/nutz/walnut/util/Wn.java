@@ -51,6 +51,18 @@ import org.nutz.web.Webs.Err;
  */
 public abstract class Wn {
 
+    /**
+     * 记录系统运行时信息
+     */
+    private static WnSysRuntime _rt = new WnSysRuntime("standalone");
+
+    /**
+     * @return 系统运行时对象
+     */
+    public static WnSysRuntime getRuntime() {
+        return _rt.clone();
+    }
+
     // public static void main(String[] args) throws InterruptedException {
     // for (int i = 0; i < 10; i++) {
     // System.out.println(" N:" + System.nanoTime());

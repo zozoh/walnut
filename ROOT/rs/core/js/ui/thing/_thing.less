@@ -9,3 +9,25 @@
     // 搜索
     > .th-search-con {border-right:1px solid @cborder1;}
 }
+
+// ------------------------------- 
+// 对象编辑器 
+@thOW : 60%;
+.th-obj {
+    > * {position: absolute; top:0; bottom: 0;}
+    > .th-obj-index-con {left:0; width:@thOW;}
+    > .th-obj-data-con {right:0; left:@thOW;}
+}
+.th-obj[dis-mode="index-only"] { @noselect();
+    > .th-obj-index-con {width:100%;}
+    > .th-obj-data-con {display: none;}
+}
+.th-obj[dis-mode="index-data"] { @noselect();
+    > .th-obj-index-con {}
+    > .th-obj-data-con {}
+}
+.th-obj-blank {
+    padding:@da 0 0 @d6; color:@c2;
+    font-size:@f2; font-family: @f_fixed;
+    i {margin-right:@d3;}
+}

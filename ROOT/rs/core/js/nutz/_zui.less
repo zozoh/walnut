@@ -123,11 +123,19 @@ h1,h2,h3,h4,h5,h6{margin:0;padding:0;}
     font-size:0.9em; margin:-2px -2px 0 0; 
 }
 
-.ui-loading {
-    padding:14px; font-size:18px; font-weight:bold; color:#FFF;
-    text-shadow:0 0 2px #666; line-height: 24px;
+div[ui-id][ui-loading] > .ui-arena{
+    @noselect(); opacity: 0.4;
 }
-.ui-loading i {display: inline-block; vertical-align: middle;font-size: 22px;}
+.ui-loading { @noselect();
+    @flex(); justify-content:center; align-items:center;
+    padding:1px;
+    aside {
+        color:@c4; font-size:@f4; text-align: center;
+        padding:@d3; margin-top:@d4 * -1;
+        i {display: inline-block; vertical-align: middle;font-size: 1.3em;}
+    }
+}
+
 
 .z-edit-it input {padding:0 6px;}
 

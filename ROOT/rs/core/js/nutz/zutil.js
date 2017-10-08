@@ -123,6 +123,37 @@
             }
         },
         //.............................................
+        isFullScreen: function() {
+            return document.fullScreenElement
+                || document.mozFullScreenElement
+                || document.webkitFullscreenElement
+                || document.msFullScreenElement;
+        },
+        //.............................................
+        enterFullScreen: function() {
+            var root = document.documentElement;
+            if(_.isFunction(root.requestFullscreen))
+                root.requestFullscreen();
+            else if(_.isFunction(root.mozRequestFullScreen))
+                root.mozRequestFullScreen();
+            else if(_.isFunction(root.webkitRequestFullscreen))
+                root.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+            else if(_.isFunction(root.msRequestFullscreen))
+                root.msRequestFullscreen();
+        },
+        //.............................................
+        exitFullScreen: function() {
+            var root = document;
+            if(_.isFunction(root.exitFullscreen))
+                root.exitFullscreen();
+            else if(_.isFunction(root.mozCancelFullScreen))
+                root.mozCancelFullScreen();
+            else if(_.isFunction(root.webkitExitFullscreen))
+                root.webkitExitFullscreen();
+            else if(_.isFunction(root.msExitFullscreen))
+                root.msExitFullscreen();
+        },
+        //.............................................
         // 提供 AMD/CMD 支持功能
         defineModule: function (mdName, mdObj) {
             if (typeof define === "function") {

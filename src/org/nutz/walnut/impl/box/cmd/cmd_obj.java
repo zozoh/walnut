@@ -714,16 +714,18 @@ public class cmd_obj extends JvmExecutor {
                                          WnObj oP,
                                          WnPager wp,
                                          NutMap sort) {
-        String json = params.get("match", "{}");
+        String json = Cmds.getParamOrPipe(sys, params, "params", true);
         WnQuery q = new WnQuery();
-        // 条件是"或"
-        if (Strings.isQuoteBy(json, '[', ']')) {
-            List<NutMap> ors = Json.fromJsonAsList(NutMap.class, json);
-            q.addAll(ors);
-        }
-        // 条件是"与"
-        else {
-            q.add(Lang.map(json));
+        if (!Strings.isBlank(json)) {
+            // 条件是"或"
+            if (Strings.isQuoteBy(json, '[', ']')) {
+                List<NutMap> ors = Json.fromJsonAsList(NutMap.class, json);
+                q.addAll(ors);
+            }
+            // 条件是"与"
+            else {
+                q.add(Lang.map(json));
+            }
         }
 
         // 如果指定了父对象 ...

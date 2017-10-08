@@ -1,0 +1,25 @@
+package org.nutz.walnut.web.module;
+
+import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.mvc.annotation.At;
+import org.nutz.mvc.annotation.Ok;
+import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnSysRuntime;
+
+@IocBean
+@At("/_")
+public class WnPropModule extends AbstractWnModule {
+
+    @At("/version")
+    @Ok("jsp:jsp.show_text")
+    public String version() {
+        return "1.8" + io.toString();
+    }
+
+    @At("/runtime")
+    @Ok("json")
+    public WnSysRuntime runtime() {
+        return Wn.getRuntime();
+    }
+
+}

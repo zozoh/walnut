@@ -2,7 +2,7 @@
 $z.declare('zui', function(ZUI){
 //==============================================
 return ZUI.def("ui.support.uitester", {
-    dom  : '<div class="ui-arena" ui-fitparent="yes" ui-gasket="main" style="padding:10px;"></div>',
+    dom  : '<div class="ui-arena" ui-fitparent="yes" ui-gasket="main"></div>',
     //...............................................................
     events : {
         "click > .ui-arena > button" : function(){

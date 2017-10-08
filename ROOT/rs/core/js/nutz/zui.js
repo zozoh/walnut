@@ -1054,16 +1054,17 @@ define(function (require, exports, module) {
         },
         // 在某区域显示读取中，如果没有指定区域，则为整个 arena
         showLoading: function (selector) {
-            var html = '<div class="ui-loading">';
+            var html = '<div class="ui-loading"><aside>';
             html += '<i class="fa fa-spinner fa-pulse"></i> <span>' + this.msg("loading") + '</span>';
-            html += '</div>';
+            html += '</aside></div>';
             var rect = $D.rect.gen(this.$el);
             $(html).appendTo(this.$el).css(_.extend({
                 "position": "fixed",
             }, $z.pick(rect, "top,left,width,height")));
+            this.$el.attr("ui-loading", "yes");
         },
         hideLoading: function () {
-            this.$el.find(".ui-loading").remove();
+            this.$el.removeAttr("ui-loading").find(".ui-loading").remove();
         },
         // 根据路径获取一个子 UI
         subUI: function (uiPath) {
