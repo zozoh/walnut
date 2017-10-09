@@ -17,6 +17,7 @@ import org.nutz.walnut.api.io.WnHandle;
 import org.nutz.walnut.api.io.WnHandleManager;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnStore;
+import org.nutz.walnut.ext.quota.QuotaService;
 import org.nutz.walnut.impl.io.bucket.LocalFileBucket;
 import org.nutz.walnut.impl.io.bucket.MemoryBucket;
 import org.nutz.walnut.impl.io.mnt.WnMemoryTree;
@@ -32,6 +33,8 @@ public class WnStoreImpl implements WnStore {
     private WnHandleManager handles;
 
     private Map<String, WnBucketFactory> mapping;
+
+    private QuotaService quota;
 
     public void on_depose() {
         handles.dropAll();
@@ -118,6 +121,11 @@ public class WnStoreImpl implements WnStore {
         }
         if (Wn.S.isRead(mode)) {
             o = wc.whenRead(o, false);
+        }
+        
+        // 检查一下空间配额
+        if (Wn.S.isWriteOrAppend(mode)) {
+            quota.checkQuota("disk", wc.me());
         }
 
         // 创建句柄

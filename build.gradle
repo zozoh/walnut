@@ -104,7 +104,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.nutz:nutz:1.r.61.r2'
+        classpath 'org.nutz:nutz:1.r.62'
     }
 }
 
