@@ -1131,4 +1131,15 @@ public abstract class Wn {
         }
         return etag;
     }
+    
+    public static void checkRootRole(WnSystem sys) {
+        // 检查权限: root 组管理员才能操作
+        sys.nosecurity(new Atom() {
+            public void run() {
+                if (!Wn.WC().isAdminOf(sys.usrService, "root")) {
+                    throw Er.create("e.cmd.mgadmin.only_for_root_admin");
+                }
+            }
+        });
+    }
 }
