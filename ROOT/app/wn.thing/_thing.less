@@ -13,6 +13,16 @@
         em:before{display: inline; content: ": ";}
         em {font-style: normal; color:@c3;}
     }
+    > aside {
+        position: absolute; top:0; right: 0; 
+        height: @thH; line-height: @thH;
+        padding:0 @d3; font-family: @f_fixed;
+        i {margin-right:@d1;}
+    }
+    > aside[md="warn"]{color:@c6;}
+    > aside[md="info"]{color:@c2;}
+    > aside[md="ing"]{color:@c4;}
+    > aside[md="ok"]{color:@c3;}
     //......................................... 底部表单动作条
     > footer {
         position: absolute; bottom: 0; right: 0; left:60%;

@@ -201,7 +201,8 @@ var THING_FILE = function(fld, subhdl, validate) {
 //==============================================
 var html = function(){/*
 <div class="ui-arena thing" ui-fitparent="yes">
-    <header>heading</header>
+    <header>Thing</header>
+    <aside md="info">Aside</aside>
     <section class="th-search"><div class="th-con" ui-gasket="search"></div></section>
     <section class="th-form"><div class="th-con" ui-gasket="form"></div></section>
     <footer ui-gasket="formMenu"></footer>
@@ -228,6 +229,10 @@ return ZUI.def("app.wn.thing", {
         if(opt.showThingSetId)
             html += '<em>' + o.id +'</em>';
         UI.arena.children("header").html(html);
+
+        // 更新标题侧边栏
+        var jAside = UI.arena.find(">aside").empty();
+        $z.invoke(opt, "aside", [jAside], UI);
 
         // 重新加载数据 
         UI.reload(function(){
