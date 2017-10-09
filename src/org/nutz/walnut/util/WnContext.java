@@ -474,4 +474,7 @@ public class WnContext extends NutMap {
             }
     }
 
+    public String me() {
+        return me;
+    }
 }

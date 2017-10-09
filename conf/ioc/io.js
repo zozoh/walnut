@@ -61,6 +61,9 @@ var ioc = {
 				"ftp://" : {
 					type : 'org.nutz.walnut.ext.ftp.mount.FtpBucketFactory'
 				}
+			},
+			quota : {
+				refer : "quotaService"
 			}
 		}
 	},
