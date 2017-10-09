@@ -714,7 +714,7 @@ public class cmd_obj extends JvmExecutor {
                                          WnObj oP,
                                          WnPager wp,
                                          NutMap sort) {
-        String json = Cmds.getParamOrPipe(sys, params, "params", true);
+        String json = Cmds.getParamOrPipe(sys, params, "match", true);
         WnQuery q = new WnQuery();
         if (!Strings.isBlank(json)) {
             // 条件是"或"
