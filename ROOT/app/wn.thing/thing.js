@@ -612,9 +612,15 @@ return ZUI.def("app.wn.thing", {
                                 var cmdText = UI.__cmd(thConf.createBy, oTS.id, objName);
                                 Wn.exec(cmdText, function(re){
                                     var newObj = $z.fromJson(re);
-                                    UI.gasket.search.refresh(function(){
-                                        UI.subUI("search/list").setActived(newObj.id);
-                                    });
+                                    var uiList = UI.subUI("search/list");
+                                    uiList.add(newObj, 0, 1);
+                                    uiList.setActived(newObj.id);
+                                    // zozoh 这个有一个很复杂的问题
+                                    // 总之，去掉原来的加载方式，直接添加比较好，
+                                    // 详细情况，参见 zozoh/walnut#287
+                                    // UI.gasket.search.refresh(function(){
+                                    //     UI.subUI("search/list").setActived(newObj.id);
+                                    // });
                                 });
                             }
                         }

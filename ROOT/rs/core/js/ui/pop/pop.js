@@ -418,6 +418,28 @@ module.exports = {
         $z.setUndefined(opt, "btnCancel",  "i18n:cancel");
         $z.setUndefined(opt, "title", 'i18n:edit');
 
+        // 准备按钮回调通用处理函数
+        var btn_on_click = function(uiMask, jBtn, mode) {
+            // 防止重复点击
+            if(uiMask.is_ing){
+                return;
+            }
+            // 标记按钮状态
+            jBtn.attr("btn-ing", "yes");
+            uiMask.is_ing = true;
+            // 设置按钮执行中样式
+            if(opt.ingOk){
+                jBtn.html(uiMask.text(opt.ingOk));
+            }
+            
+            // 调用回调，回调如果没有明确返回 false，表示
+            // 它不是同步的，则自动调用关闭函数
+            var context = opt.context || uiMask.body;
+            if(false !== $z.invoke(opt, mode, [uiMask.body, jBtn, uiMask], context)){
+                uiMask.close();
+            }
+        };
+
         // 打开编辑器
         new MaskUI({
             i18n : referUI._msg_map,
@@ -432,36 +454,39 @@ module.exports = {
             closer : opt.closer,
             events : {
                 "click .pm-btn-ok" : function(e){
-                    var jBtn = $(e.currentTarget);
-                    var context = opt.context || this.body;
-                    if(false !== $z.invoke(opt, "ok", [this.body, jBtn], context)){
-                        this.close();
-                    }
+                    btn_on_click(this, $(e.currentTarget), "ok");
                 },
                 "click .pm-btn-cancel" : function(e){
-                    var jBtn = $(e.currentTarget);
-                    var context = opt.context || this.body;
-                    if(false !== $z.invoke(opt, "cancel", [this.body, jBtn], context)){
-                        this.close();
-                    }
+                    btn_on_click(this, $(e.currentTarget), "cancel");
                 }
             }, 
             setup : opt.setup
         }).render(function(){
             // 设置标题
             this.arena.find(".pm-title").html(this.text(opt.title));
+
+            // 设置按钮公共方法
+            this.resetBtns = function(){
+                // 设置按钮文字: OK
+                if(opt.btnOk)
+                    this.$main.find(".pm-btn-ok").html(this.text(opt.btnOk));
+                // 设置按钮文字: Cancel
+                if(opt.btnCancel)
+                    this.$main.find(".pm-btn-cancel").html(this.text(opt.btnCancel));
+                // 恢复按钮状态标识
+                this.is_ing = false;
+            };
             
-            // 设置按钮文字: OK
-            if(opt.btnOk)
-                this.$main.find(".pm-btn-ok").html(this.text(opt.btnOk));
-            else
+            // 移除按钮文字: OK
+            if(!opt.btnOk)
                 this.$main.find(".pm-btn-ok").remove();
 
-            // 设置按钮文字: Cancel
-            if(opt.btnCancel)
-                this.$main.find(".pm-btn-cancel").html(this.text(opt.btnCancel));
-            else
+            // 移除按钮文字: Cancel
+            if(!opt.btnCancel)
                 this.$main.find(".pm-btn-cancel").remove();
+
+            // 重设按钮文字
+            this.resetBtns();
 
             // 调用回调
             var context = opt.context || this.body;
