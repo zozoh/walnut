@@ -205,7 +205,9 @@ return ZUI.def("ui.console", {
         UI.arena.append(jq);
         //UI.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
         //UI.arena[0].scrollIntoView({block: "end", behavior: "smooth"});
-        jq[0].scrollIntoView({block: "end", behavior: "smooth"});
+        //jq[0].scrollIntoView({block: "end", behavior: "smooth"});
+        var eA = UI.arena[0];
+        eA.scrollTop = eA.scrollHeight;
     },
     __join_txt : function(jq, s){
         // 试图对颜色码进行分析
