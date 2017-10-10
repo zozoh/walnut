@@ -73,6 +73,7 @@ public class MongoWnTree extends AbstractWnTree {
             cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
             int i = 0;
             int n = 0;
+            int count = cu.count();
             WnMongos.setup_paging(cu, q);
             WnMongos.setup_sorting(cu, q);
 
@@ -88,7 +89,7 @@ public class MongoWnTree extends AbstractWnTree {
                 WnObj o = WnMongos.toWnObj(dbobj);
                 o.setTree(this);
                 try {
-                    callback.invoke(i++, o, n);
+                    callback.invoke(i++, o, count);
                     n++;
                 }
                 catch (ExitLoop e) {
