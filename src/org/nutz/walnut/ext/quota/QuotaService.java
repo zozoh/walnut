@@ -15,11 +15,14 @@ import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Lang;
 import org.nutz.lang.LoopException;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
+import org.nutz.walnut.web.WnConfig;
 import org.nutz.web.Webs.Err;
 
 import com.mongodb.AggregationOptions;
@@ -33,6 +36,8 @@ import com.mongodb.DBObject;
  */
 @IocBean(create="init", depose="depose")
 public class QuotaService {
+    
+    private static final Log log = Logs.get();
 
     @Inject("java:$mongoDB.getCollection('obj')")
     protected ZMoCo co;
@@ -42,6 +47,9 @@ public class QuotaService {
 
     @Inject
     protected WnIo io;
+    
+    @Inject
+    protected WnConfig conf;
     
     protected ExecutorService es;
     
@@ -147,8 +155,15 @@ public class QuotaService {
             }
         });
         for (String username : usernames) {
+            Long quota = this.getQuota("disk", username, true);
+            // 仅检查有配额限制的用户
+            if (quota == null || quota < 0) {
+                diskUsage.remove(username);
+                diskQuota.remove(username);
+                continue;
+            }
+            diskQuota.put(username, quota);
             diskUsage.put(username, this.getUsage("disk", username, true));
-            diskQuota.put(username, this.getQuota("disk", username, true));
         }
     }
 
@@ -161,12 +176,18 @@ public class QuotaService {
         es = Executors.newCachedThreadPool();
         es.submit(()-> {
             int count = 0;
+            int interval = conf.getInt("quota-update-interval", 300);
             while (running) {
                 Lang.quiteSleep(1000);
-                if (count % 60 == 0) {
-                    updateUserQuotaDiskUsage();
+                try {
+                    if (count % interval == 0) {
+                        updateUserQuotaDiskUsage();
+                    }
+                    count ++;
                 }
-                count ++;
+                catch (Throwable e) {
+                    log.info("update user quota/usage FAIL!!", e);
+                }
             }
         });
     }
