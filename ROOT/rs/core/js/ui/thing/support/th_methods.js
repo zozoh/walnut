@@ -1,10 +1,156 @@
 define(function (require, exports, module) {
 var Wn = require("wn/util");
 // ....................................
+var __format_thing_fld = function(fld) {
+    // id
+    if("id" == fld.key) {
+        $z.setUndefined(fld, "title", "i18n:thing.key.id");
+        $z.setUndefined(fld, "hide", true);
+        $z.extend(fld, {
+            type   : "string",
+            editAs : "label"
+        });
+    }
+    // th_nm
+    else if("th_nm" == fld.key) {
+        $z.setUndefined(fld, "title", "i18n:thing.key.th_nm");
+        $z.extend(fld, {
+            type : "string",
+            editAs : "input",
+            escapeHtml : false,
+            display : function(o) {
+                var html = "";
+                if(o.thumb){
+                    html += '<img src="/o/thumbnail/id:'+o.id+'?_t='+$z.timestamp()+'">';
+                }else{
+                    html += '<i class="fa fa-cube th_thumb"></i>';
+                }
+                html += $z.escapeText(o.th_nm);
+                if(o.len > 0) {
+                    html += '<span><i class="zmdi zmdi-format-align-left"></i><em>' + o.len + '</em></span>';
+                }
+                return html;
+            }
+        });
+    }
+    // th_enabled
+    else if("th_enabled" == fld.key) {
+        $z.setUndefined(fld, "title", "i18n:thing.key.th_enabled");
+        $z.setUndefined(fld, "escapeHtml", false);
+        $z.setUndefined(fld, "hide", false);
+        $z.setUndefined(fld, "display", function(o){
+            return o.th_enabled ? '<i class="fa fa-toggle-on"></i>'
+                                : '<i class="fa fa-toggle-off"></i>';
+        });
+        _.extend(fld, {
+            type   : "boolean",
+            editAs : "toggle",
+        });
+    }
+    // th_ow
+    else if("th_ow" == fld.key) {
+        $z.setUndefined(fld, "title", "i18n:thing.key.th_ow");
+        $z.setUndefined(fld, "hide", true);
+        $z.extend(fld, {
+            type   : "string",
+            editAs : "input"
+        });
+    }
+    // lbls
+    else if("lbls" == fld.key) {
+        $z.setUndefined(fld, "title", "i18n:thing.key.lbls");
+        $z.setUndefined(fld, "tip", "i18n:thing.key.lbls_tip");
+        $z.extend(fld, {
+            type : "object",
+            virtual : false,
+            editAs : "input",
+            uiConf : {
+                parseData : function(lbls){
+                    if(_.isArray(lbls))
+                        return lbls.join(", ");
+                    return "";
+                },
+                formatData : function(str) {
+                    if(str)
+                        return str.split(/[,， \t]+/g);
+                    return [];
+                }
+            },
+            display : function(o) {
+                var html = "";
+                if(_.isArray(o.lbls)){
+                    for(var lbl of o.lbls) {
+                        html += '<span class="th-lbl">' + lbl + '</span>';
+                    }
+                }
+                return html;
+            }
+        });
+    }
+    // thumb
+    else if("thumb" == fld.key) {
+        $z.setUndefined(fld, "title", "i18n:thing.key.thumb");
+        $z.extend(fld, {
+            hide : true,
+            type : "string",
+            beforeSetData : function(o){
+                this.UI.setTarget($z.tmpl("id:{{th_set}}/data/{{id}}/thumb.jpg")(o));
+            },
+            editAs : "image",
+            uiConf : {
+                dataType : "idph"
+            }
+        });
+    }
+    // 日期
+    else if(/^(lm|ct)$/.test(fld.key)) {
+        $z.setUndefined(fld, "title", "i18n:thing.key." + fld.key);
+        $z.setUndefined(fld, "hide", true);
+        fld.type = "datetime";
+        $z.extend(fld, {
+            type   : "datetime",
+            editAs : "label",
+        });
+    }
+    // 递归
+    else if(_.isArray(fld.fields)){
+        for(var i=0; i<fld.fields.length; i++){
+            var subFld = fld.fields[i];
+            __format_theConf_field(subFld);
+        }
+    }
+    // 最后返回
+    return fld;
+};
+// ....................................
 // 处理不同数据模式的初始化方法
 var DATA_MODE = {
     // 标准的 thing
     "thing" : function(conf, opt) {
+        var UI = this;
+        // 读取指定配置文件
+        var oThConf = Wn.fetch("id:"+UI.getHomeObjId()+"/thing.js", true);
+        if(oThConf) {
+            var json = Wn.read(oThConf);
+            var thConf = $z.fromJson(json);
+            _.extend(conf, thConf);
+        }
+        // ----------------- fields
+        // 指定了字段
+        if(_.isArray(opt.fields) && opt.fields.length > 0)
+            conf.fields = [].concat(opt.fields);
+        // 为了兼容旧模式，处理指定的字段
+        var fields = [];
+        for(var i=0; i<conf.fields.length; i++){
+            var fld = conf.fields[i];
+            // console.log(fld.key, !/^__/.test(fld.key))
+            // 特殊字段无视就好
+            if(!/^__/.test(fld.key)){
+                fields.push(__format_thing_fld(fld));
+            }
+        }
+        conf.fields = fields;
+
         // ----------------- actions
         conf.actions = _.extend({
             // thing 的默认查询方法
@@ -26,7 +172,7 @@ var DATA_MODE = {
             }
         }, opt.actions);
         // ----------------- searchMenu
-        conf.searchMenu = conf.searchMenu || [{
+        conf.searchMenu = opt.searchMenu || conf.searchMenu || [{
             icon : '<i class="zmdi zmdi-refresh"></i>',
             text : "i18n:refresh",
             asyncIcon : '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i>',
@@ -39,6 +185,28 @@ var DATA_MODE = {
         // ----------------- search
         // ----------------- meta
         // ----------------- detail
+        conf.detail = opt.detail || conf.detail || {
+            read : function(th, callback) {
+                Wn.execf('thing {{th_set}} detail {{id}}', th, callback);
+            },
+            save : function(th, det, callback) {
+                Wn.execf('thing {{th_set}} detail {{id}} -content', det.content||"", th, function(){
+                    if(det.brief || det.tp) {
+                        var cmdText = $z.tmpl('thing {{th_set}} detail {{id}}')(th);
+                        if(det.tp)
+                            cmdText += ' -tp ' + det.tp;
+                        // 更新摘要和类型
+                        if(det.brief) {
+                            Wn.exec(cmdText + ' -brief', det.breif, callback);
+                        }
+                        // 仅仅更新类型
+                        else {
+                            Wn.exec(cmdText, callback);
+                        }
+                    }
+                });
+            }
+        };
         // ----------------- media
         // ----------------- attachment
         // ----------------- folders
@@ -103,15 +271,10 @@ var methods = {
     //....................................................
     getBusConf : function(keys) {
         return $z.pick(this.initBusConf(), keys);
-        // return $z.pick(this.options, 
-        //         ["bus",
-        //          "dataMode","actions",
-        //          "searchMenu","objMenu",
-        //          "fields","meta","detail",
-        //          "media","attachment"]);
     },
     //....................................................
     initBusConf : function() {
+        var UI   = this;
         var bus  = this.bus();
         var opt  = bus.options;
         var conf = bus.__CONF;
@@ -122,11 +285,9 @@ var methods = {
                 bus : bus,
                 dataMode : opt.dataMode || "thing"
             };
-            // 复制字段
-            conf.fields = [].concat(opt.fields);
 
             // 按照模式处理各个配置项
-            DATA_MODE[conf.dataMode](conf, opt);
+            DATA_MODE[conf.dataMode].call(UI, conf, opt);
 
             // 标识处理完成
             bus.__CONF = conf;

@@ -3,8 +3,9 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/thing/support/th_methods',
-    'ui/support/dom',
-], function(ZUI, Wn, ThMethods, DomUI){
+    'ui/thing/th_obj_index',
+    //'ui/thing/th_obj_data',
+], function(ZUI, Wn, ThMethods, ThObjIndexUI /*,ThObjDataUI*/){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-obj" ui-fitparent="true">
@@ -23,41 +24,60 @@ return ZUI.def("ui.th_obj", {
     },
     //..............................................
     redraw : function(){
-        this.showBlank();
+        var UI  = this;
+        var bus = UI.bus();
+        
+        // 加载索引界面
+        new ThObjIndexUI({
+            parent : UI,
+            gasketName : "index",
+            bus : bus
+        }).render(function(){
+            UI.defer_report("index");
+        });
+
+        // 返回延迟加载
+        return ["index"];
     },
     //..............................................
     _fill_context : function(uiSet) {
-        uiSet.obj = this;
-    },
-    //..............................................
-    update : function(o) {
-        console.log("update", o);
-        this.gasket.index.destroy();
-    },
-    //..............................................
-    showBlank : function(){
         var UI = this;
-        var jIndex = UI.arena.find(">.th-obj-index-con");
-        var jData  = UI.arena.find(">.th-obj-data-con");
+        uiSet.obj = this;
+        if(UI.gasket.index)
+            UI.gasket.index._fill_context(uiSet);
+        if(UI.gasket.data)
+            UI.gasket.data._fill_context(uiSet);
+    },
+    //..............................................
+    update : function(o, callback) {
+        var UI  = this;
+        //console.log("update", o);
 
-        // 标识
-        UI.arena.attr("dis-mode", "index-only");
+        // 准备延迟加载项目
+        var keys = [];
+        if(UI.gasket.index)
+            keys.push("index");
+        if(UI.gasket.data)
+            keys.push("data");
 
-        // 替换掉索引项
-        new DomUI({
-            parent : UI,
-            gasketName : "index",
-            dom : `<div class="th-obj-blank">
-                <i class="fa fa-hand-o-left"></i>
-                {{th.obj_blank}}
-            </div>`
-        }).render();
+        // 注册延迟加载函数
+        UI.defer(keys, function(){
+            $z.doCallback(callback, [o], UI);
+        });
+        
+        // 更新索引界面
+        if(UI.gasket.index)
+            UI.gasket.index.update(o, function(){
+                UI.defer_report("index");
+            });
 
-        // 清空 data 项目
-        if(UI.gasket.data) {
-            UI.gasket.data.destroy();
-        }
-    }
+        // 更新数据界面
+        if(UI.gasket.data)
+            UI.gasket.data.update(o, function(){
+                UI.defer_report("data");
+            });
+    },
+    
     //..............................................
 });
 //==================================================

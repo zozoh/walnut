@@ -7,7 +7,7 @@ $z.declare([
 ], function(ZUI, Wn, ThMethods, SearchUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-manager" ui-fitparent="true"
+<div class="ui-arena th-search" ui-fitparent="true"
     ui-gasket="main"></div>
 */};
 //==============================================
@@ -34,7 +34,7 @@ return ZUI.def("ui.th_search", {
 
         // 提出子控件需要的配置信息
         var conf = UI.getBusConf();
-        console.log("search", conf)
+        //console.log("search", conf)
 
         // 加载搜索器
         new SearchUI(_.extend(conf, {
@@ -51,16 +51,20 @@ return ZUI.def("ui.th_search", {
             list   : _.extend({}, conf.searchList, {
                 fields : conf.fields,
                 on_actived : function(th, jRow, prevObj) {
-                    UI.invokeUI("obj", "update", [th]);
+                    console.log("on_actived");
+                    $z.invoke(bus, "showObj", [th]);
                 },
                 on_blur : function(objs, jRows, nextObj) {
-                    if(!nextObj)
-                        UI.invokeUI("obj", "showBlank");
+                    if(!nextObj){
+                        console.log("on_blur");
+                        $z.invoke(bus, "showBlank");
+                    }
                 }
             }),
             pager : conf.searchPager,
         })).render(function(){
             this.refresh(function(){
+                this.uiList.setActived(0);
                 var args = Array.from(arguments);
                 $z.doCallback(callback, args, UI.bus());
             });

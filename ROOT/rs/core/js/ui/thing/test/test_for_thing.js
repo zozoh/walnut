@@ -20,14 +20,14 @@ return ZUI.def("ui.test_for_thing", {
             parent : UI,
             gasketName : "main",
             dataMode : "thing",
-            fields : [{
-                key   : "id",
-                title : "ID",
-                hide : true,
-            }, {
-                key   : "th_nm",
-                title : "名称",
-            }]
+            // fields : [{
+            //     key   : "id",
+            //     title : "ID",
+            //     hide : true,
+            // }, {
+            //     key   : "th_nm",
+            //     title : "名称",
+            // }]
         }).render(function(){
             UI.defer_report("main");
         });

@@ -27,7 +27,7 @@ th_manager    # 顶级管理器
             + th_obj_data_attachment   #  - 附件管理界面
 ```
 
-# th_manager 控件簇配置信息
+# `th_manager` 控件簇配置信息
 
 则个配置信息，格式如下： 
 
@@ -109,7 +109,8 @@ th_manager    # 顶级管理器
         read : {c}F(obj, callback),
         
         // 保存数据的 detail
-        save : {c}F(obj, detail, callback),
+        //  - det : {tp:"txt", brief:"xx", content:"xxx"}
+        save : {c}F(obj, det, callback),
     }
     
     // 对于媒体的配置信息
@@ -177,19 +178,19 @@ th_manager    # 顶级管理器
 # 回调函数上下文
 
 为了方便回调函数方法这个控件簇的任意子控件，
-所有的回调的上下文*(即,this)*都为一下面的对象
+所有的回调的上下文(*即,this*)都为一下面的对象
 
 ```
 {
     UI          : ZUI,   // 当前 UI
-    uiManager   : ZUI,
-    uiSearch    : ZUI,
-    uiObj       : ZUI,
-    uiObjIndex  : ZUI,
-    uiObjDetail : ZUI,
-    uiData      : ZUI,
-    uiDataMedia : ZUI,
-    uiDataAttachment : ZUI
+    manager   : ZUI,
+    search    : ZUI,
+    obj       : ZUI,
+    index  : ZUI,
+    detail : ZUI,
+    data      : ZUI,
+    media : ZUI,
+    attachment : ZUI
 }
 ```
 

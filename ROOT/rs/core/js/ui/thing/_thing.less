@@ -11,6 +11,33 @@
 }
 
 // ------------------------------- 
+// 对象搜索器
+.th-search {
+    [key="th_nm"] {
+        i.th_thumb {
+            display:inline-block; vertical-align: middle; width: 16px; text-align: center;
+            margin-right:@d2;
+        }
+        img {
+            height:16px; vertical-align: middle;border-radius: @d0; border:1px solid @cborder1;
+            margin-right:@d2;
+        }
+        span {
+            margin-left:@d3; color:@c4;
+            em {margin-left:@d1; color:@c3;}
+        }
+    }
+}
+
+// ------------------------------- 
+// 空对象
+.th-obj-blank {
+    padding:@da 0 0 @d6; color:@c2;
+    font-size:@f2; font-family: @f_fixed;
+    i {margin-right:@d3;}
+}
+
+// ------------------------------- 
 // 对象编辑器 
 @thOW : 60%;
 .th-obj {
@@ -25,9 +52,4 @@
 .th-obj[dis-mode="index-data"] { @noselect();
     > .th-obj-index-con {}
     > .th-obj-data-con {}
-}
-.th-obj-blank {
-    padding:@da 0 0 @d6; color:@c2;
-    font-size:@f2; font-family: @f_fixed;
-    i {margin-right:@d3;}
 }
