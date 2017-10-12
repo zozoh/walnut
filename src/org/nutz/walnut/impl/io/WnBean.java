@@ -18,6 +18,8 @@ import org.nutz.walnut.util.Wn;
 
 public class WnBean extends NutMap implements WnObj {
 
+    private static final long serialVersionUID = 1L;
+    
     private WnTree tree;
 
     public WnTree tree() {

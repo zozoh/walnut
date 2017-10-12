@@ -31,13 +31,13 @@ public class JettyMonitorHandler implements JettyHandlerCallback {
         try {
             handler.handle(target, baseRequest, request, response);
         } finally {
-            String wn_www_host = (String) request.getAttribute("wn_www_host");
-            if (wn_www_host != null) {
+            String wn_www_grp = (String) request.getAttribute("wn_www_grp");
+            if (wn_www_grp != null) {
                 HttpInput input = ((Request)request).getHttpInput();
                 HttpOutput output = ((Response)response).getHttpOutput();
                 long income = input.getContentConsumed();
                 long outgo = output.getWritten();
-                quotaService.incrNetworkUsage(wn_www_host, income, outgo);
+                quotaService.incrUsage(wn_www_grp, "network", income + outgo);
             }
         }
     }
