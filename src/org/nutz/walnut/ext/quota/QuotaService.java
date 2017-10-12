@@ -60,7 +60,7 @@ public class QuotaService {
             return true;
         // 看看有无限额限制
         Long quota = qu.get(username + ":" + type);
-        if (quota == null)
+        if (quota == null || quota < 0)
             return true;
         // 有无已用空间统计数据
         AtomicLong used = ug.get(username + ":" + type);
