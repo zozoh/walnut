@@ -28,6 +28,7 @@ return ZUI.def("ui.test_for_thing", {
             //     key   : "th_nm",
             //     title : "名称",
             // }]
+            ddetail : null
         }).render(function(){
             UI.defer_report("main");
         });

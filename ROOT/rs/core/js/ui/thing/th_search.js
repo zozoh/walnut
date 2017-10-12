@@ -17,7 +17,9 @@ return ZUI.def("ui.th_search", {
     i18n : "ui/thing/i18n/{{lang}}.js",
     //..............................................
     init : function(opt){
-        ThMethods(this);
+        var UI = ThMethods(this);
+
+        UI.listenBus("change:meta", UI.setObj);
     },
     //..............................................
     _fill_context : function(uiSet) {
@@ -69,6 +71,11 @@ return ZUI.def("ui.th_search", {
                 $z.doCallback(callback, args, UI.bus());
             });
         });
+    },
+    //..............................................
+    setObj : function(obj) {
+        console.log("i am setObj")
+        this.gasket.main.uiList.update(obj);
     },
     //..............................................
     refresh : function(callback) {

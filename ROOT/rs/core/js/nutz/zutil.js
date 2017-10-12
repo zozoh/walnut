@@ -2916,9 +2916,27 @@
         },
         //.............................................
         // 如果一个对象某字段是 undefined，那么为其赋值
-        setUndefined: function (obj, key, val) {
+        //  setUndefined(obj, key, dft0, dft1 ...);
+        setUndefined: function (obj, key) {
+            // 后面的的默认值挨个试
             if (_.isUndefined(obj[key]))
-                obj[key] = val;
+                for(var i=2; i<arguments.length; i++) {
+                    var val = arguments[i];
+                    if(_.isUndefined(val)){
+                        continue;
+                    }
+                    obj[key] = val;
+                    break;
+                }
+        },
+        //.............................................
+        // 返回参数中第一个不是 undefined 的值
+        fallbackUndefined: function(){
+            for(var i=0; i<arguments.length; i++){
+                var val = arguments[i];
+                if(!_.isUndefined(val))
+                    return val;
+            }
         },
         //.............................................
         jq: function (jP, arg, selector) {

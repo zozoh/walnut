@@ -34,7 +34,7 @@ return ZUI.def("ui.th_obj_index_detail", {
     update : function(o, callback) {
         var UI  = this;
         var bus = UI.bus();
-        //console.log("update index", o);
+        console.log("update detail", o);
         
         
     },

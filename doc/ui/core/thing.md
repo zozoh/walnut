@@ -101,14 +101,23 @@ th_manager    # 顶级管理器
     searchPager : {}
     
     // 对于元数据显示表单的配置
-    meta : {}
+    meta : {
+        // 更新元数据的方法
+        //  - obj 对象完整的元数据
+        //  - key 不指定的话表示全部更新，否则只更新指定的 key
+        //  - callback 更新完毕后的异步回调
+        update : {c}F(obj, key, callback);
+    
+        // 元数据表单更多的设置
+        setup : {}
+    }
     
     // 对于 detail 文本的配置
     detail : {
-        // 读取数据的 detail
+        // 如何读取数据的 detail
         read : {c}F(obj, callback),
         
-        // 保存数据的 detail
+        // 如何保存数据的 detail
         //  - det : {tp:"txt", brief:"xx", content:"xxx"}
         save : {c}F(obj, det, callback),
     }
@@ -159,7 +168,7 @@ th_manager    # 顶级管理器
     // 这里设置了一组事件监听处理函数 
     busEvents : {
         // 元数据改变
-        "change:meta" : {c}F(key, val)
+        "change:meta" : {c}F(obj, key)
         
         // 详情改变
         "change:detail" : {c}F(detail, brief)

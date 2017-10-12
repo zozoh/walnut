@@ -184,8 +184,19 @@ var DATA_MODE = {
         // ----------------- objMenu
         // ----------------- search
         // ----------------- meta
+        conf.meta = $z.fallbackUndefined(opt.meta, conf.meta, {
+            update : function(th, key, callback) {
+                var obj  = key ? $z.obj(key, th[key]) : th;
+                var json = $z.toJson(obj);
+
+                Wn.execf('thing {{th_set}} update {{id}} -fields', json, th, function(re){
+                    var newTh = $z.fromJson(re);
+                    $z.doCallback(callback, [newTh]);
+                });
+            }
+        });
         // ----------------- detail
-        conf.detail = opt.detail || conf.detail || {
+        conf.detail = $z.fallbackUndefined(opt.detail, conf.detail, {
             read : function(th, callback) {
                 Wn.execf('thing {{th_set}} detail {{id}}', th, callback);
             },
@@ -206,7 +217,7 @@ var DATA_MODE = {
                     }
                 });
             }
-        };
+        });
         // ----------------- media
         // ----------------- attachment
         // ----------------- folders
@@ -229,21 +240,23 @@ var methods = {
     listenBus : function(event, handler, listenSelf){
         var cid   = this.cid;
         var uiBus = this.bus();
+        //console.log("listen", uiBus)
         this.listenUI(uiBus, event, function(be){
+            //console.log("handle", event)
             if(listenSelf || be.cid != cid) {
                 handler.apply(this, be.args);
             }
         });
     },
     // 发送消息
-    fire : function() {
+    fire : function(event, args) {
         var cid  = this.cid;
-        var args = Array.from(arguments);
         var uiBus = this.bus();
-        uiBus.trigger.apply(uiBus, [{
+        //console.log("fire", args)
+        uiBus.trigger(event, {
             cid  : cid,
             args : args,
-        }]);
+        });
     },
     //....................................................
     getHomeObjId : function() {
