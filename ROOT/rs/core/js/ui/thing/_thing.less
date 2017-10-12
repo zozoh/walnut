@@ -111,21 +111,45 @@
                     }
                     li[current] {
                         border-color:@cborder1;
-                        background: @cb0; opacity: 1;
+                        background: @cb2; opacity: 1;
                     }
                 }
             }
         }
+    }
+    // 内如部分样式
+    > section {
+        background: @cb2;
     }
 }
 //........................................
 // 元数据界面
 .th-obj-index-meta {
     .obj-meta-form > .form-body > .form-body-wrapper > .form-group {
+        padding-top:@d3;
         > .fg-fields > .form-fld {
+            padding:0;
             > .ff-txt {padding:@d3 @d2 @d3 24px;}
             > .ff-val {padding:@d0;}
             > .ff-prompt {padding:@d3+@d1 @d3;}
+        }
+    }
+}
+//........................................
+// 对象详情界面
+.th-obj-index-detail {
+    .toid-brief {
+        padding:@d2; position: relative; background: @cb1;
+        > h4 {margin:0; padding:@d2; font-size:@f2; color:@c2;}
+        > aside {
+            position: absolute; right: 0; top:0;
+            padding:@d2;
+            a {cursor: pointer;}
+        }
+        > textarea {@input();
+            width:100%; height:60px; outline:none; resize:none;
+            padding:@d3; font-size:@f2; line-height: @f3;
+            
         }
     }
 }

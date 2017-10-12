@@ -109,7 +109,7 @@ define({
             "attachment" : "附件", 
             "th_ow" : "所有者",
             "th_nm" : "名称",
-            "th_brief" : "摘要",
+            "brief" : "摘要",
             "th_site" : "所属站点",
             "th_pub" : "发布",
             "th_enabled" : "生效",
@@ -120,7 +120,14 @@ define({
             "th_c_agree" : "赞同数",
         },
         "meta"   : "属性",
-        "detail" : "内容",
+        "detail" : {
+            "title"  : "内容",
+            "brief"  : "请输入不超过 50 字的摘要",
+            "save"   : "保存内容及摘要",
+            "saving" : "正在保存...",
+            "noobj"  : "还未读取对象",
+            "genbreif" : "自动生成摘要",
+        },
         "err" : {
             "nothingjs" : "没有找到 thing.js!"
         },

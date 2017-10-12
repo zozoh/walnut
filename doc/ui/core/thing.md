@@ -120,6 +120,12 @@ th_manager    # 顶级管理器
         // 如何保存数据的 detail
         //  - det : {tp:"txt", brief:"xx", content:"xxx"}
         save : {c}F(obj, det, callback),
+        
+        // 针对内容为 markdown 的转换配置
+        markdown : {
+            media   : {c}F(src),   // 如何转换媒体链接
+            context : ..           // 回调上下文   
+        }
     }
     
     // 对于媒体的配置信息

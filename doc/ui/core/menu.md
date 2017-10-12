@@ -152,6 +152,10 @@ new UIMenu({
     icon_on  : '<i class="xxxx"></i>',
     icon_off : '<i class="xxxx"></i>',
     
+    // 声明两种状态的文本
+    text_on  : 'i18n:xxx',
+    text_off : 'i18n:xxx',
+    
     // 当选项改变的回调
     on_change : {C}F(true|false, mi)
 

@@ -108,6 +108,10 @@ public class cmd_thing extends JvmHdlExecutor {
                     InputStream ins = (InputStream) hc.output;
                     sys.out.writeAndClose(ins);
                 }
+                // 如果是字符串，不要强制输出换行
+                else if (hc.output instanceof CharSequence) {
+                    sys.out.print(hc.output.toString());
+                }
                 // 其他的情况，就直接 toString 输出咯
                 else {
                     sys.out.println(hc.output);

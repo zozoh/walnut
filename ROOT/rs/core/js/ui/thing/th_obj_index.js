@@ -51,7 +51,7 @@ return ZUI.def("ui.th_obj_index", {
             jTabs.show().html(UI.compactHTML(`
                 <ul>
                 <li m="meta">{{thing.meta}}</li>
-                <li m="detail">{{thing.detail}}</li>
+                <li m="detail">{{thing.detail.title}}</li>
                 </ul>
             `));
             UI.__show_main(function(){
@@ -86,6 +86,8 @@ return ZUI.def("ui.th_obj_index", {
     },
     //..............................................
     update : function(o, callback) {
+        // 记录当前对象
+        this.__OBJ = o;
         this.gasket.main.update(o, callback);
         // TODO 同时也要更新对象菜单吧
     },
@@ -115,7 +117,11 @@ return ZUI.def("ui.th_obj_index", {
             UI.local("current_tab", "meta");
             jTabs.find('li').removeAttr("current")
                 .filter('[m="meta"]').attr("current", "yes");
-            $z.doCallback(callback, [this], UI);
+            if(UI.__OBJ) {
+                this.update(UI.__OBJ, callback);
+            } else {
+                $z.doCallback(callback, [this], UI);
+            }
         });
     },
     //..............................................
@@ -132,7 +138,11 @@ return ZUI.def("ui.th_obj_index", {
             UI.local("current_tab", "detail");
             jTabs.find('li').removeAttr("current")
                 .filter('[m="detail"]').attr("current", "yes");
-            $z.doCallback(callback, [this], UI);
+            if(UI.__OBJ) {
+                this.update(UI.__OBJ, callback);
+            } else {
+                $z.doCallback(callback, [this], UI);
+            }
         });
     },
     //..............................................

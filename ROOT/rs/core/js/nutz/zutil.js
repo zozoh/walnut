@@ -3966,8 +3966,8 @@
         /*............................................
          将给定的 Markdown 文本，转换成 HTML 代码
          opt : {
-         media   : {c}F(src)   // 计算媒体文件加载的真实 URL
-         context : undefined  // 所有回调的上下文
+            media   : {c}F(src)   // 计算媒体文件加载的真实 URL
+            context : undefined  // 所有回调的上下文
          }
          */
         markdownToHtml: function (str, opt) {

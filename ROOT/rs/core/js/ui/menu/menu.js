@@ -336,7 +336,10 @@ return ZUI.def("ui.menu", {
         jItem.attr("tp", "boolean");
 
         // 初始化 icon
-        mi.icon = mi.on ? mi.icon_on : mi.icon_off;
+        mi.icon = mi.on ? mi.icon_on 
+                        : mi.icon_off;
+        mi.text = mi.on ? (mi.text_on  || mi.text)
+                        : (mi.text_off || mi.text)
 
         // 绘制主体
         UI.__draw_fireable(mi, jq, jItem);

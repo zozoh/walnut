@@ -4,11 +4,20 @@ $z.declare([
     'wn/util',
     'ui/support/dom',
     'ui/thing/support/th_methods',
-], function(ZUI, Wn, DomUI, ThMethods){
+    'ui/menu/menu',
+    'ui/markdown/edit_markdown',
+], function(ZUI, Wn, DomUI, ThMethods, MenuUI, EditMarkdownUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-obj-index-detail" ui-fitparent="true">
-    I am detail
+    <section class="toid-content" ui-gasket="edit"></section>
+    <section class="toid-brief">
+        <h4>{{thing.key.brief}}</h4>
+        <aside>
+            <a><i class="zmdi zmdi-flash"></i> {{thing.detail.genbreif}}</a>
+        </aside>
+        <textarea spellcheck="false" placeholder="{{thing.detail.brief}}"></textarea>
+    </section>
 </div>
 */};
 //==============================================
@@ -24,7 +33,42 @@ return ZUI.def("ui.th_obj_index_detail", {
     redraw : function(){
         var UI   = this;
         var conf = UI.getBusConf();
-        
+       
+        new EditMarkdownUI({
+            parent : UI,
+            gasketName : "edit",
+            menu : [{
+                icon : '<i class="fa fa-save"></i>',
+                text : "i18n:thing.detail.save",
+                asyncIcon : '<i class="zmdi zmdi-settings zmdi-hc-spin"></i>',
+                asyncText : "i18n:thing.detail.saving",
+                asyncHandler : function(jq, mi, callback) {
+                    var obj = UI.__OBJ;
+                    // 防守一下吧，虽然不太可能会发生
+                    if(!obj) {
+                        UI.alert("thing.detail.noobj", "warn");
+                        return;
+                    }
+                    // 读取数据 
+                    var det = {
+                        tp : "md",
+                        brief : $.trim(UI.arena.find(">.toid-brief textarea").val()),
+                        content : this.getData()
+                    };
+                    // 执行保存
+                    conf.detail.save(obj, det, callback);
+                }
+            }],
+            preview : conf.detail.markdown,
+            defaultMode : UI.local("markdown-mode"),
+            on_mode : function(m) {
+                UI.local("markdown-mode", m);
+            }
+        }).render(function(){
+            UI.defer_report("edit");
+        });
+
+        return ["edit"];
     },
     //..............................................
     _fill_context : function(uiSet) {
@@ -33,11 +77,23 @@ return ZUI.def("ui.th_obj_index_detail", {
     //..............................................
     update : function(o, callback) {
         var UI  = this;
-        var bus = UI.bus();
-        console.log("update detail", o);
+        var conf = UI.getBusConf();
+        UI.__OBJ = o;
         
-        
+        conf.detail.read(o, function(str){
+            UI.gasket.edit.setData(str);
+            $z.doCallback(callback, [str], UI);  
+        });
     },
+    //..............................................
+    resize : function() {
+        var UI = this;
+        var jBreif   = UI.arena.find(">.toid-brief");
+        var jContent = UI.arena.find(">.toid-content");
+        jContent.css({
+            "height": UI.arena.height() - jBreif.outerHeight()
+        });
+    }
     //..............................................
 });
 //==================================================
