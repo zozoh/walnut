@@ -27,6 +27,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.quota.QuotaService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.WnConfig;
 
@@ -56,6 +57,8 @@ public class WalnutFilter implements Filter {
     private WnObj oDmnHome;
 
     private ArrayList<DmnMatcher> _dms;
+    
+    protected QuotaService quotaService;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse resp, FilterChain chain)
@@ -135,6 +138,18 @@ public class WalnutFilter implements Filter {
             }
 
             String grp = oDmn.getString("dmn_grp");
+            
+            // 看看流量还够不够
+            if (quotaService == null) {
+                quotaService = Mvcs.ctx().getDefaultIoc().get(QuotaService.class, "quota");
+            }
+            if (quotaService.checkQuota("network", grp, false)) {
+                Mvcs.updateRequestAttributes(req);
+                req.setAttribute("obj", Lang.map("host", host).setv("path", path));
+                req.setAttribute("err_message", "流量已经超出限额");
+                req.getRequestDispatcher(errorPage).forward(req, resp);
+                return;
+            }
 
             // 准备替换的上下文
             NutMap map = new NutMap().setv("grp", grp);

@@ -125,7 +125,7 @@ public class WnStoreImpl implements WnStore {
         
         // 检查一下空间配额
         if (quota != null && Wn.S.isWriteOrAppend(mode)) {
-            quota.checkQuota("disk", wc.me());
+            quota.checkQuota("disk", wc.me(), true);
         }
 
         // 创建句柄
