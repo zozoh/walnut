@@ -57,15 +57,15 @@ public class WalnutFilter implements Filter {
     private WnObj oDmnHome;
 
     private ArrayList<DmnMatcher> _dms;
-    
+
     protected QuotaService quotaService;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse resp, FilterChain chain)
             throws IOException, ServletException {
         // 用 Jettry 的 Request 对象接口
-        //Request req = (Request) arg0;
-        HttpServletRequest req = (HttpServletRequest)request;
+        // Request req = (Request) arg0;
+        HttpServletRequest req = (HttpServletRequest) request;
 
         // 分析路径
         String path = Wn.appendPath(req.getServletPath(), req.getPathInfo());
@@ -130,15 +130,16 @@ public class WalnutFilter implements Filter {
             }
 
             // 找到了记录，但是过期了，显示错误页
-            if (oDmn.isExpired()) {
+            if (oDmn.isExpired() || oDmn.getLong("dmn_expi", 0) < System.currentTimeMillis()) {
                 Mvcs.updateRequestAttributes(req);
                 req.setAttribute("obj", Lang.map("host", host).setv("path", path));
+                req.setAttribute("err_message", "域名转发过期");
                 req.getRequestDispatcher(errorPage).forward(req, resp);
                 return;
             }
 
             String grp = oDmn.getString("dmn_grp");
-            
+
             // 看看流量还够不够
             if (quotaService == null) {
                 quotaService = Mvcs.ctx().getDefaultIoc().get(QuotaService.class, "quota");
