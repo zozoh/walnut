@@ -143,7 +143,7 @@ public class WalnutFilter implements Filter {
             if (quotaService == null) {
                 quotaService = Mvcs.ctx().getDefaultIoc().get(QuotaService.class, "quota");
             }
-            if (quotaService.checkQuota("network", grp, false)) {
+            if (!quotaService.checkQuota("network", grp, false)) {
                 Mvcs.updateRequestAttributes(req);
                 req.setAttribute("obj", Lang.map("host", host).setv("path", path));
                 req.setAttribute("err_message", "流量已经超出限额");
