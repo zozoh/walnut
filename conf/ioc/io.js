@@ -63,7 +63,7 @@ var ioc = {
 				}
 			},
 			quota : {
-				refer : "quotaService"
+				refer : "quota"
 			}
 		}
 	},

@@ -32,7 +32,7 @@ import com.mongodb.DBObject;
  * @author wendal
  *
  */
-@IocBean(create="init", depose="depose")
+@IocBean(create="init", depose="depose", name="quota")
 public class QuotaService {
     
     private static final Log log = Logs.get();
