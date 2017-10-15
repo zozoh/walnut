@@ -67,7 +67,7 @@ return ZUI.def("ui.zcron_tmrg", {
     update : function(ozc) {
         var UI = this;
         var jT = UI.arena.find('table tbody').empty();
-
+        //console.log(ozc)
         // 范围
         if(ozc.timeRepeaters.length > 0){
             for(var i=0; i<ozc.timeRepeaters.length; i++) {
@@ -107,8 +107,8 @@ return ZUI.def("ui.zcron_tmrg", {
         var sTo    = tr.region ? tr.region.right() : "23:59:59";
         var tiFrom = $z.parseTimeInfo(sFrom);
         var tiTo   = $z.parseTimeInfo(sTo);
-        jTr.find('[key="from"] input').val(tiFrom.toString(true));
-        jTr.find('[key="to"] input').val(tiTo.toString(true));
+        jTr.find('[key="from"] input').val(tiFrom.toString());
+        jTr.find('[key="to"] input').val(tiTo.toString());
         jTr.find('[key="step"] input').val(tr.stepValue || "");
         UI.setStepUnit(jTr, tr.stepUnit || "m");
     },

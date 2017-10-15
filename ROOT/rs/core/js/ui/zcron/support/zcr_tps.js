@@ -31,7 +31,7 @@ return ZUI.def("ui.zcron_tps", {
                 return re;
             },
             text : function(v) {
-                return $z.parseTimeInfo(v).toString(true);
+                return $z.parseTimeInfo(v).toString();
             },
             on_change : function(v){
                 UI.notifyChange();
@@ -62,7 +62,7 @@ return ZUI.def("ui.zcron_tps", {
         for(var i=0;i<tps.length;i++) {
             var sec = tps[i];
             var ti  = $z.parseTimeInfo(sec);
-            tps[i]  = ti.toString(true);
+            tps[i]  = ti.toString();
         }
         
         return "T{" + tps.join(",") + "}";

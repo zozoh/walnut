@@ -98,7 +98,7 @@ return ZUI.def("ui.calendar", {
         this.arena.zcal("multi", list);
         return this;
     },
-    blur : function(){
+    blurCurrent : function(){
         this.arena.zcal("blur");
         return this;
     }

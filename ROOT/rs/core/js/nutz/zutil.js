@@ -2420,8 +2420,15 @@
         //.............................................
         // 解析时间字符串（替代 parseTime)
         parseTimeInfo: function (input, dft) {
+            var _pad = function(v, width) {
+                width = width || 2;
+                if(3 == width){
+                    return v>99 ? v : (v>9 ? "0"+v : "00"+v);
+                }
+                return v>9 ? v : "0"+v;
+            };
+            input = (typeof input) == "number" ? input : input || dft;
             var inType = (typeof input);
-            var sec = dft;
             var ms  = 0;
             var ti  = {};
             // 字符串
@@ -2454,6 +2461,7 @@
             }
             // 数字
             else if ("number" == inType) {
+                var sec;
                 if("ms" == dft) {
                     sec = parseInt(input / 1000);
                     ms  = Math.round(input - sec * 1000);
@@ -2537,31 +2545,31 @@
                     }
                     // HH 补零的小时(0-23)
                     else if ("HH" == s) {
-                        sb += zUtil.alignRight(this.hour, 2, '0');
+                        sb += _pad(this.hour);
                     }
                     // kk 补零的小时(1-24)
                     else if ("kk" == s) {
-                        sb += zUtil.alignRight(this.hour + 1, 2, '0');
+                        sb += _pad(this.hour + 1);
                     }
                     // KK 补零的半天小时(0-11)
                     else if ("KK" == s) {
-                        sb += zUtil.alignRight(this.hour % 12, 2, '0');
+                        sb += _pad(this.hour % 12);
                     }
                     // hh 补零的半天小时(1-12)
                     else if ("hh" == s) {
-                        sb += zUtil.alignRight((this.hour % 12) + 1, 2, '0');
+                        sb += _pad((this.hour % 12) + 1);
                     }
                     // mm 补零的分钟
                     else if ("mm" == s) {
-                        sb += zUtil.alignRight(this.minute, 2, '0');
+                        sb += _pad(this.minute);
                     }
                     // ss 补零的秒
                     else if ("ss" == s) {
-                        sb += zUtil.alignRight(this.second, 2, '0');
+                        sb += _pad(this.second);
                     }
                     // SSS 补零的毫秒
                     else if ("SSS" == s) {
-                        sb += zUtil.alignRight(this.millisecond, 3, '0');
+                        sb += _pad(this.millisecond, 3);
                     }
                     // 不认识
                     else {

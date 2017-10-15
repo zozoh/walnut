@@ -39,6 +39,8 @@ define({
     "none"       : "无",
     "prev"       : "上一步",
     "next"       : "下一步",
+    "mvup"       : "上移",
+    "mvdown"     : "下移",
     "done"       : "完成",
     "noselected" : "没有对象被选中",
     "loading"    : "正在加载 ...",
