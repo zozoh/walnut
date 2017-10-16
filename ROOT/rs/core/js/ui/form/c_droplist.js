@@ -375,8 +375,9 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
 
             // 下面不要让下拉框超出窗口
             var rect = $D.rect.gen(jDrop);
+            console.log(rect)
             var viewport = $z.winsz();
-            var rect2 = $D.rect.boundaryIn(rect, viewport);
+            var rect2 = $D.rect.boundaryIn(rect, viewport, true);
             jDrop.css($z.pick(rect2, "top,left,width,height"));
 
             // 冻结后， CSS 可以修改内容的显示
