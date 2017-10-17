@@ -4606,14 +4606,15 @@
          *            文件路径
          * @return 文件后缀名
          */
-        getSuffixName: function (path) {
+        getSuffixName: function (path, forceLower) {
             if (!path)
                 return "";
             var p0 = path.lastIndexOf('.');
             var p1 = path.lastIndexOf('/');
             if (-1 == p0 || p0 < p1)
                 return "";
-            return path.substring(p0 + 1);
+            var sfnm = path.substring(p0 + 1);
+            return forceLower ? sfnm.toLowerCase() : sfnm;
         },
         /**
          * 获取文件后缀名，包括 '.'，如 'abc.gif','，则返回 '.gif'
@@ -4622,14 +4623,15 @@
          *            文件路径
          * @return 文件后缀
          */
-        getSuffix: function (path) {
+        getSuffix: function (path, forceLower) {
             if (!path)
                 return "";
             var p0 = path.lastIndexOf('.');
             var p1 = path.lastIndexOf('/');
             if (-1 == p0 || p0 < p1)
                 return "";
-            return path.substring(p0);
+            var sfnm = path.substring(p0 + 1);
+            return forceLower ? sfnm.toLowerCase() : sfnm;
         },
         //============== 计算文件大小
         sizeText: function (sz) {

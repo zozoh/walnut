@@ -31,6 +31,8 @@ th_manager    # 顶级管理器
 
 则个配置信息，格式如下： 
 
+> 所有的回调，如果没有特殊说明，其 `this` 均为 `bus` 对象
+
 ```
 {
     // 数据模式
@@ -132,10 +134,7 @@ th_manager    # 顶级管理器
     media : {
         // 支持多个媒体还是仅仅一个媒体, 默认 true
         multi : true
-        
-        // 上传目标: 一个文件目录的路径
-        target : ObjPath
-        
+               
         // 如果已经存在，是否覆盖（如果不能覆盖，则改名）
         // 默认 true
         overwrite : true
@@ -144,16 +143,17 @@ th_manager    # 顶级管理器
         //  - fnm  : 文件名
         //  - mime : 内容类型
         //  - size : 文件大小(字节）
-        filter : {c}F(fnm, mime, size):Boolean
+        filter : {c}F(File):Boolean
     
         // 如何列出对象所有的媒体
         list  : {c}F(obj, callback),
                     
         // 移除一个媒体
-        del : {c}(obj, callback),
+        remove : {c}(obj, callback),
         
-        // 上传成功后，要执行什么后续处理
-        done : {c}F(obj, oMedia, callback),
+        // 上传一个媒体
+        // overwrite 就是本配置的
+        upload : {c}F(File, overwrite, callback),
     }
     
     // 对于附件的配置信息
@@ -201,11 +201,7 @@ th_manager    # 顶级管理器
     manager   : ZUI,
     search    : ZUI,
     obj       : ZUI,
-    index  : ZUI,
-    detail : ZUI,
     data      : ZUI,
-    media : ZUI,
-    attachment : ZUI
 }
 ```
 

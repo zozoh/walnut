@@ -84,13 +84,14 @@
     > .th-obj-data-con {right:0; left:@thOW;}
 }
 //........................................
+// 通用标签面板
 @toiH : 32px;
-.th-obj-index {
+.th-obj-pan {
     position: relative;
     > * {position: absolute; left:0; right:0;}
     > header {top:0;
-        .toi-tabs {float:left;}
-        .toi-menu {float:right;}
+        .top-tabs {float:left;}
+        .top-menu {float:right;}
     }
     > header:after{@clr();}
     > section {top:@toiH; bottom:0;}
@@ -100,7 +101,7 @@
         background: @cb0; border-bottom: 1px solid @cborder1;
         > div {
             @flex(); align-items: flex-end;  height:@toiH;
-            .toi-tabs { @noselect();
+            .top-tabs { @noselect();
                 padding:0 @d3;
                 ul {@flex();
                     li {
@@ -151,6 +152,21 @@
             padding:@d3; font-size:@f2; line-height: @f3;
             
         }
+    }
+}
+//........................................
+.th-obj-data {
+    > header > div .top-tabs ul li[current] {background: @cb1;}
+    > section {background: @cb1;border-left:1px solid @cborder1;}
+}
+
+//........................................
+// 通用附件/多媒体面板样式
+.th-obj-data-W {
+    padding:@d0;
+    // 下面嵌套的列表控件
+    .data-list {
+        
     }
 }
 

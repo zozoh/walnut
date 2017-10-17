@@ -164,6 +164,9 @@ var methods = {
     hasActived : function(){
         return this.getActivedId() ? true : false;
     },
+    isEmpty : function() {
+        return this.arena.find('.list-item').length <= 0;
+    },
     //...............................................................
     setActived : function(arg){
         var UI  = this;
@@ -464,17 +467,23 @@ var methods = {
         var UI = this;
         objs = _.isArray(objs) ? objs : [objs];
 
-        var jListBody = UI.$listBody();
+        // 准备返回的元素数组
+        var re = [];
 
         // 如果为空，则表示重绘数据
-        if(jListBody.length == 0) {
+        if(UI.isEmpty()) {
             UI._draw_data(objs);
+            UI.arena.find(".list-item").each(function(){
+                re.push(this);
+            });
         }
         // 否则依次追加数据
         else {
+            var jListBody = UI.$listBody();
             var jItem = UI.$item(it);
             for(var obj of objs) {
                 jItem = UI._upsert_item(obj, jListBody, jItem, direction);
+                re.push(jItem[0]);
             }
         }
 
@@ -484,8 +493,8 @@ var methods = {
         // 重新调整尺寸
         UI.resize(true);
 
-        // 返回自身
-        return this;
+        // 返回新增加的 jQuery 集合
+        return $(re);
     },
     //...............................................................
     remove : function(it, keepAtLeastOne) {

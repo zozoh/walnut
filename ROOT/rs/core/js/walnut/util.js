@@ -15,6 +15,7 @@ var Wn = {
         nmTagName = nmTagName || 'a';
         var html = innerOnly ? '' : '<div class="wnobj">';
         html += '<div class="wnobj-wrapper">';
+        //-------------------------------------------
         html += '<div class="wnobj-seq"><span>0</span></div>'
         html += '<div class="wnobj-del"><i class="fa fa-close"></i></div>'
         html += '<div class="wnobj-thumbnail">';
@@ -23,12 +24,21 @@ var Wn = {
         html += '<div class="wnobj-NE wnobj-icon-hide"></div>';
         html += '<div class="wnobj-SW wnobj-icon-hide"></div>';
         html += '<div class="wnobj-SE wnobj-icon-hide"></div>';
-        html += ' </div>';
         html += '</div>';
+        html += '</div>';
+        // 名称
         if(_.isString(nmTagName))
             html += '<div class="wnobj-nm-con"><'+nmTagName+' class="wnobj-nm"></'+nmTagName+'></div>';
+        // 进度
+        html += '<div class="wnobj-ing"><div class="wnobj-ing-W">';
+        html += '<div class="wnobj-ing-nb">0%</div>';
+        html += '<div class="wnobj-ing-bar"><span></span></div>';
+        html += '</div></div>';
+        //-------------------------------------------
         html += '</div>';
         html += innerOnly ? '' : '</div>';
+        
+        // 返回
         return html;
     },
     //...................................................................
@@ -73,7 +83,8 @@ var Wn = {
             }
         }
         // 设置缩略图地址
-        var url = "url(/o/thumbnail/id:"+encodeURIComponent(o.id)+"?sh=64)";
+        var url = o.id ? "url(/o/thumbnail/id:"+encodeURIComponent(o.id)+"?sh=64)"
+                       : "url(/o/thumbnail/type:"+encodeURIComponent(o.tp)+"?sh=64)";
         jThumb.find(".img").css("background-image", url);
         jThumb.attr("thumb", o.thumb);
 
@@ -87,7 +98,7 @@ var Wn = {
             
             jNm.text(nmText)
             // 标记链接
-            if(jNm[0].tagName == 'A'){
+            if(jNm[0].tagName == 'A' && o.id){
                 jNm.prop("target", "_blank");
                 jNm.prop("href","/a/open/"+(window.wn_browser_appName||"wn.browser")+"?ph=id:"+o.id);
             }

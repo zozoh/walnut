@@ -676,9 +676,12 @@ return ZUI.def("ui.form", {
             var jso = fld.JsObjType;
             var v   = fui.getData();
             var v2  = jso.parse(v).toNative();
+            // zozoh: 脑子抽抽了吧，为啥用重设一下
+            // label 控件显示 lm，会马上被变毫秒数吧
+            // 先注释掉 >:O
             // 看看是否有必要重设一下值
-            if(v != v2)
-                fui.setData(v2);
+            // if(v != v2)
+            //     fui.setData(v2);
             return v2;
         }
 
@@ -724,9 +727,12 @@ return ZUI.def("ui.form", {
                     var jso = fld.JsObjType;
                     var v   = fui.getData();
                     var v2  = jso.parse(v).setToObj(re);
+                    // zozoh: 脑子抽抽了吧，为啥用重设一下
+                    // label 控件显示 lm，会马上被变毫秒数吧
+                    // 先注释掉 >:O
                     // 看看是否有必要重设一下值
-                    if(v != v2)
-                        fui.setData(v2);
+                    // if(v != v2)
+                    //     fui.setData(v2);
                 }
             });
 

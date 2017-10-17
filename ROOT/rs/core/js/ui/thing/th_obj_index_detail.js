@@ -56,7 +56,8 @@ return ZUI.def("ui.th_obj_index_detail", {
                         content : this.getData()
                     };
                     // 执行保存
-                    conf.detail.save(obj, det, callback);
+                    //conf.detail.save(obj, det, callback);
+                    UI.invokeConfCallback("detail", "save", [obj, det, callback]);
                 }
             }],
             preview : conf.detail.markdown,
@@ -71,19 +72,15 @@ return ZUI.def("ui.th_obj_index_detail", {
         return ["edit"];
     },
     //..............................................
-    _fill_context : function(uiSet) {
-        uiSet.detail = this;
-    },
-    //..............................................
     update : function(o, callback) {
         var UI  = this;
         var conf = UI.getBusConf();
         UI.__OBJ = o;
-        
-        conf.detail.read(o, function(str){
+
+        this.invokeConfCallback("detail", "read", [o, function(str){
             UI.gasket.edit.setData(str);
             $z.doCallback(callback, [str], UI);  
-        });
+        }]);
     },
     //..............................................
     resize : function() {

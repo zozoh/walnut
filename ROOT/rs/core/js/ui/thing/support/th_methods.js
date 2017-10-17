@@ -219,7 +219,44 @@ var DATA_MODE = {
             }
         });
         // ----------------- media
+        conf.media = $z.fallbackUndefined(opt.media, conf.media, {
+            list : function(th, callback) {
+                Wn.execf('thing {{th_set}} media {{id}}', th, function(re){
+                    var list = $z.fromJson(re);
+                    $z.doCallback(callback, [list]);
+                });
+            },
+            upload : function(setup) {
+                var th = setup.obj;
+                var ph = "id:"+th.th_set+"/data/"+th.id+"/media/";
+                var url = "/o/upload/<%=ph%>";
+                url += "?nm=<%=file.name%>";
+                url += "&sz=<%=file.size%>";
+                url += "&mime=<%=file.type%>";
+                if(!setup.overwrite)
+                    url += '&dupp=${major}(${nb})${suffix}';
+                $z.uploadFile({
+                    file : setup.file,
+                    url  : url,
+                    ph   : "id:"+th.th_set+"/data/"+th.id+"/media/",
+                    evalReturn : "ajax",
+                    progress : function(e){
+                        $z.invoke(setup, "progress", [e.loaded/e.total]);
+                    },
+                    done : setup.done,
+                    fail : setup.fail,
+                });
+            }
+        });
+        $z.setUndefined(conf.media, "multi", true);
+        $z.setUndefined(conf.media, "overwrite", true);
+        $z.setUndefined(conf.media, "filter", function(f){
+            return true;
+        });
         // ----------------- attachment
+        conf.attachment = $z.fallbackUndefined(opt.attachment, conf.attachment, {
+
+        });
         // ----------------- folders
         // ----------------- busEvents
     },
@@ -280,6 +317,13 @@ var methods = {
     //....................................................
     invokeUI : function(uiName, methodName, args, context) {
         $z.invoke(this.uis(uiName), methodName, args||[], context);
+    },
+    //....................................................
+    invokeConfCallback : function(fldName, methodName, args){
+        var UI   = this;
+        var bus  = this.bus();
+        var conf = this.getBusConf();
+        $z.invoke(conf[fldName], methodName, args, bus);
     },
     //....................................................
     getBusConf : function(keys) {

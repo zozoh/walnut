@@ -128,6 +128,10 @@ define({
             "noobj"  : "还未读取对象",
             "genbreif" : "自动生成摘要",
         },
+        "data" : {
+            "media" : "多媒体",
+            "attachment" : "附件",
+        },
         "err" : {
             "nothingjs" : "没有找到 thing.js!"
         },

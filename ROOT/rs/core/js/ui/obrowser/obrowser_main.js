@@ -26,12 +26,6 @@ return ZUI.def("ui.obrowser_main", {
         });
     },
     //..............................................
-    events : {
-        "contextmenu .wnobj" : function(e){
-            console.log(e.target)
-        }
-    },
-    //..............................................
     update : function(o, asetup, callback){
         var UI = this;
         var subView = UI.subUI("view");

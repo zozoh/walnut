@@ -9,10 +9,10 @@ $z.declare([
 ], function(ZUI, Wn, DomUI, ThMethods, ThObjMetaUI, ThObjDetailUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-obj-index" ui-fitparent="true">
+<div class="ui-arena th-obj-index th-obj-pan" ui-fitparent="true">
     <header><div>
-        <div class="toi-tabs"></div>
-        <div class="toi-menu" ui-gasket="menu"></div>
+        <div class="top-tabs"></div>
+        <div class="top-menu" ui-gasket="menu"></div>
     </div></header>
     <section ui-gasket="main"></section>
 </div>
@@ -28,7 +28,7 @@ return ZUI.def("ui.th_obj_index", {
     },
     //..............................................
     events : {
-        'click .toi-tabs li[m]' : function(e) {
+        'click .top-tabs li[m]' : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
             if('meta' == jq.attr("m")) {
@@ -42,7 +42,7 @@ return ZUI.def("ui.th_obj_index", {
     redraw : function(){
         var UI   = this;
         var conf = UI.getBusConf();
-        var jTabs = UI.arena.find(">header .toi-tabs");
+        var jTabs = UI.arena.find(">header .top-tabs");
         
         console.log("draw index", conf);
 
@@ -95,7 +95,7 @@ return ZUI.def("ui.th_obj_index", {
     __show_main : function(callback){
         var UI = this;
         // 显示主界面界面
-        if("detail" == UI.local("current_tab")){
+        if("detail" == UI.local("th_obj_index_current_tab")){
             UI.showDetail(callback);
         }
         // 默认显示元数据界面
@@ -107,14 +107,14 @@ return ZUI.def("ui.th_obj_index", {
     showMeta : function(callback) {
         var UI  = this;
         var bus = UI.bus();
-        var jTabs = UI.arena.find(">header .toi-tabs");
+        var jTabs = UI.arena.find(">header .top-tabs");
 
         new ThObjMetaUI({
             parent : UI,
             gasketName : "main",
             bus : bus,
         }).render(function(){
-            UI.local("current_tab", "meta");
+            UI.local("th_obj_index_current_tab", "meta");
             jTabs.find('li').removeAttr("current")
                 .filter('[m="meta"]').attr("current", "yes");
             if(UI.__OBJ) {
@@ -128,14 +128,14 @@ return ZUI.def("ui.th_obj_index", {
     showDetail : function(callback) {
         var UI  = this;
         var bus = UI.bus();
-        var jTabs = UI.arena.find(">header .toi-tabs");
+        var jTabs = UI.arena.find(">header .top-tabs");
 
         new ThObjDetailUI({
             parent : UI,
             gasketName : "main",
             bus : bus,
         }).render(function(){
-            UI.local("current_tab", "detail");
+            UI.local("th_obj_index_current_tab", "detail");
             jTabs.find('li').removeAttr("current")
                 .filter('[m="detail"]').attr("current", "yes");
             if(UI.__OBJ) {
