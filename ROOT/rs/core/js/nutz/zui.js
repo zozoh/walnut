@@ -304,6 +304,7 @@ define(function (require, exports, module) {
                     $(this).removeAttr("ui-drag");
                 });
                 UI.$el.on("drop", ddSelector, function(e){
+                    $(this).removeAttr("ui-drag");
                     e.stopPropagation();
                     e.preventDefault();
                     $z.invoke(UI, "on_drop", [e.originalEvent.dataTransfer.files]);

@@ -179,6 +179,9 @@
                 dftFunc = context;
                 context = undefined;
             }
+            // 确保有函数参数
+            args = args || [];
+
             // 有函数
             if (_.isFunction(callback)) {
                 return callback.apply(context || this, args);

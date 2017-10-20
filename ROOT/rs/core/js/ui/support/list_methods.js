@@ -129,6 +129,59 @@ var methods = {
         return obj[this.options.nmKey];
     },
     //...............................................................
+    findItem : function(arg){
+        var UI = this;
+        // 没指定内容，为空
+        if(_.isUndefined(arg)){
+            return $([]);
+        }
+        // 如果是字符串表示 ID
+        if(_.isString(arg)){
+            // 名字吗
+            if(/^nm:/.test(arg)){
+                var nm = arg.substring(3);
+                return UI.arena.find('.list-item[onm="'+nm+'"]');    
+            }
+            // 那么就当做 ID 吧
+            return UI.arena.find('.list-item[oid="'+arg+'"]');
+        }
+        // 正则表达式，则表示匹配名称
+        if(_.isRegExp(arg)){
+            var re = [];
+            UI.arena.find('.list-item').each(function(){
+                var nm = $(this).attr("onm");
+                if(arg.test(nm))
+                    re.push(this);
+            });
+            return $(re);
+        }
+        // 是一个通用过滤函数
+        if(_.isFunction(arg)){
+            var re = [];
+            UI.arena.find('.list-item').each(function(){
+                var obj = opt.getItemData.call(UI, $(this));
+                if(arg.call(UI, obj))
+                    re.push(this);
+            });
+            return $(re);
+        }
+        // 本身就是 dom
+        if(_.isElement(arg) || $z.isjQuery(arg)){
+            return $(arg).closest(".list-item");
+        }
+        // 数字
+        if(_.isNumber(arg)){
+            return UI.arena.find(".list-item:eq("+arg+")");
+        }
+        // 如果是对象，那么试图获取 IDKey
+        if(_.isObject(arg)) {
+            var id = arg[opt.idKey];
+            return UI.arena.find(".list-item[oid="+id+"]");
+        }
+        // 靠不晓得了
+        throw "unknowns $item selector: " + arg;
+    },
+    //...............................................................
     // 从某项目取出数据
     getObj : function(arg, forceArray) {
         var UI    = this;

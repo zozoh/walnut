@@ -226,6 +226,9 @@ var DATA_MODE = {
                     $z.doCallback(callback, [list]);
                 });
             },
+            rename : function(th, newName) {
+
+            },
             upload : function(setup) {
                 var th = setup.obj;
                 var ph = "id:"+th.th_set+"/data/"+th.id+"/media/";

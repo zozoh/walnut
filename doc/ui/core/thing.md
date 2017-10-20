@@ -152,8 +152,14 @@ th_manager    # 顶级管理器
         remove : {c}(obj, callback),
         
         // 上传一个媒体
-        // overwrite 就是本配置的
-        upload : {c}F(File, overwrite, callback),
+        upload : {c}F({
+            obj  : {..}     // 当前正在编辑的对象
+            file : File     // 要上传的文件
+            overwrite : true  // 与本配置项的 overwrite 相等
+            progress : F(pe)  // 参数pe为一个浮点数，表示上传进度，比如  0.4321
+            done : F(newObj)  // 上传成功后的回调 newObj 为新的附件 WnObj
+            fail : F(re)      // 上传失败收的回调，re 为 AjaxReturn 格式的失败对象
+        }),
     }
     
     // 对于附件的配置信息
