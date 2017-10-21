@@ -30,6 +30,17 @@ return ZUI.def("ui.th_obj_index_detail", {
         ThMethods(this);
     },
     //..............................................
+    events : {
+        'click .toid-brief aside a' : function(){
+            var UI = this;
+            var str = UI.gasket.edit.getData();
+            var brief = $.trim(str||"")
+                .replace(/[>+-`#\t\r\n ]/g, "")
+                    .substring(0, 50);
+            UI.arena.find(".toid-brief textarea").val(brief);
+        }
+    },
+    //..............................................
     redraw : function(){
         var UI   = this;
         var conf = UI.getBusConf();
@@ -81,6 +92,9 @@ return ZUI.def("ui.th_obj_index_detail", {
             UI.gasket.edit.setData(str);
             $z.doCallback(callback, [str], UI);  
         }]);
+
+        // 更新摘要
+        UI.arena.find(">.toid-brief textarea").val(o.brief || "");
     },
     //..............................................
     resize : function() {

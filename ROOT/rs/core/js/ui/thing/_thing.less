@@ -156,7 +156,16 @@
 }
 //........................................
 .th-obj-data {
-    > header > div .top-tabs ul li[current] {background: @cb1;}
+    > header > div {
+        position: relative;
+        .top-tabs ul li[current] {background: @cb1;}
+        .top-menu {
+            position: absolute; right: 0; top:0;
+            .menu {
+                padding:@d1 @d0;
+            }
+        }
+    }
     > section {background: @cb1;border-left:1px solid @cborder1;}
 }
 

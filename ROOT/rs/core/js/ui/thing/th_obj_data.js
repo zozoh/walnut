@@ -3,15 +3,21 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/support/dom',
+    'ui/menu/menu',
     'ui/thing/support/th_methods',
     'ui/thing/th_obj_data_media',
     'ui/thing/th_obj_data_attachment',
-], function(ZUI, Wn, DomUI, ThMethods, ThObjMediaUI, ThObjAttachmentUI){
+], function(ZUI, Wn, DomUI, MenuUI, ThMethods, ThObjMediaUI, ThObjAttachmentUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-obj-data th-obj-pan" ui-fitparent="true">
     <header><div>
-        <div class="top-tabs"></div>
+        <div class="top-tabs">
+            <ul>
+                <li m="media">{{thing.data.media}}</li>
+                <li m="attachment">{{thing.data.attachment}}</li>
+            </ul>
+        </div>
         <div class="top-menu" ui-gasket="menu"></div>
     </div></header>
     <section ui-gasket="main"></section>
@@ -43,31 +49,23 @@ return ZUI.def("ui.th_obj_data", {
         var UI   = this;
         var conf = UI.getBusConf();
         var jTabs = UI.arena.find(">header .top-tabs");
-        
-        console.log("draw data", conf);
 
         // 都有
         if(conf.media && conf.attachment) {
-            jTabs.show().html(UI.compactHTML(`
-                <ul>
-                <li m="media">{{thing.data.media}}</li>
-                <li m="attachment">{{thing.data.attachment}}</li>
-                </ul>
-            `));
             UI.__show_main(function(){
                 UI.defer_report("main");
             });
         }
         // 仅有媒体
         else if(conf.media) {
-            jTabs.hide();
+            jTabs.find('li[m="attachment"]').hide();
             UI.showMedia(function(){
                 UI.defer_report("main");
             });
         }
         // 那么就仅有元数据咯
         else if(conf.attachment) {
-            jTabs.hide();
+            jTabs.find('li[m="media"]').hide();
             UI.showAttachment(function(){
                 UI.defer_report("main");
             });
@@ -77,8 +75,39 @@ return ZUI.def("ui.th_obj_data", {
             throw "not setup media or attachment!";
         }
 
+        // 显示菜单
+        new MenuUI({
+            parent : UI,
+            gasketName : "menu",
+            setup : [{
+                type : "group",
+                icon : '<i class="fa fa-gear"></i>',
+                items : [{
+                    icon : '<i class="zmdi zmdi-refresh"></i>',
+                    text : 'i18n:refresh',
+                    handler : function(){
+                        alert("refresh")
+                    }
+                }, {
+                    icon : '<i class="fa fa-trash"></i>',
+                    text : 'i18n:thing.data.remove',
+                    handler : function(){
+                        alert("delete")
+                    }
+                }, {
+                    icon : '<i class="zmdi zmdi-upload"></i>',
+                    text : 'i18n:thing.data.upload',
+                    handler : function(){
+                        alert("upload")
+                    }
+                }]
+            }]
+        }).render(function(){
+            UI.defer_report("menu");
+        });
+
         // 返回延迟加载
-        return ["main"];
+        return ["main", "menu"];
     },
     //..............................................
     _fill_context : function(uiSet) {

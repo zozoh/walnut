@@ -201,6 +201,7 @@ var DATA_MODE = {
                 Wn.execf('thing {{th_set}} detail {{id}}', th, callback);
             },
             save : function(th, det, callback) {
+                console.log(det);
                 Wn.execf('thing {{th_set}} detail {{id}} -content', det.content||"", th, function(){
                     if(det.brief || det.tp) {
                         var cmdText = $z.tmpl('thing {{th_set}} detail {{id}}')(th);
@@ -208,12 +209,16 @@ var DATA_MODE = {
                             cmdText += ' -tp ' + det.tp;
                         // 更新摘要和类型
                         if(det.brief) {
-                            Wn.exec(cmdText + ' -brief', det.breif, callback);
+                            Wn.exec(cmdText + ' -brief', det.brief, callback);
                         }
                         // 仅仅更新类型
                         else {
                             Wn.exec(cmdText, callback);
                         }
+                    }
+                    // 否则直接回调了
+                    else {
+                        $z.doCallback(callback);
                     }
                 });
             }
@@ -257,9 +262,9 @@ var DATA_MODE = {
             return true;
         });
         // ----------------- attachment
-        conf.attachment = $z.fallbackUndefined(opt.attachment, conf.attachment, {
+        // conf.attachment = $z.fallbackUndefined(opt.attachment, conf.attachment, {
 
-        });
+        // });
         // ----------------- folders
         // ----------------- busEvents
     },
