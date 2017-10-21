@@ -854,6 +854,13 @@ var zDom = {
     //.............................................
     // 获得视口的矩形信息
     winsz: function (win, onlyWidthHeight) {
+        // 支持  winsz(true) 这种调用模式
+        if(_.isBoolean(win)) {
+            onlyWidthHeight = win;
+            win = window;
+        }
+
+        // 确保有 window 对象
         win = win || window;
         // 哦是 document 对象，转 window
         if(win.defaultView)

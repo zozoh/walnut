@@ -3772,10 +3772,10 @@
          opt - 配置项目
          {
          items : [{
-         target : jQuery   // 指定一组要标注的文字
-         text   : "xxxx"   // 标注文字的内容
+            target : jQuery   // 指定一组要标注的文字
+            text   : "xxxx"   // 标注文字的内容
          }, {
-         // 同时进行的下一组标注
+            // 同时进行的下一组标注
          }],
          done : F()    // 所有标注显示完毕后的回调
          }
@@ -3801,7 +3801,9 @@
                 "right": 0,
                 "bottom": 0,
                 "zIndex": 99999,
+                "user-select" : "none",
             });
+            
             // 得到遮罩层的大小并生成画布
             var R_VP = $D.rect.gen(jMark);
             console.log(R_VP)
@@ -3810,6 +3812,17 @@
                 "height": R_VP.height,
             });
             var canvas = jCanv[0];
+
+            // 准备文字层
+            var jText = $('<div>').appendTo(jMark).css({
+                "position": "fixed",
+                "top": 0,
+                "left": 0,
+                "font-size"   : "14px",
+                "font-family" : "Arial",
+                "color" : "#F80",
+                "text-shadow" : "1px 1px 2px rgba(0,0,0,0.6)",
+            });
 
             // 准备绘制项目的方法
             var __draw_item = function (it) {
@@ -3823,7 +3836,7 @@
                 g2d.save();
                 g2d.clearRect(0, 0, canvas.width, canvas.height);
                 g2d.restore();
-                g2d.fillStyle = "rgba(0,0,0,0.6)";
+                g2d.fillStyle = "rgba(0,0,0,0.8)";
                 g2d.fillRect(0, 0, canvas.width, canvas.height);
                 // 重置画笔
                 g2d.fillStyle = "#F80";
@@ -3835,14 +3848,35 @@
                 // 绘制提示区域高亮矩形
                 g2d.clearRect.apply(g2d, args);
                 g2d.strokeRect.apply(g2d, args);
-                // 绘制指示线
-                g2d.beginPath();
-                g2d.moveTo(rect.right + 4, rect.y);
-                g2d.lineTo(rect.right + 30, rect.y);
-                g2d.stroke();
+                
                 // 绘制文字
-                g2d.font = "14px Georgia";
-                g2d.fillText(it.text, rect.right + 40, rect.y);
+                // 看看左右两个距离哪个大
+                var css = $D.rect.asCss(rect, $D.dom.winsz(true));
+                if(css.left > css.right) {
+                    jText.text(it.text).css({
+                        "left"  : "",
+                        "right" : css.right + css.width + 40,
+                    });
+                    // 绘制指示线
+                    g2d.beginPath();
+                    g2d.moveTo(rect.left - 4, rect.y);
+                    g2d.lineTo(rect.left - 36, rect.y);
+                    g2d.stroke();
+                }
+                // 默认绘制在右侧
+                else {
+                    jText.text(it.text).css({
+                        "left"  : rect.right + 40,
+                        "right" : "",
+                    });
+                    // 绘制指示线
+                    g2d.beginPath();
+                    g2d.moveTo(rect.right + 4, rect.y);
+                    g2d.lineTo(rect.right + 36, rect.y);
+                    g2d.stroke();
+                }
+                // 设置文字 Y 轴位置
+                jText.css("top", rect.y - (jText.outerHeight()/2));
             }
 
             // 记录绘制的项目

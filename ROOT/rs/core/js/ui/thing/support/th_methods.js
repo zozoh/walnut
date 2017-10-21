@@ -125,6 +125,7 @@ var __format_thing_fld = function(fld) {
 // ....................................
 // 处理不同数据模式的初始化方法
 var DATA_MODE = {
+    ///////////////////////////////////
     // 标准的 thing
     "thing" : function(conf, opt) {
         var UI = this;
@@ -223,55 +224,65 @@ var DATA_MODE = {
                 });
             }
         });
+        //------------------------- 定义 media/attachment 的设置方法
+        var __setup_files = function(conf, mode) {
+            conf[mode] = $z.fallbackUndefined(opt[mode], conf[mode], {
+                list : function(th, callback) {
+                    Wn.execf('thing {{th_set}} '+mode+' {{id}}', th, function(re){
+                        var list = $z.fromJson(re);
+                        $z.doCallback(callback, [list]);
+                    });
+                },
+                remove : function(th, list, callback) {
+                    var cmdText = 'thing {{th_set}} '+mode+' {{id}} -del';
+                    for(var i=0; i<list.length; i++) {
+                        var oM = list[i];
+                        cmdText += ' "' + oM.nm + '"'; 
+                    }
+                    Wn.execf(cmdText, th, function(re){
+                        var list = $z.fromJson(re);
+                        $z.doCallback(callback, [list]);
+                    });
+                },
+                upload : function(setup) {
+                    var th = setup.obj;
+                    var ph = "id:"+th.th_set+"/data/"+th.id+"/"+mode+"/";
+                    var url = "/o/upload/<%=ph%>";
+                    url += "?nm=<%=file.name%>";
+                    url += "&sz=<%=file.size%>";
+                    url += "&mime=<%=file.type%>";
+                    if(!setup.overwrite)
+                        url += '&dupp=${major}(${nb})${suffix}';
+                    $z.uploadFile({
+                        file : setup.file,
+                        url  : url,
+                        ph   : "id:"+th.th_set+"/data/"+th.id+"/"+mode+"/",
+                        evalReturn : "ajax",
+                        progress : function(e){
+                            $z.invoke(setup, "progress", [e.loaded/e.total]);
+                        },
+                        done : setup.done,
+                        fail : setup.fail,
+                    });
+                }
+            });
+            $z.setUndefined(conf[mode], "multi", true);
+            $z.setUndefined(conf[mode], "overwrite", true);
+        };
         // ----------------- media
-        conf.media = $z.fallbackUndefined(opt.media, conf.media, {
-            list : function(th, callback) {
-                Wn.execf('thing {{th_set}} media {{id}}', th, function(re){
-                    var list = $z.fromJson(re);
-                    $z.doCallback(callback, [list]);
-                });
-            },
-            rename : function(th, newName) {
-
-            },
-            upload : function(setup) {
-                var th = setup.obj;
-                var ph = "id:"+th.th_set+"/data/"+th.id+"/media/";
-                var url = "/o/upload/<%=ph%>";
-                url += "?nm=<%=file.name%>";
-                url += "&sz=<%=file.size%>";
-                url += "&mime=<%=file.type%>";
-                if(!setup.overwrite)
-                    url += '&dupp=${major}(${nb})${suffix}';
-                $z.uploadFile({
-                    file : setup.file,
-                    url  : url,
-                    ph   : "id:"+th.th_set+"/data/"+th.id+"/media/",
-                    evalReturn : "ajax",
-                    progress : function(e){
-                        $z.invoke(setup, "progress", [e.loaded/e.total]);
-                    },
-                    done : setup.done,
-                    fail : setup.fail,
-                });
-            }
-        });
-        $z.setUndefined(conf.media, "multi", true);
-        $z.setUndefined(conf.media, "overwrite", true);
+        __setup_files(conf, "media");
         $z.setUndefined(conf.media, "filter", function(f){
             return true;
         });
         // ----------------- attachment
-        // conf.attachment = $z.fallbackUndefined(opt.attachment, conf.attachment, {
-
-        // });
-        // ----------------- folders
-        // ----------------- busEvents
+        __setup_files(conf, "attachment");
     },
+    ///////////////////////////////////
     // 普通数据对象
     "obj" : function(conf, opt) {
 
     }
+    ///////////////////////////////////
 };
 // ....................................
 // 方法表

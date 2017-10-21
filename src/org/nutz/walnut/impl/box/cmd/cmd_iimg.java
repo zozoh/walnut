@@ -76,7 +76,7 @@ public class cmd_iimg extends JvmExecutor {
                 WnObj o_old_thumb = sys.nosecurity(new Proton<WnObj>() {
                     @Override
                     protected WnObj exec() {
-                        return Wn.checkObj(sys, o_old2.thumbnail());
+                        return Wn.getObj(sys, o_old2.thumbnail());
                     }
                 });
                 _gen_thumb(sys, params, oim, null, o_old_thumb);

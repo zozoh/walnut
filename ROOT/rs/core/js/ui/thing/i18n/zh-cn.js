@@ -136,6 +136,7 @@ define({
             "none_media_tip" : "请选择一个文件显示预览",
             "remove" : "删除选中文件",
             "upload" : "上传新文件",
+            "delnone" : "请先选择要删除的文件（支持按Shift键多选）",
         },
         "err" : {
             "nothingjs" : "没有找到 thing.js!"

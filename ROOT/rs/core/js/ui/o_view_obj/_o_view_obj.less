@@ -65,15 +65,25 @@
             b {
                 display:block; font-weight: normal;
                 cursor: pointer; padding:@d1 0;
-                color:@c2;
-                i {font-size: 1.2em; transition: 0.3s;}
+                color:rgba(0,0,0,0.8);
+                i {
+                    font-size: 1.2em; transition: 0.3s;
+                    text-shadow: 1px  0 0 rgba(255,255,255,0.5),
+                             -1px 0 0 rgba(255,255,255,0.5),
+                             0  1px 0 rgba(255,255,255,0.5),
+                             0 -1px 0 rgba(255,255,255,0.5);
+                }
             }
             b:hover {
                 i {
-                    color:@c4;
+                    color:#FF0;
+                    text-shadow:
+                             1px  0 0 rgba(0,0,0,0.5),
+                             -1px 0 0 rgba(0,0,0,0.5),
+                             0  1px 0 rgba(0,0,0,0.5),
+                             0 -1px 0 rgba(0,0,0,0.5);
                     transform: translateX(-2px) scale(1.2);
                 }
-                
             }
         }
     }

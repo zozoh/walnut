@@ -6,8 +6,7 @@ $z.declare([
     'ui/menu/menu',
     'ui/thing/support/th_methods',
     'ui/thing/th_obj_data_media',
-    'ui/thing/th_obj_data_attachment',
-], function(ZUI, Wn, DomUI, MenuUI, ThMethods, ThObjMediaUI, ThObjAttachmentUI){
+], function(ZUI, Wn, DomUI, MenuUI, ThMethods, ThObjMediaUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-obj-data th-obj-pan" ui-fitparent="true">
@@ -21,6 +20,9 @@ var html = function(){/*
         <div class="top-menu" ui-gasket="menu"></div>
     </div></header>
     <section ui-gasket="main"></section>
+    <div class="hide-file-selector">
+        <input type="file" multiple>
+    </div>
 </div>
 */};
 //==============================================
@@ -34,6 +36,7 @@ return ZUI.def("ui.th_obj_data", {
     },
     //..............................................
     events : {
+        // 切换标签
         'click .top-tabs li[m]' : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
@@ -42,6 +45,20 @@ return ZUI.def("ui.th_obj_data", {
             } else {
                 UI.showAttachment();
             }
+        },
+        // 监控隐藏的上传按钮
+        'change input[type="file"]' : function(e) {
+            var UI   = this;
+            var eleF = e.currentTarget;
+
+            // 关闭菜单
+            UI.gasket.menu.closeGroup();
+
+            // 执行上传
+            UI.gasket.main.upload(e.currentTarget.files);
+
+            // 清空
+            $(eleF).val("");
         }
     },
     //..............................................
@@ -81,24 +98,24 @@ return ZUI.def("ui.th_obj_data", {
             gasketName : "menu",
             setup : [{
                 type : "group",
-                icon : '<i class="fa fa-gear"></i>',
+                icon : '<i class="zmdi zmdi-more-vert"></i>',
                 items : [{
                     icon : '<i class="zmdi zmdi-refresh"></i>',
                     text : 'i18n:refresh',
                     handler : function(){
-                        alert("refresh")
+                        UI.gasket.main.refresh();
                     }
                 }, {
                     icon : '<i class="fa fa-trash"></i>',
                     text : 'i18n:thing.data.remove',
                     handler : function(){
-                        alert("delete")
+                        UI.gasket.main.removeCheckedItems();
                     }
                 }, {
                     icon : '<i class="zmdi zmdi-upload"></i>',
                     text : 'i18n:thing.data.upload',
                     handler : function(){
-                        alert("upload")
+                        UI.arena.find('input[type="file"]').click();
                     }
                 }]
             }]
@@ -138,10 +155,16 @@ return ZUI.def("ui.th_obj_data", {
         var bus = UI.bus();
         var jTabs = UI.arena.find(">header .top-tabs");
 
+        // 修改文件过滤器
+        UI.arena.find('input[type="file"]').attr({
+            "accept" : "image/png,image/jpeg,image/gif"
+        });
+
         new ThObjMediaUI({
             parent : UI,
             gasketName : "main",
             bus : bus,
+            folderName : "media",
         }).render(function(){
             UI.local("th_obj_data_current_tab", "media");
             jTabs.find('li').removeAttr("current")
@@ -159,12 +182,18 @@ return ZUI.def("ui.th_obj_data", {
         var bus = UI.bus();
         var jTabs = UI.arena.find(">header .top-tabs");
 
-        new ThObjAttachmentUI({
+        // 修改文件过滤器
+        UI.arena.find('input[type="file"]').attr({
+            "accept" : null
+        });
+
+        new ThObjMediaUI({
             parent : UI,
             gasketName : "main",
             bus : bus,
+            folderName : "attachment",
         }).render(function(){
-            UI.local("th_obj_data_current_tab", "detail");
+            UI.local("th_obj_data_current_tab", "attachment");
             jTabs.find('li').removeAttr("current")
                 .filter('[m="attachment"]').attr("current", "yes");
             if(UI.__OBJ) {
