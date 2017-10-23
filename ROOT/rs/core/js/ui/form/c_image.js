@@ -305,7 +305,7 @@ return ZUI.def("ui.form_com_image", {
         // 记录数据
         UI.__OBJ = o || null;
 
-        console.log("image._set_data", o);
+        //console.log("image._set_data", o);
 
         // 修改显示（如果是通知方式，则加入时间戳更新缓存)
         UI.arena.find("img").attr({

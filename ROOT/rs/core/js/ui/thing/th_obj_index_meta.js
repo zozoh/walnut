@@ -33,7 +33,7 @@ return ZUI.def("ui.th_obj_index_meta", {
             gasketName : "form",
             arenaClass : "obj-meta-form",
             on_change : function(key){
-                console.log("update key=", key);
+                //console.log("update key=", key);
                 var uiForm = this;
                 var obj    = uiForm.getData();
                 uiForm.showPrompt(key, "spinning");

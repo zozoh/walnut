@@ -2,6 +2,7 @@ define({
     "thing" : {
         "create" : "创建..",
         "create_tip" : "请输入对象的名称",
+        "create_tip2": "请输入{{text}}的名称",
         "create_do"  : "立即创建",
         "conf" : {
             "icon_modify" : "修改数据集的图标",
