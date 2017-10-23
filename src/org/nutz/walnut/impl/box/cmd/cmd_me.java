@@ -1,7 +1,9 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.meta.Pair;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -49,6 +51,7 @@ public class cmd_me extends JvmExecutor {
         }
         // 显示
         else {
+            NutMap jsonRe = NutMap.NEW();
             // 获取值
             WnUsr u = sys.usrService.check(sys.me.name());
             if (params.vals.length == 0) {
@@ -57,21 +60,42 @@ public class cmd_me extends JvmExecutor {
                     if (key.matches("^(salt|passwd)$")) {
                         v = Strings.dup('*', v.length());
                     }
-                    if (null != v) {
-                        sys.out.printf("%8s : %s\n", key, v);
+                    if (params.is("json")) {
+                        jsonRe.setv(key, v);
+                    } else {
+                        if (null != v) {
+                            sys.out.printf("%8s : %s\n", key, v);
+                        }
                     }
+                }
+                if (params.is("json")) {
+                    sys.out.println(Json.toJson(jsonRe));
                 }
             }
             // 只有一个值
             else if (params.vals.length == 1) {
-                sys.out.println(u.getString(params.vals[0]));
+                if (params.is("json")) {
+                    jsonRe.setv(params.vals[0], u.getString(params.vals[0]));
+                    sys.out.println(Json.toJson(jsonRe));
+                } else {
+                    sys.out.println(u.getString(params.vals[0]));
+                }
             }
             // 指定的几个值
             else {
-                for (String key : params.vals) {
-                    String v = u.getString(key);
-                    sys.out.printf("%8s : %s\n", key, v);
+                if (params.is("json")) {
+                    for (String key : params.vals) {
+                        String v = u.getString(key);
+                        jsonRe.setv(key, v);
+                    }
+                    sys.out.println(Json.toJson(jsonRe));
+                } else {
+                    for (String key : params.vals) {
+                        String v = u.getString(key);
+                        sys.out.printf("%8s : %s\n", key, v);
+                    }
                 }
+
             }
         }
     }
