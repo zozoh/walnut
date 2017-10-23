@@ -170,6 +170,19 @@ var DATA_MODE = {
                 Wn.exec(cmdText, params.match || "{}", function(re) {
                     UI.doActionCallback(re, callback);
                 });
+            },
+            // thing 的默认创建方法
+            create : function(callback){
+                var UI = this;
+                var oHome = UI.getHomeObj();
+                var text = UI.msg("thing.create_tip2", {
+                    text : oHome.title || oHome.nm
+                });
+                UI.prompt(text, {
+                    icon  : oHome.icon || '<i class="fa fa-plus"></i>',
+                    btnOk : "thing.create_do",
+                    ok : callback
+                });
             }
         }, opt.actions);
         // ----------------- searchMenu
@@ -180,6 +193,12 @@ var DATA_MODE = {
             asyncText : "i18n:loading",
             asyncHandler : function(jq, mi, callback) {
                 this.uis("search").refresh(callback);
+            }
+        }, {
+            icon : '<i class="zmdi zmdi-flare"></i>',
+            text : "i18n:thing.create",
+            handler : function() {
+                this.uis("search").createObj();
             }
         }];
         // ----------------- objMenu

@@ -74,8 +74,16 @@ return ZUI.def("ui.th_search", {
     },
     //..............................................
     setObj : function(obj) {
-        console.log("i am setObj")
         this.gasket.main.uiList.update(obj);
+    },
+    //..............................................
+    createObj : function(){
+        var UI = this;
+        var conf = UI.getBusConf();
+
+        UI.invokeConfCallback("actions", "create", [function(str){
+            console.log(str);
+        }]);
     },
     //..............................................
     refresh : function(callback) {

@@ -1,7 +1,7 @@
 (function($z){
 $z.declare([
     'zui',
-    'ui/form/support/form_c_methods',
+    'ui/form/support/form_ctrl',
     'ui/support/edit_color',
 ], function(ZUI, FormMethods, EditColorUI){
 //==============================================
@@ -76,20 +76,13 @@ return ZUI.def("ui.form_com_color", {
         }
     },
     //...............................................................
-    getData : function(){
-        var UI = this;
-        return this.ui_format_data(function(opt){
-            return UI.gasket.edit.getData();
-        });
+    _get_data : function(){
+        return this.gasket.edit.getData();
     },
     //...............................................................
-    setData : function(val){
-        //console.log(val)
-        var UI = this;
-        UI.ui_parse_data(val, function(s){
-            UI.__update(s);
-            UI.gasket.edit.setData(s);
-        });
+    _set_data : function(val){
+        this.__update(s);
+        this.gasket.edit.setData(s);
     },
     //...............................................................
     showDrop : function() {

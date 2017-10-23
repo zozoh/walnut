@@ -291,7 +291,6 @@ define(function (require, exports, module) {
 
             // 处理通用拖拽操作
             if(UI.dragAndDrop) {
-                console.log("haha")
                 var ddSelector = UI.dragAndDrop;
                 if(!_.isString(ddSelector))
                     ddSelector = "> .ui-arena";

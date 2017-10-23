@@ -1,7 +1,7 @@
 (function($z){
 $z.declare([
     'zui',
-    'ui/form/support/form_c_methods',
+    'ui/form/support/form_ctrl',
     'ui/support/cssp',
     'ui/support/edit_color',
     'ui/form/form'
@@ -246,23 +246,17 @@ return ZUI.def("ui.form_com_background", {
         UI.arena.find("> .cc-box > .ccb-preview").css("background", bgStyle);
     },
     //...............................................................
-    getData : function(){
+    _get_data : function(){
         var UI = this;
-        return this.ui_format_data(function(opt){
-            var bgo = UI.__get_background();
-            if("string" == opt.dataType)
-                return CssP.strBackground(bgo);
-            return bgo;
-        });
+        var bgo = UI.__get_background();
+        if("string" == opt.dataType)
+            return CssP.strBackground(bgo);
+        return bgo;
     },
     //...............................................................
-    setData : function(val, jso){
-        //console.log(val)
-        var UI = this;
-        this.ui_parse_data(val, function(s){
-            UI.__update(s)
-        });
-    },
+    _set_data : function(val, jso){
+        this.__update(s)
+     },
     //...............................................................
     showDrop : function(dropMode, callback) {
         var UI  = this;

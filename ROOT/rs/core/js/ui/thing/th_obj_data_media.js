@@ -195,15 +195,18 @@ return ZUI.def("ui.th_obj_data_media", {
             }
             // 否则创建一个新项目
             else {
-                var jItem = UI.gasket.list.add(fo);
+                var jItem = UI.gasket.list.add(fo, -1);
                 __run(jItem);
             }
         }
         // 否则肯定是创建新的咯在列表里先创建上
         else {
-            var jItem = UI.gasket.list.add(fo);
+            var jItem = UI.gasket.list.add(fo, -1);
             __run(jItem);
         }
+
+        // 无论如何，滚动到 jItem 可以显示的地方
+        jItem[0].scrollIntoView(false);
     },
     //..............................................
 });
