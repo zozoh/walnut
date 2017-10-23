@@ -1,7 +1,7 @@
 (function($z){
 $z.declare([
     'zui',
-    "ui/form/support/form_c_methods",
+    "ui/form/support/form_ctrl",
     "ui/mask/mask"
 ], function(ZUI, ParentMethods, MaskUI){
 //==============================================
@@ -283,9 +283,20 @@ return ZUI.def("ui.form_com_file", {
         UI.__draw_data(objList);
     },
     //...............................................................
+    /*
+    输入输出的数据格式:
+    if multi : 
+        [{..}, {..}] or []
+    else :
+        {..} or null
+    除非配置里声明了 dataForceArray
+    */
     _get_data : function(forceArray) {
         var UI  = this;
         var opt = UI.options;
+
+        if(_.isUndefined(forceArray))
+            forceArray = opt.dataForceArray;
 
         // 准备返回值
         var objList = [];
@@ -307,29 +318,9 @@ return ZUI.def("ui.form_com_file", {
 
     },
     //...............................................................
-    /*
-    输入输出的数据格式:
-    if multi : 
-        [{..}, {..}] or []
-    else :
-        {..} or null
-    除非配置里声明了 dataForceArray
-    */
-    //...............................................................
-    getData : function(){
-        var UI  = this;
-        var opt = UI.options;
-        return UI.ui_format_data(function(opt){
-            return UI._get_data(opt.dataForceArray);
-        });
+    __equals : function(v1, v2) {
+        return v1 === v2;
     },
-    //...............................................................
-    setData : function(val){
-        var UI = this;
-        this.ui_parse_data(val, function(data){
-            UI._set_data(data);
-        });
-    }
     //...............................................................
 });
 //===================================================================

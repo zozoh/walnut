@@ -1,10 +1,11 @@
 (function($z){
 $z.declare([
     'zui',
+    'ui/form/support/form_ctrl',
     'wn/util',
-    'ui/mask/mask'
+    'ui/mask/mask',
 ], 
-function(ZUI, Wn, MaskUI){
+function(ZUI, FormCtrlMethods, Wn, MaskUI,){
 //==============================================
 var html = function(){/*
 <div class="ui-arena com-link" link-type="unknown">
@@ -23,6 +24,8 @@ return ZUI.def("ui.form_com_link", {
     i18n : "ui/picker/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt) {
+        FormCtrlMethods(this);
+
         $z.setUndefined(opt, "mask", {});
         $z.setUndefined(opt, "body", {});
     },
@@ -31,7 +34,7 @@ return ZUI.def("ui.form_com_link", {
         "click u" : function(){
             var UI    = this;
             var opt   = UI.options;
-            var str   = UI.$el.data("@LINK");
+            var str   = UI.__LINK;
             // 准备遮罩的宽高
             //$z.setUndefined(setup, "blockNumber",  "range"==setup.mode?2:1);
             // $z.setUndefined(setup, "width",  300 * (setup.blockNumber||1));
@@ -44,7 +47,7 @@ return ZUI.def("ui.form_com_link", {
                 css : 'ui/pop/theme/pop-{{theme}}.css',
                 events : {
                     "click .pm-btn-ok" : function(){
-                        UI._update(this.body.getData(), true);
+                        UI._set_data(this.body.getData(), true);
                         this.close();
                     },
                     "click .pm-btn-cancel" : function(){
@@ -62,20 +65,14 @@ return ZUI.def("ui.form_com_link", {
         }
     },
     //...............................................................
-    setData : function(link){
-        this.ui_parse_data(link, function(str){
-            this._update(str);
-        });
-    },
-    //...............................................................
     // 只接受 Date 对象或者 Date 对象的数组
-    _update : function(str, showBlink){
+    _set_data : function(str, showBlink){
         var UI = this;
         var jU = UI.arena.find("u");
 
         // 记录值
         str = $.trim(str);
-        UI.$el.data("@LINK", str);
+        UI.__LINK = str;
 
         // 修正显示
         if(str){
@@ -112,20 +109,8 @@ return ZUI.def("ui.form_com_link", {
         }
     },
     //...............................................................
-    __on_change : function(){
-        var UI  = this;
-        var opt = UI.options;
-        var context = opt.context || UI.parent;
-        var v = UI.getData();
-        $z.invoke(opt, "on_change", [v], context);
-        UI.trigger("change", v);
-    },
-    //...............................................................
-    getData : function(){
-        var UI = this;
-        return this.ui_format_data(function(opt){
-            return UI.$el.data("@LINK");
-        });
+    _get_data : function(){
+        return this.__LINK;
     }
     //...............................................................
 });

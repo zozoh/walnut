@@ -36,7 +36,7 @@ setData 接受 WnObj 或者文件路径
 $z.declare([
     'zui',
     'wn/util',
-    'ui/form/support/form_c_methods'
+    'ui/form/support/form_ctrl'
 ], function(ZUI, Wn, FormCMethods){
 //==============================================
 var dft_src = "/gu/rs/core/js/ui/form/img_blank.jpg";
@@ -305,6 +305,8 @@ return ZUI.def("ui.form_com_image", {
         // 记录数据
         UI.__OBJ = o || null;
 
+        console.log("image._set_data", o);
+
         // 修改显示（如果是通知方式，则加入时间戳更新缓存)
         UI.arena.find("img").attr({
             "src" : o ? "/o/read/id:" + o.id + "?_t="+$z.timestamp()
@@ -316,19 +318,10 @@ return ZUI.def("ui.form_com_image", {
             UI.__on_change();
     },
     //...............................................................
-    getData : function(){
-        var UI = this;
-        return this.ui_format_data(function(opt){
-            return UI._get_data();
-        });
+    // 总是不相等才好
+    __equals : function(v1, v2) {
+        return false;
     },
-    //...............................................................
-    setData : function(obj, jso){
-        var UI = this;
-        this.ui_parse_data(obj, function(o){
-            UI._set_data(o);
-        });
-    }
     //...............................................................
 });
 //===================================================================
