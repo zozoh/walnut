@@ -15,24 +15,25 @@
      white-space: nowrap; 
 
      .menu-item-wrapper{
-        padding:0 @d3; font-size:@f2;
-        height: @d6; line-height: @d6;
+        padding:0 @d1; font-size:@f2;
+        height: 24px; line-height: 24px;
         vertical-align: middle;
 
         .menu-item-icon{
-            display: inline-block; width:@d4;text-align: center;
+            display: inline-block; width:16px;text-align: center;
             font-size:@f3; vertical-align: middle;
         }
         .menu-item-text{
-            display: inline-block; vertical-align: middle; margin:0 @d2;
+            display: inline-block; vertical-align: middle; margin:0 @d0;
         }
         .menu-item-status {
             display: inline-block; vertical-align: middle;
             border:1px solid @cborder1; border-radius: @d1;
+            overflow: hidden;
             .menu-item-si {
-                display:inline-block; text-align: center;
+                display:inline-block; text-align: center; width:24px;
                 border-right: 1px solid @cborder1; cursor: pointer;
-                color:@cf1; padding:0 @d2;
+                color:@cf1; 
                 i {cursor: pointer;}
             }
             .menu-item-si:last-child{border-right: 0;}
@@ -76,7 +77,8 @@
         min-width: @db; text-align: left; min-width: 180px;
         .menu-item{
             .menu-item-wrapper{
-                position: relative; padding:0 @d3; line-height: @d7; height:@d7; 
+                @flex(); align-items:center;
+                position: relative; padding: 0 @d3; height: 32px;
                 .menu-item-more {
                     position: absolute; right: @d2;
                 }

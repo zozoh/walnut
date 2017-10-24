@@ -81,32 +81,11 @@ var methods = {
 
         // $item
         $z.setUndefined(UI, "$item", function(arg) {
-            var UI = this;
-            // 默认用激活项
-            if(_.isUndefined(arg)){
+            var jItem = this.findItem(arg);
+            if(jItem.length == 0) {
                 return UI.arena.find('.list-item[li-actived]');
             }
-            // 如果是字符串表示 ID
-            else if(_.isString(arg)){
-                return UI.arena.find('.list-item[oid="'+arg+'"]');
-            }
-            // 本身就是 dom
-            else if(_.isElement(arg) || $z.isjQuery(arg)){
-                return $(arg).closest(".list-item");
-            }
-            // 数字
-            else if(_.isNumber(arg)){
-                return UI.arena.find(".list-item:eq("+arg+")");
-            }
-            // 如果是对象，那么试图获取 IDKey
-            else if(_.isObject(arg)) {
-                var id = arg[opt.idKey];
-                return UI.arena.find(".list-item[oid="+id+"]");
-            }
-            // 靠不晓得了
-            else {
-                throw "unknowns $item selector: " + arg;
-            }
+            return jItem;
         });
         // $checked
         $z.setUndefined(UI, "$checked", function() {
@@ -129,8 +108,11 @@ var methods = {
         return obj[this.options.nmKey];
     },
     //...............................................................
+    // 根据参数，返回一个 jQuery 对象，表示一个或多个对象所在的 DOM 元素
     findItem : function(arg){
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
+
         // 没指定内容，为空
         if(_.isUndefined(arg)){
             return $([]);
@@ -144,6 +126,16 @@ var methods = {
             }
             // 那么就当做 ID 吧
             return UI.arena.find('.list-item[oid="'+arg+'"]');
+        }
+        // 如果是个对象数组，则分别查找这个对象的集合
+        if(_.isArray(arg)){
+            var eles = [];
+            for(var i=0; i<arg.length; i++) {
+                var jIt = UI.findItem(arg[i]);
+                if(jIt.length > 0)
+                    eles.push(jIt[0]);
+            }
+            return $(eles);
         }
         // 正则表达式，则表示匹配名称
         if(_.isRegExp(arg)){
@@ -285,7 +277,7 @@ var methods = {
         var opt = UI.options;
         var context = opt.context || UI;
 
-        if((opt.blurable || nextObj) && jItems.length > 0){
+        if((opt.blurable || nextObj) && jItems){
             // 移除标记
             jItems.attr({
                 "li-checked" : null,
@@ -559,17 +551,17 @@ var methods = {
             return;
 
         // 如果当前是高亮节点，则试图得到下一个高亮的节点，给调用者备选
-        var jN2   = null;
-        if(UI.isActived(jItem) || UI.isChecked(jItem)){
-            jN2 = jItem.last().next();
-            if(jN2.length == 0){
-                jN2 = jItem.first().prev();
-                // 返回 false 表示只剩下最后一个节点额
-                if(jN2.length == 0 && keepAtLeastOne){
-                    return false;
-                }
-            }
+        var jN2 = UI.findNextItem(jItem);
+        if(jN2.length == 0){
+            if(keepAtLeastOne)
+                return false;
+            else
+                jN2 = null;
         }
+        // 如果即将被删除的节点集合包含激活节点，才建议改变激活节点
+        // 否则不建议改变激活节点
+        else if(!jItem.filter(UI.$item()).length>0)
+            jN2 = null;
 
         // 删除当前节点
         jItem.remove();
@@ -578,11 +570,37 @@ var methods = {
         $z.invoke(UI, "__after_remove", []);
 
         // 返回下一个要激活的节点，由调用者来决定是否激活它
-        return jN2 && jN2.length > 0 ? jN2 : null;
+        return jN2;
+    },
+    //...............................................................
+    // 根据给定的:
+    //  - 对象数组
+    //  - 对象
+    //  - 总之，任何可以被 $item 接受的对象就对了
+    // 查找如果这些对象被删除后，下一个被高亮的元素应该是什么
+    // 返回的是 jQuery
+    findNextItem : function(it) {
+        var jItems = this.$item(it);
+        var jN2 = jItems.next();
+        if(jN2.length == 0)
+            jN2 = jItems.prev();
+
+        // 还是木有？那么逐个查找吧
+        // 逐个查找，找到第一个不是给定的元素
+        var jList = this.arena.find(".list-item");
+        for(var i=0;i<jList.length;i++){
+            if(!jItems.filter(jList[i])){
+                jN2 = jList.eq(i);
+                break;
+            }
+        }
+
+        // 返回
+        return jN2;
     },
     //...............................................................
     update : function(obj, it) {
-        this._upsert_item(obj, null, this.$item(it || this.getObjId(obj)), 0);
+        return this._upsert_item(obj, null, this.$item(it || this.getObjId(obj)), 0);
     },
     //...............................................................
     _upsert_item : function(obj, jListBody, jReferItem, direction){

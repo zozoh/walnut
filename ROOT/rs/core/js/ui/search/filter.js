@@ -30,7 +30,12 @@ return ZUI.def("ui.srh_flt", {
     //..............................................
     redraw : function(){
         var UI = this;
-        UI.arena.find(".flt-keyword input").val(UI.options.query);
+        var opt = UI.options;
+        UI.arena.find(".flt-keyword input").val(opt.query||"");
+    },
+    //..............................................
+    setKeyword : function(str) {
+        this.arena.find("input").val(str||"");
     },
     //..............................................
     setData : function(qbase){

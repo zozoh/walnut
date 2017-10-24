@@ -74,16 +74,76 @@ return ZUI.def("ui.th_search", {
     },
     //..............................................
     setObj : function(obj) {
-        this.gasket.main.uiList.update(obj);
+        return this.gasket.main.uiList.update(obj);
     },
     //..............................................
-    createObj : function(){
+    addObj : function(obj) {
+        return this.gasket.main.uiList.add(obj, 0, 1);
+    },
+    //..............................................
+    createObj : function(callback){
         var UI = this;
-        var conf = UI.getBusConf();
 
-        UI.invokeConfCallback("actions", "create", [function(str){
-            console.log(str);
+        var oHome = UI.getHomeObj();
+        var text = UI.msg("thing.create_tip2", {
+            text : oHome.title || oHome.nm
+        });
+
+        UI.prompt(text, {
+            icon  : oHome.icon || '<i class="fa fa-plus"></i>',
+            btnOk : "thing.create_do",
+            ok : function(str){
+                UI.invokeConfCallback("actions", "create", [str, function(newObj){
+                    var jItem = UI.addObj(newObj);
+                    UI.gasket.main.uiList.setActived(jItem);
+                    $z.doCallback(callback, [newObj], UI);
+                }]);                
+            }
+        });
+    },
+    //..............................................
+    removeChecked : function(callback) {
+        var UI = this;
+
+        // 得到选中的东东
+        var checkedObjs = UI.gasket.main.uiList.getChecked();
+
+        // 没有选中，警告
+        if(checkedObjs.length == 0) {
+            UI.alert("thing.err.rmnone", "warn");
+            return;
+        }
+
+        // 看看删除以后，应该高亮哪个对象
+        var jN2  = UI.gasket.main.uiList.findNextItem(checkedObjs);
+        var nit2 = jN2.length > 0 ? jN2.attr("oid") : 0;
+
+        // 执行删除
+        UI.invokeConfCallback("actions", "remove", [checkedObjs, function(){
+            // 删除并试图高亮下一个对象
+            var jN2 = UI.gasket.main.uiList.remove(checkedObjs);
+            console.log(jN2)
+            // 高亮下一个
+            if(jN2){
+                UI.gasket.main.uiList.setActived(jN2);
+                // 回调
+                $z.doCallback(callback, [checkedObjs], UI);
+            }
+            // 刷新一下看看有木有东西，然后高亮第一个
+            else{
+                UI.gasket.main.uiList.setAllBlur();
+                UI.refresh(function(){
+                    UI.gasket.main.uiList.setActived(0);
+                    // 回调
+                    $z.doCallback(callback, [checkedObjs], UI);
+                });
+            }
         }]);
+    },
+    //..............................................
+    setKeyword : function(str) {
+        this.gasket.main.uiFilter.setKeyword(str);
+        return this;
     },
     //..............................................
     refresh : function(callback) {

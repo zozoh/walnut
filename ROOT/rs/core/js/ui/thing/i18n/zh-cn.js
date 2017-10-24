@@ -4,6 +4,11 @@ define({
         "create_tip" : "请输入对象的名称",
         "create_tip2": "请输入{{text}}的名称",
         "create_do"  : "立即创建",
+        "rm_tip" : "删除选中的项目",
+        "refresh_tip" : "重新加载列表",
+        "clean_do"    : "清空回收站",
+        "clean_confirm"  : "清空回收站将导致所有回收站内数据不可恢复，你确定要继续吗？",
+        "clean_show"  : "显示回收站",
         "conf" : {
             "icon_modify" : "修改数据集的图标",
             "fnm" : {
@@ -140,7 +145,8 @@ define({
             "delnone" : "请先选择要删除的文件（支持按Shift键多选）",
         },
         "err" : {
-            "nothingjs" : "没有找到 thing.js!"
+            "nothingjs" : "没有找到 thing.js!",
+            "rmnone" : "您总得选中点啥让我删吧 -_-!",
         },
         "blank" : '请选择数据以便查看详情',
     }

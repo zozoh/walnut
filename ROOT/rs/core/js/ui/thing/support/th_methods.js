@@ -172,25 +172,40 @@ var DATA_MODE = {
                 });
             },
             // thing 的默认创建方法
-            create : function(callback){
+            create : function(objName, callback){
                 var UI = this;
                 var oHome = UI.getHomeObj();
-                var text = UI.msg("thing.create_tip2", {
-                    text : oHome.title || oHome.nm
+                var cmdText = "thing {{id}} create '{{nm}}'";
+                Wn.execf(cmdText, {
+                    id : UI.getHomeObjId(),
+                    nm : objName.replace(/'/g, ""),
+                }, function(re) {
+                    UI.doActionCallback(re, callback);
                 });
-                UI.prompt(text, {
-                    icon  : oHome.icon || '<i class="fa fa-plus"></i>',
-                    btnOk : "thing.create_do",
-                    ok : callback
-                });
+            },
+            remove : function(objList, callback) {
+                var UI = this;
+                if(_.isArray(objList) && objList.length > 0) {
+                    var cmdText = "thing " + UI.getHomeObjId() + " delete -l";
+                    for(var i=0; i<objList.length; i++) {
+                        var obj = objList[i];
+                        cmdText += " " + obj.id;
+                    }
+                    Wn.exec(cmdText, function(re) {
+                        UI.doActionCallback(re, callback);
+                    });
+                }
+                // 否则直接调用回调
+                else {
+                    $z.doCallback(callback, [[]]);
+                }
             }
         }, opt.actions);
         // ----------------- searchMenu
         conf.searchMenu = opt.searchMenu || conf.searchMenu || [{
             icon : '<i class="zmdi zmdi-refresh"></i>',
-            text : "i18n:refresh",
+            tip  : "i18n:thing.refresh_tip",
             asyncIcon : '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i>',
-            asyncText : "i18n:loading",
             asyncHandler : function(jq, mi, callback) {
                 this.uis("search").refresh(callback);
             }
@@ -200,6 +215,39 @@ var DATA_MODE = {
             handler : function() {
                 this.uis("search").createObj();
             }
+        }, {
+            icon : '<i class="fa fa-trash"></i>',
+            tip  : "i18n:thing.rm_tip",
+            handler : function() {
+                this.uis("search").removeChecked();
+            }
+        }, {
+            icon  : '<i class="zmdi zmdi-more-vert"></i>',
+            items : [{
+                icon : '<i class="fa fa-eraser"></i>',
+                text : "i18n:thing.clean_do",
+                handler : function() {
+                    var UI = this;
+                    UI.confirm("thing.clean_confirm", {
+                        icon : "warn",
+                        ok : function(){
+                            var cmdText = "thing " + UI.getHomeObjId() + " clean";
+                            Wn.logpanel(cmdText, function(){
+                                $z.invoke(UI.bus(), "showBlank");
+                                UI.uis("search").refresh();
+                            });
+                        }
+                    });
+                }
+            }, {
+                icon : '<i class="fa fa-trash-o"></i>',
+                text : "i18n:thing.clean_show",
+                handler : function() {
+                    this.uis("search")
+                        .setKeyword("th_live=-1")
+                            .refresh();
+                }    
+            }]
         }];
         // ----------------- objMenu
         // ----------------- search

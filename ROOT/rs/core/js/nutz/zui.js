@@ -1327,6 +1327,10 @@ define(function (require, exports, module) {
             $z.setUndefined(opt, "btnNo", "no");
             $z.setUndefined(opt, "icon", '<i class="zmdi zmdi-help-outline"></i>');
 
+            // 设置图标
+            if ("warn" == opt.icon)
+                opt.icon = '<i class="zmdi zmdi-alert-triangle"></i>';
+
             // 显示遮罩层
             seajs.use("ui/mask/mask", function (MaskUI) {
                 new MaskUI(_.extend({}, opt, {
