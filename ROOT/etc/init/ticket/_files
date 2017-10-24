@@ -1,0 +1,49 @@
+##########################################################
+#
+# 初始化文件:
+#
+# app init /etc/init/ticket
+#
+##########################################################
+
+# 基本目录
+
+@DIR .ticket
+
+@DIR .ticket/user
+
+@DIR .ticket/cservice
+
+@DIR .ticket/record
+
+
+@FILE .ticket/ticket.json
+{
+    icon   : '<i class="zmdi zmdi-settings"></i>',
+    title  : '系统设置',
+    editor : 'edit_text'
+}
+%COPY:
+{
+    nm: "walnut工单系统",
+    welcome: "欢迎你注册使用零站工单服务"
+}
+%END%
+
+# regapi
+
+@FILE .regapi/api/ticket/ping
+{
+
+}
+%TMPL:
+httpparam -in id:${id} | jsc /app/wn.ticket/regapi/ping.js -vars
+%END%
+
+@FILE .regapi/api/ticket/reg
+{
+
+}
+%TMPL:
+httpparam -in id:${id} | jsc /app/wn.ticket/regapi/reg.js -vars
+%END%

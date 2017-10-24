@@ -48,10 +48,10 @@ var $wn = {
 	 * AJAX 成功信息打印便利函数
 	 */
 	ajax_ok : function(data) {
-		this.ajax_re({
-			ok : true,
-			data : data
-		});
+		this.sys.out.println($wn.toJsonStr({
+			'ok' : true,
+			'data' : data
+		}));
 	},
 
 	/**
@@ -73,11 +73,12 @@ var $wn = {
 	 * AJAX 出错的错误信息打印便利函数
 	 */
 	ajax_error : function(errCode, reason) {
-		this.ajax_re({
+	    var aobj = {
 			ok : false,
 			errCode : errCode,
 			data : reason
-		});
+		};
+		this.sys.out.println($wn.toJsonStr(aobj));
 	},
 
 	/**
@@ -87,11 +88,11 @@ var $wn = {
 		if (typeof jsobj == "string") {
 			return jsobj;
 		}
-		return this.sys.json(jsobj);
+		return JSON.stringify(jsobj);
 	},
 	
 	getObjById: function(id) {
 		var objStr = this.sys.exec2("obj id:" + id);
-    	return eval('(' + objStr + ')');
+    		return eval('(' + objStr + ')');
 	}
 };
