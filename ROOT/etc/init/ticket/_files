@@ -31,3 +31,19 @@
 %END%
 
 # regapi
+
+@FILE .regapi/api/ticket/ping
+{
+
+}
+%TMPL:
+httpparam -in id:${id} | jsc /app/wn.ticket/regapi/ping.js -vars
+%END%
+
+@FILE .regapi/api/ticket/reg
+{
+
+}
+%TMPL:
+httpparam -in id:${id} | jsc /app/wn.ticket/regapi/reg.js -vars
+%END%

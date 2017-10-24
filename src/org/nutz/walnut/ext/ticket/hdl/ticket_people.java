@@ -38,7 +38,7 @@ public class ticket_people implements JvmHdl {
         }
 
         String tp = params.get("tp", "user"); // user|cservice
-        WnObj peoDir = sys.io.fetch(ticketHome, tp);
+        WnObj peoDir = sys.io.check(ticketHome, tp);
 
         // 添加
         if (params.has("add")) {
@@ -89,8 +89,8 @@ public class ticket_people implements JvmHdl {
     }
 
     private WnUsr getWnUser(WnSystem sys, String ustr) {
-        String usr = ustr;
-        return sys.usrService.check(usr);
+        // 只允许通过id查询，防止通过用户名，电话，email等方式
+        return sys.usrService.check("id:" + ustr);
     }
 
 }
