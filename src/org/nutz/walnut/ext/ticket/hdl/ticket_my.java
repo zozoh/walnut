@@ -30,8 +30,6 @@ public class ticket_my implements JvmHdl {
     // api
     private static String API_TMPL = "http://%s/api/%s";
     //
-    private static String API_PING = "/ticket/ping";
-    //
     private static String API_REG = "/ticket/reg";
 
     @Override
@@ -56,16 +54,21 @@ public class ticket_my implements JvmHdl {
 
         }
 
-        // 提交工单
-        if (params.is("new")) {
+        // 提交/回复工单
+        if (params.is("post")) {
+
+        }
+
+        // 添加附件
+        if (params.is("atta")) {
 
         }
     }
 
     private AjaxReturn httpPost(String url, NutMap httpParams) {
-        log.debugf("ticket my, access %s with params %s",
-                   url,
-                   Json.toJson(httpParams, JsonFormat.compact()));
+        log.infof("ticket: httpPost access %s with params %s",
+                  url,
+                  Json.toJson(httpParams, JsonFormat.compact()));
         Response response = Http.post2(url, httpParams, 30000);
         if (response.isOK()) {
             String rcontent = response.getContent();

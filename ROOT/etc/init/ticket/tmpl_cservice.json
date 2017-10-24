@@ -1,4 +1,5 @@
 {
+  usrAlias: "客服",
   serviceTp: "CS",
   notiWalnut: true,
   notiEmail: false,

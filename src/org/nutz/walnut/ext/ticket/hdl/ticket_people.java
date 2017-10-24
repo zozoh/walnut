@@ -33,7 +33,7 @@ public class ticket_people implements JvmHdl {
 
         WnObj ticketHome = sys.io.fetch(null, Wn.normalizeFullPath("~/.ticket", sys));
         if (ticketHome == null) {
-            sys.err.print("ticket not init, please exec 'ticket init'");
+            sys.err.print("ticket: not init, please exec 'ticket init'");
             return;
         }
 
@@ -47,7 +47,7 @@ public class ticket_people implements JvmHdl {
             // 检查用户是否存在
             String pNm = "wn_" + wnUsr.id();
             if (sys.io.exists(peoDir, pNm)) {
-                sys.err.printf("ticket has %s reg by [%s]", tp, params.getString("add"));
+                sys.err.printf("ticket: has %s reg by [%s]", tp, params.getString("add"));
                 return;
             }
             // 新建并初始化
@@ -58,6 +58,9 @@ public class ticket_people implements JvmHdl {
             uConf.setv("usrId", wnUsr.id());
             uConf.setv("usrNm", wnUsr.name());
             uConf.setv("usrDmn", wnUsr.home().replaceAll("/home/", ""));
+            if ("cservice".equals(tp)) {
+                uConf.setv("usrAlias", uConf.getString("usrAlias", "") + wnUsr.name());
+            }
             WnObj tPeople = sys.io.create(peoDir, pNm, WnRace.FILE);
             sys.io.appendMeta(tPeople, uConf);
         }
@@ -68,7 +71,7 @@ public class ticket_people implements JvmHdl {
             // 检查用户是否存在
             String pNm = "wn_" + wnUsr.id();
             if (!sys.io.exists(peoDir, pNm)) {
-                sys.err.printf("ticket not has %s reg by [%s]", tp, params.getString("update"));
+                sys.err.printf("ticket: not has %s reg by [%s]", tp, params.getString("update"));
                 return;
             }
             WnObj tPeople = sys.io.fetch(peoDir, pNm);
@@ -82,6 +85,8 @@ public class ticket_people implements JvmHdl {
             WnQuery wnQuery = new WnQuery();
             wnQuery.add(qvars);
             wnQuery.setv("pid", peoDir.id());
+            wnQuery.sortBy("nm", 1);
+            wnQuery.sortBy("ct", -1);
             List<WnObj> pList = sys.io.query(wnQuery);
             sys.out.println(Json.toJson(pList));
         }
