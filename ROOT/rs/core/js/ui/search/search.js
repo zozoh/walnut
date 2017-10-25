@@ -309,7 +309,8 @@ return ZUI.def("ui.srh", {
         var UI   = this;
         var opt  = UI.options;
         _pop_form_mask(UI, "i18n:new",{},opt.edtCmdTmpl["create"],function(newObj){
-            UI.uiList.add(newObj).setActived(UI.uiList.getObjId(newObj));
+            UI.uiList.add(newObj);
+            UI.uiList.setActived(UI.uiList.getObjId(newObj));
             UI.uiList.resize();
 
             UI.trigger("search:create", newObj);
