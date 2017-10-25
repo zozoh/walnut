@@ -16,6 +16,8 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
+import com.beust.jcommander.Strings;
+
 public class ticket_record implements JvmHdl {
 
     private Log log = Logs.get();
@@ -25,8 +27,21 @@ public class ticket_record implements JvmHdl {
         ZParams params = ZParams.parse(hc.args, null);
         String ustr = params.get("u", sys.me.id());
         boolean isUser = "user".equals(params.get("tp", "cservice"));
-        WnObj tPeople = findTicketPeople(sys, isUser, ustr);
-        WnObj recordDir = sys.io.check(null, Wn.normalizeFullPath("~/.ticket/record", sys));
+        String ts = params.get("ts", "");
+        String thString = Strings.isStringEmpty(ts) ? "~/.ticket" : "~/.ticket_" + ts;
+        WnObj ticketHome = sys.io.fetch(null, Wn.normalizeFullPath(thString, sys));
+        if (ticketHome == null) {
+            sys.err.printf("ticket: data dir [%s] not found, please exec 'ticket init'", thString);
+            return;
+        }
+
+        WnObj tPeople = findTicketPeople(sys, ticketHome, isUser, ustr);
+        if (tPeople == null) {
+            sys.err.printf("ticket: ticket people [%s] not found, please reg the walnut user",
+                           ustr);
+            return;
+        }
+        WnObj recordDir = sys.io.check(ticketHome, "record");
 
         // 查询全局工单, 仅限客服
         if (params.has("search") && !isUser) {
@@ -95,7 +110,7 @@ public class ticket_record implements JvmHdl {
             WnObj curRecord = getRecord(sys, rid);
             if (curRecord != null) {
                 String auser = params.get("assign", sys.me.id());
-                WnObj csPeople = findTicketPeople(sys, false, auser);
+                WnObj csPeople = findTicketPeople(sys, ticketHome, false, auser);
                 // 已经分配需要记录到历史中
                 curRecord.setv("ticketStatus", "assign");
                 if (curRecord.containsKey("csId")) {
@@ -156,14 +171,11 @@ public class ticket_record implements JvmHdl {
         return record;
     }
 
-    private WnObj findTicketPeople(WnSystem sys, boolean isUser, String ustr) {
-        WnObj tp = sys.io.check(null,
-                                Wn.normalizeFullPath("~/.ticket/"
-                                                     + (isUser ? "user" : "cservice")
-                                                     + "/wn_"
-                                                     + ustr,
-                                                     sys));
-        tp.setv("isUser", isUser);
+    private WnObj findTicketPeople(WnSystem sys, WnObj ticketHome, boolean isUser, String ustr) {
+        WnObj tp = sys.io.fetch(ticketHome, (isUser ? "user" : "cservice") + "/wn_" + ustr);
+        if (tp != null) {
+            tp.setv("isUser", isUser);
+        }
         return tp;
     }
 

@@ -13,6 +13,7 @@
 
     ```
     ticket people
+        [-ts xxxxx]             # 工单服务域名，默认为当前域
         [-tp user|cservice]     # 人员类型，默认为user
         [-add ${id}]            # 添加一个walnut用户到工单系统
         [-update ${id}]         # 更新工单人员的配置

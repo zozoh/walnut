@@ -42,7 +42,7 @@ public class ticket_people implements JvmHdl {
         String thString = Strings.isStringEmpty(ts) ? "~/.ticket" : "~/.ticket_" + ts;
         WnObj ticketHome = sys.io.fetch(null, Wn.normalizeFullPath(thString, sys));
         if (ticketHome == null) {
-            sys.err.printf("ticket: [%s] not found, please exec 'ticket init'", thString);
+            sys.err.printf("ticket: data dir [%s] not found, please exec 'ticket init'", thString);
             return;
         }
 
