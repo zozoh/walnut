@@ -69,7 +69,7 @@ public class ticket_record implements JvmHdl {
             tMeta.setv("ticketEnd", -1);
             tMeta.setv("ticketStatus", "new");
             tMeta.setv("ticketTp", tMeta.get("ticketTp", "question"));
-            tMeta.setv("ticketTag", new String[0]);
+            tMeta.setv("lbls", new String[0]);
             tMeta.setv("ticketIssue", new String[0]);
 
             String text = tMeta.getString("text", "");

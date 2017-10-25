@@ -17,8 +17,11 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
+import com.beust.jcommander.Strings;
+
 /**
  * 管理工单相关用户，客服
+ * 
  * 
  * @author pw
  *
@@ -27,17 +30,22 @@ public class ticket_people implements JvmHdl {
 
     private Log log = Logs.get();
 
+    private static String ADD_GRP = "grp %s -a %s";
+
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         ZParams params = ZParams.parse(hc.args, null);
 
-        WnObj ticketHome = sys.io.fetch(null, Wn.normalizeFullPath("~/.ticket", sys));
+        String ts = params.get("ts", "");
+        String tp = params.get("tp", "user"); // user|cservice
+        boolean isCS = "cservice".equals(tp);
+        String thString = Strings.isStringEmpty(ts) ? "~/.ticket" : "~/.ticket_" + ts;
+        WnObj ticketHome = sys.io.fetch(null, Wn.normalizeFullPath(thString, sys));
         if (ticketHome == null) {
-            sys.err.print("ticket: not init, please exec 'ticket init'");
+            sys.err.printf("ticket: [%s] not found, please exec 'ticket init'", thString);
             return;
         }
 
-        String tp = params.get("tp", "user"); // user|cservice
         WnObj peoDir = sys.io.check(ticketHome, tp);
 
         // 添加
@@ -58,11 +66,17 @@ public class ticket_people implements JvmHdl {
             uConf.setv("usrId", wnUsr.id());
             uConf.setv("usrNm", wnUsr.name());
             uConf.setv("usrDmn", wnUsr.home().replaceAll("/home/", ""));
-            if ("cservice".equals(tp)) {
+            if (isCS) {
                 uConf.setv("usrAlias", uConf.getString("usrAlias", "") + wnUsr.name());
             }
             WnObj tPeople = sys.io.create(peoDir, pNm, WnRace.FILE);
             sys.io.appendMeta(tPeople, uConf);
+
+            // 加入到我的组，可以访问.ticket内容
+            if (isCS && !wnUsr.home().equals(sys.me.home())) {
+                sys.execf(ADD_GRP, sys.me.name(), wnUsr.name());
+                sys.execf("ln -s ~/.ticket %s/.ticket_%s", wnUsr.home(), sys.me.name());
+            }
         }
 
         // 更新

@@ -7,7 +7,7 @@ function main(tp, ustr) {
     if (re == null || re == '') {
         $wn.ajax_ok();
     } else {
-        $wn.ajax_error(null, re);
+        $wn.ajax_error(null, re.trim());
     }
 }
 

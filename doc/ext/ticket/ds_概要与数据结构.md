@@ -176,7 +176,7 @@ TODO 考虑使用thing来管理工单
     }],
 
     // 标签
-    ticketTag: ["xxx", "yyyy"],             // 方便过滤与查询
+    lbls: ["xxx", "yyyy"],             // 方便过滤与查询
 
     // 需求、Bug
     ticketIssue: ["xxx", "xxxx"]            // 对应的Issue列表

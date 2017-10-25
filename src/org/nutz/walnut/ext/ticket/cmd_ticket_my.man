@@ -1,0 +1,30 @@
+# 命令简介
+
+    `ticket my` 我的工单，提供用户与客服跨域与工单服务交互的能力
+
+# 重要说明
+
+    下文中${id}为walnut用户id，可通过命令`me id`查看
+    
+# 用法
+
+    ```
+    ticket my
+        [-tp user|cservice]     # 人员类型，默认为user
+        [-ts xxxxx]             # 工单服务提供商名称，一般是对应的域名
+        [-reg]            # 将用户注册到工单系统
+        [-s 127.0.0.1]          # 服务器地址，默认为本机
+    ```
+
+# 示例
+
+    将我注册到site0下，以用户的身份
+    ticket my -reg -ts site0 
+    
+    将我注册到site0下，以客服的身份
+    ticket my -reg -ts site0 -tp cservice
+    
+    将当前域用户注册为用户，测试机端口为9599
+    ticket my -reg -s 127.0.0.1:9599
+    
+    
