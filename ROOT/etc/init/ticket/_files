@@ -26,7 +26,7 @@
 %COPY:
 {
     nm: "walnut工单系统",
-    welcome: "欢迎你注册使用零站工单服务"
+    welcome: "欢迎你注册使用walnut工单服务，您已注册成功"
 }
 %END%
 
