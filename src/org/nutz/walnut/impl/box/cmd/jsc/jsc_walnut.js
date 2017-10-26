@@ -48,10 +48,11 @@ var $wn = {
 	 * AJAX 成功信息打印便利函数
 	 */
 	ajax_ok : function(data) {
-		this.sys.out.println($wn.toJsonStr({
+		var aobj = {
 			'ok' : true,
 			'data' : data
-		}));
+		};
+		this.sys.out.println($wn.toJsonStr(aobj));
 	},
 
 	/**

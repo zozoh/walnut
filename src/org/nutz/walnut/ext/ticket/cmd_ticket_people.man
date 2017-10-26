@@ -1,0 +1,45 @@
+# 命令简介
+
+    `ticket people` 管理工单人员（用户，客服）
+
+# 重要说明
+
+    下文中${id}为walnut用户id，可通过命令`me id`查看
+    
+    由于walnut用户可以通过名称，电话，邮箱等容易泄露的关键信息获取信息，目前工单系统仅支持使用用户id来作为关键字进行管理注册。
+    
+# 用法
+
+
+    ```
+    ticket people
+        [-ts xxxxx]             # 工单服务域名，默认为当前域
+        [-tp user|cservice]     # 人员类型，默认为user
+        [-add ${id}]            # 添加一个walnut用户到工单系统
+        [-update ${id}]         # 更新工单人员的配置
+        [-c "x:11,y:22"]        # 更新内容, json格式
+        [-query "x:11,y:22"]    # 根据条件，查询工单人员
+    ```
+
+# 示例
+
+    注册一个用户
+    ticket people -add ${id}
+
+    注册一个客服
+    ticket people -add ${id} -tp cservice
+
+    更新客服的昵称
+    ticket people -update ${id} -tp cservice -c "usrAlias: '胖五'"
+
+    查询所有用户
+    ticket people -query 
+    
+    查询所有客服
+    ticket people -query -tp cservice
+    
+    查询昵称为胖五的客服
+    ticket people -query "usrAlias: '胖五'" -tp cservice
+    
+    查询指定的客服
+    ticket people -query "usrId: '${id}'" -tp cservice

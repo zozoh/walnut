@@ -141,9 +141,7 @@ TODO 考虑使用thing来管理工单
     ticketEnd:           -1,           // 时间戳 结束时间 -1表示未结束
     ticketStatus:     "xxx",           // 工单状态 
     ticketTp:       "xxxxx",           // 工单类型 确定大概问题方向, 客服可根据内容进行调整
-    
-    title:          "xxxxx",            // 工单标题
-    text:           "xxxxx",            // 第一次提交内容
+    text:           "xxxxx",           // 第一次提交内容, 当做列表标题用
     // 用户提交记录,  列表方式记录
     request:  [{                       
         text:       "xxxxxxxxxx",       // 文本形式的内容
@@ -176,7 +174,7 @@ TODO 考虑使用thing来管理工单
     }],
 
     // 标签
-    ticketTag: ["xxx", "yyyy"],             // 方便过滤与查询
+    lbls: ["xxx", "yyyy"],             // 方便过滤与查询
 
     // 需求、Bug
     ticketIssue: ["xxx", "xxxx"]            // 对应的Issue列表
