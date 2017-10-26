@@ -20,6 +20,18 @@ return ZUI.def("ui.test_for_thing", {
             parent : UI,
             gasketName : "main",
             dataMode : "thing",
+            objMenu : function(th){
+                if(th.th_live == -1) {
+                    return null;
+                }
+                return [{
+                    text : "haha",
+                    handler : function(){
+                        var o = this.getData();
+                        console.log(o)
+                    }
+                }];   
+            },
             // fields : [{
             //     key   : "id",
             //     title : "ID",

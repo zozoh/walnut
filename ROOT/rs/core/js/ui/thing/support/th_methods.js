@@ -203,6 +203,7 @@ var DATA_MODE = {
         }, opt.actions);
         // ----------------- searchMenu
         conf.searchMenu = opt.searchMenu || conf.searchMenu || [{
+            // 命令: 刷新
             icon : '<i class="zmdi zmdi-refresh"></i>',
             tip  : "i18n:thing.refresh_tip",
             asyncIcon : '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i>',
@@ -210,12 +211,14 @@ var DATA_MODE = {
                 this.uis("search").refresh(callback);
             }
         }, {
+            // 命令: 创建
             icon : '<i class="zmdi zmdi-flare"></i>',
             text : "i18n:thing.create",
             handler : function() {
                 this.uis("search").createObj();
             }
         }, {
+            // 命令: 删除
             icon : '<i class="fa fa-trash"></i>',
             tip  : "i18n:thing.rm_tip",
             handler : function() {
@@ -224,6 +227,7 @@ var DATA_MODE = {
         }, {
             icon  : '<i class="zmdi zmdi-more-vert"></i>',
             items : [{
+                // 命令: 清空回收站
                 icon : '<i class="fa fa-eraser"></i>',
                 text : "i18n:thing.clean_do",
                 handler : function() {
@@ -240,17 +244,35 @@ var DATA_MODE = {
                     });
                 }
             }, {
+                // 命令: 显示回收站
                 icon : '<i class="fa fa-trash-o"></i>',
                 text : "i18n:thing.clean_show",
                 handler : function() {
                     this.uis("search")
                         .setKeyword("th_live=-1")
                             .refresh();
-                }    
+                }
+            }, {
+                // 命令: 从回收站中恢复
+                icon : '<i class="zmdi zmdi-window-minimize"></i>',
+                text : "i18n:thing.clean_restore",
+                handler : function() {
+                    // 得到选中的对象们
+
+                    // 判断 th_live == -1 的对象
+
+                    // 没有对象，显示警告
+
+                    // 组装命令
+
+                    // 执行命令
+
+                        // 刷新列表
+                }
             }]
         }];
         // ----------------- objMenu
-        // ----------------- search
+        conf.objMenu = opt.objMenu || conf.objMenu;
         // ----------------- meta
         conf.meta = $z.fallbackUndefined(opt.meta, conf.meta, {
             update : function(th, key, callback) {
@@ -269,7 +291,7 @@ var DATA_MODE = {
                 Wn.execf('thing {{th_set}} detail {{id}}', th, callback);
             },
             save : function(th, det, callback) {
-                console.log(det);
+                //console.log(det);
                 Wn.execf('thing {{th_set}} detail {{id}} -content', det.content||"", th, function(){
                     if(det.brief || det.tp) {
                         var cmdText = $z.tmpl('thing {{th_set}} detail {{id}}')(th);

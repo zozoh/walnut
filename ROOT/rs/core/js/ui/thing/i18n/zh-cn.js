@@ -9,6 +9,7 @@ define({
         "clean_do"    : "清空回收站",
         "clean_confirm"  : "清空回收站将导致所有回收站内数据不可恢复，你确定要继续吗？",
         "clean_show"  : "显示回收站",
+        "clean_restore" : "从回收站中恢复",
         "conf" : {
             "icon_modify" : "修改数据集的图标",
             "fnm" : {

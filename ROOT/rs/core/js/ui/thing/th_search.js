@@ -102,11 +102,15 @@ return ZUI.def("ui.th_search", {
         });
     },
     //..............................................
+    getChecked : function(){
+        return this.gasket.main.uiList.getChecked();
+    },
+    //..............................................
     removeChecked : function(callback) {
         var UI = this;
 
         // 得到选中的东东
-        var checkedObjs = UI.gasket.main.uiList.getChecked();
+        var checkedObjs = UI.getChecked();
 
         // 没有选中，警告
         if(checkedObjs.length == 0) {

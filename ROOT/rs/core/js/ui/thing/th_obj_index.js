@@ -3,10 +3,11 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/support/dom',
+    'ui/menu/menu',
     'ui/thing/support/th_methods',
     'ui/thing/th_obj_index_meta',
     'ui/thing/th_obj_index_detail',
-], function(ZUI, Wn, DomUI, ThMethods, ThObjMetaUI, ThObjDetailUI){
+], function(ZUI, Wn, DomUI, MenuUI, ThMethods, ThObjMetaUI, ThObjDetailUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-obj-index th-obj-pan" ui-fitparent="true">
@@ -86,10 +87,38 @@ return ZUI.def("ui.th_obj_index", {
     },
     //..............................................
     update : function(o, callback) {
+        var UI = this;
+        var bus  = UI.bus();
+        var conf = UI.getBusConf();
+        
         // 记录当前对象
-        this.__OBJ = o;
-        this.gasket.main.update(o, callback);
-        // TODO 同时也要更新对象菜单吧
+        UI.__OBJ = o;
+        UI.gasket.main.update(o, callback);
+        
+        // 同时更新对象菜单吧
+        var menuSetup = conf.objMenu;
+        if(_.isFunction(menuSetup)) {
+            menuSetup = menuSetup.apply(bus, [o]);
+        }
+        console.log(menuSetup)
+
+        // 如果有菜单
+        if(menuSetup) {
+            new MenuUI({
+                parent : UI,
+                gasketName : "menu",
+                setup : menuSetup,
+            }).render();
+        }
+        // 确保菜单被销毁
+        else if(UI.gasket.menu){
+            UI.gasket.menu.destroy();
+        }
+
+    },
+    //..............................................
+    getData : function(){
+        return this.__OBJ;
     },
     //..............................................
     __show_main : function(callback){

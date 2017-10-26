@@ -94,14 +94,15 @@
         .top-menu {float:right;}
     }
     > header:after{@clr();}
-    > section {top:@toiH; bottom:0;}
+    > section {top:@toiH+1; bottom:0;}
     
     // 标题部分样式
     > header {
         background: @cb0; border-bottom: 1px solid @cborder1;
         > div {
-            @flex(); align-items: flex-end;  height:@toiH;
+            position: relative; height:@toiH;
             .top-tabs { @noselect();
+                position: absolute; left: 0; bottom:0; 
                 padding:0 @d3;
                 ul {@flex();
                     li {
@@ -116,6 +117,12 @@
                     }
                 }
             }
+            .top-menu {
+                position: absolute; right: 0; top:0;
+                .menu {
+                    padding:@d1 @d0;
+                }
+            }
         }
     }
     // 内如部分样式
@@ -123,6 +130,7 @@
         background: @cb2;
     }
 }
+  
 //........................................
 // 元数据界面
 .th-obj-index-meta {
@@ -157,14 +165,7 @@
 //........................................
 .th-obj-data {
     > header > div {
-        position: relative;
         .top-tabs ul li[current] {background: @cb1;}
-        .top-menu {
-            position: absolute; right: 0; top:0;
-            .menu {
-                padding:@d1 @d0;
-            }
-        }
     }
     > section {background: @cb1;border-left:1px solid @cborder1;}
     > .hide-file-selector {

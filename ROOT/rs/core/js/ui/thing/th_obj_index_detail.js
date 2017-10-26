@@ -68,7 +68,16 @@ return ZUI.def("ui.th_obj_index_detail", {
                     };
                     // 执行保存
                     //conf.detail.save(obj, det, callback);
-                    UI.invokeConfCallback("detail", "save", [obj, det, callback]);
+                    UI.invokeConfCallback("detail", "save", [obj, det, function(re){
+                        // 这里主动调用一下异步函数回调
+                        // 以便恢复按钮状态
+                        $z.doCallback(callback);
+                        // 处理任务回调
+                        UI.doActionCallback(re, function(newObj){
+                            // 通知界面其他部分更新
+                            UI.fire("change:meta", [newObj]);
+                        });
+                    }]);
                 }
             }],
             preview : conf.detail.markdown,
