@@ -40,6 +40,8 @@ public class ticket_my implements JvmHdl {
     private static String API_POST = "/ticket/post";
     // 查询
     private static String API_QUERY = "/ticket/query";
+    // 获取
+    private static String API_FETCH = "/ticket/fetch";
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -126,19 +128,20 @@ public class ticket_my implements JvmHdl {
         }
 
         // 查询我的工单
-        if (params.is("query")) {
+        else if (params.has("query")) {
+
+        }
+
+        // 获取指定工单
+        else if (params.has("fetch")) {
 
         }
 
         // 提交/回复工单
-        if (params.has("post")) {
+        else if (params.has("post")) {
 
         }
 
-        // 添加附件
-        if (params.is("atta")) {
-
-        }
     }
 
     private WnObj myConf(WnSystem sys) {
