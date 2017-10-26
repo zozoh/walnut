@@ -1,10 +1,14 @@
 package org.nutz.walnut.ext.ticket.hdl;
 
+import java.io.InputStream;
+
 import org.nutz.castor.Castors;
 import org.nutz.http.Http;
 import org.nutz.http.Response;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -16,8 +20,6 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
-
-import com.beust.jcommander.Strings;
 
 /**
  * 管理我的工单，普通用户只能通过该接口与工单系统交互
@@ -58,7 +60,9 @@ public class ticket_my implements JvmHdl {
         // 查看/切换配置
         if (params.has("conf")) {
             String confNm = params.getString("conf", "");
-            if (confNm.equals("true") || Strings.isStringEmpty(confNm)) {
+            if (confNm.equalsIgnoreCase("true")
+                || confNm.equalsIgnoreCase("false")
+                || Strings.isBlank(confNm)) {
                 myConf.remove("confs");
                 sys.out.print(Json.toJson(myConf));
             } else if (confNm.equals("list")) {
@@ -100,7 +104,7 @@ public class ticket_my implements JvmHdl {
 
         // 注册
         if (params.is("reg")) {
-            AjaxReturn ar = httpPost(String.format(API_TMPL + API_REG, service, ts), httpPs);
+            AjaxReturn ar = httpPost(String.format(API_TMPL + API_REG, service, ts), httpPs, null);
             if (ar.isOk()) {
                 // 记录配置到本地
                 NutMap regReply = Castors.me().castTo(ar.getData(), NutMap.class);
@@ -123,23 +127,84 @@ public class ticket_my implements JvmHdl {
 
                 sys.exec("ticket my -conf " + ts);
             } else {
-                sys.out.println(Json.toJson(ar));
+                sys.err.println(Json.toJson(ar));
             }
         }
 
         // 查询我的工单
         else if (params.has("query")) {
-
+            httpPs.setv("query", params.getString("query"));
+            httpPs.setv("skip", params.getInt("skip", 0));
+            httpPs.setv("limit", params.getInt("limit", 10));
+            AjaxReturn ar = httpPost(String.format(API_TMPL + API_QUERY, service, ts),
+                                     httpPs,
+                                     null);
+            if (ar.isOk()) {
+                sys.out.print(Json.toJson(ar.getData()));
+            } else {
+                sys.err.println(Json.toJson(ar));
+            }
         }
 
         // 获取指定工单
         else if (params.has("fetch")) {
-
+            httpPs.setv("fetch", params.getString("fetch"));
+            AjaxReturn ar = httpPost(String.format(API_TMPL + API_QUERY, service, ts),
+                                     httpPs,
+                                     null);
+            if (ar.isOk()) {
+                sys.out.print(Json.toJson(ar.getData()));
+            } else {
+                sys.err.println(Json.toJson(ar));
+            }
         }
 
         // 提交/回复工单
         else if (params.has("post")) {
+            String trid = null;
+            if (!params.getString("post").equalsIgnoreCase("true")
+                && !params.getString("post").equalsIgnoreCase("false")
+                && !Strings.isBlank(params.getString("post"))) {
+                trid = params.getString("post");
+            }
+            NutMap content = Lang.map(params.get("c"));
+            httpPs.setv("content", content);
+            // 新工单
+            if (trid == null) {
+                // 检查content
+                if (content == null || !content.containsKey("text")) {
+                    sys.err.print("ticket: post ticket need content, -c 'text: \"desc....\"'");
+                    return;
+                }
+            }
+            // 已存在工单
+            else {
+                httpPs.setv("trid", trid);
+            }
 
+            // 附件
+            InputStream attaFileIn = null;
+            if (params.has("atta")) {
+                httpPs.setv("atta", true);
+                String fids = params.getString("atta");
+                // 从管道中读取
+                if (fids.equalsIgnoreCase("true") || fids.equalsIgnoreCase("false")) {
+                    attaFileIn = sys.in.getInputStream();
+                }
+                // 文件id列表
+                else {
+                    httpPs.setv("fids", fids);
+                }
+            }
+
+            AjaxReturn ar = httpPost(String.format(API_TMPL + API_POST, service, ts),
+                                     httpPs,
+                                     attaFileIn);
+            if (ar.isOk()) {
+                sys.out.print(Json.toJson(ar.getData()));
+            } else {
+                sys.err.println(Json.toJson(ar));
+            }
         }
 
     }
@@ -161,10 +226,14 @@ public class ticket_my implements JvmHdl {
         return myConfObj;
     }
 
-    private AjaxReturn httpPost(String url, NutMap httpParams) {
+    private AjaxReturn httpPost(String url, NutMap httpParams, InputStream attaFileIn) {
         log.infof("ticket: regapi access %s with params %s",
                   url,
                   Json.toJson(httpParams, JsonFormat.compact()));
+        if (attaFileIn != null) {
+            // TODO
+        }
+
         Response response = Http.post2(url, httpParams, 30000);
         if (response.isOK()) {
             String rcontent = response.getContent();
