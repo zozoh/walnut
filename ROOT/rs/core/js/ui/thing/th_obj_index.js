@@ -45,7 +45,7 @@ return ZUI.def("ui.th_obj_index", {
         var conf = UI.getBusConf();
         var jTabs = UI.arena.find(">header .top-tabs");
         
-        console.log("draw index", conf);
+        //console.log("draw index", conf);
 
         // 都有
         if(conf.detail && conf.meta) {
@@ -100,7 +100,7 @@ return ZUI.def("ui.th_obj_index", {
         if(_.isFunction(menuSetup)) {
             menuSetup = menuSetup.apply(bus, [o]);
         }
-        console.log(menuSetup)
+        //console.log("menuSetup", menuSetup);
 
         // 如果有菜单
         if(menuSetup) {

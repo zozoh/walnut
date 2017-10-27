@@ -53,12 +53,12 @@ return ZUI.def("ui.th_search", {
             list   : _.extend({}, conf.searchList, {
                 fields : conf.fields,
                 on_actived : function(th, jRow, prevObj) {
-                    console.log("on_actived");
+                    //console.log("on_actived");
                     $z.invoke(bus, "showObj", [th]);
                 },
                 on_blur : function(objs, jRows, nextObj) {
                     if(!nextObj){
-                        console.log("on_blur");
+                        //console.log("on_blur");
                         $z.invoke(bus, "showBlank");
                     }
                 }
@@ -112,9 +112,20 @@ return ZUI.def("ui.th_search", {
         // 得到选中的东东
         var checkedObjs = UI.getChecked();
 
-        // 没有选中，警告
-        if(checkedObjs.length == 0) {
-            UI.alert("thing.err.rmnone", "warn");
+        // 得到选中的对象们
+        var list = UI.getChecked();
+
+        // 判断 th_live == 1 的对象
+        var checkedObjs = [];
+        for(var i=0; i<list.length; i++) {
+            var obj = list[i];
+            if(obj.th_live >= 0)
+                checkedObjs.push(obj);
+        }
+
+        // 没有对象，显示警告
+        if(checkedObjs.length == 0){
+            UI.alert("thing.err.remove_none", "warn");
             return;
         }
 
@@ -126,7 +137,7 @@ return ZUI.def("ui.th_search", {
         UI.invokeConfCallback("actions", "remove", [checkedObjs, function(){
             // 删除并试图高亮下一个对象
             var jN2 = UI.gasket.main.uiList.remove(checkedObjs);
-            console.log(jN2)
+            //console.log("jN2", jN2)
             // 高亮下一个
             if(jN2){
                 UI.gasket.main.uiList.setActived(jN2);

@@ -581,9 +581,9 @@ var methods = {
     // 返回的是 jQuery
     findNextItem : function(it) {
         var jItems = this.$item(it);
-        var jN2 = jItems.next();
+        var jN2 = jItems.last().next();
         if(jN2.length == 0)
-            jN2 = jItems.prev();
+            jN2 = jItems.first().prev();
 
         // 还是木有？那么逐个查找吧
         // 逐个查找，找到第一个不是给定的元素

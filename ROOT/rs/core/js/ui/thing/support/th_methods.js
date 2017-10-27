@@ -203,19 +203,19 @@ var DATA_MODE = {
         }, opt.actions);
         // ----------------- searchMenu
         conf.searchMenu = opt.searchMenu || conf.searchMenu || [{
+            // 命令: 创建
+            icon : '<i class="zmdi zmdi-flare"></i>',
+            text : "i18n:thing.create",
+            handler : function() {
+                this.uis("search").createObj();
+            }
+        }, {
             // 命令: 刷新
             icon : '<i class="zmdi zmdi-refresh"></i>',
             tip  : "i18n:thing.refresh_tip",
             asyncIcon : '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i>',
             asyncHandler : function(jq, mi, callback) {
                 this.uis("search").refresh(callback);
-            }
-        }, {
-            // 命令: 创建
-            icon : '<i class="zmdi zmdi-flare"></i>',
-            text : "i18n:thing.create",
-            handler : function() {
-                this.uis("search").createObj();
             }
         }, {
             // 命令: 删除
@@ -257,17 +257,36 @@ var DATA_MODE = {
                 icon : '<i class="zmdi zmdi-window-minimize"></i>',
                 text : "i18n:thing.clean_restore",
                 handler : function() {
-                    // 得到选中的对象们
+                    var UI  = this;
 
+                    // 得到选中的对象们
+                    var list = UI.uis("search").getChecked();
                     // 判断 th_live == -1 的对象
+                    var checkedObjs = [];
+                    for(var i=0; i<list.length; i++) {
+                        var obj = list[i];
+                        if(obj.th_live < 0)
+                            checkedObjs.push(obj);
+                    }
 
                     // 没有对象，显示警告
+                    if(checkedObjs.length == 0){
+                        UI.alert("thing.err.restore_none", "warn");
+                        return;
+                    }
 
                     // 组装命令
+                    var cmdText = "thing " + UI.getHomeObjId() + " restore -l";
+                    for(var i=0; i<checkedObjs.length; i++) {
+                        var obj = checkedObjs[i];
+                        cmdText += " " + obj.id;
+                    }
 
-                    // 执行命令
-
-                        // 刷新列表
+                    // 执行命令后清空对象显示，并刷新列表
+                    Wn.exec(cmdText, function(re) {
+                        $z.invoke(UI.bus(), "showBlank");
+                        UI.uis("search").refresh();
+                    });
                 }
             }]
         }];
@@ -465,6 +484,7 @@ var methods = {
     // 处理命令的通用回调
     doActionCallback : function(re, callback) {
         var UI = this;
+        //console.log("after", re)
         if(!re || /^e./.test(re)){
             UI.alert(re || "empty", "warn");
             return;
@@ -476,6 +496,7 @@ var methods = {
         // 出错了，还是要控制一下
         catch(E) {
             UI.alert(E, "warn");
+            console.warn(E);
         }
     }
     //....................................................

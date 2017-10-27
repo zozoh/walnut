@@ -16,14 +16,14 @@ public class thing_restore implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        
+
         List<WnObj> list = new ArrayList<>(hc.params.vals.length);
 
         for (String id : hc.params.vals) {
             // 得到对应对 Thing
             WnObj oT = Things.checkThIndex(sys.io, hc.oRefer, id);
 
-         // 已经是恢复的了
+            // 已经是恢复的了
             if (oT.getInt("th_live", 0) == Things.TH_LIVE) {
                 if (!hc.params.is("quiet")) {
                     throw Er.create("e.cmd.thing.restore.already", oT.id());
