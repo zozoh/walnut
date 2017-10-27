@@ -12,6 +12,7 @@ define({
         "clean_restore" : "从回收站中恢复",
         "conf_setup" : "数据集配置...",
         "conf" : {
+            "title" : "设置数据集「{{nm}}」",
             "icon_modify" : "修改数据集的图标",
             "fnm" : {
                 "id"      : 'ID',

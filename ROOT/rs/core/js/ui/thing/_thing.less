@@ -203,6 +203,91 @@
     }
 }
 
+//......................................... 配置样式:Begin
+@thcFldMH : 48px;
+@thcFldLW : 40%;
+.th-design {
+    background: @cb2;
+    .thc-info {
+        @flex(); 
+        > div {flex:0 0 auto; padding:@d2 0;}
+        > .thc-icon {
+           padding-left:@d2; 
+        }
+        > .thc-id {
+            flex:1 1 auto; color:@c3; padding:@d3+@d2 0;
+            font-family: @f_fixed; font-size:@f2; 
+        }
+        > .thc-id:before {display: inline; content:"(";}
+        > .thc-id:after  {display: inline; content:")";}
+        > .thc-btns { @noselect();
+            padding-left:@d3;
+            a {cursor: pointer; margin-right: @d2;}
+            b {@btn(); padding:@d2 @d4;}
+            b:hover {@btn_hover();}
+            em {
+                font-style: normal; color:@c2; 
+                padding:@d2 @d4;
+            }
+        }
+        > .thc-btns[mode="loaded"] {
+            a, b, em {display: none;}
+        }
+        > .thc-btns[mode="changed"] {
+            a, b {display: inline-block;}
+            em {display: none;}
+        }
+        > .thc-btns[mode="ing"] {
+            a, b {display: none;}
+            em {display: inline-block;}
+        }
+    }
+    .thc-flds {
+        position: relative;
+        > div {position: absolute;}
+        > .thc-menu { 
+            left: 0; top:0; right:0; height:@thcFldMH; padding:@d2;
+            .menu {padding:@d1 @d3; border:1px dashed @cborder1; background: @cb4;}
+        }
+        > .thc-fld-list { 
+            left:0; top:@thcFldMH; bottom:0; width:@thcFldLW;
+            padding:0 0 @d2 @d2;
+            .lst { @noselect();
+                .list-item {
+                    font-size: @f2; font-family: @f_fixed;
+                    border:0; opacity: 0.6;
+                    i {width:24px;}
+                    b {font-weight: normal;}
+                    em {
+                        font-style: normal; color:@c2;
+                        margin-left:@d2; font-size: @f1;
+                    }
+                }
+                .lst-item-checked {background: @cb1; color:unset;}
+                .lst-item-actived {opacity: 1.0;
+                    b  {color:@c4;}
+                    em {color:@c3;}
+                }
+            }
+        }
+        > .thc-fld-conf { 
+            right:0; top:@thcFldMH; bottom:0; left:@thcFldLW;
+            padding:0 @d2 @d2 0;
+            .thc-blank {
+                padding:@d4; font-size: @f3;
+            }
+            .thc-fld-form {
+                background: @cb1;
+                .form-fld {
+                    padding:0;
+                    .ff-txt {padding-left:@d4; padding-right:@d0;}
+                    .ff-val {padding-right:0;}
+                }
+            }
+        }
+    }
+}
+//......................................... 配置样式:End
 
 
 

@@ -3,10 +3,11 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/support/dom',
+    'ui/pop/pop',
     'ui/thing/support/th_methods',
     'ui/thing/th_search',
     'ui/thing/th_obj',
-], function(ZUI, Wn, DomUI, ThMethods, ThSearchUI, ThObjUI){
+], function(ZUI, Wn, DomUI, POP, ThMethods, ThSearchUI, ThObjUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-manager" ui-fitparent="true">
@@ -64,7 +65,26 @@ return ZUI.def("ui.th_manager", {
     //..............................................
     openSetup : function() {
         var UI = this;
-        console.log("openSetup")
+        var conf  = UI.getBusConf();
+        var oHome = UI.getHomeObj();
+        
+        POP.openUIPanel({
+            title : UI.msg("thing.conf.title", oHome),
+            width : "80%",
+            setup : {
+                uiType : "ui/thing/th_design",
+            },
+            ready : function(uiDesign){
+                uiDesign.update(oHome);
+            },
+            close : function(uiDesign){
+                console.log(uiDesign.isChanged())
+                if(uiDesign.isChanged())
+                    window.location.reload();
+            },
+            btnOk : null,
+            btnCancel : null,
+        }, UI);
     },
     //..............................................
     showObj : function(o, callback) {
