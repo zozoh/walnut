@@ -44,6 +44,7 @@ return ZUI.def("ui.th_search", {
             gasketName : "main",
             menu : conf.searchMenu,
             menuContext : bus,
+            filterWidthHint : conf.searchMenuFltWidthHint,
             data : function(params, callback){
                 $z.invoke(conf.actions, "query", [_.extend(params, {
                     pid : bus.getHomeObjId()

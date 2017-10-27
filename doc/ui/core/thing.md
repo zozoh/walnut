@@ -74,6 +74,11 @@ th_manager    # 顶级管理器
         // 移除
         remove : {c}(obj, callback),
     },
+    
+    // 应用 search 控件的  filterWidthHint
+    // 即，如果菜单大于多少宽度，将会自动收起来
+    // 默认 50%
+    searchMenuFltWidthHint : "50%",
 
     // 对于搜索部分菜单的设定
     // 如果为空，则会默认从 actions 里面找

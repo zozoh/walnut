@@ -201,6 +201,10 @@ var DATA_MODE = {
                 }
             }
         }, opt.actions);
+        // ----------------- searchMenuFltWidthHint
+        conf.searchMenuFltWidthHint = opt.searchMenuFltWidthHint 
+                                      || conf.searchMenuFltWidthHint
+                                      || "50%";
         // ----------------- searchMenu
         conf.searchMenu = opt.searchMenu || conf.searchMenu || [{
             // 命令: 创建
@@ -223,6 +227,13 @@ var DATA_MODE = {
             tip  : "i18n:thing.rm_tip",
             handler : function() {
                 this.uis("search").removeChecked();
+            }
+        }, {
+            // 命令: 弹出配置界面
+            icon : '<i class="fa fa-gears"></i>',
+            text : "i18n:thing.conf_setup",
+            handler : function() {
+                this.fire("setup");
             }
         }, {
             icon  : '<i class="zmdi zmdi-more-vert"></i>',
@@ -404,7 +415,7 @@ var methods = {
     listenBus : function(event, handler, listenSelf){
         var cid   = this.cid;
         var uiBus = this.bus();
-        //console.log("listen", uiBus)
+        //console.log("listen", uiBus, event)
         this.listenUI(uiBus, event, function(be){
             //console.log("handle", event)
             if(listenSelf || be.cid != cid) {
@@ -416,7 +427,7 @@ var methods = {
     fire : function(event, args) {
         var cid  = this.cid;
         var uiBus = this.bus();
-        //console.log("fire", args)
+        //console.log("fire", event, args)
         uiBus.trigger(event, {
             cid  : cid,
             args : args,

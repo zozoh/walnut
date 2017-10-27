@@ -22,6 +22,8 @@ return ZUI.def("ui.th_manager", {
     //..............................................
     init : function(opt){
         ThMethods(this);
+
+        this.listenBus("setup", this.openSetup, true);
     },
     //..............................................
     _fill_context : function(uiSet) {
@@ -58,6 +60,11 @@ return ZUI.def("ui.th_manager", {
         UI.showBlank(function(){
             UI.defer_report("blank");
         });
+    },
+    //..............................................
+    openSetup : function() {
+        var UI = this;
+        console.log("openSetup")
     },
     //..............................................
     showObj : function(o, callback) {

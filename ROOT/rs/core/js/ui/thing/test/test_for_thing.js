@@ -20,6 +20,7 @@ return ZUI.def("ui.test_for_thing", {
             parent : UI,
             gasketName : "main",
             dataMode : "thing",
+            searchMenuFltWidthHint: "30%",
             objMenu : function(th){
                 if(th.th_live == -1) {
                     return null;
