@@ -172,8 +172,10 @@ public class ticket_record implements JvmHdl {
                 curRecord.setv("csId", csPeople.getString("usrId"));
                 curRecord.setv("csAlias", csPeople.getString("usrAlias"));
                 sys.io.appendMeta(curRecord, "^csId|csAlias|csTrans|csTransTime|ticketStatus$");
+                sys.out.print(Json.toJson(curRecord.toMap("^id|csId|csAlias$")));
+            } else {
+                sys.err.printf("e.ticket: record[%s] not found", rid);
             }
-            sys.out.print(Json.toJson(curRecord.toMap("^id|csId|csAlias$")));
         }
 
         // 获取工单

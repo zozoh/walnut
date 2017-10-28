@@ -30,18 +30,19 @@
 
     ```
     ticket my
-        [-ts xxxxx]             # 工单服务域名，默认为当前域
-        [-tp user|cservice]     # 人员类型，默认为user
-        [-reg]                  # 将用户注册到工单系统
-        [-s 127.0.0.1]          # 服务器地址，默认为本机
-        [-conf xxxx]            # 本地配置，记录注册过的工单服务
-        [-post '工单id']         # 提交工单，带参数表示回复某工单，不带参数表示提交新工单
-        [-c 'text: "问题描述"']  # 提交内容，放到text属性中
-        [-atta xxxx,xxxx]       # 附件文件id，仅支持walnut系统上的文件id，否者直接从流中读取文件内容
-        [-i 0]                  # 记录的序号，从0开始，不填则默认添加到最后一次提交中
-        [-query 'tp: new']      # 查询我的工单，可添加过滤条件
-        [-skip 0 -limit 10]     # 查询数量与范围限制，默认返回最近更新10条
-        [-fetch '工单id']        # 获取工单详细信息
+        [-ts xxxxx]                     # 工单服务域名，默认为当前域
+        [-tp user|cservice]             # 人员类型，默认为user
+        [-reg]                          # 将用户注册到工单系统
+        [-s 127.0.0.1]                  # 服务器地址，默认为本机
+        [-conf xxxx]                    # 本地配置，记录注册过的工单服务
+        [-post '工单id']                 # 提交工单，带参数表示回复某工单，不带参数表示提交新工单
+        [-c 'text: "问题描述"']           # 提交内容，放到text属性中
+        [-atta xxxx,xxxx]               # 附件文件id，仅支持walnut系统上的文件id，否者直接从流中读取文件内容
+        [-i 0]                          # 记录的序号，从0开始，不填则默认添加到最后一次提交中
+        [-list 'tp: new']               # 查询我的工单，可添加过滤条件
+        [-skip 0 -limit 10]             # 查询数量与范围限制，默认返回最近更新10条
+        [-fetch '工单id']                # 获取工单详细信息
+        [-assign '工单id' -tu xxx]       # 获取工单详细信息
     ```
 
 # 示例
@@ -83,10 +84,10 @@
     ticket my -post '${工单id}' -c "text: '内容', finish: true"
     
     查询我的工单(全部)
-    ticket my -query
+    ticket my -list
     
     查询我的工单(按照状态)
-    ticket my -query 'ticketStatus: "new"'
+    ticket my -list 'ticketStatus: "new"'
     
     获取工单详细内容
     ticket my -fetch '${工单id}'

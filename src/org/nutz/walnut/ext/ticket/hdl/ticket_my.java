@@ -46,6 +46,8 @@ public class ticket_my implements JvmHdl {
     private static String API_SEARCH = "/ticket/search";
     // 获取
     private static String API_FETCH = "/ticket/fetch";
+    // 分配
+    private static String API_ASSIGN = "/ticket/assign";
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -134,8 +136,8 @@ public class ticket_my implements JvmHdl {
         }
 
         // 查询我的工单
-        else if (params.has("query")) {
-            httpPs.setv("query", params.getString("query"));
+        else if (params.has("list")) {
+            httpPs.setv("query", params.getString("list"));
             httpPs.setv("skip", params.getInt("skip", 0));
             httpPs.setv("limit", params.getInt("limit", 10));
             AjaxReturn ar = httpPost(String.format(API_TMPL + API_QUERY, service, ts),
@@ -154,6 +156,20 @@ public class ticket_my implements JvmHdl {
             httpPs.setv("skip", params.getInt("skip", 0));
             httpPs.setv("limit", params.getInt("limit", 10));
             AjaxReturn ar = httpPost(String.format(API_TMPL + API_SEARCH, service, ts),
+                                     httpPs,
+                                     null);
+            if (ar.isOk()) {
+                sys.out.print(Json.toJson(ar.getData()));
+            } else {
+                sys.err.println(Json.toJson(ar));
+            }
+        }
+
+        // 分配
+        else if (params.has("assign")) {
+            httpPs.setv("assign", params.getString("assign"));
+            httpPs.setv("tu", params.getString("tu", ustr));
+            AjaxReturn ar = httpPost(String.format(API_TMPL + API_ASSIGN, service, ts),
                                      httpPs,
                                      null);
             if (ar.isOk()) {
