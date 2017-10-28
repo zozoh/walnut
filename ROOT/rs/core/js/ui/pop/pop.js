@@ -491,6 +491,11 @@ module.exports = {
             if(!opt.btnCancel)
                 this.$main.find(".pm-btn-cancel").remove();
 
+            // 标识没有按钮
+            if(!opt.btnOk && !opt.btnCancel) {
+                this.$main.find("> .pop").attr("hide-btns", "yes");
+            }
+
             // 重设按钮文字
             this.resetBtns();
 

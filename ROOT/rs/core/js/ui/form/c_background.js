@@ -255,7 +255,7 @@ return ZUI.def("ui.form_com_background", {
     },
     //...............................................................
     _set_data : function(val, jso){
-        this.__update(s)
+        this.__update(val)
      },
     //...............................................................
     showDrop : function(dropMode, callback) {

@@ -81,8 +81,8 @@ return ZUI.def("ui.form_com_color", {
     },
     //...............................................................
     _set_data : function(val){
-        this.__update(s);
-        this.gasket.edit.setData(s);
+        this.__update(val);
+        this.gasket.edit.setData(val);
     },
     //...............................................................
     showDrop : function() {

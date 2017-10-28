@@ -12,7 +12,12 @@ $z.declare([
 var html = function(){/*
 <div class="ui-arena th-obj-index th-obj-pan" ui-fitparent="true">
     <header><div>
-        <div class="top-tabs"></div>
+        <div class="top-tabs">
+            <ul>
+                <li m="meta">{{thing.meta}}</li>
+                <li m="detail">{{thing.detail.title}}</li>
+            </ul>
+        </div>
         <div class="top-menu" ui-gasket="menu"></div>
     </div></header>
     <section ui-gasket="main"></section>
@@ -49,26 +54,20 @@ return ZUI.def("ui.th_obj_index", {
 
         // 都有
         if(conf.detail && conf.meta) {
-            jTabs.show().html(UI.compactHTML(`
-                <ul>
-                <li m="meta">{{thing.meta}}</li>
-                <li m="detail">{{thing.detail.title}}</li>
-                </ul>
-            `));
             UI.__show_main(function(){
                 UI.defer_report("main");
             });
         }
         // 仅有内容
         else if(conf.detail) {
-            jTabs.hide();
+            jTabs.find('li[m="meta"]').hide();
             UI.showDetail(function(){
                 UI.defer_report("main");
             });
         }
         // 那么就仅有元数据咯
         else if(conf.meta) {
-            jTabs.hide();
+            jTabs.find('li[m="detail"]').hide();
             UI.showMeta(function(){
                 UI.defer_report("main");
             });

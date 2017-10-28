@@ -12,20 +12,21 @@ $z.declare([
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-design" ui-fitparent="yes">
-    <div class="thc-info">
-        <div class="thc-icon" ui-gasket="icon"></div>
-        <div class="thc-name" ui-gasket="name"></div>
-        <div class="thc-id"></div>
-        <div class="thc-btns" mode="loaded">
+    <div class="thd-info">
+        <div class="thd-icon" ui-gasket="icon"></div>
+        <div class="thd-name" ui-gasket="name"></div>
+        <div class="thd-id"></div>
+        <div class="thd-btns" mode="loaded">
             <a>{{thing.conf.cancel}}</a>
             <b><i class="fa fa-save"></i> {{thing.conf.saveflds}}</b>
             <em><i class="fa fa-cog fa-spin"></i> {{thing.conf.saving}}</em>
         </div>
     </div>
-    <div class="thc-flds">
-        <div class="thc-menu" ui-gasket="menu"></div>
-        <div class="thc-fld-list" ui-gasket="list"></div>
-        <div class="thc-fld-conf" ui-gasket="fld"></div>
+    <div class="thd-setup" ui-gasket="setup"></div>
+    <div class="thd-flds">
+        <div class="thd-menu" ui-gasket="menu"></div>
+        <div class="thd-fld-list" ui-gasket="list"></div>
+        <div class="thd-fld-conf" ui-gasket="fld"></div>
     </div>
 </div>
 */};
@@ -37,7 +38,7 @@ return ZUI.def("app.wn.thdesign", {
     //...............................................................
     events : {
         // 保存修改
-        "click .thc-btns b" : function(e){
+        "click .thd-btns b" : function(e){
             var UI = this;
             var jB = $(e.currentTarget);
             var json = UI.getThConfJson();
@@ -57,7 +58,7 @@ return ZUI.def("app.wn.thdesign", {
             });
         },
         // 放弃修改
-        "click .thc-btns a" : function(e){
+        "click .thd-btns a" : function(e){
             var UI = this;
             var jA = $(e.currentTarget);
             
@@ -74,7 +75,7 @@ return ZUI.def("app.wn.thdesign", {
     redraw : function() {
         var UI  = this;
         var opt = UI.options;
-
+        //--------------------------------------- 集合图标
         new CIconUI({
             parent : UI,
             gasketName : "icon",
@@ -106,7 +107,7 @@ return ZUI.def("app.wn.thdesign", {
         }).render(function(){
             UI.defer_report("icon");
         });
-
+        //--------------------------------------- 集合名称
         new CNameUI({
             parent : UI,
             gasketName : "name",
@@ -134,7 +135,54 @@ return ZUI.def("app.wn.thdesign", {
         }).render(function(){
             UI.defer_report("name");
         });
-
+        //--------------------------------------- 集合通用设置
+        new FormUI({
+            parent : UI,
+            gasketName : "setup",
+            fitparent : false,
+            uiWidth : "auto",
+            fields : [{
+                title : "hhahaha",
+                cols : 3,
+                fields : [{
+                    key : "searchMenuFltWidthHint",
+                    title : "菜单收缩",
+                    type : "string",
+                    dft : "50%",
+                    uiWidth : 60,
+                    editAs : "input",
+                }, {
+                    key : "index",
+                    title : "索引",
+                    type : "string",
+                    dft : "all",
+                    editAs : "droplist",
+                    uiConf : {
+                        items : [
+                            {value : "all",    text : "显示属性和内容"},
+                            {value : "meta",   text : "仅显示属性"},
+                            {value : "detail", text : "仅显示内容"},
+                        ]
+                    }
+                }, {
+                    key : "data",
+                    title : "数据",
+                    type : "string",
+                    dft : "all",
+                    editAs : "droplist",
+                    uiConf : {
+                        items : [
+                            {value : "all",        text : "显示多媒体和附件"},
+                            {value : "media",      text : "仅显示多媒体"},
+                            {value : "attachment", text : "仅显示附件"},
+                        ]
+                    }
+                }]
+            }],
+        }).render(function(){
+            UI.defer_report("setup");
+        });
+        //--------------------------------------- 字段操作菜单
         new MenuUI({
             parent : UI,
             gasketName : "menu",
@@ -145,6 +193,7 @@ return ZUI.def("app.wn.thdesign", {
                 handler : function(){
                     // 获取字段名
                     UI.prompt("thing.conf.addfld_tip", {
+                        icon  : '<i class="zmdi zmdi-plus-circle"></i>',
                         check : function(str, callback) {
                             var fldName = $.trim(str);
                             if(fldName) {
@@ -208,7 +257,7 @@ return ZUI.def("app.wn.thdesign", {
         }).render(function(){
             UI.defer_report("menu");
         });
-
+        //--------------------------------------- 字段列表
         new ListUI({
             parent : UI,
             gasketName : "list",
@@ -217,14 +266,14 @@ return ZUI.def("app.wn.thdesign", {
             nmKey : "title",
             display : function(fo) {
                 var html = UI.str("thing.conf.ficon." + fo.key
-                        , UI.str("thing.conf.cicon." + fo.editAs
-                            , '<i class="zmdi zmdi-minus"></i>'));
+                              , UI.str("thing.conf.cicon." + fo.editAs
+                                    , '<i class="zmdi zmdi-minus"></i>'));
                 
                 // 得到字段显示名
-                var keyName = UI.str("thing.conf.fnm." + fo.key, fo.key);
+                var keyName = UI.str("thing.key." + fo.key, fo.key);
                 
                 // 内置专有字段，需要显示一下自己的字段真实名
-                if(/^(id|th_nm|th_ow|lbls|th_site|th_pub)$/.test(fo.key)) {
+                if(/^(id|th_nm|th_ow|lbls|th_site|th_pub|thumb|th_enabled|lm|ct)$/.test(fo.key)) {
                     keyName += " (" + fo.key + ")";
                 }
 
@@ -252,7 +301,7 @@ return ZUI.def("app.wn.thdesign", {
         });
 
         // 返回延迟加载
-        return ["icon", "name", "menu", "list"];
+        return ["icon", "name", "setup", "menu", "list"];
     },
     //...............................................................
     showBlank : function(callback){
@@ -261,7 +310,7 @@ return ZUI.def("app.wn.thdesign", {
         new DomUI({
             parent : UI,
             gasketName : "fld",
-            dom : '<div class="thc-blank">'
+            dom : '<div class="thd-blank">'
                 + ' <i class="zmdi zmdi-arrow-left"></i> '
                 + '{{thing.conf.blank}}'
                 + '</div>'
@@ -276,20 +325,16 @@ return ZUI.def("app.wn.thdesign", {
         // 得到字段状态信息
         var dis_flds;
         // 内置专有字段，有了固定的设置
-        if(/^(id|th_nm|th_ow|lbls|th_site|th_pub|__brief_and_content__)$/.test(fo.key)) {
-            dis_flds = ["key","type","multi","editAs","uiConf"];
-        }
-        // 附件和媒体
-        else if("__media__" == fo.key || "__attachment__" == fo.key) {
+        if(/^(id|th_ow|lbls|th_site|th_enabled|lm|ct)$/.test(fo.key)) {
             dis_flds = ["key","type","editAs","uiConf"];
         }
-        // 缩略图
-        else if("thumb" == fo.key) {
-            dis_flds = ["key","type","multi","editAs","uiConf", "hide"];
+        // 缩略图和名称
+        else if(/^(thumb|th_nm)$/.test(fo.key)) {
+            dis_flds = ["key","type","editAs","uiConf", "hide"];
         }
         // 默认为自定义字段
         else {
-            dis_flds = ["multi"];
+            dis_flds = [];
         }
 
         // 没必要重绘 form
@@ -301,7 +346,7 @@ return ZUI.def("app.wn.thdesign", {
             new FormUI({
                 parent : UI,
                 gasketName : "fld",
-                arenaClass : "thc-fld-form",
+                arenaClass : "thd-fld-form",
                 uiWidth : "all",
                 hideDisabled : true,
                 fields : UI.__gen_fields(),
@@ -318,9 +363,13 @@ return ZUI.def("app.wn.thdesign", {
     },
     //...............................................................
     __fld_form_set_data : function(fo, dis_flds) {
-        this.gasket.fld.enableField()
-                .disableField.apply(this.gasket.fld, dis_flds)
-                    .setData(fo);
+        // 全部恢复
+        this.gasket.fld.enableField();
+        // 禁止指定字段
+        if(dis_flds && dis_flds.length > 0)
+            this.gasket.fld.disableField(dis_flds);
+        // 设置数据
+        this.gasket.fld.setData(fo);
     },
     //...............................................................
     __gen_fields : function() {
@@ -335,11 +384,6 @@ return ZUI.def("app.wn.thdesign", {
             uiConf : {
                 placeholder : "i18n:auto",
             }
-        }, {
-            key    : "multi",
-            title  : "i18n:thing.conf.key.multi",
-            type   : "boolean",
-            editAs : "toggle"
         }, {
             key    : "type",
             title  : "i18n:thing.conf.key.type",
@@ -412,7 +456,7 @@ return ZUI.def("app.wn.thdesign", {
         // 更新一下 ThingSet 设置
         UI.gasket.icon.setData(oThSet.icon);
         UI.gasket.name.setData(oThSet.nm);
-        UI.arena.find(".thc-info .thc-id").text(oThSet.id);
+        UI.arena.find(".thd-info .thd-id").text(oThSet.id);
 
         // 读取配置文件
         if(!thConf) {
@@ -465,7 +509,7 @@ return ZUI.def("app.wn.thdesign", {
     //...............................................................
     __check_btn_status : function(){
         var UI = this;
-        var jBtns = UI.arena.find(".thc-btns");
+        var jBtns = UI.arena.find(".thd-btns");
         var json = UI.getThConfJson();
         if(json == UI.__old_conf) {
             jBtns.attr("mode", "loaded");
@@ -476,7 +520,7 @@ return ZUI.def("app.wn.thdesign", {
     },
     //...............................................................
     isFieldsChanged : function(){
-        return this.arena.find(".thc-btns").attr("mode") == "changed";
+        return this.arena.find(".thd-btns").attr("mode") == "changed";
     },
     //...............................................................
     getThConfJson : function(){
@@ -490,11 +534,12 @@ return ZUI.def("app.wn.thdesign", {
     //...............................................................
     resize : function() {
         var UI = this;
-        var jInfo = UI.arena.find(">.thc-info");
-        var jFlds = UI.arena.find(">.thc-flds");
+        var jInfo  = UI.arena.find(">.thd-info");
+        var jSetup = UI.arena.find(">.thd-setup");
+        var jFlds  = UI.arena.find(">.thd-flds");
 
         var H = UI.arena.height();
-        jFlds.css("height", H - jInfo.outerHeight(true));
+        jFlds.css("height", H - jSetup.outerHeight(true) - jInfo.outerHeight(true));
     }
     //...............................................................
 });

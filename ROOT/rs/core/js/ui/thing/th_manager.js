@@ -70,7 +70,7 @@ return ZUI.def("ui.th_manager", {
         
         POP.openUIPanel({
             title : UI.msg("thing.conf.title", oHome),
-            width : "80%",
+            width : 640,
             setup : {
                 uiType : "ui/thing/th_design",
             },

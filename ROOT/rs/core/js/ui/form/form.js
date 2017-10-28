@@ -780,6 +780,9 @@ return ZUI.def("ui.form", {
         // 得到处理字段
         var keys = Array.from(arguments);
 
+        // 处理内嵌数组
+        keys = _.flatten(keys);
+
         // 全部
         if(keys.length == 0) {
             this.arena.find('>.form-body>div>.form-group>.fg-fields>.form-fld')
@@ -802,6 +805,9 @@ return ZUI.def("ui.form", {
 
         // 得到处理字段
         var keys = Array.from(arguments);
+
+        // 处理内嵌数组
+        keys = _.flatten(keys);
 
         // 全部
         if(keys.length == 0) {

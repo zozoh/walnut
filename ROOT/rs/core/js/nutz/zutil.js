@@ -2950,6 +2950,30 @@
             }
         },
         //.............................................
+        // pass - 「数组」指定的数组的值如果匹配，则向后取值
+        // args - 「数组」备选值
+        // dft  - 备选都不行，返回这个默认值
+        // 返回第一个不能被 pass 的值，如果都 pass 了，返回默认值
+        fallback : function(pass, args, dft) {
+            console.log(pass)
+            for(var i=0; i<args.length; i++) {
+                var val = args[i];
+                // 看看是否 pass
+                var isPass = false;
+                for(var x=0; x<pass.length; x++){
+                    if(pass[x] === val){
+                        isPass = true;
+                        break;
+                    }
+                }
+                // 是否继续通过
+                if(!isPass)
+                    return val;
+            }
+            // 返回默认值
+            return dft;
+        },
+        //.............................................
         jq: function (jP, arg, selector) {
             // 没有参数，那么全部 children 都会被选中
             if (_.isUndefined(arg)) {

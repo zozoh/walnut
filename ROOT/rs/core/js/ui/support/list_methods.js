@@ -81,11 +81,12 @@ var methods = {
 
         // $item
         $z.setUndefined(UI, "$item", function(arg) {
-            var jItem = this.findItem(arg);
-            if(jItem.length == 0) {
-                return UI.arena.find('.list-item[li-actived]');
+            // 直接返回激活的节点
+            if(_.isUndefined(arg)){
+                return this.arena.find('.list-item[li-actived]');
             }
-            return jItem;
+            // 否则查找
+            return this.findItem(arg);
         });
         // $checked
         $z.setUndefined(UI, "$checked", function() {
@@ -408,6 +409,7 @@ var methods = {
     },
     //...............................................................
     has: function(arg) {
+        console.log("has?", arg);
         return this.$item(arg).length > 0;
     },
     //...............................................................

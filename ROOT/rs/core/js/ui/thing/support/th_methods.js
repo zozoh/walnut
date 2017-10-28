@@ -304,7 +304,7 @@ var DATA_MODE = {
         // ----------------- objMenu
         conf.objMenu = opt.objMenu || conf.objMenu;
         // ----------------- meta
-        conf.meta = $z.fallbackUndefined(opt.meta, conf.meta, {
+        conf.meta = $z.fallback([undefined, true], [opt.meta, conf.meta], {
             update : function(th, key, callback) {
                 var obj  = key ? $z.obj(key, th[key]) : th;
                 var json = $z.toJson(obj);
@@ -316,7 +316,7 @@ var DATA_MODE = {
             }
         });
         // ----------------- detail
-        conf.detail = $z.fallbackUndefined(opt.detail, conf.detail, {
+        conf.detail = $z.fallback([undefined, true], [opt.detail, conf.detail], {
             read : function(th, callback) {
                 Wn.execf('thing {{th_set}} detail {{id}}', th, callback);
             },
@@ -345,7 +345,7 @@ var DATA_MODE = {
         });
         //------------------------- 定义 media/attachment 的设置方法
         var __setup_files = function(conf, mode) {
-            conf[mode] = $z.fallbackUndefined(opt[mode], conf[mode], {
+            conf[mode] = $z.fallback([undefined, true], [opt[mode], conf[mode]], {
                 list : function(th, callback) {
                     Wn.execf('thing {{th_set}} '+mode+' {{id}}', th, function(re){
                         var list = $z.fromJson(re);
