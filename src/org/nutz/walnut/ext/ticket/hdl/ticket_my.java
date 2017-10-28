@@ -40,8 +40,10 @@ public class ticket_my implements JvmHdl {
     private static String API_REG = "/ticket/reg";
     // 提交、回复
     private static String API_POST = "/ticket/post";
-    // 查询
+    // 我的查询
     private static String API_QUERY = "/ticket/query";
+    // 全局查询
+    private static String API_SEARCH = "/ticket/search";
     // 获取
     private static String API_FETCH = "/ticket/fetch";
 
@@ -52,10 +54,10 @@ public class ticket_my implements JvmHdl {
         WnObj myConfObj = myConf(sys);
         NutMap myConf = sys.io.readJson(myConfObj, NutMap.class);
 
+        String ustr = params.get("u", sys.me.id());
         String service = params.get("s", myConf.getString("s"));
         String ts = params.get("ts", myConf.getString("ts"));
         String tp = params.get("tp", myConf.getString("tp"));
-        String ustr = params.get("u", sys.me.id());
 
         // 查看/切换配置
         if (params.has("conf")) {
@@ -90,7 +92,7 @@ public class ticket_my implements JvmHdl {
                                    nconf.getString("tsNm"),
                                    Json.toJson(myConf));
                 } else {
-                    sys.err.printf("ticket: not find conf named [%s], exec 'ticket my -conf list' to check the list",
+                    sys.err.printf("e.ticket: not find conf named [%s], exec 'ticket my -conf list' to check the list",
                                    confNm);
                 }
             }
@@ -146,10 +148,25 @@ public class ticket_my implements JvmHdl {
             }
         }
 
+        // 查询全局工单
+        else if (params.has("search")) {
+            httpPs.setv("search", params.getString("search"));
+            httpPs.setv("skip", params.getInt("skip", 0));
+            httpPs.setv("limit", params.getInt("limit", 10));
+            AjaxReturn ar = httpPost(String.format(API_TMPL + API_SEARCH, service, ts),
+                                     httpPs,
+                                     null);
+            if (ar.isOk()) {
+                sys.out.print(Json.toJson(ar.getData()));
+            } else {
+                sys.err.println(Json.toJson(ar));
+            }
+        }
+
         // 获取指定工单
         else if (params.has("fetch")) {
             httpPs.setv("fetch", params.getString("fetch"));
-            AjaxReturn ar = httpPost(String.format(API_TMPL + API_QUERY, service, ts),
+            AjaxReturn ar = httpPost(String.format(API_TMPL + API_FETCH, service, ts),
                                      httpPs,
                                      null);
             if (ar.isOk()) {
@@ -162,24 +179,30 @@ public class ticket_my implements JvmHdl {
         // 提交/回复工单
         else if (params.has("post")) {
             String trid = null;
+            String pcontent = params.getString("c", "");
+            NutMap content = null;
             if (!params.getString("post").equalsIgnoreCase("true")
                 && !params.getString("post").equalsIgnoreCase("false")
                 && !Strings.isBlank(params.getString("post"))) {
                 trid = params.getString("post");
             }
-            NutMap content = Lang.map(params.get("c"));
-            httpPs.setv("content", content);
+            if (!Strings.isBlank(pcontent)) {
+                content = Lang.map(params.get("c"));
+            }
             // 新工单
             if (trid == null) {
                 // 检查content
                 if (content == null || !content.containsKey("text")) {
-                    sys.err.print("ticket: post ticket need content, -c 'text: \"desc....\"'");
+                    sys.err.print("e.ticket: post ticket need content, -c 'text: \"desc....\"'");
                     return;
                 }
             }
             // 已存在工单
             else {
-                httpPs.setv("trid", trid);
+                httpPs.setv("rid", trid);
+            }
+            if (content != null) {
+                httpPs.setv("content", Json.toJson(content, JsonFormat.compact()));
             }
 
             // 附件
@@ -213,7 +236,7 @@ public class ticket_my implements JvmHdl {
         WnObj myHome = sys.getHome();
         WnObj myConfObj = sys.io.fetch(myHome, ".ticket_my.json");
         if (myConfObj == null) {
-            sys.out.println("ticket: init file ~/.ticket_my.json, if you want to edit it, exec 'open wedit ~/.ticket_my.json'");
+            sys.out.println("init file ~/.ticket_my.json, if you want to edit it, exec 'open wedit ~/.ticket_my.json'");
             myConfObj = sys.io.create(myHome, ".ticket_my.json", WnRace.FILE);
             NutMap myConf = NutMap.NEW();
             myConf.setv("s", "127.0.0.1");
@@ -227,7 +250,7 @@ public class ticket_my implements JvmHdl {
     }
 
     private AjaxReturn httpPost(String url, NutMap httpParams, InputStream attaFileIn) {
-        log.infof("ticket: regapi access %s with params %s",
+        log.infof("regapi access %s with params %s",
                   url,
                   Json.toJson(httpParams, JsonFormat.compact()));
         if (attaFileIn != null) {
