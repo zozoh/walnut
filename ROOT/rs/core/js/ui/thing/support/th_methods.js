@@ -229,13 +229,6 @@ var DATA_MODE = {
                 this.uis("search").removeChecked();
             }
         }, {
-            // 命令: 弹出配置界面
-            icon : '<i class="fa fa-gears"></i>',
-            text : "i18n:thing.conf_setup",
-            handler : function() {
-                this.fire("setup");
-            }
-        }, {
             icon  : '<i class="zmdi zmdi-more-vert"></i>',
             items : [{
                 // 命令: 清空回收站
@@ -298,6 +291,13 @@ var DATA_MODE = {
                         $z.invoke(UI.bus(), "showBlank");
                         UI.uis("search").refresh();
                     });
+                }
+            }, {
+                // 命令: 弹出配置界面
+                icon : '<i class="fa fa-gears"></i>',
+                text : "i18n:thing.conf_setup",
+                handler : function() {
+                    this.fire("setup");
                 }
             }]
         }];

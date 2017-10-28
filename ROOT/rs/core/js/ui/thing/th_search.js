@@ -67,7 +67,7 @@ return ZUI.def("ui.th_search", {
             pager : conf.searchPager,
         })).render(function(){
             this.refresh(function(){
-                this.uiList.setActived(0);
+                //this.uiList.setActived(0);
                 var args = Array.from(arguments);
                 $z.doCallback(callback, args, UI.bus());
             });
@@ -165,6 +165,7 @@ return ZUI.def("ui.th_search", {
     },
     //..............................................
     refresh : function(callback) {
+        $z.invoke(this.bus(), "showBlank");
         this.gasket.main.refresh(callback);
     }
     //..............................................
