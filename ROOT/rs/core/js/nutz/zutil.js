@@ -2955,7 +2955,6 @@
         // dft  - 备选都不行，返回这个默认值
         // 返回第一个不能被 pass 的值，如果都 pass 了，返回默认值
         fallback : function(pass, args, dft) {
-            console.log(pass)
             for(var i=0; i<args.length; i++) {
                 var val = args[i];
                 // 看看是否 pass

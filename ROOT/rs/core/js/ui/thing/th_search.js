@@ -71,6 +71,8 @@ return ZUI.def("ui.th_search", {
                 var args = Array.from(arguments);
                 $z.doCallback(callback, args, UI.bus());
             });
+            // 模拟点击
+            //this.gasket.menu.arena.find(".menu-item").eq(3).click();
         });
     },
     //..............................................

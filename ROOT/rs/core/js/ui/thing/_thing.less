@@ -245,7 +245,27 @@
     }
     // 全局设置 
     .thd-setup {
-        
+        height: 80px;
+        .form .form-body {
+            overflow: hidden;
+            .form-group {
+                padding:0 @d2;
+                .fg-title {
+                    border:1px solid @cborder1; font-size:@f2;
+                }
+                .fg-fields {
+                    padding:@d2 @d1 @d1 0;
+                    .form-fld {
+                        padding: 0;
+                        > .ff-txt {padding:@d2 @d1;}
+                        > .ff-val {padding:0;}
+                        .com-input > .box input {
+                            padding:@d1 @d2;
+                        }
+                    }
+                }
+            }
+        }
     }
     // 字段编辑器
     .thd-flds {

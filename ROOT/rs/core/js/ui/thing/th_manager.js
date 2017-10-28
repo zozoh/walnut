@@ -71,6 +71,7 @@ return ZUI.def("ui.th_manager", {
         POP.openUIPanel({
             title : UI.msg("thing.conf.title", oHome),
             width : 640,
+            arenaClass : "th-design-mask",
             setup : {
                 uiType : "ui/thing/th_design",
             },
@@ -78,7 +79,6 @@ return ZUI.def("ui.th_manager", {
                 uiDesign.update(oHome);
             },
             close : function(uiDesign){
-                console.log(uiDesign.isChanged())
                 if(uiDesign.isChanged())
                     window.location.reload();
             },

@@ -140,22 +140,29 @@ return ZUI.def("app.wn.thdesign", {
             parent : UI,
             gasketName : "setup",
             fitparent : false,
-            uiWidth : "auto",
+            uiWidth : "all",
+            on_change : function(){
+                // 同步按钮状态
+                UI.__check_btn_status();
+            },
             fields : [{
-                title : "hhahaha",
-                cols : 3,
+                title : "数据集通用设定",
+                cols : 5,
                 fields : [{
                     key : "searchMenuFltWidthHint",
                     title : "菜单收缩",
                     type : "string",
-                    dft : "50%",
-                    uiWidth : 60,
+                    dft : "",
                     editAs : "input",
+                    uiConf : {
+                        placeholder : "50%"
+                    }
                 }, {
-                    key : "index",
-                    title : "索引",
+                    key : "thIndex",
+                    title : "显示索引",
                     type : "string",
                     dft : "all",
+                    span : 2,
                     editAs : "droplist",
                     uiConf : {
                         items : [
@@ -165,10 +172,11 @@ return ZUI.def("app.wn.thdesign", {
                         ]
                     }
                 }, {
-                    key : "data",
-                    title : "数据",
+                    key : "thData",
+                    title : "显示数据",
                     type : "string",
                     dft : "all",
+                    span : 2,
                     editAs : "droplist",
                     uiConf : {
                         items : [
@@ -493,6 +501,29 @@ return ZUI.def("app.wn.thdesign", {
         // 记录旧的配置
         UI.__old_conf = $z.toJson(thConf);
 
+        // 更新通用全局配置
+        var setupObj = {
+            searchMenuFltWidthHint : thConf.searchMenuFltWidthHint,
+        };
+        // thIndex
+        if(thConf.meta && thConf.detail || (!thConf.meta && !thConf.detail)) {
+            setupObj.thIndex = "all";
+        } else if(thConf.meta) {
+            setupObj.thIndex = "meta";
+        } else {
+            setupObj.thIndex = "detail";
+        }
+        // thData
+        if(thConf.media && thConf.attachment || (!thConf.media && !thConf.attachment)) {
+            setupObj.thData = "all";
+        } else if(thConf.media) {
+            setupObj.thData = "media";
+        } else {
+            setupObj.thData = "attachment";
+        }
+        // 设置
+        UI.gasket.setup.setData(setupObj);
+
         // 找到字段列表
         var fields = thConf.fields || [];
         UI.gasket.list.setData(fields);
@@ -524,8 +555,23 @@ return ZUI.def("app.wn.thdesign", {
     },
     //...............................................................
     getThConfJson : function(){
+        // 得到字段
         var fields = this.gasket.list.getData();
-        return $z.toJson({fields:fields});
+        // 得到全局设置
+        var setupObj = this.gasket.setup.getData();
+
+        // 得到对象
+        var thConf = {
+            searchMenuFltWidthHint : setupObj.searchMenuFltWidthHint,
+            meta       : /^(all|meta)$/.test(setupObj.thIndex),
+            detail     : /^(all|detail)$/.test(setupObj.thIndex),
+            media      : /^(all|media)$/.test(setupObj.thData),
+            attachment : /^(all|attachment)$/.test(setupObj.thData),
+            fields: fields,
+        };
+
+        // 转换为 JSON 字符串
+        return $z.toJson(thConf);
     },
     //...............................................................
     setData : function(oThSet) {
