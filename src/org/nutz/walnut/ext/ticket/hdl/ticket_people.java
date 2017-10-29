@@ -42,7 +42,7 @@ public class ticket_people implements JvmHdl {
         String thString = Strings.isStringEmpty(ts) ? "~/.ticket" : "~/.ticket_" + ts;
         WnObj ticketHome = sys.io.fetch(null, Wn.normalizeFullPath(thString, sys));
         if (ticketHome == null) {
-            sys.err.printf("ticket: data dir [%s] not found, please exec 'ticket init'", thString);
+            sys.err.printf("e.ticket: data dir [%s] not found, please exec 'ticket init'", thString);
             return;
         }
 
@@ -55,7 +55,7 @@ public class ticket_people implements JvmHdl {
             // 检查用户是否存在
             String pNm = "wn_" + wnUsr.id();
             if (sys.io.exists(peoDir, pNm)) {
-                sys.err.printf("ticket: has %s reg by [%s]", tp, params.getString("add"));
+                sys.err.printf("e.ticket: has %s reg by [%s]", tp, params.getString("add"));
                 return;
             }
             // 新建并初始化
@@ -85,7 +85,7 @@ public class ticket_people implements JvmHdl {
             // 检查用户是否存在
             String pNm = "wn_" + wnUsr.id();
             if (!sys.io.exists(peoDir, pNm)) {
-                sys.err.printf("ticket: not has %s reg by [%s]", tp, params.getString("update"));
+                sys.err.printf("e.ticket: not has %s reg by [%s]", tp, params.getString("update"));
                 return;
             }
             WnObj tPeople = sys.io.fetch(peoDir, pNm);
