@@ -40,21 +40,31 @@ return ZUI.def("app.wn.thdesign", {
         // 保存修改
         "click .thd-btns b" : function(e){
             var UI = this;
+            var opt = UI.options;
             var jB = $(e.currentTarget);
             var json = UI.getThConfJson();
+            var tsId = UI.__oTS.id;
+            var tsPh = UI.__oTS.ph;
 
             // 生成命令
-            var cmdText = 'json > "' + UI.__oTS.ph + '/thing.js"';
+            var cmdText = 'json > "' + tsPh + '/thing.js"; obj id:'+tsId;
 
             // 执行命令
             jB.parent().attr("mode", "ing");
             Wn.exec(cmdText, json, function(re){
                 jB.parent().attr("mode", "loaded");
                 //console.log("re:", re);
-                // 记入缓存
+                // 得到新的对象，并存入缓存
+                var oTS2 = $z.fromJson(re);
+                Wn.saveToCache(oTS2);
+
+                // 记入内存
                 UI.__old_conf = json;
                 // 标记修改
                 UI.__is_changed = true;
+
+                // 调用回调
+                $z.invoke(opt, "on_change", [oTS2], UI);
             });
         },
         // 放弃修改
@@ -98,7 +108,7 @@ return ZUI.def("app.wn.thdesign", {
 
                     // 标记修改
                     UI.__is_changed = true;
-                    console.log(UI.__is_changed)
+                    //console.log(UI.__is_changed)
 
                     // 成功后调用回调
                     $z.invoke(opt, "on_change", [oTS2], UI);
@@ -461,6 +471,8 @@ return ZUI.def("app.wn.thdesign", {
         var opt  = UI.options;
         UI.__oTS = oThSet;
 
+        console.log(oThSet, thConf)
+
         // 更新一下 ThingSet 设置
         UI.gasket.icon.setData(oThSet.icon);
         UI.gasket.name.setData(oThSet.nm);
@@ -475,7 +487,7 @@ return ZUI.def("app.wn.thdesign", {
             }
 
             // 读取并解析
-            thConf = Wn.read(oThConf);
+            thConf = Wn.read(oThConf, true);
         }
 
         // 更新
@@ -488,6 +500,11 @@ return ZUI.def("app.wn.thdesign", {
     // 判断是否修改了
     isChanged : function(){
         return this.__is_changed ? true : false;
+    },
+    //...............................................................
+    isNeedSave : function(){
+        var json = this.getThConfJson();
+        return json != this.__old_conf;
     },
     //...............................................................
     __updat_thConf_json : function(thConf) {
@@ -541,12 +558,11 @@ return ZUI.def("app.wn.thdesign", {
     __check_btn_status : function(){
         var UI = this;
         var jBtns = UI.arena.find(".thd-btns");
-        var json = UI.getThConfJson();
-        if(json == UI.__old_conf) {
-            jBtns.attr("mode", "loaded");
-        }else{
+        if(UI.isNeedSave()) {
             jBtns.attr("mode", "changed");
             $z.blinkIt(jBtns);
+        }else{
+            jBtns.attr("mode", "loaded");
         }
     },
     //...............................................................
@@ -562,13 +578,14 @@ return ZUI.def("app.wn.thdesign", {
 
         // 得到对象
         var thConf = {
-            searchMenuFltWidthHint : setupObj.searchMenuFltWidthHint,
             meta       : /^(all|meta)$/.test(setupObj.thIndex),
             detail     : /^(all|detail)$/.test(setupObj.thIndex),
             media      : /^(all|media)$/.test(setupObj.thData),
             attachment : /^(all|attachment)$/.test(setupObj.thData),
             fields: fields,
         };
+        if(setupObj.searchMenuFltWidthHint)
+            thConf.searchMenuFltWidthHint = setupObj.searchMenuFltWidthHint;
 
         // 转换为 JSON 字符串
         return $z.toJson(thConf);

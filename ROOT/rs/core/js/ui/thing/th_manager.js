@@ -79,8 +79,9 @@ return ZUI.def("ui.th_manager", {
                 uiDesign.update(oHome);
             },
             close : function(uiDesign){
-                if(uiDesign.isChanged())
+                if(uiDesign.isChanged()) {
                     window.location.reload();
+                }
             },
             btnOk : null,
             btnCancel : null,
