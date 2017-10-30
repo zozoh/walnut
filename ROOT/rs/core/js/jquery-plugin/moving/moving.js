@@ -636,12 +636,12 @@ var MVs = {
         };
         for(var i=0; i<MVing.sensors.length; i++) {
             var sen = MVing.sensors[i];
-            // 无视禁止的感应器
-            if(sen.disabled)
-                continue;
             // 目标中心点为准，看看是不是在感应区内
             if($D.rect.is_in(sen.rect, MVing.rect.current)){
-                re.hover.push(sen.index);
+                // 禁止的感应器，不做任何操作
+                if(!sen.disabled)
+                    re.hover.push(sen.index);
+                // 匹配上就退出
                 if(sen.matchBreak)
                     break;
             }

@@ -67,8 +67,18 @@ return ZUI.def("ui.test_form3", {
                             uiType : "@input",
                         }],
                     combo : {
-                        items : 'obj ~ -match \'race:"DIR", nm:"^{{val}}"\' -limit 10 -json -l -e "^(id|tp|race|nm)$"',
-                        itemArgs : {val : ".+"},
+                        // items : 'obj ~ -match \'race:"DIR", nm:"^{{val}}"\' -limit 10 -json -l -e "^(id|tp|race|nm)$"',
+                        // itemArgs : {val : ".+"},
+                        items : function(val, callback){
+                            // var args = Array.from(arguments);
+                            // console.log(args)
+                            val = val || ".+";
+                            var cmdText = 'obj ~ -match \'race:"DIR", nm:"^'+val+'"\''
+                                      +' -limit 10 -json -l -e "^(id|tp|race|nm)$"';
+                            Wn.exec(cmdText, function(re){
+                                callback($z.fromJson(re));
+                            });
+                        },
                         icon  : function(o){
                             return Wn.objIconHtml(o);
                         },
