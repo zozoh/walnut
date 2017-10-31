@@ -7,6 +7,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -42,7 +43,8 @@ public class ticket_people implements JvmHdl {
         String thString = Strings.isStringEmpty(ts) ? "~/.ticket" : "~/.ticket_" + ts;
         WnObj ticketHome = sys.io.fetch(null, Wn.normalizeFullPath(thString, sys));
         if (ticketHome == null) {
-            sys.err.printf("e.ticket: data dir [%s] not found, please exec 'ticket init'", thString);
+            sys.err.printf("e.ticket: data dir [%s] not found, please exec 'ticket init'",
+                           thString);
             return;
         }
 
@@ -109,7 +111,14 @@ public class ticket_people implements JvmHdl {
 
     private WnUsr getWnUser(WnSystem sys, String ustr) {
         // 只允许通过id查询，防止通过用户名，电话，email等方式
-        return sys.usrService.check("id:" + ustr);
+        Proton<WnUsr> proton = new Proton<WnUsr>() {
+            @Override
+            protected WnUsr exec() {
+                return sys.usrService.check("id:" + ustr);
+            }
+        };
+        sys.nosecurity(proton);
+        return proton.get();
     }
 
 }

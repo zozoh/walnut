@@ -1,2 +1,0 @@
-# 加入到root组，可以访问/sys/user
-grp root -a

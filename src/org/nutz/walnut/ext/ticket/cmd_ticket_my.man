@@ -65,6 +65,15 @@
     切换到指定的工单服务，xxx不能用list关键字
     ticket my -conf xxx
     
+    查询我的工单(全部)
+    ticket my -list
+    
+    查询我的工单(按照状态)
+    ticket my -list 'ticketStatus: "new"'
+    
+    获取工单详细内容
+    ticket my -fetch '${工单id}'
+    
     提交新工单
     ticket my -post -c "text: '内容'"
     
@@ -83,12 +92,5 @@
     确定工单已解决
     ticket my -post '${工单id}' -c "text: '内容', finish: true"
     
-    查询我的工单(全部)
-    ticket my -list
     
-    查询我的工单(按照状态)
-    ticket my -list 'ticketStatus: "new"'
-    
-    获取工单详细内容
-    ticket my -fetch '${工单id}'
     
