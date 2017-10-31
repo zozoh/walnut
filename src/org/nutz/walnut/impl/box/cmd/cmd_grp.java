@@ -124,20 +124,16 @@ public class cmd_grp extends JvmExecutor {
     }
 
     private void __check_right(WnSystem sys, WnUsr me, String grp, String unm) {
-        if (Strings.isBlank(unm) || !me.name().equals(unm)) {
+        // 那么本组的管理员可以进行这个操作
+        int _ro = Strings.isBlank(grp) ? -10000 : sys.usrService.getRoleInGroup(me, grp);
+        if (Wn.ROLE.ADMIN != _ro) {
 
-            // 那么本组的管理员可以进行这个操作
-            int _ro = Strings.isBlank(grp) ? -10000 : sys.usrService.getRoleInGroup(me, grp);
-            if (Wn.ROLE.ADMIN != _ro) {
-
-                // 如果不是本组管理员，根用户成员也成
-                _ro = sys.usrService.getRoleInGroup(me, "root");
-                if (_ro != Wn.ROLE.ADMIN && _ro != Wn.ROLE.MEMBER) {
-                    // 靠，木权限
-                    throw Er.create("e.me.nopvg");
-                }
+            // 如果不是本组管理员，根用户成员也成
+            _ro = sys.usrService.getRoleInGroup(me, "root");
+            if (_ro != Wn.ROLE.ADMIN && _ro != Wn.ROLE.MEMBER) {
+                // 靠，木权限
+                throw Er.create("e.me.nopvg");
             }
-
         }
     }
 
