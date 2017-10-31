@@ -70,8 +70,9 @@ public class thing_detail implements JvmHdl {
                 String brief = Cmds.getParamOrPipe(sys, hc.params, "brief", false);
                 // 自动摘要 TODO 根据内容类型设计不同的摘要算法
                 if (Strings.isBlank(brief)) {
-                    String content = sys.io.readText(oT);
-                    brief = content.substring(0, Math.min(content.length(), 256));
+                    String content = Strings.sBlank(sys.io.readText(oT), "");
+                    content = Strings.trim(content).replaceAll("[>+-`#\t\r\n ]", "");
+                    brief = content.substring(0, Math.min(content.length(), 50));
                 }
 
                 // 设置 thing 元数据

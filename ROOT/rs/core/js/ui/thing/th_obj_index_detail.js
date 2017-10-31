@@ -30,6 +30,17 @@ return ZUI.def("ui.th_obj_index_detail", {
         ThMethods(this);
     },
     //..............................................
+    events : {
+        'click .toid-brief aside a' : function(){
+            var UI = this;
+            var str = UI.gasket.edit.getData();
+            var brief = $.trim(str||"")
+                .replace(/[>+-`#\t\r\n ]/g, "")
+                    .substring(0, 50);
+            UI.arena.find(".toid-brief textarea").val(brief);
+        }
+    },
+    //..............................................
     redraw : function(){
         var UI   = this;
         var conf = UI.getBusConf();
@@ -56,7 +67,17 @@ return ZUI.def("ui.th_obj_index_detail", {
                         content : this.getData()
                     };
                     // 执行保存
-                    conf.detail.save(obj, det, callback);
+                    //conf.detail.save(obj, det, callback);
+                    UI.invokeConfCallback("detail", "save", [obj, det, function(re){
+                        // 这里主动调用一下异步函数回调
+                        // 以便恢复按钮状态
+                        $z.doCallback(callback);
+                        // 处理任务回调
+                        UI.doActionCallback(re, function(newObj){
+                            // 通知界面其他部分更新
+                            UI.fire("change:meta", [newObj]);
+                        });
+                    }]);
                 }
             }],
             preview : conf.detail.markdown,
@@ -71,19 +92,18 @@ return ZUI.def("ui.th_obj_index_detail", {
         return ["edit"];
     },
     //..............................................
-    _fill_context : function(uiSet) {
-        uiSet.detail = this;
-    },
-    //..............................................
     update : function(o, callback) {
         var UI  = this;
         var conf = UI.getBusConf();
         UI.__OBJ = o;
-        
-        conf.detail.read(o, function(str){
+
+        this.invokeConfCallback("detail", "read", [o, function(str){
             UI.gasket.edit.setData(str);
             $z.doCallback(callback, [str], UI);  
-        });
+        }]);
+
+        // 更新摘要
+        UI.arena.find(">.toid-brief textarea").val(o.brief || "");
     },
     //..............................................
     resize : function() {

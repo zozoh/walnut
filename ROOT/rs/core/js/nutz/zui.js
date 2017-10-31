@@ -289,6 +289,27 @@ define(function (require, exports, module) {
                     : opt.className);
             }
 
+            // 处理通用拖拽操作
+            if(UI.dragAndDrop) {
+                var ddSelector = UI.dragAndDrop;
+                if(!_.isString(ddSelector))
+                    ddSelector = "> .ui-arena";
+                UI.$el.on("dragover", ddSelector, function(e){
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $(this).attr("ui-drag", "over");
+                });
+                UI.$el.on("dragleave", ddSelector, function(){
+                    $(this).removeAttr("ui-drag");
+                });
+                UI.$el.on("drop", ddSelector, function(e){
+                    $(this).removeAttr("ui-drag");
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $z.invoke(UI, "on_drop", [e.originalEvent.dataTransfer.files]);
+                });
+            }
+
             // 调用子类自定义的 init
             $z.invoke(UI.$ui, "init", [opt], UI);
 
@@ -404,6 +425,16 @@ define(function (require, exports, module) {
             var opt = UI.options;
 
             // console.log("destroy UI:", UI.uiName, "::", UI.cid);
+
+            // 释放通用拖拽操作
+            if(UI.dragAndDrop) {
+                var ddSelector = UI.dragAndDrop;
+                if(!_.isString(ddSelector))
+                    ddSelector = "> .ui-arena";
+                UI.$el.off("dragover", ddSelector);
+                UI.$el.off("dragleave", ddSelector);
+                UI.$el.off("drop", ddSelector);
+            }
 
             // 调用更多的释放逻辑
             $z.invoke(UI.$ui, "depose", [], UI);
@@ -1295,6 +1326,10 @@ define(function (require, exports, module) {
             $z.setUndefined(opt, "btnYes", "yes");
             $z.setUndefined(opt, "btnNo", "no");
             $z.setUndefined(opt, "icon", '<i class="zmdi zmdi-help-outline"></i>');
+
+            // 设置图标
+            if ("warn" == opt.icon)
+                opt.icon = '<i class="zmdi zmdi-alert-triangle"></i>';
 
             // 显示遮罩层
             seajs.use("ui/mask/mask", function (MaskUI) {

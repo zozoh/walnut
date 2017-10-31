@@ -33,24 +33,21 @@ return ZUI.def("ui.th_obj_index_meta", {
             gasketName : "form",
             arenaClass : "obj-meta-form",
             on_change : function(key){
+                //console.log("update key=", key);
                 var uiForm = this;
                 var obj    = uiForm.getData();
                 uiForm.showPrompt(key, "spinning");
-                conf.meta.update(obj, key, function(){
+                UI.invokeConfCallback("meta", "update", [obj, key, function(){
                     uiForm.hidePrompt(key);
                     // 通知界面其他部分更新
                     UI.fire("change:meta", [obj, key]);
-                });
+                }]);
             }
         })).render(function(){
             UI.defer_report("form");
         });
 
         return ["form"];
-    },
-    //..............................................
-    _fill_context : function(uiSet) {
-        uiSet.meta = this;
     },
     //..............................................
     update : function(o, callback) {

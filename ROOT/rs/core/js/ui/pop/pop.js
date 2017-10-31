@@ -396,7 +396,8 @@ module.exports = {
             uiType : "xxxx"         // UI 的类型
             uiConf : {..}           // UI 的具体配置项目
         }          
-        ready       : 回调函数, body加载完会调用 {c}F(uiMask.body)
+        ready       : 回调函数, body加载完会调用  {c}F(uiMask.body)
+        close       : 回调函数, 对话框关闭前会调用 {c}F(uiMask.body)
         context     : MaskUI    // 回调的上下文，默认是 uiMask.body
         ok     : {c}F(uiMask.body):Boolean   // 返回 false 将阻止弹出框关闭
         cancel : {c}F(uiMask.body):Boolean   // 返回 false 将阻止弹出框关闭
@@ -452,6 +453,11 @@ module.exports = {
             height : opt.height,
             escape : opt.escape,
             closer : opt.closer,
+            on_close : function(){
+                var uiMask = this;
+                var context = opt.context || uiMask.body;
+                $z.invoke(opt, "close", [uiMask.body], context);
+            },
             events : {
                 "click .pm-btn-ok" : function(e){
                     btn_on_click(this, $(e.currentTarget), "ok");
@@ -484,6 +490,11 @@ module.exports = {
             // 移除按钮文字: Cancel
             if(!opt.btnCancel)
                 this.$main.find(".pm-btn-cancel").remove();
+
+            // 标识没有按钮
+            if(!opt.btnOk && !opt.btnCancel) {
+                this.$main.find("> .pop").attr("hide-btns", "yes");
+            }
 
             // 重设按钮文字
             this.resetBtns();

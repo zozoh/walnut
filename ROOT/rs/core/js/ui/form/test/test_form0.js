@@ -26,6 +26,11 @@ return ZUI.def("ui.test_form0", {
     //...............................................................
     update : function(o){
         var UI = this;
+
+        var long_drop_items = [];
+        for(var i=0;i<100;i++)
+            long_drop_items.push("Item "+i);
+
         new FormUI({
             parent : UI,
             gasketName : "myform",
@@ -45,6 +50,14 @@ return ZUI.def("ui.test_form0", {
                     type  : "datetime",
                     dft   : new Date(),
                     editAs: "datepicker"
+                },{
+                    key   : "long_drop",
+                    title : "很长很长的下拉",
+                    type  : "string",
+                    editAs: "droplist",
+                    uiConf : {
+                        items : long_drop_items
+                    }
                 },{
                     key :"exp_start",
                     title :"发货时间",

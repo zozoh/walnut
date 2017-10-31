@@ -84,23 +84,25 @@
     > .th-obj-data-con {right:0; left:@thOW;}
 }
 //........................................
+// 通用标签面板
 @toiH : 32px;
-.th-obj-index {
+.th-obj-pan {
     position: relative;
     > * {position: absolute; left:0; right:0;}
     > header {top:0;
-        .toi-tabs {float:left;}
-        .toi-menu {float:right;}
+        .top-tabs {float:left;}
+        .top-menu {float:right;}
     }
     > header:after{@clr();}
-    > section {top:@toiH; bottom:0;}
+    > section {top:@toiH+1; bottom:0;}
     
     // 标题部分样式
     > header {
         background: @cb0; border-bottom: 1px solid @cborder1;
         > div {
-            @flex(); align-items: flex-end;  height:@toiH;
-            .toi-tabs { @noselect();
+            position: relative; height:@toiH;
+            .top-tabs { @noselect();
+                position: absolute; left: 0; bottom:0; 
                 padding:0 @d3;
                 ul {@flex();
                     li {
@@ -115,6 +117,12 @@
                     }
                 }
             }
+            .top-menu {
+                position: absolute; right: 0; top:0;
+                .menu {
+                    padding:@d1 @d0;
+                }
+            }
         }
     }
     // 内如部分样式
@@ -122,6 +130,7 @@
         background: @cb2;
     }
 }
+  
 //........................................
 // 元数据界面
 .th-obj-index-meta {
@@ -153,7 +162,158 @@
         }
     }
 }
+//........................................
+.th-obj-data {
+    > header > div {
+        .top-tabs ul li[current] {background: @cb1;}
+    }
+    > section {background: @cb1;border-left:1px solid @cborder1;}
+    > .hide-file-selector {
+        position: fixed; top:-10000px; left:0; visibility: hidden;
+    }
+}
 
+//........................................
+// 通用附件/多媒体面板样式
+@todH : 160px;
+.th-obj-data-W {
+    padding:@d0;  position: relative;
+    > * {position: absolute; left: 0; right: 0;}
+    > header {
+        top:0; height:@todH; border-bottom:1px solid @cborder0;
+        padding:@d2;
+        div.media-none {
+            @flex(); justify-content:center; align-items:center;
+            width: 100%; height:100%; 
+            color:@c2; font-size:@f3;
+        }
+    }
+    > section {
+        top:@todH; bottom:0;
+    }
+    &[ui-drag] {
+        background: @ch1_b; color:@ch1_f;
+        > * {
+            opacity: 0.4; 
+            -webkit-filter: blur(3px); /* Chrome, Opera */
+            -moz-filter: blur(3px);
+            -ms-filter: blur(3px);    
+                filter: blur(3px);
+        }
+    }
+}
+
+//......................................... 配置样式:Begin
+@thcFldMH : 48px;
+@thcFldLW : 40%;
+.th-design {
+    background: @cb2;
+    // 头部标题
+    .thd-info {
+        @flex(); 
+        > div {flex:0 0 auto; padding:@d2 0;}
+        > .thd-icon {
+           padding-left:@d2; 
+        }
+        > .thd-id {
+            flex:1 1 auto; color:@c3; padding:@d3+@d2 0;
+            font-family: @f_fixed; font-size:@f2; 
+        }
+        > .thd-id:before {display: inline; content:"(";}
+        > .thd-id:after  {display: inline; content:")";}
+        > .thd-btns { @noselect();
+            padding-left:@d3;
+            a {cursor: pointer; margin-right: @d2;}
+            b {@btn(); padding:@d2 @d4;}
+            b:hover {@btn_hover();}
+            em {
+                font-style: normal; color:@c2; 
+                padding:@d2 @d4;
+            }
+        }
+        > .thd-btns[mode="loaded"] {
+            a, b, em {display: none;}
+        }
+        > .thd-btns[mode="changed"] {
+            a, b {display: inline-block;}
+            em {display: none;}
+        }
+        > .thd-btns[mode="ing"] {
+            a, b {display: none;}
+            em {display: inline-block;}
+        }
+    }
+    // 全局设置 
+    .thd-setup {
+        height: 80px;
+        .form .form-body {
+            overflow: hidden;
+            .form-group {
+                padding:0 @d2;
+                .fg-title {
+                    border:1px solid @cborder1; font-size:@f2;
+                }
+                .fg-fields {
+                    padding:@d2 @d1 @d1 0;
+                    .form-fld {
+                        padding: 0;
+                        > .ff-txt {padding:@d2 @d1;}
+                        > .ff-val {padding:0;}
+                        .com-input > .box input {
+                            padding:@d1 @d2;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // 字段编辑器
+    .thd-flds {
+        position: relative;
+        > div {position: absolute;}
+        > .thd-menu { 
+            left: 0; top:0; right:0; height:@thcFldMH; padding:@d2;
+            .menu {padding:@d1 @d3; border:1px dashed @cborder1; background: @cb4;}
+        }
+        > .thd-fld-list { 
+            left:0; top:@thcFldMH; bottom:0; width:@thcFldLW;
+            padding:0 0 @d2 @d2;
+            .lst { @noselect();
+                .list-item {
+                    font-size: @f2; font-family: @f_fixed;
+                    border:0; opacity: 0.6;
+                    i {width:24px;}
+                    b {font-weight: normal;}
+                    em {
+                        font-style: normal; color:@c2;
+                        margin-left:@d2; font-size: @f1;
+                    }
+                }
+                .lst-item-checked {background: @cb1; color:unset;}
+                .lst-item-actived {opacity: 1.0;
+                    b  {color:@c4;}
+                    em {color:@c3;}
+                }
+            }
+        }
+        > .thd-fld-conf { 
+            right:0; top:@thcFldMH; bottom:0; left:@thcFldLW;
+            padding:0 @d2 @d2 0;
+            .thd-blank {
+                padding:@d4; font-size: @f3;
+            }
+            .thd-fld-form {
+                background: @cb1;
+                .form-fld {
+                    padding:0;
+                    .ff-txt {padding-left:@d4; padding-right:@d0;}
+                    .ff-val {padding-right:0;}
+                }
+            }
+        }
+    }
+}
+//......................................... 配置样式:End
 
 
 

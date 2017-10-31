@@ -2,8 +2,17 @@ define({
     "thing" : {
         "create" : "创建..",
         "create_tip" : "请输入对象的名称",
+        "create_tip2": "请输入{{text}}的名称",
         "create_do"  : "立即创建",
+        "rm_tip" : "将选中的项目移入回收站",
+        "refresh_tip" : "重新加载列表",
+        "clean_do"    : "清空回收站",
+        "clean_confirm"  : "清空回收站将导致所有回收站内数据不可恢复，你确定要继续吗？",
+        "clean_show"  : "显示回收站",
+        "clean_restore" : "从回收站中恢复",
+        "conf_setup" : "数据集配置...",
         "conf" : {
+            "title" : "设置数据集「{{nm}}」",
             "icon_modify" : "修改数据集的图标",
             "fnm" : {
                 "id"      : 'ID',
@@ -25,6 +34,9 @@ define({
                 "lbls"    : '<i class="zmdi zmdi-labels"></i>',
                 "th_site" : '<i class="fa fa-sitemap"></i>',
                 "th_pub"  : '<i class="zmdi zmdi-globe-alt"></i>',
+                "th_enabled"  : '<i class="zmdi zmdi-assignment-check"></i>',
+                "lm" : '<i class="zmdi zmdi-time-countdown"></i>',
+                "ct" : '<i class="zmdi zmdi-time-restore"></i>',
                 "__media__"       : '<i class="zmdi zmdi-camera-alt"></i>',
                 "__attachment__"  : '<i class="zmdi zmdi-attachment-alt"></i>',
                 "__brief_and_content__"  : '<i class="zmdi zmdi-collection-text"></i>',
@@ -128,8 +140,20 @@ define({
             "noobj"  : "还未读取对象",
             "genbreif" : "自动生成摘要",
         },
+        "data" : {
+            "media" : "多媒体",
+            "attachment" : "附件",
+            "overwrite_tip" : "文件 「{{nm}}」 已存在，您要覆盖它吗？",
+            "drag_tip" : "松开鼠标，上传文件",
+            "none_media_tip" : "请选择一个文件显示预览",
+            "remove" : "删除选中文件",
+            "upload" : "上传新文件",
+            "delnone" : "请先选择要删除的文件（支持按Shift键多选）",
+        },
         "err" : {
-            "nothingjs" : "没有找到 thing.js!"
+            "nothingjs"  : "没有找到 thing.js!",
+            "remove_none"  : "您总得先选点啥再删除吧 -_-!",
+            "restore_none" : "你没有选中任何可以被恢复的数据记录",
         },
         "blank" : '请选择数据以便查看详情',
     }

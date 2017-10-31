@@ -4,8 +4,8 @@ $z.declare([
     'wn/util',
     'ui/thing/support/th_methods',
     'ui/thing/th_obj_index',
-    //'ui/thing/th_obj_data',
-], function(ZUI, Wn, ThMethods, ThObjIndexUI /*,ThObjDataUI*/){
+    'ui/thing/th_obj_data',
+], function(ZUI, Wn, ThMethods, ThObjIndexUI, ThObjDataUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-obj" ui-fitparent="true">
@@ -36,8 +36,17 @@ return ZUI.def("ui.th_obj", {
             UI.defer_report("index");
         });
 
+        // 加载多媒体和附件界面
+        new ThObjDataUI({
+            parent : UI,
+            gasketName : "data",
+            bus : bus
+        }).render(function(){
+            UI.defer_report("data");
+        });
+
         // 返回延迟加载
-        return ["index"];
+        return ["index", "data"];
     },
     //..............................................
     _fill_context : function(uiSet) {
@@ -49,9 +58,17 @@ return ZUI.def("ui.th_obj", {
             UI.gasket.data._fill_context(uiSet);
     },
     //..............................................
-    update : function(o, callback) {
+    update : function(o, callback, force) {
         var UI  = this;
         //console.log("update", o);
+
+        if(!force && o && UI.__OBJ && UI.__OBJ.id == o.id) {
+            $z.doCallback(callback, [o], UI);
+            return;
+        }
+
+        // 记录
+        UI.__OBJ = o;
 
         // 准备延迟加载项目
         var keys = [];

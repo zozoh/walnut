@@ -32,9 +32,8 @@ return ZUI.def("ui.menu", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/menu/theme/menu-{{theme}}.css",
     //..............................................
-    init : function(options){
+    init : function(opt){
         var UI  = this;
-        var opt = options;
         // 注册全局事件，控制子菜单的关闭
         var on_close_group = function(e){
             UI.closeGroup(UI.$el.find(".menu-item[open]"));
@@ -47,6 +46,76 @@ return ZUI.def("ui.menu", {
             UI.watchMouse("click", do_close_allmenu);
             UI.watchKey(27, do_close_allmenu);            
         }
+
+        // 默认是自动整理菜单
+        $z.setUndefined(opt, "setup", []);
+        $z.setUndefined(opt, "autoLayout", false);
+
+        // 自动整理菜单模式
+        //  - 二级菜单，所有没有 text 项目，将 tip 作为 text
+        //  - 二级菜单中的 group，如果没有 text，且不为 Function，合并进来
+        if(opt.autoLayout) {
+            // 准备整理二级菜单子项目的函数
+            var _fmt_group_sub_mi_item = function(miSub) {
+                var re = _.extend({}, miSub);
+                if(!re.text) {
+                    if(re.tip) {
+                        re.text = re.tip;
+                        re.tip  = undefined;
+                    }else{
+                        re.text = "i18n:more";
+                    }
+                }
+                return re;
+            };
+            // 准备整理二级菜单的函数
+            var _fmt_group_mi = function(mi) {
+                var items = [];
+                for(var i=0; i<mi.items.length; i++) {
+                    var miSub = mi.items[i];
+                    // group，如果没有 text，将子项目合并进来
+                    if(!miSub.text) {
+                        // 如果是组：合并
+                        if(miSub.items) {
+                            for(var x=0; x<miSub.items.length; x++){
+                                items.push(_fmt_group_sub_mi_item(miSub.items[x]));
+                            }
+                        }
+                        // 否则仅仅纠正一下 text/tip
+                        else {
+                            items.push(_fmt_group_sub_mi_item(miSub));
+                        }
+                    }
+                    // 正常项目，copy
+                    else {
+                        items.push(_.extend({}, miSub));
+                    }
+                }
+                mi.items = items;
+                return mi;
+            };
+
+            // 循环整理二级菜单 
+            var miList = [];
+            for(var i=0; i<opt.setup.length; i++){
+                var mi = _.extend({}, opt.setup[i]);
+                // 整理组
+                if(_.isArray(mi.items)) {
+                    miList.push(_fmt_group_mi(mi));
+                }
+                // 仅仅加入
+                else {
+                    miList.push(mi);
+                }
+            }
+            UI.__menu_items = miList;
+            //console.log(UI.__menu_items)
+        }
+        // 否则维持原来的设置
+        else {
+            UI.__menu_items = [].concat(opt.setup);
+        }
+
 
         // 全局其他的菜单统统关闭
         do_close_allmenu(UI.cid);
@@ -239,7 +308,8 @@ return ZUI.def("ui.menu", {
     redraw : function(){
         var UI  = this;
         var opt = UI.options;
-        var items = UI.options.setup;
+        var items = UI.__menu_items;
+        //console.log(items)
         // 清空内容，依次重绘
         UI.arena.empty();
 

@@ -1,7 +1,7 @@
 (function($z){
 $z.declare([
     'zui',
-    "ui/form/support/form_c_methods",
+    "ui/form/support/form_ctrl",
     "ui/mask/mask"
 ], function(ZUI, ParentMethods, MaskUI){
 //==============================================
@@ -220,10 +220,6 @@ return ZUI.def("ui.form_com_obj_detail", {
         UI.__draw_data();
     },
     //...............................................................
-    _get_data : function() {
-        return this.__data;
-    },
-    //...............................................................
     /*
     输入输出的数据格式:
     {
@@ -233,20 +229,9 @@ return ZUI.def("ui.form_com_obj_detail", {
         contentType : text|html|markdown  // 数据内容类型
     }
     */
-    //...............................................................
-    getData : function(){
-        var UI = this;
-        return UI.ui_format_data(function(opt){
-            return UI._get_data();
-        });
+    _get_data : function() {
+        return this.__data;
     },
-    //...............................................................
-    setData : function(val){
-        var UI = this;
-        this.ui_parse_data(val, function(data){
-            UI._set_data(data);
-        });
-    }
     //...............................................................
 });
 //===================================================================

@@ -48,5 +48,11 @@
     # 删除某个媒体，不存在抛错
     thing xxx media xxx -del abc.jpg
     
+    # 删除多个媒体，不存在抛错
+    thing xxx media xxx -del abc.jpg xyz.jpg ufo.png
+    
     # 删除某个媒体，不存在抛错也不报错
     thing xxx media xxx -del abc.jpg -quiet
+    
+    # 删除多个媒体，不存在抛错也不报错
+    thing xxx media xxx -del abc.jpg xyz.jpg ufo.png -quiet

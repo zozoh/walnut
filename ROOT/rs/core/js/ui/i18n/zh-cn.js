@@ -10,6 +10,7 @@ define({
     "delete"     : "删除",
     "del"        : "删除",
     "modify"     : "修改",
+    "more"       : "更多",
     "create"     : "新建",
     "duplicate"  : "制作副本",
     "del"        : "删除",

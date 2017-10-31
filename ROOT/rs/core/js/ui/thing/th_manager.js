@@ -3,10 +3,11 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/support/dom',
+    'ui/pop/pop',
     'ui/thing/support/th_methods',
     'ui/thing/th_search',
     'ui/thing/th_obj',
-], function(ZUI, Wn, DomUI, ThMethods, ThSearchUI, ThObjUI){
+], function(ZUI, Wn, DomUI, POP, ThMethods, ThSearchUI, ThObjUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-manager" ui-fitparent="true">
@@ -22,6 +23,8 @@ return ZUI.def("ui.th_manager", {
     //..............................................
     init : function(opt){
         ThMethods(this);
+
+        this.listenBus("setup", this.openSetup, true);
     },
     //..............................................
     _fill_context : function(uiSet) {
@@ -58,6 +61,31 @@ return ZUI.def("ui.th_manager", {
         UI.showBlank(function(){
             UI.defer_report("blank");
         });
+    },
+    //..............................................
+    openSetup : function() {
+        var UI = this;
+        var conf  = UI.getBusConf();
+        var oHome = UI.getHomeObj();
+        
+        POP.openUIPanel({
+            title : UI.msg("thing.conf.title", oHome),
+            width : 640,
+            arenaClass : "th-design-mask",
+            setup : {
+                uiType : "ui/thing/th_design",
+            },
+            ready : function(uiDesign){
+                uiDesign.update(oHome);
+            },
+            close : function(uiDesign){
+                if(uiDesign.isChanged()) {
+                    window.location.reload();
+                }
+            },
+            btnOk : null,
+            btnCancel : null,
+        }, UI);
     },
     //..............................................
     showObj : function(o, callback) {

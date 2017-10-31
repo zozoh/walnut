@@ -348,19 +348,27 @@ public abstract class Things {
             hc.output = oM;
         }
         // 删除
-        else if (hc.params.has("del")) {
-            String fnm = hc.params.get("del");
-            WnObj oM = sys.io.fetch(oDir, fnm);
-            if (null == oM && !isQ) {
-                throw Er.create("e.cmd.thing." + key + ".noexists", oDir.path() + "/" + fnm);
+        else if (hc.params.is("del")) {
+            List<WnObj> list = new ArrayList<>(hc.params.vals.length);
+            // 从第二个参数开始循环都是要删除的名称，因为第一个参数是 ThObj 的 ID
+            for (int i = 1; i < hc.params.vals.length; i++) {
+                String fnm = hc.params.val(i);
+                WnObj oM = sys.io.fetch(oDir, fnm);
+                if (null != oM) {
+                    sys.io.delete(oM);
+                    list.add(oM);
+                }
+                // 否则判断一下是否需要抛错
+                else if (!isQ) {
+                    throw Er.create("e.cmd.thing." + key + ".noexists", oDir.path() + "/" + fnm);
+                }
             }
-            sys.io.delete(oM);
-
             // 更新计数
-            __update_file_count(sys, oT, key, q);
+            if (list.size() > 0)
+                __update_file_count(sys, oT, key, q);
 
             // 最后计入输出
-            hc.output = oM;
+            hc.output = list;
         }
         // 获取某指定文件
         else if (hc.params.has("get")) {

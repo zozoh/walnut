@@ -44,6 +44,7 @@ return ZUI.def("ui.th_search", {
             gasketName : "main",
             menu : conf.searchMenu,
             menuContext : bus,
+            filterWidthHint : conf.searchMenuFltWidthHint,
             data : function(params, callback){
                 $z.invoke(conf.actions, "query", [_.extend(params, {
                     pid : bus.getHomeObjId()
@@ -53,12 +54,12 @@ return ZUI.def("ui.th_search", {
             list   : _.extend({}, conf.searchList, {
                 fields : conf.fields,
                 on_actived : function(th, jRow, prevObj) {
-                    console.log("on_actived");
+                    //console.log("on_actived");
                     $z.invoke(bus, "showObj", [th]);
                 },
                 on_blur : function(objs, jRows, nextObj) {
                     if(!nextObj){
-                        console.log("on_blur");
+                        //console.log("on_blur");
                         $z.invoke(bus, "showBlank");
                     }
                 }
@@ -66,19 +67,105 @@ return ZUI.def("ui.th_search", {
             pager : conf.searchPager,
         })).render(function(){
             this.refresh(function(){
-                this.uiList.setActived(0);
+                //this.uiList.setActived(0);
                 var args = Array.from(arguments);
                 $z.doCallback(callback, args, UI.bus());
             });
+            // 模拟点击
+            //this.gasket.menu.arena.find(".menu-item").eq(3).click();
         });
     },
     //..............................................
     setObj : function(obj) {
-        console.log("i am setObj")
-        this.gasket.main.uiList.update(obj);
+        return this.gasket.main.uiList.update(obj);
+    },
+    //..............................................
+    addObj : function(obj) {
+        return this.gasket.main.uiList.add(obj, 0, 1);
+    },
+    //..............................................
+    createObj : function(callback){
+        var UI = this;
+
+        var oHome = UI.getHomeObj();
+        var text = UI.msg("thing.create_tip2", {
+            text : oHome.title || oHome.nm
+        });
+
+        UI.prompt(text, {
+            icon  : oHome.icon || '<i class="fa fa-plus"></i>',
+            btnOk : "thing.create_do",
+            ok : function(str){
+                UI.invokeConfCallback("actions", "create", [str, function(newObj){
+                    var jItem = UI.addObj(newObj);
+                    UI.gasket.main.uiList.setActived(jItem);
+                    $z.doCallback(callback, [newObj], UI);
+                }]);                
+            }
+        });
+    },
+    //..............................................
+    getChecked : function(){
+        return this.gasket.main.uiList.getChecked();
+    },
+    //..............................................
+    removeChecked : function(callback) {
+        var UI = this;
+
+        // 得到选中的东东
+        var checkedObjs = UI.getChecked();
+
+        // 得到选中的对象们
+        var list = UI.getChecked();
+
+        // 判断 th_live == 1 的对象
+        var checkedObjs = [];
+        for(var i=0; i<list.length; i++) {
+            var obj = list[i];
+            if(obj.th_live >= 0)
+                checkedObjs.push(obj);
+        }
+
+        // 没有对象，显示警告
+        if(checkedObjs.length == 0){
+            UI.alert("thing.err.remove_none", "warn");
+            return;
+        }
+
+        // 看看删除以后，应该高亮哪个对象
+        var jN2  = UI.gasket.main.uiList.findNextItem(checkedObjs);
+        var nit2 = jN2.length > 0 ? jN2.attr("oid") : 0;
+
+        // 执行删除
+        UI.invokeConfCallback("actions", "remove", [checkedObjs, function(){
+            // 删除并试图高亮下一个对象
+            var jN2 = UI.gasket.main.uiList.remove(checkedObjs);
+            //console.log("jN2", jN2)
+            // 高亮下一个
+            if(jN2){
+                UI.gasket.main.uiList.setActived(jN2);
+                // 回调
+                $z.doCallback(callback, [checkedObjs], UI);
+            }
+            // 刷新一下看看有木有东西，然后高亮第一个
+            else{
+                UI.gasket.main.uiList.setAllBlur();
+                UI.refresh(function(){
+                    UI.gasket.main.uiList.setActived(0);
+                    // 回调
+                    $z.doCallback(callback, [checkedObjs], UI);
+                });
+            }
+        }]);
+    },
+    //..............................................
+    setKeyword : function(str) {
+        this.gasket.main.uiFilter.setKeyword(str);
+        return this;
     },
     //..............................................
     refresh : function(callback) {
+        $z.invoke(this.bus(), "showBlank");
         this.gasket.main.refresh(callback);
     }
     //..............................................

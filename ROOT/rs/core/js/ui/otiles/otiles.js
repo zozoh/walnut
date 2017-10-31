@@ -121,7 +121,21 @@ return ZUI.def("ui.otiles", {
         var opt = UI.options;
         jItem.html(Wn.gen_wnobj_thumbnail_html(this.options.renameable ? 'B' : (opt.objTagName || 'A')));
         Wn.update_wnobj_thumbnail(UI, obj, jItem, opt.evalThumb, opt.nmMaxLen);
-    }
+    },
+    //...............................................................
+    showProgress : function(it, pe) {
+        var UI = this;
+        var jItem = UI.$item(it).attr("show-progress", "yes");
+        var str = _.isNumber(pe) ? $z.toPercent(pe, 2) : pe;
+        jItem.find(".wnobj-ing-nb").text(str);
+        jItem.find(".wnobj-ing-bar>span").css({
+            "width" : str
+        });
+    },
+    //...............................................................
+    hideProgress : function(it) {
+        this.$item(it).removeAttr("show-progress");
+    },
     //...............................................................
 });
 //==================================================

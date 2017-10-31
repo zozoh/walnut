@@ -56,6 +56,65 @@
 .ui-o_view_preview, .opreview {
     width: 100%; height: 100%;
 }
+.opreview {
+    position: relative;
+    > header {
+        position: absolute; right: 0; top:0;
+        ul { @noselect();
+            text-align: center;
+            b {
+                display:block; font-weight: normal;
+                cursor: pointer; padding:@d1 0;
+                color:rgba(0,0,0,0.8);
+                i {
+                    font-size: 1.2em; transition: 0.3s;
+                    text-shadow: 1px  0 0 rgba(255,255,255,0.5),
+                             -1px 0 0 rgba(255,255,255,0.5),
+                             0  1px 0 rgba(255,255,255,0.5),
+                             0 -1px 0 rgba(255,255,255,0.5);
+                }
+            }
+            b:hover {
+                i {
+                    color:#FF0;
+                    text-shadow:
+                             1px  0 0 rgba(0,0,0,0.5),
+                             -1px 0 0 rgba(0,0,0,0.5),
+                             0  1px 0 rgba(0,0,0,0.5),
+                             0 -1px 0 rgba(0,0,0,0.5);
+                    transform: translateX(-2px) scale(1.2);
+                }
+            }
+        }
+    }
+    > section {width:100%; height:100%;}
+    > aside {display: none;}
+}
+//全屏预览模式 
+@fsPad : 10px;
+.opreview[fullscreen] {
+    &:before {
+        position: fixed; top:0; left:0; bottom:0; right:0;
+        z-index: 1000;
+        display: block; content: "";
+        background: rgba(0,0,0,0.8);
+    }
+    > section {
+        position: fixed; top:@fsPad; left:@fsPad; bottom:@fsPad; right:@fsPad;
+        z-index: 1000; width:unset; height:unset;
+        background: transparent;
+    }
+    > aside {display: block;
+        padding:@d2;
+        position: fixed; right: 0; top:0; z-index: 1000;
+        cursor: pointer; background: #000; color:#888;
+        i {margin-right: @d1;}
+    }
+    > aside:hover {
+        background: @ch0_b; color:@ch0_f;
+    }
+}
+
 //--------------------------------------------------------- 文本
 .opreview[mode="text"]{
     overflow: auto;
@@ -121,9 +180,8 @@
 //--------------------------------------------------------- 未知
 .opreview[mode="thumb"] {
     .thumb-con {
+        @flex(); justify-content:center; align-items:center;
         width: 100%; height:100%;
-        background-repeat: no-repeat;
-        background-size: contain;
-        background-position: center; 
+        img {max-width: 100%; max-height: 100%;}
     }
 }

@@ -17,4 +17,7 @@
     显示自己某几个变量
     me home pwd
     
+    使用json格式显示，需要将-json放在最后
+    me id nm -json
+    
     

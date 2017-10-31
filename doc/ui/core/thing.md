@@ -31,6 +31,8 @@ th_manager    # 顶级管理器
 
 则个配置信息，格式如下： 
 
+> 所有的回调，如果没有特殊说明，其 `this` 均为 `bus` 对象
+
 ```
 {
     // 数据模式
@@ -72,6 +74,11 @@ th_manager    # 顶级管理器
         // 移除
         remove : {c}(obj, callback),
     },
+    
+    // 应用 search 控件的  filterWidthHint
+    // 即，如果菜单大于多少宽度，将会自动收起来
+    // 默认 50%
+    searchMenuFltWidthHint : "50%",
 
     // 对于搜索部分菜单的设定
     // 如果为空，则会默认从 actions 里面找
@@ -83,7 +90,9 @@ th_manager    # 顶级管理器
     }]
     
     // 对于对象部分的菜单设定
-    objMenu : [{
+    // 可以是一个函数，或者直接是一个数组，表示对象
+    // 菜单部分设定
+    objMenu : {c}F(obj) : [{
         // 参见 searchMenu 部分菜单设定
     }]
 
@@ -132,10 +141,7 @@ th_manager    # 顶级管理器
     media : {
         // 支持多个媒体还是仅仅一个媒体, 默认 true
         multi : true
-        
-        // 上传目标: 一个文件目录的路径
-        target : ObjPath
-        
+               
         // 如果已经存在，是否覆盖（如果不能覆盖，则改名）
         // 默认 true
         overwrite : true
@@ -144,16 +150,23 @@ th_manager    # 顶级管理器
         //  - fnm  : 文件名
         //  - mime : 内容类型
         //  - size : 文件大小(字节）
-        filter : {c}F(fnm, mime, size):Boolean
+        filter : {c}F(File):Boolean
     
         // 如何列出对象所有的媒体
         list  : {c}F(obj, callback),
                     
         // 移除一个媒体
-        del : {c}(obj, callback),
+        remove : {c}(obj, callback),
         
-        // 上传成功后，要执行什么后续处理
-        done : {c}F(obj, oMedia, callback),
+        // 上传一个媒体
+        upload : {c}F({
+            obj  : {..}     // 当前正在编辑的对象
+            file : File     // 要上传的文件
+            overwrite : true  // 与本配置项的 overwrite 相等
+            progress : F(pe)  // 参数pe为一个浮点数，表示上传进度，比如  0.4321
+            done : F(newObj)  // 上传成功后的回调 newObj 为新的附件 WnObj
+            fail : F(re)      // 上传失败收的回调，re 为 AjaxReturn 格式的失败对象
+        }),
     }
     
     // 对于附件的配置信息
@@ -201,11 +214,7 @@ th_manager    # 顶级管理器
     manager   : ZUI,
     search    : ZUI,
     obj       : ZUI,
-    index  : ZUI,
-    detail : ZUI,
     data      : ZUI,
-    media : ZUI,
-    attachment : ZUI
 }
 ```
 

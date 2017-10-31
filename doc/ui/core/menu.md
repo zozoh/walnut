@@ -27,6 +27,12 @@ new UIMenu({
     // 默认 down
     tipDirection : "down"
     
+    // 自动调整布局
+    // 默认为 false
+    // 如果为 true，则菜单初始化时，会自动将二级菜单上没有文字的项目都补充上文字
+    // 如果没有文字项为 group，则将其子项目提到上面一层
+    autoLayout : false,
+    
     // 指明每个菜单项被调用的时候，函数的上下文是什么，默认为菜单控件的父视图
     // 如果没有父视图，则用自身
     context : parent

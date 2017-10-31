@@ -1,7 +1,7 @@
 (function($z){
 $z.declare([
     'zui',
-    'ui/form/support/form_c_methods',
+    'ui/form/support/form_ctrl',
 ], function(ZUI, FormCtrlMethods){
 //==============================================
 var html = '<div class="ui-arena com-toggle" toggle-on="no"><div><b></b></div></div>';
@@ -47,20 +47,6 @@ return ZUI.def("ui.form_com_toggle", FormCtrlMethods({
             UI.arena.attr("animat-on", "yes");
         }, 0);
     },
-    //...............................................................
-    getData : function(){
-        var UI = this;
-        return this.ui_format_data(function(opt){
-            return UI._get_data();
-        });
-    },
-    //...............................................................
-    setData : function(val){
-        var UI = this;
-        UI.ui_parse_data(val, function(v){
-            UI._set_data(v)
-        });
-    }
     //...............................................................
 }));
 //===================================================================
