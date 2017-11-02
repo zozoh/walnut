@@ -1,5 +1,6 @@
 package org.nutz.walnut.web;
 
+import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -41,12 +42,15 @@ public class WnMainModule extends AbstractWnModule {
     // @Inject("java:$conf.get('page-home','home')")
     // private String page_home;
 
+    @Inject("java:$conf.get('entry-page','/u/h/login.html')")
+    private String entryPagePath;
+
     @At("/")
     @Ok(">>:${obj}")
     public String doCheck() {
         String seid = Wn.WC().SEID();
         if (null == seid) {
-            return "/u/h/login.html";
+            return entryPagePath;
         }
 
         try {
@@ -69,7 +73,7 @@ public class WnMainModule extends AbstractWnModule {
         catch (WebException e) {
             if (log.isInfoEnabled())
                 log.info(e.toString());
-            return "/u/h/login.html";
+            return entryPagePath;
         }
 
     }

@@ -12,6 +12,7 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
@@ -31,7 +32,6 @@ import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
-import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -41,11 +41,6 @@ import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.ext.captcha.Captchas;
 import org.nutz.walnut.ext.vcode.VCodes;
 import org.nutz.walnut.ext.vcode.WnVCodeService;
-import org.nutz.walnut.ext.www.JvmWnmlRuntime;
-import org.nutz.walnut.ext.www.WnmlRuntime;
-import org.nutz.walnut.ext.www.WnmlService;
-import org.nutz.walnut.impl.box.Jvms;
-import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -120,27 +115,54 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 嗯开始找一下登录界面
-        WnObj oPageHome = null;
+        WnObj oHostHome = null;
 
         // 看看有没有配置目录
         WnObj oHosts = io.fetch(null, "/etc/hosts.d");
         if (null != oHosts) {
             if (!Strings.isBlank(host)) {
-                oPageHome = io.fetch(oHosts, host + "/pages");
+                oHostHome = io.fetch(oHosts, host);
             }
             // 默认的域名为 default
-            if (null == oPageHome)
-                oPageHome = io.fetch(oHosts, "default/pages");
+            if (null == oHostHome) {
+                oHostHome = io.fetch(oHosts, "default");
+            }
         }
+
+        // 获取页面主目录
+        WnObj oPageHome = io.fetch(oHostHome, "pages");
 
         // 有配置目录，那么就要确保有内容哦
         if (null != oPageHome) {
             try {
+                // 得到文件内容
                 WnObj o = io.check(oPageHome, rph);
-                // 如果是改名页面，动态渲染，以便得到用户原有信息
+
+                // 如果不是html，那么必然是资源
+                if (!o.name().matches("^.*[.]html?")) {
+                    return new WnObjDownloadView(io, o);
+                }
+
+                String input = io.readText(o);
+
+                // 准备转换上下文
+                NutMap context = _gen_context_by_req(req);
+                context.put("fnm", o.name());
+                context.put("rs", "/gu/rs");
+
+                // 试图获取代码模板
+                WnObj oFragmentHome = io.fetch(oHostHome, "fragment");
+                if (null != oFragmentHome) {
+                    List<WnObj> oFrags = io.getChildren(oFragmentHome, null);
+                    for (WnObj oFrag : oFrags) {
+                        String key = Files.getMajorName(oFrag.name());
+                        String str = io.readText(oFrag);
+                        context.put(key, str);
+                    }
+                }
+
+                // 如果是改名页面，得到会话信息，以便得到用户名
                 if ("rename.html".equals(o.name())) {
-                    // 得到文件内容
-                    String input = io.readText(o);
 
                     // 得到会话信息
                     WnSession se = sess.check(seid, false);
@@ -149,30 +171,28 @@ public class UsrModule extends AbstractWnModule {
                     WnUsr me = Wn.WC().getMyUsr(usrs);
 
                     // 创建转换上下文
-                    NutMap context = _gen_context_by_req(req);
                     context.put("grp", se.group());
-                    context.put("fnm", o.name());
                     context.put("me", me);
-                    context.put("rs", "/gu/rs");
 
                     // 创建一下解析服务
-                    WnBoxContext bc = createBoxContext(se);
-                    StringBuilder sbOut = new StringBuilder();
-                    StringBuilder sbErr = new StringBuilder();
-                    WnSystem sys = Jvms.createWnSystem(this, jef, bc, sbOut, sbErr, null);
-                    WnmlRuntime wrt = new JvmWnmlRuntime(sys);
-                    WnmlService ws = new WnmlService();
+                    // WnBoxContext bc = createBoxContext(se);
+                    // StringBuilder sbOut = new StringBuilder();
+                    // StringBuilder sbErr = new StringBuilder();
+                    // WnSystem sys = Jvms.createWnSystem(this, jef, bc, sbOut,
+                    // sbErr, null);
+                    // WnmlRuntime wrt = new JvmWnmlRuntime(sys);
+                    // WnmlService ws = new WnmlService();
 
                     // 执行转换
-                    String html = ws.invoke(wrt, context, input);
+                    // String html = ws.invoke(wrt, context, input);
+                }
 
-                    // 返回网页
-                    return new ViewWrapper(new RawView("text/html"), html);
-                }
-                // 其他页面，直接输出
-                else {
-                    return new WnObjDownloadView(io, o);
-                }
+                // 执行转换
+                String html = Tmpl.exec(input, context);
+
+                // 返回网页
+                return new ViewWrapper(new RawView("text/html"), html);
+
             }
             catch (Exception e) {
                 if (e instanceof WebException) {
@@ -567,10 +587,10 @@ public class UsrModule extends AbstractWnModule {
         // 再检查一下名字是否合法
         WnUsrInfo ui = new WnUsrInfo(newName);
         if (!ui.isByName()) {
-            if(ui.isByPhone()){
+            if (ui.isByPhone()) {
                 throw Er.create("e.u.rename.byphone");
             }
-            if(ui.isByEmail()){
+            if (ui.isByEmail()) {
                 throw Er.create("e.u.rename.byemail");
             }
             throw Er.create("e.u.rename.invalid");
