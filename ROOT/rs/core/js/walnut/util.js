@@ -9,6 +9,9 @@ var Wn = {
     app : function(){
         return window._app;
     },
+    env : function(key, dft) {
+        return this.app().session.envs[key] || dft;
+    },
     //...................................................................
     // 生成标准缩略图的 DOM 结构
     gen_wnobj_thumbnail_html : function(nmTagName, innerOnly){

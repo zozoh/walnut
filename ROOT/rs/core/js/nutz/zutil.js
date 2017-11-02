@@ -1,4 +1,4 @@
-/**
+c/**
  * 本文件将提供 Nutz-JS 最基本的帮助函数定义支持，是 Nutz-JS 所有文件都需要依赖的基础JS文件
  *
  * @author  zozoh(zozohtnt@gmail.com)
