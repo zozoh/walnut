@@ -2,9 +2,13 @@ package org.nutz.walnut.web;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.mvc.Scope;
 import org.nutz.mvc.annotation.At;
+import org.nutz.mvc.annotation.Attr;
 import org.nutz.mvc.annotation.ChainBy;
 import org.nutz.mvc.annotation.Encoding;
 import org.nutz.mvc.annotation.IocBy;
@@ -42,15 +46,22 @@ public class WnMainModule extends AbstractWnModule {
     // @Inject("java:$conf.get('page-home','home')")
     // private String page_home;
 
-    @Inject("java:$conf.get('entry-page','/u/h/login.html')")
-    private String entryPagePath;
+    @Inject("java:$conf.entryPages")
+    private NutMap entryPageMap;
+
+    private String _get_entry_page_url(String host) {
+        String re = entryPageMap.getString(host);
+        if (Strings.isBlank(re))
+            re = entryPageMap.getString("default", "/u/h/login.html");
+        return re;
+    }
 
     @At("/")
     @Ok(">>:${obj}")
-    public String doCheck() {
+    public String doCheck(@Attr(value = "wn_www_host", scope = Scope.REQUEST) String host) {
         String seid = Wn.WC().SEID();
         if (null == seid) {
-            return entryPagePath;
+            return this._get_entry_page_url(host);
         }
 
         try {
@@ -73,7 +84,7 @@ public class WnMainModule extends AbstractWnModule {
         catch (WebException e) {
             if (log.isInfoEnabled())
                 log.info(e.toString());
-            return entryPagePath;
+            return "/u/h/login.html";
         }
 
     }

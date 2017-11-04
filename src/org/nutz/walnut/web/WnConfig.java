@@ -84,6 +84,11 @@ public class WnConfig extends WebConfig {
         return o;
     }
 
+    public NutMap getEntryPages() {
+        String json = this.get("entry-pages", "{}");
+        return Json.fromJson(NutMap.class, json);
+    }
+
     public File getBucketHome() {
         String path = get("bucket-home");
         return Files.createDirIfNoExists(path);
