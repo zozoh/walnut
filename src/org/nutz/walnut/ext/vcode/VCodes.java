@@ -13,6 +13,10 @@ public abstract class VCodes {
     public static String getPathBy(String domain, String scene, String accountName) {
         return Wn.appendPath("/var/vcode", Strings.sBlank(domain, "walnut"), scene, accountName);
     }
+    
+    public static String getBookingPath(String domain, String accountName) {
+        return getPathBy(domain, "booking", accountName);
+    }
 
     public static String getSignupPath(String domain, String accountName) {
         return getPathBy(domain, "signup", accountName);

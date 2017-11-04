@@ -226,6 +226,10 @@ $.fn.extend({"vcode": function(opt){
 $.fn.extend({"passwdform": function(opt){
     // 得到回调上下文
     var context = opt.context || this;
+
+    // 设置默认值
+    $z.setUndefined(opt, "url_exists", "/u/exists");
+
     // 一些关键 DOM 元素
     var jq = {
         $form    : this,
@@ -254,9 +258,9 @@ $.fn.extend({"passwdform": function(opt){
         //...............................................
         // 控制提交按钮的状态
         if(vcodeIsOk
-            && "ok" == jq.$name.attr("mode")
-            && "ok" == jq.$passwd.attr("mode")
-            && "ok" == jq.$passre.attr("mode")) {
+            && (jq.$name.length == 0   || "ok" == jq.$name.attr("mode"))
+            && (jq.$passwd.length == 0 || "ok" == jq.$passwd.attr("mode"))
+            && (jq.$passre.length == 0 || "ok" == jq.$passre.attr("mode"))) {
             jq.$submitButton.prop("disabled", false);
         }
         // 灰掉提交按钮
@@ -340,17 +344,19 @@ $.fn.extend({"passwdform": function(opt){
         var jName  = jInput.parent();
         var str = $.trim(jInput.val()).toLowerCase();
         $(this).val(str);
-        // 如果空字符串，那么就都清空
+        // 首先恢复表单状态
+        jq.$name.removeAttr("mode");
+        jq.$tip.removeAttr("mode");
+        jq.$vcode.removeAttr("show");
+        $z.invoke(opt, "on_blank", [jq], context);
+        sync_form_state();
+        // 如果空字符串，啥也不做 
         if(!str) {
-            jq.$name.removeAttr("mode");
-            jq.$tip.removeAttr("mode");
-            jq.$vcode.removeAttr("show");
-            $z.invoke(opt, "on_blank", [jq], context);
-            sync_form_state();
+            $z.blinkIt(jq.$name);
         }
         // 否则检查是否存在
         else {
-            $.get("/u/exists", {str:str}, function(re){
+            $.get(opt.url_exists, {str:str}, function(re){
                 var reo = $z.fromJson(re);
 
                 // 判断账号的类型
@@ -465,8 +471,10 @@ $.fn.extend({"passwdform": function(opt){
             domain : opt.domain,
             str    : $.trim(jq.$name.find('input').val()),
             vcode  : $.trim(jq.$vcode.find('input').val()),
-            passwd : $.trim(jq.$passwd.find('input').val()),
         };
+        if(jq.$passwd.length > 0) {
+            params.passwd = $.trim(jq.$passwd.find('input').val())
+        }
         //console.log(params)
         jq.$submitButton.prop("disabled", true);
         $z.invoke(opt, "on_submit", [jq, params, function(){
