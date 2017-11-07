@@ -4232,7 +4232,7 @@
                     + '|(~~([^~]+)~~)'
                     + '|(`([^`]+)`)'
                     + '|(!\\[([^\\]]*)\\]\\(([^\\)]+)\\))'
-                    + '|(\\[([^\\]]*)\\]\\(([^\\)]+)\\))'
+                    + '|(\\[([^\\]]*)\\]\\(([^\\)]*)\\))'
                     + '|(https?:\\/\\/[^ ]+)';
                 var REG = new RegExp(reg, "g");
                 var m;
@@ -4295,6 +4295,21 @@
                     // A: [](xxxx)
                     else if (m[14]) {
                         html += '<a href="' + m[16] + '">' + (m[15] || m[16]) + '</a>';
+                        // 得到超链
+                        var href = m[16];
+                        if (href && href.endsWith(".md")) {
+                            href = Files.renameSuffix(href, ".html");
+                        }
+                        // 得到文字
+                        var text = m[15] || zUtil.getMajorName(href||"");
+                        // 锚点
+                        if (href && /^#.+$/.test(text)) {
+                            html += '<a name="' + text.substring(1) + '"></a>';
+                        }
+                        // 链接
+                        else {
+                            html += '<a href="' + href + '">' + text + '</a>';
+                        }
                         // 记录标签
                         if (tagNames)
                             tagNames["a"] = true;

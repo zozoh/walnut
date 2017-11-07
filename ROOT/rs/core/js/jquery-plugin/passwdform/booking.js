@@ -29,7 +29,7 @@ $(function(){
         }
     });
     // 点击回到顶部 
-    $(".sky a").click(function(){
+    $(".sky .book a").click(function(){
         // 动画滚动
         if($(window).scrollTop()>(vav*1.5)) {
             $("html,body").animate({
