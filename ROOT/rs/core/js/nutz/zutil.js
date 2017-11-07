@@ -4454,7 +4454,7 @@
                 date = new Date(date);
             }
             date = date || new Date();
-            return zUtil.dateToYYMMDD(date) + " " + zUtil.dateToHHMMSS(date);
+            return zUtil.dateToYYMMDD(date) + " " + zUtil.dateToHHMMSS(date, ":");
         },
         // 返回当前时分秒
         dateToYYMMDD: function (date, split) {
