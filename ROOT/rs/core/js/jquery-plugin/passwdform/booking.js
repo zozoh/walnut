@@ -52,6 +52,9 @@ $(function(){
         domain : $(document.body).attr("domain"),
         scene  : "booking",
         url_exists : "/u/booking/exists",
+        checkName : function(str) {
+            return /^[0-9+-]{11}$/.test(str);
+        },
         on_tooshort : function(jq, str) {
             jq.$name.attr("mode", "invalid");
             jq.$tip.attr("mode", "warn");
@@ -61,7 +64,7 @@ $(function(){
         on_invalid : function(jq, str) {
             jq.$name.attr("mode", "invalid");
             jq.$tip.attr("mode", "warn");
-            jq.$tipInfo.text("不是一个合法的手机号，请仔细点成不成啊 >:O");
+            jq.$tipInfo.text("请输入一个合法的手机号");
             jq.$vcode.removeAttr("show");
         },
         on_error : function(jq, str) {

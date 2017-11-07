@@ -229,6 +229,9 @@ $.fn.extend({"passwdform": function(opt){
 
     // 设置默认值
     $z.setUndefined(opt, "url_exists", "/u/exists");
+    $z.setUndefined(opt, "checkName", function(){
+        return true;
+    });
 
     // 一些关键 DOM 元素
     var jq = {
@@ -338,12 +341,24 @@ $.fn.extend({"passwdform": function(opt){
 
     //------------------------------------------------
     // 监控用户名输入的改变
-    jq.$form.on("change", ".form-name input", function(){
+    jq.$form.on("keyup", ".form-name input", function(e){
         // 强制小写字母
         var jInput = $(this);
         var jName  = jInput.parent();
-        var str = $.trim(jInput.val()).toLowerCase();
-        $(this).val(str);
+        var old_s  = jInput.attr("old_s") || "";
+        var str = $.trim(jInput.val()).toLowerCase() || "";
+        jInput.val(str);
+        console.log(old_s, str)
+
+        // 如果值有变化才继续执行
+        if(old_s == str){
+            return;
+        }
+
+        // 记录
+        jInput.attr("old_s", str);
+
+        //console.log(str)
         // 首先恢复表单状态
         jq.$name.removeAttr("mode");
         jq.$tip.removeAttr("mode");
@@ -356,13 +371,19 @@ $.fn.extend({"passwdform": function(opt){
         }
         // 否则检查是否存在
         else {
+            // 本地检查一下
+            if(!opt.checkName(str)){
+                $z.invoke(opt, "on_invalid", [jq, str], context);
+                return;
+            }
+            // 请求服务器
             $.get(opt.url_exists, {str:str}, function(re){
                 var reo = $z.fromJson(re);
 
                 // 判断账号的类型
                 var sendBy;
                 // 手机号
-                if(/^[0-9+-]{11,20}$/.test(str)){
+                if(/^[0-9+-]{11}$/.test(str)){
                     sendBy = "phone";
                 }
                 // 邮箱
