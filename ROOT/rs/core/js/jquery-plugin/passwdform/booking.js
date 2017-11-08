@@ -21,11 +21,13 @@ $(function(){
         if(sTop<=vav){
             $(".main").css("height", "");
             jBody.removeAttr("show-sky");
+            jBody.removeAttr("show-article");
         }
         // 确保添加了标识，显示 sky 条
         else if(!jBody.attr("show-sky")){
             $(".main").css("height", $(".main").height());
             jBody.attr("show-sky", "yes");
+            jBody.attr("show-article", "yes");
         }
     });
     // 点击回到顶部 
