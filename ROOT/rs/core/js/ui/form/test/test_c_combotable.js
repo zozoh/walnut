@@ -82,7 +82,12 @@ return ZUI.def("ui.form_test_combotable", {
                 var nm = $.trim(val);
                 if(!nm)
                     return null;
-                return Wn.fetch("~/" + nm, true);
+                //return Wn.fetch("~/" + nm, true);
+                return [{
+                    nm : "AAA"
+                }, {
+                    nm : "BBB"
+                }]
             }
         }).render(function(){
             this.setData([{

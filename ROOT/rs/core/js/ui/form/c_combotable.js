@@ -181,9 +181,13 @@ return ZUI.def("ui.form_com_combotable", {
         else {
             // 清除空数据提示文字
             UI.arena.find(" .cct-list > .cct-empty").remove();
+            // 确保是数组
+            var list = [].concat(obj);
             // 加入内容
-            var jTr = UI.__add_obj(obj);
-            $z.blinkIt(jTr);
+            for(var i=0; i<list.length; i++) {
+                var jTr = UI.__add_obj(list[i]);
+                $z.blinkIt(jTr);
+            }
             // 清空输入框
             UI.gasket.input.setData("");
             // 通知更新
