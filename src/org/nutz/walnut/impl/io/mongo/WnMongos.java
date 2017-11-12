@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
@@ -193,6 +194,8 @@ public abstract class WnMongos {
         }
     }
 
+    private static final Pattern _P = Pattern.compile("^[$%](and|or)");
+
     @SuppressWarnings("unchecked")
     private static void _set_array_to_doc(ZMoDoc q, String key, Object[] vv) {
         if (vv.length > 0) {
@@ -200,8 +203,10 @@ public abstract class WnMongos {
 
             // 是联合的查询
             if (mi.isMap()) {
+                Matcher m = _P.matcher(key);
                 // 那么 key 必须是 $and 或者 $or
-                if ("$and".equals(key) || "$or".equals(key)) {
+                if (m.find()) {
+                    key = "$" + m.group(1);
                     BasicDBList list = new BasicDBList();
                     // 遍历所有的查询条件
                     for (Object v2 : vv) {
@@ -214,6 +219,7 @@ public abstract class WnMongos {
                         }
                         list.add(doc);
                     }
+                    // 重新应用一下条件
                     q.put(key, list);
                 }
                 // 靠，错误的 Key

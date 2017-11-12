@@ -148,8 +148,6 @@ return ZUI.def("ui.th_obj_data_media", {
         var se   = Wn.app().session;
         var conf = UI.getBusConf();
 
-        console.log(f, se)
-
         // 准备个假的对象
         var fo = {
             nm : f.name,
