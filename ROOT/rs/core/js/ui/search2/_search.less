@@ -1,0 +1,103 @@
+
+.search-sky {position: relative; min-height: 30px;}
+.search-sky:after{@clr();}
+
+.search-list {
+    min-height: 300px; padding-right:1px;
+}
+
+.search {
+    > header {
+        @flex(); flex-wrap:nowrap; background: @cb1;
+        border-bottom:1px solid @cborder1;
+        > .search-filter-con {flex:1 1 auto;}
+        > .search-menu-con {flex:0 0 auto;}
+    }
+    > header:after {@clr();}
+    > section {
+        min-height: 300px; padding-right:1px;       
+    }
+    > footer {
+        border-top:1px solid @cborder1; background: @cb1;
+    }
+}
+
+/*.............................................. check*/
+.search-check-opts {list-style: none;padding:0;margin: 0;}
+.search-check-opts>li{
+    float:left;
+    padding:0 4px; border-right:1px solid #AAA;
+    font-size:12px; color:#08F; cursor: pointer;
+}
+.search-check-opts>li:hover{color:#F80;}
+.search-check-opts>li:last-child{border-right:0;}
+/*.............................................. menu*/
+.search-menu-con {
+    @flex(); align-items:flex-end;
+    padding:0 @d3 @d0 0;
+    .menu {display: inline-block;}
+}
+/*.............................................. filter*/
+.search-menu-con {
+
+}
+.search-filter {
+    padding:@d2;
+    .flt-keyword {
+        padding:0; position: relative;
+    }
+    .flt-keyword input{@input();
+        padding:@d3 @d0 @d3 28px; font-size:@f2;
+        width:100%;
+    }
+    .flt-keyword input[with-form-btn] {
+        padding-right: 26px;
+    }
+    .flt-keyword input:focus {@input_focus();}
+    .flt-icon {
+        position: absolute; top:0; left:0; bottom:0px;
+        width: 28px;
+        @flex(); align-items: center; justify-content:center;
+        color:@c2; font-size:@f3; 
+    }
+    .flt-form-btn {
+        position: absolute; top:0; right:0; bottom:0;
+        width: 24px; padding:0; margin:0;
+        @flex(); align-items:center; justify-content:center;
+        border:1px solid @cbtn_l; background: @cbtn_b;  color:@cbtn_f;
+        border-left-color:@cbtn_b;
+        cursor: pointer; border-radius: 0 @d1 @d1 0;
+    }
+    .flt-form-btn:hover {@btn_hover();}
+}
+/*.............................................. pager*/
+.search-pager {@noselect();
+    padding:@d2; text-align: center; 
+    .pgr-tip {
+        color:#888; font-style: normal; margin-right:10px;
+        display: inline-block; vertical-align: middle;
+        padding:5px 8px; font-size: @f1; cursor: pointer;
+    }
+    .pgr-tip:hover {
+        text-decoration: underline; color:@clink_hover;
+    }
+    > span {
+        display: inline-block; padding:0 @d1;
+        > input {@input();
+            width:40px; padding:@d2; text-align: center;
+            font-family: @f_fixed; font-size:@f1;
+        }
+        > input:focus {@input_focus();}
+    }
+    .pgr-btn {@btn();
+        padding:@d1 @d3; cursor: default; font-size:@f1;
+    }
+
+    .pgr-enable:hover {
+        @btn_hover(); cursor: pointer;
+    }
+
+    .pgr-disable, .pgrr-disable:hover {
+        background: #CCC; color:#888; opacity: 0.6;
+    }
+}

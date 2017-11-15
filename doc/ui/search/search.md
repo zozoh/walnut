@@ -25,9 +25,6 @@ new SearchUI({
     // 具体配置信息 @see menu 控件
     // 你也可以用 {qkey:"create", icon:"<...>"} 来修改某个快捷菜单的图标和显示文字
     menu : ["create","delete","edit"]
-    
-    // 指定菜单回调函数的上下文，默认为 Search 控件自身
-    menuContext : UI
 
     // 动作模板，支持了这些动作模板后， menu 才能支持对应的快捷动作
     // 否则会产生错误 
@@ -108,7 +105,25 @@ new SearchUI({
     // 事件
     on_refresh  : {c}F(list,pager)    // "search:refresh" 当刷新完毕时
 
-}).render();
+}).render(function(){
+    // 设置查询条件
+    this.setData({
+        match : {..},
+        sort  : {
+            nm : 1, lm : -1
+        },
+        page  : {
+            pn   : 1,     // 第几页
+            pgsz : 10,    // 每页多少数据
+            pgnb : 4      // 一共多少页
+            sum  : 32,    // 一共多少记录
+            skip : 0,     // 跳过了多少数据
+            nb   : 10     // 本页实际获取了多少数据
+        },
+    });
+    // 执行刷新
+    this.refresh();
+});
 ```
 
 # 可自定义的子控件

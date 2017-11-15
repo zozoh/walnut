@@ -280,7 +280,7 @@ return ZUI.def("ui.table", {
         var s  = fld.__dis_obj.call(context, o, jso, UI);
 
         // 国际化
-        s = UI.text(s);
+        //s = UI.text(s);
 
         // 逃逸 HTML
         if(fld.escapeHtml === true)

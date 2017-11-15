@@ -1,0 +1,257 @@
+(function($z){
+$z.declare([
+    'zui',
+    'ui/search2/support/search_methods',
+    'ui/menu/menu'
+], function(ZUI, SearchMethods, MenuUI){
+//==============================================
+var html = function(){/*
+<div class="ui-arena search" ui-fitparent="true">
+    <header>
+        <div class="search-filter-con" ui-gasket="filter"></div>
+        <div class="search-menu-con" ui-gasket="menu"></div>
+    </header>
+    <section ui-gasket="list"></section>
+    <footer ui-gasket="pager"></footer>
+</div>
+*/};
+//==============================================
+return ZUI.def("ui.search", {
+    dom  : $z.getFuncBodyAsStr(html.toString()),
+    css  : "ui/search2/theme/search-{{theme}}.css",
+    i18n : "ui/search2/i18n/{{lang}}.js",
+    init : function(options){
+        var UI  = SearchMethods(this);
+        var opt = options;
+        //...........................................
+        // 设置默认值
+        $z.setUndefined(opt, "filter", {});
+        $z.setUndefined(opt, "list", {
+            fields : [{
+                key : "nm",
+                title : "Name",
+            }, {
+                key : "id",
+                title : "ID"
+            }]
+        });
+        $z.setUndefined(opt, "pager", {});
+        //...........................................
+        // 必须制定获取数据的方法
+        // 如果是字符串，通常格式类似
+        //   obj -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'
+        if(!opt.data) {
+            throw "SearchUI required [data] field!";
+        }
+        if(_.isString(opt.data) && !UI.exec) {
+            throw "SearchUI required [exec] function to run data command";
+        }
+        //...........................................
+        // 格式化子 UI
+        this.__fmt_subUIs(opt, "filter", 'ui/search2/search_filter');
+        this.__fmt_subUIs(opt, "list",   'ui/table/table');
+        this.__fmt_subUIs(opt, "pager",  'ui/search2/search_pager');
+        //...........................................
+        // 检查菜单, string 表示的为快捷菜单项
+        if(_.isArray(opt.menu)){
+            for(var i=0; i<opt.menu.length; i++){
+                var mi = opt.menu[i];
+                // 快捷菜单
+                if(_.isString(mi)){
+                    opt.menu[i] = this.__quick_menu(mi);
+                }
+                // 自定义的快捷菜单
+                else if(mi.qkey){
+                    opt.menu[i] = _.extend(this.__quick_menu(mi.qkey), mi);
+                }
+            }
+        }
+        //...........................................
+        // 默认查询上下文
+        if(!_.isFunction(opt.queryContext)) {
+            opt.__static_query_context = opt.queryContext || {};
+            opt.queryContext = function(){
+                return _.extend({}, opt.__static_query_context);
+            };
+        }
+        //...........................................
+        // 默认动作模板上下文上下文
+        if(!_.isFunction(opt.cmdTmplContext)) {
+            opt.__static_cmdTmpl_context = opt.cmdTmplContext || {};
+            opt.cmdTmplContext = function(){
+                return _.extend({}, opt.__static_cmdTmpl_context);
+            };
+        }
+    },
+    //...............................................................
+    redraw : function(){
+        var UI  = this;
+        var opt = UI.options;
+
+        // 要加载的控件类型
+        var uiTypes = [];
+
+        // 默认尝试用宽模式绘制菜单
+        if(UI._draw_menu(false, function(){
+            UI.defer_report("menu");
+        })){
+            uiTypes.push("menu");
+        }
+
+        // 加载 filter 控件
+        if(opt.filter) {
+            uiTypes.push("filter");
+            seajs.use(opt.filter.uiType, function(FltUI){
+                UI.uiFilter = new FltUI(_.extend({}, opt.filter.uiConf, {
+                    parent     : UI,
+                    gasketName : "filter"
+                })).render(function(){
+                    UI.defer_report("filter");
+                    UI.listenUI(UI.gasket.filter, "filter:change", function(flt){
+                        var pgr  = UI.uiPager.getData();
+                        pgr.skip = 0;
+                        UI.refresh(null, flt, pgr);
+                    });
+                });
+            });
+        }
+
+        // 加载 list 控件
+        if(opt.list) {
+            uiTypes.push("list");
+            seajs.use(opt.list.uiType, function(LstUI){
+                UI.uiList = new LstUI(_.extend({}, opt.list.uiConf, {
+                    parent     : UI,
+                    gasketName : "list"
+                })).render(function(){
+                    UI.defer_report("list");
+                });
+            });
+        }
+
+        // 加载 pager 控件
+        if(opt.pager) {
+            uiTypes.push("pager");
+            seajs.use(opt.pager.uiType, function(PagerUI){
+                UI.uiPager = new PagerUI(_.extend({}, opt.pager.uiConf, {
+                    parent     : UI,
+                    gasketName : "pager"
+                })).render(function(){
+                    UI.defer_report("pager");
+                    UI.listenUI(UI.gasket.pager,  "pager:change",  function(pgr){
+                        UI.refresh(null, null, pgr);
+                    });
+                });
+            });
+        }
+
+        // 返回延迟加载列表
+        return uiTypes;
+    },
+    //...............................................................
+    // 根据 list.uiConf 里面的配置信息，查找某个字段的类型
+    getFieldType : function(key) {
+        return this.uiList.getFieldType(key);
+    },
+    //...............................................................
+    resize : function(deep){
+        var UI   = this;
+        var opt  = UI.options;
+        var jSky  = UI.arena.find(">header");
+        var jMenu = jSky.children(".search-menu-con");
+        var jFilter = jSky.children(".search-filter-con");
+
+        // 如果已经初始化了菜单部分的原始宽度
+        // 则自动判断动作菜单的宽窄模式
+        if(jMenu.attr("prime-width")) {
+            var w_sky = jSky.width();
+            var isNarrow = jMenu.attr("narrow-mode") ? true : false;
+            var w_menu   = jMenu.attr("prime-width") * 1;
+            var w_flt    = w_sky - w_menu;
+            
+            // 得到 filter 宽度的参考值
+            var fltWidthHint = $z.dimension(opt.filterWidthHint || "50%", w_sky);
+
+            // 改成窄模式
+            if(w_flt < fltWidthHint) {
+                if(!isNarrow) {
+                    UI._draw_menu(true);
+                }
+            }
+            // 改成宽模式
+            else {
+                if(isNarrow) {
+                    UI._draw_menu(false);
+                }
+            }
+        }
+        
+
+        // 计算中间部分的高度
+        var jList = UI.arena.find(">section");
+        var jPager = UI.arena.find(">footer");
+        var lH = UI.arena.height() - jSky.outerHeight() - jPager.outerHeight();
+        jList.css("height", lH);
+    },
+    //...............................................................
+    refresh : function(callback, flt, pgr){
+        var UI  = this;
+        var opt = UI.options;
+        // console.log("refresh!!!!")
+        // zozoh@20151026:
+        // 推迟运行，以便确保界面都加载完毕了
+        // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题
+        //window.setTimeout(function(){
+        flt = flt || UI.uiFilter.getData();
+        pgr = pgr || UI.uiPager.getData();
+
+        // 创建查询上下文
+        var qc = opt.queryContext.call(UI);
+        _.extend(qc, pgr, {
+            match : flt.match ? $z.toJson(flt.match) : '',
+            sort  : flt.sort  ? $z.toJson(flt.sort)  : ''
+        });
+
+        //console.log("do_search",qc)
+
+        // 记录一下之前激活的项目
+        var activedId = UI.uiList.getActivedId();
+
+        // 显示正在加载数据
+        UI.showLoading();
+
+        // 组合成查询条件，执行查询
+        $z.evalData(opt.data, qc, function(re){
+            UI.hideLoading();
+
+            console.log(re)
+
+            // 将查询的结果分别设置到列表以及分页器里
+            UI.uiPager.setData(re.pager);
+            UI.uiList.setData(re ? re.list : []);
+
+            // 如果之前有高亮内容，重新高亮
+            if(activedId){
+                UI.uiList.setActived(activedId);
+            }
+
+            // 触发事件回调
+            UI.trigger("search:refresh", re);
+            $z.invoke(UI.options, "on_refresh", [re], UI);
+
+            // 调整尺寸
+            UI.resize();
+
+            // 回调
+            $z.doCallback(callback, [re.list,re.pager], UI);
+        }, UI);
+        //}, 0);
+
+        // 返回自身dddd
+        return UI;
+    }
+    //..............................................
+});
+//==================================================
+});
+})(window.NutzUtil);

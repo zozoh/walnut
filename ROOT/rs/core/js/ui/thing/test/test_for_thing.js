@@ -6,7 +6,7 @@ $z.declare([
 ], function(ZUI, Wn, ThManagerUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-manager" ui-fitparent="true" ui-gasket="main"></div>
+<div class="ui-arena test-for-thing" ui-fitparent="true" ui-gasket="main"></div>
 */};
 //==============================================
 return ZUI.def("ui.test_for_thing", {
