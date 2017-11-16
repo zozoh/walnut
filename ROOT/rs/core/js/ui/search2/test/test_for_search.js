@@ -22,37 +22,49 @@ return ZUI.def("ui.test_for_search", {
             data : "obj -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'",
             menu : ["create", "refresh", "delete", "edit"],
             filter : {
-                form : {
-                    fields : [{
-                        key : "race",
-                        title : "种类",
-                        uiType : "@switch",
-                        uiConf : {
-                            items : [{
-                                value : "FILE", text : "文件"
-                            }, {
-                                value : "DIR",  text : "目录"
-                            }]
-                        }
-                    }, {
-                        key : "lm",
-                        title : "最后修改日期",
-                        uiType : "@input",
-                        uiConf : {
-                            assist : {
-                                icon   : '<i class="zmdi zmdi-calendar-note"></i>',
-                                text   : "设置日期范围",
-                                uiType : "ui/form/c_date_range"
+                assist : {
+                    width : 600,
+                    form : {
+                        fields : [{
+                            key : "race",
+                            title : "种类",
+                            dft : null,
+                            uiType : "@switch",
+                            uiConf : {
+                                singleKeepOne : false,
+                                items : [{
+                                    value : "FILE", text : "文件"
+                                }, {
+                                    value : "DIR",  text : "目录"
+                                }]
                             }
-                        }
-                    }, {
-                        key : "number",
-                        title : "某个数字范围",
-                        uiType : "@input",
-                        uiConf : {
-                            assist : {uiType : "ui/form/c_number_range"}
-                        }
-                    }]
+                        }, {
+                            key : "lm",
+                            title : "最后修改日期",
+                            dft : null,
+                            uiWidth : 300,
+                            uiType : "@date_range",
+                            uiConf : {
+                                formatData : function(str){
+                                    if(/^[mM][sS]/.test(str))
+                                        return str;
+                                    return str ? "MS"+str : null;
+                                },
+                                parseData : function(str){
+                                    if(/^[mM][sS]/.test(str))
+                                        return str.substring(2);
+                                    return str;
+                                }
+                            }
+                        }, {
+                            key : "number",
+                            title : "某个数字范围",
+                            uiType : "@input",
+                            uiConf : {
+                                assist : {uiType : "ui/form/c_number_range"}
+                            }
+                        }]
+                    }
                 }
             }
         }).render(function(){

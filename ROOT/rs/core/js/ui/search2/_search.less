@@ -38,11 +38,8 @@
     .menu {display: inline-block;}
 }
 /*.............................................. filter*/
-.search-menu-con {
-
-}
 .search-filter {
-    padding:@d2;
+    padding:@d2; 
     .flt-keyword {
         padding:0; position: relative;
     }
@@ -50,7 +47,7 @@
         padding:@d3 @d0 @d3 28px; font-size:@f2;
         width:100%;
     }
-    .flt-keyword input[with-form-btn] {
+    .flt-keyword input[with-ass-btn] {
         padding-right: 26px;
     }
     .flt-keyword input:focus {@input_focus();}
@@ -60,7 +57,7 @@
         @flex(); align-items: center; justify-content:center;
         color:@c2; font-size:@f3; 
     }
-    .flt-form-btn {
+    .flt-ass-btn {
         position: absolute; top:0; right:0; bottom:0;
         width: 24px; padding:0; margin:0;
         @flex(); align-items:center; justify-content:center;
@@ -68,7 +65,28 @@
         border-left-color:@cbtn_b;
         cursor: pointer; border-radius: 0 @d1 @d1 0;
     }
-    .flt-form-btn:hover {@btn_hover();}
+    .flt-ass-btn:hover {@btn_hover();}
+    .flt-assist {display: none;}
+}
+.search-filter[show-ass] {
+    .flt-keyword {
+        z-index:1001;
+        .flt-ass-btn {@btn_hover();}
+    }
+    .flt-assist {
+        display: block;
+        .flt-ass-mask {
+            position: fixed; top:0; left:0; bottom:0; right:0;
+            background: #FFF; opacity: 0; z-index: 999;
+        }
+        .flt-ass-form {
+            position: fixed; left:0; top:0;
+            min-height: 50px; min-width: 120px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+            z-index: 1000; border-radius: @d2;
+            background: @cb0; padding:@d4;
+        }
+    }
 }
 /*.............................................. pager*/
 .search-pager {@noselect();

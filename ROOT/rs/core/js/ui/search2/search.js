@@ -194,7 +194,7 @@ return ZUI.def("ui.search", {
         jList.css("height", lH);
     },
     //...............................................................
-    refresh : function(callback, flt, pgr){
+    refresh : function(callback){
         var UI  = this;
         var opt = UI.options;
         // console.log("refresh!!!!")
@@ -202,14 +202,15 @@ return ZUI.def("ui.search", {
         // 推迟运行，以便确保界面都加载完毕了
         // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题
         //window.setTimeout(function(){
-        flt = flt || UI.uiFilter.getData();
-        pgr = pgr || UI.uiPager.getData();
+        var cri = UI.uiFilter.getData();
+        var pgr = UI.uiPager.getData();
 
         // 创建查询上下文
         var qc = opt.queryContext.call(UI);
         _.extend(qc, pgr, {
-            match : flt.match ? $z.toJson(flt.match) : '',
-            sort  : flt.sort  ? $z.toJson(flt.sort)  : ''
+            match : cri ? $z.toJson(cri) : '',
+            // TODO  这里自定义排序器，暂时先空一下
+            sort  : '{}'
         });
 
         //console.log("do_search",qc)

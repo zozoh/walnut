@@ -1251,6 +1251,17 @@ define(function (require, exports, module) {
             return $z.doCallback(option.success, [re.data], context);
         },
         //...................................................................
+        // 得到 UI 的 arena 所占的宽度
+        arenaWidth : function(countMargin){
+            if(this.arena)
+                return this.arena.outerWidth(countMargin ? true : false);
+        },
+        // 得到 UI 的 arena 所占的高度
+        arenaHeight : function(countMargin){
+            if(this.arena)
+                return this.arena.outerHeight(countMargin ? true : false);
+        },
+        //...................................................................
         // 提供一个通用的文件上传界面，任何 UI 可以通过
         //   this.listenModel("do:upload", this.on_do_upload);
         // 来启用这个方法

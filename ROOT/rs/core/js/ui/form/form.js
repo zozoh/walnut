@@ -359,6 +359,11 @@ return ZUI.def("ui.form", {
             jTitle.remove();
         }
 
+        // 设置紧凑模式
+        if(opt.displayMode) {
+            UI.arena.attr("display-mode", opt.displayMode);
+        }
+
         // 首先加载所有的子控件
         seajs.use(UI.uiTypes, function(){
             // 循环绘制组，在字段的绘制里会 defer_report
