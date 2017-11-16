@@ -6,7 +6,7 @@
 =======
 
 ```
-mgadin index [-co 集合名词] [create|drop|cbasic]
+mgadin index [-co 集合名称] [create|drop|cbasic]
 ```
 
 示例
