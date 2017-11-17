@@ -24,6 +24,7 @@ return ZUI.def("ui.test_for_search", {
             filter : {
                 assist : {
                     width : 600,
+                    autoOpen : false,
                     form : {
                         fields : [{
                             key : "race",
@@ -59,15 +60,78 @@ return ZUI.def("ui.test_for_search", {
                         }, {
                             key : "number",
                             title : "某个数字范围",
-                            uiType : "@input",
-                            uiConf : {
-                                assist : {uiType : "ui/form/c_number_range"}
-                            }
+                            dft : null,
+                            uiType : "@number_range",
+                            uiConf : {}
                         }]
                     }
-                }
+                },
+                tabs : [{
+                    icon : '<i class="zmdi zmdi-file"></i>',
+                    text : "文件",
+                    // color : "#000",
+                    // background : "#F0F",
+                    value : {
+                        race : "FILE"
+                    }
+                }, {
+                    dchecked : true,
+                    icon : '<i class="zmdi zmdi-folder"></i>',
+                    text : "目录",
+                    // color : "#000",
+                    // background : "#FF0",
+                    value : {
+                        race : "DIR"
+                    }
+                }, {
+                    icon : '<i class="zmdi zmdi-apps"></i>',
+                    text : "APP",
+                    value : {
+                        nm : "app"
+                    }
+                // }, {
+                //     text : "很长很长很长很长的文字",
+                //     value : {}
+                // }, {
+                //     text : "很长很长很长很长的文字",
+                //     value : {}
+                // }, {
+                //     text : "很长很长很长很长的文字",
+                //     value : {}
+                // }, {
+                //     text : "很长很长很长很长的文字",
+                //     value : {}
+                }],
+                tabsPosition : "left",
+                dtabsMulti    : true,
+                dtabsKeepChecked : true,
+                tabsStatusKey : "test_pet_search_tab",
+            }, 
+            list : {
+                fields : [{
+                    key : "nm",
+                    title : "名称",
+                }, {
+                    key : "id",
+                    title : "ID"
+                }, {
+                    key : "g",
+                    title : "所在组"
+                }, {
+                    key : "race",
+                    title : "种类"
+                }, {
+                    key : "lm",
+                    title : "最后修改时间",
+                    display : function(o) {
+                        return $z.parseDate(o.lm).format("yyyy-mm-dd HH:MM:ss");
+                    }
+                }]
             }
         }).render(function(){
+            this.uiFilter.setData({
+                "d1" : Wn.app().session.grp
+            });
             UI.defer_report("main");
         });
 

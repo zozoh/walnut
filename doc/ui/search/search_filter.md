@@ -67,11 +67,15 @@ new SearchFilterUI({
     tabs : [{
         icon    : "<icon>"   // 标签的 ICON
         text    : "i18n:xxx" // 标签的文字
-        color   : "#000"     // 标签前景色，默认跟随主题
-        bgcolor : "#0F0"     // 标签背景色，默认跟随主题
+        color      : "#000"     // 标签前景色，默认跟随主题
+        background : "#0F0"     // 标签背景色，默认跟随主题
         value   : {..}       // 一个搜索条件
         checked : true       // 是否选中，如果单选，最后一个会生效
-    }]
+    }],
+    
+    // 声明了这个值，将会在本地记住 tabs 的选择
+    // 只要刷新这个页面，就会维持原来的状态 
+    tabsStatusKey : null,
     
     // 标签条的位置：
     //  - top  : 置于搜索框顶部
@@ -85,17 +89,10 @@ new SearchFilterUI({
     // 默认 true 表示单选
     tabsMulti : true,
     
-    // 标签最少要维持几个高亮
-    // 默认 1
-    tabsKeepAtLeast : 1,
-        
-    /*
-    如果控件被 setData，怎么处理设置来的数据:
-    - fixed : 作为基础，返回的时候总是要加到结果中
-    - tabs  : 高亮对应的标签
-    默认 fixed
-    */
-    dataMode : "fixed"
+    // 「仅对单选有效」标签最少要有一个高亮的
+    // 默认 false
+    tabsKeepChecked : true,
+
 }).render();
 ```
 

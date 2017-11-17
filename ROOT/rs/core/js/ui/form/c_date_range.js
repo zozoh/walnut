@@ -112,10 +112,29 @@ return ZUI.def("ui.form_com_date_range", {
     //...............................................................
     _set_value : function(l_on, l_val, r_val, r_on){
         //console.log(l_on,l_val, r_val, r_on)
-        this.arena.find('>footer>b[m="left"]').attr("on",  l_on ? "yes" : null);
-        this.arena.find('>footer>b[m="right"]').attr("on", r_on ? "yes" : null);
-        this.arena.find(">section>dl.rv-left>dd") .zcal("active", l_val);
-        this.arena.find(">section>dl.rv-right>dd").zcal("active", r_val);
+        var UI = this;
+        var jLon = UI.arena.find('>footer>b[m="left"]');
+        var jRon = UI.arena.find('>footer>b[m="right"]');
+        var jLdd = UI.arena.find(">section>dl.rv-left>dd");
+        var jRdd = UI.arena.find(">section>dl.rv-right>dd");
+
+        // 左右的「包含」，默认要开启
+        jLon.attr("on",  (_.isUndefined(l_on) || l_on) ? "yes" : null);
+        jRon.attr("on",  (_.isUndefined(r_on) || r_on) ? "yes" : null);
+
+        // 左侧的值
+        if(l_val)
+            jLdd.zcal("active", l_val);
+        else
+            jLdd.zcal("blur");
+
+        // 右侧的值
+        if(r_val)
+            jRdd.zcal("active", r_val);
+        else
+            jRdd.zcal("blur");
+
+        // 显示数据
         this.__show_data();
     },
     //...............................................................

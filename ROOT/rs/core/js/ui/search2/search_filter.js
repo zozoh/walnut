@@ -3,12 +3,18 @@ $z.declare(['zui', 'ui/form/form'], function(ZUI, FormUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena search-filter">
-    <div class="flt-keyword">
-        <input placeholder="{{search.filter.tip}}"
-            spellcheck="false"
-            with-ass-btn="yes">
-        <div class="flt-icon"><i class="zmdi zmdi-search"></i></div>
-        <div class="flt-ass-btn"><i class="zmdi zmdi-settings"></i></div>
+    <div class="flt-con">
+        <div class="flt-tabs">
+            <div class="flt-tabs-show"><ul></ul></div>
+            <div class="flt-tabs-drop"><ul></ul></div>
+        </div>
+        <div class="flt-keyword">
+            <input placeholder="{{search.filter.tip}}"
+                spellcheck="false"
+                with-ass-btn="yes">
+            <div class="flt-icon"><i class="zmdi zmdi-search"></i></div>
+            <div class="flt-ass-btn"><i class="zmdi zmdi-settings"></i></div>
+        </div>
     </div>
     <div class="flt-assist">
         <div class="flt-ass-mask"></div>
@@ -20,6 +26,8 @@ var html = function(){/*
 return ZUI.def("ui.search_filter", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     init : function(opt){
+        var UI = this;
+
         $z.setUndefined(opt, "keyField", ["nm"]);
         $z.setUndefined(opt, "forceWildcard", true);
 
@@ -33,27 +41,54 @@ return ZUI.def("ui.search_filter", {
         }
 
         // 默认的记录一下自己原始的属性
-        this.__old_data = "{}";
+        UI.__old_data = "{}";
+
+        // 处理一下标签
+        if(UI.__has_tabs()) {
+            // 这里试图从 local 里恢复选中项目
+            if(opt.tabsStatusKey) {
+                var checkedIndexes = UI.local(opt.tabsStatusKey);
+                if(_.isArray(checkedIndexes)){
+                    for(var i=0; i<opt.tabs.length; i++){
+                        opt.tabs[i].checked = checkedIndexes.indexOf(i) >= 0;
+                    }
+                }
+            }
+
+            // 补充一下，如果是单选，且限制了必须有一个选中
+            // 那么至少要有一个选中啊
+            if(!opt.tabsMulti && opt.tabsKeepChecked) {
+                var hasChecked = false;
+                for(var i=0; i<opt.tabs.length; i++){
+                    if(opt.tabs[i].checked){
+                        hasChecked = true;
+                        break;
+                    }
+                }
+                if(!hasChecked)
+                    opt.tabs[0].checked = true;
+            }
+        }
     },
     //..............................................
     events : {
-        // 点击打开助理层
+        // 助理事件：点击打开助理层
         "click .flt-ass-btn" : function(e) {
             this.toggleAssist();
         },
-        // 收起助理层，并应用修改
+        // 助理事件：收起助理层，并应用修改
         "click .flt-ass-mask" : function(){
             this.__on_change();
             this.closeAssist();
         },
-        // 聚焦打开助理层
+        // 助理事件：聚焦打开助理层
         "focus .flt-keyword > input" : function(){
             var ass = this.options.assist;
             if(ass && ass.autoOpen) {
                 this.openAssist();
             }
         },
-        // 下面三个时间，完美检测中文输入
+        // 助理事件：下面三个时间，完美检测中文输入
         "compositionstart .flt-keyword > input" : function(e){
             this.__compositionstart = true;
         },
@@ -66,7 +101,7 @@ return ZUI.def("ui.search_filter", {
                 return;
             this.__do_when_input();
         },
-        // 特殊键盘事件
+        // 助理事件：特殊键盘事件
         "keydown .flt-keyword > input" : function(e){
             var UI = this;
             // 回车
@@ -84,6 +119,101 @@ return ZUI.def("ui.search_filter", {
                 UI.openAssist();
             }
         },
+        // 标签事件(DROP)：打开 drop 的菜单
+        'click .flt-con[tabs-pos="drop"] .flt-tabs-show li' : function(e){
+            var UI  = this;
+            var jLi = $(e.currentTarget);
+            var jTabs = UI.arena.find(".flt-tabs");
+            var jDrop = jTabs.find(".flt-tabs-drop");
+            jTabs.attr("show-drop", "yes");
+            $z.dock(jLi, jDrop.find(">ul"), "H");
+        },
+        // 标签事件(DROP)：关闭 drop 的菜单
+        'click .flt-con[tabs-pos="drop"] .flt-tabs-drop' : function(e){
+            this.closeTabsDrop();
+        },
+        // 标签事件(DROP)：点击项目
+        'click .flt-con[is-drop] .flt-tabs-drop li' : function(e){
+            // 首先，不要冒泡了
+            e.stopPropagation();
+
+            // 处理一下
+            var UI  = this;
+            var opt = UI.options;
+            var jLi = $(e.currentTarget);
+            var jShow = UI.arena.find(".flt-tabs-show");
+            var jDrop = UI.arena.find(".flt-tabs-drop");
+            var jUl = jDrop.find(">ul");
+
+            // 多选的处理
+            if(opt.tabsMulti) {
+                // 切换自己的显示
+                $z.toggleAttr(jLi, "fti-status", "checked", "ava");
+                UI.__sync_li_color(jLi);
+            }
+            // 单选的处理
+            else {
+                // 取消其他选中
+                jUl.find('li[fti-status="checked"]')
+                    .not(jLi)
+                        .attr("fti-status", "ava")
+                        .css({
+                            "color" : "",
+                            "background" : ""
+                        });
+                // 切换到自己
+                $z.toggleAttr(jLi, "fti-status", "checked", "ava");
+                UI.__sync_li_color(jLi);
+            }
+            // 同步 drop 到 show
+            UI.__sync_drop_to_show();
+
+            // 记录标签选择状态
+            UI.__save_tabs_to_local();
+
+            // 重新 Dock
+            $z.dock(jShow.find('li').last(), jUl, "H");
+
+            // 无论是单选还是多选，要触发更新
+            UI.__on_change();
+        },
+        // 标签事件(普通)：点击项目
+        'click .flt-con[is-label] .flt-tabs-show li' : function(e) {
+            var UI  = this;
+            var opt = UI.options;
+            var jLi = $(e.currentTarget);
+            var jUl = jLi.closest("ul");
+            
+            // 多选处理
+            if(opt.tabsMulti) {
+                $z.toggleAttr(jLi, "fti-status", "checked", "ava");
+                UI.__sync_li_color(jLi);
+            }
+            // 单选处理
+            else {
+                // 取消其他选中
+                jUl.find('li[fti-status="checked"]')
+                    .not(jLi)
+                        .attr("fti-status", "ava")
+                        .css({
+                            "color" : "",
+                            "background" : ""
+                        });
+                // 如果确保有选中的，那么自己如果已经选中就啥也不干了
+                if(opt.tabsKeepChecked && "checked" == jLi.attr("fti-status")) {
+                    return;
+                }
+                // 切换到自己
+                $z.toggleAttr(jLi, "fti-status", "checked", "ava");
+                UI.__sync_li_color(jLi);
+            }
+
+            // 记录标签选择状态
+            UI.__save_tabs_to_local();
+
+            // 无论是单选还是多选，要触发更新
+            UI.__on_change();
+        }
     },
     //..............................................
     redraw : function(){
@@ -93,6 +223,9 @@ return ZUI.def("ui.search_filter", {
 
         // 初始化查询字符串
         jInput.val(opt.query||"");
+
+        // 初始化条件标签 
+        UI.__draw_tabs();
 
         // 是否显示表单按钮
         if(!opt.assist) {
@@ -124,6 +257,206 @@ return ZUI.def("ui.search_filter", {
         return ["form"];
     },
     //..............................................
+    __has_tabs : function(){
+        var UI  = this;
+        var opt = UI.options;
+        return _.isArray(opt.tabs) && opt.tabs.length>0;
+    },
+    //..............................................
+    __save_tabs_to_local : function(){
+        var UI  = this;
+        var opt = UI.options;
+
+        if(opt.tabsStatusKey){
+            var checkedIndexes = [];
+            UI.arena.find('.flt-tabs ul[for-save] li').each(function(index, ele){
+                if("checked" == $(ele).attr("fti-status")){
+                    checkedIndexes.push(index);
+                }
+            });
+            UI.local(opt.tabsStatusKey, checkedIndexes);
+        }
+    },
+    //..............................................
+    __draw_tabs : function() {
+        var UI  = this;
+        var opt = UI.options;
+
+        // 得到关键 DOM 元素
+        var jCon  = UI.arena.find(">.flt-con");
+        var jTabs = jCon.find(">.flt-tabs");
+
+        // 开始绘制
+        if(UI.__has_tabs()) {
+            // 指定显示位置
+            jCon.attr({
+                "tabs-pos" : opt.tabsPosition||"left",
+                "is-drop"  : "drop" == opt.tabsPosition ? "yes" : null,
+                "is-label" : /^(left|top)$/.test(opt.tabsPosition) ? "yes" : null,
+            });
+
+            // 准备填充数据
+            var jShow = jTabs.find(".flt-tabs-show");
+            var jDrop = jTabs.find(".flt-tabs-drop");
+
+            // 全部折叠进去
+            if("drop" == opt.tabsPosition) {
+                UI.__append_tab_items(jDrop.find(">ul"));
+                // 多选，来个加号
+                if(opt.tabsMulti) {
+                    $('<li fti-status="ava">')
+                        .html('<i class="drop-icon zmdi zmdi-plus" multi></i>')
+                            .appendTo(jShow.find(">ul"));
+                }
+                // 单选，显示一个虚条件
+                else {
+                    $('<li fti-status="ava">').html('<span>'
+                        + UI.msg("search.filter.all")
+                        + '</span><i class="drop-icon fa fa-chevron-right"></i>')
+                            .appendTo(jShow.find(">ul"));
+                }
+                // 同步 drop 到 show
+                UI.__sync_drop_to_show();
+            }
+            // 直接显示
+            else {
+                UI.__append_tab_items(jShow.find(">ul"));
+                jDrop.remove();
+            }
+        }
+        // 隐藏标签
+        else {
+            jTabs.remove();
+        }
+    },
+    //..............................................
+    __append_tab_items : function(jUl) {
+        var UI  = this;
+        var opt = UI.options;
+
+        // 标识一下 ul ，标识这个 ul 用来作为标签的状态
+        jUl.attr("for-save", "yes");
+
+        // 绘制 <li>
+        for(var i=0; i<opt.tabs.length; i++) {
+            var tab = opt.tabs[i];
+            var jLi = $('<li>');
+
+            // 图标
+            if(tab.icon) {
+                $('<span class="fti-icon">').html(tab.icon)
+                    .appendTo(jLi);
+            }
+
+            // 文字
+            if(tab.text) {
+                $('<span class="fti-text">').html(UI.text(tab.text))
+                    .appendTo(jLi);
+            }
+
+            // 默认
+            if(!tab.icon && !tab.text) {
+                jLi.text("Condition " + i);
+            }
+
+            // 设置颜色背景等样式
+            jLi.attr({
+                "checked-color" : tab.color || "",
+                "checked-background" : tab.background || ""
+            });
+
+            // 标识选中
+            jLi.attr("fti-status", tab.checked ? "checked" : "ava");
+            UI.__sync_li_color(jLi);
+
+            // 记入数据并加入 DOM
+            jLi.data("@VALUE", tab.value).appendTo(jUl);
+        }
+    },
+    //..............................................
+    __sync_drop_to_show : function(){
+        var UI  = this;
+        var opt = UI.options;
+        var jShow = UI.arena.find(".flt-tabs-show");
+        var jDrop = UI.arena.find(".flt-tabs-drop");
+        var jUl = jDrop.find(">ul");
+
+        // 多选的处理
+        if(opt.tabsMulti) {
+            // 清空显示的标签
+            jShow.find('li[fti-status="checked"]').remove();
+
+            // 开始同步...
+            var jShowUl  = jShow.find(">ul");
+            var jShowBtn = jShowUl.find('li[fti-status="ava"]');
+            jUl.find('li[fti-status="checked"]').each(function(){
+                var jChecked = $(this);
+                var jShowLi  = $('<li>').insertBefore(jShowBtn);
+                // Copy 设置
+                UI.__copy_li_setting(jChecked, jShowLi);
+                UI.__sync_li_color(jShowLi);
+            });
+        }
+        // 单选的处理
+        else {
+            var jShowLi  = jShow.find("li").first();
+            var jChecked = jUl.find('li[fti-status="checked"]').first();
+
+            // Copy 设置
+            UI.__copy_li_setting(jChecked, jShowLi);
+            UI.__sync_li_color(jShowLi);
+        }
+    },
+    //..............................................
+    __copy_li_setting : function(jLiSrc, jLiTa) {
+        var UI  = this;
+        var opt = UI.options;
+        // 设置默认项
+        var val = null;
+        var stat = "ava";
+        var color = "";
+        var background = "";
+        var html;
+        // 显示高亮项目
+        if(jLiSrc.length > 0) {
+            val = jLiSrc.data("@VALUE");
+            stat = jLiSrc.attr("fti-status");
+            color = jLiSrc.attr("checked-color") || "";
+            background = jLiSrc.attr("checked-background") || "";
+            html = jLiSrc.html();
+        }
+        // 恢复默认
+        else {
+            html = '<span>'+ UI.msg("search.filter.all") + '</span>';
+        }
+        // 单选，需要下箭头
+        if(!opt.tabsMulti)
+            html += '<i class="drop-icon fa fa-chevron-right"></i>';
+        // 设置
+        jLiTa.data("@VALUE", val).html(html).attr({
+            "fti-status"         : stat,
+            "checked-color"      : color,
+            "checked-background" : background,
+        });
+    },
+    //..............................................
+    __sync_li_color : function(jLi) {
+        // 显示自定义颜色
+        if("checked" == jLi.attr("fti-status")) {
+            jLi.css({
+                "color" : jLi.attr("checked-color") || "",
+                "background" : jLi.attr("checked-background") || "",
+            });
+        }
+        // 取消自定义颜色
+        else {
+            jLi.css({
+                "color" : "",
+                "background" : "",
+            });
+        }
+    },
+    //..............................................
     toggleAssist : function(){
         if(this.arena.attr("show-ass")) {
             this.closeAssist();
@@ -141,6 +474,10 @@ return ZUI.def("ui.search_filter", {
     //..............................................
     closeAssist : function(){
         this.arena.removeAttr("show-ass");
+    },
+    //..............................................
+    closeTabsDrop : function() {
+        this.arena.find(".flt-tabs").removeAttr("show-drop");
     },
     //..............................................
     setKeyword : function(str) {
@@ -168,8 +505,6 @@ return ZUI.def("ui.search_filter", {
         var opt = UI.options;
         var ass = opt.assist;
 
-        // var jIn = UI.arena.find("> .box > input");
-        // console.log("in>>", jIn.val());
         // 自动打开助理
         if(ass && ass.autoOpen) {
             UI.openAssist();
@@ -218,15 +553,31 @@ return ZUI.def("ui.search_filter", {
         var opt = UI.options;
         return this.ui_format_data(function(){
             var cri = UI._get_criteria();
-            var re  = {};
+            var re  = _.extend({});
 
             // 根据 keyField 的设定，添加字段
             for(var i=0; i<cri.keywords.length; i++){
                 UI._fill_key_field(re, cri.keywords[i]);
             }
 
+            // 追加上标签的设定
+            var tabs = [];
+            UI.arena.find('.flt-tabs-show li[fti-status="checked"]')
+                .each(function(){
+                    tabs.push($(this).data("@VALUE"));
+                });
+
+            // 仅仅是追加
+            if(tabs.length == 1) {
+                _.extend(re, tabs[0]);
+            }
+            // 变成 or
+            else if(tabs.length > 1) {
+                re["%or"] = tabs;
+            }
+
             // 返回最后结果
-            return _.extend(re, cri.match);
+            return _.extend(re, cri.match, UI.__query_base);
         });
     },
     /*..............................................
@@ -239,7 +590,7 @@ return ZUI.def("ui.search_filter", {
     _get_criteria : function() {
         var UI = this;
         // 查询的基础
-        var mch = $z.extend({}, UI.__query_base);
+        var mch = {};
         
         // 处理关键字
         var kwd = $.trim(UI.arena.find("input").val());
@@ -334,7 +685,7 @@ return ZUI.def("ui.search_filter", {
         var UI  = this;
         var opt = UI.options;
         var ass = opt.assist;
-        var jKwd  = UI.arena.find(">.flt-keyword");
+        var jKwd  = UI.arena.find(".flt-keyword");
         var jForm = UI.arena.find(".flt-ass-form");
 
         if(ass) {

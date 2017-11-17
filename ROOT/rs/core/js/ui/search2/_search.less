@@ -67,7 +67,114 @@
     }
     .flt-ass-btn:hover {@btn_hover();}
     .flt-assist {display: none;}
+
+    // 标签的通用样式
+    .flt-con {
+        .flt-tabs {
+            @noselect();
+        }
+        .flt-tabs-show {
+            padding:@d1 @d0 @d1 0; height:100%;
+            ul {@flex();
+                height:100%;
+                li { 
+                    @flex(); align-items:center; cursor: pointer; 
+                    padding:0 @d2; margin-right:@d0; color:@c2;
+                    border:1px dashed @cborder1; white-space: nowrap;
+                    border-radius: @d0; font-size: @f1;
+                    span.fti-text {margin:0 @d1;transition:.3s; }
+                    i.drop-icon {transition:.3s;}
+                    i.drop-icon[multi] {
+                        font-size:1.2em; margin:0 @d1;
+                    }
+                }
+                li[fti-status="checked"] {
+                    background: @chx_b; color:@chx_f;
+                    border-color:transparent;
+                }
+                li[fti-status="ava"] {
+                    span{opacity: 0.6;}
+                    
+                }
+                li[fti-status="ava"]:hover {
+                    span {opacity: 1; transform:scale(1.1);}
+                }
+                li:hover {
+                    i.drop-icon {transform:rotate(90deg);}
+                }
+            }
+        }
+    }
+
+    // 居左显示的标签列
+    .flt-con[tabs-pos="left"] {
+        @flex();
+        > .flt-tabs {flex:0 0 auto;}
+        > .flt-keyword {flex:1 1 auto;}
+    }
+    // 居顶显示的标签列
+    .flt-con[tabs-pos="top"] {
+        position: relative; padding-top:32px;
+        > .flt-tabs {
+            position:absolute;top:0;left:0; height:32px;
+        }
+    }
+    // 居左显示，且 drop 的标签列
+    .flt-con[tabs-pos="drop"] {
+        @flex();
+        > .flt-tabs {flex:0 0 auto;
+            position: relative;
+            .flt-tabs-drop{display: none;}
+            &[show-drop] {
+                .flt-tabs-show {
+                    li {
+                        i.drop-icon {transform:rotate(90deg);}
+                    }
+                }
+                .flt-tabs-drop {
+                    display: block;
+                    &:before {
+                        display: block; content: "";
+                        position: fixed; top:0; left:0; right:0; bottom:0; z-index: 998;
+                        background: rgba(0,0,0,0);
+                    }
+                    ul {
+                        position: absolute; top:0; left:0; z-index: 999;
+                        background: @cmenu_b; color:@cmenu_f; 
+                        border:1px solid @cmenu_l;
+                        box-shadow: 2px 2px 4px @cshadow;
+                        border-radius: @d1; overflow: hidden;
+                        min-width: 100px;
+                        li {
+                            white-space: nowrap; cursor: pointer;
+                            padding:@d3 @d5 @d3 @d2; 
+                            border-bottom:1px dotted @cborder1;
+                            span.fti-text {margin: 0 @d2;}
+                        }
+                        li:last-child {border:0;}
+                        li[fti-status="ava"]{
+                            &:before {
+                                display: inline-block; content: "";
+                                width:24px; vertical-align: middle;
+                            }
+                        }
+                        li[fti-status="checked"]{
+                            background: @chx_b; color:@chx_f;
+                            &:before {
+                                display: inline-block; content: "\f26b";
+                                font-family:'Material-Design-Iconic-Font';
+                                width:24px; text-align: center;
+                                vertical-align: middle;
+                            }
+                        }
+                    } // ul
+                } // .flt-tabs-drop
+            }
+        }
+        > .flt-keyword {flex:1 1 auto;}
+    } // 居左显示，且 drop 的标签列
 }
+// 显示助理的模式
 .search-filter[show-ass] {
     .flt-keyword {
         z-index:1001;

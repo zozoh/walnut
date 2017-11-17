@@ -84,9 +84,31 @@ return ZUI.def("ui.form_com_number_range", {
         this.arena.find(">section>dl.rv-left input").val(this._V(l_val));
         this.arena.find(">section>dl.rv-right input").val(this._V(r_val));
         this.__show_data();
+
+        //console.log(l_on,l_val, r_val, r_on)
+        var UI = this;
+        var jLon = UI.arena.find('>footer>b[m="left"]');
+        var jRon = UI.arena.find('>footer>b[m="right"]');
+        var jLin = UI.arena.find(">section>dl.rv-left input");
+        var jRin = UI.arena.find(">section>dl.rv-right input");
+
+        // 左右的「包含」，默认要开启
+        jLon.attr("on",  (_.isUndefined(l_on) || l_on) ? "yes" : null);
+        jRon.attr("on",  (_.isUndefined(r_on) || r_on) ? "yes" : null);
+
+        // 左侧的值
+        jLin.val(this._V(l_val));
+
+        // 右侧的值
+        jRin.val(this._V(r_val));
+
+        // 显示数据
+        this.__show_data();
     },
     //...............................................................
     _V : function(s) {
+        if(_.isNull(s) || _.isUndefined(s) || ""===s)
+            return "";
         s = $.trim(s);
         var n = s * 1;
         if(n == s){
