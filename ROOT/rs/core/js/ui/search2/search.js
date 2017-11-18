@@ -2,8 +2,9 @@
 $z.declare([
     'zui',
     'ui/search2/support/search_methods',
-    'ui/menu/menu'
-], function(ZUI, SearchMethods, MenuUI){
+    'ui/menu/menu',
+    'ui/pop/pop'
+], function(ZUI, SearchMethods, MenuUI, POP){
 //==============================================
 var html = function(){/*
 <div class="ui-arena search" ui-fitparent="true">
@@ -20,6 +21,7 @@ return ZUI.def("ui.search", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/search2/theme/search-{{theme}}.css",
     i18n : "ui/search2/i18n/{{lang}}.js",
+    //...............................................................
     init : function(options){
         var UI  = SearchMethods(this);
         var opt = options;
@@ -154,6 +156,109 @@ return ZUI.def("ui.search", {
         return this.uiList.getFieldType(key);
     },
     //...............................................................
+    _pop_form_mask : function(title, obj, cmdTmpl, callback) {
+        var UI  = this;
+        var opt = UI.options;
+
+        POP.openFormPanel({
+            title : title,
+            data  : obj || {},
+            form  : _.extend({
+                    uiWidth : "all",
+                    mergeData : false,
+                }, opt.formConf, {
+                    fields : opt.list.uiConf.fields
+                }),
+            // 点击了表单的确认
+            callback : function(data){
+                // 如果数据不符合规范，form 控件会返回空的
+                if(data) {
+                    // 根据数据得到 JSON 字符串
+                    var json = $z.toJson(data).replace("'","\\'");
+                    // 组合命令模板上下文
+                    var cc = opt.cmdTmplContext.call(UI);
+                    _.extend(cc, obj, {
+                        json:json
+                    });
+                    // 生成命令并
+                    var cmdText = $z.tmpl(cmdTmpl)(cc);
+                    //console.log(cmdText);
+                    UI.exec(cmdText, function(re){
+                        var newObj = $z.fromJson(re);
+                        callback(newObj);
+                    });
+                }
+            }
+        }, UI);
+    },
+    //...............................................................
+    // 打开创建对话框
+    openCreatePanel : function() {
+        var UI  = this;
+        var opt = UI.options;
+
+        UI._pop_form_mask("i18n:new",
+            {},
+            opt.edtCmdTmpl["create"],
+            function(newObj){
+                UI.uiList.add(newObj);
+                UI.uiList.setActived(UI.uiList.getObjId(newObj));
+                UI.uiList.resize();
+
+                UI.trigger("search:create", newObj);
+                $z.invoke(opt, "on_create", [newObj], UI);
+            });
+    },
+    //...............................................................
+    // 弹出编辑对象的表单，str 表示某对象的下标或者ID 如果不传，那么将选择当前的对象
+    openEditPanel : function(str) {
+        var UI   = this;
+        var obj = _.isUndefined(str)
+                    ? UI.uiList.getActived()
+                    : UI.uiList.getData(str);
+        if(!obj){
+            UI.alert(UI.msg("srh.e.noactived"));
+            return;
+        }
+        // 开始执行 ...
+        var opt  = UI.options;
+        UI._pop_form_mask("i18n:edit",
+            obj,
+            opt.edtCmdTmpl["edit"],
+            function(newObj){
+                UI.uiList.update(newObj);
+            });
+    },
+    //...............................................................
+    // 删除选中的项目
+    deleteChecked : function(){
+        var UI   = this;
+        var opt  = UI.options;
+        var objs = UI.uiList.getChecked();
+        if(!objs || objs.length == 0){
+            UI.alert(UI.msg("srh.e.nochecked"));
+            return;
+        }
+
+        // 开始删除
+        UI.confirm("delwarn", function(){
+            var tmpl = $z.tmpl(opt.edtCmdTmpl["delete"]);
+            var str = "";
+            objs.forEach(function(obj){
+                str += tmpl(obj) + ";\n";
+            });
+            UI.exec(str, function(){
+                var jN2 = null;
+                for(var i=0; i<objs.length; i++){
+                    jN2 = UI.uiList.remove(objs[i].id);
+                }
+                if(jN2){
+                    UI.uiList.setActived(jN2);
+                }
+            });
+        });
+    },
+    //...............................................................
     resize : function(deep){
         var UI   = this;
         var opt  = UI.options;
@@ -225,7 +330,7 @@ return ZUI.def("ui.search", {
         $z.evalData(opt.data, qc, function(re){
             UI.hideLoading();
 
-            console.log(re)
+            //console.log(re)
 
             // 将查询的结果分别设置到列表以及分页器里
             UI.uiPager.setData(re.pager);

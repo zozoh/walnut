@@ -579,7 +579,7 @@ return ZUI.def("ui.search_filter", {
                 re["%or"] = tabs;
             }
 
-            console.log(cri)
+            //console.log(cri)
 
             // 返回最后结果，并且一定用基础对象覆盖
             return _.extend(re, UI.__query_base);

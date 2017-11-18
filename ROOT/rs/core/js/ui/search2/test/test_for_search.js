@@ -19,8 +19,13 @@ return ZUI.def("ui.test_for_search", {
         new SearchUI({
             parent : UI,
             gasketName : "main",
-            data : "obj -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'",
+            data : "obj ~/abc -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'",
             menu : ["create", "refresh", "delete", "edit"],
+            edtCmdTmpl : {
+                "create"  : "obj ~/abc -new '<%=json%>' -o",
+                "delete"  : "rm -rf id:{{id}}",
+                "edit"    : "obj id:{{id}} -u '<%=json%>' -o"
+            },
             filter : {
                 assist : {
                     width : 600,
