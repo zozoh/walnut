@@ -560,6 +560,9 @@ return ZUI.def("ui.search_filter", {
                 UI._fill_key_field(re, cri.keywords[i]);
             }
 
+            // 叠加搜索结果
+            _.extend(re, cri.match);
+
             // 追加上标签的设定
             var tabs = [];
             UI.arena.find('.flt-tabs-show li[fti-status="checked"]')
@@ -576,8 +579,10 @@ return ZUI.def("ui.search_filter", {
                 re["%or"] = tabs;
             }
 
-            // 返回最后结果
-            return _.extend(re, cri.match, UI.__query_base);
+            console.log(cri)
+
+            // 返回最后结果，并且一定用基础对象覆盖
+            return _.extend(re, UI.__query_base);
         });
     },
     /*..............................................
