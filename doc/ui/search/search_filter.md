@@ -28,13 +28,27 @@ new SearchFilterUI({
     后半部分是个正则表达式
     .................................
     "nm"
-    普通字符串，直接被当做 key    
+    普通字符串，直接被当做 key 
+    
+    如果用户输入了多个关键字（用空格分隔），那么每个关键字都会进行这样的过滤
+    - 相同的 key 会融合为 array
+    - 不同的 key 会分别加入 match 对象
     */
     keyField : "nm",
     
-    // 是否显示搜索关键字输入框，默认 true
-    // ！这个字段与 tabs 不能同时为否，否则会抛错
-    keyword : true,
+    // 如果是关键字搜索，默认增加上前后的通配符匹配
+    forceWildcard : true,
+    
+    // 对于 keyfield 的设定，默认是匹配上了一项，后面的就不再匹配了
+    // 如果你想让用户输入 "abc" 你分别搜索 nm:"abc" 和 alias:"abc"
+    // 需要把本选项打开，本选项会将所有的 keyField 设定遍历
+    // 拼装出一组 "%or" 关系的条件
+    keyFieldIsOr : false,
+    
+    // 是否显示搜索关键字输入框，默认 false
+    // 如果这个字段被设置成 true，那么必须要有 tabs
+    // 否则认为这是一个没意义的 filter，要抛错
+    hideInputBox : true,
     
     // 初始化的查询字符串，默认为空串
     query : "xxxx",

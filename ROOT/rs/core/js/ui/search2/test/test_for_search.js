@@ -27,6 +27,8 @@ return ZUI.def("ui.test_for_search", {
                 "edit"    : "obj id:{{id}} -u '<%=json%>' -o"
             },
             filter : {
+                keyField : ["nm", "alias"],
+                keyFieldIsOr : true,
                 assist : {
                     width : 600,
                     autoOpen : false,
@@ -117,17 +119,27 @@ return ZUI.def("ui.test_for_search", {
                     key : "nm",
                     title : "名称",
                 }, {
-                    key : "id",
-                    title : "ID"
+                    key : "alias",
+                    title : "别名"
                 }, {
                     key : "g",
-                    title : "所在组"
+                    title : "所在组",
+                    uiType : '@label',
                 }, {
                     key : "race",
-                    title : "种类"
+                    title : "种类",
+                    uiType : "@switch",
+                    uiConf : {
+                        items : [{
+                            value : "FILE", text : "文件"
+                        }, {
+                            value : "DIR",  text : "目录"
+                        }]
+                    }
                 }, {
                     key : "lm",
                     title : "最后修改时间",
+                    uiType : '@label',
                     display : function(o) {
                         return $z.parseDate(o.lm).format("yyyy-mm-dd HH:MM:ss");
                     }

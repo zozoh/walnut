@@ -49,6 +49,11 @@ return ZUI.def("ui.search_filter", {
             if(opt.tabsStatusKey) {
                 var checkedIndexes = UI.local(opt.tabsStatusKey);
                 if(_.isArray(checkedIndexes)){
+                    // 对于单选，如果得到是多选，只保留第一个
+                    if(!opt.tabsMulti && checkedIndexes.length>1){
+                        checkedIndexes = [checkedIndexes[0]];
+                    }
+                    // 重新设置一下标签的选择状态
                     for(var i=0; i<opt.tabs.length; i++){
                         opt.tabs[i].checked = checkedIndexes.indexOf(i) >= 0;
                     }
@@ -647,8 +652,12 @@ return ZUI.def("ui.search_filter", {
     //..............................................
     _fill_key_field : function(mch, str){
         var UI  = this;
-        var opt = UI.options;
-        // 根据 keyField 的设定，添加字段
+        var opt = UI.options;       
+
+        // 准备键值列表
+        var keyList = [];
+
+        // 根据 keyField 的设定，看看应该搜索哪个字段
         for(var i=0; i<opt.keyField.length; i++){
             var kf  = opt.keyField[i];
             var key = null;
@@ -661,6 +670,7 @@ return ZUI.def("ui.search_filter", {
                 if(new RegExp(kf.regex).test(str))
                     key = kf.key;
             }
+            // 字符串
             else if(kf && _.isString(kf)){
                 var pos = kf.indexOf(":^");
                 // "mobile:^[0-9]+$"
@@ -673,16 +683,48 @@ return ZUI.def("ui.search_filter", {
                     key = kf;
                 }
             }
-            // 如果 str 以 ^ 开头，则为正则表达式，不管它
-            // 否则看看是否要强制升级通配符
-            if(opt.forceWildcard && !/^\^/.test(str)){
-                str = "^.*" + str + ".*";
-            }
             // 那么最后判断一下是否取到 key 了
             if(key){
-                mch[key] = str;
-                break;
+                keyList.push(key);
+                // 不是 or 的关系，就没必要继续搜索下去了
+                if(!opt.keyFieldIsOr) {
+                    break;
+                }
             }
+        }
+        // 没找到可用的键，无视
+        if(keyList.length == 0) {
+            return;
+        }
+        // 准备一下值
+        // 如果 str 以 ^ 开头，则为正则表达式，不管它
+        // 否则看看是否要强制升级通配符
+        if(opt.forceWildcard && !/^\^/.test(str)){
+            str = "^.*" + str + ".*";
+        }
+        //console.log(str, keyList)
+        // 多于一个键，那么需要需要组装成 or
+        if(keyList.length > 1) {
+            var or = [];
+            for(var i=0;i<keyList.length;i++){
+                or.push($z.obj(keyList[i], str));
+            }
+            $z.pushValue(mch, "%or", or);
+        }
+        // 正则表达式，直接替换了
+        else if(/^\^/.test(str)){
+            mch[keyList[0]] = str;
+        }
+        // 否则试图融合
+        else {
+            var key = keyList[0];
+            var val = mch[key];
+            if(!val)
+                mch[key] = str;
+            else if(_.isArray(val))
+                val.push(str);
+            else
+                mch[key] = [val, str];
         }
     },
     //..............................................

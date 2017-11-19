@@ -25,7 +25,7 @@
             color:@cbtn_f; background-color: @cbtn_b; 
             border-radius: 100px; border:2px solid @cbtn_l;
             line-height: @d6; width:@d6 + 4px; text-align: center;
-            transition: 0.3s; overflow: hidden;
+            transition: transform 0.3s; overflow: hidden;
         }
         > .ui-mask-closer:before {
             display: "inline";
@@ -35,7 +35,7 @@
         > .ui-mask-closer:hover {
             background-color: @ch0_b; color:@ch0_f; border-color:@cborder1;
             //font-size:1.2em; font-weight: bold;
-            transform: scale(1.2) rotate(360deg);
+            transform: scale(1.2) rotate(180deg);
         }
 
         > .ui-mask-main {
