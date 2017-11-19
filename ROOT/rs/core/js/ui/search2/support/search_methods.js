@@ -99,6 +99,7 @@ var methods = {
                     fitparent : false,
                     setup : menu_setup,
                     autoLayout : true,
+                    context : opt.menuContext || UI,
                 }).render(function(){
                     // 记录一下长模式下的宽度
                     if(!isNarrow && !jMenu.attr("prime-width")){

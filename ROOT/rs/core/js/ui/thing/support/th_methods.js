@@ -252,9 +252,7 @@ var DATA_MODE = {
                 icon : '<i class="fa fa-trash-o"></i>',
                 text : "i18n:thing.clean_show",
                 handler : function() {
-                    this.uis("search")
-                        .setKeyword("th_live=-1")
-                            .refresh();
+                    this.uis("search").setKeyword("th_live=-1");
                 }
             }, {
                 // 命令: 从回收站中恢复

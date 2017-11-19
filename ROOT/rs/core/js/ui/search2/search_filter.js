@@ -498,6 +498,7 @@ return ZUI.def("ui.search_filter", {
     //..............................................
     setKeyword : function(str) {
         this.arena.find("input").val(str||"");
+        this.__on_change();
     },
     //..............................................
     __on_change : function() {

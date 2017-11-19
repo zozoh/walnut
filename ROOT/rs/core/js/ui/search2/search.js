@@ -20,7 +20,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("ui.search", {
+return ZUI.def("ui.search2", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/search2/theme/search-{{theme}}.css",
     i18n : "ui/search2/i18n/{{lang}}.js",
