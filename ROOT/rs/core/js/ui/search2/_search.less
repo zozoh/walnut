@@ -71,7 +71,7 @@
     // 标签的通用样式
     .flt-con {
         .flt-tabs {
-            @noselect();
+            @noselect(); height:32px;
         }
         .flt-tabs-show {
             padding:@d1 @d0 @d1 0; height:100%;
@@ -108,7 +108,7 @@
 
     // 居左显示的标签列
     .flt-con[tabs-pos="left"] {
-        @flex();
+        @flex(); align-items:center;
         > .flt-tabs {flex:0 0 auto;}
         > .flt-keyword {flex:1 1 auto;}
     }
@@ -116,12 +116,12 @@
     .flt-con[tabs-pos="top"] {
         position: relative; padding-top:32px;
         > .flt-tabs {
-            position:absolute;top:0;left:0; height:32px;
+            position:absolute;top:0;left:0; 
         }
     }
     // 居左显示，且 drop 的标签列
     .flt-con[tabs-pos="drop"] {
-        @flex();
+        @flex(); align-items:center;
         > .flt-tabs {flex:0 0 auto;
             position: relative;
             .flt-tabs-drop{display: none;}

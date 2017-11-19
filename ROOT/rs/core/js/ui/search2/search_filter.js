@@ -74,6 +74,10 @@ return ZUI.def("ui.search_filter", {
                     opt.tabs[0].checked = true;
             }
         }
+        // 如果没有标签，那么不能标识 hideInputBox
+        else if(opt.hideInputBox) {
+            throw "search.filter can not hideInputBox and tabs at same time!!!";
+        }
     },
     //..............................................
     events : {
@@ -232,34 +236,41 @@ return ZUI.def("ui.search_filter", {
         // 初始化条件标签 
         UI.__draw_tabs();
 
-        // 是否显示表单按钮
-        if(!opt.assist) {
-            UI.arena.find(".flt-ass-btn").remove();
-            jInput.removeAttr("with-ass-btn");
-            UI.arena.removeAttr("show-ass");
-            UI.arena.find(".flt-assist").remove();
-            return;
+        // 隐藏输入框
+        if(opt.hideInputBox) {
+            UI.arena.find(".flt-keyword").remove();
         }
-        // 确保属性
-        jInput.attr("with-ass-btn", "yes");
-
-        // 那么就显示表单咯
-        UI._ui_assist = new FormUI(_.extend({
-            displayMode : "compact",
-        }, opt.assist.form, {
-            parent : UI, 
-            gasketName : "form",
-            fitparent : opt.assist.height ? true : false,
-            on_update : function(){
-                UI.__update_input_by_assist();
+        // 处理输入框相关设置
+        else {
+            // 是否显示表单按钮
+            if(!opt.assist) {
+                UI.arena.find(".flt-ass-btn").remove();
+                jInput.removeAttr("with-ass-btn");
+                UI.arena.removeAttr("show-ass");
+                UI.arena.find(".flt-assist").remove();
+                return;
             }
-        })).render(function(){
-            UI.__update_assist_by_input();
-            UI.defer_report("form");
-        });
+            // 确保属性
+            jInput.attr("with-ass-btn", "yes");
 
-        // 返回
-        return ["form"];
+            // 那么就显示表单咯
+            UI._ui_assist = new FormUI(_.extend({
+                displayMode : "compact",
+            }, opt.assist.form, {
+                parent : UI, 
+                gasketName : "form",
+                fitparent : opt.assist.height ? true : false,
+                on_update : function(){
+                    UI.__update_input_by_assist();
+                }
+            })).render(function(){
+                UI.__update_assist_by_input();
+                UI.defer_report("form");
+            });
+
+            // 返回
+            return ["form"];
+        }
     },
     //..............................................
     __has_tabs : function(){
@@ -732,10 +743,10 @@ return ZUI.def("ui.search_filter", {
         var UI  = this;
         var opt = UI.options;
         var ass = opt.assist;
-        var jKwd  = UI.arena.find(".flt-keyword");
-        var jForm = UI.arena.find(".flt-ass-form");
 
-        if(ass) {
+        if(ass && !opt.hideInputBox) {
+            var jKwd  = UI.arena.find(".flt-keyword");
+            var jForm = UI.arena.find(".flt-ass-form");
             var uiSearch = UI.parent;
             // 修订宽度
             if("inbox" == opt.assist.width) {

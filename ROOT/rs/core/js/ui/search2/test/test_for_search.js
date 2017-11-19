@@ -109,10 +109,11 @@ return ZUI.def("ui.test_for_search", {
                 //     text : "很长很长很长很长的文字",
                 //     value : {}
                 }],
-                tabsPosition : "left",
+                tabsPosition : "drop",
                 dtabsMulti    : true,
                 dtabsKeepChecked : true,
                 tabsStatusKey : "test_pet_search_tab",
+                dhideInputBox : true,
             }, 
             list : {
                 fields : [{
