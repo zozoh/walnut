@@ -14,6 +14,9 @@
         > .search-menu-con {flex:0 0 auto;}
     }
     > header:after {@clr();}
+    > aside {
+        background: @cb1; border-bottom:1px solid @cborder1;
+    }
     > section {
         min-height: 300px; padding-right:1px;       
     }
@@ -71,7 +74,7 @@
     // 标签的通用样式
     .flt-con {
         .flt-tabs {
-            @noselect(); height:32px;
+            @noselect(); height:36px;
         }
         .flt-tabs-show {
             padding:@d1 @d0 @d1 0; height:100%;
@@ -114,9 +117,9 @@
     }
     // 居顶显示的标签列
     .flt-con[tabs-pos="top"] {
-        position: relative; padding-top:32px;
+        position: relative; padding-top:36px;
         > .flt-tabs {
-            position:absolute;top:0;left:0; 
+            position:absolute;top:0;left:@d2; 
         }
     }
     // 居左显示，且 drop 的标签列
@@ -194,6 +197,10 @@
             background: @cb0; padding:@d4;
         }
     }
+}
+/*.............................................. sorter*/
+.search-sorter {
+    padding:@d2; 
 }
 /*.............................................. pager*/
 .search-pager {@noselect();

@@ -14,8 +14,6 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.search_pager", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    init : function(options){
-    },
     //..............................................
     events : {
         // 按钮调整页数
@@ -107,11 +105,8 @@ return ZUI.def("ui.search_pager", {
         }
     },
     //..............................................
-    redraw : function(callback){
+    redraw : function(){
         this.balloon();
-    },
-    //..............................................
-    resize : function(){
     },
     //..............................................
     // 

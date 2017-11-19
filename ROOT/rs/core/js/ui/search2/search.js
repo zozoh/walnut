@@ -12,6 +12,7 @@ var html = function(){/*
         <div class="search-filter-con" ui-gasket="filter"></div>
         <div class="search-menu-con" ui-gasket="menu"></div>
     </header>
+    <aside ui-gasket="sorter"></aside>
     <section ui-gasket="list"></section>
     <footer ui-gasket="pager"></footer>
 </div>
@@ -51,6 +52,7 @@ return ZUI.def("ui.search", {
         //...........................................
         // 格式化子 UI
         this.__fmt_subUIs(opt, "filter", 'ui/search2/search_filter');
+        this.__fmt_subUIs(opt, "sorter", 'ui/search2/search_sorter');
         this.__fmt_subUIs(opt, "list",   'ui/table/table');
         this.__fmt_subUIs(opt, "pager",  'ui/search2/search_pager');
         //...........................................
@@ -103,19 +105,37 @@ return ZUI.def("ui.search", {
         // 加载 filter 控件
         if(opt.filter) {
             uiTypes.push("filter");
-            seajs.use(opt.filter.uiType, function(FltUI){
-                UI.uiFilter = new FltUI(_.extend({}, opt.filter.uiConf, {
+            seajs.use(opt.filter.uiType, function(FilterUI){
+                UI.uiFilter = new FilterUI(_.extend({}, opt.filter.uiConf, {
                     parent     : UI,
                     gasketName : "filter"
                 })).render(function(){
                     UI.defer_report("filter");
                     UI.listenUI(UI.gasket.filter, "filter:change", function(flt){
-                        var pgr  = UI.uiPager.getData();
-                        pgr.skip = 0;
-                        UI.refresh(null, flt, pgr);
+                        UI.refresh();
                     });
                 });
             });
+        } else {
+            UI.arena.find(">header").remove();
+        }
+
+        // 加载 sorter 控件
+        if(opt.sorter) {
+            uiTypes.push("sorter");
+            seajs.use(opt.sorter.uiType, function(SorterUI){
+                UI.uiSorter = new SorterUI(_.extend({}, opt.sorter.uiConf, {
+                    parent     : UI,
+                    gasketName : "sorter"
+                })).render(function(){
+                    UI.defer_report("sorter");
+                    UI.listenUI(UI.gasket.sorter, "sorter:change", function(flt){
+                        UI.refresh();
+                    });
+                });
+            });
+        } else {
+            UI.arena.find(">aside").remove();
         }
 
         // 加载 list 控件
@@ -140,11 +160,13 @@ return ZUI.def("ui.search", {
                     gasketName : "pager"
                 })).render(function(){
                     UI.defer_report("pager");
-                    UI.listenUI(UI.gasket.pager,  "pager:change",  function(pgr){
-                        UI.refresh(null, null, pgr);
+                    UI.listenUI(UI.gasket.pager,  "pager:change",  function(){
+                        UI.refresh();
                     });
                 });
             });
+        } else {
+            UI.arena.find(">footer").remove();
         }
 
         // 返回延迟加载列表
@@ -259,46 +281,6 @@ return ZUI.def("ui.search", {
         });
     },
     //...............................................................
-    resize : function(deep){
-        var UI   = this;
-        var opt  = UI.options;
-        var jSky  = UI.arena.find(">header");
-        var jMenu = jSky.children(".search-menu-con");
-        var jFilter = jSky.children(".search-filter-con");
-
-        // 如果已经初始化了菜单部分的原始宽度
-        // 则自动判断动作菜单的宽窄模式
-        if(jMenu.attr("prime-width")) {
-            var w_sky = jSky.width();
-            var isNarrow = jMenu.attr("narrow-mode") ? true : false;
-            var w_menu   = jMenu.attr("prime-width") * 1;
-            var w_flt    = w_sky - w_menu;
-            
-            // 得到 filter 宽度的参考值
-            var fltWidthHint = $z.dimension(opt.filterWidthHint || "50%", w_sky);
-
-            // 改成窄模式
-            if(w_flt < fltWidthHint) {
-                if(!isNarrow) {
-                    UI._draw_menu(true);
-                }
-            }
-            // 改成宽模式
-            else {
-                if(isNarrow) {
-                    UI._draw_menu(false);
-                }
-            }
-        }
-        
-
-        // 计算中间部分的高度
-        var jList = UI.arena.find(">section");
-        var jPager = UI.arena.find(">footer");
-        var lH = UI.arena.height() - jSky.outerHeight() - jPager.outerHeight();
-        jList.css("height", lH);
-    },
-    //...............................................................
     refresh : function(callback){
         var UI  = this;
         var opt = UI.options;
@@ -355,7 +337,51 @@ return ZUI.def("ui.search", {
 
         // 返回自身dddd
         return UI;
-    }
+    },
+    //..............................................
+    resize : function(deep){
+        var UI   = this;
+        var opt  = UI.options;
+        var jSky   = UI.arena.find(">header");
+        var jAsdie = UI.arena.find(">aside");
+        var jMenu = jSky.children(".search-menu-con");
+        var jFilter = jSky.children(".search-filter-con");
+
+        // 如果已经初始化了菜单部分的原始宽度
+        // 则自动判断动作菜单的宽窄模式
+        if(jMenu.attr("prime-width")) {
+            var w_sky = jSky.width();
+            var isNarrow = jMenu.attr("narrow-mode") ? true : false;
+            var w_menu   = jMenu.attr("prime-width") * 1;
+            var w_flt    = w_sky - w_menu;
+            
+            // 得到 filter 宽度的参考值
+            var fltWidthHint = $z.dimension(opt.filterWidthHint || "50%", w_sky);
+
+            // 改成窄模式
+            if(w_flt < fltWidthHint) {
+                if(!isNarrow) {
+                    UI._draw_menu(true);
+                }
+            }
+            // 改成宽模式
+            else {
+                if(isNarrow) {
+                    UI._draw_menu(false);
+                }
+            }
+        }
+        
+
+        // 计算中间部分的高度
+        var jList = UI.arena.find(">section");
+        var jPager = UI.arena.find(">footer");
+        var lH = UI.arena.height()
+                     - jSky.outerHeight() 
+                     - jAsdie.outerHeight()
+                     - jPager.outerHeight();
+        jList.css("height", lH);
+    },
     //..............................................
 });
 //==================================================

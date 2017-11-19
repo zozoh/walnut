@@ -109,12 +109,21 @@ return ZUI.def("ui.test_for_search", {
                 //     text : "很长很长很长很长的文字",
                 //     value : {}
                 }],
-                tabsPosition : "drop",
+                tabsPosition : "left",
                 dtabsMulti    : true,
                 dtabsKeepChecked : true,
                 tabsStatusKey : "test_pet_search_tab",
                 dhideInputBox : true,
             }, 
+            sorter : {
+                setup : [{
+                    text : "最后修改日期越晚越靠前",
+                    value : {lm:-1},
+                }, {
+                    text : "名称(A-Z)",
+                    value : {nm:1},
+                }]
+            },
             list : {
                 fields : [{
                     key : "nm",
