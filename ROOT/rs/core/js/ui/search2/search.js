@@ -12,9 +12,11 @@ var html = function(){/*
         <div class="search-filter-con" ui-gasket="filter"></div>
         <div class="search-menu-con" ui-gasket="menu"></div>
     </header>
-    <aside ui-gasket="sorter"></aside>
     <section ui-gasket="list"></section>
-    <footer ui-gasket="pager"></footer>
+    <footer>
+        <div class="search-sorter-con" ui-gasket="sorter"></div>
+        <div class="search-pager-con"  ui-gasket="pager"></div>
+    </footer>
 </div>
 */};
 //==============================================
@@ -135,7 +137,7 @@ return ZUI.def("ui.search", {
                 });
             });
         } else {
-            UI.arena.find(">aside").remove();
+            UI.arena.find(">footer>.search-sorter-con").remove();
         }
 
         // 加载 list 控件
@@ -166,7 +168,7 @@ return ZUI.def("ui.search", {
                 });
             });
         } else {
-            UI.arena.find(">footer").remove();
+            UI.arena.find(">footer>.search-pager-con-con").remove();
         }
 
         // 返回延迟加载列表
@@ -289,15 +291,17 @@ return ZUI.def("ui.search", {
         // 推迟运行，以便确保界面都加载完毕了
         // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题
         //window.setTimeout(function(){
-        var cri = UI.uiFilter.getData();
-        var pgr = UI.uiPager.getData();
+        var cri = UI.uiFilter ? UI.uiFilter.getData() : {};
+        var srt = UI.uiSorter ? UI.uiSorter.getData() : {};
+        var pgr = UI.uiPager  ? UI.uiPager.getData()  : {};
+
+        // console.log(pgr)
 
         // 创建查询上下文
         var qc = opt.queryContext.call(UI);
         _.extend(qc, pgr, {
-            match : cri ? $z.toJson(cri) : '',
-            // TODO  这里自定义排序器，暂时先空一下
-            sort  : '{}'
+            match : cri ? $z.toJson(cri) : '{}',
+            sort  : srt ? $z.toJson(srt) : '{}',
         });
 
         //console.log("do_search",qc)
@@ -312,7 +316,7 @@ return ZUI.def("ui.search", {
         $z.evalData(opt.data, qc, function(re){
             UI.hideLoading();
 
-            //console.log(re)
+            // console.log(re)
 
             // 将查询的结果分别设置到列表以及分页器里
             UI.uiPager.setData(re.pager);

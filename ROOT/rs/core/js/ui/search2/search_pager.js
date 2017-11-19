@@ -15,6 +15,16 @@ var html = function(){/*
 return ZUI.def("ui.search_pager", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //..............................................
+    init : function(opt) {
+        this.__DATA = _.extend({
+            pn   : 1,     // 第几页
+            pgsz : 50,    // 每页多少数据
+            pgnb : 1,     // 一共多少页
+            sum  : 0,     // 一共多少记录
+            nb   : 0      // 本页实际获取了多少数据
+        }, opt.dft);
+    },
+    //..............................................
     events : {
         // 按钮调整页数
         "click .pgr-btn" : function(e){
@@ -24,11 +34,11 @@ return ZUI.def("ui.search_pager", {
                 return;
 
             // 得到数据
-            var pg = UI._parse_pager(UI.$el.data("@DATA"));
+            var pg = UI.__DATA;
             pg.pn  = jBtn.attr("pn") * 1;
             // console.log(pg);
             // console.log(UI.getData(pg))
-            UI.trigger("pager:change", UI.getData(pg));
+            UI.trigger("pager:change", UI.getData());
         },
         // 手动调整页数
         "change span > input" : function(e) {
@@ -39,7 +49,7 @@ return ZUI.def("ui.search_pager", {
             var pn  = parseInt(val);
 
             // 得到数据
-            var pg = UI._parse_pager(UI.$el.data("@DATA"));
+            var pg = UI.__DATA;
 
             // 必须是数字
             if(isNaN(pn)) {
@@ -61,12 +71,49 @@ return ZUI.def("ui.search_pager", {
                 UI.trigger("pager:change", UI.getData(pg));
             }
         },
+        // 箭头翻页
+        "keydown span > input" : function(e) {
+            var UI = this;
+
+            // 得到数据
+            var pg = UI.__DATA;
+            var pn = -1;
+
+            // 上箭头
+            if(38 == e.which) {
+                // 首页
+                if(e.metaKey || e.ctrlKey) {
+                    pn = 1;
+                }
+                // 前页
+                else {
+                    pn = Math.max(1, pg.pn - 1);
+                }
+            }
+            // 下箭头
+            else if(40 == e.which) {
+                // 尾页
+                if(e.metaKey || e.ctrlKey) {
+                    pn = pg.pgnb;
+                }
+                // 后页
+                else {
+                    pn = Math.min(pg.pn + 1, pg.pgnb);
+                }
+            }
+
+            // 跳转
+            if(pn > 0 && pn != pg.pn) {
+                pg.pn = pn;
+                UI.trigger("pager:change", UI.getData(pg));
+            }
+        },
         // 手动调整页大小
         "click .pgr-tip" : function(){
             var UI = this;
 
             // 得到数据
-            var pg = UI._parse_pager(UI.$el.data("@DATA"));
+            var pg = UI.__DATA;
 
             // 修改
             UI.prompt(UI.msg("search.pager.modify_tip", pg), function(str){
@@ -99,7 +146,7 @@ return ZUI.def("ui.search_pager", {
                 // 直接通知
                 pg.pgsz = pgsz;
                 pg.pn = 1;
-                UI.trigger("pager:change", UI.getData(pg));
+                UI.trigger("pager:change", UI.getData());
             });
 
         }
@@ -112,9 +159,12 @@ return ZUI.def("ui.search_pager", {
     // 
     setData : function(pg){
         var UI  = this;
-        var opt = UI.options;
+
+        // 保存一下数据
+        _.extend(UI.__DATA, pg);
+
         // 默认值
-        pg = UI._parse_pager(pg);
+        var pg = UI.__DATA;
 
         // 进行计算
         var last = Math.max(1, pg.pgnb);
@@ -144,23 +194,10 @@ return ZUI.def("ui.search_pager", {
                 .addClass("pgr-enable")
                 .removeClass("pgr-disable");
         }
-        // 保存一下数据
-        UI.$el.data("@DATA", _.extend({}, pg));
     },
     //..............................................
-    _parse_pager : function(pg){
-        return _.extend({
-            pn   : 1,     // 第几页
-            pgsz : 50,    // 每页多少数据
-            pgnb : 1,     // 一共多少页
-            sum  : 0,     // 一共多少记录
-            nb   : 0      // 本页实际获取了多少数据
-        }, pg || this.options.dft);
-    },
-    //..............................................
-    getData : function(pg){
-        var UI = this;
-        pg = pg || UI._parse_pager(UI.$el.data("@DATA"));
+    getData : function(){
+        var pg = this.__DATA;
         return {
             limit : pg.pgsz,
             skip  : (pg.pn - 1) * pg.pgsz

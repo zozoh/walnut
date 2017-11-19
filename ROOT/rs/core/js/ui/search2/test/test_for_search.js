@@ -115,14 +115,17 @@ return ZUI.def("ui.test_for_search", {
                 tabsStatusKey : "test_pet_search_tab",
                 dhideInputBox : true,
             }, 
-            sorter : {
+            dsorter : {
                 setup : [{
-                    text : "最后修改日期越晚越靠前",
-                    value : {lm:-1},
+                    icon : 'asc',
+                    text : "按最后修改日期",
+                    value : {lm:1},
                 }, {
-                    text : "名称(A-Z)",
-                    value : {nm:1},
-                }]
+                    icon : 'desc',
+                    text : "按名称",
+                    value : {nm:-1},
+                }],
+                storeKey : "test_pet_search_sort"
             },
             list : {
                 fields : [{

@@ -19,10 +19,39 @@ return ZUI.def("ui.search_sorter", {
     //..............................................
     init : function(opt) {
         $z.setUndefined(opt, "setup", []);
+
+        // 默认的记录一下自己原始的属性
+        this.__old_data = "{}";
     },
     //..............................................
     events : {
-        
+        // 显示下拉列表
+        'click .srt-show' : function(e){
+            e.stopPropagation();
+            var UI = this;
+            var jShow  = UI.arena.find(">.srt-show");
+            var jItemsUl = UI.arena.find(">.srt-items ul");
+            this.arena.attr("show-drop", "yes");
+            $z.dock(jShow, jItemsUl, "H");
+        },
+        // 隐藏下拉列表
+        'click .search-sorter' : function(){
+            this.arena.removeAttr("show-drop");
+        },
+        // 切换项目
+        'click .srt-items li' : function(e) {
+            e.stopPropagation();
+            var UI  = this;
+            var opt = UI.options;
+            var jLi = $(e.currentTarget);
+            var index = jLi.prevAll().length;
+
+            UI.setData(index);
+            UI.arena.removeAttr("show-drop");
+            if(opt.storeKey)
+                UI.local(opt.storeKey, index);
+            UI.__on_change();
+        }
     },
     //..............................................
     redraw : function(){
@@ -38,8 +67,12 @@ return ZUI.def("ui.search_sorter", {
 
             // 图标
             if(srt.icon) {
+                var icon = ({
+                    asc  : '<i class="zmdi zmdi-sort-amount-asc"></i>',
+                    desc : '<i class="zmdi zmdi-sort-amount-desc"></i>',
+                })[srt.icon] || srt.icon;
                 $('<span class="si-icon">')
-                    .html(srt.icon)
+                    .html(icon)
                         .appendTo(jLi);
             }
 
@@ -65,9 +98,21 @@ return ZUI.def("ui.search_sorter", {
             jLi.appendTo(jUl);
         }
 
-        // 默认显示第一个
-        UI.setData(0);
+        // 得到默认显示的排序方式，并设置
+        var index = 0;
+        if(opt.storeKey)
+            index = UI.local(opt.storeKey) || 0;
+        UI.setData(index);
 
+    },
+    //..............................................
+    __on_change : function() {
+        var data = this.getData();
+        var json = $z.toJson(data);
+        if(json != this.__old_data) {
+            this.__old_data = json;
+            this.trigger("sorter:change", data);
+        }
     },
     //..............................................
     __find_item_index : function(val) {
@@ -99,7 +144,9 @@ return ZUI.def("ui.search_sorter", {
             var jShow = UI.arena.find(">.srt-show");
             jShow.find('>.si-icon').html(jItem.find('>.si-icon').html());
             jShow.find('>.si-text').html(jItem.find('>.si-text').html());
-            jShow.attr('val', jItem.attr('val'));
+            
+            var json = jItem.attr('val');
+            jShow.attr('val', json);
         }
         // 直接是值，那么查找一下
         else {
