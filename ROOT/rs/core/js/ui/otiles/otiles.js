@@ -119,6 +119,7 @@ return ZUI.def("ui.otiles", {
     _draw_item : function(jItem, obj) {
         var UI  = this;
         var opt = UI.options;
+        console.log(obj)
         jItem.html(Wn.gen_wnobj_thumbnail_html(this.options.renameable ? 'B' : (opt.objTagName || 'A')));
         Wn.update_wnobj_thumbnail(UI, obj, jItem, opt.evalThumb, opt.nmMaxLen);
     },

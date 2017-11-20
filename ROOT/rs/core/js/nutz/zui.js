@@ -1034,11 +1034,11 @@ define(function (require, exports, module) {
             // }
             // // 普通字符串
             // return str;
-            var key = str;
             if (/^i18n:.+$/g.test(str)) {
-                key = str.substring(5);
+                var key = str.substring(5);
+                return this.msg(key, ctx, msgMap);
             }
-            return this.msg(key, ctx, msgMap);
+            return str;
         },
         // 对于控件 DOM 中所有的元素应用 data-balloon 的设定
         // 查找属性 "balloon" 格式是 "方向:msgKey"
