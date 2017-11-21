@@ -8,7 +8,7 @@
 	voucher list_coupon -name [短英文名] -belongTo [用户名] -startTime [开始时间] -endTime [结束时间] -payId [支付单号]
 
 参数:
-* name 促销活动名称,必填
+* name 促销活动名称
 * belongTo 用户名
 * startTime 生效时间
 * endTime 结束时间
