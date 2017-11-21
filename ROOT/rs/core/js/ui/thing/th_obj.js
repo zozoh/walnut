@@ -26,27 +26,45 @@ return ZUI.def("ui.th_obj", {
     redraw : function(){
         var UI  = this;
         var bus = UI.bus();
+        var conf = UI.getBusConf();
+
+        // 准备返回延迟加载
+        var re = [];
         
         // 加载索引界面
-        new ThObjIndexUI({
-            parent : UI,
-            gasketName : "index",
-            bus : bus
-        }).render(function(){
-            UI.defer_report("index");
-        });
+        if(conf.meta || conf.detail) {
+            re.push("index");
+            new ThObjIndexUI({
+                parent : UI,
+                gasketName : "index",
+                bus : bus
+            }).render(function(){
+                UI.defer_report("index");
+            });
+        }
+        // 移除包裹
+        else {
+            UI.arena.find(">.th-obj-index-con").remove();
+        }
 
         // 加载多媒体和附件界面
-        new ThObjDataUI({
-            parent : UI,
-            gasketName : "data",
-            bus : bus
-        }).render(function(){
-            UI.defer_report("data");
-        });
+        if(conf.media || conf.attachment) {
+            re.push("data");
+            new ThObjDataUI({
+                parent : UI,
+                gasketName : "data",
+                bus : bus
+            }).render(function(){
+                UI.defer_report("data");
+            });
+        }
+        // 移除包裹
+        else {
+            UI.arena.find(">.th-obj-data-con").remove();
+        }
 
         // 返回延迟加载
-        return ["index", "data"];
+        return re;
     },
     //..............................................
     _fill_context : function(uiSet) {
