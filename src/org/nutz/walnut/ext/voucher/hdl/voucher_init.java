@@ -8,7 +8,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 public class voucher_init implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        sys.nosecurity(()->sys.io.createIfNoExists(null, "/sys/voucher/"+sys.me.name(), WnRace.DIR));
+        sys.nosecurity(()->sys.io.createIfNoExists(null, "/var/voucher/"+sys.me.name(), WnRace.DIR));
     }
 
     

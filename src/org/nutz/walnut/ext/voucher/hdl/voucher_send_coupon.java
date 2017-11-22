@@ -21,7 +21,7 @@ public class voucher_send_coupon implements JvmHdl {
         String coupon_id = hc.params.check("coupon_id");
         String myName = sys.me.name();
         sys.nosecurity(()->{
-            WnObj tmp = sys.io.check(null, "/sys/voucher/"+ myName + "/" + voucher_name);
+            WnObj tmp = sys.io.check(null, "/var/voucher/"+ myName + "/" + voucher_name);
             WnObj wobj = sys.io.checkById(coupon_id);
             if (!tmp.id().equals(wobj.parentId())) {
                 sys.err.print("e.cmd.voucher_send_coupon.not_match");

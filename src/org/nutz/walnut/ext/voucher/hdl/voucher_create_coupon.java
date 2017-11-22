@@ -21,13 +21,13 @@ public class voucher_create_coupon implements JvmHdl {
         String voucher_name = hc.params.check("name");
         String myName = sys.me.name();
         sys.nosecurity(()->{
-            WnObj wobj = sys.io.createIfNoExists(null, "/sys/voucher/"+ myName + "/" + voucher_name, WnRace.DIR);
+            WnObj wobj = sys.io.createIfNoExists(null, "/var/voucher/"+ myName + "/" + voucher_name, WnRace.DIR);
             int voucher_count = wobj.getInt("voucher_totalNum");
             long count = sys.io.count(new WnQuery().setv("pid", wobj.id()));
             if (voucher_count > count) {
                 NutMap metas = new NutMap();
                 for (String key : wobj.keySet()) {
-                    if (key.startsWith("voucher_") || "lbls".equals(key))
+                    if (key.startsWith("voucher_"))
                         metas.put(key, wobj.get(key));
                 }
                 metas.setv("voucher_payId", "");
