@@ -746,6 +746,56 @@ return ZUI.def("ui.form", {
         });
     },
     //...............................................................
+    // 得到表单数据，并检查是否所有必填字段都被填写了
+    //  - actions : {
+    //        ok   : F(data),
+    //        fail : F(keys), 
+    //    }
+    checkData : function(actions){
+        var UI  = this;
+        var opt = UI.options;
+        var data  = UI.getData();
+        var lacks = [];
+
+        // 检查所有必选字段
+        UI.$myfields().each(function(){
+            var jF  = $(this);
+
+            // 禁止的控件，忽略之
+            // @zozoh 虽然禁止修改了，但是没有说这个值不要了吧，暂时先注释下下面的东西
+            // if(jF.attr("fld-disabled"))
+            //     return;
+
+            // 模板的话，判断一下是否选项开启
+            if(opt.asTemplate && "yes" != jF.attr("tmpl-on"))
+                return;
+
+            // 得到字段
+            //var fui = jF.data("@UI");
+            var fld = jF.data("@FLD");
+            
+            // TODO 有时候异步加载有问题，先防守一下
+            if(!fld || !fld.UI)
+                return;
+
+            // 判断一下必选字段
+            if(fld.required) {
+                var val = $z.getValue(data, fld.key);
+                if(_.isNull(val) || _.isUndefined(val))
+                    lacks.push(fld.key);
+            }
+        });
+
+        // 通过检查
+        if(lacks.length == 0) {
+            $z.invoke(actions, "ok", [data]);
+            return true;
+        }
+        // 失败检查
+        $z.invoke(actions, "fail", [lacks]);
+        return false;
+    },
+    //...............................................................
     // 为字段重新设置值，可以输入多个字段
     // 实际上 setData(getData()) 相当于为所有字段重新设置值
     resetField : function() {

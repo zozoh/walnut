@@ -39,6 +39,8 @@ public class voucher_list_promotion implements JvmHdl {
 			WnPager pager = new WnPager(hc.params);
 			query.skip(pager.skip).limit(pager.limit);
 			List<WnObj> list = sys.io.query(query);
+			// 强制输出列表
+			hc.params.setv("l", true);
 			Cmds.output_objs(sys, hc.params, pager, list, false);
 		});
 	}

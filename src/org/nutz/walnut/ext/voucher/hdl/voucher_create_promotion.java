@@ -24,7 +24,7 @@ public class voucher_create_promotion implements JvmHdl {
         long endTime = Times.ams(hc.params.check("endTime")); // 结束时间,也是时间戳
         String[] scope = hc.params.has("scope") ? hc.params.get("scope").split(",") : new String[0]; // 指定范围
         int condition = hc.params.getInt("condition"); // 最低启用金额
-        double discount = hc.params.checkInt("discount"); // 满减金额或折扣率
+        double discount = hc.params.checkDouble("discount"); // 满减金额或折扣率
         String myName = sys.me.name();
         sys.nosecurity(()->{
             // 如果活动已经存在,是不是禁止更新属性才对??

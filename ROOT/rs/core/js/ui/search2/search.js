@@ -202,7 +202,8 @@ return ZUI.def("ui.search2", {
                     // 组合命令模板上下文
                     var cc = opt.cmdTmplContext.call(UI);
                     _.extend(cc, obj, {
-                        json:json
+                        json : json,
+                        data : data,
                     });
                     // 生成命令并
                     var cmdText = $z.tmpl(cmdTmpl)(cc);

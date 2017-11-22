@@ -163,8 +163,8 @@ return ZUI.def("ui.picker.datepicker", {
         if(o){
             UI.$el.data("@OBJ", o);
             // 准备显示函数
-            var __display = _.isFunction(opt.display)
-                                ? opt.display
+            var __display = _.isFunction(opt.formatDate)
+                                ? opt.formatDate
                                 : function(d){
                                     d = $z.parseDate(d);
                                     return d.format("yyyy-mm-dd");

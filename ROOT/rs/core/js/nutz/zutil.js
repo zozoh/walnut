@@ -2050,8 +2050,8 @@
                 }
                 // 啥都木有，直接显示吧
                 else {
-                    func = function (o, jso) {
-                        return jso.parseByObj(o).toText();
+                    func = function (o, jso, UI) {
+                        return UI.text(jso.parseByObj(o).toText());
                     }
                 }
             }

@@ -306,7 +306,7 @@ public class ZParams {
         if (Strings.isBlank(v)) {
             throw Er.create("e.cmd.lack.param.double", key);
         }
-        return Double.valueOf(key);
+        return Double.valueOf(v);
     }
 
     public NutMap map() {

@@ -282,6 +282,9 @@ module.exports = {
         after       : 回调函数, 设置完数据会调用 {uiForm}after(data)
         callback    : 回调函数, 按确认键 {uiForm}callback(data)
         context     : MaskUI    // 回调的上下文，默认是 FormUI
+        errMsg : {
+            "lack" : "有必选字段没有被填写"
+        }
     }
     */
     openFormPanel : function(opt, referUI){
@@ -333,16 +336,26 @@ module.exports = {
         // 确保配置非空
         opt = opt || {};
         //--------------------------------
+        $z.setUndefined(opt, "errMsg", {});
+        $z.setUndefined(opt.errMsg, "lack", "Lack required field!");
+        //--------------------------------
         // 修改配置信息
         _.extend(opt, {
             setup : {
                 uiType : "ui/form/form",
                 uiConf : opt.form || {}
             },
-            ok : function(uiForm){
-                var data = uiForm.getData();
-                $z.invoke(opt, "callback", [data], this);
-                
+            ok : function(uiForm, jBtn, uiMask){
+                return uiForm.checkData({
+                    ok : function(data) {
+                        $z.invoke(opt, "callback", [data], this);        
+                    },
+                    fail : function(keys){
+                        uiForm.alert(opt.errMsg.lack, "warn");
+                        jBtn.removeAttr("btn-ing");
+                        uiMask.is_ing = false;
+                    }
+                });
             }
         });
         //--------------------------------

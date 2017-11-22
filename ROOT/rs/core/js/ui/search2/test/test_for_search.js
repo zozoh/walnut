@@ -29,6 +29,10 @@ return ZUI.def("ui.test_for_search", {
             filter : {
                 keyField : ["nm", "alias"],
                 keyFieldIsOr : true,
+                formatData : function(obj) {
+                    // 这里随便怎么改 obj 里的字段
+                    return obj;
+                },
                 assist : {
                     width : 600,
                     autoOpen : false,
