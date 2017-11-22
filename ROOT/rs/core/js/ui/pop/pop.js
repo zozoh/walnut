@@ -284,51 +284,77 @@ module.exports = {
         context     : MaskUI    // 回调的上下文，默认是 FormUI
     }
     */
-    openFormPanel : function(opt){
+    openFormPanel : function(opt, referUI){
+        // opt = opt || {};
+        // opt.form = opt.form || {};
+
+        // // 填充默认值
+        // $z.setUndefined(opt, "width", 640);
+        // $z.setUndefined(opt, "height", "80%");
+        // $z.setUndefined(opt, "escape", false);
+        // $z.setUndefined(opt, "closer", true);
+        // $z.setUndefined(opt, "title", 'i18n:edit');
+        // $z.setUndefined(opt.form, "uiWidth", 'all');
+
+        // // 打开编辑器
+        // new MaskUI({
+        //     dom : 'ui/pop/pop.html',
+        //     css : 'ui/pop/theme/pop-{{theme}}.css',
+        //     i18n : opt.i18n,
+        //     arenaClass : opt.arenaClass,
+        //     width  : opt.width,
+        //     height : opt.height,
+        //     escape : opt.escape,
+        //     closer : opt.closer,
+        //     events : {
+        //         "click .pm-btn-ok" : function(){
+        //             var context = opt.context || this.body;
+        //             var data = this.body.getData();
+        //             $z.invoke(opt, "callback", [data], context);
+        //             this.close();
+        //         },
+        //         "click .pm-btn-cancel" : function(){
+        //             this.close();
+        //         }
+        //     }, 
+        //     setup : {
+        //         uiType : 'ui/form/form',
+        //         uiConf : opt.form
+        //     }
+        // }).render(function(){
+        //     this.arena.find(".pm-title").html(this.text(opt.title));
+        //     this.body.setData(opt.data || {});
+
+        //     // 调用回调
+        //     var context = opt.context || this.body;
+        //     $z.invoke(opt, "after", [opt.data || {}], context);
+        // });
+
+        // 确保配置非空
         opt = opt || {};
-        opt.form = opt.form || {};
-
-        // 填充默认值
-        $z.setUndefined(opt, "width", 640);
-        $z.setUndefined(opt, "height", "80%");
-        $z.setUndefined(opt, "escape", false);
-        $z.setUndefined(opt, "closer", true);
-        $z.setUndefined(opt, "title", 'i18n:edit');
-        $z.setUndefined(opt.form, "uiWidth", 'all');
-
-        // 打开编辑器
-        new MaskUI({
-            dom : 'ui/pop/pop.html',
-            css : 'ui/pop/theme/pop-{{theme}}.css',
-            i18n : opt.i18n,
-            arenaClass : opt.arenaClass,
-            width  : opt.width,
-            height : opt.height,
-            escape : opt.escape,
-            closer : opt.closer,
-            events : {
-                "click .pm-btn-ok" : function(){
-                    var context = opt.context || this.body;
-                    var data = this.body.getData();
-                    $z.invoke(opt, "callback", [data], context);
-                    this.close();
-                },
-                "click .pm-btn-cancel" : function(){
-                    this.close();
-                }
-            }, 
+        //--------------------------------
+        // 修改配置信息
+        _.extend(opt, {
             setup : {
-                uiType : 'ui/form/form',
-                uiConf : opt.form
+                uiType : "ui/form/form",
+                uiConf : opt.form || {}
+            },
+            ok : function(uiForm){
+                var data = uiForm.getData();
+                $z.invoke(opt, "callback", [data], this);
+                
             }
-        }).render(function(){
-            this.arena.find(".pm-title").html(this.text(opt.title));
-            this.body.setData(opt.data || {});
-
-            // 调用回调
-            var context = opt.context || this.body;
-            $z.invoke(opt, "after", [opt.data || {}], context);
         });
+        //--------------------------------
+        // 设定初始化函数
+        opt.ready = function(uiForm){
+            var data = opt.data || {};
+            uiForm.setData(data);
+            $z.invoke(opt, "after", [data], uiForm);
+        };
+
+        // 打开界面面板
+        this.openUIPanel(opt, referUI);
     },
     //...............................................................
     // 打开一个向导界面（弹出），它接受的参数格式为:

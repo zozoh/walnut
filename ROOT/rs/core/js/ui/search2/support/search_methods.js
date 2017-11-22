@@ -52,14 +52,14 @@ var methods = {
                 icon  : '<i class="zmdi zmdi-flare"></i>',
                 text  : "i18n:new",
                 handler : function(){
-                    this.openCreateMask();
+                    this.openCreatePanel();
                 }
             },
             "edit" : {
                 icon  : '<i class="zmdi zmdi-edit"></i>',
                 text  : "i18n:edit",
                 handler : function(){
-                    this.openEditMask();
+                    this.openEditPanel();
                 }
             }
         })[key];
@@ -74,7 +74,7 @@ var methods = {
         var opt = UI.options;
         var jMenu = UI.arena.find(">header .search-menu-con");
 
-        console.log(opt.menu)
+        //console.log(opt.menu)
         // 绘制菜单
         if(jMenu.length > 0){
             if(opt.menu){
@@ -99,6 +99,7 @@ var methods = {
                     fitparent : false,
                     setup : menu_setup,
                     autoLayout : true,
+                    context : opt.menuContext || UI,
                 }).render(function(){
                     // 记录一下长模式下的宽度
                     if(!isNarrow && !jMenu.attr("prime-width")){

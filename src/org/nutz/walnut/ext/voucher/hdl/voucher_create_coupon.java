@@ -27,7 +27,7 @@ public class voucher_create_coupon implements JvmHdl {
             if (voucher_count > count) {
                 NutMap metas = new NutMap();
                 for (String key : wobj.keySet()) {
-                    if (key.startsWith("voucher_"))
+                    if (key.startsWith("voucher_") || "lbls".equals(key))
                         metas.put(key, wobj.get(key));
                 }
                 metas.setv("voucher_payId", "");

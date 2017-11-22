@@ -34,6 +34,7 @@ define({
     "close"      : "关闭",
     "download"   : "下载",
     "properties" : "属性",
+    "pvg"        : "权限",
     "search"     : "搜索",
     "choose"     : "选择",
     "empty"      : "没有内容",

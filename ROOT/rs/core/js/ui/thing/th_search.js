@@ -3,7 +3,7 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/thing/support/th_methods',
-    'ui/search/search',
+    'ui/search2/search',
 ], function(ZUI, Wn, ThMethods, SearchUI){
 //==============================================
 var html = function(){/*

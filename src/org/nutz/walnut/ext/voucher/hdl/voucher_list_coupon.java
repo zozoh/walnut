@@ -10,6 +10,8 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.WnPager;
 
 public class voucher_list_coupon implements JvmHdl {
 
@@ -40,7 +42,7 @@ public class voucher_list_coupon implements JvmHdl {
             query.setv("voucher_endTime", new NutMap("$lte", endTime));
         }
         if (!Strings.isBlank(scope)) {
-            query.setv("voucher_scope", scope);
+            query.setv("lbls", scope);
         }
         sys.nosecurity(()->{
             // 指定活动
@@ -48,9 +50,10 @@ public class voucher_list_coupon implements JvmHdl {
                 WnObj wobj = sys.io.check(null, "/sys/voucher/"+sys.me.name() + "/" + voucher_name);
                 query.setv("pid", wobj.id());
             }
+            WnPager pager = new WnPager(hc.params);
+            query.skip(pager.skip).limit(pager.limit);
             List<WnObj> list = sys.io.query(query);
-            sys.out.writeJson(list);
-            //Cmds.output_objs(sys, hc.params, new WnPager(hc.params), list, false);
+            Cmds.output_objs(sys, hc.params, pager, list, false);
         });
     }
 

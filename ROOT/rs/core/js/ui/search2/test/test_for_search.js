@@ -19,43 +19,149 @@ return ZUI.def("ui.test_for_search", {
         new SearchUI({
             parent : UI,
             gasketName : "main",
-            data : "obj -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'",
+            data : "obj ~/abc -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'",
             menu : ["create", "refresh", "delete", "edit"],
+            edtCmdTmpl : {
+                "create"  : "obj ~/abc -new '<%=json%>' -o",
+                "delete"  : "rm -rf id:{{id}}",
+                "edit"    : "obj id:{{id}} -u '<%=json%>' -o"
+            },
             filter : {
-                form : {
-                    fields : [{
-                        key : "race",
-                        title : "种类",
-                        uiType : "@switch",
-                        uiConf : {
-                            items : [{
-                                value : "FILE", text : "文件"
-                            }, {
-                                value : "DIR",  text : "目录"
-                            }]
-                        }
-                    }, {
-                        key : "lm",
-                        title : "最后修改日期",
-                        uiType : "@input",
-                        uiConf : {
-                            assist : {
-                                icon   : '<i class="zmdi zmdi-calendar-note"></i>',
-                                text   : "设置日期范围",
-                                uiType : "ui/form/c_date_range"
+                keyField : ["nm", "alias"],
+                keyFieldIsOr : true,
+                assist : {
+                    width : 600,
+                    autoOpen : false,
+                    form : {
+                        fields : [{
+                            key : "race",
+                            title : "种类",
+                            dft : null,
+                            uiType : "@switch",
+                            uiConf : {
+                                singleKeepOne : false,
+                                items : [{
+                                    value : "FILE", text : "文件"
+                                }, {
+                                    value : "DIR",  text : "目录"
+                                }]
                             }
-                        }
-                    }, {
-                        key : "number",
-                        title : "某个数字范围",
-                        uiType : "@input",
-                        uiConf : {
-                            assist : {uiType : "ui/form/c_number_range"}
-                        }
-                    }]
-                }
+                        }, {
+                            key : "lm",
+                            title : "最后修改日期",
+                            dft : null,
+                            uiWidth : 300,
+                            uiType : "@date_range",
+                            uiConf : {
+                                formatData : function(str){
+                                    if(/^[mM][sS]/.test(str))
+                                        return str;
+                                    return str ? "MS"+str : null;
+                                },
+                                parseData : function(str){
+                                    if(/^[mM][sS]/.test(str))
+                                        return str.substring(2);
+                                    return str;
+                                }
+                            }
+                        }, {
+                            key : "number",
+                            title : "某个数字范围",
+                            dft : null,
+                            uiType : "@number_range",
+                            uiConf : {}
+                        }]
+                    }
+                },
+                tabs : [{
+                    icon : '<i class="zmdi zmdi-file"></i>',
+                    text : "文件",
+                    // color : "#000",
+                    // background : "#F0F",
+                    value : {
+                        race : "FILE"
+                    }
+                }, {
+                    dchecked : true,
+                    icon : '<i class="zmdi zmdi-folder"></i>',
+                    text : "目录",
+                    // color : "#000",
+                    // background : "#FF0",
+                    value : {
+                        race : "DIR"
+                    }
+                }, {
+                    icon : '<i class="zmdi zmdi-apps"></i>',
+                    text : "APP",
+                    value : {
+                        nm : "app"
+                    }
+                // }, {
+                //     text : "很长很长很长很长的文字",
+                //     value : {}
+                // }, {
+                //     text : "很长很长很长很长的文字",
+                //     value : {}
+                // }, {
+                //     text : "很长很长很长很长的文字",
+                //     value : {}
+                // }, {
+                //     text : "很长很长很长很长的文字",
+                //     value : {}
+                }],
+                tabsPosition : "left",
+                dtabsMulti    : true,
+                dtabsKeepChecked : true,
+                tabsStatusKey : "test_pet_search_tab",
+                dhideInputBox : true,
+            }, 
+            dsorter : {
+                setup : [{
+                    icon : 'asc',
+                    text : "按最后修改日期",
+                    value : {lm:1},
+                }, {
+                    icon : 'desc',
+                    text : "按名称",
+                    value : {nm:-1},
+                }],
+                storeKey : "test_pet_search_sort"
+            },
+            list : {
+                fields : [{
+                    key : "nm",
+                    title : "名称",
+                }, {
+                    key : "alias",
+                    title : "别名"
+                }, {
+                    key : "g",
+                    title : "所在组",
+                    uiType : '@label',
+                }, {
+                    key : "race",
+                    title : "种类",
+                    uiType : "@switch",
+                    uiConf : {
+                        items : [{
+                            value : "FILE", text : "文件"
+                        }, {
+                            value : "DIR",  text : "目录"
+                        }]
+                    }
+                }, {
+                    key : "lm",
+                    title : "最后修改时间",
+                    uiType : '@label',
+                    display : function(o) {
+                        return $z.parseDate(o.lm).format("yyyy-mm-dd HH:MM:ss");
+                    }
+                }]
             }
         }).render(function(){
+            this.uiFilter.setData({
+                "d1" : Wn.app().session.grp
+            });
             UI.defer_report("main");
         });
 

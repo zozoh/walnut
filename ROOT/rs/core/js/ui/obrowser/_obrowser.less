@@ -266,11 +266,22 @@
         .chute-wrapper {
             padding:@d7 @d0 @d0 @d0;
             section {
-                h1, div.chute-empty {display: none;}
+                h1 {
+                    height:2px; overflow:hidden;
+                    border-top:1px solid rgba(0,0,0,0.2);
+                    border-bottom:1px solid rgba(255,255,255,0.2);
+                    margin:@d1 @d0;
+                }
+                div.chute-empty {display: none;}
                 item {
                     padding:@d2; justify-content:center;
-                    i{text-align: center;}
+                    i{text-align: center; transition:.3s;}
                     a{display: none;}
+                }
+                item:hover {
+                    i {
+                        transform:translateX(2px) scale(1.2) rotate(10deg);
+                    }
                 }
             }
         }

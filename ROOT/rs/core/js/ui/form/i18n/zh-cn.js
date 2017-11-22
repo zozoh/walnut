@@ -14,8 +14,8 @@ define({
         },
         "range" : {
             "involve" : "包括",
-            "left"  : "左值",
-            "right" : "右值",
+            "left"  : "最小值",
+            "right" : "最大值",
             "empty" : "未设置范围",
             "number" : "输入数字",
         },

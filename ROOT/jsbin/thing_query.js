@@ -45,7 +45,7 @@ function _main(params){
     var flt = {};
     if(params.k){
         flt.th_nm = "^.*" + params.k;
-        flt.th_brief = "^.*" + params.k;
+        // flt.th_brief = "^.*" + params.k;
     }
 
     // 循环参数表，找到过滤函数

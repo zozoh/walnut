@@ -1,7 +1,8 @@
 define({
     "search" : {
         "filter": {
-            "tip"   : "请输入查询条件"
+            "tip" : "请输入查询条件",
+            "all" : "全部",
         },
         "pager" : {
             "tip"   : '页 {{pn}}/{{pgnb}} - 记录数 {{nb}}/{{sum}}',

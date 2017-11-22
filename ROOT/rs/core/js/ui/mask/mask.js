@@ -138,6 +138,7 @@ return ZUI.def("ui.mask", {
         jCloser.css({
             "right": iR, "top" : iT
         });
+        // TODO 这个是啥？要不要去掉呢？
         if(UI.options.resize){
             UI.options.resize.call(UI, mW, mH);
         }

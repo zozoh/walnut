@@ -1797,15 +1797,12 @@
             }
 
             var arr = o[key];
-            if (_.isUndefined(arr)) {
-                arr = [];
-                o[key] = arr;
+            if (_.isArray(arr) && arr.length>0) {
+                o[key] = arr.concat(val);
             }
-            else if (!_.isArray(arr)) {
-                o[key] = [arr];
-                arr = o[key];
+            else {
+                o[key] = [].concat(val);
             }
-            arr.push(val);
         },
         //.............................................
         // 根据一个映射对象，从源对象中生成一个新对象

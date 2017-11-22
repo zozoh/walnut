@@ -33,7 +33,7 @@ public class voucher_create_promotion implements JvmHdl {
             metas.setv("voucher_totalNum", totalNum > 1000 || totalNum < 1 ? 1000 : totalNum);
             metas.setv("voucher_startTime", startTime);
             metas.setv("voucher_endTime", endTime);
-            metas.setv("voucher_scope", scope);
+            metas.setv("lbls", scope);
             metas.setv("voucher_condition", condition);
             metas.setv("voucher_discount", discount);
             sys.io.appendMeta(wobj, metas);

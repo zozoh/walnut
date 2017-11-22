@@ -28,13 +28,27 @@ new SearchFilterUI({
     后半部分是个正则表达式
     .................................
     "nm"
-    普通字符串，直接被当做 key    
+    普通字符串，直接被当做 key 
+    
+    如果用户输入了多个关键字（用空格分隔），那么每个关键字都会进行这样的过滤
+    - 相同的 key 会融合为 array
+    - 不同的 key 会分别加入 match 对象
     */
     keyField : "nm",
     
-    // 是否显示搜索关键字输入框，默认 true
-    // ！这个字段与 tabs 不能同时为否，否则会抛错
-    keyword : true,
+    // 如果是关键字搜索，默认增加上前后的通配符匹配
+    forceWildcard : true,
+    
+    // 对于 keyfield 的设定，默认是匹配上了一项，后面的就不再匹配了
+    // 如果你想让用户输入 "abc" 你分别搜索 nm:"abc" 和 alias:"abc"
+    // 需要把本选项打开，本选项会将所有的 keyField 设定遍历
+    // 拼装出一组 "%or" 关系的条件
+    keyFieldIsOr : false,
+    
+    // 是否显示搜索关键字输入框，默认 false
+    // 如果这个字段被设置成 true，那么必须要有 tabs
+    // 否则认为这是一个没意义的 filter，要抛错
+    hideInputBox : true,
     
     // 初始化的查询字符串，默认为空串
     query : "xxxx",
@@ -42,23 +56,40 @@ new SearchFilterUI({
     // 提供可视化表单，作为输入框的辅助设置
     // 一旦声明这个选项，过滤器输入框右侧将自动出现展开输入表单的按钮
     // 无论怎样，按下箭头表示显示，按上箭头或者是拍回车就表示隐藏
-    form : {..}
-    
-    // 如果输入框被聚焦，是否自动显示可视化表单
-    // 此选项必须在 form 段被定义后才有意义
-    // 默认为 true
-    autoOpen : true,
-    
+    assist : {
+        // 助理区域的宽度，支持
+        //  - 300   : 绝对像素
+        //  - "80%" : 百分比，基数是 SearchUI 的宽度
+        //  - "inbox" : 指明与输入框宽度相同
+        // 默认 fixed
+        width  : 300
+        // 助理区域的高度
+        //  - 400   : 绝对像素
+        //  - "50%" : 百分比，基数是 SearchUI 的高度
+        // 默认 undefined 表示不设定高度
+        height : 400,
+        // 如果输入框被聚焦，是否自动显示可视化表单
+        // 此选项必须在 form 段被定义后才有意义
+        // 默认为 true
+        autoOpen : true,
+        // 展出的助理区域，由什么样的表单填充
+        form : {..}
+    }
+      
     // 搜索条左侧可以有一排可选标签
     // 每个标签都带有一组条件
     tabs : [{
         icon    : "<icon>"   // 标签的 ICON
         text    : "i18n:xxx" // 标签的文字
-        color   : "#000"     // 标签前景色，默认跟随主题
-        bgcolor : "#0F0"     // 标签背景色，默认跟随主题
+        color      : "#000"     // 标签前景色，默认跟随主题
+        background : "#0F0"     // 标签背景色，默认跟随主题
         value   : {..}       // 一个搜索条件
         checked : true       // 是否选中，如果单选，最后一个会生效
-    }]
+    }],
+    
+    // 声明了这个值，将会在本地记住 tabs 的选择
+    // 只要刷新这个页面，就会维持原来的状态 
+    tabsStatusKey : null,
     
     // 标签条的位置：
     //  - top  : 置于搜索框顶部
@@ -72,17 +103,10 @@ new SearchFilterUI({
     // 默认 true 表示单选
     tabsMulti : true,
     
-    // 标签最少要维持几个高亮
-    // 默认 1
-    tabsKeepAtLeast : 1,
-        
-    /*
-    如果控件被 setData，怎么处理设置来的数据:
-    - fixed : 作为基础，返回的时候总是要加到结果中
-    - tabs  : 高亮对应的标签
-    默认 fixed
-    */
-    dataMode : "fixed"
+    // 「仅对单选有效」标签最少要有一个高亮的
+    // 默认 false
+    tabsKeepChecked : true,
+
 }).render();
 ```
 

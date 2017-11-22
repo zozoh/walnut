@@ -2,8 +2,9 @@
 $z.declare([
     'zui',
     'ui/search2/support/search_methods',
-    'ui/menu/menu'
-], function(ZUI, SearchMethods, MenuUI){
+    'ui/menu/menu',
+    'ui/pop/pop'
+], function(ZUI, SearchMethods, MenuUI, POP){
 //==============================================
 var html = function(){/*
 <div class="ui-arena search" ui-fitparent="true">
@@ -12,14 +13,18 @@ var html = function(){/*
         <div class="search-menu-con" ui-gasket="menu"></div>
     </header>
     <section ui-gasket="list"></section>
-    <footer ui-gasket="pager"></footer>
+    <footer>
+        <div class="search-sorter-con" ui-gasket="sorter"></div>
+        <div class="search-pager-con"  ui-gasket="pager"></div>
+    </footer>
 </div>
 */};
 //==============================================
-return ZUI.def("ui.search", {
+return ZUI.def("ui.search2", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/search2/theme/search-{{theme}}.css",
     i18n : "ui/search2/i18n/{{lang}}.js",
+    //...............................................................
     init : function(options){
         var UI  = SearchMethods(this);
         var opt = options;
@@ -49,6 +54,7 @@ return ZUI.def("ui.search", {
         //...........................................
         // 格式化子 UI
         this.__fmt_subUIs(opt, "filter", 'ui/search2/search_filter');
+        this.__fmt_subUIs(opt, "sorter", 'ui/search2/search_sorter');
         this.__fmt_subUIs(opt, "list",   'ui/table/table');
         this.__fmt_subUIs(opt, "pager",  'ui/search2/search_pager');
         //...........................................
@@ -101,19 +107,37 @@ return ZUI.def("ui.search", {
         // 加载 filter 控件
         if(opt.filter) {
             uiTypes.push("filter");
-            seajs.use(opt.filter.uiType, function(FltUI){
-                UI.uiFilter = new FltUI(_.extend({}, opt.filter.uiConf, {
+            seajs.use(opt.filter.uiType, function(FilterUI){
+                UI.uiFilter = new FilterUI(_.extend({}, opt.filter.uiConf, {
                     parent     : UI,
                     gasketName : "filter"
                 })).render(function(){
                     UI.defer_report("filter");
                     UI.listenUI(UI.gasket.filter, "filter:change", function(flt){
-                        var pgr  = UI.uiPager.getData();
-                        pgr.skip = 0;
-                        UI.refresh(null, flt, pgr);
+                        UI.refresh();
                     });
                 });
             });
+        } else {
+            UI.arena.find(">header").remove();
+        }
+
+        // 加载 sorter 控件
+        if(opt.sorter) {
+            uiTypes.push("sorter");
+            seajs.use(opt.sorter.uiType, function(SorterUI){
+                UI.uiSorter = new SorterUI(_.extend({}, opt.sorter.uiConf, {
+                    parent     : UI,
+                    gasketName : "sorter"
+                })).render(function(){
+                    UI.defer_report("sorter");
+                    UI.listenUI(UI.gasket.sorter, "sorter:change", function(flt){
+                        UI.refresh();
+                    });
+                });
+            });
+        } else {
+            UI.arena.find(">footer>.search-sorter-con").remove();
         }
 
         // 加载 list 控件
@@ -138,11 +162,13 @@ return ZUI.def("ui.search", {
                     gasketName : "pager"
                 })).render(function(){
                     UI.defer_report("pager");
-                    UI.listenUI(UI.gasket.pager,  "pager:change",  function(pgr){
-                        UI.refresh(null, null, pgr);
+                    UI.listenUI(UI.gasket.pager,  "pager:change",  function(){
+                        UI.refresh();
                     });
                 });
             });
+        } else {
+            UI.arena.find(">footer>.search-pager-con-con").remove();
         }
 
         // 返回延迟加载列表
@@ -154,10 +180,174 @@ return ZUI.def("ui.search", {
         return this.uiList.getFieldType(key);
     },
     //...............................................................
+    _pop_form_mask : function(title, obj, cmdTmpl, callback) {
+        var UI  = this;
+        var opt = UI.options;
+
+        POP.openFormPanel({
+            title : title,
+            data  : obj || {},
+            form  : _.extend({
+                    uiWidth : "all",
+                    mergeData : false,
+                }, opt.formConf, {
+                    fields : opt.list.uiConf.fields
+                }),
+            // 点击了表单的确认
+            callback : function(data){
+                // 如果数据不符合规范，form 控件会返回空的
+                if(data) {
+                    // 根据数据得到 JSON 字符串
+                    var json = $z.toJson(data).replace("'","\\'");
+                    // 组合命令模板上下文
+                    var cc = opt.cmdTmplContext.call(UI);
+                    _.extend(cc, obj, {
+                        json:json
+                    });
+                    // 生成命令并
+                    var cmdText = $z.tmpl(cmdTmpl)(cc);
+                    //console.log(cmdText);
+                    UI.exec(cmdText, function(re){
+                        var newObj = $z.fromJson(re);
+                        callback(newObj);
+                    });
+                }
+            }
+        }, UI);
+    },
+    //...............................................................
+    // 打开创建对话框
+    openCreatePanel : function() {
+        var UI  = this;
+        var opt = UI.options;
+
+        UI._pop_form_mask("i18n:new",
+            {},
+            opt.edtCmdTmpl["create"],
+            function(newObj){
+                UI.uiList.add(newObj);
+                UI.uiList.setActived(UI.uiList.getObjId(newObj));
+                UI.uiList.resize();
+
+                UI.trigger("search:create", newObj);
+                $z.invoke(opt, "on_create", [newObj], UI);
+            });
+    },
+    //...............................................................
+    // 弹出编辑对象的表单，str 表示某对象的下标或者ID 如果不传，那么将选择当前的对象
+    openEditPanel : function(str) {
+        var UI   = this;
+        var obj = _.isUndefined(str)
+                    ? UI.uiList.getActived()
+                    : UI.uiList.getData(str);
+        if(!obj){
+            UI.alert(UI.msg("srh.e.noactived"));
+            return;
+        }
+        // 开始执行 ...
+        var opt  = UI.options;
+        UI._pop_form_mask("i18n:edit",
+            obj,
+            opt.edtCmdTmpl["edit"],
+            function(newObj){
+                UI.uiList.update(newObj);
+            });
+    },
+    //...............................................................
+    // 删除选中的项目
+    deleteChecked : function(){
+        var UI   = this;
+        var opt  = UI.options;
+        var objs = UI.uiList.getChecked();
+        if(!objs || objs.length == 0){
+            UI.alert(UI.msg("srh.e.nochecked"));
+            return;
+        }
+
+        // 开始删除
+        UI.confirm("delwarn", function(){
+            var tmpl = $z.tmpl(opt.edtCmdTmpl["delete"]);
+            var str = "";
+            objs.forEach(function(obj){
+                str += tmpl(obj) + ";\n";
+            });
+            UI.exec(str, function(){
+                var jN2 = null;
+                for(var i=0; i<objs.length; i++){
+                    jN2 = UI.uiList.remove(objs[i].id);
+                }
+                if(jN2){
+                    UI.uiList.setActived(jN2);
+                }
+            });
+        });
+    },
+    //...............................................................
+    refresh : function(callback){
+        var UI  = this;
+        var opt = UI.options;
+        // console.log("refresh!!!!")
+        // zozoh@20151026:
+        // 推迟运行，以便确保界面都加载完毕了
+        // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题
+        //window.setTimeout(function(){
+        var cri = UI.uiFilter ? UI.uiFilter.getData() : {};
+        var srt = UI.uiSorter ? UI.uiSorter.getData() : {};
+        var pgr = UI.uiPager  ? UI.uiPager.getData()  : {};
+
+        // console.log(pgr)
+
+        // 创建查询上下文
+        var qc = opt.queryContext.call(UI);
+        _.extend(qc, pgr, {
+            match : cri ? $z.toJson(cri) : '{}',
+            sort  : srt ? $z.toJson(srt) : '{}',
+        });
+
+        //console.log("do_search",qc)
+
+        // 记录一下之前激活的项目
+        var activedId = UI.uiList.getActivedId();
+
+        // 显示正在加载数据
+        UI.showLoading();
+
+        // 组合成查询条件，执行查询
+        $z.evalData(opt.data, qc, function(re){
+            UI.hideLoading();
+
+            // console.log(re)
+
+            // 将查询的结果分别设置到列表以及分页器里
+            UI.uiPager.setData(re.pager);
+            UI.uiList.setData(re ? re.list : []);
+
+            // 如果之前有高亮内容，重新高亮
+            if(activedId){
+                UI.uiList.setActived(activedId);
+            }
+
+            // 触发事件回调
+            UI.trigger("search:refresh", re);
+            $z.invoke(UI.options, "on_refresh", [re], UI);
+
+            // 调整尺寸
+            UI.resize();
+
+            // 回调
+            $z.doCallback(callback, [re.list,re.pager], UI);
+        }, UI);
+        //}, 0);
+
+        // 返回自身dddd
+        return UI;
+    },
+    //..............................................
     resize : function(deep){
         var UI   = this;
         var opt  = UI.options;
-        var jSky  = UI.arena.find(">header");
+        var jSky   = UI.arena.find(">header");
+        var jAsdie = UI.arena.find(">aside");
         var jMenu = jSky.children(".search-menu-con");
         var jFilter = jSky.children(".search-filter-con");
 
@@ -190,66 +380,12 @@ return ZUI.def("ui.search", {
         // 计算中间部分的高度
         var jList = UI.arena.find(">section");
         var jPager = UI.arena.find(">footer");
-        var lH = UI.arena.height() - jSky.outerHeight() - jPager.outerHeight();
+        var lH = UI.arena.height()
+                     - jSky.outerHeight() 
+                     - jAsdie.outerHeight()
+                     - jPager.outerHeight();
         jList.css("height", lH);
     },
-    //...............................................................
-    refresh : function(callback, flt, pgr){
-        var UI  = this;
-        var opt = UI.options;
-        // console.log("refresh!!!!")
-        // zozoh@20151026:
-        // 推迟运行，以便确保界面都加载完毕了
-        // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题
-        //window.setTimeout(function(){
-        flt = flt || UI.uiFilter.getData();
-        pgr = pgr || UI.uiPager.getData();
-
-        // 创建查询上下文
-        var qc = opt.queryContext.call(UI);
-        _.extend(qc, pgr, {
-            match : flt.match ? $z.toJson(flt.match) : '',
-            sort  : flt.sort  ? $z.toJson(flt.sort)  : ''
-        });
-
-        //console.log("do_search",qc)
-
-        // 记录一下之前激活的项目
-        var activedId = UI.uiList.getActivedId();
-
-        // 显示正在加载数据
-        UI.showLoading();
-
-        // 组合成查询条件，执行查询
-        $z.evalData(opt.data, qc, function(re){
-            UI.hideLoading();
-
-            console.log(re)
-
-            // 将查询的结果分别设置到列表以及分页器里
-            UI.uiPager.setData(re.pager);
-            UI.uiList.setData(re ? re.list : []);
-
-            // 如果之前有高亮内容，重新高亮
-            if(activedId){
-                UI.uiList.setActived(activedId);
-            }
-
-            // 触发事件回调
-            UI.trigger("search:refresh", re);
-            $z.invoke(UI.options, "on_refresh", [re], UI);
-
-            // 调整尺寸
-            UI.resize();
-
-            // 回调
-            $z.doCallback(callback, [re.list,re.pager], UI);
-        }, UI);
-        //}, 0);
-
-        // 返回自身dddd
-        return UI;
-    }
     //..............................................
 });
 //==================================================

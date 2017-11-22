@@ -19,6 +19,10 @@
     }
     > footer {
         border-top:1px solid @cborder1; background: @cb1;
+        @flex(); flex-wrap: wrap;
+        > * {@flex(); align-items:center; justify-content:center;}
+        > .search-pager-con {flex:1 1 auto;}
+        > .search-sorter-con {flex:0 0 0 auto;}
     }
 }
 
@@ -38,11 +42,8 @@
     .menu {display: inline-block;}
 }
 /*.............................................. filter*/
-.search-menu-con {
-
-}
 .search-filter {
-    padding:@d2;
+    padding:@d2; 
     .flt-keyword {
         padding:0; position: relative;
     }
@@ -50,7 +51,7 @@
         padding:@d3 @d0 @d3 28px; font-size:@f2;
         width:100%;
     }
-    .flt-keyword input[with-form-btn] {
+    .flt-keyword input[with-ass-btn] {
         padding-right: 26px;
     }
     .flt-keyword input:focus {@input_focus();}
@@ -60,7 +61,7 @@
         @flex(); align-items: center; justify-content:center;
         color:@c2; font-size:@f3; 
     }
-    .flt-form-btn {
+    .flt-ass-btn {
         position: absolute; top:0; right:0; bottom:0;
         width: 24px; padding:0; margin:0;
         @flex(); align-items:center; justify-content:center;
@@ -68,7 +69,174 @@
         border-left-color:@cbtn_b;
         cursor: pointer; border-radius: 0 @d1 @d1 0;
     }
-    .flt-form-btn:hover {@btn_hover();}
+    .flt-ass-btn:hover {@btn_hover();}
+    .flt-assist {display: none;}
+
+    // 标签的通用样式
+    .flt-con {
+        .flt-tabs {
+            @noselect(); height:36px;
+        }
+        .flt-tabs-show {
+            padding:@d1 @d0 @d1 0; height:100%;
+            ul {@flex();
+                height:100%;
+                li { 
+                    @flex(); align-items:center; cursor: pointer; 
+                    padding:0 @d2; margin-right:@d0; color:@c2;
+                    border:1px dashed @cborder1; white-space: nowrap;
+                    border-radius: @d0; font-size: @f1;
+                    span.fti-text {margin:0 @d1;transition:.3s; }
+                    i.drop-icon {transition:.3s;}
+                    i.drop-icon[multi] {
+                        font-size:1.2em; margin:0 @d1;
+                    }
+                }
+                li[fti-status="checked"] {
+                    background: @chx_b; color:@chx_f;
+                    border-color:transparent;
+                }
+                li[fti-status="ava"] {
+                    span{opacity: 0.6;}
+                    
+                }
+                li[fti-status="ava"]:hover {
+                    span {opacity: 1; transform:scale(1.1);}
+                }
+                li:hover {
+                    i.drop-icon {transform:rotate(90deg);}
+                }
+            }
+        }
+    }
+
+    // 居左显示的标签列
+    .flt-con[tabs-pos="left"] {
+        @flex(); align-items:center;
+        > .flt-tabs {flex:0 0 auto;}
+        > .flt-keyword {flex:1 1 auto;}
+    }
+    // 居顶显示的标签列
+    .flt-con[tabs-pos="top"] {
+        position: relative; padding-top:36px;
+        > .flt-tabs {
+            position:absolute;top:0;left:@d2; 
+        }
+    }
+    // 居左显示，且 drop 的标签列
+    .flt-con[tabs-pos="drop"] {
+        @flex(); align-items:center;
+        > .flt-tabs {flex:0 0 auto;
+            position: relative;
+            .flt-tabs-drop{display: none;}
+            &[show-drop] {
+                .flt-tabs-show {
+                    li {
+                        i.drop-icon {transform:rotate(90deg);}
+                    }
+                }
+                .flt-tabs-drop {
+                    display: block;
+                    &:before {
+                        display: block; content: "";
+                        position: fixed; top:0; left:0; right:0; bottom:0; z-index: 998;
+                        background: rgba(0,0,0,0);
+                    }
+                    ul {
+                        position: absolute; top:0; left:0; z-index: 999;
+                        background: @cmenu_b; color:@cmenu_f; 
+                        border:1px solid @cmenu_l;
+                        box-shadow: 2px 2px 4px @cshadow;
+                        border-radius: @d1; overflow: hidden;
+                        min-width: 100px;
+                        li {
+                            white-space: nowrap; cursor: pointer;
+                            padding:@d3 @d5 @d3 @d2; 
+                            border-bottom:1px dotted @cborder1;
+                            span.fti-text {margin: 0 @d2;}
+                        }
+                        li:last-child {border:0;}
+                        li[fti-status="ava"]{
+                            &:before {
+                                display: inline-block; content: "";
+                                width:24px; vertical-align: middle;
+                            }
+                        }
+                        li[fti-status="checked"]{
+                            background: @chx_b; color:@chx_f;
+                            &:before {
+                                display: inline-block; content: "\f26b";
+                                font-family:'Material-Design-Iconic-Font';
+                                width:24px; text-align: center;
+                                vertical-align: middle;
+                            }
+                        }
+                    } // ul
+                } // .flt-tabs-drop
+            }
+        }
+        > .flt-keyword {flex:1 1 auto;}
+    } // 居左显示，且 drop 的标签列
+}
+// 显示助理的模式
+.search-filter[show-ass] {
+    .flt-keyword {
+        z-index:1001;
+        .flt-ass-btn {@btn_hover();}
+    }
+    .flt-assist {
+        display: block;
+        .flt-ass-mask {
+            position: fixed; top:0; left:0; bottom:0; right:0;
+            background: #FFF; opacity: 0; z-index: 999;
+        }
+        .flt-ass-form {
+            position: fixed; left:0; top:0;
+            min-height: 50px; min-width: 120px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+            z-index: 1000; border-radius: @d2;
+            background: @cb0; padding:@d4;
+        }
+    }
+}
+/*.............................................. sorter*/
+.search-sorter { @noselect();
+    padding:@d0 @d2; text-align: right;
+    .srt-it {
+        padding:@d2; cursor: pointer;  white-space:nowrap;
+        .si-text {margin:0 @d2; }
+    }
+    .srt-show {
+        display: inline-block; border-radius: @d1;
+    }
+    .srt-show:hover {
+        @btn_hover();
+    }
+    .srt-items {
+        display: none; text-align: left;
+        &:before {
+            display: block; content: "";
+            position: fixed; top:0; left:0; right:0; bottom:0; z-index: 998;
+            background: rgba(0,0,0,0);
+        }
+        ul {
+            position: fixed;  
+            background: @cmenu_b; color:@cmenu_f; border:1px solid @cmenu_l;
+            border-radius: @d1; box-shadow: 2px 2px 5px @cshadow;
+            z-index: 999;
+            li {border-bottom:1px dotted @cborder1;}
+            li:last-child{border:0;}
+            li:hover {background: @ch1_b; color:@ch1_f;}
+        }
+    }
+}
+.search-sorter[show-drop] {
+    .srt-show {
+        @btn_hover();
+    }
+    .srt-items {
+        display: block;
+    }
 }
 /*.............................................. pager*/
 .search-pager {@noselect();

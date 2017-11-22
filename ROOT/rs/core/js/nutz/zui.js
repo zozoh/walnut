@@ -1034,11 +1034,11 @@ define(function (require, exports, module) {
             // }
             // // 普通字符串
             // return str;
-            var key = str;
             if (/^i18n:.+$/g.test(str)) {
-                key = str.substring(5);
+                var key = str.substring(5);
+                return this.msg(key, ctx, msgMap);
             }
-            return this.msg(key, ctx, msgMap);
+            return str;
         },
         // 对于控件 DOM 中所有的元素应用 data-balloon 的设定
         // 查找属性 "balloon" 格式是 "方向:msgKey"
@@ -1249,6 +1249,17 @@ define(function (require, exports, module) {
             }
             // 如果成功了
             return $z.doCallback(option.success, [re.data], context);
+        },
+        //...................................................................
+        // 得到 UI 的 arena 所占的宽度
+        arenaWidth : function(countMargin){
+            if(this.arena)
+                return this.arena.outerWidth(countMargin ? true : false);
+        },
+        // 得到 UI 的 arena 所占的高度
+        arenaHeight : function(countMargin){
+            if(this.arena)
+                return this.arena.outerHeight(countMargin ? true : false);
         },
         //...................................................................
         // 提供一个通用的文件上传界面，任何 UI 可以通过
