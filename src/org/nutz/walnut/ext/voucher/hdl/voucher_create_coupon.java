@@ -31,6 +31,7 @@ public class voucher_create_coupon implements JvmHdl {
                         metas.put(key, wobj.get(key));
                 }
                 metas.setv("voucher_payId", "");
+                metas.setv("voucher_name", voucher_name);
                 for (int i = 0; i < voucher_count - count; i++) {
                     WnObj t = sys.io.create(wobj, R.UU32(), WnRace.FILE);
                     sys.io.appendMeta(t, metas);

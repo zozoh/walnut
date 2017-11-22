@@ -1,21 +1,20 @@
 # 命令简介 
 
-    `voucher list_coupon` 查询(某促销活动|某人|某支付单|某时间区间|某个特定scope)内的具体优惠卷
+    `voucher list_promotion` 查询(某时间区间|某个特定scope)内的促销活动
 
 用法
 =======
 
-	voucher list_coupon -name [活动名称] -match [匹配条件]
+	voucher list_promotion -match [匹配条件]
 
     参数:
-    * name 促销活动名称
     * match 匹配条件,必须是json字符串
 
 示例
 =======
     
     # 查询某指定优惠活动某用户的代金券 
-    voucher list_coupon -name testC -match '{payId:"",belongTo:"wendal123"}'
+    voucher list_promotion
     输出:
     ```
     [{
