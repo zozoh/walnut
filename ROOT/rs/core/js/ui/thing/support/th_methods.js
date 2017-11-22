@@ -183,6 +183,7 @@ var DATA_MODE = {
                     UI.doActionCallback(re, callback);
                 });
             },
+            // thing 的默认移除方法
             remove : function(objList, callback) {
                 var UI = this;
                 if(_.isArray(objList) && objList.length > 0) {
@@ -201,10 +202,6 @@ var DATA_MODE = {
                 }
             }
         }, opt.actions);
-        // ----------------- searchMenuFltWidthHint
-        conf.searchMenuFltWidthHint = opt.searchMenuFltWidthHint 
-                                      || conf.searchMenuFltWidthHint
-                                      || "50%";
         // ----------------- searchMenu
         conf.searchMenu = opt.searchMenu || conf.searchMenu || [{
             // 命令: 创建
@@ -226,7 +223,9 @@ var DATA_MODE = {
             icon : '<i class="fa fa-trash"></i>',
             tip  : "i18n:thing.rm_tip",
             handler : function() {
-                this.uis("search").removeChecked();
+                this.uis("search").removeChecked(null, function(o){
+                    return o.th_live >= 0 ? o : null;
+                });
             }
         }, {
             icon  : '<i class="zmdi zmdi-more-vert"></i>',
@@ -299,8 +298,6 @@ var DATA_MODE = {
                 }
             }]
         }];
-        // ----------------- objMenu
-        conf.objMenu = opt.objMenu || conf.objMenu;
         // ----------------- meta
         conf.meta = $z.fallback([undefined, true], [opt.meta, conf.meta], {
             update : function(th, key, callback) {
@@ -397,7 +394,133 @@ var DATA_MODE = {
     ///////////////////////////////////
     // 普通数据对象
     "obj" : function(conf, opt) {
+        var UI = this;
+        // ----------------- fields
+        // 指定了字段
+        if(_.isArray(opt.fields) && opt.fields.length > 0){
+            conf.fields = [].concat(opt.fields);
+        }
+        // 设定默认字段
+        else {
+            conf.fields = [{
+                key : "nm",
+                title : "Name",
+            }];
+        }
 
+        // ----------------- actions
+        conf.actions = _.extend({
+            // 默认查询方法
+            query : function(params, callback) {
+                //console.log(params)
+                var UI = this;
+                $z.setUndefined(params, "skip",  0);
+                $z.setUndefined(params, "limit", 50);
+                $z.setUndefined(params, "match", "{}");
+                $z.setUndefined(params, "sort", "{}");
+                var cmdText = $z.tmpl("obj id:" + UI.getHomeObjId()
+                                    + " -match '<%=match%>' -sort '<%=sort%>' -skip {{skip}}"
+                                    + " -limit {{limit}}"
+                                    + " -json -l -pager")(params);
+                // 执行命令
+                Wn.exec(cmdText, function(re) {
+                    UI.doActionCallback(re, callback);
+                });
+            },
+            // 默认创建方法
+            create : function(objName, callback){
+                var UI = this;
+                var cmdText = "obj id:{{id}} -new \"nm:'{{nm}}', race:'FILE'\" -o";
+                Wn.execf(cmdText, {
+                    id : UI.getHomeObjId(),
+                    nm : objName.replace(/['"]/g, ""),
+                }, function(re) {
+                    UI.doActionCallback(re, callback);
+                });
+            },
+            // 默认移除方法
+            remove : function(objList, callback) {
+                var UI = this;
+                //console.log("remove", objList)
+                if(_.isArray(objList) && objList.length > 0) {
+                    var cmdText = "" ;
+                    for(var i=0; i<objList.length; i++) {
+                        var obj = objList[i];
+                        cmdText += "rm id:" + obj.id + ";";
+                    }
+                    Wn.exec(cmdText, callback);
+                }
+                // 否则直接调用回调
+                else {
+                    $z.doCallback(callback);
+                }
+            }
+        }, opt.actions);
+        // ----------------- searchMenu
+        conf.searchMenu = opt.searchMenu || conf.searchMenu || [{
+            // 命令: 创建
+            icon : '<i class="zmdi zmdi-flare"></i>',
+            text : "i18n:thing.create",
+            handler : function() {
+                this.uis("search").createObj();
+            }
+        }, {
+            // 命令: 刷新
+            icon : '<i class="zmdi zmdi-refresh"></i>',
+            tip  : "i18n:thing.refresh_tip",
+            asyncIcon : '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i>',
+            asyncHandler : function(jq, mi, callback) {
+                this.uis("search").refresh(callback);
+            }
+        }, {
+            // 命令: 删除
+            icon : '<i class="fa fa-trash"></i>',
+            tip  : "i18n:del",
+            handler : function() {
+                this.uis("search").removeChecked();
+            }
+        }];
+        // ----------------- meta
+        conf.meta = $z.fallback([undefined, true], [opt.meta, conf.meta], {
+            update : function(obj, key, callback) {
+                var map  = key ? $z.obj(key, obj[key]) : obj;
+                var json = $z.toJson(map);
+
+                Wn.execf('obj id:{{id}} -u \'<%=json%>\'', {
+                    id   : obj.id,
+                    json : json
+                }, function(re){
+                    var newObj = $z.fromJson(re);
+                    $z.doCallback(callback, [newObj]);
+                });
+            }
+        });
+        // ----------------- detail
+        conf.detail = $z.fallback([undefined, true], [opt.detail, conf.detail], {
+            read : function(obj, callback) {
+                Wn.execf('cat id:{{id}}', obj, callback);
+            },
+            save : function(obj, det, callback) {
+                //console.log(det);
+                Wn.execf('str > id:{{id}}', det.content||"", obj, function(){
+                    if(det.brief || det.tp) {
+                        // 生成 json
+                        var map = $z.pick(det, ["tp", "brief"]);
+                        var json = ($z.toJson(map) || "").replace(/'/g, "");
+                        // 执行更新
+                        Wn.execf('obj id:{{id}} -u \'<%=json%>\'', {
+                            id : obj.id,
+                            json : json
+                        }, callback);
+                    }
+                    // 否则直接回调了
+                    else {
+                        $z.doCallback(callback);
+                    }
+                });
+            }
+        });
+        
     }
     ///////////////////////////////////
 };
@@ -478,6 +601,17 @@ var methods = {
                 bus : bus,
                 dataMode : opt.dataMode || "thing"
             };
+
+            // 处理一下通用的配置信息
+            conf.searchMenuFltWidthHint = opt.searchMenuFltWidthHint 
+                                          || conf.searchMenuFltWidthHint
+                                          || "50%";
+            conf.searchFilter = opt.searchFilter || conf.searchFilter;
+            conf.searchList   = opt.searchList   || conf.searchList;
+            conf.searchSorter = opt.searchSorter || conf.searchSorter;
+            conf.searchPager  = opt.searchPager  || conf.searchPager;
+            conf.objMenu = opt.objMenu || conf.objMenu;
+
 
             // 按照模式处理各个配置项
             DATA_MODE[conf.dataMode].call(UI, conf, opt);

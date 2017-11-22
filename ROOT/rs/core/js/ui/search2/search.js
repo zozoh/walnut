@@ -300,8 +300,10 @@ return ZUI.def("ui.search2", {
         // 创建查询上下文
         var qc = opt.queryContext.call(UI);
         _.extend(qc, pgr, {
-            match : cri ? $z.toJson(cri) : '{}',
-            sort  : srt ? $z.toJson(srt) : '{}',
+            match    : cri ? $z.toJson(cri) : '{}',
+            matchObj : cri,
+            sort     : srt ? $z.toJson(srt) : '{}',
+            sortObj  : srt,
         });
 
         //console.log("do_search",qc)

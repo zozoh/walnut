@@ -106,6 +106,9 @@ th_manager    # 顶级管理器
     // 对于搜索列表部分的设置
     searchList : {}
     
+    // 对于搜索排序部分的设置
+    searchSorter : {}
+    
     // 对于搜索翻页部分的设置
     searchPager : {}
     

@@ -64,6 +64,7 @@ return ZUI.def("ui.th_search", {
                     }
                 }
             }),
+            sorter : conf.searchSorter,
             pager : conf.searchPager,
         })).render(function(){
             this.refresh(function(){
@@ -89,7 +90,7 @@ return ZUI.def("ui.th_search", {
 
         var oHome = UI.getHomeObj();
         var text = UI.msg("thing.create_tip2", {
-            text : oHome.title || oHome.nm
+            text : UI.text(oHome.title || oHome.nm)
         });
 
         UI.prompt(text, {
@@ -109,7 +110,11 @@ return ZUI.def("ui.th_search", {
         return this.gasket.main.uiList.getChecked();
     },
     //..............................................
-    removeChecked : function(callback) {
+    getFilterData : function(){
+        return this.gasket.main.uiFilter.getData();
+    },
+    //..............................................
+    removeChecked : function(callback, filter) {
         var UI = this;
 
         // 得到选中的东东
@@ -119,11 +124,18 @@ return ZUI.def("ui.th_search", {
         var list = UI.getChecked();
 
         // 判断 th_live == 1 的对象
-        var checkedObjs = [];
-        for(var i=0; i<list.length; i++) {
-            var obj = list[i];
-            if(obj.th_live >= 0)
-                checkedObjs.push(obj);
+        var checkedObjs;
+        if(_.isFunction(filter)) {
+            checkedObjs = [];
+            for(var i=0; i<list.length; i++) {
+                var obj = filter(list[i]);
+                if(obj)
+                    checkedObjs.push(obj);
+            }
+        }
+        // 不用过滤，直接来吧
+        else {
+            checkedObjs = list;
         }
 
         // 没有对象，显示警告
