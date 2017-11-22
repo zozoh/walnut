@@ -21,7 +21,7 @@ public class voucher_create_coupon implements JvmHdl {
         String voucher_name = hc.params.check("name");
         String myName = sys.me.name();
         sys.nosecurity(()->{
-            WnObj wobj = sys.io.createIfNoExists(null, "/sys/voucher/"+ myName + "/" + voucher_name, WnRace.DIR);
+            WnObj wobj = sys.io.createIfNoExists(null, "/var/voucher/"+ myName + "/" + voucher_name, WnRace.DIR);
             int voucher_count = wobj.getInt("voucher_totalNum");
             long count = sys.io.count(new WnQuery().setv("pid", wobj.id()));
             if (voucher_count > count) {
@@ -31,6 +31,7 @@ public class voucher_create_coupon implements JvmHdl {
                         metas.put(key, wobj.get(key));
                 }
                 metas.setv("voucher_payId", "");
+                metas.setv("voucher_name", voucher_name);
                 for (int i = 0; i < voucher_count - count; i++) {
                     WnObj t = sys.io.create(wobj, R.UU32(), WnRace.FILE);
                     sys.io.appendMeta(t, metas);

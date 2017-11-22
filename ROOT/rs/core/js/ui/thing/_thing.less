@@ -9,7 +9,17 @@
     // 搜索
     > .th-search-con {border-right:1px solid @cborder1;}
 }
-
+.th-manager[dis-mode="index"] {
+    > .th-search-con {width:60%;}
+    > .th-obj-con {left:60%;}
+}
+.th-manager[dis-mode="only-search"] {
+    > .th-search-con {
+        height:100%; width:100%; border-right:0;
+        position: unset; top:unset; bottom:unset;
+    }
+    > .th-obj-con {display: none;}
+}
 // ------------------------------- 
 // 对象搜索器
 .th-search {
@@ -80,8 +90,16 @@
 @thOW : 60%;
 .th-obj {
     > * {position: absolute; top:0; bottom: 0;}
+}
+.th-manager[dis-mode="index-data"] .th-obj{
     > .th-obj-index-con {left:0; width:@thOW;}
     > .th-obj-data-con {right:0; left:@thOW;}
+}
+.th-manager[dis-mode="index"] .th-obj{
+    > .th-obj-index-con {left:0; right:0;}
+}
+.th-manager[dis-mode="data"] .th-obj{
+    > .th-obj-data-con {right:0; left:0;}
 }
 //........................................
 // 通用标签面板

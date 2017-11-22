@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -16,14 +15,12 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.WnPager;
 
-public class voucher_list_coupon implements JvmHdl {
+public class voucher_list_promotion implements JvmHdl {
 
 	@Override
 	public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-		String voucher_name = hc.params.get("name"); // 指定活动
 
-		WnQuery query = new WnQuery().setv("d0", "var").setv("d1", "voucher").setv("race", WnRace.FILE.toString());
-		// 指定用户
+		WnQuery query = new WnQuery().setv("d0", "var").setv("d1", "voucher").setv("race", WnRace.DIR.toString());
 		if (hc.params.has("match")) {
 			NutMap match = Lang.map(hc.params.get("match"));
 			for (Map.Entry<String, Object> en : match.entrySet()) {
@@ -37,11 +34,8 @@ public class voucher_list_coupon implements JvmHdl {
 			}
 		}
 		sys.nosecurity(() -> {
-			// 指定活动
-			if (!Strings.isBlank(voucher_name)) {
-				WnObj wobj = sys.io.check(null, "/var/voucher/" + sys.me.name() + "/" + voucher_name);
-				query.setv("pid", wobj.id());
-			}
+			WnObj wobj = sys.io.check(null, "/var/voucher/" + sys.me.name());
+			query.setv("pid", wobj.id());
 			WnPager pager = new WnPager(hc.params);
 			query.skip(pager.skip).limit(pager.limit);
 			List<WnObj> list = sys.io.query(query);

@@ -19,7 +19,7 @@ public class voucher_use_coupon extends voucher_xxx_coupon implements JvmHdl {
         String belongTo = hc.params.check("belongTo"); // 优惠卷的使用者
         String payId = hc.params.check("payId");
         
-        WnQuery query = new WnQuery().setv("d0", "sys").setv("d1", "voucher").setv("id", id).setv("voucher_belongTo", belongTo);
+        WnQuery query = new WnQuery().setv("d0", "var").setv("d1", "voucher").setv("id", id).setv("voucher_belongTo", belongTo);
         WnObj wobj = sys.io.getOne(query);
         if (wobj == null) {
             sys.err.print("e.cmd.voucher_test_coupon.not_exist");

@@ -27,10 +27,45 @@ return ZUI.def("ui.th_manager", {
         this.listenBus("setup", this.openSetup, true);
     },
     //..............................................
+    redraw : function() {
+        var UI  = this;
+        var bus = UI.bus();
+        var conf = UI.getBusConf();
+
+        // 准备显示模式
+        var disMode = [];
+        
+        // 索引界面
+        if(conf.meta || conf.detail) {
+            disMode.push("index");
+        }
+        // 多媒体和附件界面
+        if(conf.media || conf.attachment) {
+            disMode.push("data");
+        }
+
+        // 设定显示模式
+        UI.displayMode = disMode.length > 0 
+                         ? disMode.join("-")
+                         : "only-search";
+        bus.arena.attr({
+            "dis-mode": UI.displayMode
+        });
+
+        // 移除对象部分
+        if(UI.isOnlySearch()) {
+            UI.arena.find(">.th-obj-con").remove();
+        }
+    },
+    //..............................................
     _fill_context : function(uiSet) {
         uiSet.manager = this;
         $z.invoke(this.gasket.search, "_fill_context", [uiSet]);
         $z.invoke(this.gasket.obj   , "_fill_context", [uiSet]);
+    },
+    //..............................................
+    isOnlySearch : function(){
+        return "only-search" == this.displayMode;
     },
     //..............................................
     update : function(oDir, callback) {
@@ -91,6 +126,11 @@ return ZUI.def("ui.th_manager", {
     showObj : function(o, callback) {
         var UI = this;
 
+        if(UI.isOnlySearch()){
+            $z.doCallback(callback, [o], UI);
+            return;
+        }
+
         // 如果已经是对象加载器了，直接更新
         if(UI.gasket.obj.uiName == "ui.th_obj") {
             UI.gasket.obj.update(o, function(){
@@ -113,6 +153,11 @@ return ZUI.def("ui.th_manager", {
     //..............................................
     showBlank : function(callback) {
         var UI = this;
+
+        if(UI.isOnlySearch()){
+            $z.doCallback(callback, [], UI);
+            return;
+        }
 
         // 替换掉索引项
         new DomUI({

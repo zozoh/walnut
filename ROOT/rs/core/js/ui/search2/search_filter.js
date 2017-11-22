@@ -45,6 +45,8 @@ return ZUI.def("ui.search_filter", {
 
         // 处理一下标签
         if(UI.__has_tabs()) {
+            // 默认的话，标签位置居左
+            $z.setUndefined(opt, "tabsPosition", "left");
             // 这里试图从 local 里恢复选中项目
             if(opt.tabsStatusKey) {
                 var checkedIndexes = UI.local(opt.tabsStatusKey);
@@ -192,6 +194,8 @@ return ZUI.def("ui.search_filter", {
             var opt = UI.options;
             var jLi = $(e.currentTarget);
             var jUl = jLi.closest("ul");
+
+            console.log("haha")
             
             // 多选处理
             if(opt.tabsMulti) {
