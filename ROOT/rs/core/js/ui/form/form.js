@@ -728,6 +728,7 @@ return ZUI.def("ui.form", {
                 }
                 // 指定字段
                 else {
+                    //console.log(fld.key)
                     //var jso = jF.data("@jOBJ");
                     var jso = fld.JsObjType;
                     var v   = fui.getData();

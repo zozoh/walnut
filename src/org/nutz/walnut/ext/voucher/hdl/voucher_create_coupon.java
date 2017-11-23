@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.voucher.hdl;
 
-import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -11,6 +10,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 
 /**
  * 为促销活动创建具体的优惠卷
+ * 
  * @author wendal
  *
  */
@@ -20,8 +20,10 @@ public class voucher_create_coupon implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         String voucher_name = hc.params.check("name");
         String myName = sys.me.name();
-        sys.nosecurity(()->{
-            WnObj wobj = sys.io.createIfNoExists(null, "/var/voucher/"+ myName + "/" + voucher_name, WnRace.DIR);
+        sys.nosecurity(() -> {
+            WnObj wobj = sys.io.createIfNoExists(null,
+                                                 "/var/voucher/" + myName + "/" + voucher_name,
+                                                 WnRace.DIR);
             int voucher_count = wobj.getInt("voucher_totalNum");
             long count = sys.io.count(new WnQuery().setv("pid", wobj.id()));
             if (voucher_count > count) {
@@ -30,10 +32,11 @@ public class voucher_create_coupon implements JvmHdl {
                     if (key.startsWith("voucher_"))
                         metas.put(key, wobj.get(key));
                 }
-                metas.setv("voucher_payId", "");
+                metas.remove("voucher_payId");
+                metas.remove("voucher_belongTo");
                 metas.setv("voucher_name", voucher_name);
                 for (int i = 0; i < voucher_count - count; i++) {
-                    WnObj t = sys.io.create(wobj, R.UU32(), WnRace.FILE);
+                    WnObj t = sys.io.create(wobj, "${id}", WnRace.FILE);
                     sys.io.appendMeta(t, metas);
                 }
             }

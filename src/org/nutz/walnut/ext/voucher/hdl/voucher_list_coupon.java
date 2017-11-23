@@ -7,9 +7,11 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Region;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -18,35 +20,51 @@ import org.nutz.walnut.util.WnPager;
 
 public class voucher_list_coupon implements JvmHdl {
 
-	@Override
-	public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-		String voucher_name = hc.params.get("name"); // 指定活动
+    @Override
+    public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
+        String voucher_name = hc.params.get("name"); // 指定活动
 
-		WnQuery query = new WnQuery().setv("d0", "var").setv("d1", "voucher").setv("race", WnRace.FILE.toString());
-		// 指定用户
-		if (hc.params.has("match")) {
-			NutMap match = Lang.map(hc.params.get("match"));
-			for (Map.Entry<String, Object> en : match.entrySet()) {
-				if ("voucher_startTime".equals(en.getKey())) {
-					query.setv(en.getKey(), new NutMap("$gte", Times.ams(en.getValue().toString())));
-				} else if ("voucher_endTime".equals(en.getKey())) {
-					query.setv(en.getKey(), new NutMap("$lte", Times.ams(en.getValue().toString())));
-				} else {
-					query.setv(en.getKey(), en.getValue());
-				}
-			}
-		}
-		sys.nosecurity(() -> {
-			// 指定活动
-			if (!Strings.isBlank(voucher_name)) {
-				WnObj wobj = sys.io.check(null, "/var/voucher/" + sys.me.name() + "/" + voucher_name);
-				query.setv("pid", wobj.id());
-			}
-			WnPager pager = new WnPager(hc.params);
-			query.skip(pager.skip).limit(pager.limit);
-			List<WnObj> list = sys.io.query(query);
-			Cmds.output_objs(sys, hc.params, pager, list, false);
-		});
-	}
+        WnQuery query = new WnQuery().setv("d0", "var");
+        query.setv("d1", "voucher").setv("race", WnRace.FILE);
+        // 指定条件
+        if (hc.params.has("match")) {
+            NutMap match = Lang.map(hc.params.get("match"));
+            for (Map.Entry<String, Object> en : match.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                // 开始时间：转换
+                if ("voucher_startTime".equals(key)) {
+                    query.setv(key, Region.Longf("[%d,)", Times.ams(val.toString())));
+                }
+                // 结束时间：转换
+                else if ("voucher_endTime".equals(key)) {
+                    query.setv(key, Region.Longf("(,%d)", Times.ams(val.toString())));
+                }
+                // 用户: 转换成 ID
+                else if ("user".equals(key)) {
+                    sys.nosecurity(() -> {
+                        WnUsr u = sys.usrService.check(key);
+                        query.setv("voucher_uid", u.id());
+                    });
+                }
+                // 其他 copy
+                else {
+                    query.setv(key, val);
+                }
+            }
+        }
+        sys.nosecurity(() -> {
+            // 指定活动
+            if (!Strings.isBlank(voucher_name)) {
+                WnObj wobj = sys.io.check(null,
+                                          "/var/voucher/" + sys.me.name() + "/" + voucher_name);
+                query.setv("pid", wobj.id());
+            }
+            WnPager pager = new WnPager(hc.params);
+            pager.setupQuery(sys, query);
+            List<WnObj> list = sys.io.query(query);
+            Cmds.output_objs(sys, hc.params, pager, list, false);
+        });
+    }
 
 }

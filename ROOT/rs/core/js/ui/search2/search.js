@@ -177,7 +177,7 @@ return ZUI.def("ui.search2", {
     //...............................................................
     // 根据 list.uiConf 里面的配置信息，查找某个字段的类型
     getFieldType : function(key) {
-        return this.uiList.getFieldType(key);
+        return $z.invoke(this.uiList, "getFieldType", [key]) || "string";
     },
     //...............................................................
     _pop_form_mask : function(title, obj, cmdTmpl, callback) {

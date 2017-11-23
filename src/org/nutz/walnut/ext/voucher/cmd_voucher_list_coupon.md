@@ -15,7 +15,7 @@
 =======
     
     # 查询某指定优惠活动某用户的代金券 
-    voucher list_coupon -name testC -match '{payId:"",belongTo:"wendal123"}'
+    voucher list_coupon -name testC -match '{payId:"",user:"wendal123"}'
     输出:
     ```
     [{
@@ -33,6 +33,7 @@
        m: "wendal",
        g: "wendal",
        md: 488,
+       voucher_name : "testC",
        voucher_title: "测试优惠卷C",
        voucher_totalNum: 1,
        voucher_startTime: 0,
@@ -41,6 +42,8 @@
        voucher_condition: 10000,
        voucher_discount: 9999.0,
        voucher_payId: "",
-       voucher_belongTo: "wendal123"
+       voucher_payTime : 1509601528413,
+       voucher_uid: "q8l4j8tos2htdpl54snb872089",
+       voucher_unm: "wendal123"
     }]
     ```

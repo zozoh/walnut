@@ -245,7 +245,7 @@ return ZUI.def("ui.table", {
         return $('<tr class="tbl-row">');
     },
     //...............................................................
-    _draw_item : function(jRow, obj){
+    _draw_item : function(jRow, obj, index){
         var UI  = this;
         var opt = UI.options;
         

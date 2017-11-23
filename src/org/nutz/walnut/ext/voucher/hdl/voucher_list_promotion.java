@@ -37,7 +37,7 @@ public class voucher_list_promotion implements JvmHdl {
 			WnObj wobj = sys.io.check(null, "/var/voucher/" + sys.me.name());
 			query.setv("pid", wobj.id());
 			WnPager pager = new WnPager(hc.params);
-			query.skip(pager.skip).limit(pager.limit);
+			pager.setupQuery(sys, query);
 			List<WnObj> list = sys.io.query(query);
 			// 强制输出列表
 			hc.params.setv("l", true);

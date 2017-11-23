@@ -295,7 +295,11 @@ var JsDateTime = function(fld){
 };
 JsDateTime.prototype = new JsObj();
 JsDateTime.prototype._parse_and_return = function(v){
-    return $z.parseDate(v, this.__fld.validate);
+    try {
+        return $z.parseDate(v, this.__fld.validate);
+    }catch(E){
+        return null;
+    }
 };
 JsDateTime.prototype.toText = function(){
      return this.toStr();

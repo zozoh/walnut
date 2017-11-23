@@ -353,6 +353,20 @@ var methods = {
             // 触发消息 
             UI.trigger("item:unchecked", jItems);
             $z.invoke(opt, "on_unchecked", [jItems], UI);
+
+            // 取消激活
+            var jA = jItems.filter('[li-actived]');
+            if(jA.length > 0) {
+                jA.removeAttr("li-actived");
+
+                // 子类的特殊过程，比如 table 的同步选择器 
+                $z.invoke(UI, "__after_blur", [jA]);
+
+                // 触发消息 
+                UI.trigger("item:blur", jA);
+                $z.invoke(opt, "on_blur", [jA]);
+            }
+
         }
     },
     //...............................................................
@@ -462,7 +476,7 @@ var methods = {
         // 输出表格内容 
         var jListBody = UI.$listBody().empty();
         objs.forEach(function(o, index){
-            UI._upsert_item(o, jListBody);
+            UI._upsert_item(o, jListBody, index);
         });
 
         // 绘制后子类处理
@@ -609,6 +623,13 @@ var methods = {
         var UI  = this;
         var opt = UI.options;
         var context = opt.context || UI;
+
+        // 传入了 index
+        var index = -1;
+        if(_.isNumber(jReferItem) && jReferItem >= 0) {
+            index = jReferItem;
+            jReferItem = undefined;
+        }
         
         // 要修改的项目
         var jItem;
@@ -635,7 +656,7 @@ var methods = {
         UI.setObj(jItem, obj);
 
         // 绘制项目
-        UI._draw_item(jItem ,obj);
+        UI._draw_item(jItem ,obj, index);
 
         // 调用配置项，自定义更多节点外观
         $z.invoke(opt, "on_draw_item", [jItem, obj], context);

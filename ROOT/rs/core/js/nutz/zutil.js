@@ -4470,7 +4470,7 @@
         },
         // 返回当前时分秒
         dateToYYMMDD: function (date, split) {
-            date = date || new Date();
+            date = date ? this.parseDate(date) : new Date();
             split = (split == null || split == undefined) ? "-" : split;
             var year = date.getFullYear();
             var month = date.getMonth() + 1;
@@ -4479,7 +4479,7 @@
         },
         // 返回当前年月日
         dateToHHMMSS: function (date, split) {
-            date = date || new Date();
+            date = date ? this.parseDate(date) : new Date();
             split = (split == null || split == undefined) ? "-" : split;
             var hours = date.getHours()
             var minutes = date.getMinutes();

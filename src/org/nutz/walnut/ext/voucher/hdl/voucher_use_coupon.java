@@ -47,7 +47,7 @@ public class voucher_use_coupon extends voucher_xxx_coupon implements JvmHdl {
             return;
         }
         NutMap metas = new NutMap("voucher_payId", payId);
-        metas.put("voucher_payStartTime", System.currentTimeMillis());
+        metas.put("voucher_payTime", System.currentTimeMillis());
         sys.io.appendMeta(wobj, metas);
         sys.out.writeJson(re);
     }

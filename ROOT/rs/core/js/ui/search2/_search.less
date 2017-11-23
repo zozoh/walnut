@@ -39,7 +39,7 @@
 .search-menu-con {
     @flex(); align-items:flex-end;
     padding:0 @d3 @d0 0;
-    .menu {display: inline-block;}
+    .menu {display: inline-block; padding-bottom:@d3 + 1px;}
 }
 /*.............................................. filter*/
 .search-filter {
@@ -86,10 +86,10 @@
                     padding:0 @d2; margin-right:@d0; color:@c2;
                     border:1px dashed @cborder1; white-space: nowrap;
                     border-radius: @d0; font-size: @f1;
-                    span.fti-text {margin:0 @d1;transition:.3s; }
-                    i.drop-icon {transition:.3s;}
+                    span {margin:0 @d1;transition:.3s; }
+                    i.drop-icon {transition:.3s; margin:0 @d1;}
                     i.drop-icon[multi] {
-                        font-size:1.2em; margin:0 @d1;
+                        font-size:1.2em; 
                     }
                 }
                 li[fti-status="checked"] {

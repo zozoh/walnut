@@ -64,6 +64,17 @@ return ZUI.def("ui.list", {
             else{
                 UI.uncheck();
             }
+        },
+        // 打开
+        "dblclick .list-item" : function(e){
+            var UI  = this;
+            var opt = UI.options;
+            var context = opt.context || UI;
+
+            var jq  = $(e.currentTarget);
+            var obj = this.getData(jq);
+
+            $z.invoke(opt, "on_open", [obj, context]);
         }
     },
     //...............................................................
@@ -115,21 +126,25 @@ return ZUI.def("ui.list", {
         return $('<div class="lst-item">');
     },
     //..............................................
-    _draw_item : function(jItem, obj) {
+    _draw_item : function(jItem, obj, index) {
         var UI  = this;
         var opt = UI.options;
 
         // 获取显示值
-        var s  = opt.__dis_obj.call(UI, obj, opt);
-
-        // 国际化
-        s = UI.text(s);
+        var s  = opt.__dis_obj.call(UI, obj, index, opt);
 
         // 逃逸 HTML
-        if(opt.escapeHtml === true)
-            jItem.text(s || '');
-        else
+        if(opt.escapeHtml === true) {
+            if(s) {
+                jItem.text(UI.text(s));
+            }else{
+                jItem.text('--');
+            }
+        }
+        // 直接插入 HTML
+        else {
             jItem.html(s || '');
+        }
 
         // 如果需要显示选择框
         if(opt.checkable){
