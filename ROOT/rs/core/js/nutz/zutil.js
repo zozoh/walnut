@@ -3826,7 +3826,7 @@
             
             // 得到遮罩层的大小并生成画布
             var R_VP = $D.rect.gen(jMark);
-            console.log(R_VP)
+            //console.log(R_VP)
             var jCanv = $('<canvas>').appendTo(jMark).attr({
                 "width": R_VP.width,
                 "height": R_VP.height,
@@ -3864,6 +3864,7 @@
                 g2d.lineWidth = 2;
                 // 计算矩形
                 var rect = $D.rect.gen(jTa);
+                console.log(rect)
                 var args = zUtil.pick(rect, "left,top,width,height", true);
                 // 绘制提示区域高亮矩形
                 g2d.clearRect.apply(g2d, args);

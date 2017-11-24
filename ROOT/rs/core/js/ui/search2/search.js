@@ -53,23 +53,33 @@ return ZUI.def("ui.search2", {
         }
         //...........................................
         // 格式化子 UI
-        this.__fmt_subUIs(opt, "filter", 'ui/search2/search_filter');
-        this.__fmt_subUIs(opt, "sorter", 'ui/search2/search_sorter');
-        this.__fmt_subUIs(opt, "list",   'ui/table/table');
-        this.__fmt_subUIs(opt, "pager",  'ui/search2/search_pager');
+        UI.__fmt_subUIs(opt, "filter", 'ui/search2/search_filter');
+        UI.__fmt_subUIs(opt, "sorter", 'ui/search2/search_sorter');
+        UI.__fmt_subUIs(opt, "list",   'ui/table/table');
+        UI.__fmt_subUIs(opt, "pager",  'ui/search2/search_pager');
         //...........................................
         // 检查菜单, string 表示的为快捷菜单项
+        var __check_menu_item = function(items, index) {
+            var mi = items[index];
+            // 快捷菜单
+            if(_.isString(mi)){
+                items[index] = UI.__quick_menu(mi);
+            }
+            // 自定义的快捷菜单
+            else if(mi.qkey){
+                items[index] = _.extend(UI.__quick_menu(mi.qkey), mi);
+            }
+            // 如果是菜单组，递归
+            else if(_.isArray(mi.items)) {
+                for(var i=0; i<mi.items.length; i++){
+                    __check_menu_item(mi.items, i);
+                }
+            }
+        };
+        // 先检查顶级菜单
         if(_.isArray(opt.menu)){
             for(var i=0; i<opt.menu.length; i++){
-                var mi = opt.menu[i];
-                // 快捷菜单
-                if(_.isString(mi)){
-                    opt.menu[i] = this.__quick_menu(mi);
-                }
-                // 自定义的快捷菜单
-                else if(mi.qkey){
-                    opt.menu[i] = _.extend(this.__quick_menu(mi.qkey), mi);
-                }
+                __check_menu_item(opt.menu, i);
             }
         }
         //...........................................
@@ -272,7 +282,13 @@ return ZUI.def("ui.search2", {
             objs.forEach(function(obj){
                 str += tmpl(obj) + ";\n";
             });
-            UI.exec(str, function(){
+            UI.exec(str, function(re){
+                // 出错了
+                if(/^e./.test(re)) {
+                    UI.alert(re, "warn");
+                    return;
+                }
+                // 在界面上移除
                 var jN2 = null;
                 for(var i=0; i<objs.length; i++){
                     jN2 = UI.uiList.remove(objs[i].id);

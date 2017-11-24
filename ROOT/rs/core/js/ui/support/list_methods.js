@@ -470,6 +470,13 @@ var methods = {
         // 得到上次激活对象的 ID
         var aiid = UI.getActivedId();
 
+        // 得到上次已经选中的项目 ID
+        var checkeds = UI.getChecked();
+        var ckids = [];
+        for(var i=0; i<checkeds.length; i++) {
+            ckids.push(UI.getObjId(checkeds[i]));
+        }
+
         // 绘制前子类准备
         $z.invoke(UI, "__before_draw_data", [objs]);
 
@@ -485,6 +492,13 @@ var methods = {
         // 如果之前有激活，那么继续激活
         if(aiid && objs.length > 0)
             UI.setActived(aiid);
+
+        // 如果之前有选中，那么继续选中
+        if(ckids && ckids.length > 0) {
+            for(var i=0; i<ckids.length; i++){
+                UI.check(ckids[i]);
+            }
+        }
 
         // 重新计算尺寸
         UI.resize();

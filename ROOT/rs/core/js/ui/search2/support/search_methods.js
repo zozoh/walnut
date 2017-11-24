@@ -83,7 +83,7 @@ var methods = {
                 if(isNarrow) {
                     jMenu.attr("narrow-mode", "yes");
                     menu_setup = [{
-                        icon  : '<i class="fa fa-ellipsis-v"></i>',
+                        icon  : '<i class="zmdi zmdi-more-vert"></i>',
                         items : opt.menu
                     }];
                 }

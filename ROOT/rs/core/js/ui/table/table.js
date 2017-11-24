@@ -121,7 +121,7 @@ return ZUI.def("ui.table", {
             }
         },
         // 打开
-        "dblclick .tbl-row .tbl-row-td0" : function(e){
+        "dblclick .tbl-row" : function(e){
             var UI  = this;
             var opt = UI.options;
             var context = opt.context || UI;
@@ -129,7 +129,7 @@ return ZUI.def("ui.table", {
             var jq  = $(e.currentTarget);
             var obj = this.getData(jq);
 
-            $z.invoke(opt, "on_open", [obj, context]);
+            $z.invoke(opt, "on_open", [obj, UI], context);
         }
     },
     //...............................................................

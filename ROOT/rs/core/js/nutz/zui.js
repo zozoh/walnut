@@ -987,7 +987,7 @@ define(function (require, exports, module) {
             return $z.compactHTML(html, msgMap || this._msg_map, this.tmplSettings);
         },
         // 得到多国语言字符串
-        msg: function (str, ctx, msgMap) {
+        msg: function (str, ctx, msgMap, dft) {
             if (!str || !_.isString(str))
                 return str;
             // 消息字符串是 "e.com.xxx : some reasone" 格式的
@@ -1000,7 +1000,7 @@ define(function (require, exports, module) {
             }
             var re = $z.getValue((msgMap || this._msg_map), key);
             if (!re) {
-                return str;
+                return dft || str;
             }
             // 得到了字符串
             if (_.isString(re)) {
@@ -1014,12 +1014,13 @@ define(function (require, exports, module) {
             return re;
         },
         // 得到多国语言字符串，如果没有返回默认值，如果没指定默认值，返回空串 ("")
-        str: function (key, dft) {
+        str: function (key, dft, ctx) {
             if (/^i18n:.+$/g.test(key)) {
                 key = key.substring(5);
             }
-            var re = $z.getValue(this._msg_map, key);
-            return re || dft || "";
+            //var re = $z.getValue(this._msg_map, key);
+            return this.msg(key, ctx, null, dft);
+            //return re || dft || "";
         },
         // 对一个字符串进行文本转移，如果是 i18n: 开头采用 i18n
         text: function (str, ctx, msgMap) {
@@ -1439,7 +1440,7 @@ define(function (require, exports, module) {
                     if (opt.icon) {
                         html += '<div class="pop-msg-icon">' + opt.icon + '</div>';
                     }
-                    html += '<div class="pop-msg-text">' + UI.text(msgKey) + '</div>';
+                    html += '<div class="pop-msg-text">' + UI.str(msgKey) + '</div>';
                     this.$main.find(".pm-body").html(html);
                 })
             });
@@ -1503,7 +1504,7 @@ define(function (require, exports, module) {
                     if (opt.icon) {
                         html += '<div class="pop-msg-icon">' + opt.icon + '</div>';
                     }
-                    html += '<div class="pop-msg-text">' + UI.msg(msgKey) + '</div>';
+                    html += '<div class="pop-msg-text">' + UI.str(msgKey) + '</div>';
                     this.$main.find(".pm-body").html(html);
 
                     // 不限时间
@@ -1632,7 +1633,7 @@ define(function (require, exports, module) {
                         html += '<div class="pop-msg-icon">' + opt.icon + '</div>';
                     }
                     html += '<div class="pop-msg-prompt">'
-                    html += '<div class="pmp-text">' + UI.msg(msgKey) + '</div>';
+                    html += '<div class="pmp-text">' + UI.str(msgKey) + '</div>';
                     html += '<div class="pmp-input"><input spellcheck="false"></div>';
                     html += '<div class="pmp-warn"></div>';
                     html += '</div>';
