@@ -57,8 +57,9 @@ public class cmd_me extends JvmExecutor {
             if (params.vals.length == 0) {
                 for (String key : u.keySet()) {
                     String v = u.getString(key);
+                 // 一定要过滤的字段
                     if (key.matches("^(salt|passwd)$")) {
-                        v = Strings.dup('*', v.length());
+                        continue;
                     }
                     if (params.is("json")) {
                         jsonRe.setv(key, v);
@@ -85,8 +86,10 @@ public class cmd_me extends JvmExecutor {
             else {
                 if (params.is("json")) {
                     for (String key : params.vals) {
-                        String v = u.getString(key);
-                        jsonRe.setv(key, v);
+                        // 一定要过滤的字段
+                        if (key.matches("^(salt|passwd)$"))
+                            continue;
+                        jsonRe.setv(key, u.get(key));
                     }
                     sys.out.println(Json.toJson(jsonRe));
                 } else {

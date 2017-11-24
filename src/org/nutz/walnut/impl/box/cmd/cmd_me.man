@@ -4,7 +4,7 @@
 
 # 用法
 
-    me [-set "PS1=\u@\h \W"] ..
+    me [-set "PS1=\u@\h \W"] [-json] ..
     
 # 示例
 

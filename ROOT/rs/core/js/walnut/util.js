@@ -556,6 +556,9 @@ var Wn = {
         fail     : {c}F(Content){..}   // 执行失败
         // 所有回调的 this 对象，默认用本函数的 this
         context  : {..}
+        // 传入 UI 对象，以便提供 alert 等操作
+        // 如果不传，则会静默
+        UI : null
     }
     // 其他模式
     exec(cmdText, input, complete);
@@ -785,9 +788,21 @@ var Wn = {
                 // 准备调用结束的回调 done/fail/complete
                 var re = content;
                 //...............................................
+                // 准备函数
+                var funcName = oReq.status == 200 ? "done" : "fail";
+                //...............................................
                 // 执行回调前数据处理
                 if(opt.processData){
-                    if("json" == opt.dataType){
+                    // 处理错误
+                    if(/^e[.]/.test(re)) {
+                        funcName = "fail";
+                        // 主动报错
+                        if(opt.UI) {
+                            opt.UI.alert(re, "warn");
+                        }
+                    }
+                    // 处理 json
+                    else if("json" == opt.dataType){
                         re = $z.fromJson(re);
                         // 检查是不是 session 过期了，如果过期了，直接换地址
                         $z.checkSessionNoExists(re);
@@ -795,7 +810,6 @@ var Wn = {
                 }
                 //...............................................
                 // 调用完成后的回调
-                var funcName = oReq.status == 200 ? "done" : "fail";
                 $z.invoke(opt, funcName,   [re], context);
                 $z.invoke(opt, "complete", [re], context);
                 //...............................................

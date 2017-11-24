@@ -27,7 +27,17 @@ return ZUI.def("ui.th_manager", {
         this.listenBus("setup", this.openSetup, true);
     },
     //..............................................
-    redraw : function() {
+    _fill_context : function(uiSet) {
+        uiSet.manager = this;
+        $z.invoke(this.gasket.search, "_fill_context", [uiSet]);
+        $z.invoke(this.gasket.obj   , "_fill_context", [uiSet]);
+    },
+    //..............................................
+    isOnlySearch : function(){
+        return "only-search" == this.displayMode;
+    },
+    //..............................................
+    __reset_display_mode : function(){
         var UI  = this;
         var bus = UI.bus();
         var conf = UI.getBusConf();
@@ -58,23 +68,15 @@ return ZUI.def("ui.th_manager", {
         }
     },
     //..............................................
-    _fill_context : function(uiSet) {
-        uiSet.manager = this;
-        $z.invoke(this.gasket.search, "_fill_context", [uiSet]);
-        $z.invoke(this.gasket.obj   , "_fill_context", [uiSet]);
-    },
-    //..............................................
-    isOnlySearch : function(){
-        return "only-search" == this.displayMode;
-    },
-    //..............................................
     update : function(oDir, callback) {
         var UI  = this;
         var opt = UI.options;
 
-        // console.log(opt)
+        // 设置主目录
+        UI.setHomeObj(oDir);
 
-        // TODO 这里根据 oDir 来决定动态的配置信息
+        // 修正显示模式
+        UI.__reset_display_mode();
 
         // 准备延迟加载项
         UI.defer(["search", "blank"], function(){
