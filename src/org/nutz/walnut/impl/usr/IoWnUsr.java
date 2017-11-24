@@ -11,7 +11,6 @@ import org.nutz.walnut.impl.io.WnBean;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-@SuppressWarnings("serial")
 public class IoWnUsr extends WnBean implements WnUsr {
 
     @Override

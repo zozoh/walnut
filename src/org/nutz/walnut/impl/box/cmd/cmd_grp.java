@@ -113,7 +113,7 @@ public class cmd_grp extends JvmExecutor {
             String unm = __get_unm(params, "get", myName);
 
             // 检查权限
-            __check_right(sys, me, null, unm);
+            __check_right(sys, me, sys.se.group(), unm);
 
             WnUsr u = sys.usrService.check(unm);
 

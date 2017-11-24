@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.meta.Pair;
@@ -56,17 +57,18 @@ public class cmd_me extends JvmExecutor {
             WnUsr u = sys.usrService.check(sys.me.name());
             if (params.vals.length == 0) {
                 for (String key : u.keySet()) {
-                    String v = u.getString(key);
-                 // 一定要过滤的字段
+                    Object v = u.get(key);
+                    // 一定要过滤的字段
                     if (key.matches("^(salt|passwd)$")) {
                         continue;
                     }
+                    // JSON 的话直接设置
                     if (params.is("json")) {
                         jsonRe.setv(key, v);
-                    } else {
-                        if (null != v) {
-                            sys.out.printf("%8s : %s\n", key, v);
-                        }
+                    }
+                    // 否则打印
+                    else {
+                        sys.out.printf("%8s : %s\n", key, Castors.me().castToString(v));
                     }
                 }
                 if (params.is("json")) {
@@ -84,6 +86,7 @@ public class cmd_me extends JvmExecutor {
             }
             // 指定的几个值
             else {
+                // JSON 的话直接设置
                 if (params.is("json")) {
                     for (String key : params.vals) {
                         // 一定要过滤的字段
@@ -92,10 +95,12 @@ public class cmd_me extends JvmExecutor {
                         jsonRe.setv(key, u.get(key));
                     }
                     sys.out.println(Json.toJson(jsonRe));
-                } else {
+                }
+                // 否则打印
+                else {
                     for (String key : params.vals) {
-                        String v = u.getString(key);
-                        sys.out.printf("%8s : %s\n", key, v);
+                        Object v = u.get(key);
+                        sys.out.printf("%8s : %s\n", key, Castors.me().castToString(v));
                     }
                 }
 
