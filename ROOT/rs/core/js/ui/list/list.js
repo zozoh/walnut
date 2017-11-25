@@ -131,7 +131,7 @@ return ZUI.def("ui.list", {
         var opt = UI.options;
 
         // 获取显示值
-        var s  = opt.__dis_obj.call(UI, obj, index, opt);
+        var s  = opt.__dis_obj.call(UI, obj, opt, index);
 
         // 逃逸 HTML
         if(opt.escapeHtml === true) {
