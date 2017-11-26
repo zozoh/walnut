@@ -269,10 +269,10 @@
                         return v || null;
                     case 'float':
                         var re = v * 1;
-                        return v == re ? re : -1;
+                        return v == re ? re : v;
                     case 'int':
                         var re = v * 1;
-                        return v == re ? parseInt(re) : -1;
+                        return v == re ? parseInt(re) : v;
                     case 'object':
                         // 弱弱的尝试一下转换成 Json 对象
                         try {

@@ -87,10 +87,10 @@ return ZUI.def("ui.mask", {
             // 建立 UI 并记录实例到自己的属性
             seajs.use(uiType, function(BodyUI){
                 UI.body = new BodyUI(uiConf).render(function(){
-                    UI.defer_report(0, uiType);
+                    UI.defer_report("body");
                 });
             });
-            return [uiType];
+            return ["body"];
         }
     },
     //...............................................................

@@ -91,9 +91,9 @@ return ZUI.def("ui.th_obj", {
         // 准备延迟加载项目
         var keys = [];
         if(UI.gasket.index)
-            keys.push("index");
+            keys.push("update_index");
         if(UI.gasket.data)
-            keys.push("data");
+            keys.push("update_data");
 
         // 注册延迟加载函数
         UI.defer(keys, function(){
@@ -103,13 +103,13 @@ return ZUI.def("ui.th_obj", {
         // 更新索引界面
         if(UI.gasket.index)
             UI.gasket.index.update(o, function(){
-                UI.defer_report("index");
+                UI.defer_report("update_index");
             });
 
         // 更新数据界面
         if(UI.gasket.data)
             UI.gasket.data.update(o, function(){
-                UI.defer_report("data");
+                UI.defer_report("update_data");
             });
     },
     

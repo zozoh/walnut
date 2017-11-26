@@ -47,8 +47,7 @@ var methods = {
         // 读取数据
         var re = ["loading"];
         UI.setItems(UI.options.items, function(){
-            re.pop();
-            UI.defer_report(0, "loading");
+            UI.defer_report("loading");
         });
 
         // 返回，以便异步的时候延迟加载

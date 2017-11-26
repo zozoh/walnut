@@ -81,6 +81,13 @@ public class HttpApiModule extends AbstractWnModule {
                 throw Er.create("e.api.nofound", api);
             }
 
+            // 如果有原来的老会话，则记录一下操作会话
+            WnSession oldSe = null;
+            String seid = Wn.WC().SEID();
+            if (!Strings.isBlank(seid)) {
+                oldSe = this.sess().fetch(seid);
+            }
+
             // 将当前线程切换到指定的用户
             WnContext wc = Wn.WC();
             wc.me("root", "root");
@@ -102,6 +109,10 @@ public class HttpApiModule extends AbstractWnModule {
 
             // 生成请求对象
             WnObj oReq = __gen_req_obj(req, u, oApi, oTmp);
+
+            // 记录老的Session对象信息
+            if (null != oldSe)
+                oReq.setv("se", oldSe.toMapForClient());
 
             // 执行 API 文件
             try {
@@ -241,7 +252,8 @@ public class HttpApiModule extends AbstractWnModule {
         InputStream ins = req.getInputStream();
         try (OutputStream ops = io.getOutputStream(oReq, 0)) {
             Streams.write(ops, ins);
-        };
+        }
+        ;
 
         // 将请求的对象设置一下清除标志（缓存 30 分钟)
         oReq.expireTime(System.currentTimeMillis() + 1800000L);

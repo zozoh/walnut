@@ -203,6 +203,9 @@ define(function (require, exports, module) {
         //............................................
         __init__: function (options) {
             var UI = this;
+            //............................... 初始化延迟处理
+            UI._defer_keys = {};
+            UI._defer_callbacks = [];
             //............................... 保存配置项
             var opt = options || {};
             UI.options = opt;
@@ -524,10 +527,6 @@ define(function (require, exports, module) {
                 }
                 // 用户自定义 redraw 执行完毕的处理
                 var do_after_redraw = function () {
-                    // if("ui.mask" == UI.uiName)
-                    //     console.log("!!!!! do_after_redraw:", UI.uiName, UI._defer_uiTypes)
-                    // 回调，延迟处理，以便调用者拿到返回值之类的
-                    //window.setTimeout(function(){
                     // 触发事件
                     $z.invoke(UI.options, "on_redraw", [], UI);
                     UI.trigger("ui:redraw", UI);
@@ -604,20 +603,17 @@ define(function (require, exports, module) {
                         UI.arena.addClass(UI.options.arenaClass);
                     }
 
-                    // 调用UI的特殊重绘方法，如果方法返回了一组 ui 的类型，那么就表示
-                    // 用户在方法里采用了异步还要加载这组 UI
-                    // 加载完毕后，调用者需要主动在自己的 redraw 函数里，调用
-                    //  UI.defer_report(i, uiType)
-                    // 标识加载完成，待全部异步加载的 UI 完成后，会调才会调用 do_after_redraw
-                    var uiTypes = $z.invoke(UI.$ui, "redraw", [], UI);
-                    if (!uiTypes || uiTypes.length == 0) {
+                    // 看看控件定义的绘制函数是否是异步的，如果是异步的会返回
+                    // 一组 deferKeys， 之后控件会主动通过 defer_report
+                    // 函数来触发 do_after_redraw
+                    var deferKeys = $z.invoke(UI.$ui, "redraw", [], UI);
+                    if (!deferKeys || deferKeys.length == 0) {
                         do_after_redraw();
                     }
-                    // 哦？ 是异步的绘制，那么先存储一下回调，等待 UI 全部加载完再调用
+                    // 哦？ 是异步的绘制，那么先存储一下回调，等待 UI 全部加载完
+                    // 自会主动调用，否则 UI 就绘制不出来咯
                     else {
-                        UI._defer_do_after_redraw = do_after_redraw;
-                        UI._defer_uiTypes = [].concat(uiTypes);
-                        UI._check_defer_done("redraw");
+                        UI.defer(deferKeys, do_after_redraw);
                     }
 
                     // 调用自定义的 dom 监听
@@ -649,7 +645,7 @@ define(function (require, exports, module) {
                             UI.listenUI(m[1], m[2], handler);
                         }
                     }
-                    //console.log("do_render:", UI.uiName, UI._defer_uiTypes)
+                    //console.log("do_render:", UI.uiName, UI._defer_keys)
                 };
                 // 看看是否需要解析 DOM
                 var uiDOM = UI.options.dom || UI.$ui.dom;
@@ -739,68 +735,61 @@ define(function (require, exports, module) {
         // 本函数利用了 redraw 的 defer 机制，所以只能在 redraw 完成后
         // 调用，否则 redraw 会出现问题
         defer : function(keys, callback) {
-            if(keys && _.isFunction(callback)) {
-                this._defer_uiTypes = [].concat(keys);
-                this._defer_do_after_redraw = callback;
+            var UI = this;
+            // 直接添加延迟回调
+            if(_.isFunction(keys)) {
+                UI._defer_callbacks.push(keys);
             }
+            // 指定了 keys 和回调
+            else if(keys && _.isFunction(callback)) {
+                // 合并键
+                keys = [].concat(keys);
+                for(var i=0; i<keys.length; i++)
+                    UI._defer_keys[keys[i]] = true;
+                // 合并回调
+                UI._defer_callbacks.push(callback);
+            }
+            //console.log("defer", UI.uiName, _.keys(UI._defer_keys).join(","));
         },
         //............................................
         // 汇报自己完成了哪个延迟加载的 UI
-        defer_report: function (i, uiType) {
+        defer_report: function (key) {
             var UI = this;
-            if (!UI._loaded_uiTypes)
-                UI._loaded_uiTypes = [];
 
             // 因为是延迟，所以放到执行队列最后执行
             window.setTimeout(function () {
-                // console.log(" - defer", UI.uiName, i, uiType)
-                if (UI._loaded_uiTypes
-                    && UI._defer_uiTypes
-                    && UI._defer_do_after_redraw) {
-                    // 如果仅仅给了个 uiType，那么自动寻找 i
-                    if (_.isString(i)) {
-                        uiType = i;
-                        i = UI._defer_uiTypes.indexOf(uiType);
-                        if (i < 0) {
-                            alert("defer uiType '" + uiType + "' without define!");
-                            throw "defer uiType '" + uiType + "' without define!";
-                        }
-                    }
-                    // 记录加载完的项目
-                    UI._loaded_uiTypes[i] = uiType;
-                    UI._check_defer_done();
+                //console.log("report", UI.uiName, _.keys(UI._defer_keys).join(","));
+                // 抛出明显的错误
+                if (_.isUndefined(UI._defer_keys[key])) {
+                    alert("defer key '" + key + "' without define!");
+                    throw "defer key '" + key + "' without define!";
                 }
-                // 已经被执行完了
-                else {
-                    // console.log(" - !!! ignore");
-                }
+            
+                // 记录加载完的项目
+                UI._defer_keys[key] = false;
+
+                // 检查加载是否全部完成
+                UI.__check_all_defer_done();
             }, 0);
         },
-        _check_defer_done: function () {
+        __check_all_defer_done: function () {
             var UI = this;
-            if (UI._loaded_uiTypes
-                && UI._defer_uiTypes
-                && UI._defer_do_after_redraw) {
-                if (UI._loaded_uiTypes.length == UI._defer_uiTypes.length) {
-                    for (var i = 0; i < UI._loaded_uiTypes.length; i++) {
-                        if (UI._loaded_uiTypes[i] != UI._defer_uiTypes[i]) {
-                            return;
-                        }
-                    }
-                    // 延迟调用
-                    //window.setTimeout(function(){
-                    if (UI._loaded_uiTypes
-                        && UI._defer_uiTypes
-                        && UI._defer_do_after_redraw) {
-                        // console.log(" - defer done", UI.uiName)
-                        UI._defer_do_after_redraw.call(UI);
-                        delete UI._defer_uiTypes;
-                        delete UI._loaded_uiTypes;
-                        delete UI._defer_do_after_redraw;
-                    }
-                    //}, 0);
-                }
-            }
+            //console.log("check all done[..]", UI.uiName, _.keys(UI._defer_keys).join(","));
+            // 检查是否所有的 key 都被加载完成了
+            for(var key in UI._defer_keys)
+                if(UI._defer_keys[key])
+                    return;
+            //console.log("check all done[OK]", UI.uiName);
+            // 进行到这里，表示都完成了，记录一下要调用的函数表
+            var callbacks = UI._defer_callbacks;
+
+            // 清空 defer 的设定
+            UI._defer_keys = {};
+            UI._defer_callbacks = [];
+            
+            // 依次调用回调
+            for(var i=0; i<callbacks.length; i++)
+                callbacks[i].call(UI);
         },
         //............................................
         // 替换 css 路径中的 {{theme}} 占位符

@@ -41,9 +41,9 @@ public class voucher_list_coupon implements JvmHdl {
                     query.setv(key, Region.Longf("(,%d)", Times.ams(val.toString())));
                 }
                 // 用户: 转换成 ID
-                else if ("user".equals(key)) {
+                else if ("user".equals(key) && null != val) {
                     sys.nosecurity(() -> {
-                        WnUsr u = sys.usrService.check(key);
+                        WnUsr u = sys.usrService.check(val.toString());
                         query.setv("voucher_uid", u.id());
                     });
                 }
@@ -60,9 +60,14 @@ public class voucher_list_coupon implements JvmHdl {
                                           "/var/voucher/" + sys.me.name() + "/" + voucher_name);
                 query.setv("pid", wobj.id());
             }
+            // 否则只是搜索自己创建的代金券
+            else {
+                query.setv("c", sys.me.name());
+            }
             WnPager pager = new WnPager(hc.params);
             pager.setupQuery(sys, query);
             List<WnObj> list = sys.io.query(query);
+            
             Cmds.output_objs(sys, hc.params, pager, list, false);
         });
     }
