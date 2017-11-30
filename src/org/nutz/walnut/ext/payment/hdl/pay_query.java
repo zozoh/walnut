@@ -72,6 +72,7 @@ public class pay_query implements JvmHdl {
         q.sort(sort);
 
         // 查询结果
+        wp.setupQuery(sys, q);
         List<WnPayObj> list = pay.query(q);
 
         // 输出

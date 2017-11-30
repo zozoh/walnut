@@ -117,14 +117,29 @@ public class WnPayInfo {
     }
 
     /**
-     * 支付的金额，单位是分
+     * 支付的金额（优惠后），单位是分
      */
     public int fee;
+
+    /**
+     * 订单价格（优惠前），单位是分
+     */
+    public int price;
 
     /**
      * 默认是 RMB，表示货币
      */
     public String cur;
+
+    /**
+     * 优惠券对象
+     */
+    public WnObj coupon;
+
+    /**
+     * 限制优惠券的范围
+     */
+    public String couponScope;
 
     /**
      * 支付单简要描述

@@ -12,6 +12,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.mapl.Mapl;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.TextTable;
@@ -296,7 +297,7 @@ public abstract class Cmds {
                     cells.add("" + (i++));
                     continue;
                 }
-                Object v = map.get(key);
+                Object v = Mapl.cell(map, key);
                 cells.add(v == null ? null : v.toString());
             }
             tt.addRow(cells);

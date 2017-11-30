@@ -71,6 +71,7 @@ public abstract class WnPays {
         if (m.find()) {
             wpi.fee = Integer.parseInt(m.group(1));
             wpi.cur = Strings.sBlank(m.group(4), null);
+            wpi.price = wpi.fee;
         }
         // 非法
         else {

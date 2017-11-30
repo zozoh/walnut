@@ -47,6 +47,13 @@ public class pay_create implements JvmHdl {
         // 填充费用
         WnPays.fillFee(wpi, hc.params.check("fee"));
 
+        // 填充优惠券对象
+        String couponId = hc.params.get("co");
+        if (!Strings.isBlank(couponId) && !"true".equals(couponId)) {
+            wpi.coupon = sys.io.checkById(couponId);
+            wpi.couponScope = hc.params.get("scope");
+        }
+
         // 回调
         if (hc.params.has("callback")) {
             wpi.callbackName = hc.params.get("callback");
@@ -61,8 +68,26 @@ public class pay_create implements JvmHdl {
         // 创建支付单
         WnPayObj po = pay.create(wpi);
 
-        // 继续发送支付单
-        if (hc.params.has("pt")) {
+        // 金额免费的话，直接完成支付单
+        if (po.getInt(WnPayObj.KEY_FEE) <= 0) {
+            // 发送支付单
+            pay.send(po, "free", null);
+
+            // 完成支付单
+            WnPay3xRe re = pay.complete(po, null);
+
+            // 看看有没有必要调用回调
+            WnPays.try_callback(sys, po);
+
+            // 输出完成的结果
+            sys.out.println(Json.toJson(re,
+                                        JsonFormat.nice()
+                                                  .setQuoteName(true)
+                                                  .setIgnoreNull(false)
+                                                  .setLocked("^(changedKeys)$")));
+        }
+        // 指定了类型，继续发送支付单
+        else if (hc.params.has("pt")) {
             // 得到支付类型
             String payType = hc.params.get("pt");
 

@@ -24,6 +24,7 @@ public interface WnPayObj extends WnObj {
     static final String KEY_PAY_TARGET = "pay_target";
     static final String KEY_CUR = "cur";
     static final String KEY_FEE = "fee";
+    static final String KEY_PRICE = "price";
     static final String KEY_ST = "st"; // @see WnPay3xStatus
     static final String KEY_RETURN_URL = "pay_return_url";
     static final String KEY_RE_TP = "re_tp";
@@ -60,6 +61,10 @@ public interface WnPayObj extends WnObj {
      * "pay_tp" 段值（KEY_PAY_TP）：支付宝被物理码枪扫付款码支付
      */
     static final String PT_ZFB_SCAN = "zfb.scan";
+    /**
+     * "pay_tp" 段值（KEY_PAY_TP）：免费
+     */
+    static final String PT_FREE = "free";
 
     // ..............................................................
 
@@ -70,7 +75,7 @@ public interface WnPayObj extends WnObj {
     boolean isStatusFail();
 
     boolean isStatusWait();
-    
+
     boolean isDone();
 
     WnPayObj status(WnPay3xStatus status);
@@ -92,9 +97,9 @@ public interface WnPayObj extends WnObj {
     boolean isTheSeller(WnUsr u);
 
     boolean isTheBuyer(WnUsr u);
-    
+
     WnPay3xRe getPayReturn();
-    
+
     NutBean toBean();
 
 }

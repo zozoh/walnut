@@ -153,6 +153,10 @@ public class ZParams {
         return v;
     }
 
+    public int val_check_int(int index) {
+        return Integer.parseInt(val_check(index));
+    }
+
     public boolean is(String key) {
         return map.getBoolean(key, false);
     }

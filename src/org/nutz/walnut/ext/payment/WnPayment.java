@@ -20,9 +20,11 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.ext.payment.alipay.ZfbQrcodePay3x;
 import org.nutz.walnut.ext.payment.alipay.ZfbScanPay3x;
+import org.nutz.walnut.ext.payment.free.FreePay3x;
 import org.nutz.walnut.ext.payment.weixin.WxJsApiPay3x;
 import org.nutz.walnut.ext.payment.weixin.WxQrcodePay3x;
 import org.nutz.walnut.ext.payment.weixin.WxScanPay3x;
+import org.nutz.walnut.ext.voucher.Coupons;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
@@ -46,6 +48,7 @@ public class WnPayment {
         _3xes.put(WnPayObj.PT_WX_SCAN, new WxScanPay3x());
         _3xes.put(WnPayObj.PT_ZFB_QRCODE, new ZfbQrcodePay3x());
         _3xes.put(WnPayObj.PT_ZFB_SCAN, new ZfbScanPay3x());
+        _3xes.put(WnPayObj.PT_FREE, new FreePay3x());
     }
 
     public void on_create() {
@@ -244,7 +247,6 @@ public class WnPayment {
             }
         }
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
         // 查看后续回调脚本
         String callback = null;
         if (wpi.hasCallback()) {
@@ -254,15 +256,42 @@ public class WnPayment {
         // 得到主目录
         WnObj oPayHome = WnPays.getPayHome(run.io());
 
-        // 创建对象
-        WnObj oPayObj = run.io().create(oPayHome, "${id}", WnRace.FILE);
-
+        // ....................................................
         // 设置元数据
-        NutMap meta = Lang.obj2map(wpi, NutMap.class);
-        meta.remove("meta");
+        NutMap meta = new NutMap();
+
+        // 用户自定义的元数据优先级最低
         if (null != wpi.meta && wpi.meta.size() > 0) {
             meta.putAll(wpi.meta);
         }
+
+        // 计算优惠券
+        if (null != wpi.coupon) {
+            // 确保优惠券是未使用的
+            if (wpi.coupon.has("voucher_payId")) {
+                throw Er.create("e.cmd.pay.create.coupon_used", wpi.coupon);
+            }
+            // 确保优惠券可用
+            if (!Coupons.isAvailable(wpi.coupon, wpi.couponScope)) {
+                throw Er.create("e.cmd.pay.create.coupon_noava");
+            }
+            // 确保是合法优惠券
+            if (!wpi.coupon.path().startsWith("/var/voucher/" + wpi.seller_nm)) {
+                throw Er.create("e.cmd.pay.create.invalid_coupon", wpi.coupon);
+            }
+            // 确保优惠券属于当前用户
+            if (!wpi.coupon.is("voucher_uid", wpi.buyer_id)) {
+                throw Er.create("e.cmd.pay.create.invalid_coupon_user", wpi.buyer_nm);
+            }
+            // 试算优惠券
+            NutMap re = Coupons.eval(wpi.coupon, wpi.price);
+            wpi.fee = re.getInt("price_new");
+        }
+
+        // 关键元数据
+        NutMap m2 = Lang.obj2map(wpi, NutMap.class);
+        m2.remove("meta");
+        meta.putAll(m2);
 
         // 固定的初始化值
         meta.put("tp", "wn_payment");
@@ -272,6 +301,25 @@ public class WnPayment {
         meta.setnx(WnPayObj.KEY_SEND_AT, 0);
         meta.setnx(WnPayObj.KEY_CLOSE_AT, 0);
 
+        // ....................................................
+        // 创建对象
+        WnObj oPayObj = run.io().create(oPayHome, "${id}", WnRace.FILE);
+
+        // 标识优惠券已经被使用
+        if (null != wpi.coupon) {
+            String cmdText = String.format("voucher use_coupon %s %d '%s' -payId %s",
+                                           wpi.coupon.id(),
+                                           wpi.price,
+                                           wpi.buyer_nm,
+                                           oPayObj.id());
+            if (!Strings.isBlank(wpi.couponScope))
+                cmdText += " -scope " + wpi.couponScope;
+
+            // 使用优惠券
+            run.exec("payment", wpi.seller_nm, cmdText);
+        }
+
+        // ....................................................
         // 持久化
         run.io().appendMeta(oPayObj, meta);
 

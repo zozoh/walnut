@@ -62,10 +62,10 @@ return ZUI.def("ui.wizard", {
         if(_.isUndefined(btn))
             btn = dft;
         if(!_.isUndefined(btn)) {
-            if(!_.isObject(btn)){
+            if(!btn.action){
                 step[btnKey] = $z.obj("action", btn);
             }
-            //console.log(btnKey, dft, step)
+            // console.log(btnKey, dft, step)
         }
     },
     //...............................................................
@@ -82,30 +82,22 @@ return ZUI.def("ui.wizard", {
 
             // 下一步
             if("next" == btnMode) {
-                var stepKey;
-
-                // 直接跳转到某一步
-                if(_.isString(step.next.action)){
-                    stepKey = step.next.action;
-                }
-                // 计算下一步
-                else if(_.isFunction(step.next.action)){
-                    stepKey = step.next.action.call(context, data, UI);
-                }
-                // 直接跳转到下一步
-                else {
-                    stepKey = 1;
-                }
-
                 // 保存数据
                 UI.saveData();
+
+                // 寻找下一步跳转的目标
+                var stepKey = UI.__get_target_stepKey(step.next, 1);
 
                 // 执行跳转
                 UI.gotoStep(stepKey);
             }
             // 上一步
             else if("prev" == btnMode) {
-                UI.gotoStep(-1);
+                // 寻找下一步跳转的目标
+                var stepKey = UI.__get_target_stepKey(step.prev, -1);
+
+                // 执行跳转
+                UI.gotoStep(stepKey);
             }
             // 完成
             else if("done" == btnMode) {
@@ -117,6 +109,27 @@ return ZUI.def("ui.wizard", {
                 $z.invoke(opt,  "on_done", [data, UI], context);
             }
         },
+    },
+    //...............................................................
+    __get_target_stepKey : function(stepBtn, dftStepKey){
+        var UI  = this;
+        var opt = UI.options;
+        var data = UI.getData();
+        var context = opt.context || UI;
+
+        if(_.isString(stepBtn.action)){
+            return stepBtn.action;
+        }
+        // 计算下一步
+        if(_.isFunction(stepBtn.action)){
+            return stepBtn.action.call(context, data, UI);
+        }
+        // 直接跳转的步数
+        if(_.isNumber(stepBtn.action)){
+            return stepBtn.action;
+        }
+        // 返回默认跳转
+        return dftStepKey;
     },
     //...............................................................
     redraw : function() {
@@ -313,7 +326,9 @@ return ZUI.def("ui.wizard", {
         var jB = UI.arena.find('> footer > b[m="next"]');
 
         // 看看按钮状态
-        if(jB.length > 0 && UI.gasket.main && $z.invoke(UI.gasket.main, "isDataReady",[])) {
+        if(jB.length > 0 
+           && UI.gasket.main 
+           && $z.invoke(UI.gasket.main, "isDataReady",[])) {
             jB.attr("enabled", "yes");
         }
         // 按钮灰掉
