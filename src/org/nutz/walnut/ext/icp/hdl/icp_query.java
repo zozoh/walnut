@@ -22,6 +22,11 @@ public class icp_query implements JvmHdl {
 			hostname = hostname.substring(4);
 		Elements eles = Jsoup.parse(new URL("http://" + hostname + ".xin"), 10000).select(".company .detail");
 		NutMap map = new NutMap();
+		if (eles.size() < 1) {
+			map.put("error", "icp_not_found");
+			sys.out.writeJson(map, JsonFormat.full());
+			return;
+		}
 		for (Element ele : eles.first().children()) {
 			if ("name".equals(ele.attr("class"))) {
 				map.put("ltdname", ele.text());
