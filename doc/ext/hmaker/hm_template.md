@@ -1,5 +1,5 @@
 ---
-title:站点模板
+title:模板机制
 author:zozoh
 tags:
 - 扩展
@@ -11,11 +11,37 @@ tags:
 任何一个站点都可以选用一套模板，来为 `dynamic` 控件数据提供 DOM 渲染逻辑. 模板存放在域中 `.hmaker` 目录下以便多个站点共享
 
 ```
-~/.hmaker/template
+~/.hmaker/template/your_cat
     templateA           # 模板所有的资源存放目录
-        templagte.info.json  # 一个JSON文件，以便编辑器理解皮肤
-        jquery.fn.js         # 模板的 jQuery 插件
+        templagte.info.json    # 一个JSON文件，以便编辑器理解皮肤
+        jquery.fn.js           # 模板的 jQuery 插件
+        dom.wnml               #「选」服务器渲染脚本
 ```
+
+- 模板的目录名和分类名只能是 `[0-9a-zA-Z_]+` 否则会出事
+    + @see [皮肤机制之自动映射模板](hm_skin.md#自动映射模板)
+
+# 标准模板
+
+hMaker 默认提供了一组标准模板，以便应对大多数动态数据的渲染，标准模板存放在 
+`~/.hmaker/template/_std` 目录下，其包含如下模板:
+
+```
+th_list_article      # 文章列表，可用来显示新闻咨询等
+th_list_media        # 媒体列表，可用来显示视频，图片等
+th_list_goods        # 商品列表
+th_tile_media        # 缩略图集
+th_tile_goods        # 商品图集
+th_wall_video        # 视频墙（弹出式播放视频）
+th_wall_picture      # 图片墙（弹出式播放图片）
+th_datasheet         # 数据表格
+th_show_article      # 文章详情
+th_show_video        # 播放视频
+th_show_goods        # 商品详情
+th_show_picture      # 显示图片
+```
+
+> !!! 每个皮肤都必须支持标准模板。 @see [皮肤机制](hm_skin.md)
 
 # templagte.info.json
 

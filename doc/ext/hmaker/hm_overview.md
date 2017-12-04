@@ -1,5 +1,5 @@
 ---
-title  : HMaker 总体设计
+title  : hMaker 总体设计
 author : zozoh
 tags:
 - 扩展
@@ -7,97 +7,41 @@ tags:
 ---
 
 
-# 消息系统
-
-hmaker 的子 UI 可以监听下列通知:
-
- Message         | Params        | Comments 
------------------|---------------|----------
-active:rs        | o             | 选中资源项目
-active:folder    | o             | 文件夹被激活
-active:other     | o             | 其他对象被激活
-active:page      |               | 页面被激活
-active:block     | jBlock        | 块被激活
-active:area      | jArea         | 栏被激活
-active:com       | jCom          | 组件被激活
-hange:block     | {..}          | 块被修改
-change:area      | {..}          | 栏被修改
-change:com       | {..}          | 组件被修改
-change:com:ele   | {..}          | 组件内元素被修改后
-show:com:ele     | --            | 需要显示控件的扩展属性面板
-hide:com:ele     | --            | 需要隐藏控件的扩展属性面板
-active:file      | o             | 文件夹视图里文件被激活
-blur:file        | nextObj       | 文件夹视图里文件被取消激活
-active:lib       |               | 库文件夹被激活
-active:libItem   | o             | 库对象被激活
-blur:libItem     | nextObj       | 库对象被取消激活
-reload:folder    |               | 通知文件夹视图重新刷新自己的子节点
-change:site:skin |               | 站点的皮肤发生改变
-
-新消息表
-
- Message         | Params            | Comments 
------------------|-------------------|----------
-active:rs        | `o`                 | 选中资源项目
-active:folder    | `o`                 | 文件夹被激活
-active:other     | `o`                 | 其他对象被激活
-active:page      | `o`                 | 页面被激活
-active:com       | `uiCom`             | 组件被激活
-active:area      | `jArea`             | 栏被激活
-change:block     | `mode,uiCom,block`  | 组件布局被修改
-change:com       | `mode,uiCom,com`    | 组件数据被修改
-active:file      | `o`                 | 文件夹视图里文件被激活
-blur:file        |                     | 文件夹视图里文件被取消激活
-reload:folder    |                     | 通知文件夹视图重新刷新自己的子节点
-change:site:skin |                     | 站点的皮肤发生改变
-
-
-# 关键调用顺序
-
-## 插入控件
+# hMaker 的数据结构
 
 ```
-#...........................................
-# 编辑区
-hm_page : 用户 Click -> doInsertCom() {   
-    创建 jCom 并 +ctype
-    
-    bindComUI(uiCom) {
-        [hm__methods_com].setData() {
-            uiCom.paint() ...
-        }
-        [hm__methods].fire("active:com", jCom)
-    }
-}
-#...........................................
+#######################################################
+# 配置
+~/.hmaker                    # hMaker 的配置目录
+    skin                     # 皮肤目录 @see hm_skin.md
+        default              # 某个指定的皮肤目录 
+        ...
+    template                 # 模板目录 @see hm_template.md
+        _std                 # 标准模板分类目录
+            th_list_article  # 某个模板目录
+            ...
+        abc                  # 某个扩展分类目录
+        xyz                  # 另外一个扩展分类目录
+    prototype                # 网站原型，提供了页面
+        ... 还没想好 ...
+#######################################################
+# 编辑
+~/sites                      # 站点
+    Nutzam官网               # 某个站点目录
+    天天爱踢球社区             # 每个目录都是一个站点
+    ...
+#######################################################
+# 数据集
+~/thing
+    Nutz新闻                # 数据集目录结构参照 thing
+    踢球路线图               # 提供统一的编辑界面
+    ...
+#######################################################
+# 运行时
+~/www
+    nutzam.com              # 运行时站点的目录
+    www.ttatq.com           # 通常是一个域名
+    ...
 ```
 
-
-## 激活控件
-
-TODO 看来 com 应该提供统一的方法，
- - getData  是获取 com
- - getBlock 是获取 block
- - setupProp 对应的 com 编辑界面
- - blockProp 为 com 默认的块属性
-
-```
-#...........................................
-# 编辑区
-hm_page : "active:com" -> doActiveCom(jCom) {
-    标记 hm-actived=yes
-}
-#...........................................
-# 属性面板
-hm_prop_edit : "active:com" -> doActiveCom(jCom) {
-    uiCom = pageUI.bindComUI(jCom)
-    
-    com = uiCom.getData()
-    
-    this.changeCom(com) {
-        gasket.com.update(com)
-    }
-}
-#...........................................
-```
 
