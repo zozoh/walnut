@@ -218,6 +218,12 @@
 			<artifactId>nutz-plugins-ip2region</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>2.13.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
