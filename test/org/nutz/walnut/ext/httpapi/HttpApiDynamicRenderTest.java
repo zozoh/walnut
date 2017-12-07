@@ -132,8 +132,8 @@ public class HttpApiDynamicRenderTest {
         assertEquals(200, resp.getStatus());
         byte[] fromResp = respOut.toByteArray();
         byte[] fromReal = out.toByteArray();
-        org.nutz.lang.Files.write("D:\\real.jpg", fromReal);
-        org.nutz.lang.Files.write("D:\\resp.jpg", fromResp);
+        //org.nutz.lang.Files.write("D:\\real.jpg", fromReal);
+        //org.nutz.lang.Files.write("D:\\resp.jpg", fromResp);
         assertEquals(fromReal.length, fromResp.length);
         for (int i = 0; i < fromReal.length; i++) {
             if (fromReal[i] != fromResp[i]) {
