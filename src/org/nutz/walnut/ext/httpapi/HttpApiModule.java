@@ -26,7 +26,6 @@ import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
-import org.nutz.mvc.view.HttpServerResponse;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
@@ -171,12 +170,9 @@ public class HttpApiModule extends AbstractWnModule {
         if (oApi.getBoolean("http-dynamic-header")) {
             this.__setup_resp_header(oApi, oReq, mimeType, resp);
 
-            String html = this.exec("box", se, null, cmdText);
-
-            HttpServerResponse hsr = new HttpServerResponse();
-            hsr.updateBy(html);
-
-            hsr.render(resp);
+            HttpApiDynamicRender render = new HttpApiDynamicRender(resp);
+            this.exec("box", se, cmdText, render.getStdout(), render.getStderr(), null, null);
+            render.close();
             return;
         }
 
