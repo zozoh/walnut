@@ -15,9 +15,12 @@ tags:
 ~/.hmaker                    # hMaker 的配置目录
     .cache                   # 缓存目录
          skin                # 皮肤的预编译缓存
-            default.css      # 对于 default 皮肤的less编译缓存
+            myskin.css       # 对于 default 皮肤的less编译缓存
                              # 会记录指纹（和ETag同理）
                              # 以便 LesscService 不重复编译
+    setup
+        skin
+            myskin_var.less  # 皮肤的用户自定义变量
     skin                     # 皮肤目录 @see hm_skin.md
         default              # 某个指定的皮肤目录 
         ...

@@ -41,7 +41,7 @@ th_show_goods        # 商品详情
 th_show_picture      # 显示图片
 ```
 
-> !!! 每个皮肤都必须支持标准模板。 @see [皮肤机制](hm_skin.md)
+!!! 每个皮肤都必须支持标准模板。 @see [皮肤机制](hm_skin.md)
 
 # templagte.info.json
 

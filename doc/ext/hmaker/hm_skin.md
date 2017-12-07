@@ -13,9 +13,11 @@ tags:
 ```
 ~/.hmaker/skin
     skin_nameA                # 皮肤所有的资源存放目录
-        skin.info.json  # 一个JSON文件，以便编辑器理解皮肤
-        skin.css        # 皮肤的样式文件
-        skin.js         # 「选」皮肤的 JS 文件
+        skin.info.json      # 一个JSON文件，以便编辑器理解皮肤
+        skin.css            # 皮肤的样式文件「输出结果」
+        skin.less           # 皮肤的样式文件
+        _skin_var.less      # 皮肤样式的变量文件
+        skin.js             # 「选」皮肤的 JS 文件
 ```
 
 # skin.info.json
@@ -138,15 +140,91 @@ com : {
 
 # skin.less
 
-*待描述*
+暂时允许随便写吧 ^_^!，以后应该加一个约定，以便根据 skin.info.json 生成，也能根据 skin.less 生成 skin.info.json
 
 # _skin_var.less
 
-*待描述*
+格式如下，以便编辑器能正确解析格式
+
+```
+//#全局设置
+@f_0         : .18rem;     // 默认文字大小
+@lnk_c       : #08F;       // 链接颜色
+@lnk_ho_c    : #F80;       // 链接悬浮颜色
+@h_f_c       : #000;       // 高亮区前景色
+@h_b_c       : #f9c320;    // 高亮区背景色
+
+//#页眉设定
+@sky_title_c  : #444;       // 网站标题颜色
+```
 
 # skin.css
 
-没啥好说的，就是 css 由 `lessc` 生成，是 skin 的主要逻辑体现
+皮肤的主体就是一个 CSS 文件。这个 CSS 文件通常是通过 `skin.less` 生成的，在皮肤目录下：
+
+```
+_skin_var.less
+    |
+    | 引入
+    v
+skin.less
+    |
+    | 生成
+    v
+skin.css
+```
+
+在一个域，用户在的配置文件是
+
+```
+~/hmaker/skin
+    myskin
+        _skin_var.less
+        skin.less
+        skin.css
+```
+
+## 编辑时 skin.css 的生成
+
+编辑时，会要求能动态反映出 `skin.less` 的修改结果，因此编辑器会请求 `/api/youdomein/hmaker/load/45ac..89ae/skin.css`，在 REGAPI 里面会设置路径参数适配接口 
+
+```
+~/.regapi/api/hmaker/load/_ANY/_ANY/_action
+  _ANY[0] {"api-param-name" : "siteId"}
+  _ANY[1] {"api-param-name" : "rsPath"}
+%COPY:
+hmaker read id:${http-params.siteId?none} '${http-params.rsPath}' \
+            -force ${http-qs-f?false}
+%END%
+```
+
+当 `hmaker read` 发现 *rsPath* 是 *skin.css* 的时候，就会自动寻找站点的配置信息，找到皮肤目录的 `skin.less` 将其编译。 当然 `skin.less` 里面 *import* 的 `_skin_var.less` 是默认规约，如果不引入这个文件，编辑器提供的界面是无法自定义 `_skin_var.less` 里面的内容的。
+
+本机制不限制你在 `skin.less` 引入更多的 less 文件。
+
+注意，用户自定义的皮肤变量存放在 `~/.hmaker/setup/skin/myskin_var.less`，这个文件如果存在，将会替换 `_skin_var.less` 里面的内容。即，`_skin_var.less` 里面的是变量的默认值。
+
+对于 `hmaker read` 命令，如果不指定 `-force true`，那么它会利用 `~/.hmaker/cache/skin/myskin.css` 作为缓存，这个文件有个元数据 `finger`，对应 skin 目录所有 `less/css` 文件的变动进行了签名，每次真正输出 css 都会更新这个文件并重新记录签名。以防止重复执行*less*的编译操作。
+
+签名算法为：
+
+```
+(伪代码）
+准备签名字符串 str
+遍历 skin 目录下所有的 less/css {
+    str += Wn.getEtag(obj)
+}
+签名为 MD5(str)
+```
+
+## 发布时的 skin.css 生成
+
+`hmaker publish` 命令发布整个站点的时候，会
+
+- 强制更新 `~/.hmaker/cache/skin/myskin.css`，并更新 `finger`
+- 将这个 `skin.css` copy到目标*www*目录下
+- 给页面直接引入 `skin.css`
+
 
 # skin.js
 
