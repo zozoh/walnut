@@ -148,11 +148,26 @@ public class HttpApiDynamicRender {
 
     protected void checkHttpHeader() throws IOException {
         byte[] tmp = stdoutBuf.toByteArray();
-        for (int i = lastOffset; i < tmp.length - 3; i++) {
+        for (int i = lastOffset; i < tmp.length - 1; i++) {
             // 标准的header总是以\r\n\r\n结束
-            if (tmp[i] == '\r' && tmp[i + 1] == '\n' && tmp[i + 2] == '\r' && tmp[i + 3] == '\n') {
+            int endIndex = 0;
+            if (tmp[i] == '\n') {
+                if (tmp[i+1] == '\r') {
+                    if (tmp.length - i < 2) {
+                        // 越界了, 等下一个数据吧
+                        return;
+                    }
+                    else if (tmp[i+2] == '\n') {
+                        endIndex = 2;
+                    }
+                }
+                else if (tmp[i+1] == '\n') {
+                    endIndex = 1;
+                }
+            }
+            if (endIndex > 0) {
                 // 找到啦!!!
-                String str = new String(tmp, 0, i + 2);
+                String str = new String(tmp, 0, i + endIndex);
                 // 处理之
                 int pos = str.indexOf('\n');
                 // 读取返回码
@@ -181,15 +196,15 @@ public class HttpApiDynamicRender {
                 }
 
                 // 头部解析完成, 剩余的字节写入resp
-                if (i < tmp.length - 4) {
-                    out.write(tmp, i + 4, tmp.length - i - 4);
+                if (i < tmp.length - endIndex - 1) {
+                    out.write(tmp, i + endIndex + 1, tmp.length - i - endIndex - 1);
                 }
                 stdoutBuf = null;
                 status = 5;
                 break;
             }
         }
-        lastOffset = tmp.length - 4;
+        lastOffset = tmp.length - 2;
         if (lastOffset > 8196) { // 读了8k还找不到?再见了
             out.write(tmp);
             stdoutBuf = null;

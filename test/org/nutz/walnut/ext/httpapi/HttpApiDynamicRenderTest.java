@@ -153,6 +153,51 @@ public class HttpApiDynamicRenderTest {
         assertEquals(1080, image.getHeight());
     }
 
+    // 非标准输出,只有\n\n,没有\r\n\r\n
+    @Test
+    public void test_stdout_not_standtor() throws IOException {
+        stdPrint("HTTP/1.1 400 OK\nContent-Length:4\n\nFUCK");
+        render.close();
+        assertEquals(400, resp.getStatus());
+        assertEquals("4", answers.get("http_header_Content-Length"));
+        assertEquals("FUCK", respOut.toString());
+    }
+
+    // 非标准输出,只有\n\r\n,没有\r\n\r\n
+    @Test
+    public void test_stdout_not_standard2() throws IOException {
+        stdPrint("HTTP/1.1 400 OK\nContent-Length:4\n\r\nFUCK");
+        render.close();
+        assertEquals(400, resp.getStatus());
+        assertEquals("4", answers.get("http_header_Content-Length"));
+        assertEquals("FUCK", respOut.toString());
+    }
+
+    // 非标准输出,只有\r\n\n,没有\r\n\r\n
+    @Test
+    public void test_stdout_not_standard3() throws IOException {
+        stdPrint("HTTP/1.1 400 OK\nContent-Length:4\r\n\nFUCK");
+        render.close();
+        assertEquals(400, resp.getStatus());
+        assertEquals("4", answers.get("http_header_Content-Length"));
+        assertEquals("FUCK", respOut.toString());
+    }
+
+    // 非标准输出,快到分隔符的地方,分段输出
+    @Test
+    public void test_stdout_not_standard_part_by_part() throws IOException {
+        stdPrint("HTTP/1.1 400 OK\n");
+        stdPrint("Content-Length:4\r\n");
+        stdPrint("");
+        stdPrint("\nFU");
+        stdPrint("");
+        stdPrint("CK");
+        render.close();
+        assertEquals(400, resp.getStatus());
+        assertEquals("4", answers.get("http_header_Content-Length"));
+        assertEquals("FUCK", respOut.toString());
+    }
+
     protected void stdPrint(String str) throws IOException {
         stdout.write(str.getBytes());
     }
