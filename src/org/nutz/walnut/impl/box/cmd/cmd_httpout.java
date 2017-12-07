@@ -49,8 +49,10 @@ public class cmd_httpout extends JvmExecutor {
             } else {
                 body = Wn.normalizeFullPath(body, sys);
                 WnObj wobj = sys.io.check(null, body);
+                headers.put("Content-Type", wobj.mime());
                 // 304 问题
                 if (Strings.isBlank(_etag)) {
+                    headers.put("Content-Length", "" + wobj.len());
                     ins = sys.io.getInputStream(wobj, 0);
                 }
                 else {
