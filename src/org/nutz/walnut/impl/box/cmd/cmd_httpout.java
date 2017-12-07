@@ -50,7 +50,10 @@ public class cmd_httpout extends JvmExecutor {
                 body = Wn.normalizeFullPath(body, sys);
                 WnObj wobj = sys.io.check(null, body);
                 // 304 问题
-                if (!Strings.isBlank(_etag)) {
+                if (Strings.isBlank(_etag)) {
+                    ins = sys.io.getInputStream(wobj, 0);
+                }
+                else {
                     etag = Wn.getEtag(wobj);
                     if (_etag.equalsIgnoreCase(etag)) {
                         // 看来是一样的哦, 304待命
