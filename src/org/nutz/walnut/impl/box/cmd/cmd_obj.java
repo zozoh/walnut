@@ -166,6 +166,31 @@ public class cmd_obj extends JvmExecutor {
             list = list2;
         }
 
+        // 返回一棵Tree, 根据指定层数递归展开
+        if (params.has("tree")) {
+            List<WnObj> list2 = new LinkedList<WnObj>();
+
+            String json = params.get("tree");
+            NutMap flt = "true".equals(json) ? new NutMap() : Lang.map(json);
+
+            WnQuery q = new WnQuery();
+            NutMap by = Lang.map(params.get("treeBy", "{}"));
+            q.setAll(by);
+
+            if (null != sort)
+                q.sort(sort);
+
+            int treeDepth = params.getInt("treeDepth", 1);
+
+            // 逐个展开结果列表
+            for (WnObj o : list) {
+                __do_tree(sys, list2, flt, q, o, treeDepth, 0);
+            }
+
+            // 指向新的结果
+            list = list2;
+        }
+
         // 执行更新
         if (null != u_map) {
             __do_update(sys, u_map, list);
@@ -233,6 +258,31 @@ public class cmd_obj extends JvmExecutor {
         else {
             list2.add(o);
         }
+    }
+
+    private void __do_tree(WnSystem sys,
+                           List<WnObj> resultList,
+                           NutMap flt,
+                           WnQuery q,
+                           WnObj o,
+                           int wantDepth,
+                           int currDepth) {
+        // 匹配的就展开
+        if (o.isDIR() && flt.match(o) && wantDepth > currDepth) {
+            // 准备子节点
+            List<WnObj> children = new ArrayList<WnObj>();
+            o.setv("children", children);
+
+            q.setv("pid", o.id());
+            sys.io.each(q, (int i, WnObj child, int len) -> {
+                // 设置父
+                child.setParent(o);
+                // 深层递归展开
+                __do_tree(sys, children, flt, q, child, wantDepth, currDepth + 1);
+            });
+        }
+        // 加到结果集里
+        resultList.add(o);
     }
 
     private void __do_groupCount(WnSystem sys,
