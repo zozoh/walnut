@@ -132,15 +132,25 @@ public abstract class Cmds {
         Cmds.output_beans(sys, params, wp, list);
     }
 
+    private static List<NutMap> outs(ZParams params, List<? extends NutBean> list) {
+        List<NutMap> outs = new ArrayList<NutMap>(list.size());
+        for (NutBean o : list) {
+            NutMap out = _obj_to_outmap(o, params);
+            if (params.has("tree") && o.has("children")) {
+                List<NutBean> children = o.getAsList("children", NutBean.class);
+                out.setv("children", outs(params, children));
+            }
+            outs.add(out);
+        }
+        return outs;
+    }
+
     public static void output_beans(WnSystem sys,
                                     ZParams params,
                                     WnPager wp,
                                     List<? extends NutBean> list) {
         // 生成输出列表
-        List<NutMap> outs = new ArrayList<NutMap>(list.size());
-        for (NutBean o : list) {
-            outs.add(_obj_to_outmap(o, params));
-        }
+        List<NutMap> outs = outs(params, list);
 
         // // 指定按照 JSON 的方式输出
         // if (params.has("json")) {
