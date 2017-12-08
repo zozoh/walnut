@@ -270,7 +270,7 @@ define({
                 "api"          : "数据接口",
                 "api_refresh"  : "刷新数据接口列表",
                 "params"       : "接口参数",
-                "template"     : "显示模板",
+                "template"     : "显示设置",
                 "tmpl_refresh" : "刷新显示模板列表",
                 "tmpl_noskin"  : "无皮肤",
                 "options"      : "模板映射",
