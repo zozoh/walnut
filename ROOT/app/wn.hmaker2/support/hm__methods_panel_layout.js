@@ -49,7 +49,7 @@ var methods = {
             this.update(this.uiCom.getData());
         },
         // 修改 Area 的 ID
-        'click .clp-layout li[highlight] > [key="areaId"]' : function(e) {
+        'click .clp-layout li[highlight] [key="areaId"]' : function(e) {
             e.stopPropagation();
             var UI  = this;
             var jq  = $(e.currentTarget);
@@ -65,7 +65,7 @@ var methods = {
             });
         },
         // 修改 Area 的尺寸
-        'click .clp-layout li[highlight] > [key="areaSize"]' : function(e) {
+        'click .clp-layout li[highlight] [key="areaSize"]' : function(e) {
             e.stopPropagation();
             var UI  = this;
             var jq  = $(e.currentTarget);
@@ -92,6 +92,32 @@ var methods = {
                         jEle.text(str);
                     }
                 }
+            });
+        },
+        // 修改 Area 的尺寸: 切换模式
+        'click .layout-area-align-box td' : function(e) {
+            var UI = this;
+            var jTd = $(e.currentTarget);
+            jTd.closest("table").find("td").removeAttr("checked");
+            jTd.attr("checked", "yes");
+        },
+        // 修改 Area 的排布
+        'click .clp-layout li[highlight] [key="areaAlign"]' : function(e) {
+            e.stopPropagation();
+            var UI  = this;
+            var jq  = $(e.currentTarget);
+            var jLi = jq.closest('li');
+            var aid = jLi.find('[key="areaId"]').text();
+            var jAlign = jLi.find('[key="areaAlign"]');
+            var align = jAlign.attr("area-align");
+            
+            UI.__show_area_align_box(jLi, function(newAlign){
+                // 修改自己的显示
+                jAlign.attr({
+                    "area-align": newAlign||null
+                }).html(UI.__get_align_html(newAlign));
+                // 修改控件
+                UI.uiCom.setAreaAlign(aid, newAlign);
             });
         },
         // 显示可选皮肤
@@ -200,16 +226,22 @@ var methods = {
 
         // 更新属性
         jLi.attr({
-            "highlight" : ao.highlight ? "yes" : null
+            "highlight" : ao.highlight ? "yes" : null,
         });
-        
+       
         // 显示 ID
         $('<div key="areaId">').text(ao.areaId)
             .appendTo(jLi);
 
         // 显示尺寸
         $('<div key="areaSize">').text(ao.areaSize||"auto")
-            .appendTo(jLi)
+            .attr("area-align", ao.areaAlign)
+                .appendTo(jLi)
+
+        // 显示排布
+        $('<div key="areaAlign">').html(UI.__get_align_html(ao.areaAlign))
+            .appendTo(jLi);
+
         
         // 显示皮肤
         var jBox = $('<div key="skin" class="hm-skin-box" box-enabled="yes">')
@@ -227,7 +259,94 @@ var methods = {
             
         // 返回以便链式赋值
         return jLi;
-    }
+    },
+    //...............................................................
+    __get_align_html : function(align) {
+        align = align || "none";
+        return this.compactHTML('<%=hmaker.com._area.align_icon_' + align + '%>'
+                               + '<span>{{hmaker.com._area.align_text_'
+                                    + align
+                                    + '}}</span>');
+    },
+    //...............................................................
+    __show_area_align_box : function(jLi, callback) {
+        var UI = this;
+        var jAlign = jLi.find('[key="areaAlign"]');
+        var align = jAlign.attr("area-align");
+        console.log(jAlign, align)
+
+        // 绘制一下 align_box
+        var html = UI.compactHTML(`
+        <div class="layout-area-align-box">
+            <section>
+                <table>
+                    <tr>
+                        <td val="NW">
+                            <%=hmaker.com._area.align_icon_NW%>
+                            <span>{{hmaker.com._area.align_text_NW}}</span>
+                        </td>
+                        <td val="N">
+                            <%=hmaker.com._area.align_icon_N%>
+                            <span>{{hmaker.com._area.align_text_N}}</span>
+                        </td>
+                        <td val="NE">
+                            <span>{{hmaker.com._area.align_text_NE}}</span>
+                            <%=hmaker.com._area.align_icon_NE%>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td val="W">
+                            <%=hmaker.com._area.align_icon_W%>
+                            <span>{{hmaker.com._area.align_text_W}}</span>
+                        </td>
+                        <td val="P">
+                            <%=hmaker.com._area.align_icon_P%>
+                            <span>{{hmaker.com._area.align_text_P}}</span>
+                        </td>
+                        <td val="E">
+                            <span>{{hmaker.com._area.align_text_E}}</span>
+                            <%=hmaker.com._area.align_icon_E%>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td val="SW">
+                            <%=hmaker.com._area.align_icon_SW%>
+                            <span>{{hmaker.com._area.align_text_SW}}</span>
+                        </td>
+                        <td val="S">
+                            <%=hmaker.com._area.align_icon_S%>
+                            <span>{{hmaker.com._area.align_text_S}}</span>
+                        </td>
+                        <td val="SE">
+                            <span>{{hmaker.com._area.align_text_SE}}</span>
+                            <%=hmaker.com._area.align_icon_SE%>
+                        </td>
+                    </tr>
+                </table>
+                <div><a>
+                    <%=hmaker.com._area.align_icon_none%>
+                    <span>{{hmaker.com._area.align_text_none}}</span>
+                </a></div>
+            </section>
+        </div>
+        `);
+
+        // 显示 box，并设置高亮
+        var jBox = $(html).appendTo(jLi.parent());
+        jBox.find('td[val="'+align+'"]').attr("checked", "yes");
+
+        // 停靠
+        $z.dock(jAlign, jBox.find("section"), "H");
+
+        // 监听事件
+        jBox.one("click", "td", function(){
+            $z.doCallback(callback, [$(this).attr("val")], UI);
+        }).one("click", "a", function(){
+            $z.doCallback(callback, [null], UI);
+        }).one("click", function(){
+            jBox.remove();
+        });
+    },
     //...............................................................
 }; // ~End methods
 //====================================================================

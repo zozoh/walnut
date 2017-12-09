@@ -12,6 +12,10 @@ return ZUI.def("app.wn.hm_com_columns", HmComMethods({
     dom     : html,
     className : "!hm-layout hm-com-columns",
     //...............................................................
+    init : function() {
+        this.__area_id_prefix = this.msg("hmaker.com._area.col");
+    },
+    //...............................................................
     applyBlockCss : function(cssCom, cssArena){
         this.$el.css(cssCom);
         this.arena.css(cssArena);
