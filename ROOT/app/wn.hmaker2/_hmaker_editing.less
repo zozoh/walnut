@@ -40,6 +40,7 @@ body {
     -ms-filter: unset;
         filter: unset;
 };
+@flexWrap : {@flex(); flex-wrap:wrap;};
 
 //............................................................
 // 拖拽相关
@@ -201,7 +202,18 @@ body {
         position: relative;
         min-height: 30px;
     }
+    &[area-align="NW"] > .hm-area-con{}
+    &[area-align="N"]  > .hm-area-con{@flexWrap(); justify-content:center}
+    &[area-align="NE"] > .hm-area-con{@flexWrap(); justify-content:flex-end;}
+    &[area-align="W"]  > .hm-area-con{@flexWrap(); align-items:center;}
+    &[area-align="P"]  > .hm-area-con{@flexWrap(); align-items:center; justify-content:center;}
+    &[area-align="E"]  > .hm-area-con{@flexWrap(); align-items:center; justify-content:flex-end;}
+    &[area-align="SW"] > .hm-area-con{@flexWrap(); align-items:flex-end;}
+    &[area-align="S"]  > .hm-area-con{@flexWrap(); align-items:flex-end; justify-content:center;}
+    &[area-align="SE"] > .hm-area-con{@flexWrap(); align-items:flex-end; justify-content:flex-end;}
 }
+//............................................
+// 区域: 对齐方式
 [assisted-off] {
     .hm-area-assist {display: none;}
     .hm-area[highlight] > .hm-area-assist {display: unset;}
@@ -377,7 +389,7 @@ body {
 .hm-com[ctype="navmenu"][auto-wrap-width]  .ul-top{width:100%;}
 //............................................................
 // image
-.hm-com-image {display: inline-block;}
+.hm-com-image {display: inline-block; vertical-align: bottom;}
 .hmc-image-link-tip {
     position: absolute; left: @d0; top:@d0;
     color:#FFF; background: rgba(0,0,0,0.4);
@@ -758,4 +770,5 @@ body {
 .hm-com[dynamic-data][hm-actived] {
     .dynamic-reload {display: block;}
 }
+
 

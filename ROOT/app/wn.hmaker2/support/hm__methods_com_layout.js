@@ -103,9 +103,9 @@ var methods = {
         });
         // 从 1 开始循环，找到一个没有分配的 ID
         var n = 1;
-        var aid = "Area1"; 
+        var aid = this.__area_id_prefix + n; 
         while(areaIds.indexOf(aid)>=0) {
-            aid = "Area" + (++n);
+            aid = this.__area_id_prefix + (++n);
         }
         // 返回 ID
         return aid;
@@ -129,6 +129,10 @@ var methods = {
 
         // 修改 CSS
         $z.invoke(this, "_apply_area_size", [jArea]);
+    },
+    setAreaAlign : function(aid, align) {
+        var jArea = this.getArea(aid);
+        jArea.attr("area-align", align || null);
     },
     setAreaSkin : function(aid, skin) {
         var jArea = this.getArea(aid);
@@ -181,6 +185,7 @@ var methods = {
         return {
             areaId    : jArea.attr("area-id"),
             areaSize  : jArea.attr("area-size"),
+            areaAlign : jArea.attr("area-align"),
             highlight : jArea.attr("highlight") == "yes",
             skin      : jArea.attr("skin") || "",
             selectors : jArea.attr("selectors") || "",

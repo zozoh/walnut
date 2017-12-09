@@ -180,8 +180,8 @@ public class hmaker_publish implements JvmHdl {
             // Copy 其他资源
             sys.io.walk(hpc.oSkinHome, new Callback<WnObj>() {
                 public void invoke(WnObj oki) {
-                    // 处理过了无视
-                    if (oki.name().matches("^(skin.(less|css|info.json|js))$")) {
+                    // 无视所有的 json/less/css 文件
+                    if (oki.name().matches("^.*[.](less|css|json|js)$")) {
                         return;
                     }
                     // 来吧 ..

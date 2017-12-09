@@ -19,8 +19,8 @@ return ZUI.def("app.wn.hm_com_columns_prop", HmMethods({
     //...............................................................
     redraw : function() {
         return this._do_redraw(
-            '<i class="zmdi zmdi-long-arrow-left"></i>',
-            '<i class="zmdi zmdi-long-arrow-right"></i>'
+            '<i class="zmdi zmdi-long-arrow-up"></i>',
+            '<i class="zmdi zmdi-long-arrow-down"></i>'
         )
     },
     //...............................................................

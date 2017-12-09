@@ -732,59 +732,105 @@
                 background:rgba(255,255,255,0.4);
                 border:1px dashed @cborder1;
                 font-family: @f_fixed; position: relative;
-                > div[key="areaId"] {
-                    padding:@d1 0; word-break:break-all;
-                    width: 100%;
+                &:after {@clr();}
+                &[highlight] {background: rgba(255,255,0,0.4);}
+
+                div[key="areaId"] {
+                    padding:0 0 @d2 0; word-break:break-all;
+                    float:left;
                 }
-                > div[key="areaSize"] {
-                    color:@clink; font-size:@f1; padding:@d0;
+                div[key="areaAlign"] {
+                    clear:left; float:left; min-width: 80px;
+                    > * {
+                        display: inline-block; vertical-align: middle;
+                        transition:transform 0.3s;
+                    }
+                    span {margin-left:@d1;}
+                    &:hover {color:@c0;}
                 }
-                > div[key="areaSize"]:hover {
-                    color:@clink_hover;
-                    text-decoration: underline;
+                div[key="areaSize"] {
+                    float:right; color:@clink; font-size:@f1; padding:@d0;
+                    &:hover {
+                        color:@clink_hover;
+                        text-decoration: underline;
+                    }
                 }
-            }
-            li[highlight] {
-                background: rgba(255,255,0,0.4);
-            }
-        }
-    }
+                div[key="skin"] {clear:right; float:right;}
+            } // > li
+            div.layout-area-align-box {
+                &:before {
+                    display: block; content: "";
+                    position: fixed; left: 0; right:0; bottom:0; top:0;
+                    background: rgba(0,0,0,0);
+                    z-index: 9999;
+                }
+                section {
+                    position: fixed; z-index: 9999;
+                    background: @cmenu_b; padding:@d3;
+                    border-radius: @d1; box-shadow: 2px 2px 5px @cshadow;
+                    table {
+                        border-collapse: collapse;
+                        td {
+                            border:1px dotted @cborder1;
+                            padding:@d5; text-align: center;
+                            vertical-align: middle; cursor: pointer;
+                            font-size: @f2; color:@c2;
+                            i {font-size:@f4;}
+                            span { margin:0 @d2;}
+                        }
+                        td:hover {
+                            background: @ch1_b; color:@ch1_f;
+                        }
+                        td[checked] {
+                            background: @chx_b; color:@chx_f;
+                        }
+                    }
+                    div {
+                        padding:@d2; text-align: center;
+                        a {cursor: pointer;}
+                        i {font-size:@f4;}
+                        span { margin:0 @d2;}
+                    }
+                }
+            } // ~ div.layout-area-align-box
+        } // ~ ul
+    } // ~ .clp-layout
 }
 //............................................................
 // 布局: rows
-.hmc-rows-prop {
-    .clp-layout { @noselect();
-        > ul {
-            > li {
-                > div[key="areaSize"]{float:left;}
-                > div[key="skin"] {float:right;}
-            }
-            > li:after {@clr();}
-        }
-    }
-}
+// .hmc-rows-prop {
+//     .clp-layout { @noselect();
+//         > ul {
+//             > li {
+//                 > div[key="areaSize"]{float:left;}
+//                 > div[key="skin"] {float:right;}
+//             }
+//             > li:after {@clr();}
+//         }
+//     }
+// }
 //............................................................
 // 布局: columns
-.hmc-columns-prop {
-    .clp-layout { 
-        > ul {
-            @flex(); flex-wrap:wrap;
-            > li {
-                flex: 1 0 auto; 
-                min-height : 120px;
-                min-width  : 30%;
-                max-width  : 100%;
-                > div[key="areaSize"] {
-                    text-align: center; padding:@d2;
-                }
-                > div[key="skin"] {
-                    position: absolute; right:0; bottom:0;
-                    padding:@d2;
-                }
-            }
-        }
-    }
-}
+// .hmc-columns-prop {
+//     .clp-layout { 
+//         > ul {
+//             @flex(); flex-wrap:wrap;
+//             > li {
+//                 flex: 1 0 auto; 
+//                 min-height : 120px;
+//                 min-width  : 30%;
+//                 max-width  : 100%;
+//                 > div[key="areaSize"] {
+//                     text-align: center; padding:@d2;
+//                 }
+//                 > div[key="skin"] {
+//                     position: absolute; right:0; bottom:0;
+//                     padding:@d2;
+//                 }
+//             }
+//         }
+//     }
+// }
 //............................................................
 // navmenu
 .hmc-navmenu-prop {
