@@ -106,7 +106,14 @@ public class cmd_sitesucker extends JvmExecutor {
             sys.out.println("\n# download-exlink");
             NutMap dwRecord = NutMap.NEW();
             NutMap dwFiles = NutMap.NEW();
-            downloadExlink(sys, webObj, exlinks, dwRecord, dwFiles, params.is("expass", false));
+            NutMap exDirs = NutMap.NEW();
+            downloadExlink(sys,
+                           webObj,
+                           exlinks,
+                           dwRecord,
+                           dwFiles,
+                           exDirs,
+                           params.is("expass", false));
             // 输出log
             WnObj logDws = sys.io.createIfNoExists(webObj, "dwlink.log", WnRace.FILE);
             StringBuilder dwContent = new StringBuilder();
@@ -126,10 +133,82 @@ public class cmd_sitesucker extends JvmExecutor {
             }
             sys.io.writeText(logDws, dwContent);
 
+            // 外链内容的相对路径内容，比如css中引用了图片
+            sys.out.println("\n# recheck-dwexlink");
+            recheckExlinkFile(sys, exDirs);
+
             // 开始进行替换
-            sys.out.println("\n# replace-exlink");
+            sys.out.println("\n# replace-html");
             replaceExLink(sys, webObj, frootPath, dwRecord, dwFiles);
         }
+    }
+
+    // img标签
+    private static final String INNER_URL_REGEX = "(url|URL)\\((\"|\'|>|\\s+)(.*?)(\"|\'|>|\\s+)\\)";
+
+    private void recheckExlinkFile(WnSystem sys, NutMap exDirs) {
+        for (String expath : exDirs.keySet()) {
+            WnObj expathDir = sys.io.fetch(null, expath);
+            WnQuery query = Wn.Q.pid(expathDir.id()).sortBy("nm", 1);
+            sys.io.each(query, new Each<WnObj>() {
+                @Override
+                public void invoke(int index, WnObj ele, int length)
+                        throws ExitLoop, ContinueLoop, LoopException {
+                    if (ele.isFILE()) {
+                        String etp = ele.type();
+                        if ("css".equalsIgnoreCase(etp)
+                            || "js".equalsIgnoreCase(etp)
+                            || "html".equalsIgnoreCase(etp)
+                            || "htm".equalsIgnoreCase(etp)) {
+                            String fcontent = sys.io.readText(ele);
+                            NutMap flinks = NutMap.NEW();
+                            String orgParentUrl = ele.getString("orgparent", "") + "/";
+                            // 一般是css，background的url
+                            Matcher m2 = Pattern.compile(INNER_URL_REGEX).matcher(fcontent);
+                            while (m2.find()) {
+                                String ex2Url = m2.group(3);
+                                flinks.setv(ex2Url, false);
+                            }
+                            // 如果相对路径的则下载
+                            if (!flinks.isEmpty()) {
+                                for (String ex2Url : flinks.keySet()) {
+                                    // 还能有这种操作？外链里面直接写死的外链？
+                                    if (ex2Url.startsWith("http")) {
+                                        log.errorf("2ex-care: %s", ex2Url);
+                                    }
+                                    // 绝对路径？
+                                    else if (ex2Url.startsWith("/")) {
+                                        log.errorf("2ex-care: %s", ex2Url);
+                                    }
+                                    // 相对路径
+                                    else {
+                                        String dwUrl = orgParentUrl + ex2Url;
+                                        log.infof("2ex-dw: %s", dwUrl);
+                                        WnObj ex2Obj = sys.io.createIfNoExists(expathDir,
+                                                                               ex2Url,
+                                                                               WnRace.FILE);
+                                        // 下载
+                                        try {
+                                            Response dwResp = Http.get(dwUrl);
+                                            if (!dwResp.isOK()) {
+
+                                            } else {
+                                                InputStream dwIn = dwResp.getStream();
+                                                sys.io.writeAndClose(ex2Obj, dwIn);
+                                            }
+                                        }
+                                        catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
     }
 
     private void replaceExLink(WnSystem sys,
@@ -187,6 +266,7 @@ public class cmd_sitesucker extends JvmExecutor {
                                 NutMap exlinks,
                                 NutMap dwRecord,
                                 NutMap dwFiles,
+                                NutMap exDirs,
                                 boolean passExisted) {
         for (Object exval : exlinks.values()) {
             NutMap flinks = (NutMap) exval;
@@ -206,6 +286,7 @@ public class cmd_sitesucker extends JvmExecutor {
                         furl = furl.substring(0, qmark);
                     }
                     // 去掉前面的http://或https://
+                    boolean isHttps = furl.indexOf("https") > -1;
                     furl = furl.replace("http://", "").replace("https://", "");
                     // 判断该文件是否已经下载过
                     String fpath = furl;
@@ -228,6 +309,9 @@ public class cmd_sitesucker extends JvmExecutor {
                     WnObj exParentObj = sys.io.createIfNoExists(rootDir, exParent, WnRace.DIR);
                     WnObj exLinkObj = sys.io.createIfNoExists(exParentObj, dwLink, WnRace.FILE);
 
+                    // 记录外链目录下的文件数量
+                    exDirs.intIncrement(exParentObj.path(), 1);
+
                     // 已经下载过的不再下载
                     if (passExisted && exLinkObj.len() > 0) {
                         dwRecord.setv(dwUrl, "success");
@@ -244,6 +328,12 @@ public class cmd_sitesucker extends JvmExecutor {
                         } else {
                             InputStream dwIn = dwResp.getStream();
                             sys.io.writeAndClose(exLinkObj, dwIn);
+                            sys.io.appendMeta(exLinkObj,
+                                              NutMap.NEW()
+                                                    .setv("orgurl", dwUrl)
+                                                    .setv("orgparent",
+                                                          (isHttps ? "https://" : "http://")
+                                                                       + exParent));
                             dwRecord.setv(dwUrl, "success");
                             dwFiles.setv(dwUrl, exLinkObj.path());
                             sys.out.printlnf("dw:%s\n >:%s", dwUrl, exLinkObj.path());
