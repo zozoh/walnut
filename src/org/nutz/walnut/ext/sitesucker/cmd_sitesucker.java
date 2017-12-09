@@ -78,7 +78,9 @@ public class cmd_sitesucker extends JvmExecutor {
 
         // 修改网站外链内容，改为内联
         if (params.is("allin")) {
+
             // 遍历所有问题，获取外链信息
+            sys.out.println("# find-exlink");
             NutMap exlinks = NutMap.NEW();
             checkWebSite(sys, webObj, exlinks);
             // 输出log
@@ -87,8 +89,10 @@ public class cmd_sitesucker extends JvmExecutor {
             StringBuilder logContent = new StringBuilder();
             for (String fpath : exlinks.keySet()) {
                 NutMap flinks = exlinks.getAs(fpath, NutMap.class);
+                String rePath = fpath.replace(frootPath + "/", "");
+                sys.out.println(rePath + " " + flinks.size());
                 if (!flinks.isEmpty()) {
-                    logContent.append("# ").append(fpath.replace(frootPath + "/", "")).append("\n");
+                    logContent.append("# ").append(rePath).append("\n");
                     for (String furl : flinks.keySet()) {
                         String ftp = flinks.getString(furl);
                         logContent.append(ftp).append(" ").append(furl).append("\n");
@@ -97,10 +101,12 @@ public class cmd_sitesucker extends JvmExecutor {
                 }
             }
             sys.io.writeText(logExlinks, logContent);
-            // 开始分析并下载
+
+            // 开始分析链接并下载
+            sys.out.println("\n# download-exlink");
             NutMap dwRecord = NutMap.NEW();
             NutMap dwFiles = NutMap.NEW();
-            downloadExlink(sys, webObj, exlinks, dwRecord, dwFiles);
+            downloadExlink(sys, webObj, exlinks, dwRecord, dwFiles, params.is("expass", false));
             // 输出log
             WnObj logDws = sys.io.createIfNoExists(webObj, "dwlink.log", WnRace.FILE);
             StringBuilder dwContent = new StringBuilder();
@@ -119,14 +125,69 @@ public class cmd_sitesucker extends JvmExecutor {
                 dwContent.append("\n");
             }
             sys.io.writeText(logDws, dwContent);
+
+            // 开始进行替换
+            sys.out.println("\n# replace-exlink");
+            replaceExLink(sys, webObj, frootPath, dwRecord, dwFiles);
         }
+    }
+
+    private void replaceExLink(WnSystem sys,
+                               WnObj rootDir,
+                               String rootPath,
+                               NutMap dwRecord,
+                               NutMap dwFiles) {
+        WnQuery query = Wn.Q.pid(rootDir.id()).sortBy("nm", 1);
+        sys.io.each(query, new Each<WnObj>() {
+            @Override
+            public void invoke(int index, WnObj ele, int length)
+                    throws ExitLoop, ContinueLoop, LoopException {
+                if (ele.isDIR()) {
+                    replaceExLink(sys, ele, rootPath, dwRecord, dwFiles);
+                } else {
+                    String type = ele.type();
+                    // 网页
+                    if ("html".equalsIgnoreCase(type) || "htm".equalsIgnoreCase(type)) {
+                        String htmlContent = sys.io.readText(ele);
+                        String allinHtmlContent = allinHtml(htmlContent,
+                                                            rootPath,
+                                                            dwRecord,
+                                                            dwFiles);
+                        if (!htmlContent.equals(allinHtmlContent)) {
+                            sys.out.println(ele.name());
+                            sys.io.writeText(ele, allinHtmlContent);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private String allinHtml(String htmlContent, String rootPath, NutMap dwRecord, NutMap dwFiles) {
+        String[] htmlLines = htmlContent.split("\n");
+        StringBuilder nhtml = new StringBuilder();
+        for (int i = 0; i < htmlLines.length; i++) {
+            String hline = htmlLines[i];
+            Matcher elinkReg = Pattern.compile(ELINK).matcher(hline);
+            while (elinkReg.find()) {
+                String exUrl = elinkReg.group().substring(0, elinkReg.group().length() - 1);
+                String result = dwRecord.getString(exUrl);
+                if ("success".equals(result)) {
+                    String localUrl = dwFiles.getString(exUrl).replace(rootPath + "/", "");
+                    hline = hline.replace(exUrl, localUrl);
+                }
+            }
+            nhtml.append(hline).append("\n");
+        }
+        return nhtml.substring(0, nhtml.length() - 1);
     }
 
     private void downloadExlink(WnSystem sys,
                                 WnObj rootDir,
                                 NutMap exlinks,
                                 NutMap dwRecord,
-                                NutMap dwFiles) {
+                                NutMap dwFiles,
+                                boolean passExisted) {
         for (Object exval : exlinks.values()) {
             NutMap flinks = (NutMap) exval;
             if (!flinks.isEmpty()) {
@@ -153,6 +214,9 @@ public class cmd_sitesucker extends JvmExecutor {
                     int lslash = fpath.lastIndexOf('/');
                     String exParent = fpath.substring(0, lslash);
                     String exLink = fpath.substring(lslash + 1);
+                    log.infof("ss-dw: %s with [%s] from [%s]", exLink, dwParams, dwUrl);
+
+                    // 生成文件与目录
                     String dwLink = exLink;
                     if (!Strings.isBlank(dwParams)) {
                         dwParams = dwParams.replaceAll("\\?", "-")
@@ -160,10 +224,18 @@ public class cmd_sitesucker extends JvmExecutor {
                                            .replaceAll("/", "-");
                         dwLink = dwParams + "_" + dwLink;
                     }
-                    log.infof("ss-dw: %s with [%s] from [%s]", exLink, dwParams, dwUrl);
-                    // 生成文件与目录
+
                     WnObj exParentObj = sys.io.createIfNoExists(rootDir, exParent, WnRace.DIR);
                     WnObj exLinkObj = sys.io.createIfNoExists(exParentObj, dwLink, WnRace.FILE);
+
+                    // 已经下载过的不再下载
+                    if (passExisted && exLinkObj.len() > 0) {
+                        dwRecord.setv(dwUrl, "success");
+                        dwFiles.setv(dwUrl, exLinkObj.path());
+                        sys.out.printlnf("ex:%s\n >:%s", dwUrl, exLinkObj.path());
+                        continue;
+                    }
+
                     // 下载
                     try {
                         Response dwResp = Http.get(dwUrl);
@@ -174,6 +246,7 @@ public class cmd_sitesucker extends JvmExecutor {
                             sys.io.writeAndClose(exLinkObj, dwIn);
                             dwRecord.setv(dwUrl, "success");
                             dwFiles.setv(dwUrl, exLinkObj.path());
+                            sys.out.printlnf("dw:%s\n >:%s", dwUrl, exLinkObj.path());
                         }
                     }
                     catch (Exception e) {
