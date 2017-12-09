@@ -1,14 +1,20 @@
 package org.nutz.walnut.ext.sitesucker;
 
+import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.http.Http;
+import org.nutz.http.Response;
 import org.nutz.json.Json;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 import org.nutz.lang.LoopException;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -25,6 +31,8 @@ import org.nutz.walnut.util.ZParams;
  *
  */
 public class cmd_sitesucker extends JvmExecutor {
+
+    private static Log log = Logs.get();
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
@@ -89,8 +97,92 @@ public class cmd_sitesucker extends JvmExecutor {
                 }
             }
             sys.io.writeText(logExlinks, logContent);
+            // 开始分析并下载
+            NutMap dwRecord = NutMap.NEW();
+            NutMap dwFiles = NutMap.NEW();
+            downloadExlink(sys, webObj, exlinks, dwRecord, dwFiles);
+            // 输出log
+            WnObj logDws = sys.io.createIfNoExists(webObj, "dwlink.log", WnRace.FILE);
+            StringBuilder dwContent = new StringBuilder();
+            dwContent.append("# ")
+                     .append(webObj.name())
+                     .append("(")
+                     .append(dwRecord.size())
+                     .append(")\n");
+            for (String dwUrl : dwRecord.keySet()) {
+                String result = dwRecord.getString(dwUrl);
+                dwContent.append(result).append(" ").append(dwUrl);
+                if ("success".equals(result)) {
+                    dwContent.append(" File:")
+                             .append(dwFiles.getString(dwUrl).replace(frootPath + "/", ""));
+                }
+                dwContent.append("\n");
+            }
+            sys.io.writeText(logDws, dwContent);
         }
+    }
 
+    private void downloadExlink(WnSystem sys,
+                                WnObj rootDir,
+                                NutMap exlinks,
+                                NutMap dwRecord,
+                                NutMap dwFiles) {
+        for (Object exval : exlinks.values()) {
+            NutMap flinks = (NutMap) exval;
+            if (!flinks.isEmpty()) {
+                for (String furl : flinks.keySet()) {
+                    String dwUrl = new String(furl);
+                    if ("success".equals(dwRecord.getString(dwUrl))
+                        || "fail".equals(dwRecord.getString(dwUrl))) {
+                        continue;
+                    }
+                    dwRecord.setv(dwUrl, "none");
+                    // 去掉？后面
+                    String dwParams = "";
+                    int qmark = furl.indexOf('?');
+                    if (qmark > -1) {
+                        dwParams = furl.substring(qmark + 1); // ?后面的
+                        furl = furl.substring(0, qmark);
+                    }
+                    // 去掉前面的http://或https://
+                    furl = furl.replace("http://", "").replace("https://", "");
+                    // 判断该文件是否已经下载过
+                    String fpath = furl;
+
+                    // 获取文件名称与目录
+                    int lslash = fpath.lastIndexOf('/');
+                    String exParent = fpath.substring(0, lslash);
+                    String exLink = fpath.substring(lslash + 1);
+                    String dwLink = exLink;
+                    if (!Strings.isBlank(dwParams)) {
+                        dwParams = dwParams.replaceAll("\\?", "-")
+                                           .replaceAll("#", "-")
+                                           .replaceAll("/", "-");
+                        dwLink = dwParams + "_" + dwLink;
+                    }
+                    log.infof("ss-dw: %s with [%s] from [%s]", exLink, dwParams, dwUrl);
+                    // 生成文件与目录
+                    WnObj exParentObj = sys.io.createIfNoExists(rootDir, exParent, WnRace.DIR);
+                    WnObj exLinkObj = sys.io.createIfNoExists(exParentObj, dwLink, WnRace.FILE);
+                    // 下载
+                    try {
+                        Response dwResp = Http.get(dwUrl);
+                        if (!dwResp.isOK()) {
+                            dwRecord.setv(dwUrl, "fail");
+                        } else {
+                            InputStream dwIn = dwResp.getStream();
+                            sys.io.writeAndClose(exLinkObj, dwIn);
+                            dwRecord.setv(dwUrl, "success");
+                            dwFiles.setv(dwUrl, exLinkObj.path());
+                        }
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                        dwRecord.setv(dwUrl, "fail");
+                    }
+                }
+            }
+        }
     }
 
     private void checkWebSite(WnSystem sys, WnObj rootDir, NutMap exlinks) {
