@@ -71,6 +71,7 @@ dependencies {
     compile group: 'org.nutz', name: 'nutz-plugins-zdoc', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-ip2region', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-zcron', version:nutz_version
+    compile group: 'org.nutz', name: 'lessc4j', version:'2.7.2-SNAPSHOT'
     compile ("org.nutz:nutz-plugins-ml:1.r.62-SNAPSHOT") { 
     	exclude group:'org.nutz', module: 'nutz'
     }
