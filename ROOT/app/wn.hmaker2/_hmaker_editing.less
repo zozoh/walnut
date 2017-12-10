@@ -202,7 +202,7 @@ body {
         position: relative;
         min-height: 30px;
     }
-    &[area-align="NW"] > .hm-area-con{}
+    &[area-align="NW"] > .hm-area-con{@flexWrap(); justify-content:flex-start;}
     &[area-align="N"]  > .hm-area-con{@flexWrap(); justify-content:center}
     &[area-align="NE"] > .hm-area-con{@flexWrap(); justify-content:flex-end;}
     &[area-align="W"]  > .hm-area-con{@flexWrap(); align-items:center;}

@@ -1580,6 +1580,27 @@
 
             return rect;
         },
+        /*.............................................
+        改变指定窗口的根元素 fontSize 属性，这个主要用来
+        配合 rem 来进行浏览器适配
+         - context : {
+            doc    : Document,
+            win    : Window,
+            root   : RootElement,
+         }
+         - designWidth : 本窗口的设计宽度，通常为  640
+         - maxNb : 最大值，通常为 100
+         - minNb : 最小值，通常为 70
+        */
+        do_change_root_fontSize : function(context, designWidth, maxNb, minNb){
+            designWidth = designWidth || 640;
+            maxNb = maxNb || 100;
+            minNb = minNb || 70;
+            var size = (context.win.innerWidth / designWidth) * maxNb;
+            //console.log(size, Math.max(size, minNb), Math.min(Math.max(size, minNb), maxNb))
+            var px = Math.min(Math.max(size, minNb), maxNb);
+            context.root.style.fontSize = px + 'px' ;
+        },
         //.............................................
         // 得到一个元素的外边距
         margin: function ($ele) {

@@ -10,10 +10,12 @@ $(function(){
         skin.resize.call(skinContext);
         
         window.addEventListener("resize", function(){
+            $z.do_change_root_fontSize(skinContext);
             skin.resize.call(skinContext);
         });
         
         window.addEventListener("orientationchange", function(){
+            $z.do_change_root_fontSize(skinContext);
             skin.resize.call(skinContext);
         });
     });
