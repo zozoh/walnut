@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.lessc;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.script.ScriptException;
@@ -14,7 +15,11 @@ public class WnLesscService extends LesscService {
     protected List<WnObj> bases;
 
     public synchronized String renderWnObj(WnObj wobj, List<WnObj> bases) throws ScriptException {
-        this.bases = bases;
+        int size = null == bases ? 0 : bases.size();
+        this.bases = new ArrayList<>(size + 1);
+        this.bases.add(wobj.parent());
+        if (null != bases && bases.size() > 0)
+            this.bases.addAll(bases);
         return render(io.readText(wobj));
     }
 

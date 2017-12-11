@@ -34,7 +34,6 @@ public class lessc_compile implements JvmHdl {
                 bases.add(sys.io.check(null, Wn.normalizeFullPath(_path, sys)));
             }
         }
-        bases.add(wobj.parent());
         // 来吧,渲染之
         WnLesscService lessc = null;
         try {
