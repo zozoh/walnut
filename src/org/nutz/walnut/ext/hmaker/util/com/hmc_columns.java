@@ -22,8 +22,14 @@ public class hmc_columns extends AbstractLayoutCom {
         if (Strings.isBlank(asize)) {
             asize = eleArea.attr("area-size");
         }
-
-        if (!Strings.isBlank(asize)) {
+        if (Strings.isBlank(asize))
+            return;
+        // 紧凑格式
+        if ("compact".equals(asize)) {
+            eleArea.attr("style", "flex:0 0 auto;");
+        }
+        // 设置数字
+        else if (asize.matches("^([\\d.]+)(px|rem|%)?$")) {
             eleArea.attr("style", "width:" + asize + ";flex:0 0 auto;");
         }
     }

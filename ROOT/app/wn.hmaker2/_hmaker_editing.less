@@ -43,6 +43,43 @@ body {
 @flexWrap : {@flex(); flex-wrap:wrap;};
 
 //............................................................
+// 重定义变量
+@flex : {
+    display: -webkit-flex;
+    display: flex;
+};
+@flexWrap : {@flex(); flex-wrap:wrap;};
+
+@d0 : .02rem;
+@d1 : .04rem;
+@d2 : .06rem;
+@d3 : .08rem;
+@d4 : .12rem;
+@d5 : .16rem;
+@d6 : .24rem;
+@d7 : .32rem;
+@d8 : .48rem;
+@d9 : .64rem;
+@da : .96rem;
+@db : 1.28rem;
+
+@f0 : .08rem;
+@f1 : .10rem;
+@f2 : .12rem;
+@f3 : .14rem;
+@f4 : .16rem;
+@f5 : .24rem;
+@f6 : .32rem;
+@f7 : .48rem;
+@f8 : .64rem;
+
+//............................................................
+// 重新定义各个元素的样式
+html {font-size: 100px; height: 100%;}
+body {font-size:@f4;}
+ul, ol {list-style: none; margin:0; padding:0;}
+
+//............................................................
 // 拖拽相关
 // .pmv-dropi {
 //     padding:1px;

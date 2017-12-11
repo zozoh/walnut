@@ -14,6 +14,8 @@
     clear:both;
 };
 
+//............................................................
+// 重定义变量
 @flex : {
     display: -webkit-flex;
     display: flex;
@@ -43,6 +45,7 @@
 @f7 : .48rem;
 @f8 : .64rem;
 
+// TODO 下面四个是不是要抛弃掉？
 @cborder0      : #CCC;        // 主要边框颜色
 @cborder1      : #D0D0D0;     // 次要边框颜色
 @chx_b         : #080;        // 补充高亮元素背景色
@@ -71,10 +74,12 @@ html {
   font-size:100px;
 }
 
-/* 默认的 body 属性 */
-body{margin: 0; font-size:@f3;}
-
+//............................................................
+// 重新定义各个元素的样式
+html {font-size: 100px; height: 100%;}
+body {margin: 0; font-size:@f4;}
 a[href]{cursor: pointer;}
+ul, ol {list-style: none; margin:0; padding:0;}
 
 .hm-com[auto-wrap-width]  > * {width: 100%;}
 .hm-com[auto-wrap-height] > * {height:100%;}

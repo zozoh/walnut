@@ -75,7 +75,8 @@ var methods = {
             $z.editIt(jq, function(newval, oldval, jEle){
                 // 判断合法性
                 var str = $.trim(newval) || "auto";
-                if("auto" == str) {
+                // 指定关键字
+                if(/^(auto|compact)$/.test(str)) {
                     UI.uiCom.setAreaSize(aid, str);
                     jEle.text(str);
                 }
@@ -235,12 +236,12 @@ var methods = {
 
         // 显示尺寸
         $('<div key="areaSize">').text(ao.areaSize||"auto")
-            .attr("area-align", ao.areaAlign)
-                .appendTo(jLi)
+            .appendTo(jLi)
 
         // 显示排布
         $('<div key="areaAlign">').html(UI.__get_align_html(ao.areaAlign))
-            .appendTo(jLi);
+            .attr("area-align", ao.areaAlign)
+                .appendTo(jLi);
 
         
         // 显示皮肤

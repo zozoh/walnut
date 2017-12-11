@@ -26,10 +26,27 @@ return ZUI.def("app.wn.hm_com_columns", HmComMethods({
     _apply_area_size : function(jArea, asize) {
         jArea = this.getArea(jArea);
         asize = asize || jArea.attr("area-size");
-        jArea.css({
-            "width" : asize || "",
-            "flex"  : asize ? "0 0 auto" : ""
-        });
+        // 设置数字
+        if(/^([\d.]+)(px|rem|%)?$/.test(asize)) {
+            jArea.css({
+                "width" : asize,
+                "flex"  : "0 0 auto"
+            });
+        }
+        // 仅仅是紧凑模式
+        else if("compact" == asize) {
+            jArea.css({
+                "width" : "",
+                "flex"  : "0 0 auto"
+            });   
+        }
+        // 否则全部去掉
+        else {
+            jArea.css({
+                "width" : "",
+                "flex"  : ""
+            });   
+        }
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性
