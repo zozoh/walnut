@@ -18,7 +18,7 @@ var html = `
     </aside>
     <section class="api-params" ui-gasket="params"></section>
     <h4>{{hmaker.com.dynamic.template}}</h4>
-    <header  class="tmpl" ui-gasket="template"></header>
+    <!--header  class="tmpl" ui-gasket="template"></header-->
     <section class="tmpl-options" ui-gasket="options"></section>
 </div>`;
 //==============================================
@@ -49,7 +49,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             parent : UI,
             gasketName : "api",
             emptyItem : {},
-            items : "obj -mine -match \"api_return:'^(obj|list|page)$'\" -json -l -sort 'pid:1,nm:1'",
+            items : [],
             icon  : '<i class="fa fa-plug"></i>',
             text  : null,
             value : function(o){
@@ -63,24 +63,24 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         });
 
         // 模板列表
-        new DroplistUI({
-            parent : UI,
-            gasketName : "template",
-            emptyItem : {},
-            items : [],
-            icon  : '<i class="fa fa-html5"></i>',
-            text  : function(o){
-                return o.title || o.value;
-            },
-            on_change : function(v) {
-                UI.uiCom.saveData(null, {template:v, options:{}}, true);
-            }
-        }).render(function(){
-            UI.defer_report("template");
-        });
+        // new DroplistUI({
+        //     parent : UI,
+        //     gasketName : "template",
+        //     emptyItem : {},
+        //     items : [],
+        //     icon  : '<i class="fa fa-html5"></i>',
+        //     text  : function(o){
+        //         return o.title || o.value;
+        //     },
+        //     on_change : function(v) {
+        //         UI.uiCom.saveData(null, {template:v, options:{}}, true);
+        //     }
+        // }).render(function(){
+        //     UI.defer_report("template");
+        // });
         
         // 返回延迟加载
-        return ["api", "template"];
+        return ["api"];
     },
     //...............................................................
     isAsyncUpdate : function(){
@@ -93,10 +93,59 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         var jParams  = UI.arena.find(">.api-params");
         var jOptions = UI.arena.find(">.tmpl-options");
 
+        console.log("prop update", UI.uiCom.getComSkin(), com)
+
         // 如果发现属性有不正确的，会标记这个变量，以便通知组件重绘
         var raw_com_json = $z.toJson(com);
         
-        // 首先试图寻找 API 对应的信息
+        //-----------------------------------------------------
+        // 根据皮肤得到显示模板
+        com.template = UI.uiCom.getMyTemplateName();
+
+        // // 更新 template
+        // UI.gasket.template.setData(com.template);
+
+        // // 重新读取一下模板，这样，不在列表里的模板设置将会被设置成空值
+        // com.template = UI.gasket.template.getData();
+
+        // 试图寻找 template 对应的信息
+        var tmplInfo = com.template ? UI.evalTemplate(com.template, false)
+                                    : null;
+
+        // 如果没有将 template 置空
+        //  || !HmRT.isMatchDataType(oApi.api_return, tmplInfo.dataType)
+        if(!tmplInfo) {
+            com.template = "";
+            jOptions.hide();
+        }
+        // 更新 options 的 form
+        // 并设置 data
+        else {
+            jOptions.show();
+            var fields = UI.__eval_form_fields_by(tmplInfo.options);
+            //console.log(fields)
+            UI.__draw_form({
+                cacheKey : "_finger_tmpl_options",
+                finger   : $z.toJson(tmplInfo.options),
+                gasketName : "options",
+                $pel   : jOptions,
+                fields : fields
+            }, com.options);
+        }
+
+        //-----------------------------------------------------
+        // 根据皮肤更新一下 API 列表
+        var oApiList = UI.getHttpApiList(function(oApi){
+            return tmplInfo ? tmplInfo.dataType == oApi.api_return
+                            : false;
+        });
+        UI.gasket.api.setItems(oApiList);
+
+        //-----------------------------------------------------
+        // 首先确保 api 在列表中
+        UI.gasket.api.setData(com.api);
+        com.api = UI.gasket.api.getData();
+
         // 得到 api 对象
         var oApi = com.api ? Wn.fetch("~/.regapi/api" + com.api)
                            : null;
@@ -105,10 +154,9 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         if(oApi) {
             oApi.params = oApi.params || {};
         }
-        // 如果没找到，将 api 值空
+        // 如果没找到，将 api 置空
         else {
             com.api = "";
-            com.template = "";
         }
 
         // 更新 api
@@ -135,10 +183,6 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 fields : fields
             }, com.params);
 
-            // 更新可用模板列表
-            var tmplList = UI.getTemplateList(oApi.api_return);
-            UI.gasket.template.setItems(tmplList);
-
         }
         // 没有参数，清空显示
         else {
@@ -146,36 +190,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             jParams.hide();
         }
 
-        // 更新 template
-        UI.gasket.template.setData(com.template);
-
-        // 重新读取一下模板，这样，不在列表里的模板设置将会被设置成空值
-        com.template = UI.gasket.template.getData();
-
-        // 试图寻找 template 对应的信息
-        var tmplInfo = com.template ? UI.evalTemplate(com.template, true)
-                                    : null;
-
-        // 如果没有将 template 置空
-        if(!tmplInfo || !HmRT.isMatchDataType(oApi.api_return, tmplInfo.dataType)) {
-            com.template = "";
-            jOptions.hide();
-        }
-        // 更新 options 的 form
-        // 并设置 data
-        else {
-            jOptions.show();
-            var fields = UI.__eval_form_fields_by(tmplInfo.options);
-            //console.log(fields)
-            UI.__draw_form({
-                cacheKey : "_finger_tmpl_options",
-                finger   : $z.toJson(tmplInfo.options),
-                gasketName : "options",
-                $pel   : jOptions,
-                fields : fields
-            }, com.options);
-        }
-
+        //-----------------------------------------------------
         // 看看是否需要通知控件重绘
         if(raw_com_json != $z.toJson(com)) {
             UI.uiCom.saveData("panel", com, true);

@@ -98,6 +98,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
 
                 // 通知相关改动
                 UI.uiCom.notifyBlockChange(null);
+                UI.uiCom.notifyDataChange(null);
             });
         },
         // 显示已经加载的 css 类选择器

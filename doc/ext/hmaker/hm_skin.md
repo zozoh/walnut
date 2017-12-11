@@ -129,9 +129,10 @@ tags:
 com : {
     "dynamic" : [{
         // 根据类选择器，属性面板需要知道对应到什么模板
-        // 譬如 _std-th_list_article 就应该对应到 _std/th_list_article
-        // 这里的 `-` 作为路径分隔符，因此模板名称不能带有 `-` 否则会出事
-        selector : "_std-th_list_article",
+        // 譬如 skin-dynamic-_std-th_list_article 就应该对应到 _std/th_list_article
+        // 格式为 skin-dynamic-分类名-模板名
+        // 这里的分类名与模板名中间的 `-` 作为路径分隔符，因此分类名称不能带有 `-` 否则会出事
+        selector : "skin-dynamic-_std-th_list_article",
         text     : "i18n:xxxx",             // 显示文字
     }]
 },

@@ -176,6 +176,33 @@ var methods = {
         var oHome = this.getHomeObj();
         return "/api/" + oHome.d1 + (path || "");
     },
+    // 得到站点所有可用的 api
+    getHttpApiList : function(filter) {
+        var UI = this;
+        var uiHMaker = UI.hmaker();
+
+        var list = uiHMaker.__API_LIST;
+
+        // 重新读取
+        if(!_.isArray(list)) {
+            var re = Wn.exec("obj -mine -match \"api_return:'^(obj|list|page)$'\""
+                             + " -json -l -sort 'pid:1,nm:1'");
+            list = $z.fromJson(re);
+        }
+
+        // 准备返回过滤结果
+        if(_.isFunction(filter)) {
+            var list2 = [];
+            for(var i=0; i<list.length; i++){
+                var oApi = list[i];
+                if(filter(oApi))
+                    list2.push(oApi);
+            }
+            return list2;
+        }
+        // 直接返回
+        return list;
+    },
     //=========================================================
     // 站点的模板
     // 让模板的JS生效，并返回模板的信息对象
@@ -195,34 +222,34 @@ var methods = {
         var jsonInfo = Wn.read(phTmplHome + "/template.info.json", forceReload);
         return $z.fromJson(jsonInfo);
     },
-    //=========================================================
-    // 得到本站点可用的模板列表
-    // apiReType : 字符串，表示只显示支持此种数据类型的模板
-    //             可能的值为 obj|list|page
-    //             null 表示全部模板
-    // forceReload : 是否强制从服务器读取
-    getTemplateList : function(apiReType, forceReload) {
-        var UI = this;
-        var oHome = this.getHomeObj();
-        // 得到模板列表
-        var oTmplHome = Wn.fetch("/home/" + oHome.d1 + "/.hmaker/template");
-        var oTmplList = Wn.getChildren(oTmplHome, forceReload);
-        //console.log(oTmplList)
+    // //=========================================================
+    // // 得到本站点可用的模板列表
+    // // apiReType : 字符串，表示只显示支持此种数据类型的模板
+    // //             可能的值为 obj|list|page
+    // //             null 表示全部模板
+    // // forceReload : 是否强制从服务器读取
+    // getTemplateList : function(apiReType, forceReload) {
+    //     var UI = this;
+    //     var oHome = this.getHomeObj();
+    //     // 得到模板列表
+    //     var oTmplHome = Wn.fetch("/home/" + oHome.d1 + "/.hmaker/template");
+    //     var oTmplList = Wn.getChildren(oTmplHome, forceReload);
+    //     //console.log(oTmplList)
 
-        // 依次解析 ..
-        var list = [];
-        for(var i=0; i<oTmplList.length; i++) {
-            var oTmpl = oTmplList[i];
-            var tmpl  = UI.evalTemplate(oTmpl.nm, true, forceReload);
-            if(!apiReType || HmRT.isMatchDataType(apiReType, tmpl.dataType)) {
-                tmpl.value = oTmpl.nm;
-                list.push(tmpl);
-            }
-        }
+    //     // 依次解析 ..
+    //     var list = [];
+    //     for(var i=0; i<oTmplList.length; i++) {
+    //         var oTmpl = oTmplList[i];
+    //         var tmpl  = UI.evalTemplate(oTmpl.nm, true, forceReload);
+    //         if(!apiReType || HmRT.isMatchDataType(apiReType, tmpl.dataType)) {
+    //             tmpl.value = oTmpl.nm;
+    //             list.push(tmpl);
+    //         }
+    //     }
 
-        // 返回
-        return list;
-    },
+    //     // 返回
+    //     return list;
+    // },
     //=========================================================
     get_com_display_text: function(ctype, comId, skin, showId){
         var UI = this;

@@ -332,13 +332,26 @@ var methods = {
         var UI = this;
         //console.log("invokeSkin", method, UI._C ? UI._C.SkinJS : "!No UI._C");
         if(UI._C && UI._C.SkinJS && UI._C.iedit.doc && UI._C.iedit.doc.defaultView){
-            $z.invoke(UI._C.SkinJS, method, [], {
+            // 准备上下文
+            var skinContext = {
                 mode   : "IDE",
                 doc    : UI._C.iedit.doc,
                 win    : UI._C.iedit.doc.defaultView,
                 root   : UI._C.iedit.root,
                 jQuery : window.jQuery,
-            });
+            };
+
+            // 清除 rootElement 的 fontsize
+            if("off" == method) {
+                $(skinContext.root).css("fontSize", "");
+            }
+            // 重新计算 rootElement 的 fontsize
+            else {
+                $z.do_change_root_fontSize(skinContext);
+            }
+
+            // 调用皮肤
+            $z.invoke(UI._C.SkinJS, method, [], skinContext);
         }
     },
     //...............................................................

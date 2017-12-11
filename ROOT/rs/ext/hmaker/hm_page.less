@@ -18,6 +18,7 @@
     display: -webkit-flex;
     display: flex;
 };
+@flexWrap : {@flex(); flex-wrap:wrap;};
 
 @d0 : .02rem;
 @d1 : .04rem;
@@ -81,7 +82,7 @@ a[href]{cursor: pointer;}
 /**
  * 控件: image
  */
-.hm-com-image {display: inline-block;}
+.hm-com-image {display: inline-block; vertical-align: bottom;}
 .hmc-image { @noselect(); color:#FFF; 
     position: relative; overflow: hidden; text-decoration: none;
     img {border:0; display:block; }
@@ -106,6 +107,19 @@ a[href]{cursor: pointer;}
     > .hm-com-W > .ui-arena {
         > .hm-area[toggle-mode="hide"] {display: none;}
     }
+}
+.hm-area {
+    position: relative;
+    > .hm-area-con {position: relative;}
+    &[area-align="NW"] > .hm-area-con{@flexWrap(); justify-content:flex-start;}
+    &[area-align="N"]  > .hm-area-con{@flexWrap(); justify-content:center}
+    &[area-align="NE"] > .hm-area-con{@flexWrap(); justify-content:flex-end;}
+    &[area-align="W"]  > .hm-area-con{@flexWrap(); align-items:center;}
+    &[area-align="P"]  > .hm-area-con{@flexWrap(); align-items:center; justify-content:center;}
+    &[area-align="E"]  > .hm-area-con{@flexWrap(); align-items:center; justify-content:flex-end;}
+    &[area-align="SW"] > .hm-area-con{@flexWrap(); align-items:flex-end;}
+    &[area-align="S"]  > .hm-area-con{@flexWrap(); align-items:flex-end; justify-content:center;}
+    &[area-align="SE"] > .hm-area-con{@flexWrap(); align-items:flex-end; justify-content:flex-end;}
 }
 
 /**

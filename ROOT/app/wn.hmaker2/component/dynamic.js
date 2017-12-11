@@ -39,19 +39,30 @@ return ZUI.def("app.wn.hm_com_dynamic", {
                 "boxShadow","overflow"];
     },
     //...............................................................
+    // 根据皮肤得到显示模板
+    getMyTemplateName : function(){
+        var UI = this;
+
+        var skin = UI.getComSkin();
+        var m = /^skin-dynamic-([^-]+)-(.+)$/.exec(skin);
+        return m ? m[1]+"/"+m[2] : "";
+    },
+    //...............................................................
     paint : function(com) {
         var UI = this;
         var jW = UI.$el.find(">.hm-com-W");
-        //console.log("I am dynamic paint");
 
         // 得到数据
         com = com || UI.getData();
+
+        
+        console.log("I am dynamic paint:", com);
 
         // 检查显示模式
         var oApi = UI.__check_mode(com);
         if(!oApi){
             return ;
-        }
+        }      
 
         // 记录一下接口的特征，以防止重复加载
         var api_finger = $z.toJson(_.pick(com, "api", "params"));

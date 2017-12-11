@@ -415,10 +415,11 @@ return ZUI.def("app.wn.hmaker_page", {
                     var text = UI.msg(jLi.attr("text"));
 
                     // 输出第一个项目
-                    var list = $z.concat([{
-                        text : UI.msg("hmaker.com._.dft")+text,
-                        selector : null
-                    }], skinList);
+                    // var list = $z.concat([{
+                    //     text : UI.msg("hmaker.com._.dft")+text,
+                    //     selector : null
+                    // }], skinList);
+                    var list = skinList;
 
                     // 循环输出
                     jiSec.empty();
