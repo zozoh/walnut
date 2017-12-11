@@ -1,10 +1,14 @@
 package org.nutz.walnut.ext.lessc.hdl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.lessc.WnLesscService;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -23,21 +27,21 @@ public class lessc_compile implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         String path = Wn.normalizeFullPath(hc.params.val_check(0), sys);
         WnObj wobj = sys.io.check(null, path);
-        WnObj base;
+        List<WnObj> bases = new ArrayList<>();
         // 支持一下include-path试试
         if (hc.params.has("include-path")) {
-            base = sys.io.check(null, Wn.normalizeFullPath(hc.params.get("include-path"), sys));
-        } else {
-            // 默认就是wobj所在的目录咯
-            base = wobj.parent();
+            for (String _path : Strings.splitIgnoreBlank(hc.params.get("include-path"))) {
+                bases.add(sys.io.check(null, Wn.normalizeFullPath(_path, sys)));
+            }
         }
+        bases.add(wobj.parent());
         // 来吧,渲染之
         WnLesscService lessc = null;
         try {
             lessc = pool.borrowObject();
             if (lessc.getIo() == null)
                 lessc.setIo(sys.io);
-            sys.out.print(lessc.renderWnObj(wobj, base));
+            sys.out.print(lessc.renderWnObj(wobj, bases));
         }
         finally {
             if (lessc != null)

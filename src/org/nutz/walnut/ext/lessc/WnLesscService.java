@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.lessc;
 
+import java.util.List;
+
 import javax.script.ScriptException;
 
 import org.nutz.lessc4j.LesscService;
@@ -9,18 +11,21 @@ import org.nutz.walnut.api.io.WnObj;
 public class WnLesscService extends LesscService {
 
     protected WnIo io;
-    protected WnObj base;
+    protected List<WnObj> bases;
 
-    public synchronized String renderWnObj(WnObj wobj, WnObj base) throws ScriptException {
-        if (base == null)
-            this.base = wobj.parent();
-        else
-            this.base = base;
+    public synchronized String renderWnObj(WnObj wobj, List<WnObj> bases) throws ScriptException {
+        this.bases = bases;
         return render(io.readText(wobj));
     }
 
     public String readLess(String path) {
-        return io.readText(io.check(base, path));
+        // 遍历base,看看到底在哪里
+        for (WnObj base : bases) {
+            WnObj wobj = io.fetch(base, path);
+            if (wobj != null)
+                return io.readText(wobj);
+        }
+        return null;
     }
 
     public void setIo(WnIo io) {
