@@ -1,5 +1,10 @@
 package org.nutz.walnut.ext.lessc.hdl;
 
+import org.apache.commons.pool2.BasePooledObjectFactory;
+import org.apache.commons.pool2.PooledObject;
+import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.lessc.WnLesscService;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -9,16 +14,13 @@ import org.nutz.walnut.util.Wn;
 
 public class lessc_compile implements JvmHdl {
 
-    protected WnLesscService lessc;
+    protected GenericObjectPool<WnLesscService> pool;
+
+    public lessc_compile() {
+        init();
+    }
 
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        // TODO 做个lessc池
-        // 如果还没有lessc对象,生成一个
-        if (lessc == null) {
-            lessc = new WnLesscService(sys.io);
-            lessc.init();
-        }
-        // lessc compile xxx.less , 把xxx.less转为绝对路径,取出来
         String path = Wn.normalizeFullPath(hc.params.val_check(0), sys);
         WnObj wobj = sys.io.check(null, path);
         WnObj base;
@@ -30,7 +32,34 @@ public class lessc_compile implements JvmHdl {
             base = wobj.parent();
         }
         // 来吧,渲染之
-        sys.out.print(lessc.renderWnObj(wobj, base));
+        WnLesscService lessc = null;
+        try {
+            lessc = pool.borrowObject();
+            if (lessc.getIo() == null)
+                lessc.setIo(sys.io);
+            sys.out.print(lessc.renderWnObj(wobj, base));
+        }
+        finally {
+            if (lessc != null)
+                pool.returnObject(lessc);
+        }
     }
 
+    public void init() {
+        GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+        config.setMaxTotal(16);
+        config.setMaxIdle(-1);
+        pool = new GenericObjectPool<>(new BasePooledObjectFactory<WnLesscService>() {
+
+            public WnLesscService create() throws Exception {
+                WnLesscService lessc = new WnLesscService();
+                lessc.init();
+                return lessc;
+            }
+
+            public PooledObject<WnLesscService> wrap(WnLesscService lessc) {
+                return new DefaultPooledObject<WnLesscService>(lessc);
+            }
+        }, config);
+    }
 }

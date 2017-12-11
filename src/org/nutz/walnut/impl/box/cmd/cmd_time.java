@@ -1,5 +1,7 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import java.util.Arrays;
+
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -12,10 +14,18 @@ public class cmd_time extends JvmExecutor {
             sys.out.println(getManual());
             return;
         }
-        Stopwatch sw = Stopwatch.begin();
-        sys.exec(Strings.join(" ", args));
-        sw.stop();
-        sys.out.println("\r\n"+sw);
+        // 需要执行多少次呢?
+        int count = 1;
+        if ("-t".equals(args[0])) {
+            count = Integer.parseInt(args[1]);
+            args = Arrays.copyOfRange(args, 2, args.length);
+        }
+        for (int i = 0; i < count; i++) {
+            Stopwatch sw = Stopwatch.begin();
+            sys.exec(Strings.join(" ", args));
+            sw.stop();
+            sys.out.println("\r\n"+sw);
+        }
     }
 
 }
