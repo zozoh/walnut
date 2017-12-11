@@ -65,10 +65,9 @@ $.fn.extend({ "hmc_searcher" : function(opt){
     }).val(opt.defaultValue || "");
 
     // 按钮文字
-    if(opt.btnText){
-        var jBtnW  = $('<div class="kwd-btn"><b></b></div>').appendTo(jq);
-        jBtnW.show().children("b").text(opt.btnText);
-    }
+    var jBtnW  = $('<div class="kwd-btn"><b></b></div>').appendTo(jq);
+    var jB = jBtnW.show().children("b");
+    jB.html(opt.btnText || '<i class="fa fa-search"></i>');
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 监控事件

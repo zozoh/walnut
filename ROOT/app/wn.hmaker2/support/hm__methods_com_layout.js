@@ -15,15 +15,23 @@ var methods = {
         "click > .hm-com-W > .ui-arena > .hm-area" : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
-            if(UI.$el.attr("highlight-mode")) {
-                if(!jq.attr("highlight")) {
-                    UI.highlightArea(jq);
-                    this.notifyActived("page", jq.attr("area-id"));
-                    // 通知切换到控件面板
-                    UI.fire("show:prop", "com");
-                }
+            // 非激活控件，取消
+            if(!UI.isActived())
+                return;
+            // 设置高亮模式
+            UI.$el.attr("highlight-mode", "yes");
+
+            console.log(jq)
+
+            // 高亮当前区域
+            if(!jq.attr("highlight")) {
+                e.stopPropagation();
+                UI.highlightArea(jq);
+                this.notifyActived("page", jq.attr("area-id"));
+                // 通知切换到控件面板
+                UI.fire("show:prop", "com");
             }
-        }
+        },
     },
     //...............................................................
     paint : function(com) {

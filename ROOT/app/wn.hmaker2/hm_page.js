@@ -666,14 +666,39 @@ return ZUI.def("app.wn.hmaker_page", {
             re.push(uiCom);
         });
 
-        // 取消一切高亮的区域
-        this._C.iedit.$body.find(".hm-area[highlight]").removeAttr("highlight");
-        this._C.iedit.$body.find(".hm-com[highlight-mode]").removeAttr("highlight-mode");
+        //console.log(nextCom)
+
+        // 取消其他高亮区域
+        // this._C.iedit.$body.find(".hm-area[highlight]").removeAttr("highlight");
+        // this._C.iedit.$body.find(".hm-com[highlight-mode]").removeAttr("highlight-mode");
+        this.__cancel_highlight_area(nextCom);
 
         // 应用皮肤
         this.invokeSkin("resize");
 
         return re.length > 0 ? re[0] : null;
+    },
+    //...............................................................
+    __cancel_highlight_area : function(uiCom) {
+        var UI = this;
+
+        // 首先找到所有的高亮区域
+        var jAreaList = UI._C.iedit.$body.find('.hm-area[highlight]');
+
+        // 去掉组件所在的区域
+        if(uiCom && uiCom.$el) {
+            var myArea = uiCom.$el.closest(".hm-area");
+            if(myArea.size() > 0) {
+                jAreaList = jAreaList.not(myArea);
+            }
+        }
+
+        // 取消这些区域的高亮
+        jAreaList.each(function(){
+            var jArea = $(this).removeAttr("highlight");
+            jArea.closest(".hm-layout").removeAttr("highlight-mode");
+        });
+
     },
     //...............................................................
     doChangeSkin : function(){

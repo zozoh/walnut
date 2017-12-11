@@ -260,11 +260,14 @@ ul, ol {list-style: none; margin:0; padding:0;}
         > .hm-com-assist {display: none;}
         > .ui-arena {
             > .hm-area {@blur();}
-            > .hm-area:after {
-                display: block; content:""; position: absolute;
+            > .hm-area > .hm-area-assist {
+                display: block; position: absolute; z-index: 1;
                 top:0;left:0;right:0;bottom:0; background: rgba(0,0,0,0.2);
             }
-            > .hm-area[highlight]:after{display: none;}
+            > .hm-area[highlight] > .hm-area-assist {
+                position: unset; z-index: unset;
+                background: unset;
+            }
             > .hm-area[highlight] {
                 opacity: 1.0; @unblur();
                 > .hm-area-assist .hma-ai {border-color:#F0F;}
