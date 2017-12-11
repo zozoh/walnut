@@ -229,6 +229,11 @@
 			<artifactId>lessc4j</artifactId>
 			<version>2.7.2-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-pool2</artifactId>
+			<version>2.4.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>
