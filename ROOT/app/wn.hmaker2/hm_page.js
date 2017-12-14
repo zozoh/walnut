@@ -969,6 +969,30 @@ return ZUI.def("app.wn.hmaker_page", {
         }
     },
     //...............................................................
+    // 更新一下所有的组件是否在窗口内
+    updateComScrollInfo : function(){
+        var UI = this;
+
+        // 得到窗口的矩形
+        var rectWin = $D.dom.winsz(UI._C.iedit.win);
+        rectWin.top = UI._C.iedit.$win.scrollTop();
+        rectWin.left = UI._C.iedit.$win.scrollLeft();
+        $D.rect.count_tlwh(rectWin);
+
+        //console.log($D.rect.dumpValues(rectWin));
+
+        // 循环所有的组件，计算其所在矩形是否在窗口之内
+        UI._C.iedit.$body.find(".hm-com").each(function(){
+            var rect = $D.rect.gen(this);
+            var inview = $D.rect.is_overlap(rectWin, rect);
+            $(this).attr({
+                "hm-scroll-inview"  : (inview ? "yes" : null),
+                "hm-scroll-outview" : (inview ? null  : "yes"),
+            });
+        });
+
+    },
+    //...............................................................
     /* 
     收集一下所有的区域显示菜单，对应的区域，返回
     {
@@ -1410,6 +1434,12 @@ return ZUI.def("app.wn.hmaker_page", {
             if(jAreaCon.find(".hm-area").length>0)
                 return;
 
+            // 高亮模式下，只有高亮区域被选择
+            if(jArea.closest(".hm-layout").attr("highlight-mode")){
+                if(!jArea.attr("highlight"))
+                    return;
+            }
+
             // 计入返回列表
             senList.push({
                 name : eMyArea != eArea ? "drop" : "",
@@ -1508,6 +1538,8 @@ return ZUI.def("app.wn.hmaker_page", {
             head : doc.head,
             body : doc.body,
         };
+        cobj.$win  = $(cobj.win);
+        cobj.$doc  = $(cobj.doc);
         cobj.$root = $(cobj.root);
         cobj.$head = $(cobj.head);
         cobj.$body = $(cobj.body);

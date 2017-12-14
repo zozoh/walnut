@@ -296,6 +296,11 @@ var methods = {
             // $(document.body).click();
         });
 
+        // 捕获窗口滚动事件
+        UI._C.iedit.$win.on("scroll", function(e){
+            UI.updateComScrollInfo();
+        });
+
         // 截获所有的键事件
         UI._C.iedit.$body.on("keydown", function(e){
             // 删除

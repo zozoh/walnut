@@ -33,7 +33,9 @@ public class HmPageTranslating extends HmContext {
         JS_LIB.put("@vue", "/gu/rs/core/js/vue/vue.js");
         JS_LIB.put("@alloy_finger", "/gu/rs/core/js/alloy_finger/alloy_finger.js");
         JS_LIB.put("@zutil", "/gu/rs/core/js/nutz/zutil.js");
+        JS_LIB.put("@zdimension", "/gu/rs/core/js/nutz/zdimension.js");
         JS_LIB.put("@dateformat", "/gu/rs/core/js/ui/dateformat.js");
+        JS_LIB.put("@seajs", "#seajsnode!/gu/rs/core/js/seajs/seajs-2.3.0/sea.js");
     }
 
     /**
@@ -290,6 +292,9 @@ public class HmPageTranslating extends HmContext {
         String html = io.readText(oSrc);
         this.doc = Jsoup.parse(html);
         // ---------------------------------------------------
+        // 标识一下运行环境
+        this.doc.body().parent().attr("hmaker-runtime", "yes");
+        // ---------------------------------------------------
         // 清空页面的头
         doc.head().empty();
         // ---------------------------------------------------
@@ -317,8 +322,9 @@ public class HmPageTranslating extends HmContext {
         this.jsLinks.add("/gu/rs/core/js/jquery/jquery-2.1.3/jquery-2.1.3.min.js");
         this.jsLinks.add("/gu/rs/core/js/backbone/underscore-1.8.2/underscore.js");
         this.jsLinks.add("#seajsnode!/gu/rs/core/js/seajs/seajs-2.3.0/sea.js");
-        this.jsLinks.add("/gu/rs/core/js/ui/dateformat.js");
         this.jsLinks.add("/gu/rs/core/js/nutz/zutil.js");
+        this.jsLinks.add("/gu/rs/core/js/nutz/zdimension.js");
+        this.jsLinks.add("/gu/rs/core/js/ui/dateformat.js");
         // ---------------------------------------------------
         // 加入皮肤
         if (null != this.oSkinJs) {

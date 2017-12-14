@@ -4313,7 +4313,6 @@
                     }
                     // A: [](xxxx)
                     else if (m[14]) {
-                        html += '<a href="' + m[16] + '">' + (m[15] || m[16]) + '</a>';
                         // 得到超链
                         var href = m[16];
                         if (href && href.endsWith(".md")) {
