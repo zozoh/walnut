@@ -28,6 +28,10 @@ return ZUI.def("app.wn.hm_com_image", {
                 "width"   : "unset",
                 "height"  : "unset",
             });
+        },
+        // 禁止任何默认行为
+        "click *" : function(e) {
+            e.preventDefault();
         }
     },
     //...............................................................

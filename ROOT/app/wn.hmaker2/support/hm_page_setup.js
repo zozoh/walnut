@@ -223,6 +223,7 @@ var methods = {
 
         // 首先所有元素的点击事件，全部禁止默认行为
         UI._C.iedit.$body.on("click", "*", function(e){
+            console.log("haha")
             e.preventDefault();
         })
         // 如果点在了控件里，激活
