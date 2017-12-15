@@ -326,8 +326,13 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             var key = blockFields[i];
             if(!key)
                 continue;
+
+            // 如果是普通对象（即不是字符串，那么就直接用）
+            if(!_.isString(key)) {
+                re.push(_.extend({}, key));
+            }
             // 显示简单输入框的
-            if(/^(padding|margin|border|borderRadius|boxShadow|textShadow|letterSpacing|fontSize|lineHeight)$/.test(key)) {
+            else if(/^(padding|margin|border|borderRadius|boxShadow|textShadow|letterSpacing|fontSize|lineHeight)$/.test(key)) {
                 re.push({
                     key    : key,
                     title  : "i18n:hmaker.prop." + key,
@@ -518,6 +523,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                             dft    : a_dft,
                             editAs : "switch",
                             uiConf : {
+                                singleKeepOne : false,
                                 items : [{
                                     value : "no",
                                     text  : "i18n:no"
@@ -571,7 +577,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                     }
 
                     // 默认值
-                    a_dft = a_dft || items[0].value;
+                    a_dft = a_dft || undefined;
 
                     // 加入字段
                     re.push({
@@ -580,7 +586,9 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                         type   : "string",
                         dft    : a_dft,
                         editAs : a_etp == "-" ? "droplist" : "switch",
-                        uiConf : {items:items} 
+                        uiConf : {
+                            items:items,
+                        } 
                     });
 
                     continue;
