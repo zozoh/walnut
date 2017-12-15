@@ -92,6 +92,49 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         return re;
     },
     //...............................................................
+    // items 的定义参见 navmenu_prop.__str_to_menu_items 上的注释
+    setMenuItems : function(items) {
+        var UI = this;
+
+        // 至少要保证有一个项目
+        if(!_.isArray(items) || items.length == 0) {
+            items = [{text : "MenuItem"}];
+        }
+
+        // 来吧，清空
+        var jUl = UI.arena.find(">.mic-top").empty();
+
+        // 准备记录当前选中的项目
+        var currentIndex = -1;
+
+        // 逐个添加
+        for(var i=0; i<items.length; i++) {
+            var it  = items[i];
+            var jLi = UI.createItem(it, true);
+
+            // 记录选中
+            if(it.current)
+                currentIndex = i;
+
+            // 缩进
+            for(var d=0; d<it.depth; d++){
+                UI.moveSub(jLi);
+            }
+        }
+
+        // 标记一下层级
+        UI.__mark_hierarchy_class();
+
+        // 选中，也会同时通知属性面板的修改
+        if(currentIndex >= 0) {
+            UI.selectItem(currentIndex);
+        }
+        // 确保通知修改
+        else {
+            UI.notifyDataChange("page");
+        }
+    },
+    //...............................................................
     $item : function(arg, quiet) {
         if(_.isNumber(arg))
             return this.arena.find("li").eq(arg);
@@ -136,17 +179,17 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         // 返回对象
         return {
             index     : jLi.attr("index") * 1,
+            depth     : jLi.parentsUntil(".hmc-navmenu", "ul").length - 1,
             text      : text,
             href      : jLi.attr("href") || "",
             newtab    : jLi.attr("newtab") == "yes",
             current   : jLi.attr("current") == "yes",
             skin      : jLi.attr("skin") || "",
             selectors : jLi.attr("selectors") || "",
-            depth     : jLi.parentsUntil(".hmc-navmenu", "ul").length - 1
         };
     },
     //...............................................................
-    createItem : function(item) {
+    createItem : function(item, quiet) {
         var UI = this;
 
         item = item || {
@@ -158,19 +201,23 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         // 用 A 包裹文字是因为考虑到以后可能增加 icon 之类的前缀修饰元素
         var jLi = $('<li><a><i></i><span></span></a></li>');
         var jCurrentItem = UI.getActivedItem();
+        // 插入到当前项的后面
         if(jCurrentItem) {
             jLi.insertAfter(jCurrentItem);
-        }else{
-            var jUl = UI.arena.find("ul").last();
+        }
+        // 插入到末尾
+        else{
+            var jUl = UI.arena.find(">.mic-top").first();
             jLi.appendTo(jUl);
         }
 
         UI.updateItem(jLi, item, true);
 
         // 选中新增项目(顺便通知修改)
-        UI.selectItem(jLi);
+        if(!quiet)
+            UI.selectItem(jLi);
 
-        return item;
+        return jLi;
     },
     //...............................................................
     selectItem : function(index) {
@@ -243,7 +290,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
 
         // 格式化文字图标
         var m = /^<((fa|zmdi)-([a-z-]+))>(.*)$/.exec(item.text);
-        console.log(m, item)
+        //console.log(m, item)
         if(m){
             item.icon = m[1];
             item.text = m[4];

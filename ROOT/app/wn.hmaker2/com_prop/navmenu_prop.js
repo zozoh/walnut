@@ -5,8 +5,8 @@ $z.declare([
     'app/wn.hmaker2/support/hm__methods_panel',
     'ui/form/form',
     'ui/menu/menu',
-    'ui/mask/mask'
-], function(ZUI, Wn, HmMethods, FormUI, MenuUI, MaskUI){
+    'ui/pop/pop'
+], function(ZUI, Wn, HmMethods, FormUI, MenuUI, POP){
 //==============================================
 var html = `
 <div class="ui-code-template">
@@ -385,6 +385,12 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                     if(index >= 0)
                         UI.uiCom.moveNext(index);
                 }
+            }, {
+                icon : '<i class="zmdi zmdi-edit"></i>',
+                tip  : 'i18n:hmaker.com.navmenu.quickedit',
+                handler : function(){
+                    UI.openQuickEditPanel();
+                }
             }]
         }).render(function(){
             UI.defer_report("actions");
@@ -403,6 +409,105 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
         var clData  = cLayout.getData();
         cLayout.setItems(items);
         cLayout.setData(clData);
+    },
+    //...............................................................
+    openQuickEditPanel : function(){
+        var UI = this;
+
+        // 得到当前菜单项目的编辑字符串
+        var items = UI.uiCom.getMenuItems();
+        // console.log(items);
+        // console.log(str);
+        // console.log();
+
+        // 打开编辑界面
+        POP.openEditTextPanel({
+            title    : "i18n:hmaker.com.navmenu.quickedit",
+            data     : UI.__menu_items_to_str(items),
+            callback : function(str){
+                //console.log(str)
+                var items2 = UI.__str_to_menu_items(str);
+                //console.log(items2)
+                UI.uiCom.setMenuItems(items2);
+            }
+        }, UI);
+    },
+    //...............................................................
+    __menu_items_to_str : function(items) {
+        var str = "";
+        for(var i=0; i<items.length; i++) {
+            var it = items[i];
+            // 缩进
+            str += $z.dupString("  ", it.depth||0);
+            // 当前项
+            if(it.current)
+                str += "*";
+            // 新窗口
+            if(it.newtab)
+                str += "+";
+            // 文字
+            str += it.text;
+            // 链接
+            if(it.href)
+                str += " : " + it.href;
+            // 换行
+            str += "\n";
+        }
+        return str;
+    },
+    //...............................................................
+    /*
+    菜单项对象格式为：
+    {
+        "index"     : 0,
+        "text"      : "AAA",
+        "href"      : "/index",
+        "newtab"    : false,
+        "current"   : false,
+        "skin"      : "xxx",
+        "selectors" : "yyy",
+        "depth"     : 0
+    }
+    转换成一行字符串，格式为
+    
+    AAA(xxx).yyy : /index
+      *+BBB 
+    
+    - 前面的空格表示缩进，一个缩进用2个空格表示
+    - `+` 字符表示新窗口打开
+    - `*` 表示当前项
+    - (xxx) 表示 skin，如果没有 skin 则为空
+    - .yyy 表示选择器，如果没有则为空
+    - `:` 后面的为链接，如果没有，则为空
+    */
+    __str_to_menu_items : function(str) {
+        var lines = str.split(/\r?\n/g);
+        var items = [];
+        for(var i=0; i<lines.length; i++) {
+            var line = lines[i];
+            var trim = $.trim(line);
+            // 无视空行
+            if(!trim)
+                continue;
+            // 准备解析
+            var it = {
+                index : i,
+                depth : $z.countStrHeadIndent(line, 2)
+            };
+            // 来吧
+            var m = /^[ \t]*([*]?)([+]?)([^:]+):?(.*)$/.exec(trim);
+            // 靠，格式错误
+            if(!m)
+                continue;
+            // 来吧
+            it.text = $.trim(m[3]);  // 文字
+            it.href = $.trim(m[4]) || ""; // 链接
+            it.newtab = m[2] ? true : false; // 新窗口
+            it.current = m[1] ? true : false; // 当前项
+            // 记入结果
+            items.push(it);
+        }
+        return items;
     },
     //...............................................................
     update : function(com) {

@@ -44,129 +44,7 @@ module.exports = {
 
         // 打开界面面板
         this.openUIPanel(opt, referUI);
-        
-
-        // // 设置遮罩属性
-        // var mask_options = _.extend({
-        //     dom  : 'ui/pop/pop.html',
-        //     css  : "ui/pop/theme/pop-{{theme}}.css",
-        //     closer: true,
-        //     escape: true,
-        //     width  : opt.width,
-        //     height : opt.height,
-        //     exec  : Wn.exec,
-        //     app   : Wn.app(),
-        //     setup : {
-        //         uiType : "ui/obrowser/obrowser",
-        //         uiConf : uiConf
-        //     },
-        //     events : {
-        //         "click .pm-btn-ok" : function(){
-        //             var uiMask = this;
-        //             // 得到数据
-        //             var objs   = uiMask.body.getChecked();
-        //             // 支持当前目录作为默认
-        //             if(objs.length == 0 && opt.defaultByCurrent){
-        //                 objs = [uiMask.body.getCurrentObj()];
-        //             }
-        //             // 回调的上下文
-        //             var context = opt.context || uiMask.body;
-                    
-        //             // 调用回调
-        //             $z.invoke(opt, "on_ok", [objs], context);
-
-        //             // 关闭弹出框
-        //             uiMask.close();
-        //         },
-        //         "click .pm-btn-cancel" : function(){
-        //             var uiMask = this;
-
-        //             // 回调的上下文
-        //             var context = opt.context || uiMask.body;
-
-        //             // 调用回调
-        //             $z.invoke(uiMask.options, "on_cancel", [], context);
-
-        //             // 关闭弹出框
-        //             uiMask.close();
-        //         }
-        //     }
-        // }, opt);
-
-        // // 打开遮罩
-        // new MaskUI(mask_options).render(function(){
-        //     // 设置标题
-        //     if(title)
-        //         this.arena.find(".pm-title").html(title);
-        //     else
-        //         this.arena.find(".pm-title").remove();
-
-        //     // 设置数据
-        //     this.body.setData(opt.base, callback);
-        // });
     },
-    //...............................................................
-    // 弹出一个 Quartz 编辑器
-    // quartz : function(opt) {
-    //     // 确保配置非空
-    //     opt = opt || {};
-
-    //     // 填充默认值
-    //     $z.setUndefined(opt, "width", 480);
-    //     $z.setUndefined(opt, "height", 540);
-    //     $z.setUndefined(opt, "escape", true);
-    //     $z.setUndefined(opt, "closer", true);
-    //     $z.setUndefined(opt, "title", "i18n:quartz.title");
-
-    //     // 设置遮罩属性
-    //     var mask_options = _.extend({
-    //         dom  : 'ui/pop/pop.html',
-    //         css  : "ui/pop/theme/pop-{{theme}}.css",
-    //         i18n : "ui/quartz/i18n/{{lang}}.js",
-    //         closer: true,
-    //         escape: true,
-    //         arenaClass : opt.arenaClass,
-    //         width  : opt.width,
-    //         height : opt.height,
-    //         exec  : Wn.exec,
-    //         app   : Wn.app(),
-    //         setup : {
-    //             uiType : "ui/quartz/edit_quartz",
-    //             uiConf : {}
-    //         },
-    //         events : {
-    //             "click .pm-btn-ok" : function(){
-    //                 var uiMask  = this;
-    //                 var opt     = uiMask.options;
-    //                 var qz      = uiMask.body.getData();
-    //                 var context = opt.context || uiMask.body;
-    //                 $z.invoke(opt, "on_ok", [qz], context);
-    //                 uiMask.close();
-    //             },
-    //             "click .pm-btn-cancel" : function(){
-    //                 var uiMask  = this;
-    //                 var opt     = uiMask.options;
-    //                 var context = opt.context || uiMask.body;
-    //                 $z.invoke(opt, "on_cancel", [], context);
-    //                 uiMask.close();
-    //             }
-    //         }
-    //     }, opt);
-
-    //     // 打开遮罩
-    //     new MaskUI(mask_options).render(function(){
-    //         // 设置标题
-    //         if(opt.title)
-    //             this.arena.find(".pm-title").html(this.text(opt.title));
-    //         else
-    //             this.arena.find(".pm-title").remove();
-
-    //         // 设置数据
-    //         if(opt.data) {
-    //             this.body.setData(opt.data);
-    //         }
-    //     });
-    // },
     //...............................................................
     // 弹出一个 ZCron 编辑器
     zcron : function(cron, opt, referUI) {
@@ -221,50 +99,80 @@ module.exports = {
     referUI : 为一个 UI 的引用，弹出框将复用它的 _msg_map | app | exec 设定
     */
     openEditTextPanel : function(opt, referUI){
-        opt = opt || {};
-        referUI  = referUI  || {};
+        // opt = opt || {};
+        // referUI  = referUI  || {};
 
-        // 填充默认值
-        $z.setUndefined(opt, "width", 900);
-        $z.setUndefined(opt, "height", "90%");
-        $z.setUndefined(opt, "escape", true);
-        $z.setUndefined(opt, "closer", true);
-        $z.setUndefined(opt, "title", 'i18n:edit');
-        $z.setUndefined(opt, "contentType", "text");
+        // // 填充默认值
+        // $z.setUndefined(opt, "width", 900);
+        // $z.setUndefined(opt, "height", "90%");
+        // $z.setUndefined(opt, "escape", true);
+        // $z.setUndefined(opt, "closer", true);
+        // $z.setUndefined(opt, "title", 'i18n:edit');
+        // $z.setUndefined(opt, "contentType", "text");
 
-        // 打开编辑器
-        new MaskUI({
-            i18n : referUI._msg_map,
-            exec : referUI.exec,
-            app  : referUI.app,
-            dom : 'ui/pop/pop.html',
-            css : 'ui/pop/theme/pop-{{theme}}.css',
-            arenaClass : opt.arenaClass,
-            width  : opt.width,
-            height : opt.height,
-            escape : opt.escape,
-            closer : opt.closer,
-            events : {
-                "click .pm-btn-ok" : function(){
-                    var context = opt.context || this;
-                    var html = this.body.getData();
-                    $z.invoke(opt, "callback", [html], context);
-                    this.close();
-                },
-                "click .pm-btn-cancel" : function(){
-                    this.close();
-                }
-            }, 
+        // // 打开编辑器
+        // new MaskUI({
+        //     i18n : referUI._msg_map,
+        //     exec : referUI.exec,
+        //     app  : referUI.app,
+        //     dom : 'ui/pop/pop.html',
+        //     css : 'ui/pop/theme/pop-{{theme}}.css',
+        //     arenaClass : opt.arenaClass,
+        //     width  : opt.width,
+        //     height : opt.height,
+        //     escape : opt.escape,
+        //     closer : opt.closer,
+        //     events : {
+        //         "click .pm-btn-ok" : function(){
+        //             var context = opt.context || this;
+        //             var html = this.body.getData();
+        //             $z.invoke(opt, "callback", [html], context);
+        //             this.close();
+        //         },
+        //         "click .pm-btn-cancel" : function(){
+        //             this.close();
+        //         }
+        //     }, 
+        //     setup : {
+        //         uiType : 'ui/zeditor/zeditor',
+        //         uiConf : {
+        //             contentType : opt.contentType
+        //         }
+        //     }
+        // }).render(function(){
+        //     this.arena.find(".pm-title").html(this.text(opt.title));
+        //     this.body.setData(opt.data);
+        // });
+
+        // opt 直接就是一个回调
+        if(_.isFunction(opt)){
+            opt = {ok : opt};
+        }
+        // 确保配置非空
+        else {
+            opt = opt || {};
+        }
+        //--------------------------------
+        // 修改配置信息
+        _.extend(opt, {
             setup : {
                 uiType : 'ui/zeditor/zeditor',
-                uiConf : {
-                    contentType : opt.contentType
-                }
+                uiConf : opt.editor || {}
+            },
+            ok : function(uiEditor, jBtn, uiMask){
+                var data = uiEditor.getData();
+                $z.invoke(opt, "callback", [data], this);
             }
-        }).render(function(){
-            this.arena.find(".pm-title").html(this.text(opt.title));
-            this.body.setData(opt.data);
         });
+        //--------------------------------
+        // 设定初始化函数
+        opt.ready = function(uiEditor){
+            var data = opt.data || "";
+            uiEditor.setData(data);
+        };
+
+        // 打开界面面板
+        this.openUIPanel(opt, referUI);
     },
     //...............................................................
     // 打开一个表单器（弹出），接受的参数格式为:
@@ -288,51 +196,6 @@ module.exports = {
     }
     */
     openFormPanel : function(opt, referUI){
-        // opt = opt || {};
-        // opt.form = opt.form || {};
-
-        // // 填充默认值
-        // $z.setUndefined(opt, "width", 640);
-        // $z.setUndefined(opt, "height", "80%");
-        // $z.setUndefined(opt, "escape", false);
-        // $z.setUndefined(opt, "closer", true);
-        // $z.setUndefined(opt, "title", 'i18n:edit');
-        // $z.setUndefined(opt.form, "uiWidth", 'all');
-
-        // // 打开编辑器
-        // new MaskUI({
-        //     dom : 'ui/pop/pop.html',
-        //     css : 'ui/pop/theme/pop-{{theme}}.css',
-        //     i18n : opt.i18n,
-        //     arenaClass : opt.arenaClass,
-        //     width  : opt.width,
-        //     height : opt.height,
-        //     escape : opt.escape,
-        //     closer : opt.closer,
-        //     events : {
-        //         "click .pm-btn-ok" : function(){
-        //             var context = opt.context || this.body;
-        //             var data = this.body.getData();
-        //             $z.invoke(opt, "callback", [data], context);
-        //             this.close();
-        //         },
-        //         "click .pm-btn-cancel" : function(){
-        //             this.close();
-        //         }
-        //     }, 
-        //     setup : {
-        //         uiType : 'ui/form/form',
-        //         uiConf : opt.form
-        //     }
-        // }).render(function(){
-        //     this.arena.find(".pm-title").html(this.text(opt.title));
-        //     this.body.setData(opt.data || {});
-
-        //     // 调用回调
-        //     var context = opt.context || this.body;
-        //     $z.invoke(opt, "after", [opt.data || {}], context);
-        // });
-
         // 确保配置非空
         opt = opt || {};
         //--------------------------------
