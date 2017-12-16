@@ -72,8 +72,8 @@ var CMD = {
         jAns.attr("open-sub", "yes");
 
         // 标识自己的父为高亮
-        jq.find("li[current]").removeAttr("current");
-        jLi.closest(".li-top").attr("current", "yes");
+        //jq.find("li[current]").removeAttr("current");
+        //jLi.closest(".li-top").attr("current", "yes");
 
         // 自动停靠
         if(autoDock){

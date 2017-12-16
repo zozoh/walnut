@@ -81,8 +81,14 @@ body {margin: 0; font-size:@f4;}
 a[href]{cursor: pointer;}
 ul, ol {list-style: none; margin:0; padding:0;}
 
-.hm-com[auto-wrap-width]  > * {width: 100%;}
-.hm-com[auto-wrap-height] > * {height:100%;}
+.hm-com[auto-wrap-width]  {
+    > .hm-com-W {width: 100%;}
+    > .hm-com-W > div {width:100%;}
+}
+.hm-com[auto-wrap-height] {
+    > .hm-com-W {height:100%;}
+    > .hm-com-W > div {height:100%;}
+}
 
 /**
  * 控件: image
