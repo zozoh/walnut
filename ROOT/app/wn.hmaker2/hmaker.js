@@ -34,7 +34,8 @@ var html = function(){/*
 return ZUI.def("app.wn.hmaker2", {
     __hmaker__ : "1.0",
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "app/wn.hmaker2/theme/hmaker-{{theme}}.css",
+    css  : ["app/wn.hmaker2/theme/hmaker-{{theme}}.css",
+            'app/wn.hmaker2/support/theme/hmaker_support-{{theme}}.css'],
     i18n : "app/wn.hmaker2/i18n/{{lang}}.js",
     //...............................................................
     init : function() {

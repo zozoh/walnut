@@ -7,7 +7,6 @@ var html = '<div class="ui-arena edit-pair"></div>';
 //==============================================
 return ZUI.def("ui.edit_pair", {
     dom  : html,
-    css  : 'app/wn.hmaker2/support/theme/edit_pair-{{theme}}.css',
     //...............................................................
     events : {
     },

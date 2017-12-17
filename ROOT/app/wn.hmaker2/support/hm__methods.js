@@ -2,7 +2,8 @@ define(function (require, exports, module) {
 // 依赖
 require("/gu/rs/ext/hmaker/hm_runtime.js");
 var MaskUI = require("ui/mask/mask");
-var Wn = require('wn/util');
+var Wn  = require('wn/util');
+var POP = require('ui/pop/pop');
 // ....................................
 // 块的 CSS 属性基础对象
 var CSS_BASE = {
@@ -496,90 +497,134 @@ var methods = {
     // 打开超链接编辑界面，接受的参数格式为:
     /*
     {
-        title     : "i18n:xxx"    // 对话框标题
-        tip       : "i18n:xxx"    // 提示字符串
-        width     : 480           // 对话框宽度
-        height    : 260           // 对话框高度
-        items     : Cmd|F()|[..]  // 辅助选项的内容
-        icon      : 如何获取项目的图标
-        text      : 如何获取项目的文本
-        value     : 如何获取项目的值
-        emptyItem : {..}          // 空白提示项的内容 
-        data      : 要编辑的值
-        callback  : 回调函数接受 callback(href)
+        href      : "xxx"    // 要编辑的值
+        callback  : F(href)  // 回调函数接受
     }
     */
     openEditLinkPanel : function(opt) {
         var UI = this;
-        opt = opt || {};
-        
-        // 填充默认值
-        $z.setUndefined(opt, "width", 480);
-        $z.setUndefined(opt, "height", 260);
-        $z.setUndefined(opt, "title", 'i18n:hmaker.link.edit');
-        $z.setUndefined(opt, "tip", "i18n:hmaker.link.edit_tip");
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if(_.isUndefined(opt.items)) {
-            var homeId = UI.pageUI().getHomeObjId();
-            opt.items = 'hmaker id:'+homeId+' links -key "rph,nm,tp" -site';
-        }
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        $z.setUndefined(opt, "icon", function(o) {
-            // 页面
-            if('html' == o.tp && !$z.getSuffixName(o.nm)) {
-                return  '<i class="fa fa-file"></i>';
-            }
-            // 其他遵守 walnut 的图标规范
-            return Wn.objIconHtml(o);
-        });
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        $z.setUndefined(opt, "text", null);
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        $z.setUndefined(opt, "value", function(o) {
-            return "/" + o.rph;
-        });
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        $z.setUndefined(opt, "emptyItem", {
-            text  : "i18n:hmaker.link.select",
-            value : ""
-        });
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // 弹出遮罩层
-        new MaskUI({
-            app : UI.app,
-            dom : 'ui/pop/pop.html',
-            css : 'ui/pop/theme/pop-{{theme}}.css',
-            i18n : UI._msg_map,
-            width  : opt.width,
-            height : opt.height,
-            events : {
-                "click .pm-btn-ok" : function(){
-                    var href = (this.body.getData()||"").replace(
-                        /[\r\n]/g, "");
-                    $z.invoke(opt, "callback", [href]);
-                    this.close();
-                },
-                "click .pm-btn-cancel" : function(){
-                    this.close();
-                }
-            }, 
-            setup : {
+        POP.openUIPanel({
+            title  : 'i18n:hmaker.link.edit',
+            width  : 480,
+            height : 360,
+            setup  : {
                 uiType : 'app/wn.hmaker2/support/edit_link',
                 uiConf : {
-                    exec  : UI.exec,
-                    app   : Wn.app(),
-                    tip   : opt.tip,
-                    items : opt.items,
-                    icon  : opt.icon,
-                    text  : opt.text,
-                    value : opt.value,
-                    emptyItem : opt.emptyItem,
+                    homeObj : UI.getHomeObj()
                 }
+            },
+            ready : function(){
+                this.setData(opt.href);
+            },
+            ok : function(){
+                var href = (this.getData()||"").replace(
+                        /[\r\n]/g, "");
+                $z.invoke(opt, "callback", [href]);
             }
-        }).render(function(){
-            this.$main.find('.pm-title').html(UI.text(opt.title));
-            this.body.setData(opt.data);
-        });
+        }, UI);
+    },
+    //...............................................................
+    /* 显示一个分栏选择的列表，主要用于 navmenu 的区域显示
+    opt : {
+        comId - 表示要选择哪个布局控件的分栏列表
+        uiCom - 指定一个组件，这个组件所在的 Area 给予忽略，通常为 navmenu 控件
+        areaId - 表示指定的 areaId,
+        callback - F(newAreaId)
+    }
+    */
+    openPickAreaPanel : function(opt) {
+        var UI = this;
+
+        // 确保有分栏ID
+        if(!opt.comId) {
+            alert("no comId");
+            throw "no comId";
+        }
+
+        // 获取分栏下的区域列表
+        var areaiList = UI.pageUI().getLayoutAreaList(opt.comId);
+
+        // 得到自己所在的分栏，看看是否是所选分栏
+        var myLayouts = [];
+        if(opt.uiCom) {
+            opt.uiCom.$el.parents(".hm-area").each(function(){
+                var jMyArea = $(this);
+                myLayouts.push({
+                    comId  : jMyArea.closest(".hm-layout").attr("id"),
+                    areaId : jMyArea.attr("area-id")
+                });
+            });
+        }
+
+        // 看看是否选择了自己所在的布局链
+        var myAreaId = null;
+        for(var i=0; i<myLayouts.length; i++) {
+            var myl = myLayouts[i];
+            if(myl.comId == opt.comId) {
+                myAreaId = myl.areaId;
+                break;
+            }
+        }
+
+        // 得到自己已经选择的区域列表
+        var usedAreaMap = $z.invoke(opt.uiCom, "joinToggleAreaMap") || {};
+
+        // 最后得到自己应该显示的下拉列表项目
+        var items = [{
+            areaId : null
+        }];
+
+        // 加入所有的区域
+        for(var ao of areaiList) {
+            // 自己所在的区域不可选
+            if(ao.areaId == myAreaId) 
+                continue;
+
+            // 已经使用过的区域标识一下
+            if(usedAreaMap[ao.areaId] && ao.areaId != opt.areaId){
+                ao.__used = true;
+            }
+
+            items.push(ao);
+        }
+
+        // 准备显示的列表
+        POP.openUIPanel({
+            title : "i18n:hmaker.edit.pick_area",
+            width : 300,
+            height : 400,
+            setup : {
+                uiType : 'ui/list/list',
+                uiConf : {
+                    arenaClass : "edit-pick-area",
+                    escapeHtml : false,
+                    icon  : '<i class="zmdi zmdi-view-dashboard"></i>',
+                    idKey : "areaId",
+                    display : function(ao) {
+                        if(!ao.areaId) {
+                            return '<em>'+UI.msg("hmaker.edit.none_area")+'</em>';
+                        }
+                        return '<i class="zmdi zmdi-view-dashboard"></i>'
+                                + '<span>' + ao.areaId + '</span>';
+                    },
+                    on_draw_item : function(jItem, ao) {
+                        if(ao.__used) {
+                            jItem.attr("ao-used", "yes");
+                        }
+                    }
+                }
+            },
+            ready : function(){
+                this.setData(items);
+                console.log(opt.areaId)
+                this.setActived(opt.areaId);
+            },
+            ok : function() {
+                var areaId = this.getActivedId();
+                $z.invoke(opt, "callback", [areaId]);
+            }
+        }, UI);
+
     },
     //...............................................................
     __form_fld_pick_folder : function(fld) {

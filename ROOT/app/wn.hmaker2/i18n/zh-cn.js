@@ -11,7 +11,14 @@ define({
             "none"   : "无链接",
             "edit"   : '<i class="zmdi zmdi-link"></i> 编辑超链接',
             "select" : "站内链接快速选择",
-            "edit_tip" : '如果想编辑站外链接，请用 <code>http://</code> 或者 <code>https://</code> 开头。站内链接一律相对于站点主目录，并以 <code>/</code> 开头',
+            "href"   : "目标页面", 
+            "href_tip" : '如果想编辑站外链接，请用 <code>http://</code> 或者 <code>https://</code> 开头。站内链接一律相对于站点主目录，并以 <code>/</code> 开头',
+            "anchor" : "页内锚点",
+            "anchor_tip" : "如果目标页面为空，锚点是从当前页面选的",
+        },
+        "edit" : {
+            "pick_area" : "选择一个目标区域",
+            "none_area" : "-不选择任何区域-",
         },
         "site" : {
             "conf"   : '<i class="fa fa-gear"></i> <b>站点设置</b>',

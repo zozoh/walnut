@@ -21,6 +21,7 @@ return ZUI.def("ui.form_com_list", EnumListSupport({
 
         this.__setup_dft_display_func(opt);
 
+        $z.setUndefined(opt, "escapeHtml", true);
         $z.setUndefined(opt, "drawOnSetData", true);
     },
     //...............................................................
@@ -124,7 +125,14 @@ return ZUI.def("ui.form_com_list", EnumListSupport({
             else if(_.isFunction(opt.text))
                 text = opt.text.call(context, item, i, UI);
 
-            $('<b it="text">').text(UI.text(text)).appendTo(jLi);
+            // 直接逃逸文字
+            if(opt.escapeHtml) {
+                $('<b it="text">').text(UI.text(text)).appendTo(jLi);
+            }
+            // 否则输出 HTML
+            else {
+                $('<b it="text">').html(UI.compactHTML(text)).appendTo(jLi);
+            }
         }
 
         // 没有 Icon 就全部移除

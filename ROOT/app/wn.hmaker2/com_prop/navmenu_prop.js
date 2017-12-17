@@ -91,7 +91,7 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             // 打开链接对话框
             if('link' == atype) {
                 this.openEditLinkPanel({
-                    data     : item.href,
+                    href     : item.href,
                     callback : function(href){
                         UI.uiCom.updateItemField(index, "href", href);
                     }
@@ -108,63 +108,12 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                     return;
                 }
 
-                // 获取分栏下的区域列表
-                var areaiList = UI.pageUI().getLayoutAreaList(comId);
-
-                // 得到自己所在的分栏，看看是否是所选分栏
-                var myLayouts = [];
-                UI.uiCom.$el.parents(".hm-area").each(function(){
-                    var jMyArea = $(this);
-                    myLayouts.push({
-                        comId  : jMyArea.closest(".hm-layout").attr("id"),
-                        areaId : jMyArea.attr("area-id")
-                    });
-                });
-
-                // 看看是否选择了自己所在的布局链
-                var myAreaId = null;
-                for(var i=0; i<myLayouts.length; i++) {
-                    var myl = myLayouts[i];
-                    if(myl.comId == comId) {
-                        myAreaId = myl.areaId;
-                        break;
-                    }
-                }
-
-                // 得到自己已经选择的区域列表
-                var usedAreaMap = UI.uiCom.joinToggleAreaMap();
-
-                // 最后得到自己应该显示的下拉列表项目
-                var items = [];
-                for(var ao of areaiList) {
-                    // 自己所在的区域不可选
-                    if(ao.areaId == myAreaId) 
-                        continue;
-
-                    // 已经使用过的区域，也无视
-                    if(usedAreaMap[ao.areaId])
-                        continue;
-
-                    items.push(ao.areaId);
-                }
-
-                // 打开编辑对话框
-                this.openEditLinkPanel({
-                    title    : "i18n:hmaker.com.navmenu.toar_edit_title",
-                    tip      : "i18n:hmaker.com.navmenu.toar_edit_tip",
-                    items    : items,
-                    icon     : '<i class="zmdi zmdi-view-dashboard"></i>',
-                    text     : function(o){return o;},
-                    value    : function(o){return o;},
-                    emptyItem : {
-                        text  : "i18n:hmaker.com.navmenu.toar_area_none",
-                        value : ""
-                    },
-                    data     : item.href,
-                    callback : function(href){
-                        UI.uiCom.updateItemField(index, "href", href);
-                        // 最后触发一下控件重绘
-                        UI.uiCom.notifyDataChange("panel");
+                this.openPickAreaPanel({
+                    comId  : comId, 
+                    uiCom  : UI.uiCom, 
+                    areaId : item.href,
+                    callback : function(areaId) {
+                        UI.uiCom.updateItemField(index, "href", areaId);
                     }
                 });
             } 
@@ -301,7 +250,7 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                         return UI.msg("hmaker.com."+ag.ctype+".icon");
                     },
                     text  : function(ag){
-                        return UI.msg("hmaker.com."+ag.ctype+".name")+"#"+ag.cid;
+                        return ag.cid + "(" + UI.msg("hmaker.com."+ag.ctype+".name")+")";
                     },
                     value : function(ag){
                         return ag.cid;
