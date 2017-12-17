@@ -23,6 +23,12 @@ return ZUI.def("ui.edit_link", {
             gasketName : "main",
             displayMode : "compact",
             uiWidth : "all",
+            on_change : function(key, val) {
+                // 清除锚点的选择
+                if("href" == key) {
+                    this.update({anchor:null});
+                }
+            },
             fields : [{
                 key : "href",
                 icon : '<i class="fa fa-file"></i>',
@@ -31,7 +37,7 @@ return ZUI.def("ui.edit_link", {
                 uiType : "@input",
                 uiConf : {
                     assist : {
-                        icon : '<i class="zmdi zmdi-more"></i>',
+                        icon : '<i class="zmdi zmdi-caret-down"></i>',
                         uiType : "ui/form/c_list",
                         uiConf : {
                             drawOnSetData : true,
@@ -63,7 +69,67 @@ return ZUI.def("ui.edit_link", {
                 icon : '<i class="fa fa-anchor"></i>',
                 title : "i18n:hmaker.link.anchor",
                 tip : "i18n:hmaker.link.anchor_tip",
-                uiType : "@input"
+                uiType : "@input",
+                uiConf : {
+                    assist : {
+                        icon : '<i class="zmdi zmdi-caret-down"></i>',
+                        uiType : "ui/form/c_list",
+                        uiConf : {
+                            drawOnSetData : true,
+                            items : function(params, callback){
+                                // 得到要选择的页面
+                                var href = UI.gasket.main.getData("href");
+                                // console.log("href", href);
+                                // console.log("opt.pagePath", opt.pagePath)
+                                // console.log(opt.pageObj.ph)
+                                // console.log(opt.homeObj.ph)
+                                // 如果就是当前页面，那么直接在页面里搜索
+                                if(!href || opt.pagePath == href) {
+                                    var uiComs = opt.pageUI.getComList();
+                                    var list = [];
+                                    for(var i=0; i<uiComs.length; i++) {
+                                        var uiCom = uiComs[i];
+                                        var lib   = uiCom.getMyLibInfo();
+                                        // 忽略所有的组件内组件
+                                        if(lib && lib.isInLib)
+                                            continue;
+                                        // 计入
+                                        list.push({
+                                            id    : uiCom.getComId(),
+                                            ctype : uiCom.getComType(),
+                                            skin  : uiCom.getComSkin(),
+                                            lib   : lib
+                                        });
+                                    }
+                                    return list;
+                                }
+                                // 否则请求服务器，得到页面控件的列表
+                                Wn.exec('hmaker "id:' + opt.homeObj.id + href + '" com',
+                                    function(re){
+                                        var list = $z.fromJson(re || "[]");
+                                        $z.doCallback(callback, [list]);
+                                    });
+                            },
+                            escapeHtml : false,
+                            icon  : function(o){
+                                return UI.msg('hmaker.com.' + o.ctype + '.icon');
+                            },
+                            text : function(o) {
+                                var str = '<span>' + o.id + '</span>';
+                                str += '<em>' ;
+                                str += opt.text(o);
+                                str += '</em>';
+                                if(o.lib) {
+                                    str += '<u>' + o.lib.name + '</u>';
+                                }
+                                return str;
+                            },
+                            value : function(o) {
+                                return o.id;
+                            },
+                        },
+                    }
+                }
             }]
         }).render(function(){
             UI.defer_report("form");
@@ -98,6 +164,10 @@ return ZUI.def("ui.edit_link", {
                     href   : m[1],
                     anchor : m[3],
                 };
+            }
+            // 只有锚点咯
+            else if(/^#/.test(href)) {
+                data = {anchor:href.substring(1)};
             }
             // 只有链接咯
             else {

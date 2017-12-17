@@ -39,43 +39,23 @@ return ZUI.def("app.wn.hm_com_text", {
         var code = com.code || "";
         var html;
 
+        // 得到站点 HOME 路径
+        var oSiteHome  = UI.getHomeObj();
+        var phSiteHome = oSiteHome.ph;
+
+        // 得到当前网页路径
+        var oPage  = UI.pageUI().getCurrentEditObj();
+        var phPageDir = $z.getParentPath(oPage.ph);
+
         // 解析 Markdown
         if(code){
-            // 得到站点 HOME 路径
-            var oSiteHome  = UI.getHomeObj();
-            var phSiteHome = oSiteHome.ph;
-
-            // 得到当前网页路径
-            var oPage  = UI.pageUI().getCurrentEditObj();
-            var phPageDir = $z.getParentPath(oPage.ph);
-
             //console.log(phSiteHome, phPageDir);
 
             // 如果包括换行，则表示是 markdown 文本
             if(code.indexOf('\n') >=0 ){
                 html = $z.markdownToHtml(com.code, {
                     media : function(src) {
-                        // 找到对应的媒体文件
-                        var phMedia;
-
-                        // 绝对路径是相对于站点的根
-                        if(/^\//.test(src)){
-                            phMedia = Wn.appendPath(oSiteHome, src);
-                        }
-                        // 相对路径的话
-                        else {
-                            phMedia = Wn.appendPath(phPageDir, src);
-                        }
-
-                        // 合并路径中的 ..
-                        phMedia = $z.getCanonicalPath(phMedia);
-
-                        // 如果存在这个文件，则转换为 /o/read 的形式
-                        var oMedia = Wn.fetch(phMedia, true);
-                        if(oMedia){
-                            return "/o/read/id:" + oMedia.id;
-                        }
-                        return src;
+                        return UI.__tidy_src(src, oSiteHome, phPageDir);
                     }
                 });
                 html = '<article class="md-content">' + html + '</article>';
@@ -96,6 +76,50 @@ return ZUI.def("app.wn.hm_com_text", {
 
         // 更新 HTML
         UI.arena.html(html);
+
+        // 删掉空的 <p>
+        UI.arena.find("p").each(function(){
+            if(!$(this).html())
+                $(this).remove();
+        });
+
+        // 修改图片和多媒体的源
+        UI.arena.find('img').each(function(){
+            var jImg = $(this); 
+            var src  = jImg.attr("src");
+            var src2 = UI.__tidy_src(src, oSiteHome, phPageDir);
+            if(src!=src2) {
+                jImg.attr("src", src2);
+            }
+        });
+    },
+    //...............................................................
+    __tidy_src : function(src, oSiteHome, phPageDir) {
+        // 已经被整理过了
+        if(/^\/o\/read\/id:/.test(src))
+            return src;
+
+        // 找到对应的媒体文件
+        var phMedia;
+
+        // 绝对路径是相对于站点的根
+        if(/^\//.test(src)){
+            phMedia = Wn.appendPath(oSiteHome.ph, src);
+        }
+        // 相对路径的话
+        else {
+            phMedia = Wn.appendPath(phPageDir, src);
+        }
+
+        // 合并路径中的 ..
+        phMedia = $z.getCanonicalPath(phMedia);
+
+        // 如果存在这个文件，则转换为 /o/read 的形式
+        var oMedia = Wn.fetch(phMedia, true);
+        if(oMedia){
+            return "/o/read/id:" + oMedia.id;
+        }
+        return src;
     },
     //...............................................................
     getBlockPropFields : function(block) {

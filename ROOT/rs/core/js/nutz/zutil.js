@@ -4092,7 +4092,7 @@
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i];
                 var trim = $.trim(line);
-                var indent = zUtil.countStrHeadIndent(line);
+                var indent = zUtil.countStrHeadIndent(line, 2);
 
                 // 来吧，判断类型
                 // 空段落
@@ -4227,9 +4227,14 @@
                 var tagNames = {};
                 for (var i = 0; i < B.content.length; i++) {
                     var line = B.content[i];
+                    // 忽略空行
+                    if(!line)
+                        continue;
+                    // 首行以后每行前都加个换行符
                     if (i > 0) {
                         html += '<br>\n';
                     }
+                    // 写入本行内容
                     html += __line_to_html(line, tagNames);
                 }
                 // 如果段落里只有 IMG，做一下特殊标识
@@ -4269,35 +4274,51 @@
                     }
                     // EM: *xxx*
                     if (m[1]) {
-                        html += '<em>' + m[2] + '</em>';
+                        html += '<em>' + __line_to_html(m[2]) + '</em>';
                         // 记录标签
                         if (tagNames)
                             tagNames["em"] = true;
                     }
                     // B: **xxx**
                     else if (m[3]) {
-                        html += '<b>' + m[4] + '</b>';
+                        html += '<b>' + __line_to_html(m[4]) + '</b>';
                         // 记录标签
                         if (tagNames)
                             tagNames["b"] = true;
                     }
-                    // B: __xxx__
+                    // U: __xxx__
                     else if (m[5]) {
-                        html += '<b>' + m[6] + '</b>';
+                        html += '<u>' + __line_to_html(m[6]) + '</u>';
                         // 记录标签
                         if (tagNames)
                             tagNames["b"] = true;
                     }
                     // DEL: ~~xxx~~
                     else if (m[7]) {
-                        html += '<del>' + m[8] + '</del>';
+                        html += '<del>' + __line_to_html(m[8]) + '</del>';
                         // 记录标签
                         if (tagNames)
                             tagNames["del"] = true;
                     }
                     // CODE: `xxx`
                     else if (m[9]) {
-                        html += '<code>' + m[10] + '</code>';
+                        var s2 = m[10];
+                        // 特殊文字
+                        if ("?" == s2) {
+                            html += '<span><i class="fa fa-question-circle-o"></i></span>';
+                        }
+                        // fa
+                        else if (/^fa-.+$/.test(s2)) {
+                            html += '<span><i class="fa '+s2+'"></i></span>';
+                        }
+                        // zmdi
+                        else if (/^zmdi-.+$/.test(s2)) {
+                            html += '<span><i class="zmdi '+s2+'"></i></span>';
+                        }
+                        // 默认
+                        else {
+                            html += '<code>' + m[10] + '</code>';
+                        }
                         // 记录标签
                         if (tagNames)
                             tagNames["code"] = true;
@@ -4320,13 +4341,16 @@
                         }
                         // 得到文字
                         var text = m[15] || zUtil.getMajorName(href||"");
+                        //console.log("A", href, text)
                         // 锚点
-                        if (href && /^#.+$/.test(text)) {
+                        if (!href && /^#.+$/.test(text)) {
                             html += '<a name="' + text.substring(1) + '"></a>';
                         }
                         // 链接
                         else {
-                            html += '<a href="' + href + '">' + text + '</a>';
+                            html += '<a href="' + href + '">'
+                                    + __line_to_html(text)
+                                    + '</a>';
                         }
                         // 记录标签
                         if (tagNames)

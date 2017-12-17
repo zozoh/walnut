@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.nutz.lang.Strings;
 import org.nutz.plugins.zdoc.markdown.Markdown;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
@@ -30,6 +31,14 @@ public class hmc_text extends AbstractNoneValueCom {
 
         // 更新 HTML
         eleArena.appendElement("article").addClass("md-content").html(html);
+
+        // 删掉空的 <p>
+        Elements elePs = eleArena.getElementsByTag("P");
+        for (Element eleP : elePs) {
+            if (Strings.isBlank(eleP.html())) {
+                eleP.remove();
+            }
+        }
 
         return true;
     }

@@ -503,6 +503,9 @@ var methods = {
     */
     openEditLinkPanel : function(opt) {
         var UI = this;
+        var homeObj = UI.getHomeObj();
+        var pageUI  = UI.pageUI();
+        var pageObj = pageUI.getCurrentEditObj();
         POP.openUIPanel({
             title  : 'i18n:hmaker.link.edit',
             width  : 480,
@@ -510,7 +513,13 @@ var methods = {
             setup  : {
                 uiType : 'app/wn.hmaker2/support/edit_link',
                 uiConf : {
-                    homeObj : UI.getHomeObj()
+                    homeObj  : homeObj,
+                    pageObj  : pageObj,
+                    pageUI   : pageUI,
+                    pagePath : "/" + Wn.getRelativePath(homeObj, pageObj),
+                    text : function(o) {
+                        return UI.get_com_display_text(o.ctype, o.id, o.skin);
+                    }
                 }
             },
             ready : function(){

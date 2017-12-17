@@ -24,7 +24,7 @@ return ZUI.def("ui.form_com_edit-link", {
             var UI = this;
             var href = UI._get_data();
             UI.openEditLinkPanel({
-                data     : href,
+                href     : href,
                 callback : function(href){
                     UI._set_data(href, true);
                 }

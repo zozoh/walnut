@@ -113,6 +113,17 @@ var methods = {
         var mLib = this.getMyLibName();
         return cLib && !mLib;
     },
+    getMyLibInfo : function(){
+        var cLib = this.getComLibName();
+        var mLib = this.getMyLibName();
+        if(!cLib && !mLib)
+            return null;
+        return {
+            name      : cLib,
+            myLibName : mLib,
+            isInLib   : (cLib && !mLib)
+        };
+    },
     //........................................................
     // 获取一个组件的路径数组，每个元素为
     // {

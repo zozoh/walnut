@@ -906,10 +906,15 @@ return ZUI.def("app.wn.hmaker_page", {
         // 得到组件
         if(jCom.length > 0) {
             jCom = jCom.closest(".hm-com");
-            if("jQuery" == returnType)
+            // jQuery
+            if("jQuery" == returnType){
                 return jCom;
-            if("Element" == returnType)
+            }
+            // 元素
+            if("Element" == returnType){
                 return jCom[0];
+            }
+            // 组件对象
             return ZUI(jCom);
         }
     },
@@ -948,12 +953,7 @@ return ZUI.def("app.wn.hmaker_page", {
         // 返回
         var re = [];
         jComs.each(function(){
-            if("jQuery" == returnType)
-                re.push($(this));
-            else if("Element" == returnType)
-                re.push(this);
-            else 
-                re.push(ZUI(this));
+            re.push(UI.getCom(this, returnType));
         });
         return re;
     },
@@ -1508,8 +1508,8 @@ return ZUI.def("app.wn.hmaker_page", {
         // 设置 HTML 到编辑区
         var headHtml = '<head>';
         headHtml += UI.getCssTheme('<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker2/theme/hmaker_editing-{{theme}}.css">');
+        headHtml += '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome/css/font-awesome.css">';
         headHtml += '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">';
-        headHtml += '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome-4.5.0/css/font-awesome.css">';
         headHtml += '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">';
         headHtml += '<link rel="stylesheet" type="text/css" d="" href="/gu/rs/core/css/balloon.min.css">';
         headHtml += '</head>';

@@ -15,7 +15,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
-@JvmHdlParamArgs("^(line|c|site)$")
+@JvmHdlParamArgs(regex="^(obj|site)$", value="cqn")
 public class hmaker_links implements JvmHdl {
 
     @Override

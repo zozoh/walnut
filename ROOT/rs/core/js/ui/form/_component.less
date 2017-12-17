@@ -370,14 +370,25 @@
             span[it="icon"]{margin-right:@d2;}
             b[it="text"] {
                 font-weight: normal;
-                span {margin:0 @d2 0 0;}
-                em {color:@c2; font-size:0.8em; font-style: normal;}
+                span {margin-right:@d2;}
+                em {
+                    color:@c2; font-size:0.8em; font-style: normal;
+                    margin-right:@d2;
+                }
+                u {
+                    font-size:0.8em; color:@c3;
+                    text-decoration: none; display: inline-block;
+                    vertical-align: middle; 
+                    padding:0 @d1; border:1px solid @cborder1;
+                    border-radius: @d0;
+                }
             }
         }
         li[current] {
             color:@ch0_f; background: @ch0_b;
             b[it="text"] {
-                em {color:@ch0_f;}
+                em {color:@ch0_f; opacity: 0.6;}
+                u  {color:@ch0_f; border-color:@ch0_f; opacity: 0.6;}
             }
         }
     }
