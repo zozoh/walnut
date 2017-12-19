@@ -40,6 +40,36 @@ public class hmc_text extends AbstractNoneValueCom {
             }
         }
 
+        // 清理 <div>
+        Elements eleDivs = eleArena.getElementsByTag("DIV");
+        Element br;
+        for (Element eleDiv : eleDivs) {
+            // 删掉 DIV 开头和结尾的 BR
+            Elements children = eleDiv.children();
+            if (children.size() > 0) {
+                br = children.first();
+                if ("BR".equalsIgnoreCase(br.tagName())) {
+                    br.remove();
+                }
+            }
+            if (children.size() > 1) {
+                br = children.last();
+                if ("BR".equalsIgnoreCase(br.tagName())) {
+                    br.remove();
+                }
+            }
+            // 删掉 DIV 前的 BR
+            br = eleDiv.previousElementSibling();
+            if (null != br && "BR".equalsIgnoreCase(br.tagName())) {
+                br.remove();
+            }
+            // 删掉 DIV 后的 BR
+            br = eleDiv.nextElementSibling();
+            if (null != br && "BR".equalsIgnoreCase(br.tagName())) {
+                br.remove();
+            }
+        }
+
         return true;
     }
 

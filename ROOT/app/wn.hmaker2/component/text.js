@@ -83,6 +83,36 @@ return ZUI.def("app.wn.hm_com_text", {
                 $(this).remove();
         });
 
+        // 清理 <div>
+        UI.arena.find("div").each(function(){
+            var jDiv = $(this);
+            var br;
+            // 删掉 DIV 开头和结尾的 BR
+            var children = jDiv.children();
+            if (children.size() > 0) {
+                br = children.first();
+                if ("BR" == br[0].tagName) {
+                    br.remove();
+                }
+            }
+            if (children.size() > 1) {
+                br = children.last();
+                if ("BR" == br[0].tagName) {
+                    br.remove();
+                }
+            }
+            // 删掉 DIV 前的 BR
+            br = jDiv.prev();
+            if (br.size() > 0 && "BR" == br[0].tagName) {
+                br.remove();
+            }
+            // 删掉 DIV 后的 BR
+            br = jDiv.next();
+            if (br.size() > 0 && "BR" == br[0].tagName) {
+                br.remove();
+            }
+        });
+
         // 修改图片和多媒体的源
         UI.arena.find('img').each(function(){
             var jImg = $(this); 

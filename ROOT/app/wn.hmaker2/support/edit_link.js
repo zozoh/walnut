@@ -147,8 +147,12 @@ return ZUI.def("ui.edit_link", {
         var re = [];
         if(data.href)
             re.push(data.href);
-        if(data.anchor)
-            re.push("#" + data.anchor);
+        if(data.anchor){
+            if(/^#/.test(data.anchor))
+                re.push(data.anchor);
+            else    
+                re.push("#" + data.anchor);
+        }
 
         return re.join("");
     },
