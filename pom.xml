@@ -47,8 +47,18 @@
 				<enabled>false</enabled>
 			</releases>
 		</repository>
+		<repository>
+			<id>onebeartoe</id>
+			<name>onebeartoe</name>
+			<url>https://repository-onebeartoe.forge.cloudbees.com/snapshot/</url>
+		</repository>
 	</repositories>
 	<dependencies>
+		<dependency>
+			<groupId>edu.uci.ics</groupId>
+			<artifactId>crawler4j</artifactId>
+			<version>4.4-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -103,10 +113,10 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-            <groupId>org.nutz</groupId>
-            <artifactId>nutz-plugins-zdoc</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+			<groupId>org.nutz</groupId>
+			<artifactId>nutz-plugins-zdoc</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz-integration-json4excel</artifactId>

@@ -12,6 +12,7 @@ import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 import org.nutz.lang.LoopException;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -22,6 +23,12 @@ import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
+
+import edu.uci.ics.crawler4j.crawler.CrawlConfig;
+import edu.uci.ics.crawler4j.crawler.CrawlController;
+import edu.uci.ics.crawler4j.fetcher.PageFetcher;
+import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
+import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 
 /**
  * 爬网站
@@ -46,9 +53,24 @@ public class cmd_sitesucker extends JvmExecutor {
             webObj = sys.getCurrentObj();
         }
 
-        // TODO 下载指定网站
+        // 下载指定网站
         if (params.has("url")) {
+            String crawlStorageFolder = Disks.normalize("~/tmp/crawler4j");
+            int numberOfCrawlers = 7;
 
+            CrawlConfig config = new CrawlConfig();
+            config.setCrawlStorageFolder(crawlStorageFolder);
+
+            PageFetcher pageFetcher = new PageFetcher(config);
+            RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
+            RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
+            CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
+
+            controller.addSeed("http://nutzam.com");
+            controller.addSeed("http://nutzam.com/core/");
+
+            SiteCrawlerFactory factory = new SiteCrawlerFactory(sys, params);
+            controller.startNonBlocking(factory, numberOfCrawlers);
         }
 
         // 获取某个网页的外链信息
