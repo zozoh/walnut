@@ -24,12 +24,6 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
-import edu.uci.ics.crawler4j.crawler.CrawlConfig;
-import edu.uci.ics.crawler4j.crawler.CrawlController;
-import edu.uci.ics.crawler4j.fetcher.PageFetcher;
-import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
-import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
-
 /**
  * 爬网站
  * 
@@ -58,19 +52,21 @@ public class cmd_sitesucker extends JvmExecutor {
             String crawlStorageFolder = Disks.normalize("~/tmp/crawler4j");
             int numberOfCrawlers = 7;
 
-            CrawlConfig config = new CrawlConfig();
-            config.setCrawlStorageFolder(crawlStorageFolder);
-
-            PageFetcher pageFetcher = new PageFetcher(config);
-            RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
-            RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
-            CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
-
-            controller.addSeed("http://nutzam.com");
-            controller.addSeed("http://nutzam.com/core/");
-
-            SiteCrawlerFactory factory = new SiteCrawlerFactory(sys, params);
-            controller.startNonBlocking(factory, numberOfCrawlers);
+            // CrawlConfig config = new CrawlConfig();
+            // config.setCrawlStorageFolder(crawlStorageFolder);
+            //
+            // PageFetcher pageFetcher = new PageFetcher(config);
+            // RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
+            // RobotstxtServer robotstxtServer = new
+            // RobotstxtServer(robotstxtConfig, pageFetcher);
+            // CrawlController controller = new CrawlController(config,
+            // pageFetcher, robotstxtServer);
+            //
+            // controller.addSeed("http://nutzam.com");
+            // controller.addSeed("http://nutzam.com/core/");
+            //
+            // SiteCrawlerFactory factory = new SiteCrawlerFactory(sys, params);
+            // controller.startNonBlocking(factory, numberOfCrawlers);
         }
 
         // 获取某个网页的外链信息
