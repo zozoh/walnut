@@ -417,8 +417,14 @@ return ZUI.def("ui.menu", {
             $pel: jq,
             gasketName: sgasket,
             items: mi.options,
-            on_change: function (v) {
-                console.log("dl: " + v);
+            on_change: function (val) {
+                var context = UI.options.context || UI.parent || UI;
+                // 调用回调
+                $z.invoke(mi, "on_change", [val, mi], context);
+
+                if(_.isFunction(context.trigger)){
+                    context.trigger("menu:"+(mi.key||"select"), val);
+                }
             }
         }).render(function () {
             this.setData(mi.dft);
