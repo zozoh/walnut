@@ -2273,7 +2273,7 @@
             }
             // 日期对象
             if (_.isDate(str)) {
-                return new Date(str);
+                return str;
             }
             // 数字则表示绝对毫秒数
             if (_.isNumber(str)) {
