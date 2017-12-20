@@ -64,7 +64,7 @@ dependencies {
     
     compile group: 'org.apache.commons', name: 'commons-email', version:'1.4'
     compile group: 'org.jsoup', name: 'jsoup', version:'1.8.3'
-    compile group: 'org.nutz', name: 'nutzmongo', version:nutz_version
+    compile group: 'org.nutz', name: 'nutz-plugins-mongodb', version:nutz_version
     compile group: 'org.nutz', name: 'nutzwx', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-qrcode', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-integration-json4excel', version:nutz_version
@@ -72,9 +72,6 @@ dependencies {
     compile group: 'org.nutz', name: 'nutz-plugins-ip2region', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-zcron', version:nutz_version
     compile group: 'org.nutz', name: 'lessc4j', version:'2.7.2-SNAPSHOT'
-    compile ("org.nutz:nutz-plugins-ml:1.r.62-SNAPSHOT") { 
-    	exclude group:'org.nutz', module: 'nutz'
-    }
     compile ('org.nutz:nutz-quartz:1.r.61-SNAPSHOT') { 
     	exclude group:'org.nutz', module: 'nutz'
     }
