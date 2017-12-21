@@ -64,7 +64,28 @@ return ZUI.def("ui.th_search", {
                     }
                 }
             }),
-            sorter : conf.searchSorter,
+            sorter : $z.fallbackUndefined(conf.searchSorter, {
+                    setup : [{
+                            text : "按创建时间",
+                            value : {ct:-1},
+                        }, {
+                            text : "按最后修改时间",
+                            value : {lm:-1},
+                        }, {
+                            text : "按名称",
+                            value : {th_nm:1},
+                        }, {
+                            text : "按类别",
+                            value : {th_cate:1},
+                        }, {
+                            text : "按日期正序",
+                            value : {th_date:1},
+                        }, {
+                            text : "按日期倒序",
+                            value : {th_date:-1},
+                        }],
+                    storeKey : "th_search_sort_" + o.id
+                }),
             pager : conf.searchPager,
         })).render(function(){
             this.refresh(function(){
